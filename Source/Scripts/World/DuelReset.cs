@@ -36,7 +36,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 
 				winner.
 				SpellHistory.RestoreCooldownStateAfterDuel();
-				loser.				SpellHistory.RestoreCooldownStateAfterDuel();
+				loser.SpellHistory.RestoreCooldownStateAfterDuel();
 			}
 
 			// Health and mana restore
@@ -64,8 +64,8 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 		// Cooldowns reset
 		if (_resetCooldowns)
 		{
-			player1.			SpellHistory.SaveCooldownStateBeforeDuel();
-			player2.			SpellHistory.SaveCooldownStateBeforeDuel();
+			player1.SpellHistory.SaveCooldownStateBeforeDuel();
+			player2.SpellHistory.SaveCooldownStateBeforeDuel();
 
 			ResetSpellCooldowns(player1, true);
 			ResetSpellCooldowns(player2, true);
@@ -87,7 +87,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 	private static void ResetSpellCooldowns(Player player, bool onStartDuel)
 	{
 		// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
-		player.		// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
+		player.// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
 		SpellHistory
 			.ResetCooldowns(pair =>
 							{
@@ -123,6 +123,6 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 		var pet = player.CurrentPet;
 
 		if (pet)
-			pet.			SpellHistory.ResetAllCooldowns();
+			pet.SpellHistory.ResetAllCooldowns();
 	}
 }

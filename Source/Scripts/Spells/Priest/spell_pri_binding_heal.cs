@@ -18,9 +18,9 @@ public class spell_pri_binding_heal : SpellScript, ISpellAfterCast
 			return;
 
 		if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
-			caster.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
+			caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
 
 		if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SERENITY))
-			caster.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SERENITY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
+			caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SERENITY, TimeSpan.FromSeconds(-3 * Time.InMilliseconds));
 	}
 }

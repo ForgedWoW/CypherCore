@@ -1599,7 +1599,7 @@ public abstract class WorldObject : IDisposable
 			if (thisPlayer != null)
 			{
 				if (thisPlayer.IsDead &&
-					thisPlayer.					Health > 0 && // Cheap way to check for ghost state
+					thisPlayer.Health > 0 && // Cheap way to check for ghost state
 					!Convert.ToBoolean(obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & (uint)GhostVisibilityType.Ghost))
 				{
 					var corpse = thisPlayer.GetCorpse();

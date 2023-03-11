@@ -43,6 +43,6 @@ public class spell_dh_shear_proc : AuraScript, IHasAuraEffects
 
 		if (caster.SpellHistory.HasCooldown(DemonHunterSpells.FELBLADE))
 			if (RandomHelper.randChance(caster.GetAuraEffectAmount(DemonHunterSpells.SHEAR_PROC, 3)))
-				caster.				SpellHistory.ResetCooldown(DemonHunterSpells.FELBLADE);
+				caster.SpellHistory.ResetCooldown(DemonHunterSpells.FELBLADE);
 	}
 }

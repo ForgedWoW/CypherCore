@@ -23,7 +23,7 @@ public class CastSpellTargetArg
 			if (unitTarget != null)
 			{
 				Targets = new SpellCastTargets();
-				Targets.				UnitTarget = unitTarget;
+				Targets.UnitTarget = unitTarget;
 			}
 			else
 			{
@@ -32,7 +32,7 @@ public class CastSpellTargetArg
 				if (goTarget != null)
 				{
 					Targets = new SpellCastTargets();
-					Targets.					GOTarget = goTarget;
+					Targets.GOTarget = goTarget;
 				}
 				else
 				{

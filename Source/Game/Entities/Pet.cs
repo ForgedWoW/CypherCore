@@ -120,7 +120,7 @@ public class Pet : Guardian
 		{
 			// Don't call the function for Creature, normal mobs + totems go in a different storage
 			base.RemoveFromWorld();
-			Map.			ObjectsStore.Remove(GUID);
+			Map.ObjectsStore.Remove(GUID);
 		}
 	}
 
@@ -214,7 +214,7 @@ public class Pet : Guardian
 
 		if (current && owner.IsPetNeedBeTemporaryUnsummoned())
 		{
-			owner.			TemporaryUnsummonedPetNumber = petInfo.PetNumber;
+			owner.TemporaryUnsummonedPetNumber = petInfo.PetNumber;
 
 			return false;
 		}
@@ -385,7 +385,7 @@ public class Pet : Guardian
 
 		//set last used pet number (for use in BG's)
 		if (owner.IsPlayer && IsControlled() && !IsTemporarySummoned() && (GetPetType() == PetType.Summon || GetPetType() == PetType.Hunter))
-			owner.AsPlayer.			LastPetNumber = petInfo.PetNumber;
+			owner.AsPlayer.LastPetNumber = petInfo.PetNumber;
 
 		var session = owner.Session;
 		var lastSaveTime = petInfo.LastSaveTime;
@@ -481,8 +481,8 @@ public class Pet : Guardian
 
 		// not save pet as current if another pet temporary unsummoned
 		if (mode == PetSaveMode.AsCurrent &&
-			owner.			TemporaryUnsummonedPetNumber != 0 &&
-			owner.			TemporaryUnsummonedPetNumber != GetCharmInfo().GetPetNumber())
+			owner.TemporaryUnsummonedPetNumber != 0 &&
+			owner.TemporaryUnsummonedPetNumber != GetCharmInfo().GetPetNumber())
 		{
 			// pet will lost anyway at restore temporary unsummoned
 			if (GetPetType() == PetType.Hunter)

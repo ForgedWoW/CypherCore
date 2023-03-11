@@ -24,7 +24,7 @@ public class spell_sha_stormbringer : AuraScript, IAuraCheckProc, IAuraOnProc
 		if (caster != null)
 		{
 			caster.CastSpell(caster, ShamanSpells.STORMBRINGER_PROC, true);
-			caster.			SpellHistory.ResetCooldown(ShamanSpells.STORMSTRIKE, true);
+			caster.SpellHistory.ResetCooldown(ShamanSpells.STORMSTRIKE, true);
 		}
 	}
 }

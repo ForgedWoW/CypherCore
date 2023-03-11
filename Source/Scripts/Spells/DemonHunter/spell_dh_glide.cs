@@ -24,7 +24,7 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 
 		caster.
 		SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.VengefulRetreatTrigger, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
-		caster.		SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FelRush, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FelRush, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
 	}
 
 	public override bool Validate(SpellInfo spellInfo)

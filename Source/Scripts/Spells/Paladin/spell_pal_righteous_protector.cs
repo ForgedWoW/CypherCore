@@ -46,6 +46,6 @@ internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
 
 		Target.
 		SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
-		Target.		SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
+		Target.SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
 	}
 }

@@ -1365,7 +1365,7 @@ public class Item : WorldObject
 
 		if (owner)
 		{
-			owner.			Map.AddUpdateObject(this);
+			owner.Map.AddUpdateObject(this);
 
 			return true;
 		}
@@ -1378,7 +1378,7 @@ public class Item : WorldObject
 		var owner = OwnerUnit;
 
 		if (owner)
-			owner.			Map.RemoveUpdateObject(this);
+			owner.Map.RemoveUpdateObject(this);
 	}
 
 	public void SaveRefundDataToDB()

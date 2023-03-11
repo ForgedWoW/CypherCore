@@ -105,17 +105,17 @@ internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, I
 				switch (player.GetPrimarySpecialization())
 				{
 					case TalentSpecialization.WarlockAffliction:
-						player.						SpellHistory.ModifyCooldown(WarlockSpells.SUMMON_DARKGLARE, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(0).Amount));
+						player.SpellHistory.ModifyCooldown(WarlockSpells.SUMMON_DARKGLARE, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(0).Amount));
 
 						break;
 
 					case TalentSpecialization.WarlockDemonology:
-						player.						SpellHistory.ModifyCooldown(WarlockSpells.SUMMON_DEMONIC_TYRANT, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(1).Amount));
+						player.SpellHistory.ModifyCooldown(WarlockSpells.SUMMON_DEMONIC_TYRANT, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(1).Amount));
 
 						break;
 
 					case TalentSpecialization.WarlockDestruction:
-						player.						SpellHistory.ModifyCooldown(WarlockSpells.SUMMON_INFERNAL, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(2).Amount));
+						player.SpellHistory.ModifyCooldown(WarlockSpells.SUMMON_INFERNAL, TimeSpan.FromMilliseconds(-grandDesign.GetEffect(2).Amount));
 
 						break;
 				}

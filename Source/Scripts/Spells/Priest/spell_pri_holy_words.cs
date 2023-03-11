@@ -68,6 +68,6 @@ internal class spell_pri_holy_words : AuraScript, IHasAuraEffects
 
 		var targetSpellInfo = Global.SpellMgr.GetSpellInfo(targetSpellId, CastDifficulty);
 		var cdReduction = targetSpellInfo.GetEffect(cdReductionEffIndex).CalcValue(Target);
-		Target.		SpellHistory.ModifyCooldown(targetSpellInfo, TimeSpan.FromSeconds(-cdReduction), true);
+		Target.SpellHistory.ModifyCooldown(targetSpellInfo, TimeSpan.FromSeconds(-cdReduction), true);
 	}
 }

@@ -120,7 +120,7 @@ public class Vehicle : ITransport, IDisposable
 			_me.CastSpell(unit, SharedConst.VehicleSpellParachute, true);
 
 		if (_me.IsTypeId(TypeId.Unit) && _me.AsCreature.IsAIEnabled)
-			_me.AsCreature.			AI.PassengerBoarded(unit, seat.Key, false);
+			_me.AsCreature.AI.PassengerBoarded(unit, seat.Key, false);
 
 		if (GetBase().IsTypeId(TypeId.Unit))
 			Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());

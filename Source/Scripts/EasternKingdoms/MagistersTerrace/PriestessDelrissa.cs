@@ -238,7 +238,7 @@ internal class boss_priestess_delrissa : BossAI
 
 									if (pAdd != null &&
 										pAdd.IsAlive &&
-										pAdd.										Health < health)
+										pAdd.Health < health)
 										target = pAdd;
 								}
 
@@ -1155,7 +1155,7 @@ internal class boss_zelfan : boss_priestess_lackey_common
 									var pAdd = Global.ObjAccessor.GetUnit(Me, guid);
 
 									if (pAdd != null &&
-										pAdd.										IsPolymorphed)
+										pAdd.IsPolymorphed)
 									{
 										DoCast(pAdd, SpellIds.Recombobulate);
 

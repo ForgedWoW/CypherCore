@@ -19,6 +19,6 @@ public class spell_pri_holy_nova : SpellScript, ISpellOnHit
 
 		if (target != null)
 			if (RandomHelper.randChance(20))
-				caster.				SpellHistory.ResetCooldown(PriestSpells.HOLY_FIRE, true);
+				caster.SpellHistory.ResetCooldown(PriestSpells.HOLY_FIRE, true);
 	}
 }

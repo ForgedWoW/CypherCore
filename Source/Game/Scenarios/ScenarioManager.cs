@@ -50,8 +50,8 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			Log.outError(LogFilter.Scenario,
 						"Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
 						scenarioID,
-						map.						Id,
-						map.						DifficultyID);
+						map.Id,
+						map.DifficultyID);
 
 			return null;
 		}

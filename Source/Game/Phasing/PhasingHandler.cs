@@ -674,7 +674,7 @@ public class PhasingHandler
 			if (updateVisibility)
 			{
 				if (player)
-					player.					Map.SendUpdateTransportVisibility(player);
+					player.Map.SendUpdateTransportVisibility(player);
 
 				obj.UpdateObjectVisibility();
 			}

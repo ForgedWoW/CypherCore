@@ -638,7 +638,7 @@ namespace System.Collections.Generic
 
         public static HashSet<int> Fill(this HashSet<int> set, int max)
         {
-            for (int i = 0; i <= max; i++)
+            for (int i = 0; i < max; i++)
                 set.Add(i);
 
             return set;

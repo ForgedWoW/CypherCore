@@ -29,7 +29,7 @@ internal class spell_hun_hunting_party : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		Target.		SpellHistory.ModifyCooldown(HunterSpells.Exhilaration, -TimeSpan.FromSeconds(aurEff.Amount));
-		Target.		SpellHistory.ModifyCooldown(HunterSpells.ExhilarationPet, -TimeSpan.FromSeconds(aurEff.Amount));
+		Target.SpellHistory.ModifyCooldown(HunterSpells.Exhilaration, -TimeSpan.FromSeconds(aurEff.Amount));
+		Target.SpellHistory.ModifyCooldown(HunterSpells.ExhilarationPet, -TimeSpan.FromSeconds(aurEff.Amount));
 	}
 }

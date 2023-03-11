@@ -355,10 +355,10 @@ public partial class Creature : Unit
 		// Register the creature for guid lookup
 		if (!IsInWorld)
 		{
-			Map.			ObjectsStore.Add(GUID, this);
+			Map.ObjectsStore.Add(GUID, this);
 
 			if (SpawnId != 0)
-				Map.				CreatureBySpawnIdStore.Add(SpawnId, this);
+				Map.CreatureBySpawnIdStore.Add(SpawnId, this);
 
 			base.AddToWorld();
 			SearchFormation();
@@ -385,7 +385,7 @@ public partial class Creature : Unit
 			base.RemoveFromWorld();
 
 			if (SpawnId != 0)
-				Map.				CreatureBySpawnIdStore.Remove(SpawnId, this);
+				Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
 
 			Map.
 			ObjectsStore.Remove(GUID);

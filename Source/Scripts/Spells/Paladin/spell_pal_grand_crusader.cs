@@ -32,6 +32,6 @@ internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEf
 
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		Target.		SpellHistory.ResetCooldown(PaladinSpells.AvengersShield, true);
+		Target.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield, true);
 	}
 }

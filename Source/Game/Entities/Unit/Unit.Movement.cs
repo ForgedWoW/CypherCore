@@ -843,8 +843,8 @@ public partial class Unit
 
 			if (mountCapability.ReqMapID != -1 &&
 				Location.MapId != mountCapability.ReqMapID &&
-				Map.				Entry.CosmeticParentMapID != mountCapability.ReqMapID &&
-				Map.				Entry.ParentMapID != mountCapability.ReqMapID)
+				Map.Entry.CosmeticParentMapID != mountCapability.ReqMapID &&
+				Map.Entry.ParentMapID != mountCapability.ReqMapID)
 				continue;
 
 			if (mountCapability.ReqAreaID != 0 && !Global.DB2Mgr.IsInArea(areaId, mountCapability.ReqAreaID))

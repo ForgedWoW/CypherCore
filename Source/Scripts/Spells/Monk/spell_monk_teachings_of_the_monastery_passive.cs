@@ -44,7 +44,7 @@ public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAur
 			var spellInfo = Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_SUN_KICK, Difficulty.None);
 
 			if (spellInfo != null)
-				Target.				SpellHistory.RestoreCharge(spellInfo.ChargeCategoryId);
+				Target.SpellHistory.RestoreCharge(spellInfo.ChargeCategoryId);
 		}
 	}
 }

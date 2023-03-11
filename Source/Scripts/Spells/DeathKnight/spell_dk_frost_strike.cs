@@ -20,7 +20,7 @@ public class spell_dk_frost_strike : SpellScript, ISpellOnHit
 
 		if (caster.HasAura(DeathKnightSpells.ICECAP))
 			if (caster.SpellHistory.HasCooldown(DeathKnightSpells.PILLAR_OF_FROST))
-				caster.				SpellHistory.ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
+				caster.SpellHistory.ModifyCooldown(DeathKnightSpells.PILLAR_OF_FROST, TimeSpan.FromSeconds(-3000));
 
 		if (caster.HasAura(DeathKnightSpells.OBLITERATION) && caster.HasAura(DeathKnightSpells.PILLAR_OF_FROST))
 			caster.CastSpell(null, DeathKnightSpells.KILLING_MACHINE, true);

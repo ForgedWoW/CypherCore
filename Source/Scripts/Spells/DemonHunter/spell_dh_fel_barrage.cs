@@ -34,7 +34,7 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
 
 		while (caster.SpellHistory.HasCharge(chargeCategoryId))
 		{
-			caster.			SpellHistory.ConsumeCharge(chargeCategoryId);
+			caster.SpellHistory.ConsumeCharge(chargeCategoryId);
 			_charges++;
 		}
 

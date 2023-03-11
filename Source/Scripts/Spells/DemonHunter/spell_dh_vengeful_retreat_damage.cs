@@ -52,7 +52,7 @@ public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, I
 			if (caster.HasAura(DemonHunterSpells.RUSHING_VAULT))
 			{
 				var chargeCatId = Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_RUSH, Difficulty.None).ChargeCategoryId;
-				caster.				SpellHistory.RestoreCharge(chargeCatId);
+				caster.SpellHistory.RestoreCharge(chargeCatId);
 			}
 		}
 	}

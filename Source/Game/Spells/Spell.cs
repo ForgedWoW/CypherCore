@@ -910,7 +910,7 @@ public partial class Spell : IDisposable
 
 			// queue autorepeat spells for future repeating
 			if (GetCurrentContainer() == CurrentSpellTypes.AutoRepeat && _caster.IsUnit)
-				_caster.				AsUnit.SetCurrentCastSpell(this);
+				_caster.AsUnit.SetCurrentCastSpell(this);
 
 			Finish(result);
 
@@ -942,9 +942,9 @@ public partial class Spell : IDisposable
 			var focusTarget = !SpellInfo.IsChanneled && !_triggeredCastFlags.HasFlag(TriggerCastFlags.IgnoreSetFacing);
 
 			if (focusTarget && Targets.ObjectTarget && _caster != Targets.ObjectTarget)
-				_caster.				AsCreature.SetSpellFocus(this, Targets.ObjectTarget);
+				_caster.AsCreature.SetSpellFocus(this, Targets.ObjectTarget);
 			else
-				_caster.				AsCreature.SetSpellFocus(this, null);
+				_caster.AsCreature.SetSpellFocus(this, null);
 		}
 
 		CallScriptOnPrecastHandler();
@@ -997,7 +997,7 @@ public partial class Spell : IDisposable
 
 			if (caster != null)
 				if (caster.IsAIEnabled)
-					caster.					AI.OnSpellStart(SpellInfo);
+					caster.AI.OnSpellStart(SpellInfo);
 
 			if (willCastDirectly)
 				Cast(true);
@@ -1301,7 +1301,7 @@ public partial class Spell : IDisposable
 
 					if (creatureCaster != null)
 						if (creatureCaster.IsAIEnabled)
-							creatureCaster.							AI.OnChannelFinished(SpellInfo);
+							creatureCaster.AI.OnChannelFinished(SpellInfo);
 				}
 
 				break;
@@ -1391,7 +1391,7 @@ public partial class Spell : IDisposable
 			// on failure (or manual cancel) send TraitConfigCommitFailed to revert talent UI saved config selection
 			if (_caster.IsPlayer && SpellInfo.HasEffect(SpellEffectName.ChangeActiveCombatTraitConfig))
 				if (CustomArg is TraitConfig)
-					_caster.					AsPlayer.SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
+					_caster.AsPlayer.SendPacket(new TraitConfigCommitFailed((CustomArg as TraitConfig).ID));
 
 			return;
 		}
@@ -1429,7 +1429,7 @@ public partial class Spell : IDisposable
 		// potions disabled by client, send event "not in combat" if need
 		if (unitCaster.IsTypeId(TypeId.Player))
 			if (TriggeredByAuraSpell == null)
-				unitCaster.				AsPlayer.UpdatePotionCooldown(this);
+				unitCaster.AsPlayer.UpdatePotionCooldown(this);
 
 		// Stop Attack for some spells
 		if (SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat))
@@ -1453,7 +1453,7 @@ public partial class Spell : IDisposable
 		CastFailed castFailed = new();
 		castFailed.Visual = SpellVisual;
 		FillSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, _caster.AsPlayer);
-		_caster.		AsPlayer.SendPacket(castFailed);
+		_caster.AsPlayer.SendPacket(castFailed);
 	}
 
 	public void SendPetCastResult(SpellCastResult result, int? param1 = null, int? param2 = null)
@@ -1471,7 +1471,7 @@ public partial class Spell : IDisposable
 
 		PetCastFailed petCastFailed = new();
 		FillSpellCastFailedArgs(petCastFailed, CastId, SpellInfo, result, SpellCustomErrors.None, param1, param2, owner.AsPlayer);
-		owner.		AsPlayer.SendPacket(petCastFailed);
+		owner.AsPlayer.SendPacket(petCastFailed);
 	}
 
 	public static void SendCastResult(Player caster, SpellInfo spellInfo, SpellCastVisual spellVisual, ObjectGuid castCount, SpellCastResult result, SpellCustomErrors customError = SpellCustomErrors.None, int? param1 = null, int? param2 = null)
@@ -1510,7 +1510,7 @@ public partial class Spell : IDisposable
 		if (time == 0)
 		{
 			unitCaster.ClearChannelObjects();
-			unitCaster.			ChannelSpellId = 0;
+			unitCaster.ChannelSpellId = 0;
 			unitCaster.SetChannelVisual(new SpellCastVisualField());
 		}
 
@@ -2215,13 +2215,13 @@ public partial class Spell : IDisposable
 
 					// we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM_TARGET
 					if (spellEffectInfo.TargetA.Target == Framework.Constants.Targets.GameobjectItemTarget &&
-						Targets.						GOTarget == null &&
+						Targets.GOTarget == null &&
 						(pTempItem == null || pTempItem.GetTemplate().GetLockID() == 0 || !pTempItem.IsLocked()))
 						return SpellCastResult.BadTargets;
 
 					if (SpellInfo.Id != 1842 ||
 						(Targets.GOTarget != null &&
-						Targets.						GOTarget.						GoInfo.type != GameObjectTypes.Trap))
+						Targets.GOTarget.GoInfo.type != GameObjectTypes.Trap))
 						if (_caster.AsPlayer.InBattleground && // In Battlegroundplayers can use only flags and banners
 							!_caster.AsPlayer.CanUseBattlegroundObject(Targets.GOTarget))
 							return SpellCastResult.TryAgain;
@@ -3418,7 +3418,7 @@ public partial class Spell : IDisposable
 				}
 
 				if (redirect != null && (redirect != target))
-					Targets.					UnitTarget = redirect;
+					Targets.UnitTarget = redirect;
 			}
 	}
 
@@ -3651,7 +3651,7 @@ public partial class Spell : IDisposable
 								dest.Position.Orientation = spellEffectInfo.PositionFacing;
 
 							CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-							Targets.							Dst = dest;
+							Targets.Dst = dest;
 						}
 					}
 					else
@@ -3670,7 +3670,7 @@ public partial class Spell : IDisposable
 					dest.Position.Orientation = spellEffectInfo.PositionFacing;
 
 				CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-				Targets.				Dst = dest;
+				Targets.Dst = dest;
 
 				break;
 			}
@@ -3753,7 +3753,7 @@ public partial class Spell : IDisposable
 								dest.Position.Orientation = spellEffectInfo.PositionFacing;
 
 							CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-							Targets.							Dst = dest;
+							Targets.Dst = dest;
 						}
 						else
 						{
@@ -3852,7 +3852,7 @@ public partial class Spell : IDisposable
 					dest.Position.Orientation = spellEffectInfo.PositionFacing;
 
 				CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-				Targets.				Dst = dest;
+				Targets.Dst = dest;
 
 				break;
 			default:
@@ -4294,7 +4294,7 @@ public partial class Spell : IDisposable
 			dest.Position.Orientation = spellEffectInfo.PositionFacing;
 
 		CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-		Targets.		Dst = dest;
+		Targets.Dst = dest;
 	}
 
 	void SelectImplicitTargetDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
@@ -4330,7 +4330,7 @@ public partial class Spell : IDisposable
 			dest.Position.Orientation = spellEffectInfo.PositionFacing;
 
 		CallScriptDestinationTargetSelectHandlers(ref dest, spellEffectInfo.EffectIndex, targetType);
-		Targets.		Dst = dest;
+		Targets.Dst = dest;
 	}
 
 	void SelectImplicitDestDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
@@ -5832,7 +5832,7 @@ public partial class Spell : IDisposable
 			{
 				_spellState = SpellState.Casting;
 				// GameObjects shouldn't cast channeled spells
-				_caster.				// GameObjects shouldn't cast channeled spells
+				_caster.// GameObjects shouldn't cast channeled spells
 				AsUnit?.AddInterruptMask(SpellInfo.ChannelInterruptFlags, SpellInfo.ChannelInterruptFlags2);
 			}
 		}
@@ -5944,12 +5944,12 @@ public partial class Spell : IDisposable
 			return;
 
 		if (CastItem)
-			_caster.			AsUnit.			SpellHistory.HandleCooldowns(SpellInfo, CastItem, this);
+			_caster.AsUnit.SpellHistory.HandleCooldowns(SpellInfo, CastItem, this);
 		else
-			_caster.			AsUnit.			SpellHistory.HandleCooldowns(SpellInfo, CastItemEntry, this);
+			_caster.AsUnit.SpellHistory.HandleCooldowns(SpellInfo, CastItemEntry, this);
 
 		if (IsAutoRepeat)
-			_caster.			AsUnit.ResetAttackTimer(WeaponAttackType.RangedAttack);
+			_caster.AsUnit.ResetAttackTimer(WeaponAttackType.RangedAttack);
 	}
 
 	private void UpdateEmpoweredSpell(uint difftime)
@@ -6366,7 +6366,7 @@ public partial class Spell : IDisposable
 			castFlags |= SpellCastFlags.PowerLeftSelf;
 
 		if (_caster.IsTypeId(TypeId.Player) &&
-			_caster.			AsPlayer.			Class == Class.Deathknight &&
+			_caster.AsPlayer.Class == Class.Deathknight &&
 			HasPowerTypeCost(PowerType.Runes) &&
 			!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnorePowerAndReagentCost))
 		{
@@ -6895,7 +6895,7 @@ public partial class Spell : IDisposable
 		if (expendable && withoutCharges)
 		{
 			uint count = 1;
-			_caster.			AsPlayer.DestroyItemCount(CastItem, ref count, true);
+			_caster.AsPlayer.DestroyItemCount(CastItem, ref count, true);
 
 			// prevent crash at access to deleted m_targets.GetItemTarget
 			if (CastItem == Targets.ItemTarget)
@@ -7491,8 +7491,8 @@ public partial class Spell : IDisposable
 
 			if (target != null &&
 				unitCaster != null &&
-				unitCaster.				IsMoving &&
-				target.				IsMoving &&
+				unitCaster.IsMoving &&
+				target.IsMoving &&
 				!unitCaster.IsWalking &&
 				!target.IsWalking &&
 				(SpellInfo.RangeEntry.Flags.HasFlag(SpellRangeFlag.Melee) || target.IsPlayer))

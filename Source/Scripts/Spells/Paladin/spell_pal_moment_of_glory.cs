@@ -17,6 +17,6 @@ internal class spell_pal_moment_of_glory : SpellScript, ISpellOnHit
 
 	public void OnHit()
 	{
-		Caster.		SpellHistory.ResetCooldown(PaladinSpells.AvengersShield);
+		Caster.SpellHistory.ResetCooldown(PaladinSpells.AvengersShield);
 	}
 }

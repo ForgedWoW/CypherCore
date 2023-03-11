@@ -32,8 +32,6 @@ namespace System
             foreach (var i in maxValues)
                 if ((mask & (1 << i)) != 0)
                     newSet.Add(i);
-                else
-                    break;
 
             return newSet;
         }

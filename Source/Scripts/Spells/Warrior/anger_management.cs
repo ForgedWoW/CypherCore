@@ -66,26 +66,26 @@ public class anger_management : ScriptObjectAutoAdd, IPlayerOnSpellCast,
 			{
 				var mod = CalculateCount(player, anger.GetEffect(0).Amount);
 				var ts = TimeSpan.FromSeconds(-1 * mod);
-				player.				SpellHistory.ModifyCooldown(262161, ts); // Warbreaker
-				player.				SpellHistory.ModifyCooldown(46924, ts);  // Bladestorm
-				player.				SpellHistory.ModifyCooldown(227847, ts); // Bladestorm
-				player.				SpellHistory.ModifyCooldown(167105, ts); // Colossus Smash
+				player.SpellHistory.ModifyCooldown(262161, ts); // Warbreaker
+				player.SpellHistory.ModifyCooldown(46924, ts);  // Bladestorm
+				player.SpellHistory.ModifyCooldown(227847, ts); // Bladestorm
+				player.SpellHistory.ModifyCooldown(167105, ts); // Colossus Smash
 			}
 			else if (spec == TalentSpecialization.WarriorFury)
 			{
 				var mod = CalculateCount(player, anger.GetEffect(2).Amount);
 				var ts = TimeSpan.FromSeconds(-1 * mod);
-				player.				SpellHistory.ModifyCooldown(1719, ts);   // Recklessness
-				player.				SpellHistory.ModifyCooldown(152277, ts); // Ravenger
+				player.SpellHistory.ModifyCooldown(1719, ts);   // Recklessness
+				player.SpellHistory.ModifyCooldown(152277, ts); // Ravenger
 			}
 			else if (spec == TalentSpecialization.WarriorProtection)
 			{
 				var mod = CalculateCount(player, anger.GetEffect(1).Amount);
 				var ts = TimeSpan.FromSeconds(-1 * mod);
-				player.				SpellHistory.ModifyCooldown(107574, ts); // Avatar
-				player.				SpellHistory.ModifyCooldown(12975, ts);  // Last Stand
-				player.				SpellHistory.ModifyCooldown(871, ts);    // Shield Wall
-				player.				SpellHistory.ModifyCooldown(1160, ts);   // Demoralizing Shout
+				player.SpellHistory.ModifyCooldown(107574, ts); // Avatar
+				player.SpellHistory.ModifyCooldown(12975, ts);  // Last Stand
+				player.SpellHistory.ModifyCooldown(871, ts);    // Shield Wall
+				player.SpellHistory.ModifyCooldown(1160, ts);   // Demoralizing Shout
 			}
 		}
 	}

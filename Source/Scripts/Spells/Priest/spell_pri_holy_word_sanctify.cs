@@ -21,7 +21,7 @@ public class spell_pri_holy_word_sanctify : SpellScript, IHasSpellEffects, ISpel
 		var player = Caster.AsPlayer;
 
 		if (player != null)
-			player.			SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
+			player.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORLD_SALVATION, TimeSpan.FromSeconds(-30000));
 	}
 
 	public override void Register()

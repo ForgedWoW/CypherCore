@@ -46,6 +46,6 @@ public class spell_rog_deepening_shadows_AuraScript : AuraScript, IHasAuraEffect
 			return;
 
 		if (Caster.HasAura(RogueSpells.DEEPENING_SHADOWS))
-			Caster.			SpellHistory.ModifyCooldown(RogueSpells.SHADOW_DANCE, TimeSpan.FromMilliseconds(_cp * -3000));
+			Caster.SpellHistory.ModifyCooldown(RogueSpells.SHADOW_DANCE, TimeSpan.FromMilliseconds(_cp * -3000));
 	}
 }

@@ -22,7 +22,7 @@ public class spell_monk_spear_hand_strike : SpellScript, ISpellOnHit
 				if (target.IsInFront(_player))
 				{
 					_player.CastSpell(target, MonkSpells.SPEAR_HAND_STRIKE_SILENCE, true);
-					_player.					SpellHistory.AddCooldown(116705, 0, TimeSpan.FromSeconds(15));
+					_player.SpellHistory.AddCooldown(116705, 0, TimeSpan.FromSeconds(15));
 				}
 		}
 	}

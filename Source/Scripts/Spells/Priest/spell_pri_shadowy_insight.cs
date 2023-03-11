@@ -28,6 +28,6 @@ public class spell_pri_shadowy_insight : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect UnnamedParameter, ProcEventInfo UnnamedParameter2)
 	{
-		Target.		SpellHistory.ResetCharges(Global.SpellMgr.AssertSpellInfo(PriestSpells.MIND_BLAST, Difficulty.None).ChargeCategoryId);
+		Target.SpellHistory.ResetCharges(Global.SpellMgr.AssertSpellInfo(PriestSpells.MIND_BLAST, Difficulty.None).ChargeCategoryId);
 	}
 }

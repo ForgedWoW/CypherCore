@@ -21,6 +21,6 @@ public class spell_dh_artifact_demon_speed : SpellScript, ISpellOnCast
 
 		if (aurEff != null)
 			for (byte i = 0; i < aurEff.Amount; ++i)
-				caster.				SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_RUSH, Difficulty.None).ChargeCategoryId);
+				caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_RUSH, Difficulty.None).ChargeCategoryId);
 	}
 }

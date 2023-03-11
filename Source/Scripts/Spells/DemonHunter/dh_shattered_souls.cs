@@ -35,7 +35,7 @@ public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 		}
 
 		if (player.HasAura(DemonHunterSpells.FEED_THE_DEMON))
-			player.			SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
+			player.SpellHistory.ModifyCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.DEMON_SPIKES, Difficulty.None).ChargeCategoryId, TimeSpan.FromMilliseconds(-1000));
 
 		if (player.HasAura(ShatteredSoulsSpells.PAINBRINGER))
 			player.CastSpell(player, ShatteredSoulsSpells.PAINBRINGER_BUFF, true);

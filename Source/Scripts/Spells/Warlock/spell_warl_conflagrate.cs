@@ -56,7 +56,7 @@ public class spell_warl_conflagrate : SpellScript, IHasSpellEffects
 	private void Decimation(Unit caster, Unit target)
 	{
 		if (caster.TryGetAura(WarlockSpells.DECIMATION, out var dec) && target.HealthBelowPct(dec.GetEffect(1).BaseAmount))
-			caster.			SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromMilliseconds(dec.GetEffect(0).BaseAmount));
+			caster.SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromMilliseconds(dec.GetEffect(0).BaseAmount));
 	}
 
 	private void Backdraft(Unit caster)

@@ -33,7 +33,7 @@ public class spell_pri_renew : AuraScript, IHasAuraEffects
 		{
 			// Reduse the GCD of Holy Word: Sanctify by 2 seconds
 			if (caster.SpellHistory.HasCooldown(PriestSpells.HOLY_WORD_SANCTIFY))
-				caster.				SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-2 * Time.InMilliseconds));
+				caster.SpellHistory.ModifyCooldown(PriestSpells.HOLY_WORD_SANCTIFY, TimeSpan.FromSeconds(-2 * Time.InMilliseconds));
 
 			// Divine Touch
 			var empoweredRenewAurEff = caster.GetAuraEffect(PriestSpellIcons.PRIEST_ICON_ID_DIVINE_TOUCH_TALENT, 0);

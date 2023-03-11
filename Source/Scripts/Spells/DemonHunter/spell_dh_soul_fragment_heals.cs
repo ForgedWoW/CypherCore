@@ -42,8 +42,8 @@ public class spell_dh_soul_fragment_heals : SpellScript, IHasSpellEffects
 
 		if (reductionTime != 0)
 		{
-			caster.			SpellHistory.ModifyCooldown(DemonHunterSpells.CHAOS_NOVA, TimeSpan.FromSeconds(-reductionTime));
-			caster.			SpellHistory.ModifyCooldown(DemonHunterSpells.EYE_BEAM, TimeSpan.FromSeconds(-reductionTime));
+			caster.SpellHistory.ModifyCooldown(DemonHunterSpells.CHAOS_NOVA, TimeSpan.FromSeconds(-reductionTime));
+			caster.SpellHistory.ModifyCooldown(DemonHunterSpells.EYE_BEAM, TimeSpan.FromSeconds(-reductionTime));
 		}
 	}
 }

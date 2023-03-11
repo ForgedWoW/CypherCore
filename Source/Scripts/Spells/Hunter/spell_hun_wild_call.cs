@@ -34,6 +34,6 @@ public class spell_hun_wild_call : AuraScript, IHasAuraEffects
 
 		if (player != null)
 			if (player.SpellHistory.HasCooldown(HunterSpells.BARBED_SHOT))
-				player.				SpellHistory.ResetCooldown(HunterSpells.BARBED_SHOT, true);
+				player.SpellHistory.ResetCooldown(HunterSpells.BARBED_SHOT, true);
 	}
 }

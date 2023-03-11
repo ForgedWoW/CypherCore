@@ -341,7 +341,7 @@ public partial class Spell
 		// CalcAbsorbResist already in Player::EnvironmentalDamage
 		if (UnitTarget.IsTypeId(TypeId.Player))
 		{
-			UnitTarget.			AsPlayer.EnvironmentalDamage(EnviromentalDamage.Fire, Damage);
+			UnitTarget.AsPlayer.EnvironmentalDamage(EnviromentalDamage.Fire, Damage);
 		}
 		else
 		{
@@ -407,7 +407,7 @@ public partial class Spell
 
 			if (petSpell != null)
 			{
-				_caster.				AsPlayer.AddPetAura(petSpell);
+				_caster.AsPlayer.AddPetAura(petSpell);
 
 				return;
 			}
@@ -415,7 +415,7 @@ public partial class Spell
 
 		// normal DB scripted effect
 		Log.outDebug(LogFilter.Spells, "Spell ScriptStart spellid {0} in EffectDummy({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-		_caster.		Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
+		_caster.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TriggerSpell)]
@@ -513,7 +513,7 @@ public partial class Spell
 
 			if (target != null)
 			{
-				targets.				UnitTarget = target;
+				targets.UnitTarget = target;
 			}
 			else
 			{
@@ -521,14 +521,14 @@ public partial class Spell
 
 				if (unit != null)
 				{
-					targets.					UnitTarget = unit;
+					targets.UnitTarget = unit;
 				}
 				else
 				{
 					var go = _caster.AsGameObject;
 
 					if (go != null)
-						targets.						GOTarget = go;
+						targets.GOTarget = go;
 				}
 			}
 		}
@@ -625,14 +625,14 @@ public partial class Spell
 
 			if (unit != null)
 			{
-				targets.				UnitTarget = unit;
+				targets.UnitTarget = unit;
 			}
 			else
 			{
 				var go = _caster.AsGameObject;
 
 				if (go != null)
-					targets.					GOTarget = go;
+					targets.GOTarget = go;
 			}
 		}
 
@@ -805,7 +805,7 @@ public partial class Spell
 		JumpArrivalCastArgs arrivalCast = new();
 		arrivalCast.SpellId = EffectInfo.TriggerSpell;
 		arrivalCast.Target = UnitTarget.GUID;
-		unitCaster.		MotionMaster.MoveJump(UnitTarget.Location, speedXY, speedZ, EventId.Jump, false, arrivalCast);
+		unitCaster.MotionMaster.MoveJump(UnitTarget.Location, speedXY, speedZ, EventId.Jump, false, arrivalCast);
 	}
 
 	[SpellEffectHandler(SpellEffectName.JumpDest)]
@@ -828,7 +828,7 @@ public partial class Spell
 		CalculateJumpSpeeds(EffectInfo, unitCaster.Location.GetExactDist2d(DestTarget), out var speedXY, out var speedZ);
 		JumpArrivalCastArgs arrivalCast = new();
 		arrivalCast.SpellId = EffectInfo.TriggerSpell;
-		unitCaster.		MotionMaster.MoveJump(DestTarget, speedXY, speedZ, EventId.Jump, !Targets.ObjectTargetGUID.IsEmpty, arrivalCast);
+		unitCaster.MotionMaster.MoveJump(DestTarget, speedXY, speedZ, EventId.Jump, !Targets.ObjectTargetGUID.IsEmpty, arrivalCast);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportUnits)]
@@ -1929,7 +1929,7 @@ public partial class Spell
 
 				if (speciesEntry != null)
 				{
-					player.					Session.					BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
+					player.Session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 					// If the spell summons a battle pet, we fake that it has been learned and the battle pet is added
 					// marking as dependent prevents saving the spell to database (intended)
 					dependent = true;
@@ -2052,7 +2052,7 @@ public partial class Spell
 		UnitTarget.SetCanDualWield(true);
 
 		if (UnitTarget.IsTypeId(TypeId.Unit))
-			UnitTarget.			AsCreature.UpdateDamagePhysical(WeaponAttackType.OffAttack);
+			UnitTarget.AsCreature.UpdateDamagePhysical(WeaponAttackType.OffAttack);
 	}
 
 	[SpellEffectHandler(SpellEffectName.Distract)]
@@ -2154,7 +2154,7 @@ public partial class Spell
 		var guid = _caster.GUID;
 
 		if (!guid.IsEmpty) // the trainer is the caster
-			UnitTarget.			AsPlayer.SendRespecWipeConfirm(guid, UnitTarget.AsPlayer.GetNextResetTalentsCost(), SpecResetType.Talents);
+			UnitTarget.AsPlayer.SendRespecWipeConfirm(guid, UnitTarget.AsPlayer.GetNextResetTalentsCost(), SpecResetType.Talents);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportUnitsFaceCaster)]
@@ -2197,7 +2197,7 @@ public partial class Spell
 			return;
 
 		var skillval = UnitTarget.AsPlayer.GetPureSkillValue((SkillType)skillid);
-		UnitTarget.		AsPlayer.SetSkill(skillid, (uint)Damage, Math.Max(skillval, (ushort)1), tier.Value[(int)Damage - 1]);
+		UnitTarget.AsPlayer.SetSkill(skillid, (uint)Damage, Math.Max(skillval, (ushort)1), tier.Value[(int)Damage - 1]);
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlayMovie)]
@@ -2284,11 +2284,11 @@ public partial class Spell
 				Log.outCommand(player.Session.AccountId,
 								"GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
 								player.GetName(),
-								player.								Session.								AccountId,
+								player.Session.AccountId,
 								ItemTarget.GetTemplate().GetName(),
-								ItemTarget.								Entry,
+								ItemTarget.Entry,
 								item_owner.GetName(),
-								item_owner.								Session.								AccountId);
+								item_owner.Session.AccountId);
 
 			// remove old enchanting before applying new if equipped
 			item_owner.ApplyEnchantment(ItemTarget, EnchantmentSlot.Perm, false);
@@ -2361,11 +2361,11 @@ public partial class Spell
 			Log.outCommand(player.Session.AccountId,
 							"GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
 							player.GetName(),
-							player.							Session.							AccountId,
+							player.Session.AccountId,
 							ItemTarget.GetTemplate().GetName(),
-							ItemTarget.							Entry,
+							ItemTarget.Entry,
 							item_owner.GetName(),
-							item_owner.							Session.							AccountId);
+							item_owner.Session.AccountId);
 
 		// remove old enchanting before applying new if equipped
 		item_owner.ApplyEnchantment(ItemTarget, EnchantmentSlot.Prismatic, false);
@@ -2424,11 +2424,11 @@ public partial class Spell
 			Log.outCommand(player.Session.AccountId,
 							"GM {0} (Account: {1}) enchanting(temp): {2} (Entry: {3}) for player: {4} (Account: {5})",
 							player.GetName(),
-							player.							Session.							AccountId,
+							player.Session.AccountId,
 							ItemTarget.GetTemplate().GetName(),
-							ItemTarget.							Entry,
+							ItemTarget.Entry,
 							item_owner.GetName(),
-							item_owner.							Session.							AccountId);
+							item_owner.Session.AccountId);
 
 		// remove old enchanting before applying new if equipped
 		item_owner.ApplyEnchantment(ItemTarget, EnchantmentSlot.Temp, false);
@@ -2494,7 +2494,7 @@ public partial class Spell
 		if (_caster.IsTypeId(TypeId.Player))
 		{
 			pet.SavePetToDB(PetSaveMode.AsCurrent);
-			unitCaster.			AsPlayer.PetSpellInitialize();
+			unitCaster.AsPlayer.PetSpellInitialize();
 		}
 	}
 
@@ -2547,13 +2547,13 @@ public partial class Spell
 				OldSummon.NearTeleportTo(newPos);
 
 				if (owner.IsTypeId(TypeId.Player) && OldSummon.IsControlled())
-					owner.					AsPlayer.PetSpellInitialize();
+					owner.AsPlayer.PetSpellInitialize();
 
 				return;
 			}
 
 			if (owner.IsTypeId(TypeId.Player))
-				owner.				AsPlayer.RemovePet(OldSummon, PetSaveMode.NotInSlot, false);
+				owner.AsPlayer.RemovePet(OldSummon, PetSaveMode.NotInSlot, false);
 			else
 				return;
 		}
@@ -2576,9 +2576,9 @@ public partial class Spell
 			if (_caster.IsCreature)
 			{
 				if (_caster.AsCreature.IsTotem)
-					pet.					ReactState = ReactStates.Aggressive;
+					pet.ReactState = ReactStates.Aggressive;
 				else
-					pet.					ReactState = ReactStates.Defensive;
+					pet.ReactState = ReactStates.Defensive;
 			}
 
 			pet.SetCreatedBySpell(SpellInfo.Id);
@@ -2929,7 +2929,7 @@ public partial class Spell
 		var duration = SpellInfo.CalcDuration(_caster);
 
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.		SpellId = SpellInfo.Id;
+		go.SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
@@ -2955,7 +2955,7 @@ public partial class Spell
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-			linkedTrap.			SpellId = SpellInfo.Id;
+			linkedTrap.SpellId = SpellInfo.Id;
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
 		}
@@ -3164,7 +3164,7 @@ public partial class Spell
 
 		// normal DB scripted effect
 		Log.outDebug(LogFilter.Spells, "Spell ScriptStart spellid {0} in EffectScriptEffect({1})", SpellInfo.Id, EffectInfo.EffectIndex);
-		_caster.		Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
+		_caster.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
 	}
 
 	[SpellEffectHandler(SpellEffectName.Sanctuary)]
@@ -3249,7 +3249,7 @@ public partial class Spell
 		go.SetLevel(caster.Level + 1);
 		var duration = SpellInfo.CalcDuration(caster);
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.		SpellId = SpellInfo.Id;
+		go.SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
@@ -3595,7 +3595,7 @@ public partial class Spell
 			{
 				// Recast case - null spell id to make auras not be removed on object remove from world
 				if (SpellInfo.Id == obj.SpellId)
-					obj.					SpellId = 0;
+					obj.SpellId = 0;
 
 				unitCaster.RemoveGameObject(obj, true);
 			}
@@ -3631,7 +3631,7 @@ public partial class Spell
 		go.SetLevel(unitCaster.Level);
 		var duration = SpellInfo.CalcDuration(_caster);
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.		SpellId = SpellInfo.Id;
+		go.SpellId = SpellInfo.Id;
 		unitCaster.AddGameObject(go);
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
@@ -3693,7 +3693,7 @@ public partial class Spell
 			return;
 
 		if (_caster.IsTypeId(TypeId.Player))
-			_caster.			AsPlayer.SetCanParry(true);
+			_caster.AsPlayer.SetCanParry(true);
 	}
 
 	[SpellEffectHandler(SpellEffectName.Block)]
@@ -3703,7 +3703,7 @@ public partial class Spell
 			return;
 
 		if (_caster.IsTypeId(TypeId.Player))
-			_caster.			AsPlayer.SetCanBlock(true);
+			_caster.AsPlayer.SetCanBlock(true);
 	}
 
 	[SpellEffectHandler(SpellEffectName.Leap)]
@@ -3930,7 +3930,7 @@ public partial class Spell
 		{
 			// charge changes fall time
 			if (unitCaster.IsPlayer)
-				unitCaster.				AsPlayer.SetFallInformation(0, _caster.Location.Z);
+				unitCaster.AsPlayer.SetFallInformation(0, _caster.Location.Z);
 
 			var speed = MathFunctions.fuzzyGt(SpellInfo.Speed, 0.0f) ? SpellInfo.Speed : MotionMaster.SPEED_CHARGE;
 			SpellEffectExtraData spellEffectExtraData = null;
@@ -4086,7 +4086,7 @@ public partial class Spell
 
 		// changes fall time
 		if (_caster.TypeId == TypeId.Player)
-			_caster.			AsPlayer.SetFallInformation(0, _caster.Location.Z);
+			_caster.AsPlayer.SetFallInformation(0, _caster.Location.Z);
 	}
 
 	[SpellEffectHandler(SpellEffectName.ClearQuest)]
@@ -4407,7 +4407,7 @@ public partial class Spell
 		// -1 means all player equipped items and -2 all items
 		if (slot < 0)
 		{
-			UnitTarget.			AsPlayer.DurabilityPointsLossAll(Damage, (slot < -1));
+			UnitTarget.AsPlayer.DurabilityPointsLossAll(Damage, (slot < -1));
 			ExecuteLogEffectDurabilityDamage(EffectInfo.Effect, UnitTarget, -1, -1);
 
 			return;
@@ -4421,7 +4421,7 @@ public partial class Spell
 
 		if (item != null)
 		{
-			UnitTarget.			AsPlayer.DurabilityPointsLoss(item, Damage);
+			UnitTarget.AsPlayer.DurabilityPointsLoss(item, Damage);
 			ExecuteLogEffectDurabilityDamage(EffectInfo.Effect, UnitTarget, (int)item.Entry, slot);
 		}
 	}
@@ -4441,7 +4441,7 @@ public partial class Spell
 		// Possibly its mean -1 all player equipped items and -2 all items
 		if (slot < 0)
 		{
-			UnitTarget.			AsPlayer.DurabilityLossAll(Damage / 100.0f, (slot < -1));
+			UnitTarget.AsPlayer.DurabilityLossAll(Damage / 100.0f, (slot < -1));
 
 			return;
 		}
@@ -4456,7 +4456,7 @@ public partial class Spell
 		var item = UnitTarget.AsPlayer.GetItemByPos(InventorySlots.Bag0, (byte)slot);
 
 		if (item != null)
-			UnitTarget.			AsPlayer.DurabilityLoss(item, Damage / 100.0f);
+			UnitTarget.AsPlayer.DurabilityLoss(item, Damage / 100.0f);
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyThreatPercent)]
@@ -4550,7 +4550,7 @@ public partial class Spell
 		{
 			case GameObjectTypes.FishingNode:
 			{
-				go.				Faction = unitCaster.Faction;
+				go.Faction = unitCaster.Faction;
 				var bobberGuid = go.GUID;
 				// client requires fishing bobber guid in channel object slot 0 to be usable
 				unitCaster.SetChannelObject(0, bobberGuid);
@@ -4603,7 +4603,7 @@ public partial class Spell
 
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SetOwnerGUID(unitCaster.GUID);
-		go.		SpellId = SpellInfo.Id;
+		go.SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
@@ -4616,7 +4616,7 @@ public partial class Spell
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-			linkedTrap.			SpellId = SpellInfo.Id;
+			linkedTrap.SpellId = SpellInfo.Id;
 			linkedTrap.SetOwnerGUID(unitCaster.GUID);
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
@@ -4864,7 +4864,7 @@ public partial class Spell
 		var creatureEntry = EffectInfo.MiscValue;
 
 		if (creatureEntry != 0)
-			UnitTarget.			AsPlayer.RewardPlayerAndGroupAtEvent((uint)creatureEntry, UnitTarget);
+			UnitTarget.AsPlayer.RewardPlayerAndGroupAtEvent((uint)creatureEntry, UnitTarget);
 	}
 
 	[SpellEffectHandler(SpellEffectName.QuestFail)]
@@ -4945,7 +4945,7 @@ public partial class Spell
 		if (UnitTarget.IsTypeId(TypeId.Player))
 		{
 			pet.SavePetToDB(PetSaveMode.AsCurrent);
-			UnitTarget.			AsPlayer.PetSpellInitialize();
+			UnitTarget.AsPlayer.PetSpellInitialize();
 		}
 	}
 
@@ -4961,7 +4961,7 @@ public partial class Spell
 		var nodeid = (uint)EffectInfo.MiscValue;
 
 		if (CliDB.TaxiNodesStorage.ContainsKey(nodeid))
-			UnitTarget.			AsPlayer.			Session.SendDiscoverNewTaxiNode(nodeid);
+			UnitTarget.AsPlayer.Session.SendDiscoverNewTaxiNode(nodeid);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TitanGrip)]
@@ -4971,7 +4971,7 @@ public partial class Spell
 			return;
 
 		if (_caster.IsTypeId(TypeId.Player))
-			_caster.			AsPlayer.SetCanTitanGrip(true, (uint)EffectInfo.MiscValue);
+			_caster.AsPlayer.SetCanTitanGrip(true, (uint)EffectInfo.MiscValue);
 	}
 
 	[SpellEffectHandler(SpellEffectName.RedirectThreat)]
@@ -5118,7 +5118,7 @@ public partial class Spell
 		if (UnitTarget == null ||
 			!UnitTarget.IsTypeId(TypeId.Unit) ||
 			!UnitTarget.IsPet ||
-			UnitTarget.			AsPet.GetPetType() != PetType.Hunter)
+			UnitTarget.AsPet.GetPetType() != PetType.Hunter)
 			return;
 
 		UnitTarget.SetPetFlag(UnitPetFlags.CanBeRenamed);
@@ -5163,7 +5163,7 @@ public partial class Spell
 		if (!spec.IsPetSpecialization())
 			player.ActivateTalentGroup(spec);
 		else
-			player.			CurrentPet.SetSpecialization(specID);
+			player.CurrentPet.SetSpecialization(specID);
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlaySound)]
@@ -5183,7 +5183,7 @@ public partial class Spell
 		switch (SpellInfo.Id)
 		{
 			case 91604: // Restricted Flight Area
-				player.				Session.SendNotification(CypherStrings.ZoneNoflyzone);
+				player.Session.SendNotification(CypherStrings.ZoneNoflyzone);
 
 				break;
 			default:
@@ -5447,8 +5447,8 @@ public partial class Spell
 		var duration = SpellInfo.CalcDuration(_caster);
 
 		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-		go.		SpellId = SpellInfo.Id;
-		go.		PrivateObjectOwner = _caster.GUID;
+		go.SpellId = SpellInfo.Id;
+		go.PrivateObjectOwner = _caster.GUID;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
@@ -5461,7 +5461,7 @@ public partial class Spell
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 
 			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
-			linkedTrap.			SpellId = SpellInfo.Id;
+			linkedTrap.SpellId = SpellInfo.Id;
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
 		}
@@ -5760,7 +5760,7 @@ public partial class Spell
 
 		var player = UnitTarget.AsPlayer;
 		player.SetPlayerFlag(PlayerFlags.PetBattlesUnlocked);
-		player.		Session.		BattlePetMgr.UnlockSlot(BattlePetSlots.Slot0);
+		player.Session.BattlePetMgr.UnlockSlot(BattlePetSlots.Slot0);
 	}
 
 	[SpellEffectHandler(SpellEffectName.ChangeBattlepetQuality)]
@@ -6326,7 +6326,7 @@ public partial class Spell
 			return;
 
 		for (var i = 0; i < Damage; ++i)
-			UnitTarget.			SpellHistory.RestoreCharge((uint)EffectInfo.MiscValue);
+			UnitTarget.SpellHistory.RestoreCharge((uint)EffectInfo.MiscValue);
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateTraitTreeConfig)]

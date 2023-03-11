@@ -689,7 +689,7 @@ public partial class Player
 			InstanceValid = false;
 
 		if (player_at_bg)
-			map.			ToBattlegroundMap.GetBG().AddPlayer(this);
+			map.ToBattlegroundMap.GetBG().AddPlayer(this);
 
 		// randomize first save time in range [CONFIG_INTERVAL_SAVE] around [CONFIG_INTERVAL_SAVE]
 		// this must help in case next save after mass player load after server startup
@@ -2692,7 +2692,7 @@ public partial class Player
 				var info = effectInfo[key];
 				var castId = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, Location.MapId, spellInfo.Id, Map.GenerateLowGuid(HighGuid.Cast));
 
-				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(), this);
+				AuraCreateInfo createInfo = new(castId, spellInfo, difficulty, key.EffectMask.ExplodeMask(SpellConst.MaxEffects), this);
 				createInfo.SetCasterGuid(casterGuid);
 				createInfo.SetBaseAmount(info.BaseAmounts);
 				createInfo.SetCastItem(itemGuid, castItemId, castItemLevel);

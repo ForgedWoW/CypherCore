@@ -1536,7 +1536,7 @@ public class AuraEffect
 				return;
 
 			var prevForm = target.ShapeshiftForm;
-			target.			ShapeshiftForm = form;
+			target.ShapeshiftForm = form;
 
 			// add the shapeshift aura's boosts
 			if (prevForm != form)
@@ -1559,7 +1559,7 @@ public class AuraEffect
 			// may happen when aura is applied on linked event on aura removal
 			if (!target.HasAuraType(AuraType.ModShapeshift))
 			{
-				target.				ShapeshiftForm = ShapeShiftForm.None;
+				target.ShapeshiftForm = ShapeShiftForm.None;
 
 				if (target.Class == Class.Druid)
 					// Remove movement impairing effects also when shifting out
@@ -1624,7 +1624,7 @@ public class AuraEffect
 				var pItem = target.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
 				if (pItem != null)
-					target.					AsPlayer._ApplyWeaponDamage(EquipmentSlot.MainHand, pItem, apply);
+					target.AsPlayer._ApplyWeaponDamage(EquipmentSlot.MainHand, pItem, apply);
 			}
 		}
 
@@ -1640,9 +1640,9 @@ public class AuraEffect
 					continue;
 
 				if (apply)
-					target.					AsPlayer.AddTemporarySpell(shapeInfo.PresetSpellID[i]);
+					target.AsPlayer.AddTemporarySpell(shapeInfo.PresetSpellID[i]);
 				else
-					target.					AsPlayer.RemoveTemporarySpell(shapeInfo.PresetSpellID[i]);
+					target.AsPlayer.RemoveTemporarySpell(shapeInfo.PresetSpellID[i]);
 			}
 	}
 
@@ -1661,7 +1661,7 @@ public class AuraEffect
 
 			if (transformSpellInfo == null || !SpellInfo.IsPositive || transformSpellInfo.IsPositive)
 			{
-				target.				TransformSpell = Id;
+				target.TransformSpell = Id;
 
 				// special case (spell specific functionality)
 				if (MiscValue == 0)
@@ -1851,7 +1851,7 @@ public class AuraEffect
 
 						// Dragonmaw Illusion (set mount model also)
 						if (Id == 42016 && target.MountDisplayId != 0 && !target.GetAuraEffectsByType(AuraType.ModIncreaseMountedFlightSpeed).Empty())
-							target.							MountDisplayId = 16314;
+							target.MountDisplayId = 16314;
 					}
 				}
 			}
@@ -1862,7 +1862,7 @@ public class AuraEffect
 				// for players, start regeneration after 1s (in polymorph fast regeneration case)
 				// only if caster is Player (after patch 2.4.2)
 				if (CasterGuid.IsPlayer)
-					target.					AsPlayer.SetRegenTimerCount(1 * Time.InMilliseconds);
+					target.AsPlayer.SetRegenTimerCount(1 * Time.InMilliseconds);
 
 				//dismount polymorphed target (after patch 2.4.2)
 				if (target.IsMounted)
@@ -1872,7 +1872,7 @@ public class AuraEffect
 		else
 		{
 			if (target.TransformSpell == Id)
-				target.				TransformSpell = 0;
+				target.TransformSpell = 0;
 
 			target.RestoreDisplayId(target.IsMounted);
 
@@ -1990,7 +1990,7 @@ public class AuraEffect
 			var creature = target.AsCreature;
 
 			if (creature != null)
-				creature.				ReactState = ReactStates.Passive;
+				creature.ReactState = ReactStates.Passive;
 		}
 		else
 		{
@@ -2507,7 +2507,7 @@ public class AuraEffect
 
 		if (target.SetCanFly(apply))
 			if (!apply && !target.IsGravityDisabled)
-				target.				MotionMaster.MoveFall();
+				target.MotionMaster.MoveFall();
 	}
 
 	[AuraEffectHandler(AuraType.WaterWalk)]
@@ -2543,7 +2543,7 @@ public class AuraEffect
 
 		// start fall from current height
 		if (!apply && target.IsTypeId(TypeId.Player))
-			target.			AsPlayer.SetFallInformation(0, target.Location.Z);
+			target.AsPlayer.SetFallInformation(0, target.Location.Z);
 	}
 
 	[AuraEffectHandler(AuraType.Hover)]
@@ -2572,7 +2572,7 @@ public class AuraEffect
 
 		// update timers in client
 		if (target.IsTypeId(TypeId.Player))
-			target.			AsPlayer.UpdateMirrorTimers();
+			target.AsPlayer.UpdateMirrorTimers();
 	}
 
 	[AuraEffectHandler(AuraType.ForceMoveForward)]
@@ -2790,7 +2790,7 @@ public class AuraEffect
 
 		if (target.SetDisableGravity(apply))
 			if (!apply && !target.IsFlying)
-				target.				MotionMaster.MoveFall();
+				target.MotionMaster.MoveFall();
 	}
 
 	[AuraEffectHandler(AuraType.ModStunDisableGravity)]
@@ -2812,7 +2812,7 @@ public class AuraEffect
 
 		if (target.SetDisableGravity(apply))
 			if (!apply && !target.IsFlying)
-				target.				MotionMaster.MoveFall();
+				target.MotionMaster.MoveFall();
 	}
 
 	/***************************/
@@ -2878,12 +2878,12 @@ public class AuraEffect
 			else
 			{
 				// Reinitialize the pet bar or it will appear greyed out
-				caster.				// Reinitialize the pet bar or it will appear greyed out
+				caster.// Reinitialize the pet bar or it will appear greyed out
 				AsPlayer.PetSpellInitialize();
 
 				// TODO: remove this
 				if (pet.Victim == null && !pet.GetCharmInfo().HasCommandState(CommandStates.Stay))
-					pet.					MotionMaster.MoveFollow(caster, SharedConst.PetFollowDist, pet.FollowAngle);
+					pet.MotionMaster.MoveFollow(caster, SharedConst.PetFollowDist, pet.FollowAngle);
 			}
 		}
 	}
@@ -2952,7 +2952,7 @@ public class AuraEffect
 		else
 		{
 			// Remove pending passengers before exiting vehicle - might cause an Uninstall
-			target.			// Remove pending passengers before exiting vehicle - might cause an Uninstall
+			target.// Remove pending passengers before exiting vehicle - might cause an Uninstall
 			VehicleKit1.RemovePendingEventsForPassenger(caster);
 
 			if (Id == 53111) // Devour Humanoid
@@ -2960,7 +2960,7 @@ public class AuraEffect
 				Unit.Kill(target, caster);
 
 				if (caster.IsTypeId(TypeId.Unit))
-					caster.					AsCreature.DespawnOrUnsummon();
+					caster.AsCreature.DespawnOrUnsummon();
 			}
 
 			var seatChange = mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmount) // Seat change on the same direct vehicle
@@ -2970,7 +2970,7 @@ public class AuraEffect
 			if (!seatChange)
 				caster._ExitVehicle();
 			else
-				target.				VehicleKit1.RemovePassenger(caster); // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
+				target.VehicleKit1.RemovePassenger(caster); // Only remove passenger from vehicle without launching exit movement or despawning the vehicle
 
 			// some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
 			caster.RemoveAura(Id);
@@ -3028,7 +3028,7 @@ public class AuraEffect
 
 				if (target.SetCanFly(apply))
 					if (!apply && !target.IsGravityDisabled)
-						target.						MotionMaster.MoveFall();
+						target.MotionMaster.MoveFall();
 			}
 
 			//! Someone should clean up these hacks and remove it from this function. It doesn't even belong here.
@@ -3040,7 +3040,7 @@ public class AuraEffect
 
 				// Dragonmaw Illusion (overwrite mount model, mounted aura already applied)
 				if (apply && target.HasAuraEffect(42016, 0) && target.MountDisplayId != 0)
-					target.					MountDisplayId = 16314;
+					target.MountDisplayId = 16314;
 			}
 		}
 	}
@@ -3597,7 +3597,7 @@ public class AuraEffect
 
 		target.
 		AsPlayer.UpdateExpertise(WeaponAttackType.BaseAttack);
-		target.		AsPlayer.UpdateExpertise(WeaponAttackType.OffAttack);
+		target.AsPlayer.UpdateExpertise(WeaponAttackType.OffAttack);
 	}
 
 	// Increase armor by <AuraEffect.BasePoints> % of your <primary stat>
@@ -3738,9 +3738,9 @@ public class AuraEffect
 
 		// Update manaregen value
 		if (MiscValue == (int)PowerType.Mana)
-			target.			AsPlayer.UpdateManaRegen();
+			target.AsPlayer.UpdateManaRegen();
 		else if (MiscValue == (int)PowerType.Runes)
-			target.			AsPlayer.UpdateAllRunesRegen();
+			target.AsPlayer.UpdateAllRunesRegen();
 		// other powers are not immediate effects - implemented in Player.Regenerate, Creature.Regenerate
 	}
 
@@ -4150,7 +4150,7 @@ public class AuraEffect
 		var target = aurApp.Target;
 
 		if (target.IsTypeId(TypeId.Player))
-			target.			AsPlayer.UpdateSpellHitChances();
+			target.AsPlayer.UpdateSpellHitChances();
 		else
 			target.ModSpellHitChance += (apply) ? Amount : (-Amount);
 	}
@@ -4164,7 +4164,7 @@ public class AuraEffect
 		var target = aurApp.Target;
 
 		if (target.IsTypeId(TypeId.Player))
-			target.			AsPlayer.UpdateSpellCritChance();
+			target.AsPlayer.UpdateSpellCritChance();
 		else
 			target.BaseSpellCritChance += (apply) ? Amount : -Amount;
 	}
@@ -4353,7 +4353,7 @@ public class AuraEffect
 
 		for (var rating = 0; rating < (int)CombatRating.Max; ++rating)
 			if (Convert.ToBoolean(MiscValue & (1 << rating)))
-				target.				AsPlayer.ApplyRatingMod((CombatRating)rating, AmountAsInt, apply);
+				target.AsPlayer.ApplyRatingMod((CombatRating)rating, AmountAsInt, apply);
 	}
 
 	[AuraEffectHandler(AuraType.ModRatingPct)]
@@ -4370,7 +4370,7 @@ public class AuraEffect
 		// Just recalculate ratings
 		for (var rating = 0; rating < (int)CombatRating.Max; ++rating)
 			if (Convert.ToBoolean(MiscValue & (1 << rating)))
-				target.				AsPlayer.UpdateRating((CombatRating)rating);
+				target.AsPlayer.UpdateRating((CombatRating)rating);
 	}
 
 	/********************************/
@@ -4640,9 +4640,9 @@ public class AuraEffect
 			if (petSpell != null)
 			{
 				if (apply)
-					target.					AsPlayer.AddPetAura(petSpell);
+					target.AsPlayer.AddPetAura(petSpell);
 				else
-					target.					AsPlayer.RemovePetAura(petSpell);
+					target.AsPlayer.RemovePetAura(petSpell);
 			}
 		}
 
@@ -4723,7 +4723,7 @@ public class AuraEffect
 						break;
 					case 46361: // Reinforced Net
 						if (caster != null)
-							target.							MotionMaster.MoveFall();
+							target.MotionMaster.MoveFall();
 
 						break;
 				}
@@ -4760,7 +4760,7 @@ public class AuraEffect
 									return;
 
 								if (target.Map.IsBattleground)
-									target.									AsPlayer.LeaveBattleground();
+									target.AsPlayer.LeaveBattleground();
 
 								break;
 							}
@@ -4863,7 +4863,7 @@ public class AuraEffect
 					case 30877:
 					{
 						// Tag/untag Blacksilt Scout
-						target.						// Tag/untag Blacksilt Scout
+						target.// Tag/untag Blacksilt Scout
 						Entry = (uint)(apply ? 17654 : 17326);
 
 						break;
@@ -5030,7 +5030,7 @@ public class AuraEffect
 
 		player.
 		ReputationMgr.ApplyForceReaction(factionId, factionRank, apply);
-		player.		ReputationMgr.SendForceReactions();
+		player.ReputationMgr.SendForceReactions();
 
 		// stop fighting at apply (if forced rank friendly) or at remove (if real rank friendly)
 		if ((apply && factionRank >= ReputationRank.Friendly) || (!apply && player.GetReputationRank(factionId) >= ReputationRank.Friendly))
@@ -5069,7 +5069,7 @@ public class AuraEffect
 
 		if (apply)
 		{
-			target.			Faction = (uint)MiscValue;
+			target.Faction = (uint)MiscValue;
 
 			if (target.IsTypeId(TypeId.Player))
 				target.RemoveUnitFlag(UnitFlags.PlayerControlled);
@@ -5269,7 +5269,7 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			target.			AsPlayer.			Session.SendStablePet(target.GUID);
+			target.AsPlayer.Session.SendStablePet(target.GUID);
 
 		// client auto close stable dialog at !apply aura
 	}
@@ -5387,7 +5387,7 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			target.			AsPlayer.SendOnCancelExpectedVehicleRideAura();
+			target.AsPlayer.SendOnCancelExpectedVehicleRideAura();
 	}
 
 	[AuraEffectHandler(AuraType.PreventResurrection)]
@@ -5796,9 +5796,9 @@ public class AuraEffect
 		Log.outDebug(LogFilter.Spells,
 					"PeriodicTick: {0} (TypeId: {1}) heal of {2} (TypeId: {3}) for {4} health inflicted by {5}",
 					CasterGuid.ToString(),
-					Caster.					TypeId,
-					target.					GUID.ToString(),
-					target.					TypeId,
+					Caster.TypeId,
+					target.GUID.ToString(),
+					target.TypeId,
 					damage,
 					Id);
 
@@ -6128,7 +6128,7 @@ public class AuraEffect
 		if (apply)
 			target.SendPacket(new WeatherPkt((WeatherState)MiscValue, 1.0f));
 		else
-			target.			Map.SendZoneWeather(target.Zone, target);
+			target.Map.SendZoneWeather(target.Zone, target);
 	}
 
 	[AuraEffectHandler(AuraType.EnableAltPower)]
@@ -6235,9 +6235,9 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			player.			SceneMgr.PlayScene((uint)MiscValue);
+			player.SceneMgr.PlayScene((uint)MiscValue);
 		else
-			player.			SceneMgr.CancelSceneBySceneId((uint)MiscValue);
+			player.SceneMgr.CancelSceneBySceneId((uint)MiscValue);
 	}
 
 	[AuraEffectHandler(AuraType.AreaTrigger)]
@@ -6366,11 +6366,11 @@ public class AuraEffect
 			return;
 
 		if (apply)
-			target.			OverrideZonePvpType = (ZonePVPTypeOverride)MiscValue;
+			target.OverrideZonePvpType = (ZonePVPTypeOverride)MiscValue;
 		else if (target.HasAuraType(AuraType.ModOverrideZonePvpType))
-			target.			OverrideZonePvpType = (ZonePVPTypeOverride)target.GetAuraEffectsByType(AuraType.ModOverrideZonePvpType).Last().MiscValue;
+			target.OverrideZonePvpType = (ZonePVPTypeOverride)target.GetAuraEffectsByType(AuraType.ModOverrideZonePvpType).Last().MiscValue;
 		else
-			target.			OverrideZonePvpType = ZonePVPTypeOverride.None;
+			target.OverrideZonePvpType = ZonePVPTypeOverride.None;
 
 		target.UpdateHostileAreaState(CliDB.AreaTableStorage.LookupByKey(target.Zone));
 		target.UpdatePvPState();

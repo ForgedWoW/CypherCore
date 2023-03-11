@@ -41,8 +41,8 @@ public class spell_warr_tactician : AuraScript, IHasAuraEffects
 
 				if (RandomHelper.randChance((rageSpent / 10) * 1.40))
 				{
-					caster.					SpellHistory.ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);
-					caster.					SpellHistory.ResetCooldown(WarriorSpells.MORTAL_STRIKE, true);
+					caster.SpellHistory.ResetCooldown(WarriorSpells.COLOSSUS_SMASH, true);
+					caster.SpellHistory.ResetCooldown(WarriorSpells.MORTAL_STRIKE, true);
 					caster.CastSpell(caster, WarriorSpells.TACTICIAN_CD, true);
 				}
 			}

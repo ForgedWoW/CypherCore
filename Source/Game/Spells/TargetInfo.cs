@@ -311,7 +311,7 @@ public class TargetInfo : TargetInfoBase
 				{
 					var unitCaster = spell.Caster.AsUnit;
 					unitCaster.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Interacting);
-					spell.UnitTarget.					AsCreature.EngageWithTarget(unitCaster);
+					spell.UnitTarget.AsCreature.EngageWithTarget(unitCaster);
 				}
 			}
 
@@ -330,7 +330,7 @@ public class TargetInfo : TargetInfoBase
 				if (caster.IsPlayer && procSpellType.HasAnyFlag(ProcFlagsSpellType.Damage | ProcFlagsSpellType.NoDmgHeal))
 					if (spell.SpellInfo.DmgClass == SpellDmgClass.Melee || spell.SpellInfo.DmgClass == SpellDmgClass.Ranged)
 						if (!spell.SpellInfo.HasAttribute(SpellAttr0.CancelsAutoAttackCombat) && !spell.SpellInfo.HasAttribute(SpellAttr4.SuppressWeaponProcs))
-							caster.							AsPlayer.CastItemCombatSpell(spellDamageInfo);
+							caster.AsPlayer.CastItemCombatSpell(spellDamageInfo);
 			}
 
 			// set hitmask for finish procs
@@ -382,9 +382,9 @@ public class TargetInfo : TargetInfoBase
 			}
 
 			if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
-				spell.Caster.				AsCreature.				AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
+				spell.Caster.AsCreature.AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 			else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.AI != null)
-				spell.Caster.				AsGameObject.				AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
+				spell.Caster.AsGameObject.AI.SpellHitTarget(_spellHitTarget, spell.SpellInfo);
 
 			if (HitAura != null)
 			{
@@ -407,7 +407,7 @@ public class TargetInfo : TargetInfoBase
 		}
 
 		if (_enablePVP)
-			spell.Caster.			AsPlayer.UpdatePvP(true);
+			spell.Caster.AsPlayer.UpdatePvP(true);
 
 		spell.SpellAura = HitAura;
 		spell.CallScriptAfterHitHandlers();

@@ -17,7 +17,7 @@ public static partial class Detour
     */
 
     /// Derives the closest point on a triangle from the specified reference point.
-    ///  @param[out]	closest	The closest point on the triangle.	
+    ///  @param[out]	closest	The closest point on the triangle.
     ///  @param[in]		p		The reference point from which to test. [(x, y, z)]
     ///  @param[in]		a		Vertex A of triangle ABC. [(x, y, z)]
     ///  @param[in]		b		Vertex B of triangle ABC. [(x, y, z)]
@@ -321,9 +321,9 @@ public static partial class Detour
     }
 
     /// Determines if the two convex polygons overlap on the xz-plane.
-    ///  @param[in]		polya		Polygon A vertices.	[(x, y, z) * @p npolya]
+    ///  @param[in]		polya		Polygon A vertices.[(x, y, z) * @p npolya]
     ///  @param[in]		npolya		The number of vertices in polygon A.
-    ///  @param[in]		polyb		Polygon B vertices.	[(x, y, z) * @p npolyb]
+    ///  @param[in]		polyb		Polygon B vertices.[(x, y, z) * @p npolyb]
     ///  @param[in]		npolyb		The number of vertices in polygon B.
     // @return True if the two polygons overlap.
     // @par

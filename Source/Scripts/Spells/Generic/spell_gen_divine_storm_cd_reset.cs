@@ -32,6 +32,6 @@ internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
 
 	private void HandleScript(int effIndex)
 	{
-		Caster.		SpellHistory.ResetCooldown(GenericSpellIds.DivineStorm, true);
+		Caster.SpellHistory.ResetCooldown(GenericSpellIds.DivineStorm, true);
 	}
 }

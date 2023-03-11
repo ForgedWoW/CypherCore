@@ -277,7 +277,7 @@ public class Aura
 		// reset cooldown state for spells
 		if (caster != null && SpellInfo.IsCooldownStartedOnEvent)
 			// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-			caster.			// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+			caster.// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
 			SpellHistory.SendCooldownEvent(SpellInfo);
 	}
 
@@ -845,7 +845,7 @@ public class Aura
 		Cypher.Assert(_isSingleTarget);
 		var caster = Caster;
 		Cypher.Assert(caster != null);
-		caster.		SingleCastAuras.Remove(this);
+		caster.SingleCastAuras.Remove(this);
 		IsSingleTarget = false;
 	}
 
@@ -1068,7 +1068,7 @@ public class Aura
 							break;
 						case 60970: // Heroic Fury (remove Intercept cooldown)
 							if (target.IsTypeId(TypeId.Player))
-								target.								SpellHistory.ResetCooldown(20252, true);
+								target.SpellHistory.ResetCooldown(20252, true);
 
 							break;
 					}
@@ -1133,7 +1133,7 @@ public class Aura
 								}
 								else // and add if needed
 								{
-									caster.									SpellHistory.AddCooldown(aura.Id, 0, TimeSpan.FromSeconds(12));
+									caster.SpellHistory.AddCooldown(aura.Id, 0, TimeSpan.FromSeconds(12));
 								}
 							}
 

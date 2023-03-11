@@ -655,7 +655,7 @@ internal class instance_blackrock_spire : InstanceMapScript, IInstanceMapGetInst
 					}
 
 				if (!_mobAlive &&
-					rune.					GoState == GameObjectState.Active)
+					rune.GoState == GameObjectState.Active)
 				{
 					HandleGameObject(ObjectGuid.Empty, false, rune);
 

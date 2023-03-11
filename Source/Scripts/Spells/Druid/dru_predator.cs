@@ -22,7 +22,7 @@ public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCrea
 			return;
 
 		if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
-			killer.			SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
+			killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
 	}
 
 	public void OnPVPKill(Player killer, Player killed)
@@ -34,6 +34,6 @@ public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCrea
 			return;
 
 		if (killer.SpellHistory.HasCooldown(DruidSpells.TIGER_FURY))
-			killer.			SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
+			killer.SpellHistory.ResetCooldown(DruidSpells.TIGER_FURY);
 	}
 }

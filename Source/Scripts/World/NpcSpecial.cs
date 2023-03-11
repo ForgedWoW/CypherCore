@@ -1079,11 +1079,11 @@ public class npc_injured_patient : ScriptedAI
 	{
 		//lower HP on every world tick makes it a useful counter, not officlone though
 		if (Me.IsAlive &&
-			Me.			Health > 6)
+			Me.Health > 6)
 			Me.ModifyHealth(-5);
 
 		if (Me.IsAlive &&
-			Me.			Health <= 6)
+			Me.Health <= 6)
 		{
 			Me.RemoveUnitFlag(UnitFlags.InCombat);
 			Me.SetUnitFlag(UnitFlags.Uninteractible);

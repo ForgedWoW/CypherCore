@@ -28,6 +28,6 @@ internal class spell_pal_crusader_might : AuraScript, IHasAuraEffects
 
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		Target.		SpellHistory.ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromSeconds(aurEff.Amount));
+		Target.SpellHistory.ModifyCooldown(PaladinSpells.HolyShock, TimeSpan.FromSeconds(aurEff.Amount));
 	}
 }

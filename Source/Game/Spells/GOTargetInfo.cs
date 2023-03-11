@@ -24,12 +24,12 @@ public class GOTargetInfo : TargetInfoBase
 
 		//AI functions
 		if (go.AI != null)
-			go.			AI.SpellHit(spell.Caster, spell.SpellInfo);
+			go.AI.SpellHit(spell.Caster, spell.SpellInfo);
 
 		if (spell.Caster.IsCreature && spell.Caster.AsCreature.IsAIEnabled)
-			spell.Caster.			AsCreature.			AI.SpellHitTarget(go, spell.SpellInfo);
+			spell.Caster.AsCreature.AI.SpellHitTarget(go, spell.SpellInfo);
 		else if (spell.Caster.IsGameObject && spell.Caster.AsGameObject.AI != null)
-			spell.Caster.			AsGameObject.			AI.SpellHitTarget(go, spell.SpellInfo);
+			spell.Caster.AsGameObject.AI.SpellHitTarget(go, spell.SpellInfo);
 
 		spell.CallScriptOnHitHandlers();
 		spell.CallScriptAfterHitHandlers();

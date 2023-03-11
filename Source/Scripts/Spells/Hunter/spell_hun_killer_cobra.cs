@@ -38,6 +38,6 @@ public class spell_hun_killer_cobra : AuraScript, IHasAuraEffects, IAuraCheckPro
 		if (caster != null)
 			if (caster.HasAura(HunterSpells.BESTIAL_WRATH))
 				if (caster.SpellHistory.HasCooldown(HunterSpells.KILL_COMMAND))
-					caster.					SpellHistory.ResetCooldown(HunterSpells.KILL_COMMAND, true);
+					caster.SpellHistory.ResetCooldown(HunterSpells.KILL_COMMAND, true);
 	}
 }

@@ -47,6 +47,6 @@ public class spell_warl_cauterize_master : SpellScript, ISpellCheckCast, IHasSpe
 			return;*/
 
 		pet.CastSpell(caster, WarlockSpells.IMP_CAUTERIZE_MASTER, true);
-		caster.AsPlayer.		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(30));
+		caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(30));
 	}
 }

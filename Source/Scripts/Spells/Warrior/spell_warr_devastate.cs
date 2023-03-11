@@ -33,7 +33,7 @@ public class spell_warr_devastate : SpellScript, IHasSpellEffects
 			var player = caster.AsPlayer;
 
 			if (player != null)
-				player.				SpellHistory.ResetCooldown(WarriorSpells.SHIELD_SLAM, true);
+				player.SpellHistory.ResetCooldown(WarriorSpells.SHIELD_SLAM, true);
 		}
 	}
 }

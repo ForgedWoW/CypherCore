@@ -75,7 +75,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 					var spellInfo = Global.SpellMgr.GetSpellInfo(221699, Difficulty.None);
 
 					if (spellInfo != null)
-						_player.						SpellHistory.ModifyCooldown(221699, TimeSpan.FromSeconds(1000 * spellInfo.GetEffect(1).CalcValue(target) * absorbStack));
+						_player.SpellHistory.ModifyCooldown(221699, TimeSpan.FromSeconds(1000 * spellInfo.GetEffect(1).CalcValue(target) * absorbStack));
 				}
 
 				ModStackAmount(-1);

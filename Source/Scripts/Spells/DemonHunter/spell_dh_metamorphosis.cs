@@ -40,11 +40,11 @@ public class spell_dh_metamorphosis : SpellScript, ISpellBeforeCast
 
 		if (player.HasAura(DemonHunterSpells.DEMON_REBORN)) // Remove CD of Eye Beam, Chaos Nova and Blur
 		{
-			player.			SpellHistory.ResetCooldown(DemonHunterSpells.CHAOS_NOVA, true);
-			player.			SpellHistory.ResetCooldown(DemonHunterSpells.BLUR, true);
-			player.			SpellHistory.AddCooldown(DemonHunterSpells.BLUR_BUFF, 0, TimeSpan.FromMinutes(1));
-			player.			SpellHistory.ResetCooldown(DemonHunterSpells.BLUR_BUFF, true);
-			player.			SpellHistory.ResetCooldown(DemonHunterSpells.EYE_BEAM, true);
+			player.SpellHistory.ResetCooldown(DemonHunterSpells.CHAOS_NOVA, true);
+			player.SpellHistory.ResetCooldown(DemonHunterSpells.BLUR, true);
+			player.SpellHistory.AddCooldown(DemonHunterSpells.BLUR_BUFF, 0, TimeSpan.FromMinutes(1));
+			player.SpellHistory.ResetCooldown(DemonHunterSpells.BLUR_BUFF, true);
+			player.SpellHistory.ResetCooldown(DemonHunterSpells.EYE_BEAM, true);
 		}
 	}
 }

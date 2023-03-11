@@ -831,7 +831,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.					Realm.Id.Index,
+					Global.WorldMgr.Realm.Id.Index,
 					secLevel);
 
 		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
@@ -847,7 +847,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.					Realm.Id.Index,
+					Global.WorldMgr.Realm.Id.Index,
 					secLevel);
 
 		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
@@ -896,7 +896,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
-					Global.WorldMgr.					Realm.Id.Index);
+					Global.WorldMgr.Realm.Id.Index);
 
 		return hasPermission;
 	}
@@ -907,7 +907,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
-					Global.WorldMgr.					Realm.Id.Index);
+					Global.WorldMgr.Realm.Id.Index);
 
 		_rbacData = null;
 	}

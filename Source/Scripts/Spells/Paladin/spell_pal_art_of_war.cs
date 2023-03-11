@@ -34,7 +34,7 @@ internal class spell_pal_art_of_war : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		Target.		SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
+		Target.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
 		Target.CastSpell(Target, PaladinSpells.ArtOfWarTriggered, new CastSpellExtraArgs(TriggerCastFlags.IgnoreCastInProgress));
 	}
 }

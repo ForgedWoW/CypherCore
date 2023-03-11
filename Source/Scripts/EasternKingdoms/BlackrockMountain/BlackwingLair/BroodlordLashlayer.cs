@@ -99,7 +99,7 @@ internal class boss_broodlord : BossAI
 		var _goList = Me.GetGameObjectListWithEntryInGrid(BWLGameObjectIds.SuppressionDevice, 200.0f);
 
 		foreach (var go in _goList)
-			go.			AI.DoAction(ActionIds.Deactivate);
+			go.AI.DoAction(ActionIds.Deactivate);
 	}
 
 	public override void UpdateAI(uint diff)
