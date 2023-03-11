@@ -542,7 +542,7 @@ public class Aura
 
 	public void SetDuration(double duration, bool withMods = false, bool updateMaxDuration = false)
 	{
-		SetDuration((int)duration, withMods);
+		SetDuration((int)duration, withMods, updateMaxDuration);
 	}
 
 	public void SetDuration(int duration, bool withMods = false, bool updateMaxDuration = false)
@@ -572,12 +572,12 @@ public class Aura
 	/// </summary>
 	public void ModDuration(int duration, bool withMods = false, bool updateMaxDuration = false)
 	{
-		SetDuration(Duration + duration, withMods);
+		SetDuration(Duration + duration, withMods, updateMaxDuration);
 	}
 
 	public void ModDuration(double duration, bool withMods = false, bool updateMaxDuration = false)
 	{
-		SetDuration((int)duration, withMods);
+		SetDuration((int)duration, withMods, updateMaxDuration);
 	}
 
 	public void RefreshDuration(bool withMods = false)

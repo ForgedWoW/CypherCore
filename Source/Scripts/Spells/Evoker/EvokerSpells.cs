@@ -3,7 +3,7 @@
 
 namespace Scripts.Spells.Evoker;
 
-public struct EvokerSpells
+internal struct EvokerSpells
 {
 	public const uint ALTERED_FORM = 97709;
 	public const uint ANCIENT_FLAME = 369990;
@@ -33,7 +33,8 @@ public struct EvokerSpells
 	public const uint DREAM_BREATH = 355936;
 	public const uint DREAM_BREATH_2 = 382614;
 	public const uint DREAM_BREATH_CHARGED = 355941;
-	public const uint ECHO = 364343;
+    public const uint DREAM_PROJECTION = 377509;
+    public const uint ECHO = 364343;
 	public const uint EMERALD_BLOSSOM = 355913;
 	public const uint EMERALD_COMMUNION = 370960;
     public const uint ENERGIZING_FLAME = 400006;
@@ -51,7 +52,6 @@ public struct EvokerSpells
 	public const uint FIRE_BREATH_2 = 382266;
 	public const uint FIRE_BREATH_CHARGED = 357209;
     public const uint FIRE_STORM = 368847;
-	public const uint FIRE_STORM_AREA_TRIGGER = 24713;
     public const uint FIRE_STORM_CREATE_AREA = 369372;
     public const uint FIRE_STORM_DAMAGE = 369374;
     public const uint FLOW_STATE = 385696;
@@ -76,4 +76,14 @@ public struct EvokerSpells
 	public const uint VERDANT_EMBRACE_HEAL = 361195;
 	public const uint VISAGE = 351239;
 	public const uint VISAGE_AURA = 372014;
+}
+
+internal struct EvokerNPCs
+{
+    public const uint DREAM_PROJECTION_NPC = 192459;
+}
+
+internal struct EvokerAreaTriggers
+{
+    public const uint FIRE_STORM_AREA_TRIGGER = 24713;
 }
