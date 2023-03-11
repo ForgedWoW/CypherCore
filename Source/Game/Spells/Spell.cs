@@ -419,7 +419,7 @@ public partial class Spell : IDisposable
 				{
 					var anyNonImmuneTargetFound = UniqueTargetInfo.Any(target => target.Effects.Contains(spellEffectInfo.EffectIndex) && target.MissCondition != SpellMissInfo.Immune && target.MissCondition != SpellMissInfo.Immune2);
 
-					if (anyNonImmuneTargetFound)
+					if (!anyNonImmuneTargetFound)
 					{
 						SendCastResult(SpellCastResult.Immune);
 						Finish(SpellCastResult.Immune);
@@ -5062,11 +5062,14 @@ public partial class Spell : IDisposable
 
     void AddUnitTarget(Unit target, HashSet<int> efftMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
 	{
-		var removeEffect = new HashSet<int>();
+		var removeEffect = efftMask.ToHashSet();
 
         foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (!spellEffectInfo.IsEffect() || !CheckEffectTarget(target, spellEffectInfo, losPosition))
-                removeEffect.Add(spellEffectInfo.EffectIndex);
+                removeEffect.Remove(spellEffectInfo.EffectIndex);
+
+		if (removeEffect.Count == 0)
+			return;
 
 		if (checkIfValid)
 			if (SpellInfo.CheckTarget(_caster, target, Implicit) != SpellCastResult.SpellCastOk) // skip stealth checks for AOE
@@ -5075,30 +5078,29 @@ public partial class Spell : IDisposable
 		// Check for effect immune skip if immuned
 		foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (target.IsImmunedToSpellEffect(SpellInfo, spellEffectInfo, _caster))
-                removeEffect.Add(spellEffectInfo.EffectIndex);
+                removeEffect.Remove(spellEffectInfo.EffectIndex);
 
 		var targetGUID = target.GUID;
 
 		// Lookup target in already in list
 		var index = UniqueTargetInfo.FindIndex(target => target.TargetGuid == targetGUID);
 
-		if (index != -1) // Found in list
+        if (index != -1) // Found in list
 		{
 			// Immune effects removed from mask
-			UniqueTargetInfo[index].Effects.ExceptWith(removeEffect);
+			UniqueTargetInfo[index].Effects.UnionWith(removeEffect);
 
 			return;
 		}
 
 		// remove immunities
-        efftMask.ExceptWith(removeEffect);
 
         // This is new target calculate data for him
 
         // Get spell hit result on target
         TargetInfo targetInfo = new();
 		targetInfo.TargetGuid = targetGUID; // Store target GUID
-		targetInfo.Effects = efftMask; // Store all effects not immune
+		targetInfo.Effects = removeEffect; // Store all effects not immune
 		targetInfo.IsAlive = target.IsAlive;
 
 		// Calculate hit result
@@ -5771,7 +5773,7 @@ public partial class Spell : IDisposable
 
 		if (caster)
 			if (caster.IsAIEnabled)
-				caster.				AI.OnSpellCast(SpellInfo);
+				caster.AI.OnSpellCast(SpellInfo);
 	}
 
 	void DoProcessTargetContainer<T>(List<T> targetContainer) where T : TargetInfoBase

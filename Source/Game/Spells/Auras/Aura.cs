@@ -1804,13 +1804,13 @@ public class Aura
 			case TypeId.Unit:
 			case TypeId.Player:
 				foreach (var spellEffectInfo in spellProto.Effects)
-					if (spellEffectInfo.IsUnitOwnedAuraEffect() && availableEffectMask.Contains(spellEffectInfo.EffectIndex))
+					if (spellEffectInfo.IsUnitOwnedAuraEffect())
 						effMask.Add(spellEffectInfo.EffectIndex);
 
 				break;
 			case TypeId.DynamicObject:
 				foreach (var spellEffectInfo in spellProto.Effects)
-					if (spellEffectInfo.Effect == SpellEffectName.PersistentAreaAura && availableEffectMask.Contains(spellEffectInfo.EffectIndex))
+					if (spellEffectInfo.Effect == SpellEffectName.PersistentAreaAura)
                         effMask.Add(spellEffectInfo.EffectIndex);
 
 				break;
