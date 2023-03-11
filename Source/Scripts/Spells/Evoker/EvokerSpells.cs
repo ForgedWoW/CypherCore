@@ -36,7 +36,8 @@ internal struct EvokerSpells
 	public const uint DREAM_BREATH_CHARGED = 355941;
     public const uint DREAM_PROJECTION = 377509;
     public const uint ECHO = 364343;
-	public const uint EMERALD_BLOSSOM = 355913;
+    public const uint ECHO_AURA = 364446;
+    public const uint EMERALD_BLOSSOM = 355913;
 	public const uint EMERALD_COMMUNION = 370960;
     public const uint ENERGIZING_FLAME = 400006;
     public const uint ESSENCE_BURST = 369297;
