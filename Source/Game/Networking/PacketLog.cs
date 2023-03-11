@@ -2,16 +2,21 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Framework.Configuration;
 using Framework.Constants;
+using Game;
 
 public class PacketLog
 {
-	static readonly object syncObj = new();
 	static readonly string FullPath;
+	static readonly ConcurrentQueue<(byte[], uint, IPEndPoint, ConnectionType, bool)> PacketQueue = new ConcurrentQueue<(byte[], uint, IPEndPoint, ConnectionType, bool)>();
+	static AutoResetEvent QueueSemaphore = new AutoResetEvent(false);
 
 	static PacketLog()
 	{
@@ -32,6 +37,47 @@ public class PacketLog
 			writer.Write(Time.MSTime);
 			writer.Write(0);
 		}
+
+		Task.Run(() =>
+		{
+            using var writer = new BinaryWriter(File.Open(FullPath, FileMode.Append), Encoding.ASCII);
+            while (!WorldManager.Instance.IsShuttingDown)
+			{
+				QueueSemaphore.WaitOne(500);
+				while (PacketQueue.Count != 0)
+				{
+					if(PacketQueue.TryDequeue(out var packet))
+					{
+                        writer.Write(packet.Item5 ? 0x47534d43 : 0x47534d53);
+                        writer.Write((uint)packet.Item4);
+                        writer.Write(Time.MSTime);
+
+                        writer.Write(20);
+                        var SocketIPBytes = new byte[16];
+
+                        if (packet.Item3.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                            Buffer.BlockCopy(packet.Item3.Address.GetAddressBytes(), 0, SocketIPBytes, 0, 4);
+                        else
+                            Buffer.BlockCopy(packet.Item3.Address.GetAddressBytes(), 0, SocketIPBytes, 0, 16);
+
+                        var size = packet.Item1.Length;
+
+                        if (packet.Item5)
+                            size -= 2;
+
+                        writer.Write(size + 4);
+                        writer.Write(SocketIPBytes);
+                        writer.Write(packet.Item3.Port);
+                        writer.Write(packet.Item2);
+
+                        if (packet.Item5)
+                            writer.Write(packet.Item1, 2, size);
+                        else
+                            writer.Write(packet.Item1, 0, size);
+                    }
+				}
+			}
+		});
 	}
 
 	public static void Write(byte[] data, uint opcode, IPEndPoint endPoint, ConnectionType connectionType, bool isClientPacket)
@@ -39,36 +85,8 @@ public class PacketLog
 		if (!CanLog())
 			return;
 
-		lock (syncObj)
-		{
-			using var writer = new BinaryWriter(File.Open(FullPath, FileMode.Append), Encoding.ASCII);
-			writer.Write(isClientPacket ? 0x47534d43 : 0x47534d53);
-			writer.Write((uint)connectionType);
-			writer.Write(Time.MSTime);
-
-			writer.Write(20);
-			var SocketIPBytes = new byte[16];
-
-			if (endPoint.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-				Buffer.BlockCopy(endPoint.Address.GetAddressBytes(), 0, SocketIPBytes, 0, 4);
-			else
-				Buffer.BlockCopy(endPoint.Address.GetAddressBytes(), 0, SocketIPBytes, 0, 16);
-
-			var size = data.Length;
-
-			if (isClientPacket)
-				size -= 2;
-
-			writer.Write(size + 4);
-			writer.Write(SocketIPBytes);
-			writer.Write(endPoint.Port);
-			writer.Write(opcode);
-
-			if (isClientPacket)
-				writer.Write(data, 2, size);
-			else
-				writer.Write(data, 0, size);
-		}
+		PacketQueue.Enqueue((data, opcode, endPoint, connectionType, isClientPacket));
+		QueueSemaphore.Set();
 	}
 
 	public static bool CanLog()
