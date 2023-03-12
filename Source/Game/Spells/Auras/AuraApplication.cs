@@ -136,42 +136,35 @@ public class AuraApplication
 		if (_effectsToApply.SetEquals(newEffMask))
 			return;
 
-		var addEffMask = newEffMask.ToMask();
-		var effectsToApply = _effectsToApply.ToMask();
+		var toAdd = newEffMask.ToHashSet();
+		var toRemove = _effectsToApply.ToHashSet();
 
-        var removeEffMask = (effectsToApply ^ addEffMask) & (~addEffMask);
-        var addMask = (effectsToApply ^ addEffMask) & (~effectsToApply);
+		toAdd.SymmetricExceptWith(_effectsToApply);
+		toRemove.SymmetricExceptWith(newEffMask);
 
-		var removeExploded = removeEffMask.ExplodeMask(SpellConst.MaxEffects);
-		var addExploded = addMask.ExplodeMask(SpellConst.MaxEffects);
-
-		var newEffMaskCopy = newEffMask.ToHashSet();
-		var _effectsToApplyCopy = _effectsToApply.ToHashSet();
-
-		newEffMaskCopy.SymmetricExceptWith(_effectsToApply);
-		_effectsToApplyCopy.SymmetricExceptWith(newEffMask);
+		toAdd.ExceptWith(_effectsToApply);
+		toRemove.ExceptWith(newEffMask);
 
         // quick check, removes application completely
-        if (removeEffMask == effectsToApply && addEffMask == 0)
+        if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
         {
 			_target._UnapplyAura(this, AuraRemoveMode.Default);
 
 			return;
 		}
 
-		// update real effects only if they were applied already
+        // update real effects only if they were applied already
+        _effectsToApply = newEffMask;
 
-		foreach (var eff in Base.AuraEffects)
+        foreach (var eff in Base.AuraEffects)
 		{
-			if (HasEffect(eff.Key) && removeExploded.Contains(eff.Key))
+			if (HasEffect(eff.Key) && toRemove.Contains(eff.Key))
 				_HandleEffect(eff.Key, false);
 
 			if (canHandleNewEffects)
-				if (addExploded.Contains(eff.Key))
+				if (toAdd.Contains(eff.Key))
 					_HandleEffect(eff.Key, true);
 		}
-
-		_effectsToApply = newEffMask;
 	}
 
 	public void SetNeedClientUpdate()

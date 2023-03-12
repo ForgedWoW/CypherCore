@@ -661,7 +661,7 @@ public partial class Spell : IDisposable
 
 	public void DoSpellEffectHit(Unit unit, SpellEffectInfo spellEffectInfo, TargetInfo hitInfo)
 	{
-		var aura_effmask = Aura.BuildEffectMaskForOwner(SpellInfo, new HashSet<int>(spellEffectInfo.EffectIndex), unit);
+		var aura_effmask = Aura.BuildEffectMaskForOwner(SpellInfo, new HashSet<int>() { spellEffectInfo.EffectIndex }, unit);
 
 		if (aura_effmask.Count != 0)
 		{
@@ -4515,7 +4515,7 @@ public partial class Spell : IDisposable
 				if (effMask.Contains(eff.EffectIndex))
 					_damageMultipliers[spellEffectInfo.EffectIndex] = 1.0f;
 
-			_applyMultiplierMask.Union(effMask);
+			_applyMultiplierMask.UnionWith(effMask);
 
 			List<WorldObject> targets = new();
 			SearchChainTargets(targets, (uint)maxTargets - 1, target, targetType.ObjectType, targetType.CheckType, spellEffectInfo, targetType.Target == Framework.Constants.Targets.UnitChainhealAlly);
@@ -5268,7 +5268,7 @@ public partial class Spell : IDisposable
 		if (index != -1) // Found in list
 		{
 			// Add only effect mask
-			_uniqueItemInfo[index].Effects.Union(effectMask);
+			_uniqueItemInfo[index].Effects.UnionWith(effectMask);
 
 			return;
 		}
@@ -5308,7 +5308,7 @@ public partial class Spell : IDisposable
 		if (corpseTargetInfo != null) // Found in list
 		{
 			// Add only effect mask
-			corpseTargetInfo.Effects.Union(effectMask);
+			corpseTargetInfo.Effects.UnionWith(effectMask);
 
 			return;
 		}
@@ -6488,7 +6488,7 @@ public partial class Spell : IDisposable
 				data.HitTargets.Add(targetInfo.TargetGuid);
 				data.HitStatus.Add(new SpellHitStatus(SpellMissInfo.None));
 
-				_channelTargetEffectMask.Union(targetInfo.Effects);
+				_channelTargetEffectMask.UnionWith(targetInfo.Effects);
 			}
 			else // misses
 			{
