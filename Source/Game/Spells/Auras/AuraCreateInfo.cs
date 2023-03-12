@@ -36,7 +36,7 @@ public class AuraCreateInfo
 		CastId = castId;
 		SpellInfoInternal = spellInfo;
 		CastDifficulty = castDifficulty;
-		AuraEffectMask = auraEffMask.ToHashSet();
+		AuraEffectMask = auraEffMask;
 		OwnerInternal = owner;
 
 		Cypher.Assert(spellInfo != null);

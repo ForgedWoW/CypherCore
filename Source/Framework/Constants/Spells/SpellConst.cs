@@ -10,7 +10,7 @@ namespace Framework.Constants
     {
         public const uint MAX_EFFECT_MASK = 0xFFFFFFFF;
 
-        public static readonly HashSet<int> MaxEffects = new HashSet<int>().Fill(32);
+        public static HashSet<int> MaxEffects => new HashSet<int>().Fill(32);
         public const int MaxReagents = 8;
         public const int MaxTotems = 2;
         public const int MaxShapeshift = 8;
