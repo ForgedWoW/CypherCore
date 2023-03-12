@@ -98,7 +98,7 @@ class PartyMemberFullState : ServerPacket
 		{
 			PartyMemberAuraStates aura = new();
 			aura.SpellID = (int)aurApp.Base.Id;
-			aura.ActiveFlags = (uint)aurApp.EffectMask.ToMask();
+			aura.ActiveFlags = aurApp.EffectMask.ToUMask();
 			aura.Flags = (byte)aurApp.Flags;
 
 			if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
@@ -131,7 +131,7 @@ class PartyMemberFullState : ServerPacket
 				PartyMemberAuraStates aura = new();
 
 				aura.SpellID = (int)aurApp.Base.Id;
-				aura.ActiveFlags = (uint)aurApp.EffectMask.ToMask();
+				aura.ActiveFlags = aurApp.EffectMask.ToUMask();
 				aura.Flags = (byte)aurApp.Flags;
 
 				if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))

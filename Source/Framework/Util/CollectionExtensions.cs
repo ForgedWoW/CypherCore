@@ -653,5 +653,15 @@ namespace System.Collections.Generic
 
             return mask;
         }
+
+        public static uint ToUMask(this IEnumerable<int> set)
+        {
+            uint mask = 0;
+
+            foreach (var i in set)
+                mask |= (1u << i);
+
+            return mask;
+        }
     }
 }
