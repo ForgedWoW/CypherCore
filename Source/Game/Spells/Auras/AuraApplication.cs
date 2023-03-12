@@ -198,7 +198,7 @@ public class AuraApplication
 		if (aura.AuraObjType != AuraObjectType.DynObj && aura.MaxDuration > 0 && !aura.SpellInfo.HasAttribute(SpellAttr5.DoNotDisplayDuration))
 			auraData.Flags |= AuraFlags.Duration;
 
-		auraData.ActiveFlags = EffectMask.ToUMask();
+		auraData.ActiveFlags = EffectMask;
 
 		if (!aura.SpellInfo.HasAttribute(SpellAttr11.ScalesWithItemLevel))
 			auraData.CastLevel = aura.CasterLevel;
