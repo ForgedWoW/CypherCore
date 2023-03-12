@@ -728,7 +728,7 @@ namespace Game.Garrisons
                         {
                             // set some spell id to make the object delete itself after use
                             finalizer.                            // set some spell id to make the object delete itself after use
-                            SpellId = finalizer.GoInfo.Goober.spell;
+                            SpellId = finalizer.Template.Goober.spell;
                             finalizer.SetRespawnTime(0);
 
                             ushort animKit = finalizeInfo.factionInfo[faction].AnimKitId;
@@ -740,9 +740,9 @@ namespace Game.Garrisons
                     }
                 }
 
-                if (go.GoType == GameObjectTypes.GarrisonBuilding && go.GoInfo.GarrisonBuilding.SpawnMap != 0)
+                if (go.GoType == GameObjectTypes.GarrisonBuilding && go.Template.GarrisonBuilding.SpawnMap != 0)
                 {
-                    foreach (var cellGuids in Global.ObjectMgr.GetMapObjectGuids((uint)go.GoInfo.GarrisonBuilding.SpawnMap, map.DifficultyID))
+                    foreach (var cellGuids in Global.ObjectMgr.GetMapObjectGuids((uint)go.Template.GarrisonBuilding.SpawnMap, map.DifficultyID))
                     {
                         foreach (var spawnId in cellGuids.Value.creatures)
                         {

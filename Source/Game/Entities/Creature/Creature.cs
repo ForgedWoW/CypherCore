@@ -222,7 +222,7 @@ public partial class Creature : Unit
 		set => _equipmentId = value;
 	}
 
-	public CreatureTemplate CreatureTemplate => _creatureInfo;
+	public CreatureTemplate CreatureTemplate => _creatureTemplate;
 
 	public CreatureData CreatureData => _creatureData;
 
@@ -355,10 +355,10 @@ public partial class Creature : Unit
 		// Register the creature for guid lookup
 		if (!IsInWorld)
 		{
-			Map.ObjectsStore.Add(GUID, this);
+			Map.			ObjectsStore.Add(GUID, this);
 
 			if (SpawnId != 0)
-				Map.CreatureBySpawnIdStore.Add(SpawnId, this);
+				Map.				CreatureBySpawnIdStore.Add(SpawnId, this);
 
 			base.AddToWorld();
 			SearchFormation();
@@ -385,7 +385,7 @@ public partial class Creature : Unit
 			base.RemoveFromWorld();
 
 			if (SpawnId != 0)
-				Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
+				Map.				CreatureBySpawnIdStore.Remove(SpawnId, this);
 
 			Map.
 			ObjectsStore.Remove(GUID);
@@ -536,7 +536,7 @@ public partial class Creature : Unit
 			cInfo = normalInfo;
 
 		Entry = entry;         // normal entry always
-		_creatureInfo = cInfo; // map mode related always
+		_creatureTemplate = cInfo; // map mode related always
 
 		// equal to player Race field, but creature does not have race
 		Race = 0;
@@ -2910,8 +2910,8 @@ public partial class Creature : Unit
 				return scriptId;
 		}
 
-		if (_creatureInfo.ScriptID != 0)
-			return _creatureInfo.ScriptID;
+		if (_creatureTemplate.ScriptID != 0)
+			return _creatureTemplate.ScriptID;
 
 		return Global.ObjectMgr.GetCreatureTemplate(Entry) != null ? Global.ObjectMgr.GetCreatureTemplate(Entry).ScriptID : 0;
 	}

@@ -2383,7 +2383,7 @@ public abstract class WorldObject : IDisposable
 					break;
 				case TypeId.GameObject:
 					if (factionId != 0) // Gameobjects may have faction template id = 0
-						Log.outError(LogFilter.Unit, $"GameObject (template id: {AsGameObject.GoInfo.entry}) has invalid faction (faction template Id) #{factionId}");
+						Log.outError(LogFilter.Unit, $"GameObject (template id: {AsGameObject.Template.entry}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 				default:

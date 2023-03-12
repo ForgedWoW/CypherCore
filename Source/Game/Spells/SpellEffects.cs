@@ -1394,7 +1394,7 @@ public partial class Spell
 		// Get lockId
 		if (GameObjTarget != null)
 		{
-			var goInfo = GameObjTarget.GoInfo;
+			var goInfo = GameObjTarget.Template;
 
 			if (goInfo.GetNoDamageImmune() != 0 && player.HasUnitFlag(UnitFlags.Immune))
 				return;
@@ -1440,7 +1440,7 @@ public partial class Spell
 
 				return;
 			}
-			else if (SpellInfo.Id == 1842 && GameObjTarget.GoInfo.type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
+			else if (SpellInfo.Id == 1842 && GameObjTarget.Template.type == GameObjectTypes.Trap && GameObjTarget.OwnerUnit != null)
 			{
 				GameObjTarget.SetLootState(LootState.JustDeactivated);
 
@@ -1449,7 +1449,7 @@ public partial class Spell
 			// @todo Add script for spell 41920 - Filling, becouse server it freze when use this spell
 			// handle outdoor pvp object opening, return true if go was registered for handling
 			// these objects must have been spawned by outdoorpvp!
-			else if (GameObjTarget.GoInfo.type == GameObjectTypes.Goober && Global.OutdoorPvPMgr.HandleOpenGo(player, GameObjTarget))
+			else if (GameObjTarget.Template.type == GameObjectTypes.Goober && Global.OutdoorPvPMgr.HandleOpenGo(player, GameObjTarget))
 			{
 				return;
 			}

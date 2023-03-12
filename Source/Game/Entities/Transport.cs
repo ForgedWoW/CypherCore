@@ -91,7 +91,7 @@ public class Transport : GameObject, ITransport
 
 	public int GetMapIdForSpawning()
 	{
-		return GoInfo.MoTransport.SpawnMap;
+		return Template.MoTransport.SpawnMap;
 	}
 
 	public ObjectGuid GetTransportGUID()
@@ -211,7 +211,7 @@ public class Transport : GameObject, ITransport
 
 		var cycleId = _pathProgress / GetTransportPeriod();
 
-		if (GoInfo.MoTransport.allowstopping == 0)
+		if (Template.MoTransport.allowstopping == 0)
 			_pathProgress = GameTime.GetGameTimeMS();
 		else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
 			_pathProgress += diff;
@@ -529,7 +529,7 @@ public class Transport : GameObject, ITransport
 
 	public void EnableMovement(bool enabled)
 	{
-		if (GoInfo.MoTransport.allowstopping == 0)
+		if (Template.MoTransport.allowstopping == 0)
 			return;
 
 		if (!enabled)
@@ -633,7 +633,7 @@ public class Transport : GameObject, ITransport
 
 	void LoadStaticPassengers()
 	{
-		var mapId = (uint)GoInfo.MoTransport.SpawnMap;
+		var mapId = (uint)Template.MoTransport.SpawnMap;
 		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.DifficultyID);
 
 		if (cells == null)

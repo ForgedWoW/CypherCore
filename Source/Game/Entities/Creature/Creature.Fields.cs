@@ -16,7 +16,7 @@ public partial class Creature
 
 	// vendor items
 	readonly List<VendorItemCount> _vendorItemCounts = new();
-	CreatureTemplate _creatureInfo;
+	CreatureTemplate _creatureTemplate;
 	CreatureData _creatureData;
 	string _scriptStringId;
 
@@ -64,6 +64,8 @@ public partial class Creature
 	uint _boundaryCheckTime; // (msecs) remaining time for next evade boundary check
 	uint _combatPulseTime;   // (msecs) remaining time for next zone-in-combat pulse
 	uint _combatPulseDelay;  // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
+	uint? _gossipMenuId;
+
 	HashSet<ObjectGuid> _tapList = new();
 	public ulong PlayerDamageReq { get; set; }
 	public float SightDistance { get; set; }
@@ -78,4 +80,19 @@ public partial class Creature
 	public uint[] Spells { get; set; } = new uint[SharedConst.MaxCreatureSpells];
 	public long CorpseRemoveTime { get; set; } // (msecs)timer for death or corpse disappearance
 	public Loot Loot { get; set; }
+
+	public uint GossipMenuId
+	{
+		get
+		{
+			if (_gossipMenuId.HasValue) 
+				return _gossipMenuId.Value;
+
+			return _creatureTemplate.GossipMenuId;
+        }
+		set
+		{
+			_gossipMenuId = value;
+		}
+	}
 }

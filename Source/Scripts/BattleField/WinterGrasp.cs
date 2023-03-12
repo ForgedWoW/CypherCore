@@ -788,10 +788,10 @@ internal class BattlefieldWG : BattleField
 
 				if (buildingGo)
 				{
-					if (buildingGo.GoInfo.DestructibleBuilding.DamagedEvent == eventId)
+					if (buildingGo.Template.DestructibleBuilding.DamagedEvent == eventId)
 						building.Damaged();
 
-					if (buildingGo.GoInfo.DestructibleBuilding.DestroyedEvent == eventId)
+					if (buildingGo.Template.DestructibleBuilding.DestroyedEvent == eventId)
 						building.Destroyed();
 
 					break;

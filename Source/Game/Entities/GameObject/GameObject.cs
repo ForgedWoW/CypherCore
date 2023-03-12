@@ -58,8 +58,9 @@ namespace Game.Entities
 		bool _respawnCompatibilityMode;
 		ushort _animKitId;
 		uint _worldEffectId;
+        uint? _gossipMenuId;
 
-		Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
+        Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
 
 		GameObjectState _prevGoState; // What state to set whenever resetting
 		Dictionary<ObjectGuid, Loot> _personalLoot = new();
@@ -126,7 +127,7 @@ namespace Game.Entities
 			get
 			{
 				// If something is marked as a transport, don't transmit an out of range packet for it.
-				var gInfo = GoInfo;
+				var gInfo = Template;
 
 				if (gInfo == null)
 					return false;
@@ -141,7 +142,7 @@ namespace Game.Entities
 			get
 			{
 				// If something is marked as a transport, don't transmit an out of range packet for it.
-				var gInfo = GoInfo;
+				var gInfo = Template;
 
 				if (gInfo == null)
 					return false;
@@ -154,7 +155,7 @@ namespace Game.Entities
 		{
 			get
 			{
-				var gInfo = GoInfo;
+				var gInfo = Template;
 
 				if (gInfo == null)
 					return false;
@@ -163,7 +164,7 @@ namespace Game.Entities
 			}
 		}
 
-		public Transport AsTransport => GoInfo.type == GameObjectTypes.MapObjTransport ? (this as Transport) : null;
+		public Transport AsTransport => Template.type == GameObjectTypes.MapObjTransport ? (this as Transport) : null;
 
 		public uint ScriptId
 		{
@@ -179,7 +180,7 @@ namespace Game.Entities
 						return scriptId;
 				}
 
-				return GoInfo.ScriptId;
+				return Template.ScriptId;
 			}
 		}
 
@@ -210,7 +211,22 @@ namespace Game.Entities
 			set => _worldEffectId = value;
 		}
 
-		public GameObjectTemplate GoInfo => GoInfoProtected;
+        public uint GossipMenuId
+        {
+            get
+            {
+                if (_gossipMenuId.HasValue)
+                    return _gossipMenuId.Value;
+
+                return Template.GetGossipMenuId();
+            }
+            set
+            {
+                _gossipMenuId = value;
+            }
+        }
+
+        public GameObjectTemplate Template => GoInfoProtected;
 
 		public GameObjectTemplateAddon TemplateAddon => GoTemplateAddonProtected;
 
@@ -532,7 +548,7 @@ namespace Game.Entities
 						case GameObjectTypes.Trap:
 						{
 							// Arming Time for GAMEOBJECT_TYPE_TRAP (6)
-							var goInfo = GoInfo;
+							var goInfo = Template;
 
 							// Bombs
 							var owner = OwnerUnit;
@@ -638,7 +654,7 @@ namespace Game.Entities
 										break;
 									case GameObjectTypes.FishingHole:
 										// Initialize a new max fish count on respawn
-										GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(GoInfo.FishingHole.minRestock, GoInfo.FishingHole.maxRestock);
+										GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(Template.FishingHole.minRestock, Template.FishingHole.maxRestock);
 
 										break;
 									default:
@@ -673,7 +689,7 @@ namespace Game.Entities
 
 					if (IsSpawned)
 					{
-						var goInfo = GoInfo;
+						var goInfo = Template;
 						uint maxCharges;
 
 						if (goInfo.type == GameObjectTypes.Trap)
@@ -754,7 +770,7 @@ namespace Game.Entities
 												if (goInfo.CapturePoint.CaptureEventHorde != 0)
 													GameEvents.Trigger(goInfo.CapturePoint.CaptureEventHorde, this, this);
 
-												bg.SendBroadcastText(GoInfo.CapturePoint.CaptureBroadcastHorde, ChatMsg.BgSystemHorde);
+												bg.SendBroadcastText(Template.CapturePoint.CaptureBroadcastHorde, ChatMsg.BgSystemHorde);
 											}
 										}
 									}
@@ -772,7 +788,7 @@ namespace Game.Entities
 												if (goInfo.CapturePoint.CaptureEventAlliance != 0)
 													GameEvents.Trigger(goInfo.CapturePoint.CaptureEventAlliance, this, this);
 
-												bg.SendBroadcastText(GoInfo.CapturePoint.CaptureBroadcastAlliance, ChatMsg.BgSystemAlliance);
+												bg.SendBroadcastText(Template.CapturePoint.CaptureBroadcastAlliance, ChatMsg.BgSystemAlliance);
 											}
 										}
 									}
@@ -825,7 +841,7 @@ namespace Game.Entities
 								loot.Update();
 
 							// Non-consumable chest was partially looted and restock time passed, restock all loot now
-							if (GoInfo.Chest.consumable == 0 && GoInfo.Chest.chestRestockTime != 0 && GameTime.GetGameTime() >= _restockTime)
+							if (Template.Chest.consumable == 0 && Template.Chest.chestRestockTime != 0 && GameTime.GetGameTime() >= _restockTime)
 							{
 								_restockTime = 0;
 								_lootState = LootState.Ready;
@@ -836,7 +852,7 @@ namespace Game.Entities
 							break;
 						case GameObjectTypes.Trap:
 						{
-							var goInfo = GoInfo;
+							var goInfo = Template;
 							var target = Global.ObjAccessor.GetUnit(this, _lootStateUnitGuid);
 
 							if (goInfo.Trap.charges == 2 && goInfo.Trap.spell != 0)
@@ -896,7 +912,7 @@ namespace Game.Entities
 					//if Gameobject should cast spell, then this, but some GOs (type = 10) should be destroyed
 					if (GoType == GameObjectTypes.Goober)
 					{
-						var spellId = GoInfo.Goober.spell;
+						var spellId = Template.Goober.spell;
 
 						if (spellId != 0)
 						{
@@ -914,7 +930,7 @@ namespace Game.Entities
 						}
 
 						// Only goobers with a lock id or a reset time may reset their go state
-						if (GoInfo.GetLockId() != 0 || GoInfo.GetAutoCloseTime() != 0)
+						if (Template.GetLockId() != 0 || Template.GetAutoCloseTime() != 0)
 							SetGoState(GameObjectState.Ready);
 
 						//any return here in case Battleground traps
@@ -929,12 +945,12 @@ namespace Game.Entities
 					// Do not delete chests or goobers that are not consumed on loot, while still allowing them to despawn when they expire if summoned
 					var isSummonedAndExpired = (OwnerUnit != null || SpellId != 0) && _respawnTime == 0;
 
-					if ((GoType == GameObjectTypes.Chest || GoType == GameObjectTypes.Goober) && !GoInfo.IsDespawnAtAction() && !isSummonedAndExpired)
+					if ((GoType == GameObjectTypes.Chest || GoType == GameObjectTypes.Goober) && !Template.IsDespawnAtAction() && !isSummonedAndExpired)
 					{
-						if (GoType == GameObjectTypes.Chest && GoInfo.Chest.chestRestockTime > 0)
+						if (GoType == GameObjectTypes.Chest && Template.Chest.chestRestockTime > 0)
 						{
 							// Start restock timer when the chest is fully looted
-							_restockTime = GameTime.GetGameTime() + GoInfo.Chest.chestRestockTime;
+							_restockTime = GameTime.GetGameTime() + Template.Chest.chestRestockTime;
 							SetLootState(LootState.NotReady);
 							UpdateDynamicFlagsForNearbyPlayers();
 						}
@@ -958,7 +974,7 @@ namespace Game.Entities
 					SetLootState(LootState.NotReady);
 
 					//burning flags in some Battlegrounds, if you find better condition, just add it
-					if (GoInfo.IsDespawnAtAction() || GoAnimProgress > 0)
+					if (Template.IsDespawnAtAction() || GoAnimProgress > 0)
 					{
 						SendGameObjectDespawn();
 						//reset flags
@@ -1151,7 +1167,7 @@ namespace Game.Entities
 
 		public void SaveToDB(uint mapid, List<Difficulty> spawnDifficulties)
 		{
-			var goI = GoInfo;
+			var goI = Template;
 
 			if (goI == null)
 				return;
@@ -1240,7 +1256,7 @@ namespace Game.Entities
 			{
 				_spawnedByDefault = true;
 
-				if (!GoInfo.GetDespawnPossibility() && !GoInfo.IsDespawnAtAction())
+				if (!Template.GetDespawnPossibility() && !Template.IsDespawnAtAction())
 				{
 					SetFlag(GameObjectFlags.NoDespawn);
 					_respawnDelayTime = 0;
@@ -1382,7 +1398,7 @@ namespace Game.Entities
 			if (base.IsNeverVisibleFor(seer))
 				return true;
 
-			if (GoInfo.GetServerOnly() != 0)
+			if (Template.GetServerOnly() != 0)
 				return true;
 
 			if (DisplayId == 0)
@@ -1472,7 +1488,7 @@ namespace Game.Entities
 						return false;
 
 					// scan GO chest with loot including quest items
-					if (target.GetQuestStatus(GoInfo.Chest.questID) == QuestStatus.Incomplete || LootStorage.Gameobject.HaveQuestLootForPlayer(GoInfo.Chest.chestLoot, target) || LootStorage.Gameobject.HaveQuestLootForPlayer(GoInfo.Chest.chestPersonalLoot, target) || LootStorage.Gameobject.HaveQuestLootForPlayer(GoInfo.Chest.chestPushLoot, target))
+					if (target.GetQuestStatus(Template.Chest.questID) == QuestStatus.Incomplete || LootStorage.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestLoot, target) || LootStorage.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPersonalLoot, target) || LootStorage.Gameobject.HaveQuestLootForPlayer(Template.Chest.chestPushLoot, target))
 					{
 						var bg = target.Battleground;
 
@@ -1486,14 +1502,14 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.Generic:
 				{
-					if (target.GetQuestStatus(GoInfo.Generic.questID) == QuestStatus.Incomplete)
+					if (target.GetQuestStatus(Template.Generic.questID) == QuestStatus.Incomplete)
 						return true;
 
 					break;
 				}
 				case GameObjectTypes.Goober:
 				{
-					if (target.GetQuestStatus(GoInfo.Goober.questID) == QuestStatus.Incomplete)
+					if (target.GetQuestStatus(Template.Goober.questID) == QuestStatus.Incomplete)
 						return true;
 
 					break;
@@ -1541,7 +1557,7 @@ namespace Game.Entities
 				return;
 
 			if (time_to_restore == 0)
-				time_to_restore = GoInfo.GetAutoCloseTime();
+				time_to_restore = Template.GetAutoCloseTime();
 
 			SwitchDoorOrButton(true, alternative);
 			SetLootState(LootState.Activated, user);
@@ -1758,7 +1774,7 @@ namespace Game.Entities
 			}
 
 			// If cooldown data present in template
-			var cooldown = GoInfo.GetCooldown();
+			var cooldown = Template.GetCooldown();
 
 			if (cooldown != 0)
 			{
@@ -1783,7 +1799,7 @@ namespace Game.Entities
 
 					var player = user.AsPlayer;
 
-					player.PrepareGossipMenu(this, GoInfo.QuestGiver.gossipID, true);
+					player.PrepareGossipMenu(this, Template.QuestGiver.gossipID, true);
 					player.SendPreparedGossip(this);
 
 					return;
@@ -1800,7 +1816,7 @@ namespace Game.Entities
 					if (bg != null && !bg.CanActivateGO((int)Entry, (uint)bg.GetPlayerTeam(user.GUID)))
 						return;
 
-					var info = GoInfo;
+					var info = Template;
 
 					if (Loot == null && info.GetLootId() != 0)
 					{
@@ -1912,7 +1928,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.Trap: //6
 				{
-					var goInfo = GoInfo;
+					var goInfo = Template;
 
 					if (goInfo.Trap.spell != 0)
 						CastSpell(user, goInfo.Trap.spell);
@@ -1927,7 +1943,7 @@ namespace Game.Entities
 				//Sitting: Wooden bench, chairs enzz
 				case GameObjectTypes.Chair: //7
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (_chairListSlots.Empty()) // this is called once at first chair use to make list of available slots
 					{
@@ -2012,7 +2028,7 @@ namespace Game.Entities
 				case GameObjectTypes.SpellFocus: //8
 				{
 					// triggering linked GO
-					var trapEntry = GoInfo.SpellFocus.linkedTrap;
+					var trapEntry = Template.SpellFocus.linkedTrap;
 
 					if (trapEntry != 0)
 						TriggeringLinkedGameObject(trapEntry, user);
@@ -2022,7 +2038,7 @@ namespace Game.Entities
 				//big gun, its a spell/aura
 				case GameObjectTypes.Goober: //10
 				{
-					var info = GoInfo;
+					var info = Template;
 					var player = user.AsPlayer;
 
 					if (player != null)
@@ -2102,7 +2118,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.Camera: //13
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (info == null)
 						return;
@@ -2231,7 +2247,7 @@ namespace Game.Entities
 
 					var owner = OwnerUnit;
 
-					var info = GoInfo;
+					var info = Template;
 
 					// ritual owner is set for GO's without owner (not summoned)
 					if (_ritualOwner == null && owner == null)
@@ -2327,7 +2343,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.SpellCaster: //22
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (info == null)
 						return;
@@ -2352,7 +2368,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.MeetingStone: //23
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (!user.IsTypeId(TypeId.Player))
 						return;
@@ -2429,11 +2445,11 @@ namespace Game.Entities
 					var player = user.AsPlayer;
 
 					var loot = new Loot(Map, GUID, LootType.Fishinghole, null);
-					loot.FillLoot(GoInfo.GetLootId(), LootStorage.Gameobject, player, true);
+					loot.FillLoot(Template.GetLootId(), LootStorage.Gameobject, player, true);
 					_personalLoot[player.GUID] = loot;
 
 					player.SendLoot(loot);
-					player.UpdateCriteria(CriteriaType.CatchFishInFishingHole, GoInfo.entry);
+					player.UpdateCriteria(CriteriaType.CatchFishInFishingHole, Template.entry);
 
 					return;
 				}
@@ -2464,7 +2480,7 @@ namespace Game.Entities
 						// 179786 - Warsong Flag
 						// EotS:
 						// 184142 - Netherstorm Flag
-						var info = GoInfo;
+						var info = Template;
 
 						if (info != null)
 						{
@@ -2496,7 +2512,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.BarberChair: //32
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (info == null)
 						return;
@@ -2516,7 +2532,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.NewFlag:
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (info == null)
 						return;
@@ -2530,7 +2546,7 @@ namespace Game.Entities
 				}
 				case GameObjectTypes.ItemForge:
 				{
-					var info = GoInfo;
+					var info = Template;
 
 					if (info == null)
 						return;
@@ -2597,7 +2613,7 @@ namespace Game.Entities
 					GameObjectInteraction gameObjectUILink = new();
 					gameObjectUILink.ObjectGUID = GUID;
 
-					switch (GoInfo.UILink.UILinkType)
+					switch (Template.UILink.UILinkType)
 					{
 						case 0:
 							gameObjectUILink.InteractionType = PlayerInteractionType.AdventureJournal;
@@ -2630,7 +2646,7 @@ namespace Game.Entities
 					if (player == null)
 						return;
 
-					var info = GoInfo;
+					var info = Template;
 
 					if (!_personalLoot.ContainsKey(player.GUID))
 					{
@@ -2698,7 +2714,7 @@ namespace Game.Entities
 									user.GetName(),
 									GUID.ToString(),
 									Entry,
-									GoInfo.name,
+									Template.name,
 									GoType);
 
 					break;
@@ -2850,7 +2866,7 @@ namespace Game.Entities
 				if (GoType == GameObjectTypes.SpellFocus)
 					return maxRange * maxRange >= Location.GetExactDistSq(player.Location);
 
-				if (CliDB.GameObjectDisplayInfoStorage.ContainsKey(GoInfo.displayId))
+				if (CliDB.GameObjectDisplayInfoStorage.ContainsKey(Template.displayId))
 					return IsAtInteractDistance(player.Location, maxRange);
 			}
 
@@ -2867,7 +2883,7 @@ namespace Game.Entities
 			if (!player)
 				return null;
 
-			var lockId = GoInfo.GetLockId();
+			var lockId = Template.GetLockId();
 
 			if (lockId == 0)
 				return null;
@@ -2946,8 +2962,8 @@ namespace Game.Entities
 				player.SendPacket(packet);
 			}
 
-			if (change < 0 && GoInfo.DestructibleBuilding.DamageEvent != 0)
-				GameEvents.Trigger(GoInfo.DestructibleBuilding.DamageEvent, attackerOrHealer, this);
+			if (change < 0 && Template.DestructibleBuilding.DamageEvent != 0)
+				GameEvents.Trigger(Template.DestructibleBuilding.DamageEvent, attackerOrHealer, this);
 
 			var newState = DestructibleState;
 
@@ -2986,8 +3002,8 @@ namespace Game.Entities
 					break;
 				case GameObjectDestructibleState.Damaged:
 				{
-					if (GoInfo.DestructibleBuilding.DamagedEvent != 0)
-						GameEvents.Trigger(GoInfo.DestructibleBuilding.DamagedEvent, attackerOrHealer, this);
+					if (Template.DestructibleBuilding.DamagedEvent != 0)
+						GameEvents.Trigger(Template.DestructibleBuilding.DamagedEvent, attackerOrHealer, this);
 
 					AI.Damaged(attackerOrHealer, GoInfoProtected.DestructibleBuilding.DamagedEvent);
 
@@ -3019,8 +3035,8 @@ namespace Game.Entities
 				}
 				case GameObjectDestructibleState.Destroyed:
 				{
-					if (GoInfo.DestructibleBuilding.DestroyedEvent != 0)
-						GameEvents.Trigger(GoInfo.DestructibleBuilding.DestroyedEvent, attackerOrHealer, this);
+					if (Template.DestructibleBuilding.DestroyedEvent != 0)
+						GameEvents.Trigger(Template.DestructibleBuilding.DestroyedEvent, attackerOrHealer, this);
 
 					AI.Destroyed(attackerOrHealer, GoInfoProtected.DestructibleBuilding.DestroyedEvent);
 
@@ -3058,8 +3074,8 @@ namespace Game.Entities
 				}
 				case GameObjectDestructibleState.Rebuilding:
 				{
-					if (GoInfo.DestructibleBuilding.RebuildingEvent != 0)
-						GameEvents.Trigger(GoInfo.DestructibleBuilding.RebuildingEvent, attackerOrHealer, this);
+					if (Template.DestructibleBuilding.RebuildingEvent != 0)
+						GameEvents.Trigger(Template.DestructibleBuilding.RebuildingEvent, attackerOrHealer, this);
 
 					RemoveFlag(GameObjectFlags.Damaged | GameObjectFlags.Destroyed);
 
@@ -3093,8 +3109,8 @@ namespace Game.Entities
 			AI.OnLootStateChanged((uint)state, unit);
 
 			// Start restock timer if the chest is partially looted or not looted at all
-			if (GoType == GameObjectTypes.Chest && state == LootState.Activated && GoInfo.Chest.chestRestockTime > 0 && _restockTime == 0)
-				_restockTime = GameTime.GetGameTime() + GoInfo.Chest.chestRestockTime;
+			if (GoType == GameObjectTypes.Chest && state == LootState.Activated && Template.Chest.chestRestockTime > 0 && _restockTime == 0)
+				_restockTime = GameTime.GetGameTime() + Template.Chest.chestRestockTime;
 
 			// only set collision for doors on SetGoState
 			if (GoType == GameObjectTypes.Door)
@@ -3118,7 +3134,7 @@ namespace Game.Entities
 			{
 				case GameObjectTypes.Chest:
 				{
-					var goInfo = GoInfo;
+					var goInfo = Template;
 
 					if (goInfo.Chest.consumable == 0 && goInfo.Chest.chestPersonalLoot != 0)
 						DespawnForPlayer(looter,
@@ -3377,8 +3393,8 @@ namespace Game.Entities
 
 		public float GetInteractionDistance()
 		{
-			if (GoInfo.GetInteractRadiusOverride() != 0)
-				return (float)GoInfo.GetInteractRadiusOverride() / 100.0f;
+			if (Template.GetInteractRadiusOverride() != 0)
+				return (float)Template.GetInteractRadiusOverride() / 100.0f;
 
 			switch (GoType)
 			{
@@ -3493,11 +3509,11 @@ namespace Game.Entities
 				{
 					// defended. capture instantly.
 					GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.HordeCaptured;
-					battleground.SendBroadcastText(GoInfo.CapturePoint.DefendedBroadcastHorde, ChatMsg.BgSystemHorde, player);
+					battleground.SendBroadcastText(Template.CapturePoint.DefendedBroadcastHorde, ChatMsg.BgSystemHorde, player);
 					UpdateCapturePoint();
 
-					if (GoInfo.CapturePoint.DefendedEventHorde != 0)
-						GameEvents.Trigger(GoInfo.CapturePoint.DefendedEventHorde, player, this);
+					if (Template.CapturePoint.DefendedEventHorde != 0)
+						GameEvents.Trigger(Template.CapturePoint.DefendedEventHorde, player, this);
 
 					return;
 				}
@@ -3508,13 +3524,13 @@ namespace Game.Entities
 					case BattlegroundCapturePointState.AllianceCaptured:
 					case BattlegroundCapturePointState.ContestedAlliance:
 						GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.ContestedHorde;
-						battleground.SendBroadcastText(GoInfo.CapturePoint.AssaultBroadcastHorde, ChatMsg.BgSystemHorde, player);
+						battleground.SendBroadcastText(Template.CapturePoint.AssaultBroadcastHorde, ChatMsg.BgSystemHorde, player);
 						UpdateCapturePoint();
 
-						if (GoInfo.CapturePoint.ContestedEventHorde != 0)
-							GameEvents.Trigger(GoInfo.CapturePoint.ContestedEventHorde, player, this);
+						if (Template.CapturePoint.ContestedEventHorde != 0)
+							GameEvents.Trigger(Template.CapturePoint.ContestedEventHorde, player, this);
 
-						GoValueProtected.CapturePoint.AssaultTimer = GoInfo.CapturePoint.CaptureTime;
+						GoValueProtected.CapturePoint.AssaultTimer = Template.CapturePoint.CaptureTime;
 
 						break;
 					default:
@@ -3527,11 +3543,11 @@ namespace Game.Entities
 				{
 					// defended. capture instantly.
 					GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.AllianceCaptured;
-					battleground.SendBroadcastText(GoInfo.CapturePoint.DefendedBroadcastAlliance, ChatMsg.BgSystemAlliance, player);
+					battleground.SendBroadcastText(Template.CapturePoint.DefendedBroadcastAlliance, ChatMsg.BgSystemAlliance, player);
 					UpdateCapturePoint();
 
-					if (GoInfo.CapturePoint.DefendedEventAlliance != 0)
-						GameEvents.Trigger(GoInfo.CapturePoint.DefendedEventAlliance, player, this);
+					if (Template.CapturePoint.DefendedEventAlliance != 0)
+						GameEvents.Trigger(Template.CapturePoint.DefendedEventAlliance, player, this);
 
 					return;
 				}
@@ -3542,13 +3558,13 @@ namespace Game.Entities
 					case BattlegroundCapturePointState.HordeCaptured:
 					case BattlegroundCapturePointState.ContestedHorde:
 						GoValueProtected.CapturePoint.State = BattlegroundCapturePointState.ContestedAlliance;
-						battleground.SendBroadcastText(GoInfo.CapturePoint.AssaultBroadcastAlliance, ChatMsg.BgSystemAlliance, player);
+						battleground.SendBroadcastText(Template.CapturePoint.AssaultBroadcastAlliance, ChatMsg.BgSystemAlliance, player);
 						UpdateCapturePoint();
 
-						if (GoInfo.CapturePoint.ContestedEventAlliance != 0)
-							GameEvents.Trigger(GoInfo.CapturePoint.ContestedEventAlliance, player, this);
+						if (Template.CapturePoint.ContestedEventAlliance != 0)
+							GameEvents.Trigger(Template.CapturePoint.ContestedEventAlliance, player, this);
 
-						GoValueProtected.CapturePoint.AssaultTimer = GoInfo.CapturePoint.CaptureTime;
+						GoValueProtected.CapturePoint.AssaultTimer = Template.CapturePoint.CaptureTime;
 
 						break;
 					default:
@@ -3697,7 +3713,7 @@ namespace Game.Entities
 
 				if (player != null)
 				{
-					var userLevels = Global.DB2Mgr.GetContentTuningData(GoInfo.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+					var userLevels = Global.DB2Mgr.GetContentTuningData(Template.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 					if (userLevels.HasValue)
 						return (byte)Math.Clamp(player.Level, userLevels.Value.MinLevel, userLevels.Value.MaxLevel);
@@ -3758,9 +3774,9 @@ namespace Game.Entities
 			Log.outDebug(LogFilter.Server,
 						"Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
 						GUID.ToString(),
-						GoInfo.entry,
+						Template.entry,
 						_spellId,
-						GoInfo.GetLinkedGameObjectEntry(),
+						Template.GetLinkedGameObjectEntry(),
 						ownerGUID.ToString());
 
 			SetOwnerGUID(ObjectGuid.Empty);
@@ -3891,11 +3907,11 @@ namespace Game.Entities
 			{
 				case GameObjectTypes.FishingHole:
 					SetGoAnimProgress(animProgress);
-					GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(GoInfo.FishingHole.minRestock, GoInfo.FishingHole.maxRestock);
+					GoValueProtected.FishingHole.MaxOpens = RandomHelper.URand(Template.FishingHole.minRestock, Template.FishingHole.maxRestock);
 
 					break;
 				case GameObjectTypes.DestructibleBuilding:
-					GoValueProtected.Building.Health = (GoInfo.DestructibleBuilding.InteriorVisible != 0 ? GoInfo.DestructibleBuilding.InteriorVisible : 20000);
+					GoValueProtected.Building.Health = (Template.DestructibleBuilding.InteriorVisible != 0 ? Template.DestructibleBuilding.InteriorVisible : 20000);
 					GoValueProtected.Building.MaxHealth = GoValueProtected.Building.Health;
 					SetGoAnimProgress(255);
 					// yes, even after the updatefield rewrite this garbage hack is still in client
@@ -3970,13 +3986,13 @@ namespace Game.Entities
 					_animKitId = (ushort)gameObjectAddon.AIAnimKitID;
 			}
 
-			LastUsedScriptID = GoInfo.ScriptId;
+			LastUsedScriptID = Template.ScriptId;
 			AIM_Initialize();
 
 			if (spawnid != 0)
 				_spawnId = spawnid;
 
-			var linkedEntry = GoInfo.GetLinkedGameObjectEntry();
+			var linkedEntry = Template.GetLinkedGameObjectEntry();
 
 			if (linkedEntry != 0)
 			{
@@ -4039,7 +4055,7 @@ namespace Game.Entities
 
 		bool IsAtInteractDistance(Position pos, float radius)
 		{
-			var displayInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(GoInfo.displayId);
+			var displayInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(Template.displayId);
 
 			if (displayInfo != null)
 			{
@@ -4126,27 +4142,27 @@ namespace Game.Entities
 			switch (GoValueProtected.CapturePoint.State)
 			{
 				case BattlegroundCapturePointState.Neutral:
-					spellVisualId = GoInfo.CapturePoint.SpellVisual1;
+					spellVisualId = Template.CapturePoint.SpellVisual1;
 
 					break;
 				case BattlegroundCapturePointState.ContestedHorde:
 					customAnim = 1;
-					spellVisualId = GoInfo.CapturePoint.SpellVisual2;
+					spellVisualId = Template.CapturePoint.SpellVisual2;
 
 					break;
 				case BattlegroundCapturePointState.ContestedAlliance:
 					customAnim = 2;
-					spellVisualId = GoInfo.CapturePoint.SpellVisual3;
+					spellVisualId = Template.CapturePoint.SpellVisual3;
 
 					break;
 				case BattlegroundCapturePointState.HordeCaptured:
 					customAnim = 3;
-					spellVisualId = GoInfo.CapturePoint.SpellVisual4;
+					spellVisualId = Template.CapturePoint.SpellVisual4;
 
 					break;
 				case BattlegroundCapturePointState.AllianceCaptured:
 					customAnim = 4;
-					spellVisualId = GoInfo.CapturePoint.SpellVisual5;
+					spellVisualId = Template.CapturePoint.SpellVisual5;
 
 					break;
 				default:
@@ -4171,10 +4187,10 @@ namespace Game.Entities
 					packet.CapturePointInfo.State = GoValueProtected.CapturePoint.State;
 					packet.CapturePointInfo.Pos = Location;
 					packet.CapturePointInfo.Guid = GUID;
-					packet.CapturePointInfo.CaptureTotalDuration = TimeSpan.FromMilliseconds(GoInfo.CapturePoint.CaptureTime);
+					packet.CapturePointInfo.CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime);
 					packet.CapturePointInfo.CaptureTime = GoValueProtected.CapturePoint.AssaultTimer;
 					bg.SendPacketToAll(packet);
-					bg.UpdateWorldState((int)GoInfo.CapturePoint.worldState1, (byte)GoValueProtected.CapturePoint.State);
+					bg.UpdateWorldState((int)Template.CapturePoint.worldState1, (byte)GoValueProtected.CapturePoint.State);
 				}
 			}
 

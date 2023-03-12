@@ -23,12 +23,12 @@ class Transport : GameObjectTypeBase, ITransport
 
 	public Transport(GameObject owner) : base(owner)
 	{
-		_animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.GoInfo.entry);
+		_animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.Template.entry);
 		_pathProgress = GameTime.GetGameTimeMS() % GetTransportPeriod();
 		_stateChangeTime = GameTime.GetGameTimeMS();
 		_stateChangeProgress = _pathProgress;
 
-		var goInfo = Owner.GoInfo;
+		var goInfo = Owner.Template;
 
 		if (goInfo.Transport.Timeto2ndfloor > 0)
 		{
@@ -135,7 +135,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 	public int GetMapIdForSpawning()
 	{
-		return Owner.GoInfo.Transport.SpawnMap;
+		return Owner.Template.Transport.SpawnMap;
 	}
 
 	public override void Update(uint diff)
@@ -218,43 +218,43 @@ class Transport : GameObjectTypeBase, ITransport
 				switch (Owner.GoState - GameObjectState.TransportActive)
 				{
 					case 0:
-						eventId = Owner.GoInfo.Transport.Reached1stfloor;
+						eventId = Owner.Template.Transport.Reached1stfloor;
 
 						break;
 					case 1:
-						eventId = Owner.GoInfo.Transport.Reached2ndfloor;
+						eventId = Owner.Template.Transport.Reached2ndfloor;
 
 						break;
 					case 2:
-						eventId = Owner.GoInfo.Transport.Reached3rdfloor;
+						eventId = Owner.Template.Transport.Reached3rdfloor;
 
 						break;
 					case 3:
-						eventId = Owner.GoInfo.Transport.Reached4thfloor;
+						eventId = Owner.Template.Transport.Reached4thfloor;
 
 						break;
 					case 4:
-						eventId = Owner.GoInfo.Transport.Reached5thfloor;
+						eventId = Owner.Template.Transport.Reached5thfloor;
 
 						break;
 					case 5:
-						eventId = Owner.GoInfo.Transport.Reached6thfloor;
+						eventId = Owner.Template.Transport.Reached6thfloor;
 
 						break;
 					case 6:
-						eventId = Owner.GoInfo.Transport.Reached7thfloor;
+						eventId = Owner.Template.Transport.Reached7thfloor;
 
 						break;
 					case 7:
-						eventId = Owner.GoInfo.Transport.Reached8thfloor;
+						eventId = Owner.Template.Transport.Reached8thfloor;
 
 						break;
 					case 8:
-						eventId = Owner.GoInfo.Transport.Reached9thfloor;
+						eventId = Owner.Template.Transport.Reached9thfloor;
 
 						break;
 					case 9:
-						eventId = Owner.GoInfo.Transport.Reached10thfloor;
+						eventId = Owner.Template.Transport.Reached10thfloor;
 
 						break;
 					default:

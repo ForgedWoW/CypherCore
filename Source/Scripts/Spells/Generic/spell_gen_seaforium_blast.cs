@@ -41,7 +41,7 @@ internal class spell_gen_seaforium_blast : SpellScript, IHasSpellEffects
 			var go = HitGObj;
 
 			if (go)
-				if (go.GoInfo.type == GameObjectTypes.DestructibleBuilding)
+				if (go.Template.type == GameObjectTypes.DestructibleBuilding)
 					owner.CastSpell(null, GenericSpellIds.PlantChargesCreditAchievement, true);
 		}
 	}

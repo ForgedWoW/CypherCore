@@ -1192,11 +1192,11 @@ public partial class Player
 
 		if (go != null)
 		{
-			if (go.GoInfo.GetTrivialSkillLow() != 0)
-				yellowLevel = go.GoInfo.GetTrivialSkillLow();
+			if (go.Template.GetTrivialSkillLow() != 0)
+				yellowLevel = go.Template.GetTrivialSkillLow();
 
-			if (go.GoInfo.GetTrivialSkillHigh() != 0)
-				grayLevel = go.GoInfo.GetTrivialSkillHigh();
+			if (go.Template.GetTrivialSkillHigh() != 0)
+				grayLevel = go.Template.GetTrivialSkillHigh();
 
 			greenLevel = (yellowLevel + grayLevel) / 2;
 		}

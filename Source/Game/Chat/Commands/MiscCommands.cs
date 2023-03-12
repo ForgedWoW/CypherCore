@@ -735,7 +735,7 @@ class MiscCommands
 
 		if (transport)
 			handler.SendSysMessage(CypherStrings.TransportPosition,
-									transport.GoInfo.MoTransport.SpawnMap,
+									transport.Template.MoTransport.SpawnMap,
 									obj.TransOffsetX,
 									obj.TransOffsetY,
 									obj.TransOffsetZ,

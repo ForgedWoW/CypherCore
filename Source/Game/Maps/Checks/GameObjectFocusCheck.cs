@@ -19,13 +19,13 @@ class GameObjectFocusCheck : ICheck<GameObject>
 
 	public bool Invoke(GameObject go)
 	{
-		if (go.GoInfo.GetSpellFocusType() != _focusId)
+		if (go.Template.GetSpellFocusType() != _focusId)
 			return false;
 
 		if (!go.IsSpawned)
 			return false;
 
-		float dist = go.GoInfo.GetSpellFocusRadius();
+		float dist = go.Template.GetSpellFocusRadius();
 
 		return go.IsWithinDist(_caster, dist);
 	}

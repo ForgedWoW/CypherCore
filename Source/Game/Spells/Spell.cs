@@ -1565,7 +1565,7 @@ public partial class Spell : IDisposable
 
 		// Prevent cheating in case the player has an immunity effect and tries to interact with a non-allowed gameobject. The error message is handled by the client so we don't report anything here
 		if (_caster.IsPlayer && Targets.GOTarget != null)
-			if (Targets.GOTarget.GoInfo.GetNoDamageImmune() != 0 && _caster.AsUnit.HasUnitFlag(UnitFlags.Immune))
+			if (Targets.GOTarget.Template.GetNoDamageImmune() != 0 && _caster.AsUnit.HasUnitFlag(UnitFlags.Immune))
 				return SpellCastResult.DontReport;
 
 		// check cooldowns to prevent cheating
@@ -2221,7 +2221,7 @@ public partial class Spell : IDisposable
 
 					if (SpellInfo.Id != 1842 ||
 						(Targets.GOTarget != null &&
-						Targets.GOTarget.GoInfo.type != GameObjectTypes.Trap))
+						Targets.GOTarget.Template.type != GameObjectTypes.Trap))
 						if (_caster.AsPlayer.InBattleground && // In Battlegroundplayers can use only flags and banners
 							!_caster.AsPlayer.CanUseBattlegroundObject(Targets.GOTarget))
 							return SpellCastResult.TryAgain;
@@ -2233,12 +2233,12 @@ public partial class Spell : IDisposable
 
 					if (go != null)
 					{
-						lockId = go.GoInfo.GetLockId();
+						lockId = go.Template.GetLockId();
 
 						if (lockId == 0)
 							return SpellCastResult.BadTargets;
 
-						if (go.GoInfo.GetNotInCombat() != 0 && _caster.AsUnit.IsInCombat)
+						if (go.Template.GetNotInCombat() != 0 && _caster.AsUnit.IsInCombat)
 							return SpellCastResult.AffectingCombat;
 					}
 					else if (itm != null)
@@ -8299,7 +8299,7 @@ public partial class Spell : IDisposable
 		var gobCaster = _caster.AsGameObject;
 
 		if (gobCaster != null)
-			if (gobCaster.GoInfo.GetRequireLOS() == 0)
+			if (gobCaster.Template.GetRequireLOS() == 0)
 				return true;
 
 		// if spell is triggered, need to check for LOS disable on the aura triggering it and inherit that behaviour

@@ -505,7 +505,7 @@ namespace Game.BattleGrounds.Zones
                             uint gateId = gate.GateId;
 
                             // damaged
-                            if (eventId == go.GoInfo.DestructibleBuilding.DamagedEvent)
+                            if (eventId == go.Template.DestructibleBuilding.DamagedEvent)
                             {
                                 GateStatus[gateId] = Attackers == TeamIds.Horde ? SAGateState.AllianceGateDamaged : SAGateState.HordeGateDamaged;
 
@@ -516,7 +516,7 @@ namespace Game.BattleGrounds.Zones
                                 PlaySoundToAll(Attackers == TeamIds.Alliance ? SASoundIds.WallAttackedAlliance : SASoundIds.WallAttackedHorde);
                             }
                             // destroyed
-                            else if (eventId == go.GoInfo.DestructibleBuilding.DestroyedEvent)
+                            else if (eventId == go.Template.DestructibleBuilding.DestroyedEvent)
                             {
                                 GateStatus[gate.GateId] = Attackers == TeamIds.Horde ? SAGateState.AllianceGateDestroyed : SAGateState.HordeGateDestroyed;
 

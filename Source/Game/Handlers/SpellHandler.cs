@@ -253,7 +253,7 @@ namespace Game
             {
                 // ignore for remote control state
                 if (Player.UnitBeingMoved != Player)
-                    if (!(Player.IsOnVehicle(Player.UnitBeingMoved) || Player.IsMounted) && !obj.GoInfo.IsUsableMounted())
+                    if (!(Player.IsOnVehicle(Player.UnitBeingMoved) || Player.IsMounted) && !obj.Template.IsUsableMounted())
                         return;
 
                 obj.Use(Player);
@@ -412,7 +412,7 @@ namespace Game
             if (!spellInfo.IsPositive || spellInfo.IsPassive)
                 return;
 
-            Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, AuraRemoveMode.Cancel);
+            Player.RemoveOwnedAura(cancelAura.SpellID, cancelAura.CasterGUID, 0, AuraRemoveMode.Cancel);
         }
 
         [WorldPacketHandler(ClientOpcodes.CancelGrowthAura, Processing = PacketProcessing.Inplace)]
@@ -463,7 +463,7 @@ namespace Game
                 return;
             }
 
-            pet.RemoveOwnedAura(packet.SpellID, ObjectGuid.Empty, AuraRemoveMode.Cancel);
+            pet.RemoveOwnedAura(packet.SpellID, ObjectGuid.Empty, 0, AuraRemoveMode.Cancel);
         }
 
         [WorldPacketHandler(ClientOpcodes.CancelModSpeedNoControlAuras, Processing = PacketProcessing.Inplace)]

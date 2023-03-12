@@ -635,7 +635,7 @@ class NPCCommands
 
 				if (creaturePassenger != null)
 				{
-					creaturePassenger.SaveToDB((uint)trans.GoInfo.MoTransport.SpawnMap,
+					creaturePassenger.SaveToDB((uint)trans.Template.MoTransport.SpawnMap,
 												new List<Difficulty>()
 												{
 													map.DifficultyID

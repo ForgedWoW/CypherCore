@@ -22,7 +22,7 @@ class GameObjectInRangeCheck : ICheck<GameObject>
 
 	public bool Invoke(GameObject go)
 	{
-		if (_entry == 0 || (go.GoInfo != null && go.GoInfo.entry == _entry))
+		if (_entry == 0 || (go.Template != null && go.Template.entry == _entry))
 			return go.IsInRange(_x, _y, _z, _range);
 		else return false;
 	}

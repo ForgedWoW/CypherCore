@@ -274,9 +274,9 @@ namespace Game.PvP
         {
             if (m_capturePoint)
             {
-                player.SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldState1, 1);
-                player.SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
-                player.SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldstate3, m_neutralValuePct);
+                player.SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldState1, 1);
+                player.SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+                player.SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldstate3, m_neutralValuePct);
             }
             return m_activePlayers[player.TeamId].Add(player.GUID);
         }
@@ -284,7 +284,7 @@ namespace Game.PvP
         public virtual void HandlePlayerLeave(Player player)
         {
             if (m_capturePoint)
-                player.SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldState1, 0);
+                player.SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldState1, 0);
             m_activePlayers[player.TeamId].Remove(player.GUID);
         }
 
@@ -294,11 +294,11 @@ namespace Game.PvP
                 return;
 
             // send this too, sometimes the slider disappears, dunno why :(
-            SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldState1, 1);
+            SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldState1, 1);
             // send these updates to only the ones in this objective
-            SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
+            SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldstate2, (uint)Math.Ceiling((m_value + m_maxValue) / (2 * m_maxValue) * 100.0f));
             // send this too, sometimes it resets :S
-            SendUpdateWorldState(m_capturePoint.GoInfo.ControlZone.worldstate3, m_neutralValuePct);
+            SendUpdateWorldState(m_capturePoint.Template.ControlZone.worldstate3, m_neutralValuePct);
         }
 
         public bool SetCapturePointData(uint entry)
@@ -326,7 +326,7 @@ namespace Game.PvP
             if (!m_capturePoint)
                 return false;
 
-            float radius = m_capturePoint.GoInfo.ControlZone.radius;
+            float radius = m_capturePoint.Template.ControlZone.radius;
 
             for (int team = 0; team < 2; ++team)
             {

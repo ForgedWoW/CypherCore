@@ -3097,9 +3097,9 @@ public partial class Player : Unit
 		switch (source.TypeId)
 		{
 			case TypeId.Unit:
-				return source.AsCreature.CreatureTemplate.GossipMenuId;
+				return source.AsCreature.GossipMenuId;
 			case TypeId.GameObject:
-				return source.AsGameObject.GoInfo.GetGossipMenuId();
+				return source.AsGameObject.GossipMenuId;
 			default:
 				break;
 		}
@@ -4769,7 +4769,7 @@ public partial class Player : Unit
 			return null;
 
 		// Players cannot interact with gameobjects that use the "Point" icon
-		if (go.GoInfo.IconName == "Point")
+		if (go.Template.IconName == "Point")
 			return null;
 
 		if (!go.IsWithinDistInMap(this))

@@ -29,7 +29,7 @@ class GameObjectCommands
 			return false;
 		}
 
-		var autoCloseTime = obj.GoInfo.GetAutoCloseTime() != 0 ? 10000u : 0u;
+		var autoCloseTime = obj.Template.GetAutoCloseTime() != 0 ? 10000u : 0u;
 
 		// Activate
 		obj.SetLootState(LootState.Ready);
@@ -253,7 +253,7 @@ class GameObjectCommands
 		if (!obj)
 			return false;
 
-		handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.SpawnId, obj.GoInfo.name, obj.GUID.ToString());
+		handler.SendSysMessage(CypherStrings.CommandMoveobjmessage, obj.SpawnId, obj.Template.name, obj.GUID.ToString());
 
 		return true;
 	}
@@ -506,7 +506,7 @@ class GameObjectCommands
 		if (!obj)
 			return false;
 
-		handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.SpawnId, obj.GoInfo.name, obj.GUID.ToString(), obj.Location.Orientation);
+		handler.SendSysMessage(CypherStrings.CommandTurnobjmessage, obj.SpawnId, obj.Template.name, obj.GUID.ToString(), obj.Location.Orientation);
 
 		return true;
 	}

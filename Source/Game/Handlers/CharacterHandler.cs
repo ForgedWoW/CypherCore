@@ -1399,7 +1399,7 @@ namespace Game
                 return;
             }
 
-            if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.GoInfo.BarberChair.chairheight))
+            if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
             {
                 SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
                 return;

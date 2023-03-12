@@ -236,7 +236,7 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 		uint flags = gameObjectData.Flags;
 
 		if (gameObject.GoType == GameObjectTypes.Chest)
-			if (gameObject.GoInfo.Chest.usegrouplootrules != 0 && !gameObject.IsLootAllowedFor(receiver))
+			if (gameObject.Template.Chest.usegrouplootrules != 0 && !gameObject.IsLootAllowedFor(receiver))
 				flags |= (uint)(GameObjectFlags.Locked | GameObjectFlags.NotSelectable);
 
 		return flags;
