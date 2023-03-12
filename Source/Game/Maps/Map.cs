@@ -2887,6 +2887,7 @@ public class Map : IDisposable
 			PhasingHandler.InheritPhaseShift(summon, summoner);
 
 		summon.SetCreatedBySpell(spellId);
+		summon.UpdateAllowedPositionZ(pos);
 		summon.HomePosition = pos;
 		summon.InitStats(duration);
 		summon.PrivateObjectOwner = privateObjectOwner;
