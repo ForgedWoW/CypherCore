@@ -48,8 +48,7 @@ internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
 			targetList.RemoveIf(a => a.IsFullHealth);
 
 			// reduce targetList to the number allowed
-			while (targetList.Count > targets)
-				targetList.RemoveAt(targetList.Count - 1);
+			targetList.RandomResize(targets);
 
 			// cast on targets
 			foreach (var target in targetList)
