@@ -237,95 +237,96 @@ public class BattlePetMgr
 		PreparedStatement stmt;
 
 		foreach (var pair in _pets)
-			switch (pair.Value.SaveInfo)
-			{
-				case BattlePetSaveInfo.New:
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
-					stmt.AddValue(0, pair.Key);
-					stmt.AddValue(1, _owner.BattlenetAccountId);
-					stmt.AddValue(2, pair.Value.PacketInfo.Species);
-					stmt.AddValue(3, pair.Value.PacketInfo.Breed);
-					stmt.AddValue(4, pair.Value.PacketInfo.DisplayID);
-					stmt.AddValue(5, pair.Value.PacketInfo.Level);
-					stmt.AddValue(6, pair.Value.PacketInfo.Exp);
-					stmt.AddValue(7, pair.Value.PacketInfo.Health);
-					stmt.AddValue(8, pair.Value.PacketInfo.Quality);
-					stmt.AddValue(9, pair.Value.PacketInfo.Flags);
-					stmt.AddValue(10, pair.Value.PacketInfo.Name);
-					stmt.AddValue(11, pair.Value.NameTimestamp);
-
-					if (pair.Value.PacketInfo.OwnerInfo.HasValue)
-					{
-						stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
-						stmt.AddValue(13, Global.WorldMgr.RealmId.Index);
-					}
-					else
-					{
-						stmt.AddNull(12);
-						stmt.AddNull(13);
-					}
-
-					trans.Append(stmt);
-
-					if (pair.Value.DeclinedName != null)
-					{
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+			if (pair.Value != null)
+				switch (pair.Value.SaveInfo)
+				{
+					case BattlePetSaveInfo.New:
+						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
 						stmt.AddValue(0, pair.Key);
+						stmt.AddValue(1, _owner.BattlenetAccountId);
+						stmt.AddValue(2, pair.Value.PacketInfo.Species);
+						stmt.AddValue(3, pair.Value.PacketInfo.Breed);
+						stmt.AddValue(4, pair.Value.PacketInfo.DisplayID);
+						stmt.AddValue(5, pair.Value.PacketInfo.Level);
+						stmt.AddValue(6, pair.Value.PacketInfo.Exp);
+						stmt.AddValue(7, pair.Value.PacketInfo.Health);
+						stmt.AddValue(8, pair.Value.PacketInfo.Quality);
+						stmt.AddValue(9, pair.Value.PacketInfo.Flags);
+						stmt.AddValue(10, pair.Value.PacketInfo.Name);
+						stmt.AddValue(11, pair.Value.NameTimestamp);
 
-						for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-							stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
+						if (pair.Value.PacketInfo.OwnerInfo.HasValue)
+						{
+							stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
+							stmt.AddValue(13, Global.WorldMgr.RealmId.Index);
+						}
+						else
+						{
+							stmt.AddNull(12);
+							stmt.AddNull(13);
+						}
 
 						trans.Append(stmt);
-					}
+
+						if (pair.Value.DeclinedName != null)
+						{
+							stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+							stmt.AddValue(0, pair.Key);
+
+							for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+								stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
+
+							trans.Append(stmt);
+						}
 
 
-					pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
+						pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
 
-					break;
-				case BattlePetSaveInfo.Changed:
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
-					stmt.AddValue(0, pair.Value.PacketInfo.Level);
-					stmt.AddValue(1, pair.Value.PacketInfo.Exp);
-					stmt.AddValue(2, pair.Value.PacketInfo.Health);
-					stmt.AddValue(3, pair.Value.PacketInfo.Quality);
-					stmt.AddValue(4, pair.Value.PacketInfo.Flags);
-					stmt.AddValue(5, pair.Value.PacketInfo.Name);
-					stmt.AddValue(6, pair.Value.NameTimestamp);
-					stmt.AddValue(7, _owner.BattlenetAccountId);
-					stmt.AddValue(8, pair.Key);
-					trans.Append(stmt);
-
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
-					stmt.AddValue(0, pair.Key);
-					trans.Append(stmt);
-
-					if (pair.Value.DeclinedName != null)
-					{
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
-						stmt.AddValue(0, pair.Key);
-
-						for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
-							stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
-
+						break;
+					case BattlePetSaveInfo.Changed:
+						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
+						stmt.AddValue(0, pair.Value.PacketInfo.Level);
+						stmt.AddValue(1, pair.Value.PacketInfo.Exp);
+						stmt.AddValue(2, pair.Value.PacketInfo.Health);
+						stmt.AddValue(3, pair.Value.PacketInfo.Quality);
+						stmt.AddValue(4, pair.Value.PacketInfo.Flags);
+						stmt.AddValue(5, pair.Value.PacketInfo.Name);
+						stmt.AddValue(6, pair.Value.NameTimestamp);
+						stmt.AddValue(7, _owner.BattlenetAccountId);
+						stmt.AddValue(8, pair.Key);
 						trans.Append(stmt);
-					}
 
-					pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
+						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+						stmt.AddValue(0, pair.Key);
+						trans.Append(stmt);
 
-					break;
-				case BattlePetSaveInfo.Removed:
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
-					stmt.AddValue(0, pair.Key);
-					trans.Append(stmt);
+						if (pair.Value.DeclinedName != null)
+						{
+							stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+							stmt.AddValue(0, pair.Key);
 
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
-					stmt.AddValue(0, _owner.BattlenetAccountId);
-					stmt.AddValue(1, pair.Key);
-					trans.Append(stmt);
-					_pets.Remove(pair.Key);
+							for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
+								stmt.AddValue(i + 1, pair.Value.DeclinedName.Name[i]);
 
-					break;
-			}
+							trans.Append(stmt);
+						}
+
+						pair.Value.SaveInfo = BattlePetSaveInfo.Unchanged;
+
+						break;
+					case BattlePetSaveInfo.Removed:
+						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+						stmt.AddValue(0, pair.Key);
+						trans.Append(stmt);
+
+						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
+						stmt.AddValue(0, _owner.BattlenetAccountId);
+						stmt.AddValue(1, pair.Key);
+						trans.Append(stmt);
+						_pets.Remove(pair.Key);
+
+						break;
+				}
 
 		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
 		stmt.AddValue(0, _owner.BattlenetAccountId);
@@ -453,7 +454,7 @@ public class BattlePetMgr
 	{
 		return (byte)_pets.Values.Count(battlePet =>
 		{
-			if (battlePet.PacketInfo.Species != battlePetSpecies.Id)
+			if (battlePet == null || battlePet.PacketInfo.Species != battlePetSpecies.Id)
 				return false;
 
 			if (battlePet.SaveInfo == BattlePetSaveInfo.Removed)
@@ -480,7 +481,8 @@ public class BattlePetMgr
 		HashSet<uint> speciesIds = new();
 
 		foreach (var pair in _pets)
-			speciesIds.Add(pair.Value.PacketInfo.Species);
+			if (pair.Value != null)
+				speciesIds.Add(pair.Value.PacketInfo.Species);
 
 		return (uint)speciesIds.Count;
 	}
@@ -509,7 +511,7 @@ public class BattlePetMgr
 		ushort level = 0;
 
 		foreach (var pet in _pets)
-			if (pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
+			if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
 				level = Math.Max(level, pet.Value.PacketInfo.Level);
 
 		return level;
@@ -730,7 +732,7 @@ public class BattlePetMgr
 		List<BattlePet> updates = new();
 
 		foreach (var pet in _pets.Values)
-			if (pet.PacketInfo.Health != pet.PacketInfo.MaxHealth)
+			if (pet != null && pet.PacketInfo.Health != pet.PacketInfo.MaxHealth)
 			{
 				pet.PacketInfo.Health += MathFunctions.CalculatePct(pet.PacketInfo.MaxHealth, pct);
 				// don't allow Health to be greater than MaxHealth
@@ -814,7 +816,7 @@ public class BattlePetMgr
 		battlePetJournal.HasJournalLock = _hasJournalLock;
 
 		foreach (var pet in _pets)
-			if (pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
+			if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
 				if (!pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == _owner.Player.GUID)
 					battlePetJournal.Pets.Add(pet.Value.PacketInfo);
 
