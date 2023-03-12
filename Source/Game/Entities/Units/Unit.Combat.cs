@@ -883,12 +883,12 @@ public partial class Unit
 					if (dungeonEncounter != null)
 					{
 						creature.PersonalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
-																								creature.CreatureTemplate.LootId,
+																								creature.Template.LootId,
 																								LootStorage.Creature,
 																								LootType.Corpse,
 																								creature,
-																								creature.CreatureTemplate.MinGold,
-																								creature.CreatureTemplate.MaxGold,
+																								creature.Template.MinGold,
+																								creature.Template.MaxGold,
 																								(ushort)creature.GetLootMode(),
 																								creature.Map.GetDifficultyLootItemContext(),
 																								tappers);
@@ -900,13 +900,13 @@ public partial class Unit
 
 						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
-						var lootid = creature.CreatureTemplate.LootId;
+						var lootid = creature.Template.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
 
 						if (creature.GetLootMode() > 0)
-							loot.GenerateMoneyLoot(creature.CreatureTemplate.MinGold, creature.CreatureTemplate.MaxGold);
+							loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
 
 						if (group)
 							loot.NotifyLootList(creature.Map);
@@ -928,13 +928,13 @@ public partial class Unit
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);
 
-						var lootid = creature.CreatureTemplate.LootId;
+						var lootid = creature.Template.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
 
 						if (creature.GetLootMode() > 0)
-							loot.GenerateMoneyLoot(creature.CreatureTemplate.MinGold, creature.CreatureTemplate.MaxGold);
+							loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
 
 						creature.PersonalLoot[tapper.GUID] = loot;
 					}
@@ -1043,7 +1043,7 @@ public partial class Unit
 				else
 					creature.AllLootRemovedFromCorpse();
 
-				if (creature.CanHaveLoot && LootStorage.Skinning.HaveLootFor(creature.CreatureTemplate.SkinLootId))
+				if (creature.CanHaveLoot && LootStorage.Skinning.HaveLootFor(creature.Template.SkinLootId))
 				{
 					creature.SetDynamicFlag(UnitDynFlags.CanSkin);
 					creature.SetUnitFlag(UnitFlags.Skinnable);
@@ -1726,7 +1726,7 @@ public partial class Unit
 		if (attackerLevel >= victimLevel + 4 &&
 			// can be from by creature (if can) or from controlled player that considered as creature
 			!IsControlledByPlayer &&
-			!(TypeId == TypeId.Unit && AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
+			!(TypeId == TypeId.Unit && AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrushingBlows)))
 		{
 			// add 2% chance per level, min. is 15%
 			tmp = (int)(attackerLevel - victimLevel * 1000 - 1500);

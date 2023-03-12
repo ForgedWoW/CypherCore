@@ -559,7 +559,7 @@ public partial class Unit
 			{
 				// Set creature speed rate
 				if (IsTypeId(TypeId.Unit))
-					speed *= AsCreature.CreatureTemplate.SpeedRun; // at this point, MOVE_WALK is never reached
+					speed *= AsCreature.Template.SpeedRun; // at this point, MOVE_WALK is never reached
 
 				// Normalize speed by 191 aura SPELL_AURA_USE_NORMAL_MOVEMENT_SPEED if need
 				// @todo possible affect only on MOVE_RUN
@@ -571,7 +571,7 @@ public partial class Unit
 
 					if (creature1)
 					{
-						var immuneMask = creature1.CreatureTemplate.MechanicImmuneMask;
+						var immuneMask = creature1.Template.MechanicImmuneMask;
 
 						if (Convert.ToBoolean(immuneMask & (1 << ((int)Mechanics.Snare - 1))) || Convert.ToBoolean(immuneMask & (1 << ((int)Mechanics.Daze - 1))))
 							break;
@@ -636,7 +636,7 @@ public partial class Unit
 			var baseMinSpeed = 1.0f;
 
 			if (!OwnerGUID.IsPlayer && !IsHunterPet && TypeId == TypeId.Unit)
-				baseMinSpeed = AsCreature.CreatureTemplate.SpeedRun;
+				baseMinSpeed = AsCreature.Template.SpeedRun;
 
 			var min_speed = MathFunctions.CalculatePct(baseMinSpeed, minSpeedMod);
 

@@ -268,7 +268,7 @@ public class PlayerMenu
 		var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
 		if (creature != null)
-			packet.QuestGiverCreatureID = (int)creature.CreatureTemplate.Entry;
+			packet.QuestGiverCreatureID = (int)creature.Template.Entry;
 
 		// RewardSpell can teach multiple spells in trigger spell effects. But not all effects must be SPELL_EFFECT_LEARN_SPELL. See example spell 33950
 		var spellInfo = Global.SpellMgr.GetSpellInfo(quest.RewardSpell, Difficulty.None);
@@ -366,7 +366,7 @@ public class PlayerMenu
 		if (creature)
 		{
 			packet.QuestGiverCreatureID = creature.Entry;
-			offer.QuestGiverCreatureID = creature.CreatureTemplate.Entry;
+			offer.QuestGiverCreatureID = creature.Template.Entry;
 		}
 
 		offer.QuestID = quest.Id;
@@ -438,7 +438,7 @@ public class PlayerMenu
 		var creature = ObjectAccessor.GetCreature(_session.Player, npcGUID);
 
 		if (creature)
-			packet.QuestGiverCreatureID = creature.CreatureTemplate.Entry;
+			packet.QuestGiverCreatureID = creature.Template.Entry;
 
 		packet.QuestID = quest.Id;
 

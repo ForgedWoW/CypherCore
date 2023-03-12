@@ -96,7 +96,7 @@ public class EscortAI : ScriptedAI
 		//add a small delay before going to first waypoint, normal in near all cases
 		_pauseTimer = TimeSpan.FromSeconds(2);
 
-		if (Me.Faction != Me.CreatureTemplate.Faction)
+		if (Me.Faction != Me.Template.Faction)
 			Me.RestoreFaction();
 
 		Reset();
@@ -448,7 +448,7 @@ public class EscortAI : ScriptedAI
 			return false;
 
 		//experimental (unknown) flag not present
-		if (!Me.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
+		if (!Me.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
 			return false;
 
 		//not a player

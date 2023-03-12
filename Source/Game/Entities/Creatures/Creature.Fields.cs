@@ -72,7 +72,7 @@ public partial class Creature
             if (_gossipMenuId.HasValue)
                 return _gossipMenuId.Value;
 
-            return CreatureTemplate.GossipMenuId;
+            return Template.GossipMenuId;
         }
         set
         {
@@ -168,7 +168,7 @@ public partial class Creature
             if (IsPet)
                 return false;
 
-            return CreatureTemplate.Rank != CreatureEliteType.Elite && CreatureTemplate.Rank != CreatureEliteType.RareElite;
+            return Template.Rank != CreatureEliteType.Elite && Template.Rank != CreatureEliteType.RareElite;
         }
     }
 
@@ -179,7 +179,7 @@ public partial class Creature
             if (IsPet)
                 return false;
 
-            return Convert.ToBoolean(CreatureTemplate.TypeFlags & CreatureTypeFlags.BossMob);
+            return Convert.ToBoolean(Template.TypeFlags & CreatureTypeFlags.BossMob);
         }
     }
 
@@ -205,7 +205,7 @@ public partial class Creature
             if (Global.ObjectMgr.TryGetGetCreatureMovementOverride(SpawnId, out var movementOverride))
                 return movementOverride;
 
-            return CreatureTemplate.Movement;
+            return Template.Movement;
         }
     }
 
@@ -244,37 +244,37 @@ public partial class Creature
 
     public virtual byte PetAutoSpellSize => 4;
 
-    public override float NativeObjectScale => CreatureTemplate.Scale;
+    public override float NativeObjectScale => Template.Scale;
 
     public uint CorpseDelay { get; private set; }
 
-    public bool IsRacialLeader => CreatureTemplate.RacialLeader;
+    public bool IsRacialLeader => Template.RacialLeader;
 
-    public bool IsCivilian => CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Civilian);
+    public bool IsCivilian => Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Civilian);
 
-    public bool IsTrigger => CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Trigger);
+    public bool IsTrigger => Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Trigger);
 
-    public bool IsGuard => CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Guard);
+    public bool IsGuard => Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Guard);
 
     public bool CanWalk => MovementTemplate.IsGroundAllowed();
 
     public override bool CanFly => MovementTemplate.IsFlightAllowed() || IsFlying;
 
-    public bool IsDungeonBoss => (CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss));
+    public bool IsDungeonBoss => (Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss));
 
-    public override bool IsAffectedByDiminishingReturns => base.IsAffectedByDiminishingReturns || CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.AllDiminish);
+    public override bool IsAffectedByDiminishingReturns => base.IsAffectedByDiminishingReturns || Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.AllDiminish);
 
     public ReactStates ReactState { get; set; }
 
     public bool IsInEvadeMode => HasUnitState(UnitState.Evade);
 
-    public bool IsEvadingAttacks => IsInEvadeMode || CanNotReachTarget;
+    public bool IsEvadingAttacks => IsInEvadeMode || CannotReachTarget;
 
     public sbyte OriginalEquipmentId { get; private set; }
 
     public byte CurrentEquipmentId { get; set; }
 
-    public CreatureTemplate CreatureTemplate { get; private set; }
+    public CreatureTemplate Template { get; private set; }
 
     public CreatureData CreatureData { get; private set; }
 
@@ -293,13 +293,13 @@ public partial class Creature
             }
 
             // dependent from difficulty mode entry
-            return Global.ObjectMgr.GetCreatureTemplateAddon(CreatureTemplate.Entry);
+            return Global.ObjectMgr.GetCreatureTemplateAddon(Template.Entry);
         }
     }
 
     private bool IsSpawnedOnTransport => CreatureData != null && CreatureData.MapId != Location.MapId;
 
-    private bool CanNotReachTarget { get; set; }
+    private bool CannotReachTarget { get; set; }
 
     public bool CanHover => MovementTemplate.Ground == CreatureGroundMovementType.Hover || IsHovering;
 
@@ -321,7 +321,7 @@ public partial class Creature
 
     public bool HasSearchedAssistance { get; private set; }
 
-    public bool CanIgnoreFeignDeath => CreatureTemplate.FlagsExtra.HasFlag(CreatureFlagsExtra.IgnoreFeighDeath);
+    public bool CanIgnoreFeignDeath => Template.FlagsExtra.HasFlag(CreatureFlagsExtra.IgnoreFeighDeath);
 
     public long RespawnTime { get; private set; }
 

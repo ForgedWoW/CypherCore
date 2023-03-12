@@ -299,7 +299,7 @@ class FollowerAI : ScriptedAI
 			return false;
 
 		//experimental (unknown) flag not present
-		if (!Me.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
+		if (!Me.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
 			return false;
 
 		if (!who.IsInAccessiblePlaceFor(Me))

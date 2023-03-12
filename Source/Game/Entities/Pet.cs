@@ -36,7 +36,7 @@ public class Pet : Guardian
 	{
 		get
 		{
-			var creatureFamily = CliDB.CreatureFamilyStorage.LookupByKey(CreatureTemplate.Family);
+			var creatureFamily = CliDB.CreatureFamilyStorage.LookupByKey(Template.Family);
 
 			if (creatureFamily != null && creatureFamily.MinScale > 0.0f && GetPetType() == PetType.Hunter)
 			{
@@ -792,7 +792,7 @@ public class Pet : Guardian
 	{
 		Cypher.Assert(creature);
 
-		if (!CreateBaseAtTamed(creature.CreatureTemplate, creature.Map))
+		if (!CreateBaseAtTamed(creature.Template, creature.Map))
 			return false;
 
 		Location.Relocate(creature.Location);
@@ -809,7 +809,7 @@ public class Pet : Guardian
 			return false;
 		}
 
-		var cinfo = CreatureTemplate;
+		var cinfo = Template;
 
 		if (cinfo == null)
 		{
@@ -849,7 +849,7 @@ public class Pet : Guardian
 		if (item.FoodType == 0)
 			return false;
 
-		var cInfo = CreatureTemplate;
+		var cInfo = Template;
 
 		if (cInfo == null)
 			return false;
@@ -987,11 +987,11 @@ public class Pet : Guardian
 				switch (owner.Class)
 				{
 					case Class.Warlock:
-						return CreatureTemplate.CreatureType == CreatureType.Demon;
+						return Template.CreatureType == CreatureType.Demon;
 					case Class.Deathknight:
-						return CreatureTemplate.CreatureType == CreatureType.Undead;
+						return Template.CreatureType == CreatureType.Undead;
 					case Class.Mage:
-						return CreatureTemplate.CreatureType == CreatureType.Elemental;
+						return Template.CreatureType == CreatureType.Elemental;
 					default:
 						return false;
 				}
@@ -1566,7 +1566,7 @@ public class Pet : Guardian
 	void InitLevelupSpellsForLevel()
 	{
 		var level = Level;
-		var levelupSpells = CreatureTemplate.Family != 0 ? Global.SpellMgr.GetPetLevelupSpellList(CreatureTemplate.Family) : null;
+		var levelupSpells = Template.Family != 0 ? Global.SpellMgr.GetPetLevelupSpellList(Template.Family) : null;
 
 		if (levelupSpells != null)
 			// PetLevelupSpellSet ordered by levels, process in reversed order
@@ -1658,7 +1658,7 @@ public class Pet : Guardian
 	// Get all passive spells in our skill line
 	void LearnPetPassives()
 	{
-		var cInfo = CreatureTemplate;
+		var cInfo = Template;
 
 		if (cInfo == null)
 			return;

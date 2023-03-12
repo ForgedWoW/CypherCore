@@ -95,7 +95,7 @@ class ContentTuningParams
 
 	bool GenerateDataCreatureToPlayer(Creature attacker, Player target)
 	{
-		var creatureTemplate = attacker.CreatureTemplate;
+		var creatureTemplate = attacker.Template;
 		var creatureScaling = creatureTemplate.GetLevelScaling(attacker.Map.DifficultyID);
 
 		TuningType = ContentTuningType.CreatureToPlayerDamage;
@@ -112,7 +112,7 @@ class ContentTuningParams
 
 	bool GenerateDataPlayerToCreature(Player attacker, Creature target)
 	{
-		var creatureTemplate = target.CreatureTemplate;
+		var creatureTemplate = target.Template;
 		var creatureScaling = creatureTemplate.GetLevelScaling(target.Map.DifficultyID);
 
 		TuningType = ContentTuningType.PlayerToCreatureDamage;
@@ -130,7 +130,7 @@ class ContentTuningParams
 	bool GenerateDataCreatureToCreature(Creature attacker, Creature target)
 	{
 		var accessor = target.HasScalableLevels ? target : attacker;
-		var creatureTemplate = accessor.CreatureTemplate;
+		var creatureTemplate = accessor.Template;
 		var creatureScaling = creatureTemplate.GetLevelScaling(accessor.Map.DifficultyID);
 
 		TuningType = ContentTuningType.CreatureToCreatureDamage;

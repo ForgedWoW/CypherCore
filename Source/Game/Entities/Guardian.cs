@@ -59,7 +59,7 @@ public class Guardian : Minion
 	// @todo Move stat mods code to pet passive auras
 	public bool InitStatsForLevel(uint petlevel)
 	{
-		var cinfo = CreatureTemplate;
+		var cinfo = Template;
 		Cypher.Assert(cinfo != null);
 
 		SetLevel(petlevel);

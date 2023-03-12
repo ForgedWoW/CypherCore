@@ -413,7 +413,7 @@ public partial class Unit
 				case CharmType.Charm:
 					if (IsTypeId(TypeId.Unit) && charmer.Class == Class.Warlock)
 					{
-						var cinfo = AsCreature.CreatureTemplate;
+						var cinfo = AsCreature.Template;
 
 						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
 						{
@@ -527,7 +527,7 @@ public partial class Unit
 				case CharmType.Charm:
 					if (IsTypeId(TypeId.Unit) && charmer.Class == Class.Warlock)
 					{
-						var cinfo = AsCreature.CreatureTemplate;
+						var cinfo = AsCreature.Template;
 
 						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
 						{

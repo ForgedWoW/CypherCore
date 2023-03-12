@@ -375,7 +375,7 @@ public partial class Unit : WorldObject
 			}
 			else
 			{
-				return AsCreature.CreatureTemplate.CreatureType;
+				return AsCreature.Template.CreatureType;
 			}
 		}
 	}
@@ -2511,7 +2511,7 @@ public partial class Unit : WorldObject
 				}
 			}
 
-			var cinfo = AsCreature.CreatureTemplate;
+			var cinfo = AsCreature.Template;
 
 			if (cinfo != null) // normal creature
 				Faction = cinfo.Faction;
@@ -2531,8 +2531,8 @@ public partial class Unit : WorldObject
 
 		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
 			return u1.AsPlayer.IsInSameGroupWith(u2.AsPlayer);
-		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return true;
 
 		return u1.TypeId == TypeId.Unit && u2.TypeId == TypeId.Unit && u1.Faction == u2.Faction;
@@ -2551,8 +2551,8 @@ public partial class Unit : WorldObject
 
 		if (u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Player))
 			return u1.AsPlayer.IsInSameRaidWith(u2.AsPlayer);
-		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
-				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+		else if ((u2.IsTypeId(TypeId.Player) && u1.IsTypeId(TypeId.Unit) && u1.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)) ||
+				(u1.IsTypeId(TypeId.Player) && u2.IsTypeId(TypeId.Unit) && u2.AsCreature.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return true;
 
 		// else u1.GetTypeId() == u2.GetTypeId() == TYPEID_UNIT
@@ -4638,7 +4638,7 @@ public partial class Unit : WorldObject
 			return;
 
 		if (damageInfo.TargetState == VictimState.Parry &&
-			(!victim.IsCreature || victim.AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
+			(!victim.IsCreature || victim.AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParryHasten)))
 		{
 			// Get attack timers
 			float offtime = victim.GetAttackTimer(WeaponAttackType.OffAttack);

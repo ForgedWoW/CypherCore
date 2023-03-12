@@ -22,7 +22,7 @@ public class AISelector
 		if (scriptedAI != null)
 			return scriptedAI;
 
-		switch (creature.CreatureTemplate.AIName)
+		switch (creature.Template.AIName)
 		{
 			case "AggressorAI":
 				return new AggressorAI(creature);

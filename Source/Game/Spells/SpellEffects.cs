@@ -759,7 +759,7 @@ public partial class Spell
 		var creature = unitCaster.AsCreature;
 
 		if (creature != null)
-			runSpeed *= creature.CreatureTemplate.SpeedRun;
+			runSpeed *= creature.Template.SpeedRun;
 
 		var multiplier = (float)effInfo.Amplitude;
 
@@ -2094,7 +2094,7 @@ public partial class Spell
 			creature.StartPickPocketRefillTimer();
 
 			creature.Loot = new Loot(creature.Map, creature.GUID, LootType.Pickpocketing, null);
-			var lootid = creature.CreatureTemplate.PickPocketId;
+			var lootid = creature.Template.PickPocketId;
 
 			if (lootid != 0)
 				creature.Loot.FillLoot(lootid, LootStorage.Pickpocketing, player, true);
@@ -3875,13 +3875,13 @@ public partial class Spell
 		var creature = UnitTarget.AsCreature;
 		var targetLevel = (int)creature.GetLevelForTarget(_caster);
 
-		var skill = creature.CreatureTemplate.GetRequiredLootSkill();
+		var skill = creature.Template.GetRequiredLootSkill();
 
 		creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
 		creature.SetDynamicFlag(UnitDynFlags.Lootable);
 		Loot loot = new(creature.Map, creature.GUID, LootType.Skinning, null);
 		creature.PersonalLoot[player.GUID] = loot;
-		loot.FillLoot(creature.CreatureTemplate.SkinLootId, LootStorage.Skinning, player, true);
+		loot.FillLoot(creature.Template.SkinLootId, LootStorage.Skinning, player, true);
 		player.SendLoot(loot);
 
 		if (skill == SkillType.Skinning)

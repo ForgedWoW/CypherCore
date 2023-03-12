@@ -316,7 +316,7 @@ namespace Game.Conditions
                 {
                     Creature creature = obj.AsCreature;
                     if (creature)
-                        condMeets = (uint)creature.CreatureTemplate.CreatureType == ConditionValue1;
+                        condMeets = (uint)creature.Template.CreatureType == ConditionValue1;
                     break;
                 }
                 case ConditionTypes.InWater:

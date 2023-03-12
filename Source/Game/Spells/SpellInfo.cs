@@ -1243,7 +1243,7 @@ public class SpellInfo
 						if (targetCreature == null)
 							return SpellCastResult.BadTargets;
 
-						if (!targetCreature.CanHaveLoot || !Loots.LootStorage.Pickpocketing.HaveLootFor(targetCreature.CreatureTemplate.PickPocketId))
+						if (!targetCreature.CanHaveLoot || !Loots.LootStorage.Pickpocketing.HaveLootFor(targetCreature.Template.PickPocketId))
 							return SpellCastResult.TargetNoPockets;
 					}
 

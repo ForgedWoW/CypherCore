@@ -108,17 +108,17 @@ public partial class Creature
 		{
 			case WeaponAttackType.BaseAttack:
 			default:
-				variance = CreatureTemplate.BaseVariance;
+				variance = Template.BaseVariance;
 				unitMod = UnitMods.DamageMainHand;
 
 				break;
 			case WeaponAttackType.OffAttack:
-				variance = CreatureTemplate.BaseVariance;
+				variance = Template.BaseVariance;
 				unitMod = UnitMods.DamageOffHand;
 
 				break;
 			case WeaponAttackType.RangedAttack:
-				variance = CreatureTemplate.RangeVariance;
+				variance = Template.RangeVariance;
 				unitMod = UnitMods.DamageRanged;
 
 				break;
@@ -148,7 +148,7 @@ public partial class Creature
 		var basePct = GetPctModifierValue(unitMod, UnitModifierPctType.Base) * attackSpeedMulti;
 		var totalValue = GetFlatModifierValue(unitMod, UnitModifierFlatType.Total);
 		var totalPct = addTotalPct ? GetPctModifierValue(unitMod, UnitModifierPctType.Total) : 1.0f;
-		var dmgMultiplier = CreatureTemplate.ModDamage; // = ModDamage * _GetDamageMod(rank);
+		var dmgMultiplier = Template.ModDamage; // = ModDamage * _GetDamageMod(rank);
 
 		minDamage = ((weaponMinDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;
 		maxDamage = ((weaponMaxDamage + baseValue) * dmgMultiplier * basePct + totalValue) * totalPct;

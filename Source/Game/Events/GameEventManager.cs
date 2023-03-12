@@ -1118,7 +1118,7 @@ namespace Game
                         foreach (var creature in creatureBounds)
                         {
                             ulong npcflag = GetNPCFlag(creature);
-                            CreatureTemplate creatureTemplate = creature.CreatureTemplate;
+                            CreatureTemplate creatureTemplate = creature.Template;
                             if (creatureTemplate != null)
                                 npcflag |= (ulong)creatureTemplate.Npcflag;
 

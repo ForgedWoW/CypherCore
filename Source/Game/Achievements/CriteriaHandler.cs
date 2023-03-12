@@ -1412,7 +1412,7 @@ namespace Game.Achievements
                 {
                     if (!refe)
                         return false;
-                    if (!refe.IsCreature || refe.AsCreature.CreatureTemplate.Family != (CreatureFamily)reqValue)
+                    if (!refe.IsCreature || refe.AsCreature.Template.Family != (CreatureFamily)reqValue)
                         return false;
                     break;
                 }

@@ -1214,7 +1214,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
+			if (!AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoCrit))
 			{
 				chance = 5.0f;
 				chance += GetTotalAuraModifier(AuraType.ModWeaponCritPercent);
@@ -1313,7 +1313,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem && !victim.AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParry))
+			if (!victim.IsTotem && !victim.AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoParry))
 			{
 				chance = 6.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModParryPercent);
@@ -1361,7 +1361,7 @@ public partial class Unit
 		}
 		else
 		{
-			if (!victim.IsTotem && !(victim.AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
+			if (!victim.IsTotem && !(victim.AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoBlock)))
 			{
 				chance = 3.0f;
 				chance += victim.GetTotalAuraModifier(AuraType.ModBlockPercent);

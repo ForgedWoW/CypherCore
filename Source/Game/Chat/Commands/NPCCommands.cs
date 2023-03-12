@@ -86,7 +86,7 @@ class NPCCommands
 			return false;
 		}
 
-		var cInfo = target.CreatureTemplate;
+		var cInfo = target.Template;
 
 		var faction = target.Faction;
 		var npcflags = (ulong)target.UnitData.NpcFlags[1] << 32 | target.UnitData.NpcFlags[0];
@@ -445,7 +445,7 @@ class NPCCommands
 			return false;
 		}
 
-		var cInfo = creatureTarget.CreatureTemplate;
+		var cInfo = creatureTarget.Template;
 
 		if (!cInfo.IsTameable(player.CanTameExoticPets))
 		{
@@ -1053,7 +1053,7 @@ class NPCCommands
 			// Faction is set in creature_template - not inside creature
 
 			// Update in memory..
-			var cinfo = creature.CreatureTemplate;
+			var cinfo = creature.Template;
 
 			if (cinfo != null)
 				cinfo.Faction = factionId;

@@ -1015,7 +1015,7 @@ public class SmartAI : CreatureAI
 			return false;
 
 		//experimental (unknown) flag not present
-		if (!Me.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
+		if (!Me.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CanAssist))
 			return false;
 
 		//not a player

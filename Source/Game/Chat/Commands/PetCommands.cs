@@ -22,7 +22,7 @@ class PetCommands
 			return false;
 		}
 
-		var creatureTemplate = creatureTarget.CreatureTemplate;
+		var creatureTemplate = creatureTarget.Template;
 
 		// Creatures with family CreatureFamily.None crashes the server
 		if (creatureTemplate.Family == CreatureFamily.None)

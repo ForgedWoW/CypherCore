@@ -223,7 +223,7 @@ public class KillRewarder
 
 			if (target != null)
 			{
-				player.KilledMonster(target.CreatureTemplate, target.GUID);
+				player.KilledMonster(target.Template, target.GUID);
 				player.UpdateCriteria(CriteriaType.KillAnyCreature, (ulong)target.CreatureType, 1, 0, target);
 			}
 		}

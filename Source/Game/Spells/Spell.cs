@@ -2176,7 +2176,7 @@ public partial class Spell : IDisposable
 					if (loot != null && (!loot.IsLooted() || loot.loot_type == LootType.Skinning))
 						return SpellCastResult.TargetNotLooted;
 
-					var skill = creature.CreatureTemplate.GetRequiredLootSkill();
+					var skill = creature.Template.GetRequiredLootSkill();
 
 					var skillValue = _caster.AsPlayer.GetSkillValue(skill);
 					var TargetLevel = Targets.UnitTarget.GetLevelForTarget(_caster);
@@ -4605,7 +4605,7 @@ public partial class Spell : IDisposable
 				var creatureTarget = unitTarget.AsCreature;
 
 				if (creatureTarget)
-					if (!creatureTarget.CreatureTemplate.TypeFlags.HasAnyFlag(CreatureTypeFlags.CollideWithMissiles))
+					if (!creatureTarget.Template.TypeFlags.HasAnyFlag(CreatureTypeFlags.CollideWithMissiles))
 						continue;
 			}
 

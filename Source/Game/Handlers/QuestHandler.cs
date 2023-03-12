@@ -70,7 +70,7 @@ namespace Game
             if (creature.AI.OnGossipHello(_player))
                 return;
 
-            _player.PrepareGossipMenu(creature, creature.CreatureTemplate.GossipMenuId, true);
+            _player.PrepareGossipMenu(creature, creature.Template.GossipMenuId, true);
             _player.SendPreparedGossip(creature);
         }
 

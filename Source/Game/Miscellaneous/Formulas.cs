@@ -149,7 +149,7 @@ namespace Game
                 if (gain != 0 && creature)
                 {
                     // Players get only 10% xp for killing creatures of lower expansion levels than himself
-                    if (ConfigMgr.GetDefaultValue("player.lowerExpInLowerExpansions", true) && (creature.CreatureTemplate.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level)))
+                    if (ConfigMgr.GetDefaultValue("player.lowerExpInLowerExpansions", true) && (creature.Template.GetHealthScalingExpansion() < (int)GetExpansionForLevel(player.Level)))
                         gain = (uint)Math.Round(gain / 10.0f);
 
                     if (creature.IsElite)
@@ -161,7 +161,7 @@ namespace Game
                             xpMod *= 2.0f;
                     }
 
-                    xpMod *= creature.CreatureTemplate.ModExperience;
+                    xpMod *= creature.Template.ModExperience;
                 }
                 xpMod *= isBattleGround ? WorldConfig.GetFloatValue(WorldCfg.RateXpBgKill) : WorldConfig.GetFloatValue(WorldCfg.RateXpKill);
                 if (creature && creature.PlayerDamageReq != 0) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)

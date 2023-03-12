@@ -1014,7 +1014,7 @@ public class UnitData : BaseUpdateData<Unit>
 
 		if (unit.IsCreature)
 		{
-			var cinfo = unit.AsCreature.CreatureTemplate;
+			var cinfo = unit.AsCreature.Template;
 			var summon = unit.ToTempSummon();
 
 			if (summon != null)

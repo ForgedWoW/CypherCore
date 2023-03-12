@@ -2378,7 +2378,7 @@ public abstract class WorldObject : IDisposable
 
 					break;
 				case TypeId.Unit:
-					Log.outError(LogFilter.Unit, $"Creature (template id: {AsCreature.CreatureTemplate.Entry}) has invalid faction (faction template Id) #{factionId}");
+					Log.outError(LogFilter.Unit, $"Creature (template id: {AsCreature.Template.Entry}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 				case TypeId.GameObject:
@@ -2939,7 +2939,7 @@ public abstract class WorldObject : IDisposable
 
 		var creatureAttacker = AsCreature;
 
-		if (creatureAttacker && creatureAttacker.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
+		if (creatureAttacker && creatureAttacker.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
 			return false;
 
 		if (playerAffectingAttacker && playerAffectingTarget)
@@ -3036,7 +3036,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		// can't assist non-friendly targets
-		if (GetReactionTo(target) < ReputationRank.Neutral && target.GetReactionTo(this) < ReputationRank.Neutral && (!AsCreature || !AsCreature.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
+		if (GetReactionTo(target) < ReputationRank.Neutral && target.GetReactionTo(this) < ReputationRank.Neutral && (!AsCreature || !AsCreature.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
 			return false;
 
 		// PvP case
@@ -3072,7 +3072,7 @@ public abstract class WorldObject : IDisposable
 					var creatureTarget = target.AsCreature;
 
 					if (creatureTarget != null)
-						return (creatureTarget.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.CreatureTemplate.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
+						return (creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
 				}
 		}
 

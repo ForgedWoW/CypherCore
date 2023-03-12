@@ -1976,7 +1976,7 @@ public partial class Player : Unit
 		if (victim.AsCreature.IsReputationGainDisabled)
 			return;
 
-		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.AsCreature.CreatureTemplate.Entry);
+		var Rep = Global.ObjectMgr.GetReputationOnKilEntry(victim.AsCreature.Template.Entry);
 
 		if (Rep == null)
 			return;
@@ -4709,11 +4709,11 @@ public partial class Player : Unit
 			return null;
 
 		// Deathstate checks
-		if (!IsAlive && !Convert.ToBoolean(creature.CreatureTemplate.TypeFlags & CreatureTypeFlags.VisibleToGhosts))
+		if (!IsAlive && !Convert.ToBoolean(creature.Template.TypeFlags & CreatureTypeFlags.VisibleToGhosts))
 			return null;
 
 		// alive or spirit healer
-		if (!creature.IsAlive && !Convert.ToBoolean(creature.CreatureTemplate.TypeFlags & CreatureTypeFlags.InteractWhileDead))
+		if (!creature.IsAlive && !Convert.ToBoolean(creature.Template.TypeFlags & CreatureTypeFlags.InteractWhileDead))
 			return null;
 
 		// appropriate npc type

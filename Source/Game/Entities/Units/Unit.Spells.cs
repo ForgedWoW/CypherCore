@@ -283,7 +283,7 @@ public partial class Unit
 
 		// Pet damage?
 		if (IsTypeId(TypeId.Unit) && !IsPet)
-			DoneTotalMod *= AsCreature.GetSpellDamageMod(AsCreature.CreatureTemplate.Rank);
+			DoneTotalMod *= AsCreature.GetSpellDamageMod(AsCreature.Template.Rank);
 
 		// Versatility
 		var modOwner = SpellModOwner;
@@ -2321,7 +2321,7 @@ public partial class Unit
 		switch (group)
 		{
 			case DiminishingGroup.Taunt:
-				if (IsTypeId(TypeId.Unit) && AsCreature.CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.ObeysTauntDiminishingReturns))
+				if (IsTypeId(TypeId.Unit) && AsCreature.Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.ObeysTauntDiminishingReturns))
 				{
 					var diminish = previousLevel;
 

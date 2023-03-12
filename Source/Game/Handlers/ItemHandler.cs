@@ -375,7 +375,7 @@ namespace Game
                 return;
             }
 
-            if (creature.CreatureTemplate.FlagsExtra.HasFlag(CreatureFlagsExtra.NoSellVendor))
+            if (creature.Template.FlagsExtra.HasFlag(CreatureFlagsExtra.NoSellVendor))
             {
                 _player.SendSellError(SellResult.CantSellToThisMerchant, creature, packet.ItemGUID);
                 return;

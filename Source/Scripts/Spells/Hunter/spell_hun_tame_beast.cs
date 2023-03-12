@@ -34,7 +34,7 @@ internal class spell_hun_tame_beast : SpellScript, ISpellCheckCast
 				return SpellCastResult.Highlevel;
 
 			// use SMSG_PET_TAME_FAILURE?
-			if (!target.CreatureTemplate.IsTameable(caster.CanTameExoticPets))
+			if (!target.Template.IsTameable(caster.CanTameExoticPets))
 				return SpellCastResult.BadTargets;
 
 			var petStable = caster.PetStable1;
