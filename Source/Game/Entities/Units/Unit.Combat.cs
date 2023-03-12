@@ -883,7 +883,7 @@ public partial class Unit
 					if (dungeonEncounter != null)
 					{
 						creature.PersonalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
-																								creature.Template.LootId,
+																								creature.LootId,
 																								LootStorage.Creature,
 																								LootType.Corpse,
 																								creature,
@@ -900,7 +900,7 @@ public partial class Unit
 
 						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
-						var lootid = creature.Template.LootId;
+						var lootid = creature.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
@@ -928,7 +928,7 @@ public partial class Unit
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);
 
-						var lootid = creature.Template.LootId;
+						var lootid = creature.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
