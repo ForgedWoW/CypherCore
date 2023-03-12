@@ -26,6 +26,7 @@ internal class npc_training_dummy : NullCreatureAI
 		creature.SetControlled(true, UnitState.Root);
 		creature.ApplySpellImmune(0, SpellImmunity.Effect, SpellEffectName.KnockBack, true);
 		creature.SetUnitFlag3(UnitFlags3.UnconsciousOnDeath);
+		creature.StaticFlags.ModifyFlag(CreatureStaticFlags.UNKILLABLE);
 	}
 
 	public override void JustEnteredCombat(Unit who)

@@ -2973,6 +2973,10 @@ public partial class Unit : WorldObject
 
 			duel_hasEnded = true;
 		}
+		else if (victim.TryGetAsCreature(out var creature) && damageTaken >= health && creature.StaticFlags.HasFlag(CreatureStaticFlags.UNKILLABLE))
+		{
+            damageTaken = health - 1;
+        }
 		else if (victim.IsVehicle && damageTaken >= (health - 1) && victim.Charmer != null && victim.Charmer.IsTypeId(TypeId.Player))
 		{
 			var victimRider = victim.Charmer.AsPlayer;

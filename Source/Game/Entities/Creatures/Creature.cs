@@ -19,312 +19,6 @@ namespace Game.Entities;
 
 public partial class Creature : Unit
 {
-	public bool IsReturningHome
-	{
-		get
-		{
-			if (MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Home)
-				return true;
-
-			return false;
-		}
-	}
-
-	public bool IsFormationLeader
-	{
-		get
-		{
-			if (_creatureGroup == null)
-				return false;
-
-			return _creatureGroup.IsLeader(this);
-		}
-	}
-
-	public bool IsFormationLeaderMoveAllowed
-	{
-		get
-		{
-			if (_creatureGroup == null)
-				return false;
-
-			return _creatureGroup.CanLeaderStartMoving();
-		}
-	}
-
-	public bool CanGiveExperience => !IsCritter && !IsPet && !IsTotem && !CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoXP);
-
-	public override bool IsEngaged
-	{
-		get
-		{
-			var ai = AI;
-
-			if (ai != null)
-				return ai.IsEngaged;
-
-			return false;
-		}
-	}
-
-	public bool IsEscorted
-	{
-		get
-		{
-			var ai = AI;
-
-			if (ai != null)
-				return ai.IsEscorted();
-
-			return false;
-		}
-	}
-
-	public bool CanGeneratePickPocketLoot => _pickpocketLootRestore <= GameTime.GetGameTime();
-
-	public bool IsFullyLooted
-	{
-		get
-		{
-			if (Loot != null && !Loot.IsLooted())
-				return false;
-
-			foreach (var (_, loot) in PersonalLoot)
-				if (!loot.IsLooted())
-					return false;
-
-			return true;
-		}
-	}
-
-	public HashSet<ObjectGuid> TapList => _tapList;
-
-	public bool HasLootRecipient => !_tapList.Empty();
-
-	public bool IsElite
-	{
-		get
-		{
-			if (IsPet)
-				return false;
-
-			return CreatureTemplate.Rank != CreatureEliteType.Elite && CreatureTemplate.Rank != CreatureEliteType.RareElite;
-		}
-	}
-
-	public bool IsWorldBoss
-	{
-		get
-		{
-			if (IsPet)
-				return false;
-
-			return Convert.ToBoolean(CreatureTemplate.TypeFlags & CreatureTypeFlags.BossMob);
-		}
-	}
-
-	public long RespawnTimeEx
-	{
-		get
-		{
-			var now = GameTime.GetGameTime();
-
-			if (_respawnTime > now)
-				return _respawnTime;
-			else
-				return now;
-		}
-	}
-
-	public Position RespawnPosition => GetRespawnPosition(out _);
-
-	public CreatureMovementData MovementTemplate
-	{
-		get
-		{
-			if (Global.ObjectMgr.TryGetGetCreatureMovementOverride(SpawnId, out var movementOverride))
-				return movementOverride;
-
-			return CreatureTemplate.Movement;
-		}
-	}
-
-	public override bool CanSwim
-	{
-		get
-		{
-			if (base.CanSwim)
-				return true;
-
-			if (IsPet)
-				return true;
-
-			return false;
-		}
-	}
-
-	public override bool CanEnterWater
-	{
-		get
-		{
-			if (CanSwim)
-				return true;
-
-			return MovementTemplate.IsSwimAllowed();
-		}
-	}
-
-	public bool HasCanSwimFlagOutOfCombat => !_isMissingCanSwimFlagOutOfCombat;
-
-	public bool HasScalableLevels => UnitData.ContentTuningID != 0;
-
-	public string[] StringIds => _stringIds;
-
-	public VendorItemData VendorItems => Global.ObjectMgr.GetNpcVendorItemList(Entry);
-
-	public virtual byte PetAutoSpellSize => 4;
-
-    public override float NativeObjectScale => CreatureTemplate.Scale;
-
-	public uint CorpseDelay => _corpseDelay;
-
-	public bool IsRacialLeader => CreatureTemplate.RacialLeader;
-
-	public bool IsCivilian => CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Civilian);
-
-	public bool IsTrigger => CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Trigger);
-
-	public bool IsGuard => CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Guard);
-
-	public bool CanWalk => MovementTemplate.IsGroundAllowed();
-
-	public override bool CanFly => MovementTemplate.IsFlightAllowed() || IsFlying;
-
-	public bool IsDungeonBoss => (CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.DungeonBoss));
-
-	public override bool IsAffectedByDiminishingReturns => base.IsAffectedByDiminishingReturns || CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.AllDiminish);
-
-	public ReactStates ReactState
-	{
-		get => _reactState;
-		set => _reactState = value;
-	}
-
-	public bool IsInEvadeMode => HasUnitState(UnitState.Evade);
-
-	public bool IsEvadingAttacks => IsInEvadeMode || CanNotReachTarget;
-
-	public sbyte OriginalEquipmentId => _originalEquipmentId;
-
-	public byte CurrentEquipmentId
-	{
-		get => _equipmentId;
-		set => _equipmentId = value;
-	}
-
-	public CreatureTemplate CreatureTemplate => _creatureTemplate;
-
-	public CreatureData CreatureData => _creatureData;
-
-	public bool IsReputationGainDisabled => _reputationGain;
-
-	CreatureAddon CreatureAddon
-	{
-		get
-		{
-			if (SpawnId != 0)
-			{
-				var addon = Global.ObjectMgr.GetCreatureAddon(SpawnId);
-
-				if (addon != null)
-					return addon;
-			}
-
-			// dependent from difficulty mode entry
-			return Global.ObjectMgr.GetCreatureTemplateAddon(CreatureTemplate.Entry);
-		}
-	}
-
-	bool IsSpawnedOnTransport => _creatureData != null && _creatureData.MapId != Location.MapId;
-
-	bool CanNotReachTarget => _cannotReachTarget;
-
-	public bool CanHover => MovementTemplate.Ground == CreatureGroundMovementType.Hover || IsHovering;
-
-	// (secs) interval at which the creature pulses the entire zone into combat (only works in dungeons)
-	public uint CombatPulseDelay
-	{
-		get => _combatPulseDelay;
-		set
-		{
-			_combatPulseDelay = value;
-
-			if (_combatPulseTime == 0 || _combatPulseTime > value)
-				_combatPulseTime = value;
-		}
-	}
-
-	// Part of Evade mechanics
-	public long LastDamagedTime
-	{
-		get => _lastDamagedTime;
-		set => _lastDamagedTime = value;
-	}
-
-	public bool HasSearchedAssistance => _alreadySearchedAssistance;
-
-	public bool CanIgnoreFeignDeath => CreatureTemplate.FlagsExtra.HasFlag(CreatureFlagsExtra.IgnoreFeighDeath);
-
-	public long RespawnTime => _respawnTime;
-
-	public uint RespawnDelay
-	{
-		get => _respawnDelay;
-		set => _respawnDelay = value;
-	}
-
-	public float WanderDistance
-	{
-		get => _wanderDistance;
-		set => _wanderDistance = value;
-	}
-
-	public bool CanRegenerateHealth => !_regenerateHealthLock && _regenerateHealth;
-
-	public Position HomePosition
-	{
-		get => _homePosition;
-		set => _homePosition.Relocate(value);
-	}
-
-	public Position TransportHomePosition
-	{
-		get => _transportHomePosition;
-		set => _transportHomePosition.Relocate(value);
-	}
-
-	public uint WaypointPath => _waypointPathId;
-
-	public (uint nodeId, uint pathId) CurrentWaypointInfo => _currentWaypointNodeInfo;
-
-	public CreatureGroup Formation
-	{
-		get => _creatureGroup;
-		set => _creatureGroup = value;
-	}
-
-	public uint OriginalEntry1
-	{
-		get => OriginalEntry;
-		private set => OriginalEntry = value;
-	}
-
-	// There's many places not ready for dynamic spawns. This allows them to live on for now.
-	public bool RespawnCompatibilityMode
-	{
-		get => _respawnCompatibilityMode;
-		private set => _respawnCompatibilityMode = value;
-	}
 
 	public Creature() : this(false) { }
 
@@ -606,6 +300,8 @@ public partial class Creature : Unit
 
 		for (byte i = 0; i < SharedConst.MaxCreatureSpells; ++i)
 			Spells[i] = CreatureTemplate.Spells[i];
+
+		StaticFlags.ModifyFlag(CreatureStaticFlags.NO_XP, IsCritter && IsPet && IsTotem && CreatureTemplate.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.NoXP));
 
 		return true;
 	}
@@ -1856,7 +1552,7 @@ public partial class Creature : Unit
 
 	public void SetSpawnHealth()
 	{
-		if (_regenerateHealthLock)
+		if (StaticFlags.HasFlag(CreatureStaticFlags5.NO_HEALTH_REGEN))
 			return;
 
 		long curhealth;
@@ -3464,12 +3160,17 @@ public partial class Creature : Unit
 
 	public void SetRegenerateHealth(bool value)
 	{
-		_regenerateHealthLock = !value;
+		StaticFlags.ModifyFlag(CreatureStaticFlags5.NO_HEALTH_REGEN, !value);
 	}
 
 	public void SetHomePosition(float x, float y, float z, float o)
 	{
 		_homePosition.Relocate(x, y, z, o);
+	}
+
+	public void SetUnkillable(bool value)
+	{
+		StaticFlags.ModifyFlag(CreatureStaticFlags.UNKILLABLE, value);
 	}
 
 	public void SetTransportHomePosition(float x, float y, float z, float o)
@@ -3587,7 +3288,7 @@ public partial class Creature : Unit
 			return false;
 		}
 
-		OriginalEntry1 = entry;
+		OriginalEntry = entry;
 
 		if (vehId != 0 || cinfo.VehicleId != 0)
 			Create(ObjectGuid.Create(HighGuid.Vehicle, Location.MapId, entry, guidlow));

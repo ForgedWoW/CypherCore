@@ -818,6 +818,7 @@ public partial class Unit
 		List<Player> tappers = new();
 
 		if (isRewardAllowed && creature)
+		{
 			foreach (var tapperGuid in creature.TapList)
 			{
 				var tapper = Global.ObjAccessor.GetPlayer(creature, tapperGuid);
@@ -825,6 +826,10 @@ public partial class Unit
 				if (tapper != null)
 					tappers.Add(tapper);
 			}
+
+			if (!creature.CanHaveLoot)
+				isRewardAllowed = false;
+		}
 
 		// Exploit fix
 		if (creature && creature.IsPet && creature.OwnerGUID.IsPlayer)
@@ -1038,7 +1043,7 @@ public partial class Unit
 				else
 					creature.AllLootRemovedFromCorpse();
 
-				if (LootStorage.Skinning.HaveLootFor(creature.CreatureTemplate.SkinLootId))
+				if (creature.CanHaveLoot && LootStorage.Skinning.HaveLootFor(creature.CreatureTemplate.SkinLootId))
 				{
 					creature.SetDynamicFlag(UnitDynFlags.CanSkin);
 					creature.SetUnitFlag(UnitFlags.Skinnable);
