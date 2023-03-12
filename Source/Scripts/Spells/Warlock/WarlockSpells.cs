@@ -303,8 +303,8 @@ internal struct WarlockSpells
 	public const uint SOUL_LEECH_ABSORB = 108366;
 	public const uint SOUL_LEECH_AURA = 108370;
 	public const uint SOUL_LEECH_SHIELD = 108366;
-	public const uint SOUL_LINK_BUFF = 108446;
-	public const uint SOUL_LINK_DUMMY_AURA = 108446;
+    public const uint SOUL_LINK = 108446;
+    public const uint SOUL_LINK_BUFF = 108415;
 	public const uint SOUL_LINK_HEAL = 108447;
 	public const uint SOUL_SKIN = 218567;
 	public const uint SOUL_SWAP_CD_MARKER = 94229;

@@ -7,7 +7,7 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Warlock;
 
 // 108415 - Soul Link 8.xx
-[SpellScript(108415)]
+[SpellScript(WarlockSpells.SOUL_LINK)]
 public class spell_warl_soul_link : SpellScript, ISpellOnHit
 {
 	public void OnHit()
@@ -19,8 +19,8 @@ public class spell_warl_soul_link : SpellScript, ISpellOnHit
 			var target = HitUnit;
 
 			if (target != null)
-				if (!target.HasAura(WarlockSpells.SOUL_LINK_DUMMY_AURA))
-					caster.CastSpell(caster, WarlockSpells.SOUL_LINK_DUMMY_AURA, true);
+				if (!target.HasAura(WarlockSpells.SOUL_LINK_BUFF))
+					caster.CastSpell(caster, WarlockSpells.SOUL_LINK_BUFF, true);
 		}
 	}
 }
