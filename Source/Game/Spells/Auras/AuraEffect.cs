@@ -5254,7 +5254,12 @@ public class AuraEffect
 		if (!mode.HasFlag(AuraEffectHandleModes.Real) || apply || aurApp.RemoveMode != AuraRemoveMode.Expire)
 			return;
 
-		aurApp.Target.CastSpell(aurApp.Target, GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(this));
+		var caster = aurApp.Target;
+
+		if (MiscValue > 0)
+			caster = Caster;
+
+        caster.CastSpell(aurApp.Target, GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(this));
 	}
 
 	[AuraEffectHandler(AuraType.OpenStable)]
