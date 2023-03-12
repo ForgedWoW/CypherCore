@@ -1,393 +1,366 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace System.Collections
+namespace System.Collections;
+
+public class BitSet : ICollection, ICloneable
 {
-    public class BitSet : ICollection, ICloneable
-    {
-        public BitSet(int length, bool defaultValue = false)
-        {
-            if (length < 0)
-            {
-                throw new ArgumentOutOfRangeException("length");
-            }
+	// XPerY=n means that n Xs can be stored in 1 Y. 
+	private const int BitsPerInt32 = 32;
+	private const int BytesPerInt32 = 4;
+	private const int BitsPerByte = 8;
 
-            _mArray = new uint[GetArrayLength(length, BitsPerInt32)];
-            _mLength = length;
+	private const int ShrinkThreshold = 256;
 
-            uint fillValue = defaultValue ? 0xffffffff : 0;
-            for (int i = 0; i < _mArray.Length; i++)
-            {
-                _mArray[i] = fillValue;
-            }
+	private uint[] _mArray;
+	private int _mLength;
+	private int _version;
 
-            _version = 0;
-        }
+	[NonSerialized] private object _syncRoot;
 
-        public BitSet(uint[] values)
-        {
-            if (values == null)
-            {
-                throw new ArgumentNullException("values");
-            }
+	public int Count
+	{
+		get { return _mLength; }
+	}
 
-            // this value is chosen to prevent overflow when computing m_length
-            if (values.Length > UInt32.MaxValue / BitsPerInt32)
-            {
-                throw new ArgumentException();
-            }
+	public object SyncRoot
+	{
+		get
+		{
+			if (_syncRoot == null)
+				Threading.Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
 
-            _mArray = new uint[values.Length];
-            _mLength = values.Length * BitsPerInt32;
+			return _syncRoot;
+		}
+	}
 
-            Array.Copy(values, _mArray, values.Length);
+	public bool IsSynchronized
+	{
+		get { return false; }
+	}
 
-            _version = 0;
-        }
+	public bool this[int index]
+	{
+		get { return Get(index); }
+		set { Set(index, value); }
+	}
 
-        public BitSet(BitSet bits)
-        {
-            if (bits == null)
-            {
-                throw new ArgumentNullException("bits");
-            }
+	public int Length
+	{
+		get { return _mLength; }
+		set
+		{
+			if (value < 0)
+				throw new ArgumentOutOfRangeException("value");
 
-            int arrayLength = GetArrayLength(bits._mLength, BitsPerInt32);
-            _mArray = new uint[arrayLength];
-            _mLength = bits._mLength;
+			var newints = GetArrayLength(value, BitsPerInt32);
 
-            Array.Copy(bits._mArray, _mArray, arrayLength);
+			if (newints > _mArray.Length || newints + ShrinkThreshold < _mArray.Length)
+			{
+				// grow or shrink (if wasting more than _ShrinkThreshold ints)
+				var newarray = new uint[newints];
+				Array.Copy(_mArray, newarray, newints > _mArray.Length ? _mArray.Length : newints);
+				_mArray = newarray;
+			}
 
-            _version = bits._version;
-        }
+			if (value > _mLength)
+			{
+				// clear high bit values in the last int
+				var last = GetArrayLength(_mLength, BitsPerInt32) - 1;
+				var bits = _mLength % 32;
 
-        public bool this[int index]
-        {
-            get
-            {
-                return Get(index);
-            }
-            set
-            {
-                Set(index, value);
-            }
-        }
+				if (bits > 0)
+					_mArray[last] &= (1u << bits) - 1;
 
-        public bool Get(int index)
-        {
-            if (index < 0 || index >= Length)
-            {
-                throw new ArgumentOutOfRangeException("index");
-            }
+				// clear remaining int values
+				Array.Clear(_mArray, last + 1, newints - last - 1);
+			}
 
-            return (Convert.ToInt64(_mArray[index / 32]) & (1 << (index % 32))) != 0;
-        }
+			_mLength = value;
+			_version++;
+		}
+	}
 
-        public void Set(int index, bool value)
-        {
-            if (index < 0 || index >= Length)
-            {
-                throw new ArgumentOutOfRangeException("index");
-            }
+	public bool IsReadOnly
+	{
+		get { return false; }
+	}
 
-            if (value)
-            {
-                _mArray[index / 32] |= (1u << (index % 32));
-            }
-            else
-            {
-                _mArray[index / 32] &= ~(1u << (index % 32));
-            }
+	public BitSet(int length, bool defaultValue = false)
+	{
+		if (length < 0)
+			throw new ArgumentOutOfRangeException("length");
 
-            _version++;
-        }
+		_mArray = new uint[GetArrayLength(length, BitsPerInt32)];
+		_mLength = length;
 
-        public void SetAll(bool value)
-        {
-            uint fillValue = value ? 0xffffffff : 0u;
-            int ints = GetArrayLength(_mLength, BitsPerInt32);
-            for (int i = 0; i < ints; i++)
-            {
-                _mArray[i] = fillValue;
-            }
+		var fillValue = defaultValue ? 0xffffffff : 0;
 
-            _version++;
-        }
+		for (var i = 0; i < _mArray.Length; i++)
+			_mArray[i] = fillValue;
 
-        public BitSet And(BitSet value)
-        {
-            if (value == null)
-                throw new ArgumentNullException("value");
-            if (Length != value.Length)
-                throw new ArgumentException();
+		_version = 0;
+	}
 
-            int ints = GetArrayLength(_mLength, BitsPerInt32);
-            for (int i = 0; i < ints; i++)
-            {
-                _mArray[i] &= value._mArray[i];
-            }
+	public BitSet(uint[] values)
+	{
+		if (values == null)
+			throw new ArgumentNullException("values");
 
-            _version++;
-            return this;
-        }
+		// this value is chosen to prevent overflow when computing m_length
+		if (values.Length > uint.MaxValue / BitsPerInt32)
+			throw new ArgumentException();
 
-        public BitSet Or(BitSet value)
-        {
-            if (value == null)
-                throw new ArgumentNullException("value");
-            if (Length != value.Length)
-                throw new ArgumentException();
+		_mArray = new uint[values.Length];
+		_mLength = values.Length * BitsPerInt32;
 
-            int ints = GetArrayLength(_mLength, BitsPerInt32);
-            for (int i = 0; i < ints; i++)
-            {
-                _mArray[i] |= value._mArray[i];
-            }
+		Array.Copy(values, _mArray, values.Length);
 
-            _version++;
-            return this;
-        }
+		_version = 0;
+	}
 
-        public BitSet Xor(BitSet value)
-        {
-            if (value == null)
-                throw new ArgumentNullException("value");
-            if (Length != value.Length)
-                throw new ArgumentException();
+	public BitSet(BitSet bits)
+	{
+		if (bits == null)
+			throw new ArgumentNullException("bits");
 
-            int ints = GetArrayLength(_mLength, BitsPerInt32);
-            for (int i = 0; i < ints; i++)
-            {
-                _mArray[i] ^= value._mArray[i];
-            }
+		var arrayLength = GetArrayLength(bits._mLength, BitsPerInt32);
+		_mArray = new uint[arrayLength];
+		_mLength = bits._mLength;
 
-            _version++;
-            return this;
-        }
+		Array.Copy(bits._mArray, _mArray, arrayLength);
 
-        public BitSet Not()
-        {
-            int ints = GetArrayLength(_mLength, BitsPerInt32);
-            for (int i = 0; i < ints; i++)
-            {
-                _mArray[i] = ~_mArray[i];
-            }
+		_version = bits._version;
+	}
 
-            _version++;
-            return this;
-        }
+	public object Clone()
+	{
+		BitSet bitArray = new(_mArray);
+		bitArray._version = _version;
+		bitArray._mLength = _mLength;
 
-        public bool Any()
-        {
-            for (var i  = 0; i < Length; ++i)
-            {
-                if (Get(i))
-                    return true;
-            }
+		return bitArray;
+	}
 
-            return false;
-        }
+	// ICollection implementation
+	public void CopyTo(Array array, int index)
+	{
+		if (array == null)
+			throw new ArgumentNullException("array");
 
-        public int Length
-        {
-            get
-            {
-                return _mLength;
-            }
-            set
-            {
-                if (value < 0)
-                {
-                    throw new ArgumentOutOfRangeException("value");
-                }
+		if (index < 0)
+			throw new ArgumentOutOfRangeException("index");
 
-                int newints = GetArrayLength(value, BitsPerInt32);
-                if (newints > _mArray.Length || newints + ShrinkThreshold < _mArray.Length)
-                {
-                    // grow or shrink (if wasting more than _ShrinkThreshold ints)
-                    uint[] newarray = new uint[newints];
-                    Array.Copy(_mArray, newarray, newints > _mArray.Length ? _mArray.Length : newints);
-                    _mArray = newarray;
-                }
+		if (array.Rank != 1)
+			throw new ArgumentException();
 
-                if (value > _mLength)
-                {
-                    // clear high bit values in the last int
-                    int last = GetArrayLength(_mLength, BitsPerInt32) - 1;
-                    int bits = _mLength % 32;
-                    if (bits > 0)
-                    {
-                        _mArray[last] &= (1u << bits) - 1;
-                    }
+		if (array is uint[])
+		{
+			Array.Copy(_mArray, 0, array, index, GetArrayLength(_mLength, BitsPerInt32));
+		}
+		else if (array is byte[])
+		{
+			var arrayLength = GetArrayLength(_mLength, BitsPerByte);
 
-                    // clear remaining int values
-                    Array.Clear(_mArray, last + 1, newints - last - 1);
-                }
+			if ((array.Length - index) < arrayLength)
+				throw new ArgumentException();
 
-                _mLength = value;
-                _version++;
-            }
-        }
+			var b = (byte[])array;
 
-        // ICollection implementation
-        public void CopyTo(Array array, int index)
-        {
-            if (array == null)
-                throw new ArgumentNullException("array");
+			for (var i = 0; i < arrayLength; i++)
+				b[index + i] = (byte)((_mArray[i / 4] >> ((i % 4) * 8)) & 0x000000FF); // Shift to bring the required byte to LSB, then mask
+		}
+		else if (array is bool[])
+		{
+			if (array.Length - index < _mLength)
+				throw new ArgumentException();
 
-            if (index < 0)
-                throw new ArgumentOutOfRangeException("index");
+			var b = (bool[])array;
 
-            if (array.Rank != 1)
-                throw new ArgumentException();
+			for (var i = 0; i < _mLength; i++)
+				b[index + i] = ((_mArray[i / 32] >> (i % 32)) & 0x00000001) != 0;
+		}
+		else
+		{
+			throw new ArgumentException();
+		}
+	}
 
-            if (array is uint[])
-            {
-                Array.Copy(_mArray, 0, array, index, GetArrayLength(_mLength, BitsPerInt32));
-            }
-            else if (array is byte[])
-            {
-                int arrayLength = GetArrayLength(_mLength, BitsPerByte);
-                if ((array.Length - index) < arrayLength)
-                    throw new ArgumentException();
+	public IEnumerator GetEnumerator()
+	{
+		return new BitArrayEnumeratorSimple(this);
+	}
 
-                byte[] b = (byte[])array;
-                for (int i = 0; i < arrayLength; i++)
-                    b[index + i] = (byte)((_mArray[i / 4] >> ((i % 4) * 8)) & 0x000000FF); // Shift to bring the required byte to LSB, then mask
-            }
-            else if (array is bool[])
-            {
-                if (array.Length - index < _mLength)
-                    throw new ArgumentException();
+	public bool Get(int index)
+	{
+		if (index < 0 || index >= Length)
+			throw new ArgumentOutOfRangeException("index");
 
-                bool[] b = (bool[])array;
-                for (int i = 0; i < _mLength; i++)
-                    b[index + i] = ((_mArray[i / 32] >> (i % 32)) & 0x00000001) != 0;
-            }
-            else
-                throw new ArgumentException();
-        }
+		return (Convert.ToInt64(_mArray[index / 32]) & (1 << (index % 32))) != 0;
+	}
 
-        public int Count
-        {
-            get
-            {
-                return _mLength;
-            }
-        }
+	public void Set(int index, bool value)
+	{
+		if (index < 0 || index >= Length)
+			throw new ArgumentOutOfRangeException("index");
 
-        public Object Clone()
-        {
-            BitSet bitArray = new(_mArray);
-            bitArray._version = _version;
-            bitArray._mLength = _mLength;
-            return bitArray;
-        }
+		if (value)
+			_mArray[index / 32] |= (1u << (index % 32));
+		else
+			_mArray[index / 32] &= ~(1u << (index % 32));
 
-        public Object SyncRoot
-        {
-            get
-            {
-                if (_syncRoot == null)
-                {
-                    System.Threading.Interlocked.CompareExchange<Object>(ref _syncRoot, new Object(), null);
-                }
-                return _syncRoot;
-            }
-        }
+		_version++;
+	}
 
-        public bool IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
+	public void SetAll(bool value)
+	{
+		var fillValue = value ? 0xffffffff : 0u;
+		var ints = GetArrayLength(_mLength, BitsPerInt32);
 
-        public bool IsSynchronized
-        {
-            get
-            {
-                return false;
-            }
-        }
+		for (var i = 0; i < ints; i++)
+			_mArray[i] = fillValue;
 
-        public IEnumerator GetEnumerator()
-        {
-            return new BitArrayEnumeratorSimple(this);
-        }
+		_version++;
+	}
 
-        // XPerY=n means that n Xs can be stored in 1 Y. 
-        private const int BitsPerInt32 = 32;
-        private const int BytesPerInt32 = 4;
-        private const int BitsPerByte = 8;
+	public BitSet And(BitSet value)
+	{
+		if (value == null)
+			throw new ArgumentNullException("value");
 
-        private static int GetArrayLength(int n, int div)
-        {
-            Cypher.Assert(div > 0, "GetArrayLength: div arg must be greater than 0");
-            return n > 0 ? (((n - 1) / div) + 1) : 0;
-        }
+		if (Length != value.Length)
+			throw new ArgumentException();
 
-        [Serializable]
-        private class BitArrayEnumeratorSimple : IEnumerator, ICloneable
-        {
-            private readonly BitSet _bitarray;
-            private int _index;
-            private readonly int _version;
-            private bool _currentElement;
+		var ints = GetArrayLength(_mLength, BitsPerInt32);
 
-            internal BitArrayEnumeratorSimple(BitSet bitarray)
-            {
-                _bitarray = bitarray;
-                _index = -1;
-                _version = bitarray._version;
-            }
+		for (var i = 0; i < ints; i++)
+			_mArray[i] &= value._mArray[i];
 
-            public Object Clone()
-            {
-                return MemberwiseClone();
-            }
+		_version++;
 
-            public bool MoveNext()
-            {
-                //if (version != bitarray._version) throw new InvalidOperationException(Environment.GetResourceString(ResId.InvalidOperation_EnumFailedVersion));
-                if (_index < (_bitarray.Count - 1))
-                {
-                    _index++;
-                    _currentElement = _bitarray.Get(_index);
-                    return true;
-                }
-                else
-                    _index = _bitarray.Count;
+		return this;
+	}
 
-                return false;
-            }
+	public BitSet Or(BitSet value)
+	{
+		if (value == null)
+			throw new ArgumentNullException("value");
 
-            public virtual Object Current
-            {
-                get
-                {
-                    if (_index == -1)
-                        throw new InvalidOperationException();
-                    if (_index >= _bitarray.Count)
-                        throw new InvalidOperationException();
-                    return _currentElement;
-                }
-            }
+		if (Length != value.Length)
+			throw new ArgumentException();
 
-            public void Reset()
-            {
-                //if (version != bitarray._version) throw new InvalidOperationException(Environment.GetResourceString(ResId.InvalidOperation_EnumFailedVersion));
-                _index = -1;
-            }
-        }
+		var ints = GetArrayLength(_mLength, BitsPerInt32);
 
-        private uint[] _mArray;
-        private int _mLength;
-        private int _version;
-        [NonSerialized]
-        private Object _syncRoot;
+		for (var i = 0; i < ints; i++)
+			_mArray[i] |= value._mArray[i];
 
-        private const int ShrinkThreshold = 256;
-    }
+		_version++;
+
+		return this;
+	}
+
+	public BitSet Xor(BitSet value)
+	{
+		if (value == null)
+			throw new ArgumentNullException("value");
+
+		if (Length != value.Length)
+			throw new ArgumentException();
+
+		var ints = GetArrayLength(_mLength, BitsPerInt32);
+
+		for (var i = 0; i < ints; i++)
+			_mArray[i] ^= value._mArray[i];
+
+		_version++;
+
+		return this;
+	}
+
+	public BitSet Not()
+	{
+		var ints = GetArrayLength(_mLength, BitsPerInt32);
+
+		for (var i = 0; i < ints; i++)
+			_mArray[i] = ~_mArray[i];
+
+		_version++;
+
+		return this;
+	}
+
+	public bool Any()
+	{
+		for (var i = 0; i < Length; ++i)
+			if (Get(i))
+				return true;
+
+		return false;
+	}
+
+	private static int GetArrayLength(int n, int div)
+	{
+		Cypher.Assert(div > 0, "GetArrayLength: div arg must be greater than 0");
+
+		return n > 0 ? (((n - 1) / div) + 1) : 0;
+	}
+
+	[Serializable]
+	private class BitArrayEnumeratorSimple : IEnumerator, ICloneable
+	{
+		private readonly BitSet _bitarray;
+		private readonly int _version;
+		private int _index;
+		private bool _currentElement;
+
+		public virtual object Current
+		{
+			get
+			{
+				if (_index == -1)
+					throw new InvalidOperationException();
+
+				if (_index >= _bitarray.Count)
+					throw new InvalidOperationException();
+
+				return _currentElement;
+			}
+		}
+
+		internal BitArrayEnumeratorSimple(BitSet bitarray)
+		{
+			_bitarray = bitarray;
+			_index = -1;
+			_version = bitarray._version;
+		}
+
+		public object Clone()
+		{
+			return MemberwiseClone();
+		}
+
+		public bool MoveNext()
+		{
+			//if (version != bitarray._version) throw new InvalidOperationException(Environment.GetResourceString(ResId.InvalidOperation_EnumFailedVersion));
+			if (_index < (_bitarray.Count - 1))
+			{
+				_index++;
+				_currentElement = _bitarray.Get(_index);
+
+				return true;
+			}
+			else
+			{
+				_index = _bitarray.Count;
+			}
+
+			return false;
+		}
+
+		public void Reset()
+		{
+			//if (version != bitarray._version) throw new InvalidOperationException(Environment.GetResourceString(ResId.InvalidOperation_EnumFailedVersion));
+			_index = -1;
+		}
+	}
 }

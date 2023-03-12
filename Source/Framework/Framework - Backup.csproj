@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+<Import Project="..\..\default.props" />
+<PropertyGroup>
+  <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  <Configurations>Debug;Release;DebugMetric</Configurations>
+</PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.21.12" />
+    <PackageReference Include="MySqlConnector" Version="2.2.5" />
+  </ItemGroup>
+
+</Project>

@@ -5,238 +5,200 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Framework.Dynamic
+namespace Framework.Dynamic;
+
+public class EventSystem
 {
-    public class EventSystem
-    {
-        readonly List<double> _removeKeys = new List<double>();
-        public EventSystem()
-        {
-            m_time = 0;
-        }
+	readonly List<double> _removeKeys = new();
+	readonly SortedDictionary<double, List<BasicEvent>> m_events = new();
 
-        public void Update(uint p_time)
-        {
-            // update time
-            m_time += p_time;
-            KeyValuePair<double, BasicEvent> i = default;
-            
-            // main event loop
-            lock (m_events)
-                if (m_events.Count > 0)
-                    while ((i = m_events.KeyValueList().FirstOrDefault()).Value != null && i.Key <= m_time)
-                    {
-                        // sorted dictionart will stop looping at the first time that does not meet the while condition
-                        var Event = i.Value;
-                        m_events.Remove(i);
+	ulong m_time;
 
-                        if (Event.IsRunning())
-                        {
-                            Event.Execute(m_time, p_time);
-                            continue;
-                        }
+	public EventSystem()
+	{
+		m_time = 0;
+	}
 
-                        if (Event.IsAbortScheduled())
-                        {
-                            Event.Abort(m_time);
-                            // Mark the event as aborted
-                            Event.SetAborted();
-                        }
+	public void Update(uint p_time)
+	{
+		// update time
+		m_time += p_time;
+		KeyValuePair<double, BasicEvent> i = default;
 
-                        if (Event.IsDeletable())
-                            continue;
+		// main event loop
+		lock (m_events)
+		{
+			if (m_events.Count > 0)
+				while ((i = m_events.KeyValueList().FirstOrDefault()).Value != null && i.Key <= m_time)
+				{
+					// sorted dictionart will stop looping at the first time that does not meet the while condition
+					var Event = i.Value;
+					m_events.Remove(i);
 
-                        // Reschedule non deletable events to be checked at
-                        // the next update tick
-                        InternalAddEvent(Event, CalculateTime(TimeSpan.FromMilliseconds(1)), false);
-                    }
-        }
+					if (Event.IsRunning())
+					{
+						Event.Execute(m_time, p_time);
 
-        public void KillAllEvents(bool force)
-        {
-            lock (m_events)
-                m_events.RemoveIfMatching((pair) =>
-                {
-                    // Abort events which weren't aborted already
-                    if (!pair.Value.IsAborted())
-                    {
-                        pair.Value.SetAborted();
-                        pair.Value.Abort(m_time);
-                    }
+						continue;
+					}
 
-                    // Skip non-deletable events when we are
-                    // not forcing the event cancellation.
-                    if (!force && !pair.Value.IsDeletable())
-                        return false;
+					if (Event.IsAbortScheduled())
+					{
+						Event.Abort(m_time);
+						// Mark the event as aborted
+						Event.SetAborted();
+					}
 
-                    if (!force)
-                        return true;
+					if (Event.IsDeletable())
+						continue;
 
-                    return false;
-                });
+					// Reschedule non deletable events to be checked at
+					// the next update tick
+					InternalAddEvent(Event, CalculateTime(TimeSpan.FromMilliseconds(1)), false);
+				}
+		}
+	}
 
-            // fast clear event list (in force case)
-            if (force)
-                lock (m_events)
-                    m_events.Clear();
-        }
+	public void KillAllEvents(bool force)
+	{
+		lock (m_events)
+		{
+			m_events.RemoveIfMatching((pair) =>
+			{
+				// Abort events which weren't aborted already
+				if (!pair.Value.IsAborted())
+				{
+					pair.Value.SetAborted();
+					pair.Value.Abort(m_time);
+				}
 
-        public void AddEvent(BasicEvent Event, TimeSpan e_time, bool set_addtime = true)
-        {
-            lock (m_events)
-                InternalAddEvent(Event, e_time, set_addtime);
-        }
+				// Skip non-deletable events when we are
+				// not forcing the event cancellation.
+				if (!force && !pair.Value.IsDeletable())
+					return false;
 
-        public EventSystem AddRepeatEvent(Func<TimeSpan> func, TimeSpan offset)
-        {
-            AddEvent(new RepeatEvent(this, func), offset);
-            return this;
-        }
+				if (!force)
+					return true;
+
+				return false;
+			});
+		}
+
+		// fast clear event list (in force case)
+		if (force)
+			lock (m_events)
+			{
+				m_events.Clear();
+			}
+	}
+
+	public void AddEvent(BasicEvent Event, TimeSpan e_time, bool set_addtime = true)
+	{
+		lock (m_events)
+		{
+			InternalAddEvent(Event, e_time, set_addtime);
+		}
+	}
+
+	public EventSystem AddRepeatEvent(Func<TimeSpan> func, TimeSpan offset)
+	{
+		AddEvent(new RepeatEvent(this, func), offset);
+
+		return this;
+	}
 
 
-        public EventSystem AddEvent(Action action, TimeSpan e_time, bool set_addtime = true) { AddEvent(new LambdaBasicEvent(action), e_time, set_addtime); return this; }
-        
-        public EventSystem AddEventAtOffset(BasicEvent Event, TimeSpan offset) { AddEvent(Event, CalculateTime(offset)); return this; }
+	public EventSystem AddEvent(Action action, TimeSpan e_time, bool set_addtime = true)
+	{
+		AddEvent(new LambdaBasicEvent(action), e_time, set_addtime);
 
-        public EventSystem AddEventAtOffset(BasicEvent Event, TimeSpan offset, TimeSpan offset2) { AddEvent(Event, CalculateTime(RandomHelper.RandTime(offset, offset2))); return this; }
+		return this;
+	}
 
-        public EventSystem AddEventAtOffset(Action action, TimeSpan offset) { AddEventAtOffset(new LambdaBasicEvent(action), offset); return this; }
+	public EventSystem AddEventAtOffset(BasicEvent Event, TimeSpan offset)
+	{
+		AddEvent(Event, CalculateTime(offset));
 
-        public EventSystem AddRepeatEventAtOffset(Func<TimeSpan> func, TimeSpan offset)
-        {
-            AddEventAtOffset(new RepeatEvent(this, func), offset); 
-            return this;
-        }
+		return this;
+	}
 
-        public void ModifyEventTime(BasicEvent Event, TimeSpan newTime)
-        {
-            lock (m_events)
-            if(m_events.RemoveFirstMatching((pair) =>
-            {
-                if (pair.Value != Event)
-                    return false;
+	public EventSystem AddEventAtOffset(BasicEvent Event, TimeSpan offset, TimeSpan offset2)
+	{
+		AddEvent(Event, CalculateTime(RandomHelper.RandTime(offset, offset2)));
 
-                Event.m_execTime = newTime.TotalMilliseconds;
-                return true;
-            }, out var foundVal))
-            {
-                m_events.Add(newTime.TotalMilliseconds, Event);
-            }
-        }
+		return this;
+	}
 
-        public TimeSpan CalculateTime(TimeSpan t_offset)
-        {
-            return TimeSpan.FromMilliseconds(m_time) + t_offset;
-        }
+	public EventSystem AddEventAtOffset(Action action, TimeSpan offset)
+	{
+		AddEventAtOffset(new LambdaBasicEvent(action), offset);
 
-        public void ScheduleAbortOnAllMatchingEvents(Func<BasicEvent, bool> func)
-        {
-            lock (m_events)
-                foreach (var l in m_events.Values)
-                    foreach (var e in l)
-                        if (func(e))
-                            e.ScheduleAbort();
-        }
+		return this;
+	}
 
-        public void ScheduleAbortOnFirstMatchingEvent(Func<BasicEvent, bool> func)
-        {
-            lock (m_events)
-                foreach (var l in m_events.Values)
-                    foreach (var e in l)
-                        if (func(e))
-                        {
-                            e.ScheduleAbort();
-                            break;
-                        }
-        }
+	public EventSystem AddRepeatEventAtOffset(Func<TimeSpan> func, TimeSpan offset)
+	{
+		AddEventAtOffset(new RepeatEvent(this, func), offset);
 
-        private void InternalAddEvent(BasicEvent Event, TimeSpan e_time, bool set_addtime = true)
-        {
-            if (set_addtime)
-                Event.m_addTime = m_time;
+		return this;
+	}
 
-            Event.m_execTime = e_time.TotalMilliseconds;
+	public void ModifyEventTime(BasicEvent Event, TimeSpan newTime)
+	{
+		lock (m_events)
+		{
+			if (m_events.RemoveFirstMatching((pair) =>
+											{
+												if (pair.Value != Event)
+													return false;
 
-            m_events.Add(e_time.TotalMilliseconds, Event);
-        }
+												Event.m_execTime = newTime.TotalMilliseconds;
 
-        ulong m_time;
-        readonly SortedDictionary<double, List<BasicEvent>> m_events = new();
-    }
+												return true;
+											},
+											out var foundVal))
+				m_events.Add(newTime.TotalMilliseconds, Event);
+		}
+	}
 
-    public class BasicEvent
-    {
-        public BasicEvent() { m_abortState = AbortState.Running; }
+	public TimeSpan CalculateTime(TimeSpan t_offset)
+	{
+		return TimeSpan.FromMilliseconds(m_time) + t_offset;
+	}
 
-        public void ScheduleAbort()
-        {
-            Cypher.Assert(IsRunning(), "Tried to scheduled the abortion of an event twice!");
-            m_abortState = AbortState.Scheduled;
-        }
+	public void ScheduleAbortOnAllMatchingEvents(Func<BasicEvent, bool> func)
+	{
+		lock (m_events)
+		{
+			foreach (var l in m_events.Values)
+				foreach (var e in l)
+					if (func(e))
+						e.ScheduleAbort();
+		}
+	}
 
-        public void SetAborted()
-        {
-            Cypher.Assert(!IsAborted(), "Tried to abort an already aborted event!");
-            m_abortState = AbortState.Aborted;
-        }
+	public void ScheduleAbortOnFirstMatchingEvent(Func<BasicEvent, bool> func)
+	{
+		lock (m_events)
+		{
+			foreach (var l in m_events.Values)
+				foreach (var e in l)
+					if (func(e))
+					{
+						e.ScheduleAbort();
 
-        // this method executes when the event is triggered
-        // return false if event does not want to be deleted
-        // e_time is execution time, p_time is update interval
-        public virtual bool Execute(ulong etime, uint pTime) { return true; }
+						break;
+					}
+		}
+	}
 
-        public virtual bool IsDeletable() { return true; }   // this event can be safely deleted
+	private void InternalAddEvent(BasicEvent Event, TimeSpan e_time, bool set_addtime = true)
+	{
+		if (set_addtime)
+			Event.m_addTime = m_time;
 
-        public virtual void Abort(ulong e_time) { } // this method executes when the event is aborted
+		Event.m_execTime = e_time.TotalMilliseconds;
 
-        public bool IsRunning() { return m_abortState == AbortState.Running; }
-        public bool IsAbortScheduled() { return m_abortState == AbortState.Scheduled; }
-        public bool IsAborted() { return m_abortState == AbortState.Aborted; }
-
-        AbortState m_abortState; // set by externals when the event is aborted, aborted events don't execute
-        public ulong m_addTime; // time when the event was added to queue, filled by event handler
-        public double m_execTime; // planned time of next execution, filled by event handler
-    }
-
-    public class LambdaBasicEvent : BasicEvent
-    {
-        readonly Action _callback;
-
-        public LambdaBasicEvent(Action callback) : base()
-        {
-            _callback = callback;
-        }
-
-        public override bool Execute(ulong etime, uint pTime)
-        {
-            _callback();
-            return true;
-        }
-    }
-    
-    enum AbortState
-    {
-        Running,
-        Scheduled,
-        Aborted
-    }
-
-    public class RepeatEvent : BasicEvent 
-    {
-        readonly Func<TimeSpan> _event;
-        readonly EventSystem _eventSystem;
-
-        public RepeatEvent(EventSystem eventSystem, Func<TimeSpan> func) : base()
-        {
-            _event = func;
-            _eventSystem = eventSystem;
-        }
-        public override bool Execute(ulong etime, uint pTime)
-        {
-            var ts = _event.Invoke();
-            if (ts != default)
-                _eventSystem.AddEventAtOffset(this, ts);
-            return true;
-        }
-    }
+		m_events.Add(e_time.TotalMilliseconds, Event);
+	}
 }

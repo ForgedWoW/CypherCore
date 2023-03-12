@@ -4,61 +4,60 @@
 using System;
 using System.Collections;
 
-namespace Framework.Collections
+namespace Framework.Collections;
+
+public class StringArray
 {
-    public class StringArray
-    {
-        public StringArray(int size)
-        {
-            _str = new string[size];
+	string[] _str;
 
-            for (var i = 0; i < size; ++i)
-                _str[i] = string.Empty;
-        }
+	public string this[int index]
+	{
+		get
+		{
+			if (IsEmpty())
+				return null;
 
-        public StringArray(string str, params string[] separator)
-        {
-            if (str.IsEmpty())
-                return;
+			return _str[index];
+		}
+		set { _str[index] = value; }
+	}
 
-            _str = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-        }
+	public int Length => _str != null ? _str.Length : 0;
 
-        public StringArray(string str, params char[] separator)
-        {
-            if (str.IsEmpty())
-                return;
+	public StringArray(int size)
+	{
+		_str = new string[size];
 
-            _str = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-        }
+		for (var i = 0; i < size; ++i)
+			_str[i] = string.Empty;
+	}
 
-        public string this[int index]
-        {
-            get 
-            {
-                if (IsEmpty())
-                    return null;
+	public StringArray(string str, params string[] separator)
+	{
+		if (str.IsEmpty())
+			return;
 
-                return _str[index]; 
-            }
-            set { _str[index] = value; }
-        }
+		_str = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+	}
 
-        public IEnumerator GetEnumerator()
-        {
-            if (_str == null)
-                _str = new string[0];
+	public StringArray(string str, params char[] separator)
+	{
+		if (str.IsEmpty())
+			return;
 
-            return _str.GetEnumerator();
-        }
+		_str = str.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+	}
 
-        public bool IsEmpty()
-        {
-            return _str == null || _str.Length == 0;
-        }
+	public IEnumerator GetEnumerator()
+	{
+		if (_str == null)
+			_str = new string[0];
 
-        public int Length => _str != null ? _str.Length : 0;
+		return _str.GetEnumerator();
+	}
 
-        string[] _str;
-    }
+	public bool IsEmpty()
+	{
+		return _str == null || _str.Length == 0;
+	}
 }

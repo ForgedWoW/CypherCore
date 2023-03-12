@@ -4,72 +4,70 @@
 using System;
 using System.Collections.Concurrent;
 
-namespace Framework.Database
+namespace Framework.Database;
+
+public class QueryCallback : ISqlCallback
 {
-    public class QueryCallback : ISqlCallback
-    {
+	readonly PreparedStatementTask _awaitingTask;
+	readonly ConcurrentQueue<Action<QueryCallback, SQLResult>> _callbacks = new();
+	readonly Action<ISqlOperation, Action<bool>> _queueAction;
 
-        public QueryCallback(PreparedStatementTask task, Action<ISqlOperation, Action<bool>> queueAction)
-        {
-            _awaitingTask = task;
-            _queueAction = queueAction;
-        }
+	QueryCallback _next;
 
-        public QueryCallback WithCallback(Action<SQLResult> callback)
-        {
-            return WithChainingCallback((queryCallback, result) => callback(result));
-        }
+	public QueryCallback(PreparedStatementTask task, Action<ISqlOperation, Action<bool>> queueAction)
+	{
+		_awaitingTask = task;
+		_queueAction = queueAction;
+	}
 
-        public QueryCallback WithCallback<T>(Action<T, SQLResult> callback, T obj)
-        {
-            return WithChainingCallback((queryCallback, result) => callback(obj, result));
-        }
+	public bool InvokeIfReady()
+	{
+		return _callbacks.Count > 0 && _next == null;
+	}
 
-        public QueryCallback WithChainingCallback(Action<QueryCallback, SQLResult> callback)
-        {
-            _callbacks.Enqueue(callback);
-            return this;
-        }
+	public QueryCallback WithCallback(Action<SQLResult> callback)
+	{
+		return WithChainingCallback((queryCallback, result) => callback(result));
+	}
 
-        public void SetNextQuery(QueryCallback next)
-        {
-            _next = next;
-        }
+	public QueryCallback WithCallback<T>(Action<T, SQLResult> callback, T obj)
+	{
+		return WithChainingCallback((queryCallback, result) => callback(obj, result));
+	}
 
-        public void QueryProcessed(bool success)
-        {
-            if (success)
-            {
-                // queue to invoke on main thread
-                while (_callbacks.Count > 0)
-                {
-                    if (_callbacks.TryDequeue(out var cb) && cb != null)
-                        if (_awaitingTask.Result != null)
-                            cb(this, _awaitingTask.Result);
-                }
+	public QueryCallback WithChainingCallback(Action<QueryCallback, SQLResult> callback)
+	{
+		_callbacks.Enqueue(callback);
 
-                if (_callbacks.Count == 0 && _next != null) // if we processed everything call next.
-                {
-                    _queueAction(_next._awaitingTask, _next.QueryProcessed);
-                    _next = null;
-                }
-            }
-            else
-            {   // if we fail, clear the queue, dont invoke.
-                _next = null;
-                _callbacks.Clear();
-            }
-        }
+		return this;
+	}
 
-        public bool InvokeIfReady()
-        {
-            return _callbacks.Count > 0 && _next == null;
-        }
+	public void SetNextQuery(QueryCallback next)
+	{
+		_next = next;
+	}
 
-        QueryCallback _next;
-        readonly PreparedStatementTask _awaitingTask;
-        readonly ConcurrentQueue<Action<QueryCallback, SQLResult>> _callbacks = new();
-        readonly Action<ISqlOperation, Action<bool>> _queueAction;
-    }
+	public void QueryProcessed(bool success)
+	{
+		if (success)
+		{
+			// queue to invoke on main thread
+			while (_callbacks.Count > 0)
+				if (_callbacks.TryDequeue(out var cb) && cb != null)
+					if (_awaitingTask.Result != null)
+						cb(this, _awaitingTask.Result);
 
+			if (_callbacks.Count == 0 && _next != null) // if we processed everything call next.
+			{
+				_queueAction(_next._awaitingTask, _next.QueryProcessed);
+				_next = null;
+			}
+		}
+		else
+		{
+			// if we fail, clear the queue, dont invoke.
+			_next = null;
+			_callbacks.Clear();
+		}
+	}
 }

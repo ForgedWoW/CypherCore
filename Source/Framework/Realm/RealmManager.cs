@@ -15,318 +15,323 @@ using Framework.Web;
 
 public class RealmManager : Singleton<RealmManager>
 {
-    RealmManager() { }
+	readonly List<RealmBuildInfo> _builds = new();
+	readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
+	readonly List<string> _subRegions = new();
+	Timer _updateTimer;
+	RealmManager() { }
 
-    public void Initialize(int updateInterval)
-    {
-        _updateTimer = new Timer(TimeSpan.FromSeconds(updateInterval).TotalMilliseconds);
-        _updateTimer.Elapsed += UpdateRealms;
+	public void Initialize(int updateInterval)
+	{
+		_updateTimer = new Timer(TimeSpan.FromSeconds(updateInterval).TotalMilliseconds);
+		_updateTimer.Elapsed += UpdateRealms;
 
-        LoadBuildInfo();
+		LoadBuildInfo();
 
-        UpdateRealms(null, null);
+		UpdateRealms(null, null);
 
-        _updateTimer.Start();
-    }
+		_updateTimer.Start();
+	}
 
-    void LoadBuildInfo()
-    {
-        //                                         0             1             2              3              4      5              6
-        SQLResult result = DB.Login.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC");
-        if (!result.IsEmpty())
-        {
-            do
-            {
-                RealmBuildInfo build = new();
-                build.MajorVersion = result.Read<uint>(0);
-                build.MinorVersion = result.Read<uint>(1);
-                build.BugfixVersion = result.Read<uint>(2);
-                string hotfixVersion = result.Read<string>(3);
-                if (!hotfixVersion.IsEmpty() && hotfixVersion.Length < build.HotfixVersion.Length)
-                    build.HotfixVersion = hotfixVersion.ToCharArray();
+	public void Close()
+	{
+		_updateTimer.Close();
+	}
 
-                build.Build = result.Read<uint>(4);
-                string win64AuthSeedHexStr = result.Read<string>(5);
-                if (!win64AuthSeedHexStr.IsEmpty() && win64AuthSeedHexStr.Length == build.Win64AuthSeed.Length * 2)
-                    build.Win64AuthSeed = win64AuthSeedHexStr.ToByteArray();
+	public Realm GetRealm(RealmId id)
+	{
+		return _realms.LookupByKey(id);
+	}
 
-                string mac64AuthSeedHexStr = result.Read<string>(6);
-                if (!mac64AuthSeedHexStr.IsEmpty() && mac64AuthSeedHexStr.Length == build.Mac64AuthSeed.Length * 2)
-                    build.Mac64AuthSeed = mac64AuthSeedHexStr.ToByteArray();
+	public RealmBuildInfo GetBuildInfo(uint build)
+	{
+		foreach (var clientBuild in _builds)
+			if (clientBuild.Build == build)
+				return clientBuild;
 
-                _builds.Add(build);
+		return null;
+	}
 
-            } while (result.NextRow());
-        }
-    }
+	public uint GetMinorMajorBugfixVersionForBuild(uint build)
+	{
+		var buildInfo = _builds.FirstOrDefault(p => p.Build < build);
 
-    public void Close()
-    {
-        _updateTimer.Close();
-    }
+		return buildInfo != null ? (buildInfo.MajorVersion * 10000 + buildInfo.MinorVersion * 100 + buildInfo.BugfixVersion) : 0;
+	}
 
-    void UpdateRealm(Realm realm)
-    {
-        var oldRealm = _realms.LookupByKey(realm.Id);
-        if (oldRealm != null && oldRealm == realm)
-                return;
+	public void WriteSubRegions(Bgs.Protocol.GameUtilities.V1.GetAllValuesForAttributeResponse response)
+	{
+		foreach (var subRegion in GetSubRegions())
+		{
+			var variant = new Bgs.Protocol.Variant();
+			variant.StringValue = subRegion;
+			response.AttributeValue.Add(variant);
+		}
+	}
 
-        _realms[realm.Id] = realm;
-    }
+	public byte[] GetRealmEntryJSON(RealmId id, uint build)
+	{
+		var compressed = new byte[0];
+		var realm = GetRealm(id);
 
-    void UpdateRealms(object source, ElapsedEventArgs e)
-    {
-        PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST);
-        SQLResult result = DB.Login.Query(stmt);
-        Dictionary<RealmId, string> existingRealms = new();
-        foreach (var p in _realms)
-            existingRealms[p.Key] = p.Value.Name;
+		if (realm != null)
+			if (!realm.Flags.HasAnyFlag(RealmFlags.Offline) && realm.Build == build)
+			{
+				var realmEntry = new RealmEntry();
+				realmEntry.WowRealmAddress = (int)realm.Id.GetAddress();
+				realmEntry.CfgTimezonesID = 1;
+				realmEntry.PopulationState = Math.Max((int)realm.PopulationLevel, 1);
+				realmEntry.CfgCategoriesID = realm.Timezone;
 
-        _realms.Clear();
+				ClientVersion version = new();
+				var buildInfo = GetBuildInfo(realm.Build);
 
-        // Circle through results and add them to the realm map
-        if (!result.IsEmpty())
-        {
-            do
-            {
-                var realm = new Realm();
-                uint realmId = result.Read<uint>(0);
-                realm.Name = result.Read<string>(1);
-                realm.ExternalAddress = IPAddress.Parse(result.Read<string>(2));
-                realm.LocalAddress = IPAddress.Parse(result.Read<string>(3));
-                realm.LocalSubnetMask = IPAddress.Parse(result.Read<string>(4));
-                realm.Port = result.Read<ushort>(5);
-                RealmType realmType = (RealmType)result.Read<byte>(6);
-                if (realmType == RealmType.FFAPVP)
-                    realmType = RealmType.PVP;
-                if (realmType >= RealmType.MaxType)
-                    realmType = RealmType.Normal;
+				if (buildInfo != null)
+				{
+					version.Major = (int)buildInfo.MajorVersion;
+					version.Minor = (int)buildInfo.MinorVersion;
+					version.Revision = (int)buildInfo.BugfixVersion;
+					version.Build = (int)buildInfo.Build;
+				}
+				else
+				{
+					version.Major = 6;
+					version.Minor = 2;
+					version.Revision = 4;
+					version.Build = (int)realm.Build;
+				}
 
-                realm.Type = (byte)realmType;
-                realm.Flags = (RealmFlags)result.Read<byte>(7);
-                realm.Timezone = result.Read<byte>(8);
-                AccountTypes allowedSecurityLevel = (AccountTypes)result.Read<byte>(9);
-                realm.AllowedSecurityLevel = (allowedSecurityLevel <= AccountTypes.Administrator ? allowedSecurityLevel : AccountTypes.Administrator);
-                realm.PopulationLevel = result.Read<float>(10);
-                realm.Build = result.Read<uint>(11);
-                byte region = result.Read<byte>(12);
-                byte battlegroup = result.Read<byte>(13);
+				realmEntry.Version = version;
 
-                realm.Id = new RealmId(region, battlegroup, realmId);
+				realmEntry.CfgRealmsID = (int)realm.Id.Index;
+				realmEntry.Flags = (int)realm.Flags;
+				realmEntry.Name = realm.Name;
+				realmEntry.CfgConfigsID = (int)realm.GetConfigId();
+				realmEntry.CfgLanguagesID = 1;
 
-                UpdateRealm(realm);
+				compressed = Json.Deflate("JamJSONRealmEntry", realmEntry);
+			}
 
-                var subRegion = new RealmId(region, battlegroup, 0).GetAddressString();
-                if (!_subRegions.Contains(subRegion))
-                    _subRegions.Add(subRegion);
+		return compressed;
+	}
 
-                if (!existingRealms.ContainsKey(realm.Id))
-                    Log.outInfo(LogFilter.Realmlist, "Added realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
-                else
-                    Log.outDebug(LogFilter.Realmlist, "Updating realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
+	public byte[] GetRealmList(uint build, string subRegion)
+	{
+		var realmList = new RealmListUpdates();
 
-                existingRealms.Remove(realm.Id);
-            }
-            while (result.NextRow());
-        }
+		foreach (var realm in _realms)
+		{
+			if (realm.Value.Id.GetSubRegionAddress() != subRegion)
+				continue;
 
-        foreach (var pair in existingRealms)
-            Log.outInfo(LogFilter.Realmlist, "Removed realm \"{0}\".", pair.Value);
-    }
+			var flag = realm.Value.Flags;
 
-    public Realm GetRealm(RealmId id)
-    {
-        return _realms.LookupByKey(id);
-    }
+			if (realm.Value.Build != build)
+				flag |= RealmFlags.VersionMismatch;
 
-    public RealmBuildInfo GetBuildInfo(uint build)
-    {
-        foreach (var clientBuild in _builds)
-            if (clientBuild.Build == build)
-                return clientBuild;
+			RealmListUpdate realmListUpdate = new();
+			realmListUpdate.Update.WowRealmAddress = (int)realm.Value.Id.GetAddress();
+			realmListUpdate.Update.CfgTimezonesID = 1;
+			realmListUpdate.Update.PopulationState = (realm.Value.Flags.HasAnyFlag(RealmFlags.Offline) ? 0 : Math.Max((int)realm.Value.PopulationLevel, 1));
+			realmListUpdate.Update.CfgCategoriesID = realm.Value.Timezone;
 
-        return null;
-    }
+			var buildInfo = GetBuildInfo(realm.Value.Build);
 
-    public uint GetMinorMajorBugfixVersionForBuild(uint build)
-    {
-        RealmBuildInfo buildInfo = _builds.FirstOrDefault(p => p.Build < build);
-        return buildInfo != null ? (buildInfo.MajorVersion * 10000 + buildInfo.MinorVersion * 100 + buildInfo.BugfixVersion) : 0;
-    }
+			if (buildInfo != null)
+			{
+				realmListUpdate.Update.Version.Major = (int)buildInfo.MajorVersion;
+				realmListUpdate.Update.Version.Minor = (int)buildInfo.MinorVersion;
+				realmListUpdate.Update.Version.Revision = (int)buildInfo.BugfixVersion;
+				realmListUpdate.Update.Version.Build = (int)buildInfo.Build;
+			}
+			else
+			{
+				realmListUpdate.Update.Version.Major = 7;
+				realmListUpdate.Update.Version.Minor = 1;
+				realmListUpdate.Update.Version.Revision = 0;
+				realmListUpdate.Update.Version.Build = (int)realm.Value.Build;
+			}
 
-    public void WriteSubRegions(Bgs.Protocol.GameUtilities.V1.GetAllValuesForAttributeResponse response)
-    {
-        foreach (string subRegion in GetSubRegions())
-        {
-            var variant = new Bgs.Protocol.Variant();
-            variant.StringValue = subRegion;
-            response.AttributeValue.Add(variant);
-        }
-    }
+			realmListUpdate.Update.CfgRealmsID = (int)realm.Value.Id.Index;
+			realmListUpdate.Update.Flags = (int)flag;
+			realmListUpdate.Update.Name = realm.Value.Name;
+			realmListUpdate.Update.CfgConfigsID = (int)realm.Value.GetConfigId();
+			realmListUpdate.Update.CfgLanguagesID = 1;
 
-    public byte[] GetRealmEntryJSON(RealmId id, uint build)
-    {
-        byte[] compressed = new byte[0];
-        Realm realm = GetRealm(id);
-        if (realm != null)
-        {
-            if (!realm.Flags.HasAnyFlag(RealmFlags.Offline) && realm.Build == build)
-            {
-                var realmEntry = new RealmEntry();
-                realmEntry.WowRealmAddress = (int)realm.Id.GetAddress();
-                realmEntry.CfgTimezonesID = 1;
-                realmEntry.PopulationState = Math.Max((int)realm.PopulationLevel, 1);
-                realmEntry.CfgCategoriesID = realm.Timezone;
+			realmListUpdate.Deleting = false;
 
-                ClientVersion version = new();
-                RealmBuildInfo buildInfo = GetBuildInfo(realm.Build);
-                if (buildInfo != null)
-                {
-                    version.Major = (int)buildInfo.MajorVersion;
-                    version.Minor = (int)buildInfo.MinorVersion;
-                    version.Revision = (int)buildInfo.BugfixVersion;
-                    version.Build = (int)buildInfo.Build;
-                }
-                else
-                {
-                    version.Major = 6;
-                    version.Minor = 2;
-                    version.Revision = 4;
-                    version.Build = (int)realm.Build;
-                }
-                realmEntry.Version = version;
+			realmList.Updates.Add(realmListUpdate);
+		}
 
-                realmEntry.CfgRealmsID = (int)realm.Id.Index;
-                realmEntry.Flags = (int)realm.Flags;
-                realmEntry.Name = realm.Name;
-                realmEntry.CfgConfigsID = (int)realm.GetConfigId();
-                realmEntry.CfgLanguagesID = 1;
+		return Json.Deflate("JSONRealmListUpdates", realmList);
+	}
 
-                compressed = Json.Deflate("JamJSONRealmEntry", realmEntry);
-            }
-        }
+	public BattlenetRpcErrorCode JoinRealm(uint realmAddress, uint build, IPAddress clientAddress, byte[] clientSecret, Locale locale, string os, string accountName, Bgs.Protocol.GameUtilities.V1.ClientResponse response)
+	{
+		var realm = GetRealm(new RealmId(realmAddress));
 
-        return compressed;
-    }
+		if (realm != null)
+		{
+			if (realm.Flags.HasAnyFlag(RealmFlags.Offline) || realm.Build != build)
+				return BattlenetRpcErrorCode.UserServerNotPermittedOnRealm;
 
-    public byte[] GetRealmList(uint build, string subRegion)
-    {
-        var realmList = new RealmListUpdates();
-        foreach (var realm in _realms)
-        {
-            if (realm.Value.Id.GetSubRegionAddress() != subRegion)
-                continue;
+			RealmListServerIPAddresses serverAddresses = new();
+			AddressFamily addressFamily = new();
+			addressFamily.Id = 1;
 
-            RealmFlags flag = realm.Value.Flags;
-            if (realm.Value.Build != build)
-                flag |= RealmFlags.VersionMismatch;
+			var address = new Address();
+			address.Ip = realm.GetAddressForClient(clientAddress).Address.ToString();
+			address.Port = realm.Port;
+			addressFamily.Addresses.Add(address);
+			serverAddresses.Families.Add(addressFamily);
 
-            RealmListUpdate realmListUpdate = new();
-            realmListUpdate.Update.WowRealmAddress = (int)realm.Value.Id.GetAddress();
-            realmListUpdate.Update.CfgTimezonesID = 1;
-            realmListUpdate.Update.PopulationState = (realm.Value.Flags.HasAnyFlag(RealmFlags.Offline) ? 0 : Math.Max((int)realm.Value.PopulationLevel, 1));
-            realmListUpdate.Update.CfgCategoriesID = realm.Value.Timezone;
+			var compressed = Json.Deflate("JSONRealmListServerIPAddresses", serverAddresses);
 
-            RealmBuildInfo buildInfo = GetBuildInfo(realm.Value.Build);
-            if (buildInfo != null)
-            {
-                realmListUpdate.Update.Version.Major = (int)buildInfo.MajorVersion;
-                realmListUpdate.Update.Version.Minor = (int)buildInfo.MinorVersion;
-                realmListUpdate.Update.Version.Revision = (int)buildInfo.BugfixVersion;
-                realmListUpdate.Update.Version.Build = (int)buildInfo.Build;
-            }
-            else
-            {
-                realmListUpdate.Update.Version.Major = 7;
-                realmListUpdate.Update.Version.Minor = 1;
-                realmListUpdate.Update.Version.Revision = 0;
-                realmListUpdate.Update.Version.Build = (int)realm.Value.Build;
-            }
+			var serverSecret = new byte[0].GenerateRandomKey(32);
+			var keyData = clientSecret.ToArray().Combine(serverSecret);
 
-            realmListUpdate.Update.CfgRealmsID = (int)realm.Value.Id.Index;
-            realmListUpdate.Update.Flags = (int)flag;
-            realmListUpdate.Update.Name = realm.Value.Name;
-            realmListUpdate.Update.CfgConfigsID = (int)realm.Value.GetConfigId();
-            realmListUpdate.Update.CfgLanguagesID = 1;
+			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
+			stmt.AddValue(0, keyData);
+			stmt.AddValue(1, clientAddress.ToString());
+			stmt.AddValue(2, (byte)locale);
+			stmt.AddValue(3, os);
+			stmt.AddValue(4, accountName);
+			DB.Login.DirectExecute(stmt);
 
-            realmListUpdate.Deleting = false;
+			Bgs.Protocol.Attribute attribute = new();
+			attribute.Name = "Param_RealmJoinTicket";
+			attribute.Value = new Bgs.Protocol.Variant();
+			attribute.Value.BlobValue = Google.Protobuf.ByteString.CopyFrom(accountName, System.Text.Encoding.UTF8);
+			response.Attribute.Add(attribute);
 
-            realmList.Updates.Add(realmListUpdate);
-        }
+			attribute = new Bgs.Protocol.Attribute();
+			attribute.Name = "Param_ServerAddresses";
+			attribute.Value = new Bgs.Protocol.Variant();
+			attribute.Value.BlobValue = Google.Protobuf.ByteString.CopyFrom(compressed);
+			response.Attribute.Add(attribute);
 
-        return Json.Deflate("JSONRealmListUpdates", realmList);
-    }
+			attribute = new Bgs.Protocol.Attribute();
+			attribute.Name = "Param_JoinSecret";
+			attribute.Value = new Bgs.Protocol.Variant();
+			attribute.Value.BlobValue = Google.Protobuf.ByteString.CopyFrom(serverSecret);
+			response.Attribute.Add(attribute);
 
-    public BattlenetRpcErrorCode JoinRealm(uint realmAddress, uint build, IPAddress clientAddress, byte[] clientSecret, Locale locale, string os, string accountName, Bgs.Protocol.GameUtilities.V1.ClientResponse response)
-    {
-        Realm realm = GetRealm(new RealmId(realmAddress));
-        if (realm != null)
-        {
-            if (realm.Flags.HasAnyFlag(RealmFlags.Offline) || realm.Build != build)
-                return BattlenetRpcErrorCode.UserServerNotPermittedOnRealm;
+			return BattlenetRpcErrorCode.Ok;
+		}
 
-            RealmListServerIPAddresses serverAddresses = new();
-            AddressFamily addressFamily = new();
-            addressFamily.Id = 1;
+		return BattlenetRpcErrorCode.UtilServerUnknownRealm;
+	}
 
-            var address = new Address();
-            address.Ip = realm.GetAddressForClient(clientAddress).Address.ToString();
-            address.Port = realm.Port;
-            addressFamily.Addresses.Add(address);
-            serverAddresses.Families.Add(addressFamily);
+	public ICollection<Realm> GetRealms()
+	{
+		return _realms.Values;
+	}
 
-            byte[] compressed = Json.Deflate("JSONRealmListServerIPAddresses", serverAddresses);
+	void LoadBuildInfo()
+	{
+		//                                         0             1             2              3              4      5              6
+		var result = DB.Login.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC");
 
-            byte[] serverSecret = new byte[0].GenerateRandomKey(32);
-            byte[] keyData = clientSecret.ToArray().Combine(serverSecret);
+		if (!result.IsEmpty())
+			do
+			{
+				RealmBuildInfo build = new();
+				build.MajorVersion = result.Read<uint>(0);
+				build.MinorVersion = result.Read<uint>(1);
+				build.BugfixVersion = result.Read<uint>(2);
+				var hotfixVersion = result.Read<string>(3);
 
-            PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
-            stmt.AddValue(0, keyData);
-            stmt.AddValue(1, clientAddress.ToString());
-            stmt.AddValue(2, (byte)locale);
-            stmt.AddValue(3, os);
-            stmt.AddValue(4, accountName);
-            DB.Login.DirectExecute(stmt);
+				if (!hotfixVersion.IsEmpty() && hotfixVersion.Length < build.HotfixVersion.Length)
+					build.HotfixVersion = hotfixVersion.ToCharArray();
 
-            Bgs.Protocol.Attribute attribute = new();
-            attribute.Name = "Param_RealmJoinTicket";
-            attribute.Value = new Bgs.Protocol.Variant();
-            attribute.Value.BlobValue = Google.Protobuf.ByteString.CopyFrom(accountName, System.Text.Encoding.UTF8);
-            response.Attribute.Add(attribute);
+				build.Build = result.Read<uint>(4);
+				var win64AuthSeedHexStr = result.Read<string>(5);
 
-            attribute = new Bgs.Protocol.Attribute();
-            attribute.Name = "Param_ServerAddresses";
-            attribute.Value = new Bgs.Protocol.Variant();
-            attribute.Value.BlobValue = Google.Protobuf.ByteString.CopyFrom(compressed);
-            response.Attribute.Add(attribute);
+				if (!win64AuthSeedHexStr.IsEmpty() && win64AuthSeedHexStr.Length == build.Win64AuthSeed.Length * 2)
+					build.Win64AuthSeed = win64AuthSeedHexStr.ToByteArray();
 
-            attribute = new Bgs.Protocol.Attribute();
-            attribute.Name = "Param_JoinSecret";
-            attribute.Value = new Bgs.Protocol.Variant();
-            attribute.Value.BlobValue = Google.Protobuf.ByteString.CopyFrom(serverSecret);
-            response.Attribute.Add(attribute);
-            return BattlenetRpcErrorCode.Ok;
-        }
+				var mac64AuthSeedHexStr = result.Read<string>(6);
 
-        return BattlenetRpcErrorCode.UtilServerUnknownRealm;
-    }
+				if (!mac64AuthSeedHexStr.IsEmpty() && mac64AuthSeedHexStr.Length == build.Mac64AuthSeed.Length * 2)
+					build.Mac64AuthSeed = mac64AuthSeedHexStr.ToByteArray();
 
-    public ICollection<Realm> GetRealms() { return _realms.Values; }
-    List<string> GetSubRegions() { return _subRegions; }
+				_builds.Add(build);
+			} while (result.NextRow());
+	}
 
-    readonly List<RealmBuildInfo> _builds = new();
-    readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
-    readonly List<string> _subRegions = new();
-    Timer _updateTimer;
-}
+	void UpdateRealm(Realm realm)
+	{
+		var oldRealm = _realms.LookupByKey(realm.Id);
 
-public class RealmBuildInfo
-{
-    public uint Build;
-    public uint MajorVersion;
-    public uint MinorVersion;
-    public uint BugfixVersion;
-    public char[] HotfixVersion = new char[4];
-    public byte[] Win64AuthSeed = new byte[16];
-    public byte[] Mac64AuthSeed = new byte[16];
+		if (oldRealm != null && oldRealm == realm)
+			return;
+
+		_realms[realm.Id] = realm;
+	}
+
+	void UpdateRealms(object source, ElapsedEventArgs e)
+	{
+		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST);
+		var result = DB.Login.Query(stmt);
+		Dictionary<RealmId, string> existingRealms = new();
+
+		foreach (var p in _realms)
+			existingRealms[p.Key] = p.Value.Name;
+
+		_realms.Clear();
+
+		// Circle through results and add them to the realm map
+		if (!result.IsEmpty())
+			do
+			{
+				var realm = new Realm();
+				var realmId = result.Read<uint>(0);
+				realm.Name = result.Read<string>(1);
+				realm.ExternalAddress = IPAddress.Parse(result.Read<string>(2));
+				realm.LocalAddress = IPAddress.Parse(result.Read<string>(3));
+				realm.LocalSubnetMask = IPAddress.Parse(result.Read<string>(4));
+				realm.Port = result.Read<ushort>(5);
+				var realmType = (RealmType)result.Read<byte>(6);
+
+				if (realmType == RealmType.FFAPVP)
+					realmType = RealmType.PVP;
+
+				if (realmType >= RealmType.MaxType)
+					realmType = RealmType.Normal;
+
+				realm.Type = (byte)realmType;
+				realm.Flags = (RealmFlags)result.Read<byte>(7);
+				realm.Timezone = result.Read<byte>(8);
+				var allowedSecurityLevel = (AccountTypes)result.Read<byte>(9);
+				realm.AllowedSecurityLevel = (allowedSecurityLevel <= AccountTypes.Administrator ? allowedSecurityLevel : AccountTypes.Administrator);
+				realm.PopulationLevel = result.Read<float>(10);
+				realm.Build = result.Read<uint>(11);
+				var region = result.Read<byte>(12);
+				var battlegroup = result.Read<byte>(13);
+
+				realm.Id = new RealmId(region, battlegroup, realmId);
+
+				UpdateRealm(realm);
+
+				var subRegion = new RealmId(region, battlegroup, 0).GetAddressString();
+
+				if (!_subRegions.Contains(subRegion))
+					_subRegions.Add(subRegion);
+
+				if (!existingRealms.ContainsKey(realm.Id))
+					Log.outInfo(LogFilter.Realmlist, "Added realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
+				else
+					Log.outDebug(LogFilter.Realmlist, "Updating realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
+
+				existingRealms.Remove(realm.Id);
+			} while (result.NextRow());
+
+		foreach (var pair in existingRealms)
+			Log.outInfo(LogFilter.Realmlist, "Removed realm \"{0}\".", pair.Value);
+	}
+
+	List<string> GetSubRegions()
+	{
+		return _subRegions;
+	}
 }

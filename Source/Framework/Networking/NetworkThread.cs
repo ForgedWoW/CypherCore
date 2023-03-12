@@ -5,109 +5,111 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace Framework.Networking
+namespace Framework.Networking;
+
+public class NetworkThread<TSocketType> where TSocketType : ISocket
 {
-    public class NetworkThread<TSocketType> where TSocketType : ISocket
-    {
-        int _connections;
-        volatile bool _stopped;
+	readonly List<TSocketType> _Sockets = new();
+	readonly List<TSocketType> _newSockets = new();
+	int _connections;
+	volatile bool _stopped;
 
-        Thread _thread;
-        readonly List<TSocketType> _Sockets = new();
-        readonly List<TSocketType> _newSockets = new();
+	Thread _thread;
 
-        public void Stop()
-        {
-            _stopped = true;
-        }
+	public void Stop()
+	{
+		_stopped = true;
+	}
 
-        public bool Start()
-        {
-            if (_thread != null)
-                return false;
+	public bool Start()
+	{
+		if (_thread != null)
+			return false;
 
-            _thread = new Thread(Run);
-            _thread.Start();
-            return true;
-        }
+		_thread = new Thread(Run);
+		_thread.Start();
 
-        public void Wait()
-        {
-            _thread.Join();
-            _thread = null;
-        }
+		return true;
+	}
 
-        public int GetConnectionCount()
-        {
-            return _connections;
-        }
+	public void Wait()
+	{
+		_thread.Join();
+		_thread = null;
+	}
 
-        public virtual void AddSocket(TSocketType sock)
-        {
-            Interlocked.Increment(ref _connections);
-            _newSockets.Add(sock);
-            SocketAdded(sock);
-        }
+	public int GetConnectionCount()
+	{
+		return _connections;
+	}
 
-        protected virtual void SocketAdded(TSocketType sock) { }
+	public virtual void AddSocket(TSocketType sock)
+	{
+		Interlocked.Increment(ref _connections);
+		_newSockets.Add(sock);
+		SocketAdded(sock);
+	}
 
-        protected virtual void SocketRemoved(TSocketType sock) { }
+	void AddNewSockets()
+	{
+		if (_newSockets.Empty())
+			return;
 
-        void AddNewSockets()
-        {
-            if (_newSockets.Empty())
-                return;
+		foreach (var socket in _newSockets.ToList())
+			if (!socket.IsOpen())
+			{
+				SocketRemoved(socket);
 
-            foreach (var socket in _newSockets.ToList())
-            {
-                if (!socket.IsOpen())
-                {
-                    SocketRemoved(socket);
+				Interlocked.Decrement(ref _connections);
+			}
+			else
+			{
+				_Sockets.Add(socket);
+			}
 
-                    Interlocked.Decrement(ref _connections);
-                }
-                else
-                    _Sockets.Add(socket);
-            }
+		_newSockets.Clear();
+	}
 
-            _newSockets.Clear();
-        }
+	void Run()
+	{
+		Log.outDebug(LogFilter.Network, "Network Thread Starting");
 
-        void Run()
-        {
-            Log.outDebug(LogFilter.Network, "Network Thread Starting");
+		var sleepTime = 1;
 
-            int sleepTime = 1;
-            while (!_stopped)
-            {
-                Thread.Sleep(sleepTime);
+		while (!_stopped)
+		{
+			Thread.Sleep(sleepTime);
 
-                uint tickStart = Time.MSTime;
+			var tickStart = Time.MSTime;
 
-                AddNewSockets();
+			AddNewSockets();
 
-                for (var i =0; i < _Sockets.Count; ++i)
-                {
-                    TSocketType socket = _Sockets[i];
-                    if (!socket.Update())
-                    {
-                        if (socket.IsOpen())
-                            socket.CloseSocket();
+			for (var i = 0; i < _Sockets.Count; ++i)
+			{
+				var socket = _Sockets[i];
 
-                        SocketRemoved(socket);
+				if (!socket.Update())
+				{
+					if (socket.IsOpen())
+						socket.CloseSocket();
 
-                        Interlocked.Decrement(ref _connections);
-                        _Sockets.Remove(socket);
-                    }
-                }
+					SocketRemoved(socket);
 
-                uint diff = Time.GetMSTimeDiffToNow(tickStart);
-                sleepTime = (int)(diff > 1 ? 0 : 1 - diff);
-            }
+					Interlocked.Decrement(ref _connections);
+					_Sockets.Remove(socket);
+				}
+			}
 
-            Log.outDebug(LogFilter.Misc, "Network Thread exits");
-            _newSockets.Clear();
-            _Sockets.Clear();
-        }
-    }
+			var diff = Time.GetMSTimeDiffToNow(tickStart);
+			sleepTime = (int)(diff > 1 ? 0 : 1 - diff);
+		}
+
+		Log.outDebug(LogFilter.Misc, "Network Thread exits");
+		_newSockets.Clear();
+		_Sockets.Clear();
+	}
+
+	protected virtual void SocketAdded(TSocketType sock) { }
+
+	protected virtual void SocketRemoved(TSocketType sock) { }
 }

@@ -3,59 +3,60 @@
 
 using System.IO;
 
-namespace System.Collections.Generic
+namespace System.Collections.Generic;
+
+public class Array<T> : List<T>
 {
-    public class Array<T> : List<T>
-    {
-        readonly int _limit;
+	readonly int _limit;
 
-        public Array(int size) : base(size)
-        {
-            _limit = size;
-        }
+	public new T this[int index]
+	{
+		get { return base[index]; }
+		set
+		{
+			if (index >= Count)
+			{
+				if (Count >= _limit)
+					throw new InternalBufferOverflowException("Attempted to read more array elements from packet " + Count + 1 + " than allowed " + _limit);
 
-        public Array(params T[] args) : base(args)
-        {
-            _limit = args.Length;
-        }
+				Insert(index, value);
+			}
+			else
+			{
+				base[index] = value;
+			}
+		}
+	}
 
-        public Array(int size, T defaultFillValue) : base(size)
-        {
-            _limit = size;
-            Fill(defaultFillValue);
-        }
+	public Array(int size) : base(size)
+	{
+		_limit = size;
+	}
 
-        public void Fill(T value)
-        {
-            for (var i = 0; i < _limit; ++i)
-                Add(value);
-        }
+	public Array(params T[] args) : base(args)
+	{
+		_limit = args.Length;
+	}
 
-        public new T this[int index]
-        {
-            get
-            {
-                return base[index];
-            }
-            set
-            {
-                if (index >= Count)
-                {
-                    if (Count >= _limit)
-                        throw new InternalBufferOverflowException("Attempted to read more array elements from packet " + Count + 1 + " than allowed " + _limit);
+	public Array(int size, T defaultFillValue) : base(size)
+	{
+		_limit = size;
+		Fill(defaultFillValue);
+	}
 
-                    Insert(index, value);
-                }
-                else
-                    base[index] = value;
-            }
-        }
+	public void Fill(T value)
+	{
+		for (var i = 0; i < _limit; ++i)
+			Add(value);
+	}
 
-        public int GetLimit() { return _limit; }
+	public int GetLimit()
+	{
+		return _limit;
+	}
 
-        public static implicit operator T[] (Array<T> array)
-        {
-            return array.ToArray();
-        }
-    }
+	public static implicit operator T[](Array<T> array)
+	{
+		return array.ToArray();
+	}
 }

@@ -3,23 +3,23 @@
 
 using System.Collections.Generic;
 
-namespace Framework.Metrics
+namespace Framework.Metrics;
+
+public class MetricFactory
 {
-    public class MetricFactory
-    {
-        private uint _logEvery;
-        private bool _recordlessThanOnems;
-        public MetricFactory(uint logEvery, bool recordlessThanOnems) 
-        { 
-            _logEvery= logEvery;
-            _recordlessThanOnems = recordlessThanOnems;
-        }
+	private readonly uint _logEvery;
+	private readonly bool _recordlessThanOnems;
 
-        Dictionary<string, MeteredMetric> _meteredMetrics = new();
+	readonly Dictionary<string, MeteredMetric> _meteredMetrics = new();
 
-        public MeteredMetric Meter(string name)
-        {
-            return _meteredMetrics.GetOrAdd(name, () => new MeteredMetric(name, _logEvery, _recordlessThanOnems));
-        }
-    }
+	public MetricFactory(uint logEvery, bool recordlessThanOnems)
+	{
+		_logEvery = logEvery;
+		_recordlessThanOnems = recordlessThanOnems;
+	}
+
+	public MeteredMetric Meter(string name)
+	{
+		return _meteredMetrics.GetOrAdd(name, () => new MeteredMetric(name, _logEvery, _recordlessThanOnems));
+	}
 }

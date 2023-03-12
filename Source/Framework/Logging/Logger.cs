@@ -8,66 +8,63 @@ using System.Threading.Tasks;
 
 class Logger
 {
-    readonly ConcurrentQueue<LogMessage> _logQueue = new ConcurrentQueue<LogMessage>();
-    readonly AutoResetEvent _logTrigger = new AutoResetEvent(false);
+	readonly ConcurrentQueue<LogMessage> _logQueue = new();
+	readonly AutoResetEvent _logTrigger = new(false);
 
-    public Logger(string _name, LogLevel _level)
-    {
-        name = _name;
-        level = _level;
+	readonly string name;
+	readonly Dictionary<byte, Appender> appenders = new();
+	LogLevel level;
 
-        Task.Run(() =>
-        {
-            while (true)
-            {
-                _logTrigger.WaitOne(500);
+	public Logger(string _name, LogLevel _level)
+	{
+		name = _name;
+		level = _level;
 
-                while (_logQueue.Count > 0)
-                {
-                    if (_logQueue.TryDequeue(out var logMessage) && logMessage != null)
-                        foreach (var appender in appenders.Values)
-                            appender.Write(logMessage);
-                }
-            }
-          
-        });
-    }
+		Task.Run(() =>
+		{
+			while (true)
+			{
+				_logTrigger.WaitOne(500);
 
-    public void addAppender(byte id, Appender appender)
-    {
-        appenders[id] = appender;
-    }
+				while (_logQueue.Count > 0)
+					if (_logQueue.TryDequeue(out var logMessage) && logMessage != null)
+						foreach (var appender in appenders.Values)
+							appender.Write(logMessage);
+			}
+		});
+	}
 
-    public void delAppender(byte id)
-    {
-        appenders.Remove(id);
-    }
+	public void addAppender(byte id, Appender appender)
+	{
+		appenders[id] = appender;
+	}
 
-    public void setLogLevel(LogLevel _level)
-    {
-        level = _level;
-    }
+	public void delAppender(byte id)
+	{
+		appenders.Remove(id);
+	}
 
-    public string getName()
-    {
-        return name;
-    }
+	public void setLogLevel(LogLevel _level)
+	{
+		level = _level;
+	}
 
-    public LogLevel getLogLevel()
-    {
-        return level;
-    }
+	public string getName()
+	{
+		return name;
+	}
 
-    public void write(LogMessage message)
-    {
-        if (level == 0 || level > message.level || string.IsNullOrEmpty(message.text))
-            return;
+	public LogLevel getLogLevel()
+	{
+		return level;
+	}
 
-        _logQueue.Enqueue(message);
-        _logTrigger.Set();
-    }
+	public void write(LogMessage message)
+	{
+		if (level == 0 || level > message.level || string.IsNullOrEmpty(message.text))
+			return;
 
-    readonly string name;
-    LogLevel level;
-    readonly Dictionary<byte, Appender> appenders = new();
+		_logQueue.Enqueue(message);
+		_logTrigger.Set();
+	}
 }
