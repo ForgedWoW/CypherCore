@@ -3556,8 +3556,13 @@ public partial class Player
 				return;
 
 			if (formChange) // check aura active state from other form
-				if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).HasCastItemGuid(item.GUID).Results.Any())
-					return;
+				if (item != null)
+				{
+					if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).HasCastItemGuid(item.GUID).Results.Any())
+						return;
+					else if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).Results.Any())
+						return;
+				}
 
 			Log.outDebug(LogFilter.Player, "WORLD: cast {0} Equip spellId - {1}", (item != null ? "item" : "itemset"), spellInfo.Id);
 

@@ -90,64 +90,74 @@ public class CombatManager
 
 	public bool HasPvECombat()
 	{
-		foreach (var (_, refe) in _pveRefs)
-			if (!refe.IsSuppressedFor(_owner))
-				return true;
+		lock (_pveRefs)
+			foreach (var (_, refe) in _pveRefs)
+				if (!refe.IsSuppressedFor(_owner))
+					return true;
 
 		return false;
 	}
 
 	public bool HasPvECombatWithPlayers()
 	{
-		foreach (var reference in _pveRefs)
-			if (!reference.Value.IsSuppressedFor(_owner) && reference.Value.GetOther(_owner).IsPlayer)
-				return true;
+		lock (_pveRefs)
+			foreach (var reference in _pveRefs)
+				if (!reference.Value.IsSuppressedFor(_owner) && reference.Value.GetOther(_owner).IsPlayer)
+					return true;
 
 		return false;
 	}
 
 	public bool HasPvPCombat()
 	{
-		foreach (var pair in _pvpRefs)
-			if (!pair.Value.IsSuppressedFor(_owner))
-				return true;
+		lock (_pveRefs)
+			foreach (var pair in _pvpRefs)
+				if (!pair.Value.IsSuppressedFor(_owner))
+					return true;
 
 		return false;
 	}
 
 	public Unit GetAnyTarget()
 	{
-		foreach (var pair in _pveRefs)
-			if (!pair.Value.IsSuppressedFor(_owner))
-				return pair.Value.GetOther(_owner);
+		lock (_pveRefs)
+		{
+			foreach (var pair in _pveRefs)
+				if (!pair.Value.IsSuppressedFor(_owner))
+					return pair.Value.GetOther(_owner);
 
-		foreach (var pair in _pvpRefs)
-			if (!pair.Value.IsSuppressedFor(_owner))
-				return pair.Value.GetOther(_owner);
+			foreach (var pair in _pvpRefs)
+				if (!pair.Value.IsSuppressedFor(_owner))
+					return pair.Value.GetOther(_owner);
+		}
 
 		return null;
 	}
 
 	public bool SetInCombatWith(Unit who, bool addSecondUnitSuppressed = false)
 	{
-		// Are we already in combat? If yes, refresh pvp combat
-		var existingPvpRef = _pvpRefs.LookupByKey(who.GUID);
+        // Are we already in combat? If yes, refresh pvp combat
+        lock (_pveRefs)
+        {
+            var existingPvpRef = _pvpRefs.LookupByKey(who.GUID);
 
-		if (existingPvpRef != null)
-		{
-			existingPvpRef.RefreshTimer();
-			existingPvpRef.Refresh();
+			if (existingPvpRef != null)
+			{
+				existingPvpRef.RefreshTimer();
+				existingPvpRef.Refresh();
 
-			return true;
-		}
+				return true;
+			}
 
-		var existingPveRef = _pveRefs.LookupByKey(who.GUID);
 
-		if (existingPveRef != null)
-		{
-			existingPveRef.Refresh();
+			var existingPveRef = _pveRefs.LookupByKey(who.GUID);
 
-			return true;
+			if (existingPveRef != null)
+			{
+				existingPveRef.Refresh();
+
+				return true;
+			}
 		}
 
 		// Otherwise, check validity...
@@ -185,6 +195,7 @@ public class CombatManager
 
 	public bool IsInCombatWith(ObjectGuid guid)
 	{
+		lock (_pveRefs)
 		return _pveRefs.ContainsKey(guid) || _pvpRefs.ContainsKey(guid);
 	}
 
@@ -197,8 +208,21 @@ public class CombatManager
 	{
 		var mgr = who.GetCombatManager();
 
-		foreach (var refe in mgr._pveRefs)
-			if (!IsInCombatWith(refe.Key))
+		lock (_pveRefs)
+		{
+			foreach (var refe in mgr._pveRefs)
+				if (!IsInCombatWith(refe.Key))
+				{
+					var target = refe.Value.GetOther(who);
+
+					if ((_owner.IsImmuneToPC() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
+						(_owner.IsImmuneToNPC() && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
+						continue;
+
+					SetInCombatWith(target);
+				}
+
+			foreach (var refe in mgr._pvpRefs)
 			{
 				var target = refe.Value.GetOther(who);
 
@@ -208,51 +232,45 @@ public class CombatManager
 
 				SetInCombatWith(target);
 			}
-
-		foreach (var refe in mgr._pvpRefs)
-		{
-			var target = refe.Value.GetOther(who);
-
-			if ((_owner.IsImmuneToPC() && target.HasUnitFlag(UnitFlags.PlayerControlled)) ||
-				(_owner.IsImmuneToNPC() && !target.HasUnitFlag(UnitFlags.PlayerControlled)))
-				continue;
-
-			SetInCombatWith(target);
 		}
 	}
 
 	public void EndCombatBeyondRange(float range, bool includingPvP)
 	{
-		foreach (var pair in _pveRefs.ToList())
+		lock (_pveRefs)
 		{
-			var refe = pair.Value;
-
-			if (!refe.First.IsWithinDistInMap(refe.Second, range))
+			foreach (var pair in _pveRefs.ToList())
 			{
-				_pveRefs.Remove(pair.Key);
-				refe.EndCombat();
+				var refe = pair.Value;
+
+				if (!refe.First.IsWithinDistInMap(refe.Second, range))
+				{
+					_pveRefs.Remove(pair.Key);
+					refe.EndCombat();
+				}
 			}
-		}
 
-		if (!includingPvP)
-			return;
+			if (!includingPvP)
+				return;
 
-		foreach (var pair in _pvpRefs.ToList())
-		{
-			CombatReference refe = pair.Value;
-
-			if (!refe.First.IsWithinDistInMap(refe.Second, range))
+			foreach (var pair in _pvpRefs.ToList())
 			{
-				_pvpRefs.Remove(pair.Key);
-				refe.EndCombat();
+				CombatReference refe = pair.Value;
+
+				if (!refe.First.IsWithinDistInMap(refe.Second, range))
+				{
+					_pvpRefs.Remove(pair.Key);
+					refe.EndCombat();
+				}
 			}
 		}
 	}
 
 	public void SuppressPvPCombat()
 	{
-		foreach (var pair in _pvpRefs)
-			pair.Value.Suppress(_owner);
+        lock (_pveRefs)
+            foreach (var pair in _pvpRefs)
+				pair.Value.Suppress(_owner);
 
 		if (UpdateOwnerCombatState())
 		{
@@ -269,25 +287,29 @@ public class CombatManager
 		_owner.GetThreatManager().RemoveMeFromThreatLists();
 		_owner.GetThreatManager().ClearAllThreat();
 
-		while (!_pveRefs.Empty())
-			_pveRefs.First().Value.EndCombat();
+        lock (_pveRefs)
+            while (!_pveRefs.Empty())
+				_pveRefs.First().Value.EndCombat();
 	}
 
 	public void RevalidateCombat()
 	{
-		foreach (var (guid, refe) in _pveRefs.ToList())
-			if (!CanBeginCombat(_owner, refe.GetOther(_owner)))
-			{
-				_pveRefs.Remove(guid); // erase manually here to avoid iterator invalidation
-				refe.EndCombat();
-			}
+		lock (_pveRefs)
+		{
+			foreach (var (guid, refe) in _pveRefs.ToList())
+				if (!CanBeginCombat(_owner, refe.GetOther(_owner)))
+				{
+					_pveRefs.Remove(guid); // erase manually here to avoid iterator invalidation
+					refe.EndCombat();
+				}
 
-		foreach (var (guid, refe) in _pvpRefs.ToList())
-			if (!CanBeginCombat(_owner, refe.GetOther(_owner)))
-			{
-				_pvpRefs.Remove(guid); // erase manually here to avoid iterator invalidation
-				refe.EndCombat();
-			}
+			foreach (var (guid, refe) in _pvpRefs.ToList())
+				if (!CanBeginCombat(_owner, refe.GetOther(_owner)))
+				{
+					_pvpRefs.Remove(guid); // erase manually here to avoid iterator invalidation
+					refe.EndCombat();
+				}
+		}
 	}
 
 	public static void NotifyAICombat(Unit me, Unit other)
@@ -300,10 +322,11 @@ public class CombatManager
 
 	public void PurgeReference(ObjectGuid guid, bool pvp)
 	{
-		if (pvp)
-			_pvpRefs.Remove(guid);
-		else
-			_pveRefs.Remove(guid);
+        lock (_pveRefs)
+            if (pvp)
+				_pvpRefs.Remove(guid);
+			else
+				_pveRefs.Remove(guid);
 	}
 
 	public bool UpdateOwnerCombatState()
@@ -346,12 +369,14 @@ public class CombatManager
 
 	void EndAllPvPCombat()
 	{
+		lock (_pveRefs)
 		while (!_pvpRefs.Empty())
 			_pvpRefs.First().Value.EndCombat();
 	}
 
 	void PutReference(ObjectGuid guid, CombatReference refe)
 	{
+		lock (_pveRefs)
 		if (refe.IsPvP)
 		{
 			Cypher.Assert(!_pvpRefs.ContainsKey(guid), "Duplicate combat state detected!");
