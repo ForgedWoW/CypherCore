@@ -150,6 +150,8 @@ public static partial class Detour
         if (tile.linksFreeList == Detour.DT_NULL_LINK)
             return DT_NULL_LINK;
         uint link = tile.linksFreeList;
+        if (tile.links == null)
+            return DT_NULL_LINK;
         tile.linksFreeList = tile.links[link].next;
         return link;
     }
