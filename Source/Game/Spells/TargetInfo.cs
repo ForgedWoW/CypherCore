@@ -392,13 +392,16 @@ public class TargetInfo : TargetInfoBase
 
 				if (aurApp != null)
 				{
-					// only apply unapplied effects (for reapply case)
-					var effMask =  aurApp.EffectsToApply.ToHashSet();
+					var effMask = Effects.ToHashSet();
+                    // only apply unapplied effects (for reapply case)
+                    effMask.IntersectWith(aurApp.EffectsToApply);
 
-					effMask.ExceptWith(Effects);
+                    for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
+                        if (effMask.Contains(i) && aurApp.HasEffect(i))
+                            effMask.Remove(i);
 
-					if (effMask.Count != 0)
-						_spellHitTarget._ApplyAura(aurApp, effMask);
+                    if (effMask.Count != 0)
+                        _spellHitTarget._ApplyAura(aurApp, effMask);
 				}
 			}
 

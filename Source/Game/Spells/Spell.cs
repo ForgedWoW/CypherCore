@@ -5367,7 +5367,7 @@ public partial class Spell : IDisposable
 			if (spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
 				channelAuraMask.Add(spellEffectInfo.EffectIndex);
 
-		channelAuraMask.UnionWith(channelTargetEffectMask);
+		channelAuraMask.IntersectWith(channelTargetEffectMask);
 
 		float range = 0;
 

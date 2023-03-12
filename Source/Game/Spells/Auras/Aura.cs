@@ -343,7 +343,7 @@ public class Aura
 				targets[app.Value.Target] = existing;
 
 				// needs to add/remove effects from application, don't remove from map so it gets updated
-				if (app.Value.EffectMask != existing)
+				if (!app.Value.EffectMask.SetEquals(existing))
 					continue;
 
 				// nothing to do - aura already applied

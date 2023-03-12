@@ -634,7 +634,7 @@ class ListCommands
 				handler.SendSysMessage(CypherStrings.CommandTargetAuradetail,
 										aura.Id,
 										(handler.Session != null ? ss_name : name),
-										aurApp.EffectMask,
+										aurApp.EffectMask.ToMask(),
 										aura.Charges,
 										aura.StackAmount,
 										aurApp.Slot,

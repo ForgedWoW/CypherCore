@@ -646,12 +646,12 @@ namespace System.Collections.Generic
 
         public static int ToMask(this IEnumerable<int> set)
         {
-            var hash = 0;   
+            var mask = 0;   
 
             foreach (var  i in set)
-                hash |= (1 << i);
+                mask |= (1 << i);
 
-            return hash;
+            return mask;
         }
     }
 }
