@@ -77,7 +77,8 @@ public partial class Creature
 	public MovementGeneratorType DefaultMovementType { get; set; }
 	public ulong SpawnId { get; set; }
 
-	public uint[] Spells { get; set; } = new uint[SharedConst.MaxCreatureSpells];
+	public StaticCreatureFlags StaticFlags { get; set; } = new StaticCreatureFlags();
+    public uint[] Spells { get; set; } = new uint[SharedConst.MaxCreatureSpells];
 	public long CorpseRemoveTime { get; set; } // (msecs)timer for death or corpse disappearance
 	public Loot Loot { get; set; }
 
