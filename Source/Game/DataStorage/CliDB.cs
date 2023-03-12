@@ -8,7 +8,6 @@ using System.IO;
 using System.Threading.Tasks.Dataflow;
 using Framework.Constants;
 using Framework.Database;
-using Framework.Threading;
 
 namespace Game.DataStorage;
 
@@ -16,7 +15,7 @@ public class CliDB
 {
 	static ActionBlock<Action> _taskManager = new ActionBlock<Action>(a => a(), new ExecutionDataflowBlockOptions()
 	{
-		MaxDegreeOfParallelism = 50
+		MaxDegreeOfParallelism = 20
 	});
 	public static BitSet LoadStores(string dataPath, Locale defaultLocale)
 	{

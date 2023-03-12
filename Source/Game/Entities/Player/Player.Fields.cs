@@ -16,7 +16,9 @@ namespace Game.Entities;
 
 public partial class Player
 {
-	public PvPInfo PvpInfo;
+	public bool AutoAcceptQuickJoin { get; set; }
+    public bool OverrideScreenFlash { get; set; }
+    public PvPInfo PvpInfo;
 	readonly List<Channel> _channels = new();
 	readonly List<ObjectGuid> _whisperList = new();
 

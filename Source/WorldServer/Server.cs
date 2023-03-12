@@ -9,7 +9,6 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Metrics;
-using Framework.Models;
 using Framework.Networking;
 using Game;
 using Game.Chat;

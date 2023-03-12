@@ -391,7 +391,7 @@ namespace Game.Entities
 				ObjectsStore.Add(GUID, this);
 
 				if (_spawnId != 0)
-					Map.GameObjectBySpawnIdStore.Add(_spawnId, this);
+					Map.					GameObjectBySpawnIdStore.Add(_spawnId, this);
 
 				// The state can be changed after GameObject.Create but before GameObject.AddToWorld
 				var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : (GoState == GameObjectState.Ready || IsTransport);
@@ -434,7 +434,7 @@ namespace Game.Entities
 				base.RemoveFromWorld();
 
 				if (_spawnId != 0)
-					Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
+					Map.					GameObjectBySpawnIdStore.Remove(_spawnId, this);
 
 				Map.
 				ObjectsStore.Remove(GUID);

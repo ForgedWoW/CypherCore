@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Framework.Metrics
 {
-    public class MeteredMetric
+    public class MeteredMetric : IDisposable
     {
         private uint _logEvery;
         string _name;
@@ -17,12 +16,15 @@ namespace Framework.Metrics
         TimeSpan _min = TimeSpan.MaxValue;
         readonly Stopwatch _stopwatch = new Stopwatch();
         bool _recordlessThanOnems;
+        bool _log;
+        public ConsoleColor MetricColor = ConsoleColor.Magenta;
 
-        public MeteredMetric(string name, uint logEveryXmarks, bool recordlessThanOnems) 
+        public MeteredMetric(string name, uint logEveryXmarks = 1, bool recordlessThanOnems = true, bool log = false) 
         { 
-            _logEvery= logEveryXmarks;
+            _logEvery = logEveryXmarks;
             _name = name;
             _recordlessThanOnems = recordlessThanOnems;
+            _log = log;
         }
 
         public void StartMark()
@@ -48,14 +50,22 @@ namespace Framework.Metrics
 
             if (_loops % _logEvery == 0)
             {
-                Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine($"<{_name}> Avg: {(_total / _loops).TotalMilliseconds}ms, Max: {_max.TotalMilliseconds}ms, Min: {_min.TotalMilliseconds}ms, Num loops: {_loops}, Total: {_total.TotalMilliseconds}ms");
+                Console.ForegroundColor = MetricColor;
+                var msg = $"<{_name}> Avg: {(_total / _loops).TotalMilliseconds}ms, Max: {_max.TotalMilliseconds}ms, Min: {_min.TotalMilliseconds}ms, Num loops: {_loops}, Total: {_total.TotalMilliseconds}ms";
+                Console.WriteLine(msg);
+                if (_log)
+                    Log.outDebug(LogFilter.Metric, msg);
                 Console.ForegroundColor = ConsoleColor.Green;
                 _total = TimeSpan.Zero;
                 _loops = 0;
                 _max = TimeSpan.Zero;
                 _min = TimeSpan.MaxValue;
             }
+        }
+
+        public void Dispose()
+        {
+            StopMark();
         }
     }
 }

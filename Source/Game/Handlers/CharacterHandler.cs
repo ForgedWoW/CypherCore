@@ -76,7 +76,7 @@ namespace Game
                     if (!customizationsForChar.Empty())
                         charInfo.Customizations = new Array<ChrCustomizationChoice>(customizationsForChar.ToArray());
 
-                    Log.outInfo(LogFilter.Network, "Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
+                    Log.outDebug(LogFilter.Network, "Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
 
                     if (!charResult.IsDeletedCharacters)
                     {
@@ -2517,6 +2517,18 @@ namespace Game
             }
 
             Player.SetStandState(packet.StandState);
+        }
+
+        [WorldPacketHandler(ClientOpcodes.QuickJoinAutoAcceptRequests)]
+        void HandleQuickJoinAutoAcceptRequests(QuickJoinAutoAcceptRequest packet)
+        {
+            Player.AutoAcceptQuickJoin = packet.AutoAccept;
+        }
+
+        [WorldPacketHandler(ClientOpcodes.OverrideScreenFlash)]
+        void HandleOverrideScreenFlash(OverrideScreenFlash packet)
+        {
+            Player.OverrideScreenFlash = packet.ScreenFlashEnabled;
         }
 
         void SendCharCreate(ResponseCodes result, ObjectGuid guid = default)

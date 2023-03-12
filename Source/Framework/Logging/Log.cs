@@ -410,6 +410,7 @@ public enum LogFilter
     Loot,
     MapsScript,
     Maps,
+    Metric,
     Movement,
     Network,
     Outdoorpvp,

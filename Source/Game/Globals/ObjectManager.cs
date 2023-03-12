@@ -6895,7 +6895,7 @@ namespace Game
                         if (currentlevel > 255)        // hardcoded level maximum
                             Log.outError(LogFilter.Sql, $"Wrong (> 255) level {currentlevel} in `player_classlevelstats` table, ignoring.");
                         else
-                            Log.outError(LogFilter.Sql, $"Unused (> MaxPlayerLevel in worldserver.conf) level {currentlevel} in `player_levelstats` table, ignoring.");
+                            Log.outWarn(LogFilter.Sql, $"Unused (> MaxPlayerLevel in worldserver.conf) level {currentlevel} in `player_levelstats` table, ignoring.");
 
                         continue;
                     }
@@ -6998,7 +6998,7 @@ namespace Game
                                 Log.outError(LogFilter.Sql, "Wrong (> {0}) level {1} in `player_xp_for_level` table, ignoring.", 255, currentlevel);
                             else
                             {
-                                Log.outError(LogFilter.Sql, "Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `player_xp_for_levels` table, ignoring.", currentlevel);
+                                Log.outWarn(LogFilter.Sql, "Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `player_xp_for_levels` table, ignoring.", currentlevel);
                                 ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                             }
                             continue;
@@ -7191,7 +7191,7 @@ namespace Game
                         Log.outError(LogFilter.Sql, "Wrong (> {0}) level {1} in `pet_levelstats` table, ignoring.", SharedConst.StrongMaxLevel, currentlevel);
                     else
                     {
-                        Log.outInfo(LogFilter.Server, "Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
+                        Log.outWarn(LogFilter.Server, "Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
                         ++count;                                // make result loading percent "expected" correct in case disabled detail mode for example.
                     }
                     continue;
