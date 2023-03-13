@@ -6,11 +6,15 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.PYRE, EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2)]
-public class spell_evoker_azure_ruby_essence_burst : SpellScript, ISpellOnCast
+[SpellScript(EvokerSpells.EMERALD_BLOSSOM, 
+				EvokerSpells.DISINTEGRATE,
+				EvokerSpells.DISINTEGRATE_2,
+				EvokerSpells.ECHO,
+				EvokerSpells.DREAM_PROJECTION)]
+public class spell_evoker_essence_burst : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		Caster.RemoveAura(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA);
+		Caster.RemoveAura(EvokerSpells.ESSENCE_BURST);
 	}
 }

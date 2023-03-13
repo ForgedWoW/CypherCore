@@ -8,6 +8,7 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.IUnit;
 
 namespace Scripts.Spells.Evoker;
+
 [Script]
 internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
 {

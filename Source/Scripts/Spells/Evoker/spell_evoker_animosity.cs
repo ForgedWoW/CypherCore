@@ -11,7 +11,7 @@ namespace Scripts.Spells.Evoker;
 			EvokerSpells.ETERNITY_SURGE,
 			EvokerSpells.ETERNITY_SURGE_2,
 			EvokerSpells.FIRE_BREATH,
-			EvokerSpells.FIRE_BREATH,
+			EvokerSpells.FIRE_BREATH_2,
 			EvokerSpells.SPIRITBLOOM,
 			EvokerSpells.SPIRITBLOOM_2)]
 public class spell_evoker_animosity : SpellScript, ISpellAfterHit

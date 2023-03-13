@@ -17,7 +17,8 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 	readonly Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
 	readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
 	readonly Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
-	AreaTriggerDataStorage() { }
+
+    AreaTriggerDataStorage() { }
 
 	public void LoadAreaTriggerTemplates()
 	{
@@ -351,7 +352,14 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 	public AreaTriggerCreateProperties GetAreaTriggerCreateProperties(uint spellMiscValue)
 	{
-		return _areaTriggerCreateProperties.LookupByKey(spellMiscValue);
+		if (!_areaTriggerCreateProperties.TryGetValue(spellMiscValue, out var val))
+        {
+            Log.outWarn(LogFilter.ServerLoading, $"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
+            val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue);
+			_areaTriggerCreateProperties[spellMiscValue] = val;
+        }
+
+        return val;
 	}
 
 	public SortedSet<ulong> GetAreaTriggersForMapAndCell(uint mapId, uint cellId)
