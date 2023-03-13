@@ -24,9 +24,9 @@ public class spell_evoker_cycle_of_life : SpellScript, ISpellAfterCast
 			if (colAura.StackAmount < SpellManager.Instance.GetSpellInfo(EvokerSpells.CYCLE_OF_LIFE).GetEffect(1).BasePoints)
 				return;
 
-			player.CastSpell(TargetPosition, EvokerSpells.CYCLE_OF_LIFE_SUMMON, true);
-            var aura = player.AddAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
-			aura.ForEachAuraScript<IAuraScriptValues>(a => a.ScriptValues["pos"] = TargetPosition);
+            player.RemoveAura(EvokerSpells.CYCLE_OF_LIFE_USE_COUNT);
+            player.AddAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
+            player.CastSpell(TargetPosition, EvokerSpells.CYCLE_OF_LIFE_SUMMON, true);
         }
 	}
 }

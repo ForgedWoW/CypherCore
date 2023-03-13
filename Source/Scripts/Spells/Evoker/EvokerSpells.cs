@@ -44,7 +44,8 @@ internal struct EvokerSpells
     public const uint ECHO = 364343;
     public const uint ECHO_AURA = 364446;
     public const uint EMERALD_BLOSSOM = 355913;
-	public const uint EMERALD_COMMUNION = 370960;
+    public const uint EMERALD_BLOSSOM_HEAL = 355916;
+    public const uint EMERALD_COMMUNION = 370960;
     public const uint EMPATH = 376138;
     public const uint EMPATH_AURA = 370840;
     public const uint ENERGIZING_FLAME = 400006;
@@ -68,6 +69,8 @@ internal struct EvokerSpells
     public const uint FIRE_STORM_DAMAGE = 369374;
     public const uint FLOW_STATE = 385696;
     public const uint FLOW_STATE_AURA = 390148;
+    public const uint FLUTTERING_SEEDLINGS = 359793;
+    public const uint FLUTTERING_SEEDLINGS_HEAL = 361361;
     public const uint GLIDE = 358733;
 	public const uint GLIDE_KNOCKBACK = 358736;
 	public const uint HOVER = 358267;
@@ -94,10 +97,12 @@ internal struct EvokerSpells
 
 internal struct EvokerNPCs
 {
-    public const uint DREAM_PROJECTION_NPC = 192459;
+    public const uint DREAM_PROJECTION = 192459;
+    public const uint CYCLE_OF_LIFE = 192459;
 }
 
 internal struct EvokerAreaTriggers
 {
-    public const uint FIRE_STORM_AREA_TRIGGER = 24713;
+    public const uint EMERALD_BLOSSOM = 23318;
+    public const uint FIRE_STORM = 24713;
 }

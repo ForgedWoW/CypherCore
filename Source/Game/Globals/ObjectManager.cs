@@ -11,6 +11,7 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Game.AI;
 using Game.Conditions;
 using Game.DataStorage;
 using Game.Entities;
@@ -1798,6 +1799,13 @@ namespace Game
 
                 spellScriptsStorage.AddUnique(spellInfo.Id, GetScriptId(scriptName));
             }
+
+            return true;
+        }
+
+        public bool RegisterAreaTriggerScript(uint areaTriggerId, string scriptName)
+        {
+            areaTriggerScriptStorage[areaTriggerId] = GetScriptId(scriptName);
 
             return true;
         }
