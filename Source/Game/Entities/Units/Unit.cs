@@ -4215,7 +4215,8 @@ public partial class Unit : WorldObject
 
 		DamageTakenHistory.ExecuteRemove();
 
-		DamageTakenHistory[currentTime] += damage;
+		DamageTakenHistory.TryGetValue(currentTime, out var existing);
+		DamageTakenHistory[currentTime] = existing + damage;
 	}
 
 	public double GetDamageOverLastSeconds(uint seconds)
