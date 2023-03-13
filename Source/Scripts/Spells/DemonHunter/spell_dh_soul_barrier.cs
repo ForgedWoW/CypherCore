@@ -110,7 +110,7 @@ public class spell_dh_soul_barrier : AuraScript, IHasAuraEffects
 
 		var threshold = caster.GetTotalAttackPowerValue(WeaponAttackType.BaseAttack) * 0.4914f;
 
-		if (absorbAmount < dmgInfo.GetDamage())
+		if (absorbAmount < dmgInfo.Damage)
 			aurEff.SetAmount(absorbAmount + threshold);
 
 		var appList = caster.GetAuraApplication(DemonHunterSpells.SOUL_BARRIER);

@@ -15,7 +15,8 @@ public class aura_evoker_charged_blast : AuraScript, IAuraCheckProc
 	{
 		return info.ProcSpell.SpellInfo.Id.EqualsAny(EvokerSpells.AZURE_STRIKE,
 													EvokerSpells.DISINTEGRATE,
-													EvokerSpells.ETERNITY_SURGE_CHARGED,
+                                                    EvokerSpells.DISINTEGRATE_2,
+                                                    EvokerSpells.ETERNITY_SURGE_CHARGED,
 													EvokerSpells.SHATTERING_STAR);
 	}
 }

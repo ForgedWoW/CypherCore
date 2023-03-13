@@ -13,9 +13,9 @@ public class spell_rogue_combat_potency_AuraScript : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var offHand = (eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.OffAttack && RandomHelper.randChance(20));
+		var offHand = (eventInfo.DamageInfo.AttackType == WeaponAttackType.OffAttack && RandomHelper.randChance(20));
 		var mainRollChance = 20.0f * Caster.GetAttackTimer(WeaponAttackType.BaseAttack) / 1.4f / 600.0f;
-		var mainHand = (eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack && RandomHelper.randChance(mainRollChance));
+		var mainHand = (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack && RandomHelper.randChance(mainRollChance));
 
 		return offHand || mainHand;
 	}

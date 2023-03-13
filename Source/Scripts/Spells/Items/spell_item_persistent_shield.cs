@@ -22,7 +22,7 @@ internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAu
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.HealInfo != null && eventInfo.HealInfo.GetHeal() != 0;
+		return eventInfo.HealInfo != null && eventInfo.HealInfo.Heal != 0;
 	}
 
 	public override void Register()
@@ -34,7 +34,7 @@ internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAu
 	{
 		var caster = eventInfo.Actor;
 		var target = eventInfo.ProcTarget;
-		var bp0 = (int)MathFunctions.CalculatePct(eventInfo.HealInfo.GetHeal(), 15);
+		var bp0 = (int)MathFunctions.CalculatePct(eventInfo.HealInfo.Heal, 15);
 
 		// Scarab Brooch does not replace stronger shields
 		var shield = target.GetAuraEffect(ItemSpellIds.PersistentShieldTriggered, 0, caster.GUID);

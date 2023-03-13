@@ -36,11 +36,11 @@ internal class spell_pri_aq_3p_bonus : AuraScript, IHasAuraEffects
 		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo == null ||
-			healInfo.GetHeal() == 0)
+			healInfo.Heal == 0)
 			return;
 
 		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(healInfo.GetHeal(), 10));
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(healInfo.Heal, 10));
 		caster.CastSpell(caster, PriestSpells.ORACULAR_HEAL, args);
 	}
 }

@@ -38,7 +38,7 @@ internal class spell_dru_brambles : AuraScript, IHasAuraEffects
 	{
 		// reflect back Damage to the Attacker
 		var target = Target;
-		var attacker = dmgInfo.GetAttacker();
+		var attacker = dmgInfo.Attacker;
 
 		if (attacker != null)
 			target.CastSpell(attacker, DruidSpellIds.BramblesRelect, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));

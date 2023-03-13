@@ -20,12 +20,12 @@ internal class spell_gen_proc_below_pct_damaged : AuraScript, IAuraCheckProc
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return false;
 
 		var pct = SpellInfo.GetEffect(0).CalcValue();
 
-		if (eventInfo.ActionTarget.HealthBelowPctDamaged(pct, damageInfo.GetDamage()))
+		if (eventInfo.ActionTarget.HealthBelowPctDamaged(pct, damageInfo.Damage))
 			return true;
 
 		return false;

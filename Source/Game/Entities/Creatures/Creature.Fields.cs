@@ -37,13 +37,27 @@ public partial class Creature
     private uint _combatPulseTime;   // (msecs) remaining time for next zone-in-combat pulse
     private uint _combatPulseDelay;  // (secs) how often the creature puts the entire zone in combat (only works in dungeons)
     private uint? _gossipMenuId;
+    private uint? _lootid;
 
     public ulong PlayerDamageReq { get; set; }
     public float SightDistance { get; set; }
     public float CombatDistance { get; set; }
     public bool IsTempWorldObject { get; set; } //true when possessed
     public uint OriginalEntry { get; set; }
+    public uint LootId
+    {
+        get
+        {
+            if (_lootid.HasValue)
+                return _lootid.Value;
 
+            return Template.LootId;
+        }
+        set
+        {
+            _lootid = value;
+        }
+    }
     internal Dictionary<ObjectGuid, Loot> PersonalLoot { get; set; } = new();
     public MovementGeneratorType DefaultMovementType { get; set; }
     public ulong SpawnId { get; set; }

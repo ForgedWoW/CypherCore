@@ -62,7 +62,7 @@ public class aura_warr_ignore_pain : AuraScript, IHasAuraEffects
 		if (caster != null)
 		{
 			var spell = new SpellNonMeleeDamage(caster, caster, SpellInfo, new SpellCastVisual(0, 0), SpellSchoolMask.Normal);
-			spell.Damage = dmgInfo.GetDamage() - dmgInfo.GetDamage() * 0.9f;
+			spell.Damage = dmgInfo.Damage - dmgInfo.Damage * 0.9f;
 			spell.CleanDamage = spell.Damage;
 			caster.DealSpellDamage(spell, false);
 			caster.SendSpellNonMeleeDamageLog(spell);

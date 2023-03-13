@@ -26,7 +26,7 @@ internal class spell_pri_t5_heal_2p_bonus : AuraScript, IAuraCheckProc, IHasAura
 
 		if (healInfo != null)
 		{
-			var healTarget = healInfo.GetTarget();
+			var healTarget = healInfo.Target;
 
 			if (healTarget)
 				// @todo: fix me later if (healInfo.GetEffectiveHeal())

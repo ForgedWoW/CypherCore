@@ -33,7 +33,7 @@ public class spell_sha_ancestral_awakening : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		var heal = MathFunctions.CalculatePct(eventInfo.HealInfo.GetHeal(), aurEff.Amount);
+		var heal = MathFunctions.CalculatePct(eventInfo.HealInfo.Heal, aurEff.Amount);
 		Target.CastSpell(Target, ShamanSpells.ANCESTRAL_AWAKENING, new CastSpellExtraArgs().AddSpellMod(SpellValueMod.BasePoint0, (int)heal));
 	}
 }

@@ -19,7 +19,7 @@ public class spell_rog_nightblade_AuraScript : AuraScript, IHasAuraEffects
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.OffAttack)
+		if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.AttackType == WeaponAttackType.OffAttack)
 		{
 			var caster = eventInfo.Actor;
 			var target = eventInfo.ActionTarget;

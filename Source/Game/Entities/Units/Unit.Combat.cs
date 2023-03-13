@@ -673,7 +673,7 @@ public partial class Unit
 				DealMeleeDamage(damageInfo, true);
 
 				DamageInfo dmgInfo = new(damageInfo);
-				ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.GetHitMask(), null, dmgInfo, null);
+				ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.HitMask, null, dmgInfo, null);
 
 				Log.outDebug(LogFilter.Unit,
 							"AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
@@ -883,7 +883,7 @@ public partial class Unit
 					if (dungeonEncounter != null)
 					{
 						creature.PersonalLoot = LootManager.GenerateDungeonEncounterPersonalLoot(dungeonEncounter.Id,
-																								creature.Template.LootId,
+																								creature.LootId,
 																								LootStorage.Creature,
 																								LootType.Corpse,
 																								creature,
@@ -900,7 +900,7 @@ public partial class Unit
 
 						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
-						var lootid = creature.Template.LootId;
+						var lootid = creature.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, looter, dungeonEncounter != null, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
@@ -928,7 +928,7 @@ public partial class Unit
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);
 
-						var lootid = creature.Template.LootId;
+						var lootid = creature.LootId;
 
 						if (lootid != 0)
 							loot.FillLoot(lootid, LootStorage.Creature, tapper, true, false, creature.GetLootMode(), creature.Map.GetDifficultyLootItemContext());
@@ -1602,8 +1602,8 @@ public partial class Unit
 			// Calculate absorb & resists
 			DamageInfo dmgInfo = new(damageInfo);
 			CalcAbsorbResist(dmgInfo);
-			damageInfo.Absorb = dmgInfo.GetAbsorb();
-			damageInfo.Resist = dmgInfo.GetResist();
+			damageInfo.Absorb = dmgInfo.Absorb;
+			damageInfo.Resist = dmgInfo.Resist;
 
 			if (damageInfo.Absorb != 0)
 				damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Absorb == 0 ? HitInfo.FullAbsorb : HitInfo.PartialAbsorb);
@@ -1611,7 +1611,7 @@ public partial class Unit
 			if (damageInfo.Resist != 0)
 				damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Resist == 0 ? HitInfo.FullResist : HitInfo.PartialResist);
 
-			damageInfo.Damage = dmgInfo.GetDamage();
+			damageInfo.Damage = dmgInfo.Damage;
 		}
 		else // Impossible get negative result but....
 		{

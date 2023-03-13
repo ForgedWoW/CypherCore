@@ -22,10 +22,10 @@ internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
 
     private void EmeraldCommunion(HealInfo healInfo, uint gain)
     {
-        if (healInfo.GetSpellInfo().Id == EvokerSpells.EMERALD_COMMUNION &&
-            healInfo.GetHealer() == healInfo.GetTarget() && gain < healInfo.GetHeal())
+        if (healInfo.SpellInfo.Id == EvokerSpells.EMERALD_COMMUNION &&
+            healInfo.Healer == healInfo.Target && gain < healInfo.Heal)
         {
-            var healer = healInfo.GetHealer();
+            var healer = healInfo.Healer;
             // get targets
             var targetList = new List<Unit>();
             healer.GetAlliesWithinRange(targetList, 100);
@@ -38,8 +38,8 @@ internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
             targetList.RandomResize(1);
 
             // cast on targets
-            HealInfo info = new(healer, targetList[0], healInfo.GetHeal() - gain,
-                healInfo.GetSpellInfo(), healInfo.GetSchoolMask());
+            HealInfo info = new(healer, targetList[0], healInfo.Heal - gain,
+                healInfo.SpellInfo, healInfo.SchoolMask);
 
             Unit.DealHeal(info);
         }

@@ -32,7 +32,7 @@ internal class spell_hun_roar_of_sacrifice : AuraScript, IHasAuraEffects
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			!Convert.ToBoolean((int)damageInfo.GetSchoolMask() & aurEff.MiscValue))
+			!Convert.ToBoolean((int)damageInfo.SchoolMask & aurEff.MiscValue))
 			return false;
 
 		if (!Caster)
@@ -46,7 +46,7 @@ internal class spell_hun_roar_of_sacrifice : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount));
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount));
 		eventInfo.Actor.CastSpell(Caster, HunterSpells.RoarOfSacrificeTriggered, args);
 	}
 }

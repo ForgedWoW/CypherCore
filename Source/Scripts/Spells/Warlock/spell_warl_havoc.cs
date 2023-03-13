@@ -42,7 +42,7 @@ internal class spell_warl_havoc : AuraScript, IHasAuraEffects
 
 					if (spellInfo != null)
 					{
-						var dmg = procInfo.DamageInfo.GetDamage();
+						var dmg = procInfo.DamageInfo.Damage;
 						var spell = new SpellNonMeleeDamage(caster, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellVisual(caster), 0), SpellSchoolMask.Shadow);
 						spell.Damage = dmg;
 						spell.CleanDamage = spell.Damage;

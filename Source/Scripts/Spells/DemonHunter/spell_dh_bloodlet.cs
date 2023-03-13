@@ -37,7 +37,7 @@ public class spell_dh_bloodlet : AuraScript, IHasAuraEffects
 			return;
 
 		var basePoints = SpellInfo.GetEffect(0).BasePoints;
-		var dmg = (eventInfo.DamageInfo.GetDamage() * (double)basePoints) / 100.0f;
+		var dmg = (eventInfo.DamageInfo.Damage * (double)basePoints) / 100.0f;
 		var dmgPerTick = (double)dmg / 5.0f;
 
 		// Any remaining damage must be added

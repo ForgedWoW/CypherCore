@@ -29,7 +29,8 @@ internal struct EvokerSpells
     public const uint DEEP_BREATH_EFFECT = 362010;
     public const uint DEEP_BREATH_END = 362019;
     public const uint DISINTEGRATE = 356995;
-	public const uint DRAGONRAGE = 375087;
+    public const uint DISINTEGRATE_2 = 369093;
+    public const uint DRAGONRAGE = 375087;
     public const uint DRAGONRAGE_EFFECT = 375088;
     public const uint DREAM_BREATH = 355936;
 	public const uint DREAM_BREATH_2 = 382614;
@@ -39,7 +40,10 @@ internal struct EvokerSpells
     public const uint ECHO_AURA = 364446;
     public const uint EMERALD_BLOSSOM = 355913;
 	public const uint EMERALD_COMMUNION = 370960;
+    public const uint EMPATH = 376138;
+    public const uint EMPATH_AURA = 370840;
     public const uint ENERGIZING_FLAME = 400006;
+    public const uint ENERGY_LOOP = 372233;
     public const uint ESSENCE_BURST = 369297;
     public const uint ESSENCE_BURST_AURA = 369299;
     public const uint ETERNITYS_SPAN = 375757;
@@ -49,7 +53,8 @@ internal struct EvokerSpells
     public const uint EVERBURNING_FLAME = 370819;
     public const uint EXHILERATING_BURST = 377100;
     public const uint EXHILERATING_BURST_AURA = 377102;
-	public const uint FEED_THE_FLAMES = 369846;
+    public const uint EYE_OF_INFINITY = 369375;
+    public const uint FEED_THE_FLAMES = 369846;
     public const uint FIRE_BREATH = 357208;
 	public const uint FIRE_BREATH_2 = 382266;
 	public const uint FIRE_BREATH_CHARGED = 357209;

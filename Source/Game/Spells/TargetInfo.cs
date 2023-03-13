@@ -236,8 +236,8 @@ public class TargetInfo : TargetInfoBase
 
 				healInfo = new HealInfo(caster, spell.UnitTarget, (uint)addhealth, spell.SpellInfo, spell.SpellInfo.GetSchoolMask());
 				caster.HealBySpell(healInfo, IsCrit);
-				spell.UnitTarget.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, spell.SpellInfo);
-				spell.HealingInEffects = (int)healInfo.GetEffectiveHeal();
+				spell.UnitTarget.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.EffectiveHeal * 0.5f, spell.SpellInfo);
+				spell.HealingInEffects = (int)healInfo.EffectiveHeal;
 
 				procSpellType |= ProcFlagsSpellType.Heal;
 			}

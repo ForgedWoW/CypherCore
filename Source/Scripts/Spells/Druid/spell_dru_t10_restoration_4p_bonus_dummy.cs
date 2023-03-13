@@ -31,7 +31,7 @@ internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheck
 		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo == null ||
-			healInfo.GetHeal() == 0)
+			healInfo.Heal == 0)
 			return false;
 
 		var caster = eventInfo.Actor.AsPlayer;
@@ -51,9 +51,9 @@ internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheck
 	{
 		PreventDefaultAction();
 
-		var amount = (int)eventInfo.HealInfo.GetHeal();
+		var amount = (int)eventInfo.HealInfo.Heal;
 		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)eventInfo.HealInfo.GetHeal());
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)eventInfo.HealInfo.Heal);
 		eventInfo.Actor.CastSpell((Unit)null, DruidSpellIds.RejuvenationT10Proc, args);
 	}
 }

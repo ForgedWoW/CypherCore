@@ -31,12 +31,12 @@ internal class spell_item_frozen_shadoweave : AuraScript, IHasAuraEffects
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return;
 
 		var caster = eventInfo.Actor;
 		CastSpellExtraArgs args = new(aurEff);
-		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount));
+		args.AddSpellMod(SpellValueMod.BasePoint0, (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount));
 		caster.CastSpell((Unit)null, ItemSpellIds.Shadowmend, args);
 	}
 }

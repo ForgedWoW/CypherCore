@@ -22,7 +22,7 @@ public class spell_monk_touch_of_death_amplifier : AuraScript, IHasAuraEffects, 
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.GetDamage() > 0;
+		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.Damage > 0;
 	}
 
 	public override void Register()
@@ -40,7 +40,7 @@ public class spell_monk_touch_of_death_amplifier : AuraScript, IHasAuraEffects, 
 
 			if (aurEffAmplifier != null)
 			{
-				var damage = aurEff.Amount + MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEffAmplifier.Amount);
+				var damage = aurEff.Amount + MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEffAmplifier.Amount);
 				aurEff.SetAmount(damage);
 			}
 		}

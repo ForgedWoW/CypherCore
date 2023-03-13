@@ -23,7 +23,7 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 	private double HandleAbsorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var caster = Caster;
-		var attacker = dmgInfo.GetAttacker();
+		var attacker = dmgInfo.Attacker;
 
 		if (caster == null || attacker == null)
 			return absorbAmount;
@@ -42,7 +42,7 @@ public class spell_pri_smite_absorb : AuraScript, IHasAuraEffects
 
 				if (aurEff != null)
 				{
-					var absorb = Math.Max(0, aurEff.Amount - (int)dmgInfo.GetDamage());
+					var absorb = Math.Max(0, aurEff.Amount - (int)dmgInfo.Damage);
 
 					if (absorb <= 0)
 					{

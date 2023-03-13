@@ -43,16 +43,16 @@ internal class spell_warl_seed_of_corruption_dummy : AuraScript, IHasAuraEffects
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return;
 
-		var amount = (int)(aurEff.Amount - damageInfo.GetDamage());
+		var amount = (int)(aurEff.Amount - damageInfo.Damage);
 
 		if (amount > 0)
 		{
 			aurEff.SetAmount(amount);
 
-			if (!Target.HealthBelowPctDamaged(1, damageInfo.GetDamage()))
+			if (!Target.HealthBelowPctDamaged(1, damageInfo.Damage))
 				return;
 		}
 

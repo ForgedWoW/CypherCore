@@ -43,7 +43,7 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 		var aurEff = target.GetAuraEffect(211078, 0);
 
 		if (aurEff != null) // Spectral Deflection
-			if (target.CountPctFromMaxHealth(aurEff.Amount) < dmgInfo.GetDamage())
+			if (target.CountPctFromMaxHealth(aurEff.Amount) < dmgInfo.Damage)
 			{
 				absorbPerc *= 2;
 				absorbStack *= 2;
@@ -61,12 +61,12 @@ public class spell_dk_bone_shield : AuraScript, IHasAuraEffects
 					absorbPerc += aurEff.Amount;
 		}
 
-		absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPerc);
+		absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, absorbPerc);
 
 		var _player = target.AsPlayer;
 
 		if (_player != null)
-			if ((dmgInfo.GetSchoolMask() & SpellSchoolMask.Normal) != 0)
+			if (!dmgInfo.SchoolMask.HasFlag(SpellSchoolMask.Normal))
 			{
 				//    if (AuraEffect const* aurEff = _player->GetAuraEffect(251876, 0)) // Item - Death Knight T21 Blood 2P Bonus
 				//      _player->GetSpellHistory()->ModifyCooldown(49028, aurEff->GetAmount() * absorbStack);

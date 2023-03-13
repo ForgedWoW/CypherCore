@@ -24,10 +24,10 @@ internal class spell_item_crystal_spire_of_karabor : AuraScript, IAuraCheckProc
 
 		if (healInfo != null)
 		{
-			var healTarget = healInfo.GetTarget();
+			var healTarget = healInfo.Target;
 
 			if (healTarget)
-				if (healTarget.Health - healInfo.GetEffectiveHeal() <= healTarget.CountPctFromMaxHealth(pct))
+				if (healTarget.Health - healInfo.EffectiveHeal <= healTarget.CountPctFromMaxHealth(pct))
 					return true;
 		}
 

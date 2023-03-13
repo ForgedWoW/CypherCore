@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DISINTEGRATE)]
+[SpellScript(EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2)]
 public class spell_evoker_catalyze : SpellScript, ISpellOnHit, ISpellAfterCast
 {
 	int _period = 0;

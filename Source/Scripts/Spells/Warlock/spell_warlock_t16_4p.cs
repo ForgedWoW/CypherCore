@@ -53,7 +53,7 @@ public class spell_warlock_t16_4p : AuraScript, IHasAuraEffects
 			return;
 
 		var caster = OwnerAsUnit;
-		var victim = eventInfo.DamageInfo.GetVictim();
+		var victim = eventInfo.DamageInfo.Victim;
 
 		if (caster == null || victim == null)
 			return;

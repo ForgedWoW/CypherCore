@@ -22,7 +22,31 @@ public class DamageInfo
 	double _block;
 	ProcFlagsHit _hitMask;
 
-	public DamageInfo(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
+    public Unit Attacker => _attacker;
+    public Unit Victim => _victim;
+    public SpellInfo SpellInfo => _spellInfo;
+    public SpellSchoolMask SchoolMask => _schoolMask;
+    public DamageEffectType DamageType => _damageType;
+    public WeaponAttackType AttackType => _attackType;
+    public double Damage => _damage;
+    public double OriginalDamage => _originalDamage;
+    public double Absorb => _absorb;
+    public double Resist => _resist;
+    public double Block => _block;
+    public ProcFlagsHit HitMask => _hitMask;
+	public bool IsImmune { get { return _hitMask.HasFlag(ProcFlagsHit.Immune); } }
+    public bool IsFullBlock { get { return _hitMask.HasFlag(ProcFlagsHit.FullBlock); } }
+    public bool IsBlock { get { return _hitMask.HasFlag(ProcFlagsHit.Block); } }
+    public bool IsAbsorb { get { return _hitMask.HasFlag(ProcFlagsHit.Absorb); } }
+    public bool IsFillResist { get { return _hitMask.HasFlag(ProcFlagsHit.FullResist); } }
+    public bool IsMiss { get { return _hitMask.HasFlag(ProcFlagsHit.Miss); } }
+    public bool IsDodge { get { return _hitMask.HasFlag(ProcFlagsHit.Dodge); } }
+    public bool IsParry { get { return _hitMask.HasFlag(ProcFlagsHit.Parry); } }
+    public bool IsEvade { get { return _hitMask.HasFlag(ProcFlagsHit.Evade); } }
+    public bool IsNormal { get { return _hitMask.HasFlag(ProcFlagsHit.Normal); } }
+    public bool IsCritical { get { return _hitMask.HasFlag(ProcFlagsHit.Critical); } }
+
+    public DamageInfo(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
 	{
 		_attacker = attacker;
 		_victim = victim;
@@ -128,13 +152,13 @@ public class DamageInfo
 
 	public void ModifyDamage(double amount)
 	{
-		amount = Math.Max(amount, -GetDamage());
+		amount = Math.Max(amount, -Damage);
 		_damage += amount;
 	}
 
 	public void AbsorbDamage(double amount)
 	{
-		amount = Math.Min(amount, GetDamage());
+		amount = Math.Min(amount, Damage);
 		_absorb += amount;
 		_damage -= amount;
 		_hitMask |= ProcFlagsHit.Absorb;
@@ -142,7 +166,7 @@ public class DamageInfo
 
 	public void ResistDamage(double amount)
 	{
-		amount = Math.Min(amount, GetDamage());
+		amount = Math.Min(amount, Damage);
 		_resist += amount;
 		_damage -= amount;
 
@@ -153,69 +177,9 @@ public class DamageInfo
 		}
 	}
 
-	public Unit GetAttacker()
-	{
-		return _attacker;
-	}
-
-	public Unit GetVictim()
-	{
-		return _victim;
-	}
-
-	public SpellInfo GetSpellInfo()
-	{
-		return _spellInfo;
-	}
-
-	public SpellSchoolMask GetSchoolMask()
-	{
-		return _schoolMask;
-	}
-
-	public DamageEffectType GetDamageType()
-	{
-		return _damageType;
-	}
-
-	public WeaponAttackType GetAttackType()
-	{
-		return _attackType;
-	}
-
-	public double GetDamage()
-	{
-		return _damage;
-	}
-
-	public double GetOriginalDamage()
-	{
-		return _originalDamage;
-	}
-
-	public double GetAbsorb()
-	{
-		return _absorb;
-	}
-
-	public double GetResist()
-	{
-		return _resist;
-	}
-
-	public double GetBlock()
-	{
-		return _block;
-	}
-
-	public ProcFlagsHit GetHitMask()
-	{
-		return _hitMask;
-	}
-
 	void BlockDamage(double amount)
 	{
-		amount = Math.Min(amount, GetDamage());
+		amount = Math.Min(amount, Damage);
 		_block += amount;
 		_damage -= amount;
 		_hitMask |= ProcFlagsHit.Block;

@@ -45,7 +45,7 @@ public class spell_sha_resurgence : AuraScript, IAuraOnProc, IAuraCheckProc
 				// Change heal amount accoring to the spell that triggered this one */
 				if (damageInfo != null)
 				{
-					switch (damageInfo.GetSpellInfo().Id)
+					switch (damageInfo.SpellInfo.Id)
 					{
 						// 100% on Healing Wave and Greater Healing Wave
 						case Resurgence.HEALING_WAVE:

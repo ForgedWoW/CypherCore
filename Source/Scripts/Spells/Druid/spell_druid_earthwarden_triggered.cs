@@ -34,11 +34,11 @@ public class spell_druid_earthwarden_triggered : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
-		if (dmgInfo.GetDamageType() == DamageEffectType.Direct)
+		if (dmgInfo.DamageType == DamageEffectType.Direct)
 		{
 			var earthwarden = Global.SpellMgr.AssertSpellInfo(Spells.EARTHWARDEN, Difficulty.None);
 
-			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), earthwarden.GetEffect(0).BasePoints);
+			absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, earthwarden.GetEffect(0).BasePoints);
 			Caster.RemoveAura(Spells.EARTHWARDEN_TRIGGERED);
 		}
 

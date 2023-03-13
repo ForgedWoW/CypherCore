@@ -2535,7 +2535,7 @@ public partial class Player
 
 	public void CastItemCombatSpell(DamageInfo damageInfo)
 	{
-		var target = damageInfo.GetVictim();
+		var target = damageInfo.Victim;
 
 		if (target == null || !target.IsAlive || target == this)
 			return;
@@ -2546,7 +2546,7 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item != null)
-				if (!item.IsBroken() && CanUseAttackType(damageInfo.GetAttackType()))
+				if (!item.IsBroken() && CanUseAttackType(damageInfo.AttackType))
 				{
 					var proto = item.GetTemplate();
 
@@ -2558,7 +2558,7 @@ public partial class Player
 							// offhand item cannot proc from main hand hit etc
 							byte slot;
 
-							switch (damageInfo.GetAttackType())
+							switch (damageInfo.AttackType)
 							{
 								case WeaponAttackType.BaseAttack:
 								case WeaponAttackType.RangedAttack:
@@ -2579,7 +2579,7 @@ public partial class Player
 								continue;
 
 							// Check if item is useable (forms or disarm)
-							if (damageInfo.GetAttackType() == WeaponAttackType.BaseAttack)
+							if (damageInfo.AttackType == WeaponAttackType.BaseAttack)
 								if (!IsUseEquipedWeapon(true) && !IsInFeralForm)
 									continue;
 						}
@@ -2594,7 +2594,7 @@ public partial class Player
 	{
 		// Can do effect if any damage done to target
 		// for done procs allow normal + critical + absorbs by default
-		var canTrigger = damageInfo.GetHitMask().HasAnyFlag(ProcFlagsHit.Normal | ProcFlagsHit.Critical | ProcFlagsHit.Absorb);
+		var canTrigger = damageInfo.HitMask.HasAnyFlag(ProcFlagsHit.Normal | ProcFlagsHit.Critical | ProcFlagsHit.Absorb);
 
 		if (canTrigger)
 			if (!item.GetTemplate().HasFlag(ItemFlags.Legacy))
@@ -2617,7 +2617,7 @@ public partial class Player
 
 					if (proto.SpellPPMRate != 0)
 					{
-						var WeaponSpeed = GetBaseAttackTime(damageInfo.GetAttackType());
+						var WeaponSpeed = GetBaseAttackTime(damageInfo.AttackType);
 						chance = GetPPMProcChance(WeaponSpeed, proto.SpellPPMRate, spellInfo);
 					}
 					else if (chance > 100.0f)
@@ -2625,8 +2625,8 @@ public partial class Player
 						chance = GetWeaponProcChance();
 					}
 
-					if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.GetVictim(), spellInfo, item), item.GetScriptId()))
-						CastSpell(damageInfo.GetVictim(), spellInfo.Id, item);
+					if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.GetScriptId()))
+						CastSpell(damageInfo.Victim, spellInfo.Id, item);
 				}
 
 		// item combat enchantments
@@ -2648,7 +2648,7 @@ public partial class Player
 				if (entry != null && entry.HitMask != 0)
 				{
 					// Check hit/crit/dodge/parry requirement
-					if ((entry.HitMask & (uint)damageInfo.GetHitMask()) == 0)
+					if ((entry.HitMask & (uint)damageInfo.HitMask) == 0)
 						continue;
 				}
 				else
@@ -2659,7 +2659,7 @@ public partial class Player
 				}
 
 				// check if enchant procs only on white hits
-				if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.WhiteHit) && damageInfo.GetSpellInfo() != null)
+				if (entry != null && entry.AttributesMask.HasAnyFlag(EnchantProcAttributes.WhiteHit) && damageInfo.SpellInfo != null)
 					continue;
 
 				var spellInfo = Global.SpellMgr.GetSpellInfo(pEnchant.EffectArg[s], Difficulty.None);
@@ -2698,12 +2698,12 @@ public partial class Player
 					if (spellInfo.IsPositive)
 						CastSpell(this, spellInfo.Id, item);
 					else
-						CastSpell(damageInfo.GetVictim(), spellInfo.Id, item);
+						CastSpell(damageInfo.Victim, spellInfo.Id, item);
 				}
 
 				if (RandomHelper.randChance(chance))
 				{
-					var target = spellInfo.IsPositive ? this : damageInfo.GetVictim();
+					var target = spellInfo.IsPositive ? this : damageInfo.Victim;
 
 					CastSpellExtraArgs args = new(item);
 

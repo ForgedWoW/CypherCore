@@ -34,7 +34,7 @@ public class spell_sha_cloudburst_effect : AuraScript, IHasAuraEffects
 		if (Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None) != null)
 		{
 			var l_SpellInfo = Global.SpellMgr.GetSpellInfo(TotemSpells.TOTEM_CLOUDBURST, Difficulty.None);
-			GetEffect((byte)p_AurEff.EffIndex).SetAmount(p_AurEff.Amount + (int)MathFunctions.CalculatePct(l_HealInfo.GetHeal(), l_SpellInfo.GetEffect(0).BasePoints));
+			GetEffect((byte)p_AurEff.EffIndex).SetAmount(p_AurEff.Amount + (int)MathFunctions.CalculatePct(l_HealInfo.Heal, l_SpellInfo.GetEffect(0).BasePoints));
 		}
 	}
 

@@ -26,10 +26,10 @@ public class spell_warr_blood_bath : AuraScript, IHasAuraEffects
 	{
 		PreventDefaultAction();
 
-		if (p_ProcInfo?.DamageInfo?.GetSpellInfo() == null)
+		if (p_ProcInfo?.DamageInfo?.SpellInfo == null)
 			return;
 
-		if (p_ProcInfo.DamageInfo.GetSpellInfo().Id == eSpells.BLOOD_BATH_DAMAGE)
+		if (p_ProcInfo.DamageInfo.SpellInfo.Id == eSpells.BLOOD_BATH_DAMAGE)
 			return;
 
 		var l_Target = p_ProcInfo.ActionTarget;
@@ -44,7 +44,7 @@ public class spell_warr_blood_bath : AuraScript, IHasAuraEffects
 		if (l_SpellInfo == null || l_SpellInfoDamage == null)
 			return;
 
-		var l_Damage = MathFunctions.CalculatePct(p_ProcInfo.DamageInfo.GetDamage(), aurEff.BaseAmount);
+		var l_Damage = MathFunctions.CalculatePct(p_ProcInfo.DamageInfo.Damage, aurEff.BaseAmount);
 
 		double l_PreviousTotalDamage = 0;
 

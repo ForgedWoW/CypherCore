@@ -37,7 +37,7 @@ public class spell_warlock_soul_effigy_aura : AuraScript, IHasAuraEffects
 		if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsPositive)
 			return;
 
-		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);
 
 		if (damage == 0)
 			return;

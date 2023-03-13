@@ -35,7 +35,7 @@ public class spell_pri_focused_will : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return false;
 
-		if (eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.OffAttack)
+		if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack || eventInfo.DamageInfo.AttackType == WeaponAttackType.OffAttack)
 		{
 			caster.CastSpell(caster, PriestSpells.FOCUSED_WILL_BUFF, true);
 

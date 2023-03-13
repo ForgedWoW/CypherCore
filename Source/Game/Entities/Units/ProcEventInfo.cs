@@ -41,10 +41,10 @@ public class ProcEventInfo
 				return _spell.SpellInfo;
 
 			if (_damageInfo != null)
-				return _damageInfo.GetSpellInfo();
+				return _damageInfo.SpellInfo;
 
 			if (_healInfo != null)
-				return _healInfo.GetSpellInfo();
+				return _healInfo.SpellInfo;
 
 			return null;
 		}
@@ -58,10 +58,10 @@ public class ProcEventInfo
 				return _spell.SpellInfo.GetSchoolMask();
 
 			if (_damageInfo != null)
-				return _damageInfo.GetSchoolMask();
+				return _damageInfo.SchoolMask;
 
 			if (_healInfo != null)
-				return _healInfo.GetSchoolMask();
+				return _healInfo.SchoolMask;
 
 			return SpellSchoolMask.None;
 		}

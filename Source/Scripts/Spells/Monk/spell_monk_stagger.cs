@@ -71,7 +71,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		// make sure Damage doesn't come from stagger Damage spell STAGGER_DAMAGE_AURA
-		var dmgSpellInfo = dmgInfo.GetSpellInfo();
+		var dmgSpellInfo = dmgInfo.SpellInfo;
 
 		if (dmgSpellInfo != null)
 			if (dmgSpellInfo.Id == MonkSpells.StaggerDamageAura)
@@ -91,7 +91,7 @@ internal class spell_monk_stagger : AuraScript, IHasAuraEffects
 		newAmount *= multiplier;
 
 		// Absorb X percentage of the Damage
-		var absorbAmount = dmgInfo.GetDamage() * newAmount;
+		var absorbAmount = dmgInfo.Damage * newAmount;
 
 		if (absorbAmount > 0)
 		{

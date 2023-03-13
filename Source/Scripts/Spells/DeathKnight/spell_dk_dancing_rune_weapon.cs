@@ -60,10 +60,10 @@ internal class spell_dk_dancing_rune_weapon : AuraScript, IHasAuraEffects
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return;
 
-		var amount = (int)damageInfo.GetDamage() / 2;
+		var amount = (int)damageInfo.Damage / 2;
 		SpellNonMeleeDamage log = new(drw, drw.Victim, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(drw), 0), spellInfo.GetSchoolMask());
 		log.Damage = (uint)amount;
 		Unit.DealDamage(drw, drw.Victim, (uint)amount, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);

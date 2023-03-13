@@ -17,7 +17,7 @@ public class spell_rog_shadow_techniques_AuraScript : AuraScript, IHasAuraEffect
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack)
+		if (eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack)
 			return true;
 
 		return false;

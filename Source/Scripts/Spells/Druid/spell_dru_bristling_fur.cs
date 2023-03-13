@@ -33,7 +33,7 @@ internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
 		if (damageInfo != null)
 		{
 			var target = Target;
-			var rage = (uint)(target.GetMaxPower(PowerType.Rage) * (double)damageInfo.GetDamage() / (double)target.MaxHealth);
+			var rage = (uint)(target.GetMaxPower(PowerType.Rage) * (double)damageInfo.Damage / (double)target.MaxHealth);
 
 			if (rage > 0)
 				target.CastSpell(target, DruidSpellIds.BristlingFurGainRage, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)rage));

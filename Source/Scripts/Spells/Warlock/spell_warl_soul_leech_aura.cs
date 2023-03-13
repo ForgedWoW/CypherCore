@@ -18,7 +18,7 @@ public class spell_warl_soul_leech_aura : AuraScript, IAuraCheckProc
             return false;
 
         var basePoints = SpellInfo.GetEffect(0).BasePoints;
-        var absorb = ((eventInfo.DamageInfo != null ? eventInfo.DamageInfo.GetDamage() : 0) * basePoints) / 100.0f;
+        var absorb = ((eventInfo.DamageInfo != null ? eventInfo.DamageInfo.Damage : 0) * basePoints) / 100.0f;
 
         // Add remaining amount if already applied
         if (caster.TryGetAura(WarlockSpells.SOUL_LEECH_ABSORB, out var aur) && aur.TryGetEffect(0, out var auraEffect))

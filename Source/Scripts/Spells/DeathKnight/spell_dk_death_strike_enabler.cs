@@ -47,6 +47,6 @@ internal class spell_dk_death_strike_enabler : AuraScript, IAuraCheckProc, IHasA
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		_damagePerSecond[0] += eventInfo.DamageInfo.GetDamage();
+		_damagePerSecond[0] += eventInfo.DamageInfo.Damage;
 	}
 }

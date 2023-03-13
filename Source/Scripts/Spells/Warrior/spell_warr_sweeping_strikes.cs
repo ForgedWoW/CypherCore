@@ -42,7 +42,7 @@ internal class spell_warr_sweeping_strikes : AuraScript, IAuraCheckProc, IHasAur
 
 		if (damageInfo != null)
 		{
-			var spellInfo = damageInfo.GetSpellInfo();
+			var spellInfo = damageInfo.SpellInfo;
 
 			if (spellInfo != null &&
 				(spellInfo.Id == WarriorSpells.BLADESTORM_PERIODIC_WHIRLWIND || (spellInfo.Id == WarriorSpells.EXECUTE && !_procTarget.HasAuraState(AuraStateType.Wounded20Percent))))
@@ -53,7 +53,7 @@ internal class spell_warr_sweeping_strikes : AuraScript, IAuraCheckProc, IHasAur
 			else
 			{
 				CastSpellExtraArgs args = new(aurEff);
-				args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.GetDamage());
+				args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.Damage);
 				Target.CastSpell(_procTarget, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_1, args);
 			}
 		}

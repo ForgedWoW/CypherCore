@@ -47,7 +47,7 @@ public class spell_pal_shield_of_vengeance : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return absorbAmount;
 
-		currentAbsorb += (int)damageInfo.GetDamage();
+		currentAbsorb += (int)damageInfo.Damage;
 
 		return absorbAmount;
 	}

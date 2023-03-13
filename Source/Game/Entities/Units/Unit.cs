@@ -3049,7 +3049,7 @@ public partial class Unit : WorldObject
 					if (aurApp == null)
 						continue;
 
-					if ((absorbAurEff.MiscValue & (int)damageInfo.GetSchoolMask()) == 0)
+					if ((absorbAurEff.MiscValue & (int)damageInfo.SchoolMask) == 0)
 						continue;
 
 					// cannot absorb over limit
@@ -3073,7 +3073,7 @@ public partial class Unit : WorldObject
 					currentAbsorb = tempAbsorb;
 
 					// absorb must be smaller than the damage itself
-					currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
+					currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.Damage);
 					damageInfo.AbsorbDamage(currentAbsorb);
 
 					if (deathFullyPrevented)
@@ -3090,13 +3090,13 @@ public partial class Unit : WorldObject
 						absorbLog.AbsorbedSpellID = spellProto != null ? spellProto.Id : 0;
 						absorbLog.AbsorbSpellID = baseAura.Id;
 						absorbLog.Absorbed = (int)currentAbsorb;
-						absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
+						absorbLog.OriginalDamage = (uint)damageInfo.OriginalDamage;
 						absorbLog.LogData.Initialize(victim);
 						victim.SendCombatLogMessage(absorbLog);
 					}
 				}
 
-				damageTaken = damageInfo.GetDamage();
+				damageTaken = damageInfo.Damage;
 			}
 		}
 
@@ -3231,7 +3231,7 @@ public partial class Unit : WorldObject
 		if (victim.StandState != 0 && victim.IsPlayer)
 			victim.SetStandState(UnitStandStateType.Stand);
 
-		if (player != null && player.GetPrimarySpecialization() == TalentSpecialization.DruidBear)
+		if (player != null)
 			victim.SaveDamageHistory(damageDone);
 
 		return damageDone;
@@ -3572,22 +3572,22 @@ public partial class Unit : WorldObject
 
 	public static void CalcAbsorbResist(DamageInfo damageInfo, Spell spell = null)
 	{
-		if (!damageInfo.GetVictim() || !damageInfo.GetVictim().IsAlive || damageInfo.GetDamage() == 0)
+		if (!damageInfo.Victim || !damageInfo.Victim.IsAlive || damageInfo.Damage == 0)
 			return;
 
-		var resistedDamage = CalcSpellResistedDamage(damageInfo.GetAttacker(), damageInfo.GetVictim(), damageInfo.GetDamage(), damageInfo.GetSchoolMask(), damageInfo.GetSpellInfo());
+		var resistedDamage = CalcSpellResistedDamage(damageInfo.Attacker, damageInfo.Victim, damageInfo.Damage, damageInfo.SchoolMask, damageInfo.SpellInfo);
 
 		// Ignore Absorption Auras
 		double auraAbsorbMod = 0f;
 
-		var attacker = damageInfo.GetAttacker();
+		var attacker = damageInfo.Attacker;
 
 		if (attacker != null)
-			auraAbsorbMod = attacker.GetMaxPositiveAuraModifierByMiscMask(AuraType.ModTargetAbsorbSchool, (uint)damageInfo.GetSchoolMask());
+			auraAbsorbMod = attacker.GetMaxPositiveAuraModifierByMiscMask(AuraType.ModTargetAbsorbSchool, (uint)damageInfo.SchoolMask);
 
 		MathFunctions.RoundToInterval(ref auraAbsorbMod, 0.0f, 100.0f);
 
-		var absorbIgnoringDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), auraAbsorbMod);
+		var absorbIgnoringDamage = MathFunctions.CalculatePct(damageInfo.Damage, auraAbsorbMod);
 
 		if (spell != null)
 			spell.CallScriptOnResistAbsorbCalculateHandlers(damageInfo, ref resistedDamage, ref absorbIgnoringDamage);
@@ -3596,21 +3596,21 @@ public partial class Unit : WorldObject
 
 		// We're going to call functions which can modify content of the list during iteration over it's elements
 		// Let's copy the list so we can prevent iterator invalidation
-		var vSchoolAbsorbCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.SchoolAbsorb);
+		var vSchoolAbsorbCopy = damageInfo.Victim.GetAuraEffectsByType(AuraType.SchoolAbsorb);
 		vSchoolAbsorbCopy.Sort(new AbsorbAuraOrderPred());
 
 		// absorb without mana cost
-		for (var i = 0; i < vSchoolAbsorbCopy.Count && (damageInfo.GetDamage() > 0); ++i)
+		for (var i = 0; i < vSchoolAbsorbCopy.Count && (damageInfo.Damage > 0); ++i)
 		{
 			var absorbAurEff = vSchoolAbsorbCopy[i];
 
 			// Check if aura was removed during iteration - we don't need to work on such auras
-			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(damageInfo.GetVictim().GUID);
+			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(damageInfo.Victim.GUID);
 
 			if (aurApp == null)
 				continue;
 
-			if ((absorbAurEff.MiscValue & (int)damageInfo.GetSchoolMask()) == 0)
+			if ((absorbAurEff.MiscValue & (int)damageInfo.SchoolMask) == 0)
 				continue;
 
 			// get amount which can be still absorbed by the aura
@@ -3633,7 +3633,7 @@ public partial class Unit : WorldObject
 			if (!defaultPrevented)
 			{
 				// absorb must be smaller than the damage itself
-				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
+				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.Damage);
 
 				damageInfo.AbsorbDamage(currentAbsorb);
 
@@ -3658,34 +3658,34 @@ public partial class Unit : WorldObject
 			if (currentAbsorb != 0)
 			{
 				SpellAbsorbLog absorbLog = new();
-				absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GUID : ObjectGuid.Empty;
-				absorbLog.Victim = damageInfo.GetVictim().GUID;
+				absorbLog.Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty;
+				absorbLog.Victim = damageInfo.Victim.GUID;
 				absorbLog.Caster = absorbAurEff.Base.CasterGuid;
-				absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
+				absorbLog.AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0;
 				absorbLog.AbsorbSpellID = absorbAurEff.Id;
 				absorbLog.Absorbed = (int)currentAbsorb;
-				absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
-				absorbLog.LogData.Initialize(damageInfo.GetVictim());
-				damageInfo.GetVictim().SendCombatLogMessage(absorbLog);
+				absorbLog.OriginalDamage = (uint)damageInfo.OriginalDamage;
+				absorbLog.LogData.Initialize(damageInfo.Victim);
+				damageInfo.Victim.SendCombatLogMessage(absorbLog);
 			}
 		}
 
 		// absorb by mana cost
-		var vManaShieldCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.ManaShield);
+		var vManaShieldCopy = damageInfo.Victim.GetAuraEffectsByType(AuraType.ManaShield);
 
 		foreach (var absorbAurEff in vManaShieldCopy)
 		{
-			if (damageInfo.GetDamage() == 0)
+			if (damageInfo.Damage == 0)
 				break;
 
 			// Check if aura was removed during iteration - we don't need to work on such auras
-			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(damageInfo.GetVictim().GUID);
+			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(damageInfo.Victim.GUID);
 
 			if (aurApp == null)
 				continue;
 
 			// check damage school mask
-			if (!Convert.ToBoolean(absorbAurEff.MiscValue & (int)damageInfo.GetSchoolMask()))
+			if (!Convert.ToBoolean(absorbAurEff.MiscValue & (int)damageInfo.SchoolMask))
 				continue;
 
 			// get amount which can be still absorbed by the aura
@@ -3708,7 +3708,7 @@ public partial class Unit : WorldObject
 			if (!defaultPrevented)
 			{
 				// absorb must be smaller than the damage itself
-				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.GetDamage());
+				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, damageInfo.Damage);
 
 				var manaReduction = currentAbsorb;
 
@@ -3718,7 +3718,7 @@ public partial class Unit : WorldObject
 				if (manaMultiplier != 0)
 					manaReduction = (int)(manaReduction * manaMultiplier);
 
-				var manaTaken = -damageInfo.GetVictim().ModifyPower(PowerType.Mana, -manaReduction);
+				var manaTaken = -damageInfo.Victim.ModifyPower(PowerType.Mana, -manaReduction);
 
 				// take case when mana has ended up into account
 				currentAbsorb = currentAbsorb != 0 ? (currentAbsorb * (manaTaken / manaReduction)) : 0;
@@ -3744,69 +3744,69 @@ public partial class Unit : WorldObject
 			if (currentAbsorb != 0)
 			{
 				SpellAbsorbLog absorbLog = new();
-				absorbLog.Attacker = damageInfo.GetAttacker() != null ? damageInfo.GetAttacker().GUID : ObjectGuid.Empty;
-				absorbLog.Victim = damageInfo.GetVictim().GUID;
+				absorbLog.Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty;
+				absorbLog.Victim = damageInfo.Victim.GUID;
 				absorbLog.Caster = absorbAurEff.Base.CasterGuid;
-				absorbLog.AbsorbedSpellID = damageInfo.GetSpellInfo() != null ? damageInfo.GetSpellInfo().Id : 0;
+				absorbLog.AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0;
 				absorbLog.AbsorbSpellID = absorbAurEff.Id;
 				absorbLog.Absorbed = (int)currentAbsorb;
-				absorbLog.OriginalDamage = (uint)damageInfo.GetOriginalDamage();
-				absorbLog.LogData.Initialize(damageInfo.GetVictim());
-				damageInfo.GetVictim().SendCombatLogMessage(absorbLog);
+				absorbLog.OriginalDamage = (uint)damageInfo.OriginalDamage;
+				absorbLog.LogData.Initialize(damageInfo.Victim);
+				damageInfo.Victim.SendCombatLogMessage(absorbLog);
 			}
 		}
 
 		// split damage auras - only when not damaging self
-		if (damageInfo.GetVictim() != damageInfo.GetAttacker())
+		if (damageInfo.Victim != damageInfo.Attacker)
 		{
 			// We're going to call functions which can modify content of the list during iteration over it's elements
 			// Let's copy the list so we can prevent iterator invalidation
-			var vSplitDamagePctCopy = damageInfo.GetVictim().GetAuraEffectsByType(AuraType.SplitDamagePct);
+			var vSplitDamagePctCopy = damageInfo.Victim.GetAuraEffectsByType(AuraType.SplitDamagePct);
 
 			foreach (var itr in vSplitDamagePctCopy)
 			{
-				if (damageInfo.GetDamage() == 0)
+				if (damageInfo.Damage == 0)
 					break;
 
 				// Check if aura was removed during iteration - we don't need to work on such auras
-				var aurApp = itr.Base.GetApplicationOfTarget(damageInfo.GetVictim().GUID);
+				var aurApp = itr.Base.GetApplicationOfTarget(damageInfo.Victim.GUID);
 
 				if (aurApp == null)
 					continue;
 
 				// check damage school mask
-				if (!Convert.ToBoolean(itr.MiscValue & (int)damageInfo.GetSchoolMask()))
+				if (!Convert.ToBoolean(itr.MiscValue & (int)damageInfo.SchoolMask))
 					continue;
 
 				// Damage can be splitted only if aura has an alive caster
 				var caster = itr.Caster;
 
-				if (!caster || (caster == damageInfo.GetVictim()) || !caster.IsInWorld || !caster.IsAlive)
+				if (!caster || (caster == damageInfo.Victim) || !caster.IsInWorld || !caster.IsAlive)
 					continue;
 
-				var splitDamage = MathFunctions.CalculatePct(damageInfo.GetDamage(), itr.Amount);
+				var splitDamage = MathFunctions.CalculatePct(damageInfo.Damage, itr.Amount);
 
 				itr.Base.CallScriptEffectSplitHandlers(itr, aurApp, damageInfo, ref splitDamage);
 
 				// absorb must be smaller than the damage itself
-				splitDamage = MathFunctions.RoundToInterval(ref splitDamage, 0, damageInfo.GetDamage());
+				splitDamage = MathFunctions.RoundToInterval(ref splitDamage, 0, damageInfo.Damage);
 
 				damageInfo.AbsorbDamage(splitDamage);
 
 				// check if caster is immune to damage
-				if (caster.IsImmunedToDamage(damageInfo.GetSchoolMask()))
+				if (caster.IsImmunedToDamage(damageInfo.SchoolMask))
 				{
-					damageInfo.GetVictim().SendSpellMiss(caster, itr.SpellInfo.Id, SpellMissInfo.Immune);
+					damageInfo.Victim.SendSpellMiss(caster, itr.SpellInfo.Id, SpellMissInfo.Immune);
 
 					continue;
 				}
 
 				double split_absorb = 0;
-				DealDamageMods(damageInfo.GetAttacker(), caster, ref splitDamage, ref split_absorb);
+				DealDamageMods(damageInfo.Attacker, caster, ref splitDamage, ref split_absorb);
 
-				SpellNonMeleeDamage log = new(damageInfo.GetAttacker(), caster, itr.SpellInfo, itr.Base.SpellVisual, damageInfo.GetSchoolMask(), itr.Base.CastId);
+				SpellNonMeleeDamage log = new(damageInfo.Attacker, caster, itr.SpellInfo, itr.Base.SpellVisual, damageInfo.SchoolMask, itr.Base.CastId);
 				CleanDamage cleanDamage = new(splitDamage, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
-				splitDamage = DealDamage(damageInfo.GetAttacker(), caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.GetSchoolMask(), itr.SpellInfo, false);
+				splitDamage = DealDamage(damageInfo.Attacker, caster, splitDamage, cleanDamage, DamageEffectType.Direct, damageInfo.SchoolMask, itr.SpellInfo, false);
 				log.Damage = splitDamage;
 				log.OriginalDamage = splitDamage;
 				log.Absorb = split_absorb;
@@ -3815,32 +3815,32 @@ public partial class Unit : WorldObject
 				caster.SendSpellNonMeleeDamageLog(log);
 
 				// break 'Fear' and similar auras
-				ProcSkillsAndAuras(damageInfo.GetAttacker(), caster, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.TakeHarmfulSpell), ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, damageInfo, null);
+				ProcSkillsAndAuras(damageInfo.Attacker, caster, new ProcFlagsInit(ProcFlags.None), new ProcFlagsInit(ProcFlags.TakeHarmfulSpell), ProcFlagsSpellType.Damage, ProcFlagsSpellPhase.Hit, ProcFlagsHit.None, null, damageInfo, null);
 			}
 		}
 	}
 
 	public static void CalcHealAbsorb(HealInfo healInfo)
 	{
-		if (healInfo.GetHeal() == 0)
+		if (healInfo.Heal == 0)
 			return;
 
 		// Need remove expired auras after
 		var existExpired = false;
 
 		// absorb without mana cost
-		var vHealAbsorb = healInfo.GetTarget().GetAuraEffectsByType(AuraType.SchoolHealAbsorb);
+		var vHealAbsorb = healInfo.Target.GetAuraEffectsByType(AuraType.SchoolHealAbsorb);
 
-		for (var i = 0; i < vHealAbsorb.Count && healInfo.GetHeal() > 0; ++i)
+		for (var i = 0; i < vHealAbsorb.Count && healInfo.Heal > 0; ++i)
 		{
 			var absorbAurEff = vHealAbsorb[i];
 			// Check if aura was removed during iteration - we don't need to work on such auras
-			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(healInfo.GetTarget().GUID);
+			var aurApp = absorbAurEff.Base.GetApplicationOfTarget(healInfo.Target.GUID);
 
 			if (aurApp == null)
 				continue;
 
-			if ((absorbAurEff.MiscValue & (int)healInfo.GetSchoolMask()) == 0)
+			if ((absorbAurEff.MiscValue & (int)healInfo.SchoolMask) == 0)
 				continue;
 
 			// get amount which can be still absorbed by the aura
@@ -3860,7 +3860,7 @@ public partial class Unit : WorldObject
 			if (!defaultPrevented)
 			{
 				// absorb must be smaller than the heal itself
-				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, healInfo.GetHeal());
+				currentAbsorb = MathFunctions.RoundToInterval(ref currentAbsorb, 0, healInfo.Heal);
 
 				healInfo.AbsorbHeal((uint)currentAbsorb);
 
@@ -3882,14 +3882,14 @@ public partial class Unit : WorldObject
 			if (currentAbsorb != 0)
 			{
 				SpellHealAbsorbLog absorbLog = new();
-				absorbLog.Healer = healInfo.GetHealer() ? healInfo.GetHealer().GUID : ObjectGuid.Empty;
-				absorbLog.Target = healInfo.GetTarget().GUID;
+				absorbLog.Healer = healInfo.Healer ? healInfo.Healer.GUID : ObjectGuid.Empty;
+				absorbLog.Target = healInfo.Target.GUID;
 				absorbLog.AbsorbCaster = absorbAurEff.Base.CasterGuid;
-				absorbLog.AbsorbedSpellID = (int)(healInfo.GetSpellInfo() != null ? healInfo.GetSpellInfo().Id : 0);
+				absorbLog.AbsorbedSpellID = (int)(healInfo.SpellInfo != null ? healInfo.SpellInfo.Id : 0);
 				absorbLog.AbsorbSpellID = (int)absorbAurEff.Id;
 				absorbLog.Absorbed = (int)currentAbsorb;
-				absorbLog.OriginalHeal = (int)healInfo.GetOriginalHeal();
-				healInfo.GetTarget().SendMessageToSet(absorbLog, true);
+				absorbLog.OriginalHeal = (int)healInfo.OriginalHeal;
+				healInfo.Target.SendMessageToSet(absorbLog, true);
 			}
 		}
 
@@ -3902,10 +3902,10 @@ public partial class Unit : WorldObject
 
 				if (auraEff.Amount <= 0)
 				{
-					var removedAuras = healInfo.GetTarget()._removedAurasCount;
+					var removedAuras = healInfo.Target._removedAurasCount;
 					auraEff.Base.Remove(AuraRemoveMode.EnemySpell);
 
-					if (removedAuras + 1 < healInfo.GetTarget()._removedAurasCount)
+					if (removedAuras + 1 < healInfo.Target._removedAurasCount)
 						i = 0;
 				}
 			}
@@ -4205,9 +4205,18 @@ public partial class Unit : WorldObject
 		var maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION;
 
 		// Remove damages older than maxPastTime, can be increased if required
-		DamageTakenHistory.RemoveAllMatchingKeys(k => k < maxPastTime);
+		foreach (var kvp in DamageTakenHistory)
+		{
+			if (kvp.Key < maxPastTime)
+				DamageTakenHistory.QueueRemove(kvp.Key);
+			else
+				break;
+        }
 
-		DamageTakenHistory[currentTime] += damage;
+		DamageTakenHistory.ExecuteRemove();
+
+		DamageTakenHistory.TryGetValue(currentTime, out var existing);
+		DamageTakenHistory[currentTime] = existing + damage;
 	}
 
 	public double GetDamageOverLastSeconds(uint seconds)
@@ -4219,6 +4228,8 @@ public partial class Unit : WorldObject
 		foreach (var itr in DamageTakenHistory)
 			if (itr.Key >= maxPastTime)
 				damageOverLastSeconds += itr.Value;
+			else
+				break;
 
 		return damageOverLastSeconds;
 	}
@@ -4754,7 +4765,7 @@ public partial class Unit : WorldObject
 
 				DamageInfo damageInfo1 = new(this, victim, damage, spellInfo, spellInfo.GetSchoolMask(), DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
 				CalcAbsorbResist(damageInfo1);
-				damage = damageInfo1.GetDamage();
+				damage = damageInfo1.Damage;
 
 				DealDamageMods(victim, this, ref damage);
 
@@ -4766,7 +4777,7 @@ public partial class Unit : WorldObject
 				damageShield.OriginalDamage = (int)damageInfo.OriginalDamage;
 				damageShield.OverKill = (uint)Math.Max(damage - Health, 0);
 				damageShield.SchoolMask = (uint)spellInfo.SchoolMask;
-				damageShield.LogAbsorbed = (uint)damageInfo1.GetAbsorb();
+				damageShield.LogAbsorbed = (uint)damageInfo1.Absorb;
 
 				DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
 				damageShield.LogData.Initialize(this);

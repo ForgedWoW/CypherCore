@@ -24,7 +24,7 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		// Not proc from Mind Sear
-		return !eventInfo.DamageInfo.GetSpellInfo().SpellFamilyFlags[1].HasAnyFlag(0x80000u);
+		return !eventInfo.DamageInfo.SpellInfo.SpellFamilyFlags[1].HasAnyFlag(0x80000u);
 	}
 
 	public override void Register()
@@ -38,10 +38,10 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return;
 
-		var selfHeal = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
+		var selfHeal = (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount);
 		var teamHeal = selfHeal / 2;
 
 		CastSpellExtraArgs args = new(aurEff);

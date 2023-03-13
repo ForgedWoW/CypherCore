@@ -21,7 +21,7 @@ public class spell_warr_defensive_stance : AuraScript, IAuraOnProc
 		if (caster == null)
 			return;
 
-		_damageTaken = eventInfo.DamageInfo != null ? eventInfo.DamageInfo.GetDamage() : 0;
+		_damageTaken = eventInfo.DamageInfo != null ? eventInfo.DamageInfo.Damage : 0;
 
 		if (_damageTaken <= 0)
 			return;

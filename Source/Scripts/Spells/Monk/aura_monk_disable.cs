@@ -16,7 +16,7 @@ public class aura_monk_disable : AuraScript, IAuraCheckProc
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo != null)
-			if ((damageInfo.GetAttackType() == WeaponAttackType.BaseAttack || damageInfo.GetAttackType() == WeaponAttackType.OffAttack) && damageInfo.GetAttacker() == Caster)
+			if ((damageInfo.AttackType == WeaponAttackType.BaseAttack || damageInfo.AttackType == WeaponAttackType.OffAttack) && damageInfo.Attacker == Caster)
 			{
 				Aura.RefreshDuration();
 

@@ -35,7 +35,7 @@ public class spell_dh_desperate_instincts : AuraScript, IHasAuraEffects
 		var currentHealth = caster.Health;
 
 		// Just falling below threshold
-		if (currentHealth > triggerOnHealth && (currentHealth - eventInfo.DamageInfo.GetDamage()) <= triggerOnHealth)
+		if (currentHealth > triggerOnHealth && (currentHealth - eventInfo.DamageInfo.Damage) <= triggerOnHealth)
 			caster.CastSpell(caster, DemonHunterSpells.BLUR_BUFF, false);
 	}
 }

@@ -18,7 +18,7 @@ public class spell_dk_coil_of_devastation : AuraScript, IAuraCheckProc, IHasAura
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		if (eventInfo.DamageInfo != null)
-			return eventInfo.DamageInfo.GetSpellInfo().Id == DeathKnightSpells.DEATH_COIL_DAMAGE;
+			return eventInfo.DamageInfo.SpellInfo.Id == DeathKnightSpells.DEATH_COIL_DAMAGE;
 
 		return false;
 	}
@@ -34,7 +34,7 @@ public class spell_dk_coil_of_devastation : AuraScript, IAuraCheckProc, IHasAura
 		PreventDefaultAction();
 		var devDot = Global.SpellMgr.GetSpellInfo(DeathKnightSpells.DEATH_COIL_DEVASTATION_DOT);
 		var pct = aurEff.Amount;
-		var amount = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), pct) / devDot.MaxTicks);
+		var amount = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, pct) / devDot.MaxTicks);
 
 		var args = new CastSpellExtraArgs(aurEff);
 		args.SpellValueOverrides[SpellValueMod.BasePoint0] = amount;

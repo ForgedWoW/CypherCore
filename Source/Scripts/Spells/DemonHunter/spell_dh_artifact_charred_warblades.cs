@@ -27,10 +27,10 @@ public class spell_dh_artifact_charred_warblades : AuraScript, IHasAuraEffects
 		if (caster == null || eventInfo.DamageInfo != null)
 			return;
 
-		if (eventInfo.DamageInfo != null || (eventInfo.DamageInfo.GetSchoolMask() & SpellSchoolMask.Fire) == 0)
+		if (eventInfo.DamageInfo != null || (eventInfo.DamageInfo.SchoolMask & SpellSchoolMask.Fire) == 0)
 			return;
 
-		var heal = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+		var heal = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);
 		caster.CastSpell(caster, ShatteredSoulsSpells.CHARRED_WARBLADES_HEAL, (int)heal);
 	}
 }

@@ -37,6 +37,6 @@ internal class spell_warl_chaotic_energies : AuraScript, IHasAuraEffects
 		// plus a random amount of up to ${$s2/3}% additional reduced Damage
 		damageReductionPct += RandomHelper.FRand(0.0f, damageReductionPct);
 
-		return MathFunctions.CalculatePct(dmgInfo.GetDamage(), damageReductionPct);
+		return MathFunctions.CalculatePct(dmgInfo.Damage, damageReductionPct);
 	}
 }

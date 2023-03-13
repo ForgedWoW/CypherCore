@@ -12,7 +12,7 @@ public class spell_rog_dirty_tricks_AuraScript : AuraScript
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		var spellInfo = eventInfo.DamageInfo.GetSpellInfo();
+		var spellInfo = eventInfo.DamageInfo.SpellInfo;
 
 		if (spellInfo == null)
 			return true;
