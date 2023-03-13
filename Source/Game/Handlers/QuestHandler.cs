@@ -791,7 +791,7 @@ namespace Game
 
         }
 
-        [WorldPacketHandler(ClientOpcodes.UiMapQuestLinesRequest)]
+        [WorldPacketHandler(ClientOpcodes.UiMapQuestLinesRequest, Processing = PacketProcessing.Inplace)]
         void HandleUiMapQuestLinesRequest(UiMapQuestLinesRequest request)
         {
             var response = new UiMapQuestLinesResponse();
