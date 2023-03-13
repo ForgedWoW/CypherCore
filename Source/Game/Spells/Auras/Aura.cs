@@ -440,10 +440,9 @@ public class Aura
 		{
 			var aurApp = GetApplicationOfTarget(pair.Key.GUID);
 
-			if (aurApp != null)
+			if (aurApp != null && ((!_owner.IsInWorld && _owner == pair.Key) || _owner.IsInMap(pair.Key)))
 			{
 				// owner has to be in world, or effect has to be applied to self
-				Cypher.Assert((!_owner.IsInWorld && _owner == pair.Key) || _owner.IsInMap(pair.Key));
 				pair.Key._ApplyAura(aurApp, pair.Value);
 			}
 		}

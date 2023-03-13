@@ -3997,7 +3997,7 @@ public partial class Player : Unit
 			return null;
 
 		// only SUMMON_PET are handled here
-		z = UpdateAllowedPositionZ(x, y, z);
+		z = UpdateAllowedPositionZ(x, y, z) + 2;
         pet.Location.Relocate(x, y, z, ang);
 
 		if (!pet.Location.IsPositionValid)

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
+using Game.DataStorage.Structs.Q;
 
 namespace Game.DataStorage;
 
@@ -76,7 +77,7 @@ public class DB2Manager : Singleton<DB2Manager>
 	readonly Dictionary<uint, byte> _pvpItemBonus = new();
 	readonly PvpTalentSlotUnlockRecord[] _pvpTalentSlotUnlock = new PvpTalentSlotUnlockRecord[PlayerConst.MaxPvpTalentSlots];
 	readonly MultiMap<uint, QuestLineXQuestRecord> _questsByQuestLine = new();
-	readonly Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
+    readonly Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
 	readonly MultiMap<uint, RewardPackXCurrencyTypeRecord> _rewardPackCurrencyTypes = new();
 	readonly MultiMap<uint, RewardPackXItemRecord> _rewardPackItems = new();
 	readonly MultiMap<uint, SkillLineRecord> _skillLinesByParentSkillLine = new();
@@ -102,8 +103,10 @@ public class DB2Manager : Singleton<DB2Manager>
 	readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
 	List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
 	internal Dictionary<uint, IDB2Storage> Storage => _storage;
+	public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
+    public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
 
-	DB2Manager()
+    DB2Manager()
 	{
 		for (uint i = 0; i < (int)Class.Max; ++i)
 		{
@@ -547,8 +550,14 @@ public class DB2Manager : Singleton<DB2Manager>
 				}
 		}
 
+		foreach (var poiBlob in QuestPOIBlobStorage)
+			QuestPOIBlobEntriesByMapId.Add(poiBlob.Value.UiMapID, poiBlob.Value);
+
 		foreach (var questLineQuest in QuestLineXQuestStorage.Values)
+		{
 			_questsByQuestLine.Add(questLineQuest.QuestLineID, questLineQuest);
+            QuestLinesByQuest.Add(questLineQuest.QuestID, questLineQuest);
+        }
 
 		foreach (var questPackageItem in QuestPackageItemStorage.Values)
 		{
@@ -2020,7 +2029,12 @@ public class DB2Manager : Singleton<DB2Manager>
 		return _questsByQuestLine.LookupByKey(questLineId);
 	}
 
-	public List<QuestPackageItemRecord> GetQuestPackageItems(uint questPackageID)
+    public bool TryGetQuestsForQuestLine(uint questLineId, out List<QuestLineXQuestRecord> questLineXQuestRecords)
+    {
+        return _questsByQuestLine.TryGetValue(questLineId, out questLineXQuestRecords);
+    }
+
+    public List<QuestPackageItemRecord> GetQuestPackageItems(uint questPackageID)
 	{
 		if (_questPackages.ContainsKey(questPackageID))
 			return _questPackages[questPackageID].Item1;

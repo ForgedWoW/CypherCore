@@ -8851,6 +8851,12 @@ namespace Game
         {
             return _questTemplates.LookupByKey(questId);
         }
+
+        public bool TryGetQuestTemplate(uint questId, out Quest quest)
+        {
+            return _questTemplates.TryGetValue(questId, out quest);
+        }
+
         public Dictionary<uint, Quest> GetQuestTemplates()
         {
             return _questTemplates;

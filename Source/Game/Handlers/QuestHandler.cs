@@ -9,6 +9,7 @@ using Game.Entities;
 using Game.Groups;
 using Game.Networking;
 using Game.Networking.Packets;
+using Game.Networking.Packets.Quest;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IQuest;
 
@@ -780,8 +781,41 @@ namespace Game
                     _player.ModifyCurrency(currency.Id, currency.Quantity);
 
                 foreach (PlayerChoiceResponseRewardEntry faction in reward.Faction)
-                    _player.                    ReputationMgr.ModifyReputation(CliDB.FactionStorage.LookupByKey(faction.Id), faction.Quantity);
+                    _player.ReputationMgr.ModifyReputation(CliDB.FactionStorage.LookupByKey(faction.Id), faction.Quantity);
             }
+        }
+
+        [WorldPacketHandler(ClientOpcodes.QueryQuestItemUsability)]
+        void HandleQueryQuestItemUsability(QueryQuestItemUsability request)
+        {
+
+        }
+
+        [WorldPacketHandler(ClientOpcodes.UiMapQuestLinesRequest)]
+        void HandleUiMapQuestLinesRequest(UiMapQuestLinesRequest request)
+        {
+            var response = new UiMapQuestLinesResponse();
+            response.UiMapID = request.UiMapID;
+
+           if (DB2Manager.Instance.QuestPOIBlobEntriesByMapId.TryGetValue(request.UiMapID, out var questPOIBlobEntries))
+                foreach (var questPOIBlob in questPOIBlobEntries)
+                    if (Player.MeetPlayerCondition(questPOIBlob.PlayerConditionID) && DB2Manager.Instance.QuestLinesByQuest.TryGetValue((uint)questPOIBlob.QuestID, out var lineXQuestRecords))
+                        foreach (var lineXRecord in lineXQuestRecords)
+                            if (DB2Manager.Instance.TryGetQuestsForQuestLine(lineXRecord.QuestID, out var questLineQuests))
+                                foreach (var questLineQuest in questLineQuests)
+                                    if (Global.ObjectMgr.TryGetQuestTemplate(questLineQuest.QuestID, out var quest) && 
+                                        Player.CanTakeQuest(quest, false) && 
+                                        CliDB.ContentTuningStorage.TryGetValue(quest.ContentTuningId, out var contentTune) &&
+                                        Player.Level >= contentTune.MinLevel)
+                                    {
+                                        response.QuestLineXQuestIDs.Add(questLineQuest.QuestID); 
+                                        break;
+                                    }
+
+
+
+                            
+           SendPacket(response);
         }
     }
 }

@@ -1289,8 +1289,14 @@ public class HotfixDatabase : MySqlBase<HotfixStatements>
 		PrepareStatement(HotfixStatements.SEL_QUEST_INFO, "SELECT ID, InfoName, Type, Modifiers, Profession FROM quest_info WHERE (`VerifiedBuild` > 0) = ?");
 		PrepareStatement(HotfixStatements.SEL_QUEST_INFO_LOCALE, "SELECT ID, InfoName_lang FROM quest_info_locale WHERE (`VerifiedBuild` > 0) = ? AND locale = ?");
 
-		// QuestLineXQuest.db2
-		PrepareStatement(HotfixStatements.SEL_QUEST_LINE_X_QUEST,
+        // QuestPOIBlob.db2
+        PrepareStatement(HotfixStatements.SEL_QUEST_P_O_I_BLOB, "SELECT ID, MapID, UiMapID, NumPoints, QuestID, ObjectiveIndex, ObjectiveID, PlayerConditionID, UNK_9_0_1 FROM quest_p_o_i_blob WHERE (`VerifiedBuild` > 0) = ?");
+
+        // QuestPOIPoint.db2
+        PrepareStatement(HotfixStatements.SEL_QUEST_P_O_I_POINT, "SELECT ID, X, Y, Z, QuestPOIBlobID FROM quest_p_o_i_point WHERE (`VerifiedBuild` > 0) = ?");
+
+        // QuestLineXQuest.db2
+        PrepareStatement(HotfixStatements.SEL_QUEST_LINE_X_QUEST,
 						"SELECT ID, QuestLineID, QuestID, OrderIndex, Flags FROM quest_line_x_quest" +
 						" WHERE (`VerifiedBuild` > 0) = ?");
 

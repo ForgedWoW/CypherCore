@@ -23,7 +23,7 @@ public class spell_sha_undulation : SpellScript, ISpellOnHit
 		if (count >= 3)
 		{
 			variableStore.Remove("spell_sha_undulation");
-			Caster.CastSpell(null, ShamanSpells.UNDULATION_PROC, true);
+			Caster.CastSpell(ShamanSpells.UNDULATION_PROC, true);
 		}
 		else
 		{

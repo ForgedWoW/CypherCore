@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks.Dataflow;
 using Framework.Constants;
 using Framework.Database;
+using Game.DataStorage.Structs.Q;
 
 namespace Game.DataStorage;
 
@@ -259,7 +260,9 @@ public class CliDB
 		_taskManager.Post(() => PvpTierStorage = ReadDB2<PvpTierRecord>("PvpTier.db2", HotfixStatements.SEL_PVP_TIER, HotfixStatements.SEL_PVP_TIER_LOCALE));
 		_taskManager.Post(() => QuestFactionRewardStorage = ReadDB2<QuestFactionRewardRecord>("QuestFactionReward.db2", HotfixStatements.SEL_QUEST_FACTION_REWARD));
 		_taskManager.Post(() => QuestInfoStorage = ReadDB2<QuestInfoRecord>("QuestInfo.db2", HotfixStatements.SEL_QUEST_INFO, HotfixStatements.SEL_QUEST_INFO_LOCALE));
-		_taskManager.Post(() => QuestLineXQuestStorage = ReadDB2<QuestLineXQuestRecord>("QuestLineXQuest.db2", HotfixStatements.SEL_QUEST_LINE_X_QUEST));
+        _taskManager.Post(() => QuestPOIBlobStorage = ReadDB2<QuestPOIBlobEntry>("QuestPOIBlob.db2", HotfixStatements.SEL_QUEST_P_O_I_BLOB));
+        _taskManager.Post(() => QuestPOIPointStorage = ReadDB2<QuestPOIPointEntry>("QuestPOIPoint.db2", HotfixStatements.SEL_QUEST_P_O_I_POINT));
+        _taskManager.Post(() => QuestLineXQuestStorage = ReadDB2<QuestLineXQuestRecord>("QuestLineXQuest.db2", HotfixStatements.SEL_QUEST_LINE_X_QUEST));
 		_taskManager.Post(() => QuestMoneyRewardStorage = ReadDB2<QuestMoneyRewardRecord>("QuestMoneyReward.db2", HotfixStatements.SEL_QUEST_MONEY_REWARD));
 		_taskManager.Post(() => QuestPackageItemStorage = ReadDB2<QuestPackageItemRecord>("QuestPackageItem.db2", HotfixStatements.SEL_QUEST_PACKAGE_ITEM));
 		_taskManager.Post(() => QuestSortStorage = ReadDB2<QuestSortRecord>("QuestSort.db2", HotfixStatements.SEL_QUEST_SORT, HotfixStatements.SEL_QUEST_SORT_LOCALE));
@@ -703,7 +706,9 @@ public class CliDB
 	public static DB6Storage<PvpTierRecord> PvpTierStorage;
 	public static DB6Storage<QuestFactionRewardRecord> QuestFactionRewardStorage;
 	public static DB6Storage<QuestInfoRecord> QuestInfoStorage;
-	public static DB6Storage<QuestLineXQuestRecord> QuestLineXQuestStorage;
+    public static DB6Storage<QuestPOIBlobEntry> QuestPOIBlobStorage;
+    public static DB6Storage<QuestPOIPointEntry> QuestPOIPointStorage;
+    public static DB6Storage<QuestLineXQuestRecord> QuestLineXQuestStorage;
 	public static DB6Storage<QuestMoneyRewardRecord> QuestMoneyRewardStorage;
 	public static DB6Storage<QuestPackageItemRecord> QuestPackageItemStorage;
 	public static DB6Storage<QuestSortRecord> QuestSortStorage;
