@@ -24,6 +24,11 @@ internal struct EvokerSpells
 	public const uint CHRONO_LOOP = 383005;
     public const uint CRIPPLING_FORCE = 384660;
     public const uint CRIPPLING_FORCE_AURA = 384677;
+    public const uint CYCLE_OF_LIFE = 371832;
+    public const uint CYCLE_OF_LIFE_AURA = 371877;
+    public const uint CYCLE_OF_LIFE_HEAL = 371879;
+    public const uint CYCLE_OF_LIFE_SUMMON = 371871;
+    public const uint CYCLE_OF_LIFE_USE_COUNT = 388973;
     public const uint DEEP_BREATH = 357210;
     public const uint DEEP_BREATH_DAMAGE = 353759;
     public const uint DEEP_BREATH_EFFECT = 362010;
