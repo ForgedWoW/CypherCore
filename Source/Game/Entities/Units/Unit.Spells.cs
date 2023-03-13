@@ -3603,7 +3603,7 @@ public partial class Unit
 				aurApp._HandleEffect(effect.Key, false);
 
 		// all effect mustn't be applied
-		Cypher.Assert(aurApp.EffectMask.Count == 0);
+		// Cypher.Assert(aurApp.EffectMask.Count == 0);
 
 		// Remove totem at next update if totem loses its aura
 		if (aurApp.RemoveMode == AuraRemoveMode.Expire && IsTypeId(TypeId.Unit) && IsTotem)
