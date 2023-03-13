@@ -103,28 +103,41 @@ public abstract class MySqlBase<T>
 
 	public SQLResult Query(PreparedStatement stmt)
 	{
-		try
+        MySqlException sqlEx = null;
+		var retryCount = 0;
+
+		while (retryCount < 5)
 		{
-			var Connection = _connectionInfo.GetConnection();
-			Connection.Open();
+			try
+			{
+				var Connection = _connectionInfo.GetConnection();
+				Connection.Open();
 
-			var cmd = Connection.CreateCommand();
-			cmd.CommandText = stmt.CommandText;
+				var cmd = Connection.CreateCommand();
+				cmd.CommandText = stmt.CommandText;
 
-			foreach (var parameter in stmt.Parameters)
-				cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
+				foreach (var parameter in stmt.Parameters)
+					cmd.Parameters.AddWithValue("@" + parameter.Key, parameter.Value);
 
-			return new SQLResult(cmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection));
-		}
-		catch (MySqlException ex)
-		{
-			HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
+				return new SQLResult(cmd.ExecuteReader(System.Data.CommandBehavior.CloseConnection));
+			}
+			catch (MySqlException ex)
+			{
+				HandleMySQLException(ex, stmt.CommandText, stmt.Parameters);
+			}
 
-			return null;
-		}
+			retryCount++;
+			System.Threading.Thread.Sleep(10);
+        }
+
+		if (sqlEx != null)
+			throw sqlEx;
+
+		throw new Exception($"Error processing statement `{stmt.CommandText}` with parameters: {string.Join(',', stmt.Parameters)}");
 	}
 
-	public QueryCallback AsyncQuery(PreparedStatement stmt)
+
+    public QueryCallback AsyncQuery(PreparedStatement stmt)
 	{
 		PreparedStatementTask task = new(stmt, true);
 		// Store future result before enqueueing - task might get already processed and deleted before returning from this method
@@ -277,42 +290,53 @@ public abstract class MySqlBase<T>
 
 	public MySqlErrorCode DirectCommitTransaction(SQLTransaction transaction)
 	{
-		using (var Connection = _connectionInfo.GetConnection())
+        MySqlErrorCode sqlEx = MySqlErrorCode.None;
+        var retryCount = 0;
+
+		while (retryCount < 5)
 		{
-			var query = "";
-
-			Connection.Open();
-
-			using (var trans = Connection.BeginTransaction())
+			using (var Connection = _connectionInfo.GetConnection())
 			{
-				try
-				{
-					using (var scope = new TransactionScope())
-					{
-						foreach (var cmd in transaction.commands)
-						{
-							cmd.Transaction = trans;
-							cmd.Connection = Connection;
-							query = cmd.CommandText;
+				var query = "";
 
-							cmd.ExecuteNonQuery();
+				Connection.Open();
+
+				using (var trans = Connection.BeginTransaction())
+				{
+					try
+					{
+						using (var scope = new TransactionScope())
+						{
+							foreach (var cmd in transaction.commands)
+							{
+								cmd.Transaction = trans;
+								cmd.Connection = Connection;
+								query = cmd.CommandText;
+
+								cmd.ExecuteNonQuery();
+							}
+
+							trans.Commit();
+							scope.Complete();
 						}
 
-						trans.Commit();
-						scope.Complete();
+						return MySqlErrorCode.None;
 					}
+					catch (MySqlException ex) //error occurred
+					{
+						trans.Rollback();
 
-					return MySqlErrorCode.None;
-				}
-				catch (MySqlException ex) //error occurred
-				{
-					trans.Rollback();
-
-					return HandleMySQLException(ex, query);
+                        sqlEx = HandleMySQLException(ex, query);
+					}
 				}
 			}
-		}
-	}
+
+            retryCount++;
+            System.Threading.Thread.Sleep(10);
+        }
+
+		return sqlEx;
+    }
 
 	public DatabaseUpdater<T> GetUpdater()
 	{
