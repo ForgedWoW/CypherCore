@@ -116,7 +116,7 @@ class DisableCommands
 					break;
 			}
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_DISABLES);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
 			var result = DB.World.Query(stmt);
@@ -128,7 +128,7 @@ class DisableCommands
 				return false;
 			}
 
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_DISABLES);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.INS_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
 			stmt.AddValue(2, flags);
@@ -197,7 +197,7 @@ class DisableCommands
 			if (entry == 0)
 				return false;
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_DISABLES);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
 			var result = DB.World.Query(stmt);
@@ -209,7 +209,7 @@ class DisableCommands
 				return false;
 			}
 
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.DEL_DISABLES);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_DISABLES);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, (byte)disableType);
 			DB.World.Execute(stmt);

@@ -554,11 +554,11 @@ namespace Game
             SQLTransaction trans = new();
             if (isdeclined)
             {
-                stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
                 stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
                 trans.Append(stmt);
 
-                stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_PET_DECLINEDNAME);
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_PET_DECLINEDNAME);
                 stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
                 stmt.AddValue(1, Player.GUID.ToString());
 
@@ -568,7 +568,7 @@ namespace Game
                 trans.Append(stmt);
             }
 
-            stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHAR_PET_NAME);
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_PET_NAME);
             stmt.AddValue(0, name);
             stmt.AddValue(1, Player.GUID.ToString());
             stmt.AddValue(2, pet.GetCharmInfo().GetPetNumber());

@@ -31,7 +31,7 @@ public class BattlepayManager
 
 	public uint GetBattlePayCredits()
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
 
 		stmt.AddValue(0, _session.BattlenetAccountId);
 
@@ -60,7 +60,7 @@ public class BattlepayManager
 	{
 		//TC_LOG_INFO("server.BattlePay", "UpdateBattlePayCredits: GetBattlePayCredits(): {} - price: {}", GetBattlePayCredits(), price);
 		var calcCredit = (GetBattlePayCredits() - price) / 10000;
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
 		stmt.AddValue(0, calcCredit);
 		stmt.AddValue(1, _session.BattlenetAccountId);
 		DB.Login.Execute(stmt);
@@ -71,7 +71,7 @@ public class BattlepayManager
 
 	public bool ModifyBattlePayCredits(uint credits)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_UPD_BATTLE_PAY_ACCOUNT_CREDITS);
 		stmt.AddValue(0, credits);
 		stmt.AddValue(1, _session.BattlenetAccountId);
 		DB.Login.Execute(stmt);
@@ -160,7 +160,7 @@ public class BattlepayManager
 	{
 		var productInfo = BattlePayDataStoreMgr.Instance.GetProductInfoForProduct(purchase.ProductID);
 		var displayInfo = BattlePayDataStoreMgr.Instance.GetDisplayInfo(productInfo.Entry);
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
 		stmt.AddValue(0, _session.AccountId);
 		stmt.AddValue(1, Global.WorldMgr.VirtualRealmAddress);
 		stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
@@ -1259,7 +1259,7 @@ public class BattlepayManager
 	{
 		//    auto sessionId = _session->GetAccountId();
 		//
-		//    LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
+		//    LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_SEL_BATTLE_PAY_ACCOUNT_CREDITS);
 		//    stmt->setUInt32(0, _session->GetAccountId());
 		//    PreparedQueryResult result = DB.Login.Query(stmt);
 		//

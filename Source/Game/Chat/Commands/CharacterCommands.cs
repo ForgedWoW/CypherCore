@@ -105,7 +105,7 @@ class CharacterCommands
 					return false;
 				}
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHECK_NAME);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHECK_NAME);
 			stmt.AddValue(0, newName);
 			var result = DB.Characters.Query(stmt);
 
@@ -117,7 +117,7 @@ class CharacterCommands
 			}
 
 			// Remove declined name from db
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_DECLINED_NAME);
 			stmt.AddValue(0, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
 
@@ -133,7 +133,7 @@ class CharacterCommands
 			}
 			else
 			{
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_NAME_BY_GUID);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_NAME_BY_GUID);
 				stmt.AddValue(0, newName);
 				stmt.AddValue(1, player.GetGUID().Counter);
 				DB.Characters.Execute(stmt);
@@ -172,7 +172,7 @@ class CharacterCommands
 
 				handler.SendSysMessage(CypherStrings.RenamePlayerGuid, handler.PlayerLink(player.GetName()), player.GetGUID().ToString());
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 				stmt.AddValue(0, (ushort)AtLoginFlags.Rename);
 				stmt.AddValue(1, player.GetGUID().Counter);
 				DB.Characters.Execute(stmt);
@@ -220,7 +220,7 @@ class CharacterCommands
 		else
 		{
 			// Update level and reset XP, everything else will be updated at login
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_LEVEL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_LEVEL);
 			stmt.AddValue(0, (byte)newlevel);
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -251,7 +251,7 @@ class CharacterCommands
 		else
 		{
 			handler.SendSysMessage(CypherStrings.CustomizePlayerGuid, handler.PlayerLink(player.GetName()), player.GetGUID().Counter);
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.Customize);
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -299,7 +299,7 @@ class CharacterCommands
 		if (onlinePlayer != null)
 			onlinePlayer.Session.KickPlayer("HandleCharacterChangeAccountCommand GM Command transferring character to another account");
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ACCOUNT_BY_GUID);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ACCOUNT_BY_GUID);
 		stmt.AddValue(0, newAccount.GetID());
 		stmt.AddValue(1, player.GetGUID().Counter);
 		DB.Characters.DirectExecute(stmt);
@@ -348,7 +348,7 @@ class CharacterCommands
 		else
 		{
 			handler.SendSysMessage(CypherStrings.CustomizePlayerGuid, handler.PlayerLink(player.GetName()), player.GetGUID().Counter);
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.ChangeFaction);
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -376,7 +376,7 @@ class CharacterCommands
 		else
 		{
 			handler.SendSysMessage(CypherStrings.CustomizePlayerGuid, handler.PlayerLink(player.GetName()), player.GetGUID().Counter);
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.ChangeRace);
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -507,7 +507,7 @@ class CharacterCommands
 		else
 		{
 			// Update level and reset XP, everything else will be updated at login
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_LEVEL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_LEVEL);
 			stmt.AddValue(0, newlevel);
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -647,7 +647,7 @@ class CharacterCommands
 					if (!ulong.TryParse(searchString, out var guid))
 						return false;
 
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_GUID);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_GUID);
 					stmt.AddValue(0, guid);
 					result = DB.Characters.Query(stmt);
 				}
@@ -657,14 +657,14 @@ class CharacterCommands
 					if (!ObjectManager.NormalizePlayerName(ref searchString))
 						return false;
 
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_NAME);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_NAME);
 					stmt.AddValue(0, searchString);
 					result = DB.Characters.Query(stmt);
 				}
 			}
 			else
 			{
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO);
 				result = DB.Characters.Query(stmt);
 			}
 
@@ -745,7 +745,7 @@ class CharacterCommands
 				return;
 			}
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_RESTORE_DELETE_INFO);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_RESTORE_DELETE_INFO);
 			stmt.AddValue(0, delInfo.name);
 			stmt.AddValue(1, delInfo.accountId);
 			stmt.AddValue(2, delInfo.guid.Counter);

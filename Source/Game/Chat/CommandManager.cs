@@ -42,7 +42,7 @@ public class CommandManager
 			}
 		}
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_COMMANDS);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_COMMANDS);
 		var result = DB.World.Query(stmt);
 
 		if (!result.IsEmpty())

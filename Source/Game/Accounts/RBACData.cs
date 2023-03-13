@@ -213,7 +213,7 @@ public class RBACData
 						permissionId,
 						realmId);
 
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_RBAC_ACCOUNT_PERMISSION);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_RBAC_ACCOUNT_PERMISSION);
 			stmt.AddValue(0, Id);
 			stmt.AddValue(1, permissionId);
 			stmt.AddValue(2, realmId);
@@ -240,7 +240,7 @@ public class RBACData
 
 		Log.outDebug(LogFilter.Rbac, "RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
 		// Load account permissions (granted and denied) that affect current realm
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, GetRealmId());
 
@@ -253,7 +253,7 @@ public class RBACData
 
 		Log.outDebug(LogFilter.Rbac, "RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
 		// Load account permissions (granted and denied) that affect current realm
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, GetRealmId());
 
@@ -305,7 +305,7 @@ public class RBACData
 
 	void SavePermission(uint permission, bool granted, int realmId)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_RBAC_ACCOUNT_PERMISSION);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_RBAC_ACCOUNT_PERMISSION);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, permission);
 		stmt.AddValue(2, granted);

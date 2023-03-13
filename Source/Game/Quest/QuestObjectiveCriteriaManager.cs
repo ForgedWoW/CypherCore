@@ -46,11 +46,11 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 	{
 		SQLTransaction trans = new();
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
@@ -89,7 +89,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 					// Removing non-existing criteria data for all characters
 					Log.outError(LogFilter.Player, $"Non-existing quest objective criteria {criteriaId} data has been removed from the table `character_queststatus_objectives_criteria_progress`.");
 
-					var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
+					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
 					stmt.AddValue(0, criteriaId);
 					DB.Characters.Execute(stmt);
 
@@ -111,14 +111,14 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 	public void SaveToDB(SQLTransaction trans)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
 		stmt.AddValue(0, _owner.GUID.Counter);
 		trans.Append(stmt);
 
 		if (!_completedObjectives.Empty())
 			foreach (var completedObjectiveId in _completedObjectives)
 			{
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, completedObjectiveId);
 				trans.Append(stmt);
@@ -130,14 +130,14 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 				if (!pair.Value.Changed)
 					continue;
 
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS_BY_CRITERIA);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS_BY_CRITERIA);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, pair.Key);
 				trans.Append(stmt);
 
 				if (pair.Value.Counter != 0)
 				{
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
 					stmt.AddValue(0, _owner.GUID.Counter);
 					stmt.AddValue(1, pair.Key);
 					stmt.AddValue(2, pair.Value.Counter);

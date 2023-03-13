@@ -121,7 +121,7 @@ public class Channel
 			foreach (var iter in _bannedStore)
 				banlist += iter.GetRawValue().ToHexString() + ' ';
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL);
 			stmt.AddValue(0, _channelName);
 			stmt.AddValue(1, (uint)_channelTeam);
 			stmt.AddValue(2, _announceEnabled);
@@ -134,7 +134,7 @@ public class Channel
 		{
 			if (!_playersStore.Empty())
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_USAGE);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_USAGE);
 				stmt.AddValue(0, _channelName);
 				stmt.AddValue(1, (uint)_channelTeam);
 				DB.Characters.Execute(stmt);

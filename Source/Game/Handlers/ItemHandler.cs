@@ -710,7 +710,7 @@ namespace Game
 
             SQLTransaction trans = new();
 
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_GIFT);
+            PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_GIFT);
             stmt.AddValue(0, item.OwnerGUID.Counter);
             stmt.AddValue(1, item.GUID.Counter);
             stmt.AddValue(2, item.Entry);

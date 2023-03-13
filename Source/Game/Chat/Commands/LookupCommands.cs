@@ -982,7 +982,7 @@ class LookupCommands
 				ip = target.Session.RemoteAddress;
 			}
 
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
 			stmt.AddValue(0, ip);
 
 			return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
@@ -991,7 +991,7 @@ class LookupCommands
 		[Command("account", RBACPermissions.CommandLookupPlayerAccount)]
 		static bool HandleLookupPlayerAccountCommand(CommandHandler handler, string account, int limit = -1)
 		{
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
 			stmt.AddValue(0, account);
 
 			return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
@@ -1000,7 +1000,7 @@ class LookupCommands
 		[Command("email", RBACPermissions.CommandLookupPlayerEmail)]
 		static bool HandleLookupPlayerEmailCommand(CommandHandler handler, string email, int limit = -1)
 		{
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
 			stmt.AddValue(0, email);
 
 			return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
@@ -1030,7 +1030,7 @@ class LookupCommands
 				var accountId = result.Read<uint>(0);
 				var accountName = result.Read<string>(1);
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_GUID_NAME_BY_ACC);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_GUID_NAME_BY_ACC);
 				stmt.AddValue(0, accountId);
 				var result2 = DB.Characters.Query(stmt);
 

@@ -850,7 +850,7 @@ public partial class Player
 				foreach (var guid in allowedLooters)
 					ss.AppendFormat("{0} ", guid);
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_BOP_TRADE);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_BOP_TRADE);
 				stmt.AddValue(0, item.GUID.Counter);
 				stmt.AddValue(1, ss.ToString());
 				DB.Characters.Execute(stmt);
@@ -4699,7 +4699,7 @@ public partial class Player
 
 			if (pItem.IsWrapped())
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
 				stmt.AddValue(0, pItem.GUID.Counter);
 				DB.Characters.Execute(stmt);
 			}

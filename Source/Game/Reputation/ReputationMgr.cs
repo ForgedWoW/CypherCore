@@ -576,12 +576,12 @@ public class ReputationMgr
 		foreach (var factionState in _factions.Values)
 			if (factionState.needSave)
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_REPUTATION_BY_FACTION);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_REPUTATION_BY_FACTION);
 				stmt.AddValue(0, _player.GUID.Counter);
 				stmt.AddValue(1, factionState.Id);
 				trans.Append(stmt);
 
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_REPUTATION_BY_FACTION);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_REPUTATION_BY_FACTION);
 				stmt.AddValue(0, _player.GUID.Counter);
 				stmt.AddValue(1, factionState.Id);
 				stmt.AddValue(2, factionState.Standing);

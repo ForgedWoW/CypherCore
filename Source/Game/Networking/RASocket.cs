@@ -163,7 +163,7 @@ public class RASocket : ISocket
 	bool CheckAccessLevelAndPassword(string email, string password)
 	{
 		//"SELECT a.id, a.username FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id WHERE ba.email = ?"
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
 		stmt.AddValue(0, email);
 		var result = DB.Login.Query(stmt);
 
@@ -177,7 +177,7 @@ public class RASocket : ISocket
 		var accountId = result.Read<uint>(0);
 		var username = result.Read<string>(1);
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_BY_ID);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_BY_ID);
 		stmt.AddValue(0, accountId);
 		result = DB.Login.Query(stmt);
 
@@ -202,7 +202,7 @@ public class RASocket : ISocket
 			return false;
 		}
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
 		stmt.AddValue(0, accountId);
 		result = DB.Login.Query(stmt);
 

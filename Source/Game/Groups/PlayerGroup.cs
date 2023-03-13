@@ -186,7 +186,7 @@ public class PlayerGroup
 			Global.GroupMgr.RegisterGroupDbStoreId(_dbStoreId, this);
 
 			// Store group in database
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_GROUP);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GROUP);
 
 			byte index = 0;
 
@@ -272,7 +272,7 @@ public class PlayerGroup
 
 		if (character == null)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
 			stmt.AddValue(0, guidLow);
 			DB.Characters.Execute(stmt);
 
@@ -302,7 +302,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
 			stmt.AddValue(0, (byte)_groupFlags);
 			stmt.AddValue(1, _dbStoreId);
@@ -321,7 +321,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
 			stmt.AddValue(0, (byte)_groupFlags);
 			stmt.AddValue(1, _dbStoreId);
@@ -352,7 +352,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
 			stmt.AddValue(0, (byte)_groupFlags);
 			stmt.AddValue(1, _dbStoreId);
@@ -506,7 +506,7 @@ public class PlayerGroup
 		// insert into the table if we're not a Battlegroundgroup
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_GROUP_MEMBER);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GROUP_MEMBER);
 
 			stmt.AddValue(0, _dbStoreId);
 			stmt.AddValue(1, member.Guid.Counter);
@@ -654,7 +654,7 @@ public class PlayerGroup
 			// Remove player from group in DB
 			if (!IsBGGroup && !IsBFGroup)
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
 				stmt.AddValue(0, guid.Counter);
 				DB.Characters.Execute(stmt);
 				DelinkMember(guid);
@@ -732,7 +732,7 @@ public class PlayerGroup
 			SQLTransaction trans = new();
 
 			// Update the group leader
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
 
 			stmt.AddValue(0, newLeader.GUID.Counter);
 			stmt.AddValue(1, _dbStoreId);
@@ -809,15 +809,15 @@ public class PlayerGroup
 		{
 			SQLTransaction trans = new();
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP);
 			stmt.AddValue(0, _dbStoreId);
 			trans.Append(stmt);
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER_ALL);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER_ALL);
 			stmt.AddValue(0, _dbStoreId);
 			trans.Append(stmt);
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
 			stmt.AddValue(0, _dbStoreId);
 			trans.Append(stmt);
 
@@ -1072,7 +1072,7 @@ public class PlayerGroup
 		// Preserve new sub group in database for non-raid groups
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
 
 			stmt.AddValue(0, group);
 			stmt.AddValue(1, guid.Counter);
@@ -1124,7 +1124,7 @@ public class PlayerGroup
 			// Preserve new sub group in database for non-raid groups
 			if (!IsBGGroup && !IsBFGroup)
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
 				stmt.AddValue(0, slots[i].Group);
 				stmt.AddValue(1, slots[i].Guid.Counter);
 
@@ -1337,7 +1337,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_DIFFICULTY);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_DIFFICULTY);
 
 			stmt.AddValue(0, (byte)_dungeonDifficulty);
 			stmt.AddValue(1, _dbStoreId);
@@ -1363,7 +1363,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_RAID_DIFFICULTY);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_RAID_DIFFICULTY);
 
 			stmt.AddValue(0, (byte)_raidDifficulty);
 			stmt.AddValue(1, _dbStoreId);
@@ -1389,7 +1389,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_LEGACY_RAID_DIFFICULTY);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_LEGACY_RAID_DIFFICULTY);
 
 			stmt.AddValue(0, (byte)_legacyRaidDifficulty);
 			stmt.AddValue(1, _dbStoreId);
@@ -1711,7 +1711,7 @@ public class PlayerGroup
 		ToggleGroupMemberFlag(slot, flag, apply);
 
 		// Preserve the new setting in the db
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_FLAG);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_FLAG);
 
 		stmt.AddValue(0, (byte)slot.Flags);
 		stmt.AddValue(1, guid.Counter);
@@ -1855,7 +1855,7 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
 
 			stmt.AddValue(0, group);
 			stmt.AddValue(1, guid.Counter);

@@ -86,11 +86,11 @@ public class SpellHistory
 
 		if (typeof(T) == typeof(Pet))
 		{
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
 			stmt.AddValue(0, _owner.GetCharmInfo().GetPetNumber());
 			trans.Append(stmt);
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
 			stmt.AddValue(0, _owner.GetCharmInfo().GetPetNumber());
 			trans.Append(stmt);
 
@@ -100,7 +100,7 @@ public class SpellHistory
 				if (!pair.Value.OnHold)
 				{
 					index = 0;
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL_COOLDOWN);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL_COOLDOWN);
 					stmt.AddValue(index++, _owner.GetCharmInfo().GetPetNumber());
 					stmt.AddValue(index++, pair.Key);
 					stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.CooldownEnd));
@@ -112,7 +112,7 @@ public class SpellHistory
 			foreach (var pair in _categoryCharges.KeyValueList)
 			{
 				index = 0;
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL_CHARGES);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL_CHARGES);
 				stmt.AddValue(index++, _owner.GetCharmInfo().GetPetNumber());
 				stmt.AddValue(index++, pair.Key);
 				stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.RechargeStart));
@@ -122,11 +122,11 @@ public class SpellHistory
 		}
 		else
 		{
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_COOLDOWNS);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_COOLDOWNS);
 			stmt.AddValue(0, _owner.GUID.Counter);
 			trans.Append(stmt);
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_CHARGES);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_SPELL_CHARGES);
 			stmt.AddValue(0, _owner.GUID.Counter);
 			trans.Append(stmt);
 
@@ -136,7 +136,7 @@ public class SpellHistory
 				if (!pair.Value.OnHold)
 				{
 					index = 0;
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_SPELL_COOLDOWN);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_SPELL_COOLDOWN);
 					stmt.AddValue(index++, _owner.GUID.Counter);
 					stmt.AddValue(index++, pair.Key);
 					stmt.AddValue(index++, pair.Value.ItemId);
@@ -149,7 +149,7 @@ public class SpellHistory
 			foreach (var pair in _categoryCharges.KeyValueList)
 			{
 				index = 0;
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_SPELL_CHARGES);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_SPELL_CHARGES);
 				stmt.AddValue(index++, _owner.GUID.Counter);
 				stmt.AddValue(index++, pair.Key);
 				stmt.AddValue(index++, Time.DateTimeToUnixTime(pair.Value.RechargeStart));

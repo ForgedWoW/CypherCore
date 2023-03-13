@@ -397,7 +397,7 @@ namespace Game
             else
             {
                 // place bid
-                PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_BID);
+                PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_AUCTION_BID);
                 stmt.AddValue(0, auction.Bidder.Counter);
                 stmt.AddValue(1, auction.BidAmount);
                 stmt.AddValue(2, (byte)auction.ServerFlags);
@@ -407,7 +407,7 @@ namespace Game
                 auction.BidderHistory.Add(player.GUID);
                 if (auction.BidderHistory.Contains(player.GUID))
                 {
-                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_AUCTION_BIDDER);
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AUCTION_BIDDER);
                     stmt.AddValue(0, auction.Id);
                     stmt.AddValue(1, player.GUID.Counter);
                     trans.Append(stmt);
@@ -530,7 +530,7 @@ namespace Game
         [WorldPacketHandler(ClientOpcodes.AuctionRequestFavoriteList)]
         void HandleAuctionRequestFavoriteList(AuctionRequestFavoriteList requestFavoriteList)
         {
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_FAVORITE_AUCTIONS);
+            PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_FAVORITE_AUCTIONS);
             stmt.AddValue(0, _player.GUID.Counter);
             QueryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt)).WithCallback(favoriteAuctionResult =>
             {
@@ -925,14 +925,14 @@ namespace Game
 
             SQLTransaction trans = new();
 
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_FAVORITE_AUCTION);
+            PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_FAVORITE_AUCTION);
             stmt.AddValue(0, _player.GUID.Counter);
             stmt.AddValue(1, setFavoriteItem.Item.Order);
             trans.Append(stmt);
 
             if (!setFavoriteItem.IsNotFavorite)
             {
-                stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_FAVORITE_AUCTION);
+                stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_FAVORITE_AUCTION);
                 stmt.AddValue(0, _player.GUID.Counter);
                 stmt.AddValue(1, setFavoriteItem.Item.Order);
                 stmt.AddValue(2, setFavoriteItem.Item.ItemID);

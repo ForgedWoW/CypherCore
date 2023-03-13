@@ -950,7 +950,7 @@ public partial class Player
 		{
 			SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
 			stmt.AddValue(0, GUID.Counter);
 			stmt.AddValue(1, traitConfigId);
 			DB.Characters.Execute(stmt);
@@ -1021,7 +1021,7 @@ public partial class Player
 		}
 
 		// load them asynchronously
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
 		stmt.AddValue(0, GUID.Counter);
 		stmt.AddValue(1, GetActiveTalentGroup());
 		stmt.AddValue(2, traitConfigId);

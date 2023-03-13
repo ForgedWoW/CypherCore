@@ -13,19 +13,19 @@ class BanListCommands
 	[Command("account", RBACPermissions.CommandBanlistAccount, true)]
 	static bool HandleBanListAccountCommand(CommandHandler handler, [OptionalArg] string filter)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
 		DB.Login.Execute(stmt);
 
 		SQLResult result;
 
 		if (filter.IsEmpty())
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_ALL);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_ALL);
 			result = DB.Login.Query(stmt);
 		}
 		else
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_FILTER);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_FILTER);
 			stmt.AddValue(0, filter);
 			result = DB.Login.Query(stmt);
 		}
@@ -46,7 +46,7 @@ class BanListCommands
 		if (filter.IsEmpty())
 			return false;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GUID_BY_NAME_FILTER);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUID_BY_NAME_FILTER);
 		stmt.AddValue(0, filter);
 		var result = DB.Characters.Query(stmt);
 
@@ -64,7 +64,7 @@ class BanListCommands
 		{
 			do
 			{
-				var stmt2 = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
+				var stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
 				stmt2.AddValue(0, result.Read<ulong>(0));
 				var banResult = DB.Characters.Query(stmt2);
 
@@ -85,7 +85,7 @@ class BanListCommands
 
 				var char_name = result.Read<string>(1);
 
-				var stmt2 = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_BANINFO_LIST);
+				var stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANINFO_LIST);
 				stmt2.AddValue(0, result.Read<ulong>(0));
 				var banInfo = DB.Characters.Query(stmt2);
 
@@ -141,19 +141,19 @@ class BanListCommands
 	[Command("ip", RBACPermissions.CommandBanlistIp, true)]
 	static bool HandleBanListIPCommand(CommandHandler handler, [OptionalArg] string filter)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
 		DB.Login.Execute(stmt);
 
 		SQLResult result;
 
 		if (filter.IsEmpty())
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_ALL);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_ALL);
 			result = DB.Login.Query(stmt);
 		}
 		else
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_BY_IP);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_IP_BANNED_BY_IP);
 			stmt.AddValue(0, filter);
 			result = DB.Login.Query(stmt);
 		}

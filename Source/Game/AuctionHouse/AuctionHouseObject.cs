@@ -159,7 +159,7 @@ public class AuctionHouseObject
 
 		if (trans != null)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_AUCTION);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AUCTION);
 			stmt.AddValue(0, auction.Id);
 			stmt.AddValue(1, _auctionHouse.Id);
 			stmt.AddValue(2, auction.Owner.Counter);
@@ -175,7 +175,7 @@ public class AuctionHouseObject
 
 			foreach (var item in auction.Items)
 			{
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_AUCTION_ITEMS);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_AUCTION_ITEMS);
 				stmt.AddValue(0, auction.Id);
 				stmt.AddValue(1, item.GUID.Counter);
 				trans.Append(stmt);
@@ -284,7 +284,7 @@ public class AuctionHouseObject
 			_buckets.Remove(bucket.Key);
 		}
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_AUCTION);
 		stmt.AddValue(0, auction.Id);
 		trans.Append(stmt);
 
@@ -915,7 +915,7 @@ public class AuctionHouseObject
 
 			for (var i = 0; i < batch.ItemsCount; ++i)
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION_ITEMS_BY_ITEM);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_AUCTION_ITEMS_BY_ITEM);
 				stmt.AddValue(0, batch.Items[i].GUID.Counter);
 				trans.Append(stmt);
 
@@ -1020,7 +1020,7 @@ public class AuctionHouseObject
 			// owner in `data` will set at mail receive and item extracting
 			foreach (var item in auction.Items)
 			{
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
 				stmt.AddValue(0, auction.Bidder.Counter);
 				stmt.AddValue(1, item.GUID.Counter);
 				trans.Append(stmt);

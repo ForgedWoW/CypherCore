@@ -32,7 +32,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		for (byte i = 0; i < (int)SmartScriptType.Max; i++)
 			_eventMap[i].Clear(); //Drop Existing SmartAI List
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_SMART_SCRIPTS);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_SMART_SCRIPTS);
 		var result = DB.World.Query(stmt);
 
 		if (result.IsEmpty())
@@ -402,7 +402,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		_waypointStore.Clear();
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_SMARTAI_WP);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_SMARTAI_WP);
 		var result = DB.World.Query(stmt);
 
 		if (result.IsEmpty())

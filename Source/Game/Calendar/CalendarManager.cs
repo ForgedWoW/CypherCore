@@ -159,7 +159,7 @@ public class CalendarManager : Singleton<CalendarManager>
 			return;
 
 		SQLTransaction trans = new();
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
 		stmt.AddValue(0, calendarInvite.InviteId);
 		trans.Append(stmt);
 		DB.Characters.CommitTransaction(trans);
@@ -180,7 +180,7 @@ public class CalendarManager : Singleton<CalendarManager>
 	public void UpdateEvent(CalendarEvent calendarEvent)
 	{
 		SQLTransaction trans = new();
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
 		stmt.AddValue(0, calendarEvent.EventId);
 		stmt.AddValue(1, calendarEvent.OwnerGuid.Counter);
 		stmt.AddValue(2, calendarEvent.Title);
@@ -196,7 +196,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void UpdateInvite(CalendarInvite invite, SQLTransaction trans = null)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
 		stmt.AddValue(0, invite.InviteId);
 		stmt.AddValue(1, invite.EventId);
 		stmt.AddValue(2, invite.InviteeGuid.Counter);
@@ -561,7 +561,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		for (var i = 0; i < eventInvites.Count; ++i)
 		{
 			var invite = eventInvites[i];
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
 			stmt.AddValue(0, invite.InviteId);
 			trans.Append(stmt);
 
@@ -573,7 +573,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		_invites.Remove(calendarEvent.EventId);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_EVENT);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_EVENT);
 		stmt.AddValue(0, calendarEvent.EventId);
 		trans.Append(stmt);
 		DB.Characters.CommitTransaction(trans);

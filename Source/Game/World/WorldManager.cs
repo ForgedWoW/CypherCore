@@ -277,7 +277,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public void LoadDBAllowedSecurityLevel()
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST_SECURITY_LEVEL);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_REALMLIST_SECURITY_LEVEL);
 		stmt.AddValue(0, (int)_realm.Id.Index);
 		var result = DB.Login.Query(stmt);
 
@@ -1255,7 +1255,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		_autobroadcasts.Clear();
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_AUTOBROADCAST);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_AUTOBROADCAST);
 		stmt.AddValue(0, _realm.Id.Index);
 
 		var result = DB.Login.Query(stmt);
@@ -1389,7 +1389,7 @@ public class WorldManager : Singleton<WorldManager>
 
 			_taskManager.Schedule(() =>
 			{
-				var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_UPTIME_PLAYERS);
+				var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_UPTIME_PLAYERS);
 
 				stmt.AddValue(0, tmpDiff);
 				stmt.AddValue(1, maxOnlinePlayers);
@@ -1408,7 +1408,7 @@ public class WorldManager : Singleton<WorldManager>
 
 				_taskManager.Schedule(() =>
 				{
-					var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
+					var stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
 					stmt.AddValue(0, WorldConfig.GetIntValue(WorldCfg.LogdbCleartime));
 					stmt.AddValue(1, 0);
 					stmt.AddValue(2, Realm.Id.Index);
@@ -1629,10 +1629,10 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			case BanMode.IP:
 				// No SQL injection with prepared statements
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_IP);
 				stmt.AddValue(0, nameOrIP);
 				resultAccounts = DB.Login.Query(stmt);
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_IP_BANNED);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_IP_BANNED);
 				stmt.AddValue(0, nameOrIP);
 				stmt.AddValue(1, duration_secs);
 				stmt.AddValue(2, author);
@@ -1642,14 +1642,14 @@ public class WorldManager : Singleton<WorldManager>
 				break;
 			case BanMode.Account:
 				// No SQL injection with prepared statements
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ID_BY_NAME);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ID_BY_NAME);
 				stmt.AddValue(0, nameOrIP);
 				resultAccounts = DB.Login.Query(stmt);
 
 				break;
 			case BanMode.Character:
 				// No SQL injection with prepared statements
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_ACCOUNT_BY_NAME);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ACCOUNT_BY_NAME);
 				stmt.AddValue(0, nameOrIP);
 				resultAccounts = DB.Characters.Query(stmt);
 
@@ -1676,11 +1676,11 @@ public class WorldManager : Singleton<WorldManager>
 			if (mode != BanMode.IP)
 			{
 				// make sure there is only one active ban
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
 				stmt.AddValue(0, account);
 				trans.Append(stmt);
 				// No SQL injection with prepared statements
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT_BANNED);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT_BANNED);
 				stmt.AddValue(0, account);
 				stmt.AddValue(1, duration_secs);
 				stmt.AddValue(2, author);
@@ -1707,7 +1707,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (mode == BanMode.IP)
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_IP_NOT_BANNED);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_IP_NOT_BANNED);
 			stmt.AddValue(0, nameOrIP);
 			DB.Login.Execute(stmt);
 		}
@@ -1724,7 +1724,7 @@ public class WorldManager : Singleton<WorldManager>
 				return false;
 
 			//NO SQL injection as account is uint32
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_NOT_BANNED);
 			stmt.AddValue(0, account);
 			DB.Login.Execute(stmt);
 		}
@@ -1762,11 +1762,11 @@ public class WorldManager : Singleton<WorldManager>
 		SQLTransaction trans = new();
 
 		// make sure there is only one active ban
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_BAN);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_BAN);
 		stmt.AddValue(0, guid.Counter);
 		stmt.AddValue(1, (long)durationSecs);
 		stmt.AddValue(2, author);
@@ -1799,7 +1799,7 @@ public class WorldManager : Singleton<WorldManager>
 			guid = pBanned.GUID;
 		}
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
 		stmt.AddValue(0, guid.Counter);
 		DB.Characters.Execute(stmt);
 
@@ -1920,7 +1920,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public void UpdateRealmCharCount(uint accountId)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
 		stmt.AddValue(0, accountId);
 		_queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt).WithCallback(UpdateRealmCharCount));
 	}
@@ -1928,10 +1928,10 @@ public class WorldManager : Singleton<WorldManager>
 	public void DailyReset()
 	{
 		// reset all saved quest status
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
 		DB.Characters.Execute(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
 		stmt.AddValue(0, 1);
 		DB.Characters.Execute(stmt);
 
@@ -1964,7 +1964,7 @@ public class WorldManager : Singleton<WorldManager>
 	public void ResetWeeklyQuests()
 	{
 		// reset all saved quest status
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
 		DB.Characters.Execute(stmt);
 
 		// reset all quest status in memory
@@ -1993,7 +1993,7 @@ public class WorldManager : Singleton<WorldManager>
 	public void ResetMonthlyQuests()
 	{
 		// reset all saved quest status
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
 		DB.Characters.Execute(stmt);
 
 		// reset all quest status in memory
@@ -2021,7 +2021,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public void ResetEventSeasonalQuests(ushort event_id, long eventStartTime)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
 		stmt.AddValue(0, event_id);
 		stmt.AddValue(1, eventStartTime);
 		DB.Characters.Execute(stmt);
@@ -2064,7 +2064,7 @@ public class WorldManager : Singleton<WorldManager>
 	{
 		_worldVariables[var] = value;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_VARIABLE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_WORLD_VARIABLE);
 		stmt.AddValue(0, var);
 		stmt.AddValue(1, value);
 		DB.Characters.Execute(stmt);
@@ -2432,7 +2432,7 @@ public class WorldManager : Singleton<WorldManager>
 			var Id = result.Read<uint>(0);
 			var charCount = result.Read<uint>(1);
 
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_REALM_CHARACTERS);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_REALM_CHARACTERS);
 			stmt.AddValue(0, charCount);
 			stmt.AddValue(1, Id);
 			stmt.AddValue(2, _realm.Id.Index);
@@ -2594,7 +2594,7 @@ public class WorldManager : Singleton<WorldManager>
 	{
 		Log.outInfo(LogFilter.Server, "Random BG status reset for all characters.");
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
 		DB.Characters.Execute(stmt);
 
 		foreach (var session in _sessions.Values)
@@ -2672,7 +2672,7 @@ public class WorldManager : Singleton<WorldManager>
 		var warModeEnabledFaction = new long[2];
 
 		// Search for characters that have war mode enabled and played during the last week
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_WAR_MODE_TUNING);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_WAR_MODE_TUNING);
 		stmt.AddValue(0, (uint)PlayerFlags.WarModeDesired);
 		stmt.AddValue(1, (uint)PlayerFlags.WarModeDesired);
 

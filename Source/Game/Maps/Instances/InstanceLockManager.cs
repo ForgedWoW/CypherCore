@@ -305,13 +305,13 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 						$"{entries.MapDifficulty.DifficultyID}-{CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name}] Expired instance lock for {playerGuid} in instance {updateEvent.InstanceId} is now active");
 		}
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_INSTANCE_LOCK);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_INSTANCE_LOCK);
 		stmt.AddValue(0, playerGuid.Counter);
 		stmt.AddValue(1, entries.MapDifficulty.MapID);
 		stmt.AddValue(2, entries.MapDifficulty.LockID);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_INSTANCE_LOCK);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_INSTANCE_LOCK);
 		stmt.AddValue(0, playerGuid.Counter);
 		stmt.AddValue(1, entries.MapDifficulty.MapID);
 		stmt.AddValue(2, entries.MapDifficulty.LockID);
@@ -344,11 +344,11 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 		if (updateEvent.EntranceWorldSafeLocId.HasValue)
 			sharedData.EntranceWorldSafeLocId = updateEvent.EntranceWorldSafeLocId.Value;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INSTANCE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INSTANCE);
 		stmt.AddValue(0, sharedData.InstanceId);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_INSTANCE);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_INSTANCE);
 		stmt.AddValue(0, sharedData.InstanceId);
 		stmt.AddValue(1, sharedData.Data);
 		stmt.AddValue(2, sharedData.CompletedEncountersMask);
@@ -362,7 +362,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			return;
 
 		_instanceLockDataById.Remove(instanceId);
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INSTANCE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INSTANCE);
 		stmt.AddValue(0, instanceId);
 		DB.Characters.Execute(stmt);
 		Log.outDebug(LogFilter.Instance, $"Deleting instance {instanceId} as it is no longer referenced by any player");
@@ -376,7 +376,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 		{
 			var oldExpiryTime = instanceLock.GetEffectiveExpiryTime();
 			instanceLock.SetExtended(extended);
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_EXTENSION);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_EXTENSION);
 			stmt.AddValue(0, extended ? 1 : 0);
 			stmt.AddValue(1, playerGuid.Counter);
 			stmt.AddValue(2, entries.MapDifficulty.MapID);
@@ -438,7 +438,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 				instanceLock.SetExpiryTime(newExpiryTime);
 				instanceLock.SetExtended(false);
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
 				stmt.AddValue(0, (ulong)Time.DateTimeToUnixTime(newExpiryTime));
 				stmt.AddValue(1, playerGuid.Counter);
 				stmt.AddValue(2, entries.MapDifficulty.MapID);

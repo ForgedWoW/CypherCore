@@ -141,7 +141,7 @@ class ResetCommands
 		}
 		else
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.ResetSpells);
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -204,7 +204,7 @@ class ResetCommands
 		}
 		else if (!player.GetGUID().IsEmpty)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)(AtLoginFlags.None | AtLoginFlags.ResetPetTalents));
 			stmt.AddValue(1, player.GetGUID().Counter);
 			DB.Characters.Execute(stmt);
@@ -249,7 +249,7 @@ class ResetCommands
 			return false;
 		}
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
 		stmt.AddValue(0, (ushort)atLogin);
 		DB.Characters.Execute(stmt);
 

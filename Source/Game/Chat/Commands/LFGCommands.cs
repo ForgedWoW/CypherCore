@@ -52,7 +52,7 @@ class LFGCommands
 		}
 		else
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
 			stmt.AddValue(0, player.GetGUID().Counter);
 			var resultGroup = DB.Characters.Query(stmt);
 

@@ -41,7 +41,7 @@ class AccountCommands
 			string emailoutput;
 			var accountId = session.AccountId;
 
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
 			stmt.AddValue(0, accountId);
 			var result = DB.Login.Query(stmt);
 
@@ -68,7 +68,7 @@ class AccountCommands
 		uint accountId = handler.GetSession().GetAccountId();
 		byte[] secret;
 		{ // get current TOTP secret
-			PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
+			PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
 			stmt.AddValue(0, accountId);
 			SQLResult result = DB.Login.Query(stmt);
 
@@ -103,7 +103,7 @@ class AccountCommands
 
 			if (TOTP.ValidateToken(secret, token.Value))
 			{
-				PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+				PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
 				stmt.AddNull(0);
 				stmt.AddValue(1, accountId);
 				DB.Login.Execute(stmt);
@@ -131,7 +131,7 @@ class AccountCommands
 		uint accountId = handler.GetSession().GetAccountId();
 
 		{ // check if 2FA already enabled
-			PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
+			PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_TOTP_SECRET);
 			stmt.AddValue(0, accountId);
 			SQLResult result = DB.Login.Query(stmt);
 
@@ -162,7 +162,7 @@ class AccountCommands
 				if (masterKey.IsValid())
 					AES.Encrypt(suggestions[accountId], masterKey.GetValue());
 
-				PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+				PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
 				stmt.AddValue(0, suggestions[accountId]);
 				stmt.AddValue(1, accountId);
 				DB.Login.Execute(stmt);
@@ -189,7 +189,7 @@ class AccountCommands
 			return false;
 		}
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
 		stmt.AddValue(0, expansion);
 		stmt.AddValue(1, handler.Session.AccountId);
 		DB.Login.Execute(stmt);
@@ -464,14 +464,14 @@ class AccountCommands
 				/*var ipBytes = System.Net.IPAddress.Parse(handler.GetSession().GetRemoteAddress()).GetAddressBytes();
 				Array.Reverse(ipBytes);
 
-				PreparedStatement stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_LOGON_COUNTRY);
+				PreparedStatement stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_LOGON_COUNTRY);
 				stmt.AddValue(0, BitConverter.ToUInt32(ipBytes, 0));
 
 				SQLResult result = DB.Login.Query(stmt);
 				if (!result.IsEmpty())
 				{
 					string country = result.Read<string>(0);
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
+					stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
 					stmt.AddValue(0, country);
 					stmt.AddValue(1, handler.GetSession().GetAccountId());
 					DB.Login.Execute(stmt);
@@ -485,7 +485,7 @@ class AccountCommands
 			}
 			else
 			{
-				var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
+				var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK_COUNTRY);
 				stmt.AddValue(0, "00");
 				stmt.AddValue(1, handler.Session.AccountId);
 				DB.Login.Execute(stmt);
@@ -498,7 +498,7 @@ class AccountCommands
 		[Command("ip", CypherStrings.CommandAccLockIpHelp, RBACPermissions.CommandAccountLockIp)]
 		static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
 		{
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK);
 
 			if (state)
 			{
@@ -636,7 +636,7 @@ class AccountCommands
 			PreparedStatement stmt;
 			if (secret == "off")
 			{
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
 				stmt.AddNull(0);
 				stmt.AddValue(1, targetAccountId);
 				DB.Login.Execute(stmt);
@@ -666,7 +666,7 @@ class AccountCommands
 			if (masterKey.IsValid())
 				AES.Encrypt(decoded, masterKey.GetValue());
 
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_TOTP_SECRET);
 			stmt.AddValue(0, decoded);
 			stmt.AddValue(1, targetAccountId);
 			DB.Login.Execute(stmt);
@@ -714,7 +714,7 @@ class AccountCommands
 			if (expansion > WorldConfig.GetIntValue(WorldCfg.Expansion))
 				return false;
 
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EXPANSION);
 
 			stmt.AddValue(0, expansion);
 			stmt.AddValue(1, accountId);
@@ -838,7 +838,7 @@ class AccountCommands
 			// Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
 			if (realmID == -1 && !Global.AccountMgr.IsConsoleAccount(playerSecurity))
 			{
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_ACCESS_SECLEVEL_TEST);
 				stmt.AddValue(0, accountId);
 				stmt.AddValue(1, securityLevel);
 

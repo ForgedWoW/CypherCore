@@ -150,7 +150,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 				// Remove non-existing achievements from all characters
 				Log.outError(LogFilter.Achievement, "Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
 
-				PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
+				PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
 				stmt.AddValue(0, achievementId);
 				DB.Characters.Execute(stmt);
 

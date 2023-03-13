@@ -145,7 +145,7 @@ class BNetAccountCommands
 	[Command("listgameaccounts", RBACPermissions.CommandBnetAccountListGameAccounts, true)]
 	static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
 		stmt.AddValue(0, battlenetAccountName);
 
 		var accountList = DB.Login.Query(stmt);
@@ -270,7 +270,7 @@ class BNetAccountCommands
 			{
 				if (IpLocationRecord const* location = sIPLocation->GetLocationRecord(handler->GetSession()->GetRemoteAddress()))
 		{
-					LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+					LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
 					stmt->setString(0, location->CountryCode);
 					stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
 					LoginDatabase.Execute(stmt);
@@ -284,7 +284,7 @@ class BNetAccountCommands
 			}
 			else
 			{
-				LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
+				LoginDatabasePreparedStatement* stmt = DB.Login.GetPreparedStatement(LOGIN_UPD_BNET_ACCOUNT_LOCK_CONTRY);
 				stmt->setString(0, "00");
 				stmt->setUInt32(1, handler->GetSession()->GetBattlenetAccountId());
 				LoginDatabase.Execute(stmt);
@@ -297,7 +297,7 @@ class BNetAccountCommands
 		[Command("ip", RBACPermissions.CommandBnetAccountLockIp, true)]
 		static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
 		{
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_ACCOUNT_LOCK);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_ACCOUNT_LOCK);
 
 			if (state)
 			{

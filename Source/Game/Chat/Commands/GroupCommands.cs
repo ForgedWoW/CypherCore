@@ -177,7 +177,7 @@ class GroupCommands
 		// If not, we extract it from the SQL.
 		if (!groupTarget)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
 			stmt.AddValue(0, guidTarget.Counter);
 			var resultGroup = DB.Characters.Query(stmt);
 

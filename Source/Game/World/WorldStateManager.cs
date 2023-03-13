@@ -243,7 +243,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		if (GetWorldStateTemplate(worldStateId) == null)
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
 		stmt.AddValue(0, worldStateId);
 		stmt.AddValue(1, value);
 		DB.Characters.Execute(stmt);

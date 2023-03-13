@@ -77,7 +77,7 @@ public class SupportManager : Singleton<SupportManager>
 		_lastBugId = 0;
 		_openBugTicketCount = 0;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_BUGS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_BUGS);
 		var result = DB.Characters.Query(stmt);
 
 		if (result.IsEmpty())
@@ -117,7 +117,7 @@ public class SupportManager : Singleton<SupportManager>
 		_lastComplaintId = 0;
 		_openComplaintTicketCount = 0;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINTS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINTS);
 		var result = DB.Characters.Query(stmt);
 
 		if (result.IsEmpty())
@@ -144,7 +144,7 @@ public class SupportManager : Singleton<SupportManager>
 			if (_lastComplaintId < id)
 				_lastComplaintId = id;
 
-			chatLogStmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINT_CHATLINES);
+			chatLogStmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINT_CHATLINES);
 			chatLogStmt.AddValue(0, id);
 			chatLogResult = DB.Characters.Query(stmt);
 
@@ -169,7 +169,7 @@ public class SupportManager : Singleton<SupportManager>
 		_lastSuggestionId = 0;
 		_openSuggestionTicketCount = 0;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GM_SUGGESTIONS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_SUGGESTIONS);
 		var result = DB.Characters.Query(stmt);
 
 		if (result.IsEmpty())
@@ -297,7 +297,7 @@ public class SupportManager : Singleton<SupportManager>
 
 				_lastBugId = 0;
 
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_BUGS);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_BUGS);
 				DB.Characters.Execute(stmt);
 
 				break;
@@ -307,8 +307,8 @@ public class SupportManager : Singleton<SupportManager>
 				_lastComplaintId = 0;
 
 				SQLTransaction trans = new();
-				trans.Append(CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINTS));
-				trans.Append(CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINT_CHATLOGS));
+				trans.Append(DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINTS));
+				trans.Append(DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINT_CHATLOGS));
 				DB.Characters.CommitTransaction(trans);
 
 				break;
@@ -317,7 +317,7 @@ public class SupportManager : Singleton<SupportManager>
 
 				_lastSuggestionId = 0;
 
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_SUGGESTIONS);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_SUGGESTIONS);
 				DB.Characters.Execute(stmt);
 
 				break;

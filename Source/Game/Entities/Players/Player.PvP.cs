@@ -589,7 +589,7 @@ public partial class Player
 
 		if (_isBgRandomWinner)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_BATTLEGROUND_RANDOM);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_BATTLEGROUND_RANDOM);
 			stmt.AddValue(0, GUID.Counter);
 			DB.Characters.Execute(stmt);
 		}

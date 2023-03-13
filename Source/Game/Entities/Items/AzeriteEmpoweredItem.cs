@@ -36,7 +36,7 @@ public class AzeriteEmpoweredItem : Item
 
 	public override void SaveToDB(SQLTransaction trans)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
 		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
@@ -44,7 +44,7 @@ public class AzeriteEmpoweredItem : Item
 		{
 			case ItemUpdateState.New:
 			case ItemUpdateState.Changed:
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_EMPOWERED);
 				stmt.AddValue(0, GUID.Counter);
 
 				for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
@@ -82,7 +82,7 @@ public class AzeriteEmpoweredItem : Item
 
 		if (needSave)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_EMPOWERED);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_EMPOWERED);
 
 			for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
 				stmt.AddValue(i, _azeriteEmpoweredItemData.Selections[i]);
@@ -94,7 +94,7 @@ public class AzeriteEmpoweredItem : Item
 
 	public static new void DeleteFromDB(SQLTransaction trans, ulong itemGuid)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
 		stmt.AddValue(0, itemGuid);
 		DB.Characters.ExecuteOrAppend(trans, stmt);
 	}

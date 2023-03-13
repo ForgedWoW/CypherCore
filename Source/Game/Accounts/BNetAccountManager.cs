@@ -25,7 +25,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 		if (GetId(email) != 0)
 			return AccountOpResult.NameAlreadyExist;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ACCOUNT);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ACCOUNT);
 		stmt.AddValue(0, email);
 		stmt.AddValue(1, CalculateShaPassHash(email.ToUpper(), password.ToUpper()));
 		DB.Login.DirectExecute(stmt);
@@ -50,7 +50,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 		if (newPassword.Length > 16)
 			return AccountOpResult.PassTooLong;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_PASSWORD);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_PASSWORD);
 		stmt.AddValue(0, CalculateShaPassHash(username.ToUpper(), newPassword.ToUpper()));
 		stmt.AddValue(1, accountId);
 		DB.Login.DirectExecute(stmt);
@@ -63,7 +63,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 		if (!GetName(accountId, out var username))
 			return false;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_CHECK_PASSWORD);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_CHECK_PASSWORD);
 		stmt.AddValue(0, accountId);
 		stmt.AddValue(1, CalculateShaPassHash(username.ToUpper(), password.ToUpper()));
 
@@ -85,7 +85,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 		if (GetIdByGameAccount(gameAccountId) != 0)
 			return AccountOpResult.BadLink;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LINK);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LINK);
 		stmt.AddValue(0, bnetAccountId);
 		stmt.AddValue(1, GetMaxIndex(bnetAccountId) + 1);
 		stmt.AddValue(2, gameAccountId);
@@ -104,7 +104,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 		if (GetIdByGameAccount(gameAccountId) == 0)
 			return AccountOpResult.BadLink;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LINK);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LINK);
 		stmt.AddNull(0);
 		stmt.AddNull(1);
 		stmt.AddValue(2, gameAccountId);
@@ -115,7 +115,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 
 	public uint GetId(string username)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_EMAIL);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_EMAIL);
 		stmt.AddValue(0, username);
 		var result = DB.Login.Query(stmt);
 
@@ -128,7 +128,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 	public bool GetName(uint accountId, out string name)
 	{
 		name = "";
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_EMAIL_BY_ID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_EMAIL_BY_ID);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 
@@ -144,7 +144,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 
 	public uint GetIdByGameAccount(uint gameAccountId)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
 		stmt.AddValue(0, gameAccountId);
 		var result = DB.Login.Query(stmt);
 
@@ -156,7 +156,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 
 	public QueryCallback GetIdByGameAccountAsync(uint gameAccountId)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_ACCOUNT_ID_BY_GAME_ACCOUNT);
 		stmt.AddValue(0, gameAccountId);
 
 		return DB.Login.AsyncQuery(stmt);
@@ -164,7 +164,7 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 
 	public byte GetMaxIndex(uint accountId)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_BNET_MAX_ACCOUNT_INDEX);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_MAX_ACCOUNT_INDEX);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 

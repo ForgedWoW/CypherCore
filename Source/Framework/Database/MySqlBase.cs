@@ -12,7 +12,7 @@ namespace Framework.Database;
 
 public abstract class MySqlBase<T>
 {
-	static readonly Dictionary<T, string> _preparedQueries = new();
+	readonly Dictionary<T, string> _preparedQueries = new();
 
 	MySqlConnectionInfo _connectionInfo;
 	DatabaseUpdater<T> _updater;
@@ -176,7 +176,7 @@ public abstract class MySqlBase<T>
 		_preparedQueries[statement] = sb.ToString();
 	}
 
-	public static PreparedStatement GetPreparedStatement(T statement)
+	public PreparedStatement GetPreparedStatement(T statement)
 	{
 		return new PreparedStatement(_preparedQueries[statement]);
 	}

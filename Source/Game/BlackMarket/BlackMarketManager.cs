@@ -58,7 +58,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 		// Clear in case we are reloading
 		_auctions.Clear();
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_BLACKMARKET_AUCTIONS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_BLACKMARKET_AUCTIONS);
 		var result = DB.Characters.Query(stmt);
 
 		if (result.IsEmpty())

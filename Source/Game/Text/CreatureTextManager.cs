@@ -28,7 +28,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 		_textMap.Clear(); // for reload case
 		//all currently used temp texts are NOT reset
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEXT);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEXT);
 		var result = DB.World.Query(stmt);
 
 		if (result.IsEmpty())

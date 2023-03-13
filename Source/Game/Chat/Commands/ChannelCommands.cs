@@ -50,7 +50,7 @@ class ChannelCommands
 				if (channel != null)
 					channel.SetOwnership(true);
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
 				stmt.AddValue(0, 1);
 				stmt.AddValue(1, channelName);
 				DB.Characters.Execute(stmt);
@@ -61,7 +61,7 @@ class ChannelCommands
 				if (channel != null)
 					channel.SetOwnership(false);
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
 				stmt.AddValue(0, 0);
 				stmt.AddValue(1, channelName);
 				DB.Characters.Execute(stmt);

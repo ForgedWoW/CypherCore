@@ -59,7 +59,7 @@ public class SuggestionTicket : Ticket
 	public override void SaveToDB()
 	{
 		byte idx = 0;
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_GM_SUGGESTION);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_GM_SUGGESTION);
 		stmt.AddValue(idx, IdProtected);
 		stmt.AddValue(++idx, PlayerGuidProtected.Counter);
 		stmt.AddValue(++idx, _note);
@@ -78,7 +78,7 @@ public class SuggestionTicket : Ticket
 
 	public override void DeleteFromDB()
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GM_SUGGESTION);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_SUGGESTION);
 		stmt.AddValue(0, IdProtected);
 		DB.Characters.Execute(stmt);
 	}

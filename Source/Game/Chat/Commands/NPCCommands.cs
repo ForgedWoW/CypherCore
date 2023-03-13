@@ -214,7 +214,7 @@ class NPCCommands
 		Global.ObjectMgr.AddCreatureToGrid(data);
 
 		// update position in DB
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_POSITION);
 		stmt.AddValue(0, player.Location.X);
 		stmt.AddValue(1, player.Location.Y);
 		stmt.AddValue(2, player.Location.Z);
@@ -240,7 +240,7 @@ class NPCCommands
 
 		var player = handler.Player;
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_NEAREST);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_NEAREST);
 		stmt.AddValue(0, player.Location.X);
 		stmt.AddValue(1, player.Location.Y);
 		stmt.AddValue(2, player.Location.Z);
@@ -742,7 +742,7 @@ class NPCCommands
 			}
 
 			// Update movement type
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
 			stmt.AddValue(0, (byte)MovementGeneratorType.Waypoint);
 			stmt.AddValue(1, lowGuid);
 			DB.World.Execute(stmt);
@@ -783,7 +783,7 @@ class NPCCommands
 			FormationMgr.AddFormationMember(lowguid, followAngle, followDist, leaderGUID, groupAI);
 			creature.SearchFormation();
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_CREATURE_FORMATION);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE_FORMATION);
 			stmt.AddValue(0, leaderGUID);
 			stmt.AddValue(1, lowguid);
 			stmt.AddValue(2, followAngle);
@@ -1059,7 +1059,7 @@ class NPCCommands
 				cinfo.Faction = factionId;
 
 			// ..and DB
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_FACTION);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_FACTION);
 
 			stmt.AddValue(0, factionId);
 			stmt.AddValue(1, factionId);
@@ -1085,7 +1085,7 @@ class NPCCommands
 			creature.ReplaceAllNpcFlags(npcFlags);
 			creature.ReplaceAllNpcFlags2(npcFlags2);
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_NPCFLAG);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_NPCFLAG);
 			stmt.AddValue(0, (ulong)npcFlags | ((ulong)npcFlags2 << 32));
 			stmt.AddValue(1, creature.Entry);
 			DB.World.Execute(stmt);
@@ -1365,7 +1365,7 @@ class NPCCommands
 				creature.Respawn();
 			}
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_WANDER_DISTANCE);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_WANDER_DISTANCE);
 			stmt.AddValue(0, option);
 			stmt.AddValue(1, (byte)mtype);
 			stmt.AddValue(2, guidLow);
@@ -1385,7 +1385,7 @@ class NPCCommands
 			if (!creature)
 				return false;
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_SPAWN_TIME_SECS);
 			stmt.AddValue(0, spawnTime);
 			stmt.AddValue(1, creature.SpawnId);
 			DB.World.Execute(stmt);

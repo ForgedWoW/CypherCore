@@ -266,7 +266,7 @@ class GameObjectCommands
 
 		var player = handler.Player;
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_GAMEOBJECT_NEAREST);
 		stmt.AddValue(0, player.Location.X);
 		stmt.AddValue(1, player.Location.Y);
 		stmt.AddValue(2, player.Location.Z);

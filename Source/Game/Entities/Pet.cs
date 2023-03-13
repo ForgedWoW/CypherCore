@@ -522,7 +522,7 @@ public class Pet : Guardian
 			trans = new SQLTransaction();
 
 			// remove current data
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
 			stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 			trans.Append(stmt);
 
@@ -532,7 +532,7 @@ public class Pet : Guardian
 			Cypher.Assert(owner.PetStable1.GetCurrentPet() != null && owner.PetStable1.GetCurrentPet().PetNumber == GetCharmInfo().GetPetNumber());
 			FillPetInfo(owner.PetStable1.GetCurrentPet());
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET);
 			stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 			stmt.AddValue(1, Entry);
 			stmt.AddValue(2, ownerLowGUID);
@@ -587,31 +587,31 @@ public class Pet : Guardian
 	{
 		SQLTransaction trans = new();
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_BY_ID);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_PET_DECLINEDNAME);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELLS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELLS);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_COOLDOWNS);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_CHARGES);
 		stmt.AddValue(0, petNumber);
 		trans.Append(stmt);
 
@@ -1242,7 +1242,7 @@ public class Pet : Guardian
 			switch (pair.Value.State)
 			{
 				case PetSpellState.Removed:
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
 					stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 					stmt.AddValue(1, pair.Key);
 					trans.Append(stmt);
@@ -1251,12 +1251,12 @@ public class Pet : Guardian
 
 					continue;
 				case PetSpellState.Changed:
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_SPELL_BY_SPELL);
 					stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 					stmt.AddValue(1, pair.Key);
 					trans.Append(stmt);
 
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL);
 					stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 					stmt.AddValue(1, pair.Key);
 					stmt.AddValue(2, (byte)pair.Value.Active);
@@ -1264,7 +1264,7 @@ public class Pet : Guardian
 
 					break;
 				case PetSpellState.New:
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_SPELL);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_SPELL);
 					stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 					stmt.AddValue(1, pair.Key);
 					stmt.AddValue(2, (byte)pair.Value.Active);
@@ -1386,11 +1386,11 @@ public class Pet : Guardian
 
 	void _SaveAuras(SQLTransaction trans)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
 		stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURAS);
 		stmt.AddValue(0, GetCharmInfo().GetPetNumber());
 		trans.Append(stmt);
 
@@ -1405,7 +1405,7 @@ public class Pet : Guardian
 				key.Caster.Clear();
 
 			index = 0;
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_AURA);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_AURA);
 			stmt.AddValue(index++, GetCharmInfo().GetPetNumber());
 			stmt.AddValue(index++, key.Caster.GetRawValue());
 			stmt.AddValue(index++, key.SpellId);
@@ -1421,7 +1421,7 @@ public class Pet : Guardian
 			foreach (var effect in aura.AuraEffects)
 			{
 				index = 0;
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PET_AURA_EFFECT);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET_AURA_EFFECT);
 				stmt.AddValue(index++, GetCharmInfo().GetPetNumber());
 				stmt.AddValue(index++, key.Caster.GetRawValue());
 				stmt.AddValue(index++, key.SpellId);
@@ -1445,7 +1445,7 @@ public class Pet : Guardian
 			{
 				Log.outError(LogFilter.Pet, "addSpell: Non-existed in SpellStore spell #{0} request, deleting for all pets in `pet_spell`.", spellId);
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_PET_SPELL);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_PET_SPELL);
 
 				stmt.AddValue(0, spellId);
 

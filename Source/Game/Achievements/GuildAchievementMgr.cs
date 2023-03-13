@@ -46,11 +46,11 @@ public class GuildAchievementMgr : AchievementManager
 	{
 		SQLTransaction trans = new();
 
-		PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
+		PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENT_CRITERIA);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
@@ -106,7 +106,7 @@ public class GuildAchievementMgr : AchievementManager
 					// we will remove not existed criteria for all guilds
 					Log.outError(LogFilter.Achievement, "Non-existing achievement criteria {0} data removed from table `guild_achievement_progress`.", id);
 
-					PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
+					PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
 					stmt.AddValue(0, id);
 					DB.Characters.Execute(stmt);
 					continue;
@@ -136,12 +136,12 @@ public class GuildAchievementMgr : AchievementManager
 			if (!pair.Value.Changed)
 				continue;
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT);
 			stmt.AddValue(0, _owner.GetId());
 			stmt.AddValue(1, pair.Key);
 			trans.Append(stmt);
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT);
 			stmt.AddValue(0, _owner.GetId());
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.Date);
@@ -159,12 +159,12 @@ public class GuildAchievementMgr : AchievementManager
 			if (!pair.Value.Changed)
 				continue;
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT_CRITERIA);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_ACHIEVEMENT_CRITERIA);
 			stmt.AddValue(0, _owner.GetId());
 			stmt.AddValue(1, pair.Key);
 			trans.Append(stmt);
 
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT_CRITERIA);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GUILD_ACHIEVEMENT_CRITERIA);
 			stmt.AddValue(0, _owner.GetId());
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.Counter);

@@ -122,7 +122,7 @@ public class CollectionMgr
 
 		foreach (var pair in _toys)
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
 			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.HasAnyFlag(ToyFlags.Favorite));
@@ -193,7 +193,7 @@ public class CollectionMgr
 
 		foreach (var heirloom in _heirlooms)
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
 			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, heirloom.Key);
 			stmt.AddValue(2, (uint)heirloom.Value.Flags);
@@ -357,7 +357,7 @@ public class CollectionMgr
 	{
 		foreach (var mount in _mounts)
 		{
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_MOUNTS);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_MOUNTS);
 			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, mount.Key);
 			stmt.AddValue(2, (byte)mount.Value);
@@ -490,7 +490,7 @@ public class CollectionMgr
 		{
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
-				stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_APPEARANCES);
+				stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_APPEARANCES);
 				stmt.AddValue(0, _owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);
@@ -507,7 +507,7 @@ public class CollectionMgr
 			switch (appearanceState)
 			{
 				case FavoriteAppearanceState.New:
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_FAVORITE_APPEARANCE);
+					stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_FAVORITE_APPEARANCE);
 					stmt.AddValue(0, _owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
@@ -515,7 +515,7 @@ public class CollectionMgr
 
 					break;
 				case FavoriteAppearanceState.Removed:
-					stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
+					stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
 					stmt.AddValue(0, _owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
@@ -719,7 +719,7 @@ public class CollectionMgr
 		{
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
-				var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_TRANSMOG_ILLUSIONS);
+				var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_TRANSMOG_ILLUSIONS);
 				stmt.AddValue(0, _owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);

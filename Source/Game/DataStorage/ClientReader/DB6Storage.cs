@@ -209,7 +209,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 	void LoadFromDB(bool custom, HotfixStatements preparedStatement)
 	{
 		// Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
-		var stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
+		var stmt = DB.Hotfix.GetPreparedStatement(preparedStatement);
 		stmt.AddValue(0, !custom);
 		var result = DB.Hotfix.Query(stmt);
 
@@ -393,7 +393,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 
 	void LoadStringsFromDB(bool custom, Locale locale, HotfixStatements preparedStatement)
 	{
-		var stmt = HotfixDatabase.GetPreparedStatement(preparedStatement);
+		var stmt = DB.Hotfix.GetPreparedStatement(preparedStatement);
 		stmt.AddValue(0, !custom);
 		stmt.AddValue(1, locale.ToString());
 		var result = DB.Hotfix.Query(stmt);

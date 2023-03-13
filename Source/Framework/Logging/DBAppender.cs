@@ -15,7 +15,7 @@ class DBAppender : Appender
 		if (!enabled || message.type == LogFilter.Sql)
 			return;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_LOG);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_LOG);
 		stmt.AddValue(0, Time.DateTimeToUnixTime(message.mtime));
 		stmt.AddValue(1, realmId);
 		stmt.AddValue(2, message.type.ToString());

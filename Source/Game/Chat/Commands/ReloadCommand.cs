@@ -227,7 +227,7 @@ class ReloadCommand
 
 		while ((entry = args.NextUInt32()) != 0)
 		{
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, 0);
 			var result = DB.World.Query(stmt);

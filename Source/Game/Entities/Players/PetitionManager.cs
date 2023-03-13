@@ -81,7 +81,7 @@ public class PetitionManager : Singleton<PetitionManager>
 		if (isLoading)
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PETITION);
 		stmt.AddValue(0, ownerGuid.Counter);
 		stmt.AddValue(1, petitionGuid.Counter);
 		stmt.AddValue(2, name);
@@ -95,11 +95,11 @@ public class PetitionManager : Singleton<PetitionManager>
 		// Delete From DB
 		SQLTransaction trans = new();
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
 		stmt.AddValue(0, petitionGuid.Counter);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
 		stmt.AddValue(0, petitionGuid.Counter);
 		trans.Append(stmt);
 
@@ -127,11 +127,11 @@ public class PetitionManager : Singleton<PetitionManager>
 			}
 
 		SQLTransaction trans = new();
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
 		stmt.AddValue(0, ownerGuid.Counter);
 		trans.Append(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
 		stmt.AddValue(0, ownerGuid.Counter);
 		trans.Append(stmt);
 		DB.Characters.CommitTransaction(trans);
@@ -142,7 +142,7 @@ public class PetitionManager : Singleton<PetitionManager>
 		foreach (var petitionPair in _petitionStorage)
 			petitionPair.Value.RemoveSignatureBySigner(signerGuid);
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
 		stmt.AddValue(0, signerGuid.Counter);
 		DB.Characters.Execute(stmt);
 	}

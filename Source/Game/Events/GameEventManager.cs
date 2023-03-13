@@ -176,11 +176,11 @@ namespace Game
                         pair.Value.done = 0;
 
                     SQLTransaction trans = new();
-                    PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GAME_EVENT_CONDITION_SAVE);
+                    PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GAME_EVENT_CONDITION_SAVE);
                     stmt.AddValue(0, event_id);
                     trans.Append(stmt);
 
-                    stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
+                    stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
                     stmt.AddValue(0, event_id);
                     trans.Append(stmt);
 
@@ -1508,12 +1508,12 @@ namespace Game
                         // save the change to db
                         SQLTransaction trans = new();
 
-                        PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_CONDITION_SAVE);
+                        PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_CONDITION_SAVE);
                         stmt.AddValue(0, event_id);
                         stmt.AddValue(1, condition);
                         trans.Append(stmt);
 
-                        stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_CONDITION_SAVE);
+                        stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GAME_EVENT_CONDITION_SAVE);
                         stmt.AddValue(0, event_id);
                         stmt.AddValue(1, condition);
                         stmt.AddValue(2, eventFinishCond.done);
@@ -1553,11 +1553,11 @@ namespace Game
         {
             SQLTransaction trans = new();
 
-            PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
+            PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
             stmt.AddValue(0, event_id);
             trans.Append(stmt);
 
-            stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_SAVE);
+            stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GAME_EVENT_SAVE);
             stmt.AddValue(0, event_id);
             stmt.AddValue(1, (byte)mGameEvent[event_id].state);
             stmt.AddValue(2, mGameEvent[event_id].nextstart != 0 ? mGameEvent[event_id].nextstart : 0L);

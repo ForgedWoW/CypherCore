@@ -87,7 +87,7 @@ public class WorldSocket : SocketBase
 	{
 		var ip_address = GetRemoteIpAddress().ToString();
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SelIpInfo);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SelIpInfo);
 		stmt.AddValue(0, ip_address);
 		stmt.AddValue(1, BitConverter.ToUInt32(GetRemoteIpAddress().Address.GetAddressBytes(), 0));
 
@@ -529,7 +529,7 @@ public class WorldSocket : SocketBase
 	void HandleAuthSession(AuthSession authSession)
 	{
 		// Get the account information from the realmd database
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
 		stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
 		stmt.AddValue(1, authSession.RealmJoinTicket);
 
@@ -621,14 +621,14 @@ public class WorldSocket : SocketBase
 		if (WorldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
 		{
 			// As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
 			stmt.AddValue(0, address.Address.ToString());
 			stmt.AddValue(1, authSession.RealmJoinTicket);
 			DB.Login.Execute(stmt);
 			// This also allows to check for possible "hack" attempts on account
 		}
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
 		stmt.AddValue(0, _sessionKey);
 		stmt.AddValue(1, account.game.Id);
 		DB.Login.Execute(stmt);
@@ -701,7 +701,7 @@ public class WorldSocket : SocketBase
 		{
 			mutetime = GameTime.GetGameTime() + mutetime;
 
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
 			stmt.AddValue(0, mutetime);
 			stmt.AddValue(1, account.game.Id);
 			DB.Login.Execute(stmt);
@@ -733,7 +733,7 @@ public class WorldSocket : SocketBase
 		if (WorldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
 		{
 			// Update the last_ip in the database
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_IP);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LAST_IP);
 			stmt.AddValue(0, address.Address.ToString());
 			stmt.AddValue(1, authSession.RealmJoinTicket);
 			DB.Login.Execute(stmt);
@@ -791,7 +791,7 @@ public class WorldSocket : SocketBase
 		}
 
 		var accountId = key.AccountId;
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
 		stmt.AddValue(0, accountId);
 
 		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleAuthContinuedSessionCallback, authSession));

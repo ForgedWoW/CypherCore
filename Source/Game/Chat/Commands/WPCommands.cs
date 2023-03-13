@@ -29,7 +29,7 @@ class WPCommands
 			}
 			else
 			{
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_ID);
 				var result1 = DB.World.Query(stmt);
 
 				var maxpathid = result1.Read<uint>(0);
@@ -52,7 +52,7 @@ class WPCommands
 			return true;
 		}
 
-		stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_POINT);
+		stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_MAX_POINT);
 		stmt.AddValue(0, pathId);
 		var result = DB.World.Query(stmt);
 
@@ -61,7 +61,7 @@ class WPCommands
 
 		var player = handler.Session.Player;
 
-		stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
+		stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
 		stmt.AddValue(0, pathId);
 		stmt.AddValue(1, point + 1);
 		stmt.AddValue(2, player.Location.X);
@@ -89,13 +89,13 @@ class WPCommands
 		{
 			if (id != 0)
 			{
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
 				stmt.AddValue(0, id);
 				var result = DB.World.Query(stmt);
 
 				if (result.IsEmpty())
 				{
-					stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
+					stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
 					stmt.AddValue(0, id);
 					DB.World.Execute(stmt);
 
@@ -108,11 +108,11 @@ class WPCommands
 			}
 			else
 			{
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPTS_MAX_ID);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPTS_MAX_ID);
 				var result = DB.World.Query(stmt);
 				id = result.Read<uint>(0);
 
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_SCRIPT);
 				stmt.AddValue(0, id + 1);
 				DB.World.Execute(stmt);
 
@@ -135,7 +135,7 @@ class WPCommands
 			float a8, a9, a10, a11;
 			string a7;
 
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_BY_ID);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_BY_ID);
 			stmt.AddValue(0, id);
 			var result = DB.World.Query(stmt);
 
@@ -185,13 +185,13 @@ class WPCommands
 				return true;
 			}
 
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
 			stmt.AddValue(0, id);
 			var result = DB.World.Query(stmt);
 
 			if (!result.IsEmpty())
 			{
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_SCRIPT);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_SCRIPT);
 				stmt.AddValue(0, id);
 				DB.World.Execute(stmt);
 
@@ -242,7 +242,7 @@ class WPCommands
 
 				handler.SendSysMessage("|cff00ff00Wp Event: Waypoint script guid: {0}|r|cff00ffff id changed: |r|cff00ff00{1}|r", newid, id);
 
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_ID);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_ID);
 				stmt.AddValue(0, newid);
 				stmt.AddValue(1, id);
 
@@ -252,7 +252,7 @@ class WPCommands
 			}
 			else
 			{
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_SCRIPT_ID_BY_GUID);
 				stmt.AddValue(0, id);
 				var result = DB.World.Query(stmt);
 
@@ -268,7 +268,7 @@ class WPCommands
 					if (!float.TryParse(arg2, out var arg3))
 						return false;
 
-					stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_X);
+					stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_X);
 					stmt.AddValue(0, arg3);
 					stmt.AddValue(1, id);
 					DB.World.Execute(stmt);
@@ -282,7 +282,7 @@ class WPCommands
 					if (!float.TryParse(arg2, out var arg3))
 						return false;
 
-					stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Y);
+					stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Y);
 					stmt.AddValue(0, arg3);
 					stmt.AddValue(1, id);
 					DB.World.Execute(stmt);
@@ -296,7 +296,7 @@ class WPCommands
 					if (!float.TryParse(arg2, out var arg3))
 						return false;
 
-					stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Z);
+					stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_Z);
 					stmt.AddValue(0, arg3);
 					stmt.AddValue(1, id);
 					DB.World.Execute(stmt);
@@ -310,7 +310,7 @@ class WPCommands
 					if (!float.TryParse(arg2, out var arg3))
 						return false;
 
-					stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_O);
+					stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_SCRIPT_O);
 					stmt.AddValue(0, arg3);
 					stmt.AddValue(1, id);
 					DB.World.Execute(stmt);
@@ -376,26 +376,26 @@ class WPCommands
 
 		var guidLow = target.SpawnId;
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_ADDON_BY_GUID);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_ADDON_BY_GUID);
 		stmt.AddValue(0, guidLow);
 		var result = DB.World.Query(stmt);
 
 		if (!result.IsEmpty())
 		{
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_ADDON_PATH);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_ADDON_PATH);
 			stmt.AddValue(0, pathId);
 			stmt.AddValue(1, guidLow);
 		}
 		else
 		{
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.INS_CREATURE_ADDON);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.INS_CREATURE_ADDON);
 			stmt.AddValue(0, guidLow);
 			stmt.AddValue(1, pathId);
 		}
 
 		DB.World.Execute(stmt);
 
-		stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+		stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
 		stmt.AddValue(0, (byte)MovementGeneratorType.Waypoint);
 		stmt.AddValue(1, guidLow);
 
@@ -437,7 +437,7 @@ class WPCommands
 		}
 
 		// Check the creature
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_WPGUID);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_WPGUID);
 		stmt.AddValue(0, target.SpawnId);
 		var result = DB.World.Query(stmt);
 
@@ -451,7 +451,7 @@ class WPCommands
 			// See also: http://dev.mysql.com/doc/refman/5.0/en/problems-with-float.html
 			var maxDiff = "0.01";
 
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_POS);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_POS);
 			stmt.AddValue(0, target.Location.X);
 			stmt.AddValue(1, maxDiff);
 			stmt.AddValue(2, target.Location.Y);
@@ -491,12 +491,12 @@ class WPCommands
 
 			if (Creature.DeleteFromDB(target.SpawnId))
 			{
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_DATA);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_WAYPOINT_DATA);
 				stmt.AddValue(0, pathid);
 				stmt.AddValue(1, point);
 				DB.World.Execute(stmt);
 
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POINT);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POINT);
 				stmt.AddValue(0, pathid);
 				stmt.AddValue(1, point);
 				DB.World.Execute(stmt);
@@ -564,7 +564,7 @@ class WPCommands
 				return false;
 			}
 
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POSITION);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_POSITION);
 			stmt.AddValue(0, chr.Location.X);
 			stmt.AddValue(1, chr.Location.Y);
 			stmt.AddValue(2, chr.Location.Z);
@@ -650,7 +650,7 @@ class WPCommands
 				return false;
 			}
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ALL_BY_WPGUID);
 			stmt.AddValue(0, target.SpawnId);
 			var result = DB.World.Query(stmt);
 
@@ -684,7 +684,7 @@ class WPCommands
 
 		if (subCommand == "on")
 		{
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_BY_ID);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_BY_ID);
 			stmt.AddValue(0, pathId);
 			var result = DB.World.Query(stmt);
 
@@ -698,7 +698,7 @@ class WPCommands
 			handler.SendSysMessage("|cff00ff00DEBUG: wp on, PathID: |cff00ffff{0}|r", pathId);
 
 			// Delete all visuals for this NPC
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_WPGUID_BY_ID);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_WPGUID_BY_ID);
 			stmt.AddValue(0, pathId);
 			var result2 = DB.World.Query(stmt);
 
@@ -779,7 +779,7 @@ class WPCommands
 				}
 
 				// Set "wpguid" column to the visual waypoint
-				stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
+				stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_WPGUID);
 				stmt.AddValue(0, creature.SpawnId);
 				stmt.AddValue(1, pathId);
 				stmt.AddValue(2, point);
@@ -795,7 +795,7 @@ class WPCommands
 		{
 			handler.SendSysMessage("|cff00ff00DEBUG: wp first, pathid: {0}|r", pathId);
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_FIRST_BY_ID);
 			stmt.AddValue(0, pathId);
 			var result = DB.World.Query(stmt);
 
@@ -859,7 +859,7 @@ class WPCommands
 		{
 			handler.SendSysMessage("|cff00ff00DEBUG: wp last, PathID: |r|cff00ffff{0}|r", pathId);
 
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_POS_LAST_BY_ID);
 			stmt.AddValue(0, pathId);
 			var result = DB.World.Query(stmt);
 
@@ -922,7 +922,7 @@ class WPCommands
 
 		if (subCommand == "off")
 		{
-			var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_BY_ID);
+			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_BY_ID);
 			stmt.AddValue(0, 1);
 			var result = DB.World.Query(stmt);
 
@@ -947,7 +947,7 @@ class WPCommands
 			} while (result.NextRow());
 
 			// set "wpguid" column to "empty" - no visual waypoint spawned
-			stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_ALL_WPGUID);
+			stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_WAYPOINT_DATA_ALL_WPGUID);
 
 			DB.World.Execute(stmt);
 			//DB.World.PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
@@ -999,13 +999,13 @@ class WPCommands
 			return true;
 		}
 
-		var stmt = WorldDatabase.GetPreparedStatement(WorldStatements.DEL_CREATURE_ADDON);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_CREATURE_ADDON);
 		stmt.AddValue(0, guidLow);
 		DB.World.Execute(stmt);
 
 		target.UpdateCurrentWaypointInfo(0, 0);
 
-		stmt = WorldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
+		stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_MOVEMENT_TYPE);
 		stmt.AddValue(0, (byte)MovementGeneratorType.Idle);
 		stmt.AddValue(1, guidLow);
 		DB.World.Execute(stmt);

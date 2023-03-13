@@ -2088,7 +2088,7 @@ public class Map : IDisposable
 		if (Instanceable)
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_RESPAWN);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_RESPAWN);
 		stmt.AddValue(0, (ushort)info.ObjectType);
 		stmt.AddValue(1, info.SpawnId);
 		stmt.AddValue(2, info.RespawnTime);
@@ -2102,7 +2102,7 @@ public class Map : IDisposable
 		if (Instanceable)
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_RESPAWNS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_RESPAWNS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, InstanceId);
 		var result = DB.Characters.Query(stmt);
@@ -2141,7 +2141,7 @@ public class Map : IDisposable
 		if (Instanceable)
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_RESPAWNS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_RESPAWNS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, InstanceId);
 		DB.Characters.Execute(stmt);
@@ -2166,7 +2166,7 @@ public class Map : IDisposable
 
 	public void LoadCorpseData()
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CORPSES);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CORPSES);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, InstanceId);
 
@@ -2180,7 +2180,7 @@ public class Map : IDisposable
 		MultiMap<ulong, uint> phases = new();
 		MultiMap<ulong, ChrCustomizationChoice> customizations = new();
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CORPSE_PHASES);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CORPSE_PHASES);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, InstanceId);
 
@@ -2197,7 +2197,7 @@ public class Map : IDisposable
 				phases.Add(guid, phaseId);
 			} while (phaseResult.NextRow());
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CORPSE_CUSTOMIZATIONS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CORPSE_CUSTOMIZATIONS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, InstanceId);
 
@@ -2245,7 +2245,7 @@ public class Map : IDisposable
 	public void DeleteCorpseData()
 	{
 		// DELETE cp, c FROM corpse_phases cp INNER JOIN corpse c ON cp.OwnerGuid = c.guid WHERE c.mapId = ? AND c.instanceId = ?
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CORPSES_FROM_MAP);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CORPSES_FROM_MAP);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, InstanceId);
 		DB.Characters.Execute(stmt);
@@ -3894,7 +3894,7 @@ public class Map : IDisposable
 		if (Instanceable)
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_RESPAWN);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESPAWN);
 		stmt.AddValue(0, (ushort)type);
 		stmt.AddValue(1, spawnId);
 		stmt.AddValue(2, Id);

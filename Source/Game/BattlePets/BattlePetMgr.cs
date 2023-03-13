@@ -241,7 +241,7 @@ public class BattlePetMgr
 				switch (pair.Value.SaveInfo)
 				{
 					case BattlePetSaveInfo.New:
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
+						stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
 						stmt.AddValue(0, pair.Key);
 						stmt.AddValue(1, _owner.BattlenetAccountId);
 						stmt.AddValue(2, pair.Value.PacketInfo.Species);
@@ -270,7 +270,7 @@ public class BattlePetMgr
 
 						if (pair.Value.DeclinedName != null)
 						{
-							stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+							stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
 							stmt.AddValue(0, pair.Key);
 
 							for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
@@ -284,7 +284,7 @@ public class BattlePetMgr
 
 						break;
 					case BattlePetSaveInfo.Changed:
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
+						stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
 						stmt.AddValue(0, pair.Value.PacketInfo.Level);
 						stmt.AddValue(1, pair.Value.PacketInfo.Exp);
 						stmt.AddValue(2, pair.Value.PacketInfo.Health);
@@ -296,13 +296,13 @@ public class BattlePetMgr
 						stmt.AddValue(8, pair.Key);
 						trans.Append(stmt);
 
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
 						stmt.AddValue(0, pair.Key);
 						trans.Append(stmt);
 
 						if (pair.Value.DeclinedName != null)
 						{
-							stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+							stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
 							stmt.AddValue(0, pair.Key);
 
 							for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
@@ -315,11 +315,11 @@ public class BattlePetMgr
 
 						break;
 					case BattlePetSaveInfo.Removed:
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
 						stmt.AddValue(0, pair.Key);
 						trans.Append(stmt);
 
-						stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
+						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
 						stmt.AddValue(0, _owner.BattlenetAccountId);
 						stmt.AddValue(1, pair.Key);
 						trans.Append(stmt);
@@ -328,13 +328,13 @@ public class BattlePetMgr
 						break;
 				}
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
 		stmt.AddValue(0, _owner.BattlenetAccountId);
 		trans.Append(stmt);
 
 		foreach (var slot in _slots)
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
 			stmt.AddValue(0, slot.Index);
 			stmt.AddValue(1, _owner.BattlenetAccountId);
 			stmt.AddValue(2, slot.Pet.Guid.Counter);

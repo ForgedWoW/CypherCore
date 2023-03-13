@@ -42,13 +42,13 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 	public static void SaveToDB(QuestPool pool, SQLTransaction trans)
 	{
-		var delStmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+		var delStmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 		delStmt.AddValue(0, pool.PoolId);
 		trans.Append(delStmt);
 
 		foreach (var questId in pool.ActiveQuests)
 		{
-			var insStmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
+			var insStmt = DB.Characters.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
 			insStmt.AddValue(0, pool.PoolId);
 			insStmt.AddValue(1, questId);
 			trans.Append(insStmt);
@@ -156,7 +156,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 				foreach (var poolId in unknownPoolIds)
 				{
-					var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 					stmt.AddValue(0, poolId);
 					trans0.Append(stmt);
 				}

@@ -46,11 +46,11 @@ public class PlayerAchievementMgr : AchievementManager
 	{
 		SQLTransaction trans = new();
 
-		PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT);
+		PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT);
 		stmt.AddValue(0, guid.Counter);
 		DB.Characters.Execute(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
 		stmt.AddValue(0, guid.Counter);
 		DB.Characters.Execute(stmt);
 
@@ -108,7 +108,7 @@ public class PlayerAchievementMgr : AchievementManager
 					// Removing non-existing criteria data for all characters
 					Log.outError(LogFilter.Achievement, "Non-existing achievement criteria {0} data removed from table `character_achievement_progress`.", id);
 
-					PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+					PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
 					stmt.AddValue(0, id);
 					DB.Characters.Execute(stmt);
 					continue;
@@ -138,12 +138,12 @@ public class PlayerAchievementMgr : AchievementManager
 				if (!pair.Value.Changed)
 					continue;
 
-				PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+				PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
 				stmt.AddValue(0, pair.Key);
 				stmt.AddValue(1, _owner.GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
+				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, pair.Key);
 				stmt.AddValue(2, pair.Value.Date);
@@ -160,14 +160,14 @@ public class PlayerAchievementMgr : AchievementManager
 				if (!pair.Value.Changed)
 					continue;
 
-				PreparedStatement stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+				PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, pair.Key);
 				trans.Append(stmt);
 
 				if (pair.Value.Counter != 0)
 				{
-					stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
+					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
 					stmt.AddValue(0, _owner.GUID.Counter);
 					stmt.AddValue(1, pair.Key);
 					stmt.AddValue(2, pair.Value.Counter);

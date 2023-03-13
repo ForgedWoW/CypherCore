@@ -36,7 +36,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 		(var salt, var verifier) = SRP6.MakeRegistrationData(username, password);
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT);
 		stmt.AddValue(0, username);
 		stmt.AddValue(1, salt);
 		stmt.AddValue(2, verifier);
@@ -56,7 +56,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 		DB.Login.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_REALM_CHARACTERS_INIT);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_REALM_CHARACTERS_INIT);
 		DB.Login.Execute(stmt);
 
 		return AccountOpResult.Ok;
@@ -65,7 +65,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public AccountOpResult DeleteAccount(uint accountId)
 	{
 		// Check if accounts exists
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 
@@ -73,7 +73,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 			return AccountOpResult.NameNotExist;
 
 		// Obtain accounts characters
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARS_BY_ACCOUNT_ID);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARS_BY_ACCOUNT_ID);
 		stmt.AddValue(0, accountId);
 		result = DB.Characters.Query(stmt);
 
@@ -96,37 +96,37 @@ public sealed class AccountManager : Singleton<AccountManager>
 			} while (result.NextRow());
 
 		// table realm specific but common for all characters of account for realm
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_TUTORIALS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_TUTORIALS);
 		stmt.AddValue(0, accountId);
 		DB.Characters.Execute(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_ACCOUNT_DATA);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ACCOUNT_DATA);
 		stmt.AddValue(0, accountId);
 		DB.Characters.Execute(stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_BAN);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_BAN);
 		stmt.AddValue(0, accountId);
 		DB.Characters.Execute(stmt);
 
 		SQLTransaction trans = new();
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_REALM_CHARACTERS);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_REALM_CHARACTERS);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_BANNED);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_BANNED);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_MUTED);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_MUTED);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
@@ -138,7 +138,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public AccountOpResult ChangeUsername(uint accountId, string newUsername, string newPassword)
 	{
 		// Check if accounts exists
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 
@@ -151,13 +151,13 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newPassword.Length > MaxAccountLength)
 			return AccountOpResult.PassTooLong;
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_USERNAME);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_USERNAME);
 		stmt.AddValue(0, newUsername);
 		stmt.AddValue(1, accountId);
 		DB.Login.Execute(stmt);
 
 		(var salt, var verifier) = SRP6.MakeRegistrationData(newUsername, newPassword);
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LOGON);
 		stmt.AddValue(0, salt);
 		stmt.AddValue(1, verifier);
 		stmt.AddValue(2, accountId);
@@ -176,7 +176,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 		(var salt, var verifier) = SRP6.MakeRegistrationData(username, newPassword);
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LOGON);
 		stmt.AddValue(0, salt);
 		stmt.AddValue(1, verifier);
 		stmt.AddValue(2, accountId);
@@ -193,7 +193,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newEmail.Length > MaxEmailLength)
 			return AccountOpResult.EmailTooLong;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_EMAIL);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EMAIL);
 		stmt.AddValue(0, newEmail);
 		stmt.AddValue(1, accountId);
 		DB.Login.Execute(stmt);
@@ -209,7 +209,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newEmail.Length > MaxEmailLength)
 			return AccountOpResult.EmailTooLong;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_REG_EMAIL);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_REG_EMAIL);
 		stmt.AddValue(0, newEmail);
 		stmt.AddValue(1, accountId);
 		DB.Login.Execute(stmt);
@@ -219,7 +219,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public uint GetId(string username)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_ACCOUNT_ID_BY_USERNAME);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_ACCOUNT_ID_BY_USERNAME);
 		stmt.AddValue(0, username);
 		var result = DB.Login.Query(stmt);
 
@@ -228,7 +228,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public AccountTypes GetSecurity(uint accountId, int realmId)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
 		stmt.AddValue(0, accountId);
 		stmt.AddValue(1, realmId);
 		var result = DB.Login.Query(stmt);
@@ -238,7 +238,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public QueryCallback GetSecurityAsync(uint accountId, int realmId, Action<uint> callback)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
 		stmt.AddValue(0, accountId);
 		stmt.AddValue(1, realmId);
 
@@ -248,7 +248,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public bool GetName(uint accountId, out string name)
 	{
 		name = "";
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_USERNAME_BY_ID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_USERNAME_BY_ID);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 
@@ -265,7 +265,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public bool GetEmail(uint accountId, out string email)
 	{
 		email = "";
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 
@@ -284,7 +284,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (!GetName(accountId, out var username))
 			return false;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
 		stmt.AddValue(0, accountId);
 		var result = DB.Login.Query(stmt);
 
@@ -315,7 +315,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public uint GetCharactersCount(uint accountId)
 	{
 		// check character count
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_SUM_CHARS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_SUM_CHARS);
 		stmt.AddValue(0, accountId);
 		var result = DB.Characters.Query(stmt);
 
@@ -324,7 +324,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public bool IsBannedAccount(string name)
 	{
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_USERNAME);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_USERNAME);
 		stmt.AddValue(0, name);
 		var result = DB.Login.Query(stmt);
 
@@ -447,13 +447,13 @@ public sealed class AccountManager : Singleton<AccountManager>
 		// Delete old security level from DB
 		if (realmId == -1)
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
 			stmt.AddValue(0, accountId);
 			trans.Append(stmt);
 		}
 		else
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS_BY_REALM);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS_BY_REALM);
 			stmt.AddValue(0, accountId);
 			stmt.AddValue(1, realmId);
 			trans.Append(stmt);
@@ -462,7 +462,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		// Add new security level
 		if (securityLevel != 0)
 		{
-			stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT_ACCESS);
+			stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT_ACCESS);
 			stmt.AddValue(0, accountId);
 			stmt.AddValue(1, securityLevel);
 			stmt.AddValue(2, realmId);

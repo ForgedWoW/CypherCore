@@ -393,7 +393,7 @@ public partial class WorldSession : IDisposable
 			SendPacket(logoutComplete);
 
 			//! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ACCOUNT_ONLINE);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ACCOUNT_ONLINE);
 			stmt.AddValue(0, AccountId);
 			DB.Characters.Execute(stmt);
 		}
@@ -713,7 +713,7 @@ public partial class WorldSession : IDisposable
 			return;
 
 		var hasTutorialsInDB = _tutorialsChanged.HasAnyFlag(TutorialsFlag.LoadedFromDB);
-		var stmt = CharacterDatabase.GetPreparedStatement(hasTutorialsInDB ? CharStatements.UPD_TUTORIALS : CharStatements.INS_TUTORIALS);
+		var stmt = DB.Characters.GetPreparedStatement(hasTutorialsInDB ? CharStatements.UPD_TUTORIALS : CharStatements.INS_TUTORIALS);
 
 		for (var i = 0; i < SharedConst.MaxAccountTutorialValues; ++i)
 			stmt.AddValue(i, _tutorials[i]);
@@ -993,7 +993,7 @@ public partial class WorldSession : IDisposable
 	{
 		if (Convert.ToBoolean((1 << (int)type) & (int)AccountDataTypes.GlobalCacheMask))
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_ACCOUNT_DATA);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_ACCOUNT_DATA);
 			stmt.AddValue(0, AccountId);
 			stmt.AddValue(1, (byte)type);
 			stmt.AddValue(2, time);
@@ -1006,7 +1006,7 @@ public partial class WorldSession : IDisposable
 			if (_guidLow == 0)
 				return;
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.REP_PLAYER_ACCOUNT_DATA);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_PLAYER_ACCOUNT_DATA);
 			stmt.AddValue(0, _guidLow);
 			stmt.AddValue(1, (byte)type);
 			stmt.AddValue(2, time);

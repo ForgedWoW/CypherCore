@@ -121,7 +121,7 @@ class GMCommands
 	static bool HandleGMListFullCommand(CommandHandler handler)
 	{
 		// Get the accounts with GM Level >0
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_GM_ACCOUNTS);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_GM_ACCOUNTS);
 		stmt.AddValue(0, (byte)AccountTypes.Moderator);
 		stmt.AddValue(1, Global.WorldMgr.Realm.Id.Index);
 		var result = DB.Login.Query(stmt);

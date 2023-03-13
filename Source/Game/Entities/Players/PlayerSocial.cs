@@ -28,7 +28,7 @@ public class PlayerSocial
 			friendInfo.Flags |= flag;
 			friendInfo.WowAccountGuid = accountGuid;
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
 			stmt.AddValue(0, (byte)friendInfo.Flags);
 			stmt.AddValue(1, GetPlayerGUID().Counter);
 			stmt.AddValue(2, friendGuid.Counter);
@@ -41,7 +41,7 @@ public class PlayerSocial
 			fi.WowAccountGuid = accountGuid;
 			PlayerSocialMap[friendGuid] = fi;
 
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_SOCIAL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_SOCIAL);
 			stmt.AddValue(0, GetPlayerGUID().Counter);
 			stmt.AddValue(1, friendGuid.Counter);
 			stmt.AddValue(2, (byte)flag);
@@ -65,7 +65,7 @@ public class PlayerSocial
 
 		if (friendInfo.Flags == 0)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_SOCIAL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_SOCIAL);
 			stmt.AddValue(0, GetPlayerGUID().Counter);
 			stmt.AddValue(1, friendGuid.Counter);
 			DB.Characters.Execute(stmt);
@@ -84,7 +84,7 @@ public class PlayerSocial
 		}
 		else
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_FLAGS);
 			stmt.AddValue(0, (byte)friendInfo.Flags);
 			stmt.AddValue(1, GetPlayerGUID().Counter);
 			stmt.AddValue(2, friendGuid.Counter);
@@ -97,7 +97,7 @@ public class PlayerSocial
 		if (!PlayerSocialMap.ContainsKey(friendGuid)) // not exist
 			return;
 
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_SOCIAL_NOTE);
 		stmt.AddValue(0, note);
 		stmt.AddValue(1, GetPlayerGUID().Counter);
 		stmt.AddValue(2, friendGuid.Counter);

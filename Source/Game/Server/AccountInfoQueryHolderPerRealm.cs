@@ -9,11 +9,11 @@ class AccountInfoQueryHolderPerRealm : SQLQueryHolder<AccountInfoQueryLoad>
 {
 	public void Initialize(uint accountId, uint battlenetAccountId)
 	{
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_ACCOUNT_DATA);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ACCOUNT_DATA);
 		stmt.AddValue(0, accountId);
 		SetQuery(AccountInfoQueryLoad.GlobalAccountDataIndexPerRealm, stmt);
 
-		stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_TUTORIALS);
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_TUTORIALS);
 		stmt.AddValue(0, accountId);
 		SetQuery(AccountInfoQueryLoad.TutorialsIndexPerRealm, stmt);
 	}

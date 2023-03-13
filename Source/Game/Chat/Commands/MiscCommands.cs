@@ -944,7 +944,7 @@ class MiscCommands
 	static bool HandleListFreezeCommand(CommandHandler handler)
 	{
 		// Get names from DB
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
 		var result = DB.Characters.Query(stmt);
 
 		if (result.IsEmpty())
@@ -1123,7 +1123,7 @@ class MiscCommands
 		if (handler.HasLowerSecurity(target, player.GetGUID(), true))
 			return false;
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
 		string muteBy;
 		var gmPlayer = handler.Player;
 
@@ -1149,7 +1149,7 @@ class MiscCommands
 		stmt.AddValue(3, accountId);
 		DB.Login.Execute(stmt);
 
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT_MUTE);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT_MUTE);
 		stmt.AddValue(0, accountId);
 		stmt.AddValue(1, muteTime);
 		stmt.AddValue(2, muteBy);
@@ -1187,7 +1187,7 @@ class MiscCommands
 			return false;
 		}
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_MUTE_INFO);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_MUTE_INFO);
 		stmt.AddValue(0, accountId);
 
 		var result = DB.Login.Query(stmt);
@@ -1413,7 +1413,7 @@ class MiscCommands
 				return false;
 
 			// Query informations from the DB
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_PINFO);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_PINFO);
 			stmt.AddValue(0, lowguid);
 			var result = DB.Characters.Query(stmt);
 
@@ -1439,7 +1439,7 @@ class MiscCommands
 		}
 
 		// Query the prepared statement for login data
-		stmt = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_PINFO);
+		stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_PINFO);
 		stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
 		stmt.AddValue(1, accId);
 		var result0 = DB.Login.Query(stmt);
@@ -1478,14 +1478,14 @@ class MiscCommands
 		var nameLink = handler.PlayerLink(targetName);
 
 		// Returns banType, banTime, bannedBy, banreason
-		var stmt2 = LoginDatabase.GetPreparedStatement(LoginStatements.SEL_PINFO_BANS);
+		var stmt2 = DB.Login.GetPreparedStatement(LoginStatements.SEL_PINFO_BANS);
 		stmt2.AddValue(0, accId);
 		var result2 = DB.Login.Query(stmt2);
 
 		if (result2.IsEmpty())
 		{
 			banType = handler.GetCypherString(CypherStrings.Character);
-			stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_PINFO_BANS);
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_BANS);
 			stmt.AddValue(0, lowguid);
 			result2 = DB.Characters.Query(stmt);
 		}
@@ -1503,7 +1503,7 @@ class MiscCommands
 		}
 
 		// Can be used to query data from Characters database
-		stmt2 = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_PINFO_XP);
+		stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_XP);
 		stmt2.AddValue(0, lowguid);
 		var result4 = DB.Characters.Query(stmt2);
 
@@ -1516,7 +1516,7 @@ class MiscCommands
 			if (gguid != 0)
 			{
 				// Guild Data - an own query, because it may not happen.
-				var stmt3 = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER_EXTENDED);
+				var stmt3 = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER_EXTENDED);
 				stmt3.AddValue(0, lowguid);
 				var result5 = DB.Characters.Query(stmt3);
 
@@ -1631,7 +1631,7 @@ class MiscCommands
 
 		// Mail Data - an own query, because it may or may not be useful.
 		// SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
-		var stmt4 = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_PINFO_MAILS);
+		var stmt4 = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_MAILS);
 		stmt4.AddValue(0, lowguid);
 		var result6 = DB.Characters.Query(stmt4);
 
@@ -1683,7 +1683,7 @@ class MiscCommands
 	{
 		if (WorldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
 			var result = DB.Characters.Query(stmt);
 
 			if (!result.IsEmpty())
@@ -2081,7 +2081,7 @@ class MiscCommands
 				}
 
 				// If player found: delete his freeze aura    
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
 				stmt.AddValue(0, guid.Counter);
 				DB.Characters.Execute(stmt);
 
@@ -2134,7 +2134,7 @@ class MiscCommands
 			target.Session.MuteTime = 0;
 		}
 
-		var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
 		stmt.AddValue(0, 0);
 		stmt.AddValue(1, "");
 		stmt.AddValue(2, "");
@@ -2196,7 +2196,7 @@ class MiscCommands
 
 		if (!player)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
 			stmt.AddValue(0, targetGUID.Counter);
 			var result = DB.Characters.Query(stmt);
 

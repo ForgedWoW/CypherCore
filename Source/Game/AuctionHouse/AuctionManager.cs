@@ -141,7 +141,7 @@ public class AuctionManager : Singleton<AuctionManager>
 		// need to clear in case we are reloading
 		_itemsByGuid.Clear();
 
-		var result = DB.Characters.Query(CharacterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTION_ITEMS));
+		var result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTION_ITEMS));
 
 		if (result.IsEmpty())
 		{
@@ -189,7 +189,7 @@ public class AuctionManager : Singleton<AuctionManager>
 		oldMSTime = Time.MSTime;
 		count = 0;
 
-		result = DB.Characters.Query(CharacterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTION_BIDDERS));
+		result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTION_BIDDERS));
 
 		if (!result.IsEmpty())
 			do
@@ -202,7 +202,7 @@ public class AuctionManager : Singleton<AuctionManager>
 		oldMSTime = Time.MSTime;
 		count = 0;
 
-		result = DB.Characters.Query(CharacterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTIONS));
+		result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONS));
 
 		if (!result.IsEmpty())
 		{
@@ -219,7 +219,7 @@ public class AuctionManager : Singleton<AuctionManager>
 				if (auctionHouse == null)
 				{
 					Log.outError(LogFilter.Misc, $"Auction {auction.Id} has wrong auctionHouseId {auctionHouseId}");
-					var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION);
+					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_AUCTION);
 					stmt.AddValue(0, auction.Id);
 					trans.Append(stmt);
 
@@ -229,7 +229,7 @@ public class AuctionManager : Singleton<AuctionManager>
 				if (!itemsByAuction.ContainsKey(auction.Id))
 				{
 					Log.outError(LogFilter.Misc, $"Auction {auction.Id} has no items");
-					var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION);
+					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_AUCTION);
 					stmt.AddValue(0, auction.Id);
 					trans.Append(stmt);
 
@@ -354,7 +354,7 @@ public class AuctionManager : Singleton<AuctionManager>
 				if (auction != null)
 					auction.EndTime = GameTime.GetSystemTime();
 
-				var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
 				stmt.AddValue(0, (uint)GameTime.GetGameTime());
 				stmt.AddValue(1, pendingAuction.AuctionId);
 				trans.Append(stmt);
@@ -397,7 +397,7 @@ public class AuctionManager : Singleton<AuctionManager>
 					if (auction != null)
 						auction.EndTime = GameTime.GetSystemTime();
 
-					var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
+					var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
 					stmt.AddValue(0, (uint)GameTime.GetGameTime());
 					stmt.AddValue(1, pendingAuction.AuctionId);
 					trans.Append(stmt);

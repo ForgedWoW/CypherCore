@@ -41,7 +41,7 @@ public class ChannelManager
 
 		if (days != 0)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
 			stmt.AddValue(0, days * Time.Day);
 			DB.Characters.Execute(stmt);
 		}
@@ -88,7 +88,7 @@ public class ChannelManager
 
 		foreach (var (name, team) in toDelete)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.DEL_CHANNEL);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHANNEL);
 			stmt.AddValue(0, name);
 			stmt.AddValue(1, (uint)team);
 			DB.Characters.Execute(stmt);

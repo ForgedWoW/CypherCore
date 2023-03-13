@@ -815,7 +815,7 @@ public partial class Player : Unit
 		if (Session.MuteTime != 0 && Session.MuteTime < now)
 		{
 			Session.MuteTime = 0;
-			var stmt = LoginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
+			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME);
 			stmt.AddValue(0, 0); // Set the mute time to 0
 			stmt.AddValue(1, "");
 			stmt.AddValue(2, "");
@@ -3251,7 +3251,7 @@ public partial class Player : Unit
 		_homebindAreaId = areaId;
 
 		// update sql homebind
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
 		stmt.AddValue(0, _homebind.MapId);
 		stmt.AddValue(1, _homebindAreaId);
 		stmt.AddValue(2, _homebind.X);
@@ -3854,7 +3854,7 @@ public partial class Player : Unit
 	public static void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
 	{
 		Corpse.DeleteFromDB(guid, trans);
-		var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 		stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
 		stmt.AddValue(1, guid.Counter);
 		DB.Characters.ExecuteOrAppend(trans, stmt);
@@ -4515,7 +4515,7 @@ public partial class Player : Unit
 
 		if (persist)
 		{
-			var stmt = CharacterDatabase.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
+			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)flags);
 			stmt.AddValue(1, GUID.Counter);
 
@@ -6688,7 +6688,7 @@ public partial class Player : Unit
 		// TODO
 		// Save to DB
 		//ObjectGuid guid = GetGUID();
-		//var stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_COVENANT);
+		//var stmt = DB.Characters.GetPreparedStatement(CHAR_UPD_COVENANT);
 		//stmt.AddValue(0, covenantId);
 		//stmt.AddValue(1, guid.GetCounter());
 		//CharacterDatabase.Execute(stmt);
@@ -8555,7 +8555,7 @@ public partial class Player : Unit
 	//{
 	//    ObjectGuid guid = GetGUID();
 
-	//    var stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_COVENANT);
+	//    var stmt = DB.Characters.GetPreparedStatement(CHAR_SEL_COVENANT);
 	//    stmt.AddValue(0, guid.GetCounter());
 	//    var covenant = CharacterDatabase.Query(stmt);
 
