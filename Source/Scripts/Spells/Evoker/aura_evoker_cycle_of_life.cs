@@ -27,6 +27,9 @@ public class aura_evoker_cycle_of_life : AuraScript, IAuraOnProc, IAuraScriptVal
 
     public void AuraRemoved(AuraRemoveMode removeMode)
     {
+        if (removeMode != AuraRemoveMode.Expire)
+            return;
+
         CastSpellExtraArgs args = new(true);
         args.SpellValueOverrides[SpellValueMod.BasePoint0] = _healAmount;
 
@@ -37,11 +40,5 @@ public class aura_evoker_cycle_of_life : AuraScript, IAuraOnProc, IAuraScriptVal
     {
 		if (info.HealInfo != null)
             _healAmount = info.HealInfo.Heal * _multiplier;
-    }
-
-    public void SetScriptValues(params KeyValuePair<string, object>[] values)
-    {
-        foreach (var value in values)
-            ScriptValues[value.Key] = value.Value;
     }
 }

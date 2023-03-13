@@ -9,6 +9,4 @@ namespace Game.Scripting.Interfaces.IAura;
 public interface IAuraScriptValues : IAuraScript
 {
 	Dictionary<string, object> ScriptValues { get; }
-
-	void SetScriptValues(params KeyValuePair<string, object>[] values);
 }

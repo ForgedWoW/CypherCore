@@ -26,7 +26,7 @@ public class spell_evoker_cycle_of_life : SpellScript, ISpellAfterCast
 
 			player.CastSpell(TargetPosition, EvokerSpells.CYCLE_OF_LIFE_SUMMON, true);
             var aura = player.AddAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
-			aura.ForEachAuraScript<IAuraScriptValues>(a => a.SetScriptValues(new KeyValuePair<string, object>("pos", TargetPosition)));
+			aura.ForEachAuraScript<IAuraScriptValues>(a => a.ScriptValues["pos"] = TargetPosition);
         }
 	}
 }
