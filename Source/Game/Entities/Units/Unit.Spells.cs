@@ -3112,7 +3112,13 @@ public partial class Unit
 	// All aura base removes should go through this function!
 	public void RemoveOwnedAura(uint spellId, Aura aura, AuraRemoveMode removeMode = AuraRemoveMode.Default)
 	{
-		Cypher.Assert(!aura.IsRemoved);
+		if (aura.IsRemoved)
+		{
+			if (aura != null && _ownedAuras.Contains(aura))
+                _ownedAuras.Remove(aura);
+
+            return;
+		}
 
 		_ownedAuras.Remove(aura);
 		_removedAuras.Add(aura);
