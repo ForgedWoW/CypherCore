@@ -3231,7 +3231,7 @@ public partial class Unit : WorldObject
 		if (victim.StandState != 0 && victim.IsPlayer)
 			victim.SetStandState(UnitStandStateType.Stand);
 
-		if (player != null && player.GetPrimarySpecialization() == TalentSpecialization.DruidBear)
+		if (player != null)
 			victim.SaveDamageHistory(damageDone);
 
 		return damageDone;
@@ -4205,7 +4205,15 @@ public partial class Unit : WorldObject
 		var maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION;
 
 		// Remove damages older than maxPastTime, can be increased if required
-		DamageTakenHistory.RemoveAllMatchingKeys(k => k < maxPastTime);
+		foreach (var kvp in DamageTakenHistory)
+		{
+			if (kvp.Key < maxPastTime)
+				DamageTakenHistory.QueueRemove(kvp.Key);
+			else
+				break;
+        }
+
+		DamageTakenHistory.ExecuteRemove();
 
 		DamageTakenHistory[currentTime] += damage;
 	}
@@ -4219,6 +4227,8 @@ public partial class Unit : WorldObject
 		foreach (var itr in DamageTakenHistory)
 			if (itr.Key >= maxPastTime)
 				damageOverLastSeconds += itr.Value;
+			else
+				break;
 
 		return damageOverLastSeconds;
 	}

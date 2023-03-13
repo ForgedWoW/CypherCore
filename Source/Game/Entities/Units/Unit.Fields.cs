@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using Framework.Collections;
 using Framework.Constants;
 using Game.AI;
 using Game.Combat;
@@ -124,7 +125,7 @@ public partial class Unit
 	public Vehicle Vehicle { get; set; }
 	public Vehicle VehicleKit { get; set; }
 	public uint LastSanctuaryTime { get; set; }
-	public SortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
+	public LoopSafeSortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
 
 	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
