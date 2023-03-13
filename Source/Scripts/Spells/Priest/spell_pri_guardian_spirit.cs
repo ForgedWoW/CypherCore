@@ -45,7 +45,7 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 	{
 		var target = Target;
 
-		if (dmgInfo.GetDamage() < target.Health)
+		if (dmgInfo.Damage < target.Health)
 			return absorbAmount;
 
 		var healAmount = (int)target.CountPctFromMaxHealth((int)healPct);
@@ -55,6 +55,6 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 		args.AddSpellMod(SpellValueMod.BasePoint0, healAmount);
 		target.CastSpell(target, PriestSpells.GUARDIAN_SPIRIT_HEAL, args);
 
-		return dmgInfo.GetDamage();
+		return dmgInfo.Damage;
 	}
 }

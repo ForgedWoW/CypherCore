@@ -40,7 +40,7 @@ public class spell_dk_will_of_the_necropolis : AuraScript, IHasAuraEffects
 		absorbAmount = 0;
 
 		if (Target.HealthPct < GetEffect(2).BaseAmount)
-			absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), GetEffect(1).BaseAmount);
+			absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, GetEffect(1).BaseAmount);
 
 		return absorbAmount;
 	}

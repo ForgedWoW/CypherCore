@@ -8,7 +8,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DISINTEGRATE)]
+[SpellScript(EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2)]
 public class aura_evoker_crippling_force : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();

@@ -34,10 +34,10 @@ internal class spell_dru_galactic_guardian : AuraScript, IHasAuraEffects
 			var target = Target;
 
 			// free automatic moonfire on Target
-			target.CastSpell(damageInfo.GetVictim(), DruidSpellIds.MoonfireDamage, true);
+			target.CastSpell(damageInfo.Victim, DruidSpellIds.MoonfireDamage, true);
 
 			// Cast aura
-			target.CastSpell(damageInfo.GetVictim(), DruidSpellIds.GalacticGuardianAura, true);
+			target.CastSpell(damageInfo.Victim, DruidSpellIds.GalacticGuardianAura, true);
 		}
 	}
 }

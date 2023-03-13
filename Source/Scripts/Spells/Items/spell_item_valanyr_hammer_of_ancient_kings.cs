@@ -12,6 +12,6 @@ internal class spell_item_valanyr_hammer_of_ancient_kings : AuraScript, IAuraChe
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.HealInfo != null && eventInfo.HealInfo.GetEffectiveHeal() > 0;
+		return eventInfo.HealInfo != null && eventInfo.HealInfo.EffectiveHeal > 0;
 	}
 }

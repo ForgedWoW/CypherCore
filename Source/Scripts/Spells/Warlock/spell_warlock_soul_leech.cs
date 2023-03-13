@@ -52,7 +52,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 		{
 			if (target == null) continue;
 
-			var finalAmount = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+			var finalAmount = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);
 
 			if (finalAmount > 0)
 			{

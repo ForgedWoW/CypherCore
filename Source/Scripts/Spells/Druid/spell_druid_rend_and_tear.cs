@@ -37,7 +37,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 	private double Absorb(AuraEffect auraEffect, DamageInfo dmgInfo, double absorbAmount)
 	{
 		var caster = Caster;
-		var attacker = dmgInfo.GetAttacker();
+		var attacker = dmgInfo.Attacker;
 		absorbAmount = 0;
 
 		if (caster == null || attacker == null || !HasEffect(1))
@@ -48,7 +48,7 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 			var trashDOT = attacker.GetAura(Spells.TRASH_DOT, caster.GUID);
 
 			if (trashDOT != null)
-				absorbAmount = MathFunctions.CalculatePct(dmgInfo.GetDamage(), trashDOT.StackAmount * SpellInfo.GetEffect(1).BasePoints);
+				absorbAmount = MathFunctions.CalculatePct(dmgInfo.Damage, trashDOT.StackAmount * SpellInfo.GetEffect(1).BasePoints);
 		}
 
 		return absorbAmount;

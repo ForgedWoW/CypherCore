@@ -42,7 +42,7 @@ internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckPro
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var newAmount = (int)(aurEff.Amount - eventInfo.DamageInfo.GetDamage());
+		var newAmount = (int)(aurEff.Amount - eventInfo.DamageInfo.Damage);
 
 		aurEff.ChangeAmount(newAmount);
 

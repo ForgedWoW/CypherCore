@@ -52,7 +52,7 @@ public class spell_monk_touch_of_karma : AuraScript, IHasAuraEffects
 		foreach (var aurApp in caster.GetAppliedAurasQuery().HasSpellId(MonkSpells.TOUCH_OF_KARMA).GetResults())
 			if (aurApp.Target != caster)
 			{
-				var periodicDamage = dmgInfo.GetDamage() / Global.SpellMgr.GetSpellInfo(MonkSpells.TOUCH_OF_KARMA_DAMAGE, Difficulty.None).MaxTicks;
+				var periodicDamage = dmgInfo.Damage / Global.SpellMgr.GetSpellInfo(MonkSpells.TOUCH_OF_KARMA_DAMAGE, Difficulty.None).MaxTicks;
 				//  periodicDamage += int32(aurApp->GetTarget()->GetRemainingPeriodicAmount(GetCasterGUID(), TOUCH_OF_KARMA_DAMAGE, AuraType.PeriodicDamage));
 				caster.CastSpell(aurApp.Target, MonkSpells.TOUCH_OF_KARMA_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, periodicDamage).SetTriggeringAura(aurEff));
 

@@ -29,7 +29,7 @@ internal class spell_warr_trauma : AuraScript, IHasAuraEffects
 	{
 		var target = eventInfo.ActionTarget;
 		//Get 25% of Damage from the spell casted (Slam & Whirlwind) plus Remaining Damage from Aura
-		var damage = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount) / Global.SpellMgr.GetSpellInfo(WarriorSpells.TRAUMA_EFFECT, CastDifficulty).MaxTicks);
+		var damage = (int)(MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount) / Global.SpellMgr.GetSpellInfo(WarriorSpells.TRAUMA_EFFECT, CastDifficulty).MaxTicks);
 		CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
 		args.AddSpellMod(SpellValueMod.BasePoint0, damage);
 		Caster.CastSpell(target, WarriorSpells.TRAUMA_EFFECT, args);

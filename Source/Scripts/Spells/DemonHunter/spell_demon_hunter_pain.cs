@@ -30,7 +30,7 @@ public class spell_demon_hunter_pain : AuraScript, IHasAuraEffects
 		if (eventInfo.SpellInfo != null && eventInfo.SpellInfo.IsPositive)
 			return;
 
-		var damageTaken = eventInfo.DamageInfo.GetDamage();
+		var damageTaken = eventInfo.DamageInfo.Damage;
 
 		if (damageTaken <= 0)
 			return;

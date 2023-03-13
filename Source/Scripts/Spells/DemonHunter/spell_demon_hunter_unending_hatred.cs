@@ -13,7 +13,7 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.DamageInfo != null && (eventInfo.DamageInfo.GetSchoolMask() & SpellSchoolMask.Shadow) != 0;
+		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.SchoolMask.HasFlag(SpellSchoolMask.Shadow);
 	}
 
 	public void OnProc(ProcEventInfo eventInfo)
@@ -23,7 +23,7 @@ public class spell_demon_hunter_unending_hatred : AuraScript, IAuraCheckProc, IA
 		if (caster == null)
 			return;
 
-		var pointsGained = GetPointsGained(caster, eventInfo.DamageInfo.GetDamage());
+		var pointsGained = GetPointsGained(caster, eventInfo.DamageInfo.Damage);
 
 		if (caster.GetPrimarySpecialization() == TalentSpecialization.DemonHunterHavoc)
 			caster.EnergizeBySpell(caster, SpellInfo, pointsGained, PowerType.Fury);

@@ -30,7 +30,7 @@ public class spell_warlock_cremation : AuraScript, IHasAuraEffects
 		if (caster == null || target == null)
 			return;
 
-		switch (eventInfo.DamageInfo.GetSpellInfo().Id)
+		switch (eventInfo.DamageInfo.SpellInfo.Id)
 		{
 			case WarlockSpells.SHADOWBURN:
 			case WarlockSpells.CONFLAGRATE:

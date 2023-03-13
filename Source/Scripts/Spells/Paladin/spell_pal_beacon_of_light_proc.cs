@@ -70,7 +70,7 @@ public class spell_pal_beacon_of_light_proc : AuraScript, IHasAuraEffects, IAura
 		if (healInfo == null)
 			return;
 
-		var bp = MathFunctions.CalculatePct(healInfo.GetHeal(), GetPctBySpell(SpellInfo.Id));
+		var bp = MathFunctions.CalculatePct(healInfo.Heal, GetPctBySpell(SpellInfo.Id));
 
 		if (SpellInfo.Id == PaladinSpells.BEACON_OF_LIGHT_PROC_AURA && (targetOfBeacon.HasAura(PaladinSpells.BeaconOfLight) || targetOfBeacon.HasAura(PaladinSpells.BEACON_OF_VIRTUE)))
 		{

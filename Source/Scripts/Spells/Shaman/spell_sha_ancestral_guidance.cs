@@ -23,7 +23,7 @@ internal class spell_sha_ancestral_guidance : AuraScript, IAuraCheckProc, IHasAu
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		if (eventInfo.HealInfo.GetSpellInfo().Id == ShamanSpells.AncestralGuidanceHeal)
+		if (eventInfo.HealInfo.SpellInfo.Id == ShamanSpells.AncestralGuidanceHeal)
 			return false;
 
 		return true;
@@ -37,7 +37,7 @@ internal class spell_sha_ancestral_guidance : AuraScript, IAuraCheckProc, IHasAu
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var bp0 = MathFunctions.CalculatePct((int)eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+		var bp0 = MathFunctions.CalculatePct((int)eventInfo.DamageInfo.Damage, aurEff.Amount);
 
 		if (bp0 != 0)
 		{

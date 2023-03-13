@@ -67,8 +67,8 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 
 	private void OnProc(AuraEffect UnnamedParameter, ProcEventInfo eventInfo)
 	{
-		var target = eventInfo.DamageInfo.GetVictim();
-		var caster = eventInfo.DamageInfo.GetAttacker();
+		var target = eventInfo.DamageInfo.Victim;
+		var caster = eventInfo.DamageInfo.Attacker;
 
 		if (target == null || caster == null)
 			return;
@@ -79,7 +79,7 @@ public class spell_mastery_icicles_proc : AuraScript, IAuraCheckProc, IHasAuraEf
 			return;
 
 		// Calculate damage
-		var hitDamage = eventInfo.DamageInfo.GetDamage() + eventInfo.DamageInfo.GetAbsorb();
+		var hitDamage = eventInfo.DamageInfo.Damage + eventInfo.DamageInfo.Absorb;
 
 		// if hitDamage == 0 we have a miss, so we need to except this variant
 		if (hitDamage != 0)

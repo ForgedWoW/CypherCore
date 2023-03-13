@@ -3560,9 +3560,9 @@ public partial class Player : Unit
 			case EnviromentalDamage.Slime:
 				DamageInfo dmgInfo = new(this, this, damage, null, dmgSchool, DamageEffectType.Direct, WeaponAttackType.BaseAttack);
 				CalcAbsorbResist(dmgInfo);
-				absorb = dmgInfo.GetAbsorb();
-				resist = dmgInfo.GetResist();
-				damage = dmgInfo.GetDamage();
+				absorb = dmgInfo.Absorb;
+				resist = dmgInfo.Resist;
+				damage = dmgInfo.Damage;
 
 				break;
 		}

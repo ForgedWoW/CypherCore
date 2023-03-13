@@ -25,7 +25,7 @@ internal class spell_sha_earth_shield : AuraScript, IAuraCheckProc, IHasAuraEffe
 	{
 		if (eventInfo.DamageInfo == null ||
 			!HasEffect(1) ||
-			eventInfo.DamageInfo.GetDamage() < Target.CountPctFromMaxHealth(GetEffect(1).Amount))
+			eventInfo.DamageInfo.Damage < Target.CountPctFromMaxHealth(GetEffect(1).Amount))
 			return false;
 
 		return true;

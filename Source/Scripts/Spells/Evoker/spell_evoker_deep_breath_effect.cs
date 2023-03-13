@@ -7,9 +7,9 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.DEEP_BREATH_EFFECT)]
-public class spell_evoker_deep_breath_effect : SpellScript, ISpellAfterCast
+public class spell_evoker_deep_breath_effect : SpellScript, ISpellAfterHit
 {
-    public void AfterCast()
+    public void AfterHit()
     {
         Caster.CastSpell(Caster, EvokerSpells.DEEP_BREATH_END);
     }

@@ -20,7 +20,7 @@ public class spell_pri_psychic_scream : AuraScript, IAuraCheckProc
 		var dmg = eventInfo.DamageInfo;
 		var fear = Aura;
 
-		if (fear != null && dmg != null && dmg.GetDamage() > 0)
+		if (fear != null && dmg != null && dmg.Damage > 0)
 			fear.SetDuration(0);
 
 		return true;

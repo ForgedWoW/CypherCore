@@ -39,8 +39,8 @@ internal class spell_mage_blazing_barrier : AuraScript, IHasAuraEffects
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var caster = eventInfo.DamageInfo.GetVictim();
-		var target = eventInfo.DamageInfo.GetAttacker();
+		var caster = eventInfo.DamageInfo.Victim;
+		var target = eventInfo.DamageInfo.Attacker;
 
 		if (caster && target)
 			caster.CastSpell(target, MageSpells.BlazingBarrierTrigger, true);

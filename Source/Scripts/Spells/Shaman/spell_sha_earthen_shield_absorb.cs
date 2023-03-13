@@ -43,10 +43,10 @@ public class spell_sha_earthen_shield_absorb : AuraScript, IHasAuraEffects
 		if (owner == null)
 			return absorbAmount;
 
-		if (dmgInfo.GetDamage() - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
+		if (dmgInfo.Damage - owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true) > 0)
 			absorbAmount = owner.GetTotalSpellPowerValue(SpellSchoolMask.All, true);
 		else
-			absorbAmount = dmgInfo.GetDamage();
+			absorbAmount = dmgInfo.Damage;
 
 		//201657 - The damager
 		caster.CastSpell(caster, 201657, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)absorbAmount));

@@ -43,10 +43,10 @@ internal class spell_pal_light_s_beacon : AuraScript, IAuraCheckProc, IHasAuraEf
 		var healInfo = eventInfo.HealInfo;
 
 		if (healInfo == null ||
-			healInfo.GetHeal() == 0)
+			healInfo.Heal == 0)
 			return;
 
-		var heal = MathFunctions.CalculatePct(healInfo.GetHeal(), aurEff.Amount);
+		var heal = MathFunctions.CalculatePct(healInfo.Heal, aurEff.Amount);
 
 		var auras = Caster.SingleCastAuras;
 

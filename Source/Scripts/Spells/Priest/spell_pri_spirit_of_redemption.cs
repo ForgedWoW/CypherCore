@@ -31,6 +31,6 @@ internal class spell_pri_spirit_of_redemption : AuraScript, IHasAuraEffects
 		target.CastSpell(target, PriestSpells.SPIRIT_OF_REDEMPTION, new CastSpellExtraArgs(aurEff));
 		target.SetFullHealth();
 
-		return dmgInfo.GetDamage();
+		return dmgInfo.Damage;
 	}
 }

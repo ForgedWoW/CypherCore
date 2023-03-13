@@ -1562,7 +1562,7 @@ public class Aura
 
 					if (damageInfo != null)
 					{
-						if (damageInfo.GetAttackType() != WeaponAttackType.OffAttack)
+						if (damageInfo.AttackType != WeaponAttackType.OffAttack)
 							item = target.AsPlayer.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 						else
 							item = target.AsPlayer.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
@@ -2094,7 +2094,7 @@ public class Aura
 			// calculate ppm chance if present and we're using weapon
 			if (eventInfo.DamageInfo != null && procEntry.ProcsPerMinute != 0)
 			{
-				var WeaponSpeed = caster.GetBaseAttackTime(eventInfo.DamageInfo.GetAttackType());
+				var WeaponSpeed = caster.GetBaseAttackTime(eventInfo.DamageInfo.AttackType);
 				chance = caster.GetPPMProcChance(WeaponSpeed, procEntry.ProcsPerMinute, SpellInfo);
 			}
 

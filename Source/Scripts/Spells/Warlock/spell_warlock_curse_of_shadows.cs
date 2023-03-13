@@ -29,12 +29,12 @@ public class spell_warlock_curse_of_shadows : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		var spellInfo = eventInfo.DamageInfo.GetSpellInfo();
+		var spellInfo = eventInfo.DamageInfo.SpellInfo;
 
 		if (spellInfo == null || (spellInfo.GetSchoolMask() & SpellSchoolMask.Shadow) == 0)
 			return;
 
-		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.GetDamage(), aurEff.Amount);
+		var damage = MathFunctions.CalculatePct(eventInfo.DamageInfo.Damage, aurEff.Amount);
 		caster.CastSpell(eventInfo.ActionTarget, WarlockSpells.CURSE_OF_SHADOWS_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));
 	}
 }

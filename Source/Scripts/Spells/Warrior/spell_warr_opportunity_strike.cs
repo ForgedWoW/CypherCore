@@ -16,7 +16,7 @@ public class spell_warr_opportunity_strike : AuraScript, IAuraOnProc
 		if (!Caster)
 			return;
 
-		if (eventInfo?.DamageInfo?.GetSpellInfo() != null && eventInfo.DamageInfo.GetSpellInfo().Id == WarriorSpells.OPPORTUNITY_STRIKE_DAMAGE)
+		if (eventInfo?.DamageInfo?.SpellInfo != null && eventInfo.DamageInfo.SpellInfo.Id == WarriorSpells.OPPORTUNITY_STRIKE_DAMAGE)
 			return;
 
 		var target = eventInfo.ActionTarget;

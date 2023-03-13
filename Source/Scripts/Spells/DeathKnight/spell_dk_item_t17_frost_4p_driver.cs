@@ -29,7 +29,7 @@ public class spell_dk_item_t17_frost_4p_driver : AuraScript, IHasAuraEffects
 		if (l_Caster == null)
 			return;
 
-		var l_ProcSpell = p_EventInfo.DamageInfo.GetSpellInfo();
+		var l_ProcSpell = p_EventInfo.DamageInfo.SpellInfo;
 
 		if (l_ProcSpell == null)
 			return;

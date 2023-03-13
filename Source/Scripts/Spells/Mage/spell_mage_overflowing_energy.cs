@@ -40,7 +40,7 @@ public class spell_mage_overflowing_energy : AuraScript, IAuraCheckProc, IHasAur
 
 		var amount = aurEff.Amount;
 
-		if (eventInfo.DamageInfo.GetSpellInfo().Id == 390218)
+		if (eventInfo.DamageInfo.SpellInfo.Id == 390218)
 			amount = 0;
 
 		var target = Target;

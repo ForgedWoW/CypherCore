@@ -24,7 +24,7 @@ internal class spell_warlock_t16_demo_2p : AuraScript, IHasAuraEffects
 	private void OnProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		uint procSpellId = 0;
-		var spellInfo = eventInfo.DamageInfo.GetSpellInfo();
+		var spellInfo = eventInfo.DamageInfo.SpellInfo;
 
 		if (spellInfo != null)
 			procSpellId = spellInfo.Id;

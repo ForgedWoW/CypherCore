@@ -22,7 +22,7 @@ internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasA
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.GetVictim() != null;
+		return eventInfo.DamageInfo != null && eventInfo.DamageInfo.Victim != null;
 	}
 
 	public override void Register()
@@ -34,6 +34,6 @@ internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasA
 	{
 		var target = Target;
 
-		target?.CastSpell(procInfo.DamageInfo.GetVictim(), RogueSpells.MainGauche, new CastSpellExtraArgs(aurEff));
+		target?.CastSpell(procInfo.DamageInfo.Victim, RogueSpells.MainGauche, new CastSpellExtraArgs(aurEff));
 	}
 }

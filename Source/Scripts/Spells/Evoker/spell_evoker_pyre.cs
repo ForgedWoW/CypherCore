@@ -1,16 +1,27 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Constants;
 using Game.Scripting;
+using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
+using System;
+using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.PYRE_MISSILE)]
-internal class spell_evoker_pyre : SpellScript, ISpellAfterHit
+internal class spell_evoker_pyre : SpellScript, IHasSpellEffects
 {
-    public void AfterHit()
+    public List<ISpellEffect> SpellEffects { get; } = new();
+
+    private void HandleEffectHitTarget(int effIndex)
     {
-        Caster.CastSpell(ExplTargetUnit, EvokerSpells.PYRE_DAMAGE, true);
-	}
+        Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.PYRE_DAMAGE, true);
+    }
+
+    public override void Register()
+    {
+        SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.AfterHit));
+    }
 }

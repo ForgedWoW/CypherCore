@@ -31,10 +31,10 @@ internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo != null)
-			if (damageInfo.GetAttacker() == Caster &&
-				damageInfo.GetVictim() == Target)
+			if (damageInfo.Attacker == Caster &&
+				damageInfo.Victim == Target)
 			{
-				var extra = MathFunctions.CalculatePct(damageInfo.GetDamage(), 25);
+				var extra = MathFunctions.CalculatePct(damageInfo.Damage, 25);
 
 				if (extra > 0)
 					aurEff.ChangeAmount(aurEff.Amount + (int)extra);

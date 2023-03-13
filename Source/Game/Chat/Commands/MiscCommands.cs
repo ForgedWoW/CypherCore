@@ -335,13 +335,13 @@ class MiscCommands
 			DamageInfo dmgInfo = new(attacker, target, damage_, null, schoolmask, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack);
 			Unit.CalcAbsorbResist(dmgInfo);
 
-			if (dmgInfo.GetDamage() == 0)
+			if (dmgInfo.Damage == 0)
 				return true;
 
-			damage_ = dmgInfo.GetDamage();
+			damage_ = dmgInfo.Damage;
 
-			var absorb = dmgInfo.GetAbsorb();
-			var resist = dmgInfo.GetResist();
+			var absorb = dmgInfo.Absorb;
+			var resist = dmgInfo.Resist;
 			Unit.DealDamageMods(attacker, target, ref damage_, ref absorb);
 			damage_ = Unit.DealDamage(attacker, target, damage_, null, DamageEffectType.Direct, schoolmask, null, false);
 			attacker.SendAttackStateUpdate(HitInfo.AffectsVictim, target, schoolmask, damage_, absorb, resist, VictimState.Hit, 0);

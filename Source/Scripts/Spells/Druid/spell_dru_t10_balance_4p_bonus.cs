@@ -32,14 +32,14 @@ internal class spell_dru_t10_balance_4p_bonus : AuraScript, IHasAuraEffects
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return;
 
 		var caster = eventInfo.Actor;
 		var target = eventInfo.ProcTarget;
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(DruidSpellIds.Languish, CastDifficulty);
-		var amount = (int)MathFunctions.CalculatePct(damageInfo.GetDamage(), aurEff.Amount);
+		var amount = (int)MathFunctions.CalculatePct(damageInfo.Damage, aurEff.Amount);
 		amount /= (int)spellInfo.MaxTicks;
 
 		CastSpellExtraArgs args = new(aurEff);

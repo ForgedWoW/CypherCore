@@ -40,10 +40,10 @@ public class spell_monk_dampen_harm : AuraScript, IHasAuraEffects
 		var target = Target;
 		var health = target.CountPctFromMaxHealth(healthPct);
 
-		if (dmgInfo.GetDamage() < health)
+		if (dmgInfo.Damage < health)
 			return absorbAmount;
 
-		absorbAmount = dmgInfo.GetDamage() * (SpellInfo.GetEffect(0).CalcValue(Caster) / 100);
+		absorbAmount = dmgInfo.Damage * (SpellInfo.GetEffect(0).CalcValue(Caster) / 100);
 		auraEffect.Base.DropCharge();
 
 		return absorbAmount;

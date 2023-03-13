@@ -487,7 +487,7 @@ public class AuraEffect
 			{
 				var damageInfo = eventInfo.DamageInfo;
 
-				if (damageInfo == null || damageInfo.GetDamage() == 0)
+				if (damageInfo == null || damageInfo.Damage == 0)
 					return false;
 
 				// Spell own damage at apply won't break CC
@@ -5600,16 +5600,16 @@ public class AuraEffect
 
 		DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.DOT, WeaponAttackType.BaseAttack);
 		Unit.CalcAbsorbResist(damageInfo);
-		damage = damageInfo.GetDamage();
+		damage = damageInfo.Damage;
 
-		var absorb = damageInfo.GetAbsorb();
-		var resist = damageInfo.GetResist();
+		var absorb = damageInfo.Absorb;
+		var resist = damageInfo.Resist;
 		Unit.DealDamageMods(caster, target, ref damage, ref absorb);
 
 		// Set trigger flag
 		var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
 		var procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
-		var hitMask = damageInfo.GetHitMask();
+		var hitMask = damageInfo.HitMask;
 
 		if (damage != 0)
 		{
@@ -5686,8 +5686,8 @@ public class AuraEffect
 		DamageInfo damageInfo = new(caster, target, damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.DOT, SpellInfo.GetAttackType());
 		Unit.CalcAbsorbResist(damageInfo);
 
-		var absorb = damageInfo.GetAbsorb();
-		var resist = damageInfo.GetResist();
+		var absorb = damageInfo.Absorb;
+		var resist = damageInfo.Resist;
 
 		// SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
 		SpellNonMeleeDamage log = new(caster, target, SpellInfo, Base.SpellVisual, SpellInfo.GetSchoolMask(), Base.CastId);
@@ -5703,7 +5703,7 @@ public class AuraEffect
 		// Set trigger flag
 		var procAttacker = new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic);
 		var procVictim = new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic);
-		var hitMask = damageInfo.GetHitMask();
+		var hitMask = damageInfo.HitMask;
 
 		if (damage != 0)
 		{
@@ -5726,7 +5726,7 @@ public class AuraEffect
 		HealInfo healInfo = new(caster, caster, heal, SpellInfo, SpellInfo.GetSchoolMask());
 		caster.HealBySpell(healInfo);
 
-		caster.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, SpellInfo);
+		caster.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.EffectiveHeal * 0.5f, SpellInfo);
 		Unit.ProcSkillsAndAuras(caster, caster, new ProcFlagsInit(ProcFlags.DealHelpfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHelpfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
 
 		caster.SendSpellNonMeleeDamageLog(log);
@@ -5813,11 +5813,11 @@ public class AuraEffect
 		Unit.CalcHealAbsorb(healInfo);
 		Unit.DealHeal(healInfo);
 
-		SpellPeriodicAuraLogInfo pInfo = new(this, heal, damage, heal - healInfo.GetEffectiveHeal(), healInfo.GetAbsorb(), 0, 0.0f, crit);
+		SpellPeriodicAuraLogInfo pInfo = new(this, heal, damage, heal - healInfo.EffectiveHeal, healInfo.Absorb, 0, 0.0f, crit);
 		target.SendPeriodicAuraLog(pInfo);
 
 		if (caster != null)
-			target.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.GetEffectiveHeal() * 0.5f, SpellInfo);
+			target.GetThreatManager().ForwardThreatForAssistingMe(caster, healInfo.EffectiveHeal * 0.5f, SpellInfo);
 
 		// %-based heal - does not proc auras
 		if (AuraType == AuraType.ObsModHealth)
@@ -6033,7 +6033,7 @@ public class AuraEffect
 
 	void HandleBreakableCCAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
-		var damageLeft = (Amount - eventInfo.DamageInfo.GetDamage());
+		var damageLeft = Amount - eventInfo.DamageInfo.Damage;
 
 		if (damageLeft <= 0)
 			aurApp.Target.RemoveAura(aurApp);

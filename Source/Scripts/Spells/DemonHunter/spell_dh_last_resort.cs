@@ -43,7 +43,7 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		if (target == null)
 			return absorbAmount;
 
-		if (dmgInfo.GetDamage() < target.Health)
+		if (dmgInfo.Damage < target.Health)
 			return absorbAmount;
 
 		if (target.HasAura(DemonHunterSpells.LAST_RESORT_DEBUFF))
@@ -57,6 +57,6 @@ public class spell_dh_last_resort : AuraScript, IHasAuraEffects
 		target.AddAura(DemonHunterSpells.METAMORPHOSIS_VENGEANCE, target);
 		target.CastSpell(target, DemonHunterSpells.LAST_RESORT_DEBUFF, true);
 
-		return dmgInfo.GetDamage();
+		return dmgInfo.Damage;
 	}
 }

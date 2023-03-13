@@ -36,7 +36,7 @@ public class spell_monk_healing_elixirs_aura : AuraScript, IHasAuraEffects
 		var caster = Caster;
 
 		if (caster != null)
-			if (caster.HealthBelowPctDamaged(35, eventInfo.DamageInfo.GetDamage()))
+			if (caster.HealthBelowPctDamaged(35, eventInfo.DamageInfo.Damage))
 			{
 				caster.CastSpell(caster, MonkSpells.HEALING_ELIXIRS_RESTORE_HEALTH, true);
 				caster.SpellHistory.ConsumeCharge(MonkSpells.HEALING_ELIXIRS_RESTORE_HEALTH);

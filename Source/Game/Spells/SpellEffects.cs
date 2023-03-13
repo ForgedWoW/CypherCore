@@ -350,10 +350,10 @@ public partial class Spell
 			Unit.CalcAbsorbResist(damageInfo);
 
 			SpellNonMeleeDamage log = new(unitCaster, UnitTarget, SpellInfo, SpellVisual, SpellInfo.GetSchoolMask(), CastId);
-			log.Damage = damageInfo.GetDamage();
+			log.Damage = damageInfo.Damage;
 			log.OriginalDamage = Damage;
-			log.Absorb = damageInfo.GetAbsorb();
-			log.Resist = damageInfo.GetResist();
+			log.Absorb = damageInfo.Absorb;
+			log.Resist = damageInfo.Resist;
 
 			if (unitCaster != null)
 				unitCaster.SendSpellNonMeleeDamageLog(log);
@@ -1193,7 +1193,7 @@ public partial class Spell
 
 		DamageInfo damageInfo = new(unitCaster, UnitTarget, Damage, SpellInfo, SpellInfo.GetSchoolMask(), DamageEffectType.Direct, WeaponAttackType.BaseAttack);
 		Unit.CalcAbsorbResist(damageInfo);
-		var absorb = damageInfo.GetAbsorb();
+		var absorb = damageInfo.Absorb;
 		Damage -= absorb;
 
 		// get max possible damage, don't count overkill for heal

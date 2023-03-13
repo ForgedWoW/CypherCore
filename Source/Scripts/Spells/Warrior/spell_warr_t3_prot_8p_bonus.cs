@@ -18,8 +18,8 @@ internal class spell_warr_t3_prot_8p_bonus : AuraScript, IAuraCheckProc
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo != null &&
-			damageInfo.GetDamage() != 0)
-			if (Target.HealthBelowPctDamaged(20, damageInfo.GetDamage()))
+			damageInfo.Damage != 0)
+			if (Target.HealthBelowPctDamaged(20, damageInfo.Damage))
 				return true;
 
 		return false;

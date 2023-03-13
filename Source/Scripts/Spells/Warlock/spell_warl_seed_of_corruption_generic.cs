@@ -40,10 +40,10 @@ internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffec
 		var damageInfo = eventInfo.DamageInfo;
 
 		if (damageInfo == null ||
-			damageInfo.GetDamage() == 0)
+			damageInfo.Damage == 0)
 			return;
 
-		var amount = aurEff.Amount - (int)damageInfo.GetDamage();
+		var amount = aurEff.Amount - (int)damageInfo.Damage;
 
 		if (amount > 0)
 		{

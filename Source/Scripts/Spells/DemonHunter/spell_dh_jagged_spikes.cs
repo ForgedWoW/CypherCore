@@ -33,7 +33,7 @@ public class spell_dh_jagged_spikes : AuraScript, IHasAuraEffects
 			return;
 
 		var pct = caster.GetAuraEffectAmount(DemonHunterSpells.JAGGED_SPIKES, 0);
-		var damage = eventInfo.DamageInfo.GetDamage();
+		var damage = eventInfo.DamageInfo.Damage;
 		MathFunctions.ApplyPct(ref damage, pct);
 
 		caster.CastSpell(target, DemonHunterSpells.JAGGED_SPIKES_DAMAGE, new CastSpellExtraArgs(TriggerCastFlags.FullMask).AddSpellMod(SpellValueMod.BasePoint0, (int)damage));

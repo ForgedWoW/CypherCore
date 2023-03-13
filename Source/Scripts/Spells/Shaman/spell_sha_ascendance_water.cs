@@ -40,7 +40,7 @@ public class spell_sha_ascendance_water : AuraScript, IHasAuraEffects
 	private void HandleEffectProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();
-		var bp0 = eventInfo.HealInfo.GetHeal();
+		var bp0 = eventInfo.HealInfo.Heal;
 
 		if (bp0 != 0)
 			eventInfo.ActionTarget.CastSpell(eventInfo.Actor, eSpells.RestorativeMists, new CastSpellExtraArgs(aurEff).AddSpellMod(SpellValueMod.BasePoint0, (int)bp0));

@@ -37,7 +37,7 @@ public class spell_dk_anti_magic_shell_self : AuraScript, IHasAuraEffects
 
 	private double Absorb(AuraEffect UnnamedParameter, DamageInfo dmgInfo, double absorbAmount)
 	{
-		return MathFunctions.CalculatePct(dmgInfo.GetDamage(), absorbPct);
+		return MathFunctions.CalculatePct(dmgInfo.Damage, absorbPct);
 	}
 
 	private double Trigger(AuraEffect aurEff, DamageInfo UnnamedParameter, double absorbAmount)

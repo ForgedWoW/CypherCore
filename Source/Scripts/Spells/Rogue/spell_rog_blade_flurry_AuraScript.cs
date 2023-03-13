@@ -46,7 +46,7 @@ internal class spell_rog_blade_flurry_AuraScript : AuraScript, IAuraCheckProc, I
 		if (damageInfo != null)
 		{
 			CastSpellExtraArgs args = new(aurEff);
-			args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.GetDamage());
+			args.AddSpellMod(SpellValueMod.BasePoint0, (int)damageInfo.Damage);
 			Target.CastSpell(_procTarget, RogueSpells.BladeFlurryExtraAttack, args);
 		}
 	}

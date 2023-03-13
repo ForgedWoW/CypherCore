@@ -264,7 +264,7 @@ internal class npc_blackhand_incarcerator : ScriptedAI
 
 		foreach (var creature in creatureList)
 			if (creature)
-				DoZoneInCombat(creature); // GetAI().AttackStart(me.GetVictim());
+				DoZoneInCombat(creature); // GetAI().AttackStart(me.Victim);
 
 		Scheduler.Schedule(TimeSpan.FromSeconds(8),
 							TimeSpan.FromSeconds(16),

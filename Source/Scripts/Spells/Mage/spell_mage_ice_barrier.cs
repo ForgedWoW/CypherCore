@@ -38,8 +38,8 @@ internal class spell_mage_ice_barrier : AuraScript, IHasAuraEffects
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
 	{
-		var caster = eventInfo.DamageInfo.GetVictim();
-		var target = eventInfo.DamageInfo.GetAttacker();
+		var caster = eventInfo.DamageInfo.Victim;
+		var target = eventInfo.DamageInfo.Attacker;
 
 		if (caster && target)
 			caster.CastSpell(target, MageSpells.Chilled, true);

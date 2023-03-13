@@ -1682,7 +1682,7 @@ public partial class Unit
 
 	public static void ProcSkillsAndAuras(Unit actor, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
 	{
-		var attType = damageInfo != null ? damageInfo.GetAttackType() : WeaponAttackType.BaseAttack;
+		var attType = damageInfo != null ? damageInfo.AttackType : WeaponAttackType.BaseAttack;
 
 		if (typeMaskActor && actor != null)
 			actor.ProcSkillsAndReactives(false, actionTarget, typeMaskActor, hitMask, attType);
@@ -1873,9 +1873,9 @@ public partial class Unit
 	public static void DealHeal(HealInfo healInfo)
 	{
 		uint gain = 0;
-		var healer = healInfo.GetHealer();
-		var victim = healInfo.GetTarget();
-		var addhealth = healInfo.GetHeal();
+		var healer = healInfo.Healer;
+		var victim = healInfo.Target;
+		var addhealth = healInfo.Heal;
 
 		var victimAI = victim.AI;
 
@@ -1937,7 +1937,7 @@ public partial class Unit
 
 		SendHealSpellLog(healInfo, critical);
 
-		return healInfo.GetEffectiveHeal();
+		return healInfo.EffectiveHeal;
 	}
 
 	public void ApplyCastTimePercentMod(double val, bool apply)
@@ -2085,8 +2085,8 @@ public partial class Unit
 		damageInfo.OriginalDamage = (uint)damage;
 		DamageInfo dmgInfo = new(damageInfo, DamageEffectType.SpellDirect, WeaponAttackType.BaseAttack, ProcFlagsHit.None);
 		CalcAbsorbResist(dmgInfo, spell);
-		damageInfo.Absorb = dmgInfo.GetAbsorb();
-		damageInfo.Resist = dmgInfo.GetResist();
+		damageInfo.Absorb = dmgInfo.Absorb;
+		damageInfo.Resist = dmgInfo.Resist;
 
 		if (damageInfo.Absorb != 0)
 			damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Absorb == 0 ? (int)HitInfo.FullAbsorb : (int)HitInfo.PartialAbsorb);
@@ -2094,7 +2094,7 @@ public partial class Unit
 		if (damageInfo.Resist != 0)
 			damageInfo.HitInfo |= (damageInfo.Damage - damageInfo.Resist == 0 ? (int)HitInfo.FullResist : (int)HitInfo.PartialResist);
 
-		damageInfo.Damage = dmgInfo.GetDamage();
+		damageInfo.Damage = dmgInfo.Damage;
 	}
 
 	public void DealSpellDamage(SpellNonMeleeDamage damageInfo, bool durabilityLoss)
@@ -4462,16 +4462,16 @@ public partial class Unit
 	{
 		SpellHealLog spellHealLog = new();
 
-		spellHealLog.TargetGUID = healInfo.GetTarget().GUID;
-		spellHealLog.CasterGUID = healInfo.GetHealer().GUID;
-		spellHealLog.SpellID = healInfo.GetSpellInfo().Id;
-		spellHealLog.Health = (uint)healInfo.GetHeal();
-		spellHealLog.OriginalHeal = (int)healInfo.GetOriginalHeal();
-		spellHealLog.OverHeal = (uint)(healInfo.GetHeal() - healInfo.GetEffectiveHeal());
-		spellHealLog.Absorbed = (uint)healInfo.GetAbsorb();
+		spellHealLog.TargetGUID = healInfo.Target.GUID;
+		spellHealLog.CasterGUID = healInfo.Healer.GUID;
+		spellHealLog.SpellID = healInfo.SpellInfo.Id;
+		spellHealLog.Health = (uint)healInfo.Heal;
+		spellHealLog.OriginalHeal = (int)healInfo.OriginalHeal;
+		spellHealLog.OverHeal = (uint)(healInfo.Heal - healInfo.EffectiveHeal);
+		spellHealLog.Absorbed = (uint)healInfo.Absorb;
 		spellHealLog.Crit = critical;
 
-		spellHealLog.LogData.Initialize(healInfo.GetTarget());
+		spellHealLog.LogData.Initialize(healInfo.Target);
 		SendCombatLogMessage(spellHealLog);
 	}
 

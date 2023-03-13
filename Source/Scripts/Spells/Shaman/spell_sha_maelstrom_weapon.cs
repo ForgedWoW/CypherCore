@@ -23,7 +23,7 @@ public class spell_sha_maelstrom_weapon : AuraScript, IHasAuraEffects, IAuraChec
 
 	public bool CheckProc(ProcEventInfo info)
 	{
-		return info.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack || info.DamageInfo.GetAttackType() == WeaponAttackType.OffAttack || info.SpellInfo.Id == ShamanSpells.WINDFURY_ATTACK;
+		return info.DamageInfo.AttackType == WeaponAttackType.BaseAttack || info.DamageInfo.AttackType == WeaponAttackType.OffAttack || info.SpellInfo.Id == ShamanSpells.WINDFURY_ATTACK;
 	}
 
 	public override void Register()

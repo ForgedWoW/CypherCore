@@ -25,10 +25,10 @@ public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
 		if (damageInfo == null)
 			return false;
 
-		if (damageInfo.GetAttackType() == WeaponAttackType.BaseAttack || damageInfo.GetAttackType() == WeaponAttackType.OffAttack)
+		if (damageInfo.AttackType == WeaponAttackType.BaseAttack || damageInfo.AttackType == WeaponAttackType.OffAttack)
 		{
-			var caster = damageInfo.GetAttacker();
-			var target = damageInfo.GetVictim();
+			var caster = damageInfo.Attacker;
+			var target = damageInfo.Victim;
 
 			if (caster == null || target == null || !caster.AsPlayer)
 				return false;

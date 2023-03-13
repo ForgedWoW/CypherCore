@@ -14,7 +14,7 @@ public class spell_sha_stormbringer : AuraScript, IAuraCheckProc, IAuraOnProc
 {
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.DamageInfo.GetAttackType() == WeaponAttackType.BaseAttack;
+		return eventInfo.DamageInfo.AttackType == WeaponAttackType.BaseAttack;
 	}
 
 	public void OnProc(ProcEventInfo info)

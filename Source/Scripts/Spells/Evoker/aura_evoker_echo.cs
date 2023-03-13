@@ -19,11 +19,11 @@ public class aura_evoker_echo : AuraScript, IAuraOnProc
 			if (healInfo == null)
 				return;
 
-			HealInfo newHeal = new(healInfo.GetHealer(), 
-									healInfo.GetTarget(),
-									healInfo.GetHeal() * (echoAura.SpellInfo.GetEffect(1).BasePoints * 0.01), 
-									healInfo.GetSpellInfo(),
-									healInfo.GetSchoolMask());
+			HealInfo newHeal = new(healInfo.Healer, 
+									healInfo.Target,
+									healInfo.Heal * (echoAura.SpellInfo.GetEffect(1).BasePoints * 0.01), 
+									healInfo.SpellInfo,
+									healInfo.SchoolMask);
 
 			Unit.DealHeal(healInfo);
 			echoAura.Remove();

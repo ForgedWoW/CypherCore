@@ -27,7 +27,7 @@ internal class spell_item_alchemist_stone : AuraScript, IHasAuraEffects
 
 	private bool CheckProc(ProcEventInfo eventInfo)
 	{
-		return eventInfo.DamageInfo.GetSpellInfo().SpellFamilyName == SpellFamilyNames.Potion;
+		return eventInfo.DamageInfo.SpellInfo.SpellFamilyName == SpellFamilyNames.Potion;
 	}
 
 	private void HandleProc(AuraEffect aurEff, ProcEventInfo eventInfo)
@@ -35,11 +35,11 @@ internal class spell_item_alchemist_stone : AuraScript, IHasAuraEffects
 		PreventDefaultAction();
 
 		uint spellId = 0;
-		var amount = (int)(eventInfo.DamageInfo.GetDamage() * 0.4f);
+		var amount = (int)(eventInfo.DamageInfo.Damage * 0.4f);
 
-		if (eventInfo.DamageInfo.GetSpellInfo().HasEffect(SpellEffectName.Heal))
+		if (eventInfo.DamageInfo.SpellInfo.HasEffect(SpellEffectName.Heal))
 			spellId = ItemSpellIds.AlchemistStoneExtraHeal;
-		else if (eventInfo.DamageInfo.GetSpellInfo().HasEffect(SpellEffectName.Energize))
+		else if (eventInfo.DamageInfo.SpellInfo.HasEffect(SpellEffectName.Energize))
 			spellId = ItemSpellIds.AlchemistStoneExtraMana;
 
 		if (spellId == 0)
