@@ -37,7 +37,9 @@ public class SpellNonMeleeDamage
 		SpellVisual = spellVisual;
 		SchoolMask = schoolMask;
 		CastId = castId;
-		PreHitHealth = (uint)target.Health;
+
+		if (target != null)
+			PreHitHealth = (uint)target.Health;
 
 		if (attacker == target)
 			HitInfo |= (int)SpellHitType.VictimIsAttacker;
