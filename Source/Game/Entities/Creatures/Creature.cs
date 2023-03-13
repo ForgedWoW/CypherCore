@@ -2977,11 +2977,11 @@ public partial class Creature : Unit
 		SetImmuneToNPC(apply, HasReactState(ReactStates.Passive));
 	}
 
-    public override CreatureAI AI => (CreatureAI)Ai;
+    public override CreatureAI AI => Ai as CreatureAI;
 
     public T GetAI<T>() where T : CreatureAI
 	{
-		return (T)Ai;
+		return Ai as T;
 	}
 
 	public override SpellSchoolMask GetMeleeDamageSchoolMask(WeaponAttackType attackType = WeaponAttackType.BaseAttack)
