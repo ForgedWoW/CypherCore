@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Bgs.Protocol.Account.V1;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
@@ -25,6 +26,8 @@ public class aura_evoker_cycle_of_life : AuraScript, IAuraOnProc, IAuraOnApply
         if (info.HealInfo == null)
             return;
 
-        Aura.AuraEffects[0].ChangeAmount(info.HealInfo.Heal * _multiplier);
+        var eff = Aura.AuraEffects[0];
+
+        eff.ChangeAmount(eff.Amount + info.HealInfo.Heal * _multiplier);
     }
 }

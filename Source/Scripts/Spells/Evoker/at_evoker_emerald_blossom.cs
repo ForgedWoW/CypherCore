@@ -23,6 +23,6 @@ public class at_evoker_emerald_blossom : AreaTriggerAI
 		if (caster == null)
 			return;
 
-		At.CastSpell(At, EvokerSpells.EMERALD_BLOSSOM_HEAL);
+        caster.CastSpell(caster, EvokerSpells.EMERALD_BLOSSOM_HEAL);
 	}
 }
