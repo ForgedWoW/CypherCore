@@ -1235,7 +1235,7 @@ public partial class Unit
 		spell = CurrentSpells.LookupByKey(CurrentSpellTypes.Channeled);
 
 		if (spell != null)
-			if (spell.State != SpellState.Finished && spell.IsChannelActive())
+			if (spell.State != SpellState.Finished && spell.IsChannelActive)
 				if (spell.SpellInfo.IsMoveAllowedChannel || CanCastSpellWhileMoving(spell.SpellInfo))
 					return false;
 
@@ -1725,7 +1725,7 @@ public partial class Unit
 	{
 		Cypher.Assert(pSpell != null); // NULL may be never passed here, use InterruptSpell or InterruptNonMeleeSpells
 
-		var CSpellType = pSpell.GetCurrentContainer();
+		var CSpellType = pSpell.CurrentContainer;
 
 		if (pSpell == GetCurrentSpell(CSpellType)) // avoid breaking self
 			return;
@@ -1794,7 +1794,7 @@ public partial class Unit
 		CurrentSpells[CSpellType] = pSpell;
 		pSpell.SetReferencedFromCurrent(true);
 
-		pSpell.SelfContainer = CurrentSpells[pSpell.GetCurrentContainer()];
+		pSpell.SelfContainer = CurrentSpells[pSpell.CurrentContainer];
 	}
 
 	public bool IsNonMeleeSpellCast(bool withDelayed, bool skipChanneled = false, bool skipAutorepeat = false, bool isAutoshoot = false, bool skipInstant = true)
@@ -4434,7 +4434,7 @@ public partial class Unit
 	void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc)
 	{
 		var triggeringSpell = eventInfo.ProcSpell;
-		var disableProcs = triggeringSpell && triggeringSpell.IsProcDisabled();
+		var disableProcs = triggeringSpell && triggeringSpell.IsProcDisabled;
 
 		if (disableProcs)
 			SetCantProc(true);

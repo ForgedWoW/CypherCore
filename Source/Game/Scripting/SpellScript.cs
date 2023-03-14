@@ -158,7 +158,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 	public GameObject GObjCaster => _spell.Caster.AsGameObject;
 	public Unit OriginalCaster => _spell.OriginalCaster;
 	public SpellInfo SpellInfo => _spell.SpellInfo;
-	public Difficulty CastDifficulty => _spell.GetCastDifficulty();
+	public Difficulty CastDifficulty => _spell.CastDifficulty;
 	public SpellValue SpellValue => _spell.SpellValue;
 
 	// methods useable after spell is prepared

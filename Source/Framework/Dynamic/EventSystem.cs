@@ -35,21 +35,21 @@ public class EventSystem
 					var Event = i.Value;
 					m_events.Remove(i);
 
-					if (Event.IsRunning())
+					if (Event.IsRunning)
 					{
 						Event.Execute(m_time, p_time);
 
 						continue;
 					}
 
-					if (Event.IsAbortScheduled())
+					if (Event.IsAbortScheduled)
 					{
 						Event.Abort(m_time);
 						// Mark the event as aborted
 						Event.SetAborted();
 					}
 
-					if (Event.IsDeletable())
+					if (Event.IsDeletable)
 						continue;
 
 					// Reschedule non deletable events to be checked at
@@ -66,7 +66,7 @@ public class EventSystem
 			m_events.RemoveIfMatching((pair) =>
 			{
 				// Abort events which weren't aborted already
-				if (!pair.Value.IsAborted())
+				if (!pair.Value.IsAborted)
 				{
 					pair.Value.SetAborted();
 					pair.Value.Abort(m_time);
@@ -74,7 +74,7 @@ public class EventSystem
 
 				// Skip non-deletable events when we are
 				// not forcing the event cancellation.
-				if (!force && !pair.Value.IsDeletable())
+				if (!force && !pair.Value.IsDeletable)
 					return false;
 
 				if (!force)

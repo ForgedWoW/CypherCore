@@ -100,7 +100,7 @@ public class TargetInfo : TargetInfoBase
 		if (unit.IsAlive != IsAlive)
 			return;
 
-		if (spell.State == SpellState.Delayed && !spell.IsPositive() && (GameTime.GetGameTimeMS() - TimeDelay) <= unit.LastSanctuaryTime)
+		if (spell.State == SpellState.Delayed && !spell.IsPositive && (GameTime.GetGameTimeMS() - TimeDelay) <= unit.LastSanctuaryTime)
 			return; // No missinfo in that case
 
 		if (_spellHitTarget)
@@ -341,7 +341,7 @@ public class TargetInfo : TargetInfoBase
 				spell.NeedComboPoints = false;
 
 			// _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
-			if (MissCondition != SpellMissInfo.Evade && _spellHitTarget && !spell.Caster.IsFriendlyTo(unit) && (!spell.IsPositive() || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
+			if (MissCondition != SpellMissInfo.Evade && _spellHitTarget && !spell.Caster.IsFriendlyTo(unit) && (!spell.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
 			{
 				var unitCaster = spell.Caster.AsUnit;
 
@@ -393,15 +393,15 @@ public class TargetInfo : TargetInfoBase
 				if (aurApp != null)
 				{
 					var effMask = Effects.ToHashSet();
-                    // only apply unapplied effects (for reapply case)
-                    effMask.IntersectWith(aurApp.EffectsToApply);
+					// only apply unapplied effects (for reapply case)
+					effMask.IntersectWith(aurApp.EffectsToApply);
 
-                    for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
-                        if (effMask.Contains(i) && aurApp.HasEffect(i))
-                            effMask.Remove(i);
+					for (var i = 0; i < spell.SpellInfo.Effects.Count; ++i)
+						if (effMask.Contains(i) && aurApp.HasEffect(i))
+							effMask.Remove(i);
 
-                    if (effMask.Count != 0)
-                        _spellHitTarget._ApplyAura(aurApp, effMask);
+					if (effMask.Count != 0)
+						_spellHitTarget._ApplyAura(aurApp, effMask);
 				}
 			}
 

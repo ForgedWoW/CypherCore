@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
@@ -145,7 +144,7 @@ public class SpellInfo
 
 	public bool IsPositive => NegativeEffects.Count > 0;
 
-    public bool IsChanneled => HasAttribute(SpellAttr1.IsChannelled | SpellAttr1.IsSelfChannelled);
+	public bool IsChanneled => HasAttribute(SpellAttr1.IsChannelled | SpellAttr1.IsSelfChannelled);
 
 	public bool IsMoveAllowedChannel => IsChanneled && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags.Moving | SpellAuraInterruptFlags.Turning);
 
@@ -166,7 +165,7 @@ public class SpellInfo
 		get
 		{
 			foreach (var effectInfo in _effects)
-				if (effectInfo.IsAreaAuraEffect())
+				if (effectInfo.IsAreaAuraEffect)
 					return true;
 
 			return false;
@@ -246,7 +245,7 @@ public class SpellInfo
 		get
 		{
 			foreach (var effectInfo in _effects)
-				if (effectInfo.IsEffect() && (effectInfo.IsTargetingArea() || effectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || effectInfo.IsAreaAuraEffect()))
+				if (effectInfo.IsEffect() && (effectInfo.IsTargetingArea || effectInfo.IsEffect(SpellEffectName.PersistentAreaAura) || effectInfo.IsAreaAuraEffect))
 					return true;
 
 			return false;
@@ -259,7 +258,7 @@ public class SpellInfo
 		get
 		{
 			foreach (var effectInfo in _effects)
-				if (effectInfo.IsEffect() && effectInfo.IsTargetingArea())
+				if (effectInfo.IsEffect() && effectInfo.IsTargetingArea)
 					return true;
 
 			return false;
@@ -473,7 +472,7 @@ public class SpellInfo
 		for (var i = 0; i < _effects.Count; ++i)
 			_effects[i].EffectIndex = i;
 
-		NegativeEffects = new();
+		NegativeEffects = new HashSet<int>();
 
 		SpellName = spellName.Name;
 
@@ -712,7 +711,7 @@ public class SpellInfo
 		for (var i = 0; i < _effects.Count; ++i)
 			_effects[i].EffectIndex = i;
 
-		NegativeEffects = new();
+		NegativeEffects = new HashSet<int>();
 	}
 
 	public bool HasEffect(SpellEffectName effect)
@@ -755,7 +754,7 @@ public class SpellInfo
 
 			foreach (var effectInfo in _effects)
 				if (effectInfo.TargetA.Target != Framework.Constants.Targets.UnitCaster && effectInfo.TargetA.Target != Framework.Constants.Targets.DestCaster && effectInfo.TargetB.Target != Framework.Constants.Targets.UnitCaster && effectInfo.TargetB.Target != Framework.Constants.Targets.DestCaster)
-					mask |= effectInfo.GetProvidedTargetMask();
+					mask |= effectInfo.ProvidedTargetMask;
 
 			if (mask.HasAnyFlag(SpellCastTargetFlags.UnitMask))
 				return true;
@@ -1875,7 +1874,7 @@ public class SpellInfo
 			var miscVal = effect.MiscValue;
 			var amount = effect.CalcValue();
 
-			var immuneInfo = effect.GetImmunityInfo();
+			var immuneInfo = effect.ImmunityInfo;
 
 			switch (effect.ApplyAuraName)
 			{
@@ -2186,7 +2185,7 @@ public class SpellInfo
 
 	public void ApplyAllSpellImmunitiesTo(Unit target, SpellEffectInfo spellEffectInfo, bool apply)
 	{
-		var immuneInfo = spellEffectInfo.GetImmunityInfo();
+		var immuneInfo = spellEffectInfo.ImmunityInfo;
 
 		var schoolImmunity = immuneInfo.SchoolImmuneMask;
 
@@ -2914,7 +2913,7 @@ public class SpellInfo
 			targetMask |= effectInfo.TargetB.GetExplicitTargetMask(ref srcSet, ref dstSet);
 
 			// add explicit target flags based on spell effects which have SpellEffectImplicitTargetTypes.Explicit and no valid target provided
-			if (effectInfo.GetImplicitTargetType() != SpellEffectImplicitTargetTypes.Explicit)
+			if (effectInfo.ImplicitTargetType != SpellEffectImplicitTargetTypes.Explicit)
 				continue;
 
 			// extend explicit target mask only if valid targets for effect could not be provided by target types
@@ -3675,7 +3674,7 @@ public class SpellInfo
 			if (!effectInfo.IsEffect())
 				continue;
 
-			var immuneInfo = effectInfo.GetImmunityInfo();
+			var immuneInfo = effectInfo.ImmunityInfo;
 
 			if (!auraSpellInfo.HasAttribute(SpellAttr1.ImmunityToHostileAndFriendlyEffects) && !auraSpellInfo.HasAttribute(SpellAttr2.NoSchoolImmunities))
 			{

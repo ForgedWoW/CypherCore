@@ -51,9 +51,9 @@ public class UnitAura : Aura
 	}
 
 	public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
-    {
-        var targets = new Dictionary<Unit, HashSet<int>>();
-        var refe = caster;
+	{
+		var targets = new Dictionary<Unit, HashSet<int>>();
+		var refe = caster;
 
 		if (refe == null)
 			refe = OwnerAsUnit;
@@ -173,14 +173,14 @@ public class UnitAura : Aura
 		}
 
 		return targets;
-
-    }
+	}
 
 	public void AddStaticApplication(Unit target, HashSet<int> effectMask)
 	{
 		var effMask = effectMask.ToHashSet();
-        // only valid for non-area auras
-        foreach (var spellEffectInfo in SpellInfo.Effects)
+
+		// only valid for non-area auras
+		foreach (var spellEffectInfo in SpellInfo.Effects)
 			if (effMask.Contains(spellEffectInfo.EffectIndex) && !spellEffectInfo.IsEffect(SpellEffectName.ApplyAura))
 				effMask.Remove(spellEffectInfo.EffectIndex);
 

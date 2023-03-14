@@ -10,6 +10,14 @@ public class BasicEvent
 
 	AbortState m_abortState; // set by externals when the event is aborted, aborted events don't execute
 
+	public virtual bool IsDeletable => true;
+
+	public bool IsRunning => m_abortState == AbortState.Running;
+
+	public bool IsAbortScheduled => m_abortState == AbortState.Scheduled;
+
+	public bool IsAborted => m_abortState == AbortState.Aborted;
+
 	public BasicEvent()
 	{
 		m_abortState = AbortState.Running;
@@ -17,13 +25,13 @@ public class BasicEvent
 
 	public void ScheduleAbort()
 	{
-		Cypher.Assert(IsRunning(), "Tried to scheduled the abortion of an event twice!");
+		Cypher.Assert(IsRunning, "Tried to scheduled the abortion of an event twice!");
 		m_abortState = AbortState.Scheduled;
 	}
 
 	public void SetAborted()
 	{
-		Cypher.Assert(!IsAborted(), "Tried to abort an already aborted event!");
+		Cypher.Assert(!IsAborted, "Tried to abort an already aborted event!");
 		m_abortState = AbortState.Aborted;
 	}
 
@@ -35,25 +43,5 @@ public class BasicEvent
 		return true;
 	}
 
-	public virtual bool IsDeletable()
-	{
-		return true;
-	} // this event can be safely deleted
-
 	public virtual void Abort(ulong e_time) { } // this method executes when the event is aborted
-
-	public bool IsRunning()
-	{
-		return m_abortState == AbortState.Running;
-	}
-
-	public bool IsAbortScheduled()
-	{
-		return m_abortState == AbortState.Scheduled;
-	}
-
-	public bool IsAborted()
-	{
-		return m_abortState == AbortState.Aborted;
-	}
 }

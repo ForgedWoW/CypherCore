@@ -864,7 +864,7 @@ public partial class Player
 		// from spell cases (m_lastPotionId set in Spell.SendSpellCooldown)
 		else
 		{
-			if (spell.IsIgnoringCooldowns())
+			if (spell.IsIgnoringCooldowns)
 				return;
 			else
 				SpellHistory.SendCooldownEvent(spell.SpellInfo, _lastPotionId, spell);

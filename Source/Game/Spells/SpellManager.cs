@@ -5089,7 +5089,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							spellInfo.ConeAngle = 90.0f;
 
 					// Area auras may not target area (they're self cast)
-					if (spellEffectInfo.IsAreaAuraEffect() && spellEffectInfo.IsTargetingArea())
+					if (spellEffectInfo.IsAreaAuraEffect && spellEffectInfo.IsTargetingArea)
 					{
 						spellEffectInfo.TargetA = new SpellImplicitTargetInfo(Targets.UnitCaster);
 						spellEffectInfo.TargetB = new SpellImplicitTargetInfo();

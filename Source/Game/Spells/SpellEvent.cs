@@ -11,6 +11,10 @@ public class SpellEvent : BasicEvent
 {
 	readonly Spell _spell;
 
+	public override bool IsDeletable => _spell.IsDeletable;
+
+	public Spell Spell => _spell;
+
 	public SpellEvent(Spell spell)
 	{
 		_spell = spell;
@@ -87,15 +91,5 @@ public class SpellEvent : BasicEvent
 		// oops, the spell we try to do is aborted
 		if (_spell.State != SpellState.Finished)
 			_spell.Cancel();
-	}
-
-	public override bool IsDeletable()
-	{
-		return _spell.IsDeletable;
-	}
-
-	public Spell GetSpell()
-	{
-		return _spell;
 	}
 }

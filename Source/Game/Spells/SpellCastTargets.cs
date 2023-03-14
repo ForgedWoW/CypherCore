@@ -27,7 +27,7 @@ public class SpellCastTargets
 
 	public SpellCastTargetFlags TargetMask { get; set; }
 
-    public ObjectGuid ItemTargetGuid => _itemTargetGuid;
+	public ObjectGuid ItemTargetGuid => _itemTargetGuid;
 
 	public Item ItemTarget
 	{
@@ -55,7 +55,7 @@ public class SpellCastTargets
 
 	public float Speed { get; set; }
 
-    public float Dist2d => _src.Position.GetExactDist2d(_dst.Position);
+	public float Dist2d => _src.Position.GetExactDist2d(_dst.Position);
 	public float SpeedXY => (float)(Speed * Math.Cos(Pitch));
 
 	public float SpeedZ => (float)(Speed * Math.Sin(Pitch));

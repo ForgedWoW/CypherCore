@@ -1129,7 +1129,7 @@ public partial class Creature : Unit
 		var spell = GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 		if (spell != null)
-			if (spell.State != SpellState.Finished && spell.IsChannelActive())
+			if (spell.State != SpellState.Finished && spell.IsChannelActive)
 				if (spell.CheckMovement() != SpellCastResult.SpellCastOk)
 					return true;
 
@@ -2859,7 +2859,7 @@ public partial class Creature : Unit
 			return;
 
 		// some spells shouldn't track targets
-		if (focusSpell.IsFocusDisabled())
+		if (focusSpell.IsFocusDisabled)
 			return;
 
 		var spellInfo = focusSpell.SpellInfo;

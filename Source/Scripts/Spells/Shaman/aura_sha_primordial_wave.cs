@@ -28,7 +28,7 @@ public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalc
 		if (player == null)
 			return;
 
-		if (Spell.IsTriggered() && !player.HasAura(ShamanSpells.LAVA_SURGE_CAST_TIME))
+		if (Spell.IsTriggered && !player.HasAura(ShamanSpells.LAVA_SURGE_CAST_TIME))
 			return;
 
 		if (!player.HasAura(ShamanSpells.PrimordialWaveAura))

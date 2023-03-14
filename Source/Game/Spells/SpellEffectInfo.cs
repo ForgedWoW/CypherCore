@@ -355,6 +355,40 @@ public class SpellEffectInfo
 	readonly SpellInfo _spellInfo;
 	readonly ImmunityInfo _immunityInfo;
 
+	public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
+
+	public bool IsAreaAuraEffect
+	{
+		get
+		{
+			if (Effect == SpellEffectName.ApplyAreaAuraParty ||
+				Effect == SpellEffectName.ApplyAreaAuraRaid ||
+				Effect == SpellEffectName.ApplyAreaAuraFriend ||
+				Effect == SpellEffectName.ApplyAreaAuraEnemy ||
+				Effect == SpellEffectName.ApplyAreaAuraPet ||
+				Effect == SpellEffectName.ApplyAreaAuraOwner ||
+				Effect == SpellEffectName.ApplyAreaAuraSummons ||
+				Effect == SpellEffectName.ApplyAreaAuraPartyNonrandom)
+				return true;
+
+			return false;
+		}
+	}
+
+	public bool IsUnitOwnedAuraEffect => IsAreaAuraEffect || Effect == SpellEffectName.ApplyAura || Effect == SpellEffectName.ApplyAuraOnPet;
+
+	public bool HasRadius => RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
+
+	public bool HasMaxRadius => MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
+
+	public SpellCastTargetFlags ProvidedTargetMask => SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
+
+	public SpellEffectImplicitTargetTypes ImplicitTargetType => _data[(int)Effect].ImplicitTargetType;
+
+	public SpellTargetObjectTypes UsedTargetObjectType => _data[(int)Effect].UsedTargetObjectType;
+
+	public ImmunityInfo ImmunityInfo => _immunityInfo;
+
 	public SpellEffectInfo(SpellInfo spellInfo, SpellEffectRecord effect = null)
 	{
 		_spellInfo = spellInfo;
@@ -408,37 +442,12 @@ public class SpellEffectInfo
 
 	public bool IsAura()
 	{
-		return (IsUnitOwnedAuraEffect() || Effect == SpellEffectName.PersistentAreaAura) && ApplyAuraName != 0;
+		return (IsUnitOwnedAuraEffect || Effect == SpellEffectName.PersistentAreaAura) && ApplyAuraName != 0;
 	}
 
 	public bool IsAura(AuraType aura)
 	{
 		return IsAura() && ApplyAuraName == aura;
-	}
-
-	public bool IsTargetingArea()
-	{
-		return TargetA.IsArea || TargetB.IsArea;
-	}
-
-	public bool IsAreaAuraEffect()
-	{
-		if (Effect == SpellEffectName.ApplyAreaAuraParty ||
-			Effect == SpellEffectName.ApplyAreaAuraRaid ||
-			Effect == SpellEffectName.ApplyAreaAuraFriend ||
-			Effect == SpellEffectName.ApplyAreaAuraEnemy ||
-			Effect == SpellEffectName.ApplyAreaAuraPet ||
-			Effect == SpellEffectName.ApplyAreaAuraOwner ||
-			Effect == SpellEffectName.ApplyAreaAuraSummons ||
-			Effect == SpellEffectName.ApplyAreaAuraPartyNonrandom)
-			return true;
-
-		return false;
-	}
-
-	public bool IsUnitOwnedAuraEffect()
-	{
-		return IsAreaAuraEffect() || Effect == SpellEffectName.ApplyAura || Effect == SpellEffectName.ApplyAuraOnPet;
 	}
 
 	public double CalcValue(WorldObject caster = null, double? bp = null, Unit target = null, uint castItemId = 0, int itemLevel = -1)
@@ -646,20 +655,10 @@ public class SpellEffectInfo
 		return multiplierPercent / 100.0f;
 	}
 
-	public bool HasRadius()
-	{
-		return RadiusEntry != null && (RadiusEntry.RadiusMin != 0 || RadiusEntry.RadiusMax != 0);
-	}
-
-	public bool HasMaxRadius()
-	{
-		return MaxRadiusEntry != null && (MaxRadiusEntry.RadiusMin != 0 || MaxRadiusEntry.RadiusMax != 0);
-	}
-
 	public SpellRadiusRecord GetLargestRange()
 	{
-		var max = HasMaxRadius();
-		var min = HasRadius();
+		var max = HasMaxRadius;
+		var min = HasRadius;
 
 		if (!max && !min)
 			return null;
@@ -701,15 +700,10 @@ public class SpellEffectInfo
 		return radius;
 	}
 
-	public SpellCastTargetFlags GetProvidedTargetMask()
-	{
-		return SpellInfo.GetTargetFlagMask(TargetA.ObjectType) | SpellInfo.GetTargetFlagMask(TargetB.ObjectType);
-	}
-
 	public SpellCastTargetFlags GetMissingTargetMask(bool srcSet = false, bool dstSet = false, SpellCastTargetFlags mask = 0)
 	{
-		var effImplicitTargetMask = SpellInfo.GetTargetFlagMask(GetUsedTargetObjectType());
-		var providedTargetMask = GetProvidedTargetMask() | mask;
+		var effImplicitTargetMask = SpellInfo.GetTargetFlagMask(UsedTargetObjectType);
+		var providedTargetMask = ProvidedTargetMask | mask;
 
 		// remove all flags covered by effect target mask
 		if (Convert.ToBoolean(providedTargetMask & SpellCastTargetFlags.UnitMask))
@@ -734,21 +728,6 @@ public class SpellEffectInfo
 			effImplicitTargetMask &= ~SpellCastTargetFlags.SourceLocation;
 
 		return effImplicitTargetMask;
-	}
-
-	public SpellEffectImplicitTargetTypes GetImplicitTargetType()
-	{
-		return _data[(int)Effect].ImplicitTargetType;
-	}
-
-	public SpellTargetObjectTypes GetUsedTargetObjectType()
-	{
-		return _data[(int)Effect].UsedTargetObjectType;
-	}
-
-	public ImmunityInfo GetImmunityInfo()
-	{
-		return _immunityInfo;
 	}
 
 	ExpectedStatType GetScalingExpectedStat()

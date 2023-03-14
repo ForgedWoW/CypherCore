@@ -32,7 +32,7 @@ public class DynObjAura : Aura
 	public override Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
 	{
 		var targets = new Dictionary<Unit, HashSet<int>>();
-        var dynObjOwnerCaster = DynobjOwner.GetCaster();
+		var dynObjOwnerCaster = DynobjOwner.GetCaster();
 		var radius = DynobjOwner.GetRadius();
 
 		foreach (var spellEffectInfo in SpellInfo.Effects)
@@ -66,6 +66,5 @@ public class DynObjAura : Aura
 		}
 
 		return targets;
-
-    }
+	}
 }

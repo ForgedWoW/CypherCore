@@ -14,11 +14,11 @@ public class AuraApplication
 {
 	readonly Unit _target;
 	readonly Aura _base;
-	readonly byte _slot;        // Aura slot on unit
-	AuraFlags _flags;           // Aura info flag
-	HashSet<int> _effectsToApply = new HashSet<int>();       // Used only at spell hit to determine which effect should be applied
+	readonly byte _slot;                  // Aura slot on unit
+	AuraFlags _flags;                     // Aura info flag
+	HashSet<int> _effectsToApply = new(); // Used only at spell hit to determine which effect should be applied
 	bool _needClientUpdate;
-	HashSet<int> _effectMask = new();
+	readonly HashSet<int> _effectMask = new();
 
 	public Guid Guid { get; } = Guid.NewGuid();
 
@@ -36,9 +36,9 @@ public class AuraApplication
 
 	public HashSet<int> EffectsToApply => _effectsToApply;
 
-	public AuraRemoveMode RemoveMode { get; set; }  // Store info for know remove aura reason
+	public AuraRemoveMode RemoveMode { get; set; } // Store info for know remove aura reason
 
-    public bool HasRemoveMode => RemoveMode != 0;
+	public bool HasRemoveMode => RemoveMode != 0;
 
 	public bool IsNeedClientUpdate => _needClientUpdate;
 
@@ -107,18 +107,21 @@ public class AuraApplication
 		}
 
 		Cypher.Assert(aurEff != null);
+
 		if (HasEffect(effIndex) != (!apply))
-        {
-            Log.outError(LogFilter.Spells, "Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
-            return;
+		{
+			Log.outError(LogFilter.Spells, "Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
+
+			return;
 		}
+
 		Cypher.Assert(_effectsToApply.Contains(effIndex));
 		Log.outDebug(LogFilter.Spells, "AuraApplication._HandleEffect: {0}, apply: {1}: amount: {2}", aurEff.AuraType, apply, aurEff.Amount);
 
 		if (apply)
 		{
 			Cypher.Assert(!_effectMask.Contains(effIndex));
-            _effectMask.Add(effIndex);
+			_effectMask.Add(effIndex);
 			aurEff.HandleEffect(this, AuraEffectHandleModes.Real, true);
 		}
 		else
@@ -145,18 +148,18 @@ public class AuraApplication
 		toAdd.ExceptWith(_effectsToApply);
 		toRemove.ExceptWith(newEffMask);
 
-        // quick check, removes application completely
-        if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
-        {
+		// quick check, removes application completely
+		if (toAdd.SetEquals(toRemove) && toAdd.Count == 0)
+		{
 			_target._UnapplyAura(this, AuraRemoveMode.Default);
 
 			return;
 		}
 
-        // update real effects only if they were applied already
-        _effectsToApply = newEffMask;
+		// update real effects only if they were applied already
+		_effectsToApply = newEffMask;
 
-        foreach (var eff in Base.AuraEffects)
+		foreach (var eff in Base.AuraEffects)
 		{
 			if (HasEffect(eff.Key) && toRemove.Contains(eff.Key))
 				_HandleEffect(eff.Key, false);

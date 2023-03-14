@@ -753,8 +753,7 @@ public class AuraEffect
 					break;
 				}
 
-			target.
-			AppliedAuras
+			target.AppliedAuras
 				.CallOnMatch((app) =>
 							{
 								if (app == null)
@@ -910,7 +909,7 @@ public class AuraEffect
 
 	public bool IsAreaAuraEffect()
 	{
-		return _effectInfo.IsAreaAuraEffect();
+		return _effectInfo.IsAreaAuraEffect;
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellPowerPct)]
@@ -987,8 +986,7 @@ public class AuraEffect
 		if (_spellModifier == null || !target.IsTypeId(TypeId.Player))
 			return;
 
-		target.
-		AsPlayer.AddSpellMod(_spellModifier, apply);
+		target.AsPlayer.AddSpellMod(_spellModifier, apply);
 
 		// Auras with charges do not mod amount of passive auras
 		if (Base.IsUsingCharges)
@@ -1888,8 +1886,7 @@ public class AuraEffect
 						var model = ObjectManager.ChooseDisplayId(ci);
 						Global.ObjectMgr.GetCreatureModelRandomGender(ref model, ci);
 
-						target.
-						MountDisplayId = model.CreatureDisplayId;
+						target.MountDisplayId = model.CreatureDisplayId;
 					}
 				}
 		}
@@ -2878,8 +2875,8 @@ public class AuraEffect
 			else
 			{
 				// Reinitialize the pet bar or it will appear greyed out
-				caster.// Reinitialize the pet bar or it will appear greyed out
-				AsPlayer.PetSpellInitialize();
+				caster. // Reinitialize the pet bar or it will appear greyed out
+					AsPlayer.PetSpellInitialize();
 
 				// TODO: remove this
 				if (pet.Victim == null && !pet.GetCharmInfo().HasCommandState(CommandStates.Stay))
@@ -2952,8 +2949,8 @@ public class AuraEffect
 		else
 		{
 			// Remove pending passengers before exiting vehicle - might cause an Uninstall
-			target.// Remove pending passengers before exiting vehicle - might cause an Uninstall
-			VehicleKit1.RemovePendingEventsForPassenger(caster);
+			target. // Remove pending passengers before exiting vehicle - might cause an Uninstall
+				VehicleKit1.RemovePendingEventsForPassenger(caster);
 
 			if (Id == 53111) // Devour Humanoid
 			{
@@ -3485,10 +3482,10 @@ public class AuraEffect
 		// This information for client side use only
 		// Recalculate bonus
 		target.
-		// Magic damage modifiers implemented in Unit.SpellDamageBonus
-		// This information for client side use only
-		// Recalculate bonus
-		AsPlayer.UpdateSpellDamageAndHealingBonus();
+			// Magic damage modifiers implemented in Unit.SpellDamageBonus
+			// This information for client side use only
+			// Recalculate bonus
+			AsPlayer.UpdateSpellDamageAndHealingBonus();
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellHealingOfStatPercent)]
@@ -3504,8 +3501,8 @@ public class AuraEffect
 
 		// Recalculate bonus
 		target.
-		// Recalculate bonus
-		AsPlayer.UpdateSpellDamageAndHealingBonus();
+			// Recalculate bonus
+			AsPlayer.UpdateSpellDamageAndHealingBonus();
 	}
 
 	[AuraEffectHandler(AuraType.ModHealingDone)]
@@ -3522,9 +3519,9 @@ public class AuraEffect
 		// implemented in Unit.SpellHealingBonus
 		// this information is for client side only
 		target.
-		// implemented in Unit.SpellHealingBonus
-		// this information is for client side only
-		AsPlayer.UpdateSpellDamageAndHealingBonus();
+			// implemented in Unit.SpellHealingBonus
+			// this information is for client side only
+			AsPlayer.UpdateSpellDamageAndHealingBonus();
 	}
 
 	[AuraEffectHandler(AuraType.ModHealingDonePercent)]
@@ -3595,8 +3592,7 @@ public class AuraEffect
 		if (!target.IsTypeId(TypeId.Player))
 			return;
 
-		target.
-		AsPlayer.UpdateExpertise(WeaponAttackType.BaseAttack);
+		target.AsPlayer.UpdateExpertise(WeaponAttackType.BaseAttack);
 		target.AsPlayer.UpdateExpertise(WeaponAttackType.OffAttack);
 	}
 
@@ -3761,8 +3757,7 @@ public class AuraEffect
 		if (!target.IsPlayer)
 			return;
 
-		target.
-		AsPlayer.UpdateManaRegen();
+		target.AsPlayer.UpdateManaRegen();
 	}
 
 	[AuraEffectHandler(AuraType.ModIncreaseHealth)]
@@ -4078,8 +4073,7 @@ public class AuraEffect
 		if (!target.IsTypeId(TypeId.Player))
 			return;
 
-		target.
-		AsPlayer.UpdateParryPercentage();
+		target.AsPlayer.UpdateParryPercentage();
 	}
 
 	[AuraEffectHandler(AuraType.ModDodgePercent)]
@@ -4093,8 +4087,7 @@ public class AuraEffect
 		if (!target.IsTypeId(TypeId.Player))
 			return;
 
-		target.
-		AsPlayer.UpdateDodgePercentage();
+		target.AsPlayer.UpdateDodgePercentage();
 	}
 
 	[AuraEffectHandler(AuraType.ModBlockPercent)]
@@ -4108,8 +4101,7 @@ public class AuraEffect
 		if (!target.IsTypeId(TypeId.Player))
 			return;
 
-		target.
-		AsPlayer.UpdateBlockPercentage();
+		target.AsPlayer.UpdateBlockPercentage();
 	}
 
 	[AuraEffectHandler(AuraType.InterruptRegen)]
@@ -4123,8 +4115,7 @@ public class AuraEffect
 		if (!target.IsPlayer)
 			return;
 
-		target.
-		AsPlayer.UpdateManaRegen();
+		target.AsPlayer.UpdateManaRegen();
 	}
 
 	[AuraEffectHandler(AuraType.ModWeaponCritPercent)]
@@ -4184,13 +4175,12 @@ public class AuraEffect
 			return;
 		}
 
-		target.
-		AsPlayer.UpdateAllWeaponDependentCritAuras();
+		target.AsPlayer.UpdateAllWeaponDependentCritAuras();
 
 		// included in Player.UpdateSpellCritChance calculation
 		target.
-		// included in Player.UpdateSpellCritChance calculation
-		AsPlayer.UpdateSpellCritChance();
+			// included in Player.UpdateSpellCritChance calculation
+			AsPlayer.UpdateSpellCritChance();
 	}
 
 	/********************************/
@@ -4615,8 +4605,7 @@ public class AuraEffect
 				mask |= effect.SpellClassMask;
 		}
 
-		target.
-		AsPlayer.SetNoRegentCostMask(mask);
+		target.AsPlayer.SetNoRegentCostMask(mask);
 	}
 
 	/*********************************************************/
@@ -4863,8 +4852,8 @@ public class AuraEffect
 					case 30877:
 					{
 						// Tag/untag Blacksilt Scout
-						target.// Tag/untag Blacksilt Scout
-						Entry = (uint)(apply ? 17654 : 17326);
+						target. // Tag/untag Blacksilt Scout
+								Entry = (uint)(apply ? 17654 : 17326);
 
 						break;
 					}
@@ -4899,8 +4888,7 @@ public class AuraEffect
 									break;
 							}
 
-						caster.
-						AsPlayer.SetChampioningFaction(FactionID);
+						caster.AsPlayer.SetChampioningFaction(FactionID);
 
 						break;
 					}
@@ -5008,8 +4996,7 @@ public class AuraEffect
 		if (caster == null || !caster.IsTypeId(TypeId.Player))
 			return;
 
-		caster.
-		AsPlayer.SetViewpoint(target, apply);
+		caster.AsPlayer.SetViewpoint(target, apply);
 	}
 
 	[AuraEffectHandler(AuraType.ForceReaction)]
@@ -5028,8 +5015,7 @@ public class AuraEffect
 		var factionId = (uint)MiscValue;
 		var factionRank = (ReputationRank)Amount;
 
-		player.
-		ReputationMgr.ApplyForceReaction(factionId, factionRank, apply);
+		player.ReputationMgr.ApplyForceReaction(factionId, factionRank, apply);
 		player.ReputationMgr.SendForceReactions();
 
 		// stop fighting at apply (if forced rank friendly) or at remove (if real rank friendly)
@@ -5259,7 +5245,7 @@ public class AuraEffect
 		if (MiscValue > 0)
 			caster = Caster;
 
-        caster.CastSpell(aurApp.Target, GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(this));
+		caster.CastSpell(aurApp.Target, GetSpellEffectInfo().TriggerSpell, new CastSpellExtraArgs(this));
 	}
 
 	[AuraEffectHandler(AuraType.OpenStable)]
@@ -5588,7 +5574,7 @@ public class AuraEffect
 		}
 
 		if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
-			if (GetSpellEffectInfo().IsTargetingArea() || GetSpellEffectInfo().IsAreaAuraEffect() || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+			if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
 				damage = target.CalculateAOEAvoidance(damage, (uint)_spellInfo.SchoolMask, Base.CastItemGuid);
 
 		var dmg = damage;
@@ -5673,7 +5659,7 @@ public class AuraEffect
 		}
 
 		if (!SpellInfo.HasAttribute(SpellAttr4.IgnoreDamageTakenModifiers))
-			if (GetSpellEffectInfo().IsTargetingArea() || GetSpellEffectInfo().IsAreaAuraEffect() || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
+			if (GetSpellEffectInfo().IsTargetingArea || GetSpellEffectInfo().IsAreaAuraEffect || GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) || SpellInfo.HasAttribute(SpellAttr5.TreatAsAreaEffect))
 				damage = target.CalculateAOEAvoidance(damage, (uint)_spellInfo.SchoolMask, Base.CastItemGuid);
 
 		var dmg = damage;

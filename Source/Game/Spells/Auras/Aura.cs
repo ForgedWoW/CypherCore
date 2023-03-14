@@ -21,10 +21,10 @@ public class Aura
 	const int UPDATE_TARGET_MAP_INTERVAL = 500;
 
 	static readonly List<IAuraScript> Dummy = new();
-    static readonly HashSet<int> DummyHashset = new();
-    static readonly List<(IAuraScript, IAuraEffectHandler)> DummyAuraEffects = new();
+	static readonly HashSet<int> DummyHashset = new();
+	static readonly List<(IAuraScript, IAuraEffectHandler)> DummyAuraEffects = new();
 	static readonly Dictionary<Unit, HashSet<int>> DummyAuraFill = new();
-    readonly Dictionary<Type, List<IAuraScript>> _auraScriptsByType = new();
+	readonly Dictionary<Type, List<IAuraScript>> _auraScriptsByType = new();
 	readonly Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>> _effectHandlers = new();
 	readonly SpellInfo _spellInfo;
 	readonly Difficulty _castDifficulty;
@@ -94,18 +94,18 @@ public class Aura
 		set => _castItemLevel = value;
 	}
 
-    public Unit Caster
-    {
-        get
-        {
-            if (_owner.GUID == _casterGuid)
-                return OwnerAsUnit;
+	public Unit Caster
+	{
+		get
+		{
+			if (_owner.GUID == _casterGuid)
+				return OwnerAsUnit;
 
-            return Global.ObjAccessor.GetUnit(_owner, _casterGuid);
-        }
-    }
+			return Global.ObjAccessor.GetUnit(_owner, _casterGuid);
+		}
+	}
 
-    public SpellCastVisual SpellVisual => _spellCastVisual;
+	public SpellCastVisual SpellVisual => _spellCastVisual;
 
 	public WorldObject Owner => _owner;
 
@@ -225,10 +225,10 @@ public class Aura
 				OwnerAsUnit?.RemoveAura(app);
 
 		_auraApplications.Clear();
-        _DeleteRemovedApplications();
+		_DeleteRemovedApplications();
 	}
 
-    public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
+	public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{
 		Cypher.Assert(target != null);
 		Cypher.Assert(auraApp != null);
@@ -245,8 +245,8 @@ public class Aura
 				caster.SpellHistory.StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
 			}
 
-        ForEachAuraScript<IAuraOnApply>(a => a.AuraApplied());
-    }
+		ForEachAuraScript<IAuraOnApply>(a => a.AuraApplied());
+	}
 
 	public virtual void _UnapplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{
@@ -277,8 +277,8 @@ public class Aura
 		// reset cooldown state for spells
 		if (caster != null && SpellInfo.IsCooldownStartedOnEvent)
 			// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-			caster.// note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
-			SpellHistory.SendCooldownEvent(SpellInfo);
+			caster. // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
+				SpellHistory.SendCooldownEvent(SpellInfo);
 	}
 
 	// removes aura from all targets
@@ -301,8 +301,8 @@ public class Aura
 			_chargeDropEvent = null;
 		}
 
-        ForEachAuraScript<IAuraOnRemove>(a => a.AuraRemoved(removeMode));
-    }
+		ForEachAuraScript<IAuraOnRemove>(a => a.AuraRemoved(removeMode));
+	}
 
 	public void UpdateTargetMap(Unit caster, bool apply = true)
 	{
@@ -313,7 +313,7 @@ public class Aura
 
 		// fill up to date target list
 		//       target, effMask
-		Dictionary<Unit, HashSet<int>> targets = FillTargetMap(caster);
+		var targets = FillTargetMap(caster);
 
 		List<Unit> targetsToRemove = new();
 
@@ -441,10 +441,8 @@ public class Aura
 			var aurApp = GetApplicationOfTarget(pair.Key.GUID);
 
 			if (aurApp != null && ((!_owner.IsInWorld && _owner == pair.Key) || _owner.IsInMap(pair.Key)))
-			{
 				// owner has to be in world, or effect has to be applied to self
 				pair.Key._ApplyAura(aurApp, pair.Value);
-			}
 		}
 	}
 
@@ -766,7 +764,7 @@ public class Aura
 	public bool IsArea()
 	{
 		foreach (var spellEffectInfo in SpellInfo.Effects)
-			if (HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.IsAreaAuraEffect())
+			if (HasEffect(spellEffectInfo.EffectIndex) && spellEffectInfo.IsAreaAuraEffect)
 				return true;
 
 		return false;
@@ -794,7 +792,7 @@ public class Aura
 				if (!spellEffectInfo.IsEffect())
 					continue;
 
-				if (spellEffectInfo.IsTargetingArea() || spellEffectInfo.IsAreaAuraEffect())
+				if (spellEffectInfo.IsTargetingArea || spellEffectInfo.IsAreaAuraEffect)
 					return false;
 			}
 
@@ -1330,7 +1328,7 @@ public class Aura
 						case AuraType.PeriodicTriggerSpellWithValue:
 						{
 							// periodic auras which target areas are not allowed to stack this way (replenishment for example)
-							if (spellEffectInfo.IsTargetingArea())
+							if (spellEffectInfo.IsTargetingArea)
 								return false;
 
 							return true;
@@ -1468,7 +1466,7 @@ public class Aura
 
 			// check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
 			if (!SpellInfo.HasAttribute(SpellAttr3.CanProcFromProcs) && !procEntry.AttributesMask.HasFlag(ProcAttributes.TriggeredCanProc) && !eventInfo.TypeMask.HasFlag(ProcFlags.AutoAttackMask))
-				if (spell.IsTriggered() && !spell.SpellInfo.HasAttribute(SpellAttr3.NotAProc))
+				if (spell.IsTriggered && !spell.SpellInfo.HasAttribute(SpellAttr3.NotAProc))
 					return DummyHashset;
 
 			if (spell.CastItem != null && procEntry.AttributesMask.HasFlag(ProcAttributes.CantProcFromItemCast))
@@ -1765,7 +1763,10 @@ public class Aura
 		return _auraApplications.ContainsKey(guid);
 	}
 
-	public virtual Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster) { return DummyAuraFill; }
+	public virtual Dictionary<Unit, HashSet<int>> FillTargetMap(Unit caster)
+	{
+		return DummyAuraFill;
+	}
 
 	public void SetLastProcAttemptTime(DateTime lastProcAttemptTime)
 	{
@@ -1796,30 +1797,30 @@ public class Aura
 	{
 		Cypher.Assert(spellProto != null);
 		Cypher.Assert(owner != null);
-		HashSet<int> effMask = new HashSet<int>();
+		var effMask = new HashSet<int>();
 
-        switch (owner.TypeId)
+		switch (owner.TypeId)
 		{
 			case TypeId.Unit:
 			case TypeId.Player:
 				foreach (var spellEffectInfo in spellProto.Effects)
-					if (spellEffectInfo.IsUnitOwnedAuraEffect())
+					if (spellEffectInfo.IsUnitOwnedAuraEffect)
 						effMask.Add(spellEffectInfo.EffectIndex);
 
 				break;
 			case TypeId.DynamicObject:
 				foreach (var spellEffectInfo in spellProto.Effects)
 					if (spellEffectInfo.Effect == SpellEffectName.PersistentAreaAura)
-                        effMask.Add(spellEffectInfo.EffectIndex);
+						effMask.Add(spellEffectInfo.EffectIndex);
 
 				break;
 			default:
 				break;
 		}
 
-        effMask.IntersectWith(availableEffectMask);
+		effMask.IntersectWith(availableEffectMask);
 
-        return effMask;
+		return effMask;
 	}
 
 	public static Aura TryRefreshStackOrCreate(AuraCreateInfo createInfo, bool updateEffectMask = true)
