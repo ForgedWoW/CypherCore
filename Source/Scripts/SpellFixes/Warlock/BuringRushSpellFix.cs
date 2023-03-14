@@ -16,6 +16,6 @@ public class BuringRushSpellFix : ISpellManagerSpellLateFix
 
 	public void ApplySpellFix(SpellInfo spellInfo)
 	{
-		spellInfo.NegativeEffects = new BitSet(spellInfo.Effects.Count); // no negitive effects for burning rush
+		spellInfo.NegativeEffects = new(); // no negitive effects for burning rush
 	}
 }

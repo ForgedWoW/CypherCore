@@ -4741,8 +4741,7 @@ public partial class Spell : IDisposable
 						var targetGuid = rafTarget.GUID;
 
 						rafTarget.
-						Map
-								.AddFarSpellCallback(map =>
+						Map.AddFarSpellCallback(map =>
 								{
 									var player = Global.ObjAccessor.GetPlayer(map, targetGuid);
 

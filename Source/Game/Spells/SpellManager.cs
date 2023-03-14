@@ -5005,7 +5005,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 					{
 						61882
 					},
-					spellInfo => { spellInfo.NegativeEffects[2] = true; });
+					spellInfo => { spellInfo.NegativeEffects.Add(2); });
 
 		// Headless Horseman Climax - Return Head (Hallow End)
 		// Headless Horseman Climax - Body Regen (confuse only - removed on death)

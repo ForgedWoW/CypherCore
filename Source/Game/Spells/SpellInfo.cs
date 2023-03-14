@@ -64,7 +64,7 @@ public class SpellInfo
 	public SpellAttr13 AttributesEx13 { get; set; }
 	public SpellAttr14 AttributesEx14 { get; set; }
 	public SpellCustomAttributes AttributesCu { get; set; }
-	public BitSet NegativeEffects { get; set; }
+	public HashSet<int> NegativeEffects { get; set; }
 	public ulong Stances { get; set; }
 	public ulong StancesNot { get; set; }
 	public SpellCastTargetFlags Targets { get; set; }
@@ -143,19 +143,9 @@ public class SpellInfo
 
 	public bool CanBeUsedInCombat => !HasAttribute(SpellAttr0.NotInCombatOnlyPeaceful);
 
-	public bool IsPositive
-	{
-		get
-		{
-			for (var index = 0; index < NegativeEffects.Length; ++index)
-				if (NegativeEffects.Get(index))
-					return false;
+	public bool IsPositive => NegativeEffects.Count > 0;
 
-			return true;
-		}
-	}
-
-	public bool IsChanneled => HasAttribute(SpellAttr1.IsChannelled | SpellAttr1.IsSelfChannelled);
+    public bool IsChanneled => HasAttribute(SpellAttr1.IsChannelled | SpellAttr1.IsSelfChannelled);
 
 	public bool IsMoveAllowedChannel => IsChanneled && !ChannelInterruptFlags.HasFlag(SpellAuraInterruptFlags.Moving | SpellAuraInterruptFlags.Turning);
 
@@ -483,7 +473,7 @@ public class SpellInfo
 		for (var i = 0; i < _effects.Count; ++i)
 			_effects[i].EffectIndex = i;
 
-		NegativeEffects = new BitSet(_effects.Count);
+		NegativeEffects = new();
 
 		SpellName = spellName.Name;
 
@@ -722,7 +712,7 @@ public class SpellInfo
 		for (var i = 0; i < _effects.Count; ++i)
 			_effects[i].EffectIndex = i;
 
-		NegativeEffects = new BitSet(effects.Count);
+		NegativeEffects = new();
 	}
 
 	public bool HasEffect(SpellEffectName effect)
@@ -776,7 +766,7 @@ public class SpellInfo
 
 	public bool IsPositiveEffect(int effIndex)
 	{
-		return !NegativeEffects.Get(effIndex);
+		return !NegativeEffects.Contains(effIndex);
 	}
 
 	public WeaponAttackType GetAttackType()
@@ -2955,7 +2945,7 @@ public class SpellInfo
 
 		foreach (var effect in Effects)
 			if (!IsPositiveEffectImpl(this, effect, visited))
-				NegativeEffects[effect.EffectIndex] = true;
+				NegativeEffects.Add(effect.EffectIndex);
 
 
 		// additional checks after effects marked
@@ -2978,7 +2968,7 @@ public class SpellInfo
 				{
 					for (var j = spellEffectInfo.EffectIndex + 1; j < Effects.Count; ++j)
 						if (!IsPositiveEffect(j) && spellEffectInfo.TargetA.Target == GetEffect(j).TargetA.Target && spellEffectInfo.TargetB.Target == GetEffect(j).TargetB.Target)
-							NegativeEffects[spellEffectInfo.EffectIndex] = true;
+							NegativeEffects.Add(spellEffectInfo.EffectIndex);
 
 					break;
 				}
