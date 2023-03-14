@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
@@ -20,10 +19,6 @@ internal class spell_mage_cold_snap : SpellScript, IHasSpellEffects
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellsToReset) && ValidateSpellInfo(MageSpells.FrostNova);
-	}
 
 	public override void Register()
 	{
@@ -35,7 +30,6 @@ internal class spell_mage_cold_snap : SpellScript, IHasSpellEffects
 		foreach (var spellId in SpellsToReset)
 			Caster.SpellHistory.ResetCooldown(spellId, true);
 
-		Caster.
-		SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(MageSpells.FrostNova, CastDifficulty).ChargeCategoryId);
+		Caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(MageSpells.FrostNova, CastDifficulty).ChargeCategoryId);
 	}
 }

@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -12,14 +10,6 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(204730)]
 public class spell_warl_fear_buff : SpellScript, ISpellAfterHit
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(WarlockSpells.FEAR_BUFF, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public void AfterHit()
 	{
 		var aura = GetHitAura();

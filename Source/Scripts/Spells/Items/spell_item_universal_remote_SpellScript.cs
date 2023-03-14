@@ -23,10 +23,6 @@ internal class spell_item_universal_remote_SpellScript : SpellScript, IHasSpellE
 		return true;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.ControlMachine, ItemSpellIds.MobilityMalfunction, ItemSpellIds.TargetLock);
-	}
 
 	public override void Register()
 	{

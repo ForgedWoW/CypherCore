@@ -173,11 +173,11 @@ internal class boss_nightbane : BossAI
 					Me.HandleEmoteCommand(Emote.OneshotLand);
 
 					SchedulerProtected.Schedule(TimeSpan.FromSeconds(3),
-										task =>
-										{
-											Me.SetImmuneToPC(false);
-											DoZoneInCombat();
-										});
+												task =>
+												{
+													Me.SetImmuneToPC(false);
+													DoZoneInCombat();
+												});
 
 					break;
 				case PointIds.PhaseTwoLanding:
@@ -186,11 +186,11 @@ internal class boss_nightbane : BossAI
 					Me.HandleEmoteCommand(Emote.OneshotLand);
 
 					SchedulerProtected.Schedule(TimeSpan.FromSeconds(3),
-										task =>
-										{
-											SetupGroundPhase();
-											Me.ReactState = ReactStates.Aggressive;
-										});
+												task =>
+												{
+													SetupGroundPhase();
+													Me.ReactState = ReactStates.Aggressive;
+												});
 
 					break;
 				case PointIds.PhaseTwoEnd:
@@ -206,65 +206,65 @@ internal class boss_nightbane : BossAI
 			if (pointId == PointIds.PhaseTwoFly)
 			{
 				SchedulerProtected.Schedule(TimeSpan.FromSeconds(33),
-									MiscConst.GroupFly,
-									task =>
-									{
-										SchedulerProtected.CancelGroup(MiscConst.GroupFly);
+											MiscConst.GroupFly,
+											task =>
+											{
+												SchedulerProtected.CancelGroup(MiscConst.GroupFly);
 
-										SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
-															MiscConst.GroupGround,
-															landTask =>
-															{
-																Talk(TextIds.YellLandPhase);
-																Me.SetDisableGravity(true);
-																Me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoEnd, SplineChainIds.PhaseTwo, false);
-															});
-									});
+												SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
+																			MiscConst.GroupGround,
+																			landTask =>
+																			{
+																				Talk(TextIds.YellLandPhase);
+																				Me.SetDisableGravity(true);
+																				Me.MotionMaster.MoveAlongSplineChain(PointIds.PhaseTwoEnd, SplineChainIds.PhaseTwo, false);
+																			});
+											});
 
 				SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
-									MiscConst.GroupFly,
-									task =>
-									{
-										Talk(TextIds.EmoteBreath);
+											MiscConst.GroupFly,
+											task =>
+											{
+												Talk(TextIds.EmoteBreath);
 
-										task.Schedule(TimeSpan.FromSeconds(3),
-													MiscConst.GroupFly,
-													somethingTask =>
-													{
-														ResetThreatList();
-														var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
+												task.Schedule(TimeSpan.FromSeconds(3),
+															MiscConst.GroupFly,
+															somethingTask =>
+															{
+																ResetThreatList();
+																var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-														if (target)
-														{
-															Me.SetFacingToObject(target);
-															DoCast(target, SpellIds.RainOfBones);
-														}
-													});
-									});
+																if (target)
+																{
+																	Me.SetFacingToObject(target);
+																	DoCast(target, SpellIds.RainOfBones);
+																}
+															});
+											});
 
 				SchedulerProtected.Schedule(TimeSpan.FromSeconds(21),
-									MiscConst.GroupFly,
-									task =>
-									{
-										var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
+											MiscConst.GroupFly,
+											task =>
+											{
+												var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-										if (target)
-											DoCast(target, SpellIds.SmokingBlastT);
+												if (target)
+													DoCast(target, SpellIds.SmokingBlastT);
 
-										task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(7));
-									});
+												task.Repeat(TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(7));
+											});
 
 				SchedulerProtected.Schedule(TimeSpan.FromSeconds(17),
-									MiscConst.GroupFly,
-									task =>
-									{
-										var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
+											MiscConst.GroupFly,
+											task =>
+											{
+												var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-										if (target)
-											DoCast(target, SpellIds.SmokingBlast);
+												if (target)
+													DoCast(target, SpellIds.SmokingBlast);
 
-										task.Repeat(TimeSpan.FromMilliseconds(1400));
-									});
+												task.Repeat(TimeSpan.FromMilliseconds(1400));
+											});
 			}
 			else if (pointId == PointIds.PhaseTwoPreFly)
 			{
@@ -287,61 +287,61 @@ internal class boss_nightbane : BossAI
 		phase = NightbanePhases.Ground;
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(0),
-							TimeSpan.FromSeconds(15),
-							MiscConst.GroupGround,
-							task =>
-							{
-								DoCastVictim(SpellIds.Cleave);
-								task.Repeat(TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(15));
-							});
+									TimeSpan.FromSeconds(15),
+									MiscConst.GroupGround,
+									task =>
+									{
+										DoCastVictim(SpellIds.Cleave);
+										task.Repeat(TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(15));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(4),
-							TimeSpan.FromSeconds(23),
-							MiscConst.GroupGround,
-							task =>
-							{
-								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
+									TimeSpan.FromSeconds(23),
+									MiscConst.GroupGround,
+									task =>
+									{
+										var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-								if (target)
-									if (!Me.Location.HasInArc(MathF.PI, target.Location))
-										DoCast(target, SpellIds.TailSweep);
+										if (target)
+											if (!Me.Location.HasInArc(MathF.PI, target.Location))
+												DoCast(target, SpellIds.TailSweep);
 
-								task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
-							});
+										task.Repeat(TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(30));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(48), MiscConst.GroupGround, task => { DoCastAOE(SpellIds.BellowingRoar); });
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(12),
-							TimeSpan.FromSeconds(18),
-							MiscConst.GroupGround,
-							task =>
-							{
-								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
+									TimeSpan.FromSeconds(18),
+									MiscConst.GroupGround,
+									task =>
+									{
+										var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-								if (target)
-									DoCast(target, SpellIds.CharredEarth);
+										if (target)
+											DoCast(target, SpellIds.CharredEarth);
 
-								task.Repeat(TimeSpan.FromSeconds(18), TimeSpan.FromSeconds(21));
-							});
+										task.Repeat(TimeSpan.FromSeconds(18), TimeSpan.FromSeconds(21));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(26),
-							TimeSpan.FromSeconds(30),
-							MiscConst.GroupGround,
-							task =>
-							{
-								DoCastVictim(SpellIds.SmolderingBreath);
-								task.Repeat(TimeSpan.FromSeconds(28), TimeSpan.FromSeconds(40));
-							});
+									TimeSpan.FromSeconds(30),
+									MiscConst.GroupGround,
+									task =>
+									{
+										DoCastVictim(SpellIds.SmolderingBreath);
+										task.Repeat(TimeSpan.FromSeconds(28), TimeSpan.FromSeconds(40));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(82),
-							MiscConst.GroupGround,
-							task =>
-							{
-								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
+									MiscConst.GroupGround,
+									task =>
+									{
+										var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 
-								if (target)
-									DoCast(target, SpellIds.DistractingAsh);
-							});
+										if (target)
+											DoCast(target, SpellIds.DistractingAsh);
+									});
 	}
 
 	private void HandleTerraceDoors(bool open)
@@ -375,10 +375,6 @@ internal class spell_rain_of_bones_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.SummonSkeleton);
-	}
 
 	public override void Register()
 	{

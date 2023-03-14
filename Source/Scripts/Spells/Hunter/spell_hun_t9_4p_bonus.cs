@@ -15,10 +15,6 @@ internal class spell_hun_t9_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(HunterSpells.T94PGreatness);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

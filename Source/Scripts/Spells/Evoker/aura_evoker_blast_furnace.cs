@@ -3,7 +3,6 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 

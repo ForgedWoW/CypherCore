@@ -14,9 +14,8 @@ public interface IBaseSpellScript
 	bool Load();
 	void Register();
 	void Unload();
-	bool Validate(SpellInfo spellInfo);
-	bool ValidateSpellInfo(params uint[] spellIds);
-	string _GetScriptName();
+    bool ValidateSpellInfo(params uint[] spellIds);
+    string _GetScriptName();
 	void _Init(string scriptname, uint spellId);
 	void _Register();
 	void _Unload();

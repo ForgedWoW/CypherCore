@@ -17,34 +17,6 @@ public class spell_sha_fulmination : AuraScript, IHasAuraEffects, IAuraCheckProc
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.FULMINATION, Difficulty.None) != null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.FULMINATION_INFO, Difficulty.None) != null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.IMPROVED_LIGHTNING_SHIELD, Difficulty.None) != null)
-			return false;
-
-		var lightningShield = Global.SpellMgr.GetSpellInfo(ShamanSpells.LIGHTNING_SHIELD, Difficulty.None);
-
-		if (lightningShield == null || !lightningShield.GetEffect(0).IsEffect() || Global.SpellMgr.GetSpellInfo(lightningShield.GetEffect(0).TriggerSpell, Difficulty.None) != null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.ITEM_T18_ELEMENTAL_2P_BONUS, Difficulty.None) != null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.ITEM_T18_ELEMENTAL_4P_BONUS, Difficulty.None) != null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.ITEM_T18_LIGHTNING_VORTEX, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		// Lava Burst cannot add lightning shield stacks without Improved Lightning Shield

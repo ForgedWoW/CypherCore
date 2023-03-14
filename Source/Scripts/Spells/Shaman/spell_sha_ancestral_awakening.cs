@@ -16,14 +16,6 @@ public class spell_sha_ancestral_awakening : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.TIDAL_WAVES, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));

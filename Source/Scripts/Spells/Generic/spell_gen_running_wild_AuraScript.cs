@@ -15,14 +15,6 @@ internal class spell_gen_running_wild_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(SharedConst.DisplayIdHiddenMount))
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleMount, 1, AuraType.Mounted, AuraEffectHandleModes.Real, AuraScriptHookType.EffectApply));

@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -14,14 +13,6 @@ namespace Scripts.Spells.Priest;
 public class spell_pri_mind_sear : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(PriestSpells.MIND_SEAR_INSANITY, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

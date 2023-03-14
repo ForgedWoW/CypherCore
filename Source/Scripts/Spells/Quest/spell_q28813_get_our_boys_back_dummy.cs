@@ -3,18 +3,12 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
 [Script] // 93072 - Get Our Boys Back Dummy
 internal class spell_q28813_get_our_boys_back_dummy : SpellScript, ISpellOnCast
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.RenewedLife);
-	}
-
 	public void OnCast()
 	{
 		var caster = Caster;

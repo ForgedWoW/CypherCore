@@ -15,10 +15,6 @@ internal class spell_item_darkmoon_card_greatness : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.DarkmoonCardStrenght, ItemSpellIds.DarkmoonCardAgility, ItemSpellIds.DarkmoonCardIntellect, ItemSpellIds.DarkmoonCardVersatility);
-	}
 
 	public override void Register()
 	{

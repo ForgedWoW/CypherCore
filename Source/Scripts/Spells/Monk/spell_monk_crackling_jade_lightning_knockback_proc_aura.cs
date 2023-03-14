@@ -15,10 +15,6 @@ internal class spell_monk_crackling_jade_lightning_knockback_proc_aura : AuraScr
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MonkSpells.CracklingJadeLightningKnockback, MonkSpells.CracklingJadeLightningKnockbackCd);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

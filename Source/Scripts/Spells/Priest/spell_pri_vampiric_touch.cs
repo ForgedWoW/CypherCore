@@ -15,10 +15,6 @@ internal class spell_pri_vampiric_touch : AuraScript, IAfterAuraDispel, IAuraChe
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.VAMPIRIC_TOUCH_DISPEL, PriestSpells.GEN_REPLENISHMENT);
-	}
 
 	public void HandleDispel(DispelInfo dispelInfo)
 	{

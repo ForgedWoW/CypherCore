@@ -16,10 +16,6 @@ internal class spell_gen_adaptive_warding : AuraScript, IAuraCheckProc, IHasAura
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.GenAdaptiveWardingFire, GenericSpellIds.GenAdaptiveWardingNature, GenericSpellIds.GenAdaptiveWardingFrost, GenericSpellIds.GenAdaptiveWardingShadow, GenericSpellIds.GenAdaptiveWardingArcane);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

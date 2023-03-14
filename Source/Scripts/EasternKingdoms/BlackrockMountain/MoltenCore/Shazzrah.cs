@@ -9,7 +9,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Shazzrah;
 
@@ -117,10 +116,6 @@ internal class spell_shazzrah_gate_dummy : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.ShazzrahGate);
-	}
 
 	public override void Register()
 	{

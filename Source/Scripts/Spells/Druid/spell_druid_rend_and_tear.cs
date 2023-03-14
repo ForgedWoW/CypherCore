@@ -16,10 +16,6 @@ public class spell_druid_rend_and_tear : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.REND_AND_TEAR, Spells.TRASH_DOT);
-	}
 
 	public override void Register()
 	{

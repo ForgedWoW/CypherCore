@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
@@ -15,10 +14,6 @@ internal class spell_rog_backstab_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 3;
-	}
 
 	public override void Register()
 	{

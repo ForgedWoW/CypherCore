@@ -15,10 +15,6 @@ internal class spell_mage_blizzard_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.BlizzardSlow);
-	}
 
 	public override void Register()
 	{

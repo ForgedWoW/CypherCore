@@ -14,10 +14,6 @@ internal class spell_item_talisman_of_ascendance : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.TalismanOfAscendance);
-	}
 
 	public override void Register()
 	{

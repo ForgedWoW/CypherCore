@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -15,10 +14,6 @@ internal class spell_dk_death_grip_initial : SpellScript, ISpellCheckCast, IHasS
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.DeathGripDummy, DeathKnightSpells.DeathGripJump, DeathKnightSpells.Blood, DeathKnightSpells.DeathGripTaunt);
-	}
 
 	public SpellCastResult CheckCast()
 	{

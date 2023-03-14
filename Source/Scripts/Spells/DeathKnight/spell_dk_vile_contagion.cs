@@ -13,11 +13,6 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 internal class spell_dk_vile_contagion : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.FESTERING_WOUND);
-	}
-
 	public void OnHit()
 	{
 		var target = HitUnit;

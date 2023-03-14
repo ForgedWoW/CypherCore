@@ -14,10 +14,6 @@ internal class spell_rog_stealth : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.MasterOfSubtletyPassive, RogueSpells.MasterOfSubtletyDamagePercent, RogueSpells.Sanctuary, RogueSpells.ShadowFocus, RogueSpells.ShadowFocusEffect, RogueSpells.StealthStealthAura, RogueSpells.StealthShapeshiftAura);
-	}
 
 	public override void Register()
 	{

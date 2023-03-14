@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
 
@@ -15,9 +13,9 @@ public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, I
 	public bool procDone = false;
 
 	public void OnInitialize()
-    {
-        damageInterval = 500;
-        var caster = At.GetCaster();
+	{
+		damageInterval = 500;
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;

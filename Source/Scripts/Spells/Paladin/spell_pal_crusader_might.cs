@@ -16,10 +16,6 @@ internal class spell_pal_crusader_might : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.HolyShock);
-	}
 
 	public override void Register()
 	{

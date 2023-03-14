@@ -578,7 +578,7 @@ class LookupCommands
 		uint count = 0;
 		var limitReached = false;
 
-		foreach (var tele in Global.ObjectMgr.gameTeleStorage)
+		foreach (var tele in Global.ObjectMgr.GameTeleStorage)
 		{
 			if (!tele.Value.name.Like(namePart))
 				continue;

@@ -16,10 +16,6 @@ internal class spell_gen_gift_of_naaru : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 1;
-	}
 
 	public override void Register()
 	{

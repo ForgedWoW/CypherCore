@@ -16,17 +16,6 @@ public class spell_mage_fire_mage_passive : AuraScript, IHasAuraEffects
 
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-
-	public spell_mage_fire_mage_passive() { }
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		// if (!Global.SpellMgr->GetSpellInfo(FIRE_MAGE_PASSIVE, Difficulty.None) ||
-		//    !Global.SpellMgr->GetSpellInfo(FIRE_BLAST, Difficulty.None))
-		//  return false;
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleApply, 4, AuraType.Dummy, AuraEffectHandleModes.Real));

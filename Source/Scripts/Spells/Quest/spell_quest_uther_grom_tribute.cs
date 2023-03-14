@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -14,20 +13,6 @@ namespace Scripts.Spells.Quest;
 internal class spell_quest_uther_grom_tribute : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.GromsTrollTribute,
-								QuestSpellIds.GromsTaurenTribute,
-								QuestSpellIds.GromsUndeadTribute,
-								QuestSpellIds.GromsOrcTribute,
-								QuestSpellIds.GromsBloodelfTribute,
-								QuestSpellIds.UthersHumanTribute,
-								QuestSpellIds.UthersGnomeTribute,
-								QuestSpellIds.UthersDwarfTribute,
-								QuestSpellIds.UthersNightelfTribute,
-								QuestSpellIds.UthersDraeneiTribute);
-	}
 
 	public override void Register()
 	{

@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -16,10 +15,6 @@ public class spell_shaman_windfury_weapon : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return Global.SpellMgr.GetSpellInfo(ShamanSpells.WINDFURY_WEAPON_PASSIVE, Difficulty.None) != null;
-	}
 
 	public override void Register()
 	{

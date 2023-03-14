@@ -16,10 +16,6 @@ public class spell_dru_natures_balance : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.NATURES_BALANCE);
-	}
 
 	public override void Register()
 	{

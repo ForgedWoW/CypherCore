@@ -15,10 +15,6 @@ public class spell_dru_cenarion_ward : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.CENARION_WARD_TRIGGERED);
-	}
 
 	public override void Register()
 	{

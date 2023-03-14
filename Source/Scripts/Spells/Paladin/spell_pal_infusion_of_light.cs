@@ -17,10 +17,6 @@ internal class spell_pal_infusion_of_light : AuraScript, IHasAuraEffects
 	private static readonly FlagArray128 HolyLightSpellClassMask = new(0, 0, 0x400);
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.InfusionOfLightEnergize);
-	}
 
 	public override void Register()
 	{

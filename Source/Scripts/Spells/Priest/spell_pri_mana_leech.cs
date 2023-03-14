@@ -21,14 +21,6 @@ public class spell_pri_mana_leech : AuraScript, IHasAuraEffects, IAuraCheckProc
 		_procTarget = null;
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(PriestSpells.MANA_LEECH_PROC, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public bool CheckProc(ProcEventInfo UnnamedParameter)
 	{
 		_procTarget = Target.OwnerUnit;

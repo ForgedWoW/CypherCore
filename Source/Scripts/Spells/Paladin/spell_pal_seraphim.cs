@@ -7,7 +7,6 @@ using Game.DataStorage;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -17,10 +16,6 @@ public class spell_pal_seraphim : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PaladinSpells.SERAPHIM, PaladinSpells.SHIELD_OF_THE_RIGHTEOUS);
-	}
 
 	public SpellCastResult CheckCast()
 	{

@@ -5,7 +5,6 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -22,10 +21,6 @@ internal class spell_sha_windfury_weapon : SpellScript, ISpellOnCast, ISpellChec
 		return _item == null || !_item.GetTemplate().IsWeapon() ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.WindfuryEnchantment);
-	}
 
 	public override bool Load()
 	{

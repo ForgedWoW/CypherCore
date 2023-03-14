@@ -15,10 +15,6 @@ internal class spell_dru_forms_trinket : AuraScript, IAuraCheckProc, IHasAuraEff
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.FormsTrinketBear, DruidSpellIds.FormsTrinketCat, DruidSpellIds.FormsTrinketMoonkin, DruidSpellIds.FormsTrinketNone, DruidSpellIds.FormsTrinketTree);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

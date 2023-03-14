@@ -8,7 +8,6 @@ using Game.Maps;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
@@ -21,16 +20,6 @@ public class spell_hun_ancient_hysteria : SpellScript, IHasSpellEffects
 	readonly UnitAuraCheck<WorldObject> _sa = new(true, AncientHysteriaSpells.SATED);
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.INSANITY, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.TEMPORAL_DISPLACEMENT, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.EXHAUSTION, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(AncientHysteriaSpells.SATED, Difficulty.None))
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

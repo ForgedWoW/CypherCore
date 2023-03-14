@@ -15,10 +15,6 @@ internal class spell_gen_blood_reserve : AuraScript, IAuraCheckProc, IHasAuraEff
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.BloodReserveHeal);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

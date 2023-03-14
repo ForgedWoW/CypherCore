@@ -14,10 +14,6 @@ internal class spell_hun_aspect_cheetah : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(HunterSpells.AspectCheetahSlow);
-	}
 
 	public override void Register()
 	{

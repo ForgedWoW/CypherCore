@@ -28,10 +28,6 @@ public class spell_warr_shield_block_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return Global.SpellMgr.GetSpellInfo(WarriorSpells.SHIELD_BLOCKC_TRIGGERED, Difficulty.None) != null;
-	}
 
 	public override void Register()
 	{

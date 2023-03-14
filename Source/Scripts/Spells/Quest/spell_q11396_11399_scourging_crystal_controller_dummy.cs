@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -15,10 +14,6 @@ internal class spell_q11396_11399_scourging_crystal_controller_dummy : SpellScri
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(QuestSpellIds.ForceShieldArcanePurpleX3);
-	}
 
 	public override void Register()
 	{

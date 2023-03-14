@@ -16,10 +16,6 @@ internal class spell_hun_hunting_party : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(HunterSpells.Exhilaration, HunterSpells.ExhilarationPet);
-	}
 
 	public override void Register()
 	{

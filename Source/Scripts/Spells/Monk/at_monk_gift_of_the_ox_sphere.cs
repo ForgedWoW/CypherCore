@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
@@ -24,12 +23,14 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerScript, IAreaTriggerOnCr
 		pickupDelay = 1000;
 	}
 
-	public void OnUpdate(uint diff)
+	public void OnRemove()
 	{
-		if (pickupDelay >= diff)
-			pickupDelay -= diff;
-		else
-			pickupDelay = 0;
+		//Todo : Remove cooldown
+		var caster = At.GetCaster();
+
+		if (caster != null)
+			if (caster.HasAura(SpellsUsed.HEALING_SPHERE_COOLDOWN))
+				caster.RemoveAura(SpellsUsed.HEALING_SPHERE_COOLDOWN);
 	}
 
 	public void OnUnitEnter(Unit unit)
@@ -44,13 +45,11 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerScript, IAreaTriggerOnCr
 			}
 	}
 
-	public void OnRemove()
+	public void OnUpdate(uint diff)
 	{
-		//Todo : Remove cooldown
-		var caster = At.GetCaster();
-
-		if (caster != null)
-			if (caster.HasAura(SpellsUsed.HEALING_SPHERE_COOLDOWN))
-				caster.RemoveAura(SpellsUsed.HEALING_SPHERE_COOLDOWN);
+		if (pickupDelay >= diff)
+			pickupDelay -= diff;
+		else
+			pickupDelay = 0;
 	}
 }

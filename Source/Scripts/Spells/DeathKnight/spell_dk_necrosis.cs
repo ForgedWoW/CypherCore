@@ -15,10 +15,6 @@ internal class spell_dk_necrosis : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.NecrosisEffect);
-	}
 
 	public override void Register()
 	{

@@ -16,10 +16,6 @@ internal class spell_warr_charge_effect : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.CHARGE_PAUSE_RAGE_DECAY, WarriorSpells.CHARGE_ROOT_EFFECT, WarriorSpells.CHARGE_SLOW_EFFECT);
-	}
 
 	public override void Register()
 	{

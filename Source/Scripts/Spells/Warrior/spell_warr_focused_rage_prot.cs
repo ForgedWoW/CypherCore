@@ -8,7 +8,6 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -26,14 +25,6 @@ public class spell_warr_focused_rage_prot : AuraScript, IAuraCheckProc
 public class spell_warr_focused_rage_prot_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(WarriorSpells.VENGEANCE_IGNORE_PAIN, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

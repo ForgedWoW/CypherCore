@@ -15,10 +15,6 @@ internal class spell_dk_death_coil : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.DEATH_COIL_DAMAGE, DeathKnightSpells.Unholy, DeathKnightSpells.UnholyVigor);
-	}
 
 	public override void Register()
 	{

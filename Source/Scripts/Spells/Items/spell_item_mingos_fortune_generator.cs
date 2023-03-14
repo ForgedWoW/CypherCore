@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -20,10 +19,6 @@ internal class spell_item_mingos_fortune_generator : SpellScript, IHasSpellEffec
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(CreateFortuneSpells);
-	}
 
 	public override void Register()
 	{

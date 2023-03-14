@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -12,11 +10,6 @@ namespace Scripts.Spells.Warrior;
 [SpellScript(118779)]
 public class spell_warr_victory_rush_heal : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return Global.SpellMgr.GetSpellInfo(WarriorSpells.GLYPH_OF_MIGHTY_VICTORY, Difficulty.None) != null;
-	}
-
 	public void OnHit()
 	{
 		var caster = Caster;

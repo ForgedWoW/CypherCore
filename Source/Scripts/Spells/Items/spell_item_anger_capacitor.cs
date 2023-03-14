@@ -23,10 +23,6 @@ internal class spell_item_anger_capacitor : AuraScript, IHasAuraEffects
 		_stackAmount = stackAmount;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.MoteOfAnger, ItemSpellIds.ManifestAngerMainHand, ItemSpellIds.ManifestAngerOffHand);
-	}
 
 	public override void Register()
 	{

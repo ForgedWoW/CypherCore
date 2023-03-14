@@ -15,10 +15,6 @@ internal class spell_gen_clone_weapon_AuraScript : AuraScript, IHasAuraEffects
 	private uint prevItem;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.WeaponAura, GenericSpellIds.Weapon2Aura, GenericSpellIds.Weapon3Aura, GenericSpellIds.OffhandAura, GenericSpellIds.Offhand2Aura, GenericSpellIds.RangedAura);
-	}
 
 	public override bool Load()
 	{

@@ -3,9 +3,7 @@
 
 using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
-using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
@@ -24,9 +22,9 @@ public class spell_evoker_cycle_of_life : SpellScript, ISpellAfterCast
 			if (colAura.StackAmount < SpellManager.Instance.GetSpellInfo(EvokerSpells.CYCLE_OF_LIFE).GetEffect(1).BasePoints)
 				return;
 
-            player.RemoveAura(EvokerSpells.CYCLE_OF_LIFE_USE_COUNT);
-            player.AddAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
-            player.CastSpell(TargetPosition, EvokerSpells.CYCLE_OF_LIFE_SUMMON, true);
-        }
+			player.RemoveAura(EvokerSpells.CYCLE_OF_LIFE_USE_COUNT);
+			player.AddAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
+			player.CastSpell(TargetPosition, EvokerSpells.CYCLE_OF_LIFE_SUMMON, true);
+		}
 	}
 }

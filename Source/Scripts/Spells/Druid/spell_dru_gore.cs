@@ -15,10 +15,6 @@ internal class spell_dru_gore : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.GoreProc, DruidSpellIds.Mangle);
-	}
 
 	public override void Register()
 	{

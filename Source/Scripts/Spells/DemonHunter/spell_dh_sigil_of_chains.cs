@@ -15,10 +15,6 @@ internal class spell_dh_sigil_of_chains : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.SigilOfChainsSlow, DemonHunterSpells.SigilOfChainsGrip);
-	}
 
 	public override void Register()
 	{

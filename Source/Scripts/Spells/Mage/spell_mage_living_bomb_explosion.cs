@@ -16,10 +16,6 @@ internal class spell_mage_living_bomb_explosion : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.NeedsExplicitUnitTarget && ValidateSpellInfo(MageSpells.LivingBombPeriodic);
-	}
 
 	public override void Register()
 	{

@@ -14,10 +14,6 @@ public class spell_monk_power_strike_periodic : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.POWER_STRIKES_AURA);
-	}
 
 	public override void Register()
 	{

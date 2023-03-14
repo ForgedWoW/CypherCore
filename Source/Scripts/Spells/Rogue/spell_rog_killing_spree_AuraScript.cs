@@ -16,10 +16,6 @@ internal class spell_rog_killing_spree_AuraScript : AuraScript, IHasAuraEffects
 	private readonly List<ObjectGuid> _targets = new();
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.KillingSpreeTeleport, RogueSpells.KillingSpreeWeaponDmg, RogueSpells.KillingSpreeDmgBuff);
-	}
 
 	public override void Register()
 	{

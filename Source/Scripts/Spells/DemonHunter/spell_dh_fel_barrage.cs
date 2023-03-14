@@ -15,14 +15,6 @@ public class spell_dh_fel_barrage : AuraScript, IHasAuraEffects
 	private int _charges = 1;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (!Global.SpellMgr.HasSpellInfo(DemonHunterSpells.FEL_BARRAGE, Difficulty.None) || !Global.SpellMgr.HasSpellInfo(DemonHunterSpells.FEL_BARRAGE_TRIGGER, Difficulty.None))
-			return false;
-
-		return true;
-	}
-
 	public override bool Load()
 	{
 		var caster = Caster;

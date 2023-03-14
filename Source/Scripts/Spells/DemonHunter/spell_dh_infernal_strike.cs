@@ -5,18 +5,12 @@ using System;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(189110)]
 public class spell_dh_infernal_strike : SpellScript, ISpellOnCast, ISpellOnHit
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.INFERNAL_STRIKE_JUMP, DemonHunterSpells.INFERNAL_STRIKE_DAMAGE);
-	}
-
 	public void OnCast()
 	{
 		var caster = Caster;

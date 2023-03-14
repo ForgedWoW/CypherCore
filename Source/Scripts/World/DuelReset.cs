@@ -34,8 +34,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 				ResetSpellCooldowns(winner, false);
 				ResetSpellCooldowns(loser, false);
 
-				winner.
-				SpellHistory.RestoreCooldownStateAfterDuel();
+				winner.SpellHistory.RestoreCooldownStateAfterDuel();
 				loser.SpellHistory.RestoreCooldownStateAfterDuel();
 			}
 
@@ -87,8 +86,8 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 	private static void ResetSpellCooldowns(Player player, bool onStartDuel)
 	{
 		// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
-		player.// remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
-		SpellHistory
+		player. // remove cooldowns on spells that have < 10 min Cd > 30 sec and has no onHold
+			SpellHistory
 			.ResetCooldowns(pair =>
 							{
 								var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);

@@ -6,32 +6,31 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Spells;
-using System;
-using static Game.AI.SmartEvent;
 
 namespace Scripts.Spells.Evoker;
 
 [CreatureScript(EvokerNPCs.CYCLE_OF_LIFE)]
 public class npc_evoker_cycle_of_life : ScriptedAI
 {
-    Game.Spells.Aura _cycleOfLife;
+	Game.Spells.Aura _cycleOfLife;
 
-    public npc_evoker_cycle_of_life(Creature creature) : base(creature) { }
+	public npc_evoker_cycle_of_life(Creature creature) : base(creature) { }
 
-    public override void JustSummoned(Creature summon)
-    {
-        base.JustSummoned(summon);
-        var owner = Me.OwnerUnit;
-        if (owner == null)
-            return;
+	public override void JustSummoned(Creature summon)
+	{
+		base.JustSummoned(summon);
+		var owner = Me.OwnerUnit;
 
-        _cycleOfLife = owner.GetAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
-    }
+		if (owner == null)
+			return;
 
-    public override void OnDespawn()
-    {
-        CastSpellExtraArgs args = new(true);
-        args.SpellValueOverrides[SpellValueMod.BasePoint0] = _cycleOfLife.AuraEffects[0].Amount;
-        Me.CastSpell(Me.HomePosition, EvokerSpells.CYCLE_OF_LIFE_HEAL, args);
-    }
+		_cycleOfLife = owner.GetAura(EvokerSpells.CYCLE_OF_LIFE_AURA);
+	}
+
+	public override void OnDespawn()
+	{
+		CastSpellExtraArgs args = new(true);
+		args.SpellValueOverrides[SpellValueMod.BasePoint0] = _cycleOfLife.AuraEffects[0].Amount;
+		Me.CastSpell(Me.HomePosition, EvokerSpells.CYCLE_OF_LIFE_HEAL, args);
+	}
 }

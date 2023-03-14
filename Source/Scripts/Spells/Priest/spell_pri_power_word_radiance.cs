@@ -17,10 +17,6 @@ internal class spell_pri_power_word_radiance : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ATONEMENT, PriestSpells.ATONEMENT_TRIGGERED, PriestSpells.TRINITY) && spellInfo.Effects.Count > 3;
-	}
 
 	public override void Register()
 	{

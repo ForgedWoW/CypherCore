@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
@@ -15,10 +14,6 @@ public class spell_druid_pulverize : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.PULVERIZE, Spells.TRASH_DOT_TWO_STACKS_MARKER);
-	}
 
 	public override void Register()
 	{

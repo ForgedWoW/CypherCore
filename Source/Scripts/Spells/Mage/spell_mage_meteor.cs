@@ -4,18 +4,12 @@
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [SpellScript(153561)]
 public class spell_mage_meteor : SpellScript, ISpellAfterCast
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MageSpells.METEOR_DAMAGE);
-	}
-
 	public void AfterCast()
 	{
 		var caster = Caster;

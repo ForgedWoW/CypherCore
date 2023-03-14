@@ -15,10 +15,6 @@ public class aura_sha_earthquake : AuraScript
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(ShamanSpells.EARTHQUAKE);
-	}
 
 	public override void Register()
 	{

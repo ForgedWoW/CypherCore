@@ -11,11 +11,6 @@ namespace Scripts.Spells.Mage;
 [Script] // 116 - Frostbolt
 internal class spell_mage_frostbolt : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(MageSpells.Chilled);
-	}
-
 	public void OnHit()
 	{
 		var target = HitUnit;

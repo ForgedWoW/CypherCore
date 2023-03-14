@@ -16,6 +16,14 @@ public class aura_evoker_chrono_loop : AuraScript, IAuraOnApply, IAuraOnRemove
 	uint _mapId = 0;
 	Position _pos;
 
+	public void AuraApplied()
+	{
+		var unit = OwnerAsUnit;
+		_health = unit.Health;
+		_mapId = unit.Location.MapId;
+		_pos = new Position(unit.Location);
+	}
+
 	public void AuraRemoved(AuraRemoveMode removeMode)
 	{
 		var unit = OwnerAsUnit;
@@ -27,13 +35,5 @@ public class aura_evoker_chrono_loop : AuraScript, IAuraOnApply, IAuraOnRemove
 
 		if (unit.Location.MapId == _mapId)
 			unit.UpdatePosition(_pos, true);
-	}
-
-	public void AuraApplied()
-	{
-		var unit = OwnerAsUnit;
-		_health = unit.Health;
-		_mapId = unit.Location.MapId;
-		_pos = new Position(unit.Location);
 	}
 }

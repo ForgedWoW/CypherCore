@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
@@ -15,14 +14,6 @@ namespace Scripts.Spells.Hunter;
 public class spell_hun_kill_command : SpellScript, IHasSpellEffects, ISpellCheckCast
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(HunterSpells.KILL_COMMAND, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public SpellCastResult CheckCast()
 	{

@@ -21,10 +21,6 @@ internal class spell_sha_elemental_blast : SpellScript, ISpellAfterCast, IHasSpe
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.ElementalBlastCrit, ShamanSpells.ElementalBlastHaste, ShamanSpells.ElementalBlastMastery, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 10;
-	}
 
 	public void AfterCast()
 	{

@@ -14,10 +14,6 @@ internal class spell_rog_vanish_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.Stealth);
-	}
 
 	public override void Register()
 	{

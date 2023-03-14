@@ -196,61 +196,61 @@ internal class boss_chromaggus : BossAI
 		base.JustEngagedWith(who);
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(0),
-							(Action<Framework.Dynamic.TaskContext>)(task =>
-																		{
-																			// Remove old vulnerabilty spell
-																			if (CurrentVurln_Spell != 0)
-																				Me.RemoveAura(CurrentVurln_Spell);
+									(Action<Framework.Dynamic.TaskContext>)(task =>
+																				{
+																					// Remove old vulnerabilty spell
+																					if (CurrentVurln_Spell != 0)
+																						Me.RemoveAura(CurrentVurln_Spell);
 
-																			// Cast new random vulnerabilty on self
-																			var spell = RandomHelper.RAND(SpellIds.FireVulnerability, SpellIds.FrostVulnerability, SpellIds.ShadowVulnerability, SpellIds.NatureVulnerability, SpellIds.ArcaneVulnerability);
-																			DoCast(Me, spell);
-																			CurrentVurln_Spell = spell;
-																			Talk(TextIds.EmoteShimmer);
-																			task.Repeat(TimeSpan.FromSeconds(45));
-																		}));
+																					// Cast new random vulnerabilty on self
+																					var spell = RandomHelper.RAND(SpellIds.FireVulnerability, SpellIds.FrostVulnerability, SpellIds.ShadowVulnerability, SpellIds.NatureVulnerability, SpellIds.ArcaneVulnerability);
+																					DoCast(Me, spell);
+																					CurrentVurln_Spell = spell;
+																					Talk(TextIds.EmoteShimmer);
+																					task.Repeat(TimeSpan.FromSeconds(45));
+																				}));
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(30),
-							task =>
-							{
-								DoCastVictim(Breath1_Spell);
-								task.Repeat(TimeSpan.FromSeconds(60));
-							});
+									task =>
+									{
+										DoCastVictim(Breath1_Spell);
+										task.Repeat(TimeSpan.FromSeconds(60));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(60),
-							task =>
-							{
-								DoCastVictim(Breath2_Spell);
-								task.Repeat(TimeSpan.FromSeconds(60));
-							});
+									task =>
+									{
+										DoCastVictim(Breath2_Spell);
+										task.Repeat(TimeSpan.FromSeconds(60));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(10),
-							task =>
-							{
-								var players = Me.Map.Players;
-
-								foreach (var player in players)
-									if (player)
+									task =>
 									{
-										DoCast(player, RandomHelper.RAND(SpellIds.BroodafBlue, SpellIds.BroodafBlack, SpellIds.BroodafRed, SpellIds.BroodafBronze, SpellIds.BroodafGreen), new CastSpellExtraArgs(true));
+										var players = Me.Map.Players;
 
-										if (player.HasAura(SpellIds.BroodafBlue) &&
-											player.HasAura(SpellIds.BroodafBlack) &&
-											player.HasAura(SpellIds.BroodafRed) &&
-											player.HasAura(SpellIds.BroodafBronze) &&
-											player.HasAura(SpellIds.BroodafGreen))
-											DoCast(player, SpellIds.ChromaticMut1);
-									}
+										foreach (var player in players)
+											if (player)
+											{
+												DoCast(player, RandomHelper.RAND(SpellIds.BroodafBlue, SpellIds.BroodafBlack, SpellIds.BroodafRed, SpellIds.BroodafBronze, SpellIds.BroodafGreen), new CastSpellExtraArgs(true));
 
-								task.Repeat(TimeSpan.FromSeconds(10));
-							});
+												if (player.HasAura(SpellIds.BroodafBlue) &&
+													player.HasAura(SpellIds.BroodafBlack) &&
+													player.HasAura(SpellIds.BroodafRed) &&
+													player.HasAura(SpellIds.BroodafBronze) &&
+													player.HasAura(SpellIds.BroodafGreen))
+													DoCast(player, SpellIds.ChromaticMut1);
+											}
+
+										task.Repeat(TimeSpan.FromSeconds(10));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(15),
-							task =>
-							{
-								DoCast(Me, SpellIds.Frenzy);
-								task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
-							});
+									task =>
+									{
+										DoCast(Me, SpellIds.Frenzy);
+										task.Repeat(TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(15));
+									});
 	}
 
 	public override void UpdateAI(uint diff)

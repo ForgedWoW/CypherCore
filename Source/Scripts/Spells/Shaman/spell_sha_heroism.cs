@@ -8,7 +8,6 @@ using Game.Maps;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -18,10 +17,6 @@ internal class spell_sha_heroism : SpellScript, ISpellAfterHit, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.Exhaustion, ShamanSpells.HunterInsanity, ShamanSpells.MageTemporalDisplacement, ShamanSpells.PetNetherwindsFatigued);
-	}
 
 	public void AfterHit()
 	{

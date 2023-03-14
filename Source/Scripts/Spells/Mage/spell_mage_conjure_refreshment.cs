@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
@@ -15,10 +14,6 @@ internal class spell_mage_conjure_refreshment : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.ConjureRefreshment, MageSpells.ConjureRefreshmentTable);
-	}
 
 	public override void Register()
 	{

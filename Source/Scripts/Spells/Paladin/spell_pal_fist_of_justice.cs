@@ -16,10 +16,6 @@ internal class spell_pal_fist_of_justice : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.HammerOfJustice);
-	}
 
 	public override void Register()
 	{
@@ -41,7 +37,6 @@ internal class spell_pal_fist_of_justice : AuraScript, IHasAuraEffects
 	{
 		var value = aurEff.Amount / 10;
 
-		Target.
-		SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-value));
+		Target.SpellHistory.ModifyCooldown(PaladinSpells.HammerOfJustice, TimeSpan.FromSeconds(-value));
 	}
 }

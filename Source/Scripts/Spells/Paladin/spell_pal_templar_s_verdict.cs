@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -15,10 +14,6 @@ internal class spell_pal_templar_s_verdict : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(PaladinSpells.TemplarVerdictDamage);
-	}
 
 	public override void Register()
 	{

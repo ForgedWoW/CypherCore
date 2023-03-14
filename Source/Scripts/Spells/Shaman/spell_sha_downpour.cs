@@ -8,7 +8,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -20,10 +19,6 @@ internal class spell_sha_downpour : SpellScript, ISpellAfterCast, ISpellAfterHit
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 1;
-	}
 
 	public void AfterCast()
 	{

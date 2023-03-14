@@ -16,10 +16,6 @@ internal class spell_sha_lava_burst : SpellScript, ISpellAfterCast, IHasSpellEff
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.PathOfFlamesTalent, ShamanSpells.PathOfFlamesSpread, ShamanSpells.LavaSurge);
-	}
 
 	public void AfterCast()
 	{

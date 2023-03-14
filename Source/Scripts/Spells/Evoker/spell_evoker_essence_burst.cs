@@ -6,11 +6,11 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.EMERALD_BLOSSOM, 
-				EvokerSpells.DISINTEGRATE,
-				EvokerSpells.DISINTEGRATE_2,
-				EvokerSpells.ECHO,
-				EvokerSpells.DREAM_PROJECTION)]
+[SpellScript(EvokerSpells.EMERALD_BLOSSOM,
+			EvokerSpells.DISINTEGRATE,
+			EvokerSpells.DISINTEGRATE_2,
+			EvokerSpells.ECHO,
+			EvokerSpells.DREAM_PROJECTION)]
 public class spell_evoker_essence_burst : SpellScript, ISpellOnCast
 {
 	public void OnCast()

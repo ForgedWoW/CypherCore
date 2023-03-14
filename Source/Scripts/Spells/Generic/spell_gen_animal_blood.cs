@@ -15,10 +15,6 @@ internal class spell_gen_animal_blood : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.SpawnBloodPool);
-	}
 
 	public override void Register()
 	{

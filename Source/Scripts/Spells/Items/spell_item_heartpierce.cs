@@ -29,10 +29,6 @@ internal class spell_item_heartpierce : AuraScript, IHasAuraEffects
 		_rpSpellId = rpSpellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_energySpellId, _manaSpellId, _rageSpellId, _rpSpellId);
-	}
 
 	public override void Register()
 	{

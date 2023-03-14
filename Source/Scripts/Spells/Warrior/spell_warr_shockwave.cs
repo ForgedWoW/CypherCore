@@ -7,7 +7,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -17,14 +16,6 @@ internal class spell_warr_shockwave : SpellScript, ISpellAfterCast, IHasSpellEff
 	private uint _targetCount;
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (!ValidateSpellInfo(WarriorSpells.SHOCKWAVE, WarriorSpells.SHOCKWAVE_STUN))
-			return false;
-
-		return spellInfo.Effects.Count > 3;
-	}
 
 	public override bool Load()
 	{

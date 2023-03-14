@@ -20,19 +20,6 @@ internal class spell_gen_arena_drink : AuraScript, IHasAuraEffects
 		return Caster && Caster.IsTypeId(TypeId.Player);
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (spellInfo.Effects.Empty() ||
-			!spellInfo.GetEffect(0).IsAura(AuraType.ModPowerRegen))
-		{
-			Log.outError(LogFilter.Spells, "Aura {GetId()} structure has been changed - first aura is no longer AURA_MOD_POWER_REGEN");
-
-			return false;
-		}
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectCalcPeriodicHandler(CalcPeriodic, 1, AuraType.PeriodicDummy));

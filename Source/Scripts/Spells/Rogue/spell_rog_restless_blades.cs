@@ -21,10 +21,6 @@ internal class spell_rog_restless_blades : AuraScript, IHasAuraEffects
 
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(Spells);
-	}
 
 	public override void Register()
 	{

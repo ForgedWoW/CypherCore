@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
@@ -15,10 +14,6 @@ internal class spell_rog_symbols_of_death : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.SymbolsOfDeathRank2, RogueSpells.SymbolsOfDeathCritAura);
-	}
 
 	public override void Register()
 	{

@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.AI;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;

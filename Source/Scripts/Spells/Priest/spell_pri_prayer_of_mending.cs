@@ -17,10 +17,6 @@ internal class spell_pri_prayer_of_mending : SpellScript, IHasSpellEffects
 	private SpellInfo _spellInfoHeal;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, PriestSpells.PRAYER_OF_MENDING_AURA) && !Global.SpellMgr.GetSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, Difficulty.None).Effects.Empty();
-	}
 
 	public override bool Load()
 	{

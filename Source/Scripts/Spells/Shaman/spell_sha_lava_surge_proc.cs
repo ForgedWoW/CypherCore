@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -12,11 +11,6 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(77762)]
 internal class spell_sha_lava_surge_proc : SpellScript, ISpellAfterHit
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.LavaBurst);
-	}
-
 	public override bool Load()
 	{
 		return Caster.IsTypeId(TypeId.Player);

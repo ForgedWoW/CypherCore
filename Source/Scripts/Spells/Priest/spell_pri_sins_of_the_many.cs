@@ -14,10 +14,6 @@ internal class spell_pri_sins_of_the_many : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.SINS_OF_THE_MANY);
-	}
 
 	public override void Register()
 	{

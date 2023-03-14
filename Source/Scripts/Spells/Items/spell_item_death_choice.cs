@@ -15,10 +15,6 @@ internal class spell_item_death_choice : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.DeathChoiceNormalStrength, ItemSpellIds.DeathChoiceNormalAgility, ItemSpellIds.DeathChoiceHeroicStrength, ItemSpellIds.DeathChoiceHeroicAgility);
-	}
 
 	public override void Register()
 	{

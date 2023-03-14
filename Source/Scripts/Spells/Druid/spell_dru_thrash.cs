@@ -15,10 +15,6 @@ internal class spell_dru_thrash : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.ThrashBearAura);
-	}
 
 	public override void Register()
 	{

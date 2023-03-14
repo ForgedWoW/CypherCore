@@ -15,10 +15,6 @@ internal class spell_mage_incanters_flow : AuraScript, IHasAuraEffects
 	private sbyte modifier = 1;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.IncantersFlow);
-	}
 
 	public override void Register()
 	{

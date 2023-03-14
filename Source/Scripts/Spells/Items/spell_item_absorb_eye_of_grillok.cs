@@ -14,10 +14,6 @@ internal class spell_item_absorb_eye_of_grillok : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.EyeOfGrillok);
-	}
 
 	public override void Register()
 	{

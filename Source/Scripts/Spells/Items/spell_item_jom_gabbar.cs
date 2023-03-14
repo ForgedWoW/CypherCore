@@ -14,10 +14,6 @@ internal class spell_item_jom_gabbar : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.JomGabbar);
-	}
 
 	public override void Register()
 	{

@@ -19,10 +19,6 @@ internal class spell_sha_crash_lightning : SpellScript, ISpellAfterCast, IHasSpe
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.CrashLightningCleave);
-	}
 
 	public void AfterCast()
 	{

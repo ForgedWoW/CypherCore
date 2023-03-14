@@ -17,10 +17,6 @@ internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
 	private SpellPowerCost _baseHolyPowerCost;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.AvengingWrath, PaladinSpells.GuardianOfAcientKings);
-	}
 
 	public override void Register()
 	{
@@ -44,8 +40,7 @@ internal class spell_pal_righteous_protector : AuraScript, IHasAuraEffects
 	{
 		var value = aurEff.Amount * 100 * _baseHolyPowerCost.Amount;
 
-		Target.
-		SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
+		Target.SpellHistory.ModifyCooldown(PaladinSpells.AvengingWrath, TimeSpan.FromMilliseconds(-value));
 		Target.SpellHistory.ModifyCooldown(PaladinSpells.GuardianOfAcientKings, TimeSpan.FromMilliseconds(-value));
 	}
 }

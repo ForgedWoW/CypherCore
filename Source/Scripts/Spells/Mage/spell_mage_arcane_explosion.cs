@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
@@ -14,17 +13,6 @@ namespace Scripts.Spells.Mage;
 internal class spell_mage_arcane_explosion : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (!ValidateSpellInfo(MageSpells.ArcaneMage, MageSpells.Reverberate))
-			return false;
-
-		if (spellInfo.Effects.Count <= 1)
-			return false;
-
-		return spellInfo.GetEffect(1).IsEffect(SpellEffectName.SchoolDamage);
-	}
 
 	public override void Register()
 	{

@@ -11,11 +11,8 @@ namespace Scripts.Spells.Evoker;
 public class spell_evoker_ruby_essence_burst : SpellScript, ISpellAfterHit
 {
 	public void AfterHit()
-    {
-        if (Caster.TryGetAsPlayer(out var player)
-            && player.HasSpell(EvokerSpells.RUBY_ESSENCE_BURST)
-            && (player.HasAura(EvokerSpells.DRAGONRAGE) 
-            || RandomHelper.randChance(SpellManager.Instance.GetSpellInfo(EvokerSpells.RUBY_ESSENCE_BURST).GetEffect(0).BasePoints)))
-            player.AddAura(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA);
+	{
+		if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.RUBY_ESSENCE_BURST) && (player.HasAura(EvokerSpells.DRAGONRAGE) || RandomHelper.randChance(SpellManager.Instance.GetSpellInfo(EvokerSpells.RUBY_ESSENCE_BURST).GetEffect(0).BasePoints)))
+			player.AddAura(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA);
 	}
 }

@@ -11,11 +11,6 @@ namespace Scripts.Spells.Paladin;
 [SpellScript(122773)] // 122773 - Light's Hammer
 internal class spell_pal_light_hammer_init_summon : SpellScript, ISpellAfterCast
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.LightHammerCosmetic, PaladinSpells.LightHammerPeriodic);
-	}
-
 	public void AfterCast()
 	{
 		foreach (var summonedObject in Spell.GetExecuteLogEffect(SpellEffectName.Summon).GenericVictimTargets)

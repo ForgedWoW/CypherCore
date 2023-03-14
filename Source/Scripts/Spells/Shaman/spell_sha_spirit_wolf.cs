@@ -15,10 +15,6 @@ internal class spell_sha_spirit_wolf : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.GhostWolf, ShamanSpells.SpiritWolfTalent, ShamanSpells.SpiritWolfPeriodic, ShamanSpells.SpiritWolfAura);
-	}
 
 	public override void Register()
 	{

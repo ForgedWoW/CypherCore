@@ -15,10 +15,6 @@ internal class spell_gen_obsidian_armor : AuraScript, IAuraCheckProc, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.Holy, GenericSpellIds.Fire, GenericSpellIds.Nature, GenericSpellIds.Frost, GenericSpellIds.Shadow, GenericSpellIds.Arcane);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

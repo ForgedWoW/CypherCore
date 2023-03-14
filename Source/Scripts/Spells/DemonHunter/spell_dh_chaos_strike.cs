@@ -15,10 +15,6 @@ internal class spell_dh_chaos_strike : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.ChaosStrikeEnergize);
-	}
 
 	public override void Register()
 	{

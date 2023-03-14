@@ -15,10 +15,6 @@ internal class spell_pal_grand_crusader : AuraScript, IAuraCheckProc, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.AvengersShield);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

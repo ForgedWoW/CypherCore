@@ -17,10 +17,6 @@ internal class spell_sha_item_t10_elemental_2p_bonus : AuraScript, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.ElementalMastery);
-	}
 
 	public override void Register()
 	{

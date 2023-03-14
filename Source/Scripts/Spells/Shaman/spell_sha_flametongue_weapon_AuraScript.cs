@@ -17,10 +17,6 @@ internal class spell_sha_flametongue_weapon_AuraScript : AuraScript, IHasAuraEff
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.FlametongueAttack);
-	}
 
 	public override void Register()
 	{

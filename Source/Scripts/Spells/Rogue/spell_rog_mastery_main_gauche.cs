@@ -15,10 +15,6 @@ internal class spell_rog_mastery_main_gauche : AuraScript, IAuraCheckProc, IHasA
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.MainGauche);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

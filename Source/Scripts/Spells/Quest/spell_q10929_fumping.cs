@@ -14,10 +14,6 @@ internal class spell_q10929_fumping : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(QuestSpellIds.SummonSandGnome, QuestSpellIds.SummonBoneSlicer);
-	}
 
 	public override void Register()
 	{

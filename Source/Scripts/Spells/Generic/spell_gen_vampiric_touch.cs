@@ -15,10 +15,6 @@ internal class spell_gen_vampiric_touch : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.VampiricTouchHeal);
-	}
 
 	public override void Register()
 	{

@@ -19,15 +19,6 @@ public class spell_dh_solitude : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DemonHunterSpells.SOLITUDE_BUFF, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicDummy));

@@ -8,7 +8,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -16,16 +15,6 @@ namespace Scripts.Spells.Quest;
 internal class spell_q12690_burst_at_the_seams_52510 : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.BurstAtTheSeams52510,
-								QuestSpellIds.BurstAtTheSeams52508,
-								QuestSpellIds.BurstAtTheSeams59580,
-								QuestSpellIds.BurstAtTheSeamsBone,
-								QuestSpellIds.ExplodeAbominationMeat,
-								QuestSpellIds.ExplodeAbominationBloodyMeat);
-	}
 
 	public override bool Load()
 	{

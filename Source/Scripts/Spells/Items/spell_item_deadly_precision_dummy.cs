@@ -15,10 +15,6 @@ internal class spell_item_deadly_precision_dummy : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.DeadlyPrecision);
-	}
 
 	public override void Register()
 	{

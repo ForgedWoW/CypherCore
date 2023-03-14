@@ -3,11 +3,9 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -15,14 +13,6 @@ namespace Scripts.Spells.Items;
 internal class spell_item_decahedral_dwarven_dice : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (!CliDB.BroadcastTextStorage.ContainsKey(TextIds.DecahedralDwarvenDice))
-			return false;
-
-		return true;
-	}
 
 	public override bool Load()
 	{

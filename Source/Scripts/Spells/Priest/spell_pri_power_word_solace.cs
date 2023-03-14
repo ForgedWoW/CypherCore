@@ -15,10 +15,6 @@ internal class spell_pri_power_word_solace : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.POWER_WORD_SOLACE_ENERGIZE);
-	}
 
 	public override void Register()
 	{

@@ -15,10 +15,6 @@ internal class spell_warr_victorious_state : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.IMPENDING_VICTORY);
-	}
 
 	public override void Register()
 	{
@@ -31,7 +27,6 @@ internal class spell_warr_victorious_state : AuraScript, IHasAuraEffects
 			procInfo.Actor.AsPlayer.GetPrimarySpecialization() == TalentSpecialization.WarriorFury)
 			PreventDefaultAction();
 
-		procInfo.Actor.
-		SpellHistory.ResetCooldown(WarriorSpells.IMPENDING_VICTORY, true);
+		procInfo.Actor.SpellHistory.ResetCooldown(WarriorSpells.IMPENDING_VICTORY, true);
 	}
 }

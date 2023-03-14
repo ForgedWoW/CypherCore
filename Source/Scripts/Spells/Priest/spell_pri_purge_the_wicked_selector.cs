@@ -8,7 +8,6 @@ using Game.Maps;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -17,10 +16,6 @@ public class spell_pri_purge_the_wicked_selector : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.PURGE_THE_WICKED_DOT, PriestSpells.PURGE_THE_WICKED);
-	}
 
 	public override void Register()
 	{

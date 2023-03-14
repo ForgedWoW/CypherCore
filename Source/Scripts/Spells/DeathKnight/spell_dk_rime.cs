@@ -15,10 +15,6 @@ internal class spell_dk_rime : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 1 && ValidateSpellInfo(DeathKnightSpells.FROSTSCYTHE);
-	}
 
 	public override void Register()
 	{

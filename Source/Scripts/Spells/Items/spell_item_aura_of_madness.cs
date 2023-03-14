@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -16,20 +15,6 @@ namespace Scripts.Spells.Items;
 internal class spell_item_aura_of_madness : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return CliDB.BroadcastTextStorage.ContainsKey(TextIds.SayMadness) &&
-				ValidateSpellInfo(ItemSpellIds.Sociopath,
-								ItemSpellIds.Delusional,
-								ItemSpellIds.Kleptomania,
-								ItemSpellIds.Megalomania,
-								ItemSpellIds.Paranoia,
-								ItemSpellIds.Manic,
-								ItemSpellIds.Narcissism,
-								ItemSpellIds.MartyrComplex,
-								ItemSpellIds.Dementia);
-	}
 
 	public override void Register()
 	{

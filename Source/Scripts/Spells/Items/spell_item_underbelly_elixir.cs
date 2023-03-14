@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -20,10 +19,6 @@ internal class spell_item_underbelly_elixir : SpellScript, IHasSpellEffects
 		return Caster.TypeId == TypeId.Player;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.UnderbellyElixirTriggered1, ItemSpellIds.UnderbellyElixirTriggered2, ItemSpellIds.UnderbellyElixirTriggered3);
-	}
 
 	public override void Register()
 	{

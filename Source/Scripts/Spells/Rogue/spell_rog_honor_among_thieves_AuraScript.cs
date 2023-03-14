@@ -15,10 +15,6 @@ internal class spell_rog_honor_among_thieves_AuraScript : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.HonorAmongThievesEnergize);
-	}
 
 	public override void Register()
 	{

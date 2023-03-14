@@ -14,14 +14,6 @@ internal class spell_pal_consecration : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.CONSECRATION_DAMAGE,
-								PaladinSpells.ConsecrationProtectionAura,
-								PaladinSpells.ConsecratedGroundPassive,
-								PaladinSpells.ConsecratedGroundSlow);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(HandleEffectPeriodic, 0, AuraType.PeriodicDummy));

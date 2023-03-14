@@ -23,10 +23,6 @@ internal class spell_hun_pet_heart_of_the_phoenix : SpellScript, IHasSpellEffect
 		return true;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(HunterSpells.PetHeartOfThePhoenixTriggered, HunterSpells.PetHeartOfThePhoenixDebuff);
-	}
 
 	public override void Register()
 	{

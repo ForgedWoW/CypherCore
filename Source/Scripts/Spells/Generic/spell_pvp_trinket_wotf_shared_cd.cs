@@ -4,7 +4,6 @@
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -19,10 +18,6 @@ internal class spell_pvp_trinket_wotf_shared_cd : SpellScript, ISpellAfterCast
 		_triggered = triggered;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_triggered);
-	}
 
 	public void AfterCast()
 	{

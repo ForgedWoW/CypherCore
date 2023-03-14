@@ -14,10 +14,6 @@ internal class spell_monk_crackling_jade_lightning : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MonkSpells.StanceOfTheSpiritedCrane, MonkSpells.CracklingJadeLightningChiProc);
-	}
 
 	public override void Register()
 	{

@@ -16,10 +16,6 @@ public class spell_pri_void_eruption : SpellScript, IHasSpellEffects, ISpellOnCa
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.VOID_ERUPTION, PriestSpells.VOID_ERUPTION_DAMAGE);
-	}
 
 	public void OnCast()
 	{

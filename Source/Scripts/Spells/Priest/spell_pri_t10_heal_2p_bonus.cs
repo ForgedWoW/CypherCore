@@ -15,10 +15,6 @@ internal class spell_pri_t10_heal_2p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.BLESSED_HEALING);
-	}
 
 	public override void Register()
 	{

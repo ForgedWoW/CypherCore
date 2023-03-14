@@ -15,10 +15,6 @@ internal class spell_pri_prayer_of_mending_AuraScript : AuraScript, IHasAuraEffe
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.PRAYER_OF_MENDING_HEAL, PriestSpells.PRAYER_OF_MENDING_JUMP);
-	}
 
 	public override void Register()
 	{

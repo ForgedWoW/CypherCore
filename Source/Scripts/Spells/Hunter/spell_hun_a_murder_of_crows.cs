@@ -14,10 +14,6 @@ internal class spell_hun_a_murder_of_crows : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(HunterSpells.AMurderOfCrowsDamage, HunterSpells.AMurderOfCrowsVisual1, HunterSpells.AMurderOfCrowsVisual2, HunterSpells.AMurderOfCrowsVisual3);
-	}
 
 	public override void Register()
 	{

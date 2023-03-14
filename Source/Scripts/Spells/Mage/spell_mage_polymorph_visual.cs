@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
@@ -23,10 +22,6 @@ internal class spell_mage_polymorph_visual : SpellScript, IHasSpellEffects
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PolymorhForms);
-	}
 
 	public override void Register()
 	{

@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -14,15 +13,6 @@ namespace Scripts.Spells.DeathKnight;
 public class spell_dk_blighted_rune_weapon : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DeathKnightSpells.FESTERING_WOUND, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

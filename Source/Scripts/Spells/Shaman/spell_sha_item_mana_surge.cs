@@ -16,10 +16,6 @@ internal class spell_sha_item_mana_surge : AuraScript, IAuraCheckProc, IHasAuraE
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.ItemManaSurge);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

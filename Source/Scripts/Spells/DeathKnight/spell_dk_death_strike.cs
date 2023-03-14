@@ -16,10 +16,6 @@ internal class spell_dk_death_strike : SpellScript, ISpellAfterCast, IHasSpellEf
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.DeathStrikeEnabler, DeathKnightSpells.DeathStrikeHeal, DeathKnightSpells.BloodShieldMastery, DeathKnightSpells.BloodShieldAbsorb, DeathKnightSpells.RecentlyUsedDeathStrike, DeathKnightSpells.FROST, DeathKnightSpells.DeathStrikeOffhand) && spellInfo.Effects.Count > 2;
-	}
 
 	public void AfterCast()
 	{

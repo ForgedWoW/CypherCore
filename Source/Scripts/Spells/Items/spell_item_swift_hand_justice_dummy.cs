@@ -15,10 +15,6 @@ internal class spell_item_swift_hand_justice_dummy : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.SwiftHandOfJusticeHeal);
-	}
 
 	public override void Register()
 	{

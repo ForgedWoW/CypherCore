@@ -15,10 +15,6 @@ internal class spell_mage_alter_time_active : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.AlterTimeAura, MageSpells.ArcaneAlterTimeAura);
-	}
 
 	public override void Register()
 	{

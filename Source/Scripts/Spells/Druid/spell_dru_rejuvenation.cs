@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
@@ -43,10 +42,6 @@ public class spell_dru_rejuvenation : SpellScript, ISpellBeforeHit, ISpellAfterH
 			caster.CastSpell(caster, Spells.ABUNDANCE, true);
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.GERMINATION, Spells.GERMINATION_HOT, Spells.ABUNDANCE, Spells.ABUNDANCE_BUFF);
-	}
 
 	public void BeforeHit(SpellMissInfo missInfo)
 	{

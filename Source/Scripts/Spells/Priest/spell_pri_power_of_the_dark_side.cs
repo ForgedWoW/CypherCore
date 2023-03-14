@@ -14,10 +14,6 @@ internal class spell_pri_power_of_the_dark_side : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.POWER_OF_THE_DARK_SIDE_TINT);
-	}
 
 	public override void Register()
 	{

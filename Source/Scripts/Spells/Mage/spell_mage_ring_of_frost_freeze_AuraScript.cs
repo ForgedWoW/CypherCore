@@ -14,10 +14,6 @@ internal class spell_mage_ring_of_frost_freeze_AuraScript : AuraScript, IHasAura
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.RingOfFrostDummy);
-	}
 
 	public override void Register()
 	{

@@ -18,10 +18,6 @@ internal class spell_pri_rapture : SpellScript, ISpellAfterCast, IHasSpellEffect
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.POWER_WORD_SHIELD);
-	}
 
 	public void AfterCast()
 	{

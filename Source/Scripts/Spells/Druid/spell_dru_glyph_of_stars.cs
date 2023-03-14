@@ -14,10 +14,6 @@ internal class spell_dru_glyph_of_stars : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DruidSpellIds.GlyphOfStars, DruidSpellIds.GlyphOfStarsVisual);
-	}
 
 	public override void Register()
 	{

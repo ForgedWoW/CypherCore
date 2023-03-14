@@ -8,7 +8,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
@@ -17,10 +16,6 @@ internal class spell_hun_masters_call : SpellScript, ISpellCheckCast, IHasSpellE
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return !spellInfo.Effects.Empty() && ValidateSpellInfo(HunterSpells.MastersCallTriggered, (uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override bool Load()
 	{

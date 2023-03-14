@@ -15,10 +15,6 @@ public class spell_dk_unholy_assault : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.FESTERING_WOUND);
-	}
 
 	public override void Register()
 	{

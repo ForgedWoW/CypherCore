@@ -4,21 +4,12 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Monk;
 
 [SpellScript(115057)]
 public class spell_monk_flying_serpent_kick : SpellScript, ISpellOnCast
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(MonkSpells.FLYING_SERPENT_KICK_NEW, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public void OnCast()
 	{
 		var caster = Caster;

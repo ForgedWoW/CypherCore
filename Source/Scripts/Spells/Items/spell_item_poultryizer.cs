@@ -15,10 +15,6 @@ internal class spell_item_poultryizer : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.PoultryizerSuccess, ItemSpellIds.PoultryizerBackfire);
-	}
 
 	public override void Register()
 	{

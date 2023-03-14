@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -19,10 +18,6 @@ internal class spell_gen_bandage : SpellScript, ISpellCheckCast, ISpellAfterHit
 			Caster.CastSpell(target, GenericSpellIds.RecentlyBandaged, true);
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.RecentlyBandaged);
-	}
 
 	public SpellCastResult CheckCast()
 	{

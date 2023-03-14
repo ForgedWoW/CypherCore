@@ -15,10 +15,6 @@ internal class spell_q14100_q14111_make_player_destroy_totems : SpellScript, IHa
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.TotemOfTheEarthenRing);
-	}
 
 	public override void Register()
 	{

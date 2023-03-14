@@ -15,10 +15,6 @@ internal class spell_gen_cannon_blast : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.CannonBlast);
-	}
 
 	public override void Register()
 	{

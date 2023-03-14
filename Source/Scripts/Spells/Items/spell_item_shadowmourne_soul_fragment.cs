@@ -14,10 +14,6 @@ internal class spell_item_shadowmourne_soul_fragment : AuraScript, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.ShadowmourneVisualLow, ItemSpellIds.ShadowmourneVisualHigh, ItemSpellIds.ShadowmourneChaosBaneBuff);
-	}
 
 	public override void Register()
 	{

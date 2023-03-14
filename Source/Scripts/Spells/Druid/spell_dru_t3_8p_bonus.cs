@@ -16,10 +16,6 @@ internal class spell_dru_t3_8p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.Exhilarate);
-	}
 
 	public override void Register()
 	{

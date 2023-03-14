@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -20,11 +19,6 @@ public class spell_dh_immolation_aura_damage : SpellScript, IHasSpellEffects
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.CHARRED_FLESH, DemonHunterSpells.FIERY_BRAND_DOT, DemonHunterSpells.FIERY_BRAND_MARKER);
-	}
 
 	public override void Register()
 	{

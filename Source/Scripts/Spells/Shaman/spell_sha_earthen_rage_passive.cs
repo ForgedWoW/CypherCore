@@ -18,10 +18,6 @@ public class spell_sha_earthen_rage_passive : AuraScript, IAuraCheckProc, IHasAu
 
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.EarthenRagePeriodic, ShamanSpells.EarthenRageDamage);
-	}
 
 	public bool CheckProc(ProcEventInfo procInfo)
 	{

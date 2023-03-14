@@ -15,10 +15,6 @@ public class spell_pri_shadowy_apparitions : AuraScript, IHasAuraEffects, IAuraC
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.SHADOWY_APPARITION_MISSILE, PriestSpells.SHADOW_WORD_PAIN);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

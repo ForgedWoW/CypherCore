@@ -17,10 +17,6 @@ internal class spell_mage_ice_lance : SpellScript, IHasSpellEffects
 	private readonly List<ObjectGuid> _orderedTargets = new();
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.IceLanceTrigger, MageSpells.ThermalVoid, MageSpells.IcyVeins, MageSpells.ChainReactionDummy, MageSpells.ChainReaction, MageSpells.FingersOfFrost);
-	}
 
 	public override void Register()
 	{

@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
@@ -13,10 +12,6 @@ public class spell_rog_garrote_SpellScript : SpellScript, ISpellOnHit
 {
 	private bool _stealthed;
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(RogueSpells.GARROTE_DOT, RogueSpells.GARROTE_SILENCE);
-	}
 
 	public override bool Load()
 	{

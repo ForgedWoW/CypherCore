@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -23,15 +21,6 @@ public class spell_warl_grimoire_of_service_SpellScript : SpellScript, ISpellOnS
 		SUCCUBUS_SEDUCTION = 6358,
 		FELHUNTER_LOCK = 19647,
 		FELGUARD_AXE_TOSS = 89766
-	}
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return SpellManager.Instance.GetSpellInfo((uint)eServiceSpells.FELGUARD_AXE_TOSS, Difficulty.None) != null ||
-				SpellManager.Instance.GetSpellInfo((uint)eServiceSpells.FELHUNTER_LOCK, Difficulty.None) != null ||
-				SpellManager.Instance.GetSpellInfo((uint)eServiceSpells.IMP_SINGE_MAGIC, Difficulty.None) != null ||
-				SpellManager.Instance.GetSpellInfo((uint)eServiceSpells.SUCCUBUS_SEDUCTION, Difficulty.None) != null ||
-				SpellManager.Instance.GetSpellInfo((uint)eServiceSpells.VOIDWALKER_SUFFERING, Difficulty.None) != null;
 	}
 
 	public void OnSummon(Creature creature)

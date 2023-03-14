@@ -15,10 +15,6 @@ internal class spell_pal_t3_6p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.HolyPowerArmor, PaladinSpells.HolyPowerAttackPower, PaladinSpells.HolyPowerSpellPower, PaladinSpells.HolyPowerMp5);
-	}
 
 	public override void Register()
 	{

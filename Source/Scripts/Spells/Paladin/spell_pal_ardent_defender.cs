@@ -25,10 +25,6 @@ public class spell_pal_ardent_defender : AuraScript, IHasAuraEffects
 		healPct = 0;
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PaladinSpells.ARDENT_DEFENDER);
-	}
 
 	public override bool Load()
 	{

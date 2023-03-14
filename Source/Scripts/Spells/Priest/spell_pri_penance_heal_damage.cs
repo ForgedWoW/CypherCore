@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -18,10 +17,6 @@ public class spell_pri_penance_heal_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER, PriestSpells.PENANCE_HEAL);
-	}
 
 	public override void Register()
 	{

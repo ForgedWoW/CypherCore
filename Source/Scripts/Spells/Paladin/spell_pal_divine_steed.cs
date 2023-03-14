@@ -4,24 +4,12 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 [SpellScript(190784)] // 190784 - Divine Steed
 internal class spell_pal_divine_steed : SpellScript, ISpellOnCast
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.DivineSteedHuman,
-								PaladinSpells.DivineSteedDwarf,
-								PaladinSpells.DivineSteedDraenei,
-								PaladinSpells.DivineSteedDarkIronDwarf,
-								PaladinSpells.DivineSteedBloodelf,
-								PaladinSpells.DivineSteedTauren,
-								PaladinSpells.DivineSteedZandalariTroll);
-	}
-
 	public void OnCast()
 	{
 		var caster = Caster;

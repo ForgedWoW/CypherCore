@@ -7,7 +7,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -15,17 +14,6 @@ namespace Scripts.Spells.DemonHunter;
 public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_RUSH_DASH, Difficulty.None) != null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FEL_RUSH_AIR, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{
@@ -51,8 +39,7 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 					caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 			}
 
-			caster.
-			SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
+			caster.SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
 		}
 	}
 
@@ -73,8 +60,7 @@ public class spell_dh_fel_rush : SpellScript, IHasSpellEffects
 				if (caster.HasAura(ShatteredSoulsSpells.MOMENTUM))
 					caster.CastSpell(ShatteredSoulsSpells.MOMENTUM_BUFF, true);
 
-				caster.
-				SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
+				caster.SpellHistory.AddCooldown(SpellInfo.Id, 0, TimeSpan.FromMicroseconds(750));
 			}
 	}
 }

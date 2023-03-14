@@ -15,10 +15,6 @@ internal class spell_q11396_11399_scourging_crystal_controller : SpellScript, IH
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(QuestSpellIds.ForceShieldArcanePurpleX3, QuestSpellIds.ScourgingCrystalController);
-	}
 
 	public override void Register()
 	{

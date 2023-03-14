@@ -15,14 +15,6 @@ public class spell_monk_rising_thunder : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(MonkSpells.RISING_THUNDER, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleEffectProc, 0, AuraType.Dummy, AuraScriptHookType.EffectProc));
@@ -32,7 +24,6 @@ public class spell_monk_rising_thunder : AuraScript, IHasAuraEffects
 	{
 		var caster = Caster;
 
-		caster.AsPlayer.
-		SpellHistory.ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
+		caster.AsPlayer.SpellHistory.ResetCooldown(MonkSpells.THUNDER_FOCUS_TEA, true);
 	}
 }

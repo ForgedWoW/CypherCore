@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -15,10 +14,6 @@ internal class spell_q13291_q13292_q13239_q13261_frostbrood_skytalon_grab_decoy 
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(QuestSpellIds.Ride);
-	}
 
 	public override void Register()
 	{

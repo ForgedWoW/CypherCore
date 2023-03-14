@@ -15,10 +15,6 @@ internal class spell_pri_t5_heal_2p_bonus : AuraScript, IAuraCheckProc, IHasAura
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ITEM_EFFICIENCY);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

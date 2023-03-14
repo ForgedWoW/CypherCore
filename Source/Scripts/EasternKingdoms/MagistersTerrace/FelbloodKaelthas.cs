@@ -469,10 +469,6 @@ internal class spell_felblood_kaelthas_flame_strike : AuraScript, IHasAuraEffect
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.FlameStrikeDamage);
-	}
 
 	public override void Register()
 	{

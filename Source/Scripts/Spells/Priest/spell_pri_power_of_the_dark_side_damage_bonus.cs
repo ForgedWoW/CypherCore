@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -15,10 +14,6 @@ internal class spell_pri_power_of_the_dark_side_damage_bonus : SpellScript, IHas
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.POWER_OF_THE_DARK_SIDE);
-	}
 
 	public override void Register()
 	{

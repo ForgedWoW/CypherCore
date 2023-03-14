@@ -24,10 +24,6 @@ public class spell_sha_resurgence : AuraScript, IAuraOnProc, IAuraCheckProc
 		return false;
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Resurgence.WATER_SHIELD, Resurgence.RESURGENCE, Resurgence.RESURGENCE_PROC);
-	}
 
 	public void OnProc(ProcEventInfo procInfo)
 	{

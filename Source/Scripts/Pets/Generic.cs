@@ -77,10 +77,6 @@ namespace Scripts.Pets
 		{
 			public List<ISpellEffect> SpellEffects { get; } = new();
 
-			public override bool Validate(SpellInfo spellInfo)
-			{
-				return ValidateSpellInfo(SpellIds.LichPetAura);
-			}
 
 			public override void Register()
 			{
@@ -99,10 +95,6 @@ namespace Scripts.Pets
 		{
 			public List<ISpellEffect> SpellEffects { get; } = new();
 
-			public override bool Validate(SpellInfo spellInfo)
-			{
-				return ValidateSpellInfo(SpellIds.LichPetAura);
-			}
 
 			public override void Register()
 			{
@@ -120,10 +112,6 @@ namespace Scripts.Pets
 		{
 			public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-			public override bool Validate(SpellInfo spellInfo)
-			{
-				return ValidateSpellInfo(SpellIds.LichPetAuraOnkill);
-			}
 
 			public bool CheckProc(ProcEventInfo eventInfo)
 			{
@@ -153,10 +141,6 @@ namespace Scripts.Pets
 		{
 			public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-			public override bool Validate(SpellInfo spellInfo)
-			{
-				return ValidateSpellInfo(SpellIds.LichPetEmote);
-			}
 
 			public override void Register()
 			{
@@ -198,10 +182,6 @@ namespace Scripts.Pets
 		{
 			public List<ISpellEffect> SpellEffects { get; } = new();
 
-			public override bool Validate(SpellInfo spellInfo)
-			{
-				return ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-			}
 
 			public override void Register()
 			{

@@ -15,10 +15,6 @@ internal class spell_item_mark_of_conquest : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.MarkOfConquestEnergize);
-	}
 
 	public override void Register()
 	{

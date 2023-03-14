@@ -18,10 +18,6 @@ internal class spell_warr_sweeping_strikes : AuraScript, IAuraCheckProc, IHasAur
 
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_1, WarriorSpells.SWEEPING_STRIKES_EXTRA_ATTACK_2);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

@@ -5,7 +5,6 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -24,12 +23,6 @@ internal class spell_pal_divine_shield : SpellScript, ISpellCheckCast, ISpellAft
 		caster.CastSpell(caster, PaladinSpells.ImmuneShieldMarker, true);
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.FinalStand, PaladinSpells.FinalStandEffect, PaladinSpells.Forbearance) //, SpellIds._PALADIN_IMMUNE_SHIELD_MARKER // uncomment when we have serverside only spells
-				&&
-				spellInfo.ExcludeCasterAuraSpell == PaladinSpells.ImmuneShieldMarker;
-	}
 
 	public SpellCastResult CheckCast()
 	{

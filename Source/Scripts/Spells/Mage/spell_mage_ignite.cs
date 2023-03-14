@@ -15,10 +15,6 @@ internal class spell_mage_ignite : AuraScript, IAuraCheckProc, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.Ignite);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

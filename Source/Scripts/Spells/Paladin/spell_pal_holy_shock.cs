@@ -15,10 +15,6 @@ internal class spell_pal_holy_shock : SpellScript, ISpellCheckCast, IHasSpellEff
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.HolyShock, PaladinSpells.HolyShockHealing, PaladinSpells.HolyShockDamage);
-	}
 
 	public SpellCastResult CheckCast()
 	{

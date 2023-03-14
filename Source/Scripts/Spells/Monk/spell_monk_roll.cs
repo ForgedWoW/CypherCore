@@ -15,10 +15,6 @@ internal class spell_monk_roll : SpellScript, ISpellCheckCast, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MonkSpells.RollBackward, MonkSpells.RollForward, MonkSpells.NoFeatherFall);
-	}
 
 	public SpellCastResult CheckCast()
 	{

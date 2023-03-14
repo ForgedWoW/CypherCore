@@ -16,10 +16,6 @@ internal class spell_sha_lava_surge : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.LavaSurge, ShamanSpells.IgneousPotential);
-	}
 
 	public override void Register()
 	{

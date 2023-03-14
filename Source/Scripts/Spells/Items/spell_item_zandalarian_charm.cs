@@ -23,10 +23,6 @@ internal class spell_item_zandalarian_charm : AuraScript, IAuraCheckProc, IHasAu
 		_spellId = SpellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_spellId);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

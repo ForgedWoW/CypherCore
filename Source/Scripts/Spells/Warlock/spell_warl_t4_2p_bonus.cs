@@ -23,10 +23,6 @@ internal class spell_warl_t4_2p_bonus : AuraScript, IHasAuraEffects
 		_triggerSpell = triggerSpell;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_triggerSpell);
-	}
 
 	public override void Register()
 	{

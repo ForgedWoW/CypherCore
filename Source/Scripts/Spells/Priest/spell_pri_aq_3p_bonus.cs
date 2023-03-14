@@ -15,10 +15,6 @@ internal class spell_pri_aq_3p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ORACULAR_HEAL);
-	}
 
 	public override void Register()
 	{

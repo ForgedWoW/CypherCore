@@ -10,9 +10,9 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.ESSENCE_BURST)]
 public class aura_evoker_essence_burst : AuraScript, IAuraOnProc
 {
-    public void OnProc(ProcEventInfo info)
-    {
-        if (TryGetCasterAsPlayer(out var player))
-            player.AddAura(EvokerSpells.ESSENCE_BURST_AURA);
-    }
+	public void OnProc(ProcEventInfo info)
+	{
+		if (TryGetCasterAsPlayer(out var player))
+			player.AddAura(EvokerSpells.ESSENCE_BURST_AURA);
+	}
 }

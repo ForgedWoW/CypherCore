@@ -15,10 +15,6 @@ internal class spell_item_aegis_of_preservation : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.AegisHeal);
-	}
 
 	public override void Register()
 	{

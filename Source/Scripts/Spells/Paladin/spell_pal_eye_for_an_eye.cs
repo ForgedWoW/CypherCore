@@ -15,10 +15,6 @@ internal class spell_pal_eye_for_an_eye : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.EyeForAnEyeTriggered);
-	}
 
 	public override void Register()
 	{

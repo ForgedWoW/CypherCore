@@ -14,10 +14,6 @@ public class aura_dru_astral_form : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(DruidSpells.GLYPH_OF_STARS);
-	}
 
 	public override void Register()
 	{

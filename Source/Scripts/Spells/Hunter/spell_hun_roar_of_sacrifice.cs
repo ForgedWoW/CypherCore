@@ -16,10 +16,6 @@ internal class spell_hun_roar_of_sacrifice : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(HunterSpells.RoarOfSacrificeTriggered);
-	}
 
 	public override void Register()
 	{

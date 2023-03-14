@@ -15,10 +15,6 @@ internal class spell_pri_spirit_of_redemption : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.SPIRIT_OF_REDEMPTION);
-	}
 
 	public override void Register()
 	{

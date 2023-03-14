@@ -15,10 +15,6 @@ internal class spell_mage_imp_mana_gems : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.ManaSurge);
-	}
 
 	public override void Register()
 	{

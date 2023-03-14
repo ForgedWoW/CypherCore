@@ -17,10 +17,6 @@ internal class spell_pal_awakening : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.AvengingWrath) && spellInfo.Effects.Count >= 1;
-	}
 
 	public override void Register()
 	{

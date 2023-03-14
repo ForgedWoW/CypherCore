@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
@@ -15,10 +14,6 @@ public class spell_mage_fire_on : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MageSpells.FIRE_ON, MageSpells.FIRE_BLAST);
-	}
 
 	public override void Register()
 	{
@@ -33,8 +28,7 @@ public class spell_mage_fire_on : SpellScript, IHasSpellEffects
 		if (caster == null || target == null || caster.TypeId != TypeId.Player)
 			return;
 
-		caster.AsPlayer.
-		SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(MageSpells.FireBlast, Difficulty.None).ChargeCategoryId);
+		caster.AsPlayer.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(MageSpells.FireBlast, Difficulty.None).ChargeCategoryId);
 		// caster->ToPlayer()->GetSpellHistory()->ResetCharges(Global.SpellMgr->GetSpellInfo(FIRE_BLAST, Difficulty.None)->ChargeCategoryId);
 	}
 }

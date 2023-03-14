@@ -16,10 +16,6 @@ internal class spell_corrupting_plague_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.CorruptingPlague);
-	}
 
 	public override void Register()
 	{

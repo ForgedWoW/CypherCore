@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -15,13 +14,6 @@ internal class spell_warr_heroic_leap_jump : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.GLYPH_OF_HEROIC_LEAP,
-								WarriorSpells.GLYPH_OF_HEROIC_LEAP_BUFF,
-								WarriorSpells.IMPROVED_HEROIC_LEAP,
-								WarriorSpells.TAUNT);
-	}
 
 	public override void Register()
 	{

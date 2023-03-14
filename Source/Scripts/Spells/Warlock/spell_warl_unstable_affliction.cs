@@ -15,11 +15,6 @@ namespace Scripts.Spells.Warlock;
 })] // 30108, 34438, 34439, 35183 - Unstable Affliction
 internal class spell_warl_unstable_affliction : AuraScript, IAfterAuraDispel
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarlockSpells.UNSTABLE_AFFLICTION_DISPEL);
-	}
-
 	public void HandleDispel(DispelInfo dispelInfo)
 	{
 		var caster = Caster;

@@ -17,19 +17,6 @@ public class spell_dk_presence_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.FROST_PRESENCE, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.UNHOLY_PRESENCE, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_FROST_PRESENCE, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_UNHOLY_PRESENCE_TRIGGERED, Difficulty.None) ||
-			!Global.SpellMgr.HasSpellInfo(DeathKnightSpells.IMPROVED_FROST_PRESENCE_TRIGGERED, Difficulty.None))
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		if (ScriptSpellId == DeathKnightSpells.FROST_PRESENCE)

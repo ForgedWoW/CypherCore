@@ -14,10 +14,6 @@ internal class spell_q2203_thaumaturgy_channel : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.ThaumaturgyChannel);
-	}
 
 	public override void Register()
 	{

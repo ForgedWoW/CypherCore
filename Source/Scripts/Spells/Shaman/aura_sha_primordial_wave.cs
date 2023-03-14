@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -16,11 +15,6 @@ namespace Scripts.Spells.Shaman;
 })]
 public class aura_sha_primordial_wave : SpellScript, ISpellAfterCast, ISpellCalculateMultiplier
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.PrimordialWaveAura, ShamanSpells.LavaBurst, ShamanSpells.LightningBolt, ShamanSpells.HealingWave);
-	}
-
 	public void AfterCast()
 	{
 		var player = Caster.AsPlayer;

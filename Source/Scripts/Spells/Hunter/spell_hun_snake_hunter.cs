@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
@@ -14,15 +13,6 @@ namespace Scripts.Spells.Hunter;
 public class spell_hun_snake_hunter : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{
@@ -36,7 +26,6 @@ public class spell_hun_snake_hunter : SpellScript, IHasSpellEffects
 		if (player == null)
 			return;
 
-		player.
-		SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None).ChargeCategoryId);
+		player.SpellHistory.ResetCharges(Global.SpellMgr.GetSpellInfo(HunterSpells.MONGOOSE_BITE, Difficulty.None).ChargeCategoryId);
 	}
 }

@@ -16,10 +16,6 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 	private double bonus;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo((uint)RequiredMixologySpells.Mixology) && !spellInfo.Effects.Empty();
-	}
 
 	public override bool Load()
 	{

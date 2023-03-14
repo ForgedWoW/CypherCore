@@ -18,10 +18,6 @@ public class spell_pri_penance_triggered : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.POWER_OF_THE_DARK_SIDE_AURA, PriestSpells.POWER_OF_THE_DARK_SIDE_MARKER);
-	}
 
 	public override void Register()
 	{

@@ -53,11 +53,11 @@ internal class spell_evoker_eternity_surge : SpellScript, ISpellOnEpowerSpellEnd
 			var targetList = new List<Unit>();
 			caster.GetEnemiesWithinRange(targetList, GetEffectInfo(1).MaxRadiusEntry.RadiusMax);
 
-            // reduce targetList to the number allowed
-            targetList.RandomResize(targets);
+			// reduce targetList to the number allowed
+			targetList.RandomResize(targets);
 
-            // cast on targets
-            foreach (var target in targetList)
+			// cast on targets
+			foreach (var target in targetList)
 				caster.CastSpell(target, EvokerSpells.ETERNITY_SURGE_CHARGED, true, stage.Stage);
 		}
 	}

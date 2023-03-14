@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -16,10 +15,6 @@ internal class spell_gen_ancestral_call : SpellScript, ISpellOnCast
 		GenericSpellIds.RictusOfTheLaughingSkull, GenericSpellIds.ZealOfTheBurningBlade, GenericSpellIds.FerocityOfTheFrostwolf, GenericSpellIds.MightOfTheBlackrock
 	};
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(GenericSpellIds.RictusOfTheLaughingSkull, GenericSpellIds.ZealOfTheBurningBlade, GenericSpellIds.FerocityOfTheFrostwolf, GenericSpellIds.MightOfTheBlackrock);
-	}
 
 	public void OnCast()
 	{

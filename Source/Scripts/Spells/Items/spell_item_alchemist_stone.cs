@@ -15,10 +15,6 @@ internal class spell_item_alchemist_stone : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.AlchemistStoneExtraHeal, ItemSpellIds.AlchemistStoneExtraMana);
-	}
 
 	public override void Register()
 	{

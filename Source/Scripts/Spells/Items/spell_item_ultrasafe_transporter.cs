@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -15,10 +14,6 @@ internal class spell_item_ultrasafe_transporter : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.TransporterMalfunctionSmaller, ItemSpellIds.TransporterMalfunctionBigger, ItemSpellIds.SoulSplitEvil, ItemSpellIds.SoulSplitGood, ItemSpellIds.TransformHorde, ItemSpellIds.TransformAlliance, ItemSpellIds.TransporterMalfunctionChicken, ItemSpellIds.EvilTwin);
-	}
 
 	public override bool Load()
 	{

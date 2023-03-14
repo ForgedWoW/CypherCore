@@ -17,23 +17,6 @@ internal class spell_sha_mastery_elemental_overload : AuraScript, IHasAuraEffect
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.LightningBolt,
-								ShamanSpells.LightningBoltOverload,
-								ShamanSpells.ElementalBlast,
-								ShamanSpells.ElementalBlastOverload,
-								ShamanSpells.Icefury,
-								ShamanSpells.IcefuryOverload,
-								ShamanSpells.LavaBurst,
-								ShamanSpells.LavaBurstOverload,
-								ShamanSpells.ChainLightning,
-								ShamanSpells.ChainLightningOverload,
-								ShamanSpells.LavaBeam,
-								ShamanSpells.LavaBeamOverload,
-								ShamanSpells.Stormkeeper);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraCheckEffectProcHandler(CheckProc, 0, AuraType.Dummy));

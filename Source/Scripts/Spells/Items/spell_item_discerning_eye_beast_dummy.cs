@@ -15,10 +15,6 @@ internal class spell_item_discerning_eye_beast_dummy : AuraScript, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.DiscerningEyeBeast);
-	}
 
 	public override void Register()
 	{

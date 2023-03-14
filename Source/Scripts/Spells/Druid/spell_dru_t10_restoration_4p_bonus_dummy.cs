@@ -15,10 +15,6 @@ internal class spell_dru_t10_restoration_4p_bonus_dummy : AuraScript, IAuraCheck
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.RejuvenationT10Proc);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

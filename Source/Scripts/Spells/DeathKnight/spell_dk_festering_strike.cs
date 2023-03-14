@@ -15,10 +15,6 @@ public class spell_dk_festering_strike : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.FESTERING_WOUND);
-	}
 
 	public override void Register()
 	{

@@ -15,14 +15,6 @@ public class spell_dh_eye_beam : AuraScript, IHasAuraEffects
 	private bool _firstTick = true;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (!Global.SpellMgr.HasSpellInfo(DemonHunterSpells.EYE_BEAM, Difficulty.None) || !Global.SpellMgr.HasSpellInfo(DemonHunterSpells.EYE_BEAM_DAMAGE, Difficulty.None))
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(HandlePeriodic, 0, AuraType.PeriodicTriggerSpell));

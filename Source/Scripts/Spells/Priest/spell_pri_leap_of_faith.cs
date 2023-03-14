@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -15,10 +14,6 @@ public class spell_pri_leap_of_faith : SpellScript, IHasSpellEffects, ISpellOnHi
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return Global.SpellMgr.GetSpellInfo(PriestSpells.LEAP_OF_FAITH_GLYPH, Difficulty.None) != null && Global.SpellMgr.GetSpellInfo(PriestSpells.LEAP_OF_FAITH_EFFECT, Difficulty.None) != null;
-	}
 
 	public void OnHit()
 	{

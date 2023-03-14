@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -15,17 +14,6 @@ namespace Scripts.Spells.Warlock;
 public class spell_warl_fear : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(WarlockSpells.FEAR, Difficulty.None) == null)
-			return false;
-
-		if (Global.SpellMgr.GetSpellInfo(WarlockSpells.FEAR_BUFF, Difficulty.None) == null)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

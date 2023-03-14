@@ -9,9 +9,9 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.ESSENCE_BURST_AURA)]
 public class aura_evoker_exhilarating_burst : AuraScript, IAuraOnApply
 {
-    public void AuraApplied()
-    {
-        if (TryGetCasterAsPlayer(out var player) && player.HasSpell(EvokerSpells.EXHILERATING_BURST))
-            player.AddAura(EvokerSpells.EXHILERATING_BURST_AURA);
-    }
+	public void AuraApplied()
+	{
+		if (TryGetCasterAsPlayer(out var player) && player.HasSpell(EvokerSpells.EXHILERATING_BURST))
+			player.AddAura(EvokerSpells.EXHILERATING_BURST_AURA);
+	}
 }

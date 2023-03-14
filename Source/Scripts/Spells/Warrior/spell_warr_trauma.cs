@@ -15,10 +15,6 @@ internal class spell_warr_trauma : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.TRAUMA_EFFECT);
-	}
 
 	public override void Register()
 	{

@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
@@ -34,10 +33,6 @@ public class spell_rog_shuriken_storm_SpellScript : SpellScript, ISpellOnHit, IS
 		return true;
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(RogueSpells.SHURIKEN_STORM);
-	}
 
 	public void OnHit()
 	{

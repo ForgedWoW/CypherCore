@@ -54,10 +54,6 @@ internal class spell_love_is_in_the_air_romantic_picnic : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.BasketCheck, SpellIds.MealPeriodic, SpellIds.MealEatVisual, SpellIds.DrinkVisual, SpellIds.RomanticPicnicAchiev);
-	}
 
 	public override void Register()
 	{
@@ -124,10 +120,6 @@ internal class spell_love_is_in_the_air_create_heart_candy : SpellScript, IHasSp
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(CreateHeartCandySpells);
-	}
 
 	public override void Register()
 	{
@@ -148,10 +140,6 @@ internal class spell_love_is_in_the_air_fragrant_air_analysis : SpellScript, IHa
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override void Register()
 	{
@@ -169,10 +157,6 @@ internal class spell_love_is_in_the_air_heavily_perfumed : AuraScript, IHasAuraE
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override void Register()
 	{
@@ -190,10 +174,6 @@ internal class spell_love_is_in_the_air_recently_analyzed : AuraScript, IHasAura
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.HeavilyPerfumed);
-	}
 
 	public override void Register()
 	{
@@ -229,10 +209,6 @@ internal class spell_love_is_in_the_air_service_uniform : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override void Register()
 	{
@@ -265,10 +241,6 @@ internal class spell_love_is_in_the_air_cancel_service_uniform : SpellScript, IH
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.ServiceUniform);
-	}
 
 	public override void Register()
 	{
@@ -287,10 +259,6 @@ internal class spell_love_is_in_the_air_perfume_cologne_immune : SpellScript, IH
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue(), (uint)spellInfo.GetEffect(1).CalcValue());
-	}
 
 	public override void Register()
 	{

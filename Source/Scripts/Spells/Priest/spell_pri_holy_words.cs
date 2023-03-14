@@ -16,10 +16,6 @@ internal class spell_pri_holy_words : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.HEAL, PriestSpells.FLASH_HEAL, PriestSpells.PRAYER_OF_HEALING, PriestSpells.RENEW, PriestSpells.SMITE, PriestSpells.HOLY_WORD_CHASTISE, PriestSpells.HOLY_WORD_SANCTIFY, PriestSpells.HOLY_WORD_SERENITY) && Global.SpellMgr.GetSpellInfo(PriestSpells.HOLY_WORD_SERENITY, Difficulty.None).Effects.Count > 1 && Global.SpellMgr.GetSpellInfo(PriestSpells.HOLY_WORD_SANCTIFY, Difficulty.None).Effects.Count > 3 && Global.SpellMgr.GetSpellInfo(PriestSpells.HOLY_WORD_CHASTISE, Difficulty.None).Effects.Count > 1;
-	}
 
 	public override void Register()
 	{

@@ -17,10 +17,6 @@ internal class spell_warr_heroic_leap : SpellScript, ISpellCheckCast, IHasSpellE
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.HEROIC_LEAP_JUMP);
-	}
 
 	public SpellCastResult CheckCast()
 	{

@@ -14,10 +14,6 @@ internal class spell_pal_light_hammer_periodic : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.LightHammerHealing, PaladinSpells.LightHammerDamage);
-	}
 
 	public override void Register()
 	{

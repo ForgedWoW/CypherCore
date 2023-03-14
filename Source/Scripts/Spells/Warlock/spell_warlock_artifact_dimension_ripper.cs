@@ -29,7 +29,6 @@ public class spell_warlock_artifact_dimension_ripper : AuraScript, IHasAuraEffec
 		if (caster == null)
 			return;
 
-		caster.
-		SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(WarlockSpells.DIMENSIONAL_RIFT, Difficulty.None).ChargeCategoryId);
+		caster.SpellHistory.RestoreCharge(Global.SpellMgr.GetSpellInfo(WarlockSpells.DIMENSIONAL_RIFT, Difficulty.None).ChargeCategoryId);
 	}
 }

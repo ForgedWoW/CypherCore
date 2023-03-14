@@ -11,8 +11,8 @@ namespace Scripts.Spells.Evoker;
 internal class spell_evoker_dream_breath : SpellScript, ISpellOnEpowerSpellEnd
 {
 	public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
-    {
-        Caster.CastSpell(Caster, EvokerSpells.DREAM_BREATH_CHARGED, true, stage.Stage);
-        Caster.CastSpell(EvokerSpells.DREAM_BREATH_CHARGED, true, stage.Stage);
-    }
+	{
+		Caster.CastSpell(Caster, EvokerSpells.DREAM_BREATH_CHARGED, true, stage.Stage);
+		Caster.CastSpell(EvokerSpells.DREAM_BREATH_CHARGED, true, stage.Stage);
+	}
 }

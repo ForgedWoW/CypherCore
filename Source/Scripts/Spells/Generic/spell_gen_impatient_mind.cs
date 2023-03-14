@@ -14,10 +14,6 @@ internal class spell_gen_impatient_mind : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(GenericSpellIds.ImpatientMind);
-	}
 
 	public override void Register()
 	{

@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
@@ -23,6 +22,18 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnC
 		_refreshTimer = _period;
 	}
 
+	public void OnUnitEnter(Unit unit)
+	{
+		if (unit.GUID == At.CasterGuid)
+			unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
+	}
+
+	public void OnUnitExit(Unit unit)
+	{
+		if (unit.GUID == At.CasterGuid)
+			unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
+	}
+
 	public void OnUpdate(uint diff)
 	{
 		_refreshTimer -= TimeSpan.FromMilliseconds(diff);
@@ -41,18 +52,6 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnC
 
 			_refreshTimer += _period;
 		}
-	}
-
-	public void OnUnitEnter(Unit unit)
-	{
-		if (unit.GUID == At.CasterGuid)
-			unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
-	}
-
-	public void OnUnitExit(Unit unit)
-	{
-		if (unit.GUID == At.CasterGuid)
-			unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);
 	}
 
 	private void RefreshPeriod()

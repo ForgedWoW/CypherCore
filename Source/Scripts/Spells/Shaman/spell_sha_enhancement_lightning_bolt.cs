@@ -20,10 +20,6 @@ public class spell_sha_enhancement_lightning_bolt : SpellScript, IHasSpellEffect
 	private int _maxDamagePercent;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(ShamanSpells.OVERCHARGE);
-	}
 
 	public void TakePower(SpellPowerCost powerCost)
 	{

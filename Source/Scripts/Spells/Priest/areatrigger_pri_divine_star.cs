@@ -7,7 +7,6 @@ using System.Linq;
 using System.Numerics;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.AI;
 using Game.Entities;
 using Game.Movement;
 using Game.Scripting;
@@ -17,12 +16,31 @@ using Game.Spells;
 namespace Scripts.Spells.Priest;
 
 [Script] // 110744 - Divine Star
-internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate, 
-	IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
+internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate,
+											IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
 {
 	private readonly List<ObjectGuid> _affectedUnits = new();
 	private readonly TaskScheduler Scheduler = new();
 	private Position _casterCurrentPosition = new();
+
+	public void OnDestinationReached()
+	{
+		var caster = At.GetCaster();
+
+		if (caster == null)
+			return;
+
+		if (At.GetDistance(_casterCurrentPosition) > 0.05f)
+		{
+			_affectedUnits.Clear();
+
+			ReturnToCaster();
+		}
+		else
+		{
+			At.Remove();
+		}
+	}
 
 	public void OnInitialize()
 	{
@@ -46,11 +64,6 @@ internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnIn
 			// Note: it takes 1000ms to reach 24 yards, so it takes 41.67ms to run 1 yard.
 			At.InitSplines(firstPath.GetPath().ToList(), (uint)(At.GetDistance(endPoint.X, endPoint.Y, endPoint.Z) * 41.67f));
 		}
-	}
-
-	public void OnUpdate(uint diff)
-	{
-		Scheduler.Update(diff);
 	}
 
 	public void OnUnitEnter(Unit unit)
@@ -86,23 +99,9 @@ internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnIn
 			}
 	}
 
-	public void OnDestinationReached()
+	public void OnUpdate(uint diff)
 	{
-		var caster = At.GetCaster();
-
-		if (caster == null)
-			return;
-
-		if (At.GetDistance(_casterCurrentPosition) > 0.05f)
-		{
-			_affectedUnits.Clear();
-
-			ReturnToCaster();
-		}
-		else
-		{
-			At.Remove();
-		}
+		Scheduler.Update(diff);
 	}
 
 	private void ReturnToCaster()

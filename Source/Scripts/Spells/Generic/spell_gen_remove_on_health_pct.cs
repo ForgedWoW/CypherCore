@@ -14,10 +14,6 @@ internal class spell_gen_remove_on_health_pct : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 1;
-	}
 
 	public override void Register()
 	{

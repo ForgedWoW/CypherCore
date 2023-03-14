@@ -5,7 +5,6 @@ using System;
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -22,15 +21,10 @@ internal class spell_dh_glide : SpellScript, ISpellCheckCast, ISpellBeforeCast
 		caster.CastSpell(caster, DemonHunterSpells.GlideKnockback, true);
 		caster.CastSpell(caster, DemonHunterSpells.GlideDuration, true);
 
-		caster.
-		SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.VengefulRetreatTrigger, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
+		caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.VengefulRetreatTrigger, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
 		caster.SpellHistory.StartCooldown(Global.SpellMgr.GetSpellInfo(DemonHunterSpells.FelRush, CastDifficulty), 0, null, false, TimeSpan.FromMilliseconds(250));
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.GlideKnockback, DemonHunterSpells.GlideDuration, DemonHunterSpells.VengefulRetreatTrigger, DemonHunterSpells.FelRush);
-	}
 
 	public SpellCastResult CheckCast()
 	{

@@ -11,11 +11,6 @@ namespace Scripts.Spells.Priest;
 [Script] // 186263 - Shadow Mend
 internal class spell_pri_shadow_mend : SpellScript, ISpellAfterHit
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ATONEMENT, PriestSpells.ATONEMENT_TRIGGERED, PriestSpells.TRINITY, PriestSpells.MASOCHISM_TALENT, PriestSpells.MASOCHISM_PERIODIC_HEAL, PriestSpells.SHADOW_MEND_PERIODIC_DUMMY);
-	}
-
 	public void AfterHit()
 	{
 		var target = HitUnit;

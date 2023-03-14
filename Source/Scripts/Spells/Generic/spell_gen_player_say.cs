@@ -3,11 +3,9 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -16,10 +14,6 @@ internal class spell_gen_player_say : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return CliDB.BroadcastTextStorage.HasRecord((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override void Register()
 	{

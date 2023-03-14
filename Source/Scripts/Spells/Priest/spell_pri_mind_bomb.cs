@@ -14,10 +14,6 @@ internal class spell_pri_mind_bomb : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.MIND_BOMB_STUN);
-	}
 
 	public override void Register()
 	{

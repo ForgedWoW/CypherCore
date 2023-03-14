@@ -16,10 +16,6 @@ public class spell_sha_ascendance_water : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(eSpells.RestorativeMists);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

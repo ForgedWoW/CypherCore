@@ -24,10 +24,6 @@ internal class spell_warl_seed_of_corruption_generic : AuraScript, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarlockSpells.SEED_OF_CORRUPTION_GENERIC);
-	}
 
 	public override void Register()
 	{

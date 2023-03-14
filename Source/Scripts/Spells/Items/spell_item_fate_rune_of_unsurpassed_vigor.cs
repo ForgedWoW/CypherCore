@@ -15,10 +15,6 @@ internal class spell_item_fate_rune_of_unsurpassed_vigor : AuraScript, IHasAuraE
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.UnsurpassedVigor);
-	}
 
 	public override void Register()
 	{

@@ -11,11 +11,9 @@ namespace Scripts.Spells.Warlock;
 [SpellScript(118699)]
 public class aura_warl_fear_buff : AuraScript, IAuraOnRemove
 {
-    public void AuraRemoved(AuraRemoveMode removeMode)
-    {
-        if (Caster.TryGetAura(WarlockSpells.NIGHTMARE, out var ability))
-        {
-            Caster.CastSpell(Target, WarlockSpells.NIGHTMARE_DEBUFF, ability.GetEffect(0).Amount);
-        }
-    }
+	public void AuraRemoved(AuraRemoveMode removeMode)
+	{
+		if (Caster.TryGetAura(WarlockSpells.NIGHTMARE, out var ability))
+			Caster.CastSpell(Target, WarlockSpells.NIGHTMARE_DEBUFF, ability.GetEffect(0).Amount);
+	}
 }

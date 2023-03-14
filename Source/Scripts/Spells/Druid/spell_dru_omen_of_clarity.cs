@@ -15,10 +15,6 @@ internal class spell_dru_omen_of_clarity : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.BalanceT10Bonus, DruidSpellIds.BalanceT10BonusProc);
-	}
 
 	public override void Register()
 	{

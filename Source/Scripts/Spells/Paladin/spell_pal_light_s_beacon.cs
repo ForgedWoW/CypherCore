@@ -15,10 +15,6 @@ internal class spell_pal_light_s_beacon : AuraScript, IAuraCheckProc, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.BeaconOfLight, PaladinSpells.BeaconOfLightHeal);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

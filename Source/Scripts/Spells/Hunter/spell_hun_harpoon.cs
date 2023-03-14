@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Hunter;
 
@@ -14,14 +13,6 @@ namespace Scripts.Spells.Hunter;
 public class spell_hun_harpoon : SpellScript, IHasSpellEffects, ISpellAfterCast, ISpellOnCast
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (!Global.SpellMgr.HasSpellInfo(HunterSpells.HARPOON, Difficulty.None) || !Global.SpellMgr.HasSpellInfo(HunterSpells.HARPOON_ROOT, Difficulty.None))
-			return false;
-
-		return true;
-	}
 
 	public void AfterCast()
 	{

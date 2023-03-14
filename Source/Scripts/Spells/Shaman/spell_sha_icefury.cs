@@ -16,10 +16,6 @@ internal class spell_sha_icefury : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.FrostShockEnergize);
-	}
 
 	public override void Register()
 	{

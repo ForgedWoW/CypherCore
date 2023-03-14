@@ -3,18 +3,12 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script] // 210155 - Death Sweep
 internal class spell_dh_blade_dance_damage : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.FirstBlood);
-	}
-
 	public void OnHit()
 	{
 		var damage = HitDamage;

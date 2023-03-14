@@ -457,10 +457,6 @@ internal class spell_lunar_festival_elune_candle : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.EluneCandleOmenHead, SpellIds.EluneCandleOmenChest, SpellIds.EluneCandleOmenHandR, SpellIds.EluneCandleOmenHandL, SpellIds.EluneCandleNormal);
-	}
 
 	public override void Register()
 	{

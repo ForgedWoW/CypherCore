@@ -15,10 +15,6 @@ internal class spell_item_frozen_shadoweave : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.Shadowmend);
-	}
 
 	public override void Register()
 	{

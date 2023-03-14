@@ -26,15 +26,6 @@ internal class spell_item_defibrillate : SpellScript, IHasSpellEffects
 		_failSpell = failSpell;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (_failSpell != 0 &&
-			!ValidateSpellInfo(_failSpell))
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.Resurrect, SpellScriptHookType.EffectHitTarget));

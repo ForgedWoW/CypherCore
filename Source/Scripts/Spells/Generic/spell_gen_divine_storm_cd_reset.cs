@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -20,10 +19,6 @@ internal class spell_gen_divine_storm_cd_reset : SpellScript, IHasSpellEffects
 		return Caster.IsTypeId(TypeId.Player);
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.DivineStorm);
-	}
 
 	public override void Register()
 	{

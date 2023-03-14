@@ -14,10 +14,6 @@ internal class spell_dru_lunar_inspiration : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DruidSpellIds.LunarInspirationOverride);
-	}
 
 	public override void Register()
 	{

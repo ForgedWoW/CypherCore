@@ -63,8 +63,7 @@ public class spell_hun_pet_basic_attack : SpellScript, IHasSpellEffects, ISpellC
 					caster.AsCreature.AI.AttackStart(target);
 				}
 
-				owner.AsPlayer.
-				SpellHistory.AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
+				owner.AsPlayer.SpellHistory.AddCooldown(HunterSpells.BLINK_STRIKES, 0, TimeSpan.FromSeconds(20));
 			}
 		}
 

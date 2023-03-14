@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;

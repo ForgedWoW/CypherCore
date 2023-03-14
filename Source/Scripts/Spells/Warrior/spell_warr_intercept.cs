@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -16,10 +15,6 @@ public class spell_warr_intercept : SpellScript, ISpellCheckCast, IHasSpellEffec
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return Global.SpellMgr.GetSpellInfo(WarriorSpells.INTERVENE_TRIGGER, Difficulty.None) != null;
-	}
 
 	public SpellCastResult CheckCast()
 	{

@@ -15,10 +15,6 @@ internal class spell_dk_pvp_4p_bonus : AuraScript, IAuraCheckProc, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.RunicReturn);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

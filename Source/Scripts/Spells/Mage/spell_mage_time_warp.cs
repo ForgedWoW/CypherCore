@@ -8,7 +8,6 @@ using Game.Maps;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
@@ -17,10 +16,6 @@ internal class spell_mage_time_warp : SpellScript, ISpellAfterHit, IHasSpellEffe
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.TemporalDisplacement, MageSpells.HunterInsanity, MageSpells.ShamanExhaustion, MageSpells.ShamanSated, MageSpells.PetNetherwindsFatigued);
-	}
 
 	public void AfterHit()
 	{

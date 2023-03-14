@@ -16,10 +16,6 @@ internal class spell_sha_t3_6p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.TotemicPowerArmor, ShamanSpells.TotemicPowerAttackPower, ShamanSpells.TotemicPowerSpellPower, ShamanSpells.TotemicPowerMp5);
-	}
 
 	public override void Register()
 	{

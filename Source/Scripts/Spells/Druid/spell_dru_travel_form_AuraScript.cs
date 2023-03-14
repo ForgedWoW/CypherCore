@@ -19,10 +19,6 @@ internal class spell_dru_travel_form_AuraScript : AuraScript, IHasAuraEffects
 	private uint triggeredSpellId;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.FormStag, DruidSpellIds.FormAquaticPassive, DruidSpellIds.FormAquatic, DruidSpellIds.FormFlight, DruidSpellIds.FormSwiftFlight);
-	}
 
 	public override bool Load()
 	{

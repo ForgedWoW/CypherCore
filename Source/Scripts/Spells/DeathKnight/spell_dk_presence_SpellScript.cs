@@ -3,7 +3,6 @@
 
 using Framework.Constants;
 using Game.Scripting;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -13,14 +12,6 @@ namespace Scripts.Spells.DeathKnight;
 })]
 public class spell_dk_presence_SpellScript : SpellScript
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DeathKnightSpells.SCOURGE_STRIKE_TRIGGERED, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public void AfterHit()
 	{
 		var caster = Caster;

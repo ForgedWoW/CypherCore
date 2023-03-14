@@ -15,10 +15,6 @@ internal class spell_item_power_circle : AuraScript, IAuraCheckAreaTarget, IHasA
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.LimitlessPower);
-	}
 
 	public bool CheckAreaTarget(Unit target)
 	{

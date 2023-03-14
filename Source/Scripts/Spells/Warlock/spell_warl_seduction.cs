@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -16,10 +15,6 @@ internal class spell_warl_seduction : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarlockSpells.GLYPH_OF_SUCCUBUS, WarlockSpells.PRIEST_SHADOW_WORD_DEATH);
-	}
 
 	public override void Register()
 	{

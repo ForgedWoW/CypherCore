@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
@@ -19,9 +18,9 @@ public class at_hun_freezing_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, I
 	public int timeInterval;
 
 	public void OnCreate()
-    {
-        timeInterval = 200;
-        var caster = At.GetCaster();
+	{
+		timeInterval = 200;
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;

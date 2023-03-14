@@ -16,10 +16,6 @@ internal class spell_sha_aftershock : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(ShamanSpells.AftershockEnergize);
-	}
 
 	public override void Register()
 	{

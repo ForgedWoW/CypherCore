@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -15,10 +14,6 @@ public class spell_evoker_living_flame_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(EvokerSpells.ENERGIZING_FLAME, EvokerSpells.LIVING_FLAME);
-	}
 
 	public override void Register()
 	{

@@ -384,10 +384,6 @@ internal class spell_item_brewfest_mount_transformation : SpellScript, IHasSpell
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.MountRam100, SpellIds.MountRam60, SpellIds.MountKodo100, SpellIds.MountKodo60);
-	}
 
 	public override void Register()
 	{

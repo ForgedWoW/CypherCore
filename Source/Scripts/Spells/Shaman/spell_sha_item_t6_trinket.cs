@@ -17,10 +17,6 @@ internal class spell_sha_item_t6_trinket : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.EnergySurge, ShamanSpells.PowerSurge);
-	}
 
 	public override void Register()
 	{

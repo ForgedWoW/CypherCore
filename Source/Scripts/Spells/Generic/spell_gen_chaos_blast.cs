@@ -15,10 +15,6 @@ internal class spell_gen_chaos_blast : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.ChaosBlast);
-	}
 
 	public override void Register()
 	{

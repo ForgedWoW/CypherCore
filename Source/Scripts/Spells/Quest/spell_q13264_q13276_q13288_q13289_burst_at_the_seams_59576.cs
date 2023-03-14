@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -15,10 +14,6 @@ internal class spell_q13264_q13276_q13288_q13289_burst_at_the_seams_59576 : Spel
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.BurstAtTheSeams59576, QuestSpellIds.BloatedAbominationFeignDeath, QuestSpellIds.BurstAtTheSeams59579, QuestSpellIds.BurstAtTheSeamsBone, QuestSpellIds.ExplodeAbominationMeat, QuestSpellIds.ExplodeAbominationBloodyMeat);
-	}
 
 	public override void Register()
 	{

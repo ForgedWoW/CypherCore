@@ -16,10 +16,6 @@ public class spell_druid_earthwarden : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.EARTHWARDEN, Spells.EARTHWARDEN_TRIGGERED, Spells.TRASH);
-	}
 
 	public override void Register()
 	{
@@ -33,8 +29,7 @@ public class spell_druid_earthwarden : AuraScript, IHasAuraEffects
 		if (!Caster.AsPlayer.SpellHistory.HasCooldown(Spells.EARTHWARDEN))
 			Caster.AddAura(Spells.EARTHWARDEN_TRIGGERED, Caster);
 
-		Caster.AsPlayer.
-		SpellHistory.AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
+		Caster.AsPlayer.SpellHistory.AddCooldown(Spells.EARTHWARDEN, 0, TimeSpan.FromMicroseconds(500));
 	}
 
 	private struct Spells

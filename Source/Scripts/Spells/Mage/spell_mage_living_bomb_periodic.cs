@@ -14,10 +14,6 @@ internal class spell_mage_living_bomb_periodic : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.LivingBombExplosion);
-	}
 
 	public override void Register()
 	{

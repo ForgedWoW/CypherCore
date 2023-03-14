@@ -15,10 +15,6 @@ internal class spell_dru_brambles : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.BramblesRelect, DruidSpellIds.BramblesDamageAura);
-	}
 
 	public override void Register()
 	{

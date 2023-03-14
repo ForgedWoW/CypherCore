@@ -15,10 +15,6 @@ internal class spell_dk_post_coil_or_epidemic : SpellScript, ISpellAfterHit
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.DEATH_COIL_DAMAGE, DeathKnightSpells.EPIDEMIC_DAMAGE);
-	}
 
 	public void AfterHit()
 	{

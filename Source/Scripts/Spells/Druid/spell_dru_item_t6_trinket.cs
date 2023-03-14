@@ -16,10 +16,6 @@ internal class spell_dru_item_t6_trinket : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.BlessingOfRemulos, DruidSpellIds.BlessingOfElune, DruidSpellIds.BlessingOfCenarius);
-	}
 
 	public override void Register()
 	{

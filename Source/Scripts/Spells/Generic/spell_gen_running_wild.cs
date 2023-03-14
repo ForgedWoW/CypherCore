@@ -10,11 +10,6 @@ namespace Scripts.Spells.Generic;
 [Script]
 internal class spell_gen_running_wild : SpellScript
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.AlteredForm);
-	}
-
 	public override bool Load()
 	{
 		// Definitely not a good thing, but currently the only way to do something at cast start

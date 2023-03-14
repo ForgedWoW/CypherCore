@@ -23,10 +23,6 @@ internal class spell_dru_eclipse_dummy : AuraScript, IAuraOnProc, IAuraEnterLeav
 			Target.CastSpell(Target, DruidSpellIds.EclipseOoc, new CastSpellExtraArgs(TriggerCastFlags.FullMask));
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.EclipseSolarSpellCnt, DruidSpellIds.EclipseLunarSpellCnt, DruidSpellIds.EclipseSolarAura, DruidSpellIds.EclipseLunarAura);
-	}
 
 	public void OnProc(ProcEventInfo eventInfo)
 	{

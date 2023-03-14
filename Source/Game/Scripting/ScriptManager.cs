@@ -226,15 +226,8 @@ public class ScriptManager : Singleton<ScriptManager>
 
 				if (!attributes.Empty())
 				{
-					var constructors = type.GetConstructors();
+					var constructors = type.GetConstructors(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.CreateInstance);
 					var numArgsMin = 99;
-
-					if (constructors.Length == 0)
-					{
-						Log.outError(LogFilter.Scripts, "Script: {0} contains no Public Constructors. Can't load script.", type.Name);
-
-						continue;
-					}
 
 					foreach (var attribute in attributes)
 					{
@@ -282,14 +275,38 @@ public class ScriptManager : Singleton<ScriptManager>
 
 						IScriptObject activatedObj = null;
 
-						if (!string.IsNullOrEmpty(type?.BaseType?.Name) &&
-							activators.TryGetValue(type.BaseType.Name, out var scriptActivator))
-							activatedObj = scriptActivator.Activate(type, name, attribute);
+						var typeIfaces = type.GetInterfaces();
+						List<Type> basetypes = new List<Type>();
+						var baseType = type.BaseType;
 
-						if (activatedObj == null)
+						while (baseType != null)
+						{
+							basetypes.Add(baseType);
+							baseType = baseType.BaseType;
+						}
+
+                        
+                        foreach (var baseT in basetypes)
+                            if (!string.IsNullOrEmpty(baseT.Name) && activators.TryGetValue(baseT.Name, out var scriptActivator))
+                            {
+                                activatedObj = scriptActivator.Activate(type, name, attribute);
+                                if (activatedObj != null)
+                                    break;
+                            }
+
+                        if (activatedObj == null)
+                            foreach (var intFace in typeIfaces)
+								if (!string.IsNullOrEmpty(intFace.Name) && activators.TryGetValue(intFace.Name, out var scriptActivator))
+								{
+									activatedObj = scriptActivator.Activate(type, name, attribute);
+									if (activatedObj != null)
+										break;
+								}
+
+                        if (activatedObj == null)
 							if (attribute.Args.Empty())
 							{
-								if (numArgsMin == 0)
+								if (numArgsMin == 0 || numArgsMin == 99)
 									activatedObj = Activator.CreateInstance(type) as IScriptObject;
 								else if (numArgsMin == 1 &&
 										paramType != null &&

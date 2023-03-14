@@ -20,10 +20,6 @@ public class spell_dk_howling_blast : SpellScript, IHasSpellEffects
 	public const uint VISUAL_ID_HOWLING_BLAST = 66812;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.HOWLING_BLAST_AREA_DAMAGE, DeathKnightSpells.FROST_FEVER);
-	}
 
 	public override void Register()
 	{

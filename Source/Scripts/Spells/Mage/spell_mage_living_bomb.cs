@@ -15,10 +15,6 @@ internal class spell_mage_living_bomb : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.LivingBombPeriodic);
-	}
 
 	public override void Register()
 	{

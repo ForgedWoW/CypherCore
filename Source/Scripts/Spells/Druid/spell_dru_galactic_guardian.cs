@@ -15,10 +15,6 @@ internal class spell_dru_galactic_guardian : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.GalacticGuardianAura);
-	}
 
 	public override void Register()
 	{

@@ -3,18 +3,12 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(258920)]
 public class spell_dh_immolation_aura : SpellScript, ISpellOnCast
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.CLEANSED_BY_FLAME, DemonHunterSpells.CLEANSED_BY_FLAME_DISPEL, DemonHunterSpells.FALLOUT, ShatteredSoulsSpells.SHATTERED_SOULS_MISSILE);
-	}
-
 	public void OnCast()
 	{
 		var caster = Caster;

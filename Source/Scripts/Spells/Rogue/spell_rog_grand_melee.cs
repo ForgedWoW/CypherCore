@@ -15,10 +15,6 @@ internal class spell_rog_grand_melee : AuraScript, IAuraCheckProc, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.SliceAndDice);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

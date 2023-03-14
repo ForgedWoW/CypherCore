@@ -15,10 +15,6 @@ internal class spell_item_pet_healing : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.HealthLink);
-	}
 
 	public override void Register()
 	{

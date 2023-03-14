@@ -14,10 +14,6 @@ public class spell_pri_shadowform : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.SHADOWFORM_VISUAL_WITHOUT_GLYPH, PriestSpells.SHADOWFORM_VISUAL_WITH_GLYPH);
-	}
 
 	public override void Register()
 	{

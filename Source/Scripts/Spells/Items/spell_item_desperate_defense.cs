@@ -15,10 +15,6 @@ internal class spell_item_desperate_defense : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.DesperateRage);
-	}
 
 	public override void Register()
 	{

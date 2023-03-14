@@ -14,10 +14,6 @@ internal class spell_dru_cat_form : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.Prowl);
-	}
 
 	public override void Register()
 	{

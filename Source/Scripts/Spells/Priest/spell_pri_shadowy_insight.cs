@@ -16,11 +16,6 @@ public class spell_pri_shadowy_insight : AuraScript, IHasAuraEffects
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PriestSpells.MIND_BLAST);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectProcHandler(HandleProc, 0, AuraType.ProcTriggerSpell, AuraScriptHookType.EffectProc));

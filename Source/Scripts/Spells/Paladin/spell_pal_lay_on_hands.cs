@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -20,13 +19,6 @@ internal class spell_pal_lay_on_hands : SpellScript, ISpellCheckCast, ISpellAfte
 			Caster.CastSpell(target, PaladinSpells.Forbearance, true);
 			Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
 		}
-	}
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.Forbearance) //, PaladinSpells.ImmuneShieldMarker);
-				&&
-				spellInfo.ExcludeTargetAuraSpell == PaladinSpells.ImmuneShieldMarker;
 	}
 
 	public SpellCastResult CheckCast()

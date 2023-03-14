@@ -15,10 +15,6 @@ internal class spell_pri_shadow_mend_periodic_damage : AuraScript, IAuraCheckPro
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.SHADOW_MEND_DAMAGE);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

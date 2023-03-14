@@ -15,10 +15,6 @@ public class spell_monk_teachings_of_the_monastery_buff : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.TEACHINGS_OF_THE_MONASTERY_PASSIVE, MonkSpells.BLACKOUT_KICK_TRIGGERED, MonkSpells.BLACKOUT_KICK);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

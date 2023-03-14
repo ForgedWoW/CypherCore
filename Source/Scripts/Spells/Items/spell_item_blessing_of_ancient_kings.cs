@@ -16,10 +16,6 @@ internal class spell_item_blessing_of_ancient_kings : AuraScript, IAuraCheckProc
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.ProtectionOfAncientKings);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

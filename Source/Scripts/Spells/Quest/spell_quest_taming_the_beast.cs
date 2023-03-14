@@ -14,28 +14,6 @@ internal class spell_quest_taming_the_beast : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.TameIceClawBear,
-								QuestSpellIds.TameLargeCragBoar,
-								QuestSpellIds.TameSnowLeopard,
-								QuestSpellIds.TameAdultPlainstrider,
-								QuestSpellIds.TamePrairieStalker,
-								QuestSpellIds.TameSwoop,
-								QuestSpellIds.TameWebwoodLurker,
-								QuestSpellIds.TameDireMottledBoar,
-								QuestSpellIds.TameSurfCrawler,
-								QuestSpellIds.TameArmoredScorpid,
-								QuestSpellIds.TameNightsaberStalker,
-								QuestSpellIds.TameStrigidScreecher,
-								QuestSpellIds.TameBarbedCrawler,
-								QuestSpellIds.TameGreaterTimberstrider,
-								QuestSpellIds.TameNightstalker,
-								QuestSpellIds.TameCrazedDragonhawk,
-								QuestSpellIds.TameElderSpringpaw,
-								QuestSpellIds.TameMistbat);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectApplyHandler(OnRemove, 1, AuraType.Dummy, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));

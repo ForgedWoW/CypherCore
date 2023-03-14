@@ -4,8 +4,6 @@
 using System;
 using Framework.Constants;
 using Game;
-using Game.AI;
-using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
 
@@ -17,9 +15,9 @@ public class at_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTr
 	public int timeInterval;
 
 	public void OnCreate()
-    {
-        timeInterval = 1000;
-        At.SetDuration(8000);
+	{
+		timeInterval = 1000;
+		At.SetDuration(8000);
 	}
 
 	public void OnUpdate(uint diff)

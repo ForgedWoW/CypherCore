@@ -24,10 +24,6 @@ internal class spell_item_nitro_boosts : SpellScript, IHasSpellEffects
 		return true;
 	}
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.NitroBoostsSuccess, ItemSpellIds.NitroBoostsBackfire);
-	}
 
 	public override void Register()
 	{

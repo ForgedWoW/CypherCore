@@ -15,10 +15,6 @@ internal class spell_dru_t10_balance_4p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.Languish);
-	}
 
 	public override void Register()
 	{

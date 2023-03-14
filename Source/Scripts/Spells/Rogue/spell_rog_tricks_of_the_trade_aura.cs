@@ -16,10 +16,6 @@ internal class spell_rog_tricks_of_the_trade_aura : AuraScript, IHasAuraEffects
 	private ObjectGuid _redirectTarget;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.TricksOfTheTradeProc);
-	}
 
 	public override void Register()
 	{

@@ -13,11 +13,6 @@ namespace Scripts.Spells.Warrior;
 [Script] // 7.1.5
 internal class spell_warr_item_t10_prot_4p_bonus : AuraScript, IAuraOnProc
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.STOICISM) && spellInfo.Effects.Count > 1;
-	}
-
 	public void OnProc(ProcEventInfo eventInfo)
 	{
 		PreventDefaultAction();

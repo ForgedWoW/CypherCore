@@ -49,7 +49,6 @@ public class spell_warl_shadow_lock : SpellScript, ISpellCheckCast, IHasSpellEff
 
 		pet.CastSpell(target, WarlockSpells.DOOMGUARD_SHADOW_LOCK, true);
 
-		caster.AsPlayer.
-		SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
+		caster.AsPlayer.SpellHistory.ModifyCooldown(SpellInfo.Id, TimeSpan.FromSeconds(24));
 	}
 }

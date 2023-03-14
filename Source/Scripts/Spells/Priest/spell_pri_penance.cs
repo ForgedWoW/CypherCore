@@ -15,10 +15,6 @@ internal class spell_pri_penance : SpellScript, ISpellCheckCast, IHasSpellEffect
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.PENANCE_CHANNEL_DAMAGE, PriestSpells.PENANCE_CHANNEL_HEALING);
-	}
 
 	public SpellCastResult CheckCast()
 	{

@@ -206,10 +206,6 @@ internal class spell_occuthar_eyes_of_occuthar_SpellScript : SpellScript, IHasSp
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override bool Load()
 	{

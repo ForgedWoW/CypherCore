@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -22,10 +21,6 @@ internal class spell_pal_holy_prism_selector : SpellScript, IHasSpellEffects
 	private ObjectGuid _targetGUID;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.HolyPrismTargetAlly, PaladinSpells.HolyPrismTargetBeamVisual);
-	}
 
 	public override void Register()
 	{

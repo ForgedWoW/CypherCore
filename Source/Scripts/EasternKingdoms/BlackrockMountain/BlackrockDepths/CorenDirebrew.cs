@@ -138,25 +138,25 @@ internal class boss_coren_direbrew : BossAI
 		phase = DirebrewPhases.Intro;
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(6),
-							introTask1 =>
-							{
-								Talk(TextIds.SayIntro1);
+									introTask1 =>
+									{
+										Talk(TextIds.SayIntro1);
 
-								introTask1.Schedule(TimeSpan.FromSeconds(4),
-													introTask2 =>
-													{
-														EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-														Summons.DoAction(ActionIds.AntagonistSay1, pred);
+										introTask1.Schedule(TimeSpan.FromSeconds(4),
+															introTask2 =>
+															{
+																EntryCheckPredicate pred = new(CreatureIds.Antagonist);
+																Summons.DoAction(ActionIds.AntagonistSay1, pred);
 
-														introTask2.Schedule(TimeSpan.FromSeconds(3),
-																			introlTask3 =>
-																			{
-																				Talk(TextIds.SayIntro2);
-																				EntryCheckPredicate pred = new(CreatureIds.Antagonist);
-																				Summons.DoAction(ActionIds.AntagonistSay2, pred);
-																			});
-													});
-							});
+																introTask2.Schedule(TimeSpan.FromSeconds(3),
+																					introlTask3 =>
+																					{
+																						Talk(TextIds.SayIntro2);
+																						EntryCheckPredicate pred = new(CreatureIds.Antagonist);
+																						Summons.DoAction(ActionIds.AntagonistSay2, pred);
+																					});
+															});
+									});
 
 		Talk(TextIds.SayIntro);
 	}
@@ -175,20 +175,20 @@ internal class boss_coren_direbrew : BossAI
 			Summons.DoAction(ActionIds.AntagonistHostile, pred);
 
 			SchedulerProtected.Schedule(TimeSpan.FromSeconds(15),
-								task =>
-								{
-									CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
-									args.AddSpellMod(SpellValueMod.MaxTargets, 1);
-									Me.CastSpell((WorldObject)null, SpellIds.MoleMachineTargetPicker, args);
-									task.Repeat();
-								});
+										task =>
+										{
+											CastSpellExtraArgs args = new(TriggerCastFlags.FullMask);
+											args.AddSpellMod(SpellValueMod.MaxTargets, 1);
+											Me.CastSpell((WorldObject)null, SpellIds.MoleMachineTargetPicker, args);
+											task.Repeat();
+										});
 
 			SchedulerProtected.Schedule(TimeSpan.FromSeconds(20),
-								task =>
-								{
-									DoCastSelf(SpellIds.DirebrewDisarmPreCast, new CastSpellExtraArgs(true));
-									task.Repeat();
-								});
+										task =>
+										{
+											DoCastSelf(SpellIds.DirebrewDisarmPreCast, new CastSpellExtraArgs(true));
+											task.Repeat();
+										});
 		}
 	}
 
@@ -282,15 +282,15 @@ internal class npc_coren_direbrew_sisters : ScriptedAI
 		SchedulerProtected.SetValidator(() => !Me.HasUnitState(UnitState.Casting));
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(2),
-							mugChuck =>
-							{
-								var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, false, true, -(int)SpellIds.HasDarkBrewmaidensBrew);
+									mugChuck =>
+									{
+										var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, false, true, -(int)SpellIds.HasDarkBrewmaidensBrew);
 
-								if (target)
-									DoCast(target, SpellIds.ChuckMug);
+										if (target)
+											DoCast(target, SpellIds.ChuckMug);
 
-								mugChuck.Repeat(TimeSpan.FromSeconds(4));
-							});
+										mugChuck.Repeat(TimeSpan.FromSeconds(4));
+									});
 	}
 
 	public override void UpdateAI(uint diff)
@@ -396,10 +396,6 @@ internal class spell_direbrew_summon_mole_machine_target_picker : SpellScript, I
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.MoleMachineMinionSummoner);
-	}
 
 	public override void Register()
 	{
@@ -459,10 +455,6 @@ internal class spell_request_second_mug : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.SendSecondMug);
-	}
 
 	public override void Register()
 	{
@@ -480,10 +472,6 @@ internal class spell_send_mug_control_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.SendMugTargetPicker);
-	}
 
 	public override void Register()
 	{
@@ -518,10 +506,6 @@ internal class spell_direbrew_disarm : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.DirebrewDisarm, SpellIds.DirebrewDisarmGrow);
-	}
 
 	public override void Register()
 	{

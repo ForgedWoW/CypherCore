@@ -16,10 +16,6 @@ internal class spell_sha_item_lightning_shield_trigger : AuraScript, IHasAuraEff
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.ItemLightningShieldDamage);
-	}
 
 	public override void Register()
 	{

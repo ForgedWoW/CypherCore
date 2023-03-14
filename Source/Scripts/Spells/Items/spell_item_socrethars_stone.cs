@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -20,10 +19,6 @@ internal class spell_item_socrethars_stone : SpellScript, IHasSpellEffects
 		return (Caster.Area == 3900 || Caster.Area == 3742);
 	}
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.SocretharToSeat, ItemSpellIds.SocretharFromSeat);
-	}
 
 	public override void Register()
 	{

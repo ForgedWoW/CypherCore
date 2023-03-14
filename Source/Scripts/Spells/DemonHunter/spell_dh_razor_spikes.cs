@@ -6,18 +6,12 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [SpellScript(209400)]
 public class spell_dh_razor_spikes : AuraScript, IAuraCheckProc
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.RAZOR_SPIKES_SLOW);
-	}
-
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		var damageInfo = eventInfo.DamageInfo;

@@ -4,18 +4,12 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
 [Script] // 783 - Travel Form (dummy)
 internal class spell_dru_travel_form_dummy : SpellScript, ISpellCheckCast
 {
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(DruidSpellIds.FormAquaticPassive, DruidSpellIds.FormAquatic, DruidSpellIds.FormStag);
-	}
-
 	public SpellCastResult CheckCast()
 	{
 		var player = Caster.AsPlayer;

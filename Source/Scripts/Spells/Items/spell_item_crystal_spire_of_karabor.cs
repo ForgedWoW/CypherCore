@@ -1,22 +1,15 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections.Generic;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
 [Script] // 40971 - Bonus Healing (Crystal Spire of Karabor)
 internal class spell_item_crystal_spire_of_karabor : AuraScript, IAuraCheckProc
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return !spellInfo.Effects.Empty();
-	}
-
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		var pct = SpellInfo.GetEffect(0).CalcValue();

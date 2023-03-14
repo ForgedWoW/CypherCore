@@ -18,10 +18,6 @@ public class spell_pri_atonement : AuraScript, IAuraCheckProc, IHasAuraEffects
 
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ATONEMENT_HEAL, PriestSpells.SINS_OF_THE_MANY) && spellInfo.Effects.Count > 1 && Global.SpellMgr.GetSpellInfo(PriestSpells.SINS_OF_THE_MANY, Difficulty.None).Effects.Count > 2;
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

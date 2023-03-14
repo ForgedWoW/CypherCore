@@ -14,10 +14,6 @@ internal class spell_mage_ray_of_frost_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.RayOfFrostBonus, MageSpells.RayOfFrostFingersOfFrost);
-	}
 
 	public override void Register()
 	{

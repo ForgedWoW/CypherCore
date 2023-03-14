@@ -27,10 +27,6 @@ internal class spell_item_trinket_stack : AuraScript, IHasAuraEffects
 		_triggerSpell = triggerSpell;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_stackSpell, _triggerSpell);
-	}
 
 	public override void Register()
 	{

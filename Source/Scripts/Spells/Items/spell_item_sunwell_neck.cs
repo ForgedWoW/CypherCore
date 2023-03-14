@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
@@ -28,10 +27,6 @@ internal class spell_item_sunwell_neck : AuraScript, IAuraCheckProc, IHasAuraEff
 		_scryersSpellId = scryersSpellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return CliDB.FactionStorage.ContainsKey(FactionIds.Aldor) && CliDB.FactionStorage.ContainsKey(FactionIds.Scryers) && ValidateSpellInfo(_aldorSpellId, _scryersSpellId);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

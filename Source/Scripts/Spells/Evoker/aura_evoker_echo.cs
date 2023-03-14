@@ -12,16 +12,16 @@ public class aura_evoker_echo : AuraScript, IAuraOnProc
 {
 	public void OnProc(ProcEventInfo info)
 	{
-		if (info.SpellInfo.Id != EvokerSpells.ECHO
-            && Caster.TryGetAura(EvokerSpells.ECHO, out var echoAura))
+		if (info.SpellInfo.Id != EvokerSpells.ECHO && Caster.TryGetAura(EvokerSpells.ECHO, out var echoAura))
 		{
 			var healInfo = info.HealInfo;
+
 			if (healInfo == null)
 				return;
 
-			HealInfo newHeal = new(healInfo.Healer, 
+			HealInfo newHeal = new(healInfo.Healer,
 									healInfo.Target,
-									healInfo.Heal * (echoAura.SpellInfo.GetEffect(1).BasePoints * 0.01), 
+									healInfo.Heal * (echoAura.SpellInfo.GetEffect(1).BasePoints * 0.01),
 									healInfo.SpellInfo,
 									healInfo.SchoolMask);
 

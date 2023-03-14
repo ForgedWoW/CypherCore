@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.AI;
-using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
@@ -19,9 +16,9 @@ internal class areatrigger_sha_earthquake : AreaTriggerScript, IAreaTriggerOnCre
 	private TimeSpan _period = TimeSpan.Zero;
 	private TimeSpan _refreshTimer = TimeSpan.FromSeconds(1);
 
-    public Dictionary<string, object> ScriptValues { get; } = new();
+	public Dictionary<string, object> ScriptValues { get; } = new();
 
-    public void OnCreate()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 

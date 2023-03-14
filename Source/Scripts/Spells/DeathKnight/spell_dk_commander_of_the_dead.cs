@@ -18,10 +18,6 @@ public class spell_dk_commander_of_the_dead_aura : SpellScript, IHasSpellEffects
 	private readonly List<WorldObject> saveTargets = new();
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.DT_COMMANDER_BUFF);
-	}
 
 	public override void Register()
 	{

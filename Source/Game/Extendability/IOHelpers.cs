@@ -69,7 +69,7 @@ namespace Game.Extendability
             if (type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == inter))
                 return true;
 
-            return false;
+            return type.GetInterfaces().Any(i => i == inter);
         }
 
         public static bool AreObjectsNotEqual(object obj1, object obj2)

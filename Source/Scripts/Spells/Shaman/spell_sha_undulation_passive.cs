@@ -17,10 +17,6 @@ internal class spell_sha_undulation_passive : AuraScript, IHasAuraEffects
 	private byte _castCounter = 1; // first proc happens after two casts, then one every 3 casts
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.UndulationProc);
-	}
 
 	public override void Register()
 	{

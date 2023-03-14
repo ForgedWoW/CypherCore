@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -25,13 +24,6 @@ internal class spell_pal_blessing_of_protection : SpellScript, ISpellCheckCast, 
 			Caster.CastSpell(target, PaladinSpells.Forbearance, true);
 			Caster.CastSpell(target, PaladinSpells.ImmuneShieldMarker, true);
 		}
-	}
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.Forbearance) //, SpellIds._PALADIN_IMMUNE_SHIELD_MARKER) // uncomment when we have serverside only spells
-				&&
-				spellInfo.ExcludeTargetAuraSpell == PaladinSpells.ImmuneShieldMarker;
 	}
 
 	public SpellCastResult CheckCast()

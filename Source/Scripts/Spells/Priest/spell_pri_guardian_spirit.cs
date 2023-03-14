@@ -17,10 +17,6 @@ internal class spell_pri_guardian_spirit : AuraScript, IHasAuraEffects
 	private uint healPct;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.GUARDIAN_SPIRIT_HEAL) && spellInfo.Effects.Count > 1;
-	}
 
 	public override bool Load()
 	{

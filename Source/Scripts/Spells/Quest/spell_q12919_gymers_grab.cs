@@ -15,10 +15,6 @@ internal class spell_q12919_gymers_grab : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(QuestSpellIds.RideGymer);
-	}
 
 	public override void Register()
 	{

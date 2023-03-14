@@ -15,10 +15,6 @@ public class spell_monk_power_strike_proc : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.POWER_STRIKE_ENERGIZE);
-	}
 
 	public override void Register()
 	{

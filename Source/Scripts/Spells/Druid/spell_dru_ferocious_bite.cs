@@ -7,7 +7,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
@@ -17,10 +16,6 @@ internal class spell_dru_ferocious_bite : SpellScript, IHasSpellEffects
 	private double _damageMultiplier = 0.0f;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle) && Global.SpellMgr.GetSpellInfo(DruidSpellIds.IncarnationKingOfTheJungle, Difficulty.None).Effects.Count > 1;
-	}
 
 	public override void Register()
 	{

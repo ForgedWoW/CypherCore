@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -27,10 +26,6 @@ public class spell_pal_activate_forbearance : SpellScript, ISpellOnHit, ISpellCh
 		return SpellCastResult.SpellCastOk;
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(PaladinSpells.Forbearance);
-	}
 
 	public void OnHit()
 	{

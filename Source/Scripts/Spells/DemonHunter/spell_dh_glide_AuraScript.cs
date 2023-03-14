@@ -14,10 +14,6 @@ internal class spell_dh_glide_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DemonHunterSpells.GlideDuration);
-	}
 
 	public override void Register()
 	{

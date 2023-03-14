@@ -15,10 +15,6 @@ public class spell_monk_teachings_of_the_monastery_passive : AuraScript, IHasAur
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.TEACHINGS_OF_THE_MONASTERY, MonkSpells.TIGER_PALM, MonkSpells.BLACKOUT_KICK);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

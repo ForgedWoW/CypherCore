@@ -535,10 +535,6 @@ internal class spell_mark_of_nature_SpellScript : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.MarkOfNature, SpellIds.AuraOfNature);
-	}
 
 	public override void Register()
 	{

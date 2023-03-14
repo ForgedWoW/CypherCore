@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -15,10 +14,6 @@ internal class spell_warl_soul_swap : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarlockSpells.GLYPH_OF_SOUL_SWAP, WarlockSpells.SOUL_SWAP_CD_MARKER, WarlockSpells.SOUL_SWAP_OVERRIDE);
-	}
 
 	public override void Register()
 	{

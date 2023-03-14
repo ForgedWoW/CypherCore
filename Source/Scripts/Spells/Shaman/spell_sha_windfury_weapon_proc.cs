@@ -16,10 +16,6 @@ internal class spell_sha_windfury_weapon_proc : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.WindfuryAttack);
-	}
 
 	public override void Register()
 	{

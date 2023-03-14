@@ -16,10 +16,6 @@ internal class spell_pal_item_t6_trinket : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.EnduringLight, PaladinSpells.EnduringJudgement);
-	}
 
 	public override void Register()
 	{

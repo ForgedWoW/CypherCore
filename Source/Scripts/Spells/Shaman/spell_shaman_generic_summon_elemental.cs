@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -18,20 +17,6 @@ namespace Scripts.Spells.Shaman;
 public class spell_shaman_generic_summon_elemental : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(Spells.PrimalElementalist,
-								Spells.SummonFireElemental,
-								Spells.SummonFireElementalTriggered,
-								Spells.SummonPrimalElementalistFireElemental,
-								Spells.SummonEarthElemental,
-								Spells.SummonEarthElementalTriggered,
-								Spells.SummonPrimalElementalistEarthElemental,
-								Spells.SummonStormElemental,
-								Spells.SummonStormElementalTriggered,
-								Spells.SummonPrimalElementalistStormElemental);
-	}
 
 	public override void Register()
 	{

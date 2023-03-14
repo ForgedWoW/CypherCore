@@ -3,7 +3,6 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
@@ -13,14 +12,6 @@ namespace Scripts.Spells.Paladin;
 })] // 20271/275779/275773 - Judgement (Retribution/Protection/Holy)
 internal class spell_pal_judgment : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.JudgmentProtRetR3,
-								PaladinSpells.JudgmentGainHolyPower,
-								PaladinSpells.JudgmentHolyR3,
-								PaladinSpells.JudgmentHolyR3Debuff);
-	}
-
 	public void OnHit()
 	{
 		var caster = Caster;

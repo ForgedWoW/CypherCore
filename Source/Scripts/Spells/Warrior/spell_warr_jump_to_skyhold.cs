@@ -7,7 +7,6 @@ using Game.Movement;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warrior;
 
@@ -17,11 +16,6 @@ public class spell_warr_jump_to_skyhold : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return Global.SpellMgr.GetSpellInfo(WarriorSpells.JUMP_TO_SKYHOLD_TELEPORT, Difficulty.None) != null;
-	}
 
 	public override void Register()
 	{

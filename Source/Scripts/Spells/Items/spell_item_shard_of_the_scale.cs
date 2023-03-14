@@ -26,10 +26,6 @@ internal class spell_item_shard_of_the_scale : AuraScript, IHasAuraEffects
 		_damageProcSpellId = damageProcSpellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_healProcSpellId, _damageProcSpellId);
-	}
 
 	public override void Register()
 	{

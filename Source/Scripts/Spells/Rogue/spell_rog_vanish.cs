@@ -15,10 +15,6 @@ internal class spell_rog_vanish : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.VanishAura, RogueSpells.StealthShapeshiftAura);
-	}
 
 	public override void Register()
 	{

@@ -17,10 +17,6 @@ public class spell_warr_last_stand : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(WarriorSpells.LAST_STAND_TRIGGERED);
-	}
 
 	public override void Register()
 	{

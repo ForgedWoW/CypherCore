@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.m_Events.WinterVeil;
 
@@ -36,10 +35,6 @@ internal class spell_winter_veil_mistletoe : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.CreateMistletoe, SpellIds.CreateHolly, SpellIds.CreateSnowflakes);
-	}
 
 	public override void Register()
 	{
@@ -68,14 +63,6 @@ internal class spell_winter_veil_px_238_winter_wondervolt : SpellScript, IHasSpe
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.Px238WinterWondervoltTransform1,
-								SpellIds.Px238WinterWondervoltTransform2,
-								SpellIds.Px238WinterWondervoltTransform3,
-								SpellIds.Px238WinterWondervoltTransform4);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleScript, 0, SpellEffectName.ScriptEffect, SpellScriptHookType.EffectHitTarget));
@@ -103,10 +90,6 @@ internal class spell_item_reindeer_transformation : SpellScript, IHasSpellEffect
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.FlyingReindeer310, SpellIds.FlyingReindeer280, SpellIds.FlyingReindeer60, SpellIds.Reindeer100, SpellIds.Reindeer60);
-	}
 
 	public override void Register()
 	{

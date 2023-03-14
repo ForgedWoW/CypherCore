@@ -14,10 +14,6 @@ internal class spell_dru_thrash_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.BloodFrenzyAura, DruidSpellIds.BloodFrenzyRageGain);
-	}
 
 	public override void Register()
 	{

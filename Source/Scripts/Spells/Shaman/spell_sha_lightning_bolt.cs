@@ -16,10 +16,6 @@ internal class spell_sha_lightning_bolt : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.LightningBoltEnergize, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 0;
-	}
 
 	public override void Register()
 	{

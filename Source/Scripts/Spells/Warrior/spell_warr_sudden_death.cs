@@ -15,10 +15,6 @@ internal class spell_warr_sudden_death : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.COLOSSUS_SMASH);
-	}
 
 	public override void Register()
 	{

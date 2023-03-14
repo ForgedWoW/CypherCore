@@ -15,10 +15,6 @@ internal class spell_gen_whisper_gulch_yogg_saron_whisper : AuraScript, IHasAura
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.YoggSaronWhisperDummy);
-	}
 
 	public override void Register()
 	{

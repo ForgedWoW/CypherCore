@@ -13,14 +13,6 @@ namespace Scripts.Spells.DemonHunter;
 [SpellScript(206649)]
 public class spell_dh_eye_of_leotheras : AuraScript, IAuraCheckProc
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DemonHunterSpells.EYE_OF_LEOTHERAS_DAMAGE, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
 		var caster = Caster;

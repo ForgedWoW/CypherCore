@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
@@ -21,10 +20,6 @@ internal class spell_pri_power_word_shield : SpellScript, ISpellCheckCast, ISpel
 				caster.CastSpell(target, PriestSpells.WEAKENED_SOUL, true);
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.WEAKENED_SOUL);
-	}
 
 	public SpellCastResult CheckCast()
 	{

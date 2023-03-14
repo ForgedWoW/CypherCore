@@ -21,10 +21,6 @@ internal class spell_rog_roll_the_bones : SpellScript, IHasSpellEffects
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(Spells);
-	}
 
 	public override void Register()
 	{

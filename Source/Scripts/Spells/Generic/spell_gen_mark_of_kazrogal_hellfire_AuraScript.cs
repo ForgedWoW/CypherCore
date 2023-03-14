@@ -14,10 +14,6 @@ internal class spell_gen_mark_of_kazrogal_hellfire_AuraScript : AuraScript, IHas
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(GenericSpellIds.MarkOfKazrogalDamageHellfire);
-	}
 
 	public override void Register()
 	{

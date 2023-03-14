@@ -504,10 +504,6 @@ internal class spell_garothi_apocalypse_drive : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.ApocalypseDrivePeriodicDamage);
-	}
 
 	public override void Register()
 	{
@@ -525,10 +521,6 @@ internal class spell_garothi_fel_bombardment_selector : SpellScript, IHasSpellEf
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.FelBombardmentWarning, SpellIds.FelBombardmentDummy);
-	}
 
 	public override void Register()
 	{
@@ -567,10 +559,6 @@ internal class spell_garothi_fel_bombardment_warning : AuraScript, IHasAuraEffec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.FelBombardmentPeriodic);
-	}
 
 	public override void Register()
 	{
@@ -594,10 +582,6 @@ internal class spell_garothi_fel_bombardment_periodic : AuraScript, IHasAuraEffe
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override void Register()
 	{
@@ -618,10 +602,6 @@ internal class spell_garothi_searing_barrage_dummy : SpellScript, IHasSpellEffec
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.SearingBarrageSelector);
-	}
 
 	public override void Register()
 	{
@@ -639,10 +619,6 @@ internal class spell_garothi_searing_barrage_selector : SpellScript, IHasSpellEf
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.SearingBarrageDamageAnnihilator, SpellIds.SearingBarrageDamageDecimator, SpellIds.SearingBarrageDummyAnnihilator, SpellIds.SearingBarrageDummyDecimator);
-	}
 
 	public override void Register()
 	{
@@ -670,10 +646,6 @@ internal class spell_garothi_decimation_selector : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.DecimationWarning);
-	}
 
 	public override void Register()
 	{
@@ -707,10 +679,6 @@ internal class spell_garothi_decimation_warning : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.DecimationMissile);
-	}
 
 	public override void Register()
 	{
@@ -758,10 +726,6 @@ internal class spell_garothi_annihilation_selector : SpellScript, IHasSpellEffec
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue());
-	}
 
 	public override void Register()
 	{
@@ -782,10 +746,6 @@ internal class spell_garothi_annihilation_triggered : SpellScript, IHasSpellEffe
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.AnnihilationDamageUnsplitted);
-	}
 
 	public override void Register()
 	{
@@ -823,10 +783,6 @@ internal class spell_garothi_surging_fel : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.SurgingFelDamage);
-	}
 
 	public override void Register()
 	{

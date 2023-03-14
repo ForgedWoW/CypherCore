@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -15,10 +14,6 @@ internal class spell_q12634_despawn_fruit_tosser : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(QuestSpellIds.BananasFallToGround, QuestSpellIds.OrangeFallsToGround, QuestSpellIds.PapayaFallsToGround, QuestSpellIds.SummonAdventurousDwarf);
-	}
 
 	public override void Register()
 	{

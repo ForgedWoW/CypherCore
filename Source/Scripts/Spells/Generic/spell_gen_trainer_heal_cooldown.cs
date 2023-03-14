@@ -15,10 +15,6 @@ internal class spell_gen_trainer_heal_cooldown : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SharedConst.SpellReviveBattlePets);
-	}
 
 	public override bool Load()
 	{

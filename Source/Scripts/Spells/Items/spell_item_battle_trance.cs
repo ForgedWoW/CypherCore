@@ -14,10 +14,6 @@ internal class spell_item_battle_trance : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.BattleTrance);
-	}
 
 	public override void Register()
 	{

@@ -2,12 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Warlock;
 
@@ -19,18 +17,6 @@ namespace Scripts.Spells.Warlock;
 public class spell_warl_grimoire_of_service : SpellScript, IHasSpellEffects, ISpellOnSummon
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(eServiceSpells.FELGUARD_AXE_TOSS, Difficulty.None) != null ||
-			Global.SpellMgr.GetSpellInfo(eServiceSpells.FELHUNTER_LOCK, Difficulty.None) != null ||
-			Global.SpellMgr.GetSpellInfo(eServiceSpells.IMP_SINGE_MAGIC, Difficulty.None) != null ||
-			Global.SpellMgr.GetSpellInfo(eServiceSpells.SUCCUBUS_SEDUCTION, Difficulty.None) != null ||
-			Global.SpellMgr.GetSpellInfo(eServiceSpells.VOIDWALKER_SUFFERING, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public void OnSummon(Creature creature)
 	{

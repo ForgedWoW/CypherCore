@@ -15,26 +15,6 @@ internal class spell_pri_power_word_shield_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.BODY_AND_SOUL,
-								PriestSpells.BODY_AND_SOUL_SPEED,
-								PriestSpells.STRENGTH_OF_SOUL,
-								PriestSpells.STRENGTH_OF_SOUL_EFFECT,
-								PriestSpells.RENEWED_HOPE,
-								PriestSpells.RENEWED_HOPE_EFFECT,
-								PriestSpells.VOID_SHIELD,
-								PriestSpells.VOID_SHIELD_EFFECT,
-								PriestSpells.ATONEMENT,
-								PriestSpells.TRINITY,
-								PriestSpells.ATONEMENT_TRIGGERED,
-								PriestSpells.ATONEMENT_TRIGGERED_POWER_TRINITY,
-								PriestSpells.SHIELD_DISCIPLINE_PASSIVE,
-								PriestSpells.SHIELD_DISCIPLINE_ENERGIZE,
-								PriestSpells.RAPTURE,
-								PriestSpells.MASTERY_GRACE);
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalculateAmount, 0, AuraType.SchoolAbsorb));

@@ -28,7 +28,6 @@ public class spell_pal_blade_of_wrath_proc : AuraScript, IHasAuraEffects
 		if (caster == null)
 			return;
 
-		caster.
-		SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
+		caster.SpellHistory.ResetCooldown(PaladinSpells.BLADE_OF_JUSTICE, true);
 	}
 }

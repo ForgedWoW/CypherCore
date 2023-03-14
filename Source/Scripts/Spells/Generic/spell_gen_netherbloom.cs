@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -14,15 +13,6 @@ namespace Scripts.Spells.Generic;
 internal class spell_gen_netherbloom : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		for (byte i = 0; i < 5; ++i)
-			if (!ValidateSpellInfo(GenericSpellIds.NetherBloomPollen1 + i))
-				return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

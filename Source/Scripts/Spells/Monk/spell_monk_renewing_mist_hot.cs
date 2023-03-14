@@ -15,10 +15,6 @@ public class spell_monk_renewing_mist_hot : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.RENEWING_MIST_JUMP, MonkSpells.RENEWING_MIST);
-	}
 
 	public override void Register()
 	{

@@ -16,10 +16,6 @@ public class spell_rog_cheat_death_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(RogueSpells.CHEAT_DEATH_COOLDOWN);
-	}
 
 	public override bool Load()
 	{

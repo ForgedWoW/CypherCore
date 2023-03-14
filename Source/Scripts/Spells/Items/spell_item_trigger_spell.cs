@@ -25,10 +25,6 @@ internal class spell_item_trigger_spell : SpellScript, IHasSpellEffects
 		_triggeredSpellId = triggeredSpellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_triggeredSpellId);
-	}
 
 	public override void Register()
 	{

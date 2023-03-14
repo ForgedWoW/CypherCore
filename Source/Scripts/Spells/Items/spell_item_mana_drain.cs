@@ -15,10 +15,6 @@ internal class spell_item_mana_drain : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.ManaDrainEnergize, ItemSpellIds.ManaDrainLeech);
-	}
 
 	public override void Register()
 	{

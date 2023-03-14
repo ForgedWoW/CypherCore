@@ -14,10 +14,6 @@ internal class spell_gen_burning_depths_necrolyte_image : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 2 && ValidateSpellInfo((uint)spellInfo.GetEffect(2).CalcValue());
-	}
 
 	public override void Register()
 	{

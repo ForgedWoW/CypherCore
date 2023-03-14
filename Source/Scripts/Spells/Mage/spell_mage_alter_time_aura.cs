@@ -17,10 +17,6 @@ internal class spell_mage_alter_time_aura : AuraScript, IHasAuraEffects
 	private Position _pos;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.AlterTimeVisual, MageSpells.MasterOfTime, MageSpells.Blink);
-	}
 
 	public override void Register()
 	{

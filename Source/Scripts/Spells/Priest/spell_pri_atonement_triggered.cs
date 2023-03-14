@@ -14,10 +14,6 @@ internal class spell_pri_atonement_triggered : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ATONEMENT);
-	}
 
 	public override void Register()
 	{

@@ -10,7 +10,6 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IScene;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.DragonIsles;
 
@@ -43,10 +42,6 @@ internal class spell_dracthyr_login : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.DracthyrMovieRoom01, SpellIds.DracthyrMovieRoom02, SpellIds.DracthyrMovieRoom03, SpellIds.DracthyrMovieRoom04);
-	}
 
 	public override void Register()
 	{

@@ -16,10 +16,6 @@ internal class spell_stasis_field_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.StasisField);
-	}
 
 	public override void Register()
 	{

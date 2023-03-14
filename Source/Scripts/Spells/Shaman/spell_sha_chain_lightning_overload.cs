@@ -16,10 +16,6 @@ internal class spell_sha_chain_lightning_overload : SpellScript, IHasSpellEffect
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.ChainLightningOverloadEnergize, ShamanSpells.MaelstromController) && Global.SpellMgr.GetSpellInfo(ShamanSpells.MaelstromController, Difficulty.None).Effects.Count > 5;
-	}
 
 	public override void Register()
 	{

@@ -16,10 +16,6 @@ internal class spell_mage_fingers_of_frost_AuraScript : AuraScript, IHasAuraEffe
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.FingersOfFrost);
-	}
 
 	public override void Register()
 	{

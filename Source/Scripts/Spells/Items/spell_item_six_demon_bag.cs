@@ -15,10 +15,6 @@ internal class spell_item_six_demon_bag : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.Frostbolt, ItemSpellIds.Polymorph, ItemSpellIds.SummonFelhoundMinion, ItemSpellIds.Fireball, ItemSpellIds.ChainLightning, ItemSpellIds.EnvelopingWinds);
-	}
 
 	public override void Register()
 	{

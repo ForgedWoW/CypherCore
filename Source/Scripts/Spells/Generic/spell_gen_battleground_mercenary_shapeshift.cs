@@ -326,7 +326,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 	private static readonly List<uint> RacialSkills = new();
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
+	public override bool _Validate(SpellInfo spellInfo)
 	{
 		foreach (var (race, otherRaces) in RaceInfo)
 		{

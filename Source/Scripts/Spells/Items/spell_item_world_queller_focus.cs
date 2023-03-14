@@ -14,10 +14,6 @@ internal class spell_item_world_queller_focus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.WorldQuellerFocus);
-	}
 
 	public override void Register()
 	{

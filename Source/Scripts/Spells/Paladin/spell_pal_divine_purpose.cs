@@ -15,10 +15,6 @@ internal class spell_pal_divine_purpose : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.DivinePurposeTriggerred);
-	}
 
 	public override void Register()
 	{

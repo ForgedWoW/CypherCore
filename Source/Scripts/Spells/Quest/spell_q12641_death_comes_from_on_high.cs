@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Quest;
 
@@ -16,10 +15,6 @@ internal class spell_q12641_death_comes_from_on_high : SpellScript, IHasSpellEff
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(QuestSpellIds.ForgeCredit, QuestSpellIds.TownHallCredit, QuestSpellIds.ScarletHoldCredit, QuestSpellIds.ChapelCredit);
-	}
 
 	public override void Register()
 	{

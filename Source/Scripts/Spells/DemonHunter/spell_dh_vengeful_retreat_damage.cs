@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
@@ -16,14 +15,6 @@ public class spell_dh_vengeful_retreat_damage : SpellScript, IHasSpellEffects, I
 {
 	private bool _targetHit;
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DemonHunterSpells.PREPARED_FURY, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
 
 	public void OnCast()
 	{

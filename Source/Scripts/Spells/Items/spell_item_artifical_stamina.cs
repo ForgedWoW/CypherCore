@@ -15,10 +15,6 @@ internal class spell_item_artifical_stamina : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 1;
-	}
 
 	public override bool Load()
 	{

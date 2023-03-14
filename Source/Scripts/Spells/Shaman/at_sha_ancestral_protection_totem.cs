@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
@@ -32,6 +31,23 @@ public class at_sha_ancestral_protection_totem : AreaTriggerScript, IAreaTrigger
 		}
 	}
 
+	public void OnRemove()
+	{
+		var caster = At.GetCaster();
+
+		if (caster == null)
+			return;
+
+		foreach (var itr in At.InsideUnits)
+		{
+			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
+
+			if (!target.IsTotem)
+				if (target.HasAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA))
+					target.RemoveAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA);
+		}
+	}
+
 	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
@@ -57,23 +73,6 @@ public class at_sha_ancestral_protection_totem : AreaTriggerScript, IAreaTrigger
 
 		if (unit.HasAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA) && unit.GetAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA).Caster == caster)
 			unit.RemoveAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA);
-	}
-
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
-
-		if (caster == null)
-			return;
-
-		foreach (var itr in At.InsideUnits)
-		{
-			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
-
-			if (!target.IsTotem)
-				if (target.HasAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA))
-					target.RemoveAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA);
-		}
 	}
 
 	public struct SpellsUsed

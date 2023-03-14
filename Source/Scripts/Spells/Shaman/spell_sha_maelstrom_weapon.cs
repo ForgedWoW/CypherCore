@@ -16,10 +16,6 @@ public class spell_sha_maelstrom_weapon : AuraScript, IHasAuraEffects, IAuraChec
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(ShamanSpells.MAELSTROM_WEAPON_POWER);
-	}
 
 	public bool CheckProc(ProcEventInfo info)
 	{

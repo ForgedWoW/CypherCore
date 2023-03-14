@@ -4,7 +4,6 @@
 using System;
 using Framework.Constants;
 using Game;
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
@@ -22,9 +21,9 @@ public class at_hun_explosive_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, 
 	public int timeInterval;
 
 	public void OnCreate()
-    {
-        timeInterval = 200;
-        var caster = At.GetCaster();
+	{
+		timeInterval = 200;
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;

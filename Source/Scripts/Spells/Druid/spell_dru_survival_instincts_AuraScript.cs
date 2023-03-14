@@ -14,10 +14,6 @@ internal class spell_dru_survival_instincts_AuraScript : AuraScript, IHasAuraEff
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DruidSpellIds.SurvivalInstincts);
-	}
 
 	public override void Register()
 	{

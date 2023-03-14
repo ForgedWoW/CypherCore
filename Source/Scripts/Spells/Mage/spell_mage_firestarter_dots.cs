@@ -15,10 +15,6 @@ internal class spell_mage_firestarter_dots : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.Firestarter);
-	}
 
 	public override void Register()
 	{

@@ -28,7 +28,7 @@ public class BaseSpellScript : IBaseSpellScript
 
 	public virtual bool _Validate(SpellInfo entry)
 	{
-		if (!Validate(entry))
+		if (!ValidateSpellInfo(entry.Id))
 		{
 			Log.outError(LogFilter.Scripts, "Spell `{0}` did not pass Validate() function of script `{1}` - script will be not added to the spell", entry.Id, ScriptName);
 
@@ -84,13 +84,6 @@ public class BaseSpellScript : IBaseSpellScript
 	//
 	// Function in which handler functions are registered, must be implemented in script
 	public virtual void Register() { }
-
-	// Function called on server startup, if returns false script won't be used in core
-	// use for: dbc/template _data presence/correctness checks
-	public virtual bool Validate(SpellInfo spellInfo)
-	{
-		return true;
-	}
 
 	// Function called when script is created, if returns false script will be unloaded afterwards
 	// use for: initializing local script variables (DO NOT USE CONSTRUCTOR FOR THIS PURPOSE!)

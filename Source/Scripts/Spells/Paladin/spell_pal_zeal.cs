@@ -15,10 +15,6 @@ internal class spell_pal_zeal : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.ZealAura);
-	}
 
 	public override void Register()
 	{

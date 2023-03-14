@@ -14,10 +14,6 @@ internal class spell_dru_lifebloom : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(DruidSpellIds.LifebloomFinalHeal);
-	}
 
 	public override void Register()
 	{

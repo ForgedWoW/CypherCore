@@ -15,10 +15,6 @@ internal class spell_mage_touch_of_the_magi_aura : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.TouchOfTheMagiExplode);
-	}
 
 	public override void Register()
 	{

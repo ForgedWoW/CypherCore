@@ -14,10 +14,6 @@ internal class spell_item_brutal_kinship : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(ItemSpellIds.BrutalKinship1, ItemSpellIds.BrutalKinship2);
-	}
 
 	public override void Register()
 	{

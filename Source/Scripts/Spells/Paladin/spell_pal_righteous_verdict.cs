@@ -15,10 +15,6 @@ internal class spell_pal_righteous_verdict : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(PaladinSpells.RighteousVerdictAura);
-	}
 
 	public override void Register()
 	{

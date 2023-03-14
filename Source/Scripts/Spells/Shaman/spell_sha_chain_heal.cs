@@ -20,14 +20,6 @@ public class spell_sha_chain_heal : SpellScript, IHasSpellEffects
 	private WorldObject _primaryTarget = null;
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(ShamanSpells.HIGH_TIDE, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new ObjectTargetSelectHandler(CatchInitialTarget, 0, Targets.UnitChainhealAlly));

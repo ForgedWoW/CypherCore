@@ -15,10 +15,6 @@ internal class spell_gen_interrupt : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.GenThrowInterrupt);
-	}
 
 	public override void Register()
 	{

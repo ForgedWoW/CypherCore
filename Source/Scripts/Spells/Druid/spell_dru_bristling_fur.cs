@@ -15,10 +15,6 @@ internal class spell_dru_bristling_fur : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.BristlingFurGainRage);
-	}
 
 	public override void Register()
 	{

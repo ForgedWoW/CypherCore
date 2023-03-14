@@ -7,13 +7,13 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.DREAM_BREATH,
-            EvokerSpells.DREAM_BREATH_2,
-            EvokerSpells.ETERNITY_SURGE,
-            EvokerSpells.ETERNITY_SURGE_2,
-            EvokerSpells.FIRE_BREATH,
-            EvokerSpells.FIRE_BREATH,
-            EvokerSpells.SPIRITBLOOM,
-            EvokerSpells.SPIRITBLOOM_2)]
+			EvokerSpells.DREAM_BREATH_2,
+			EvokerSpells.ETERNITY_SURGE,
+			EvokerSpells.ETERNITY_SURGE_2,
+			EvokerSpells.FIRE_BREATH,
+			EvokerSpells.FIRE_BREATH,
+			EvokerSpells.SPIRITBLOOM,
+			EvokerSpells.SPIRITBLOOM_2)]
 public class spell_evoker_flow_state : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()

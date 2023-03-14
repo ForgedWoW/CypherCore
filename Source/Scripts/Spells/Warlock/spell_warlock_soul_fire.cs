@@ -28,7 +28,7 @@ public class spell_warlock_soul_fire : SpellScript, IHasSpellEffects
 
 		//TODO: Improve it later
 		Caster.
-		//TODO: Improve it later
-		SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromSeconds(-2));
+			//TODO: Improve it later
+			SpellHistory.ModifyCooldown(WarlockSpells.SOUL_FIRE, TimeSpan.FromSeconds(-2));
 	}
 }

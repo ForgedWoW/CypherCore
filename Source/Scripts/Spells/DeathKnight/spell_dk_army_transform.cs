@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.DeathKnight;
 
@@ -15,10 +14,6 @@ internal class spell_dk_army_transform : SpellScript, ISpellCheckCast, IHasSpell
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.GlyphOfFoulMenagerie);
-	}
 
 	public override bool Load()
 	{

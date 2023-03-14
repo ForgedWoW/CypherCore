@@ -27,10 +27,6 @@ internal class spell_dk_anti_magic_shell : AuraScript, IHasAuraEffects
 		absorbedAmount = 0;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.RunicPowerEnergize, DeathKnightSpells.VolatileShielding) && spellInfo.Effects.Count > 1;
-	}
 
 	public override bool Load()
 	{

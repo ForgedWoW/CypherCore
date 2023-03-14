@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Druid;
 
@@ -16,16 +15,6 @@ internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
 {
 	private List<WorldObject> _targets;
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		if (spellInfo.Effects.Count <= 2 ||
-			spellInfo.GetEffect(2).IsEffect() ||
-			spellInfo.GetEffect(2).CalcValue() <= 0)
-			return false;
-
-		return true;
-	}
 
 	public override void Register()
 	{

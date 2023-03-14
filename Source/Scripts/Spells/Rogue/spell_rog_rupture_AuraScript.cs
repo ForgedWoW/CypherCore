@@ -15,10 +15,6 @@ internal class spell_rog_rupture_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.VenomousWounds);
-	}
 
 	public override void Register()
 	{

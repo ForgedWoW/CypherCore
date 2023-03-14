@@ -25,10 +25,6 @@ internal class spell_gen_lifebloom : AuraScript, IHasAuraEffects
 		_spellId = spellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_spellId);
-	}
 
 	public override void Register()
 	{

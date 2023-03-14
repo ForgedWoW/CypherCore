@@ -14,10 +14,6 @@ internal class aura_warl_drain_soul : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarlockSpells.DRAIN_SOUL_ENERGIZE);
-	}
 
 	public override void Register()
 	{

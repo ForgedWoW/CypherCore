@@ -15,10 +15,6 @@ internal class spell_dk_mark_of_blood : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DeathKnightSpells.MarkOfBloodHeal);
-	}
 
 	public override void Register()
 	{

@@ -12,37 +12,41 @@ namespace Scripts.Spells.Evoker;
 [Script]
 internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
 {
-    public Class PlayerClass { get; } = Class.Evoker;
+	public Class PlayerClass { get; } = Class.Evoker;
 
-    public player_evoker_script() : base("player_evoker_script") { }
+	public player_evoker_script() : base("player_evoker_script") { }
 
-    public void OnHeal(HealInfo healInfo, ref uint gain)
-    {
-        EmeraldCommunion(healInfo, gain);
-    }
+	public void OnHeal(HealInfo healInfo, ref uint gain)
+	{
+		EmeraldCommunion(healInfo, gain);
+	}
 
-    private void EmeraldCommunion(HealInfo healInfo, uint gain)
-    {
-        if (healInfo.SpellInfo.Id == EvokerSpells.EMERALD_COMMUNION &&
-            healInfo.Healer == healInfo.Target && gain < healInfo.Heal)
-        {
-            var healer = healInfo.Healer;
-            // get targets
-            var targetList = new List<Unit>();
-            healer.GetAlliesWithinRange(targetList, 100);
-            targetList.RemoveIf(a => a.IsFullHealth);
+	private void EmeraldCommunion(HealInfo healInfo, uint gain)
+	{
+		if (healInfo.SpellInfo.Id == EvokerSpells.EMERALD_COMMUNION &&
+			healInfo.Healer == healInfo.Target &&
+			gain < healInfo.Heal)
+		{
+			var healer = healInfo.Healer;
+			// get targets
+			var targetList = new List<Unit>();
+			healer.GetAlliesWithinRange(targetList, 100);
+			targetList.RemoveIf(a => a.IsFullHealth);
 
-            if (targetList.Count == 0)
-                return;
+			if (targetList.Count == 0)
+				return;
 
-            // reduce targetList to the number allowed
-            targetList.RandomResize(1);
+			// reduce targetList to the number allowed
+			targetList.RandomResize(1);
 
-            // cast on targets
-            HealInfo info = new(healer, targetList[0], healInfo.Heal - gain,
-                healInfo.SpellInfo, healInfo.SchoolMask);
+			// cast on targets
+			HealInfo info = new(healer,
+								targetList[0],
+								healInfo.Heal - gain,
+								healInfo.SpellInfo,
+								healInfo.SchoolMask);
 
-            Unit.DealHeal(info);
-        }
-    }
+			Unit.DealHeal(info);
+		}
+	}
 }

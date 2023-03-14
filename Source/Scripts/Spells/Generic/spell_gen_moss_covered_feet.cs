@@ -15,10 +15,6 @@ internal class spell_gen_moss_covered_feet : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.FallDown);
-	}
 
 	public override void Register()
 	{

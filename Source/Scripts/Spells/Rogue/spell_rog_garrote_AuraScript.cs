@@ -14,10 +14,6 @@ public class spell_rog_garrote_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(RogueSpells.THUGGEE);
-	}
 
 	public override void Register()
 	{
@@ -37,7 +33,6 @@ public class spell_rog_garrote_AuraScript : AuraScript, IHasAuraEffects
 		if (!caster.HasAura(RogueSpells.THUGGEE))
 			return;
 
-		caster.
-		SpellHistory.ResetCooldown(RogueSpells.GARROTE_DOT, true);
+		caster.SpellHistory.ResetCooldown(RogueSpells.GARROTE_DOT, true);
 	}
 }

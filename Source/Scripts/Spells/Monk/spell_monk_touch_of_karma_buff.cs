@@ -14,10 +14,6 @@ public class spell_monk_touch_of_karma_buff : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.TOUCH_OF_KARMA);
-	}
 
 	public override void Register()
 	{

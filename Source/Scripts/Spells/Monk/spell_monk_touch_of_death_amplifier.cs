@@ -15,10 +15,6 @@ public class spell_monk_touch_of_death_amplifier : AuraScript, IHasAuraEffects, 
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.TOUCH_OF_DEATH, MonkSpells.TOUCH_OF_DEATH_AMPLIFIER);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

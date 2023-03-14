@@ -15,7 +15,6 @@ public class aura_evoker_causality : AuraScript, IAuraCheckProc
 	{
 		var id = info.ProcSpell.SpellInfo.Id;
 
-		return id.EqualsAny(EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2, EvokerSpells.ECHO, EvokerSpells.PYRE) 
-			|| (id == EvokerSpells.EMERALD_BLOSSOM && Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.IMPROVED_EMERALD_BLOSSOM));
+		return id.EqualsAny(EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2, EvokerSpells.ECHO, EvokerSpells.PYRE) || (id == EvokerSpells.EMERALD_BLOSSOM && Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.IMPROVED_EMERALD_BLOSSOM));
 	}
 }

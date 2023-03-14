@@ -15,10 +15,6 @@ internal class spell_pri_angelic_feather_trigger : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ANGELIC_FEATHER_AREATRIGGER);
-	}
 
 	public override void Register()
 	{

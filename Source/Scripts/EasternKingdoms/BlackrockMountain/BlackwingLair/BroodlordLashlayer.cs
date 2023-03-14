@@ -48,48 +48,48 @@ internal class boss_broodlord : BossAI
 		Talk(TextIds.SayAggro);
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(8),
-							task =>
-							{
-								DoCastVictim(SpellIds.Cleave);
-								task.Repeat(TimeSpan.FromSeconds(7));
-							});
+									task =>
+									{
+										DoCastVictim(SpellIds.Cleave);
+										task.Repeat(TimeSpan.FromSeconds(7));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(12),
-							task =>
-							{
-								DoCastVictim(SpellIds.Blastwave);
-								task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(16));
-							});
+									task =>
+									{
+										DoCastVictim(SpellIds.Blastwave);
+										task.Repeat(TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(16));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(20),
-							task =>
-							{
-								DoCastVictim(SpellIds.Mortalstrike);
-								task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
-							});
+									task =>
+									{
+										DoCastVictim(SpellIds.Mortalstrike);
+										task.Repeat(TimeSpan.FromSeconds(25), TimeSpan.FromSeconds(35));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(30),
-							task =>
-							{
-								DoCastVictim(SpellIds.Knockback);
+									task =>
+									{
+										DoCastVictim(SpellIds.Knockback);
 
-								if (GetThreat(Me.Victim) != 0)
-									ModifyThreatByPercent(Me.Victim, -50);
+										if (GetThreat(Me.Victim) != 0)
+											ModifyThreatByPercent(Me.Victim, -50);
 
-								task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30));
-							});
+										task.Repeat(TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(30));
+									});
 
 		SchedulerProtected.Schedule(TimeSpan.FromSeconds(1),
-							task =>
-							{
-								if (Me.GetDistance(Me.HomePosition) > 150.0f)
-								{
-									Talk(TextIds.SayLeash);
-									EnterEvadeMode(EvadeReason.Boundary);
-								}
+									task =>
+									{
+										if (Me.GetDistance(Me.HomePosition) > 150.0f)
+										{
+											Talk(TextIds.SayLeash);
+											EnterEvadeMode(EvadeReason.Boundary);
+										}
 
-								task.Repeat(TimeSpan.FromSeconds(1));
-							});
+										task.Repeat(TimeSpan.FromSeconds(1));
+									});
 	}
 
 	public override void JustDied(Unit killer)

@@ -68,10 +68,6 @@ internal class spell_midsummer_braziers_hit : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.TorchTossingTraining, SpellIds.TorchTossingPractice);
-	}
 
 	public override void Register()
 	{
@@ -103,10 +99,6 @@ internal class spell_midsummer_torch_target_picker : SpellScript, IHasSpellEffec
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.TargetIndicatorCosmetic, SpellIds.TargetIndicator);
-	}
 
 	public override void Register()
 	{
@@ -126,10 +118,6 @@ internal class spell_midsummer_torch_toss_land : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.BraziersHit);
-	}
 
 	public override void Register()
 	{
@@ -147,10 +135,6 @@ internal class spell_midsummer_test_ribbon_pole_channel : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.RibbonPolePeriodicVisual, SpellIds.BurningHotPoleDance, SpellIds.HasFullMidsummerSet, SpellIds.RibbonDance);
-	}
 
 	public override void Register()
 	{
@@ -191,10 +175,6 @@ internal class spell_midsummer_ribbon_pole_periodic_visual : AuraScript, IHasAur
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.TestRibbonPole1, SpellIds.TestRibbonPole2, SpellIds.TestRibbonPole3);
-	}
 
 	public override void Register()
 	{
@@ -216,18 +196,6 @@ internal class spell_midsummer_ribbon_pole_periodic_visual : AuraScript, IHasAur
 internal class spell_midsummer_juggle_torch : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.JuggleTorchSlow,
-								SpellIds.JuggleTorchMedium,
-								SpellIds.JuggleTorchFast,
-								SpellIds.JuggleTorchSelf,
-								SpellIds.JuggleTorchShadowSlow,
-								SpellIds.JuggleTorchShadowMedium,
-								SpellIds.JuggleTorchShadowFast,
-								SpellIds.JuggleTorchShadowSelf);
-	}
 
 	public override void Register()
 	{
@@ -277,10 +245,6 @@ internal class spell_midsummer_torch_catch : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.GiveTorch);
-	}
 
 	public override void Register()
 	{
@@ -305,10 +269,6 @@ internal class spell_midsummer_fling_torch : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.FlingTorchTriggered, SpellIds.FlingTorchShadow);
-	}
 
 	public override void Register()
 	{
@@ -328,10 +288,6 @@ internal class spell_midsummer_fling_torch_triggered : SpellScript, IHasSpellEff
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.JuggleTorchMissed);
-	}
 
 	public override void Register()
 	{
@@ -357,10 +313,6 @@ internal class spell_midsummer_fling_torch_catch : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.FlingTorchTriggered, SpellIds.TorchCatchingSuccessAlliance, SpellIds.TorchCatchingSuccessHorde, SpellIds.TorchCatchingRemoveTorches, SpellIds.FlingTorchShadow);
-	}
 
 	public override void Register()
 	{

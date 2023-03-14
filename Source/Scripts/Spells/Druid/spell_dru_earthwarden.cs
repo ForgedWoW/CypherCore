@@ -15,10 +15,6 @@ internal class spell_dru_earthwarden : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.ThrashCat, DruidSpellIds.ThrashBear, DruidSpellIds.EarthwardenAura);
-	}
 
 	public override void Register()
 	{

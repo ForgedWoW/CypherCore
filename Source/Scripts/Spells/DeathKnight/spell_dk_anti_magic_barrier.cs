@@ -15,14 +15,6 @@ public class spell_dk_anti_magic_barrier : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		if (Global.SpellMgr.GetSpellInfo(DeathKnightSpells.ANTI_MAGIC_BARRIER, Difficulty.None) != null)
-			return false;
-
-		return true;
-	}
-
 	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectCalcAmountHandler(CalcAmount, 0, AuraType.ModIncreaseHealth2));

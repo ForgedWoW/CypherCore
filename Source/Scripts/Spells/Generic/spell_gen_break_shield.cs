@@ -16,10 +16,6 @@ internal class spell_gen_break_shield : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(62552, 62719, 64100, 66482);
-	}
 
 	public override void Register()
 	{

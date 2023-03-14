@@ -20,16 +20,6 @@ internal class spell_q11730_ultrasonic_screwdriver : SpellScript, IHasSpellEffec
 		return Caster.IsTypeId(TypeId.Player) && CastItem;
 	}
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(QuestSpellIds.SummonScavengebot004a8,
-								QuestSpellIds.SummonSentrybot57k,
-								QuestSpellIds.SummonDefendotank66d,
-								QuestSpellIds.SummonScavengebot005b6,
-								QuestSpellIds.Summon55dCollectatron,
-								QuestSpellIds.RobotKillCredit);
-	}
-
 	public override void Register()
 	{
 		SpellEffects.Add(new EffectHandler(HandleDummy, 0, SpellEffectName.Dummy, SpellScriptHookType.EffectHitTarget));

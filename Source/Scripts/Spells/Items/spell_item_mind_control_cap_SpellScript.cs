@@ -23,10 +23,6 @@ internal class spell_item_mind_control_cap_SpellScript : SpellScript, IHasSpellE
 		return true;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.GnomishMindControlCap, ItemSpellIds.Dullard);
-	}
 
 	public override void Register()
 	{

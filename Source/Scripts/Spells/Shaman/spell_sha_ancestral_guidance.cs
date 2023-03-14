@@ -16,10 +16,6 @@ internal class spell_sha_ancestral_guidance : AuraScript, IAuraCheckProc, IHasAu
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.AncestralGuidanceHeal);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

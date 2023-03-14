@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System.Collections;
+using System.Collections.Generic;
 using Game.Scripting.Interfaces.ISpellManager;
 using Game.Spells;
 
@@ -16,6 +16,6 @@ public class BuringRushSpellFix : ISpellManagerSpellLateFix
 
 	public void ApplySpellFix(SpellInfo spellInfo)
 	{
-		spellInfo.NegativeEffects = new(); // no negitive effects for burning rush
+		spellInfo.NegativeEffects = new HashSet<int>(); // no negitive effects for burning rush
 	}
 }

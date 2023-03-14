@@ -7,7 +7,6 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Generic;
 
@@ -18,10 +17,6 @@ internal class spell_defender_of_azeroth_death_gate_selector : SpellScript, IHas
 	private readonly (WorldLocation, uint) StormwindInnLoc = (new WorldLocation(0, -8868.1f, 675.82f, 97.9f, 5.164778709411621093f), 5148);
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(GenericSpellIds.DeathGateTeleportStormwind, GenericSpellIds.DeathGateTeleportOrgrimmar);
-	}
 
 	public override void Register()
 	{

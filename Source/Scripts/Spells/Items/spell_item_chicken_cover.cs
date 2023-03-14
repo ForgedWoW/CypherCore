@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -20,10 +19,6 @@ internal class spell_item_chicken_cover : SpellScript, IHasSpellEffects
 		return Caster.TypeId == TypeId.Player;
 	}
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return Global.ObjectMgr.GetQuestTemplate(QuestIds.ChickenParty) != null && Global.ObjectMgr.GetQuestTemplate(QuestIds.FlownTheCoop) != null && ValidateSpellInfo(ItemSpellIds.ChickenNet, ItemSpellIds.CaptureChickenEscape);
-	}
 
 	public override void Register()
 	{

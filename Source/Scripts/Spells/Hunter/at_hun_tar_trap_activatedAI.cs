@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
@@ -19,9 +18,9 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerScript, IAreaTriggerOnCrea
 	public int timeInterval;
 
 	public void OnCreate()
-    {
-        timeInterval = 200;
-        var caster = At.GetCaster();
+	{
+		timeInterval = 200;
+		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -35,6 +34,25 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerScript, IAreaTriggerOnCrea
 
 			if (!caster.IsFriendlyTo(target))
 				caster.CastSpell(target, UsedSpells.TAR_TRAP_SLOW, true);
+		}
+	}
+
+	public void OnRemove()
+	{
+		var caster = At.GetCaster();
+
+		if (caster == null)
+			return;
+
+		if (!caster.AsPlayer)
+			return;
+
+		foreach (var itr in At.InsideUnits)
+		{
+			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
+
+			if (target.HasAura(UsedSpells.TAR_TRAP_SLOW) && target.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
+				target.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
 		}
 	}
 
@@ -64,24 +82,5 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerScript, IAreaTriggerOnCrea
 
 		if (unit.HasAura(UsedSpells.TAR_TRAP_SLOW) && unit.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
 			unit.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
-	}
-
-	public void OnRemove()
-	{
-		var caster = At.GetCaster();
-
-		if (caster == null)
-			return;
-
-		if (!caster.AsPlayer)
-			return;
-
-		foreach (var itr in At.InsideUnits)
-		{
-			var target = ObjectAccessor.Instance.GetUnit(caster, itr);
-
-			if (target.HasAura(UsedSpells.TAR_TRAP_SLOW) && target.GetAura(UsedSpells.TAR_TRAP_SLOW).Caster == caster)
-				target.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
-		}
 	}
 }

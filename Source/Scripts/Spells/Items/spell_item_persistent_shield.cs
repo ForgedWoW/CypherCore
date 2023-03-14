@@ -15,10 +15,6 @@ internal class spell_item_persistent_shield : AuraScript, IAuraCheckProc, IHasAu
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.PersistentShieldTriggered);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

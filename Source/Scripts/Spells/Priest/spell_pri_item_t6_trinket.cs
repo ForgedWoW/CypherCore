@@ -16,10 +16,6 @@ internal class spell_pri_item_t6_trinket : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.DIVINE_BLESSING, PriestSpells.DIVINE_WRATH);
-	}
 
 	public override void Register()
 	{

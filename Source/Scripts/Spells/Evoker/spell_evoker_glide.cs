@@ -5,18 +5,12 @@ using System;
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.GLIDE)] // 358733 - Glide (Racial)
 internal class spell_evoker_glide : SpellScript, ISpellCheckCast, ISpellOnCast
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(EvokerSpells.GLIDE_KNOCKBACK, EvokerSpells.HOVER, EvokerSpells.SOAR_RACIAL);
-	}
-
 	public SpellCastResult CheckCast()
 	{
 		var caster = Caster;

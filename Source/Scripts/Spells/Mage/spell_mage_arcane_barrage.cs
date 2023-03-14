@@ -18,10 +18,6 @@ internal class spell_mage_arcane_barrage : SpellScript, ISpellAfterCast, IHasSpe
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MageSpells.ArcaneBarrageR3, MageSpells.ArcaneBarrageEnergize) && spellInfo.Effects.Count > 1;
-	}
 
 	public void AfterCast()
 	{

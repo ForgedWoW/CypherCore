@@ -20,10 +20,10 @@ internal class spell_evoker_dragonrage : SpellScript, ISpellOnCast
 		caster.GetEnemiesWithinRange(targetList, SpellInfo.GetMaxRange());
 
 		// reduce targetList to the number allowed
-        targetList.RandomResize(SpellInfo.GetEffect(0).BasePoints);
+		targetList.RandomResize(SpellInfo.GetEffect(0).BasePoints);
 
-        // cast on targets
-        foreach (var target in targetList)
+		// cast on targets
+		foreach (var target in targetList)
 			caster.CastSpell(target, EvokerSpells.PYRE_MISSILE, true);
 	}
 }

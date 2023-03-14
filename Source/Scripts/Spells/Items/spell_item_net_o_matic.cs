@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Items;
 
@@ -15,10 +14,6 @@ internal class spell_item_net_o_matic : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.NetOMaticTriggered1, ItemSpellIds.NetOMaticTriggered2, ItemSpellIds.NetOMaticTriggered3);
-	}
 
 	public override void Register()
 	{

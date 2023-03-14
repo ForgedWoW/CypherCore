@@ -14,10 +14,6 @@ internal class spell_dru_eclipse_ooc : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.EclipseDummy, DruidSpellIds.EclipseSolarSpellCnt, DruidSpellIds.EclipseLunarSpellCnt);
-	}
 
 	public override void Register()
 	{

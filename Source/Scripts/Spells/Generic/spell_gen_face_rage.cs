@@ -14,10 +14,6 @@ internal class spell_gen_face_rage : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(GenericSpellIds.FaceRage) && spellInfo.Effects.Count > 2;
-	}
 
 	public override void Register()
 	{

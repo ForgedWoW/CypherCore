@@ -62,10 +62,6 @@ internal class spell_hallow_end_candy_SpellScript : SpellScript, IHasSpellEffect
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(spells);
-	}
 
 	public override void Register()
 	{
@@ -83,10 +79,6 @@ internal class spell_hallow_end_candy_pirate_AuraScript : AuraScript, IHasAuraEf
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(SpellIds.CandyFemaleDefiasPirate, SpellIds.CandyMaleDefiasPirate);
-	}
 
 	public override void Register()
 	{
@@ -111,20 +103,6 @@ internal class spell_hallow_end_candy_pirate_AuraScript : AuraScript, IHasAuraEf
 internal class spell_hallow_end_trick : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.PirateCostumeMale,
-								SpellIds.PirateCostumeFemale,
-								SpellIds.NinjaCostumeMale,
-								SpellIds.NinjaCostumeFemale,
-								SpellIds.LeperGnomeCostumeMale,
-								SpellIds.LeperGnomeCostumeFemale,
-								SpellIds.SkeletonCostume,
-								SpellIds.GhostCostumeMale,
-								SpellIds.GhostCostumeFemale,
-								SpellIds.TrickBuff);
-	}
 
 	public override void Register()
 	{
@@ -177,10 +155,6 @@ internal class spell_hallow_end_trick_or_treat : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.Trick, SpellIds.Treat, SpellIds.TrickedOrTreated);
-	}
 
 	public override void Register()
 	{
@@ -205,10 +179,6 @@ internal class spell_hallow_end_tricky_treat : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.TrickyTreatSpeed, SpellIds.TrickyTreatTrigger, SpellIds.UpsetTummy);
-	}
 
 	public override void Register()
 	{
@@ -229,18 +199,6 @@ internal class spell_hallow_end_tricky_treat : SpellScript, IHasSpellEffects
 [Script] // 24717, 24718, 24719, 24720, 24724, 24733, 24737, 24741
 internal class spell_hallow_end_wand : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(SpellIds.PirateCostumeMale,
-								SpellIds.PirateCostumeFemale,
-								SpellIds.NinjaCostumeMale,
-								SpellIds.NinjaCostumeFemale,
-								SpellIds.LeperGnomeCostumeMale,
-								SpellIds.LeperGnomeCostumeFemale,
-								SpellIds.GhostCostumeMale,
-								SpellIds.GhostCostumeFemale);
-	}
-
 	public void OnHit()
 	{
 		var caster = Caster;

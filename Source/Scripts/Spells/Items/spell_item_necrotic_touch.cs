@@ -15,10 +15,6 @@ internal class spell_item_necrotic_touch : AuraScript, IAuraCheckProc, IHasAuraE
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ItemSpellIds.ItemNecroticTouchProc);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

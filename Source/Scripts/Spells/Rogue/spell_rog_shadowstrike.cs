@@ -17,10 +17,6 @@ internal class spell_rog_shadowstrike : SpellScript, ISpellCheckCast, IHasSpellE
 
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.PremeditationAura, RogueSpells.SliceAndDice, RogueSpells.PremeditationPassive) && Global.SpellMgr.GetSpellInfo(RogueSpells.PremeditationPassive, Difficulty.None).Effects.Count > 0;
-	}
 
 	public SpellCastResult CheckCast()
 	{

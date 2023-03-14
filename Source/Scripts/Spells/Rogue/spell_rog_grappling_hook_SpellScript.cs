@@ -4,18 +4,12 @@
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
 [SpellScript(195457)]
 public class spell_rog_grappling_hook_SpellScript : SpellScript, ISpellOnHit
 {
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo((uint)TrueBearingIDs.GRAPPLING_HOOK, RogueSpells.GRAPPLING_HOOK_TRIGGER);
-	}
-
 	public void OnHit()
 	{
 		var caster = Caster;

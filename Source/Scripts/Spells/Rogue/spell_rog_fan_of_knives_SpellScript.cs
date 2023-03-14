@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Rogue;
 
@@ -24,10 +23,6 @@ public class spell_rog_fan_of_knives_SpellScript : SpellScript, ISpellOnHit, ISp
 			target.RemoveAura(61851);
 	}
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(RogueSpells.FAN_OF_KNIVES);
-	}
 
 	public override bool Load()
 	{

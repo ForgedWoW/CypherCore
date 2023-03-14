@@ -15,10 +15,6 @@ public class spell_monk_spirit_of_the_crane_passive : AuraScript, IHasAuraEffect
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo UnnamedParameter)
-	{
-		return ValidateSpellInfo(MonkSpells.SPIRIT_OF_THE_CRANE_MANA, MonkSpells.BLACKOUT_KICK_TRIGGERED);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

@@ -14,10 +14,6 @@ internal class spell_dru_wild_growth_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(DruidSpellIds.RestorationT102PBonus);
-	}
 
 	public override void Register()
 	{

@@ -15,10 +15,6 @@ internal class spell_pal_t8_2p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PaladinSpells.HolyMending);
-	}
 
 	public override void Register()
 	{

@@ -16,10 +16,6 @@ internal class spell_sha_earth_shield : AuraScript, IAuraCheckProc, IHasAuraEffe
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.EarthShieldHeal);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

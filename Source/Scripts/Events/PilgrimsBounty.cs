@@ -138,10 +138,6 @@ internal class spell_pilgrims_bounty_feast_on_SpellScript : SpellScript, IHasSpe
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return !spellInfo.Effects.Empty() && ValidateSpellInfo((uint)spellInfo.GetEffect(0).CalcValue()) && !Global.SpellMgr.GetSpellInfo((uint)spellInfo.GetEffect(0).CalcValue(), Difficulty.None).Effects.Empty();
-	}
 
 	public override void Register()
 	{
@@ -219,10 +215,6 @@ internal class spell_pilgrims_bounty_turkey_tracker_SpellScript : SpellScript, I
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(SpellIds.KillCounterVisual, SpellIds.KillCounterVisualMax);
-	}
 
 	public override void Register()
 	{
@@ -290,10 +282,6 @@ internal class spell_pilgrims_bounty_well_fed_SpellScript : SpellScript, IHasSpe
 		_triggeredSpellId = triggeredSpellId;
 	}
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(_triggeredSpellId);
-	}
 
 	public override void Register()
 	{
@@ -358,10 +346,6 @@ internal class spell_pilgrims_bounty_on_plate_SpellScript : SpellScript, IHasSpe
 		_triggeredSpellId4 = triggeredSpellId4;
 	}
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(_triggeredSpellId1, _triggeredSpellId2, _triggeredSpellId3, _triggeredSpellId4);
-	}
 
 	public override void Register()
 	{
@@ -480,10 +464,6 @@ internal class spell_pilgrims_bounty_a_serving_of_AuraScript : AuraScript, IHasA
 		_triggeredSpellId = triggeredSpellId;
 	}
 
-	public override bool Validate(SpellInfo spell)
-	{
-		return ValidateSpellInfo(_triggeredSpellId);
-	}
 
 	public override void Register()
 	{

@@ -3,7 +3,6 @@
 
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -29,10 +28,5 @@ public class spell_sha_primordial_wave : SpellScript, ISpellOnHit
 		}
 
 		player.AddAura(ShamanSpells.PrimordialWaveAura, player);
-	}
-
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.PrimordialWave);
 	}
 }

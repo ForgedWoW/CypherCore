@@ -15,10 +15,6 @@ internal class spell_monk_stagger_debuff_aura : AuraScript, IHasAuraEffects
 	private double _period;
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(MonkSpells.StaggerDamageAura) && !Global.SpellMgr.GetSpellInfo(MonkSpells.StaggerDamageAura, Difficulty.None).Effects.Empty();
-	}
 
 	public override bool Load()
 	{

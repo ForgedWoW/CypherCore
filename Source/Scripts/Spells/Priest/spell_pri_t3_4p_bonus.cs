@@ -15,10 +15,6 @@ internal class spell_pri_t3_4p_bonus : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.ARMOR_OF_FAITH);
-	}
 
 	public override void Register()
 	{

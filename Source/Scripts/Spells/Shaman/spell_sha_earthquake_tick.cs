@@ -7,7 +7,6 @@ using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -17,10 +16,6 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.EarthquakeKnockingDown) && spellInfo.Effects.Count > 1;
-	}
 
 	public void OnHit()
 	{
@@ -33,13 +28,11 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 				var foundAreaTrigger = areaTriggers.Find(at => at.GUID == Spell.OriginalCasterGuid);
 
 				if (foundAreaTrigger != null)
-                {
-                    foundAreaTrigger.ForEachAreaTriggerScript<IAreaTriggerScriptValues>(a =>
+					foundAreaTrigger.ForEachAreaTriggerScript<IAreaTriggerScriptValues>(a =>
 					{
 						if (a.ScriptValues.TryAdd(target.GUID.ToString(), target.GUID))
-                            Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
-                    });
-				}
+							Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
+					});
 			}
 	}
 

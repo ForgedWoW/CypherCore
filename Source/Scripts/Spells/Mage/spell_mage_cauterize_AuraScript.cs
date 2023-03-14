@@ -15,10 +15,6 @@ internal class spell_mage_cauterize_AuraScript : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return spellInfo.Effects.Count > 2 && ValidateSpellInfo(MageSpells.CauterizeDot, MageSpells.Cauterized, spellInfo.GetEffect(2).TriggerSpell);
-	}
 
 	public override void Register()
 	{

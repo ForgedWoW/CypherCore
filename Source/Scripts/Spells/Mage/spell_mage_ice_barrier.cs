@@ -16,10 +16,6 @@ internal class spell_mage_ice_barrier : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellEntry)
-	{
-		return ValidateSpellInfo(MageSpells.Chilled);
-	}
 
 	public override void Register()
 	{

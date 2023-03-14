@@ -15,10 +15,6 @@ internal class spell_warr_rallying_cry : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(WarriorSpells.RALLYING_CRY);
-	}
 
 	public override bool Load()
 	{

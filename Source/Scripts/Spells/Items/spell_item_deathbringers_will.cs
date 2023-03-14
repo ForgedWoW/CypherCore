@@ -33,10 +33,6 @@ internal class spell_item_deathbringers_will : AuraScript, IHasAuraEffects
 		_hasteSpellId = hasteSpellId;
 	}
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(_strengthSpellId, _agilitySpellId, _apSpellId, _criticalSpellId, _hasteSpellId);
-	}
 
 	public override void Register()
 	{

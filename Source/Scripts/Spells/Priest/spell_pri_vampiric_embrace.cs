@@ -16,10 +16,6 @@ internal class spell_pri_vampiric_embrace : AuraScript, IAuraCheckProc, IHasAura
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(PriestSpells.VAMPIRIC_EMBRACE_HEAL);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{

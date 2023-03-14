@@ -5,7 +5,6 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
@@ -13,11 +12,6 @@ namespace Scripts.Spells.Shaman;
 [SpellScript(285466)]
 internal class spell_sha_lava_crit_chance : SpellScript, ISpellCalcCritChance
 {
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(ShamanSpells.LavaBurstRank2, ShamanSpells.FlameShock);
-	}
-
 	public void CalcCritChance(Unit victim, ref double critChance)
 	{
 		var caster = Caster;

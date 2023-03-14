@@ -17,10 +17,6 @@ internal class spell_rog_blade_flurry_AuraScript : AuraScript, IAuraCheckProc, I
 
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public override bool Validate(SpellInfo spellInfo)
-	{
-		return ValidateSpellInfo(RogueSpells.BladeFlurryExtraAttack);
-	}
 
 	public bool CheckProc(ProcEventInfo eventInfo)
 	{
