@@ -111,7 +111,9 @@ public partial class Unit
 		get
 		{
 			lock (_visibleAurasToUpdate)
+			{
 				return _visibleAuras.ToList();
+			}
 		}
 	}
 
@@ -2429,25 +2431,25 @@ public partial class Unit
 	// Interrupts
 	public bool InterruptNonMeleeSpells(bool withDelayed, uint spell_id = 0, bool withInstant = true)
 	{
-		bool retval = false;
+		var retval = false;
 
 		// generic spells are interrupted if they are not finished or delayed
 		if (GetCurrentSpell(CurrentSpellTypes.Generic) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.Generic].SpellInfo.Id == spell_id))
 			if (InterruptSpell(CurrentSpellTypes.Generic, withDelayed, withInstant))
 				retval = true;
 
-        // autorepeat spells are interrupted if they are not finished or delayed
-        if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo.Id == spell_id))
+		// autorepeat spells are interrupted if they are not finished or delayed
+		if (GetCurrentSpell(CurrentSpellTypes.AutoRepeat) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo.Id == spell_id))
 			if (InterruptSpell(CurrentSpellTypes.AutoRepeat, withDelayed, withInstant))
-                retval = true;
+				retval = true;
 
-        // channeled spells are interrupted if they are not finished, even if they are delayed
-        if (GetCurrentSpell(CurrentSpellTypes.Channeled) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.Channeled].SpellInfo.Id == spell_id))
+		// channeled spells are interrupted if they are not finished, even if they are delayed
+		if (GetCurrentSpell(CurrentSpellTypes.Channeled) != null && (spell_id == 0 || CurrentSpells[CurrentSpellTypes.Channeled].SpellInfo.Id == spell_id))
 			if (InterruptSpell(CurrentSpellTypes.Channeled, true, true))
-                retval = true;
+				retval = true;
 
 		return retval;
-    }
+	}
 
 	public Spell InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, Spell interruptingSpell = null)
 	{
@@ -2973,7 +2975,7 @@ public partial class Unit
 		{
 			Dictionary<int, double> damage = new();
 			Dictionary<int, double> baseDamage = new();
-			HashSet<int> effMask = new HashSet<int>();
+			var effMask = new HashSet<int>();
 			uint recalculateMask = 0;
 			var caster = aura.Caster;
 
@@ -3115,9 +3117,9 @@ public partial class Unit
 		if (aura.IsRemoved)
 		{
 			if (aura != null && _ownedAuras.Contains(aura))
-                _ownedAuras.Remove(aura);
+				_ownedAuras.Remove(aura);
 
-            return;
+			return;
 		}
 
 		_ownedAuras.Remove(aura);
@@ -3135,7 +3137,7 @@ public partial class Unit
 		_ownedAuras.Query()
 					.HasSpellId(spellId)
 					.HasCasterGuid(casterGUID)
-                    .Execute(RemoveOwnedAura);
+					.Execute(RemoveOwnedAura);
 	}
 
 	public void RemoveOwnedAura(Aura auraToRemove, AuraRemoveMode removeMode = AuraRemoveMode.Default)
@@ -3791,15 +3793,18 @@ public partial class Unit
 			aurApp._HandleEffect(effIndex, true);
 	}
 
-    public void _ApplyAura(AuraApplication aurApp, int effIndex)
+	public void _ApplyAura(AuraApplication aurApp, int effIndex)
 	{
-        _ApplyAura(aurApp, new HashSet<int>() { effIndex });
+		_ApplyAura(aurApp,
+					new HashSet<int>()
+					{
+						effIndex
+					});
+	}
 
-    }
-
-    // handles effects of aura application
-    // should be done after registering aura in lists
-    public void _ApplyAura(AuraApplication aurApp, HashSet<int> effMask)
+	// handles effects of aura application
+	// should be done after registering aura in lists
+	public void _ApplyAura(AuraApplication aurApp, HashSet<int> effMask)
 	{
 		var aura = aurApp.Base;
 
@@ -3994,7 +3999,8 @@ public partial class Unit
 				var diff = Math.Abs(effectAmount) - Math.Abs(existingAurEff.Amount);
 				var effMask = auraEffectMask.ToMask();
 				var baseMask = existingAurEff.Base.AuraEffects.Keys.ToMask();
-                if (diff == 0)
+
+				if (diff == 0)
 					foreach (var spellEff in spellInfo.Effects)
 						diff += (long)((effMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex) - (long)((baseMask & (1 << spellEff.EffectIndex)) >> spellEff.EffectIndex);
 
@@ -4644,8 +4650,8 @@ public partial class Unit
 		{
 			var pet = AsPet;
 
-			if (pet.IsControlled())
-				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.Auras);
+			if (pet.IsControlled)
+				pet.GroupUpdateFlag = GroupUpdatePetFlags.Auras;
 		}
 	}
 }

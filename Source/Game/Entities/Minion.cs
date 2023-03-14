@@ -18,6 +18,8 @@ public class Minion : TempSummon
 		get { return _followAngle; }
 	}
 
+	public override Unit OwnerUnit => Owner;
+
 	public Minion(SummonPropertiesRecord propertiesRecord, Unit owner, bool isWorldObject)
 		: base(propertiesRecord, owner, isWorldObject)
 	{
@@ -78,9 +80,7 @@ public class Minion : TempSummon
 		return $"{base.GetDebugInfo()}\nOwner: {(OwnerUnit ? OwnerUnit.GUID : "")}";
 	}
 
-    public override Unit OwnerUnit => Owner;
-
-    public void SetFollowAngle(float angle)
+	public void SetFollowAngle(float angle)
 	{
 		_followAngle = angle;
 	}

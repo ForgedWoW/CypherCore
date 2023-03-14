@@ -129,7 +129,7 @@ class PetCommands
 	static bool HandlePetLevelCommand(CommandHandler handler, int level)
 	{
 		var pet = GetSelectedPlayerPetOrOwn(handler);
-		var owner = pet ? pet.GetOwner() : null;
+		var owner = pet ? pet.OwningPlayer : null;
 
 		if (!pet || !owner)
 		{

@@ -22,31 +22,75 @@ public class DamageInfo
 	double _block;
 	ProcFlagsHit _hitMask;
 
-    public Unit Attacker => _attacker;
-    public Unit Victim => _victim;
-    public SpellInfo SpellInfo => _spellInfo;
-    public SpellSchoolMask SchoolMask => _schoolMask;
-    public DamageEffectType DamageType => _damageType;
-    public WeaponAttackType AttackType => _attackType;
-    public double Damage => _damage;
-    public double OriginalDamage => _originalDamage;
-    public double Absorb => _absorb;
-    public double Resist => _resist;
-    public double Block => _block;
-    public ProcFlagsHit HitMask => _hitMask;
-	public bool IsImmune { get { return _hitMask.HasFlag(ProcFlagsHit.Immune); } }
-    public bool IsFullBlock { get { return _hitMask.HasFlag(ProcFlagsHit.FullBlock); } }
-    public bool IsBlock { get { return _hitMask.HasFlag(ProcFlagsHit.Block); } }
-    public bool IsAbsorb { get { return _hitMask.HasFlag(ProcFlagsHit.Absorb); } }
-    public bool IsFillResist { get { return _hitMask.HasFlag(ProcFlagsHit.FullResist); } }
-    public bool IsMiss { get { return _hitMask.HasFlag(ProcFlagsHit.Miss); } }
-    public bool IsDodge { get { return _hitMask.HasFlag(ProcFlagsHit.Dodge); } }
-    public bool IsParry { get { return _hitMask.HasFlag(ProcFlagsHit.Parry); } }
-    public bool IsEvade { get { return _hitMask.HasFlag(ProcFlagsHit.Evade); } }
-    public bool IsNormal { get { return _hitMask.HasFlag(ProcFlagsHit.Normal); } }
-    public bool IsCritical { get { return _hitMask.HasFlag(ProcFlagsHit.Critical); } }
+	public Unit Attacker => _attacker;
+	public Unit Victim => _victim;
+	public SpellInfo SpellInfo => _spellInfo;
+	public SpellSchoolMask SchoolMask => _schoolMask;
+	public DamageEffectType DamageType => _damageType;
+	public WeaponAttackType AttackType => _attackType;
+	public double Damage => _damage;
+	public double OriginalDamage => _originalDamage;
+	public double Absorb => _absorb;
+	public double Resist => _resist;
+	public double Block => _block;
+	public ProcFlagsHit HitMask => _hitMask;
 
-    public DamageInfo(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
+	public bool IsImmune
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Immune); }
+	}
+
+	public bool IsFullBlock
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.FullBlock); }
+	}
+
+	public bool IsBlock
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Block); }
+	}
+
+	public bool IsAbsorb
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Absorb); }
+	}
+
+	public bool IsFillResist
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.FullResist); }
+	}
+
+	public bool IsMiss
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Miss); }
+	}
+
+	public bool IsDodge
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Dodge); }
+	}
+
+	public bool IsParry
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Parry); }
+	}
+
+	public bool IsEvade
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Evade); }
+	}
+
+	public bool IsNormal
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Normal); }
+	}
+
+	public bool IsCritical
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Critical); }
+	}
+
+	public DamageInfo(Unit attacker, Unit victim, double damage, SpellInfo spellInfo, SpellSchoolMask schoolMask, DamageEffectType damageType, WeaponAttackType attackType)
 	{
 		_attacker = attacker;
 		_victim = victim;

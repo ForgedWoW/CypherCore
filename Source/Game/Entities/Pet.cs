@@ -38,7 +38,7 @@ public class Pet : Guardian
 		{
 			var creatureFamily = CliDB.CreatureFamilyStorage.LookupByKey(Template.Family);
 
-			if (creatureFamily != null && creatureFamily.MinScale > 0.0f && GetPetType() == PetType.Hunter)
+			if (creatureFamily != null && creatureFamily.MinScale > 0.0f && PetType == PetType.Hunter)
 			{
 				float scale;
 
@@ -60,11 +60,40 @@ public class Pet : Guardian
 
 	public override byte PetAutoSpellSize => (byte)_autospells.Count;
 
+	public Player OwningPlayer => base.OwnerUnit.AsPlayer;
+
+	public PetType PetType
+	{
+		get => _petType;
+		set => _petType = value;
+	}
+
+	public bool IsControlled => PetType == PetType.Summon || PetType == PetType.Hunter;
+
+	public bool IsTemporarySummoned => _duration > 0;
+
+	public int Duration => _duration;
+
+	public ushort Specialization => _petSpecialization;
+
+	public GroupUpdatePetFlags GroupUpdateFlag
+	{
+		get => _mGroupUpdateMask;
+		set
+		{
+			if (OwningPlayer.Group)
+			{
+				_mGroupUpdateMask |= value;
+				OwningPlayer.SetGroupUpdateFlag(GroupUpdateFlags.Pet);
+			}
+		}
+	}
+
 	public Pet(Player owner, PetType type = PetType.Max) : base(null, owner, true)
 	{
 		_petType = type;
 
-		Cypher.Assert(GetOwner().IsTypeId(TypeId.Player));
+		Cypher.Assert(OwningPlayer.IsTypeId(TypeId.Player));
 
 		UnitTypeMask |= UnitTypeMask.Pet;
 
@@ -227,7 +256,7 @@ public class Pet : Guardian
 
 		PhasingHandler.InheritPhaseShift(this, owner);
 
-		SetPetType(petInfo.Type);
+		PetType = petInfo.Type;
 		Faction = owner.Faction;
 		SetCreatedBySpell(petInfo.CreatedBySpellId);
 
@@ -265,7 +294,7 @@ public class Pet : Guardian
 		ReplaceAllNpcFlags2(NPCFlags2.None);
 		SetName(petInfo.Name);
 
-		switch (GetPetType())
+		switch (PetType)
 		{
 			case PetType.Summon:
 				petlevel = owner.Level;
@@ -284,7 +313,7 @@ public class Pet : Guardian
 				break;
 			default:
 				if (!IsPetGhoul())
-					Log.outError(LogFilter.Pet, "Pet have incorrect type ({0}) for pet loading.", GetPetType());
+					Log.outError(LogFilter.Pet, "Pet have incorrect type ({0}) for pet loading.", PetType);
 
 				break;
 		}
@@ -311,7 +340,7 @@ public class Pet : Guardian
 		ReactState = petInfo.ReactState;
 		SetCanModifyStats(true);
 
-		if (GetPetType() == PetType.Summon && !current) //all (?) summon pets come with full health when called, but not when they are current
+		if (PetType == PetType.Summon && !current) //all (?) summon pets come with full health when called, but not when they are current
 		{
 			SetFullPower(PowerType.Mana);
 		}
@@ -320,7 +349,7 @@ public class Pet : Guardian
 			var savedhealth = petInfo.Health;
 			var savedmana = petInfo.Mana;
 
-			if (savedhealth == 0 && GetPetType() == PetType.Hunter)
+			if (savedhealth == 0 && PetType == PetType.Hunter)
 			{
 				SetDeathState(DeathState.JustDied);
 			}
@@ -384,7 +413,7 @@ public class Pet : Guardian
 		map.AddToMap(AsCreature);
 
 		//set last used pet number (for use in BG's)
-		if (owner.IsPlayer && IsControlled() && !IsTemporarySummoned() && (GetPetType() == PetType.Summon || GetPetType() == PetType.Hunter))
+		if (owner.IsPlayer && IsControlled && !IsTemporarySummoned && (PetType == PetType.Summon || PetType == PetType.Hunter))
 			owner.AsPlayer.LastPetNumber = petInfo.PetNumber;
 
 		var session = owner.Session;
@@ -430,7 +459,7 @@ public class Pet : Guardian
 				SetSpecialization(specId);
 
 				// The SetSpecialization function will run these functions if the pet's spec is not 0
-				if (GetSpecialization() == 0)
+				if (Specialization == 0)
 				{
 					CleanupActionBar(); // remove unknown spells from action bar after load
 
@@ -438,9 +467,9 @@ public class Pet : Guardian
 				}
 
 
-				SetGroupUpdateFlag(GroupUpdatePetFlags.Full);
+				GroupUpdateFlag = GroupUpdatePetFlags.Full;
 
-				if (GetPetType() == PetType.Hunter)
+				if (PetType == PetType.Hunter)
 				{
 					var result = holder.GetResult(PetLoginQueryLoad.DeclinedNames);
 
@@ -467,14 +496,14 @@ public class Pet : Guardian
 			return;
 
 		// save only fully controlled creature
-		if (!IsControlled())
+		if (!IsControlled)
 			return;
 
 		// not save not player pets
 		if (!OwnerGUID.IsPlayer)
 			return;
 
-		var owner = GetOwner();
+		var owner = OwningPlayer;
 
 		if (owner == null)
 			return;
@@ -485,7 +514,7 @@ public class Pet : Guardian
 			owner.TemporaryUnsummonedPetNumber != GetCharmInfo().GetPetNumber())
 		{
 			// pet will lost anyway at restore temporary unsummoned
-			if (GetPetType() == PetType.Hunter)
+			if (PetType == PetType.Hunter)
 				return;
 
 			// for warlock case
@@ -550,8 +579,8 @@ public class Pet : Guardian
 
 			stmt.AddValue(13, GameTime.GetGameTime());
 			stmt.AddValue(14, UnitData.CreatedBySpell);
-			stmt.AddValue(15, (byte)GetPetType());
-			stmt.AddValue(16, GetSpecialization());
+			stmt.AddValue(15, (byte)PetType);
+			stmt.AddValue(16, Specialization);
 			trans.Append(stmt);
 
 			DB.Characters.CommitTransaction(trans);
@@ -579,8 +608,8 @@ public class Pet : Guardian
 		petInfo.ActionBar = GenerateActionBarData();
 		petInfo.LastSaveTime = (uint)GameTime.GetGameTime();
 		petInfo.CreatedBySpellId = UnitData.CreatedBySpell;
-		petInfo.Type = GetPetType();
-		petInfo.SpecializationId = GetSpecialization();
+		petInfo.Type = PetType;
+		petInfo.SpecializationId = Specialization;
 	}
 
 	public static void DeleteFromDB(uint petNumber)
@@ -624,7 +653,7 @@ public class Pet : Guardian
 
 		if (DeathState == DeathState.Corpse)
 		{
-			if (GetPetType() == PetType.Hunter)
+			if (PetType == PetType.Hunter)
 			{
 				// pet corpse non lootable and non skinnable
 				ReplaceAllDynamicFlags(UnitDynFlags.None);
@@ -649,7 +678,7 @@ public class Pet : Guardian
 		{
 			case DeathState.Corpse:
 			{
-				if (GetPetType() != PetType.Hunter || CorpseRemoveTime <= GameTime.GetGameTime())
+				if (PetType != PetType.Hunter || CorpseRemoveTime <= GameTime.GetGameTime())
 				{
 					Remove(PetSaveMode.NotInSlot); //hunters' pets never get removed because of death, NEVER!
 
@@ -661,20 +690,20 @@ public class Pet : Guardian
 			case DeathState.Alive:
 			{
 				// unsummon pet that lost owner
-				var owner = GetOwner();
+				var owner = OwningPlayer;
 
-				if (owner == null || (!IsWithinDistInMap(owner, Map.VisibilityRange) && !IsPossessed) || (IsControlled() && owner.PetGUID.IsEmpty))
+				if (owner == null || (!IsWithinDistInMap(owner, Map.VisibilityRange) && !IsPossessed) || (IsControlled && owner.PetGUID.IsEmpty))
 				{
 					Remove(PetSaveMode.NotInSlot, true);
 
 					return;
 				}
 
-				if (IsControlled())
+				if (IsControlled)
 					if (owner.PetGUID != GUID)
 					{
-						Log.outError(LogFilter.Pet, $"Pet {Entry} is not pet of owner {GetOwner().GetName()}, removed");
-						Cypher.Assert(GetPetType() != PetType.Hunter, $"Unexpected unlinked pet found for owner {owner.Session.GetPlayerInfo()}");
+						Log.outError(LogFilter.Pet, $"Pet {Entry} is not pet of owner {OwningPlayer.GetName()}, removed");
+						Cypher.Assert(PetType != PetType.Hunter, $"Unexpected unlinked pet found for owner {owner.Session.GetPlayerInfo()}");
 						Remove(PetSaveMode.NotInSlot);
 
 						return;
@@ -688,7 +717,7 @@ public class Pet : Guardian
 					}
 					else
 					{
-						Remove(GetPetType() != PetType.Summon ? PetSaveMode.AsDeleted : PetSaveMode.NotInSlot);
+						Remove(PetType != PetType.Summon ? PetSaveMode.AsDeleted : PetSaveMode.NotInSlot);
 
 						return;
 					}
@@ -732,12 +761,12 @@ public class Pet : Guardian
 
 	public void Remove(PetSaveMode mode, bool returnreagent = false)
 	{
-		GetOwner().RemovePet(this, mode, returnreagent);
+		OwningPlayer.RemovePet(this, mode, returnreagent);
 	}
 
 	public void GivePetXP(uint xp)
 	{
-		if (GetPetType() != PetType.Hunter)
+		if (PetType != PetType.Hunter)
 			return;
 
 		if (xp < 1)
@@ -746,7 +775,7 @@ public class Pet : Guardian
 		if (!IsAlive)
 			return;
 
-		var maxlevel = Math.Min(WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel), GetOwner().Level);
+		var maxlevel = Math.Min(WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel), OwningPlayer.Level);
 		var petlevel = Level;
 
 		// If pet is detected to be at, or above(?) the players level, don't hand out XP
@@ -778,7 +807,7 @@ public class Pet : Guardian
 		if (level == 0 || level == Level)
 			return;
 
-		if (GetPetType() == PetType.Hunter)
+		if (PetType == PetType.Hunter)
 		{
 			SetPetExperience(0);
 			SetPetNextLevelExperience((uint)(Global.ObjectMgr.GetXPForLevel((uint)level) * PetXPFactor));
@@ -822,7 +851,7 @@ public class Pet : Guardian
 		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
 
 		if (cFamily != null)
-			SetName(cFamily.Name[GetOwner().Session.SessionDbcLocale]);
+			SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
 		else
 			SetName(creature.GetName(Global.WorldMgr.DefaultDbcLocale));
 
@@ -837,7 +866,7 @@ public class Pet : Guardian
 		var cFamily = CliDB.CreatureFamilyStorage.LookupByKey(cinfo.Family);
 
 		if (cFamily != null)
-			SetName(cFamily.Name[GetOwner().Session.SessionDbcLocale]);
+			SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
 
 		Location.Relocate(owner.Location);
 
@@ -875,8 +904,8 @@ public class Pet : Guardian
 		{
 			PetLearnedSpells packet = new();
 			packet.Spells.Add(spellId);
-			GetOwner().SendPacket(packet);
-			GetOwner().PetSpellInitialize();
+			OwningPlayer.SendPacket(packet);
+			OwningPlayer.PetSpellInitialize();
 		}
 
 		return true;
@@ -914,7 +943,7 @@ public class Pet : Guardian
 			if (!_loading)
 			{
 				// need update action bar for last removed rank
-				Unit owner = GetOwner();
+				Unit owner = OwningPlayer;
 
 				if (owner)
 					if (owner.IsTypeId(TypeId.Player))
@@ -981,7 +1010,7 @@ public class Pet : Guardian
 
 	public bool IsPermanentPetFor(Player owner)
 	{
-		switch (GetPetType())
+		switch (PetType)
 		{
 			case PetType.Summon:
 				switch (owner.Class)
@@ -1049,12 +1078,12 @@ public class Pet : Guardian
 
 	public void SynchronizeLevelWithOwner()
 	{
-		Unit owner = GetOwner();
+		Unit owner = OwningPlayer;
 
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;
 
-		switch (GetPetType())
+		switch (PetType)
 		{
 			// always same level
 			case PetType.Summon:
@@ -1067,39 +1096,14 @@ public class Pet : Guardian
 		}
 	}
 
-	public new Player GetOwner()
-	{
-		return base.OwnerUnit.AsPlayer;
-	}
-
 	public override void SetDisplayId(uint modelId, float displayScale = 1f)
 	{
 		base.SetDisplayId(modelId, displayScale);
 
-		if (!IsControlled())
+		if (!IsControlled)
 			return;
 
-		SetGroupUpdateFlag(GroupUpdatePetFlags.ModelId);
-	}
-
-	public PetType GetPetType()
-	{
-		return _petType;
-	}
-
-	public void SetPetType(PetType type)
-	{
-		_petType = type;
-	}
-
-	public bool IsControlled()
-	{
-		return GetPetType() == PetType.Summon || GetPetType() == PetType.Hunter;
-	}
-
-	public bool IsTemporarySummoned()
-	{
-		return _duration > 0;
+		GroupUpdateFlag = GroupUpdatePetFlags.ModelId;
 	}
 
 	public override uint GetPetAutoSpellOnPos(byte pos)
@@ -1115,11 +1119,6 @@ public class Pet : Guardian
 		_duration = (int)dur;
 	}
 
-	public int GetDuration()
-	{
-		return _duration;
-	}
-
 	public void SetPetExperience(uint xp)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetExperience), xp);
@@ -1130,31 +1129,12 @@ public class Pet : Guardian
 		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.PetNextLevelExperience), xp);
 	}
 
-	public ushort GetSpecialization()
-	{
-		return _petSpecialization;
-	}
-
-	public GroupUpdatePetFlags GetGroupUpdateFlag()
-	{
-		return _mGroupUpdateMask;
-	}
-
-	public void SetGroupUpdateFlag(GroupUpdatePetFlags flag)
-	{
-		if (GetOwner().Group)
-		{
-			_mGroupUpdateMask |= flag;
-			GetOwner().SetGroupUpdateFlag(GroupUpdateFlags.Pet);
-		}
-	}
-
 	public void ResetGroupUpdateFlag()
 	{
 		_mGroupUpdateMask = GroupUpdatePetFlags.None;
 
-		if (GetOwner().Group)
-			GetOwner().RemoveGroupUpdateFlag(GroupUpdateFlags.Pet);
+		if (OwningPlayer.Group)
+			OwningPlayer.RemoveGroupUpdateFlag(GroupUpdateFlags.Pet);
 	}
 
 	public void SetSpecialization(uint spec)
@@ -1178,16 +1158,16 @@ public class Pet : Guardian
 
 		// resend SMSG_PET_SPELLS_MESSAGE to remove old specialization spells from the pet action bar
 		CleanupActionBar();
-		GetOwner().PetSpellInitialize();
+		OwningPlayer.PetSpellInitialize();
 
 		SetPetSpecialization setPetSpecialization = new();
 		setPetSpecialization.SpecID = _petSpecialization;
-		GetOwner().SendPacket(setPetSpecialization);
+		OwningPlayer.SendPacket(setPetSpecialization);
 	}
 
 	public override string GetDebugInfo()
 	{
-		return $"{base.GetDebugInfo()}\nPetType: {GetPetType()} PetNumber: {GetCharmInfo().GetPetNumber()}";
+		return $"{base.GetDebugInfo()}\nPetType: {PetType} PetNumber: {GetCharmInfo().GetPetNumber()}";
 	}
 
 	public DeclinedName GetDeclinedNames()
@@ -1560,7 +1540,7 @@ public class Pet : Guardian
 		}
 
 		if (!_loading)
-			GetOwner().SendPacket(packet);
+			OwningPlayer.SendPacket(packet);
 	}
 
 	void InitLevelupSpellsForLevel()
@@ -1606,7 +1586,7 @@ public class Pet : Guardian
 			{
 				PetUnlearnedSpells packet = new();
 				packet.Spells.Add(spellId);
-				GetOwner().SendPacket(packet);
+				OwningPlayer.SendPacket(packet);
 			}
 
 			return true;
@@ -1628,7 +1608,7 @@ public class Pet : Guardian
 		}
 
 		if (!_loading)
-			GetOwner().SendPacket(packet);
+			OwningPlayer.SendPacket(packet);
 	}
 
 	void CleanupActionBar()
@@ -1680,7 +1660,7 @@ public class Pet : Guardian
 
 	void CastPetAuras(bool current)
 	{
-		var owner = GetOwner();
+		var owner = OwningPlayer;
 
 		if (!IsPermanentPetFor(owner))
 			return;
@@ -1694,7 +1674,7 @@ public class Pet : Guardian
 
 	bool IsPetAura(Aura aura)
 	{
-		var owner = GetOwner();
+		var owner = OwningPlayer;
 
 		// if the owner has that pet aura, return true
 		foreach (var petAura in owner.PetAuras)

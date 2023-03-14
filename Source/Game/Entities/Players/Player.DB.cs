@@ -1125,8 +1125,10 @@ public partial class Player
 			StringBuilder ss = new();
 
 			lock (Taxi.TaxiLock)
+			{
 				for (var i = 0; i < Taxi.Taximask.Length; ++i)
 					ss.Append(Taxi.Taximask[i] + " ");
+			}
 
 			stmt.AddValue(index++, ss.ToString());
 			stmt.AddValue(index++, _createTime);
@@ -1278,8 +1280,10 @@ public partial class Player
 			StringBuilder ss = new();
 
 			lock (Taxi.TaxiLock)
+			{
 				for (var i = 0; i < Taxi.Taximask.Length; ++i)
 					ss.Append(Taxi.Taximask[i] + " ");
+			}
 
 			stmt.AddValue(index++, ss.ToString());
 			stmt.AddValue(index++, _cinematic);

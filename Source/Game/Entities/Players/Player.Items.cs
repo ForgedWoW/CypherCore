@@ -3559,12 +3559,14 @@ public partial class Player
 				if (item != null)
 				{
 					if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).HasCastItemGuid(item.GUID).Results.Any())
-						return;				
+						return;
 				}
-                else if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).Results.Any())
-                    return;
+				else if (GetAppliedAurasQuery().HasSpellId(spellInfo.Id).Results.Any())
+				{
+					return;
+				}
 
-            Log.outDebug(LogFilter.Player, "WORLD: cast {0} Equip spellId - {1}", (item != null ? "item" : "itemset"), spellInfo.Id);
+			Log.outDebug(LogFilter.Player, "WORLD: cast {0} Equip spellId - {1}", (item != null ? "item" : "itemset"), spellInfo.Id);
 
 			CastSpell(this, spellInfo.Id, new CastSpellExtraArgs(item));
 		}

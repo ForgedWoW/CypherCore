@@ -6189,7 +6189,7 @@ public class AuraEffect
 		if (!pet)
 			return;
 
-		var currSpec = CliDB.ChrSpecializationStorage.LookupByKey(pet.GetSpecialization());
+		var currSpec = CliDB.ChrSpecializationStorage.LookupByKey(pet.Specialization);
 
 		if (currSpec == null)
 			return;

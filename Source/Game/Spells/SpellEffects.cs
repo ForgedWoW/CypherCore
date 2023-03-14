@@ -2548,9 +2548,9 @@ public partial class Spell
 
 				newPos.Orientation = OldSummon.Location.Orientation;
 
-				OldSummon.NearTeleportTo(newPos);
+                OldSummon.NearTeleportTo(newPos);
 
-				if (owner.IsTypeId(TypeId.Player) && OldSummon.IsControlled())
+				if (owner.IsTypeId(TypeId.Player) && OldSummon.IsControlled)
 					owner.AsPlayer.PetSpellInitialize();
 
 				return;
@@ -2571,7 +2571,7 @@ public partial class Spell
 		owner.GetClosePoint(combatPos, owner.CombatReach);
 		combatPos.Orientation = owner.Location.Orientation;
 		combatPos.Z += 2;
-		var pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out var isNew);
+        var pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out var isNew);
 
 		if (pet == null)
 			return;
@@ -2595,7 +2595,8 @@ public partial class Spell
 				pet.SetName(new_name);
 		}
 
-		ExecuteLogEffectSummonObject(EffectInfo.Effect, pet);
+        pet.Location.WorldRelocate(owner.Location.MapId, combatPos);
+        ExecuteLogEffectSummonObject(EffectInfo.Effect, pet);
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnPetSpell)]
@@ -2626,7 +2627,7 @@ public partial class Spell
 
 		pet.LearnSpell(learn_spellproto.Id);
 		pet.SavePetToDB(PetSaveMode.AsCurrent);
-		pet.GetOwner().PetSpellInitialize();
+		pet.OwningPlayer.PetSpellInitialize();
 	}
 
 	[SpellEffectHandler(SpellEffectName.AttackMe)]
@@ -4293,7 +4294,7 @@ public partial class Spell
 
 			var slot = (PetSaveMode)deadPetIndex;
 
-			player.SummonPet(0, slot, 0f, 0f, 0f, 0f, 0);
+			player.SummonPet(0, slot, new Position(), 0);
 			hadPet = false;
 		}
 
@@ -5112,7 +5113,7 @@ public partial class Spell
 		if (UnitTarget == null ||
 			!UnitTarget.IsTypeId(TypeId.Unit) ||
 			!UnitTarget.IsPet ||
-			UnitTarget.AsPet.GetPetType() != PetType.Hunter)
+			UnitTarget.AsPet.			PetType != PetType.Hunter)
 			return;
 
 		UnitTarget.SetPetFlag(UnitPetFlags.CanBeRenamed);

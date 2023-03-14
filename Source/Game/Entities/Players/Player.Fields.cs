@@ -16,9 +16,7 @@ namespace Game.Entities;
 
 public partial class Player
 {
-	public bool AutoAcceptQuickJoin { get; set; }
-    public bool OverrideScreenFlash { get; set; }
-    public PvPInfo PvpInfo;
+	public PvPInfo PvpInfo;
 	readonly List<Channel> _channels = new();
 	readonly List<ObjectGuid> _whisperList = new();
 
@@ -211,6 +209,8 @@ public partial class Player
 	uint _ingametime;
 
 	PlayerCommandStates _activeCheats;
+	public bool AutoAcceptQuickJoin { get; set; }
+	public bool OverrideScreenFlash { get; set; }
 
 	//Gossip
 	public PlayerMenu PlayerTalkClass { get; set; }

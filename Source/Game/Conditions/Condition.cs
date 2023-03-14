@@ -357,7 +357,7 @@ namespace Game.Conditions
                     {
                         Pet pet = player.CurrentPet;
                         if (pet)
-                            condMeets = (((1 << (int)pet.GetPetType()) & ConditionValue1) != 0);
+                            condMeets = (((1 << (int)pet.PetType) & ConditionValue1) != 0);
                     }
                     break;
                 }

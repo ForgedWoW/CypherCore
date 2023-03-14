@@ -16,7 +16,7 @@ public class PlayerTaxi
 	public byte[] Taximask;
 	readonly List<uint> _taxiDestinations = new();
 	uint _flightMasterFactionId;
-    public object TaxiLock { get; } = new object();
+	public object TaxiLock { get; } = new();
 
 	public void InitTaxiNodesForLevel(Race race, Class chrClass, uint level)
 	{
@@ -235,8 +235,10 @@ public class PlayerTaxi
 		var field = (nodeidx - 1) / 8;
 		var submask = (uint)(1 << (int)((nodeidx - 1) % 8));
 
-        lock (TaxiLock)
-            return (Taximask[field] & submask) == submask;
+		lock (TaxiLock)
+		{
+			return (Taximask[field] & submask) == submask;
+		}
 	}
 
 	public bool SetTaximaskNode(uint nodeidx)
@@ -244,8 +246,9 @@ public class PlayerTaxi
 		var field = (nodeidx - 1) / 8;
 		var submask = (uint)(1 << (int)((nodeidx - 1) % 8));
 
-        lock (TaxiLock)
-            if ((Taximask[field] & submask) != submask)
+		lock (TaxiLock)
+		{
+			if ((Taximask[field] & submask) != submask)
 			{
 				Taximask[field] |= (byte)submask;
 
@@ -255,6 +258,7 @@ public class PlayerTaxi
 			{
 				return false;
 			}
+		}
 	}
 
 	public void ClearTaxiDestinations()

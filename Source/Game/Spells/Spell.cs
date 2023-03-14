@@ -2050,7 +2050,7 @@ public partial class Spell : IDisposable
 
 						var pet = target.AsPet;
 
-						if (pet == null || pet.GetOwner() != _caster)
+						if (pet == null || pet.OwningPlayer != _caster)
 							return SpellCastResult.BadTargets;
 
 						var learn_spellproto = Global.SpellMgr.GetSpellInfo(spellEffectInfo.TriggerSpell, Difficulty.None);
@@ -2569,7 +2569,7 @@ public partial class Spell : IDisposable
 					{
 						var pet = player.CurrentPet;
 
-						if (!pet || pet.GetPetType() != PetType.Hunter || pet.GetCharmInfo() == null)
+						if (!pet || pet.PetType != PetType.Hunter || pet.GetCharmInfo() == null)
 							return SpellCastResult.NoPet;
 					}
 

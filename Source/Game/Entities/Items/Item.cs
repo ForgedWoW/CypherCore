@@ -83,6 +83,8 @@ public class Item : WorldObject
 
 	public override ObjectGuid OwnerGUID => ItemData.Owner;
 
+	public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
+
 	public Item() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.Item;
@@ -769,9 +771,7 @@ public class Item : WorldObject
 		return Global.ObjectMgr.GetItemTemplate(Entry);
 	}
 
-    public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
-
-    public SkillType GetSkill()
+	public SkillType GetSkill()
 	{
 		var proto = GetTemplate();
 

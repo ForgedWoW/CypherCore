@@ -2935,8 +2935,10 @@ public partial class Player
 
 	public void SendQuestGiverStatusMultiple()
 	{
-        lock (ClientGuiDs)
-            SendQuestGiverStatusMultiple(ClientGuiDs);
+		lock (ClientGuiDs)
+		{
+			SendQuestGiverStatusMultiple(ClientGuiDs);
+		}
 	}
 
 	public void SendQuestGiverStatusMultiple(List<ObjectGuid> guids)
@@ -3021,6 +3023,7 @@ public partial class Player
 		UpdateData udata = new(Location.MapId);
 
 		lock (ClientGuiDs)
+		{
 			foreach (var guid in ClientGuiDs)
 				if (guid.IsGameObject)
 				{
@@ -3081,6 +3084,7 @@ public partial class Player
 						}
 					}
 				}
+		}
 
 		udata.BuildPacket(out var packet);
 		SendPacket(packet);

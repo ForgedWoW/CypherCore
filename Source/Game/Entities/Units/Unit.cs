@@ -24,9 +24,9 @@ namespace Game.Entities;
 
 public partial class Unit : WorldObject
 {
+	public object SendLock = new();
 	static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
-	private object _healthLock = new object();
-	public object SendLock = new object();
+	private readonly object _healthLock = new();
 
 	public bool IsInDisallowedMountForm => IsDisallowedMountForm(TransformSpell, ShapeshiftForm, DisplayId);
 
@@ -328,24 +328,24 @@ public partial class Unit : WorldObject
 
 	public bool IsFFAPvP => HasPvpFlag(UnitPVPStateFlags.FFAPvp);
 
-    public override float ObjectScale
-    {
-        get => base.ObjectScale;
-        set
-        {
-            var minfo = Global.ObjectMgr.GetCreatureModelInfo(DisplayId);
+	public override float ObjectScale
+	{
+		get => base.ObjectScale;
+		set
+		{
+			var minfo = Global.ObjectMgr.GetCreatureModelInfo(DisplayId);
 
-            if (minfo != null)
-            {
-                BoundingRadius = (IsPet ? 1.0f : minfo.BoundingRadius) * ObjectScale;
-                SetCombatReach((IsPet ? SharedConst.DefaultPlayerCombatReach : minfo.CombatReach) * ObjectScale);
-            }
+			if (minfo != null)
+			{
+				BoundingRadius = (IsPet ? 1.0f : minfo.BoundingRadius) * ObjectScale;
+				SetCombatReach((IsPet ? SharedConst.DefaultPlayerCombatReach : minfo.CombatReach) * ObjectScale);
+			}
 
-            base.ObjectScale = value;
-        }
-    }
+			base.ObjectScale = value;
+		}
+	}
 
-    public UnitPetFlags PetFlags => (UnitPetFlags)(byte)UnitData.PetFlags;
+	public UnitPetFlags PetFlags => (UnitPetFlags)(byte)UnitData.PetFlags;
 
 	public ShapeShiftForm ShapeshiftForm
 	{
@@ -1979,7 +1979,7 @@ public partial class Unit : WorldObject
 
 						if (pet)
 						{
-							if (pet.GetPetType() == PetType.Hunter) // Hunter pets have focus
+							if (pet.PetType == PetType.Hunter) // Hunter pets have focus
 								displayPower = PowerType.Focus;
 							else if (pet.IsPetGhoul() || pet.IsPetAbomination()) // DK pets have energy
 								displayPower = PowerType.Energy;
@@ -2975,8 +2975,8 @@ public partial class Unit : WorldObject
 		}
 		else if (victim.TryGetAsCreature(out var creature) && damageTaken >= health && creature.StaticFlags.HasFlag(CreatureStaticFlags.UNKILLABLE))
 		{
-            damageTaken = health - 1;
-        }
+			damageTaken = health - 1;
+		}
 		else if (victim.IsVehicle && damageTaken >= (health - 1) && victim.Charmer != null && victim.Charmer.IsTypeId(TypeId.Player))
 		{
 			var victimRider = victim.Charmer.AsPlayer;
@@ -3258,6 +3258,7 @@ public partial class Unit : WorldObject
 			if (val <= 0)
 			{
 				SetHealth(0);
+
 				return -curHealth;
 			}
 
@@ -4206,12 +4207,10 @@ public partial class Unit : WorldObject
 
 		// Remove damages older than maxPastTime, can be increased if required
 		foreach (var kvp in DamageTakenHistory)
-		{
 			if (kvp.Key < maxPastTime)
 				DamageTakenHistory.QueueRemove(kvp.Key);
 			else
 				break;
-        }
 
 		DamageTakenHistory.ExecuteRemove();
 

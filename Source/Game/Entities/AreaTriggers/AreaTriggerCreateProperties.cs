@@ -72,30 +72,30 @@ public unsafe class AreaTriggerCreateProperties
 
 	public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId)
 	{
-        AreaTriggerCreateProperties ret = new();
-        ret.Id = areaTriggerId;
-        ret.ScriptIds = ObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId);
-        ret.Template = new();
-		ret.Template.Id = new(areaTriggerId, false);
+		AreaTriggerCreateProperties ret = new();
+		ret.Id = areaTriggerId;
+		ret.ScriptIds = ObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId);
+		ret.Template = new AreaTriggerTemplate();
+		ret.Template.Id = new AreaTriggerId(areaTriggerId, false);
 		ret.Template.Flags = 0;
-		ret.Template.Actions.Add(new()
+
+		ret.Template.Actions.Add(new AreaTriggerAction
 		{
 			ActionType = AreaTriggerActionTypes.Cast,
 			Param = 0,
 			TargetType = AreaTriggerActionUserTypes.Friend
 		});
 
-        ret.MoveCurveId = 0;
-        ret.ScaleCurveId = 0;
-        ret.MorphCurveId = 0;
-        ret.FacingCurveId = 0;
-        ret.AnimId = 0;
-        ret.AnimKitId = 0;
-        ret.DecalPropertiesId = 0;
-        ret.TimeToTarget = 0;
-        ret.TimeToTargetScale = 0;
+		ret.MoveCurveId = 0;
+		ret.ScaleCurveId = 0;
+		ret.MorphCurveId = 0;
+		ret.FacingCurveId = 0;
+		ret.AnimId = 0;
+		ret.AnimKitId = 0;
+		ret.DecalPropertiesId = 0;
+		ret.TimeToTarget = 0;
+		ret.TimeToTargetScale = 0;
 
 		return ret;
-
-    }
+	}
 }

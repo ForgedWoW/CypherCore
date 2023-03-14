@@ -42,21 +42,22 @@ public partial class Player : Unit
 
 	public bool IsAdvancedCombatLoggingEnabled => _advancedCombatLoggingEnabled;
 
-    public override float ObjectScale 
-	{ 
+	public override float ObjectScale
+	{
 		get => base.ObjectScale;
 		set
 		{
 			base.ObjectScale = value;
 
-            BoundingRadius = value * SharedConst.DefaultPlayerBoundingRadius;
+			BoundingRadius = value * SharedConst.DefaultPlayerBoundingRadius;
 			SetCombatReach(value * SharedConst.DefaultPlayerCombatReach);
+
 			if (IsInWorld)
 				SendMovementSetCollisionHeight(CollisionHeight, UpdateCollisionHeightReason.Scale);
 		}
 	}
 
-    public PetStable PetStable
+	public PetStable PetStable
 	{
 		get
 		{
@@ -1299,7 +1300,7 @@ public partial class Player : Unit
 		if (!pet)
 			return;
 
-		if (_temporaryUnsummonedPetNumber == 0 && pet.IsControlled() && !pet.IsTemporarySummoned())
+		if (_temporaryUnsummonedPetNumber == 0 && pet.IsControlled && !pet.IsTemporarySummoned)
 		{
 			_temporaryUnsummonedPetNumber = pet.GetCharmInfo().GetPetNumber();
 			_oldpetspell = pet.UnitData.CreatedBySpell;
@@ -2822,6 +2823,7 @@ public partial class Player : Unit
 							Log.outError(LogFilter.Sql, $"Creature entry {creature.Entry} has an unknown gossip option icon {gossipMenuItem.OptionNpc} for menu {gossipMenuItem.MenuId}.");
 							canTalk = false;
 						}
+
 						break;
 				}
 			else if (go != null)
@@ -3404,8 +3406,10 @@ public partial class Player : Unit
 			return;
 
 		UpdateData udata = new(Location.MapId);
-        lock (ClientGuiDs)
-            foreach (var guid in ClientGuiDs)
+
+		lock (ClientGuiDs)
+		{
+			foreach (var guid in ClientGuiDs)
 				if (guid.IsCreatureOrVehicle)
 				{
 					var creature = Map.GetCreature(guid);
@@ -3430,6 +3434,7 @@ public partial class Player : Unit
 					go.ForceUpdateFieldChange();
 					go.BuildValuesUpdateBlockForPlayer(udata, this);
 				}
+		}
 
 		if (!udata.HasData())
 			return;
@@ -3961,22 +3966,12 @@ public partial class Player : Unit
 		return pet != null;
 	}
 
-	public Pet SummonPet(uint entry, PetSaveMode? slot, Position pos, uint duration, out bool isNew)
-	{
-		return SummonPet(entry, slot, pos.X, pos.Y, pos.Z, pos.Orientation, duration, out isNew);
-	}
-
 	public Pet SummonPet(uint entry, PetSaveMode? slot, Position pos, uint duration)
 	{
-		return SummonPet(entry, slot, pos.X, pos.Y, pos.Z, pos.Orientation, duration, out _);
+		return SummonPet(entry, slot, pos, duration, out _);
 	}
 
-	public Pet SummonPet(uint entry, PetSaveMode? slot, float x, float y, float z, float ang, uint duration)
-	{
-		return SummonPet(entry, slot, x, y, z, ang, duration, out _);
-	}
-
-	public Pet SummonPet(uint entry, PetSaveMode? slot, float x, float y, float z, float ang, uint duration, out bool isNew)
+	public Pet SummonPet(uint entry, PetSaveMode? slot, Position pos, uint duration, out bool isNew)
 	{
 		isNew = false;
 
@@ -3997,8 +3992,7 @@ public partial class Player : Unit
 			return null;
 
 		// only SUMMON_PET are handled here
-		z = UpdateAllowedPositionZ(x, y, z) + 2;
-        pet.Location.Relocate(x, y, z, ang);
+		UpdateAllowedPositionZ(pos);
 
 		if (!pet.Location.IsPositionValid)
 		{
@@ -4062,6 +4056,8 @@ public partial class Player : Unit
 		//ObjectAccessor.UpdateObjectVisibility(pet);
 
 		isNew = true;
+		pet.Location.WorldRelocate(pet.OwnerUnit.Location.MapId, pos);
+		pet.NearTeleportTo(pos);
 
 		return pet;
 	}
@@ -4131,7 +4127,7 @@ public partial class Player : Unit
 		pet.AddObjectToRemoveList();
 		pet.Removed = true;
 
-		if (pet.IsControlled())
+		if (pet.IsControlled)
 		{
 			SendPacket(new PetSpells());
 
@@ -4871,9 +4867,9 @@ public partial class Player : Unit
 		// SMSG_WORLD_SERVER_INFO
 		WorldServerInfo worldServerInfo = new();
 		worldServerInfo.InstanceGroupSize = Map.MapDifficulty.MaxPlayers; // @todo
-		worldServerInfo.IsTournamentRealm = false;                             // @todo
-		worldServerInfo.RestrictedAccountMaxLevel = null;                      // @todo
-		worldServerInfo.RestrictedAccountMaxMoney = null;                      // @todo
+		worldServerInfo.IsTournamentRealm = false;                        // @todo
+		worldServerInfo.RestrictedAccountMaxLevel = null;                 // @todo
+		worldServerInfo.RestrictedAccountMaxMoney = null;                 // @todo
 		worldServerInfo.DifficultyID = (uint)Map.DifficultyID;
 		// worldServerInfo.XRealmPvpAlert;  // @todo
 		SendPacket(worldServerInfo);
@@ -8014,7 +8010,9 @@ public partial class Player : Unit
 					target.DestroyForPlayer(this);
 
 				lock (ClientGuiDs)
+				{
 					ClientGuiDs.Remove(target.GUID);
+				}
 			}
 		}
 		else
@@ -8023,8 +8021,10 @@ public partial class Player : Unit
 			{
 				target.SendUpdateToPlayer(this);
 
-                lock (ClientGuiDs)
-                    ClientGuiDs.Add(target.GUID);
+				lock (ClientGuiDs)
+				{
+					ClientGuiDs.Add(target.GUID);
+				}
 
 				// target aura duration for caster show only if target exist at caster client
 				// send data at target visibility change (adding to client)

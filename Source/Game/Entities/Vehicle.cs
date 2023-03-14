@@ -125,8 +125,7 @@ public class Vehicle : ITransport, IDisposable
 		if (GetBase().IsTypeId(TypeId.Unit))
 			Global.ScriptMgr.RunScript<IVehicleOnRemovePassenger>(p => p.OnRemovePassenger(this, unit), GetBase().AsCreature.GetScriptId());
 
-		unit.
-		Vehicle1 = null;
+		unit.Vehicle1 = null;
 
 		return this;
 	}

@@ -189,7 +189,7 @@ namespace Game
                                         AI.AttackStart(TargetUnit);
 
                                     //10% chance to play special pet attack talk, else growl
-                                    if (pet.IsPet && pet.AsPet.GetPetType() == PetType.Summon && pet != TargetUnit && RandomHelper.IRand(0, 100) < 10)
+                                    if (pet.IsPet && pet.AsPet.PetType == PetType.Summon && pet != TargetUnit && RandomHelper.IRand(0, 100) < 10)
                                         pet.SendPetTalk(PetTalk.Attack);
                                     else
                                     {
@@ -219,7 +219,7 @@ namespace Game
                                 Cypher.Assert(pet.IsTypeId(TypeId.Unit));
                                 if (pet.IsPet)
                                 {
-                                    if (pet.AsPet.GetPetType() == PetType.Hunter)
+                                    if (pet.AsPet.PetType == PetType.Hunter)
                                         Player.RemovePet(pet.AsPet, PetSaveMode.AsDeleted);
                                     else
                                         Player.RemovePet(pet.AsPet, PetSaveMode.NotInSlot);
@@ -338,7 +338,7 @@ namespace Game
 
                         //10% chance to play special pet attack talk, else growl
                         //actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                        if (pet.IsPet && (pet.AsPet.GetPetType() == PetType.Summon) && (pet != unit_target) && (RandomHelper.IRand(0, 100) < 10))
+                        if (pet.IsPet && (pet.AsPet.PetType == PetType.Summon) && (pet != unit_target) && (RandomHelper.IRand(0, 100) < 10))
                             pet.SendPetTalk(PetTalk.SpecialSpell);
                         else
                         {
@@ -525,7 +525,7 @@ namespace Game
             PetStable petStable = _player.PetStable1;
             Pet pet = ObjectAccessor.GetPet(Player, petguid);
             // check it!
-            if (!pet || !pet.IsPet || pet.AsPet.GetPetType() != PetType.Hunter || !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
+            if (!pet || !pet.IsPet || pet.AsPet.PetType != PetType.Hunter || !pet.HasPetFlag(UnitPetFlags.CanBeRenamed) ||
                 pet.                OwnerGUID != _player.GUID || pet.GetCharmInfo() == null ||
                 petStable == null || petStable.GetCurrentPet() == null || petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().GetPetNumber())
                 return;
@@ -544,7 +544,7 @@ namespace Game
             }
 
             pet.SetName(name);
-            pet.SetGroupUpdateFlag(GroupUpdatePetFlags.Name);
+            pet.            GroupUpdateFlag = GroupUpdatePetFlags.Name;
             pet.RemovePetFlag(UnitPetFlags.CanBeRenamed);
 
             petStable.GetCurrentPet().Name = name;
@@ -587,7 +587,7 @@ namespace Game
 
             // pet/charmed
             Creature pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.Pet);
-            if (pet && pet.AsPet && pet.AsPet.GetPetType() == PetType.Hunter)
+            if (pet && pet.AsPet && pet.AsPet.PetType == PetType.Hunter)
             {
                 _player.RemovePet((Pet)pet, PetSaveMode.AsDeleted);
             }
@@ -709,7 +709,7 @@ namespace Game
                     {
                         // 10% chance to play special pet attack talk, else growl
                         // actually this only seems to happen on special spells, fire shield for imp, torment for voidwalker, but it's stupid to check every spell
-                        if (pet.GetPetType() == PetType.Summon && (RandomHelper.IRand(0, 100) < 10))
+                        if (pet.PetType == PetType.Summon && (RandomHelper.IRand(0, 100) < 10))
                             pet.SendPetTalk(PetTalk.SpecialSpell);
                         else
                             pet.SendPetAIReaction(petCastSpell.PetGUID);

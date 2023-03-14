@@ -1212,7 +1212,7 @@ public partial class Unit
 		}
 		else
 		{
-            SendTeleportPacket(pos);
+			SendTeleportPacket(pos);
 			UpdatePosition(pos, true);
 			UpdateObjectVisibility();
 		}

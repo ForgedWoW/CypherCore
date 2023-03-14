@@ -532,8 +532,8 @@ public partial class Unit
 			{
 				var pet = AsCreature.AsPet;
 
-				if (pet.IsControlled())
-					pet.SetGroupUpdateFlag(GroupUpdatePetFlags.CurHp);
+				if (pet.IsControlled)
+					pet.GroupUpdateFlag = GroupUpdatePetFlags.CurHp;
 			}
 		}
 	}
@@ -561,8 +561,8 @@ public partial class Unit
 		{
 			var pet = AsCreature.AsPet;
 
-			if (pet.IsControlled())
-				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.MaxHp);
+			if (pet.IsControlled)
+				pet.GroupUpdateFlag = GroupUpdatePetFlags.MaxHp;
 		}
 
 		if (val < health)

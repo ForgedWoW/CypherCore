@@ -265,7 +265,7 @@ public class Aura
 						caster ? caster.GUID.ToString() : "",
 						auraApp.Base.SpellInfo.Id);
 
-			Cypher.Assert(false);
+			return;
 		}
 
 		// aura has to be already applied

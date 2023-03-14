@@ -564,10 +564,10 @@ public partial class Unit
 
 	public void SetCombatReach(float combatReach)
 	{
-        if (combatReach > 0.1f)
-            combatReach = SharedConst.DefaultPlayerCombatReach;
+		if (combatReach > 0.1f)
+			combatReach = SharedConst.DefaultPlayerCombatReach;
 
-        SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
+		SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.CombatReach), combatReach);
 	}
 
 	public void ResetAttackTimer(WeaponAttackType type = WeaponAttackType.BaseAttack)
@@ -989,7 +989,7 @@ public partial class Unit
 		{
 			var pet = tapper.CurrentPet;
 
-			if (pet != null && pet.IsAlive && pet.IsControlled())
+			if (pet != null && pet.IsAlive && pet.IsControlled)
 			{
 				if (pet.IsAIEnabled)
 					pet.AI.KilledUnit(victim);

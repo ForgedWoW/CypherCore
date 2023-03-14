@@ -23,6 +23,8 @@ public class Position
 
 	public bool IsDefault => X == default && Y == default && Z == default && Orientation == default;
 
+	public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
+
 	public Position(float x = 0f, float y = 0f, float z = 0f, float o = 0f)
 	{
 		X = x;
@@ -93,9 +95,7 @@ public class Position
 		Orientation = Orientation + offset.Orientation;
 	}
 
-    public bool IsPositionValid => GridDefines.IsValidMapCoord(X, Y, Z, Orientation);
-
-    public float GetRelativeAngle(Position pos)
+	public float GetRelativeAngle(Position pos)
 	{
 		return ToRelativeAngle(GetAbsoluteAngle(pos));
 	}

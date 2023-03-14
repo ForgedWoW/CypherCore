@@ -51,8 +51,7 @@ public class VehicleJoinEvent : BasicEvent
 		if (Passenger.Vehicle1 != null)
 			Passenger.ExitVehicle();
 
-		Passenger.
-		Vehicle1 = Target;
+		Passenger.Vehicle1 = Target;
 		Seat.Value.Passenger.Guid = Passenger.GUID;
 		Seat.Value.Passenger.IsUninteractible = Passenger.HasUnitFlag(UnitFlags.Uninteractible);
 		Seat.Value.Passenger.IsGravityDisabled = Passenger.HasUnitMovementFlag(MovementFlag.DisableGravity);

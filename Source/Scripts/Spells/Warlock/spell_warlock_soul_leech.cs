@@ -37,7 +37,7 @@ public class spell_warlock_soul_leech : AuraScript, IHasAuraEffects
 
 		if (pet != null)
 		{
-			secondaryTarget = pet.GetOwner();
+			secondaryTarget = pet.OwningPlayer;
 
 			if (secondaryTarget == null)
 				return;

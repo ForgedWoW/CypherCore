@@ -2161,12 +2161,19 @@ public abstract class WorldObject : IDisposable
 		return duration;
 	}
 
-    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
+	public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
 	{
-		return ModSpellDuration(spellInfo, target, duration, positive, new HashSet<int>() { effIndex });
+		return ModSpellDuration(spellInfo,
+								target,
+								duration,
+								positive,
+								new HashSet<int>()
+								{
+									effIndex
+								});
 	}
 
-    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
+	public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
 	{
 		// don't mod permanent auras duration
 		if (duration < 0)
@@ -3253,8 +3260,10 @@ public abstract class WorldObject : IDisposable
 
 			DestroyForPlayer(player);
 
-			lock(player.ClientGuiDs)
+			lock (player.ClientGuiDs)
+			{
 				player.ClientGuiDs.Remove(GUID);
+			}
 		}
 	}
 
@@ -3894,11 +3903,11 @@ public abstract class WorldObject : IDisposable
 
 	public void GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
 	{
-        var x = pos.X;
-        var y = pos.Y;
-        GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
-        pos.Z = Location.Z;
-        pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
+		var x = pos.X;
+		var y = pos.Y;
+		GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
+		pos.Z = Location.Z;
+		pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
 		pos.X = x;
 		pos.Y = y;
 
@@ -3918,12 +3927,12 @@ public abstract class WorldObject : IDisposable
 		for (var angle = MathFunctions.PI / 8; angle < Math.PI * 2; angle += MathFunctions.PI / 8)
 		{
 			GetNearPoint2D(searcher, out x, out y, distance2d, absAngle + angle);
-            pos.Z = Location.Z;
-            pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
+			pos.Z = Location.Z;
+			pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
 			pos.X = x;
 			pos.Y = y;
 
-            if (IsWithinLOS(pos.X, pos.Y, pos.Z))
+			if (IsWithinLOS(pos.X, pos.Y, pos.Z))
 				return;
 		}
 

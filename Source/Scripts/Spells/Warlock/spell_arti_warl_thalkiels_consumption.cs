@@ -37,7 +37,7 @@ public class spell_arti_warl_thalkiels_consumption : SpellScript, IHasSpellEffec
 			if (!target.IsCreature)
 				return true;
 
-			if (!target.AsCreature.IsPet || target.AsCreature.AsPet.GetOwner() != Caster)
+			if (!target.AsCreature.IsPet || target.AsCreature.AsPet.OwningPlayer != Caster)
 				return true;
 
 			if (target.AsCreature.CreatureType != CreatureType.Demon)

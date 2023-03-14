@@ -140,7 +140,7 @@ public partial class Player
 			var pet = CurrentPet;
 
 			if (pet)
-				pet.SetGroupUpdateFlag(GroupUpdatePetFlags.Full);
+				pet.GroupUpdateFlag = GroupUpdatePetFlags.Full;
 		}
 
 		// zone changed, so area changed as well, update it

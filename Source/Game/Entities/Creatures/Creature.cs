@@ -19,6 +19,7 @@ namespace Game.Entities;
 
 public partial class Creature : Unit
 {
+	public override CreatureAI AI => Ai as CreatureAI;
 
 	public Creature() : this(false) { }
 
@@ -49,10 +50,10 @@ public partial class Creature : Unit
 		// Register the creature for guid lookup
 		if (!IsInWorld)
 		{
-			Map.			ObjectsStore.Add(GUID, this);
+			Map.ObjectsStore.Add(GUID, this);
 
 			if (SpawnId != 0)
-				Map.				CreatureBySpawnIdStore.Add(SpawnId, this);
+				Map.CreatureBySpawnIdStore.Add(SpawnId, this);
 
 			base.AddToWorld();
 			SearchFormation();
@@ -79,10 +80,9 @@ public partial class Creature : Unit
 			base.RemoveFromWorld();
 
 			if (SpawnId != 0)
-				Map.				CreatureBySpawnIdStore.Remove(SpawnId, this);
+				Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
 
-			Map.
-			ObjectsStore.Remove(GUID);
+			Map.ObjectsStore.Remove(GUID);
 		}
 	}
 
@@ -229,7 +229,7 @@ public partial class Creature : Unit
 		if (cInfo == null)
 			cInfo = normalInfo;
 
-		Entry = entry;         // normal entry always
+		Entry = entry;    // normal entry always
 		Template = cInfo; // map mode related always
 
 		// equal to player Race field, but creature does not have race
@@ -2748,7 +2748,7 @@ public partial class Creature : Unit
 		if (cannotReach == CannotReachTarget)
 			return;
 
-        CannotReachTarget = cannotReach;
+		CannotReachTarget = cannotReach;
 		_cannotReachTimer = 0;
 
 		if (cannotReach)
@@ -2977,9 +2977,7 @@ public partial class Creature : Unit
 		SetImmuneToNPC(apply, HasReactState(ReactStates.Passive));
 	}
 
-    public override CreatureAI AI => Ai as CreatureAI;
-
-    public T GetAI<T>() where T : CreatureAI
+	public T GetAI<T>() where T : CreatureAI
 	{
 		return Ai as T;
 	}
@@ -3393,6 +3391,6 @@ public partial class Creature : Unit
 
 	void SetDisableReputationGain(bool disable)
 	{
-        IsReputationGainDisabled = disable;
+		IsReputationGainDisabled = disable;
 	}
 }

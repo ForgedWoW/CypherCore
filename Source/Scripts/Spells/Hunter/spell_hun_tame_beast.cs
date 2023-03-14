@@ -30,7 +30,7 @@ internal class spell_hun_tame_beast : SpellScript, ISpellCheckCast
 
 		if (target)
 		{
-			if (target.Level > caster.Level)
+			if (target.GetLevelForTarget(caster) > caster.Level)
 				return SpellCastResult.Highlevel;
 
 			// use SMSG_PET_TAME_FAILURE?

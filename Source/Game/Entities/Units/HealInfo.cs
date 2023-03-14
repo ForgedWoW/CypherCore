@@ -19,18 +19,22 @@ public class HealInfo
 	double _absorb;
 	ProcFlagsHit _hitMask;
 
-    public Unit Healer => _healer;
-    public Unit Target => _target;
-    public double OriginalHeal => _originalHeal;
-    public SpellInfo SpellInfo => _spellInfo;
-    public SpellSchoolMask SchoolMask => _schoolMask;
-    public double Heal => _heal;
-    public double EffectiveHeal => _effectiveHeal;
-    public double Absorb => _absorb;
-    public ProcFlagsHit HitMask => _hitMask;
-    public bool IsCritical { get { return _hitMask.HasFlag(ProcFlagsHit.Critical); } }
+	public Unit Healer => _healer;
+	public Unit Target => _target;
+	public double OriginalHeal => _originalHeal;
+	public SpellInfo SpellInfo => _spellInfo;
+	public SpellSchoolMask SchoolMask => _schoolMask;
+	public double Heal => _heal;
+	public double EffectiveHeal => _effectiveHeal;
+	public double Absorb => _absorb;
+	public ProcFlagsHit HitMask => _hitMask;
 
-    public HealInfo(Unit healer, Unit target, double heal, SpellInfo spellInfo, SpellSchoolMask schoolMask)
+	public bool IsCritical
+	{
+		get { return _hitMask.HasFlag(ProcFlagsHit.Critical); }
+	}
+
+	public HealInfo(Unit healer, Unit target, double heal, SpellInfo spellInfo, SpellSchoolMask schoolMask)
 	{
 		_healer = healer;
 		_target = target;
@@ -50,8 +54,8 @@ public class HealInfo
 		_hitMask |= ProcFlagsHit.Absorb;
 	}
 
-    public void SetEffectiveHeal(uint amount)
-    {
-        _effectiveHeal = amount;
-    }
+	public void SetEffectiveHeal(uint amount)
+	{
+		_effectiveHeal = amount;
+	}
 }

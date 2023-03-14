@@ -58,9 +58,9 @@ namespace Game.Entities
 		bool _respawnCompatibilityMode;
 		ushort _animKitId;
 		uint _worldEffectId;
-        uint? _gossipMenuId;
+		uint? _gossipMenuId;
 
-        Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
+		Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
 
 		GameObjectState _prevGoState; // What state to set whenever resetting
 		Dictionary<ObjectGuid, Loot> _personalLoot = new();
@@ -211,22 +211,19 @@ namespace Game.Entities
 			set => _worldEffectId = value;
 		}
 
-        public uint GossipMenuId
-        {
-            get
-            {
-                if (_gossipMenuId.HasValue)
-                    return _gossipMenuId.Value;
+		public uint GossipMenuId
+		{
+			get
+			{
+				if (_gossipMenuId.HasValue)
+					return _gossipMenuId.Value;
 
-                return Template.GetGossipMenuId();
-            }
-            set
-            {
-                _gossipMenuId = value;
-            }
-        }
+				return Template.GetGossipMenuId();
+			}
+			set { _gossipMenuId = value; }
+		}
 
-        public GameObjectTemplate Template => GoInfoProtected;
+		public GameObjectTemplate Template => GoInfoProtected;
 
 		public GameObjectTemplateAddon TemplateAddon => GoTemplateAddonProtected;
 
@@ -403,11 +400,10 @@ namespace Game.Entities
 				if (ZoneScript != null)
 					ZoneScript.OnGameObjectCreate(this);
 
-				Map.
-				ObjectsStore.Add(GUID, this);
+				Map.ObjectsStore.Add(GUID, this);
 
 				if (_spawnId != 0)
-					Map.					GameObjectBySpawnIdStore.Add(_spawnId, this);
+					Map.GameObjectBySpawnIdStore.Add(_spawnId, this);
 
 				// The state can be changed after GameObject.Create but before GameObject.AddToWorld
 				var toggledState = GoType == GameObjectTypes.Chest ? LootState == LootState.Ready : (GoState == GameObjectState.Ready || IsTransport);
@@ -450,10 +446,9 @@ namespace Game.Entities
 				base.RemoveFromWorld();
 
 				if (_spawnId != 0)
-					Map.					GameObjectBySpawnIdStore.Remove(_spawnId, this);
+					Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
 
-				Map.
-				ObjectsStore.Remove(GUID);
+				Map.ObjectsStore.Remove(GUID);
 			}
 		}
 

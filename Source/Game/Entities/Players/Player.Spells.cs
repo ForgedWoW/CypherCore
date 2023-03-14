@@ -174,8 +174,8 @@ public partial class Player
 		PetSpells petSpellsPacket = new();
 		petSpellsPacket.PetGUID = pet.GUID;
 		petSpellsPacket.CreatureFamily = (ushort)pet.Template.Family; // creature family (required for pet talents)
-		petSpellsPacket.Specialization = pet.GetSpecialization();
-		petSpellsPacket.TimeLimit = (uint)pet.GetDuration();
+		petSpellsPacket.Specialization = pet.Specialization;
+		petSpellsPacket.TimeLimit = (uint)pet.Duration;
 		petSpellsPacket.ReactState = pet.ReactState;
 		petSpellsPacket.CommandState = charmInfo.GetCommandState();
 
