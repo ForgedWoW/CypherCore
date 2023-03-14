@@ -1190,7 +1190,7 @@ namespace Game
                     continue;
                 }
                 ++count;
-                areaTriggerScriptStorage.Add(id, GetScriptId(scriptName));
+                areaTriggerScriptStorage.AddUnique(id, GetScriptId(scriptName));
             } while (result.NextRow());
 
             areaTriggerScriptStorage.RemoveIfMatching((script) =>
@@ -1833,7 +1833,7 @@ namespace Game
 
         public bool RegisterAreaTriggerScript(uint areaTriggerId, string scriptName)
         {
-            areaTriggerScriptStorage.Add(areaTriggerId, GetScriptId(scriptName));
+            areaTriggerScriptStorage.AddUnique(areaTriggerId, GetScriptId(scriptName));
 
             return true;
         }
