@@ -72,14 +72,23 @@ internal struct EvokerSpells
 	public const uint FLOW_STATE_AURA = 390148;
 	public const uint FLUTTERING_SEEDLINGS = 359793;
 	public const uint FLUTTERING_SEEDLINGS_HEAL = 361361;
-	public const uint GLIDE = 358733;
+    public const uint FOCI_OF_LIFE = 375574;
+    public const uint GLIDE = 358733;
 	public const uint GLIDE_KNOCKBACK = 358736;
-	public const uint HOVER = 358267;
+    public const uint GOLDEN_HOUR = 378196;
+    public const uint GOLDEN_HOUR_HEAL = 378213;
+    public const uint HOVER = 358267;
 	public const uint IMPROVED_EMERALD_BLOSSOM = 365262;
-	public const uint LIVING_FLAME = 361469;
+    public const uint LANDSLIDE = 358385;
+    public const uint LANDSLIDE_AREA_TRIGGER = 363800;
+    public const uint LANDSLIDE_ROOT = 355689;
+    public const uint LIVING_FLAME = 361469;
 	public const uint LIVING_FLAME_DAMAGE = 361500;
 	public const uint LIVING_FLAME_HEAL = 361509;
-	public const uint PYRE = 357211;
+    public const uint RENEWING_BLAZE = 374348;
+    public const uint RENEWING_BLAZE_AURA = 374349;
+    public const uint REVERSION = 366155;
+    public const uint PYRE = 357211;
 	public const uint PYRE_DAMAGE = 357212;
 	public const uint PYRE_MISSILE = 393568;
 	public const uint RUBY_ESSENCE_BURST = 376872;
@@ -106,4 +115,6 @@ internal struct EvokerAreaTriggers
 {
 	public const uint EMERALD_BLOSSOM = 23318;
 	public const uint FIRE_STORM = 24713;
+    public const uint LANDSLIDE = 23578;
+    public const uint LANDSLIDE_ROOT = 25144;
 }

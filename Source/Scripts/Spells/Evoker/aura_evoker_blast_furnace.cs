@@ -9,7 +9,7 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.FIRE_BREATH_CHARGED)]
 internal class aura_evoker_blast_furnace : AuraScript, IAuraOnApply
 {
-	public void AuraApplied()
+	public void AuraApply()
 	{
 		if (!Owner.AsUnit.TryGetAura(EvokerSpells.BLAST_FURNACE, out var bfAura))
 			return;

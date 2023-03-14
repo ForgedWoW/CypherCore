@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Database;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IUnit;
@@ -10,7 +12,7 @@ using Game.Scripting.Interfaces.IUnit;
 namespace Scripts.Spells.Evoker;
 
 [Script]
-internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
+internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal, IUnitOnDamage
 {
 	public Class PlayerClass { get; } = Class.Evoker;
 
@@ -19,9 +21,18 @@ internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
 	public void OnHeal(HealInfo healInfo, ref uint gain)
 	{
 		EmeraldCommunion(healInfo, gain);
-	}
+		Reversion(healInfo);
+    }
 
-	private void EmeraldCommunion(HealInfo healInfo, uint gain)
+    private void Reversion(HealInfo healInfo)
+    {
+		if (healInfo.SpellInfo.Id == EvokerSpells.REVERSION
+			&& healInfo.IsCritical
+			&& healInfo.Target.TryGetAura(EvokerSpells.REVERSION, out var aura))
+			aura.ModDuration(aura.GetEffect(0).Period);
+    }
+
+    private void EmeraldCommunion(HealInfo healInfo, uint gain)
 	{
 		if (healInfo.SpellInfo.Id == EvokerSpells.EMERALD_COMMUNION &&
 			healInfo.Healer == healInfo.Target &&
@@ -49,4 +60,26 @@ internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal
 			Unit.DealHeal(info);
 		}
 	}
+
+    public void OnDamage(Unit attacker, Unit victim, ref double damage)
+    {
+		RenewingBlaze(victim, damage);
+    }
+
+    private void RenewingBlaze(Unit victim, double damage)
+    {
+		if (victim != null && victim.TryGetAsPlayer(out var player) && player.HasAura(EvokerSpells.RENEWING_BLAZE))
+		{
+			if (!player.TryGetAura(EvokerSpells.RENEWING_BLAZE_AURA, out var rnAura))
+                rnAura = player.AddAura(EvokerSpells.RENEWING_BLAZE_AURA);
+
+			var eff = rnAura.GetEffect(0);
+			var remainingTicks = rnAura.Duration / eff.Period;
+			var newTotal = damage + (eff.Amount * remainingTicks); // add new damage to the remaining total amount
+
+			//          total healed           number of ticks
+			eff.SetAmount(newTotal / (rnAura.MaxDuration / eff.Period));
+			rnAura.SetDuration(rnAura.MaxDuration);
+		}
+    }
 }

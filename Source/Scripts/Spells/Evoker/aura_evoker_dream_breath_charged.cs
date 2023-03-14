@@ -9,7 +9,7 @@ namespace Scripts.Spells.Evoker;
 [SpellScript(EvokerSpells.DREAM_BREATH_CHARGED)]
 internal class aura_evoker_dream_breath_charged : AuraScript, IAuraOnApply
 {
-	public void AuraApplied()
+	public void AuraApply()
 	{
 		var aur = Aura;
 
