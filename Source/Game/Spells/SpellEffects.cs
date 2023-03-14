@@ -2544,8 +2544,6 @@ public partial class Spell
 				Cypher.Assert(OldSummon.Map == owner.Map);
 				var newPos = new Position();
 				owner.GetClosePoint(newPos, OldSummon.CombatReach);
-				newPos.Z += 2;
-
 				newPos.Orientation = OldSummon.Location.Orientation;
 
                 OldSummon.NearTeleportTo(newPos);
@@ -2570,7 +2568,6 @@ public partial class Spell
 		var combatPos = new Position();
 		owner.GetClosePoint(combatPos, owner.CombatReach);
 		combatPos.Orientation = owner.Location.Orientation;
-		combatPos.Z += 2;
         var pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out var isNew);
 
 		if (pet == null)
@@ -2595,7 +2592,6 @@ public partial class Spell
 				pet.SetName(new_name);
 		}
 
-        pet.Location.WorldRelocate(owner.Location.MapId, combatPos);
         ExecuteLogEffectSummonObject(EffectInfo.Effect, pet);
 	}
 

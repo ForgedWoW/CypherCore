@@ -112,35 +112,21 @@ namespace Game.Movement
             if (owner.HasUnitState(UnitState.ChaseMove) && owner.MoveSpline.Finalized())
             {
                 RemoveFlag(MovementGeneratorFlags.InformEnabled);
-                Creature cOwner = owner.AsCreature;
-
-                if (cOwner != null)
-                {
-                    if (_path == null) // we are evading
-                        cOwner.SetCannotReachTarget(false);
-                    else
-                    {
-                        isEvading = !PositionOkay(owner, target, minRange, maxRange, angle);
-                        
-                        if (!isEvading)
-                            cOwner.SetCannotReachTarget(false);
-                        else
-                            cOwner.SetCannotReachTarget(true);
-                    }
-                }
-
                 _path = null;
+                Creature cOwner = owner.AsCreature;
+                if (cOwner != null)
+                    cOwner.SetCannotReachTarget(false);
                 owner.ClearUnitState(UnitState.ChaseMove);
                 owner.SetInFront(target);
                 DoMovementInform(owner, target);
             }
 
             // if the target moved, we have to consider whether to adjust
-            if (_lastTargetPosition == null || target.Location != _lastTargetPosition || mutualChase != _mutualChase || isEvading)
+            if (_lastTargetPosition == null || target.Location != _lastTargetPosition || mutualChase != _mutualChase)
             {
                 _lastTargetPosition = new(target.Location);
                 _mutualChase = mutualChase;
-                if (owner.HasUnitState(UnitState.ChaseMove) || !PositionOkay(owner, target, minRange, maxRange, angle) || isEvading)
+                if (owner.HasUnitState(UnitState.ChaseMove) || !PositionOkay(owner, target, minRange, maxRange, angle))
                 {
                     Creature cOwner = owner.AsCreature;
                     // can we get to the target?
@@ -182,18 +168,7 @@ namespace Game.Movement
                     if (!success || _path.GetPathType().HasAnyFlag(PathType.NoPath))
                     {
                         if (cOwner)
-                        {
-                            isEvading = !PositionOkay(owner, target, minRange, maxRange, angle);
-
-                            if (!isEvading)
-                            {
-                                owner.StopMoving();
-                                owner.AddUnitState(UnitState.ChaseMove);
-                                return true;
-                            }
-
                             cOwner.SetCannotReachTarget(true);
-                        }
 
                         owner.StopMoving();
                         return true;
@@ -202,8 +177,10 @@ namespace Game.Movement
                     if (shortenPath)
                         _path.ShortenPathUntilDist(target.Location, maxTarget);
 
-                    if (!isEvading)
+                    if (cOwner)
                         cOwner.SetCannotReachTarget(false);
+
+                    cOwner.SetCannotReachTarget(false);
 
                     bool walk = false;
                     if (cOwner && !cOwner.IsPet)
