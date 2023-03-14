@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_chi_burst : AreaTriggerAI
+public class at_monk_chi_burst : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public at_monk_chi_burst(AreaTrigger at) : base(at) { }
-
-	public override void OnUnitEnter(Unit target)
+	public void OnUnitEnter(Unit target)
 	{
 		if (!At.GetCaster())
 			return;

@@ -7,24 +7,21 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
 
-[Script] //  8382 - AreaTriggerId
-internal class areatrigger_sha_earthquake : AreaTriggerAI
+[AreaTriggerScript(8382)] //  8382 - AreaTriggerId
+internal class areatrigger_sha_earthquake : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerScriptValues
 {
-	private readonly HashSet<ObjectGuid> _stunnedUnits = new();
-	private TimeSpan _period;
-	private TimeSpan _refreshTimer;
+	private TimeSpan _period = TimeSpan.Zero;
+	private TimeSpan _refreshTimer = TimeSpan.FromSeconds(1);
 
-	public areatrigger_sha_earthquake(AreaTrigger areatrigger) : base(areatrigger)
-	{
-		_refreshTimer = TimeSpan.Zero;
-		_period = TimeSpan.FromSeconds(1);
-	}
+    public Dictionary<string, object> ScriptValues { get; } = new();
 
-	public override void OnCreate()
+    public void OnCreate()
 	{
 		var caster = At.GetCaster();
 
@@ -37,7 +34,7 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 		}
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		_refreshTimer -= TimeSpan.FromMilliseconds(diff);
 
@@ -52,11 +49,5 @@ internal class areatrigger_sha_earthquake : AreaTriggerAI
 
 			_refreshTimer += _period;
 		}
-	}
-
-	// Each Target can only be stunned once by each earthquake - keep track of who we already stunned
-	public bool AddStunnedTarget(ObjectGuid guid)
-	{
-		return _stunnedUnits.Add(guid);
 	}
 }

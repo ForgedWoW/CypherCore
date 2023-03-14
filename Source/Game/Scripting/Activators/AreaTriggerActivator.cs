@@ -13,11 +13,11 @@ public class AreaTriggerActivator : IScriptActivator
 {
 	public List<string> ScriptBaseTypes => new()
 	{
-		nameof(AreaTriggerAI)
+		nameof(AreaTriggerScript)
 	};
 
 	public IScriptObject Activate(Type type, string name, ScriptAttribute attribute)
 	{
-		return (IScriptObject)Activator.CreateInstance(typeof(GenericAreaTriggerScript<>).MakeGenericType(type), name, attribute.Args);
+		return (IScriptObject)Activator.CreateInstance(typeof(GenericAreaTriggerScriptLoader<>).MakeGenericType(type), name, attribute.Args);
 	}
 }

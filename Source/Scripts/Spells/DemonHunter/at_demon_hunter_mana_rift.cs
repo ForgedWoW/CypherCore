@@ -5,16 +5,15 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_demon_hunter_mana_rift : AreaTriggerAI
+public class at_demon_hunter_mana_rift : AreaTriggerScript, IAreaTriggerOnUnitExit
 {
-	public at_demon_hunter_mana_rift(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 

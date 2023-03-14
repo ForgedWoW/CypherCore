@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_windwalking : AreaTriggerAI
+public class at_monk_windwalking : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
-	public at_monk_windwalking(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -30,7 +29,7 @@ public class at_monk_windwalking : AreaTriggerAI
 			caster.CastSpell(unit, MonkSpells.WINDWALKER_AURA, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -52,7 +51,7 @@ public class at_monk_windwalking : AreaTriggerAI
 		}
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

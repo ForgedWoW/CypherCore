@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class at_dk_antimagic_zone : AreaTriggerAI
+public class at_dk_antimagic_zone : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_dk_antimagic_zone(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		//TODO: Improve unit targets
 		if (unit.IsPlayer && !unit.IsHostileTo(At.GetCaster()))
@@ -20,7 +19,7 @@ public class at_dk_antimagic_zone : AreaTriggerAI
 				unit.AddAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN, unit);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (unit.HasAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN))
 			unit.RemoveAura(DeathKnightSpells.ANTIMAGIC_ZONE_DAMAGE_TAKEN);

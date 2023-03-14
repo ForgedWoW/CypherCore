@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_demon_hunter_demonic_trample : AreaTriggerAI
+public class at_demon_hunter_demonic_trample : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public at_demon_hunter_demonic_trample(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 

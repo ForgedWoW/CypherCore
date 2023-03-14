@@ -11,6 +11,9 @@ using Game.Maps;
 using Game.Movement;
 using Game.Networking;
 using Game.Networking.Packets;
+using Game.Scripting;
+using Game.Scripting.Interfaces;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.IAreaTriggerEntity;
 using Game.Spells;
 
@@ -22,7 +25,8 @@ public class AreaTrigger : WorldObject
 	readonly Spline<int> _spline;
 	readonly HashSet<ObjectGuid> _insideUnits = new();
 
-	ulong _spawnId;
+    uint _areaTriggerId;
+    ulong _spawnId;
 
 	ObjectGuid _targetGuid;
 
@@ -49,12 +53,14 @@ public class AreaTrigger : WorldObject
 	AreaTriggerCreateProperties _areaTriggerCreateProperties;
 	AreaTriggerTemplate _areaTriggerTemplate;
 
-	AreaTriggerAI _ai;
-
 	uint _periodicProcTimer;
 	uint _basePeriodicProcTimer;
 
-	public override uint Faction
+    static readonly List<IAreaTriggerScript> Dummy = new();
+    List<AreaTriggerScript> _loadedScripts = new();
+    readonly Dictionary<Type, List<IAreaTriggerScript>> _scriptsByType = new();
+
+    public override uint Faction
 	{
 		get
 		{
@@ -159,7 +165,7 @@ public class AreaTrigger : WorldObject
 			// Handle removal of all units, calling OnUnitExit & deleting auras if needed
 			HandleUnitEnterExit(new List<Unit>());
 
-			_ai.OnRemove();
+			ForEachAreaTriggerScript<IAreaTriggerOnRemove>(a => a.OnRemove());
 
 			base.RemoveFromWorld();
 
@@ -242,15 +248,15 @@ public class AreaTrigger : WorldObject
 			}
 		}
 
-		_ai.OnUpdate(diff);
+        ForEachAreaTriggerScript<IAreaTriggerOnUpdate>(a => a.OnUpdate(diff));
 
 		UpdateTargetList();
 
 		if (_basePeriodicProcTimer != 0)
 		{
 			if (_periodicProcTimer <= diff)
-			{
-				_ai.OnPeriodicProc();
+            {
+                ForEachAreaTriggerScript<IAreaTriggerOnPeriodicProc>(a => a.OnPeriodicProc());
 				_periodicProcTimer = _basePeriodicProcTimer;
 			}
 			else
@@ -278,17 +284,6 @@ public class AreaTrigger : WorldObject
 	public AreaTriggerTemplate GetTemplate()
 	{
 		return _areaTriggerTemplate;
-	}
-
-	public uint GetScriptId()
-	{
-		if (_spawnId != 0)
-			return Global.AreaTriggerDataStorage.GetAreaTriggerSpawn(_spawnId).ScriptId;
-
-		if (CreateProperties != null)
-			return CreateProperties.ScriptId;
-
-		return 0;
 	}
 
 	public Unit GetCaster()
@@ -415,11 +410,6 @@ public class AreaTrigger : WorldObject
 		base.ClearUpdateMask(remove);
 	}
 
-	public T GetAi<T>() where T : AreaTriggerAI
-	{
-		return (T)_ai;
-	}
-
 	public override bool IsNeverVisibleFor(WorldObject seer)
 	{
 		return base.IsNeverVisibleFor(seer) || IsServerSide;
@@ -445,7 +435,10 @@ public class AreaTrigger : WorldObject
 
 	bool Create(uint areaTriggerCreatePropertiesId, Unit caster, Unit target, SpellInfo spell, Position pos, int duration, SpellCastVisualField spellVisual, ObjectGuid castId, AuraEffect aurEff)
 	{
-		_targetGuid = target ? target.GUID : ObjectGuid.Empty;
+		_areaTriggerId = areaTriggerCreatePropertiesId;
+		LoadScripts();
+
+        _targetGuid = target ? target.GUID : ObjectGuid.Empty;
 		_aurEff = aurEff;
 
 		Map = caster.Map;
@@ -458,16 +451,21 @@ public class AreaTrigger : WorldObject
 			return false;
 		}
 
-		_areaTriggerCreateProperties = Global.AreaTriggerDataStorage.GetAreaTriggerCreateProperties(areaTriggerCreatePropertiesId);
+        ForEachAreaTriggerScript<IAreaTriggerOverrideCreateProperties>(a => _areaTriggerCreateProperties = a.AreaTriggerCreateProperties);
 
 		if (_areaTriggerCreateProperties == null)
 		{
-			Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}) not created. Invalid areatrigger create properties id ({areaTriggerCreatePropertiesId})");
+			_areaTriggerCreateProperties = Global.AreaTriggerDataStorage.GetAreaTriggerCreateProperties(areaTriggerCreatePropertiesId);
 
-			return false;
+			if (_areaTriggerCreateProperties == null)
+			{
+				Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}) not created. Invalid areatrigger create properties id ({areaTriggerCreatePropertiesId})");
+
+				return false;
+			}
+
+			_areaTriggerTemplate = _areaTriggerCreateProperties.Template;
 		}
-
-		_areaTriggerTemplate = _areaTriggerCreateProperties.Template;
 
 		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
 
@@ -570,8 +568,6 @@ public class AreaTrigger : WorldObject
 			transport.AddPassenger(this);
 		}
 
-		AI_Initialize();
-
 		// Relocate areatriggers with circular movement again
 		if (HasOrbit())
 			Location.Relocate(CalculateOrbitPosition());
@@ -587,7 +583,7 @@ public class AreaTrigger : WorldObject
 
 		caster._RegisterAreaTrigger(this);
 
-		_ai.OnCreate();
+        ForEachAreaTriggerScript<IAreaTriggerOnCreate>(a => a.OnCreate());
 
 		return true;
 	}
@@ -620,11 +616,9 @@ public class AreaTrigger : WorldObject
 
 		UpdateShape();
 
-		AI_Initialize();
+        ForEachAreaTriggerScript<IAreaTriggerOnCreate>(a => a.OnCreate());
 
-		_ai.OnCreate();
-
-		return true;
+        return true;
 	}
 
 	void _UpdateDuration(int newDuration)
@@ -805,7 +799,7 @@ public class AreaTrigger : WorldObject
 			}
 
 			DoActions(unit);
-			_ai.OnUnitEnter(unit);
+            ForEachAreaTriggerScript<IAreaTriggerOnUnitEnter>(a => a.OnUnitEnter(unit));
 		}
 
 		foreach (var exitUnitGuid in exitUnits)
@@ -826,7 +820,7 @@ public class AreaTrigger : WorldObject
 
 				UndoActions(leavingUnit);
 
-				_ai.OnUnitExit(leavingUnit);
+                ForEachAreaTriggerScript<IAreaTriggerOnUnitExit>(a => a.OnUnitExit(leavingUnit));
 			}
 		}
 	}
@@ -1121,8 +1115,8 @@ public class AreaTrigger : WorldObject
 
 			DebugVisualizePosition();
 
-			_ai.OnSplineIndexReached(_lastSplineIndex);
-			_ai.OnDestinationReached();
+            ForEachAreaTriggerScript<IAreaTriggerOnSplineIndexReached>(a => a.OnSplineIndexReached(_lastSplineIndex));
+            ForEachAreaTriggerScript<IAreaTriggerOnDestinationReached>(a => a.OnDestinationReached());
 
 			return;
 		}
@@ -1163,25 +1157,8 @@ public class AreaTrigger : WorldObject
 		if (_lastSplineIndex != lastPositionIndex)
 		{
 			_lastSplineIndex = lastPositionIndex;
-			_ai.OnSplineIndexReached(_lastSplineIndex);
+            ForEachAreaTriggerScript<IAreaTriggerOnSplineIndexReached>(a => a.OnSplineIndexReached(_lastSplineIndex));
 		}
-	}
-
-	void AI_Initialize()
-	{
-		AI_Destroy();
-		var ai = Global.ScriptMgr.RunScriptRet<IAreaTriggerEntityGetAI, AreaTriggerAI>(p => p.GetAI(this), GetScriptId());
-
-		if (ai == null)
-			ai = new NullAreaTriggerAI(this);
-
-		_ai = ai;
-		_ai.OnInitialize();
-	}
-
-	void AI_Destroy()
-	{
-		_ai = null;
 	}
 
 	[System.Diagnostics.Conditional("DEBUG")]
@@ -1199,7 +1176,47 @@ public class AreaTrigger : WorldObject
 		}
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    void LoadScripts()
+    {
+        _loadedScripts = Global.ScriptMgr.CreateAreaTriggerScripts(_areaTriggerId, this);
+
+        foreach (var script in _loadedScripts)
+        {
+            Log.outDebug(LogFilter.Spells, "AreaTrigger.LoadScripts: Script `{0}` for AreaTrigger `{1}` is loaded now", script._GetScriptName(), _areaTriggerId);
+            script.Register();
+
+            if (script is IAreaTriggerScript)
+                foreach (var iFace in script.GetType().GetInterfaces())
+                {
+                    if (iFace.Name == nameof(IAreaTriggerScript))
+                        continue;
+
+                    if (!_scriptsByType.TryGetValue(iFace, out var scripts))
+                    {
+                        scripts = new List<IAreaTriggerScript>();
+                        _scriptsByType[iFace] = scripts;
+                    }
+
+                    scripts.Add((IAreaTriggerScript)script);
+                }
+        }
+    }
+
+    public List<IAreaTriggerScript> GetAreaTriggerScripts<T>() where T : IAreaTriggerScript
+    {
+        if (_scriptsByType.TryGetValue(typeof(T), out var scripts))
+            return scripts;
+
+        return Dummy;
+    }
+
+    public void ForEachAreaTriggerScript<T>(Action<T> action) where T : IAreaTriggerScript
+    {
+        foreach (T script in GetAreaTriggerScripts<T>())
+            action.Invoke(script);
+    }
+
+    class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
 		readonly AreaTrigger _owner;
 		readonly ObjectFieldData _objectMask = new();

@@ -6,20 +6,14 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
+public class at_dh_artifact_fury_of_the_illidari : AreaTriggerScript, IAreaTriggerOnUpdate, IAreaTriggerOnRemove
 {
-	public at_dh_artifact_fury_of_the_illidari(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	//   void OnInitialize() override
-	//  {
-	//     at->VariableStorage.Set<int32>("_timer", 500);
-	//  }
-
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		var caster = At.GetCaster();
 
@@ -37,7 +31,7 @@ public class at_dh_artifact_fury_of_the_illidari : AreaTriggerAI
 			     at->VariableStorage.Set("_timer", timer);*/
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

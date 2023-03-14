@@ -34,7 +34,7 @@ public unsafe class AreaTriggerCreateProperties
 	public List<Vector3> SplinePoints = new();
 	public AreaTriggerOrbitInfo OrbitInfo;
 
-	public uint ScriptId;
+	public List<uint> ScriptIds = new();
 
 	public AreaTriggerCreateProperties()
 	{
@@ -73,12 +73,17 @@ public unsafe class AreaTriggerCreateProperties
 	public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId)
 	{
         AreaTriggerCreateProperties ret = new();
-
         ret.Id = areaTriggerId;
-
+        ret.ScriptIds = ObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId);
         ret.Template = new();
 		ret.Template.Id = new(areaTriggerId, false);
 		ret.Template.Flags = 0;
+		ret.Template.Actions.Add(new()
+		{
+			ActionType = AreaTriggerActionTypes.Cast,
+			Param = 0,
+			TargetType = AreaTriggerActionUserTypes.Friend
+		});
 
         ret.MoveCurveId = 0;
         ret.ScaleCurveId = 0;

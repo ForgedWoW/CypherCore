@@ -4,22 +4,23 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 [Script] //  12676 - AreaTriggerId
-internal class areatrigger_sha_wind_rush_totem : AreaTriggerAI
+internal class areatrigger_sha_wind_rush_totem : AreaTriggerScript, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnCreate
 {
 	private static readonly int REFRESH_TIME = 4500;
 
 	private int _refreshTimer;
 
-	public areatrigger_sha_wind_rush_totem(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		_refreshTimer = REFRESH_TIME;
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		_refreshTimer -= (int)diff;
 
@@ -45,7 +46,7 @@ internal class areatrigger_sha_wind_rush_totem : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 

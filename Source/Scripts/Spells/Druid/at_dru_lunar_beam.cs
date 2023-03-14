@@ -4,20 +4,19 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Druid;
 
 [Script]
-public class at_dru_lunar_beam : AreaTriggerAI
+public class at_dru_lunar_beam : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnPeriodicProc
 {
-	public at_dru_lunar_beam(AreaTrigger at) : base(at) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		At.SetPeriodicProcTimer(1000);
 	}
 
-	public override void OnPeriodicProc()
+	public void OnPeriodicProc()
 	{
 		if (At.GetCaster())
 			At.GetCaster().CastSpell(At.Location, DruidSpells.LUNAR_BEAM_DAMAGE_HEAL, true);

@@ -7,15 +7,14 @@ using Game;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_flareAI : AreaTriggerAI
+public class at_hun_flareAI : AreaTriggerScript, IAreaTriggerOnCreate
 {
-	public at_hun_flareAI(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 

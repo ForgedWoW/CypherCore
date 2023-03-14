@@ -4,24 +4,21 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 //AT ID : 5760
 //Spell ID : 198839
 [Script]
-public class at_earthen_shield_totem : AreaTriggerAI
+public class at_earthen_shield_totem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
 	public int timeInterval;
 
-	public at_earthen_shield_totem(AreaTrigger areatrigger) : base(areatrigger)
-	{
-		timeInterval = 200;
-	}
-
-	public override void OnCreate()
-	{
-		var caster = At.GetCaster();
+	public void OnCreate()
+    {
+        timeInterval = 200;
+        var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -36,7 +33,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -50,7 +47,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 			caster.CastSpell(unit, SpellsUsed.EARTHEN_SHIELD_ABSORB, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -64,7 +61,7 @@ public class at_earthen_shield_totem : AreaTriggerAI
 			unit.RemoveAura(SpellsUsed.EARTHEN_SHIELD_ABSORB);
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

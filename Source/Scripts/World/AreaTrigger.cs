@@ -418,11 +418,9 @@ internal class AreaTrigger_at_frostgrips_hollow : ScriptObjectAutoAddDBBound, IA
 }
 
 [Script]
-internal class areatrigger_stormwind_teleport_unit : AreaTriggerAI
+internal class areatrigger_stormwind_teleport_unit : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public areatrigger_stormwind_teleport_unit(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var player = unit.AsPlayer;
 

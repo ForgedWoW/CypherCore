@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class at_dk_death_and_decay : AreaTriggerAI
+public class at_dk_death_and_decay : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_dk_death_and_decay(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -22,7 +21,7 @@ public class at_dk_death_and_decay : AreaTriggerAI
 					caster.CastSpell(unit, DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (At.GetCaster().HasAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE))
 			unit.RemoveAura(DeathKnightSpells.DEATH_AND_DECAY_CLEAVE, Game.Spells.AuraRemoveMode.Cancel);

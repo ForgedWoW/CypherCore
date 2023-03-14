@@ -4,20 +4,19 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class at_dk_defile : AreaTriggerAI
+public class at_dk_defile : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
 {
-	public at_dk_defile(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		At.GetCaster().CastSpell(At.Location, DeathKnightSpells.SUMMON_DEFILE, true);
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -25,7 +24,7 @@ public class at_dk_defile : AreaTriggerAI
 			caster.CastSpell(unit, DeathKnightSpells.DEFILE_DUMMY, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		unit.RemoveAura(DeathKnightSpells.DEFILE_DUMMY);
 	}

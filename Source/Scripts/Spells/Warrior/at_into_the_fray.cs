@@ -5,17 +5,16 @@ using System;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Warrior;
 
 // 202603 Into the Fray
 // MiscId - 5839
 [Script]
-public class at_into_the_fray : AreaTriggerAI
+public class at_into_the_fray : AreaTriggerScript, IAreaTriggerOnUpdate
 {
-	public at_into_the_fray(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		var caster = At.GetCaster();
 

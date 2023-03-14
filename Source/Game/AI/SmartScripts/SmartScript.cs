@@ -12,6 +12,7 @@ using Game.Entities;
 using Game.Maps;
 using Game.Misc;
 using Game.Movement;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Game.AI;
@@ -2088,10 +2089,7 @@ public class SmartScript
 
 							if (areaTriggerTarget != null)
 							{
-								var atSAI = areaTriggerTarget.GetAi<SmartAreaTriggerAI>();
-
-								if (atSAI != null)
-									atSAI.SetTimedActionList(e, e.Action.timedActionList.id, GetLastInvoker());
+								areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, e.Action.timedActionList.id, GetLastInvoker()));
 							}
 						}
 					}
@@ -2206,11 +2204,8 @@ public class SmartScript
 							var areaTriggerTarget = target.AsAreaTrigger;
 
 							if (areaTriggerTarget != null)
-							{
-								var atSAI = areaTriggerTarget.GetAi<SmartAreaTriggerAI>();
-
-								if (atSAI != null)
-									atSAI.SetTimedActionList(e, randomId, GetLastInvoker());
+                            {
+                                areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, randomId, GetLastInvoker()));
 							}
 						}
 					}
@@ -2252,11 +2247,8 @@ public class SmartScript
 							var areaTriggerTarget = target.AsAreaTrigger;
 
 							if (areaTriggerTarget != null)
-							{
-								var atSAI = areaTriggerTarget.GetAi<SmartAreaTriggerAI>();
-
-								if (atSAI != null)
-									atSAI.SetTimedActionList(e, id, GetLastInvoker());
+                            {
+                                areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, id, GetLastInvoker()));
 							}
 						}
 					}

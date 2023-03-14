@@ -7,22 +7,21 @@ using Game.AI;
 using Game.Entities;
 using Game.Maps;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_sentinelAI : AreaTriggerAI
+public class at_hun_sentinelAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnRemove
 {
 	public int timeInterval;
 
-	public at_hun_sentinelAI(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		timeInterval = 6000;
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		timeInterval += (int)diff;
 
@@ -51,7 +50,7 @@ public class at_hun_sentinelAI : AreaTriggerAI
 		}
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

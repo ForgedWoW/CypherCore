@@ -4,17 +4,16 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 // Spell 196935 - Voodoo Totem
 // AT - 11577
 [Script]
-public class at_sha_voodoo_totem : AreaTriggerAI
+public class at_sha_voodoo_totem : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_sha_voodoo_totem(AreaTrigger areaTrigger) : base(areaTrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -28,7 +27,7 @@ public class at_sha_voodoo_totem : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		unit.RemoveAurasDueToSpell(TotemSpells.TOTEM_VOODOO_EFFECT, At.CasterGuid);
 	}

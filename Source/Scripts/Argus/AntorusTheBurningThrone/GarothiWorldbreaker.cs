@@ -8,6 +8,7 @@ using Game.AI;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
@@ -454,16 +455,16 @@ internal class boss_garothi_worldbreaker : BossAI
 }
 
 [Script]
-internal class at_garothi_annihilation : AreaTriggerAI
+internal class at_garothi_annihilation : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
 	private byte _playerCount;
 
-	public at_garothi_annihilation(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		Initialize();
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		if (!unit.IsPlayer)
 			return;
@@ -476,7 +477,7 @@ internal class at_garothi_annihilation : AreaTriggerAI
 			annihilation.RemoveAura(SpellIds.AnnihilationWarning);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (!unit.IsPlayer)
 			return;

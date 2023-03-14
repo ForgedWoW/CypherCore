@@ -5,21 +5,22 @@ using System;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.Mage;
 
 [Script] // 4658 - AreaTrigger Create Properties
-internal class areatrigger_mage_blizzard : AreaTriggerAI
+internal class areatrigger_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
 	private TimeSpan _tickTimer;
 
-	public areatrigger_mage_blizzard(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		_tickTimer = TimeSpan.FromMilliseconds(1000);
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		_tickTimer -= TimeSpan.FromMilliseconds(diff);
 

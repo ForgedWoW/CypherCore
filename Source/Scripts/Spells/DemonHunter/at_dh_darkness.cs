@@ -4,22 +4,21 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_darkness : AreaTriggerAI
+public class at_dh_darkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnInitialize
 {
 	private bool entered;
 
-	public at_dh_darkness(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnInitialize()
+	public void OnInitialize()
 	{
 		At.SetDuration(8000);
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -38,7 +37,7 @@ public class at_dh_darkness : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 

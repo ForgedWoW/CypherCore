@@ -4,16 +4,15 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script] // 202138 - Sigil of Chains
-internal class areatrigger_dh_sigil_of_chains : AreaTriggerAI
+internal class areatrigger_dh_sigil_of_chains : AreaTriggerScript, IAreaTriggerOnRemove
 {
-	public areatrigger_dh_sigil_of_chains(AreaTrigger at) : base(at) { }
-
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

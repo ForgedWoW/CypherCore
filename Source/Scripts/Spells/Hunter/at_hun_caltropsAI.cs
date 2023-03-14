@@ -5,11 +5,12 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_caltropsAI : AreaTriggerAI
+public class at_hun_caltropsAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
 	public enum UsedSpells
 	{
@@ -18,13 +19,13 @@ public class at_hun_caltropsAI : AreaTriggerAI
 
 	public int timeInterval;
 
-	public at_hun_caltropsAI(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		// How often should the action be executed
 		timeInterval = 1000;
 	}
 
-	public override void OnUpdate(uint p_Time)
+	public void OnUpdate(uint p_Time)
 	{
 		var caster = At.GetCaster();
 

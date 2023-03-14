@@ -5,15 +5,14 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_meteor_burn : AreaTriggerAI
+public class at_mage_meteor_burn : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_mage_meteor_burn(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -27,7 +26,7 @@ public class at_mage_meteor_burn : AreaTriggerAI
 			caster.CastSpell(unit, MageSpells.METEOR_BURN, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 

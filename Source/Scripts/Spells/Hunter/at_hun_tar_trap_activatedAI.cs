@@ -4,11 +4,12 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_tar_trap_activatedAI : AreaTriggerAI
+public class at_hun_tar_trap_activatedAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
 	public enum UsedSpells
 	{
@@ -17,14 +18,10 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 
 	public int timeInterval;
 
-	public at_hun_tar_trap_activatedAI(AreaTrigger areatrigger) : base(areatrigger)
-	{
-		timeInterval = 200;
-	}
-
-	public override void OnCreate()
-	{
-		var caster = At.GetCaster();
+	public void OnCreate()
+    {
+        timeInterval = 200;
+        var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -41,7 +38,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -55,7 +52,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 			caster.CastSpell(unit, UsedSpells.TAR_TRAP_SLOW, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -69,7 +66,7 @@ public class at_hun_tar_trap_activatedAI : AreaTriggerAI
 			unit.RemoveAura(UsedSpells.TAR_TRAP_SLOW);
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

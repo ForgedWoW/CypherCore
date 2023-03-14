@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_song_of_chiji : AreaTriggerAI
+public class at_monk_song_of_chiji : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public at_monk_song_of_chiji(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 

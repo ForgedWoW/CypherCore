@@ -4,11 +4,12 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_gift_of_the_ox_sphere : AreaTriggerAI
+public class at_monk_gift_of_the_ox_sphere : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnRemove
 {
 	public enum SpellsUsed
 	{
@@ -18,12 +19,12 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 
 	public uint pickupDelay;
 
-	public at_monk_gift_of_the_ox_sphere(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		pickupDelay = 1000;
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		if (pickupDelay >= diff)
 			pickupDelay -= diff;
@@ -31,7 +32,7 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 			pickupDelay = 0;
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -43,7 +44,7 @@ public class at_monk_gift_of_the_ox_sphere : AreaTriggerAI
 			}
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		//Todo : Remove cooldown
 		var caster = At.GetCaster();

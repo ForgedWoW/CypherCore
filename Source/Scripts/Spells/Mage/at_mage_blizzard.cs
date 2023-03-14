@@ -7,25 +7,22 @@ using Game;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_blizzard : AreaTriggerAI
+public class at_mage_blizzard : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
 	public int timeInterval;
 
-	public at_mage_blizzard(AreaTrigger areatrigger) : base(areatrigger)
-	{
-		timeInterval = 1000;
+	public void OnCreate()
+    {
+        timeInterval = 1000;
+        At.SetDuration(8000);
 	}
 
-	public override void OnCreate()
-	{
-		At.SetDuration(8000);
-	}
-
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		var caster = At.GetCaster();
 

@@ -22,6 +22,7 @@ using Game.Maps.Grids;
 using Game.Misc;
 using Game.Movement;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
@@ -1189,8 +1190,35 @@ namespace Game
                     continue;
                 }
                 ++count;
-                areaTriggerScriptStorage[id] = GetScriptId(scriptName);
+                areaTriggerScriptStorage.Add(id, GetScriptId(scriptName));
             } while (result.NextRow());
+
+            areaTriggerScriptStorage.RemoveIfMatching((script) =>
+            {
+                Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint> areaTriggerScriptLoaders = Global.ScriptMgr.CreateAreaTriggerScriptLoaders(script.Key);
+                foreach (var pair in areaTriggerScriptLoaders)
+                {
+                    AreaTriggerScript areaTriggerScript = pair.Key.GetAreaTriggerScript();
+                    bool valid = true;
+
+                    if (areaTriggerScript == null)
+                    {
+                        Log.outError(LogFilter.Scripts, "Functions GetSpellScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+                        valid = false;
+                    }
+
+                    if (areaTriggerScript != null)
+                    {
+                        areaTriggerScript._Init(pair.Key.GetName(), script.Key);
+                        areaTriggerScript._Register();
+                    }
+
+                    if (!valid)
+                        return true;
+                }
+
+                return false;
+            });
 
             Log.outInfo(LogFilter.ServerLoading, "Loaded {0} areatrigger scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
@@ -1805,7 +1833,7 @@ namespace Game
 
         public bool RegisterAreaTriggerScript(uint areaTriggerId, string scriptName)
         {
-            areaTriggerScriptStorage[areaTriggerId] = GetScriptId(scriptName);
+            areaTriggerScriptStorage.Add(areaTriggerId, GetScriptId(scriptName));
 
             return true;
         }
@@ -1837,6 +1865,7 @@ namespace Game
 
             Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
         }
+
         public void ValidateSpellScripts()
         {
             uint oldMSTime = Time.MSTime;
@@ -1940,7 +1969,7 @@ namespace Game
 
             return _scriptNamesStorage.Insert(name, isDatabaseBound);
         }
-        public uint GetAreaTriggerScriptId(uint triggerid)
+        public List<uint> GetAreaTriggerScriptIds(uint triggerid)
         {
             return areaTriggerScriptStorage.LookupByKey(triggerid);
         }
@@ -11484,7 +11513,7 @@ namespace Game
         public Dictionary<uint, MultiMap<uint, ScriptInfo>> sSpellScripts = new();
         public Dictionary<uint, MultiMap<uint, ScriptInfo>> sEventScripts = new();
         public Dictionary<uint, MultiMap<uint, ScriptInfo>> sWaypointScripts = new();
-        readonly Dictionary<uint, uint> areaTriggerScriptStorage = new();
+        readonly MultiMap<uint, uint> areaTriggerScriptStorage = new();
 
         //Maps
         public Dictionary<uint, GameTele> gameTeleStorage = new();

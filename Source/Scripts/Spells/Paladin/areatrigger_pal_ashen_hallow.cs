@@ -5,26 +5,25 @@ using System;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.Paladin;
 
 // 19042 - Ashen Hallow
 [Script]
-internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
+internal class areatrigger_pal_ashen_hallow : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
 	private TimeSpan _period;
 	private TimeSpan _refreshTimer;
 
-	public areatrigger_pal_ashen_hallow(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		RefreshPeriod();
 		_refreshTimer = _period;
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		_refreshTimer -= TimeSpan.FromMilliseconds(diff);
 
@@ -44,13 +43,13 @@ internal class areatrigger_pal_ashen_hallow : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		if (unit.GUID == At.CasterGuid)
 			unit.CastSpell(unit, PaladinSpells.AshenHallowAllowHammer, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (unit.GUID == At.CasterGuid)
 			unit.RemoveAura(PaladinSpells.AshenHallowAllowHammer);

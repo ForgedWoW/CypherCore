@@ -189,7 +189,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 						createProperties.Shape.DefaultDatas.Data[i] = areatriggerCreateProperties.Read<float>(12 + i);
 				}
 
-				createProperties.ScriptId = Global.ObjectMgr.GetScriptId(areatriggerCreateProperties.Read<string>(20));
+				createProperties.ScriptIds.Add(Global.ObjectMgr.GetScriptId(areatriggerCreateProperties.Read<string>(20)));
 
 				if (shape == AreaTriggerTypes.Polygon)
 					if (createProperties.Shape.PolygonDatas.Height <= 0.0f)

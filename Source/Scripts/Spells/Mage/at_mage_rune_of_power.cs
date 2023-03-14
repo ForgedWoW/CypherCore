@@ -4,20 +4,19 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_rune_of_power : AreaTriggerAI
+public class at_mage_rune_of_power : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_mage_rune_of_power(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		//at->SetSpellXSpellVisualId(25943);
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -26,7 +25,7 @@ public class at_mage_rune_of_power : AreaTriggerAI
 				caster.CastSpell(unit, UsingSpells.RUNE_OF_POWER_AURA, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (unit.HasAura(UsingSpells.RUNE_OF_POWER_AURA))
 			unit.RemoveAura(UsingSpells.RUNE_OF_POWER_AURA);

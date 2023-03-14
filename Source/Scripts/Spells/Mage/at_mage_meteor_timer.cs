@@ -7,15 +7,14 @@ using Game;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_meteor_timer : AreaTriggerAI
+public class at_mage_meteor_timer : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
-	public at_mage_meteor_timer(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 
@@ -33,7 +32,7 @@ public class at_mage_meteor_timer : AreaTriggerAI
 		}
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

@@ -4,17 +4,16 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Druid;
 
 [Script]
-public class at_dru_ursol_vortex : AreaTriggerAI
+public class at_dru_ursol_vortex : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
 	private bool _hasPull = false;
 
-	public at_dru_ursol_vortex(AreaTrigger at) : base(at) { }
-
-	public override void OnUnitEnter(Unit target)
+	public void OnUnitEnter(Unit target)
 	{
 		var caster = At.GetCaster();
 
@@ -22,7 +21,7 @@ public class at_dru_ursol_vortex : AreaTriggerAI
 			caster.CastSpell(target, DruidSpells.URSOL_VORTEX_DEBUFF, true);
 	}
 
-	public override void OnUnitExit(Unit target)
+	public void OnUnitExit(Unit target)
 	{
 		target.RemoveAura(DruidSpells.URSOL_VORTEX_DEBUFF);
 

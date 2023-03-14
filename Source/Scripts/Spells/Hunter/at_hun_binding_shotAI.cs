@@ -4,11 +4,12 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_binding_shotAI : AreaTriggerAI
+public class at_hun_binding_shotAI : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
 	public enum UsedSpells
 	{
@@ -19,9 +20,7 @@ public class at_hun_binding_shotAI : AreaTriggerAI
 		HUNDER_BINDING_SHOT_VISUAL_2 = 117614
 	}
 
-	public at_hun_binding_shotAI(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -35,7 +34,7 @@ public class at_hun_binding_shotAI : AreaTriggerAI
 			unit.CastSpell(unit, UsedSpells.BINDING_SHOT_AURA, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (unit == null || !At.GetCaster())
 			return;

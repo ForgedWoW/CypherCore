@@ -4,23 +4,20 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_frozen_orb : AreaTriggerAI
+public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate
 {
 	public uint damageInterval;
 	public bool procDone = false;
 
-	public at_mage_frozen_orb(AreaTrigger areatrigger) : base(areatrigger)
-	{
-		damageInterval = 500;
-	}
-
-	public override void OnInitialize()
-	{
-		var caster = At.GetCaster();
+	public void OnInitialize()
+    {
+        damageInterval = 500;
+        var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -31,7 +28,7 @@ public class at_mage_frozen_orb : AreaTriggerAI
 		At.SetDestination(pos, 4000);
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		var caster = At.GetCaster();
 

@@ -5,16 +5,15 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 120517 - Halo
-internal class areatrigger_pri_halo : AreaTriggerAI
+internal class areatrigger_pri_halo : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public areatrigger_pri_halo(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 

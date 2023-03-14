@@ -7,6 +7,7 @@ using Game;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.Shaman;
@@ -14,16 +15,16 @@ namespace Scripts.Spells.Shaman;
 //AT id : 3691
 //Spell ID : 61882
 [Script]
-public class at_sha_earthquake_totem : AreaTriggerAI
+public class at_sha_earthquake_totem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
 	public int timeInterval;
 
-	public at_sha_earthquake_totem(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		timeInterval = 200;
 	}
 
-	public override void OnUpdate(uint p_Time)
+	public void OnUpdate(uint p_Time)
 	{
 		var caster = At.GetCaster();
 

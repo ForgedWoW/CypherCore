@@ -5,16 +5,15 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Paladin;
 
 // 26573 - Consecration
 [Script] //  9228 - AreaTriggerId
-internal class areatrigger_pal_consecration : AreaTriggerAI
+internal class areatrigger_pal_consecration : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public areatrigger_pal_consecration(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -32,7 +31,7 @@ internal class areatrigger_pal_consecration : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		if (At.CasterGuid == unit.GUID)
 			unit.RemoveAurasDueToSpell(PaladinSpells.ConsecrationProtectionAura, At.CasterGuid);

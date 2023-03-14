@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 
@@ -32,12 +33,12 @@ internal class spell_sha_earthquake_tick : SpellScript, ISpellOnHit, IHasSpellEf
 				var foundAreaTrigger = areaTriggers.Find(at => at.GUID == Spell.OriginalCasterGuid);
 
 				if (foundAreaTrigger != null)
-				{
-					var eq = foundAreaTrigger.GetAi<areatrigger_sha_earthquake>();
-
-					if (eq != null)
-						if (eq.AddStunnedTarget(target.GUID))
-							Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
+                {
+                    foundAreaTrigger.ForEachAreaTriggerScript<IAreaTriggerScriptValues>(a =>
+					{
+						if (a.ScriptValues.TryAdd(target.GUID.ToString(), target.GUID))
+                            Caster.CastSpell(target, ShamanSpells.EarthquakeKnockingDown, true);
+                    });
 				}
 			}
 	}

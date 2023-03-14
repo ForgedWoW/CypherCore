@@ -5,15 +5,14 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_shattered_soul_fragment : AreaTriggerAI
+public class at_shattered_soul_fragment : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public at_shattered_soul_fragment(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		if (unit != At.GetCaster() || !unit.IsPlayer || unit.AsPlayer.Class != Class.DemonHunter)
 			return;

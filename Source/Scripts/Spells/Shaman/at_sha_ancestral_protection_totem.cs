@@ -4,25 +4,23 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Shaman;
 
 //AT ID : 6336
 //Spell ID : 207495
 [Script]
-public class at_sha_ancestral_protection_totem : AreaTriggerAI
+public class at_sha_ancestral_protection_totem : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnRemove
 {
 	public int timeInterval;
 
-	public at_sha_ancestral_protection_totem(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnCreate()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
-
 
 		foreach (var itr in At.InsideUnits)
 		{
@@ -34,7 +32,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -50,7 +48,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -61,7 +59,7 @@ public class at_sha_ancestral_protection_totem : AreaTriggerAI
 			unit.RemoveAura(SpellsUsed.ANCESTRAL_PROTECTION_TOTEM_AURA);
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

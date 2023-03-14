@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class at_dk_unholy_aura : AreaTriggerAI
+public class at_dk_unholy_aura : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_dk_unholy_aura(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -21,7 +20,7 @@ public class at_dk_unholy_aura : AreaTriggerAI
 				caster.CastSpell(unit, DeathKnightSpells.UNHOLY_AURA, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		unit.RemoveAura(DeathKnightSpells.UNHOLY_AURA);
 	}

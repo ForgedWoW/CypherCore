@@ -7,15 +7,14 @@ using System.Numerics;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_artifact_inner_demons : AreaTriggerAI
+public class at_dh_artifact_inner_demons : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnRemove
 {
-	public at_dh_artifact_inner_demons(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnInitialize()
+	public void OnInitialize()
 	{
 		var caster = At.GetCaster();
 
@@ -42,7 +41,7 @@ public class at_dh_artifact_inner_demons : AreaTriggerAI
 		}
 	}
 
-	public override void OnRemove()
+	public void OnRemove()
 	{
 		var caster = At.GetCaster();
 

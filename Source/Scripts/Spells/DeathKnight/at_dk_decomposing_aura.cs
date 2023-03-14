@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.DeathKnight;
 
 [Script]
-public class at_dk_decomposing_aura : AreaTriggerAI
+public class at_dk_decomposing_aura : AreaTriggerScript, IAreaTriggerOnUnitExit
 {
-	public at_dk_decomposing_aura(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		unit.RemoveAurasDueToSpell(DeathKnightSpells.DECOMPOSING_AURA_DAMAGE, At.CasterGuid);
 	}

@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Monk;
 
 [Script]
-public class at_monk_ring_of_peace : AreaTriggerAI
+public class at_monk_ring_of_peace : AreaTriggerScript, IAreaTriggerOnUnitEnter
 {
-	public at_monk_ring_of_peace(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit target)
+	public void OnUnitEnter(Unit target)
 	{
 		if (At.GetCaster())
 			if (At.GetCaster().IsValidAttackTarget(target))

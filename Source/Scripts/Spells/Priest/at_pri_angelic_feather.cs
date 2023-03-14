@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Priest;
 
 [Script]
-public class at_pri_angelic_feather : AreaTriggerAI
+public class at_pri_angelic_feather : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUnitEnter
 {
-	public at_pri_angelic_feather(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnInitialize()
+	public void OnInitialize()
 	{
 		var caster = At.GetCaster();
 
@@ -25,7 +24,7 @@ public class at_pri_angelic_feather : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 

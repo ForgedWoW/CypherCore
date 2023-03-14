@@ -4,25 +4,22 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Evoker;
 
 //AT ID : 23318
 //Spell ID : 355913
 [AreaTriggerScript(EvokerAreaTriggers.EMERALD_BLOSSOM)]
-public class at_evoker_emerald_blossom : AreaTriggerAI
+public class at_evoker_emerald_blossom : AreaTriggerScript, IAreaTriggerOnRemove
 {
-	public int timeInterval;
-
-	public at_evoker_emerald_blossom(AreaTrigger areatrigger) : base(areatrigger) { }
-
-    public override void OnRemove()
+    public void OnRemove()
 	{
 		var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
 
-        caster.CastSpell(caster, EvokerSpells.EMERALD_BLOSSOM_HEAL);
+        caster.CastSpell(At.Location, EvokerSpells.EMERALD_BLOSSOM_HEAL);
 	}
 }

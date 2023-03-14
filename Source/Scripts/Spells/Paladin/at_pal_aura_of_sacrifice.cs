@@ -4,20 +4,21 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Paladin;
 
 // Aura of Sacrifice - 183416
 // AreaTriggerID - 100102 (custom)
 [Script]
-public class at_pal_aura_of_sacrifice : AreaTriggerAI
+public class at_pal_aura_of_sacrifice : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
 {
-	public at_pal_aura_of_sacrifice(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		At.SetPeriodicProcTimer(1000);
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -27,7 +28,7 @@ public class at_pal_aura_of_sacrifice : AreaTriggerAI
 					caster.CastSpell(unit, PaladinSpells.AURA_OF_SACRIFICE_ALLY, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		unit.RemoveAura(PaladinSpells.AURA_OF_SACRIFICE_ALLY);
 	}

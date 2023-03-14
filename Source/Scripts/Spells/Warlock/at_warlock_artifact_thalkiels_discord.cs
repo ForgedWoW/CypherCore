@@ -4,17 +4,16 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Warlock;
 
 // 211729 - Thal'kiel's Discord
 // MiscId - 6913
 [Script]
-public class at_warlock_artifact_thalkiels_discord : AreaTriggerAI
+public class at_warlock_artifact_thalkiels_discord : AreaTriggerScript, IAreaTriggerOnUpdate
 {
-	public at_warlock_artifact_thalkiels_discord(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		var caster = At.GetCaster();
 

@@ -11,20 +11,20 @@ using Game.AI;
 using Game.Entities;
 using Game.Movement;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // 110744 - Divine Star
-internal class areatrigger_pri_divine_star : AreaTriggerAI
+internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate, 
+	IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
 {
 	private readonly List<ObjectGuid> _affectedUnits = new();
 	private readonly TaskScheduler Scheduler = new();
 	private Position _casterCurrentPosition = new();
 
-	public areatrigger_pri_divine_star(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnInitialize()
+	public void OnInitialize()
 	{
 		var caster = At.GetCaster();
 
@@ -48,12 +48,12 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 		}
 	}
 
-	public override void OnUpdate(uint diff)
+	public void OnUpdate(uint diff)
 	{
 		Scheduler.Update(diff);
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -69,7 +69,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 			}
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		// Note: this ensures any unit receives a second hit if they happen to be inside the AT when Divine Star starts its return path.
 		var caster = At.GetCaster();
@@ -86,7 +86,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerAI
 			}
 	}
 
-	public override void OnDestinationReached()
+	public void OnDestinationReached()
 	{
 		var caster = At.GetCaster();
 

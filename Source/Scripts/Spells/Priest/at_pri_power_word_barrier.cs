@@ -4,15 +4,14 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Priest;
 
 [Script]
-public class at_pri_power_word_barrier : AreaTriggerAI
+public class at_pri_power_word_barrier : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit
 {
-	public at_pri_power_word_barrier(AreaTrigger areatrigger) : base(areatrigger) { }
-
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
@@ -26,7 +25,7 @@ public class at_pri_power_word_barrier : AreaTriggerAI
 			caster.CastSpell(unit, PriestSpells.POWER_WORD_BARRIER_BUFF, true);
 	}
 
-	public override void OnUnitExit(Unit unit)
+	public void OnUnitExit(Unit unit)
 	{
 		var caster = At.GetCaster();
 

@@ -4,11 +4,12 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Hunter;
 
 [Script]
-public class at_hun_freezing_trapAI : AreaTriggerAI
+public class at_hun_freezing_trapAI : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
 	public enum UsedSpells
 	{
@@ -17,14 +18,10 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 
 	public int timeInterval;
 
-	public at_hun_freezing_trapAI(AreaTrigger areatrigger) : base(areatrigger)
-	{
-		timeInterval = 200;
-	}
-
-	public override void OnCreate()
-	{
-		var caster = At.GetCaster();
+	public void OnCreate()
+    {
+        timeInterval = 200;
+        var caster = At.GetCaster();
 
 		if (caster == null)
 			return;
@@ -46,7 +43,7 @@ public class at_hun_freezing_trapAI : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 

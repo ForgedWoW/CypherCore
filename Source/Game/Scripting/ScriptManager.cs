@@ -71,9 +71,13 @@ public class ScriptManager : Singleton<ScriptManager>
 		Cypher.Assert(trigger != null);
 
 		if (entered)
-			return RunScriptRet<IAreaTriggerOnTrigger>(a => a.OnTrigger(player, trigger), Global.ObjectMgr.GetAreaTriggerScriptId(trigger.Id));
-		else
-			return RunScriptRet<IAreaTriggerOnExit>(p => p.OnExit(player, trigger), Global.ObjectMgr.GetAreaTriggerScriptId(trigger.Id));
+			foreach (uint script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+				return RunScriptRet<IAreaTriggerOnTrigger>(a => a.OnTrigger(player, trigger), script);
+        else
+            foreach (uint script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+                return RunScriptRet<IAreaTriggerOnExit>(p => p.OnExit(player, trigger), script);
+
+		return false;
 	}
 
 	#region Main Script API
@@ -671,11 +675,71 @@ public class ScriptManager : Singleton<ScriptManager>
 		return scriptDic;
 	}
 
-	#endregion
+    #endregion
 
-	#region Player Chat
+    #region AreaTriggers
 
-	public void OnPlayerChat(Player player, ChatMsg type, Language lang, string msg)
+    public List<AreaTriggerScript> CreateAreaTriggerScripts(uint areaTriggerId, AreaTrigger invoker)
+    {
+        var scriptList = new List<AreaTriggerScript>();
+        var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+
+        var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
+
+        if (reg == null)
+            return scriptList;
+
+        foreach (var id in bounds)
+        {
+            var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
+
+            if (tmpscript == null)
+                continue;
+
+            var script = tmpscript.GetAreaTriggerScript();
+
+            if (script == null)
+                continue;
+
+            script._Init(tmpscript.GetName(), areaTriggerId);
+
+            if (!script._Load(invoker))
+                continue;
+
+            scriptList.Add(script);
+        }
+
+        return scriptList;
+    }
+
+    public Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint> CreateAreaTriggerScriptLoaders(uint areaTriggerId)
+    {
+        var scriptDic = new Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint>();
+        var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+
+        var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
+
+        if (reg == null)
+            return scriptDic;
+
+        foreach (var id in bounds)
+        {
+            var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
+
+            if (tmpscript == null)
+                continue;
+
+            scriptDic[tmpscript] = id;
+        }
+
+        return scriptDic;
+    }
+
+    #endregion
+
+    #region Player Chat
+
+    public void OnPlayerChat(Player player, ChatMsg type, Language lang, string msg)
 	{
 		ForEach<IPlayerOnChat>(p => p.OnChat(player, type, lang, msg));
 	}

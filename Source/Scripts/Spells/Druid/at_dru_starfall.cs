@@ -4,21 +4,22 @@
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Druid;
 
 [Script]
-public class at_dru_starfall : AreaTriggerAI
+public class at_dru_starfall : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnPeriodicProc
 {
 	public int timeInterval;
 
-	public at_dru_starfall(AreaTrigger areatrigger) : base(areatrigger)
+	public void OnCreate()
 	{
 		// How often should the action be executed
-		areatrigger.SetPeriodicProcTimer(850);
+		At.SetPeriodicProcTimer(850);
 	}
 
-	public override void OnPeriodicProc()
+	public void OnPeriodicProc()
 	{
 		var caster = At.GetCaster();
 

@@ -5,16 +5,15 @@ using System.Linq;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
+using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Priest;
 
 [Script] // Angelic Feather areatrigger - created by ANGELIC_FEATHER_AREATRIGGER
-internal class areatrigger_pri_angelic_feather : AreaTriggerAI
+internal class areatrigger_pri_angelic_feather : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUnitEnter
 {
-	public areatrigger_pri_angelic_feather(AreaTrigger areatrigger) : base(areatrigger) { }
-
 	// Called when the AreaTrigger has just been initialized, just before added to map
-	public override void OnInitialize()
+	public void OnInitialize()
 	{
 		var caster = At.GetCaster();
 
@@ -27,7 +26,7 @@ internal class areatrigger_pri_angelic_feather : AreaTriggerAI
 		}
 	}
 
-	public override void OnUnitEnter(Unit unit)
+	public void OnUnitEnter(Unit unit)
 	{
 		var caster = At.GetCaster();
 
