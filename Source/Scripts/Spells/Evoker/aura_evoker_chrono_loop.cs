@@ -16,7 +16,7 @@ public class aura_evoker_chrono_loop : AuraScript, IAuraOnApply, IAuraOnRemove
 	uint _mapId = 0;
 	Position _pos;
 
-	public void AuraApplied()
+	public void AuraApply()
 	{
 		var unit = OwnerAsUnit;
 		_health = unit.Health;

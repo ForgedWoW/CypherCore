@@ -245,7 +245,7 @@ public class Aura
 				caster.SpellHistory.StartCooldown(_spellInfo, castItem != null ? castItem.Entry : 0, null, true);
 			}
 
-		ForEachAuraScript<IAuraOnApply>(a => a.AuraApplied());
+		ForEachAuraScript<IAuraOnApply>(a => a.AuraApply());
 	}
 
 	public virtual void _UnapplyForTarget(Unit target, Unit caster, AuraApplication auraApp)

@@ -12,7 +12,7 @@ public class aura_evoker_cycle_of_life : AuraScript, IAuraOnProc, IAuraOnApply
 {
 	double _multiplier = 0;
 
-	public void AuraApplied()
+	public void AuraApply()
 	{
 		_multiplier = SpellManager.Instance.GetSpellInfo(EvokerSpells.CYCLE_OF_LIFE).GetEffect(0).BasePoints * 0.01;
 	}
