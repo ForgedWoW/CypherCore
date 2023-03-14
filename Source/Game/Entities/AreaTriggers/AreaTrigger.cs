@@ -437,6 +437,7 @@ public class AreaTrigger : WorldObject
 	{
 		_areaTriggerId = areaTriggerCreatePropertiesId;
 		LoadScripts();
+        ForEachAreaTriggerScript<IAreaTriggerOnInitialize>(a => a.OnInitialize());
 
         _targetGuid = target ? target.GUID : ObjectGuid.Empty;
 		_aurEff = aurEff;
@@ -463,11 +464,11 @@ public class AreaTrigger : WorldObject
 
 				return false;
 			}
-
-			_areaTriggerTemplate = _areaTriggerCreateProperties.Template;
 		}
 
-		Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
+        _areaTriggerTemplate = _areaTriggerCreateProperties.Template;
+
+        Create(ObjectGuid.Create(HighGuid.AreaTrigger, Location.MapId, GetTemplate() != null ? GetTemplate().Id.Id : 0, caster.Map.GenerateLowGuid(HighGuid.AreaTrigger)));
 
 		if (GetTemplate() != null)
 			Entry = GetTemplate().Id.Id;

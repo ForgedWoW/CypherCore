@@ -62,6 +62,7 @@ internal struct EvokerSpells
 	public const uint EYE_OF_INFINITY = 369375;
 	public const uint FEED_THE_FLAMES = 369846;
 	public const uint FIRE_BREATH = 357208;
+    public const uint FIELD_OF_DREAMS = 370062;
 	public const uint FIRE_BREATH_2 = 382266;
 	public const uint FIRE_BREATH_CHARGED = 357209;
 	public const uint FIRE_STORM = 368847;

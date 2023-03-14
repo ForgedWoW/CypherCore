@@ -32,5 +32,6 @@ public class npc_evoker_cycle_of_life : ScriptedAI
 		CastSpellExtraArgs args = new(true);
 		args.SpellValueOverrides[SpellValueMod.BasePoint0] = _cycleOfLife.AuraEffects[0].Amount;
 		Me.CastSpell(Me.HomePosition, EvokerSpells.CYCLE_OF_LIFE_HEAL, args);
-	}
+        base.OnDespawn();
+    }
 }

@@ -1203,7 +1203,7 @@ namespace Game
 
                     if (areaTriggerScript == null)
                     {
-                        Log.outError(LogFilter.Scripts, "Functions GetSpellScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+                        Log.outError(LogFilter.Scripts, "Functions LoadAreaTriggerScripts() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
                         valid = false;
                     }
 
