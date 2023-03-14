@@ -3901,23 +3901,24 @@ public abstract class WorldObject : IDisposable
 		y = GridDefines.NormalizeMapCoord(y);
 	}
 
-	public void GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
+	public float GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
 	{
 		var x = pos.X;
 		var y = pos.Y;
+		float floor = 0;
 		GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
 		pos.Z = Location.Z;
-		pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
+		pos.Z = (searcher ?? this).UpdateAllowedPositionZ(x, y, pos.Z, ref floor);
 		pos.X = x;
 		pos.Y = y;
 
 		// if detection disabled, return first point
 		if (!WorldConfig.GetBoolValue(WorldCfg.DetectPosCollision))
-			return;
+			return floor;
 
 		// return if the point is already in LoS
 		if (IsWithinLOS(pos.X, pos.Y, pos.Z))
-			return;
+			return floor;
 
 		// remember first point
 		var first_x = pos.X;
@@ -3933,13 +3934,16 @@ public abstract class WorldObject : IDisposable
 			pos.Y = y;
 
 			if (IsWithinLOS(pos.X, pos.Y, pos.Z))
-				return;
+				return floor;
 		}
 
 		// still not in LoS, give up and return first position found
 		pos.X = first_x;
 		pos.Y = first_y;
-	}
+
+		return floor;
+
+    }
 
 	public void GetClosePoint(Position pos, float size, float distance2d = 0, float relAngle = 0)
 	{
