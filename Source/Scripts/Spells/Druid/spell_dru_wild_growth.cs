@@ -34,7 +34,7 @@ internal class spell_dru_wild_growth : SpellScript, IHasSpellEffects
 			return true;
 		});
 
-		var maxTargets = (int)GetEffectInfo(2).CalcValue(Caster);
+		var maxTargets = (int)GetEffectInfo(1).CalcValue(Caster);
 
 		if (targets.Count > maxTargets)
 		{
