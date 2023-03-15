@@ -380,7 +380,8 @@ public class Pet : Guardian
 		{
 			var activePetIndex = Array.FindIndex(petStable.ActivePets, pet => pet?.PetNumber == petnumber);
 
-			Cypher.Assert(activePetIndex != -1);
+			if (activePetIndex == -1)
+				activePetIndex = (int)petnumber;
 
 			// Check that we either have no pet (unsummoned by player) or it matches temporarily unsummoned pet by server (for example on flying mount)
 			Cypher.Assert(!petStable.CurrentPetIndex.HasValue || petStable.CurrentPetIndex == activePetIndex);
