@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.LIVING_FLAME)] // 361469 - Living Flame (Red)
+[SpellScript(EvokerSpells.RED_LIVING_FLAME)] // 361469 - Living Flame (Red)
 class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
@@ -27,9 +27,9 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 		var hitUnit = HitUnit;
 
 		if (caster.IsFriendlyTo(hitUnit))
-			caster.CastSpell(hitUnit, EvokerSpells.LIVING_FLAME_HEAL, true);
+			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, true);
 		else
-			caster.CastSpell(hitUnit, EvokerSpells.LIVING_FLAME_DAMAGE, true);
+			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, true);
 	}
 
 	void HandleLaunchTarget(int effIndex)

@@ -6,14 +6,14 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DREAM_BREATH,
-			EvokerSpells.DREAM_BREATH_2,
-			EvokerSpells.ETERNITY_SURGE,
-			EvokerSpells.ETERNITY_SURGE_2,
-			EvokerSpells.FIRE_BREATH,
-			EvokerSpells.FIRE_BREATH,
-			EvokerSpells.SPIRITBLOOM,
-			EvokerSpells.SPIRITBLOOM_2)]
+[SpellScript(EvokerSpells.GREEN_DREAM_BREATH,
+			EvokerSpells.GREEN_DREAM_BREATH_2,
+			EvokerSpells.BLUE_ETERNITY_SURGE,
+			EvokerSpells.BLUE_ETERNITY_SURGE_2,
+			EvokerSpells.RED_FIRE_BREATH,
+			EvokerSpells.RED_FIRE_BREATH,
+			EvokerSpells.GREEN_SPIRITBLOOM,
+			EvokerSpells.GREEN_SPIRITBLOOM_2)]
 public class spell_evoker_flow_state : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()

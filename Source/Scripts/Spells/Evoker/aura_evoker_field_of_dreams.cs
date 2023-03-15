@@ -25,6 +25,6 @@ public class aura_evoker_field_of_dreams : AuraScript, IAuraCheckProc, IAuraOnPr
     {
         var player = info.HealInfo.Healer.AsPlayer;
         player.SpellHistory.AddCooldown(EvokerSpells.FIELD_OF_DREAMS, 0, TimeSpan.FromMilliseconds(100));
-        player.CastSpell(info.HealInfo.Target, EvokerSpells.EMERALD_BLOSSOM, true);
+        player.CastSpell(info.HealInfo.Target, EvokerSpells.GREEN_EMERALD_BLOSSOM, true);
     }
 }

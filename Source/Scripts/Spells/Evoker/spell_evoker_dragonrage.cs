@@ -8,7 +8,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DRAGONRAGE_EFFECT)]
+[SpellScript(EvokerSpells.RED_DRAGONRAGE_EFFECT)]
 internal class spell_evoker_dragonrage : SpellScript, ISpellOnCast
 {
 	public void OnCast()
@@ -24,6 +24,6 @@ internal class spell_evoker_dragonrage : SpellScript, ISpellOnCast
 
 		// cast on targets
 		foreach (var target in targetList)
-			caster.CastSpell(target, EvokerSpells.PYRE_MISSILE, true);
+			caster.CastSpell(target, EvokerSpells.RED_PYRE_MISSILE, true);
 	}
 }

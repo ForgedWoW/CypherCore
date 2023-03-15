@@ -17,8 +17,8 @@ public class aura_evoker_feed_the_flames : AuraScript, IAuraOnRemove
 		if (removeMode == AuraRemoveMode.Default && TryGetCasterAsPlayer(out var player) && player.IsAlive && player.HasSpell(EvokerSpells.FEED_THE_FLAMES))
 		{
 			var cdr = TimeSpan.FromSeconds(SpellManager.Instance.GetSpellInfo(EvokerSpells.FEED_THE_FLAMES).GetEffect(0).BasePoints);
-			player.SpellHistory.ModifyCooldown(EvokerSpells.FIRE_BREATH, -cdr);
-			player.SpellHistory.ModifyCooldown(EvokerSpells.FIRE_BREATH_2, -cdr);
+			player.SpellHistory.ModifyCooldown(EvokerSpells.RED_FIRE_BREATH, -cdr);
+			player.SpellHistory.ModifyCooldown(EvokerSpells.RED_FIRE_BREATH_2, -cdr);
 		}
 	}
 }

@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DEEP_BREATH)]
+[SpellScript(EvokerSpells.BLACK_DEEP_BREATH)]
 public class spell_evoker_deep_breath : SpellScript, ISpellOnCast, ISpellCheckCast
 {
 	public SpellCastResult CheckCast()
@@ -49,6 +49,6 @@ public class spell_evoker_deep_breath : SpellScript, ISpellOnCast, ISpellCheckCa
 
 	public void OnCast()
 	{
-		Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.DEEP_BREATH_EFFECT, true);
+		Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.BLACK_DEEP_BREATH_EFFECT, true);
 	}
 }

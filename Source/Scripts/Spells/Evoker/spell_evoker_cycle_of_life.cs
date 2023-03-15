@@ -7,7 +7,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.EMERALD_BLOSSOM)]
+[SpellScript(EvokerSpells.GREEN_EMERALD_BLOSSOM)]
 public class spell_evoker_cycle_of_life : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()

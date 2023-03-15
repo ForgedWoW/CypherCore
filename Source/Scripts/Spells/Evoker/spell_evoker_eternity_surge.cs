@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.ETERNITY_SURGE, EvokerSpells.ETERNITY_SURGE_2)]
+[SpellScript(EvokerSpells.BLUE_ETERNITY_SURGE, EvokerSpells.BLUE_ETERNITY_SURGE_2)]
 internal class spell_evoker_eternity_surge : SpellScript, ISpellOnEpowerSpellEnd
 {
 	public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)

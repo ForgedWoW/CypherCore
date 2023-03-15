@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
 
-[AreaTriggerScript(EvokerAreaTriggers.EMERALD_BLOSSOM)]
+[AreaTriggerScript(EvokerAreaTriggers.GREEN_EMERALD_BLOSSOM)]
 public class at_evoker_fluttering_seedling : AreaTriggerScript, IAreaTriggerOnRemove
 {
     public void OnRemove()

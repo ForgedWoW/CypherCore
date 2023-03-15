@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.LIVING_FLAME_DAMAGE)]
+[SpellScript(EvokerSpells.RED_LIVING_FLAME_DAMAGE)]
 public class spell_evoker_living_flame_damage : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
@@ -24,7 +24,7 @@ public class spell_evoker_living_flame_damage : SpellScript, IHasSpellEffects
 	{
 		if (Caster.TryGetAuraEffect(EvokerSpells.ENERGIZING_FLAME, 0, out var auraEffect))
 		{
-			var spellInfo = Global.SpellMgr.AssertSpellInfo(EvokerSpells.LIVING_FLAME, CastDifficulty);
+			var spellInfo = Global.SpellMgr.AssertSpellInfo(EvokerSpells.RED_LIVING_FLAME, CastDifficulty);
 
 			var cost = spellInfo.CalcPowerCost(PowerType.Mana, false, Caster, SpellInfo.GetSchoolMask(), null);
 

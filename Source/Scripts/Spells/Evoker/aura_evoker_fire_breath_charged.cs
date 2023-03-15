@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.FIRE_BREATH_CHARGED)]
+[SpellScript(EvokerSpells.RED_FIRE_BREATH_CHARGED)]
 internal class aura_evoker_fire_breath_charged : AuraScript, IAuraOnApply
 {
 	public void AuraApply()

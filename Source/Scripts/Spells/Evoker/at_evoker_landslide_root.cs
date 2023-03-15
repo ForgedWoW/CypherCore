@@ -5,7 +5,7 @@ using Game.Scripting;
 
 namespace Scripts.Spells.Evoker;
 
-[AreaTriggerScript(EvokerAreaTriggers.LANDSLIDE_ROOT)]
+[AreaTriggerScript(EvokerAreaTriggers.BLACK_LANDSLIDE_ROOT)]
 public class at_evoker_landslide_root : AreaTriggerScript
 {
     
