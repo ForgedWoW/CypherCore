@@ -796,9 +796,30 @@ public class AuraEffect
 	public void SetAmount(uint amount)
 	{
 		SetAmount((double)amount);
-	}
+    }
 
-	public double? GetEstimatedAmount()
+    public void ModAmount(double amount)
+    {
+        _amount += amount;
+        _canBeRecalculated = false;
+    }
+
+    public void ModAmount(long amount)
+    {
+        ModAmount((double)amount);
+    }
+
+    public void ModAmount(int amount)
+    {
+        ModAmount((double)amount);
+    }
+
+    public void ModAmount(uint amount)
+    {
+        ModAmount((double)amount);
+    }
+
+    public double? GetEstimatedAmount()
 	{
 		return _estimatedAmount;
 	}

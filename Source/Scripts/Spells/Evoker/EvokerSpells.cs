@@ -77,7 +77,13 @@ internal struct EvokerSpells
 	public const uint EYE_OF_INFINITY = 369375;
 	public const uint FEED_THE_FLAMES = 369846;
 	public const uint FIELD_OF_DREAMS = 370062;
-	public const uint FLOW_STATE = 385696;
+    public const uint LIFE_GIVERS_FLAME = 371426;
+    public const uint LIFE_GIVERS_FLAME_AURA = 371445;
+    public const uint LIFE_GIVERS_FLAME_HEAL = 371441;
+    public const uint LIFEBIND = 373270;
+    public const uint LIFEBIND_AURA = 373267;
+    public const uint LIFEBIND_HEAL = 373268;
+    public const uint FLOW_STATE = 385696;
 	public const uint FLOW_STATE_AURA = 390148;
 	public const uint FLUTTERING_SEEDLINGS = 359793;
 	public const uint FLUTTERING_SEEDLINGS_HEAL = 361361;
