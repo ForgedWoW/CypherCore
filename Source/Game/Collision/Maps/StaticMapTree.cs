@@ -132,7 +132,7 @@ public class StaticMapTree
 									}
 
 									_treeValues[referencedVal] = new ModelInstance(spawn, model);
-									_loadedSpawns[referencedVal] = 1;
+									_loadedSpawns.TryAdd(referencedVal, 1);
 								}
 								else
 								{
