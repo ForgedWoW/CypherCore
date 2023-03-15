@@ -68,15 +68,11 @@ public class RandomHelper
 
 	public static double FRand(double min, double max)
 	{
-		Cypher.Assert(max >= min);
-
 		return (rand.NextDouble() * (max - min) + min);
 	}
 
 	public static float FRand(float min, float max)
 	{
-		Cypher.Assert(max >= min);
-
 		return (float)(rand.NextDouble() * (max - min) + min);
 	}
 
@@ -130,8 +126,6 @@ public class RandomHelper
 	public static TimeSpan RandTime(TimeSpan min, TimeSpan max)
 	{
 		var diff = max.TotalMilliseconds - min.TotalMilliseconds;
-		Cypher.Assert(diff >= 0);
-		Cypher.Assert(diff <= 0xFFFFFFFF);
 
 		return min + TimeSpan.FromMilliseconds(URand(0, (uint)diff));
 	}

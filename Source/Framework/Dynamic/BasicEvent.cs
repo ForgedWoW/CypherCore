@@ -25,13 +25,11 @@ public class BasicEvent
 
 	public void ScheduleAbort()
 	{
-		Cypher.Assert(IsRunning, "Tried to scheduled the abortion of an event twice!");
 		m_abortState = AbortState.Scheduled;
 	}
 
 	public void SetAborted()
 	{
-		Cypher.Assert(!IsAborted, "Tried to abort an already aborted event!");
 		m_abortState = AbortState.Aborted;
 	}
 

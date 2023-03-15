@@ -14,7 +14,8 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 
 	public virtual bool StartNetwork(string bindIp, int port, int threadCount = 1)
 	{
-		Cypher.Assert(threadCount > 0);
+		if (threadCount <= 0)
+			threadCount = 1;
 
 		Acceptor = new AsyncAcceptor();
 

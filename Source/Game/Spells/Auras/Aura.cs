@@ -230,8 +230,7 @@ public class Aura
 
 	public virtual void _ApplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{
-		Cypher.Assert(target != null);
-		Cypher.Assert(auraApp != null);
+		if (target == null || auraApp == null) return;
 		// aura mustn't be already applied on target
 		//Cypher.Assert(!IsAppliedOnTarget(target.GetGUID()) && "Aura._ApplyForTarget: aura musn't be already applied on target");
 
@@ -250,9 +249,8 @@ public class Aura
 
 	public virtual void _UnapplyForTarget(Unit target, Unit caster, AuraApplication auraApp)
 	{
-		Cypher.Assert(target != null);
-		Cypher.Assert(auraApp.HasRemoveMode);
-		Cypher.Assert(auraApp != null);
+		if (target == null || !auraApp.HasRemoveMode || auraApp == null)
+			return;
 
 		var app = _auraApplications.LookupByKey(target.GUID);
 
