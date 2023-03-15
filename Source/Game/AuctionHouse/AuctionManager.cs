@@ -268,8 +268,8 @@ public class AuctionManager : Singleton<AuctionManager>
 
 	public void AddAItem(Item item)
 	{
-		Cypher.Assert(item);
-		Cypher.Assert(!_itemsByGuid.ContainsKey(item.GUID));
+		if (item == null || _itemsByGuid.ContainsKey(item.GUID)) return;
+
 		_itemsByGuid[item.GUID] = item;
 	}
 

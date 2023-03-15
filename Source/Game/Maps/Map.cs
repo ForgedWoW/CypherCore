@@ -1873,13 +1873,15 @@ public class Map : IDisposable
 				{
 					var grid = ykvp.Value;
 
-					grid?.Update(this, diff);
+                    _threadManager.Stage(() => grid?.Update(this, diff));
 				}
 			}
+
+		_threadManager.Wait();
 #if DEBUGMETRIC
         _metricFactory.Meter("grid?.Update").StopMark();
 #endif
-	}
+    }
 
 	public void AddObjectToRemoveList(WorldObject obj)
 	{

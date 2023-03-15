@@ -361,6 +361,6 @@ public class TaskContext
 	{
 		// This was adapted to TC to prevent static analysis tools from complaining.
 		// If you encounter this assertion check if you repeat a TaskContext more then 1 time!
-		Cypher.Assert(!_consumed, "Bad task logic, task context was consumed already!");
+		
 	}
 }

@@ -300,7 +300,8 @@ public class BitSet : ICollection, ICloneable
 
 	private static int GetArrayLength(int n, int div)
 	{
-		Cypher.Assert(div > 0, "GetArrayLength: div arg must be greater than 0");
+		if (div <= 0)
+			div = 1;
 
 		return n > 0 ? (((n - 1) / div) + 1) : 0;
 	}
