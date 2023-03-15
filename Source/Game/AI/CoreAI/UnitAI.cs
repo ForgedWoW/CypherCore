@@ -47,7 +47,7 @@ public class UnitAI : IUnitAI
 
 	public void DoMeleeAttackIfReady()
 	{
-		if (Me.HasUnitState(UnitState.Casting) || (Me.TryGetAsCreature(out var creature) && creature.CanMelee))
+		if (Me.HasUnitState(UnitState.Casting) || (Me.TryGetAsCreature(out var creature) && !creature.CanMelee))
 			return;
 
 		var victim = Me.Victim;
