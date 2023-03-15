@@ -8,11 +8,11 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.LANDSLIDE)]
+[SpellScript(EvokerSpells.BLACK_LANDSLIDE)]
 internal class spell_evoker_landslide : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.LANDSLIDE_AREA_TRIGGER, true);
+		Caster.CastSpell(Spell.Targets.DstPos, EvokerSpells.BLACK_LANDSLIDE_AREA_TRIGGER, true);
 	}
 }

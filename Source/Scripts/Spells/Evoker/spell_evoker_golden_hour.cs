@@ -11,9 +11,9 @@ public class spell_evoker_golden_hour : SpellScript, ISpellOnHit
 {
     public void OnHit()
     {
-        if (Caster.TryGetAura(EvokerSpells.GOLDEN_HOUR, out var gaAura)
+        if (Caster.TryGetAura(EvokerSpells.BRONZE_GOLDEN_HOUR, out var gaAura)
             && ExplTargetUnit.TryGetAsPlayer(out var target))
-            Caster.CastSpell(target, EvokerSpells.GOLDEN_HOUR_HEAL,
+            Caster.CastSpell(target, EvokerSpells.BRONZE_GOLDEN_HOUR_HEAL,
                 target.GetDamageOverLastSeconds((uint)gaAura.SpellInfo.GetEffect(1).BasePoints) 
                                                 * (gaAura.SpellInfo.GetEffect(0).BasePoints * 0.01));
     }

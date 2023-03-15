@@ -13,6 +13,6 @@ public class aura_evoker_energy_loop : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo info)
 	{
-		return info.ProcSpell.SpellInfo.Id.EqualsAny(EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2);
+		return info.ProcSpell.SpellInfo.Id.EqualsAny(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2);
 	}
 }

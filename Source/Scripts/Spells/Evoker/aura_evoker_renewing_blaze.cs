@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.RENEWING_BLAZE)]
+[SpellScript(EvokerSpells.RED_RENEWING_BLAZE)]
 public class aura_evoker_renewing_blaze : AuraScript, IAuraOnApply
 {
     public void AuraApply()

@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.VERDANT_EMBRACE_HEAL)]
+[SpellScript(EvokerSpells.GREEN_VERDANT_EMBRACE_HEAL)]
 public class spell_evoker_call_of_ysera : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()

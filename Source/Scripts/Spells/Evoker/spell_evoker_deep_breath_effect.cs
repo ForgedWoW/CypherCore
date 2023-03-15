@@ -7,11 +7,11 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DEEP_BREATH_EFFECT)]
+[SpellScript(EvokerSpells.BLACK_DEEP_BREATH_EFFECT)]
 public class spell_evoker_deep_breath_effect : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		Caster.Events.AddEventAtOffset(() => { Caster.CastSpell(Caster, EvokerSpells.DEEP_BREATH_END); }, TimeSpan.FromMilliseconds(880));
+		Caster.Events.AddEventAtOffset(() => { Caster.CastSpell(Caster, EvokerSpells.BLACK_DEEP_BREATH_END); }, TimeSpan.FromMilliseconds(880));
 	}
 }

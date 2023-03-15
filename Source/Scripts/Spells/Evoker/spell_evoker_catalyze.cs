@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2)]
+[SpellScript(EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2)]
 public class spell_evoker_catalyze : SpellScript, ISpellOnHit, ISpellAfterCast
 {
 	int _period = 0;
@@ -14,14 +14,14 @@ public class spell_evoker_catalyze : SpellScript, ISpellOnHit, ISpellAfterCast
 	public void AfterCast()
 	{
 		if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.CATALYZE))
-			if (HitUnit.TryGetAura(EvokerSpells.FIRE_BREATH_CHARGED, out var aura))
+			if (HitUnit.TryGetAura(EvokerSpells.RED_FIRE_BREATH_CHARGED, out var aura))
 				aura.GetEffect(1).Period = _period;
 	}
 
 	public void OnHit()
 	{
 		if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.CATALYZE))
-			if (HitUnit.TryGetAura(EvokerSpells.FIRE_BREATH_CHARGED, out var aura))
+			if (HitUnit.TryGetAura(EvokerSpells.RED_FIRE_BREATH_CHARGED, out var aura))
 			{
 				var eff = aura.GetEffect(1);
 				_period = eff.Period;

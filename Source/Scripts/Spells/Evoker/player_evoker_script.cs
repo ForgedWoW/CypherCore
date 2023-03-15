@@ -26,15 +26,15 @@ internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal, IUnitOnD
 
     private void Reversion(HealInfo healInfo)
     {
-		if (healInfo.SpellInfo.Id == EvokerSpells.REVERSION
-			&& healInfo.IsCritical
-			&& healInfo.Target.TryGetAura(EvokerSpells.REVERSION, out var aura))
+		if (healInfo.SpellInfo.Id == EvokerSpells.BRONZE_REVERSION
+            && healInfo.IsCritical
+			&& healInfo.Target.TryGetAura(EvokerSpells.BRONZE_REVERSION, out var aura))
 			aura.ModDuration(aura.GetEffect(0).Period);
     }
 
     private void EmeraldCommunion(HealInfo healInfo, uint gain)
 	{
-		if (healInfo.SpellInfo.Id == EvokerSpells.EMERALD_COMMUNION &&
+		if (healInfo.SpellInfo.Id == EvokerSpells.GREEN_EMERALD_COMMUNION &&
 			healInfo.Healer == healInfo.Target &&
 			gain < healInfo.Heal)
 		{
@@ -68,10 +68,10 @@ internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal, IUnitOnD
 
     private void RenewingBlaze(Unit victim, double damage)
     {
-		if (victim != null && victim.TryGetAsPlayer(out var player) && player.HasAura(EvokerSpells.RENEWING_BLAZE))
+		if (victim != null && victim.TryGetAsPlayer(out var player) && player.HasAura(EvokerSpells.RED_RENEWING_BLAZE))
 		{
-			if (!player.TryGetAura(EvokerSpells.RENEWING_BLAZE_AURA, out var rnAura))
-                rnAura = player.AddAura(EvokerSpells.RENEWING_BLAZE_AURA);
+			if (!player.TryGetAura(EvokerSpells.RED_RENEWING_BLAZE_AURA, out var rnAura))
+                rnAura = player.AddAura(EvokerSpells.RED_RENEWING_BLAZE_AURA);
 
 			var eff = rnAura.GetEffect(0);
 			var remainingTicks = rnAura.Duration / eff.Period;

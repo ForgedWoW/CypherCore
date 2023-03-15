@@ -10,11 +10,11 @@ namespace Scripts.Spells.Evoker;
 /// <summary>
 /// spell has 7 ticks in total. 1 on create. 5 within the 12s duration. 1 on remove.
 /// </summary>
-[AreaTriggerScript(EvokerAreaTriggers.FIRE_STORM)]
+[AreaTriggerScript(EvokerAreaTriggers.RED_FIRE_STORM)]
 public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, 
     IAreaTriggerOnUpdate, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
-    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.FIRE_STORM);
+    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM);
 
     uint _timer = 0;
 
@@ -26,7 +26,7 @@ public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreate
 
     public void OnCreate()
     {
-        At.GetCaster().CastSpell(At.Location, EvokerSpells.FIRE_STORM_DAMAGE, true);
+        At.GetCaster().CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
     }
 
     public void OnUpdate(uint diff)
@@ -36,13 +36,13 @@ public class at_evoker_firestorm : AreaTriggerScript, IAreaTriggerOverrideCreate
         // at 2000 ms tick this will only tick 5 times since it will end on the last tick.
         if (_timer >= 2000) // tick every 2 seconds
         {
-            At.GetCaster().CastSpell(At.Location, EvokerSpells.FIRE_STORM_DAMAGE, true);
+            At.GetCaster().CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
             _timer -= 2000; // only subtract 2000 to carry over any extra time
         }
     }
 
     public void OnRemove()
     {
-        At.GetCaster().CastSpell(At.Location, EvokerSpells.FIRE_STORM_DAMAGE, true);
+        At.GetCaster().CastSpell(At.Location, EvokerSpells.RED_FIRE_STORM_DAMAGE, true);
     }
 }

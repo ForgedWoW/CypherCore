@@ -10,7 +10,7 @@ using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.EMERALD_COMMUNION)]
+[SpellScript(EvokerSpells.GREEN_EMERALD_COMMUNION)]
 internal class aura_evoker_emerald_communion : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();

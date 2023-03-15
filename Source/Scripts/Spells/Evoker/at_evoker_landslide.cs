@@ -7,10 +7,10 @@ using Game.Scripting.Interfaces.IAreaTrigger;
 
 namespace Scripts.Spells.Evoker;
 
-[AreaTriggerScript(EvokerAreaTriggers.LANDSLIDE)]
+[AreaTriggerScript(EvokerAreaTriggers.BLACK_LANDSLIDE)]
 public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnUnitEnter
 {
-    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.FIRE_STORM);
+    public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM);
 
     public void OnInitialize()
     {
@@ -20,6 +20,6 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
 
     public void OnUnitEnter(Unit unit)
     {
-        At.OwnerUnit.CastSpell(unit, EvokerSpells.LANDSLIDE_ROOT);
+        At.OwnerUnit.CastSpell(unit, EvokerSpells.BLACK_LANDSLIDE_ROOT);
     }
 }

@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DREAM_BREATH_CHARGED)]
+[SpellScript(EvokerSpells.GREEN_DREAM_BREATH_CHARGED)]
 internal class spell_evoker_dream_breath_charged : SpellScript, ISpellCalculateBonusCoefficient
 {
 	public double CalcBonusCoefficient(double bonusCoefficient)

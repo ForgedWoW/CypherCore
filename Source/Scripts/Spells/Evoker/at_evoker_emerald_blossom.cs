@@ -8,7 +8,7 @@ namespace Scripts.Spells.Evoker;
 
 //AT ID : 23318
 //Spell ID : 355913
-[AreaTriggerScript(EvokerAreaTriggers.EMERALD_BLOSSOM)]
+[AreaTriggerScript(EvokerAreaTriggers.GREEN_EMERALD_BLOSSOM)]
 public class at_evoker_emerald_blossom : AreaTriggerScript, IAreaTriggerOnRemove
 {
 	public void OnRemove()
@@ -18,6 +18,6 @@ public class at_evoker_emerald_blossom : AreaTriggerScript, IAreaTriggerOnRemove
 		if (caster == null)
 			return;
 
-		caster.CastSpell(At.Location, EvokerSpells.EMERALD_BLOSSOM_HEAL);
+		caster.CastSpell(At.Location, EvokerSpells.GREEN_EMERALD_BLOSSOM_HEAL);
 	}
 }

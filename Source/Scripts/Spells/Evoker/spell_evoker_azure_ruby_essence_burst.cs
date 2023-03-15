@@ -6,11 +6,13 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.PYRE, EvokerSpells.DISINTEGRATE, EvokerSpells.DISINTEGRATE_2)]
+[SpellScript(EvokerSpells.RED_PYRE, EvokerSpells.BLUE_DISINTEGRATE, EvokerSpells.BLUE_DISINTEGRATE_2)]
 public class spell_evoker_azure_ruby_essence_burst : SpellScript, ISpellOnCast
 {
 	public void OnCast()
 	{
-		Caster.RemoveAura(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA);
+		if (Caster.TryGetAsPlayer(out var player) 
+			&& (!player.TryGetAura(EvokerSpells.HOARDED_POWER, out var hpAura) || !RandomHelper.randChance(hpAura.SpellInfo.GetEffect(0).BasePoints)))
+            player.RemoveAura(EvokerSpells.AZURE_RUBY_ESSENCE_BURST_AURA);
 	}
 }

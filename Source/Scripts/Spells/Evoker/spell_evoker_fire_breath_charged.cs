@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.FIRE_BREATH_CHARGED)]
+[SpellScript(EvokerSpells.RED_FIRE_BREATH_CHARGED)]
 internal class spell_evoker_fire_breath_charged : SpellScript, ISpellCalculateBonusCoefficient
 {
 	public double CalcBonusCoefficient(double bonusCoefficient)

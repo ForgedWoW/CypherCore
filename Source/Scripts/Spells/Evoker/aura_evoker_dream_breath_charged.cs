@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.IAura;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.DREAM_BREATH_CHARGED)]
+[SpellScript(EvokerSpells.GREEN_DREAM_BREATH_CHARGED)]
 internal class aura_evoker_dream_breath_charged : AuraScript, IAuraOnApply
 {
 	public void AuraApply()

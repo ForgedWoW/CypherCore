@@ -9,7 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.PYRE_MISSILE)]
+[SpellScript(EvokerSpells.RED_PYRE_MISSILE)]
 internal class spell_evoker_pyre : SpellScript, IHasSpellEffects
 {
 	public List<ISpellEffect> SpellEffects { get; } = new();
@@ -21,6 +21,6 @@ internal class spell_evoker_pyre : SpellScript, IHasSpellEffects
 
 	private void HandleEffectHitTarget(int effIndex)
 	{
-		Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.PYRE_DAMAGE, true);
+		Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.RED_PYRE_DAMAGE, true);
 	}
 }
