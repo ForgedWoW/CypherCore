@@ -206,6 +206,7 @@ public static partial class Detour
         private dtMeshTile[] m_posLookup;			//< Tile hash lookup.
         private dtMeshTile m_nextFree;				//< Freelist of tiles.
         private dtMeshTile[] m_tiles;				//< List of tiles.
+        private object _meshLock = new object();
 
         public dtNavMesh()
         {
@@ -304,43 +305,46 @@ public static partial class Detour
         // @return The status flags for the operation.
         public dtStatus init(dtNavMeshParams navMeshParams)
         {
-            //memcpy(&m_params, params, sizeof(dtNavMeshParams));
-            m_params = navMeshParams.Clone();
-            dtVcopy(m_orig, navMeshParams.orig);
-            m_tileWidth = navMeshParams.tileWidth;
-            m_tileHeight = navMeshParams.tileHeight;
-
-            // Init tiles
-            m_maxTiles = navMeshParams.maxTiles;
-            m_tileLutSize = (int)dtNextPow2((uint)(navMeshParams.maxTiles / 4));
-            if (m_tileLutSize == 0)
-                m_tileLutSize = 1;
-            m_tileLutMask = m_tileLutSize - 1;
-
-            //m_tiles = (dtMeshTile*)dtAlloc(sizeof(dtMeshTile)*m_maxTiles, DT_ALLOC_PERM);
-            m_tiles = new dtMeshTile[m_maxTiles];
-            dtcsArrayItemsCreate(m_tiles);
-
-            if (m_tiles == null)
-                return (DT_FAILURE | DT_OUT_OF_MEMORY);
-            //m_posLookup = (dtMeshTile**)dtAlloc(sizeof(dtMeshTile*)*m_tileLutSize, DT_ALLOC_PERM);
-            m_posLookup = new dtMeshTile[m_tileLutSize];
-            dtcsArrayItemsCreate(m_posLookup);
-            if (m_posLookup == null)
-                return DT_FAILURE | DT_OUT_OF_MEMORY;
-            //memset(m_tiles, 0, sizeof(dtMeshTile)*m_maxTiles);
-            //memset(m_posLookup, 0, sizeof(dtMeshTile*)*m_tileLutSize);
-            m_nextFree = null;
-            for (int i = m_maxTiles - 1; i >= 0; --i)
+            lock (_meshLock)
             {
-                m_tiles[i].salt = 1;
-                m_tiles[i].next = m_nextFree;
-                m_nextFree = m_tiles[i];
+                //memcpy(&m_params, params, sizeof(dtNavMeshParams));
+                m_params = navMeshParams.Clone();
+                dtVcopy(m_orig, navMeshParams.orig);
+                m_tileWidth = navMeshParams.tileWidth;
+                m_tileHeight = navMeshParams.tileHeight;
+
+                // Init tiles
+                m_maxTiles = navMeshParams.maxTiles;
+                m_tileLutSize = (int)dtNextPow2((uint)(navMeshParams.maxTiles / 4));
+                if (m_tileLutSize == 0)
+                    m_tileLutSize = 1;
+                m_tileLutMask = m_tileLutSize - 1;
+
+                //m_tiles = (dtMeshTile*)dtAlloc(sizeof(dtMeshTile)*m_maxTiles, DT_ALLOC_PERM);
+                m_tiles = new dtMeshTile[m_maxTiles];
+                dtcsArrayItemsCreate(m_tiles);
+
+                if (m_tiles == null)
+                    return (DT_FAILURE | DT_OUT_OF_MEMORY);
+                //m_posLookup = (dtMeshTile**)dtAlloc(sizeof(dtMeshTile*)*m_tileLutSize, DT_ALLOC_PERM);
+                m_posLookup = new dtMeshTile[m_tileLutSize];
+                dtcsArrayItemsCreate(m_posLookup);
+                if (m_posLookup == null)
+                    return DT_FAILURE | DT_OUT_OF_MEMORY;
+                //memset(m_tiles, 0, sizeof(dtMeshTile)*m_maxTiles);
+                //memset(m_posLookup, 0, sizeof(dtMeshTile*)*m_tileLutSize);
+                m_nextFree = null;
+                for (int i = m_maxTiles - 1; i >= 0; --i)
+                {
+                    m_tiles[i].salt = 1;
+                    m_tiles[i].next = m_nextFree;
+                    m_nextFree = m_tiles[i];
+                }
+
+                // Init ID generator values.
+
+                return DT_SUCCESS;
             }
-
-            // Init ID generator values.
-
-            return DT_SUCCESS;
         }
 
         /// Initializes the navigation mesh for single tile use.
@@ -355,26 +359,29 @@ public static partial class Detour
 
             // Make sure the data is in right format.
             //dtMeshHeader header = (dtMeshHeader*)data;
-            dtMeshHeader header = rawTile.header;
-            if (header.magic != DT_NAVMESH_MAGIC)
-                return DT_FAILURE | DT_WRONG_MAGIC;
-            if (header.version != DT_NAVMESH_VERSION)
-                return DT_FAILURE | DT_WRONG_VERSION;
+            lock (_meshLock)
+            {
+                dtMeshHeader header = rawTile.header;
+                if (header.magic != DT_NAVMESH_MAGIC)
+                    return DT_FAILURE | DT_WRONG_MAGIC;
+                if (header.version != DT_NAVMESH_VERSION)
+                    return DT_FAILURE | DT_WRONG_VERSION;
 
-            dtNavMeshParams navMeshParams = new();
-            dtVcopy(navMeshParams.orig, header.bmin);
-            navMeshParams.tileWidth = header.bmax[0] - header.bmin[0];
-            navMeshParams.tileHeight = header.bmax[2] - header.bmin[2];
-            navMeshParams.maxTiles = 1;
-            navMeshParams.maxPolys = header.polyCount;
+                dtNavMeshParams navMeshParams = new();
+                dtVcopy(navMeshParams.orig, header.bmin);
+                navMeshParams.tileWidth = header.bmax[0] - header.bmin[0];
+                navMeshParams.tileHeight = header.bmax[2] - header.bmin[2];
+                navMeshParams.maxTiles = 1;
+                navMeshParams.maxPolys = header.polyCount;
 
-            dtStatus status = init(navMeshParams);
-            if (dtStatusFailed(status))
-                return status;
+                dtStatus status = init(navMeshParams);
+                if (dtStatusFailed(status))
+                    return status;
 
-            //return addTile(data, dataSize, flags, 0, 0);
-            dtTileRef dummyResult = 0;
-            return addTile(rawTile, flags, 0, ref dummyResult);
+                //return addTile(data, dataSize, flags, 0, 0);
+                dtTileRef dummyResult = 0;
+                return addTile(rawTile, flags, 0, ref dummyResult);
+            }
         }
 
         /// The navigation mesh initialization params.
@@ -391,63 +398,66 @@ public static partial class Detour
         /// Returns all polygons in neighbour tile based on portal defined by the segment.
         public int findConnectingPolys(float[] va, int vaStart, float[] vb, int vbStart, dtMeshTile tile, int side, dtPolyRef[] con, float[] conarea, int maxcon)
         {
-            if (tile == null)
-                return 0;
-
-            float[] amin = new float[2];
-            float[] amax = new float[2];
-            calcSlabEndPoints(va, vaStart, vb, vbStart, amin, amax, side);
-            float apos = getSlabCoord(va, vaStart, side);
-
-            // Remove links pointing to 'side' and compact the links array. 
-            float[] bmin = new float[2];
-            float[] bmax = new float[2];
-            ushort m = (ushort)(DT_EXT_LINK | (ushort)side);
-            int n = 0;
-
-            dtPolyRef polyRefBase = getPolyRefBase(tile);
-
-            if (tile.header == null)
-                return 0;
-
-            for (uint i = 0; i < tile.header.polyCount; ++i)
+            lock (_meshLock)
             {
-                dtPoly poly = tile.polys[i];
-                int nv = (int)poly.vertCount;
-                for (int j = 0; j < nv; ++j)
+                if (tile == null)
+                    return 0;
+
+                float[] amin = new float[2];
+                float[] amax = new float[2];
+                calcSlabEndPoints(va, vaStart, vb, vbStart, amin, amax, side);
+                float apos = getSlabCoord(va, vaStart, side);
+
+                // Remove links pointing to 'side' and compact the links array. 
+                float[] bmin = new float[2];
+                float[] bmax = new float[2];
+                ushort m = (ushort)(DT_EXT_LINK | (ushort)side);
+                int n = 0;
+
+                dtPolyRef polyRefBase = getPolyRefBase(tile);
+
+                if (tile.header == null)
+                    return 0;
+
+                for (uint i = 0; i < tile.header.polyCount; ++i)
                 {
-                    // Skip edges which do not point to the right side.
-                    if (poly.neis[j] != m)
-                        continue;
-
-                    //const float* vc = &tile.verts[poly.verts[j]*3];
-                    //const float* vd = &tile.verts[poly.verts[(j+1) % nv]*3];
-                    int vcStart = poly.verts[j] * 3;
-                    int vdStart = poly.verts[(j + 1) % nv] * 3;
-                    float bpos = getSlabCoord(tile.verts, vcStart, side);
-
-                    // Segments are not close enough.
-                    if (Math.Abs(apos - bpos) > 0.01f)
-                        continue;
-
-                    // Check if the segments touch.
-                    calcSlabEndPoints(tile.verts, vcStart, tile.verts, vdStart, bmin, bmax, side);
-
-                    if (!overlapSlabs(amin, amax, bmin, bmax, 0.01f, tile.header.walkableClimb))
-                        continue;
-
-                    // Add return value.
-                    if (n < maxcon)
+                    dtPoly poly = tile.polys[i];
+                    int nv = (int)poly.vertCount;
+                    for (int j = 0; j < nv; ++j)
                     {
-                        conarea[n * 2 + 0] = Math.Max(amin[0], bmin[0]);
-                        conarea[n * 2 + 1] = Math.Min(amax[0], bmax[0]);
-                        con[n] = polyRefBase | (dtPolyRef)i;
-                        n++;
+                        // Skip edges which do not point to the right side.
+                        if (poly.neis[j] != m)
+                            continue;
+
+                        //const float* vc = &tile.verts[poly.verts[j]*3];
+                        //const float* vd = &tile.verts[poly.verts[(j+1) % nv]*3];
+                        int vcStart = poly.verts[j] * 3;
+                        int vdStart = poly.verts[(j + 1) % nv] * 3;
+                        float bpos = getSlabCoord(tile.verts, vcStart, side);
+
+                        // Segments are not close enough.
+                        if (Math.Abs(apos - bpos) > 0.01f)
+                            continue;
+
+                        // Check if the segments touch.
+                        calcSlabEndPoints(tile.verts, vcStart, tile.verts, vdStart, bmin, bmax, side);
+
+                        if (!overlapSlabs(amin, amax, bmin, bmax, 0.01f, tile.header.walkableClimb))
+                            continue;
+
+                        // Add return value.
+                        if (n < maxcon)
+                        {
+                            conarea[n * 2 + 0] = Math.Max(amin[0], bmin[0]);
+                            conarea[n * 2 + 1] = Math.Min(amax[0], bmax[0]);
+                            con[n] = polyRefBase | (dtPolyRef)i;
+                            n++;
+                        }
+                        break;
                     }
-                    break;
                 }
+                return n;
             }
-            return n;
         }
 
         /// Removes external links at specified side.
@@ -630,8 +640,8 @@ public static partial class Detour
                     }
                 }
             }
-
         }
+
         /// Builds internal polygons links for a tile.
         public void connectIntLinks(dtMeshTile tile)
         {
@@ -1051,148 +1061,151 @@ public static partial class Detour
         // @return The status flags for the operation.
         public dtStatus addTile(dtRawTileData rawTileData, int flags, dtTileRef lastRef, ref dtTileRef result)
         {
-            //C#: Using an intermediate class dtRawTileData because Cpp uses a binary buffer.
-
-            // Make sure the data is in right format.
-            dtMeshHeader header = rawTileData.header;
-            if (header.magic != DT_NAVMESH_MAGIC)
-                return DT_FAILURE | DT_WRONG_MAGIC;
-            if (header.version != DT_NAVMESH_VERSION)
-                return DT_FAILURE | DT_WRONG_VERSION;
-
-            // Make sure the location is free.
-            if (getTileAt(header.x, header.y, header.layer) != null)
-                return DT_FAILURE | DT_ALREADY_OCCUPIED;
-
-            // Allocate a tile.
-            dtMeshTile tile = null;
-            if (lastRef == 0)
+            lock (_meshLock)
             {
-                if (m_nextFree != null)
+                //C#: Using an intermediate class dtRawTileData because Cpp uses a binary buffer.
+
+                // Make sure the data is in right format.
+                dtMeshHeader header = rawTileData.header;
+                if (header.magic != DT_NAVMESH_MAGIC)
+                    return DT_FAILURE | DT_WRONG_MAGIC;
+                if (header.version != DT_NAVMESH_VERSION)
+                    return DT_FAILURE | DT_WRONG_VERSION;
+
+                // Make sure the location is free.
+                if (getTileAt(header.x, header.y, header.layer) != null)
+                    return DT_FAILURE | DT_ALREADY_OCCUPIED;
+
+                // Allocate a tile.
+                dtMeshTile tile = null;
+                if (lastRef == 0)
                 {
-                    tile = m_nextFree;
-                    m_nextFree = tile.next;
-                    tile.next = null;
+                    if (m_nextFree != null)
+                    {
+                        tile = m_nextFree;
+                        m_nextFree = tile.next;
+                        tile.next = null;
+                    }
                 }
-            }
-            else
-            {
-                // Try to relocate the tile to specific index with same salt.
-                int tileIndex = (int)decodePolyIdTile((dtPolyRef)lastRef);
-                if (tileIndex >= m_maxTiles)
-                    return DT_FAILURE | DT_OUT_OF_MEMORY;
-                // Try to find the specific tile id from the free list.
-                dtMeshTile target = m_tiles[tileIndex];
-                dtMeshTile prev = null;
-                tile = m_nextFree;
-                while (tile != null && tile != target)
-                {
-                    prev = tile;
-                    tile = tile.next;
-                }
-                // Could not find the correct location.
-                if (tile != target)
-                    return DT_FAILURE | DT_OUT_OF_MEMORY;
-                // Remove from freelist
-                if (prev == null)
-                    m_nextFree = tile.next;
                 else
-                    prev.next = tile.next;
+                {
+                    // Try to relocate the tile to specific index with same salt.
+                    int tileIndex = (int)decodePolyIdTile((dtPolyRef)lastRef);
+                    if (tileIndex >= m_maxTiles)
+                        return DT_FAILURE | DT_OUT_OF_MEMORY;
+                    // Try to find the specific tile id from the free list.
+                    dtMeshTile target = m_tiles[tileIndex];
+                    dtMeshTile prev = null;
+                    tile = m_nextFree;
+                    while (tile != null && tile != target)
+                    {
+                        prev = tile;
+                        tile = tile.next;
+                    }
+                    // Could not find the correct location.
+                    if (tile != target)
+                        return DT_FAILURE | DT_OUT_OF_MEMORY;
+                    // Remove from freelist
+                    if (prev == null)
+                        m_nextFree = tile.next;
+                    else
+                        prev.next = tile.next;
 
-                // Restore salt.
-                tile.salt = decodePolyIdSalt((dtPolyRef)lastRef);
-            }
+                    // Restore salt.
+                    tile.salt = decodePolyIdSalt((dtPolyRef)lastRef);
+                }
 
-            // Make sure we could allocate a tile.
-            if (tile == null)
-                return DT_FAILURE | DT_OUT_OF_MEMORY;
+                // Make sure we could allocate a tile.
+                if (tile == null)
+                    return DT_FAILURE | DT_OUT_OF_MEMORY;
 
-            // Insert tile into the position lut.
-            int h = computeTileHash(header.x, header.y, m_tileLutMask);
-            tile.next = m_posLookup[h];
-            m_posLookup[h] = tile;
+                // Insert tile into the position lut.
+                int h = computeTileHash(header.x, header.y, m_tileLutMask);
+                tile.next = m_posLookup[h];
+                m_posLookup[h] = tile;
 
-            // Patch header pointers.
+                // Patch header pointers.
 
-            //int vertsCount = 3*header.vertCount;
-            //int polysSize = header.polyCount;
-            //int linksSize = header.maxLinkCount;
-            //int detailMeshesSize = header.detailMeshCount;
-            //int detailVertsSize = 3*header.detailVertCount;
-            //int detailTrisSize = 4*header.detailTriCount;
-            //int bvtreeSize = header.bvNodeCount;
-            //int offMeshLinksSize = header.offMeshConCount;
+                //int vertsCount = 3*header.vertCount;
+                //int polysSize = header.polyCount;
+                //int linksSize = header.maxLinkCount;
+                //int detailMeshesSize = header.detailMeshCount;
+                //int detailVertsSize = 3*header.detailVertCount;
+                //int detailTrisSize = 4*header.detailTriCount;
+                //int bvtreeSize = header.bvNodeCount;
+                //int offMeshLinksSize = header.offMeshConCount;
 
-            //byte* d = data + headerSize;
-            tile.verts = rawTileData.verts;
-            tile.polys = rawTileData.polys;
-            tile.links = rawTileData.links;
-            tile.detailMeshes = rawTileData.detailMeshes;
-            tile.detailVerts = rawTileData.detailVerts;
-            tile.detailTris = rawTileData.detailTris;
-            tile.bvTree = rawTileData.bvTree;
-            tile.offMeshCons = rawTileData.offMeshCons;
+                //byte* d = data + headerSize;
+                tile.verts = rawTileData.verts;
+                tile.polys = rawTileData.polys;
+                tile.links = rawTileData.links;
+                tile.detailMeshes = rawTileData.detailMeshes;
+                tile.detailVerts = rawTileData.detailVerts;
+                tile.detailTris = rawTileData.detailTris;
+                tile.bvTree = rawTileData.bvTree;
+                tile.offMeshCons = rawTileData.offMeshCons;
 
-            // If there are no items in the bvtree, reset the tree pointer.
-            //c#: unnecessary, Cpp is afraid to point to whatever data ends up here
-            //if (bvtreeSize == 0)
-            //	tile.bvTree = null;
+                // If there are no items in the bvtree, reset the tree pointer.
+                //c#: unnecessary, Cpp is afraid to point to whatever data ends up here
+                //if (bvtreeSize == 0)
+                //	tile.bvTree = null;
 
-            // Build links freelist
-            tile.linksFreeList = 0;
-            tile.links[header.maxLinkCount - 1].next = DT_NULL_LINK;
-            for (int i = 0; i < header.maxLinkCount - 1; ++i)
-            {
-                tile.links[i].next = (uint)i + 1;
-            }
+                // Build links freelist
+                tile.linksFreeList = 0;
+                tile.links[header.maxLinkCount - 1].next = DT_NULL_LINK;
+                for (int i = 0; i < header.maxLinkCount - 1; ++i)
+                {
+                    tile.links[i].next = (uint)i + 1;
+                }
 
-            // Init tile.
-            tile.header = header;
-            tile.data = rawTileData;
-            //tile.dataSize = dataSize;
-            tile.flags = flags;
+                // Init tile.
+                tile.header = header;
+                tile.data = rawTileData;
+                //tile.dataSize = dataSize;
+                tile.flags = flags;
 
-            connectIntLinks(tile);
+                connectIntLinks(tile);
 
-            // Base off-mesh connections to their starting polygons and connect connections inside the tile.
-            baseOffMeshLinks(tile);
-            connectExtOffMeshLinks(tile, tile, -1);
+                // Base off-mesh connections to their starting polygons and connect connections inside the tile.
+                baseOffMeshLinks(tile);
+                connectExtOffMeshLinks(tile, tile, -1);
 
-            // Create connections with neighbour tiles.
-            const int MAX_NEIS = 32;
-            dtMeshTile[] neis = new dtMeshTile[MAX_NEIS];
-            int nneis;
+                // Create connections with neighbour tiles.
+                const int MAX_NEIS = 32;
+                dtMeshTile[] neis = new dtMeshTile[MAX_NEIS];
+                int nneis;
 
-            // Connect with layers in current tile.
-            nneis = getTilesAt(header.x, header.y, neis, MAX_NEIS);
-            for (int j = 0; j < nneis; ++j)
-            {
-                if (neis[j] == tile)
-                    continue;
-
-                connectExtLinks(tile, neis[j], -1);
-                connectExtLinks(neis[j], tile, -1);
-                connectExtOffMeshLinks(tile, neis[j], -1);
-                connectExtOffMeshLinks(neis[j], tile, -1);
-            }
-
-            // Connect with neighbour tiles.
-            for (int i = 0; i < 8; ++i)
-            {
-                nneis = getNeighbourTilesAt(header.x, header.y, i, neis, MAX_NEIS);
+                // Connect with layers in current tile.
+                nneis = getTilesAt(header.x, header.y, neis, MAX_NEIS);
                 for (int j = 0; j < nneis; ++j)
                 {
-                    connectExtLinks(tile, neis[j], i);
-                    connectExtLinks(neis[j], tile, dtOppositeTile(i));
-                    connectExtOffMeshLinks(tile, neis[j], i);
-                    connectExtOffMeshLinks(neis[j], tile, dtOppositeTile(i));
+                    if (neis[j] == tile)
+                        continue;
+
+                    connectExtLinks(tile, neis[j], -1);
+                    connectExtLinks(neis[j], tile, -1);
+                    connectExtOffMeshLinks(tile, neis[j], -1);
+                    connectExtOffMeshLinks(neis[j], tile, -1);
                 }
+
+                // Connect with neighbour tiles.
+                for (int i = 0; i < 8; ++i)
+                {
+                    nneis = getNeighbourTilesAt(header.x, header.y, i, neis, MAX_NEIS);
+                    for (int j = 0; j < nneis; ++j)
+                    {
+                        connectExtLinks(tile, neis[j], i);
+                        connectExtLinks(neis[j], tile, dtOppositeTile(i));
+                        connectExtOffMeshLinks(tile, neis[j], i);
+                        connectExtOffMeshLinks(neis[j], tile, dtOppositeTile(i));
+                    }
+                }
+
+
+                result = getTileRef(tile);
+
+                return DT_SUCCESS;
             }
-
-
-            result = getTileRef(tile);
-
-            return DT_SUCCESS;
         }
 
         /// Gets the tile at the specified grid location.
@@ -1202,21 +1215,24 @@ public static partial class Detour
         // @return The tile, or null if the tile does not exist.
         public dtMeshTile getTileAt(int x, int y, int layer)
         {
-            // Find tile based on hash.
-            int h = computeTileHash(x, y, m_tileLutMask);
-            dtMeshTile tile = m_posLookup[h];
-            while (tile != null)
+            lock (_meshLock)
             {
-                if (tile.header != null &&
-                    tile.header.x == x &&
-                    tile.header.y == y &&
-                    tile.header.layer == layer)
+                // Find tile based on hash.
+                int h = computeTileHash(x, y, m_tileLutMask);
+                dtMeshTile tile = m_posLookup[h];
+                while (tile != null)
                 {
-                    return tile;
+                    if (tile.header != null &&
+                        tile.header.x == x &&
+                        tile.header.y == y &&
+                        tile.header.layer == layer)
+                    {
+                        return tile;
+                    }
+                    tile = tile.next;
                 }
-                tile = tile.next;
+                return null;
             }
-            return null;
         }
 
         public int getNeighbourTilesAt(int x, int y, int side, dtMeshTile[] tiles, int maxTiles)
@@ -1323,7 +1339,8 @@ public static partial class Detour
         // @return The tile at the specified index.
         public dtMeshTile getTile(int i)
         {
-            return m_tiles[i];
+            lock (_meshLock)
+                return m_tiles[i];
         }
 
         /// Calculates the tile grid location for the specified world position.
@@ -1332,8 +1349,11 @@ public static partial class Detour
         ///  @param[out]	ty		The tile's y-location. (x, y)
         public void calcTileLoc(float[] pos, ref int tx, ref int ty)
         {
-            tx = (int)Math.Floor((pos[0] - m_orig[0]) / m_tileWidth);
-            ty = (int)Math.Floor((pos[2] - m_orig[2]) / m_tileHeight);
+            lock (_meshLock)
+            {
+                tx = (int)Math.Floor((pos[0] - m_orig[0]) / m_tileWidth);
+                ty = (int)Math.Floor((pos[2] - m_orig[2]) / m_tileHeight);
+            }
         }
 
         /// Gets the tile and polygon for the specified polygon reference.
@@ -1343,19 +1363,22 @@ public static partial class Detour
         // @return The status flags for the operation.
         public dtStatus getTileAndPolyByRef(dtPolyRef polyRef, ref dtMeshTile tile, ref dtPoly poly)
         {
-            if (polyRef == 0)
-                return DT_FAILURE;
-            uint salt = 0, it = 0, ip = 0;
-            decodePolyId(polyRef, ref salt, ref it, ref ip);
-            if (it >= (uint)m_maxTiles)
-                return DT_FAILURE | DT_INVALID_PARAM;
-            if (m_tiles[it].salt != salt || m_tiles[it].header == null)
-                return DT_FAILURE | DT_INVALID_PARAM;
-            if (ip >= (uint)m_tiles[it].header.polyCount)
-                return DT_FAILURE | DT_INVALID_PARAM;
-            tile = m_tiles[it];
-            poly = m_tiles[it].polys[ip];
-            return DT_SUCCESS;
+            lock (_meshLock)
+            {
+                if (polyRef == 0)
+                    return DT_FAILURE;
+                uint salt = 0, it = 0, ip = 0;
+                decodePolyId(polyRef, ref salt, ref it, ref ip);
+                if (it >= (uint)m_maxTiles)
+                    return DT_FAILURE | DT_INVALID_PARAM;
+                if (m_tiles[it].salt != salt || m_tiles[it].header == null)
+                    return DT_FAILURE | DT_INVALID_PARAM;
+                if (ip >= (uint)m_tiles[it].header.polyCount)
+                    return DT_FAILURE | DT_INVALID_PARAM;
+                tile = m_tiles[it];
+                poly = m_tiles[it].polys[ip];
+                return DT_SUCCESS;
+            }
         }
 
         //C# port : also return ip because the code used to do pointer arithmetics on the
@@ -1433,103 +1456,106 @@ public static partial class Detour
         // @return The status flags for the operation.
         public dtStatus removeTile(dtTileRef tileRef, out dtRawTileData rawTileData)
         {
-            rawTileData = null;
-
-            if (tileRef == 0)
-                return DT_FAILURE | DT_INVALID_PARAM;
-            uint tileIndex = decodePolyIdTile((dtPolyRef)tileRef);
-            uint tileSalt = decodePolyIdSalt((dtPolyRef)tileRef);
-            if ((int)tileIndex >= m_maxTiles)
-                return DT_FAILURE | DT_INVALID_PARAM;
-            dtMeshTile tile = m_tiles[tileIndex];
-            if (tile.salt != tileSalt)
-                return DT_FAILURE | DT_INVALID_PARAM;
-
-            // Remove tile from hash lookup.
-            int h = computeTileHash(tile.header.x, tile.header.y, m_tileLutMask);
-            dtMeshTile prev = null;
-            dtMeshTile cur = m_posLookup[h];
-            while (cur != null)
+            lock (_meshLock)
             {
-                if (cur == tile)
-                {
-                    if (prev != null)
-                        prev.next = cur.next;
-                    else
-                        m_posLookup[h] = cur.next;
-                    break;
-                }
-                prev = cur;
-                cur = cur.next;
-            }
-
-            // Remove connections to neighbour tiles.
-            // Create connections with neighbour tiles.
-            const int MAX_NEIS = 32;
-            dtMeshTile[] neis = new dtMeshTile[MAX_NEIS];
-            int nneis;
-
-            // Connect with layers in current tile.
-            nneis = getTilesAt(tile.header.x, tile.header.y, neis, MAX_NEIS);
-            for (int j = 0; j < nneis; ++j)
-            {
-                if (neis[j] == tile) continue;
-                unconnectExtLinks(neis[j], tile);
-            }
-
-            // Connect with neighbour tiles.
-            for (int i = 0; i < 8; ++i)
-            {
-                nneis = getNeighbourTilesAt(tile.header.x, tile.header.y, i, neis, MAX_NEIS);
-                for (int j = 0; j < nneis; ++j)
-                    unconnectExtLinks(neis[j], tile);
-            }
-
-            // Reset tile.
-            if ((tile.flags & (int)dtTileFlags.DT_TILE_FREE_DATA) != 0)
-            {
-                // Owns data
-                //dtFree(tile.data);
-                tile.data = null;
-                //tile.dataSize = 0;
-                //if (data) *data = 0;
-                //if (dataSize) *dataSize = 0;
                 rawTileData = null;
 
-            }
-            else
-            {
-                //if (data) *data = tile.data;
-                //if (dataSize) *dataSize = tile.dataSize;
-                rawTileData = tile.data;
-            }
+                if (tileRef == 0)
+                    return DT_FAILURE | DT_INVALID_PARAM;
+                uint tileIndex = decodePolyIdTile((dtPolyRef)tileRef);
+                uint tileSalt = decodePolyIdSalt((dtPolyRef)tileRef);
+                if ((int)tileIndex >= m_maxTiles)
+                    return DT_FAILURE | DT_INVALID_PARAM;
+                dtMeshTile tile = m_tiles[tileIndex];
+                if (tile.salt != tileSalt)
+                    return DT_FAILURE | DT_INVALID_PARAM;
 
-            tile.header = null;
-            tile.flags = 0;
-            tile.linksFreeList = 0;
-            tile.polys = null;
-            tile.verts = null;
-            tile.links = null;
-            tile.detailMeshes = null;
-            tile.detailVerts = null;
-            tile.detailTris = null;
-            tile.bvTree = null;
-            tile.offMeshCons = null;
+                // Remove tile from hash lookup.
+                int h = computeTileHash(tile.header.x, tile.header.y, m_tileLutMask);
+                dtMeshTile prev = null;
+                dtMeshTile cur = m_posLookup[h];
+                while (cur != null)
+                {
+                    if (cur == tile)
+                    {
+                        if (prev != null)
+                            prev.next = cur.next;
+                        else
+                            m_posLookup[h] = cur.next;
+                        break;
+                    }
+                    prev = cur;
+                    cur = cur.next;
+                }
 
-            // Update salt, salt should never be zero.
+                // Remove connections to neighbour tiles.
+                // Create connections with neighbour tiles.
+                const int MAX_NEIS = 32;
+                dtMeshTile[] neis = new dtMeshTile[MAX_NEIS];
+                int nneis;
+
+                // Connect with layers in current tile.
+                nneis = getTilesAt(tile.header.x, tile.header.y, neis, MAX_NEIS);
+                for (int j = 0; j < nneis; ++j)
+                {
+                    if (neis[j] == tile) continue;
+                    unconnectExtLinks(neis[j], tile);
+                }
+
+                // Connect with neighbour tiles.
+                for (int i = 0; i < 8; ++i)
+                {
+                    nneis = getNeighbourTilesAt(tile.header.x, tile.header.y, i, neis, MAX_NEIS);
+                    for (int j = 0; j < nneis; ++j)
+                        unconnectExtLinks(neis[j], tile);
+                }
+
+                // Reset tile.
+                if ((tile.flags & (int)dtTileFlags.DT_TILE_FREE_DATA) != 0)
+                {
+                    // Owns data
+                    //dtFree(tile.data);
+                    tile.data = null;
+                    //tile.dataSize = 0;
+                    //if (data) *data = 0;
+                    //if (dataSize) *dataSize = 0;
+                    rawTileData = null;
+
+                }
+                else
+                {
+                    //if (data) *data = tile.data;
+                    //if (dataSize) *dataSize = tile.dataSize;
+                    rawTileData = tile.data;
+                }
+
+                tile.header = null;
+                tile.flags = 0;
+                tile.linksFreeList = 0;
+                tile.polys = null;
+                tile.verts = null;
+                tile.links = null;
+                tile.detailMeshes = null;
+                tile.detailVerts = null;
+                tile.detailTris = null;
+                tile.bvTree = null;
+                tile.offMeshCons = null;
+
+                // Update salt, salt should never be zero.
 #if DT_POLYREF64
 	        tile.salt = (tile.salt+1) & ((1<<DT_SALT_BITS)-1);
 #else
-            tile.salt = (uint)((tile.salt + 1) & ((1 << (int)DT_SALT_BITS) - 1));
+                tile.salt = (uint)((tile.salt + 1) & ((1 << (int)DT_SALT_BITS) - 1));
 #endif
-            if (tile.salt == 0)
-                tile.salt++;
+                if (tile.salt == 0)
+                    tile.salt++;
 
-            // Add to free list.
-            tile.next = m_nextFree;
-            m_nextFree = tile;
+                // Add to free list.
+                tile.next = m_nextFree;
+                m_nextFree = tile;
 
-            return DT_SUCCESS;
+                return DT_SUCCESS;
+            }
         }
 
         /// Gets the tile reference for the specified tile.
@@ -1672,44 +1698,47 @@ public static partial class Detour
         // @return The status flags for the operation.
         public dtStatus getOffMeshConnectionPolyEndPoints(dtPolyRef prevRef, dtPolyRef polyRef, float[] startPos, float[] endPos)
         {
-            uint salt = 0, it = 0, ip = 0;
-
-            if (polyRef == 0)
-                return DT_FAILURE;
-
-            // Get current polygon
-            decodePolyId(polyRef, ref salt, ref it, ref ip);
-            if (it >= (uint)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
-            if (m_tiles[it].salt != salt || m_tiles[it].header == null) return DT_FAILURE | DT_INVALID_PARAM;
-            dtMeshTile tile = m_tiles[it];
-            if (ip >= (uint)tile.header.polyCount) return DT_FAILURE | DT_INVALID_PARAM;
-            dtPoly poly = tile.polys[ip];
-
-            // Make sure that the current poly is indeed off-mesh link.
-            if (poly.getType() != (byte)dtPolyTypes.DT_POLYTYPE_OFFMESH_CONNECTION)
-                return DT_FAILURE;
-
-            // Figure out which way to hand out the vertices.
-            int idx0 = 0, idx1 = 1;
-
-            // Find link that points to first vertex.
-            for (uint i = poly.firstLink; i != DT_NULL_LINK; i = tile.links[i].next)
+            lock (_meshLock)
             {
-                if (tile.links[i].edge == 0)
+                uint salt = 0, it = 0, ip = 0;
+
+                if (polyRef == 0)
+                    return DT_FAILURE;
+
+                // Get current polygon
+                decodePolyId(polyRef, ref salt, ref it, ref ip);
+                if (it >= (uint)m_maxTiles) return DT_FAILURE | DT_INVALID_PARAM;
+                if (m_tiles[it].salt != salt || m_tiles[it].header == null) return DT_FAILURE | DT_INVALID_PARAM;
+                dtMeshTile tile = m_tiles[it];
+                if (ip >= (uint)tile.header.polyCount) return DT_FAILURE | DT_INVALID_PARAM;
+                dtPoly poly = tile.polys[ip];
+
+                // Make sure that the current poly is indeed off-mesh link.
+                if (poly.getType() != (byte)dtPolyTypes.DT_POLYTYPE_OFFMESH_CONNECTION)
+                    return DT_FAILURE;
+
+                // Figure out which way to hand out the vertices.
+                int idx0 = 0, idx1 = 1;
+
+                // Find link that points to first vertex.
+                for (uint i = poly.firstLink; i != DT_NULL_LINK; i = tile.links[i].next)
                 {
-                    if (tile.links[i].polyRef != prevRef)
+                    if (tile.links[i].edge == 0)
                     {
-                        idx0 = 1;
-                        idx1 = 0;
+                        if (tile.links[i].polyRef != prevRef)
+                        {
+                            idx0 = 1;
+                            idx1 = 0;
+                        }
+                        break;
                     }
-                    break;
                 }
+
+                dtVcopy(startPos, 0, tile.verts, poly.verts[idx0] * 3);
+                dtVcopy(endPos, 0, tile.verts, poly.verts[idx1] * 3);
+
+                return DT_SUCCESS;
             }
-
-            dtVcopy(startPos, 0, tile.verts, poly.verts[idx0] * 3);
-            dtVcopy(endPos, 0, tile.verts, poly.verts[idx1] * 3);
-
-            return DT_SUCCESS;
         }
 
         /// Gets the specified off-mesh connection.
