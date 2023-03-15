@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.REVERSION)]
+[SpellScript(EvokerSpells.BRONZE_REVERSION)]
 public class spell_evoker_golden_hour : SpellScript, ISpellOnHit
 {
     public void OnHit()
