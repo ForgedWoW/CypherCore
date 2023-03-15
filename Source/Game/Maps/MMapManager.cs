@@ -151,15 +151,7 @@ public class MMapManager : Singleton<MMapManager>
 		var tileRef = mmap.loadedTileRefs[packedGridPos];
 
 		// unload, and mark as non loaded
-		if (Detour.dtStatusFailed(mmap.navMesh.removeTile(tileRef, out _)))
-		{
-			// this is technically a memory leak
-			// if the grid is later reloaded, dtNavMesh.addTile will return error but no extra memory is used
-			// we cannot recover from this error - assert out
-			Log.outError(LogFilter.Maps, "MMAP:unloadMap: Could not unload {0:D4}{1:D2}{2:D2}.mmtile from navmesh", mapId, x, y);
-			Cypher.Assert(false);
-		}
-		else
+		if (!Detour.dtStatusFailed(mmap.navMesh.removeTile(tileRef, out _)))
 		{
 			mmap.loadedTileRefs.Remove(packedGridPos);
 			--loadedTiles;
