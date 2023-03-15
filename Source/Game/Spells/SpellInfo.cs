@@ -142,7 +142,7 @@ public class SpellInfo
 
 	public bool CanBeUsedInCombat => !HasAttribute(SpellAttr0.NotInCombatOnlyPeaceful);
 
-	public bool IsPositive => NegativeEffects.Count > 0;
+	public bool IsPositive => NegativeEffects.Count == 0;
 
 	public bool IsChanneled => HasAttribute(SpellAttr1.IsChannelled | SpellAttr1.IsSelfChannelled);
 
