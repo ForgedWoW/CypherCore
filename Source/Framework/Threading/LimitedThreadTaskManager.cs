@@ -44,7 +44,10 @@ public class LimitedThreadTaskManager
         ExecuteStaged();
 
         _actionBlock.Complete();
-        _actionBlock.Completion.Wait();
+
+		if (_actionBlock.InputCount != 0)
+			_actionBlock.Completion.Wait();
+
         CheckForExcpetion();
         _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
     }
