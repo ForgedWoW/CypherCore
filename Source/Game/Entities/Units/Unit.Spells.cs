@@ -1863,6 +1863,7 @@ public partial class Unit
 
 	public void _DeleteRemovedAuras()
 	{
+		lock (_removedAuras)
 		while (!_removedAuras.Empty())
 		{
 			_removedAuras.First().Dispose();
@@ -3123,7 +3124,9 @@ public partial class Unit
 		}
 
 		_ownedAuras.Remove(aura);
-		_removedAuras.Add(aura);
+
+		lock (_removedAuras)
+			_removedAuras.Add(aura);
 
 		// Unregister single target aura
 		if (aura.IsSingleTarget)

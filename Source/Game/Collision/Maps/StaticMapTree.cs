@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
@@ -14,9 +15,9 @@ public class StaticMapTree
 {
 	readonly uint _mapId;
 	readonly BIH _tree = new();
-	readonly Dictionary<uint, uint> _spawnIndices = new();
-	readonly Dictionary<uint, bool> _loadedTiles = new();
-	readonly Dictionary<uint, uint> _loadedSpawns = new();
+	readonly ConcurrentDictionary<uint, uint> _spawnIndices = new();
+	readonly ConcurrentDictionary<uint, bool> _loadedTiles = new();
+	readonly ConcurrentDictionary<uint, uint> _loadedSpawns = new();
 	ModelInstance[] _treeValues;
 	uint _nTreeValues;
 
@@ -205,7 +206,7 @@ public class StaticMapTree
 								if (_loadedSpawns.ContainsKey(referencedNode) && --_loadedSpawns[referencedNode] == 0)
 								{
 									_treeValues[referencedNode].SetUnloaded();
-									_loadedSpawns.Remove(referencedNode);
+									_loadedSpawns.TryRemove(referencedNode, out _);
 								}
 							}
 							else if (_mapId == fileResult.UsedMapId) // logic documented in StaticMapTree::LoadMapTile
@@ -217,7 +218,7 @@ public class StaticMapTree
 				}
 			}
 
-			_loadedTiles.Remove(tileID);
+			_loadedTiles.TryRemove(tileID, out _);
 		}
 	}
 
