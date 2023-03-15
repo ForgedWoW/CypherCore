@@ -45,8 +45,8 @@ public class LimitedThreadTaskManager
 
         _actionBlock.Complete();
 
-		if (_actionBlock.InputCount != 0)
-			_actionBlock.Completion.Wait();
+		while (_actionBlock.InputCount != 0)
+			_actionBlock.Completion.Wait(1000);
 
         CheckForExcpetion();
         _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
