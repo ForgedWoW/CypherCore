@@ -345,7 +345,7 @@ public class Log
 
 	static Appender GetAppenderByName(string name)
 	{
-		return appenders.First(p => p.Value.getName() == name).Value;
+		return appenders.FirstOrDefault(p => p.Value.getName() == name).Value;
 	}
 
 	static Logger GetLoggerByType(LogFilter type)
