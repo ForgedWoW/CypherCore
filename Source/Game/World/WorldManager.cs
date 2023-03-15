@@ -1287,6 +1287,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		// Record update if recording set in log and diff is greater then minimum set in log
 		_worldUpdateTime.RecordUpdateTime(GameTime.GetGameTimeMS(), diff, (uint)ActiveSessionCount);
+		Realm.PopulationLevel = ActiveSessionCount;
 
 		// Update the different timers
 		for (WorldTimers i = 0; i < WorldTimers.Max; ++i)
@@ -1359,8 +1360,10 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			_timers[WorldTimers.Blackmarket].Reset();
 
-			//- Update blackmarket, refresh auctions if necessary
-			if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= WorldConfig.GetIntValue(WorldCfg.BlackmarketUpdatePeriod) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)
+            DB.Login.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
+
+            //- Update blackmarket, refresh auctions if necessary
+            if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= WorldConfig.GetIntValue(WorldCfg.BlackmarketUpdatePeriod) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)
 			{
 				_taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
 				_blackmarketTimer = 1; // timer is 0 on startup
