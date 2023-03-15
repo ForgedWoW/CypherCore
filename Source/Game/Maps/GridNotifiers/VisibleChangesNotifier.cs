@@ -26,6 +26,8 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 		{
 			var creature = objs[i];
 
+			if (creature == null) continue;
+
 			foreach (var visionPlayer in creature.GetSharedVisionList())
 				if (visionPlayer.SeerView == creature)
 					visionPlayer.UpdateVisibilityOf(_objects);
@@ -54,6 +56,8 @@ public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer
 		for (var i = 0; i < objs.Count; ++i)
 		{
 			var player = objs[i];
+
+			if (player == null) continue;
 
 			player.UpdateVisibilityOf(_objects);
 
