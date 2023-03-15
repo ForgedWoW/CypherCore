@@ -368,8 +368,14 @@ public partial class Unit
 		var creature = AsCreature;
 
 		// creatures cannot attack while evading
-		if (creature != null && (creature.IsInEvadeMode || !creature.CanMelee))
-			return false;
+		if (creature != null)
+		{
+			if (creature.IsInEvadeMode)
+				return false;
+
+			if (creature.CanMelee)
+				meleeAttack = false;
+		}
 
 		// nobody can attack GM in GM-mode
 		if (victim.IsTypeId(TypeId.Player))

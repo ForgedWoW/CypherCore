@@ -84,7 +84,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 
 			AddNewSockets();
 
-			for (var i = 0; i < _Sockets.Count; ++i)
+			for (var i = _Sockets.Count - 1; i >= 0 ; --i)
 			{
 				var socket = _Sockets[i];
 

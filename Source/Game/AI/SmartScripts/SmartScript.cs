@@ -1005,9 +1005,6 @@ public class SmartScript
 			}
 			case SmartActions.AutoAttack:
 			{
-				if (!IsSmart())
-					break;
-
 				_me.CanMelee = e.Action.autoAttack.attack != 0;
 
 				Log.outDebug(LogFilter.ScriptsAi,
