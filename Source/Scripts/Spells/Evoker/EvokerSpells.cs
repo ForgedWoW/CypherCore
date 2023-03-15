@@ -104,6 +104,8 @@ internal struct EvokerSpells
 	public const uint IRIDESCENCE_RED = 386353;
 	public const uint IRIDESCENCE_BLUE = 386399;
     public const uint JUST_IN_TIME = 376204;
+    public const uint LEAPING_FLAMES = 369939;
+    public const uint LEAPING_FLAMES_AURA = 370901;
     public const uint RED_CAUTERIZING_FLAME = 374251;
     public const uint RED_DRAGONRAGE = 375087;
     public const uint RED_DRAGONRAGE_EFFECT = 375088;
