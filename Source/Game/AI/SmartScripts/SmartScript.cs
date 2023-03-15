@@ -1006,7 +1006,7 @@ public class SmartScript
 				if (!IsSmart())
 					break;
 
-				((SmartAI)_me.AI).SetAutoAttack(e.Action.autoAttack.attack != 0);
+				_me.CanMelee = e.Action.autoAttack.attack != 0;
 
 				Log.outDebug(LogFilter.ScriptsAi,
 							"SmartScript.ProcessAction. SMART_ACTION_AUTO_ATTACK: Creature: {0} bool on = {1}",

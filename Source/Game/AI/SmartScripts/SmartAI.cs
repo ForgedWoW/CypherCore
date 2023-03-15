@@ -44,7 +44,6 @@ public class SmartAI : CreatureAI
 
 	bool _run;
 	bool _evadeDisabled;
-	bool _canAutoAttack;
 	bool _canCombatMove;
 	uint _invincibilityHpLevel;
 
@@ -59,7 +58,6 @@ public class SmartAI : CreatureAI
 	{
 		_escortInvokerCheckTimer = 1000;
 		_run = true;
-		_canAutoAttack = true;
 		_canCombatMove = true;
 
 		_hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, creature.Entry);
@@ -305,8 +303,7 @@ public class SmartAI : CreatureAI
 		if (!hasVictim)
 			return;
 
-		if (_canAutoAttack)
-			DoMeleeAttackIfReady();
+		DoMeleeAttackIfReady();
 	}
 
 	public override void WaypointReached(uint nodeId, uint pathId)
@@ -539,12 +536,12 @@ public class SmartAI : CreatureAI
 		if (!IsAIControlled())
 		{
 			if (who != null)
-				Me.Attack(who, _canAutoAttack);
+				Me.Attack(who, true);
 
 			return;
 		}
 
-		if (who != null && Me.Attack(who, _canAutoAttack))
+		if (who != null && Me.Attack(who, true))
 		{
 			Me.MotionMaster.Clear(MovementGeneratorPriority.Normal);
 			Me.PauseMovement();
@@ -878,11 +875,6 @@ public class SmartAI : CreatureAI
 	public void RemoveEscortState(SmartEscortState escortState)
 	{
 		_escortState &= ~escortState;
-	}
-
-	public void SetAutoAttack(bool on)
-	{
-		_canAutoAttack = on;
 	}
 
 	public bool CanCombatMove()
