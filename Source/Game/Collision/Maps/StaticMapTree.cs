@@ -173,11 +173,7 @@ public class StaticMapTree
 			var tileID = PackTileID(tileX, tileY);
 
 			if (!_loadedTiles.ContainsKey(tileID))
-			{
-				Log.outError(LogFilter.Server, "StaticMapTree.UnloadMapTile() : trying to unload non-loaded tile - Map:{0} X:{1} Y:{2}", _mapId, tileX, tileY);
-
 				return;
-			}
 
 			if (_loadedTiles[tileID]) // file associated with tile
 			{
@@ -204,15 +200,9 @@ public class StaticMapTree
 							vm.ReleaseModelInstance(spawn.Name);
 
 							// update tree
-							if (_spawnIndices.ContainsKey(spawn.Id))
+							if (_spawnIndices.TryGetValue(spawn.Id, out var referencedNode))
 							{
-								var referencedNode = _spawnIndices[spawn.Id];
-
-								if (!_loadedSpawns.ContainsKey(referencedNode))
-								{
-									Log.outError(LogFilter.Server, "StaticMapTree.UnloadMapTile() : trying to unload non-referenced model '{0}' (ID:{1})", spawn.Name, spawn.Id);
-								}
-								else if (--_loadedSpawns[referencedNode] == 0)
+								if (_loadedSpawns.ContainsKey(referencedNode) && --_loadedSpawns[referencedNode] == 0)
 								{
 									_treeValues[referencedNode].SetUnloaded();
 									_loadedSpawns.Remove(referencedNode);
