@@ -407,6 +407,9 @@ public static partial class Detour
 
             dtPolyRef polyRefBase = getPolyRefBase(tile);
 
+            if (tile.header == null)
+                return 0;
+
             for (uint i = 0; i < tile.header.polyCount; ++i)
             {
                 dtPoly poly = tile.polys[i];
