@@ -15,6 +15,7 @@ public class StaticCreatureFlags
 	CreatureStaticFlags6 _flags6;
 	CreatureStaticFlags7 _flags7;
 	CreatureStaticFlags8 _flags8;
+
 	public bool HasFlag(CreatureStaticFlags flag) => _flags.HasFlag(flag);
 	public bool HasFlag(CreatureStaticFlags2 flag) => _flags2.HasFlag(flag);
 	public bool HasFlag(CreatureStaticFlags3 flag) => _flags3.HasFlag(flag);

@@ -3929,7 +3929,7 @@ public abstract class WorldObject : IDisposable
 		{
 			GetNearPoint2D(searcher, out x, out y, distance2d, absAngle + angle);
 			pos.Z = Location.Z;
-			pos.Z = (searcher ?? this).UpdateAllowedPositionZ(pos.X, pos.Y, pos.Z);
+			pos.Z = (searcher ?? this).UpdateAllowedPositionZ(x, y, pos.Z);
 			pos.X = x;
 			pos.Y = y;
 
