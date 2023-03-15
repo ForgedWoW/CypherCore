@@ -130,25 +130,13 @@ public class MMapManager : Singleton<MMapManager>
 	{
 		// check if we have this map loaded
 		if (!loadedMMaps.TryGetValue(mapId, out var mmap))
-		{
-			// file may not exist, therefore not loaded
-			Log.outDebug(LogFilter.Maps, "MMAP:unloadMap: Asked to unload not loaded navmesh map. {0:D4}{1:D2}{2:D2}.mmtile", mapId, x, y);
-
 			return false;
-		}
 
 		// check if we have this tile loaded
 		var packedGridPos = PackTileID(x, y);
 
-		if (!mmap.loadedTileRefs.ContainsKey(packedGridPos))
-		{
-			// file may not exist, therefore not loaded
-			Log.outDebug(LogFilter.Maps, "MMAP:unloadMap: Asked to unload not loaded navmesh tile. {0:D4}{1:D2}{2:D2}.mmtile", mapId, x, y);
-
+		if (!mmap.loadedTileRefs.TryGetValue(packedGridPos, out var tileRef))
 			return false;
-		}
-
-		var tileRef = mmap.loadedTileRefs[packedGridPos];
 
 		// unload, and mark as non loaded
 		if (!Detour.dtStatusFailed(mmap.navMesh.removeTile(tileRef, out _)))
