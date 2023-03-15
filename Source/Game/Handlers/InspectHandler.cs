@@ -2,100 +2,104 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
-using Game.Guilds;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.Inspect, Processing = PacketProcessing.Inplace)]
-        void HandleInspect(Inspect inspect)
-        {
-            Player player = Global.ObjAccessor.GetPlayer(_player, inspect.Target);
-            if (!player)
-            {
-                Log.outDebug(LogFilter.Network, "WorldSession.HandleInspectOpcode: Target {0} not found.", inspect.Target.ToString());
-                return;
-            }
+	[WorldPacketHandler(ClientOpcodes.Inspect, Processing = PacketProcessing.Inplace)]
+	void HandleInspect(Inspect inspect)
+	{
+		var player = Global.ObjAccessor.GetPlayer(_player, inspect.Target);
 
-            if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
-                return;
+		if (!player)
+		{
+			Log.outDebug(LogFilter.Network, "WorldSession.HandleInspectOpcode: Target {0} not found.", inspect.Target.ToString());
 
-            if (Player.IsValidAttackTarget(player))
-                return;
+			return;
+		}
 
-            InspectResult inspectResult = new();
-            inspectResult.DisplayInfo.Initialize(player);
+		if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
+			return;
 
-            if (Player.CanBeGameMaster || WorldConfig.GetIntValue(WorldCfg.TalentsInspecting) + (Player.EffectiveTeam == player.EffectiveTeam ? 1 : 0) > 1)
-            {
-                var talents = player.GetTalentMap(player.GetActiveTalentGroup());
-                foreach (var v in talents)
-                {
-                    if (v.Value != PlayerSpellState.Removed)
-                        inspectResult.Talents.Add((ushort)v.Key);
-                }
-            }
+		if (Player.IsValidAttackTarget(player))
+			return;
 
-            inspectResult.TalentTraits = new TraitInspectInfo();
-            var traitConfig = player.GetTraitConfig((int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID);
+		InspectResult inspectResult = new();
+		inspectResult.DisplayInfo.Initialize(player);
 
-            if (traitConfig != null)
-            {
-                inspectResult.TalentTraits.Config = new TraitConfigPacket(traitConfig);
-                inspectResult.TalentTraits.ChrSpecializationID = (int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID;
-            }
-            inspectResult.TalentTraits.Level = (int)player.Level;
+		if (Player.CanBeGameMaster || WorldConfig.GetIntValue(WorldCfg.TalentsInspecting) + (Player.EffectiveTeam == player.EffectiveTeam ? 1 : 0) > 1)
+		{
+			var talents = player.GetTalentMap(player.GetActiveTalentGroup());
 
-            Guild guild = Global.GuildMgr.GetGuildById(player.GuildId);
-            if (guild)
-            {
-                InspectGuildData guildData;
-                guildData.GuildGUID = guild.GetGUID();
-                guildData.NumGuildMembers = guild.GetMembersCount();
-                guildData.AchievementPoints = (int)guild.GetAchievementMgr().AchievementPoints;
+			foreach (var v in talents)
+				if (v.Value != PlayerSpellState.Removed)
+					inspectResult.Talents.Add((ushort)v.Key);
+		}
 
-                inspectResult.GuildData = guildData;
-            }
+		inspectResult.TalentTraits = new TraitInspectInfo();
+		var traitConfig = player.GetTraitConfig((int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID);
 
-            Item heartOfAzeroth = player.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
-            if (heartOfAzeroth != null)
-            {
-                AzeriteItem azeriteItem = heartOfAzeroth.ToAzeriteItem();
-                if (azeriteItem != null)
-                    inspectResult.AzeriteLevel = azeriteItem.GetEffectiveLevel();
-            }
+		if (traitConfig != null)
+		{
+			inspectResult.TalentTraits.Config = new TraitConfigPacket(traitConfig);
+			inspectResult.TalentTraits.ChrSpecializationID = (int)(uint)player.ActivePlayerData.ActiveCombatTraitConfigID;
+		}
 
-            inspectResult.ItemLevel = (int)player.GetAverageItemLevel();
-            inspectResult.LifetimeMaxRank = player.ActivePlayerData.LifetimeMaxRank;
-            inspectResult.TodayHK = player.ActivePlayerData.TodayHonorableKills;
-            inspectResult.YesterdayHK = player.ActivePlayerData.YesterdayHonorableKills;
-            inspectResult.LifetimeHK = player.ActivePlayerData.LifetimeHonorableKills;
-            inspectResult.HonorLevel = player.PlayerData.HonorLevel;
+		inspectResult.TalentTraits.Level = (int)player.Level;
 
-            SendPacket(inspectResult);
-        }
+		var guild = Global.GuildMgr.GetGuildById(player.GuildId);
 
-        [WorldPacketHandler(ClientOpcodes.QueryInspectAchievements, Processing = PacketProcessing.Inplace)]
-        void HandleQueryInspectAchievements(QueryInspectAchievements inspect)
-        {
-            Player player = Global.ObjAccessor.GetPlayer(_player, inspect.Guid);
-            if (!player)
-            {
-                Log.outDebug(LogFilter.Network, "WorldSession.HandleQueryInspectAchievements: [{0}] inspected unknown Player [{1}]", Player.GUID.ToString(), inspect.Guid.ToString());
-                return;
-            }
+		if (guild)
+		{
+			InspectGuildData guildData;
+			guildData.GuildGUID = guild.GetGUID();
+			guildData.NumGuildMembers = guild.GetMembersCount();
+			guildData.AchievementPoints = (int)guild.GetAchievementMgr().AchievementPoints;
 
-            if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
-                return;
+			inspectResult.GuildData = guildData;
+		}
 
-            if (Player.IsValidAttackTarget(player))
-                return;
+		var heartOfAzeroth = player.GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
-            player.SendRespondInspectAchievements(Player);
-        }
-    }
+		if (heartOfAzeroth != null)
+		{
+			var azeriteItem = heartOfAzeroth.AsAzeriteItem;
+
+			if (azeriteItem != null)
+				inspectResult.AzeriteLevel = azeriteItem.GetEffectiveLevel();
+		}
+
+		inspectResult.ItemLevel = (int)player.GetAverageItemLevel();
+		inspectResult.LifetimeMaxRank = player.ActivePlayerData.LifetimeMaxRank;
+		inspectResult.TodayHK = player.ActivePlayerData.TodayHonorableKills;
+		inspectResult.YesterdayHK = player.ActivePlayerData.YesterdayHonorableKills;
+		inspectResult.LifetimeHK = player.ActivePlayerData.LifetimeHonorableKills;
+		inspectResult.HonorLevel = player.PlayerData.HonorLevel;
+
+		SendPacket(inspectResult);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.QueryInspectAchievements, Processing = PacketProcessing.Inplace)]
+	void HandleQueryInspectAchievements(QueryInspectAchievements inspect)
+	{
+		var player = Global.ObjAccessor.GetPlayer(_player, inspect.Guid);
+
+		if (!player)
+		{
+			Log.outDebug(LogFilter.Network, "WorldSession.HandleQueryInspectAchievements: [{0}] inspected unknown Player [{1}]", Player.GUID.ToString(), inspect.Guid.ToString());
+
+			return;
+		}
+
+		if (!Player.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
+			return;
+
+		if (Player.IsValidAttackTarget(player))
+			return;
+
+		player.SendRespondInspectAchievements(Player);
+	}
 }

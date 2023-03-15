@@ -82,17 +82,17 @@ class SendCommands
 			if (itemIdAndCountStr[1].IsEmpty() || !uint.TryParse(itemIdAndCountStr[1], out var itemCount))
 				itemCount = 1;
 
-			if (itemCount < 1 || (itemProto.GetMaxCount() > 0 && itemCount > itemProto.GetMaxCount()))
+			if (itemCount < 1 || (itemProto.MaxCount > 0 && itemCount > itemProto.MaxCount))
 			{
 				handler.SendSysMessage(CypherStrings.CommandInvalidItemCount, itemCount, itemId);
 
 				return false;
 			}
 
-			while (itemCount > itemProto.GetMaxStackSize())
+			while (itemCount > itemProto.MaxStackSize)
 			{
-				items.Add(new KeyValuePair<uint, uint>(itemId, itemProto.GetMaxStackSize()));
-				itemCount -= itemProto.GetMaxStackSize();
+				items.Add(new KeyValuePair<uint, uint>(itemId, itemProto.MaxStackSize));
+				itemCount -= itemProto.MaxStackSize;
 			}
 
 			items.Add(new KeyValuePair<uint, uint>(itemId, itemCount));

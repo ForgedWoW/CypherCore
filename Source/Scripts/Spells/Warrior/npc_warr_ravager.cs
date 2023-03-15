@@ -38,11 +38,11 @@ public class npc_warr_ravager : ScriptedAI
 				var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 
 				if (l_Proto != null)
-					Me.SetVirtualItem(0, l_Proto.GetId());
+					Me.SetVirtualItem(0, l_Proto.Id);
 			}
 			else
 			{
-				Me.SetVirtualItem(0, item.GetTemplate().GetId());
+				Me.SetVirtualItem(0, item.Template.Id);
 			}
 
 			item = player.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
@@ -52,11 +52,11 @@ public class npc_warr_ravager : ScriptedAI
 				var l_Proto = Global.ObjectMgr.GetItemTemplate(item.GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 
 				if (l_Proto != null)
-					Me.SetVirtualItem(2, l_Proto.GetId());
+					Me.SetVirtualItem(2, l_Proto.Id);
 			}
 			else
 			{
-				Me.SetVirtualItem(2, item.GetTemplate().GetId());
+				Me.SetVirtualItem(2, item.Template.Id);
 			}
 		}
 	}

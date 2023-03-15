@@ -16,7 +16,7 @@ public class dh_shattered_souls : ScriptObjectAutoAdd, IPlayerOnCreatureKill
 
 	public void OnCreatureKill(Player player, Creature victim)
 	{
-		if (player.Class != Class.DemonHunter)
+		if (player.Class != PlayerClass.DemonHunter)
 			return;
 
 		var fragmentPos = victim.GetRandomNearPosition(5.0f);

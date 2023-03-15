@@ -14,13 +14,13 @@ namespace Scripts.Spells.Paladin;
 [Script]
 public class spell_pal_absolution : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
-	public Class PlayerClass { get; } = Class.Paladin;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
 
 	public spell_pal_absolution() : base("absolution") { }
 
 	public void OnSpellCast(Player player, Spell spell, bool skipCheck)
 	{
-		if (player.Class != Class.Paladin)
+		if (player.Class != PlayerClass.Paladin)
 			return;
 
 		uint absolution = 212056;

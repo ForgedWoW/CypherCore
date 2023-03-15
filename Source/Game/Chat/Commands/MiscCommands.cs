@@ -115,7 +115,7 @@ class MiscCommands
 			var pos = new Position();
 			target.GetClosePoint(pos, _player.CombatReach, 1.0f);
 			pos.Orientation = _player.Location.GetAbsoluteAngle(target.Location);
-			_player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.InstanceId1);
+			_player.TeleportTo(target.Location.MapId, pos, TeleportToOptions.GMMode, target.InstanceId);
 			PhasingHandler.InheritPhaseShift(_player, target);
 			_player.UpdateObjectVisibility();
 		}
@@ -748,7 +748,7 @@ class MiscCommands
 								cell.GetGridY(),
 								cell.GetCellX(),
 								cell.GetCellY(),
-								obj.InstanceId1,
+								obj.InstanceId,
 								zoneX,
 								zoneY,
 								groundZ,
@@ -1360,7 +1360,7 @@ class MiscCommands
 
 		// Character data print variables
 		Race raceid;
-		Class classid;
+		PlayerClass classid;
 		Gender gender;
 		var locale = handler.SessionDbcLocale;
 		uint totalPlayerTime;
@@ -1425,7 +1425,7 @@ class MiscCommands
 			money = result.Read<ulong>(2);
 			accId = result.Read<uint>(3);
 			raceid = (Race)result.Read<byte>(4);
-			classid = (Class)result.Read<byte>(5);
+			classid = (PlayerClass)result.Read<byte>(5);
 			mapId = result.Read<ushort>(6);
 			areaId = result.Read<ushort>(7);
 			gender = (Gender)result.Read<byte>(8);
@@ -1971,7 +1971,7 @@ class MiscCommands
 					targetGroupLeader = Global.ObjAccessor.GetPlayer(map, targetGroup.LeaderGUID);
 
 				// check if far teleport is allowed
-				if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.Id) || (targetGroupLeader.InstanceId1 != map.InstanceId))
+				if (targetGroupLeader == null || (targetGroupLeader.Location.MapId != map.Id) || (targetGroupLeader.InstanceId != map.InstanceId))
 					if ((targetMap.Id != map.Id) || (targetMap.InstanceId != map.InstanceId))
 					{
 						handler.SendSysMessage(CypherStrings.CannotSummonToInst);

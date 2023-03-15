@@ -31,12 +31,12 @@ public class spell_warlock_glyph_of_felguard : SpellScript, ISpellAfterHit
 
 				if (pItem != null)
 				{
-					var itemplate = pItem.GetTemplate();
+					var itemplate = pItem.Template;
 
 					if (itemplate != null)
-						if (itemplate.GetClass() == ItemClass.Weapon && (itemplate.GetSubClass() == (uint)ItemSubClassWeapon.Sword2 || itemplate.GetSubClass() == (uint)ItemSubClassWeapon.Axe2 || itemplate.GetSubClass() == (uint)ItemSubClassWeapon.Exotic2 || itemplate.GetSubClass() == (uint)ItemSubClassWeapon.Mace2 || itemplate.GetSubClass() == (uint)ItemSubClassWeapon.Polearm))
+						if (itemplate.Class == ItemClass.Weapon && (itemplate.SubClass == (uint)ItemSubClassWeapon.Sword2 || itemplate.SubClass == (uint)ItemSubClassWeapon.Axe2 || itemplate.SubClass == (uint)ItemSubClassWeapon.Exotic2 || itemplate.SubClass == (uint)ItemSubClassWeapon.Mace2 || itemplate.SubClass == (uint)ItemSubClassWeapon.Polearm))
 						{
-							itemEntry = itemplate.GetId();
+							itemEntry = itemplate.Id;
 
 							break;
 						}

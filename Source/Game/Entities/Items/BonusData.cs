@@ -44,9 +44,9 @@ public class BonusData
 		if (proto == null)
 			return;
 
-		Quality = proto.GetQuality();
+		Quality = proto.Quality;
 		ItemLevelBonus = 0;
-		RequiredLevel = proto.GetBaseRequiredLevel();
+		RequiredLevel = proto.BaseRequiredLevel;
 
 		for (uint i = 0; i < ItemConst.MaxStats; ++i)
 			ItemStatType[i] = proto.GetStatModifierBonusStat(i);
@@ -65,18 +65,18 @@ public class BonusData
 			GemRelicRankBonus[i] = 0;
 		}
 
-		Bonding = proto.GetBonding();
+		Bonding = proto.Bonding;
 
 		AppearanceModID = 0;
 		RepairCostMultiplier = 1.0f;
-		ContentTuningId = proto.GetScalingStatContentTuning();
-		PlayerLevelToItemLevelCurveId = proto.GetPlayerLevelToItemLevelCurveId();
+		ContentTuningId = proto.ScalingStatContentTuning;
+		PlayerLevelToItemLevelCurveId = proto.PlayerLevelToItemLevelCurveId;
 		RelicType = -1;
 		HasFixedLevel = false;
 		RequiredLevelOverride = 0;
 		AzeriteTierUnlockSetId = 0;
 
-		var azeriteEmpoweredItem = Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.GetId());
+		var azeriteEmpoweredItem = Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.Id);
 
 		if (azeriteEmpoweredItem != null)
 			AzeriteTierUnlockSetId = azeriteEmpoweredItem.AzeriteTierUnlockSetID;

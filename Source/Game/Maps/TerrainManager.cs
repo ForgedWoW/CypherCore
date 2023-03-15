@@ -16,7 +16,9 @@ public class TerrainManager : Singleton<TerrainManager>
 {
 	readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
 	readonly HashSet<uint> _keepLoaded = new();
-	LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+
+	readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+
 	// parent map links
 	MultiMap<uint, uint> _parentMapData = new();
 
@@ -73,10 +75,10 @@ public class TerrainManager : Singleton<TerrainManager>
 	{
 		// global garbage collection
 		foreach (var (mapId, terrain) in _terrainMaps)
-            _threadTaskManager.Schedule(() => terrain?.CleanUpGrids(diff));
+			_threadTaskManager.Schedule(() => terrain?.CleanUpGrids(diff));
 
-        _threadTaskManager.Wait();
-    }
+		_threadTaskManager.Wait();
+	}
 
 	public uint GetAreaId(PhaseShift phaseShift, uint mapid, Position pos)
 	{

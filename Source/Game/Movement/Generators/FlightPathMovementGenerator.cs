@@ -8,319 +8,344 @@ using System.Numerics;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Maps;
 
-namespace Game.Movement
+namespace Game.Movement;
+
+public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 {
-    public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
-    {
-        public FlightPathMovementGenerator()
-        {
-            Mode = MovementGeneratorMode.Default;
-            Priority = MovementGeneratorPriority.Highest;
-            Flags = MovementGeneratorFlags.InitializationPending;
-            BaseUnitState = UnitState.InFlight;
-        }
+	readonly List<TaxiPathNodeRecord> _path = new();
+	readonly List<TaxiNodeChangeInfo> _pointsForPathSwitch = new(); //! node indexes and costs where TaxiPath changes
 
-        public override void DoInitialize(Player owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
-            AddFlag(MovementGeneratorFlags.Initialized);
+	float _endGridX;         //! X coord of last node location
+	float _endGridY;         //! Y coord of last node location
+	uint _endMapId;          //! map Id of last node location
+	uint _preloadTargetNode; //! node index where preloading starts
+	int _currentNode;
 
-            DoReset(owner);
-            InitEndGridInfo();
-        }
+	public FlightPathMovementGenerator()
+	{
+		Mode = MovementGeneratorMode.Default;
+		Priority = MovementGeneratorPriority.Highest;
+		Flags = MovementGeneratorFlags.InitializationPending;
+		BaseUnitState = UnitState.InFlight;
+	}
 
-        public override void DoReset(Player owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.Deactivated);
+	public override void DoInitialize(Player owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
+		AddFlag(MovementGeneratorFlags.Initialized);
 
-            owner.CombatStopWithPets();
-            owner.SetUnitFlag(UnitFlags.RemoveClientControl | UnitFlags.OnTaxi);
+		DoReset(owner);
+		InitEndGridInfo();
+	}
 
-            uint end = GetPathAtMapEnd();
-            uint currentNodeId = GetCurrentNode();
+	public override void DoReset(Player owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.Deactivated);
 
-            if (currentNodeId == end)
-            {
-                Log.outDebug(LogFilter.Movement, $"FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {owner.GetDebugInfo()}");
-                return;
-            }
+		owner.CombatStopWithPets();
+		owner.SetUnitFlag(UnitFlags.RemoveClientControl | UnitFlags.OnTaxi);
 
-            MoveSplineInit init = new(owner);
-            // Providing a starting vertex since the taxi paths do not provide such
-            init.Path().Add(new Vector3(owner.Location.X, owner.Location.Y, owner.Location.Z));
-            for (int i = (int)currentNodeId; i != (uint)end; ++i)
-            {
-                Vector3 vertice = new(_path[i].Loc.X, _path[i].Loc.Y, _path[i].Loc.Z);
-                init.Path().Add(vertice);
-            }
-            
-            init.SetFirstPointId((int)GetCurrentNode());
-            init.SetFly();
-            init.SetSmooth();
-            init.SetUncompressed();
-            init.SetWalk(true);
-            init.SetVelocity(30.0f);
-            init.Launch();
-        }
+		var end = GetPathAtMapEnd();
+		var currentNodeId = GetCurrentNode();
 
-        public override bool DoUpdate(Player owner, uint diff)
-        {
-            if (owner == null)
-                return false;
+		if (currentNodeId == end)
+		{
+			Log.outDebug(LogFilter.Movement, $"FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {owner.GetDebugInfo()}");
 
-            // skipping the first spline path point because it's our starting point and not a taxi path point
-            uint pointId = (uint)(owner.MoveSpline.CurrentPathIdx() <= 0 ? 0 : owner.MoveSpline.CurrentPathIdx() - 1);
-            if (pointId > _currentNode && _currentNode < _path.Count - 1)
-            {
-                bool departureEvent = true;
-                do
-                {
-                    Cypher.Assert(_currentNode < _path.Count, $"Point Id: {pointId}\n{owner.GetDebugInfo()}");
+			return;
+		}
 
-                    DoEventIfAny(owner, _path[_currentNode], departureEvent);
-                    while (!_pointsForPathSwitch.Empty() && _pointsForPathSwitch[0].PathIndex <= _currentNode)
-                    {
-                        _pointsForPathSwitch.RemoveAt(0);
-                        owner.Taxi.NextTaxiDestination();
-                        if (!_pointsForPathSwitch.Empty())
-                        {
-                            owner.UpdateCriteria(CriteriaType.MoneySpentOnTaxis, (uint)_pointsForPathSwitch[0].Cost);
-                            owner.ModifyMoney(-_pointsForPathSwitch[0].Cost);
-                        }
-                    }
+		MoveSplineInit init = new(owner);
+		// Providing a starting vertex since the taxi paths do not provide such
+		init.Path().Add(new Vector3(owner.Location.X, owner.Location.Y, owner.Location.Z));
 
-                    if (pointId == _currentNode)
-                        break;
+		for (var i = (int)currentNodeId; i != (uint)end; ++i)
+		{
+			Vector3 vertice = new(_path[i].Loc.X, _path[i].Loc.Y, _path[i].Loc.Z);
+			init.Path().Add(vertice);
+		}
 
-                    if (_currentNode == _preloadTargetNode)
-                        PreloadEndGrid(owner);
+		init.SetFirstPointId((int)GetCurrentNode());
+		init.SetFly();
+		init.SetSmooth();
+		init.SetUncompressed();
+		init.SetWalk(true);
+		init.SetVelocity(30.0f);
+		init.Launch();
+	}
 
-                    _currentNode += (departureEvent ? 1 : 0);
-                    departureEvent = !departureEvent;
-                }
-                while (_currentNode < _path.Count - 1);
-            }
+	public override bool DoUpdate(Player owner, uint diff)
+	{
+		if (owner == null)
+			return false;
 
-            if (_currentNode >= (_path.Count - 1))
-            {
-                AddFlag(MovementGeneratorFlags.InformEnabled);
-                return false;
-            }
-            return true;
-        }
+		// skipping the first spline path point because it's our starting point and not a taxi path point
+		var pointId = (uint)(owner.MoveSpline.CurrentPathIdx() <= 0 ? 0 : owner.MoveSpline.CurrentPathIdx() - 1);
 
-        public override void DoDeactivate(Player owner)
-        {
-            AddFlag(MovementGeneratorFlags.Deactivated);
-        }
+		if (pointId > _currentNode && _currentNode < _path.Count - 1)
+		{
+			var departureEvent = true;
 
-        public override void DoFinalize(Player owner, bool active, bool movementInform)
-        {
-            AddFlag(MovementGeneratorFlags.Finalized);
-            if (!active)
-                return;
+			do
+			{
+				Cypher.Assert(_currentNode < _path.Count, $"Point Id: {pointId}\n{owner.GetDebugInfo()}");
 
-            uint taxiNodeId = owner.Taxi.GetTaxiDestination();
-            owner.Taxi.ClearTaxiDestinations();
-            owner.Dismount();
-            owner.RemoveUnitFlag(UnitFlags.RemoveClientControl | UnitFlags.OnTaxi);
+				DoEventIfAny(owner, _path[_currentNode], departureEvent);
 
-            if (owner.Taxi.Empty())
-            {
-                // update z position to ground and orientation for landing point
-                // this prevent cheating with landing  point at lags
-                // when client side flight end early in comparison server side
-                owner.StopMoving();
-                // When the player reaches the last flight point, teleport to destination taxi node location
-                var node = CliDB.TaxiNodesStorage.LookupByKey(taxiNodeId);
-                if (node != null)
-                {
-                    owner.SetFallInformation(0, node.Pos.Z);
-                    owner.TeleportTo(node.ContinentID, node.Pos.X, node.Pos.Y, node.Pos.Z, owner.Location.Orientation);
-                }
-            }
+				while (!_pointsForPathSwitch.Empty() && _pointsForPathSwitch[0].PathIndex <= _currentNode)
+				{
+					_pointsForPathSwitch.RemoveAt(0);
+					owner.Taxi.NextTaxiDestination();
 
-            owner.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
-        }
+					if (!_pointsForPathSwitch.Empty())
+					{
+						owner.UpdateCriteria(CriteriaType.MoneySpentOnTaxis, (uint)_pointsForPathSwitch[0].Cost);
+						owner.ModifyMoney(-_pointsForPathSwitch[0].Cost);
+					}
+				}
 
-        uint GetPathAtMapEnd()
-        {
-            if (_currentNode >= _path.Count)
-                return (uint)_path.Count;
+				if (pointId == _currentNode)
+					break;
 
-            uint curMapId = _path[_currentNode].ContinentID;
-            for (int i = _currentNode; i < _path.Count; ++i)
-            {
-                if (_path[i].ContinentID != curMapId)
-                    return (uint)i;
-            }
+				if (_currentNode == _preloadTargetNode)
+					PreloadEndGrid(owner);
 
-            return (uint)_path.Count;
-        }
+				_currentNode += (departureEvent ? 1 : 0);
+				departureEvent = !departureEvent;
+			} while (_currentNode < _path.Count - 1);
+		}
 
-        bool IsNodeIncludedInShortenedPath(TaxiPathNodeRecord p1, TaxiPathNodeRecord p2)
-        {
-            return p1.ContinentID != p2.ContinentID || Math.Pow(p1.Loc.X - p2.Loc.X, 2) + Math.Pow(p1.Loc.Y - p2.Loc.Y, 2) > (40.0f * 40.0f);
-        }
+		if (_currentNode >= (_path.Count - 1))
+		{
+			AddFlag(MovementGeneratorFlags.InformEnabled);
 
-        public void LoadPath(Player player, uint startNode = 0)
-        {
-            _path.Clear();
-            _currentNode = (int)startNode;
-            _pointsForPathSwitch.Clear();
-            var taxi = player.Taxi.GetPath();
-            float discount = player.GetReputationPriceDiscount(player.Taxi.GetFlightMasterFactionTemplate());
+			return false;
+		}
 
-            for (int src = 0, dst = 1; dst < taxi.Count; src = dst++)
-            {
-                Global.ObjectMgr.GetTaxiPath(taxi[src], taxi[dst], out uint path, out uint cost);
-                if (path >= CliDB.TaxiPathNodesByPath.Keys.Max())
-                    return;
+		return true;
+	}
 
-                var nodes = CliDB.TaxiPathNodesByPath[path];
-                if (!nodes.Empty())
-                {
-                    TaxiPathNodeRecord start = nodes[0];
-                    TaxiPathNodeRecord end = nodes[^1];
-                    bool passedPreviousSegmentProximityCheck = false;
-                    for (uint i = 0; i < nodes.Length; ++i)
-                    {
-                        if (passedPreviousSegmentProximityCheck || src == 0 || _path.Empty() || IsNodeIncludedInShortenedPath(_path.Last(), nodes[i]))
-                        {
-                            if ((src == 0 || (IsNodeIncludedInShortenedPath(start, nodes[i]) && i >= 2)) &&
-                                (dst == taxi.Count - 1 || (IsNodeIncludedInShortenedPath(end, nodes[i]) && i < nodes.Length - 1)))
-                            {
-                                passedPreviousSegmentProximityCheck = true;
-                                _path.Add(nodes[i]);
-                            }
-                        }
-                        else
-                        {
-                            _path.RemoveAt(_path.Count - 1);
-                            _pointsForPathSwitch[^1].PathIndex -= 1;
-                        }
-                    }
-                }
+	public override void DoDeactivate(Player owner)
+	{
+		AddFlag(MovementGeneratorFlags.Deactivated);
+	}
 
-                _pointsForPathSwitch.Add(new TaxiNodeChangeInfo((uint)(_path.Count - 1), (long)Math.Ceiling(cost * discount)));
-            }
-        }
+	public override void DoFinalize(Player owner, bool active, bool movementInform)
+	{
+		AddFlag(MovementGeneratorFlags.Finalized);
 
-        public void SetCurrentNodeAfterTeleport()
-        {
-            if (_path.Empty() || _currentNode >= _path.Count)
-                return;
+		if (!active)
+			return;
 
-            uint map0 = _path[_currentNode].ContinentID;
-            for (int i = _currentNode + 1; i < _path.Count; ++i)
-            {
-                if (_path[i].ContinentID != map0)
-                {
-                    _currentNode = i;
-                    return;
-                }
-            }
+		var taxiNodeId = owner.Taxi.GetTaxiDestination();
+		owner.Taxi.ClearTaxiDestinations();
+		owner.Dismount();
+		owner.RemoveUnitFlag(UnitFlags.RemoveClientControl | UnitFlags.OnTaxi);
 
-        }
+		if (owner.Taxi.Empty())
+		{
+			// update z position to ground and orientation for landing point
+			// this prevent cheating with landing  point at lags
+			// when client side flight end early in comparison server side
+			owner.StopMoving();
+			// When the player reaches the last flight point, teleport to destination taxi node location
+			var node = CliDB.TaxiNodesStorage.LookupByKey(taxiNodeId);
 
-        void DoEventIfAny(Player owner, TaxiPathNodeRecord node, bool departure)
-        {
-            Cypher.Assert(node != null, owner.GetDebugInfo());
+			if (node != null)
+			{
+				owner.SetFallInformation(0, node.Pos.Z);
+				owner.TeleportTo(node.ContinentID, node.Pos.X, node.Pos.Y, node.Pos.Z, owner.Location.Orientation);
+			}
+		}
 
-            uint eventid = departure ? node.DepartureEventID : node.ArrivalEventID;
-            if (eventid != 0)
-            {
-                Log.outDebug(LogFilter.MapsScript, $"FlightPathMovementGenerator::DoEventIfAny: taxi {(departure ? "departure" : "arrival")} event {eventid} of node {node.NodeIndex} of path {node.PathID} for player {owner.GetName()}");
-                GameEvents.Trigger(eventid, owner, owner);
-            }
-        }
+		owner.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
+	}
 
-        void InitEndGridInfo()
-        {
-            int nodeCount = _path.Count;        //! Number of nodes in path.
-            _endMapId = _path[nodeCount - 1].ContinentID; //! MapId of last node
+	public void LoadPath(Player player, uint startNode = 0)
+	{
+		_path.Clear();
+		_currentNode = (int)startNode;
+		_pointsForPathSwitch.Clear();
+		var taxi = player.Taxi.GetPath();
+		var discount = player.GetReputationPriceDiscount(player.Taxi.GetFlightMasterFactionTemplate());
 
-            if (nodeCount < 3)
-                _preloadTargetNode = 0;
-            else
-                _preloadTargetNode = (uint)nodeCount - 3;
+		for (int src = 0, dst = 1; dst < taxi.Count; src = dst++)
+		{
+			Global.ObjectMgr.GetTaxiPath(taxi[src], taxi[dst], out var path, out var cost);
 
-            while (_path[(int)_preloadTargetNode].ContinentID != _endMapId)
-                ++_preloadTargetNode;
+			if (path >= CliDB.TaxiPathNodesByPath.Keys.Max())
+				return;
 
-            _endGridX = _path[nodeCount - 1].Loc.X;
-            _endGridY = _path[nodeCount - 1].Loc.Y;
-        }
+			var nodes = CliDB.TaxiPathNodesByPath[path];
 
-        void PreloadEndGrid(Player owner)
-        {
-            // Used to preload the final grid where the flightmaster is
-            Map endMap = owner.Map;
+			if (!nodes.Empty())
+			{
+				var start = nodes[0];
+				var end = nodes[^1];
+				var passedPreviousSegmentProximityCheck = false;
 
-            // Load the grid
-            if (endMap != null)
-            {
-                Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Preloading grid ({0}, {1}) for map {2} at node index {3}/{4}", _endGridX, _endGridY, _endMapId, _preloadTargetNode, _path.Count - 1);
-                endMap.LoadGrid(_endGridX, _endGridY);
-            }
-            else
-                Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
-        }
+				for (uint i = 0; i < nodes.Length; ++i)
+					if (passedPreviousSegmentProximityCheck || src == 0 || _path.Empty() || IsNodeIncludedInShortenedPath(_path.Last(), nodes[i]))
+					{
+						if ((src == 0 || (IsNodeIncludedInShortenedPath(start, nodes[i]) && i >= 2)) &&
+							(dst == taxi.Count - 1 || (IsNodeIncludedInShortenedPath(end, nodes[i]) && i < nodes.Length - 1)))
+						{
+							passedPreviousSegmentProximityCheck = true;
+							_path.Add(nodes[i]);
+						}
+					}
+					else
+					{
+						_path.RemoveAt(_path.Count - 1);
+						_pointsForPathSwitch[^1].PathIndex -= 1;
+					}
+			}
 
-        uint GetPathId(int index)
-        {
-            if (index >= _path.Count)
-                return 0;
+			_pointsForPathSwitch.Add(new TaxiNodeChangeInfo((uint)(_path.Count - 1), (long)Math.Ceiling(cost * discount)));
+		}
+	}
 
-            return _path[index].PathID;
-        }
-        
-        public override string GetDebugInfo()
-        {
-            return $"Current Node: {GetCurrentNode()}\n{base.GetDebugInfo()}\nStart Path Id: {GetPathId(0)} Path Size: {_path.Count} HasArrived: {HasArrived()} End Grid X: {_endGridX} " +
-                $"End Grid Y: {_endGridY} End Map Id: {_endMapId} Preloaded Target Node: {_preloadTargetNode}";
-        }
-        
-        public override bool GetResetPosition(Unit u, out float x, out float y, out float z)
-        {
-            var node = _path[_currentNode];
-            x = node.Loc.X;
-            y = node.Loc.Y;
-            z = node.Loc.Z;
-            return true;
-        }
+	public void SetCurrentNodeAfterTeleport()
+	{
+		if (_path.Empty() || _currentNode >= _path.Count)
+			return;
 
-        public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Flight; }
+		uint map0 = _path[_currentNode].ContinentID;
 
-        public List<TaxiPathNodeRecord> GetPath() { return _path; }
+		for (var i = _currentNode + 1; i < _path.Count; ++i)
+			if (_path[i].ContinentID != map0)
+			{
+				_currentNode = i;
 
-        bool HasArrived() { return _currentNode >= _path.Count; }
+				return;
+			}
+	}
 
-        public void SkipCurrentNode() { ++_currentNode; }
+	public override string GetDebugInfo()
+	{
+		return $"Current Node: {GetCurrentNode()}\n{base.GetDebugInfo()}\nStart Path Id: {GetPathId(0)} Path Size: {_path.Count} HasArrived: {HasArrived()} End Grid X: {_endGridX} " +
+				$"End Grid Y: {_endGridY} End Map Id: {_endMapId} Preloaded Target Node: {_preloadTargetNode}";
+	}
 
-        public uint GetCurrentNode() { return (uint)_currentNode; }
+	public override bool GetResetPosition(Unit u, out float x, out float y, out float z)
+	{
+		var node = _path[_currentNode];
+		x = node.Loc.X;
+		y = node.Loc.Y;
+		z = node.Loc.Z;
 
-        float _endGridX;                //! X coord of last node location
-        float _endGridY;                //! Y coord of last node location
-        uint _endMapId;               //! map Id of last node location
-        uint _preloadTargetNode;      //! node index where preloading starts
+		return true;
+	}
 
-        readonly List<TaxiPathNodeRecord> _path = new();
-        int _currentNode;
-        readonly List<TaxiNodeChangeInfo> _pointsForPathSwitch = new();    //! node indexes and costs where TaxiPath changes
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.Flight;
+	}
 
-        class TaxiNodeChangeInfo
-        {
-            public TaxiNodeChangeInfo(uint pathIndex, long cost)
-            {
-                PathIndex = pathIndex;
-                Cost = cost;
-            }
+	public List<TaxiPathNodeRecord> GetPath()
+	{
+		return _path;
+	}
 
-            public uint PathIndex;
-            public long Cost;
-        }
-    }
+	public void SkipCurrentNode()
+	{
+		++_currentNode;
+	}
+
+	public uint GetCurrentNode()
+	{
+		return (uint)_currentNode;
+	}
+
+	uint GetPathAtMapEnd()
+	{
+		if (_currentNode >= _path.Count)
+			return (uint)_path.Count;
+
+		uint curMapId = _path[_currentNode].ContinentID;
+
+		for (var i = _currentNode; i < _path.Count; ++i)
+			if (_path[i].ContinentID != curMapId)
+				return (uint)i;
+
+		return (uint)_path.Count;
+	}
+
+	bool IsNodeIncludedInShortenedPath(TaxiPathNodeRecord p1, TaxiPathNodeRecord p2)
+	{
+		return p1.ContinentID != p2.ContinentID || Math.Pow(p1.Loc.X - p2.Loc.X, 2) + Math.Pow(p1.Loc.Y - p2.Loc.Y, 2) > (40.0f * 40.0f);
+	}
+
+	void DoEventIfAny(Player owner, TaxiPathNodeRecord node, bool departure)
+	{
+		Cypher.Assert(node != null, owner.GetDebugInfo());
+
+		var eventid = departure ? node.DepartureEventID : node.ArrivalEventID;
+
+		if (eventid != 0)
+		{
+			Log.outDebug(LogFilter.MapsScript, $"FlightPathMovementGenerator::DoEventIfAny: taxi {(departure ? "departure" : "arrival")} event {eventid} of node {node.NodeIndex} of path {node.PathID} for player {owner.GetName()}");
+			GameEvents.Trigger(eventid, owner, owner);
+		}
+	}
+
+	void InitEndGridInfo()
+	{
+		var nodeCount = _path.Count;                  //! Number of nodes in path.
+		_endMapId = _path[nodeCount - 1].ContinentID; //! MapId of last node
+
+		if (nodeCount < 3)
+			_preloadTargetNode = 0;
+		else
+			_preloadTargetNode = (uint)nodeCount - 3;
+
+		while (_path[(int)_preloadTargetNode].ContinentID != _endMapId)
+			++_preloadTargetNode;
+
+		_endGridX = _path[nodeCount - 1].Loc.X;
+		_endGridY = _path[nodeCount - 1].Loc.Y;
+	}
+
+	void PreloadEndGrid(Player owner)
+	{
+		// Used to preload the final grid where the flightmaster is
+		var endMap = owner.Map;
+
+		// Load the grid
+		if (endMap != null)
+		{
+			Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Preloading grid ({0}, {1}) for map {2} at node index {3}/{4}", _endGridX, _endGridY, _endMapId, _preloadTargetNode, _path.Count - 1);
+			endMap.LoadGrid(_endGridX, _endGridY);
+		}
+		else
+		{
+			Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
+		}
+	}
+
+	uint GetPathId(int index)
+	{
+		if (index >= _path.Count)
+			return 0;
+
+		return _path[index].PathID;
+	}
+
+	bool HasArrived()
+	{
+		return _currentNode >= _path.Count;
+	}
+
+	class TaxiNodeChangeInfo
+	{
+		public uint PathIndex;
+		public readonly long Cost;
+
+		public TaxiNodeChangeInfo(uint pathIndex, long cost)
+		{
+			PathIndex = pathIndex;
+			Cost = cost;
+		}
+	}
 }

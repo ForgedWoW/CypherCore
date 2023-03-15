@@ -98,7 +98,7 @@ class MMapsCommands
 		// calculate navmesh tile location
 		var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
 		var navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
-		var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, player.InstanceId1);
+		var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, player.InstanceId);
 
 		if (navmesh == null || navmeshquery == null)
 		{
@@ -165,7 +165,7 @@ class MMapsCommands
 		var player = handler.Session.Player;
 		var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
 		var navmesh = Global.MMapMgr.GetNavMesh(terrainMapId);
-		var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.Player.InstanceId1);
+		var navmeshquery = Global.MMapMgr.GetNavMeshQuery(terrainMapId, handler.Player.InstanceId);
 
 		if (navmesh == null || navmeshquery == null)
 		{

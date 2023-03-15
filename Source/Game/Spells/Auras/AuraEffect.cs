@@ -1559,7 +1559,7 @@ public class AuraEffect
 			{
 				target.ShapeshiftForm = ShapeShiftForm.None;
 
-				if (target.Class == Class.Druid)
+				if (target.Class == PlayerClass.Druid)
 					// Remove movement impairing effects also when shifting out
 					target.RemoveAurasByShapeShift();
 			}
@@ -1606,7 +1606,7 @@ public class AuraEffect
 			target.UpdateDisplayPower();
 		}
 
-		if (target.Class == Class.Druid)
+		if (target.Class == PlayerClass.Druid)
 		{
 			// Dash
 			var aurEff = target.GetAuraEffect(AuraType.ModIncreaseSpeed, SpellFamilyNames.Druid, new FlagArray128(0, 0, 0x8));
@@ -2104,7 +2104,7 @@ public class AuraEffect
 
 			if (item != null)
 			{
-				var attackType = Player.GetAttackBySlot(slot, item.GetTemplate().GetInventoryType());
+				var attackType = Player.GetAttackBySlot(slot, item.Template.InventoryType);
 
 				player.ApplyItemDependentAuras(item, !apply);
 
@@ -4385,7 +4385,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if ((target.ClassMask & (uint)Class.ClassMaskWandUsers) != 0)
+		if ((target.ClassMask & (uint)PlayerClass.ClassMaskWandUsers) != 0)
 			return;
 
 		target.HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, Amount, apply);
@@ -4419,7 +4419,7 @@ public class AuraEffect
 
 		var target = aurApp.Target;
 
-		if ((target.ClassMask & (uint)Class.ClassMaskWandUsers) != 0)
+		if ((target.ClassMask & (uint)PlayerClass.ClassMaskWandUsers) != 0)
 			return;
 
 		//UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER = multiplier - 1
@@ -6181,7 +6181,7 @@ public class AuraEffect
 		if (!player)
 			return;
 
-		if (player.Class != Class.Hunter)
+		if (player.Class != PlayerClass.Hunter)
 			return;
 
 		var pet = player.CurrentPet;
@@ -6194,7 +6194,7 @@ public class AuraEffect
 		if (currSpec == null)
 			return;
 
-		pet.SetSpecialization(Global.DB2Mgr.GetChrSpecializationByIndex(apply ? Class.Max : 0, currSpec.OrderIndex).Id);
+		pet.SetSpecialization(Global.DB2Mgr.GetChrSpecializationByIndex(apply ? PlayerClass.Max : 0, currSpec.OrderIndex).Id);
 	}
 
 	[AuraEffectHandler(AuraType.AllowUsingGameobjectsWhileMounted)]

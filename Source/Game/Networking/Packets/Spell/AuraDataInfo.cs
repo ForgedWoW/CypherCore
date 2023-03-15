@@ -32,7 +32,7 @@ public class AuraDataInfo
 
 		Visual.Write(data);
 
-        data.WriteUInt16((ushort)Flags);
+		data.WriteUInt16((ushort)Flags);
 		data.WriteUInt32(ActiveFlags.ToUMask());
 		data.WriteUInt16(CastLevel);
 		data.WriteUInt8(Applications);

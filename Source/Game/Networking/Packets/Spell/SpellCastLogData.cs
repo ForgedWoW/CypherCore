@@ -20,7 +20,7 @@ public class SpellCastLogData
 	public void Initialize(Unit unit)
 	{
 		Health = unit.Health;
-		AttackPower = unit.GetTotalAttackPowerValue(unit.Class == Class.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
+		AttackPower = unit.GetTotalAttackPowerValue(unit.Class == PlayerClass.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
 		SpellPower = unit.SpellBaseDamageBonusDone(SpellSchoolMask.Spell);
 		Armor = unit.GetArmor();
 		PowerData.Add(new SpellLogPowerData((int)unit.DisplayPowerType, unit.GetPower(unit.DisplayPowerType), 0));
@@ -33,7 +33,7 @@ public class SpellCastLogData
 		if (unitCaster != null)
 		{
 			Health = unitCaster.Health;
-			AttackPower = unitCaster.GetTotalAttackPowerValue(unitCaster.Class == Class.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
+			AttackPower = unitCaster.GetTotalAttackPowerValue(unitCaster.Class == PlayerClass.Hunter ? WeaponAttackType.RangedAttack : WeaponAttackType.BaseAttack);
 			SpellPower = unitCaster.SpellBaseDamageBonusDone(SpellSchoolMask.Spell);
 			Armor = unitCaster.GetArmor();
 			var primaryPowerType = unitCaster.DisplayPowerType;

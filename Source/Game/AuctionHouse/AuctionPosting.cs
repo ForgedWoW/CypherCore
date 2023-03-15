@@ -29,11 +29,11 @@ public class AuctionPosting
 
 	public List<ObjectGuid> BidderHistory = new();
 
-	public bool IsCommodity => Items.Count > 1 || Items[0].GetTemplate().GetMaxStackSize() > 1;
+	public bool IsCommodity => Items.Count > 1 || Items[0].Template.MaxStackSize > 1;
 
 	public uint TotalItemCount
 	{
-		get { return (uint)Items.Sum(item => item.GetCount()); }
+		get { return (uint)Items.Sum(item => item.Count); }
 	}
 
 	public void BuildAuctionItem(AuctionItem auctionItem, bool alwaysSendItem, bool sendKey, bool censorServerInfo, bool censorBidInfo)

@@ -12,7 +12,7 @@ public class FriendInfo
 	public SocialFlag Flags;
 	public uint Area;
 	public uint Level;
-	public Class Class;
+	public PlayerClass Class;
 	public string Note;
 
 	public FriendInfo()

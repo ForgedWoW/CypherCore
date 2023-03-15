@@ -5,32 +5,34 @@ using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
-{
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.CollectionItemSetFavorite)]
-        void HandleCollectionItemSetFavorite(CollectionItemSetFavorite collectionItemSetFavorite)
-        {
-            switch (collectionItemSetFavorite.Type)
-            {
-                case CollectionType.Toybox:
-                    CollectionMgr.ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
-                    break;
-                case CollectionType.Appearance:
-                    {
-                        var pair = CollectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
-                        if (!pair.Item1 || pair.Item2)
-                            return;
+namespace Game;
 
-                        CollectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
-                        break;
-                    }
-                case CollectionType.TransmogSet:
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+public partial class WorldSession
+{
+	[WorldPacketHandler(ClientOpcodes.CollectionItemSetFavorite)]
+	void HandleCollectionItemSetFavorite(CollectionItemSetFavorite collectionItemSetFavorite)
+	{
+		switch (collectionItemSetFavorite.Type)
+		{
+			case CollectionType.Toybox:
+				CollectionMgr.ToySetFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+
+				break;
+			case CollectionType.Appearance:
+			{
+				var pair = CollectionMgr.HasItemAppearance(collectionItemSetFavorite.Id);
+
+				if (!pair.Item1 || pair.Item2)
+					return;
+
+				CollectionMgr.SetAppearanceIsFavorite(collectionItemSetFavorite.Id, collectionItemSetFavorite.IsFavorite);
+
+				break;
+			}
+			case CollectionType.TransmogSet:
+				break;
+			default:
+				break;
+		}
+	}
 }

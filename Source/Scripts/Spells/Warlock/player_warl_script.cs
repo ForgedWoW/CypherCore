@@ -14,7 +14,7 @@ namespace Scripts.Spells.Warlock;
 [Script]
 internal class player_warl_script : ScriptObjectAutoAdd, IPlayerOnModifyPower, IPlayerOnDealDamage, IUnitOnDamage
 {
-	public Class PlayerClass { get; } = Class.Warlock;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Warlock;
 
 	public player_warl_script() : base("player_warl_script") { }
 

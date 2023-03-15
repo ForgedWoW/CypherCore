@@ -5,140 +5,151 @@ using System;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Movement
+namespace Game.Movement;
+
+public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T : Unit
 {
-    public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T : Unit
-    {
-        public ConfusedMovementGenerator()
-        {
-            _timer = new TimeTracker();
-            _reference = new();
+	readonly TimeTracker _timer;
 
-            Mode = MovementGeneratorMode.Default;
-            Priority = MovementGeneratorPriority.Highest;
-            Flags = MovementGeneratorFlags.InitializationPending;
-            BaseUnitState = UnitState.Confused;
-        }
+	PathGenerator _path;
+	Position _reference;
 
-        public override void DoInitialize(T owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
-            AddFlag(MovementGeneratorFlags.Initialized);
+	public ConfusedMovementGenerator()
+	{
+		_timer = new TimeTracker();
+		_reference = new Position();
 
-            if (!owner || !owner.IsAlive)
-                return;
+		Mode = MovementGeneratorMode.Default;
+		Priority = MovementGeneratorPriority.Highest;
+		Flags = MovementGeneratorFlags.InitializationPending;
+		BaseUnitState = UnitState.Confused;
+	}
 
-            // TODO: UNIT_FIELD_FLAGS should not be handled by generators
-            owner.SetUnitFlag(UnitFlags.Confused);
-            owner.StopMoving();
+	public override void DoInitialize(T owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
+		AddFlag(MovementGeneratorFlags.Initialized);
 
-            _timer.Reset(0);
-            _reference = owner.Location;
-            _path = null;
-        }
+		if (!owner || !owner.IsAlive)
+			return;
 
-        public override void DoReset(T owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
-            DoInitialize(owner);
-        }
+		// TODO: UNIT_FIELD_FLAGS should not be handled by generators
+		owner.SetUnitFlag(UnitFlags.Confused);
+		owner.StopMoving();
 
-        public override bool DoUpdate(T owner, uint diff)
-        {
-            if (!owner || !owner.IsAlive)
-                return false;
+		_timer.Reset(0);
+		_reference = owner.Location;
+		_path = null;
+	}
 
-            if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
-            {
-                AddFlag(MovementGeneratorFlags.Interrupted);
-                owner.StopMoving();
-                _path = null;
-                return true;
-            }
-            else
-                RemoveFlag(MovementGeneratorFlags.Interrupted);
+	public override void DoReset(T owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
+		DoInitialize(owner);
+	}
 
-            // waiting for next move
-            _timer.Update(diff);
-            if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
-            {
-                RemoveFlag(MovementGeneratorFlags.Transitory);
+	public override bool DoUpdate(T owner, uint diff)
+	{
+		if (!owner || !owner.IsAlive)
+			return false;
 
-                Position destination = new(_reference);
-                float distance = (float)(4.0f * RandomHelper.FRand(0.0f, 1.0f) - 2.0f);
-                float angle = RandomHelper.FRand(0.0f, 1.0f) * MathF.PI * 2.0f;
-                owner.MovePositionToFirstCollision(destination, distance, angle);
+		if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
+		{
+			AddFlag(MovementGeneratorFlags.Interrupted);
+			owner.StopMoving();
+			_path = null;
 
-                // Check if the destination is in LOS
-                if (!owner.IsWithinLOS(destination.X, destination.Y, destination.Z))
-                {
-                    // Retry later on
-                    _timer.Reset(200);
-                    return true;
-                }
+			return true;
+		}
+		else
+		{
+			RemoveFlag(MovementGeneratorFlags.Interrupted);
+		}
 
-                if (_path == null)
-                {
-                    _path = new PathGenerator(owner);
-                    _path.SetPathLengthLimit(30.0f);
-                }
+		// waiting for next move
+		_timer.Update(diff);
 
-                bool result = _path.CalculatePath(destination);
-                if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut) || _path.GetPathType().HasFlag(PathType.FarFromPoly))
-                {
-                    _timer.Reset(100);
-                    return true;
-                }
+		if ((HasFlag(MovementGeneratorFlags.SpeedUpdatePending) && !owner.MoveSpline.Finalized()) || (_timer.Passed && owner.MoveSpline.Finalized()))
+		{
+			RemoveFlag(MovementGeneratorFlags.Transitory);
 
-                owner.AddUnitState(UnitState.ConfusedMove);
+			Position destination = new(_reference);
+			var distance = (float)(4.0f * RandomHelper.FRand(0.0f, 1.0f) - 2.0f);
+			var angle = RandomHelper.FRand(0.0f, 1.0f) * MathF.PI * 2.0f;
+			owner.MovePositionToFirstCollision(destination, distance, angle);
 
-                MoveSplineInit init = new(owner);
-                init.MovebyPath(_path.GetPath());
-                init.SetWalk(true);
-                uint traveltime = (uint)init.Launch();
-                _timer.Reset(traveltime + RandomHelper.URand(800, 1500));
-            }
+			// Check if the destination is in LOS
+			if (!owner.IsWithinLOS(destination.X, destination.Y, destination.Z))
+			{
+				// Retry later on
+				_timer.Reset(200);
 
-            return true;
-        }
+				return true;
+			}
 
-        public override void DoDeactivate(T owner)
-        {
-            AddFlag(MovementGeneratorFlags.Deactivated);
-            owner.ClearUnitState(UnitState.ConfusedMove);
-        }
+			if (_path == null)
+			{
+				_path = new PathGenerator(owner);
+				_path.SetPathLengthLimit(30.0f);
+			}
 
-        public override void DoFinalize(T owner, bool active, bool movementInform)
-        {
-            AddFlag(MovementGeneratorFlags.Finalized);
+			var result = _path.CalculatePath(destination);
 
-            if (active)
-            {
-                if (owner.IsPlayer)
-                {
-                    owner.RemoveUnitFlag(UnitFlags.Confused);
-                    owner.StopMoving();
-                }
+			if (!result || _path.GetPathType().HasFlag(PathType.NoPath) || _path.GetPathType().HasFlag(PathType.Shortcut) || _path.GetPathType().HasFlag(PathType.FarFromPoly))
+			{
+				_timer.Reset(100);
 
-                else
-                {
-                    owner.RemoveUnitFlag(UnitFlags.Confused);
-                    owner.ClearUnitState(UnitState.ConfusedMove);
-                    if (owner.Victim)
-                        owner.SetTarget(owner.Victim.GUID);
-                }
-            }
-        }
+				return true;
+			}
 
-        public override MovementGeneratorType GetMovementGeneratorType()
-        {
-            return MovementGeneratorType.Confused;
-        }
+			owner.AddUnitState(UnitState.ConfusedMove);
 
-        public override void UnitSpeedChanged() { AddFlag(MovementGeneratorFlags.SpeedUpdatePending); }
+			MoveSplineInit init = new(owner);
+			init.MovebyPath(_path.GetPath());
+			init.SetWalk(true);
+			var traveltime = (uint)init.Launch();
+			_timer.Reset(traveltime + RandomHelper.URand(800, 1500));
+		}
 
-        PathGenerator _path;
-        readonly TimeTracker _timer;
-        Position _reference;
-    }
+		return true;
+	}
+
+	public override void DoDeactivate(T owner)
+	{
+		AddFlag(MovementGeneratorFlags.Deactivated);
+		owner.ClearUnitState(UnitState.ConfusedMove);
+	}
+
+	public override void DoFinalize(T owner, bool active, bool movementInform)
+	{
+		AddFlag(MovementGeneratorFlags.Finalized);
+
+		if (active)
+		{
+			if (owner.IsPlayer)
+			{
+				owner.RemoveUnitFlag(UnitFlags.Confused);
+				owner.StopMoving();
+			}
+
+			else
+			{
+				owner.RemoveUnitFlag(UnitFlags.Confused);
+				owner.ClearUnitState(UnitState.ConfusedMove);
+
+				if (owner.Victim)
+					owner.SetTarget(owner.Victim.GUID);
+			}
+		}
+	}
+
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.Confused;
+	}
+
+	public override void UnitSpeedChanged()
+	{
+		AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
+	}
 }

@@ -16,12 +16,12 @@ public class DefaultTargetSelector : ICheck<Unit>
 	readonly Unit _exception;
 	readonly int _aura;
 
-    /// <param name="unit"> the reference unit </param>
-    /// <param name="dist"> if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit </param>
-    /// <param name="playerOnly"> self explaining </param>
-    /// <param name="withTank"> allow current tank to be selected </param>
-    /// <param name="aura"> if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura </param>
-    public DefaultTargetSelector(Unit unit, float dist, bool playerOnly, bool withTank, int aura)
+	/// <param name="unit"> the reference unit </param>
+	/// <param name="dist"> if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit </param>
+	/// <param name="playerOnly"> self explaining </param>
+	/// <param name="withTank"> allow current tank to be selected </param>
+	/// <param name="aura"> if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura </param>
+	public DefaultTargetSelector(Unit unit, float dist, bool playerOnly, bool withTank, int aura)
 	{
 		_me = unit;
 		_dist = dist;

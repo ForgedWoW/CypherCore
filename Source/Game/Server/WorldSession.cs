@@ -29,17 +29,9 @@ public partial class WorldSession : IDisposable
 {
 	public long MuteTime;
 
-    CancellationTokenSource _cancellationToken = new CancellationTokenSource();
-	AutoResetEvent _messageReceivedSemaphore = new AutoResetEvent(false);
-    AutoResetEvent _asyncMessageQueueSemaphore = new AutoResetEvent(false);
-
-    readonly List<ObjectGuid> _legitCharacters = new();
-	ulong _guidLow;
-	Player _player;
+	readonly List<ObjectGuid> _legitCharacters = new();
 	readonly WorldSocket[] _socket = new WorldSocket[(int)ConnectionType.Max];
 	readonly string _address;
-
-	AccountTypes _security;
 	readonly uint _accountId;
 	readonly string _accountName;
 	readonly uint _battlenetAccountId;
@@ -48,10 +40,47 @@ public partial class WorldSession : IDisposable
 	readonly Expansion _configuredExpansion;
 	readonly string _os;
 
+	readonly DosProtection _antiDos;
+	readonly Locale _sessionDbcLocale;
+	readonly Locale _sessionDbLocaleIndex;
+	readonly AccountData[] _accountData = new AccountData[(int)AccountDataTypes.Max];
+	readonly uint[] _tutorials = new uint[SharedConst.MaxAccountTutorialValues];
+	readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
+	readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
+
+	readonly List<string> _registeredAddonPrefixes = new();
+	readonly uint _recruiterId;
+	readonly bool _isRecruiter;
+
+	readonly ConcurrentQueue<WorldPacket> _recvQueue = new();
+
+	readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
+	readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
+	readonly ConcurrentQueue<WorldPacket> _threadSafeQueue = new();
+
+	readonly CircularBuffer<Tuple<long, uint>> _timeSyncClockDeltaQueue = new(6); // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+
+	readonly Dictionary<uint, uint> _pendingTimeSyncRequests = new(); // key: counter. value: server time when packet with that counter was sent.
+
+	readonly CollectionMgr _collectionMgr;
+
+	readonly BattlePetMgr _battlePetMgr;
+	private readonly BattlepayManager _battlePayMgr;
+
+	readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+	readonly AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks = new();
+	readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
+
+	readonly CancellationTokenSource _cancellationToken = new();
+	readonly AutoResetEvent _messageReceivedSemaphore = new(false);
+	readonly AutoResetEvent _asyncMessageQueueSemaphore = new(false);
+	ulong _guidLow;
+	Player _player;
+
+	AccountTypes _security;
+
 	uint _expireTime;
 	bool _forceExit;
-
-	readonly DosProtection _antiDos;
 	Warden _warden; // Remains NULL if Warden system is not enabled by config
 
 	long _logoutTime;
@@ -60,52 +89,23 @@ public partial class WorldSession : IDisposable
 	bool _playerLogout;        // code processed in LogoutPlayer
 	bool _playerRecentlyLogout;
 	bool _playerSave;
-	readonly Locale _sessionDbcLocale;
-	readonly Locale _sessionDbLocaleIndex;
 	uint _latency;
-	readonly AccountData[] _accountData = new AccountData[(int)AccountDataTypes.Max];
-	readonly uint[] _tutorials = new uint[SharedConst.MaxAccountTutorialValues];
 	TutorialsFlag _tutorialsChanged;
 
 	Array<byte> _realmListSecret = new(32);
-	readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
-	readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
 	uint _battlenetRequestToken;
-
-	readonly List<string> _registeredAddonPrefixes = new();
 	bool _filterAddonMessages;
-	readonly uint _recruiterId;
-	readonly bool _isRecruiter;
 	long _timeOutTime;
 
-	readonly ConcurrentQueue<WorldPacket> _recvQueue = new();
-
-    readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
-    readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
-    readonly ConcurrentQueue<WorldPacket> _threadSafeQueue = new();
-
-    RBACData _rbacData;
-
-	readonly CircularBuffer<Tuple<long, uint>> _timeSyncClockDeltaQueue = new(6); // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+	RBACData _rbacData;
 	long _timeSyncClockDelta;
-
-	readonly Dictionary<uint, uint> _pendingTimeSyncRequests = new(); // key: counter. value: server time when packet with that counter was sent.
 	uint _timeSyncNextCounter;
 	uint _timeSyncTimer;
-
-	readonly CollectionMgr _collectionMgr;
 
 	ConnectToKey _instanceConnectKey;
 
 	// Packets cooldown
 	long _calendarEventCreationCooldown;
-
-	readonly BattlePetMgr _battlePetMgr;
-	private readonly BattlepayManager _battlePayMgr;
-
-	readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-	readonly AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks = new();
-	readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
 
 	public bool CanSpeak => MuteTime <= GameTime.GetGameTime();
 
@@ -225,14 +225,14 @@ public partial class WorldSession : IDisposable
 		_address = sock.GetRemoteIpAddress().Address.ToString();
 		ResetTimeOutTime(false);
 		DB.Login.Execute("UPDATE account SET online = 1 WHERE id = {0};", AccountId); // One-time query
-
 	}
 
 	public void Dispose()
 	{
-        _cancellationToken.Cancel();	
-        // unload player if not unloaded
-        if (_player)
+		_cancellationToken.Cancel();
+
+		// unload player if not unloaded
+		if (_player)
 			LogoutPlayer(true);
 
 		// - If have unclosed socket, close it
@@ -410,217 +410,76 @@ public partial class WorldSession : IDisposable
 		SetLogoutStartTime(0);
 	}
 
-	void ProcessQueue()
-	{
-		while (!_cancellationToken.IsCancellationRequested)
-		{
-			_messageReceivedSemaphore.WaitOne(500);
-
-            while (!_recvQueue.IsEmpty)
-			{
-				if (_recvQueue.TryDequeue(out var packet))
-				{
-					var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
-
-					if (handler != null)
-					{
-						if (handler.ProcessingPlace == PacketProcessing.Inplace)
-						{
-							_inPlaceQueue.Enqueue(packet);
-							_asyncMessageQueueSemaphore.Set();
-
-						}
-						else if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
-							_threadSafeQueue.Enqueue(packet);
-						else
-							_threadUnsafe.Enqueue(packet);
-					}
-				}
-            }
-
-		}
-    }
-
-    void ProcessInPlace()
-    {
-        while (!_cancellationToken.IsCancellationRequested)
-        {
-            _asyncMessageQueueSemaphore.WaitOne(500);
-            DrainQueue(_inPlaceQueue);
-        }
-    }
-
 
 	public bool UpdateMap(uint diff)
 	{
-        DrainQueue(_threadSafeQueue);
+		DrainQueue(_threadSafeQueue);
 
-        // Send time sync packet every 10s.
-        if (_timeSyncTimer > 0)
-        {
-            if (diff >= _timeSyncTimer)
-                SendTimeSync();
-            else
-                _timeSyncTimer -= diff;
-        }
+		// Send time sync packet every 10s.
+		if (_timeSyncTimer > 0)
+		{
+			if (diff >= _timeSyncTimer)
+				SendTimeSync();
+			else
+				_timeSyncTimer -= diff;
+		}
 
-        ProcessQueryCallbacks();
+		ProcessQueryCallbacks();
 
-        return true;
-    }
+		return true;
+	}
 
-    public bool UpdateWorld(uint diff)
-    {
-        long currentTime = DrainQueue(_threadUnsafe);
+	public bool UpdateWorld(uint diff)
+	{
+		var currentTime = DrainQueue(_threadUnsafe);
 
-        ProcessQueryCallbacks();
-
-
-        if (_socket[(int)ConnectionType.Realm] != null && _socket[(int)ConnectionType.Realm].IsOpen() && _warden != null)
-            _warden.Update(diff);
-
-        // If necessary, log the player out
-        if (ShouldLogOut(currentTime) && _playerLoading.IsEmpty)
-            LogoutPlayer(true);
-
-        //- Cleanup socket if need
-        if ((_socket[(int)ConnectionType.Realm] != null && !_socket[(int)ConnectionType.Realm].IsOpen()) ||
-            (_socket[(int)ConnectionType.Instance] != null && !_socket[(int)ConnectionType.Instance].IsOpen()))
-        {
-            if (Player != null && _warden != null)
-                _warden.Update(diff);
-
-            _expireTime -= _expireTime > diff ? diff : _expireTime;
-
-            if (_expireTime < diff || _forceExit || !Player)
-            {
-                if (_socket[(int)ConnectionType.Realm] != null)
-                {
-                    _socket[(int)ConnectionType.Realm].CloseSocket();
-                    _socket[(int)ConnectionType.Realm] = null;
-                }
-
-                if (_socket[(int)ConnectionType.Instance] != null)
-                {
-                    _socket[(int)ConnectionType.Instance].CloseSocket();
-                    _socket[(int)ConnectionType.Instance] = null;
-                }
-            }
-        }
-
-        if (_socket[(int)ConnectionType.Realm] == null)
-            return false; //Will remove this session from the world session map
+		ProcessQueryCallbacks();
 
 
-        return true;
-    }
+		if (_socket[(int)ConnectionType.Realm] != null && _socket[(int)ConnectionType.Realm].IsOpen() && _warden != null)
+			_warden.Update(diff);
 
-    private long DrainQueue(ConcurrentQueue<WorldPacket> _queue)
-    {
-        // Before we process anything:
-        /// If necessary, kick the player because the client didn't send anything for too long
-        /// (or they've been idling in character select)
-        if (IsConnectionIdle && !HasPermission(RBACPermissions.IgnoreIdleConnection))
-            _socket[(int)ConnectionType.Realm]?.CloseSocket();
+		// If necessary, log the player out
+		if (ShouldLogOut(currentTime) && _playerLoading.IsEmpty)
+			LogoutPlayer(true);
 
-        WorldPacket firstDelayedPacket = null;
-        uint processedPackets = 0;
-        var currentTime = GameTime.GetGameTime();
+		//- Cleanup socket if need
+		if ((_socket[(int)ConnectionType.Realm] != null && !_socket[(int)ConnectionType.Realm].IsOpen()) ||
+			(_socket[(int)ConnectionType.Instance] != null && !_socket[(int)ConnectionType.Instance].IsOpen()))
+		{
+			if (Player != null && _warden != null)
+				_warden.Update(diff);
 
-        //Check for any packets they was not recived yet.
-        while (_socket[(int)ConnectionType.Realm] != null && !_queue.IsEmpty && (_queue.TryPeek(out var packet) && packet != firstDelayedPacket) && _queue.TryDequeue(out packet))
-        {
-            try
-            {
-                var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+			_expireTime -= _expireTime > diff ? diff : _expireTime;
 
-                switch (handler.sessionStatus)
-                {
-                    case SessionStatus.Loggedin:
-                        if (!_player)
-                        {
-                            if (!_playerRecentlyLogout)
-                            {
-                                if (firstDelayedPacket == null)
-                                    firstDelayedPacket = packet;
+			if (_expireTime < diff || _forceExit || !Player)
+			{
+				if (_socket[(int)ConnectionType.Realm] != null)
+				{
+					_socket[(int)ConnectionType.Realm].CloseSocket();
+					_socket[(int)ConnectionType.Realm] = null;
+				}
 
-                                QueuePacket(packet);
-                                Log.outDebug(LogFilter.Network, "Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.GetOpcode());
-                            }
+				if (_socket[(int)ConnectionType.Instance] != null)
+				{
+					_socket[(int)ConnectionType.Instance].CloseSocket();
+					_socket[(int)ConnectionType.Instance] = null;
+				}
+			}
+		}
 
-                            break;
-                        }
-                        else if (_player.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
-                        {
-                            handler.Invoke(this, packet);
-                        }
+		if (_socket[(int)ConnectionType.Realm] == null)
+			return false; //Will remove this session from the world session map
 
-                        break;
-                    case SessionStatus.LoggedinOrRecentlyLogout:
-                        if (!_player && !_playerRecentlyLogout && !_playerLogout)
-                            LogUnexpectedOpcode(packet, handler.sessionStatus, "the player has not logged in yet and not recently logout");
-                        else if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
 
-                        break;
-                    case SessionStatus.Transfer:
-                        if (!_player)
-                            LogUnexpectedOpcode(packet, handler.sessionStatus, "the player has not logged in yet");
-                        else if (_player.IsInWorld)
-                            LogUnexpectedOpcode(packet, handler.sessionStatus, "the player is still in world");
-                        else if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
+		return true;
+	}
 
-                        break;
-                    case SessionStatus.Authed:
-                        // prevent cheating with skip queue wait
-                        if (_inQueue)
-                        {
-                            LogUnexpectedOpcode(packet, handler.sessionStatus, "the player not pass queue yet");
-
-                            break;
-                        }
-
-                        if ((ClientOpcodes)packet.GetOpcode() == ClientOpcodes.EnumCharacters)
-                            _playerRecentlyLogout = false;
-
-                        if (_antiDos.EvaluateOpcode(packet, currentTime))
-                            handler.Invoke(this, packet);
-
-                        break;
-                    default:
-                        Log.outError(LogFilter.Network, "Received not handled opcode {0} from {1}", (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
-
-                        break;
-                }
-            }
-            catch (InternalBufferOverflowException ex)
-            {
-                Log.outError(LogFilter.Network, "InternalBufferOverflowException: {0} while parsing {1} from {2}.", ex.Message, (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
-            }
-            catch (EndOfStreamException)
-            {
-                Log.outError(LogFilter.Network,
-                            "WorldSession:Update EndOfStreamException occured while parsing a packet (opcode: {0}) from client {1}, accountid={2}. Skipped packet.",
-                            (ClientOpcodes)packet.GetOpcode(),
-                            RemoteAddress,
-                            AccountId);
-            }
-
-            processedPackets++;
-
-            if (processedPackets > 100)
-                break;
-        }
-
-        return currentTime;
-    }
-
-    public void QueuePacket(WorldPacket packet)
+	public void QueuePacket(WorldPacket packet)
 	{
 		_recvQueue.Enqueue(packet);
-        _messageReceivedSemaphore.Set();	
-    }
+		_messageReceivedSemaphore.Set();
+	}
 
 	public void SendPacket(ServerPacket packet)
 	{
@@ -942,6 +801,147 @@ public partial class WorldSession : IDisposable
 	public static implicit operator bool(WorldSession session)
 	{
 		return session != null;
+	}
+
+	void ProcessQueue()
+	{
+		while (!_cancellationToken.IsCancellationRequested)
+		{
+			_messageReceivedSemaphore.WaitOne(500);
+
+			while (!_recvQueue.IsEmpty)
+				if (_recvQueue.TryDequeue(out var packet))
+				{
+					var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+
+					if (handler != null)
+					{
+						if (handler.ProcessingPlace == PacketProcessing.Inplace)
+						{
+							_inPlaceQueue.Enqueue(packet);
+							_asyncMessageQueueSemaphore.Set();
+						}
+						else if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
+						{
+							_threadSafeQueue.Enqueue(packet);
+						}
+						else
+						{
+							_threadUnsafe.Enqueue(packet);
+						}
+					}
+				}
+		}
+	}
+
+	void ProcessInPlace()
+	{
+		while (!_cancellationToken.IsCancellationRequested)
+		{
+			_asyncMessageQueueSemaphore.WaitOne(500);
+			DrainQueue(_inPlaceQueue);
+		}
+	}
+
+	private long DrainQueue(ConcurrentQueue<WorldPacket> _queue)
+	{
+		// Before we process anything:
+		/// If necessary, kick the player because the client didn't send anything for too long
+		/// (or they've been idling in character select)
+		if (IsConnectionIdle && !HasPermission(RBACPermissions.IgnoreIdleConnection))
+			_socket[(int)ConnectionType.Realm]?.CloseSocket();
+
+		WorldPacket firstDelayedPacket = null;
+		uint processedPackets = 0;
+		var currentTime = GameTime.GetGameTime();
+
+		//Check for any packets they was not recived yet.
+		while (_socket[(int)ConnectionType.Realm] != null && !_queue.IsEmpty && (_queue.TryPeek(out var packet) && packet != firstDelayedPacket) && _queue.TryDequeue(out packet))
+		{
+			try
+			{
+				var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+
+				switch (handler.sessionStatus)
+				{
+					case SessionStatus.Loggedin:
+						if (!_player)
+						{
+							if (!_playerRecentlyLogout)
+							{
+								if (firstDelayedPacket == null)
+									firstDelayedPacket = packet;
+
+								QueuePacket(packet);
+								Log.outDebug(LogFilter.Network, "Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.GetOpcode());
+							}
+
+							break;
+						}
+						else if (_player.IsInWorld && _antiDos.EvaluateOpcode(packet, currentTime))
+						{
+							handler.Invoke(this, packet);
+						}
+
+						break;
+					case SessionStatus.LoggedinOrRecentlyLogout:
+						if (!_player && !_playerRecentlyLogout && !_playerLogout)
+							LogUnexpectedOpcode(packet, handler.sessionStatus, "the player has not logged in yet and not recently logout");
+						else if (_antiDos.EvaluateOpcode(packet, currentTime))
+							handler.Invoke(this, packet);
+
+						break;
+					case SessionStatus.Transfer:
+						if (!_player)
+							LogUnexpectedOpcode(packet, handler.sessionStatus, "the player has not logged in yet");
+						else if (_player.IsInWorld)
+							LogUnexpectedOpcode(packet, handler.sessionStatus, "the player is still in world");
+						else if (_antiDos.EvaluateOpcode(packet, currentTime))
+							handler.Invoke(this, packet);
+
+						break;
+					case SessionStatus.Authed:
+						// prevent cheating with skip queue wait
+						if (_inQueue)
+						{
+							LogUnexpectedOpcode(packet, handler.sessionStatus, "the player not pass queue yet");
+
+							break;
+						}
+
+						if ((ClientOpcodes)packet.GetOpcode() == ClientOpcodes.EnumCharacters)
+							_playerRecentlyLogout = false;
+
+						if (_antiDos.EvaluateOpcode(packet, currentTime))
+							handler.Invoke(this, packet);
+
+						break;
+					default:
+						Log.outError(LogFilter.Network, "Received not handled opcode {0} from {1}", (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
+
+						break;
+				}
+			}
+			catch (InternalBufferOverflowException ex)
+			{
+				Log.outError(LogFilter.Network, "InternalBufferOverflowException: {0} while parsing {1} from {2}.", ex.Message, (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
+			}
+			catch (EndOfStreamException)
+			{
+				Log.outError(LogFilter.Network,
+							"WorldSession:Update EndOfStreamException occured while parsing a packet (opcode: {0}) from client {1}, accountid={2}. Skipped packet.",
+							(ClientOpcodes)packet.GetOpcode(),
+							RemoteAddress,
+							AccountId);
+			}
+
+			processedPackets++;
+
+			if (processedPackets > 100)
+				break;
+		}
+
+		return currentTime;
 	}
 
 	void LogUnexpectedOpcode(WorldPacket packet, SessionStatus status, string reason)

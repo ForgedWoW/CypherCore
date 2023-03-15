@@ -23,6 +23,7 @@ public class Channel
 	readonly Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
 	readonly List<ObjectGuid> _bannedStore = new();
 	readonly AreaTableRecord _zoneEntry;
+	readonly ObjectGuid _channelGuid;
 
 	bool _isDirty; // whether the channel needs to be saved to DB
 	long _nextActivityUpdateTime;
@@ -30,7 +31,6 @@ public class Channel
 	bool _announceEnabled;
 	bool _ownershipEnabled;
 	bool _isOwnerInvisible;
-	readonly ObjectGuid _channelGuid;
 	ObjectGuid _ownerGuid;
 	string _channelPassword;
 

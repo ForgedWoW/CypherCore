@@ -39,47 +39,47 @@ public class GameObjectAI
 		return ObjectGuid.Empty;
 	}
 
-    /// <summary>
-    ///  Called when the dialog status between a player and the gameobject is requested.
-    /// </summary>
-    public virtual QuestGiverStatus? GetDialogStatus(Player player)
+	/// <summary>
+	///  Called when the dialog status between a player and the gameobject is requested.
+	/// </summary>
+	public virtual QuestGiverStatus? GetDialogStatus(Player player)
 	{
 		return null;
 	}
 
-    /// <summary>
-    ///  Called when a player opens a gossip dialog with the gameobject.
-    /// </summary>
-    public virtual bool OnGossipHello(Player player)
+	/// <summary>
+	///  Called when a player opens a gossip dialog with the gameobject.
+	/// </summary>
+	public virtual bool OnGossipHello(Player player)
 	{
 		return false;
 	}
 
-    /// <summary>
-    ///  Called when a player selects a gossip item in the gameobject's gossip menu.
-    /// </summary>
-    public virtual bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
+	/// <summary>
+	///  Called when a player selects a gossip item in the gameobject's gossip menu.
+	/// </summary>
+	public virtual bool OnGossipSelect(Player player, uint menuId, uint gossipListId)
 	{
 		return false;
 	}
 
-    /// <summary>
-    ///  Called when a player selects a gossip with a code in the gameobject's gossip menu.
-    /// </summary>
-    public virtual bool OnGossipSelectCode(Player player, uint sender, uint action, string code)
+	/// <summary>
+	///  Called when a player selects a gossip with a code in the gameobject's gossip menu.
+	/// </summary>
+	public virtual bool OnGossipSelectCode(Player player, uint sender, uint action, string code)
 	{
 		return false;
 	}
 
-    /// <summary>
-    ///  Called when a player accepts a quest from the gameobject.
-    /// </summary>
-    public virtual void OnQuestAccept(Player player, Quest quest) { }
+	/// <summary>
+	///  Called when a player accepts a quest from the gameobject.
+	/// </summary>
+	public virtual void OnQuestAccept(Player player, Quest quest) { }
 
-    /// <summary>
-    ///  Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-    /// </summary>
-    public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt) { }
+	/// <summary>
+	///  Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
+	/// </summary>
+	public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt) { }
 
 	// Called when a Player clicks a GameObject, before GossipHello
 	// prevents achievement tracking if returning true

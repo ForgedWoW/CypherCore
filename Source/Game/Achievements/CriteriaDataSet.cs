@@ -1,14 +1,20 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Game.Entities;
 
 namespace Game.Achievements;
 
 public class CriteriaDataSet
 {
-	uint _criteriaId;
 	readonly List<CriteriaData> _storage = new();
+	uint _criteriaId;
 
-	public void Add(CriteriaData data) { _storage.Add(data); }
+	public void Add(CriteriaData data)
+	{
+		_storage.Add(data);
+	}
 
 	public bool Meets(Player source, WorldObject target, uint miscValue = 0, uint miscValue2 = 0)
 	{
@@ -19,5 +25,8 @@ public class CriteriaDataSet
 		return true;
 	}
 
-	public void SetCriteriaId(uint id) { _criteriaId = id; }
+	public void SetCriteriaId(uint id)
+	{
+		_criteriaId = id;
+	}
 }

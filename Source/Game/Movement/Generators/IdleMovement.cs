@@ -5,222 +5,238 @@ using System;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Movement
+namespace Game.Movement;
+
+public class IdleMovementGenerator : MovementGenerator
 {
-    public class IdleMovementGenerator : MovementGenerator
-    {
-        public IdleMovementGenerator()
-        {
-            Mode = MovementGeneratorMode.Default;
-            Priority = MovementGeneratorPriority.Normal;
-            Flags = MovementGeneratorFlags.Initialized;
-            BaseUnitState = 0;
-        }
+	public IdleMovementGenerator()
+	{
+		Mode = MovementGeneratorMode.Default;
+		Priority = MovementGeneratorPriority.Normal;
+		Flags = MovementGeneratorFlags.Initialized;
+		BaseUnitState = 0;
+	}
 
-        public override void Initialize(Unit owner)
-        {
-            owner.StopMoving();
-        }
+	public override void Initialize(Unit owner)
+	{
+		owner.StopMoving();
+	}
 
-        public override void Reset(Unit owner)
-        {
-            owner.StopMoving();
-        }
+	public override void Reset(Unit owner)
+	{
+		owner.StopMoving();
+	}
 
-        public override bool Update(Unit owner, uint diff)
-        {
-            return true;
-        }
+	public override bool Update(Unit owner, uint diff)
+	{
+		return true;
+	}
 
-        public override void Deactivate(Unit owner) { }
+	public override void Deactivate(Unit owner) { }
 
-        public override void Finalize(Unit owner, bool active, bool movementInform)
-        {
-            AddFlag(MovementGeneratorFlags.Finalized);
-        }
+	public override void Finalize(Unit owner, bool active, bool movementInform)
+	{
+		AddFlag(MovementGeneratorFlags.Finalized);
+	}
 
-        public override MovementGeneratorType GetMovementGeneratorType()
-        {
-            return MovementGeneratorType.Idle;
-        }
-    }
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.Idle;
+	}
+}
 
-    public class RotateMovementGenerator : MovementGenerator
-    {
-        public RotateMovementGenerator(uint id, uint time, RotateDirection direction)
-        {
-            _id = id;
-            _duration = time;
-            _maxDuration = time;
-            _direction = direction;
+public class RotateMovementGenerator : MovementGenerator
+{
+	readonly uint _id;
+	readonly uint _maxDuration;
+	readonly RotateDirection _direction;
+	uint _duration;
 
-            Mode = MovementGeneratorMode.Default;
-            Priority = MovementGeneratorPriority.Normal;
-            Flags = MovementGeneratorFlags.InitializationPending;
-            BaseUnitState = UnitState.Rotating;
-        }
+	public RotateMovementGenerator(uint id, uint time, RotateDirection direction)
+	{
+		_id = id;
+		_duration = time;
+		_maxDuration = time;
+		_direction = direction;
 
-        public override void Initialize(Unit owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
-            AddFlag(MovementGeneratorFlags.Initialized);
-            
-            owner.StopMoving();
+		Mode = MovementGeneratorMode.Default;
+		Priority = MovementGeneratorPriority.Normal;
+		Flags = MovementGeneratorFlags.InitializationPending;
+		BaseUnitState = UnitState.Rotating;
+	}
 
-            /*
-             *  TODO: This code should be handled somewhere else, like MovementInform
-             *
-             *  if (owner->GetVictim())
-             *      owner->SetInFront(owner->GetVictim());
-             *
-             *  owner->AttackStop();
-             */
-        }
+	public override void Initialize(Unit owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
+		AddFlag(MovementGeneratorFlags.Initialized);
 
-        public override void Reset(Unit owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.Deactivated);
-            Initialize(owner);
-        }
+		owner.StopMoving();
 
-        public override bool Update(Unit owner, uint diff)
-        {
-            if (owner == null)
-                return false;
+		/*
+		*  TODO: This code should be handled somewhere else, like MovementInform
+		*
+		*  if (owner->GetVictim())
+		*      owner->SetInFront(owner->GetVictim());
+		*
+		*  owner->AttackStop();
+		*/
+	}
 
-            float angle = owner.Location.Orientation;
-            angle += diff * MathFunctions.TwoPi / _maxDuration * (_direction == RotateDirection.Left ? 1.0f : -1.0f);
-            angle = Math.Clamp(angle, 0.0f, MathF.PI * 2);
+	public override void Reset(Unit owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.Deactivated);
+		Initialize(owner);
+	}
 
-            MoveSplineInit init = new(owner);
-            init.MoveTo(owner.Location, false);
-            if (!owner.GetTransGUID().IsEmpty)
-                init.DisableTransportPathTransformations();
+	public override bool Update(Unit owner, uint diff)
+	{
+		if (owner == null)
+			return false;
 
-            init.SetFacing(angle);
-            init.Launch();
+		var angle = owner.Location.Orientation;
+		angle += diff * MathFunctions.TwoPi / _maxDuration * (_direction == RotateDirection.Left ? 1.0f : -1.0f);
+		angle = Math.Clamp(angle, 0.0f, MathF.PI * 2);
 
-            if (_duration > diff)
-                _duration -= diff;
-            else
-            {
-                AddFlag(MovementGeneratorFlags.InformEnabled);
-                return false;
-            } 
+		MoveSplineInit init = new(owner);
+		init.MoveTo(owner.Location, false);
 
-            return true;
-        }
+		if (!owner.GetTransGUID().IsEmpty)
+			init.DisableTransportPathTransformations();
 
-        public override void Deactivate(Unit owner)
-        {
-            AddFlag(MovementGeneratorFlags.Deactivated);
-        }
+		init.SetFacing(angle);
+		init.Launch();
 
-        public override void Finalize(Unit owner, bool active, bool movementInform)
-        {
-            AddFlag(MovementGeneratorFlags.Finalized);
+		if (_duration > diff)
+		{
+			_duration -= diff;
+		}
+		else
+		{
+			AddFlag(MovementGeneratorFlags.InformEnabled);
 
-            if (movementInform && owner.IsCreature)
-                owner.                AsCreature.                AI.MovementInform(MovementGeneratorType.Rotate, _id);
-        }
+			return false;
+		}
 
-        public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Rotate; }
+		return true;
+	}
 
-        readonly uint _id;
-        uint _duration;
-        readonly uint _maxDuration;
-        readonly RotateDirection _direction;
-    }
+	public override void Deactivate(Unit owner)
+	{
+		AddFlag(MovementGeneratorFlags.Deactivated);
+	}
 
-    public class DistractMovementGenerator : MovementGenerator
-    {
-        public DistractMovementGenerator(uint timer, float orientation)
-        {
-            _timer = timer;
-            _orientation = orientation;
+	public override void Finalize(Unit owner, bool active, bool movementInform)
+	{
+		AddFlag(MovementGeneratorFlags.Finalized);
 
-            Mode = MovementGeneratorMode.Default;
-            Priority = MovementGeneratorPriority.Highest;
-            Flags = MovementGeneratorFlags.InitializationPending;
-            BaseUnitState = UnitState.Distracted;
-        }
+		if (movementInform && owner.IsCreature)
+			owner.AsCreature.AI.MovementInform(MovementGeneratorType.Rotate, _id);
+	}
 
-        public override void Initialize(Unit owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
-            AddFlag(MovementGeneratorFlags.Initialized);
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.Rotate;
+	}
+}
 
-            // Distracted creatures stand up if not standing
-            if (!owner.IsStandState)
-                owner.SetStandState(UnitStandStateType.Stand);
+public class DistractMovementGenerator : MovementGenerator
+{
+	readonly float _orientation;
 
-            MoveSplineInit init = new(owner);
-            init.MoveTo(owner.Location, false);
-            if (!owner.GetTransGUID().IsEmpty)
-                init.DisableTransportPathTransformations();
+	uint _timer;
 
-            init.SetFacing(_orientation);
-            init.Launch();
-        }
+	public DistractMovementGenerator(uint timer, float orientation)
+	{
+		_timer = timer;
+		_orientation = orientation;
 
-        public override void Reset(Unit owner) 
-        {
-            RemoveFlag(MovementGeneratorFlags.Deactivated);
-            Initialize(owner);
-        }
+		Mode = MovementGeneratorMode.Default;
+		Priority = MovementGeneratorPriority.Highest;
+		Flags = MovementGeneratorFlags.InitializationPending;
+		BaseUnitState = UnitState.Distracted;
+	}
 
-        public override bool Update(Unit owner, uint diff)
-        {
-            if (owner == null)
-                return false;
+	public override void Initialize(Unit owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated);
+		AddFlag(MovementGeneratorFlags.Initialized);
 
-            if (diff > _timer)
-            {
-                AddFlag(MovementGeneratorFlags.InformEnabled);
-                return false;
-            }
+		// Distracted creatures stand up if not standing
+		if (!owner.IsStandState)
+			owner.SetStandState(UnitStandStateType.Stand);
 
-            _timer -= diff;
-            return true;
-        }
+		MoveSplineInit init = new(owner);
+		init.MoveTo(owner.Location, false);
 
-        public override void Deactivate(Unit owner)
-        {
-            AddFlag(MovementGeneratorFlags.Deactivated);
-        }
+		if (!owner.GetTransGUID().IsEmpty)
+			init.DisableTransportPathTransformations();
 
-        public override void Finalize(Unit owner, bool active, bool movementInform)
-        {
-            AddFlag(MovementGeneratorFlags.Finalized);
+		init.SetFacing(_orientation);
+		init.Launch();
+	}
 
-            // TODO: This code should be handled somewhere else
-            // If this is a creature, then return orientation to original position (for idle movement creatures)
-            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
-            {
-                float angle = owner.AsCreature.HomePosition.Orientation;
-                owner.SetFacingTo(angle);
-            }
-        }
+	public override void Reset(Unit owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.Deactivated);
+		Initialize(owner);
+	}
 
-        public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.Distract; }
+	public override bool Update(Unit owner, uint diff)
+	{
+		if (owner == null)
+			return false;
 
-        uint _timer;
-        readonly float _orientation;
-    }
+		if (diff > _timer)
+		{
+			AddFlag(MovementGeneratorFlags.InformEnabled);
 
-    public class AssistanceDistractMovementGenerator : DistractMovementGenerator
-    {
-        public AssistanceDistractMovementGenerator(uint timer, float orientation) : base(timer, orientation)
-        {
-            Priority = MovementGeneratorPriority.Normal;
-        }
+			return false;
+		}
 
-        public override void Finalize(Unit owner, bool active, bool movementInform)
-        {
-            owner.ClearUnitState(UnitState.Distracted);
-            owner.            AsCreature.            ReactState = ReactStates.Aggressive;
-        }
+		_timer -= diff;
 
-        public override MovementGeneratorType GetMovementGeneratorType() { return MovementGeneratorType.AssistanceDistract; }
-    }
+		return true;
+	}
+
+	public override void Deactivate(Unit owner)
+	{
+		AddFlag(MovementGeneratorFlags.Deactivated);
+	}
+
+	public override void Finalize(Unit owner, bool active, bool movementInform)
+	{
+		AddFlag(MovementGeneratorFlags.Finalized);
+
+		// TODO: This code should be handled somewhere else
+		// If this is a creature, then return orientation to original position (for idle movement creatures)
+		if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled) && owner.IsCreature)
+		{
+			var angle = owner.AsCreature.HomePosition.Orientation;
+			owner.SetFacingTo(angle);
+		}
+	}
+
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.Distract;
+	}
+}
+
+public class AssistanceDistractMovementGenerator : DistractMovementGenerator
+{
+	public AssistanceDistractMovementGenerator(uint timer, float orientation) : base(timer, orientation)
+	{
+		Priority = MovementGeneratorPriority.Normal;
+	}
+
+	public override void Finalize(Unit owner, bool active, bool movementInform)
+	{
+		owner.ClearUnitState(UnitState.Distracted);
+		owner.AsCreature.ReactState = ReactStates.Aggressive;
+	}
+
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.AssistanceDistract;
+	}
 }

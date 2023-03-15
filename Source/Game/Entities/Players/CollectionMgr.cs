@@ -24,18 +24,18 @@ public class CollectionMgr
 
 	readonly uint[] _playerClassByArmorSubclass =
 	{
-		(int)Class.ClassMaskAllPlayable,                                                                                                        //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
-		(1 << ((int)Class.Priest - 1)) | (1 << ((int)Class.Mage - 1)) | (1 << ((int)Class.Warlock - 1)),                                        //ITEM_SUBCLASS_ARMOR_CLOTH
-		(1 << ((int)Class.Rogue - 1)) | (1 << ((int)Class.Monk - 1)) | (1 << ((int)Class.Druid - 1)) | (1 << ((int)Class.DemonHunter - 1)),     //ITEM_SUBCLASS_ARMOR_LEATHER
-		(1 << ((int)Class.Hunter - 1)) | (1 << ((int)Class.Shaman - 1)),                                                                        //ITEM_SUBCLASS_ARMOR_MAIL
-		(1 << ((int)Class.Warrior - 1)) | (1 << ((int)Class.Paladin - 1)) | (1 << ((int)Class.Deathknight - 1)),                                //ITEM_SUBCLASS_ARMOR_PLATE
-		(int)Class.ClassMaskAllPlayable,                                                                                                        //ITEM_SUBCLASS_ARMOR_BUCKLER
-		(1 << ((int)Class.Warrior - 1)) | (1 << ((int)Class.Paladin - 1)) | (1 << ((int)Class.Shaman - 1)),                                     //ITEM_SUBCLASS_ARMOR_SHIELD
-		1 << ((int)Class.Paladin - 1),                                                                                                          //ITEM_SUBCLASS_ARMOR_LIBRAM
-		1 << ((int)Class.Druid - 1),                                                                                                            //ITEM_SUBCLASS_ARMOR_IDOL
-		1 << ((int)Class.Shaman - 1),                                                                                                           //ITEM_SUBCLASS_ARMOR_TOTEM
-		1 << ((int)Class.Deathknight - 1),                                                                                                      //ITEM_SUBCLASS_ARMOR_SIGIL
-		(1 << ((int)Class.Paladin - 1)) | (1 << ((int)Class.Deathknight - 1)) | (1 << ((int)Class.Shaman - 1)) | (1 << ((int)Class.Druid - 1)), //ITEM_SUBCLASS_ARMOR_RELIC
+		(int)PlayerClass.ClassMaskAllPlayable,                                                                                                                          //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
+		(1 << ((int)PlayerClass.Priest - 1)) | (1 << ((int)PlayerClass.Mage - 1)) | (1 << ((int)PlayerClass.Warlock - 1)),                                              //ITEM_SUBCLASS_ARMOR_CLOTH
+		(1 << ((int)PlayerClass.Rogue - 1)) | (1 << ((int)PlayerClass.Monk - 1)) | (1 << ((int)PlayerClass.Druid - 1)) | (1 << ((int)PlayerClass.DemonHunter - 1)),     //ITEM_SUBCLASS_ARMOR_LEATHER
+		(1 << ((int)PlayerClass.Hunter - 1)) | (1 << ((int)PlayerClass.Shaman - 1)),                                                                                    //ITEM_SUBCLASS_ARMOR_MAIL
+		(1 << ((int)PlayerClass.Warrior - 1)) | (1 << ((int)PlayerClass.Paladin - 1)) | (1 << ((int)PlayerClass.Deathknight - 1)),                                      //ITEM_SUBCLASS_ARMOR_PLATE
+		(int)PlayerClass.ClassMaskAllPlayable,                                                                                                                          //ITEM_SUBCLASS_ARMOR_BUCKLER
+		(1 << ((int)PlayerClass.Warrior - 1)) | (1 << ((int)PlayerClass.Paladin - 1)) | (1 << ((int)PlayerClass.Shaman - 1)),                                           //ITEM_SUBCLASS_ARMOR_SHIELD
+		1 << ((int)PlayerClass.Paladin - 1),                                                                                                                            //ITEM_SUBCLASS_ARMOR_LIBRAM
+		1 << ((int)PlayerClass.Druid - 1),                                                                                                                              //ITEM_SUBCLASS_ARMOR_IDOL
+		1 << ((int)PlayerClass.Shaman - 1),                                                                                                                             //ITEM_SUBCLASS_ARMOR_TOTEM
+		1 << ((int)PlayerClass.Deathknight - 1),                                                                                                                        //ITEM_SUBCLASS_ARMOR_SIGIL
+		(1 << ((int)PlayerClass.Paladin - 1)) | (1 << ((int)PlayerClass.Deathknight - 1)) | (1 << ((int)PlayerClass.Shaman - 1)) | (1 << ((int)PlayerClass.Druid - 1)), //ITEM_SUBCLASS_ARMOR_RELIC
 	};
 
 	BitSet _appearances;
@@ -530,7 +530,7 @@ public class CollectionMgr
 
 	public void AddItemAppearance(Item item)
 	{
-		if (!item.IsSoulBound())
+		if (!item.IsSoulBound)
 			return;
 
 		var itemModifiedAppearance = item.GetItemModifiedAppearance();
@@ -538,7 +538,7 @@ public class CollectionMgr
 		if (!CanAddAppearance(itemModifiedAppearance))
 			return;
 
-		if (item.IsBOPTradeable() || item.IsRefundable())
+		if (item.IsBOPTradeable || item.IsRefundable)
 		{
 			AddTemporaryAppearance(item.GUID, itemModifiedAppearance);
 
@@ -844,29 +844,29 @@ public class CollectionMgr
 		if (_owner.Player.CanUseItem(itemTemplate) != InventoryResult.Ok)
 			return false;
 
-		if (itemTemplate.HasFlag(ItemFlags2.NoSourceForItemVisual) || itemTemplate.GetQuality() == ItemQuality.Artifact)
+		if (itemTemplate.HasFlag(ItemFlags2.NoSourceForItemVisual) || itemTemplate.Quality == ItemQuality.Artifact)
 			return false;
 
-		switch (itemTemplate.GetClass())
+		switch (itemTemplate.Class)
 		{
 			case ItemClass.Weapon:
 			{
-				if (!Convert.ToBoolean(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.GetSubClass())))
+				if (!Convert.ToBoolean(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.SubClass)))
 					return false;
 
-				if (itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Exotic ||
-					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Exotic2 ||
-					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Miscellaneous ||
-					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Thrown ||
-					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.Spear ||
-					itemTemplate.GetSubClass() == (int)ItemSubClassWeapon.FishingPole)
+				if (itemTemplate.SubClass == (int)ItemSubClassWeapon.Exotic ||
+					itemTemplate.SubClass == (int)ItemSubClassWeapon.Exotic2 ||
+					itemTemplate.SubClass == (int)ItemSubClassWeapon.Miscellaneous ||
+					itemTemplate.SubClass == (int)ItemSubClassWeapon.Thrown ||
+					itemTemplate.SubClass == (int)ItemSubClassWeapon.Spear ||
+					itemTemplate.SubClass == (int)ItemSubClassWeapon.FishingPole)
 					return false;
 
 				break;
 			}
 			case ItemClass.Armor:
 			{
-				switch (itemTemplate.GetInventoryType())
+				switch (itemTemplate.InventoryType)
 				{
 					case InventoryType.Body:
 					case InventoryType.Shield:
@@ -883,7 +883,7 @@ public class CollectionMgr
 					case InventoryType.Wrists:
 					case InventoryType.Hands:
 					case InventoryType.Robe:
-						if ((ItemSubClassArmor)itemTemplate.GetSubClass() == ItemSubClassArmor.Miscellaneous)
+						if ((ItemSubClassArmor)itemTemplate.SubClass == ItemSubClassArmor.Miscellaneous)
 							return false;
 
 						break;
@@ -891,8 +891,8 @@ public class CollectionMgr
 						return false;
 				}
 
-				if (itemTemplate.GetInventoryType() != InventoryType.Cloak)
-					if (!Convert.ToBoolean(_playerClassByArmorSubclass[itemTemplate.GetSubClass()] & _owner.Player.ClassMask))
+				if (itemTemplate.InventoryType != InventoryType.Cloak)
+					if (!Convert.ToBoolean(_playerClassByArmorSubclass[itemTemplate.SubClass] & _owner.Player.ClassMask))
 						return false;
 
 				break;
@@ -901,7 +901,7 @@ public class CollectionMgr
 				return false;
 		}
 
-		if (itemTemplate.GetQuality() < ItemQuality.Uncommon)
+		if (itemTemplate.Quality < ItemQuality.Uncommon)
 			if (!itemTemplate.HasFlag(ItemFlags2.IgnoreQualityForItemVisualSource) || !itemTemplate.HasFlag(ItemFlags3.ActsAsTransmogHiddenVisualOption))
 				return false;
 

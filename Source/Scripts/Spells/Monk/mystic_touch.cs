@@ -12,7 +12,7 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class mystic_touch : ScriptObjectAutoAdd, IPlayerOnDealDamage
 {
-	public Class PlayerClass => Class.Monk;
+	public PlayerClass PlayerClass => PlayerClass.Monk;
 
 	public mystic_touch() : base("mystic_touch") { }
 
@@ -21,7 +21,7 @@ public class mystic_touch : ScriptObjectAutoAdd, IPlayerOnDealDamage
 		var player = caster.AsPlayer;
 
 		if (player != null)
-			if (player.Class != Class.Monk)
+			if (player.Class != PlayerClass.Monk)
 				return;
 
 		if (caster == null || target == null)

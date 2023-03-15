@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Framework.Collections;
@@ -6,7 +9,6 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Groups;
 using Game.Guilds;
 using Game.Networking;
 using Game.Networking.Packets;
@@ -27,7 +29,8 @@ public class GuildAchievementMgr : AchievementManager
 	{
 		base.Reset();
 
-		ObjectGuid guid = _owner.GetGUID();
+		var guid = _owner.GetGUID();
+
 		foreach (var iter in _completedAchievements)
 		{
 			GuildAchievementDeleted guildAchievementDeleted = new();
@@ -46,7 +49,7 @@ public class GuildAchievementMgr : AchievementManager
 	{
 		SQLTransaction trans = new();
 
-		PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GUILD_ACHIEVEMENTS);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
@@ -60,13 +63,13 @@ public class GuildAchievementMgr : AchievementManager
 	public void LoadFromDB(SQLResult achievementResult, SQLResult criteriaResult)
 	{
 		if (!achievementResult.IsEmpty())
-		{
 			do
 			{
-				uint achievementid = achievementResult.Read<uint>(0);
+				var achievementid = achievementResult.Read<uint>(0);
 
 				// must not happen: cleanup at server startup in sAchievementMgr.LoadCompletedAchievements()
-				AchievementRecord achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
+				var achievement = CliDB.AchievementStorage.LookupByKey(achievementid);
+
 				if (achievement == null)
 					continue;
 
@@ -74,41 +77,40 @@ public class GuildAchievementMgr : AchievementManager
 				{
 					ca.Date = achievementResult.Read<long>(1);
 					var guids = new StringArray(achievementResult.Read<string>(2), ',');
+
 					if (!guids.IsEmpty())
-					{
-						for (int i = 0; i < guids.Length; ++i)
-						{
-							if (ulong.TryParse(guids[i], out ulong guid))
+						for (var i = 0; i < guids.Length; ++i)
+							if (ulong.TryParse(guids[i], out var guid))
 								ca.CompletingPlayers.Add(ObjectGuid.Create(HighGuid.Player, guid));
-						}
-					}
 
 					ca.Changed = false;
 
 					_achievementPoints += achievement.Points;
 				}
 			} while (achievementResult.NextRow());
-		}
 
 		if (!criteriaResult.IsEmpty())
 		{
-			long now = GameTime.GetGameTime();
+			var now = GameTime.GetGameTime();
+
 			do
 			{
-				uint id = criteriaResult.Read<uint>(0);
-				ulong counter = criteriaResult.Read<ulong>(1);
-				long date = criteriaResult.Read<long>(2);
-				ulong guidLow = criteriaResult.Read<ulong>(3);
+				var id = criteriaResult.Read<uint>(0);
+				var counter = criteriaResult.Read<ulong>(1);
+				var date = criteriaResult.Read<long>(2);
+				var guidLow = criteriaResult.Read<ulong>(3);
 
-				Criteria criteria = Global.CriteriaMgr.GetCriteria(id);
+				var criteria = Global.CriteriaMgr.GetCriteria(id);
+
 				if (criteria == null)
 				{
 					// we will remove not existed criteria for all guilds
 					Log.outError(LogFilter.Achievement, "Non-existing achievement criteria {0} data removed from table `guild_achievement_progress`.", id);
 
-					PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
+					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
 					stmt.AddValue(0, id);
 					DB.Characters.Execute(stmt);
+
 					continue;
 				}
 
@@ -122,7 +124,6 @@ public class GuildAchievementMgr : AchievementManager
 				progress.Changed = false;
 
 				_criteriaProgress[id] = progress;
-
 			} while (criteriaResult.NextRow());
 		}
 	}
@@ -131,6 +132,7 @@ public class GuildAchievementMgr : AchievementManager
 	{
 		PreparedStatement stmt;
 		StringBuilder guidstr = new();
+
 		foreach (var pair in _completedAchievements)
 		{
 			if (!pair.Value.Changed)
@@ -145,6 +147,7 @@ public class GuildAchievementMgr : AchievementManager
 			stmt.AddValue(0, _owner.GetId());
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.Date);
+
 			foreach (var guid in pair.Value.CompletingPlayers)
 				guidstr.AppendFormat("{0},", guid.Counter);
 
@@ -180,7 +183,8 @@ public class GuildAchievementMgr : AchievementManager
 
 		foreach (var pair in _completedAchievements)
 		{
-			AchievementRecord achievement = VisibleAchievementCheck(pair);
+			var achievement = VisibleAchievementCheck(pair);
+
 			if (achievement == null)
 				continue;
 
@@ -196,33 +200,35 @@ public class GuildAchievementMgr : AchievementManager
 	public void SendAchievementInfo(Player receiver, uint achievementId = 0)
 	{
 		GuildCriteriaUpdate guildCriteriaUpdate = new();
-		AchievementRecord achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+		var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+
 		if (achievement != null)
 		{
-			CriteriaTree tree = Global.CriteriaMgr.GetCriteriaTree(achievement.CriteriaTree);
-			if (tree != null)
-			{
-				CriteriaManager.WalkCriteriaTree(tree, node =>
-				{
-					if (node.Criteria != null)
-					{
-						var progress = _criteriaProgress.LookupByKey(node.Criteria.Id);
-						if (progress != null)
-						{
-							GuildCriteriaProgress guildCriteriaProgress = new();
-							guildCriteriaProgress.CriteriaID = node.Criteria.Id;
-							guildCriteriaProgress.DateCreated = 0;
-							guildCriteriaProgress.DateStarted = 0;
-							guildCriteriaProgress.DateUpdated = progress.Date;
-							guildCriteriaProgress.Quantity = progress.Counter;
-							guildCriteriaProgress.PlayerGUID = progress.PlayerGUID;
-							guildCriteriaProgress.Flags = 0;
+			var tree = Global.CriteriaMgr.GetCriteriaTree(achievement.CriteriaTree);
 
-							guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
-						}
-					}
-				});
-			}
+			if (tree != null)
+				CriteriaManager.WalkCriteriaTree(tree,
+												node =>
+												{
+													if (node.Criteria != null)
+													{
+														var progress = _criteriaProgress.LookupByKey(node.Criteria.Id);
+
+														if (progress != null)
+														{
+															GuildCriteriaProgress guildCriteriaProgress = new();
+															guildCriteriaProgress.CriteriaID = node.Criteria.Id;
+															guildCriteriaProgress.DateCreated = 0;
+															guildCriteriaProgress.DateStarted = 0;
+															guildCriteriaProgress.DateUpdated = progress.Date;
+															guildCriteriaProgress.Quantity = progress.Counter;
+															guildCriteriaProgress.PlayerGUID = progress.PlayerGUID;
+															guildCriteriaProgress.Flags = 0;
+
+															guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
+														}
+													}
+												});
 		}
 
 		receiver.SendPacket(guildCriteriaUpdate);
@@ -232,9 +238,10 @@ public class GuildAchievementMgr : AchievementManager
 	{
 		GuildCriteriaUpdate guildCriteriaUpdate = new();
 
-		foreach (uint criteriaId in trackedCriterias)
+		foreach (var criteriaId in trackedCriterias)
 		{
 			var progress = _criteriaProgress.LookupByKey(criteriaId);
+
 			if (progress == null)
 				continue;
 
@@ -256,13 +263,14 @@ public class GuildAchievementMgr : AchievementManager
 	public void SendAchievementMembers(Player receiver, uint achievementId)
 	{
 		var achievementData = _completedAchievements.LookupByKey(achievementId);
+
 		if (achievementData != null)
 		{
 			GuildAchievementMembers guildAchievementMembers = new();
 			guildAchievementMembers.GuildGUID = _owner.GetGUID();
 			guildAchievementMembers.AchievementID = achievementId;
 
-			foreach (ObjectGuid guid in achievementData.CompletingPlayers)
+			foreach (var guid in achievementData.CompletingPlayers)
 				guildAchievementMembers.Member.Add(guid);
 
 			receiver.SendPacket(guildAchievementMembers);
@@ -278,7 +286,8 @@ public class GuildAchievementMgr : AchievementManager
 
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowInGuildNews))
 		{
-			Guild guild = referencePlayer.Guild;
+			var guild = referencePlayer.Guild;
+
 			if (guild)
 				guild.AddGuildNews(GuildNews.Achievement, ObjectGuid.Empty, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
 		}
@@ -293,17 +302,17 @@ public class GuildAchievementMgr : AchievementManager
 			if (referencePlayer.GuildId == _owner.GetId())
 				ca.CompletingPlayers.Add(referencePlayer.GUID);
 
-			PlayerGroup group = referencePlayer.Group;
+			var group = referencePlayer.Group;
+
 			if (group)
-			{
-				for (GroupReference refe = group.FirstMember; refe != null; refe = refe.Next())
+				for (var refe = group.FirstMember; refe != null; refe = refe.Next())
 				{
-					Player groupMember = refe.Source;
+					var groupMember = refe.Source;
+
 					if (groupMember)
 						if (groupMember.GuildId == _owner.GetId())
 							ca.CompletingPlayers.Add(groupMember.GUID);
 				}
-			}
 		}
 
 		_completedAchievements[achievement.Id] = ca;
@@ -346,6 +355,21 @@ public class GuildAchievementMgr : AchievementManager
 		SendPacket(guildCriteriaDeleted);
 	}
 
+	public override void SendPacket(ServerPacket data)
+	{
+		_owner.BroadcastPacket(data);
+	}
+
+	public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
+	{
+		return Global.CriteriaMgr.GetGuildCriteriaByType(type);
+	}
+
+	public override string GetOwnerInfo()
+	{
+		return $"Guild ID {_owner.GetId()} {_owner.GetName()}";
+	}
+
 	void SendAchievementEarned(AchievementRecord achievement)
 	{
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
@@ -364,20 +388,5 @@ public class GuildAchievementMgr : AchievementManager
 		guildAchievementEarned.GuildGUID = _owner.GetGUID();
 		guildAchievementEarned.TimeEarned = GameTime.GetGameTime();
 		SendPacket(guildAchievementEarned);
-	}
-
-	public override void SendPacket(ServerPacket data)
-	{
-		_owner.BroadcastPacket(data);
-	}
-
-	public override List<Criteria> GetCriteriaByType(CriteriaType type, uint asset)
-	{
-		return Global.CriteriaMgr.GetGuildCriteriaByType(type);
-	}
-
-	public override string GetOwnerInfo()
-	{
-		return $"Guild ID {_owner.GetId()} {_owner.GetName()}";
 	}
 }

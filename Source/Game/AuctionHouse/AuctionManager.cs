@@ -81,7 +81,7 @@ public class AuctionManager : Singleton<AuctionManager>
 
 	public ulong GetCommodityAuctionDeposit(ItemTemplate item, TimeSpan time, uint quantity)
 	{
-		var sellPrice = item.GetSellPrice();
+		var sellPrice = item.SellPrice;
 
 		return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.Minute)));
 	}

@@ -20,7 +20,7 @@ public class CreateCharacter : ClientPacket
 		CreateInfo.UseNPE = _worldPacket.HasBit();
 
 		CreateInfo.RaceId = (Race)_worldPacket.ReadUInt8();
-		CreateInfo.ClassId = (Class)_worldPacket.ReadUInt8();
+		CreateInfo.ClassId = (PlayerClass)_worldPacket.ReadUInt8();
 		CreateInfo.Sex = (Gender)_worldPacket.ReadUInt8();
 		var customizationCount = _worldPacket.ReadUInt32();
 

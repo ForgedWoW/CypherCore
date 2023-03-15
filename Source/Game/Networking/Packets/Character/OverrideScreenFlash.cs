@@ -11,6 +11,6 @@ public class OverrideScreenFlash : ClientPacket
 
 	public override void Read()
 	{
-        ScreenFlashEnabled = _worldPacket.ReadBit() == 1;
+		ScreenFlashEnabled = _worldPacket.ReadBit() == 1;
 	}
 }

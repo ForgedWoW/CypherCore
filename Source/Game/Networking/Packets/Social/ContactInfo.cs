@@ -16,7 +16,7 @@ public class ContactInfo
 	readonly FriendStatus Status;
 	readonly uint AreaID;
 	readonly uint Level;
-	readonly Class ClassID;
+	readonly PlayerClass ClassID;
 	readonly bool Mobile;
 
 	readonly ObjectGuid Guid;

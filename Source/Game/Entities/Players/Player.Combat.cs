@@ -114,8 +114,8 @@ public partial class Player
 
 	public void _ApplyWeaponDamage(byte slot, Item item, bool apply)
 	{
-		var proto = item.GetTemplate();
-		var attType = GetAttackBySlot(slot, proto.GetInventoryType());
+		var proto = item.Template;
+		var attType = GetAttackBySlot(slot, proto.InventoryType);
 
 		if (!IsInFeralForm && apply && !CanUseAttackType(attType))
 			return;
@@ -138,8 +138,8 @@ public partial class Player
 
 		var shapeshift = CliDB.SpellShapeshiftFormStorage.LookupByKey(ShapeshiftForm);
 
-		if (proto.GetDelay() != 0 && !(shapeshift != null && shapeshift.CombatRoundTime != 0))
-			SetBaseAttackTime(attType, apply ? proto.GetDelay() : SharedConst.BaseAttackTime);
+		if (proto.Delay != 0 && !(shapeshift != null && shapeshift.CombatRoundTime != 0))
+			SetBaseAttackTime(attType, apply ? proto.Delay : SharedConst.BaseAttackTime);
 
 		var weaponBasedAttackPower = apply ? (int)(proto.GetDPS(itemLevel) * 6.0f) : 0;
 
@@ -159,7 +159,7 @@ public partial class Player
 				break;
 		}
 
-		if (CanModifyStats() && (damage != 0 || proto.GetDelay() != 0))
+		if (CanModifyStats() && (damage != 0 || proto.Delay != 0))
 			UpdateDamagePhysical(attType);
 	}
 
@@ -181,7 +181,7 @@ public partial class Player
 	public override float GetBlockPercent(uint attackerLevel)
 	{
 		var blockArmor = (float)ActivePlayerData.ShieldBlock;
-		var armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, Class.None);
+		var armorConstant = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.ArmorConstant, attackerLevel, -2, 0, PlayerClass.None);
 
 		if ((blockArmor + armorConstant) == 0)
 			return 0;
@@ -295,7 +295,7 @@ public partial class Player
 				opponent.UpdateCriteria(CriteriaType.WinDuel, 1);
 
 				// Credit for quest Death's Challenge
-				if (Class == Class.Deathknight && opponent.GetQuestStatus(12733) == QuestStatus.Incomplete)
+				if (Class == PlayerClass.Deathknight && opponent.GetQuestStatus(12733) == QuestStatus.Incomplete)
 					opponent.CastSpell(Duel.Opponent, 52994, true);
 
 				// Honor points after duel (the winner) - ImpConfig
@@ -479,12 +479,12 @@ public partial class Player
 		{
 			var tmpitem = GetWeaponForAttack(weaponAttackType, true);
 
-			if (tmpitem != null && !tmpitem.IsBroken())
+			if (tmpitem != null && !tmpitem.IsBroken)
 			{
-				var proto = tmpitem.GetTemplate();
+				var proto = tmpitem.Template;
 
-				if (proto.GetDelay() != 0)
-					SetBaseAttackTime(weaponAttackType, proto.GetDelay());
+				if (proto.Delay != 0)
+					SetBaseAttackTime(weaponAttackType, proto.Delay);
 			}
 			else
 			{
@@ -655,23 +655,23 @@ public partial class Player
 		if (!mainItem)
 			return false;
 
-		var itemTemplate = mainItem.GetTemplate();
+		var itemTemplate = mainItem.Template;
 
-		return (itemTemplate.GetInventoryType() == InventoryType.Weapon2Hand && !CanTitanGrip()) ||
-				itemTemplate.GetInventoryType() == InventoryType.Ranged ||
-				(itemTemplate.GetInventoryType() == InventoryType.RangedRight && itemTemplate.GetClass() == ItemClass.Weapon && (ItemSubClassWeapon)itemTemplate.GetSubClass() != ItemSubClassWeapon.Wand);
+		return (itemTemplate.InventoryType == InventoryType.Weapon2Hand && !CanTitanGrip()) ||
+				itemTemplate.InventoryType == InventoryType.Ranged ||
+				(itemTemplate.InventoryType == InventoryType.RangedRight && itemTemplate.Class == ItemClass.Weapon && (ItemSubClassWeapon)itemTemplate.SubClass != ItemSubClassWeapon.Wand);
 	}
 
 	bool IsUsingTwoHandedWeaponInOneHand()
 	{
 		var offItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-		if (offItem && offItem.GetTemplate().GetInventoryType() == InventoryType.Weapon2Hand)
+		if (offItem && offItem.Template.InventoryType == InventoryType.Weapon2Hand)
 			return true;
 
 		var mainItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-		if (!mainItem || mainItem.GetTemplate().GetInventoryType() == InventoryType.Weapon2Hand)
+		if (!mainItem || mainItem.Template.InventoryType == InventoryType.Weapon2Hand)
 			return false;
 
 		if (!offItem)

@@ -130,8 +130,6 @@ public abstract class WorldObject : IDisposable
 
 	public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
 
-	public uint InstanceId1 => InstanceId;
-
 	public virtual ushort AIAnimKitId => 0;
 
 	public virtual ushort MovementAnimKitId => 0;
@@ -491,7 +489,7 @@ public abstract class WorldObject : IDisposable
 			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
 
 			if (IsTypeMask(TypeMask.Item))
-				Log.outFatal(LogFilter.Misc, "Item slot {0}", ((Item)this).GetSlot());
+				Log.outFatal(LogFilter.Misc, "Item slot {0}", ((Item)this).Slot);
 
 			Cypher.Assert(false);
 		}
@@ -3942,8 +3940,7 @@ public abstract class WorldObject : IDisposable
 		pos.Y = first_y;
 
 		return floor;
-
-    }
+	}
 
 	public void GetClosePoint(Position pos, float size, float distance2d = 0, float relAngle = 0)
 	{

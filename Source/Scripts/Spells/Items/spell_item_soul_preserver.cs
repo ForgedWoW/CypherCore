@@ -29,19 +29,19 @@ internal class spell_item_soul_preserver : AuraScript, IHasAuraEffects
 
 		switch (caster.Class)
 		{
-			case Class.Druid:
+			case PlayerClass.Druid:
 				caster.CastSpell(caster, ItemSpellIds.SoulPreserverDruid, new CastSpellExtraArgs(aurEff));
 
 				break;
-			case Class.Paladin:
+			case PlayerClass.Paladin:
 				caster.CastSpell(caster, ItemSpellIds.SoulPreserverPaladin, new CastSpellExtraArgs(aurEff));
 
 				break;
-			case Class.Priest:
+			case PlayerClass.Priest:
 				caster.CastSpell(caster, ItemSpellIds.SoulPreserverPriest, new CastSpellExtraArgs(aurEff));
 
 				break;
-			case Class.Shaman:
+			case PlayerClass.Shaman:
 				caster.CastSpell(caster, ItemSpellIds.SoulPreserverShaman, new CastSpellExtraArgs(aurEff));
 
 				break;

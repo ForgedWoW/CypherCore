@@ -13,7 +13,7 @@ namespace Scripts.Spells.Shaman;
 [Script]
 public class mastery_elemental_overload : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
-	public Class PlayerClass { get; } = Class.Shaman;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Shaman;
 
 	public mastery_elemental_overload() : base("mastery_elemental_overload") { }
 

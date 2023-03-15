@@ -3,7 +3,7 @@
 
 namespace Framework.Constants;
 
-public enum Class
+public enum PlayerClass
 {
 	None = 0,
 	Warrior = 1,

@@ -452,11 +452,11 @@ public partial class Player
 
 		if (item != null)
 		{
-			var azeriteItem = item.ToAzeriteItem();
+			var azeriteItem = item.AsAzeriteItem;
 
 			if (azeriteItem != null)
 			{
-				if (azeriteItem.IsEquipped())
+				if (azeriteItem.IsEquipped)
 				{
 					ApplyAllAzeriteEmpoweredItemMods(false);
 					ApplyAzeritePowers(azeriteItem, false);
@@ -464,7 +464,7 @@ public partial class Player
 
 				azeriteItem.SetSelectedAzeriteEssences(spec.Id);
 
-				if (azeriteItem.IsEquipped())
+				if (azeriteItem.IsEquipped)
 				{
 					ApplyAzeritePowers(azeriteItem, true);
 					ApplyAllAzeriteEmpoweredItemMods(true);

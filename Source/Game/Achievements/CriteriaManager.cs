@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
@@ -34,11 +37,12 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
 	public void LoadCriteriaModifiersTree()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		if (CliDB.ModifierTreeStorage.Empty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 criteria modifiers.");
+
 			return;
 		}
 
@@ -53,7 +57,8 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		// Build tree
 		foreach (var treeNode in _criteriaModifiers.Values)
 		{
-			ModifierTreeNode parentNode = _criteriaModifiers.LookupByKey(treeNode.Entry.Parent);
+			var parentNode = _criteriaModifiers.LookupByKey(treeNode.Entry.Parent);
+
 			if (parentNode != null)
 				parentNode.Children.Add(treeNode);
 		}
@@ -61,48 +66,27 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	T GetEntry<T>(Dictionary<uint, T> map, CriteriaTreeRecord tree) where T : new()
-	{
-		CriteriaTreeRecord cur = tree;
-		var obj = map.LookupByKey(tree.Id);
-		while (obj == null)
-		{
-			if (cur.Parent == 0)
-				break;
-
-			cur = CliDB.CriteriaTreeStorage.LookupByKey(cur.Parent);
-			if (cur == null)
-				break;
-
-			obj = map.LookupByKey(cur.Id);
-		}
-
-		if (obj == null)
-			return default;
-
-		return obj;
-	}
-
 	public void LoadCriteriaList()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		Dictionary<uint /*criteriaTreeID*/, AchievementRecord> achievementCriteriaTreeIds = new();
-		foreach (AchievementRecord achievement in CliDB.AchievementStorage.Values)
+
+		foreach (var achievement in CliDB.AchievementStorage.Values)
 			if (achievement.CriteriaTree != 0)
 				achievementCriteriaTreeIds[achievement.CriteriaTree] = achievement;
 
 		Dictionary<uint, ScenarioStepRecord> scenarioCriteriaTreeIds = new();
-		foreach (ScenarioStepRecord scenarioStep in CliDB.ScenarioStepStorage.Values)
-		{
+
+		foreach (var scenarioStep in CliDB.ScenarioStepStorage.Values)
 			if (scenarioStep.CriteriaTreeId != 0)
 				scenarioCriteriaTreeIds[scenarioStep.CriteriaTreeId] = scenarioStep;
-		}
 
 		Dictionary<uint /*criteriaTreeID*/, QuestObjective> questObjectiveCriteriaTreeIds = new();
+
 		foreach (var pair in Global.ObjectMgr.GetQuestTemplates())
 		{
-			foreach (QuestObjective objective in pair.Value.Objectives)
+			foreach (var objective in pair.Value.Objectives)
 			{
 				if (objective.Type != QuestObjectiveType.CriteriaTree)
 					continue;
@@ -113,12 +97,13 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		}
 
 		// Load criteria tree nodes
-		foreach (CriteriaTreeRecord tree in CliDB.CriteriaTreeStorage.Values)
+		foreach (var tree in CliDB.CriteriaTreeStorage.Values)
 		{
 			// Find linked achievement
-			AchievementRecord achievement = GetEntry(achievementCriteriaTreeIds, tree);
-			ScenarioStepRecord scenarioStep = GetEntry(scenarioCriteriaTreeIds, tree);
-			QuestObjective questObjective = GetEntry(questObjectiveCriteriaTreeIds, tree);
+			var achievement = GetEntry(achievementCriteriaTreeIds, tree);
+			var scenarioStep = GetEntry(scenarioCriteriaTreeIds, tree);
+			var questObjective = GetEntry(questObjectiveCriteriaTreeIds, tree);
+
 			if (achievement == null && scenarioStep == null && questObjective == null)
 				continue;
 
@@ -135,7 +120,8 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		// Build tree
 		foreach (var pair in _criteriaTrees)
 		{
-			CriteriaTree parent = _criteriaTrees.LookupByKey(pair.Value.Entry.Parent);
+			var parent = _criteriaTrees.LookupByKey(pair.Value.Entry.Parent);
+
 			if (parent != null)
 				parent.Children.Add(pair.Value);
 
@@ -151,14 +137,17 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		uint guildCriterias = 0;
 		uint scenarioCriterias = 0;
 		uint questObjectiveCriterias = 0;
-		foreach (CriteriaRecord criteriaEntry in CliDB.CriteriaStorage.Values)
+
+		foreach (var criteriaEntry in CliDB.CriteriaStorage.Values)
 		{
 			Cypher.Assert(criteriaEntry.Type < CriteriaType.Count,
 						$"CRITERIA_TYPE_TOTAL must be greater than or equal to {criteriaEntry.Type + 1} but is currently equal to {CriteriaType.Count}");
+
 			Cypher.Assert(criteriaEntry.StartEvent < (byte)CriteriaStartEvent.Max, $"CRITERIA_TYPE_TOTAL must be greater than or equal to {criteriaEntry.StartEvent + 1} but is currently equal to {CriteriaStartEvent.Max}");
 			Cypher.Assert(criteriaEntry.FailEvent < (byte)CriteriaFailEvent.Max, $"CRITERIA_CONDITION_MAX must be greater than or equal to {criteriaEntry.FailEvent + 1} but is currently equal to {CriteriaFailEvent.Max}");
 
 			var treeList = _criteriaTreeByCriteria.LookupByKey(criteriaEntry.Id);
+
 			if (treeList.Empty())
 				continue;
 
@@ -170,11 +159,13 @@ public class CriteriaManager : Singleton<CriteriaManager>
 			_criteria[criteria.Id] = criteria;
 
 			List<uint> scenarioIds = new();
-			foreach (CriteriaTree tree in treeList)
+
+			foreach (var tree in treeList)
 			{
 				tree.Criteria = criteria;
 
-				AchievementRecord achievement = tree.Achievement;
+				var achievement = tree.Achievement;
+
 				if (achievement != null)
 				{
 					if (achievement.Flags.HasAnyFlag(AchievementFlags.Guild))
@@ -190,35 +181,41 @@ public class CriteriaManager : Singleton<CriteriaManager>
 					scenarioIds.Add(tree.ScenarioStep.ScenarioID);
 				}
 				else if (tree.QuestObjective != null)
+				{
 					criteria.FlagsCu |= CriteriaFlagsCu.QuestObjective;
+				}
 			}
 
 			if (criteria.FlagsCu.HasAnyFlag(CriteriaFlagsCu.Player | CriteriaFlagsCu.Account))
 			{
 				++criterias;
 				_criteriasByType.Add(criteriaEntry.Type, criteria);
+
 				if (IsCriteriaTypeStoredByAsset(criteriaEntry.Type))
 				{
 					if (criteriaEntry.Type != CriteriaType.RevealWorldMapOverlay)
+					{
 						_criteriasByAsset[(int)criteriaEntry.Type].Add(criteriaEntry.Asset, criteria);
+					}
 					else
 					{
 						var worldOverlayEntry = CliDB.WorldMapOverlayStorage.LookupByKey(criteriaEntry.Asset);
+
 						if (worldOverlayEntry == null)
 							break;
 
 						for (byte j = 0; j < SharedConst.MaxWorldMapOverlayArea; ++j)
-						{
 							if (worldOverlayEntry.AreaID[j] != 0)
 							{
-								bool valid = true;
+								var valid = true;
+
 								for (byte i = 0; i < j; ++i)
 									if (worldOverlayEntry.AreaID[j] == worldOverlayEntry.AreaID[i])
 										valid = false;
+
 								if (valid)
 									_criteriasByAsset[(int)criteriaEntry.Type].Add(worldOverlayEntry.AreaID[j], criteria);
 							}
-						}
 					}
 				}
 			}
@@ -232,7 +229,8 @@ public class CriteriaManager : Singleton<CriteriaManager>
 			if (criteria.FlagsCu.HasAnyFlag(CriteriaFlagsCu.Scenario))
 			{
 				++scenarioCriterias;
-				foreach (uint scenarioId in scenarioIds)
+
+				foreach (var scenarioId in scenarioIds)
 					_scenarioCriteriasByTypeAndScenarioId[(int)criteriaEntry.Type].Add(scenarioId, criteria);
 			}
 
@@ -254,32 +252,38 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
 	public void LoadCriteriaData()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_criteriaDataMap.Clear(); // need for reload case
 
-		SQLResult result = DB.World.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM criteria_data");
+		var result = DB.World.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM criteria_data");
+
 		if (result.IsEmpty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 additional criteria data. DB table `criteria_data` is empty.");
+
 			return;
 		}
 
 		uint count = 0;
+
 		do
 		{
-			uint criteria_id = result.Read<uint>(0);
+			var criteria_id = result.Read<uint>(0);
 
-			Criteria criteria = GetCriteria(criteria_id);
+			var criteria = GetCriteria(criteria_id);
+
 			if (criteria == null)
 			{
 				Log.outError(LogFilter.Sql, "Table `criteria_data` contains data for non-existing criteria (Entry: {0}). Ignored.", criteria_id);
+
 				continue;
 			}
 
-			CriteriaDataType dataType = (CriteriaDataType)result.Read<byte>(1);
-			string scriptName = result.Read<string>(4);
+			var dataType = (CriteriaDataType)result.Read<byte>(1);
+			var scriptName = result.Read<string>(4);
 			uint scriptId = 0;
+
 			if (!scriptName.IsEmpty())
 			{
 				if (dataType != CriteriaDataType.Script)
@@ -304,8 +308,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 			_criteriaDataMap[criteria_id] = dataSet;
 			// counting data by and data types
 			++count;
-		}
-		while (result.NextRow());
+		} while (result.NextRow());
 
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} additional criteria data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
@@ -325,47 +328,6 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		return _criteriaModifiers.LookupByKey(modifierTreeId);
 	}
 
-	bool IsCriteriaTypeStoredByAsset(CriteriaType type)
-	{
-		switch (type)
-		{
-			case CriteriaType.KillCreature:
-			case CriteriaType.WinBattleground:
-			case CriteriaType.SkillRaised:
-			case CriteriaType.EarnAchievement:
-			case CriteriaType.CompleteQuestsInZone:
-			case CriteriaType.ParticipateInBattleground:
-			case CriteriaType.KilledByCreature:
-			case CriteriaType.CompleteQuest:
-			case CriteriaType.BeSpellTarget:
-			case CriteriaType.CastSpell:
-			case CriteriaType.TrackedWorldStateUIModified:
-			case CriteriaType.PVPKillInArea:
-			case CriteriaType.LearnOrKnowSpell:
-			case CriteriaType.AcquireItem:
-			case CriteriaType.AchieveSkillStep:
-			case CriteriaType.UseItem:
-			case CriteriaType.LootItem:
-			case CriteriaType.RevealWorldMapOverlay:
-			case CriteriaType.ReputationGained:
-			case CriteriaType.EquipItemInSlot:
-			case CriteriaType.DeliverKillingBlowToClass:
-			case CriteriaType.DeliverKillingBlowToRace:
-			case CriteriaType.DoEmote:
-			case CriteriaType.EquipItem:
-			case CriteriaType.UseGameobject:
-			case CriteriaType.GainAura:
-			case CriteriaType.CatchFishInFishingHole:
-			case CriteriaType.LearnSpellFromSkillLine:
-			case CriteriaType.GetLootByType:
-			case CriteriaType.LandTargetedSpellOnTarget:
-			case CriteriaType.LearnTradeskillSkillLine:
-				return true;
-			default:
-				return false;
-		}
-	}
-
 	public List<Criteria> GetPlayerCriteriaByType(CriteriaType type, uint asset)
 	{
 		if (asset != 0 && IsCriteriaTypeStoredByAsset(type))
@@ -383,7 +345,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 	{
 		return _scenarioCriteriasByTypeAndScenarioId[(int)type].LookupByKey(scenarioId);
 	}
-        
+
 	public List<Criteria> GetGuildCriteriaByType(CriteriaType type)
 	{
 		return _guildCriteriasByType.LookupByKey(type);
@@ -434,9 +396,74 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
 	public static void WalkCriteriaTree(CriteriaTree tree, Action<CriteriaTree> func)
 	{
-		foreach (CriteriaTree node in tree.Children)
+		foreach (var node in tree.Children)
 			WalkCriteriaTree(node, func);
 
 		func(tree);
+	}
+
+	T GetEntry<T>(Dictionary<uint, T> map, CriteriaTreeRecord tree) where T : new()
+	{
+		var cur = tree;
+		var obj = map.LookupByKey(tree.Id);
+
+		while (obj == null)
+		{
+			if (cur.Parent == 0)
+				break;
+
+			cur = CliDB.CriteriaTreeStorage.LookupByKey(cur.Parent);
+
+			if (cur == null)
+				break;
+
+			obj = map.LookupByKey(cur.Id);
+		}
+
+		if (obj == null)
+			return default;
+
+		return obj;
+	}
+
+	bool IsCriteriaTypeStoredByAsset(CriteriaType type)
+	{
+		switch (type)
+		{
+			case CriteriaType.KillCreature:
+			case CriteriaType.WinBattleground:
+			case CriteriaType.SkillRaised:
+			case CriteriaType.EarnAchievement:
+			case CriteriaType.CompleteQuestsInZone:
+			case CriteriaType.ParticipateInBattleground:
+			case CriteriaType.KilledByCreature:
+			case CriteriaType.CompleteQuest:
+			case CriteriaType.BeSpellTarget:
+			case CriteriaType.CastSpell:
+			case CriteriaType.TrackedWorldStateUIModified:
+			case CriteriaType.PVPKillInArea:
+			case CriteriaType.LearnOrKnowSpell:
+			case CriteriaType.AcquireItem:
+			case CriteriaType.AchieveSkillStep:
+			case CriteriaType.UseItem:
+			case CriteriaType.LootItem:
+			case CriteriaType.RevealWorldMapOverlay:
+			case CriteriaType.ReputationGained:
+			case CriteriaType.EquipItemInSlot:
+			case CriteriaType.DeliverKillingBlowToClass:
+			case CriteriaType.DeliverKillingBlowToRace:
+			case CriteriaType.DoEmote:
+			case CriteriaType.EquipItem:
+			case CriteriaType.UseGameobject:
+			case CriteriaType.GainAura:
+			case CriteriaType.CatchFishInFishingHole:
+			case CriteriaType.LearnSpellFromSkillLine:
+			case CriteriaType.GetLootByType:
+			case CriteriaType.LandTargetedSpellOnTarget:
+			case CriteriaType.LearnTradeskillSkillLine:
+				return true;
+			default:
+				return false;
+		}
 	}
 }

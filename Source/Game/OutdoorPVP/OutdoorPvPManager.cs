@@ -11,190 +11,207 @@ using Game.Entities;
 using Game.Maps;
 using Game.Scripting.Interfaces.IOutdoorPvP;
 
-namespace Game.PvP
+namespace Game.PvP;
+
+public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
 {
-    public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
-    {
+	// contains all initiated outdoor pvp events
+	// used when initing / cleaning up
+	readonly MultiMap<Map, OutdoorPvP> m_OutdoorPvPByMap = new();
 
-        LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
-        OutdoorPvPManager() { }
+	// maps the zone ids to an outdoor pvp event
+	// used in player event handling
+	readonly Dictionary<(Map map, uint zoneId), OutdoorPvP> m_OutdoorPvPMap = new();
 
-        public void InitOutdoorPvP()
-        {
-            uint oldMSTime = Time.MSTime;
+	// Holds the outdoor PvP templates
+	readonly uint[] m_OutdoorMapIds =
+	{
+		0, 530, 530, 530, 530, 1
+	};
 
-            //                                             0       1
-            SQLResult result = DB.World.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
-            if (result.IsEmpty())
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
-                return;
-            }
+	readonly Dictionary<OutdoorPvPTypes, uint> m_OutdoorPvPDatas = new();
 
-            uint count = 0;
+	readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 
-            do
-            {
-                OutdoorPvPTypes typeId = (OutdoorPvPTypes)result.Read<byte>(0);
+	// update interval
+	uint m_UpdateTimer;
+	OutdoorPvPManager() { }
 
-                if (Global.DisableMgr.IsDisabledFor(DisableType.OutdoorPVP, (uint)typeId, null))
-                    continue;
+	public void InitOutdoorPvP()
+	{
+		var oldMSTime = Time.MSTime;
 
-                if (typeId >= OutdoorPvPTypes.Max)
-                {
-                    Log.outError(LogFilter.Sql, "Invalid OutdoorPvPTypes value {0} in outdoorpvp_template; skipped.", typeId);
-                    continue;
-                }
+		//                                             0       1
+		var result = DB.World.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
 
-                m_OutdoorPvPDatas[typeId] = Global.ObjectMgr.GetScriptId(result.Read<string>(1));
+		if (result.IsEmpty())
+		{
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 outdoor PvP definitions. DB table `outdoorpvp_template` is empty.");
 
-                ++count;
-            }
-            while (result.NextRow());
+			return;
+		}
 
-            Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-        }
+		uint count = 0;
 
-        public void CreateOutdoorPvPForMap(Map map)
-        {
-            for (OutdoorPvPTypes outdoorPvpType = OutdoorPvPTypes.HellfirePeninsula; outdoorPvpType < OutdoorPvPTypes.Max; ++outdoorPvpType)
-            {
-                if (map.Id != m_OutdoorMapIds[(int)outdoorPvpType])
-                    continue;
+		do
+		{
+			var typeId = (OutdoorPvPTypes)result.Read<byte>(0);
 
-                if (!m_OutdoorPvPDatas.ContainsKey(outdoorPvpType))
-                {
-                    Log.outError(LogFilter.Sql, "Could not initialize OutdoorPvP object for type ID {0}; no entry in database.", outdoorPvpType);
-                    continue;
-                }
-                
-                OutdoorPvP pvp = Global.ScriptMgr.RunScriptRet<IOutdoorPvPGetOutdoorPvP, OutdoorPvP>(p => p.GetOutdoorPvP(map), m_OutdoorPvPDatas[outdoorPvpType], null);
-                if (pvp == null)
-                {
-                    Log.outError(LogFilter.Outdoorpvp, "Could not initialize OutdoorPvP object for type ID {0}; got NULL pointer from script.", outdoorPvpType);
-                    continue;
-                }
+			if (Global.DisableMgr.IsDisabledFor(DisableType.OutdoorPVP, (uint)typeId, null))
+				continue;
 
-                if (!pvp.SetupOutdoorPvP())
-                {
-                    Log.outError(LogFilter.Outdoorpvp, "Could not initialize OutdoorPvP object for type ID {0}; SetupOutdoorPvP failed.", outdoorPvpType);
-                    continue;
-                }
+			if (typeId >= OutdoorPvPTypes.Max)
+			{
+				Log.outError(LogFilter.Sql, "Invalid OutdoorPvPTypes value {0} in outdoorpvp_template; skipped.", typeId);
 
-                m_OutdoorPvPByMap.Add(map, pvp);
-            }
-        }
+				continue;
+			}
 
-        public void DestroyOutdoorPvPForMap(Map map)
-        {
-            m_OutdoorPvPByMap.Remove(map);
-        }
+			m_OutdoorPvPDatas[typeId] = Global.ObjectMgr.GetScriptId(result.Read<string>(1));
 
-        public void AddZone(uint zoneid, OutdoorPvP handle)
-        {
-            m_OutdoorPvPMap[(handle.GetMap(), zoneid)] = handle;
-        }
+			++count;
+		} while (result.NextRow());
 
-        public void HandlePlayerEnterZone(Player player, uint zoneid)
-        {
-            var outdoor = GetOutdoorPvPToZoneId(player.Map, zoneid);
-            if (outdoor == null)
-                return;
+		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+	}
 
-            if (outdoor.HasPlayer(player))
-                return;
+	public void CreateOutdoorPvPForMap(Map map)
+	{
+		for (var outdoorPvpType = OutdoorPvPTypes.HellfirePeninsula; outdoorPvpType < OutdoorPvPTypes.Max; ++outdoorPvpType)
+		{
+			if (map.Id != m_OutdoorMapIds[(int)outdoorPvpType])
+				continue;
 
-            outdoor.HandlePlayerEnterZone(player, zoneid);
-            Log.outDebug(LogFilter.Outdoorpvp, "Player {0} entered outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
-        }
+			if (!m_OutdoorPvPDatas.ContainsKey(outdoorPvpType))
+			{
+				Log.outError(LogFilter.Sql, "Could not initialize OutdoorPvP object for type ID {0}; no entry in database.", outdoorPvpType);
 
-        public void HandlePlayerLeaveZone(Player player, uint zoneid)
-        {
-            var outdoor = GetOutdoorPvPToZoneId(player.Map, zoneid);
-            if (outdoor == null)
-                return;
+				continue;
+			}
 
-            // teleport: remove once in removefromworld, once in updatezone
-            if (!outdoor.HasPlayer(player))
-                return;
+			var pvp = Global.ScriptMgr.RunScriptRet<IOutdoorPvPGetOutdoorPvP, OutdoorPvP>(p => p.GetOutdoorPvP(map), m_OutdoorPvPDatas[outdoorPvpType], null);
 
-            outdoor.HandlePlayerLeaveZone(player, zoneid);
-            Log.outDebug(LogFilter.Outdoorpvp, "Player {0} left outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
-        }
+			if (pvp == null)
+			{
+				Log.outError(LogFilter.Outdoorpvp, "Could not initialize OutdoorPvP object for type ID {0}; got NULL pointer from script.", outdoorPvpType);
 
-        public OutdoorPvP GetOutdoorPvPToZoneId(Map map, uint zoneid)
-        {
-            return m_OutdoorPvPMap.LookupByKey((map, zoneid));
-        }
+				continue;
+			}
 
-        public void Update(uint diff)
-        {
-            m_UpdateTimer += diff;
-            if (m_UpdateTimer > 1000)
-            {
-                foreach (var (_, outdoor) in m_OutdoorPvPByMap.KeyValueList)
-                    _threadTaskManager.Schedule(() => outdoor.Update(m_UpdateTimer));
+			if (!pvp.SetupOutdoorPvP())
+			{
+				Log.outError(LogFilter.Outdoorpvp, "Could not initialize OutdoorPvP object for type ID {0}; SetupOutdoorPvP failed.", outdoorPvpType);
 
-                _threadTaskManager.Wait();
-                m_UpdateTimer = 0;
-            }
-        }
+				continue;
+			}
 
-        public bool HandleCustomSpell(Player player, uint spellId, GameObject go)
-        {
-            OutdoorPvP pvp = player.GetOutdoorPvP();
-            if (pvp != null && pvp.HasPlayer(player))
-                return pvp.HandleCustomSpell(player, spellId, go);
+			m_OutdoorPvPByMap.Add(map, pvp);
+		}
+	}
 
-            return false;
-        }
+	public void DestroyOutdoorPvPForMap(Map map)
+	{
+		m_OutdoorPvPByMap.Remove(map);
+	}
 
-        public bool HandleOpenGo(Player player, GameObject go)
-        {
-            OutdoorPvP pvp = player.GetOutdoorPvP();
-            if (pvp != null && pvp.HasPlayer(player))
-                return pvp.HandleOpenGo(player, go);
+	public void AddZone(uint zoneid, OutdoorPvP handle)
+	{
+		m_OutdoorPvPMap[(handle.GetMap(), zoneid)] = handle;
+	}
 
-            return false;
-        }
+	public void HandlePlayerEnterZone(Player player, uint zoneid)
+	{
+		var outdoor = GetOutdoorPvPToZoneId(player.Map, zoneid);
 
-        public void HandleDropFlag(Player player, uint spellId)
-        {
-            OutdoorPvP pvp = player.GetOutdoorPvP();
-            if (pvp != null && pvp.HasPlayer(player))
-                pvp.HandleDropFlag(player, spellId);
-        }
+		if (outdoor == null)
+			return;
 
-        public void HandlePlayerResurrects(Player player, uint zoneid)
-        {
-            OutdoorPvP pvp = player.GetOutdoorPvP();
-            if (pvp != null && pvp.HasPlayer(player))
-                pvp.HandlePlayerResurrects(player, zoneid);
-        }
+		if (outdoor.HasPlayer(player))
+			return;
 
-        public string GetDefenseMessage(uint zoneId, uint id, Locale locale)
-        {
-            BroadcastTextRecord bct = CliDB.BroadcastTextStorage.LookupByKey(id);
-            if (bct != null)
-                return Global.DB2Mgr.GetBroadcastTextValue(bct, locale);
+		outdoor.HandlePlayerEnterZone(player, zoneid);
+		Log.outDebug(LogFilter.Outdoorpvp, "Player {0} entered outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
+	}
 
-            Log.outError(LogFilter.Outdoorpvp, "Can not find DefenseMessage (Zone: {0}, Id: {1}). BroadcastText (Id: {2}) does not exist.", zoneId, id, id);
-            return "";
-        }
+	public void HandlePlayerLeaveZone(Player player, uint zoneid)
+	{
+		var outdoor = GetOutdoorPvPToZoneId(player.Map, zoneid);
 
-        // contains all initiated outdoor pvp events
-        // used when initing / cleaning up
-        readonly MultiMap<Map, OutdoorPvP> m_OutdoorPvPByMap = new();
+		if (outdoor == null)
+			return;
 
-        // maps the zone ids to an outdoor pvp event
-        // used in player event handling
-        readonly Dictionary<(Map map, uint zoneId), OutdoorPvP> m_OutdoorPvPMap = new();
+		// teleport: remove once in removefromworld, once in updatezone
+		if (!outdoor.HasPlayer(player))
+			return;
 
-        // Holds the outdoor PvP templates
-        readonly uint[] m_OutdoorMapIds = { 0, 530, 530, 530, 530, 1 };
-        readonly Dictionary<OutdoorPvPTypes, uint> m_OutdoorPvPDatas = new();
+		outdoor.HandlePlayerLeaveZone(player, zoneid);
+		Log.outDebug(LogFilter.Outdoorpvp, "Player {0} left outdoorpvp id {1}", player.GUID.ToString(), outdoor.GetTypeId());
+	}
 
-        // update interval
-        uint m_UpdateTimer;
-    }
+	public OutdoorPvP GetOutdoorPvPToZoneId(Map map, uint zoneid)
+	{
+		return m_OutdoorPvPMap.LookupByKey((map, zoneid));
+	}
+
+	public void Update(uint diff)
+	{
+		m_UpdateTimer += diff;
+
+		if (m_UpdateTimer > 1000)
+		{
+			foreach (var (_, outdoor) in m_OutdoorPvPByMap.KeyValueList)
+				_threadTaskManager.Schedule(() => outdoor.Update(m_UpdateTimer));
+
+			_threadTaskManager.Wait();
+			m_UpdateTimer = 0;
+		}
+	}
+
+	public bool HandleCustomSpell(Player player, uint spellId, GameObject go)
+	{
+		var pvp = player.GetOutdoorPvP();
+
+		if (pvp != null && pvp.HasPlayer(player))
+			return pvp.HandleCustomSpell(player, spellId, go);
+
+		return false;
+	}
+
+	public bool HandleOpenGo(Player player, GameObject go)
+	{
+		var pvp = player.GetOutdoorPvP();
+
+		if (pvp != null && pvp.HasPlayer(player))
+			return pvp.HandleOpenGo(player, go);
+
+		return false;
+	}
+
+	public void HandleDropFlag(Player player, uint spellId)
+	{
+		var pvp = player.GetOutdoorPvP();
+
+		if (pvp != null && pvp.HasPlayer(player))
+			pvp.HandleDropFlag(player, spellId);
+	}
+
+	public void HandlePlayerResurrects(Player player, uint zoneid)
+	{
+		var pvp = player.GetOutdoorPvP();
+
+		if (pvp != null && pvp.HasPlayer(player))
+			pvp.HandlePlayerResurrects(player, zoneid);
+	}
+
+	public string GetDefenseMessage(uint zoneId, uint id, Locale locale)
+	{
+		var bct = CliDB.BroadcastTextStorage.LookupByKey(id);
+
+		if (bct != null)
+			return Global.DB2Mgr.GetBroadcastTextValue(bct, locale);
+
+		Log.outError(LogFilter.Outdoorpvp, "Can not find DefenseMessage (Zone: {0}, Id: {1}). BroadcastText (Id: {2}) does not exist.", zoneId, id, id);
+
+		return "";
+	}
 }

@@ -12,13 +12,13 @@ namespace Scripts.Spells.DeathKnight;
 [Script]
 public class spell_dk_runic_empowerment : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
-	public Class PlayerClass { get; } = Class.Deathknight;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Deathknight;
 
 	public spell_dk_runic_empowerment() : base("spell_dk_runic_empowerment") { }
 
 	public void OnModifyPower(Player p_Player, PowerType p_Power, int p_OldValue, ref int p_NewValue, bool p_Regen)
 	{
-		if (p_Player.Class != Class.Deathknight || p_Power != PowerType.RunicPower || p_Regen || p_NewValue > p_OldValue)
+		if (p_Player.Class != PlayerClass.Deathknight || p_Power != PowerType.RunicPower || p_Regen || p_NewValue > p_OldValue)
 			return;
 
 		var l_RunicEmpowerment = p_Player.GetAuraEffect(eSpells.RunicEmpowerment, 0);

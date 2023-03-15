@@ -40,7 +40,7 @@ public class AuctionsBucketData
 		{
 			foreach (var item in auction.Items)
 			{
-				bucketInfo.TotalQuantity += (int)item.GetCount();
+				bucketInfo.TotalQuantity += (int)item.Count;
 
 				if (Key.BattlePetSpeciesId != 0)
 				{

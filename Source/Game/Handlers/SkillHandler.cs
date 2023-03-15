@@ -3,114 +3,123 @@
 
 using System;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.LearnTalents, Processing = PacketProcessing.Inplace)]
-        void HandleLearnTalents(LearnTalents packet)
-        {
-            LearnTalentFailed learnTalentFailed = new();
-            bool anythingLearned = false;
-            foreach (uint talentId in packet.Talents)
-            {
-                TalentLearnResult result = _player.LearnTalent(talentId, ref learnTalentFailed.SpellID);
-                if (result != 0)
-                {
-                    if (learnTalentFailed.Reason == 0)
-                        learnTalentFailed.Reason = (uint)result;
+	[WorldPacketHandler(ClientOpcodes.LearnTalents, Processing = PacketProcessing.Inplace)]
+	void HandleLearnTalents(LearnTalents packet)
+	{
+		LearnTalentFailed learnTalentFailed = new();
+		var anythingLearned = false;
 
-                    learnTalentFailed.Talents.Add((ushort)talentId);
-                }
-                else
-                    anythingLearned = true;
-            }
+		foreach (uint talentId in packet.Talents)
+		{
+			var result = _player.LearnTalent(talentId, ref learnTalentFailed.SpellID);
 
-            if (learnTalentFailed.Reason != 0)
-                SendPacket(learnTalentFailed);
+			if (result != 0)
+			{
+				if (learnTalentFailed.Reason == 0)
+					learnTalentFailed.Reason = (uint)result;
 
-            if (anythingLearned)
-                Player.SendTalentsInfoData();
-        }
+				learnTalentFailed.Talents.Add((ushort)talentId);
+			}
+			else
+			{
+				anythingLearned = true;
+			}
+		}
 
-        [WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
-        void HandleLearnPvpTalents(LearnPvpTalents packet)
-        {
-            LearnPvpTalentFailed learnPvpTalentFailed = new();
-            bool anythingLearned = false;
-            foreach (var pvpTalent in packet.Talents)
-            {
-                TalentLearnResult result = _player.LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, ref learnPvpTalentFailed.SpellID);
-                if (result != 0)
-                {
-                    if (learnPvpTalentFailed.Reason == 0)
-                        learnPvpTalentFailed.Reason = (uint)result;
+		if (learnTalentFailed.Reason != 0)
+			SendPacket(learnTalentFailed);
 
-                    learnPvpTalentFailed.Talents.Add(pvpTalent);
-                }
-                else
-                    anythingLearned = true;
-            }
+		if (anythingLearned)
+			Player.SendTalentsInfoData();
+	}
 
-            if (learnPvpTalentFailed.Reason != 0)
-                SendPacket(learnPvpTalentFailed);
+	[WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
+	void HandleLearnPvpTalents(LearnPvpTalents packet)
+	{
+		LearnPvpTalentFailed learnPvpTalentFailed = new();
+		var anythingLearned = false;
 
-            if (anythingLearned)
-                _player.SendTalentsInfoData();
-        }
+		foreach (var pvpTalent in packet.Talents)
+		{
+			var result = _player.LearnPvpTalent(pvpTalent.PvPTalentID, pvpTalent.Slot, ref learnPvpTalentFailed.SpellID);
 
-        [WorldPacketHandler(ClientOpcodes.ConfirmRespecWipe)]
-        void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
-        {
-            Creature unit = Player.GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
-            if (unit == null)
-            {
-                Log.outDebug(LogFilter.Network, "WORLD: HandleTalentWipeConfirm - {0} not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString());
-                return;
-            }
+			if (result != 0)
+			{
+				if (learnPvpTalentFailed.Reason == 0)
+					learnPvpTalentFailed.Reason = (uint)result;
 
-            if (confirmRespecWipe.RespecType != SpecResetType.Talents)
-            {
-                Log.outDebug(LogFilter.Network, "WORLD: HandleConfirmRespecWipe - reset type {0} is not implemented.", confirmRespecWipe.RespecType);
-                return;
-            }
+				learnPvpTalentFailed.Talents.Add(pvpTalent);
+			}
+			else
+			{
+				anythingLearned = true;
+			}
+		}
 
-            if (!unit.CanResetTalents(_player))
-                return;
+		if (learnPvpTalentFailed.Reason != 0)
+			SendPacket(learnPvpTalentFailed);
 
-            // remove fake death
-            if (Player.HasUnitState(UnitState.Died))
-                Player.RemoveAurasByType(AuraType.FeignDeath);
+		if (anythingLearned)
+			_player.SendTalentsInfoData();
+	}
 
-            if (!Player.ResetTalents())
-                return;
+	[WorldPacketHandler(ClientOpcodes.ConfirmRespecWipe)]
+	void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
+	{
+		var unit = Player.GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
 
-            Player.SendTalentsInfoData();
-            unit.CastSpell(Player, 14867, true);                  //spell: "Untalent Visual Effect"
-        }
+		if (unit == null)
+		{
+			Log.outDebug(LogFilter.Network, "WORLD: HandleTalentWipeConfirm - {0} not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString());
 
-        [WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]
-        void HandleUnlearnSkill(UnlearnSkill packet)
-        {
-            SkillRaceClassInfoRecord rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(packet.SkillLine, Player.Race, Player.Class);
-            if (rcEntry == null || !rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.Unlearnable))
-                return;
+			return;
+		}
 
-            Player.SetSkill(packet.SkillLine, 0, 0, 0);
-        }
+		if (confirmRespecWipe.RespecType != SpecResetType.Talents)
+		{
+			Log.outDebug(LogFilter.Network, "WORLD: HandleConfirmRespecWipe - reset type {0} is not implemented.", confirmRespecWipe.RespecType);
 
-        [WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
-        void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
-        {
-            if (!_player.HasSpell(tradeSkillSetFavorite.RecipeID))
-                return;
+			return;
+		}
 
-            _player.SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
-        }
-    }
+		if (!unit.CanResetTalents(_player))
+			return;
+
+		// remove fake death
+		if (Player.HasUnitState(UnitState.Died))
+			Player.RemoveAurasByType(AuraType.FeignDeath);
+
+		if (!Player.ResetTalents())
+			return;
+
+		Player.SendTalentsInfoData();
+		unit.CastSpell(Player, 14867, true); //spell: "Untalent Visual Effect"
+	}
+
+	[WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]
+	void HandleUnlearnSkill(UnlearnSkill packet)
+	{
+		var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(packet.SkillLine, Player.Race, Player.Class);
+
+		if (rcEntry == null || !rcEntry.Flags.HasAnyFlag(SkillRaceClassInfoFlags.Unlearnable))
+			return;
+
+		Player.SetSkill(packet.SkillLine, 0, 0, 0);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
+	void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
+	{
+		if (!_player.HasSpell(tradeSkillSetFavorite.RecipeID))
+			return;
+
+		_player.SetSpellFavorite(tradeSkillSetFavorite.RecipeID, tradeSkillSetFavorite.IsFavorite);
+	}
 }

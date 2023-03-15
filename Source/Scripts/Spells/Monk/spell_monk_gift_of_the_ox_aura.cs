@@ -23,7 +23,7 @@ public class spell_monk_gift_of_the_ox_aura : ScriptObjectAutoAdd, IPlayerOnTake
 		MonkSpells.GIFT_OF_THE_OX_AT_LEFT
 	};
 
-	public Class PlayerClass { get; } = Class.Monk;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Monk;
 
 	public spell_monk_gift_of_the_ox_aura() : base("spell_monk_gift_of_the_ox_aura") { }
 

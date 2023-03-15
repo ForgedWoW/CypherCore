@@ -58,19 +58,19 @@ public class AuctionsBucketKey : IComparable<AuctionsBucketKey>
 
 	public static AuctionsBucketKey ForItem(Item item)
 	{
-		var itemTemplate = item.GetTemplate();
+		var itemTemplate = item.Template;
 
-		if (itemTemplate.GetMaxStackSize() == 1)
+		if (itemTemplate.MaxStackSize == 1)
 			return new AuctionsBucketKey(item.Entry,
-										(ushort)Item.GetItemLevel(itemTemplate, item.GetBonus(), 0, (uint)item.GetRequiredLevel(), 0, 0, 0, false, 0),
+										(ushort)Item.GetItemLevel(itemTemplate, item.BonusData, 0, (uint)item.GetRequiredLevel(), 0, 0, 0, false, 0),
 										(ushort)item.GetModifier(ItemModifier.BattlePetSpeciesId),
-										(ushort)item.GetBonus().Suffix);
+										(ushort)item.BonusData.Suffix);
 		else
 			return ForCommodity(itemTemplate);
 	}
 
 	public static AuctionsBucketKey ForCommodity(ItemTemplate itemTemplate)
 	{
-		return new AuctionsBucketKey(itemTemplate.GetId(), (ushort)itemTemplate.GetBaseItemLevel(), 0, 0);
+		return new AuctionsBucketKey(itemTemplate.Id, (ushort)itemTemplate.BaseItemLevel, 0, 0);
 	}
 }

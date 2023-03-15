@@ -7,379 +7,456 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
 
-namespace Game.Movement
+namespace Game.Movement;
+
+public class Spline<T>
 {
-    public class Spline<T>
-    {
-        public int GetPointCount() { return points.Length; }
-        public Vector3 GetPoint(int i) { return points[i]; }
-        public Vector3[] GetPoints() { return points; }
+	public EvaluationMode m_mode;
 
-        public void Clear()
-        {
-           Array.Clear(points, 0, points.Length);
-        }
-        public int First() { return index_lo; }
-        public int Last() { return index_hi; }
+	private static readonly Matrix4x4 s_catmullRomCoeffs = new(-0.5f, 1.5f, -1.5f, 0.5f, 1.0f, -2.5f, 2.0f, -0.5f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
 
-        public bool IsCyclic() { return _cyclic;}
-        
-        #region Evaluate
-        public void Evaluate_Percent(int Idx, float u, out Vector3 c) 
-        {            
-            switch (m_mode)
-            {
-                case EvaluationMode.Linear:
-                    EvaluateLinear(Idx, u, out c);
-                    break;
-                case EvaluationMode.Catmullrom:
-                    EvaluateCatmullRom(Idx, u, out c);
-                    break;
-                case EvaluationMode.Bezier3_Unused:
-                    EvaluateBezier3(Idx, u, out c);
-                    break;
-                default:
-                    c = new Vector3();
-                    break;
-            }
-        }
-        void EvaluateLinear(int index, float u, out Vector3 result)
-        {
-            result = points[index] + (points[index + 1] - points[index]) * u;
-        }
-        void EvaluateCatmullRom(int index, float t, out Vector3 result)
-        {
-            Span<Vector3> span = points;
-            C_Evaluate(span[(index - 1)..], t, s_catmullRomCoeffs, out result);
-        }
-        void EvaluateBezier3(int index, float t, out Vector3 result)
-        {
-            index *= (int)3u;
-            Span<Vector3> span = points;
-            C_Evaluate(span[index..], t, s_Bezier3Coeffs, out result);
-        }
-        #endregion
+	private static readonly Matrix4x4 s_Bezier3Coeffs = new(-1.0f, 3.0f, -3.0f, 1.0f, 3.0f, -6.0f, 3.0f, 0.0f, -3.0f, 3.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 
-        #region Init
-        public void InitSplineCustom(SplineRawInitializer initializer)
-        {
-            initializer.Initialize(ref m_mode, ref _cyclic, ref points, ref index_lo, ref index_hi);
-        }
-        public void InitCyclicSpline(Vector3[] controls, int count, EvaluationMode m, int cyclic_point, float orientation = 0f)
-        {
-            m_mode = m;
-            _cyclic = true;
+	T[] lengths = Array.Empty<T>();
+	Vector3[] points = Array.Empty<Vector3>();
+	bool _cyclic;
+	float initialOrientation;
 
-            InitSpline(controls, count, m, orientation);
-        }
-        public void InitSpline(Span<Vector3> controls, int count, EvaluationMode m, float orientation = 0f)
-        {
-            m_mode = m;
-            _cyclic = false;
-            initialOrientation = orientation;
+	// could be modified, affects segment length evaluation precision
+	// lesser value saves more performance in cost of lover precision
+	// minimal value is 1
+	// client's value is 20, blizzs use 2-3 steps to compute length
+	int stepsPerSegment = 3;
 
-            switch (m_mode)
-            {
-                case EvaluationMode.Linear:
-                case EvaluationMode.Catmullrom:
-                    InitCatmullRom(controls, count, _cyclic, 0);
-                    break;
-                case EvaluationMode.Bezier3_Unused:
-                    InitBezier3(controls, count, _cyclic, 0);
-                    break;
-                default:
-                    break;
-            }
-        }
-        void InitLinear(Vector3[] controls, int count, bool cyclic, int cyclic_point)
-        {
-            int real_size = count + 1;
+	int index_lo;
+	int index_hi;
 
-            Array.Resize(ref points, real_size);
-            Array.Copy(controls, points, count);
+	public int GetPointCount()
+	{
+		return points.Length;
+	}
 
-            // first and last two indexes are space for special 'virtual points'
-            // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
-            if (cyclic)
-                points[count] = controls[cyclic_point];
-            else
-                points[count] = controls[count - 1];
+	public Vector3 GetPoint(int i)
+	{
+		return points[i];
+	}
 
-            index_lo = 0;
-            index_hi = cyclic ? count : (count - 1);
-        }
-        void InitCatmullRom(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
-        {
-            int real_size = count + (cyclic ? (1 + 2) : (1 + 1));
+	public Vector3[] GetPoints()
+	{
+		return points;
+	}
 
-            points = new Vector3[real_size];
+	public void Clear()
+	{
+		Array.Clear(points, 0, points.Length);
+	}
 
-            int lo_index = 1;
-            int high_index = lo_index + count - 1;
+	public int First()
+	{
+		return index_lo;
+	}
 
-            Array.Copy(controls.ToArray(), 0, points, lo_index, count);
+	public int Last()
+	{
+		return index_hi;
+	}
 
-            // first and last two indexes are space for special 'virtual points'
-            // these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
-            if (cyclic)
-            {
-                if (cyclic_point == 0)
-                    points[0] = controls[count - 1];
-                else
-                    points[0] = controls[0] - new Vector3(MathF.Cos(initialOrientation), MathF.Sin(initialOrientation), 0.0f);
+	public bool IsCyclic()
+	{
+		return _cyclic;
+	}
 
-                points[high_index + 1] = controls[cyclic_point];
-                points[high_index + 2] = controls[cyclic_point + 1];
-            }
-            else
-            {
-                points[0] = controls[0] - new Vector3(MathF.Cos(initialOrientation), MathF.Sin(initialOrientation), 0.0f);
-                points[high_index + 1] = controls[count - 1];
-            }
+	public void set_steps_per_segment(int newStepsPerSegment)
+	{
+		stepsPerSegment = newStepsPerSegment;
+	}
 
-            index_lo = lo_index;
-            index_hi = high_index + (cyclic ? 1 : 0);
-        }
-        void InitBezier3(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
-        {
-            int c = (int)(count / 3u * 3u);
-            int t = (int)(c / 3u);
+	public void ComputeIndex(float t, ref int index, ref float u)
+	{
+		//ASSERT(t >= 0.f && t <= 1.f);
+		T length_ = t * (dynamic)Length();
+		index = ComputeIndexInBounds(length_);
+		//ASSERT(index < index_hi);
+		u = (float)(length_ - Length(index)) / (float)Length(index, index + 1);
+	}
 
-            Array.Resize(ref points, c);
-            Array.Copy(controls.ToArray(), points, c);
+	public dynamic Length()
+	{
+		if (lengths.Length == 0)
+			return default;
 
-            index_lo = 0;
-            index_hi = t - 1;
-        }
-        #endregion
+		return lengths[index_hi];
+	}
 
-        #region EvaluateDerivative
-        public void Evaluate_Derivative(int Idx, float u, out Vector3 hermite)
-        {
-            switch (m_mode)
-            {
-                case EvaluationMode.Linear:
-                    EvaluateDerivativeLinear(Idx, u, out hermite);
-                    break;
-                case EvaluationMode.Catmullrom:
-                    EvaluateDerivativeCatmullRom(Idx, u, out hermite);
-                    break;
-                case EvaluationMode.Bezier3_Unused:
-                    EvaluateDerivativeBezier3(Idx, u, out hermite);
-                    break;
-                default:
-                    hermite = new Vector3();
-                    break;
-            }
-        }
-        void EvaluateDerivativeLinear(int index, float t, out Vector3 result)
-        {
-            result = points[index + 1] - points[index];
-        }
-        void EvaluateDerivativeCatmullRom(int index, float t, out Vector3 result)
-        {
-            Span<Vector3> span = points;
-            C_Evaluate_Derivative(span[(index - 1)..], t, s_catmullRomCoeffs, out result);
-        }
-        void EvaluateDerivativeBezier3(int index, float t, out Vector3 result)
-        {
-            index *= (int)3u;
-            Span<Vector3> span = points;
-            C_Evaluate_Derivative(span[index..], t, s_Bezier3Coeffs, out result);
-        }
-        #endregion
-        
-        #region SegLength
-        public float SegLength(int i)
-        {
-            switch (m_mode)
-            {
-                case EvaluationMode.Linear:
-                    return SegLengthLinear(i);
-                case EvaluationMode.Catmullrom:
-                    return SegLengthCatmullRom(i);
-                case EvaluationMode.Bezier3_Unused:
-                    return SegLengthBezier3(i);
-                default:
-                    return 0;
-            }
-        }
-        float SegLengthLinear(int index)
-        {
-            return (points[index] - points[index + 1]).Length();
-        }
-        float SegLengthCatmullRom(int index)
-        {
-            Span<Vector3> p = points.AsSpan(index - 1);
-            Vector3 curPos = p[1];
+	public dynamic Length(int first, int last)
+	{
+		return lengths[last] - (dynamic)lengths[first];
+	}
 
-            int i = 1;
-            double length = 0;
-            while (i <= stepsPerSegment)
-            {
-                C_Evaluate(p, i / (float)stepsPerSegment, s_catmullRomCoeffs, out Vector3 nextPos);
-                length += (nextPos - curPos).Length();
-                curPos = nextPos;
-                ++i;
-            }
-            return (float)length;
-        }
-        float SegLengthBezier3(int index)
-        {
-            index *= (int)3u;
+	public dynamic Length(int Idx)
+	{
+		return lengths[Idx];
+	}
 
-            Span<Vector3> p = points.AsSpan(index);
+	public void Set_length(int i, T length)
+	{
+		lengths[i] = length;
+	}
 
-            C_Evaluate(p, 0.0f, s_Bezier3Coeffs, out Vector3 nextPos);
-            Vector3 curPos = nextPos;
+	public void InitLengths(IInitializer<T> cacher)
+	{
+		var i = index_lo;
+		Array.Resize(ref lengths, index_hi + 1);
+		T prev_length;
+		T new_length;
 
-            int i = 1;
-            double length = 0;
-            while (i <= stepsPerSegment)
-            {
-                C_Evaluate(p, i / (float)stepsPerSegment, s_Bezier3Coeffs, out nextPos);
-                length += (nextPos - curPos).Length();
-                curPos = nextPos;
-                ++i;
-            }
-            return (float)length;
-        }
-        #endregion
+		while (i < index_hi)
+		{
+			new_length = (dynamic)cacher.Invoke(this, i);
 
-        public void set_steps_per_segment(int newStepsPerSegment) { stepsPerSegment = newStepsPerSegment; }
+			if ((dynamic)new_length < 0) // todo fix me this is a ulgy hack.
+				new_length = (dynamic)(Type.GetTypeCode(typeof(T)) == TypeCode.Int32 ? int.MaxValue : double.MaxValue);
 
-        public void ComputeIndex(float t, ref int index, ref float u)
-        {
-            //ASSERT(t >= 0.f && t <= 1.f);
-            T length_ = t * (dynamic)Length();
-            index = ComputeIndexInBounds(length_);
-            //ASSERT(index < index_hi);
-            u = (float)(length_ - Length(index)) / (float)Length(index, index + 1);
-        }
+			lengths[++i] = new_length;
 
-        int ComputeIndexInBounds(T length_)
-        {
-            // Temporary disabled: causes infinite loop with t = 1.f
-            /*
-                index_type hi = index_hi;
-                index_type lo = index_lo;
+			prev_length = new_length;
+		}
+	}
 
-                index_type i = lo + (float)(hi - lo) * t;
+	public void InitLengths()
+	{
+		var i = index_lo;
+		dynamic length = default(T);
+		Array.Resize(ref lengths, index_hi + 1);
 
-                while ((lengths[i] > length) || (lengths[i + 1] <= length))
-                {
-                    if (lengths[i] > length)
-                        hi = i - 1; // too big
-                    else if (lengths[i + 1] <= length)
-                        lo = i + 1; // too small
+		while (i < index_hi)
+		{
+			length += (int)SegLength(i);
+			lengths[++i] = length;
+		}
+	}
 
-                    i = (hi + lo) / 2;
-                }*/
+	public bool Empty()
+	{
+		return index_lo == index_hi;
+	}
 
-            int i = index_lo;
-            int N = index_hi;
-            while (i + 1 < N && (dynamic)lengths[i + 1] < length_)
-                ++i;
+	int ComputeIndexInBounds(T length_)
+	{
+		// Temporary disabled: causes infinite loop with t = 1.f
+		/*
+			index_type hi = index_hi;
+			index_type lo = index_lo;
 
-            return i;
-        }
+			index_type i = lo + (float)(hi - lo) * t;
 
-        private static readonly Matrix4x4 s_catmullRomCoeffs = new(-0.5f, 1.5f, -1.5f, 0.5f, 1.0f, -2.5f, 2.0f, -0.5f, -0.5f, 0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+			while ((lengths[i] > length) || (lengths[i + 1] <= length))
+			{
+				if (lengths[i] > length)
+					hi = i - 1; // too big
+				else if (lengths[i + 1] <= length)
+					lo = i + 1; // too small
 
-        private static readonly Matrix4x4 s_Bezier3Coeffs = new(-1.0f, 3.0f, -3.0f, 1.0f, 3.0f, -6.0f, 3.0f, 0.0f, -3.0f, 3.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+				i = (hi + lo) / 2;
+			}*/
 
-        void C_Evaluate(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
-        {
-            Vector4 tvec = new(t * t * t, t * t, t, 1.0f);
-            Vector4 weights = Vector4.Transform(tvec, matr);
+		var i = index_lo;
+		var N = index_hi;
 
-            result = vertice[0] * weights.X + vertice[1] * weights.Y
-                   + vertice[2] * weights.Z + vertice[3] * weights.W;
-        }
-        void C_Evaluate_Derivative(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
-        {
-            Vector4 tvec = new(3.0f * t * t, 2.0f * t, 1.0f, 0.0f);
-            Vector4 weights = Vector4.Transform(tvec, matr);
+		while (i + 1 < N && (dynamic)lengths[i + 1] < length_)
+			++i;
 
-            result = vertice[0] * weights.X + vertice[1] * weights.Y
-                   + vertice[2] * weights.Z + vertice[3] * weights.W;
-        }
+		return i;
+	}
 
-        public dynamic Length()
-        {
-            if (lengths.Length == 0)
-                return default;
+	void C_Evaluate(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
+	{
+		Vector4 tvec = new(t * t * t, t * t, t, 1.0f);
+		var weights = Vector4.Transform(tvec, matr);
 
-            return lengths[index_hi];
-        }
+		result = vertice[0] * weights.X + vertice[1] * weights.Y + vertice[2] * weights.Z + vertice[3] * weights.W;
+	}
 
-        public dynamic Length(int first, int last) { return lengths[last] - (dynamic)lengths[first]; }
+	void C_Evaluate_Derivative(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
+	{
+		Vector4 tvec = new(3.0f * t * t, 2.0f * t, 1.0f, 0.0f);
+		var weights = Vector4.Transform(tvec, matr);
 
-        public dynamic Length(int Idx) { return lengths[Idx]; }
+		result = vertice[0] * weights.X + vertice[1] * weights.Y + vertice[2] * weights.Z + vertice[3] * weights.W;
+	}
 
-        public void Set_length(int i, T length) { lengths[i] = length; }
+	#region Evaluate
 
-        public void InitLengths(IInitializer<T> cacher)
-        {
-            int i = index_lo;
-            Array.Resize(ref lengths, index_hi+1);
-            T prev_length;
-            T new_length;
-            while (i < index_hi)
-            {
-                new_length = (dynamic)cacher.Invoke(this, i);
-                if ((dynamic)new_length < 0)// todo fix me this is a ulgy hack.
-                    new_length = (dynamic)(Type.GetTypeCode(typeof(T)) == TypeCode.Int32 ? int.MaxValue : double.MaxValue);
-                lengths[++i] = new_length;
+	public void Evaluate_Percent(int Idx, float u, out Vector3 c)
+	{
+		switch (m_mode)
+		{
+			case EvaluationMode.Linear:
+				EvaluateLinear(Idx, u, out c);
 
-                prev_length = new_length;
-            }
-        }
+				break;
+			case EvaluationMode.Catmullrom:
+				EvaluateCatmullRom(Idx, u, out c);
 
-        public void InitLengths()
-        {
-            int i = index_lo;
-            dynamic length = default(T);
-            Array.Resize(ref lengths, index_hi + 1);
-            while (i < index_hi)
-            {
-                length += (int)SegLength(i);
-                lengths[++i] = length;
-            }
-        }
+				break;
+			case EvaluationMode.Bezier3_Unused:
+				EvaluateBezier3(Idx, u, out c);
 
-        public bool Empty() { return index_lo == index_hi;}
+				break;
+			default:
+				c = new Vector3();
 
-        T[] lengths = Array.Empty<T>();
-        Vector3[] points = Array.Empty<Vector3>();
-        public EvaluationMode m_mode;
-        bool _cyclic;
-        float initialOrientation;
+				break;
+		}
+	}
 
-        // could be modified, affects segment length evaluation precision
-        // lesser value saves more performance in cost of lover precision
-        // minimal value is 1
-        // client's value is 20, blizzs use 2-3 steps to compute length
-        int stepsPerSegment = 3;
+	void EvaluateLinear(int index, float u, out Vector3 result)
+	{
+		result = points[index] + (points[index + 1] - points[index]) * u;
+	}
 
-        int index_lo;
-        int index_hi;
-    }
+	void EvaluateCatmullRom(int index, float t, out Vector3 result)
+	{
+		Span<Vector3> span = points;
+		C_Evaluate(span[(index - 1)..], t, s_catmullRomCoeffs, out result);
+	}
 
-    public class FacingInfo
-    {
-        public Vector3 f;
-        public ObjectGuid target;
-        public float angle;
-        public MonsterMoveType type;
-    }
+	void EvaluateBezier3(int index, float t, out Vector3 result)
+	{
+		index *= (int)3u;
+		Span<Vector3> span = points;
+		C_Evaluate(span[index..], t, s_Bezier3Coeffs, out result);
+	}
 
-    public enum EvaluationMode
-    {
-        Linear,
-        Catmullrom,
-        Bezier3_Unused,
-        UninitializedMode,
-        ModesEnd
-    }
+	#endregion
+
+	#region Init
+
+	public void InitSplineCustom(SplineRawInitializer initializer)
+	{
+		initializer.Initialize(ref m_mode, ref _cyclic, ref points, ref index_lo, ref index_hi);
+	}
+
+	public void InitCyclicSpline(Vector3[] controls, int count, EvaluationMode m, int cyclic_point, float orientation = 0f)
+	{
+		m_mode = m;
+		_cyclic = true;
+
+		InitSpline(controls, count, m, orientation);
+	}
+
+	public void InitSpline(Span<Vector3> controls, int count, EvaluationMode m, float orientation = 0f)
+	{
+		m_mode = m;
+		_cyclic = false;
+		initialOrientation = orientation;
+
+		switch (m_mode)
+		{
+			case EvaluationMode.Linear:
+			case EvaluationMode.Catmullrom:
+				InitCatmullRom(controls, count, _cyclic, 0);
+
+				break;
+			case EvaluationMode.Bezier3_Unused:
+				InitBezier3(controls, count, _cyclic, 0);
+
+				break;
+			default:
+				break;
+		}
+	}
+
+	void InitLinear(Vector3[] controls, int count, bool cyclic, int cyclic_point)
+	{
+		var real_size = count + 1;
+
+		Array.Resize(ref points, real_size);
+		Array.Copy(controls, points, count);
+
+		// first and last two indexes are space for special 'virtual points'
+		// these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
+		if (cyclic)
+			points[count] = controls[cyclic_point];
+		else
+			points[count] = controls[count - 1];
+
+		index_lo = 0;
+		index_hi = cyclic ? count : (count - 1);
+	}
+
+	void InitCatmullRom(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
+	{
+		var real_size = count + (cyclic ? (1 + 2) : (1 + 1));
+
+		points = new Vector3[real_size];
+
+		var lo_index = 1;
+		var high_index = lo_index + count - 1;
+
+		Array.Copy(controls.ToArray(), 0, points, lo_index, count);
+
+		// first and last two indexes are space for special 'virtual points'
+		// these points are required for proper C_Evaluate and C_Evaluate_Derivative methtod work
+		if (cyclic)
+		{
+			if (cyclic_point == 0)
+				points[0] = controls[count - 1];
+			else
+				points[0] = controls[0] - new Vector3(MathF.Cos(initialOrientation), MathF.Sin(initialOrientation), 0.0f);
+
+			points[high_index + 1] = controls[cyclic_point];
+			points[high_index + 2] = controls[cyclic_point + 1];
+		}
+		else
+		{
+			points[0] = controls[0] - new Vector3(MathF.Cos(initialOrientation), MathF.Sin(initialOrientation), 0.0f);
+			points[high_index + 1] = controls[count - 1];
+		}
+
+		index_lo = lo_index;
+		index_hi = high_index + (cyclic ? 1 : 0);
+	}
+
+	void InitBezier3(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
+	{
+		var c = (int)(count / 3u * 3u);
+		var t = (int)(c / 3u);
+
+		Array.Resize(ref points, c);
+		Array.Copy(controls.ToArray(), points, c);
+
+		index_lo = 0;
+		index_hi = t - 1;
+	}
+
+	#endregion
+
+	#region EvaluateDerivative
+
+	public void Evaluate_Derivative(int Idx, float u, out Vector3 hermite)
+	{
+		switch (m_mode)
+		{
+			case EvaluationMode.Linear:
+				EvaluateDerivativeLinear(Idx, u, out hermite);
+
+				break;
+			case EvaluationMode.Catmullrom:
+				EvaluateDerivativeCatmullRom(Idx, u, out hermite);
+
+				break;
+			case EvaluationMode.Bezier3_Unused:
+				EvaluateDerivativeBezier3(Idx, u, out hermite);
+
+				break;
+			default:
+				hermite = new Vector3();
+
+				break;
+		}
+	}
+
+	void EvaluateDerivativeLinear(int index, float t, out Vector3 result)
+	{
+		result = points[index + 1] - points[index];
+	}
+
+	void EvaluateDerivativeCatmullRom(int index, float t, out Vector3 result)
+	{
+		Span<Vector3> span = points;
+		C_Evaluate_Derivative(span[(index - 1)..], t, s_catmullRomCoeffs, out result);
+	}
+
+	void EvaluateDerivativeBezier3(int index, float t, out Vector3 result)
+	{
+		index *= (int)3u;
+		Span<Vector3> span = points;
+		C_Evaluate_Derivative(span[index..], t, s_Bezier3Coeffs, out result);
+	}
+
+	#endregion
+
+	#region SegLength
+
+	public float SegLength(int i)
+	{
+		switch (m_mode)
+		{
+			case EvaluationMode.Linear:
+				return SegLengthLinear(i);
+			case EvaluationMode.Catmullrom:
+				return SegLengthCatmullRom(i);
+			case EvaluationMode.Bezier3_Unused:
+				return SegLengthBezier3(i);
+			default:
+				return 0;
+		}
+	}
+
+	float SegLengthLinear(int index)
+	{
+		return (points[index] - points[index + 1]).Length();
+	}
+
+	float SegLengthCatmullRom(int index)
+	{
+		var p = points.AsSpan(index - 1);
+		var curPos = p[1];
+
+		var i = 1;
+		double length = 0;
+
+		while (i <= stepsPerSegment)
+		{
+			C_Evaluate(p, i / (float)stepsPerSegment, s_catmullRomCoeffs, out var nextPos);
+			length += (nextPos - curPos).Length();
+			curPos = nextPos;
+			++i;
+		}
+
+		return (float)length;
+	}
+
+	float SegLengthBezier3(int index)
+	{
+		index *= (int)3u;
+
+		var p = points.AsSpan(index);
+
+		C_Evaluate(p, 0.0f, s_Bezier3Coeffs, out var nextPos);
+		var curPos = nextPos;
+
+		var i = 1;
+		double length = 0;
+
+		while (i <= stepsPerSegment)
+		{
+			C_Evaluate(p, i / (float)stepsPerSegment, s_Bezier3Coeffs, out nextPos);
+			length += (nextPos - curPos).Length();
+			curPos = nextPos;
+			++i;
+		}
+
+		return (float)length;
+	}
+
+	#endregion
+}
+
+public class FacingInfo
+{
+	public Vector3 f;
+	public ObjectGuid target;
+	public float angle;
+	public MonsterMoveType type;
+}
+
+public enum EvaluationMode
+{
+	Linear,
+	Catmullrom,
+	Bezier3_Unused,
+	UninitializedMode,
+	ModesEnd
 }

@@ -198,9 +198,9 @@ public partial class Unit : WorldObject
 	}
 
 
-	public Class Class
+	public PlayerClass Class
 	{
-		get => (Class)(byte)UnitData.ClassId;
+		get => (PlayerClass)(byte)UnitData.ClassId;
 		set => SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ClassId), (byte)value);
 	}
 
@@ -1970,7 +1970,7 @@ public partial class Unit : WorldObject
 
 						if (powerDisplay != null)
 							displayPower = (PowerType)powerDisplay.ActualType;
-						else if (Class == Class.Rogue)
+						else if (Class == PlayerClass.Rogue)
 							displayPower = PowerType.Energy;
 					}
 					else
@@ -2134,7 +2134,7 @@ public partial class Unit : WorldObject
 		var race = Race;
 
 		/* pandaren death knight (basically same thing as allied death knight) */
-		if ((race == Race.PandarenAlliance || race == Race.PandarenHorde || race == Race.PandarenNeutral) && Class == Class.Deathknight)
+		if ((race == Race.PandarenAlliance || race == Race.PandarenHorde || race == Race.PandarenNeutral) && Class == PlayerClass.Deathknight)
 			return true;
 
 		/* other allied races */
@@ -3972,7 +3972,7 @@ public partial class Unit : WorldObject
 		if (MathFunctions.fuzzyLe(armor, 0.0f))
 			return damage;
 
-		var attackerClass = Class.Warrior;
+		var attackerClass = PlayerClass.Warrior;
 
 		if (attacker != null)
 		{
@@ -4596,7 +4596,7 @@ public partial class Unit : WorldObject
 			var currentSpell = CurrentSpells[CurrentSpellTypes.AutoRepeat];
 
 			if (currentSpell != null)
-			{ 
+			{
 				var result = currentSpell.CheckCast(true);
 
 				if (result != SpellCastResult.SpellCastOk)
@@ -4605,6 +4605,7 @@ public partial class Unit : WorldObject
 						InterruptSpell(CurrentSpellTypes.AutoRepeat);
 					else if (TypeId == TypeId.Player)
 						Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, currentSpell.SpellVisual, currentSpell.CastId, result);
+
 					return;
 				}
 

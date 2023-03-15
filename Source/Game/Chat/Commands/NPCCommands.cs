@@ -138,7 +138,7 @@ class NPCCommands
 		handler.SendSysMessage(CypherStrings.NpcinfoDynamicFlags, target.DynamicFlags);
 		handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
 		handler.SendSysMessage(CypherStrings.NpcinfoLoot, cInfo.LootId, cInfo.PickPocketId, cInfo.SkinLootId);
-		handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.InstanceId1);
+		handler.SendSysMessage(CypherStrings.NpcinfoDungeonId, target.InstanceId);
 
 		var data = Global.ObjectMgr.GetCreatureData(target.SpawnId);
 
@@ -579,7 +579,7 @@ class NPCCommands
 
 		handler.SendSysMessage(alternateString ? CypherStrings.CommandNpcShowlootEntry2 : CypherStrings.CommandNpcShowlootEntry,
 								itemCount,
-								ItemConst.ItemQualityColors[(int)(itemTemplate != null ? itemTemplate.GetQuality() : ItemQuality.Poor)],
+								ItemConst.ItemQualityColors[(int)(itemTemplate != null ? itemTemplate.Quality : ItemQuality.Poor)],
 								itemId,
 								name,
 								itemId);

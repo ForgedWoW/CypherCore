@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Game.AI;
 using Game.Scripting.BaseScripts;
 using Game.Scripting.Interfaces;
 

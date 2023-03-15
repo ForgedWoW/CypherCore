@@ -10,255 +10,276 @@ using Game.Maps;
 
 public class ObjectAccessor : Singleton<ObjectAccessor>
 {
-    readonly object _lockObject = new();
-    readonly Dictionary<ObjectGuid, Player> _players = new();
+	readonly object _lockObject = new();
+	readonly Dictionary<ObjectGuid, Player> _players = new();
 
-    ObjectAccessor() { }
+	ObjectAccessor() { }
 
-    public WorldObject GetWorldObject(WorldObject p, ObjectGuid guid)
-    {
-        switch (guid.High)
-        {
-            case HighGuid.Player:
-                return GetPlayer(p, guid);
-            case HighGuid.Transport:
-            case HighGuid.GameObject:
-                return GetGameObject(p, guid);
-            case HighGuid.Vehicle:
-            case HighGuid.Creature:
-                return GetCreature(p, guid);
-            case HighGuid.Pet:
-                return GetPet(p, guid);
-            case HighGuid.DynamicObject:
-                return GetDynamicObject(p, guid);
-            case HighGuid.AreaTrigger:
-                return GetAreaTrigger(p, guid);
-            case HighGuid.Corpse:
-                return GetCorpse(p, guid);
-            case HighGuid.SceneObject:
-                return GetSceneObject(p, guid);
-            case HighGuid.Conversation:
-                return GetConversation(p, guid);
-            default:
-                return null;
-        }
-    }
+	public WorldObject GetWorldObject(WorldObject p, ObjectGuid guid)
+	{
+		switch (guid.High)
+		{
+			case HighGuid.Player:
+				return GetPlayer(p, guid);
+			case HighGuid.Transport:
+			case HighGuid.GameObject:
+				return GetGameObject(p, guid);
+			case HighGuid.Vehicle:
+			case HighGuid.Creature:
+				return GetCreature(p, guid);
+			case HighGuid.Pet:
+				return GetPet(p, guid);
+			case HighGuid.DynamicObject:
+				return GetDynamicObject(p, guid);
+			case HighGuid.AreaTrigger:
+				return GetAreaTrigger(p, guid);
+			case HighGuid.Corpse:
+				return GetCorpse(p, guid);
+			case HighGuid.SceneObject:
+				return GetSceneObject(p, guid);
+			case HighGuid.Conversation:
+				return GetConversation(p, guid);
+			default:
+				return null;
+		}
+	}
 
-    public WorldObject GetObjectByTypeMask(WorldObject p, ObjectGuid guid, TypeMask typemask)
-    {
-        switch (guid.High)
-        {
-            case HighGuid.Item:
-                if (typemask.HasAnyFlag(TypeMask.Item) && p.IsTypeId(TypeId.Player))
-                    return ((Player)p).GetItemByGuid(guid);
-                break;
-            case HighGuid.Player:
-                if (typemask.HasAnyFlag(TypeMask.Player))
-                    return GetPlayer(p, guid);
-                break;
-            case HighGuid.Transport:
-            case HighGuid.GameObject:
-                if (typemask.HasAnyFlag(TypeMask.GameObject))
-                    return GetGameObject(p, guid);
-                break;
-            case HighGuid.Creature:
-            case HighGuid.Vehicle:
-                if (typemask.HasAnyFlag(TypeMask.Unit))
-                    return GetCreature(p, guid);
-                break;
-            case HighGuid.Pet:
-                if (typemask.HasAnyFlag(TypeMask.Unit))
-                    return GetPet(p, guid);
-                break;
-            case HighGuid.DynamicObject:
-                if (typemask.HasAnyFlag(TypeMask.DynamicObject))
-                    return GetDynamicObject(p, guid);
-                break;
-            case HighGuid.AreaTrigger:
-                if (typemask.HasAnyFlag(TypeMask.AreaTrigger))
-                    return GetAreaTrigger(p, guid);
-                break;
-            case HighGuid.SceneObject:
-                if (typemask.HasAnyFlag(TypeMask.SceneObject))
-                    return GetSceneObject(p, guid);
-                break;
-            case HighGuid.Conversation:
-                if (typemask.HasAnyFlag(TypeMask.Conversation))
-                    return GetConversation(p, guid);
-                break;
-            case HighGuid.Corpse:
-                break;
-        }
+	public WorldObject GetObjectByTypeMask(WorldObject p, ObjectGuid guid, TypeMask typemask)
+	{
+		switch (guid.High)
+		{
+			case HighGuid.Item:
+				if (typemask.HasAnyFlag(TypeMask.Item) && p.IsTypeId(TypeId.Player))
+					return ((Player)p).GetItemByGuid(guid);
 
-        return null;
-    }
+				break;
+			case HighGuid.Player:
+				if (typemask.HasAnyFlag(TypeMask.Player))
+					return GetPlayer(p, guid);
 
-    public static Corpse GetCorpse(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetCorpse(guid);
-    }
+				break;
+			case HighGuid.Transport:
+			case HighGuid.GameObject:
+				if (typemask.HasAnyFlag(TypeMask.GameObject))
+					return GetGameObject(p, guid);
 
-    public static GameObject GetGameObject(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetGameObject(guid);
-    }
+				break;
+			case HighGuid.Creature:
+			case HighGuid.Vehicle:
+				if (typemask.HasAnyFlag(TypeMask.Unit))
+					return GetCreature(p, guid);
 
-    public static Transport GetTransport(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetTransport(guid);
-    }
+				break;
+			case HighGuid.Pet:
+				if (typemask.HasAnyFlag(TypeMask.Unit))
+					return GetPet(p, guid);
 
-    static DynamicObject GetDynamicObject(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetDynamicObject(guid);
-    }
+				break;
+			case HighGuid.DynamicObject:
+				if (typemask.HasAnyFlag(TypeMask.DynamicObject))
+					return GetDynamicObject(p, guid);
 
-    static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetAreaTrigger(guid);
-    }
+				break;
+			case HighGuid.AreaTrigger:
+				if (typemask.HasAnyFlag(TypeMask.AreaTrigger))
+					return GetAreaTrigger(p, guid);
 
-    static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetSceneObject(guid);
-    }
-    
-    public static Conversation GetConversation(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetConversation(guid);
-    }
+				break;
+			case HighGuid.SceneObject:
+				if (typemask.HasAnyFlag(TypeMask.SceneObject))
+					return GetSceneObject(p, guid);
 
-    public Unit GetUnit(WorldObject u, ObjectGuid guid)
-    {
-        if (guid.IsPlayer)
-            return GetPlayer(u, guid);
+				break;
+			case HighGuid.Conversation:
+				if (typemask.HasAnyFlag(TypeMask.Conversation))
+					return GetConversation(p, guid);
 
-        if (guid.IsPet)
-            return GetPet(u, guid);
+				break;
+			case HighGuid.Corpse:
+				break;
+		}
 
-        return GetCreature(u, guid);
-    }
+		return null;
+	}
 
-    public static Creature GetCreature(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetCreature(guid);
-    }
+	public static Corpse GetCorpse(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetCorpse(guid);
+	}
 
-    public static Pet GetPet(WorldObject u, ObjectGuid guid)
-    {
-        return u.Map.GetPet(guid);
-    }
+	public static GameObject GetGameObject(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetGameObject(guid);
+	}
 
-    public Player GetPlayer(Map m, ObjectGuid guid)
-    {
-        Player player = _players.LookupByKey(guid);
-        if (player)
-            if (player.IsInWorld && player.Map == m)
-                return player;
+	public static Transport GetTransport(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetTransport(guid);
+	}
 
-        return null;
-    }
+	public static Conversation GetConversation(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetConversation(guid);
+	}
 
-    public Player GetPlayer(WorldObject u, ObjectGuid guid)
-    {
-        return GetPlayer(u.Map, guid);
-    }
+	public Unit GetUnit(WorldObject u, ObjectGuid guid)
+	{
+		if (guid.IsPlayer)
+			return GetPlayer(u, guid);
 
-    public static Creature GetCreatureOrPetOrVehicle(WorldObject u, ObjectGuid guid)
-    {
-        if (guid.IsPet)
-            return GetPet(u, guid);
+		if (guid.IsPet)
+			return GetPet(u, guid);
 
-        if (guid.IsCreatureOrVehicle)
-            return GetCreature(u, guid);
+		return GetCreature(u, guid);
+	}
 
-        return null;
-    }
+	public static Creature GetCreature(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetCreature(guid);
+	}
 
-    // these functions return objects if found in whole world
-    // ACCESS LIKE THAT IS NOT THREAD SAFE
-    public Player FindPlayer(ObjectGuid guid)
-    {
-        Player player = FindConnectedPlayer(guid);
-        return player && player.IsInWorld ? player : null;
-    }
-    public Player FindPlayerByName(string name)
-    {
-        Player player = PlayerNameMapHolder.Find(name);
-        if (!player || !player.IsInWorld)
-            return null;
+	public static Pet GetPet(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetPet(guid);
+	}
 
-        return player;
-    }
-    public Player FindPlayerByLowGUID(ulong lowguid)
-    {
-        ObjectGuid guid = ObjectGuid.Create(HighGuid.Player, lowguid);
-        return FindPlayer(guid);
-    }
-    // this returns Player even if he is not in world, for example teleporting
-    public Player FindConnectedPlayer(ObjectGuid guid)
-    {
-        lock (_lockObject)
-            return _players.LookupByKey(guid);
-    }
-    public Player FindConnectedPlayerByName(string name)
-    {
-        return PlayerNameMapHolder.Find(name);
-    }
+	public Player GetPlayer(Map m, ObjectGuid guid)
+	{
+		var player = _players.LookupByKey(guid);
 
-    public void SaveAllPlayers()
-    {
-        lock (_lockObject)
-        {
-            foreach (var pl in GetPlayers())
-                pl.SaveToDB();
-        }
-    }
+		if (player)
+			if (player.IsInWorld && player.Map == m)
+				return player;
 
-    public ICollection<Player> GetPlayers()
-    {
-        lock (_lockObject)
-            return _players.Values;
-    }
+		return null;
+	}
 
-    public void AddObject(Player obj)
-    {
-        lock (_lockObject)
-        {
-            PlayerNameMapHolder.Insert(obj);
-            _players[obj.GUID] = obj;
-        }
-    }
+	public Player GetPlayer(WorldObject u, ObjectGuid guid)
+	{
+		return GetPlayer(u.Map, guid);
+	}
 
-    public void RemoveObject(Player obj)
-    {
-        lock (_lockObject)
-        {
-            PlayerNameMapHolder.Remove(obj);
-            _players.Remove(obj.GUID);
-        }
-    }
+	public static Creature GetCreatureOrPetOrVehicle(WorldObject u, ObjectGuid guid)
+	{
+		if (guid.IsPet)
+			return GetPet(u, guid);
+
+		if (guid.IsCreatureOrVehicle)
+			return GetCreature(u, guid);
+
+		return null;
+	}
+
+	// these functions return objects if found in whole world
+	// ACCESS LIKE THAT IS NOT THREAD SAFE
+	public Player FindPlayer(ObjectGuid guid)
+	{
+		var player = FindConnectedPlayer(guid);
+
+		return player && player.IsInWorld ? player : null;
+	}
+
+	public Player FindPlayerByName(string name)
+	{
+		var player = PlayerNameMapHolder.Find(name);
+
+		if (!player || !player.IsInWorld)
+			return null;
+
+		return player;
+	}
+
+	public Player FindPlayerByLowGUID(ulong lowguid)
+	{
+		var guid = ObjectGuid.Create(HighGuid.Player, lowguid);
+
+		return FindPlayer(guid);
+	}
+
+	// this returns Player even if he is not in world, for example teleporting
+	public Player FindConnectedPlayer(ObjectGuid guid)
+	{
+		lock (_lockObject)
+		{
+			return _players.LookupByKey(guid);
+		}
+	}
+
+	public Player FindConnectedPlayerByName(string name)
+	{
+		return PlayerNameMapHolder.Find(name);
+	}
+
+	public void SaveAllPlayers()
+	{
+		lock (_lockObject)
+		{
+			foreach (var pl in GetPlayers())
+				pl.SaveToDB();
+		}
+	}
+
+	public ICollection<Player> GetPlayers()
+	{
+		lock (_lockObject)
+		{
+			return _players.Values;
+		}
+	}
+
+	public void AddObject(Player obj)
+	{
+		lock (_lockObject)
+		{
+			PlayerNameMapHolder.Insert(obj);
+			_players[obj.GUID] = obj;
+		}
+	}
+
+	public void RemoveObject(Player obj)
+	{
+		lock (_lockObject)
+		{
+			PlayerNameMapHolder.Remove(obj);
+			_players.Remove(obj.GUID);
+		}
+	}
+
+	static DynamicObject GetDynamicObject(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetDynamicObject(guid);
+	}
+
+	static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetAreaTrigger(guid);
+	}
+
+	static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
+	{
+		return u.Map.GetSceneObject(guid);
+	}
 }
 
 class PlayerNameMapHolder
 {
-    public static void Insert(Player p)
-    {
-        _playerNameMap[p.GetName()] = p;
-    }
+	static readonly Dictionary<string, Player> _playerNameMap = new();
 
-    public static void Remove(Player p)
-    {
-        _playerNameMap.Remove(p.GetName());
-    }
+	public static void Insert(Player p)
+	{
+		_playerNameMap[p.GetName()] = p;
+	}
 
-    public static Player Find(string name)
-    {
-        if (!ObjectManager.NormalizePlayerName(ref name))
-            return null;
+	public static void Remove(Player p)
+	{
+		_playerNameMap.Remove(p.GetName());
+	}
 
-        return _playerNameMap.LookupByKey(name);
-    }
+	public static Player Find(string name)
+	{
+		if (!ObjectManager.NormalizePlayerName(ref name))
+			return null;
 
-    static readonly Dictionary<string, Player> _playerNameMap = new();
+		return _playerNameMap.LookupByKey(name);
+	}
 }

@@ -25,11 +25,11 @@ public class MailAttachedItem
 		Position = pos;
 		AttachID = item.GUID.Counter;
 		Item = new ItemInstance(item);
-		Count = item.GetCount();
+		Count = item.Count;
 		Charges = item.GetSpellCharges();
 		MaxDurability = item.ItemData.MaxDurability;
 		Durability = item.ItemData.Durability;
-		Unlocked = !item.IsLocked();
+		Unlocked = !item.IsLocked;
 
 		for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.MaxInspected; slot++)
 		{

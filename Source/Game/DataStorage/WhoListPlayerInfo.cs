@@ -22,7 +22,7 @@ public class WhoListPlayerInfo
 	public string GuildName { get; }
 	public ObjectGuid GuildGuid { get; }
 
-	public WhoListPlayerInfo(ObjectGuid guid, TeamFaction team, AccountTypes security, uint level, Class clss, Race race, uint zoneid, byte gender, bool visible, bool gamemaster, string playerName, string guildName, ObjectGuid guildguid)
+	public WhoListPlayerInfo(ObjectGuid guid, TeamFaction team, AccountTypes security, uint level, PlayerClass clss, Race race, uint zoneid, byte gender, bool visible, bool gamemaster, string playerName, string guildName, ObjectGuid guildguid)
 	{
 		Guid = guid;
 		Team = team;

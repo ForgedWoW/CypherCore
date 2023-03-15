@@ -14,11 +14,11 @@ public class AuraApplication
 {
 	readonly Unit _target;
 	readonly Aura _base;
-	readonly byte _slot;                  // Aura slot on unit
+	readonly byte _slot; // Aura slot on unit
+	readonly HashSet<int> _effectMask = new();
 	AuraFlags _flags;                     // Aura info flag
 	HashSet<int> _effectsToApply = new(); // Used only at spell hit to determine which effect should be applied
 	bool _needClientUpdate;
-	readonly HashSet<int> _effectMask = new();
 
 	public Guid Guid { get; } = Guid.NewGuid();
 

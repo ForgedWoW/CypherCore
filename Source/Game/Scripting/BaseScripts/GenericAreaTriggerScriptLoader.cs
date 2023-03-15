@@ -7,15 +7,15 @@ namespace Game.Scripting.BaseScripts;
 
 public class GenericAreaTriggerScriptLoader<S> : AreaTriggerScriptLoader where S : AreaTriggerScript
 {
-    private readonly object[] _args;
+	private readonly object[] _args;
 
-    public GenericAreaTriggerScriptLoader(string name, object[] args) : base(name)
-    {
-        _args = args;
-    }
+	public GenericAreaTriggerScriptLoader(string name, object[] args) : base(name)
+	{
+		_args = args;
+	}
 
-    public override AreaTriggerScript GetAreaTriggerScript()
-    {
-        return Activator.CreateInstance(typeof(S), _args) as S;
-    }
+	public override AreaTriggerScript GetAreaTriggerScript()
+	{
+		return Activator.CreateInstance(typeof(S), _args) as S;
+	}
 }

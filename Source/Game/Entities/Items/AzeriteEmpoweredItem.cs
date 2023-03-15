@@ -40,7 +40,7 @@ public class AzeriteEmpoweredItem : Item
 		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
-		switch (GetState())
+		switch (State)
 		{
 			case ItemUpdateState.New:
 			case ItemUpdateState.Changed:
@@ -110,7 +110,7 @@ public class AzeriteEmpoweredItem : Item
 		return Global.DB2Mgr.GetRequiredAzeriteLevelForAzeritePowerTier(BonusData.AzeriteTierUnlockSetId, GetContext(), tier);
 	}
 
-	public int GetTierForAzeritePower(Class playerClass, int azeritePowerId)
+	public int GetTierForAzeritePower(PlayerClass playerClass, int azeritePowerId)
 	{
 		var azeritePowerItr = _azeritePowers.Find(power => { return power.AzeritePowerID == azeritePowerId && power.Class == (int)playerClass; });
 
@@ -192,7 +192,7 @@ public class AzeriteEmpoweredItem : Item
 		for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
 			SetUpdateFieldValue(ref Values.ModifyValue(_azeriteEmpoweredItemData).ModifyValue(_azeriteEmpoweredItemData.Selections, i), 0);
 
-		BonusData = new BonusData(GetTemplate());
+		BonusData = new BonusData(Template);
 
 		foreach (var bonusListID in GetBonusListIDs())
 			BonusData.AddBonusList(bonusListID);

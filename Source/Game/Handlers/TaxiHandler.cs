@@ -10,227 +10,239 @@ using Game.Movement;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.EnableTaxiNode, Processing = PacketProcessing.ThreadSafe)]
-        void HandleEnableTaxiNodeOpcode(EnableTaxiNode enableTaxiNode)
-        {
-            Creature unit = Player.GetNPCIfCanInteractWith(enableTaxiNode.Unit, NPCFlags.FlightMaster, NPCFlags2.None);
-            if (unit)
-                SendLearnNewTaxiNode(unit);
-        }
+	public void SendTaxiStatus(ObjectGuid guid)
+	{
+		// cheating checks
+		var player = Player;
+		var unit = ObjectAccessor.GetCreature(player, guid);
 
-        [WorldPacketHandler(ClientOpcodes.TaxiNodeStatusQuery, Processing = PacketProcessing.ThreadSafe)]
-        void HandleTaxiNodeStatusQuery(TaxiNodeStatusQuery taxiNodeStatusQuery)
-        {
-            SendTaxiStatus(taxiNodeStatusQuery.UnitGUID);
-        }
+		if (!unit || unit.IsHostileTo(player) || !unit.HasNpcFlag(NPCFlags.FlightMaster))
+		{
+			Log.outDebug(LogFilter.Network, "WorldSession.SendTaxiStatus - {0} not found.", guid.ToString());
 
-        public void SendTaxiStatus(ObjectGuid guid)
-        {
-            // cheating checks
-            Player player = Player;
-            Creature unit = ObjectAccessor.GetCreature(player, guid);
-            if (!unit || unit.IsHostileTo(player) || !unit.HasNpcFlag(NPCFlags.FlightMaster))
-            {
-                Log.outDebug(LogFilter.Network, "WorldSession.SendTaxiStatus - {0} not found.", guid.ToString());
-                return;
-            }
+			return;
+		}
 
-            // find taxi node
-            uint nearest = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, player.Team);
+		// find taxi node
+		var nearest = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, player.Team);
 
-            TaxiNodeStatusPkt data = new();
-            data.Unit = guid;
+		TaxiNodeStatusPkt data = new();
+		data.Unit = guid;
 
-            if (nearest == 0)
-                data.Status = TaxiNodeStatus.None;
-            else if (unit.GetReactionTo(player) >= ReputationRank.Neutral)
-                data.Status = player.Taxi.IsTaximaskNodeKnown(nearest) ? TaxiNodeStatus.Learned : TaxiNodeStatus.Unlearned;
-            else
-                data.Status = TaxiNodeStatus.NotEligible;
+		if (nearest == 0)
+			data.Status = TaxiNodeStatus.None;
+		else if (unit.GetReactionTo(player) >= ReputationRank.Neutral)
+			data.Status = player.Taxi.IsTaximaskNodeKnown(nearest) ? TaxiNodeStatus.Learned : TaxiNodeStatus.Unlearned;
+		else
+			data.Status = TaxiNodeStatus.NotEligible;
 
-            SendPacket(data);
-        }
+		SendPacket(data);
+	}
 
-        [WorldPacketHandler(ClientOpcodes.TaxiQueryAvailableNodes, Processing = PacketProcessing.ThreadSafe)]
-        void HandleTaxiQueryAvailableNodes(TaxiQueryAvailableNodes taxiQueryAvailableNodes)
-        {
-            // cheating checks
-            Creature unit = Player.GetNPCIfCanInteractWith(taxiQueryAvailableNodes.Unit, NPCFlags.FlightMaster, NPCFlags2.None);
-            if (unit == null)
-            {
-                Log.outDebug(LogFilter.Network, "WORLD: HandleTaxiQueryAvailableNodes - {0} not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString());
-                return;
-            }
+	public void SendTaxiMenu(Creature unit)
+	{
+		// find current node
+		var curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, Player.Team);
 
-            // remove fake death
-            if (Player.HasUnitState(UnitState.Died))
-                Player.RemoveAurasByType(AuraType.FeignDeath);
+		if (curloc == 0)
+			return;
 
-            // unknown taxi node case
-            if (SendLearnNewTaxiNode(unit))
-                return;
+		var lastTaxiCheaterState = Player.IsTaxiCheater;
 
-            // known taxi node case
-            SendTaxiMenu(unit);
-        }
+		if (unit.Entry == 29480)
+			Player.SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
 
-        public void SendTaxiMenu(Creature unit)
-        {
-            // find current node
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, Player.Team);
-            if (curloc == 0)
-                return;
+		ShowTaxiNodes data = new();
+		ShowTaxiNodesWindowInfo windowInfo = new();
+		windowInfo.UnitGUID = unit.GUID;
+		windowInfo.CurrentNode = (int)curloc;
 
-            bool lastTaxiCheaterState = Player.IsTaxiCheater;
-            if (unit.Entry == 29480)
-                Player.SetTaxiCheater(true); // Grimwing in Ebon Hold, special case. NOTE: Not perfect, Zul'Aman should not be included according to WoWhead, and I think taxicheat includes it.
+		data.WindowInfo = windowInfo;
 
-            ShowTaxiNodes data = new();
-            ShowTaxiNodesWindowInfo windowInfo = new();
-            windowInfo.UnitGUID = unit.GUID;
-            windowInfo.CurrentNode = (int)curloc;
+		Player.Taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
 
-            data.WindowInfo = windowInfo;
+		var reachableNodes = new byte[CliDB.TaxiNodesMask.Length];
+		TaxiPathGraph.GetReachableNodesMask(CliDB.TaxiNodesStorage.LookupByKey(curloc), reachableNodes);
 
-            Player.Taxi.AppendTaximaskTo(data, lastTaxiCheaterState);
-
-            byte[] reachableNodes = new byte[CliDB.TaxiNodesMask.Length];
-            TaxiPathGraph.GetReachableNodesMask(CliDB.TaxiNodesStorage.LookupByKey(curloc), reachableNodes);
-            for (var i = 0; i < reachableNodes.Length; ++i)
-            {
-                data.CanLandNodes[i] &= reachableNodes[i];
-                data.CanUseNodes[i] &= reachableNodes[i];
-            }
+		for (var i = 0; i < reachableNodes.Length; ++i)
+		{
+			data.CanLandNodes[i] &= reachableNodes[i];
+			data.CanUseNodes[i] &= reachableNodes[i];
+		}
 
 
-            SendPacket(data);
+		SendPacket(data);
 
-            Player.SetTaxiCheater(lastTaxiCheaterState);
-        }
+		Player.SetTaxiCheater(lastTaxiCheaterState);
+	}
 
-        public void SendDoFlight(uint mountDisplayId, uint path, uint pathNode = 0)
-        {
-            // remove fake death
-            if (Player.HasUnitState(UnitState.Died))
-                Player.RemoveAurasByType(AuraType.FeignDeath);
+	public void SendDoFlight(uint mountDisplayId, uint path, uint pathNode = 0)
+	{
+		// remove fake death
+		if (Player.HasUnitState(UnitState.Died))
+			Player.RemoveAurasByType(AuraType.FeignDeath);
 
-            if (mountDisplayId != 0)
-                Player.Mount(mountDisplayId);
+		if (mountDisplayId != 0)
+			Player.Mount(mountDisplayId);
 
-            Player.
-            MotionMaster.MoveTaxiFlight(path, pathNode);
-        }
+		Player.MotionMaster.MoveTaxiFlight(path, pathNode);
+	}
 
-        public bool SendLearnNewTaxiNode(Creature unit)
-        {
-            // find current node
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, Player.Team);
+	public bool SendLearnNewTaxiNode(Creature unit)
+	{
+		// find current node
+		var curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, Player.Team);
 
-            if (curloc == 0)
-                return true;
+		if (curloc == 0)
+			return true;
 
-            if (Player.Taxi.SetTaximaskNode(curloc))
-            {
-                SendPacket(new NewTaxiPath());
+		if (Player.Taxi.SetTaximaskNode(curloc))
+		{
+			SendPacket(new NewTaxiPath());
 
-                TaxiNodeStatusPkt data = new();
-                data.Unit = unit.GUID;
-                data.Status = TaxiNodeStatus.Learned;
-                SendPacket(data);
+			TaxiNodeStatusPkt data = new();
+			data.Unit = unit.GUID;
+			data.Status = TaxiNodeStatus.Learned;
+			SendPacket(data);
 
-                return true;
-            }
-            else
-                return false;
-        }
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
-        public void SendDiscoverNewTaxiNode(uint nodeid)
-        {
-            if (Player.Taxi.SetTaximaskNode(nodeid))
-                SendPacket(new NewTaxiPath());
-        }
+	public void SendDiscoverNewTaxiNode(uint nodeid)
+	{
+		if (Player.Taxi.SetTaximaskNode(nodeid))
+			SendPacket(new NewTaxiPath());
+	}
 
-        [WorldPacketHandler(ClientOpcodes.ActivateTaxi, Processing = PacketProcessing.ThreadSafe)]
-        void HandleActivateTaxi(ActivateTaxi activateTaxi)
-        {
-            Creature unit = Player.GetNPCIfCanInteractWith(activateTaxi.Vendor, NPCFlags.FlightMaster, NPCFlags2.None);
-            if (unit == null)
-            {
-                Log.outDebug(LogFilter.Network, "WORLD: HandleActivateTaxiOpcode - {0} not found or you can't interact with it.", activateTaxi.Vendor.ToString());
-                SendActivateTaxiReply(ActivateTaxiReply.TooFarAway);
-                return;
-            }
+	public void SendActivateTaxiReply(ActivateTaxiReply reply = ActivateTaxiReply.Ok)
+	{
+		ActivateTaxiReplyPkt data = new();
+		data.Reply = reply;
+		SendPacket(data);
+	}
 
-            uint curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, Player.Team);
-            if (curloc == 0)
-                return;
+	[WorldPacketHandler(ClientOpcodes.EnableTaxiNode, Processing = PacketProcessing.ThreadSafe)]
+	void HandleEnableTaxiNodeOpcode(EnableTaxiNode enableTaxiNode)
+	{
+		var unit = Player.GetNPCIfCanInteractWith(enableTaxiNode.Unit, NPCFlags.FlightMaster, NPCFlags2.None);
 
-            TaxiNodesRecord from = CliDB.TaxiNodesStorage.LookupByKey(curloc);
-            TaxiNodesRecord to = CliDB.TaxiNodesStorage.LookupByKey(activateTaxi.Node);
-            if (to == null)
-                return;
+		if (unit)
+			SendLearnNewTaxiNode(unit);
+	}
 
-            if (!Player.IsTaxiCheater)
-            {
-                if (!Player.Taxi.IsTaximaskNodeKnown(curloc) || !Player.Taxi.IsTaximaskNodeKnown(activateTaxi.Node))
-                {
-                    SendActivateTaxiReply(ActivateTaxiReply.NotVisited);
-                    return;
-                }
-            }
+	[WorldPacketHandler(ClientOpcodes.TaxiNodeStatusQuery, Processing = PacketProcessing.ThreadSafe)]
+	void HandleTaxiNodeStatusQuery(TaxiNodeStatusQuery taxiNodeStatusQuery)
+	{
+		SendTaxiStatus(taxiNodeStatusQuery.UnitGUID);
+	}
 
-            uint preferredMountDisplay = 0;
-            MountRecord mount = CliDB.MountStorage.LookupByKey(activateTaxi.FlyingMountID);
-            if (mount != null)
-            {
-                if (Player.HasSpell(mount.SourceSpellID))
-                {
-                    var mountDisplays = Global.DB2Mgr.GetMountDisplays(mount.Id);
-                    if (mountDisplays != null)
-                    {
-                        List<MountXDisplayRecord> usableDisplays = mountDisplays.Where(mountDisplay =>
-                        {
-                            PlayerConditionRecord playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mountDisplay.PlayerConditionID);
-                            if (playerCondition != null)
-                                return ConditionManager.IsPlayerMeetingCondition(Player, playerCondition);
+	[WorldPacketHandler(ClientOpcodes.TaxiQueryAvailableNodes, Processing = PacketProcessing.ThreadSafe)]
+	void HandleTaxiQueryAvailableNodes(TaxiQueryAvailableNodes taxiQueryAvailableNodes)
+	{
+		// cheating checks
+		var unit = Player.GetNPCIfCanInteractWith(taxiQueryAvailableNodes.Unit, NPCFlags.FlightMaster, NPCFlags2.None);
 
-                            return true;
-                        }).ToList();
+		if (unit == null)
+		{
+			Log.outDebug(LogFilter.Network, "WORLD: HandleTaxiQueryAvailableNodes - {0} not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString());
 
-                        if (!usableDisplays.Empty())
-                            preferredMountDisplay = usableDisplays.SelectRandom().CreatureDisplayInfoID;
-                    }
-                }
-            }
+			return;
+		}
 
-            List<uint> nodes = new();
-            TaxiPathGraph.GetCompleteNodeRoute(from, to, Player, nodes);
-            Player.ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
-        }
+		// remove fake death
+		if (Player.HasUnitState(UnitState.Died))
+			Player.RemoveAurasByType(AuraType.FeignDeath);
 
-        public void SendActivateTaxiReply(ActivateTaxiReply reply = ActivateTaxiReply.Ok)
-        {
-            ActivateTaxiReplyPkt data = new();
-            data.Reply = reply;
-            SendPacket(data);
-        }
+		// unknown taxi node case
+		if (SendLearnNewTaxiNode(unit))
+			return;
 
-        [WorldPacketHandler(ClientOpcodes.TaxiRequestEarlyLanding, Processing = PacketProcessing.ThreadSafe)]
-        void HandleTaxiRequestEarlyLanding(TaxiRequestEarlyLanding taxiRequestEarlyLanding)
-        {
-            FlightPathMovementGenerator flight = Player.MotionMaster.GetCurrentMovementGenerator() as FlightPathMovementGenerator;
-            if (flight != null)
-            {
-                if (Player.Taxi.RequestEarlyLanding())
-                {
-                    flight.LoadPath(Player, (uint)flight.GetPath()[(int)flight.GetCurrentNode()].NodeIndex);
-                    flight.Reset(Player);
-                }
-            }
-        }
-    }
+		// known taxi node case
+		SendTaxiMenu(unit);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.ActivateTaxi, Processing = PacketProcessing.ThreadSafe)]
+	void HandleActivateTaxi(ActivateTaxi activateTaxi)
+	{
+		var unit = Player.GetNPCIfCanInteractWith(activateTaxi.Vendor, NPCFlags.FlightMaster, NPCFlags2.None);
+
+		if (unit == null)
+		{
+			Log.outDebug(LogFilter.Network, "WORLD: HandleActivateTaxiOpcode - {0} not found or you can't interact with it.", activateTaxi.Vendor.ToString());
+			SendActivateTaxiReply(ActivateTaxiReply.TooFarAway);
+
+			return;
+		}
+
+		var curloc = Global.ObjectMgr.GetNearestTaxiNode(unit.Location.X, unit.Location.Y, unit.Location.Z, unit.Location.MapId, Player.Team);
+
+		if (curloc == 0)
+			return;
+
+		var from = CliDB.TaxiNodesStorage.LookupByKey(curloc);
+		var to = CliDB.TaxiNodesStorage.LookupByKey(activateTaxi.Node);
+
+		if (to == null)
+			return;
+
+		if (!Player.IsTaxiCheater)
+			if (!Player.Taxi.IsTaximaskNodeKnown(curloc) || !Player.Taxi.IsTaximaskNodeKnown(activateTaxi.Node))
+			{
+				SendActivateTaxiReply(ActivateTaxiReply.NotVisited);
+
+				return;
+			}
+
+		uint preferredMountDisplay = 0;
+		var mount = CliDB.MountStorage.LookupByKey(activateTaxi.FlyingMountID);
+
+		if (mount != null)
+			if (Player.HasSpell(mount.SourceSpellID))
+			{
+				var mountDisplays = Global.DB2Mgr.GetMountDisplays(mount.Id);
+
+				if (mountDisplays != null)
+				{
+					var usableDisplays = mountDisplays.Where(mountDisplay =>
+													{
+														var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mountDisplay.PlayerConditionID);
+
+														if (playerCondition != null)
+															return ConditionManager.IsPlayerMeetingCondition(Player, playerCondition);
+
+														return true;
+													})
+													.ToList();
+
+					if (!usableDisplays.Empty())
+						preferredMountDisplay = usableDisplays.SelectRandom().CreatureDisplayInfoID;
+				}
+			}
+
+		List<uint> nodes = new();
+		TaxiPathGraph.GetCompleteNodeRoute(from, to, Player, nodes);
+		Player.ActivateTaxiPathTo(nodes, unit, 0, preferredMountDisplay);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.TaxiRequestEarlyLanding, Processing = PacketProcessing.ThreadSafe)]
+	void HandleTaxiRequestEarlyLanding(TaxiRequestEarlyLanding taxiRequestEarlyLanding)
+	{
+		var flight = Player.MotionMaster.GetCurrentMovementGenerator() as FlightPathMovementGenerator;
+
+		if (flight != null)
+			if (Player.Taxi.RequestEarlyLanding())
+			{
+				flight.LoadPath(Player, (uint)flight.GetPath()[(int)flight.GetCurrentNode()].NodeIndex);
+				flight.Reset(Player);
+			}
+	}
 }

@@ -13,7 +13,7 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class playerScript_monk_whirling_dragon_punch : ScriptObjectAutoAdd, IPlayerOnCooldownEnd, IPlayerOnCooldownStart, IPlayerOnChargeRecoveryTimeStart
 {
-	public Class PlayerClass => Class.Monk;
+	public PlayerClass PlayerClass => PlayerClass.Monk;
 
 	public playerScript_monk_whirling_dragon_punch() : base("playerScript_monk_whirling_dragon_punch") { }
 

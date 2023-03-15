@@ -220,12 +220,12 @@ class MiscAddItemCommands
 
 		foreach (var template in its)
 		{
-			if (template.Value.GetItemSet() != itemSetId)
+			if (template.Value.ItemSet != itemSetId)
 				continue;
 
 			found = true;
 			List<ItemPosCount> dest = new();
-			var msg = playerTarget.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, template.Value.GetId(), 1);
+			var msg = playerTarget.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, template.Value.Id, 1);
 
 			if (msg == InventoryResult.Ok)
 			{
@@ -233,11 +233,11 @@ class MiscAddItemCommands
 
 				if (itemContext != ItemContext.None && itemContext < ItemContext.Max)
 				{
-					var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(template.Value.GetId(), itemContext);
+					var contextBonuses = Global.DB2Mgr.GetDefaultItemBonusTree(template.Value.Id, itemContext);
 					bonusListIDsForItem.AddRange(contextBonuses);
 				}
 
-				var item = playerTarget.StoreNewItem(dest, template.Value.GetId(), true, 0, null, itemContext, bonusListIDsForItem);
+				var item = playerTarget.StoreNewItem(dest, template.Value.Id, true, 0, null, itemContext, bonusListIDsForItem);
 
 				// remove binding (let GM give it to another player later)
 				if (player == playerTarget)
@@ -250,8 +250,8 @@ class MiscAddItemCommands
 			}
 			else
 			{
-				player.SendEquipError(msg, null, null, template.Value.GetId());
-				handler.SendSysMessage(CypherStrings.ItemCannotCreate, template.Value.GetId(), 1);
+				player.SendEquipError(msg, null, null, template.Value.Id);
+				handler.SendSysMessage(CypherStrings.ItemCannotCreate, template.Value.Id, 1);
 			}
 		}
 

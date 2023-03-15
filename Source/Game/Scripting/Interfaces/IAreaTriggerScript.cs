@@ -2,18 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Game.Entities;
-using Game.Spells;
 
 namespace Game.Scripting.Interfaces;
 
 public interface IAreaTriggerScript
 {
-    AreaTrigger At { get; }
-    byte CurrentScriptState { get; set; }
+	AreaTrigger At { get; }
+	byte CurrentScriptState { get; set; }
 	string ScriptName { get; set; }
 	uint ScriptAreaTriggerId { get; set; }
 
-    bool Load();
+	bool Load();
 	void Register();
 	void Unload();
 	string _GetScriptName();

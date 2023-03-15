@@ -34,7 +34,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (GetId(username) != 0)
 			return AccountOpResult.NameAlreadyExist;
 
-		(var salt, var verifier) = SRP6.MakeRegistrationData(username, password);
+		var (salt, verifier) = SRP6.MakeRegistrationData(username, password);
 
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT);
 		stmt.AddValue(0, username);
@@ -156,7 +156,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		stmt.AddValue(1, accountId);
 		DB.Login.Execute(stmt);
 
-		(var salt, var verifier) = SRP6.MakeRegistrationData(newUsername, newPassword);
+		var (salt, verifier) = SRP6.MakeRegistrationData(newUsername, newPassword);
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LOGON);
 		stmt.AddValue(0, salt);
 		stmt.AddValue(1, verifier);
@@ -174,7 +174,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newPassword.Length > MaxAccountLength)
 			return AccountOpResult.PassTooLong;
 
-		(var salt, var verifier) = SRP6.MakeRegistrationData(username, newPassword);
+		var (salt, verifier) = SRP6.MakeRegistrationData(username, newPassword);
 
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LOGON);
 		stmt.AddValue(0, salt);

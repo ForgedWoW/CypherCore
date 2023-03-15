@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
@@ -37,6 +40,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 	public bool IsRealmCompleted(AchievementRecord achievement)
 	{
 		var time = _allCompletedAchievements.LookupByKey(achievement.Id);
+
 		if (time == default)
 			return false;
 
@@ -66,15 +70,17 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 	//==========================================================
 	public void LoadAchievementReferenceList()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		if (CliDB.AchievementStorage.Empty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 achievement references.");
+
 			return;
 		}
 
 		uint count = 0;
+
 		foreach (var achievement in CliDB.AchievementStorage.Values)
 		{
 			if (achievement.SharesCriteria == 0)
@@ -85,7 +91,8 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 		}
 
 		// Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-		AchievementRecord achievement1 = CliDB.AchievementStorage.LookupByKey(4539);
+		var achievement1 = CliDB.AchievementStorage.LookupByKey(4539);
+
 		if (achievement1 != null)
 			achievement1.InstanceID = 631; // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
 
@@ -94,97 +101,109 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 	public void LoadAchievementScripts()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_achievementScripts.Clear(); // need for reload case
 
-		SQLResult result = DB.World.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
+		var result = DB.World.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
+
 		if (result.IsEmpty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 achievement scripts. DB table `achievement_scripts` is empty.");
+
 			return;
 		}
 
 		do
 		{
-			uint achievementId = result.Read<uint>(0);
-			string scriptName = result.Read<string>(1);
+			var achievementId = result.Read<uint>(0);
+			var scriptName = result.Read<string>(1);
 
-			AchievementRecord achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+			var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+
 			if (achievement == null)
 			{
 				Log.outError(LogFilter.Sql, $"Table `achievement_scripts` contains non-existing Achievement (ID: {achievementId}), skipped.");
+
 				continue;
 			}
+
 			_achievementScripts[achievementId] = Global.ObjectMgr.GetScriptId(scriptName);
-		}
-		while (result.NextRow());
+		} while (result.NextRow());
 
 		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_achievementScripts.Count} achievement scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadCompletedAchievements()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Populate _allCompletedAchievements with all realm first achievement ids to make multithreaded access safer
 		// while it will not prevent races, it will prevent crashes that happen because std::unordered_map key was added
 		// instead the only potential race will happen on value associated with the key
-		foreach (AchievementRecord achievement in CliDB.AchievementStorage.Values)
+		foreach (var achievement in CliDB.AchievementStorage.Values)
 			if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 				_allCompletedAchievements[achievement.Id] = DateTime.MinValue;
 
-		SQLResult result = DB.Characters.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+		var result = DB.Characters.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+
 		if (result.IsEmpty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 realm first completed achievements. DB table `character_achievement` is empty.");
+
 			return;
 		}
 
 		do
 		{
-			uint achievementId = result.Read<uint>(0);
-			AchievementRecord achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+			var achievementId = result.Read<uint>(0);
+			var achievement = CliDB.AchievementStorage.LookupByKey(achievementId);
+
 			if (achievement == null)
 			{
 				// Remove non-existing achievements from all characters
 				Log.outError(LogFilter.Achievement, "Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
 
-				PreparedStatement stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
+				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
 				stmt.AddValue(0, achievementId);
 				DB.Characters.Execute(stmt);
 
 				continue;
 			}
 			else if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
+			{
 				_allCompletedAchievements[achievementId] = DateTime.MaxValue;
-		}
-		while (result.NextRow());
+			}
+		} while (result.NextRow());
 
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} realm first completed achievements in {1} ms.", _allCompletedAchievements.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadRewards()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_achievementRewards.Clear(); // need for reload case
 
 		//                                         0   1       2       3       4       5        6     7
-		SQLResult result = DB.World.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
+		var result = DB.World.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
+
 		if (result.IsEmpty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+
 			return;
 		}
 
 		do
 		{
-			uint id = result.Read<uint>(0);
-			AchievementRecord achievement = CliDB.AchievementStorage.LookupByKey(id);
+			var id = result.Read<uint>(0);
+			var achievement = CliDB.AchievementStorage.LookupByKey(id);
+
 			if (achievement == null)
 			{
 				Log.outError(LogFilter.Sql, $"Table `achievement_reward` contains a wrong achievement ID ({id}), ignored.");
+
 				continue;
 			}
 
@@ -201,6 +220,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			if (reward.TitleId[0] == 0 && reward.TitleId[1] == 0 && reward.SenderCreatureId == 0)
 			{
 				Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) does not contain title or item reward data. Ignored.");
+
 				continue;
 			}
 
@@ -209,7 +229,8 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 			if (reward.TitleId[0] != 0)
 			{
-				CharTitlesRecord titleEntry = CliDB.CharTitlesStorage.LookupByKey(reward.TitleId[0]);
+				var titleEntry = CliDB.CharTitlesStorage.LookupByKey(reward.TitleId[0]);
+
 				if (titleEntry == null)
 				{
 					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[0]}) in `title_A`, set to 0");
@@ -219,7 +240,8 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 			if (reward.TitleId[1] != 0)
 			{
-				CharTitlesRecord titleEntry = CliDB.CharTitlesStorage.LookupByKey(reward.TitleId[1]);
+				var titleEntry = CliDB.CharTitlesStorage.LookupByKey(reward.TitleId[1]);
+
 				if (titleEntry == null)
 				{
 					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[1]}) in `title_H`, set to 0");
@@ -259,52 +281,55 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 					reward.MailTemplateId = 0;
 				}
 				else if (!reward.Subject.IsEmpty() || !reward.Body.IsEmpty())
+				{
 					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) is using MailTemplateId ({reward.MailTemplateId}) and mail subject/text.");
+				}
 			}
 
 			if (reward.ItemId != 0)
-			{
 				if (Global.ObjectMgr.GetItemTemplate(reward.ItemId) == null)
 				{
 					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
 					reward.ItemId = 0;
 				}
-			}
 
 			_achievementRewards[id] = reward;
-		}
-		while (result.NextRow());
+		} while (result.NextRow());
 
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} achievement rewards in {1} ms.", _achievementRewards.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadRewardLocales()
 	{
-		uint oldMSTime = Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_achievementRewardLocales.Clear(); // need for reload case
 
 		//                                         0   1       2        3
-		SQLResult result = DB.World.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
+		var result = DB.World.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
+
 		if (result.IsEmpty())
 		{
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty.");
+
 			return;
 		}
 
 		do
 		{
-			uint id = result.Read<uint>(0);
-			string localeName = result.Read<string>(1);
+			var id = result.Read<uint>(0);
+			var localeName = result.Read<string>(1);
 
 			if (!_achievementRewards.ContainsKey(id))
 			{
 				Log.outError(LogFilter.Sql, $"Table `achievement_reward_locale` (ID: {id}) contains locale strings for a non-existing achievement reward.");
+
 				continue;
 			}
 
 			AchievementRewardLocale data = new();
-			Locale locale = localeName.ToEnum<Locale>();
+			var locale = localeName.ToEnum<Locale>();
+
 			if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
 				continue;
 
@@ -312,8 +337,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			ObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
 
 			_achievementRewardLocales[id] = data;
-		}
-		while (result.NextRow());
+		} while (result.NextRow());
 
 		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} achievement reward locale strings in {1} ms.", _achievementRewardLocales.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}

@@ -1250,9 +1250,9 @@ public partial class Unit
 			return 2.0f;
 
 		if (!normalized)
-			return weapon.GetTemplate().GetDelay() / 1000.0f;
+			return weapon.Template.Delay / 1000.0f;
 
-		switch ((ItemSubClassWeapon)weapon.GetTemplate().GetSubClass())
+		switch ((ItemSubClassWeapon)weapon.Template.SubClass)
 		{
 			case ItemSubClassWeapon.Axe2:
 			case ItemSubClassWeapon.Mace2:
@@ -1274,7 +1274,7 @@ public partial class Unit
 			case ItemSubClassWeapon.Thrown:
 				return 2.0f;
 			default:
-				return weapon.GetTemplate().GetDelay() / 1000.0f;
+				return weapon.Template.Delay / 1000.0f;
 		}
 	}
 

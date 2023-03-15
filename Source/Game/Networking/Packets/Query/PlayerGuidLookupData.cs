@@ -18,7 +18,7 @@ public class PlayerGuidLookupData
 	public uint VirtualRealmAddress;
 	public Race RaceID = Race.None;
 	public Gender Sex = Gender.None;
-	public Class ClassID = Class.None;
+	public PlayerClass ClassID = PlayerClass.None;
 	public byte Level;
 	public byte Unused915;
 	public DeclinedName DeclinedNames = new();

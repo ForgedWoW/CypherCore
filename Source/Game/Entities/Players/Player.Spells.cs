@@ -368,7 +368,7 @@ public partial class Player
 
 	public void ApplyEnchantment(Item item, EnchantmentSlot slot, bool apply, bool apply_dur = true, bool ignore_condition = false)
 	{
-		if (item == null || !item.IsEquipped())
+		if (item == null || !item.IsEquipped)
 			return;
 
 		if (slot >= EnchantmentSlot.Max)
@@ -414,12 +414,12 @@ public partial class Player
 				var gemTemplate = Global.ObjectMgr.GetItemTemplate(gem.ItemId);
 
 				if (gemTemplate != null)
-					if (gemTemplate.GetRequiredSkill() != 0 && GetSkillValue((SkillType)gemTemplate.GetRequiredSkill()) < gemTemplate.GetRequiredSkillRank())
+					if (gemTemplate.RequiredSkill != 0 && GetSkillValue((SkillType)gemTemplate.RequiredSkill) < gemTemplate.RequiredSkillRank)
 						return;
 			}
 		}
 
-		if (!item.IsBroken())
+		if (!item.IsBroken)
 			for (var s = 0; s < ItemConst.MaxItemEnchantmentEffects; ++s)
 			{
 				var enchant_display_type = (ItemEnchantmentType)pEnchant.Effect[s];
@@ -435,7 +435,7 @@ public partial class Player
 						break;
 					case ItemEnchantmentType.Damage:
 					{
-						var attackType = GetAttackBySlot(item.GetSlot(), item.GetTemplate().GetInventoryType());
+						var attackType = GetAttackBySlot(item.Slot, item.Template.InventoryType);
 
 						if (attackType != WeaponAttackType.Max)
 							UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
@@ -694,7 +694,7 @@ public partial class Player
 					}
 					case ItemEnchantmentType.Totem: // Shaman Rockbiter Weapon
 					{
-						var attackType = GetAttackBySlot(item.GetSlot(), item.GetTemplate().GetInventoryType());
+						var attackType = GetAttackBySlot(item.Slot, item.Template.InventoryType);
 
 						if (attackType != WeaponAttackType.Max)
 							UpdateDamageDoneMods(attackType, apply ? -1 : (int)slot);
@@ -722,7 +722,7 @@ public partial class Player
 		// visualize enchantment at player and equipped items
 		if (slot == EnchantmentSlot.Perm)
 		{
-			var visibleItem = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.VisibleItems, item.GetSlot());
+			var visibleItem = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.VisibleItems, item.Slot);
 			SetUpdateFieldValue(visibleItem.ModifyValue(visibleItem.ItemVisual), item.GetVisibleItemVisual(this));
 		}
 
@@ -1017,7 +1017,7 @@ public partial class Player
 								return;
 							}
 
-							RemoveItem(InventorySlots.Bag0, professionItem.GetSlot(), true);
+							RemoveItem(InventorySlots.Bag0, professionItem.Slot, true);
 							StoreItem(professionItemDest, professionItem, true);
 						}
 					}
@@ -1278,9 +1278,9 @@ public partial class Player
 
 	public void CastItemUseSpell(Item item, SpellCastTargets targets, ObjectGuid castCount, uint[] misc)
 	{
-		if (!item.GetTemplate().HasFlag(ItemFlags.Legacy))
+		if (!item.Template.HasFlag(ItemFlags.Legacy))
 			// item spells casted at use
-			foreach (var effectData in item.GetEffects())
+			foreach (var effectData in item.Effects)
 			{
 				// wrong triggering type
 				if (effectData.TriggerType != ItemSpelltriggerType.OnUse)
@@ -1537,7 +1537,7 @@ public partial class Player
 		var weapon = GetWeaponForAttack(attackType, true);
 
 		if (weapon != null)
-			return (SpellSchoolMask)(1 << (int)weapon.GetTemplate().GetDamageType());
+			return (SpellSchoolMask)(1 << (int)weapon.Template.DamageType);
 
 		return SpellSchoolMask.Normal;
 	}
@@ -1722,7 +1722,7 @@ public partial class Player
 
 				if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
 					skillValue = maxValue;
-				else if (Class == Class.Deathknight)
+				else if (Class == PlayerClass.Deathknight)
 					skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
 
 				SetSkill(skillId, 0, skillValue, maxValue);
@@ -1741,7 +1741,7 @@ public partial class Player
 
 				if (rcInfo.Flags.HasAnyFlag(SkillRaceClassInfoFlags.AlwaysMaxValue))
 					skillValue = maxValue;
-				else if (Class == Class.Deathknight)
+				else if (Class == PlayerClass.Deathknight)
 					skillValue = (ushort)Math.Min(Math.Max(1, (Level - 1) * 5), maxValue);
 
 				SetSkill(skillId, 1, skillValue, maxValue);
@@ -2371,7 +2371,7 @@ public partial class Player
 	public void UpdateEquipSpellsAtFormChange()
 	{
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
-			if (_items[i] && !_items[i].IsBroken() && CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+			if (_items[i] && !_items[i].IsBroken && CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 			{
 				ApplyItemEquipSpell(_items[i], false, true); // remove spells that not fit to form
 				ApplyItemEquipSpell(_items[i], true, true);  // add spells that fit form but not active
@@ -2466,7 +2466,7 @@ public partial class Player
 
 	public void InitRunes()
 	{
-		if (Class != Class.Deathknight)
+		if (Class != PlayerClass.Deathknight)
 			return;
 
 		var runeIndex = GetPowerIndex(PowerType.Runes);
@@ -2487,7 +2487,7 @@ public partial class Player
 
 	public void UpdateAllRunesRegen()
 	{
-		if (Class != Class.Deathknight)
+		if (Class != PlayerClass.Deathknight)
 			return;
 
 		var runeIndex = GetPowerIndex(PowerType.Runes);
@@ -2546,14 +2546,14 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item != null)
-				if (!item.IsBroken() && CanUseAttackType(damageInfo.AttackType))
+				if (!item.IsBroken && CanUseAttackType(damageInfo.AttackType))
 				{
-					var proto = item.GetTemplate();
+					var proto = item.Template;
 
 					if (proto != null)
 					{
 						// Additional check for weapons
-						if (proto.GetClass() == ItemClass.Weapon)
+						if (proto.Class == ItemClass.Weapon)
 						{
 							// offhand item cannot proc from main hand hit etc
 							byte slot;
@@ -2597,8 +2597,8 @@ public partial class Player
 		var canTrigger = damageInfo.HitMask.HasAnyFlag(ProcFlagsHit.Normal | ProcFlagsHit.Critical | ProcFlagsHit.Absorb);
 
 		if (canTrigger)
-			if (!item.GetTemplate().HasFlag(ItemFlags.Legacy))
-				foreach (var effectData in item.GetEffects())
+			if (!item.Template.HasFlag(ItemFlags.Legacy))
+				foreach (var effectData in item.Effects)
 				{
 					// wrong triggering type
 					if (effectData.TriggerType != ItemSpelltriggerType.OnProc)
@@ -2625,7 +2625,7 @@ public partial class Player
 						chance = GetWeaponProcChance();
 					}
 
-					if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.GetScriptId()))
+					if (RandomHelper.randChance(chance) && Global.ScriptMgr.RunScriptRet<IItemOnCastItemCombatSpell>(tmpscript => tmpscript.OnCastItemCombatSpell(this, damageInfo.Victim, spellInfo, item), item.ScriptId))
 						CastSpell(damageInfo.Victim, spellInfo.Id, item);
 				}
 
@@ -2681,7 +2681,7 @@ public partial class Player
 				if (entry != null)
 				{
 					if (entry.ProcsPerMinute != 0)
-						chance = GetPPMProcChance(proto.GetDelay(), entry.ProcsPerMinute, spellInfo);
+						chance = GetPPMProcChance(proto.Delay, entry.ProcsPerMinute, spellInfo);
 					else if (entry.Chance != 0)
 						chance = entry.Chance;
 				}
@@ -3112,7 +3112,7 @@ public partial class Player
 
 			var pItem2 = GetItemByPos(InventorySlots.Bag0, i);
 
-			if (pItem2 != null && !pItem2.IsBroken())
+			if (pItem2 != null && !pItem2.IsBroken)
 				foreach (var gemData in pItem2.ItemData.Gems)
 				{
 					var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
@@ -3120,7 +3120,7 @@ public partial class Player
 					if (gemProto == null)
 						continue;
 
-					var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GetGemProperties());
+					var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
 
 					if (gemProperty == null)
 						continue;
@@ -3296,10 +3296,10 @@ public partial class Player
 
 	void ApplyItemObtainSpells(Item item, bool apply)
 	{
-		if (item.GetTemplate().HasFlag(ItemFlags.Legacy))
+		if (item.Template.HasFlag(ItemFlags.Legacy))
 			return;
 
-		foreach (var effect in item.GetEffects())
+		foreach (var effect in item.Effects)
 		{
 			if (effect.TriggerType != ItemSpelltriggerType.OnPickup) // On obtain trigger
 				continue;

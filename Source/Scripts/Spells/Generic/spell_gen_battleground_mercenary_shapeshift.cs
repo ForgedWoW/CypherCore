@@ -363,7 +363,7 @@ internal class spell_gen_battleground_mercenary_shapeshift : AuraScript, IHasAur
 		AuraEffects.Add(new AuraEffectApplyHandler(HandleRemove, 0, AuraType.Transform, AuraEffectHandleModes.Real, AuraScriptHookType.EffectAfterRemove));
 	}
 
-	private static Race GetReplacementRace(Race nativeRace, Class playerClass)
+	private static Race GetReplacementRace(Race nativeRace, PlayerClass playerClass)
 	{
 		var otherRaces = RaceInfo.LookupByKey(nativeRace);
 

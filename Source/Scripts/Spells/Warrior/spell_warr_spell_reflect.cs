@@ -30,7 +30,7 @@ public class spell_warr_spell_reflect : AuraScript, IHasAuraEffects
 
 		var item = caster.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-		if (item != null && item.GetTemplate().GetInventoryType() == InventoryType.Shield)
+		if (item != null && item.Template.InventoryType == InventoryType.Shield)
 			caster.CastSpell(caster, 146120, true);
 		else if (caster.Faction == 1732) // Alliance
 			caster.CastSpell(caster, 147923, true);

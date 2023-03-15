@@ -712,9 +712,9 @@ class LookupCommands
 					}
 
 					if (handler.Session != null)
-						handler.SendSysMessage(CypherStrings.ItemListChat, template.GetId(), template.GetId(), name);
+						handler.SendSysMessage(CypherStrings.ItemListChat, template.Id, template.Id, name);
 					else
-						handler.SendSysMessage(CypherStrings.ItemListConsole, template.GetId(), name);
+						handler.SendSysMessage(CypherStrings.ItemListConsole, template.Id, name);
 
 					if (!found)
 						found = true;

@@ -7,5 +7,5 @@ namespace Game.Scripting.Interfaces;
 
 public interface IClassRescriction
 {
-	Class PlayerClass { get; }
+	PlayerClass PlayerClass { get; }
 }

@@ -380,7 +380,7 @@ class GroupCommands
 		{
 			var groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.LeaderGUID);
 
-			if (!groupLeader || (groupLeader.Location.MapId != gmMap.Id) || (groupLeader.InstanceId1 != gmMap.InstanceId))
+			if (!groupLeader || (groupLeader.Location.MapId != gmMap.Id) || (groupLeader.InstanceId != gmMap.InstanceId))
 			{
 				handler.SendSysMessage(CypherStrings.PartialGroupSummon);
 				onlyLocalSummon = true;
@@ -436,7 +436,7 @@ class GroupCommands
 			var pos = new Position();
 			gmPlayer.GetClosePoint(pos, player.CombatReach);
 			pos.Orientation = player.Location.Orientation;
-			player.TeleportTo(gmPlayer.Location.MapId, pos, 0, gmPlayer.InstanceId1);
+			player.TeleportTo(gmPlayer.Location.MapId, pos, 0, gmPlayer.InstanceId);
 		}
 
 		return true;

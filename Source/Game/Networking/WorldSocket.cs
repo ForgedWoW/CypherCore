@@ -58,7 +58,7 @@ public class WorldSocket : SocketBase
 
 	AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
 	string _ipCountry;
-	object _sendlock = new object();
+	readonly object _sendlock = new();
 
 	public WorldSocket(Socket socket) : base(socket)
 	{
@@ -155,8 +155,8 @@ public class WorldSocket : SocketBase
 		if (!IsOpen() || _serverChallenge == null)
 			return;
 
-        // SendPacket may be called from multiple threads.
-        lock (_sendlock)
+		// SendPacket may be called from multiple threads.
+		lock (_sendlock)
 		{
 			try
 			{
@@ -767,10 +767,11 @@ public class WorldSocket : SocketBase
 		if (_worldSession == null)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.TimedOut);
-            return;
+
+			return;
 		}
 
-        _worldSession.RBACData.LoadFromDBCallback(result);
+		_worldSession.RBACData.LoadFromDBCallback(result);
 
 		SendPacket(new EnterEncryptedMode(_encryptKey, true));
 	}

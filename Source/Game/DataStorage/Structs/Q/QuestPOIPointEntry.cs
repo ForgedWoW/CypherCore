@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace Game.DataStorage.Structs.Q
+namespace Game.DataStorage.Structs.Q;
+
+public class QuestPOIPointEntry
 {
-    public class QuestPOIPointEntry
-    {
-        public int ID;
-        public short X;
-        public short Y;
-        public short Z;
-        public uint QuestPOIBlobID;
-    }
+	public int ID;
+	public short X;
+	public short Y;
+	public short Z;
+	public uint QuestPOIBlobID;
 }

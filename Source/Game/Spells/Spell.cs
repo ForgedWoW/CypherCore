@@ -104,6 +104,8 @@ public partial class Spell : IDisposable
 	readonly Dictionary<int, SpellDestination> _destTargets = new();
 	readonly List<HitTriggerSpell> _hitTriggerSpells = new();
 	readonly TriggerCastFlags _triggeredCastFlags;
+	readonly HashSet<int> _applyMultiplierMask = new();
+	readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
 
 	List<SpellScript> _loadedScripts = new();
 	PathGenerator _preGeneratedPath;
@@ -126,12 +128,10 @@ public partial class Spell : IDisposable
 	// These vars are used in both delayed spell system and modified immediate spell system
 	bool _referencedFromCurrentSpell;
 	bool _executedCurrently;
-	readonly HashSet<int> _applyMultiplierMask = new();
 	SpellEffectHandleMode _effectHandleMode;
 
 	// -------------------------------------------
 	GameObject _focusObject;
-	readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
 
 	SpellState _spellState;
 	int _timer;
@@ -234,12 +234,12 @@ public partial class Spell : IDisposable
 		if (playerCaster != null)
 			// wand case
 			if (AttackType == WeaponAttackType.RangedAttack)
-				if ((playerCaster.ClassMask & (uint)Class.ClassMaskWandUsers) != 0)
+				if ((playerCaster.ClassMask & (uint)PlayerClass.ClassMaskWandUsers) != 0)
 				{
 					var pItem = playerCaster.GetWeaponForAttack(WeaponAttackType.RangedAttack);
 
 					if (pItem != null)
-						SpellSchoolMask = (SpellSchoolMask)(1 << (int)pItem.GetTemplate().GetDamageType());
+						SpellSchoolMask = (SpellSchoolMask)(1 << (int)pItem.Template.DamageType);
 				}
 
 		var modOwner = caster.SpellModOwner;
@@ -1625,7 +1625,7 @@ public partial class Spell : IDisposable
 				}
 
 				// check if we are using a potion in combat for the 2nd+ time. Cooldown is added only after caster gets out of combat
-				if (!IsIgnoringCooldowns && playerCaster.GetLastPotionId() != 0 && CastItem && (CastItem.IsPotion() || SpellInfo.IsCooldownStartedOnEvent))
+				if (!IsIgnoringCooldowns && playerCaster.GetLastPotionId() != 0 && CastItem && (CastItem.IsPotion || SpellInfo.IsCooldownStartedOnEvent))
 					return SpellCastResult.NotReady;
 			}
 
@@ -2147,10 +2147,10 @@ public partial class Spell : IDisposable
 					if (!pet)
 						return SpellCastResult.NoPet;
 
-					if (!pet.HaveInDiet(foodItem.GetTemplate()))
+					if (!pet.HaveInDiet(foodItem.Template))
 						return SpellCastResult.WrongPetFood;
 
-					if (foodItem.GetTemplate().GetBaseItemLevel() + 30 <= pet.Level)
+					if (foodItem.Template.BaseItemLevel + 30 <= pet.Level)
 						return SpellCastResult.FoodLowlevel;
 
 					if (_caster.AsPlayer.IsInCombat || pet.IsInCombat)
@@ -2252,7 +2252,7 @@ public partial class Spell : IDisposable
 					// we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM_TARGET
 					if (spellEffectInfo.TargetA.Target == Framework.Constants.Targets.GameobjectItemTarget &&
 						Targets.GOTarget == null &&
-						(pTempItem == null || pTempItem.GetTemplate().GetLockID() == 0 || !pTempItem.IsLocked()))
+						(pTempItem == null || pTempItem.Template.LockID == 0 || !pTempItem.IsLocked))
 						return SpellCastResult.BadTargets;
 
 					if (SpellInfo.Id != 1842 ||
@@ -2279,7 +2279,7 @@ public partial class Spell : IDisposable
 					}
 					else if (itm != null)
 					{
-						lockId = itm.GetTemplate().GetLockID();
+						lockId = itm.Template.LockID;
 					}
 
 					var skillId = SkillType.None;
@@ -2623,7 +2623,7 @@ public partial class Spell : IDisposable
 
 					if (spellEffectInfo.Effect == SpellEffectName.GiveArtifactPower)
 					{
-						var artifactEntry = CliDB.ArtifactStorage.LookupByKey(artifact.GetTemplate().GetArtifactID());
+						var artifactEntry = CliDB.ArtifactStorage.LookupByKey(artifact.Template.ArtifactID);
 
 						if (artifactEntry == null || artifactEntry.ArtifactCategoryID != spellEffectInfo.MiscValue)
 							return SpellCastResult.WrongArtifactEquipped;
@@ -6095,8 +6095,8 @@ public partial class Spell : IDisposable
 
 					var proto = Global.ObjectMgr.GetItemTemplate(item);
 
-					if (proto != null && proto.GetItemLimitCategory() != 0)
-						packet.FailedArg1 = (int)proto.GetItemLimitCategory();
+					if (proto != null && proto.ItemLimitCategory != 0)
+						packet.FailedArg1 = (int)proto.ItemLimitCategory;
 				}
 
 				break;
@@ -6356,7 +6356,7 @@ public partial class Spell : IDisposable
 			castFlags |= SpellCastFlags.PowerLeftSelf;
 
 		if (_caster.IsTypeId(TypeId.Player) &&
-			_caster.AsPlayer.Class == Class.Deathknight &&
+			_caster.AsPlayer.Class == PlayerClass.Deathknight &&
 			HasPowerTypeCost(PowerType.Runes) &&
 			!_triggeredCastFlags.HasAnyFlag(TriggerCastFlags.IgnorePowerAndReagentCost))
 		{
@@ -6512,7 +6512,7 @@ public partial class Spell : IDisposable
 
 			if (pItem)
 			{
-				ammoInventoryType = pItem.GetTemplate().GetInventoryType();
+				ammoInventoryType = pItem.Template.InventoryType;
 
 				if (ammoInventoryType == InventoryType.Thrown)
 				{
@@ -6835,7 +6835,7 @@ public partial class Spell : IDisposable
 		if (Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnoreCastItem))
 			return;
 
-		var proto = CastItem.GetTemplate();
+		var proto = CastItem.Template;
 
 		if (proto == null)
 		{
@@ -6849,7 +6849,7 @@ public partial class Spell : IDisposable
 		var expendable = false;
 		var withoutCharges = false;
 
-		foreach (var itemEffect in CastItem.GetEffects())
+		foreach (var itemEffect in CastItem.Effects)
 		{
 			if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
 				continue;
@@ -6870,7 +6870,7 @@ public partial class Spell : IDisposable
 					else
 						++charges;
 
-					if (proto.GetMaxStackSize() == 1)
+					if (proto.MaxStackSize == 1)
 						CastItem.SetSpellCharges(itemEffect.LegacySlotIndex, charges);
 
 					CastItem.SetState(ItemUpdateState.Changed, _caster.AsPlayer);
@@ -6979,7 +6979,7 @@ public partial class Spell : IDisposable
 		if (!player)
 			return SpellCastResult.SpellCastOk;
 
-		if (player.Class != Class.Deathknight)
+		if (player.Class != PlayerClass.Deathknight)
 			return SpellCastResult.SpellCastOk;
 
 		var readyRunes = 0;
@@ -6996,7 +6996,7 @@ public partial class Spell : IDisposable
 
 	void TakeRunePower(bool didHit)
 	{
-		if (!_caster.IsTypeId(TypeId.Player) || _caster.AsPlayer.Class != Class.Deathknight)
+		if (!_caster.IsTypeId(TypeId.Player) || _caster.AsPlayer.Class != PlayerClass.Deathknight)
 			return;
 
 		var player = _caster.AsPlayer;
@@ -7018,7 +7018,7 @@ public partial class Spell : IDisposable
 			return;
 
 		// do not take reagents for these item casts
-		if (CastItem != null && CastItem.GetTemplate().HasFlag(ItemFlags.NoReagentCost))
+		if (CastItem != null && CastItem.Template.HasFlag(ItemFlags.NoReagentCost))
 			return;
 
 		var p_caster = _caster.AsPlayer;
@@ -7037,7 +7037,7 @@ public partial class Spell : IDisposable
 			// if CastItem is also spell reagent
 			if (CastItem != null && CastItem.Entry == itemid)
 			{
-				foreach (var itemEffect in CastItem.GetEffects())
+				foreach (var itemEffect in CastItem.Effects)
 				{
 					if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
 						continue;
@@ -7493,7 +7493,7 @@ public partial class Spell : IDisposable
 			var ranged = _caster.AsPlayer.GetWeaponForAttack(WeaponAttackType.RangedAttack, true);
 
 			if (ranged)
-				maxRange *= ranged.GetTemplate().GetRangedModRange() * 0.01f;
+				maxRange *= ranged.Template.RangedModRange * 0.01f;
 		}
 
 		var modOwner = _caster.SpellModOwner;
@@ -7572,18 +7572,18 @@ public partial class Spell : IDisposable
 			if (!player.HasItemCount(itemid))
 				return SpellCastResult.ItemNotReady;
 
-			var proto = CastItem.GetTemplate();
+			var proto = CastItem.Template;
 
 			if (proto == null)
 				return SpellCastResult.ItemNotReady;
 
-			foreach (var itemEffect in CastItem.GetEffects())
+			foreach (var itemEffect in CastItem.Effects)
 				if (itemEffect.LegacySlotIndex < CastItem.ItemData.SpellCharges.GetSize() && itemEffect.Charges != 0)
 					if (CastItem.GetSpellCharges(itemEffect.LegacySlotIndex) == 0)
 						return SpellCastResult.NoChargesRemain;
 
 			// consumable cast item checks
-			if (proto.GetClass() == ItemClass.Consumable && Targets.UnitTarget != null)
+			if (proto.Class == ItemClass.Consumable && Targets.UnitTarget != null)
 			{
 				// such items should only fail if there is no suitable effect at all - see Rejuvenation Potions for example
 				var failReason = SpellCastResult.SpellCastOk;
@@ -7662,7 +7662,7 @@ public partial class Spell : IDisposable
 		}
 
 		// do not take reagents for these item casts
-		if (!(CastItem != null && CastItem.GetTemplate().HasFlag(ItemFlags.NoReagentCost)))
+		if (!(CastItem != null && CastItem.Template.HasFlag(ItemFlags.NoReagentCost)))
 		{
 			var checkReagents = !Convert.ToBoolean(_triggeredCastFlags & TriggerCastFlags.IgnorePowerAndReagentCost) && !player.CanNoReagentCast(SpellInfo);
 
@@ -7690,12 +7690,12 @@ public partial class Spell : IDisposable
 					// if CastItem is also spell reagent
 					if (CastItem != null && CastItem.Entry == itemid)
 					{
-						var proto = CastItem.GetTemplate();
+						var proto = CastItem.Template;
 
 						if (proto == null)
 							return SpellCastResult.ItemNotReady;
 
-						foreach (var itemEffect in CastItem.GetEffects())
+						foreach (var itemEffect in CastItem.Effects)
 						{
 							if (itemEffect.LegacySlotIndex >= CastItem.ItemData.SpellCharges.GetSize())
 								continue;
@@ -7802,7 +7802,7 @@ public partial class Spell : IDisposable
 							if (itemTemplate == null)
 								return SpellCastResult.ItemNotFound;
 
-							var createCount = (uint)Math.Clamp(spellEffectInfo.CalcValue(), 1u, itemTemplate.GetMaxStackSize());
+							var createCount = (uint)Math.Clamp(spellEffectInfo.CalcValue(), 1u, itemTemplate.MaxStackSize);
 
 							List<ItemPosCount> dest = new();
 							var msg = target.AsPlayer.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, spellEffectInfo.ItemType, createCount);
@@ -7810,7 +7810,7 @@ public partial class Spell : IDisposable
 							if (msg != InventoryResult.Ok)
 							{
 								/// @todo Needs review
-								if (itemTemplate.GetItemLimitCategory() == 0)
+								if (itemTemplate.ItemLimitCategory == 0)
 								{
 									player.SendEquipError(msg, null, null, spellEffectInfo.ItemType);
 
@@ -7846,14 +7846,14 @@ public partial class Spell : IDisposable
 					break;
 				}
 				case SpellEffectName.EnchantItem:
-					if (spellEffectInfo.ItemType != 0 && Targets.ItemTarget != null && Targets.ItemTarget.IsVellum())
+					if (spellEffectInfo.ItemType != 0 && Targets.ItemTarget != null && Targets.ItemTarget.IsVellum)
 					{
 						// cannot enchant vellum for other player
 						if (Targets.ItemTarget.OwnerUnit != player)
 							return SpellCastResult.NotTradeable;
 
 						// do not allow to enchant vellum from scroll made by vellum-prevent exploit
-						if (CastItem != null && CastItem.GetTemplate().HasFlag(ItemFlags.NoReagentCost))
+						if (CastItem != null && CastItem.Template.HasFlag(ItemFlags.NoReagentCost))
 							return SpellCastResult.TotemCategory;
 
 						List<ItemPosCount> dest = new();
@@ -7881,7 +7881,7 @@ public partial class Spell : IDisposable
 
 					var isItemUsable = false;
 
-					foreach (var itemEffect in targetItem.GetEffects())
+					foreach (var itemEffect in targetItem.Effects)
 						if (itemEffect.SpellID != 0 && itemEffect.TriggerType == ItemSpelltriggerType.OnUse)
 						{
 							isItemUsable = true;
@@ -7951,10 +7951,10 @@ public partial class Spell : IDisposable
 					// Apply item level restriction if the enchanting spell has max level restrition set
 					if (CastItem != null && SpellInfo.MaxLevel > 0)
 					{
-						if (item.GetTemplate().GetBaseItemLevel() < CastItem.GetTemplate().GetBaseRequiredLevel())
+						if (item.Template.BaseItemLevel < CastItem.Template.BaseRequiredLevel)
 							return SpellCastResult.Lowlevel;
 
-						if (item.GetTemplate().GetBaseItemLevel() > SpellInfo.MaxLevel)
+						if (item.Template.BaseItemLevel > SpellInfo.MaxLevel)
 							return SpellCastResult.Highlevel;
 					}
 
@@ -7974,7 +7974,7 @@ public partial class Spell : IDisposable
 					if (item.OwnerGUID != player.GUID)
 						return SpellCastResult.CantBeSalvaged;
 
-					var itemProto = item.GetTemplate();
+					var itemProto = item.Template;
 
 					if (itemProto == null)
 						return SpellCastResult.CantBeSalvaged;
@@ -7997,7 +7997,7 @@ public partial class Spell : IDisposable
 						return SpellCastResult.CantBeProspected;
 
 					//ensure item is a prospectable ore
-					if (!item.GetTemplate().HasFlag(ItemFlags.IsProspectable))
+					if (!item.Template.HasFlag(ItemFlags.IsProspectable))
 						return SpellCastResult.CantBeProspected;
 
 					//prevent prospecting in trade slot
@@ -8005,13 +8005,13 @@ public partial class Spell : IDisposable
 						return SpellCastResult.CantBeProspected;
 
 					//Check for enough skill in jewelcrafting
-					var item_prospectingskilllevel = item.GetTemplate().GetRequiredSkillRank();
+					var item_prospectingskilllevel = item.Template.RequiredSkillRank;
 
 					if (item_prospectingskilllevel > player.GetSkillValue(SkillType.Jewelcrafting))
 						return SpellCastResult.LowCastlevel;
 
 					//make sure the player has the required ores in inventory
-					if (item.GetCount() < 5)
+					if (item.Count < 5)
 					{
 						param1 = (int)item.Entry;
 						param2 = 5;
@@ -8032,7 +8032,7 @@ public partial class Spell : IDisposable
 						return SpellCastResult.CantBeMilled;
 
 					//ensure item is a millable herb
-					if (!item.GetTemplate().HasFlag(ItemFlags.IsMillable))
+					if (!item.Template.HasFlag(ItemFlags.IsMillable))
 						return SpellCastResult.CantBeMilled;
 
 					//prevent milling in trade slot
@@ -8040,13 +8040,13 @@ public partial class Spell : IDisposable
 						return SpellCastResult.CantBeMilled;
 
 					//Check for enough skill in inscription
-					var item_millingskilllevel = item.GetTemplate().GetRequiredSkillRank();
+					var item_millingskilllevel = item.Template.RequiredSkillRank;
 
 					if (item_millingskilllevel > player.GetSkillValue(SkillType.Inscription))
 						return SpellCastResult.LowCastlevel;
 
 					//make sure the player has the required herbs in inventory
-					if (item.GetCount() < 5)
+					if (item.Count < 5)
 					{
 						param1 = (int)item.Entry;
 						param2 = 5;
@@ -8067,10 +8067,10 @@ public partial class Spell : IDisposable
 
 					var item = player.GetWeaponForAttack(AttackType);
 
-					if (item == null || item.IsBroken())
+					if (item == null || item.IsBroken)
 						return SpellCastResult.EquippedItem;
 
-					switch ((ItemSubClassWeapon)item.GetTemplate().GetSubClass())
+					switch ((ItemSubClassWeapon)item.Template.SubClass)
 					{
 						case ItemSubClassWeapon.Thrown:
 						{
@@ -8104,7 +8104,7 @@ public partial class Spell : IDisposable
 					var item = player.GetItemByEntry(itemId);
 
 					if (item != null)
-						foreach (var itemEffect in item.GetEffects())
+						foreach (var itemEffect in item.Effects)
 							if (itemEffect.LegacySlotIndex <= item.ItemData.SpellCharges.GetSize() && itemEffect.Charges != 0 && item.GetSpellCharges(itemEffect.LegacySlotIndex) == itemEffect.Charges)
 								return SpellCastResult.ItemAtMaxCharges;
 
@@ -8120,7 +8120,7 @@ public partial class Spell : IDisposable
 					if (item.OwnerGUID != _caster.GUID)
 						return SpellCastResult.DontReport;
 
-					var azeriteEmpoweredItem = item.ToAzeriteEmpoweredItem();
+					var azeriteEmpoweredItem = item.AsAzeriteEmpoweredItem;
 
 					if (azeriteEmpoweredItem == null)
 						return SpellCastResult.AzeriteEmpoweredOnly;
@@ -8155,7 +8155,7 @@ public partial class Spell : IDisposable
 				var item = player.AsPlayer.GetWeaponForAttack(attackType);
 
 				// skip spell if no weapon in slot or broken
-				if (!item || item.IsBroken())
+				if (!item || item.IsBroken)
 					return SpellCastResult.EquippedItemClass;
 
 				// skip spell if weapon not fit to triggered spell

@@ -610,7 +610,7 @@ public class ReputationMgr
 	}
 
 	// this allows calculating base reputations to offline players, just by race and class
-	public static int GetBaseReputationOf(FactionRecord factionEntry, Race race, Class playerClass)
+	public static int GetBaseReputationOf(FactionRecord factionEntry, Race race, PlayerClass playerClass)
 	{
 		if (factionEntry == null)
 			return 0;

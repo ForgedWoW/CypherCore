@@ -545,7 +545,7 @@ public class PlayerGroup
 		var pet = player.CurrentPet;
 
 		if (pet)
-			pet.			GroupUpdateFlag = GroupUpdatePetFlags.Full;
+			pet.GroupUpdateFlag = GroupUpdatePetFlags.Full;
 
 		UpdatePlayerOutOfRange(player);
 

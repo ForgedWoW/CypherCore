@@ -11,7 +11,7 @@ public class CharacterCreateInfo
 {
 	// User specified variables
 	public Race RaceId = Race.None;
-	public Class ClassId = Class.None;
+	public PlayerClass ClassId = PlayerClass.None;
 	public Gender Sex = Gender.None;
 	public Array<ChrCustomizationChoice> Customizations = new(72);
 	public uint? TemplateSet;

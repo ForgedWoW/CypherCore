@@ -5,231 +5,239 @@ using System;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.Movement
+namespace Game.Movement;
+
+public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 {
-    public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
-    {
-        readonly AbstractFollower _abstractFollower;
+	static readonly uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
+	readonly AbstractFollower _abstractFollower;
+	readonly float _range;
+	readonly uint _point1;
+	readonly uint _point2;
+	readonly TimeTracker _nextMoveTimer = new();
+	float _angle;
+	uint _lastLeaderSplineID;
+	bool _hasPredictedDestination;
 
-        static readonly uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
-        readonly float _range;
-        float _angle;
-        readonly uint _point1;
-        readonly uint _point2;
-        uint _lastLeaderSplineID;
-        bool _hasPredictedDestination;
+	Position _lastLeaderPosition;
 
-        Position _lastLeaderPosition;
-        readonly TimeTracker _nextMoveTimer = new();
+	public FormationMovementGenerator(Unit leader, float range, float angle, uint point1, uint point2)
+	{
+		_abstractFollower = new AbstractFollower(leader);
+		_range = range;
+		_angle = angle;
+		_point1 = point1;
+		_point2 = point2;
 
-        public FormationMovementGenerator(Unit leader, float range, float angle, uint point1, uint point2)
-        {
-            _abstractFollower = new(leader);
-            _range = range;
-            _angle = angle;
-            _point1 = point1;
-            _point2 = point2;
+		Mode = MovementGeneratorMode.Default;
+		Priority = MovementGeneratorPriority.Normal;
+		Flags = MovementGeneratorFlags.InitializationPending;
+		BaseUnitState = UnitState.FollowFormation;
+	}
 
-            Mode = MovementGeneratorMode.Default;
-            Priority = MovementGeneratorPriority.Normal;
-            Flags = MovementGeneratorFlags.InitializationPending;
-            BaseUnitState = UnitState.FollowFormation;
-        }
+	public override void DoInitialize(Creature owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
+		AddFlag(MovementGeneratorFlags.Initialized);
 
-        public override void DoInitialize(Creature owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
-            AddFlag(MovementGeneratorFlags.Initialized);
+		if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
+		{
+			AddFlag(MovementGeneratorFlags.Interrupted);
+			owner.StopMoving();
 
-            if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
-            {
-                AddFlag(MovementGeneratorFlags.Interrupted);
-                owner.StopMoving();
-                return;
-            }
+			return;
+		}
 
-            _nextMoveTimer.Reset(0);
-        }
+		_nextMoveTimer.Reset(0);
+	}
 
-        public override void DoReset(Creature owner)
-        {
-            RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
+	public override void DoReset(Creature owner)
+	{
+		RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.Deactivated);
 
-            DoInitialize(owner);
-        }
+		DoInitialize(owner);
+	}
 
-        public override bool DoUpdate(Creature owner, uint diff)
-        {
-            Unit target = _abstractFollower.GetTarget();
+	public override bool DoUpdate(Creature owner, uint diff)
+	{
+		var target = _abstractFollower.GetTarget();
 
-            if (owner == null || target == null)
-                return false;
+		if (owner == null || target == null)
+			return false;
 
-            // Owner cannot move. Reset all fields and wait for next action
-            if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
-            {
-                AddFlag(MovementGeneratorFlags.Interrupted);
-                owner.StopMoving();
-                _nextMoveTimer.Reset(0);
-                _hasPredictedDestination = false;
-                return true;
-            }
+		// Owner cannot move. Reset all fields and wait for next action
+		if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting())
+		{
+			AddFlag(MovementGeneratorFlags.Interrupted);
+			owner.StopMoving();
+			_nextMoveTimer.Reset(0);
+			_hasPredictedDestination = false;
 
-            // Update home position
-            // If target is not moving and destination has been predicted and if we are on the same spline, we stop as well
-            if (target.MoveSpline.Finalized() && target.MoveSpline.GetId() == _lastLeaderSplineID && _hasPredictedDestination)
-            {
-                AddFlag(MovementGeneratorFlags.Interrupted);
-                owner.StopMoving();
-                _nextMoveTimer.Reset(0);
-                _hasPredictedDestination = false;
-                return true;
-            }
+			return true;
+		}
 
-            if (!owner.MoveSpline.Finalized())
-                owner.                HomePosition = owner.Location;
+		// Update home position
+		// If target is not moving and destination has been predicted and if we are on the same spline, we stop as well
+		if (target.MoveSpline.Finalized() && target.MoveSpline.GetId() == _lastLeaderSplineID && _hasPredictedDestination)
+		{
+			AddFlag(MovementGeneratorFlags.Interrupted);
+			owner.StopMoving();
+			_nextMoveTimer.Reset(0);
+			_hasPredictedDestination = false;
 
-            // Formation leader has launched a new spline, launch a new one for our member as well
-            // This action does not reset the regular movement launch cycle interval
-            if (!target.MoveSpline.Finalized() && target.MoveSpline.GetId() != _lastLeaderSplineID)
-            {
-                // Update formation angle
-                if (_point1 != 0 && target.IsCreature)
-                {
-                    CreatureGroup formation = target.AsCreature.Formation;
-                    if (formation != null)
-                    {
-                        Creature leader = formation.Leader;
-                        if (leader != null)
-                        {
-                            uint currentWaypoint = leader.CurrentWaypointInfo.nodeId;
-                            if (currentWaypoint == _point1 || currentWaypoint == _point2)
-                                _angle = MathF.PI * 2 - _angle;
-                        }
-                    }
-                }
+			return true;
+		}
 
-                LaunchMovement(owner, target);
-                _lastLeaderSplineID = target.MoveSpline.GetId();
-                return true;
-            }
+		if (!owner.MoveSpline.Finalized())
+			owner.HomePosition = owner.Location;
 
-            _nextMoveTimer.Update(diff);
-            if (_nextMoveTimer.Passed)
-            {
-                _nextMoveTimer.Reset(FORMATION_MOVEMENT_INTERVAL);
+		// Formation leader has launched a new spline, launch a new one for our member as well
+		// This action does not reset the regular movement launch cycle interval
+		if (!target.MoveSpline.Finalized() && target.MoveSpline.GetId() != _lastLeaderSplineID)
+		{
+			// Update formation angle
+			if (_point1 != 0 && target.IsCreature)
+			{
+				var formation = target.AsCreature.Formation;
 
-                // Our leader has a different position than on our last check, launch movement.
-                if (_lastLeaderPosition != target.Location)
-                {
-                    LaunchMovement(owner, target);
-                    return true;
-                }
-            }
+				if (formation != null)
+				{
+					var leader = formation.Leader;
 
-            // We have reached our destination before launching a new movement. Alling facing with leader
-            if (owner.HasUnitState(UnitState.FollowFormationMove) && owner.MoveSpline.Finalized())
-            {
-                owner.ClearUnitState(UnitState.FollowFormationMove);
-                owner.SetFacingTo(target.Location.Orientation);
-                MovementInform(owner);
-            }
+					if (leader != null)
+					{
+						var currentWaypoint = leader.CurrentWaypointInfo.nodeId;
 
-            return true;
-        }
+						if (currentWaypoint == _point1 || currentWaypoint == _point2)
+							_angle = MathF.PI * 2 - _angle;
+					}
+				}
+			}
 
-        void LaunchMovement(Creature owner, Unit target)
-        {
-            float relativeAngle = 0.0f;
+			LaunchMovement(owner, target);
+			_lastLeaderSplineID = target.MoveSpline.GetId();
 
-            // Determine our relative angle to our current spline destination point
-            if (!target.MoveSpline.Finalized())
-                relativeAngle = target.Location.GetRelativeAngle(new Position(target.MoveSpline.CurrentDestination()));
+			return true;
+		}
 
-            // Destination calculation
-            /*
-                According to sniff data, formation members have a periodic move interal of 1,2s.
-                Each of these splines has a exact duration of 1650ms +- 1ms when no pathfinding is involved.
-                To get a representative result like that we have to predict our formation leader's path
-                and apply our formation shape based on that destination.
-            */
-            Position dest = new Position(target.Location);
-            float velocity = 0.0f;
+		_nextMoveTimer.Update(diff);
 
-            // Formation leader is moving. Predict our destination
-            if (!target.MoveSpline.Finalized())
-            {
-                // Pick up leader's spline velocity
-                velocity = target.MoveSpline.velocity;
+		if (_nextMoveTimer.Passed)
+		{
+			_nextMoveTimer.Reset(FORMATION_MOVEMENT_INTERVAL);
 
-                // Calculate travel distance to get a 1650ms result
-                float travelDist = velocity * 1.65f;
+			// Our leader has a different position than on our last check, launch movement.
+			if (_lastLeaderPosition != target.Location)
+			{
+				LaunchMovement(owner, target);
 
-                // Move destination ahead...
-                target.MovePositionToFirstCollision(dest, travelDist, relativeAngle);
-                // ... and apply formation shape
-                target.MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
+				return true;
+			}
+		}
 
-                float distance = owner.Location.GetExactDist(dest);
+		// We have reached our destination before launching a new movement. Alling facing with leader
+		if (owner.HasUnitState(UnitState.FollowFormationMove) && owner.MoveSpline.Finalized())
+		{
+			owner.ClearUnitState(UnitState.FollowFormationMove);
+			owner.SetFacingTo(target.Location.Orientation);
+			MovementInform(owner);
+		}
 
-                // Calculate catchup speed mod (Limit to a maximum of 50% of our original velocity
-                float velocityMod = Math.Min(distance / travelDist, 1.5f);
+		return true;
+	}
 
-                // Now we will always stay synch with our leader
-                velocity *= velocityMod;
-                _hasPredictedDestination = true;
-            }
-            else
-            {
-                // Formation leader is not moving. Just apply the base formation shape on his position.
-                target.MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
-                _hasPredictedDestination = false;
-            }
+	public override void DoDeactivate(Creature owner)
+	{
+		AddFlag(MovementGeneratorFlags.Deactivated);
+		owner.ClearUnitState(UnitState.FollowFormationMove);
+	}
 
-            // Leader is not moving, so just pick up his default walk speed
-            if (velocity == 0.0f)
-                velocity = target.GetSpeed(UnitMoveType.Walk);
+	public override void DoFinalize(Creature owner, bool active, bool movementInform)
+	{
+		AddFlag(MovementGeneratorFlags.Finalized);
 
-            MoveSplineInit init = new(owner);
-            init.MoveTo(dest);
-            init.SetVelocity(velocity);
-            init.Launch();
+		if (active)
+			owner.ClearUnitState(UnitState.FollowFormationMove);
 
-            _lastLeaderPosition = new Position(target.Location);
-            owner.AddUnitState(UnitState.FollowFormationMove);
-            RemoveFlag(MovementGeneratorFlags.Interrupted);
-        }
+		if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
+			MovementInform(owner);
+	}
 
-        public override void DoDeactivate(Creature owner)
-        {
-            AddFlag(MovementGeneratorFlags.Deactivated);
-            owner.ClearUnitState(UnitState.FollowFormationMove);
-        }
+	public override void UnitSpeedChanged()
+	{
+		AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
+	}
 
-        public override void DoFinalize(Creature owner, bool active, bool movementInform)
-        {
-            AddFlag(MovementGeneratorFlags.Finalized);
-            if (active)
-                owner.ClearUnitState(UnitState.FollowFormationMove);
+	public override MovementGeneratorType GetMovementGeneratorType()
+	{
+		return MovementGeneratorType.Formation;
+	}
 
-            if (movementInform && HasFlag(MovementGeneratorFlags.InformEnabled))
-                MovementInform(owner);
-        }
+	void LaunchMovement(Creature owner, Unit target)
+	{
+		var relativeAngle = 0.0f;
 
-        public override void UnitSpeedChanged()
-        {
-            AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
-        }
+		// Determine our relative angle to our current spline destination point
+		if (!target.MoveSpline.Finalized())
+			relativeAngle = target.Location.GetRelativeAngle(new Position(target.MoveSpline.CurrentDestination()));
 
-        public override MovementGeneratorType GetMovementGeneratorType()
-        {
-            return MovementGeneratorType.Formation;
-        }
+		// Destination calculation
+		/*
+			According to sniff data, formation members have a periodic move interal of 1,2s.
+			Each of these splines has a exact duration of 1650ms +- 1ms when no pathfinding is involved.
+			To get a representative result like that we have to predict our formation leader's path
+			and apply our formation shape based on that destination.
+		*/
+		var dest = new Position(target.Location);
+		var velocity = 0.0f;
 
-        void MovementInform(Creature owner)
-        {
-            if (owner.AI != null)
-                owner.                AI.MovementInform(MovementGeneratorType.Formation, 0);
-        }
-    }
+		// Formation leader is moving. Predict our destination
+		if (!target.MoveSpline.Finalized())
+		{
+			// Pick up leader's spline velocity
+			velocity = target.MoveSpline.velocity;
+
+			// Calculate travel distance to get a 1650ms result
+			var travelDist = velocity * 1.65f;
+
+			// Move destination ahead...
+			target.MovePositionToFirstCollision(dest, travelDist, relativeAngle);
+			// ... and apply formation shape
+			target.MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
+
+			var distance = owner.Location.GetExactDist(dest);
+
+			// Calculate catchup speed mod (Limit to a maximum of 50% of our original velocity
+			var velocityMod = Math.Min(distance / travelDist, 1.5f);
+
+			// Now we will always stay synch with our leader
+			velocity *= velocityMod;
+			_hasPredictedDestination = true;
+		}
+		else
+		{
+			// Formation leader is not moving. Just apply the base formation shape on his position.
+			target.MovePositionToFirstCollision(dest, _range, _angle + relativeAngle);
+			_hasPredictedDestination = false;
+		}
+
+		// Leader is not moving, so just pick up his default walk speed
+		if (velocity == 0.0f)
+			velocity = target.GetSpeed(UnitMoveType.Walk);
+
+		MoveSplineInit init = new(owner);
+		init.MoveTo(dest);
+		init.SetVelocity(velocity);
+		init.Launch();
+
+		_lastLeaderPosition = new Position(target.Location);
+		owner.AddUnitState(UnitState.FollowFormationMove);
+		RemoveFlag(MovementGeneratorFlags.Interrupted);
+	}
+
+	void MovementInform(Creature owner)
+	{
+		if (owner.AI != null)
+			owner.AI.MovementInform(MovementGeneratorType.Formation, 0);
+	}
 }

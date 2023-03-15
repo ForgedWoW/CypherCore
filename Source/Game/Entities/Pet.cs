@@ -299,12 +299,12 @@ public class Pet : Guardian
 			case PetType.Summon:
 				petlevel = owner.Level;
 
-				Class = Class.Mage;
+				Class = PlayerClass.Mage;
 				ReplaceAllUnitFlags(UnitFlags.PlayerControlled); // this enables popup window (pet dismiss, cancel)
 
 				break;
 			case PetType.Hunter:
-				Class = Class.Warrior;
+				Class = PlayerClass.Warrior;
 				Gender = Gender.None;
 				Sheath = SheathState.Melee;
 				ReplaceAllPetFlags(petInfo.WasRenamed ? UnitPetFlags.CanBeAbandoned : UnitPetFlags.CanBeRenamed | UnitPetFlags.CanBeAbandoned);
@@ -454,7 +454,7 @@ public class Pet : Guardian
 				var petSpec = CliDB.ChrSpecializationStorage.LookupByKey(specId);
 
 				if (petSpec != null)
-					specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? Class.Max : 0, petSpec.OrderIndex).Id;
+					specId = (ushort)Global.DB2Mgr.GetChrSpecializationByIndex(owner.HasAuraType(AuraType.OverridePetSpecs) ? PlayerClass.Max : 0, petSpec.OrderIndex).Id;
 
 				SetSpecialization(specId);
 
@@ -1015,11 +1015,11 @@ public class Pet : Guardian
 			case PetType.Summon:
 				switch (owner.Class)
 				{
-					case Class.Warlock:
+					case PlayerClass.Warlock:
 						return Template.CreatureType == CreatureType.Demon;
-					case Class.Deathknight:
+					case PlayerClass.Deathknight:
 						return Template.CreatureType == CreatureType.Undead;
-					case Class.Mage:
+					case PlayerClass.Mage:
 						return Template.CreatureType == CreatureType.Elemental;
 					default:
 						return false;
@@ -1190,7 +1190,7 @@ public class Pet : Guardian
 
 		if (cinfo.CreatureType == CreatureType.Beast)
 		{
-			Class = Class.Warrior;
+			Class = PlayerClass.Warrior;
 			Gender = Gender.None;
 			SetPowerType(PowerType.Focus);
 			Sheath = SheathState.Melee;
@@ -1730,7 +1730,7 @@ public class Pet : Guardian
 						unlearnedSpells.Add(specSpell.SpellID);
 			}
 
-			var specialization1 = Global.DB2Mgr.GetChrSpecializationByIndex(Class.Max, i);
+			var specialization1 = Global.DB2Mgr.GetChrSpecializationByIndex(PlayerClass.Max, i);
 
 			if (specialization1 != null)
 			{

@@ -9,25 +9,25 @@ namespace Game.Chat;
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class CommandAttribute : Attribute
 {
-    /// <summary>
-    ///  Command's name.
-    /// </summary>
-    public string Name { get; private set; }
+	/// <summary>
+	///  Command's name.
+	/// </summary>
+	public string Name { get; private set; }
 
-    /// <summary>
-    ///  Help String for command.
-    /// </summary>
-    public CypherStrings Help { get; set; }
+	/// <summary>
+	///  Help String for command.
+	/// </summary>
+	public CypherStrings Help { get; set; }
 
-    /// <summary>
-    ///  Allow Console?
-    /// </summary>
-    public bool AllowConsole { get; private set; }
+	/// <summary>
+	///  Allow Console?
+	/// </summary>
+	public bool AllowConsole { get; private set; }
 
-    /// <summary>
-    ///  Minimum user level required to invoke the command.
-    /// </summary>
-    public RBACPermissions RBAC { get; set; }
+	/// <summary>
+	///  Minimum user level required to invoke the command.
+	/// </summary>
+	public RBACPermissions RBAC { get; set; }
 
 	public CommandAttribute(string command)
 	{

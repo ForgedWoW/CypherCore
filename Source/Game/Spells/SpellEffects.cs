@@ -45,8 +45,8 @@ public partial class Spell
 		if (num_to_add < 1)
 			num_to_add = 1;
 
-		if (num_to_add > pProto.GetMaxStackSize())
-			num_to_add = pProto.GetMaxStackSize();
+		if (num_to_add > pProto.MaxStackSize)
+			num_to_add = pProto.MaxStackSize;
 
 		// this is bad, should be done using spell_loot_template (and conditions)
 
@@ -110,18 +110,18 @@ public partial class Spell
 			}
 
 			// set the "Crafted by ..." property of the item
-			if (pItem.GetTemplate().HasSignature())
+			if (pItem.Template.HasSignature)
 				pItem.SetCreator(player.GUID);
 
 			// send info to the client
 			player.SendNewItem(pItem, num_to_add, true, true);
 
-			if (pItem.GetQuality() > ItemQuality.Epic || (pItem.GetQuality() == ItemQuality.Epic && pItem.GetItemLevel(player) >= GuildConst.MinNewsItemLevel))
+			if (pItem.Quality > ItemQuality.Epic || (pItem.Quality == ItemQuality.Epic && pItem.GetItemLevel(player) >= GuildConst.MinNewsItemLevel))
 			{
 				var guild = player.Guild;
 
 				if (guild != null)
-					guild.AddGuildNews(GuildNews.ItemCrafted, player.GUID, 0, pProto.GetId());
+					guild.AddGuildNews(GuildNews.ItemCrafted, player.GUID, 0, pProto.Id);
 			}
 
 			// we succeeded in creating at least one item, so a levelup is possible
@@ -178,7 +178,7 @@ public partial class Spell
 
 		var item = Targets.ItemTarget;
 
-		if (item == null || !item.IsSoulBound())
+		if (item == null || !item.IsSoulBound)
 			return;
 
 		var OldItemBonusTree = EffectInfo.MiscValue;
@@ -231,7 +231,7 @@ public partial class Spell
 				bonusesNew.Add(bonus);
 		}
 
-		item.BonusData = new BonusData(item.GetTemplate());
+		item.BonusData = new BonusData(item.Template);
 
 		foreach (var newBonus in NewBonusTre)
 			if (_treeMod == newBonus.ItemContext)
@@ -1463,7 +1463,7 @@ public partial class Spell
 		}
 		else if (ItemTarget != null)
 		{
-			lockId = ItemTarget.GetTemplate().GetLockID();
+			lockId = ItemTarget.Template.LockID;
 			guid = ItemTarget.GUID;
 		}
 		else
@@ -1546,7 +1546,7 @@ public partial class Spell
 		if (newitemid == 0)
 			return;
 
-		var pos = CastItem.GetPos();
+		var pos = CastItem.Pos;
 
 		var pNewItem = Item.CreateItem(newitemid, 1, CastItem.GetContext(), player);
 
@@ -1566,11 +1566,11 @@ public partial class Spell
 		if (player.IsInventoryPos(pos))
 		{
 			List<ItemPosCount> dest = new();
-			var msg = player.CanStoreItem(CastItem.GetBagSlot(), CastItem.GetSlot(), dest, pNewItem, true);
+			var msg = player.CanStoreItem(CastItem.BagSlot, CastItem.Slot, dest, pNewItem, true);
 
 			if (msg == InventoryResult.Ok)
 			{
-				player.DestroyItem(CastItem.GetBagSlot(), CastItem.GetSlot(), true);
+				player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
 
 				// prevent crash at access and unexpected charges counting with item update queue corrupt
 				if (CastItem == Targets.ItemTarget)
@@ -1591,11 +1591,11 @@ public partial class Spell
 		else if (Player.IsBankPos(pos))
 		{
 			List<ItemPosCount> dest = new();
-			var msg = player.CanBankItem(CastItem.GetBagSlot(), CastItem.GetSlot(), dest, pNewItem, true);
+			var msg = player.CanBankItem(CastItem.BagSlot, CastItem.Slot, dest, pNewItem, true);
 
 			if (msg == InventoryResult.Ok)
 			{
-				player.DestroyItem(CastItem.GetBagSlot(), CastItem.GetSlot(), true);
+				player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
 
 				// prevent crash at access and unexpected charges counting with item update queue corrupt
 				if (CastItem == Targets.ItemTarget)
@@ -1613,9 +1613,9 @@ public partial class Spell
 		}
 		else if (Player.IsEquipmentPos(pos))
 		{
-			player.DestroyItem(CastItem.GetBagSlot(), CastItem.GetSlot(), true);
+			player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
 
-			var msg = player.CanEquipItem(CastItem.GetSlot(), out var dest, pNewItem, true);
+			var msg = player.CanEquipItem(CastItem.Slot, out var dest, pNewItem, true);
 
 			if (msg == InventoryResult.Ok || msg == InventoryResult.ClientLockedOut)
 			{
@@ -1922,7 +1922,7 @@ public partial class Spell
 		var player = UnitTarget.AsPlayer;
 
 		if (CastItem != null && EffectInfo.TriggerSpell == 0)
-			foreach (var itemEffect in CastItem.GetEffects())
+			foreach (var itemEffect in CastItem.Effects)
 			{
 				if (itemEffect.TriggerType != ItemSpelltriggerType.OnLearn)
 					continue;
@@ -2248,7 +2248,7 @@ public partial class Spell
 			return;
 
 		// Handle vellums
-		if (ItemTarget.IsVellum())
+		if (ItemTarget.IsVellum)
 		{
 			// destroy one vellum from stack
 			uint count = 1;
@@ -2263,7 +2263,7 @@ public partial class Spell
 		else
 		{
 			// do not increase skill if vellum used
-			if (!(CastItem && CastItem.GetTemplate().HasFlag(ItemFlags.NoReagentCost)))
+			if (!(CastItem && CastItem.Template.HasFlag(ItemFlags.NoReagentCost)))
 				player.UpdateCraftSkill(SpellInfo);
 
 			var enchant_id = (uint)EffectInfo.MiscValue;
@@ -2287,7 +2287,7 @@ public partial class Spell
 								"GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
 								player.GetName(),
 								player.Session.AccountId,
-								ItemTarget.GetTemplate().GetName(),
+								ItemTarget.Template.GetName(),
 								ItemTarget.Entry,
 								item_owner.GetName(),
 								item_owner.Session.AccountId);
@@ -2364,7 +2364,7 @@ public partial class Spell
 							"GM {0} (Account: {1}) enchanting(perm): {2} (Entry: {3}) for player: {4} (Account: {5})",
 							player.GetName(),
 							player.Session.AccountId,
-							ItemTarget.GetTemplate().GetName(),
+							ItemTarget.Template.GetName(),
 							ItemTarget.Entry,
 							item_owner.GetName(),
 							item_owner.Session.AccountId);
@@ -2427,7 +2427,7 @@ public partial class Spell
 							"GM {0} (Account: {1}) enchanting(temp): {2} (Entry: {3}) for player: {4} (Account: {5})",
 							player.GetName(),
 							player.Session.AccountId,
-							ItemTarget.GetTemplate().GetName(),
+							ItemTarget.Template.GetName(),
 							ItemTarget.Entry,
 							item_owner.GetName(),
 							item_owner.Session.AccountId);
@@ -2463,7 +2463,7 @@ public partial class Spell
 		if (creatureTarget.IsPet)
 			return;
 
-		if (unitCaster.Class != Class.Hunter)
+		if (unitCaster.Class != PlayerClass.Hunter)
 			return;
 
 		// cast finish successfully
@@ -2546,7 +2546,7 @@ public partial class Spell
 				owner.GetClosePoint(newPos, OldSummon.CombatReach);
 				newPos.Orientation = OldSummon.Location.Orientation;
 
-                OldSummon.NearTeleportTo(newPos);
+				OldSummon.NearTeleportTo(newPos);
 
 				if (owner.IsTypeId(TypeId.Player) && OldSummon.IsControlled)
 					owner.AsPlayer.PetSpellInitialize();
@@ -2568,7 +2568,7 @@ public partial class Spell
 		var combatPos = new Position();
 		owner.GetClosePoint(combatPos, owner.CombatReach);
 		combatPos.Orientation = owner.Location.Orientation;
-        var pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out var isNew);
+		var pet = owner.SummonPet(petentry, petSlot, combatPos, 0, out var isNew);
 
 		if (pet == null)
 			return;
@@ -2592,7 +2592,7 @@ public partial class Spell
 				pet.SetName(new_name);
 		}
 
-        ExecuteLogEffectSummonObject(EffectInfo.Effect, pet);
+		ExecuteLogEffectSummonObject(EffectInfo.Effect, pet);
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnPetSpell)]
@@ -3038,8 +3038,8 @@ public partial class Spell
 
 						if (bag != 0)
 						{
-							if (_caster.AsPlayer.GetItemByPos(bag, slot).GetCount() == 1) _caster.AsPlayer.RemoveItem(bag, slot, true);
-							else _caster.AsPlayer.GetItemByPos(bag, slot).SetCount(_caster.AsPlayer.GetItemByPos(bag, slot).GetCount() - 1);
+							if (_caster.AsPlayer.GetItemByPos(bag, slot).Count == 1) _caster.AsPlayer.RemoveItem(bag, slot, true);
+							else _caster.AsPlayer.GetItemByPos(bag, slot).SetCount(_caster.AsPlayer.GetItemByPos(bag, slot).Count - 1);
 
 							// Spell 42518 (Braufest - Gratisprobe des Braufest herstellen)
 							_caster.CastSpell(_caster, 42518, new CastSpellExtraArgs(this));
@@ -3427,7 +3427,7 @@ public partial class Spell
 			return;
 
 		// must be equipped
-		if (!item.IsEquipped())
+		if (!item.IsEquipped)
 			return;
 
 		if (EffectInfo.MiscValue != 0)
@@ -3536,7 +3536,7 @@ public partial class Spell
 		ExecuteLogEffectDestroyItem(EffectInfo.Effect, foodItem.Entry);
 
 		int pct;
-		var levelDiff = (int)pet.Level - (int)foodItem.GetTemplate().GetBaseItemLevel();
+		var levelDiff = (int)pet.Level - (int)foodItem.Template.BaseItemLevel;
 
 		if (levelDiff >= 30)
 			return;
@@ -4627,16 +4627,16 @@ public partial class Spell
 		if (player == null)
 			return;
 
-		if (ItemTarget == null || !ItemTarget.GetTemplate().HasFlag(ItemFlags.IsProspectable))
+		if (ItemTarget == null || !ItemTarget.Template.HasFlag(ItemFlags.IsProspectable))
 			return;
 
-		if (ItemTarget.GetCount() < 5)
+		if (ItemTarget.Count < 5)
 			return;
 
 		if (WorldConfig.GetBoolValue(WorldCfg.SkillProspecting))
 		{
 			uint SkillValue = player.GetPureSkillValue(SkillType.Jewelcrafting);
-			var reqSkillValue = ItemTarget.GetTemplate().GetRequiredSkillRank();
+			var reqSkillValue = ItemTarget.Template.RequiredSkillRank;
 			player.UpdateGatherSkill(SkillType.Jewelcrafting, SkillValue, reqSkillValue);
 		}
 
@@ -4656,16 +4656,16 @@ public partial class Spell
 		if (player == null)
 			return;
 
-		if (ItemTarget == null || !ItemTarget.GetTemplate().HasFlag(ItemFlags.IsMillable))
+		if (ItemTarget == null || !ItemTarget.Template.HasFlag(ItemFlags.IsMillable))
 			return;
 
-		if (ItemTarget.GetCount() < 5)
+		if (ItemTarget.Count < 5)
 			return;
 
 		if (WorldConfig.GetBoolValue(WorldCfg.SkillMilling))
 		{
 			uint SkillValue = player.GetPureSkillValue(SkillType.Inscription);
-			var reqSkillValue = ItemTarget.GetTemplate().GetRequiredSkillRank();
+			var reqSkillValue = ItemTarget.Template.RequiredSkillRank;
 			player.UpdateGatherSkill(SkillType.Inscription, SkillValue, reqSkillValue);
 		}
 
@@ -4910,7 +4910,7 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
 
-		if (UnitTarget == null || !UnitTarget.IsTypeId(TypeId.Player) || !UnitTarget.PetGUID.IsEmpty || UnitTarget.Class != Class.Hunter)
+		if (UnitTarget == null || !UnitTarget.IsTypeId(TypeId.Player) || !UnitTarget.PetGUID.IsEmpty || UnitTarget.Class != PlayerClass.Hunter)
 			return;
 
 		var creatureEntry = (uint)EffectInfo.MiscValue;
@@ -5063,10 +5063,10 @@ public partial class Spell
 				// level of pet summoned using engineering item based at engineering skill level
 				if (CastItem && unitCaster.IsPlayer)
 				{
-					var proto = CastItem.GetTemplate();
+					var proto = CastItem.Template;
 
 					if (proto != null)
-						if (proto.GetRequiredSkill() == (uint)SkillType.Engineering)
+						if (proto.RequiredSkill == (uint)SkillType.Engineering)
 						{
 							var skill202 = unitCaster.AsPlayer.GetSkillValue(SkillType.Engineering);
 
@@ -5109,7 +5109,7 @@ public partial class Spell
 		if (UnitTarget == null ||
 			!UnitTarget.IsTypeId(TypeId.Unit) ||
 			!UnitTarget.IsPet ||
-			UnitTarget.AsPet.			PetType != PetType.Hunter)
+			UnitTarget.AsPet.PetType != PetType.Hunter)
 			return;
 
 		UnitTarget.SetPetFlag(UnitPetFlags.CanBeRenamed);
@@ -5297,7 +5297,7 @@ public partial class Spell
 
 		if (item != null)
 		{
-			foreach (var itemEffect in item.GetEffects())
+			foreach (var itemEffect in item.Effects)
 				if (itemEffect.LegacySlotIndex <= item.ItemData.SpellCharges.GetSize())
 					item.SetSpellCharges(itemEffect.LegacySlotIndex, itemEffect.Charges);
 
@@ -5538,7 +5538,7 @@ public partial class Spell
 		var item = player.GetItemByEntry(EffectInfo.ItemType);
 
 		if (item)
-			player.DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
+			player.DestroyItem(item.BagSlot, item.Slot, true);
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnGarrisonBuilding)]
@@ -5830,7 +5830,7 @@ public partial class Spell
 
 		player.SendPlaySpellVisual(player, SharedConst.SpellVisualUncagePet, 0, 0, 0.0f, false);
 
-		player.DestroyItem(CastItem.GetBagSlot(), CastItem.GetSlot(), true);
+		player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
 		CastItem = null;
 	}
 
@@ -5868,8 +5868,8 @@ public partial class Spell
 		ItemTarget.SetState(ItemUpdateState.Changed, player);
 		ItemTarget.SetModifier(ItemModifier.EnchantIllusionAllSpecs, (uint)EffectInfo.MiscValue);
 
-		if (ItemTarget.IsEquipped())
-			player.SetVisibleItemSlot(ItemTarget.GetSlot(), ItemTarget);
+		if (ItemTarget.IsEquipped)
+			player.SetVisibleItemSlot(ItemTarget.Slot, ItemTarget);
 
 		player.RemoveTradeableItem(ItemTarget);
 		ItemTarget.ClearSoulboundTradeable(player);
@@ -6118,13 +6118,13 @@ public partial class Spell
 		if (heartOfAzeroth == null)
 			return;
 
-		var azeriteItem = heartOfAzeroth.ToAzeriteItem();
+		var azeriteItem = heartOfAzeroth.AsAzeriteItem;
 
 		if (azeriteItem == null)
 			return;
 
 		// remove old rank and apply new one
-		if (azeriteItem.IsEquipped())
+		if (azeriteItem.IsEquipped)
 		{
 			var selectedEssences = azeriteItem.GetSelectedAzeriteEssences();
 

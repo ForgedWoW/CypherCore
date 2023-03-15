@@ -18,14 +18,14 @@ public class PlayerTaxi
 	uint _flightMasterFactionId;
 	public object TaxiLock { get; } = new();
 
-	public void InitTaxiNodesForLevel(Race race, Class chrClass, uint level)
+	public void InitTaxiNodesForLevel(Race race, PlayerClass chrClass, uint level)
 	{
 		lock (TaxiLock)
 		{
 			Taximask = new byte[((CliDB.TaxiNodesStorage.GetNumRows() - 1) / 8) + 1];
 
 			// class specific initial known nodes
-			if (chrClass == Class.Deathknight)
+			if (chrClass == PlayerClass.Deathknight)
 			{
 				var factionMask = Player.TeamForRace(race) == TeamFaction.Horde ? CliDB.HordeTaxiNodesMask : CliDB.AllianceTaxiNodesMask;
 				Taximask = new byte[factionMask.Length];

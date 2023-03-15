@@ -57,13 +57,13 @@ public class AuctionHouseObject
 			bucket = new AuctionsBucketData();
 			bucket.Key = key;
 
-			var itemTemplate = auction.Items[0].GetTemplate();
-			bucket.ItemClass = (byte)itemTemplate.GetClass();
-			bucket.ItemSubClass = (byte)itemTemplate.GetSubClass();
-			bucket.InventoryType = (byte)itemTemplate.GetInventoryType();
+			var itemTemplate = auction.Items[0].Template;
+			bucket.ItemClass = (byte)itemTemplate.Class;
+			bucket.ItemSubClass = (byte)itemTemplate.SubClass;
+			bucket.InventoryType = (byte)itemTemplate.InventoryType;
 			bucket.RequiredLevel = (byte)auction.Items[0].GetRequiredLevel();
 
-			switch (itemTemplate.GetClass())
+			switch (itemTemplate.Class)
 			{
 				case ItemClass.Weapon:
 				case ItemClass.Armor:
@@ -71,12 +71,12 @@ public class AuctionHouseObject
 
 					break;
 				case ItemClass.Container:
-					bucket.SortLevel = (byte)itemTemplate.GetContainerSlots();
+					bucket.SortLevel = (byte)itemTemplate.ContainerSlots;
 
 					break;
 				case ItemClass.Gem:
 				case ItemClass.ItemEnhancement:
-					bucket.SortLevel = (byte)itemTemplate.GetBaseItemLevel();
+					bucket.SortLevel = (byte)itemTemplate.BaseItemLevel;
 
 					break;
 				case ItemClass.Consumable:
@@ -89,7 +89,7 @@ public class AuctionHouseObject
 
 					break;
 				case ItemClass.Recipe:
-					bucket.SortLevel = (byte)((ItemSubClassRecipe)itemTemplate.GetSubClass() != ItemSubClassRecipe.Book ? itemTemplate.GetRequiredSkillRank() : (uint)itemTemplate.GetBaseRequiredLevel());
+					bucket.SortLevel = (byte)((ItemSubClassRecipe)itemTemplate.SubClass != ItemSubClassRecipe.Book ? itemTemplate.RequiredSkillRank : (uint)itemTemplate.BaseRequiredLevel);
 
 					break;
 				default:
@@ -134,7 +134,7 @@ public class AuctionHouseObject
 
 		if (auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId) == 0)
 		{
-			quality = (byte)auction.Items[0].GetQuality();
+			quality = (byte)auction.Items[0].Quality;
 		}
 		else
 		{
@@ -252,7 +252,7 @@ public class AuctionHouseObject
 
 			if (auction.Items[0].GetModifier(ItemModifier.BattlePetSpeciesId) == 0)
 			{
-				quality = (uint)auction.Items[0].GetQuality();
+				quality = (uint)auction.Items[0].Quality;
 			}
 			else
 			{
@@ -567,7 +567,7 @@ public class AuctionHouseObject
 				builder.AddItem(auction);
 
 				foreach (var item in auction.Items)
-					listItemsResult.TotalCount += item.GetCount();
+					listItemsResult.TotalCount += item.Count;
 			}
 
 			foreach (var resultAuction in builder.GetResultRange())
@@ -595,7 +595,7 @@ public class AuctionHouseObject
 				builder.AddItem(auction);
 
 				foreach (var item in auction.Items)
-					listItemsResult.TotalCount += item.GetCount();
+					listItemsResult.TotalCount += item.Count;
 			}
 
 		foreach (var resultAuction in builder.GetResultRange())
@@ -706,7 +706,7 @@ public class AuctionHouseObject
 		{
 			foreach (var auctionItem in auction.Items)
 			{
-				if (auctionItem.GetCount() >= remainingQuantity)
+				if (auctionItem.Count >= remainingQuantity)
 				{
 					totalPrice += auction.BuyoutOrUnitPrice * remainingQuantity;
 					remainingQuantity = 0;
@@ -714,8 +714,8 @@ public class AuctionHouseObject
 					break;
 				}
 
-				totalPrice += auction.BuyoutOrUnitPrice * auctionItem.GetCount();
-				remainingQuantity -= auctionItem.GetCount();
+				totalPrice += auction.BuyoutOrUnitPrice * auctionItem.Count;
+				remainingQuantity -= auctionItem.Count;
 			}
 		}
 
@@ -775,7 +775,7 @@ public class AuctionHouseObject
 
 			foreach (var auctionItem in auction.Items)
 			{
-				if (auctionItem.GetCount() >= remainingQuantity)
+				if (auctionItem.Count >= remainingQuantity)
 				{
 					totalPrice += auction.BuyoutOrUnitPrice * remainingQuantity;
 					remainingQuantity = 0;
@@ -784,8 +784,8 @@ public class AuctionHouseObject
 					break;
 				}
 
-				totalPrice += auction.BuyoutOrUnitPrice * auctionItem.GetCount();
-				remainingQuantity -= auctionItem.GetCount();
+				totalPrice += auction.BuyoutOrUnitPrice * auctionItem.Count;
+				remainingQuantity -= auctionItem.Count;
 			}
 		}
 
@@ -844,7 +844,7 @@ public class AuctionHouseObject
 					itemsBatch = items.Last();
 				}
 
-				if (auctionItem.GetCount() >= remainingQuantity)
+				if (auctionItem.Count >= remainingQuantity)
 				{
 					var clonedItem = auctionItem.CloneItem(remainingQuantity, player);
 
@@ -855,7 +855,7 @@ public class AuctionHouseObject
 						return false;
 					}
 
-					auctionItem.SetCount(auctionItem.GetCount() - remainingQuantity);
+					auctionItem.SetCount(auctionItem.Count - remainingQuantity);
 					auctionItem.FSetState(ItemUpdateState.Changed);
 					auctionItem.SaveToDB(trans);
 					itemsBatch.AddItem(clonedItem, auction.BuyoutOrUnitPrice);
@@ -867,8 +867,8 @@ public class AuctionHouseObject
 				}
 
 				itemsBatch.AddItem(auctionItem, auction.BuyoutOrUnitPrice);
-				boughtFromAuction += auctionItem.GetCount();
-				remainingQuantity -= auctionItem.GetCount();
+				boughtFromAuction += auctionItem.Count;
+				remainingQuantity -= auctionItem.Count;
 				++removedItems;
 			}
 
@@ -887,7 +887,7 @@ public class AuctionHouseObject
 			}
 
 			var auctionHouseCut = CalculateAuctionHouseCut(auction.BuyoutOrUnitPrice * boughtFromAuction);
-			var depositPart = Global.AuctionHouseMgr.GetCommodityAuctionDeposit(items[0].Items[0].GetTemplate(), (auction.EndTime - auction.StartTime), boughtFromAuction);
+			var depositPart = Global.AuctionHouseMgr.GetCommodityAuctionDeposit(items[0].Items[0].Template, (auction.EndTime - auction.StartTime), boughtFromAuction);
 			var profit = auction.BuyoutOrUnitPrice * boughtFromAuction + depositPart - auctionHouseCut;
 
 			var owner = Global.ObjAccessor.FindConnectedPlayer(auction.Owner);
@@ -1188,8 +1188,8 @@ public class AuctionHouseObject
 		public void AddItem(Item item, ulong unitPrice)
 		{
 			Items[ItemsCount++] = item;
-			Quantity += item.GetCount();
-			TotalPrice += unitPrice * item.GetCount();
+			Quantity += item.Count;
+			TotalPrice += unitPrice * item.Count;
 		}
 	}
 }

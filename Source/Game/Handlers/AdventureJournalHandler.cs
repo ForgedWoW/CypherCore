@@ -7,56 +7,57 @@ using Game.DataStorage;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.AdventureJournalOpenQuest)]
-        void HandleAdventureJournalOpenQuest(AdventureJournalOpenQuest openQuest)
-        {
-            var uiDisplay = Global.DB2Mgr.GetUiDisplayForClass(_player.Class);
-            if (uiDisplay != null)
-                if (!_player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
-                    return;
+	[WorldPacketHandler(ClientOpcodes.AdventureJournalOpenQuest)]
+	void HandleAdventureJournalOpenQuest(AdventureJournalOpenQuest openQuest)
+	{
+		var uiDisplay = Global.DB2Mgr.GetUiDisplayForClass(_player.Class);
 
-            var adventureJournal = CliDB.AdventureJournalStorage.LookupByKey(openQuest.AdventureJournalID);
-            if (adventureJournal == null)
-                return;
+		if (uiDisplay != null)
+			if (!_player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
+				return;
 
-            if (!_player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
-                return;
+		var adventureJournal = CliDB.AdventureJournalStorage.LookupByKey(openQuest.AdventureJournalID);
 
-            Quest quest = Global.ObjectMgr.GetQuestTemplate(adventureJournal.QuestID);
-            if (quest == null)
-                return;
+		if (adventureJournal == null)
+			return;
 
-            if (_player.CanTakeQuest(quest, true))
-                _player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, _player.GUID, true, false);
-        }
+		if (!_player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
+			return;
 
-        [WorldPacketHandler(ClientOpcodes.AdventureJournalUpdateSuggestions)]
-        void HandleAdventureJournalUpdateSuggestions(AdventureJournalUpdateSuggestions updateSuggestions)
-        {
-            var uiDisplay = Global.DB2Mgr.GetUiDisplayForClass(_player.Class);
-            if (uiDisplay != null)
-                if (!_player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
-                    return;
+		var quest = Global.ObjectMgr.GetQuestTemplate(adventureJournal.QuestID);
 
-            AdventureJournalDataResponse response = new();
-            response.OnLevelUp = updateSuggestions.OnLevelUp;
+		if (quest == null)
+			return;
 
-            foreach (var adventureJournal in CliDB.AdventureJournalStorage.Values)
-            {
-                if (_player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
-                {
-                    AdventureJournalEntry adventureJournalData;
-                    adventureJournalData.AdventureJournalID = (int)adventureJournal.Id;
-                    adventureJournalData.Priority = adventureJournal.PriorityMax;
-                    response.AdventureJournalDatas.Add(adventureJournalData);
-                }
-            }
+		if (_player.CanTakeQuest(quest, true))
+			_player.PlayerTalkClass.SendQuestGiverQuestDetails(quest, _player.GUID, true, false);
+	}
 
-            SendPacket(response);
-        }
-    }
+	[WorldPacketHandler(ClientOpcodes.AdventureJournalUpdateSuggestions)]
+	void HandleAdventureJournalUpdateSuggestions(AdventureJournalUpdateSuggestions updateSuggestions)
+	{
+		var uiDisplay = Global.DB2Mgr.GetUiDisplayForClass(_player.Class);
+
+		if (uiDisplay != null)
+			if (!_player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
+				return;
+
+		AdventureJournalDataResponse response = new();
+		response.OnLevelUp = updateSuggestions.OnLevelUp;
+
+		foreach (var adventureJournal in CliDB.AdventureJournalStorage.Values)
+			if (_player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
+			{
+				AdventureJournalEntry adventureJournalData;
+				adventureJournalData.AdventureJournalID = (int)adventureJournal.Id;
+				adventureJournalData.Priority = adventureJournal.PriorityMax;
+				response.AdventureJournalDatas.Add(adventureJournalData);
+			}
+
+		SendPacket(response);
+	}
 }

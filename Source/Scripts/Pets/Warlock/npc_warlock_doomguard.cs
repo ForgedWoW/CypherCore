@@ -47,7 +47,7 @@ namespace Scripts.Pets
 
 			public override void Reset()
 			{
-				Me.Class = Class.Rogue;
+				Me.Class = PlayerClass.Rogue;
 				Me.SetPowerType(PowerType.Energy);
 				Me.SetMaxPower(PowerType.Energy, 200);
 				Me.SetPower(PowerType.Energy, 200);

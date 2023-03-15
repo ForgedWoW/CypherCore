@@ -3,10 +3,9 @@
 
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces.ISpell
+namespace Game.Scripting.Interfaces.ISpell;
+
+public interface ISpellOnSucessfulInterrupt : ISpellScript
 {
-    public interface ISpellOnSucessfulInterrupt : ISpellScript
-    {
-        void SucessfullyInterrupted(Spell spellInterrupted);
-   }
+	void SucessfullyInterrupted(Spell spellInterrupted);
 }

@@ -5,174 +5,181 @@ using System.Collections.Generic;
 using Framework.Database;
 using Game.Maps.Grids;
 
-namespace Game
+namespace Game;
+
+public sealed class WaypointManager : Singleton<WaypointManager>
 {
-    public sealed class WaypointManager : Singleton<WaypointManager>
-    {
-        WaypointManager() { }
+	readonly Dictionary<uint, WaypointPath> _waypointStore = new();
+	WaypointManager() { }
 
-        public void Load()
-        {
-            var oldMSTime = Time.MSTime;
+	public void Load()
+	{
+		var oldMSTime = Time.MSTime;
 
-            //                                          0    1         2           3          4            5           6        7      8           9
-            SQLResult result = DB.World.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
+		//                                          0    1         2           3          4            5           6        7      8           9
+		var result = DB.World.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
 
-            if (result.IsEmpty())
-            {
-                Log.outInfo(LogFilter.ServerLoading, "Loaded 0 waypoints. DB table `waypoint_data` is empty!");
-                return;
-            }
+		if (result.IsEmpty())
+		{
+			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 waypoints. DB table `waypoint_data` is empty!");
 
-            uint count = 0;
+			return;
+		}
 
-            do
-            {
-                uint pathId = result.Read<uint>(0);
+		uint count = 0;
 
-                float x = result.Read<float>(2);
-                float y = result.Read<float>(3);
-                float z = result.Read<float>(4);
-                float? o = null;
-                if (!result.IsNull(5))
-                    o = result.Read<float>(5);
+		do
+		{
+			var pathId = result.Read<uint>(0);
 
-                x = GridDefines.NormalizeMapCoord(x);
-                y = GridDefines.NormalizeMapCoord(y);
+			var x = result.Read<float>(2);
+			var y = result.Read<float>(3);
+			var z = result.Read<float>(4);
+			float? o = null;
 
-                WaypointNode waypoint = new();
-                waypoint.id = result.Read<uint>(1);
-                waypoint.x = x;
-                waypoint.y = y;
-                waypoint.z = z;
-                waypoint.orientation = o;
-                waypoint.moveType = (WaypointMoveType)result.Read<uint>(6);
+			if (!result.IsNull(5))
+				o = result.Read<float>(5);
 
-                if (waypoint.moveType >= WaypointMoveType.Max)
-                {
-                    Log.outError(LogFilter.Sql, $"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
-                    continue;
-                }
+			x = GridDefines.NormalizeMapCoord(x);
+			y = GridDefines.NormalizeMapCoord(y);
 
-                waypoint.delay = result.Read<uint>(7);
-                waypoint.eventId = result.Read<uint>(8);
-                waypoint.eventChance = result.Read<byte>(9);
+			WaypointNode waypoint = new();
+			waypoint.id = result.Read<uint>(1);
+			waypoint.x = x;
+			waypoint.y = y;
+			waypoint.z = z;
+			waypoint.orientation = o;
+			waypoint.moveType = (WaypointMoveType)result.Read<uint>(6);
 
-                if (!_waypointStore.ContainsKey(pathId))
-                    _waypointStore[pathId] = new WaypointPath();
+			if (waypoint.moveType >= WaypointMoveType.Max)
+			{
+				Log.outError(LogFilter.Sql, $"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 
-                WaypointPath path = _waypointStore[pathId];
-                path.id = pathId;
-                path.nodes.Add(waypoint);
+				continue;
+			}
 
-                ++count;
-            } while (result.NextRow());
+			waypoint.delay = result.Read<uint>(7);
+			waypoint.eventId = result.Read<uint>(8);
+			waypoint.eventChance = result.Read<byte>(9);
 
-            Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} waypoints in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-        }
+			if (!_waypointStore.ContainsKey(pathId))
+				_waypointStore[pathId] = new WaypointPath();
 
-        public void ReloadPath(uint id)
-        {
-            _waypointStore.Remove(id);
+			var path = _waypointStore[pathId];
+			path.id = pathId;
+			path.nodes.Add(waypoint);
 
-            PreparedStatement stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_ID);
-            stmt.AddValue(0, id);
-            SQLResult result = DB.World.Query(stmt);
+			++count;
+		} while (result.NextRow());
 
-            if (result.IsEmpty())
-                return;
+		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} waypoints in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+	}
 
-            List<WaypointNode> values = new();
-            do
-            {
-                float x = result.Read<float>(1);
-                float y = result.Read<float>(2);
-                float z = result.Read<float>(3);
-                float? o = null;
-                if (!result.IsNull(4))
-                    o = result.Read<float>(4);
+	public void ReloadPath(uint id)
+	{
+		_waypointStore.Remove(id);
 
-                x = GridDefines.NormalizeMapCoord(x);
-                y = GridDefines.NormalizeMapCoord(y);
+		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_BY_ID);
+		stmt.AddValue(0, id);
+		var result = DB.World.Query(stmt);
 
-                WaypointNode waypoint = new();
-                waypoint.id = result.Read<uint>(0);
-                waypoint.x = x;
-                waypoint.y = y;
-                waypoint.z = z;
-                waypoint.orientation = o;
-                waypoint.moveType = (WaypointMoveType)result.Read<uint>(5);
+		if (result.IsEmpty())
+			return;
 
-                if (waypoint.moveType >= WaypointMoveType.Max)
-                {
-                    Log.outError(LogFilter.Sql, $"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
-                    continue;
-                }
+		List<WaypointNode> values = new();
 
-                waypoint.delay = result.Read<uint>(6);
-                waypoint.eventId = result.Read<uint>(7);
-                waypoint.eventChance = result.Read<byte>(8);
+		do
+		{
+			var x = result.Read<float>(1);
+			var y = result.Read<float>(2);
+			var z = result.Read<float>(3);
+			float? o = null;
 
-                values.Add(waypoint);
-            }
-            while (result.NextRow());
+			if (!result.IsNull(4))
+				o = result.Read<float>(4);
 
-            _waypointStore[id] = new WaypointPath(id, values);
-        }
+			x = GridDefines.NormalizeMapCoord(x);
+			y = GridDefines.NormalizeMapCoord(y);
 
-        public WaypointPath GetPath(uint id)
-        {
-            return _waypointStore.LookupByKey(id);
-        }
+			WaypointNode waypoint = new();
+			waypoint.id = result.Read<uint>(0);
+			waypoint.x = x;
+			waypoint.y = y;
+			waypoint.z = z;
+			waypoint.orientation = o;
+			waypoint.moveType = (WaypointMoveType)result.Read<uint>(5);
 
-        readonly Dictionary<uint, WaypointPath> _waypointStore = new();
-    }
+			if (waypoint.moveType >= WaypointMoveType.Max)
+			{
+				Log.outError(LogFilter.Sql, $"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 
-    public class WaypointNode
-    {
-        public WaypointNode() { moveType = WaypointMoveType.Run; }
-        public WaypointNode(uint _id, float _x, float _y, float _z, float? _orientation = null, uint _delay = 0)
-        {
-            id = _id;
-            x = _x;
-            y = _y;
-            z = _z;
-            orientation = _orientation;
-            delay = _delay;
-            eventId = 0;
-            moveType = WaypointMoveType.Walk;
-            eventChance = 100;
-        }
+				continue;
+			}
 
-        public uint id;
-        public float x, y, z;
-        public float? orientation;
-        public uint delay;
-        public uint eventId;
-        public WaypointMoveType moveType;
-        public byte eventChance;
-    }
+			waypoint.delay = result.Read<uint>(6);
+			waypoint.eventId = result.Read<uint>(7);
+			waypoint.eventChance = result.Read<byte>(8);
 
-    public class WaypointPath
-    {
-        public WaypointPath() { }
-        public WaypointPath(uint _id, List<WaypointNode> _nodes)
-        {
-            id = _id;
-            nodes = _nodes;
-        }
+			values.Add(waypoint);
+		} while (result.NextRow());
 
-        public List<WaypointNode> nodes = new();
-        public uint id;
-    }
+		_waypointStore[id] = new WaypointPath(id, values);
+	}
 
-    public enum WaypointMoveType
-    {
-        Walk,
-        Run,
-        Land,
-        Takeoff,
+	public WaypointPath GetPath(uint id)
+	{
+		return _waypointStore.LookupByKey(id);
+	}
+}
 
-        Max
-    }
+public class WaypointNode
+{
+	public uint id;
+	public float x, y, z;
+	public float? orientation;
+	public uint delay;
+	public uint eventId;
+	public WaypointMoveType moveType;
+	public byte eventChance;
+
+	public WaypointNode()
+	{
+		moveType = WaypointMoveType.Run;
+	}
+
+	public WaypointNode(uint _id, float _x, float _y, float _z, float? _orientation = null, uint _delay = 0)
+	{
+		id = _id;
+		x = _x;
+		y = _y;
+		z = _z;
+		orientation = _orientation;
+		delay = _delay;
+		eventId = 0;
+		moveType = WaypointMoveType.Walk;
+		eventChance = 100;
+	}
+}
+
+public class WaypointPath
+{
+	public List<WaypointNode> nodes = new();
+	public uint id;
+	public WaypointPath() { }
+
+	public WaypointPath(uint _id, List<WaypointNode> _nodes)
+	{
+		id = _id;
+		nodes = _nodes;
+	}
+}
+
+public enum WaypointMoveType
+{
+	Walk,
+	Run,
+	Land,
+	Takeoff,
+
+	Max
 }

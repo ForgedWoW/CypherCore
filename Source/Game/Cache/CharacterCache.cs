@@ -48,7 +48,7 @@ public class CharacterCache : Singleton<CharacterCache>
 		data.AccountId = accountId;
 		data.RaceId = (Race)race;
 		data.Sex = (Gender)gender;
-		data.ClassId = (Class)playerClass;
+		data.ClassId = (PlayerClass)playerClass;
 		data.Level = level;
 		data.GuildId = 0; // Will be set in guild loading or guild setting
 

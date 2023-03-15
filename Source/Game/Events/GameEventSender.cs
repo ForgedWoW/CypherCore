@@ -2,61 +2,64 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.AI;
 using Game.Entities;
 using Game.Maps;
 
-namespace Game
+namespace Game;
+
+class GameEvents
 {
-    class GameEvents
-    {
-        public static void Trigger(uint gameEventId, WorldObject source, WorldObject target)
-        {
-            Cypher.Assert(source || target, "At least one of [source] or [target] must be provided");
+	public static void Trigger(uint gameEventId, WorldObject source, WorldObject target)
+	{
+		Cypher.Assert(source || target, "At least one of [source] or [target] must be provided");
 
-            WorldObject refForMapAndZoneScript = source ?? target;
+		var refForMapAndZoneScript = source ?? target;
 
-            ZoneScript zoneScript = refForMapAndZoneScript.ZoneScript1;
-            if (zoneScript == null && refForMapAndZoneScript.IsPlayer)
-                zoneScript = refForMapAndZoneScript.FindZoneScript();
+		var zoneScript = refForMapAndZoneScript.ZoneScript1;
 
-            if (zoneScript != null)
-                zoneScript.ProcessEvent(target, gameEventId, source);
+		if (zoneScript == null && refForMapAndZoneScript.IsPlayer)
+			zoneScript = refForMapAndZoneScript.FindZoneScript();
 
-            Map map = refForMapAndZoneScript.Map;
-            GameObject goTarget = target?.AsGameObject;
-            if (goTarget != null)
-            {
-                GameObjectAI goAI = goTarget.AI;
-                if (goAI != null)
-                    goAI.EventInform(gameEventId);
-            }
+		if (zoneScript != null)
+			zoneScript.ProcessEvent(target, gameEventId, source);
 
-            Player sourcePlayer = source?.AsPlayer;
-            if (sourcePlayer != null)
-                TriggerForPlayer(gameEventId, sourcePlayer);
+		var map = refForMapAndZoneScript.Map;
+		var goTarget = target?.AsGameObject;
 
-            TriggerForMap(gameEventId, map, source, target);
-        }
+		if (goTarget != null)
+		{
+			var goAI = goTarget.AI;
 
-        public static void TriggerForPlayer(uint gameEventId, Player source)
-        {
-            Map map = source.Map;
-            if (map.Instanceable)
-            {
-                source.StartCriteriaTimer(CriteriaStartEvent.SendEvent, gameEventId);
-                source.ResetCriteria(CriteriaFailEvent.SendEvent, gameEventId);
-            }
+			if (goAI != null)
+				goAI.EventInform(gameEventId);
+		}
 
-            source.UpdateCriteria(CriteriaType.PlayerTriggerGameEvent, gameEventId, 0, 0, source);
+		var sourcePlayer = source?.AsPlayer;
 
-            if (map.IsScenario)
-                source.UpdateCriteria(CriteriaType.AnyoneTriggerGameEventScenario, gameEventId, 0, 0, source);
-        }
+		if (sourcePlayer != null)
+			TriggerForPlayer(gameEventId, sourcePlayer);
 
-        public static void TriggerForMap(uint gameEventId, Map map, WorldObject source = null, WorldObject target = null)
-        {
-            map.ScriptsStart(ScriptsType.Event, gameEventId, source, target);
-        }
-    }
+		TriggerForMap(gameEventId, map, source, target);
+	}
+
+	public static void TriggerForPlayer(uint gameEventId, Player source)
+	{
+		var map = source.Map;
+
+		if (map.Instanceable)
+		{
+			source.StartCriteriaTimer(CriteriaStartEvent.SendEvent, gameEventId);
+			source.ResetCriteria(CriteriaFailEvent.SendEvent, gameEventId);
+		}
+
+		source.UpdateCriteria(CriteriaType.PlayerTriggerGameEvent, gameEventId, 0, 0, source);
+
+		if (map.IsScenario)
+			source.UpdateCriteria(CriteriaType.AnyoneTriggerGameEventScenario, gameEventId, 0, 0, source);
+	}
+
+	public static void TriggerForMap(uint gameEventId, Map map, WorldObject source = null, WorldObject target = null)
+	{
+		map.ScriptsStart(ScriptsType.Event, gameEventId, source, target);
+	}
 }

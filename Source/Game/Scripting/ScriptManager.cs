@@ -36,7 +36,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	// creature entry + chain ID
 	private readonly MultiMap<Tuple<uint, ushort>, SplineChainLink> _mSplineChainsMap = new(); // spline chains
 
-	private readonly Dictionary<Type, Dictionary<Class, List<IScriptObject>>> _scriptClassByType = new();
+	private readonly Dictionary<Type, Dictionary<PlayerClass, List<IScriptObject>>> _scriptClassByType = new();
 	private readonly Dictionary<Type, List<IScriptObject>> _scriptByType = new();
 	private readonly Dictionary<Type, ScriptRegistry> _scriptStorage = new();
 	private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
@@ -71,11 +71,11 @@ public class ScriptManager : Singleton<ScriptManager>
 		Cypher.Assert(trigger != null);
 
 		if (entered)
-			foreach (uint script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
 				return RunScriptRet<IAreaTriggerOnTrigger>(a => a.OnTrigger(player, trigger), script);
-        else
-            foreach (uint script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
-                return RunScriptRet<IAreaTriggerOnExit>(p => p.OnExit(player, trigger), script);
+		else
+			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+				return RunScriptRet<IAreaTriggerOnExit>(p => p.OnExit(player, trigger), script);
 
 		return false;
 	}
@@ -89,7 +89,7 @@ public class ScriptManager : Singleton<ScriptManager>
 				a.Invoke(s);
 	}
 
-	public void ForEach<T>(Class playerClass, Action<T> a) where T : IScriptObject, IClassRescriction
+	public void ForEach<T>(PlayerClass playerClass, Action<T> a) where T : IScriptObject, IClassRescriction
 	{
 		if (_scriptClassByType.TryGetValue(typeof(T), out var classKvp))
 		{
@@ -97,7 +97,7 @@ public class ScriptManager : Singleton<ScriptManager>
 				foreach (T s in ifaceImp)
 					a.Invoke(s);
 
-			if (classKvp.TryGetValue(Class.None, out var ifaceImpNone))
+			if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
 				foreach (T s in ifaceImpNone)
 					a.Invoke(s);
 		}
@@ -166,7 +166,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		{
 			if (!_scriptClassByType.TryGetValue(iface, out var classDict))
 			{
-				classDict = new Dictionary<Class, List<IScriptObject>>();
+				classDict = new Dictionary<PlayerClass, List<IScriptObject>>();
 				_scriptClassByType[iface] = classDict;
 			}
 
@@ -276,7 +276,7 @@ public class ScriptManager : Singleton<ScriptManager>
 						IScriptObject activatedObj = null;
 
 						var typeIfaces = type.GetInterfaces();
-						List<Type> basetypes = new List<Type>();
+						var basetypes = new List<Type>();
 						var baseType = type.BaseType;
 
 						while (baseType != null)
@@ -285,25 +285,27 @@ public class ScriptManager : Singleton<ScriptManager>
 							baseType = baseType.BaseType;
 						}
 
-                        
-                        foreach (var baseT in basetypes)
-                            if (!string.IsNullOrEmpty(baseT.Name) && activators.TryGetValue(baseT.Name, out var scriptActivator))
-                            {
-                                activatedObj = scriptActivator.Activate(type, name, attribute);
-                                if (activatedObj != null)
-                                    break;
-                            }
 
-                        if (activatedObj == null)
-                            foreach (var intFace in typeIfaces)
+						foreach (var baseT in basetypes)
+							if (!string.IsNullOrEmpty(baseT.Name) && activators.TryGetValue(baseT.Name, out var scriptActivator))
+							{
+								activatedObj = scriptActivator.Activate(type, name, attribute);
+
+								if (activatedObj != null)
+									break;
+							}
+
+						if (activatedObj == null)
+							foreach (var intFace in typeIfaces)
 								if (!string.IsNullOrEmpty(intFace.Name) && activators.TryGetValue(intFace.Name, out var scriptActivator))
 								{
 									activatedObj = scriptActivator.Activate(type, name, attribute);
+
 									if (activatedObj != null)
 										break;
 								}
 
-                        if (activatedObj == null)
+						if (activatedObj == null)
 							if (attribute.Args.Empty())
 							{
 								if (numArgsMin == 0 || numArgsMin == 99)
@@ -692,71 +694,71 @@ public class ScriptManager : Singleton<ScriptManager>
 		return scriptDic;
 	}
 
-    #endregion
+	#endregion
 
-    #region AreaTriggers
+	#region AreaTriggers
 
-    public List<AreaTriggerScript> CreateAreaTriggerScripts(uint areaTriggerId, AreaTrigger invoker)
-    {
-        var scriptList = new List<AreaTriggerScript>();
-        var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+	public List<AreaTriggerScript> CreateAreaTriggerScripts(uint areaTriggerId, AreaTrigger invoker)
+	{
+		var scriptList = new List<AreaTriggerScript>();
+		var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
 
-        var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
+		var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
 
-        if (reg == null)
-            return scriptList;
+		if (reg == null)
+			return scriptList;
 
-        foreach (var id in bounds)
-        {
-            var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
+		foreach (var id in bounds)
+		{
+			var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
 
-            if (tmpscript == null)
-                continue;
+			if (tmpscript == null)
+				continue;
 
-            var script = tmpscript.GetAreaTriggerScript();
+			var script = tmpscript.GetAreaTriggerScript();
 
-            if (script == null)
-                continue;
+			if (script == null)
+				continue;
 
-            script._Init(tmpscript.GetName(), areaTriggerId);
+			script._Init(tmpscript.GetName(), areaTriggerId);
 
-            if (!script._Load(invoker))
-                continue;
+			if (!script._Load(invoker))
+				continue;
 
-            scriptList.Add(script);
-        }
+			scriptList.Add(script);
+		}
 
-        return scriptList;
-    }
+		return scriptList;
+	}
 
-    public Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint> CreateAreaTriggerScriptLoaders(uint areaTriggerId)
-    {
-        var scriptDic = new Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint>();
-        var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+	public Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint> CreateAreaTriggerScriptLoaders(uint areaTriggerId)
+	{
+		var scriptDic = new Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint>();
+		var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
 
-        var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
+		var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
 
-        if (reg == null)
-            return scriptDic;
+		if (reg == null)
+			return scriptDic;
 
-        foreach (var id in bounds)
-        {
-            var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
+		foreach (var id in bounds)
+		{
+			var tmpscript = reg.GetScriptById<IAreaTriggerScriptLoaderGetTriggerScriptScript>(id);
 
-            if (tmpscript == null)
-                continue;
+			if (tmpscript == null)
+				continue;
 
-            scriptDic[tmpscript] = id;
-        }
+			scriptDic[tmpscript] = id;
+		}
 
-        return scriptDic;
-    }
+		return scriptDic;
+	}
 
-    #endregion
+	#endregion
 
-    #region Player Chat
+	#region Player Chat
 
-    public void OnPlayerChat(Player player, ChatMsg type, Language lang, string msg)
+	public void OnPlayerChat(Player player, ChatMsg type, Language lang, string msg)
 	{
 		ForEach<IPlayerOnChat>(p => p.OnChat(player, type, lang, msg));
 	}

@@ -23,7 +23,7 @@ public class npc_monk_jade_serpent_statue : ScriptedAI
 
 			if (player != null)
 			{
-				if (player.Class != Class.Monk)
+				if (player.Class != PlayerClass.Monk)
 				{
 					return;
 				}

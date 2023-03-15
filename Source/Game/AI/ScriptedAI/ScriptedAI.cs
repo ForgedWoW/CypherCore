@@ -101,13 +101,13 @@ public class ScriptedAI : CreatureAI
 		source.PlayDirectSound(soundId);
 	}
 
-    /// <summary>
-    ///  Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
-    /// </summary>
-    /// <param name="victim"> </param>
-    /// <param name="amount"> </param>
-    /// <param name="who"> </param>
-    public void AddThreat(Unit victim, double amount, Unit who = null)
+	/// <summary>
+	///  Add specified amount of threat directly to victim (ignores redirection effects) - also puts victim in combat and engages them if necessary
+	/// </summary>
+	/// <param name="victim"> </param>
+	/// <param name="amount"> </param>
+	/// <param name="who"> </param>
+	public void AddThreat(Unit victim, double amount, Unit who = null)
 	{
 		if (!victim)
 			return;
@@ -118,13 +118,13 @@ public class ScriptedAI : CreatureAI
 		who.GetThreatManager().AddThreat(victim, amount, null, true, true);
 	}
 
-    /// <summary>
-    ///  Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
-    /// </summary>
-    /// <param name="victim"> </param>
-    /// <param name="pct"> </param>
-    /// <param name="who"> </param>
-    public void ModifyThreatByPercent(Unit victim, int pct, Unit who = null)
+	/// <summary>
+	///  Adds/removes the specified percentage from the specified victim's threat (to who, or me if not specified)
+	/// </summary>
+	/// <param name="victim"> </param>
+	/// <param name="pct"> </param>
+	/// <param name="who"> </param>
+	public void ModifyThreatByPercent(Unit victim, int pct, Unit who = null)
 	{
 		if (!victim)
 			return;
@@ -135,12 +135,12 @@ public class ScriptedAI : CreatureAI
 		who.GetThreatManager().ModifyThreatByPercent(victim, pct);
 	}
 
-    /// <summary>
-    ///  Resets the victim's threat level to who (or me if not specified) to zero
-    /// </summary>
-    /// <param name="victim"> </param>
-    /// <param name="who"> </param>
-    public void ResetThreat(Unit victim, Unit who)
+	/// <summary>
+	///  Resets the victim's threat level to who (or me if not specified) to zero
+	/// </summary>
+	/// <param name="victim"> </param>
+	/// <param name="who"> </param>
+	public void ResetThreat(Unit victim, Unit who)
 	{
 		if (!victim)
 			return;
@@ -151,11 +151,11 @@ public class ScriptedAI : CreatureAI
 		who.GetThreatManager().ResetThreat(victim);
 	}
 
-    /// <summary>
-    ///  Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
-    /// </summary>
-    /// <param name="who"> </param>
-    public void ResetThreatList(Unit who = null)
+	/// <summary>
+	///  Resets the specified unit's threat list (me if not specified) - does not delete entries, just sets their threat to zero
+	/// </summary>
+	/// <param name="who"> </param>
+	public void ResetThreatList(Unit who = null)
 	{
 		if (!who)
 			who = Me;
@@ -163,13 +163,13 @@ public class ScriptedAI : CreatureAI
 		who.GetThreatManager().ResetAllThreat();
 	}
 
-    /// <summary>
-    ///  Returns the threat level of victim towards who (or me if not specified)
-    /// </summary>
-    /// <param name="victim"> </param>
-    /// <param name="who"> </param>
-    /// <returns> </returns>
-    public double GetThreat(Unit victim, Unit who = null)
+	/// <summary>
+	///  Returns the threat level of victim towards who (or me if not specified)
+	/// </summary>
+	/// <param name="victim"> </param>
+	/// <param name="who"> </param>
+	/// <returns> </returns>
+	public double GetThreat(Unit victim, Unit who = null)
 	{
 		if (!victim)
 			return 0.0f;
@@ -458,12 +458,12 @@ public class ScriptedAI : CreatureAI
 		};
 	}
 
-    /// <summary>
-    ///  Stops combat, ignoring restrictions, for the given creature
-    /// </summary>
-    /// <param name="who"> </param>
-    /// <param name="reset"> </param>
-    void ForceCombatStop(Creature who, bool reset = true)
+	/// <summary>
+	///  Stops combat, ignoring restrictions, for the given creature
+	/// </summary>
+	/// <param name="who"> </param>
+	/// <param name="reset"> </param>
+	void ForceCombatStop(Creature who, bool reset = true)
 	{
 		if (who == null || !who.IsInCombat)
 			return;
@@ -482,14 +482,14 @@ public class ScriptedAI : CreatureAI
 		}
 	}
 
-    /// <summary>
-    ///  Stops combat, ignoring restrictions, for the found creatures
-    /// </summary>
-    /// <param name="entry"> </param>
-    /// <param name="maxSearchRange"> </param>
-    /// <param name="samePhase"> </param>
-    /// <param name="reset"> </param>
-    void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
+	/// <summary>
+	///  Stops combat, ignoring restrictions, for the found creatures
+	/// </summary>
+	/// <param name="entry"> </param>
+	/// <param name="maxSearchRange"> </param>
+	/// <param name="samePhase"> </param>
+	/// <param name="reset"> </param>
+	void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
 	{
 		Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
 
@@ -509,14 +509,14 @@ public class ScriptedAI : CreatureAI
 			ForceCombatStop(creature, reset);
 	}
 
-    /// <summary>
-    ///  Stops combat, ignoring restrictions, for the found creatures
-    /// </summary>
-    /// <param name="creatureEntries"> </param>
-    /// <param name="maxSearchRange"> </param>
-    /// <param name="samePhase"> </param>
-    /// <param name="reset"> </param>
-    void ForceCombatStopForCreatureEntry(List<uint> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
+	/// <summary>
+	///  Stops combat, ignoring restrictions, for the found creatures
+	/// </summary>
+	/// <param name="creatureEntries"> </param>
+	/// <param name="maxSearchRange"> </param>
+	/// <param name="samePhase"> </param>
+	/// <param name="reset"> </param>
+	void ForceCombatStopForCreatureEntry(List<uint> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
 	{
 		foreach (var entry in creatureEntries)
 			ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);

@@ -73,12 +73,12 @@ public partial class Creature
 	}
 
 	public bool CanMelee
-    {
-        get { return !StaticFlags.HasFlag(CreatureStaticFlags.NO_MELEE); }
-        set { StaticFlags.ModifyFlag(CreatureStaticFlags.NO_MELEE, !value); }
-    }
+	{
+		get { return !StaticFlags.HasFlag(CreatureStaticFlags.NO_MELEE); }
+		set { StaticFlags.ModifyFlag(CreatureStaticFlags.NO_MELEE, !value); }
+	}
 
-    public uint GossipMenuId
+	public uint GossipMenuId
 	{
 		get
 		{

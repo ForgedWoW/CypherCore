@@ -40,8 +40,8 @@ internal class spell_gen_gm_freeze : AuraScript, IHasAuraEffects
 			player.SetUnitFlag(UnitFlags.NonAttackable);
 
 			// if player class = hunter || warlock Remove pet if alive
-			if ((player.Class == Class.Hunter) ||
-				(player.Class == Class.Warlock))
+			if ((player.Class == PlayerClass.Hunter) ||
+				(player.Class == PlayerClass.Warlock))
 			{
 				var pet = player.CurrentPet;
 

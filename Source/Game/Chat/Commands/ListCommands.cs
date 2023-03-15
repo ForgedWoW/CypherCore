@@ -336,7 +336,7 @@ class ListCommands
 
 										if (handler.Session != null)
 										{
-											var color = ItemConst.ItemQualityColors[(int)itemTemplate.GetQuality()];
+											var color = ItemConst.ItemQualityColors[(int)itemTemplate.Quality];
 											var itemStr = $"|c{color}|Hitem:{item_entry}:0:0:0:0:0:0:0:{handler.Session.Player.Level}:0:0:0:0:0|h[{itemTemplate.GetName(handler.SessionDbcLocale)}]|h|r";
 											handler.SendSysMessage(CypherStrings.ListMailInfoItem, itemStr, item_entry, item_guid, item_count);
 										}

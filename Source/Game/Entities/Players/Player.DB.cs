@@ -208,7 +208,7 @@ public partial class Player
 		var accountId = result.Read<uint>(fieldIndex++);
 		var name = result.Read<string>(fieldIndex++);
 		var race = (Race)result.Read<byte>(fieldIndex++);
-		var class_ = (Class)result.Read<byte>(fieldIndex++);
+		var class_ = (PlayerClass)result.Read<byte>(fieldIndex++);
 		var gender = (Gender)result.Read<byte>(fieldIndex++);
 		var level = result.Read<byte>(fieldIndex++);
 		var xp = result.Read<uint>(fieldIndex++);
@@ -1102,7 +1102,7 @@ public partial class Player
 			stmt.AddValue(index++, PlayerData.PlayerFlags);
 			stmt.AddValue(index++, PlayerData.PlayerFlagsEx);
 			stmt.AddValue(index++, (ushort)Location.MapId);
-			stmt.AddValue(index++, InstanceId1);
+			stmt.AddValue(index++, InstanceId);
 			stmt.AddValue(index++, (byte)DungeonDifficultyId);
 			stmt.AddValue(index++, (byte)RaidDifficultyId);
 			stmt.AddValue(index++, (byte)LegacyRaidDifficultyId);
@@ -1195,7 +1195,7 @@ public partial class Player
 
 				if (item != null)
 				{
-					ss.Append($"{(uint)item.GetTemplate().GetInventoryType()} {item.GetDisplayId(this)} ");
+					ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
 					var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
 
 					if (enchant != null)
@@ -1243,7 +1243,7 @@ public partial class Player
 			if (!IsBeingTeleported)
 			{
 				stmt.AddValue(index++, (ushort)Location.MapId);
-				stmt.AddValue(index++, InstanceId1);
+				stmt.AddValue(index++, InstanceId);
 				stmt.AddValue(index++, (byte)DungeonDifficultyId);
 				stmt.AddValue(index++, (byte)RaidDifficultyId);
 				stmt.AddValue(index++, (byte)LegacyRaidDifficultyId);
@@ -1356,7 +1356,7 @@ public partial class Player
 
 				if (item != null)
 				{
-					ss.Append($"{(uint)item.GetTemplate().GetInventoryType()} {item.GetDisplayId(this)} ");
+					ss.Append($"{(uint)item.Template.InventoryType} {item.GetDisplayId(this)} ");
 					var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(item.GetVisibleEnchantmentId(this));
 
 					if (enchant != null)
@@ -1552,9 +1552,9 @@ public partial class Player
 			// Define the required variables
 			uint charDeleteMinLvl;
 
-			if (characterInfo.ClassId == Class.Deathknight)
+			if (characterInfo.ClassId == PlayerClass.Deathknight)
 				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteDeathKnightMinLevel);
-			else if (characterInfo.ClassId == Class.DemonHunter)
+			else if (characterInfo.ClassId == PlayerClass.DemonHunter)
 				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteDemonHunterMinLevel);
 			else
 				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteMinLevel);
@@ -2110,12 +2110,12 @@ public partial class Player
 
 					if (addionalData != null)
 					{
-						if (item.GetTemplate().GetArtifactID() != 0 && addionalData.Artifact != null)
+						if (item.Template.ArtifactID != 0 && addionalData.Artifact != null)
 							item.LoadArtifactData(this, addionalData.Artifact.Xp, addionalData.Artifact.ArtifactAppearanceId, addionalData.Artifact.ArtifactTierId, addionalData.Artifact.ArtifactPowers);
 
 						if (addionalData.AzeriteItem != null)
 						{
-							var azeriteItem = item.ToAzeriteItem();
+							var azeriteItem = item.AsAzeriteItem;
 
 							if (azeriteItem != null)
 								azeriteItem.LoadAzeriteItemData(this, addionalData.AzeriteItem);
@@ -2123,7 +2123,7 @@ public partial class Player
 
 						if (addionalData.AzeriteEmpoweredItem != null)
 						{
-							var azeriteEmpoweredItem = item.ToAzeriteEmpoweredItem();
+							var azeriteEmpoweredItem = item.AsAzeriteEmpoweredItem;
 
 							if (azeriteEmpoweredItem != null)
 								azeriteEmpoweredItem.LoadAzeriteEmpoweredItemData(this, addionalData.AzeriteEmpoweredItem);
@@ -2142,7 +2142,7 @@ public partial class Player
 
 					if (item.HasItemFlag(ItemFieldFlags.Child))
 					{
-						var parent = GetItemByGuid(item.GetCreator());
+						var parent = GetItemByGuid(item.Creator);
 
 						if (parent)
 						{
@@ -2192,17 +2192,17 @@ public partial class Player
 						// Remember bags that may contain items in them
 						if (err == InventoryResult.Ok)
 						{
-							if (IsBagPos(item.GetPos()))
+							if (IsBagPos(item.Pos))
 							{
-								var pBag = item.ToBag();
+								var pBag = item.AsBag;
 
 								if (pBag != null)
 									bagMap.Add(item.GUID, pBag);
 							}
 						}
-						else if (IsBagPos(item.GetPos()))
+						else if (IsBagPos(item.Pos))
 						{
-							if (item.IsBag())
+							if (item.IsBag)
 								invalidBagMap.Add(item.GUID, item);
 						}
 					}
@@ -2215,7 +2215,7 @@ public partial class Player
 						if (bag != null)
 						{
 							List<ItemPosCount> dest = new();
-							err = CanStoreItem(bag.GetSlot(), slot, dest, item);
+							err = CanStoreItem(bag.Slot, slot, dest, item);
 
 							if (err == InventoryResult.Ok)
 								item = StoreItem(dest, item, true);
@@ -2334,9 +2334,9 @@ public partial class Player
 					remove = true;
 				}
 
-				if (item.IsRefundable())
+				if (item.IsRefundable)
 				{
-					if (item.GetPlayedTime() > (2 * Time.Hour))
+					if (item.PlayedTime > (2 * Time.Hour))
 					{
 						Log.outDebug(LogFilter.Player,
 									"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
@@ -2345,7 +2345,7 @@ public partial class Player
 									GetName(),
 									item.GUID.ToString(),
 									item.Entry,
-									item.GetPlayedTime());
+									item.PlayedTime);
 
 						stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_REFUND_INSTANCE);
 						stmt.AddValue(0, item.GUID.ToString());
@@ -2380,7 +2380,7 @@ public partial class Player
 						}
 					}
 				}
-				else if (item.IsBOPTradeable())
+				else if (item.IsBOPTradeable)
 				{
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ITEM_BOP_TRADE);
 					stmt.AddValue(0, item.GUID.ToString());
@@ -2396,7 +2396,7 @@ public partial class Player
 							if (ulong.TryParse(GUIDlist[i], out var guid))
 								looters.Add(ObjectGuid.Create(HighGuid.Item, guid));
 
-						if (looters.Count > 1 && item.GetTemplate().GetMaxStackSize() == 1 && item.IsSoulBound())
+						if (looters.Count > 1 && item.Template.MaxStackSize == 1 && item.IsSoulBound)
 						{
 							item.SetSoulboundTradeable(looters);
 							AddTradeableItem(item);
@@ -2419,14 +2419,14 @@ public partial class Player
 						item.RemoveItemFlag(ItemFieldFlags.BopTradeable);
 					}
 				}
-				else if (proto.GetHolidayID() != 0)
+				else if (proto.HolidayID != 0)
 				{
 					remove = true;
 					var events = Global.GameEventMgr.GetEventMap();
 					var activeEventsList = Global.GameEventMgr.GetActiveEventList();
 
 					foreach (var id in activeEventsList)
-						if (events[id].holiday_id == proto.GetHolidayID())
+						if (events[id].holiday_id == proto.HolidayID)
 						{
 							remove = false;
 
@@ -3454,7 +3454,7 @@ public partial class Player
 
 		if (addionalData != null)
 		{
-			if (item.GetTemplate().GetArtifactID() != 0 && addionalData.Artifact != null)
+			if (item.Template.ArtifactID != 0 && addionalData.Artifact != null)
 				item.LoadArtifactData(player,
 									addionalData.Artifact.Xp,
 									addionalData.Artifact.ArtifactAppearanceId,
@@ -3463,7 +3463,7 @@ public partial class Player
 
 			if (addionalData.AzeriteItem != null)
 			{
-				var azeriteItem = item.ToAzeriteItem();
+				var azeriteItem = item.AsAzeriteItem;
 
 				if (azeriteItem != null)
 					azeriteItem.LoadAzeriteItemData(player, addionalData.AzeriteItem);
@@ -3471,7 +3471,7 @@ public partial class Player
 
 			if (addionalData.AzeriteEmpoweredItem != null)
 			{
-				var azeriteEmpoweredItem = item.ToAzeriteEmpoweredItem();
+				var azeriteEmpoweredItem = item.AsAzeriteEmpoweredItem;
 
 				if (azeriteEmpoweredItem != null)
 					azeriteEmpoweredItem.LoadAzeriteEmpoweredItemData(player, addionalData.AzeriteEmpoweredItem);
@@ -3788,9 +3788,9 @@ public partial class Player
 			if (item == null)
 				continue;
 
-			var itemTemplate = item.GetTemplate();
+			var itemTemplate = item.Template;
 
-			if (item.GetState() == ItemUpdateState.New)
+			if (item.State == ItemUpdateState.New)
 			{
 				if (itemTemplate != null)
 					if (itemTemplate.HasFlag(ItemFlags.HasLoot))
@@ -3844,16 +3844,16 @@ public partial class Player
 			if (item == null)
 				continue;
 
-			var container = item.GetContainer();
+			var container = item.Container;
 
-			if (item.GetState() != ItemUpdateState.Removed)
+			if (item.State != ItemUpdateState.Removed)
 			{
-				var test = GetItemByPos(item.GetBagSlot(), item.GetSlot());
+				var test = GetItemByPos(item.BagSlot, item.Slot);
 
 				if (test == null)
 				{
 					ulong bagTestGUID = 0;
-					var test2 = GetItemByPos(InventorySlots.Bag0, item.GetBagSlot());
+					var test2 = GetItemByPos(InventorySlots.Bag0, item.BagSlot);
 
 					if (test2 != null)
 						bagTestGUID = test2.GUID.Counter;
@@ -3863,15 +3863,15 @@ public partial class Player
 								"the player doesn't have an item at that position!",
 								GUID.ToString(),
 								GetName(),
-								item.GetBagSlot(),
-								item.GetSlot(),
+								item.BagSlot,
+								item.Slot,
 								item.GUID.ToString(),
-								item.GetState());
+								item.State);
 
 					// according to the test that was just performed nothing should be in this slot, delete
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY_BY_BAG_SLOT);
 					stmt.AddValue(0, bagTestGUID);
-					stmt.AddValue(1, item.GetSlot());
+					stmt.AddValue(1, item.Slot);
 					stmt.AddValue(2, GUID.Counter);
 					trans.Append(stmt);
 
@@ -3890,13 +3890,13 @@ public partial class Player
 								"the item with guid {5} is there instead!",
 								GUID.ToString(),
 								GetName(),
-								item.GetBagSlot(),
-								item.GetSlot(),
+								item.BagSlot,
+								item.Slot,
 								item.GUID.ToString(),
 								test.GUID.ToString());
 
 					// save all changes to the item...
-					if (item.GetState() != ItemUpdateState.New) // only for existing items, no dupes
+					if (item.State != ItemUpdateState.New) // only for existing items, no dupes
 						item.SaveToDB(trans);
 
 					// ...but do not save position in inventory
@@ -3904,14 +3904,14 @@ public partial class Player
 				}
 			}
 
-			switch (item.GetState())
+			switch (item.State)
 			{
 				case ItemUpdateState.New:
 				case ItemUpdateState.Changed:
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_INVENTORY_ITEM);
 					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, container ? container.GUID.Counter : 0);
-					stmt.AddValue(2, item.GetSlot());
+					stmt.AddValue(2, item.Slot);
 					stmt.AddValue(3, item.GUID.Counter);
 					trans.Append(stmt);
 

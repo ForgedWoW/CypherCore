@@ -15,7 +15,7 @@ public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCrea
 
 	public void OnCreatureKill(Player killer, Creature killed)
 	{
-		if (killer.Class == Class.Druid)
+		if (killer.Class == PlayerClass.Druid)
 			return;
 
 		if (!killer.HasAura(DruidSpells.PREDATOR))
@@ -27,7 +27,7 @@ public class dru_predator : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCrea
 
 	public void OnPVPKill(Player killer, Player killed)
 	{
-		if (killer.Class == Class.Druid)
+		if (killer.Class == PlayerClass.Druid)
 			return;
 
 		if (!killer.HasAura(DruidSpells.PREDATOR))

@@ -24,7 +24,7 @@ internal class spell_sha_flametongue_weapon : SpellScript, ISpellOnCast, ISpellC
 
 		_item = player.GetItemByPos(InventorySlots.Bag0, slot);
 
-		return _item == null || !_item.GetTemplate().IsWeapon() ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
+		return _item == null || !_item.Template.IsWeapon ? SpellCastResult.TargetNoWeapons : SpellCastResult.SpellCastOk;
 	}
 
 

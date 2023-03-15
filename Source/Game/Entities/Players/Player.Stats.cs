@@ -397,7 +397,7 @@ public partial class Player
 			var offhand = GetWeaponForAttack(WeaponAttackType.OffAttack, true);
 
 			if (offhand)
-				if (CanDualWield || offhand.GetTemplate().HasFlag(ItemFlags3.AlwaysAllowDualWield))
+				if (CanDualWield || offhand.Template.HasFlag(ItemFlags3.AlwaysAllowDualWield))
 					UpdateDamagePhysical(WeaponAttackType.OffAttack);
 
 			if (HasAuraType(AuraType.OverrideSpellPowerByApPct))
@@ -544,7 +544,7 @@ public partial class Player
 						ApplyAttackTimePercentMod(WeaponAttackType.BaseAttack, newVal, true);
 						ApplyAttackTimePercentMod(WeaponAttackType.OffAttack, newVal, true);
 
-						if (Class == Class.Deathknight)
+						if (Class == PlayerClass.Deathknight)
 							UpdateAllRunesRegen();
 
 						break;
@@ -632,7 +632,7 @@ public partial class Player
 		// No proof that CR_VERSATILITY_DAMAGE_DONE is allways = ActivePlayerData::Versatility
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Versatility), (int)ActivePlayerData.CombatRatings[(int)CombatRating.VersatilityDamageDone]);
 
-		if (Class == Class.Hunter)
+		if (Class == PlayerClass.Hunter)
 			UpdateDamagePhysical(WeaponAttackType.RangedAttack);
 		else
 			UpdateDamagePhysical(WeaponAttackType.BaseAttack);
@@ -938,7 +938,7 @@ public partial class Player
 		SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CombatRatings, (int)CombatRating.ArmorPenetration), (uint)amount);
 	}
 
-	double CalculateDiminishingReturns(float[] capArray, Class playerClass, double nonDiminishValue, double diminishValue)
+	double CalculateDiminishingReturns(float[] capArray, PlayerClass playerClass, double nonDiminishValue, double diminishValue)
 	{
 		float[] m_diminishing_k =
 		{

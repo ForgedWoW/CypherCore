@@ -411,14 +411,14 @@ public partial class Unit
 
 					break;
 				case CharmType.Charm:
-					if (IsTypeId(TypeId.Unit) && charmer.Class == Class.Warlock)
+					if (IsTypeId(TypeId.Unit) && charmer.Class == PlayerClass.Warlock)
 					{
 						var cinfo = AsCreature.Template;
 
 						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
 						{
 							// to prevent client crash
-							Class = Class.Mage;
+							Class = PlayerClass.Mage;
 
 							// just to enable stat window
 							if (GetCharmInfo() != null)
@@ -525,13 +525,13 @@ public partial class Unit
 
 					break;
 				case CharmType.Charm:
-					if (IsTypeId(TypeId.Unit) && charmer.Class == Class.Warlock)
+					if (IsTypeId(TypeId.Unit) && charmer.Class == PlayerClass.Warlock)
 					{
 						var cinfo = AsCreature.Template;
 
 						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
 						{
-							Class = (Class)cinfo.UnitClass;
+							Class = (PlayerClass)cinfo.UnitClass;
 
 							if (GetCharmInfo() != null)
 								GetCharmInfo().SetPetNumber(0, true);

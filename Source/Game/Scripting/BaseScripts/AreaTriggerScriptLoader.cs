@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Scripting.Interfaces.ISpell;
 
 namespace Game.Scripting.BaseScripts;
 
@@ -19,8 +18,8 @@ public class AreaTriggerScriptLoader : ScriptObject, IAreaTriggerScriptLoaderGet
 	}
 
 	// Should return a fully valid SpellScript.
-    public virtual AreaTriggerScript GetAreaTriggerScript()
-    {
-        return null;
-    }
+	public virtual AreaTriggerScript GetAreaTriggerScript()
+	{
+		return null;
+	}
 }

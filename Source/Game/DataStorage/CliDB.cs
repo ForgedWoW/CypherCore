@@ -14,10 +14,12 @@ namespace Game.DataStorage;
 
 public class CliDB
 {
-	static ActionBlock<Action> _taskManager = new ActionBlock<Action>(a => a(), new ExecutionDataflowBlockOptions()
-	{
-		MaxDegreeOfParallelism = 20
-	});
+	static readonly ActionBlock<Action> _taskManager = new(a => a(),
+															new ExecutionDataflowBlockOptions()
+															{
+																MaxDegreeOfParallelism = 20
+															});
+
 	public static BitSet LoadStores(string dataPath, Locale defaultLocale)
 	{
 		var oldMSTime = Time.MSTime;
@@ -51,16 +53,16 @@ public class CliDB
 			return storage;
 		}
 
-        _taskManager.Post(() => AchievementStorage = ReadDB2<AchievementRecord>("Achievement.db2", HotfixStatements.SEL_ACHIEVEMENT, HotfixStatements.SEL_ACHIEVEMENT_LOCALE));
-        _taskManager.Post(() => AchievementCategoryStorage = ReadDB2<AchievementCategoryRecord>("Achievement_Category.db2", HotfixStatements.SEL_ACHIEVEMENT_CATEGORY, HotfixStatements.SEL_ACHIEVEMENT_CATEGORY_LOCALE));
+		_taskManager.Post(() => AchievementStorage = ReadDB2<AchievementRecord>("Achievement.db2", HotfixStatements.SEL_ACHIEVEMENT, HotfixStatements.SEL_ACHIEVEMENT_LOCALE));
+		_taskManager.Post(() => AchievementCategoryStorage = ReadDB2<AchievementCategoryRecord>("Achievement_Category.db2", HotfixStatements.SEL_ACHIEVEMENT_CATEGORY, HotfixStatements.SEL_ACHIEVEMENT_CATEGORY_LOCALE));
 		_taskManager.Post(() => AdventureJournalStorage = ReadDB2<AdventureJournalRecord>("AdventureJournal.db2", HotfixStatements.SEL_ADVENTURE_JOURNAL, HotfixStatements.SEL_ADVENTURE_JOURNAL_LOCALE));
 		_taskManager.Post(() => AdventureMapPOIStorage = ReadDB2<AdventureMapPOIRecord>("AdventureMapPOI.db2", HotfixStatements.SEL_ADVENTURE_MAP_POI, HotfixStatements.SEL_ADVENTURE_MAP_POI_LOCALE));
-        _taskManager.Post(() => AnimationDataStorage = ReadDB2<AnimationDataRecord>("AnimationData.db2", HotfixStatements.SEL_ANIMATION_DATA));
-        _taskManager.Post(() => AnimKitStorage = ReadDB2<AnimKitRecord>("AnimKit.db2", HotfixStatements.SEL_ANIM_KIT));
-        _taskManager.Post(() => AreaGroupMemberStorage = ReadDB2<AreaGroupMemberRecord>("AreaGroupMember.db2", HotfixStatements.SEL_AREA_GROUP_MEMBER));
-        _taskManager.Post(() => AreaTableStorage = ReadDB2<AreaTableRecord>("AreaTable.db2", HotfixStatements.SEL_AREA_TABLE, HotfixStatements.SEL_AREA_TABLE_LOCALE));
-        _taskManager.Post(() => AreaPOIStorage = ReadDB2<AreaPOIRecord>("AreaPOI.db2", HotfixStatements.SEL_AREA_POI, HotfixStatements.SEL_AREA_POI_LOCALE));
-        _taskManager.Post(() => AreaPOIStateStorage = ReadDB2<AreaPOIStateRecord>("AreaPOIState.db2", HotfixStatements.SEL_AREA_POI_STATE, HotfixStatements.SEL_AREA_POI_STATE_LOCALE));
+		_taskManager.Post(() => AnimationDataStorage = ReadDB2<AnimationDataRecord>("AnimationData.db2", HotfixStatements.SEL_ANIMATION_DATA));
+		_taskManager.Post(() => AnimKitStorage = ReadDB2<AnimKitRecord>("AnimKit.db2", HotfixStatements.SEL_ANIM_KIT));
+		_taskManager.Post(() => AreaGroupMemberStorage = ReadDB2<AreaGroupMemberRecord>("AreaGroupMember.db2", HotfixStatements.SEL_AREA_GROUP_MEMBER));
+		_taskManager.Post(() => AreaTableStorage = ReadDB2<AreaTableRecord>("AreaTable.db2", HotfixStatements.SEL_AREA_TABLE, HotfixStatements.SEL_AREA_TABLE_LOCALE));
+		_taskManager.Post(() => AreaPOIStorage = ReadDB2<AreaPOIRecord>("AreaPOI.db2", HotfixStatements.SEL_AREA_POI, HotfixStatements.SEL_AREA_POI_LOCALE));
+		_taskManager.Post(() => AreaPOIStateStorage = ReadDB2<AreaPOIStateRecord>("AreaPOIState.db2", HotfixStatements.SEL_AREA_POI_STATE, HotfixStatements.SEL_AREA_POI_STATE_LOCALE));
 		_taskManager.Post(() => AreaTriggerStorage = ReadDB2<AreaTriggerRecord>("AreaTrigger.db2", HotfixStatements.SEL_AREA_TRIGGER));
 		_taskManager.Post(() => ArmorLocationStorage = ReadDB2<ArmorLocationRecord>("ArmorLocation.db2", HotfixStatements.SEL_ARMOR_LOCATION));
 		_taskManager.Post(() => ArtifactStorage = ReadDB2<ArtifactRecord>("Artifact.db2", HotfixStatements.SEL_ARTIFACT, HotfixStatements.SEL_ARTIFACT_APPEARANCE_LOCALE));
@@ -260,9 +262,9 @@ public class CliDB
 		_taskManager.Post(() => PvpTierStorage = ReadDB2<PvpTierRecord>("PvpTier.db2", HotfixStatements.SEL_PVP_TIER, HotfixStatements.SEL_PVP_TIER_LOCALE));
 		_taskManager.Post(() => QuestFactionRewardStorage = ReadDB2<QuestFactionRewardRecord>("QuestFactionReward.db2", HotfixStatements.SEL_QUEST_FACTION_REWARD));
 		_taskManager.Post(() => QuestInfoStorage = ReadDB2<QuestInfoRecord>("QuestInfo.db2", HotfixStatements.SEL_QUEST_INFO, HotfixStatements.SEL_QUEST_INFO_LOCALE));
-        _taskManager.Post(() => QuestPOIBlobStorage = ReadDB2<QuestPOIBlobEntry>("QuestPOIBlob.db2", HotfixStatements.SEL_QUEST_P_O_I_BLOB));
-        _taskManager.Post(() => QuestPOIPointStorage = ReadDB2<QuestPOIPointEntry>("QuestPOIPoint.db2", HotfixStatements.SEL_QUEST_P_O_I_POINT));
-        _taskManager.Post(() => QuestLineXQuestStorage = ReadDB2<QuestLineXQuestRecord>("QuestLineXQuest.db2", HotfixStatements.SEL_QUEST_LINE_X_QUEST));
+		_taskManager.Post(() => QuestPOIBlobStorage = ReadDB2<QuestPOIBlobEntry>("QuestPOIBlob.db2", HotfixStatements.SEL_QUEST_P_O_I_BLOB));
+		_taskManager.Post(() => QuestPOIPointStorage = ReadDB2<QuestPOIPointEntry>("QuestPOIPoint.db2", HotfixStatements.SEL_QUEST_P_O_I_POINT));
+		_taskManager.Post(() => QuestLineXQuestStorage = ReadDB2<QuestLineXQuestRecord>("QuestLineXQuest.db2", HotfixStatements.SEL_QUEST_LINE_X_QUEST));
 		_taskManager.Post(() => QuestMoneyRewardStorage = ReadDB2<QuestMoneyRewardRecord>("QuestMoneyReward.db2", HotfixStatements.SEL_QUEST_MONEY_REWARD));
 		_taskManager.Post(() => QuestPackageItemStorage = ReadDB2<QuestPackageItemRecord>("QuestPackageItem.db2", HotfixStatements.SEL_QUEST_PACKAGE_ITEM));
 		_taskManager.Post(() => QuestSortStorage = ReadDB2<QuestSortRecord>("QuestSort.db2", HotfixStatements.SEL_QUEST_SORT, HotfixStatements.SEL_QUEST_SORT_LOCALE));
@@ -383,9 +385,9 @@ public class CliDB
 		_taskManager.Post(() => CharBaseInfoStorage = ReadDB2<CharBaseInfo>("CharBaseInfo.db2", HotfixStatements.SEL_CHAR_BASE_INFO));
 
 		_taskManager.Complete();
-        _taskManager.Completion.Wait();
+		_taskManager.Completion.Wait();
 
-        Global.DB2Mgr.LoadStores();
+		Global.DB2Mgr.LoadStores();
 #if DEBUG
 		Log.outInfo(LogFilter.ServerLoading, $"DB2  TableHash");
 
@@ -706,9 +708,9 @@ public class CliDB
 	public static DB6Storage<PvpTierRecord> PvpTierStorage;
 	public static DB6Storage<QuestFactionRewardRecord> QuestFactionRewardStorage;
 	public static DB6Storage<QuestInfoRecord> QuestInfoStorage;
-    public static DB6Storage<QuestPOIBlobEntry> QuestPOIBlobStorage;
-    public static DB6Storage<QuestPOIPointEntry> QuestPOIPointStorage;
-    public static DB6Storage<QuestLineXQuestRecord> QuestLineXQuestStorage;
+	public static DB6Storage<QuestPOIBlobEntry> QuestPOIBlobStorage;
+	public static DB6Storage<QuestPOIPointEntry> QuestPOIPointStorage;
+	public static DB6Storage<QuestLineXQuestRecord> QuestLineXQuestStorage;
 	public static DB6Storage<QuestMoneyRewardRecord> QuestMoneyRewardStorage;
 	public static DB6Storage<QuestPackageItemRecord> QuestPackageItemStorage;
 	public static DB6Storage<QuestSortRecord> QuestSortStorage;
@@ -862,37 +864,37 @@ public class CliDB
 
 	#region Helper Methods
 
-	public static float GetGameTableColumnForClass(dynamic row, Class class_)
+	public static float GetGameTableColumnForClass(dynamic row, PlayerClass class_)
 	{
 		switch (class_)
 		{
-			case Class.Warrior:
+			case PlayerClass.Warrior:
 				return row.Warrior;
-			case Class.Paladin:
+			case PlayerClass.Paladin:
 				return row.Paladin;
-			case Class.Hunter:
+			case PlayerClass.Hunter:
 				return row.Hunter;
-			case Class.Rogue:
+			case PlayerClass.Rogue:
 				return row.Rogue;
-			case Class.Priest:
+			case PlayerClass.Priest:
 				return row.Priest;
-			case Class.Deathknight:
+			case PlayerClass.Deathknight:
 				return row.DeathKnight;
-			case Class.Shaman:
+			case PlayerClass.Shaman:
 				return row.Shaman;
-			case Class.Mage:
+			case PlayerClass.Mage:
 				return row.Mage;
-			case Class.Warlock:
+			case PlayerClass.Warlock:
 				return row.Warlock;
-			case Class.Monk:
+			case PlayerClass.Monk:
 				return row.Monk;
-			case Class.Druid:
+			case PlayerClass.Druid:
 				return row.Druid;
-			case Class.DemonHunter:
+			case PlayerClass.DemonHunter:
 				return row.DemonHunter;
-			case Class.Evoker:
+			case PlayerClass.Evoker:
 				return row.Evoker;
-			case Class.Adventurer:
+			case PlayerClass.Adventurer:
 				return row.Adventurer;
 			default:
 				break;
@@ -905,33 +907,33 @@ public class CliDB
 	{
 		switch (class_)
 		{
-			case (int)Class.Warrior:
+			case (int)PlayerClass.Warrior:
 				return row.Warrior;
-			case (int)Class.Paladin:
+			case (int)PlayerClass.Paladin:
 				return row.Paladin;
-			case (int)Class.Hunter:
+			case (int)PlayerClass.Hunter:
 				return row.Hunter;
-			case (int)Class.Rogue:
+			case (int)PlayerClass.Rogue:
 				return row.Rogue;
-			case (int)Class.Priest:
+			case (int)PlayerClass.Priest:
 				return row.Priest;
-			case (int)Class.Deathknight:
+			case (int)PlayerClass.Deathknight:
 				return row.DeathKnight;
-			case (int)Class.Shaman:
+			case (int)PlayerClass.Shaman:
 				return row.Shaman;
-			case (int)Class.Mage:
+			case (int)PlayerClass.Mage:
 				return row.Mage;
-			case (int)Class.Warlock:
+			case (int)PlayerClass.Warlock:
 				return row.Warlock;
-			case (int)Class.Monk:
+			case (int)PlayerClass.Monk:
 				return row.Monk;
-			case (int)Class.Druid:
+			case (int)PlayerClass.Druid:
 				return row.Druid;
-			case (int)Class.DemonHunter:
+			case (int)PlayerClass.DemonHunter:
 				return row.DemonHunter;
-			case (int)Class.Evoker:
+			case (int)PlayerClass.Evoker:
 				return row.Evoker;
-			case (int)Class.Adventurer:
+			case (int)PlayerClass.Adventurer:
 				return row.Adventurer;
 			case -1:
 			case -7:

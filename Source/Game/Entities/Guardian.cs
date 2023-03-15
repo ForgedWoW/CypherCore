@@ -69,14 +69,14 @@ public class Guardian : Minion
 
 		if (IsPet && OwnerUnit.IsTypeId(TypeId.Player))
 		{
-			if (OwnerUnit.Class == Class.Warlock ||
-				OwnerUnit.Class == Class.Shaman // Fire Elemental
+			if (OwnerUnit.Class == PlayerClass.Warlock ||
+				OwnerUnit.Class == PlayerClass.Shaman // Fire Elemental
 				||
-				OwnerUnit.Class == Class.Deathknight) // Risen Ghoul
+				OwnerUnit.Class == PlayerClass.Deathknight) // Risen Ghoul
 			{
 				petType = PetType.Summon;
 			}
-			else if (OwnerUnit.Class == Class.Hunter)
+			else if (OwnerUnit.Class == PlayerClass.Hunter)
 			{
 				petType = PetType.Hunter;
 				UnitTypeMask |= UnitTypeMask.HunterPet;
@@ -126,7 +126,7 @@ public class Guardian : Minion
 			var stats = Global.ObjectMgr.GetCreatureBaseStats(petlevel, cinfo.UnitClass);
 			ApplyLevelScaling();
 
-			SetCreateHealth((uint)(Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (Class)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
+			SetCreateHealth((uint)(Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, petlevel, cinfo.GetHealthScalingExpansion(), UnitData.ContentTuningID, (PlayerClass)cinfo.UnitClass) * cinfo.ModHealth * cinfo.ModHealthExtra * GetHealthMod(cinfo.Rank)));
 			SetCreateMana(stats.GenerateMana(cinfo));
 
 			SetCreateStat(Stats.Strength, 22);
@@ -382,7 +382,7 @@ public class Guardian : Minion
 		//warlock's and mage's pets gain 30% of owner's intellect
 		else if (stat == Stats.Intellect)
 		{
-			if (owner.Class == Class.Warlock || owner.Class == Class.Mage)
+			if (owner.Class == PlayerClass.Warlock || owner.Class == PlayerClass.Mage)
 			{
 				ownersBonus = MathFunctions.CalculatePct(owner.GetStat(stat), 30);
 				value += ownersBonus;

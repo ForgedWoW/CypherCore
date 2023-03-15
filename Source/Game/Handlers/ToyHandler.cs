@@ -2,88 +2,94 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
 using Game.Spells;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.AddToy)]
-        void HandleAddToy(AddToy packet)
-        {
-            if (packet.Guid.IsEmpty)
-                return;
+	[WorldPacketHandler(ClientOpcodes.AddToy)]
+	void HandleAddToy(AddToy packet)
+	{
+		if (packet.Guid.IsEmpty)
+			return;
 
-            Item item = _player.GetItemByGuid(packet.Guid);
-            if (!item)
-            {
-                _player.SendEquipError(InventoryResult.ItemNotFound);
-                return;
-            }
+		var item = _player.GetItemByGuid(packet.Guid);
 
-            if (!Global.DB2Mgr.IsToyItem(item.Entry))
-                return;
+		if (!item)
+		{
+			_player.SendEquipError(InventoryResult.ItemNotFound);
 
-            InventoryResult msg = _player.CanUseItem(item);
-            if (msg != InventoryResult.Ok)
-            {
-                _player.SendEquipError(msg, item);
-                return;
-            }
+			return;
+		}
 
-            if (_collectionMgr.AddToy(item.Entry, false, false))
-                _player.DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
-        }
+		if (!Global.DB2Mgr.IsToyItem(item.Entry))
+			return;
 
-        [WorldPacketHandler(ClientOpcodes.UseToy, Processing = PacketProcessing.Inplace)]
-        void HandleUseToy(UseToy packet)
-        {
-            uint itemId = packet.Cast.Misc[0];
-            ItemTemplate item = Global.ObjectMgr.GetItemTemplate(itemId);
-            if (item == null)
-                return;
+		var msg = _player.CanUseItem(item);
 
-            if (!_collectionMgr.HasToy(itemId))
-                return;
+		if (msg != InventoryResult.Ok)
+		{
+			_player.SendEquipError(msg, item);
 
-            var effect = item.Effects.Find(eff => packet.Cast.SpellID == eff.SpellID);
-            if (effect == null)
-                return;
+			return;
+		}
 
-            SpellInfo spellInfo = Global.SpellMgr.GetSpellInfo(packet.Cast.SpellID, Difficulty.None);
-            if (spellInfo == null)
-            {
-                Log.outError(LogFilter.Network, "HandleUseToy: unknown spell id: {0} used by Toy Item entry {1}", packet.Cast.SpellID, itemId);
-                return;
-            }
+		if (_collectionMgr.AddToy(item.Entry, false, false))
+			_player.DestroyItem(item.BagSlot, item.Slot, true);
+	}
 
-            if (_player.IsPossessing)
-                return;
+	[WorldPacketHandler(ClientOpcodes.UseToy, Processing = PacketProcessing.Inplace)]
+	void HandleUseToy(UseToy packet)
+	{
+		var itemId = packet.Cast.Misc[0];
+		var item = Global.ObjectMgr.GetItemTemplate(itemId);
 
-            SpellCastTargets targets = new(_player, packet.Cast);
+		if (item == null)
+			return;
 
-            Spell spell = new(_player, spellInfo, TriggerCastFlags.None);
+		if (!_collectionMgr.HasToy(itemId))
+			return;
 
-            SpellPrepare spellPrepare = new();
-            spellPrepare.ClientCastID = packet.Cast.CastID;
-            spellPrepare.ServerCastID = spell.CastId;
-            SendPacket(spellPrepare);
+		var effect = item.Effects.Find(eff => packet.Cast.SpellID == eff.SpellID);
 
-            spell.FromClient = true;
-            spell.CastItemEntry = itemId;
-            spell.SpellMisc.Data0 = packet.Cast.Misc[0];
-            spell.SpellMisc.Data1 = packet.Cast.Misc[1];
-            spell.CastFlagsEx |= SpellCastFlagsEx.UseToySpell;
-            spell.Prepare(targets);
-        }
+		if (effect == null)
+			return;
 
-        [WorldPacketHandler(ClientOpcodes.ToyClearFanfare)]
-        void HandleToyClearFanfare(ToyClearFanfare toyClearFanfare)
-        {
-            _collectionMgr.ToyClearFanfare(toyClearFanfare.ItemID);
-        }
-    }
+		var spellInfo = Global.SpellMgr.GetSpellInfo(packet.Cast.SpellID, Difficulty.None);
+
+		if (spellInfo == null)
+		{
+			Log.outError(LogFilter.Network, "HandleUseToy: unknown spell id: {0} used by Toy Item entry {1}", packet.Cast.SpellID, itemId);
+
+			return;
+		}
+
+		if (_player.IsPossessing)
+			return;
+
+		SpellCastTargets targets = new(_player, packet.Cast);
+
+		Spell spell = new(_player, spellInfo, TriggerCastFlags.None);
+
+		SpellPrepare spellPrepare = new();
+		spellPrepare.ClientCastID = packet.Cast.CastID;
+		spellPrepare.ServerCastID = spell.CastId;
+		SendPacket(spellPrepare);
+
+		spell.FromClient = true;
+		spell.CastItemEntry = itemId;
+		spell.SpellMisc.Data0 = packet.Cast.Misc[0];
+		spell.SpellMisc.Data1 = packet.Cast.Misc[1];
+		spell.CastFlagsEx |= SpellCastFlagsEx.UseToySpell;
+		spell.Prepare(targets);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.ToyClearFanfare)]
+	void HandleToyClearFanfare(ToyClearFanfare toyClearFanfare)
+	{
+		_collectionMgr.ToyClearFanfare(toyClearFanfare.ItemID);
+	}
 }

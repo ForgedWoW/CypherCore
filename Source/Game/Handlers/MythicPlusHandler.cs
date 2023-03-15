@@ -5,14 +5,13 @@ using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets.MythicPlus;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.RequestMythicPlusSeasonData)]
-        void RequestMythicPlusSeasonData(ClientPacket packet)
-        {
-            SendPacket(new MythicPlusSeasonData());
-        }
-    }
+	[WorldPacketHandler(ClientOpcodes.RequestMythicPlusSeasonData)]
+	void RequestMythicPlusSeasonData(ClientPacket packet)
+	{
+		SendPacket(new MythicPlusSeasonData());
+	}
 }

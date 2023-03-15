@@ -553,52 +553,52 @@ internal class boss_nefarian : BossAI
 					if (target)
 						switch (target.Class)
 						{
-							case Class.Mage:
+							case PlayerClass.Mage:
 								Talk(TextIds.SayMage);
 								DoCast(Me, SpellIds.Mage);
 
 								break;
-							case Class.Warrior:
+							case PlayerClass.Warrior:
 								Talk(TextIds.SayWarrior);
 								DoCast(Me, SpellIds.Warrior);
 
 								break;
-							case Class.Druid:
+							case PlayerClass.Druid:
 								Talk(TextIds.SayDruid);
 								DoCast(target, SpellIds.Druid);
 
 								break;
-							case Class.Priest:
+							case PlayerClass.Priest:
 								Talk(TextIds.SayPriest);
 								DoCast(Me, SpellIds.Priest);
 
 								break;
-							case Class.Paladin:
+							case PlayerClass.Paladin:
 								Talk(TextIds.SayPaladin);
 								DoCast(Me, SpellIds.Paladin);
 
 								break;
-							case Class.Shaman:
+							case PlayerClass.Shaman:
 								Talk(TextIds.SayShaman);
 								DoCast(Me, SpellIds.Shaman);
 
 								break;
-							case Class.Warlock:
+							case PlayerClass.Warlock:
 								Talk(TextIds.SayWarlock);
 								DoCast(Me, SpellIds.Warlock);
 
 								break;
-							case Class.Hunter:
+							case PlayerClass.Hunter:
 								Talk(TextIds.SayHunter);
 								DoCast(Me, SpellIds.Hunter);
 
 								break;
-							case Class.Rogue:
+							case PlayerClass.Rogue:
 								Talk(TextIds.SayRogue);
 								DoCast(Me, SpellIds.Rogue);
 
 								break;
-							case Class.Deathknight:
+							case PlayerClass.Deathknight:
 								Talk(TextIds.SayDeathKnight);
 								DoCast(Me, SpellIds.DeathKnight);
 

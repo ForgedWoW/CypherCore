@@ -108,27 +108,29 @@ public class SmartScript
 			Log.outWarn(LogFilter.ScriptsAi, $"SmartScript::ProcessEventsFor: reached the limit of max allowed nested ProcessEventsFor() calls with event {e}, skipping!\n{GetBaseObject().GetDebugInfo()}");
 		else if (_nestedEventsCounter == 1)
 			lock (_events) // only lock on the first event to prevent deadlock.
-                Process(e, unit, var0, var1, bvar, spell, gob, varString);
-        else
-            Process(e, unit, var0, var1, bvar, spell, gob, varString);
+			{
+				Process(e, unit, var0, var1, bvar, spell, gob, varString);
+			}
+		else
+			Process(e, unit, var0, var1, bvar, spell, gob, varString);
 
-        --_nestedEventsCounter;
+		--_nestedEventsCounter;
 
-        void Process(SmartEvents e, Unit unit, uint var0, uint var1, bool bvar, SpellInfo spell, GameObject gob, string varString)
-        {
-            foreach (var Event in _events)
-            {
-                var eventType = Event.GetEventType();
+		void Process(SmartEvents e, Unit unit, uint var0, uint var1, bool bvar, SpellInfo spell, GameObject gob, string varString)
+		{
+			foreach (var Event in _events)
+			{
+				var eventType = Event.GetEventType();
 
-                if (eventType == SmartEvents.Link) //special handling
-                    continue;
+				if (eventType == SmartEvents.Link) //special handling
+					continue;
 
-                if (eventType == e)
-                    if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(Event.EntryOrGuid, Event.EventId, Event.SourceType, unit, GetBaseObject()))
-                        ProcessEvent(Event, unit, var0, var1, bvar, spell, gob, varString);
-            }
-        }
-    }
+				if (eventType == e)
+					if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(Event.EntryOrGuid, Event.EventId, Event.SourceType, unit, GetBaseObject()))
+						ProcessEvent(Event, unit, var0, var1, bvar, spell, gob, varString);
+			}
+		}
+	}
 
 	public bool CheckTimer(SmartScriptHolder e)
 	{
@@ -2088,9 +2090,7 @@ public class SmartScript
 							var areaTriggerTarget = target.AsAreaTrigger;
 
 							if (areaTriggerTarget != null)
-							{
 								areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, e.Action.timedActionList.id, GetLastInvoker()));
-							}
 						}
 					}
 				}
@@ -2204,9 +2204,7 @@ public class SmartScript
 							var areaTriggerTarget = target.AsAreaTrigger;
 
 							if (areaTriggerTarget != null)
-                            {
-                                areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, randomId, GetLastInvoker()));
-							}
+								areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, randomId, GetLastInvoker()));
 						}
 					}
 				}
@@ -2247,9 +2245,7 @@ public class SmartScript
 							var areaTriggerTarget = target.AsAreaTrigger;
 
 							if (areaTriggerTarget != null)
-                            {
-                                areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, id, GetLastInvoker()));
-							}
+								areaTriggerTarget.ForEachAreaTriggerScript<IAreaTriggerSmartScript>(a => a.SetTimedActionList(e, id, GetLastInvoker()));
 						}
 					}
 				}

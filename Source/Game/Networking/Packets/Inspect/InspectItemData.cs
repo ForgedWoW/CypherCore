@@ -20,7 +20,7 @@ public class InspectItemData
 
 	public InspectItemData(Item item, byte index)
 	{
-		CreatorGUID = item.GetCreator();
+		CreatorGUID = item.Creator;
 
 		Item = new ItemInstance(item);
 		Index = index;
@@ -49,7 +49,7 @@ public class InspectItemData
 			++i;
 		}
 
-		var azeriteItem = item.ToAzeriteItem();
+		var azeriteItem = item.AsAzeriteItem;
 
 		if (azeriteItem != null)
 		{

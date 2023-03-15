@@ -12,13 +12,13 @@ namespace Scripts.Spells.Monk;
 [Script]
 public class playerScript_monk_earth_fire_storm : ScriptObjectAutoAdd, IPlayerOnSpellCast
 {
-	public Class PlayerClass => Class.Monk;
+	public PlayerClass PlayerClass => PlayerClass.Monk;
 
 	public playerScript_monk_earth_fire_storm() : base("playerScript_monk_earth_fire_storm") { }
 
 	public void OnSpellCast(Player player, Spell spell, bool re)
 	{
-		if (player.Class != Class.Monk)
+		if (player.Class != PlayerClass.Monk)
 			return;
 
 		var spellInfo = spell.SpellInfo;

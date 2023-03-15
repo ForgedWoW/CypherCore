@@ -11,7 +11,7 @@ namespace Scripts.Spells.Mage;
 [Script]
 public class playerscript_mage_arcane : ScriptObjectAutoAdd, IPlayerOnAfterModifyPower
 {
-	public Class PlayerClass { get; } = Class.Warlock;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Warlock;
 
 	public playerscript_mage_arcane() : base("playerscript_mage_arcane") { }
 

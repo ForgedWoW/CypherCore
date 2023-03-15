@@ -6,90 +6,92 @@ using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.CanDuel)]
-        void HandleCanDuel(CanDuel packet)
-        {
-            Player player = Global.ObjAccessor.FindPlayer(packet.TargetGUID);
+	[WorldPacketHandler(ClientOpcodes.CanDuel)]
+	void HandleCanDuel(CanDuel packet)
+	{
+		var player = Global.ObjAccessor.FindPlayer(packet.TargetGUID);
 
-            if (!player)
-                return;
+		if (!player)
+			return;
 
-            CanDuelResult response = new();
-            response.TargetGUID = packet.TargetGUID;
-            response.Result = player.Duel == null;
-            SendPacket(response);
+		CanDuelResult response = new();
+		response.TargetGUID = packet.TargetGUID;
+		response.Result = player.Duel == null;
+		SendPacket(response);
 
-            if (response.Result)
-            {
-                if (Player.IsMounted)
-                    Player.CastSpell(player, 62875);
-                else
-                    Player.CastSpell(player, 7266);
-            }
-        }
+		if (response.Result)
+		{
+			if (Player.IsMounted)
+				Player.CastSpell(player, 62875);
+			else
+				Player.CastSpell(player, 7266);
+		}
+	}
 
-        [WorldPacketHandler(ClientOpcodes.DuelResponse)]
-        void HandleDuelResponse(DuelResponse duelResponse)
-        {
-            if (duelResponse.Accepted && !duelResponse.Forfeited)
-                HandleDuelAccepted(duelResponse.ArbiterGUID);
-            else
-                HandleDuelCancelled();
-        }
+	[WorldPacketHandler(ClientOpcodes.DuelResponse)]
+	void HandleDuelResponse(DuelResponse duelResponse)
+	{
+		if (duelResponse.Accepted && !duelResponse.Forfeited)
+			HandleDuelAccepted(duelResponse.ArbiterGUID);
+		else
+			HandleDuelCancelled();
+	}
 
-        void HandleDuelAccepted(ObjectGuid arbiterGuid)
-        {
-            Player player = Player;
-            if (player.Duel == null || player == player.Duel.Initiator || player.Duel.State != DuelState.Challenged)
-                return;
+	void HandleDuelAccepted(ObjectGuid arbiterGuid)
+	{
+		var player = Player;
 
-            Player target = player.Duel.Opponent;
-            if (target.PlayerData.DuelArbiter != arbiterGuid)
-                return;
+		if (player.Duel == null || player == player.Duel.Initiator || player.Duel.State != DuelState.Challenged)
+			return;
 
-            Log.outDebug(LogFilter.Network, "Player 1 is: {0} ({1})", player.GUID.ToString(), player.GetName());
-            Log.outDebug(LogFilter.Network, "Player 2 is: {0} ({1})", target.GUID.ToString(), target.GetName());
+		var target = player.Duel.Opponent;
 
-            long now = GameTime.GetGameTime();
-            player.Duel.StartTime = now + 3;
-            target.Duel.StartTime = now + 3;
+		if (target.PlayerData.DuelArbiter != arbiterGuid)
+			return;
 
-            player.Duel.State = DuelState.Countdown;
-            target.Duel.State = DuelState.Countdown;
+		Log.outDebug(LogFilter.Network, "Player 1 is: {0} ({1})", player.GUID.ToString(), player.GetName());
+		Log.outDebug(LogFilter.Network, "Player 2 is: {0} ({1})", target.GUID.ToString(), target.GetName());
 
-            DuelCountdown packet = new(3000);
+		var now = GameTime.GetGameTime();
+		player.Duel.StartTime = now + 3;
+		target.Duel.StartTime = now + 3;
 
-            player.SendPacket(packet);
-            target.SendPacket(packet);
+		player.Duel.State = DuelState.Countdown;
+		target.Duel.State = DuelState.Countdown;
 
-            player.EnablePvpRules();
-            target.EnablePvpRules();
-        }
+		DuelCountdown packet = new(3000);
 
-        void HandleDuelCancelled()
-        {
-            Player player = Player;
+		player.SendPacket(packet);
+		target.SendPacket(packet);
 
-            // no duel requested
-            if (player.Duel == null || player.Duel.State == DuelState.Completed)
-                return;
+		player.EnablePvpRules();
+		target.EnablePvpRules();
+	}
 
-            // player surrendered in a duel using /forfeit
-            if (player.Duel.State == DuelState.InProgress)
-            {
-                player.CombatStopWithPets(true);
-                player.Duel.Opponent.CombatStopWithPets(true);
+	void HandleDuelCancelled()
+	{
+		var player = Player;
 
-                player.CastSpell(Player, 7267, true);    // beg
-                player.DuelComplete(DuelCompleteType.Won);
-                return;
-            }
+		// no duel requested
+		if (player.Duel == null || player.Duel.State == DuelState.Completed)
+			return;
 
-            player.DuelComplete(DuelCompleteType.Interrupted);
-        }
-    }
+		// player surrendered in a duel using /forfeit
+		if (player.Duel.State == DuelState.InProgress)
+		{
+			player.CombatStopWithPets(true);
+			player.Duel.Opponent.CombatStopWithPets(true);
+
+			player.CastSpell(Player, 7267, true); // beg
+			player.DuelComplete(DuelCompleteType.Won);
+
+			return;
+		}
+
+		player.DuelComplete(DuelCompleteType.Interrupted);
+	}
 }

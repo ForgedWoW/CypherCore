@@ -27,29 +27,29 @@ internal class spell_item_flask_of_the_north : SpellScript, IHasSpellEffects
 
 		switch (caster.Class)
 		{
-			case Class.Warlock:
-			case Class.Mage:
-			case Class.Priest:
+			case PlayerClass.Warlock:
+			case PlayerClass.Mage:
+			case PlayerClass.Priest:
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
 
 				break;
-			case Class.Deathknight:
-			case Class.Warrior:
+			case PlayerClass.Deathknight:
+			case PlayerClass.Warrior:
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthStr);
 
 				break;
-			case Class.Rogue:
-			case Class.Hunter:
+			case PlayerClass.Rogue:
+			case PlayerClass.Hunter:
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthAp);
 
 				break;
-			case Class.Druid:
-			case Class.Paladin:
+			case PlayerClass.Druid:
+			case PlayerClass.Paladin:
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthStr);
 
 				break;
-			case Class.Shaman:
+			case PlayerClass.Shaman:
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthSp);
 				possibleSpells.Add(ItemSpellIds.FlaskOfTheNorthAp);
 

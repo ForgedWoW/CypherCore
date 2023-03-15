@@ -5,16 +5,15 @@ using Framework.Constants;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]
-        void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
-        {
-            ServerTimeOffset response = new();
-            response.Time = GameTime.GetGameTime();
-            SendPacket(response);
-        }
-    }
+	[WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]
+	void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
+	{
+		ServerTimeOffset response = new();
+		response.Time = GameTime.GetGameTime();
+		SendPacket(response);
+	}
 }

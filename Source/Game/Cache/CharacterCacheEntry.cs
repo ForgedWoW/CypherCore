@@ -11,7 +11,7 @@ public class CharacterCacheEntry
 	public ObjectGuid Guid;
 	public string Name;
 	public uint AccountId;
-	public Class ClassId;
+	public PlayerClass ClassId;
 	public Race RaceId;
 	public Gender Sex;
 	public byte Level;

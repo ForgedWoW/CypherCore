@@ -16,7 +16,7 @@ public class war_machine : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreat
 
 	public void OnCreatureKill(Player killer, Creature killed)
 	{
-		if (killer.Class != Class.Warrior)
+		if (killer.Class != PlayerClass.Warrior)
 			return;
 
 		if (!killer.HasAura(WarriorSpells.WARRRIOR_WAR_MACHINE_BUFF) && killer.HasAura(WarriorSpells.WAR_MACHINE))
@@ -25,7 +25,7 @@ public class war_machine : ScriptObjectAutoAdd, IPlayerOnPVPKill, IPlayerOnCreat
 
 	public void OnPVPKill(Player killer, Player killed)
 	{
-		if (killer.Class != Class.Warrior)
+		if (killer.Class != PlayerClass.Warrior)
 			return;
 
 		if (!killer.HasAura(WarriorSpells.WARRRIOR_WAR_MACHINE_BUFF) && killer.HasAura(WarriorSpells.WAR_MACHINE))

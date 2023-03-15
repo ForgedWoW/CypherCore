@@ -14,7 +14,7 @@ namespace Scripts.Spells.Evoker;
 [Script]
 internal class player_evoker_script : ScriptObjectAutoAdd, IUnitOnHeal, IUnitOnDamage
 {
-	public Class PlayerClass { get; } = Class.Evoker;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Evoker;
 
 	public player_evoker_script() : base("player_evoker_script") { }
 

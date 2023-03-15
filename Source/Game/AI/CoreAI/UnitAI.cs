@@ -90,32 +90,32 @@ public class UnitAI : IUnitAI
 		return false;
 	}
 
-    /// <summary>
-    ///  Select the best target (in
-    ///  <targetType>
-    ///   order) from the threat list that fulfill the following:
-    ///   - Not among the first
-    ///   <offset>
-    ///    entries in
-    ///    <targetType>
-    ///     order (or MAXTHREAT order, if
-    ///     <targetType>
-    ///      is RANDOM).
-    ///      - Within at most
-    ///      <dist>
-    ///       yards (if dist > 0.0f)
-    ///       - At least -
-    ///       <dist>
-    ///        yards away (if dist
-    ///        < 0.0f)
-    ///         - Is a player ( if playerOnly= true)
-    ///           - Not the current tank ( if withTank= false)
-    ///           - Has aura with ID
-    ///        <aura>
-    ///         (if aura > 0)
-    ///         - Does not have aura with ID -<aura> (if aura < 0)
-    /// </summary>
-    public Unit SelectTarget(SelectTargetMethod targetType, uint offset = 0, float dist = 0.0f, bool playerOnly = false, bool withTank = true, int aura = 0)
+	/// <summary>
+	///  Select the best target (in
+	///  <targetType>
+	///   order) from the threat list that fulfill the following:
+	///   - Not among the first
+	///   <offset>
+	///    entries in
+	///    <targetType>
+	///     order (or MAXTHREAT order, if
+	///     <targetType>
+	///      is RANDOM).
+	///      - Within at most
+	///      <dist>
+	///       yards (if dist > 0.0f)
+	///       - At least -
+	///       <dist>
+	///        yards away (if dist
+	///        < 0.0f)
+	///         - Is a player ( if playerOnly= true)
+	///           - Not the current tank ( if withTank= false)
+	///           - Has aura with ID
+	///        <aura>
+	///         (if aura > 0)
+	///         - Does not have aura with ID -<aura> (if aura < 0)
+	/// </summary>
+	public Unit SelectTarget(SelectTargetMethod targetType, uint offset = 0, float dist = 0.0f, bool playerOnly = false, bool withTank = true, int aura = 0)
 	{
 		return SelectTarget(targetType, offset, new DefaultTargetSelector(Me, dist, playerOnly, withTank, aura));
 	}
@@ -125,15 +125,15 @@ public class UnitAI : IUnitAI
 		return SelectTarget(targetType, offset, selector.Invoke);
 	}
 
-    /// <summary>
-    ///  Select the best target (in
-    ///  <targetType>
-    ///   order) satisfying
-    ///   <predicate>
-    ///    from the threat list.
-    ///    If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
-    /// </summary>
-    public Unit SelectTarget(SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
+	/// <summary>
+	///  Select the best target (in
+	///  <targetType>
+	///   order) satisfying
+	///   <predicate>
+	///    from the threat list.
+	///    If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
+	/// </summary>
+	public Unit SelectTarget(SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
 	{
 		var mgr = ThreatManager;
 
@@ -155,56 +155,56 @@ public class UnitAI : IUnitAI
 		};
 	}
 
-    /// <summary>
-    ///  Select the best (up to)
-    ///  <num>
-    ///   targets (in
-    ///   <targetType>
-    ///    order) from the threat list that fulfill the following:
-    ///    - Not among the first
-    ///    <offset>
-    ///     entries in
-    ///     <targetType>
-    ///      order (or MAXTHREAT order, if
-    ///      <targetType>
-    ///       is RANDOM).
-    ///       - Within at most
-    ///       <dist>
-    ///        yards (if dist > 0.0f)
-    ///        - At least -
-    ///        <dist>
-    ///         yards away (if dist
-    ///         < 0.0f)
-    ///          - Is a player ( if playerOnly= true)
-    ///            - Not the current tank ( if withTank= false)
-    ///            - Has aura with ID
-    ///         <aura>
-    ///          (if aura > 0)
-    ///          - Does not have aura with ID -
-    ///          <aura>
-    ///           (if aura
-    ///           < 0)
-    ///            The resulting targets are stored in
-    ///           <targetList> (which is cleared first).
-    /// </summary>
-    public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset = 0, float dist = 0f, bool playerOnly = false, bool withTank = true, int aura = 0)
+	/// <summary>
+	///  Select the best (up to)
+	///  <num>
+	///   targets (in
+	///   <targetType>
+	///    order) from the threat list that fulfill the following:
+	///    - Not among the first
+	///    <offset>
+	///     entries in
+	///     <targetType>
+	///      order (or MAXTHREAT order, if
+	///      <targetType>
+	///       is RANDOM).
+	///       - Within at most
+	///       <dist>
+	///        yards (if dist > 0.0f)
+	///        - At least -
+	///        <dist>
+	///         yards away (if dist
+	///         < 0.0f)
+	///          - Is a player ( if playerOnly= true)
+	///            - Not the current tank ( if withTank= false)
+	///            - Has aura with ID
+	///         <aura>
+	///          (if aura > 0)
+	///          - Does not have aura with ID -
+	///          <aura>
+	///           (if aura
+	///           < 0)
+	///            The resulting targets are stored in
+	///           <targetList> (which is cleared first).
+	/// </summary>
+	public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset = 0, float dist = 0f, bool playerOnly = false, bool withTank = true, int aura = 0)
 	{
 		return SelectTargetList(num, targetType, offset, new DefaultTargetSelector(Me, dist, playerOnly, withTank, aura).Invoke);
 	}
 
-    /// <summary>
-    ///  Select the best (up to)
-    ///  <num>
-    ///   targets (in
-    ///   <targetType>
-    ///    order) satisfying
-    ///    <predicate>
-    ///     from the threat list and stores them in
-    ///     <targetList>
-    ///      (which is cleared first).
-    ///      If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
-    /// </summary>
-    public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
+	/// <summary>
+	///  Select the best (up to)
+	///  <num>
+	///   targets (in
+	///   <targetType>
+	///    order) satisfying
+	///    <predicate>
+	///     from the threat list and stores them in
+	///     <targetList>
+	///      (which is cleared first).
+	///      If <offset> is nonzero, the first <offset> entries in <targetType> order (or MAXTHREAT order, if <targetType> is RANDOM) are skipped.
+	/// </summary>
+	public List<Unit> SelectTargetList(uint num, SelectTargetMethod targetType, uint offset, Func<Unit, bool> selector)
 	{
 		var targetList = new List<Unit>();
 
@@ -434,9 +434,9 @@ public class UnitAI : IUnitAI
 	// Implementation should call me->ScheduleAIChange() if AI replacement is desired
 	// If this call is made, AI will be replaced on the next tick
 	// When replacement is made, OnCharmed is called with isNew = true
-    /// </summary>
-    /// <param name="apply"> </param>
-    public virtual void OnCharmed(bool isNew)
+	/// </summary>
+	/// <param name="apply"> </param>
+	public virtual void OnCharmed(bool isNew)
 	{
 		if (!isNew)
 			Me.ScheduleAIChange();
@@ -479,10 +479,10 @@ public class UnitAI : IUnitAI
 	public virtual void HealDone(Unit to, double addhealth) { }
 	public virtual void SpellInterrupted(uint spellId, uint unTimeMs) { }
 
-    /// <summary>
-    ///  Called when a game event starts or ends
-    /// </summary>
-    public virtual void OnGameEvent(bool start, ushort eventId) { }
+	/// <summary>
+	///  Called when a game event starts or ends
+	/// </summary>
+	public virtual void OnGameEvent(bool start, ushort eventId) { }
 
 	public virtual string GetDebugInfo()
 	{

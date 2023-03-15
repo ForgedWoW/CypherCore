@@ -11,7 +11,7 @@ namespace Scripts.Spells.Warrior;
 [Script]
 public class rage_on_take_damage : ScriptObjectAutoAddDBBound, IPlayerOnTakeDamage
 {
-	public Class PlayerClass => Class.Warrior;
+	public PlayerClass PlayerClass => PlayerClass.Warrior;
 
 	public rage_on_take_damage() : base("rage_on_take_damage") { }
 

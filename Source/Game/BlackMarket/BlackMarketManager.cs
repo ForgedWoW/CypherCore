@@ -17,10 +17,10 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 	long _lastUpdate;
 
 
-    public bool IsEnabled => WorldConfig.GetBoolValue(WorldCfg.BlackmarketEnabled);
-    public long LastUpdate => _lastUpdate;
+	public bool IsEnabled => WorldConfig.GetBoolValue(WorldCfg.BlackmarketEnabled);
+	public long LastUpdate => _lastUpdate;
 
-    BlackMarketManager() { }
+	BlackMarketManager() { }
 
 	public void LoadTemplates()
 	{
@@ -164,7 +164,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 	}
 
 
-    public void BuildItemsResponse(BlackMarketRequestItemsResult packet, Player player)
+	public void BuildItemsResponse(BlackMarketRequestItemsResult packet, Player player)
 	{
 		packet.LastUpdateID = (int)_lastUpdate;
 
@@ -262,9 +262,9 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 							"GM {0} (Account: {1}) won item in blackmarket auction: {2} (Entry: {3} Count: {4}) and payed gold : {5}.",
 							bidderName,
 							bidderAccId,
-							item.GetTemplate().GetName(),
+							item.Template.GetName(),
 							item.Entry,
-							item.GetCount(),
+							item.Count,
 							entry.CurrentBid / MoneyConstants.Gold);
 
 		if (bidder)
@@ -308,5 +308,4 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 	{
 		return _templates.LookupByKey(marketId);
 	}
-
 }

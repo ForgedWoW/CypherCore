@@ -35,11 +35,11 @@ class QuestCommands
 
 		// check item starting quest (it can work incorrectly if added without item in inventory)
 		var itc = Global.ObjectMgr.GetItemTemplates();
-		var result = itc.Values.FirstOrDefault(p => p.GetStartQuest() == quest.Id);
+		var result = itc.Values.FirstOrDefault(p => p.StartQuest == quest.Id);
 
 		if (result != null)
 		{
-			handler.SendSysMessage(CypherStrings.CommandQuestStartfromitem, quest.Id, result.GetId());
+			handler.SendSysMessage(CypherStrings.CommandQuestStartfromitem, quest.Id, result.Id);
 
 			return false;
 		}

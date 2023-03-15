@@ -26,14 +26,14 @@ public partial class Player
 
 	public void RefundItem(Item item)
 	{
-		if (!item.IsRefundable())
+		if (!item.IsRefundable)
 		{
 			Log.outDebug(LogFilter.Player, "Item refund: item not refundable!");
 
 			return;
 		}
 
-		if (item.IsRefundExpired()) // item refund has expired
+		if (item.IsRefundExpired) // item refund has expired
 		{
 			item.SetNotRefundable(this);
 			SendItemRefundResult(item, null, 10);
@@ -41,7 +41,7 @@ public partial class Player
 			return;
 		}
 
-		if (GUID != item.GetRefundRecipient()) // Formerly refundable item got traded
+		if (GUID != item.RefundRecipient) // Formerly refundable item got traded
 		{
 			Log.outDebug(LogFilter.Player, "Item refund: item was traded!");
 			item.SetNotRefundable(this);
@@ -49,7 +49,7 @@ public partial class Player
 			return;
 		}
 
-		var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.GetPaidExtendedCost());
+		var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
 
 		if (iece == null)
 		{
@@ -88,7 +88,7 @@ public partial class Player
 
 		SendItemRefundResult(item, iece, 0);
 
-		var moneyRefund = item.GetPaidMoney(); // item. will be invalidated in DestroyItem
+		var moneyRefund = item.PaidMoney; // item. will be invalidated in DestroyItem
 
 		// Save all relevant data to DB to prevent desynchronisation exploits
 		SQLTransaction trans = new();
@@ -98,7 +98,7 @@ public partial class Player
 		Session.CollectionMgr.RemoveTemporaryAppearance(item);
 
 		// Destroy item
-		DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
+		DestroyItem(item.BagSlot, item.Slot, true);
 
 		// Grant back extendedcost items
 		for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i)
@@ -143,14 +143,14 @@ public partial class Player
 		// This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
 		item.UpdatePlayedTime(this);
 
-		if (!item.IsRefundable())
+		if (!item.IsRefundable)
 		{
 			Log.outDebug(LogFilter.Player, "Item refund: item not refundable!");
 
 			return;
 		}
 
-		if (GUID != item.GetRefundRecipient()) // Formerly refundable item got traded
+		if (GUID != item.RefundRecipient) // Formerly refundable item got traded
 		{
 			Log.outDebug(LogFilter.Player, "Item refund: item was traded!");
 			item.SetNotRefundable(this);
@@ -158,7 +158,7 @@ public partial class Player
 			return;
 		}
 
-		var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.GetPaidExtendedCost());
+		var iece = CliDB.ItemExtendedCostStorage.LookupByKey(item.PaidExtendedCost);
 
 		if (iece == null)
 		{
@@ -169,8 +169,8 @@ public partial class Player
 
 		SetItemPurchaseData setItemPurchaseData = new();
 		setItemPurchaseData.ItemGUID = item.GUID;
-		setItemPurchaseData.PurchaseTime = TotalPlayedTime - item.GetPlayedTime();
-		setItemPurchaseData.Contents.Money = item.GetPaidMoney();
+		setItemPurchaseData.PurchaseTime = TotalPlayedTime - item.PlayedTime;
+		setItemPurchaseData.Contents.Money = item.PaidMoney;
 
 		for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
 		{
@@ -199,7 +199,7 @@ public partial class Player
 		if (error == 0)
 		{
 			itemPurchaseRefundResult.Contents = new ItemPurchaseContents();
-			itemPurchaseRefundResult.Contents.Money = item.GetPaidMoney();
+			itemPurchaseRefundResult.Contents.Money = item.PaidMoney;
 
 			for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
 			{
@@ -372,14 +372,14 @@ public partial class Player
 		if (pOldDurability != pNewDurability)
 		{
 			// modify item stats _before_ Durability set to 0 to pass _ApplyItemMods internal check
-			if (pNewDurability == 0 && pOldDurability > 0 && item.IsEquipped())
-				_ApplyItemMods(item, item.GetSlot(), false);
+			if (pNewDurability == 0 && pOldDurability > 0 && item.IsEquipped)
+				_ApplyItemMods(item, item.Slot, false);
 
 			item.SetDurability((uint)pNewDurability);
 
 			// modify item stats _after_ restore durability to pass _ApplyItemMods internal check
-			if (pNewDurability > 0 && pOldDurability == 0 && item.IsEquipped())
-				_ApplyItemMods(item, item.GetSlot(), true);
+			if (pNewDurability > 0 && pOldDurability == 0 && item.IsEquipped)
+				_ApplyItemMods(item, item.Slot, true);
 
 			item.SetState(ItemUpdateState.Changed, this);
 		}
@@ -438,7 +438,7 @@ public partial class Player
 		if (!takeCost)
 		{
 			foreach (var (item, _) in itemRepairCostStore)
-				DurabilityRepair(item.GetPos(), false, 0.0f);
+				DurabilityRepair(item.Pos, false, 0.0f);
 
 			return;
 		}
@@ -473,7 +473,7 @@ public partial class Player
 
 				totalCost = newTotalCost;
 				// Repair item without taking cost. We'll do it later.
-				DurabilityRepair(item.GetPos(), false, 0.0f);
+				DurabilityRepair(item.Pos, false, 0.0f);
 			}
 
 			// Take money for repairs from the guild bank
@@ -496,7 +496,7 @@ public partial class Player
 
 			// Payment for repair has already been taken, so just repair every item without taking cost.
 			foreach (var (item, cost) in itemRepairCostStore)
-				DurabilityRepair(item.GetPos(), false, 0.0f);
+				DurabilityRepair(item.Pos, false, 0.0f);
 		}
 	}
 
@@ -522,7 +522,7 @@ public partial class Player
 			ModifyMoney(-(int)cost);
 		}
 
-		var isBroken = item.IsBroken();
+		var isBroken = item.IsBroken;
 
 		item.SetDurability(item.ItemData.MaxDurability);
 		item.SetState(ItemUpdateState.Changed, this);
@@ -538,7 +538,7 @@ public partial class Player
 		if (pItem == null)
 			return InventoryResult.ItemNotFound;
 
-		return CanStoreItem(bag, slot, dest, pItem.Entry, pItem.GetCount(), pItem, swap);
+		return CanStoreItem(bag, slot, dest, pItem.Entry, pItem.Count, pItem, swap);
 	}
 
 	public InventoryResult CanStoreItems(List<Item> items, int count, ref uint offendingItemId)
@@ -568,9 +568,9 @@ public partial class Player
 			// build items in stock backpack
 			item2 = GetItemByPos(InventorySlots.Bag0, i);
 
-			if (item2 && !item2.IsInTrade())
+			if (item2 && !item2.IsInTrade)
 			{
-				inventoryCounts[i - InventorySlots.ItemStart] = item2.GetCount();
+				inventoryCounts[i - InventorySlots.ItemStart] = item2.Count;
 				inventoryPointers[i - InventorySlots.ItemStart] = item2;
 			}
 		}
@@ -589,9 +589,9 @@ public partial class Player
 					// build item counts in equippable bags
 					item2 = GetItemByPos(i, j);
 
-					if (item2 && !item2.IsInTrade())
+					if (item2 && !item2.IsInTrade)
 					{
-						bagCounts[i - InventorySlots.BagStart][j] = item2.GetCount();
+						bagCounts[i - InventorySlots.BagStart][j] = item2.Count;
 						bagPointers[i - InventorySlots.BagStart][j] = item2;
 					}
 				}
@@ -608,10 +608,10 @@ public partial class Player
 			if (!item)
 				continue;
 
-			var remaining_count = item.GetCount();
+			var remaining_count = item.Count;
 
 			Log.outDebug(LogFilter.Player, $"STORAGE: CanStoreItems {k + 1}. item = {item.Entry}, count = {remaining_count}");
-			var pProto = item.GetTemplate();
+			var pProto = item.Template;
 
 			// strange item
 			if (pProto == null)
@@ -636,16 +636,16 @@ public partial class Player
 			var b_found = false;
 
 			// search stack for merge to
-			if (pProto.GetMaxStackSize() != 1)
+			if (pProto.MaxStackSize != 1)
 			{
 				for (var t = InventorySlots.ItemStart; t < inventoryEnd; ++t)
 				{
 					item2 = inventoryPointers[t - InventorySlots.ItemStart];
 
-					if (item2 && item2.CanBeMergedPartlyWith(pProto) == InventoryResult.Ok && inventoryCounts[t - InventorySlots.ItemStart] < pProto.GetMaxStackSize())
+					if (item2 && item2.CanBeMergedPartlyWith(pProto) == InventoryResult.Ok && inventoryCounts[t - InventorySlots.ItemStart] < pProto.MaxStackSize)
 					{
 						inventoryCounts[t - InventorySlots.ItemStart] += remaining_count;
-						remaining_count = inventoryCounts[t - InventorySlots.ItemStart] < pProto.GetMaxStackSize() ? 0 : inventoryCounts[t - InventorySlots.ItemStart] - pProto.GetMaxStackSize();
+						remaining_count = inventoryCounts[t - InventorySlots.ItemStart] < pProto.MaxStackSize ? 0 : inventoryCounts[t - InventorySlots.ItemStart] - pProto.MaxStackSize;
 
 						b_found = remaining_count == 0;
 
@@ -664,18 +664,18 @@ public partial class Player
 
 					if (bag)
 					{
-						if (!Item.ItemCanGoIntoBag(item.GetTemplate(), bag.GetTemplate()))
+						if (!Item.ItemCanGoIntoBag(item.Template, bag.Template))
 							continue;
 
 						for (byte j = 0; j < bag.GetBagSize(); j++)
 						{
 							item2 = bagPointers[t - InventorySlots.BagStart][j];
 
-							if (item2 && item2.CanBeMergedPartlyWith(pProto) == InventoryResult.Ok && bagCounts[t - InventorySlots.BagStart][j] < pProto.GetMaxStackSize())
+							if (item2 && item2.CanBeMergedPartlyWith(pProto) == InventoryResult.Ok && bagCounts[t - InventorySlots.BagStart][j] < pProto.MaxStackSize)
 							{
 								// add count to stack so that later items in the list do not double-book
 								bagCounts[t - InventorySlots.BagStart][j] += remaining_count;
-								remaining_count = bagCounts[t - InventorySlots.BagStart][j] < pProto.GetMaxStackSize() ? 0 : bagCounts[t - InventorySlots.BagStart][j] - pProto.GetMaxStackSize();
+								remaining_count = bagCounts[t - InventorySlots.BagStart][j] < pProto.MaxStackSize ? 0 : bagCounts[t - InventorySlots.BagStart][j] - pProto.MaxStackSize;
 
 								b_found = remaining_count == 0;
 
@@ -694,7 +694,7 @@ public partial class Player
 			b_found = false;
 
 			// special bag case
-			if (pProto.GetBagFamily() != 0)
+			if (pProto.BagFamily != 0)
 			{
 				for (var t = InventorySlots.BagStart; !b_found && t < InventorySlots.BagEnd; ++t)
 				{
@@ -702,11 +702,11 @@ public partial class Player
 
 					if (bag)
 					{
-						pBagProto = bag.GetTemplate();
+						pBagProto = bag.Template;
 
 						// not plain container check
 						if (pBagProto != null &&
-							(pBagProto.GetClass() != ItemClass.Container || pBagProto.GetSubClass() != (uint)ItemSubClassContainer.Container) &&
+							(pBagProto.Class != ItemClass.Container || pBagProto.SubClass != (uint)ItemSubClassContainer.Container) &&
 							Item.ItemCanGoIntoBag(pProto, pBagProto))
 							for (uint j = 0; j < bag.GetBagSize(); j++)
 								if (bagCounts[t - InventorySlots.BagStart][j] == 0)
@@ -749,10 +749,10 @@ public partial class Player
 
 				if (bag)
 				{
-					pBagProto = bag.GetTemplate();
+					pBagProto = bag.Template;
 
 					// special bag already checked
-					if (pBagProto != null && (pBagProto.GetClass() != ItemClass.Container || pBagProto.GetSubClass() != (uint)ItemSubClassContainer.Container))
+					if (pBagProto != null && (pBagProto.Class != ItemClass.Container || pBagProto.SubClass != (uint)ItemSubClassContainer.Container))
 						continue;
 
 					for (uint j = 0; j < bag.GetBagSize(); j++)
@@ -838,7 +838,7 @@ public partial class Player
 			item.SetFixedLevel(Level);
 			item.SetItemRandomBonusList(randomBonusListId);
 
-			if (allowedLooters != null && allowedLooters.Count > 1 && item.GetTemplate().GetMaxStackSize() == 1 && item.IsSoulBound())
+			if (allowedLooters != null && allowedLooters.Count > 1 && item.Template.MaxStackSize == 1 && item.IsSoulBound)
 			{
 				item.SetSoulboundTradeable(allowedLooters);
 				item.SetCreatePlayedTime(TotalPlayedTime);
@@ -869,7 +869,7 @@ public partial class Player
 				{
 					List<ItemPosCount> childDest = new();
 					CanStoreItem_InInventorySlots(InventorySlots.ChildEquipmentStart, InventorySlots.ChildEquipmentEnd, childDest, childTemplate, ref count, false, null, ItemConst.NullBag, ItemConst.NullSlot);
-					var childItem = StoreNewItem(childDest, childTemplate.GetId(), update, 0, null, context, null, addToCollection);
+					var childItem = StoreNewItem(childDest, childTemplate.Id, update, 0, null, context, null, addToCollection);
 
 					if (childItem)
 					{
@@ -880,7 +880,7 @@ public partial class Player
 				}
 			}
 
-			if (item.GetTemplate().GetInventoryType() != InventoryType.NonEquip)
+			if (item.Template.InventoryType != InventoryType.NonEquip)
 				UpdateAverageItemLevelTotal();
 		}
 
@@ -897,7 +897,7 @@ public partial class Player
 			if (!IsAlive && not_loading)
 				return InventoryResult.PlayerDead;
 
-			var pProto = pItem.GetTemplate();
+			var pProto = pItem.Template;
 
 			if (pProto != null)
 			{
@@ -912,25 +912,25 @@ public partial class Player
 				if (res != InventoryResult.Ok)
 					return res;
 
-				if (pItem.GetSkill() != 0)
+				if (pItem.Skill != 0)
 				{
 					var allowEquip = false;
-					var itemSkill = pItem.GetSkill();
+					var itemSkill = pItem.Skill;
 
 					// Armor that is binded to account can "morph" from plate to mail, etc. if skill is not learned yet.
-					if (pProto.GetQuality() == ItemQuality.Heirloom && pProto.GetClass() == ItemClass.Armor && !HasSkill(itemSkill))
+					if (pProto.Quality == ItemQuality.Heirloom && pProto.Class == ItemClass.Armor && !HasSkill(itemSkill))
 						// TODO: when you right-click already equipped item it throws EQUIP_ERR_PROFICIENCY_NEEDED.
 						// In fact it's a visual bug, everything works properly... I need sniffs of operations with
 						// binded to account items from off server.
 						switch (Class)
 						{
-							case Class.Hunter:
-							case Class.Shaman:
+							case PlayerClass.Hunter:
+							case PlayerClass.Shaman:
 								allowEquip = (itemSkill == SkillType.Mail);
 
 								break;
-							case Class.Paladin:
-							case Class.Warrior:
+							case PlayerClass.Paladin:
+							case PlayerClass.Warrior:
 								allowEquip = (itemSkill == SkillType.PlateMail);
 
 								break;
@@ -963,28 +963,28 @@ public partial class Player
 		if (proto.HasFlag(ItemFlags2.FactionAlliance) && Team != TeamFaction.Alliance)
 			return InventoryResult.CantEquipEver;
 
-		if ((proto.GetAllowableClass() & ClassMask) == 0 || (proto.GetAllowableRace() & (long)SharedConst.GetMaskForRace(Race)) == 0)
+		if ((proto.AllowableClass & ClassMask) == 0 || (proto.AllowableRace & (long)SharedConst.GetMaskForRace(Race)) == 0)
 			return InventoryResult.CantEquipEver;
 
-		if (proto.GetRequiredSkill() != 0)
+		if (proto.RequiredSkill != 0)
 		{
-			if (GetSkillValue((SkillType)proto.GetRequiredSkill()) == 0)
+			if (GetSkillValue((SkillType)proto.RequiredSkill) == 0)
 				return InventoryResult.ProficiencyNeeded;
-			else if (GetSkillValue((SkillType)proto.GetRequiredSkill()) < proto.GetRequiredSkillRank())
+			else if (GetSkillValue((SkillType)proto.RequiredSkill) < proto.RequiredSkillRank)
 				return InventoryResult.CantEquipSkill;
 		}
 
-		if (proto.GetRequiredSpell() != 0 && !HasSpell(proto.GetRequiredSpell()))
+		if (proto.RequiredSpell != 0 && !HasSpell(proto.RequiredSpell))
 			return InventoryResult.ProficiencyNeeded;
 
-		if (!skipRequiredLevelCheck && Level < proto.GetBaseRequiredLevel())
+		if (!skipRequiredLevelCheck && Level < proto.BaseRequiredLevel)
 			return InventoryResult.CantEquipLevelI;
 
 		// If World Event is not active, prevent using event dependant items
-		if (proto.GetHolidayID() != 0 && !Global.GameEventMgr.IsHolidayActive(proto.GetHolidayID()))
+		if (proto.HolidayID != 0 && !Global.GameEventMgr.IsHolidayActive(proto.HolidayID))
 			return InventoryResult.ClientLockedOut;
 
-		if (proto.GetRequiredReputationFaction() != 0 && (uint)GetReputationRank(proto.GetRequiredReputationFaction()) < proto.GetRequiredReputationRank())
+		if (proto.RequiredReputationFaction != 0 && (uint)GetReputationRank(proto.RequiredReputationFaction) < proto.RequiredReputationRank)
 			return InventoryResult.CantEquipReputation;
 
 		// learning (recipes, mounts, pets, etc.)
@@ -993,7 +993,7 @@ public partial class Player
 				if (HasSpell((uint)proto.Effects[1].SpellID))
 					return InventoryResult.InternalBagError;
 
-		var artifact = CliDB.ArtifactStorage.LookupByKey(proto.GetArtifactID());
+		var artifact = CliDB.ArtifactStorage.LookupByKey(proto.ArtifactID);
 
 		if (artifact != null)
 			if (artifact.ChrSpecializationID != GetPrimarySpecialization())
@@ -1034,17 +1034,17 @@ public partial class Player
 
 			if (IsAlive)
 			{
-				var pProto = pItem.GetTemplate();
+				var pProto = pItem.Template;
 
 				// item set bonuses applied only at equip and removed at unequip, and still active for broken items
-				if (pProto != null && pProto.GetItemSet() != 0)
+				if (pProto != null && pProto.ItemSet != 0)
 					Item.AddItemsSetItem(this, pItem);
 
 				_ApplyItemMods(pItem, slot, true);
 
-				if (pProto != null && IsInCombat && (pProto.GetClass() == ItemClass.Weapon || pProto.GetInventoryType() == InventoryType.Relic) && _weaponChangeTimer == 0)
+				if (pProto != null && IsInCombat && (pProto.Class == ItemClass.Weapon || pProto.InventoryType == InventoryType.Relic) && _weaponChangeTimer == 0)
 				{
-					var cooldownSpell = (uint)(Class == Class.Rogue ? 6123 : 6119);
+					var cooldownSpell = (uint)(Class == PlayerClass.Rogue ? 6123 : 6119);
 					var spellProto = Global.SpellMgr.GetSpellInfo(cooldownSpell, Difficulty.None);
 
 					if (spellProto == null)
@@ -1094,7 +1094,7 @@ public partial class Player
 		}
 		else
 		{
-			pItem2.SetCount(pItem2.GetCount() + pItem.GetCount());
+			pItem2.SetCount(pItem2.Count + pItem.Count);
 
 			if (IsInWorld && update)
 				pItem2.SendUpdateToPlayer(this);
@@ -1138,28 +1138,28 @@ public partial class Player
 
 		if (itemChildEquipment != null)
 		{
-			var childItem = GetChildItemByGuid(parentItem.GetChildItem());
+			var childItem = GetChildItemByGuid(parentItem.ChildItem);
 
 			if (childItem)
 			{
 				var childDest = (ushort)((InventorySlots.Bag0 << 8) | itemChildEquipment.ChildItemEquipSlot);
 
-				if (childItem.GetPos() != childDest)
+				if (childItem.Pos != childDest)
 				{
 					var dstItem = GetItemByPos(childDest);
 
 					if (!dstItem) // empty slot, simple case
 					{
-						RemoveItem(childItem.GetBagSlot(), childItem.GetSlot(), true);
+						RemoveItem(childItem.BagSlot, childItem.Slot, true);
 						EquipItem(childDest, childItem, true);
 						AutoUnequipOffhandIfNeed();
 					}
 					else // have currently equipped item, not simple case
 					{
-						var dstbag = dstItem.GetBagSlot();
-						var dstslot = dstItem.GetSlot();
+						var dstbag = dstItem.BagSlot;
+						var dstslot = dstItem.Slot;
 
-						var msg = CanUnequipItem(childDest, !childItem.IsBag());
+						var msg = CanUnequipItem(childDest, !childItem.IsBag);
 
 						if (msg != InventoryResult.Ok)
 						{
@@ -1203,7 +1203,7 @@ public partial class Player
 
 						// now do moves, remove...
 						RemoveItem(dstbag, dstslot, false);
-						RemoveItem(childItem.GetBagSlot(), childItem.GetSlot(), false);
+						RemoveItem(childItem.BagSlot, childItem.Slot, false);
 
 						// add to dest
 						EquipItem(childDest, childItem, true);
@@ -1227,21 +1227,21 @@ public partial class Player
 	{
 		if (Global.DB2Mgr.GetItemChildEquipment(parentItem.Entry) != null)
 		{
-			var childItem = GetChildItemByGuid(parentItem.GetChildItem());
+			var childItem = GetChildItemByGuid(parentItem.ChildItem);
 
 			if (childItem)
 			{
-				if (IsChildEquipmentPos(childItem.GetPos()))
+				if (IsChildEquipmentPos(childItem.Pos))
 					return;
 
 				List<ItemPosCount> dest = new();
-				var count = childItem.GetCount();
-				var result = CanStoreItem_InInventorySlots(InventorySlots.ChildEquipmentStart, InventorySlots.ChildEquipmentEnd, dest, childItem.GetTemplate(), ref count, false, childItem, ItemConst.NullBag, ItemConst.NullSlot);
+				var count = childItem.Count;
+				var result = CanStoreItem_InInventorySlots(InventorySlots.ChildEquipmentStart, InventorySlots.ChildEquipmentEnd, dest, childItem.Template, ref count, false, childItem, ItemConst.NullBag, ItemConst.NullSlot);
 
 				if (result != InventoryResult.Ok)
 					return;
 
-				RemoveItem(childItem.GetBagSlot(), childItem.GetSlot(), true);
+				RemoveItem(childItem.BagSlot, childItem.Slot, true);
 				StoreItem(dest, childItem, true);
 			}
 		}
@@ -1282,8 +1282,8 @@ public partial class Player
 				case InventoryResult.ItemMaxLimitCategorySocketedExceededIs:
 				case InventoryResult.ItemMaxLimitCategoryEquippedExceededIs:
 				{
-					var proto = item1 ? item1.GetTemplate() : Global.ObjectMgr.GetItemTemplate(itemId);
-					failure.LimitCategory = (int)(proto != null ? proto.GetItemLimitCategory() : 0u);
+					var proto = item1 ? item1.Template : Global.ObjectMgr.GetItemTemplate(itemId);
+					failure.LimitCategory = (int)(proto != null ? proto.ItemLimitCategory : 0u);
 
 					break;
 				}
@@ -1344,9 +1344,9 @@ public partial class Player
 				if (slot < InventorySlots.BagEnd)
 				{
 					// item set bonuses applied only at equip and removed at unequip, and still active for broken items
-					var pProto = pItem.GetTemplate();
+					var pProto = pItem.Template;
 
-					if (pProto != null && pProto.GetItemSet() != 0)
+					if (pProto != null && pProto.ItemSet != 0)
 						Item.RemoveItemsSetItem(this, pItem);
 
 					_ApplyItemMods(pItem, slot, false, update);
@@ -1484,7 +1484,7 @@ public partial class Player
 
 			foreach (var currentEquiped in toBeMailedCurrentEquipment)
 			{
-				MoveItemFromInventory(InventorySlots.Bag0, currentEquiped.GetBagSlot(), true);
+				MoveItemFromInventory(InventorySlots.Bag0, currentEquiped.BagSlot, true);
 				Item.DeleteFromInventoryDB(trans, currentEquiped.GUID.Counter); // deletes item from character's inventory
 				currentEquiped.SaveToDB(trans);                                 // recursive and not have transaction guard into self, item not in inventory and can be save standalone
 				draft.AddItem(currentEquiped);
@@ -1579,7 +1579,7 @@ public partial class Player
 		}
 
 		// not let split all items (can be only at cheating)
-		if (pSrcItem.GetCount() == count)
+		if (pSrcItem.Count == count)
 		{
 			SendEquipError(InventoryResult.SplitFailed, pSrcItem);
 
@@ -1587,7 +1587,7 @@ public partial class Player
 		}
 
 		// not let split more existed items (can be only at cheating)
-		if (pSrcItem.GetCount() < count)
+		if (pSrcItem.Count < count)
 		{
 			SendEquipError(InventoryResult.TooFewToSplit, pSrcItem);
 
@@ -1615,14 +1615,14 @@ public partial class Player
 		if (IsInventoryPos(dst))
 		{
 			// change item amount before check (for unique max count check)
-			pSrcItem.SetCount(pSrcItem.GetCount() - count);
+			pSrcItem.SetCount(pSrcItem.Count - count);
 
 			List<ItemPosCount> dest = new();
 			var msg = CanStoreItem(dstbag, dstslot, dest, pNewItem, false);
 
 			if (msg != InventoryResult.Ok)
 			{
-				pSrcItem.SetCount(pSrcItem.GetCount() + count);
+				pSrcItem.SetCount(pSrcItem.Count + count);
 				SendEquipError(msg, pSrcItem);
 
 				return;
@@ -1637,14 +1637,14 @@ public partial class Player
 		else if (IsBankPos(dst))
 		{
 			// change item amount before check (for unique max count check)
-			pSrcItem.SetCount(pSrcItem.GetCount() - count);
+			pSrcItem.SetCount(pSrcItem.Count - count);
 
 			List<ItemPosCount> dest = new();
 			var msg = CanBankItem(dstbag, dstslot, dest, pNewItem, false);
 
 			if (msg != InventoryResult.Ok)
 			{
-				pSrcItem.SetCount(pSrcItem.GetCount() + count);
+				pSrcItem.SetCount(pSrcItem.Count + count);
 				SendEquipError(msg, pSrcItem);
 
 				return;
@@ -1659,13 +1659,13 @@ public partial class Player
 		else if (IsEquipmentPos(dst))
 		{
 			// change item amount before check (for unique max count check), provide space for splitted items
-			pSrcItem.SetCount(pSrcItem.GetCount() - count);
+			pSrcItem.SetCount(pSrcItem.Count - count);
 
 			var msg = CanEquipItem(dstslot, out var dest, pNewItem, false);
 
 			if (msg != InventoryResult.Ok)
 			{
-				pSrcItem.SetCount(pSrcItem.GetCount() + count);
+				pSrcItem.SetCount(pSrcItem.Count + count);
 				SendEquipError(msg, pSrcItem);
 
 				return;
@@ -1701,9 +1701,9 @@ public partial class Player
 			if (parentItem)
 				if (IsEquipmentPos(src))
 				{
-					AutoUnequipChildItem(parentItem);   // we need to unequip child first since it cannot go into whatever is going to happen next
-					SwapItem(dst, src);                 // src is now empty
-					SwapItem(parentItem.GetPos(), dst); // dst is now empty
+					AutoUnequipChildItem(parentItem); // we need to unequip child first since it cannot go into whatever is going to happen next
+					SwapItem(dst, src);               // src is now empty
+					SwapItem(parentItem.Pos, dst);    // dst is now empty
 
 					return;
 				}
@@ -1715,9 +1715,9 @@ public partial class Player
 			if (parentItem)
 				if (IsEquipmentPos(dst))
 				{
-					AutoUnequipChildItem(parentItem);   // we need to unequip child first since it cannot go into whatever is going to happen next
-					SwapItem(src, dst);                 // dst is now empty
-					SwapItem(parentItem.GetPos(), src); // src is now empty
+					AutoUnequipChildItem(parentItem); // we need to unequip child first since it cannot go into whatever is going to happen next
+					SwapItem(src, dst);               // dst is now empty
+					SwapItem(parentItem.Pos, src);    // src is now empty
 
 					return;
 				}
@@ -1738,7 +1738,7 @@ public partial class Player
 		if (IsEquipmentPos(src) || IsBagPos(src))
 		{
 			// bags can be swapped with empty bag slots, or with empty bag (items move possibility checked later)
-			var msg = CanUnequipItem(src, !IsBagPos(src) || IsBagPos(dst) || (pDstItem != null && pDstItem.ToBag() != null && pDstItem.ToBag().IsEmpty()));
+			var msg = CanUnequipItem(src, !IsBagPos(src) || IsBagPos(dst) || (pDstItem != null && pDstItem.AsBag != null && pDstItem.AsBag.IsEmpty()));
 
 			if (msg != InventoryResult.Ok)
 			{
@@ -1770,7 +1770,7 @@ public partial class Player
 			if (IsEquipmentPos(dst) || IsBagPos(dst))
 			{
 				// bags can be swapped with empty bag slots, or with empty bag (items move possibility checked later)
-				var msg = CanUnequipItem(dst, !IsBagPos(dst) || IsBagPos(src) || (pSrcItem.ToBag() != null && pSrcItem.ToBag().IsEmpty()));
+				var msg = CanUnequipItem(dst, !IsBagPos(dst) || IsBagPos(src) || (pSrcItem.AsBag != null && pSrcItem.AsBag.IsEmpty()));
 
 				if (msg != InventoryResult.Ok)
 				{
@@ -1809,7 +1809,7 @@ public partial class Player
 				StoreItem(dest, pSrcItem, true);
 
 				if (IsBankPos(src))
-					ItemAddedQuestCheck(pSrcItem.Entry, pSrcItem.GetCount());
+					ItemAddedQuestCheck(pSrcItem.Entry, pSrcItem.Count);
 			}
 			else if (IsBankPos(dst))
 			{
@@ -1827,7 +1827,7 @@ public partial class Player
 				BankItem(dest, pSrcItem, true);
 
 				if (!IsReagentBankPos(dst))
-					ItemRemovedQuestCheck(pSrcItem.Entry, pSrcItem.GetCount());
+					ItemRemovedQuestCheck(pSrcItem.Entry, pSrcItem.Count);
 			}
 			else if (IsEquipmentPos(dst))
 			{
@@ -1849,7 +1849,7 @@ public partial class Player
 		}
 
 		// attempt merge to / fill target item
-		if (!pSrcItem.IsBag() && !pDstItem.IsBag())
+		if (!pSrcItem.IsBag && !pDstItem.IsBag)
 		{
 			InventoryResult msg;
 			List<ItemPosCount> sDest = new();
@@ -1864,13 +1864,13 @@ public partial class Player
 			else
 				return;
 
-			if (msg == InventoryResult.Ok && IsEquipmentPos(dst) && !pSrcItem.GetChildItem().IsEmpty)
+			if (msg == InventoryResult.Ok && IsEquipmentPos(dst) && !pSrcItem.ChildItem.IsEmpty)
 				msg = CanEquipChildItem(pSrcItem);
 
 			// can be merge/fill
 			if (msg == InventoryResult.Ok)
 			{
-				if (pSrcItem.GetCount() + pDstItem.GetCount() <= pSrcItem.GetTemplate().GetMaxStackSize())
+				if (pSrcItem.Count + pDstItem.Count <= pSrcItem.Template.MaxStackSize)
 				{
 					RemoveItem(srcbag, srcslot, true);
 
@@ -1886,7 +1886,7 @@ public partial class Player
 					{
 						EquipItem(eDest, pSrcItem, true);
 
-						if (!pSrcItem.GetChildItem().IsEmpty)
+						if (!pSrcItem.ChildItem.IsEmpty)
 							EquipChildItem(srcbag, srcslot, pSrcItem);
 
 						AutoUnequipOffhandIfNeed();
@@ -1894,8 +1894,8 @@ public partial class Player
 				}
 				else
 				{
-					pSrcItem.SetCount(pSrcItem.GetCount() + pDstItem.GetCount() - pSrcItem.GetTemplate().GetMaxStackSize());
-					pDstItem.SetCount(pSrcItem.GetTemplate().GetMaxStackSize());
+					pSrcItem.SetCount(pSrcItem.Count + pDstItem.Count - pSrcItem.Template.MaxStackSize);
+					pDstItem.SetCount(pSrcItem.Template.MaxStackSize);
 					pSrcItem.SetState(ItemUpdateState.Changed, this);
 					pDstItem.SetState(ItemUpdateState.Changed, this);
 
@@ -1962,7 +1962,7 @@ public partial class Player
 				_msg = CanUnequipItem(eDest2, true);
 		}
 
-		if (_msg == InventoryResult.Ok && IsEquipmentPos(dst) && !pSrcItem.GetChildItem().IsEmpty)
+		if (_msg == InventoryResult.Ok && IsEquipmentPos(dst) && !pSrcItem.ChildItem.IsEmpty)
 			_msg = CanEquipChildItem(pSrcItem);
 
 		if (_msg != InventoryResult.Ok)
@@ -1973,11 +1973,11 @@ public partial class Player
 		}
 
 		// Check bag swap with item exchange (one from empty in not bag possition (equipped (not possible in fact) or store)
-		var srcBag = pSrcItem.ToBag();
+		var srcBag = pSrcItem.AsBag;
 
 		if (srcBag != null)
 		{
-			var dstBag = pDstItem.ToBag();
+			var dstBag = pDstItem.AsBag;
 
 			if (dstBag != null)
 			{
@@ -1998,7 +1998,7 @@ public partial class Player
 				// bag swap (with items exchange) case
 				if (emptyBag != null && fullBag != null)
 				{
-					var emptyProto = emptyBag.GetTemplate();
+					var emptyProto = emptyBag.Template;
 					byte count = 0;
 
 					for (byte i = 0; i < fullBag.GetBagSize(); ++i)
@@ -2008,7 +2008,7 @@ public partial class Player
 						if (bagItem == null)
 							continue;
 
-						var bagItemProto = bagItem.GetTemplate();
+						var bagItemProto = bagItem.Template;
 
 						if (bagItemProto == null || !Item.ItemCanGoIntoBag(bagItemProto, emptyProto))
 						{
@@ -2066,7 +2066,7 @@ public partial class Player
 		{
 			EquipItem(_eDest, pSrcItem, true);
 
-			if (!pSrcItem.GetChildItem().IsEmpty)
+			if (!pSrcItem.ChildItem.IsEmpty)
 				EquipChildItem(srcbag, srcslot, pSrcItem);
 		}
 
@@ -2091,7 +2091,7 @@ public partial class Player
 
 			if (IsBagPos(src))
 			{
-				var bag = pSrcItem.ToBag();
+				var bag = pSrcItem.AsBag;
 
 				for (byte i = 0; i < bag.GetBagSize(); ++i)
 				{
@@ -2110,7 +2110,7 @@ public partial class Player
 
 			if (!released && IsBagPos(dst))
 			{
-				var bag = pDstItem.ToBag();
+				var bag = pDstItem.AsBag;
 
 				for (byte i = 0; i < bag.GetBagSize(); ++i)
 				{
@@ -2139,8 +2139,8 @@ public partial class Player
 
 		packet.PlayerGUID = GUID;
 
-		packet.Slot = item.GetBagSlot();
-		packet.SlotInBag = item.GetCount() == quantity ? item.GetSlot() : -1;
+		packet.Slot = item.BagSlot;
+		packet.SlotInBag = item.Count == quantity ? item.Slot : -1;
 
 		packet.Item = new ItemInstance(item);
 
@@ -2166,7 +2166,7 @@ public partial class Player
 			packet.IsEncounterLoot = true;
 		}
 
-		if (broadcast && Group && !item.GetTemplate().HasFlag(ItemFlags3.DontReportLootLogToParty))
+		if (broadcast && Group && !item.Template.HasFlag(ItemFlags3.DontReportLootLogToParty))
 			Group.BroadcastPacket(packet, true);
 		else
 			SendPacket(packet);
@@ -2235,7 +2235,7 @@ public partial class Player
 		ForEachItem(ItemSearchLocation.Inventory,
 					item =>
 					{
-						if (item.GetTemplate().IsCraftingReagent())
+						if (item.Template.IsCraftingReagent)
 							itemList.Add(item);
 
 						return true;
@@ -2266,7 +2266,7 @@ public partial class Player
 
 	public uint GetItemCount(uint item, bool inBankAlso = false, Item skipItem = null)
 	{
-		var countGems = skipItem != null && skipItem.GetTemplate().GetGemProperties() != 0;
+		var countGems = skipItem != null && skipItem.Template.GemProperties != 0;
 
 		var location = ItemSearchLocation.Equipment | ItemSearchLocation.Inventory | ItemSearchLocation.ReagentBank;
 
@@ -2281,7 +2281,7 @@ public partial class Player
 						if (pItem != skipItem)
 						{
 							if (pItem.Entry == item)
-								count += pItem.GetCount();
+								count += pItem.Count;
 
 							if (countGems)
 								count += pItem.GetGemCountWithID(item);
@@ -2300,7 +2300,7 @@ public partial class Player
 		if (!item)
 			return null;
 
-		if (!CanUseAttackType(GetAttackBySlot(slot, item.GetTemplate().GetInventoryType())))
+		if (!CanUseAttackType(GetAttackBySlot(slot, item.Template.InventoryType)))
 			return null;
 
 		return item;
@@ -2380,9 +2380,9 @@ public partial class Player
 		return !ForEachItem(location,
 							pItem =>
 							{
-								if (pItem && pItem.Entry == item && !pItem.IsInTrade())
+								if (pItem && pItem.Entry == item && !pItem.IsInTrade)
 								{
-									currentCount += pItem.GetCount();
+									currentCount += pItem.Count;
 
 									if (currentCount >= count)
 										return false;
@@ -2512,7 +2512,7 @@ public partial class Player
 			var pItem = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (pItem)
-				if (pItem.IsConjuredConsumable())
+				if (pItem.IsConjuredConsumable)
 					DestroyItem(InventorySlots.Bag0, i, update);
 		}
 
@@ -2527,7 +2527,7 @@ public partial class Player
 					var pItem = pBag.GetItemByPos(j);
 
 					if (pItem)
-						if (pItem.IsConjuredConsumable())
+						if (pItem.IsConjuredConsumable)
 							DestroyItem(i, j, update);
 				}
 		}
@@ -2538,7 +2538,7 @@ public partial class Player
 			var pItem = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (pItem)
-				if (pItem.IsConjuredConsumable())
+				if (pItem.IsConjuredConsumable)
 					DestroyItem(InventorySlots.Bag0, i, update);
 		}
 	}
@@ -2559,28 +2559,28 @@ public partial class Player
 			return InventoryResult.ItemNotFound;
 
 		// Used by group, function GroupLoot, to know if a prototype can be used by a player
-		if ((proto.GetAllowableClass() & ClassMask) == 0 || (proto.GetAllowableRace() & (long)SharedConst.GetMaskForRace(Race)) == 0)
+		if ((proto.AllowableClass & ClassMask) == 0 || (proto.AllowableRace & (long)SharedConst.GetMaskForRace(Race)) == 0)
 			return InventoryResult.CantEquipEver;
 
-		if (proto.GetRequiredSpell() != 0 && !HasSpell(proto.GetRequiredSpell()))
+		if (proto.RequiredSpell != 0 && !HasSpell(proto.RequiredSpell))
 			return InventoryResult.ProficiencyNeeded;
 
-		if (proto.GetRequiredSkill() != 0)
+		if (proto.RequiredSkill != 0)
 		{
-			if (GetSkillValue((SkillType)proto.GetRequiredSkill()) == 0)
+			if (GetSkillValue((SkillType)proto.RequiredSkill) == 0)
 				return InventoryResult.ProficiencyNeeded;
-			else if (GetSkillValue((SkillType)proto.GetRequiredSkill()) < proto.GetRequiredSkillRank())
+			else if (GetSkillValue((SkillType)proto.RequiredSkill) < proto.RequiredSkillRank)
 				return InventoryResult.CantEquipSkill;
 		}
 
-		if (proto.GetClass() == ItemClass.Weapon && GetSkillValue(proto.GetSkill()) == 0)
+		if (proto.Class == ItemClass.Weapon && GetSkillValue(proto.GetSkill()) == 0)
 			return InventoryResult.ProficiencyNeeded;
 
-		if (proto.GetClass() == ItemClass.Armor && proto.GetInventoryType() != InventoryType.Cloak)
+		if (proto.Class == ItemClass.Armor && proto.InventoryType != InventoryType.Cloak)
 		{
 			var classesEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
 
-			if ((classesEntry.ArmorTypeMask & 1 << (int)proto.GetSubClass()) == 0)
+			if ((classesEntry.ArmorTypeMask & 1 << (int)proto.SubClass) == 0)
 				return InventoryResult.ClientLockedOut;
 		}
 
@@ -2631,10 +2631,10 @@ public partial class Player
 			var eslot = slot - InventorySlots.BuyBackStart;
 
 			SetInvSlot(slot, pItem.GUID);
-			var proto = pItem.GetTemplate();
+			var proto = pItem.Template;
 
 			if (proto != null)
-				SetBuybackPrice(eslot, proto.GetSellPrice() * pItem.GetCount());
+				SetBuybackPrice(eslot, proto.SellPrice * pItem.Count);
 			else
 				SetBuybackPrice(eslot, 0);
 
@@ -2844,7 +2844,7 @@ public partial class Player
 			return false;
 		}
 
-		if (!Convert.ToBoolean(pProto.GetAllowableClass() & ClassMask) && pProto.GetBonding() == ItemBondingType.OnAcquire && !IsGameMaster)
+		if (!Convert.ToBoolean(pProto.AllowableClass & ClassMask) && pProto.Bonding == ItemBondingType.OnAcquire && !IsGameMaster)
 		{
 			SendBuyError(BuyResult.CantFindItem, null, item);
 
@@ -2917,7 +2917,7 @@ public partial class Player
 				return false;
 			}
 
-		if (pProto.GetRequiredReputationFaction() != 0 && ((uint)GetReputationRank(pProto.GetRequiredReputationFaction()) < pProto.GetRequiredReputationRank()))
+		if (pProto.RequiredReputationFaction != 0 && ((uint)GetReputationRank(pProto.RequiredReputationFaction) < pProto.RequiredReputationRank))
 		{
 			SendBuyError(BuyResult.ReputationRequire, creature, item);
 
@@ -2927,19 +2927,19 @@ public partial class Player
 		if (crItem.ExtendedCost != 0)
 		{
 			// Can only buy full stacks for extended cost
-			if ((count % pProto.GetBuyCount()) != 0)
+			if ((count % pProto.BuyCount) != 0)
 			{
 				SendEquipError(InventoryResult.CantBuyQuantity);
 
 				return false;
 			}
 
-			var stacks = count / pProto.GetBuyCount();
+			var stacks = count / pProto.BuyCount;
 			var iece = CliDB.ItemExtendedCostStorage.LookupByKey(crItem.ExtendedCost);
 
 			if (iece == null)
 			{
-				Log.outError(LogFilter.Player, "Item {0} have wrong ExtendedCost field value {1}", pProto.GetId(), crItem.ExtendedCost);
+				Log.outError(LogFilter.Player, "Item {0} have wrong ExtendedCost field value {1}", pProto.Id, crItem.ExtendedCost);
 
 				return false;
 			}
@@ -3013,14 +3013,14 @@ public partial class Player
 
 		ulong price = 0;
 
-		if (pProto.GetBuyPrice() > 0) //Assume price cannot be negative (do not know why it is int32)
+		if (pProto.BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
 		{
-			var buyPricePerItem = (float)pProto.GetBuyPrice() / pProto.GetBuyCount();
+			var buyPricePerItem = (float)pProto.BuyPrice / pProto.BuyCount;
 			var maxCount = (ulong)(PlayerConst.MaxMoneyAmount / buyPricePerItem);
 
 			if (count > maxCount)
 			{
-				Log.outError(LogFilter.Player, "Player {0} tried to buy {1} item id {2}, causing overflow", GetName(), count, pProto.GetId());
+				Log.outError(LogFilter.Player, "Player {0} tried to buy {1} item id {2}, causing overflow", GetName(), count, pProto.Id);
 				count = (byte)maxCount;
 			}
 
@@ -3028,7 +3028,7 @@ public partial class Player
 
 			// reputation discount
 			price = (ulong)Math.Floor(price * GetReputationPriceDiscount(creature));
-			price = pProto.GetBuyPrice() > 0 ? Math.Max(1ul, price) : price;
+			price = pProto.BuyPrice > 0 ? Math.Max(1ul, price) : price;
 
 			var priceMod = GetTotalAuraModifier(AuraType.ModVendorItemsPrices);
 
@@ -3069,7 +3069,7 @@ public partial class Player
 
 		if (crItem.Maxcount != 0) // bought
 		{
-			if (pProto.GetQuality() > ItemQuality.Epic || (pProto.GetQuality() == ItemQuality.Epic && pProto.GetBaseItemLevel() >= GuildConst.MinNewsItemLevel))
+			if (pProto.Quality > ItemQuality.Epic || (pProto.Quality == ItemQuality.Epic && pProto.BaseItemLevel >= GuildConst.MinNewsItemLevel))
 			{
 				var guild = Guild;
 
@@ -3154,7 +3154,7 @@ public partial class Player
 
 				if (del)
 				{
-					var itemTemplate = pItem.GetTemplate();
+					var itemTemplate = pItem.Template;
 
 					if (itemTemplate != null)
 						if (itemTemplate.HasFlag(ItemFlags.HasLoot))
@@ -3189,7 +3189,7 @@ public partial class Player
 		{
 			var item = GetUseableItemByPos(InventorySlots.Bag0, i);
 
-			if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.GetTemplate().GetTotemCategory(), TotemCategory))
+			if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
 				return true;
 		}
 
@@ -3202,7 +3202,7 @@ public partial class Player
 				{
 					var item = GetUseableItemByPos(i, j);
 
-					if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.GetTemplate().GetTotemCategory(), TotemCategory))
+					if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
 						return true;
 				}
 		}
@@ -3211,7 +3211,7 @@ public partial class Player
 		{
 			var item = GetUseableItemByPos(InventorySlots.Bag0, i);
 
-			if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.GetTemplate().GetTotemCategory(), TotemCategory))
+			if (item && Global.DB2Mgr.IsTotemCategoryCompatibleWith(item.Template.TotemCategory, TotemCategory))
 				return true;
 		}
 
@@ -3223,13 +3223,13 @@ public partial class Player
 		if (slot >= InventorySlots.BagEnd || item == null)
 			return;
 
-		var proto = item.GetTemplate();
+		var proto = item.Template;
 
 		if (proto == null)
 			return;
 
 		// not apply/remove mods for broken item
-		if (item.IsBroken())
+		if (item.IsBroken)
 			return;
 
 		Log.outInfo(LogFilter.Player, "applying mods for item {0} ", item.GUID.ToString());
@@ -3243,7 +3243,7 @@ public partial class Player
 		if (updateItemAuras)
 		{
 			ApplyItemDependentAuras(item, apply);
-			var attackType = GetAttackBySlot(slot, item.GetTemplate().GetInventoryType());
+			var attackType = GetAttackBySlot(slot, item.Template.InventoryType);
 
 			if (attackType != WeaponAttackType.Max)
 				UpdateWeaponDependentAuras(attackType);
@@ -3258,7 +3258,7 @@ public partial class Player
 
 	public void _ApplyItemBonuses(Item item, byte slot, bool apply)
 	{
-		var proto = item.GetTemplate();
+		var proto = item.Template;
 
 		if (slot >= InventorySlots.BagEnd || proto == null)
 			return;
@@ -3268,7 +3268,7 @@ public partial class Player
 		var ratingMult = CliDB.CombatRatingsMultByILvlGameTable.GetRow(itemLevel);
 
 		if (ratingMult != null)
-			combatRatingMultiplier = CliDB.GetIlvlStatMultiplier(ratingMult, proto.GetInventoryType());
+			combatRatingMultiplier = CliDB.GetIlvlStatMultiplier(ratingMult, proto.InventoryType);
 
 		for (byte i = 0; i < ItemConst.MaxStats; ++i)
 		{
@@ -3315,7 +3315,7 @@ public partial class Player
 					var staminaMult = CliDB.StaminaMultByILvlGameTable.GetRow(itemLevel);
 
 					if (staminaMult != null)
-						val = (int)(val * CliDB.GetIlvlStatMultiplier(staminaMult, proto.GetInventoryType()));
+						val = (int)(val * CliDB.GetIlvlStatMultiplier(staminaMult, proto.InventoryType));
 
 					HandleStatFlatModifier(UnitMods.StatStamina, UnitModifierFlatType.Base, (float)val, apply);
 					UpdateStatBuffMod(Stats.Stamina);
@@ -3537,11 +3537,11 @@ public partial class Player
 		{
 			HandleStatFlatModifier(UnitMods.Armor, UnitModifierFlatType.Total, (float)armor, apply);
 
-			if (proto.GetClass() == ItemClass.Armor && (ItemSubClassArmor)proto.GetSubClass() == ItemSubClassArmor.Shield)
+			if (proto.Class == ItemClass.Armor && (ItemSubClassArmor)proto.SubClass == ItemSubClassArmor.Shield)
 				SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ShieldBlock), apply ? (uint)(armor * 2.5f) : 0);
 		}
 
-		var attType = GetAttackBySlot(slot, proto.GetInventoryType());
+		var attType = GetAttackBySlot(slot, proto.InventoryType);
 
 		if (attType != WeaponAttackType.Max)
 			_ApplyWeaponDamage(slot, item, apply);
@@ -3586,10 +3586,10 @@ public partial class Player
 
 	public void ApplyItemLootedSpell(Item item, bool apply)
 	{
-		if (item.GetTemplate().HasFlag(ItemFlags.Legacy))
+		if (item.Template.HasFlag(ItemFlags.Legacy))
 			return;
 
-		var lootedEffect = item.GetEffects().FirstOrDefault(effectData => effectData.TriggerType == ItemSpelltriggerType.OnLooted);
+		var lootedEffect = item.Effects.FirstOrDefault(effectData => effectData.TriggerType == ItemSpelltriggerType.OnLooted);
 
 		if (lootedEffect != null)
 		{
@@ -3605,13 +3605,13 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
 			{
-				if (!CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (!CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				_ApplyItemMods(_items[i], i, apply);
 
 				// Update item sets for heirlooms
-				if (Global.DB2Mgr.GetHeirloomByItemId(_items[i].Entry) != null && _items[i].GetTemplate().GetItemSet() != 0)
+				if (Global.DB2Mgr.GetHeirloomByItemId(_items[i].Entry) != null && _items[i].Template.ItemSet != 0)
 				{
 					if (apply)
 						Item.AddItemsSetItem(this, _items[i]);
@@ -3674,7 +3674,7 @@ public partial class Player
 		if (it != null)
 		{
 			RemoveItem(bag, slot, update);
-			ItemRemovedQuestCheck(it.Entry, it.GetCount());
+			ItemRemovedQuestCheck(it.Entry, it.Count);
 			it.SetNotRefundable(this, false, null, false);
 			Item.RemoveItemFromUpdateQueueOf(it, this);
 			Session.CollectionMgr.RemoveTemporaryAppearance(it);
@@ -3690,7 +3690,7 @@ public partial class Player
 	public void MoveItemToInventory(List<ItemPosCount> dest, Item pItem, bool update, bool in_characterInventoryDB = false)
 	{
 		var itemId = pItem.Entry;
-		var count = pItem.GetCount();
+		var count = pItem.Count;
 
 		// store item
 		var pLastItem = StoreItem(dest, pItem, update);
@@ -3706,7 +3706,7 @@ public partial class Player
 			// in case trade we already have item in other player inventory
 			pLastItem.SetState(in_characterInventoryDB ? ItemUpdateState.Changed : ItemUpdateState.New, this);
 
-			if (pLastItem.IsBOPTradeable())
+			if (pLastItem.IsBOPTradeable)
 				AddTradeableItem(pLastItem);
 		}
 
@@ -3753,10 +3753,10 @@ public partial class Player
 		var slotStart = reagentBankOnly ? InventorySlots.ReagentStart : InventorySlots.BankItemStart;
 		var slotEnd = reagentBankOnly ? InventorySlots.ReagentEnd : InventorySlots.BankItemEnd;
 
-		var count = pItem.GetCount();
+		var count = pItem.Count;
 
 		Log.outDebug(LogFilter.Player, "STORAGE: CanBankItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, pItem.Entry, count);
-		var pProto = pItem.GetTemplate();
+		var pProto = pItem.Template;
 
 		if (pProto == null)
 			return swap ? InventoryResult.CantSwap : InventoryResult.ItemNotFound;
@@ -3769,14 +3769,14 @@ public partial class Player
 			return InventoryResult.NotOwner;
 
 		// Currency tokens are not supposed to be swapped out of their hidden bag
-		if (pItem.IsCurrencyToken())
+		if (pItem.IsCurrencyToken)
 		{
 			Log.outError(LogFilter.Player,
 						"Possible hacking attempt: Player {0} [guid: {1}] tried to move token [guid: {2}, entry: {3}] out of the currency bag!",
 						GetName(),
 						GUID.ToString(),
 						pItem.GUID.ToString(),
-						pProto.GetId());
+						pProto.Id);
 
 			return InventoryResult.CantSwap;
 		}
@@ -3792,7 +3792,7 @@ public partial class Player
 		{
 			if (slot >= InventorySlots.BagStart && slot < InventorySlots.BagEnd)
 			{
-				if (!pItem.IsBag())
+				if (!pItem.IsBag)
 					return InventoryResult.WrongSlot;
 
 				if (slot - InventorySlots.BagStart >= GetBankBagSlotCount())
@@ -3818,11 +3818,11 @@ public partial class Player
 		// in specific bag
 		if (bag != ItemConst.NullBag)
 		{
-			if (pItem.IsNotEmptyBag())
+			if (pItem.IsNotEmptyBag)
 				return InventoryResult.BagInBag;
 
 			// search stack in bag for merge to
-			if (pProto.GetMaxStackSize() != 1)
+			if (pProto.MaxStackSize != 1)
 			{
 				if (bag == InventorySlots.Bag0)
 				{
@@ -3878,7 +3878,7 @@ public partial class Player
 		// not specific bag or have space for partly store only in specific bag
 
 		// search stack for merge to
-		if (pProto.GetMaxStackSize() != 1)
+		if (pProto.MaxStackSize != 1)
 		{
 			// in slots
 			res = CanStoreItem_InInventorySlots(slotStart, slotEnd, dest, pProto, ref count, true, pItem, bag, slot);
@@ -3893,7 +3893,7 @@ public partial class Player
 			if (!reagentBankOnly)
 			{
 				// in special bags
-				if (pProto.GetBagFamily() != BagFamilyMask.None)
+				if (pProto.BagFamily != BagFamilyMask.None)
 					for (var i = InventorySlots.BankBagStart; i < InventorySlots.BankBagEnd; i++)
 					{
 						res = CanStoreItem_InBag(i, dest, pProto, ref count, true, false, pItem, bag, slot);
@@ -3920,7 +3920,7 @@ public partial class Player
 		}
 
 		// search free place in special bag
-		if (!reagentBankOnly && pProto.GetBagFamily() != BagFamilyMask.None)
+		if (!reagentBankOnly && pProto.BagFamily != BagFamilyMask.None)
 			for (var i = InventorySlots.BankBagStart; i < InventorySlots.BankBagEnd; i++)
 			{
 				res = CanStoreItem_InBag(i, dest, pProto, ref count, false, false, pItem, bag, slot);
@@ -4080,7 +4080,7 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, bag);
 
 			if (item != null)
-				return item.ToBag();
+				return item.AsBag;
 		}
 
 		return null;
@@ -4132,8 +4132,8 @@ public partial class Player
 
 		if (pItem != null)
 		{
-			Log.outDebug(LogFilter.Player, "STORAGE: CanEquipItem slot = {0}, item = {1}, count = {2}", slot, pItem.Entry, pItem.GetCount());
-			var pProto = pItem.GetTemplate();
+			Log.outDebug(LogFilter.Player, "STORAGE: CanEquipItem slot = {0}, item = {1}, count = {2}", slot, pItem.Entry, pItem.Count);
+			var pProto = pItem.Template;
 
 			if (pProto != null)
 			{
@@ -4176,7 +4176,7 @@ public partial class Player
 								return InventoryResult.NotDuringArenaMatch;
 					}
 
-					if (IsInCombat && (pProto.GetClass() == ItemClass.Weapon || pProto.GetInventoryType() == InventoryType.Relic) && _weaponChangeTimer != 0)
+					if (IsInCombat && (pProto.Class == ItemClass.Weapon || pProto.InventoryType == InventoryType.Relic) && _weaponChangeTimer != 0)
 						return InventoryResult.ItemCooldown;
 
 					var currentGenericSpell = GetCurrentSpell(CurrentSpellTypes.Generic);
@@ -4195,10 +4195,10 @@ public partial class Player
 				ContentTuningLevels? requiredLevels = null;
 
 				// check allowed level (extend range to upper values if MaxLevel more or equal max player level, this let GM set high level with 1...max range items)
-				if (pItem.GetQuality() == ItemQuality.Heirloom)
-					requiredLevels = Global.DB2Mgr.GetContentTuningData(pItem.GetScalingContentTuningId(), 0, true);
+				if (pItem.Quality == ItemQuality.Heirloom)
+					requiredLevels = Global.DB2Mgr.GetContentTuningData(pItem.ScalingContentTuningId, 0, true);
 
-				if (requiredLevels.HasValue && requiredLevels.Value.MaxLevel < SharedConst.DefaultMaxLevel && requiredLevels.Value.MaxLevel < Level && Global.DB2Mgr.GetHeirloomByItemId(pProto.GetId()) == null)
+				if (requiredLevels.HasValue && requiredLevels.Value.MaxLevel < SharedConst.DefaultMaxLevel && requiredLevels.Value.MaxLevel < Level && Global.DB2Mgr.GetHeirloomByItemId(pProto.Id) == null)
 					return InventoryResult.NotEquippable;
 
 				var eslot = FindEquipSlot(pItem, slot, swap);
@@ -4274,7 +4274,7 @@ public partial class Player
 					return res2;
 
 				// check unique-equipped special item classes
-				if (pProto.GetClass() == ItemClass.Quiver)
+				if (pProto.Class == ItemClass.Quiver)
 					for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; ++i)
 					{
 						var pBag = GetItemByPos(InventorySlots.Bag0, i);
@@ -4282,22 +4282,22 @@ public partial class Player
 						if (pBag != null)
 							if (pBag != pItem)
 							{
-								var pBagProto = pBag.GetTemplate();
+								var pBagProto = pBag.Template;
 
 								if (pBagProto != null)
-									if (pBagProto.GetClass() == pProto.GetClass() && (!swap || pBag.GetSlot() != eslot))
-										return (pBagProto.GetSubClass() == (uint)ItemSubClassQuiver.AmmoPouch)
+									if (pBagProto.Class == pProto.Class && (!swap || pBag.Slot != eslot))
+										return (pBagProto.SubClass == (uint)ItemSubClassQuiver.AmmoPouch)
 													? InventoryResult.OnlyOneAmmo
 													: InventoryResult.OnlyOneQuiver;
 							}
 					}
 
-				var type = pProto.GetInventoryType();
+				var type = pProto.InventoryType;
 
 				if (eslot == EquipmentSlot.OffHand)
 				{
 					// Do not allow polearm to be equipped in the offhand (rare case for the only 1h polearm 41750)
-					if (type == InventoryType.Weapon && pProto.GetSubClass() == (uint)ItemSubClassWeapon.Polearm)
+					if (type == InventoryType.Weapon && pProto.SubClass == (uint)ItemSubClassWeapon.Polearm)
 					{
 						return InventoryResult.TwoHandSkillNotFound;
 					}
@@ -4359,7 +4359,7 @@ public partial class Player
 
 	public InventoryResult CanEquipChildItem(Item parentItem)
 	{
-		var childItem = GetChildItemByGuid(parentItem.GetChildItem());
+		var childItem = GetChildItemByGuid(parentItem.ChildItem);
 
 		if (!childItem)
 			return InventoryResult.Ok;
@@ -4375,25 +4375,25 @@ public partial class Player
 			return InventoryResult.Ok;
 
 		var childDest = (ushort)((InventorySlots.Bag0 << 8) | childEquipement.ChildItemEquipSlot);
-		var msg = CanUnequipItem(childDest, !childItem.IsBag());
+		var msg = CanUnequipItem(childDest, !childItem.IsBag);
 
 		if (msg != InventoryResult.Ok)
 			return msg;
 
 		// check dest.src move possibility
-		var src = parentItem.GetPos();
+		var src = parentItem.Pos;
 		List<ItemPosCount> dest = new();
 
 		if (IsInventoryPos(src))
 		{
-			msg = CanStoreItem(parentItem.GetBagSlot(), ItemConst.NullSlot, dest, dstItem, true);
+			msg = CanStoreItem(parentItem.BagSlot, ItemConst.NullSlot, dest, dstItem, true);
 
 			if (msg != InventoryResult.Ok)
 				msg = CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, dstItem, true);
 		}
 		else if (IsBankPos(src))
 		{
-			msg = CanBankItem(parentItem.GetBagSlot(), ItemConst.NullSlot, dest, dstItem, true);
+			msg = CanBankItem(parentItem.BagSlot, ItemConst.NullSlot, dest, dstItem, true);
 
 			if (msg != InventoryResult.Ok)
 				msg = CanBankItem(ItemConst.NullBag, ItemConst.NullSlot, dest, dstItem, true);
@@ -4408,7 +4408,7 @@ public partial class Player
 
 	public InventoryResult CanEquipUniqueItem(Item pItem, byte eslot = ItemConst.NullSlot, uint limit_count = 1)
 	{
-		var pProto = pItem.GetTemplate();
+		var pProto = pItem.Template;
 
 		// proto based limitations
 		var res = CanEquipUniqueItem(pProto, eslot, limit_count);
@@ -4425,7 +4425,7 @@ public partial class Player
 				continue;
 
 			// include for check equip another gems with same limit category for not equipped item (and then not counted)
-			var gem_limit_count = (uint)(!pItem.IsEquipped() && pGem.GetItemLimitCategory() != 0 ? pItem.GetGemCountWithLimitCategory(pGem.GetItemLimitCategory()) : 1);
+			var gem_limit_count = (uint)(!pItem.IsEquipped && pGem.ItemLimitCategory != 0 ? pItem.GetGemCountWithLimitCategory(pGem.ItemLimitCategory) : 1);
 
 			var ress = CanEquipUniqueItem(pGem, eslot, gem_limit_count);
 
@@ -4441,13 +4441,13 @@ public partial class Player
 		// check unique-equipped on item
 		if (itemProto.HasFlag(ItemFlags.UniqueEquippable))
 			// there is an equip limit on this item
-			if (HasItemOrGemWithIdEquipped(itemProto.GetId(), 1, except_slot))
+			if (HasItemOrGemWithIdEquipped(itemProto.Id, 1, except_slot))
 				return InventoryResult.ItemUniqueEquippable;
 
 		// check unique-equipped limit
-		if (itemProto.GetItemLimitCategory() != 0)
+		if (itemProto.ItemLimitCategory != 0)
 		{
-			var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(itemProto.GetItemLimitCategory());
+			var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(itemProto.ItemLimitCategory);
 
 			if (limitEntry == null)
 				return InventoryResult.NotEquippable;
@@ -4459,9 +4459,9 @@ public partial class Player
 				return InventoryResult.ItemMaxLimitCategoryEquippedExceededIs;
 
 			// there is an equip limit on this item
-			if (HasItemWithLimitCategoryEquipped(itemProto.GetItemLimitCategory(), limitQuantity - limit_count + 1, except_slot))
+			if (HasItemWithLimitCategoryEquipped(itemProto.ItemLimitCategory, limitQuantity - limit_count + 1, except_slot))
 				return InventoryResult.ItemMaxLimitCategoryEquippedExceededIs;
-			else if (HasGemWithLimitCategoryEquipped(itemProto.GetItemLimitCategory(), limitQuantity - limit_count + 1, except_slot))
+			else if (HasGemWithLimitCategoryEquipped(itemProto.ItemLimitCategory, limitQuantity - limit_count + 1, except_slot))
 				return InventoryResult.ItemMaxCountEquippedSocketed;
 		}
 
@@ -4480,9 +4480,9 @@ public partial class Player
 		if (pItem == null)
 			return InventoryResult.Ok;
 
-		Log.outDebug(LogFilter.Player, "STORAGE: CanUnequipItem slot = {0}, item = {1}, count = {2}", pos, pItem.Entry, pItem.GetCount());
+		Log.outDebug(LogFilter.Player, "STORAGE: CanUnequipItem slot = {0}, item = {1}, count = {2}", pos, pItem.Entry, pItem.Count);
 
-		var pProto = pItem.GetTemplate();
+		var pProto = pItem.Template;
 
 		if (pProto == null)
 			return InventoryResult.ItemNotFound;
@@ -4509,7 +4509,7 @@ public partial class Player
 					return InventoryResult.NotDuringArenaMatch;
 		}
 
-		if (!swap && pItem.IsNotEmptyBag())
+		if (!swap && pItem.IsNotEmptyBag)
 			return InventoryResult.DestroyNonemptyBag;
 
 		return InventoryResult.Ok;
@@ -4643,15 +4643,15 @@ public partial class Player
 		uint tempcount = 0;
 
 		var pProto = Global.ObjectMgr.GetItemTemplate(item);
-		var includeGems = pProto?.GetGemProperties() != 0;
+		var includeGems = pProto?.GemProperties != 0;
 
 		return !ForEachItem(ItemSearchLocation.Equipment,
 							pItem =>
 							{
-								if (pItem.GetSlot() != except_slot)
+								if (pItem.Slot != except_slot)
 								{
 									if (pItem.Entry == item)
-										tempcount += pItem.GetCount();
+										tempcount += pItem.Count;
 
 									if (includeGems)
 										tempcount += pItem.GetGemCountWithID(item);
@@ -4695,11 +4695,11 @@ public partial class Player
 
 			// Also remove all contained items if the item is a bag.
 			// This if () prevents item saving crashes if the condition for a bag to be empty before being destroyed was bypassed somehow.
-			if (pItem.IsNotEmptyBag())
+			if (pItem.IsNotEmptyBag)
 				for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
 					DestroyItem(slot, i, update);
 
-			if (pItem.IsWrapped())
+			if (pItem.IsWrapped)
 			{
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
 				stmt.AddValue(0, pItem.GUID.Counter);
@@ -4715,10 +4715,10 @@ public partial class Player
 
 			ApplyItemObtainSpells(pItem, false);
 			ApplyItemLootedSpell(pItem, false);
-			Global.ScriptMgr.RunScriptRet<IItemOnRemove>(tmpscript => tmpscript.OnRemove(this, pItem), pItem.GetScriptId());
+			Global.ScriptMgr.RunScriptRet<IItemOnRemove>(tmpscript => tmpscript.OnRemove(this, pItem), pItem.ScriptId);
 
 			Bag pBag;
-			var pProto = pItem.GetTemplate();
+			var pProto = pItem.Template;
 
 			if (bag == InventorySlots.Bag0)
 			{
@@ -4728,7 +4728,7 @@ public partial class Player
 				if (slot < InventorySlots.BagEnd)
 				{
 					// item set bonuses applied only at equip and removed at unequip, and still active for broken items
-					if (pProto != null && pProto.GetItemSet() != 0)
+					if (pProto != null && pProto.ItemSet != 0)
 						Item.RemoveItemsSetItem(this, pItem);
 
 					_ApplyItemMods(pItem, slot, false);
@@ -4769,7 +4769,7 @@ public partial class Player
 			if (pProto.HasFlag(ItemFlags.HasLoot))
 				Global.LootItemStorage.RemoveStoredLootForContainer(pItem.GUID.Counter);
 
-			ItemRemovedQuestCheck(pItem.Entry, pItem.GetCount());
+			ItemRemovedQuestCheck(pItem.Entry, pItem.Count);
 
 			if (IsInWorld && update)
 			{
@@ -4782,7 +4782,7 @@ public partial class Player
 			pItem.SetSlot(ItemConst.NullSlot);
 			pItem.SetState(ItemUpdateState.Removed, this);
 
-			if (pProto.GetInventoryType() != InventoryType.NonEquip)
+			if (pProto.InventoryType != InventoryType.NonEquip)
 				UpdateAverageItemLevelTotal();
 
 			if (bag == InventorySlots.Bag0)
@@ -4803,12 +4803,12 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item != null)
-				if (item.Entry == itemEntry && !item.IsInTrade())
+				if (item.Entry == itemEntry && !item.IsInTrade)
 				{
-					if (item.GetCount() + remcount <= count)
+					if (item.Count + remcount <= count)
 					{
 						// all items in inventory can unequipped
-						remcount += item.GetCount();
+						remcount += item.Count;
 						DestroyItem(InventorySlots.Bag0, i, update);
 
 						if (remcount >= count)
@@ -4816,7 +4816,7 @@ public partial class Player
 					}
 					else
 					{
-						item.SetCount(item.GetCount() - count + remcount);
+						item.SetCount(item.Count - count + remcount);
 						ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 						if (IsInWorld && update)
@@ -4840,12 +4840,12 @@ public partial class Player
 					var item = bag.GetItemByPos(j);
 
 					if (item != null)
-						if (item.Entry == itemEntry && !item.IsInTrade())
+						if (item.Entry == itemEntry && !item.IsInTrade)
 						{
 							// all items in bags can be unequipped
-							if (item.GetCount() + remcount <= count)
+							if (item.Count + remcount <= count)
 							{
-								remcount += item.GetCount();
+								remcount += item.Count;
 								DestroyItem(i, j, update);
 
 								if (remcount >= count)
@@ -4853,7 +4853,7 @@ public partial class Player
 							}
 							else
 							{
-								item.SetCount(item.GetCount() - count + remcount);
+								item.SetCount(item.Count - count + remcount);
 								ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 								if (IsInWorld && update)
@@ -4873,13 +4873,13 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item != null)
-				if (item.Entry == itemEntry && !item.IsInTrade())
+				if (item.Entry == itemEntry && !item.IsInTrade)
 				{
-					if (item.GetCount() + remcount <= count)
+					if (item.Count + remcount <= count)
 					{
 						if (!unequip_check || CanUnequipItem((ushort)(InventorySlots.Bag0 << 8 | i), false) == InventoryResult.Ok)
 						{
-							remcount += item.GetCount();
+							remcount += item.Count;
 							DestroyItem(InventorySlots.Bag0, i, update);
 
 							if (remcount >= count)
@@ -4888,7 +4888,7 @@ public partial class Player
 					}
 					else
 					{
-						item.SetCount(item.GetCount() - count + remcount);
+						item.SetCount(item.Count - count + remcount);
 						ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 						if (IsInWorld && update)
@@ -4907,11 +4907,11 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item != null)
-				if (item.Entry == itemEntry && !item.IsInTrade())
+				if (item.Entry == itemEntry && !item.IsInTrade)
 				{
-					if (item.GetCount() + remcount <= count)
+					if (item.Count + remcount <= count)
 					{
-						remcount += item.GetCount();
+						remcount += item.Count;
 						DestroyItem(InventorySlots.Bag0, i, update);
 
 						if (remcount >= count)
@@ -4919,7 +4919,7 @@ public partial class Player
 					}
 					else
 					{
-						item.SetCount(item.GetCount() - count + remcount);
+						item.SetCount(item.Count - count + remcount);
 						ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 						if (IsInWorld && update)
@@ -4943,12 +4943,12 @@ public partial class Player
 					var item = bag.GetItemByPos(j);
 
 					if (item != null)
-						if (item.Entry == itemEntry && !item.IsInTrade())
+						if (item.Entry == itemEntry && !item.IsInTrade)
 						{
 							// all items in bags can be unequipped
-							if (item.GetCount() + remcount <= count)
+							if (item.Count + remcount <= count)
 							{
-								remcount += item.GetCount();
+								remcount += item.Count;
 								DestroyItem(i, j, update);
 
 								if (remcount >= count)
@@ -4956,7 +4956,7 @@ public partial class Player
 							}
 							else
 							{
-								item.SetCount(item.GetCount() - count + remcount);
+								item.SetCount(item.Count - count + remcount);
 								ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 								if (IsInWorld && update)
@@ -4976,13 +4976,13 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item)
-				if (item.Entry == itemEntry && !item.IsInTrade())
+				if (item.Entry == itemEntry && !item.IsInTrade)
 				{
-					if (item.GetCount() + remcount <= count)
+					if (item.Count + remcount <= count)
 					{
 						if (!unequip_check || CanUnequipItem((ushort)(InventorySlots.Bag0 << 8 | i), false) == InventoryResult.Ok)
 						{
-							remcount += item.GetCount();
+							remcount += item.Count;
 							DestroyItem(InventorySlots.Bag0, i, update);
 
 							if (remcount >= count)
@@ -4991,7 +4991,7 @@ public partial class Player
 					}
 					else
 					{
-						item.SetCount(item.GetCount() - count + remcount);
+						item.SetCount(item.Count - count + remcount);
 						ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 						if (IsInWorld && update)
@@ -5009,12 +5009,12 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item)
-				if (item.Entry == itemEntry && !item.IsInTrade())
+				if (item.Entry == itemEntry && !item.IsInTrade)
 				{
-					if (item.GetCount() + remcount <= count)
+					if (item.Count + remcount <= count)
 					{
 						// all keys can be unequipped
-						remcount += item.GetCount();
+						remcount += item.Count;
 						DestroyItem(InventorySlots.Bag0, i, update);
 
 						if (remcount >= count)
@@ -5022,7 +5022,7 @@ public partial class Player
 					}
 					else
 					{
-						item.SetCount(item.GetCount() - count + remcount);
+						item.SetCount(item.Count - count + remcount);
 						ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 						if (IsInWorld && update)
@@ -5040,12 +5040,12 @@ public partial class Player
 			var item = GetItemByPos(InventorySlots.Bag0, i);
 
 			if (item)
-				if (item.Entry == itemEntry && !item.IsInTrade())
+				if (item.Entry == itemEntry && !item.IsInTrade)
 				{
-					if (item.GetCount() + remcount <= count)
+					if (item.Count + remcount <= count)
 					{
 						// all keys can be unequipped
-						remcount += item.GetCount();
+						remcount += item.Count;
 						DestroyItem(InventorySlots.Bag0, i, update);
 
 						if (remcount >= count)
@@ -5053,7 +5053,7 @@ public partial class Player
 					}
 					else
 					{
-						item.SetCount(item.GetCount() - count + remcount);
+						item.SetCount(item.Count - count + remcount);
 						ItemRemovedQuestCheck(item.Entry, count - remcount);
 
 						if (IsInWorld && update)
@@ -5076,16 +5076,16 @@ public partial class Player
 
 		Log.outDebug(LogFilter.Player, "STORAGE: DestroyItemCount item (GUID: {0}, Entry: {1}) count = {2}", pItem.GUID.ToString(), pItem.Entry, count);
 
-		if (pItem.GetCount() <= count)
+		if (pItem.Count <= count)
 		{
-			count -= pItem.GetCount();
+			count -= pItem.Count;
 
-			DestroyItem(pItem.GetBagSlot(), pItem.GetSlot(), update);
+			DestroyItem(pItem.BagSlot, pItem.Slot, update);
 		}
 		else
 		{
 			ItemRemovedQuestCheck(pItem.Entry, count);
-			pItem.SetCount(pItem.GetCount() - count);
+			pItem.SetCount(pItem.Count - count);
 			count = 0;
 
 			if (IsInWorld && update)
@@ -5231,7 +5231,7 @@ public partial class Player
 			--loot.unlootedCount;
 
 			if (Global.ObjectMgr.GetItemTemplate(item.itemid) != null)
-				if (newitem.GetQuality() > ItemQuality.Epic || (newitem.GetQuality() == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
+				if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
 				{
 					var guild = Guild;
 
@@ -5668,15 +5668,15 @@ public partial class Player
 		ForEachItem(ItemSearchLocation.Everywhere,
 					item =>
 					{
-						var itemTemplate = item.GetTemplate();
+						var itemTemplate = item.Template;
 
-						if (itemTemplate != null && itemTemplate.GetInventoryType() < InventoryType.ProfessionTool)
+						if (itemTemplate != null && itemTemplate.InventoryType < InventoryType.ProfessionTool)
 						{
-							if (item.IsEquipped())
+							if (item.IsEquipped)
 							{
 								var itemLevel = item.GetItemLevel(this);
-								var inventoryType = itemTemplate.GetInventoryType();
-								ref var slotData = ref bestItemLevels[item.GetSlot()];
+								var inventoryType = itemTemplate.InventoryType;
+								ref var slotData = ref bestItemLevels[item.Slot];
 
 								if (itemLevel > slotData.Item2)
 								{
@@ -5687,7 +5687,7 @@ public partial class Player
 							else if (CanEquipItem(ItemConst.NullSlot, out var dest, item, true, false) == InventoryResult.Ok)
 							{
 								var itemLevel = item.GetItemLevel(this);
-								var inventoryType = itemTemplate.GetInventoryType();
+								var inventoryType = itemTemplate.InventoryType;
 
 								ForEachEquipmentSlot(inventoryType,
 													CanDualWield,
@@ -5736,7 +5736,7 @@ public partial class Player
 				var itemLevel = item.GetItemLevel(this);
 				totalItemLevel += itemLevel;
 
-				if (!_canTitanGrip && i == EquipmentSlot.MainHand && item.GetTemplate().GetInventoryType() == InventoryType.Weapon2Hand) // 2h weapon counts twice
+				if (!_canTitanGrip && i == EquipmentSlot.MainHand && item.Template.InventoryType == InventoryType.Weapon2Hand) // 2h weapon counts twice
 					totalItemLevel += itemLevel;
 			}
 		}
@@ -5852,7 +5852,7 @@ public partial class Player
 		if (bag != ItemConst.NullBag)
 		{
 			// search stack in bag for merge to
-			if (pProto.GetMaxStackSize() != 1)
+			if (pProto.MaxStackSize != 1)
 			{
 				if (bag == InventorySlots.Bag0) // inventory
 				{
@@ -5995,7 +5995,7 @@ public partial class Player
 		// not specific bag or have space for partly store only in specific bag
 
 		// search stack for merge to
-		if (pProto.GetMaxStackSize() != 1)
+		if (pProto.MaxStackSize != 1)
 		{
 			res = CanStoreItem_InInventorySlots(InventorySlots.ChildEquipmentStart, InventorySlots.ChildEquipmentEnd, dest, pProto, ref count, true, pItem, bag, slot);
 
@@ -6035,7 +6035,7 @@ public partial class Player
 				return InventoryResult.ItemMaxCount;
 			}
 
-			if (pProto.GetBagFamily() != 0)
+			if (pProto.BagFamily != 0)
 				for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; i++)
 				{
 					res = CanStoreItem_InBag(i, dest, pProto, ref count, true, false, pItem, bag, slot);
@@ -6074,7 +6074,7 @@ public partial class Player
 		}
 
 		// search free slot - special bag case
-		if (pProto.GetBagFamily() != 0)
+		if (pProto.BagFamily != 0)
 			for (var i = InventorySlots.BagStart; i < InventorySlots.BagEnd; i++)
 			{
 				res = CanStoreItem_InBag(i, dest, pProto, ref count, false, false, pItem, bag, slot);
@@ -6093,7 +6093,7 @@ public partial class Player
 				}
 			}
 
-		if (pItem != null && pItem.IsNotEmptyBag())
+		if (pItem != null && pItem.IsNotEmptyBag)
 			return InventoryResult.BagInBag;
 
 		if (pItem && pItem.HasItemFlag(ItemFieldFlags.Child))
@@ -6123,9 +6123,9 @@ public partial class Player
 
 		// new bags can be directly equipped
 		if (!pItem &&
-			pProto.GetClass() == ItemClass.Container &&
-			(ItemSubClassContainer)pProto.GetSubClass() == ItemSubClassContainer.Container &&
-			(pProto.GetBonding() == ItemBondingType.None || pProto.GetBonding() == ItemBondingType.OnAcquire))
+			pProto.Class == ItemClass.Container &&
+			(ItemSubClassContainer)pProto.SubClass == ItemSubClassContainer.Container &&
+			(pProto.Bonding == ItemBondingType.None || pProto.Bonding == ItemBondingType.OnAcquire))
 			searchSlotStart = InventorySlots.BagStart;
 
 		res = CanStoreItem_InInventorySlots(searchSlotStart, inventoryEnd, dest, pProto, ref count, false, pItem, bag, slot);
@@ -6192,9 +6192,9 @@ public partial class Player
 			if (pItem == null)
 				return null;
 
-			if (pItem.GetBonding() == ItemBondingType.OnAcquire ||
-				pItem.GetBonding() == ItemBondingType.Quest ||
-				(pItem.GetBonding() == ItemBondingType.OnEquip && IsBagPos(pos)))
+			if (pItem.Bonding == ItemBondingType.OnAcquire ||
+				pItem.Bonding == ItemBondingType.Quest ||
+				(pItem.Bonding == ItemBondingType.OnEquip && IsBagPos(pos)))
 				pItem.SetBinding(true);
 
 			var pBag = bag == InventorySlots.Bag0 ? null : GetBagByPos(bag);
@@ -6235,12 +6235,12 @@ public partial class Player
 		}
 		else
 		{
-			if (pItem2.GetBonding() == ItemBondingType.OnAcquire ||
-				pItem2.GetBonding() == ItemBondingType.Quest ||
-				(pItem2.GetBonding() == ItemBondingType.OnEquip && IsBagPos(pos)))
+			if (pItem2.Bonding == ItemBondingType.OnAcquire ||
+				pItem2.Bonding == ItemBondingType.Quest ||
+				(pItem2.Bonding == ItemBondingType.OnEquip && IsBagPos(pos)))
 				pItem2.SetBinding(true);
 
-			pItem2.SetCount(pItem2.GetCount() + count);
+			pItem2.SetCount(pItem2.Count + count);
 
 			if (IsInWorld && update)
 				pItem2.SendUpdateToPlayer(this);
@@ -6323,14 +6323,14 @@ public partial class Player
 	{
 		uint notused = 0;
 
-		return CanTakeMoreSimilarItems(pItem.Entry, pItem.GetCount(), pItem, ref notused);
+		return CanTakeMoreSimilarItems(pItem.Entry, pItem.Count, pItem, ref notused);
 	}
 
 	InventoryResult CanTakeMoreSimilarItems(Item pItem, ref uint offendingItemId)
 	{
 		uint notused = 0;
 
-		return CanTakeMoreSimilarItems(pItem.Entry, pItem.GetCount(), pItem, ref notused, ref offendingItemId);
+		return CanTakeMoreSimilarItems(pItem.Entry, pItem.Count, pItem, ref notused, ref offendingItemId);
 	}
 
 	InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint no_space_count)
@@ -6355,25 +6355,25 @@ public partial class Player
 			return InventoryResult.LootGone;
 
 		// no maximum
-		if ((pProto.GetMaxCount() <= 0 && pProto.GetItemLimitCategory() == 0) || pProto.GetMaxCount() == 2147483647)
+		if ((pProto.MaxCount <= 0 && pProto.ItemLimitCategory == 0) || pProto.MaxCount == 2147483647)
 			return InventoryResult.Ok;
 
-		if (pProto.GetMaxCount() > 0)
+		if (pProto.MaxCount > 0)
 		{
-			var curcount = GetItemCount(pProto.GetId(), true, pItem);
+			var curcount = GetItemCount(pProto.Id, true, pItem);
 
-			if (curcount + count > pProto.GetMaxCount())
+			if (curcount + count > pProto.MaxCount)
 			{
-				no_space_count = count + curcount - pProto.GetMaxCount();
+				no_space_count = count + curcount - pProto.MaxCount;
 
 				return InventoryResult.ItemMaxCount;
 			}
 		}
 
 		// check unique-equipped limit
-		if (pProto.GetItemLimitCategory() != 0)
+		if (pProto.ItemLimitCategory != 0)
 		{
-			var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(pProto.GetItemLimitCategory());
+			var limitEntry = CliDB.ItemLimitCategoryStorage.LookupByKey(pProto.ItemLimitCategory);
 
 			if (limitEntry == null)
 			{
@@ -6385,12 +6385,12 @@ public partial class Player
 			if (limitEntry.Flags == 0)
 			{
 				var limitQuantity = GetItemLimitCategoryQuantity(limitEntry);
-				var curcount = GetItemCountWithLimitCategory(pProto.GetItemLimitCategory(), pItem);
+				var curcount = GetItemCountWithLimitCategory(pProto.ItemLimitCategory, pItem);
 
 				if (curcount + count > limitQuantity)
 				{
 					no_space_count = count + curcount - limitQuantity;
-					offendingItemId = pProto.GetId();
+					offendingItemId = pProto.Id;
 
 					return InventoryResult.ItemMaxLimitCategoryCountExceededIs;
 				}
@@ -6412,11 +6412,11 @@ public partial class Player
 								{
 									if (pItem.Entry == item)
 									{
-										var ires = CanUnequipItem(pItem.GetPos(), false);
+										var ires = CanUnequipItem(pItem.Pos, false);
 
 										if (ires == InventoryResult.Ok)
 										{
-											tempcount += pItem.GetCount();
+											tempcount += pItem.Count;
 
 											if (tempcount >= count)
 												return false;
@@ -6464,7 +6464,7 @@ public partial class Player
 
 	bool _StoreOrEquipNewItem(uint vendorslot, uint item, byte count, byte bag, byte slot, long price, ItemTemplate pProto, Creature pVendor, VendorItem crItem, bool bStore)
 	{
-		var stacks = count / pProto.GetBuyCount();
+		var stacks = count / pProto.BuyCount;
 		List<ItemPosCount> vDest = new();
 		ushort uiDest = 0;
 		var msg = bStore ? CanStoreNewItem(bag, slot, vDest, item, count) : CanEquipNewItem(slot, out uiDest, item, false);
@@ -6514,7 +6514,7 @@ public partial class Player
 			if (!bStore)
 				AutoUnequipOffhandIfNeed();
 
-			if (pProto.HasFlag(ItemFlags.ItemPurchaseRecord) && crItem.ExtendedCost != 0 && pProto.GetMaxStackSize() == 1)
+			if (pProto.HasFlag(ItemFlags.ItemPurchaseRecord) && crItem.ExtendedCost != 0 && pProto.MaxStackSize == 1)
 			{
 				it.SetItemFlag(ItemFieldFlags.Refundable);
 				it.SetRefundRecipient(GUID);
@@ -6553,7 +6553,7 @@ public partial class Player
 		Log.outDebug(LogFilter.Player, "Player:UpdateItemDuration({0}, {1})", time, realtimeonly);
 
 		foreach (var item in _itemDuration)
-			if (!realtimeonly || item.GetTemplate().HasFlag(ItemFlags.RealDuration))
+			if (!realtimeonly || item.Template.HasFlag(ItemFlags.RealDuration))
 				item.UpdateDuration(this, time);
 	}
 
@@ -6578,11 +6578,11 @@ public partial class Player
 					{
 						if (item != skipItem)
 						{
-							var pProto = item.GetTemplate();
+							var pProto = item.Template;
 
 							if (pProto != null)
-								if (pProto.GetItemLimitCategory() == limitCategory)
-									count += item.GetCount();
+								if (pProto.ItemLimitCategory == limitCategory)
+									count += item.Count;
 						}
 
 						return true;
@@ -6636,10 +6636,10 @@ public partial class Player
 
 	void ApplyItemEquipSpell(Item item, bool apply, bool formChange = false)
 	{
-		if (item == null || item.GetTemplate().HasFlag(ItemFlags.Legacy))
+		if (item == null || item.Template.HasFlag(ItemFlags.Legacy))
 			return;
 
-		foreach (var effectData in item.GetEffects())
+		foreach (var effectData in item.Effects)
 		{
 			// wrong triggering type
 			if (apply && effectData.TriggerType != ItemSpelltriggerType.OnEquip)
@@ -6660,12 +6660,12 @@ public partial class Player
 
 	void ApplyEquipCooldown(Item pItem)
 	{
-		if (pItem.GetTemplate().HasFlag(ItemFlags.NoEquipCooldown))
+		if (pItem.Template.HasFlag(ItemFlags.NoEquipCooldown))
 			return;
 
 		var now = GameTime.Now();
 
-		foreach (var effectData in pItem.GetEffects())
+		foreach (var effectData in pItem.Effects)
 		{
 			var effectSpellInfo = Global.SpellMgr.GetSpellInfo((uint)effectData.SpellID, Difficulty.None);
 
@@ -6717,16 +6717,16 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
 			{
-				var proto = _items[i].GetTemplate();
+				var proto = _items[i].Template;
 
 				if (proto == null)
 					continue;
 
 				// item set bonuses not dependent from item broken state
-				if (proto.GetItemSet() != 0)
+				if (proto.ItemSet != 0)
 					Item.RemoveItemsSetItem(this, _items[i]);
 
-				if (_items[i].IsBroken() || !CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				ApplyItemEquipSpell(_items[i], false);
@@ -6737,7 +6737,7 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
 			{
-				if (_items[i].IsBroken() || !CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				ApplyItemDependentAuras(_items[i], false);
@@ -6754,13 +6754,13 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
 			{
-				if (_items[i].IsBroken() || !CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				ApplyItemDependentAuras(_items[i], true);
 				_ApplyItemBonuses(_items[i], i, true);
 
-				var attackType = GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType());
+				var attackType = GetAttackBySlot(i, _items[i].Template.InventoryType);
 
 				if (attackType != WeaponAttackType.Max)
 					UpdateWeaponDependentAuras(attackType);
@@ -6769,16 +6769,16 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
 			{
-				var proto = _items[i].GetTemplate();
+				var proto = _items[i].Template;
 
 				if (proto == null)
 					continue;
 
 				// item set bonuses not dependent from item broken state
-				if (proto.GetItemSet() != 0)
+				if (proto.ItemSet != 0)
 					Item.AddItemsSetItem(this, _items[i]);
 
-				if (_items[i].IsBroken() || !CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (_items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				ApplyItemEquipSpell(_items[i], true);
@@ -6794,7 +6794,7 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i])
 			{
-				if (!_items[i].IsAzeriteItem() || _items[i].IsBroken() || !CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (!_items[i].IsAzeriteItem || _items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				ApplyAzeritePowers(_items[i], apply);
@@ -6806,7 +6806,7 @@ public partial class Player
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i])
 			{
-				if (!_items[i].IsAzeriteEmpoweredItem() || _items[i].IsBroken() || !CanUseAttackType(GetAttackBySlot(i, _items[i].GetTemplate().GetInventoryType())))
+				if (!_items[i].IsAzeriteEmpoweredItem || _items[i].IsBroken || !CanUseAttackType(GetAttackBySlot(i, _items[i].Template.InventoryType)))
 					continue;
 
 				ApplyAzeritePowers(_items[i], apply);
@@ -6816,7 +6816,7 @@ public partial class Player
 	InventoryResult CanStoreItem_InInventorySlots(byte slot_begin, byte slot_end, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool merge, Item pSrcItem, byte skip_bag, byte skip_slot)
 	{
 		//this is never called for non-bag slots so we can do this
-		if (pSrcItem != null && pSrcItem.IsNotEmptyBag())
+		if (pSrcItem != null && pSrcItem.IsNotEmptyBag)
 			return InventoryResult.DestroyNonemptyBag;
 
 		for (var j = slot_begin; j < slot_end; j++)
@@ -6835,7 +6835,7 @@ public partial class Player
 			if ((pItem2 != null) != merge)
 				continue;
 
-			var need_space = pProto.GetMaxStackSize();
+			var need_space = pProto.MaxStackSize;
 
 			if (pItem2 != null)
 			{
@@ -6846,7 +6846,7 @@ public partial class Player
 					continue;
 
 				// descrease at current stacksize
-				need_space -= pItem2.GetCount();
+				need_space -= pItem2.Count;
 			}
 
 			if (need_space > count)
@@ -6879,7 +6879,7 @@ public partial class Player
 
 		if (pSrcItem)
 		{
-			if (pSrcItem.IsNotEmptyBag() && !IsBagPos((ushort)((ushort)bag << 8 | slot)))
+			if (pSrcItem.IsNotEmptyBag && !IsBagPos((ushort)((ushort)bag << 8 | slot)))
 				return InventoryResult.DestroyNonemptyBag;
 
 			if (pSrcItem.HasItemFlag(ItemFieldFlags.Child) && !IsEquipmentPos(bag, slot) && !IsChildEquipmentPos(bag, slot))
@@ -6899,7 +6899,7 @@ public partial class Player
 					return InventoryResult.WrongBagType;
 
 				// can't store anything else than crafting reagents in Reagent Bank
-				if (IsReagentBankPos(bag, slot) && (!IsReagentBankUnlocked || !pProto.IsCraftingReagent()))
+				if (IsReagentBankPos(bag, slot) && (!IsReagentBankUnlocked || !pProto.IsCraftingReagent))
 					return InventoryResult.WrongBagType;
 			}
 			else
@@ -6909,12 +6909,12 @@ public partial class Player
 				if (pBag == null)
 					return InventoryResult.WrongBagType;
 
-				var pBagProto = pBag.GetTemplate();
+				var pBagProto = pBag.Template;
 
 				if (pBagProto == null)
 					return InventoryResult.WrongBagType;
 
-				if (slot >= pBagProto.GetContainerSlots())
+				if (slot >= pBagProto.ContainerSlots)
 					return InventoryResult.WrongBagType;
 
 				if (!Item.ItemCanGoIntoBag(pProto, pBagProto))
@@ -6922,7 +6922,7 @@ public partial class Player
 			}
 
 			// non empty stack with space
-			need_space = pProto.GetMaxStackSize();
+			need_space = pProto.MaxStackSize;
 		}
 		// non empty slot, check item type
 		else
@@ -6934,7 +6934,7 @@ public partial class Player
 				return res;
 
 			// free stack space or infinity
-			need_space = pProto.GetMaxStackSize() - pItem2.GetCount();
+			need_space = pProto.MaxStackSize - pItem2.Count;
 		}
 
 		if (need_space > count)
@@ -6965,20 +6965,20 @@ public partial class Player
 
 		if (pSrcItem)
 		{
-			if (pSrcItem.IsNotEmptyBag())
+			if (pSrcItem.IsNotEmptyBag)
 				return InventoryResult.DestroyNonemptyBag;
 
 			if (pSrcItem.HasItemFlag(ItemFieldFlags.Child))
 				return InventoryResult.WrongBagType3;
 		}
 
-		var pBagProto = pBag.GetTemplate();
+		var pBagProto = pBag.Template;
 
 		if (pBagProto == null)
 			return InventoryResult.WrongBagType;
 
 		// specialized bag mode or non-specilized
-		if (non_specialized != (pBagProto.GetClass() == ItemClass.Container && pBagProto.GetSubClass() == (uint)ItemSubClassContainer.Container))
+		if (non_specialized != (pBagProto.Class == ItemClass.Container && pBagProto.SubClass == (uint)ItemSubClassContainer.Container))
 			return InventoryResult.WrongBagType;
 
 		if (!Item.ItemCanGoIntoBag(pProto, pBagProto))
@@ -7000,7 +7000,7 @@ public partial class Player
 			if ((pItem2 != null) != merge)
 				continue;
 
-			var need_space = pProto.GetMaxStackSize();
+			var need_space = pProto.MaxStackSize;
 
 			if (pItem2 != null)
 			{
@@ -7011,7 +7011,7 @@ public partial class Player
 					continue;
 
 				// descrease at current stacksize
-				need_space -= pItem2.GetCount();
+				need_space -= pItem2.Count;
 			}
 
 			if (need_space > count)
@@ -7040,7 +7040,7 @@ public partial class Player
 		slots[2] = ItemConst.NullSlot;
 		slots[3] = ItemConst.NullSlot;
 
-		switch (item.GetTemplate().GetInventoryType())
+		switch (item.Template.InventoryType)
 		{
 			case InventoryType.Head:
 				slots[0] = EquipmentSlot.Head;
@@ -7156,19 +7156,19 @@ public partial class Player
 			case InventoryType.ProfessionTool:
 			case InventoryType.ProfessionGear:
 			{
-				var isProfessionTool = item.GetTemplate().GetInventoryType() == InventoryType.ProfessionTool;
+				var isProfessionTool = item.Template.InventoryType == InventoryType.ProfessionTool;
 
 				// Validate item class
-				if (!(item.GetTemplate().GetClass() == ItemClass.Profession))
+				if (!(item.Template.Class == ItemClass.Profession))
 					return ItemConst.NullSlot;
 
 				// Check if player has profession skill
-				var itemSkill = (uint)item.GetTemplate().GetSkill();
+				var itemSkill = (uint)item.Template.GetSkill();
 
 				if (!HasSkill(itemSkill))
 					return ItemConst.NullSlot;
 
-				switch ((ItemSubclassProfession)item.GetTemplate().GetSubClass())
+				switch ((ItemSubclassProfession)item.Template.SubClass)
 				{
 					case ItemSubclassProfession.Cooking:
 						slots[0] = isProfessionTool ? ProfessionSlots.CookingTool : ProfessionSlots.CookingGear1;
@@ -7319,7 +7319,7 @@ public partial class Player
 
 	void ApplyAzeritePowers(Item item, bool apply)
 	{
-		var azeriteItem = item.ToAzeriteItem();
+		var azeriteItem = item.AsAzeriteItem;
 
 		if (azeriteItem != null)
 		{
@@ -7341,7 +7341,7 @@ public partial class Player
 		}
 		else
 		{
-			var azeriteEmpoweredItem = item.ToAzeriteEmpoweredItem();
+			var azeriteEmpoweredItem = item.AsAzeriteEmpoweredItem;
 
 			if (azeriteEmpoweredItem)
 				if (!apply || GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Equipment))
@@ -7398,13 +7398,13 @@ public partial class Player
 		return !ForEachItem(ItemSearchLocation.Equipment,
 							pItem =>
 							{
-								if (pItem.GetSlot() == except_slot)
+								if (pItem.Slot == except_slot)
 									return true;
 
-								if (pItem.GetTemplate().GetItemLimitCategory() != limitCategory)
+								if (pItem.Template.ItemLimitCategory != limitCategory)
 									return true;
 
-								tempcount += pItem.GetCount();
+								tempcount += pItem.Count;
 
 								if (tempcount >= count)
 									return false;
@@ -7420,10 +7420,10 @@ public partial class Player
 		return !ForEachItem(ItemSearchLocation.Equipment,
 							pItem =>
 							{
-								if (pItem.GetSlot() == except_slot)
+								if (pItem.Slot == except_slot)
 									return true;
 
-								var pProto = pItem.GetTemplate();
+								var pProto = pItem.Template;
 
 								if (pProto == null)
 									return true;
@@ -7443,7 +7443,7 @@ public partial class Player
 			return;
 
 		// check also  BIND_WHEN_PICKED_UP and BIND_QUEST_ITEM for .additem or .additemset case by GM (not binded at adding to inventory)
-		if (pItem.GetBonding() == ItemBondingType.OnEquip || pItem.GetBonding() == ItemBondingType.OnAcquire || pItem.GetBonding() == ItemBondingType.Quest)
+		if (pItem.Bonding == ItemBondingType.OnEquip || pItem.Bonding == ItemBondingType.OnAcquire || pItem.Bonding == ItemBondingType.Quest)
 		{
 			pItem.SetBinding(true);
 

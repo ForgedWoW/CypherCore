@@ -234,7 +234,7 @@ public partial class Creature : Unit
 
 		// equal to player Race field, but creature does not have race
 		Race = 0;
-		Class = (Class)cInfo.UnitClass;
+		Class = (PlayerClass)cInfo.UnitClass;
 
 		// Cancel load if no model defined
 		if (cInfo.GetFirstValidModel() == null)
@@ -1412,8 +1412,8 @@ public partial class Creature : Unit
 
 		switch (Class)
 		{
-			case Class.Paladin:
-			case Class.Mage:
+			case PlayerClass.Paladin:
+			case PlayerClass.Mage:
 				SetMaxPower(PowerType.Mana, (int)mana);
 				SetPower(PowerType.Mana, (int)mana);
 
@@ -2512,7 +2512,7 @@ public partial class Creature : Unit
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
 
-		return Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (Class)cInfo.UnitClass);
+		return Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureAutoAttackDps, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 	}
 
 	public override float GetDamageMultiplierForTarget(WorldObject target)
@@ -2643,14 +2643,14 @@ public partial class Creature : Unit
 
 			var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
-			if ((vCount.Count + diff * pProto.GetBuyCount()) >= vItem.Maxcount)
+			if ((vCount.Count + diff * pProto.BuyCount) >= vItem.Maxcount)
 			{
 				_vendorItemCounts.Remove(vCount);
 
 				return vItem.Maxcount;
 			}
 
-			vCount.Count += diff * pProto.GetBuyCount();
+			vCount.Count += diff * pProto.BuyCount;
 			vCount.LastIncrementTime = ptime;
 		}
 
@@ -2688,8 +2688,8 @@ public partial class Creature : Unit
 
 			var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
-			if ((vCount.Count + diff * pProto.GetBuyCount()) < vItem.Maxcount)
-				vCount.Count += diff * pProto.GetBuyCount();
+			if ((vCount.Count + diff * pProto.BuyCount) < vItem.Maxcount)
+				vCount.Count += diff * pProto.BuyCount;
 			else
 				vCount.Count = vItem.Maxcount;
 		}
@@ -3332,7 +3332,7 @@ public partial class Creature : Unit
 	{
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
-		var baseHealth = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (Class)cInfo.UnitClass);
+		var baseHealth = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureHealth, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 
 		return (ulong)(baseHealth * cInfo.ModHealth * cInfo.ModHealthExtra);
 	}
@@ -3341,7 +3341,7 @@ public partial class Creature : Unit
 	{
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
-		var baseArmor = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureArmor, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (Class)cInfo.UnitClass);
+		var baseArmor = Global.DB2Mgr.EvaluateExpectedStat(ExpectedStatType.CreatureArmor, level, cInfo.GetHealthScalingExpansion(), scaling.ContentTuningId, (PlayerClass)cInfo.UnitClass);
 
 		return baseArmor * cInfo.ModArmor;
 	}

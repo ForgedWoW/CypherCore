@@ -1008,7 +1008,7 @@ public partial class Player : Unit
 			if (_pendingBindTimer <= diff)
 			{
 				// Player left the instance
-				if (_pendingBindId == InstanceId1)
+				if (_pendingBindId == InstanceId)
 					ConfirmPendingBind();
 
 				SetPendingBind(0, 0);
@@ -1592,7 +1592,7 @@ public partial class Player : Unit
 				var heartOfAzeroth = GetItemByEntry(PlayerConst.ItemIdHeartOfAzeroth, ItemSearchLocation.Everywhere);
 
 				if (heartOfAzeroth != null)
-					heartOfAzeroth.ToAzeriteItem().GiveXP((ulong)amount);
+					heartOfAzeroth.AsAzeriteItem.GiveXP((ulong)amount);
 			}
 
 			return;
@@ -2121,7 +2121,7 @@ public partial class Player : Unit
 		if (Duel != null && Location.MapId != mapid && Map.GetGameObject(PlayerData.DuelArbiter))
 			DuelComplete(DuelCompleteType.Fled);
 
-		if (Location.MapId == mapid && (!instanceId.HasValue || InstanceId1 == instanceId))
+		if (Location.MapId == mapid && (!instanceId.HasValue || InstanceId == instanceId))
 		{
 			//lets reset far teleport flag if it wasn't reset during chained teleports
 			SetSemaphoreTeleportFar(false);
@@ -2168,7 +2168,7 @@ public partial class Player : Unit
 		}
 		else
 		{
-			if (Class == Class.Deathknight && Location.MapId == 609 && !IsGameMaster && !HasSpell(50977))
+			if (Class == PlayerClass.Deathknight && Location.MapId == 609 && !IsGameMaster && !HasSpell(50977))
 			{
 				SendTransferAborted(mapid, TransferAbortReason.UniqueMessage, 1);
 
@@ -2319,25 +2319,25 @@ public partial class Player : Unit
 		return TeleportTo(_bgData.JoinPos);
 	}
 
-	public uint GetStartLevel(Race race, Class playerClass, uint? characterTemplateId = null)
+	public uint GetStartLevel(Race race, PlayerClass playerClass, uint? characterTemplateId = null)
 	{
 		var startLevel = WorldConfig.GetUIntValue(WorldCfg.StartPlayerLevel);
 
 		if (CliDB.ChrRacesStorage.LookupByKey(race).GetFlags().HasAnyFlag(ChrRacesFlag.IsAlliedRace))
 			startLevel = WorldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel);
 
-		if (playerClass == Class.Deathknight)
+		if (playerClass == PlayerClass.Deathknight)
 		{
 			if (race == Race.PandarenAlliance || race == Race.PandarenHorde)
 				startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel), startLevel);
 			else
 				startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartDeathKnightPlayerLevel), startLevel);
 		}
-		else if (playerClass == Class.DemonHunter)
+		else if (playerClass == PlayerClass.DemonHunter)
 		{
 			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartDemonHunterPlayerLevel), startLevel);
 		}
-		else if (playerClass == Class.Evoker)
+		else if (playerClass == PlayerClass.Evoker)
 		{
 			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartEvokerPlayerLevel), startLevel);
 		}
@@ -2521,7 +2521,7 @@ public partial class Player : Unit
 
 		_summonExpire = GameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
 		_summonLocation = new WorldLocation(summoner.Location);
-		_summonInstanceId = summoner.InstanceId1;
+		_summonInstanceId = summoner.InstanceId;
 
 		SummonRequest summonRequest = new();
 		summonRequest.SummonerGUID = summoner.GUID;
@@ -2787,7 +2787,7 @@ public partial class Player : Unit
 						break;
 					case GossipOptionNpc.Stablemaster:
 					case GossipOptionNpc.PetSpecializationMaster:
-						if (Class != Class.Hunter)
+						if (Class != PlayerClass.Hunter)
 							canTalk = false;
 
 						break;
@@ -3537,9 +3537,9 @@ public partial class Player : Unit
 		return _gender <= Gender.Female;
 	}
 
-	public static bool IsValidClass(Class _class)
+	public static bool IsValidClass(PlayerClass _class)
 	{
-		return Convert.ToBoolean((1 << ((int)_class - 1)) & (int)Class.ClassMaskAllPlayable);
+		return Convert.ToBoolean((1 << ((int)_class - 1)) & (int)PlayerClass.ClassMaskAllPlayable);
 	}
 
 	public static bool IsValidRace(Race _race)
@@ -4031,7 +4031,7 @@ public partial class Player : Unit
 
 		// this enables pet details window (Shift+P)
 		pet.GetCharmInfo().SetPetNumber(petNumber, true);
-		pet.Class = Class.Mage;
+		pet.Class = PlayerClass.Mage;
 		pet.SetPetExperience(0);
 		pet.SetPetNextLevelExperience(1000);
 		pet.SetFullHealth();
@@ -5016,7 +5016,7 @@ public partial class Player : Unit
 	public void SaveRecallPosition()
 	{
 		_recallLocation = new WorldLocation(Location);
-		_recallInstanceId = InstanceId1;
+		_recallInstanceId = InstanceId;
 	}
 
 	public void Recall()
@@ -5476,8 +5476,8 @@ public partial class Player : Unit
 
 						break;
 					case ItemEnchantmentType.Totem:
-						if (Class == Class.Shaman)
-							amount += enchantmentEntry.EffectScalingPoints[i] * item.GetTemplate().GetDelay() / 1000.0f;
+						if (Class == PlayerClass.Shaman)
+							amount += enchantmentEntry.EffectScalingPoints[i] * item.Template.Delay / 1000.0f;
 
 						break;
 					default:
@@ -5682,7 +5682,7 @@ public partial class Player : Unit
 		if (node.Flags.HasAnyFlag(TaxiNodeFlags.UseFavoriteMount) && preferredMountDisplay != 0)
 			mount_display_id = preferredMountDisplay;
 		else
-			mount_display_id = Global.ObjectMgr.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == Class.Deathknight));
+			mount_display_id = Global.ObjectMgr.GetTaxiMountDisplayId(sourcenode, Team, npc == null || (sourcenode == 315 && Class == PlayerClass.Deathknight));
 
 		// in spell case allow 0 model
 		if ((mount_display_id == 0 && spellid == 0) || sourcepath == 0)
@@ -6153,16 +6153,16 @@ public partial class Player : Unit
 		else
 			item = GetItemByPos(InventorySlots.Bag0, slot);
 
-		if (item == null || item.GetTemplate().GetClass() != ItemClass.Weapon)
+		if (item == null || item.Template.Class != ItemClass.Weapon)
 			return null;
 
-		if ((attackType == WeaponAttackType.RangedAttack) != item.GetTemplate().IsRangedWeapon())
+		if ((attackType == WeaponAttackType.RangedAttack) != item.Template.IsRangedWeapon)
 			return null;
 
 		if (!useable)
 			return item;
 
-		if (item.IsBroken())
+		if (item.IsBroken)
 			return null;
 
 		return item;
@@ -6185,14 +6185,14 @@ public partial class Player : Unit
 		if (offItem == null)
 			return;
 
-		var offtemplate = offItem.GetTemplate();
+		var offtemplate = offItem.Template;
 
 		// unequip offhand weapon if player doesn't have dual wield anymore
-		if (!CanDualWield && ((offItem.GetTemplate().GetInventoryType() == InventoryType.WeaponOffhand && !offItem.GetTemplate().HasFlag(ItemFlags3.AlwaysAllowDualWield)) || offItem.GetTemplate().GetInventoryType() == InventoryType.Weapon))
+		if (!CanDualWield && ((offItem.Template.InventoryType == InventoryType.WeaponOffhand && !offItem.Template.HasFlag(ItemFlags3.AlwaysAllowDualWield)) || offItem.Template.InventoryType == InventoryType.Weapon))
 			force = true;
 
 		// need unequip offhand for 2h-weapon without TitanGrip (in any from hands)
-		if (!force && (CanTitanGrip() || (offtemplate.GetInventoryType() != InventoryType.Weapon2Hand && !IsTwoHandUsed())))
+		if (!force && (CanTitanGrip() || (offtemplate.InventoryType != InventoryType.Weapon2Hand && !IsTwoHandUsed())))
 			return;
 
 		List<ItemPosCount> off_dest = new();
@@ -7089,7 +7089,7 @@ public partial class Player : Unit
 				Regenerate(power);
 
 		// Runes act as cooldowns, and they don't need to send any data
-		if (Class == Class.Deathknight)
+		if (Class == PlayerClass.Deathknight)
 		{
 			uint regeneratedRunes = 0;
 			var regenIndex = 0;
@@ -7608,7 +7608,7 @@ public partial class Player : Unit
 				if (itemEntry != null)
 					itemInventoryType = (uint)itemEntry.inventoryType;
 				else
-					itemInventoryType = (uint)_items[i].GetTemplate().GetInventoryType();
+					itemInventoryType = (uint)_items[i].Template.InventoryType;
 
 				corpse.SetItem(i, itemDisplayId | (itemInventoryType << 24));
 			}

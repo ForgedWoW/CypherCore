@@ -43,7 +43,7 @@ public class CreatureTemplate
 	public uint UnitFlags3;
 	public uint DynamicFlags;
 	public CreatureFamily Family;
-	public Class TrainerClass;
+	public PlayerClass TrainerClass;
 	public CreatureType CreatureType;
 	public CreatureTypeFlags TypeFlags;
 	public uint TypeFlags2;

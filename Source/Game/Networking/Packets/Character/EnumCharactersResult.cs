@@ -69,7 +69,7 @@ public class EnumCharactersResult : ServerPacket
 		public string Name;
 		public byte ListPosition; // Order of the characters in list
 		public byte RaceId;
-		public Class ClassId;
+		public PlayerClass ClassId;
 		public byte SexId;
 		public Array<ChrCustomizationChoice> Customizations = new(72);
 		public byte ExperienceLevel;
@@ -102,7 +102,7 @@ public class EnumCharactersResult : ServerPacket
 			Guid = ObjectGuid.Create(HighGuid.Player, fields.Read<ulong>(0));
 			Name = fields.Read<string>(1);
 			RaceId = fields.Read<byte>(2);
-			ClassId = (Class)fields.Read<byte>(3);
+			ClassId = (PlayerClass)fields.Read<byte>(3);
 			SexId = fields.Read<byte>(4);
 			ExperienceLevel = fields.Read<byte>(5);
 			ZoneId = fields.Read<uint>(6);
@@ -144,7 +144,7 @@ public class EnumCharactersResult : ServerPacket
 			FirstLogin = atLoginFlags.HasAnyFlag(AtLoginFlags.FirstLogin);
 
 			// show pet at selection character in character list only for non-ghost character
-			if (!playerFlags.HasAnyFlag(PlayerFlags.Ghost) && (ClassId == Class.Warlock || ClassId == Class.Hunter || ClassId == Class.Deathknight))
+			if (!playerFlags.HasAnyFlag(PlayerFlags.Ghost) && (ClassId == PlayerClass.Warlock || ClassId == PlayerClass.Hunter || ClassId == PlayerClass.Deathknight))
 			{
 				var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(fields.Read<uint>(14));
 

@@ -136,7 +136,7 @@ public class Corpse : WorldObject
 		stmt.AddValue(index++, (uint)CorpseData.DynamicFlags); // dynFlags
 		stmt.AddValue(index++, (uint)_time);                   // time
 		stmt.AddValue(index++, (uint)GetCorpseType());         // corpseType
-		stmt.AddValue(index++, InstanceId1);                   // instanceId
+		stmt.AddValue(index++, InstanceId);                    // instanceId
 		trans.Append(stmt);
 
 		foreach (var phaseId in PhaseShift.Phases.Keys)

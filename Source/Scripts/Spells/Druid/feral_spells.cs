@@ -11,9 +11,9 @@ namespace Scripts.Spells.Druid;
 [Script]
 public class feral_spells : ScriptObjectAutoAdd, IPlayerOnLogin
 {
-	public Class PlayerClass
+	public PlayerClass PlayerClass
 	{
-		get { return Class.Druid; }
+		get { return PlayerClass.Druid; }
 	}
 
 	public feral_spells() : base("feral_spells") { }

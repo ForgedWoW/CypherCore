@@ -3,28 +3,33 @@
 
 using Game.Entities;
 
-namespace Game.Movement
+namespace Game.Movement;
+
+public class AbstractFollower
 {
-    public class AbstractFollower
-    {
-        Unit _target;
+	Unit _target;
 
-        public AbstractFollower(Unit target = null) { SetTarget(target); }
+	public AbstractFollower(Unit target = null)
+	{
+		SetTarget(target);
+	}
 
-        public void SetTarget(Unit unit)
-        {
-            if (unit == _target)
-                return;
+	public void SetTarget(Unit unit)
+	{
+		if (unit == _target)
+			return;
 
-            if (_target)
-                _target.FollowerRemoved(this);
+		if (_target)
+			_target.FollowerRemoved(this);
 
-            _target = unit;
+		_target = unit;
 
-            if (_target)
-                _target.FollowerAdded(this);
-        }
+		if (_target)
+			_target.FollowerAdded(this);
+	}
 
-        public Unit GetTarget() { return _target; }
-    }
+	public Unit GetTarget()
+	{
+		return _target;
+	}
 }

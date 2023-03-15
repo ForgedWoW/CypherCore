@@ -31,7 +31,7 @@ internal class spell_gen_pet_summoned : SpellScript, IHasSpellEffects
 
 		if (player.LastPetNumber != 0)
 		{
-			var newPetType = (player.Class == Class.Hunter) ? PetType.Hunter : PetType.Summon;
+			var newPetType = (player.Class == PlayerClass.Hunter) ? PetType.Hunter : PetType.Summon;
 			Pet newPet = new(player, newPetType);
 
 			if (newPet.LoadPetFromDB(player, 0, player.LastPetNumber, true))

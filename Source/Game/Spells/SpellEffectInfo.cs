@@ -626,7 +626,7 @@ public class SpellEffectInfo
 					expansion = contentTuning.ExpansionID;
 
 				var level = caster != null && caster.IsUnit ? caster.AsUnit.Level : 1;
-				tempValue = Global.DB2Mgr.EvaluateExpectedStat(stat, level, expansion, 0, Class.None) * BasePoints / 100.0f;
+				tempValue = Global.DB2Mgr.EvaluateExpectedStat(stat, level, expansion, 0, PlayerClass.None) * BasePoints / 100.0f;
 			}
 
 			return tempValue;

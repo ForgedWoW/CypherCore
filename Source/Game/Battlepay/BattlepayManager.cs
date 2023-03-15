@@ -382,7 +382,7 @@ public class BattlepayManager
 					//ORIGINAL LINE: for (auto const& itemTemplatePair : its)
 					foreach (var itemTemplatePair in its)
 					{
-						if (itemTemplatePair.Value.GetItemSet() != product.Flags)
+						if (itemTemplatePair.Value.ItemSet != product.Flags)
 							continue;
 
 						var dest = new List<ItemPosCount>();
@@ -396,7 +396,7 @@ public class BattlepayManager
 						}
 						else
 						{
-							itemstosendinmail.Add(itemTemplatePair.Value.GetId());
+							itemstosendinmail.Add(itemTemplatePair.Value.Id);
 						}
 					}
 
@@ -780,7 +780,7 @@ public class BattlepayManager
 					player.LearnSpell(110406, true);
 					player.LearnSpell(104381, true);
 
-					if (player.Class == Class.Shaman)
+					if (player.Class == PlayerClass.Shaman)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199444, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199448, ItemContext.None, true);
@@ -792,7 +792,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199442, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Hunter)
+					if (player.Class == PlayerClass.Hunter)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 198592, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 198596, ItemContext.None, true);
@@ -804,7 +804,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 198590, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Mage)
+					if (player.Class == PlayerClass.Mage)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 198568, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 198571, ItemContext.None, true);
@@ -816,7 +816,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 198566, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Priest)
+					if (player.Class == PlayerClass.Priest)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199420, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199423, ItemContext.None, true);
@@ -828,7 +828,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199418, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Warlock)
+					if (player.Class == PlayerClass.Warlock)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199420, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199423, ItemContext.None, true);
@@ -840,7 +840,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199418, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.DemonHunter)
+					if (player.Class == PlayerClass.DemonHunter)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 198575, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 198578, ItemContext.None, true);
@@ -852,7 +852,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 198573, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Rogue)
+					if (player.Class == PlayerClass.Rogue)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199427, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199430, ItemContext.None, true);
@@ -864,7 +864,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199425, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Monk)
+					if (player.Class == PlayerClass.Monk)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 198575, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 198578, ItemContext.None, true);
@@ -876,7 +876,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 198573, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Druid)
+					if (player.Class == PlayerClass.Druid)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199427, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199430, ItemContext.None, true);
@@ -888,7 +888,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199425, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Warrior)
+					if (player.Class == PlayerClass.Warrior)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199433, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199440, ItemContext.None, true);
@@ -900,7 +900,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199435, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Paladin)
+					if (player.Class == PlayerClass.Paladin)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199433, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199440, ItemContext.None, true);
@@ -912,7 +912,7 @@ public class BattlepayManager
 						player.EquipNewItem(EquipmentSlot.Feet, 199435, ItemContext.None, true);
 					}
 
-					if (player.Class == Class.Deathknight)
+					if (player.Class == PlayerClass.Deathknight)
 					{
 						var quest = Global.ObjectMgr.GetQuestTemplate(12801);
 
@@ -946,7 +946,7 @@ public class BattlepayManager
 					}
 
 					// DRACTHYR DF
-					if (player.Class == Class.Evoker)
+					if (player.Class == PlayerClass.Evoker)
 					{
 						player.EquipNewItem(EquipmentSlot.Head, 199444, ItemContext.None, true);
 						player.EquipNewItem(EquipmentSlot.Wrist, 199448, ItemContext.None, true);

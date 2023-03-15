@@ -16,6 +16,8 @@ using static CliDB;
 
 public class DB2Manager : Singleton<DB2Manager>
 {
+	public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
+	public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
 	readonly Dictionary<uint, IDB2Storage> _storage = new();
 	readonly MultiMap<int, HotfixRecord> _hotfixData = new();
 	readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
@@ -33,14 +35,14 @@ public class DB2Manager : Singleton<DB2Manager>
 	readonly Dictionary<(uint azeriteUnlockSetId, ItemContext itemContext), byte[]> _azeriteTierUnlockLevels = new();
 	readonly Dictionary<(uint itemId, ItemContext itemContext), AzeriteUnlockMappingRecord> _azeriteUnlockMappings = new();
 	readonly Dictionary<(int broadcastTextId, CascLocaleBit cascLocaleBit), int> _broadcastTextDurations = new();
-	readonly ChrClassUIDisplayRecord[] _uiDisplayByClass = new ChrClassUIDisplayRecord[(int)Class.Max];
-	readonly uint[][] _powersByClass = new uint[(int)Class.Max][];
+	readonly ChrClassUIDisplayRecord[] _uiDisplayByClass = new ChrClassUIDisplayRecord[(int)PlayerClass.Max];
+	readonly uint[][] _powersByClass = new uint[(int)PlayerClass.Max][];
 	readonly MultiMap<uint, ChrCustomizationChoiceRecord> _chrCustomizationChoicesByOption = new();
 	readonly Dictionary<Tuple<byte, byte>, ChrModelRecord> _chrModelsByRaceAndGender = new();
 	readonly Dictionary<Tuple<byte, byte, byte>, ShapeshiftFormModelData> _chrCustomizationChoicesForShapeshifts = new();
 	readonly MultiMap<Tuple<byte, byte>, ChrCustomizationOptionRecord> _chrCustomizationOptionsByRaceAndGender = new();
 	readonly Dictionary<uint, MultiMap<uint, uint>> _chrCustomizationRequiredChoices = new();
-	readonly ChrSpecializationRecord[][] _chrSpecializationsByIndex = new ChrSpecializationRecord[(int)Class.Max + 1][];
+	readonly ChrSpecializationRecord[][] _chrSpecializationsByIndex = new ChrSpecializationRecord[(int)PlayerClass.Max + 1][];
 	readonly MultiMap<uint, CurrencyContainerRecord> _currencyContainers = new();
 	readonly MultiMap<uint, CurvePointRecord> _curvePoints = new();
 	readonly Dictionary<Tuple<uint, byte, byte, byte>, EmotesTextSoundRecord> _emoteTextSounds = new();
@@ -77,7 +79,7 @@ public class DB2Manager : Singleton<DB2Manager>
 	readonly Dictionary<uint, byte> _pvpItemBonus = new();
 	readonly PvpTalentSlotUnlockRecord[] _pvpTalentSlotUnlock = new PvpTalentSlotUnlockRecord[PlayerConst.MaxPvpTalentSlots];
 	readonly MultiMap<uint, QuestLineXQuestRecord> _questsByQuestLine = new();
-    readonly Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
+	readonly Dictionary<uint, Tuple<List<QuestPackageItemRecord>, List<QuestPackageItemRecord>>> _questPackages = new();
 	readonly MultiMap<uint, RewardPackXCurrencyTypeRecord> _rewardPackCurrencyTypes = new();
 	readonly MultiMap<uint, RewardPackXItemRecord> _rewardPackItems = new();
 	readonly MultiMap<uint, SkillLineRecord> _skillLinesByParentSkillLine = new();
@@ -89,7 +91,7 @@ public class DB2Manager : Singleton<DB2Manager>
 	readonly List<byte> _spellFamilyNames = new();
 	readonly MultiMap<uint, SpellProcsPerMinuteModRecord> _spellProcsPerMinuteMods = new();
 	readonly MultiMap<uint, SpellVisualMissileRecord> _spellVisualMissilesBySet = new();
-	readonly List<TalentRecord>[][][] _talentsByPosition = new List<TalentRecord>[(int)Class.Max][][];
+	readonly List<TalentRecord>[][][] _talentsByPosition = new List<TalentRecord>[(int)PlayerClass.Max][][];
 	readonly List<uint> _toys = new();
 	readonly Dictionary<uint, TransmogIllusionRecord> _transmogIllusionsByEnchantmentId = new();
 	readonly MultiMap<uint, TransmogSetRecord> _transmogSetsByItemModifiedAppearance = new();
@@ -103,12 +105,10 @@ public class DB2Manager : Singleton<DB2Manager>
 	readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
 	List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
 	internal Dictionary<uint, IDB2Storage> Storage => _storage;
-	public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
-    public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
 
-    DB2Manager()
+	DB2Manager()
 	{
-		for (uint i = 0; i < (int)Class.Max; ++i)
+		for (uint i = 0; i < (int)PlayerClass.Max; ++i)
 		{
 			_powersByClass[i] = new uint[(int)PowerType.Max];
 
@@ -213,7 +213,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		foreach (var uiDisplay in ChrClassUIDisplayStorage.Values)
 		{
-			Cypher.Assert(uiDisplay.ChrClassesID < (byte)Class.Max);
+			Cypher.Assert(uiDisplay.ChrClassesID < (byte)PlayerClass.Max);
 			_uiDisplayByClass[uiDisplay.ChrClassesID] = uiDisplay;
 		}
 
@@ -330,7 +330,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (chrSpec.Flags.HasAnyFlag(ChrSpecializationFlag.PetOverrideSpec))
 				//ASSERT(!chrSpec.ClassID);
-				storageIndex = (int)Class.Max;
+				storageIndex = (int)PlayerClass.Max;
 
 			if (_chrSpecializationsByIndex[storageIndex] == null)
 				_chrSpecializationsByIndex[storageIndex] = new ChrSpecializationRecord[PlayerConst.MaxSpecializations];
@@ -556,8 +556,8 @@ public class DB2Manager : Singleton<DB2Manager>
 		foreach (var questLineQuest in QuestLineXQuestStorage.Values)
 		{
 			_questsByQuestLine.Add(questLineQuest.QuestLineID, questLineQuest);
-            QuestLinesByQuest.Add(questLineQuest.QuestID, questLineQuest);
-        }
+			QuestLinesByQuest.Add(questLineQuest.QuestID, questLineQuest);
+		}
 
 		foreach (var questPackageItem in QuestPackageItemStorage.Values)
 		{
@@ -605,7 +605,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		foreach (var spellVisualMissile in SpellVisualMissileStorage.Values)
 			_spellVisualMissilesBySet.Add(spellVisualMissile.SpellVisualMissileSetID, spellVisualMissile);
 
-		for (var i = 0; i < (int)Class.Max; ++i)
+		for (var i = 0; i < (int)PlayerClass.Max; ++i)
 		{
 			_talentsByPosition[i] = new List<TalentRecord>[PlayerConst.MaxTalentTiers][];
 
@@ -1108,14 +1108,14 @@ public class DB2Manager : Singleton<DB2Manager>
 		return _broadcastTextDurations.LookupByKey((broadcastTextId, SharedConst.WowLocaleToCascLocaleBit[(int)locale]));
 	}
 
-	public ChrClassUIDisplayRecord GetUiDisplayForClass(Class unitClass)
+	public ChrClassUIDisplayRecord GetUiDisplayForClass(PlayerClass unitClass)
 	{
-		Cypher.Assert(unitClass < Class.Max);
+		Cypher.Assert(unitClass < PlayerClass.Max);
 
 		return _uiDisplayByClass[(int)unitClass];
 	}
 
-	public string GetClassName(Class class_, Locale locale = Locale.enUS)
+	public string GetClassName(PlayerClass class_, Locale locale = Locale.enUS)
 	{
 		var classEntry = ChrClassesStorage.LookupByKey(class_);
 
@@ -1128,7 +1128,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return classEntry.Name[Locale.enUS];
 	}
 
-	public uint GetPowerIndexByClass(PowerType powerType, Class classId)
+	public uint GetPowerIndexByClass(PowerType powerType, PlayerClass classId)
 	{
 		return _powersByClass[(int)classId][(int)powerType];
 	}
@@ -1166,12 +1166,12 @@ public class DB2Manager : Singleton<DB2Manager>
 		return raceEntry.Name[Locale.enUS];
 	}
 
-	public ChrSpecializationRecord GetChrSpecializationByIndex(Class class_, uint index)
+	public ChrSpecializationRecord GetChrSpecializationByIndex(PlayerClass class_, uint index)
 	{
 		return _chrSpecializationsByIndex[(int)class_][index];
 	}
 
-	public ChrSpecializationRecord GetDefaultChrSpecializationForClass(Class class_)
+	public ChrSpecializationRecord GetDefaultChrSpecializationForClass(PlayerClass class_)
 	{
 		return GetChrSpecializationByIndex(class_, PlayerConst.InitialSpecializationIndex);
 	}
@@ -1384,7 +1384,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return 0.0f;
 	}
 
-	public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, Class class_)
+	public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, PlayerClass class_)
 	{
 		var emoteTextSound = _emoteTextSounds.LookupByKey(Tuple.Create(emote, (byte)race, (byte)gender, (byte)class_));
 
@@ -1399,7 +1399,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return null;
 	}
 
-	public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, Class unitClass)
+	public float EvaluateExpectedStat(ExpectedStatType stat, uint level, int expansion, uint contentTuningId, PlayerClass unitClass)
 	{
 		var expectedStatRecord = _expectedStatsByLevel.LookupByKey(Tuple.Create(level, expansion));
 
@@ -1413,19 +1413,19 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		switch (unitClass)
 		{
-			case Class.Warrior:
+			case PlayerClass.Warrior:
 				classMod = ExpectedStatModStorage.LookupByKey(4);
 
 				break;
-			case Class.Paladin:
+			case PlayerClass.Paladin:
 				classMod = ExpectedStatModStorage.LookupByKey(2);
 
 				break;
-			case Class.Rogue:
+			case PlayerClass.Rogue:
 				classMod = ExpectedStatModStorage.LookupByKey(3);
 
 				break;
-			case Class.Mage:
+			case PlayerClass.Mage:
 				classMod = ExpectedStatModStorage.LookupByKey(1);
 
 				break;
@@ -1937,7 +1937,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return ResponseCodes.CharNameSuccess;
 	}
 
-	public uint GetNumTalentsAtLevel(uint level, Class playerClass)
+	public uint GetNumTalentsAtLevel(uint level, PlayerClass playerClass)
 	{
 		var numTalentsAtLevel = NumTalentsAtLevelStorage.LookupByKey(level);
 
@@ -1947,9 +1947,9 @@ public class DB2Manager : Singleton<DB2Manager>
 		if (numTalentsAtLevel != null)
 			return playerClass switch
 			{
-				Class.Deathknight => numTalentsAtLevel.NumTalentsDeathKnight,
-				Class.DemonHunter => numTalentsAtLevel.NumTalentsDemonHunter,
-				_                 => numTalentsAtLevel.NumTalents,
+				PlayerClass.Deathknight => numTalentsAtLevel.NumTalentsDeathKnight,
+				PlayerClass.DemonHunter => numTalentsAtLevel.NumTalentsDemonHunter,
+				_                       => numTalentsAtLevel.NumTalents,
 			};
 
 		return 0;
@@ -1991,7 +1991,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return null;
 	}
 
-	public uint GetRequiredLevelForPvpTalentSlot(byte slot, Class class_)
+	public uint GetRequiredLevelForPvpTalentSlot(byte slot, PlayerClass class_)
 	{
 		Cypher.Assert(slot < PlayerConst.MaxPvpTalentSlots);
 
@@ -1999,9 +1999,9 @@ public class DB2Manager : Singleton<DB2Manager>
 		{
 			switch (class_)
 			{
-				case Class.Deathknight:
+				case PlayerClass.Deathknight:
 					return _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired;
-				case Class.DemonHunter:
+				case PlayerClass.DemonHunter:
 					return _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired;
 				default:
 					break;
@@ -2013,7 +2013,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return 0;
 	}
 
-	public int GetPvpTalentNumSlotsAtLevel(uint level, Class class_)
+	public int GetPvpTalentNumSlotsAtLevel(uint level, PlayerClass class_)
 	{
 		var slots = 0;
 
@@ -2029,12 +2029,12 @@ public class DB2Manager : Singleton<DB2Manager>
 		return _questsByQuestLine.LookupByKey(questLineId);
 	}
 
-    public bool TryGetQuestsForQuestLine(uint questLineId, out List<QuestLineXQuestRecord> questLineXQuestRecords)
-    {
-        return _questsByQuestLine.TryGetValue(questLineId, out questLineXQuestRecords);
-    }
+	public bool TryGetQuestsForQuestLine(uint questLineId, out List<QuestLineXQuestRecord> questLineXQuestRecords)
+	{
+		return _questsByQuestLine.TryGetValue(questLineId, out questLineXQuestRecords);
+	}
 
-    public List<QuestPackageItemRecord> GetQuestPackageItems(uint questPackageID)
+	public List<QuestPackageItemRecord> GetQuestPackageItems(uint questPackageID)
 	{
 		if (_questPackages.ContainsKey(questPackageID))
 			return _questPackages[questPackageID].Item1;
@@ -2118,7 +2118,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return _skillLineAbilitiesBySkillupSkill.LookupByKey(skillId);
 	}
 
-	public SkillRaceClassInfoRecord GetSkillRaceClassInfo(uint skill, Race race, Class class_)
+	public SkillRaceClassInfoRecord GetSkillRaceClassInfo(uint skill, Race race, PlayerClass class_)
 	{
 		var bounds = _skillRaceClassInfoBySkill.LookupByKey(skill);
 
@@ -2171,7 +2171,7 @@ public class DB2Manager : Singleton<DB2Manager>
 		return _spellVisualMissilesBySet.LookupByKey(spellVisualMissileSetId);
 	}
 
-	public List<TalentRecord> GetTalentsByPosition(Class class_, uint tier, uint column)
+	public List<TalentRecord> GetTalentsByPosition(PlayerClass class_, uint tier, uint column)
 	{
 		return _talentsByPosition[(int)class_][tier][column];
 	}
@@ -2322,7 +2322,9 @@ public class DB2Manager : Singleton<DB2Manager>
 	public void AddDB2<T>(uint tableHash, DB6Storage<T> store) where T : new()
 	{
 		lock (_storage)
+		{
 			_storage[tableHash] = store;
+		}
 	}
 
 	static CurveInterpolationMode DetermineCurveType(CurveRecord curve, List<CurvePointRecord> points)

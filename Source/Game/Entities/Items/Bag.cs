@@ -34,11 +34,11 @@ public class Bag : Item
 					Log.outFatal(LogFilter.PlayerItems,
 								"Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
 								item.Entry,
-								item.GetSlot(),
-								item.GetBagSlot(),
+								item.Slot,
+								item.BagSlot,
 								Entry,
-								GetSlot(),
-								GetBagSlot(),
+								Slot,
+								BagSlot,
 								i);
 
 					item.RemoveFromWorld();
@@ -73,7 +73,7 @@ public class Bag : Item
 	{
 		var itemProto = Global.ObjectMgr.GetItemTemplate(itemid);
 
-		if (itemProto == null || itemProto.GetContainerSlots() > ItemConst.MaxBagSize)
+		if (itemProto == null || itemProto.ContainerSlots > ItemConst.MaxBagSize)
 			return false;
 
 		Create(ObjectGuid.Create(HighGuid.Item, guidlow));
@@ -95,7 +95,7 @@ public class Bag : Item
 		SetContext(context);
 
 		// Setting the number of Slots the Container has
-		SetBagSize(itemProto.GetContainerSlots());
+		SetBagSize(itemProto.ContainerSlots);
 
 		// Cleaning 20 slots
 		for (byte i = 0; i < ItemConst.MaxBagSize; ++i)
@@ -111,8 +111,8 @@ public class Bag : Item
 		if (!base.LoadFromDB(guid, owner_guid, fields, entry))
 			return false;
 
-		var itemProto = GetTemplate(); // checked in Item.LoadFromDB
-		SetBagSize(itemProto.GetContainerSlots());
+		var itemProto = Template; // checked in Item.LoadFromDB
+		SetBagSize(itemProto.ContainerSlots);
 
 		// cleanup bag content related item value fields (its will be filled correctly from `character_inventory`)
 		for (byte i = 0; i < ItemConst.MaxBagSize; ++i)

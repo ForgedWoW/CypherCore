@@ -28,8 +28,8 @@ public class Map : IDisposable
 {
 	private readonly LimitedThreadTaskManager _threadManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 	private readonly ActionBlock<uint> _processRelocationQueue;
-    private readonly LimitedThreadTaskManager _processTransportaionQueue = new(1);
-    private readonly Dictionary<uint, Dictionary<uint, object>> _locks = new();
+	private readonly LimitedThreadTaskManager _processTransportaionQueue = new(1);
+	private readonly Dictionary<uint, Dictionary<uint, object>> _locks = new();
 	private readonly object _scriptLock = new();
 	private readonly List<Creature> _creaturesToMove = new();
 	private readonly List<GameObject> _gameObjectsToMove = new();
@@ -71,7 +71,7 @@ public class Map : IDisposable
 
 	private long _gridExpiry;
 	private uint _respawnCheckTimer;
-	private SpawnedPoolData _poolData;
+	private readonly SpawnedPoolData _poolData;
 
 	public Dictionary<ulong, CreatureGroup> CreatureGroupHolder { get; set; } = new();
 
@@ -185,14 +185,16 @@ public class Map : IDisposable
 
 		Global.OutdoorPvPMgr.CreateOutdoorPvPForMap(this);
 		Global.BattleFieldMgr.CreateBattlefieldsForMap(this);
-		_processRelocationQueue = new ActionBlock<uint>(ProcessRelocationNotifies, 
-														new ExecutionDataflowBlockOptions() 
-														{ 
-															MaxDegreeOfParallelism = 1, 
-															EnsureOrdered = true, 
-															MaxMessagesPerTask = 1 
+
+		_processRelocationQueue = new ActionBlock<uint>(ProcessRelocationNotifies,
+														new ExecutionDataflowBlockOptions()
+														{
+															MaxDegreeOfParallelism = 1,
+															EnsureOrdered = true,
+															MaxMessagesPerTask = 1
 														});
-        OnCreateMap(this);
+
+		OnCreateMap(this);
 	}
 
 	public void Dispose()
@@ -579,14 +581,14 @@ public class Map : IDisposable
         _metricFactory.Meter("_dynamicTree Update").StartMark();
 #endif
 
-        _dynamicTree.Update(diff);
+		_dynamicTree.Update(diff);
 
 #if DEBUGMETRIC
         _metricFactory.Meter("_dynamicTree Update").StopMark();
 #endif
 
-        // update worldsessions for existing players
-        for (var i = 0; i < ActivePlayers.Count; ++i)
+		// update worldsessions for existing players
+		for (var i = 0; i < ActivePlayers.Count; ++i)
 		{
 			var player = ActivePlayers[i];
 
@@ -612,20 +614,20 @@ public class Map : IDisposable
 #if DEBUGMETRIC
         _metricFactory.Meter("_respawnCheckTimer & MapSessionFilter Update").StartMark();
 #endif
-        _threadManager.Wait();
+		_threadManager.Wait();
 
 #if DEBUGMETRIC
         _metricFactory.Meter("_respawnCheckTimer & MapSessionFilter Update").StopMark();
 #endif
-        // update active cells around players and active objects
-        ResetMarkedCells();
+		// update active cells around players and active objects
+		ResetMarkedCells();
 
 		var update = new UpdaterNotifier(diff, GridType.All);
 
 #if DEBUGMETRIC
         _metricFactory.Meter("Load UpdaterNotifier").StartMark();
 #endif
-        for (var i = 0; i < ActivePlayers.Count; ++i)
+		for (var i = 0; i < ActivePlayers.Count; ++i)
 		{
 			var player = ActivePlayers[i];
 
@@ -635,13 +637,13 @@ public class Map : IDisposable
 			// update players at tick
 			_threadManager.Schedule(() => player.Update(diff));
 
-            _threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
+			_threadManager.Schedule(() => VisitNearbyCellsOf(player, update));
 
 			// If player is using far sight or mind vision, visit that object too
 			var viewPoint = player.Viewpoint;
 
 			if (viewPoint)
-                _threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
+				_threadManager.Schedule(() => VisitNearbyCellsOf(viewPoint, update));
 
 			List<Unit> toVisit = new();
 
@@ -704,7 +706,7 @@ public class Map : IDisposable
 				continue;
 
 			VisitNearbyCellsOf(obj, update);
-        }
+		}
 
 #if DEBUGMETRIC
         _metricFactory.Meter("Load UpdaterNotifier").StopMark();
@@ -714,7 +716,7 @@ public class Map : IDisposable
 
         _metricFactory.Meter("VisitNearbyCellsOf Update").StartMark();
 #endif
-        _threadManager.Wait();
+		_threadManager.Wait();
 
 #if DEBUGMETRIC
         _metricFactory.Meter("VisitNearbyCellsOf Update").StopMark();
@@ -726,14 +728,14 @@ public class Map : IDisposable
 #if DEBUGMETRIC
         _metricFactory.Meter("update.ExecuteUpdate").StopMark();
 #endif
-        for (var i = 0; i < _transports.Count; ++i)
+		for (var i = 0; i < _transports.Count; ++i)
 		{
 			var transport = _transports[i];
 
 			if (!transport)
 				continue;
 
-            _processTransportaionQueue.Schedule(() => transport.Update(diff));
+			_processTransportaionQueue.Schedule(() => transport.Update(diff));
 		}
 
 #if DEBUGMETRIC
@@ -744,7 +746,7 @@ public class Map : IDisposable
         _metricFactory.Meter("_transports Update").StopMark();
         _metricFactory.Meter("SendObjectUpdates Update").StartMark();
 #endif
-        _threadManager.Schedule(SendObjectUpdates);
+		_threadManager.Schedule(SendObjectUpdates);
 
 		// Process necessary scripts
 		if (!_scriptSchedule.Empty())
@@ -771,17 +773,17 @@ public class Map : IDisposable
         _metricFactory.Meter("SendObjectUpdates Update").StopMark();
         _metricFactory.Meter("MoveAll Update").StartMark();
 #endif
-        _threadManager.Schedule(MoveAllCreaturesInMoveList);
-        _threadManager.Schedule(MoveAllGameObjectsInMoveList);
-        _threadManager.Schedule(MoveAllAreaTriggersInMoveList);
+		_threadManager.Schedule(MoveAllCreaturesInMoveList);
+		_threadManager.Schedule(MoveAllGameObjectsInMoveList);
+		_threadManager.Schedule(MoveAllAreaTriggersInMoveList);
 
-        _threadManager.Wait();
+		_threadManager.Wait();
 #if DEBUGMETRIC
         _metricFactory.Meter("MoveAll Update").StopMark();
 #endif
 
-        if (!ActivePlayers.Empty() || !_activeNonPlayers.Empty())
-        {
+		if (!ActivePlayers.Empty() || !_activeNonPlayers.Empty())
+		{
 #if DEBUGMETRIC
             _metricFactory.Meter("ProcessRelocationNotifies Update").StartMark();
 #endif
@@ -790,12 +792,12 @@ public class Map : IDisposable
 #if DEBUGMETRIC
             _metricFactory.Meter("ProcessRelocationNotifies Update").StopMark();
 #endif
-        }
+		}
 
 #if DEBUGMETRIC
         _metricFactory.Meter("OnMapUpdate Update").StartMark();
 #endif
-        OnMapUpdate(this, diff);
+		OnMapUpdate(this, diff);
 
 #if DEBUGMETRIC
         _metricFactory.Meter("OnMapUpdate Update").StopMark();
@@ -1161,21 +1163,21 @@ public class Map : IDisposable
 
 		if (!unloadAll)
 		{
-            // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
-            // Must know real mob position before move
-            _threadManager.Schedule(MoveAllCreaturesInMoveList);
-            _threadManager.Schedule(MoveAllGameObjectsInMoveList);
-            _threadManager.Schedule(MoveAllAreaTriggersInMoveList);
-            _threadManager.Wait();
+			// Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
+			// Must know real mob position before move
+			_threadManager.Schedule(MoveAllCreaturesInMoveList);
+			_threadManager.Schedule(MoveAllGameObjectsInMoveList);
+			_threadManager.Schedule(MoveAllAreaTriggersInMoveList);
+			_threadManager.Wait();
 			// move creatures to respawn grids if this is diff.grid or to remove list
 			ObjectGridEvacuator worker = new(GridType.Grid);
 			grid.VisitAllGrids(worker);
 
-            // Finish creature moves, remove and delete all creatures with delayed remove before unload
-            _threadManager.Schedule(MoveAllCreaturesInMoveList);
-            _threadManager.Schedule(MoveAllGameObjectsInMoveList);
-            _threadManager.Schedule(MoveAllAreaTriggersInMoveList);
-            _threadManager.Wait();
+			// Finish creature moves, remove and delete all creatures with delayed remove before unload
+			_threadManager.Schedule(MoveAllCreaturesInMoveList);
+			_threadManager.Schedule(MoveAllGameObjectsInMoveList);
+			_threadManager.Schedule(MoveAllAreaTriggersInMoveList);
+			_threadManager.Wait();
 		}
 
 		{
@@ -1848,40 +1850,40 @@ public class Map : IDisposable
         _metricFactory.Meter("_farSpellCallbacks").StartMark();
 #endif
 		while (_farSpellCallbacks.TryDequeue(out var callback))
-            _threadManager.Schedule(() => callback(this));
+			_threadManager.Schedule(() => callback(this));
 
-        _threadManager.Wait();
+		_threadManager.Wait();
 #if DEBUGMETRIC
         _metricFactory.Meter("_farSpellCallbacks").StopMark();
         _metricFactory.Meter("RemoveAllObjectsInRemoveList").StartMark();
 #endif
 
-        RemoveAllObjectsInRemoveList();
+		RemoveAllObjectsInRemoveList();
 
 #if DEBUGMETRIC
         _metricFactory.Meter("RemoveAllObjectsInRemoveList").StopMark();
         _metricFactory.Meter("grid?.Update").StartMark();
 #endif
-        // Don't unload grids if it's Battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
-        // This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
-        if (!IsBattlegroundOrArena)
+		// Don't unload grids if it's Battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
+		// This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
+		if (!IsBattlegroundOrArena)
 			foreach (var xkvp in Grids)
 			{
 				foreach (var ykvp in xkvp.Value)
 				{
 					var grid = ykvp.Value;
 
-                    grid?.Update(this, diff);
+					grid?.Update(this, diff);
 				}
 			}
 #if DEBUGMETRIC
         _metricFactory.Meter("grid?.Update").StopMark();
 #endif
-    }
+	}
 
-    public void AddObjectToRemoveList(WorldObject obj)
+	public void AddObjectToRemoveList(WorldObject obj)
 	{
-		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId1 == InstanceId);
+		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId == InstanceId);
 
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
@@ -1891,7 +1893,7 @@ public class Map : IDisposable
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
 	{
-		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId1 == InstanceId);
+		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId == InstanceId);
 
 		// i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
 		// the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
@@ -3209,7 +3211,7 @@ public class Map : IDisposable
 			}
 		}
 
-        var reset = new ResetNotifier(GridType.All);
+		var reset = new ResetNotifier(GridType.All);
 
 		foreach (var x in xKeys)
 		{

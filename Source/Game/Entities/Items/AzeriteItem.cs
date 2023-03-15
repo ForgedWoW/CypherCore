@@ -51,7 +51,7 @@ public class AzeriteItem : Item
 		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
-		switch (GetState())
+		switch (State)
 		{
 			case ItemUpdateState.New:
 			case ItemUpdateState.Changed:
@@ -257,15 +257,15 @@ public class AzeriteItem : Item
 			// changing azerite level changes item level, need to update stats
 			if (AzeriteItemData.Level != level)
 			{
-				if (IsEquipped())
-					owner._ApplyItemBonuses(this, GetSlot(), false);
+				if (IsEquipped)
+					owner._ApplyItemBonuses(this, Slot, false);
 
 				SetUpdateFieldValue(Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.Level), level);
 				UnlockDefaultMilestones();
 				owner.UpdateCriteria(CriteriaType.AzeriteLevelReached, level);
 
-				if (IsEquipped())
-					owner._ApplyItemBonuses(this, GetSlot(), true);
+				if (IsEquipped)
+					owner._ApplyItemBonuses(this, Slot, true);
 			}
 
 			SetState(ItemUpdateState.Changed, owner);

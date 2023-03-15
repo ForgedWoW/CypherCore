@@ -13,7 +13,7 @@ public class at_shattered_soul_fragment : AreaTriggerScript, IAreaTriggerOnUnitE
 {
 	public void OnUnitEnter(Unit unit)
 	{
-		if (unit != At.GetCaster() || !unit.IsPlayer || unit.AsPlayer.Class != Class.DemonHunter)
+		if (unit != At.GetCaster() || !unit.IsPlayer || unit.AsPlayer.Class != PlayerClass.DemonHunter)
 			return;
 
 		switch (At.Entry)

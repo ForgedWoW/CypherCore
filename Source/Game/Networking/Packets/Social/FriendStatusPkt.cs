@@ -11,7 +11,7 @@ public class FriendStatusPkt : ServerPacket
 {
 	public uint VirtualRealmAddress;
 	public string Notes;
-	public Class ClassID = Class.None;
+	public PlayerClass ClassID = PlayerClass.None;
 	public FriendStatus Status;
 	public ObjectGuid Guid;
 	public ObjectGuid WowAccountGuid;

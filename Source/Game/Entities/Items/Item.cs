@@ -85,6 +85,137 @@ public class Item : WorldObject
 
 	public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
 
+	public ItemTemplate Template => Global.ObjectMgr.GetItemTemplate(Entry);
+	public byte BagSlot => _container != null ? _container.Slot : InventorySlots.Bag0;
+
+	public bool IsEquipped => !IsInBag && (_slot < EquipmentSlot.End || (_slot >= ProfessionSlots.Start && _slot < ProfessionSlots.End));
+
+	public SkillType Skill
+	{
+		get
+		{
+			var proto = Template;
+
+			return proto.GetSkill();
+		}
+	}
+
+	public uint PlayedTime
+	{
+		get
+		{
+			var curtime = GameTime.GetGameTime();
+			var elapsed = (uint)(curtime - _lastPlayedTimeUpdate);
+
+			return ItemData.CreatePlayedTime + elapsed;
+		}
+	}
+
+	public bool IsRefundExpired => (PlayedTime > 2 * Time.Hour);
+
+	public bool IsNotEmptyBag
+	{
+		get
+		{
+			var bag = AsBag;
+
+			if (bag != null)
+				return !bag.IsEmpty();
+
+			return false;
+		}
+	}
+
+	public ObjectGuid ContainedIn => ItemData.ContainedIn;
+
+	public ObjectGuid Creator => ItemData.Creator;
+
+	public ObjectGuid GiftCreator => ItemData.GiftCreator;
+
+	public ItemBondingType Bonding => BonusData.Bonding;
+
+	public bool IsSoulBound => HasItemFlag(ItemFieldFlags.Soulbound);
+
+	public bool IsBoundAccountWide => Template.HasFlag(ItemFlags.IsBoundToAccount);
+
+	public bool IsBattlenetAccountBound => Template.HasFlag(ItemFlags2.BnetAccountTradeOk);
+
+	public Bag AsBag => this as Bag;
+
+	public AzeriteItem AsAzeriteItem => this as AzeriteItem;
+
+	public AzeriteEmpoweredItem AsAzeriteEmpoweredItem => this as AzeriteEmpoweredItem;
+
+	public bool IsRefundable => HasItemFlag(ItemFieldFlags.Refundable);
+
+	public bool IsBOPTradeable => HasItemFlag(ItemFieldFlags.BopTradeable);
+
+	public bool IsWrapped => HasItemFlag(ItemFieldFlags.Wrapped);
+
+	public bool IsLocked => !HasItemFlag(ItemFieldFlags.Unlocked);
+
+	public bool IsBag => Template.InventoryType == InventoryType.Bag;
+
+	public bool IsAzeriteItem => TypeId == TypeId.AzeriteItem;
+
+	public bool IsAzeriteEmpoweredItem => TypeId == TypeId.AzeriteEmpoweredItem;
+
+	public bool IsCurrencyToken => Template.IsCurrencyToken;
+
+	public bool IsBroken => ItemData.MaxDurability > 0 && ItemData.Durability == 0;
+
+	public bool IsInTrade => _mbInTrade;
+
+	public uint Count => ItemData.StackCount;
+
+	public uint MaxStackCount => Template.MaxStackSize;
+
+	public byte Slot => _slot;
+
+	public Bag Container => _container;
+
+	public ushort Pos => (ushort)(BagSlot << 8 | Slot);
+
+	public uint ItemRandomBonusListId => _randomBonusListId;
+
+	public string Text => _text;
+
+	public ItemUpdateState State => _updateState;
+
+	public bool IsInUpdateQueue => _queuePos != -1;
+
+	public int QueuePos => _queuePos;
+
+	public bool IsPotion => Template.IsPotion;
+
+	public bool IsVellum => Template.IsVellum;
+
+	public bool IsConjuredConsumable => Template.IsConjuredConsumable;
+
+	public bool IsRangedWeapon => Template.IsRangedWeapon;
+
+	public ItemQuality Quality => BonusData.Quality;
+
+	public uint AppearanceModId => ItemData.ItemAppearanceModID;
+
+	public float RepairCostMultiplier => BonusData.RepairCostMultiplier;
+
+	public uint ScalingContentTuningId => BonusData.ContentTuningId;
+
+	public ObjectGuid RefundRecipient => _refundRecipient;
+
+	public ulong PaidMoney => _paidMoney;
+
+	public uint PaidExtendedCost => _paidExtendedCost;
+
+	public uint ScriptId => Template.ScriptId;
+
+	public ObjectGuid ChildItem => _childItem;
+
+	public ItemEffectRecord[] Effects => BonusData.Effects[0..BonusData.EffectCount];
+
+	private bool IsInBag => _container != null;
+
 	public Item() : base(false)
 	{
 		ObjectTypeMask |= TypeMask.Item;
@@ -124,13 +255,13 @@ public class Item : WorldObject
 			if (itemProto.Effects[i].LegacySlotIndex < 5)
 				SetSpellCharges(itemProto.Effects[i].LegacySlotIndex, itemProto.Effects[i].Charges);
 
-		SetExpiration(itemProto.GetDuration());
+		SetExpiration(itemProto.Duration);
 		SetCreatePlayedTime(0);
 		SetContext(context);
 
-		if (itemProto.GetArtifactID() != 0)
+		if (itemProto.ArtifactID != 0)
 		{
-			InitArtifactPowers(itemProto.GetArtifactID(), 0);
+			InitArtifactPowers(itemProto.ArtifactID, 0);
 
 			foreach (var artifactAppearance in CliDB.ArtifactAppearanceStorage.Values)
 			{
@@ -138,7 +269,7 @@ public class Item : WorldObject
 
 				if (artifactAppearanceSet != null)
 				{
-					if (itemProto.GetArtifactID() != artifactAppearanceSet.ArtifactID)
+					if (itemProto.ArtifactID != artifactAppearanceSet.ArtifactID)
 						continue;
 
 					var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(artifactAppearance.UnlockPlayerConditionID);
@@ -162,23 +293,13 @@ public class Item : WorldObject
 
 	public override string GetName(Locale locale = Locale.enUS)
 	{
-		var itemTemplate = GetTemplate();
+		var itemTemplate = Template;
 		var suffix = CliDB.ItemNameDescriptionStorage.LookupByKey(BonusData.Suffix);
 
 		if (suffix != null)
 			return $"{itemTemplate.GetName(locale)} {suffix.Description[locale]}";
 
 		return itemTemplate.GetName(locale);
-	}
-
-	public bool IsNotEmptyBag()
-	{
-		var bag = ToBag();
-
-		if (bag != null)
-			return !bag.IsEmpty();
-
-		return false;
 	}
 
 	public void UpdateDuration(Player owner, uint diff)
@@ -192,10 +313,10 @@ public class Item : WorldObject
 
 		if (duration <= diff)
 		{
-			var itemTemplate = GetTemplate();
+			var itemTemplate = Template;
 			Global.ScriptMgr.RunScriptRet<IItemOnExpire>(p => p.OnExpire(owner, itemTemplate), itemTemplate.ScriptId);
 
-			owner.DestroyItem(GetBagSlot(), GetSlot(), true);
+			owner.DestroyItem(BagSlot, Slot, true);
 
 			return;
 		}
@@ -217,9 +338,9 @@ public class Item : WorldObject
 				stmt = DB.Characters.GetPreparedStatement(_updateState == ItemUpdateState.New ? CharStatements.REP_ITEM_INSTANCE : CharStatements.UPD_ITEM_INSTANCE);
 				stmt.AddValue(index, Entry);
 				stmt.AddValue(++index, OwnerGUID.Counter);
-				stmt.AddValue(++index, GetCreator().Counter);
-				stmt.AddValue(++index, GetGiftCreator().Counter);
-				stmt.AddValue(++index, GetCount());
+				stmt.AddValue(++index, Creator.Counter);
+				stmt.AddValue(++index, GiftCreator.Counter);
+				stmt.AddValue(++index, Count);
 				stmt.AddValue(++index, (uint)ItemData.Expiration);
 
 				StringBuilder ss = new();
@@ -263,7 +384,7 @@ public class Item : WorldObject
 
 				DB.Characters.Execute(stmt);
 
-				if ((_updateState == ItemUpdateState.Changed) && IsWrapped())
+				if ((_updateState == ItemUpdateState.Changed) && IsWrapped)
 				{
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GIFT_OWNER);
 					stmt.AddValue(0, OwnerGUID.Counter);
@@ -361,7 +482,7 @@ public class Item : WorldObject
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				if (GetTemplate().GetArtifactID() != 0)
+				if (Template.ArtifactID != 0)
 				{
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT);
 					stmt.AddValue(0, GUID.Counter);
@@ -426,7 +547,7 @@ public class Item : WorldObject
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				if (IsWrapped())
+				if (IsWrapped)
 				{
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
 					stmt.AddValue(0, GUID.Counter);
@@ -457,7 +578,7 @@ public class Item : WorldObject
 		Entry = entry;
 		ObjectScale = 1.0f;
 
-		var proto = GetTemplate();
+		var proto = Template;
 
 		if (proto == null)
 			return false;
@@ -491,9 +612,9 @@ public class Item : WorldObject
 		SetExpiration(duration);
 
 		// update duration if need, and remove if not need
-		if (proto.GetDuration() != duration)
+		if (proto.Duration != duration)
 		{
-			SetExpiration(proto.GetDuration());
+			SetExpiration(proto.Duration);
 			need_save = true;
 		}
 
@@ -505,7 +626,7 @@ public class Item : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.MaxDurability), proto.MaxDurability);
 
 		// do not overwrite durability for wrapped items
-		if (durability > proto.MaxDurability && !IsWrapped())
+		if (durability > proto.MaxDurability && !IsWrapped)
 		{
 			SetDurability(proto.MaxDurability);
 			need_save = true;
@@ -600,7 +721,7 @@ public class Item : WorldObject
 		_randomBonusListId = fields.Read<uint>(9);
 
 		// Remove bind flag for items vs NO_BIND set
-		if (IsSoulBound() && GetBonding() == ItemBondingType.None)
+		if (IsSoulBound && Bonding == ItemBondingType.None)
 		{
 			RemoveItemFlag(ItemFieldFlags.Soulbound);
 			need_save = true;
@@ -623,7 +744,7 @@ public class Item : WorldObject
 	public void LoadArtifactData(Player owner, ulong xp, uint artifactAppearanceId, uint artifactTier, List<ArtifactPowerData> powers)
 	{
 		for (byte i = 0; i <= artifactTier; ++i)
-			InitArtifactPowers(GetTemplate().GetArtifactID(), i);
+			InitArtifactPowers(Template.ArtifactID, i);
 
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactXP), xp);
 		SetModifier(ItemModifier.ArtifactAppearanceId, artifactAppearanceId);
@@ -703,7 +824,7 @@ public class Item : WorldObject
 		if (!owner)
 			return;
 
-		var artifactId = GetTemplate().GetArtifactID();
+		var artifactId = Template.ArtifactID;
 
 		if (artifactId == 0)
 			return;
@@ -766,18 +887,6 @@ public class Item : WorldObject
 		DeleteFromInventoryDB(trans, GUID.Counter);
 	}
 
-	public ItemTemplate GetTemplate()
-	{
-		return Global.ObjectMgr.GetItemTemplate(Entry);
-	}
-
-	public SkillType GetSkill()
-	{
-		var proto = GetTemplate();
-
-		return proto.GetSkill();
-	}
-
 	public void SetItemRandomBonusList(uint bonusListId)
 	{
 		if (bonusListId == 0)
@@ -820,7 +929,7 @@ public class Item : WorldObject
 
 	public static void RemoveItemFromUpdateQueueOf(Item item, Player player)
 	{
-		if (!item.IsInUpdateQueue())
+		if (!item.IsInUpdateQueue)
 			return;
 
 		Cypher.Assert(player != null);
@@ -839,32 +948,23 @@ public class Item : WorldObject
 		item._queuePos = -1;
 	}
 
-	public byte GetBagSlot()
-	{
-		return _container != null ? _container.GetSlot() : InventorySlots.Bag0;
-	}
-
-	public bool IsEquipped()
-	{
-		return !IsInBag() && (_slot < EquipmentSlot.End || (_slot >= ProfessionSlots.Start && _slot < ProfessionSlots.End));
-	}
 
 	public bool CanBeTraded(bool mail = false, bool trade = false)
 	{
 		if (LootGenerated)
 			return false;
 
-		if ((!mail || !IsBoundAccountWide()) && (IsSoulBound() && (!IsBOPTradeable() || !trade)))
+		if ((!mail || !IsBoundAccountWide) && (IsSoulBound && (!IsBOPTradeable || !trade)))
 			return false;
 
-		if (IsBag() && (Player.IsBagPos(GetPos()) || !ToBag().IsEmpty()))
+		if (IsBag && (Player.IsBagPos(Pos) || !AsBag.IsEmpty()))
 			return false;
 
 		var owner = OwnerUnit;
 
 		if (owner != null)
 		{
-			if (owner.CanUnequipItem(GetPos(), false) != InventoryResult.Ok)
+			if (owner.CanUnequipItem(Pos, false) != InventoryResult.Ok)
 				return false;
 
 			if (owner.GetLootGUID() == GUID)
@@ -912,14 +1012,14 @@ public class Item : WorldObject
 		if (lostDurability == 0)
 			return 0;
 
-		var itemTemplate = GetTemplate();
+		var itemTemplate = Template;
 
 		var durabilityCost = CliDB.DurabilityCostsStorage.LookupByKey(GetItemLevel(OwnerUnit));
 
 		if (durabilityCost == null)
 			return 0;
 
-		var durabilityQualityEntryId = ((uint)GetQuality() + 1) * 2;
+		var durabilityQualityEntryId = ((uint)Quality + 1) * 2;
 		var durabilityQualityEntry = CliDB.DurabilityQualityStorage.LookupByKey(durabilityQualityEntryId);
 
 		if (durabilityQualityEntry == null)
@@ -927,12 +1027,12 @@ public class Item : WorldObject
 
 		uint dmultiplier = 0;
 
-		if (itemTemplate.GetClass() == ItemClass.Weapon)
-			dmultiplier = durabilityCost.WeaponSubClassCost[itemTemplate.GetSubClass()];
-		else if (itemTemplate.GetClass() == ItemClass.Armor)
-			dmultiplier = durabilityCost.ArmorSubClassCost[itemTemplate.GetSubClass()];
+		if (itemTemplate.Class == ItemClass.Weapon)
+			dmultiplier = durabilityCost.WeaponSubClassCost[itemTemplate.SubClass];
+		else if (itemTemplate.Class == ItemClass.Armor)
+			dmultiplier = durabilityCost.ArmorSubClassCost[itemTemplate.SubClass];
 
-		var cost = (ulong)Math.Round(lostDurability * dmultiplier * durabilityQualityEntry.Data * GetRepairCostMultiplier());
+		var cost = (ulong)Math.Round(lostDurability * dmultiplier * durabilityQualityEntry.Data * RepairCostMultiplier);
 		cost = (ulong)(cost * discount * WorldConfig.GetFloatValue(WorldCfg.RateRepaircost));
 
 		if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
@@ -948,11 +1048,11 @@ public class Item : WorldObject
 			return InventoryResult.LootGone;
 
 		// check item type
-		if (Entry != proto.GetId())
+		if (Entry != proto.Id)
 			return InventoryResult.CantStack;
 
 		// check free space (full stacks can't be target of merge
-		if (GetCount() >= proto.GetMaxStackSize())
+		if (Count >= proto.MaxStackSize)
 			return InventoryResult.CantStack;
 
 		return InventoryResult.Ok;
@@ -960,7 +1060,7 @@ public class Item : WorldObject
 
 	public bool IsFitToSpellRequirements(SpellInfo spellInfo)
 	{
-		var proto = GetTemplate();
+		var proto = Template;
 
 		var isEnchantSpell = spellInfo.HasEffect(SpellEffectName.EnchantItem) || spellInfo.HasEffect(SpellEffectName.EnchantItemTemporary) || spellInfo.HasEffect(SpellEffectName.EnchantItemPrismatic);
 
@@ -969,22 +1069,22 @@ public class Item : WorldObject
 			if (isEnchantSpell && proto.HasFlag(ItemFlags3.CanStoreEnchants))
 				return true;
 
-			if (spellInfo.EquippedItemClass != proto.GetClass())
+			if (spellInfo.EquippedItemClass != proto.Class)
 				return false; //  wrong item class
 
 			if (spellInfo.EquippedItemSubClassMask != 0) // 0 == any subclass
-				if ((spellInfo.EquippedItemSubClassMask & (1 << (int)proto.GetSubClass())) == 0)
+				if ((spellInfo.EquippedItemSubClassMask & (1 << (int)proto.SubClass)) == 0)
 					return false; // subclass not present in mask
 		}
 
 		if (isEnchantSpell && spellInfo.EquippedItemInventoryTypeMask != 0) // 0 == any inventory type
 		{
 			// Special case - accept weapon type for main and offhand requirements
-			if (proto.GetInventoryType() == InventoryType.Weapon &&
+			if (proto.InventoryType == InventoryType.Weapon &&
 				Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponMainhand)) ||
 				Convert.ToBoolean(spellInfo.EquippedItemInventoryTypeMask & (1 << (int)InventoryType.WeaponOffhand)))
 				return true;
-			else if ((spellInfo.EquippedItemInventoryTypeMask & (1 << (int)proto.GetInventoryType())) == 0)
+			else if ((spellInfo.EquippedItemInventoryTypeMask & (1 << (int)proto.InventoryType)) == 0)
 				return false; // inventory type not present in mask
 		}
 
@@ -1071,7 +1171,7 @@ public class Item : WorldObject
 
 		if (gemTemplate != null)
 		{
-			var gemProperties = CliDB.GemPropertiesStorage.LookupByKey(gemTemplate.GetGemProperties());
+			var gemProperties = CliDB.GemPropertiesStorage.LookupByKey(gemTemplate.GemProperties);
 
 			if (gemProperties != null)
 			{
@@ -1084,7 +1184,7 @@ public class Item : WorldObject
 					foreach (var bonusListId in gem.BonusListIDs)
 						gemBonus.AddBonusList(bonusListId);
 
-					var gemBaseItemLevel = gemTemplate.GetBaseItemLevel();
+					var gemBaseItemLevel = gemTemplate.BaseItemLevel;
 
 					if (gemBonus.PlayerLevelToItemLevelCurveId != 0)
 					{
@@ -1148,7 +1248,7 @@ public class Item : WorldObject
 
 		foreach (var gemData in ItemData.Gems)
 		{
-			var SocketColor = GetTemplate().GetSocketColor(gemSlot);
+			var SocketColor = Template.GetSocketColor(gemSlot);
 
 			if (SocketColor == 0) // no socket slot
 				continue;
@@ -1159,7 +1259,7 @@ public class Item : WorldObject
 
 			if (gemProto != null)
 			{
-				var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GetGemProperties());
+				var gemProperty = CliDB.GemPropertiesStorage.LookupByKey(gemProto.GemProperties);
 
 				if (gemProperty != null)
 					GemColor = gemProperty.Type;
@@ -1190,16 +1290,16 @@ public class Item : WorldObject
 			if (gemProto == null)
 				return false;
 
-			return gemProto.GetItemLimitCategory() == limitCategory;
+			return gemProto.ItemLimitCategory == limitCategory;
 		});
 	}
 
 	public bool IsLimitedToAnotherMapOrZone(uint cur_mapId, uint cur_zoneId)
 	{
-		var proto = GetTemplate();
+		var proto = Template;
 
 		return proto != null &&
-				((proto.GetMap() != 0 && proto.GetMap() != cur_mapId) ||
+				((proto.Map != 0 && proto.Map != cur_mapId) ||
 				((proto.GetArea(0) != 0 && proto.GetArea(0) != cur_zoneId) && (proto.GetArea(1) != 0 && proto.GetArea(1) != cur_zoneId)));
 	}
 
@@ -1233,8 +1333,8 @@ public class Item : WorldObject
 
 		if (pProto != null)
 		{
-			if (count > pProto.GetMaxStackSize())
-				count = pProto.GetMaxStackSize();
+			if (count > pProto.MaxStackSize)
+				count = pProto.MaxStackSize;
 
 			var pItem = NewItemOrBag(pProto);
 
@@ -1256,8 +1356,8 @@ public class Item : WorldObject
 		if (newItem == null)
 			return null;
 
-		newItem.SetCreator(GetCreator());
-		newItem.SetGiftCreator(GetGiftCreator());
+		newItem.SetCreator(Creator);
+		newItem.SetGiftCreator(GiftCreator);
 		newItem.ReplaceAllItemFlags((ItemFieldFlags)(ItemData.DynamicFlags & ~(uint)(ItemFieldFlags.Refundable | ItemFieldFlags.BopTradeable)));
 		newItem.SetExpiration(ItemData.Expiration);
 
@@ -1271,19 +1371,19 @@ public class Item : WorldObject
 	public bool IsBindedNotWith(Player player)
 	{
 		// not binded item
-		if (!IsSoulBound())
+		if (!IsSoulBound)
 			return false;
 
 		// own item
 		if (OwnerGUID == player.GUID)
 			return false;
 
-		if (IsBOPTradeable())
+		if (IsBOPTradeable)
 			if (_allowedGuiDs.Contains(player.GUID))
 				return false;
 
 		// BOA item case
-		if (IsBoundAccountWide())
+		if (IsBoundAccountWide)
 			return false;
 
 		return true;
@@ -1387,9 +1487,9 @@ public class Item : WorldObject
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_REFUND_INSTANCE);
 		stmt.AddValue(0, GUID.Counter);
-		stmt.AddValue(1, GetRefundRecipient().Counter);
-		stmt.AddValue(2, GetPaidMoney());
-		stmt.AddValue(3, (ushort)GetPaidExtendedCost());
+		stmt.AddValue(1, RefundRecipient.Counter);
+		stmt.AddValue(2, PaidMoney);
+		stmt.AddValue(3, (ushort)PaidExtendedCost);
 		DB.Characters.Execute(stmt);
 	}
 
@@ -1406,7 +1506,7 @@ public class Item : WorldObject
 
 	public void SetNotRefundable(Player owner, bool changestate = true, SQLTransaction trans = null, bool addToCollection = true)
 	{
-		if (!IsRefundable())
+		if (!IsRefundable)
 			return;
 
 		ItemExpirePurchaseRefund itemExpirePurchaseRefund = new();
@@ -1457,18 +1557,6 @@ public class Item : WorldObject
 		SetNotRefundable(owner);
 	}
 
-	public uint GetPlayedTime()
-	{
-		var curtime = GameTime.GetGameTime();
-		var elapsed = (uint)(curtime - _lastPlayedTimeUpdate);
-
-		return ItemData.CreatePlayedTime + elapsed;
-	}
-
-	public bool IsRefundExpired()
-	{
-		return (GetPlayedTime() > 2 * Time.Hour);
-	}
 
 	public void SetSoulboundTradeable(List<ObjectGuid> allowedLooters)
 	{
@@ -1507,7 +1595,7 @@ public class Item : WorldObject
 	public static bool CanTransmogrifyItemWithItem(Item item, ItemModifiedAppearanceRecord itemModifiedAppearance)
 	{
 		var source = Global.ObjectMgr.GetItemTemplate(itemModifiedAppearance.ItemID); // source
-		var target = item.GetTemplate();                                              // dest
+		var target = item.Template;                                                   // dest
 
 		if (source == null || target == null)
 			return false;
@@ -1518,19 +1606,19 @@ public class Item : WorldObject
 		if (!item.IsValidTransmogrificationTarget())
 			return false;
 
-		if (source.GetClass() != target.GetClass())
+		if (source.Class != target.Class)
 			return false;
 
-		if (source.GetInventoryType() == InventoryType.Bag ||
-			source.GetInventoryType() == InventoryType.Relic ||
-			source.GetInventoryType() == InventoryType.Finger ||
-			source.GetInventoryType() == InventoryType.Trinket ||
-			source.GetInventoryType() == InventoryType.Ammo ||
-			source.GetInventoryType() == InventoryType.Quiver)
+		if (source.InventoryType == InventoryType.Bag ||
+			source.InventoryType == InventoryType.Relic ||
+			source.InventoryType == InventoryType.Finger ||
+			source.InventoryType == InventoryType.Trinket ||
+			source.InventoryType == InventoryType.Ammo ||
+			source.InventoryType == InventoryType.Quiver)
 			return false;
 
-		if (source.GetSubClass() != target.GetSubClass())
-			switch (source.GetClass())
+		if (source.SubClass != target.SubClass)
+			switch (source.Class)
 			{
 				case ItemClass.Weapon:
 					if (GetTransmogrificationWeaponCategory(source) != GetTransmogrificationWeaponCategory(target))
@@ -1538,11 +1626,11 @@ public class Item : WorldObject
 
 					break;
 				case ItemClass.Armor:
-					if ((ItemSubClassArmor)source.GetSubClass() != ItemSubClassArmor.Cosmetic)
+					if ((ItemSubClassArmor)source.SubClass != ItemSubClassArmor.Cosmetic)
 						return false;
 
-					if (source.GetInventoryType() != target.GetInventoryType())
-						if (ItemTransmogrificationSlots[(int)source.GetInventoryType()] != ItemTransmogrificationSlots[(int)target.GetInventoryType()])
+					if (source.InventoryType != target.InventoryType)
+						if (ItemTransmogrificationSlots[(int)source.InventoryType] != ItemTransmogrificationSlots[(int)target.InventoryType])
 							return false;
 
 					break;
@@ -1555,23 +1643,23 @@ public class Item : WorldObject
 
 	public uint GetSellPrice(Player owner)
 	{
-		return GetSellPrice(GetTemplate(), (uint)GetQuality(), GetItemLevel(owner));
+		return GetSellPrice(Template, (uint)Quality, GetItemLevel(owner));
 	}
 
 	public static uint GetSellPrice(ItemTemplate proto, uint quality, uint itemLevel)
 	{
 		if (proto.HasFlag(ItemFlags2.OverrideGoldCost))
-			return proto.GetSellPrice();
+			return proto.SellPrice;
 
 		var cost = GetBuyPrice(proto, quality, itemLevel, out var standardPrice);
 
 		if (standardPrice)
 		{
-			var classEntry = Global.DB2Mgr.GetItemClassByOldEnum(proto.GetClass());
+			var classEntry = Global.DB2Mgr.GetItemClassByOldEnum(proto.Class);
 
 			if (classEntry != null)
 			{
-				var buyCount = Math.Max(proto.GetBuyCount(), 1u);
+				var buyCount = Math.Max(proto.BuyCount, 1u);
 
 				return (uint)(cost * classEntry.PriceModifier / buyCount);
 			}
@@ -1580,20 +1668,20 @@ public class Item : WorldObject
 		}
 		else
 		{
-			return proto.GetSellPrice();
+			return proto.SellPrice;
 		}
 	}
 
 	public uint GetItemLevel(Player owner)
 	{
-		var itemTemplate = GetTemplate();
+		var itemTemplate = Template;
 		uint minItemLevel = owner.UnitData.MinItemLevel;
 		uint minItemLevelCutoff = owner.UnitData.MinItemLevelCutoff;
 		var maxItemLevel = itemTemplate.HasFlag(ItemFlags3.IgnoreItemLevelCapInPvp) ? 0u : owner.UnitData.MaxItemLevel;
 		var pvpBonus = owner.IsUsingPvpItemLevels;
 
 		uint azeriteLevel = 0;
-		var azeriteItem = ToAzeriteItem();
+		var azeriteItem = AsAzeriteItem;
 
 		if (azeriteItem != null)
 			azeriteLevel = azeriteItem.GetEffectiveLevel();
@@ -1614,7 +1702,7 @@ public class Item : WorldObject
 		if (itemTemplate == null)
 			return 1;
 
-		var itemLevel = itemTemplate.GetBaseItemLevel();
+		var itemLevel = itemTemplate.BaseItemLevel;
 		var azeriteLevelInfo = CliDB.AzeriteLevelInfoStorage.LookupByKey(azeriteLevel);
 
 		if (azeriteLevelInfo != null)
@@ -1645,9 +1733,9 @@ public class Item : WorldObject
 		var itemLevelBeforeUpgrades = itemLevel;
 
 		if (pvpBonus)
-			itemLevel += Global.DB2Mgr.GetPvpItemLevelBonus(itemTemplate.GetId());
+			itemLevel += Global.DB2Mgr.GetPvpItemLevelBonus(itemTemplate.Id);
 
-		if (itemTemplate.GetInventoryType() != InventoryType.NonEquip)
+		if (itemTemplate.InventoryType != InventoryType.NonEquip)
 		{
 			if (minItemLevel != 0 && (minItemLevelCutoff == 0 || itemLevelBeforeUpgrades >= minItemLevelCutoff) && itemLevel < minItemLevel)
 				itemLevel = minItemLevel;
@@ -1673,7 +1761,7 @@ public class Item : WorldObject
 		}
 
 		var itemLevel = GetItemLevel(owner);
-		var randomPropPoints = ItemEnchantmentManager.GetRandomPropertyPoints(itemLevel, GetQuality(), GetTemplate().GetInventoryType(), GetTemplate().GetSubClass());
+		var randomPropPoints = ItemEnchantmentManager.GetRandomPropertyPoints(itemLevel, Quality, Template.InventoryType, Template.SubClass);
 
 		if (randomPropPoints != 0)
 		{
@@ -1694,23 +1782,23 @@ public class Item : WorldObject
 		if (!BonusData.CanDisenchant)
 			return null;
 
-		return GetDisenchantLoot(GetTemplate(), (uint)GetQuality(), GetItemLevel(owner));
+		return GetDisenchantLoot(Template, (uint)Quality, GetItemLevel(owner));
 	}
 
 	public static ItemDisenchantLootRecord GetDisenchantLoot(ItemTemplate itemTemplate, uint quality, uint itemLevel)
 	{
-		if (itemTemplate.HasFlag(ItemFlags.Conjured) || itemTemplate.HasFlag(ItemFlags.NoDisenchant) || itemTemplate.GetBonding() == ItemBondingType.Quest)
+		if (itemTemplate.HasFlag(ItemFlags.Conjured) || itemTemplate.HasFlag(ItemFlags.NoDisenchant) || itemTemplate.Bonding == ItemBondingType.Quest)
 			return null;
 
-		if (itemTemplate.GetArea(0) != 0 || itemTemplate.GetArea(1) != 0 || itemTemplate.GetMap() != 0 || itemTemplate.GetMaxStackSize() > 1)
+		if (itemTemplate.GetArea(0) != 0 || itemTemplate.GetArea(1) != 0 || itemTemplate.Map != 0 || itemTemplate.MaxStackSize > 1)
 			return null;
 
-		if (GetSellPrice(itemTemplate, quality, itemLevel) == 0 && !Global.DB2Mgr.HasItemCurrencyCost(itemTemplate.GetId()))
+		if (GetSellPrice(itemTemplate, quality, itemLevel) == 0 && !Global.DB2Mgr.HasItemCurrencyCost(itemTemplate.Id))
 			return null;
 
-		var itemClass = (byte)itemTemplate.GetClass();
-		var itemSubClass = itemTemplate.GetSubClass();
-		var expansion = itemTemplate.GetRequiredExpansion();
+		var itemClass = (byte)itemTemplate.Class;
+		var itemSubClass = itemTemplate.SubClass;
+		var expansion = itemTemplate.RequiredExpansion;
 
 		foreach (var disenchant in CliDB.ItemDisenchantLootStorage.Values)
 		{
@@ -1752,7 +1840,7 @@ public class Item : WorldObject
 				return itemAppearance.ItemDisplayInfoID;
 		}
 
-		return Global.DB2Mgr.GetItemDisplayId(Entry, GetAppearanceModId());
+		return Global.DB2Mgr.GetItemDisplayId(Entry, AppearanceModId);
 	}
 
 	public ItemModifiedAppearanceRecord GetItemModifiedAppearance()
@@ -1827,7 +1915,7 @@ public class Item : WorldObject
 		if (transmog != null)
 			return (ushort)transmog.ItemAppearanceModifierID;
 
-		return (ushort)GetAppearanceModId();
+		return (ushort)AppearanceModId;
 	}
 
 	public uint GetVisibleSecondaryModifiedAppearanceId(Player owner)
@@ -1913,13 +2001,13 @@ public class Item : WorldObject
 		ItemBonusKey itemBonusKey = new();
 		itemBonusKey.ItemID = Entry;
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
-		BonusData = new BonusData(GetTemplate());
+		BonusData = new BonusData(Template);
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemAppearanceModID), (byte)BonusData.AppearanceModID);
 	}
 
 	public bool IsArtifactDisabled()
 	{
-		var artifact = CliDB.ArtifactStorage.LookupByKey(GetTemplate().GetArtifactID());
+		var artifact = CliDB.ArtifactStorage.LookupByKey(Template.ArtifactID);
 
 		if (artifact != null)
 			return artifact.ArtifactCategoryID != 2; // fishing artifact
@@ -2004,9 +2092,9 @@ public class Item : WorldObject
 
 	public void CopyArtifactDataFromParent(Item parent)
 	{
-		Array.Copy(parent.GetBonus().GemItemLevelBonus, BonusData.GemItemLevelBonus, BonusData.GemItemLevelBonus.Length);
+		Array.Copy(parent.BonusData.GemItemLevelBonus, BonusData.GemItemLevelBonus, BonusData.GemItemLevelBonus.Length);
 		SetModifier(ItemModifier.ArtifactAppearanceId, parent.GetModifier(ItemModifier.ArtifactAppearanceId));
-		SetAppearanceModId(parent.GetAppearanceModId());
+		SetAppearanceModId(parent.AppearanceModId);
 	}
 
 	public void SetArtifactXP(ulong xp)
@@ -2107,18 +2195,18 @@ public class Item : WorldObject
 
 	public override string GetDebugInfo()
 	{
-		return $"{base.GetDebugInfo()}\nOwner: {OwnerGUID} Count: {GetCount()} BagSlot: {GetBagSlot()} Slot: {GetSlot()} Equipped: {IsEquipped()}";
+		return $"{base.GetDebugInfo()}\nOwner: {OwnerGUID} Count: {Count} BagSlot: {BagSlot} Slot: {Slot} Equipped: {IsEquipped}";
 	}
 
 	public static Item NewItemOrBag(ItemTemplate proto)
 	{
-		if (proto.GetInventoryType() == InventoryType.Bag)
+		if (proto.InventoryType == InventoryType.Bag)
 			return new Bag();
 
-		if (Global.DB2Mgr.IsAzeriteItem(proto.GetId()))
+		if (Global.DB2Mgr.IsAzeriteItem(proto.Id))
 			return new AzeriteItem();
 
-		if (Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.GetId()) != null)
+		if (Global.DB2Mgr.GetAzeriteEmpoweredItem(proto.Id) != null)
 			return new AzeriteEmpoweredItem();
 
 		return new Item();
@@ -2126,14 +2214,14 @@ public class Item : WorldObject
 
 	public static void AddItemsSetItem(Player player, Item item)
 	{
-		var proto = item.GetTemplate();
-		var setid = proto.GetItemSet();
+		var proto = item.Template;
+		var setid = proto.ItemSet;
 
 		var set = CliDB.ItemSetStorage.LookupByKey(setid);
 
 		if (set == null)
 		{
-			Log.outError(LogFilter.Sql, "Item set {0} for item (id {1}) not found, mods not applied.", setid, proto.GetId());
+			Log.outError(LogFilter.Sql, "Item set {0} for item (id {1}) not found, mods not applied.", setid, proto.Id);
 
 			return;
 		}
@@ -2146,11 +2234,11 @@ public class Item : WorldObject
 
 		// Check player level for heirlooms
 		if (Global.DB2Mgr.GetHeirloomByItemId(item.Entry) != null)
-			if (item.GetBonus().PlayerLevelToItemLevelCurveId != 0)
+			if (item.BonusData.PlayerLevelToItemLevelCurveId != 0)
 			{
-				var maxLevel = (uint)Global.DB2Mgr.GetCurveXAxisRange(item.GetBonus().PlayerLevelToItemLevelCurveId).Item2;
+				var maxLevel = (uint)Global.DB2Mgr.GetCurveXAxisRange(item.BonusData.PlayerLevelToItemLevelCurveId).Item2;
 
-				var contentTuning = Global.DB2Mgr.GetContentTuningData(item.GetBonus().ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask, true);
+				var contentTuning = Global.DB2Mgr.GetContentTuningData(item.BonusData.ContentTuningId, player.PlayerData.CtrOptions.Value.ContentTuningConditionMask, true);
 
 				if (contentTuning.HasValue)
 					maxLevel = Math.Min(maxLevel, (uint)contentTuning.Value.MaxLevel);
@@ -2218,7 +2306,7 @@ public class Item : WorldObject
 
 	public static void RemoveItemsSetItem(Player player, Item item)
 	{
-		var setid = item.GetTemplate().GetItemSet();
+		var setid = item.Template.ItemSet;
 
 		var set = CliDB.ItemSetStorage.LookupByKey(setid);
 
@@ -2268,19 +2356,9 @@ public class Item : WorldObject
 		}
 	}
 
-	public BonusData GetBonus()
-	{
-		return BonusData;
-	}
-
 	public void SetOwnerGUID(ObjectGuid guid)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Owner), guid);
-	}
-
-	public ObjectGuid GetContainedIn()
-	{
-		return ItemData.ContainedIn;
 	}
 
 	public void SetContainedIn(ObjectGuid guid)
@@ -2288,29 +2366,14 @@ public class Item : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ContainedIn), guid);
 	}
 
-	public ObjectGuid GetCreator()
-	{
-		return ItemData.Creator;
-	}
-
 	public void SetCreator(ObjectGuid guid)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Creator), guid);
 	}
 
-	public ObjectGuid GetGiftCreator()
-	{
-		return ItemData.GiftCreator;
-	}
-
 	public void SetGiftCreator(ObjectGuid guid)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.GiftCreator), guid);
-	}
-
-	public ItemBondingType GetBonding()
-	{
-		return BonusData.Bonding;
 	}
 
 	public void SetBinding(bool val)
@@ -2319,21 +2382,6 @@ public class Item : WorldObject
 			SetItemFlag(ItemFieldFlags.Soulbound);
 		else
 			RemoveItemFlag(ItemFieldFlags.Soulbound);
-	}
-
-	public bool IsSoulBound()
-	{
-		return HasItemFlag(ItemFieldFlags.Soulbound);
-	}
-
-	public bool IsBoundAccountWide()
-	{
-		return GetTemplate().HasFlag(ItemFlags.IsBoundToAccount);
-	}
-
-	public bool IsBattlenetAccountBound()
-	{
-		return GetTemplate().HasFlag(ItemFlags2.BnetAccountTradeOk);
 	}
 
 	public bool HasItemFlag(ItemFieldFlags flag)
@@ -2376,66 +2424,6 @@ public class Item : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.DynamicFlags2), (uint)flags);
 	}
 
-	public Bag ToBag()
-	{
-		return IsBag() ? this as Bag : null;
-	}
-
-	public AzeriteItem ToAzeriteItem()
-	{
-		return IsAzeriteItem() ? this as AzeriteItem : null;
-	}
-
-	public AzeriteEmpoweredItem ToAzeriteEmpoweredItem()
-	{
-		return IsAzeriteEmpoweredItem() ? this as AzeriteEmpoweredItem : null;
-	}
-
-	public bool IsRefundable()
-	{
-		return HasItemFlag(ItemFieldFlags.Refundable);
-	}
-
-	public bool IsBOPTradeable()
-	{
-		return HasItemFlag(ItemFieldFlags.BopTradeable);
-	}
-
-	public bool IsWrapped()
-	{
-		return HasItemFlag(ItemFieldFlags.Wrapped);
-	}
-
-	public bool IsLocked()
-	{
-		return !HasItemFlag(ItemFieldFlags.Unlocked);
-	}
-
-	public bool IsBag()
-	{
-		return GetTemplate().GetInventoryType() == InventoryType.Bag;
-	}
-
-	public bool IsAzeriteItem()
-	{
-		return TypeId == TypeId.AzeriteItem;
-	}
-
-	public bool IsAzeriteEmpoweredItem()
-	{
-		return TypeId == TypeId.AzeriteEmpoweredItem;
-	}
-
-	public bool IsCurrencyToken()
-	{
-		return GetTemplate().IsCurrencyToken();
-	}
-
-	public bool IsBroken()
-	{
-		return ItemData.MaxDurability > 0 && ItemData.Durability == 0;
-	}
-
 	public void SetDurability(uint durability)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Durability), durability);
@@ -2451,49 +2439,14 @@ public class Item : WorldObject
 		_mbInTrade = b;
 	}
 
-	public bool IsInTrade()
-	{
-		return _mbInTrade;
-	}
-
-	public uint GetCount()
-	{
-		return ItemData.StackCount;
-	}
-
-	public uint GetMaxStackCount()
-	{
-		return GetTemplate().GetMaxStackSize();
-	}
-
-	public byte GetSlot()
-	{
-		return _slot;
-	}
-
-	public Bag GetContainer()
-	{
-		return _container;
-	}
-
 	public void SetSlot(byte slot)
 	{
 		_slot = slot;
 	}
 
-	public ushort GetPos()
-	{
-		return (ushort)(GetBagSlot() << 8 | GetSlot());
-	}
-
 	public void SetContainer(Bag container)
 	{
 		_container = container;
-	}
-
-	public uint GetItemRandomBonusListId()
-	{
-		return _randomBonusListId;
 	}
 
 	public uint GetEnchantmentId(EnchantmentSlot slot)
@@ -2516,11 +2469,6 @@ public class Item : WorldObject
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.CreatePlayedTime), createPlayedTime);
 	}
 
-	public string GetText()
-	{
-		return _text;
-	}
-
 	public void SetText(string text)
 	{
 		_text = text;
@@ -2536,21 +2484,6 @@ public class Item : WorldObject
 		SetUpdateFieldValue(ref Values.ModifyValue(ItemData).ModifyValue(ItemData.SpellCharges, index), value);
 	}
 
-	public ItemUpdateState GetState()
-	{
-		return _updateState;
-	}
-
-	public bool IsInUpdateQueue()
-	{
-		return _queuePos != -1;
-	}
-
-	public int GetQueuePos()
-	{
-		return _queuePos;
-	}
-
 	public void FSetState(ItemUpdateState state) // forced
 	{
 		_updateState = state;
@@ -2558,37 +2491,12 @@ public class Item : WorldObject
 
 	public override bool HasQuest(uint quest_id)
 	{
-		return GetTemplate().GetStartQuest() == quest_id;
+		return Template.StartQuest == quest_id;
 	}
 
 	public override bool HasInvolvedQuest(uint quest_id)
 	{
 		return false;
-	}
-
-	public bool IsPotion()
-	{
-		return GetTemplate().IsPotion();
-	}
-
-	public bool IsVellum()
-	{
-		return GetTemplate().IsVellum();
-	}
-
-	public bool IsConjuredConsumable()
-	{
-		return GetTemplate().IsConjuredConsumable();
-	}
-
-	public bool IsRangedWeapon()
-	{
-		return GetTemplate().IsRangedWeapon();
-	}
-
-	public ItemQuality GetQuality()
-	{
-		return BonusData.Quality;
 	}
 
 	public int GetItemStatType(uint index)
@@ -2605,24 +2513,9 @@ public class Item : WorldObject
 		return BonusData.socketColor[index];
 	}
 
-	public uint GetAppearanceModId()
-	{
-		return ItemData.ItemAppearanceModID;
-	}
-
 	public void SetAppearanceModId(uint appearanceModId)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemAppearanceModID), (byte)appearanceModId);
-	}
-
-	public float GetRepairCostMultiplier()
-	{
-		return BonusData.RepairCostMultiplier;
-	}
-
-	public uint GetScalingContentTuningId()
-	{
-		return BonusData.ContentTuningId;
 	}
 
 	public void SetRefundRecipient(ObjectGuid guid)
@@ -2640,39 +2533,9 @@ public class Item : WorldObject
 		_paidExtendedCost = iece;
 	}
 
-	public ObjectGuid GetRefundRecipient()
-	{
-		return _refundRecipient;
-	}
-
-	public ulong GetPaidMoney()
-	{
-		return _paidMoney;
-	}
-
-	public uint GetPaidExtendedCost()
-	{
-		return _paidExtendedCost;
-	}
-
-	public uint GetScriptId()
-	{
-		return GetTemplate().ScriptId;
-	}
-
-	public ObjectGuid GetChildItem()
-	{
-		return _childItem;
-	}
-
 	public void SetChildItem(ObjectGuid childItem)
 	{
 		_childItem = childItem;
-	}
-
-	public ItemEffectRecord[] GetEffects()
-	{
-		return BonusData.Effects[0..BonusData.EffectCount];
 	}
 
 	public override Loot GetLootForPlayer(Player player)
@@ -2686,79 +2549,79 @@ public class Item : WorldObject
 		if (pProto == null || pBagProto == null)
 			return false;
 
-		switch (pBagProto.GetClass())
+		switch (pBagProto.Class)
 		{
 			case ItemClass.Container:
-				switch ((ItemSubClassContainer)pBagProto.GetSubClass())
+				switch ((ItemSubClassContainer)pBagProto.SubClass)
 				{
 					case ItemSubClassContainer.Container:
 						return true;
 					case ItemSubClassContainer.SoulContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.SoulShards))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.SoulShards))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.HerbContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.Herbs))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.Herbs))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.EnchantingContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.EnchantingSupp))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.EnchantingSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.MiningContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.MiningSupp))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.MiningSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.EngineeringContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.EngineeringSupp))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.EngineeringSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.GemContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.Gems))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.Gems))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.LeatherworkingContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.LeatherworkingSupp))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.LeatherworkingSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.InscriptionContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.InscriptionSupp))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.InscriptionSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.TackleContainer:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.FishingSupp))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.FishingSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.CookingContainer:
-						if (!pProto.GetBagFamily().HasAnyFlag(BagFamilyMask.CookingSupp))
+						if (!pProto.BagFamily.HasAnyFlag(BagFamilyMask.CookingSupp))
 							return false;
 
 						return true;
 					case ItemSubClassContainer.ReagentContainer:
-						return pProto.IsCraftingReagent();
+						return pProto.IsCraftingReagent;
 					default:
 						return false;
 				}
 			//can remove?
 			case ItemClass.Quiver:
-				switch ((ItemSubClassQuiver)pBagProto.GetSubClass())
+				switch ((ItemSubClassQuiver)pBagProto.SubClass)
 				{
 					case ItemSubClassQuiver.Quiver:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.Arrows))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.Arrows))
 							return false;
 
 						return true;
 					case ItemSubClassQuiver.AmmoPouch:
-						if (!Convert.ToBoolean(pProto.GetBagFamily() & BagFamilyMask.Bullets))
+						if (!Convert.ToBoolean(pProto.BagFamily & BagFamilyMask.Bullets))
 							return false;
 
 						return true;
@@ -2783,7 +2646,7 @@ public class Item : WorldObject
 
 	static void AddItemToUpdateQueueOf(Item item, Player player)
 	{
-		if (item.IsInUpdateQueue())
+		if (item.IsInUpdateQueue)
 			return;
 
 		Cypher.Assert(player != null);
@@ -2897,16 +2760,16 @@ public class Item : WorldObject
 
 	bool IsValidTransmogrificationTarget()
 	{
-		var proto = GetTemplate();
+		var proto = Template;
 
 		if (proto == null)
 			return false;
 
-		if (proto.GetClass() != ItemClass.Armor &&
-			proto.GetClass() != ItemClass.Weapon)
+		if (proto.Class != ItemClass.Armor &&
+			proto.Class != ItemClass.Weapon)
 			return false;
 
-		if (proto.GetClass() == ItemClass.Weapon && proto.GetSubClass() == (uint)ItemSubClassWeapon.FishingPole)
+		if (proto.Class == ItemClass.Weapon && proto.SubClass == (uint)ItemSubClassWeapon.FishingPole)
 			return false;
 
 		if (proto.HasFlag(ItemFlags2.NoAlterItemVisual))
@@ -2920,7 +2783,7 @@ public class Item : WorldObject
 
 	bool HasStats()
 	{
-		var proto = GetTemplate();
+		var proto = Template;
 		var owner = OwnerUnit;
 
 		for (byte i = 0; i < ItemConst.MaxStats; ++i)
@@ -2941,8 +2804,8 @@ public class Item : WorldObject
 
 	static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate proto)
 	{
-		if (proto.GetClass() == ItemClass.Weapon)
-			switch ((ItemSubClassWeapon)proto.GetSubClass())
+		if (proto.Class == ItemClass.Weapon)
+			switch ((ItemSubClassWeapon)proto.SubClass)
 			{
 				case ItemSubClassWeapon.Axe2:
 				case ItemSubClassWeapon.Mace2:
@@ -2972,7 +2835,7 @@ public class Item : WorldObject
 
 	uint GetBuyPrice(Player owner, out bool standardPrice)
 	{
-		return GetBuyPrice(GetTemplate(), (uint)GetQuality(), GetItemLevel(owner), out standardPrice);
+		return GetBuyPrice(Template, (uint)Quality, GetItemLevel(owner), out standardPrice);
 	}
 
 	static uint GetBuyPrice(ItemTemplate proto, uint quality, uint itemLevel, out bool standardPrice)
@@ -2980,14 +2843,14 @@ public class Item : WorldObject
 		standardPrice = true;
 
 		if (proto.HasFlag(ItemFlags2.OverrideGoldCost))
-			return proto.GetBuyPrice();
+			return proto.BuyPrice;
 
 		var qualityPrice = CliDB.ImportPriceQualityStorage.LookupByKey(quality + 1);
 
 		if (qualityPrice == null)
 			return 0;
 
-		var basePrice = CliDB.ItemPriceBaseStorage.LookupByKey(proto.GetBaseItemLevel());
+		var basePrice = CliDB.ItemPriceBaseStorage.LookupByKey(proto.BaseItemLevel);
 
 		if (basePrice == null)
 			return 0;
@@ -2995,7 +2858,7 @@ public class Item : WorldObject
 		var qualityFactor = qualityPrice.Data;
 		float baseFactor;
 
-		var inventoryType = proto.GetInventoryType();
+		var inventoryType = proto.InventoryType;
 
 		if (inventoryType == InventoryType.Weapon ||
 			inventoryType == InventoryType.Weapon2Hand ||
@@ -3011,7 +2874,7 @@ public class Item : WorldObject
 		if (inventoryType == InventoryType.Robe)
 			inventoryType = InventoryType.Chest;
 
-		if (proto.GetClass() == ItemClass.Gem && (ItemSubClassGem)proto.GetSubClass() == ItemSubClassGem.ArtifactRelic)
+		if (proto.Class == ItemClass.Gem && (ItemSubClassGem)proto.SubClass == ItemSubClassGem.ArtifactRelic)
 		{
 			inventoryType = InventoryType.Weapon;
 			baseFactor = basePrice.Weapon / 3.0f;
@@ -3042,7 +2905,7 @@ public class Item : WorldObject
 				if (armorPrice == null)
 					return 0;
 
-				switch ((ItemSubClassArmor)proto.GetSubClass())
+				switch ((ItemSubClassArmor)proto.SubClass)
 				{
 					case ItemSubClassArmor.Miscellaneous:
 					case ItemSubClassArmor.Cloth:
@@ -3103,7 +2966,7 @@ public class Item : WorldObject
 
 				break;
 			default:
-				return proto.GetBuyPrice();
+				return proto.BuyPrice;
 		}
 
 		if (weapType != -1)
@@ -3118,7 +2981,7 @@ public class Item : WorldObject
 
 		standardPrice = false;
 
-		return (uint)(proto.GetPriceVariance() * typeFactor * baseFactor * qualityFactor * proto.GetPriceRandomValue());
+		return (uint)(proto.PriceVariance * typeFactor * baseFactor * qualityFactor * proto.PriceRandomValue);
 	}
 
 	void AddArtifactPower(ArtifactPowerData artifactPower)
@@ -3160,7 +3023,7 @@ public class Item : WorldObject
 								artifactPower = Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers, artifactPowerIndex);
 								SetUpdateFieldValue(ref artifactPower.CurrentRankWithBonus, newRank);
 
-								if (IsEquipped())
+								if (IsEquipped)
 								{
 									var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
 
@@ -3188,7 +3051,7 @@ public class Item : WorldObject
 							ArtifactPower artifactPower = Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers, artifactPowerIndex);
 							SetUpdateFieldValue(ref artifactPower.CurrentRankWithBonus, newRank);
 
-							if (IsEquipped())
+							if (IsEquipped)
 							{
 								var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(ItemData.ArtifactPowers[artifactPowerIndex].ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
 
@@ -3225,7 +3088,7 @@ public class Item : WorldObject
 											artifactPower = Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers, artifactPowerIndex);
 											SetUpdateFieldValue(ref artifactPower.CurrentRankWithBonus, newRank);
 
-											if (IsEquipped())
+											if (IsEquipped)
 											{
 												var artifactPowerRank = Global.DB2Mgr.GetArtifactPowerRank(artifactPower.ArtifactPowerId, (byte)(newRank != 0 ? newRank - 1 : 0));
 
@@ -3246,11 +3109,6 @@ public class Item : WorldObject
 	void SetExpiration(uint expiration)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Expiration), expiration);
-	}
-
-	bool IsInBag()
-	{
-		return _container != null;
 	}
 
 	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>

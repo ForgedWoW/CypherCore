@@ -7,27 +7,24 @@ using Game.DataStorage;
 using Game.Networking;
 using Game.Networking.Packets;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
-        void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
-        {
-            Quest quest = Global.ObjectMgr.GetQuestTemplate(startQuest.QuestID);
-            if (quest == null)
-                return;
+	[WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
+	void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
+	{
+		var quest = Global.ObjectMgr.GetQuestTemplate(startQuest.QuestID);
 
-            var adventureMapPOI = CliDB.AdventureMapPOIStorage.Values.FirstOrDefault(adventureMap =>
-            {
-                return adventureMap.QuestID == startQuest.QuestID && _player.MeetPlayerCondition(adventureMap.PlayerConditionID);
-            });
+		if (quest == null)
+			return;
 
-            if (adventureMapPOI == null)
-                return;
+		var adventureMapPOI = CliDB.AdventureMapPOIStorage.Values.FirstOrDefault(adventureMap => { return adventureMap.QuestID == startQuest.QuestID && _player.MeetPlayerCondition(adventureMap.PlayerConditionID); });
 
-            if (_player.CanTakeQuest(quest, true))
-                _player.AddQuestAndCheckCompletion(quest, _player);
-        }
-    }
+		if (adventureMapPOI == null)
+			return;
+
+		if (_player.CanTakeQuest(quest, true))
+			_player.AddQuestAndCheckCompletion(quest, _player);
+	}
 }

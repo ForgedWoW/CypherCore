@@ -5,133 +5,140 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 
-namespace Game.DungeonFinding
+namespace Game.DungeonFinding;
+
+public class LFGGroupData
 {
-    public class LFGGroupData
-    {
-        public LFGGroupData()
-        {
-            m_State = LfgState.None;
-            m_OldState = LfgState.None;
-            m_KicksLeft = SharedConst.LFGMaxKicks;
-        }
+	readonly List<ObjectGuid> m_Players = new();
 
-        public bool IsLfgGroup()
-        {
-            return m_OldState != LfgState.None;
-        }
+	// General
+	LfgState m_State;
+	LfgState m_OldState;
 
-        public void SetState(LfgState state)
-        {
-            switch (state)
-            {
-                case LfgState.None:
-                    m_Dungeon = 0;
-                    m_KicksLeft = SharedConst.LFGMaxKicks;
-                    m_OldState = state;
-                    break;
-                case LfgState.FinishedDungeon:
-                case LfgState.Dungeon:
-                    m_OldState = state;
-                    break;
-            }
-            m_State = state;
-        }
+	ObjectGuid m_Leader;
 
-        public void RestoreState()
-        {
-            m_State = m_OldState;
-        }
+	// Dungeon
+	uint m_Dungeon;
 
-        public void AddPlayer(ObjectGuid guid)
-        {
-            m_Players.Add(guid);
-        }
+	// Vote Kick
+	byte m_KicksLeft;
+	bool m_VoteKickActive;
 
-        public byte RemovePlayer(ObjectGuid guid)
-        {
-            m_Players.Remove(guid);
-            return (byte)m_Players.Count;
-        }
+	public LFGGroupData()
+	{
+		m_State = LfgState.None;
+		m_OldState = LfgState.None;
+		m_KicksLeft = SharedConst.LFGMaxKicks;
+	}
 
-        public void RemoveAllPlayers()
-        {
-            m_Players.Clear();
-        }
+	public bool IsLfgGroup()
+	{
+		return m_OldState != LfgState.None;
+	}
 
-        public void SetLeader(ObjectGuid guid)
-        {
-            m_Leader = guid;
-        }
+	public void SetState(LfgState state)
+	{
+		switch (state)
+		{
+			case LfgState.None:
+				m_Dungeon = 0;
+				m_KicksLeft = SharedConst.LFGMaxKicks;
+				m_OldState = state;
 
-        public void SetDungeon(uint dungeon)
-        {
-            m_Dungeon = dungeon;
-        }
+				break;
+			case LfgState.FinishedDungeon:
+			case LfgState.Dungeon:
+				m_OldState = state;
 
-        public void DecreaseKicksLeft()
-        {
-            if (m_KicksLeft != 0)
-                --m_KicksLeft;
-        }
+				break;
+		}
 
-        public LfgState GetState()
-        {
-            return m_State;
-        }
+		m_State = state;
+	}
 
-        public LfgState GetOldState()
-        {
-            return m_OldState;
-        }
+	public void RestoreState()
+	{
+		m_State = m_OldState;
+	}
 
-        public List<ObjectGuid> GetPlayers()
-        {
-            return m_Players;
-        }
+	public void AddPlayer(ObjectGuid guid)
+	{
+		m_Players.Add(guid);
+	}
 
-        public byte GetPlayerCount()
-        {
-            return (byte)m_Players.Count;
-        }
+	public byte RemovePlayer(ObjectGuid guid)
+	{
+		m_Players.Remove(guid);
 
-        public ObjectGuid GetLeader()
-        {
-            return m_Leader;
-        }
+		return (byte)m_Players.Count;
+	}
 
-        public uint GetDungeon(bool asId = true)
-        {
-            if (asId)
-                return (m_Dungeon & 0x00FFFFFF);
-            else
-                return m_Dungeon;
-        }
+	public void RemoveAllPlayers()
+	{
+		m_Players.Clear();
+	}
 
-        public byte GetKicksLeft()
-        {
-            return m_KicksLeft;
-        }
+	public void SetLeader(ObjectGuid guid)
+	{
+		m_Leader = guid;
+	}
 
-        public void SetVoteKick(bool active)
-        {
-            m_VoteKickActive = active;
-        }
+	public void SetDungeon(uint dungeon)
+	{
+		m_Dungeon = dungeon;
+	}
 
-        public bool IsVoteKickActive()
-        {
-            return m_VoteKickActive;
-        }
+	public void DecreaseKicksLeft()
+	{
+		if (m_KicksLeft != 0)
+			--m_KicksLeft;
+	}
 
-        // General
-        LfgState m_State;
-        LfgState m_OldState;
-        ObjectGuid m_Leader;
-        readonly List<ObjectGuid> m_Players = new();
-        // Dungeon
-        uint m_Dungeon;
-        // Vote Kick
-        byte m_KicksLeft;
-        bool m_VoteKickActive;
-    }
+	public LfgState GetState()
+	{
+		return m_State;
+	}
+
+	public LfgState GetOldState()
+	{
+		return m_OldState;
+	}
+
+	public List<ObjectGuid> GetPlayers()
+	{
+		return m_Players;
+	}
+
+	public byte GetPlayerCount()
+	{
+		return (byte)m_Players.Count;
+	}
+
+	public ObjectGuid GetLeader()
+	{
+		return m_Leader;
+	}
+
+	public uint GetDungeon(bool asId = true)
+	{
+		if (asId)
+			return (m_Dungeon & 0x00FFFFFF);
+		else
+			return m_Dungeon;
+	}
+
+	public byte GetKicksLeft()
+	{
+		return m_KicksLeft;
+	}
+
+	public void SetVoteKick(bool active)
+	{
+		m_VoteKickActive = active;
+	}
+
+	public bool IsVoteKickActive()
+	{
+		return m_VoteKickActive;
+	}
 }

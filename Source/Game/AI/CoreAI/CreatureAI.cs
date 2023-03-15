@@ -597,8 +597,8 @@ public class CreatureAI : UnitAI
 	// Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
 	public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt) { }
 
-    /// == Waypoints system =============================
-    public virtual void WaypointStarted(uint nodeId, uint pathId) { }
+	/// == Waypoints system =============================
+	public virtual void WaypointStarted(uint nodeId, uint pathId) { }
 
 	public virtual void WaypointReached(uint nodeId, uint pathId) { }
 

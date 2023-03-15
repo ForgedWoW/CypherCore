@@ -7,79 +7,81 @@ using Game.Networking;
 using Game.Networking.Packets;
 using Google.Protobuf;
 
-namespace Game
+namespace Game;
+
+public partial class WorldSession
 {
-    public partial class WorldSession
-    {
-        [WorldPacketHandler(ClientOpcodes.BattlenetRequest, Status = SessionStatus.Authed)]
-        void HandleBattlenetRequest(BattlenetRequest request)
-        {
-            var handler = Global.ServiceMgr.GetHandler(request.Method.GetServiceHash(), request.Method.GetMethodId());
-            if (handler != null)
-                handler.Invoke(this, request.Method, new CodedInputStream(request.Data));
-            else
-            {
-                SendBattlenetResponse(request.Method.GetServiceHash(), request.Method.GetMethodId(), request.Method.Token, BattlenetRpcErrorCode.RpcNotImplemented);
-                Log.outDebug(LogFilter.SessionRpc, "{0} tried to call invalid service {1}", GetPlayerInfo(), request.Method.GetServiceHash());
-            }
-        }
+	public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, IMessage response)
+	{
+		Response bnetResponse = new();
+		bnetResponse.BnetStatus = BattlenetRpcErrorCode.Ok;
+		bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+		bnetResponse.Method.ObjectId = 1;
+		bnetResponse.Method.Token = token;
 
-        [WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
-        void HandleBattlenetChangeRealmTicket(ChangeRealmTicket changeRealmTicket)
-        {
-            RealmListSecret = changeRealmTicket.Secret;
+		if (response.CalculateSize() != 0)
+			bnetResponse.Data.WriteBytes(response.ToByteArray());
 
-            ChangeRealmTicketResponse realmListTicket = new();
-            realmListTicket.Token = changeRealmTicket.Token;
-            realmListTicket.Allow = true;
-            realmListTicket.Ticket = new Framework.IO.ByteBuffer();
-            realmListTicket.Ticket.WriteCString("WorldserverRealmListTicket");
+		SendPacket(bnetResponse);
+	}
 
-            SendPacket(realmListTicket);
-        }        
+	public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, BattlenetRpcErrorCode status)
+	{
+		Response bnetResponse = new();
+		bnetResponse.BnetStatus = status;
+		bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+		bnetResponse.Method.ObjectId = 1;
+		bnetResponse.Method.Token = token;
 
-        public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, IMessage response)
-        {
-            Response bnetResponse = new();
-            bnetResponse.BnetStatus = BattlenetRpcErrorCode.Ok;
-            bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
-            bnetResponse.Method.ObjectId = 1;
-            bnetResponse.Method.Token = token;
+		SendPacket(bnetResponse);
+	}
 
-            if (response.CalculateSize() != 0)
-                bnetResponse.Data.WriteBytes(response.ToByteArray());
+	public void SendBattlenetRequest(uint serviceHash, uint methodId, IMessage request, Action<CodedInputStream> callback)
+	{
+		_battlenetResponseCallbacks[_battlenetRequestToken] = callback;
+		SendBattlenetRequest(serviceHash, methodId, request);
+	}
 
-            SendPacket(bnetResponse);
-        }
+	public void SendBattlenetRequest(uint serviceHash, uint methodId, IMessage request)
+	{
+		Notification notification = new();
+		notification.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
+		notification.Method.ObjectId = 1;
+		notification.Method.Token = _battlenetRequestToken++;
 
-        public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token,  BattlenetRpcErrorCode status)
-        {
-            Response bnetResponse = new();
-            bnetResponse.BnetStatus = status;
-            bnetResponse.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
-            bnetResponse.Method.ObjectId = 1;
-            bnetResponse.Method.Token = token;
+		if (request.CalculateSize() != 0)
+			notification.Data.WriteBytes(request.ToByteArray());
 
-            SendPacket(bnetResponse);
-        }
+		SendPacket(notification);
+	}
 
-        public void SendBattlenetRequest(uint serviceHash, uint methodId, IMessage request, Action<CodedInputStream> callback)
-        {
-            _battlenetResponseCallbacks[_battlenetRequestToken] = callback;
-            SendBattlenetRequest(serviceHash, methodId, request);
-        }
+	[WorldPacketHandler(ClientOpcodes.BattlenetRequest, Status = SessionStatus.Authed)]
+	void HandleBattlenetRequest(BattlenetRequest request)
+	{
+		var handler = Global.ServiceMgr.GetHandler(request.Method.GetServiceHash(), request.Method.GetMethodId());
 
-        public void SendBattlenetRequest(uint serviceHash, uint methodId, IMessage request)
-        {
-            Notification notification = new();
-            notification.Method.Type = MathFunctions.MakePair64(methodId, serviceHash);
-            notification.Method.ObjectId = 1;
-            notification.Method.Token = _battlenetRequestToken++;
+		if (handler != null)
+		{
+			handler.Invoke(this, request.Method, new CodedInputStream(request.Data));
+		}
+		else
+		{
+			SendBattlenetResponse(request.Method.GetServiceHash(), request.Method.GetMethodId(), request.Method.Token, BattlenetRpcErrorCode.RpcNotImplemented);
+			Log.outDebug(LogFilter.SessionRpc, "{0} tried to call invalid service {1}", GetPlayerInfo(), request.Method.GetServiceHash());
+		}
+	}
 
-            if (request.CalculateSize() != 0)
-                notification.Data.WriteBytes(request.ToByteArray());
+	[WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
+	void HandleBattlenetChangeRealmTicket(ChangeRealmTicket changeRealmTicket)
+	{
+		RealmListSecret = changeRealmTicket.Secret;
 
-            SendPacket(notification);
-        }
-    }
+		ChangeRealmTicketResponse realmListTicket = new();
+		realmListTicket.Token = changeRealmTicket.Token;
+		realmListTicket.Allow = true;
+		realmListTicket.Ticket = new Framework.IO.ByteBuffer();
+		realmListTicket.Ticket.WriteCString("WorldserverRealmListTicket");
+
+		SendPacket(realmListTicket);
+	}
 }

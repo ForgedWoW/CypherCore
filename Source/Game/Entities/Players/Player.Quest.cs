@@ -296,7 +296,7 @@ public partial class Player
 		{
 			//we should obtain map from GetMap() in 99% of cases. Special case
 			//only for quests which cast teleport spells on player
-			var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId1);
+			var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
 			Cypher.Assert(_map != null);
 			var gameObject = _map.GetGameObject(guid);
 
@@ -425,7 +425,7 @@ public partial class Player
 			{
 				//we should obtain map from GetMap() in 99% of cases. Special case
 				//only for quests which cast teleport spells on player
-				var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId1);
+				var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
 				Cypher.Assert(_map != null);
 				var gameObject = _map.GetGameObject(guid);
 
@@ -740,7 +740,7 @@ public partial class Player
 			case TypeId.AzeriteEmpoweredItem:
 			{
 				var item = (Item)questGiver;
-				Global.ScriptMgr.RunScriptRet<IItemOnQuestAccept>(p => p.OnQuestAccept(this, item, quest), item.GetScriptId());
+				Global.ScriptMgr.RunScriptRet<IItemOnQuestAccept>(p => p.OnQuestAccept(this, item, quest), item.ScriptId);
 
 				// There are two cases where the source item is not destroyed when the quest is accepted:
 				// - It is required to finish the quest, and is an unique item
@@ -748,7 +748,7 @@ public partial class Player
 				var destroyItem = true;
 
 				foreach (var obj in quest.Objectives)
-					if (obj.Type == QuestObjectiveType.Item && obj.ObjectID == item.Entry && item.GetTemplate().GetMaxCount() > 0)
+					if (obj.Type == QuestObjectiveType.Item && obj.ObjectID == item.Entry && item.Template.MaxCount > 0)
 					{
 						destroyItem = false;
 
@@ -759,7 +759,7 @@ public partial class Player
 					destroyItem = false;
 
 				if (destroyItem)
-					DestroyItem(item.GetBagSlot(), item.GetSlot(), true);
+					DestroyItem(item.BagSlot, item.Slot, true);
 
 				break;
 			}
@@ -1382,7 +1382,7 @@ public partial class Player
 					var itemTemplate = Global.ObjectMgr.GetItemTemplate((uint)obj.ObjectID);
 
 					if (itemTemplate != null)
-						if (itemTemplate.GetBonding() == ItemBondingType.Quest)
+						if (itemTemplate.Bonding == ItemBondingType.Quest)
 							DestroyItemCount((uint)obj.ObjectID, (uint)obj.Amount, true, true);
 				}
 
@@ -1392,7 +1392,7 @@ public partial class Player
 				var itemTemplate = Global.ObjectMgr.GetItemTemplate(quest.ItemDrop[i]);
 
 				if (itemTemplate != null)
-					if (quest.ItemDropQuantity[i] != 0 && itemTemplate.GetBonding() == ItemBondingType.Quest)
+					if (quest.ItemDropQuantity[i] != 0 && itemTemplate.Bonding == ItemBondingType.Quest)
 						DestroyItemCount(quest.ItemDrop[i], quest.ItemDropQuantity[i], true, true);
 			}
 		}
@@ -1411,7 +1411,7 @@ public partial class Player
 					var itemTemplate = Global.ObjectMgr.GetItemTemplate((uint)obj.ObjectID);
 
 					if (itemTemplate != null)
-						if (itemTemplate.GetBonding() == ItemBondingType.Quest)
+						if (itemTemplate.Bonding == ItemBondingType.Quest)
 							DestroyItemCount((uint)obj.ObjectID, (uint)obj.Amount, true, true);
 				}
 
@@ -1421,7 +1421,7 @@ public partial class Player
 				var itemTemplate = Global.ObjectMgr.GetItemTemplate(quest.ItemDrop[i]);
 
 				if (itemTemplate != null)
-					if (quest.ItemDropQuantity[i] != 0 && itemTemplate.GetBonding() == ItemBondingType.Quest)
+					if (quest.ItemDropQuantity[i] != 0 && itemTemplate.Bonding == ItemBondingType.Quest)
 						DestroyItemCount(quest.ItemDrop[i], quest.ItemDropQuantity[i], true, true);
 			}
 		}
@@ -1785,7 +1785,7 @@ public partial class Player
 			// Don't give source item if it is the same item used to start the quest
 			var itemTemplate = Global.ObjectMgr.GetItemTemplate(srcitem);
 
-			if (quest.Id == itemTemplate.GetStartQuest())
+			if (quest.Id == itemTemplate.StartQuest)
 				return true;
 
 			var count = quest.SourceItemIdCount;
@@ -1845,7 +1845,7 @@ public partial class Player
 					return false;
 				}
 
-				if (item.GetStartQuest() != questId)
+				if (item.StartQuest != questId)
 					DestroyItemCount(srcItemId, count, true, true);
 			}
 		}
@@ -2551,11 +2551,11 @@ public partial class Player
 				var pProto = Global.ObjectMgr.GetItemTemplate(itemid);
 
 				// allows custom amount drop when not 0
-				var maxAllowedCount = qInfo.ItemDropQuantity[j] != 0 ? qInfo.ItemDropQuantity[j] : pProto.GetMaxStackSize();
+				var maxAllowedCount = qInfo.ItemDropQuantity[j] != 0 ? qInfo.ItemDropQuantity[j] : pProto.MaxStackSize;
 
 				// 'unique' item
-				if (pProto.GetMaxCount() != 0 && pProto.GetMaxCount() < maxAllowedCount)
-					maxAllowedCount = pProto.GetMaxCount();
+				if (pProto.MaxCount != 0 && pProto.MaxCount < maxAllowedCount)
+					maxAllowedCount = pProto.MaxCount;
 
 				if (GetItemCount(itemid, true) < maxAllowedCount)
 					return true;

@@ -31,24 +31,24 @@ internal class spell_pal_t3_6p_bonus : AuraScript, IHasAuraEffects
 
 		switch (target.Class)
 		{
-			case Class.Paladin:
-			case Class.Priest:
-			case Class.Shaman:
-			case Class.Druid:
+			case PlayerClass.Paladin:
+			case PlayerClass.Priest:
+			case PlayerClass.Shaman:
+			case PlayerClass.Druid:
 				spellId = PaladinSpells.HolyPowerMp5;
 
 				break;
-			case Class.Mage:
-			case Class.Warlock:
+			case PlayerClass.Mage:
+			case PlayerClass.Warlock:
 				spellId = PaladinSpells.HolyPowerSpellPower;
 
 				break;
-			case Class.Hunter:
-			case Class.Rogue:
+			case PlayerClass.Hunter:
+			case PlayerClass.Rogue:
 				spellId = PaladinSpells.HolyPowerAttackPower;
 
 				break;
-			case Class.Warrior:
+			case PlayerClass.Warrior:
 				spellId = PaladinSpells.HolyPowerArmor;
 
 				break;

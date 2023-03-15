@@ -13,13 +13,13 @@ namespace Scripts.Spells.Paladin;
 [Script]
 public class fist_of_justice : ScriptObjectAutoAdd, IPlayerOnModifyPower
 {
-	public Class PlayerClass { get; } = Class.Paladin;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Paladin;
 
 	public fist_of_justice() : base("fist_of_justice") { }
 
 	public void OnModifyPower(Player player, PowerType power, int oldValue, ref int newValue, bool regen)
 	{
-		if (player.Class != Class.Paladin)
+		if (player.Class != PlayerClass.Paladin)
 			return;
 
 		if (!player.HasAura(PaladinSpells.FIST_OF_JUSTICE))

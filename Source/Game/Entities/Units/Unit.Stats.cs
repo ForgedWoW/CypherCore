@@ -1355,7 +1355,7 @@ public partial class Unit
 			{
 				var tmpitem = playerVictim.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
-				if (tmpitem && !tmpitem.IsBroken() && tmpitem.GetTemplate().GetInventoryType() == InventoryType.Shield)
+				if (tmpitem && !tmpitem.IsBroken && tmpitem.Template.InventoryType == InventoryType.Shield)
 					chance = playerVictim.ActivePlayerData.BlockPercentage;
 			}
 		}

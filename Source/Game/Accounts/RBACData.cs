@@ -325,12 +325,12 @@ public class RBACData
 		RemovePermissions(_globalPerms, revoked);
 	}
 
-    /// <summary>
-    ///  Removes a list of permissions from another list
-    /// </summary>
-    /// <param name="permsFrom"> </param>
-    /// <param name="permsToRemove"> </param>
-    void RemovePermissions(List<uint> permsFrom, List<uint> permsToRemove)
+	/// <summary>
+	///  Removes a list of permissions from another list
+	/// </summary>
+	/// <param name="permsFrom"> </param>
+	/// <param name="permsToRemove"> </param>
+	void RemovePermissions(List<uint> permsFrom, List<uint> permsToRemove)
 	{
 		foreach (var id in permsToRemove)
 			permsFrom.Remove(id);

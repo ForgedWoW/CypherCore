@@ -23,7 +23,7 @@ public class anger_management : ScriptObjectAutoAdd, IPlayerOnSpellCast,
 
 {
 	public static Dictionary<Player, int> RageSpent = new();
-	public Class PlayerClass { get; } = Class.Warrior;
+	public PlayerClass PlayerClass { get; } = PlayerClass.Warrior;
 
 	public anger_management() : base("anger_management") { }
 

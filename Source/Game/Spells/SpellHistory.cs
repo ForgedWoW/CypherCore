@@ -198,7 +198,7 @@ public class SpellHistory
 			var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
 
 			if (itemTemplate != null)
-				if (itemTemplate.IsPotion() || spellInfo.IsCooldownStartedOnEvent)
+				if (itemTemplate.IsPotion || spellInfo.IsCooldownStartedOnEvent)
 				{
 					player.SetLastPotionId(itemId);
 

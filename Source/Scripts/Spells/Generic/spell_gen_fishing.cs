@@ -32,8 +32,8 @@ internal class spell_gen_fishing : SpellScript, IHasSpellEffects
 		var mainHand = Caster.AsPlayer.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
 		if (!mainHand ||
-			mainHand.GetTemplate().GetClass() != ItemClass.Weapon ||
-			(ItemSubClassWeapon)mainHand.GetTemplate().GetSubClass() != ItemSubClassWeapon.FishingPole)
+			mainHand.			Template.			Class != ItemClass.Weapon ||
+			(ItemSubClassWeapon)mainHand.Template.SubClass != ItemSubClassWeapon.FishingPole)
 			spellId = GenericSpellIds.FishingNoFishingPole;
 		else
 			spellId = GenericSpellIds.FishingWithPole;

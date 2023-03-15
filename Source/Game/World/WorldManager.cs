@@ -38,7 +38,6 @@ public class WorldManager : Singleton<WorldManager>
 	public const string NextOldCalendarEventDeletionTimeVarId = "NextOldCalendarEventDeletionTime";
 	public const string NextGuildWeeklyResetTimeVarId = "NextGuildWeeklyResetTime";
 	public bool IsStopped;
-	LimitedThreadTaskManager _taskManager = new LimitedThreadTaskManager(10);
 	readonly Dictionary<byte, Autobroadcast> _autobroadcasts = new();
 	readonly Dictionary<WorldTimers, IntervalTimer> _timers = new();
 	readonly ConcurrentDictionary<uint, WorldSession> _sessions = new();
@@ -53,6 +52,7 @@ public class WorldManager : Singleton<WorldManager>
 	readonly Realm _realm;
 	readonly WorldUpdateTime _worldUpdateTime;
 	readonly object _guidAlertLock = new();
+	readonly LimitedThreadTaskManager _taskManager = new(10);
 
 	uint _shutdownTimer;
 	ShutdownMask _shutdownMask;
@@ -1299,7 +1299,7 @@ public class WorldManager : Singleton<WorldManager>
 		if (_timers[WorldTimers.WhoList].Passed)
 		{
 			_timers[WorldTimers.WhoList].Reset();
-            _taskManager.Schedule(Global.WhoListStorageMgr.Update);
+			_taskManager.Schedule(Global.WhoListStorageMgr.Update);
 		}
 
 		if (IsStopped || _timers[WorldTimers.ChannelSave].Passed)
@@ -1307,7 +1307,6 @@ public class WorldManager : Singleton<WorldManager>
 			_timers[WorldTimers.ChannelSave].Reset();
 
 			if (WorldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
-			{
 				_taskManager.Schedule(() =>
 				{
 					var mgr1 = ChannelManager.ForTeam(TeamFaction.Alliance);
@@ -1317,22 +1316,21 @@ public class WorldManager : Singleton<WorldManager>
 					if (mgr1 != mgr2)
 						mgr2.SaveToDB();
 				});
-			}
 		}
 
 		CheckScheduledResetTimes();
 
 		if (currentGameTime > _nextRandomBgReset)
-            _taskManager.Schedule(ResetRandomBG);
+			_taskManager.Schedule(ResetRandomBG);
 
 		if (currentGameTime > _nextCalendarOldEventsDeletionTime)
-            _taskManager.Schedule(CalendarDeleteOldEvents);
+			_taskManager.Schedule(CalendarDeleteOldEvents);
 
 		if (currentGameTime > _nextGuildReset)
-            _taskManager.Schedule(ResetGuildCap);
+			_taskManager.Schedule(ResetGuildCap);
 
 		if (currentGameTime > _nextCurrencyReset)
-            _taskManager.Schedule(ResetCurrencyWeekCap);
+			_taskManager.Schedule(ResetCurrencyWeekCap);
 
 		//Handle auctions when the timer has passed
 		if (_timers[WorldTimers.Auctions].Passed)
@@ -1343,18 +1341,18 @@ public class WorldManager : Singleton<WorldManager>
 			if (++_mailTimer > _timerExpires)
 			{
 				_mailTimer = 0;
-                _taskManager.Schedule(() => Global.ObjectMgr.ReturnOrDeleteOldMails(true));
+				_taskManager.Schedule(() => Global.ObjectMgr.ReturnOrDeleteOldMails(true));
 			}
 
-            // Handle expired auctions
-            _taskManager.Schedule(Global.AuctionHouseMgr.Update);
+			// Handle expired auctions
+			_taskManager.Schedule(Global.AuctionHouseMgr.Update);
 		}
 
 		if (_timers[WorldTimers.AuctionsPending].Passed)
 		{
 			_timers[WorldTimers.AuctionsPending].Reset();
 
-            _taskManager.Schedule(Global.AuctionHouseMgr.UpdatePendingAuctions);
+			_taskManager.Schedule(Global.AuctionHouseMgr.UpdatePendingAuctions);
 		}
 
 		if (_timers[WorldTimers.Blackmarket].Passed)
@@ -1364,13 +1362,13 @@ public class WorldManager : Singleton<WorldManager>
 			//- Update blackmarket, refresh auctions if necessary
 			if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= WorldConfig.GetIntValue(WorldCfg.BlackmarketUpdatePeriod) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)
 			{
-                _taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
+				_taskManager.Schedule(Global.BlackMarketMgr.RefreshAuctions);
 				_blackmarketTimer = 1; // timer is 0 on startup
 			}
 			else
 			{
 				++_blackmarketTimer;
-                _taskManager.Schedule(() => Global.BlackMarketMgr.Update());
+				_taskManager.Schedule(() => Global.BlackMarketMgr.Update());
 			}
 		}
 
@@ -1428,40 +1426,40 @@ public class WorldManager : Singleton<WorldManager>
 			if (_timers[WorldTimers.AutoBroadcast].Passed)
 			{
 				_timers[WorldTimers.AutoBroadcast].Reset();
-                _taskManager.Schedule(SendAutoBroadcast);
+				_taskManager.Schedule(SendAutoBroadcast);
 			}
 
-        Global.BattlegroundMgr.Update(diff); // TPL Blocks inside
+		Global.BattlegroundMgr.Update(diff); // TPL Blocks inside
 		_worldUpdateTime.RecordUpdateTimeDuration("UpdateBattlegroundMgr");
 
 		Global.OutdoorPvPMgr.Update(diff); // TPL Blocks inside
-        _worldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
+		_worldUpdateTime.RecordUpdateTimeDuration("UpdateOutdoorPvPMgr");
 
 		Global.BattleFieldMgr.Update(diff); // TPL Blocks inside
-        _worldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
+		_worldUpdateTime.RecordUpdateTimeDuration("BattlefieldMgr");
 
 		//- Delete all characters which have been deleted X days before
 		if (_timers[WorldTimers.DeleteChars].Passed)
 		{
 			_timers[WorldTimers.DeleteChars].Reset();
-            _taskManager.Schedule(Player.DeleteOldCharacters);
+			_taskManager.Schedule(Player.DeleteOldCharacters);
 		}
 
-        _taskManager.Schedule(() => Global.LFGMgr.Update(diff));
+		_taskManager.Schedule(() => Global.LFGMgr.Update(diff));
 		_worldUpdateTime.RecordUpdateTimeDuration("UpdateLFGMgr");
 
-        _taskManager.Schedule(() => Global.GroupMgr.Update(diff));
+		_taskManager.Schedule(() => Global.GroupMgr.Update(diff));
 		_worldUpdateTime.RecordUpdateTimeDuration("GroupMgr");
 
-        // execute callbacks from sql queries that were queued recently
-        _taskManager.Schedule(ProcessQueryCallbacks);
+		// execute callbacks from sql queries that were queued recently
+		_taskManager.Schedule(ProcessQueryCallbacks);
 		_worldUpdateTime.RecordUpdateTimeDuration("ProcessQueryCallbacks");
 
 		// Erase corpses once every 20 minutes
 		if (_timers[WorldTimers.Corpses].Passed)
 		{
 			_timers[WorldTimers.Corpses].Reset();
-            _taskManager.Schedule(() => Global.MapMgr.DoForAllMaps(map => map.RemoveOldCorpses()));
+			_taskManager.Schedule(() => Global.MapMgr.DoForAllMaps(map => map.RemoveOldCorpses()));
 		}
 
 		// Process Game events when necessary
@@ -1476,7 +1474,7 @@ public class WorldManager : Singleton<WorldManager>
 		if (_timers[WorldTimers.GuildSave].Passed)
 		{
 			_timers[WorldTimers.GuildSave].Reset();
-            _taskManager.Schedule(Global.GuildMgr.SaveGuilds);
+			_taskManager.Schedule(Global.GuildMgr.SaveGuilds);
 		}
 
 		// Check for shutdown warning
@@ -1492,7 +1490,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		Global.ScriptMgr.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
 		_taskManager.Wait(); // wait for all blocks to complete.
-    }
+	}
 
 	public void ForceGameEventUpdate()
 	{
@@ -2485,13 +2483,13 @@ public class WorldManager : Singleton<WorldManager>
 		var now = GameTime.GetGameTime();
 
 		if (_nextDailyQuestReset <= now)
-            _taskManager.Schedule(DailyReset);
+			_taskManager.Schedule(DailyReset);
 
 		if (_nextWeeklyQuestReset <= now)
-            _taskManager.Schedule(ResetWeeklyQuests);
+			_taskManager.Schedule(ResetWeeklyQuests);
 
 		if (_nextMonthlyQuestReset <= now)
-            _taskManager.Schedule(ResetMonthlyQuests);
+			_taskManager.Schedule(ResetMonthlyQuests);
 	}
 
 	void InitRandomBGResetTime()

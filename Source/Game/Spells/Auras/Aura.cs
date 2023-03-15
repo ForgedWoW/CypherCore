@@ -1571,7 +1571,7 @@ public class Aura
 					item = target.AsPlayer.GetUseableItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 				}
 
-				if (!item || item.IsBroken() || !item.IsFitToSpellRequirements(SpellInfo))
+				if (!item || item.IsBroken || !item.IsFitToSpellRequirements(SpellInfo))
 					return DummyHashset;
 			}
 

@@ -191,11 +191,11 @@ public class SpellScript : BaseSpellScript, ISpellScript
 	// returns: Item which was selected as an explicit spell Target or null if there's no Target
 	public Item ExplTargetItem => _spell.Targets.ItemTarget;
 
-    /// <summary>
-    ///  useable only during spell hit on Target, or during spell launch on Target
-    /// </summary>
-    /// <returns> Target of current effect if it was Unit otherwise null </returns>
-    public Unit HitUnit
+	/// <summary>
+	///  useable only during spell hit on Target, or during spell launch on Target
+	/// </summary>
+	/// <returns> Target of current effect if it was Unit otherwise null </returns>
+	public Unit HitUnit
 	{
 		get
 		{
@@ -210,10 +210,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-    /// <summary>
-    /// </summary>
-    /// <returns> Target of current effect if it was Creature otherwise null </returns>
-    public Creature HitCreature
+	/// <summary>
+	/// </summary>
+	/// <returns> Target of current effect if it was Creature otherwise null </returns>
+	public Creature HitCreature
 	{
 		get
 		{
@@ -231,10 +231,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-    /// <summary>
-    /// </summary>
-    /// <returns> Target of current effect if it was Player otherwise null </returns>
-    public Player HitPlayer
+	/// <summary>
+	/// </summary>
+	/// <returns> Target of current effect if it was Player otherwise null </returns>
+	public Player HitPlayer
 	{
 		get
 		{
@@ -252,10 +252,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-    /// <summary>
-    /// </summary>
-    /// <returns> Target of current effect if it was Item otherwise null </returns>
-    public Item HitItem
+	/// <summary>
+	/// </summary>
+	/// <returns> Target of current effect if it was Item otherwise null </returns>
+	public Item HitItem
 	{
 		get
 		{
@@ -270,10 +270,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-    /// <summary>
-    /// </summary>
-    /// <returns> Target of current effect if it was GameObject otherwise null </returns>
-    public GameObject HitGObj
+	/// <summary>
+	/// </summary>
+	/// <returns> Target of current effect if it was GameObject otherwise null </returns>
+	public GameObject HitGObj
 	{
 		get
 		{
@@ -288,10 +288,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-    /// <summary>
-    /// </summary>
-    /// <returns> Target of current effect if it was Corpse otherwise nullptr </returns>
-    public Corpse HitCorpse
+	/// <summary>
+	/// </summary>
+	/// <returns> Target of current effect if it was Corpse otherwise nullptr </returns>
+	public Corpse HitCorpse
 	{
 		get
 		{
@@ -306,10 +306,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-    /// <summary>
-    /// </summary>
-    /// <returns> destination of current effect </returns>
-    public WorldLocation HitDest
+	/// <summary>
+	/// </summary>
+	/// <returns> destination of current effect </returns>
+	public WorldLocation HitDest
 	{
 		get
 		{
@@ -384,10 +384,10 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
 	public Spell Spell => _spell;
 
-    /// <summary>
-    /// </summary>
-    /// <returns> true if spell critically hits current HitUnit </returns>
-    public bool IsHitCrit
+	/// <summary>
+	/// </summary>
+	/// <returns> true if spell critically hits current HitUnit </returns>
+	public bool IsHitCrit
 	{
 		get
 		{

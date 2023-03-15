@@ -10,159 +10,174 @@ using Game.Entities;
 using Game.Maps;
 using Game.Scripting.Interfaces.IBattlefield;
 
-namespace Game.BattleFields
+namespace Game.BattleFields;
+
+public class BattleFieldManager : Singleton<BattleFieldManager>
 {
-    public class BattleFieldManager : Singleton<BattleFieldManager>
-    {
+	static readonly uint[] BattlefieldIdToMapId =
+	{
+		0, 571, 732
+	};
 
-        LimitedThreadTaskManager _threadTaskManager = new LimitedThreadTaskManager(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
-        static readonly uint[] BattlefieldIdToMapId = { 0, 571, 732 };
-        static readonly uint[] BattlefieldIdToZoneId = { 0, 4197, 5095 }; // imitate World_PVP_Area.db2
-        static readonly uint[] BattlefieldIdToScriptId = { 0, 0, 0 };
+	static readonly uint[] BattlefieldIdToZoneId =
+	{
+		0, 4197, 5095
+	}; // imitate World_PVP_Area.db2
 
-        BattleFieldManager() { }
+	static readonly uint[] BattlefieldIdToScriptId =
+	{
+		0, 0, 0
+	};
 
-        public void InitBattlefield()
-        {
-            uint oldMSTime = Time.MSTime;
+	// contains all initiated battlefield events
+	// used when initing / cleaning up
+	readonly MultiMap<Map, BattleField> _battlefieldsByMap = new();
 
-            uint count = 0;
-            var result = DB.World.Query("SELECT TypeId, ScriptName FROM battlefield_template");
-            if (!result.IsEmpty())
-            {
-                do
-                {
-                    BattleFieldTypes typeId = (BattleFieldTypes)result.Read<byte>(0);
-                    if (typeId >= BattleFieldTypes.Max)
-                    {
-                        Log.outError(LogFilter.Sql, $"BattlefieldMgr::InitBattlefield: Invalid TypeId value {typeId} in battlefield_template, skipped.");
-                        continue;
-                    }
+	// maps the zone ids to an battlefield event
+	// used in player event handling
+	readonly Dictionary<(Map map, uint zoneId), BattleField> _battlefieldsByZone = new();
 
-                    BattlefieldIdToScriptId[(int)typeId] = Global.ObjectMgr.GetScriptId(result.Read<string>(1));
-                    ++count;
+	readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 
-                } while (result.NextRow());
-            }
+	// update interval
+	uint _updateTimer;
 
-            Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-        }
+	BattleFieldManager() { }
 
-        public void CreateBattlefieldsForMap(Map map)
-        {
-            for (uint i = 0; i < (int)BattleFieldTypes.Max; ++i)
-            {
-                if (BattlefieldIdToScriptId[i] == 0)
-                    continue;
+	public void InitBattlefield()
+	{
+		var oldMSTime = Time.MSTime;
 
-                if (BattlefieldIdToMapId[i] != map.Id)
-                    continue;
-                
-                BattleField bf = Global.ScriptMgr.RunScriptRet<IBattlefieldGetBattlefield, BattleField>(p => p.GetBattlefield(map), BattlefieldIdToScriptId[i], null);
-                
-                if (bf == null)
-                    continue;
+		uint count = 0;
+		var result = DB.World.Query("SELECT TypeId, ScriptName FROM battlefield_template");
 
-                if (!bf.SetupBattlefield())
-                {
-                    Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} failed.");
-                    continue;
-                }
+		if (!result.IsEmpty())
+			do
+			{
+				var typeId = (BattleFieldTypes)result.Read<byte>(0);
 
-                _battlefieldsByMap.Add(map, bf);
-                Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} succeeded.");
-            }
-        }
+				if (typeId >= BattleFieldTypes.Max)
+				{
+					Log.outError(LogFilter.Sql, $"BattlefieldMgr::InitBattlefield: Invalid TypeId value {typeId} in battlefield_template, skipped.");
 
-        public void DestroyBattlefieldsForMap(Map map)
-        {
-            _battlefieldsByMap.Remove(map);
-        }
+					continue;
+				}
 
-        public void AddZone(uint zoneId, BattleField bf)
-        {
-            _battlefieldsByZone[(bf.GetMap(), zoneId)] = bf;
-        }
+				BattlefieldIdToScriptId[(int)typeId] = Global.ObjectMgr.GetScriptId(result.Read<string>(1));
+				++count;
+			} while (result.NextRow());
 
-        public void HandlePlayerEnterZone(Player player, uint zoneId)
-        {
-            var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
-            if (bf == null)
-                return;
+		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+	}
 
-            if (!bf.IsEnabled() || bf.HasPlayer(player))
-                return;
+	public void CreateBattlefieldsForMap(Map map)
+	{
+		for (uint i = 0; i < (int)BattleFieldTypes.Max; ++i)
+		{
+			if (BattlefieldIdToScriptId[i] == 0)
+				continue;
 
-            bf.HandlePlayerEnterZone(player, zoneId);
-            Log.outDebug(LogFilter.Battlefield, "Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
-        }
+			if (BattlefieldIdToMapId[i] != map.Id)
+				continue;
 
-        public void HandlePlayerLeaveZone(Player player, uint zoneId)
-        {
-            var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
-            if (bf == null)
-                return;
+			var bf = Global.ScriptMgr.RunScriptRet<IBattlefieldGetBattlefield, BattleField>(p => p.GetBattlefield(map), BattlefieldIdToScriptId[i], null);
 
-            // teleport: remove once in removefromworld, once in updatezone
-            if (!bf.HasPlayer(player))
-                return;
+			if (bf == null)
+				continue;
 
-            bf.HandlePlayerLeaveZone(player, zoneId);
-            Log.outDebug(LogFilter.Battlefield, "Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
-        }
+			if (!bf.SetupBattlefield())
+			{
+				Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} failed.");
 
-        public bool IsWorldPvpArea(uint zoneId)
-        {
-            return BattlefieldIdToZoneId.Contains(zoneId);
-        }
+				continue;
+			}
 
-        public BattleField GetBattlefieldToZoneId(Map map, uint zoneId)
-        {
-            var bf = _battlefieldsByZone.LookupByKey((map, zoneId));
-            if (bf == null)
-            {
-                // no handle for this zone, return
-                return null;
-            }
+			_battlefieldsByMap.Add(map, bf);
+			Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} succeeded.");
+		}
+	}
 
-            if (!bf.IsEnabled())
-                return null;
+	public void DestroyBattlefieldsForMap(Map map)
+	{
+		_battlefieldsByMap.Remove(map);
+	}
 
-            return bf;
-        }
+	public void AddZone(uint zoneId, BattleField bf)
+	{
+		_battlefieldsByZone[(bf.GetMap(), zoneId)] = bf;
+	}
 
-        public BattleField GetBattlefieldByBattleId(Map map, uint battleId)
-        {
-            var battlefields = _battlefieldsByMap.LookupByKey(map);
-            foreach (var battlefield in battlefields)
-                if (battlefield.GetBattleId() == battleId)
-                    return battlefield;
+	public void HandlePlayerEnterZone(Player player, uint zoneId)
+	{
+		var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
 
-            return null;
-        }
+		if (bf == null)
+			return;
 
-        public void Update(uint diff)
-        {
-            _updateTimer += diff;
-            if (_updateTimer > 1000)
-            {
-                foreach (var (map, battlefield) in _battlefieldsByMap.KeyValueList)
-                    if (battlefield.IsEnabled())
-                        _threadTaskManager.Schedule(() => battlefield.Update(_updateTimer));
+		if (!bf.IsEnabled() || bf.HasPlayer(player))
+			return;
 
-                _threadTaskManager.Wait();
-                _updateTimer = 0;
-            }
-        }
+		bf.HandlePlayerEnterZone(player, zoneId);
+		Log.outDebug(LogFilter.Battlefield, "Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
+	}
 
-        // contains all initiated battlefield events
-        // used when initing / cleaning up
-        readonly MultiMap<Map, BattleField>  _battlefieldsByMap = new();
+	public void HandlePlayerLeaveZone(Player player, uint zoneId)
+	{
+		var bf = _battlefieldsByZone.LookupByKey((player.Map, zoneId));
 
-        // maps the zone ids to an battlefield event
-        // used in player event handling
-        readonly Dictionary<(Map map, uint zoneId), BattleField>  _battlefieldsByZone = new();
-        // update interval
-        uint _updateTimer;
-    }
+		if (bf == null)
+			return;
+
+		// teleport: remove once in removefromworld, once in updatezone
+		if (!bf.HasPlayer(player))
+			return;
+
+		bf.HandlePlayerLeaveZone(player, zoneId);
+		Log.outDebug(LogFilter.Battlefield, "Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
+	}
+
+	public bool IsWorldPvpArea(uint zoneId)
+	{
+		return BattlefieldIdToZoneId.Contains(zoneId);
+	}
+
+	public BattleField GetBattlefieldToZoneId(Map map, uint zoneId)
+	{
+		var bf = _battlefieldsByZone.LookupByKey((map, zoneId));
+
+		if (bf == null)
+			// no handle for this zone, return
+			return null;
+
+		if (!bf.IsEnabled())
+			return null;
+
+		return bf;
+	}
+
+	public BattleField GetBattlefieldByBattleId(Map map, uint battleId)
+	{
+		var battlefields = _battlefieldsByMap.LookupByKey(map);
+
+		foreach (var battlefield in battlefields)
+			if (battlefield.GetBattleId() == battleId)
+				return battlefield;
+
+		return null;
+	}
+
+	public void Update(uint diff)
+	{
+		_updateTimer += diff;
+
+		if (_updateTimer > 1000)
+		{
+			foreach (var (map, battlefield) in _battlefieldsByMap.KeyValueList)
+				if (battlefield.IsEnabled())
+					_threadTaskManager.Schedule(() => battlefield.Update(_updateTimer));
+
+			_threadTaskManager.Wait();
+			_updateTimer = 0;
+		}
+	}
 }

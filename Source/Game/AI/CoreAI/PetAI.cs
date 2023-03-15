@@ -686,10 +686,10 @@ public class PetAI : CreatureAI
 			_allySet.Add(owner.GUID);
 	}
 
-    /// <summary>
-    ///  Quick access to set all flags to FALSE
-    /// </summary>
-    void ClearCharmInfoFlags()
+	/// <summary>
+	///  Quick access to set all flags to FALSE
+	/// </summary>
+	void ClearCharmInfoFlags()
 	{
 		var ci = Me.GetCharmInfo();
 

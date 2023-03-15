@@ -19,7 +19,7 @@ class TraitMgr
 	static readonly Dictionary<int, NodeGroup> TraitGroups = new();
 	static readonly Dictionary<int, Node> TraitNodes = new();
 	static readonly Dictionary<int, Tree> TraitTrees = new();
-	static readonly int[] SkillLinesByClass = new int[(int)Class.Max];
+	static readonly int[] SkillLinesByClass = new int[(int)PlayerClass.Max];
 	static readonly MultiMap<int, Tree> TraitTreesBySkillLine = new();
 	static readonly MultiMap<int, Tree> TraitTreesByTraitSystem = new();
 	static int _configIdGenerator;
@@ -250,7 +250,7 @@ class TraitMgr
 			if (skillLineEntry.CategoryID == SkillCategory.Class)
 			{
 				foreach (var skillRaceClassInfo in Global.DB2Mgr.GetSkillRaceClassInfo(skillLineEntry.Id))
-					for (var i = 1; i < (int)Class.Max; ++i)
+					for (var i = 1; i < (int)PlayerClass.Max; ++i)
 						if ((skillRaceClassInfo.ClassMask & (1 << (i - 1))) != 0)
 							SkillLinesByClass[i] = skillLineXTraitTreeEntry.SkillLineID;
 

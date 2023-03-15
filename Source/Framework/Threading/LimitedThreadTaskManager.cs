@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
 
@@ -13,6 +14,7 @@ public class LimitedThreadTaskManager
 	Exception _exc = null;
 	ActionBlock<Action> _actionBlock;
 	readonly ExecutionDataflowBlockOptions _blockOptions;
+    readonly List<Action> _staged = new List<Action>();
 
 	public LimitedThreadTaskManager(int maxDegreeOfParallelism) : this(new ExecutionDataflowBlockOptions()
 	{
@@ -38,21 +40,45 @@ public class LimitedThreadTaskManager
 	}
 
 	public void Wait()
-	{
-		_actionBlock.Complete();
-		_actionBlock.Completion.Wait();
-		CheckForExcpetion();
-		_actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
-	}
+    {
+        ExecuteStaged();
 
-	public void Schedule(Action a)
+        _actionBlock.Complete();
+        _actionBlock.Completion.Wait();
+        CheckForExcpetion();
+        _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
+    }
+
+    public void Schedule(Action a)
 	{
 		CheckForExcpetion();
 		_actionBlock.Post(a);
 	}
 
 
-	public void ProcessTask(Action a)
+	/// <summary>
+	///		Staged actions will not execute until <see cref="Wait"/> or <see cref="ExecuteStaged"/> is called.
+	/// </summary>
+	/// <param name="a"></param>
+	public void Stage(Action a)
+	{
+		lock (_staged)
+			_staged.Add(a);
+	}
+
+
+    public void ExecuteStaged()
+    {
+        lock (_staged)
+        {
+            foreach (var a in _staged)
+                Schedule(a);
+
+            _staged.Clear();
+        }
+    }
+
+    public void ProcessTask(Action a)
 	{
 		try
 		{

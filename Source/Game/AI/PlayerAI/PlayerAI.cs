@@ -188,12 +188,12 @@ public class PlayerAI : UnitAI
 
 		return who.Class switch
 		{
-			Class.Paladin => who.GetPrimarySpecialization() == TalentSpecialization.PaladinHoly,
-			Class.Priest  => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
-			Class.Shaman  => who.GetPrimarySpecialization() == TalentSpecialization.ShamanRestoration,
-			Class.Monk    => who.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver,
-			Class.Druid   => who.GetPrimarySpecialization() == TalentSpecialization.DruidRestoration,
-			_             => false,
+			PlayerClass.Paladin => who.GetPrimarySpecialization() == TalentSpecialization.PaladinHoly,
+			PlayerClass.Priest  => who.GetPrimarySpecialization() == TalentSpecialization.PriestDiscipline || who.GetPrimarySpecialization() == TalentSpecialization.PriestHoly,
+			PlayerClass.Shaman  => who.GetPrimarySpecialization() == TalentSpecialization.ShamanRestoration,
+			PlayerClass.Monk    => who.GetPrimarySpecialization() == TalentSpecialization.MonkMistweaver,
+			PlayerClass.Druid   => who.GetPrimarySpecialization() == TalentSpecialization.DruidRestoration,
+			_                   => false,
 		};
 	}
 
@@ -204,33 +204,33 @@ public class PlayerAI : UnitAI
 
 		switch (who.Class)
 		{
-			case Class.Warrior:
-			case Class.Paladin:
-			case Class.Rogue:
-			case Class.Deathknight:
+			case PlayerClass.Warrior:
+			case PlayerClass.Paladin:
+			case PlayerClass.Rogue:
+			case PlayerClass.Deathknight:
 			default:
 				return false;
-			case Class.Mage:
-			case Class.Warlock:
+			case PlayerClass.Mage:
+			case PlayerClass.Warlock:
 				return true;
-			case Class.Hunter:
+			case PlayerClass.Hunter:
 			{
 				// check if we have a ranged weapon equipped
 				var rangedSlot = who.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
 
-				var rangedTemplate = rangedSlot ? rangedSlot.GetTemplate() : null;
+				var rangedTemplate = rangedSlot ? rangedSlot.Template : null;
 
 				if (rangedTemplate != null)
-					if (Convert.ToBoolean((1 << (int)rangedTemplate.GetSubClass()) & (int)ItemSubClassWeapon.MaskRanged))
+					if (Convert.ToBoolean((1 << (int)rangedTemplate.SubClass) & (int)ItemSubClassWeapon.MaskRanged))
 						return true;
 
 				return false;
 			}
-			case Class.Priest:
+			case PlayerClass.Priest:
 				return who.GetPrimarySpecialization() == TalentSpecialization.PriestShadow;
-			case Class.Shaman:
+			case PlayerClass.Shaman:
 				return who.GetPrimarySpecialization() == TalentSpecialization.ShamanElemental;
-			case Class.Druid:
+			case PlayerClass.Druid:
 				return who.GetPrimarySpecialization() == TalentSpecialization.DruidBalance;
 		}
 	}
@@ -293,10 +293,10 @@ public class PlayerAI : UnitAI
 		uint rangedAttackSpell = 0;
 
 		var rangedItem = Me.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.Ranged);
-		var rangedTemplate = rangedItem ? rangedItem.GetTemplate() : null;
+		var rangedTemplate = rangedItem ? rangedItem.Template : null;
 
 		if (rangedTemplate != null)
-			switch ((ItemSubClassWeapon)rangedTemplate.GetSubClass())
+			switch ((ItemSubClassWeapon)rangedTemplate.SubClass)
 			{
 				case ItemSubClassWeapon.Bow:
 				case ItemSubClassWeapon.Gun:

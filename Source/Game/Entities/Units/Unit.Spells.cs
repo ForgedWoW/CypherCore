@@ -4327,7 +4327,7 @@ public partial class Unit
 					// if victim and dodge attack
 					if (hitMask.HasAnyFlag(ProcFlagsHit.Dodge))
 						// Update AURA_STATE on dodge
-						if (Class != Class.Rogue) // skip Rogue Riposte
+						if (Class != PlayerClass.Rogue) // skip Rogue Riposte
 						{
 							ModifyAuraState(AuraStateType.Defensive, true);
 							StartReactiveTimer(ReactiveType.Defense);

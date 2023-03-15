@@ -16,7 +16,7 @@ internal class spell_dk_death_gate : SpellScript, ISpellCheckCast, IHasSpellEffe
 
 	public SpellCastResult CheckCast()
 	{
-		if (Caster.Class != Class.Deathknight)
+		if (Caster.Class != PlayerClass.Deathknight)
 		{
 			SetCustomCastResultMessage(SpellCustomErrors.MustBeDeathKnight);
 

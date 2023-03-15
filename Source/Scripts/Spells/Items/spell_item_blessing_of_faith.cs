@@ -29,19 +29,19 @@ internal class spell_item_blessing_of_faith : SpellScript, IHasSpellEffects
 
 			switch (unitTarget.Class)
 			{
-				case Class.Druid:
+				case PlayerClass.Druid:
 					spellId = ItemSpellIds.BlessingOfLowerCityDruid;
 
 					break;
-				case Class.Paladin:
+				case PlayerClass.Paladin:
 					spellId = ItemSpellIds.BlessingOfLowerCityPaladin;
 
 					break;
-				case Class.Priest:
+				case PlayerClass.Priest:
 					spellId = ItemSpellIds.BlessingOfLowerCityPriest;
 
 					break;
-				case Class.Shaman:
+				case PlayerClass.Shaman:
 					spellId = ItemSpellIds.BlessingOfLowerCityShaman;
 
 					break;

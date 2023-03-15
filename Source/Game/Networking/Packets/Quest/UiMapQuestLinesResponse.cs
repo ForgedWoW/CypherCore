@@ -1,28 +1,24 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Quest
+namespace Game.Networking.Packets.Quest;
+
+public class UiMapQuestLinesResponse : ServerPacket
 {
-    public class UiMapQuestLinesResponse : ServerPacket
-    {
-        public int UiMapID;
-        public List<uint> QuestLineXQuestIDs = new List<uint>();
+	public int UiMapID;
+	public List<uint> QuestLineXQuestIDs = new();
 
-        public UiMapQuestLinesResponse() : base(ServerOpcodes.UiMapQuestLinesResponse)
-        {
-        }
+	public UiMapQuestLinesResponse() : base(ServerOpcodes.UiMapQuestLinesResponse) { }
 
-        public override void Write()
-        {
-            _worldPacket.Write(UiMapID);
-            _worldPacket.WriteUInt32((uint)QuestLineXQuestIDs.Count);
+	public override void Write()
+	{
+		_worldPacket.Write(UiMapID);
+		_worldPacket.WriteUInt32((uint)QuestLineXQuestIDs.Count);
 
-            foreach (var item in QuestLineXQuestIDs)
-                _worldPacket.Write(item);
-        }
-    }
+		foreach (var item in QuestLineXQuestIDs)
+			_worldPacket.Write(item);
+	}
 }
