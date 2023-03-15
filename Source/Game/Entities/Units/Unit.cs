@@ -4593,21 +4593,26 @@ public partial class Unit : WorldObject
 		if (IsAttackReady(WeaponAttackType.RangedAttack) && GetCurrentSpell(CurrentSpellTypes.AutoRepeat).State != SpellState.Preparing)
 		{
 			// Check if able to cast
-			var result = CurrentSpells[CurrentSpellTypes.AutoRepeat].CheckCast(true);
+			var currentSpell = CurrentSpells[CurrentSpellTypes.AutoRepeat];
 
-			if (result != SpellCastResult.SpellCastOk)
-			{
-				if (autoRepeatSpellInfo.Id != 75)
-					InterruptSpell(CurrentSpellTypes.AutoRepeat);
-				else if (TypeId == TypeId.Player)
-					Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellVisual, CurrentSpells[CurrentSpellTypes.AutoRepeat].CastId, result);
+			if (currentSpell != null)
+			{ 
+				var result = currentSpell.CheckCast(true);
 
-				return;
+				if (result != SpellCastResult.SpellCastOk)
+				{
+					if (autoRepeatSpellInfo.Id != 75)
+						InterruptSpell(CurrentSpellTypes.AutoRepeat);
+					else if (TypeId == TypeId.Player)
+						Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, currentSpell.SpellVisual, currentSpell.CastId, result);
+
+					return;
+				}
+
+				// we want to shoot
+				Spell spell = new(this, autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
+				spell.Prepare(currentSpell.Targets);
 			}
-
-			// we want to shoot
-			Spell spell = new(this, autoRepeatSpellInfo, TriggerCastFlags.IgnoreGCD);
-			spell.Prepare(CurrentSpells[CurrentSpellTypes.AutoRepeat].Targets);
 		}
 	}
 
