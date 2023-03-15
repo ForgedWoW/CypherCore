@@ -4605,7 +4605,6 @@ public partial class Unit : WorldObject
 						InterruptSpell(CurrentSpellTypes.AutoRepeat);
 					else if (TypeId == TypeId.Player)
 						Spell.SendCastResult(AsPlayer, autoRepeatSpellInfo, currentSpell.SpellVisual, currentSpell.CastId, result);
-
 					return;
 				}
 

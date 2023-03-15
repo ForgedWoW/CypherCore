@@ -227,6 +227,22 @@ Updates.CleanDeadRefMaxCount = 3
 LogsDir = "Logs"
 
 #
+#    MaxNumberLogRotations
+#        Description: Number of logs to keep in rotation. A new log is rotated in at every server startup.  ex: WorldServer.1.log
+#        Default:     20
+#                     
+
+MaxNumberLogRotations = 20
+
+#
+#    MaxLogSize
+#        Description: Max Size of a log file in MB before its rotated.
+#        Default:     50
+#       
+
+MaxLogSize = 50
+
+#
 #  Appender config values: Given an appender "name"
 #    Appender.name
 #        Description: Defines 'where to log'
