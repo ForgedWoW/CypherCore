@@ -5786,9 +5786,10 @@ public partial class Spell : IDisposable
 		// start channeling if applicable
 		if (SpellInfo.IsChanneled)
 		{
-			var duration = SpellInfo.Duration;
+			if (!TryGetTotalEmpowerDuration(true, out int duration))
+                duration = SpellInfo.Duration;
 
-			if (duration > 0 || SpellValue.Duration.HasValue)
+            if (duration > 0 || SpellValue.Duration.HasValue)
 			{
 				if (!SpellValue.Duration.HasValue)
 				{
@@ -6739,16 +6740,7 @@ public partial class Spell : IDisposable
 		spellChannelStart.CasterGUID = unitCaster.GUID;
 		spellChannelStart.SpellID = (int)SpellInfo.Id;
 		spellChannelStart.Visual = SpellVisual;
-
-		if (TryGetTotalEmpowerDuration(true, out _timer))
-		{
-			spellChannelStart.ChannelDuration = (uint)_timer;
-		}
-        else
-        {
-            _timer = (int)duration;
-            spellChannelStart.ChannelDuration = duration;
-        }
+        spellChannelStart.ChannelDuration = duration;
 
         var schoolImmunityMask = unitCaster.SchoolImmunityMask;
 		var mechanicImmunityMask = unitCaster.MechanicImmunityMask;
@@ -6764,7 +6756,9 @@ public partial class Spell : IDisposable
 
 		unitCaster.SendMessageToSet(spellChannelStart, true);
 
-		if (!Targets.HasDst)
+        _timer = (int)duration;
+
+        if (!Targets.HasDst)
 		{
 			var channelAuraMask = new HashSet<int>();
 			var explicitTargetEffectMask = SpellConst.MaxEffects;
