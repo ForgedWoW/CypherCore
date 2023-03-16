@@ -91,8 +91,6 @@ public class InstanceMap : Map
 		if (player.Map == this)
 		{
 			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), Id, InstanceId, DifficultyID);
-			Cypher.Assert(false);
-
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 

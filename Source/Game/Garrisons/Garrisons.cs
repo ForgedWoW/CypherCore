@@ -378,7 +378,6 @@ public class Garrison
 			{
 				// Restore previous level building
 				var restored = Global.GarrisonMgr.GetPreviousLevelBuilding((byte)constructing.BuildingType, constructing.UpgradeLevel);
-				Cypher.Assert(restored != 0);
 
 				GarrisonPlaceBuildingResult placeBuildingResult = new();
 				placeBuildingResult.GarrTypeID = GetGarrisonType();

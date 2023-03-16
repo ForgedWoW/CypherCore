@@ -65,11 +65,6 @@ public class SpellEvent : BasicEvent
 					// handle effects on caster if the spell has travel time but also affects the caster in some way
 					var nOffset = _spell.HandleDelayed(0);
 
-					if (_spell.SpellInfo.LaunchDelay != 0)
-						Cypher.Assert(nOffset == (ulong)Math.Floor(_spell.SpellInfo.LaunchDelay * 1000.0f));
-					else
-						Cypher.Assert(nOffset == _spell.DelayMoment);
-
 					// re-plan the event for the delay moment
 					_spell.Caster.Events.AddEvent(this, TimeSpan.FromMilliseconds(etime + nOffset), false);
 

@@ -178,8 +178,6 @@ public class InstanceScript : ZoneScript
 
 	public BossInfo GetBossInfo(uint id)
 	{
-		Cypher.Assert(id < _bosses.Count);
-
 		return _bosses[id];
 	}
 
@@ -912,7 +910,6 @@ public class InstanceScript : ZoneScript
 	{
 		foreach (var data in objectData)
 		{
-			Cypher.Assert(!objectInfo.ContainsKey(data.Entry));
 			objectInfo[data.Entry] = data.Type;
 		}
 	}

@@ -48,7 +48,10 @@ public class ChatCommandNode
 		{
 			/* oldTail = token DELIMITER newTail */
 			var (token, newTail) = oldTail.Tokenize();
-			Cypher.Assert(!token.IsEmpty());
+
+			if (token.IsEmpty())
+				return false;
+
 			var listOfPossibleCommands = map.Where(p => p.Key.StartsWith(token) && p.Value.IsVisible(handler)).ToList();
 
 			if (listOfPossibleCommands.Empty())

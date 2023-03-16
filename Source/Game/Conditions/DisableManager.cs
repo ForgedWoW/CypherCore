@@ -315,8 +315,6 @@ public class DisableManager : Singleton<DisableManager>
 
 	public bool IsDisabledFor(DisableType type, uint entry, WorldObject refe, ushort flags = 0)
 	{
-		Cypher.Assert(type < DisableType.Max);
-
 		if (!m_DisableMap.ContainsKey(type) || m_DisableMap[type].Empty())
 			return false;
 

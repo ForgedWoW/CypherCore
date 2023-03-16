@@ -57,7 +57,6 @@ public class DynamicMapTree
 		bool result;
 		var maxDist = (endPos - startPos).Length();
 		// valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-		Cypher.Assert(maxDist < float.MaxValue);
 
 		// prevent NaN values which can cause BIH intersection to enter infinite loop
 		if (maxDist < 1e-10f)

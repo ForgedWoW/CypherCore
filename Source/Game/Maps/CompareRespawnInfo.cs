@@ -18,8 +18,6 @@ struct CompareRespawnInfo : IComparer<RespawnInfo>
 		if (a.SpawnId != b.SpawnId)
 			return a.SpawnId.CompareTo(b.SpawnId);
 
-		Cypher.Assert(a.ObjectType != b.ObjectType, $"Duplicate respawn entry for spawnId ({a.ObjectType},{a.SpawnId}) found!");
-
 		return a.ObjectType.CompareTo(b.ObjectType);
 	}
 }

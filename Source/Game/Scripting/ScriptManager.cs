@@ -67,9 +67,6 @@ public class ScriptManager : Singleton<ScriptManager>
 	//AreaTriggerScript
 	public bool OnAreaTrigger(Player player, AreaTriggerRecord trigger, bool entered)
 	{
-		Cypher.Assert(player != null);
-		Cypher.Assert(trigger != null);
-
 		if (entered)
 			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
 				return RunScriptRet<IAreaTriggerOnTrigger>(a => a.OnTrigger(player, trigger), script);
@@ -128,8 +125,6 @@ public class ScriptManager : Singleton<ScriptManager>
 
 	public void AddScript<T>(T script) where T : IScriptObject
 	{
-		Cypher.Assert(script != null);
-
 		var interfaces = script.GetType().GetInterfaces();
 		var hasClass = interfaces.Any(iface => iface.Name == nameof(IClassRescriction));
 

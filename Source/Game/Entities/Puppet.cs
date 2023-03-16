@@ -10,7 +10,6 @@ public class Puppet : Minion
 {
 	public Puppet(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
 	{
-		Cypher.Assert(owner.IsTypeId(TypeId.Player));
 		UnitTypeMask |= UnitTypeMask.Puppet;
 	}
 
@@ -20,14 +19,6 @@ public class Puppet : Minion
 
 		SetLevel(OwnerUnit.Level);
 		ReactState = ReactStates.Passive;
-	}
-
-	public override void InitSummon()
-	{
-		base.InitSummon();
-
-		if (!SetCharmedBy(OwnerUnit, CharmType.Possess))
-			Cypher.Assert(false);
 	}
 
 	public override void Update(uint diff)

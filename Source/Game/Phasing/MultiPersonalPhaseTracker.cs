@@ -56,10 +56,6 @@ public class MultiPersonalPhaseTracker
 
 	public void RegisterTrackedObject(uint phaseId, ObjectGuid phaseOwner, WorldObject obj)
 	{
-		Cypher.Assert(phaseId != 0);
-		Cypher.Assert(!phaseOwner.IsEmpty);
-		Cypher.Assert(obj != null);
-
 		_playerData[phaseOwner].RegisterTrackedObject(phaseId, obj);
 	}
 

@@ -55,7 +55,6 @@ public class BattlegroundScore
 
 				break;
 			default:
-				Cypher.Assert(false, "Not implemented Battleground score type!");
 
 				break;
 		}

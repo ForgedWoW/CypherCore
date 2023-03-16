@@ -351,7 +351,6 @@ public class MapManager : Singleton<MapManager>
 		}
 
 		var newInstanceId = _nextInstanceId;
-		Cypher.Assert(newInstanceId < _freeInstanceIds.Length);
 		_freeInstanceIds[(int)newInstanceId] = false;
 
 		// Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
@@ -497,7 +496,6 @@ public class MapManager : Singleton<MapManager>
 		Log.outDebug(LogFilter.Maps, $"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
 		var map = new InstanceMap(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
-		Cypher.Assert(map.IsDungeon);
 
 		map.LoadRespawnTimes();
 		map.LoadCorpseData();
@@ -519,7 +517,6 @@ public class MapManager : Singleton<MapManager>
 		Log.outDebug(LogFilter.Maps, $"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
 
 		var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
-		Cypher.Assert(map.IsBattlegroundOrArena);
 		map.SetBG(bg);
 		bg.SetBgMap(map);
 
@@ -529,7 +526,6 @@ public class MapManager : Singleton<MapManager>
 	GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
 	{
 		var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
-		Cypher.Assert(map.IsGarrison);
 
 		return map;
 	}

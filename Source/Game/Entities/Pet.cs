@@ -92,9 +92,6 @@ public class Pet : Guardian
 	public Pet(Player owner, PetType type = PetType.Max) : base(null, owner, true)
 	{
 		_petType = type;
-
-		Cypher.Assert(OwningPlayer.IsTypeId(TypeId.Player));
-
 		UnitTypeMask |= UnitTypeMask.Pet;
 
 		if (type == PetType.Hunter)
@@ -371,8 +368,6 @@ public class Pet : Guardian
 				owner.RemovePet(null, PetSaveMode.NotInSlot);
 
 			var unslottedPetIndex = petStable.UnslottedPets.FindIndex(unslottedPet => unslottedPet.PetNumber == petInfoNumber);
-			Cypher.Assert(!petStable.CurrentPetIndex.HasValue);
-			Cypher.Assert(unslottedPetIndex != -1);
 
 			petStable.SetCurrentUnslottedPetIndex((uint)unslottedPetIndex);
 		}
@@ -382,9 +377,6 @@ public class Pet : Guardian
 
 			if (activePetIndex == -1)
 				activePetIndex = (int)petnumber;
-
-			// Check that we either have no pet (unsummoned by player) or it matches temporarily unsummoned pet by server (for example on flying mount)
-			Cypher.Assert(!petStable.CurrentPetIndex.HasValue || petStable.CurrentPetIndex == activePetIndex);
 
 			petStable.SetCurrentActivePetIndex((uint)activePetIndex);
 		}
@@ -559,7 +551,6 @@ public class Pet : Guardian
 			// save pet
 			var actionBar = GenerateActionBarData();
 
-			Cypher.Assert(owner.PetStable1.GetCurrentPet() != null && owner.PetStable1.GetCurrentPet().PetNumber == GetCharmInfo().GetPetNumber());
 			FillPetInfo(owner.PetStable1.GetCurrentPet());
 
 			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PET);
@@ -704,7 +695,6 @@ public class Pet : Guardian
 					if (owner.PetGUID != GUID)
 					{
 						Log.outError(LogFilter.Pet, $"Pet {Entry} is not pet of owner {OwningPlayer.GetName()}, removed");
-						Cypher.Assert(PetType != PetType.Hunter, $"Unexpected unlinked pet found for owner {owner.Session.GetPlayerInfo()}");
 						Remove(PetSaveMode.NotInSlot);
 
 						return;
@@ -820,8 +810,6 @@ public class Pet : Guardian
 
 	public bool CreateBaseAtCreature(Creature creature)
 	{
-		Cypher.Assert(creature);
-
 		if (!CreateBaseAtTamed(creature.Template, creature.Map))
 			return false;
 
@@ -1034,7 +1022,6 @@ public class Pet : Guardian
 
 	public bool Create(ulong guidlow, Map map, uint entry, uint petNumber)
 	{
-		Cypher.Assert(map);
 		Map = map;
 
 		// TODO: counter should be constructed as (summon_count << 32) | petNumber

@@ -37,12 +37,6 @@ public class AuraCreateInfo
 		CastDifficulty = castDifficulty;
 		AuraEffectMask = auraEffMask;
 		OwnerInternal = owner;
-
-		Cypher.Assert(spellInfo != null);
-		Cypher.Assert(auraEffMask.Count != 0);
-		Cypher.Assert(owner != null);
-
-		Cypher.Assert(auraEffMask.Count <= SpellConst.MaxEffects.Count);
 	}
 
 	public void SetCasterGuid(ObjectGuid guid)

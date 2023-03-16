@@ -1439,8 +1439,6 @@ public class LFGManager : Singleton<LFGManager>
 
 	public bool IsVoteKickActive(ObjectGuid gguid)
 	{
-		Cypher.Assert(gguid.IsParty);
-
 		var active = GroupsStore[gguid].IsVoteKickActive();
 		Log.outInfo(LogFilter.Lfg, "Group: {0}, Active: {1}", gguid.ToString(), active);
 
@@ -2034,8 +2032,6 @@ public class LFGManager : Singleton<LFGManager>
 					if (it2.Value.lockStatus == LfgLockStatusType.RaidLocked && isContinue)
 					{
 						var dungeon = GetLFGDungeon(dungeonId);
-						Cypher.Assert(dungeon != null);
-						Cypher.Assert(player);
 						MapDb2Entries entries = new(dungeon.map, dungeon.difficulty);
 						var playerBind = Global.InstanceLockMgr.FindActiveInstanceLock(guid, entries);
 
@@ -2098,10 +2094,6 @@ public class LFGManager : Singleton<LFGManager>
 						dpsPlayers.Add(guid);
 
 						break;
-					default:
-						Cypher.Assert(false, $"Invalid LFG role {it.Value.role}");
-
-						break;
 				}
 
 			if (proposal.isNew || GetGroup(guid) != proposal.group)
@@ -2114,7 +2106,6 @@ public class LFGManager : Singleton<LFGManager>
 
 		// Set the dungeon difficulty
 		var dungeon = GetLFGDungeon(proposal.dungeonId);
-		Cypher.Assert(dungeon != null);
 
 		var grp = !proposal.group.IsEmpty ? Global.GroupMgr.GetGroupByGUID(proposal.group) : null;
 
@@ -2302,8 +2293,6 @@ public class LFGManager : Singleton<LFGManager>
 
 	void SetVoteKick(ObjectGuid gguid, bool active)
 	{
-		Cypher.Assert(gguid.IsParty);
-
 		var data = GroupsStore[gguid];
 		Log.outInfo(LogFilter.Lfg, "Group: {0}, New state: {1}, Previous: {2}", gguid.ToString(), active, data.IsVoteKickActive());
 

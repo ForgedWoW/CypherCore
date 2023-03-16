@@ -1176,8 +1176,6 @@ namespace Game.Entities
 			if (data.SpawnId == 0)
 				data.SpawnId = _spawnId;
 
-			Cypher.Assert(data.SpawnId == _spawnId);
-
 			data.Id = Entry;
 			data.MapId = Location.MapId;
 			data.SpawnPoint.Relocate(Location);
@@ -2978,8 +2976,6 @@ namespace Game.Entities
 		public void SetDestructibleState(GameObjectDestructibleState state, WorldObject attackerOrHealer = null, bool setHealth = false)
 		{
 			// the user calling this must know he is already operating on destructible gameobject
-			Cypher.Assert(GoType == GameObjectTypes.DestructibleBuilding);
-
 			switch (state)
 			{
 				case GameObjectDestructibleState.Intact:
@@ -3601,10 +3597,12 @@ namespace Game.Entities
 		{
 			// Owner already found and different than expected owner - remove object from old owner
 			if (!owner.IsEmpty && !OwnerGUID.IsEmpty && OwnerGUID != owner)
-				Cypher.Assert(false);
-
-			_spawnedByDefault = false; // all object with owner is despawned after delay
-			SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.CreatedBy), owner);
+				Log.outWarn(LogFilter.Spells, "Owner already found and different than expected owner - remove object from old owner");
+			else
+			{
+				_spawnedByDefault = false; // all object with owner is despawned after delay
+				SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.CreatedBy), owner);
+			}
 		}
 
 		public void SetRespawnTime(int respawn)
@@ -3760,8 +3758,6 @@ namespace Game.Entities
 			if (owner)
 			{
 				owner.RemoveGameObject(this, false);
-				Cypher.Assert(OwnerGUID.IsEmpty);
-
 				return;
 			}
 
@@ -3779,7 +3775,6 @@ namespace Game.Entities
 
 		bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
 		{
-			Cypher.Assert(map);
 			Map = map;
 
 			Location.Relocate(pos);

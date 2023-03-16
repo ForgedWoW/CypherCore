@@ -403,7 +403,6 @@ public class SpellScript : BaseSpellScript, ISpellScript
 			if (hitUnit != null)
 			{
 				var targetInfo = _spell.UniqueTargetInfoOrgi.Find(targetInfo => targetInfo.TargetGuid == hitUnit.GUID);
-				Cypher.Assert(targetInfo != null);
 
 				return targetInfo.IsCrit;
 			}
@@ -416,8 +415,6 @@ public class SpellScript : BaseSpellScript, ISpellScript
 	{
 		get
 		{
-			Cypher.Assert(IsInEffectHook, $"Script: `{ScriptName}` Spell: `{ScriptSpellId}`: function SpellScript::GetEffectInfo was called, but function has no effect in current hook!");
-
 			return _spell.EffectInfo;
 		}
 	}

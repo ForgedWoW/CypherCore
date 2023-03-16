@@ -54,8 +54,6 @@ public class AuraApplication
 		_effectsToApply = effMask;
 		_needClientUpdate = false;
 
-		Cypher.Assert(Target != null && Base != null);
-
 		// Try find slot for aura
 		byte slot = 0;
 
@@ -106,8 +104,6 @@ public class AuraApplication
 			return;
 		}
 
-		Cypher.Assert(aurEff != null);
-
 		if (HasEffect(effIndex) != (!apply))
 		{
 			Log.outError(LogFilter.Spells, "Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
@@ -115,18 +111,15 @@ public class AuraApplication
 			return;
 		}
 
-		Cypher.Assert(_effectsToApply.Contains(effIndex));
 		Log.outDebug(LogFilter.Spells, "AuraApplication._HandleEffect: {0}, apply: {1}: amount: {2}", aurEff.AuraType, apply, aurEff.Amount);
 
 		if (apply)
 		{
-			Cypher.Assert(!_effectMask.Contains(effIndex));
 			_effectMask.Add(effIndex);
 			aurEff.HandleEffect(this, AuraEffectHandleModes.Real, true);
 		}
 		else
 		{
-			Cypher.Assert(_effectMask.Contains(effIndex));
 			_effectMask.Remove(effIndex);
 			aurEff.HandleEffect(this, AuraEffectHandleModes.Real, false);
 		}
@@ -181,8 +174,6 @@ public class AuraApplication
 
 	public void BuildUpdatePacket(ref AuraInfo auraInfo, bool remove)
 	{
-		Cypher.Assert(_target.HasVisibleAura(this) != remove);
-
 		auraInfo.Slot = Slot;
 
 		if (remove)

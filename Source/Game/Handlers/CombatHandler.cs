@@ -39,7 +39,6 @@ public partial class WorldSession
 		if (vehicle)
 		{
 			var seat = vehicle.GetSeatForPassenger(Player);
-			Cypher.Assert(seat != null);
 
 			if (!seat.HasFlag(VehicleSeatFlags.CanAttack))
 			{

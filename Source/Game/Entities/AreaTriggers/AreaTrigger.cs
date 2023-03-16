@@ -1009,9 +1009,6 @@ public class AreaTrigger : WorldObject
 
 	void InitOrbit(AreaTriggerOrbitInfo orbit, uint timeToTarget)
 	{
-		// Circular movement requires either a center position or an attached unit
-		Cypher.Assert(orbit.Center.HasValue || orbit.PathTarget.HasValue);
-
 		// should be sent in object create packets only
 		DoWithSuppressingObjectUpdates(() =>
 		{

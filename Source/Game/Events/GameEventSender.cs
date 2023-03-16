@@ -11,8 +11,6 @@ class GameEvents
 {
 	public static void Trigger(uint gameEventId, WorldObject source, WorldObject target)
 	{
-		Cypher.Assert(source || target, "At least one of [source] or [target] must be provided");
-
 		var refForMapAndZoneScript = source ?? target;
 
 		var zoneScript = refForMapAndZoneScript.ZoneScript1;

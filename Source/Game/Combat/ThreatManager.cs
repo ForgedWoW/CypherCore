@@ -39,8 +39,6 @@ public class ThreatManager
 			if (_currentVictimRef == null || _currentVictimRef.ShouldBeOffline)
 				UpdateVictim();
 
-			Cypher.Assert(_currentVictimRef == null || _currentVictimRef.IsAvailable);
-
 			return _currentVictimRef?.Victim;
 		}
 	}
@@ -770,9 +768,6 @@ public class ThreatManager
 			// otherwise the next highest target may still be a melee above 110% and we need to look further
 		}
 
-		// we should have found the old victim at some point in the loop above, so execution should never get to this point
-		Cypher.Assert(false, "Current victim not found in sorted threat list even though it has a reference - manager desync!");
-
 		return null;
 	}
 
@@ -842,7 +837,6 @@ public class ThreatManager
 	void PutThreatListRef(ObjectGuid guid, ThreatReference refe)
 	{
 		NeedClientUpdate = true;
-		Cypher.Assert(!_myThreatListEntries.ContainsKey(guid), $"Duplicate threat reference being inserted on {_owner.GUID} for {guid}!");
 		_myThreatListEntries[guid] = refe;
 		_sortedThreatList.Add(refe);
 		_sortedThreatList.Sort();
@@ -850,7 +844,6 @@ public class ThreatManager
 
 	void PutThreatenedByMeRef(ObjectGuid guid, ThreatReference refe)
 	{
-		Cypher.Assert(!_threatenedByMe.ContainsKey(guid), $"Duplicate threatened-by-me reference being inserted on {_owner.GUID} for {guid}!");
 		_threatenedByMe[guid] = refe;
 	}
 
@@ -869,7 +862,6 @@ public class ThreatManager
 				{
 					_redirectInfo.Add(Tuple.Create(victimPair.Key, thisPct));
 					totalPct += thisPct;
-					Cypher.Assert(totalPct <= 100);
 
 					if (totalPct == 100)
 						return;

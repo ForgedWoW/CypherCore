@@ -110,7 +110,6 @@ public partial class Player
 			{
 				List<ItemPosCount> dest = new();
 				var msg = CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, itemid, count);
-				Cypher.Assert(msg == InventoryResult.Ok); // Already checked before
 				var it = StoreNewItem(dest, itemid, true);
 				SendNewItem(it, count, true, false, true);
 			}
@@ -3744,9 +3743,6 @@ public partial class Player
 			return swap ? InventoryResult.CantSwap : InventoryResult.ItemNotFound;
 
 		// different slots range if we're trying to store item in Reagent Bank
-		if (reagentBankOnly)
-			Cypher.Assert(bag == ItemConst.NullBag && slot == ItemConst.NullSlot); // when reagentBankOnly is true then bag & slot must be hardcoded constants, not client input
-
 		if ((IsReagentBankPos(bag, slot) || reagentBankOnly) && !IsReagentBankUnlocked)
 			return InventoryResult.ReagentBankLocked;
 

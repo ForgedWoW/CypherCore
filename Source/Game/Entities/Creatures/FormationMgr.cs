@@ -58,7 +58,6 @@ public class FormationMgr
 			var map = member.Map;
 
 			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.InstanceId);
-			Cypher.Assert(map.CreatureGroupHolder.ContainsKey(group.LeaderSpawnId), $"Not registered group {group.LeaderSpawnId} in map {map.Id}");
 			map.CreatureGroupHolder.Remove(group.LeaderSpawnId);
 		}
 	}

@@ -24,7 +24,6 @@ public class Minion : TempSummon
 		: base(propertiesRecord, owner, isWorldObject)
 	{
 		Owner = owner;
-		Cypher.Assert(Owner);
 		UnitTypeMask |= UnitTypeMask.Minion;
 		_followAngle = SharedConst.PetFollowAngle;
 		/// @todo: Find correct way

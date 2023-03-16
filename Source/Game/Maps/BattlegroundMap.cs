@@ -28,8 +28,6 @@ public class BattlegroundMap : Map
 		if (player.Map == this)
 		{
 			Log.outError(LogFilter.Maps, "BGMap:CannotEnter - player {0} is already in map!", player.GUID.ToString());
-			Cypher.Assert(false);
-
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 

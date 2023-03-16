@@ -13,7 +13,6 @@ public class TotemAI : NullCreatureAI
 
 	public TotemAI(Creature creature) : base(creature)
 	{
-		Cypher.Assert(creature.IsTotem, $"TotemAI: AI assigned to a no-totem creature ({creature.GUID})!");
 		_victimGuid = ObjectGuid.Empty;
 	}
 

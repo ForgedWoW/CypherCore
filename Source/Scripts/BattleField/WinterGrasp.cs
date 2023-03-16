@@ -1690,7 +1690,6 @@ internal class WintergraspCapturePoint : BfCapturePoint
 
 	public override void ChangeTeam(uint oldteam)
 	{
-		Cypher.Assert(_Workshop != null);
 		_Workshop.GiveControlTo(m_team, false);
 	}
 

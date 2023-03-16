@@ -25,15 +25,10 @@ public class VehicleJoinEvent : BasicEvent
 
 	public override bool Execute(ulong etime, uint pTime)
 	{
-		Cypher.Assert(Passenger.IsInWorld);
-		Cypher.Assert(Target != null && Target.GetBase().IsInWorld);
-
 		var vehicleAuras = Target.GetBase().GetAuraEffectsByType(AuraType.ControlVehicle);
 		var aurEffect = vehicleAuras.Find(aurEff => aurEff.CasterGuid == Passenger.GUID);
-		Cypher.Assert(aurEffect != null);
 
 		var aurApp = aurEffect.Base.GetApplicationOfTarget(Target.GetBase().GUID);
-		Cypher.Assert(aurApp != null && !aurApp.HasRemoveMode);
 
 		Target.RemovePendingEventsForSeat(Seat.Key);
 		Target.RemovePendingEventsForPassenger(Passenger);
@@ -58,7 +53,6 @@ public class VehicleJoinEvent : BasicEvent
 
 		if (Seat.Value.SeatInfo.CanEnterOrExit())
 		{
-			Cypher.Assert(Target.UsableSeatNum != 0);
 			--Target.UsableSeatNum;
 
 			if (Target.UsableSeatNum == 0)

@@ -179,7 +179,6 @@ public partial class Player
 
 	public void SetPartyType(GroupCategory category, GroupType type)
 	{
-		Cypher.Assert(category < GroupCategory.Max);
 		byte value = PlayerData.PartyType;
 		value &= (byte)~(0xFF << ((byte)category * 4));
 		value |= (byte)((byte)type << ((byte)category * 4));

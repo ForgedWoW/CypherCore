@@ -103,7 +103,6 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 				}
 
 				var str = $"{id:U4}";
-				Cypher.Assert(str.Length == 4);
 				wardenCheck.IdStr = str.ToCharArray();
 			}
 

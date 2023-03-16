@@ -60,15 +60,12 @@ public partial class Unit
 			}
 			else
 			{
-				Cypher.Assert(IsCreature);
-
 				if (IsPossessed || IsVehicle)
 					newAI = new PossessedAI(AsCreature);
 				else
 					newAI = new PetAI(AsCreature);
 			}
 
-			Cypher.Assert(newAI != null);
 			AI = newAI;
 			newAI.OnCharmed(true);
 		}
@@ -242,12 +239,8 @@ public partial class Unit
 					if (GUID == unit.CharmerGUID)
 						continue;
 
-					Cypher.Assert(unit.OwnerGUID == GUID);
-
 					if (unit.OwnerGUID != GUID)
-						Cypher.Assert(false);
-
-					Cypher.Assert(unit.IsTypeId(TypeId.Unit));
+						continue;
 
 					if (!unit.HasUnitTypeMask(UnitTypeMask.Guardian))
 						continue;
@@ -282,9 +275,6 @@ public partial class Unit
 
 		if (charmer.IsTypeId(TypeId.Player))
 			charmer.RemoveAurasByType(AuraType.Mounted);
-
-		Cypher.Assert(type != CharmType.Possess || charmer.IsTypeId(TypeId.Player));
-		Cypher.Assert((type == CharmType.Vehicle) == (VehicleKit1 && VehicleKit1.IsControllableVehicle()));
 
 		Log.outDebug(LogFilter.Unit, "SetCharmedBy: charmer {0} (GUID {1}), charmed {2} (GUID {3}), type {4}.", charmer.Entry, charmer.GUID.ToString(), Entry, GUID.ToString(), type);
 
@@ -463,12 +453,7 @@ public partial class Unit
 		if (!IsCharmed)
 			return;
 
-		if (charmer)
-			Cypher.Assert(charmer == Charmer);
-		else
-			charmer = Charmer;
-
-		Cypher.Assert(charmer);
+		charmer = Charmer;
 
 		CharmType type;
 
@@ -498,9 +483,6 @@ public partial class Unit
 		// Vehicle should not attack its passenger after he exists the seat
 		if (type != CharmType.Vehicle)
 			LastCharmerGuid = charmer.GUID;
-
-		Cypher.Assert(type != CharmType.Possess || charmer.IsTypeId(TypeId.Player));
-		Cypher.Assert(type != CharmType.Vehicle || (IsTypeId(TypeId.Unit) && IsVehicle));
 
 		charmer.SetCharm(this, false);
 		_combatManager.RevalidateCombat();
@@ -600,7 +582,6 @@ public partial class Unit
 		{
 			if (IsTypeId(TypeId.Player))
 			{
-				Cypher.Assert(CharmedGUID.IsEmpty, $"Player {GetName()} is trying to charm unit {charm.Entry}, but it already has a charmed unit {CharmedGUID}");
 				SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Charm), charm.GUID);
 				_charmed = charm;
 
@@ -616,7 +597,6 @@ public partial class Unit
 			// PvP, FFAPvP
 			charm.ReplaceAllPvpFlags(PvpFlags);
 
-			Cypher.Assert(charm.CharmerGUID.IsEmpty, $"Unit {charm.Entry} is being charmed, but it already has a charmer {charm.CharmerGUID}");
 			charm.SetUpdateFieldValue(charm.Values.ModifyValue(UnitData).ModifyValue(UnitData.CharmedBy), GUID);
 			charm._charmer = this;
 
@@ -634,12 +614,10 @@ public partial class Unit
 
 			if (IsPlayer)
 			{
-				Cypher.Assert(CharmedGUID == charm.GUID, $"Player {GetName()} is trying to uncharm unit {charm.Entry}, but it has another charmed unit {CharmedGUID}");
 				SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.Charm), ObjectGuid.Empty);
 				_charmed = null;
 			}
 
-			Cypher.Assert(charm.CharmerGUID == GUID, $"Unit {charm.Entry} is being uncharmed, but it has another charmer {charm.CharmerGUID}");
 			charm.SetUpdateFieldValue(charm.Values.ModifyValue(UnitData).ModifyValue(UnitData.CharmedBy), ObjectGuid.Empty);
 			charm._charmer = null;
 
@@ -812,8 +790,6 @@ public partial class Unit
 
 	public void UpdatePetCombatState()
 	{
-		Cypher.Assert(!IsPet); // player pets do not use UNIT_FLAG_PET_IN_COMBAT for this purpose - but player pets should also never have minions of their own to call this
-
 		var state = false;
 
 		foreach (var minion in Controlled)

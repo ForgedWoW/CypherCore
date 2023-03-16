@@ -601,7 +601,6 @@ public partial class Player
 
 				if (nodeEntry != null && nodeEntry.ContinentID == Location.MapId)
 				{
-					Cypher.Assert(nodeEntry != null); // checked in m_taxi.LoadTaxiDestinationsFromString
 					mapId = nodeEntry.ContinentID;
 					Location.Relocate(nodeEntry.Pos.X, nodeEntry.Pos.Y, nodeEntry.Pos.Z, 0.0f);
 				}
@@ -2789,8 +2788,6 @@ public partial class Player
 
 			if (loc == null && Race == Race.PandarenNeutral)
 				loc = Global.ObjectMgr.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
-
-			Cypher.Assert(loc != null, "Missing fallback graveyard location for faction {GetTeamId()}");
 
 			_homebind.WorldRelocate(loc.Loc);
 			_homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);

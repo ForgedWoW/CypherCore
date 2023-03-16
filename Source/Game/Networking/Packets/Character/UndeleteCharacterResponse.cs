@@ -13,7 +13,6 @@ public class UndeleteCharacterResponse : ServerPacket
 
 	public override void Write()
 	{
-		Cypher.Assert(UndeleteInfo != null);
 		_worldPacket.WriteInt32(UndeleteInfo.ClientToken);
 		_worldPacket.WriteUInt32((uint)Result);
 		_worldPacket.WritePackedGuid(UndeleteInfo.CharacterGuid);

@@ -82,7 +82,6 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		if (_path == null || _path.nodes.Empty())
 			return false;
 
-		Cypher.Assert(_currentNode < _path.nodes.Count, $"WaypointMovementGenerator::GetResetPosition: tried to reference a node id ({_currentNode}) which is not included in path ({_path.id})");
 		var waypoint = _path.nodes.ElementAt(_currentNode);
 
 		x = waypoint.x;
@@ -259,7 +258,6 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		if (_path == null || _path.nodes.Empty())
 			return;
 
-		Cypher.Assert(_currentNode < _path.nodes.Count, $"WaypointMovementGenerator.OnArrived: tried to reference a node id ({_currentNode}) which is not included in path ({_path.id})");
 		var waypoint = _path.nodes.ElementAt((int)_currentNode);
 
 		if (waypoint.delay != 0)
@@ -306,7 +304,6 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		{
 			if (ComputeNextNode())
 			{
-				Cypher.Assert(_currentNode < _path.nodes.Count, $"WaypointMovementGenerator.StartMove: tried to reference a node id ({_currentNode}) which is not included in path ({_path.id})");
 				// inform AI
 				var ai = owner.AI;
 
@@ -359,7 +356,6 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 				ai.WaypointStarted(_path.nodes[_currentNode].id, _path.id);
 		}
 
-		Cypher.Assert(_currentNode < _path.nodes.Count, $"WaypointMovementGenerator.StartMove: tried to reference a node id ({_currentNode}) which is not included in path ({_path.id})");
 		var waypoint = _path.nodes[_currentNode];
 
 		RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled | MovementGeneratorFlags.TimedPaused);

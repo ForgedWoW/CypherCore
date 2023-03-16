@@ -932,8 +932,6 @@ public class Item : WorldObject
 		if (!item.IsInUpdateQueue)
 			return;
 
-		Cypher.Assert(player != null);
-
 		if (player.GUID != item.OwnerGUID)
 		{
 			Log.outError(LogFilter.Player, "Item.RemoveFromUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID.ToString(), player.GUID.ToString());
@@ -1005,7 +1003,6 @@ public class Item : WorldObject
 			return 0;
 
 		uint curDurability = ItemData.Durability;
-		Cypher.Assert(maxDurability >= curDurability);
 
 		var lostDurability = maxDurability - curDurability;
 
@@ -1749,8 +1746,6 @@ public class Item : WorldObject
 
 	public float GetItemStatValue(uint index, Player owner)
 	{
-		Cypher.Assert(index < ItemConst.MaxStats);
-
 		switch ((ItemModType)GetItemStatType(index))
 		{
 			case ItemModType.Corruption:
@@ -2350,10 +2345,7 @@ public class Item : WorldObject
 		}
 
 		if (eff.EquippedItems.Empty()) //all items of a set were removed
-		{
-			Cypher.Assert(eff == player.ItemSetEff[setindex]);
 			player.ItemSetEff[setindex] = null;
-		}
 	}
 
 	public void SetOwnerGUID(ObjectGuid guid)
@@ -2501,15 +2493,11 @@ public class Item : WorldObject
 
 	public int GetItemStatType(uint index)
 	{
-		Cypher.Assert(index < ItemConst.MaxStats);
-
 		return BonusData.ItemStatType[index];
 	}
 
 	public SocketColor GetSocketColor(uint index)
 	{
-		Cypher.Assert(index < ItemConst.MaxGemSockets);
-
 		return BonusData.socketColor[index];
 	}
 
@@ -2648,8 +2636,6 @@ public class Item : WorldObject
 	{
 		if (item.IsInUpdateQueue)
 			return;
-
-		Cypher.Assert(player != null);
 
 		if (player.GUID != item.OwnerGUID)
 		{

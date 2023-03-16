@@ -140,12 +140,6 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
 		foreach (var criteriaEntry in CliDB.CriteriaStorage.Values)
 		{
-			Cypher.Assert(criteriaEntry.Type < CriteriaType.Count,
-						$"CRITERIA_TYPE_TOTAL must be greater than or equal to {criteriaEntry.Type + 1} but is currently equal to {CriteriaType.Count}");
-
-			Cypher.Assert(criteriaEntry.StartEvent < (byte)CriteriaStartEvent.Max, $"CRITERIA_TYPE_TOTAL must be greater than or equal to {criteriaEntry.StartEvent + 1} but is currently equal to {CriteriaStartEvent.Max}");
-			Cypher.Assert(criteriaEntry.FailEvent < (byte)CriteriaFailEvent.Max, $"CRITERIA_CONDITION_MAX must be greater than or equal to {criteriaEntry.FailEvent + 1} but is currently equal to {CriteriaFailEvent.Max}");
-
 			var treeList = _criteriaTreeByCriteria.LookupByKey(criteriaEntry.Id);
 
 			if (treeList.Empty())

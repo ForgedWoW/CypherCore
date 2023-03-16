@@ -31,7 +31,6 @@ public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 		DB.Login.DirectExecute(stmt);
 
 		var newAccountId = GetId(email);
-		Cypher.Assert(newAccountId != 0);
 
 		if (withGameAccount)
 		{

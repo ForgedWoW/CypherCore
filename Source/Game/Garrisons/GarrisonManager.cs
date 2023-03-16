@@ -182,8 +182,6 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	//todo check this method, might be slow.....
 	public List<GarrAbilityRecord> RollFollowerAbilities(uint garrFollowerId, GarrFollowerRecord follower, uint quality, uint faction, bool initial)
 	{
-		Cypher.Assert(faction < 2);
-
 		var hasForcedExclusiveTrait = false;
 		List<GarrAbilityRecord> result = new();
 

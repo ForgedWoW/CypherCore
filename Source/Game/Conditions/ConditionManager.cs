@@ -50,9 +50,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 		foreach (var i in conditions)
 		{
-			// no point of having not loaded conditions in list
-			Cypher.Assert(i.IsLoaded(), "ConditionMgr.GetSearcherTypeMaskForConditionList - not yet loaded condition found in list");
-
 			// group not filled yet, fill with widest mask possible
 			if (!elseGroupSearcherTypeMasks.ContainsKey(i.ElseGroup))
 				elseGroupSearcherTypeMasks[i.ElseGroup] = GridMapTypeMask.All;
@@ -63,7 +60,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			if (i.ReferenceId != 0) // handle reference
 			{
 				var refe = conditionReferenceStorage.LookupByKey(i.ReferenceId);
-				Cypher.Assert(refe.Empty(), "ConditionMgr.GetSearcherTypeMaskForConditionList - incorrect reference");
 				elseGroupSearcherTypeMasks[i.ElseGroup] &= GetSearcherTypeMaskForConditionList(refe);
 			}
 			else // handle normal condition
@@ -2920,8 +2916,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	static bool PlayerConditionLogic(uint logic, bool[] results)
 	{
-		Cypher.Assert(results.Length < 16, "Logic array size must be equal to or less than 16");
-
 		for (var i = 0; i < results.Length; ++i)
 			if (Convert.ToBoolean((logic >> (16 + i)) & 1))
 				results[i] ^= true;

@@ -303,8 +303,6 @@ public class StaticMapTree
 	{
 		bool result;
 		var maxDist = (pPos2 - pPos1).Length();
-		// valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-		Cypher.Assert(maxDist < float.MaxValue);
 
 		// prevent NaN values which can cause BIH intersection to enter infinite loop
 		if (maxDist < 1e-10f)
@@ -353,9 +351,6 @@ public class StaticMapTree
 		if (maxDist == float.MaxValue ||
 			maxDist == float.PositiveInfinity)
 			return false;
-
-		// valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-		Cypher.Assert(maxDist < float.MaxValue);
 
 		// prevent NaN values which can cause BIH intersection to enter infinite loop
 		if (maxDist < 1e-10f)

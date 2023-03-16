@@ -297,7 +297,7 @@ public partial class Player
 			//we should obtain map from GetMap() in 99% of cases. Special case
 			//only for quests which cast teleport spells on player
 			var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
-			Cypher.Assert(_map != null);
+
 			var gameObject = _map.GetGameObject(guid);
 
 			if (gameObject != null)
@@ -405,8 +405,6 @@ public partial class Player
 		switch (guid.High)
 		{
 			case HighGuid.Player:
-				Cypher.Assert(quest.HasFlag(QuestFlags.AutoComplete));
-
 				return Global.ObjectMgr.GetQuestTemplate(nextQuestID);
 			case HighGuid.Creature:
 			case HighGuid.Pet:
@@ -426,7 +424,7 @@ public partial class Player
 				//we should obtain map from GetMap() in 99% of cases. Special case
 				//only for quests which cast teleport spells on player
 				var _map = IsInWorld ? Map : Global.MapMgr.FindMap(Location.MapId, InstanceId);
-				Cypher.Assert(_map != null);
+
 				var gameObject = _map.GetGameObject(guid);
 
 				if (gameObject != null)
@@ -2316,8 +2314,6 @@ public partial class Player
 
 	public void KilledMonster(CreatureTemplate cInfo, ObjectGuid guid)
 	{
-		Cypher.Assert(cInfo != null);
-
 		if (cInfo.Entry != 0)
 			KilledMonsterCredit(cInfo.Entry, guid);
 
@@ -2475,10 +2471,6 @@ public partial class Player
 							objectiveIsNowComplete = IsQuestObjectiveProgressBarComplete(logSlot, quest);
 
 							break;
-						default:
-							Cypher.Assert(false, "Unhandled quest objective type {objectiveType}");
-
-							break;
 					}
 				}
 
@@ -2628,8 +2620,6 @@ public partial class Player
 
 	public bool IsQuestObjectiveCompletable(ushort slot, Quest quest, QuestObjective objective)
 	{
-		Cypher.Assert(objective.QuestID == quest.Id);
-
 		if (objective.Flags.HasAnyFlag(QuestObjectiveFlags.PartOfProgressBar))
 		{
 			// delegate check to actual progress bar objective

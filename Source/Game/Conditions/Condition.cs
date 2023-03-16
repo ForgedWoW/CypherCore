@@ -39,8 +39,6 @@ public class Condition
 
 	public bool Meets(ConditionSourceInfo sourceInfo)
 	{
-		Cypher.Assert(ConditionTarget < SharedConst.MaxConditionTargets);
-
 		var map = sourceInfo.mConditionMap;
 		var condMeets = false;
 		var needsObject = false;
@@ -161,8 +159,6 @@ public class Condition
 			case ConditionTypes.Item:
 				if (player != null)
 				{
-					// don't allow 0 items (it's checked during table load)
-					Cypher.Assert(ConditionValue2 != 0);
 					var checkBank = ConditionValue3 != 0;
 					condMeets = player.HasItemCount(ConditionValue1, ConditionValue2, checkBank);
 				}
@@ -668,10 +664,6 @@ public class Condition
 				break;
 			case ConditionTypes.PlayerCondition:
 				mask |= GridMapTypeMask.Player;
-
-				break;
-			default:
-				Cypher.Assert(false, "Condition.GetSearcherTypeMaskForCondition - missing condition handling!");
 
 				break;
 		}

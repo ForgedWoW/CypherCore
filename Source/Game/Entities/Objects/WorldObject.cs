@@ -384,9 +384,6 @@ public abstract class WorldObject : IDisposable
 		get => _currMap;
 		set
 		{
-			Cypher.Assert(value != null);
-			Cypher.Assert(!IsInWorld);
-
 			if (_currMap == value)
 				return;
 
@@ -476,12 +473,9 @@ public abstract class WorldObject : IDisposable
 		if (IsWorldObject() && _currMap)
 		{
 			if (IsTypeId(TypeId.Corpse))
-			{
 				Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
-				Cypher.Assert(false);
-			}
-
-			ResetMap();
+			else
+				ResetMap();
 		}
 
 		if (IsInWorld)
@@ -490,14 +484,11 @@ public abstract class WorldObject : IDisposable
 
 			if (IsTypeMask(TypeMask.Item))
 				Log.outFatal(LogFilter.Misc, "Item slot {0}", ((Item)this).Slot);
-
-			Cypher.Assert(false);
 		}
 
 		if (_objectUpdated)
 		{
 			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
-			Cypher.Assert(false);
 		}
 	}
 
@@ -654,8 +645,6 @@ public abstract class WorldObject : IDisposable
 
 	public void SendOutOfRangeForPlayer(Player target)
 	{
-		Cypher.Assert(target);
-
 		UpdateData updateData = new(target.Location.MapId);
 		BuildOutOfRangeUpdateBlock(updateData);
 		updateData.BuildPacket(out var packet);
@@ -1022,7 +1011,6 @@ public abstract class WorldObject : IDisposable
 		if (flags.SmoothPhasing)
 		{
 			var smoothPhasingInfo = GetSmoothPhasing().GetInfoForSeer(target.GUID);
-			Cypher.Assert(smoothPhasingInfo != null);
 
 			data.WriteBit(smoothPhasingInfo.ReplaceActive);
 			data.WriteBit(smoothPhasingInfo.StopAnimKits);
@@ -1447,8 +1435,6 @@ public abstract class WorldObject : IDisposable
 
 	public void SetVisibilityDistanceOverride(VisibilityDistanceType type)
 	{
-		Cypher.Assert(type < VisibilityDistanceType.Max);
-
 		if (TypeId == TypeId.Player)
 			return;
 
@@ -1733,9 +1719,6 @@ public abstract class WorldObject : IDisposable
 		if (_currMap == null)
 			return;
 
-		Cypher.Assert(_currMap != null);
-		Cypher.Assert(!IsInWorld);
-
 		if (IsWorldObject())
 			_currMap.RemoveWorldObject(this);
 
@@ -1912,7 +1895,6 @@ public abstract class WorldObject : IDisposable
 
 	public void SummonCreatureGroup(byte group, out List<TempSummon> list)
 	{
-		Cypher.Assert((IsTypeId(TypeId.GameObject) || IsTypeId(TypeId.Unit)), "Only GOs and creatures can summon npc groups!");
 		list = new List<TempSummon>();
 		var data = Global.ObjectMgr.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
 
@@ -2816,8 +2798,6 @@ public abstract class WorldObject : IDisposable
 	// function based on function Unit::CanAttack from 13850 client
 	public bool IsValidAttackTarget(WorldObject target, SpellInfo bySpell = null)
 	{
-		Cypher.Assert(target != null);
-
 		// some positive spells can be casted at hostile target
 		var isPositiveSpell = bySpell != null && bySpell.IsPositive;
 
@@ -2975,8 +2955,6 @@ public abstract class WorldObject : IDisposable
 	// function based on function Unit::CanAssist from 13850 client
 	public bool IsValidAssistTarget(WorldObject target, SpellInfo bySpell = null, bool spellCheck = true)
 	{
-		Cypher.Assert(target);
-
 		// some negative spells can be casted at friendly target
 		var isNegativeSpell = bySpell != null && !bySpell.IsPositive;
 

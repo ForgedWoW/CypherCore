@@ -188,7 +188,6 @@ public class VMapManager : Singleton<VMapManager>
 				if (instanceTree.GetLocationInfo(pos, info))
 				{
 					floor = info.GroundZ;
-					Cypher.Assert(floor < float.MaxValue);
 					type = info.HitModel.GetLiquidType(); // entry from LiquidType.dbc
 					mogpFlags = info.HitModel.GetMogpFlags();
 

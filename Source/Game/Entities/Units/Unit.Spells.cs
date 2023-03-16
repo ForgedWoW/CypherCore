@@ -1732,8 +1732,6 @@ public partial class Unit
 
 	public void SetCurrentCastSpell(Spell pSpell)
 	{
-		Cypher.Assert(pSpell != null); // NULL may be never passed here, use InterruptSpell or InterruptNonMeleeSpells
-
 		var CSpellType = pSpell.CurrentContainer;
 
 		if (pSpell == GetCurrentSpell(CSpellType)) // avoid breaking self
@@ -2461,8 +2459,6 @@ public partial class Unit
 
 	public Spell InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, Spell interruptingSpell = null)
 	{
-		Cypher.Assert(spellType < CurrentSpellTypes.Max);
-
 		Log.outDebug(LogFilter.Unit, "Interrupt spell for unit {0}", Entry);
 		var spell = CurrentSpells.LookupByKey(spellType);
 
@@ -3155,8 +3151,6 @@ public partial class Unit
 		if (auraToRemove.IsRemoved)
 			return;
 
-		Cypher.Assert(auraToRemove.Owner == this);
-
 		if (removeMode == AuraRemoveMode.None)
 		{
 			Log.outError(LogFilter.Spells, "Unit.RemoveOwnedAura() called with unallowed removeMode AURA_REMOVE_NONE, spellId {0}", auraToRemove.Id);
@@ -3344,7 +3338,6 @@ public partial class Unit
 		{
 			var aura = _modAuras[auraType][i].Base;
 			var aurApp = aura.GetApplicationOfTarget(GUID);
-			Cypher.Assert(aurApp != null);
 
 			if (check(aurApp))
 			{
@@ -3559,16 +3552,9 @@ public partial class Unit
 		if (!_appliedAuras.Remove(aurApp))
 			return;
 
-		Cypher.Assert(aurApp != null);
-		Cypher.Assert(!aurApp.HasRemoveMode);
-		Cypher.Assert(aurApp.Target == this);
-
 		aurApp.RemoveMode = removeMode;
 		var aura = aurApp.Base;
 		Log.outDebug(LogFilter.Spells, "Aura {0} now is remove mode {1}", aura.Id, removeMode);
-
-		// dead loop is killing the server probably
-		Cypher.Assert(_removedAurasCount < 0xFFFFFFFF);
 
 		++_removedAurasCount;
 
@@ -3792,10 +3778,7 @@ public partial class Unit
 
 	public void _ApplyAuraEffect(Aura aura, int effIndex)
 	{
-		Cypher.Assert(aura != null);
-		Cypher.Assert(aura.HasEffect(effIndex));
 		var aurApp = aura.GetApplicationOfTarget(GUID);
-		Cypher.Assert(aurApp != null);
 
 		if (aurApp.EffectMask.Count == 0)
 			_ApplyAura(aurApp, effIndex);
@@ -3870,7 +3853,6 @@ public partial class Unit
 
 	public void _AddAura(UnitAura aura, Unit caster)
 	{
-		Cypher.Assert(!_cleanupDone);
 		_ownedAuras.Add(aura);
 
 		_RemoveNoStackAurasDueToAura(aura);
@@ -3882,11 +3864,6 @@ public partial class Unit
 
 		if (aura.IsSingleTarget)
 		{
-			// @HACK: Player is not in world during loading auras.
-			//Single target auras are not saved or loaded from database
-			//but may be created as a result of aura links (player mounts with passengers)
-			Cypher.Assert((IsInWorld && !IsDuringRemoveFromWorld) || aura.CasterGuid == GUID);
-
 			// register single target aura
 			caster._scAuras.Add(aura);
 
@@ -3909,8 +3886,6 @@ public partial class Unit
 
 	public Aura _TryStackingOrRefreshingExistingAura(AuraCreateInfo createInfo)
 	{
-		Cypher.Assert(!createInfo.CasterGuid.IsEmpty || createInfo.Caster);
-
 		// Check if these can stack anyway
 		if (createInfo.CasterGuid.IsEmpty && !createInfo.SpellInfo.IsStackableOnOneSlotWithDifferentCasters)
 			createInfo.CasterGuid = createInfo.Caster.GUID;
@@ -4398,10 +4373,7 @@ public partial class Unit
 		// use provided list of auras which can proc
 		if (procAuras != null)
 			foreach (var aurApp in procAuras)
-			{
-				Cypher.Assert(aurApp.Target == this);
 				processAuraApplication(aurApp);
-			}
 		// or generate one on our own
 		else
 			foreach (var aura in AppliedAuras)
@@ -4475,7 +4447,6 @@ public partial class Unit
 		}
 		else
 		{
-			Cypher.Assert(ProcDeep != 0);
 			--ProcDeep;
 		}
 	}

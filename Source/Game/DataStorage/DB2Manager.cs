@@ -213,7 +213,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		foreach (var uiDisplay in ChrClassUIDisplayStorage.Values)
 		{
-			Cypher.Assert(uiDisplay.ChrClassesID < (byte)PlayerClass.Max);
 			_uiDisplayByClass[uiDisplay.ChrClassesID] = uiDisplay;
 		}
 
@@ -485,8 +484,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		foreach (var namesProfanity in NamesProfanityStorage.Values)
 		{
-			Cypher.Assert(namesProfanity.Language < (int)Locale.Total || namesProfanity.Language == -1);
-
 			if (namesProfanity.Language != -1)
 				_nameValidators[namesProfanity.Language].Add(namesProfanity.Name);
 			else
@@ -504,8 +501,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		foreach (var namesReserved in NamesReservedLocaleStorage.Values)
 		{
-			Cypher.Assert(!Convert.ToBoolean(namesReserved.LocaleMask & ~((1 << (int)Locale.Total) - 1)));
-
 			for (var i = 0; i < (int)Locale.Total; ++i)
 			{
 				if (i == (int)Locale.None)
@@ -530,8 +525,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		foreach (var powerType in PowerTypeStorage.Values)
 		{
-			Cypher.Assert(powerType.PowerTypeEnum < PowerType.Max);
-
 			_powerTypes[powerType.PowerTypeEnum] = powerType;
 		}
 
@@ -539,16 +532,10 @@ public class DB2Manager : Singleton<DB2Manager>
 			_pvpItemBonus[pvpItem.ItemID] = pvpItem.ItemLevelDelta;
 
 		foreach (var talentUnlock in PvpTalentSlotUnlockStorage.Values)
-		{
-			Cypher.Assert(talentUnlock.Slot < (1 << PlayerConst.MaxPvpTalentSlots));
-
 			for (byte i = 0; i < PlayerConst.MaxPvpTalentSlots; ++i)
 				if (Convert.ToBoolean(talentUnlock.Slot & (1 << i)))
-				{
-					Cypher.Assert(_pvpTalentSlotUnlock[i] == null);
 					_pvpTalentSlotUnlock[i] = talentUnlock;
-				}
-		}
+
 
 		foreach (var poiBlob in QuestPOIBlobStorage)
 			QuestPOIBlobEntriesByMapId.Add(poiBlob.Value.UiMapID, poiBlob.Value);
@@ -970,15 +957,11 @@ public class DB2Manager : Singleton<DB2Manager>
 
 	public byte[] GetHotfixBlobData(uint tableHash, int recordId, Locale locale)
 	{
-		Cypher.Assert(SharedConst.IsValidLocale(locale), $"Locale {locale} is invalid locale");
-
 		return _hotfixBlob[(int)locale].LookupByKey((tableHash, recordId));
 	}
 
 	public List<HotfixOptionalData> GetHotfixOptionalData(uint tableHash, uint recordId, Locale locale)
 	{
-		Cypher.Assert(SharedConst.IsValidLocale(locale), $"Locale {locale} is invalid locale");
-
 		return _hotfixOptionalData[(int)locale].LookupByKey((tableHash, (int)recordId));
 	}
 
@@ -1110,8 +1093,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 	public ChrClassUIDisplayRecord GetUiDisplayForClass(PlayerClass unitClass)
 	{
-		Cypher.Assert(unitClass < PlayerClass.Max);
-
 		return _uiDisplayByClass[(int)unitClass];
 	}
 
@@ -1911,7 +1892,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 	public string GetNameGenEntry(uint race, uint gender)
 	{
-		Cypher.Assert(gender < (int)Gender.None);
 		var listNameGen = _nameGenData.LookupByKey(race);
 
 		if (listNameGen == null)
@@ -1993,8 +1973,6 @@ public class DB2Manager : Singleton<DB2Manager>
 
 	public uint GetRequiredLevelForPvpTalentSlot(byte slot, PlayerClass class_)
 	{
-		Cypher.Assert(slot < PlayerConst.MaxPvpTalentSlots);
-
 		if (_pvpTalentSlotUnlock[slot] != null)
 		{
 			switch (class_)

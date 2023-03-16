@@ -1215,8 +1215,6 @@ public class BfCapturePoint
 
 	public bool SetCapturePointData(GameObject capturePoint)
 	{
-		Cypher.Assert(capturePoint);
-
 		Log.outError(LogFilter.Battlefield, "Creating capture point {0}", capturePoint.Entry);
 
 		m_capturePointGUID = capturePoint.GUID;

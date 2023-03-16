@@ -244,8 +244,6 @@ public partial class WorldSession
 						}
 						else if (pet.OwnerGUID == Player.GUID)
 						{
-							Cypher.Assert(pet.IsTypeId(TypeId.Unit));
-
 							if (pet.IsPet)
 							{
 								if (pet.AsPet.PetType == PetType.Hunter)

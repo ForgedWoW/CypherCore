@@ -46,7 +46,6 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 	public void AddArenaTeam(ArenaTeam arenaTeam)
 	{
 		var added = ArenaTeamStorage.TryAdd(arenaTeam.GetId(), arenaTeam);
-		Cypher.Assert(!added, $"Duplicate arena team with ID {arenaTeam.GetId()}");
 	}
 
 	public void RemoveArenaTeam(uint arenaTeamId)

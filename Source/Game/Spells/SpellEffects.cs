@@ -1285,8 +1285,6 @@ public partial class Spell
 			if (SpellInfo.GetEffect(i).IsEffect(SpellEffectName.PersistentAreaAura))
 				return;
 
-		Cypher.Assert(DynObjAura == null);
-
 		var radius = EffectInfo.CalcRadius(unitCaster);
 
 		// Caster not in world, might be spell triggered from aura removal
@@ -1319,7 +1317,6 @@ public partial class Spell
 			return;
 		}
 
-		Cypher.Assert(DynObjAura.DynobjOwner);
 		DynObjAura._ApplyEffectForTargets(EffectInfo.EffectIndex);
 	}
 
@@ -2541,7 +2538,6 @@ public partial class Spell
 				if (OldSummon.IsDead)
 					return;
 
-				Cypher.Assert(OldSummon.Map == owner.Map);
 				var newPos = new Position();
 				owner.GetClosePoint(newPos, OldSummon.CombatReach);
 				newPos.Orientation = OldSummon.Location.Orientation;

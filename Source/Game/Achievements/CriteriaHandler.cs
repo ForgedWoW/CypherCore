@@ -643,8 +643,6 @@ public class CriteriaHandler
 
 		if (criteria.Entry.StartTimer != 0)
 		{
-			Cypher.Assert(trees != null);
-
 			foreach (var tree in trees)
 			{
 				var timed = _timeCriteriaTrees.LookupByKey(tree.Id);

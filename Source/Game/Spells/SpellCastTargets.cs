@@ -296,7 +296,6 @@ public class SpellCastTargets
 
 	public void ModSrc(Position pos)
 	{
-		Cypher.Assert(TargetMask.HasAnyFlag(SpellCastTargetFlags.SourceLocation));
 		_src.Relocate(pos);
 	}
 
@@ -331,13 +330,11 @@ public class SpellCastTargets
 
 	public void ModDst(Position pos)
 	{
-		Cypher.Assert(TargetMask.HasAnyFlag(SpellCastTargetFlags.DestLocation));
 		_dst.Relocate(pos);
 	}
 
 	public void ModDst(SpellDestination spellDest)
 	{
-		Cypher.Assert(TargetMask.HasAnyFlag(SpellCastTargetFlags.DestLocation));
 		_dst = spellDest;
 	}
 

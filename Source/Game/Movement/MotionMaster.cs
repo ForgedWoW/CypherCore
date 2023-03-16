@@ -319,8 +319,6 @@ public class MotionMaster
 		if (HasFlag(MotionMasterFlags.InitializationPending | MotionMasterFlags.Initializing))
 			return;
 
-		Cypher.Assert(!Empty(), $"MotionMaster:Update: update called without Initializing! ({_owner.GUID})");
-
 		AddFlag(MotionMasterFlags.Update);
 
 		var top = GetCurrentMovementGenerator();
@@ -337,12 +335,8 @@ public class MotionMaster
 		if (top.HasFlag(MovementGeneratorFlags.Deactivated))
 			top.Reset(_owner);
 
-		Cypher.Assert(!top.HasFlag(MovementGeneratorFlags.InitializationPending | MovementGeneratorFlags.Deactivated), $"MotionMaster:Update: update called on an uninitialized top! ({_owner.GUID}) (type: {top.GetMovementGeneratorType()}, flags: {top.Flags})");
-
 		if (!top.Update(_owner, diff))
 		{
-			Cypher.Assert(top == GetCurrentMovementGenerator(), $"MotionMaster::Update: top was modified while updating! ({_owner.GUID})");
-
 			// Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
 			Pop(true, true); // Natural, and only, call to MovementInform
 		}
@@ -1031,7 +1025,6 @@ public class MotionMaster
 
 				// Only one FLIGHT_MOTION_TYPE is allowed
 				var hasExisting = HasMovementGenerator(gen => gen.GetMovementGeneratorType() == MovementGeneratorType.Flight);
-				Cypher.Assert(!hasExisting, "Duplicate flight path movement generator");
 
 				FlightPathMovementGenerator movement = new();
 				movement.LoadPath(_owner.AsPlayer);

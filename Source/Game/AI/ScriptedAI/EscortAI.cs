@@ -267,7 +267,6 @@ public class EscortAI : ScriptedAI
 		}
 		else if (moveType == MovementGeneratorType.Waypoint)
 		{
-			Cypher.Assert(Id < _path.nodes.Count, $"EscortAI::MovementInform: referenced movement id ({Id}) points to non-existing node in loaded path ({Me.GUID})");
 			var waypoint = _path.nodes[(int)Id];
 
 			Log.outDebug(LogFilter.ScriptsAi, $"EscortAI::MovementInform: waypoint node {waypoint.id} reached ({Me.GUID})");

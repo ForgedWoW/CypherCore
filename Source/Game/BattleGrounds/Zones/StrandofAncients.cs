@@ -1177,8 +1177,6 @@ public class BgStrandOfAncients : Battleground
 
 	bool IsGateDestroyed(uint gateId)
 	{
-		Cypher.Assert(gateId < SAMiscConst.Gates.Length);
-
 		return GateStatus[gateId] == SAGateState.AllianceGateDestroyed || GateStatus[gateId] == SAGateState.HordeGateDestroyed;
 	}
 

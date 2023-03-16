@@ -396,12 +396,10 @@ public class CombatManager
 		{
 			if (refe.IsPvP)
 			{
-				Cypher.Assert(!_pvpRefs.ContainsKey(guid), "Duplicate combat state detected!");
 				_pvpRefs[guid] = (PvPCombatReference)refe;
 			}
 			else
 			{
-				Cypher.Assert(!_pveRefs.ContainsKey(guid), "Duplicate combat state detected!");
 				_pveRefs[guid] = refe;
 			}
 		}

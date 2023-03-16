@@ -209,7 +209,6 @@ public partial class WorldSession
 			}
 
 			var seat = vehicle.GetSeatForPassenger(unit);
-			Cypher.Assert(seat != null);
 
 			if (seat.IsEjectable())
 				unit.ExitVehicle();

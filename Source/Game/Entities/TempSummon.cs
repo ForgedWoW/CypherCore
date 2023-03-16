@@ -209,8 +209,6 @@ public class TempSummon : Creature
 
 	public virtual void InitStats(uint duration)
 	{
-		Cypher.Assert(!IsPet);
-
 		_timer = duration;
 		_lifetime = duration;
 
@@ -375,13 +373,9 @@ public class TempSummon : Creature
 			return;
 		}
 
-		Cypher.Assert(!IsPet);
-
 		if (IsPet)
 		{
 			AsPet.Remove(PetSaveMode.NotInSlot);
-			Cypher.Assert(!IsInWorld);
-
 			return;
 		}
 

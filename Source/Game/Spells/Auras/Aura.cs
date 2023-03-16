@@ -267,7 +267,7 @@ public class Aura
 		}
 
 		// aura has to be already applied
-		Cypher.Assert(app == auraApp);
+
 		_auraApplications.Remove(target.GUID);
 
 		_removedApplications.Add(auraApp);
@@ -283,7 +283,6 @@ public class Aura
 	// and marks aura as removed
 	public void _Remove(AuraRemoveMode removeMode)
 	{
-		Cypher.Assert(!_isRemoved);
 		_isRemoved = true;
 
 		foreach (var pair in _auraApplications.ToList())
@@ -459,15 +458,12 @@ public class Aura
 			if (GetApplicationOfTarget(unit.GUID) != null)
 			{
 				// owner has to be in world, or effect has to be applied to self
-				Cypher.Assert((!Owner.IsInWorld && Owner == unit) || Owner.IsInMap(unit));
 				unit._ApplyAuraEffect(this, effIndex);
 			}
 	}
 
 	public void UpdateOwner(uint diff, WorldObject owner)
 	{
-		Cypher.Assert(owner == _owner);
-
 		var caster = Caster;
 		// Apply spellmods for channeled auras
 		// used for example when triggered spell of spell:10 is modded
@@ -837,9 +833,7 @@ public class Aura
 
 	public void UnregisterSingleTarget()
 	{
-		Cypher.Assert(_isSingleTarget);
 		var caster = Caster;
-		Cypher.Assert(caster != null);
 		caster.SingleCastAuras.Remove(this);
 		IsSingleTarget = false;
 	}
@@ -931,7 +925,6 @@ public class Aura
 
 	public void RecalculateAmountOfEffects()
 	{
-		Cypher.Assert(!IsRemoved);
 		var caster = Caster;
 
 		foreach (var effect in AuraEffects)
@@ -941,8 +934,6 @@ public class Aura
 
 	public void HandleAllEffects(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
-		Cypher.Assert(!IsRemoved);
-
 		foreach (var effect in AuraEffects)
 			if (!IsRemoved)
 				effect.Value.HandleEffect(aurApp, mode, apply);
@@ -1415,7 +1406,6 @@ public class Aura
 			return;
 
 		var procEntry = Global.SpellMgr.GetSpellProcEntry(SpellInfo);
-		Cypher.Assert(procEntry != null);
 
 		PrepareProcChargeDrop(procEntry, eventInfo);
 
@@ -1793,8 +1783,6 @@ public class Aura
 	//Static Methods
 	public static HashSet<int> BuildEffectMaskForOwner(SpellInfo spellProto, HashSet<int> availableEffectMask, WorldObject owner)
 	{
-		Cypher.Assert(spellProto != null);
-		Cypher.Assert(owner != null);
 		var effMask = new HashSet<int>();
 
 		switch (owner.TypeId)
@@ -1823,8 +1811,6 @@ public class Aura
 
 	public static Aura TryRefreshStackOrCreate(AuraCreateInfo createInfo, bool updateEffectMask = true)
 	{
-		Cypher.Assert(createInfo.Caster != null || !createInfo.CasterGuid.IsEmpty);
-
 		createInfo.IsRefresh = false;
 
 		createInfo.AuraEffectMask = BuildEffectMaskForOwner(createInfo.SpellInfo, createInfo.AuraEffectMask, createInfo.Owner);
@@ -1928,7 +1914,6 @@ public class Aura
 					effMask = createInfo.TargetEffectMask;
 
 				effMask = BuildEffectMaskForOwner(createInfo.SpellInfo, effMask, createInfo.Owner);
-				Cypher.Assert(effMask.Count != 0);
 
 				var unit = createInfo.Owner.AsUnit;
 				aura.ToUnitAura().AddStaticApplication(unit, effMask);
@@ -1936,14 +1921,11 @@ public class Aura
 				break;
 			case TypeId.DynamicObject:
 				createInfo.AuraEffectMask = BuildEffectMaskForOwner(createInfo.SpellInfo, createInfo.AuraEffectMask, createInfo.Owner);
-				Cypher.Assert(createInfo.AuraEffectMask.Count != 0);
 
 				aura = new DynObjAura(createInfo);
 
 				break;
 			default:
-				Cypher.Assert(false);
-
 				return null;
 		}
 

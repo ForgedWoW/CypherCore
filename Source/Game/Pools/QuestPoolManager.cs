@@ -18,9 +18,6 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 	public static void RegeneratePool(QuestPool pool)
 	{
-		Cypher.Assert(!pool.Members.Empty(), $"Quest pool {pool.PoolId} is empty");
-		Cypher.Assert(pool.NumActive <= pool.Members.Count, $"Quest Pool {pool.PoolId} requests {pool.NumActive} spawns, but has only {pool.Members.Count} members.");
-
 		var n = pool.Members.Count - 1;
 		pool.ActiveQuests.Clear();
 

@@ -197,8 +197,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 	uint SendPathSpline(Unit owner, float velocity, Span<Vector3> path)
 	{
 		var nodeCount = path.Length;
-		Cypher.Assert(nodeCount > 1, $"SplineChainMovementGenerator::SendPathSpline: Every path must have source & destination (size > 1)! ({owner.GUID})");
-
+		
 		MoveSplineInit init = new(owner);
 
 		if (nodeCount > 2)
@@ -216,7 +215,6 @@ public class SplineChainMovementGenerator : MovementGenerator
 
 	void SendSplineFor(Unit owner, int index, ref uint duration)
 	{
-		Cypher.Assert(index < _chainSize, $"SplineChainMovementGenerator::SendSplineFor: referenced index ({index}) higher than path size ({_chainSize})!");
 		Log.outDebug(LogFilter.Movement, $"SplineChainMovementGenerator::SendSplineFor: sending spline on index: {index}. ({owner.GUID})");
 
 		var thisLink = _chain[index];

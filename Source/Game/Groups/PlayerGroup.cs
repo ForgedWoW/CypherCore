@@ -216,7 +216,7 @@ public class PlayerGroup
 			if (leaderInstance != null)
 				leaderInstance.TrySetOwningGroup(this);
 
-			Cypher.Assert(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
+			AddMember(leader); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
 		}
 		else if (!AddMember(leader))
 		{

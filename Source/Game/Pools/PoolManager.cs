@@ -345,8 +345,6 @@ public class PoolManager : Singleton<PoolManager>
 
 				continue;
 			}
-
-			Cypher.Assert(templateData.MapId != -1);
 		}
 
 		// The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
@@ -516,8 +514,6 @@ public class PoolManager : Singleton<PoolManager>
 			case SpawnObjectType.AreaTrigger:
 				return 0;
 			default:
-				Cypher.Assert(false, $"Invalid spawn type {type} passed to PoolMgr.IsPartOfPool (with spawnId {spawnId})");
-
 				return 0;
 		}
 	}

@@ -11,7 +11,7 @@ using Game.Scripting.Interfaces.IVehicle;
 
 namespace Game.Entities;
 
-public class Vehicle : ITransport, IDisposable
+public class Vehicle : ITransport
 {
 	public enum Status
 	{
@@ -66,15 +66,6 @@ public class Vehicle : ITransport, IDisposable
 		InitMovementInfoForBase();
 	}
 
-	public void Dispose()
-	{
-		// @Uninstall must be called before this.
-		Cypher.Assert(_status == Status.UnInstalling);
-
-		foreach (var pair in Seats)
-			Cypher.Assert(pair.Value.IsEmpty());
-	}
-
 	public ITransport RemovePassenger(WorldObject passenger)
 	{
 		var unit = passenger.AsUnit;
@@ -86,7 +77,6 @@ public class Vehicle : ITransport, IDisposable
 			return null;
 
 		var seat = GetSeatKeyValuePairForPassenger(unit);
-		Cypher.Assert(seat.Value != null);
 
 		Log.outDebug(LogFilter.Vehicle,
 					"Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
@@ -392,11 +382,8 @@ public class Vehicle : ITransport, IDisposable
 			if (!seat.Value.IsEmpty())
 			{
 				var passenger = Global.ObjAccessor.GetUnit(GetBase(), seat.Value.Passenger.Guid);
-				Cypher.Assert(passenger != null);
 				passenger.ExitVehicle();
 			}
-
-			Cypher.Assert(seat.Value.IsEmpty());
 		}
 
 		return true;
@@ -404,8 +391,6 @@ public class Vehicle : ITransport, IDisposable
 
 	public void RelocatePassengers()
 	{
-		Cypher.Assert(_me.Map != null);
-
 		List<Tuple<Unit, Position>> seatRelocation = new();
 
 		// not sure that absolute position calculation is correct, it must depend on vehicle pitch angle
@@ -415,8 +400,6 @@ public class Vehicle : ITransport, IDisposable
 
 			if (passenger != null)
 			{
-				Cypher.Assert(passenger.IsInWorld);
-
 				var pos = passenger.MovementInfo.Transport.Pos.Copy();
 				CalculatePassengerPosition(pos);
 
@@ -637,7 +620,6 @@ public class Vehicle : ITransport, IDisposable
 		Log.outDebug(LogFilter.Vehicle, "Vehicle ({0}, Entry {1}): installing accessory (Entry: {2}) on seat: {3}", _me.GUID.ToString(), GetCreatureEntry(), entry, seatId);
 
 		var accessory = _me.SummonCreature(entry, _me.Location, (TempSummonType)type, TimeSpan.FromMilliseconds(summonTime));
-		Cypher.Assert(accessory);
 
 		if (minion)
 			accessory.AddUnitTypeMask(UnitTypeMask.Accessory);

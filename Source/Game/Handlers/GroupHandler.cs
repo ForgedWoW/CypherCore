@@ -217,7 +217,6 @@ public partial class WorldSession
 				}
 
 				// If we're about to create a group there really should be a leader present
-				Cypher.Assert(leader);
 				group.RemoveInvite(leader);
 				group.Create(leader);
 				Global.GroupMgr.AddGroup(group);
@@ -271,7 +270,6 @@ public partial class WorldSession
 
 		var grp = Player.Group;
 		// grp is checked already above in CanUninviteFromGroup()
-		Cypher.Assert(grp);
 
 		if (grp.IsMember(packet.TargetGUID))
 		{

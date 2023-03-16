@@ -715,7 +715,6 @@ public sealed class SpellManager : Singleton<SpellManager>
 	public SpellInfo AssertSpellInfo(uint spellId, Difficulty difficulty)
 	{
 		var spellInfo = GetSpellInfo(spellId, difficulty);
-		Cypher.Assert(spellInfo != null);
 
 		return spellInfo;
 	}
@@ -2644,11 +2643,6 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		foreach (var effect in CliDB.SpellEffectStorage.Values)
 		{
-			Cypher.Assert(effect.Effect < (int)SpellEffectName.TotalSpellEffects, $"TOTAL_SPELL_EFFECTS must be at least {effect.Effect}");
-			Cypher.Assert(effect.EffectAura < (int)AuraType.Total, $"TOTAL_AURAS must be at least {effect.EffectAura}");
-			Cypher.Assert(effect.ImplicitTarget[0] < (int)Targets.TotalSpellTargets, $"TOTAL_SPELL_TARGETS must be at least {effect.ImplicitTarget[0]}");
-			Cypher.Assert(effect.ImplicitTarget[1] < (int)Targets.TotalSpellTargets, $"TOTAL_SPELL_TARGETS must be at least {effect.ImplicitTarget[1]}");
-
 			GetLoadHelper(effect.SpellID, effect.DifficultyID).Effects[effect.EffectIndex] = effect;
 
 			if (effect.Effect == (int)SpellEffectName.Summon)

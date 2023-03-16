@@ -660,7 +660,6 @@ public partial class WorldSession
 	void HandleMoveApplyMovementForceAck(MoveApplyMovementForceAck moveApplyMovementForceAck)
 	{
 		var mover = _player.UnitBeingMoved;
-		Cypher.Assert(mover != null);
 		_player.ValidateMovementInfo(moveApplyMovementForceAck.Ack.Status);
 
 		// prevent tampered movement data
@@ -683,7 +682,6 @@ public partial class WorldSession
 	void HandleMoveRemoveMovementForceAck(MoveRemoveMovementForceAck moveRemoveMovementForceAck)
 	{
 		var mover = _player.UnitBeingMoved;
-		Cypher.Assert(mover != null);
 		_player.ValidateMovementInfo(moveRemoveMovementForceAck.Ack.Status);
 
 		// prevent tampered movement data
@@ -706,7 +704,6 @@ public partial class WorldSession
 	void HandleMoveSetModMovementForceMagnitudeAck(MovementSpeedAck setModMovementForceMagnitudeAck)
 	{
 		var mover = _player.UnitBeingMoved;
-		Cypher.Assert(mover != null); // there must always be a mover
 		_player.ValidateMovementInfo(setModMovementForceMagnitudeAck.Ack.Status);
 
 		// prevent tampered movement data

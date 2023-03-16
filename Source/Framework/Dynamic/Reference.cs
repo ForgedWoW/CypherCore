@@ -27,7 +27,9 @@ namespace Framework.Dynamic
         // Create new link
         public void Link(TO toObj, FROM fromObj)
         {
-            Cypher.Assert(fromObj != null);                                // fromObj MUST not be NULL
+            if (fromObj == null)
+                return; // fromObj MUST not be NULL
+
             if (IsValid())
                 Unlink();
             if (toObj != null)

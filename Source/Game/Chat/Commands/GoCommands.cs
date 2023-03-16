@@ -104,7 +104,6 @@ class GoCommands
 
 		var boss = matches.KeyValueList.Last().Value;
 		var spawns = spawnLookup[boss.Entry];
-		Cypher.Assert(!spawns.Empty());
 
 		if (spawns.Count > 1)
 		{
@@ -457,7 +456,6 @@ class GoCommands
 
 		// update to parent zone if exist (client map show only zones without parents)
 		var zoneEntry = areaEntry.ParentAreaID != 0 ? CliDB.AreaTableStorage.LookupByKey(areaEntry.ParentAreaID) : areaEntry;
-		Cypher.Assert(zoneEntry != null);
 
 		x /= 100.0f;
 		y /= 100.0f;

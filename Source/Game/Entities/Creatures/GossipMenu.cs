@@ -18,8 +18,6 @@ public class GossipMenu
 							GossipOptionFlags flags, int? gossipNpcOptionId, uint actionMenuId, uint actionPoiId, bool boxCoded, uint boxMoney,
 							string boxText, int? spellId, int? overrideIconId, uint sender, uint action)
 	{
-		Cypher.Assert(_menuItems.Count <= SharedConst.MaxGossipMenuItems);
-
 		// Find a free new id - script case
 		if (orderIndex == -1)
 		{

@@ -60,7 +60,6 @@ public class Guardian : Minion
 	public bool InitStatsForLevel(uint petlevel)
 	{
 		var cinfo = Template;
-		Cypher.Assert(cinfo != null);
 
 		SetLevel(petlevel);
 

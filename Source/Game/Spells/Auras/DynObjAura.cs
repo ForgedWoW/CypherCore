@@ -13,9 +13,6 @@ public class DynObjAura : Aura
 	public DynObjAura(AuraCreateInfo createInfo) : base(createInfo)
 	{
 		LoadScripts();
-		Cypher.Assert(DynobjOwner != null);
-		Cypher.Assert(DynobjOwner.IsInWorld);
-		Cypher.Assert(DynobjOwner.Map == createInfo.Caster.Map);
 		_InitEffects(createInfo.AuraEffectMask, createInfo.Caster, createInfo.BaseAmount);
 		DynobjOwner.SetAura(this);
 	}

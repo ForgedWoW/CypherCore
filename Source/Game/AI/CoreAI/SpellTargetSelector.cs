@@ -18,8 +18,6 @@ public class SpellTargetSelector : ICheck<Unit>
 	{
 		_caster = caster;
 		_spellInfo = Global.SpellMgr.GetSpellInfo(spellId, caster.Map.DifficultyID);
-
-		Cypher.Assert(_spellInfo != null);
 	}
 
 	public bool Invoke(Unit target)

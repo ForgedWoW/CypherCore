@@ -178,8 +178,6 @@ public class PlayerTaxi
 		if (_taxiDestinations.Empty())
 			return "";
 
-		Cypher.Assert(_taxiDestinations.Count >= 2);
-
 		StringBuilder ss = new();
 		ss.Append($"{_flightMasterFactionId} ");
 

@@ -570,7 +570,9 @@ class DebugCommands
 		foreach (var key in store.Keys)
 		{
 			var groupData = Global.ObjectMgr.GetSpawnGroupData(key);
-			Cypher.Assert(groupData != null); // checked by objectmgr on load
+
+			if (groupData == null)
+				continue;
 
 			if (explain)
 			{

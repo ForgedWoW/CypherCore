@@ -413,8 +413,6 @@ public class PhasingHandler
 
 	public static void InitDbPersonalOwnership(PhaseShift phaseShift, ObjectGuid personalGuid)
 	{
-		Cypher.Assert(phaseShift.IsDbPhaseShift);
-		Cypher.Assert(phaseShift.HasPersonalPhase);
 		phaseShift.PersonalGuid = personalGuid;
 	}
 

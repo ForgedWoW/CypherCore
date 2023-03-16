@@ -496,10 +496,6 @@ public class TransportManager : Singleton<TransportManager>
 		if (leg.Spline == null)
 			InitializeLeg(leg, transport.Events, pathPoints, pauses, events, goInfo, ref totalTime);
 
-		if (transport.MapIds.Count > 1)
-			foreach (var mapId in transport.MapIds)
-				Cypher.Assert(!CliDB.MapStorage.LookupByKey(mapId).Instanceable());
-
 		transport.TotalPathTime = totalTime;
 	}
 }

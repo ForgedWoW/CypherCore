@@ -345,9 +345,6 @@ class Transport : GameObjectTypeBase, ITransport
 
 	public override void OnStateChanged(GameObjectState oldState, GameObjectState newState)
 	{
-		Cypher.Assert(newState >= GameObjectState.TransportActive);
-
-		// transports without stop frames just keep animating in state 24
 		if (_stopFrames.Empty())
 		{
 			if (newState != GameObjectState.TransportActive)
@@ -360,9 +357,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 		if (newState != GameObjectState.TransportActive)
 		{
-			Cypher.Assert(newState < (GameObjectState)(GameObjectState.TransportStopped + 9));
 			var stopFrame = (int)(newState - GameObjectState.TransportStopped);
-			Cypher.Assert(stopFrame < _stopFrames.Count);
 			stopPathProgress = _stopFrames[stopFrame];
 		}
 

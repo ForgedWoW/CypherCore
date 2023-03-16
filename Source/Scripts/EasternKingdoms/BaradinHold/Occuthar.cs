@@ -51,7 +51,6 @@ internal class boss_occuthar : BossAI
 	public boss_occuthar(Creature creature) : base(creature, DataTypes.Occuthar)
 	{
 		_vehicle = Me.VehicleKit1;
-		Cypher.Assert(_vehicle != null);
 	}
 
 	public override void JustEngagedWith(Unit who)

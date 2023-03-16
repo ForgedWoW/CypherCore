@@ -24,8 +24,6 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
 	{
-		Cypher.Assert(spellEffect != null && spellEffect.Effect == (uint)SpellEffectName.Language);
-
 		var languageId = (uint)spellEffect.EffectMiscValue[0];
 		_langsMap.Add(languageId, new LanguageDesc(spellEffect.SpellID, 0)); // register without a skill id for now
 	}

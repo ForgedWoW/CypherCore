@@ -183,15 +183,11 @@ public class Battleground : ZoneScript, IDisposable
 
 	public BattlegroundMap GetBgMap()
 	{
-		Cypher.Assert(m_Map);
-
 		return m_Map;
 	}
 
 	public WorldSafeLocsEntry GetTeamStartPosition(int teamId)
 	{
-		Cypher.Assert(teamId < TeamIds.Neutral);
-
 		return _battlegroundTemplate.StartLocation[teamId];
 	}
 

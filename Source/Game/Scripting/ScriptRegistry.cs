@@ -17,8 +17,6 @@ public class ScriptRegistry
 
 	public void AddScript(IScriptObject script)
 	{
-		Cypher.Assert(script != null);
-
 		if (!script.IsDatabaseBound())
 		{
 			// We're dealing with a code-only script; just add it.

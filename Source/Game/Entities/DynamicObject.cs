@@ -22,8 +22,6 @@ public class DynamicObject : WorldObject
 	{
 		get
 		{
-			Cypher.Assert(_caster != null);
-
 			return _caster.Faction;
 		}
 	}
@@ -43,9 +41,6 @@ public class DynamicObject : WorldObject
 	public override void Dispose()
 	{
 		// make sure all references were properly removed
-		Cypher.Assert(_aura == null);
-		Cypher.Assert(!_caster);
-		Cypher.Assert(!_isViewpoint);
 		_removedAura = null;
 
 		base.Dispose();
@@ -145,9 +140,6 @@ public class DynamicObject : WorldObject
 	public override void Update(uint diff)
 	{
 		// caster has to be always available and in the same map
-		Cypher.Assert(_caster != null);
-		Cypher.Assert(_caster.Map == Map);
-
 		var expired = false;
 
 		if (_aura != null)
@@ -194,7 +186,6 @@ public class DynamicObject : WorldObject
 
 	public void SetAura(Aura aura)
 	{
-		Cypher.Assert(_aura == null && aura != null);
 		_aura = aura;
 	}
 
@@ -280,7 +271,6 @@ public class DynamicObject : WorldObject
 
 	void RemoveAura()
 	{
-		Cypher.Assert(_aura != null && _removedAura == null);
 		_removedAura = _aura;
 		_aura = null;
 
@@ -301,16 +291,12 @@ public class DynamicObject : WorldObject
 
 	void BindToCaster()
 	{
-		Cypher.Assert(_caster == null);
 		_caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
-		Cypher.Assert(_caster != null);
-		Cypher.Assert(_caster.Map == Map);
 		_caster._RegisterDynObject(this);
 	}
 
 	void UnbindFromCaster()
 	{
-		Cypher.Assert(_caster != null);
 		_caster._UnregisterDynObject(this);
 		_caster = null;
 	}

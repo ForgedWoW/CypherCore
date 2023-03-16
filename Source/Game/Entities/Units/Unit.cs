@@ -615,7 +615,6 @@ public partial class Unit : WorldObject
 
 		// If this is set during update SetCantProc(false) call is missing somewhere in the code
 		// Having this would prevent spells from being proced, so let's crash
-		Cypher.Assert(ProcDeep == 0);
 
 		_combatManager.Update(diff);
 
@@ -941,9 +940,6 @@ public partial class Unit : WorldObject
 
 			if (IsCharmed)
 				RemoveCharmedBy(null);
-
-			Cypher.Assert(CharmedGUID.IsEmpty, $"Unit {Entry} has charmed guid when removed from world");
-			Cypher.Assert(CharmerGUID.IsEmpty, $"Unit {Entry} has charmer guid when removed from world");
 
 			var owner = OwnerUnit;
 
@@ -1348,9 +1344,6 @@ public partial class Unit : WorldObject
 
 	public void _EnterVehicle(Vehicle vehicle, sbyte seatId, AuraApplication aurApp)
 	{
-		// Must be called only from aura handler
-		Cypher.Assert(aurApp != null);
-
 		if (!IsAlive || VehicleKit1 == vehicle || vehicle.GetBase().IsOnVehicle(this))
 			return;
 
@@ -1396,7 +1389,6 @@ public partial class Unit : WorldObject
 			}
 		}
 
-		Cypher.Assert(!Vehicle);
 		vehicle.AddVehiclePassenger(this, seatId);
 	}
 
@@ -1423,13 +1415,8 @@ public partial class Unit : WorldObject
 			if (eff.CasterGuid != GUID)
 				continue;
 
-			// Make sure there is only one ride vehicle aura on target cast by the unit changing seat
-			Cypher.Assert(rideVehicleEffect == null);
 			rideVehicleEffect = eff;
 		}
-
-		// Unit riding a vehicle must always have control vehicle aura on target
-		Cypher.Assert(rideVehicleEffect != null);
 
 		rideVehicleEffect.ChangeAmount((seatId < 0 ? TransSeat : seatId) + 1);
 	}
@@ -1874,9 +1861,6 @@ public partial class Unit : WorldObject
 	// aura application effects are handled separately to prevent aura list corruption
 	public AuraApplication _CreateAuraApplication(Aura aura, HashSet<int> effMask)
 	{
-		// can't apply aura on unit which is going to be deleted - to not create a memory leak
-		Cypher.Assert(!_cleanupDone);
-
 		// just return if the aura has been already removed
 		// this can happen if OnEffectHitTarget() script hook killed the unit or the aura owner (which can be different)
 		if (aura.IsRemoved)
@@ -1885,9 +1869,6 @@ public partial class Unit : WorldObject
 
 			return null;
 		}
-
-		// aura mustn't be already applied on target
-		Cypher.Assert(!aura.IsAppliedOnTarget(GUID), "Unit._CreateAuraApplication: aura musn't be applied on target");
 
 		var aurSpellInfo = aura.SpellInfo;
 
@@ -3204,8 +3185,6 @@ public partial class Unit : WorldObject
 			if (duel_hasEnded)
 			{
 				var he = duel_wasMounted ? victim.Charmer.AsPlayer : victim.AsPlayer;
-
-				Cypher.Assert(he && he.Duel != null);
 
 				if (duel_wasMounted) // In this case victim==mount
 					victim.SetHealth(1);

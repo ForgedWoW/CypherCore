@@ -416,7 +416,6 @@ public class WorldManager : Singleton<WorldManager>
 		foreach (var mapEntry in CliDB.MapStorage.Values)
 			if (mapEntry.ParentMapID != -1)
 			{
-				Cypher.Assert(mapEntry.CosmeticParentMapID == -1 || mapEntry.ParentMapID == mapEntry.CosmeticParentMapID, $"Inconsistent parent map data for map {mapEntry.Id} (ParentMapID = {mapEntry.ParentMapID}, CosmeticParentMapID = {mapEntry.CosmeticParentMapID})");
 				mapData.Add((uint)mapEntry.ParentMapID, mapEntry.Id);
 			}
 			else if (mapEntry.CosmeticParentMapID != -1)
@@ -1954,7 +1953,6 @@ public class WorldManager : Singleton<WorldManager>
 		// store next reset time
 		var now = GameTime.GetGameTime();
 		var next = GetNextDailyResetTime(now);
-		Cypher.Assert(now < next);
 
 		_nextDailyQuestReset = next;
 		SetPersistentWorldVariable(NextDailyQuestResetTimeVarId, (int)next);
@@ -1983,7 +1981,6 @@ public class WorldManager : Singleton<WorldManager>
 		// store next reset time
 		var now = GameTime.GetGameTime();
 		var next = GetNextWeeklyResetTime(now);
-		Cypher.Assert(now < next);
 
 		_nextWeeklyQuestReset = next;
 		SetPersistentWorldVariable(NextWeeklyQuestResetTimeVarId, (int)next);
@@ -2012,10 +2009,8 @@ public class WorldManager : Singleton<WorldManager>
 		// store next reset time
 		var now = GameTime.GetGameTime();
 		var next = GetNextMonthlyResetTime(now);
-		Cypher.Assert(now < next);
 
 		_nextMonthlyQuestReset = next;
-		SetPersistentWorldVariable(NextMonthlyQuestResetTimeVarId, (int)next);
 
 		Log.outInfo(LogFilter.Misc, "Monthly quests for all characters have been reset.");
 	}
@@ -2177,8 +2172,6 @@ public class WorldManager : Singleton<WorldManager>
 
 	void AddSession_(WorldSession s)
 	{
-		Cypher.Assert(s != null);
-
 		//NOTE - Still there is race condition in WorldSession* being used in the Sockets
 
 		// kick already loaded player with same account (if any) and remove session

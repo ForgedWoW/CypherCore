@@ -34,7 +34,6 @@ public class MMapManager : Singleton<MMapManager>
 
 		// get this mmap data
 		var mmap = loadedMMaps[mapId];
-		Cypher.Assert(mmap.navMesh != null);
 
 		// check if we already have this tile loaded
 		var packedGridPos = PackTileID(x, y);

@@ -32,8 +32,6 @@ public class PlayerGuidLookupData
 
 		if (player)
 		{
-			Cypher.Assert(player.GUID == guid);
-
 			AccountID = player.Session.AccountGUID;
 			BnetAccountID = player.Session.BattlenetAccountGUID;
 			Name = player.GetName();

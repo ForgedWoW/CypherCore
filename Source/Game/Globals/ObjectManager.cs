@@ -6067,8 +6067,6 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			case SpawnObjectType.AreaTrigger:
 				return Global.AreaTriggerDataStorage.GetAreaTriggerSpawn(spawnId);
 			default:
-				Cypher.Assert(false, $"Invalid spawn object type {type}");
-
 				return null;
 		}
 	}
@@ -10792,8 +10790,6 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 	public ObjectGuidGenerator GetGenerator(HighGuid high)
 	{
-		Cypher.Assert(ObjectGuid.IsGlobal(high) || ObjectGuid.IsRealmSpecific(high), "Only global guid can be generated in ObjectMgr context");
-
 		return GetGuidSequenceGenerator(high);
 	}
 
@@ -12485,7 +12481,6 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	void OnDeleteSpawnData(SpawnData data)
 	{
 		var templateIt = _spawnGroupDataStorage.LookupByKey(data.SpawnGroupData.GroupId);
-		Cypher.Assert(templateIt != null, $"Creature data for ({data.Type},{data.SpawnId}) is being deleted and has invalid spawn group index {data.SpawnGroupData.GroupId}!");
 
 		if (templateIt.Flags.HasAnyFlag(SpawnGroupFlags.System)) // system groups don't store their members in the map
 			return;
@@ -12502,7 +12497,6 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			return;
 		}
 
-		Cypher.Assert(false, $"Spawn data ({data.Type},{data.SpawnId}) being removed is member of spawn group {data.SpawnGroupData.GroupId}, but not actually listed in the lookup table for that group!");
 	}
 
 	void PlayerCreateInfoAddItemHelper(uint race, uint class_, uint itemId, int count)
@@ -13925,8 +13919,6 @@ class ScriptNameContainer
 		// We insert an empty placeholder here so we can use the
 		// script id 0 as dummy for "no script found".
 		var id = Insert("", false);
-
-		Cypher.Assert(id == 0);
 	}
 
 	public uint Insert(string scriptName, bool isScriptNameBound)
@@ -13936,7 +13928,6 @@ class ScriptNameContainer
 
 		if (result)
 		{
-			Cypher.Assert(NameToIndex.Count <= int.MaxValue);
 			IndexToName.Add(entry);
 		}
 

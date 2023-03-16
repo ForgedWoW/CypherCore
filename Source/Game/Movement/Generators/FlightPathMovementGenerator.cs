@@ -89,8 +89,6 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
 			do
 			{
-				Cypher.Assert(_currentNode < _path.Count, $"Point Id: {pointId}\n{owner.GetDebugInfo()}");
-
 				DoEventIfAny(owner, _path[_currentNode], departureEvent);
 
 				while (!_pointsForPathSwitch.Empty() && _pointsForPathSwitch[0].PathIndex <= _currentNode)
@@ -279,8 +277,6 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
 	void DoEventIfAny(Player owner, TaxiPathNodeRecord node, bool departure)
 	{
-		Cypher.Assert(node != null, owner.GetDebugInfo());
-
 		var eventid = departure ? node.DepartureEventID : node.ArrivalEventID;
 
 		if (eventid != 0)

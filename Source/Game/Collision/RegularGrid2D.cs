@@ -195,8 +195,6 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
 	Node GetGrid(int x, int y)
 	{
-		Cypher.Assert(x < CELL_NUMBER && y < CELL_NUMBER);
-
 		if (_nodes[x][y] == null)
 			_nodes[x][y] = new Node();
 

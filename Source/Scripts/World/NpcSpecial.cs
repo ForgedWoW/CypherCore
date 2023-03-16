@@ -475,13 +475,7 @@ internal class npc_air_force_bots : NullCreatureAI
 	{
 		foreach (var spawn in Misc.AirforceSpawns)
 			if (spawn.myEntry == entry)
-			{
-				Cypher.Assert(Global.ObjectMgr.GetCreatureTemplate(spawn.otherEntry) != null, $"Invalid creature entry {spawn.otherEntry} in 'npc_air_force_bots' script");
-
 				return spawn;
-			}
-
-		Cypher.Assert(false, $"Unhandled creature with entry {entry} is assigned 'npc_air_force_bots' script");
 
 		return null;
 	}

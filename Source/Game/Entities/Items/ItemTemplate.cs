@@ -437,22 +437,16 @@ public class ItemTemplate
 
 	public int GetStatModifierBonusStat(uint index)
 	{
-		Cypher.Assert(index < ItemConst.MaxStats);
-
 		return ExtendedData.StatModifierBonusStat[index];
 	}
 
 	public int GetStatPercentEditor(uint index)
 	{
-		Cypher.Assert(index < ItemConst.MaxStats);
-
 		return ExtendedData.StatPercentEditor[index];
 	}
 
 	public float GetStatPercentageOfSocket(uint index)
 	{
-		Cypher.Assert(index < ItemConst.MaxStats);
-
 		return ExtendedData.StatPercentageOfSocket[index];
 	}
 
@@ -463,8 +457,6 @@ public class ItemTemplate
 
 	public SocketColor GetSocketColor(uint index)
 	{
-		Cypher.Assert(index < ItemConst.MaxGemSockets);
-
 		return (SocketColor)ExtendedData.SocketType[index];
 	}
 }

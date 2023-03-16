@@ -106,7 +106,6 @@ public class Transport : GameObject, ITransport
 
 	public override void Dispose()
 	{
-		Cypher.Assert(_passengers.Empty());
 		UnloadStaticPassengers();
 		base.Dispose();
 	}

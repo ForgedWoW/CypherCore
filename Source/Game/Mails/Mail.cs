@@ -81,16 +81,12 @@ public class MailReceiver
 	{
 		m_receiver = receiver;
 		m_receiver_lowguid = receiver_lowguid;
-
-		Cypher.Assert(!receiver || receiver.GUID.Counter == receiver_lowguid);
 	}
 
 	public MailReceiver(Player receiver, ObjectGuid receiverGuid)
 	{
 		m_receiver = receiver;
 		m_receiver_lowguid = receiverGuid.Counter;
-
-		Cypher.Assert(!receiver || receiver.GUID == receiverGuid);
 	}
 
 	public Player GetPlayer()

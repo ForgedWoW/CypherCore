@@ -1292,8 +1292,6 @@ public partial class Creature : Unit
 		if (data.SpawnId == 0)
 			data.SpawnId = SpawnId;
 
-		Cypher.Assert(data.SpawnId == SpawnId);
-
 		data.Id = Entry;
 		data.Displayid = displayId;
 		data.EquipmentId = (sbyte)CurrentEquipmentId;

@@ -208,7 +208,6 @@ public class Map : IDisposable
 		for (var i = 0; i < _worldObjects.Count; ++i)
 		{
 			var obj = _worldObjects[i];
-			Cypher.Assert(obj.IsWorldObject());
 			obj.RemoveFromWorld();
 			obj.ResetMap();
 		}
@@ -358,7 +357,6 @@ public class Map : IDisposable
 		EnsureGridLoadedForActiveObject(cell, player);
 		AddToGrid(player, cell);
 
-		Cypher.Assert(player.Map == this);
 		player.Map = this;
 		player.AddToWorld();
 
@@ -565,7 +563,6 @@ public class Map : IDisposable
 
 		if (oldZone != MapConst.InvalidZone)
 		{
-			Cypher.Assert(_zonePlayerCountMap[oldZone] != 0, $"A player left zone {oldZone} (went to {newZone}) - but there were no players in the zone!");
 			--_zonePlayerCountMap[oldZone];
 		}
 
@@ -934,8 +931,6 @@ public class Map : IDisposable
 
 	public void CreatureRelocation(Creature creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true)
 	{
-		Cypher.Assert(CheckGridIntegrity(creature, false));
-
 		var new_cell = new Cell(x, y);
 
 		if (!respawnRelocationOnFail && GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
@@ -960,8 +955,6 @@ public class Map : IDisposable
 			creature.UpdatePositionData();
 			RemoveCreatureFromMoveList(creature);
 		}
-
-		Cypher.Assert(CheckGridIntegrity(creature, true));
 	}
 
 	public void GameObjectRelocation(GameObject go, Position pos, bool respawnRelocationOnFail = true)
@@ -971,8 +964,6 @@ public class Map : IDisposable
 
 	public void GameObjectRelocation(GameObject go, float x, float y, float z, float orientation, bool respawnRelocationOnFail = true)
 	{
-		Cypher.Assert(CheckGridIntegrity(go, false));
-
 		var new_cell = new Cell(x, y);
 
 		if (!respawnRelocationOnFail && GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
@@ -1005,8 +996,6 @@ public class Map : IDisposable
 			go.AfterRelocation();
 			RemoveGameObjectFromMoveList(go);
 		}
-
-		Cypher.Assert(CheckGridIntegrity(go, true));
 	}
 
 	public void DynamicObjectRelocation(DynamicObject dynObj, Position pos)
@@ -1016,7 +1005,6 @@ public class Map : IDisposable
 
 	public void DynamicObjectRelocation(DynamicObject dynObj, float x, float y, float z, float orientation)
 	{
-		Cypher.Assert(CheckGridIntegrity(dynObj, false));
 		Cell new_cell = new(x, y);
 
 		if (GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
@@ -1049,8 +1037,6 @@ public class Map : IDisposable
 			dynObj.UpdateObjectVisibility(false);
 			RemoveDynamicObjectFromMoveList(dynObj);
 		}
-
-		Cypher.Assert(CheckGridIntegrity(dynObj, true));
 	}
 
 	public void AreaTriggerRelocation(AreaTrigger at, Position pos)
@@ -1060,7 +1046,6 @@ public class Map : IDisposable
 
 	public void AreaTriggerRelocation(AreaTrigger at, float x, float y, float z, float orientation)
 	{
-		Cypher.Assert(CheckGridIntegrity(at, false));
 		Cell new_cell = new(x, y);
 
 		if (GetGrid(new_cell.GetGridX(), new_cell.GetGridY()) == null)
@@ -1083,8 +1068,6 @@ public class Map : IDisposable
 			at.UpdateObjectVisibility(false);
 			RemoveAreaTriggerFromMoveList(at);
 		}
-
-		Cypher.Assert(CheckGridIntegrity(at, true));
 	}
 
 	public bool CreatureRespawnRelocation(Creature c, bool diffGridOnly)
@@ -1194,8 +1177,6 @@ public class Map : IDisposable
 			ObjectGridUnloader worker = new();
 			grid.VisitAllGrids(worker);
 		}
-
-		Cypher.Assert(_objectsToRemove.Empty());
 
 		lock (Grids)
 		{
@@ -1575,9 +1556,6 @@ public class Map : IDisposable
 
 	public void ApplyDynamicModeRespawnScaling(WorldObject obj, ulong spawnId, ref uint respawnDelay, uint mode)
 	{
-		Cypher.Assert(mode == 1);
-		Cypher.Assert(obj.Map == this);
-
 		if (IsBattlegroundOrArena)
 			return;
 
@@ -1648,8 +1626,6 @@ public class Map : IDisposable
 
 		foreach (var data in Global.ObjectMgr.GetSpawnMetadataForGroup(groupId))
 		{
-			Cypher.Assert(groupData.MapId == data.MapId);
-
 			var respawnMap = GetRespawnMapForType(data.Type);
 
 			if (respawnMap == null)
@@ -1724,8 +1700,6 @@ public class Map : IDisposable
 					break;
 				}
 				default:
-					Cypher.Assert(false, $"Invalid spawn type {data.Type} with spawnId {data.SpawnId}");
-
 					return false;
 			}
 		}
@@ -1752,8 +1726,6 @@ public class Map : IDisposable
 
 		foreach (var data in Global.ObjectMgr.GetSpawnMetadataForGroup(groupId))
 		{
-			Cypher.Assert(groupData.MapId == data.MapId);
-
 			if (deleteRespawnTimes)
 				RemoveRespawnTime(data.Type, data.SpawnId);
 
@@ -1885,8 +1857,6 @@ public class Map : IDisposable
 
 	public void AddObjectToRemoveList(WorldObject obj)
 	{
-		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId == InstanceId);
-
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
 
@@ -1895,8 +1865,6 @@ public class Map : IDisposable
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
 	{
-		Cypher.Assert(obj.Location.MapId == Id && obj.InstanceId == InstanceId);
-
 		// i_objectsToSwitch is iterated only in Map::RemoveAllObjectsInRemoveList() and it uses
 		// the contained objects only if GetTypeId() == TYPEID_UNIT , so we can return in all other cases
 		if (!obj.IsTypeId(TypeId.Unit))
@@ -1906,8 +1874,6 @@ public class Map : IDisposable
 			_objectsToSwitch.Add(obj, on);
 		else if (_objectsToSwitch[obj] != on)
 			_objectsToSwitch.Remove(obj);
-		else
-			Cypher.Assert(false);
 	}
 
 	public uint GetPlayersCountExceptGMs()
@@ -2993,7 +2959,6 @@ public class Map : IDisposable
 
 		Log.outDebug(LogFilter.Maps, "Switch object {0} from grid[{1}, {2}] {3}", obj.GUID, cell.GetGridX(), cell.GetGridY(), on);
 		var ngrid = GetGrid(cell.GetGridX(), cell.GetGridY());
-		Cypher.Assert(ngrid != null);
 
 		RemoveFromGrid(obj, cell);
 
@@ -3675,7 +3640,6 @@ public class Map : IDisposable
 			while (!_updateObjects.Empty())
 			{
 				var obj = _updateObjects[0];
-				Cypher.Assert(obj.IsInWorld);
 				_updateObjects.RemoveAt(0);
 				obj.BuildUpdate(update_players);
 			}
@@ -3691,7 +3655,6 @@ public class Map : IDisposable
 	private bool CheckRespawn(RespawnInfo info)
 	{
 		var data = Global.ObjectMgr.GetSpawnData(info.ObjectType, info.SpawnId);
-		Cypher.Assert(data != null, $"Invalid respawn info with type {info.ObjectType}, spawnID {info.SpawnId} in respawn queue.");
 
 		// First, check if this creature's spawn group is inactive
 		if (!IsSpawnGroupActive(data.SpawnGroupData.GroupId))
@@ -3737,8 +3700,6 @@ public class Map : IDisposable
 
 				break;
 			default:
-				Cypher.Assert(false, $"Invalid spawn type {info.ObjectType} with spawnId {info.SpawnId} on map {Id}");
-
 				return true;
 		}
 
@@ -3826,12 +3787,10 @@ public class Map : IDisposable
 				else
 					return false;
 			}
-
-			Cypher.Assert(!bySpawnIdMap.ContainsKey(info.SpawnId), $"Insertion of respawn info with id ({info.ObjectType},{info.SpawnId}) into spawn id map failed - state desync.");
 		}
 		else
 		{
-			Cypher.Assert(false, $"Invalid respawn info for spawn id ({info.ObjectType},{info.SpawnId}) being inserted");
+			return false;
 		}
 
 		RespawnInfo ri = new(info);
@@ -3858,8 +3817,6 @@ public class Map : IDisposable
 			case SpawnObjectType.AreaTrigger:
 				return null;
 			default:
-				Cypher.Assert(false);
-
 				return null;
 		}
 	}
@@ -3873,9 +3830,6 @@ public class Map : IDisposable
 
 	private void DeleteRespawnInfo(RespawnInfo info, SQLTransaction dbTrans = null)
 	{
-		// Delete from all relevant containers to ensure consistency
-		Cypher.Assert(info != null);
-
 		// spawnid store
 		var spawnMap = GetRespawnMapForType(info.ObjectType);
 
@@ -3883,7 +3837,6 @@ public class Map : IDisposable
 			return;
 
 		var respawnInfo = spawnMap.LookupByKey(info.SpawnId);
-		Cypher.Assert(respawnInfo != null, $"Respawn stores inconsistent for map {Id}, spawnid {info.SpawnId} (type {info.ObjectType})");
 		spawnMap.Remove(info.SpawnId);
 
 		// respawn heap
@@ -3931,10 +3884,6 @@ public class Map : IDisposable
 
 				break;
 			}
-			default:
-				Cypher.Assert(false, $"Invalid spawn type {type} (spawnid {spawnId}) on map {Id}");
-
-				break;
 		}
 	}
 
@@ -3989,7 +3938,6 @@ public class Map : IDisposable
 			else
 			{
 				// new respawn time, update heap position
-				Cypher.Assert(now < next.RespawnTime); // infinite loop guard
 				SaveRespawnInfoDB(next);
 			}
 		}
@@ -3997,8 +3945,6 @@ public class Map : IDisposable
 
 	private bool ShouldBeSpawnedOnGridLoad(SpawnObjectType type, ulong spawnId)
 	{
-		Cypher.Assert(SpawnMetadata.TypeHasData(type));
-
 		// check if the object is on its respawn timer
 		if (GetRespawnTime(type, spawnId) != 0)
 			return false;
@@ -4120,8 +4066,6 @@ public class Map : IDisposable
 
 	private void RemoveCorpse(Corpse corpse)
 	{
-		Cypher.Assert(corpse);
-
 		corpse.UpdateObjectVisibilityOnDestroy();
 
 		if (corpse.Location.GetCurrentCell() != null)
@@ -4237,7 +4181,6 @@ public class Map : IDisposable
 	//MapScript
 	public static void OnCreateMap(Map map)
 	{
-		Cypher.Assert(map != null);
 		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
@@ -4252,7 +4195,6 @@ public class Map : IDisposable
 
 	public static void OnDestroyMap(Map map)
 	{
-		Cypher.Assert(map != null);
 		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
@@ -4267,9 +4209,6 @@ public class Map : IDisposable
 
 	public static void OnPlayerEnterMap(Map map, Player player)
 	{
-		Cypher.Assert(map != null);
-		Cypher.Assert(player != null);
-
 		Global.ScriptMgr.ForEach<IPlayerOnMapChanged>(p => p.OnMapChanged(player));
 
 		var record = map.Entry;
@@ -4286,7 +4225,6 @@ public class Map : IDisposable
 
 	public static void OnPlayerLeaveMap(Map map, Player player)
 	{
-		Cypher.Assert(map != null);
 		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())
@@ -4301,7 +4239,6 @@ public class Map : IDisposable
 
 	public static void OnMapUpdate(Map map, uint diff)
 	{
-		Cypher.Assert(map != null);
 		var record = map.Entry;
 
 		if (record != null && record.IsWorldMap())

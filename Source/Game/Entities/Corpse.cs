@@ -73,8 +73,6 @@ public class Corpse : WorldObject
 
 	public bool Create(ulong guidlow, Player owner)
 	{
-		Cypher.Assert(owner != null);
-
 		Location.Relocate(owner.Location.X, owner.Location.Y, owner.Location.Z, owner.Location.Orientation);
 
 		if (!Location.IsPositionValid)

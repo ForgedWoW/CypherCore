@@ -2622,8 +2622,6 @@ public class Guild
 
 	void _SendBankContentUpdate(MoveItemData pSrc, MoveItemData pDest)
 	{
-		Cypher.Assert(pSrc.IsBank() || pDest.IsBank());
-
 		byte tabId = 0;
 		List<byte> slots = new();
 
@@ -2722,7 +2720,6 @@ public class Guild
 	void SendGuildRanksUpdate(ObjectGuid setterGuid, ObjectGuid targetGuid, GuildRankId rank)
 	{
 		var member = GetMember(targetGuid);
-		Cypher.Assert(member != null);
 
 		GuildSendRankChange rankChange = new();
 		rankChange.Officer = setterGuid;
@@ -4119,8 +4116,6 @@ public class Guild
 
 		public virtual bool CheckItem(ref uint splitedAmount)
 		{
-			Cypher.Assert(m_pItem != null);
-
 			if (splitedAmount > m_pItem.Count)
 				return false;
 
@@ -4143,7 +4138,6 @@ public class Guild
 
 		public bool CloneItem(uint count)
 		{
-			Cypher.Assert(m_pItem != null);
 			m_pClonedItem = m_pItem.CloneItem(count);
 
 			if (m_pClonedItem == null)
@@ -4158,8 +4152,6 @@ public class Guild
 
 		public virtual void LogAction(MoveItemData pFrom)
 		{
-			Cypher.Assert(pFrom.GetItem() != null);
-
 			Global.ScriptMgr.ForEach<IGuildOnItemMove>(p => p.OnItemMove(m_pGuild,
 																		m_pPlayer,
 																		pFrom.GetItem(),
@@ -4278,7 +4270,6 @@ public class Guild
 
 		public override Item StoreItem(SQLTransaction trans, Item pItem)
 		{
-			Cypher.Assert(pItem != null);
 			m_pPlayer.MoveItemToInventory(m_vec, pItem, true);
 			m_pPlayer.SaveInventoryAndGoldToDB(trans);
 
@@ -4287,8 +4278,6 @@ public class Guild
 
 		public override void LogBankEvent(SQLTransaction trans, MoveItemData pFrom, uint count)
 		{
-			Cypher.Assert(pFrom != null);
-
 			// Bank . Char
 			m_pGuild._LogBankEvent(trans,
 									GuildBankEventLogTypes.WithdrawItem,
@@ -4323,8 +4312,6 @@ public class Guild
 
 		public override bool HasStoreRights(MoveItemData pOther)
 		{
-			Cypher.Assert(pOther != null);
-
 			// Do not check rights if item is being swapped within the same bank tab
 			if (pOther.IsBank() && pOther.GetContainer() == m_container)
 				return true;
@@ -4334,8 +4321,6 @@ public class Guild
 
 		public override bool HasWithdrawRights(MoveItemData pOther)
 		{
-			Cypher.Assert(pOther != null);
-
 			// Do not check rights if item is being swapped within the same bank tab
 			if (pOther.IsBank() && pOther.GetContainer() == m_container)
 				return true;
@@ -4351,8 +4336,6 @@ public class Guild
 
 		public override void RemoveItem(SQLTransaction trans, MoveItemData pOther, uint splitedAmount = 0)
 		{
-			Cypher.Assert(m_pItem != null);
-
 			if (splitedAmount != 0)
 			{
 				m_pItem.SetCount(m_pItem.Count - splitedAmount);
@@ -4399,8 +4382,6 @@ public class Guild
 
 		public override void LogBankEvent(SQLTransaction trans, MoveItemData pFrom, uint count)
 		{
-			Cypher.Assert(pFrom.GetItem() != null);
-
 			if (pFrom.IsBank())
 				// Bank . Bank
 				m_pGuild._LogBankEvent(trans,

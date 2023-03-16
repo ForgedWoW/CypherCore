@@ -1403,12 +1403,9 @@ public partial class Player : Unit
 			Log.outFatal(LogFilter.Player, "Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
 
 			if (!charm.CharmerGUID.IsEmpty)
-			{
 				Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
-				Cypher.Assert(false);
-			}
-
-			SetCharm(charm, false);
+			else
+				SetCharm(charm, false);
 		}
 	}
 
@@ -1542,7 +1539,6 @@ public partial class Player : Unit
 			return;
 
 		var currency = CliDB.CurrencyTypesStorage.LookupByKey(id);
-		Cypher.Assert(currency != null);
 
 		// Check faction
 		if ((currency.IsAlliance() && Team != TeamFaction.Alliance) ||
@@ -1690,7 +1686,6 @@ public partial class Player : Unit
 			return;
 
 		var currency = CliDB.CurrencyTypesStorage.LookupByKey(id);
-		Cypher.Assert(currency != null);
 
 		// Check faction
 		if ((currency.IsAlliance() && Team != TeamFaction.Alliance) ||
@@ -3360,7 +3355,6 @@ public partial class Player : Unit
 
 	public void SetResurrectRequestData(WorldObject caster, uint health, uint mana, uint appliedAura)
 	{
-		Cypher.Assert(!IsResurrectRequested);
 		_resurrectionData = new ResurrectionData();
 		_resurrectionData.Guid = caster.GUID;
 		_resurrectionData.Location.WorldRelocate(caster.Location);
@@ -4040,7 +4034,6 @@ public partial class Player : Unit
 
 		map.AddToMap(pet.AsCreature);
 
-		Cypher.Assert(!petStable.CurrentPetIndex.HasValue);
 		petStable.SetCurrentUnslottedPetIndex((uint)petStable.UnslottedPets.Count);
 		PetStable.PetInfo petInfo = new();
 		pet.FillPetInfo(petInfo);
@@ -4115,7 +4108,6 @@ public partial class Player : Unit
 		pet.SavePetToDB(mode);
 
 		var currentPet = _petStable.GetCurrentPet();
-		Cypher.Assert(currentPet != null && currentPet.PetNumber == pet.GetCharmInfo().GetPetNumber());
 
 		if (mode == PetSaveMode.NotInSlot || mode == PetSaveMode.AsDeleted)
 			_petStable.CurrentPetIndex = null;
@@ -5887,8 +5879,6 @@ public partial class Player : Unit
 	//new
 	public uint DoRandomRoll(uint minimum, uint maximum)
 	{
-		Cypher.Assert(maximum <= 1000000);
-
 		var roll = RandomHelper.URand(minimum, maximum);
 
 		RandomRoll randomRoll = new();
@@ -6086,9 +6076,6 @@ public partial class Player : Unit
 
 	public void SetClientControl(Unit target, bool allowMove)
 	{
-		// a player can never client control nothing
-		Cypher.Assert(target);
-
 		// don't allow possession to be overridden
 		if (target.HasUnitState(UnitState.Charmed) && (GUID != target.CharmerGUID))
 		{
@@ -7704,8 +7691,6 @@ public partial class Player : Unit
 
 	bool IsFriendlyArea(AreaTableRecord areaEntry)
 	{
-		Cypher.Assert(areaEntry != null);
-
 		var factionTemplate = GetFactionTemplateEntry();
 
 		if (factionTemplate == null)

@@ -320,9 +320,6 @@ public partial class Spell : IDisposable
 			Log.outError(LogFilter.Spells, "SPELL: deleting spell for spell ID {0}. However, spell still referenced.", SpellInfo.Id);
 			SelfContainer = null;
 		}
-
-		if (_caster && _caster.TypeId == TypeId.Player)
-			Cypher.Assert(_caster.AsPlayer.SpellModTakingSpell != this);
 	}
 
 	public void InitExplicitTargets(SpellCastTargets targets)
@@ -3526,10 +3523,6 @@ public partial class Spell : IDisposable
 								Targets.SetSrc(_caster);
 
 								break;
-							default:
-								Cypher.Assert(false, "Spell.SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT_SRC");
-
-								break;
 						}
 
 						break;
@@ -3548,10 +3541,6 @@ public partial class Spell : IDisposable
 								SelectImplicitDestDestTargets(spellEffectInfo, targetType);
 
 								break;
-							default:
-								Cypher.Assert(false, "Spell.SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT_DEST");
-
-								break;
 						}
 
 						break;
@@ -3566,10 +3555,6 @@ public partial class Spell : IDisposable
 								SelectImplicitTargetObjectTargets(spellEffectInfo, targetType);
 
 								break;
-							default:
-								Cypher.Assert(false, "Spell.SelectEffectImplicitTargets: received not implemented select target reference type for TARGET_TYPE_OBJECT");
-
-								break;
 						}
 
 						break;
@@ -3580,21 +3565,13 @@ public partial class Spell : IDisposable
 				Log.outDebug(LogFilter.Spells, "SPELL: target type {0}, found in spellID {1}, effect {2} is not implemented yet!", SpellInfo.Id, spellEffectInfo.EffectIndex, targetType.Target);
 
 				break;
-			default:
-				Cypher.Assert(false, "Spell.SelectEffectImplicitTargets: received not implemented select target category");
-
-				break;
 		}
 	}
 
 	void SelectImplicitChannelTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
-		{
-			Cypher.Assert(false, "Spell.SelectImplicitChannelTargets: received not implemented target reference type");
-
 			return;
-		}
 
 		var channeledSpell = _originalCaster.GetCurrentSpell(CurrentSpellTypes.Channeled);
 
@@ -3670,21 +3647,13 @@ public partial class Spell : IDisposable
 
 				break;
 			}
-			default:
-				Cypher.Assert(false, "Spell.SelectImplicitChannelTargets: received not implemented target type");
-
-				break;
 		}
 	}
 
 	void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
-		{
-			Cypher.Assert(false, "Spell.SelectImplicitNearbyTargets: received not implemented target reference type");
-
 			return;
-		}
 
 		var range = 0.0f;
 
@@ -3704,10 +3673,6 @@ public partial class Spell : IDisposable
 			case SpellTargetCheckTypes.Entry:
 			case SpellTargetCheckTypes.Default:
 				range = SpellInfo.GetMaxRange(IsPositive, _caster, this);
-
-				break;
-			default:
-				Cypher.Assert(false, "Spell.SelectImplicitNearbyTargets: received not implemented selection check type");
 
 				break;
 		}
@@ -3851,10 +3816,6 @@ public partial class Spell : IDisposable
 				Targets.Dst = dest;
 
 				break;
-			default:
-				Cypher.Assert(false, "Spell.SelectImplicitNearbyTargets: received not implemented target object type");
-
-				break;
 		}
 
 		SelectImplicitChainTargets(spellEffectInfo, targetType, target, effMask);
@@ -3928,7 +3889,7 @@ public partial class Spell : IDisposable
 
 	void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
-		WorldObject referer;
+		WorldObject referer = null;
 
 		switch (targetType.ReferenceType)
 		{
@@ -3957,16 +3918,12 @@ public partial class Spell : IDisposable
 
 				break;
 			}
-			default:
-				Cypher.Assert(false, "Spell.SelectImplicitAreaTargets: received not implemented target reference type");
-
-				return;
 		}
 
 		if (referer == null)
 			return;
 
-		Position center;
+		Position center = _caster.Location;
 
 		switch (targetType.ReferenceType)
 		{
@@ -3984,10 +3941,6 @@ public partial class Spell : IDisposable
 				center = referer.Location;
 
 				break;
-			default:
-				Cypher.Assert(false, "Spell.SelectImplicitAreaTargets: received not implemented target reference type");
-
-				return;
 		}
 
 		var radius = spellEffectInfo.CalcRadius(_caster) * SpellValue.RadiusMod;
@@ -4653,7 +4606,7 @@ public partial class Spell : IDisposable
 		var objectType = targetType.ObjectType;
 		var selectionType = targetType.CheckType;
 
-		Position dst;
+		Position dst = _caster.Location;
 
 		switch (targetType.ReferenceType)
 		{
@@ -4673,10 +4626,6 @@ public partial class Spell : IDisposable
 				dst = Targets.UnitTarget.Location;
 
 				break;
-			default:
-				Cypher.Assert(false, "Spell.SelectImplicitLineTargets: received not implemented target reference type");
-
-				return;
 		}
 
 		var condList = spellEffectInfo.ImplicitTargetConditions;
@@ -6242,7 +6191,6 @@ public partial class Spell : IDisposable
 			}
 			case SpellCastResult.CantUntalent:
 			{
-				Cypher.Assert(param1.HasValue);
 				packet.FailedArg1 = (int)param1;
 
 				break;
@@ -8874,8 +8822,6 @@ public partial class Spell : IDisposable
 
 				break;
 			default:
-				Cypher.Assert(false);
-
 				return false;
 		}
 

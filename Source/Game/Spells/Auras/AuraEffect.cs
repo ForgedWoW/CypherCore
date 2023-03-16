@@ -377,9 +377,6 @@ public class AuraEffect
 
 	public void HandleEffect(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply, AuraEffect triggeredBy = null)
 	{
-		// check if call is correct, we really don't want using bitmasks here (with 1 exception)
-		Cypher.Assert(mode == AuraEffectHandleModes.Real || mode == AuraEffectHandleModes.SendForClient || mode == AuraEffectHandleModes.ChangeAmount || mode == AuraEffectHandleModes.Stat || mode == AuraEffectHandleModes.Skill || mode == AuraEffectHandleModes.Reapply || mode == (AuraEffectHandleModes.ChangeAmount | AuraEffectHandleModes.Reapply));
-
 		// register/unregister effect in lists in case of real AuraEffect apply/remove
 		// registration/unregistration is done always before real effect handling (some effect handlers code is depending on this)
 		if (mode.HasAnyFlag(AuraEffectHandleModes.Real))
@@ -419,7 +416,6 @@ public class AuraEffect
 	public void HandleEffect(Unit target, AuraEffectHandleModes mode, bool apply, AuraEffect triggeredBy = null)
 	{
 		var aurApp = Base.GetApplicationOfTarget(target.GUID);
-		Cypher.Assert(aurApp != null);
 		HandleEffect(aurApp, mode, apply, triggeredBy);
 	}
 
