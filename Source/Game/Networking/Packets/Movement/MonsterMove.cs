@@ -66,44 +66,47 @@ public class MonsterMove : ServerPacket
 			movementSpline.SpellEffectExtraData = spellEffectExtraData;
 		}
 
-		var spline = moveSpline.spline;
-		var array = spline.GetPoints();
+        lock (moveSpline.spline)
+        {
+            var spline = moveSpline.spline;
+            var array = spline.GetPoints();
 
-		if (splineFlags.HasFlag(SplineFlag.UncompressedPath))
-		{
-			if (!splineFlags.HasFlag(SplineFlag.Cyclic))
-			{
-				var count = spline.GetPointCount() - 3;
+            if (splineFlags.HasFlag(SplineFlag.UncompressedPath))
+            {
+                if (!splineFlags.HasFlag(SplineFlag.Cyclic))
+                {
+                    var count = spline.GetPointCount() - 3;
 
-				for (uint i = 0; i < count; ++i)
-					movementSpline.Points.Add(array[i + 2]);
-			}
-			else
-			{
-				var count = spline.GetPointCount() - 3;
-				movementSpline.Points.Add(array[1]);
+                    for (uint i = 0; i < count; ++i)
+                        movementSpline.Points.Add(array[i + 2]);
+                }
+                else
+                {
+                    var count = spline.GetPointCount() - 3;
+                    movementSpline.Points.Add(array[1]);
 
-				for (uint i = 0; i < count; ++i)
-					movementSpline.Points.Add(array[i + 1]);
-			}
-		}
-		else
-		{
-			var lastIdx = spline.GetPointCount() - 3;
-			var realPath = new Span<Vector3>(spline.GetPoints()).Slice(1);
+                    for (uint i = 0; i < count; ++i)
+                        movementSpline.Points.Add(array[i + 1]);
+                }
+            }
+            else
+            {
+                var lastIdx = spline.GetPointCount() - 3;
+                var realPath = new Span<Vector3>(spline.GetPoints()).Slice(1);
 
-			movementSpline.Points.Add(realPath[lastIdx]);
+                movementSpline.Points.Add(realPath[lastIdx]);
 
-			if (lastIdx > 1)
-			{
-				var middle = (realPath[0] + realPath[lastIdx]) / 2.0f;
+                if (lastIdx > 1)
+                {
+                    var middle = (realPath[0] + realPath[lastIdx]) / 2.0f;
 
-				// first and last points already appended
-				for (var i = 1; i < lastIdx; ++i)
-					movementSpline.PackedDeltas.Add(middle - realPath[i]);
-			}
-		}
-	}
+                    // first and last points already appended
+                    for (var i = 1; i < lastIdx; ++i)
+                        movementSpline.PackedDeltas.Add(middle - realPath[i]);
+                }
+            }
+        }
+    }
 
 	public override void Write()
 	{

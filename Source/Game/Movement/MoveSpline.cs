@@ -52,12 +52,15 @@ public class MoveSpline
 		// Check if its a stop spline
 		if (args.flags.HasFlag(SplineFlag.Done))
 		{
-			spline.Clear();
+			lock (spline)
+			    spline.Clear();
 
 			return;
 		}
 
-		InitSpline(args);
+
+        lock (spline)
+            InitSpline(args);
 
 		// init parabolic / animation
 		// spline initialized, duration known and i able to compute parabolic acceleration
@@ -81,18 +84,22 @@ public class MoveSpline
 	}
 
 	public int CurrentPathIdx()
-	{
-		var point = point_Idx_offset + point_Idx - spline.First() + (Finalized() ? 1 : 0);
+    {
+        lock (spline)
+        {
+            var point = point_Idx_offset + point_Idx - spline.First() + (Finalized() ? 1 : 0);
 
-		if (IsCyclic())
-			point %= (spline.Last() - spline.First());
+            if (IsCyclic())
+                point %= (spline.Last() - spline.First());
 
-		return point;
-	}
+            return point;
+        }
+    }
 
 	public Vector3[] GetPath()
-	{
-		return spline.GetPoints();
+    {
+        lock (spline)
+            return spline.GetPoints();
 	}
 
 	public int TimePassed()
@@ -101,8 +108,9 @@ public class MoveSpline
 	}
 
 	public int Duration()
-	{
-		return spline.Length();
+    {
+        lock (spline)
+            return spline.Length();
 	}
 
 	public int CurrentSplineIdx()
@@ -121,45 +129,48 @@ public class MoveSpline
 	}
 
 	public Vector4 ComputePosition(int time_point, int point_index)
-	{
-		var u = 1.0f;
-		int seg_time = spline.Length(point_index, point_index + 1);
+    {
+        lock (spline)
+        {
+            var u = 1.0f;
+            int seg_time = spline.Length(point_index, point_index + 1);
 
-		if (seg_time > 0)
-			u = (time_point - spline.Length(point_index)) / (float)seg_time;
+            if (seg_time > 0)
+                u = (time_point - spline.Length(point_index)) / (float)seg_time;
 
-		var orientation = initialOrientation;
-		spline.Evaluate_Percent(point_index, u, out var c);
+            var orientation = initialOrientation;
+            spline.Evaluate_Percent(point_index, u, out var c);
 
-		if (splineflags.HasFlag(SplineFlag.Parabolic))
-			ComputeParabolicElevation(time_point, ref c.Z);
-		else if (splineflags.HasFlag(SplineFlag.Falling))
-			ComputeFallElevation(time_point, ref c.Z);
+            if (splineflags.HasFlag(SplineFlag.Parabolic))
+                ComputeParabolicElevation(time_point, ref c.Z);
+            else if (splineflags.HasFlag(SplineFlag.Falling))
+                ComputeFallElevation(time_point, ref c.Z);
 
-		if (splineflags.HasFlag(SplineFlag.Done) && facing.type != MonsterMoveType.Normal)
-		{
-			if (facing.type == MonsterMoveType.FacingAngle)
-				orientation = facing.angle;
-			else if (facing.type == MonsterMoveType.FacingSpot)
-				orientation = MathF.Atan2(facing.f.Y - c.Y, facing.f.X - c.X);
-			//nothing to do for MoveSplineFlag.Final_Target flag
-		}
-		else
-		{
-			if (!splineflags.HasFlag(SplineFlag.OrientationFixed | SplineFlag.Falling | SplineFlag.Unknown_0x8))
-			{
-				spline.Evaluate_Derivative(point_Idx, u, out var hermite);
+            if (splineflags.HasFlag(SplineFlag.Done) && facing.type != MonsterMoveType.Normal)
+            {
+                if (facing.type == MonsterMoveType.FacingAngle)
+                    orientation = facing.angle;
+                else if (facing.type == MonsterMoveType.FacingSpot)
+                    orientation = MathF.Atan2(facing.f.Y - c.Y, facing.f.X - c.X);
+                //nothing to do for MoveSplineFlag.Final_Target flag
+            }
+            else
+            {
+                if (!splineflags.HasFlag(SplineFlag.OrientationFixed | SplineFlag.Falling | SplineFlag.Unknown_0x8))
+                {
+                    spline.Evaluate_Derivative(point_Idx, u, out var hermite);
 
-				if (hermite.X != 0f || hermite.Y != 0f)
-					orientation = MathF.Atan2(hermite.Y, hermite.X);
-			}
+                    if (hermite.X != 0f || hermite.Y != 0f)
+                        orientation = MathF.Atan2(hermite.Y, hermite.X);
+                }
 
-			if (splineflags.HasFlag(SplineFlag.Backward))
-				orientation -= MathF.PI;
-		}
+                if (splineflags.HasFlag(SplineFlag.Backward))
+                    orientation -= MathF.PI;
+            }
 
-		return new Vector4(c.X, c.Y, c.Z, orientation);
-	}
+            return new Vector4(c.X, c.Y, c.Z, orientation);
+        }
+    }
 
 	public Vector4 ComputePosition()
 	{
@@ -168,25 +179,28 @@ public class MoveSpline
 
 	public Vector4 ComputePosition(int time_offset)
 	{
-		var time_point = time_passed + time_offset;
+        lock (spline)
+        {
+            var time_point = time_passed + time_offset;
 
-		if (time_point >= Duration())
-			return ComputePosition(Duration(), spline.Last() - 1);
+            if (time_point >= Duration())
+                return ComputePosition(Duration(), spline.Last() - 1);
 
-		if (time_point <= 0)
-			return ComputePosition(0, spline.First());
+            if (time_point <= 0)
+                return ComputePosition(0, spline.First());
 
-		// find point_index where spline.length(point_index) < time_point < spline.length(point_index + 1)
-		var point_index = point_Idx;
+            // find point_index where spline.length(point_index) < time_point < spline.length(point_index + 1)
+            var point_index = point_Idx;
 
-		while (time_point >= spline.Length(point_index + 1))
-			++point_index;
+            while (time_point >= spline.Length(point_index + 1))
+                ++point_index;
 
-		while (time_point < spline.Length(point_index))
-			--point_index;
+            while (time_point < spline.Length(point_index))
+                --point_index;
 
-		return ComputePosition(time_point, point_index);
-	}
+            return ComputePosition(time_point, point_index);
+        }
+    }
 
 	public void ComputeParabolicElevation(int time_point, ref float el)
 	{
@@ -204,10 +218,14 @@ public class MoveSpline
 
 	public void ComputeFallElevation(int time_point, ref float el)
 	{
-		var z_now = spline.GetPoint(spline.First()).Z - ComputeFallElevation(MSToSec((uint)time_point), false);
-		var final_z = FinalDestination().Z;
-		el = Math.Max(z_now, final_z);
-	}
+
+        lock (spline)
+        {
+            var z_now = spline.GetPoint(spline.First()).Z - ComputeFallElevation(MSToSec((uint)time_point), false);
+            var final_z = FinalDestination().Z;
+            el = Math.Max(z_now, final_z);
+        }
+    }
 
 	public static float ComputeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f)
 	{
@@ -264,17 +282,20 @@ public class MoveSpline
 
 	public bool Initialized()
 	{
-		return !spline.Empty();
+        lock (spline)
+            return !spline.Empty();
 	}
 
 	public Vector3 FinalDestination()
-	{
-		return Initialized() ? spline.GetPoint(spline.Last()) : Vector3.Zero;
+    {
+        lock (spline)
+            return Initialized() ? spline.GetPoint(spline.Last()) : Vector3.Zero;
 	}
 
 	public Vector3 CurrentDestination()
-	{
-		return Initialized() ? spline.GetPoint(point_Idx + 1) : Vector3.Zero;
+    {
+        lock (spline)
+            return Initialized() ? spline.GetPoint(point_Idx + 1) : Vector3.Zero;
 	}
 
 	public AnimTier? GetAnimation()
@@ -339,81 +360,84 @@ public class MoveSpline
 
 	UpdateResult UpdateState(ref int ms_time_diff)
 	{
-		if (Finalized())
-		{
-			ms_time_diff = 0;
+        lock (spline)
+        {
+            if (Finalized())
+            {
+                ms_time_diff = 0;
 
-			return UpdateResult.Arrived;
-		}
+                return UpdateResult.Arrived;
+            }
 
-		var result = UpdateResult.None;
-		var minimal_diff = Math.Min(ms_time_diff, SegmentTimeElapsed());
-		time_passed += minimal_diff;
-		ms_time_diff -= minimal_diff;
+            var result = UpdateResult.None;
+            var minimal_diff = Math.Min(ms_time_diff, SegmentTimeElapsed());
+            time_passed += minimal_diff;
+            ms_time_diff -= minimal_diff;
 
-		if (time_passed >= NextTimestamp())
-		{
-			++point_Idx;
+            if (time_passed >= NextTimestamp())
+            {
+                ++point_Idx;
 
-			if (point_Idx < spline.Last())
-			{
-				result = UpdateResult.NextSegment;
-			}
-			else
-			{
-				if (spline.IsCyclic())
-				{
-					point_Idx = spline.First();
-					time_passed %= Duration();
-					result = UpdateResult.NextCycle;
+                if (point_Idx < spline.Last())
+                {
+                    result = UpdateResult.NextSegment;
+                }
+                else
+                {
+                    if (spline.IsCyclic())
+                    {
+                        point_Idx = spline.First();
+                        time_passed %= Duration();
+                        result = UpdateResult.NextCycle;
 
-					// Remove first point from the path after one full cycle.
-					// That point was the position of the unit prior to entering the cycle and it shouldn't be repeated with continuous cycles.
-					if (splineflags.HasFlag(SplineFlag.EnterCycle))
-					{
-						splineflags.SetUnsetFlag(SplineFlag.EnterCycle, false);
+                        // Remove first point from the path after one full cycle.
+                        // That point was the position of the unit prior to entering the cycle and it shouldn't be repeated with continuous cycles.
+                        if (splineflags.HasFlag(SplineFlag.EnterCycle))
+                        {
+                            splineflags.SetUnsetFlag(SplineFlag.EnterCycle, false);
 
-						MoveSplineInitArgs args = new(spline.GetPointCount());
-						args.path.AddRange(spline.GetPoints().AsSpan().Slice(spline.First() + 1, spline.Last()).ToArray());
-						args.facing = facing;
-						args.flags = splineflags;
-						args.path_Idx_offset = point_Idx_offset;
-						// MoveSplineFlag::Parabolic | MoveSplineFlag::Animation not supported currently
-						//args.parabolic_amplitude = ?;
-						//args.time_perc = ?;
-						args.splineId = m_Id;
-						args.initialOrientation = initialOrientation;
-						args.velocity = 1.0f; // Calculated below
-						args.HasVelocity = true;
-						args.TransformForTransport = onTransport;
+                            MoveSplineInitArgs args = new(spline.GetPointCount());
+                            args.path.AddRange(spline.GetPoints().AsSpan().Slice(spline.First() + 1, spline.Last()).ToArray());
+                            args.facing = facing;
+                            args.flags = splineflags;
+                            args.path_Idx_offset = point_Idx_offset;
+                            // MoveSplineFlag::Parabolic | MoveSplineFlag::Animation not supported currently
+                            //args.parabolic_amplitude = ?;
+                            //args.time_perc = ?;
+                            args.splineId = m_Id;
+                            args.initialOrientation = initialOrientation;
+                            args.velocity = 1.0f; // Calculated below
+                            args.HasVelocity = true;
+                            args.TransformForTransport = onTransport;
 
-						if (args.Validate(null))
-						{
-							// New cycle should preserve previous cycle's duration for some weird reason, even though
-							// the path is really different now. Blizzard is weird. Or this was just a simple oversight.
-							// Since our splines precalculate length with velocity in mind, if we want to find the desired
-							// velocity, we have to make a fake spline, calculate its duration and then compare it to the
-							// desired duration, thus finding out how much the velocity has to be increased for them to match.
-							MoveSpline tempSpline = new();
-							tempSpline.Initialize(args);
-							args.velocity = (float)tempSpline.Duration() / Duration();
+                            if (args.Validate(null))
+                            {
+                                // New cycle should preserve previous cycle's duration for some weird reason, even though
+                                // the path is really different now. Blizzard is weird. Or this was just a simple oversight.
+                                // Since our splines precalculate length with velocity in mind, if we want to find the desired
+                                // velocity, we have to make a fake spline, calculate its duration and then compare it to the
+                                // desired duration, thus finding out how much the velocity has to be increased for them to match.
+                                MoveSpline tempSpline = new();
+                                tempSpline.Initialize(args);
+                                args.velocity = (float)tempSpline.Duration() / Duration();
 
-							if (args.Validate(null))
-								InitSpline(args);
-						}
-					}
-				}
-				else
-				{
-					_Finalize();
-					ms_time_diff = 0;
-					result = UpdateResult.Arrived;
-				}
-			}
-		}
+                                if (args.Validate(null))
+                                    InitSpline(args);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        _Finalize();
+                        ms_time_diff = 0;
+                        result = UpdateResult.Arrived;
+                    }
+                }
+            }
 
-		return result;
-	}
+            return result;
+        }
+    }
 
 	int NextTimestamp()
 	{
