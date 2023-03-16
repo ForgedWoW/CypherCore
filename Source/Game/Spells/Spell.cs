@@ -1089,7 +1089,8 @@ public partial class Spell : IDisposable
 							unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
 					}
 
-				SendChannelUpdate(0);
+                EndEmpoweredSpell();
+                SendChannelUpdate(0);
 				SendInterrupted(0);
 				SendCastResult(SpellCastResult.Interrupted);
 
