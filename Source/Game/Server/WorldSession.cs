@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
 using Framework.Collections;
 using Framework.Configuration;
 using Framework.Constants;
@@ -52,7 +53,7 @@ public partial class WorldSession : IDisposable
 	readonly uint _recruiterId;
 	readonly bool _isRecruiter;
 
-	readonly ConcurrentQueue<WorldPacket> _recvQueue = new();
+    private readonly ActionBlock<WorldPacket> _recvQueue;
 
 	readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
 	readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
@@ -72,7 +73,6 @@ public partial class WorldSession : IDisposable
 	readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
 
 	readonly CancellationTokenSource _cancellationToken = new();
-	readonly AutoResetEvent _messageReceivedSemaphore = new(false);
 	readonly AutoResetEvent _asyncMessageQueueSemaphore = new(false);
 	ulong _guidLow;
 	Player _player;
@@ -219,8 +219,14 @@ public partial class WorldSession : IDisposable
 		_battlePayMgr = new BattlepayManager(this);
 		CommandHandler = new CommandHandler(this);
 
-		Task.Run(ProcessQueue, _cancellationToken.Token);
-		Task.Run(ProcessInPlace, _cancellationToken.Token);
+        _recvQueue = new(ProcessQueue, new ExecutionDataflowBlockOptions()
+        {
+            MaxDegreeOfParallelism = 10,
+            EnsureOrdered = true,
+			CancellationToken = _cancellationToken.Token
+        });
+
+        Task.Run(ProcessInPlace, _cancellationToken.Token);
 
 		_address = sock.GetRemoteIpAddress().Address.ToString();
 		ResetTimeOutTime(false);
@@ -244,7 +250,7 @@ public partial class WorldSession : IDisposable
 			}
 
 		// empty incoming packet queue
-		_recvQueue.Clear();
+		_recvQueue.Complete();
 
 		DB.Login.Execute("UPDATE account SET online = 0 WHERE id = {0};", AccountId); // One-time query
 	}
@@ -477,8 +483,7 @@ public partial class WorldSession : IDisposable
 
 	public void QueuePacket(WorldPacket packet)
 	{
-		_recvQueue.Enqueue(packet);
-		_messageReceivedSemaphore.Set();
+		_recvQueue.Post(packet);
 	}
 
 	public void SendPacket(ServerPacket packet)
@@ -803,35 +808,27 @@ public partial class WorldSession : IDisposable
 		return session != null;
 	}
 
-	void ProcessQueue()
+	void ProcessQueue(WorldPacket packet)
 	{
-		while (!_cancellationToken.IsCancellationRequested)
+		var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
+
+		if (handler != null)
 		{
-			_messageReceivedSemaphore.WaitOne(500);
-
-			while (!_recvQueue.IsEmpty)
-				if (_recvQueue.TryDequeue(out var packet))
-				{
-					var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
-
-					if (handler != null)
-					{
-						if (handler.ProcessingPlace == PacketProcessing.Inplace)
-						{
-							_inPlaceQueue.Enqueue(packet);
-							_asyncMessageQueueSemaphore.Set();
-						}
-						else if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
-						{
-							_threadSafeQueue.Enqueue(packet);
-						}
-						else
-						{
-							_threadUnsafe.Enqueue(packet);
-						}
-					}
-				}
+			if (handler.ProcessingPlace == PacketProcessing.Inplace)
+			{
+				_inPlaceQueue.Enqueue(packet);
+				_asyncMessageQueueSemaphore.Set();
+			}
+			else if (handler.ProcessingPlace == PacketProcessing.ThreadSafe)
+			{
+				_threadSafeQueue.Enqueue(packet);
+			}
+			else
+			{
+				_threadUnsafe.Enqueue(packet);
+			}
 		}
+				
 	}
 
 	void ProcessInPlace()
