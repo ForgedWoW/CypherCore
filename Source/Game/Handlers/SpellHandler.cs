@@ -769,14 +769,13 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
 	void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
 	{
-		Player.CastStop(packet.SpellID);
+		Player.UpdateEmpowerState(EmpowerState.Canceled, packet.SpellID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
 	void HandleSpellEmpowerRelestart(SpellEmpowerRelease packet)
 	{
-		Player.CastStop(packet.SpellID);
-		Player.CastSpell(packet.SpellID);
+		Player.UpdateEmpowerState(EmpowerState.Empowering, packet.SpellID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetEmpowerMinHoldStagePercent)]

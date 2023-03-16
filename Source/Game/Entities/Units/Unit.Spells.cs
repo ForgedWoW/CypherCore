@@ -1711,9 +1711,16 @@ public partial class Unit
 		for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
 			if (CurrentSpells.TryGetValue(i, out var spell) && spell != null && spell.SpellInfo.Id != except_spellid)
 				InterruptSpell(i, false);
-	}
+    }
 
-	public ushort GetMaxSkillValueForLevel(Unit target = null)
+    public void UpdateEmpowerState(EmpowerState state, uint except_spellid = 0)
+    {
+        for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
+            if (CurrentSpells.TryGetValue(i, out var spell) && spell != null && spell.SpellInfo.Id == except_spellid)
+                spell.SetEmpowerState(state);
+    }
+
+    public ushort GetMaxSkillValueForLevel(Unit target = null)
 	{
 		return (ushort)(target != null ? GetLevelForTarget(target) : Level * 5);
 	}

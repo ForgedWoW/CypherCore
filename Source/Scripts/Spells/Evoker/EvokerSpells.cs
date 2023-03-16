@@ -83,6 +83,7 @@ internal struct EvokerSpells
     public const uint LIFEBIND = 373270;
     public const uint LIFEBIND_AURA = 373267;
     public const uint LIFEBIND_HEAL = 373268;
+    public const uint LIFEFORCE_MENDER = 376179;
     public const uint FLOW_STATE = 385696;
 	public const uint FLOW_STATE_AURA = 390148;
 	public const uint FLUTTERING_SEEDLINGS = 359793;
@@ -112,6 +113,7 @@ internal struct EvokerSpells
     public const uint JUST_IN_TIME = 376204;
     public const uint LEAPING_FLAMES = 369939;
     public const uint LEAPING_FLAMES_AURA = 370901;
+    public const uint MASTERY_GIANTKILLER = 362980;
     public const uint RED_CAUTERIZING_FLAME = 374251;
     public const uint RED_DRAGONRAGE = 375087;
     public const uint RED_DRAGONRAGE_EFFECT = 375088;

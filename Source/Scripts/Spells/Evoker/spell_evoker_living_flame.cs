@@ -27,7 +27,7 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 		var hitUnit = HitUnit;
 
 		if (caster.IsFriendlyTo(hitUnit))
-			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, true);
+			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL);
 		else
 			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, true);
 	}

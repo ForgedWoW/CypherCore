@@ -137,6 +137,7 @@ public partial class Spell : IDisposable
 	int _timer;
 
 	// Empower spell meta
+	EmpowerState _empowerState = EmpowerState.None;
 	byte _empoweredSpellStage;
 	uint _empoweredSpellDelta;
 
@@ -3354,6 +3355,19 @@ public partial class Spell : IDisposable
 		return spell != null;
 	}
 
+	public void SetEmpowerState(EmpowerState state)
+	{
+		if (_empowerState != EmpowerState.Finished)
+		{
+			if (_empowerState == EmpowerState.None && state == EmpowerState.Canceled)
+				_empowerState = EmpowerState.CanceledStartup;
+            else if (_empowerState == EmpowerState.CanceledStartup && state == EmpowerState.Empowering)
+                _empowerState = EmpowerState.None;
+            else
+				_empowerState = state;
+		}
+	}
+
 	void SelectExplicitTargets()
 	{
 		// here go all explicit target changes made to explicit targets after spell prepare phase is finished
@@ -5945,8 +5959,24 @@ public partial class Spell : IDisposable
 	private void UpdateEmpoweredSpell(uint difftime)
 	{
 		if (GetPlayerIfIsEmpowered(out var p))
-		{
-			if (_empoweredSpellStage == 0 && _empoweredSpellDelta == 0 && SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
+        {
+            if (_empowerState == EmpowerState.None)
+            {
+				if (_empoweredSpellDelta == 0)
+				{
+					_timer = (int)(SpellInfo.EmpowerStages.Sum(a => a.Value.DurationMs) + 1000);
+                }
+				else if (_empoweredSpellDelta >= 1000)
+				{
+					_empowerState = EmpowerState.Prepared;
+					_empoweredSpellDelta -= 1000;
+				}
+            }
+
+            if (_empowerState == EmpowerState.CanceledStartup && _empoweredSpellDelta >= 1000)
+                _empowerState = EmpowerState.Canceled;
+
+            if (_empowerState == EmpowerState.Prepared && _empoweredSpellStage == 0 && SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
 			{
 				ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
 				var stageZero = new SpellEmpowerSetStage();
@@ -5954,11 +5984,12 @@ public partial class Spell : IDisposable
 				stageZero.Caster = p.GUID;
 				stageZero.CastID = CastId;
 				p.SendPacket(stageZero);
-			}
+                _empowerState = EmpowerState.Empowering;
+            }
 
 			_empoweredSpellDelta += difftime;
 
-			if (SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
+			if (_empowerState == EmpowerState.Empowering && SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
 			{
 				var nextStageId = _empoweredSpellStage;
 				nextStageId++;
@@ -5966,7 +5997,7 @@ public partial class Spell : IDisposable
 				if (SpellInfo.EmpowerStages.TryGetValue(nextStageId, out var nextStage))
 				{
 					_empoweredSpellStage = nextStageId;
-					_empoweredSpellDelta = 0;
+					_empoweredSpellDelta -= stageinfo.DurationMs;
 					var stageUpdate = new SpellEmpowerSetStage();
 					stageUpdate.Stage = 0;
 					stageUpdate.Caster = p.GUID;
@@ -5974,8 +6005,13 @@ public partial class Spell : IDisposable
 					p.SendPacket(stageUpdate);
 					ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(stageinfo, nextStage));
 				}
+				else
+					_empowerState = EmpowerState.Finished;
 			}
-		}
+
+			if (_empowerState == EmpowerState.Finished || _empowerState == EmpowerState.Canceled)
+				_timer = 0;
+        }
 	}
 
 	static void FillSpellCastFailedArgs<T>(T packet, ObjectGuid castId, SpellInfo spellInfo, SpellCastResult result, SpellCustomErrors customError, int? param1, int? param2, Player caster) where T : CastFailedBase
@@ -6442,8 +6478,8 @@ public partial class Spell : IDisposable
 			spellEmpowerSart.SpellID = SpellInfo.Id;
 			spellEmpowerSart.Visual = packet.Cast.Visual;
 			spellEmpowerSart.Duration = (uint)SpellInfo.Duration; //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
-			spellEmpowerSart.FirstStageDuration = spellEmpowerSart.StageDurations.FirstOrDefault().Value;
-			spellEmpowerSart.FinalStageDuration = spellEmpowerSart.StageDurations.LastOrDefault().Value;
+			spellEmpowerSart.FirstStageDuration = SpellInfo.EmpowerStages.FirstOrDefault().Value.DurationMs;
+			spellEmpowerSart.FinalStageDuration = SpellInfo.EmpowerStages.LastOrDefault().Value.DurationMs;
 			spellEmpowerSart.StageDurations = SpellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
 
 			var schoolImmunityMask = p.SchoolImmunityMask;
