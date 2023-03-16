@@ -6739,9 +6739,18 @@ public partial class Spell : IDisposable
 		spellChannelStart.CasterGUID = unitCaster.GUID;
 		spellChannelStart.SpellID = (int)SpellInfo.Id;
 		spellChannelStart.Visual = SpellVisual;
-		spellChannelStart.ChannelDuration = duration;
 
-		var schoolImmunityMask = unitCaster.SchoolImmunityMask;
+		if (TryGetTotalEmpowerDuration(true, out _timer))
+		{
+			spellChannelStart.ChannelDuration = (uint)_timer;
+		}
+        else
+        {
+            _timer = (int)duration;
+            spellChannelStart.ChannelDuration = duration;
+        }
+
+        var schoolImmunityMask = unitCaster.SchoolImmunityMask;
 		var mechanicImmunityMask = unitCaster.MechanicImmunityMask;
 
 		if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
@@ -6754,9 +6763,6 @@ public partial class Spell : IDisposable
 		}
 
 		unitCaster.SendMessageToSet(spellChannelStart, true);
-
-		if (TryGetTotalEmpowerDuration(true, out _timer))
-			_timer = (int)duration;
 
 		if (!Targets.HasDst)
 		{
