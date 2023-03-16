@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Game.BattlePets;
 using Game.Entities;
 using Game.Networking.Packets.Bpay;
 
@@ -128,9 +129,6 @@ public class BattlepayManager
 
 	public bool IsAvailable()
 	{
-		if (AccountManager.Instance.IsAdminAccount(_session.Security))
-			return true;
-
 		return WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
 	}
 
@@ -1087,7 +1085,7 @@ public class BattlepayManager
 	//	auto ProductFilter(WorldPackets::BattlePay::Product product);
 	public void SendProductList()
 	{
-		var response = new ProductListResponse();
+        var response = new ProductListResponse();
 		var player = _session.Player; // it's a false value if player is in character screen
 
 		if (!IsAvailable())

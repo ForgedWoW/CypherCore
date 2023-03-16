@@ -40,14 +40,18 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.BattlePayGetPurchaseList)]
 	public void HandleGetPurchaseListQuery(GetPurchaseListQuery UnnamedParameter)
 	{
-		var packet = new PurchaseListResponse(); // @TODO
+        if (!BattlePayMgr.IsAvailable())
+            return;
+        var packet = new PurchaseListResponse(); // @TODO
 		SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UpdateVasPurchaseStates)]
 	public void HandleUpdateVasPurchaseStates(UpdateVasPurchaseStates UnnamedParameter)
 	{
-		var response = new EnumVasPurchaseStatesResponse();
+        if (!BattlePayMgr.IsAvailable())
+            return;
+        var response = new EnumVasPurchaseStatesResponse();
 		response.Result = 0;
 		SendPacket(response);
 	}
