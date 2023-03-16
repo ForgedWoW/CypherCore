@@ -71,18 +71,25 @@ public partial class Creature : Unit
 	{
 		if (IsInWorld)
 		{
-			if (ZoneScript != null)
-				ZoneScript.OnCreatureRemove(this);
+			try
+			{
+				if (ZoneScript != null)
+					ZoneScript.OnCreatureRemove(this);
 
-			if (Formation != null)
-				FormationMgr.RemoveCreatureFromGroup(Formation, this);
+				if (Formation != null)
+					FormationMgr.RemoveCreatureFromGroup(Formation, this);
 
-			base.RemoveFromWorld();
+				base.RemoveFromWorld();
 
-			if (SpawnId != 0)
-				Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
+				if (SpawnId != 0)
+					Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
 
-			Map.ObjectsStore.Remove(GUID);
+				Map.ObjectsStore.Remove(GUID);
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 	}
 
