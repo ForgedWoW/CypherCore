@@ -9,6 +9,7 @@ using Game.Scripting.Interfaces.IPlayer;
 
 namespace Scripts.World;
 
+[Script]
 internal class xp_boost_PlayerScript : ScriptObjectAutoAdd, IPlayerOnGiveXP
 {
 	public xp_boost_PlayerScript() : base("xp_boost_PlayerScript") { }
