@@ -155,7 +155,7 @@ public class Aura
 
 	public Aura(AuraCreateInfo createInfo)
 	{
-		_spellInfo = createInfo.SpellInfoInternal;
+        _spellInfo = createInfo.SpellInfoInternal;
 		_castDifficulty = createInfo.CastDifficulty;
 		_castId = createInfo.CastId;
 		_casterGuid = createInfo.CasterGuid;

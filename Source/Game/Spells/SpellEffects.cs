@@ -947,6 +947,9 @@ public partial class Spell
 			aurApp.EffectsToApply.Add(EffectInfo.EffectIndex);
 			aurApp.UpdateApplyEffectMask(aurApp.EffectsToApply, false);
 		}
+
+		if (TryGetTotalEmpowerDuration(true, out int dur))
+			SpellAura.SetDuration(dur, false, true);
 	}
 
 	[SpellEffectHandler(SpellEffectName.UnlearnSpecialization)]

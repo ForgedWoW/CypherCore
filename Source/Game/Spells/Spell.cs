@@ -3390,7 +3390,19 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectExplicitTargets()
+	public bool TryGetTotalEmpowerDuration(bool includeBaseCast, out int duration)
+	{
+		if (_empowerStages.Count > 0)
+		{
+            duration = (int)(_empowerStages.Sum(a => a.Value.DurationMs) + (includeBaseCast ? 1000 : 0));
+			return true;
+		}
+
+		duration = 0;
+        return false;
+    }
+
+    void SelectExplicitTargets()
 	{
 		// here go all explicit target changes made to explicit targets after spell prepare phase is finished
 		var target = Targets.UnitTarget;
@@ -6443,7 +6455,8 @@ public partial class Spell : IDisposable
 			spellEmpowerSart.Targets = UniqueTargetInfo.Select(t => t.TargetGuid).ToList();
 			spellEmpowerSart.SpellID = SpellInfo.Id;
 			spellEmpowerSart.Visual = packet.Cast.Visual;
-			spellEmpowerSart.Duration = (uint)_empowerStages.Sum(a => a.Value.DurationMs); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
+			TryGetTotalEmpowerDuration(false, out int dur);
+			spellEmpowerSart.Duration = (uint)dur;
 			spellEmpowerSart.FirstStageDuration = _empowerStages.FirstOrDefault().Value.DurationMs;
 			spellEmpowerSart.FinalStageDuration = _empowerStages.LastOrDefault().Value.DurationMs;
 			spellEmpowerSart.StageDurations = _empowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
@@ -6742,10 +6755,8 @@ public partial class Spell : IDisposable
 
 		unitCaster.SendMessageToSet(spellChannelStart, true);
 
-		if (GetPlayerIfIsEmpowered(out var p))
-            _timer = (int)(_empowerStages.Sum(a => a.Value.DurationMs) + 1000);
-        else
-            _timer = (int)duration;
+		if (TryGetTotalEmpowerDuration(true, out _timer))
+			_timer = (int)duration;
 
 		if (!Targets.HasDst)
 		{
