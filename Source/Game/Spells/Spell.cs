@@ -91,9 +91,10 @@ public partial class Spell : IDisposable
 	internal ProcFlagsHit HitMask;
 	readonly Dictionary<Type, List<ISpellScript>> _spellScriptsByType = new();
 	readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new();
+    readonly Dictionary<byte, SpellEmpowerStageRecord> _empowerStages = new();
 
 
-	readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
+    readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
 	readonly WorldObject _caster;
 	readonly bool _canReflect; // can reflect this spell?
 	readonly Dictionary<int, double> _damageMultipliers = new();
@@ -107,7 +108,7 @@ public partial class Spell : IDisposable
 	readonly HashSet<int> _applyMultiplierMask = new();
 	readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
 
-	List<SpellScript> _loadedScripts = new();
+    List<SpellScript> _loadedScripts = new();
 	PathGenerator _preGeneratedPath;
 	ObjectGuid _originalCasterGuid;
 	Unit _originalCaster;
@@ -181,7 +182,7 @@ public partial class Spell : IDisposable
 
 	public bool IsEmpowered => SpellInfo.EmpowerStages.Count > 0 && _caster.IsPlayer;
 
-	public byte? EmpoweredStage { get; set; }
+    public byte? EmpoweredStage { get; set; }
 
 	public CurrentSpellTypes CurrentContainer
 	{
@@ -218,7 +219,17 @@ public partial class Spell : IDisposable
 	public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
 	{
 		SpellInfo = info;
-		_caster = (info.HasAttribute(SpellAttr6.OriginateFromController) && caster.CharmerOrOwner != null ? caster.CharmerOrOwner : caster);
+
+		foreach (var stage in info.EmpowerStages)
+			_empowerStages[stage.Key] = new() 
+			{ 
+				Id = stage.Value.Id, 
+				DurationMs = stage.Value.DurationMs, 
+				SpellEmpowerID = stage.Value.SpellEmpowerID, 
+				Stage = stage.Value.Stage,
+			};
+
+        _caster = (info.HasAttribute(SpellAttr6.OriginateFromController) && caster.CharmerOrOwner != null ? caster.CharmerOrOwner : caster);
 		SpellValue = new SpellValue(SpellInfo, caster);
 		NeedComboPoints = SpellInfo.NeedsComboPoints;
 
@@ -959,6 +970,13 @@ public partial class Spell : IDisposable
 
 		_casttime = CallScriptCalcCastTimeHandlers(SpellInfo.CalcCastTime(this));
 
+		foreach (var stage in _empowerStages)
+		{
+			var ct = (int)stage.Value.DurationMs;
+            Caster.ModSpellCastTime(SpellInfo, ref ct);
+            stage.Value.DurationMs = (uint)CallScriptCalcCastTimeHandlers(ct);
+        }
+
 		if (_caster.IsUnit && _caster.AsUnit.IsMoving)
 		{
 			result = CheckMovement();
@@ -1074,7 +1092,6 @@ public partial class Spell : IDisposable
 							unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
 					}
 
-				EndEmpoweredSpell();
 				SendChannelUpdate(0);
 				SendInterrupted(0);
 				SendCastResult(SpellCastResult.Interrupted);
@@ -5960,23 +5977,16 @@ public partial class Spell : IDisposable
 	{
 		if (GetPlayerIfIsEmpowered(out var p))
         {
-            if (_empowerState == EmpowerState.None)
+            if (_empowerState == EmpowerState.None && _empoweredSpellDelta >= 1000)
             {
-				if (_empoweredSpellDelta == 0)
-				{
-					_timer = (int)(SpellInfo.EmpowerStages.Sum(a => a.Value.DurationMs) + 1000);
-                }
-				else if (_empoweredSpellDelta >= 1000)
-				{
-					_empowerState = EmpowerState.Prepared;
-					_empoweredSpellDelta -= 1000;
-				}
+				_empowerState = EmpowerState.Prepared;
+				_empoweredSpellDelta -= 1000;
             }
 
             if (_empowerState == EmpowerState.CanceledStartup && _empoweredSpellDelta >= 1000)
                 _empowerState = EmpowerState.Canceled;
 
-            if (_empowerState == EmpowerState.Prepared && _empoweredSpellStage == 0 && SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
+            if (_empowerState == EmpowerState.Prepared && _empoweredSpellStage == 0 && _empowerStages.TryGetValue(_empoweredSpellStage, out var stageinfo)) // send stage 0
 			{
 				ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
 				var stageZero = new SpellEmpowerSetStage();
@@ -5989,12 +5999,12 @@ public partial class Spell : IDisposable
 
 			_empoweredSpellDelta += difftime;
 
-			if (_empowerState == EmpowerState.Empowering && SpellInfo.EmpowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
+			if (_empowerState == EmpowerState.Empowering && _empowerStages.TryGetValue(_empoweredSpellStage, out stageinfo) && _empoweredSpellDelta >= stageinfo.DurationMs)
 			{
 				var nextStageId = _empoweredSpellStage;
 				nextStageId++;
 
-				if (SpellInfo.EmpowerStages.TryGetValue(nextStageId, out var nextStage))
+				if (_empowerStages.TryGetValue(nextStageId, out var nextStage))
 				{
 					_empoweredSpellStage = nextStageId;
 					_empoweredSpellDelta -= stageinfo.DurationMs;
@@ -6477,10 +6487,10 @@ public partial class Spell : IDisposable
 			spellEmpowerSart.Targets = UniqueTargetInfo.Select(t => t.TargetGuid).ToList();
 			spellEmpowerSart.SpellID = SpellInfo.Id;
 			spellEmpowerSart.Visual = packet.Cast.Visual;
-			spellEmpowerSart.Duration = (uint)SpellInfo.Duration; //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
-			spellEmpowerSart.FirstStageDuration = SpellInfo.EmpowerStages.FirstOrDefault().Value.DurationMs;
-			spellEmpowerSart.FinalStageDuration = SpellInfo.EmpowerStages.LastOrDefault().Value.DurationMs;
-			spellEmpowerSart.StageDurations = SpellInfo.EmpowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
+			spellEmpowerSart.Duration = (uint)_empowerStages.Sum(a => a.Value.DurationMs); //(uint)m_spellInfo.EmpowerStages.Sum(kvp => kvp.Value.DurationMs); these do add up to be the same.
+			spellEmpowerSart.FirstStageDuration = _empowerStages.FirstOrDefault().Value.DurationMs;
+			spellEmpowerSart.FinalStageDuration = _empowerStages.LastOrDefault().Value.DurationMs;
+			spellEmpowerSart.StageDurations = _empowerStages.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.DurationMs);
 
 			var schoolImmunityMask = p.SchoolImmunityMask;
 			var mechanicImmunityMask = p.MechanicImmunityMask;
@@ -6776,7 +6786,10 @@ public partial class Spell : IDisposable
 
 		unitCaster.SendMessageToSet(spellChannelStart, true);
 
-		_timer = (int)duration;
+		if (GetPlayerIfIsEmpowered(out var p))
+            _timer = (int)(_empowerStages.Sum(a => a.Value.DurationMs) + 1000);
+        else
+            _timer = (int)duration;
 
 		if (!Targets.HasDst)
 		{
