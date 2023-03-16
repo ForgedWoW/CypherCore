@@ -3311,7 +3311,14 @@ public partial class Spell : IDisposable
 	public void ForEachSpellScript<T>(Action<T> action) where T : ISpellScript
 	{
 		foreach (T script in GetSpellScripts<T>())
-			action.Invoke(script);
+            try
+            {
+                action.Invoke(script);
+            }
+            catch (Exception e)
+            {
+                Log.outException(e);
+            }
 	}
 
 	public List<(ISpellScript, ISpellEffect)> GetEffectScripts(SpellScriptHookType h, int index)
@@ -8718,9 +8725,16 @@ public partial class Spell : IDisposable
 	{
 		foreach (var script in GetSpellScripts<ISpellOnPrecast>())
 		{
-			script._PrepareScriptCall(SpellScriptHookType.OnPrecast);
-			((ISpellOnPrecast)script).OnPrecast();
-			script._FinishScriptCall();
+			try
+			{
+				script._PrepareScriptCall(SpellScriptHookType.OnPrecast);
+				((ISpellOnPrecast)script).OnPrecast();
+				script._FinishScriptCall();
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 	}
 
@@ -8728,11 +8742,19 @@ public partial class Spell : IDisposable
 	{
 		foreach (var script in GetSpellScripts<ISpellBeforeCast>())
 		{
-			script._PrepareScriptCall(SpellScriptHookType.BeforeCast);
 
-			((ISpellBeforeCast)script).BeforeCast();
+			try
+			{
+				script._PrepareScriptCall(SpellScriptHookType.BeforeCast);
 
-			script._FinishScriptCall();
+				((ISpellBeforeCast)script).BeforeCast();
+
+				script._FinishScriptCall();
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 	}
 
@@ -8740,23 +8762,37 @@ public partial class Spell : IDisposable
 	{
 		foreach (var script in GetSpellScripts<ISpellOnCast>())
 		{
-			script._PrepareScriptCall(SpellScriptHookType.OnCast);
+			try
+			{
+				script._PrepareScriptCall(SpellScriptHookType.OnCast);
 
-			((ISpellOnCast)script).OnCast();
+				((ISpellOnCast)script).OnCast();
 
-			script._FinishScriptCall();
+				script._FinishScriptCall();
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 	}
 
 	void CallScriptAfterCastHandlers()
 	{
 		foreach (var script in GetSpellScripts<ISpellAfterCast>())
-		{
-			script._PrepareScriptCall(SpellScriptHookType.AfterCast);
+        {
+            try
+			{
+				script._PrepareScriptCall(SpellScriptHookType.AfterCast);
 
-			((ISpellAfterCast)script).AfterCast();
+				((ISpellAfterCast)script).AfterCast();
 
-			script._FinishScriptCall();
+				script._FinishScriptCall();
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 	}
 
@@ -8766,14 +8802,21 @@ public partial class Spell : IDisposable
 
 		foreach (var script in GetSpellScripts<ISpellCheckCast>())
 		{
-			script._PrepareScriptCall(SpellScriptHookType.CheckCast);
+			try
+			{
+				script._PrepareScriptCall(SpellScriptHookType.CheckCast);
 
-			var tempResult = ((ISpellCheckCast)script).CheckCast();
+				var tempResult = ((ISpellCheckCast)script).CheckCast();
 
-			if (tempResult != SpellCastResult.SpellCastOk)
-				retVal = tempResult;
+				if (tempResult != SpellCastResult.SpellCastOk)
+					retVal = tempResult;
 
-			script._FinishScriptCall();
+				script._FinishScriptCall();
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 
 		return retVal;
@@ -8783,9 +8826,17 @@ public partial class Spell : IDisposable
 	{
 		foreach (var script in GetSpellScripts<ISpellCalculateCastTime>())
 		{
-			script._PrepareScriptCall(SpellScriptHookType.CalcCastTime);
-			castTime = ((ISpellCalculateCastTime)script).CalcCastTime(castTime);
-			script._FinishScriptCall();
+			try
+			{
+
+				script._PrepareScriptCall(SpellScriptHookType.CalcCastTime);
+				castTime = ((ISpellCalculateCastTime)script).CalcCastTime(castTime);
+				script._FinishScriptCall();
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 		}
 
 		return castTime;
@@ -8831,75 +8882,110 @@ public partial class Spell : IDisposable
 
 	private static bool ProcessScript(int effIndex, bool preventDefault, ISpellScript script, ISpellEffect effect, SpellScriptHookType hookType)
 	{
-		script._InitHit();
+        try
+        {
+            script._InitHit();
 
-		script._PrepareScriptCall(hookType);
+            script._PrepareScriptCall(hookType);
 
-		if (!script._IsEffectPrevented(effIndex))
-			if (effect is ISpellEffectHandler seh)
-				seh.CallEffect(effIndex);
+            if (!script._IsEffectPrevented(effIndex))
+                if (effect is ISpellEffectHandler seh)
+                    seh.CallEffect(effIndex);
 
-		if (!preventDefault)
-			preventDefault = script._IsDefaultEffectPrevented(effIndex);
+            if (!preventDefault)
+                preventDefault = script._IsDefaultEffectPrevented(effIndex);
 
-		script._FinishScriptCall();
+            script._FinishScriptCall();
+        }
+        catch (Exception ex)
+        {
+			Log.outException(ex);
+        }
 
-		return preventDefault;
+        return preventDefault;
 	}
 
 	void CallScriptSuccessfulDispel(int effIndex)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.EffectSuccessfulDispel, effIndex))
 		{
-			script.Item1._PrepareScriptCall(SpellScriptHookType.EffectSuccessfulDispel);
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.EffectSuccessfulDispel);
 
-			if (script.Item2 is ISpellEffectHandler seh)
-				seh.CallEffect(effIndex);
+                if (script.Item2 is ISpellEffectHandler seh)
+                    seh.CallEffect(effIndex);
 
-			script.Item1._FinishScriptCall();
-		}
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.outException(ex);
+            }
+        }
 	}
 
 	void CallScriptObjectAreaTargetSelectHandlers(List<WorldObject> targets, int effIndex, SpellImplicitTargetInfo targetType)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndex))
 		{
-			script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectAreaTargetSelect);
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectAreaTargetSelect);
 
-			if (script.Item2 is ISpellObjectAreaTargetSelect oas)
-				if (targetType.Target == oas.TargetType)
-					oas.FilterTargets(targets);
+                if (script.Item2 is ISpellObjectAreaTargetSelect oas)
+                    if (targetType.Target == oas.TargetType)
+                        oas.FilterTargets(targets);
 
-			script.Item1._FinishScriptCall();
-		}
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.outException(ex);
+            }
+        }
 	}
 
 	void CallScriptObjectTargetSelectHandlers(ref WorldObject target, int effIndex, SpellImplicitTargetInfo targetType)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndex))
 		{
-			script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectTargetSelect);
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.ObjectTargetSelect);
 
-			if (script.Item2 is ISpellObjectTargetSelectHandler ots)
-				if (targetType.Target == ots.TargetType)
-					ots.TargetSelect(target);
+                if (script.Item2 is ISpellObjectTargetSelectHandler ots)
+                    if (targetType.Target == ots.TargetType)
+                        ots.TargetSelect(target);
 
-			script.Item1._FinishScriptCall();
-		}
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.outException(ex);
+            }
+        }
 	}
 
 	void CallScriptDestinationTargetSelectHandlers(ref SpellDestination target, int effIndex, SpellImplicitTargetInfo targetType)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.DestinationTargetSelect, effIndex))
 		{
-			script.Item1._PrepareScriptCall(SpellScriptHookType.DestinationTargetSelect);
+            try
+            {
+                script.Item1._PrepareScriptCall(SpellScriptHookType.DestinationTargetSelect);
 
-			if (script.Item2 is ISpellDestinationTargetSelectHandler dts)
-				if (targetType.Target == dts.TargetType)
-					dts.SetDest(target);
+                if (script.Item2 is ISpellDestinationTargetSelectHandler dts)
+                    if (targetType.Target == dts.TargetType)
+                        dts.SetDest(target);
 
-			script.Item1._FinishScriptCall();
-		}
+                script.Item1._FinishScriptCall();
+            }
+            catch (Exception ex)
+            {
+                Log.outException(ex);
+            }
+        }
 	}
 
 	bool CheckScriptEffectImplicitTargets(int effIndex, int effIndexToCheck)

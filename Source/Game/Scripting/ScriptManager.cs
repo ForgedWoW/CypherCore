@@ -83,8 +83,15 @@ public class ScriptManager : Singleton<ScriptManager>
 	{
 		if (_scriptByType.TryGetValue(typeof(T), out var ifaceImp))
 			foreach (T s in ifaceImp)
-				a.Invoke(s);
-	}
+                try
+                {
+                    a.Invoke(s);
+                }
+                catch (Exception ex)
+                {
+					Log.outException(ex);
+                }
+    }
 
 	public void ForEach<T>(PlayerClass playerClass, Action<T> a) where T : IScriptObject, IClassRescriction
 	{
@@ -92,12 +99,26 @@ public class ScriptManager : Singleton<ScriptManager>
 		{
 			if (classKvp.TryGetValue(playerClass, out var ifaceImp))
 				foreach (T s in ifaceImp)
-					a.Invoke(s);
+                    try
+                    {
+                        a.Invoke(s);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.outException(ex);
+                    }
 
-			if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
+            if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
 				foreach (T s in ifaceImpNone)
-					a.Invoke(s);
-		}
+                    try
+                    {
+                        a.Invoke(s);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.outException(ex);
+                    }
+        }
 	}
 
 	public bool RunScriptRet<T>(Func<T, bool> func, uint id, bool ret = false) where T : IScriptObject
@@ -112,16 +133,32 @@ public class ScriptManager : Singleton<ScriptManager>
 		if (script == null)
 			return ret;
 
-		return func.Invoke(script);
-	}
+        try
+        {
+            return func.Invoke(script);
+        }
+        catch (Exception e)
+        {
+            Log.outException(e);
+        }
+
+        return ret;
+    }
 
 	public void RunScript<T>(Action<T> a, uint id) where T : IScriptObject
 	{
 		var script = GetScript<T>(id);
 
 		if (script != null)
-			a.Invoke(script);
-	}
+            try
+            {
+                a.Invoke(script);
+            }
+            catch (Exception ex)
+            {
+                Log.outException(ex);
+            }
+    }
 
 	public void AddScript<T>(T script) where T : IScriptObject
 	{
