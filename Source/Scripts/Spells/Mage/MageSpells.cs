@@ -167,6 +167,7 @@ internal struct MageSpells
 	public const uint GLACIAL_SPIKE = 199786;
 	public const uint GLACIAL_SPIKE_PROC = 199844;
 	public const uint GLARITY_OF_THOUGHT = 195351;
+	public const uint GREATER_INVISIBILITY = 110959;
 	public const uint GUTRIPER_TRIGGER = 266937;
 	public const uint HEART_OF_DARKNESS_TRIGGER = 317137;
 	public const uint HEATING_UP = 48107;
@@ -185,8 +186,10 @@ internal struct MageSpells
 	public const uint ICY_VEINS = 12472;
 	public const uint IGNITE_DOT = 12654;
 	public const uint IMPASSIVE_VISAGE_HEAL = 270117;
+	public const uint INCANTATION_OF_SWIFTNESS = 382293;
 	public const uint INCANTERS_FLOW_BUFF = 116267;
 	public const uint INFERNO = 253220;
+	public const uint INVISIBILITY = 66;
 	public const uint IciclesDamage = 148022;
 	public const uint IciclesStack = 205473;
 	public const uint JOUSTER = 214626;
