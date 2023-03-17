@@ -6742,6 +6742,9 @@ public partial class Spell : IDisposable
 		spellChannelStart.Visual = SpellVisual;
         spellChannelStart.ChannelDuration = duration;
 
+		if (IsEmpowered) // remove the first second of casting time to display correctly
+			spellChannelStart.ChannelDuration -= 1000;
+
         var schoolImmunityMask = unitCaster.SchoolImmunityMask;
 		var mechanicImmunityMask = unitCaster.MechanicImmunityMask;
 

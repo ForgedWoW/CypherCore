@@ -9,6 +9,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
+// trigger on any heal cast
 [SpellScript(EvokerSpells.BRONZE_GOLDEN_HOUR_HEAL, 
                 EvokerSpells.CYCLE_OF_LIFE_HEAL,
                 EvokerSpells.FLUTTERING_SEEDLINGS_HEAL,
@@ -18,7 +19,8 @@ namespace Scripts.Spells.Evoker;
                 EvokerSpells.RED_LIVING_FLAME_HEAL,
                 EvokerSpells.GREEN_DREAM_BREATH_CHARGED,
                 EvokerSpells.SPIRITBLOOM_CHARGED,
-                EvokerSpells.RED_CAUTERIZING_FLAME)]
+                EvokerSpells.RED_CAUTERIZING_FLAME,
+                EvokerSpells.PANACEA_HEAL)]
 internal class spell_evoker_lifebind_cast : SpellScript, ISpellAfterCast
 {
     public void AfterCast()

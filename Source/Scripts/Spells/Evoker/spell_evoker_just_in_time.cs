@@ -17,6 +17,6 @@ public class spell_evoker_just_in_time : SpellScript, ISpellOnCast
 	public void OnCast()
 	{
 		if (Caster.TryGetAura(EvokerSpells.JUST_IN_TIME, out var aura))
-			Caster.SpellHistory.ModifyCooldown(EvokerSpells.BRONZE_TIME_DILATION, TimeSpan.FromSeconds(aura.SpellInfo.GetEffect(0).BasePoints));
+			Caster.SpellHistory.ModifyCooldown(EvokerSpells.BRONZE_TIME_DILATION, TimeSpan.FromSeconds(-aura.SpellInfo.GetEffect(0).BasePoints));
 	}
 }

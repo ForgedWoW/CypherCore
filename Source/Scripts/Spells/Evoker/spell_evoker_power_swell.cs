@@ -15,11 +15,11 @@ namespace Scripts.Spells.Evoker;
 			EvokerSpells.RED_FIRE_BREATH,
 			EvokerSpells.GREEN_SPIRITBLOOM,
 			EvokerSpells.GREEN_SPIRITBLOOM_2)]
-public class spell_evoker_flow_state : SpellScript, ISpellAfterCast
+public class spell_evoker_power_swell : SpellScript, ISpellAfterCast
 {
 	public void AfterCast()
 	{
-		if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.FLOW_STATE))
-			player.AddAura(EvokerSpells.FLOW_STATE_AURA);
+		if (Caster.TryGetAsPlayer(out var player) && player.HasSpell(EvokerSpells.POWER_SWELL))
+			player.AddAura(EvokerSpells.POWER_SWELL_AURA);
 	}
 }
