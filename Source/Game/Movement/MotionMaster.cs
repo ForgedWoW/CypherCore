@@ -138,12 +138,14 @@ public class MotionMaster
 
 	public bool Empty()
 	{
-		return _defaultGenerator == null && _generators.Empty();
+		lock (_generators)
+			return _defaultGenerator == null && _generators.Empty();
 	}
 
 	public int Size()
 	{
-		return (_defaultGenerator != null ? 1 : 0) + _generators.Count;
+        lock (_generators)
+            return (_defaultGenerator != null ? 1 : 0) + _generators.Count;
 	}
 
 	public List<MovementGeneratorInformation> GetMovementGeneratorsInformation()
@@ -153,45 +155,47 @@ public class MotionMaster
 		if (_defaultGenerator != null)
 			list.Add(new MovementGeneratorInformation(_defaultGenerator.GetMovementGeneratorType(), ObjectGuid.Empty, ""));
 
-		foreach (var movement in _generators)
-		{
-			var type = movement.GetMovementGeneratorType();
-
-			switch (type)
+		lock (_generators)
+			foreach (var movement in _generators)
 			{
-				case MovementGeneratorType.Chase:
-				case MovementGeneratorType.Follow:
-					var followInformation = movement as FollowMovementGenerator;
+				var type = movement.GetMovementGeneratorType();
 
-					if (followInformation != null)
-					{
-						var target = followInformation.GetTarget();
+				switch (type)
+				{
+					case MovementGeneratorType.Chase:
+					case MovementGeneratorType.Follow:
+						var followInformation = movement as FollowMovementGenerator;
 
-						if (target != null)
-							list.Add(new MovementGeneratorInformation(type, target.GUID, target.GetName()));
+						if (followInformation != null)
+						{
+							var target = followInformation.GetTarget();
+
+							if (target != null)
+								list.Add(new MovementGeneratorInformation(type, target.GUID, target.GetName()));
+							else
+								list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
+						}
 						else
+						{
 							list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
-					}
-					else
-					{
+						}
+
+						break;
+					default:
 						list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
-					}
 
-					break;
-				default:
-					list.Add(new MovementGeneratorInformation(type, ObjectGuid.Empty));
-
-					break;
+						break;
+				}
 			}
-		}
 
 		return list;
 	}
 
 	public MovementSlot GetCurrentSlot()
 	{
-		if (!_generators.Empty())
-			return MovementSlot.Active;
+        lock (_generators)
+            if (!_generators.Empty())
+				return MovementSlot.Active;
 
 		if (_defaultGenerator != null)
 			return MovementSlot.Default;
@@ -201,8 +205,9 @@ public class MotionMaster
 
 	public MovementGenerator GetCurrentMovementGenerator()
 	{
-		if (!_generators.Empty())
-			return _generators.FirstOrDefault();
+        lock (_generators)
+            if (!_generators.Empty())
+				return _generators.FirstOrDefault();
 
 		if (_defaultGenerator != null)
 			return _defaultGenerator;
@@ -228,8 +233,9 @@ public class MotionMaster
 		if (Empty() || IsInvalidMovementSlot(slot))
 			return MovementGeneratorType.Max;
 
-		if (slot == MovementSlot.Active && !_generators.Empty())
-			return _generators.FirstOrDefault().GetMovementGeneratorType();
+        lock (_generators)
+            if (slot == MovementSlot.Active && !_generators.Empty())
+				return _generators.FirstOrDefault().GetMovementGeneratorType();
 
 		if (slot == MovementSlot.Default && _defaultGenerator != null)
 			return _defaultGenerator.GetMovementGeneratorType();
@@ -242,8 +248,9 @@ public class MotionMaster
 		if (Empty() || IsInvalidMovementSlot(slot))
 			return null;
 
-		if (slot == MovementSlot.Active && !_generators.Empty())
-			return _generators.FirstOrDefault();
+        lock (_generators)
+            if (slot == MovementSlot.Active && !_generators.Empty())
+				return _generators.FirstOrDefault();
 
 		if (slot == MovementSlot.Default && _defaultGenerator != null)
 			return _defaultGenerator;
@@ -266,13 +273,14 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-				if (!_generators.Empty())
-				{
-					var itr = _generators.FirstOrDefault(filter);
+                lock (_generators)
+                    if (!_generators.Empty())
+					{
+						var itr = _generators.FirstOrDefault(filter);
 
-					if (itr != null)
-						movement = itr;
-				}
+						if (itr != null)
+							movement = itr;
+					}
 
 				break;
 			default:
@@ -297,11 +305,12 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-				if (!_generators.Empty())
-				{
-					var itr = _generators.FirstOrDefault(filter);
-					value = itr != null;
-				}
+                lock (_generators)
+                    if (!_generators.Empty())
+					{
+						var itr = _generators.FirstOrDefault(filter);
+						value = itr != null;
+					}
 
 				break;
 			default:
@@ -337,8 +346,9 @@ public class MotionMaster
 
 		if (!top.Update(_owner, diff))
 		{
-			// Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
-			Pop(true, true); // Natural, and only, call to MovementInform
+            // Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
+            lock (_generators)
+                Pop(true, true); // Natural, and only, call to MovementInform
 		}
 
 		RemoveFlag(MotionMasterFlags.Update);
@@ -369,9 +379,10 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-				if (!_generators.Empty())
-					if (_generators.Contains(movement))
-						Remove(movement, GetCurrentMovementGenerator() == movement, false);
+                lock (_generators)
+					if (!_generators.Empty())
+						if (_generators.Contains(movement))
+							Remove(movement, GetCurrentMovementGenerator() == movement, false);
 
 				break;
 			default:
@@ -402,13 +413,14 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-				if (!_generators.Empty())
-				{
-					var itr = _generators.FirstOrDefault(a => a.GetMovementGeneratorType() == type);
+                lock (_generators)
+                    if (!_generators.Empty())
+					{
+						var itr = _generators.FirstOrDefault(a => a.GetMovementGeneratorType() == type);
 
-					if (itr != null)
-						Remove(itr, GetCurrentMovementGenerator() == itr, false);
-				}
+						if (itr != null)
+							Remove(itr, GetCurrentMovementGenerator() == itr, false);
+					}
 
 				break;
 			default:
@@ -1154,13 +1166,13 @@ public class MotionMaster
 
 	void Remove(MovementGenerator movement, bool active, bool movementInform)
 	{
-		_generators.Remove(movement);
+        _generators.Remove(movement);
 		Delete(movement, active, movementInform);
 	}
 
 	void Pop(bool active, bool movementInform)
 	{
-		if (!_generators.Empty())
+        if (!_generators.Empty())
 			Remove(_generators.FirstOrDefault(), active, movementInform);
 	}
 
@@ -1174,13 +1186,16 @@ public class MotionMaster
 
 	void DirectClear()
 	{
-		// First delete Top
-		if (!_generators.Empty())
-			Pop(true, false);
+		lock (_generators)
+		{
+			// First delete Top
+			if (!_generators.Empty())
+				Pop(true, false);
 
-		// Then the rest
-		while (!_generators.Empty())
-			Pop(false, false);
+			// Then the rest
+			while (!_generators.Empty())
+				Pop(false, false);
+		}
 
 		// Make sure the storage is empty
 		ClearBaseUnitStates();
@@ -1242,7 +1257,8 @@ public class MotionMaster
 		{
 			case MovementSlot.Default:
 				if (_defaultGenerator != null)
-					_defaultGenerator.Finalize(_owner, _generators.Empty(), false);
+                    lock (_generators)
+                        _defaultGenerator.Finalize(_owner, _generators.Empty(), false);
 
 				_defaultGenerator = movement;
 
@@ -1251,35 +1267,36 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-				if (!_generators.Empty())
+				lock (_generators)
 				{
-					if (movement.Priority >= _generators.FirstOrDefault().Priority)
+					if (!_generators.Empty())
 					{
-						var itr = _generators.FirstOrDefault();
+						if (movement.Priority >= _generators.FirstOrDefault().Priority)
+						{
+							var itr = _generators.FirstOrDefault();
 
-						if (movement.Priority == itr.Priority)
-							Remove(itr, true, false);
+							if (movement.Priority == itr.Priority)
+								Remove(itr, true, false);
+							else
+								itr.Deactivate(_owner);
+						}
 						else
-							itr.Deactivate(_owner);
+						{
+							var pointer = _generators.FirstOrDefault(a => a.Priority == movement.Priority);
+
+							if (pointer != null)
+								Remove(pointer, false, false);
+						}
 					}
 					else
 					{
-						var pointer = _generators.FirstOrDefault(a => a.Priority == movement.Priority);
-
-						if (pointer != null)
-							Remove(pointer, false, false);
+						_defaultGenerator.Deactivate(_owner);
 					}
-				}
-				else
-				{
-					_defaultGenerator.Deactivate(_owner);
-				}
 
-				_generators.Add(movement);
+					_generators.Add(movement);
+				}
 				AddBaseUnitState(movement);
 
-				break;
-			default:
 				break;
 		}
 	}
