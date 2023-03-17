@@ -160,42 +160,50 @@ public class Map : IDisposable
 
 	public Map(uint id, long expiry, uint instanceId, Difficulty spawnmode)
 	{
-		_mapRecord = CliDB.MapStorage.LookupByKey(id);
-		_spawnMode = spawnmode;
-		InstanceIdInternal = instanceId;
-		VisibleDistance = SharedConst.DefaultVisibilityDistance;
-		VisibilityNotifyPeriod = SharedConst.DefaultVisibilityNotifyPeriod;
-		_gridExpiry = expiry;
-		_terrain = Global.TerrainMgr.LoadTerrain(id);
-		_zonePlayerCountMap.Clear();
+		try
+		{
+			_mapRecord = CliDB.MapStorage.LookupByKey(id);
+			_spawnMode = spawnmode;
+			InstanceIdInternal = instanceId;
+			VisibleDistance = SharedConst.DefaultVisibilityDistance;
+			VisibilityNotifyPeriod = SharedConst.DefaultVisibilityNotifyPeriod;
+			_gridExpiry = expiry;
+			_terrain = Global.TerrainMgr.LoadTerrain(id);
+			_zonePlayerCountMap.Clear();
 
-		//lets initialize visibility distance for map
-		InitVisibilityDistance();
-		_weatherUpdateTimer = new IntervalTimer();
-		_weatherUpdateTimer.Interval = 1 * Time.InMilliseconds;
+			//lets initialize visibility distance for map
+			InitVisibilityDistance();
+			_weatherUpdateTimer = new IntervalTimer();
+			_weatherUpdateTimer.Interval = 1 * Time.InMilliseconds;
 
-		GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
+			GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
 
-		_poolData = Global.PoolMgr.InitPoolsForMap(this);
+			_poolData = Global.PoolMgr.InitPoolsForMap(this);
 
-		Global.TransportMgr.CreateTransportsForMap(this);
+			Global.TransportMgr.CreateTransportsForMap(this);
 
-		Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, Id, InstanceIdInternal);
+			Global.MMapMgr.LoadMapInstance(Global.WorldMgr.DataPath, Id, InstanceIdInternal);
 
-		_worldStateValues = Global.WorldStateMgr.GetInitialWorldStatesForMap(this);
+			_worldStateValues = Global.WorldStateMgr.GetInitialWorldStatesForMap(this);
 
-		Global.OutdoorPvPMgr.CreateOutdoorPvPForMap(this);
-		Global.BattleFieldMgr.CreateBattlefieldsForMap(this);
+			Global.OutdoorPvPMgr.CreateOutdoorPvPForMap(this);
+			Global.BattleFieldMgr.CreateBattlefieldsForMap(this);
 
-		_processRelocationQueue = new ActionBlock<uint>(ProcessRelocationNotifies,
-														new ExecutionDataflowBlockOptions()
-														{
-															MaxDegreeOfParallelism = 1,
-															EnsureOrdered = true,
-															MaxMessagesPerTask = 1
-														});
+			_processRelocationQueue = new ActionBlock<uint>(ProcessRelocationNotifies,
+															new ExecutionDataflowBlockOptions()
+															{
+																MaxDegreeOfParallelism = 1,
+																EnsureOrdered = true,
+																MaxMessagesPerTask = 1
+															});
 
-		OnCreateMap(this);
+			OnCreateMap(this);
+		}
+		catch (Exception ex)
+		{
+			Log.outException(ex);
+			throw;
+		}
 	}
 
 	public void Dispose()
