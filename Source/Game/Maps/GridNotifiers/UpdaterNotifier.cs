@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Framework.Constants;
@@ -39,6 +40,13 @@ public class UpdaterNotifier : IGridNotifierWorldObject
 	public void ExecuteUpdate()
 	{
 		foreach (var obj in _worldObjects)
-			obj.Update(_timeDiff);
+			try
+			{
+				obj.Update(_timeDiff);
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
 	}
 }

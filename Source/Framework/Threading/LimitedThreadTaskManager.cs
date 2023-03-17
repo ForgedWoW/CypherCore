@@ -14,6 +14,7 @@ public class LimitedThreadTaskManager
 	ActionBlock<Action> _actionBlock;
 	readonly ExecutionDataflowBlockOptions _blockOptions;
     readonly List<Action> _staged = new List<Action>();
+	CancellationTokenSource _cancellationToken;
 
 	public LimitedThreadTaskManager(int maxDegreeOfParallelism) : this(new ExecutionDataflowBlockOptions()
 	{
@@ -25,11 +26,14 @@ public class LimitedThreadTaskManager
 		if (blockOptions == null)
 			blockOptions = new ExecutionDataflowBlockOptions()
 			{
-				MaxDegreeOfParallelism = 1
+				MaxDegreeOfParallelism = 1,
+				EnsureOrdered = true
 			};
 
 		_blockOptions = blockOptions;
-		_actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
+        _cancellationToken = new CancellationTokenSource();
+		_blockOptions.CancellationToken = _cancellationToken.Token;
+        _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
 	}
 
 	public void Deactivate()
@@ -38,18 +42,38 @@ public class LimitedThreadTaskManager
 		_actionBlock.Completion.Wait();
 	}
 
+	/// <summary>
+	///		Blocks thread and waits for all scheduled tasks to complete
+	/// </summary>
 	public void Wait()
     {
         ExecuteStaged();
 
         _actionBlock.Complete();
+		int i = 0;
 
-		while (_actionBlock.InputCount != 0)
+		while (_actionBlock.InputCount != 0 & i != 3) // after 3 its too long we have to tick
+		{
 			_actionBlock.Completion.Wait(1000);
+			i++;
+		}
 
+		if (i == 3)
+		{
+			_cancellationToken.Cancel(); // abort the task if we hit 3
+			Log.outFatal(LogFilter.Server, "_actionBlock.Completion.Wait over 3 seconds." + Environment.NewLine + Environment.StackTrace);
+		}
+
+        _cancellationToken = new CancellationTokenSource();
+        _blockOptions.CancellationToken = _cancellationToken.Token;
         _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
     }
 
+	/// <summary>
+	///		Queues an action to be worked on. Use <see cref="Wait"/> to wait for all actions to complete.
+	///		Scheduled actions start as soon as there is a thread available.
+	/// </summary>
+	/// <param name="a"></param>
     public void Schedule(Action a)
 	{
 		_actionBlock.Post(a);
@@ -66,7 +90,9 @@ public class LimitedThreadTaskManager
 			_staged.Add(a);
 	}
 
-
+	/// <summary>
+	///		Schedules all work queued 
+	/// </summary>
     public void ExecuteStaged()
     {
         lock (_staged)

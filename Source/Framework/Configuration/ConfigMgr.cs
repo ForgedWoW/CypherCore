@@ -53,6 +53,13 @@ public class ConfigMgr
 		return true;
 	}
 
+	public static bool TryGetIfNotDefaultValue<T>(string name, T defaultValue, out T value)
+	{
+		value = GetDefaultValue(name, defaultValue);
+
+		return value.GetHashCode() != defaultValue.GetHashCode();
+	}
+
 	public static T GetDefaultValue<T>(string name, T defaultValue)
 	{
 		if (_convertedVals.TryGetValue(name, out var val))

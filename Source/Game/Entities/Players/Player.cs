@@ -6688,7 +6688,24 @@ public partial class Player : Unit
 
 		if (ConfigMgr.GetDefaultValue("player.addHearthstoneToCollection", false))
 			Session.CollectionMgr.AddToy(193588, true, true);
-	}
+
+        if (ConfigMgr.TryGetIfNotDefaultValue("AutoJoinChatChannel", "", out var chatChannel))
+        {
+            var channelMgr = ChannelManager.ForTeam(Team);
+
+            var channel = channelMgr.GetCustomChannel(chatChannel);
+
+            if (channel != null)
+                channel.JoinChannel(this);
+            else
+            {
+                channel = channelMgr.CreateCustomChannel(chatChannel);
+
+                if (channel != null)
+                    channel.JoinChannel(this);
+            }
+        }
+    }
 
 	void ScheduleDelayedOperation(PlayerDelayedOperations operation)
 	{

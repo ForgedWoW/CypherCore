@@ -2173,6 +2173,13 @@ PreserveCustomChannelDuration = 14
 PartyRaidWarnings = 0
 
 #
+#    AutoJoinChatChannel
+#        Description: Has all players auto join this chat channel when a new character is created.
+#        Default:     
+
+AutoJoinChatChannel = 
+
+#
 ###################################################################################################
 
 ###################################################################################################

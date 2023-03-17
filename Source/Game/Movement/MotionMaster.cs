@@ -322,38 +322,47 @@ public class MotionMaster
 
 	public void Update(uint diff)
 	{
-		if (!_owner)
-			return;
-
-		if (HasFlag(MotionMasterFlags.InitializationPending | MotionMasterFlags.Initializing))
-			return;
-
-		AddFlag(MotionMasterFlags.Update);
-
-		var top = GetCurrentMovementGenerator();
-
-		if (HasFlag(MotionMasterFlags.StaticInitializationPending) && IsStatic(top))
+		try
 		{
-			RemoveFlag(MotionMasterFlags.StaticInitializationPending);
-			top.Initialize(_owner);
+			if (!_owner)
+				return;
+
+			if (HasFlag(MotionMasterFlags.InitializationPending | MotionMasterFlags.Initializing))
+				return;
+
+			AddFlag(MotionMasterFlags.Update);
+
+			var top = GetCurrentMovementGenerator();
+
+			if (HasFlag(MotionMasterFlags.StaticInitializationPending) && IsStatic(top))
+			{
+				RemoveFlag(MotionMasterFlags.StaticInitializationPending);
+				top.Initialize(_owner);
+			}
+
+			if (top.HasFlag(MovementGeneratorFlags.InitializationPending))
+				top.Initialize(_owner);
+
+			if (top.HasFlag(MovementGeneratorFlags.Deactivated))
+				top.Reset(_owner);
+
+			if (!top.Update(_owner, diff))
+			{
+				// Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
+				lock (_generators)
+					Pop(true, true); // Natural, and only, call to MovementInform
+			}
+
+			ResolveDelayedActions();
 		}
-
-		if (top.HasFlag(MovementGeneratorFlags.InitializationPending))
-			top.Initialize(_owner);
-
-		if (top.HasFlag(MovementGeneratorFlags.Deactivated))
-			top.Reset(_owner);
-
-		if (!top.Update(_owner, diff))
+		catch (Exception ex)
 		{
-            // Since all the actions that modify any slot are delayed, this movement is guaranteed to be top
-            lock (_generators)
-                Pop(true, true); // Natural, and only, call to MovementInform
+			Log.outException(ex);	
 		}
-
-		RemoveFlag(MotionMasterFlags.Update);
-
-		ResolveDelayedActions();
+		finally
+		{
+            RemoveFlag(MotionMasterFlags.Update);
+        }
 	}
 
 	public void Remove(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)

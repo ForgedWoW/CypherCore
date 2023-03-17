@@ -673,6 +673,7 @@ public partial class Unit : WorldObject
 		}
 
 		UpdateSplineMovement(diff);
+
 		MotionMaster.Update(diff);
 
 		// Wait with the aura interrupts until we have updated our movement generators and position
