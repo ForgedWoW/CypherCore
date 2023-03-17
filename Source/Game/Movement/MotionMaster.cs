@@ -110,7 +110,7 @@ public class MotionMaster
 		if (HasFlag(MotionMasterFlags.Update))
 		{
             lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Initialize(), MotionMasterDelayedActionType.Initialize));
+                _delayedActions.Enqueue(new DelayedAction(Initialize, MotionMasterDelayedActionType.Initialize));
 
 			return;
 		}
@@ -445,7 +445,7 @@ public class MotionMaster
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
             lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Clear(), MotionMasterDelayedActionType.Clear));
+                _delayedActions.Enqueue(new DelayedAction(Clear, MotionMasterDelayedActionType.Clear));
 
 			return;
 		}

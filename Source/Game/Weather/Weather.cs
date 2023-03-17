@@ -87,7 +87,7 @@ public class Weather
 			"spring", "summer", "fall", "winter"
 		};
 
-		Log.outInfo(LogFilter.Server, "Generating a change in {0} weather for zone {1}.", seasonName[season], _zone);
+		Log.outTrace(LogFilter.Server, "Generating a change in {0} weather for zone {1}.", seasonName[season], _zone);
 
 		if ((u < 60) && (_intensity < 0.33333334f)) // Get fair
 		{
@@ -278,7 +278,7 @@ public class Weather
 				break;
 		}
 
-		Log.outInfo(LogFilter.Server, "Change the weather of zone {0} to {1}.", _zone, wthstr);
+		Log.outDebug(LogFilter.Server, "Change the weather of zone {0} to {1}.", _zone, wthstr);
 
 		Global.ScriptMgr.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
 

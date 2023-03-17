@@ -509,7 +509,7 @@ public partial class WorldSession : IDisposable
 
 		if (_socket[(int)conIdx] == null)
 		{
-			Log.outError(LogFilter.Network, "Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
+			Log.outTrace(LogFilter.Network, "Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
 
 			return;
 		}

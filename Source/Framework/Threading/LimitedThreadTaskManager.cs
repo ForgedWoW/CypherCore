@@ -39,7 +39,6 @@ public class LimitedThreadTaskManager
 	public void Deactivate()
 	{
 		_actionBlock.Complete();
-		_actionBlock.Completion.Wait();
 	}
 
 	/// <summary>
@@ -52,13 +51,13 @@ public class LimitedThreadTaskManager
         _actionBlock.Complete();
 		int i = 0;
 
-		while (_actionBlock.InputCount != 0 & i != 3) // after 3 its too long we have to tick
+		while (!_actionBlock.Completion.IsCompleted && _actionBlock.InputCount != 0 & i != 3) // after 3 its too long we have to tick
 		{
 			_actionBlock.Completion.Wait(1000);
 			i++;
 		}
 
-		if (i == 3)
+		if (i == 3 && !_actionBlock.Completion.IsCompleted)
 		{
 			_cancellationToken.Cancel(); // abort the task if we hit 3
 			Log.outFatal(LogFilter.Server, "_actionBlock.Completion.Wait over 3 seconds." + Environment.NewLine + Environment.StackTrace);
