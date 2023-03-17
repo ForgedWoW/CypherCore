@@ -70,7 +70,7 @@ namespace BNetServer
             }
 
             uint _banExpiryCheckInterval = ConfigMgr.GetDefaultValue("BanExpiryCheckInterval", 60u);
-            _banExpiryCheckTimer = new Timer(_banExpiryCheckInterval);
+            _banExpiryCheckTimer = new System.Timers.Timer(_banExpiryCheckInterval);
             _banExpiryCheckTimer.Elapsed += BanExpiryCheckTimer_Elapsed;
             _banExpiryCheckTimer.Start();
 
@@ -104,6 +104,6 @@ namespace BNetServer
             DB.Login.Execute(DB.Login.GetPreparedStatement(LoginStatements.DelBnetExpiredAccountBanned));
         }
 
-        static Timer _banExpiryCheckTimer;
+        static System.Timers.Timer _banExpiryCheckTimer;
     }
 }
