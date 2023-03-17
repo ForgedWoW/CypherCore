@@ -46,26 +46,35 @@ public class LimitedThreadTaskManager
 	/// </summary>
 	public void Wait()
     {
-        ExecuteStaged();
-
-        _actionBlock.Complete();
-		int i = 0;
-
-		while (!_actionBlock.Completion.IsCompleted && _actionBlock.InputCount != 0 & i != 3) // after 3 its too long we have to tick
+		try
 		{
-			_actionBlock.Completion.Wait(1000);
-			i++;
-		}
+			ExecuteStaged();
 
-		if (i == 3 && !_actionBlock.Completion.IsCompleted)
+			_actionBlock.Complete();
+			int i = 0;
+
+			while (!_actionBlock.Completion.IsCompleted && _actionBlock.InputCount != 0 & i != 3) // after 3 its too long we have to tick
+			{
+				_actionBlock.Completion.Wait(1000);
+				i++;
+			}
+
+			if (i == 3 && !_actionBlock.Completion.IsCompleted)
+			{
+				_cancellationToken.Cancel(); // abort the task if we hit 3
+				Log.outFatal(LogFilter.Server, "_actionBlock.Completion.Wait over 3 seconds." + Environment.NewLine + Environment.StackTrace);
+			}
+		}
+		catch (Exception ex)
 		{
-			_cancellationToken.Cancel(); // abort the task if we hit 3
-			Log.outFatal(LogFilter.Server, "_actionBlock.Completion.Wait over 3 seconds." + Environment.NewLine + Environment.StackTrace);
+			Log.outException(ex);
 		}
-
-        _cancellationToken = new CancellationTokenSource();
-        _blockOptions.CancellationToken = _cancellationToken.Token;
-        _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
+		finally
+		{
+			_cancellationToken = new CancellationTokenSource();
+			_blockOptions.CancellationToken = _cancellationToken.Token;
+			_actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
+		}
     }
 
 	/// <summary>

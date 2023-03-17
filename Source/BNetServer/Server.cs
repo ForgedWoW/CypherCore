@@ -3,6 +3,7 @@
 
 using System;
 using System.Globalization;
+using System.Threading;
 using System.Timers;
 using BNetServer.Networking;
 using Framework.Configuration;
@@ -13,11 +14,18 @@ namespace BNetServer
 {
     class Server
     {
+        public static bool Running { get; set; } = true;
+
         static void Main()
         {
             //Set Culture
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
+            Console.CancelKeyPress += delegate (object? sender, ConsoleCancelEventArgs e) {
+                e.Cancel = true;
+                Running = false;
+            };
 
             if (!ConfigMgr.Load("BNetServer.conf"))
                 ExitNow();
@@ -65,6 +73,9 @@ namespace BNetServer
             _banExpiryCheckTimer = new Timer(_banExpiryCheckInterval);
             _banExpiryCheckTimer.Elapsed += BanExpiryCheckTimer_Elapsed;
             _banExpiryCheckTimer.Start();
+
+            while (Running)
+                Thread.Sleep(1000);
         }
 
         static bool StartDB()
