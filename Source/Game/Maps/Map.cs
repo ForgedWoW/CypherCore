@@ -712,7 +712,7 @@ public class Map : IDisposable
 			if (!obj.IsInWorld)
 				continue;
 
-			VisitNearbyCellsOf(obj, update);
+            _threadManager.Schedule(() => VisitNearbyCellsOf(obj, update));
 		}
 
 #if DEBUGMETRIC
