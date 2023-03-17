@@ -11,7 +11,6 @@ namespace Framework.Threading;
 public class LimitedThreadTaskManager
 {
 	readonly AutoResetEvent _mapUpdateComplete = new(false);
-	Exception _exc = null;
 	ActionBlock<Action> _actionBlock;
 	readonly ExecutionDataflowBlockOptions _blockOptions;
     readonly List<Action> _staged = new List<Action>();
@@ -48,13 +47,11 @@ public class LimitedThreadTaskManager
 		while (_actionBlock.InputCount != 0)
 			_actionBlock.Completion.Wait(1000);
 
-        CheckForExcpetion();
         _actionBlock = new ActionBlock<Action>(ProcessTask, _blockOptions);
     }
 
     public void Schedule(Action a)
 	{
-		CheckForExcpetion();
 		_actionBlock.Post(a);
 	}
 
@@ -90,18 +87,11 @@ public class LimitedThreadTaskManager
 		catch (Exception ex)
 		{
 			Log.outException(ex);
-			_exc = ex;
 		}
 	}
 
 	public void Complete(bool success)
 	{
 		_mapUpdateComplete.Set();
-	}
-
-	private void CheckForExcpetion()
-	{
-		if (_exc != null)
-			throw new Exception("Error while processing task!", _exc);
 	}
 }
