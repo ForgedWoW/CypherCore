@@ -4,17 +4,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Framework.Networking;
 
 public class NetworkThread<TSocketType> where TSocketType : ISocket
 {
-	readonly List<TSocketType> _Sockets = new();
+	readonly List<TSocketType> _sockets = new();
 	readonly List<TSocketType> _newSockets = new();
 	int _connections;
 	volatile bool _stopped;
 
-	Thread _thread;
+	Task _thread;
 
 	public void Stop()
 	{
@@ -26,15 +27,14 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 		if (_thread != null)
 			return false;
 
-		_thread = new Thread(Run);
-		_thread.Start();
+		_thread = Task.Run(Run);
 
 		return true;
 	}
 
 	public void Wait()
 	{
-		_thread.Join();
+		_thread.Wait();
 		_thread = null;
 	}
 
@@ -46,28 +46,32 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 	public virtual void AddSocket(TSocketType sock)
 	{
 		Interlocked.Increment(ref _connections);
-		_newSockets.Add(sock);
+		lock (_newSockets)
+			_newSockets.Add(sock);
 		SocketAdded(sock);
 	}
 
 	void AddNewSockets()
 	{
-		if (_newSockets.Empty())
-			return;
+		lock (_newSockets)
+		{
+			if (_newSockets.Empty())
+				return;
 
-		foreach (var socket in _newSockets.ToList())
-			if (!socket.IsOpen())
-			{
-				SocketRemoved(socket);
+			foreach (var socket in _newSockets.ToList())
+				if (!socket.IsOpen())
+				{
+					SocketRemoved(socket);
 
-				Interlocked.Decrement(ref _connections);
-			}
-			else
-			{
-				_Sockets.Add(socket);
-			}
+					Interlocked.Decrement(ref _connections);
+				}
+				else
+				{
+					_sockets.Add(socket);
+				}
 
-		_newSockets.Clear();
+			_newSockets.Clear();
+		}
 	}
 
 	void Run()
@@ -84,9 +88,9 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 
 			AddNewSockets();
 
-			for (var i = _Sockets.Count - 1; i >= 0 ; --i)
+			for (var i = _sockets.Count - 1; i >= 0 ; --i)
 			{
-				var socket = _Sockets[i];
+				var socket = _sockets[i];
 
 				if (!socket.Update())
 				{
@@ -96,7 +100,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 					SocketRemoved(socket);
 
 					Interlocked.Decrement(ref _connections);
-					_Sockets.Remove(socket);
+					_sockets.Remove(socket);
 				}
 			}
 
@@ -105,8 +109,9 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 		}
 
 		Log.outDebug(LogFilter.Misc, "Network Thread exits");
-		_newSockets.Clear();
-		_Sockets.Clear();
+        lock (_newSockets)
+            _newSockets.Clear();
+		_sockets.Clear();
 	}
 
 	protected virtual void SocketAdded(TSocketType sock) { }

@@ -9,7 +9,7 @@ using Game.Maps.Interfaces;
 
 namespace Game.Maps;
 
-public class MultiTypeContainer
+public class WorldObjectTypedList
 {
 	private readonly List<Player> _players = new();
 	private readonly List<Creature> _creatures = new();
@@ -25,7 +25,7 @@ public class MultiTypeContainer
 	{
 		if (obj == null)
 		{
-			Log.outWarn(LogFilter.Maps, $"Tried to insert null during {nameof(WorldObject)} to {nameof(MultiTypeContainer)}");
+			Log.outWarn(LogFilter.Maps, $"Tried to insert null during {nameof(WorldObject)} to {nameof(WorldObjectTypedList)}");
 			Log.outWarn(LogFilter.Maps, Environment.StackTrace);
 
 			return;
@@ -77,7 +77,7 @@ public class MultiTypeContainer
 	{
 		if (obj == null)
 		{
-			Log.outWarn(LogFilter.Maps, $"Tried to remove null during {nameof(WorldObject)} to {nameof(MultiTypeContainer)}");
+			Log.outWarn(LogFilter.Maps, $"Tried to remove null during {nameof(WorldObject)} to {nameof(WorldObjectTypedList)}");
 			Log.outWarn(LogFilter.Maps, Environment.StackTrace);
 
 			return;

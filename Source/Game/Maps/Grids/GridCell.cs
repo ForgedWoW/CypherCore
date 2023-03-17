@@ -12,17 +12,17 @@ public class GridCell
 	/// <summary>
 	///  Holds all World objects - Player, Pets, Corpse(resurrectable), DynamicObject(farsight)
 	/// </summary>
-	readonly MultiTypeContainer _objects;
+	readonly WorldObjectTypedList _objects;
 
 	/// <summary>
 	///  Holds all Grid objects - GameObjects, Creatures(except pets), DynamicObject, Corpse(Bones), AreaTrigger, Conversation, SceneObject
 	/// </summary>
-	readonly MultiTypeContainer _container;
+	readonly WorldObjectTypedList _container;
 
 	public GridCell()
 	{
-		_objects = new MultiTypeContainer();
-		_container = new MultiTypeContainer();
+		_objects = new WorldObjectTypedList();
+		_container = new WorldObjectTypedList();
 	}
 
 	public void Visit(IGridNotifier visitor)

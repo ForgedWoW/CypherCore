@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -53,10 +54,10 @@ public class Map : IDisposable
 	private readonly Dictionary<uint, ZoneDynamicInfo> _zoneDynamicInfo = new();
 	private readonly IntervalTimer _weatherUpdateTimer;
 	private readonly Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
-	private readonly Dictionary<ObjectGuid, WorldObject> _objectsStore = new();
-	private readonly MultiMap<ulong, Creature> _creatureBySpawnIdStore = new();
-	private readonly MultiMap<ulong, GameObject> _gameobjectBySpawnIdStore = new();
-	private readonly MultiMap<ulong, AreaTrigger> _areaTriggerBySpawnIdStore = new();
+	private readonly ConcurrentDictionary<ObjectGuid, WorldObject> _objectsStore = new();
+	private readonly ConcurrentMultiMap<ulong, Creature> _creatureBySpawnIdStore = new();
+	private readonly ConcurrentMultiMap<ulong, GameObject> _gameobjectBySpawnIdStore = new();
+	private readonly ConcurrentMultiMap<ulong, AreaTrigger> _areaTriggerBySpawnIdStore = new();
 	private readonly MultiMap<uint, Corpse> _corpsesByCell = new();
 	private readonly Dictionary<ObjectGuid, Corpse> _corpsesByPlayer = new();
 	private readonly List<Corpse> _corpseBones = new();
@@ -141,13 +142,13 @@ public class Map : IDisposable
 
 	public int ActiveNonPlayersCount => _activeNonPlayers.Count;
 
-	public Dictionary<ObjectGuid, WorldObject> ObjectsStore => _objectsStore;
+	public ConcurrentDictionary<ObjectGuid, WorldObject> ObjectsStore => _objectsStore;
 
-	public MultiMap<ulong, Creature> CreatureBySpawnIdStore => _creatureBySpawnIdStore;
+	public ConcurrentMultiMap<ulong, Creature> CreatureBySpawnIdStore => _creatureBySpawnIdStore;
 
-	public MultiMap<ulong, GameObject> GameObjectBySpawnIdStore => _gameobjectBySpawnIdStore;
+	public ConcurrentMultiMap<ulong, GameObject> GameObjectBySpawnIdStore => _gameobjectBySpawnIdStore;
 
-	public MultiMap<ulong, AreaTrigger> AreaTriggerBySpawnIdStore => _areaTriggerBySpawnIdStore;
+	public ConcurrentMultiMap<ulong, AreaTrigger> AreaTriggerBySpawnIdStore => _areaTriggerBySpawnIdStore;
 
 	public InstanceMap ToInstanceMap => IsDungeon ? (this as InstanceMap) : null;
 
@@ -2618,7 +2619,7 @@ public class Map : IDisposable
 		if (!guid.IsAreaTrigger)
 			return null;
 
-		return (AreaTrigger)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as AreaTrigger;
 	}
 
 	public SceneObject GetSceneObject(ObjectGuid guid)
@@ -2628,7 +2629,7 @@ public class Map : IDisposable
 
 	public Conversation GetConversation(ObjectGuid guid)
 	{
-		return (Conversation)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as Conversation;
 	}
 
 	public Player GetPlayer(ObjectGuid guid)
@@ -2641,7 +2642,7 @@ public class Map : IDisposable
 		if (!guid.IsCorpse)
 			return null;
 
-		return (Corpse)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as Corpse;
 	}
 
 	public Creature GetCreature(ObjectGuid guid)
@@ -2649,7 +2650,7 @@ public class Map : IDisposable
 		if (!guid.IsCreatureOrVehicle)
 			return null;
 
-		return (Creature)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as Creature;
 	}
 
 	public DynamicObject GetDynamicObject(ObjectGuid guid)
@@ -2657,7 +2658,7 @@ public class Map : IDisposable
 		if (!guid.IsDynamicObject)
 			return null;
 
-		return (DynamicObject)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as DynamicObject;
 	}
 
 	public GameObject GetGameObject(ObjectGuid guid)
@@ -2665,7 +2666,7 @@ public class Map : IDisposable
 		if (!guid.IsAnyTypeGameObject)
 			return null;
 
-		return (GameObject)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as GameObject;
 	}
 
 	public Pet GetPet(ObjectGuid guid)
@@ -2673,7 +2674,7 @@ public class Map : IDisposable
 		if (!guid.IsPet)
 			return null;
 
-		return (Pet)_objectsStore.LookupByKey(guid);
+		return _objectsStore.LookupByKey(guid) as Pet;
 	}
 
 	public Transport GetTransport(ObjectGuid guid)

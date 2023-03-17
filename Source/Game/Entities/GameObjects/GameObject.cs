@@ -400,7 +400,7 @@ namespace Game.Entities
 				if (ZoneScript != null)
 					ZoneScript.OnGameObjectCreate(this);
 
-				Map.ObjectsStore.Add(GUID, this);
+				Map.ObjectsStore.TryAdd(GUID, this);
 
 				if (_spawnId != 0)
 					Map.GameObjectBySpawnIdStore.Add(_spawnId, this);
@@ -428,27 +428,34 @@ namespace Game.Entities
 			//- Remove the gameobject from the accessor
 			if (IsInWorld)
 			{
-				if (ZoneScript != null)
-					ZoneScript.OnGameObjectRemove(this);
+				try
+				{
+					if (ZoneScript != null)
+						ZoneScript.OnGameObjectRemove(this);
 
-				RemoveFromOwner();
+					RemoveFromOwner();
 
-				if (Model != null)
-					if (Map.ContainsGameObjectModel(Model))
-						Map.RemoveGameObjectModel(Model);
+					if (Model != null)
+						if (Map.ContainsGameObjectModel(Model))
+							Map.RemoveGameObjectModel(Model);
 
-				// If linked trap exists, despawn it
-				var linkedTrap = LinkedTrap;
+					// If linked trap exists, despawn it
+					var linkedTrap = LinkedTrap;
 
-				if (linkedTrap != null)
-					linkedTrap.DespawnOrUnsummon();
+					if (linkedTrap != null)
+						linkedTrap.DespawnOrUnsummon();
 
-				base.RemoveFromWorld();
+					base.RemoveFromWorld();
 
-				if (_spawnId != 0)
-					Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
+					if (_spawnId != 0)
+						Map.GameObjectBySpawnIdStore.Remove(_spawnId, this);
 
-				Map.ObjectsStore.Remove(GUID);
+					Map.ObjectsStore.TryRemove(GUID, out _);
+				}
+				catch (Exception ex)
+				{
+					Log.outException(ex);	
+				}
 			}
 		}
 

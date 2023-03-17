@@ -27,7 +27,7 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 		}
 
 		_threadCount = threadCount;
-		_threads = new NetworkThread<TSocketType>[GetNetworkThreadCount()];
+		_threads = new NetworkThread<TSocketType>[_threadCount];
 
 		for (var i = 0; i < _threadCount; ++i)
 		{
@@ -61,18 +61,15 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 		{
 			var newSocket = (TSocketType)Activator.CreateInstance(typeof(TSocketType), sock);
 			newSocket.Accept();
+			var thread = _threads[SelectThreadWithMinConnections()];
 
-			_threads[SelectThreadWithMinConnections()].AddSocket(newSocket);
+			if (thread != null)
+				thread.AddSocket(newSocket);
 		}
 		catch (Exception err)
 		{
 			Log.outException(err);
 		}
-	}
-
-	public int GetNetworkThreadCount()
-	{
-		return _threadCount;
 	}
 
 	void Wait()

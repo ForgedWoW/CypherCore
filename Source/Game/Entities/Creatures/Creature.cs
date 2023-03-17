@@ -50,7 +50,7 @@ public partial class Creature : Unit
 		// Register the creature for guid lookup
 		if (!IsInWorld)
 		{
-			Map.ObjectsStore.Add(GUID, this);
+			Map.ObjectsStore.TryAdd(GUID, this);
 
 			if (SpawnId != 0)
 				Map.CreatureBySpawnIdStore.Add(SpawnId, this);
@@ -84,7 +84,7 @@ public partial class Creature : Unit
 				if (SpawnId != 0)
 					Map.CreatureBySpawnIdStore.Remove(SpawnId, this);
 
-				Map.ObjectsStore.Remove(GUID);
+				Map.ObjectsStore.TryRemove(GUID, out _);
 			}
 			catch (Exception ex)
 			{

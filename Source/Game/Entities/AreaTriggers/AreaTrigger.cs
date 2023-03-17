@@ -138,7 +138,7 @@ public class AreaTrigger : WorldObject
 		// Register the AreaTrigger for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			Map.ObjectsStore.Add(GUID, this);
+			Map.ObjectsStore.TryAdd(GUID, this);
 
 			if (_spawnId != 0)
 				Map.AreaTriggerBySpawnIdStore.Add(_spawnId, this);
@@ -169,7 +169,7 @@ public class AreaTrigger : WorldObject
 			if (_spawnId != 0)
 				Map.AreaTriggerBySpawnIdStore.Remove(_spawnId, this);
 
-			Map.ObjectsStore.Remove(GUID);
+			Map.ObjectsStore.TryRemove(GUID, out _);
 		}
 	}
 

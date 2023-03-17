@@ -51,7 +51,7 @@ public class DynamicObject : WorldObject
 		// Register the dynamicObject for guid lookup and for caster
 		if (!IsInWorld)
 		{
-			Map.ObjectsStore.Add(GUID, this);
+			Map.ObjectsStore.TryAdd(GUID, this);
 			base.AddToWorld();
 			BindToCaster();
 		}
@@ -74,7 +74,7 @@ public class DynamicObject : WorldObject
 
 			UnbindFromCaster();
 			base.RemoveFromWorld();
-			Map.ObjectsStore.Remove(GUID);
+			Map.ObjectsStore.TryRemove(GUID, out _);
 		}
 	}
 

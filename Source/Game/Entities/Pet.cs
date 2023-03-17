@@ -146,7 +146,7 @@ public class Pet : Guardian
 		{
 			// Don't call the function for Creature, normal mobs + totems go in a different storage
 			base.RemoveFromWorld();
-			Map.ObjectsStore.Remove(GUID);
+			Map.ObjectsStore.TryRemove(GUID, out _);
 		}
 	}
 
