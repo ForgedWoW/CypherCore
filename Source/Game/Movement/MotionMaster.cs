@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -88,7 +89,7 @@ public class MotionMaster
 	SortedSet<MovementGenerator> _generators { get; } = new(new MovementGeneratorComparator());
 
 	MultiMap<uint, MovementGenerator> _baseUnitStatesMap { get; } = new();
-	Queue<DelayedAction> _delayedActions { get; } = new();
+	ConcurrentQueue<DelayedAction> _delayedActions { get; } = new();
 	MotionMasterFlags _flags { get; set; }
 
 	public static uint SplineId
@@ -109,8 +110,8 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Update))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(Initialize, MotionMasterDelayedActionType.Initialize));
+
+			_delayedActions.Enqueue(new DelayedAction(Initialize, MotionMasterDelayedActionType.Initialize));
 
 			return;
 		}
@@ -145,8 +146,8 @@ public class MotionMaster
 
 	public int Size()
 	{
-        lock (_generators)
-            return (_defaultGenerator != null ? 1 : 0) + _generators.Count;
+		lock (_generators)
+			return (_defaultGenerator != null ? 1 : 0) + _generators.Count;
 	}
 
 	public List<MovementGeneratorInformation> GetMovementGeneratorsInformation()
@@ -194,8 +195,8 @@ public class MotionMaster
 
 	public MovementSlot GetCurrentSlot()
 	{
-        lock (_generators)
-            if (!_generators.Empty())
+		lock (_generators)
+			if (!_generators.Empty())
 				return MovementSlot.Active;
 
 		if (_defaultGenerator != null)
@@ -206,8 +207,8 @@ public class MotionMaster
 
 	public MovementGenerator GetCurrentMovementGenerator()
 	{
-        lock (_generators)
-            if (!_generators.Empty())
+		lock (_generators)
+			if (!_generators.Empty())
 				return _generators.FirstOrDefault();
 
 		if (_defaultGenerator != null)
@@ -234,8 +235,8 @@ public class MotionMaster
 		if (Empty() || IsInvalidMovementSlot(slot))
 			return MovementGeneratorType.Max;
 
-        lock (_generators)
-            if (slot == MovementSlot.Active && !_generators.Empty())
+		lock (_generators)
+			if (slot == MovementSlot.Active && !_generators.Empty())
 				return _generators.FirstOrDefault().GetMovementGeneratorType();
 
 		if (slot == MovementSlot.Default && _defaultGenerator != null)
@@ -249,8 +250,8 @@ public class MotionMaster
 		if (Empty() || IsInvalidMovementSlot(slot))
 			return null;
 
-        lock (_generators)
-            if (slot == MovementSlot.Active && !_generators.Empty())
+		lock (_generators)
+			if (slot == MovementSlot.Active && !_generators.Empty())
 				return _generators.FirstOrDefault();
 
 		if (slot == MovementSlot.Default && _defaultGenerator != null)
@@ -274,8 +275,8 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-                lock (_generators)
-                    if (!_generators.Empty())
+				lock (_generators)
+					if (!_generators.Empty())
 					{
 						var itr = _generators.FirstOrDefault(filter);
 
@@ -306,8 +307,8 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-                lock (_generators)
-                    if (!_generators.Empty())
+				lock (_generators)
+					if (!_generators.Empty())
 					{
 						var itr = _generators.FirstOrDefault(filter);
 						value = itr != null;
@@ -358,12 +359,12 @@ public class MotionMaster
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);	
+			Log.outException(ex);
 		}
 		finally
 		{
-            RemoveFlag(MotionMasterFlags.Update);
-        }
+			RemoveFlag(MotionMasterFlags.Update);
+		}
 	}
 
 	public void Remove(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)
@@ -373,8 +374,7 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Remove(movement, slot), MotionMasterDelayedActionType.Remove));
+			_delayedActions.Enqueue(new DelayedAction(() => Remove(movement, slot), MotionMasterDelayedActionType.Remove));
 
 			return;
 		}
@@ -390,7 +390,7 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-                lock (_generators)
+				lock (_generators)
 					if (!_generators.Empty())
 						if (_generators.Contains(movement))
 							Remove(movement, GetCurrentMovementGenerator() == movement, false);
@@ -408,8 +408,7 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Remove(type, slot), MotionMasterDelayedActionType.RemoveType));
+			_delayedActions.Enqueue(new DelayedAction(() => Remove(type, slot), MotionMasterDelayedActionType.RemoveType));
 
 			return;
 		}
@@ -425,8 +424,8 @@ public class MotionMaster
 
 				break;
 			case MovementSlot.Active:
-                lock (_generators)
-                    if (!_generators.Empty())
+				lock (_generators)
+					if (!_generators.Empty())
 					{
 						var itr = _generators.FirstOrDefault(a => a.GetMovementGeneratorType() == type);
 
@@ -444,8 +443,7 @@ public class MotionMaster
 	{
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(Clear, MotionMasterDelayedActionType.Clear));
+			_delayedActions.Enqueue(new DelayedAction(Clear, MotionMasterDelayedActionType.Clear));
 
 			return;
 		}
@@ -461,8 +459,7 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Clear(slot), MotionMasterDelayedActionType.ClearSlot));
+			_delayedActions.Enqueue(new DelayedAction(() => Clear(slot), MotionMasterDelayedActionType.ClearSlot));
 
 			return;
 		}
@@ -489,8 +486,7 @@ public class MotionMaster
 	{
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Clear(mode), MotionMasterDelayedActionType.ClearMode));
+			_delayedActions.Enqueue(new DelayedAction(() => Clear(mode), MotionMasterDelayedActionType.ClearMode));
 
 			return;
 		}
@@ -505,8 +501,8 @@ public class MotionMaster
 	{
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-            lock (_delayedActions)
-                _delayedActions.Enqueue(new DelayedAction(() => Clear(priority), MotionMasterDelayedActionType.ClearPriority));
+
+			_delayedActions.Enqueue(new DelayedAction(() => Clear(priority), MotionMasterDelayedActionType.ClearPriority));
 
 			return;
 		}
@@ -1149,8 +1145,8 @@ public class MotionMaster
 			return;
 
 		if (HasFlag(MotionMasterFlags.Delayed))
-			lock (_delayedActions)
-				_delayedActions.Enqueue(new DelayedAction(() => Add(movement, slot), MotionMasterDelayedActionType.Add));
+
+			_delayedActions.Enqueue(new DelayedAction(() => Add(movement, slot), MotionMasterDelayedActionType.Add));
 		else
 			DirectAdd(movement, slot);
 	}
@@ -1174,25 +1170,20 @@ public class MotionMaster
 
 	void ResolveDelayedActions()
 	{
-		lock (_delayedActions)
-			while (_delayedActions.Count != 0)
-			{
-				var action = _delayedActions.Dequeue();
-
-				if (action != null)
-					action.Resolve();
-			}
+		while (_delayedActions.Count != 0)
+			if (_delayedActions.TryDequeue(out var action) && action != null)
+				action.Resolve();
 	}
 
 	void Remove(MovementGenerator movement, bool active, bool movementInform)
 	{
-        _generators.Remove(movement);
+		_generators.Remove(movement);
 		Delete(movement, active, movementInform);
 	}
 
 	void Pop(bool active, bool movementInform)
 	{
-        if (!_generators.Empty())
+		if (!_generators.Empty())
 			Remove(_generators.FirstOrDefault(), active, movementInform);
 	}
 
@@ -1277,8 +1268,8 @@ public class MotionMaster
 		{
 			case MovementSlot.Default:
 				if (_defaultGenerator != null)
-                    lock (_generators)
-                        _defaultGenerator.Finalize(_owner, _generators.Empty(), false);
+					lock (_generators)
+						_defaultGenerator.Finalize(_owner, _generators.Empty(), false);
 
 				_defaultGenerator = movement;
 

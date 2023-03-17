@@ -3,7 +3,6 @@
 
 using System;
 using System.Globalization;
-using System.Threading;
 using System.Timers;
 using BNetServer.Networking;
 using Framework.Configuration;
@@ -75,7 +74,7 @@ namespace BNetServer
             _banExpiryCheckTimer.Start();
 
             while (Running)
-                Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(1000);
         }
 
         static bool StartDB()
