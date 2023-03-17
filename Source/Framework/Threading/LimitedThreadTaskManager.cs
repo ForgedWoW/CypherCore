@@ -103,7 +103,7 @@ public class LimitedThreadTaskManager
         }
     }
 
-    public void ProcessTask(Action a)
+    void ProcessTask(Action a)
 	{
 		try
 		{
@@ -113,10 +113,5 @@ public class LimitedThreadTaskManager
 		{
 			Log.outException(ex);
 		}
-	}
-
-	public void Complete(bool success)
-	{
-		_mapUpdateComplete.Set();
 	}
 }
