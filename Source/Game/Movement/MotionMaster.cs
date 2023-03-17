@@ -109,7 +109,8 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Update))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Initialize(), MotionMasterDelayedActionType.Initialize));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Initialize(), MotionMasterDelayedActionType.Initialize));
 
 			return;
 		}
@@ -372,7 +373,8 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Remove(movement, slot), MotionMasterDelayedActionType.Remove));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Remove(movement, slot), MotionMasterDelayedActionType.Remove));
 
 			return;
 		}
@@ -406,7 +408,8 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Remove(type, slot), MotionMasterDelayedActionType.RemoveType));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Remove(type, slot), MotionMasterDelayedActionType.RemoveType));
 
 			return;
 		}
@@ -441,7 +444,8 @@ public class MotionMaster
 	{
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Clear(), MotionMasterDelayedActionType.Clear));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Clear(), MotionMasterDelayedActionType.Clear));
 
 			return;
 		}
@@ -457,7 +461,8 @@ public class MotionMaster
 
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Clear(slot), MotionMasterDelayedActionType.ClearSlot));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Clear(slot), MotionMasterDelayedActionType.ClearSlot));
 
 			return;
 		}
@@ -484,7 +489,8 @@ public class MotionMaster
 	{
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Clear(mode), MotionMasterDelayedActionType.ClearMode));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Clear(mode), MotionMasterDelayedActionType.ClearMode));
 
 			return;
 		}
@@ -499,7 +505,8 @@ public class MotionMaster
 	{
 		if (HasFlag(MotionMasterFlags.Delayed))
 		{
-			_delayedActions.Enqueue(new DelayedAction(() => Clear(priority), MotionMasterDelayedActionType.ClearPriority));
+            lock (_delayedActions)
+                _delayedActions.Enqueue(new DelayedAction(() => Clear(priority), MotionMasterDelayedActionType.ClearPriority));
 
 			return;
 		}
@@ -1142,7 +1149,8 @@ public class MotionMaster
 			return;
 
 		if (HasFlag(MotionMasterFlags.Delayed))
-			_delayedActions.Enqueue(new DelayedAction(() => Add(movement, slot), MotionMasterDelayedActionType.Add));
+			lock (_delayedActions)
+				_delayedActions.Enqueue(new DelayedAction(() => Add(movement, slot), MotionMasterDelayedActionType.Add));
 		else
 			DirectAdd(movement, slot);
 	}
@@ -1166,11 +1174,14 @@ public class MotionMaster
 
 	void ResolveDelayedActions()
 	{
-		while (_delayedActions.Count != 0)
-		{
-			_delayedActions.Peek().Resolve();
-			_delayedActions.Dequeue();
-		}
+		lock (_delayedActions)
+			while (_delayedActions.Count != 0)
+			{
+				var action = _delayedActions.Dequeue();
+
+				if (action != null)
+					action.Resolve();
+			}
 	}
 
 	void Remove(MovementGenerator movement, bool active, bool movementInform)
