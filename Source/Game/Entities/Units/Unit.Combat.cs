@@ -917,7 +917,8 @@ public partial class Unit
 						if (group)
 							loot.NotifyLootList(creature.Map);
 
-						creature.PersonalLoot[looter.GUID] = loot; // trash mob loot is personal, generated with round robin rules
+						if (loot != null)
+							creature.PersonalLoot[looter.GUID] = loot; // trash mob loot is personal, generated with round robin rules
 
 						// Update round robin looter only if the creature had loot
 						if (!loot.IsLooted())
@@ -942,7 +943,8 @@ public partial class Unit
 						if (creature.GetLootMode() > 0)
 							loot.GenerateMoneyLoot(creature.Template.MinGold, creature.Template.MaxGold);
 
-						creature.PersonalLoot[tapper.GUID] = loot;
+						if (loot != null)
+							creature.PersonalLoot[tapper.GUID] = loot;
 					}
 				}
 			}

@@ -161,7 +161,7 @@ public partial class Creature
 				return false;
 
 			foreach (var (_, loot) in PersonalLoot)
-				if (!loot.IsLooted())
+				if (loot != null && !loot.IsLooted())
 					return false;
 
 			return true;

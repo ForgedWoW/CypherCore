@@ -374,8 +374,10 @@ public abstract class WorldObject : IDisposable
 				return _visibilityDistanceOverride.Value;
 			else if (IsFarVisible && !IsPlayer)
 				return SharedConst.MaxVisibilityDistance;
-			else
+			else if (Map != null)
 				return Map.VisibilityRange;
+
+			return SharedConst.MaxVisibilityDistance;
 		}
 	}
 

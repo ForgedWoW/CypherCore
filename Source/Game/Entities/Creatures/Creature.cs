@@ -520,7 +520,8 @@ public partial class Creature : Unit
 				Loot?.Update();
 
 				foreach (var (playerOwner, loot) in PersonalLoot)
-					loot.Update();
+					if (loot != null)
+						loot.Update();
 
 				if (CorpseRemoveTime <= GameTime.GetGameTime())
 				{
@@ -2461,7 +2462,7 @@ public partial class Creature : Unit
 				return true;
 
 			foreach (var (_, loot) in PersonalLoot)
-				if (loot.loot_type != LootType.Skinning || !loot.IsLooted())
+				if (loot != null && loot.loot_type != LootType.Skinning || !loot.IsLooted())
 					return false;
 
 			return true;

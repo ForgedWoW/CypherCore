@@ -3873,7 +3873,9 @@ public partial class Spell
 		creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
 		creature.SetDynamicFlag(UnitDynFlags.Lootable);
 		Loot loot = new(creature.Map, creature.GUID, LootType.Skinning, null);
-		creature.PersonalLoot[player.GUID] = loot;
+
+		if (loot != null)
+			creature.PersonalLoot[player.GUID] = loot;
 		loot.FillLoot(creature.Template.SkinLootId, LootStorage.Skinning, player, true);
 		player.SendLoot(loot);
 

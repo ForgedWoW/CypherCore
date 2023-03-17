@@ -1832,9 +1832,8 @@ public class Map : IDisposable
         _metricFactory.Meter("_farSpellCallbacks").StartMark();
 #endif
 		while (_farSpellCallbacks.TryDequeue(out var callback))
-			_threadManager.Schedule(() => callback(this));
+			callback(this);
 
-		_threadManager.Wait();
 #if DEBUGMETRIC
         _metricFactory.Meter("_farSpellCallbacks").StopMark();
         _metricFactory.Meter("RemoveAllObjectsInRemoveList").StartMark();
@@ -1855,11 +1854,10 @@ public class Map : IDisposable
 				{
 					var grid = ykvp.Value;
 
-                    _threadManager.Stage(() => grid?.Update(this, diff));
+                    grid?.Update(this, diff);
 				}
 			}
 
-		_threadManager.Wait();
 #if DEBUGMETRIC
         _metricFactory.Meter("grid?.Update").StopMark();
 #endif
