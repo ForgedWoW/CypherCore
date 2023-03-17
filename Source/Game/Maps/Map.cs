@@ -11,6 +11,7 @@ using System.Threading.Tasks.Dataflow;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Metrics;
 using Framework.Threading;
 using Game.Collision;
 using Game.DataStorage;
