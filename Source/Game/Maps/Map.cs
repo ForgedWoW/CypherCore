@@ -780,9 +780,9 @@ public class Map : IDisposable
         _metricFactory.Meter("SendObjectUpdates Update").StopMark();
         _metricFactory.Meter("MoveAll Update").StartMark();
 #endif
-		_threadManager.Schedule(MoveAllCreaturesInMoveList);
-		_threadManager.Schedule(MoveAllGameObjectsInMoveList);
-		_threadManager.Schedule(MoveAllAreaTriggersInMoveList);
+		MoveAllCreaturesInMoveList();
+		MoveAllGameObjectsInMoveList();
+		MoveAllAreaTriggersInMoveList();
 
 		_threadManager.Wait();
 #if DEBUGMETRIC
