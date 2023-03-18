@@ -785,7 +785,6 @@ public class Map : IDisposable
 		MoveAllGameObjectsInMoveList();
 		MoveAllAreaTriggersInMoveList();
 
-		_threadManager.Wait();
 #if DEBUGMETRIC
         _metricFactory.Meter("MoveAll Update").StopMark();
 #endif
