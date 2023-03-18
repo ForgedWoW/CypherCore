@@ -1330,7 +1330,8 @@ public class MotionMaster
 		if (movement == null || movement.BaseUnitState == 0)
 			return;
 
-		_baseUnitStatesMap.Add((uint)movement.BaseUnitState, movement);
+		lock (_baseUnitStatesMap)
+			_baseUnitStatesMap.Add((uint)movement.BaseUnitState, movement);
 		_owner.AddUnitState(movement.BaseUnitState);
 	}
 
@@ -1338,8 +1339,8 @@ public class MotionMaster
 	{
 		if (movement == null || movement.BaseUnitState == 0)
 			return;
-
-		_baseUnitStatesMap.Remove((uint)movement.BaseUnitState, movement);
+        lock (_baseUnitStatesMap)
+            _baseUnitStatesMap.Remove((uint)movement.BaseUnitState, movement);
 
 		if (!_baseUnitStatesMap.ContainsKey((uint)movement.BaseUnitState))
 			_owner.ClearUnitState(movement.BaseUnitState);
@@ -1349,11 +1350,14 @@ public class MotionMaster
 	{
 		uint unitState = 0;
 
-		foreach (var itr in _baseUnitStatesMap.KeyValueList)
-			unitState |= itr.Key;
+		lock (_baseUnitStatesMap)
+		{
+			foreach (var itr in _baseUnitStatesMap.KeyValueList)
+				unitState |= itr.Key;
 
-		_owner.ClearUnitState((UnitState)unitState);
-		_baseUnitStatesMap.Clear();
+			_owner.ClearUnitState((UnitState)unitState);
+			_baseUnitStatesMap.Clear();
+		}
 	}
 
 	void AddFlag(MotionMasterFlags flag)

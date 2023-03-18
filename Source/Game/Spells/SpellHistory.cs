@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
@@ -16,8 +17,8 @@ namespace Game.Spells;
 public class SpellHistory
 {
 	readonly Unit _owner;
-	readonly Dictionary<uint, CooldownEntry> _spellCooldowns = new();
-	readonly Dictionary<uint, CooldownEntry> _categoryCooldowns = new();
+	readonly LoopSafeDictionary<uint, CooldownEntry> _spellCooldowns = new();
+	readonly LoopSafeDictionary<uint, CooldownEntry> _categoryCooldowns = new();
 	readonly DateTime[] _schoolLockouts = new DateTime[(int)SpellSchools.Max];
 	readonly MultiMap<uint, ChargeEntry> _categoryCharges = new();
 	readonly Dictionary<uint, DateTime> _globalCooldowns = new();
@@ -163,18 +164,23 @@ public class SpellHistory
 	{
 		var now = GameTime.GetSystemTime();
 
-		foreach (var pair in _categoryCooldowns.ToList())
+        foreach (var pair in _categoryCooldowns)
 			if (pair.Value.CategoryEnd < now)
-				_categoryCooldowns.Remove(pair.Key);
+				_categoryCooldowns.QueueRemove(pair.Key);
 
-		foreach (var pair in _spellCooldowns.ToList())
+		_categoryCooldowns.ExecuteRemove();
+
+
+        foreach (var pair in _spellCooldowns)
 			if (pair.Value.CooldownEnd < now)
 			{
 				_categoryCooldowns.Remove(pair.Value.CategoryId);
-				_spellCooldowns.Remove(pair.Key);
+				_spellCooldowns.QueueRemove(pair.Key);
 			}
 
-		_categoryCharges.RemoveIfMatching((pair) => pair.Value.RechargeEnd <= now);
+		_spellCooldowns.ExecuteRemove();
+
+        _categoryCharges.RemoveIfMatching((pair) => pair.Value.RechargeEnd <= now);
 	}
 
 	public void HandleCooldowns(SpellInfo spellInfo, Item item, Spell spell = null)
