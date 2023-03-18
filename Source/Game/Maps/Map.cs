@@ -753,7 +753,7 @@ public class Map : IDisposable
         _metricFactory.Meter("_transports Update").StopMark();
         _metricFactory.Meter("SendObjectUpdates Update").StartMark();
 #endif
-		_threadManager.Schedule(SendObjectUpdates);
+		SendObjectUpdates();
 
 		// Process necessary scripts
 		if (!_scriptSchedule.Empty())
@@ -774,8 +774,8 @@ public class Map : IDisposable
 		}
 
 		// update phase shift objects
-		_threadManager.Schedule(() => MultiPersonalPhaseTracker.Update(this, diff));
-		_threadManager.Wait();
+		MultiPersonalPhaseTracker.Update(this, diff);
+
 #if DEBUGMETRIC
         _metricFactory.Meter("SendObjectUpdates Update").StopMark();
         _metricFactory.Meter("MoveAll Update").StartMark();
