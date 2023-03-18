@@ -16,7 +16,8 @@ internal class aura_evoker_stasis : AuraScript, IAuraCheckProc, IAuraOnProc, IAu
     
     public bool CheckProc(ProcEventInfo info)
     {
-        return info.HealInfo != null && info.SpellInfo.Id.EqualsAny(EvokerSpells.ECHO, 
+        return info.HealInfo != null && info.ProcSpell != null
+                && info.SpellInfo.Id.EqualsAny(EvokerSpells.ECHO, 
                                                                     EvokerSpells.RED_LIVING_FLAME_HEAL,
                                                                     EvokerSpells.GREEN_DREAM_BREATH_CHARGED,
                                                                     EvokerSpells.SPIRITBLOOM_CHARGED,
@@ -28,18 +29,23 @@ internal class aura_evoker_stasis : AuraScript, IAuraCheckProc, IAuraOnProc, IAu
 
     public void OnProc(ProcEventInfo info)
     {
-        List<HealInfo> heals = new List<HealInfo>();
-
-        if (ScriptValues.TryGetValue("heals", out var healsObj))
-            heals = (List<HealInfo>)healsObj;
-
-        if (heals.Count == 0)
+        if (ScriptValues.Count == 0)
             Caster.AddAura(EvokerSpells.STASIS_OVERRIDE_AURA);
 
-        if (heals.Count < 3)
+        List<HealInfo> heals = new List<HealInfo>();
+
+        string id = info.ProcSpell.CastId.ToString();
+
+        if (ScriptValues.TryGetValue(id, out var healsObj))
+        {
+            heals = (List<HealInfo>)healsObj;
+            heals.Add(info.HealInfo);
+            ScriptValues[id] = heals;
+        }
+        else if (ScriptValues.Count < 3)
         {
             heals.Add(info.HealInfo);
-            ScriptValues["heals"] = heals;
+            ScriptValues[id] = heals;
         }
     }
 }
