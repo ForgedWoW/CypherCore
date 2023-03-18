@@ -3313,7 +3313,9 @@ public class Map : IDisposable
 		{
 			if (at.Location.MoveState == ObjectCellMoveState.Active)
 				at.Location.MoveState = ObjectCellMoveState.Inactive;
-		}
+
+            _areaTriggersToMove.Remove(at);
+        }
 	}
 
 	private void MoveAllCreaturesInMoveList()
