@@ -9,10 +9,10 @@ using Game.Scripting.Interfaces.IAreaTrigger;
 namespace Scripts.Spells.Priest;
 
 [Script] // Angelic Feather areatrigger - created by ANGELIC_FEATHER_AREATRIGGER
-internal class areatrigger_pri_angelic_feather : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUnitEnter
+internal class areatrigger_pri_angelic_feather : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
 	// Called when the AreaTrigger has just been initialized, just before added to map
-	public void OnInitialize()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 

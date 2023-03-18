@@ -6,6 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
+// all empower spells
 [SpellScript(EvokerSpells.GREEN_DREAM_BREATH,
 			EvokerSpells.GREEN_DREAM_BREATH_2,
 			EvokerSpells.BLUE_ETERNITY_SURGE,

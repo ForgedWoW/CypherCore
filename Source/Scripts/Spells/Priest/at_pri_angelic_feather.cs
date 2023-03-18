@@ -8,9 +8,9 @@ using Game.Scripting.Interfaces.IAreaTrigger;
 namespace Scripts.Spells.Priest;
 
 [Script]
-public class at_pri_angelic_feather : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUnitEnter
+public class at_pri_angelic_feather : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
-	public void OnInitialize()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 

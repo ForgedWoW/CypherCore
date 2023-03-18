@@ -7,26 +7,30 @@ using Game.Scripting.Interfaces.IAreaTrigger;
 namespace Scripts.Spells.Mage;
 
 [Script]
-public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate
+public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
 	public uint damageInterval;
 	public bool procDone = false;
 
-	public void OnInitialize()
+    public void OnInitialize()
 	{
 		damageInterval = 500;
-		var caster = At.GetCaster();
+    }
 
-		if (caster == null)
-			return;
+    public void OnCreate()
+    {
+        var caster = At.GetCaster();
 
-		var pos = caster.Location;
+        if (caster == null)
+            return;
 
-		At.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
-		At.SetDestination(pos, 4000);
-	}
+        var pos = caster.Location;
 
-	public void OnUpdate(uint diff)
+        At.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
+        At.SetDestination(4000, pos);
+    }
+
+    public void OnUpdate(uint diff)
 	{
 		var caster = At.GetCaster();
 

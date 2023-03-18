@@ -409,22 +409,22 @@ public class AreaTrigger : WorldObject
 	public override bool IsNeverVisibleFor(WorldObject seer)
 	{
 		return base.IsNeverVisibleFor(seer) || IsServerSide;
-	}
+    }
 
-	public bool SetDestination(Position pos, uint timeToTarget)
-	{
-		var path = new PathGenerator(GetCaster());
-		var result = path.CalculatePath(Location, true);
+    public bool SetDestination(uint timeToTarget, Position targetPos = null, WorldObject startingObject = null)
+    {
+        var path = new PathGenerator(startingObject != null ? startingObject : GetCaster());
+        var result = path.CalculatePath(targetPos != null ? targetPos : Location, true);
 
-		if (!result || (path.GetPathType() & PathType.NoPath) != 0)
-			return false;
+        if (!result || (path.GetPathType() & PathType.NoPath) != 0)
+            return false;
 
-		InitSplines(path.GetPath().ToList(), timeToTarget);
+        InitSplines(path.GetPath().ToList(), timeToTarget);
 
-		return true;
-	}
+        return true;
+    }
 
-	public void Delay(int delaytime)
+    public void Delay(int delaytime)
 	{
 		SetDuration(Duration - delaytime);
 	}

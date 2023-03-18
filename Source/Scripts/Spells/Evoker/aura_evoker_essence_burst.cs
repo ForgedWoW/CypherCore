@@ -12,7 +12,10 @@ public class aura_evoker_essence_burst : AuraScript, IAuraOnProc
 {
 	public void OnProc(ProcEventInfo info)
 	{
-		if (TryGetCasterAsPlayer(out var player))
+		if (TryGetCasterAsPlayer(out var player) 
+			&& (info.ProcSpell.SpellInfo.Id == EvokerSpells.RED_LIVING_FLAME_DAMAGE
+				|| info.ProcSpell.SpellInfo.Id == EvokerSpells.RED_LIVING_FLAME_HEAL)
+			&& RandomHelper.randChance(Aura.GetEffect(0).Amount))
 			player.AddAura(EvokerSpells.ESSENCE_BURST_AURA);
 	}
 }

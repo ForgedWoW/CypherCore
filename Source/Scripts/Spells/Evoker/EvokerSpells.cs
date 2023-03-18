@@ -144,7 +144,10 @@ internal struct EvokerSpells
     public const uint RED_PYRE_MISSILE = 393568;
     public const uint RED_RENEWING_BLAZE = 374348;
 	public const uint RED_RENEWING_BLAZE_AURA = 374349;
-	public const uint RUBY_ESSENCE_BURST = 376872;
+    public const uint REGENERATIVE_MAGIC = 387787;
+    public const uint REGENERATIVE_MAGIC_HEAL = 387798;
+    public const uint RESONATING_SPHERE = 376236;
+    public const uint RUBY_ESSENCE_BURST = 376872;
 	public const uint SKYWARD_ASCENT = 367033;
 	public const uint SOAR_RACIAL = 369536;
 	public const uint SPIRITBLOOM_CHARGED = 367230;
@@ -162,6 +165,16 @@ internal struct EvokerAreaTriggers
 {
     public const uint BLACK_LANDSLIDE = 23578;
     public const uint BLACK_LANDSLIDE_ROOT = 25144;
+    public const uint BRONZE_TEMPORAL_ANOMALY = 25294;
     public const uint GREEN_EMERALD_BLOSSOM = 23318;
 	public const uint RED_FIRE_STORM = 24713;
+}
+
+internal struct EvokerLabels
+{
+    public const uint BLACK = 1468;
+    public const uint BLUE = 1465;
+    public const uint BRONZE = 1467;
+    public const uint GREEN = 1466;
+    public const uint RED = 1464;
 }

@@ -8,11 +8,11 @@ using Game.Scripting.Interfaces.IAreaTrigger;
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_darkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnInitialize
+public class at_dh_darkness : AreaTriggerScript, IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnCreate
 {
 	private bool entered;
 
-	public void OnInitialize()
+	public void OnCreate()
 	{
 		At.SetDuration(8000);
 	}

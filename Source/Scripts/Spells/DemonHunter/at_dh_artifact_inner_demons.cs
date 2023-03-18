@@ -11,9 +11,9 @@ using Game.Scripting.Interfaces.IAreaTrigger;
 namespace Scripts.Spells.DemonHunter;
 
 [Script]
-public class at_dh_artifact_inner_demons : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnRemove
+public class at_dh_artifact_inner_demons : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnRemove
 {
-	public void OnInitialize()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 

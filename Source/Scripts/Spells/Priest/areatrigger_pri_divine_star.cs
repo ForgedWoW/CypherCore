@@ -16,7 +16,7 @@ using Game.Spells;
 namespace Scripts.Spells.Priest;
 
 [Script] // 110744 - Divine Star
-internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnInitialize, IAreaTriggerOnUpdate,
+internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnCreate, IAreaTriggerOnUpdate,
 											IAreaTriggerOnUnitEnter, IAreaTriggerOnUnitExit, IAreaTriggerOnDestinationReached
 {
 	private readonly List<ObjectGuid> _affectedUnits = new();
@@ -42,7 +42,7 @@ internal class areatrigger_pri_divine_star : AreaTriggerScript, IAreaTriggerOnIn
 		}
 	}
 
-	public void OnInitialize()
+	public void OnCreate()
 	{
 		var caster = At.GetCaster();
 

@@ -12,7 +12,7 @@ namespace Scripts.Spells.Evoker;
 			EvokerSpells.BLUE_ETERNITY_SURGE,
 			EvokerSpells.BLUE_ETERNITY_SURGE_2,
 			EvokerSpells.RED_FIRE_BREATH,
-			EvokerSpells.RED_FIRE_BREATH,
+			EvokerSpells.RED_FIRE_BREATH_2,
 			EvokerSpells.GREEN_SPIRITBLOOM,
 			EvokerSpells.GREEN_SPIRITBLOOM_2)]
 public class spell_evoker_power_swell : SpellScript, ISpellAfterCast
