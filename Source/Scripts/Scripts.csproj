@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
       <Configurations>Debug;Release;DebugMetric</Configurations>
+		<PublishAot>true</PublishAot>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win-x64'">
       <NoWarn>1701;1702;CS0649</NoWarn>

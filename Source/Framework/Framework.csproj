@@ -3,6 +3,7 @@
 <PropertyGroup>
   <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   <Configurations>Debug;Release;DebugMetric</Configurations>
+	<PublishAot>true</PublishAot>
 </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win-x64'">
   <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
