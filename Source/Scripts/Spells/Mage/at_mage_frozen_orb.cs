@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAreaTrigger;
 
@@ -24,8 +25,7 @@ public class at_mage_frozen_orb : AreaTriggerScript, IAreaTriggerOnInitialize, I
         if (caster == null)
             return;
 
-        var pos = caster.Location;
-
+        var pos = new WorldLocation(caster.Location);
         At.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
         At.SetDestination(4000, pos);
     }

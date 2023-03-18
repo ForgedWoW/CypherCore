@@ -14,14 +14,11 @@ public class TaskContext
 	// Owner
 	readonly TaskScheduler _owner;
 
-	// Marks the task as consumed
-	bool _consumed = true;
 
 	public TaskContext(TaskSchedulerTask task, TaskScheduler owner)
 	{
 		_task = task;
 		_owner = owner;
-		_consumed = false;
 	}
 
 	/// <summary>
@@ -85,7 +82,6 @@ public class TaskContext
 		_task._duration = duration;
 		_task._end += duration;
 		_task._repeated += 1;
-		_consumed = true;
 
 		return Dispatch(() => _owner.InsertTask(_task));
 	}

@@ -1,10 +1,37 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\default.props" />
   <PropertyGroup>
 	<OutputType>Exe</OutputType>
     <ApplicationIcon>Forged Icon.ico</ApplicationIcon>
     <StartupObject>WorldServer.Server</StartupObject>
     <Configurations>Debug;Release;DebugMetric</Configurations>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|win-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMetric|win-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|linux-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|linux-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMetric|linux-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|mac-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|mac-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMetric|mac-x64'">
+    <NoWarn>1701;1702;CS0649</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="Forged Icon.ico" />

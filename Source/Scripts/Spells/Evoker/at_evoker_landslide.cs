@@ -12,13 +12,13 @@ namespace Scripts.Spells.Evoker;
 [AreaTriggerScript(EvokerAreaTriggers.BLACK_LANDSLIDE)]
 public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUpdate
 {
-    uint castInterval;
+    uint _castInterval;
 
     public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.RED_FIRE_STORM);
 
     public void OnInitialize()
     {
-        castInterval = 100;
+        _castInterval = 100;
         var ata = AreaTriggerCreateProperties.Template.Actions[0];
         ata.TargetType = Framework.Constants.AreaTriggerActionUserTypes.Enemy;
         AreaTriggerCreateProperties.Shape.TriggerType = Framework.Constants.AreaTriggerTypes.Sphere;
@@ -28,14 +28,13 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
 
     public void OnCreate()
     {
-        var caster = At.OwnerUnit.AsPlayer;
+        var caster = At.OwnerUnit;
 
-        if (caster == null)
+        if (caster == null || !caster.IsPlayer)
             return;
-
-        //var pos = At.Location;
-        //At.Location = caster.Location;
-        At.SetDestination(1000, At.Location, caster);
+        
+        var pos = new WorldLocation(At.Location);
+        At.SetDestination(1000, pos, caster);
     }
 
     public void OnUpdate(uint diff)
@@ -45,12 +44,12 @@ public class at_evoker_landslide : AreaTriggerScript, IAreaTriggerOverrideCreate
         if (caster == null || !caster.IsPlayer)
             return;
 
-        if (castInterval <= diff)
+        if (_castInterval <= diff)
         {
             caster.CastSpell(At.Location, EvokerSpells.BLACK_LANDSLIDE_ROOT, true);
-            castInterval += 100;
+            _castInterval += 100;
         }
         else
-            castInterval -= diff;
+            _castInterval -= diff;
     }
 }

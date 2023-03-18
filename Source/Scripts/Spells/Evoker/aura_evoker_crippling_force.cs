@@ -13,7 +13,7 @@ public class aura_evoker_crippling_force : AuraScript, IHasAuraEffects
 {
 	public List<IAuraEffectHandler> AuraEffects { get; } = new();
 
-	public void Register()
+	public override void Register()
 	{
 		AuraEffects.Add(new AuraEffectPeriodicHandler(OnTick, 0, Framework.Constants.AuraType.PeriodicDamage));
 	}

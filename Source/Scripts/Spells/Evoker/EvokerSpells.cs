@@ -127,6 +127,7 @@ internal struct EvokerSpells
     public const uint PRECOGNITION_AURA = 377362;
     public const uint POWER_SWELL = 370839;
     public const uint POWER_SWELL_AURA = 376850;
+    public const uint QUELL = 351338;
     public const uint RED_CAUTERIZING_FLAME = 374251;
     public const uint RED_DRAGONRAGE = 375087;
     public const uint RED_DRAGONRAGE_EFFECT = 375088;
@@ -147,6 +148,8 @@ internal struct EvokerSpells
     public const uint REGENERATIVE_MAGIC = 387787;
     public const uint REGENERATIVE_MAGIC_HEAL = 387798;
     public const uint RESONATING_SPHERE = 376236;
+    public const uint ROAR_OF_EXHILARATION = 375507;
+    public const uint ROAR_OF_EXHILARATION_ENERGIZE = 375508;
     public const uint RUBY_ESSENCE_BURST = 376872;
 	public const uint SKYWARD_ASCENT = 367033;
 	public const uint SOAR_RACIAL = 369536;

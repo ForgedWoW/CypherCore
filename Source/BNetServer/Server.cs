@@ -21,7 +21,7 @@ namespace BNetServer
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            Console.CancelKeyPress += delegate (object? sender, ConsoleCancelEventArgs e) {
+            Console.CancelKeyPress += delegate (object sender, ConsoleCancelEventArgs e) {
                 e.Cancel = true;
                 Running = false;
             };

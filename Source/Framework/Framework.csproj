@@ -4,6 +4,33 @@
   <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   <Configurations>Debug;Release;DebugMetric</Configurations>
 </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|win-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMetric|win-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|linux-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|linux-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMetric|linux-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|mac-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|mac-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DebugMetric|mac-x64'">
+  <NoWarn>1701;1702;CS0649;CS8981;CS0612</NoWarn>
+</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.21.12" />

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Scripts.Spells.Evoker;
 
 [AreaTriggerScript(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY)]
-public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
+public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrideCreateProperties, IAreaTriggerOnInitialize, IAreaTriggerOnCreate, IAreaTriggerOnUnitEnter
 {
     double _amount = 0;
     int _targets = 0;
@@ -17,18 +17,21 @@ public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrid
     
     public AreaTriggerCreateProperties AreaTriggerCreateProperties { get; } = AreaTriggerCreateProperties.CreateDefault(EvokerAreaTriggers.BRONZE_TEMPORAL_ANOMALY);
 
-    public void OnCreate()
+    public void OnInitialize()
     {
         AreaTriggerCreateProperties.Shape.TriggerType = Framework.Constants.AreaTriggerTypes.Sphere;
         AreaTriggerCreateProperties.Shape.SphereDatas = new AreaTriggerData.spheredatas();
         AreaTriggerCreateProperties.Shape.SphereDatas.Radius = 3;
+    }
+
+    public void OnCreate()
+    {
         var caster = At.GetCaster().AsPlayer;
 
         if (caster == null)
             return;
 
-        var pos = caster.Location;
-
+        var pos = new WorldLocation(caster.Location);
         At.MovePositionToFirstCollision(pos, 40.0f, 0.0f);
         At.SetDestination((uint)At.Duration, pos);
 
