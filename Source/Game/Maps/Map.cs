@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks.Dataflow;
+using Bgs.Protocol.Account.V1;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
@@ -1836,15 +1837,8 @@ public class Map : IDisposable
 		// Don't unload grids if it's Battleground, since we may have manually added GOs, creatures, those doesn't load from DB at grid re-load !
 		// This isn't really bother us, since as soon as we have instanced BG-s, the whole map unloads as the BG gets ended
 		if (!IsBattlegroundOrArena)
-			foreach (var xkvp in Grids)
-			{
-				foreach (var ykvp in xkvp.Value)
-				{
-					var grid = ykvp.Value;
-
-                    grid?.Update(this, diff);
-				}
-			}
+			foreach (var grid in Grids.SelectMany(kvp => kvp.Value.Select(ivp => ivp.Value)).Where(g => g != null).ToList()) // flatten and make copy as it can remove grids.
+                grid?.Update(this, diff);
 
 #if DEBUGMETRIC
         _metricFactory.Meter("grid?.Update").StopMark();
