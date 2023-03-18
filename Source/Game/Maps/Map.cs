@@ -908,20 +908,8 @@ public class Map : IDisposable
 		if (player.IsVehicle)
 			player.VehicleKit1.RelocatePassengers();
 
-		if (oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
+		if (oldcell == null || oldcell.DiffGrid(newcell) || oldcell.DiffCell(newcell))
 		{
-			Log.outDebug(LogFilter.Maps,
-						"Player {0} relocation grid[{1}, {2}]cell[{3}, {4}].grid[{5}, {6}]cell[{7}, {8}]",
-						player.GetName(),
-						oldcell.GetGridX(),
-						oldcell.GetGridY(),
-						oldcell.GetCellX(),
-						oldcell.GetCellY(),
-						newcell.GetGridX(),
-						newcell.GetGridY(),
-						newcell.GetCellX(),
-						newcell.GetCellY());
-
 			RemoveFromGrid(player, oldcell);
 
 			if (oldcell.DiffGrid(newcell))
