@@ -540,9 +540,6 @@ public partial class Unit : WorldObject
 
 		AuraPctModifiersGroup[(int)UnitMods.DamageOffHand][(int)UnitModifierPctType.Total] = 0.5f;
 
-		foreach (AuraType auraType in Enum.GetValues(typeof(AuraType)))
-			_modAuras[auraType] = new List<AuraEffect>();
-
 		for (byte i = 0; i < (int)WeaponAttackType.Max; ++i)
 			WeaponDamage[i] = new double[]
 			{

@@ -1292,26 +1292,25 @@ public partial class Unit
 			if (aType == AuraType.None)
 				break;
 
-			for (var i = 0; i < _modAuras[aType].Count;)
-			{
-				var eff = _modAuras[aType][i];
-
-				// Get auras with disease dispel type by caster
-				if (eff.SpellInfo.Dispel == DispelType.Disease && eff.CasterGuid == casterGUID)
+			if (_modAuras.TryGetValue(aType, out var auras))
+				for (var i = auras.Count - 1; i >= 0; i--)
 				{
-					++diseases;
+					var eff = auras[i];
 
-					if (remove)
+					// Get auras with disease dispel type by caster
+					if (eff.SpellInfo.Dispel == DispelType.Disease && eff.CasterGuid == casterGUID)
 					{
-						RemoveAura(eff.Id, eff.CasterGuid);
-						i = 0;
+						++diseases;
 
-						continue;
+						if (remove)
+						{
+							RemoveAura(eff.Id, eff.CasterGuid);
+							i = 0;
+
+							continue;
+						}
 					}
 				}
-
-				i++;
-			}
 		}
 
 		return diseases;
@@ -3059,22 +3058,21 @@ public partial class Unit
 
 	public void RemoveAurasByType(AuraType auraType, ObjectGuid casterGUID = default, Aura except = null, bool negative = true, bool positive = true)
 	{
-		var list = _modAuras[auraType];
-
-		for (var i = 0; i < list.Count; i++)
-		{
-			var aura = list[i].Base;
-			var aurApp = aura.GetApplicationOfTarget(GUID);
-
-			if (aura != except && (casterGUID.IsEmpty || aura.CasterGuid == casterGUID) && ((negative && !aurApp.IsPositive) || (positive && aurApp.IsPositive)))
+		if (_modAuras.TryGetValue(auraType, out var auras))
+			for (var i = auras.Count - 1; i >= 0; i--)
 			{
-				var removedAuras = _removedAurasCount;
-				RemoveAura(aurApp);
+				var aura = auras[i].Base;
+				var aurApp = aura.GetApplicationOfTarget(GUID);
 
-				if (_removedAurasCount > removedAuras + 1)
-					i = 0;
+				if (aura != except && (casterGUID.IsEmpty || aura.CasterGuid == casterGUID) && ((negative && !aurApp.IsPositive) || (positive && aurApp.IsPositive)))
+				{
+					var removedAuras = _removedAurasCount;
+					RemoveAura(aurApp);
+
+					if (_removedAurasCount > removedAuras + 1)
+						i = 0;
+				}
 			}
-		}
 	}
 
 	public void RemoveNotOwnSingleTargetAuras(bool onPhaseChange = false)
@@ -3332,22 +3330,21 @@ public partial class Unit
 
 	public void RemoveAurasByType(AuraType auraType, Func<AuraApplication, bool> check, AuraRemoveMode removeMode = AuraRemoveMode.Default)
 	{
-		var list = _modAuras[auraType];
-
-		for (var i = 0; i < list.Count; ++i)
-		{
-			var aura = _modAuras[auraType][i].Base;
-			var aurApp = aura.GetApplicationOfTarget(GUID);
-
-			if (check(aurApp))
+		if (_modAuras.TryGetValue(auraType, out var auras))
+			for (var i = auras.Count - 1; i >= 0; i--)
 			{
-				var removedAuras = _removedAurasCount;
-				RemoveAura(aurApp, removeMode);
+				var aura = auras[i].Base;
+				var aurApp = aura.GetApplicationOfTarget(GUID);
 
-				if (_removedAurasCount > removedAuras + 1)
-					i = 0;
+				if (check(aurApp))
+				{
+					var removedAuras = _removedAurasCount;
+					RemoveAura(aurApp, removeMode);
+
+					if (_removedAurasCount > removedAuras + 1)
+						i = 0;
+				}
 			}
-		}
 	}
 
 	public void RemoveAurasByShapeShift()

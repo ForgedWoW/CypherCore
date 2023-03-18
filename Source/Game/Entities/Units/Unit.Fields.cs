@@ -34,7 +34,7 @@ public partial class Unit
 	readonly MultiMap<uint, uint>[] _spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
 
 	//Auras
-	readonly MultiMap<AuraType, AuraEffect> _modAuras = new();
+	readonly ConcurrentMultiMap<AuraType, AuraEffect> _modAuras = new();
 	readonly List<Aura> _removedAuras = new();
 	readonly List<AuraApplication> _interruptableAuras = new();                // auras which have interrupt mask applied on unit
 	readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new(); // Used for improve performance of aura state checks on aura apply/remove
