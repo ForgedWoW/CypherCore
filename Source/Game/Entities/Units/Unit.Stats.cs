@@ -317,7 +317,7 @@ public partial class Unit
 	{
 		var st = (int)stat;
 
-		if (UnitData.Stats.Values.Length < st)
+		if (UnitData.Stats.Values.Length > st)
 			return UnitData.Stats[st];
 		else
 			return 0;

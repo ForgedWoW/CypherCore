@@ -27,7 +27,3 @@ AND npcflag = 640;
 
 update creature_template SET npcflag = 65536 WHERE IconName = "innkeeper"
 AND npcflag = 0;
-
-update creature_template SET IconName = "innkeeper" WHERE npcflag > 65535 AND npcflag < 66177;
-
-update creature_template SET gossip_menu_id = 349 WHERE  gossip_menu_id = 0 AND subname LIKE "%Innkeeper";
