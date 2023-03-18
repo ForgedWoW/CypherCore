@@ -156,11 +156,21 @@ internal struct EvokerSpells
     public const uint RUSH_OF_VITALITY_AURA = 377088;
     public const uint SCARLET_ADAPTATION = 372469;
     public const uint SCARLET_ADAPTATION_AURA = 372470;
+    public const uint SCINTILLATION = 370821;
+    public const uint SCOURING_FLAME = 378438;
     public const uint SKYWARD_ASCENT = 367033;
-	public const uint SOAR_RACIAL = 369536;
-	public const uint SPIRITBLOOM_CHARGED = 367230;
-	public const uint SURGE_FORWARD = 369541;
-	public const uint VISAGE = 351239;
+    public const uint SNAPFIRE = 370783;
+    public const uint SNAPFIRE_AURA = 370818;
+    public const uint SOAR_RACIAL = 369536;
+    public const uint SPARK_OF_INSIGHT = 377099;
+    public const uint SPIRITBLOOM_CHARGED = 367230;
+    public const uint STASIS = 370537;
+    public const uint STASIS_OVERRIDE_AURA = 370562;
+    public const uint STASIS_OVERRIDE_SPELL = 370564;
+    public const uint SURGE_FORWARD = 369541;
+    public const uint TEMPORAL_COMPRESSION = 362874;
+    public const uint TEMPORAL_COMPRESSION_AURA = 362877;
+    public const uint VISAGE = 351239;
 	public const uint VISAGE_AURA = 372014;
 }
 internal struct EvokerNPCs

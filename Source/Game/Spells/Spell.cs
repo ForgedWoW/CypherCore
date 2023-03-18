@@ -1089,13 +1089,12 @@ public partial class Spell : IDisposable
 							unit.RemoveOwnedAura(SpellInfo.Id, _originalCasterGuid, AuraRemoveMode.Cancel);
 					}
 
-                EndEmpoweredSpell();
+				EndEmpoweredSpell();
                 SendChannelUpdate(0);
 				SendInterrupted(0);
 				SendCastResult(SpellCastResult.Interrupted);
 
 				AppliedMods.Clear();
-
 				break;
 
 			default:
@@ -1120,7 +1119,7 @@ public partial class Spell : IDisposable
 		_spellState = oldState;
 
 		Finish(SpellCastResult.Interrupted);
-	}
+    }
 
 	public void Cast(bool skipCheck = false)
 	{

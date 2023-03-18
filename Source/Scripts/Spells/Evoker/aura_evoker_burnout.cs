@@ -12,7 +12,7 @@ public class aura_evoker_burnout : AuraScript, IAuraCheckProc, IAuraOnProc
 {
 	public bool CheckProc(ProcEventInfo info)
 	{
-		return info.ProcSpell.SpellInfo.Id == EvokerSpells.RED_FIRE_BREATH_CHARGED;
+		return info.SpellInfo.Id == EvokerSpells.RED_FIRE_BREATH_CHARGED;
 	}
 
 	public void OnProc(ProcEventInfo info)

@@ -4,6 +4,7 @@
 using Game.DataStorage;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -11,7 +12,10 @@ namespace Scripts.Spells.Evoker;
 internal class spell_evoker_fire_breath : SpellScript, ISpellOnEpowerSpellEnd
 {
 	public void EmpowerSpellEnd(SpellEmpowerStageRecord stage, uint stageDelta)
-	{
-		Caster.CastSpell(EvokerSpells.RED_FIRE_BREATH_CHARGED, true, stage.Stage);
+    {
+        CastSpellExtraArgs args = new(true);
+        args.EmpowerStage = stage.Stage;
+        args.AddSpellMod(Framework.Constants.SpellValueMod.BasePoint3, Caster.AsPlayer.HasSpell(EvokerSpells.SCOURING_FLAME) ? stage.Stage : 0);
+        Caster.CastSpell(new CastSpellTargetArg(), EvokerSpells.RED_FIRE_BREATH_CHARGED, args);
 	}
 }

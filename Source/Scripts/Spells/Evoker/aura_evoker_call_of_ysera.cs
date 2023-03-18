@@ -13,6 +13,6 @@ public class aura_evoker_call_of_ysera : AuraScript, IAuraCheckProc
 {
 	public bool CheckProc(ProcEventInfo info)
 	{
-		return info.ProcSpell.SpellInfo.Id.EqualsAny(EvokerSpells.GREEN_DREAM_BREATH_CHARGED, EvokerSpells.RED_LIVING_FLAME_HEAL);
+		return info.SpellInfo.Id.EqualsAny(EvokerSpells.GREEN_DREAM_BREATH_CHARGED, EvokerSpells.RED_LIVING_FLAME_HEAL);
 	}
 }

@@ -7,13 +7,13 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.ECHO)]
-public class spell_evoker_resonating_sphere : SpellScript, ISpellCalculateBonusCoefficient
+public class spell_evoker_scintillation : SpellScript, ISpellCalculateBonusCoefficient
 {
     public double CalcBonusCoefficient(double bonusCoefficient)
     {
         var aura = Spell.TriggeredByAuraSpell;
 
-		if (aura != null && aura.Id == EvokerSpells.RESONATING_SPHERE)
+		if (aura != null && aura.Id == EvokerSpells.SCINTILLATION)
 			bonusCoefficient *= aura.GetEffect(0).BasePoints * 0.01;
 
 		return bonusCoefficient;
