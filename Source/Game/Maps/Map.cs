@@ -774,8 +774,7 @@ public class Map : IDisposable
 		}
 
 		// update phase shift objects
-		_threadManager.Schedule(() => MultiPersonalPhaseTracker.Update(this, diff));
-		_threadManager.Wait();
+		MultiPersonalPhaseTracker.Update(this, diff);
 #if DEBUGMETRIC
         _metricFactory.Meter("SendObjectUpdates Update").StopMark();
         _metricFactory.Meter("MoveAll Update").StartMark();
