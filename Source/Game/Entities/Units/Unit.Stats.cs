@@ -315,7 +315,12 @@ public partial class Unit
 	//Stats
 	public float GetStat(Stats stat)
 	{
-		return UnitData.Stats[(int)stat];
+		var st = (int)stat;
+
+		if (UnitData.Stats.Values.Length < st)
+			return UnitData.Stats[st];
+		else
+			return 0;
 	}
 
 	public void SetStat(Stats stat, int val)
