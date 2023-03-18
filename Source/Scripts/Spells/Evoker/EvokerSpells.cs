@@ -150,8 +150,13 @@ internal struct EvokerSpells
     public const uint RESONATING_SPHERE = 376236;
     public const uint ROAR_OF_EXHILARATION = 375507;
     public const uint ROAR_OF_EXHILARATION_ENERGIZE = 375508;
+    public const uint RUBY_EMBERS = 365937;
     public const uint RUBY_ESSENCE_BURST = 376872;
-	public const uint SKYWARD_ASCENT = 367033;
+    public const uint RUSH_OF_VITALITY = 377086;
+    public const uint RUSH_OF_VITALITY_AURA = 377088;
+    public const uint SCARLET_ADAPTATION = 372469;
+    public const uint SCARLET_ADAPTATION_AURA = 372470;
+    public const uint SKYWARD_ASCENT = 367033;
 	public const uint SOAR_RACIAL = 369536;
 	public const uint SPIRITBLOOM_CHARGED = 367230;
 	public const uint SURGE_FORWARD = 369541;
