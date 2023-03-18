@@ -46,7 +46,7 @@ public class at_evoker_temporal_anomaly : AreaTriggerScript, IAreaTriggerOverrid
         if (caster.IsFriendlyTo(unit) && !_hit.Contains(unit))
         {
             _hit.Add(unit);
-            caster.CastSpell(unit, EvokerSpells.BRONZE_TEMPORAL_ANOMALY_AURA, _amount / (_targets > 0 ? 1 : 2));
+            caster.CastSpell(unit, EvokerSpells.BRONZE_TEMPORAL_ANOMALY_AURA, _amount / (_targets > 0 ? 1 : 2), true);
             _targets--;
         }
     }

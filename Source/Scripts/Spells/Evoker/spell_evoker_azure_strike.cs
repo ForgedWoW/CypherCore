@@ -21,7 +21,7 @@ public class spell_evoker_azure_strike : SpellScript, ISpellOnHit, IHasSpellEffe
 		{
 			var damage = HitDamage;
 			var bp0 = (damage + (damage * 0.5f)); // Damage + 50% of damage
-			caster.CastSpell(target, EvokerSpells.AZURE_STRIKE, bp0);
+			caster.CastSpell(target, EvokerSpells.AZURE_STRIKE, bp0, true);
 		}
 	}
 

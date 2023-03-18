@@ -13,6 +13,6 @@ internal class spell_evoker_panacea : SpellScript, ISpellOnHit
     public void OnHit()
     {
         if (TryGetCaster(out Player player) && player.HasSpell(EvokerSpells.PANACEA))
-            player.CastSpell(player, EvokerSpells.PANACEA_HEAL);
+            player.CastSpell(player, EvokerSpells.PANACEA_HEAL, true);
     }
 }

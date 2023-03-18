@@ -18,6 +18,6 @@ public class at_evoker_emerald_blossom : AreaTriggerScript, IAreaTriggerOnRemove
 		if (caster == null)
 			return;
 
-		caster.CastSpell(At.Location, EvokerSpells.GREEN_EMERALD_BLOSSOM_HEAL);
+		caster.CastSpell(At.Location, EvokerSpells.GREEN_EMERALD_BLOSSOM_HEAL, true);
 	}
 }

@@ -42,9 +42,9 @@ internal class spell_evoker_lifebind_cast : SpellScript, ISpellAfterCast
                 var otherTarget = (Unit)val;
 
                 if (ExplTargetUnit == caster)
-                    caster.CastSpell(otherTarget, EvokerSpells.LIFEBIND_HEAL, heal);
+                    caster.CastSpell(otherTarget, EvokerSpells.LIFEBIND_HEAL, heal, true);
                 else if(ExplTargetUnit == otherTarget)
-                    caster.CastSpell(caster, EvokerSpells.LIFEBIND_HEAL, heal);
+                    caster.CastSpell(caster, EvokerSpells.LIFEBIND_HEAL, heal, true);
             }
         });
     }

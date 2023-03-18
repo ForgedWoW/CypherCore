@@ -27,7 +27,7 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 		var hitUnit = HitUnit;
 
 		if (caster.IsFriendlyTo(hitUnit))
-			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL);
+			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, true);
 		else
 		{
 			double damage = 0;
@@ -37,8 +37,8 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 				damage = aura.GetEffect(0).Amount;
 				caster.RemoveAura(aura);
 			}
-
-			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, damage);
+			
+			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, damage, true);
 		}
 	}
 

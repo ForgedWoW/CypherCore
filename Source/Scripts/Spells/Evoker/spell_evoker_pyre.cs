@@ -10,17 +10,10 @@ using Game.Scripting.Interfaces.ISpell;
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.RED_PYRE_MISSILE)]
-internal class spell_evoker_pyre : SpellScript, IHasSpellEffects
+internal class spell_evoker_pyre : SpellScript, ISpellAfterHit
 {
-	public List<ISpellEffect> SpellEffects { get; } = new();
-
-	public override void Register()
-	{
-		SpellEffects.Add(new EffectHandler(HandleEffectHitTarget, 0, SpellEffectName.Dummy, SpellScriptHookType.AfterHit));
-	}
-
-	private void HandleEffectHitTarget(int effIndex)
-	{
-		Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.RED_PYRE_DAMAGE, true);
-	}
+    public void AfterHit()
+    {
+        Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.RED_PYRE_DAMAGE, true);
+    }
 }

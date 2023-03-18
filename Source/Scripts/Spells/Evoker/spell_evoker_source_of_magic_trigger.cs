@@ -32,7 +32,7 @@ public class spell_evoker_source_of_magic_trigger : SpellScript, ISpellOnEpowerS
 				return;
 
 			var amount = SpellManager.Instance.GetSpellInfo(EvokerSpells.BLUE_SOURCE_OF_MAGIC_ENERGIZE).GetEffect(0).BasePoints * (stage.Stage + 1);
-			Caster.CastSpell(target, EvokerSpells.BLUE_SOURCE_OF_MAGIC_ENERGIZE, amount);
+			Caster.CastSpell(target, EvokerSpells.BLUE_SOURCE_OF_MAGIC_ENERGIZE, amount, true);
 		}
     }
 }
