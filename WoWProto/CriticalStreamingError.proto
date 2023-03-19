@@ -1,0 +1,13 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message CriticalStreamingError {
+	option (TelemetryMessageOptions).realtime = true;
+	optional int32 file_data_id = 1;
+	optional string reason = 2;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 3;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 4;
+}
+

@@ -1,0 +1,21 @@
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientInfo {
+	optional uint32 cfg_realm_id = 1;
+	optional uint32 cfg_region_id = 2;
+	optional uint32 cfg_site_id = 3;
+	optional uint32 realm_address = 4;
+	optional uint32 num_clients = 5;
+}
+
+message WorldInfo {
+	optional uint64 player_id = 1;
+	optional uint32 map_id = 2;
+	optional uint32 area_id = 3;
+}
+
+message TradingPostItemSelection {
+	optional uint32 perks_vendor_item_id = 1;
+	optional uint32 num_selected_times = 2;
+}
+

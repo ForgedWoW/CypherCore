@@ -1,0 +1,21 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientRestrictedAction {
+	option (TelemetryMessageOptions).realtime = true;
+	enum RestrictedUIActionBlockedReason {
+		Forbidden = 0;
+		Strong = 1;
+		Interactive = 2;
+		Peaceful = 3;
+	}
+
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional string addon = 3;
+	optional string function = 4;
+	optional .Blizzard.Telemetry.Wow.Client.ClientRestrictedAction.RestrictedUIActionBlockedReason reason = 5 [default = Forbidden];
+}
+

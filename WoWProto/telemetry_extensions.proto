@@ -1,0 +1,53 @@
+import "google/protobuf/descriptor.proto";
+
+package Blizzard.Telemetry;
+
+option java_package = "com.blizzard.telemetry.proto";
+option java_multiple_files = true;
+
+extend .google.protobuf.FileOptions {
+	optional .Blizzard.Telemetry.FileOptions TelemetryFileOptions = 77000;
+}
+
+extend .google.protobuf.MessageOptions {
+	optional .Blizzard.Telemetry.MessageOptions TelemetryMessageOptions = 77000;
+	optional .Blizzard.Telemetry.LogMessageOptions TelemetryLogMessageOptions = 77001;
+}
+
+extend .google.protobuf.FieldOptions {
+	optional .Blizzard.Telemetry.FieldOptions TelemetryFieldOptions = 77000;
+	optional .Blizzard.Telemetry.LogFieldOptions TelemetryLogFieldOptions = 77001;
+}
+
+message FileOptions {
+	optional string telemetry_message = 1;
+}
+
+message MessageOptions {
+	optional bool realtime = 100;
+	optional bool longterm = 150;
+	optional bool metric_set = 200;
+	optional bool metric = 201;
+	optional bool entity_time_series = 301;
+	optional bool logging = 401;
+	optional string attribution = 501;
+	optional string crm = 601;
+}
+
+message LogMessageOptions {
+	optional string grok = 1;
+	optional bool is_json = 2;
+}
+
+message FieldOptions {
+	optional string mapped_type = 1;
+	optional string elastic_analyzer = 100;
+	optional bool realtime = 200;
+	optional string elastic_path_move = 300;
+	optional string crm_field_name = 400;
+}
+
+message LogFieldOptions {
+	optional string syslog_field = 1;
+}
+

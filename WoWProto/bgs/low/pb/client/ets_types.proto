@@ -1,0 +1,7 @@
+package bgs.protocol;
+
+message TimeSeriesId {
+	optional uint64 epoch = 1;
+	optional uint64 position = 2;
+}
+

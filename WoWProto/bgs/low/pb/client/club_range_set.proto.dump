@@ -1,0 +1,37 @@
+
+&bgs/low/pb/client/club_range_set.protobgs.protocol.club.v1/bgs/low/pb/client/global_extensions/range.proto"Ú
+ClubTypeRangeSet2
+
+name_range (2.bgs.protocol.UnsignedIntRange9
+description_range (2.bgs.protocol.UnsignedIntRange7
+broadcast_range (2.bgs.protocol.UnsignedIntRange8
+short_name_range (2.bgs.protocol.UnsignedIntRange8
+member (2(.bgs.protocol.club.v1.ClubMemberRangeSet8
+stream (2(.bgs.protocol.club.v1.ClubStreamRangeSet@
+
+invitation (2,.bgs.protocol.club.v1.ClubInvitationRangeSet@
+
+suggestion (2,.bgs.protocol.club.v1.ClubSuggestionRangeSet8
+ticket (2(.bgs.protocol.club.v1.ClubTicketRangeSet2
+ban (2%.bgs.protocol.club.v1.ClubBanRangeSet"ä
+ClubMemberRangeSet-
+count (2.bgs.protocol.UnsignedIntRange-
+voice (2.bgs.protocol.UnsignedIntRange<
+stream_subscriptions (2.bgs.protocol.UnsignedIntRange2
+
+note_range (2.bgs.protocol.UnsignedIntRange"å
+ClubStreamRangeSet-
+count (2.bgs.protocol.UnsignedIntRange2
+
+name_range (2.bgs.protocol.UnsignedIntRange5
+subject_range (2.bgs.protocol.UnsignedIntRange5
+message_range (2.bgs.protocol.UnsignedIntRange"G
+ClubInvitationRangeSet-
+count (2.bgs.protocol.UnsignedIntRange"G
+ClubSuggestionRangeSet-
+count (2.bgs.protocol.UnsignedIntRange"C
+ClubTicketRangeSet-
+count (2.bgs.protocol.UnsignedIntRange"v
+ClubBanRangeSet-
+count (2.bgs.protocol.UnsignedIntRange4
+reason_range (2.bgs.protocol.UnsignedIntRange

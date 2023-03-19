@@ -1,0 +1,10 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientCancelConnect {
+	option (TelemetryMessageOptions).realtime = true;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+}
+

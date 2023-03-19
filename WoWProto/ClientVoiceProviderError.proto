@@ -1,0 +1,13 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+import "voice_provider_error.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientVoiceProviderError {
+	option (TelemetryMessageOptions).realtime = true;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional .Blizzard.Telemetry.VoiceClient.ProviderError provider_error = 3;
+}
+

@@ -1,0 +1,17 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message NameLookupInfo {
+	optional int32 reason = 1;
+	optional uint32 num_addon = 2;
+	optional uint32 num_blizzard = 3;
+}
+
+message ClientNameLookup {
+	option (TelemetryMessageOptions).realtime = true;
+	repeated .Blizzard.Telemetry.Wow.Client.NameLookupInfo name_lookups = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo player_world_info = 2;
+}
+

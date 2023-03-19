@@ -1,0 +1,14 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client.TradingPost;
+
+message TradingPostClosed {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional uint64 opened_timestamp = 3;
+	optional uint64 closed_timestamp = 4;
+	repeated .Blizzard.Telemetry.Wow.Client.TradingPostItemSelection items_selected = 5;
+}
+

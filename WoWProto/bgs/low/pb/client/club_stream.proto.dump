@@ -1,0 +1,93 @@
+
+#bgs/low/pb/client/club_stream.protobgs.protocol.club.v1!bgs/low/pb/client/club_enum.proto#bgs/low/pb/client/club_member.proto5bgs/low/pb/client/api/client/v2/attribute_types.proto#bgs/low/pb/client/embed_types.proto(bgs/low/pb/client/event_view_types.proto%bgs/low/pb/client/message_types.proto!bgs/low/pb/client/ets_types.proto"'
+StreamPosition
+	stream_id (B" 
+StreamAccess
+role (B"‘
+CreateStreamOptions-
+	attribute (2.bgs.protocol.v2.Attribute
+name (	
+subject (	2
+access (2".bgs.protocol.club.v1.StreamAccess;
+voice_level (2&.bgs.protocol.club.v1.StreamVoiceLevel"˚
+Stream
+club_id (
+
+id (-
+	attribute (2.bgs.protocol.v2.Attribute
+name (	
+subject (	2
+access (2".bgs.protocol.club.v1.StreamAccess;
+voice_level (2&.bgs.protocol.club.v1.StreamVoiceLevel
+creation_time ("-
+StreamDescription
+
+id (
+name (	"p
+MentionContent
+all (
+here (1
+	member_id (2.bgs.protocol.club.v1.MemberId
+role (B"^
+CreateMessageOptions
+content (	5
+mention (2$.bgs.protocol.club.v1.MentionContent"R
+ClubStreamMessageContainer4
+message (2#.bgs.protocol.club.v1.StreamMessage"ë
+ContentChain
+content (	&
+embed (2.bgs.protocol.EmbedInfo5
+mention (2$.bgs.protocol.club.v1.MentionContent
+	edit_time ("ç
+StreamMessage#
+id (2.bgs.protocol.MessageId7
+author (2'.bgs.protocol.club.v1.MemberDescription9
+content_chain (2".bgs.protocol.club.v1.ContentChain:
+	destroyer (2'.bgs.protocol.club.v1.MemberDescription
+	destroyed (
+destroy_time ("≈
+StreamMention
+club_id (
+	stream_id (+
+
+message_id (2.bgs.protocol.MessageId7
+author (2'.bgs.protocol.club.v1.MemberDescription
+	destroyed (.
+
+mention_id (2.bgs.protocol.TimeSeriesId1
+	member_id (2.bgs.protocol.club.v1.MemberId4
+message (2#.bgs.protocol.club.v1.StreamMessage"Z
+
+StreamView
+club_id (
+	stream_id ((
+marker (2.bgs.protocol.ViewMarker"=
+StreamAdvanceViewTime
+	stream_id (
+	view_time ("8
+StreamEventTime
+	stream_id (
+
+event_time ("a
+StreamMentionView
+club_id (
+	stream_id ((
+marker (2.bgs.protocol.ViewMarker"”
+StreamStateOptions-
+	attribute (2.bgs.protocol.v2.Attribute
+name (	
+subject (	2
+access (2".bgs.protocol.club.v1.StreamAccess;
+voice_level (2&.bgs.protocol.club.v1.StreamVoiceLevel"é
+StreamStateAssignment
+	stream_id (-
+	attribute (2.bgs.protocol.v2.Attribute
+name (	
+subject (	2
+access (2".bgs.protocol.club.v1.StreamAccess#
+stream_subscription_removed (;
+voice_level (2&.bgs.protocol.club.v1.StreamVoiceLevel"ã
+StreamTypingIndicator1
+	author_id (2.bgs.protocol.club.v1.MemberId0
+	indicator (2.bgs.protocol.TypingIndicator
+epoch (

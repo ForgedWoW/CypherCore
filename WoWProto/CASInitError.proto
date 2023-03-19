@@ -1,0 +1,12 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message CASInitError {
+	option (TelemetryMessageOptions).realtime = true;
+	optional uint32 error_code = 1;
+	optional string error_string = 2;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 3;
+}
+

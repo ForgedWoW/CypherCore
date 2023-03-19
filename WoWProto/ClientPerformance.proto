@@ -1,0 +1,31 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+import "ClientPerformanceShared.proto";
+import "ClientShared.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientPerformanceStats {
+	optional float ave_frame = 1;
+	optional float ave_cpu_update_time = 2;
+	optional float ave_cpu_render_time = 3;
+	optional float ave_gpu_wait_time = 4;
+	optional float ave_gpu_render_time = 5;
+	optional float ave_gpu_frame_latency = 6;
+	optional float ave_low_latency_wait_time = 7;
+	optional float ave_num_gpu_frames_in_flight = 8;
+	optional bool gpu_bound = 9;
+	optional float target_frame_time = 10;
+	optional float current_render_scale = 11;
+	optional float min_render_scale = 12;
+	optional float max_render_scale = 13;
+}
+
+message ClientPerformance {
+	option (TelemetryMessageOptions).realtime = true;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional .Blizzard.Telemetry.Wow.Client.ClientPerformanceStats stats = 3;
+	optional .Blizzard.Telemetry.Wow.Client.ClientSystemSpec spec = 4;
+}
+

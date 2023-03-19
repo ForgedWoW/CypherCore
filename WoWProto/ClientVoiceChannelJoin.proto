@@ -1,0 +1,13 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+import "voice_channel_join.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientVoiceChannelJoin {
+	option (TelemetryMessageOptions).realtime = true;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional .Blizzard.Telemetry.VoiceClient.ChannelJoin channel_join = 3;
+}
+

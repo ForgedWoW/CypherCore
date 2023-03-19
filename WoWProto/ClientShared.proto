@@ -1,0 +1,92 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedImports.proto";
+import "ClientSharedImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientEngineLogV2 {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.RealmInfo realm_info = 1;
+	optional .Blizzard.Telemetry.Wow.CharacterIdentity character_identity = 2;
+	optional .Blizzard.Telemetry.Wow.FileLocation file_location = 3;
+	optional .Blizzard.Telemetry.Wow.WowClientVersion clientVersion = 104;
+	optional uint32 cpuVendor = 105;
+	optional uint32 cpuSocketCount = 106;
+	optional uint32 cpuProcessorCount = 107;
+	optional uint32 cpuHardwareThreads = 108;
+	optional uint32 currentArchitecture = 109;
+	optional uint32 systemArchitecture = 110;
+	optional bool is_x86_64 = 111;
+	optional bool is_arm64 = 112;
+	optional bool has_x86_SSE2 = 113;
+	optional bool has_x86_SSE3 = 114;
+	optional bool has_x86_SSE4_1 = 115;
+	optional bool has_x86_AVX = 116;
+	optional bool has_x86_SSE4_2 = 117;
+	optional bool has_x86_AES = 118;
+	optional bool has_x86_CMPXCHG16B = 119;
+	optional bool has_x86_RDRAND = 120;
+	optional bool has_x86_POPCNT = 121;
+	optional bool has_x86_F16C = 122;
+	optional bool has_x86_FMA = 123;
+	optional bool has_x86_AVX2 = 124;
+	optional bool has_x86_AVX512 = 125;
+	optional bool has_arm_CRYPTO = 126;
+	optional uint32 OS_Version = 127;
+	optional bool is_windows = 128;
+	optional bool is_windowsServer = 129;
+	optional bool is_wine = 130;
+	optional bool is_mac = 131;
+	optional uint32 bcOsVersion_platform = 132;
+	optional uint32 bcOsVersion_major = 133;
+	optional uint32 bcOsVersion_minor = 134;
+	optional uint32 bcOsVersion_patch = 135;
+	optional uint32 bcOsVersion_build = 136;
+	optional uint64 memoryCPU = 137;
+	optional uint32 region = 138;
+	optional uint32 bnetLauncer = 139;
+	optional uint32 monitorCount = 140;
+	optional uint32 resolutionX = 141;
+	optional uint32 resolutionY = 142;
+	optional uint32 monitorX = 143;
+	optional uint32 monitorY = 144;
+	optional uint32 gpuVendorID = 145;
+	optional uint32 gpuDeviceID = 146;
+	optional uint32 shaderFamily = 147;
+	optional uint32 highestShaderModelSupported = 148;
+	optional uint32 raytracingSupport = 149;
+	optional uint32 vrsSupport = 150;
+	optional bool constantBufferOffsetSupport = 151;
+	optional bool drawIndirectSupport = 152;
+	optional uint64 memoryGPU = 153;
+	optional uint64 memorySharedGPU = 154;
+	optional uint32 gxAPI = 155;
+	optional bool isRetail = 156;
+	optional bool isPTR_Beta = 157;
+	optional bool isInternal = 158;
+	optional uint32 surveyVersion = 159;
+	optional uint32 surveyPatch = 160;
+}
+
+message KeybindingExecutionCountsFromClient {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.CharacterIdentity character_identity = 1;
+	repeated .Blizzard.Telemetry.Wow.ClientKeybindExecutionCount keybindingExecutionCounts = 2;
+}
+
+message CVarsFromClient {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.CharacterIdentity character_identity = 1;
+	repeated .Blizzard.Telemetry.Wow.ClientCVar cvars = 2;
+	optional uint32 page = 3;
+	optional bool lastPage = 4;
+}
+
+message AddOnsFromClient {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.CharacterIdentity character_identity = 1;
+	repeated .Blizzard.Telemetry.Wow.ClientAddOn addons = 2;
+	optional uint32 page = 3;
+	optional bool lastPage = 4;
+}
+

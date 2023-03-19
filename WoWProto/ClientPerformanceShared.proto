@@ -1,0 +1,38 @@
+import "telemetry_extensions.proto";
+import "ClientShared.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientGraphicsSettings {
+	optional int32 quality = 1;
+	optional int32 texture_resolution = 2;
+	optional int32 spell_density = 3;
+	optional int32 projected_textures = 4;
+	optional int32 view_distance = 5;
+	optional int32 ground_clutter = 6;
+	optional int32 environment_detail = 7;
+	optional int32 shadow_quality = 8;
+	optional int32 liquid_detail = 9;
+	optional int32 particle_density = 10;
+	optional int32 ssao = 11;
+	optional int32 depth_effects = 12;
+	optional int32 compute_effects = 13;
+	optional int32 outline_mode = 14;
+	optional int32 msaa_quality = 15;
+}
+
+message ClientSystemSpec {
+	optional .Blizzard.Telemetry.Wow.Client.ClientEngineLogV2 engine_log = 1;
+	optional .Blizzard.Telemetry.Wow.Client.ClientGraphicsSettings current_settings = 2;
+	optional .Blizzard.Telemetry.Wow.Client.ClientGraphicsSettings default_settings = 3;
+	optional string exe_name = 4;
+	optional bool assertions_enabled = 5;
+	optional bool has_addons_loaded = 6;
+	optional int32 max_fps_setting = 7;
+	optional bool use_max_fps = 8;
+	optional int32 max_fps_background_setting = 9;
+	optional bool use_max_fps_background = 10;
+	optional string text_locale = 11;
+	optional string audio_locale = 12;
+}
+

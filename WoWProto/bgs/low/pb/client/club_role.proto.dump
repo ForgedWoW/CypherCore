@@ -1,0 +1,65 @@
+
+!bgs/low/pb/client/club_role.protobgs.protocol.club.v1"bgs/low/pb/client/role_types.proto"«
+ClubPrivilegeSet
+can_destroy (
+can_set_attribute
+ (
+can_set_name (
+can_set_description (
+can_set_avatar (
+can_set_broadcast (
+can_set_privacy_level (
+can_add_member (
+can_kick_member ($
+can_set_own_member_attribute (&
+can_set_other_member_attribute  (
+can_set_own_voice_state! ("
+can_set_own_presence_level" (!
+can_set_own_whisper_level# (
+can_set_own_member_note$ (!
+can_set_other_member_note% (
+can_use_voice2 (%
+can_voice_mute_member_for_all3 (
+can_get_invitationF (
+can_send_invitationG (!
+can_send_guest_invitationH (!
+can_revoke_own_invitationI (#
+can_revoke_other_invitationJ (
+can_get_suggestionZ (
+can_suggest_member[ (
+can_approve_member\ (
+can_get_ticketn (
+can_create_ticketo (
+can_destroy_ticketp (
+can_get_banÇ (
+can_add_banÉ (
+can_remove_banÑ (
+can_create_streamå (
+can_destroy_streamç ( 
+can_set_stream_positioné (!
+can_set_stream_attributeè (
+can_set_stream_nameê (
+can_set_stream_subjectë (
+can_set_stream_accessí (#
+can_set_stream_voice_levelì (
+can_create_message¥ ( 
+can_destroy_own_messageµ ("
+can_destroy_other_message∂ (
+can_edit_own_message∑ (
+can_pin_message∏ (
+can_mention_allπ (
+can_mention_here∫ (
+can_mention_memberª (
+can_mention_roleº ("π
+ClubRole
+
+id (&
+state (2.bgs.protocol.RoleState9
+	privilege (2&.bgs.protocol.club.v1.ClubPrivilegeSet"
+always_grant_stream_access (
+allow_in_club_slot ("î
+ClubRoleSet,
+role (2.bgs.protocol.club.v1.ClubRole
+default_role (B,
+$assignment_respects_relegation_chain (
+subtype (	

@@ -1,0 +1,31 @@
+
+telemetry_extensions.protoBlizzard.Telemetry google/protobuf/descriptor.proto"(
+FileOptions
+telemetry_message (	"Æ
+MessageOptions
+realtimed (
+longtermñ (
+
+metric_set» (
+metric… (
+entity_time_series≠ (
+loggingë (
+attributionı (	
+crmŸ (	"2
+LogMessageOptions
+grok (	
+is_json ("Ö
+FieldOptions
+mapped_type (	
+elastic_analyzerd (	
+realtime» (
+elastic_path_move¨ (	
+crm_field_nameê (	"'
+LogFieldOptions
+syslog_field (	:]
+TelemetryFileOptions.google.protobuf.FileOptions»Ÿ (2.Blizzard.Telemetry.FileOptions:f
+TelemetryMessageOptions.google.protobuf.MessageOptions»Ÿ (2".Blizzard.Telemetry.MessageOptions:l
+TelemetryLogMessageOptions.google.protobuf.MessageOptions…Ÿ (2%.Blizzard.Telemetry.LogMessageOptions:`
+TelemetryFieldOptions.google.protobuf.FieldOptions»Ÿ (2 .Blizzard.Telemetry.FieldOptions:f
+TelemetryLogFieldOptions.google.protobuf.FieldOptions…Ÿ (2#.Blizzard.Telemetry.LogFieldOptionsB 
+com.blizzard.telemetry.protoP

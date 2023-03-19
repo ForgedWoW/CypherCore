@@ -1,0 +1,36 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientReturningPlayerPrompt {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional int32 level = 3;
+	optional float pos_x = 4;
+	optional float pos_y = 5;
+	optional float pos_z = 6;
+	optional int32 chromie_time_id = 7;
+	optional uint32 num_total_bag_slots = 8;
+	optional int32 num_empty_bag_slots = 9;
+	repeated int32 quest_log_ids = 10;
+	optional uint64 current_money = 11;
+}
+
+message ClientReturningPlayerPromptResponse {
+	option (TelemetryMessageOptions).realtime = false;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional int32 level = 3;
+	optional float pos_x = 4;
+	optional float pos_y = 5;
+	optional float pos_z = 6;
+	optional int32 chromie_time_id = 7;
+	optional uint32 num_total_bag_slots = 8;
+	optional int32 num_empty_bag_slots = 9;
+	repeated int32 quest_log_ids = 10;
+	optional uint64 current_money = 11;
+	optional bool accepted = 12;
+}
+

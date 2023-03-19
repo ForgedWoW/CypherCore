@@ -1,0 +1,7 @@
+package Blizzard.Telemetry.VoiceClient;
+
+message ChannelJoin {
+	optional string channel_uri = 1;
+	optional string member_uri = 2;
+}
+

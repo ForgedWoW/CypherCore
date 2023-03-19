@@ -1,0 +1,21 @@
+
+ClientSharedImports.protoBlizzard.Telemetry.Wowtelemetry_extensions.proto"X
+WowClientVersion
+clientId (	
+buildNumber (
+
+os (	
+	processor (	"W
+ClientKeybindExecutionCount
+keybind (	
+command (	
+executionCount ("0
+
+ClientCVar
+tag (	
+current_value (	"N
+ClientAddOn
+name (	
+version (	
+loaded (
+disabled (

@@ -1,0 +1,16 @@
+
+"TelemetrySharedClientImports.protoBlizzard.Telemetry.Wow.Client"z
+
+ClientInfo
+cfg_realm_id (
+cfg_region_id (
+cfg_site_id (
+realm_address (
+num_clients ("?
+	WorldInfo
+	player_id (
+map_id (
+area_id ("T
+TradingPostItemSelection
+perks_vendor_item_id (
+num_selected_times (

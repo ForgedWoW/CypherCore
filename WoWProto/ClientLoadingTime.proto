@@ -1,0 +1,18 @@
+import "telemetry_extensions.proto";
+import "TelemetrySharedClientImports.proto";
+import "ClientPerformanceShared.proto";
+
+package Blizzard.Telemetry.Wow.Client;
+
+message ClientLoadingTime {
+	option (TelemetryMessageOptions).realtime = true;
+	optional .Blizzard.Telemetry.Wow.Client.ClientInfo client = 1;
+	optional .Blizzard.Telemetry.Wow.Client.WorldInfo world = 2;
+	optional .Blizzard.Telemetry.Wow.Client.ClientSystemSpec spec = 3;
+	optional int32 map_id = 4;
+	optional uint32 duration_ms = 5;
+	optional uint32 ui_duration_ms = 6;
+	optional bool ui_did_load = 7;
+	optional bool is_reload_ui = 8;
+}
+

@@ -1,0 +1,29 @@
+import "telemetry_extensions.proto";
+
+package Blizzard.Telemetry.Wow;
+
+message WowClientVersion {
+	optional string clientId = 1;
+	optional uint32 buildNumber = 2;
+	optional string os = 3;
+	optional string processor = 4;
+}
+
+message ClientKeybindExecutionCount {
+	optional string keybind = 1;
+	optional string command = 2;
+	optional uint32 executionCount = 3;
+}
+
+message ClientCVar {
+	optional string tag = 1;
+	optional string current_value = 2;
+}
+
+message ClientAddOn {
+	optional string name = 1;
+	optional string version = 2;
+	optional bool loaded = 3;
+	optional bool disabled = 4;
+}
+

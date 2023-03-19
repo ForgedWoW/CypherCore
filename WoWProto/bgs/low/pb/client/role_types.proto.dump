@@ -1,0 +1,24 @@
+
+"bgs/low/pb/client/role_types.protobgs.protocol"Â
+Role
+
+id (
+name (	
+	privilege (	
+assignable_role (B
+required (
+unique (
+relegation_role (
+kickable_role	 (B
+removable_role
+ (B"Æ
+	RoleState
+name (	
+assignable_role (B
+required (
+unique (
+relegation_role (
+kickable_role	 (B
+removable_role
+ (B
+mentionable_role (B
