@@ -106,6 +106,7 @@ namespace BNetServer.Networking
 
                 if (header.ServiceId != 0xFE && header.ServiceHash != 0)
                 {
+                    Log.outDebug(LogFilter.Server, $"ServiceId: {header.ServiceId} ServiceHash: {header.ServiceHash} ({(OriginalHash)header.ServiceHash}) Method: {header.MethodId}");
                     var handler = Global.LoginServiceMgr.GetHandler(header.ServiceHash, header.MethodId);
                     if (handler != null)
                         handler.Invoke(this, header.Token, stream);

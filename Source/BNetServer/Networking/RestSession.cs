@@ -29,6 +29,8 @@ namespace BNetServer.Networking
             if (httpRequest == null)
                 return;
 
+
+            Log.outDebug(LogFilter.Server, $"Request: {httpRequest.Method} Path: {httpRequest.Path}");
             switch (httpRequest.Method)
             {
                 case "GET":
