@@ -1,34 +1,0 @@
-
-ClientPerformanceShared.protoBlizzard.Telemetry.Wow.Clienttelemetry_extensions.protoClientShared.proto"ö
-ClientGraphicsSettings
-quality (
-texture_resolution (
-spell_density (
-projected_textures (
-view_distance (
-ground_clutter (
-environment_detail (
-shadow_quality (
-liquid_detail	 (
-particle_density
- (
-ssao (
-depth_effects (
-compute_effects (
-outline_mode (
-msaa_quality ("à
-ClientSystemSpecD
-
-engine_log (20.Blizzard.Telemetry.Wow.Client.ClientEngineLogV2O
-current_settings (25.Blizzard.Telemetry.Wow.Client.ClientGraphicsSettingsO
-default_settings (25.Blizzard.Telemetry.Wow.Client.ClientGraphicsSettings
-exe_name (	
-assertions_enabled (
-has_addons_loaded (
-max_fps_setting (
-use_max_fps ("
-max_fps_background_setting	 (
-use_max_fps_background
- (
-text_locale (	
-audio_locale (	

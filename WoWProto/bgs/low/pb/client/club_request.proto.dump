@@ -1,308 +1,0 @@
-
-$bgs/low/pb/client/club_request.protobgs.protocol.club.v1"bgs/low/pb/client/club_types.proto"]
-SubscribeRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+"_
-UnsubscribeRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+"{
-CreateRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId8
-options (2'.bgs.protocol.club.v1.ClubCreateOptions"!
-CreateResponse
-club_id ("[
-DestroyRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+"b
-GetDescriptionRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+"M
-GetDescriptionResponse3
-club (2%.bgs.protocol.club.v1.ClubDescription"z
-GetClubTypeRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId2
-type (2$.bgs.protocol.club.v1.UniqueClubType"π
-GetClubTypeResponse2
-type (2$.bgs.protocol.club.v1.UniqueClubType3
-role_set (2!.bgs.protocol.club.v1.ClubRoleSet9
-	range_set (2&.bgs.protocol.club.v1.ClubTypeRangeSet"ú
-UpdateClubStateRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+7
-options (2&.bgs.protocol.club.v1.ClubStateOptions"¢
-UpdateClubSettingsRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+:
-options (2).bgs.protocol.club.v1.ClubSettingsOptions"ô
-AddMemberRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+:
-options (2).bgs.protocol.club.v1.CreateMemberOptions"î
-JoinRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+:
-options (2).bgs.protocol.club.v1.CreateMemberOptions"Y
-LeaveRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+"ã
-KickRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+1
-	target_id (2.bgs.protocol.club.v1.MemberId"ê
-GetMemberRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+1
-	member_id (2.bgs.protocol.club.v1.MemberId"A
-GetMemberResponse,
-member (2.bgs.protocol.club.v1.Member"t
-GetMembersRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-continuation ("X
-GetMembersResponse,
-member (2.bgs.protocol.club.v1.Member
-continuation ("”
-UpdateMemberStateRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+1
-	member_id (2.bgs.protocol.club.v1.MemberId9
-options (2(.bgs.protocol.club.v1.MemberStateOptions"®
-UpdateSubscriberStateRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+=
-options (2,.bgs.protocol.club.v1.SubscriberStateOptions"í
-AssignRoleRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+2
-options (2!.bgs.protocol.club.v1.RoleOptions"î
-UnassignRoleRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+2
-options (2!.bgs.protocol.club.v1.RoleOptions"†
-SendInvitationRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+<
-options (2+.bgs.protocol.club.v1.SendInvitationOptions"{
-AcceptInvitationRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-invitation_id ("|
-DeclineInvitationRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-invitation_id ("{
-RevokeInvitationRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-invitation_id ("x
-GetInvitationRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-invitation_id ("Q
-GetInvitationResponse8
-
-invitation (2$.bgs.protocol.club.v1.ClubInvitation"x
-GetInvitationsRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-continuation ("h
-GetInvitationsResponse8
-
-invitation (2$.bgs.protocol.club.v1.ClubInvitation
-continuation ("†
-SendSuggestionRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+<
-options (2+.bgs.protocol.club.v1.SendSuggestionOptions"{
-AcceptSuggestionRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-suggestion_id ("|
-DeclineSuggestionRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-suggestion_id ("x
-GetSuggestionRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-suggestion_id ("Q
-GetSuggestionResponse8
-
-suggestion (2$.bgs.protocol.club.v1.ClubSuggestion"x
-GetSuggestionsRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-continuation ("h
-GetSuggestionsResponse8
-
-suggestion (2$.bgs.protocol.club.v1.ClubSuggestion
-continuation ("ú
-CreateTicketRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+:
-options (2).bgs.protocol.club.v1.CreateTicketOptions"H
-CreateTicketResponse0
-ticket (2 .bgs.protocol.club.v1.ClubTicket"t
-DestroyTicketRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	ticket_id (	"Z
-RedeemTicketRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-	ticket_id (	"W
-GetTicketRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-	ticket_id (	"E
-GetTicketResponse0
-ticket (2 .bgs.protocol.club.v1.ClubTicket"t
-GetTicketsRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-continuation ("\
-GetTicketsResponse0
-ticket (2 .bgs.protocol.club.v1.ClubTicket
-continuation ("ê
-AddBanRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+4
-options (2#.bgs.protocol.club.v1.AddBanOptions"ê
-RemoveBanRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+1
-	target_id (2.bgs.protocol.club.v1.MemberId"ç
-GetBanRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+1
-	target_id (2.bgs.protocol.club.v1.MemberId"<
-GetBanResponse*
-ban (2.bgs.protocol.club.v1.ClubBan"q
-GetBansRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-continuation ("S
-GetBansResponse*
-ban (2.bgs.protocol.club.v1.ClubBan
-continuation ("v
-SubscribeStreamRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id ("x
-UnsubscribeStreamRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id ("ú
-CreateStreamRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+:
-options (2).bgs.protocol.club.v1.CreateStreamOptions":
-CreateStreamResponse
-club_id (
-	stream_id ("t
-DestroyStreamRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id ("p
-GetStreamRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id ("A
-GetStreamResponse,
-stream (2.bgs.protocol.club.v1.Stream"t
-GetStreamsRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-continuation ("à
-GetStreamsResponse,
-stream (2.bgs.protocol.club.v1.Stream.
-view (2 .bgs.protocol.club.v1.StreamView
-continuation ("≥
-UpdateStreamStateRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (9
-options (2(.bgs.protocol.club.v1.StreamStateOptions"Ñ
-SetStreamFocusRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (
-focus ("±
-CreateMessageRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (;
-options (2*.bgs.protocol.club.v1.CreateMessageOptions"M
-CreateMessageResponse4
-message (2#.bgs.protocol.club.v1.StreamMessage"¢
-DestroyMessageRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (+
-
-message_id (2.bgs.protocol.MessageId"N
-DestroyMessageResponse4
-message (2#.bgs.protocol.club.v1.StreamMessage"‹
-EditMessageRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (+
-
-message_id (2.bgs.protocol.MessageId;
-options (2*.bgs.protocol.club.v1.CreateMessageOptions"K
-EditMessageResponse4
-message (2#.bgs.protocol.club.v1.StreamMessage"w
-SetMessagePinnedRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id ("´
-SetTypingIndicatorRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (0
-	indicator (2.bgs.protocol.TypingIndicator"¢
-AdvanceStreamViewTimeRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+ 
-stream_id_deprecated (B
-	stream_id (B"É
-#AdvanceStreamMentionViewTimeRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id ("k
-AdvanceActivityViewTimeRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+"ß
-GetStreamHistoryRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (.
-options (2.bgs.protocol.GetEventOptions"f
-GetStreamHistoryResponse4
-message (2#.bgs.protocol.club.v1.StreamMessage
-continuation ("§
-GetStreamMessageRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (+
-
-message_id (2.bgs.protocol.MessageId"P
-GetStreamMessageResponse4
-message (2#.bgs.protocol.club.v1.StreamMessage"ì
-GetClubActivityRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+.
-options (2.bgs.protocol.GetEventOptions"/
-GetClubActivityResponse
-continuation ("ß
-GetStreamVoiceTokenRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (+
-version (BÇ˘+*VoiceProviderVersion"g
-GetStreamVoiceTokenResponse
-channel_uri (	3
-credentials (2.bgs.protocol.VoiceCredentials"≠
-KickFromStreamVoiceRequest0
-agent_id (2.bgs.protocol.club.v1.MemberId
-club_id (BÇ˘+
-	stream_id (1
-	target_id (2.bgs.protocol.club.v1.MemberIdP 

@@ -1,22 +1,0 @@
-
-ClientPerformance.protoBlizzard.Telemetry.Wow.Clienttelemetry_extensions.proto"TelemetrySharedClientImports.protoClientPerformanceShared.protoClientShared.proto"…
-ClientPerformanceStats
-	ave_frame (
-ave_cpu_update_time (
-ave_cpu_render_time (
-ave_gpu_wait_time (
-ave_gpu_render_time (
-ave_gpu_frame_latency (!
-ave_low_latency_wait_time ($
-ave_num_gpu_frames_in_flight (
-	gpu_bound	 (
-target_frame_time
- (
-current_render_scale (
-min_render_scale (
-max_render_scale ("•
-ClientPerformance9
-client (2).Blizzard.Telemetry.Wow.Client.ClientInfo7
-world (2(.Blizzard.Telemetry.Wow.Client.WorldInfoD
-stats (25.Blizzard.Telemetry.Wow.Client.ClientPerformanceStats=
-spec (2/.Blizzard.Telemetry.Wow.Client.ClientSystemSpec:ÂÌ% 

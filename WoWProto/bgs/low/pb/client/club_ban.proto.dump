@@ -1,14 +1,0 @@
-
- bgs/low/pb/client/club_ban.protobgs.protocol.club.v17bgs/low/pb/client/global_extensions/field_options.proto#bgs/low/pb/client/club_member.proto5bgs/low/pb/client/api/client/v2/attribute_types.proto"Å
-AddBanOptions1
-	target_id (2.bgs.protocol.club.v1.MemberId-
-	attribute (2.bgs.protocol.v2.Attribute
-reason (	"·
-ClubBan*
-id (2.bgs.protocol.club.v1.MemberId
-
-battle_tag (	BÇ˘+8
-creator (2'.bgs.protocol.club.v1.MemberDescription-
-	attribute (2.bgs.protocol.v2.Attribute
-reason (	
-creation_time (

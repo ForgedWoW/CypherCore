@@ -1,97 +1,0 @@
-
-!bgs/low/pb/client/club_core.protobgs.protocol.club.v1!bgs/low/pb/client/club_enum.proto!bgs/low/pb/client/club_role.proto#bgs/low/pb/client/club_member.proto#bgs/low/pb/client/club_stream.proto5bgs/low/pb/client/api/client/v2/attribute_types.proto(bgs/low/pb/client/event_view_types.proto"
-AvatarId
-
-id ("&
-SetBroadcastOptions
-content (	"m
-	Broadcast
-content (	8
-creator (2'.bgs.protocol.club.v1.MemberDescription
-creation_time ("/
-UniqueClubType
-program (
-name (	"Ž
-ClubCreateOptions2
-type (2$.bgs.protocol.club.v1.UniqueClubType-
-	attribute (2.bgs.protocol.v2.Attribute
-name (	
-description (	.
-avatar (2.bgs.protocol.club.v1.AvatarId9
-privacy_level (2".bgs.protocol.club.v1.PrivacyLevel
-
-short_name (	9
-member
- (2).bgs.protocol.club.v1.CreateMemberOptions9
-stream (2).bgs.protocol.club.v1.CreateStreamOptions"æ
-Club
-
-id (2
-type (2$.bgs.protocol.club.v1.UniqueClubType-
-	attribute (2.bgs.protocol.v2.Attribute
-name (	
-description (	2
-	broadcast (2.bgs.protocol.club.v1.Broadcast.
-avatar (2.bgs.protocol.club.v1.AvatarId9
-privacy_level (2".bgs.protocol.club.v1.PrivacyLevel?
-visibility_level	 (2%.bgs.protocol.club.v1.VisibilityLevel
-member_count
- (
-creation_time (=
-stream_position (2$.bgs.protocol.club.v1.StreamPosition3
-role_set (2!.bgs.protocol.club.v1.ClubRoleSet7
-leader (2'.bgs.protocol.club.v1.MemberDescription
-
-short_name (	"†
-ClubDescription
-
-id (2
-type (2$.bgs.protocol.club.v1.UniqueClubType
-name (	
-description (	.
-avatar (2.bgs.protocol.club.v1.AvatarId9
-privacy_level (2".bgs.protocol.club.v1.PrivacyLevel?
-visibility_level (2%.bgs.protocol.club.v1.VisibilityLevel
-member_count (7
-leader	 (2'.bgs.protocol.club.v1.MemberDescription
-creation_time
- ("E
-ClubView
-club_id ((
-marker (2.bgs.protocol.ViewMarker"à
-ClubStateOptions-
-	attribute (2.bgs.protocol.v2.Attribute
-name (	
-description (	<
-	broadcast (2).bgs.protocol.club.v1.SetBroadcastOptions.
-avatar (2.bgs.protocol.club.v1.AvatarId9
-privacy_level (2".bgs.protocol.club.v1.PrivacyLevel=
-stream_position (2$.bgs.protocol.club.v1.StreamPosition
-
-short_name (	"ê
-ClubStateAssignment
-club_id (-
-	attribute (2.bgs.protocol.v2.Attribute
-name (	
-description (	2
-	broadcast (2.bgs.protocol.club.v1.Broadcast.
-avatar (2.bgs.protocol.club.v1.AvatarId9
-privacy_level (2".bgs.protocol.club.v1.PrivacyLevel=
-stream_position (2$.bgs.protocol.club.v1.StreamPosition
-
-short_name	 (	"c
-StreamSettings
-	stream_id (>
-filter (2..bgs.protocol.club.v1.StreamNotificationFilter"Á
-ClubSettings4
-stream (2$.bgs.protocol.club.v1.StreamSettings&
-stream_notification_filter_all (-
-	attribute (2.bgs.protocol.v2.Attribute$
-push_notification_filter_all ("–
-ClubSettingsOptions8
-stream (2$.bgs.protocol.club.v1.StreamSettingsB4
-settings (2".bgs.protocol.club.v1.ClubSettings
-version ("ˆ
-ClubSettingsAssignment8
-stream (2$.bgs.protocol.club.v1.StreamSettingsB4
-settings (2".bgs.protocol.club.v1.ClubSettings

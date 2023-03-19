@@ -1,14 +1,0 @@
-
-8bgs/low/pb/client/global_extensions/method_options.protobgs.protocol google/protobuf/descriptor.proto1bgs/low/pb/client/global_extensions/routing.proto"Û
-BGSMethodOptions
-
-id (H
-client_identity_routing (2'.bgs.protocol.ClientIdentityRoutingType
-enable_fanout (!
-legacy_fanout_replacement (	
-forward_key (	
-
-idempotent (&
-handle_destination_unreachable (:X
-method_options.google.protobuf.MethodOptionsêø (2.bgs.protocol.BGSMethodOptionsB#
-bnet.protocolBMethodOptionsProto

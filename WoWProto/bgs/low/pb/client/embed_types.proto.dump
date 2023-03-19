@@ -1,21 +1,0 @@
-
-#bgs/low/pb/client/embed_types.protobgs.protocol"8
-
-EmbedImage
-url (	
-width (
-height ("
-Provider
-name (	";
-	EmbedHTML
-content (	
-width (
-height ("Ñ
-	EmbedInfo
-title (	
-type (	
-original_url (	+
-	thumbnail (2.bgs.protocol.EmbedImage(
-provider (2.bgs.protocol.Provider
-description (	%
-html (2.bgs.protocol.EmbedHTML

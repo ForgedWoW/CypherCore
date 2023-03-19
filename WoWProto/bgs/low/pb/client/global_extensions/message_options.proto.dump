@@ -1,7 +1,0 @@
-
-9bgs/low/pb/client/global_extensions/message_options.protobgs.protocol google/protobuf/descriptor.proto"J
-BGSMessageOptions
-custom_select_shard (
-custom_validator (:[
-message_options.google.protobuf.MessageOptionsêø (2.bgs.protocol.BGSMessageOptionsB$
-bnet.protocolBMessageOptionsProto

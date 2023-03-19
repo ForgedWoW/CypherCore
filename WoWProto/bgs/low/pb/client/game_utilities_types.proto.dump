@@ -1,11 +1,0 @@
-
-,bgs/low/pb/client/game_utilities_types.protobgs.protocol.game_utilities.v1'bgs/low/pb/client/attribute_types.proto$bgs/low/pb/client/entity_types.proto!bgs/low/pb/client/rpc_types.proto"w
-PlayerVariables(
-identity (2.bgs.protocol.Identity
-rating (*
-	attribute (2.bgs.protocol.Attribute"@
-
-ClientInfo
-client_address (	
-privileged_network (B:
-bnet.protocol.game_utilities.v1BGameUtilitiesTypesProto

@@ -1,51 +1,0 @@
-
-'bgs/low/pb/client/club_invitation.protobgs.protocol.club.v1!bgs/low/pb/client/club_core.proto#bgs/low/pb/client/club_member.proto5bgs/low/pb/client/api/client/v2/attribute_types.proto"3
-ClubSlot
-role (
-default_stream_id ("§
-SendInvitationOptions1
-	target_id (2.bgs.protocol.club.v1.MemberId,
-slot (2.bgs.protocol.club.v1.ClubSlot-
-	attribute (2.bgs.protocol.v2.Attribute"Ž
-ClubInvitation
-
-id (8
-inviter (2'.bgs.protocol.club.v1.MemberDescription8
-invitee (2'.bgs.protocol.club.v1.MemberDescription3
-club (2%.bgs.protocol.club.v1.ClubDescription,
-slot (2.bgs.protocol.club.v1.ClubSlot-
-	attribute (2.bgs.protocol.v2.Attribute
-creation_time (
-expiration_time (:
-	suggester	 (2'.bgs.protocol.club.v1.MemberDescription"§
-SendSuggestionOptions1
-	target_id (2.bgs.protocol.club.v1.MemberId,
-slot (2.bgs.protocol.club.v1.ClubSlot-
-	attribute (2.bgs.protocol.v2.Attribute"²
-ClubSuggestion
-
-id (
-club_id (:
-	suggester (2'.bgs.protocol.club.v1.MemberDescription:
-	suggestee (2'.bgs.protocol.club.v1.MemberDescription,
-slot (2.bgs.protocol.club.v1.ClubSlot-
-	attribute (2.bgs.protocol.v2.Attribute
-creation_time (
-expiration_time ("©
-CreateTicketOptions,
-slot (2.bgs.protocol.club.v1.ClubSlot-
-	attribute (2.bgs.protocol.v2.Attribute
-allowed_redeem_count (
-expiration_time ("Ð
-
-ClubTicket
-
-id (	8
-creator (2'.bgs.protocol.club.v1.MemberDescription3
-club (2%.bgs.protocol.club.v1.ClubDescription,
-slot (2.bgs.protocol.club.v1.ClubSlot-
-	attribute (2.bgs.protocol.v2.Attribute
-current_redeem_count (
-allowed_redeem_count (
-creation_time (
-expiration_time	 (

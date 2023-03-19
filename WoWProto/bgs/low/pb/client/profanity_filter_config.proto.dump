@@ -1,8 +1,0 @@
-
-/bgs/low/pb/client/profanity_filter_config.protobgs.protocol.profanity.v1")
-
-WordFilter
-type (	
-regex (	"E
-WordFilters6
-filters (2%.bgs.protocol.profanity.v1.WordFilter

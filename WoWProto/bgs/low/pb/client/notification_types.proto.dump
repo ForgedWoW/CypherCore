@@ -1,24 +1,0 @@
-
-*bgs/low/pb/client/notification_types.protobgs.protocol.notification.v1%bgs/low/pb/client/account_types.proto'bgs/low/pb/client/attribute_types.proto$bgs/low/pb/client/entity_types.proto!bgs/low/pb/client/rpc_types.proto"^
-Target>
-identity (2,.bgs.protocol.notification.v1.TargetIdentity
-type (	:‚ù+"‡
-TargetIdentity3
-account (2".bgs.protocol.account.v1.AccountId@
-game_account (2*.bgs.protocol.account.v1.GameAccountHandle"š
-Subscription4
-target (2$.bgs.protocol.notification.v1.Target5
-
-subscriber (2!.bgs.protocol.account.v1.Identity
-delivery_required (B"’
-Notification)
-	sender_id (2.bgs.protocol.EntityId)
-	target_id (2.bgs.protocol.EntityId
-type (	*
-	attribute (2.bgs.protocol.Attribute1
-sender_account_id (2.bgs.protocol.EntityId1
-target_account_id (2.bgs.protocol.EntityId!
-sender_battle_tag (	B‚ù+!
-target_battle_tag (	B‚ù+>
-forwarding_identity
- (2!.bgs.protocol.account.v1.Identity:‚ù+

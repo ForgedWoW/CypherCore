@@ -1,11 +1,0 @@
-
-ClientLoadingTime.protoBlizzard.Telemetry.Wow.Clienttelemetry_extensions.proto"TelemetrySharedClientImports.protoClientPerformanceShared.proto"·
-ClientLoadingTime9
-client (2).Blizzard.Telemetry.Wow.Client.ClientInfo7
-world (2(.Blizzard.Telemetry.Wow.Client.WorldInfo=
-spec (2/.Blizzard.Telemetry.Wow.Client.ClientSystemSpec
-map_id (
-duration_ms (
-ui_duration_ms (
-ui_did_load (
-is_reload_ui (:ÂÌ% 

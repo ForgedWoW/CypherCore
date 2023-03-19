@@ -1,12 +1,0 @@
-
-)bgs/low/pb/client/presence_listener.protobgs.protocol.presence.v1&bgs/low/pb/client/presence_types.proto%bgs/low/pb/client/account_types.proto!bgs/low/pb/client/rpc_types.proto"ä
-SubscribeNotification9
-subscriber_id (2".bgs.protocol.account.v1.AccountId6
-state (2'.bgs.protocol.presence.v1.PresenceState"ç
-StateChangedNotification9
-subscriber_id (2".bgs.protocol.account.v1.AccountId6
-state (2'.bgs.protocol.presence.v1.PresenceState2¢
-PresenceListenerg
-OnSubscribe/.bgs.protocol.presence.v1.SubscribeNotification.bgs.protocol.NO_RESPONSE"Ç˘+Ç˘+8m
-OnStateChanged2.bgs.protocol.presence.v1.StateChangedNotification.bgs.protocol.NO_RESPONSE"Ç˘+Ç˘+86Ç˘+,
-*bnet.protocol.presence.v1.PresenceListenerä˘+
