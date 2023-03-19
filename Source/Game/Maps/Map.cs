@@ -64,7 +64,7 @@ public class Map : IDisposable
 	private readonly Dictionary<ObjectGuid, Corpse> _corpsesByPlayer = new();
 	private readonly List<Corpse> _corpseBones = new();
 	private readonly List<WorldObject> _updateObjects = new();
-	private readonly Queue<Action<Map>> _farSpellCallbacks = new();
+	private readonly ConcurrentQueue<Action<Map>> _farSpellCallbacks = new();
 	private readonly MultiPersonalPhaseTracker _multiPersonalPhaseTracker = new();
 	private readonly Dictionary<int, int> _worldStateValues = new();
 	private readonly List<WorldObject> _activeNonPlayers = new();
