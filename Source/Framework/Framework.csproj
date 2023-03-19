@@ -38,8 +38,4 @@
     <PackageReference Include="MySqlConnector" Version="2.2.5" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Proto2\" />
-  </ItemGroup>
-
 </Project>
