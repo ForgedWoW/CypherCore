@@ -38,7 +38,7 @@ public class PlayerListSearcher : IGridNotifierPlayer
 		{
 			var player = objs[i];
 
-			if (player.InSamePhase(_phaseShift))
+			if (player != null && player.InSamePhase(_phaseShift))
 				if (_check.Invoke(player))
 					_objects.Add(player);
 		}
