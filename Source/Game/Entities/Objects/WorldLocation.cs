@@ -61,9 +61,6 @@ public class WorldLocation : Position
 
 	public Cell GetCurrentCell()
 	{
-		if (_currentCell == null)
-			Log.outError(LogFilter.Server, "Calling currentCell  but its null");
-
 		return _currentCell;
 	}
 

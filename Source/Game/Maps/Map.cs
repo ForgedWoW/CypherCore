@@ -1849,7 +1849,8 @@ public class Map : IDisposable
 		obj.SetDestroyedObject(true);
 		obj.CleanupsBeforeDelete(false); // remove or simplify at least cross referenced links
 
-		_objectsToRemove.Add(obj);
+		lock (_objectsToRemove)
+			_objectsToRemove.Add(obj);
 	}
 
 	public void AddObjectToSwitchList(WorldObject obj, bool on)
@@ -3986,63 +3987,64 @@ public class Map : IDisposable
 				}
 		}
 
-		while (!_objectsToRemove.Empty())
-		{
-			var obj = _objectsToRemove.First();
-
-			switch (obj.TypeId)
+		lock (_objectsToRemove)
+			while (!_objectsToRemove.Empty())
 			{
-				case TypeId.Corpse:
+				var obj = _objectsToRemove.First();
+
+				switch (obj.TypeId)
 				{
-					var corpse = ObjectAccessor.GetCorpse(obj, obj.GUID);
+					case TypeId.Corpse:
+					{
+						var corpse = ObjectAccessor.GetCorpse(obj, obj.GUID);
 
-					if (corpse == null)
-						Log.outError(LogFilter.Maps, "Tried to delete corpse/bones {0} that is not in map.", obj.GUID.ToString());
-					else
-						RemoveFromMap(corpse, true);
+						if (corpse == null)
+							Log.outError(LogFilter.Maps, "Tried to delete corpse/bones {0} that is not in map.", obj.GUID.ToString());
+						else
+							RemoveFromMap(corpse, true);
 
-					break;
-				}
-				case TypeId.DynamicObject:
-					RemoveFromMap(obj, true);
+						break;
+					}
+					case TypeId.DynamicObject:
+						RemoveFromMap(obj, true);
 
-					break;
-				case TypeId.AreaTrigger:
-					RemoveFromMap(obj, true);
+						break;
+					case TypeId.AreaTrigger:
+						RemoveFromMap(obj, true);
 
-					break;
-				case TypeId.Conversation:
-					RemoveFromMap(obj, true);
+						break;
+					case TypeId.Conversation:
+						RemoveFromMap(obj, true);
 
-					break;
-				case TypeId.GameObject:
-					var go = obj.AsGameObject;
-					var transport = go.AsTransport;
+						break;
+					case TypeId.GameObject:
+						var go = obj.AsGameObject;
+						var transport = go.AsTransport;
 
-					if (transport)
-						RemoveFromMap(transport, true);
-					else
-						RemoveFromMap(go, true);
+						if (transport)
+							RemoveFromMap(transport, true);
+						else
+							RemoveFromMap(go, true);
 
-					break;
-				case TypeId.Unit:
-					// in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
-					// make sure that like sources auras/etc removed before destructor start
-					obj. // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
+						break;
+					case TypeId.Unit:
+						// in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
 						// make sure that like sources auras/etc removed before destructor start
-						AsCreature.CleanupsBeforeDelete();
+						obj. // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
+							 // make sure that like sources auras/etc removed before destructor start
+							AsCreature.CleanupsBeforeDelete();
 
-					RemoveFromMap(obj.AsCreature, true);
+						RemoveFromMap(obj.AsCreature, true);
 
-					break;
-				default:
-					Log.outError(LogFilter.Maps, "Non-grid object (TypeId: {0}) is in grid object remove list, ignored.", obj.TypeId);
+						break;
+					default:
+						Log.outError(LogFilter.Maps, "Non-grid object (TypeId: {0}) is in grid object remove list, ignored.", obj.TypeId);
 
-					break;
+						break;
+				}
+
+				_objectsToRemove.Remove(obj);
 			}
-
-			_objectsToRemove.Remove(obj);
-		}
 	}
 
 	private void AddToActiveHelper(WorldObject obj)
