@@ -6,7 +6,7 @@ using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Evoker;
 
-[SpellScript(EvokerSpells.GREEN_DREAM_BREATH_CHARGED, EvokerSpells.GREEN_EMERALD_BLOSSOM_HEAL)]
+[SpellScript(EvokerSpells.GREEN_EMERALD_COMMUNION)]
 internal class spell_evoker_rush_of_vitality : SpellScript, ISpellOnCast
 {
     public void OnCast()

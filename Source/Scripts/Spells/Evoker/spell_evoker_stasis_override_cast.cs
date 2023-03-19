@@ -5,6 +5,7 @@ using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 using System.Collections.Generic;
 
 namespace Scripts.Spells.Evoker;
@@ -13,24 +14,39 @@ namespace Scripts.Spells.Evoker;
 public class spell_evoker_stasis_override_cast : SpellScript, ISpellOnCast
 {
 	public void OnCast()
-	{
-        if (!Caster.TryGetAura(EvokerSpells.STASIS, out var aura))
+    {
+        if (!Caster.TryGetAsPlayer(out var player))
             return;
 
-        List<HealInfo> heals = new List<HealInfo>();
+        if (player.TryGetAura(EvokerSpells.STASIS_ORB_AURA_1, out var orbAura))
+            CastSpell(player, orbAura);
 
-        aura.ForEachAuraScript<IAuraScriptValues>(a =>
+        if (player.TryGetAura(EvokerSpells.STASIS_ORB_AURA_2, out orbAura))
+            CastSpell(player, orbAura);
+
+        if (player.TryGetAura(EvokerSpells.STASIS_ORB_AURA_3, out orbAura))
+            CastSpell(player, orbAura);
+
+        player.RemoveAura(EvokerSpells.STASIS_OVERRIDE_AURA);
+    }
+
+
+
+    void CastSpell(Player player, Aura orbAura)
+    {
+        if (orbAura == null) return;
+
+        orbAura.ForEachAuraScript<IAuraScriptValues>(a =>
         {
-            if (a.ScriptValues.TryGetValue("heals", out var healsObj))
-                heals = (List<HealInfo>)healsObj;
+            if (a.ScriptValues.TryGetValue("spell", out object obj))
+            {
+                if (obj == null) return;
+
+                Spell spell = (Spell)obj;
+                player.CastSpell(spell.Targets, spell.SpellInfo.Id, new CastSpellExtraArgs(true) { EmpowerStage = spell.EmpoweredStage });
+            }
         });
 
-        if (heals.Count == 0)
-            return;
-
-        foreach (var heal in heals)
-            Unit.DealHeal(heal);
-
-        Caster.RemoveAura(EvokerSpells.STASIS_OVERRIDE_AURA);
+        orbAura.Remove();
     }
 }

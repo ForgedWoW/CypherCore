@@ -41,7 +41,7 @@ internal class spell_evoker_leaping_flames_cast : SpellScript, ISpellOnCast
 
             // cast on targets
             foreach (var target in targetList)
-                caster.CastSpell(target, spell, true);
+                caster.CastSpell(target, spell, TriggerCastFlags.TriggeredAllowProc);
 
             aura.Remove();
         }

@@ -36,5 +36,8 @@ public enum TriggerCastFlags : uint
 	IgnoreEquippedItemRequirement = 0x80000, //! Will ignore equipped item requirements
 	IgnoreTargetCheck = 0x100000,            //! Will ignore most target checks (mostly DBC target checks)
 	IgnoreCasterAurastate = 0x200000,        //! Will Ignore Caster Aura States Including Combat Requirements And Death State
-	FullDebugMask = 0xFFFFFFFF
+
+	TriggeredAllowProc = 0x1000000,
+
+    FullDebugMask = 0xFFFFFFFF,
 }

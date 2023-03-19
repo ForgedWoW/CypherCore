@@ -16,24 +16,16 @@ internal class aura_evoker_dream_breath_charged : AuraScript, IAuraOnApply
 		switch (aur.EmpoweredStage)
 		{
 			case 1:
-				aur.SetMaxDuration(12000);
-				aur.SetDuration(12000, true);
-
+				aur.SetDuration(12000, true, true);
 				break;
 			case 2:
-				aur.SetMaxDuration(8000);
-				aur.SetDuration(8000, true);
-
+				aur.SetDuration(8000, true, true);
 				break;
 			case 3:
-				aur.SetMaxDuration(4000);
-				aur.SetDuration(4000, true);
-
+				aur.SetDuration(4000, true, true);
 				break;
 			default:
-				aur.SetMaxDuration(16000);
-				aur.SetDuration(16000, true);
-
+				aur.SetDuration(16000, true, true);
 				break;
 		}
 	}

@@ -167,6 +167,9 @@ internal struct EvokerSpells
     public const uint STASIS = 370537;
     public const uint STASIS_OVERRIDE_AURA = 370562;
     public const uint STASIS_OVERRIDE_SPELL = 370564;
+    public const uint STASIS_ORB_AURA_1 = 369406;
+    public const uint STASIS_ORB_AURA_2 = 369418;
+    public const uint STASIS_ORB_AURA_3 = 369427;
     public const uint SURGE_FORWARD = 369541;
     public const uint TEMPORAL_COMPRESSION = 362874;
     public const uint TEMPORAL_COMPRESSION_AURA = 362877;

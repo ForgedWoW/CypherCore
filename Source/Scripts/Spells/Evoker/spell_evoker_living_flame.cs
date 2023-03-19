@@ -6,6 +6,7 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -27,7 +28,10 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 		var hitUnit = HitUnit;
 
 		if (caster.IsFriendlyTo(hitUnit))
-			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, true);
+        {
+            CastSpellExtraArgs args = new(TriggerCastFlags.TriggeredAllowProc);
+            caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_HEAL, args);
+		}
 		else
 		{
 			double damage = 0;
@@ -37,8 +41,11 @@ class spell_evoker_living_flame : SpellScript, IHasSpellEffects
 				damage = aura.GetEffect(0).Amount;
 				caster.RemoveAura(aura);
 			}
-			
-			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, damage, true);
+
+			CastSpellExtraArgs args = new(TriggerCastFlags.TriggeredAllowProc);
+			args.SpellValueOverrides[SpellValueMod.BasePoint0] = damage;
+
+			caster.CastSpell(hitUnit, EvokerSpells.RED_LIVING_FLAME_DAMAGE, args);
 		}
 	}
 

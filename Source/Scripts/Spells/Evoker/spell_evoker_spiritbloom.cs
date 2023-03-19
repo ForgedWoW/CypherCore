@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -51,8 +53,9 @@ internal class spell_evoker_spiritbloom : SpellScript, ISpellOnEpowerSpellEnd
 			targetList.RandomResize(targets);
 
 			// cast on targets
-			foreach (var target in targetList)
-				caster.CastSpell(target, EvokerSpells.SPIRITBLOOM_CHARGED, true, stage.Stage);
+			var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc) { EmpowerStage = stage.Stage };
+            foreach (var target in targetList)
+				caster.CastSpell(target, EvokerSpells.SPIRITBLOOM_CHARGED, args);
 		}
 	}
 }

@@ -7,6 +7,8 @@ using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using static Game.AI.PlayerAI;
 using System.Collections.Generic;
+using Framework.Constants;
+using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -30,9 +32,10 @@ internal class spell_evoker_life_givers_flame_cast : SpellScript, ISpellAfterCas
             targetList.RandomResize(1);
 
             // cast on targets
+            var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc);
+            args.AddSpellMod(SpellValueMod.BasePoint0, aura.GetEffect(0).Amount * (SpellManager.Instance.GetSpellInfo(EvokerSpells.LIFE_GIVERS_FLAME).GetEffect(0).BasePoints * 0.01));
             foreach (var target in targetList)
-                caster.CastSpell(target, EvokerSpells.LIFE_GIVERS_FLAME_HEAL, 
-                                    aura.GetEffect(0).Amount * (SpellManager.Instance.GetSpellInfo(EvokerSpells.LIFE_GIVERS_FLAME).GetEffect(0).BasePoints * 0.01));
+                caster.CastSpell(target, EvokerSpells.LIFE_GIVERS_FLAME_HEAL, args);
 
             aura.Remove();
         }

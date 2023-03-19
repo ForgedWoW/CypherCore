@@ -6,6 +6,7 @@ using Framework.Constants;
 using Game.Scripting;
 using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -14,6 +15,7 @@ internal class spell_evoker_pyre : SpellScript, ISpellAfterHit
 {
     public void AfterHit()
     {
-        Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.RED_PYRE_DAMAGE, true);
+        var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc);
+        Caster.CastSpell(ExplTargetUnit.Location, EvokerSpells.RED_PYRE_DAMAGE, args);
     }
 }

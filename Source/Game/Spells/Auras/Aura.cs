@@ -1437,7 +1437,11 @@ public class Aura
 
 	public HashSet<int> GetProcEffectMask(AuraApplication aurApp, ProcEventInfo eventInfo, DateTime now)
 	{
-		var procEntry = Global.SpellMgr.GetSpellProcEntry(SpellInfo);
+		SpellProcEntry procEntry = null;
+		ForEachAuraScript<IAuraOverrideProcInfo>(a => procEntry = a.SpellProcEntry);
+			
+		if (procEntry == null)
+			Global.SpellMgr.GetSpellProcEntry(SpellInfo);
 
 		// only auras with spell proc entry can trigger proc
 		if (procEntry == null)
@@ -1453,7 +1457,7 @@ public class Aura
 				return DummyHashset;
 
 			// check if aura can proc when spell is triggered (exception for hunter auto shot & wands)
-			if (!SpellInfo.HasAttribute(SpellAttr3.CanProcFromProcs) && !procEntry.AttributesMask.HasFlag(ProcAttributes.TriggeredCanProc) && !eventInfo.TypeMask.HasFlag(ProcFlags.AutoAttackMask))
+			if (!spell.TriggeredAllowProc && !SpellInfo.HasAttribute(SpellAttr3.CanProcFromProcs) && !procEntry.AttributesMask.HasFlag(ProcAttributes.TriggeredCanProc) && !eventInfo.TypeMask.HasFlag(ProcFlags.AutoAttackMask))
 				if (spell.IsTriggered && !spell.SpellInfo.HasAttribute(SpellAttr3.NotAProc))
 					return DummyHashset;
 

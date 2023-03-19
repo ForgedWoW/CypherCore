@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Spells;
 
 namespace Scripts.Spells.Evoker;
 
@@ -41,10 +43,12 @@ internal class spell_evoker_lifebind_cast : SpellScript, ISpellAfterCast
             {
                 var otherTarget = (Unit)val;
 
+                var args = new CastSpellExtraArgs(TriggerCastFlags.TriggeredAllowProc);
+                args.AddSpellMod(SpellValueMod.BasePoint0, heal);
                 if (ExplTargetUnit == caster)
-                    caster.CastSpell(otherTarget, EvokerSpells.LIFEBIND_HEAL, heal, true);
+                    caster.CastSpell(otherTarget, EvokerSpells.LIFEBIND_HEAL, args);
                 else if(ExplTargetUnit == otherTarget)
-                    caster.CastSpell(caster, EvokerSpells.LIFEBIND_HEAL, heal, true);
+                    caster.CastSpell(caster, EvokerSpells.LIFEBIND_HEAL, args);
             }
         });
     }

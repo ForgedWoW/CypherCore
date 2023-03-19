@@ -1,51 +1,59 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
+using Game.Spells;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Scripts.Spells.Evoker;
 
 [SpellScript(EvokerSpells.STASIS)]
-internal class aura_evoker_stasis : AuraScript, IAuraCheckProc, IAuraOnProc, IAuraScriptValues
+internal class aura_evoker_stasis : AuraScript, IAuraOnProc, IAuraOnApply, IAuraOverrideProcInfo
 {
-    public Dictionary<string, object> ScriptValues { get; } = new();
-    
-    public bool CheckProc(ProcEventInfo info)
+    List<ObjectGuid> _seenSpells = new();
+
+    public SpellProcEntry SpellProcEntry { get; } = new();
+
+    public void AuraApply()
     {
-        return info.HealInfo != null && info.ProcSpell != null
-                && info.SpellInfo.Id.EqualsAny(EvokerSpells.ECHO, 
-                                                                    EvokerSpells.RED_LIVING_FLAME_HEAL,
-                                                                    EvokerSpells.GREEN_DREAM_BREATH_CHARGED,
-                                                                    EvokerSpells.SPIRITBLOOM_CHARGED,
-                                                                    EvokerSpells.BRONZE_REVERSION,
-                                                                    EvokerSpells.GREEN_VERDANT_EMBRACE_HEAL,
-                                                                    EvokerSpells.GREEN_NATURALIZE,
-                                                                    EvokerSpells.RED_CAUTERIZING_FLAME);
+        Aura.SetStackAmount(3);
+
+        SpellProcEntry.Chance = 100;
+        SpellProcEntry.ProcFlags = new ProcFlagsInit();
+        SpellProcEntry.ProcFlags.Or(ProcFlags.DealHelpfulSpell | ProcFlags.DealHelpfulAbility | ProcFlags.DealHelpfulPeriodic);
+        SpellProcEntry.HitMask = ProcFlagsHit.None;
+        SpellProcEntry.ProcsPerMinute = 0;
+        SpellProcEntry.Charges = 0;
+        SpellProcEntry.Cooldown = 0;
+        SpellProcEntry.DisableEffectsMask = 0;
+        SpellProcEntry.SchoolMask = SpellSchoolMask.None;
+        SpellProcEntry.SpellFamilyMask = new(2, 538968064, 0, 0);
+        SpellProcEntry.SpellFamilyName = SpellFamilyNames.Evoker;
+        SpellProcEntry.SpellTypeMask = ProcFlagsSpellType.Heal;
+        SpellProcEntry.SpellPhaseMask = ProcFlagsSpellPhase.Cast;
     }
 
     public void OnProc(ProcEventInfo info)
     {
-        if (ScriptValues.Count == 0)
-            Caster.AddAura(EvokerSpells.STASIS_OVERRIDE_AURA);
+        if (!Caster.TryGetAsPlayer(out var player) || _seenSpells.Contains(info.ProcSpell.CastId))
+            return;
 
-        List<HealInfo> heals = new List<HealInfo>();
+        _seenSpells.Add(info.ProcSpell.CastId);
 
-        string id = info.ProcSpell.CastId.ToString();
+        if (!player.TryGetAura(EvokerSpells.STASIS_ORB_AURA_1, out var orbAura))
+            orbAura = player.AddAura(EvokerSpells.STASIS_ORB_AURA_1);
+        else if (!player.TryGetAura(EvokerSpells.STASIS_ORB_AURA_2, out orbAura))
+            orbAura = player.AddAura(EvokerSpells.STASIS_ORB_AURA_2);
+        else if (!player.TryGetAura(EvokerSpells.STASIS_ORB_AURA_3, out orbAura))
+            orbAura = player.AddAura(EvokerSpells.STASIS_ORB_AURA_3);
 
-        if (ScriptValues.TryGetValue(id, out var healsObj))
-        {
-            heals = (List<HealInfo>)healsObj;
-            heals.Add(info.HealInfo);
-            ScriptValues[id] = heals;
-        }
-        else if (ScriptValues.Count < 3)
-        {
-            heals.Add(info.HealInfo);
-            ScriptValues[id] = heals;
-        }
+        orbAura.ForEachAuraScript<IAuraScriptValues>(a => a.ScriptValues["spell"] = info.ProcSpell);
+
+        Aura.ModStackAmount(-1);
     }
 }

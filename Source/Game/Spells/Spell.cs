@@ -215,8 +215,10 @@ public partial class Spell : IDisposable
 
 	public bool IsChannelActive => _caster.IsUnit && _caster.AsUnit.ChannelSpellId != 0;
 
+	public bool TriggeredAllowProc => _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc);
 
-	public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
+
+    public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
 	{
 		SpellInfo = info;
 
@@ -276,10 +278,10 @@ public partial class Spell : IDisposable
 
 		_triggeredCastFlags = triggerFlags;
 
-		if (info.HasAttribute(SpellAttr2.DoNotReportSpellFailure))
+		if (info.HasAttribute(SpellAttr2.DoNotReportSpellFailure) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
 			_triggeredCastFlags = _triggeredCastFlags | TriggerCastFlags.DontReportCastError;
 
-		if (SpellInfo.HasAttribute(SpellAttr4.AllowCastWhileCasting))
+		if (SpellInfo.HasAttribute(SpellAttr4.AllowCastWhileCasting) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
 			_triggeredCastFlags = _triggeredCastFlags | TriggerCastFlags.IgnoreCastInProgress;
 
 		CastItemLevel = -1;
@@ -305,7 +307,7 @@ public partial class Spell : IDisposable
 		Targets = new SpellCastTargets();
 		AppliedMods = new List<Aura>();
 		EmpoweredStage = empoweredStage;
-	}
+    }
 
 	public virtual void Dispose()
 	{
