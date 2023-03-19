@@ -604,9 +604,7 @@ public class ReputationMgr
 
 	public ReputationRank GetForcedRankIfAny(uint factionId)
 	{
-		var forced = _forcedReactions.ContainsKey(factionId);
-
-		return forced ? _forcedReactions[factionId] : ReputationRank.None;
+		return _forcedReactions.TryGetValue(factionId, out var forced) ? forced : ReputationRank.None;
 	}
 
 	// this allows calculating base reputations to offline players, just by race and class
