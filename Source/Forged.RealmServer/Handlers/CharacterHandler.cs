@@ -524,26 +524,6 @@ public partial class WorldSession
 		SendPacket(features);
 	}
 
-	[WorldPacketHandler(ClientOpcodes.EnumCharacters, Status = SessionStatus.Authed)]
-	void HandleCharEnum(EnumCharacters charEnum)
-	{
-		// remove expired bans
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EXPIRED_BANS);
-		DB.Characters.Execute(stmt);
-
-		// get all the data necessary for loading all characters (along with their pets) on the account
-		EnumCharactersQueryHolder holder = new();
-
-		if (!holder.Initialize(AccountId, WorldConfig.GetBoolValue(WorldCfg.DeclinedNamesUsed), false))
-		{
-			HandleCharEnum(holder);
-
-			return;
-		}
-
-		AddQueryHolderCallback(DB.Characters.DelayQueryHolder(holder)).AfterComplete(result => HandleCharEnum((EnumCharactersQueryHolder)result));
-	}
-
 	void HandleCharEnum(EnumCharactersQueryHolder holder)
 	{
 		EnumCharactersResult charResult = new();
@@ -1202,37 +1182,6 @@ public partial class WorldSession
 		}
 
 		DB.Characters.CommitTransaction(trans);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.PlayerLogin, Status = SessionStatus.Authed)]
-	void HandlePlayerLogin(PlayerLogin playerLogin)
-	{
-		if (PlayerLoading || Player != null)
-		{
-			Log.outError(LogFilter.Network, "Player tries to login again, AccountId = {0}", AccountId);
-			KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
-
-			return;
-		}
-
-		_playerLoading = playerLogin.Guid;
-		Log.outDebug(LogFilter.Network, "Character {0} logging in", playerLogin.Guid.ToString());
-
-		if (!_legitCharacters.Contains(playerLogin.Guid))
-		{
-			Log.outError(LogFilter.Network, "Account ({0}) can't login with that character ({1}).", AccountId, playerLogin.Guid.ToString());
-			KickPlayer("WorldSession::HandlePlayerLoginOpcode Trying to login with a character of another account");
-
-			return;
-		}
-
-		SendConnectToInstance(ConnectToSerial.WorldAttempt1);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.LoadingScreenNotify, Status = SessionStatus.Authed)]
-	void HandleLoadScreen(LoadingScreenNotify loadingScreenNotify)
-	{
-		// TODO: Do something with this packet
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetFactionAtWar)]
@@ -2392,15 +2341,6 @@ public partial class WorldSession
 		}
 	}
 
-	[WorldPacketHandler(ClientOpcodes.GetUndeleteCharacterCooldownStatus, Status = SessionStatus.Authed)]
-	void HandleGetUndeleteCooldownStatus(GetUndeleteCharacterCooldownStatus getCooldown)
-	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_LAST_CHAR_UNDELETE);
-		stmt.AddValue(0, BattlenetAccountId);
-
-		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleUndeleteCooldownStatusCallback));
-	}
-
 	void HandleUndeleteCooldownStatusCallback(SQLResult result)
 	{
 		uint cooldown = 0;
@@ -2521,43 +2461,6 @@ public partial class WorldSession
 									}));
 	}
 
-	[WorldPacketHandler(ClientOpcodes.RequestCemeteryList, Processing = PacketProcessing.Inplace)]
-	void HandleRequestCemeteryList(RequestCemeteryList requestCemeteryList)
-	{
-		var zoneId = Player.Zone;
-		var team = (uint)Player.Team;
-
-		List<uint> graveyardIds = new();
-		var range = Global.ObjectMgr.GraveYardStorage.LookupByKey(zoneId);
-
-		for (uint i = 0; i < range.Count && graveyardIds.Count < 16; ++i) // client max
-		{
-			var gYard = range[(int)i];
-
-			if (gYard.team == 0 || gYard.team == team)
-				graveyardIds.Add(i);
-		}
-
-		if (graveyardIds.Empty())
-		{
-			Log.outDebug(LogFilter.Network,
-						"No graveyards found for zone {0} for player {1} (team {2}) in CMSG_REQUEST_CEMETERY_LIST",
-						zoneId,
-						_guidLow,
-						team);
-
-			return;
-		}
-
-		RequestCemeteryListResponse packet = new();
-		packet.IsGossipTriggered = false;
-
-		foreach (var id in graveyardIds)
-			packet.CemeteryID.Add(id);
-
-		SendPacket(packet);
-	}
-
 	[WorldPacketHandler(ClientOpcodes.ResurrectResponse)]
 	void HandleResurrectResponse(ResurrectResponse packet)
 	{
@@ -2591,12 +2494,6 @@ public partial class WorldSession
 		}
 
 		Player.ResurrectUsingRequestData();
-	}
-
-	[WorldPacketHandler(ClientOpcodes.QuickJoinAutoAcceptRequests)]
-	void HandleQuickJoinAutoAcceptRequests(QuickJoinAutoAcceptRequest packet)
-	{
-		Player.AutoAcceptQuickJoin = packet.AutoAccept;
 	}
 
 	void SendCharCreate(ResponseCodes result, ObjectGuid guid = default)

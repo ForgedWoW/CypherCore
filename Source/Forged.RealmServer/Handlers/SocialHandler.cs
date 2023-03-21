@@ -375,12 +375,4 @@ public partial class WorldSession
 		Log.outDebug(LogFilter.Network, "WorldSession.HandleSetContactNotesOpcode: Contact: {0}, Notes: {1}", packet.Player.Guid.ToString(), packet.Notes);
 		Player.Social.SetFriendNote(packet.Player.Guid, packet.Notes);
 	}
-
-	[WorldPacketHandler(ClientOpcodes.SocialContractRequest)]
-	void HandleSocialContractRequest(SocialContractRequest socialContractRequest)
-	{
-		SocialContractRequestResponse response = new();
-		response.ShowSocialContract = false;
-		SendPacket(response);
-	}
 }

@@ -18,9 +18,7 @@ namespace Forged.RealmServer;
 
 public partial class WorldSession
 {
-	[WorldPacketHandler(ClientOpcodes.MoveStartAscend, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveStop, Processing = PacketProcessing.ThreadSafe)]
-	[WorldPacketHandler(ClientOpcodes.MoveStopAscend, Processing = PacketProcessing.ThreadSafe)]
 	void HandleMovement(ClientPlayerMovement packet)
 	{
 		HandleMovementOpcode(packet.GetOpcode(), packet.Status);
@@ -430,37 +428,6 @@ public partial class WorldSession
 		updateRemoveMovementForce.Status = moveRemoveMovementForceAck.Ack.Status;
 		updateRemoveMovementForce.TriggerGUID = moveRemoveMovementForceAck.ID;
 		mover.SendMessageToSet(updateRemoveMovementForce, false);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.TimeSyncResponse, Processing = PacketProcessing.ThreadSafe)]
-	void HandleTimeSyncResponse(TimeSyncResponse timeSyncResponse)
-	{
-		if (!_pendingTimeSyncRequests.ContainsKey(timeSyncResponse.SequenceIndex))
-			return;
-
-		var serverTimeAtSent = _pendingTimeSyncRequests.LookupByKey(timeSyncResponse.SequenceIndex);
-		_pendingTimeSyncRequests.Remove(timeSyncResponse.SequenceIndex);
-
-		// time it took for the request to travel to the client, for the client to process it and reply and for response to travel back to the server.
-		// we are going to make 2 assumptions:
-		// 1) we assume that the request processing time equals 0.
-		// 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-		var roundTripDuration = Time.GetMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
-		var lagDelay = roundTripDuration / 2;
-
-		/*
-		clockDelta = serverTime - clientTime
-		where
-		serverTime: time that was displayed on the clock of the SERVER at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
-		clientTime:  time that was displayed on the clock of the CLIENT at the moment when the client processed the SMSG_TIME_SYNC_REQUEST packet.
-
-		Once clockDelta has been computed, we can compute the time of an event on server clock when we know the time of that same event on the client clock,
-		using the following relation:
-		serverTime = clockDelta + clientTime
-		*/
-		var clockDelta = (long)(serverTimeAtSent + lagDelay) - (long)timeSyncResponse.ClientTime;
-		_timeSyncClockDeltaQueue.PushFront(Tuple.Create(clockDelta, roundTripDuration));
-		ComputeNewClockDelta();
 	}
 
 	void ComputeNewClockDelta()

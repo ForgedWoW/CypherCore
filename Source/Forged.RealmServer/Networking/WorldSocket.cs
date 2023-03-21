@@ -420,14 +420,6 @@ public class WorldSocket : SocketBase
 
 		switch (opcode)
 		{
-			case ClientOpcodes.Ping:
-				Ping ping = new(packet);
-				ping.Read();
-
-				if (!HandlePing(ping))
-					return ReadDataHandlerResult.Error;
-
-				break;
 			case ClientOpcodes.AuthSession:
 				if (_worldSession != null)
 				{
@@ -465,8 +457,6 @@ public class WorldSocket : SocketBase
 				Log.outError(LogFilter.Network, $"WorldSocket::ReadDataHandler: client {GetRemoteIpAddress()} sent CMSG_KEEP_ALIVE without being authenticated");
 
 				return ReadDataHandlerResult.Error;
-			case ClientOpcodes.LogDisconnect:
-				break;
 			case ClientOpcodes.EnableNagle:
 				SetNoDelay(false);
 
@@ -475,10 +465,6 @@ public class WorldSocket : SocketBase
 				ConnectToFailed connectToFailed = new(packet);
 				connectToFailed.Read();
 				HandleConnectToFailed(connectToFailed);
-
-				break;
-			case ClientOpcodes.EnterEncryptedModeAck:
-				HandleEnterEncryptedModeAck();
 
 				break;
 			default:

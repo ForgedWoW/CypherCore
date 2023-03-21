@@ -539,38 +539,4 @@ public partial class WorldSession
 		Log.outDebug(LogFilter.Lfg, "CMSG_DF_TELEPORT {0} out: {1}", GetPlayerInfo(), dfTeleport.TeleportOut ? 1 : 0);
 		Global.LFGMgr.TeleportPlayer(Player, dfTeleport.TeleportOut, true);
 	}
-
-	[WorldPacketHandler(ClientOpcodes.DfGetSystemInfo, Processing = PacketProcessing.ThreadSafe)]
-	void HandleDfGetSystemInfo(DFGetSystemInfo dfGetSystemInfo)
-	{
-		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_Lock_INFO_REQUEST {0} for {1}", GetPlayerInfo(), (dfGetSystemInfo.Player ? "player" : "party"));
-
-		if (dfGetSystemInfo.Player)
-			SendLfgPlayerLockInfo();
-		else
-			SendLfgPartyLockInfo();
-	}
-
-	[WorldPacketHandler(ClientOpcodes.DfGetJoinStatus, Processing = PacketProcessing.ThreadSafe)]
-	void HandleDfGetJoinStatus(DFGetJoinStatus packet)
-	{
-		if (!Player.IsUsingLfg)
-			return;
-
-		var guid = Player.GUID;
-		var updateData = Global.LFGMgr.GetLfgStatus(guid);
-
-		if (Player.Group)
-		{
-			SendLfgUpdateStatus(updateData, true);
-			updateData.dungeons.Clear();
-			SendLfgUpdateStatus(updateData, false);
-		}
-		else
-		{
-			SendLfgUpdateStatus(updateData, false);
-			updateData.dungeons.Clear();
-			SendLfgUpdateStatus(updateData, true);
-		}
-	}
 }

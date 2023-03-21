@@ -11,23 +11,6 @@ namespace Forged.RealmServer;
 
 public partial class WorldSession
 {
-	[WorldPacketHandler(ClientOpcodes.QueryGuildInfo, Status = SessionStatus.Authed)]
-	void HandleGuildQuery(QueryGuildInfo query)
-	{
-		var guild = Global.GuildMgr.GetGuildByGuid(query.GuildGuid);
-
-		if (guild)
-		{
-			guild.SendQueryResponse(this);
-
-			return;
-		}
-
-		QueryGuildInfoResponse response = new();
-		response.GuildGUID = query.GuildGuid;
-		SendPacket(response);
-	}
-
 	[WorldPacketHandler(ClientOpcodes.GuildInviteByName)]
 	void HandleGuildInviteByName(GuildInviteByName packet)
 	{
@@ -69,17 +52,6 @@ public partial class WorldSession
 
 		Player.GuildIdInvited = 0;
 		Player.SetInGuild(0);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
-	void HandleGuildGetRoster(GuildGetRoster packet)
-	{
-		var guild = Player.Guild;
-
-		if (guild)
-			guild.HandleRoster(this);
-		else
-			Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildPromoteMember)]
@@ -157,16 +129,6 @@ public partial class WorldSession
 
 		if (guild)
 			guild.HandleSetMemberNote(this, packet.Note, packet.NoteeGUID, packet.IsPublic);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
-	void HandleGuildGetRanks(GuildGetRanks packet)
-	{
-		var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
-
-		if (guild)
-			if (guild.IsMember(Player.GUID))
-				guild.SendGuildRankInfo(this);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildAddRank)]
@@ -256,24 +218,6 @@ public partial class WorldSession
 
 		if (guild)
 			guild.SendEventLog(this);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.GuildBankRemainingWithdrawMoneyQuery)]
-	void HandleGuildBankMoneyWithdrawn(GuildBankRemainingWithdrawMoneyQuery packet)
-	{
-		var guild = Player.Guild;
-
-		if (guild)
-			guild.SendMoneyInfo(this);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
-	void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
-	{
-		var guild = Player.Guild;
-
-		if (guild)
-			guild.SendPermissions(this);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankDepositMoney)]

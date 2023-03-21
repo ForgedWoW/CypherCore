@@ -9,15 +9,6 @@ namespace Forged.RealmServer;
 
 public partial class WorldSession
 {
-	[WorldPacketHandler(ClientOpcodes.GetGarrisonInfo)]
-	void HandleGetGarrisonInfo(GetGarrisonInfo getGarrisonInfo)
-	{
-		var garrison = _player.Garrison;
-
-		if (garrison != null)
-			garrison.SendInfo();
-	}
-
 	[WorldPacketHandler(ClientOpcodes.GarrisonPurchaseBuilding)]
 	void HandleGarrisonPurchaseBuilding(GarrisonPurchaseBuilding garrisonPurchaseBuilding)
 	{

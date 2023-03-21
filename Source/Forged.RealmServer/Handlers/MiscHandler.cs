@@ -35,28 +35,6 @@ public partial class WorldSession
 		SendPacket(loadCUFProfiles);
 	}
 
-	[WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
-	void HandleRequestAccountData(RequestAccountData request)
-	{
-		if (request.DataType > AccountDataTypes.Max)
-			return;
-
-		var adata = GetAccountData(request.DataType);
-
-		UpdateAccountData data = new();
-		data.Player = Player ? Player.GUID : ObjectGuid.Empty;
-		data.Time = (uint)adata.Time;
-		data.DataType = request.DataType;
-
-		if (!adata.Data.IsEmpty())
-		{
-			data.Size = (uint)adata.Data.Length;
-			data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes(adata.Data)));
-		}
-
-		SendPacket(data);
-	}
-
 	[WorldPacketHandler(ClientOpcodes.UpdateAccountData, Status = SessionStatus.Authed)]
 	void HandleUpdateAccountData(UserClientUpdateAccountData packet)
 	{
@@ -150,12 +128,6 @@ public partial class WorldSession
 	void HandleMountSetFavorite(MountSetFavorite mountSetFavorite)
 	{
 		_collectionMgr.MountSetFavorite(mountSetFavorite.MountSpellID, mountSetFavorite.IsFavorite);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.ChatUnregisterAllAddonPrefixes)]
-	void HandleUnregisterAllAddonPrefixes(ChatUnregisterAllAddonPrefixes packet)
-	{
-		_registeredAddonPrefixes.Clear();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChatRegisterAddonPrefixes)]
@@ -453,48 +425,5 @@ public partial class WorldSession
 			Player.RepopAtGraveyard();
 
 		Player.SetPendingBind(0, 0);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.Warden3Data)]
-	void HandleWarden3Data(WardenData packet)
-	{
-		if (_warden == null || packet.Data.GetSize() == 0)
-			return;
-
-		_warden.DecryptData(packet.Data.GetData());
-		var opcode = (WardenOpcodes)packet.Data.ReadUInt8();
-
-		switch (opcode)
-		{
-			case WardenOpcodes.CmsgModuleMissing:
-				_warden.SendModuleToClient();
-
-				break;
-			case WardenOpcodes.CmsgModuleOk:
-				_warden.RequestHash();
-
-				break;
-			case WardenOpcodes.SmsgCheatChecksRequest:
-				_warden.HandleData(packet.Data);
-
-				break;
-			case WardenOpcodes.CmsgMemChecksResult:
-				Log.outDebug(LogFilter.Warden, "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
-
-				break;
-			case WardenOpcodes.CmsgHashResult:
-				_warden.HandleHashResult(packet.Data);
-				_warden.InitializeModule();
-
-				break;
-			case WardenOpcodes.CmsgModuleFailed:
-				Log.outDebug(LogFilter.Warden, "NYI WARDEN_CMSG_MODULE_FAILED received!");
-
-				break;
-			default:
-				Log.outDebug(LogFilter.Warden, "Got unknown warden opcode {0} of size {1}.", opcode, packet.Data.GetSize() - 1);
-
-				break;
-		}
 	}
 }

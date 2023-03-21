@@ -37,25 +37,6 @@ public partial class WorldSession
 		session.SendPacket(packet);
 	}
 
-	[WorldPacketHandler(ClientOpcodes.BattlePayGetPurchaseList)]
-	public void HandleGetPurchaseListQuery(GetPurchaseListQuery UnnamedParameter)
-	{
-        if (!BattlePayMgr.IsAvailable())
-            return;
-        var packet = new PurchaseListResponse(); // @TODO
-		SendPacket(packet);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.UpdateVasPurchaseStates)]
-	public void HandleUpdateVasPurchaseStates(UpdateVasPurchaseStates UnnamedParameter)
-	{
-        if (!BattlePayMgr.IsAvailable())
-            return;
-        var response = new EnumVasPurchaseStatesResponse();
-		response.Result = 0;
-		SendPacket(response);
-	}
-
 	[WorldPacketHandler(ClientOpcodes.BattlePayDistributionAssignToTarget)]
 	public void HandleBattlePayDistributionAssign(DistributionAssignToTarget packet)
 	{

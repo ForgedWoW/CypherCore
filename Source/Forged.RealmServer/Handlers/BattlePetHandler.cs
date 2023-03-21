@@ -10,12 +10,6 @@ namespace Forged.RealmServer;
 
 public partial class WorldSession
 {
-	[WorldPacketHandler(ClientOpcodes.BattlePetRequestJournal)]
-	void HandleBattlePetRequestJournal(BattlePetRequestJournal battlePetRequestJournal)
-	{
-		BattlePetMgr.SendJournal();
-	}
-
 	[WorldPacketHandler(ClientOpcodes.BattlePetRequestJournalLock)]
 	void HandleBattlePetRequestJournalLock(BattlePetRequestJournalLock battlePetRequestJournalLock)
 	{
