@@ -43,4 +43,9 @@
     <Content Include="Forged Icon.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Framework\Framework.csproj" />
+    <ProjectReference Include="..\Game.Common\Game.Common.csproj" />
+  </ItemGroup>
+
 </Project>
