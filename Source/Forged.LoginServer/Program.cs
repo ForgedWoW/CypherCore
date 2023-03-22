@@ -1,2 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿namespace Forged.LoginServer
+{
+    public class Server
+    {
+        static void Main()
+        {
+
+        }
+    }
+}
