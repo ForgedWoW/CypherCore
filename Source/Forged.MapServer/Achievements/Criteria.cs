@@ -4,12 +4,12 @@
 using Framework.Constants;
 using Game.DataStorage;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class Criteria
 {
-	public uint Id;
-	public CriteriaRecord Entry;
-	public ModifierTreeNode Modifier;
-	public CriteriaFlagsCu FlagsCu;
+    public uint Id;
+    public CriteriaRecord Entry;
+    public ModifierTreeNode Modifier;
+    public CriteriaFlagsCu FlagsCu;
 }

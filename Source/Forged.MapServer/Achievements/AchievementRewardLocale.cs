@@ -4,10 +4,10 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class AchievementRewardLocale
 {
-	public StringArray Subject = new((int)Locale.Total);
-	public StringArray Body = new((int)Locale.Total);
+    public StringArray Subject = new((int)Locale.Total);
+    public StringArray Body = new((int)Locale.Total);
 }
