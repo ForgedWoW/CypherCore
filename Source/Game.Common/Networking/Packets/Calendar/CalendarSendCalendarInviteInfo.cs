@@ -6,7 +6,7 @@ using Game.Entities;
 
 namespace Game.Networking.Packets;
 
-struct CalendarSendCalendarInviteInfo
+public struct CalendarSendCalendarInviteInfo
 {
 	public void Write(WorldPacket data)
 	{

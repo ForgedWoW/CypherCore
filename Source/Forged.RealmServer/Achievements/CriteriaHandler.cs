@@ -7,8 +7,8 @@ using System.Linq;
 using Framework.Configuration;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
+using Game.Entities;
+using Game.Networking;
 
 namespace Forged.RealmServer.Achievements;
 

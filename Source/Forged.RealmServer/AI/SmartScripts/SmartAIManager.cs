@@ -9,7 +9,7 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Movement;
 
 namespace Forged.RealmServer.AI;

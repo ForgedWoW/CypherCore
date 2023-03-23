@@ -15,14 +15,15 @@ using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.Collision;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IServer;
 using Forged.RealmServer.Scripting.Interfaces.IWorld;
 using Forged.RealmServer.Spells;
+using Game.Networking;
 
 namespace Forged.RealmServer;
 

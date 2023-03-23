@@ -6,7 +6,7 @@ using System.Numerics;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps.Grids;
 
 namespace Forged.RealmServer.DataStorage;

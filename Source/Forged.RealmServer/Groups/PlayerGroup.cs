@@ -8,9 +8,9 @@ using Framework.Database;
 using Forged.RealmServer.BattleFields;
 using Forged.RealmServer.BattleGrounds;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Entities;
+using Game.Networking;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IGroup;
 
 namespace Forged.RealmServer.Groups;

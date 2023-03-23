@@ -8,7 +8,7 @@ using Framework.Constants;
 using Framework.Dynamic;
 using Forged.RealmServer.Combat;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Spells;
 

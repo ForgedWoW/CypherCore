@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Networking;
+using Game.Networking;
 
 namespace Forged.RealmServer.Scenarios;
 

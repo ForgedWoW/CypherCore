@@ -3,9 +3,10 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Battlepay;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Bpay;
+using Game.Networking;
+using Game.Networking.Packets;
+using Game.Entities;
+using Game.Networking.Packets.Bpay;
 
 namespace Forged.RealmServer;
 

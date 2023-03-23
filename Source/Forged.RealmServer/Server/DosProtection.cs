@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Forged.RealmServer.Networking;
+using Game.Networking;
 
 namespace Forged.RealmServer;
 

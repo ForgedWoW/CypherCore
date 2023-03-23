@@ -5,7 +5,7 @@ using System;
 using Framework.Configuration;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IFormula;
 
 namespace Forged.RealmServer;

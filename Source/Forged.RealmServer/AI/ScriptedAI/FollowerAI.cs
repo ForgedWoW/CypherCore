@@ -3,7 +3,7 @@
 
 using System;
 using Framework.Constants;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 
 namespace Forged.RealmServer.AI;
 

@@ -8,9 +8,9 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Entities;
+using Game.Networking;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IGuild;
 
 namespace Forged.RealmServer.Guilds;

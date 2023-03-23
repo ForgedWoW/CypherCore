@@ -7,8 +7,8 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking.Packets;
+using Game.Entities;
+using Game.Networking.Packets;
 using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.BattlePets;

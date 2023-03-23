@@ -3,7 +3,7 @@
 
 using Framework.Configuration;
 using Framework.Constants;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 
 namespace Forged.RealmServer;
 

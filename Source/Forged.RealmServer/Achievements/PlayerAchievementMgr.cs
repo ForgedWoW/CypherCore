@@ -7,11 +7,11 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Mails;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
 
 namespace Forged.RealmServer.Achievements;

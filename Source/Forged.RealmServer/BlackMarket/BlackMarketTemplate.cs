@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Database;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 
 namespace Forged.RealmServer.BlackMarket;
 

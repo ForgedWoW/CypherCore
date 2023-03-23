@@ -3,7 +3,7 @@
 
 namespace Game.Networking.Packets;
 
-struct CalendarSendCalendarRaidLockoutInfo
+public struct CalendarSendCalendarRaidLockoutInfo
 {
 	public void Write(WorldPacket data)
 	{

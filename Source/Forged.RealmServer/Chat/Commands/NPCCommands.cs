@@ -9,7 +9,7 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Loots;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Movement;

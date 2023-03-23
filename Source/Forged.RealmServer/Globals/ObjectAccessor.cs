@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps;
 
 public class ObjectAccessor : Singleton<ObjectAccessor>

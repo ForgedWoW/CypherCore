@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Forged.RealmServer.Combat;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.AI;

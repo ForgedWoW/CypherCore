@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Mails;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 
 namespace Forged.RealmServer.BlackMarket;
 

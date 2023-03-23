@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IItem;
 
 namespace Forged.RealmServer.Chat;

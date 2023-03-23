@@ -5,7 +5,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Framework.Constants;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 using Google.Protobuf;
 
 namespace Forged.RealmServer.Services;

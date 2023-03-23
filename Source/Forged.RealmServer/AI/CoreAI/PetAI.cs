@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Movement;
 using Forged.RealmServer.Spells;

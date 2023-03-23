@@ -6,10 +6,10 @@ using System.Linq;
 using Framework.Constants;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Groups;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 
 namespace Forged.RealmServer;

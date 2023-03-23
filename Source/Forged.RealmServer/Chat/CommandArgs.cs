@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Chat;

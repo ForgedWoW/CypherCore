@@ -9,7 +9,7 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IWorldState;
 
 namespace Forged.RealmServer;

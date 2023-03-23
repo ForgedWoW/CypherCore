@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Groups;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IGroup;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;

@@ -8,7 +8,7 @@ using System.Numerics;
 using Framework.Constants;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Misc;
 using Forged.RealmServer.Movement;

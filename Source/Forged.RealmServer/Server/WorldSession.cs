@@ -19,9 +19,9 @@ using Forged.RealmServer.Accounts;
 using Forged.RealmServer.Battlepay;
 using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Chat;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Entities;
+using Game.Networking;
+using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 
 namespace Forged.RealmServer;

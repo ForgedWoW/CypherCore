@@ -6,8 +6,8 @@ using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Chat;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking.Packets;
+using Game.Entities;
+using Game.Networking.Packets;
 
 namespace Forged.RealmServer.SupportSystem;
 

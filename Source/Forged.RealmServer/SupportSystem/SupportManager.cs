@@ -6,7 +6,7 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Chat;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 
 namespace Forged.RealmServer.SupportSystem;
 

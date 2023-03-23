@@ -3,8 +3,8 @@
 
 using System;
 using Framework.Constants;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets;
+using Game.Networking;
+using Game.Networking.Packets;
 using Google.Protobuf;
 
 namespace Forged.RealmServer;

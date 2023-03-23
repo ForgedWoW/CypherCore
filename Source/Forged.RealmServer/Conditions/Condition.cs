@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scenarios;
 using Forged.RealmServer.Scripting.Interfaces.ICondition;

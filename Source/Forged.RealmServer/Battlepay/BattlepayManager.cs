@@ -7,7 +7,7 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.BattlePets;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Networking.Packets.Bpay;
 
 namespace Forged.RealmServer.Battlepay;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Framework.Constants;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 
 namespace Forged.RealmServer.DungeonFinding;
 

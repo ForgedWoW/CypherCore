@@ -11,7 +11,7 @@ using Framework.Database;
 using Framework.Metrics;
 using Framework.Networking;
 using Forged.RealmServer.Chat;
-using Forged.RealmServer.Networking;
+using Game.Networking;
 
 namespace Forged.RealmServer
 {

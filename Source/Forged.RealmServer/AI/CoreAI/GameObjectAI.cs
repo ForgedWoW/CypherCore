@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 using Framework.Dynamic;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.AI;

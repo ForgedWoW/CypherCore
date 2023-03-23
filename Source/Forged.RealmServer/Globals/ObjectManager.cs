@@ -13,7 +13,7 @@ using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Loots;
 using Forged.RealmServer.Mails;
 using Forged.RealmServer.Maps;

@@ -13,7 +13,7 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.Collision;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Garrisons;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Loots;

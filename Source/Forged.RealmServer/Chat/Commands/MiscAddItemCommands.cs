@@ -8,7 +8,7 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 
 namespace Forged.RealmServer.Chat;
 

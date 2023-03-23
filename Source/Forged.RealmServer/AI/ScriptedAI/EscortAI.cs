@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Maps.Grids;
 
 namespace Forged.RealmServer.AI;

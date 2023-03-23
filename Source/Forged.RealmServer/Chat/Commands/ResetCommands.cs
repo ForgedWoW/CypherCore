@@ -6,7 +6,7 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 
 namespace Forged.RealmServer.Chat;

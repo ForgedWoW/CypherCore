@@ -12,7 +12,7 @@ using Framework.Database;
 using Forged.RealmServer.AI;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Game.Entities;
 using Forged.RealmServer.Extendability;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Guilds;

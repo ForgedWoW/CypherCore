@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Networking.Packets;
+using Game.Entities;
+using Game.Networking.Packets;
 
 namespace Forged.RealmServer.DungeonFinding;
 
