@@ -54,8 +54,8 @@ public class WorldSession : IDisposable
 	readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
 	readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
 
-	readonly List<string> _registeredAddonPrefixes = new();
-	readonly uint _recruiterId;
+    public List<string> RegisteredAddonPrefixes { get; } = new();
+    readonly uint _recruiterId;
 	readonly bool _isRecruiter;
 
     private readonly ActionBlock<WorldPacket> _recvQueue;
@@ -86,9 +86,9 @@ public class WorldSession : IDisposable
 
 	uint _expireTime;
 	bool _forceExit;
-	Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
+    public Warden.Warden GameWarden { get; set; }
 
-	long _logoutTime;
+    long _logoutTime;
 	bool _inQueue;
     public ObjectGuid PlayerLoading { get; set; }
     bool _playerLogout;        // code processed in LogoutPlayer
@@ -447,8 +447,8 @@ public class WorldSession : IDisposable
 		ProcessQueryCallbacks();
 
 
-		if (_socket[(int)ConnectionType.Realm] != null && _socket[(int)ConnectionType.Realm].IsOpen() && _warden != null)
-			_warden.Update(diff);
+		if (_socket[(int)ConnectionType.Realm] != null && _socket[(int)ConnectionType.Realm].IsOpen() && GameWarden != null)
+			GameWarden.Update(diff);
 
 		// If necessary, log the player out
 		if (ShouldLogOut(currentTime) && PlayerLoading.IsEmpty)
@@ -458,8 +458,8 @@ public class WorldSession : IDisposable
 		if ((_socket[(int)ConnectionType.Realm] != null && !_socket[(int)ConnectionType.Realm].IsOpen()) ||
 			(_socket[(int)ConnectionType.Instance] != null && !_socket[(int)ConnectionType.Instance].IsOpen()))
 		{
-			if (Player != null && _warden != null)
-				_warden.Update(diff);
+			if (Player != null && GameWarden != null)
+				GameWarden.Update(diff);
 
 			_expireTime -= _expireTime > diff ? diff : _expireTime;
 
@@ -544,10 +544,10 @@ public class WorldSession : IDisposable
 		if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
 			return true;
 
-		if (_registeredAddonPrefixes.Empty())
+		if (RegisteredAddonPrefixes.Empty())
 			return false;
 
-		return _registeredAddonPrefixes.Contains(prefix);
+		return RegisteredAddonPrefixes.Contains(prefix);
 	}
 
 	public void SendAccountDataTimes(ObjectGuid playerGuid, AccountDataTypes mask)
@@ -1035,10 +1035,10 @@ public class WorldSession : IDisposable
 
 	void HandleWardenData(WardenData packet)
 	{
-		if (_warden == null || packet.Data.GetSize() == 0)
+		if (GameWarden == null || packet.Data.GetSize() == 0)
 			return;
 
-		_warden.HandleData(packet.Data);
+		GameWarden.HandleData(packet.Data);
 	}
 
 	public void SetLogoutStartTime(long requestTime)
@@ -1067,8 +1067,8 @@ public class WorldSession : IDisposable
 	{
 		if (_os == "Win")
 		{
-			_warden = new WardenWin();
-			_warden.Init(this, k);
+			GameWarden = new WardenWin();
+			GameWarden.Init(this, k);
 		}
 		else if (_os == "Wn64")
 		{
@@ -1120,7 +1120,7 @@ public class WorldSession : IDisposable
 		_battlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
 	}
 
-	AccountData GetAccountData(AccountDataTypes type)
+	public AccountData GetAccountData(AccountDataTypes type)
 	{
 		return _accountData[(int)type];
 	}

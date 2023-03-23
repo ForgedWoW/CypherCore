@@ -2,15 +2,22 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Token;
+using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
 public class TokenHandler
 {
-	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
+    private readonly WorldSession _session;
+
+    public TimeHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
 	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
 	{
 		CommerceTokenGetLogResponse response = new();
@@ -19,7 +26,7 @@ public class TokenHandler
 		response.UnkInt = commerceTokenGetLog.UnkInt;
 		response.Result = TokenResult.Success;
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
@@ -33,6 +40,6 @@ public class TokenHandler
 		response.Result = TokenResult.Success;
 		//packet.ReadUInt32("UnkInt32");
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 }
