@@ -56,14 +56,7 @@ public partial class WorldSession
 		SendPacket(response);
 	}
 
-	[WorldPacketHandler(ClientOpcodes.BattlePayDistributionAssignToTarget)]
-	public void HandleBattlePayDistributionAssign(DistributionAssignToTarget packet)
-	{
-		if (!BattlePayMgr.IsAvailable())
-			return;
 
-		BattlePayMgr.AssignDistributionToCharacter(packet.TargetCharacter, packet.DistributionID, packet.ProductID, packet.SpecializationID, packet.ChoiceID);
-	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlePayGetProductList)]
 	public void HandleGetProductList(GetProductList UnnamedParameter)
@@ -74,7 +67,6 @@ public partial class WorldSession
 		BattlePayMgr.SendProductList();
 		BattlePayMgr.SendAccountCredits();
 	}
-
 
 	public void SendMakePurchase(ObjectGuid targetCharacter, uint clientToken, uint productID, WorldSession session)
 	{

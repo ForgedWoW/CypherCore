@@ -14,22 +14,6 @@ namespace Forged.RealmServer;
 
 public partial class WorldSession
 {
-	public void BuildNameQueryData(ObjectGuid guid, out NameCacheLookupResult lookupData)
-	{
-		lookupData = new NameCacheLookupResult();
-
-		var player = Global.ObjAccessor.FindPlayer(guid);
-
-		lookupData.Player = guid;
-
-		lookupData.Data = new PlayerGuidLookupData();
-
-		if (lookupData.Data.Initialize(guid, player))
-			lookupData.Result = (byte)ResponseCodes.Success;
-		else
-			lookupData.Result = (byte)ResponseCodes.Failure; // name unknown
-	}
-
 	[WorldPacketHandler(ClientOpcodes.QueryPlayerNames, Processing = PacketProcessing.Inplace)]
 	void HandleQueryPlayerNames(QueryPlayerNames queryPlayerName)
 	{

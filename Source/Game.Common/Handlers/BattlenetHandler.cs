@@ -70,18 +70,4 @@ public partial class WorldSession
 			Log.outDebug(LogFilter.SessionRpc, "{0} tried to call invalid service {1}", GetPlayerInfo(), request.Method.GetServiceHash());
 		}
 	}
-
-	[WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
-	void HandleBattlenetChangeRealmTicket(ChangeRealmTicket changeRealmTicket)
-	{
-		RealmListSecret = changeRealmTicket.Secret;
-
-		ChangeRealmTicketResponse realmListTicket = new();
-		realmListTicket.Token = changeRealmTicket.Token;
-		realmListTicket.Allow = true;
-		realmListTicket.Ticket = new Framework.IO.ByteBuffer();
-		realmListTicket.Ticket.WriteCString("WorldserverRealmListTicket");
-
-		SendPacket(realmListTicket);
-	}
 }
