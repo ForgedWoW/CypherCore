@@ -12,7 +12,7 @@ public class TokenHandler
 {
     private readonly WorldSession _session;
 
-    public TimeHandler(WorldSession session)
+    public TokenHandler(WorldSession session)
     {
         _session = session;
     }
