@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Networking;
+using Game.Common.Entities.Objects.Update;
+using Game.Entities;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class DynamicUpdateField<T> where T : new()
 {

@@ -8,14 +8,14 @@ using Framework.Collections;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.DataStorage;
+using Game.DataStorage;
 using Game.Entities;
 using Game.Networking;
 using Game.Networking.Packets;
-using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Forged.RealmServer.Spells;
+using Game.Scripting.Interfaces.IPlayer;
+using Game.Spells;
 
-namespace Forged.RealmServer;
+namespace Game;
 
 public partial class WorldSession
 {
@@ -524,7 +524,107 @@ public partial class WorldSession
 		SendPacket(features);
 	}
 
-	
+	[WorldPacketHandler(ClientOpcodes.EnumCharacters, Status = SessionStatus.Authed)]
+	void HandleCharEnum(EnumCharacters charEnum)
+	{
+		// remove expired bans
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EXPIRED_BANS);
+		DB.Characters.Execute(stmt);
+
+		// get all the data necessary for loading all characters (along with their pets) on the account
+		EnumCharactersQueryHolder holder = new();
+
+		if (!holder.Initialize(AccountId, WorldConfig.GetBoolValue(WorldCfg.DeclinedNamesUsed), false))
+		{
+			HandleCharEnum(holder);
+
+			return;
+		}
+
+		AddQueryHolderCallback(DB.Characters.DelayQueryHolder(holder)).AfterComplete(result => HandleCharEnum((EnumCharactersQueryHolder)result));
+	}
+
+	void HandleCharEnum(EnumCharactersQueryHolder holder)
+	{
+		EnumCharactersResult charResult = new();
+		charResult.Success = true;
+		charResult.IsDeletedCharacters = holder.IsDeletedCharacters();
+		charResult.DisabledClassesMask = WorldConfig.GetUIntValue(WorldCfg.CharacterCreatingDisabledClassmask);
+
+		if (!charResult.IsDeletedCharacters)
+			_legitCharacters.Clear();
+
+		MultiMap<ulong, ChrCustomizationChoice> customizations = new();
+		var customizationsResult = holder.GetResult(EnumCharacterQueryLoad.Customizations);
+
+		if (!customizationsResult.IsEmpty())
+			do
+			{
+				ChrCustomizationChoice choice = new();
+				choice.ChrCustomizationOptionID = customizationsResult.Read<uint>(1);
+				choice.ChrCustomizationChoiceID = customizationsResult.Read<uint>(2);
+				customizations.Add(customizationsResult.Read<ulong>(0), choice);
+			} while (customizationsResult.NextRow());
+
+		var result = holder.GetResult(EnumCharacterQueryLoad.Characters);
+
+		if (!result.IsEmpty())
+			do
+			{
+				EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
+
+				var customizationsForChar = customizations.LookupByKey(charInfo.Guid.Counter);
+
+				if (!customizationsForChar.Empty())
+					charInfo.Customizations = new Array<ChrCustomizationChoice>(customizationsForChar.ToArray());
+
+				Log.outDebug(LogFilter.Network, "Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
+
+				if (!charResult.IsDeletedCharacters)
+				{
+					if (!ValidateAppearance((Race)charInfo.RaceId, charInfo.ClassId, (Gender)charInfo.SexId, charInfo.Customizations))
+					{
+						Log.outError(LogFilter.Player, "Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
+
+						charInfo.Customizations.Clear();
+
+						if (charInfo.Flags2 != CharacterCustomizeFlags.Customize)
+						{
+							var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+							stmt.AddValue(0, (ushort)AtLoginFlags.Customize);
+							stmt.AddValue(1, charInfo.Guid.Counter);
+							DB.Characters.Execute(stmt);
+							charInfo.Flags2 = CharacterCustomizeFlags.Customize;
+						}
+					}
+
+					// Do not allow locked characters to login
+					if (!charInfo.Flags.HasAnyFlag(CharacterFlags.CharacterLockedForTransfer | CharacterFlags.LockedByBilling))
+						_legitCharacters.Add(charInfo.Guid);
+				}
+
+				if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+					Global.CharacterCacheStorage.AddCharacterCacheEntry(charInfo.Guid, AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, false);
+
+				charResult.MaxCharacterLevel = Math.Max(charResult.MaxCharacterLevel, charInfo.ExperienceLevel);
+
+				charResult.Characters.Add(charInfo);
+			} while (result.NextRow() && charResult.Characters.Count < 200);
+
+		charResult.IsAlliedRacesCreationAllowed = CanAccessAlliedRaces();
+
+		foreach (var requirement in Global.ObjectMgr.GetRaceUnlockRequirements())
+		{
+			EnumCharactersResult.RaceUnlock raceUnlock = new();
+			raceUnlock.RaceID = requirement.Key;
+			raceUnlock.HasExpansion = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) ? (byte)AccountExpansion >= requirement.Value.Expansion : true;
+			raceUnlock.HasAchievement = (WorldConfig.GetBoolValue(WorldCfg.CharacterCreatingDisableAlliedRaceAchievementRequirement) ? true : requirement.Value.AchievementId != 0 ? false : true); // TODO: fix false here for actual check of criteria.
+
+			charResult.RaceUnlockData.Add(raceUnlock);
+		}
+
+		SendPacket(charResult);
+	}
 
 	[WorldPacketHandler(ClientOpcodes.EnumCharactersDeletedByClient, Status = SessionStatus.Authed)]
 	void HandleCharUndeleteEnum(EnumCharacters enumCharacters)
@@ -1104,6 +1204,37 @@ public partial class WorldSession
 		DB.Characters.CommitTransaction(trans);
 	}
 
+	[WorldPacketHandler(ClientOpcodes.PlayerLogin, Status = SessionStatus.Authed)]
+	void HandlePlayerLogin(PlayerLogin playerLogin)
+	{
+		if (PlayerLoading || Player != null)
+		{
+			Log.outError(LogFilter.Network, "Player tries to login again, AccountId = {0}", AccountId);
+			KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
+
+			return;
+		}
+
+		_playerLoading = playerLogin.Guid;
+		Log.outDebug(LogFilter.Network, "Character {0} logging in", playerLogin.Guid.ToString());
+
+		if (!_legitCharacters.Contains(playerLogin.Guid))
+		{
+			Log.outError(LogFilter.Network, "Account ({0}) can't login with that character ({1}).", AccountId, playerLogin.Guid.ToString());
+			KickPlayer("WorldSession::HandlePlayerLoginOpcode Trying to login with a character of another account");
+
+			return;
+		}
+
+		SendConnectToInstance(ConnectToSerial.WorldAttempt1);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.LoadingScreenNotify, Status = SessionStatus.Authed)]
+	void HandleLoadScreen(LoadingScreenNotify loadingScreenNotify)
+	{
+		// TODO: Do something with this packet
+	}
+
 	[WorldPacketHandler(ClientOpcodes.SetFactionAtWar)]
 	void HandleSetFactionAtWar(SetFactionAtWar packet)
 	{
@@ -1201,6 +1332,12 @@ public partial class WorldSession
 
 		var sequenceIndex = checkCharacterNameAvailability.SequenceIndex;
 		_queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt).WithCallback(result => { SendPacket(new CheckCharacterNameAvailabilityResult(sequenceIndex, !result.IsEmpty() ? ResponseCodes.CharCreateNameInUse : ResponseCodes.Success)); }));
+	}
+
+	[WorldPacketHandler(ClientOpcodes.RequestForcedReactions)]
+	void HandleRequestForcedReactions(RequestForcedReactions requestForcedReactions)
+	{
+		Player.ReputationMgr.SendForceReactions();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharacterRenameRequest, Status = SessionStatus.Authed)]
@@ -1358,6 +1495,58 @@ public partial class WorldSession
 		DB.Characters.CommitTransaction(trans);
 
 		SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Success, packet.Player);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.AlterAppearance)]
+	void HandleAlterAppearance(AlterApperance packet)
+	{
+		if (!ValidateAppearance(_player.Race, _player.Class, (Gender)packet.NewSex, packet.Customizations))
+			return;
+
+		var go = Player.FindNearestGameObjectOfType(GameObjectTypes.BarberChair, 5.0f);
+
+		if (!go)
+		{
+			SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
+
+			return;
+		}
+
+		if (Player.StandState != (UnitStandStateType)((int)UnitStandStateType.SitLowChair + go.Template.BarberChair.chairheight))
+		{
+			SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NotOnChair));
+
+			return;
+		}
+
+		var cost = Player.GetBarberShopCost(packet.Customizations);
+
+		if (!Player.HasEnoughMoney(cost))
+		{
+			SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.NoMoney));
+
+			return;
+		}
+
+		SendPacket(new BarberShopResult(BarberShopResult.ResultEnum.Success));
+
+		_player.ModifyMoney(-cost);
+		_player.UpdateCriteria(CriteriaType.MoneySpentAtBarberShop, (ulong)cost);
+
+		if (_player.NativeGender != (Gender)packet.NewSex)
+		{
+			_player.NativeGender = (Gender)packet.NewSex;
+			_player.InitDisplayIds();
+			_player.RestoreDisplayId(false);
+		}
+
+		_player.SetCustomizations(packet.Customizations);
+
+		_player.UpdateCriteria(CriteriaType.GotHaircut, 1);
+
+		_player.SetStandState(UnitStandStateType.Stand);
+
+		Global.CharacterCacheStorage.UpdateCharacterGender(_player.GUID, packet.NewSex);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharCustomize, Status = SessionStatus.Authed)]
@@ -2261,6 +2450,15 @@ public partial class WorldSession
 		}
 	}
 
+	[WorldPacketHandler(ClientOpcodes.GetUndeleteCharacterCooldownStatus, Status = SessionStatus.Authed)]
+	void HandleGetUndeleteCooldownStatus(GetUndeleteCharacterCooldownStatus getCooldown)
+	{
+		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_LAST_CHAR_UNDELETE);
+		stmt.AddValue(0, BattlenetAccountId);
+
+		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleUndeleteCooldownStatusCallback));
+	}
+
 	void HandleUndeleteCooldownStatusCallback(SQLResult result)
 	{
 		uint cooldown = 0;
@@ -2381,6 +2579,115 @@ public partial class WorldSession
 									}));
 	}
 
+	[WorldPacketHandler(ClientOpcodes.RepopRequest)]
+	void HandleRepopRequest(RepopRequest packet)
+	{
+		if (Player.IsAlive || Player.HasPlayerFlag(PlayerFlags.Ghost))
+			return;
+
+		if (Player.HasAuraType(AuraType.PreventResurrection))
+			return; // silently return, client should display the error by itself
+
+		// the world update order is sessions, players, creatures
+		// the netcode runs in parallel with all of these
+		// creatures can kill players
+		// so if the server is lagging enough the player can
+		// release spirit after he's killed but before he is updated
+		if (Player.DeathState == DeathState.JustDied)
+		{
+			Log.outDebug(LogFilter.Network,
+						"HandleRepopRequestOpcode: got request after player {0} ({1}) was killed and before he was updated",
+						Player.GetName(),
+						Player.GUID.ToString());
+
+			Player.KillPlayer();
+		}
+
+		//this is spirit release confirm?
+		Player.RemovePet(null, PetSaveMode.NotInSlot, true);
+		Player.BuildPlayerRepop();
+		Player.RepopAtGraveyard();
+	}
+
+	[WorldPacketHandler(ClientOpcodes.ClientPortGraveyard)]
+	void HandlePortGraveyard(PortGraveyard packet)
+	{
+		if (Player.IsAlive || !Player.HasPlayerFlag(PlayerFlags.Ghost))
+			return;
+
+		Player.RepopAtGraveyard();
+	}
+
+	[WorldPacketHandler(ClientOpcodes.RequestCemeteryList, Processing = PacketProcessing.Inplace)]
+	void HandleRequestCemeteryList(RequestCemeteryList requestCemeteryList)
+	{
+		var zoneId = Player.Zone;
+		var team = (uint)Player.Team;
+
+		List<uint> graveyardIds = new();
+		var range = Global.ObjectMgr.GraveYardStorage.LookupByKey(zoneId);
+
+		for (uint i = 0; i < range.Count && graveyardIds.Count < 16; ++i) // client max
+		{
+			var gYard = range[(int)i];
+
+			if (gYard.team == 0 || gYard.team == team)
+				graveyardIds.Add(i);
+		}
+
+		if (graveyardIds.Empty())
+		{
+			Log.outDebug(LogFilter.Network,
+						"No graveyards found for zone {0} for player {1} (team {2}) in CMSG_REQUEST_CEMETERY_LIST",
+						zoneId,
+						_guidLow,
+						team);
+
+			return;
+		}
+
+		RequestCemeteryListResponse packet = new();
+		packet.IsGossipTriggered = false;
+
+		foreach (var id in graveyardIds)
+			packet.CemeteryID.Add(id);
+
+		SendPacket(packet);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.ReclaimCorpse)]
+	void HandleReclaimCorpse(ReclaimCorpse packet)
+	{
+		if (Player.IsAlive)
+			return;
+
+		// do not allow corpse reclaim in arena
+		if (Player.InArena)
+			return;
+
+		// body not released yet
+		if (!Player.HasPlayerFlag(PlayerFlags.Ghost))
+			return;
+
+		var corpse = Player.GetCorpse();
+
+		if (!corpse)
+			return;
+
+		// prevent resurrect before 30-sec delay after body release not finished
+		if ((corpse.GetGhostTime() + Player.GetCorpseReclaimDelay(corpse.GetCorpseType() == CorpseType.ResurrectablePVP)) > GameTime.GetGameTime())
+			return;
+
+		if (!corpse.IsWithinDistInMap(Player, 39, true))
+			return;
+
+		// resurrect
+		Player.ResurrectPlayer(Player.InBattleground ? 1.0f : 0.5f);
+
+		// spawn bones
+		Player.SpawnCorpseBones();
+	}
+
 	[WorldPacketHandler(ClientOpcodes.ResurrectResponse)]
 	void HandleResurrectResponse(ResurrectResponse packet)
 	{
@@ -2414,6 +2721,35 @@ public partial class WorldSession
 		}
 
 		Player.ResurrectUsingRequestData();
+	}
+
+	[WorldPacketHandler(ClientOpcodes.StandStateChange)]
+	void HandleStandStateChange(StandStateChange packet)
+	{
+		switch (packet.StandState)
+		{
+			case UnitStandStateType.Stand:
+			case UnitStandStateType.Sit:
+			case UnitStandStateType.Sleep:
+			case UnitStandStateType.Kneel:
+				break;
+			default:
+				return;
+		}
+
+		Player.SetStandState(packet.StandState);
+	}
+
+	[WorldPacketHandler(ClientOpcodes.QuickJoinAutoAcceptRequests)]
+	void HandleQuickJoinAutoAcceptRequests(QuickJoinAutoAcceptRequest packet)
+	{
+		Player.AutoAcceptQuickJoin = packet.AutoAccept;
+	}
+
+	[WorldPacketHandler(ClientOpcodes.OverrideScreenFlash)]
+	void HandleOverrideScreenFlash(OverrideScreenFlash packet)
+	{
+		Player.OverrideScreenFlash = packet.ScreenFlashEnabled;
 	}
 
 	void SendCharCreate(ResponseCodes result, ObjectGuid guid = default)
@@ -2506,4 +2842,399 @@ public partial class WorldSession
 
 		SendPacket(response);
 	}
+}
+
+public class LoginQueryHolder : SQLQueryHolder<PlayerLoginQueryLoad>
+{
+	readonly uint m_accountId;
+	ObjectGuid m_guid;
+
+	public LoginQueryHolder(uint accountId, ObjectGuid guid)
+	{
+		m_accountId = accountId;
+		m_guid = guid;
+	}
+
+	public void Initialize()
+	{
+		var lowGuid = m_guid.Counter;
+
+		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.From, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_CUSTOMIZATIONS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Customizations, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Group, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURAS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Auras, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_EFFECTS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.AuraEffects, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_STORED_LOCATIONS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.AuraStoredLocations, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_SPELL);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Spells, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_SPELL_FAVORITES);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.SpellFavorites, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.QuestStatus, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_OBJECTIVES);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.QuestStatusObjectives, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.QuestStatusObjectivesCriteria, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_OBJECTIVES_CRITERIA_PROGRESS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.QuestStatusObjectivesCriteriaProgress, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_DAILY);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.DailyQuestStatus, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_WEEKLY);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.WeeklyQuestStatus, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_MONTHLY);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MonthlyQuestStatus, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_SEASONAL);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.SeasonalQuestStatus, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_REPUTATION);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Reputation, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_INVENTORY);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Inventory, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ITEM_INSTANCE_ARTIFACT);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Artifacts, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ITEM_INSTANCE_AZERITE);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Azerite, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.AzeriteMilestonePowers, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.AzeriteUnlockedEssences, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ITEM_INSTANCE_AZERITE_EMPOWERED);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.AzeriteEmpowered, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_VOID_STORAGE);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.VoidStorage, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Mails, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MailItems, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_ARTIFACT);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MailItemsArtifact, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MailItemsAzerite, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_MILESTONE_POWER);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MailItemsAzeriteMilestonePower, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_UNLOCKED_ESSENCE);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MailItemsAzeriteUnlockedEssence, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAILITEMS_AZERITE_EMPOWERED);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.MailItemsAzeriteEmpowered, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_SOCIALLIST);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.SocialList, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_HOMEBIND);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.HomeBind, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_SPELLCOOLDOWNS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.SpellCooldowns, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_SPELL_CHARGES);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.SpellCharges, stmt);
+
+		if (WorldConfig.GetBoolValue(WorldCfg.DeclinedNamesUsed))
+		{
+			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_DECLINEDNAMES);
+			stmt.AddValue(0, lowGuid);
+			SetQuery(PlayerLoginQueryLoad.DeclinedNames, stmt);
+		}
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Guild, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ARENAINFO);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.ArenaInfo, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACHIEVEMENTS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Achievements, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_CRITERIAPROGRESS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.CriteriaProgress, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_EQUIPMENTSETS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.EquipmentSets, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_TRANSMOG_OUTFITS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.TransmogOutfits, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_CUF_PROFILES);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.CufProfiles, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_BGDATA);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.BgData, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GLYPHS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Glyphs, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_TALENTS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Talents, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_PVP_TALENTS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.PvpTalents, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PLAYER_ACCOUNT_DATA);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.AccountData, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_SKILLS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Skills, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_RANDOMBG);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.RandomBg, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_BANNED);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Banned, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUSREW);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.QuestStatusRew, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ACCOUNT_INSTANCELOCKTIMES);
+		stmt.AddValue(0, m_accountId);
+		SetQuery(PlayerLoginQueryLoad.InstanceLockTimes, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PLAYER_CURRENCY);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Currency, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CORPSE_LOCATION);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.CorpseLocation, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_PETS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.PetSlots, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GARRISON);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.Garrison, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GARRISON_BLUEPRINTS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.GarrisonBlueprints, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GARRISON_BUILDINGS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.GarrisonBuildings, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GARRISON_FOLLOWERS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.GarrisonFollowers, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.GarrisonFollowerAbilities, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_TRAIT_ENTRIES);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.TraitEntries, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_TRAIT_CONFIGS);
+		stmt.AddValue(0, lowGuid);
+		SetQuery(PlayerLoginQueryLoad.TraitConfigs, stmt);
+	}
+
+	public ObjectGuid GetGuid()
+	{
+		return m_guid;
+	}
+
+	uint GetAccountId()
+	{
+		return m_accountId;
+	}
+}
+
+class EnumCharactersQueryHolder : SQLQueryHolder<EnumCharacterQueryLoad>
+{
+	bool _isDeletedCharacters = false;
+
+	public bool Initialize(uint accountId, bool withDeclinedNames, bool isDeletedCharacters)
+	{
+		_isDeletedCharacters = isDeletedCharacters;
+
+		CharStatements[][] statements =
+		{
+			new[]
+			{
+				CharStatements.SEL_ENUM, CharStatements.SEL_ENUM_DECLINED_NAME, CharStatements.SEL_ENUM_CUSTOMIZATIONS
+			},
+			new[]
+			{
+				CharStatements.SEL_UNDELETE_ENUM, CharStatements.SEL_UNDELETE_ENUM_DECLINED_NAME, CharStatements.SEL_UNDELETE_ENUM_CUSTOMIZATIONS
+			}
+		};
+
+		var result = true;
+		var stmt = DB.Characters.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][withDeclinedNames ? 1 : 0]);
+		stmt.AddValue(0, accountId);
+		SetQuery(EnumCharacterQueryLoad.Characters, stmt);
+
+		stmt = DB.Characters.GetPreparedStatement(statements[isDeletedCharacters ? 1 : 0][2]);
+		stmt.AddValue(0, accountId);
+		SetQuery(EnumCharacterQueryLoad.Customizations, stmt);
+
+		return result;
+	}
+
+	public bool IsDeletedCharacters()
+	{
+		return _isDeletedCharacters;
+	}
+}
+
+// used at player loading query list preparing, and later result selection
+public enum PlayerLoginQueryLoad
+{
+	From,
+	Customizations,
+	Group,
+	Auras,
+	AuraEffects,
+	AuraStoredLocations,
+	Spells,
+	SpellFavorites,
+	QuestStatus,
+	QuestStatusObjectives,
+	QuestStatusObjectivesCriteria,
+	QuestStatusObjectivesCriteriaProgress,
+	DailyQuestStatus,
+	Reputation,
+	Inventory,
+	Artifacts,
+	Azerite,
+	AzeriteMilestonePowers,
+	AzeriteUnlockedEssences,
+	AzeriteEmpowered,
+	Mails,
+	MailItems,
+	MailItemsArtifact,
+	MailItemsAzerite,
+	MailItemsAzeriteMilestonePower,
+	MailItemsAzeriteUnlockedEssence,
+	MailItemsAzeriteEmpowered,
+	SocialList,
+	HomeBind,
+	SpellCooldowns,
+	SpellCharges,
+	DeclinedNames,
+	Guild,
+	ArenaInfo,
+	Achievements,
+	CriteriaProgress,
+	EquipmentSets,
+	TransmogOutfits,
+	BgData,
+	Glyphs,
+	Talents,
+	PvpTalents,
+	AccountData,
+	Skills,
+	WeeklyQuestStatus,
+	RandomBg,
+	Banned,
+	QuestStatusRew,
+	InstanceLockTimes,
+	SeasonalQuestStatus,
+	MonthlyQuestStatus,
+	VoidStorage,
+	Currency,
+	CufProfiles,
+	CorpseLocation,
+	PetSlots,
+	Garrison,
+	GarrisonBlueprints,
+	GarrisonBuildings,
+	GarrisonFollowers,
+	GarrisonFollowerAbilities,
+	TraitEntries,
+	TraitConfigs,
+	Max
+}
+
+enum EnumCharacterQueryLoad
+{
+	Characters,
+	Customizations
 }

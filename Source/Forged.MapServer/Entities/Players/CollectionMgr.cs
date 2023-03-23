@@ -8,7 +8,10 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.H;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Transmogification;
 
 namespace Game.Entities;
 

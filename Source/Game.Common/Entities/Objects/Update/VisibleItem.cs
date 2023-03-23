@@ -1,9 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Networking;
+using Game.Common.Entities.Objects.Update;
+using Game.Entities;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class VisibleItem : BaseUpdateData<Unit>
 {

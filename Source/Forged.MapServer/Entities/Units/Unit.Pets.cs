@@ -7,8 +7,9 @@ using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.Movement;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.Pet;
 
 namespace Game.Entities;
 

@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace Forged.RealmServer.Battlepay;
+namespace Game.Common.Battlepay;
 
-public enum BpayUpdateStatus
+public enum ProductListResult
 {
-	Loading = 9,
-	Ready = 6,
-	Finish = 3
+	Available = 0,
+	LockUnk1 = 1,
+	LockUnk2 = 2,
+	RegionLocked = 3
 }

@@ -2,10 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Chat;
 using Game.Entities;
+using Game.Common.Chat.Channels;
+using Game.Common.Entities.Players;
+using Game.Common.Scripting.Interfaces;
+using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game.Scripting.Interfaces.IPlayer;
+namespace Game.Common.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnChatChannel : IScriptObject
 {

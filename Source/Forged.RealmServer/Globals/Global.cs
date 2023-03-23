@@ -23,6 +23,7 @@ using Forged.RealmServer.Scenarios;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Services;
 using Forged.RealmServer.SupportSystem;
+using Game.Common.Entities.Players;
 
 public static class Global
 {

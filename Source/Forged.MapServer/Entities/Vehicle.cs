@@ -8,6 +8,7 @@ using System.Text;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Scripting.Interfaces.IVehicle;
+using Game.Common.DataStorage.Structs.V;
 
 namespace Game.Entities;
 

@@ -8,7 +8,7 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.Warden;
 
 namespace Forged.RealmServer;
 

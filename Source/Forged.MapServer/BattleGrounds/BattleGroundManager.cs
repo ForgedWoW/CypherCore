@@ -12,7 +12,12 @@ using Game.Arenas;
 using Game.BattleGrounds.Zones;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.B;
+using Game.Common.DataStorage.Structs.P;
+using Game.Common.Globals;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.LFG;
+using Game.Common.Server;
 
 namespace Game.BattleGrounds;
 

@@ -8,6 +8,7 @@ using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Chat;
 

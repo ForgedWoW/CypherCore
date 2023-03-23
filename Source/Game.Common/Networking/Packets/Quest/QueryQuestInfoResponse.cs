@@ -3,8 +3,10 @@
 
 using System;
 using Framework.Constants;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Quest;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Quest;
 
 public class QueryQuestInfoResponse : ServerPacket
 {

@@ -7,8 +7,11 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Social;
+using Game.Common.Networking.Packets.Who;
 
 namespace Forged.RealmServer;
 

@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Quest;
 
 public class QuestGiverInfo
 {

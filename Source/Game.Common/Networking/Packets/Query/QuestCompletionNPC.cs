@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Query;
 
 public class QuestCompletionNPC
 {

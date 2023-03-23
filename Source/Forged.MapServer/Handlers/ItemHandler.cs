@@ -8,8 +8,9 @@ using Framework.Database;
 using Game.BattlePets;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.G;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
 
 namespace Game;
 

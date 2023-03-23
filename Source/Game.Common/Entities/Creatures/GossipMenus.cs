@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Game.Conditions;
 
-namespace Game.Misc;
+namespace Game.Common.Entities.Creatures;
 
 public class GossipMenus
 {

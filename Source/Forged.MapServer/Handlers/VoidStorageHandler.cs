@@ -4,8 +4,9 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.VoidStorage;
 
 namespace Game;
 

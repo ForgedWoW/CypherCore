@@ -7,15 +7,21 @@ using System.Linq;
 using System.Text;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
 using Game.Spells.Auras;
 using Game.Spells.Events;
+using Game.Common.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
+using Game.Entities;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Scripting;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public partial class Unit
 {
@@ -4296,7 +4302,7 @@ public partial class Unit
 	void ProcSkillsAndReactives(bool isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
 	{
 		// Player is loaded now - do not allow passive spell casts to proc
-		if (IsPlayer && AsPlayer.Session.PlayerLoading)
+		if (IsPlayer && AsPlayer.Session.IsPlayerLoading)
 			return;
 
 		// For melee/ranged based attack need update skills and set some Aura states if victim present

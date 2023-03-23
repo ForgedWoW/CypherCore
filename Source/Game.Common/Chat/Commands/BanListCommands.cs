@@ -4,8 +4,9 @@
 using System;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Chat;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("banlist")]
 class BanListCommands

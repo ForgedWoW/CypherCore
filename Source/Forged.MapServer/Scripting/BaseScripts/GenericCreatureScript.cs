@@ -5,6 +5,7 @@ using System;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting.Interfaces.ICreature;
+using Game.Common.Scripting;
 
 namespace Game.Scripting.BaseScripts;
 

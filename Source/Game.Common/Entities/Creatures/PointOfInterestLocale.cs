@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game.Misc;
+namespace Game.Common.Entities.Creatures;
 
 public class PointOfInterestLocale
 {

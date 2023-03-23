@@ -4,8 +4,14 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Loot;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Item;
 
 public class ItemInstance
 {
@@ -31,7 +37,7 @@ public class ItemInstance
 			Modifications.Values.Add(new ItemMod(mod.Value, (ItemModifier)mod.Type));
 	}
 
-	public ItemInstance(Loots.LootItem lootItem)
+	public ItemInstance(LootItem lootItem)
 	{
 		ItemID = lootItem.itemid;
 

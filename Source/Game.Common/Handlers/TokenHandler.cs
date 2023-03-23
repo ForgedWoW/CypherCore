@@ -2,12 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Token;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class TokenHandler
 {
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
 	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)

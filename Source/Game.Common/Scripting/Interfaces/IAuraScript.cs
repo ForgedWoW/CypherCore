@@ -4,8 +4,12 @@
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
+using Game.Common.Scripting.Interfaces;
 
-namespace Game.Scripting.Interfaces;
+namespace Game.Common.Scripting.Interfaces;
 
 public interface IAuraScript : IBaseSpellScript
 {

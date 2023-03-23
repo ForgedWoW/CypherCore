@@ -9,10 +9,19 @@ using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IConversation;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.DataStorage.Structs.U;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Achievements;
+using Game.Common.Networking.Packets.AreaTrigger;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.ClientConfig;
+using Game.Common.Networking.Packets.Instance;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Warden;
 
 namespace Game;
 

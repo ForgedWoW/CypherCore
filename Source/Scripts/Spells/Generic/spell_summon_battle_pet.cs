@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Generic;

@@ -4,6 +4,7 @@
 using System;
 using Game.Entities;
 using Forged.RealmServer.Scripting.Interfaces;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Scripting;
 

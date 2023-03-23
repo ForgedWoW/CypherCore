@@ -4,15 +4,17 @@
 using Framework.Constants;
 using Framework.IO;
 using Game.DataStorage;
+using Game.Common.DataStorage;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Hotfix;
 
 public class DBReply : ServerPacket
 {
 	public uint TableHash;
 	public uint Timestamp;
 	public uint RecordID;
-	public HotfixRecord.Status Status = HotfixRecord.Status.Invalid;
+	public HotfixRecord.Status Status = Game.Common.DataStorage.Status.Invalid;
 
 	public ByteBuffer Data = new();
 	public DBReply() : base(ServerOpcodes.DbReply) { }

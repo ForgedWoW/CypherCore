@@ -4,8 +4,9 @@
 using System;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Networking.Packets.Totem;
 
 namespace Game.Entities;
 

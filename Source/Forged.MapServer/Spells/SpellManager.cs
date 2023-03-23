@@ -15,6 +15,8 @@ using Game.Extendability;
 using Game.Movement;
 using Game.Scripting.Interfaces.ISpellManager;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.B;
+using Game.Common.DataStorage.Structs.S;
 
 namespace Game.Entities;
 

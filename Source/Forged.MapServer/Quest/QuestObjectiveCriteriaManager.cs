@@ -7,8 +7,8 @@ using Forged.MapServer.Achievements;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Achievements;
 
 namespace Game;
 

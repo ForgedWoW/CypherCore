@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Query;
 
 public class GameObjectStats
 {

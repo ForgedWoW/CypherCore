@@ -3,8 +3,9 @@
 
 using Framework.Collections;
 using Framework.Constants;
+using Game;
 
-namespace Game;
+namespace Game.Common.Text;
 
 public class CreatureTextLocale
 {

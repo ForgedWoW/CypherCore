@@ -8,8 +8,11 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
+using Game.Common.Server;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("lookup")]
 class LookupCommands

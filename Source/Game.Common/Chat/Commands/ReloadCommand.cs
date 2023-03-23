@@ -7,8 +7,10 @@ using Framework.IO;
 using Game.Entities;
 using Game.Loots;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Entities.Items;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("reload")]
 class ReloadCommand

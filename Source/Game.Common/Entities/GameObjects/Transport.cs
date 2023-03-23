@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Game.Maps;
+using Game.Common.Entities;
+using Game.Common.Entities.GameObjects;
 
-namespace Game.Entities.GameObjectType;
+namespace Game.Common.Entities.GameObjects;
 
 class Transport : GameObjectTypeBase, ITransport
 {

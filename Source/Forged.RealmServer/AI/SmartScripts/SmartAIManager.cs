@@ -11,6 +11,7 @@ using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Movement;
+using Game.Common.Entities.AreaTriggers;
 
 namespace Forged.RealmServer.AI;
 

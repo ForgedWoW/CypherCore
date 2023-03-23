@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.BattlePets;
-using Game.Entities;
-using Forged.RealmServer.Networking.Packets.Bpay;
+using Game.Common.Battlepay;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking.Packets.Bpay;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Forged.RealmServer.Battlepay;
+namespace Game.Common.Battlepay;
 
 public class BattlepayManager
 {

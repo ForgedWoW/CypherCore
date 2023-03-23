@@ -6,8 +6,10 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 class SpellCommands
 {

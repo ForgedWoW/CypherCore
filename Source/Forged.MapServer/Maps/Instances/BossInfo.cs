@@ -6,6 +6,7 @@ using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.DataStorage.Structs.D;
 
 namespace Game.Maps;
 

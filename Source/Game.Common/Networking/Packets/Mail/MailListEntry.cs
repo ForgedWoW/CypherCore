@@ -6,8 +6,12 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Mails;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Mail;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Mail;
 
 public class MailListEntry
 {

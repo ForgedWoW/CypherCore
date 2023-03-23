@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Entities.AreaTriggers;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.AreaTriggers;
 
 /// <summary>
 ///  Scale array definition

@@ -7,7 +7,6 @@ using Framework.Constants;
 using Game.AI;
 using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.EasternKingdoms.BlackrockMountain.MoltenCore.Shazzrah;

@@ -8,9 +8,10 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Groups;
-using Game.Networking;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Chat;
 
 namespace Forged.RealmServer;
 

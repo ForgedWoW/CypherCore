@@ -9,10 +9,10 @@ using Framework.Dynamic;
 using Framework.Models;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Networking.Packets.Spell;
 
 namespace Game.Spells;
 

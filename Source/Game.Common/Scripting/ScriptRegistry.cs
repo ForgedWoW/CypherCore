@@ -4,9 +4,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Game.Scripting.Interfaces;
+using Game.Scripting;
+using Game.Common.Scripting.Interfaces;
 
-namespace Game.Scripting;
+namespace Game.Common.Scripting;
 
 public class ScriptRegistry
 {

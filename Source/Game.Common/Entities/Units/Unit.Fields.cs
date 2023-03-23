@@ -11,8 +11,17 @@ using Game.DataStorage;
 using Game.Movement;
 using Game.Spells;
 using Game.Spells.Auras;
+using Game.Common.DataStorage.Structs.L;
+using Game.Common.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public partial class Unit
 {

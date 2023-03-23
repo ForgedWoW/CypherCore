@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Networking;
+using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public abstract class BaseUpdateData<T> : IHasChangesMask
 {

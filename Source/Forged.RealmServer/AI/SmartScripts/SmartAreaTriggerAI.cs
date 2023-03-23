@@ -3,6 +3,8 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

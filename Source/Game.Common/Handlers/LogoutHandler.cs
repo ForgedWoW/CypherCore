@@ -2,44 +2,51 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class LogoutHandler
 {
-	[WorldPacketHandler(ClientOpcodes.LogoutRequest)]
+    private readonly WorldSession _session;
+
+    public LogoutHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.LogoutRequest)]
 	void HandleLogoutRequest(LogoutRequest packet)
 	{
-		var pl = Player;
 
-		if (!Player.GetLootGUID().IsEmpty)
-			Player.SendLootReleaseAll();
+		if (!_session.Player.GetLootGUID().IsEmpty)
+            _session.Player.SendLootReleaseAll();
 
-		var instantLogout = (pl.HasPlayerFlag(PlayerFlags.Resting) && !pl.IsInCombat ||
-							pl.IsInFlight ||
-							HasPermission(RBACPermissions.InstantLogout));
+		var instantLogout = (_session.Player.HasPlayerFlag(PlayerFlags.Resting) && !_session.Player.IsInCombat ||
+                             _session.Player.IsInFlight ||
+                             _session.HasPermission(RBACPermissions.InstantLogout));
 
-		var canLogoutInCombat = pl.HasPlayerFlag(PlayerFlags.Resting);
+		var canLogoutInCombat = _session.Player.HasPlayerFlag(PlayerFlags.Resting);
 
 		var reason = 0;
 
-		if (pl.IsInCombat && !canLogoutInCombat)
+		if (_session.Player.IsInCombat && !canLogoutInCombat)
 			reason = 1;
-		else if (pl.IsFalling)
+		else if (_session.Player.IsFalling)
 			reason = 3;                               // is jumping or falling
-		else if (pl.Duel != null || pl.HasAura(9454)) // is dueling or frozen by GM via freeze command
+		else if (_session.Player.Duel != null || _session.Player.HasAura(9454)) // is dueling or frozen by GM via freeze command
 			reason = 2;                               // FIXME - Need the correct value
 
 		LogoutResponse logoutResponse = new();
 		logoutResponse.LogoutResult = reason;
 		logoutResponse.Instant = instantLogout;
-		SendPacket(logoutResponse);
+		_session.SendPacket(logoutResponse);
 
 		if (reason != 0)
 		{
-			SetLogoutStartTime(0);
+            _session.SetLogoutStartTime(0);
 
 			return;
 		}
@@ -47,46 +54,46 @@ public partial class WorldSession
 		// instant logout in taverns/cities or on taxi or for admins, gm's, mod's if its enabled in worldserver.conf
 		if (instantLogout)
 		{
-			LogoutPlayer(true);
+            _session.LogoutPlayer(true);
 
 			return;
 		}
 
 		// not set flags if player can't free move to prevent lost state at logout cancel
-		if (pl.CanFreeMove())
+		if (_session.Player.CanFreeMove())
 		{
-			if (pl.StandState == UnitStandStateType.Stand)
-				pl.SetStandState(UnitStandStateType.Sit);
+			if (_session.Player.StandState == UnitStandStateType.Stand)
+				_session.Player.SetStandState(UnitStandStateType.Sit);
 
-			pl.SetRooted(true);
-			pl.SetUnitFlag(UnitFlags.Stunned);
+			_session.Player.SetRooted(true);
+			_session.Player.SetUnitFlag(UnitFlags.Stunned);
 		}
 
-		SetLogoutStartTime(GameTime.GetGameTime());
+        _session.SetLogoutStartTime(GameTime.GetGameTime());
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LogoutCancel)]
 	void HandleLogoutCancel(LogoutCancel packet)
 	{
 		// Player have already logged out serverside, too late to cancel
-		if (!Player)
+		if (!_session.Player)
 			return;
 
-		SetLogoutStartTime(0);
+        _session.SetLogoutStartTime(0);
 
-		SendPacket(new LogoutCancelAck());
+        _session.SendPacket(new LogoutCancelAck());
 
 		// not remove flags if can't free move - its not set in Logout request code.
-		if (Player.CanFreeMove())
+		if (_session.Player.CanFreeMove())
 		{
-			//!we can move again
-			Player.SetRooted(false);
+            //!we can move again
+            _session.Player.SetRooted(false);
 
-			//! Stand Up
-			Player.SetStandState(UnitStandStateType.Stand);
+            //! Stand Up
+            _session.Player.SetStandState(UnitStandStateType.Stand);
 
-			//! DISABLE_ROTATE
-			Player.RemoveUnitFlag(UnitFlags.Stunned);
+            //! DISABLE_ROTATE
+            _session.Player.RemoveUnitFlag(UnitFlags.Stunned);
 		}
 	}
 }

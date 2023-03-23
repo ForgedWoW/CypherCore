@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Database;
+using Game;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Server;
 
 class AccountInfoQueryHolder : SQLQueryHolder<AccountInfoQueryLoad>
 {

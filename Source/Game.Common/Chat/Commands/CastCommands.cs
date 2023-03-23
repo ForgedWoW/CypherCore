@@ -5,8 +5,10 @@ using System;
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("cast")]
 class CastCommands

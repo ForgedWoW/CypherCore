@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Common.Chat;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("instance")]
 class InstanceCommands

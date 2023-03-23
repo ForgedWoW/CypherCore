@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Services;
+namespace Game.Common.Services;
 
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class ServiceAttribute : Attribute

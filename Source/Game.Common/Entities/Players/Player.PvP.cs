@@ -7,10 +7,19 @@ using Framework.Constants;
 using Framework.Database;
 using Game.BattleGrounds;
 using Game.DataStorage;
-using Game.Networking.Packets;
 using Game.PvP;
+using Game.Common.DataStorage.Structs.R;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Entities.Units;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {
@@ -571,7 +580,7 @@ public partial class Player
 				_bgData.BgAfkReporter.Clear();
 				reportAfkResult.NumBlackMarksOnOffender = (byte)_bgData.BgAfkReporter.Count;
 				reportAfkResult.NumPlayersIHaveReported = reporter._bgData.BgAfkReportedCount;
-				reportAfkResult.Result = ReportPvPPlayerAFKResult.ResultCode.Success;
+				reportAfkResult.Result = Game.Common.Networking.Packets.BattleGround.ResultCode.Success;
 			}
 		}
 

@@ -5,8 +5,12 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Authentication;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Party;
 
 public class PartyInvite : ServerPacket
 {

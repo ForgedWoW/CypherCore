@@ -3,13 +3,16 @@
 
 using Framework.Configuration;
 using Framework.Constants;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.Authentication;
+using Game.Common.Networking.Packets.ClientConfig;
+using Game.Common.Networking.Packets.System;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
 public class AuthenticationHandler
 {
-    private WorldSession _session;
+    private readonly WorldSession _session;
     private readonly Realm _realm;
     private readonly uint _virtualRealmAddress;
 

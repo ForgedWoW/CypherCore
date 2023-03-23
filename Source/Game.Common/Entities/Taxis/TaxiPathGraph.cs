@@ -8,8 +8,11 @@ using Framework.Algorithms;
 using Framework.Collections;
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.T;
+using Game.Common.Entities.Players;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Taxis;
 
 public class TaxiPathGraph
 {

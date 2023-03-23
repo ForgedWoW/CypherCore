@@ -3,8 +3,10 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Entities;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("pet")]
 class PetCommands

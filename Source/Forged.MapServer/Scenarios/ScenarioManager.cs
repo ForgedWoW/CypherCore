@@ -9,6 +9,7 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Common.DataStorage.Structs.S;
 
 namespace Game.Scenarios;
 

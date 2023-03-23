@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class CommandAttribute : Attribute

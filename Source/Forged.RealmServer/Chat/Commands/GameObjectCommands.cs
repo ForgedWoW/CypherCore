@@ -11,6 +11,8 @@ using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Maps.Grids;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Chat;
 

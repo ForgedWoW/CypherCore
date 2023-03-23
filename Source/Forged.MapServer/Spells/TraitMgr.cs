@@ -7,7 +7,8 @@ using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.T;
+using Game.Common.Networking.Packets.Trait;
 
 namespace Game;
 

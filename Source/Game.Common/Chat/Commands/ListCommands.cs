@@ -9,8 +9,12 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("list")]
 class ListCommands

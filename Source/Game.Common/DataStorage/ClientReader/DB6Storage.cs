@@ -12,8 +12,10 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
 using Framework.IO;
+using Game.DataStorage;
+using Game.Common.DataStorage.ClientReader;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 [Serializable]
 public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()

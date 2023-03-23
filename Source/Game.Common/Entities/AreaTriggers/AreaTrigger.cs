@@ -8,14 +8,20 @@ using System.Numerics;
 using Framework.Constants;
 using Game.Maps;
 using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
+using Game.Common.Entities.AreaTriggers;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.AreaTrigger;
+using Game.Common.Scripting.Interfaces;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.AreaTriggers;
 
 public class AreaTrigger : WorldObject
 {

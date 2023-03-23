@@ -18,10 +18,22 @@ using Game.Loots;
 using Game.Mails;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Misc;
 using Game.Movement;
+using Game.Common.DataStorage.Structs.D;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Globals;
 
 public sealed class ObjectManager : Singleton<ObjectManager>
 {

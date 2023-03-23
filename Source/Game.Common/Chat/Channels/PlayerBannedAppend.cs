@@ -3,9 +3,11 @@
 
 using Framework.Constants;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Chat.Channels;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking.Packets.Channel;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Channels;
 
 struct PlayerBannedAppend : IChannelAppender
 {

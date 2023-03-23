@@ -10,8 +10,10 @@ using Framework.Dynamic;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IUnit;
+using Game.Common.Globals;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.Misc;
 
 namespace Game.Spells;
 

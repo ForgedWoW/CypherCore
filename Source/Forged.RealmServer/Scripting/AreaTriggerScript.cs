@@ -5,6 +5,7 @@ using Framework.Constants;
 using Game.Entities;
 using Forged.RealmServer.Scripting.Interfaces;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.AreaTriggers;
 
 namespace Forged.RealmServer.Scripting;
 

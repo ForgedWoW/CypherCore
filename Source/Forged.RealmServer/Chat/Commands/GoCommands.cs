@@ -9,6 +9,9 @@ using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.SupportSystem;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Chat.Commands;
 

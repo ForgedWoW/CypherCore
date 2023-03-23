@@ -4,13 +4,13 @@
 using System.Collections.Generic;
 using Forged.MapServer.Achievements;
 using Framework.Constants;
-using Game.Chat;
 using Game.Garrisons;
-using Game.Groups;
 using Game.Loots;
 using Game.Mails;
-using Game.Misc;
 using Game.Spells;
+using Game.Common.Chat.Channels;
+using Game.Common.Groups;
+using Game.Common.Loot;
 
 namespace Game.Entities;
 

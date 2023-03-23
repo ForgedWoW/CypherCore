@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.Maps;
-using Game.Networking;
+using Game.Common.Networking;
 
 namespace Game.Entities;
 

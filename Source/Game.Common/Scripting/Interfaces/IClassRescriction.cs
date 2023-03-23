@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces;
+namespace Game.Common.Scripting.Interfaces;
 
 public interface IClassRescriction
 {

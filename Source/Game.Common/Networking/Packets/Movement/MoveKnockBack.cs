@@ -4,8 +4,11 @@
 using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Movement;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Movement;
 
 public class MoveKnockBack : ServerPacket
 {

@@ -4,6 +4,7 @@
 using System;
 using Game.Entities;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IPlayer;
 

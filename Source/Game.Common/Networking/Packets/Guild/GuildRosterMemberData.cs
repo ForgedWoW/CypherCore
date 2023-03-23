@@ -3,8 +3,12 @@
 
 using System;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Guild;
+using Game.Common.Networking.Packets.MythicPlus;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Guild;
 
 public class GuildRosterMemberData
 {

@@ -3,6 +3,8 @@
 
 using Game.Entities;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.AI;
 

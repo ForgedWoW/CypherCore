@@ -9,8 +9,11 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Mails;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Mail;
+using Game.Common.Networking.Packets.NPC;
+using Game.Common.Server;
 
 namespace Game;
 

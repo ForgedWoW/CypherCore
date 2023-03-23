@@ -12,6 +12,10 @@ using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Maps.Interfaces;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer;
 

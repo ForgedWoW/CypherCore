@@ -4,8 +4,9 @@
 using System;
 using Framework.Constants;
 using Game.Arenas;
+using Game.Common.Chat;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("arena")]
 class ArenaCommands

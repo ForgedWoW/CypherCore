@@ -14,11 +14,24 @@ using Game.Garrisons;
 using Game.Mails;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.T;
+using Game.Common.Entities;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game.Common.Handlers;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Trait;
+using Game.Common.Scripting.Interfaces.IPlayer;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {
@@ -3563,7 +3576,7 @@ public partial class Player
 
 				StoredAuraTeleportLocation storedLocation = new();
 				storedLocation.Loc = location;
-				storedLocation.CurrentState = StoredAuraTeleportLocation.State.Unchanged;
+				storedLocation.CurrentState = Game.Common.Entities.Players.State.Unchanged;
 
 				_storedAuraTeleportLocations[spellId] = storedLocation;
 			} while (result.NextRow());
@@ -3616,7 +3629,7 @@ public partial class Player
 		{
 			EquipmentSetInfo eqSet = new();
 			eqSet.Data.Guid = result.Read<ulong>(0);
-			eqSet.Data.Type = EquipmentSetInfo.EquipmentSetType.Equipment;
+			eqSet.Data.Type = Game.Common.Entities.Players.EquipmentSetType.Equipment;
 			eqSet.Data.SetId = result.Read<byte>(1);
 			eqSet.Data.SetName = result.Read<string>(2);
 			eqSet.Data.SetIcon = result.Read<string>(3);
@@ -3655,7 +3668,7 @@ public partial class Player
 			EquipmentSetInfo eqSet = new();
 
 			eqSet.Data.Guid = result.Read<ulong>(0);
-			eqSet.Data.Type = EquipmentSetInfo.EquipmentSetType.Transmog;
+			eqSet.Data.Type = Game.Common.Entities.Players.EquipmentSetType.Transmog;
 			eqSet.Data.SetId = result.Read<byte>(1);
 			eqSet.Data.SetName = result.Read<string>(2);
 			eqSet.Data.SetIcon = result.Read<string>(3);
@@ -4558,7 +4571,7 @@ public partial class Player
 		{
 			var storedLocation = pair.Value;
 
-			if (storedLocation.CurrentState == StoredAuraTeleportLocation.State.Deleted)
+			if (storedLocation.CurrentState == Game.Common.Entities.Players.State.Deleted)
 			{
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATION);
 				stmt.AddValue(0, GUID.Counter);
@@ -4568,7 +4581,7 @@ public partial class Player
 				continue;
 			}
 
-			if (storedLocation.CurrentState == StoredAuraTeleportLocation.State.Changed)
+			if (storedLocation.CurrentState == Game.Common.Entities.Players.State.Changed)
 			{
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_AURA_STORED_LOCATION);
 				stmt.AddValue(0, GUID.Counter);
@@ -4638,7 +4651,7 @@ public partial class Player
 				case EquipmentSetUpdateState.Unchanged:
 					break; // do nothing
 				case EquipmentSetUpdateState.Changed:
-					if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+					if (eqSet.Data.Type == Game.Common.Entities.Players.EquipmentSetType.Equipment)
 					{
 						stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_EQUIP_SET);
 						stmt.AddValue(j++, eqSet.Data.SetName);
@@ -4676,7 +4689,7 @@ public partial class Player
 
 					break;
 				case EquipmentSetUpdateState.New:
-					if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+					if (eqSet.Data.Type == Game.Common.Entities.Players.EquipmentSetType.Equipment)
 					{
 						stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_EQUIP_SET);
 						stmt.AddValue(j++, GUID.Counter);
@@ -4712,7 +4725,7 @@ public partial class Player
 
 					break;
 				case EquipmentSetUpdateState.Deleted:
-					if (eqSet.Data.Type == EquipmentSetInfo.EquipmentSetType.Equipment)
+					if (eqSet.Data.Type == Game.Common.Entities.Players.EquipmentSetType.Equipment)
 						stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EQUIP_SET);
 					else
 						stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_TRANSMOG_OUTFIT);

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 

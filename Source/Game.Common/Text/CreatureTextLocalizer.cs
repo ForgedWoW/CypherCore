@@ -3,10 +3,12 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Chat;
 using Game.Entities;
+using Game.Common.Entities.Players;
+using Game.Common.Text;
+using Game;
 
-namespace Game;
+namespace Game.Common.Text;
 
 public class CreatureTextLocalizer : IDoWork<Player>
 {

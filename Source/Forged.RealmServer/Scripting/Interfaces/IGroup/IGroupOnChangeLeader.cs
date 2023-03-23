@@ -3,6 +3,7 @@
 
 using Game.Entities;
 using Forged.RealmServer.Groups;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IGroup;
 

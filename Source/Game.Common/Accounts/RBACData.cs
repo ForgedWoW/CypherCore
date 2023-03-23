@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Accounts;
 
-namespace Game.Accounts;
+namespace Game.Common.Accounts;
 
 public class RBACData
 {

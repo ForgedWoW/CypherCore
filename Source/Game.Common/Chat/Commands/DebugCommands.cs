@@ -9,10 +9,21 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
+using Game.Common.Chat;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game.Common.Networking.Packets.Channel;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("debug")]
 class DebugCommands

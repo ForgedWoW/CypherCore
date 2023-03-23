@@ -13,6 +13,10 @@ using Game.Entities;
 using Game.Loots;
 using Game.Maps;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.P;
+using Game.Common.DataStorage.Structs.U;
+using Game.Common.DataStorage.Structs.W;
+using Game.Common.Server;
 
 namespace Game;
 

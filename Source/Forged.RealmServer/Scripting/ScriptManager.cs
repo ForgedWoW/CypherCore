@@ -25,6 +25,9 @@ using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Scripting.Interfaces.ISpell;
 using Forged.RealmServer.Scripting.Registers;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Scripting;
 

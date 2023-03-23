@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using Framework.Configuration;
 using Framework.Constants;
-using Game.Scripting.Interfaces.IWorld;
+using Game.Common.Scripting.Interfaces.IWorld;
+using Game;
 
-namespace Game;
+namespace Game.Common.Server;
 
 public class WorldConfig : ConfigMgr
 {

@@ -10,8 +10,17 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
 using Game.Scripting.Interfaces.ITransport;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class Transport : GameObject, ITransport
 {

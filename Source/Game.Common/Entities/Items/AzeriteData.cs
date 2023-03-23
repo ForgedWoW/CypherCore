@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.A;
+using Game.Entities;
+using Game.Common.Entities.Items;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class AzeriteData
 {

@@ -7,12 +7,13 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Social;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class SocialHandler
 {
 	[WorldPacketHandler(ClientOpcodes.SocialContractRequest)]
 	void HandleSocialContractRequest(SocialContractRequest socialContractRequest)

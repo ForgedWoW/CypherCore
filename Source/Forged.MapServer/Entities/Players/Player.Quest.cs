@@ -8,11 +8,17 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Mails;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IQuest;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.DataStorage.Structs.Q;
+using Game.Common.Globals;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Quest;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

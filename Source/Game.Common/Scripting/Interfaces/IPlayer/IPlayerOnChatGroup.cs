@@ -3,9 +3,12 @@
 
 using Framework.Constants;
 using Game.Entities;
-using Game.Groups;
+using Game.Common.Entities.Players;
+using Game.Common.Groups;
+using Game.Common.Scripting.Interfaces;
+using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game.Scripting.Interfaces.IPlayer;
+namespace Game.Common.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnChatGroup : IScriptObject
 {

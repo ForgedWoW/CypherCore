@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.BattlePets;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.NPC;
 
 namespace Game.Entities;
 

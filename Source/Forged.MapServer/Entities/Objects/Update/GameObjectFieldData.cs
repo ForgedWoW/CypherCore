@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
-using Game.Networking;
+using Game.Common.Networking;
 
 namespace Game.Entities;
 

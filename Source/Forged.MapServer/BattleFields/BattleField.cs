@@ -6,10 +6,12 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
-using Game.Groups;
 using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Globals;
+using Game.Common.Groups;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.Misc;
 
 namespace Game.BattleFields;
 

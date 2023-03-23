@@ -8,8 +8,13 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.C;
+using Game.Common.Entities.Items;
+using Game.Common.Globals;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 class CommandArgs
 {

@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Framework.Constants;
-using Game.Chat;
 using Game.Conditions;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
+using Game.Common.Chat;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Party;
 
 namespace Game;
 

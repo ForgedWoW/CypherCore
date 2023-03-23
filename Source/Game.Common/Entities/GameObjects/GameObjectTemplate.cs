@@ -3,9 +3,11 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
-using Game.Networking.Packets;
+using Game.Common.Entities.GameObjects;
+using Game.Entities;
+using Game.Common.Networking.Packets.Query;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.GameObjects;
 
 [StructLayout(LayoutKind.Explicit)]
 public class GameObjectTemplate

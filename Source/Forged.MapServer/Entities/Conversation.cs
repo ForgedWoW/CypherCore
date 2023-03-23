@@ -7,9 +7,9 @@ using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
-using Game.Networking;
 using Game.Scripting.Interfaces.IConversation;
 using Game.Spells;
+using Game.Common.Networking;
 
 namespace Game.Entities;
 

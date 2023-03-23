@@ -3,8 +3,10 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
+using Game.Common.DataStorage.ClientReader;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 [StructLayout(LayoutKind.Explicit)]
 public struct ColumnMetaData

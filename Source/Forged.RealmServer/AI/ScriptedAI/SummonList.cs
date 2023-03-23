@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Game.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.AI;
 

@@ -7,8 +7,11 @@ using Framework.Constants;
 using Framework.Dynamic;
 using Game.Movement;
 using Game.Scripting.Interfaces.IVehicle;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class VehicleJoinEvent : BasicEvent
 {

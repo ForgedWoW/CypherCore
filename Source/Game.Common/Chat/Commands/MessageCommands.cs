@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Networking.Packets;
+using Game.Common.Chat;
+using Game.Common.Networking.Packets.Chat;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 class MessageCommands
 {

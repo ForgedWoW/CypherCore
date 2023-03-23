@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Game.Entities;
-using Game.Networking;
+using Game.Common.Networking;
 
 namespace Game.Maps;
 

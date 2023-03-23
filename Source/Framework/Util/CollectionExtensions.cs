@@ -45,12 +45,12 @@ public static class CollectionExtensions
     /// <param name="dict"> The dictionary to operate on. </param>
     /// <param name="key"> The key of the element to retrieve. </param>
     /// <returns> The value (if any). </returns>
-    public static TValue LookupByKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, object key)
-	{
-		var newkey = (TKey)Convert.ChangeType(key, typeof(TKey));
+ //   public static TValue LookupByKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, object key)
+	//{
+	//	var newkey = (TKey)Convert.ChangeType(key, typeof(TKey));
 
-		return dict.TryGetValue(newkey, out var val) ? val : default;
-	}
+	//	return dict.TryGetValue(newkey, out var val) ? val : default;
+	//}
 
 	public static TValue LookupByKey<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
 	{

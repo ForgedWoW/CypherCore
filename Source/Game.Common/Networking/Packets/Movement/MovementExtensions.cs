@@ -6,8 +6,10 @@ using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
 using Game.Movement;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Movement;
 
 public static class MovementExtensions
 {

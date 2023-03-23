@@ -5,10 +5,11 @@ using System;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
-using Game.Groups;
-using Game.Networking.Packets;
 using Game.Scenarios;
 using Game.Scripting.Interfaces.IMap;
+using Game.Common.Groups;
+using Game.Common.Networking.Packets.Instance;
+using Game.Common.Server;
 
 namespace Game.Maps;
 

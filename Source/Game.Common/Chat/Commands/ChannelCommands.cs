@@ -5,8 +5,11 @@ using System;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
+using Game.Common.Chat;
+using Game.Common.Chat.Channels;
+using Game.Common.DataStorage.Structs.A;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("channel")]
 class ChannelCommands

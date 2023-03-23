@@ -7,8 +7,11 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.NPC;
+using Game.Common.Networking.Packets.Pet;
 
 namespace Game;
 

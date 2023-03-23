@@ -6,12 +6,13 @@ using Bgs.Protocol.GameUtilities.V1;
 using Framework.Constants;
 using Framework.Serialization;
 using Framework.Web;
-using Game.Services;
 using Google.Protobuf;
+using Game.Common.Services;
+using Game;
 
-namespace Game;
+namespace Game.Common.Services;
 
-public partial class WorldSession
+public class RealmRequestService
 {
 	[Service(OriginalHash.GameUtilitiesService, 1)]
 	BattlenetRpcErrorCode HandleProcessClientRequest(ClientRequest request, ClientResponse response)

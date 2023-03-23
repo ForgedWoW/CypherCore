@@ -7,14 +7,23 @@ using System.Linq;
 using Framework.Constants;
 using Game.Combat;
 using Game.DataStorage;
-using Game.Groups;
 using Game.Loots;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.D;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Entities;
+using Game.Common.Groups;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Party;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public partial class Unit
 {
@@ -904,7 +913,7 @@ public partial class Unit
 						var group = !groups.Empty() ? groups.First() : null;
 						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
-						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
+						Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
 						var lootid = creature.LootId;
 
@@ -930,7 +939,7 @@ public partial class Unit
 				{
 					foreach (var tapper in tappers)
 					{
-						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
+						Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
 
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);

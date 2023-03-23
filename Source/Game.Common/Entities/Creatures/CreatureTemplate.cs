@@ -4,9 +4,12 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Networking.Packets;
+using Game.Common.Entities.Creatures;
+using Game.Entities;
+using Game.Common.Networking.Packets.Query;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 public class CreatureTemplate
 {

@@ -8,8 +8,11 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
+using Game.Common.Networking.Packets.BattlePet;
 
 namespace Forged.RealmServer.BattlePets;
 

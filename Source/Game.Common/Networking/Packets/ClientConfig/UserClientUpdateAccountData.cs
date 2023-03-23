@@ -4,8 +4,10 @@
 using Framework.Constants;
 using Framework.IO;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.ClientConfig;
 
 public class UserClientUpdateAccountData : ClientPacket
 {

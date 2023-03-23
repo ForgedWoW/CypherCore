@@ -4,8 +4,11 @@
 using System;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Social;
 
 public class FriendStatusPkt : ServerPacket
 {

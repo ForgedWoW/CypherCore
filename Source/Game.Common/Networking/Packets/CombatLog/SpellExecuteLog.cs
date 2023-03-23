@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Game.Spells;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking.Packets.CombatLog;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.CombatLog;
 
 public class SpellExecuteLog : CombatLogServerPacket
 {

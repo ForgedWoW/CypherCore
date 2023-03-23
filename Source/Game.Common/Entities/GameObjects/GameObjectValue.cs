@@ -4,8 +4,10 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Maps;
+using Game.Common.Entities.GameObjects;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.GameObjects;
 
 public struct GameObjectValue
 {

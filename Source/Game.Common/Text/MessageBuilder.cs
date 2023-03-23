@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Game.Common.Text;
 
 public class MessageBuilder
 {

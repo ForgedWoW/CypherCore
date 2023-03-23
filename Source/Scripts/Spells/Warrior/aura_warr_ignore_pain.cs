@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Models;
 using Game.Entities;
-using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IAura;
 using Game.Spells;

@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using static Scripts.EasternKingdoms.Deadmines.Bosses.boss_captain_cookie;
 

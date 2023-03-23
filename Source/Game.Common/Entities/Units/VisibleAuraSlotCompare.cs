@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using Game.Spells;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 class VisibleAuraSlotCompare : IComparer<AuraApplication>
 {

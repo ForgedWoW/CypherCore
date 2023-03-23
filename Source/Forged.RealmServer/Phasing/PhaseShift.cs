@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.RealmServer.Conditions;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer;
 

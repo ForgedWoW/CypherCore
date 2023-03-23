@@ -6,14 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Framework.Constants;
-using Game.Chat;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Misc;
 using Game.Movement;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.Globals;
+using Game.Common.Text;
 
 namespace Game.AI;
 

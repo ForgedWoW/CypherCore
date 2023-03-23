@@ -8,8 +8,11 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Reputation;
+using Game.Common.Server;
 
 namespace Game;
 

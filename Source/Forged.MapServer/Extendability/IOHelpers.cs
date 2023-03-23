@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Game.Scripting.Activators;
+using Game.Common.Scripting.Activators;
 
 namespace Game.Extendability;
 

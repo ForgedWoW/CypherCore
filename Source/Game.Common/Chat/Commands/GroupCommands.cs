@@ -9,9 +9,12 @@ using Framework.IO;
 using Game.DataStorage;
 using Game.DungeonFinding;
 using Game.Entities;
-using Game.Groups;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Groups;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("group")]
 class GroupCommands

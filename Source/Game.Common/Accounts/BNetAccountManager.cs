@@ -5,8 +5,10 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using Framework.Database;
+using Game.Common.Accounts;
+using Game;
 
-namespace Game;
+namespace Game.Common.Accounts;
 
 public sealed class BNetAccountManager : Singleton<BNetAccountManager>
 {

@@ -4,8 +4,10 @@
 using System;
 using Framework.Constants;
 using Game.Spells;
+using Game.Common.Entities.Units;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public class DamageInfo
 {

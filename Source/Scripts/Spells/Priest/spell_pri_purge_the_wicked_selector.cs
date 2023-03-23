@@ -6,7 +6,6 @@ using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 
 namespace Scripts.Spells.Priest;

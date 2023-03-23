@@ -3,8 +3,10 @@
 
 using System;
 using Framework.Constants;
+using Game.Common.Entities.Objects;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects;
 
 public struct ObjectGuid : IEquatable<ObjectGuid>
 {

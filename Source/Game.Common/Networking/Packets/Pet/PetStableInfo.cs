@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Pet;
 
 struct PetStableInfo
 {

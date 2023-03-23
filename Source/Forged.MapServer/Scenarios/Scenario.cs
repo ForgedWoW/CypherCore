@@ -7,8 +7,10 @@ using Forged.MapServer.Achievements;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Achievements;
+using Game.Common.Networking.Packets.Scenario;
 
 namespace Game.Scenarios;
 

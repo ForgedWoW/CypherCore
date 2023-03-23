@@ -8,10 +8,17 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.M;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Networking.Packets.Instance;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {

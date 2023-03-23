@@ -6,8 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.DataStorage;
+using Game.Common.DataStorage.Structs.C;
+using Game.Common.Entities;
+using Game.Common.Entities.Objects;
+using Game.Entities;
+using Game.Common.Entities.Players;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class CinematicManager : IDisposable
 {

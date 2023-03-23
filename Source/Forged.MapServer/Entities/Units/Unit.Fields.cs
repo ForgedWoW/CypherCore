@@ -11,6 +11,7 @@ using Game.DataStorage;
 using Game.Movement;
 using Game.Spells;
 using Game.Spells.Auras;
+using Game.Common.DataStorage.Structs.L;
 
 namespace Game.Entities;
 

@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Game.Scenarios;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Scenario;
 
 struct ScenarioPOIData
 {

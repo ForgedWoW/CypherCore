@@ -3,8 +3,10 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Entities.Creatures;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 public class VendorItemData
 {

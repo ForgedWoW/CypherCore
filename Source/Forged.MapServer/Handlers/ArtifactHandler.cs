@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Artifact;
 
 namespace Game;
 

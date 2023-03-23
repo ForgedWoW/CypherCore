@@ -4,6 +4,7 @@
 using Framework.Constants;
 using Forged.RealmServer.Chat;
 using Game.Entities;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IPlayer;
 

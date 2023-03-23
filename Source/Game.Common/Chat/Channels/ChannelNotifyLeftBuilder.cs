@@ -3,9 +3,11 @@
 
 using Framework.Constants;
 using Game.Maps;
-using Game.Networking.Packets;
+using Game.Common.Chat.Channels;
+using Game.Common.Networking.Packets.Channel;
+using Game.Common.Text;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Channels;
 
 class ChannelNotifyLeftBuilder : MessageBuilder
 {

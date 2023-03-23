@@ -8,21 +8,27 @@ using Game.Arenas;
 using Game.BattleFields;
 using Game.BattleGrounds;
 using Game.BlackMarket;
-using Game.Cache;
-using Game.Chat;
 using Game.Collision;
 using Game.DataStorage;
 using Game.DungeonFinding;
 using Game.Entities;
 using Game.Garrisons;
-using Game.Groups;
 using Game.Loots;
 using Game.Maps;
 using Game.PvP;
 using Game.Scenarios;
 using Game.Scripting;
-using Game.Services;
 using Game.SupportSystem;
+using Game.Common.Accounts;
+using Game.Common.Cache;
+using Game.Common.Chat;
+using Game.Common.DataStorage;
+using Game.Common.Entities.Players;
+using Game.Common.Globals;
+using Game.Common.Groups;
+using Game.Common.Scripting;
+using Game.Common.Text;
+using Game.Common.Warden;
 
 public static class Global
 {
@@ -38,25 +44,16 @@ public static class Global
 	}
 
     public static RealmManager RealmMgr
-	{
-		get { return RealmManager.Instance; }
-	}
+    {
+        get { return RealmManager.Instance; }
+    }
 
-	public static WorldServiceManager ServiceMgr
-	{
-		get { return WorldServiceManager.Instance; }
-	}
-
-	//Guild
+    //Guild
 	public static PetitionManager PetitionMgr
 	{
 		get { return PetitionManager.Instance; }
 	}
 
-	public static GuildManager GuildMgr
-	{
-		get { return GuildManager.Instance; }
-	}
 
 	//Social
 	public static CalendarManager CalendarMgr

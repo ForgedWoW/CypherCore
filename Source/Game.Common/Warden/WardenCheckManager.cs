@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Server;
+using Game.Common.Warden;
+using Game;
 
-namespace Game;
+namespace Game.Common.Warden;
 
 public class WardenCheckManager : Singleton<WardenCheckManager>
 {

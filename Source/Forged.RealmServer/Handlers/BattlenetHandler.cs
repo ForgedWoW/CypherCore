@@ -3,9 +3,9 @@
 
 using System;
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
 using Google.Protobuf;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Battlenet;
 
 namespace Forged.RealmServer;
 

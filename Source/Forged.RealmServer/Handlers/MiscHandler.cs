@@ -9,10 +9,15 @@ using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IConversation;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Achievements;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.ClientConfig;
+using Game.Common.Networking.Packets.Instance;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Spell;
 
 namespace Forged.RealmServer;
 

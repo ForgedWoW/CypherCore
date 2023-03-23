@@ -7,8 +7,9 @@ using System.Linq;
 using System.Reflection;
 using Framework.Configuration;
 using Framework.Database;
+using Game.Common.Chat;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 public class CommandManager
 {

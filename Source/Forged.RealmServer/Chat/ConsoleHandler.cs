@@ -4,6 +4,7 @@
 using System;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Chat;
 

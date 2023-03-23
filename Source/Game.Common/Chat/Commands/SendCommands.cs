@@ -8,8 +8,10 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Game.Mails;
+using Game.Common.Chat;
+using Game.Common.Entities.Items;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("send")]
 class SendCommands

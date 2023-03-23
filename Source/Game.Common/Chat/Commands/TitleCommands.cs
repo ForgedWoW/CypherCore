@@ -6,8 +6,10 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("titles")]
 class TitleCommands

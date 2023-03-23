@@ -7,7 +7,9 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Arenas;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking.Packets.Misc;
 
 namespace Forged.RealmServer.Cache;
 

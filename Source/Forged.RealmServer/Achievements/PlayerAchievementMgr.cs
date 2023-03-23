@@ -10,9 +10,12 @@ using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Mails;
 using Forged.RealmServer.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Achievements;
 
 namespace Forged.RealmServer.Achievements;
 
@@ -335,7 +338,7 @@ public class PlayerAchievementMgr : AchievementManager
 				guild.AddGuildNews(GuildNews.PlayerAchievement, referencePlayer.GUID, (uint)(achievement.Flags & AchievementFlags.ShowInGuildHeader), achievement.Id);
 		}
 
-		if (!_owner.Session.PlayerLoading)
+		if (!_owner.Session.IsPlayerLoading)
 			SendAchievementEarned(achievement);
 
 		Log.outDebug(LogFilter.Achievement, "PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());

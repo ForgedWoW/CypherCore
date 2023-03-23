@@ -3,9 +3,13 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Groups;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Groups;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {

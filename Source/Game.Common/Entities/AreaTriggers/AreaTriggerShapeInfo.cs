@@ -3,8 +3,10 @@
 
 using System;
 using Framework.Constants;
+using Game.Common.Entities.AreaTriggers;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.AreaTriggers;
 
 public class AreaTriggerShapeInfo : AreaTriggerData
 {

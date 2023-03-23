@@ -8,12 +8,11 @@ using System.Numerics;
 using Framework.Constants;
 using Game.Maps;
 using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Spells;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.AreaTrigger;
 
 namespace Game.Entities;
 

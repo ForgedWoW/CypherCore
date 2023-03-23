@@ -9,7 +9,10 @@ using Framework.Constants;
 using Game;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.M;
+using Game.Common.Networking;
+using Game.Common.Server;
 
 namespace Forged.MapServer.Achievements;
 

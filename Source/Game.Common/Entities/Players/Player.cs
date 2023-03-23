@@ -9,28 +9,48 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
-using Game.Achievements;
-using Game.AI;
-using Game.BattlePets;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Garrisons;
-using Game.Guilds;
-using Game.Mails;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Misc;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Chat.Channels;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.C;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.DoWork;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game.Common.Guilds;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Mail;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Networking.Packets.NPC;
+using Game.Common.Networking.Packets.Party;
+using Game.Common.Networking.Packets.Pet;
+using Game.Common.Networking.Packets.Quest;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Networking.Packets.Talent;
+using Game.Common.Networking.Packets.Toy;
+using Game.Common.Networking.Packets.Vehicle;
+using Game.Common.Networking.Packets.WorldState;
+using Game.Common.Scripting;
+using Game.Common.Scripting.Interfaces.IPlayer;
+using Game.Common.Server;
+using Game.Common.Text;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player : Unit
 {
-	public override bool IsLoading => Session.PlayerLoading;
+	public override bool IsLoading => Session.IsPlayerLoading;
 
 	public DeclinedName DeclinedNames => _declinedname;
 
@@ -142,7 +162,7 @@ public partial class Player : Unit
 		get => ActivePlayerData.Coinage;
 		set
 		{
-			var loading = Session.PlayerLoading;
+			var loading = Session.IsPlayerLoading;
 
 			if (!loading)
 				MoneyChanged((uint)value);
@@ -3639,7 +3659,7 @@ public partial class Player : Unit
 		if (base.IsNeverVisibleFor(seer))
 			return true;
 
-		if (Session.PlayerLogout || Session.PlayerLoading)
+		if (Session.PlayerLogout || Session.IsPlayerLoading)
 			return true;
 
 		return false;
@@ -6928,7 +6948,7 @@ public partial class Player : Unit
 
 	void UpdateLocalChannels(uint newZone)
 	{
-		if (Session.PlayerLoading && !IsBeingTeleportedFar)
+		if (Session.IsPlayerLoading && !IsBeingTeleportedFar)
 			return; // The client handles it automatically after loading, but not after teleporting
 
 		var current_zone = CliDB.AreaTableStorage.LookupByKey(newZone);

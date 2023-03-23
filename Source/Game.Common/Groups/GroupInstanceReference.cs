@@ -3,8 +3,9 @@
 
 using Framework.Dynamic;
 using Game.Maps;
+using Game.Common.Groups;
 
-namespace Game.Groups;
+namespace Game.Common.Groups;
 
 public class GroupInstanceReference : Reference<PlayerGroup, InstanceMap>
 {

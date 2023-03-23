@@ -3,8 +3,10 @@
 
 using System.Numerics;
 using Game.Collision;
+using Game.Common.Entities.GameObjects;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.GameObjects;
 
 class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 {

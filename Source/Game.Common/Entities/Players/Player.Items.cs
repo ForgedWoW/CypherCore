@@ -11,11 +11,24 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Mails;
 using Game.Maps;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
+using Game.Common.DataStorage;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Loot;
+using Game.Entities;
+using Game.Common.Networking.Packets.Equipment;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Loot;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {
@@ -2154,13 +2167,13 @@ public partial class Player
 		packet.ItemGUID = item.GUID;
 
 		packet.Pushed = pushed;
-		packet.DisplayText = ItemPushResult.DisplayType.Normal;
+		packet.DisplayText = Game.Common.Networking.Packets.Item.DisplayType.Normal;
 		packet.Created = created;
 		//packet.IsBonusRoll;
 
 		if (dungeonEncounterId != 0)
 		{
-			packet.DisplayText = ItemPushResult.DisplayType.EncounterLoot;
+			packet.DisplayText = Game.Common.Networking.Packets.Item.DisplayType.EncounterLoot;
 			packet.DungeonEncounterID = (int)dungeonEncounterId;
 			packet.IsEncounterLoot = true;
 		}
@@ -3620,7 +3633,7 @@ public partial class Player
 			}
 	}
 
-	public Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
+	public Loot.Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
 	{
 		return _aeLootView.FirstOrDefault(pair => pair.Value.GetOwnerGUID() == lootWorldObjectGuid).Value;
 	}
@@ -5169,7 +5182,7 @@ public partial class Player
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LootTargetGUID), guid);
 	}
 
-	public void StoreLootItem(ObjectGuid lootWorldObjectGuid, byte lootSlot, Loot loot, AELootResult aeResult = null)
+	public void StoreLootItem(ObjectGuid lootWorldObjectGuid, byte lootSlot, Loot.Loot loot, AELootResult aeResult = null)
 	{
 		var item = loot.LootItemInSlot(lootSlot, this, out var ffaItem);
 
@@ -5260,7 +5273,7 @@ public partial class Player
 		}
 	}
 
-	public Dictionary<ObjectGuid, Loot> GetAELootView()
+	public Dictionary<ObjectGuid, Loot.Loot> GetAELootView()
 	{
 		return _aeLootView;
 	}
@@ -5296,7 +5309,7 @@ public partial class Player
 		// Now we must make bones lootable, and send player loot
 		bones.SetCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-		bones.Loot = new Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
+		bones.Loot = new Loot.Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
 
 		// For AV Achievement
 		var bg = Battleground;
@@ -5332,7 +5345,7 @@ public partial class Player
 		SendPacket(new LootReleaseAll());
 	}
 
-	public void SendLoot(Loot loot, bool aeLooting = false)
+	public void SendLoot(Loot.Loot loot, bool aeLooting = false)
 	{
 		if (!GetLootGUID().IsEmpty && !aeLooting)
 			_session.DoLootReleaseAll();
@@ -7464,7 +7477,7 @@ public partial class Player
 
 	void AutoStoreLoot(byte bag, byte slot, uint loot_id, LootStore store, ItemContext context = 0, bool broadcast = false, bool createdByPlayer = false)
 	{
-		Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
+		Loot.Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
 		loot.FillLoot(loot_id, store, this, true, false, LootModes.Default, context);
 
 		loot.AutoStore(this, bag, slot, broadcast, createdByPlayer);

@@ -12,8 +12,12 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Globals;
+using Game.Common.Loot;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

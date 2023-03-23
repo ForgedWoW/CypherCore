@@ -4,8 +4,10 @@
 using System;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Entities.Players;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 public class RemoteAccessHandler : CommandHandler
 {

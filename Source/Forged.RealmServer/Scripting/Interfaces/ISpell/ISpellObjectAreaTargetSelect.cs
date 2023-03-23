@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Scripting.Interfaces.ISpell;
 

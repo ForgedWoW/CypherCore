@@ -2,8 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Runtime.CompilerServices;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 public struct Value32
 {

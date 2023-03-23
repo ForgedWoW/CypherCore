@@ -4,8 +4,14 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Maps;
+using Game.Common.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
 
-namespace Game.Maps;
+namespace Game.Common.Entities;
 
 public class SpawnData : SpawnMetadata
 {

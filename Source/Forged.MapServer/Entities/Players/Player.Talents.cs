@@ -7,9 +7,14 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.C;
+using Game.Common.DataStorage.Structs.P;
+using Game.Common.DataStorage.Structs.T;
+using Game.Common.Networking.Packets.Talent;
+using Game.Common.Networking.Packets.Trait;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

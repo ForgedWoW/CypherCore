@@ -7,9 +7,12 @@ using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Networking.Packets.Taxi;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class PlayerTaxi
 {

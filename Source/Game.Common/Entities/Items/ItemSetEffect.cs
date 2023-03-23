@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Entities.Items;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class ItemSetEffect
 {

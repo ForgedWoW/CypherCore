@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.Chat;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("scene")]
 class SceneCommands

@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
+using Game.Entities;
+using Game.Common.Entities.Items;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class ItemEnchantmentManager
 {

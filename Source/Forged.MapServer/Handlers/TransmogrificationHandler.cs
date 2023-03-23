@@ -5,8 +5,9 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.NPC;
+using Game.Common.Networking.Packets.Transmogification;
 
 namespace Game;
 

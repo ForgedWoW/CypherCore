@@ -11,8 +11,6 @@ using Framework.Database;
 using Framework.Metrics;
 using Framework.Networking;
 using Game;
-using Game.Chat;
-using Game.Networking;
 
 namespace WorldServer
 {

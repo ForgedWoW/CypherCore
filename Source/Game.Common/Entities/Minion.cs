@@ -3,8 +3,12 @@
 
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.S;
+using Game.Entities;
+using Game.Common.Entities;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class Minion : TempSummon
 {

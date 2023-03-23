@@ -2,101 +2,111 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
-using Game.Guilds;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Guilds;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Guild;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class GuildHandler
 {
-	[WorldPacketHandler(ClientOpcodes.QueryGuildInfo, Status = SessionStatus.Authed)]
+    private readonly WorldSession _session;
+    private readonly GuildManager _guildManager;
+
+    public GuildHandler(WorldSession session, GuildManager guildManager)
+    {
+        _session = session;
+        _guildManager = guildManager;
+    }
+
+
+    [WorldPacketHandler(ClientOpcodes.QueryGuildInfo, Status = SessionStatus.Authed)]
 	void HandleGuildQuery(QueryGuildInfo query)
 	{
-		var guild = Global.GuildMgr.GetGuildByGuid(query.GuildGuid);
+		var guild = _guildManager.GetGuildByGuid(query.GuildGuid);
 
 		if (guild)
 		{
-			guild.SendQueryResponse(this);
+			guild.SendQueryResponse(_session);
 
 			return;
 		}
 
 		QueryGuildInfoResponse response = new();
 		response.GuildGUID = query.GuildGuid;
-		SendPacket(response);
+        _session.SendPacket(response);
 	}
 
 
 	[WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
 	void HandleGuildGetRoster(GuildGetRoster packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleRoster(this);
+			guild.HandleRoster(_session);
 		else
-			Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
+			Guild.SendCommandResult(_session, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
 	void HandleGuildGetRanks(GuildGetRanks packet)
 	{
-		var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
+		var guild = _guildManager.GetGuildByGuid(packet.GuildGUID);
 
 		if (guild)
-			if (guild.IsMember(Player.GUID))
-				guild.SendGuildRankInfo(this);
+			if (guild.IsMember(_session.Player.GUID))
+				guild.SendGuildRankInfo(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankRemainingWithdrawMoneyQuery)]
 	void HandleGuildBankMoneyWithdrawn(GuildBankRemainingWithdrawMoneyQuery packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.SendMoneyInfo(this);
+			guild.SendMoneyInfo(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
 	void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.SendPermissions(this);
+			guild.SendPermissions(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankActivate)]
 	void HandleGuildBankActivate(GuildBankActivate packet)
 	{
-		var go = Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank);
+		var go = _session.Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank);
 
 		if (go == null)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 		{
-			Guild.SendCommandResult(this, GuildCommandType.ViewTab, GuildCommandError.PlayerNotInGuild);
+			Guild.SendCommandResult(_session, GuildCommandType.ViewTab, GuildCommandError.PlayerNotInGuild);
 
 			return;
 		}
 
-		guild.SendBankList(this, 0, packet.FullUpdate);
+		guild.SendBankList(_session, 0, packet.FullUpdate);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankQueryTab)]
 	void HandleGuildBankQueryTab(GuildBankQueryTab packet)
 	{
-		if (Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
+		if (_session.Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
 		{
-			var guild = Player.Guild;
+			var guild = _session.Player.Guild;
 
 			if (guild)
-				guild.SendBankList(this, packet.Tab, true /*packet.FullUpdate*/);
+				guild.SendBankList(_session, packet.Tab, true /*packet.FullUpdate*/);
 			// HACK: client doesn't query entire tab content if it had received SMSG_GUILD_BANK_LIST in this session
 			// but we broadcast bank updates to entire guild when *ANYONE* changes anything, incorrectly initializing clients
 			// tab content with only data for that change
@@ -106,10 +116,10 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.RequestGuildPartyState)]
 	void HandleGuildRequestPartyState(RequestGuildPartyState packet)
 	{
-		var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
+		var guild = _guildManager.GetGuildByGuid(packet.GuildGUID);
 
 		if (guild)
-			guild.HandleGuildPartyRequest(this);
+			guild.HandleGuildPartyRequest(_session);
 	}
 
 
@@ -117,9 +127,9 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.RequestGuildRewardsList)]
 	void HandleRequestGuildRewardsList(RequestGuildRewardsList packet)
 	{
-		if (Global.GuildMgr.GetGuildById(Player.GuildId))
+		if (_guildManager.GetGuildById(_session.Player.GuildId))
 		{
-			var rewards = Global.GuildMgr.GetGuildRewards();
+			var rewards = _guildManager.GetGuildRewards();
 
 			GuildRewardList rewardList = new();
 			rewardList.Version = GameTime.GetGameTime();
@@ -136,7 +146,7 @@ public partial class WorldSession
 				rewardList.RewardItems.Add(rewardItem);
 			}
 
-			SendPacket(rewardList);
+            _session.SendPacket(rewardList);
 		}
 	}
 }

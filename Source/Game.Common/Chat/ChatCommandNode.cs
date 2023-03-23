@@ -8,8 +8,12 @@ using System.Reflection;
 using Framework.Constants;
 using Framework.IO;
 using Game.DataStorage;
+using Game.Common.Chat;
+using Game.Common.Handlers;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 public class ChatCommandNode
 {

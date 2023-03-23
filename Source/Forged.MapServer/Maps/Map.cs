@@ -19,11 +19,16 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Maps.Grids;
 using Game.Maps.Interfaces;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IMap;
 using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IWorldState;
+using Game.Common.DataStorage.Structs.M;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Entities;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.WorldState;
+using Game.Common.Server;
 
 namespace Game.Maps;
 

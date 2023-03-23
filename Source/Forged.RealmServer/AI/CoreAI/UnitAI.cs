@@ -8,6 +8,8 @@ using Framework.Constants;
 using Forged.RealmServer.Combat;
 using Game.Entities;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

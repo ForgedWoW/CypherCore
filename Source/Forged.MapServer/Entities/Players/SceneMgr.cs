@@ -4,9 +4,10 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IScene;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Scene;
 
 namespace Game.Entities;
 

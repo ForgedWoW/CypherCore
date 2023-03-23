@@ -8,8 +8,14 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Chat.Commands;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Globals;
+using Game.Common.Server;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("character")]
 class CharacterCommands

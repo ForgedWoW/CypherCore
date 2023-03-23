@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Conditions;
 
-namespace Game.Misc;
+namespace Game.Common.Entities.Creatures;
 
 public class GossipMenuItems
 {

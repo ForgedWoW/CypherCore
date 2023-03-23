@@ -2,9 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Networking.Packets;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Networking.Packets.Trade;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class TradeData
 {

@@ -13,6 +13,9 @@ using Game.Entities;
 using Forged.RealmServer.Loots;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Movement;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Chat;
 

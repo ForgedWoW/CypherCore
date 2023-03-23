@@ -3,8 +3,10 @@
 
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.Chat;
+using Game.Common.DataStorage.Structs.A;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("achievement")]
 class AchievementCommand

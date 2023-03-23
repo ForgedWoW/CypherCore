@@ -4,8 +4,10 @@
 using System;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Accounts;
+using Game.Common.Chat;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("bnetaccount")]
 class BNetAccountCommands

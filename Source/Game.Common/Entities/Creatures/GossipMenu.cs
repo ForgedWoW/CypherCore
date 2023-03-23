@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.Entities.Creatures;
+using Game.Common.Globals;
 
-namespace Game.Misc;
+namespace Game.Common.Entities.Creatures;
 
 public class GossipMenu
 {

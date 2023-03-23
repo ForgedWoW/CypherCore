@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Chat;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Text;
+using Game;
 
-namespace Game;
+namespace Game.Common.Text;
 
 public class CreatureTextBuilder : MessageBuilder
 {

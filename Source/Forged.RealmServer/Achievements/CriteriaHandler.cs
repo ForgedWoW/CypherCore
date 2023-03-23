@@ -8,7 +8,10 @@ using Framework.Configuration;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
-using Game.Networking;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
 
 namespace Forged.RealmServer.Achievements;
 

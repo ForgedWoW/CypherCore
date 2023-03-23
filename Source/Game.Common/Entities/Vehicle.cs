@@ -8,8 +8,13 @@ using System.Text;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Scripting.Interfaces.IVehicle;
+using Game.Common.DataStorage.Structs.V;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class Vehicle : ITransport
 {

@@ -3,8 +3,10 @@
 
 using Framework.Constants;
 using Game.Spells;
+using Game.Entities;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public class CalcDamageInfo
 {

@@ -3,8 +3,10 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Text;
 
-namespace Game.Chat;
+namespace Game.Common.Text;
 
 class CypherStringChatBuilder : MessageBuilder
 {

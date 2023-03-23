@@ -3,8 +3,10 @@
 
 using System;
 using Framework.Constants;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Pet;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Pet;
 
 public class PetNameInvalid : ServerPacket
 {

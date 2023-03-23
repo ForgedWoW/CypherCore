@@ -8,9 +8,10 @@ using Game.Arenas;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Groups;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Groups;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.NPC;
 
 namespace Game;
 

@@ -10,9 +10,16 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking.Packets;
+using Game.Common.Chat.Channels;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DoWork;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking.Packets.Channel;
+using Game.Common.Server;
+using Game.Common.Text;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Channels;
 
 public class Channel
 {

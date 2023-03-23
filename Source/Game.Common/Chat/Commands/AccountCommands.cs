@@ -4,8 +4,11 @@
 using System;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Accounts;
+using Game.Common.Chat;
+using Game.Common.Server;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("account")]
 class AccountCommands

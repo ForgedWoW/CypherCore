@@ -5,6 +5,7 @@ using System;
 using Forged.RealmServer.AI;
 using Game.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IGameObject;
+using Game.Common.Entities.GameObjects;
 
 namespace Forged.RealmServer.Scripting.BaseScripts;
 

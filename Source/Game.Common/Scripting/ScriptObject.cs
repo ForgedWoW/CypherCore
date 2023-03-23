@@ -3,9 +3,12 @@
 
 using System;
 using Game.Entities;
-using Game.Scripting.Interfaces;
+using Game.Common.Entities.Objects;
+using Game.Common.Scripting;
+using Game.Scripting;
+using Game.Common.Scripting.Interfaces;
 
-namespace Game.Scripting;
+namespace Game.Common.Scripting;
 
 public abstract class ScriptObject : IScriptObject
 {

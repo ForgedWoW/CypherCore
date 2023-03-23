@@ -3,10 +3,12 @@
 
 using System.Collections.Generic;
 using Framework.IO;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Entities;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Update;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class UpdateData
 {

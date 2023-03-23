@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Accounts;
+namespace Game.Common.Accounts;
 
 public class RBACPermission
 {

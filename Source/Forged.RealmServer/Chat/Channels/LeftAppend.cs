@@ -3,7 +3,8 @@
 
 using Framework.Constants;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking.Packets.Channel;
 
 namespace Forged.RealmServer.Chat;
 

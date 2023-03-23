@@ -6,9 +6,12 @@ using Framework.Constants;
 using Framework.Database;
 using Game.AI;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Pet;
+using Game.Common.Networking.Packets.Query;
+using Game.Common.Networking.Packets.Spell;
 
 namespace Game;
 

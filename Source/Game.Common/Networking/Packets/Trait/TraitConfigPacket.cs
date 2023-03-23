@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Trait;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Trait;
 
 public class TraitConfigPacket
 {

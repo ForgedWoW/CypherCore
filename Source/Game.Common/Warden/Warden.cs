@@ -7,9 +7,14 @@ using System.Security.Cryptography;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Networking.Packets;
+using Game.Common.Handlers;
+using Game.Common.Networking.Packets.Warden;
+using Game.Common.Server;
+using Game.Common.Services;
+using Game.Common.Warden;
+using Game;
 
-namespace Game;
+namespace Game.Common.Warden;
 
 public abstract class Warden
 {

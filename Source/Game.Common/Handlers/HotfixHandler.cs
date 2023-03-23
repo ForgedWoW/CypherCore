@@ -1,19 +1,37 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.DataStorage;
+using Game.Common.DataStorage.ClientReader;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Hotfix;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class HotfixHandler
 {
+    private readonly WorldSession _session;
+    private readonly Dictionary<uint, IDB2Storage> _storage;
+    private readonly MultiMap<int, HotfixRecord> _hotfixData;
+    private readonly MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _optionalData;
+    private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlobData;
+
+    public HotfixHandler(WorldSession session, Dictionary<uint, IDB2Storage> storage, MultiMap<int, HotfixRecord> hotfixData, MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] optionalData, Dictionary<(uint tableHash, int recordId), byte[]>[] hotfixBlobData)
+    {
+        _session = session;
+        _storage = storage;
+        _hotfixData = hotfixData;
+        _optionalData = optionalData;
+        _hotfixBlobData = hotfixBlobData;
+    }
+
 	[WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
 	void HandleDBQueryBulk(DBQueryBulk dbQuery)
 	{
-		var store = Global.DB2Mgr.GetStorage(dbQuery.TableHash);
+		var store = _storage.LookupByKey(dbQuery.TableHash);
 
 		foreach (var record in dbQuery.Queries)
 		{
@@ -22,44 +40,36 @@ public partial class WorldSession
 			dbReply.RecordID = record.RecordID;
 
 			if (store != null && store.HasRecord(record.RecordID))
-			{
-				dbReply.Status = HotfixRecord.Status.Valid;
+            {
+                dbReply.Status = HotfixRecord.Status.Valid;
 				dbReply.Timestamp = (uint)GameTime.GetGameTime();
-				store.WriteRecord(record.RecordID, SessionDbcLocale, dbReply.Data);
+				store.WriteRecord(record.RecordID, _session.SessionDbcLocale, dbReply.Data);
 
-				var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(dbQuery.TableHash, record.RecordID, SessionDbcLocale);
-
-				foreach (var optionalData in optionalDataEntries)
-				{
-					dbReply.Data.WriteUInt32(optionalData.Key);
-					dbReply.Data.WriteBytes(optionalData.Data);
-				}
+				if (_optionalData[(int)_session.SessionDbcLocale].TryGetValue((dbQuery.TableHash, (int)record.RecordID), out var optionalDataEntries))
+				    foreach (var optionalData in optionalDataEntries)
+				    {
+					    dbReply.Data.WriteUInt32(optionalData.Key);
+					    dbReply.Data.WriteBytes(optionalData.Data);
+				    }
 			}
 			else
 			{
-				Log.outTrace(LogFilter.Network, "CMSG_DB_QUERY_BULK: {0} requested non-existing entry {1} in datastore: {2}", GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
+				Log.outTrace(LogFilter.Network, "CMSG_DB_QUERY_BULK: {0} requested non-existing entry {1} in datastore: {2}", _session.GetPlayerInfo(), record.RecordID, dbQuery.TableHash);
 				dbReply.Timestamp = (uint)GameTime.GetGameTime();
 			}
 
-			SendPacket(dbReply);
+            _session.SendPacket(dbReply);
 		}
 	}
 
-	void SendAvailableHotfixes()
-	{
-		SendPacket(new AvailableHotfixes(Global.WorldMgr.RealmId.GetAddress(), Global.DB2Mgr.GetHotfixData()));
-	}
-
-	[WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]
+    [WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]
 	void HandleHotfixRequest(HotfixRequest hotfixQuery)
 	{
-		var hotfixes = Global.DB2Mgr.GetHotfixData();
-
-		HotfixConnect hotfixQueryResponse = new();
+        HotfixConnect hotfixQueryResponse = new();
 
 		foreach (var hotfixId in hotfixQuery.Hotfixes)
 		{
-			var hotfixRecords = hotfixes.LookupByKey(hotfixId);
+			var hotfixRecords = _hotfixData.LookupByKey(hotfixId);
 
 			if (hotfixRecords != null)
 				foreach (var hotfixRecord in hotfixRecords)
@@ -74,11 +84,10 @@ public partial class WorldSession
 						if (storage != null && storage.HasRecord((uint)hotfixRecord.RecordID))
 						{
 							var pos = hotfixQueryResponse.HotfixContent.GetSize();
-							storage.WriteRecord((uint)hotfixRecord.RecordID, SessionDbcLocale, hotfixQueryResponse.HotfixContent);
+							storage.WriteRecord((uint)hotfixRecord.RecordID, _session.SessionDbcLocale, hotfixQueryResponse.HotfixContent);
 
-							var optionalDataEntries = Global.DB2Mgr.GetHotfixOptionalData(hotfixRecord.TableHash, (uint)hotfixRecord.RecordID, SessionDbcLocale);
 
-							if (optionalDataEntries != null)
+							if (_optionalData[(int)_session.SessionDbcLocale].TryGetValue((hotfixRecord.TableHash, hotfixRecord.RecordID), out var optionalDataEntries))
 								foreach (var optionalData in optionalDataEntries)
 								{
 									hotfixQueryResponse.HotfixContent.WriteUInt32(optionalData.Key);
@@ -89,9 +98,7 @@ public partial class WorldSession
 						}
 						else
 						{
-							var blobData = Global.DB2Mgr.GetHotfixBlobData(hotfixRecord.TableHash, hotfixRecord.RecordID, SessionDbcLocale);
-
-							if (blobData != null)
+							if (_hotfixBlobData[(int)_session.SessionDbcLocale].TryGetValue((hotfixRecord.TableHash, hotfixRecord.RecordID), out var blobData))
 							{
 								hotfixData.Size = (uint)blobData.Length;
 								hotfixQueryResponse.HotfixContent.WriteBytes(blobData);
@@ -108,6 +115,6 @@ public partial class WorldSession
 				}
 		}
 
-		SendPacket(hotfixQueryResponse);
+		_session.SendPacket(hotfixQueryResponse);
 	}
 }

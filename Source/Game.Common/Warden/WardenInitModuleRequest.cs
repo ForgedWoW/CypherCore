@@ -2,9 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.IO;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.Warden;
+using Game.Common.Warden;
+using Game;
 
-namespace Game;
+namespace Game.Common.Warden;
 
 class WardenInitModuleRequest
 {

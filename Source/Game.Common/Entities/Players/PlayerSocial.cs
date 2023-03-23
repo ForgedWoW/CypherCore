@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Database;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Networking.Packets.Social;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class PlayerSocial
 {

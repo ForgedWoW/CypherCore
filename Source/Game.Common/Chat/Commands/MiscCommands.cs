@@ -10,10 +10,19 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 class MiscCommands
 {

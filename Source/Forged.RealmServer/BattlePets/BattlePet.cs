@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Entities.Units;
+using Game.Common.Networking.Packets.BattlePet;
 
 namespace Forged.RealmServer.BattlePets;
 

@@ -13,10 +13,16 @@ using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scenarios;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.Loot;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

@@ -3,8 +3,9 @@
 
 using System;
 using Framework.Constants;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Guild;
 
 public class GuildCommandResult : ServerPacket
 {

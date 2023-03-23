@@ -3,8 +3,10 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
+using Game.Common.Entities.AreaTriggers;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.AreaTriggers;
 
 [StructLayout(LayoutKind.Explicit)]
 public unsafe class AreaTriggerData

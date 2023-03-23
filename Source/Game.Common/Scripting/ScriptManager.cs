@@ -10,23 +10,32 @@ using System.Reflection;
 using Framework.Constants;
 using Framework.Database;
 using Game.AI;
-using Game.Chat;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Extendability;
-using Game.Groups;
 using Game.Guilds;
 using Game.Movement;
 using Game.Scripting.Activators;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAreaTrigger;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Scripting.Registers;
 using Game.Spells;
+using Game.Common.Chat.Channels;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Players;
+using Game.Common.Groups;
+using Game.Common.Scripting;
+using Game.Scripting;
+using Game.Common.Scripting.Activators;
+using Game.Common.Scripting.Interfaces;
+using Game.Common.Scripting.Interfaces.IPlayer;
+using Game.Common.Scripting.Registers;
 
-namespace Game.Scripting;
+namespace Game.Common.Scripting;
 
 // Manages registration, loading, and execution of Scripts.
 public class ScriptManager : Singleton<ScriptManager>

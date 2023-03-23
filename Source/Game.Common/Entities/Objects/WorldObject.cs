@@ -13,12 +13,27 @@ using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scenarios;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects;
 
 public abstract class WorldObject : IDisposable
 {
@@ -1232,7 +1247,7 @@ public abstract class WorldObject : IDisposable
 		return $"{Location.GetDebugInfo()}\n{GUID} Entry: {Entry}\nName: {GetName()}";
 	}
 
-	public virtual Loot GetLootForPlayer(Player player)
+	public virtual Loot.Loot GetLootForPlayer(Player player)
 	{
 		return null;
 	}

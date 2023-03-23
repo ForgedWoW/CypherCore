@@ -3,8 +3,9 @@
 
 using System;
 using Framework.Constants;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 public partial class Creature
 {

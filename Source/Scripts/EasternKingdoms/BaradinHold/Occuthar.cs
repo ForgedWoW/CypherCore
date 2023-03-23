@@ -8,7 +8,6 @@ using Game.AI;
 using Game.Entities;
 using Game.Maps;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;

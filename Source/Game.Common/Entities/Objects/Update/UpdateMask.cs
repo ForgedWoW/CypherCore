@@ -3,8 +3,10 @@
 
 using System;
 using System.Linq;
+using Game.Common.Entities.Objects.Update;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class UpdateMask
 {

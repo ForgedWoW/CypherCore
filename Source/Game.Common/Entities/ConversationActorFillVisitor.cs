@@ -4,8 +4,14 @@
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Common.DataStorage;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 class ConversationActorFillVisitor
 {

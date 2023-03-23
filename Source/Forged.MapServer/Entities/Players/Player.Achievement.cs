@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Achievements;
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.A;
 
 namespace Game.Entities;
 

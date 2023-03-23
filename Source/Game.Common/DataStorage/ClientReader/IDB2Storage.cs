@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Framework.IO;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 public interface IDB2Storage
 {

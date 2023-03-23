@@ -10,9 +10,11 @@ using Game.Entities;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Instance;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
 
 namespace Game;
 

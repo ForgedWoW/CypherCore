@@ -7,11 +7,17 @@ using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
-using Game.Networking;
 using Game.Scripting.Interfaces.IConversation;
 using Game.Spells;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class Conversation : WorldObject
 {

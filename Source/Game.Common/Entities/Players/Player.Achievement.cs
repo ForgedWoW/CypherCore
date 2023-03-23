@@ -5,8 +5,12 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Achievements;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {

@@ -6,6 +6,10 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
 using Forged.RealmServer.Maps.Grids;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace Forged.RealmServer.Battlepay;
+namespace Game.Common.Battlepay;
 
 /// Client error enum See Blizzard_StoreUISecure.lua Last update : 9.0.2 36474
 public enum BpayError : uint

@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using Forged.RealmServer.DataStorage;
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.AdventureJournal;
 
 namespace Forged.RealmServer;
 

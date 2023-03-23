@@ -3,11 +3,15 @@
 
 using System;
 using Framework.Constants;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
+using Game.Common.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
+using Game.Entities;
+using Game.Common.Networking.Packets.Combat;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public partial class Unit
 {

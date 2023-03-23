@@ -8,8 +8,12 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IQuest;
+using Game.Common.Chat;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("quest")]
 class QuestCommands

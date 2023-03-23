@@ -11,8 +11,11 @@ using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps.Grids;
+using Game.Common.Chat;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("gobject")]
 class GameObjectCommands

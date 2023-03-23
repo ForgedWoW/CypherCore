@@ -15,22 +15,27 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Realm;
-using Game.Accounts;
-using Game.Battlepay;
-using Game.BattlePets;
-using Game.Chat;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.Accounts;
+using Game.Common.Battlepay;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Authentication;
+using Game.Common.Networking.Packets.Battlenet;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.ClientConfig;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Warden;
+using Game.Common.Warden;
 
-namespace Game;
+namespace Game.Common.Server;
 
-public partial class WorldSession : IDisposable
+public class WorldSession : IDisposable
 {
 	public long MuteTime;
 
-	readonly List<ObjectGuid> _legitCharacters = new();
 	readonly WorldSocket[] _socket = new WorldSocket[(int)ConnectionType.Max];
 	readonly string _address;
 	readonly uint _accountId;
@@ -74,19 +79,19 @@ public partial class WorldSession : IDisposable
 
 	readonly CancellationTokenSource _cancellationToken = new();
 	readonly AutoResetEvent _asyncMessageQueueSemaphore = new(false);
-	ulong _guidLow;
-	Player _player;
+    public ulong GuidLow { get; set; }
+    Player _player;
 
 	AccountTypes _security;
 
 	uint _expireTime;
 	bool _forceExit;
-	Warden _warden; // Remains NULL if Warden system is not enabled by config
+	Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
 
 	long _logoutTime;
 	bool _inQueue;
-	ObjectGuid _playerLoading; // code processed in LoginPlayer
-	bool _playerLogout;        // code processed in LogoutPlayer
+    public ObjectGuid PlayerLoading { get; set; }
+    bool _playerLogout;        // code processed in LogoutPlayer
 	bool _playerRecentlyLogout;
 	bool _playerSave;
 	uint _latency;
@@ -111,7 +116,7 @@ public partial class WorldSession : IDisposable
 
 	public string PlayerName => _player != null ? _player.GetName() : "Unknown";
 
-	public bool PlayerLoading => !_playerLoading.IsEmpty;
+	public bool IsPlayerLoading => !PlayerLoading.IsEmpty;
 	public bool PlayerLogout => _playerLogout;
 	public bool PlayerLogoutWithSave => _playerLogout && _playerSave;
 	public bool PlayerRecentlyLoggedOut => _playerRecentlyLogout;
@@ -141,7 +146,7 @@ public partial class WorldSession : IDisposable
 			_player = value;
 
 			if (_player)
-				_guidLow = _player.GUID.Counter;
+				GuidLow = _player.GUID.Counter;
 		}
 	}
 
@@ -446,7 +451,7 @@ public partial class WorldSession : IDisposable
 			_warden.Update(diff);
 
 		// If necessary, log the player out
-		if (ShouldLogOut(currentTime) && _playerLoading.IsEmpty)
+		if (ShouldLogOut(currentTime) && PlayerLoading.IsEmpty)
 			LogoutPlayer(true);
 
 		//- Cleanup socket if need
@@ -609,12 +614,12 @@ public partial class WorldSession : IDisposable
 		if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 		{
 			connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv4;
+			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv4;
 		}
 		else
 		{
 			connectTo.Payload.Where.IPv6 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv6;
+			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv6;
 		}
 
 		SendPacket(connectTo);
@@ -658,8 +663,8 @@ public partial class WorldSession : IDisposable
 		StringBuilder ss = new();
 		ss.Append("[Player: ");
 
-		if (!_playerLoading.IsEmpty)
-			ss.AppendFormat("Logging in: {0}, ", _playerLoading.ToString());
+		if (!PlayerLoading.IsEmpty)
+			ss.AppendFormat("Logging in: {0}, ", PlayerLoading.ToString());
 		else if (_player)
 			ss.AppendFormat("{0} {1}, ", _player.GetName(), _player.GUID.ToString());
 
@@ -1000,11 +1005,11 @@ public partial class WorldSession : IDisposable
 		else
 		{
 			// _player can be NULL and packet received after logout but m_GUID still store correct guid
-			if (_guidLow == 0)
+			if (GuidLow == 0)
 				return;
 
 			var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_PLAYER_ACCOUNT_DATA);
-			stmt.AddValue(0, _guidLow);
+			stmt.AddValue(0, GuidLow);
 			stmt.AddValue(1, (byte)type);
 			stmt.AddValue(2, time);
 			stmt.AddValue(3, data);
@@ -1015,7 +1020,7 @@ public partial class WorldSession : IDisposable
 		_accountData[(int)type].Data = data;
 	}
 
-	bool ValidateHyperlinksAndMaybeKick(string str)
+	public bool ValidateHyperlinksAndMaybeKick(string str)
 	{
 		if (Hyperlink.CheckAllLinks(str))
 			return true;
@@ -1036,7 +1041,7 @@ public partial class WorldSession : IDisposable
 		_warden.HandleData(packet.Data);
 	}
 
-	void SetLogoutStartTime(long requestTime)
+	public void SetLogoutStartTime(long requestTime)
 	{
 		_logoutTime = requestTime;
 	}

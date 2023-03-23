@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using Framework.Dynamic;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 public class AssistDelayEvent : BasicEvent
 {

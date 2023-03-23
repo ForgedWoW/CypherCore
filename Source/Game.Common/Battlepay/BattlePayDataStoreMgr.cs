@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Database;
-using Forged.RealmServer.Networking.Packets.Bpay;
+using Game.Common.Networking.Packets.Bpay;
 
-namespace Forged.RealmServer;
+namespace Game.Common.Battlepay;
 
 public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 {

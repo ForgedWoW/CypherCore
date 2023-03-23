@@ -3,6 +3,7 @@
 
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.DataStorage.Structs.A;
 
 namespace Game.Scripting.Interfaces.IAreaTrigger;
 

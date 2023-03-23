@@ -3,8 +3,10 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Entities;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class PetStable
 {

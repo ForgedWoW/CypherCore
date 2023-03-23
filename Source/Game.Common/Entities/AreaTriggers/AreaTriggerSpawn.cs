@@ -3,8 +3,11 @@
 
 using Framework.Constants;
 using Game.Maps;
+using Game.Common.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.AreaTriggers;
 
 public class AreaTriggerSpawn : SpawnData
 {

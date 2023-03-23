@@ -7,7 +7,8 @@ using Framework.Constants;
 using Framework.Dynamic;
 using Game.BattleGrounds;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Server;
 
 namespace Game.Arenas;
 

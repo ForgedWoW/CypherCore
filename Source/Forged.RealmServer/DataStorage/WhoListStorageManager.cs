@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.DataStorage;
 
@@ -24,7 +25,7 @@ public class WhoListStorageManager : Singleton<WhoListStorageManager>
 
 		foreach (var player in players)
 		{
-			if (player.Map == null || player.Session.PlayerLoading)
+			if (player.Map == null || player.Session.IsPlayerLoading)
 				continue;
 
 			var playerName = player.GetName();

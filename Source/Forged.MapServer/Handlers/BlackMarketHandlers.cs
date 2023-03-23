@@ -5,8 +5,10 @@ using Framework.Constants;
 using Framework.Database;
 using Game.BlackMarket;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.BlackMarket;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.NPC;
 
 namespace Game;
 

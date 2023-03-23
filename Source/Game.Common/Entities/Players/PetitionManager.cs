@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class PetitionManager : Singleton<PetitionManager>
 {

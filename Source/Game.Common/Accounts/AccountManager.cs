@@ -6,10 +6,13 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
-using Game.Accounts;
 using Game.Entities;
+using Game.Common.Accounts;
+using Game;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
 
-namespace Game;
+namespace Game.Common.Accounts;
 
 public sealed class AccountManager : Singleton<AccountManager>
 {

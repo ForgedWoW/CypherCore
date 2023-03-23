@@ -3,6 +3,7 @@
 
 using Framework.Constants;
 using Game.Maps;
+using Game.Common.Entities;
 
 namespace Game.Entities;
 

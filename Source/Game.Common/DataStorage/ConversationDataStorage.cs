@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Configuration;
 using Framework.Database;
+using Game.Common.DataStorage;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage;
 
 public class ConversationDataStorage : Singleton<ConversationDataStorage>
 {

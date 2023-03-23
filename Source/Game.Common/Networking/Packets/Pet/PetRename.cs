@@ -3,8 +3,11 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Pet;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Pet;
 
 public class PetRename : ClientPacket
 {

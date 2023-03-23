@@ -3,13 +3,14 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Loot;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Loots;
 using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Loot;
 
 namespace Game;
 

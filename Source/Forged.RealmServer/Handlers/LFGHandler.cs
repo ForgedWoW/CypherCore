@@ -7,8 +7,9 @@ using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.LFG;
 
 namespace Forged.RealmServer;
 

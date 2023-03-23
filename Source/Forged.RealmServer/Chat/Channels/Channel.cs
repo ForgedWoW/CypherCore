@@ -10,7 +10,9 @@ using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Maps;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking.Packets.Channel;
 
 namespace Forged.RealmServer.Chat;
 

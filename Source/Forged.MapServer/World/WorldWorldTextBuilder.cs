@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Constants;
-using Game.Chat;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Text;
 
 namespace Game;
 

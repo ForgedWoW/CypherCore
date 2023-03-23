@@ -8,8 +8,11 @@ using Framework.IO;
 using Game.Entities;
 using Game.Maps;
 using Game.Movement;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("mmap")]
 class MMapsCommands

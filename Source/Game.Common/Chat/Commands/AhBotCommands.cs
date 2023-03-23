@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Framework.IO;
+using Game.Common.Chat;
 
-namespace Game.Chat.Commands;
+namespace Game.Common.Chat.Commands;
 
 //Holder for now.
 [CommandGroup("ahbot")]

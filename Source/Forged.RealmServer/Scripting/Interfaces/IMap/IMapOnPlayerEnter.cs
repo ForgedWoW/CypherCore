@@ -3,6 +3,7 @@
 
 using Game.Entities;
 using Forged.RealmServer.Maps;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IMap;
 

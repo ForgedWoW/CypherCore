@@ -7,9 +7,12 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Arenas;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Cache;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking.Packets.Misc;
 
-namespace Game.Cache;
+namespace Game.Common.Cache;
 
 public class CharacterCache : Singleton<CharacterCache>
 {

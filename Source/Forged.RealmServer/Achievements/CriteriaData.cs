@@ -8,6 +8,9 @@ using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.Achievements;
 

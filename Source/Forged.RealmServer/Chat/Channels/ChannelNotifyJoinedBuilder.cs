@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Maps;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.Channel;
 
 namespace Forged.RealmServer.Chat;
 

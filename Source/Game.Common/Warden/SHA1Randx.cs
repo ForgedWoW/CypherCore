@@ -3,8 +3,9 @@
 
 using System;
 using System.Security.Cryptography;
+using Game;
 
-namespace Game;
+namespace Game.Common.Warden;
 
 class SHA1Randx
 {

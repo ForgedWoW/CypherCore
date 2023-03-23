@@ -8,6 +8,7 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.DataStorage.Structs.G;
 
 namespace Game.Garrisons;
 

@@ -5,10 +5,13 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Framework.Constants;
-using Game.Networking.Packets;
 using Google.Protobuf;
+using Game.Common.Handlers;
+using Game.Common.Networking.Packets.Battlenet;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Game.Services;
+namespace Game.Common.Services;
 
 public class WorldServiceHandler
 {
@@ -26,16 +29,16 @@ public class WorldServiceHandler
 		if (_responseType != null)
 			_methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
 			{
-				typeof(WorldSession), _requestType, _responseType, info.ReturnType
+				typeof(RealmRequestService), _requestType, _responseType, info.ReturnType
 			}));
 		else
 			_methodCaller = info.CreateDelegate(Expression.GetDelegateType(new[]
 			{
-				typeof(WorldSession), _requestType, info.ReturnType
+				typeof(RealmRequestService), _requestType, info.ReturnType
 			}));
 	}
 
-	public void Invoke(WorldSession session, MethodCall methodCall, CodedInputStream stream)
+	public void Invoke(RealmRequestService session, MethodCall methodCall, CodedInputStream stream)
 	{
 		var request = (IMessage)Activator.CreateInstance(_requestType);
 		request.MergeFrom(stream);

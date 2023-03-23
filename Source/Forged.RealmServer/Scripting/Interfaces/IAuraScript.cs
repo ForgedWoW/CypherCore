@@ -4,6 +4,9 @@
 using Framework.Constants;
 using Game.Entities;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.Scripting.Interfaces;
 

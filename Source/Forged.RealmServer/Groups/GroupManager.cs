@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Groups;
 

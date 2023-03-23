@@ -7,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Framework.Constants;
+using Game.Common.DataStorage.ClientReader;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 class DBReader
 {

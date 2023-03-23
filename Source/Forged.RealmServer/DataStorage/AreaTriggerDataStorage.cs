@@ -8,6 +8,8 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Forged.RealmServer.Maps.Grids;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.DataStorage;
 

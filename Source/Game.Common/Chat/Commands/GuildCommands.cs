@@ -4,8 +4,10 @@
 using Framework.Constants;
 using Framework.IO;
 using Game.Guilds;
+using Game.Common.Chat;
+using Game.Common.Globals;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("guild")]
 class GuildCommands

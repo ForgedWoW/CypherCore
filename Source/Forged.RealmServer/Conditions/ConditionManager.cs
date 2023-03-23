@@ -13,6 +13,12 @@ using Game.Entities;
 using Forged.RealmServer.Loots;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer;
 

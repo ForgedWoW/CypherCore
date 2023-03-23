@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.AreaTrigger;
 
 public class AreaTriggerSplineInfo
 {

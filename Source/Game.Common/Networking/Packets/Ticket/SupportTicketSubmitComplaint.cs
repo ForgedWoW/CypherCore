@@ -3,8 +3,12 @@
 
 using System.Collections.Generic;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.LFG;
+using Game.Common.Networking.Packets.Ticket;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Ticket;
 
 public class SupportTicketSubmitComplaint : ClientPacket
 {

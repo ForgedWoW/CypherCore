@@ -6,6 +6,7 @@ using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Chat;
 

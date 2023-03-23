@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.Misc;
+namespace Game.Common.Entities.Creatures;
 
 public class PointOfInterest
 {

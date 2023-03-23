@@ -3,8 +3,12 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Globals;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 class PlayerIdentifier
 {

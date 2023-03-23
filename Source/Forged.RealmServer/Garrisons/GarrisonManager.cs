@@ -8,6 +8,7 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.Garrisons;
 

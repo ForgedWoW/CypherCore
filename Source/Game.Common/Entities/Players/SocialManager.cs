@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Social;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class SocialManager : Singleton<SocialManager>
 {

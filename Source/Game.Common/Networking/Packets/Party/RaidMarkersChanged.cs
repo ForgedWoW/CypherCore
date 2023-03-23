@@ -3,9 +3,10 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Groups;
+using Game.Common.Groups;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Party;
 
 public class RaidMarkersChanged : ServerPacket
 {

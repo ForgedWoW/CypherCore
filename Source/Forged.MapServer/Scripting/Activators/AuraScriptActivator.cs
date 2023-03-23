@@ -4,7 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces;
+using Game.Common.Scripting;
+using Game.Common.Scripting.Activators;
 
 namespace Game.Scripting.Activators;
 

@@ -6,8 +6,16 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class TempSummon : Creature
 {

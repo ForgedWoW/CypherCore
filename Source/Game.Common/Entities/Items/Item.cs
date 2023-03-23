@@ -10,12 +10,20 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Loots;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Entities.Items;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Artifact;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class Item : WorldObject
 {
@@ -78,7 +86,7 @@ public class Item : WorldObject
 	public ItemData ItemData { get; set; }
 
 	public bool LootGenerated { get; set; }
-	public Loot Loot { get; set; }
+	public Loot.Loot Loot { get; set; }
 	public BonusData BonusData { get; set; }
 
 	public override ObjectGuid OwnerGUID => ItemData.Owner;
@@ -2526,7 +2534,7 @@ public class Item : WorldObject
 		_childItem = childItem;
 	}
 
-	public override Loot GetLootForPlayer(Player player)
+	public override Loot.Loot GetLootForPlayer(Player player)
 	{
 		return Loot;
 	}

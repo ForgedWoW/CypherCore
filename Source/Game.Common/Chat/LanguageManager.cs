@@ -7,8 +7,11 @@ using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Game.DataStorage;
+using Game.Common.Chat;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Globals;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 public class LanguageManager : Singleton<LanguageManager>
 {

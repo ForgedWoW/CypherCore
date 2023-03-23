@@ -3,8 +3,12 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.AreaTrigger;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.AreaTrigger;
 
 public class AreaTriggerRePath : ServerPacket
 {

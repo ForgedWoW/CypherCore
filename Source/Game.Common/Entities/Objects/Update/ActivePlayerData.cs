@@ -2,10 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.MythicPlus;
+using Game.Common.Networking.Packets.PerksPorgram;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class ActivePlayerData : BaseUpdateData<Player>
 {

@@ -14,11 +14,13 @@ using Game.Maps;
 using Game.Maps.Grids;
 using Game.Maps.Interfaces;
 using Game.Movement;
-using Game.Networking.Packets;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.ISpell;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Networking.Packets.Trait;
 
 namespace Game.Spells;
 

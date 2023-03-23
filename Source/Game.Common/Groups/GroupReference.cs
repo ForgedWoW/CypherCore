@@ -3,8 +3,10 @@
 
 using Framework.Dynamic;
 using Game.Entities;
+using Game.Common.Entities.Players;
+using Game.Common.Groups;
 
-namespace Game.Groups;
+namespace Game.Common.Groups;
 
 public class GroupReference : Reference<PlayerGroup, Player>
 {

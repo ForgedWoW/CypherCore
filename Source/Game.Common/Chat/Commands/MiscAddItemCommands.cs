@@ -9,8 +9,10 @@ using Framework.Constants;
 using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.Chat;
+using Game.Common.Entities.Items;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("additem")]
 class MiscAddItemCommands

@@ -11,9 +11,9 @@ using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.Networking;
-using Game.Chat;
+using Game.Common.Chat;
 
-namespace Game.Networking;
+namespace Game.Common.Networking;
 
 public class RASocket : ISocket
 {

@@ -3,8 +3,9 @@
 
 using Framework.Collections;
 using Framework.Constants;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 public class LocalizedString
 {

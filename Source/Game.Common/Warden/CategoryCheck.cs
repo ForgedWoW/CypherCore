@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Game;
 
-namespace Game;
+namespace Game.Common.Warden;
 
 class CategoryCheck
 {

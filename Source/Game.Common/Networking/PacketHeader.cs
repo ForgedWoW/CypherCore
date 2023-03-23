@@ -4,7 +4,7 @@
 using System;
 using Framework.IO;
 
-namespace Game.Networking;
+namespace Game.Common.Networking;
 
 public class PacketHeader
 {

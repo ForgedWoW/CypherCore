@@ -3,8 +3,11 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Server;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Query;
 
 public class QuestPOIQueryResponse : ServerPacket
 {

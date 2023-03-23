@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Game.Spells;
+using Game.Entities;
+using Game.Common.Entities.Objects;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 struct SpellFocusInfo
 {

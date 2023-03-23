@@ -4,8 +4,9 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using Game.Common.Services;
 
-namespace Game.Services;
+namespace Game.Common.Services;
 
 public class WorldServiceManager : Singleton<WorldServiceManager>
 {

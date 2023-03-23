@@ -9,6 +9,10 @@ using Game.Entities;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Movement;
 using Forged.RealmServer.Spells;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

@@ -3,8 +3,9 @@
 
 using System.Numerics;
 using Framework.Constants;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.Structs.T;
 
 public sealed class TaxiPathNodeRecord
 {

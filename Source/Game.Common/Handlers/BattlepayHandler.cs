@@ -2,15 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Battlepay;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets.Bpay;
+using Game.Common.Battlepay;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Bpay;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class BattlepayHandler
 {
+    private readonly WorldSession _session;
+    private readonly BattlepayManager _bpayManager;
+
+    public BattlepayHandler(WorldSession session, BattlepayManager bpayManager)
+    {
+        _session = session;
+        _bpayManager = bpayManager;
+    }
+
 	public void SendStartPurchaseResponse(WorldSession session, Purchase purchase, BpayError result)
 	{
 		var response = new StartPurchaseResponse();
@@ -40,20 +51,20 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.BattlePayGetPurchaseList)]
 	public void HandleGetPurchaseListQuery(GetPurchaseListQuery UnnamedParameter)
 	{
-        if (!BattlePayMgr.IsAvailable())
+        if (!_bpayManager.IsAvailable())
             return;
         var packet = new PurchaseListResponse(); // @TODO
-		SendPacket(packet);
+        _session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UpdateVasPurchaseStates)]
 	public void HandleUpdateVasPurchaseStates(UpdateVasPurchaseStates UnnamedParameter)
 	{
-        if (!BattlePayMgr.IsAvailable())
+        if (!_bpayManager.IsAvailable())
             return;
         var response = new EnumVasPurchaseStatesResponse();
 		response.Result = 0;
-		SendPacket(response);
+        _session.SendPacket(response);
 	}
 
 
@@ -61,11 +72,11 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.BattlePayGetProductList)]
 	public void HandleGetProductList(GetProductList UnnamedParameter)
 	{
-		if (!BattlePayMgr.IsAvailable())
+		if (!_bpayManager.IsAvailable())
 			return;
 
-		BattlePayMgr.SendProductList();
-		BattlePayMgr.SendAccountCredits();
+		_bpayManager.SendProductList();
+		_bpayManager.SendAccountCredits();
 	}
 
 	public void SendMakePurchase(ObjectGuid targetCharacter, uint clientToken, uint productID, WorldSession session)
@@ -90,7 +101,7 @@ public partial class WorldSession
 
 		mgr.RegisterStartPurchase(purchase);
 
-		var accountCredits = BattlePayMgr.GetBattlePayCredits();
+		var accountCredits = _bpayManager.GetBattlePayCredits();
 		var purchaseData = mgr.GetPurchase();
 
 		if (accountCredits < (ulong)purchaseData.CurrentPrice)
@@ -117,7 +128,7 @@ public partial class WorldSession
 					if (player)
 						if (product.Items.Count > player.GetFreeBagSlotCount())
 						{
-							BattlePayMgr.SendBattlePayMessage(11, product.Name);
+							_bpayManager.SendBattlePayMessage(11, product.Name);
 							SendStartPurchaseResponse(session, purchaseData, BpayError.PurchaseDenied);
 
 							return;
@@ -126,7 +137,7 @@ public partial class WorldSession
 					foreach (var itr in product.Items)
 						if (mgr.AlreadyOwnProduct(itr.ItemID))
 						{
-							BattlePayMgr.SendBattlePayMessage(12, product.Name);
+							_bpayManager.SendBattlePayMessage(12, product.Name);
 							SendStartPurchaseResponse(session, purchaseData, BpayError.PurchaseDenied);
 
 							return;
@@ -161,10 +172,10 @@ public partial class WorldSession
 	//C++ TO C# CONVERTER WARNING: The original C++ declaration of the following method implementation was not found:
 	public void HandleBattlePayConfirmPurchase(ConfirmPurchaseResponse packet)
 	{
-		if (!BattlePayMgr.IsAvailable())
+		if (!_bpayManager.IsAvailable())
 			return;
 
-		var purchase = BattlePayMgr.GetPurchase();
+		var purchase = _bpayManager.GetPurchase();
 
 		if (purchase == null)
 			return;
@@ -174,23 +185,23 @@ public partial class WorldSession
 
 		if (purchase.Lock)
 		{
-			SendPurchaseUpdate(this, purchase, BpayError.PurchaseDenied);
+			SendPurchaseUpdate(_session, purchase, BpayError.PurchaseDenied);
 
 			return;
 		}
 
 		if (purchase.ServerToken != packet.ServerToken || !packet.ConfirmPurchase || purchase.CurrentPrice != packet.ClientCurrentPriceFixedPoint)
 		{
-			SendPurchaseUpdate(this, purchase, BpayError.PurchaseDenied);
+			SendPurchaseUpdate(_session, purchase, BpayError.PurchaseDenied);
 
 			return;
 		}
 
-		var accountBalance = BattlePayMgr.GetBattlePayCredits();
+		var accountBalance = _bpayManager.GetBattlePayCredits();
 
 		if (accountBalance < purchase.CurrentPrice)
 		{
-			SendPurchaseUpdate(this, purchase, BpayError.PurchaseDenied);
+			SendPurchaseUpdate(_session, purchase, BpayError.PurchaseDenied);
 
 			return;
 		}
@@ -198,15 +209,15 @@ public partial class WorldSession
 		purchase.Lock = true;
 		purchase.Status = (ushort)BpayUpdateStatus.Finish;
 
-		SendPurchaseUpdate(this, purchase, BpayError.Other);
-		BattlePayMgr.SavePurchase(purchase);
-		BattlePayMgr.ProcessDelivery(purchase);
-		BattlePayMgr.UpdateBattlePayCredits(purchase.CurrentPrice);
+		SendPurchaseUpdate(_session, purchase, BpayError.Other);
+		_bpayManager.SavePurchase(purchase);
+		_bpayManager.ProcessDelivery(purchase);
+		_bpayManager.UpdateBattlePayCredits(purchase.CurrentPrice);
 
 		if (displayInfo.Name1.Length != 0)
-			BattlePayMgr.SendBattlePayMessage(1, displayInfo.Name1);
+			_bpayManager.SendBattlePayMessage(1, displayInfo.Name1);
 
-		BattlePayMgr.SendProductList();
+		_bpayManager.SendProductList();
 	}
 
 
@@ -217,9 +228,9 @@ public partial class WorldSession
 
 	public void SendDisplayPromo(uint promotionID)
 	{
-		SendPacket(new DisplayPromotion(promotionID));
+		_session.SendPacket(new DisplayPromotion(promotionID));
 
-		if (!BattlePayMgr.IsAvailable())
+		if (!_bpayManager.IsAvailable())
 			return;
 
 		if (!BattlePayDataStoreMgr.Instance.ProductExist(260))
@@ -230,9 +241,9 @@ public partial class WorldSession
 		packet.Result = (uint)BpayError.Ok;
 
 		var data = new BpayDistributionObject();
-		data.TargetPlayer = Player.GUID;
-		data.DistributionID = BattlePayMgr.GenerateNewDistributionId();
-		data.PurchaseID = BattlePayMgr.GenerateNewPurchaseID();
+		data.TargetPlayer = _session.Player.GUID;
+		data.DistributionID = _bpayManager.GenerateNewDistributionId();
+		data.PurchaseID = _bpayManager.GenerateNewPurchaseID();
 		data.Status = (uint)BpayDistributionStatus.AVAILABLE;
 		data.ProductID = 260;
 		data.TargetVirtualRealm = 0;
@@ -276,7 +287,7 @@ public partial class WorldSession
 				if (BattlePayDataStoreMgr.Instance.DisplayInfoExist(productInfo.Entry))
 				{
 					// productinfo entry and display entry must be the same
-					var dispInfo = BattlePayMgr.WriteDisplayInfo(productInfo.Entry);
+					var dispInfo = _bpayManager.WriteDisplayInfo(productInfo.Entry);
 
 					if (dispInfo.Item1)
 						pItem.Display = dispInfo.Item2;
@@ -286,7 +297,7 @@ public partial class WorldSession
 			}
 
 		// productinfo entry and display entry must be the same
-		var display = BattlePayMgr.WriteDisplayInfo(productInfo.Entry);
+		var display = _bpayManager.WriteDisplayInfo(productInfo.Entry);
 
 		if (display.Item1)
 			pProduct.Display = display.Item2;
@@ -295,13 +306,13 @@ public partial class WorldSession
 
 		packet.DistributionObject.Add(data);
 
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 
 	public void SendSyncWowEntitlements()
 	{
 		var packet = new SyncWowEntitlements();
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 }

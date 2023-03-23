@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Networking;
 
-namespace Game.Networking;
+namespace Game.Common.Networking;
 
 public class AccountInfo
 {

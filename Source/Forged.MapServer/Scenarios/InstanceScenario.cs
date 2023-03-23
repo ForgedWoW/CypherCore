@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Achievements;
 using Framework.Constants;
 using Game.Maps;
-using Game.Networking;
+using Game.Common.Networking;
 
 namespace Game.Scenarios;
 

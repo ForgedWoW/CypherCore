@@ -3,8 +3,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class UpdateFieldArray<T> : IEnumerable<T> where T : new()
 {

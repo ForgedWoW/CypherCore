@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
-namespace Game.Cache;
+namespace Game.Common.Cache;
 
 public class CharacterCacheEntry
 {

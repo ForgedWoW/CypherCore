@@ -5,8 +5,12 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Addon;
+using Game.Common.Networking.Packets.AuctionHouse;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.AuctionHouse;
 
 public class AuctionBrowseQuery : ClientPacket
 {

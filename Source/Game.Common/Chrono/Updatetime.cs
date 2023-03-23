@@ -3,8 +3,10 @@
 
 using System;
 using Framework.Configuration;
+using Game.Common.Chrono;
+using Game;
 
-namespace Game;
+namespace Game.Common.Chrono;
 
 public class UpdateTime
 {

@@ -8,8 +8,9 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.B;
+using Game.Common.Networking.Packets.BattlePet;
 
 namespace Game.BattlePets;
 

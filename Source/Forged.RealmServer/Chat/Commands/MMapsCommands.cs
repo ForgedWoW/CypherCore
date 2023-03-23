@@ -8,6 +8,8 @@ using Framework.IO;
 using Game.Entities;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Movement;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.Chat;
 

@@ -4,8 +4,10 @@
 using System;
 using Framework.Collections;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Petition;
 
 public class PetitionInfo
 {

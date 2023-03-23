@@ -6,7 +6,6 @@ using System.Linq;
 using Framework.Constants;
 using Game.Entities;
 using Game.Scripting;
-using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.ISpell;
 using Game.Spells;
 

@@ -8,9 +8,13 @@ using Framework.Cryptography;
 using Framework.Database;
 using Framework.IO;
 using Framework.Networking;
-using Game.Networking.Packets;
+using Game.Common.Handlers;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Authentication;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Game.Networking;
+namespace Game.Common.Networking;
 
 public class WorldSocket : SocketBase
 {
@@ -844,7 +848,7 @@ public class WorldSocket : SocketBase
 	void HandleConnectToFailed(ConnectToFailed connectToFailed)
 	{
 		if (_worldSession != null)
-			if (_worldSession.PlayerLoading)
+			if (_worldSession.IsPlayerLoading)
 				switch (connectToFailed.Serial)
 				{
 					case ConnectToSerial.WorldAttempt1:

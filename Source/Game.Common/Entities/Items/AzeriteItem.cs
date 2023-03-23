@@ -6,10 +6,15 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Items;
+using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Azerite;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class AzeriteItem : Item
 {

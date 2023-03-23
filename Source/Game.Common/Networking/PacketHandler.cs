@@ -4,8 +4,12 @@
 using System;
 using System.Reflection;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Game.Common.Networking;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Game.Networking;
+namespace Game.Common.Networking;
 
 public class PacketHandler
 {

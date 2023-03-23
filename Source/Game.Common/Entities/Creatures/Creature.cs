@@ -12,10 +12,19 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 public partial class Creature : Unit
 {
@@ -1206,7 +1215,7 @@ public partial class Creature : Unit
 		return TapList.Contains(player.GUID);
 	}
 
-	public override Loot GetLootForPlayer(Player player)
+	public override Loot.Loot GetLootForPlayer(Player player)
 	{
 		if (PersonalLoot.Empty())
 			return Loot;

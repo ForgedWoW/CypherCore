@@ -4,8 +4,12 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Trade;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Trade;
 
 public class TradeUpdated : ServerPacket
 {

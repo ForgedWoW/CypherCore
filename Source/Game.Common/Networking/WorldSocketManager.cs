@@ -5,8 +5,10 @@ using System.Net.Sockets;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Networking;
+using Game.Common.Networking;
+using Game.Common.Server;
 
-namespace Game.Networking;
+namespace Game.Common.Networking;
 
 public class WorldSocketManager : SocketManager<WorldSocket>
 {

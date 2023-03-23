@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.Entities;
-using Game.Groups;
 using Game.Movement;
 using Game.Spells;
+using Game.Common.Groups;
 
 namespace Game.AI;
 

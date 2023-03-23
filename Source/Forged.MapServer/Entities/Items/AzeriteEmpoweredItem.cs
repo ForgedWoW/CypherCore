@@ -6,7 +6,8 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
-using Game.Networking;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.Networking;
 
 namespace Game.Entities;
 

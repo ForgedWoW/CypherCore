@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Database;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.Social;
 
 namespace Game.Entities;
 

@@ -3,8 +3,9 @@
 
 using System.Collections;
 using Framework.Constants;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class CufProfile
 {

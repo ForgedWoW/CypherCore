@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Globals;
 
 namespace Game.Entities;
 

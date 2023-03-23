@@ -3,6 +3,7 @@
 
 using Forged.RealmServer.AI;
 using Game.Entities;
+using Game.Common.Entities.GameObjects;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IGameObject;
 

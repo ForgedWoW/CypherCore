@@ -8,8 +8,10 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.Chat;
+using Game.Common.Entities.Players;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("reset")]
 class ResetCommands

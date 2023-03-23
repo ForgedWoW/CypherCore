@@ -5,8 +5,8 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Framework.Constants;
-using Game.Networking.Packets;
 using Google.Protobuf;
+using Game.Common.Networking.Packets.Battlenet;
 
 namespace Forged.RealmServer.Services;
 

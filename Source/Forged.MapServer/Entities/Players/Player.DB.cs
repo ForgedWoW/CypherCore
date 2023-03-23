@@ -14,9 +14,15 @@ using Game.Garrisons;
 using Game.Mails;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.T;
+using Game.Common.Globals;
+using Game.Common.Handlers;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Trait;
+using Game.Common.Scripting.Interfaces.IPlayer;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

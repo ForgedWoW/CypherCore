@@ -6,21 +6,39 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.AI;
-using Game.Chat;
 using Game.Combat;
 using Game.DataStorage;
-using Game.Groups;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
+using Game.Common.DoWork;
+using Game.Common.Entities;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Entities;
+using Game.Common.Globals;
+using Game.Common.Groups;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Scripting;
+using Game.Common.Server;
+using Game.Common.Text;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public partial class Unit : WorldObject
 {
@@ -1873,7 +1891,7 @@ public partial class Unit : WorldObject
 		// ghost spell check, allow apply any auras at player loading in ghost mode (will be cleanup after load)
 		if (!IsAlive &&
 			!aurSpellInfo.IsDeathPersistent &&
-			(!IsTypeId(TypeId.Player) || !AsPlayer.Session.PlayerLoading))
+			(!IsTypeId(TypeId.Player) || !AsPlayer.Session.IsPlayerLoading))
 			return null;
 
 		var caster = aura.Caster;

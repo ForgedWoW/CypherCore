@@ -2,8 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
+using Game.DataStorage;
+using Game.Common.DataStorage.Structs;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.Structs;
 
 public struct M2Camera
 {

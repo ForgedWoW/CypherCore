@@ -5,8 +5,9 @@ using System;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Cryptography.Ed25519;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Authentication;
 
 public class EnterEncryptedMode : ServerPacket
 {

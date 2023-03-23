@@ -7,9 +7,14 @@ using Framework.Constants;
 using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Chat;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking.Packets.Spell;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("modify")]
 class ModifyCommand

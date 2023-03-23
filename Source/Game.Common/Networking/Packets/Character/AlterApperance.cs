@@ -3,8 +3,10 @@
 
 using System.Collections.Generic;
 using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Character;
 
 public class AlterApperance : ClientPacket
 {

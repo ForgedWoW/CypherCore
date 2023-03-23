@@ -3,8 +3,9 @@
 
 using Framework.Collections;
 using Framework.Constants;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.GameObjects;
 
 public class GameObjectLocale
 {

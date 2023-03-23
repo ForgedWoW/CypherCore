@@ -3,7 +3,7 @@
 
 using Game.Spells;
 
-namespace Game.Scripting.Interfaces;
+namespace Game.Common.Scripting.Interfaces;
 
 public interface IBaseSpellScript
 {

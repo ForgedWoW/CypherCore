@@ -10,10 +10,21 @@ using Game.DataStorage;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.L;
+using Game.Common.DataStorage.Structs.M;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Entities;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Networking.Packets.Vehicle;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Units;
 
 public partial class Unit
 {

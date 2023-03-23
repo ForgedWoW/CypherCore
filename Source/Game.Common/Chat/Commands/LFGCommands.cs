@@ -6,9 +6,11 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DungeonFinding;
 using Game.Entities;
-using Game.Groups;
+using Game.Common.Chat;
+using Game.Common.Entities.Players;
+using Game.Common.Groups;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("lfg")]
 class LFGCommands

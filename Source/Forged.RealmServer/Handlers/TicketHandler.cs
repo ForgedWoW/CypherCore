@@ -3,9 +3,9 @@
 
 using Framework.Constants;
 using Framework.Database;
-using Game.Networking;
-using Game.Networking.Packets;
 using Forged.RealmServer.SupportSystem;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Ticket;
 
 namespace Forged.RealmServer;
 

@@ -4,10 +4,12 @@
 using Framework.Constants;
 using Game.Entities;
 using Forged.RealmServer.Groups;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IGroup;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking.Packets.Query;
 
 namespace Forged.RealmServer.DungeonFinding;
 

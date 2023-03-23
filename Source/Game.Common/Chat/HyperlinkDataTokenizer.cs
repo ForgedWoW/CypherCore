@@ -3,8 +3,9 @@
 
 using Framework.IO;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 class HyperlinkDataTokenizer
 {

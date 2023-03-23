@@ -3,8 +3,10 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Entities.Objects;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public class BgData
 {

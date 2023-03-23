@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Channel;
 
 namespace Forged.RealmServer;
 

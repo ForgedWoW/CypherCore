@@ -15,11 +15,23 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.Entities;
+using Game.Common.Entities.GameObjects;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Artifact;
+using Game.Common.Networking.Packets.BattleGround;
+using Game.Common.Networking.Packets.GameObject;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Server;
 
-namespace Game.Entities
+namespace Game.Common.Entities.GameObjects
 {
 	public class GameObject : WorldObject
 	{
@@ -63,7 +75,7 @@ namespace Game.Entities
 		Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
 
 		GameObjectState _prevGoState; // What state to set whenever resetting
-		Dictionary<ObjectGuid, Loot> _personalLoot = new();
+		Dictionary<ObjectGuid, Loot.Loot> _personalLoot = new();
 
 		ObjectGuid _linkedTrap;
 
@@ -71,7 +83,7 @@ namespace Game.Entities
 		public GameObjectFieldData GameObjectFieldData { get; set; }
 		public Position StationaryPosition { get; set; }
 
-		public Loot Loot { get; set; }
+		public Loot.Loot Loot { get; set; }
 
 		public GameObjectModel Model { get; set; }
 
@@ -1094,11 +1106,11 @@ namespace Game.Entities
 			SendMessageToSet(packet, true);
 		}
 
-		public Loot GetFishLoot(Player lootOwner)
+		public Loot.Loot GetFishLoot(Player lootOwner)
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
+			Loot.Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
 
 			var areaId = Area;
 			AreaTableRecord areaEntry;
@@ -1119,11 +1131,11 @@ namespace Game.Entities
 			return fishLoot;
 		}
 
-		public Loot GetFishLootJunk(Player lootOwner)
+		public Loot.Loot GetFishLootJunk(Player lootOwner)
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
+			Loot.Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
 
 			var areaId = Area;
 			AreaTableRecord areaEntry;
@@ -1825,7 +1837,7 @@ namespace Game.Entities
 							var group = player.Group;
 							var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-							Loot = new Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
+							Loot = new Loot.Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
 							Loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
 							Loot.FillLoot(info.GetLootId(), LootStorage.Gameobject, player, !groupRules, false, LootMode, Map.GetDifficultyLootItemContext());
 
@@ -1882,7 +1894,7 @@ namespace Game.Entities
 							}
 							else
 							{
-								Loot loot = new(Map, GUID, LootType.Chest, null);
+								Loot.Loot loot = new(Map, GUID, LootType.Chest, null);
 								_personalLoot[player.GUID] = loot;
 
 								loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
@@ -1898,7 +1910,7 @@ namespace Game.Entities
 					{
 						if (info.Chest.chestPushLoot != 0)
 						{
-							Loot pushLoot = new(Map, GUID, LootType.Chest, null);
+							Loot.Loot pushLoot = new(Map, GUID, LootType.Chest, null);
 							pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
 							pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
 						}
@@ -2444,7 +2456,7 @@ namespace Game.Entities
 
 					var player = user.AsPlayer;
 
-					var loot = new Loot(Map, GUID, LootType.Fishinghole, null);
+					var loot = new Loot.Loot(Map, GUID, LootType.Fishinghole, null);
 					loot.FillLoot(Template.GetLootId(), LootStorage.Gameobject, player, true);
 					_personalLoot[player.GUID] = loot;
 
@@ -2652,7 +2664,7 @@ namespace Game.Entities
 					{
 						if (info.GatheringNode.chestLoot != 0)
 						{
-							Loot newLoot = new(Map, GUID, LootType.Chest, null);
+							Loot.Loot newLoot = new(Map, GUID, LootType.Chest, null);
 							_personalLoot[player.GUID] = newLoot;
 
 							newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
@@ -3255,7 +3267,7 @@ namespace Game.Entities
 			return true;
 		}
 
-		public override Loot GetLootForPlayer(Player player)
+		public override Loot.Loot GetLootForPlayer(Player player)
 		{
 			if (_personalLoot.Empty())
 				return Loot;

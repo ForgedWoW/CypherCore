@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Chat;
+namespace Game.Common.Chat;
 
 [AttributeUsage(AttributeTargets.Parameter)]
 public class VariantArgAttribute : Attribute

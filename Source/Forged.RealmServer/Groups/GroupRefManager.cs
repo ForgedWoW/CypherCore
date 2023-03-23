@@ -3,6 +3,7 @@
 
 using Framework.Dynamic;
 using Game.Entities;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Groups;
 

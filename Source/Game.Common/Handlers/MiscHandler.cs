@@ -9,14 +9,23 @@ using Framework.IO;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IConversation;
 using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.DataStorage.Structs.U;
+using Game.Common.Entities.Objects;
+using Game.Common.Globals;
+using Game;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.AreaTrigger;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.ClientConfig;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Warden;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class MiscHandler
 {
 	public void SendLoadCUFProfiles()
 	{

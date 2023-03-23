@@ -4,8 +4,11 @@
 using System.Collections.Generic;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects;
 
 public class WorldLocation : Position
 {

@@ -3,6 +3,8 @@
 
 using Game.Entities;
 using Forged.RealmServer.Guilds;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IGuild;
 

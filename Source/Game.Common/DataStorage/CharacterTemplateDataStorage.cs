@@ -4,8 +4,10 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.DataStorage;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage;
 
 public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStorage>
 {

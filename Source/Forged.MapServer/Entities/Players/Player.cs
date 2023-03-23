@@ -12,19 +12,44 @@ using Framework.Dynamic;
 using Game.Achievements;
 using Game.AI;
 using Game.BattlePets;
-using Game.Chat;
 using Game.DataStorage;
 using Game.Garrisons;
 using Game.Guilds;
 using Game.Mails;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Misc;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
+using Game.Common.Chat;
+using Game.Common.Chat.Channels;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.C;
+using Game.Common.DataStorage.Structs.F;
+using Game.Common.DoWork;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Networking.Packets.Mail;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Movement;
+using Game.Common.Networking.Packets.NPC;
+using Game.Common.Networking.Packets.Party;
+using Game.Common.Networking.Packets.Pet;
+using Game.Common.Networking.Packets.Quest;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Networking.Packets.Talent;
+using Game.Common.Networking.Packets.Toy;
+using Game.Common.Networking.Packets.Vehicle;
+using Game.Common.Networking.Packets.WorldState;
+using Game.Common.Scripting;
+using Game.Common.Scripting.Interfaces.IPlayer;
+using Game.Common.Server;
+using Game.Common.Text;
 
 namespace Game.Entities;
 
@@ -4210,7 +4235,7 @@ public partial class Player : Unit
 		for (var i = 0; i < playerChoice.Responses.Count; ++i)
 		{
 			var playerChoiceResponseTemplate = playerChoice.Responses[i];
-			var playerChoiceResponse = new Networking.Packets.PlayerChoiceResponse();
+			var playerChoiceResponse = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponse();
 
 			playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
 			playerChoiceResponse.ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier;
@@ -4245,7 +4270,7 @@ public partial class Player : Unit
 
 			if (playerChoiceResponseTemplate.Reward != null)
 			{
-				var reward = new Networking.Packets.PlayerChoiceResponseReward();
+				var reward = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseReward();
 				reward.TitleID = playerChoiceResponseTemplate.Reward.TitleId;
 				reward.PackageID = playerChoiceResponseTemplate.Reward.PackageId;
 				reward.SkillLineID = playerChoiceResponseTemplate.Reward.SkillLineId;
@@ -4257,7 +4282,7 @@ public partial class Player : Unit
 
 				foreach (var item in playerChoiceResponseTemplate.Reward.Items)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = item.Id;
 					rewardEntry.Quantity = item.Quantity;
 
@@ -4272,7 +4297,7 @@ public partial class Player : Unit
 
 				foreach (var currency in playerChoiceResponseTemplate.Reward.Currency)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = currency.Id;
 					rewardEntry.Quantity = currency.Quantity;
 					reward.Items.Add(rewardEntry);
@@ -4280,7 +4305,7 @@ public partial class Player : Unit
 
 				foreach (var faction in playerChoiceResponseTemplate.Reward.Faction)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = faction.Id;
 					rewardEntry.Quantity = faction.Quantity;
 					reward.Items.Add(rewardEntry);
@@ -4288,7 +4313,7 @@ public partial class Player : Unit
 
 				foreach (var item in playerChoiceResponseTemplate.Reward.ItemChoices)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = item.Id;
 					rewardEntry.Quantity = item.Quantity;
 

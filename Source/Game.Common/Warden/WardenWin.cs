@@ -8,9 +8,15 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Networking.Packets;
+using Game.Common.Handlers;
+using Game.Common.Networking.Packets.Warden;
+using Game.Common.Server;
+using Game.Common.Services;
+using Game.Common.Warden;
+using Game;
+using Game.Common.Warden.Modules;
 
-namespace Game;
+namespace Game.Common.Warden;
 
 class WardenWin : Warden
 {
@@ -158,7 +164,7 @@ class WardenWin : Warden
 
 	public override void RequestChecks()
 	{
-		Log.outDebug(LogFilter.Warden, $"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player && !Session.PlayerLoading}");
+		Log.outDebug(LogFilter.Warden, $"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player && !Session.IsPlayerLoading}");
 
 		// If all checks for a category are done, fill its todo list again
 		foreach (var category in Enum.GetValues<WardenCheckCategory>())

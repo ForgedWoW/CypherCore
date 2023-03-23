@@ -16,13 +16,21 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Realm;
 using Forged.RealmServer.Accounts;
-using Forged.RealmServer.Battlepay;
 using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Chat;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Game.Common.Battlepay;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Authentication;
+using Game.Common.Networking.Packets.Battlenet;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Networking.Packets.ClientConfig;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Warden;
 
 namespace Forged.RealmServer;
 
@@ -47,9 +55,8 @@ public partial class WorldSession : IDisposable
 	readonly AccountData[] _accountData = new AccountData[(int)AccountDataTypes.Max];
 	readonly uint[] _tutorials = new uint[SharedConst.MaxAccountTutorialValues];
 	readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
-	readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
 
-	readonly List<string> _registeredAddonPrefixes = new();
+    readonly List<string> _registeredAddonPrefixes = new();
 	readonly uint _recruiterId;
 	readonly bool _isRecruiter;
 
@@ -93,7 +100,6 @@ public partial class WorldSession : IDisposable
 	TutorialsFlag _tutorialsChanged;
 
 	Array<byte> _realmListSecret = new(32);
-	uint _battlenetRequestToken;
 	bool _filterAddonMessages;
 	long _timeOutTime;
 
@@ -609,12 +615,12 @@ public partial class WorldSession : IDisposable
 		if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 		{
 			connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv4;
+			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv4;
 		}
 		else
 		{
 			connectTo.Payload.Where.IPv6 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv6;
+			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv6;
 		}
 
 		SendPacket(connectTo);

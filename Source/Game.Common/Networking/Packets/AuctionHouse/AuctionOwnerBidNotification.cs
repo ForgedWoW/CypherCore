@@ -3,8 +3,11 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.AuctionHouse;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.AuctionHouse;
 
 public class AuctionOwnerBidNotification : ServerPacket
 {

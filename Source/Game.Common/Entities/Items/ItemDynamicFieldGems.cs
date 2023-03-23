@@ -2,8 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Runtime.InteropServices;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 [StructLayout(LayoutKind.Sequential)]
 public class ItemDynamicFieldGems

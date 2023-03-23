@@ -10,9 +10,11 @@ using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
 using Forged.RealmServer.Guilds;
-using Game.Networking;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Achievements;
 
 namespace Forged.RealmServer.Achievements;
 

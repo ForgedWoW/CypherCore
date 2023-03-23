@@ -6,9 +6,14 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
-using Game.Networking;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.Entities.Items;
+using Game.Entities;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class AzeriteEmpoweredItem : Item
 {

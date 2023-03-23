@@ -3,8 +3,11 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Item;
 
 public class SetItemPurchaseData : ServerPacket
 {

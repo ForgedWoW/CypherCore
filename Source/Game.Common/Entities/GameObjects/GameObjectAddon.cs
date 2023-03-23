@@ -3,8 +3,9 @@
 
 using System.Numerics;
 using Framework.Constants;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.GameObjects;
 
 public class GameObjectAddon
 {

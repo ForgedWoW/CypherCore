@@ -7,6 +7,9 @@ using Framework.Constants;
 using Framework.Database;
 using Game;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.A;
+using Game.Common.DataStorage.Structs.C;
+using Game.Common.DataStorage.Structs.S;
 
 namespace Forged.MapServer.Achievements;
 

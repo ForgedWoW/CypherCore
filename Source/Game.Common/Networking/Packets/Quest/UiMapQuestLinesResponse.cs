@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets.Quest;
+namespace Game.Common.Networking.Packets.Quest;
 
 public class UiMapQuestLinesResponse : ServerPacket
 {

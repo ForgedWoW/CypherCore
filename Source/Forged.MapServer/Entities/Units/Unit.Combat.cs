@@ -7,12 +7,18 @@ using System.Linq;
 using Framework.Constants;
 using Game.Combat;
 using Game.DataStorage;
-using Game.Groups;
 using Game.Loots;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.D;
+using Game.Common.Groups;
+using Game.Common.Loot;
+using Game.Common.Networking.Packets.Combat;
+using Game.Common.Networking.Packets.CombatLog;
+using Game.Common.Networking.Packets.Party;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

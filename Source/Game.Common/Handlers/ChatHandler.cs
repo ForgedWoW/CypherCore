@@ -2,37 +2,43 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using System.Linq;
 using Framework.Constants;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Groups;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
+using Game.Common.DataStorage.ClientReader;
+using Game.Common.DataStorage.Structs.E;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Scripting.Interfaces.IPlayer;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class ChatHandler
 {
+    private readonly WorldSession _session;
+    private readonly DB6Storage<EmotesTextRecord> _emotes;
+
+    public ChatHandler(WorldSession session, DB6Storage<EmotesTextRecord> emotes)
+    {
+        _session = session;
+        _emotes = emotes;
+    }
 
 	[WorldPacketHandler(ClientOpcodes.SendTextEmote, Processing = PacketProcessing.Inplace)]
 	void HandleTextEmote(CTextEmote packet)
 	{
-		if (!_player.IsAlive)
+		if (!_session.Player.IsAlive)
 			return;
 
-		if (!CanSpeak)
+		if (!_session.CanSpeak)
 		{
-			var timeStr = Time.secsToTimeString((ulong)(MuteTime - GameTime.GetGameTime()));
-			SendNotification(CypherStrings.WaitBeforeSpeaking, timeStr);
+			var timeStr = Time.secsToTimeString((ulong)(_session.MuteTime - GameTime.GetGameTime()));
+            _session.SendNotification(CypherStrings.WaitBeforeSpeaking, timeStr);
 
 			return;
 		}
 
-		Global.ScriptMgr.ForEach<IPlayerOnTextEmote>(p => p.OnTextEmote(_player, (uint)packet.SoundIndex, (uint)packet.EmoteID, packet.Target));
-		var em = CliDB.EmotesTextStorage.LookupByKey(packet.EmoteID);
+		Global.ScriptMgr.ForEach<IPlayerOnTextEmote>(p => p.OnTextEmote(_session.Player, (uint)packet.SoundIndex, (uint)packet.EmoteID, packet.Target));
+		var em = _emotes.LookupByKey((uint)packet.EmoteID);
 
 		if (em == null)
 			return;
@@ -48,30 +54,30 @@ public partial class WorldSession
 				break;
 			case Emote.StateDance:
 			case Emote.StateRead:
-				_player.EmoteState = emote;
+				_session.Player.EmoteState = emote;
 
 				break;
 			default:
 				// Only allow text-emotes for "dead" entities (feign death included)
-				if (_player.HasUnitState(UnitState.Died))
+				if (_session.Player.HasUnitState(UnitState.Died))
 					break;
 
-				_player.HandleEmoteCommand(emote, null, packet.SpellVisualKitIDs, packet.SequenceVariation);
+				_session.Player.HandleEmoteCommand(emote, null, packet.SpellVisualKitIDs, packet.SequenceVariation);
 
 				break;
 		}
 
 		STextEmote textEmote = new();
-		textEmote.SourceGUID = _player.GUID;
-		textEmote.SourceAccountGUID = AccountGUID;
+		textEmote.SourceGUID = _session.Player.GUID;
+		textEmote.SourceAccountGUID = _session.AccountGUID;
 		textEmote.TargetGUID = packet.Target;
 		textEmote.EmoteID = packet.EmoteID;
 		textEmote.SoundIndex = packet.SoundIndex;
-		_player.SendMessageToSetInRange(textEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true);
+		_session.Player.SendMessageToSetInRange(textEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true);
 
-		var unit = Global.ObjAccessor.GetUnit(_player, packet.Target);
+		var unit = Global.ObjAccessor.GetUnit(_session.Player, packet.Target);
 
-		_player.UpdateCriteria(CriteriaType.DoEmote, (uint)packet.EmoteID, 0, 0, unit);
+		_session.Player.UpdateCriteria(CriteriaType.DoEmote, (uint)packet.EmoteID, 0, 0, unit);
 
 		// Send scripted event call
 		if (unit)
@@ -79,10 +85,10 @@ public partial class WorldSession
 			var creature = unit.AsCreature;
 
 			if (creature)
-				creature.AI.ReceiveEmote(_player, (TextEmotes)packet.EmoteID);
+				creature.AI.ReceiveEmote(_session.Player, (TextEmotes)packet.EmoteID);
 		}
 
 		if (emote != Emote.OneshotNone)
-			_player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Anim);
+			_session.Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Anim);
 	}
 }

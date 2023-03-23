@@ -5,9 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.Entities;
-using Game.Networking.Packets;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Globals;
+using Game.Common.Handlers;
+using Game.Common.Networking.Packets.NPC;
+using Game.Common.Networking.Packets.Quest;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Game.Misc;
+namespace Game.Common.Entities.Creatures;
 
 public class PlayerMenu
 {

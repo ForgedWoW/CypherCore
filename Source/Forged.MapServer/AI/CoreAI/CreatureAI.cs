@@ -11,6 +11,7 @@ using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.S;
 
 namespace Game.AI;
 

@@ -10,9 +10,14 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Networking;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class Corpse : WorldObject
 {
@@ -22,7 +27,7 @@ public class Corpse : WorldObject
 
 	public CorpseData CorpseData { get; set; }
 
-	public Loot Loot { get; set; }
+	public Loot.Loot Loot { get; set; }
 	public Player LootRecipient { get; set; }
 
 	public override ObjectGuid OwnerGUID => CorpseData.Owner;
@@ -396,7 +401,7 @@ public class Corpse : WorldObject
 		_cellCoord = cellCoord;
 	}
 
-	public override Loot GetLootForPlayer(Player player)
+	public override Loot.Loot GetLootForPlayer(Player player)
 	{
 		return Loot;
 	}

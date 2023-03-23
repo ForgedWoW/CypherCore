@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Item;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Item;
 
 public class ItemBonusKey : IEquatable<ItemBonusKey>
 {

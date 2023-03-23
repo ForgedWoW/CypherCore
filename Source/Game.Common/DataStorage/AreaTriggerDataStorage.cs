@@ -8,8 +8,12 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Game.Maps.Grids;
+using Game.Common.DataStorage;
+using Game.DataStorage;
+using Game.Common.Entities.AreaTriggers;
+using Game.Common.Entities.Objects;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage;
 
 public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 {

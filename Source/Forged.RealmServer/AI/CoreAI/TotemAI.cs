@@ -4,6 +4,10 @@
 using Framework.Constants;
 using Game.Entities;
 using Forged.RealmServer.Maps;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

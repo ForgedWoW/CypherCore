@@ -6,7 +6,8 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Forged.RealmServer.Mails;
-using Game.Networking.Packets;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
 
 namespace Forged.RealmServer.BlackMarket;
 

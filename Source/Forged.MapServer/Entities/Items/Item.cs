@@ -10,10 +10,14 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Loots;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Loot;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Artifact;
+using Game.Common.Networking.Packets.Item;
+using Game.Common.Server;
 
 namespace Game.Entities;
 

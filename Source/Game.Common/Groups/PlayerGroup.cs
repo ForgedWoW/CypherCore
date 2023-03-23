@@ -9,11 +9,19 @@ using Game.BattleFields;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IGroup;
+using Game.Common.DataStorage.Structs.M;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Groups;
+using Game.Common.Handlers;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Party;
+using Game.Common.Server;
+using Game.Common.Services;
 
-namespace Game.Groups;
+namespace Game.Common.Groups;
 
 public class PlayerGroup
 {

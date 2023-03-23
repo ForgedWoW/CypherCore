@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Framework.IO;
+using Game.Common.Networking;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Battlenet;
 
 public class ChangeRealmTicketResponse : ServerPacket
 {

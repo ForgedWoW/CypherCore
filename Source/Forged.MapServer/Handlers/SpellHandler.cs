@@ -5,13 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Loot;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Loots;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.GameObject;
+using Game.Common.Networking.Packets.Pet;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Networking.Packets.Totem;
 
 namespace Game;
 

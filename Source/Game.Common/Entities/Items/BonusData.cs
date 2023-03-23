@@ -5,9 +5,12 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Networking.Packets;
+using Game.Common.DataStorage.Structs.I;
+using Game.Common.Entities.Items;
+using Game.Entities;
+using Game.Common.Networking.Packets.Item;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Items;
 
 public class BonusData
 {

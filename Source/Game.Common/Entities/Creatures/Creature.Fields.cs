@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Loots;
+using Game.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Creatures;
 
 public partial class Creature
 {
@@ -57,14 +60,14 @@ public partial class Creature
 		set { _lootid = value; }
 	}
 
-	internal Dictionary<ObjectGuid, Loot> PersonalLoot { get; set; } = new();
+	internal Dictionary<ObjectGuid, Loot.Loot> PersonalLoot { get; set; } = new();
 	public MovementGeneratorType DefaultMovementType { get; set; }
 	public ulong SpawnId { get; set; }
 
 	public StaticCreatureFlags StaticFlags { get; set; } = new();
 	public uint[] Spells { get; set; } = new uint[SharedConst.MaxCreatureSpells];
 	public long CorpseRemoveTime { get; set; } // (msecs)timer for death or corpse disappearance
-	public Loot Loot { get; set; }
+	public Loot.Loot Loot { get; set; }
 
 	public bool CanHaveLoot
 	{

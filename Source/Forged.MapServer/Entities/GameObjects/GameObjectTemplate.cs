@@ -3,7 +3,7 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
-using Game.Networking.Packets;
+using Game.Common.Networking.Packets.Query;
 
 namespace Game.Entities;
 

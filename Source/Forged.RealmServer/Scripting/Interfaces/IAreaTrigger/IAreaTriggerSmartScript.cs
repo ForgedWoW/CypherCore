@@ -4,6 +4,7 @@
 using Framework.Constants;
 using Forged.RealmServer.AI;
 using Game.Entities;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IAreaTrigger;
 

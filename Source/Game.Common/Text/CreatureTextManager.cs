@@ -6,14 +6,21 @@ using System.Collections.Generic;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Game.Chat;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Globals;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Server;
+using Game.Common.Text;
+using Game;
 
-namespace Game;
+namespace Game.Common.Text;
 
 public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 {

@@ -3,8 +3,10 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
+using Game.Common.Entities.AreaTriggers;
+using Game.Entities;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.AreaTriggers;
 
 /// 6 bool is_override, only valid for AREATRIGGER_OVERRIDE_SCALE_CURVE, if true then use data from AREATRIGGER_OVERRIDE_SCALE_CURVE instead of ScaleCurveId from CreateObject
 /// </summary>

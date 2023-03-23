@@ -3,11 +3,17 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Networking;
 using Game.Scripting.Interfaces.IDynamicObject;
 using Game.Spells;
+using Game.Common.Entities;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
 
-namespace Game.Entities;
+namespace Game.Common.Entities;
 
 public class DynamicObject : WorldObject
 {

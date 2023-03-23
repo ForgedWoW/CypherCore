@@ -6,6 +6,8 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Entities;
 using Forged.RealmServer.Maps;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
 
 namespace Forged.RealmServer;
 

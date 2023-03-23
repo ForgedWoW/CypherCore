@@ -3,8 +3,9 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
 
-namespace Game.Groups;
+namespace Game.Common.Groups;
 
 public class MemberSlot
 {

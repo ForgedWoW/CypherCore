@@ -4,9 +4,15 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Networking;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Entities;
+using Game.Common.Entities.Players;
+using Game.Common.Entities.Units;
+using Game.Common.Networking;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects.Update;
 
 public class UnitData : BaseUpdateData<Unit>
 {

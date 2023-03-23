@@ -5,8 +5,13 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Inspect;
 
-namespace Game.Networking.Packets;
+namespace Game.Common.Networking.Packets.Inspect;
 
 public class PlayerModelDisplayInfo
 {

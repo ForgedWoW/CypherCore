@@ -13,8 +13,14 @@ using Game.Entities;
 using Game.Loots;
 using Game.Maps;
 using Game.Movement;
+using Game.Common.Chat;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Objects;
+using Game.Common.Loot;
+using Game.Common.Server;
 
-namespace Game.Chat;
+namespace Game.Common.Chat.Commands;
 
 [CommandGroup("npc")]
 class NPCCommands

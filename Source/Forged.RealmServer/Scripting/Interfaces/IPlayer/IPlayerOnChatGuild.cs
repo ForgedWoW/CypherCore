@@ -4,6 +4,7 @@
 using Framework.Constants;
 using Game.Entities;
 using Forged.RealmServer.Guilds;
+using Game.Common.Entities.Players;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IPlayer;
 

@@ -3,10 +3,12 @@
 
 using System.Numerics;
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Entities;
+using Game.Common.Entities.Objects;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Movement;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Objects;
 
 public class MovementForce
 {

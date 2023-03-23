@@ -7,12 +7,16 @@ using Framework.Constants;
 using Framework.Realm;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Entities.Objects;
+using Game.Common.Globals;
+using Game;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Query;
+using Game.Common.Server;
 
-namespace Game;
+namespace Game.Common.Handlers;
 
-public partial class WorldSession
+public class QueryHandler
 {
 	public void BuildNameQueryData(ObjectGuid guid, out NameCacheLookupResult lookupData)
 	{

@@ -7,11 +7,22 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.DataStorage;
-using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
+using Game.Common.DataStorage.Structs.S;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.Items;
+using Game.Common.Entities.Objects;
+using Game.Common.Entities.Objects.Update;
+using Game.Common.Entities.Players;
+using Game.Entities;
+using Game.Common.Entities.Units;
+using Game.Common.Networking.Packets.Misc;
+using Game.Common.Networking.Packets.Pet;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Server;
 
-namespace Game.Entities;
+namespace Game.Common.Entities.Players;
 
 public partial class Player
 {
@@ -2015,7 +2026,7 @@ public partial class Player
 	{
 		StoredAuraTeleportLocation storedLocation = new();
 		storedLocation.Loc = new WorldLocation(Location);
-		storedLocation.CurrentState = StoredAuraTeleportLocation.State.Changed;
+		storedLocation.CurrentState = Game.Common.Entities.Players.State.Changed;
 
 		_storedAuraTeleportLocations[spellId] = storedLocation;
 	}
@@ -2025,7 +2036,7 @@ public partial class Player
 		var storedLocation = _storedAuraTeleportLocations.LookupByKey(spellId);
 
 		if (storedLocation != null)
-			storedLocation.CurrentState = StoredAuraTeleportLocation.State.Deleted;
+			storedLocation.CurrentState = Game.Common.Entities.Players.State.Deleted;
 	}
 
 	public WorldLocation GetStoredAuraTeleportLocation(uint spellId)
@@ -3792,7 +3803,7 @@ public partial class Player
 				AddOverrideSpell(spellNode.OverridesSpell, spellNode.Spell);
 		}
 
-		if (!Session.PlayerLoading)
+		if (!Session.IsPlayerLoading)
 		{
 			// not ranked skills
 			foreach (var _spell_idx in skill_bounds)

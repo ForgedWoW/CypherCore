@@ -3,8 +3,9 @@
 
 using System.IO;
 using System.Numerics;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.Structs;
 
 public struct M2SplineKey
 {

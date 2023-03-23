@@ -6,6 +6,10 @@ using Game.Entities;
 using Forged.RealmServer.Movement;
 using Forged.RealmServer.Scripting.Interfaces.ICreature;
 using Forged.RealmServer.Scripting.Interfaces.IGameObject;
+using Game.Common.Entities;
+using Game.Common.Entities.Creatures;
+using Game.Common.Entities.GameObjects;
+using Game.Common.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

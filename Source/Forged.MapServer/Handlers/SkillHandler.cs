@@ -3,8 +3,9 @@
 
 using System;
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Spell;
+using Game.Common.Networking.Packets.Talent;
 
 namespace Game;
 

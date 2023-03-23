@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Game.DataStorage;
+using Game.Common.DataStorage.Structs.M;
 
 namespace Forged.MapServer.Achievements;
 

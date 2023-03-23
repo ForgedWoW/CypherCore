@@ -2,8 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Game.Scripting;
 
-namespace Game.Scripting;
+namespace Game.Common.Scripting;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ScriptAttribute : Attribute

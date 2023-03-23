@@ -8,8 +8,10 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
-using Game.Networking.Packets;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Game.Common.Entities.Players;
+using Game.Common.Networking.Packets.Character;
+using Game.Common.Networking.Packets.Reputation;
 
 namespace Forged.RealmServer;
 
@@ -222,7 +224,7 @@ public class ReputationMgr
 
 	public void SendVisible(FactionState faction, bool visible = true)
 	{
-		if (_player.Session.PlayerLoading)
+		if (_player.Session.IsPlayerLoading)
 			return;
 
 		//make faction visible / not visible in reputation list at client

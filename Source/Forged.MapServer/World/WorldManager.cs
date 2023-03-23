@@ -12,17 +12,19 @@ using Framework.Database;
 using Framework.Realm;
 using Framework.Threading;
 using Game.BattlePets;
-using Game.Chat;
 using Game.Collision;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 using Game.Scripting;
-using Game.Scripting.Interfaces.IServer;
-using Game.Scripting.Interfaces.IWorld;
 using Game.Spells;
+using Game.Common.Chat.Channels;
+using Game.Common.DoWork;
+using Game.Common.Networking;
+using Game.Common.Networking.Packets.Chat;
+using Game.Common.Scripting;
+using Game.Common.Server;
+using Game.Common.Time;
 
 namespace Game;
 

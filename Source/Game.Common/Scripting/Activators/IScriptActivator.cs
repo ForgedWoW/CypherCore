@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Scripting.Interfaces;
+using Game.Common.Scripting;
+using Game.Scripting.Activators;
+using Game.Common.Scripting.Interfaces;
 
-namespace Game.Scripting.Activators;
+namespace Game.Common.Scripting.Activators;
 
 public interface IScriptActivator
 {

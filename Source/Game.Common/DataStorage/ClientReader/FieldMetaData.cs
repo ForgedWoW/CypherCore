@@ -3,8 +3,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Game.DataStorage;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage.ClientReader;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct FieldMetaData

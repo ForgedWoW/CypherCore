@@ -3,8 +3,10 @@
 
 using Framework.Constants;
 using Game.Entities;
+using Game.DataStorage;
+using Game.Common.Entities.Objects;
 
-namespace Game.DataStorage;
+namespace Game.Common.DataStorage;
 
 public class WhoListPlayerInfo
 {
