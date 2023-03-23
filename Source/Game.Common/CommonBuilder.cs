@@ -7,19 +7,19 @@ namespace Game.Common
     {
         public static ContainerBuilder AddCommon(this ContainerBuilder services)
         {
-            services.RegisterType<AuthenticationHandler>().SingleInstance();
-            services.RegisterType<BattlenetHandler>().SingleInstance();
-            services.RegisterType<BattlepayHandler>().SingleInstance();
-            services.RegisterType<CharacterHandler>().SingleInstance();
-            services.RegisterType<ChatHandler>().SingleInstance();
-            services.RegisterType<GarrisonHandler>().SingleInstance();
-            services.RegisterType<GuildHandler>().SingleInstance();
-            services.RegisterType<HotfixHandler>().SingleInstance();
-            services.RegisterType<MythicPlusHandler>().SingleInstance();
-            services.RegisterType<QueryHandler>().SingleInstance();
-            services.RegisterType<SocialHandler>().SingleInstance();
-            services.RegisterType<TimeHandler>().SingleInstance();
-            services.RegisterType<TokenHandler>().SingleInstance();
+            services.RegisterType<AuthenticationHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<BattlenetHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<BattlepayHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<CharacterHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<ChatHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<GarrisonHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<GuildHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<HotfixHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<MythicPlusHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<QueryHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<SocialHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<TimeHandler>().As<IWorldSessionHandler>().SingleInstance();
+            services.RegisterType<TokenHandler>().As<IWorldSessionHandler>().SingleInstance();
             return services;
         }
     }

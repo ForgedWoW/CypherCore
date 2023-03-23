@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.Entities.Objects;
 using Game.Common.Globals;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Query;
@@ -11,7 +10,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class QueryHandler
+public class QueryHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

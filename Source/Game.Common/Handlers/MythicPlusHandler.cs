@@ -8,7 +8,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class MythicPlusHandler
+public class MythicPlusHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

@@ -9,7 +9,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class GuildHandler
+public class GuildHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly GuildManager _guildManager;

@@ -8,7 +8,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class TokenHandler
+public class TokenHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

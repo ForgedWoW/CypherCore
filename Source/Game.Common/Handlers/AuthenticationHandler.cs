@@ -10,7 +10,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class AuthenticationHandler
+public class AuthenticationHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly Realm _realm;

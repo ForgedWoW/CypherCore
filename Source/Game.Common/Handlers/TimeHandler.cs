@@ -8,7 +8,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class TimeHandler
+public class TimeHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

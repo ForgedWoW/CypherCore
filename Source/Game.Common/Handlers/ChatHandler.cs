@@ -12,7 +12,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class ChatHandler
+public class ChatHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly DB6Storage<EmotesTextRecord> _emotes;

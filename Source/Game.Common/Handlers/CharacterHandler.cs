@@ -20,7 +20,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class CharacterHandler
+public class CharacterHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly CollectionMgr _collectionMgr;

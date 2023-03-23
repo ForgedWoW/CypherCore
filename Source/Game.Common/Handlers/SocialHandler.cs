@@ -8,7 +8,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class SocialHandler
+public class SocialHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

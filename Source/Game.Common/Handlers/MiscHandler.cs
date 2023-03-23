@@ -2,25 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using Framework.Constants;
 using Framework.IO;
-using Game.Common.DataStorage.Structs.U;
 using Game.Common.Entities.Objects;
-using Game.Common.Globals;
 using Game.Common.Networking;
-using Game.Common.Networking.Packets.AreaTrigger;
-using Game.Common.Networking.Packets.Character;
 using Game.Common.Networking.Packets.Chat;
 using Game.Common.Networking.Packets.ClientConfig;
-using Game.Common.Networking.Packets.Misc;
 using Game.Common.Networking.Packets.Warden;
 using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class MiscHandler
+public class MiscHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

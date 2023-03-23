@@ -8,7 +8,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class GarrisonHandler
+public class GarrisonHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

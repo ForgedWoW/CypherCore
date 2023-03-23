@@ -8,7 +8,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class LogoutHandler
+public class LogoutHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
 

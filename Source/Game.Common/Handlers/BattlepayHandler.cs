@@ -4,14 +4,13 @@
 using Framework.Constants;
 using Game.Common.Battlepay;
 using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Bpay;
 using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class BattlepayHandler
+public class BattlepayHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly BattlepayManager _bpayManager;
@@ -166,7 +165,7 @@ public class BattlepayHandler
 	//C++ TO C# CONVERTER WARNING: The original C++ declaration of the following method implementation was not found:
 	public void HandleBattlePayStartPurchase(StartPurchase packet)
 	{
-		SendMakePurchase(packet.TargetCharacter, packet.ClientToken, packet.ProductID, this);
+		SendMakePurchase(packet.TargetCharacter, packet.ClientToken, packet.ProductID, _session);
 	}
 
 	//C++ TO C# CONVERTER WARNING: The original C++ declaration of the following method implementation was not found:

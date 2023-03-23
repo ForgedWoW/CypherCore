@@ -4,23 +4,22 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Google.Protobuf;
-using Game;
-using Game.Common.Handlers;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Battlenet;
+using Game.Common.Server;
 using Game.Common.Services;
+using Google.Protobuf;
 
 namespace Game.Common.Handlers;
 
-public class BattlenetHandler
+public class BattlenetHandler : IWorldSessionHandler
 {
-    private readonly RealmRequestService _session;
+    private readonly WorldSession _session;
     private readonly WorldServiceManager _worldServiceManager;
     readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
     uint _battlenetRequestToken;
 
-    public BattlenetHandler(RealmRequestService session, WorldServiceManager worldServiceManager)
+    public BattlenetHandler(WorldSession session, WorldServiceManager worldServiceManager)
     {
         _session = session;
         _worldServiceManager = worldServiceManager;

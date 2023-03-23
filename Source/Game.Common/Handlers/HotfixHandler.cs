@@ -11,7 +11,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Handlers;
 
-public class HotfixHandler
+public class HotfixHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly Dictionary<uint, IDB2Storage> _storage;
