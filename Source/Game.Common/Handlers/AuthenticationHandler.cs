@@ -7,8 +7,19 @@ using Game.Networking.Packets;
 
 namespace Game;
 
-public partial class WorldSession
+public class AuthenticationHandler
 {
+    private WorldSession _session;
+    private readonly Realm _realm;
+    private readonly uint _virtualRealmAddress;
+
+    public AuthenticationHandler(WorldSession session, Realm realm, uint virtualRealmAddress)
+    {
+        _session = session;
+        _realm = realm;
+        _virtualRealmAddress = virtualRealmAddress;
+    }
+
 	public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
 	{
 		AuthResponse response = new();
@@ -20,17 +31,15 @@ public partial class WorldSession
 			var forceRaceAndClass = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
 
 			response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion;
-			response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion;
-			response.SuccessInfo.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.Expansion;
+			response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.AccountExpansion;
+			response.SuccessInfo.VirtualRealmAddress = _virtualRealmAddress;
 			response.SuccessInfo.Time = (uint)GameTime.GetGameTime();
 
-			var realm = Global.WorldMgr.Realm;
+            // Send current home realm. Also there is no need to send it later in realm queries.
+			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.GetAddress(), true, false, _realm.Name, _realm.NormalizedName));
 
-			// Send current home realm. Also there is no need to send it later in realm queries.
-			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName));
-
-			if (HasPermission(RBACPermissions.UseCharacterTemplates))
+			if (_session.HasPermission(RBACPermissions.UseCharacterTemplates))
 				foreach (var templ in Global.CharacterTemplateDataStorage.GetCharacterTemplates().Values)
 					response.SuccessInfo.Templates.Add(templ);
 
@@ -44,7 +53,7 @@ public partial class WorldSession
 			response.WaitInfo = waitInfo;
 		}
 
-		SendPacket(response);
+        _session.SendPacket(response);
 	}
 
 	public void SendAuthWaitQueue(uint position)
@@ -55,11 +64,11 @@ public partial class WorldSession
 			waitQueueUpdate.WaitInfo.WaitCount = position;
 			waitQueueUpdate.WaitInfo.WaitTime = 0;
 			waitQueueUpdate.WaitInfo.HasFCM = false;
-			SendPacket(waitQueueUpdate);
+            _session.SendPacket(waitQueueUpdate);
 		}
 		else
 		{
-			SendPacket(new WaitQueueFinish());
+            _session.SendPacket(new WaitQueueFinish());
 		}
 	}
 
@@ -67,7 +76,7 @@ public partial class WorldSession
 	{
 		ClientCacheVersion cache = new();
 		cache.CacheVersion = version;
-		SendPacket(cache); //enabled it
+        _session.SendPacket(cache); //enabled it
 	}
 
 	public void SendSetTimeZoneInformation()
@@ -78,7 +87,7 @@ public partial class WorldSession
 		packet.GameTimeTZ = "Europe/Paris";
 		packet.ServerRegionalTZ = "Europe/Paris";
 
-		SendPacket(packet); //enabled it
+        _session.SendPacket(packet); //enabled it
 	}
 
 	public void SendFeatureSystemStatusGlueScreen()
@@ -104,6 +113,6 @@ public partial class WorldSession
 
 		features.EuropaTicketSystemStatus = europaTicketConfig;
 
-		SendPacket(features);
+        _session.SendPacket(features);
 	}
 }

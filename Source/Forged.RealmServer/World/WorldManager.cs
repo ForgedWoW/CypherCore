@@ -16,13 +16,13 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.Collision;
 using Forged.RealmServer.DataStorage;
 using Game.Entities;
-using Forged.RealmServer.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IServer;
 using Forged.RealmServer.Scripting.Interfaces.IWorld;
-using Forged.RealmServer.Spells;
+using Game;
+using Game.Maps;
 using Game.Networking;
 
 namespace Forged.RealmServer;
@@ -51,11 +51,11 @@ public class WorldManager : Singleton<WorldManager>
 	readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
 	readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
 	readonly Realm _realm;
-	readonly WorldUpdateTime _worldUpdateTime;
 	readonly object _guidAlertLock = new();
 	readonly LimitedThreadTaskManager _taskManager = new(10);
+    private WorldUpdateTime _worldUpdateTime;
 
-	uint _shutdownTimer;
+    uint _shutdownTimer;
 	ShutdownMask _shutdownMask;
 	ShutdownExitCode _exitCode;
 
