@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Channels;
 using Blizzard.Telemetry.Wow;
 using Framework.Constants;
@@ -9,29 +11,14 @@ using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Units;
 using Game.Common.Groups;
+using Game.Common.Guilds;
 using Game.Common.Server;
 
 namespace Game.Common.Entities.Players;
 
-public partial class Player
+public partial class Player : Unit
 {
-	public PvPInfo PvpInfo;
-	readonly List<Channel> _channels = new();
-	readonly List<ObjectGuid> _whisperList = new();
-
-	//Inventory
-	readonly Dictionary<ulong, EquipmentSetInfo> _equipmentSets = new();
-	readonly List<EnchantDuration> _enchantDurations = new();
-	readonly List<Item> _itemDuration = new();
-	readonly List<ObjectGuid> _itemSoulboundTradeable = new();
-	readonly List<ObjectGuid> _refundableItems = new();
-	readonly VoidStorageItem[] _voidStorageItems = new VoidStorageItem[SharedConst.VoidStorageMaxSlot];
-	readonly Item[] _items = new Item[(int)PlayerSlots.Count];
-
-	//PVP
-	readonly BgBattlegroundQueueIdRec[] _battlegroundQueueIdRecs = new BgBattlegroundQueueIdRec[SharedConst.MaxPlayerBGQueues];
-	readonly BgData _bgData;
-
+    
 	//Groups/Raids
 	readonly GroupReference _group = new();
 	readonly GroupReference _originalGroup = new();
@@ -39,52 +26,15 @@ public partial class Player
 	readonly Dictionary<uint, uint> _recentInstances = new();
 	readonly Dictionary<uint, long> _instanceResetTimes = new();
 
-	//Spell
-	readonly Dictionary<uint, PlayerSpell> _spells = new();
-	readonly Dictionary<uint, SkillStatusData> _skillStatus = new();
-	readonly Dictionary<uint, PlayerCurrency> _currencyStorage = new();
-	readonly List<SpellModifier>[][] _spellModifiers = new List<SpellModifier>[(int)SpellModOp.Max][];
-	readonly MultiMap<uint, uint> _overrideSpells = new();
-	readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
-
-	//Mail
-	readonly List<Mail> _mail = new();
-	readonly Dictionary<ulong, Item> _mailItems = new();
-	readonly RestMgr _restMgr;
-
-	//Combat
-	readonly int[] _baseRatingValue = new int[(int)CombatRating.Max];
-	readonly double[] _auraBaseFlatMod = new double[(int)BaseModGroup.End];
-	readonly double[] _auraBasePctMod = new double[(int)BaseModGroup.End];
-
-	//Quest
-	readonly List<uint> _timedquests = new();
-	readonly List<uint> _weeklyquests = new();
-	readonly List<uint> _monthlyquests = new();
-	readonly Dictionary<uint, Dictionary<uint, long>> _seasonalquests = new();
-	readonly Dictionary<uint, QuestStatusData> _mQuestStatus = new();
-	readonly MultiMap<(QuestObjectiveType Type, int ObjectID), QuestObjectiveStatusData> _questObjectiveStatus = new();
-	readonly Dictionary<uint, QuestSaveType> _questStatusSave = new();
-	readonly List<uint> _dfQuests = new();
-	readonly List<uint> _rewardedQuests = new();
-	readonly Dictionary<uint, QuestSaveType> _rewardedQuestsSave = new();
-	readonly CinematicManager _cinematicMgr;
 
 	//Core
 	readonly WorldSession _session;
-	readonly QuestObjectiveCriteriaManager _questObjectiveCriteriaManager;
 	readonly WorldLocation _homebind = new();
 	readonly SceneMgr _sceneMgr;
-	readonly Dictionary<ObjectGuid, Loot.Loot> _aeLootView = new();
-	readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
 
 	readonly CufProfile[] _cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];
-	readonly double[] _powerFraction = new double[(int)PowerType.MaxPerClass];
 	readonly int[] _mirrorTimer = new int[3];
-	readonly TimeTracker _groupUpdateTimer;
 	readonly long _logintime;
-	readonly Dictionary<int, PlayerSpellState> _traitConfigStates = new();
-	readonly Dictionary<byte, ActionButton> _actionButtons = new();
 	PlayerSocial _social;
 	uint _weaponProficiency;
 	uint _armorProficiency;
@@ -92,7 +42,6 @@ public partial class Player
 	TradeData _trade;
 	bool _isBgRandomWinner;
 	uint _arenaTeamIdInvited;
-	long _lastHonorUpdateTime;
 	uint _contestedPvPTimer;
 	bool _usePvpItemLevels;
 	PlayerGroup _groupInvite;
@@ -118,41 +67,7 @@ public partial class Player
 	PlayerUnderwaterState _mirrorTimerFlags;
 	PlayerUnderwaterState _mirrorTimerFlagsLast;
 
-	//Stats
-	uint _baseSpellPower;
-	uint _baseManaRegen;
-	uint _baseHealthRegen;
-	int _spellPenetrationItemMod;
-	uint _lastPotionId;
-	uint _oldpetspell;
-	long _nextMailDelivereTime;
 
-	//Pets
-	PetStable _petStable;
-	uint _temporaryUnsummonedPetNumber;
-	uint _lastpetnumber;
-
-	// Player summoning
-	long _summonExpire;
-	WorldLocation _summonLocation;
-	uint _summonInstanceId;
-	bool _canParry;
-	bool _canBlock;
-	bool _canTitanGrip;
-	uint _titanGripPenaltySpellId;
-	uint _deathTimer;
-	long _deathExpireTime;
-	byte _swingErrorMsg;
-	uint _combatExitTime;
-	uint _regenTimerCount;
-	uint _foodEmoteTimerCount;
-	uint _weaponChangeTimer;
-
-	bool _dailyQuestChanged;
-	bool _weeklyQuestChanged;
-	bool _monthlyQuestChanged;
-	bool _seasonalQuestChanged;
-	long _lastDailyQuestTime;
 
 	Garrison _garrison;
 
@@ -167,23 +82,10 @@ public partial class Player
 	long _createTime;
 	PlayerCreateMode _createMode;
 
-	uint _nextSave;
-	byte _cinematic;
-
-	uint _movie;
-	bool _customizationsChanged;
-
 	SpecializationInfo _specializationInfo;
 	TeamFaction _team;
-	ReputationMgr _reputationMgr;
 
 	PlayerExtraFlags _extraFlags;
-	uint _zoneUpdateId;
-	uint _areaUpdateId;
-	uint _zoneUpdateTimer;
-
-	uint _championingFaction;
-	byte _fishingSteps;
 
 	// Recall position
 	WorldLocation _recallLocation;
@@ -208,56 +110,329 @@ public partial class Player
 
 	PlayerCommandStates _activeCheats;
 	public bool AutoAcceptQuickJoin { get; set; }
-	public bool OverrideScreenFlash { get; set; }
 
-	//Movement
-	public PlayerTaxi Taxi { get; set; } = new();
-	public byte[] ForcedSpeedChanges { get; set; } = new byte[(int)UnitMoveType.Max];
-	public byte MovementForceModMagnitudeChanges { get; set; }
-	public Spell SpellModTakingSpell { get; set; }
-	public float EmpoweredSpellMinHoldPct { get; set; }
-	public byte UnReadMails { get; set; }
-	public bool MailsUpdated { get; set; }
-	public List<PetAura> PetAuras { get; set; } = new();
-	public DuelInfo Duel { get; set; }
 
 	public PlayerData PlayerData { get; set; }
 	public ActivePlayerData ActivePlayerData { get; set; }
-	public List<ObjectGuid> ClientGuiDs { get; set; } = new();
-	public List<ObjectGuid> VisibleTransports { get; set; } = new();
 	public WorldObject SeerView { get; set; }
 	public AtLoginFlags LoginFlags { get; set; }
-	public bool ItemUpdateQueueBlocked { get; set; }
-
-	public bool IsDebugAreaTriggers { get; set; }
 
 	public WorldSession Session => _session;
 
 	public PlayerSocial Social => _social;
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
-	{
-		readonly Player _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly UnitData _unitMask = new();
-		readonly PlayerData _playerMask = new();
-		readonly ActivePlayerData _activePlayerMask = new();
+    public PlayerGroup GroupInvite
+    {
+        get => _groupInvite;
+        set => _groupInvite = value;
+    }
 
-		public ValuesUpdateForPlayerWithMaskSender(Player owner)
-		{
-			_owner = owner;
-		}
+    public PlayerGroup Group => _group.Target;
 
-		public void Invoke(Player player)
-		{
-			UpdateData udata = new(_owner.Location.MapId);
+    public GroupReference GroupRef => _group;
 
-			_owner.BuildValuesUpdateForPlayerWithMask(udata, _objectMask.GetUpdateMask(), _unitMask.GetUpdateMask(), _playerMask.GetUpdateMask(), _activePlayerMask.GetUpdateMask(), player);
+    public byte SubGroup => _group.SubGroup;
 
-			udata.BuildPacket(out var packet);
-			player.SendPacket(packet);
-		}
-	}
+    public PlayerGroup OriginalGroup => _originalGroup.Target;
+
+    public override bool IsLoading => Session.IsPlayerLoading;
+
+    public DeclinedName DeclinedNames => _declinedname;
+
+
+    public bool IsAdvancedCombatLoggingEnabled => _advancedCombatLoggingEnabled;
+
+
+    //GM
+    public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
+
+    public bool IsAcceptWhispers => _extraFlags.HasAnyFlag(PlayerExtraFlags.AcceptWhispers);
+
+    public bool IsGameMaster => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMOn);
+
+    public bool IsGameMasterAcceptingWhispers => IsGameMaster && IsAcceptWhispers;
+
+    public bool CanBeGameMaster => Session.HasPermission(RBACPermissions.CommandGm);
+
+    public bool IsGMChat => _extraFlags.HasAnyFlag(PlayerExtraFlags.GMChat);
+
+    public bool IsTaxiCheater => _extraFlags.HasAnyFlag(PlayerExtraFlags.TaxiCheat);
+
+    public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
+
+    //Binds
+    public bool HasPendingBind => _pendingBindId > 0;
+
+    //Misc
+    public uint TotalPlayedTime => _playedTimeTotal;
+
+    public uint LevelPlayedTime => _playedTimeLevel;
+
+    public CinematicManager CinematicMgr => _cinematicMgr;
+
+    public bool HasCorpse => _corpseLocation != null && _corpseLocation.MapId != 0xFFFFFFFF;
+
+    public WorldLocation CorpseLocation => _corpseLocation;
+
+    public override bool CanFly => MovementInfo.HasMovementFlag(MovementFlag.CanFly);
+
+    public override bool CanEnterWater => true;
+    
+    public TeamFaction Team => _team;
+
+    public int TeamId => _team == TeamFaction.Alliance ? TeamIds.Alliance : TeamIds.Horde;
+
+
+    public ulong GuildId => ((ObjectGuid)UnitData.GuildGUID).Counter;
+
+    public Guild Guild
+    {
+        get
+        {
+            var guildId = GuildId;
+
+            return guildId != 0 ? Global.GuildMgr.GetGuildById(guildId) : null;
+        }
+    }
+
+    public uint XPForNextLevel => ActivePlayerData.NextLevelXP;
+    public uint DeathTimer => _deathTimer;
+
+    public bool IsBeingTeleportedFar => _semaphoreTeleportFar;
+
+    public bool IsBeingTeleportedSeamlessly => IsBeingTeleportedFar && _teleportOptions.HasAnyFlag(TeleportToOptions.Seamless);
+
+    public bool IsReagentBankUnlocked => HasPlayerFlagEx(PlayerFlagsEx.ReagentBankUnlocked);
+
+    public uint FreePrimaryProfessionPoints => ActivePlayerData.CharacterPoints;
+
+    public WorldObject Viewpoint
+    {
+        get
+        {
+            ObjectGuid guid = ActivePlayerData.FarsightObject;
+
+            if (!guid.IsEmpty)
+                return Global.ObjAccessor.GetObjectByTypeMask(this, guid, TypeMask.Seer);
+
+            return null;
+        }
+    }
+
+    public WorldLocation TeleportDest => _teleportDest;
+
+    public uint? TeleportDestInstanceId => _teleportInstanceId;
+
+    public WorldLocation Homebind => _homebind;
+
+    public WorldLocation Recall1 => _recallLocation;
+
+    public override Gender NativeGender
+    {
+        get => (Gender)(byte)PlayerData.NativeSex;
+        set => SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.NativeSex), (byte)value);
+    }
+
+    public ObjectGuid SummonedBattlePetGUID => ActivePlayerData.SummonedBattlePetGUID;
+
+    public byte NumRespecs => ActivePlayerData.NumRespecs;
+
+    //Movement
+    bool IsCanDelayTeleport => _canDelayTeleport;
+
+    bool IsHasDelayedTeleport => _hasDelayedTeleport;
+
+    bool IsInFriendlyArea
+    {
+        get
+        {
+            var areaEntry = CliDB.AreaTableStorage.LookupByKey(Area);
+
+            if (areaEntry != null)
+                return IsFriendlyArea(areaEntry);
+
+            return false;
+        }
+    }
+
+    bool IsWarModeDesired => HasPlayerFlag(PlayerFlags.WarModeDesired);
+
+    bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
+
+
+    public bool IsResurrectRequested => _resurrectionData != null;
+
+    public Unit SelectedUnit
+    {
+        get
+        {
+            var selectionGUID = Target;
+
+            if (!selectionGUID.IsEmpty)
+                return Global.ObjAccessor.GetUnit(this, selectionGUID);
+
+            return null;
+        }
+    }
+
+    public Player SelectedPlayer
+    {
+        get
+        {
+            var selectionGUID = Target;
+
+            if (!selectionGUID.IsEmpty)
+                return Global.ObjAccessor.GetPlayer(this, selectionGUID);
+
+            return null;
+        }
+    }
+
+    public static TeamFaction TeamForRace(Race race)
+    {
+        switch (TeamIdForRace(race))
+        {
+            case 0:
+                return TeamFaction.Alliance;
+            case 1:
+                return TeamFaction.Horde;
+        }
+
+        return TeamFaction.Alliance;
+    }
+
+
+    public static uint TeamIdForRace(Race race)
+    {
+        var rEntry = CliDB.ChrRacesStorage.LookupByKey((byte)race);
+
+        if (rEntry != null)
+            return (uint)rEntry.Alliance;
+
+        Log.outError(LogFilter.Player, "Race ({0}) not found in DBC: wrong DBC files?", race);
+
+        return TeamIds.Neutral;
+    }
+
+
+    public Player(WorldSession session) : base(true)
+    {
+        ObjectTypeMask |= TypeMask.Player;
+        ObjectTypeId = TypeId.Player;
+
+        PlayerData = new PlayerData();
+        ActivePlayerData = new ActivePlayerData();
+
+        _session = session;
+
+        // players always accept
+        if (!Session.HasPermission(RBACPermissions.CanFilterWhispers))
+            SetAcceptWhispers(true);
+
+        _zoneUpdateId = 0xffffffff;
+        _nextSave = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+        _customizationsChanged = false;
+
+        GroupInvite = null;
+
+        LoginFlags = AtLoginFlags.None;
+        PlayerTalkClass = new PlayerMenu(session);
+        _currentBuybackSlot = InventorySlots.BuyBackStart;
+
+        for (byte i = 0; i < (int)MirrorTimerType.Max; i++)
+            _mirrorTimer[i] = -1;
+
+        _logintime = GameTime.GetGameTime();
+        _lastTick = _logintime;
+
+        _dungeonDifficulty = Difficulty.Normal;
+        _raidDifficulty = Difficulty.NormalRaid;
+        _legacyRaidDifficulty = Difficulty.Raid10N;
+        InstanceValid = true;
+
+        _specializationInfo = new SpecializationInfo();
+
+        for (byte i = 0; i < (byte)BaseModGroup.End; ++i)
+        {
+            _auraBaseFlatMod[i] = 0.0f;
+            _auraBasePctMod[i] = 1.0f;
+        }
+
+        for (var i = 0; i < (int)SpellModOp.Max; ++i)
+        {
+            _spellModifiers[i] = new List<SpellModifier>[(int)SpellModType.End];
+
+            for (var c = 0; c < (int)SpellModType.End; ++c)
+                _spellModifiers[i][c] = new List<SpellModifier>();
+        }
+
+        // Honor System
+        _lastHonorUpdateTime = GameTime.GetGameTime();
+
+        UnitMovedByMe = this;
+        PlayerMovingMe = this;
+        SeerView = this;
+
+        m_isActive = true;
+        ControlledByPlayer = true;
+
+        Global.WorldMgr.IncreasePlayerCount();
+
+        _cinematicMgr = new CinematicManager(this);
+
+        _AchievementSys = new PlayerAchievementMgr(this);
+        _reputationMgr = new ReputationMgr(this);
+        _questObjectiveCriteriaManager = new QuestObjectiveCriteriaManager(this);
+        _sceneMgr = new SceneMgr(this);
+
+        _battlegroundQueueIdRecs[0] = new BgBattlegroundQueueIdRec();
+        _battlegroundQueueIdRecs[1] = new BgBattlegroundQueueIdRec();
+
+        _bgData = new BgData();
+
+        _restMgr = new RestMgr(this);
+
+        _groupUpdateTimer = new TimeTracker(5000);
+
+        ApplyCustomConfigs();
+
+        ObjectScale = 1;
+    }
+
+    public override void Dispose()
+    {
+        // Note: buy back item already deleted from DB when player was saved
+        for (byte i = 0; i < (int)PlayerSlots.Count; ++i)
+            if (_items[i] != null)
+                _items[i].Dispose();
+
+        _spells.Clear();
+        _specializationInfo = null;
+        _mail.Clear();
+
+        foreach (var item in _mailItems.Values)
+            item.Dispose();
+
+        PlayerTalkClass.ClearMenus();
+        ItemSetEff.Clear();
+
+        _declinedname = null;
+        _runes = null;
+        _AchievementSys = null;
+        _reputationMgr = null;
+
+        _cinematicMgr.Dispose();
+
+        for (byte i = 0; i < SharedConst.VoidStorageMaxSlot; ++i)
+            _voidStorageItems[i] = null;
+
+        ClearResurrectRequestData();
+
+        Global.WorldMgr.DecreasePlayerCount();
+
+        base.Dispose();
+    }
+
 }
 
 // Holder for Battlegrounddata

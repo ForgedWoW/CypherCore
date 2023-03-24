@@ -2,6 +2,7 @@
 using Game.Common.Accounts;
 using Game.Common.Battlepay;
 using Game.Common.Cache;
+using Game.Common.Globals;
 using Game.Common.Handlers;
 using Game.Common.Scripting;
 using Game.Common.Services;
@@ -19,6 +20,7 @@ namespace Game.Common
             builder.RegisterType<CharacterCache>().SingleInstance();
             builder.RegisterType<WorldManager>().SingleInstance();
             builder.RegisterType<ScriptManager>().SingleInstance(); 
+            builder.RegisterType<ObjectManager>().SingleInstance();
 
             return builder;
         }

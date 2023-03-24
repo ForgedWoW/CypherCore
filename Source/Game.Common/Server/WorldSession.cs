@@ -19,6 +19,7 @@ using Game.Common.Battlepay;
 using Game.Common.Chat;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Players;
+using Game.Common.Extentions;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Authentication;
 using Game.Common.Networking.Packets.Battlenet;
@@ -28,6 +29,8 @@ using Game.Common.Networking.Packets.ClientConfig;
 using Game.Common.Networking.Packets.Misc;
 using Game.Common.Networking.Packets.Warden;
 using Game.Common.Warden;
+using Game.Common.World;
+using Microsoft.Extensions.Configuration;
 
 namespace Game.Common.Server;
 
@@ -35,7 +38,7 @@ public class WorldSession : IDisposable
 {
 	public long MuteTime;
 
-	readonly WorldSocket[] _socket = new WorldSocket[(int)ConnectionType.Max];
+    private readonly WorldSocket _socket;
 	readonly string _address;
 	readonly uint _accountId;
 	readonly string _accountName;
@@ -56,6 +59,8 @@ public class WorldSession : IDisposable
     public List<string> RegisteredAddonPrefixes { get; } = new();
     readonly uint _recruiterId;
 	readonly bool _isRecruiter;
+    private readonly IConfiguration _configuration;
+    private readonly WorldManager _worldManager;
 
     private readonly ActionBlock<WorldPacket> _recvQueue;
 
@@ -67,9 +72,6 @@ public class WorldSession : IDisposable
 
 	readonly Dictionary<uint, uint> _pendingTimeSyncRequests = new(); // key: counter. value: server time when packet with that counter was sent.
 
-	readonly CollectionMgr _collectionMgr;
-
-	readonly BattlePetMgr _battlePetMgr;
 	private readonly BattlepayManager _battlePayMgr;
 
 	readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
@@ -120,10 +122,7 @@ public class WorldSession : IDisposable
 	public bool PlayerLogoutWithSave => _playerLogout && _playerSave;
 	public bool PlayerRecentlyLoggedOut => _playerRecentlyLogout;
 
-	public bool PlayerDisconnected => !(_socket[(int)ConnectionType.Realm] != null &&
-										_socket[(int)ConnectionType.Realm].IsOpen() &&
-										_socket[(int)ConnectionType.Instance] != null &&
-										_socket[(int)ConnectionType.Instance].IsOpen());
+	public bool PlayerDisconnected => !(_socket != null && _socket.IsOpen());
 
 	public AccountTypes Security
 	{
@@ -182,11 +181,6 @@ public class WorldSession : IDisposable
 		set => _calendarEventCreationCooldown = value;
 	}
 
-	// Battle Pets
-	public BattlePetMgr BattlePetMgr => _battlePetMgr;
-
-	public CollectionMgr CollectionMgr => _collectionMgr;
-
 	// Battlenet
 	public Array<byte> RealmListSecret
 	{
@@ -196,38 +190,31 @@ public class WorldSession : IDisposable
 
 	public Dictionary<uint, byte> RealmCharacterCounts => _realmCharacterCounts;
 
-	public CommandHandler CommandHandler { get; private set; }
-
-	public BattlepayManager BattlePayMgr => _battlePayMgr;
-
-	public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter)
+    public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter, IConfiguration configuration, WorldManager worldManager)
 	{
 		MuteTime = mute_time;
 		_antiDos = new DosProtection(this);
-		_socket[(int)ConnectionType.Realm] = sock;
+		_socket = sock;
 		_security = sec;
 		_accountId = id;
 		_accountName = name;
-		_battlenetAccountId = battlenetAccountId;
-		_configuredExpansion = ConfigMgr.GetDefaultValue<int>("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)ConfigMgr.GetDefaultValue<int>("Player.OverrideExpansion", -1);
+        _configuration = configuration;
+        _worldManager = worldManager;
+        _battlenetAccountId = battlenetAccountId;
+		_configuredExpansion = _configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1);
 		_accountExpansion = Expansion.LevelCurrent == _configuredExpansion ? expansion : _configuredExpansion;
 		_expansion = (Expansion)Math.Min((byte)expansion, WorldConfig.GetIntValue(WorldCfg.Expansion));
 		_os = os;
-		_sessionDbcLocale = Global.WorldMgr.GetAvailableDbcLocale(locale);
 		_sessionDbLocaleIndex = locale;
 		_recruiterId = recruiter;
 		_isRecruiter = isARecruiter;
-		_expireTime = 60000; // 1 min after socket loss, session is deleted
-		_battlePetMgr = new BattlePetMgr(this);
-		_collectionMgr = new CollectionMgr(this);
-		_battlePayMgr = new BattlepayManager(this);
-		CommandHandler = new CommandHandler(this);
+        _expireTime = 60000; // 1 min after socket loss, session is deleted
 
         _recvQueue = new(ProcessQueue, new ExecutionDataflowBlockOptions()
         {
             MaxDegreeOfParallelism = 10,
             EnsureOrdered = true,
-			CancellationToken = _cancellationToken.Token
+            CancellationToken = _cancellationToken.Token
         });
 
         Task.Run(ProcessInPlace, _cancellationToken.Token);
@@ -246,14 +233,12 @@ public class WorldSession : IDisposable
 			LogoutPlayer(true);
 
 		// - If have unclosed socket, close it
-		for (byte i = 0; i < 2; ++i)
-			if (_socket[i] != null)
-			{
-				_socket[i].CloseSocket();
-				_socket[i] = null;
-			}
+        if (_socket != null)
+        {
+            _socket.CloseSocket();
+        }
 
-		// empty incoming packet queue
+        // empty incoming packet queue
 		_recvQueue.Complete();
 
 		DB.Login.Execute("UPDATE account SET online = 0 WHERE id = {0};", AccountId); // One-time query
@@ -264,154 +249,13 @@ public class WorldSession : IDisposable
 		if (_playerLogout)
 			return;
 
-		// finish pending transfers before starting the logout
-		while (_player && _player.IsBeingTeleportedFar)
-			HandleMoveWorldportAck();
-
 		_playerLogout = true;
 		_playerSave = save;
 
-		if (_player)
+
+		if (_socket != null)
 		{
-			if (!_player.GetLootGUID().IsEmpty)
-				DoLootReleaseAll();
-
-			// If the player just died before logging out, make him appear as a ghost
-			//FIXME: logout must be delayed in case lost connection with client in time of combat
-			if (Player.DeathTimer != 0)
-			{
-				_player.CombatStop();
-				_player.BuildPlayerRepop();
-				_player.RepopAtGraveyard();
-			}
-			else if (Player.HasAuraType(AuraType.SpiritOfRedemption))
-			{
-				// this will kill character by SPELL_AURA_SPIRIT_OF_REDEMPTION
-				_player.RemoveAurasByType(AuraType.ModShapeshift);
-				_player.KillPlayer();
-				_player.BuildPlayerRepop();
-				_player.RepopAtGraveyard();
-			}
-			else if (Player.HasPendingBind)
-			{
-				_player.RepopAtGraveyard();
-				_player.SetPendingBind(0, 0);
-			}
-
-			//drop a flag if player is carrying it
-			var bg = Player.Battleground;
-
-			if (bg)
-				bg.EventPlayerLoggedOut(Player);
-
-			// Teleport to home if the player is in an invalid instance
-			if (!_player.InstanceValid && !_player.IsGameMaster)
-				_player.TeleportTo(_player.Homebind);
-
-			Global.OutdoorPvPMgr.HandlePlayerLeaveZone(_player, _player.Zone);
-
-			for (uint i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
-			{
-				var bgQueueTypeId = _player.GetBattlegroundQueueTypeId(i);
-
-				if (bgQueueTypeId != default)
-				{
-					_player.RemoveBattlegroundQueueId(bgQueueTypeId);
-					var queue = Global.BattlegroundMgr.GetBattlegroundQueue(bgQueueTypeId);
-					queue.RemovePlayer(_player.GUID, true);
-				}
-			}
-
-			// Repop at GraveYard or other player far teleport will prevent saving player because of not present map
-			// Teleport player immediately for correct player save
-			while (_player.IsBeingTeleportedFar)
-				HandleMoveWorldportAck();
-
-			// If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-			var guild = Global.GuildMgr.GetGuildById(_player.GuildId);
-
-			if (guild)
-				guild.HandleMemberLogout(this);
-
-			// Remove pet
-			_player.RemovePet(null, PetSaveMode.AsCurrent, true);
-
-			///- Release battle pet journal lock
-			if (_battlePetMgr.HasJournalLock)
-				_battlePetMgr.ToggleJournalLock(false);
-
-			// Clear whisper whitelist
-			_player.ClearWhisperWhiteList();
-
-			// empty buyback items and save the player in the database
-			// some save parts only correctly work in case player present in map/player_lists (pets, etc)
-			if (save)
-			{
-				for (uint j = InventorySlots.BuyBackStart; j < InventorySlots.BuyBackEnd; ++j)
-				{
-					var eslot = j - InventorySlots.BuyBackStart;
-					_player.SetInvSlot(j, ObjectGuid.Empty);
-					_player.SetBuybackPrice(eslot, 0);
-					_player.SetBuybackTimestamp(eslot, 0);
-				}
-
-				_player.SaveToDB();
-			}
-
-			// Leave all channels before player delete...
-			_player.CleanupChannels();
-
-			// If the player is in a group (or invited), remove him. If the group if then only 1 person, disband the group.
-			_player.UninviteFromGroup();
-
-			//! Send update to group and reset stored max enchanting level
-			var group = _player.Group;
-
-			if (group != null)
-			{
-				group.SendUpdate();
-
-				if (group.LeaderGUID == _player.GUID)
-					group.StartLeaderOfflineTimer();
-			}
-
-			//! Broadcast a logout message to the player's friends
-			Global.SocialMgr.SendFriendStatus(_player, FriendsResult.Offline, _player.GUID, true);
-			_player.RemoveSocial();
-
-			//! Call script hook before deletion
-			Global.ScriptMgr.ForEach<IPlayerOnLogout>(p => p.OnLogout(_player));
-
-			//! Remove the player from the world
-			// the player may not be in the world when logging out
-			// e.g if he got disconnected during a transfer to another map
-			// calls to GetMap in this case may cause crashes
-			_player.SetDestroyedObject(true);
-			_player.CleanupsBeforeDelete();
-			Log.outInfo(LogFilter.Player, $"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_player.GetName()}] ({_player.GUID}) Level: {_player.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
-
-			var map = Player.Map;
-
-			if (map != null)
-				map.RemovePlayerFromMap(Player, true);
-
-			Player = null;
-
-			//! Send the 'logout complete' packet to the client
-			//! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
-			LogoutComplete logoutComplete = new();
-			SendPacket(logoutComplete);
-
-			//! Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ACCOUNT_ONLINE);
-			stmt.AddValue(0, AccountId);
-			DB.Characters.Execute(stmt);
-		}
-
-		if (_socket[(int)ConnectionType.Instance] != null)
-		{
-			_socket[(int)ConnectionType.Instance].CloseSocket();
-			_socket[(int)ConnectionType.Instance] = null;
+			_socket.CloseSocket();
 		}
 
 		_playerLogout = false;
@@ -446,7 +290,7 @@ public class WorldSession : IDisposable
 		ProcessQueryCallbacks();
 
 
-		if (_socket[(int)ConnectionType.Realm] != null && _socket[(int)ConnectionType.Realm].IsOpen() && GameWarden != null)
+		if (_socket != null && _socket.IsOpen() && GameWarden != null)
 			GameWarden.Update(diff);
 
 		// If necessary, log the player out
@@ -454,8 +298,7 @@ public class WorldSession : IDisposable
 			LogoutPlayer(true);
 
 		//- Cleanup socket if need
-		if ((_socket[(int)ConnectionType.Realm] != null && !_socket[(int)ConnectionType.Realm].IsOpen()) ||
-			(_socket[(int)ConnectionType.Instance] != null && !_socket[(int)ConnectionType.Instance].IsOpen()))
+		if (_socket != null && !_socket.IsOpen())
 		{
 			if (Player != null && GameWarden != null)
 				GameWarden.Update(diff);
@@ -463,22 +306,10 @@ public class WorldSession : IDisposable
 			_expireTime -= _expireTime > diff ? diff : _expireTime;
 
 			if (_expireTime < diff || _forceExit || !Player)
-			{
-				if (_socket[(int)ConnectionType.Realm] != null)
-				{
-					_socket[(int)ConnectionType.Realm].CloseSocket();
-					_socket[(int)ConnectionType.Realm] = null;
-				}
+                _socket.CloseSocket();
+        }
 
-				if (_socket[(int)ConnectionType.Instance] != null)
-				{
-					_socket[(int)ConnectionType.Instance].CloseSocket();
-					_socket[(int)ConnectionType.Instance] = null;
-				}
-			}
-		}
-
-		if (_socket[(int)ConnectionType.Realm] == null)
+		if (_socket == null)
 			return false; //Will remove this session from the world session map
 
 
@@ -502,40 +333,25 @@ public class WorldSession : IDisposable
 			return;
 		}
 
-		var conIdx = packet.GetConnection();
-
-		if (conIdx != ConnectionType.Instance && PacketManager.IsInstanceOnlyOpcode(packet.GetOpcode()))
+		if (_socket == null)
 		{
-			Log.outError(LogFilter.Network, "Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.GetOpcode(), packet.GetConnection(), GetPlayerInfo());
+			Log.outTrace(LogFilter.Network, "Prevented sending of {0} to non existent socket {1}", packet.GetOpcode(), GetPlayerInfo());
 
 			return;
 		}
 
-		if (_socket[(int)conIdx] == null)
-		{
-			Log.outTrace(LogFilter.Network, "Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
-
-			return;
-		}
-
-		_socket[(int)conIdx].SendPacket(packet);
+		_socket.SendPacket(packet);
 	}
 
-	public void AddInstanceConnection(WorldSocket sock)
-	{
-		_socket[(int)ConnectionType.Instance] = sock;
-	}
-
-	public void KickPlayer(string reason)
+    public void KickPlayer(string reason)
 	{
 		Log.outInfo(LogFilter.Network, $"Account: {AccountId} Character: '{(_player ? _player.GetName() : "<none>")}' {(_player ? _player.GUID : "")} kicked with reason: {reason}");
 
-		for (byte i = 0; i < 2; ++i)
-			if (_socket[i] != null)
-			{
-				_socket[i].CloseSocket();
-				_forceExit = true;
-			}
+		if (_socket != null)
+		{
+			_socket.CloseSocket();
+			_forceExit = true;
+		}
 	}
 
 	public bool IsAddonRegistered(string prefix)
@@ -549,56 +365,9 @@ public class WorldSession : IDisposable
 		return RegisteredAddonPrefixes.Contains(prefix);
 	}
 
-	public void SendAccountDataTimes(ObjectGuid playerGuid, AccountDataTypes mask)
-	{
-		AccountDataTimes accountDataTimes = new();
-		accountDataTimes.PlayerGuid = playerGuid;
-		accountDataTimes.ServerTime = GameTime.GetGameTime();
-
-		for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
-			if (((int)mask & (1 << i)) != 0)
-				accountDataTimes.AccountTimes[i] = GetAccountData((AccountDataTypes)i).Time;
-
-		SendPacket(accountDataTimes);
-	}
-
-	public void LoadTutorialsData(SQLResult result)
-	{
-		if (!result.IsEmpty())
-		{
-			for (var i = 0; i < SharedConst.MaxAccountTutorialValues; i++)
-				_tutorials[i] = result.Read<uint>(i);
-
-			_tutorialsChanged |= TutorialsFlag.LoadedFromDB;
-		}
-
-		_tutorialsChanged &= ~TutorialsFlag.Changed;
-	}
-
-	public void SaveTutorialsData(SQLTransaction trans)
-	{
-		if (!_tutorialsChanged.HasAnyFlag(TutorialsFlag.Changed))
-			return;
-
-		var hasTutorialsInDB = _tutorialsChanged.HasAnyFlag(TutorialsFlag.LoadedFromDB);
-		var stmt = DB.Characters.GetPreparedStatement(hasTutorialsInDB ? CharStatements.UPD_TUTORIALS : CharStatements.INS_TUTORIALS);
-
-		for (var i = 0; i < SharedConst.MaxAccountTutorialValues; ++i)
-			stmt.AddValue(i, _tutorials[i]);
-
-		stmt.AddValue(SharedConst.MaxAccountTutorialValues, AccountId);
-		trans.Append(stmt);
-
-		// now has, set flag so next save uses update query
-		if (!hasTutorialsInDB)
-			_tutorialsChanged |= TutorialsFlag.LoadedFromDB;
-
-		_tutorialsChanged &= ~TutorialsFlag.Changed;
-	}
-
 	public void SendConnectToInstance(ConnectToSerial serial)
 	{
-		var instanceAddress = Global.WorldMgr.Realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
+		var instanceAddress = _worldManager.Realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
 
 		_instanceConnectKey.AccountId = AccountId;
 		_instanceConnectKey.connectionType = ConnectionType.Instance;
@@ -613,12 +382,12 @@ public class WorldSession : IDisposable
 		if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 		{
 			connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv4;
+			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv4;
 		}
 		else
 		{
 			connectTo.Payload.Where.IPv6 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv6;
+			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv6;
 		}
 
 		SendPacket(connectTo);
@@ -682,15 +451,7 @@ public class WorldSession : IDisposable
 		return (SQLQueryHolderCallback<R>)_queryHolderProcessor.AddCallback(callback);
 	}
 
-	public bool CanAccessAlliedRaces()
-	{
-		if (ConfigMgr.GetDefaultValue("CharacterCreating.DisableAlliedRaceAchievementRequirement", false))
-			return true;
-		else
-			return AccountExpansion >= Expansion.BattleForAzeroth;
-	}
-
-	public void LoadPermissions()
+    public void LoadPermissions()
 	{
 		var id = AccountId;
 		var secLevel = Security;
@@ -699,10 +460,10 @@ public class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.Realm.Id.Index,
+					_worldManager.Realm.Id.Index,
 					secLevel);
 
-		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
+		_rbacData = new RBACData(id, _accountName, (int)_worldManager.Realm.Id.Index, (byte)secLevel);
 		_rbacData.LoadFromDB();
 	}
 
@@ -715,43 +476,15 @@ public class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.Realm.Id.Index,
+					_worldManager.Realm.Id.Index,
 					secLevel);
 
-		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
+		_rbacData = new RBACData(id, _accountName, (int)_worldManager.Realm.Id.Index, (byte)secLevel);
 
 		return _rbacData.LoadFromDBAsync();
 	}
 
-	public void InitializeSession()
-	{
-		AccountInfoQueryHolderPerRealm realmHolder = new();
-		realmHolder.Initialize(AccountId, BattlenetAccountId);
 
-		AccountInfoQueryHolder holder = new();
-		holder.Initialize(AccountId, BattlenetAccountId);
-
-		AccountInfoQueryHolderPerRealm characterHolder = null;
-		AccountInfoQueryHolder loginHolder = null;
-
-		AddQueryHolderCallback(DB.Characters.DelayQueryHolder(realmHolder))
-			.AfterComplete(result =>
-			{
-				characterHolder = (AccountInfoQueryHolderPerRealm)result;
-
-				if (loginHolder != null && characterHolder != null)
-					InitializeSessionCallback(loginHolder, characterHolder);
-			});
-
-		AddQueryHolderCallback(DB.Login.DelayQueryHolder(holder))
-			.AfterComplete(result =>
-			{
-				loginHolder = (AccountInfoQueryHolder)result;
-
-				if (loginHolder != null && characterHolder != null)
-					InitializeSessionCallback(loginHolder, characterHolder);
-			});
-	}
 
 	public bool HasPermission(RBACPermissions permission)
 	{
@@ -764,26 +497,9 @@ public class WorldSession : IDisposable
 					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
-					Global.WorldMgr.Realm.Id.Index);
+					_worldManager.Realm.Id.Index);
 
 		return hasPermission;
-	}
-
-	public void InvalidateRBACData()
-	{
-		Log.outDebug(LogFilter.Rbac,
-					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
-					_rbacData.Id,
-					_rbacData.Name,
-					Global.WorldMgr.Realm.Id.Index);
-
-		_rbacData = null;
-	}
-
-	public void ResetTimeSync()
-	{
-		_timeSyncNextCounter = 0;
-		_pendingTimeSyncRequests.Clear();
 	}
 
 	public void SendTimeSync()
@@ -850,14 +566,14 @@ public class WorldSession : IDisposable
 		/// If necessary, kick the player because the client didn't send anything for too long
 		/// (or they've been idling in character select)
 		if (IsConnectionIdle && !HasPermission(RBACPermissions.IgnoreIdleConnection))
-			_socket[(int)ConnectionType.Realm]?.CloseSocket();
+			_socket?.CloseSocket();
 
 		WorldPacket firstDelayedPacket = null;
 		uint processedPackets = 0;
 		var currentTime = GameTime.GetGameTime();
 
 		//Check for any packets they was not recived yet.
-		while (_socket[(int)ConnectionType.Realm] != null && !_queue.IsEmpty && (_queue.TryPeek(out var packet) && packet != firstDelayedPacket) && _queue.TryDequeue(out packet))
+		while (_socket != null && !_queue.IsEmpty && (_queue.TryPeek(out var packet) && packet != firstDelayedPacket) && _queue.TryDequeue(out packet))
 		{
 			try
 			{
@@ -950,97 +666,7 @@ public class WorldSession : IDisposable
 		Log.outError(LogFilter.Network, "Received unexpected opcode {0} Status: {1} Reason: {2} from {3}", (ClientOpcodes)packet.GetOpcode(), status, reason, GetPlayerInfo());
 	}
 
-	void LoadAccountData(SQLResult result, AccountDataTypes mask)
-	{
-		for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
-			if (Convert.ToBoolean((int)mask & (1 << i)))
-				_accountData[i] = new AccountData();
-
-		if (result.IsEmpty())
-			return;
-
-		do
-		{
-			int type = result.Read<byte>(0);
-
-			if (type >= (int)AccountDataTypes.Max)
-			{
-				Log.outError(LogFilter.Server,
-							"Table `{0}` have invalid account data type ({1}), ignore.",
-							mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
-							type);
-
-				continue;
-			}
-
-			if (((int)mask & (1 << type)) == 0)
-			{
-				Log.outError(LogFilter.Server,
-							"Table `{0}` have non appropriate for table  account data type ({1}), ignore.",
-							mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
-							type);
-
-				continue;
-			}
-
-			_accountData[type].Time = result.Read<long>(1);
-			var bytes = result.Read<byte[]>(2);
-			var line = Encoding.Default.GetString(bytes);
-			_accountData[type].Data = line;
-		} while (result.NextRow());
-	}
-
-	void SetAccountData(AccountDataTypes type, long time, string data)
-	{
-		if (Convert.ToBoolean((1 << (int)type) & (int)AccountDataTypes.GlobalCacheMask))
-		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_ACCOUNT_DATA);
-			stmt.AddValue(0, AccountId);
-			stmt.AddValue(1, (byte)type);
-			stmt.AddValue(2, time);
-			stmt.AddValue(3, data);
-			DB.Characters.Execute(stmt);
-		}
-		else
-		{
-			// _player can be NULL and packet received after logout but m_GUID still store correct guid
-			if (GuidLow == 0)
-				return;
-
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_PLAYER_ACCOUNT_DATA);
-			stmt.AddValue(0, GuidLow);
-			stmt.AddValue(1, (byte)type);
-			stmt.AddValue(2, time);
-			stmt.AddValue(3, data);
-			DB.Characters.Execute(stmt);
-		}
-
-		_accountData[(int)type].Time = time;
-		_accountData[(int)type].Data = data;
-	}
-
-	public bool ValidateHyperlinksAndMaybeKick(string str)
-	{
-		if (Hyperlink.CheckAllLinks(str))
-			return true;
-
-		Log.outError(LogFilter.Network, $"Player {Player.GetName()} {Player.GUID} sent a message with an invalid link:\n{str}");
-
-		if (WorldConfig.GetIntValue(WorldCfg.ChatStrictLinkCheckingKick) != 0)
-			KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
-
-		return false;
-	}
-
-	void HandleWardenData(WardenData packet)
-	{
-		if (GameWarden == null || packet.Data.GetSize() == 0)
-			return;
-
-		GameWarden.HandleData(packet.Data);
-	}
-
-	public void SetLogoutStartTime(long requestTime)
+    public void SetLogoutStartTime(long requestTime)
 	{
 		_logoutTime = requestTime;
 	}
@@ -1057,100 +683,9 @@ public class WorldSession : IDisposable
 		_queryHolderProcessor.ProcessReadyCallbacks();
 	}
 
-	TransactionCallback AddTransactionCallback(TransactionCallback callback)
-	{
-		return _transactionCallbacks.AddCallback(callback);
-	}
-
-	void InitWarden(BigInteger k)
-	{
-		if (_os == "Win")
-		{
-			GameWarden = new WardenWin();
-			GameWarden.Init(this, k);
-		}
-		else if (_os == "Wn64")
-		{
-			// Not implemented
-		}
-		else if (_os == "Mc64")
-		{
-			// Not implemented
-		}
-	}
-
-	void InitializeSessionCallback(SQLQueryHolder<AccountInfoQueryLoad> holder, SQLQueryHolder<AccountInfoQueryLoad> realmHolder)
-	{
-		LoadAccountData(realmHolder.GetResult(AccountInfoQueryLoad.GlobalAccountDataIndexPerRealm), AccountDataTypes.GlobalCacheMask);
-		LoadTutorialsData(realmHolder.GetResult(AccountInfoQueryLoad.TutorialsIndexPerRealm));
-		_collectionMgr.LoadAccountToys(holder.GetResult(AccountInfoQueryLoad.GlobalAccountToys));
-		_collectionMgr.LoadAccountHeirlooms(holder.GetResult(AccountInfoQueryLoad.GlobalAccountHeirlooms));
-		_collectionMgr.LoadAccountMounts(holder.GetResult(AccountInfoQueryLoad.Mounts));
-		_collectionMgr.LoadAccountItemAppearances(holder.GetResult(AccountInfoQueryLoad.ItemAppearances), holder.GetResult(AccountInfoQueryLoad.ItemFavoriteAppearances));
-		_collectionMgr.LoadAccountTransmogIllusions(holder.GetResult(AccountInfoQueryLoad.TransmogIllusions));
-
-		if (!_inQueue)
-			SendAuthResponse(BattlenetRpcErrorCode.Ok, false);
-		else
-			SendAuthWaitQueue(0);
-
-		SetInQueue(false);
-		ResetTimeOutTime(false);
-
-		SendSetTimeZoneInformation();
-		SendFeatureSystemStatusGlueScreen();
-		SendClientCacheVersion(WorldConfig.GetUIntValue(WorldCfg.ClientCacheVersion));
-		SendAvailableHotfixes();
-		SendAccountDataTimes(ObjectGuid.Empty, AccountDataTypes.GlobalCacheMask);
-		SendTutorialsData();
-
-		var result = holder.GetResult(AccountInfoQueryLoad.GlobalRealmCharacterCounts);
-
-		if (!result.IsEmpty())
-			do
-			{
-				_realmCharacterCounts[new RealmId(result.Read<byte>(3), result.Read<byte>(4), result.Read<uint>(2)).GetAddress()] = result.Read<byte>(1);
-			} while (result.NextRow());
-
-		ConnectionStatus bnetConnected = new();
-		bnetConnected.State = 1;
-		SendPacket(bnetConnected);
-
-		_battlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
-	}
-
-	public AccountData GetAccountData(AccountDataTypes type)
+    public AccountData GetAccountData(AccountDataTypes type)
 	{
 		return _accountData[(int)type];
 	}
 
-	uint GetTutorialInt(byte index)
-	{
-		return _tutorials[index];
-	}
-
-	void SetTutorialInt(byte index, uint value)
-	{
-		if (_tutorials[index] != value)
-		{
-			_tutorials[index] = value;
-			_tutorialsChanged |= TutorialsFlag.Changed;
-		}
-	}
-
-	uint AdjustClientMovementTime(uint time)
-	{
-		var movementTime = (long)time + _timeSyncClockDelta;
-
-		if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
-		{
-			Log.outWarn(LogFilter.Misc, "The computed movement time using clockDelta is erronous. Using fallback instead");
-
-			return GameTime.GetGameTimeMS();
-		}
-		else
-		{
-			return (uint)movementTime;
-		}
-	}
 }

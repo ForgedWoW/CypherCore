@@ -34,7 +34,9 @@
 </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="7.0.0" />
     <PackageReference Include="Google.Protobuf" Version="3.21.12" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
     <PackageReference Include="MySqlConnector" Version="2.2.5" />
   </ItemGroup>
 

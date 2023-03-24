@@ -12,11 +12,7 @@ using Framework.Database;
 using Framework.IO;
 using Game.Common.DataStorage.Structs.D;
 using Game.Common.DataStorage.Structs.I;
-using Game.Common.Entities;
-using Game.Common.Entities.AreaTriggers;
-using Game.Common.Entities.Creatures;
 using Game.Common.Entities.GameObjects;
-using Game.Common.Entities.Items;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Players;
 using Game.Common.Entities.Units;
@@ -24,9 +20,12 @@ using Game.Common.Server;
 
 namespace Game.Common.Globals;
 
-public sealed class ObjectManager : Singleton<ObjectManager>
+public sealed class ObjectManager 
 {
-	public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly LoginDatabase _loginDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts = new();
 	public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts = new();
 	public Dictionary<uint, MultiMap<uint, ScriptInfo>> WaypointScripts = new();
 
@@ -250,14 +249,18 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 	public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos => _playerInfo;
 
-	ObjectManager()
-	{
-		for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
+	public ObjectManager(WorldDatabase worldDatabase, LoginDatabase loginDatabase, CharacterDatabase characterDatabase)
+    {
+        _worldDatabase = worldDatabase;
+        _loginDatabase = loginDatabase;
+        _characterDatabase = characterDatabase;
+
+        for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
 		{
 			_difficultyEntries[i] = new List<uint>();
 			_hasDifficultyEntries[i] = new List<uint>();
 		}
-	}
+    }
 
 	//Static Methods
 	public static bool NormalizePlayerName(ref string name)
@@ -397,7 +400,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var time = Time.MSTime;
 		_cypherStringStorage.Clear();
 
-		var result = DB.World.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
+		var result = _worldDatabase.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
 
 		if (result.IsEmpty())
 		{
@@ -430,7 +433,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_raceUnlockRequirementStorage.Clear();
 
 		//                                         0       1          2
-		var result = DB.World.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
+		var result = _worldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
 
 		if (!result.IsEmpty())
 		{
@@ -485,7 +488,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_classExpansionRequirementStorage.Clear();
 
 		//                               0        1       2                     3
-		result = DB.World.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
+		result = _worldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
 
 		if (!result.IsEmpty())
 		{
@@ -575,7 +578,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_realmNameStorage.Clear();
 
 		//                                         0   1
-		var result = DB.Login.Query("SELECT id, name FROM `realmlist`");
+		var result = _loginDatabase.Query("SELECT id, name FROM `realmlist`");
 
 		if (result.IsEmpty())
 		{
@@ -698,7 +701,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_gossipMenusStorage.Clear();
 
-		var result = DB.World.Query("SELECT MenuId, TextId FROM gossip_menu");
+		var result = _worldDatabase.Query("SELECT MenuId, TextId FROM gossip_menu");
 
 		if (result.IsEmpty())
 		{
@@ -717,7 +720,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (GetNpcText(gMenu.TextId) == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
+					_worldDatabase.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
 				else
 					Log.outError(LogFilter.Sql, "Table gossip_menu: Id {0} is using non-existing TextId {1}", gMenu.MenuId, gMenu.TextId);
 
@@ -737,7 +740,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_gossipMenuItemsStorage.Clear();
 
 		//                                         0       1               2         3          4           5                      6         7      8             9            10
-		var result = DB.World.Query("SELECT MenuID, GossipOptionID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, Flags, ActionMenuID, ActionPoiID, GossipNpcOptionID, " +
+		var result = _worldDatabase.Query("SELECT MenuID, GossipOptionID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, Flags, ActionMenuID, ActionPoiID, GossipNpcOptionID, " +
 									//11        12        13       14                  15       16
 									"BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID, SpellID, OverrideIconID FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
@@ -792,7 +795,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (!CliDB.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
 
@@ -802,7 +805,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (gMenuItem.Language != 0 && !CliDB.LanguagesStorage.ContainsKey(gMenuItem.Language))
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					_worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 				else
 					Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
 
@@ -812,7 +815,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (gMenuItem.ActionMenuId != 0 && gMenuItem.OptionNpc != GossipOptionNpc.None)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					_worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 				else
 					Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
 
@@ -824,7 +827,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (gMenuItem.OptionNpc != GossipOptionNpc.None)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
 
@@ -833,7 +836,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				else if (GetPointOfInterest(gMenuItem.ActionPoiId) == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
 
@@ -846,7 +849,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (!CliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
 
@@ -865,7 +868,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (!CliDB.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
 
@@ -876,7 +879,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (!Global.SpellMgr.HasSpellInfo((uint)gMenuItem.SpellId.Value, Difficulty.None))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
 
@@ -896,7 +899,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_gossipMenuAddonStorage.Clear();
 
 		//                                         0       1
-		var result = DB.World.Query("SELECT MenuID, FriendshipFactionID FROM gossip_menu_addon");
+		var result = _worldDatabase.Query("SELECT MenuID, FriendshipFactionID FROM gossip_menu_addon");
 
 		if (result.IsEmpty())
 		{
@@ -940,7 +943,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_pointsOfInterestStorage.Clear(); // need for reload case
 
 		//                                   0   1          2          3          4     5      6           7     8
-		var result = DB.World.Query("SELECT ID, PositionX, PositionY, PositionZ, Icon, Flags, Importance, Name, WMOGroupID FROM points_of_interest");
+		var result = _worldDatabase.Query("SELECT ID, PositionX, PositionY, PositionZ, Icon, Flags, Importance, Name, WMOGroupID FROM points_of_interest");
 
 		if (result.IsEmpty())
 		{
@@ -1006,7 +1009,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		GraveYardStorage.Clear(); // need for reload case
 
 		//                                         0       1         2
-		var result = DB.World.Query("SELECT ID, GhostZone, faction FROM graveyard_zone");
+		var result = _worldDatabase.Query("SELECT ID, GhostZone, faction FROM graveyard_zone");
 
 		if (result.IsEmpty())
 		{
@@ -1061,7 +1064,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0   1      2     3     4     5
-		var result = DB.World.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
+		var result = _worldDatabase.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
 
 		if (result.IsEmpty())
 		{
@@ -1271,13 +1274,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// add link to DB
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GRAVEYARD_ZONE);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GRAVEYARD_ZONE);
 
 			stmt.AddValue(0, id);
 			stmt.AddValue(1, zoneId);
 			stmt.AddValue(2, (uint)team);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 
 		return true;
@@ -1323,13 +1326,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// remove link from DB
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GRAVEYARD_ZONE);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GRAVEYARD_ZONE);
 
 			stmt.AddValue(0, id);
 			stmt.AddValue(1, zoneId);
 			stmt.AddValue(2, (uint)team);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 	}
 
@@ -1339,7 +1342,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		_areaTriggerScriptStorage.Clear(); // need for reload case
-		var result = DB.World.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
+		var result = _worldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
 
 		if (result.IsEmpty())
 		{
@@ -1493,8 +1496,8 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var script in WaypointScripts)
 			actionSet.Add(script.Key);
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ACTION);
-		var result = DB.World.Query(stmt);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ACTION);
+		var result = _worldDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -1567,7 +1570,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_spellScriptsStorage.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT spell_id, ScriptName FROM spell_script_names");
+		var result = _worldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
 
 		if (result.IsEmpty())
 		{
@@ -1736,11 +1739,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var time = Time.MSTime;
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
 		stmt.AddValue(0, 0);
 		stmt.AddValue(1, 1);
 
-		var result = DB.World.Query(stmt);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -1878,7 +1881,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var time = Time.MSTime;
 		//                                         0      1        2      3           4         5         6            7         8      9          10               11            12                      13
-		var result = DB.World.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+		var result = _worldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
 		if (result.IsEmpty())
 		{
@@ -1896,7 +1899,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (GetCreatureTemplate(entry) == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+					_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 				else
 					Log.outError(LogFilter.Sql, $"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_addon`");
 
@@ -1931,7 +1934,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (AdditionalSpellInfo == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+						_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
 						Log.outError(LogFilter.Sql, $"Creature (Entry: {entry}) has wrong spell {spellId} defined in `auras` field in `creature_template_addon`.");
 
@@ -1944,7 +1947,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (creatureAddon.Auras.Contains(spellId))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+						_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
 						Log.outError(LogFilter.Sql, $"Creature (Entry: {entry}) has duplicate aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
 
@@ -1954,7 +1957,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (AdditionalSpellInfo.Duration > 0)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+						_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
 						Log.outError(LogFilter.Sql, $"Creature (Entry: {entry}) has temporary aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
 
@@ -2032,7 +2035,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var time = Time.MSTime;
 		//                                         0     1        2      3           4         5         6            7         8      9          10               11            12                      13
-		var result = DB.World.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+		var result = _worldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
 		if (result.IsEmpty())
 		{
@@ -2051,7 +2054,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (creData == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_addon WHERE guid = {guid}");
+					_worldDatabase.Execute($"DELETE FROM creature_addon WHERE guid = {guid}");
 				else
 					Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) does not exist but has a record in `creatureaddon`");
 
@@ -2188,7 +2191,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                          0              1      2
-		var result = DB.World.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
+		var result = _worldDatabase.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
 
 		if (result.IsEmpty())
 		{
@@ -2208,7 +2211,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (!_creatureTemplateStorage.ContainsKey(entry))
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_questitem WHERE CreatureEntry = {entry}");
+					_worldDatabase.Execute($"DELETE FROM creature_questitem WHERE CreatureEntry = {entry}");
 				else
 					Log.outError(LogFilter.Sql, "Table `creature_questitem` has data for nonexistent creature (entry: {0}, idx: {1}), skipped", entry, idx);
 
@@ -2235,7 +2238,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var time = Time.MSTime;
 
 		//                                                0   1        2                 3            4
-		var result = DB.World.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, " +
+		var result = _worldDatabase.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, " +
 									//5                 6            7       8                 9           10
 									"ItemID2, AppearanceModID2, ItemVisual2, ItemID3, AppearanceModID3, ItemVisual3 " +
 									"FROM creature_equip_template");
@@ -2256,7 +2259,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (GetCreatureTemplate(entry) == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_equip_template WHERE CreatureID = {entry}");
+					_worldDatabase.Execute($"DELETE FROM creature_equip_template WHERE CreatureID = {entry}");
 				else
 					Log.outError(LogFilter.Sql, "Creature template (CreatureID: {0}) does not exist but has a record in `creature_equip_template`", entry);
 
@@ -2347,7 +2350,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_creatureMovementOverrides.Clear();
 
 		// Load the data from creature_movement_override and if NULL fallback to creature_template_movement
-		var result = DB.World.Query("SELECT cmo.SpawnId,COALESCE(cmo.Ground, ctm.Ground),COALESCE(cmo.Swim, ctm.Swim),COALESCE(cmo.Flight, ctm.Flight),COALESCE(cmo.Rooted, ctm.Rooted),COALESCE(cmo.Chase, ctm.Chase),COALESCE(cmo.Random, ctm.Random)," +
+		var result = _worldDatabase.Query("SELECT cmo.SpawnId,COALESCE(cmo.Ground, ctm.Ground),COALESCE(cmo.Swim, ctm.Swim),COALESCE(cmo.Flight, ctm.Flight),COALESCE(cmo.Rooted, ctm.Rooted),COALESCE(cmo.Chase, ctm.Chase),COALESCE(cmo.Random, ctm.Random)," +
 									"COALESCE(cmo.InteractionPauseTimer, ctm.InteractionPauseTimer) FROM creature_movement_override AS cmo LEFT JOIN creature AS c ON c.guid = cmo.SpawnId LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id");
 
 		if (result.IsEmpty())
@@ -2364,7 +2367,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (GetCreatureData(spawnId) == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_movement_override WHERE SpawnId = {spawnId}");
+					_worldDatabase.Execute($"DELETE FROM creature_movement_override WHERE SpawnId = {spawnId}");
 				else
 					Log.outError(LogFilter.Sql, $"Creature (GUID: {spawnId}) does not exist but has a record in `creature_movement_override`");
 
@@ -2409,7 +2412,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_creatureBaseStatsStorage.Clear();
 
 		//                                         0      1      2         3            4
-		var result = DB.World.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
+		var result = _worldDatabase.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
 
 		if (result.IsEmpty())
 		{
@@ -2450,7 +2453,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	public void LoadCreatureModelInfo()
 	{
 		var time = Time.MSTime;
-		var result = DB.World.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender FROM creature_model_info");
+		var result = _worldDatabase.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender FROM creature_model_info");
 
 		if (result.IsEmpty())
 		{
@@ -2522,7 +2525,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                   0      1             2                     3                     4
-		var result = DB.World.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
+		var result = _worldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
 
 		if (result.IsEmpty())
 		{
@@ -2543,7 +2546,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (template == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_template_scaling WHERE entry = {entry}");
+					_worldDatabase.Execute($"DELETE FROM creature_template_scaling WHERE entry = {entry}");
 				else
 					Log.outError(LogFilter.Sql, $"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_scaling`");
 
@@ -2993,7 +2996,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_linkedRespawnStorage.Clear();
 		//                                                 0        1          2
-		var result = DB.World.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
+		var result = _worldDatabase.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
 
 		if (result.IsEmpty())
 		{
@@ -3021,7 +3024,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (slave == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", guidLow);
 
@@ -3035,7 +3038,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (master == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
 
@@ -3049,7 +3052,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3062,7 +3065,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
@@ -3083,7 +3086,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (slave == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", guidLow);
 
@@ -3097,7 +3100,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (master == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
 
@@ -3111,7 +3114,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3141,7 +3144,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (slave == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", guidLow);
 
@@ -3155,7 +3158,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (master == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
 
@@ -3169,7 +3172,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3182,7 +3185,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
@@ -3203,7 +3206,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (slave == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", guidLow);
 
@@ -3217,7 +3220,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (master == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
 
@@ -3231,7 +3234,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3244,7 +3247,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
@@ -3273,7 +3276,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_npcTextStorage.Clear();
 
-		var result = DB.World.Query("SELECT ID, Probability0, Probability1, Probability2, Probability3, Probability4, Probability5, Probability6, Probability7, " +
+		var result = _worldDatabase.Query("SELECT ID, Probability0, Probability1, Probability2, Probability3, Probability4, Probability5, Probability6, Probability7, " +
 									"BroadcastTextID0, BroadcastTextID1, BroadcastTextID2, BroadcastTextID3, BroadcastTextID4, BroadcastTextID5, BroadcastTextID6, BroadcastTextID7 FROM npc_text");
 
 		if (result.IsEmpty())
@@ -3341,7 +3344,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_trainers.Clear();
 
 		MultiMap<uint, TrainerSpell> spellsByTrainer = new();
-		var trainerSpellsResult = DB.World.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell");
+		var trainerSpellsResult = _worldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell");
 
 		if (!trainerSpellsResult.IsEmpty())
 			do
@@ -3392,7 +3395,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				spellsByTrainer.Add(trainerId, spell);
 			} while (trainerSpellsResult.NextRow());
 
-		var trainersResult = DB.World.Query("SELECT Id, Type, Greeting FROM trainer");
+		var trainersResult = _worldDatabase.Query("SELECT Id, Type, Greeting FROM trainer");
 
 		if (!trainersResult.IsEmpty())
 			do
@@ -3415,7 +3418,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var unusedSpells in spellsByTrainer.KeyValueList)
 			Log.outError(LogFilter.Sql, $"Table `trainer_spell` references non-existing trainer (TrainerId: {unusedSpells.Key}) for SpellId {unusedSpells.Value.SpellId}, ignoring");
 
-		var trainerLocalesResult = DB.World.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale");
+		var trainerLocalesResult = _worldDatabase.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale");
 
 		if (!trainerLocalesResult.IsEmpty())
 			do
@@ -3445,7 +3448,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_creatureDefaultTrainers.Clear();
 
-		var result = DB.World.Query("SELECT CreatureID, TrainerID, MenuID, OptionID FROM creature_trainer");
+		var result = _worldDatabase.Query("SELECT CreatureID, TrainerID, MenuID, OptionID FROM creature_trainer");
 
 		if (!result.IsEmpty())
 			do
@@ -3458,7 +3461,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (GetCreatureTemplate(creatureId) == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
+						_worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `creature_trainer` references non-existing creature template (CreatureId: {creatureId}), ignoring");
 
@@ -3468,7 +3471,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (GetTrainer(trainerId) == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
+						_worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `creature_trainer` references non-existing trainer (TrainerId: {trainerId}) for CreatureId {creatureId} MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}, ignoring");
 
@@ -3483,7 +3486,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (gossipOptionItr == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
+							_worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 						else
 							Log.outError(LogFilter.Sql, $"Table `creature_trainer` references non-existing gossip menu option (MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}) for CreatureId {creatureId} and TrainerId {trainerId}, ignoring");
 
@@ -3505,7 +3508,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		List<uint> skipvendors = new();
 
-		var result = DB.World.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionID, IgnoreFiltering FROM npc_vendor ORDER BY entry, slot ASC");
+		var result = _worldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionID, IgnoreFiltering FROM npc_vendor ORDER BY entry, slot ASC");
 
 		if (result.IsEmpty())
 		{
@@ -3563,7 +3566,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var time = Time.MSTime;
 
 		//                                         0              1   2    3           4           5           6            7        8             9              10
-		var result = DB.World.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, " +
+		var result = _worldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, " +
 									//11               12         13       14            15                 16          17           18                19                   20                    21
 									"currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, " +
 									//   22                     23                      24                25                   26                       27                   28
@@ -3605,7 +3608,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (cInfo == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature WHERE id = {entry}");
+					_worldDatabase.Execute($"DELETE FROM creature WHERE id = {entry}");
 				else
 					Log.outError(LogFilter.Sql, "Table `creature` has creature (GUID: {0}) with non existing creature entry {1}, skipped.", guid, entry);
 
@@ -3800,12 +3803,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				PhasingHandler.InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
 				Global.TerrainMgr.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
-				var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_ZONE_AREA_DATA);
+				var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_ZONE_AREA_DATA);
 				stmt.AddValue(0, zoneId);
 				stmt.AddValue(1, areaId);
 				stmt.AddValue(2, guid);
 
-				DB.World.Execute(stmt);
+				_worldDatabase.Execute(stmt);
 			}
 
 			// Add to grid if not managed by the game event
@@ -3911,10 +3914,10 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (linkedGuidLow == 0) // we're removing the linking
 		{
 			_linkedRespawnStorage.Remove(guid);
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
 			stmt.AddValue(0, guidLow);
 			stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToCreature);
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 
 			return true;
 		}
@@ -3948,11 +3951,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var linkedGuid = ObjectGuid.Create(HighGuid.Creature, slave.MapId, slave.Id, linkedGuidLow);
 
 		_linkedRespawnStorage[guid] = linkedGuid;
-		stmt = DB.World.GetPreparedStatement(WorldStatements.REP_LINKED_RESPAWN);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.REP_LINKED_RESPAWN);
 		stmt.AddValue(0, guidLow);
 		stmt.AddValue(1, linkedGuidLow);
 		stmt.AddValue(2, (uint)CreatureLinkedRespawnType.CreatureToCreature);
-		DB.World.Execute(stmt);
+		_worldDatabase.Execute(stmt);
 
 		return true;
 	}
@@ -4066,7 +4069,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		}
 
 		//                                          0      1     2          3     4         5               6     7
-		var result = DB.World.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, " +
+		var result = _worldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, " +
 									//8      9      10     11     12     13     14     15     16     17     18      19      20
 									"Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, " +
 									//21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
@@ -4276,7 +4279,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0       1       2      3        4        5        6        7        8        9        10             11
-		var result = DB.World.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
+		var result = _worldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
 
 		if (result.IsEmpty())
 		{
@@ -4296,7 +4299,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (got == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gameobject_template_addon WHERE entry = {entry}");
+					_worldDatabase.Execute($"DELETE FROM gameobject_template_addon WHERE entry = {entry}");
 				else
 					Log.outError(LogFilter.Sql, $"GameObject template (Entry: {entry}) does not exist but has a record in `gameobject_template_addon`");
 
@@ -4344,7 +4347,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						break;
 				}
 
-			if (gameObjectAddon.WorldEffectId != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
+			if (gameObjectAddon.WorldEffectId != 0 && !Cli_worldDatabaseEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
 			{
 				Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectId}) defined in `gameobject_template_addon`, set to 0.");
 				gameObjectAddon.WorldEffectId = 0;
@@ -4368,7 +4371,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                   0        1        2
-		var result = DB.World.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
+		var result = _worldDatabase.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
 
 		if (result.IsEmpty())
 		{
@@ -4387,7 +4390,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (goData == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gameobject_overrides WHERE spawnId = {spawnId}");
+					_worldDatabase.Execute($"DELETE FROM gameobject_overrides WHERE spawnId = {spawnId}");
 				else
 					Log.outError(LogFilter.Sql, $"GameObject (SpawnId: {spawnId}) does not exist but has a record in `gameobject_overrides`");
 
@@ -4414,7 +4417,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var time = Time.MSTime;
 
 		//                                         0                1   2    3           4           5           6
-		var result = DB.World.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, " +
+		var result = _worldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, " +
 									//7          8          9          10         11             12            13     14                 15          16
 									"rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnDifficulties, eventEntry, poolSpawnId, " +
 									//17             18       19          20              21
@@ -4637,11 +4640,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				PhasingHandler.InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
 				Global.TerrainMgr.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
-				var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_GAMEOBJECT_ZONE_AREA_DATA);
+				var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_GAMEOBJECT_ZONE_AREA_DATA);
 				stmt.AddValue(0, zoneId);
 				stmt.AddValue(1, areaId);
 				stmt.AddValue(2, guid);
-				DB.World.Execute(stmt);
+				_worldDatabase.Execute(stmt);
 			}
 
 			// if not this is to be managed by GameEvent System
@@ -4662,7 +4665,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_gameObjectAddonStorage.Clear();
 
 		//                                         0     1                 2                 3                 4                 5                 6                  7              8
-		var result = DB.World.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID, AIAnimKitID FROM gameobject_addon");
+		var result = _worldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID, AIAnimKitID FROM gameobject_addon");
 
 		if (result.IsEmpty())
 		{
@@ -4682,7 +4685,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (goData == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gameobject_addon WHERE guid = {guid}");
+					_worldDatabase.Execute($"DELETE FROM gameobject_addon WHERE guid = {guid}");
 				else
 					Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) does not exist but has a record in `gameobject_addon`");
 
@@ -4715,7 +4718,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				gameObjectAddon.ParentRotation = Quaternion.Identity;
 			}
 
-			if (gameObjectAddon.WorldEffectID != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
+			if (gameObjectAddon.WorldEffectID != 0 && !Cli_worldDatabaseEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
 			{
 				Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectID}) in `gameobject_addon`, set to 0.");
 				gameObjectAddon.WorldEffectID = 0;
@@ -4739,7 +4742,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                           0                1
-		var result = DB.World.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
+		var result = _worldDatabase.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
 
 		if (result.IsEmpty())
 		{
@@ -5026,7 +5029,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var time = Time.MSTime;
 
 		uint count = 0;
-		var result = DB.World.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
+		var result = _worldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
 
 		if (!result.IsEmpty())
 			do
@@ -5069,7 +5072,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 		uint count = 0;
 
-		var result = DB.World.Query("SELECT Id, ScriptName FROM item_script_names");
+		var result = _worldDatabase.Query("SELECT Id, ScriptName FROM item_script_names");
 
 		if (!result.IsEmpty())
 			do
@@ -5112,7 +5115,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_NPC_VENDOR);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_NPC_VENDOR);
 
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, vItem.Item);
@@ -5121,7 +5124,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			stmt.AddValue(4, vItem.ExtendedCost);
 			stmt.AddValue(5, (byte)vItem.Type);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 	}
 
@@ -5137,13 +5140,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_NPC_VENDOR);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_NPC_VENDOR);
 
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, item);
 			stmt.AddValue(2, (byte)type);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 
 		return true;
@@ -5158,7 +5161,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (player != null)
 				player.SendSysMessage(CypherStrings.CommandVendorselection);
 			else if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-				DB.World.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
+				_worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
 			else
 				Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have data for not existed creature template (Entry: {0}), ignore", vendorentry);
 
@@ -5172,7 +5175,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (player != null)
 					player.SendSysMessage(CypherStrings.CommandVendorselection);
 				else if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
+					_worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
 				else
 					Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor flag, ignore", vendorentry);
 
@@ -5297,7 +5300,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var time = Time.MSTime;
 
 		//                                          0     1       2
-		var result = DB.World.Query("SELECT map, parent, script FROM instance_template");
+		var result = _worldDatabase.Query("SELECT map, parent, script FROM instance_template");
 
 		if (result.IsEmpty())
 		{
@@ -5338,7 +5341,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		GameTeleStorage.Clear();
 
 		//                                          0       1           2           3           4        5     6
-		var result = DB.World.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
+		var result = _worldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
 
 		if (result.IsEmpty())
 		{
@@ -5385,7 +5388,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_areaTriggerStorage.Clear(); // need for reload case
 
 		//                                         0   1
-		var result = DB.World.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
+		var result = _worldDatabase.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
 
 		if (result.IsEmpty())
 		{
@@ -5442,7 +5445,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_accessRequirementStorage.Clear();
 
 		//                                          0      1           2          3          4           5      6             7             8                      9     
-		var result = DB.World.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
+		var result = _worldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
 
 		if (result.IsEmpty())
 		{
@@ -5540,7 +5543,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                           0         1            2                3
-		var result = DB.World.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+		var result = _worldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
 
 		if (result.IsEmpty())
 		{
@@ -5676,7 +5679,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0        1          2
-		var result = DB.World.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
+		var result = _worldDatabase.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
 
 		if (!result.IsEmpty())
 			do
@@ -5738,7 +5741,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0        1          2
-		var result = DB.World.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
+		var result = _worldDatabase.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
 
 		if (result.IsEmpty())
 		{
@@ -5758,7 +5761,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (!SpawnMetadata.TypeIsValid(spawnType))
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+					_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
 					Log.outError(LogFilter.Sql, $"Spawn data with invalid type {spawnType} listed for spawn group {groupId}. Skipped.");
 
@@ -5770,7 +5773,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (data == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+					_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
 					Log.outError(LogFilter.Sql, $"Spawn data with ID ({spawnType},{spawnId}) not found, but is listed as a member of spawn group {groupId}!");
 
@@ -5779,7 +5782,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			else if (data.SpawnGroupData.GroupId != 0)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+					_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
 					Log.outError(LogFilter.Sql, $"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.SpawnGroupData.GroupId}. Skipping.");
 
@@ -5804,7 +5807,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				else if (groupTemplate.MapId != data.MapId && !groupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+						_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 					else
 						Log.outError(LogFilter.Sql, $"Spawn group {groupId} has map ID {groupTemplate.MapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
 
@@ -5828,7 +5831,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0              1            2           3             4
-		var result = DB.World.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
+		var result = _worldDatabase.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
 
 		if (result.IsEmpty())
 		{
@@ -5848,7 +5851,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (spawnGroupTemplate == null || spawnGroupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
+					_worldDatabase.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
 				else
 					Log.outError(LogFilter.Sql, $"Invalid spawn group {spawnGroupId} specified for instance {instanceMapId}. Skipped.");
 
@@ -5858,7 +5861,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (spawnGroupTemplate.MapId != instanceMapId)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
+					_worldDatabase.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
 				else
 					Log.outError(LogFilter.Sql, $"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.MapId}. Skipped.");
 
@@ -5964,7 +5967,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		GameTeleStorage[newId] = tele;
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GAME_TELE);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GAME_TELE);
 
 		stmt.AddValue(0, newId);
 		stmt.AddValue(1, tele.posX);
@@ -5974,7 +5977,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		stmt.AddValue(5, tele.mapId);
 		stmt.AddValue(6, tele.name);
 
-		DB.World.Execute(stmt);
+		_worldDatabase.Execute(stmt);
 
 		return true;
 	}
@@ -5986,9 +5989,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var pair in GameTeleStorage.ToList())
 			if (pair.Value.nameLow == name)
 			{
-				var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAME_TELE);
+				var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAME_TELE);
 				stmt.AddValue(0, pair.Value.name);
-				DB.World.Execute(stmt);
+				_worldDatabase.Execute(stmt);
 
 				GameTeleStorage.Remove(pair.Key);
 
@@ -6085,7 +6088,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// Load playercreate
 		{
 			//                                         0     1      2    3           4           5           6            7        8               9               10              11               12                  13              14              15
-			var result = DB.World.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid, intro_movie_id, intro_scene_id, npe_intro_scene_id FROM playercreateinfo");
+			var result = _worldDatabase.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid, intro_movie_id, intro_scene_id, npe_intro_scene_id FROM playercreateinfo");
 
 			if (result.IsEmpty())
 			{
@@ -6284,7 +6287,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		{
 			//                                         0     1      2       3
-			var result = DB.World.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
+			var result = _worldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
 
 			if (result.IsEmpty())
 			{
@@ -6379,7 +6382,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+			var result = _worldDatabase.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
 
 			if (result.IsEmpty())
 			{
@@ -6430,7 +6433,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
+			var result = _worldDatabase.Query("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
 
 			if (result.IsEmpty())
 			{
@@ -6489,7 +6492,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		{
 			//                                         0     1      2       3       4
-			var result = DB.World.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
+			var result = _worldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
 
 			if (result.IsEmpty())
 			{
@@ -6540,7 +6543,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				raceStatModifiers[i] = new short[(int)Stats.Max];
 
 			//                                         0     1    2    3    4 
-			var result = DB.World.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
+			var result = _worldDatabase.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
 
 			if (result.IsEmpty())
 			{
@@ -6566,7 +6569,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			} while (result.NextRow());
 
 			//                               0      1      2    3    4    5
-			result = DB.World.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
+			result = _worldDatabase.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
 
 			if (result.IsEmpty())
 			{
@@ -6679,7 +6682,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_playerXPperLevel = new uint[CliDB.XpGameTable.GetTableRowCount() + 1];
 
 			//                                          0      1
-			var result = DB.World.Query("SELECT Level, Experience FROM player_xp_for_level");
+			var result = _worldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
 			// load the DBC's levels at first...
 			for (uint level = 1; level < CliDB.XpGameTable.GetTableRowCount(); ++level)
@@ -6784,7 +6787,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0               1      2   3     4    5    6    7     8    9
-		var result = DB.World.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
+		var result = _worldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
 
 		if (result.IsEmpty())
 		{
@@ -6802,7 +6805,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (GetCreatureTemplate(creatureid) == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM pet_levelstats WHERE creature_entry = {creatureid}");
+					_worldDatabase.Execute($"DELETE FROM pet_levelstats WHERE creature_entry = {creatureid}");
 				else
 					Log.outError(LogFilter.Sql, "Wrong creature id {0} in `pet_levelstats` table, ignoring.", creatureid);
 
@@ -6878,7 +6881,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 		//                                          0     1      2
-		var result = DB.World.Query("SELECT word, entry, half FROM pet_name_generation");
+		var result = _worldDatabase.Query("SELECT word, entry, half FROM pet_name_generation");
 
 		if (result.IsEmpty())
 		{
@@ -6910,7 +6913,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT MAX(id) FROM character_pet");
+		var result = _characterDatabase.Query("SELECT MAX(id) FROM character_pet");
 
 		if (!result.IsEmpty())
 			_hiPetNumber = result.Read<uint>(0) + 1;
@@ -6970,7 +6973,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
 
 		if (result.IsEmpty())
 		{
@@ -7026,7 +7029,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
 
 		if (result.IsEmpty())
 		{
@@ -7059,7 +7062,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
 
 		if (result.IsEmpty())
 		{
@@ -7092,7 +7095,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
 
 		if (result.IsEmpty())
 		{
@@ -7125,7 +7128,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
 
 		if (result.IsEmpty())
 		{
@@ -7165,7 +7168,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_questObjectives.Clear();
 		_exclusiveQuestGroups.Clear();
 
-		var result = DB.World.Query("SELECT " +
+		var result = _worldDatabase.Query("SELECT " +
 									//0  1          2               3                4            5            6                  7                8                   9
 									"ID, QuestType, QuestPackageID, ContentTuningID, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, " +
 									//10                    11                     12                13           14           15               16
@@ -7222,7 +7225,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_reward_choice_items`
 		//                               0        1      2      3      4      5      6
-		result = DB.World.Query("SELECT QuestID, Type1, Type2, Type3, Type4, Type5, Type6 FROM quest_reward_choice_items");
+		result = _worldDatabase.Query("SELECT QuestID, Type1, Type2, Type3, Type4, Type5, Type6 FROM quest_reward_choice_items");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest reward choice items. DB table `quest_reward_choice_items` is empty.");
@@ -7242,7 +7245,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_reward_display_spell`
 		//                               0        1        2
-		result = DB.World.Query("SELECT QuestID, SpellID, PlayerConditionID FROM quest_reward_display_spell ORDER BY QuestID ASC, Idx ASC");
+		result = _worldDatabase.Query("SELECT QuestID, SpellID, PlayerConditionID FROM quest_reward_display_spell ORDER BY QuestID ASC, Idx ASC");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest reward display spells. DB table `quest_reward_display_spell` is empty.");
@@ -7262,7 +7265,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_details`
 		//                               0   1       2       3       4       5            6            7            8
-		result = DB.World.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4 FROM quest_details");
+		result = _worldDatabase.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4 FROM quest_details");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest details. DB table `quest_details` is empty.");
@@ -7281,7 +7284,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_request_items`
 		//                               0   1                2                  3                     4                       5
-		result = DB.World.Query("SELECT ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText FROM quest_request_items");
+		result = _worldDatabase.Query("SELECT ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText FROM quest_request_items");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest request items. DB table `quest_request_items` is empty.");
@@ -7300,7 +7303,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_offer_reward`
 		//                               0   1       2       3       4       5            6            7            8            9
-		result = DB.World.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText FROM quest_offer_reward");
+		result = _worldDatabase.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText FROM quest_offer_reward");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest reward emotes. DB table `quest_offer_reward` is empty.");
@@ -7319,7 +7322,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_template_addon`
 		//                               0   1         2                 3              4            5            6               7                     8                     9
-		result = DB.World.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, BreadcrumbForQuestId, RewardMailTemplateID, RewardMailDelay, " +
+		result = _worldDatabase.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, BreadcrumbForQuestId, RewardMailTemplateID, RewardMailDelay, " +
 								//10               11                   12                     13                     14                   15                   16
 								"RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, " +
 								//17           18
@@ -7342,7 +7345,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_mail_sender`
 		//                               0        1
-		result = DB.World.Query("SELECT QuestId, RewardMailSenderEntry FROM quest_mail_sender");
+		result = _worldDatabase.Query("SELECT QuestId, RewardMailSenderEntry FROM quest_mail_sender");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest mail senders. DB table `quest_mail_sender` is empty.");
@@ -7361,7 +7364,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_objectives`
 		//                               0        1   2     3             4         5       6      7       8                  9
-		result = DB.World.Query("SELECT QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description FROM quest_objectives ORDER BY `Order` ASC, StorageIndex ASC");
+		result = _worldDatabase.Query("SELECT QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description FROM quest_objectives ORDER BY `Order` ASC, StorageIndex ASC");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest objectives. DB table `quest_objectives` is empty.");
@@ -7379,7 +7382,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		// Load `quest_visual_effect` join table with quest_objectives because visual effects are based on objective ID (core stores objectives by their index in quest)
 		//                                 0     1     2          3        4
-		result = DB.World.Query("SELECT v.ID, o.ID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
+		result = _worldDatabase.Query("SELECT v.ID, o.ID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
 
 		if (result.IsEmpty())
 			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
@@ -7624,7 +7627,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				else if (qinfo.SourceItemIdCount == 0)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
+						_worldDatabase.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
 					else
 						Log.outError(LogFilter.Sql,
 									"Quest {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
@@ -7697,7 +7700,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.Item:
 						if (GetItemTemplate((uint)obj.ObjectID) == null)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
 
@@ -7705,7 +7708,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.Monster:
 						if (GetCreatureTemplate((uint)obj.ObjectID) == null)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
@@ -7713,7 +7716,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.GameObject:
 						if (GetGameObjectTemplate((uint)obj.ObjectID) == null)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
 
@@ -7721,7 +7724,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.TalkTo:
 						if (GetCreatureTemplate((uint)obj.ObjectID) == null)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
@@ -7731,7 +7734,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.IncreaseReputation:
 						if (!CliDB.FactionStorage.ContainsKey((uint)obj.ObjectID))
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7739,7 +7742,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.PlayerKills:
 						if (obj.Amount <= 0)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
 
@@ -7749,13 +7752,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.ObtainCurrency:
 						if (!CliDB.CurrencyTypesStorage.ContainsKey((uint)obj.ObjectID))
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						if (obj.Amount <= 0)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
 
@@ -7763,7 +7766,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.LearnSpell:
 						if (!Global.SpellMgr.HasSpellInfo((uint)obj.ObjectID, Difficulty.None))
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7771,7 +7774,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.WinPetBattleAgainstNpc:
 						if (obj.ObjectID != 0 && GetCreatureTemplate((uint)obj.ObjectID) == null)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7779,7 +7782,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.DefeatBattlePet:
 						if (!CliDB.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7787,7 +7790,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.CriteriaTree:
 						if (!CliDB.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7795,7 +7798,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.AreaTrigger:
 						if (!CliDB.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7804,7 +7807,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case QuestObjectiveType.AreaTriggerExit:
 						if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, false)) == null && Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, true)) != null)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7815,7 +7818,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						break;
 					default:
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 						else
 							Log.outError(LogFilter.Sql, "Quest {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
 
@@ -8340,7 +8343,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_questPOIStorage.Clear(); // need for reload case
 
 		//                                         0        1          2     3               4                 5              6      7        8         9      10             11                 12                           13               14
-		var result = DB.World.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
+		var result = _worldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
 
 		if (result.IsEmpty())
 		{
@@ -8352,7 +8355,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		Dictionary<uint, MultiMap<int, QuestPOIBlobPoint>> allPoints = new();
 
 		//                                               0        1    2  3  4
-		var pointsResult = DB.World.Query("SELECT QuestID, Idx1, X, Y, Z FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
+		var pointsResult = _worldDatabase.Query("SELECT QuestID, Idx1, X, Y, Z FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
 
 		if (!pointsResult.IsEmpty())
 			do
@@ -8389,7 +8392,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetQuestTemplate(questID) == null)
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM quest_poi WHERE QuestID = {questID}");
+					_worldDatabase.Execute($"DELETE FROM quest_poi WHERE QuestID = {questID}");
 				else
 					Log.outError(LogFilter.Sql, $"`quest_poi` quest id ({questID}) Idx1 ({idx1}) does not exist in `quest_template`");
 
@@ -8438,7 +8441,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_questAreaTriggerStorage.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT id, quest FROM areatrigger_involvedrelation");
+		var result = _worldDatabase.Query("SELECT id, quest FROM areatrigger_involvedrelation");
 
 		if (result.IsEmpty())
 		{
@@ -8506,7 +8509,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_questGreetingStorage[i] = new Dictionary<uint, QuestGreeting>();
 
 		//                                         0   1          2                3     
-		var result = DB.World.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
+		var result = _worldDatabase.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
 
 		if (result.IsEmpty())
 		{
@@ -8697,7 +8700,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_spellClickInfoStorage.Clear();
 		//                                           0          1         2            3
-		var result = DB.World.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
+		var result = _worldDatabase.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
 
 		if (result.IsEmpty())
 		{
@@ -8765,7 +8768,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_fishingBaseForAreaStorage.Clear(); // for reload case
 
-		var result = DB.World.Query("SELECT entry, skill FROM skill_fishing_base_level");
+		var result = _worldDatabase.Query("SELECT entry, skill FROM skill_fishing_base_level");
 
 		if (result.IsEmpty())
 		{
@@ -8803,7 +8806,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_skillTiers.Clear();
 
-		var result = DB.World.Query("SELECT ID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, " +
+		var result = _worldDatabase.Query("SELECT ID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, " +
 									" Value11, Value12, Value13, Value14, Value15, Value16 FROM skill_tiers");
 
 		if (result.IsEmpty())
@@ -8870,7 +8873,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_creatureLocaleStorage.Clear(); // need for reload case
 
 		//                                         0      1       2     3        4      5
-		var result = DB.World.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
+		var result = _worldDatabase.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -8904,7 +8907,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_gameObjectLocaleStorage.Clear(); // need for reload case
 
 		//                                               0      1       2     3               4
-		var result = DB.World.Query("SELECT entry, locale, name, castBarCaption, unk1 FROM gameobject_template_locale");
+		var result = _worldDatabase.Query("SELECT entry, locale, name, castBarCaption, unk1 FROM gameobject_template_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -8937,7 +8940,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_questObjectivesLocaleStorage.Clear(); // need for reload case
 
 		//                                         0     1     2           3                 4                5                 6                  7                   8                   9                  10
-		var result = DB.World.Query("SELECT Id, locale, LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog" +
+		var result = _worldDatabase.Query("SELECT Id, locale, LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog" +
 									" FROM quest_template_locale");
 
 		if (result.IsEmpty())
@@ -8976,7 +8979,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_questObjectivesLocaleStorage.Clear(); // need for reload case
 		//                                        0     1          2
-		var result = DB.World.Query("SELECT Id, locale, Description FROM quest_objectives_locale");
+		var result = _worldDatabase.Query("SELECT Id, locale, Description FROM quest_objectives_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9008,7 +9011,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_questGreetingLocaleStorage[i] = new Dictionary<uint, QuestGreetingLocale>();
 
 		//                                         0   1     2       3
-		var result = DB.World.Query("SELECT Id, type, locale, Greeting FROM quest_greeting_locale");
+		var result = _worldDatabase.Query("SELECT Id, type, locale, Greeting FROM quest_greeting_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9068,7 +9071,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_questOfferRewardLocaleStorage.Clear(); // need for reload case
 		//                                               0     1          2
-		var result = DB.World.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+		var result = _worldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9098,7 +9101,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_questRequestItemsLocaleStorage.Clear(); // need for reload case
 		//                                               0     1          2
-		var result = DB.World.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+		var result = _worldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9129,7 +9132,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_gossipMenuItemsLocaleStorage.Clear(); // need for reload case
 
 		//                                         0       1            2       3           4
-		var result = DB.World.Query("SELECT MenuId, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
+		var result = _worldDatabase.Query("SELECT MenuId, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9162,7 +9165,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_pageTextLocaleStorage.Clear(); // needed for reload case
 
 		//                                               0      1     2
-		var result = DB.World.Query("SELECT ID, locale, `Text` FROM page_text_locale");
+		var result = _worldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9193,7 +9196,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_pointOfInterestLocaleStorage.Clear(); // need for reload case
 
 		//                                        0      1      2
-		var result = DB.World.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
+		var result = _worldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9270,7 +9273,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_repRewardRateStorage.Clear(); // for reload case
 
 		//                                          0          1             2                  3                  4                 5                      6             7
-		var result = DB.World.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+		var result = _worldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
 
 		if (result.IsEmpty())
 		{
@@ -9369,7 +9372,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_repOnKillStorage.Clear();
 
 		//                                                0            1                     2
-		var result = DB.World.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, " +
+		var result = _worldDatabase.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, " +
 									//   3             4             5                   6             7             8                   9
 									"IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent " +
 									"FROM creature_onkill_reputation");
@@ -9444,7 +9447,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_repSpilloverTemplateStorage.Clear(); // for reload case
 
 		//                                        0        1         2       3       4         5       6       7         8       9       10        11      12      13        14      15
-		var result = DB.World.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4, faction5, rate_5, rank_5 FROM " +
+		var result = _worldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4, faction5, rate_5, rank_5 FROM " +
 									"reputation_spillover_template");
 
 		if (result.IsEmpty())
@@ -9545,7 +9548,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_tavernAreaTriggerStorage.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT id FROM areatrigger_tavern");
+		var result = _worldDatabase.Query("SELECT id FROM areatrigger_tavern");
 
 		if (result.IsEmpty())
 		{
@@ -9584,7 +9587,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_mailLevelRewardStorage.Clear(); // for reload case
 
 		//                                           0        1             2            3
-		var result = DB.World.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
+		var result = _worldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
 
 		if (result.IsEmpty())
 		{
@@ -9642,7 +9645,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT level, basexp FROM exploration_basexp");
+		var result = _worldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
 
 		if (result.IsEmpty())
 		{
@@ -9671,7 +9674,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_tempSummonDataStorage.Clear(); // needed for reload case
 
 		//                                             0           1             2        3      4           5           6           7            8           9
-		var result = DB.World.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
+		var result = _worldDatabase.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
 
 		if (result.IsEmpty())
 		{
@@ -9776,7 +9779,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0   1     2           3                 4
-		var result = DB.World.Query("SELECT ID, `text`, NextPageID, PlayerConditionID, Flags FROM page_text");
+		var result = _worldDatabase.Query("SELECT ID, `text`, NextPageID, PlayerConditionID, Flags FROM page_text");
 
 		if (result.IsEmpty())
 		{
@@ -9815,7 +9818,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_reservedNamesStorage.Clear(); // need for reload case
 
-		var result = DB.Characters.Query("SELECT name FROM reserved_name");
+		var result = _characterDatabase.Query("SELECT name FROM reserved_name");
 
 		if (result.IsEmpty())
 		{
@@ -9851,14 +9854,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// Delete all old mails without item and without body immediately, if starting server
 		if (!serverUp)
 		{
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EMPTY_EXPIRED_MAIL);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_EMPTY_EXPIRED_MAIL);
 			stmt.AddValue(0, curTime);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL);
 		stmt.AddValue(0, curTime);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -9868,9 +9871,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		}
 
 		MultiMap<ulong, MailItemInfo> itemsCache = new();
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL_ITEMS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL_ITEMS);
 		stmt.AddValue(0, curTime);
-		var items = DB.Characters.Query(stmt);
+		var items = _characterDatabase.Query(stmt);
 
 		if (!items.IsEmpty())
 		{
@@ -9925,34 +9928,34 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						AzeriteEmpoweredItem.DeleteFromDB(null, itemInfo.item_guid);
 					}
 
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
 					stmt.AddValue(0, m.messageID);
-					DB.Characters.Execute(stmt);
+					_characterDatabase.Execute(stmt);
 				}
 				else
 				{
 					// Mail will be returned
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_MAIL_RETURNED);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL_RETURNED);
 					stmt.AddValue(0, m.receiver);
 					stmt.AddValue(1, m.sender);
 					stmt.AddValue(2, curTime + 30 * Time.Day);
 					stmt.AddValue(3, curTime);
 					stmt.AddValue(4, (byte)MailCheckMask.Returned);
 					stmt.AddValue(5, m.messageID);
-					DB.Characters.Execute(stmt);
+					_characterDatabase.Execute(stmt);
 
 					foreach (var itemInfo in m.items)
 					{
 						// Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
-						stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_MAIL_ITEM_RECEIVER);
+						stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL_ITEM_RECEIVER);
 						stmt.AddValue(0, m.sender);
 						stmt.AddValue(1, itemInfo.item_guid);
-						DB.Characters.Execute(stmt);
+						_characterDatabase.Execute(stmt);
 
-						stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
+						stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
 						stmt.AddValue(0, m.sender);
 						stmt.AddValue(1, itemInfo.item_guid);
-						DB.Characters.Execute(stmt);
+						_characterDatabase.Execute(stmt);
 					}
 
 					++returnedCount;
@@ -9961,9 +9964,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 			}
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
 			stmt.AddValue(0, m.messageID);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 			++deletedCount;
 		} while (result.NextRow());
 
@@ -9975,7 +9978,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 		_sceneTemplateStorage.Clear();
 
-		var result = DB.World.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
+		var result = _worldDatabase.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
 
 		if (result.IsEmpty())
 		{
@@ -10007,7 +10010,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 		_playerChoices.Clear();
 
-		var choiceResult = DB.World.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
+		var choiceResult = _worldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
 
 		if (choiceResult.IsEmpty())
 		{
@@ -10041,7 +10044,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		} while (choiceResult.NextRow());
 
 		//                                            0         1           2                   3                4      5
-		var responses = DB.World.Query("SELECT ChoiceId, ResponseId, ResponseIdentifier, ChoiceArtFileId, Flags, WidgetSetID, " +
+		var responses = _worldDatabase.Query("SELECT ChoiceId, ResponseId, ResponseIdentifier, ChoiceArtFileId, Flags, WidgetSetID, " +
 										//6                        7           8        9               10      11      12         13              14           15            16
 										"UiTextureAtlasElementID, SoundKitID, GroupID, UiTextureKitID, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation, RewardQuestID " +
 										"FROM playerchoice_response ORDER BY `Index` ASC");
@@ -10086,7 +10089,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++responseCount;
 			} while (responses.NextRow());
 
-		var rewards = DB.World.Query("SELECT ChoiceId, ResponseId, TitleId, PackageId, SkillLineId, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward");
+		var rewards = _worldDatabase.Query("SELECT ChoiceId, ResponseId, TitleId, PackageId, SkillLineId, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward");
 
 		if (!rewards.IsEmpty())
 			do
@@ -10144,7 +10147,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++rewardCount;
 			} while (rewards.NextRow());
 
-		var rewardItem = DB.World.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item ORDER BY `Index` ASC");
+		var rewardItem = _worldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item ORDER BY `Index` ASC");
 
 		if (!rewardItem.IsEmpty())
 			do
@@ -10195,7 +10198,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				itemRewardCount++;
 			} while (rewardItem.NextRow());
 
-		var rewardCurrency = DB.World.Query("SELECT ChoiceId, ResponseId, CurrencyId, Quantity FROM playerchoice_response_reward_currency ORDER BY `Index` ASC");
+		var rewardCurrency = _worldDatabase.Query("SELECT ChoiceId, ResponseId, CurrencyId, Quantity FROM playerchoice_response_reward_currency ORDER BY `Index` ASC");
 
 		if (!rewardCurrency.IsEmpty())
 			do
@@ -10241,7 +10244,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				currencyRewardCount++;
 			} while (rewardCurrency.NextRow());
 
-		var rewardFaction = DB.World.Query("SELECT ChoiceId, ResponseId, FactionId, Quantity FROM playerchoice_response_reward_faction ORDER BY `Index` ASC");
+		var rewardFaction = _worldDatabase.Query("SELECT ChoiceId, ResponseId, FactionId, Quantity FROM playerchoice_response_reward_faction ORDER BY `Index` ASC");
 
 		if (!rewardFaction.IsEmpty())
 			do
@@ -10287,7 +10290,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				factionRewardCount++;
 			} while (rewardFaction.NextRow());
 
-		var rewardItems = DB.World.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item_choice ORDER BY `Index` ASC");
+		var rewardItems = _worldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item_choice ORDER BY `Index` ASC");
 
 		if (!rewardItems.IsEmpty())
 			do
@@ -10339,7 +10342,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				itemChoiceRewardCount++;
 			} while (rewards.NextRow());
 
-		var mawPowersResult = DB.World.Query("SELECT ChoiceId, ResponseId, TypeArtFileID, Rarity, RarityColor, SpellID, MaxStacks FROM playerchoice_response_maw_power");
+		var mawPowersResult = _worldDatabase.Query("SELECT ChoiceId, ResponseId, TypeArtFileID, Rarity, RarityColor, SpellID, MaxStacks FROM playerchoice_response_maw_power");
 
 		if (!mawPowersResult.IsEmpty())
 			do
@@ -10394,7 +10397,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_playerChoiceLocales.Clear();
 
 		//                                               0         1       2
-		var result = DB.World.Query("SELECT ChoiceId, locale, Question FROM playerchoice_locale");
+		var result = _worldDatabase.Query("SELECT ChoiceId, locale, Question FROM playerchoice_locale");
 
 		if (!result.IsEmpty())
 		{
@@ -10427,7 +10430,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		oldMSTime = Time.MSTime;
 
 		//                               0         1           2       3       4       5          6               7            8
-		result = DB.World.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale");
+		result = _worldDatabase.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale");
 
 		if (!result.IsEmpty())
 		{
@@ -10448,7 +10451,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (playerChoiceLocale == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
+						_worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
 						Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for ResponseId {responseId} locale {localeName}, skipped");
 
@@ -10460,7 +10463,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (playerChoice.GetResponse(responseId) == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
+						_worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
 						Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
 
@@ -10480,7 +10483,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				else
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
+						_worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
 						Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing locale for ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
 				}
@@ -10533,7 +10536,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_jumpChargeParams.Clear();
 
 		//                                         0   1      2                            3            4              5                6
-		var result = DB.World.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
+		var result = _worldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
 
 		if (result.IsEmpty())
 			return;
@@ -10603,7 +10606,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_phaseNameStorage.Clear();
 
 		//                                          0     1
-		var result = DB.World.Query("SELECT `ID`, `Name` FROM `phase_name`");
+		var result = _worldDatabase.Query("SELECT `ID`, `Name` FROM `phase_name`");
 
 		if (result.IsEmpty())
 		{
@@ -10658,66 +10661,66 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 	public void SetHighestGuids()
 	{
-		var result = DB.Characters.Query("SELECT MAX(guid) FROM characters");
+		var result = _characterDatabase.Query("SELECT MAX(guid) FROM characters");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Player).Set(result.Read<ulong>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(guid) FROM item_instance");
+		result = _characterDatabase.Query("SELECT MAX(guid) FROM item_instance");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Item).Set(result.Read<ulong>(0) + 1);
 
 		// Cleanup other tables from not existed guids ( >= hiItemGuid)
-		DB.Characters.Execute("DELETE FROM character_inventory WHERE item >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
-		DB.Characters.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed());     // One-time query
+		_characterDatabase.Execute("DELETE FROM character_inventory WHERE item >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
+		_characterDatabase.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed());     // One-time query
 
-		DB.Characters.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
+		_characterDatabase.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
 							GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
 
-		DB.Characters.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
+		_characterDatabase.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
 
-		result = DB.World.Query("SELECT MAX(guid) FROM transports");
+		result = _worldDatabase.Query("SELECT MAX(guid) FROM transports");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Transport).Set(result.Read<ulong>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(id) FROM auctionhouse");
+		result = _characterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
 
 		if (!result.IsEmpty())
 			_auctionId = result.Read<uint>(0) + 1;
 
-		result = DB.Characters.Query("SELECT MAX(id) FROM mail");
+		result = _characterDatabase.Query("SELECT MAX(id) FROM mail");
 
 		if (!result.IsEmpty())
 			_mailId = result.Read<ulong>(0) + 1;
 
-		result = DB.Characters.Query("SELECT MAX(arenateamid) FROM arena_team");
+		result = _characterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
 
 		if (!result.IsEmpty())
 			Global.ArenaTeamMgr.SetNextArenaTeamId(result.Read<uint>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
+		result = _characterDatabase.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
 
 		if (!result.IsEmpty())
 			_equipmentSetGuid = result.Read<ulong>(0) + 1;
 
-		result = DB.Characters.Query("SELECT MAX(guildId) FROM guild");
+		result = _characterDatabase.Query("SELECT MAX(guildId) FROM guild");
 
 		if (!result.IsEmpty())
 			Global.GuildMgr.SetNextGuildId(result.Read<uint>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(itemId) from character_void_storage");
+		result = _characterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
 
 		if (!result.IsEmpty())
 			_voidItemId = result.Read<ulong>(0) + 1;
 
-		result = DB.World.Query("SELECT MAX(guid) FROM creature");
+		result = _worldDatabase.Query("SELECT MAX(guid) FROM creature");
 
 		if (!result.IsEmpty())
 			_creatureSpawnId = result.Read<ulong>(0) + 1;
 
-		result = DB.World.Query("SELECT MAX(guid) FROM gameobject");
+		result = _worldDatabase.Query("SELECT MAX(guid) FROM gameobject");
 
 		if (!result.IsEmpty())
 			_gameObjectSpawnId = result.Read<ulong>(0) + 1;
@@ -11069,7 +11072,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_vehicleTemplateStore.Clear();
 
 		//                                         0           1
-		var result = DB.World.Query("SELECT creatureId, despawnDelayMs FROM vehicle_template");
+		var result = _worldDatabase.Query("SELECT creatureId, despawnDelayMs FROM vehicle_template");
 
 		if (result.IsEmpty())
 		{
@@ -11106,7 +11109,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		uint count = 0;
 
 		//                                          0             1              2          3           4             5
-		var result = DB.World.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
+		var result = _worldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
 
 		if (result.IsEmpty())
 		{
@@ -11162,7 +11165,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		uint count = 0;
 
 		//                                          0             1             2          3           4             5
-		var result = DB.World.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
+		var result = _worldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
 
 		if (result.IsEmpty())
 		{
@@ -11202,7 +11205,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		_vehicleSeatAddonStore.Clear(); // needed for reload case
 
 		//                                          0            1                  2             3             4             5             6
-		var result = DB.World.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
+		var result = _worldDatabase.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
 
 		if (result.IsEmpty())
 		{
@@ -11458,7 +11461,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		var isSpellScriptTable = (type == ScriptsType.Spell);
 		//                                         0    1       2         3         4          5    6  7  8  9
-		var result = DB.World.Query("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o{0} FROM {1}", isSpellScriptTable ? ", effIndex" : "", tableName);
+		var result = _worldDatabase.Query("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o{0} FROM {1}", isSpellScriptTable ? ", effIndex" : "", tableName);
 
 		if (result.IsEmpty())
 		{
@@ -11500,7 +11503,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (tmp.Talk.ChatType > ChatMsg.RaidBossWhisper)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
@@ -11514,7 +11517,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!CliDB.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
@@ -11533,7 +11536,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!CliDB.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
@@ -11552,7 +11555,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!CliDB.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
@@ -11566,7 +11569,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!GridDefines.IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
@@ -11590,7 +11593,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (quest == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
@@ -11629,7 +11632,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
@@ -11644,7 +11647,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance < SharedConst.InteractionDistance)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
@@ -11664,7 +11667,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (GetCreatureTemplate(tmp.KillCredit.CreatureEntry) == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
@@ -11685,7 +11688,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (data == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
@@ -11701,7 +11704,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (info == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
@@ -11720,7 +11723,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						info.type == GameObjectTypes.Trap)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
@@ -11739,7 +11742,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!GridDefines.IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
@@ -11756,7 +11759,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (GetCreatureTemplate(tmp.TempSummonCreature.CreatureEntry) == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
@@ -11778,7 +11781,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (data == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
@@ -11795,7 +11798,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (info == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
@@ -11811,7 +11814,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (info.type != GameObjectTypes.Door)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
@@ -11831,7 +11834,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!Global.SpellMgr.HasSpellInfo(tmp.RemoveAura.SpellID, Difficulty.None))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
@@ -11845,7 +11848,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (Convert.ToBoolean((int)tmp.RemoveAura.Flags & ~0x1)) // 1 bits (0, 1)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
@@ -11864,7 +11867,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!Global.SpellMgr.HasSpellInfo(tmp.CastSpell.SpellID, Difficulty.None))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -11878,7 +11881,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if ((int)tmp.CastSpell.Flags > 4) // targeting type
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -11892,7 +11895,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if ((int)tmp.CastSpell.Flags != 4 && Convert.ToBoolean(tmp.CastSpell.CreatureEntry & ~0x1)) // 1 bit (0, 1)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -11905,7 +11908,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					else if ((int)tmp.CastSpell.Flags == 4 && GetCreatureTemplate((uint)tmp.CastSpell.CreatureEntry) == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
@@ -11924,7 +11927,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (GetItemTemplate(tmp.CreateItem.ItemEntry) == null)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
@@ -11938,7 +11941,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (tmp.CreateItem.Amount == 0)
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
@@ -11956,7 +11959,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (!CliDB.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
 					{
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.outError(LogFilter.Sql,
 										"Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
@@ -11974,7 +11977,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case ScriptCommands.FlagRemoveDeprecated:
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 					else
 						Log.outError(LogFilter.Sql, $"Table `{tableName}` uses deprecated direct updatefield modify command {tmp.command} for script id {tmp.id}");
 
@@ -12010,7 +12013,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0           1       2
-		var result = DB.World.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
+		var result = _worldDatabase.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
 
 		if (result.IsEmpty())
 		{
@@ -12053,7 +12056,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0           1       2
-		var result = DB.World.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
+		var result = _worldDatabase.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
 
 		if (result.IsEmpty())
 		{
@@ -12095,7 +12098,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 		//                                         0           1                  2             3
-		var result = DB.World.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
+		var result = _worldDatabase.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
 
 		if (result.IsEmpty())
 		{
@@ -12118,7 +12121,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (cInfo == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_template_model WHERE CreatureID = {creatureId}");
+					_worldDatabase.Execute($"DELETE FROM creature_template_model WHERE CreatureID = {creatureId}");
 				else
 					Log.outDebug(LogFilter.Sql, $"Creature template (Entry: {creatureId}) does not exist but has a record in `creature_template_model`");
 
@@ -12154,7 +12157,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0           1                            2                     3
-		var result = DB.World.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
+		var result = _worldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
 
 		if (result.IsEmpty())
 		{
@@ -12246,9 +12249,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	uint LoadReferenceVendor(int vendor, int item, List<uint> skip_vendors)
 	{
 		// find all items from the reference vendor
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_NPC_VENDOR_REF);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_NPC_VENDOR_REF);
 		stmt.AddValue(0, item);
-		var result = DB.World.Query(stmt);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 			return 0;
@@ -12602,7 +12605,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		uint count = 0;
 
-		var result = DB.World.Query($"SELECT id, quest FROM {table}");
+		var result = _worldDatabase.Query($"SELECT id, quest FROM {table}");
 
 		if (result.IsEmpty())
 		{
@@ -12644,7 +12647,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0               1
-		var result = DB.World.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
+		var result = _worldDatabase.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
 
 		if (result.IsEmpty())
 		{
@@ -12691,7 +12694,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
+		var result = _worldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
 
 		if (result.IsEmpty())
 		{
@@ -12737,7 +12740,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0       1
-		var result = DB.World.Query("SELECT AreaId, PhaseId FROM `phase_area`");
+		var result = _worldDatabase.Query("SELECT AreaId, PhaseId FROM `phase_area`");
 
 		if (result.IsEmpty())
 		{

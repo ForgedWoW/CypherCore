@@ -12,23 +12,15 @@ namespace Game.Common.Networking;
 public abstract class ServerPacket
 {
 	protected WorldPacket _worldPacket;
-	readonly ConnectionType connectionType;
 
 	byte[] buffer;
 
 	protected ServerPacket(ServerOpcodes opcode)
 	{
-		connectionType = ConnectionType.Realm;
 		_worldPacket = new WorldPacket(opcode);
 	}
 
-	protected ServerPacket(ServerOpcodes opcode, ConnectionType type = ConnectionType.Realm)
-	{
-		connectionType = type;
-		_worldPacket = new WorldPacket(opcode);
-	}
-
-	public void Clear()
+    public void Clear()
 	{
 		_worldPacket.Clear();
 		buffer = null;
@@ -60,10 +52,5 @@ public abstract class ServerPacket
 
 		buffer = _worldPacket.GetData();
 		_worldPacket.Dispose();
-	}
-
-	public ConnectionType GetConnection()
-	{
-		return connectionType;
 	}
 }

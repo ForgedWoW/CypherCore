@@ -15,12 +15,14 @@ namespace Game.Common.Cache;
 public class CharacterCache
 {
     private readonly WorldManager _worldManager;
+    private readonly CharacterDatabase _characterDatabase;
     private readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
     private readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
 
-    public CharacterCache(WorldManager worldManager)
+    public CharacterCache(WorldManager worldManager, CharacterDatabase characterDatabase)
     {
         _worldManager = worldManager;
+        _characterDatabase = characterDatabase;
     }
 
     public void LoadCharacterCacheStorage()
@@ -28,7 +30,7 @@ public class CharacterCache
 		_characterCacheStore.Clear();
 		var oldMsTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
+		var result = _characterDatabase.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
 
 		if (result.IsEmpty())
 		{

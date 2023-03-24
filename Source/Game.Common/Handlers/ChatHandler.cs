@@ -5,8 +5,10 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.Common.DataStorage.ClientReader;
 using Game.Common.DataStorage.Structs.E;
+using Game.Common.Entities.IUnit;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Chat;
+using Game.Common.Scripting;
 using Game.Common.Scripting.Interfaces.IPlayer;
 using Game.Common.Server;
 
@@ -16,11 +18,13 @@ public class ChatHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly DB6Storage<EmotesTextRecord> _emotes;
+    private readonly ScriptManager _scriptManager;
 
-    public ChatHandler(WorldSession session, DB6Storage<EmotesTextRecord> emotes)
+    public ChatHandler(WorldSession session, DB6Storage<EmotesTextRecord> emotes, ScriptManager scriptManager)
     {
         _session = session;
         _emotes = emotes;
+        _scriptManager = scriptManager;
     }
 
 	[WorldPacketHandler(ClientOpcodes.SendTextEmote, Processing = PacketProcessing.Inplace)]
@@ -79,16 +83,8 @@ public class ChatHandler : IWorldSessionHandler
 
 		_session.Player.UpdateCriteria(CriteriaType.DoEmote, (uint)packet.EmoteID, 0, 0, unit);
 
-		// Send scripted event call
-		if (unit)
-		{
-			var creature = unit.AsCreature;
+        // Send scripted event call
+        _scriptManager.ForEach<IUnitOnEmote>(p => p.OnEmote(unit, packet.EmoteID));
 
-			if (creature)
-				creature.AI.ReceiveEmote(_session.Player, (TextEmotes)packet.EmoteID);
-		}
-
-		if (emote != Emote.OneshotNone)
-			_session.Player.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Anim);
-	}
+    }
 }

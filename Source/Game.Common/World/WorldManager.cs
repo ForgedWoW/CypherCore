@@ -11,6 +11,8 @@ using Framework.Realm;
 using Game.Common.Entities.Objects;
 using Game.Common.Handlers;
 using Game.Common.Networking;
+using Game.Common.Scripting;
+using Game.Common.Scripting.Interfaces.ISession;
 using Game.Common.Server;
 
 namespace Game.Common.World;
@@ -18,12 +20,12 @@ namespace Game.Common.World;
 public class WorldManager
 {
     private readonly AuthenticationHandler _authenticationHandler;
+    private readonly ScriptManager _scriptManager;
     readonly ConcurrentDictionary<uint, WorldSession> _sessions = new();
     readonly MultiMap<ObjectGuid, WorldSession> _sessionsByBnetGuid = new();
     readonly Dictionary<uint, long> _disconnects = new();
     readonly List<WorldSession> _queuedPlayer = new();
     readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
-    readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
 
     public List<WorldSession> AllSessions => _sessions.Values.ToList();
 
@@ -38,10 +40,6 @@ public class WorldManager
 
     public uint MaxActiveSessionCount { get; private set; }
 
-    public uint PlayerCount { get; }
-
-    public uint MaxPlayerCount { get; }
-
 
     public uint PlayerAmountLimit { get; set; }
 
@@ -50,9 +48,10 @@ public class WorldManager
     public RealmId RealmId => Realm.Id;
 
 
-    public WorldManager(AuthenticationHandler authenticationHandler)
+    public WorldManager(AuthenticationHandler authenticationHandler, ScriptManager scriptManager)
     {
         _authenticationHandler = authenticationHandler;
+        _scriptManager = scriptManager;
     }
 
     public WorldSession FindSession(uint id)
@@ -64,12 +63,6 @@ public class WorldManager
     {
         _addSessQueue.Enqueue(s);
     }
-
-    public void AddInstanceSocket(WorldSocket sock, ulong connectToKey)
-    {
-        _linkSocketQueue.Enqueue(Tuple.Create(sock, connectToKey));
-    }
-
 
     public bool LoadRealmInfo()
     {
@@ -136,9 +129,6 @@ public class WorldManager
 
     public void Update(uint diff)
     {
-        while (_linkSocketQueue.TryDequeue(out var linkInfo))
-            ProcessLinkInstanceSocket(linkInfo);
-
         // Add new sessions
         while (_addSessQueue.TryDequeue(out var sess))
             AddSession_(sess);
@@ -150,7 +140,7 @@ public class WorldManager
 
             if (!session.UpdateWorld(diff)) // As interval = 0
             {
-                if (!RemoveQueuedPlayer(session) && session != null && WorldConfig.GetIntValue(WorldCfg.IntervalDisconnectTolerance) != 0)
+                if (!RemoveQueuedPlayer(session) && WorldConfig.GetIntValue(WorldCfg.IntervalDisconnectTolerance) != 0)
                     _disconnects[session.AccountId] = GameTime.GetGameTime();
 
                 RemoveQueuedPlayer(session);
@@ -230,9 +220,9 @@ public class WorldManager
             return;
         }
 
-        s.InitializeSession();
-
         UpdateMaxSessionCounters();
+
+        _scriptManager.ForEach<ISessionInitialize>(si => si.Initialize(this, s));
 
         // Updates the population
         if (pLimit > 0)
@@ -244,48 +234,14 @@ public class WorldManager
         }
     }
 
-    void ProcessLinkInstanceSocket(Tuple<WorldSocket, ulong> linkInfo)
-    {
-        if (!linkInfo.Item1.IsOpen())
-            return;
-
-        ConnectToKey key = new();
-        key.Raw = linkInfo.Item2;
-
-        var session = FindSession(key.AccountId);
-
-        if (!session || session.ConnectToInstanceKey != linkInfo.Item2)
-        {
-            linkInfo.Item1.SendAuthResponseError(BattlenetRpcErrorCode.TimedOut);
-            linkInfo.Item1.CloseSocket();
-
-            return;
-        }
-
-        linkInfo.Item1.SetWorldSession(session);
-        session.AddInstanceConnection(linkInfo.Item1);
-        session.HandleContinuePlayerLogin(); // need to figure this out.
-    }
-
     bool HasRecentlyDisconnected(WorldSession session)
     {
         if (session == null)
             return false;
 
-        uint tolerance = 0;
-
-        if (tolerance != 0)
-            foreach (var disconnect in _disconnects)
-                if ((disconnect.Value - GameTime.GetGameTime()) < tolerance)
-                {
-                    if (disconnect.Key == session.AccountId)
-                        return true;
-                }
-                else
-                {
-                    _disconnects.Remove(disconnect.Key);
-                }
-
+        foreach (var disconnect in _disconnects)
+            _disconnects.Remove(disconnect.Key);
+ 
         return false;
     }
 
@@ -347,7 +303,7 @@ public class WorldManager
         if ((PlayerAmountLimit == 0 || sessions < PlayerAmountLimit) && !_queuedPlayer.Empty())
         {
             var popSess = _queuedPlayer.First();
-            popSess.InitializeSession();
+            _scriptManager.ForEach<ISessionInitialize>(si => si.Initialize(this, popSess));
 
             _queuedPlayer.RemoveAt(0);
 
