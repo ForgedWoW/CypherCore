@@ -14,6 +14,7 @@ namespace Framework.Database;
 public class DatabaseLoader
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger _logger;
     readonly bool _autoSetup;
 	readonly DatabaseTypeFlags _updateFlags;
 	readonly List<Func<bool>> _open = new();
@@ -21,9 +22,10 @@ public class DatabaseLoader
 	readonly List<Func<bool>> _update = new();
 	readonly List<Func<bool>> _prepare = new();
 
-	public DatabaseLoader(DatabaseTypeFlags defaultUpdateMask, IConfiguration configuration)
+	public DatabaseLoader(DatabaseTypeFlags defaultUpdateMask, IConfiguration configuration, ILogger logger)
 	{
         _configuration = configuration;
+        _logger = logger;
         _autoSetup = _configuration.GetDefaultValue("Updates.AutoSetup", true);
 		_updateFlags = _configuration.GetDefaultValue("Updates.EnableDatabases", defaultUpdateMask);
 	}
@@ -57,7 +59,7 @@ public class DatabaseLoader
 				// If the error wasn't handled quit
 				if (error != MySqlErrorCode.None)
 				{
-					Log.Logger.ForContext<DatabaseLoader>().Error($"\nDatabase {connectionObject.Database} NOT opened. There were errors opening the MySQL connections. Check your SQLErrors for specific errors.");
+                    _logger.Error($"\nDatabase {connectionObject.Database} NOT opened. There were errors opening the MySQL connections. Check your SQLErrors for specific errors.");
                     return false;
 				}
 			}
@@ -72,7 +74,7 @@ public class DatabaseLoader
 			{
 				if (!database.GetUpdater().Populate())
 				{
-					Log.Logger.ForContext<DatabaseLoader>().Error($"Could not populate the {database.GetDatabaseName()} database, see log for details.");
+                    _logger.Error($"Could not populate the {database.GetDatabaseName()} database, see log for details.");
 
 					return false;
 				}
@@ -84,7 +86,7 @@ public class DatabaseLoader
 			{
 				if (!database.GetUpdater().Update())
 				{
-					Log.outError(LogFilter.ServerLoading, $"Could not update the {database.GetDatabaseName()} database, see log for details.");
+					_logger.Error($"Could not update the {database.GetDatabaseName()} database, see log for details.");
 
 					return false;
 				}
@@ -103,14 +105,14 @@ public class DatabaseLoader
 
 	public bool CreateDatabase<T>(MySqlConnectionInfo connectionObject, MySqlBase<T> database)
 	{
-		Log.outInfo(LogFilter.ServerLoading, $"Database \"{connectionObject.Database}\" does not exist, do you want to create it? [yes (default) / no]: ");
+        _logger.Information($"Database \"{connectionObject.Database}\" does not exist, do you want to create it? [yes (default) / no]: ");
 
 		var answer = Console.ReadLine();
 
 		if (!answer.IsEmpty() && answer[0] != 'y')
 			return false;
 
-		Log.outInfo(LogFilter.ServerLoading, $"Creating database \"{connectionObject.Database}\"...");
+        _logger.Information($"Creating database \"{connectionObject.Database}\"...");
 
 		// Path of temp file
 		var temp = "create_table.sql";
@@ -123,7 +125,7 @@ public class DatabaseLoader
 		}
 		catch (Exception)
 		{
-			Log.outFatal(LogFilter.SqlUpdates, $"Failed to create temporary query file \"{temp}\"!");
+			_logger.Fatal($"Failed to create temporary query file \"{temp}\"!");
 
 			return false;
 		}
@@ -134,13 +136,13 @@ public class DatabaseLoader
 		}
 		catch (Exception)
 		{
-			Log.outFatal(LogFilter.SqlUpdates, $"Failed to create database {database.GetDatabaseName()}! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?");
+            _logger.Fatal($"Failed to create database {database.GetDatabaseName()}! Does the user (named in *.conf) have `CREATE`, `ALTER`, `DROP`, `INSERT` and `DELETE` privileges on the MySQL server?");
 			File.Delete(temp);
 
 			return false;
 		}
 
-		Log.outInfo(LogFilter.SqlUpdates, "Done.");
+        _logger.Information("Done.");
 		File.Delete(temp);
 
 		return true;
@@ -149,7 +151,7 @@ public class DatabaseLoader
 	public bool Load()
 	{
 		if (_updateFlags == 0)
-			Log.outInfo(LogFilter.SqlUpdates, "Automatic database updates are disabled for all databases!");
+			_logger.Information("Automatic database updates are disabled for all databases!");
 
 		if (_updateFlags != 0 && !DBExecutableUtil.CheckExecutable(_configuration))
 			return false;
