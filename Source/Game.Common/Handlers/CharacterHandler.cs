@@ -11,11 +11,13 @@ using Game.Common.DataStorage.Structs.C;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;
+using Game.Common.Extentions;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Character;
 using Game.Common.Networking.Packets.Misc;
 using Game.Common.Networking.Packets.System;
 using Game.Common.Server;
+using Microsoft.Extensions.Configuration;
 
 namespace Game.Common.Handlers;
 
@@ -24,13 +26,15 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly CollectionMgr _collectionMgr;
     private readonly DB6Storage<ChrCustomizationReqRecord> _charCustomizationReqRecords;
+    private readonly IConfiguration _configuration;
     readonly List<ObjectGuid> _legitCharacters = new();
 
-    public CharacterHandler(WorldSession session, CollectionMgr collectionMgr, DB6Storage<ChrCustomizationReqRecord> charCustomizationReqRecords)
+    public CharacterHandler(WorldSession session, CollectionMgr collectionMgr, DB6Storage<ChrCustomizationReqRecord> charCustomizationReqRecords, IConfiguration configuration)
     {
         _session = session;
         _collectionMgr = collectionMgr;
         _charCustomizationReqRecords = charCustomizationReqRecords;
+        _configuration = configuration;
     }
 
 	public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -267,7 +271,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			EnumCharactersResult.RaceUnlock raceUnlock = new();
 			raceUnlock.RaceID = requirement.Key;
-			raceUnlock.HasExpansion = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) ? (byte)_session.AccountExpansion >= requirement.Value.Expansion : true;
+			raceUnlock.HasExpansion = !_configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) || (byte)_session.AccountExpansion >= requirement.Value.Expansion;
 			raceUnlock.HasAchievement = (WorldConfig.GetBoolValue(WorldCfg.CharacterCreatingDisableAlliedRaceAchievementRequirement) ? true : requirement.Value.AchievementId != 0 ? false : true); // TODO: fix false here for actual check of criteria.
 
 			charResult.RaceUnlockData.Add(raceUnlock);

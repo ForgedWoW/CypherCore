@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
+using Game.Common.Extentions;
 using Game.Common.Networking.Packets.Authentication;
 using Game.Common.Networking.Packets.ClientConfig;
 using Game.Common.Networking.Packets.System;
 using Game.Common.Server;
+using Microsoft.Extensions.Configuration;
 
 namespace Game.Common.Handlers;
 
@@ -13,11 +15,13 @@ public class AuthenticationHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly Realm _realm;
+    private readonly IConfiguration _configuration;
 
-    public AuthenticationHandler(WorldSession session, Realm realm)
+    public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration)
     {
         _session = session;
         _realm = realm;
+        _configuration = configuration;
     }
 
 	public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
@@ -28,7 +32,7 @@ public class AuthenticationHandler : IWorldSessionHandler
 		if (code == BattlenetRpcErrorCode.Ok)
 		{
 			response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-			var forceRaceAndClass = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
+			var forceRaceAndClass = _configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
 
 			response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
 			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.Expansion;

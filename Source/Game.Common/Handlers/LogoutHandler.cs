@@ -4,6 +4,8 @@
 using Framework.Constants;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Character;
+using Game.Common.Scripting;
+using Game.Common.Scripting.Interfaces.IPlayer;
 using Game.Common.Server;
 
 namespace Game.Common.Handlers;
@@ -11,20 +13,20 @@ namespace Game.Common.Handlers;
 public class LogoutHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly ScriptManager _scriptManager;
 
-    public LogoutHandler(WorldSession session)
+    public LogoutHandler(WorldSession session, ScriptManager scriptManager)
     {
         _session = session;
+        _scriptManager = scriptManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.LogoutRequest)]
 	void HandleLogoutRequest(LogoutRequest packet)
 	{
 
-		if (!_session.Player.GetLootGUID().IsEmpty)
-            _session.Player.SendLootReleaseAll();
 
-		var instantLogout = (_session.Player.HasPlayerFlag(PlayerFlags.Resting) && !_session.Player.IsInCombat ||
+        var instantLogout = (_session.Player.HasPlayerFlag(PlayerFlags.Resting) && !_session.Player.IsInCombat ||
                              _session.Player.IsInFlight ||
                              _session.HasPermission(RBACPermissions.InstantLogout));
 
@@ -36,10 +38,17 @@ public class LogoutHandler : IWorldSessionHandler
 			reason = 1;
 		else if (_session.Player.IsFalling)
 			reason = 3;                               // is jumping or falling
-		else if (_session.Player.Duel != null || _session.Player.HasAura(9454)) // is dueling or frozen by GM via freeze command
+		else if (_session.Player.Duel != null) // is dueling or frozen by GM via freeze command
 			reason = 2;                               // FIXME - Need the correct value
 
-		LogoutResponse logoutResponse = new();
+        _scriptManager.ForEach<IPlayerCanLogout>(script =>
+        {
+            if (!script.CanLogout(_session.Player))
+                reason = 2;
+        });
+
+
+        LogoutResponse logoutResponse = new();
 		logoutResponse.LogoutResult = reason;
 		logoutResponse.Instant = instantLogout;
 		_session.SendPacket(logoutResponse);
