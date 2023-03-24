@@ -2,10 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Threading.Channels;
+using Blizzard.Telemetry.Wow;
 using Framework.Constants;
-using Game.Common.Chat.Channels;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Items;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Units;
@@ -193,8 +192,7 @@ public partial class Player
 	uint _homebindTimer;
 
 	ResurrectionData _resurrectionData;
-
-	PlayerAchievementMgr _AchievementSys;
+	
 
 	ulong _guildIdInvited;
 	DeclinedName _declinedname;
@@ -211,13 +209,6 @@ public partial class Player
 	PlayerCommandStates _activeCheats;
 	public bool AutoAcceptQuickJoin { get; set; }
 	public bool OverrideScreenFlash { get; set; }
-
-	//Gossip
-	public PlayerMenu PlayerTalkClass { get; set; }
-	public string AutoReplyMsg { get; set; }
-	public List<ItemSetEffect> ItemSetEff { get; } = new();
-	public List<Item> ItemUpdateQueue { get; } = new();
-	public bool InstanceValid { get; set; }
 
 	//Movement
 	public PlayerTaxi Taxi { get; set; } = new();

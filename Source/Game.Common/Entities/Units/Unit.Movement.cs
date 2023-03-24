@@ -83,11 +83,6 @@ public partial class Unit
 		return SpeedRate[(int)mtype] * (IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]);
 	}
 
-	public void SetSpeed(UnitMoveType mtype, float newValue)
-	{
-		SetSpeedRate(mtype, newValue / (IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)mtype] : SharedConst.baseMoveSpeed[(int)mtype]));
-	}
-
 	public void SetSpeedRate(UnitMoveType mtype, float rate)
 	{
 		rate = Math.Max(rate, 0.01f);
@@ -172,16 +167,6 @@ public partial class Unit
 		}
 	}
 
-	public float GetSpeedRate(UnitMoveType mtype)
-	{
-		return SpeedRate[(int)mtype];
-	}
-
-	public virtual MovementGeneratorType GetDefaultMovementType()
-	{
-		return MovementGeneratorType.Idle;
-	}
-
 	public void StopMoving()
 	{
 		ClearUnitState(UnitState.Moving);
@@ -197,103 +182,7 @@ public partial class Unit
 		MoveSplineInit init = new(this);
 		init.Stop();
 	}
-
-	public void PauseMovement(uint timer = 0, MovementSlot slot = 0, bool forced = true)
-	{
-		if (MotionMaster.IsInvalidMovementSlot(slot))
-			return;
-
-		var movementGenerator = MotionMaster.GetCurrentMovementGenerator(slot);
-
-		if (movementGenerator != null)
-			movementGenerator.Pause(timer);
-
-		if (forced && MotionMaster.GetCurrentSlot() == slot)
-			StopMoving();
-	}
-
-	public void ResumeMovement(uint timer = 0, MovementSlot slot = 0)
-	{
-		if (MotionMaster.IsInvalidMovementSlot(slot))
-			return;
-
-		var movementGenerator = MotionMaster.GetCurrentMovementGenerator(slot);
-
-		if (movementGenerator != null)
-			movementGenerator.Resume(timer);
-	}
-
-	public void SetInFront(WorldObject target)
-	{
-		if (!HasUnitState(UnitState.CannotTurn))
-			Location.Orientation = Location.GetAbsoluteAngle(target.Location);
-	}
-
-	public void SetFacingTo(float ori, bool force = true)
-	{
-		// do not face when already moving
-		if (!force && (!IsStopped || !MoveSpline.Finalized()))
-			return;
-
-		MoveSplineInit init = new(this);
-		init.MoveTo(Location.X, Location.Y, Location.Z, false);
-
-		if (Transport != null)
-			init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
-
-		init.SetFacing(ori);
-
-		//GetMotionMaster().LaunchMoveSpline(init, EventId.Face, MovementGeneratorPriority.Highest);
-		init.Launch();
-	}
-
-
-	public void SetFacingToUnit(Unit unit, bool force = true)
-	{
-		// do not face when already moving
-		if (!force && (!IsStopped || !MoveSpline.Finalized()))
-			return;
-
-		/// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
-		var init = new MoveSplineInit(this);
-		init.MoveTo(Location.X, Location.Y, Location.Z, false);
-
-		if (Transport != null)
-			init.DisableTransportPathTransformations(); // It makes no sense to target global orientation
-
-		init.SetFacing(unit);
-
-		//GetMotionMaster()->LaunchMoveSpline(std::move(init), EVENT_FACE, MOTION_PRIORITY_HIGHEST);
-		init.Launch();
-	}
-
-
-	public void SetFacingToObject(WorldObject obj, bool force = true)
-	{
-		// do not face when already moving
-		if (!force && (!IsStopped || !MoveSpline.Finalized()))
-			return;
-
-		// @todo figure out under what conditions creature will move towards object instead of facing it where it currently is.
-		MoveSplineInit init = new(this);
-		init.MoveTo(Location.X, Location.Y, Location.Z, false);
-		init.SetFacing(Location.GetAbsoluteAngle(obj.Location)); // when on transport, GetAbsoluteAngle will still return global coordinates (and angle) that needs transforming
-
-		//GetMotionMaster().LaunchMoveSpline(init, EventId.Face, MovementGeneratorPriority.Highest);
-		init.Launch();
-	}
-
-	public void MonsterMoveWithSpeed(float x, float y, float z, float speed, bool generatePath = false, bool forceDestination = false)
-	{
-		var initializer = (MoveSplineInit init) =>
-		{
-			init.MoveTo(x, y, z, generatePath, forceDestination);
-			init.SetVelocity(speed);
-		};
-
-		MotionMaster.LaunchMoveSpline(initializer, 0, MovementGeneratorPriority.Normal, MovementGeneratorType.Point);
-	}
-
+	
 	public void KnockbackFrom(Position origin, float speedXY, float speedZ, SpellEffectExtraData spellEffectExtraData = null)
 	{
 		var player = AsPlayer;
@@ -330,144 +219,7 @@ public partial class Unit
 			SendMoveKnockBack(player, speedXY, -speedZ, vcos, vsin);
 		}
 	}
-
-	public bool SetCanTransitionBetweenSwimAndFly(bool enable)
-	{
-		if (!IsTypeId(TypeId.Player))
-			return false;
-
-		if (enable == HasUnitMovementFlag2(MovementFlag2.CanSwimToFlyTrans))
-			return false;
-
-		if (enable)
-			AddUnitMovementFlag2(MovementFlag2.CanSwimToFlyTrans);
-		else
-			RemoveUnitMovementFlag2(MovementFlag2.CanSwimToFlyTrans);
-
-		var playerMover = UnitBeingMoved?.AsPlayer;
-
-		if (playerMover)
-		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableTransitionBetweenSwimAndFly : ServerOpcodes.MoveDisableTransitionBetweenSwimAndFly);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
-
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
-		}
-
-		return true;
-	}
-
-	public bool SetCanTurnWhileFalling(bool enable)
-	{
-		// Temporarily disabled for short lived auras that unapply before client had time to ACK applying
-		//if (enable == HasUnitMovementFlag2(MovementFlag2.CanTurnWhileFalling))
-		//return false;
-
-		if (enable)
-			AddUnitMovementFlag2(MovementFlag2.CanTurnWhileFalling);
-		else
-			RemoveUnitMovementFlag2(MovementFlag2.CanTurnWhileFalling);
-
-		var playerMover = UnitBeingMoved?.AsPlayer;
-
-		if (playerMover)
-		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanTurnWhileFalling : ServerOpcodes.MoveUnsetCanTurnWhileFalling);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
-
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
-		}
-
-		return true;
-	}
-
-	public bool SetCanDoubleJump(bool enable)
-	{
-		if (enable == HasUnitMovementFlag2(MovementFlag2.CanDoubleJump))
-			return false;
-
-		if (enable)
-			AddUnitMovementFlag2(MovementFlag2.CanDoubleJump);
-		else
-			RemoveUnitMovementFlag2(MovementFlag2.CanDoubleJump);
-
-		var playerMover = UnitBeingMoved?.AsPlayer;
-
-		if (playerMover)
-		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableDoubleJump : ServerOpcodes.MoveDisableDoubleJump);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
-
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
-		}
-
-		return true;
-	}
-
-	public bool SetDisableInertia(bool disable)
-	{
-		if (disable == HasExtraUnitMovementFlag2(MovementFlags3.DisableInertia))
-			return false;
-
-		if (disable)
-			AddExtraUnitMovementFlag2(MovementFlags3.DisableInertia);
-		else
-			RemoveExtraUnitMovementFlag2(MovementFlags3.DisableInertia);
-
-		var playerMover = UnitBeingMoved?.AsPlayer;
-
-		if (playerMover != null)
-		{
-			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableInertia : ServerOpcodes.MoveEnableInertia);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
-
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
-		}
-
-		return true;
-	}
-
-	public void JumpTo(float speedXY, float speedZ, float angle, Position dest = null)
-	{
-		if (dest != null)
-			angle += Location.GetRelativeAngle(dest);
-
-		if (IsTypeId(TypeId.Unit))
-		{
-			MotionMaster.MoveJumpTo(angle, speedXY, speedZ);
-		}
-		else
-		{
-			var vcos = (float)Math.Cos(angle + Location.Orientation);
-			var vsin = (float)Math.Sin(angle + Location.Orientation);
-			SendMoveKnockBack(AsPlayer, speedXY, -speedZ, vcos, vsin);
-		}
-	}
-
-	public void JumpTo(WorldObject obj, float speedZ, bool withOrientation = false)
-	{
-		var pos = new Position();
-		obj.GetContactPoint(this, pos);
-		var speedXY = Location.GetExactDist2d(pos.X, pos.Y) * 10.0f / speedZ;
-		pos.Orientation = Location.GetAbsoluteAngle(obj.Location);
-		MotionMaster.MoveJump(pos, speedXY, speedZ, EventId.Jump, withOrientation);
-	}
+	
 
 	public void UpdateSpeed(UnitMoveType mtype)
 	{
@@ -1375,57 +1127,7 @@ public partial class Unit
 							UnitState.Distracted) &&
 				OwnerGUID.IsEmpty;
 	}
-
-	public void Mount(uint mount, uint VehicleId = 0, uint creatureEntry = 0)
-	{
-		RemoveAurasByType(AuraType.CosmeticMounted);
-
-		if (mount != 0)
-			MountDisplayId = mount;
-
-		SetUnitFlag(UnitFlags.Mount);
-
-		var player = AsPlayer;
-
-		if (player != null)
-		{
-			// mount as a vehicle
-			if (VehicleId != 0)
-				if (CreateVehicleKit(VehicleId, creatureEntry))
-				{
-					player.SendOnCancelExpectedVehicleRideAura();
-
-					// mounts can also have accessories
-					VehicleKit1.InstallAllAccessories(false);
-				}
-
-			// unsummon pet
-			var pet = player.CurrentPet;
-
-			if (pet != null)
-			{
-				var bg = AsPlayer.Battleground;
-
-				// don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
-				if (bg && bg.IsArena())
-					pet.SetUnitFlag(UnitFlags.Stunned);
-				else
-					player.UnsummonPetTemporaryIfAny();
-			}
-
-			// if we have charmed npc, stun him also (everywhere)
-			var charm = player.Charmed;
-
-			if (charm)
-				if (charm.TypeId == TypeId.Unit)
-					charm.SetUnitFlag(UnitFlags.Stunned);
-
-			player.SendMovementSetCollisionHeight(player.CollisionHeight, UpdateCollisionHeightReason.Mount);
-		}
-
-		RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.Mount);
-	}
-
+	
 	public void Dismount()
 	{
 		if (!IsMounted)
@@ -1507,73 +1209,7 @@ public partial class Unit
 		UnitTypeMask &= ~UnitTypeMask.Vehicle;
 		RemoveNpcFlag(NPCFlags.SpellClick | NPCFlags.PlayerVehicle);
 	}
-
-	public bool SetIgnoreMovementForces(bool ignore)
-	{
-		if (ignore == HasUnitMovementFlag2(MovementFlag2.IgnoreMovementForces))
-			return false;
-
-		if (ignore)
-			AddUnitMovementFlag2(MovementFlag2.IgnoreMovementForces);
-		else
-			RemoveUnitMovementFlag2(MovementFlag2.IgnoreMovementForces);
-
-		ServerOpcodes[] ignoreMovementForcesOpcodeTable =
-		{
-			ServerOpcodes.MoveUnsetIgnoreMovementForces, ServerOpcodes.MoveSetIgnoreMovementForces
-		};
-
-		var movingPlayer = PlayerMovingMe1;
-
-		if (movingPlayer != null)
-		{
-			MoveSetFlag packet = new(ignoreMovementForcesOpcodeTable[ignore ? 1 : 0]);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			movingPlayer.SendPacket(packet);
-
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, movingPlayer);
-		}
-
-		return true;
-	}
-
-	public void UpdateMovementForcesModMagnitude()
-	{
-		var modMagnitude = (float)GetTotalAuraMultiplier(AuraType.ModMovementForceMagnitude);
-
-		var movingPlayer = PlayerMovingMe1;
-
-		if (movingPlayer != null)
-		{
-			MoveSetSpeed setModMovementForceMagnitude = new(ServerOpcodes.MoveSetModMovementForceMagnitude);
-			setModMovementForceMagnitude.MoverGUID = GUID;
-			setModMovementForceMagnitude.SequenceIndex = MovementCounter++;
-			setModMovementForceMagnitude.Speed = modMagnitude;
-			movingPlayer.SendPacket(setModMovementForceMagnitude);
-			++movingPlayer.MovementForceModMagnitudeChanges;
-		}
-		else
-		{
-			MoveUpdateSpeed updateModMovementForceMagnitude = new(ServerOpcodes.MoveUpdateModMovementForceMagnitude);
-			updateModMovementForceMagnitude.Status = MovementInfo;
-			updateModMovementForceMagnitude.Speed = modMagnitude;
-			SendMessageToSet(updateModMovementForceMagnitude, true);
-		}
-
-		if (modMagnitude != 1.0f && _movementForces == null)
-			_movementForces = new MovementForces();
-
-		if (_movementForces != null)
-		{
-			_movementForces.ModMagnitude = modMagnitude;
-
-			if (_movementForces.IsEmpty)
-				_movementForces = new MovementForces();
-		}
-	}
+	
 
 	public void AddUnitMovementFlag(MovementFlag f)
 	{
@@ -1615,34 +1251,9 @@ public partial class Unit
 		return MovementInfo.GetMovementFlags2();
 	}
 
-	public void SetUnitMovementFlags2(MovementFlag2 f)
-	{
-		MovementInfo.SetMovementFlags2(f);
-	}
-
-	public void AddExtraUnitMovementFlag2(MovementFlags3 f)
-	{
-		MovementInfo.AddExtraMovementFlag2(f);
-	}
-
-	public void RemoveExtraUnitMovementFlag2(MovementFlags3 f)
-	{
-		MovementInfo.RemoveExtraMovementFlag2(f);
-	}
-
-	public bool HasExtraUnitMovementFlag2(MovementFlags3 f)
-	{
-		return MovementInfo.HasExtraMovementFlag2(f);
-	}
-
 	public MovementFlags3 GetExtraUnitMovementFlags2()
 	{
 		return MovementInfo.GetExtraMovementFlags2();
-	}
-
-	public void SetExtraUnitMovementFlags2(MovementFlags3 f)
-	{
-		MovementInfo.SetExtraMovementFlags2(f);
 	}
 
 	public void DisableSpline()
@@ -1739,40 +1350,7 @@ public partial class Unit
 		player.SendPacket(moveKnockBack);
 	}
 
-	bool SetCollision(bool disable)
-	{
-		if (disable == HasUnitMovementFlag(MovementFlag.DisableCollision))
-			return false;
-
-		if (disable)
-			AddUnitMovementFlag(MovementFlag.DisableCollision);
-		else
-			RemoveUnitMovementFlag(MovementFlag.DisableCollision);
-
-		var playerMover = UnitBeingMoved?.AsPlayer;
-
-		if (playerMover)
-		{
-			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveSplineEnableCollision : ServerOpcodes.MoveEnableCollision);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
-
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
-		}
-		else
-		{
-			MoveSplineSetFlag packet = new(disable ? ServerOpcodes.MoveSplineDisableCollision : ServerOpcodes.MoveDisableCollision);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
-		}
-
-		return true;
-	}
-
-	void UpdateOrientation(float orientation)
+    void UpdateOrientation(float orientation)
 	{
 		Location.Orientation = orientation;
 
@@ -1915,95 +1493,6 @@ public partial class Unit
 		setVehicleRec.VehicleGUID = GUID;
 		setVehicleRec.VehicleRecID = vehicleId;
 		SendMessageToSet(setVehicleRec, true);
-	}
-
-	void ApplyMovementForce(ObjectGuid id, Vector3 origin, float magnitude, MovementForceType type, Vector3 direction, ObjectGuid transportGuid = default)
-	{
-		if (_movementForces == null)
-			_movementForces = new MovementForces();
-
-		MovementForce force = new();
-		force.ID = id;
-		force.Origin = origin;
-		force.Direction = direction;
-
-		if (transportGuid.IsMOTransport)
-			force.TransportID = (uint)transportGuid.Counter;
-
-		force.Magnitude = magnitude;
-		force.Type = type;
-
-		if (_movementForces.Add(force))
-		{
-			var movingPlayer = PlayerMovingMe1;
-
-			if (movingPlayer != null)
-			{
-				MoveApplyMovementForce applyMovementForce = new();
-				applyMovementForce.MoverGUID = GUID;
-				applyMovementForce.SequenceIndex = (int)MovementCounter++;
-				applyMovementForce.Force = force;
-				movingPlayer.SendPacket(applyMovementForce);
-			}
-			else
-			{
-				MoveUpdateApplyMovementForce updateApplyMovementForce = new();
-				updateApplyMovementForce.Status = MovementInfo;
-				updateApplyMovementForce.Force = force;
-				SendMessageToSet(updateApplyMovementForce, true);
-			}
-		}
-	}
-
-	void RemoveMovementForce(ObjectGuid id)
-	{
-		if (_movementForces == null)
-			return;
-
-		if (_movementForces.Remove(id))
-		{
-			var movingPlayer = PlayerMovingMe1;
-
-			if (movingPlayer != null)
-			{
-				MoveRemoveMovementForce moveRemoveMovementForce = new();
-				moveRemoveMovementForce.MoverGUID = GUID;
-				moveRemoveMovementForce.SequenceIndex = (int)MovementCounter++;
-				moveRemoveMovementForce.ID = id;
-				movingPlayer.SendPacket(moveRemoveMovementForce);
-			}
-			else
-			{
-				MoveUpdateRemoveMovementForce updateRemoveMovementForce = new();
-				updateRemoveMovementForce.Status = MovementInfo;
-				updateRemoveMovementForce.TriggerGUID = id;
-				SendMessageToSet(updateRemoveMovementForce, true);
-			}
-		}
-
-		if (_movementForces.IsEmpty)
-			_movementForces = new MovementForces();
-	}
-
-	void SetPlayHoverAnim(bool enable)
-	{
-		_playHoverAnim = enable;
-
-		SetPlayHoverAnim data = new();
-		data.UnitGUID = GUID;
-		data.PlayHoverAnim = enable;
-
-		SendMessageToSet(data, true);
-	}
-
-	Player GetPlayerBeingMoved()
-	{
-		var mover = UnitBeingMoved;
-
-		if (mover)
-			return mover.AsPlayer;
-
-		return null;
 	}
 
 	void RemoveUnitMovementFlag2(MovementFlag2 f)

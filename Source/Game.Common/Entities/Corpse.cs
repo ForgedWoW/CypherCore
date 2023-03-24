@@ -9,6 +9,7 @@ using Framework.Database;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;
+using Game.Common.Maps.Grids;
 using Game.Common.Networking;
 
 namespace Game.Common.Entities;
@@ -20,8 +21,7 @@ public class Corpse : WorldObject
 	CellCoord _cellCoord; // gride for corpse position for fast search
 
 	public CorpseData CorpseData { get; set; }
-
-	public Loot.Loot Loot { get; set; }
+	
 	public Player LootRecipient { get; set; }
 
 	public override ObjectGuid OwnerGUID => CorpseData.Owner;
@@ -63,9 +63,9 @@ public class Corpse : WorldObject
 		base.RemoveFromWorld();
 	}
 
-	public bool Create(ulong guidlow, Map map)
+	public bool Create(ulong guidlow, uint map)
 	{
-		Create(ObjectGuid.Create(HighGuid.Corpse, map.Id, 0, guidlow));
+		Create(ObjectGuid.Create(HighGuid.Corpse, map, 0, guidlow));
 
 		return true;
 	}
@@ -96,13 +96,6 @@ public class Corpse : WorldObject
 		PhasingHandler.InheritPhaseShift(this, owner);
 
 		return true;
-	}
-
-	public override void Update(uint diff)
-	{
-		base.Update(diff);
-
-		Loot?.Update();
 	}
 
 	public void SaveToDB()
@@ -395,12 +388,7 @@ public class Corpse : WorldObject
 		_cellCoord = cellCoord;
 	}
 
-	public override Loot.Loot GetLootForPlayer(Player player)
-	{
-		return Loot;
-	}
-
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedCorpseMask, Player target)
+    void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedCorpseMask, Player target)
 	{
 		UpdateMask valuesMask = new((int)TypeId.Max);
 

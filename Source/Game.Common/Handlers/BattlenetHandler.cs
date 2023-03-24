@@ -16,13 +16,15 @@ public class BattlenetHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly WorldServiceManager _worldServiceManager;
+    private readonly RealmRequestService _realmRequestService;
     readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
     uint _battlenetRequestToken;
 
-    public BattlenetHandler(WorldSession session, WorldServiceManager worldServiceManager)
+    public BattlenetHandler(WorldSession session, WorldServiceManager worldServiceManager, RealmRequestService realmRequestService)
     {
         _session = session;
         _worldServiceManager = worldServiceManager;
+        _realmRequestService = realmRequestService;
     }
 
     public void SendBattlenetResponse(uint serviceHash, uint methodId, uint token, IMessage response)
@@ -76,7 +78,7 @@ public class BattlenetHandler : IWorldSessionHandler
 
 		if (handler != null)
 		{
-			handler.Invoke(_session, request.Method, new CodedInputStream(request.Data));
+			handler.Invoke(_realmRequestService, request.Method, new CodedInputStream(request.Data));
 		}
 		else
 		{

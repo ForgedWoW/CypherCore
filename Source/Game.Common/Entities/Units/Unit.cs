@@ -94,44 +94,8 @@ public partial class Unit : WorldObject
 
 	public bool IsInFlight => HasUnitState(UnitState.InFlight);
 
-	public override float CollisionHeight
-	{
-		get
-		{
-			var scaleMod = ObjectScale; // 99% sure about this
-
-			if (IsMounted)
-			{
-				var mountDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(MountDisplayId);
-
-				if (mountDisplayInfo != null)
-				{
-					var mountModelData = CliDB.CreatureModelDataStorage.LookupByKey(mountDisplayInfo.ModelID);
-
-					if (mountModelData != null)
-					{
-						var displayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
-						var modelData = CliDB.CreatureModelDataStorage.LookupByKey(displayInfo.ModelID);
-						var collisionHeight = scaleMod * ((mountModelData.MountHeight * mountDisplayInfo.CreatureModelScale) + (modelData.CollisionHeight * modelData.ModelScale * displayInfo.CreatureModelScale * 0.5f));
-
-						return collisionHeight == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight;
-					}
-				}
-			}
-
-			//! Dismounting case - use basic default model data
-			var defaultDisplayInfo = CliDB.CreatureDisplayInfoStorage.LookupByKey(NativeDisplayId);
-			var defaultModelData = CliDB.CreatureModelDataStorage.LookupByKey(defaultDisplayInfo.ModelID);
-
-			var collisionHeight1 = scaleMod * defaultModelData.CollisionHeight * defaultModelData.ModelScale * defaultDisplayInfo.CreatureModelScale;
-
-			return collisionHeight1 == 0.0f ? MapConst.DefaultCollesionHeight : collisionHeight1;
-		}
-	}
 
 	public bool IsAIEnabled => Ai != null;
-
-	public bool IsPossessedByPlayer => HasUnitState(UnitState.Possessed) && CharmerGUID.IsPlayer;
 
 	public bool IsPossessing
 	{
@@ -4962,11 +4926,4 @@ public partial class Unit : WorldObject
 		return victimResistance / (victimResistance + resistanceConstant);
 	}
 
-	bool IsBlockCritical()
-	{
-		if (RandomHelper.randChance(GetTotalAuraModifier(AuraType.ModBlockCritChance)))
-			return true;
-
-		return false;
-	}
 }

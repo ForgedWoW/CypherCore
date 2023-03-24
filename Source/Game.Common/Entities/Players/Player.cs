@@ -53,8 +53,6 @@ public partial class Player : Unit
 
 	public DeclinedName DeclinedNames => _declinedname;
 
-	public Garrison Garrison => _garrison;
-
 	public SceneMgr SceneMgr => _sceneMgr;
 
 	public RestMgr RestMgr => _restMgr;
@@ -76,16 +74,6 @@ public partial class Player : Unit
 		}
 	}
 
-	public PetStable PetStable
-	{
-		get
-		{
-			if (_petStable == null)
-				_petStable = new PetStable();
-
-			return _petStable;
-		}
-	}
 
 	public byte CUFProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
@@ -108,11 +96,7 @@ public partial class Player : Unit
 
 	public bool IsGMVisible => !_extraFlags.HasAnyFlag(PlayerExtraFlags.GMInvisible);
 
-	public List<Channel> JoinedChannels => _channels;
-
-	public List<Mail> Mails => _mail;
-
-	public uint MailSize => (uint)_mail.Count;
+    public uint MailSize => (uint)_mail.Count;
 
 	//Binds
 	public bool HasPendingBind => _pendingBindId > 0;
@@ -131,19 +115,6 @@ public partial class Player : Unit
 	public override bool CanFly => MovementInfo.HasMovementFlag(MovementFlag.CanFly);
 
 	public override bool CanEnterWater => true;
-
-	public bool InArena
-	{
-		get
-		{
-			var bg = Battleground;
-
-			if (!bg || !bg.IsArena())
-				return false;
-
-			return true;
-		}
-	}
 
 	public bool IsWarModeLocalActive => HasPlayerLocalFlag(PlayerLocalFlags.WarMode);
 
@@ -332,34 +303,12 @@ public partial class Player : Unit
 
 	public byte NumRespecs => ActivePlayerData.NumRespecs;
 
-	public bool CanTameExoticPets => IsGameMaster || HasAuraType(AuraType.AllowTamePetType);
-
 	//Movement
 	bool IsCanDelayTeleport => _canDelayTeleport;
 
 	bool IsHasDelayedTeleport => _hasDelayedTeleport;
 
-	bool IsTotalImmune
-	{
-		get
-		{
-			var immune = GetAuraEffectsByType(AuraType.SchoolImmunity);
-
-			var immuneMask = 0;
-
-			foreach (var eff in immune)
-			{
-				immuneMask |= eff.MiscValue;
-
-				if (Convert.ToBoolean(immuneMask & (int)SpellSchoolMask.All)) // total immunity
-					return true;
-			}
-
-			return false;
-		}
-	}
-
-	bool IsInFriendlyArea
+    bool IsInFriendlyArea
 	{
 		get
 		{
@@ -376,21 +325,6 @@ public partial class Player : Unit
 
 	bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
 
-	//Pet - Summons - Vehicles
-	public PetStable PetStable1 => _petStable;
-
-	// last used pet number (for BG's)
-	public uint LastPetNumber
-	{
-		get => _lastpetnumber;
-		set => _lastpetnumber = value;
-	}
-
-	public uint TemporaryUnsummonedPetNumber
-	{
-		get => _temporaryUnsummonedPetNumber;
-		set => _temporaryUnsummonedPetNumber = value;
-	}
 
 	public bool IsResurrectRequested => _resurrectionData != null;
 
@@ -420,36 +354,7 @@ public partial class Player : Unit
 		}
 	}
 
-	public Pet CurrentPet
-	{
-		get
-		{
-			var petGuid = PetGUID;
-
-			if (!petGuid.IsEmpty)
-			{
-				if (!petGuid.IsPet)
-					return null;
-
-				var pet = ObjectAccessor.GetPet(this, petGuid);
-
-				if (pet == null)
-					return null;
-
-				if (IsInWorld)
-					return pet;
-			}
-
-			return null;
-		}
-	}
-
-	public override PlayerAI AI
-	{
-		get { return Ai as PlayerAI; }
-	}
-
-	public Player(WorldSession session) : base(true)
+    public Player(WorldSession session) : base(true)
 	{
 		ObjectTypeMask |= TypeMask.Player;
 		ObjectTypeId = TypeId.Player;
@@ -8572,21 +8477,5 @@ public partial class Player : Unit
 
 	#endregion
 
-	//public sbyte GetCovenant()
-	//{
-	//    ObjectGuid guid = GetGUID();
 
-	//    var stmt = DB.Characters.GetPreparedStatement(CHAR_SEL_COVENANT);
-	//    stmt.AddValue(0, guid.GetCounter());
-	//    var covenant = CharacterDatabase.Query(stmt);
-
-	//    if (covenant == null)
-	//    {
-	//        return 0;
-	//    }
-	//    Field[] fields = covenant.Fetch();
-	//    ushort _covenantId = fields[0].GetUInt16();
-
-	//    return (sbyte)_covenantId;
-	//}
 }

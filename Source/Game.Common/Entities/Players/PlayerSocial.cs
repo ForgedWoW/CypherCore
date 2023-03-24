@@ -109,7 +109,7 @@ public class PlayerSocial
 
 	public void SendSocialList(Player player, SocialFlag flags)
 	{
-		if (!player)
+		if (player == null)
 			return;
 
 		uint friendsCount = 0;
