@@ -8,42 +8,22 @@ using Game.Common.Networking.Packets.Bpay;
 
 namespace Game.Common.Battlepay;
 
-public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
+public class BattlePayDataStoreMgr
 {
-	public List<BpayGroup> ProductGroups { get; private set; } = new();
-	public List<BpayShop> ShopEntries { get; private set; } = new();
-	public SortedDictionary<uint, BpayProduct> Products { get; private set; } = new();
-	public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; private set; } = new();
-	public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; private set; } = new();
-	public SortedDictionary<uint, ProductAddon> ProductAddons { get; private set; } = new();
+	public List<BpayGroup> ProductGroups { get; } = new();
+	public List<BpayShop> ShopEntries { get; } = new();
+	public SortedDictionary<uint, BpayProduct> Products { get; } = new();
+	public SortedDictionary<uint, BpayProductInfo> ProductInfos { get; } = new();
+	public SortedDictionary<uint, BpayDisplayInfo> DisplayInfos { get; } = new();
+	public SortedDictionary<uint, ProductAddon> ProductAddons { get; } = new();
 
-	public void Initialize()
+	public BattlePayDataStoreMgr()
 	{
 		LoadProductAddons();
 		LoadDisplayInfos();
 		LoadProduct();
 		LoadProductGroups();
 		LoadShopEntries();
-	}
-
-	public List<BpayProduct> GetProductsOfProductInfo(uint productInfoEntry)
-	{
-		/*std::vector<BattlePayData::Product> subproducts = {};
-
-		for (auto productInfo : _productInfos)
-			if (productInfo.second.Entry == productInfoEntry)
-				for (uint32 productid : productInfo.second.ProductIds)
-				{
-					//TC_LOG_INFO("server.BattlePay", "GetProductsOfProductInfo: found product [{}] at productInfo [{}]", productid, productInfoEntry);
-					subproducts.push_back(*GetProduct(productid));
-				}
-
-		if (subproducts.size() > 0)
-			return &subproducts; // warning*/
-
-		Log.outInfo(LogFilter.BattlePay, "GetProductsOfProductInfo failed for productInfoEntry {}", productInfoEntry);
-
-		return null;
 	}
 
 	public List<BpayProductItem> GetItemsOfProduct(uint productID)

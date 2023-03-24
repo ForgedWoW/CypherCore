@@ -3,9 +3,6 @@
 
 using System.Numerics;
 using Framework.Constants;
-using Game.Maps;
-using Game.Common.Entities;
-using Game.Entities;
 
 namespace Game.Common.Entities.GameObjects;
 // From `gameobject_template_addon`, `gameobject_overrides`

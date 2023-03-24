@@ -3,8 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Bpay;
 
 namespace Game.Common.Networking.Packets.Bpay;
 

@@ -4,9 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.Maps;
-using Game.Common.Entities;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;

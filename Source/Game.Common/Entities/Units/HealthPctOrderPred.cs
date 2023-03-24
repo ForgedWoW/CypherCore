@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Game.Common.Entities.Objects;
-using Game.Entities;
 
 namespace Game.Common.Entities.Units;
 

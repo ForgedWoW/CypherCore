@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Framework.Collections;
-using Game.Common.DataStorage.ClientReader;
-using Game.DataStorage;
 
 namespace Game.Common.DataStorage.ClientReader;
 

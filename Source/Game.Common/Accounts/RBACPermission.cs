@@ -7,37 +7,33 @@ namespace Game.Common.Accounts;
 
 public class RBACPermission
 {
-	readonly uint _id;                  // id of the object
-	readonly string _name;              // name of the object
-	readonly List<uint> _perms = new(); // Set of permissions
+    // Gets the Name of the Object
 
-	// Gets the Name of the Object
+	public string Name { get; }
 
-	public string Name => _name;
+    // Gets the Id of the Object
 
-	// Gets the Id of the Object
+	public uint Id { get; }
 
-	public uint Id => _id;
+    // Gets the Permissions linked to this permission
 
-	// Gets the Permissions linked to this permission
+	public List<uint> LinkedPermissions { get; } = new();
 
-	public List<uint> LinkedPermissions => _perms;
-
-	public RBACPermission(uint id = 0, string name = "")
+    public RBACPermission(uint id = 0, string name = "")
 	{
-		_id = id;
-		_name = name;
+		Id = id;
+		Name = name;
 	}
 
 	// Adds a new linked Permission
 	public void AddLinkedPermission(uint id)
 	{
-		_perms.Add(id);
+		LinkedPermissions.Add(id);
 	}
 
 	// Removes a linked Permission
 	public void RemoveLinkedPermission(uint id)
 	{
-		_perms.Remove(id);
+		LinkedPermissions.Remove(id);
 	}
 }

@@ -3,8 +3,6 @@
 
 using System;
 using Framework.Dynamic;
-using Game.Common.Entities.Creatures;
-using Game.Entities;
 
 namespace Game.Common.Entities.Creatures;
 

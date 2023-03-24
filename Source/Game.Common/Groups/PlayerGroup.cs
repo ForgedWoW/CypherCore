@@ -5,21 +5,13 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.BattleFields;
-using Game.BattleGrounds;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting.Interfaces.IGroup;
 using Game.Common.DataStorage.Structs.M;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;
-using Game.Common.Groups;
-using Game.Common.Handlers;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Party;
 using Game.Common.Server;
-using Game.Common.Services;
 
 namespace Game.Common.Groups;
 

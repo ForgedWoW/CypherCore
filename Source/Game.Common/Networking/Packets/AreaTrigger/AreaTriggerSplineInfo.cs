@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Game.Common.Networking;
 
 namespace Game.Common.Networking.Packets.AreaTrigger;
 

@@ -5,26 +5,28 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Arenas;
-using Game.Entities;
-using Game.Common.Cache;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Players;
 using Game.Common.Networking.Packets.Misc;
+using Game.Common.World;
 
 namespace Game.Common.Cache;
 
-public class CharacterCache : Singleton<CharacterCache>
+public class CharacterCache
 {
-	readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
-	readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
+    private readonly WorldManager _worldManager;
+    private readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
+    private readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
 
-	CharacterCache() { }
+    public CharacterCache(WorldManager worldManager)
+    {
+        _worldManager = worldManager;
+    }
 
-	public void LoadCharacterCacheStorage()
+    public void LoadCharacterCacheStorage()
 	{
 		_characterCacheStore.Clear();
-		var oldMSTime = Time.MSTime;
+		var oldMsTime = Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
 
@@ -40,7 +42,7 @@ public class CharacterCache : Singleton<CharacterCache>
 			AddCharacterCacheEntry(ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0)), result.Read<uint>(2), result.Read<string>(1), result.Read<byte>(4), result.Read<byte>(3), result.Read<byte>(5), result.Read<byte>(6), result.Read<uint>(7) != 0);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded character infos for {_characterCacheStore.Count} characters in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.outInfo(LogFilter.ServerLoading, $"Loaded character infos for {_characterCacheStore.Count} characters in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
 	}
 
 	public void AddCharacterCacheEntry(ObjectGuid guid, uint accountId, string name, byte gender, byte race, byte playerClass, byte level, bool isDeleted)
@@ -89,7 +91,7 @@ public class CharacterCache : Singleton<CharacterCache>
 
 		InvalidatePlayer invalidatePlayer = new();
 		invalidatePlayer.Guid = guid;
-		Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
+        _worldManager.SendGlobalMessage(invalidatePlayer);
 
 		// Correct name -> pointer storage
 		_characterCacheByNameStore.Remove(oldName);

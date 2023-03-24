@@ -4,11 +4,7 @@
 using System;
 using System.Numerics;
 using Framework.Constants;
-using Game.Entities;
-using Game.Movement;
 using Game.Common.Entities.Objects;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Movement;
 
 namespace Game.Common.Networking.Packets.Movement;
 

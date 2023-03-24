@@ -3,7 +3,6 @@
 
 using System;
 using Framework.Constants;
-using Game.DataStorage;
 
 namespace Game.Common.DataStorage.ClientReader;
 

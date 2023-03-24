@@ -5,14 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.AI;
-using Game.Movement;
-using Game.Spells;
-using Game.Common.Entities;
 using Game.Common.Entities.Creatures;
 using Game.Common.Entities.Objects;
-using Game.Common.Entities.Units;
-using Game.Entities;
 using Game.Common.Networking.Packets.Combat;
 using Game.Common.Networking.Packets.Pet;
 

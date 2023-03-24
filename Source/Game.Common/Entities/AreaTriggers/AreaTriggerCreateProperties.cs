@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
-using Game.Common.Entities.AreaTriggers;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Globals;
 

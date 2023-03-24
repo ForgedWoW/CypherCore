@@ -7,9 +7,6 @@ using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Common.Chat;
 using Game.Common.Entities.Items;
 
 namespace Game.Common.Chat.Commands;

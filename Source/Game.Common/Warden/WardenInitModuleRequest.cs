@@ -3,8 +3,6 @@
 
 using Framework.IO;
 using Game.Common.Networking.Packets.Warden;
-using Game.Common.Warden;
-using Game;
 
 namespace Game.Common.Warden;
 

@@ -5,9 +5,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Game.Common.Entities.GameObjects;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Objects.Update;
-using Game.Entities;
 using Game.Common.Entities.Players;
 using Game.Common.Networking;
 

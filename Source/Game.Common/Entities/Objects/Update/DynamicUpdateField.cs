@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Common.Entities.Objects.Update;
-using Game.Entities;
 using Game.Common.Networking;
 
 namespace Game.Common.Entities.Objects.Update;

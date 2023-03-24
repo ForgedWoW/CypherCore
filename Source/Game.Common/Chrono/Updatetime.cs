@@ -2,15 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Framework.Configuration;
-using Game.Common.Chrono;
-using Game;
+using Game.Common.Extentions;
+using Microsoft.Extensions.Configuration;
 
 namespace Game.Common.Chrono;
 
 public class UpdateTime
 {
-	readonly uint[] _updateTimeDataTable = new uint[500];
+    readonly uint[] _updateTimeDataTable = new uint[500];
 	uint _averageUpdateTime;
 	uint _totalUpdateTime;
 	uint _updateTimeTableIndex;
@@ -20,7 +19,7 @@ public class UpdateTime
 
 	uint _recordedTime;
 
-	public uint GetAverageUpdateTime()
+    public uint GetAverageUpdateTime()
 	{
 		return _averageUpdateTime;
 	}
@@ -99,14 +98,20 @@ public class UpdateTime
 
 public class WorldUpdateTime : UpdateTime
 {
-	uint _recordUpdateTimeInverval;
+    private readonly IConfiguration _config;
+    uint _recordUpdateTimeInverval;
 	uint _recordUpdateTimeMin;
 	uint _lastRecordTime;
 
+    public WorldUpdateTime(IConfiguration config)
+    {
+        _config = config;
+    }
+
 	public void LoadFromConfig()
 	{
-		_recordUpdateTimeInverval = ConfigMgr.GetDefaultValue("RecordUpdateTimeDiffInterval", 60000u);
-		_recordUpdateTimeMin = ConfigMgr.GetDefaultValue("MinRecordUpdateTimeDiff", 100u);
+		_recordUpdateTimeInverval = _config.GetDefaultValue("RecordUpdateTimeDiffInterval", 60000u);
+        _recordUpdateTimeMin = _config.GetDefaultValue("MinRecordUpdateTimeDiff", 100u);
 	}
 
 	public void SetRecordUpdateTimeInterval(uint t)

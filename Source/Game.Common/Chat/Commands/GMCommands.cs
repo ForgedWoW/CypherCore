@@ -3,8 +3,6 @@
 
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Common.Chat;
 using Game.Common.Entities.Objects;
 using Game.Common.Server;
 

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Conditions;
 
 namespace Game.Common.Entities.Creatures;
 

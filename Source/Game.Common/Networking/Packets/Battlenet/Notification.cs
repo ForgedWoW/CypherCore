@@ -3,8 +3,6 @@
 
 using Framework.Constants;
 using Framework.IO;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Battlenet;
 
 namespace Game.Common.Networking.Packets.Battlenet;
 

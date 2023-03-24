@@ -7,8 +7,6 @@ using System.Security.Cryptography;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Authentication;
 
 namespace Game.Common.Networking.Packets.Authentication;
 

@@ -1,0 +1,1751 @@
+{
+  "RealmID._comment": [
+    "RealmID",
+    "Description: ID of the Realm using this config.",
+    "Important:   RealmID must match the realmlist inside the auth database.",
+    "Default:     1"
+  ],
+  "RealmID": 1,
+  "DataDir._comment": [
+    "DataDir",
+    "Description: Data directory setting.",
+    "Important:   DataDir needs to be quoted, as the string might contain space characters.",
+    "Example:     @prefix@/share/forgedcore",
+    "Default:     ./Data"
+  ],
+  "DataDir": "./Data",
+  "LogsDir._comment": [
+    "LogsDir",
+    "Description: Logs directory setting.",
+    "Important:   LogsDir needs to be quoted, as the string might contain space characters.",
+    "Logs directory must exists, or log file creation will be disabled.",
+    "Default:     Logs - (Log files will be stored in the current path)"
+  ],
+  "LogsDir": "Logs",
+  "LoginDatabaseInfo": {
+    "Host": "127.0.0.1",
+    "Port": 3306,
+    "Username": "username",
+    "Password": "password",
+    "Database": "auth",
+    "SSL": "false"
+  },
+  "CharacterDatabaseInfo": {
+    "Host": "127.0.0.1",
+    "Port": 3306,
+    "Username": "username",
+    "Password": "password",
+    "Database": "characters",
+    "SSL": "false"
+  },
+  "WorldDatabaseInfo": {
+    "Host": "127.0.0.1",
+    "Port": 3306,
+    "Username": "username",
+    "Password": "password",
+    "Database": "world",
+    "SSL": "false"
+  },
+  "HotfixDatabaseInfo": {
+    "Host": "127.0.0.1",
+    "Port": 3306,
+    "Username": "username",
+    "Password": "password",
+    "Database": "hotfixes",
+    "SSL": "false"
+  },
+  "load": {
+    "autoclean": 0
+  },
+  "WorldServerPort._comment": [
+    "WorldServerPort",
+    "Description: TCP port to reach the world server.",
+    "Default:     8085"
+  ],
+  "WorldServerPort": 8085,
+  "InstanceServerPort._comment": [
+    "InstanceServerPort",
+    "Description: TCP port to for second world connection.",
+    "Default:     8086"
+  ],
+  "InstanceServerPort": 8086,
+  "BindIP._comment": [
+    "BindIP",
+    "Description: Bind world server to IP/hostname.",
+    "Default:     0.0.0.0 - (Bind to all IPs on the system)"
+  ],
+  "BindIP": "0.0.0.0",
+  "MySQLExecutable._comment": [
+    "MySQLExecutable",
+    "Description: The path to your MySQL CLI binary.",
+    "Example:     C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe",
+    "mysql.exe",
+    "/usr/bin/mysql",
+    "Default:     "
+  ],
+  "MySQLExecutable": "",
+  "PacketLogFile._comment": [
+    "SERVER LOGGING",
+    "PacketLogFile",
+    "Description: Binary packet logging file for the world server.",
+    "Filename extension must be .pkt to be parsable with WowPacketParser.",
+    "Example:     World.pkt - (Enabled)",
+    "Default:               - (Disabled)"
+  ],
+  "PacketLogFile": "ForgedCore.pkt",
+  "MaxNumberLogRotations._comment": [
+    "MaxNumberLogRotations",
+    "Description: Number of logs to keep in rotation. A new log is rotated in at every server startup. ex: WorldServer.1.log",
+    "Default:     20"
+  ],
+  "MaxNumberLogRotations": 20,
+  "MaxLogSize._comment": [
+    "MaxLogSize",
+    "Description: Max Size of a log file in MB before its rotated.",
+    "Default:     50"
+  ],
+  "MaxLogSize": 50,
+  "Appender": {
+    "Console": "1,3,3",
+    "Server": "2,1,3",
+    "GM": "2,2,3,gm/gm_{0}.log",
+    "DBErrors": "2,4,3,DBErrors.log",
+    "Metrics": "2,3,3,Metrics.log"
+  },
+  "Logger": {
+    "Server": "3,Console Server",
+    "ServerLoading": "3,Console Server",
+    "Commands": "3,Console GM",
+    "Sql": "3,Console DBErrors",
+    "SqlUpdates": "3,Console Server",
+    "Network": "3,Console Server",
+    "Metrics": "3,Metrics",
+    "Misc": "3,Console Metrics"
+  },
+  "Allow": {
+    "IP": {
+      "Based": {
+        "Action": {
+          "Logging": 0
+        }
+      }
+    }
+  },
+  "UseProcessors._comment": [
+    "PERFORMANCE SETTINGS",
+    "UseProcessors (NYI)",
+    "Description: Processors mask for Windows based multi-processor systems.",
+    "Example:     A computer with 2 CPUs:",
+    "1  - 1st CPU only, 2 - 2nd CPU only, 3 - 1st and 2nd CPU, because 1 | 2 is 3",
+    "Default:     0  - (Selected by OS)",
+    "1+ - (Bit mask value of selected processors)"
+  ],
+  "UseProcessors": 0,
+  "ProcessPriority._comment": [
+    "ProcessPriority (NYI)",
+    "Description: Process priority setting for Windows based systems.",
+    "Details:     On Windows, process is set to HIGH class.",
+    "Default:     0 - (Normal)",
+    "1 - (High)"
+  ],
+  "ProcessPriority": 0,
+  "RealmsStateUpdateDelay._comment": [
+    "RealmsStateUpdateDelay",
+    "Description: Time (in seconds) between realm list updates.",
+    "Default:     10",
+    "0  - (Disabled)"
+  ],
+  "RealmsStateUpdateDelay": 10,
+  "PlayerLimit._comment": [
+    "PlayerLimit",
+    "Description: Maximum number of players in the world. Excluding Mods, GMs and Admins.",
+    "Important: If you want to block players and only allow Mods, GMs or Admins to join the",
+    "server, use the DB field auth.realmlist.allowedSecurityLevel.",
+    "Default: 0   - (Disabled, No limit)",
+    "1+  - (Enabled)"
+  ],
+  "PlayerLimit": 0,
+  "MaxOverspeedPings._comment": [
+    "MaxOverspeedPings",
+    "Description: Maximum overspeed ping count before character is disconnected.",
+    "Default:     2  - (Enabled, Minimum value)",
+    "3+ - (Enabled, More checks before kick)",
+    "0  - (Disabled)"
+  ],
+  "MaxOverspeedPings": 2,
+  "GridUnload._comment": [
+    "GridUnload",
+    "Description: Unload grids to save memory. Can be disabled if enough memory is available",
+    "to speed up moving players to new grids.",
+    "Default:     1 - (enable, Unload grids)",
+    "0 - (disable, Do not unload grids)"
+  ],
+  "GridUnload": 1,
+  "BaseMapLoadAllGrids._comment": [
+    "BaseMapLoadAllGrids",
+    "Description: Load all grids for base maps upon load. Requires GridUnload to be 0.",
+    "This will take around 5GB of ram upon server load, and will take some time",
+    "to initially load the server.",
+    "Default:     0 - (Don't preload all base maps, dynamically load as used)",
+    "1 - (Preload all grids in all base maps upon load)"
+  ],
+  "BaseMapLoadAllGrids": 0,
+  "InstanceMapLoadAllGrids._comment": [
+    "InstanceMapLoadAllGrids",
+    "Description: Load all grids for instance maps upon load. Requires GridUnload to be 0.",
+    "Upon loading an instance map, all creatures/objects in the map will be pre-loaded",
+    "Default:     0 - (Don't preload all base maps, dynamically load as used)",
+    "1 - (Preload all grids in the instance upon load)"
+  ],
+  "InstanceMapLoadAllGrids": 0,
+  "SocketTimeOutTime._comment": [
+    "SocketTimeOutTime",
+    "Description: Time (in milliseconds) after which a connection being idle on the character",
+    "selection screen is disconnected.",
+    "Default:     900000 - (15 minutes)"
+  ],
+  "SocketTimeOutTime": 900000,
+  "SocketTimeOutTimeActive._comment": [
+    "SocketTimeOutTimeActive",
+    "Description: Time (in milliseconds) after which an idle connection is dropped while",
+    "logged into the world.",
+    "The client sends keepalive packets every 30 seconds. Values <= 30s are not recommended.",
+    "Default:     60000 - (1 minute)"
+  ],
+  "SocketTimeOutTimeActive": 60000,
+  "SessionAddDelay._comment": [
+    "SessionAddDelay",
+    "Description: Time (in microseconds) that a network thread will sleep after authentication",
+    "protocol handling before adding a connection to the world session map.",
+    "Default:     10000 - (10 milliseconds, 0.01 second)"
+  ],
+  "SessionAddDelay": 10000,
+  "GridCleanUpDelay._comment": [
+    "GridCleanUpDelay",
+    "Description: Time (in milliseconds) grid clean up delay.",
+    "Default:     300000 - (5 minutes)"
+  ],
+  "GridCleanUpDelay": 300000,
+  "MinWorldUpdateTime._comment": [
+    "MinWorldUpdateTime",
+    "Description: Minimum time (milliseconds) between world update ticks (for mostly idle servers).",
+    "Default:     1 - (0.001 second)"
+  ],
+  "MinWorldUpdateTime": 1,
+  "MapUpdateInterval._comment": [
+    "MapUpdateInterval",
+    "Description: Time (milliseconds) for map update interval.",
+    "Default:     10 - (0.01 second)"
+  ],
+  "MapUpdateInterval": 10,
+  "ChangeWeatherInterval._comment": [
+    "ChangeWeatherInterval",
+    "Description: Time (in milliseconds) for weather update interval.",
+    "Default:     600000 - (10 min)"
+  ],
+  "ChangeWeatherInterval": 600000,
+  "PlayerSaveInterval._comment": [
+    "PlayerSaveInterval",
+    "Description: Time (in milliseconds) for player save interval.",
+    "Default:     90000 - (90 seconds)"
+  ],
+  "PlayerSaveInterval": 90000,
+  "PlayerSave": {
+    "Stats": {
+      "MinLevel": 0,
+      "SaveOnlyOnLogout": 1
+    }
+  },
+  "DisconnectToleranceInterval._comment": [
+    "DisconnectToleranceInterval",
+    "Description: Tolerance (in seconds) for disconnected players before reentering the queue.",
+    "Default: 0 (disabled)"
+  ],
+  "DisconnectToleranceInterval": 0,
+  "mmap": {
+    "EnablePathFinding": 1
+  },
+  "vmap": {
+    "EnableLOS": 1,
+    "EnableHeight": 1,
+    "EnableIndoorCheck": 1
+  },
+  "DetectPosCollision._comment": [
+    "DetectPosCollision",
+    "Description: Check final move position, summon position, etc for visible collision with",
+    "other objects or walls (walls only if vmaps are enabled).",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled, Less position precision but less CPU usage)"
+  ],
+  "DetectPosCollision": 1,
+  "CheckGameObjectLoS._comment": [
+    "CheckGameObjectLoS",
+    "Description: Include dynamic game objects (doors, chests etc.) in line of sight checks.",
+    "This increases CPU usage somewhat.",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled, may break some boss encounters)"
+  ],
+  "CheckGameObjectLoS": 1,
+  "UpdateUptimeInterval._comment": [
+    "UpdateUptimeInterval",
+    "Description: Update realm uptime period (in minutes).",
+    "Default:     10 - (10 minutes)",
+    "1+"
+  ],
+  "UpdateUptimeInterval": 10,
+  "LogDB": {
+    "Opt": {
+      "ClearInterval": 10,
+      "ClearTime": 1209600
+    }
+  },
+  "MaxCoreStuckTime._comment": [
+    "MaxCoreStuckTime (NYI)",
+    "Description: Time (in seconds) before the server is forced to crash if it is frozen.",
+    "Default:     60 - (Enabled, Recommended 10+)",
+    "0 - (Disabled)"
+  ],
+  "MaxCoreStuckTime": 60,
+  "AddonChannel._comment": [
+    "AddonChannel",
+    "Description: Configure the use of the addon channel through the server (some client side",
+    "addons will not work correctly with disabled addon channel)",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "AddonChannel": 1,
+  "MapUpdate": {
+    "Threads": 10
+  },
+  "Map": {
+    "ParellelUpdateTasks": 20
+  },
+  "CleanCharacterDB._comment": [
+    "CleanCharacterDB",
+    "Description: Clean out deprecated achievements, skills, spells and talents from the db.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enable)"
+  ],
+  "CleanCharacterDB": 0,
+  "PersistentCharacterCleanFlags._comment": [
+    "PersistentCharacterCleanFlags",
+    "Description: Determines the character clean flags that remain set after cleanups.",
+    "This is a bitmask value, check /doc/CharacterDBCleanup.txt for more",
+    "information.",
+    "Example:     14 - (Cleaning up skills, talents and spells will remain enabled after the",
+    "next cleanup)",
+    "Default:     0  - (All cleanup methods will be disabled after the next cleanup)"
+  ],
+  "PersistentCharacterCleanFlags": 0,
+  "Auction": {
+    "ReplicateItemsCooldown": 900,
+    "SearchDelay": 300,
+    "TaintedSearchDelay": 3000
+  },
+  "GameType._comment": [
+    "SERVER SETTINGS",
+    "GameType",
+    "Description: Server realm type.",
+    "Default:     0  - (NORMAL)",
+    "1  - (PVP)",
+    "4  - (NORMAL)",
+    "6  - (RP)",
+    "8  - (RPPVP)",
+    "16 - (FFA_PVP, Free for all PvP mode like arena PvP in all zones except rest",
+    "activated places and sanctuaries)"
+  ],
+  "GameType": 0,
+  "RealmZone._comment": [
+    "RealmZone",
+    "Description: Server realm zone. Set allowed alphabet in character, etc. names.",
+    "Default      1  - (Development   - any language)",
+    "2  - (United States - extended-Latin)",
+    "3  - (Oceanic       - extended-Latin)",
+    "4  - (Latin America - extended-Latin)",
+    "5  - (Tournament    - basic-Latin at create, any at login)",
+    "6  - (Korea         - East-Asian)",
+    "7  - (Tournament    - basic-Latin at create, any at login)",
+    "8  - (English       - extended-Latin)",
+    "9  - (German        - extended-Latin)",
+    "10 - (French        - extended-Latin)",
+    "11 - (Spanish       - extended-Latin)",
+    "12 - (Russian       - Cyrillic)",
+    "13 - (Tournament    - basic-Latin at create, any at login)",
+    "14 - (Taiwan        - East-Asian)",
+    "15 - (Tournament    - basic-Latin at create, any at login)",
+    "16 - (China         - East-Asian)",
+    "17 - (CN1           - basic-Latin at create, any at login)",
+    "18 - (CN2           - basic-Latin at create, any at login)",
+    "19 - (CN3           - basic-Latin at create, any at login)",
+    "20 - (CN4           - basic-Latin at create, any at login)",
+    "21 - (CN5           - basic-Latin at create, any at login)",
+    "22 - (CN6           - basic-Latin at create, any at login)",
+    "23 - (CN7           - basic-Latin at create, any at login)",
+    "24 - (CN8           - basic-Latin at create, any at login)",
+    "25 - (Tournament    - basic-Latin at create, any at login)",
+    "26 - (Test Server   - any language)",
+    "27 - (Tournament    - basic-Latin at create, any at login)",
+    "28 - (QA Server     - any language)",
+    "29 - (CN9           - basic-Latin at create, any at login)"
+  ],
+  "RealmZone": 1,
+  "StrictPlayerNames._comment": [
+    "StrictPlayerNames",
+    "Description: Limit player name to language specific symbol set. Prevents character",
+    "creation and forces rename request if not allowed symbols are used",
+    "Default:     0 - (Disable, Limited server timezone dependent client check)",
+    "1 - (Enabled, Strictly basic Latin characters)",
+    "2 - (Enabled, Strictly realm zone specific, See RealmZone setting,",
+    "Note: Client needs to have the appropriate fonts installed which support",
+    "the charset. For non-official localization, custom fonts need to be",
+    "placed in clientdir/Fonts.",
+    "3 - (Enabled, Basic Latin characters + server timezone specific)"
+  ],
+  "StrictPlayerNames": 0,
+  "StrictCharterNames._comment": [
+    "StrictCharterNames",
+    "Description: Limit guild/arena team charter names to language specific symbol set.",
+    "Prevents charter creation if not allowed symbols are used.",
+    "Default:     0 - (Disable, Limited server timezone dependent client check)",
+    "1 - (Enabled, Strictly basic Latin characters)",
+    "2 - (Enabled, Strictly realm zone specific, See RealmZone setting,",
+    "Note: Client needs to have the appropriate fonts installed which support",
+    "the charset. For non-official localization, custom fonts need to be",
+    "placed in clientdir/Fonts.",
+    "3 - (Enabled, Basic Latin characters + server timezone specific)"
+  ],
+  "StrictCharterNames": 0,
+  "StrictPetNames._comment": [
+    "StrictPetNames",
+    "Description: Limit pet names to language specific symbol set.",
+    "Prevents pet naming if not allowed symbols are used.",
+    "Default:     0 - (Disable, Limited server timezone dependent client check)",
+    "1 - (Enabled, Strictly basic Latin characters)",
+    "2 - (Enabled, Strictly realm zone specific, See RealmZone setting,",
+    "Note: Client needs to have the appropriate fonts installed which support",
+    "the charset. For non-official localization, custom fonts need to be",
+    "placed in clientdir/Fonts.",
+    "3 - (Enabled, Basic Latin characters + server timezone specific)"
+  ],
+  "StrictPetNames": 0,
+  "DBC": {
+    "Locale": 0,
+    "EnforceItemAttributes": 1
+  },
+  "DeclinedNames._comment": [
+    "DeclinedNames",
+    "Description: Allow Russian clients to set and use declined names.",
+    "Default:     0 - (Disabled, Except when the Russian RealmZone is set)",
+    "1 - (Enabled)"
+  ],
+  "DeclinedNames": 0,
+  "Expansion._comment": [
+    "Expansion",
+    "Description: Allow server to use content from expansions. Checks for expansion-related",
+    "map files, client compatibility and class/race character creation.",
+    "Default:     9 - (Expansion 9)",
+    "8 - (Expansion 8)",
+    "7 - (Expansion 7)",
+    "6 - (Expansion 6)",
+    "5 - (Expansion 5)",
+    "4 - (Expansion 4)",
+    "3 - (Expansion 3)",
+    "2 - (Expansion 2)",
+    "1 - (Expansion 1)",
+    "0 - (Disabled, Ignore and disable expansion content (maps, races, classes)"
+  ],
+  "Expansion": 9,
+  "Player": {
+    "OverrideExpansion": -1
+  },
+  "MinPlayerName._comment": [
+    "MinPlayerName",
+    "Description: Minimal player name length.",
+    "Range:       1-12",
+    "Default:     2"
+  ],
+  "MinPlayerName": 2,
+  "MinCharterName._comment": [
+    "MinCharterName",
+    "Description: Minimal charter name length.",
+    "Range:       1-24",
+    "Default:     2"
+  ],
+  "MinCharterName": 2,
+  "MinPetName._comment": [
+    "MinPetName",
+    "Description: Minimal pet name length.",
+    "Range:       1-12",
+    "Default:     2"
+  ],
+  "MinPetName": 2,
+  "player": {
+    "enableExtaBagSlots": 0,
+    "lowerExpInLowerExpansions": 0,
+    "addHearthstoneToCollection": 0
+  },
+  "character": {
+    "EnforceRaceAndClassExpansions": 1,
+    "MaxLevelDeterminedByConfig": 0
+  },
+  "Character": {
+    "MaxLevelFor": {
+      "Classic": 30,
+      "BurningCrusade": 30,
+      "WrathOfTheLichKing": 30,
+      "Cataclysm": 35,
+      "MistsOfPandaria": 35,
+      "WarlordsOfDraenor": 40,
+      "Legion": 45,
+      "BattleForAzeroth": 50,
+      "ShadowLands": 60,
+      "Dragonflight": 70
+    }
+  },
+  "Guild": {
+    "CharterCost": 1000,
+    "EventLogRecordsCount": 100,
+    "ResetHour": 6,
+    "BankEventLogRecordsCount": 25,
+    "NewsLogRecordsCount": 250,
+    "SaveInterval": 15,
+    "AllowMultipleGuildMaster": 0
+  },
+  "ArenaTeam": {
+    "CharterCost": {
+      "2v2": 800000,
+      "3v3": 1200000,
+      "5v5": 2000000
+    }
+  },
+  "MaxWhoListReturns._comment": [
+    "MaxWhoListReturns",
+    "Description: Set the max number of players returned in the /who list and interface.",
+    "Default:     50 - (stable)"
+  ],
+  "MaxWhoListReturns": 50,
+  "CharacterCreating": {
+    "Disabled": {
+      "RaceMask": 0,
+      "ClassMask": 0
+    },
+    "EvokersPerRealm": 1,
+    "MinLevelForDemonHunter": 0,
+    "MinLevelForEvoker": 0,
+    "DisableAlliedRaceAchievementRequirement": 0
+  },
+  "CharactersPerAccount._comment": [
+    "CharactersPerAccount",
+    "Description: Limit number of characters per account on all realms on this realmlist.",
+    "Important:   Number must be >= CharactersPerRealm",
+    "Default:     60"
+  ],
+  "CharactersPerAccount": 60,
+  "CharactersPerRealm._comment": [
+    "CharactersPerRealm",
+    "Description: Limit number of characters per account on this realm.",
+    "Range:       1-200",
+    "Default:     60"
+  ],
+  "CharactersPerRealm": 60,
+  "SkipCinematics._comment": [
+    "SkipCinematics",
+    "Description: Disable cinematic intro at first login after character creation.",
+    "Prevents buggy intros in case of custom start location coordinates.",
+    "Default:     0 - (Show intro for each new character)",
+    "1 - (Show intro only for first character of selected race)",
+    "2 - (Disable intro for all classes)"
+  ],
+  "SkipCinematics": 0,
+  "MaxPlayerLevel._comment": [
+    "MaxPlayerLevel",
+    "Description: Maximum level that can be reached by players.",
+    "Important:   Levels beyond 110 are not recommended at all.",
+    "Range:       1-255",
+    "Default:     70"
+  ],
+  "MaxPlayerLevel": 70,
+  "MinDualSpecLevel._comment": [
+    "MinDualSpecLevel",
+    "Description: Level requirement for Dual Talent Specialization.",
+    "Default:     30"
+  ],
+  "MinDualSpecLevel": 30,
+  "StartPlayerLevel._comment": [
+    "StartPlayerLevel",
+    "Description: Starting level for characters after creation.",
+    "Range:       1-MaxPlayerLevel",
+    "Default:     1"
+  ],
+  "StartPlayerLevel": 1,
+  "StartDeathKnightPlayerLevel._comment": [
+    "StartDeathKnightPlayerLevel",
+    "Description: Starting level for death knights after creation.",
+    "Range:       1-MaxPlayerLevel",
+    "Default:     8"
+  ],
+  "StartDeathKnightPlayerLevel": 8,
+  "StartDemonHunterPlayerLevel._comment": [
+    "StartDemonHunterPlayerLevel",
+    "Description: Starting level for demon hunters after creation.",
+    "Range:       1-MaxPlayerLevel",
+    "Default:     8"
+  ],
+  "StartDemonHunterPlayerLevel": 8,
+  "StartEvokerPlayerLevel._comment": [
+    "StartEvokerPlayerLevel",
+    "Description: Staring level for evokers after creation.",
+    "Range:       1-MaxPlayerLevel",
+    "Default:     58"
+  ],
+  "StartEvokerPlayerLevel": 58,
+  "StartAlliedRacePlayerLevel._comment": [
+    "StartAlliedRacePlayerLevel",
+    "Description: Staring level for allied races after creation.",
+    "Range:       1-MaxPlayerLevel",
+    "Default:     10"
+  ],
+  "StartAlliedRacePlayerLevel": 10,
+  "StartPlayerMoney._comment": [
+    "StartPlayerMoney",
+    "Description: Amount of money (in Copper) that a character has after creation.",
+    "Default:     0",
+    "100 - (1 Silver)"
+  ],
+  "StartPlayerMoney": 0,
+  "RecruitAFriend": {
+    "MaxLevel": 60,
+    "MaxDifference": 4
+  },
+  "DisableWaterBreath._comment": [
+    "DisableWaterBreath",
+    "Description: Required security level for water breathing.",
+    "Default:     4  - (Disabled)",
+    "0  - (Enabled, Everyone)",
+    "1  - (Enabled, Mods/GMs/Admins)",
+    "2  - (Enabled, GMs/Admins)",
+    "3  - (Enabled, Admins)"
+  ],
+  "DisableWaterBreath": 4,
+  "AllFlightPaths._comment": [
+    "AllFlightPaths",
+    "Description: Character knows all flight paths (of both factions) after creation.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enabled)"
+  ],
+  "AllFlightPaths": 0,
+  "InstantFlightPaths._comment": [
+    "InstantFlightPaths",
+    "Description: Flight paths will take players to their destination instantly instead",
+    "of making them wait while flying.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enabled)"
+  ],
+  "InstantFlightPaths": 0,
+  "ActivateWeather._comment": [
+    "ActivateWeather",
+    "Description: Activate the weather system.",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "ActivateWeather": 1,
+  "CastUnstuck._comment": [
+    "CastUnstuck",
+    "Description: Allow casting the Unstuck spell using .start or unstuck button in client",
+    "help options.",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "CastUnstuck": 1,
+  "Instance": {
+    "IgnoreLevel": 0,
+    "IgnoreRaid": 0,
+    "UnloadDelay": 1800000
+  },
+  "InstancesResetAnnounce._comment": [
+    "InstancesResetAnnounce",
+    "Description: Announce the reset of one instance to whole party.",
+    "Default:     false - (Disabled, don't show, Blizzlike)",
+    "true  - (Enabled, show)"
+  ],
+  "InstancesResetAnnounce": "false",
+  "ResetSchedule": {
+    "WeekDay": 2,
+    "Hour": 8
+  },
+  "Quests": {
+    "EnableQuestTracker": 0,
+    "LowLevelHideDiff": 4,
+    "HighLevelHideDiff": 7,
+    "IgnoreRaid": 0,
+    "IgnoreAutoAccept": 0,
+    "IgnoreAutoComplete": 0,
+    "DailyResetTime": 3,
+    "WeeklyResetWDay": 3
+  },
+  "Calendar": {
+    "DeleteOldEventsHour": 6
+  },
+  "MaxPrimaryTradeSkill._comment": [
+    "MaxPrimaryTradeSkill",
+    "Description: Maximum number of primary professions a character can learn.",
+    "Range:       0-11",
+    "Default:     2"
+  ],
+  "MaxPrimaryTradeSkill": 2,
+  "Professions": {
+    "AllowClassicProfessionSlots": 0
+  },
+  "MinPetitionSigns._comment": [
+    "MinPetitionSigns",
+    "Description: Number of required signatures on charters to create a guild.",
+    "Range:       0-4",
+    "Default:     4"
+  ],
+  "MinPetitionSigns": 4,
+  "MaxGroupXPDistance._comment": [
+    "MaxGroupXPDistance",
+    "Description: Max distance to creature for group member to get experience at creature",
+    "death.",
+    "Default:     74"
+  ],
+  "MaxGroupXPDistance": 74,
+  "MaxRecruitAFriendBonusDistance._comment": [
+    "MaxRecruitAFriendBonusDistance",
+    "Description: Max distance between character and and group to gain the Recruit-A-Friend",
+    "XP multiplier.",
+    "Default:     100"
+  ],
+  "MaxRecruitAFriendBonusDistance": 100,
+  "MinQuestScaledXPRatio._comment": [
+    "MinQuestScaledXPRatio",
+    "Description: Min ratio of experience that a quest can grant when player level scaling is factored.",
+    "Example:     50 (No less than 50% experience granted from a lower leveled quests completion)",
+    "100 (Quests always grant full experience upon completion)",
+    "Default:     0 - (Quests too low may grant no experience)"
+  ],
+  "MinQuestScaledXPRatio": 0,
+  "MinCreatureScaledXPRatio._comment": [
+    "MinCreatureScaledXPRatio",
+    "Description: Min ratio of experience that a creature kill can grant when player level scaling is factored.  This",
+    "will also allow spell procs to trigger, such as Drain Soul, if > 0 and exp is grantable.",
+    "Example:     50 (No less than 50% experience granted from a lower leveled creature kill)",
+    "100 (Creature kills always grant full experience upon kill)",
+    "Default:     0 - (Creatures too low may grant no experience)"
+  ],
+  "MinCreatureScaledXPRatio": 0,
+  "MinDiscoveredScaledXPRatio._comment": [
+    "MinDiscoveredScaledXPRatio",
+    "Description: Min ratio of experience that an area discovery event will grant when player level scaling is factored.",
+    "Example:     50 (No less than 50% experience granted from discovering a new section of map)",
+    "100 (Map exploration always grant full experience upon discovery)",
+    "Default:     0 - (No experience granted when discovered area is too low level)"
+  ],
+  "MinDiscoveredScaledXPRatio": 0,
+  "MailDeliveryDelay._comment": [
+    "MailDeliveryDelay",
+    "Description: Time (in seconds) mail delivery is delayed when sending items.",
+    "Default:     3600 - (1 hour)"
+  ],
+  "MailDeliveryDelay": 3600,
+  "CleanOldMailTime._comment": [
+    "CleanOldMailTime",
+    "Description: The hour at which old mails will be returned or deleted by the server.",
+    "This can be any integer number from 0 to 23. 20 will be 8pm server time.",
+    "Default:     4 - 4am"
+  ],
+  "CleanOldMailTime": 4,
+  "SkillChance": {
+    "Prospecting": 0,
+    "Milling": 0,
+    "Orange": 100,
+    "Yellow": 75,
+    "Green": 25,
+    "Grey": 0,
+    "MiningSteps": 0,
+    "SkinningSteps": 0
+  },
+  "OffhandCheckAtSpellUnlearn._comment": [
+    "OffhandCheckAtSpellUnlearn",
+    "Description: Unlearning certain spells can change offhand weapon restrictions",
+    "for equip slots.",
+    "Default:     1 - (Recheck offhand slot weapon at unlearning a spell)",
+    "0 - (Recheck offhand slot weapon only at zone update)"
+  ],
+  "OffhandCheckAtSpellUnlearn": 1,
+  "ClientCacheVersion._comment": [
+    "ClientCacheVersion",
+    "Description: Client cache version for client cache data reset. Use any value different",
+    "from DB and not recently been used to trigger client side cache reset.",
+    "Default:     0 - (Use DB value from world DB version.cache_id field)"
+  ],
+  "ClientCacheVersion": 0,
+  "Event": {
+    "Announce": 0
+  },
+  "BeepAtStart._comment": [
+    "BeepAtStart",
+    "Description: Beep when the world server finished starting.",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "BeepAtStart": 1,
+  "Motd._comment": [
+    "Motd",
+    "Description: Message of the Day, displayed at login. Use '@' for a newline.",
+    "Example:     Welcome to John's Server!@This server is proud to be powered by Trinity Core.",
+    "Default:     Welcome to a Trinity Core server."
+  ],
+  "Motd": "Welcome to a Forged Core server.",
+  "Server": {
+    "LoginInfo": 0
+  },
+  "Command": {
+    "LookupMaxResults": 0
+  },
+  "DungeonFinder": {
+    "OptionsMask": 1
+  },
+  "AccountInstancesPerHour._comment": [
+    "AccountInstancesPerHour",
+    "Description: Controls the max amount of different instances player can enter within hour.",
+    "Default:     10"
+  ],
+  "AccountInstancesPerHour": 10,
+  "Account": {
+    "PasswordChangeSecurity": 0
+  },
+  "BirthdayTime._comment": [
+    "BirthdayTime",
+    "Description: Set to date of project's birth in UNIX time. By default the date when",
+    "TrinityCore was started (Thu Oct 2, 2008)",
+    "Default:     1222964635"
+  ],
+  "BirthdayTime": 1222964635,
+  "CacheDataQueries._comment": [
+    "CacheDataQueries",
+    "Description: Server caches data queries at startup.",
+    "Can be disabled if not enough memory is available.",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "CacheDataQueries": 1,
+  "FeatureSystem": {
+    "BpayStore": {
+      "Enabled": 0,
+      "Currency": 1
+    },
+    "CharacterUndelete": {
+      "Enabled": 0,
+      "Cooldown": 2592000
+    },
+    "WarMode": {
+      "Enabled": 0
+    }
+  },
+  "AllowLoggingIPAddressesInDatabase._comment": [
+    "AllowLoggingIPAddressesInDatabase",
+    "Description: Specifies if IP addresses can be logged to the database",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "AllowLoggingIPAddressesInDatabase": 1,
+  "Updates": {
+    "EnableDatabases": 15,
+    "SourcePath": "../../../",
+    "LoginDatabase": {
+      "Path": ""
+    },
+    "CharacterDatabase": {
+      "Path": ""
+    },
+    "WorldDatabase": {
+      "Path": ""
+    },
+    "HotfixDatabase": {
+      "Path": ""
+    },
+    "AutoSetup": 1,
+    "Redundancy": 1,
+    "ArchivedRedundancy": 0,
+    "AllowRehash": 1,
+    "CleanDeadRefMaxCount": 3
+  },
+  "Warden": {
+    "Enabled": 0,
+    "NumInjectionChecks": 9,
+    "NumLuaSandboxChecks": 1,
+    "NumClientModChecks": 1,
+    "ClientResponseDelay": 600,
+    "ClientCheckHoldOff": 30,
+    "ClientCheckFailAction": 0,
+    "BanDuration": 86400
+  },
+  "AllowTwoSide": {
+    "Interaction": {
+      "Calendar": 0,
+      "Channel": 0,
+      "Group": 0,
+      "Guild": 0,
+      "Auction": 1
+    },
+    "Trade": 0
+  },
+  "TalentsInspecting._comment": [
+    "TalentsInspecting",
+    "Description: Allow/disallow inspecting other characters' talents.",
+    "Doesn't affect game master accounts.",
+    "2 - (Enabled for all characters)",
+    "Default:     1 - (Enabled for characters of the same faction)",
+    "0 - (Talent inspecting is disabled)"
+  ],
+  "TalentsInspecting": 1,
+  "ThreatRadius._comment": [
+    "CREATURE SETTINGS",
+    "ThreatRadius",
+    "Description: Distance for creatures to evade after being pulled away from the combat",
+    "starting point. If ThreatRadius is less than creature aggro radius then aggro",
+    "radius will be used.",
+    "Default:     60"
+  ],
+  "ThreatRadius": 60,
+  "Rate": {
+    "Creature": {
+      "Aggro": 1,
+      "Normal": {
+        "Damage": 1,
+        "SpellDamage": 1,
+        "HP": 1
+      },
+      "Elite": {
+        "Elite": {
+          "Damage": 1,
+          "SpellDamage": 1,
+          "HP": 1
+        },
+        "RARE": {
+          "Damage": 1,
+          "SpellDamage": 1,
+          "HP": 1
+        },
+        "RAREELITE": {
+          "Damage": 1,
+          "SpellDamage": 1,
+          "HP": 1
+        },
+        "WORLDBOSS": {
+          "Damage": 1,
+          "SpellDamage": 1,
+          "HP": 1
+        }
+      }
+    },
+    "Corpse": {
+      "Decay": {
+        "Looted": 0.5
+      }
+    },
+    "Health": 1,
+    "Mana": 1,
+    "Rage": {
+      "Gain": 1,
+      "Loss": 1
+    },
+    "Focus": 1,
+    "Energy": 1,
+    "ComboPoints": {
+      "Loss": 1
+    },
+    "RunicPower": {
+      "Gain": 1,
+      "Loss": 1
+    },
+    "SoulShards": {
+      "Loss": 1
+    },
+    "LunarPower": {
+      "Loss": 1
+    },
+    "HolyPower": {
+      "Loss": 1
+    },
+    "Maelstrom": {
+      "Loss": 1
+    },
+    "Chi": {
+      "Loss": 1
+    },
+    "Insanity": {
+      "Loss": 1
+    },
+    "ArcaneCharges": {
+      "Loss": 1
+    },
+    "Fury": {
+      "Loss": 1
+    },
+    "Pain": {
+      "Loss": 1
+    },
+    "Skill": {
+      "Discovery": 1
+    },
+    "Drop": {
+      "Item": {
+        "Poor": 1,
+        "Normal": 1,
+        "Uncommon": 1,
+        "Rare": 1,
+        "Epic": 1,
+        "Legendary": 1,
+        "Artifact": 1,
+        "Referenced": 1,
+        "ReferencedAmount": 1
+      },
+      "Money": 1
+    },
+    "XP": {
+      "Kill": 1,
+      "Quest": 1,
+      "Explore": 1,
+      "BattlegroundKill": 1
+    },
+    "Quest": {
+      "Money": {
+        "Reward": 1,
+        "Max": {
+          "Level": {
+            "Reward": 1
+          }
+        }
+      }
+    },
+    "RepairCost": 1,
+    "Rest": {
+      "InGame": 1,
+      "Offline": {
+        "InTavernOrCity": 1,
+        "InWilderness": 1
+      }
+    },
+    "Damage": {
+      "Fall": 1
+    },
+    "Auction": {
+      "Time": 1,
+      "Deposit": 1,
+      "Cut": 1
+    },
+    "Honor": 1,
+    "Talent": 1,
+    "Reputation": {
+      "Gain": 1,
+      "LowLevel": {
+        "Kill": 1,
+        "Quest": 1
+      },
+      "RecruitAFriendBonus": 0.1
+    },
+    "MoveSpeed": 1,
+    "InstanceResetTime": 1
+  },
+  "CreatureFamilyFleeAssistanceRadius._comment": [
+    "CreatureFamilyFleeAssistanceRadius",
+    "Description: Distance for fleeing creatures seeking assistance from other creatures.",
+    "Default:     30 - (Enabled)",
+    "0  - (Disabled)"
+  ],
+  "CreatureFamilyFleeAssistanceRadius": 30,
+  "CreatureFamilyAssistanceRadius._comment": [
+    "CreatureFamilyAssistanceRadius",
+    "Description: Distance for creatures calling for assistance from other creatures without",
+    "moving.",
+    "Default:     10 - (Enabled)",
+    "0  - (Disabled)"
+  ],
+  "CreatureFamilyAssistanceRadius": 10,
+  "CreatureFamilyAssistanceDelay._comment": [
+    "CreatureFamilyAssistanceDelay",
+    "Description: Time (in milliseconds) before creature assistance call.",
+    "Default:     1500 - (1.5 Seconds)"
+  ],
+  "CreatureFamilyAssistanceDelay": 1500,
+  "CreatureFamilyFleeDelay._comment": [
+    "CreatureFamilyFleeDelay",
+    "Description: Time (in milliseconds) during which creature can flee if no assistance was",
+    "found.",
+    "Default:     7000 (7 Seconds)"
+  ],
+  "CreatureFamilyFleeDelay": 7000,
+  "WorldBossLevelDiff._comment": [
+    "WorldBossLevelDiff",
+    "Description: World boss level difference.",
+    "Default:     3"
+  ],
+  "WorldBossLevelDiff": 3,
+  "CreatureScaling": {
+    "DefaultMaxLevel": 0
+  },
+  "Corpse": {
+    "Decay": {
+      "NORMAL": 300,
+      "RARE": 300,
+      "ELITE": 300,
+      "RAREELITE": 300,
+      "WORLDBOSS": 3600
+    }
+  },
+  "Creature": {
+    "PickPocketRefillDelay": 600,
+    "MovingStopTimeForPlayer": 180000,
+    "RegenHPCannotReachTargetInRaid": 1,
+    "CheckInvalidPosition": 0
+  },
+  "ListenRange": {
+    "Say": 40,
+    "TextEmote": 40,
+    "Yell": 300
+  },
+  "MonsterSight._comment": [
+    "MonsterSight",
+    "Description: The maximum distance in yards that a monster creature can see",
+    "regardless of level difference (through CreatureAI::IsVisible).",
+    "Increases CONFIG_SIGHT_MONSTER to 50 yards. Used to be 20 yards.",
+    "Default:     50.000000"
+  ],
+  "MonsterSight": 50.0,
+  "Respawn": {
+    "MinCheckIntervalMS": 5000,
+    "GuidWarnLevel": 12000000,
+    "WarningMessage": "There will be an unscheduled server restart at 03:00. The server will be available again shortly after.",
+    "WarningFrequency": 1800,
+    "GuidAlertLevel": 16000000,
+    "AlertRestartReason": "Urgent Maintenance",
+    "RestartQuietTime": 3,
+    "DynamicMode": 0,
+    "DynamicEscortNPC": 0,
+    "DynamicRateCreature": 10,
+    "DynamicMinimumCreature": 10,
+    "DynamicRateGameObject": 10,
+    "DynamicMinimumGameObject": 10
+  },
+  "ChatFakeMessagePreventing._comment": [
+    "CHAT SETTINGS",
+    "ChatFakeMessagePreventing",
+    "Description: Additional protection from creating fake chat messages using spaces.",
+    "Collapses multiple subsequent whitespaces into a single whitespace.",
+    "Not applied to the addon language, but may break old addons that use",
+    "normal chat messages for sending data to other clients.",
+    "Default:     1 - (Enabled, Blizzlike)",
+    "0 - (Disabled)"
+  ],
+  "ChatFakeMessagePreventing": 1,
+  "ChatStrictLinkChecking": {
+    "Severity": 0,
+    "Kick": 0
+  },
+  "ChatFlood": {
+    "MessageCount": 10,
+    "MessageDelay": 1,
+    "MuteTime": 10
+  },
+  "Channel": {
+    "RestrictedLfg": 1
+  },
+  "ChatLevelReq": {
+    "Channel": 1,
+    "Whisper": 1,
+    "Emote": 1,
+    "Say": 1,
+    "Yell": 1
+  },
+  "PartyLevelReq._comment": [
+    "PartyLevelReq",
+    "Description: Minimum level at which players can invite to group, even if they aren't on",
+    "the invitee friends list. (Players who are on that friend list can always",
+    "invite despite having lower level)",
+    "Default:     1"
+  ],
+  "PartyLevelReq": 1,
+  "PreserveCustomChannels._comment": [
+    "PreserveCustomChannels",
+    "Description: Store custom chat channel settings like password, automatic ownership handout",
+    "or ban list in the database. Needs to be enabled to save custom",
+    "world/trade/etc. channels that have automatic ownership handout disabled.",
+    "(.channel set ownership $channel off)",
+    "Default:     0 - (Disabled, Blizzlike, Channel settings are lost if last person left)",
+    "1 - (Enabled)"
+  ],
+  "PreserveCustomChannels": 1,
+  "PreserveCustomChannelInterval._comment": [
+    "PreserveCustomChannelInterval",
+    "Description: Interval (in minutes) at which custom channel data is saved to the database",
+    "Default:     5 minutes"
+  ],
+  "PreserveCustomChannelInterval": 5,
+  "PreserveCustomChannelDuration._comment": [
+    "PreserveCustomChannelDuration",
+    "Description: Time (in days) that needs to pass before the customs chat channels get",
+    "cleaned up from the database. Only channels with ownership handout enabled",
+    "(default behavior) will be cleaned.",
+    "Default:     14 - (Enabled, Clean channels that haven't been used for 14 days)",
+    "0  - (Disabled, Infinite channel storage)"
+  ],
+  "PreserveCustomChannelDuration": 14,
+  "PartyRaidWarnings._comment": [
+    "PartyRaidWarnings",
+    "Description: Allow any user to use raid warnings when in a 5-man party.",
+    "Default:     0 - (Disabled, Blizzlike)",
+    "1 - (Enabled)"
+  ],
+  "PartyRaidWarnings": 0,
+  "AutoJoinChatChannel._comment": [
+    "AutoJoinChatChannel",
+    "Description: Has all players auto join this chat channel when a new character is created.",
+    "Default:"
+  ],
+  "AutoJoinChatChannel": "",
+  "GM": {
+    "LoginState": 2,
+    "Visible": 2,
+    "Chat": 2,
+    "WhisperingTo": 2,
+    "FreezeAuraDuration": 0,
+    "InGMList": {
+      "Level": 3
+    },
+    "InWhoList": {
+      "Level": 3
+    },
+    "StartLevel": 1,
+    "AllowInvite": 0,
+    "LowerSecurity": 0,
+    "ForceShutdownThreshold": 30
+  },
+  "Support": {
+    "Enabled": 1,
+    "TicketsEnabled": 0,
+    "BugsEnabled": 0,
+    "ComplaintsEnabled": 0,
+    "SuggestionsEnabled": 0
+  },
+  "Visibility": {
+    "GroupMode": 1,
+    "Distance": {
+      "Continents": 100,
+      "Instances": 170,
+      "BG": 533,
+      "Arenas": 533
+    },
+    "Notify": {
+      "Period": {
+        "OnContinents": 1000,
+        "InInstances": 1000,
+        "InBG": 1000,
+        "InArenas": 1000
+      }
+    }
+  },
+  "SkillGain": {
+    "Crafting": 1,
+    "Gathering": 1
+  },
+  "DurabilityLoss": {
+    "InPvP": 0,
+    "OnDeath": 10
+  },
+  "DurabilityLossChance": {
+    "Damage": 0.5,
+    "Absorb": 0.5,
+    "Parry": 0.05,
+    "Block": 0.05
+  },
+  "Death": {
+    "SicknessLevel": 11,
+    "CorpseReclaimDelay": {
+      "PvP": 1,
+      "PvE": 0
+    },
+    "Bones": {
+      "World": 1,
+      "BattlegroundOrArena": 1
+    }
+  },
+  "Die": {
+    "Command": {
+      "Mode": 1
+    }
+  },
+  "Stats": {
+    "Limits": {
+      "Enable": 0,
+      "Dodge": 95.0,
+      "Parry": 95.0,
+      "Block": 95.0,
+      "Crit": 95.0
+    }
+  },
+  "AutoBroadcast": {
+    "On": 0,
+    "Center": 0,
+    "Timer": 600000
+  },
+  "Battleground": {
+    "CastDeserter": 1,
+    "QueueAnnouncer": {
+      "Enable": 0,
+      "PlayerOnly": 0
+    },
+    "StoreStatistics": {
+      "Enable": 0
+    },
+    "InvitationType": 0,
+    "PrematureFinishTimer": 300000,
+    "PremadeGroupWaitForMatch": 1800000,
+    "GiveXPForKills": 0,
+    "Random": {
+      "ResetHour": 6
+    },
+    "RewardWinnerHonorFirst": 27000,
+    "RewardWinnerConquestFirst": 10000,
+    "RewardWinnerHonorLast": 13500,
+    "RewardWinnerConquestLast": 5000,
+    "RewardLoserHonorFirst": 4500,
+    "RewardLoserHonorLast": 3500,
+    "ReportAFK": 3
+  },
+  "Wintergrasp": {
+    "Enable": 0,
+    "PlayerMax": 100,
+    "PlayerMin": 0,
+    "PlayerMinLvl": 77,
+    "BattleTimer": 30,
+    "NoBattleTimer": 150,
+    "CrashRestartTimer": 10
+  },
+  "TolBarad": {
+    "Enable": 0,
+    "PlayerMax": 100,
+    "PlayerMin": 0,
+    "PlayerMinLvl": 85,
+    "BattleTimer": 15,
+    "BonusTime": 5,
+    "NoBattleTimer": 150,
+    "CrashRestartTimer": 10
+  },
+  "Arena": {
+    "MaxRatingDifference": 150,
+    "RatingDiscardTimer": 600000,
+    "RatedUpdateTimer": 5000,
+    "AutoDistributePoints": 0,
+    "AutoDistributeInterval": 7,
+    "QueueAnnouncer": {
+      "Enable": 0
+    },
+    "ArenaSeason": {
+      "ID": 32,
+      "InProgress": 1
+    },
+    "ArenaStartRating": 0,
+    "ArenaStartPersonalRating": 0,
+    "ArenaStartMatchmakerRating": 1500,
+    "ArenaWinRatingModifier1": 48,
+    "ArenaWinRatingModifier2": 24,
+    "ArenaLoseRatingModifier": 24,
+    "ArenaMatchmakerRatingModifier": 24
+  },
+  "ArenaLog": {
+    "ExtendedInfo": 0
+  },
+  "Network": {
+    "Threads": 1,
+    "OutKBuff": -1,
+    "TcpNodelay": 1
+  },
+  "Console": {
+    "Enable": 1
+  },
+  "Ra": {
+    "Enable": 0,
+    "IP": "0.0.0.0",
+    "Port": 3443,
+    "MinLevel": 3
+  },
+  "CharDelete": {
+    "Method": 0,
+    "MinLevel": 0,
+    "DeathKnight": {
+      "MinLevel": 0
+    },
+    "DemonHunter": {
+      "MinLevel": 0
+    },
+    "KeepDays": 30
+  },
+  "PlayerStart": {
+    "AllReputation": 0,
+    "AllSpells": 0,
+    "MapsExplored": 0,
+    "String": ""
+  },
+  "XP": {
+    "Boost": {
+      "Daymask": 0,
+      "Rate": 2.0
+    }
+  },
+  "HonorPointsAfterDuel._comment": [
+    "HonorPointsAfterDuel",
+    "Description: Amount of honor points the duel winner will get after a duel.",
+    "Default:     0  - (Disabled)",
+    "1+ - (Enabled)"
+  ],
+  "HonorPointsAfterDuel": 0,
+  "ResetDuelCooldowns._comment": [
+    "ResetDuelCooldowns",
+    "Description: Reset all cooldowns before duel starts and restore them when duel ends.",
+    "Default:     0  - (Disabled)",
+    "1  - (Enabled)"
+  ],
+  "ResetDuelCooldowns": 0,
+  "ResetDuelHealthMana._comment": [
+    "ResetDuelHealthMana",
+    "Description: Reset health and mana before duel starts and restore them when duel ends.",
+    "Default:     0  - (Disabled)",
+    "1  - (Enabled)"
+  ],
+  "ResetDuelHealthMana": 0,
+  "PvPToken": {
+    "Enable": 0,
+    "MapAllowType": 4,
+    "ItemID": 29434,
+    "ItemCount": 1
+  },
+  "NoResetTalentsCost._comment": [
+    "NoResetTalentsCost",
+    "Description: Resetting talents doesn't cost anything.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enabled)"
+  ],
+  "NoResetTalentsCost": 0,
+  "ShowKickInWorld._comment": [
+    "ShowKickInWorld",
+    "Description: Determines whether a message is broadcast to the entire server when a",
+    "player gets kicked.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enabled)"
+  ],
+  "ShowKickInWorld": 0,
+  "ShowMuteInWorld._comment": [
+    "ShowMuteInWorld",
+    "Description: Determines whether a message is broadcast to the entire server when a",
+    "player gets muted.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enabled)"
+  ],
+  "ShowMuteInWorld": 0,
+  "ShowBanInWorld._comment": [
+    "ShowBanInWorld",
+    "Description: Determines whether a message is broadcast to the entire server when a",
+    "player gets banned.",
+    "Default:     0 - (Disabled)",
+    "1 - (Enabled)"
+  ],
+  "ShowBanInWorld": 0,
+  "RecordUpdateTimeDiffInterval._comment": [
+    "RecordUpdateTimeDiffInterval",
+    "Description: Time (in milliseconds) update time diff is written to the log file.",
+    "Update diff can be used as a performance indicator. Diff < 300: good",
+    "performance. Diff > 600 bad performance, may be caused by high CPU usage.",
+    "Default:     60000 - (Enabled, 1 minute)",
+    "0     - (Disabled)"
+  ],
+  "RecordUpdateTimeDiffInterval": 60000,
+  "MinRecordUpdateTimeDiff._comment": [
+    "MinRecordUpdateTimeDiff",
+    "Description: Only record update time diff which is greater than this value.",
+    "Default:     100"
+  ],
+  "MinRecordUpdateTimeDiff": 100,
+  "LevelReq": {
+    "Trade": 1,
+    "Auction": 1,
+    "Mail": 1
+  },
+  "PlayerDump": {
+    "DisallowPaths": 1,
+    "DisallowOverwrite": 1
+  },
+  "Calculate": {
+    "Creature": {
+      "Zone": {
+        "Area": {
+          "Data": 0
+        }
+      }
+    },
+    "Gameoject": {
+      "Zone": {
+        "Area": {
+          "Data": 0
+        }
+      }
+    }
+  },
+  "NoGrayAggro": {
+    "Above": 0,
+    "Below": 0
+  },
+  "PreventRenameCharacterOnCustomization._comment": [
+    "PreventRenameCharacterOnCustomization",
+    "Description: If option is set to 1, player can not rename the character in character customization.",
+    "Applies to all character customization commands.",
+    "Default:     0 - (Disabled, character can be renamed in Character Customization)",
+    "1 - (Enabled, character can not be renamed in Character Customization)"
+  ],
+  "PreventRenameCharacterOnCustomization": 0,
+  "GameObject": {
+    "CheckInvalidPosition": 0
+  },
+  "AuctionHouseBot": {
+    "Update": {
+      "Interval": 20
+    },
+    "Seller": {
+      "Enabled": 0
+    },
+    "Alliance": {
+      "Items": {
+        "Amount": {
+          "Ratio": 100
+        }
+      },
+      "Price": {
+        "Ratio": 100
+      }
+    },
+    "Horde": {
+      "Items": {
+        "Amount": {
+          "Ratio": 100
+        }
+      },
+      "Price": {
+        "Ratio": 100
+      }
+    },
+    "Neutral": {
+      "Items": {
+        "Amount": {
+          "Ratio": 100
+        }
+      },
+      "Price": {
+        "Ratio": 100
+      }
+    },
+    "MinTime": 1,
+    "MaxTime": 72,
+    "Class": {
+      "Consumable": 6,
+      "Container": {
+        "ItemLevel": {
+          "Min": 0,
+          "Max": 0
+        }
+      },
+      "Weapon": 8,
+      "Gem": 3,
+      "Armor": 8,
+      "Reagent": 1,
+      "Projectile": 2,
+      "TradeGood": {
+        "ItemLevel": {
+          "Min": 0,
+          "Max": 0
+        }
+      },
+      "Recipe": 6,
+      "Quiver": 1,
+      "Quest": 1,
+      "Key": 1,
+      "Misc": {
+        "Mount": {
+          "ReqLevel": {
+            "Min": 0,
+            "Max": 0
+          },
+          "ReqSkill": {
+            "Min": 0,
+            "Max": 0
+          }
+        }
+      },
+      "Glyph": {
+        "ReqLevel": {
+          "Min": 0,
+          "Max": 0
+        },
+        "ItemLevel": {
+          "Min": 0,
+          "Max": 0
+        }
+      },
+      "Generic": 1,
+      "RandomStackRatio": {
+        "Consumable": 20,
+        "Container": 0,
+        "Weapon": 0,
+        "Gem": 20,
+        "Armor": 0,
+        "Reagent": 100,
+        "Projectile": 100,
+        "TradeGood": 50,
+        "Generic": 100,
+        "Recipe": 0,
+        "Quiver": 0,
+        "Quest": 100,
+        "Key": 100,
+        "Misc": 100,
+        "Glyph": 0
+      }
+    },
+    "Items": {
+      "Vendor": 0,
+      "Loot": 1,
+      "Misc": 0,
+      "Gray": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "White": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "Green": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "Blue": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "Purple": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "Orange": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "Yellow": {
+        "Price": {
+          "Ratio": 100
+        }
+      },
+      "ItemLevel": {
+        "Min": 0,
+        "Max": 0
+      },
+      "ReqLevel": {
+        "Min": 0,
+        "Max": 0
+      },
+      "ReqSkill": {
+        "Min": 0,
+        "Max": 0
+      },
+      "Amount": {
+        "Gray": 0,
+        "White": 2000,
+        "Green": 2500,
+        "Blue": 1500,
+        "Purple": 1000,
+        "Orange": 0,
+        "Yellow": 0
+      }
+    },
+    "Bind": {
+      "No": 1,
+      "Pickup": 0,
+      "Equip": 1,
+      "Use": 1,
+      "Quest": 0
+    },
+    "LockBox": {
+      "Enabled": 0
+    },
+    "ItemsPerCycle": {
+      "Boost": 1000,
+      "Normal": 20
+    },
+    "BuyPrice": {
+      "Seller": 1
+    },
+    "forceIncludeItems": "",
+    "forceExcludeItems": "",
+    "Buyer": {
+      "Enabled": 0,
+      "Alliance": {
+        "Enabled": 0
+      },
+      "Horde": {
+        "Enabled": 0
+      },
+      "Neutral": {
+        "Enabled": 0
+      },
+      "ChanceFactor": 2,
+      "Baseprice": {
+        "Gray": 3504,
+        "White": 5429,
+        "Green": 21752,
+        "Blue": 36463,
+        "Purple": 87124,
+        "Orange": 214347,
+        "Yellow": 407406
+      },
+      "ChanceMultiplier": {
+        "Gray": 100,
+        "White": 100,
+        "Green": 100,
+        "Blue": 100,
+        "Purple": 100,
+        "Orange": 100,
+        "Yellow": 100
+      },
+      "Recheck": {
+        "Interval": 20
+      }
+    }
+  },
+  "BlackMarket": {
+    "Enabled": 1,
+    "MaxAuctions": 12,
+    "UpdatePeriod": 24
+  },
+  "Currency": {
+    "ResetInterval": 7,
+    "ResetDay": 3,
+    "ResetHour": 6
+  },
+  "PacketSpoof": {
+    "Policy": 1,
+    "BanMode": 0,
+    "BanDuration": 86400
+  },
+  "Pvp": {
+    "FactionBalance": {
+      "LevelCheckDiff": 0,
+      "Pct5": 0.6,
+      "Pct10": 0.7,
+      "Pct20": 0.8
+    }
+  }
+}

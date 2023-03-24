@@ -7,11 +7,8 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Character;
 using Game.Common.Server;
 
 namespace Game.Common.Networking.Packets.Character;

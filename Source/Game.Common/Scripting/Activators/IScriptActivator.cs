@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Common.Scripting;
-using Game.Scripting.Activators;
 using Game.Common.Scripting.Interfaces;
 
 namespace Game.Common.Scripting.Activators;

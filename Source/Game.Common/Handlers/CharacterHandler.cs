@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Game.Common.DataStorage.ClientReader;

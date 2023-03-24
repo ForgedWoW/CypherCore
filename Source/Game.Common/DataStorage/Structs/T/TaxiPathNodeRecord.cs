@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using Framework.Constants;
-using Game.DataStorage;
 
 namespace Game.Common.DataStorage.Structs.T;
 

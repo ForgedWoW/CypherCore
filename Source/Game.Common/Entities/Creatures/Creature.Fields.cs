@@ -4,9 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Loots;
-using Game.Entities;
-using Game.Common.Entities.Creatures;
 using Game.Common.Entities.Objects;
 
 namespace Game.Common.Entities.Creatures;

@@ -5,9 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Framework.Configuration;
 using Framework.Database;
-using Game.Common.Chat;
 
 namespace Game.Common.Chat;
 

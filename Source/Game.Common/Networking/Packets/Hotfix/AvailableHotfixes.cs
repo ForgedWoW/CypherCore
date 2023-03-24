@@ -3,9 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
 using Game.Common.DataStorage;
-using Game.Common.Networking;
 
 namespace Game.Common.Networking.Packets.Hotfix;
 

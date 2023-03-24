@@ -3,9 +3,6 @@
 
 using System;
 using Framework.Constants;
-using Game.Maps;
-using Game.Common.Entities;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 
 namespace Game.Common.Entities;

@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Common.Chat;
 using Game.Common.Entities.Creatures;
 using Game.Common.Entities.Objects;
 

@@ -3,8 +3,6 @@
 
 using Framework.Constants;
 using Framework.IO;
-using Game.Guilds;
-using Game.Common.Chat;
 using Game.Common.Globals;
 
 namespace Game.Common.Chat.Commands;

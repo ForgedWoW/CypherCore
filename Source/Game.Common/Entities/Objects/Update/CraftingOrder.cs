@@ -1,6 +1,4 @@
-﻿using Game.Common.Entities.Objects.Update;
-using Game.Entities;
-using Game.Common.Entities.Players;
+﻿using Game.Common.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Item;
 

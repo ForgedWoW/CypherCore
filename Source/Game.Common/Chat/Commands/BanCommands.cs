@@ -4,7 +4,6 @@
 using System;
 using System.Net;
 using Framework.Constants;
-using Game.Common.Chat;
 using Game.Common.Globals;
 using Game.Common.Server;
 

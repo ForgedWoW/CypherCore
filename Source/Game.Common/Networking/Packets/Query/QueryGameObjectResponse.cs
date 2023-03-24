@@ -3,10 +3,7 @@
 
 using Framework.Constants;
 using Framework.IO;
-using Game.Entities;
 using Game.Common.Entities.Objects;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Query;
 
 namespace Game.Common.Networking.Packets.Query;
 

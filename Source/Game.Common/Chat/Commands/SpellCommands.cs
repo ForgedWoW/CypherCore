@@ -3,10 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Spells;
-using Game.Common.Chat;
 using Game.Common.Entities.Objects;
 
 namespace Game.Common.Chat.Commands;

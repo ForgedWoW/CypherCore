@@ -3,8 +3,6 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
-using Game.Common.Chat;
 using Game.Common.Entities.Players;
 
 namespace Game.Common.Chat;

@@ -3,10 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
 using Framework.Database;
-using Game.Common.Entities.Creatures;
-using Game.Entities;
 
 namespace Game.Common.Entities.Creatures;
 

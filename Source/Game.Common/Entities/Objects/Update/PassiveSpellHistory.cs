@@ -1,5 +1,4 @@
-﻿using Game.Entities;
-using Game.Common.Entities.Players;
+﻿using Game.Common.Entities.Players;
 using Game.Common.Entities.Units;
 using Game.Common.Networking;
 

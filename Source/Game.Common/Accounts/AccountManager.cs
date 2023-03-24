@@ -6,27 +6,21 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
-using Game.Entities;
-using Game.Common.Accounts;
-using Game;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Players;
 
 namespace Game.Common.Accounts;
 
-public sealed class AccountManager : Singleton<AccountManager>
+public class AccountManager
 {
 	const int MaxAccountLength = 16;
 	const int MaxEmailLength = 64;
 
-	readonly Dictionary<uint, RBACPermission> _permissions = new();
-	readonly MultiMap<byte, uint> _defaultPermissions = new();
+    private readonly MultiMap<byte, uint> _defaultPermissions = new();
 
-	public Dictionary<uint, RBACPermission> RBACPermissionList => _permissions;
+	public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
 
-	AccountManager() { }
-
-	public AccountOpResult CreateAccount(string username, string password, string email = "", uint bnetAccountId = 0, byte bnetIndex = 0)
+    public AccountOpResult CreateAccount(string username, string password, string email = "", uint bnetAccountId = 0, byte bnetIndex = 0)
 	{
 		if (username.Length > MaxAccountLength)
 			return AccountOpResult.NameTooLong;
@@ -351,7 +345,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public void LoadRBAC()
 	{
-		_permissions.Clear();
+		RBACPermissionList.Clear();
 		_defaultPermissions.Clear();
 
 		Log.outDebug(LogFilter.Rbac, "AccountMgr:LoadRBAC");
@@ -373,7 +367,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		do
 		{
 			var id = result.Read<uint>(0);
-			_permissions[id] = new RBACPermission(id, result.Read<string>(1));
+			RBACPermissionList[id] = new RBACPermission(id, result.Read<string>(1));
 			++count1;
 		} while (result.NextRow());
 
@@ -397,7 +391,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 			if (permissionId != newId)
 			{
 				permissionId = newId;
-				permission = _permissions[newId];
+				permission = RBACPermissionList[newId];
 			}
 
 			var linkedPermissionId = result.Read<uint>(1);
@@ -479,7 +473,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	{
 		Log.outDebug(LogFilter.Rbac, "AccountMgr:GetRBACPermission: {0}", permissionId);
 
-		return _permissions.LookupByKey(permissionId);
+		return RBACPermissionList.LookupByKey(permissionId);
 	}
 
 	public bool HasPermission(uint accountId, RBACPermissions permissionId, uint realmId)

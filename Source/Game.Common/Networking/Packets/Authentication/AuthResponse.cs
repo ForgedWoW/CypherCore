@@ -4,11 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
 using Game.Common.DataStorage;
 using Game.Common.Globals;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Authentication;
 
 namespace Game.Common.Networking.Packets.Authentication;
 

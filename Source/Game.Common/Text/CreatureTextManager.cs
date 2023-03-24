@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
 using Game.Common.Entities.Creatures;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Players;
@@ -17,8 +13,6 @@ using Game.Common.Globals;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Misc;
 using Game.Common.Server;
-using Game.Common.Text;
-using Game;
 
 namespace Game.Common.Text;
 

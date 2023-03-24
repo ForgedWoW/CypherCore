@@ -4,9 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game;
-using Game.Entities;
-using Game.Maps;
 using Game.Common.Entities;
 using Game.Common.Entities.AreaTriggers;
 using Game.Common.Entities.Creatures;

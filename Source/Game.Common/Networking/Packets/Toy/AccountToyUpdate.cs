@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.Networking;
 
 namespace Game.Common.Networking.Packets.Toy;
 

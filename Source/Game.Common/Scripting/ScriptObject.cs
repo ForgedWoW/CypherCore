@@ -2,10 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
 using Game.Common.Entities.Objects;
-using Game.Common.Scripting;
-using Game.Scripting;
 using Game.Common.Scripting.Interfaces;
 
 namespace Game.Common.Scripting;

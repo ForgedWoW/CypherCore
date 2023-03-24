@@ -1,5 +1,9 @@
 ﻿using Autofac;
+using Game.Common.Accounts;
+using Game.Common.Battlepay;
+using Game.Common.Cache;
 using Game.Common.Handlers;
+using Game.Common.World;
 
 namespace Game.Common
 {
@@ -7,6 +11,11 @@ namespace Game.Common
     {
         public static ContainerBuilder AddCommon(this ContainerBuilder services)
         {
+            services.RegisterType<AccountManager>().SingleInstance();
+            services.RegisterType<BNetAccountManager>().SingleInstance();
+            services.RegisterType<BattlePayDataStoreMgr>().SingleInstance();
+            services.RegisterType<CharacterCache>().SingleInstance();
+            services.RegisterType<WorldManager>().SingleInstance();
             services.RegisterType<AuthenticationHandler>().As<IWorldSessionHandler>().SingleInstance();
             services.RegisterType<BattlenetHandler>().As<IWorldSessionHandler>().SingleInstance();
             services.RegisterType<BattlepayHandler>().As<IWorldSessionHandler>().SingleInstance();

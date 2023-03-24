@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Game.DataStorage;
 using Game.Common.DataStorage.Structs.G;
-using Game.Common.Networking;
 
 namespace Game.Common.Networking.Packets.Garrison;
 

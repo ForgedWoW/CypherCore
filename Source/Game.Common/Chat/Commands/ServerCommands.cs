@@ -2,13 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Framework.Configuration;
 using Framework.Constants;
 using Framework.IO;
-using Game.Common.Chat;
-using Game.Common.Handlers;
 using Game.Common.Server;
-using Game.Common.Services;
 
 namespace Game.Common.Chat.Commands;
 

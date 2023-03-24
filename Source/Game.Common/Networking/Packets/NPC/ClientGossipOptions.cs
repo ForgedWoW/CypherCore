@@ -3,8 +3,6 @@
 
 using System;
 using Framework.Constants;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.NPC;
 
 namespace Game.Common.Networking.Packets.NPC;
 

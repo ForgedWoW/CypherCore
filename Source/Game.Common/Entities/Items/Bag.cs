@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Common.Entities.Items;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;

@@ -3,9 +3,6 @@
 
 using System;
 using System.Numerics;
-using Game.Maps.Grids;
-using Game.Common.Entities.Objects;
-using Game.Entities;
 
 namespace Game.Common.Entities.Objects;
 

@@ -8,18 +8,7 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
-using Game.AI;
-using Game.BattleGrounds;
-using Game.Collision;
-using Game.DataStorage;
-using Game.Loots;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Spells;
 using Game.Common.DataStorage.Structs.A;
-using Game.Common.Entities;
-using Game.Common.Entities.GameObjects;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;
@@ -33,7 +22,7 @@ using Game.Common.Server;
 
 namespace Game.Common.Entities.GameObjects
 {
-	public class GameObject : WorldObject
+    public class GameObject : WorldObject
 	{
 		protected GameObjectValue GoValueProtected; // TODO: replace with m_goTypeImpl
 		protected GameObjectTemplate GoInfoProtected;
@@ -4285,7 +4274,7 @@ namespace Game.Common.Entities.GameObjects
 	// Base class for GameObject type specific implementations
 
 	namespace GameObjectType
-	{
-		//11 GAMEOBJECT_TYPE_TRANSPORT
-	}
+    {
+        //11 GAMEOBJECT_TYPE_TRANSPORT
+    }
 }

@@ -5,15 +5,11 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using Framework.Database;
-using Game.Common.Accounts;
-using Game;
 
 namespace Game.Common.Accounts;
 
-public sealed class BNetAccountManager : Singleton<BNetAccountManager>
+public sealed class BNetAccountManager
 {
-	BNetAccountManager() { }
-
 	public AccountOpResult CreateBattlenetAccount(string email, string password, bool withGameAccount, out string gameAccountName)
 	{
 		gameAccountName = "";

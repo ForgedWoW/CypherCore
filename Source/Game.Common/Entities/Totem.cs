@@ -3,11 +3,7 @@
 
 using System;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Spells;
 using Game.Common.DataStorage.Structs.S;
-using Game.Common.Entities;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Units;
 using Game.Common.Networking.Packets.Totem;

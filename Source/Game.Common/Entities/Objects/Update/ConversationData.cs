@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.Entities;
-using Game.Common.Entities.Objects.Update;
-using Game.Entities;
 using Game.Common.Entities.Players;
 using Game.Common.Networking;
 

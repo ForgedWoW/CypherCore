@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Common.Globals;
-using Game.Common.Networking;
 using Game.Common.Server;
 
 namespace Game.Common.Networking.Packets.Query;

@@ -1,0 +1,112 @@
+{
+  "BattlenetPort._comment": [
+    "BattlenetPort",
+    "Description: TCP port to reach the auth server for battle.net connections.",
+    "Default:     1119"
+  ],
+  "BattlenetPort": 1119,
+  "LoginREST": {
+    "Port": 8081,
+    "ExternalAddress": "127.0.0.1",
+    "LocalAddress": "127.0.0.1",
+    "TicketDuration": 3600
+  },
+  "BindIP._comment": [
+    "BindIP",
+    "Description: Bind auth server to IP/hostname",
+    "Default:     0.0.0.0 - (Bind to all IPs on the system)"
+  ],
+  "BindIP": "0.0.0.0",
+  "RealmsStateUpdateDelay._comment": [
+    "RealmsStateUpdateDelay",
+    "Description: Time (in seconds) between realm list updates.",
+    "Default:     10",
+    "0  - (Disabled)"
+  ],
+  "RealmsStateUpdateDelay": 10,
+  "WrongPass": {
+    "MaxCount": 0,
+    "BanTime": 600,
+    "BanType": 0,
+    "Logging": 0
+  },
+  "BanExpiryCheckInterval._comment": [
+    "BanExpiryCheckInterval",
+    "Description: Time (in seconds) between checks for expired bans",
+    "Default:     60"
+  ],
+  "BanExpiryCheckInterval": 60,
+  "AllowLoggingIPAddressesInDatabase._comment": [
+    "AllowLoggingIPAddressesInDatabase",
+    "Description: Specifies if IP addresses can be logged to the database",
+    "Default:     1 - (Enabled)",
+    "0 - (Disabled)"
+  ],
+  "AllowLoggingIPAddressesInDatabase": 1,
+  "LoginDatabaseInfo": {
+    "Host": "127.0.0.1",
+    "Port": 3306,
+    "Username": "username",
+    "Password": "password",
+    "Database": "auth",
+    "SSL": "false"
+  },
+  "DBQueryWorkerInterval._comment": [
+    "DBQueryWorkerInterval",
+    "Description: Time (milliseconds) for Query Task Worker interval.",
+    "Default:    1000"
+  ],
+  "DBQueryWorkerInterval": 1000,
+  "MySQLExecutable._comment": [
+    "MySQLExecutable",
+    "Description: The path to your MySQL CLI binary.",
+    "If the path is left empty, built-in path from cmake is used.",
+    "Example:     C:/Program Files/MySQL/MySQL Server 8.0/bin/mysql.exe",
+    "mysql.exe",
+    "/usr/bin/mysql",
+    "Default:     "
+  ],
+  "MySQLExecutable": "",
+  "Updates": {
+    "EnableDatabases": 0,
+    "SourcePath": "",
+    "AutoSetup": 1,
+    "Redundancy": 1,
+    "ArchivedRedundancy": 0,
+    "AllowRehash": 1,
+    "CleanDeadRefMaxCount": 3
+  },
+  "LogsDir._comment": [
+    "LOGGING SYSTEM SETTINGS",
+    "LogsDir",
+    "Description: Logs directory setting.",
+    "Important:   LogsDir needs to be quoted, as the string might contain space characters.",
+    "Logs directory must exists, or log file creation will be disabled.",
+    "Default:     Logs - (Log files will be stored in the current path)"
+  ],
+  "LogsDir": "Logs",
+  "MaxNumberLogRotations._comment": [
+    "MaxNumberLogRotations",
+    "Description: Number of logs to keep in rotation. A new log is rotated in at every server startup.  ex: WorldServer.1.log",
+    "Default:     20"
+  ],
+  "MaxNumberLogRotations": 20,
+  "MaxLogSize._comment": [
+    "MaxLogSize",
+    "Description: Max Size of a log file in MB before its rotated.",
+    "Default:     50"
+  ],
+  "MaxLogSize": 50,
+  "Appender": {
+    "Console": "1,2,0",
+    "Bnet": "2,2,0,Bnet.log"
+  },
+  "Logger": {
+    "Server": "3,Console Bnet",
+    "Realmlist": "3,Console Bnet",
+    "Session": "3,Console Bnet",
+    "Network": "3,Console Bnet",
+    "SqlUpdates": "3,Console Bnet",
+    "ServiceProtobuf": "2,Console Bnet"
+  }
+}

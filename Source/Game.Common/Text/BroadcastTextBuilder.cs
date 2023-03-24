@@ -3,10 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
 using Game.Common.Entities.Objects;
-using Game.Common.Text;
 
 namespace Game.Common.Text;
 

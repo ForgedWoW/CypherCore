@@ -3,10 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Scripting.Interfaces.IDynamicObject;
-using Game.Spells;
-using Game.Common.Entities;
-using Game.Entities;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Objects.Update;
 using Game.Common.Entities.Players;

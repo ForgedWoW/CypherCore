@@ -7,8 +7,6 @@ using System.Linq;
 using System.Numerics;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Common.DataStorage.ClientReader;
-using Game.DataStorage;
 
 namespace Game.Common.DataStorage.ClientReader;
 

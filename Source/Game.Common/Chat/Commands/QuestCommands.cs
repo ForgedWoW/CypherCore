@@ -4,11 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IQuest;
-using Game.Common.Chat;
 using Game.Common.Entities.Items;
 using Game.Common.Entities.Objects;
 using Game.Common.Entities.Players;

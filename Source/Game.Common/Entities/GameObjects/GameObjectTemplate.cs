@@ -3,8 +3,6 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
-using Game.Common.Entities.GameObjects;
-using Game.Entities;
 using Game.Common.Networking.Packets.Query;
 
 namespace Game.Common.Entities.GameObjects;

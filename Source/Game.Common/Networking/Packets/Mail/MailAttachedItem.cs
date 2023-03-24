@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
-using Game.Common.Entities.Items;
-using Game.Common.Networking;
 using Game.Common.Networking.Packets.Item;
 
 namespace Game.Common.Networking.Packets.Mail;

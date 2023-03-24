@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Common.Chat;
 using Game.Common.DataStorage.Structs.S;
 using Game.Common.Globals;
 

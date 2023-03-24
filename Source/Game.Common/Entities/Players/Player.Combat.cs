@@ -4,13 +4,8 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Scripting.Interfaces.IPlayer;
 using Game.Common.Entities.Items;
 using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
-using Game.Entities;
 using Game.Common.Entities.Units;
 using Game.Common.Networking.Packets.Duel;
 using Game.Common.Networking.Packets.Item;

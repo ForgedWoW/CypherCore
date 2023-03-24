@@ -3,7 +3,6 @@
 
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.DataStorage;
 
 namespace Game.Common.DataStorage.Structs.S;
 
