@@ -50,7 +50,7 @@ public class SpawnedPoolData
 			case SpawnObjectType.GameObject:
 				return _spawnedGameobjects.Contains(dbGuidOrPoolId);
 			default:
-				Log.outFatal(LogFilter.Misc, $"Invalid spawn type {type} passed to SpawnedPoolData::IsSpawnedObject (with spawnId {dbGuidOrPoolId})");
+				Log.Logger.Fatal($"Invalid spawn type {type} passed to SpawnedPoolData::IsSpawnedObject (with spawnId {dbGuidOrPoolId})");
 
 				return false;
 		}

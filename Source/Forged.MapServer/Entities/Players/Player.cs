@@ -584,7 +584,7 @@ public partial class Player : Unit
 
 		if (info == null)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid race/class pair ({2}/{3}) - refusing to do so.",
 						Session.AccountId,
 						GetName(),
@@ -598,7 +598,7 @@ public partial class Player : Unit
 
 		if (cEntry == null)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"PlayerCreate: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid character class ({2}) - refusing to do so (wrong DBC-files?)",
 						Session.AccountId,
 						GetName(),
@@ -609,7 +609,7 @@ public partial class Player : Unit
 
 		if (!Session.ValidateAppearance(createInfo.RaceId, createInfo.ClassId, createInfo.Sex, createInfo.Customizations))
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Player.Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with invalid appearance attributes - refusing to do so",
 						Session.AccountId,
 						GetName());
@@ -651,7 +651,7 @@ public partial class Player : Unit
 
 		if (!IsValidGender(createInfo.Sex))
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Player:Create: Possible hacking-attempt: Account {0} tried creating a character named '{1}' with an invalid gender ({2}) - refusing to do so",
 						Session.AccountId,
 						GetName(),
@@ -1000,7 +1000,7 @@ public partial class Player : Unit
 				// m_nextSave reset in SaveToDB call
 				Global.ScriptMgr.ForEach<IPlayerOnSave>(p => p.OnSave(this));
 				SaveToDB();
-				Log.outDebug(LogFilter.Player, "Player '{0}' (GUID: {1}) saved", GetName(), GUID.ToString());
+				Log.Logger.Debug("Player '{0}' (GUID: {1}) saved", GetName(), GUID.ToString());
 			}
 			else
 			{
@@ -1110,7 +1110,7 @@ public partial class Player : Unit
 		{
 			if (!oldIsAlive)
 			{
-				Log.outError(LogFilter.Player, "Player.setDeathState: Attempted to kill a dead player '{0}' ({1})", GetName(), GUID.ToString());
+				Log.Logger.Error("Player.setDeathState: Attempted to kill a dead player '{0}' ({1})", GetName(), GUID.ToString());
 
 				return;
 			}
@@ -1216,7 +1216,7 @@ public partial class Player : Unit
 
 		if (viewpoint != null)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Player {0} has viewpoint {1} {2} when removed from world",
 						GetName(),
 						viewpoint.Entry,
@@ -1411,7 +1411,7 @@ public partial class Player : Unit
 				// Temporary for issue https://github.com/TrinityCore/TrinityCore/issues/24876
 				if (!CharmedGUID.IsEmpty && !charm.HasAuraTypeWithCaster(AuraType.ControlVehicle, GUID))
 				{
-					Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
+					Log.Logger.Fatal($"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
 
 					// attempt to recover from missing HandleAuraControlVehicle unapply handling
 					// THIS IS A HACK, NEED TO FIND HOW IS IT EVEN POSSBLE TO NOT HAVE THE AURA
@@ -1425,10 +1425,10 @@ public partial class Player : Unit
 
 		if (!CharmedGUID.IsEmpty)
 		{
-			Log.outFatal(LogFilter.Player, "Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
+			Log.Logger.Fatal("Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
 
 			if (!charm.CharmerGUID.IsEmpty)
-				Log.outFatal(LogFilter.Player, $"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
+				Log.Logger.Fatal($"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
 			else
 				SetCharm(charm, false);
 		}
@@ -1445,7 +1445,7 @@ public partial class Player : Unit
 
 		if (charmInfo == null)
 		{
-			Log.outError(LogFilter.Player, "Player:CharmSpellInitialize(): the player's charm ({0}) has no charminfo!", charm.GUID);
+			Log.Logger.Error("Player:CharmSpellInitialize(): the player's charm ({0}) has no charminfo!", charm.GUID);
 
 			return;
 		}
@@ -1488,7 +1488,7 @@ public partial class Player : Unit
 
 		if (charmInfo == null)
 		{
-			Log.outError(LogFilter.Player, "Player:PossessSpellInitialize(): charm ({0}) has no charminfo!", charm.GUID);
+			Log.Logger.Error("Player:PossessSpellInitialize(): charm ({0}) has no charminfo!", charm.GUID);
 
 			return;
 		}
@@ -1539,7 +1539,7 @@ public partial class Player : Unit
 
 			if (!Global.ConditionMgr.IsObjectMeetingVehicleSpellConditions(vehicle.Entry, spellId, this, vehicle))
 			{
-				Log.outDebug(LogFilter.Condition, "VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.AsCreature.Entry, spellId);
+				Log.Logger.Debug("VehicleSpellInitialize: conditions not met for Vehicle entry {0} spell {1}", vehicle.AsCreature.Entry, spellId);
 
 				continue;
 			}
@@ -1849,7 +1849,7 @@ public partial class Player : Unit
 		// set data and update to CHANGED if not NEW
 		ab.SetActionAndType(action, (ActionButtonType)type);
 
-		Log.outDebug(LogFilter.Player, $"Player::AddActionButton: Player '{GetName()}' ({GUID}) added action '{action}' (type {type}) to button '{button}'");
+		Log.Logger.Debug($"Player::AddActionButton: Player '{GetName()}' ({GUID}) added action '{action}' (type {type}) to button '{button}'");
 
 		return ab;
 	}
@@ -1866,7 +1866,7 @@ public partial class Player : Unit
 		else
 			button.UState = ActionButtonUpdateState.Deleted; // saved, will deleted at next save
 
-		Log.outDebug(LogFilter.Player, "Action Button '{0}' Removed from Player '{1}'", button, GUID.ToString());
+		Log.Logger.Debug("Action Button '{0}' Removed from Player '{1}'", button, GUID.ToString());
 	}
 
 	public ActionButton GetActionButton(byte _button)
@@ -2065,7 +2065,7 @@ public partial class Player : Unit
 	{
 		if (!GridDefines.IsValidMapCoord(mapid, x, y, z, orientation))
 		{
-			Log.outError(LogFilter.Maps,
+			Log.Logger.Error(
 						"TeleportTo: invalid map ({0}) or invalid coordinates (X: {1}, Y: {2}, Z: {3}, O: {4}) given when teleporting player (GUID: {5}, name: {6}, map: {7}, {8}).",
 						mapid,
 						x,
@@ -2082,7 +2082,7 @@ public partial class Player : Unit
 
 		if (!Session.HasPermission(RBACPermissions.SkipCheckDisableMap) && Global.DisableMgr.IsDisabledFor(DisableType.Map, mapid, this))
 		{
-			Log.outError(LogFilter.Maps, "Player (GUID: {0}, name: {1}) tried to enter a forbidden map {2}", GUID.ToString(), GetName(), mapid);
+			Log.Logger.Error("Player (GUID: {0}, name: {1}) tried to enter a forbidden map {2}", GUID.ToString(), GetName(), mapid);
 			SendTransferAborted(mapid, TransferAbortReason.MapNotAllowed);
 
 			return false;
@@ -2101,7 +2101,7 @@ public partial class Player : Unit
 		// client without expansion support
 		if (Session.Expansion < mEntry.Expansion())
 		{
-			Log.outDebug(LogFilter.Maps, "Player {0} using client without required expansion tried teleport to non accessible map {1}", GetName(), mapid);
+			Log.Logger.Debug("Player {0} using client without required expansion tried teleport to non accessible map {1}", GetName(), mapid);
 
 			var _transport = Transport;
 
@@ -2117,7 +2117,7 @@ public partial class Player : Unit
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Maps, "Player {0} is being teleported to map {1}", GetName(), mapid);
+			Log.Logger.Debug("Player {0} is being teleported to map {1}", GetName(), mapid);
 		}
 
 		if (Vehicle != null)
@@ -2373,7 +2373,7 @@ public partial class Player : Unit
 			}
 			else
 			{
-				Log.outWarn(LogFilter.Cheat, $"Account: {Session.AccountId} (IP: {Session.RemoteAddress}) tried to use a character template without given permission. Possible cheating attempt.");
+				Log.Logger.Warning($"Account: {Session.AccountId} (IP: {Session.RemoteAddress}) tried to use a character template without given permission. Possible cheating attempt.");
 			}
 		}
 
@@ -2389,7 +2389,7 @@ public partial class Player : Unit
 		{
 			if (check)
 			{
-				Log.outDebug(LogFilter.Unit,
+				Log.Logger.Debug(
 							"Player.ValidateMovementInfo: Violation of MovementFlags found ({0}). MovementFlags: {1}, MovementFlags2: {2} for player {3}. Mask {4} will be removed.",
 							check,
 							mi.MovementFlags,
@@ -2470,7 +2470,7 @@ public partial class Player : Unit
 	{
 		// calculate total z distance of the fall
 		var z_diff = _lastFallZ - movementInfo.Pos.Z;
-		Log.outDebug(LogFilter.Server, "zDiff = {0}", z_diff);
+		Log.Logger.Debug("zDiff = {0}", z_diff);
 
 		//Players with low fall distance, Feather Fall or physical immunity (charges used) are ignored
 		// 14.57 can be calculated by resolving damageperc formula below to 0
@@ -2515,7 +2515,7 @@ public partial class Player : Unit
 				}
 
 				//Z given by moveinfo, LastZ, FallTime, WaterZ, MapZ, Damage, Safefall reduction
-				Log.outDebug(LogFilter.Player, $"FALLDAMAGE z={movementInfo.Pos.Z} sz={height} pZ={Location.Z} FallTime={movementInfo.Jump.FallTime} mZ={height} damage={damage} SF={safe_fall}\nPlayer debug info:\n{GetDebugInfo()}");
+				Log.Logger.Debug($"FALLDAMAGE z={movementInfo.Pos.Z} sz={height} pZ={Location.Z} FallTime={movementInfo.Jump.FallTime} mZ={height} damage={damage} SF={safe_fall}\nPlayer debug info:\n{GetDebugInfo()}");
 			}
 		}
 	}
@@ -2840,7 +2840,7 @@ public partial class Player : Unit
 					default:
 						if (gossipMenuItem.OptionNpc >= GossipOptionNpc.Max)
 						{
-							Log.outError(LogFilter.Sql, $"Creature entry {creature.Entry} has an unknown gossip option icon {gossipMenuItem.OptionNpc} for menu {gossipMenuItem.MenuId}.");
+							Log.Logger.Error($"Creature entry {creature.Entry} has an unknown gossip option icon {gossipMenuItem.OptionNpc} for menu {gossipMenuItem.MenuId}.");
 							canTalk = false;
 						}
 
@@ -2909,7 +2909,7 @@ public partial class Player : Unit
 		if (source.IsTypeId(TypeId.GameObject))
 			if (gossipOptionNpc != GossipOptionNpc.None)
 			{
-				Log.outError(LogFilter.Player, "Player guid {0} request invalid gossip option for GameObject entry {1}", GUID.ToString(), source.Entry);
+				Log.Logger.Error("Player guid {0} request invalid gossip option for GameObject entry {1}", GUID.ToString(), source.Entry);
 
 				return;
 			}
@@ -2966,7 +2966,7 @@ public partial class Player : Unit
 
 				if (bgTypeId == BattlegroundTypeId.None)
 				{
-					Log.outError(LogFilter.Player, "a user (guid {0}) requested Battlegroundlist from a npc who is no battlemaster", GUID.ToString());
+					Log.Logger.Error("a user (guid {0}) requested Battlegroundlist from a npc who is no battlemaster", GUID.ToString());
 
 					return;
 				}
@@ -3172,7 +3172,7 @@ public partial class Player : Unit
 					cMgr.LeftChannel(ch.GetChannelId(), ch.GetZoneEntry());
 		}
 
-		Log.outDebug(LogFilter.ChatSystem, "Player {0}: channels cleaned up!", GetName());
+		Log.Logger.Debug("Player {0}: channels cleaned up!", GetName());
 	}
 
 	//Mail
@@ -3608,7 +3608,7 @@ public partial class Player : Unit
 		{
 			if (type == EnviromentalDamage.Fall) // DealDamage not apply item durability loss at self damage
 			{
-				Log.outDebug(LogFilter.Player, $"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
+				Log.Logger.Debug($"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
 				DurabilityLossAll(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath), false);
 				// durability lost message
 				SendDurabilityLoss(this, (uint)(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath) * 100.0f));
@@ -3692,7 +3692,7 @@ public partial class Player : Unit
 
 		if (corpseLocation.MapId == Location.MapId)
 		{
-			Log.outError(LogFilter.Player, "BuildPlayerRepop: player {0} ({1}) already has a corpse", GetName(), GUID.ToString());
+			Log.Logger.Error("BuildPlayerRepop: player {0} ({1}) already has a corpse", GetName(), GUID.ToString());
 
 			return;
 		}
@@ -3702,7 +3702,7 @@ public partial class Player : Unit
 
 		if (corpse == null)
 		{
-			Log.outError(LogFilter.Player, "Error creating corpse for Player {0} ({1})", GetName(), GUID.ToString());
+			Log.Logger.Error("Error creating corpse for Player {0} ({1})", GetName(), GUID.ToString());
 
 			return;
 		}
@@ -4015,7 +4015,7 @@ public partial class Player : Unit
 
 		if (!pet.Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Server,
+			Log.Logger.Error(
 						"Pet (guidlow {0}, entry {1}) not summoned. Suggested coordinates isn't valid (X: {2} Y: {3})",
 						pet.GUID.ToString(),
 						pet.Entry,
@@ -4030,7 +4030,7 @@ public partial class Player : Unit
 
 		if (!pet.Create(map.GenerateLowGuid(HighGuid.Pet), map, entry, petNumber))
 		{
-			Log.outError(LogFilter.Server, "no such creature entry {0}", entry);
+			Log.Logger.Error("no such creature entry {0}", entry);
 
 			return null;
 		}
@@ -4087,7 +4087,7 @@ public partial class Player : Unit
 
 		if (pet)
 		{
-			Log.outDebug(LogFilter.Pet, "RemovePet {0}, {1}, {2}", pet.Entry, mode, returnreagent);
+			Log.Logger.Debug("RemovePet {0}, {1}, {2}", pet.Entry, mode, returnreagent);
 
 			if (pet.Removed)
 				return;
@@ -4455,7 +4455,7 @@ public partial class Player : Unit
 		if (rEntry != null)
 			return (uint)rEntry.Alliance;
 
-		Log.outError(LogFilter.Player, "Race ({0}) not found in DBC: wrong DBC files?", race);
+		Log.Logger.Error("Race ({0}) not found in DBC: wrong DBC files?", race);
 
 		return TeamIds.Neutral;
 	}
@@ -4692,7 +4692,7 @@ public partial class Player : Unit
 
 		if (model == null)
 		{
-			Log.outError(LogFilter.Player, $"Player {GUID} has incorrect race/gender pair. Can't init display ids.");
+			Log.Logger.Error($"Player {GUID} has incorrect race/gender pair. Can't init display ids.");
 
 			return;
 		}
@@ -5417,7 +5417,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.HandleBaseModFlatValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
+			Log.Logger.Error($"Player.HandleBaseModFlatValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
 
 			return;
 		}
@@ -5430,7 +5430,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.ApplyBaseModPctValue: Invalid BaseModGroup/BaseModType ({modGroup}/{BaseModType.FlatMod}) for player '{GetName()}' ({GUID})");
+			Log.Logger.Error($"Player.ApplyBaseModPctValue: Invalid BaseModGroup/BaseModType ({modGroup}/{BaseModType.FlatMod}) for player '{GetName()}' ({GUID})");
 
 			return;
 		}
@@ -5794,7 +5794,7 @@ public partial class Player : Unit
 		if (sourceNode == 0)
 			return;
 
-		Log.outDebug(LogFilter.Unit, "WORLD: Restart character {0} taxi flight", GUID.ToString());
+		Log.Logger.Debug("WORLD: Restart character {0} taxi flight", GUID.ToString());
 
 		var mountDisplayId = Global.ObjectMgr.GetTaxiMountDisplayId(sourceNode, Team, true);
 
@@ -6059,11 +6059,11 @@ public partial class Player : Unit
 	{
 		if (apply)
 		{
-			Log.outDebug(LogFilter.Maps, "Player.CreateViewpoint: Player {0} create seer {1} (TypeId: {2}).", GetName(), target.Entry, target.TypeId);
+			Log.Logger.Debug("Player.CreateViewpoint: Player {0} create seer {1} (TypeId: {2}).", GetName(), target.Entry, target.TypeId);
 
 			if (ActivePlayerData.FarsightObject != ObjectGuid.Empty)
 			{
-				Log.outFatal(LogFilter.Player, "Player.CreateViewpoint: Player {0} cannot add new viewpoint!", GetName());
+				Log.Logger.Fatal("Player.CreateViewpoint: Player {0} cannot add new viewpoint!", GetName());
 
 				return;
 			}
@@ -6080,11 +6080,11 @@ public partial class Player : Unit
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Maps, "Player.CreateViewpoint: Player {0} remove seer", GetName());
+			Log.Logger.Debug("Player.CreateViewpoint: Player {0} remove seer", GetName());
 
 			if (target.GUID != ActivePlayerData.FarsightObject)
 			{
-				Log.outFatal(LogFilter.Player, "Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
+				Log.Logger.Fatal("Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
 
 				return;
 			}
@@ -6105,7 +6105,7 @@ public partial class Player : Unit
 		if (target.HasUnitState(UnitState.Charmed) && (GUID != target.CharmerGUID))
 		{
 			// this should never happen, otherwise m_unitBeingMoved might be left dangling!
-			Log.outError(LogFilter.Player, $"Player '{GetName()}' attempt to client control '{target.GetName()}', which is charmed by GUID {target.CharmerGUID}");
+			Log.Logger.Error($"Player '{GetName()}' attempt to client control '{target.GetName()}', which is charmed by GUID {target.CharmerGUID}");
 
 			return;
 		}
@@ -6794,14 +6794,14 @@ public partial class Player : Unit
 	{
 		if (button >= PlayerConst.MaxActionButtons)
 		{
-			Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GUID}): button must be < {PlayerConst.MaxActionButtons}");
+			Log.Logger.Error($"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GUID}): button must be < {PlayerConst.MaxActionButtons}");
 
 			return false;
 		}
 
 		if (action >= PlayerConst.MaxActionButtonActionValue)
 		{
-			Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GUID}): action must be < {PlayerConst.MaxActionButtonActionValue}");
+			Log.Logger.Error($"Player::IsActionButtonDataValid: Action {action} not added into button {button} for player {GetName()} ({GUID}): action must be < {PlayerConst.MaxActionButtonActionValue}");
 
 			return false;
 		}
@@ -6811,7 +6811,7 @@ public partial class Player : Unit
 			case ActionButtonType.Spell:
 				if (!Global.SpellMgr.HasSpellInfo((uint)action, Difficulty.None))
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Spell action {action} not added into button {button} for player {GetName()} ({GUID}): spell not exist");
+					Log.Logger.Error($"Player::IsActionButtonDataValid: Spell action {action} not added into button {button} for player {GetName()} ({GUID}): spell not exist");
 
 					return false;
 				}
@@ -6820,7 +6820,7 @@ public partial class Player : Unit
 			case ActionButtonType.Item:
 				if (Global.ObjectMgr.GetItemTemplate((uint)action) == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
+					Log.Logger.Error($"Player::IsActionButtonDataValid: Item action {action} not added into button {button} for player {GetName()} ({GUID}): item not exist");
 
 					return false;
 				}
@@ -6830,7 +6830,7 @@ public partial class Player : Unit
 			{
 				if (Session.BattlePetMgr.GetPet(ObjectGuid.Create(HighGuid.BattlePet, action)) == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Companion action {action} not added into button {button} for player {GetName()} ({GUID}): companion does not exist");
+					Log.Logger.Error($"Player::IsActionButtonDataValid: Companion action {action} not added into button {button} for player {GetName()} ({GUID}): companion does not exist");
 
 					return false;
 				}
@@ -6842,14 +6842,14 @@ public partial class Player : Unit
 
 				if (mount == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GUID}): mount does not exist");
+					Log.Logger.Error($"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GUID}): mount does not exist");
 
 					return false;
 				}
 
 				if (!HasSpell(mount.SourceSpellID))
 				{
-					Log.outError(LogFilter.Player, $"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GUID}): Player does not know this mount");
+					Log.Logger.Error($"Player::IsActionButtonDataValid: Mount action {action} not added into button {button} for player {GetName()} ({GUID}): Player does not know this mount");
 
 					return false;
 				}
@@ -6861,7 +6861,7 @@ public partial class Player : Unit
 			case ActionButtonType.Eqset:
 				break;
 			default:
-				Log.outError(LogFilter.Player, $"Unknown action type {type}");
+				Log.Logger.Error($"Unknown action type {type}");
 
 				return false; // other cases not checked at this moment
 		}
@@ -7060,7 +7060,7 @@ public partial class Player : Unit
 			_homebindTimer = 60000;
 			// send message to player
 			SendRaidGroupOnlyMessage(RaidGroupReason.RequirementsUnmatch, (int)_homebindTimer);
-			Log.outDebug(LogFilter.Maps, "PLAYER: Player '{0}' (GUID: {1}) will be teleported to homebind in 60 seconds", GetName(), GUID.ToString());
+			Log.Logger.Debug("PLAYER: Player '{0}' (GUID: {1}) will be teleported to homebind in 60 seconds", GetName(), GUID.ToString());
 		}
 	}
 
@@ -7840,7 +7840,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End || modType >= BaseModType.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.GetBaseModValue: Invalid BaseModGroup/BaseModType ({modGroup}/{modType}) for player '{GetName()}' ({GUID})");
+			Log.Logger.Error($"Player.GetBaseModValue: Invalid BaseModGroup/BaseModType ({modGroup}/{modType}) for player '{GetName()}' ({GUID})");
 
 			return 0.0f;
 		}
@@ -7852,7 +7852,7 @@ public partial class Player : Unit
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
-			Log.outError(LogFilter.Spells, $"Player.GetTotalBaseModValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
+			Log.Logger.Error($"Player.GetTotalBaseModValue: Invalid BaseModGroup ({modGroup}) for player '{GetName()}' ({GUID})");
 
 			return 0.0f;
 		}
@@ -8309,7 +8309,7 @@ public partial class Player : Unit
 
 		if (areaEntry == null)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Player '{0}' ({1}) discovered unknown area (x: {2} y: {3} z: {4} map: {5})",
 						GetName(),
 						GUID.ToString(),
@@ -8325,7 +8325,7 @@ public partial class Player : Unit
 
 		if (offset >= PlayerConst.ExploredZonesSize)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Wrong area flag {0} in map data for (X: {1} Y: {2}) point to field PLAYER_EXPLORED_ZONES_1 + {3} ( {4} must be < {5} ).",
 						areaId,
 						Location.X,
@@ -8388,7 +8388,7 @@ public partial class Player : Unit
 					SendExplorationExperience(areaId, XP);
 				}
 
-				Log.outInfo(LogFilter.Player, "Player {0} discovered a new area: {1}", GUID.ToString(), areaId);
+				Log.Logger.Information("Player {0} discovered a new area: {1}", GUID.ToString(), areaId);
 			}
 		}
 	}
@@ -8550,7 +8550,7 @@ public partial class Player : Unit
 
 		if (bct == null)
 		{
-			Log.outError(LogFilter.Unit, "WorldObject.Whisper: `broadcast_text` was not {0} found", textId);
+			Log.Logger.Error("WorldObject.Whisper: `broadcast_text` was not {0} found", textId);
 
 			return;
 		}

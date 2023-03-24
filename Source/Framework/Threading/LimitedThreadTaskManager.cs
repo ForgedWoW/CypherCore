@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks.Dataflow;
+using Serilog;
 
 namespace Framework.Threading;
 
@@ -62,12 +63,12 @@ public class LimitedThreadTaskManager
 			if (i == 3 && !_actionBlock.Completion.IsCompleted)
 			{
 				_cancellationToken.Cancel(); // abort the task if we hit 3
-				Log.outFatal(LogFilter.Server, "_actionBlock.Completion.Wait over 3 seconds." + Environment.NewLine + Environment.StackTrace);
+				Log.Logger.Fatal("_actionBlock.Completion.Wait over 3 seconds." + Environment.NewLine + Environment.StackTrace);
 			}
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 		finally
 		{
@@ -120,7 +121,7 @@ public class LimitedThreadTaskManager
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 	}
 }

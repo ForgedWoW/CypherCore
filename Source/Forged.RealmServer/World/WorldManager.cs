@@ -361,7 +361,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (!TerrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) || !TerrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) || !TerrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) || !TerrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) || !TerrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) || !TerrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) || (WorldConfig.GetIntValue(WorldCfg.Expansion) != 0 && (!TerrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) || !TerrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
 		{
-			Log.outError(LogFilter.ServerLoading, "Unable to load map and vmap data for starting zones - server shutting down!");
+			Log.Logger.Error("Unable to load map and vmap data for starting zones - server shutting down!");
 			Environment.Exit(1);
 		}
 
@@ -371,7 +371,7 @@ public class WorldManager : Singleton<WorldManager>
 		// Initialize game event manager
 		Global.GameEventMgr.Initialize();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Cypher Strings...");
+		Log.Logger.Information("Loading Cypher Strings...");
 
 		if (!Global.ObjectMgr.LoadCypherStrings())
 			Environment.Exit(1);
@@ -382,31 +382,31 @@ public class WorldManager : Singleton<WorldManager>
 
 		DB.Login.Execute("UPDATE realmlist SET icon = {0}, timezone = {1} WHERE id = '{2}'", (byte)server_type, realm_zone, _realm.Id.Index); // One-time query
 
-		Log.outInfo(LogFilter.ServerLoading, "Initialize DataStorage...");
+		Log.Logger.Information("Initialize DataStorage...");
 		// Load DB2s
 		_availableDbcLocaleMask = CliDB.LoadStores(_dataPath, _defaultDbcLocale);
 
 		if (_availableDbcLocaleMask == null || !_availableDbcLocaleMask[(int)_defaultDbcLocale])
 		{
-			Log.outFatal(LogFilter.ServerLoading, $"Unable to load db2 files for {_defaultDbcLocale} locale specified in DBC.Locale config!");
+			Log.Logger.Fatal($"Unable to load db2 files for {_defaultDbcLocale} locale specified in DBC.Locale config!");
 			Environment.Exit(1);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObject models...");
+		Log.Logger.Information("Loading GameObject models...");
 
 		if (!GameObjectModel.LoadGameObjectModelList())
 		{
-			Log.outFatal(LogFilter.ServerLoading, "Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
+			Log.Logger.Fatal("Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
 			Environment.Exit(1);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading hotfix blobs...");
+		Log.Logger.Information("Loading hotfix blobs...");
 		Global.DB2Mgr.LoadHotfixBlob(_availableDbcLocaleMask);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading hotfix info...");
+		Log.Logger.Information("Loading hotfix info...");
 		Global.DB2Mgr.LoadHotfixData();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading hotfix optional data...");
+		Log.Logger.Information("Loading hotfix optional data...");
 		Global.DB2Mgr.LoadHotfixOptionalData(_availableDbcLocaleMask);
 
 		//- Load M2 fly by cameras
@@ -435,55 +435,55 @@ public class WorldManager : Singleton<WorldManager>
 		Global.VMapMgr.Initialize(mapData);
 		Global.MMapMgr.Initialize(mapData);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo Storage...");
+		Log.Logger.Information("Loading SpellInfo Storage...");
 		Global.SpellMgr.LoadSpellInfoStore();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading serverside spells...");
+		Log.Logger.Information("Loading serverside spells...");
 		Global.SpellMgr.LoadSpellInfoServerside();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo corrections...");
+		Log.Logger.Information("Loading SpellInfo corrections...");
 		Global.SpellMgr.LoadSpellInfoCorrections();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SkillLineAbility Data...");
+		Log.Logger.Information("Loading SkillLineAbility Data...");
 		Global.SpellMgr.LoadSkillLineAbilityMap();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo custom attributes...");
+		Log.Logger.Information("Loading SpellInfo custom attributes...");
 		Global.SpellMgr.LoadSpellInfoCustomAttributes();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo diminishing infos...");
+		Log.Logger.Information("Loading SpellInfo diminishing infos...");
 		Global.SpellMgr.LoadSpellInfoDiminishing();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo immunity infos...");
+		Log.Logger.Information("Loading SpellInfo immunity infos...");
 		Global.SpellMgr.LoadSpellInfoImmunities();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading PetFamilySpellsStore Data...");
+		Log.Logger.Information("Loading PetFamilySpellsStore Data...");
 		Global.SpellMgr.LoadPetFamilySpellsStore();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Totem models...");
+		Log.Logger.Information("Loading Spell Totem models...");
 		Global.SpellMgr.LoadSpellTotemModel();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo late corrections...");
+		Log.Logger.Information("Loading SpellInfo late corrections...");
 		Global.SpellMgr.LoadSpellInfosLateFix();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Traits...");
+		Log.Logger.Information("Loading Traits...");
 		TraitMgr.Load();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading languages...");
+		Log.Logger.Information("Loading languages...");
 		Global.LanguageMgr.LoadLanguages();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading languages words...");
+		Log.Logger.Information("Loading languages words...");
 		Global.LanguageMgr.LoadLanguagesWords();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Instance Template...");
+		Log.Logger.Information("Loading Instance Template...");
 		Global.ObjectMgr.LoadInstanceTemplate();
 
 		// Must be called before `respawn` data
-		Log.outInfo(LogFilter.ServerLoading, "Loading instances...");
+		Log.Logger.Information("Loading instances...");
 
 		Global.MapMgr.InitInstanceIds();
 		Global.InstanceLockMgr.Load();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Localization strings...");
+		Log.Logger.Information("Loading Localization strings...");
 		var oldMSTime = Time.MSTime;
 		Global.ObjectMgr.LoadCreatureLocales();
 		Global.ObjectMgr.LoadGameObjectLocales();
@@ -494,386 +494,386 @@ public class WorldManager : Singleton<WorldManager>
 		Global.ObjectMgr.LoadPageTextLocales();
 		Global.ObjectMgr.LoadGossipMenuItemsLocales();
 		Global.ObjectMgr.LoadPointOfInterestLocales();
-		Log.outInfo(LogFilter.ServerLoading, "Localization strings loaded in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Localization strings loaded in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Account Roles and Permissions...");
+		Log.Logger.Information("Loading Account Roles and Permissions...");
 		Global.AccountMgr.LoadRBAC();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Page Texts...");
+		Log.Logger.Information("Loading Page Texts...");
 		Global.ObjectMgr.LoadPageTexts();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObject Template...");
+		Log.Logger.Information("Loading GameObject Template...");
 		Global.ObjectMgr.LoadGameObjectTemplate();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Game Object template addons...");
+		Log.Logger.Information("Loading Game Object template addons...");
 		Global.ObjectMgr.LoadGameObjectTemplateAddons();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Transport Templates...");
+		Log.Logger.Information("Loading Transport Templates...");
 		Global.TransportMgr.LoadTransportTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Transport animations and rotations...");
+		Log.Logger.Information("Loading Transport animations and rotations...");
 		Global.TransportMgr.LoadTransportAnimationAndRotation();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Transport spawns...");
+		Log.Logger.Information("Loading Transport spawns...");
 		Global.TransportMgr.LoadTransportSpawns();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Rank Data...");
+		Log.Logger.Information("Loading Spell Rank Data...");
 		Global.SpellMgr.LoadSpellRanks();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Required Data...");
+		Log.Logger.Information("Loading Spell Required Data...");
 		Global.SpellMgr.LoadSpellRequired();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Group types...");
+		Log.Logger.Information("Loading Spell Group types...");
 		Global.SpellMgr.LoadSpellGroups();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Learn Skills...");
+		Log.Logger.Information("Loading Spell Learn Skills...");
 		Global.SpellMgr.LoadSpellLearnSkills();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellInfo SpellSpecific and AuraState...");
+		Log.Logger.Information("Loading SpellInfo SpellSpecific and AuraState...");
 		Global.SpellMgr.LoadSpellInfoSpellSpecificAndAuraState();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Learn Spells...");
+		Log.Logger.Information("Loading Spell Learn Spells...");
 		Global.SpellMgr.LoadSpellLearnSpells();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Proc conditions and data...");
+		Log.Logger.Information("Loading Spell Proc conditions and data...");
 		Global.SpellMgr.LoadSpellProcs();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Aggro Spells Definitions...");
+		Log.Logger.Information("Loading Aggro Spells Definitions...");
 		Global.SpellMgr.LoadSpellThreats();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell Group Stack Rules...");
+		Log.Logger.Information("Loading Spell Group Stack Rules...");
 		Global.SpellMgr.LoadSpellGroupStackRules();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading NPC Texts...");
+		Log.Logger.Information("Loading NPC Texts...");
 		Global.ObjectMgr.LoadNPCText();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Enchant Spells Proc datas...");
+		Log.Logger.Information("Loading Enchant Spells Proc datas...");
 		Global.SpellMgr.LoadSpellEnchantProcData();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Random item bonus list definitions...");
+		Log.Logger.Information("Loading Random item bonus list definitions...");
 		ItemEnchantmentManager.LoadItemRandomBonusListTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Disables"); // must be before loading quests and items
+		Log.Logger.Information("Loading Disables"); // must be before loading quests and items
 		Global.DisableMgr.LoadDisables();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Items..."); // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+		Log.Logger.Information("Loading Items..."); // must be after LoadRandomEnchantmentsTable and LoadPageTexts
 		Global.ObjectMgr.LoadItemTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Item set names..."); // must be after LoadItemPrototypes
+		Log.Logger.Information("Loading Item set names..."); // must be after LoadItemPrototypes
 		Global.ObjectMgr.LoadItemTemplateAddon();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Item Scripts..."); // must be after LoadItemPrototypes
+		Log.Logger.Information("Loading Item Scripts..."); // must be after LoadItemPrototypes
 		Global.ObjectMgr.LoadItemScriptNames();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Model Based Info Data...");
+		Log.Logger.Information("Loading Creature Model Based Info Data...");
 		Global.ObjectMgr.LoadCreatureModelInfo();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature templates...");
+		Log.Logger.Information("Loading Creature templates...");
 		Global.ObjectMgr.LoadCreatureTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Equipment templates...");
+		Log.Logger.Information("Loading Equipment templates...");
 		Global.ObjectMgr.LoadEquipmentTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature template addons...");
+		Log.Logger.Information("Loading Creature template addons...");
 		Global.ObjectMgr.LoadCreatureTemplateAddons();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature template scaling...");
+		Log.Logger.Information("Loading Creature template scaling...");
 		Global.ObjectMgr.LoadCreatureScalingData();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Reputation Reward Rates...");
+		Log.Logger.Information("Loading Reputation Reward Rates...");
 		Global.ObjectMgr.LoadReputationRewardRate();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Reputation OnKill Data...");
+		Log.Logger.Information("Loading Creature Reputation OnKill Data...");
 		Global.ObjectMgr.LoadReputationOnKill();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Reputation Spillover Data...");
+		Log.Logger.Information("Loading Reputation Spillover Data...");
 		Global.ObjectMgr.LoadReputationSpilloverTemplate();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Points Of Interest Data...");
+		Log.Logger.Information("Loading Points Of Interest Data...");
 		Global.ObjectMgr.LoadPointsOfInterest();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Base Stats...");
+		Log.Logger.Information("Loading Creature Base Stats...");
 		Global.ObjectMgr.LoadCreatureClassLevelStats();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spawn Group Templates...");
+		Log.Logger.Information("Loading Spawn Group Templates...");
 		Global.ObjectMgr.LoadSpawnGroupTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Data...");
+		Log.Logger.Information("Loading Creature Data...");
 		Global.ObjectMgr.LoadCreatures();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Temporary Summon Data...");
+		Log.Logger.Information("Loading Temporary Summon Data...");
 		Global.ObjectMgr.LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading pet levelup spells...");
+		Log.Logger.Information("Loading pet levelup spells...");
 		Global.SpellMgr.LoadPetLevelupSpellMap();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading pet default spells additional to levelup spells...");
+		Log.Logger.Information("Loading pet default spells additional to levelup spells...");
 		Global.SpellMgr.LoadPetDefaultSpells();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Addon Data...");
+		Log.Logger.Information("Loading Creature Addon Data...");
 		Global.ObjectMgr.LoadCreatureAddons();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Movement Overrides...");
+		Log.Logger.Information("Loading Creature Movement Overrides...");
 		Global.ObjectMgr.LoadCreatureMovementOverrides(); // must be after LoadCreatures()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObjects...");
+		Log.Logger.Information("Loading GameObjects...");
 		Global.ObjectMgr.LoadGameObjects();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spawn Group Data...");
+		Log.Logger.Information("Loading Spawn Group Data...");
 		Global.ObjectMgr.LoadSpawnGroups();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading instance spawn groups...");
+		Log.Logger.Information("Loading instance spawn groups...");
 		Global.ObjectMgr.LoadInstanceSpawnGroups();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObject Addon Data...");
+		Log.Logger.Information("Loading GameObject Addon Data...");
 		Global.ObjectMgr.LoadGameObjectAddons(); // must be after LoadGameObjects()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObject faction and flags overrides...");
+		Log.Logger.Information("Loading GameObject faction and flags overrides...");
 		Global.ObjectMgr.LoadGameObjectOverrides(); // must be after LoadGameObjects()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObject Quest Items...");
+		Log.Logger.Information("Loading GameObject Quest Items...");
 		Global.ObjectMgr.LoadGameObjectQuestItems();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Quest Items...");
+		Log.Logger.Information("Loading Creature Quest Items...");
 		Global.ObjectMgr.LoadCreatureQuestItems();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Linked Respawn...");
+		Log.Logger.Information("Loading Creature Linked Respawn...");
 		Global.ObjectMgr.LoadLinkedRespawn(); // must be after LoadCreatures(), LoadGameObjects()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Weather Data...");
+		Log.Logger.Information("Loading Weather Data...");
 		Global.WeatherMgr.LoadWeatherData();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Quests...");
+		Log.Logger.Information("Loading Quests...");
 		Global.ObjectMgr.LoadQuests();
 
-		Log.outInfo(LogFilter.ServerLoading, "Checking Quest Disables");
+		Log.Logger.Information("Checking Quest Disables");
 		Global.DisableMgr.CheckQuestDisables(); // must be after loading quests
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Quest POI");
+		Log.Logger.Information("Loading Quest POI");
 		Global.ObjectMgr.LoadQuestPOI();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Quests Starters and Enders...");
+		Log.Logger.Information("Loading Quests Starters and Enders...");
 		Global.ObjectMgr.LoadQuestStartersAndEnders(); // must be after quest load
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Quest Greetings...");
+		Log.Logger.Information("Loading Quest Greetings...");
 		Global.ObjectMgr.LoadQuestGreetings();
 		Global.ObjectMgr.LoadQuestGreetingLocales();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Objects Pooling Data...");
+		Log.Logger.Information("Loading Objects Pooling Data...");
 		Global.PoolMgr.LoadFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Quest Pooling Data...");
+		Log.Logger.Information("Loading Quest Pooling Data...");
 		Global.QuestPoolMgr.LoadFromDB(); // must be after quest templates
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Game Event Data..."); // must be after loading pools fully
+		Log.Logger.Information("Loading Game Event Data..."); // must be after loading pools fully
 		Global.GameEventMgr.LoadFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading NPCSpellClick Data..."); // must be after LoadQuests
+		Log.Logger.Information("Loading NPCSpellClick Data..."); // must be after LoadQuests
 		Global.ObjectMgr.LoadNPCSpellClickSpells();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Vehicle Templates...");
+		Log.Logger.Information("Loading Vehicle Templates...");
 		Global.ObjectMgr.LoadVehicleTemplate(); // must be after LoadCreatureTemplates()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Vehicle Template Accessories...");
+		Log.Logger.Information("Loading Vehicle Template Accessories...");
 		Global.ObjectMgr.LoadVehicleTemplateAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Vehicle Accessories...");
+		Log.Logger.Information("Loading Vehicle Accessories...");
 		Global.ObjectMgr.LoadVehicleAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Vehicle Seat Addon Data...");
+		Log.Logger.Information("Loading Vehicle Seat Addon Data...");
 		Global.ObjectMgr.LoadVehicleSeatAddon(); // must be after loading DBC
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SpellArea Data..."); // must be after quest load
+		Log.Logger.Information("Loading SpellArea Data..."); // must be after quest load
 		Global.SpellMgr.LoadSpellAreas();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading World locations...");
+		Log.Logger.Information("Loading World locations...");
 		Global.ObjectMgr.LoadWorldSafeLocs(); // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading AreaTrigger definitions...");
+		Log.Logger.Information("Loading AreaTrigger definitions...");
 		Global.ObjectMgr.LoadAreaTriggerTeleports();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Access Requirements...");
+		Log.Logger.Information("Loading Access Requirements...");
 		Global.ObjectMgr.LoadAccessRequirements(); // must be after item template load
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Quest Area Triggers...");
+		Log.Logger.Information("Loading Quest Area Triggers...");
 		Global.ObjectMgr.LoadQuestAreaTriggers(); // must be after LoadQuests
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Tavern Area Triggers...");
+		Log.Logger.Information("Loading Tavern Area Triggers...");
 		Global.ObjectMgr.LoadTavernAreaTriggers();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading AreaTrigger script names...");
+		Log.Logger.Information("Loading AreaTrigger script names...");
 		Global.ObjectMgr.LoadAreaTriggerScripts();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading LFG entrance positions..."); // Must be after areatriggers
+		Log.Logger.Information("Loading LFG entrance positions..."); // Must be after areatriggers
 		Global.LFGMgr.LoadLFGDungeons();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Dungeon boss data...");
+		Log.Logger.Information("Loading Dungeon boss data...");
 		Global.ObjectMgr.LoadInstanceEncounters();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading LFG rewards...");
+		Log.Logger.Information("Loading LFG rewards...");
 		Global.LFGMgr.LoadRewards();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Graveyard-zone links...");
+		Log.Logger.Information("Loading Graveyard-zone links...");
 		Global.ObjectMgr.LoadGraveyardZones();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading spell pet auras...");
+		Log.Logger.Information("Loading spell pet auras...");
 		Global.SpellMgr.LoadSpellPetAuras();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Spell target coordinates...");
+		Log.Logger.Information("Loading Spell target coordinates...");
 		Global.SpellMgr.LoadSpellTargetPositions();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading linked spells...");
+		Log.Logger.Information("Loading linked spells...");
 		Global.SpellMgr.LoadSpellLinked();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Scenes Templates..."); // must be before LoadPlayerInfo
+		Log.Logger.Information("Loading Scenes Templates..."); // must be before LoadPlayerInfo
 		Global.ObjectMgr.LoadSceneTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Data...");
+		Log.Logger.Information("Loading Player Create Data...");
 		Global.ObjectMgr.LoadPlayerInfo();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Exploration BaseXP Data...");
+		Log.Logger.Information("Loading Exploration BaseXP Data...");
 		Global.ObjectMgr.LoadExplorationBaseXP();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Pet Name Parts...");
+		Log.Logger.Information("Loading Pet Name Parts...");
 		Global.ObjectMgr.LoadPetNames();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading AreaTrigger Templates...");
+		Log.Logger.Information("Loading AreaTrigger Templates...");
 		Global.AreaTriggerDataStorage.LoadAreaTriggerTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading AreaTrigger Spawns...");
+		Log.Logger.Information("Loading AreaTrigger Spawns...");
 		Global.AreaTriggerDataStorage.LoadAreaTriggerSpawns();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Conversation Templates...");
+		Log.Logger.Information("Loading Conversation Templates...");
 		Global.ConversationDataStorage.LoadConversationTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Choices...");
+		Log.Logger.Information("Loading Player Choices...");
 		Global.ObjectMgr.LoadPlayerChoices();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Choices Locales...");
+		Log.Logger.Information("Loading Player Choices Locales...");
 		Global.ObjectMgr.LoadPlayerChoicesLocale();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Jump Charge Params...");
+		Log.Logger.Information("Loading Jump Charge Params...");
 		Global.ObjectMgr.LoadJumpChargeParams();
 
 		CharacterDatabaseCleaner.CleanDatabase();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading the max pet number...");
+		Log.Logger.Information("Loading the max pet number...");
 		Global.ObjectMgr.LoadPetNumber();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading pet level stats...");
+		Log.Logger.Information("Loading pet level stats...");
 		Global.ObjectMgr.LoadPetLevelInfo();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player level dependent mail rewards...");
+		Log.Logger.Information("Loading Player level dependent mail rewards...");
 		Global.ObjectMgr.LoadMailLevelRewards();
 
 		// Loot tables
 		Loots.LootManager.LoadLootTables();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Skill Discovery Table...");
+		Log.Logger.Information("Loading Skill Discovery Table...");
 		SkillDiscovery.LoadSkillDiscoveryTable();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Skill Extra Item Table...");
+		Log.Logger.Information("Loading Skill Extra Item Table...");
 		SkillExtraItems.LoadSkillExtraItemTable();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Skill Perfection Data Table...");
+		Log.Logger.Information("Loading Skill Perfection Data Table...");
 		SkillPerfectItems.LoadSkillPerfectItemTable();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Skill Fishing base level requirements...");
+		Log.Logger.Information("Loading Skill Fishing base level requirements...");
 		Global.ObjectMgr.LoadFishingBaseSkillLevel();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading skill tier info...");
+		Log.Logger.Information("Loading skill tier info...");
 		Global.ObjectMgr.LoadSkillTiers();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Criteria Modifier trees...");
+		Log.Logger.Information("Loading Criteria Modifier trees...");
 		Global.CriteriaMgr.LoadCriteriaModifiersTree();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Criteria Lists...");
+		Log.Logger.Information("Loading Criteria Lists...");
 		Global.CriteriaMgr.LoadCriteriaList();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Criteria Data...");
+		Log.Logger.Information("Loading Criteria Data...");
 		Global.CriteriaMgr.LoadCriteriaData();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Achievements...");
+		Log.Logger.Information("Loading Achievements...");
 		Global.AchievementMgr.LoadAchievementReferenceList();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Achievements Scripts...");
+		Log.Logger.Information("Loading Achievements Scripts...");
 		Global.AchievementMgr.LoadAchievementScripts();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Achievement Rewards...");
+		Log.Logger.Information("Loading Achievement Rewards...");
 		Global.AchievementMgr.LoadRewards();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Achievement Reward Locales...");
+		Log.Logger.Information("Loading Achievement Reward Locales...");
 		Global.AchievementMgr.LoadRewardLocales();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Completed Achievements...");
+		Log.Logger.Information("Loading Completed Achievements...");
 		Global.AchievementMgr.LoadCompletedAchievements();
 
 		// Load before guilds and arena teams
-		Log.outInfo(LogFilter.ServerLoading, "Loading character cache store...");
+		Log.Logger.Information("Loading character cache store...");
 		Global.CharacterCacheStorage.LoadCharacterCacheStorage();
 
 		// Load dynamic data tables from the database
-		Log.outInfo(LogFilter.ServerLoading, "Loading Auctions...");
+		Log.Logger.Information("Loading Auctions...");
 		Global.AuctionHouseMgr.LoadAuctions();
 
 		if (WorldConfig.GetBoolValue(WorldCfg.BlackmarketEnabled))
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loading Black Market Templates...");
+			Log.Logger.Information("Loading Black Market Templates...");
 			Global.BlackMarketMgr.LoadTemplates();
 
-			Log.outInfo(LogFilter.ServerLoading, "Loading Black Market Auctions...");
+			Log.Logger.Information("Loading Black Market Auctions...");
 			Global.BlackMarketMgr.LoadAuctions();
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Guild rewards...");
+		Log.Logger.Information("Loading Guild rewards...");
 		Global.GuildMgr.LoadGuildRewards();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Guilds...");
+		Log.Logger.Information("Loading Guilds...");
 		Global.GuildMgr.LoadGuilds();
 
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading ArenaTeams...");
+		Log.Logger.Information("Loading ArenaTeams...");
 		Global.ArenaTeamMgr.LoadArenaTeams();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Groups...");
+		Log.Logger.Information("Loading Groups...");
 		Global.GroupMgr.LoadGroups();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading ReservedNames...");
+		Log.Logger.Information("Loading ReservedNames...");
 		Global.ObjectMgr.LoadReservedPlayersNames();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameObjects for quests...");
+		Log.Logger.Information("Loading GameObjects for quests...");
 		Global.ObjectMgr.LoadGameObjectForQuests();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading BattleMasters...");
+		Log.Logger.Information("Loading BattleMasters...");
 		Global.BattlegroundMgr.LoadBattleMastersEntry();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GameTeleports...");
+		Log.Logger.Information("Loading GameTeleports...");
 		Global.ObjectMgr.LoadGameTele();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Trainers...");
+		Log.Logger.Information("Loading Trainers...");
 		Global.ObjectMgr.LoadTrainers(); // must be after load CreatureTemplate
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Gossip menu...");
+		Log.Logger.Information("Loading Gossip menu...");
 		Global.ObjectMgr.LoadGossipMenu();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Gossip menu options...");
+		Log.Logger.Information("Loading Gossip menu options...");
 		Global.ObjectMgr.LoadGossipMenuItems();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Gossip menu addon...");
+		Log.Logger.Information("Loading Gossip menu addon...");
 		Global.ObjectMgr.LoadGossipMenuAddon();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature trainers...");
+		Log.Logger.Information("Loading Creature trainers...");
 		Global.ObjectMgr.LoadCreatureTrainers(); // must be after LoadGossipMenuItems
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Vendors...");
+		Log.Logger.Information("Loading Vendors...");
 		Global.ObjectMgr.LoadVendors(); // must be after load CreatureTemplate and ItemTemplate
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Waypoints...");
+		Log.Logger.Information("Loading Waypoints...");
 		Global.WaypointMgr.Load();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SmartAI Waypoints...");
+		Log.Logger.Information("Loading SmartAI Waypoints...");
 		Global.SmartAIMgr.LoadWaypointFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Formations...");
+		Log.Logger.Information("Loading Creature Formations...");
 		FormationMgr.LoadCreatureFormations();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading World State templates...");
+		Log.Logger.Information("Loading World State templates...");
 		Global.WorldStateMgr.LoadFromDB(); // must be loaded before battleground, outdoor PvP and conditions
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Persistend World Variables..."); // must be loaded before Battleground, outdoor PvP and conditions
+		Log.Logger.Information("Loading Persistend World Variables..."); // must be loaded before Battleground, outdoor PvP and conditions
 		LoadPersistentWorldVariables();
 
 		Global.WorldStateMgr.SetValue(WorldStates.CurrentPvpSeasonId, WorldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress) ? WorldConfig.GetIntValue(WorldCfg.ArenaSeasonId) : 0, false, null);
@@ -881,50 +881,50 @@ public class WorldManager : Singleton<WorldManager>
 
 		Global.ObjectMgr.LoadPhases();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Conditions...");
+		Log.Logger.Information("Loading Conditions...");
 		Global.ConditionMgr.LoadConditions();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading faction change achievement pairs...");
+		Log.Logger.Information("Loading faction change achievement pairs...");
 		Global.ObjectMgr.LoadFactionChangeAchievements();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading faction change spell pairs...");
+		Log.Logger.Information("Loading faction change spell pairs...");
 		Global.ObjectMgr.LoadFactionChangeSpells();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading faction change item pairs...");
+		Log.Logger.Information("Loading faction change item pairs...");
 		Global.ObjectMgr.LoadFactionChangeItems();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading faction change quest pairs...");
+		Log.Logger.Information("Loading faction change quest pairs...");
 		Global.ObjectMgr.LoadFactionChangeQuests();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading faction change reputation pairs...");
+		Log.Logger.Information("Loading faction change reputation pairs...");
 		Global.ObjectMgr.LoadFactionChangeReputations();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading faction change title pairs...");
+		Log.Logger.Information("Loading faction change title pairs...");
 		Global.ObjectMgr.LoadFactionChangeTitles();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading mount definitions...");
+		Log.Logger.Information("Loading mount definitions...");
 		CollectionMgr.LoadMountDefinitions();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GM bugs...");
+		Log.Logger.Information("Loading GM bugs...");
 		Global.SupportMgr.LoadBugTickets();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GM complaints...");
+		Log.Logger.Information("Loading GM complaints...");
 		Global.SupportMgr.LoadComplaintTickets();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading GM suggestions...");
+		Log.Logger.Information("Loading GM suggestions...");
 		Global.SupportMgr.LoadSuggestionTickets();
 
-		//Log.outInfo(LogFilter.ServerLoading, "Loading GM surveys...");
+		//Log.Logger.Information("Loading GM surveys...");
 		//Global.SupportMgr.LoadSurveys();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading garrison info...");
+		Log.Logger.Information("Loading garrison info...");
 		Global.GarrisonMgr.Initialize();
 
 		// Handle outdated emails (delete/return)
-		Log.outInfo(LogFilter.ServerLoading, "Returning old mails...");
+		Log.Logger.Information("Returning old mails...");
 		Global.ObjectMgr.ReturnOrDeleteOldMails(false);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Autobroadcasts...");
+		Log.Logger.Information("Loading Autobroadcasts...");
 		LoadAutobroadcasts();
 
 		// Load and initialize scripts
@@ -932,42 +932,42 @@ public class WorldManager : Singleton<WorldManager>
 		Global.ObjectMgr.LoadEventScripts(); // must be after load Creature/Gameobject(Template/Data)
 		Global.ObjectMgr.LoadWaypointScripts();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading spell script names...");
+		Log.Logger.Information("Loading spell script names...");
 		Global.ObjectMgr.LoadSpellScriptNames();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Texts...");
+		Log.Logger.Information("Loading Creature Texts...");
 		Global.CreatureTextMgr.LoadCreatureTexts();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Text Locales...");
+		Log.Logger.Information("Loading Creature Text Locales...");
 		Global.CreatureTextMgr.LoadCreatureTextLocales();
 
-		Log.outInfo(LogFilter.ServerLoading, "Initializing Scripts...");
+		Log.Logger.Information("Initializing Scripts...");
 		Global.ScriptMgr.Initialize();
 		Global.ScriptMgr.ForEach<IWorldOnConfigLoad>(p => p.OnConfigLoad(false)); // must be done after the ScriptMgr has been properly initialized
 
-		Log.outInfo(LogFilter.ServerLoading, "Validating spell scripts...");
+		Log.Logger.Information("Validating spell scripts...");
 		Global.ObjectMgr.ValidateSpellScripts();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading SmartAI scripts...");
+		Log.Logger.Information("Loading SmartAI scripts...");
 		Global.SmartAIMgr.LoadFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Calendar data...");
+		Log.Logger.Information("Loading Calendar data...");
 		Global.CalendarMgr.LoadFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Petitions...");
+		Log.Logger.Information("Loading Petitions...");
 		Global.PetitionMgr.LoadPetitions();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Signatures...");
+		Log.Logger.Information("Loading Signatures...");
 		Global.PetitionMgr.LoadSignatures();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Item loot...");
+		Log.Logger.Information("Loading Item loot...");
 		Global.LootItemStorage.LoadStorageFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Initialize query data...");
+		Log.Logger.Information("Initialize query data...");
 		Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.All);
 
 		// Initialize game time and timers
-		Log.outInfo(LogFilter.ServerLoading, "Initialize game time and timers");
+		Log.Logger.Information("Initialize game time and timers");
 		GameTime.UpdateGameTimers();
 
 		DB.Login.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", _realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
@@ -1018,88 +1018,88 @@ public class WorldManager : Singleton<WorldManager>
 		_mailTimer = ((((localTime.Hour + (24 - CleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
 		//1440
 		_timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
-		Log.outInfo(LogFilter.ServerLoading, "Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
+		Log.Logger.Information("Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
 
 		//- Initialize MapManager
-		Log.outInfo(LogFilter.ServerLoading, "Starting Map System");
+		Log.Logger.Information("Starting Map System");
 		Global.MapMgr.Initialize();
 
-		Log.outInfo(LogFilter.ServerLoading, "Starting Game Event system...");
+		Log.Logger.Information("Starting Game Event system...");
 		var nextGameEvent = Global.GameEventMgr.StartSystem();
 		_timers[WorldTimers.Events].Interval = nextGameEvent; //depend on next event
 
 		// Delete all characters which have been deleted X days before
 		Player.DeleteOldCharacters();
 
-		Log.outInfo(LogFilter.ServerLoading, "Initializing chat channels...");
+		Log.Logger.Information("Initializing chat channels...");
 		ChannelManager.LoadFromDB();
 
-		Log.outInfo(LogFilter.ServerLoading, "Initializing Opcodes...");
+		Log.Logger.Information("Initializing Opcodes...");
 		PacketManager.Initialize();
 
-		Log.outInfo(LogFilter.ServerLoading, "Starting Arena Season...");
+		Log.Logger.Information("Starting Arena Season...");
 		Global.GameEventMgr.StartArenaSeason();
 
 		Global.SupportMgr.Initialize();
 
 		// Initialize Battlegrounds
-		Log.outInfo(LogFilter.ServerLoading, "Starting BattlegroundSystem");
+		Log.Logger.Information("Starting BattlegroundSystem");
 		Global.BattlegroundMgr.LoadBattlegroundTemplates();
 
 		// Initialize outdoor pvp
-		Log.outInfo(LogFilter.ServerLoading, "Starting Outdoor PvP System");
+		Log.Logger.Information("Starting Outdoor PvP System");
 		Global.OutdoorPvPMgr.InitOutdoorPvP();
 
 		// Initialize Battlefield
-		Log.outInfo(LogFilter.ServerLoading, "Starting Battlefield System");
+		Log.Logger.Information("Starting Battlefield System");
 		Global.BattleFieldMgr.InitBattlefield();
 
 		// Initialize Warden
-		Log.outInfo(LogFilter.ServerLoading, "Loading Warden Checks...");
+		Log.Logger.Information("Loading Warden Checks...");
 		Global.WardenCheckMgr.LoadWardenChecks();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Warden Action Overrides...");
+		Log.Logger.Information("Loading Warden Action Overrides...");
 		Global.WardenCheckMgr.LoadWardenOverrides();
 
-		Log.outInfo(LogFilter.ServerLoading, "Deleting expired bans...");
+		Log.Logger.Information("Deleting expired bans...");
 		DB.Login.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate"); // One-time query
 
-		Log.outInfo(LogFilter.ServerLoading, "Initializing quest reset times...");
+		Log.Logger.Information("Initializing quest reset times...");
 		InitQuestResetTimes();
 		CheckScheduledResetTimes();
 
-		Log.outInfo(LogFilter.ServerLoading, "Calculate random battleground reset time...");
+		Log.Logger.Information("Calculate random battleground reset time...");
 		InitRandomBGResetTime();
 
-		Log.outInfo(LogFilter.ServerLoading, "Calculate deletion of old calendar events time...");
+		Log.Logger.Information("Calculate deletion of old calendar events time...");
 		InitCalendarOldEventsDeletionTime();
 
-		Log.outInfo(LogFilter.ServerLoading, "Calculate Guild cap reset time...");
+		Log.Logger.Information("Calculate Guild cap reset time...");
 		InitGuildResetTime();
 
-		Log.outInfo(LogFilter.ServerLoading, "Calculate next currency reset time...");
+		Log.Logger.Information("Calculate next currency reset time...");
 		InitCurrencyResetTime();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading race and class expansion requirements...");
+		Log.Logger.Information("Loading race and class expansion requirements...");
 		Global.ObjectMgr.LoadRaceAndClassExpansionRequirements();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading character templates...");
+		Log.Logger.Information("Loading character templates...");
 		Global.CharacterTemplateDataStorage.LoadCharacterTemplates();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading realm names...");
+		Log.Logger.Information("Loading realm names...");
 		Global.ObjectMgr.LoadRealmNames();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading battle pets info...");
+		Log.Logger.Information("Loading battle pets info...");
 		BattlePetMgr.Initialize();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading scenarios");
+		Log.Logger.Information("Loading scenarios");
 		Global.ScenarioMgr.LoadDB2Data();
 		Global.ScenarioMgr.LoadDBData();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading scenario poi data");
+		Log.Logger.Information("Loading scenario poi data");
 		Global.ScenarioMgr.LoadScenarioPOI();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading phase names...");
+		Log.Logger.Information("Loading phase names...");
 		Global.ObjectMgr.LoadPhaseNames();
 
 		ScriptManager.Instance.ForEach<IServerLoadComplete>(s => s.LoadComplete());
@@ -1113,11 +1113,11 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (_defaultDbcLocale >= Locale.Total || _defaultDbcLocale == Locale.None)
 		{
-			Log.outError(LogFilter.ServerLoading, "Incorrect DBC.Locale! Must be >= 0 and < {0} and not {1} (set to 0)", Locale.Total, Locale.None);
+			Log.Logger.Error("Incorrect DBC.Locale! Must be >= 0 and < {0} and not {1} (set to 0)", Locale.Total, Locale.None);
 			_defaultDbcLocale = Locale.enUS;
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Using {0} DBC Locale", _defaultDbcLocale);
+		Log.Logger.Information("Using {0} DBC Locale", _defaultDbcLocale);
 
 		// load update time related configs
 		_worldUpdateTime.LoadFromConfig();
@@ -1156,12 +1156,12 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (_maxVisibleDistanceOnContinents < 45 * rateCreatureAggro)
 		{
-			Log.outError(LogFilter.ServerLoading, "Visibility.Distance.Continents can't be less max aggro radius {0}", 45 * rateCreatureAggro);
+			Log.Logger.Error("Visibility.Distance.Continents can't be less max aggro radius {0}", 45 * rateCreatureAggro);
 			_maxVisibleDistanceOnContinents = 45 * rateCreatureAggro;
 		}
 		else if (_maxVisibleDistanceOnContinents > SharedConst.MaxVisibilityDistance)
 		{
-			Log.outError(LogFilter.ServerLoading, "Visibility.Distance.Continents can't be greater {0}", SharedConst.MaxVisibilityDistance);
+			Log.Logger.Error("Visibility.Distance.Continents can't be greater {0}", SharedConst.MaxVisibilityDistance);
 			_maxVisibleDistanceOnContinents = SharedConst.MaxVisibilityDistance;
 		}
 
@@ -1170,12 +1170,12 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (_maxVisibleDistanceInInstances < 45 * rateCreatureAggro)
 		{
-			Log.outError(LogFilter.ServerLoading, "Visibility.Distance.Instances can't be less max aggro radius {0}", 45 * rateCreatureAggro);
+			Log.Logger.Error("Visibility.Distance.Instances can't be less max aggro radius {0}", 45 * rateCreatureAggro);
 			_maxVisibleDistanceInInstances = 45 * rateCreatureAggro;
 		}
 		else if (_maxVisibleDistanceInInstances > SharedConst.MaxVisibilityDistance)
 		{
-			Log.outError(LogFilter.ServerLoading, "Visibility.Distance.Instances can't be greater {0}", SharedConst.MaxVisibilityDistance);
+			Log.Logger.Error("Visibility.Distance.Instances can't be greater {0}", SharedConst.MaxVisibilityDistance);
 			_maxVisibleDistanceInInstances = SharedConst.MaxVisibilityDistance;
 		}
 
@@ -1184,12 +1184,12 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (_maxVisibleDistanceInBg < 45 * rateCreatureAggro)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Visibility.Distance.BG can't be less max aggro radius {45 * rateCreatureAggro}");
+			Log.Logger.Error($"Visibility.Distance.BG can't be less max aggro radius {45 * rateCreatureAggro}");
 			_maxVisibleDistanceInBg = 45 * rateCreatureAggro;
 		}
 		else if (_maxVisibleDistanceInBg > SharedConst.MaxVisibilityDistance)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Visibility.Distance.BG can't be greater {SharedConst.MaxVisibilityDistance}");
+			Log.Logger.Error($"Visibility.Distance.BG can't be greater {SharedConst.MaxVisibilityDistance}");
 			_maxVisibleDistanceInBg = SharedConst.MaxVisibilityDistance;
 		}
 
@@ -1198,12 +1198,12 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (_maxVisibleDistanceInArenas < 45 * rateCreatureAggro)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Visibility.Distance.Arenas can't be less max aggro radius {45 * rateCreatureAggro}");
+			Log.Logger.Error($"Visibility.Distance.Arenas can't be less max aggro radius {45 * rateCreatureAggro}");
 			_maxVisibleDistanceInArenas = 45 * rateCreatureAggro;
 		}
 		else if (_maxVisibleDistanceInArenas > SharedConst.MaxVisibilityDistance)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Visibility.Distance.Arenas can't be greater {SharedConst.MaxVisibilityDistance}");
+			Log.Logger.Error($"Visibility.Distance.Arenas can't be greater {SharedConst.MaxVisibilityDistance}");
 			_maxVisibleDistanceInArenas = SharedConst.MaxVisibilityDistance;
 		}
 
@@ -1220,28 +1220,28 @@ public class WorldManager : Singleton<WorldManager>
 		if (reload)
 		{
 			if (dataPath != _dataPath)
-				Log.outError(LogFilter.ServerLoading, "DataDir option can't be changed at worldserver.conf reload, using current value ({0}).", _dataPath);
+				Log.Logger.Error("DataDir option can't be changed at worldserver.conf reload, using current value ({0}).", _dataPath);
 		}
 		else
 		{
 			_dataPath = dataPath;
-			Log.outInfo(LogFilter.ServerLoading, "Using DataDir {0}", _dataPath);
+			Log.Logger.Information("Using DataDir {0}", _dataPath);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, @"WORLD: MMap data directory is: {0}\mmaps", _dataPath);
+		Log.Logger.Information(@"WORLD: MMap data directory is: {0}\mmaps", _dataPath);
 
 		var EnableIndoor = ConfigMgr.GetDefaultValue("vmap.EnableIndoorCheck", true);
 		var EnableLOS = ConfigMgr.GetDefaultValue("vmap.EnableLOS", true);
 		var EnableHeight = ConfigMgr.GetDefaultValue("vmap.EnableHeight", true);
 
 		if (!EnableHeight)
-			Log.outError(LogFilter.ServerLoading, "VMap height checking Disabled! Creatures movements and other various things WILL be broken! Expect no support.");
+			Log.Logger.Error("VMap height checking Disabled! Creatures movements and other various things WILL be broken! Expect no support.");
 
 		Global.VMapMgr.SetEnableLineOfSightCalc(EnableLOS);
 		Global.VMapMgr.SetEnableHeightCalc(EnableHeight);
 
-		Log.outInfo(LogFilter.ServerLoading, "VMap support included. LineOfSight: {0}, getHeight: {1}, indoorCheck: {2}", EnableLOS, EnableHeight, EnableIndoor);
-		Log.outInfo(LogFilter.ServerLoading, @"VMap data directory is: {0}\vmaps", DataPath);
+		Log.Logger.Information("VMap support included. LineOfSight: {0}, getHeight: {1}, indoorCheck: {2}", EnableLOS, EnableHeight, EnableIndoor);
+		Log.Logger.Information(@"VMap data directory is: {0}\vmaps", DataPath);
 	}
 
 	public void SetForcedWarModeFactionBalanceState(int team, int reward = 0)
@@ -1268,7 +1268,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
+			Log.Logger.Information("Loaded 0 autobroadcasts definitions. DB table `autobroadcast` is empty for this realm!");
 
 			return;
 		}
@@ -1280,7 +1280,7 @@ public class WorldManager : Singleton<WorldManager>
 			_autobroadcasts[id] = new Autobroadcast(result.Read<string>(2), result.Read<byte>(1));
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} autobroadcast definitions in {1} ms", _autobroadcasts.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} autobroadcast definitions in {1} ms", _autobroadcasts.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void Update(uint diff)
@@ -1859,7 +1859,7 @@ public class WorldManager : Singleton<WorldManager>
 			var msgid = _shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? ServerMessageType.RestartTime : ServerMessageType.ShutdownTime;
 
 			SendServerMessage(msgid, str, player);
-			Log.outDebug(LogFilter.Server, "Server is {0} in {1}", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shuttingdown"), str);
+			Log.Logger.Debug("Server is {0} in {1}", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shuttingdown"), str);
 		}
 	}
 
@@ -1877,7 +1877,7 @@ public class WorldManager : Singleton<WorldManager>
 		_exitCode = (byte)ShutdownExitCode.Shutdown; // to default value
 		SendServerMessage(msgid);
 
-		Log.outDebug(LogFilter.Server, "Server {0} cancelled.", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown"));
+		Log.Logger.Debug("Server {0} cancelled.", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown"));
 
 		Global.ScriptMgr.ForEach<IWorldOnShutdownCancel>(p => p.OnShutdownCancel());
 
@@ -1964,7 +1964,7 @@ public class WorldManager : Singleton<WorldManager>
 		_nextDailyQuestReset = next;
 		SetPersistentWorldVariable(NextDailyQuestResetTimeVarId, (int)next);
 
-		Log.outInfo(LogFilter.Misc, "Daily quests for all characters have been reset.");
+		Log.Logger.Information("Daily quests for all characters have been reset.");
 	}
 
 	public void ResetWeeklyQuests()
@@ -1992,7 +1992,7 @@ public class WorldManager : Singleton<WorldManager>
 		_nextWeeklyQuestReset = next;
 		SetPersistentWorldVariable(NextWeeklyQuestResetTimeVarId, (int)next);
 
-		Log.outInfo(LogFilter.Misc, "Weekly quests for all characters have been reset.");
+		Log.Logger.Information("Weekly quests for all characters have been reset.");
 	}
 
 	public void ResetMonthlyQuests()
@@ -2019,7 +2019,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		_nextMonthlyQuestReset = next;
 
-		Log.outInfo(LogFilter.Misc, "Monthly quests for all characters have been reset.");
+		Log.Logger.Information("Monthly quests for all characters have been reset.");
 	}
 
 	public void ResetEventSeasonalQuests(ushort event_id, long eventStartTime)
@@ -2076,7 +2076,7 @@ public class WorldManager : Singleton<WorldManager>
 	public void ReloadRBAC()
 	{
 		// Passive reload, we mark the data as invalidated and next time a permission is checked it will be reloaded
-		Log.outInfo(LogFilter.Rbac, "World.ReloadRBAC()");
+		Log.Logger.Information("World.ReloadRBAC()");
 
 		foreach (var session in _sessions.Values)
 			session.InvalidateRBACData();
@@ -2225,7 +2225,7 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			AddQueuedPlayer(s);
 			UpdateMaxSessionCounters();
-			Log.outInfo(LogFilter.Server, "PlayerQueue: Account id {0} is in Queue Position ({1}).", s.AccountId, ++QueueSize);
+			Log.Logger.Information("PlayerQueue: Account id {0} is in Queue Position ({1}).", s.AccountId, ++QueueSize);
 
 			return;
 		}
@@ -2240,7 +2240,7 @@ public class WorldManager : Singleton<WorldManager>
 			float popu = ActiveSessionCount; // updated number of users on the server
 			popu /= pLimit;
 			popu *= 2;
-			Log.outInfo(LogFilter.Server, "Server Population ({0}).", popu);
+			Log.Logger.Information("Server Population ({0}).", popu);
 		}
 	}
 
@@ -2423,7 +2423,7 @@ public class WorldManager : Singleton<WorldManager>
 			SendGlobalMessage(new PrintNotification(pair.Value.Message));
 		}
 
-		Log.outDebug(LogFilter.Misc, "AutoBroadcast: '{0}'", pair.Value.Message);
+		Log.Logger.Debug("AutoBroadcast: '{0}'", pair.Value.Message);
 	}
 
 	void UpdateRealmCharCount(SQLResult result)
@@ -2593,7 +2593,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	void ResetRandomBG()
 	{
-		Log.outInfo(LogFilter.Server, "Random BG status reset for all characters.");
+		Log.Logger.Information("Random BG status reset for all characters.");
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
 		DB.Characters.Execute(stmt);
@@ -2608,7 +2608,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	void CalendarDeleteOldEvents()
 	{
-		Log.outInfo(LogFilter.Misc, "Calendar deletion of old events.");
+		Log.Logger.Information("Calendar deletion of old events.");
 
 		_nextCalendarOldEventsDeletionTime = _nextCalendarOldEventsDeletionTime + Time.Day;
 		SetPersistentWorldVariable(NextOldCalendarEventDeletionTimeVarId, (int)_nextCalendarOldEventsDeletionTime);
@@ -2622,7 +2622,7 @@ public class WorldManager : Singleton<WorldManager>
 		var week = GetPersistentWorldVariable(NextGuildWeeklyResetTimeVarId);
 		week = week < 7 ? week + 1 : 1;
 
-		Log.outInfo(LogFilter.Server, "Guild Daily Cap reset. Week: {0}", week == 1);
+		Log.Logger.Information("Guild Daily Cap reset. Week: {0}", week == 1);
 		SetPersistentWorldVariable(NextGuildWeeklyResetTimeVarId, week);
 		Global.GuildMgr.ResetTimes(week == 1);
 	}
@@ -2655,7 +2655,7 @@ public class WorldManager : Singleton<WorldManager>
 				_worldVariables[result.Read<string>(0)] = result.Read<int>(1);
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_worldVariables.Count} world variables in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_worldVariables.Count} world variables in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	void ProcessQueryCallbacks()

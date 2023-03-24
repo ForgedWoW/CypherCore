@@ -87,8 +87,8 @@ public class TerrainInfo
 		{
 			if (log)
 			{
-				Log.outError(LogFilter.Maps, $"Map file '{fileName}' does not exist!");
-				Log.outError(LogFilter.Maps, $"Please place MAP-files (*.map) in the appropriate directory ({Global.WorldMgr.DataPath + "/maps/"}), or correct the DataDir setting in your worldserver.conf file.");
+				Log.Logger.Error($"Map file '{fileName}' does not exist!");
+				Log.Logger.Error($"Please place MAP-files (*.map) in the appropriate directory ({Global.WorldMgr.DataPath + "/maps/"}), or correct the DataDir setting in your worldserver.conf file.");
 			}
 		}
 		else
@@ -99,7 +99,7 @@ public class TerrainInfo
 			if (header.mapMagic != MapConst.MapMagic || (header.versionMagic != MapConst.MapVersionMagic && header.versionMagic != MapConst.MapVersionMagic2)) // Hack for some different extractors using v2.0 header
 			{
 				if (log)
-					Log.outError(LogFilter.Maps, $"Map file '{fileName}' is from an incompatible map version ({header.versionMagic}), {MapConst.MapVersionMagic} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.");
+					Log.Logger.Error($"Map file '{fileName}' is from an incompatible map version ({header.versionMagic}), {MapConst.MapVersionMagic} is expected. Please pull your source, recompile tools and recreate maps using the updated mapextractor, then replace your old map files with new files. If you still have problems search on forum for error TCE00018.");
 			}
 			else
 			{
@@ -122,23 +122,23 @@ public class TerrainInfo
 				case LoadResult.Success:
 					break;
 				case LoadResult.FileNotFound:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' does not exist");
-					Log.outError(LogFilter.Maps, $"Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({Global.WorldMgr.DataPath + "/vmaps/"}), or correct the DataDir setting in your worldserver.conf file.");
+					Log.Logger.Error($"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' does not exist");
+					Log.Logger.Error($"Please place VMAP files (*.vmtree and *.vmtile) in the vmap directory ({Global.WorldMgr.DataPath + "/vmaps/"}), or correct the DataDir setting in your worldserver.conf file.");
 
 					return false;
 				case LoadResult.VersionMismatch:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
-					Log.outError(LogFilter.Maps, "This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
+					Log.Logger.Error($"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
+					Log.Logger.Error("This is because the version of the VMap file and the version of this module are different, please re-extract the maps with the tools compiled with this module.");
 
 					return false;
 				case LoadResult.ReadFromFileFailed:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
-					Log.outError(LogFilter.Maps, "This is because VMAP files are corrupted, please re-extract the maps with the tools compiled with this module.");
+					Log.Logger.Error($"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
+					Log.Logger.Error("This is because VMAP files are corrupted, please re-extract the maps with the tools compiled with this module.");
 
 					return false;
 				case LoadResult.DisabledInConfig:
-					Log.outError(LogFilter.Maps, $"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
-					Log.outError(LogFilter.Maps, "This is because VMAP is disabled in config file.");
+					Log.Logger.Error($"VMap file '{Global.WorldMgr.DataPath + "/vmaps/" + name}' couldn't be loaded");
+					Log.Logger.Error("This is because VMAP is disabled in config file.");
 
 					return false;
 			}
@@ -193,7 +193,7 @@ public class TerrainInfo
 
 		// map file name
 		var fileName = $"{Global.WorldMgr.DataPath}/maps/{GetId():D4}_{gx:D2}_{gy:D2}.map";
-		Log.outInfo(LogFilter.Maps, $"Loading map {fileName}");
+		Log.Logger.Information($"Loading map {fileName}");
 
 		// loading data
 		GridMap gridMap = new();
@@ -205,7 +205,7 @@ public class TerrainInfo
 			_gridFileExists[GetBitsetIndex(gx, gy)] = false;
 
 		if (gridMapLoadResult == LoadResult.ReadFromFileFailed)
-			Log.outError(LogFilter.Maps, $"Error loading map file: {fileName}");
+			Log.Logger.Error($"Error loading map file: {fileName}");
 	}
 
 	public void LoadVMap(int gx, int gy)
@@ -219,16 +219,16 @@ public class TerrainInfo
 		switch (vmapLoadResult)
 		{
 			case LoadResult.Success:
-				Log.outDebug(LogFilter.Maps, $"VMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
+				Log.Logger.Debug($"VMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
 
 				break;
 			case LoadResult.VersionMismatch:
 			case LoadResult.ReadFromFileFailed:
-				Log.outError(LogFilter.Maps, $"Could not load VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
+				Log.Logger.Error($"Could not load VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
 
 				break;
 			case LoadResult.DisabledInConfig:
-				Log.outDebug(LogFilter.Maps, $"Ignored VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
+				Log.Logger.Debug($"Ignored VMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (vmap rep.: x:{gx}, y:{gy})");
 
 				break;
 		}
@@ -242,9 +242,9 @@ public class TerrainInfo
 		var mmapLoadResult = Global.MMapMgr.LoadMap(Global.WorldMgr.DataPath, GetId(), gx, gy);
 
 		if (mmapLoadResult)
-			Log.outDebug(LogFilter.Maps, $"MMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
+			Log.Logger.Debug($"MMAP loaded name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
 		else
-			Log.outWarn(LogFilter.Maps, $"Could not load MMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
+			Log.Logger.Warning($"Could not load MMAP name:{GetMapName()}, id:{GetId()}, x:{gx}, y:{gy} (mmap rep.: x:{gx}, y:{gy})");
 	}
 
 	public void UnloadMap(int gx, int gy)
@@ -501,7 +501,7 @@ public class TerrainInfo
 		if (Global.VMapMgr.GetLiquidLevel(terrainMapId, x, y, z, (byte)ReqLiquidType, ref liquid_level, ref ground_level, ref liquid_type, ref mogpFlags))
 		{
 			useGridLiquid = !IsInWMOInterior(mogpFlags);
-			Log.outDebug(LogFilter.Maps, $"GetLiquidStatus(): vmap liquid level: {liquid_level} ground: {ground_level} type: {liquid_type}");
+			Log.Logger.Debug($"GetLiquidStatus(): vmap liquid level: {liquid_level} ground: {ground_level} type: {liquid_type}");
 
 			// Check water level and ground level
 			if (liquid_level > ground_level && MathFunctions.fuzzyGe(z, ground_level - MapConst.GroundHeightTolerance))

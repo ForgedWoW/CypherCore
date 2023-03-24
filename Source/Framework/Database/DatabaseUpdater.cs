@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Framework.Database;
 
@@ -30,7 +31,7 @@ public class DatabaseUpdater<T>
 		if (!result.IsEmpty() && !result.IsEmpty())
 			return true;
 
-		Log.outInfo(LogFilter.SqlUpdates, $"Database {_database.GetDatabaseName()} is empty, auto populating it...");
+		Log.Logger.Information($"Database {_database.GetDatabaseName()} is empty, auto populating it...");
 
 		var path = GetSourceDirectory();
 		var fileName = "Unknown";
@@ -57,7 +58,7 @@ public class DatabaseUpdater<T>
 
 		if (!File.Exists(path + fileName))
 		{
-			Log.outError(LogFilter.SqlUpdates,
+			Log.Logger.Error(
 						$"File \"{path + fileName}\" is missing, download it from \"https://github.com/TrinityCore/TrinityCore/releases\"" +
 						" and place it in your sql directory.");
 
@@ -65,7 +66,7 @@ public class DatabaseUpdater<T>
 		}
 
 		// Update database
-		Log.outInfo(LogFilter.SqlUpdates, $"Applying \'{fileName}\'...");
+		Log.Logger.Information($"Applying \'{fileName}\'...");
 
 		try
 		{
@@ -76,20 +77,20 @@ public class DatabaseUpdater<T>
 			return false;
 		}
 
-		Log.outInfo(LogFilter.SqlUpdates, $"Done Applying \'{fileName}\'");
+		Log.Logger.Information($"Done Applying \'{fileName}\'");
 
 		return true;
 	}
 
 	public bool Update()
 	{
-		Log.outInfo(LogFilter.SqlUpdates, $"Updating {_database.GetDatabaseName()} database...");
+		Log.Logger.Information($"Updating {_database.GetDatabaseName()} database...");
 
 		var sourceDirectory = GetSourceDirectory();
 
 		if (!Directory.Exists(sourceDirectory))
 		{
-			Log.outError(LogFilter.SqlUpdates, $"DBUpdater: The given source directory {sourceDirectory} does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\cyphercore). Shutting down.");
+			Log.Logger.Error($"DBUpdater: The given source directory {sourceDirectory} does not exist, change the path to the directory where your sql directory exists (for example c:\\source\\cyphercore). Shutting down.");
 
 			return false;
 		}
@@ -111,7 +112,7 @@ public class DatabaseUpdater<T>
 
 		foreach (var availableQuery in availableFiles)
 		{
-			Log.outDebug(LogFilter.SqlUpdates, $"Checking update \"{availableQuery.GetFileName()}\"...");
+			Log.Logger.Debug($"Checking update \"{availableQuery.GetFileName()}\"...");
 
 			var applied = appliedFiles.LookupByKey(availableQuery.GetFileName());
 
@@ -120,7 +121,7 @@ public class DatabaseUpdater<T>
 				// If redundancy is disabled skip it since the update is already applied.
 				if (!redundancyChecks)
 				{
-					Log.outDebug(LogFilter.SqlUpdates, "Update is already applied, skipping redundancy checks.");
+					Log.Logger.Debug("Update is already applied, skipping redundancy checks.");
 					appliedFiles.Remove(availableQuery.GetFileName());
 
 					continue;
@@ -129,7 +130,7 @@ public class DatabaseUpdater<T>
 				// If the update is in an archived directory and is marked as archived in our database skip redundancy checks (archived updates never change).
 				if (!archivedRedundancy && (applied.State == State.ARCHIVED) && (availableQuery.state == State.ARCHIVED))
 				{
-					Log.outDebug(LogFilter.SqlUpdates, "Update is archived and marked as archived in database, skipping redundancy checks.");
+					Log.Logger.Debug("Update is archived and marked as archived in database, skipping redundancy checks.");
 					appliedFiles.Remove(availableQuery.GetFileName());
 
 					continue;
@@ -154,14 +155,14 @@ public class DatabaseUpdater<T>
 
 					if (renameFile != null)
 					{
-						Log.outWarn(LogFilter.SqlUpdates,
+						Log.Logger.Warning(
 									$"Seems like update \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\' was renamed, but the old file is still there! " +
 									$"Trade it as a new file! (Probably its an unmodified copy of file \"{renameFile.GetFileName()}\")");
 					}
 					// Its save to trade the file as renamed here
 					else
 					{
-						Log.outInfo(LogFilter.SqlUpdates, $"Renaming update \"{hashIter.Name}\" to \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\'.");
+						Log.Logger.Information($"Renaming update \"{hashIter.Name}\" to \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\'.");
 
 						RenameEntry(hashIter.Name, availableQuery.GetFileName());
 						appliedFiles.Remove(hashIter.Name);
@@ -172,7 +173,7 @@ public class DatabaseUpdater<T>
 				// Apply the update if it was never seen before.
 				else
 				{
-					Log.outInfo(LogFilter.SqlUpdates, $"Applying update \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\'...");
+					Log.Logger.Information($"Applying update \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\'...");
 				}
 			}
 			// Rehash the update entry if it is contained in our database but with an empty hash.
@@ -180,26 +181,26 @@ public class DatabaseUpdater<T>
 			{
 				mode = UpdateMode.Rehash;
 
-				Log.outInfo(LogFilter.SqlUpdates, $"Re-hashing update \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\'...");
+				Log.Logger.Information($"Re-hashing update \"{availableQuery.GetFileName()}\" \'{hash.Substring(0, 7)}\'...");
 			}
 			else
 			{
 				// If the hash of the files differs from the one stored in our database reapply the update (because it was changed).
 				if (applied.Hash != hash && applied.State != State.ARCHIVED)
 				{
-					Log.outInfo(LogFilter.SqlUpdates, $"Reapplying update \"{availableQuery.GetFileName()}\" \'{applied.Hash.Substring(0, 7)}\' . \'{hash.Substring(0, 7)}\' (it changed)...");
+					Log.Logger.Information($"Reapplying update \"{availableQuery.GetFileName()}\" \'{applied.Hash.Substring(0, 7)}\' . \'{hash.Substring(0, 7)}\' (it changed)...");
 				}
 				else
 				{
 					// If the file wasn't changed and just moved update its state if necessary.
 					if (applied.State != availableQuery.state)
 					{
-						Log.outDebug(LogFilter.SqlUpdates, $"Updating state of \"{availableQuery.GetFileName()}\" to \'{availableQuery.state}\'...");
+						Log.Logger.Debug($"Updating state of \"{availableQuery.GetFileName()}\" to \'{availableQuery.state}\'...");
 
 						UpdateState(availableQuery.GetFileName(), availableQuery.state);
 					}
 
-					Log.outDebug(LogFilter.SqlUpdates, $"Update is already applied and is matching hash \'{hash.Substring(0, 7)}\'.");
+					Log.Logger.Debug($"Update is already applied and is matching hash \'{hash.Substring(0, 7)}\'.");
 
 					appliedFiles.Remove(applied.Name);
 
@@ -236,24 +237,24 @@ public class DatabaseUpdater<T>
 
 			foreach (var entry in appliedFiles)
 			{
-				Log.outTrace(LogFilter.SqlUpdates, $"File \'{entry.Key}\' was applied to the database but is missing in your update directory now!");
+				Log.Logger.Verbose($"File \'{entry.Key}\' was applied to the database but is missing in your update directory now!");
 
 				if (doCleanup)
-					Log.outInfo(LogFilter.SqlUpdates, $"Deleting orphaned entry \'{entry.Key}\'...");
+					Log.Logger.Information($"Deleting orphaned entry \'{entry.Key}\'...");
 			}
 
 			if (doCleanup)
 				CleanUp(appliedFiles);
 			else
-				Log.outError(LogFilter.SqlUpdates, $"Cleanup is disabled! There are {appliedFiles.Count} dirty files that were applied to your database but are now missing in your source directory!");
+				Log.Logger.Error($"Cleanup is disabled! There are {appliedFiles.Count} dirty files that were applied to your database but are now missing in your source directory!");
 		}
 
 		var info = $"Containing {result.recent} new and {result.archived} archived updates.";
 
 		if (result.updated == 0)
-			Log.outInfo(LogFilter.SqlUpdates, $"{_database.GetDatabaseName()} database is up-to-date! {info}");
+			Log.Logger.Information($"{_database.GetDatabaseName()} database is up-to-date! {info}");
 		else
-			Log.outInfo(LogFilter.SqlUpdates, $"Applied {result.updated} query(s). {info}");
+			Log.Logger.Information($"Applied {result.updated} query(s). {info}");
 
 		return true;
 	}
@@ -360,7 +361,7 @@ public class DatabaseUpdater<T>
 
 			if (!Directory.Exists(path))
 			{
-				Log.outTrace(LogFilter.SqlUpdates, $"DBUpdater: Given update include directory \"{path}\" isn't existing, skipped!");
+				Log.Logger.Verbose($"DBUpdater: Given update include directory \"{path}\" isn't existing, skipped!");
 
 				continue;
 			}
@@ -370,7 +371,7 @@ public class DatabaseUpdater<T>
 			foreach (var file in GetFilesFromDirectory(path, state))
 				fileList.Add(file);
 
-			Log.outDebug(LogFilter.SqlUpdates, $"Added applied file \"{path}\" from remote.");
+			Log.Logger.Debug($"Added applied file \"{path}\" from remote.");
 		} while (result.NextRow());
 
 
@@ -417,7 +418,7 @@ public class DatabaseUpdater<T>
 			}
 			catch (Exception ex)
 			{
-				Log.outFatal(LogFilter.SqlUpdates, $"DBUpdater: {directory} Exception: {ex}");
+				Log.Logger.Fatal($"DBUpdater: {directory} Exception: {ex}");
 			}
 
 			var files = Directory.GetFiles(directory, "*.sql").OrderBy(p => p).ToList();

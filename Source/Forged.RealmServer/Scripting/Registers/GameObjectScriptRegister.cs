@@ -19,7 +19,7 @@ public class GameObjectScriptRegister : IScriptRegister
 
 				if (gameObject == null)
 				{
-					Log.outError(LogFilter.Scripts, $"GameObjectScriptAttribute: Unknown game object id {id} for script name {scriptName}");
+					Log.Logger.Error($"GameObjectScriptAttribute: Unknown game object id {id} for script name {scriptName}");
 
 					continue;
 				}

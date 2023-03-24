@@ -48,7 +48,7 @@ public partial class WorldSession
 			}
 
 		if (!response.Allow)
-			Log.outError(LogFilter.Sql, "HandleNpcTextQuery: no BroadcastTextID found for text {0} in `npc_text table`", packet.TextID);
+			Log.Logger.Error("HandleNpcTextQuery: no BroadcastTextID found for text {0} in `npc_text table`", packet.TextID);
 
 		SendPacket(response);
 	}

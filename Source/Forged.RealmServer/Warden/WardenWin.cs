@@ -41,16 +41,16 @@ class WardenWin : Warden
 
 		InputCrypto.PrepareKey(InputKey);
 		OutputCrypto.PrepareKey(OutputKey);
-		Log.outDebug(LogFilter.Warden, "Server side warden for client {0} initializing...", session.AccountId);
-		Log.outDebug(LogFilter.Warden, "C->S Key: {0}", InputKey.ToHexString());
-		Log.outDebug(LogFilter.Warden, "S->C Key: {0}", OutputKey.ToHexString());
-		Log.outDebug(LogFilter.Warden, "  Seed: {0}", Seed.ToHexString());
-		Log.outDebug(LogFilter.Warden, "Loading Module...");
+		Log.Logger.Debug("Server side warden for client {0} initializing...", session.AccountId);
+		Log.Logger.Debug("C->S Key: {0}", InputKey.ToHexString());
+		Log.Logger.Debug("S->C Key: {0}", OutputKey.ToHexString());
+		Log.Logger.Debug("  Seed: {0}", Seed.ToHexString());
+		Log.Logger.Debug("Loading Module...");
 
 		MakeModuleForClient();
 
-		Log.outDebug(LogFilter.Warden, "Module Key: {0}", Module.Key.ToHexString());
-		Log.outDebug(LogFilter.Warden, "Module ID: {0}", Module.Id.ToHexString());
+		Log.Logger.Debug("Module Key: {0}", Module.Key.ToHexString());
+		Log.Logger.Debug("Module ID: {0}", Module.Id.ToHexString());
 		RequestModule();
 	}
 
@@ -65,7 +65,7 @@ class WardenWin : Warden
 
 	public override void InitializeModule()
 	{
-		Log.outDebug(LogFilter.Warden, "Initialize module");
+		Log.Logger.Debug("Initialize module");
 
 		// Create packet structure
 		WardenInitModuleRequest Request = new();
@@ -121,7 +121,7 @@ class WardenWin : Warden
 
 	public override void RequestHash()
 	{
-		Log.outDebug(LogFilter.Warden, "Request hash");
+		Log.Logger.Debug("Request hash");
 
 		// Create packet structure
 		WardenHashRequest Request = new();
@@ -139,12 +139,12 @@ class WardenWin : Warden
 		if (buff.ReadBytes(20) != WardenModuleWin.ClientKeySeedHash)
 		{
 			var penalty = ApplyPenalty();
-			Log.outWarn(LogFilter.Warden, "{0} failed hash reply. Action: {0}", Session.GetPlayerInfo(), penalty);
+			Log.Logger.Warning("{0} failed hash reply. Action: {0}", Session.GetPlayerInfo(), penalty);
 
 			return;
 		}
 
-		Log.outDebug(LogFilter.Warden, "Request hash reply: succeed");
+		Log.Logger.Debug("Request hash reply: succeed");
 
 		// Change keys here
 		InputKey = WardenModuleWin.ClientKeySeed;
@@ -158,7 +158,7 @@ class WardenWin : Warden
 
 	public override void RequestChecks()
 	{
-		Log.outDebug(LogFilter.Warden, $"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player && !Session.PlayerLoading}");
+		Log.Logger.Debug($"Request data from {Session.PlayerName} (account {Session.AccountId}) - loaded: {Session.Player && !Session.PlayerLoading}");
 
 		// If all checks for a category are done, fill its todo list again
 		foreach (var category in Enum.GetValues<WardenCheckCategory>())
@@ -167,7 +167,7 @@ class WardenWin : Warden
 
 			if (checks.IsAtEnd() && !checks.Empty())
 			{
-				Log.outDebug(LogFilter.Warden, $"Finished all {category} checks, re-shuffling");
+				Log.Logger.Debug($"Finished all {category} checks, re-shuffling");
 				checks.Shuffle();
 			}
 		}
@@ -312,13 +312,13 @@ class WardenWin : Warden
 
 		if (buff.GetSize() == expectedSize)
 		{
-			Log.outDebug(LogFilter.Warden, $"Finished building warden packet, size is {buff.GetSize()} bytes");
-			Log.outDebug(LogFilter.Warden, $"Sent checks: {idstring}");
+			Log.Logger.Debug($"Finished building warden packet, size is {buff.GetSize()} bytes");
+			Log.Logger.Debug($"Sent checks: {idstring}");
 		}
 		else
 		{
-			Log.outWarn(LogFilter.Warden, $"Finished building warden packet, size is {buff.GetSize()} bytes, but expected {expectedSize} bytes!");
-			Log.outWarn(LogFilter.Warden, $"Sent checks: {idstring}");
+			Log.Logger.Warning($"Finished building warden packet, size is {buff.GetSize()} bytes, but expected {expectedSize} bytes!");
+			Log.Logger.Warning($"Sent checks: {idstring}");
 		}
 
 		Warden3DataServer packet = new();
@@ -330,7 +330,7 @@ class WardenWin : Warden
 
 	public override void HandleCheckResult(ByteBuffer buff)
 	{
-		Log.outDebug(LogFilter.Warden, "Handle data");
+		Log.Logger.Debug("Handle data");
 
 		DataSent = false;
 		ClientResponseTimer = 0;
@@ -341,7 +341,7 @@ class WardenWin : Warden
 		if (!IsValidCheckSum(Checksum, buff.GetData(), Length))
 		{
 			var penalty = ApplyPenalty();
-			Log.outWarn(LogFilter.Warden, "{0} failed checksum. Action: {1}", Session.GetPlayerInfo(), penalty);
+			Log.Logger.Warning("{0} failed checksum. Action: {1}", Session.GetPlayerInfo(), penalty);
 
 			return;
 		}
@@ -354,7 +354,7 @@ class WardenWin : Warden
 			if (result == 0x00)
 			{
 				var penalty = ApplyPenalty();
-				Log.outWarn(LogFilter.Warden, "{0} failed timing check. Action: {1}", Session.GetPlayerInfo(), penalty);
+				Log.Logger.Warning("{0} failed timing check. Action: {1}", Session.GetPlayerInfo(), penalty);
 
 				return;
 			}
@@ -364,10 +364,10 @@ class WardenWin : Warden
 			var ticksNow = GameTime.GetGameTimeMS();
 			var ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
-			Log.outDebug(LogFilter.Warden, "ServerTicks {0}", ticksNow);      // Now
-			Log.outDebug(LogFilter.Warden, "RequestTicks {0}", _serverTicks); // At request
-			Log.outDebug(LogFilter.Warden, "Ticks {0}", newClientTicks);      // At response
-			Log.outDebug(LogFilter.Warden, "Ticks diff {0}", ourTicks - newClientTicks);
+			Log.Logger.Debug("ServerTicks {0}", ticksNow);      // Now
+			Log.Logger.Debug("RequestTicks {0}", _serverTicks); // At request
+			Log.Logger.Debug("Ticks {0}", newClientTicks);      // At response
+			Log.Logger.Debug("Ticks diff {0}", ourTicks - newClientTicks);
 		}
 
 		//BigInteger rs;
@@ -387,7 +387,7 @@ class WardenWin : Warden
 
 					if (result != 0)
 					{
-						Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK not 0x00, CheckId {id} account Id {Session.AccountId}");
+						Log.Logger.Debug($"RESULT MEM_CHECK not 0x00, CheckId {id} account Id {Session.AccountId}");
 						checkFailed = id;
 
 						continue;
@@ -397,13 +397,13 @@ class WardenWin : Warden
 
 					if (buff.ReadBytes((uint)expected.Length).Compare(expected))
 					{
-						Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK fail CheckId {id} account Id {Session.AccountId}");
+						Log.Logger.Debug($"RESULT MEM_CHECK fail CheckId {id} account Id {Session.AccountId}");
 						checkFailed = id;
 
 						continue;
 					}
 
-					Log.outDebug(LogFilter.Warden, $"RESULT MEM_CHECK passed CheckId {id} account Id {Session.AccountId}");
+					Log.Logger.Debug($"RESULT MEM_CHECK passed CheckId {id} account Id {Session.AccountId}");
 
 					break;
 				}
@@ -414,13 +414,13 @@ class WardenWin : Warden
 				{
 					if (buff.ReadUInt8() != 0xE9)
 					{
-						Log.outDebug(LogFilter.Warden, $"RESULT {check.Type} fail, CheckId {id} account Id {Session.AccountId}");
+						Log.Logger.Debug($"RESULT {check.Type} fail, CheckId {id} account Id {Session.AccountId}");
 						checkFailed = id;
 
 						continue;
 					}
 
-					Log.outDebug(LogFilter.Warden, $"RESULT {check.Type} passed CheckId {id} account Id {Session.AccountId}");
+					Log.Logger.Debug($"RESULT {check.Type} passed CheckId {id} account Id {Session.AccountId}");
 
 					break;
 				}
@@ -431,7 +431,7 @@ class WardenWin : Warden
 					if (result == 0)
 						buff.Skip(buff.ReadUInt8()); // discard attached string
 
-					Log.outDebug(LogFilter.Warden, $"LUA_EVAL_CHECK CheckId {id} account Id {Session.AccountId} got in-warden dummy response ({result})");
+					Log.Logger.Debug($"LUA_EVAL_CHECK CheckId {id} account Id {Session.AccountId} got in-warden dummy response ({result})");
 
 					break;
 				}
@@ -441,7 +441,7 @@ class WardenWin : Warden
 
 					if (result != 0)
 					{
-						Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK not 0x00 account id {Session.AccountId}", Session.AccountId);
+						Log.Logger.Debug($"RESULT MPQ_CHECK not 0x00 account id {Session.AccountId}", Session.AccountId);
 						checkFailed = id;
 
 						continue;
@@ -449,13 +449,13 @@ class WardenWin : Warden
 
 					if (!buff.ReadBytes(20).Compare(Global.WardenCheckMgr.GetCheckResult(id))) // SHA1
 					{
-						Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK fail, CheckId {id} account Id {Session.AccountId}");
+						Log.Logger.Debug($"RESULT MPQ_CHECK fail, CheckId {id} account Id {Session.AccountId}");
 						checkFailed = id;
 
 						continue;
 					}
 
-					Log.outDebug(LogFilter.Warden, $"RESULT MPQ_CHECK passed, CheckId {id} account Id {Session.AccountId}");
+					Log.Logger.Debug($"RESULT MPQ_CHECK passed, CheckId {id} account Id {Session.AccountId}");
 
 					break;
 				}
@@ -468,7 +468,7 @@ class WardenWin : Warden
 		{
 			var check = Global.WardenCheckMgr.GetCheckData(checkFailed);
 			var penalty = ApplyPenalty(check);
-			Log.outWarn(LogFilter.Warden, $"{Session.GetPlayerInfo()} failed Warden check {checkFailed}. Action: {penalty}");
+			Log.Logger.Warning($"{Session.GetPlayerInfo()} failed Warden check {checkFailed}. Action: {penalty}");
 		}
 
 		// Set hold off timer, minimum timer should at least be 1 second

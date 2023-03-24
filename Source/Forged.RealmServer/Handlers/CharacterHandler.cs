@@ -266,7 +266,7 @@ public partial class WorldSession
 			else
 			{
 				// remove wrong guild data
-				Log.outError(LogFilter.Server,
+				Log.Logger.Error(
 							"Player {0} ({1}) marked as member of not existing guild (id: {2}), removing guild membership for player.",
 							pCurrChar.GetName(),
 							pCurrChar.GUID.ToString(),
@@ -454,7 +454,7 @@ public partial class WorldSession
 			SendNotification(CypherStrings.GmOn);
 
 		var IP_str = RemoteAddress;
-		Log.outDebug(LogFilter.Network, $"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
+		Log.Logger.Debug($"Account: {AccountId} (IP: {RemoteAddress}) Login Character: [{pCurrChar.GetName()}] ({pCurrChar.GUID}) Level: {pCurrChar.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
 
 		if (!pCurrChar.IsStandState && !pCurrChar.HasUnitState(UnitState.Stunned))
 			pCurrChar.SetStandState(UnitStandStateType.Stand);
@@ -578,13 +578,13 @@ public partial class WorldSession
 				if (!customizationsForChar.Empty())
 					charInfo.Customizations = new Array<ChrCustomizationChoice>(customizationsForChar.ToArray());
 
-				Log.outDebug(LogFilter.Network, "Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
+				Log.Logger.Debug("Loading Character {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
 
 				if (!charResult.IsDeletedCharacters)
 				{
 					if (!ValidateAppearance((Race)charInfo.RaceId, charInfo.ClassId, (Gender)charInfo.SexId, charInfo.Customizations))
 					{
-						Log.outError(LogFilter.Player, "Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
+						Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), forcing recustomize", charInfo.Guid.ToString());
 
 						charInfo.Customizations.Clear();
 
@@ -654,7 +654,7 @@ public partial class WorldSession
 			{
 				EnumCharactersResult.CharacterInfo charInfo = new(result.GetFields());
 
-				Log.outInfo(LogFilter.Network, "Loading undeleted char guid {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
+				Log.Logger.Information("Loading undeleted char guid {0} from account {1}.", charInfo.Guid.ToString(), AccountId);
 
 				if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
 					Global.CharacterCacheStorage.AddCharacterCacheEntry(charInfo.Guid, AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, true);
@@ -707,7 +707,7 @@ public partial class WorldSession
 
 		if (classEntry == null)
 		{
-			Log.outError(LogFilter.Network, "Class ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.ClassId, AccountId);
+			Log.Logger.Error("Class ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.ClassId, AccountId);
 			SendCharCreate(ResponseCodes.CharCreateFailed);
 
 			return;
@@ -717,7 +717,7 @@ public partial class WorldSession
 
 		if (raceEntry == null)
 		{
-			Log.outError(LogFilter.Network, "Race ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.RaceId, AccountId);
+			Log.Logger.Error("Race ({0}) not found in DBC while creating new char for account (ID: {1}): wrong DBC files or cheater?", charCreate.CreateInfo.RaceId, AccountId);
 			SendCharCreate(ResponseCodes.CharCreateFailed);
 
 			return;
@@ -730,7 +730,7 @@ public partial class WorldSession
 
 			if (raceExpansionRequirement == null)
 			{
-				Log.outError(LogFilter.Cheat, $"Account {AccountId} tried to create character with unavailable race {charCreate.CreateInfo.RaceId}");
+				Log.Logger.Error($"Account {AccountId} tried to create character with unavailable race {charCreate.CreateInfo.RaceId}");
 				SendCharCreate(ResponseCodes.CharCreateFailed);
 
 				return;
@@ -738,7 +738,7 @@ public partial class WorldSession
 
 			if (raceExpansionRequirement.Expansion > (byte)AccountExpansion)
 			{
-				Log.outError(LogFilter.Cheat, $"Expansion {AccountExpansion} account:[{AccountId}] tried to Create character with expansion {raceExpansionRequirement.Expansion} race ({charCreate.CreateInfo.RaceId})");
+				Log.Logger.Error($"Expansion {AccountExpansion} account:[{AccountId}] tried to Create character with expansion {raceExpansionRequirement.Expansion} race ({charCreate.CreateInfo.RaceId})");
 				SendCharCreate(ResponseCodes.CharCreateExpansion);
 
 				return;
@@ -759,7 +759,7 @@ public partial class WorldSession
 			{
 				if (raceClassExpansionRequirement.ActiveExpansionLevel > (byte)Expansion || raceClassExpansionRequirement.AccountExpansionLevel > (byte)AccountExpansion)
 				{
-					Log.outError(LogFilter.Cheat,
+					Log.Logger.Error(
 								$"Account:[{AccountId}] tried to create character with race/class {charCreate.CreateInfo.RaceId}/{charCreate.CreateInfo.ClassId} without required expansion " +
 								$"(had {Expansion}/{AccountExpansion}, required {raceClassExpansionRequirement.ActiveExpansionLevel}/{raceClassExpansionRequirement.AccountExpansionLevel})");
 
@@ -776,7 +776,7 @@ public partial class WorldSession
 				{
 					if (classExpansionRequirement.MinActiveExpansionLevel > (byte)Expansion || classExpansionRequirement.AccountExpansionLevel > (byte)AccountExpansion)
 					{
-						Log.outError(LogFilter.Cheat,
+						Log.Logger.Error(
 									$"Account:[{AccountId}] tried to create character with race/class {charCreate.CreateInfo.RaceId}/{charCreate.CreateInfo.ClassId} without required expansion " +
 									$"(had {Expansion}/{AccountExpansion}, required {classExpansionRequirement.ActiveExpansionLevel}/{classExpansionRequirement.AccountExpansionLevel})");
 
@@ -787,7 +787,7 @@ public partial class WorldSession
 				}
 				else
 				{
-					Log.outError(LogFilter.Cheat, $"Expansion {AccountExpansion} account:[{AccountId}] tried to Create character for race/class combination that is missing requirements in db ({charCreate.CreateInfo.RaceId}/{charCreate.CreateInfo.ClassId})");
+					Log.Logger.Error($"Expansion {AccountExpansion} account:[{AccountId}] tried to Create character for race/class combination that is missing requirements in db ({charCreate.CreateInfo.RaceId}/{charCreate.CreateInfo.ClassId})");
 				}
 			}
 		}
@@ -796,7 +796,7 @@ public partial class WorldSession
 		{
 			if (raceEntry.GetFlags().HasFlag(ChrRacesFlag.NPCOnly))
 			{
-				Log.outError(LogFilter.Network, $"Race ({charCreate.CreateInfo.RaceId}) was not playable but requested while creating new char for account (ID: {AccountId}): wrong DBC files or cheater?");
+				Log.Logger.Error($"Race ({charCreate.CreateInfo.RaceId}) was not playable but requested while creating new char for account (ID: {AccountId}): wrong DBC files or cheater?");
 				SendCharCreate(ResponseCodes.CharCreateDisabled);
 
 				return;
@@ -827,7 +827,7 @@ public partial class WorldSession
 		// prevent character creating with invalid name
 		if (!ObjectManager.NormalizePlayerName(ref charCreate.CreateInfo.Name))
 		{
-			Log.outError(LogFilter.Network, "Account:[{0}] but tried to Create character with empty [name] ", AccountId);
+			Log.Logger.Error("Account:[{0}] but tried to Create character with empty [name] ", AccountId);
 			SendCharCreate(ResponseCodes.CharNameNoName);
 
 			return;
@@ -1066,7 +1066,7 @@ public partial class WorldSession
 												{
 													if (success)
 													{
-														Log.outInfo(LogFilter.Player, "Account: {0} (IP: {1}) Create Character: {2} {3}", AccountId, RemoteAddress, createInfo.Name, newChar.GUID.ToString());
+														Log.Logger.Information("Account: {0} (IP: {1}) Create Character: {2} {3}", AccountId, RemoteAddress, createInfo.Name, newChar.GUID.ToString());
 														Global.ScriptMgr.ForEach<IPlayerOnCreate>(newChar.Class, p => p.OnCreate(newChar));
 														Global.CharacterCacheStorage.AddCharacterCacheEntry(newChar.GUID, AccountId, newChar.GetName(), (byte)newChar.NativeGender, (byte)newChar.Race, (byte)newChar.Class, (byte)newChar.Level, false);
 
@@ -1150,7 +1150,7 @@ public partial class WorldSession
 		}
 
 		var IP_str = RemoteAddress;
-		Log.outInfo(LogFilter.Player, "Account: {0}, IP: {1} deleted character: {2}, {3}, Level: {4}", accountId, IP_str, name, charDelete.Guid.ToString(), level);
+		Log.Logger.Information("Account: {0}, IP: {1} deleted character: {2}, {3}, Level: {4}", accountId, IP_str, name, charDelete.Guid.ToString(), level);
 
 		// To prevent hook failure, place hook before removing reference from DB
 		Global.ScriptMgr.ForEach<IPlayerOnDelete>(p => p.OnDelete(charDelete.Guid, initAccountId)); // To prevent race conditioning, but as it also makes sense, we hand the accountId over for successful delete.
@@ -1168,14 +1168,14 @@ public partial class WorldSession
 	{
 		if (!Player.IsValidRace((Race)packet.Race))
 		{
-			Log.outError(LogFilter.Network, "Invalid race ({0}) sent by accountId: {1}", packet.Race, AccountId);
+			Log.Logger.Error("Invalid race ({0}) sent by accountId: {1}", packet.Race, AccountId);
 
 			return;
 		}
 
 		if (!Player.IsValidGender((Gender)packet.Sex))
 		{
-			Log.outError(LogFilter.Network, "Invalid gender ({0}) sent by accountId: {1}", packet.Sex, AccountId);
+			Log.Logger.Error("Invalid gender ({0}) sent by accountId: {1}", packet.Sex, AccountId);
 
 			return;
 		}
@@ -1209,18 +1209,18 @@ public partial class WorldSession
 	{
 		if (PlayerLoading || Player != null)
 		{
-			Log.outError(LogFilter.Network, "Player tries to login again, AccountId = {0}", AccountId);
+			Log.Logger.Error("Player tries to login again, AccountId = {0}", AccountId);
 			KickPlayer("WorldSession::HandlePlayerLoginOpcode Another client logging in");
 
 			return;
 		}
 
 		_playerLoading = playerLogin.Guid;
-		Log.outDebug(LogFilter.Network, "Character {0} logging in", playerLogin.Guid.ToString());
+		Log.Logger.Debug("Character {0} logging in", playerLogin.Guid.ToString());
 
 		if (!_legitCharacters.Contains(playerLogin.Guid))
 		{
-			Log.outError(LogFilter.Network, "Account ({0}) can't login with that character ({1}).", AccountId, playerLogin.Guid.ToString());
+			Log.Logger.Error("Account ({0}) can't login with that character ({1}).", AccountId, playerLogin.Guid.ToString());
 			KickPlayer("WorldSession::HandlePlayerLoginOpcode Trying to login with a character of another account");
 
 			return;
@@ -1258,7 +1258,7 @@ public partial class WorldSession
 
 				if (index >= SharedConst.MaxAccountTutorialValues)
 				{
-					Log.outError(LogFilter.Network, "CMSG_TUTORIAL_FLAG received bad TutorialBit {0}.", packet.TutorialBit);
+					Log.Logger.Error("CMSG_TUTORIAL_FLAG received bad TutorialBit {0}.", packet.TutorialBit);
 
 					return;
 				}
@@ -1280,7 +1280,7 @@ public partial class WorldSession
 
 				break;
 			default:
-				Log.outError(LogFilter.Network, "CMSG_TUTORIAL_FLAG received unknown TutorialAction {0}.", packet.Action);
+				Log.Logger.Error("CMSG_TUTORIAL_FLAG received unknown TutorialAction {0}.", packet.Action);
 
 				return;
 		}
@@ -1345,7 +1345,7 @@ public partial class WorldSession
 	{
 		if (!_legitCharacters.Contains(request.RenameInfo.Guid))
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"Account {0}, IP: {1} tried to rename character {2}, but it does not belong to their account!",
 						AccountId,
 						RemoteAddress,
@@ -1426,7 +1426,7 @@ public partial class WorldSession
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.outInfo(LogFilter.Player,
+		Log.Logger.Information(
 					"Account: {0} (IP: {1}) Character:[{2}] ({3}) Changed name to: {4}",
 					AccountId,
 					RemoteAddress,
@@ -1554,7 +1554,7 @@ public partial class WorldSession
 	{
 		if (!_legitCharacters.Contains(packet.CustomizeInfo.CharGUID))
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"Account {0}, IP: {1} tried to customise {2}, but it does not belong to their account!",
 						AccountId,
 						RemoteAddress,
@@ -1674,7 +1674,7 @@ public partial class WorldSession
 
 		SendCharCustomize(ResponseCodes.Success, customizeInfo);
 
-		Log.outInfo(LogFilter.Player,
+		Log.Logger.Information(
 					"Account: {0} (IP: {1}), Character[{2}] ({3}) Customized to: {4}",
 					AccountId,
 					RemoteAddress,
@@ -1798,7 +1798,7 @@ public partial class WorldSession
 
 		for (byte i = 0; i < EquipmentSlot.End; ++i)
 		{
-			Log.outDebug(LogFilter.Player, "{0}: ContainerSlot: {1}, Slot: {2}", useEquipmentSet.Items[i].Item.ToString(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
+			Log.Logger.Debug("{0}: ContainerSlot: {1}, Slot: {2}", useEquipmentSet.Items[i].Item.ToString(), useEquipmentSet.Items[i].ContainerSlot, useEquipmentSet.Items[i].Slot);
 
 			// check if item slot is set to "ignored" (raw value == 1), must not be unequipped then
 			if (useEquipmentSet.Items[i].Item == ignoredItemGuid)
@@ -1858,7 +1858,7 @@ public partial class WorldSession
 	{
 		if (!_legitCharacters.Contains(packet.RaceOrFactionChangeInfo.Guid))
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"Account {0}, IP: {1} tried to factionchange character {2}, but it does not belong to their account!",
 						AccountId,
 						RemoteAddress,
@@ -2112,7 +2112,7 @@ public partial class WorldSession
 
 						break;
 					default:
-						Log.outError(LogFilter.Player, $"Could not find language data for race ({factionChangeInfo.RaceID}).");
+						Log.Logger.Error($"Could not find language data for race ({factionChangeInfo.RaceID}).");
 						SendCharFactionChange(ResponseCodes.CharCreateError, factionChangeInfo);
 
 						return;
@@ -2425,7 +2425,7 @@ public partial class WorldSession
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.outDebug(LogFilter.Player, "{0} (IP: {1}) changed race from {2} to {3}", GetPlayerInfo(), RemoteAddress, oldRace, factionChangeInfo.RaceID);
+		Log.Logger.Debug("{0} (IP: {1}) changed race from {2} to {3}", GetPlayerInfo(), RemoteAddress, oldRace, factionChangeInfo.RaceID);
 
 		SendCharFactionChange(ResponseCodes.Success, factionChangeInfo);
 	}
@@ -2595,7 +2595,7 @@ public partial class WorldSession
 		// release spirit after he's killed but before he is updated
 		if (Player.DeathState == DeathState.JustDied)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"HandleRepopRequestOpcode: got request after player {0} ({1}) was killed and before he was updated",
 						Player.GetName(),
 						Player.GUID.ToString());
@@ -2637,7 +2637,7 @@ public partial class WorldSession
 
 		if (graveyardIds.Empty())
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"No graveyards found for zone {0} for player {1} (team {2}) in CMSG_REQUEST_CEMETERY_LIST",
 						zoneId,
 						_guidLow,

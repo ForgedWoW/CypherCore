@@ -26,7 +26,7 @@ public partial class Unit
 	{
 		if (unitMod >= UnitMods.End || modifierType >= UnitModifierFlatType.End)
 		{
-			Log.outError(LogFilter.Unit, "ERROR in HandleStatFlatModifier(): non-existing UnitMods or wrong UnitModifierFlatType!");
+			Log.Logger.Error("ERROR in HandleStatFlatModifier(): non-existing UnitMods or wrong UnitModifierFlatType!");
 
 			return;
 		}
@@ -53,7 +53,7 @@ public partial class Unit
 	{
 		if (unitMod >= UnitMods.End || modifierType >= UnitModifierPctType.End)
 		{
-			Log.outError(LogFilter.Unit, "ERROR in ApplyStatPctModifier(): non-existing UnitMods or wrong UnitModifierPctType!");
+			Log.Logger.Error("ERROR in ApplyStatPctModifier(): non-existing UnitMods or wrong UnitModifierPctType!");
 
 			return;
 		}
@@ -97,7 +97,7 @@ public partial class Unit
 	{
 		if (unitMod >= UnitMods.End || modifierType >= UnitModifierFlatType.End)
 		{
-			Log.outError(LogFilter.Unit, "attempt to access non-existing modifier value from UnitMods!");
+			Log.Logger.Error("attempt to access non-existing modifier value from UnitMods!");
 
 			return 0.0f;
 		}
@@ -109,7 +109,7 @@ public partial class Unit
 	{
 		if (unitMod >= UnitMods.End || modifierType >= UnitModifierPctType.End)
 		{
-			Log.outError(LogFilter.Unit, "attempt to access non-existing modifier value from UnitMods!");
+			Log.Logger.Error("attempt to access non-existing modifier value from UnitMods!");
 
 			return 0.0f;
 		}

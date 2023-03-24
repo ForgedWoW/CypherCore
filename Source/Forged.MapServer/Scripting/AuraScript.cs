@@ -104,7 +104,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 				case AuraScriptHookType.EnterLeaveCombat:
 					return _auraApplication.Target;
 				default:
-					Log.outError(LogFilter.Scripts, "Script: `{0}` Spell: `{1}` AuraScript.GetTarget called in a hook in which the call won't have effect!", ScriptName, ScriptSpellId);
+					Log.Logger.Error("Script: `{0}` Spell: `{1}` AuraScript.GetTarget called in a hook in which the call won't have effect!", ScriptName, ScriptSpellId);
 
 					break;
 			}
@@ -211,7 +211,7 @@ public class AuraScript : BaseSpellScript, IAuraScript
 
 				break;
 			default:
-				Log.outError(LogFilter.Scripts, "Script: `{0}` Spell: `{1}` AuraScript.PreventDefaultAction called in a hook in which the call won't have effect!", ScriptName, ScriptSpellId);
+				Log.Logger.Error("Script: `{0}` Spell: `{1}` AuraScript.PreventDefaultAction called in a hook in which the call won't have effect!", ScriptName, ScriptSpellId);
 
 				break;
 		}

@@ -12,7 +12,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
 	void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)
 	{
-		Log.outDebug(LogFilter.Scenes, "HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
+		Log.Logger.Debug("HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 
 		Player.SceneMgr.OnSceneTrigger(sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 	}
@@ -20,7 +20,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ScenePlaybackComplete)]
 	void HandleScenePlaybackComplete(ScenePlaybackComplete scenePlaybackComplete)
 	{
-		Log.outDebug(LogFilter.Scenes, "HandleScenePlaybackComplete: SceneInstanceID: {0}", scenePlaybackComplete.SceneInstanceID);
+		Log.Logger.Debug("HandleScenePlaybackComplete: SceneInstanceID: {0}", scenePlaybackComplete.SceneInstanceID);
 
 		Player.SceneMgr.OnSceneComplete(scenePlaybackComplete.SceneInstanceID);
 	}
@@ -28,7 +28,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
 	void HandleScenePlaybackCanceled(ScenePlaybackCanceled scenePlaybackCanceled)
 	{
-		Log.outDebug(LogFilter.Scenes, "HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
+		Log.Logger.Debug("HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
 
 		Player.SceneMgr.OnSceneCancel(scenePlaybackCanceled.SceneInstanceID);
 	}

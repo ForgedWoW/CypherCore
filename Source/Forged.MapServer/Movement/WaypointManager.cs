@@ -21,7 +21,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 waypoints. DB table `waypoint_data` is empty!");
+			Log.Logger.Information("Loaded 0 waypoints. DB table `waypoint_data` is empty!");
 
 			return;
 		}
@@ -53,7 +53,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 
 			if (waypoint.moveType >= WaypointMoveType.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
+				Log.Logger.Error($"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 
 				continue;
 			}
@@ -72,7 +72,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} waypoints in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} waypoints in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void ReloadPath(uint id)
@@ -111,7 +111,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 
 			if (waypoint.moveType >= WaypointMoveType.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
+				Log.Logger.Error($"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 
 				continue;
 			}

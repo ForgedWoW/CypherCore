@@ -71,35 +71,35 @@ public class GridMap
 
 		if (header.mapMagic != MapConst.MapMagic || header.versionMagic != MapConst.MapVersionMagic && header.versionMagic != MapConst.MapVersionMagic2) // Hack for some different extractors using v2.0 header
 		{
-			Log.outError(LogFilter.Maps, $"Map file '{filename}' is from an incompatible map version. Please recreate using the mapextractor.");
+			Log.Logger.Error($"Map file '{filename}' is from an incompatible map version. Please recreate using the mapextractor.");
 
 			return LoadResult.ReadFromFileFailed;
 		}
 
 		if (header.areaMapOffset != 0 && !LoadAreaData(reader, header.areaMapOffset))
 		{
-			Log.outError(LogFilter.Maps, "Error loading map area data");
+			Log.Logger.Error("Error loading map area data");
 
 			return LoadResult.ReadFromFileFailed;
 		}
 
 		if (header.heightMapOffset != 0 && !LoadHeightData(reader, header.heightMapOffset))
 		{
-			Log.outError(LogFilter.Maps, "Error loading map height data");
+			Log.Logger.Error("Error loading map height data");
 
 			return LoadResult.ReadFromFileFailed;
 		}
 
 		if (header.liquidMapOffset != 0 && !LoadLiquidData(reader, header.liquidMapOffset))
 		{
-			Log.outError(LogFilter.Maps, "Error loading map liquids data");
+			Log.Logger.Error("Error loading map liquids data");
 
 			return LoadResult.ReadFromFileFailed;
 		}
 
 		if (header.holesSize != 0 && !LoadHolesData(reader, header.holesOffset))
 		{
-			Log.outError(LogFilter.Maps, "Error loading map holes data");
+			Log.Logger.Error("Error loading map holes data");
 
 			return LoadResult.ReadFromFileFailed;
 		}

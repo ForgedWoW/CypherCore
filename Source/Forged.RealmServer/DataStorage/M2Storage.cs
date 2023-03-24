@@ -15,7 +15,7 @@ public class M2Storage
 	public static void LoadM2Cameras(string dataPath)
 	{
 		FlyByCameraStorage.Clear();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Cinematic Camera files");
+		Log.Logger.Information("Loading Cinematic Camera files");
 
 		var oldMSTime = Time.MSTime;
 
@@ -30,7 +30,7 @@ public class M2Storage
 				// Check file has correct magic (MD21)
 				if (m2file.ReadUInt32() != 0x3132444D) //"MD21"
 				{
-					Log.outError(LogFilter.ServerLoading, "Camera file {0} is damaged. File identifier not found.", filename);
+					Log.Logger.Error("Camera file {0} is damaged. File identifier not found.", filename);
 
 					continue;
 				}
@@ -49,15 +49,15 @@ public class M2Storage
 			}
 			catch (EndOfStreamException)
 			{
-				Log.outError(LogFilter.ServerLoading, "Camera file {0} is damaged. Camera references position beyond file end", filename);
+				Log.Logger.Error("Camera file {0} is damaged. Camera references position beyond file end", filename);
 			}
 			catch (FileNotFoundException)
 			{
-				Log.outError(LogFilter.ServerLoading, "File {0} not found!!!!", filename);
+				Log.Logger.Error("File {0} not found!!!!", filename);
 			}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static List<FlyByCamera> GetFlyByCameras(uint cameraId)

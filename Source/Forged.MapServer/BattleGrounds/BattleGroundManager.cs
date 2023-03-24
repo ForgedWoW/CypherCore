@@ -120,7 +120,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			if (m_NextRatedArenaUpdate < diff)
 			{
 				// forced update for rated arenas (scan all, but skipped non rated)
-				Log.outDebug(LogFilter.Arena, "BattlegroundMgr: UPDATING ARENA QUEUES");
+				Log.Logger.Debug("BattlegroundMgr: UPDATING ARENA QUEUES");
 
 				foreach (var teamSize in new[]
 						{
@@ -238,7 +238,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		if (bg_template == null)
 		{
-			Log.outError(LogFilter.Battleground, "Battleground: CreateNewBattleground - bg template not found for {0}", bgTypeId);
+			Log.Logger.Error("Battleground: CreateNewBattleground - bg template not found for {0}", bgTypeId);
 
 			return null;
 		}
@@ -274,7 +274,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Battlegrounds. DB table `Battleground_template` is empty.");
+			Log.Logger.Information("Loaded 0 Battlegrounds. DB table `Battleground_template` is empty.");
 
 			return;
 		}
@@ -293,7 +293,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 			if (bl == null)
 			{
-				Log.outError(LogFilter.Battleground, "Battleground ID {0} not found in BattlemasterList.dbc. Battleground not created.", bgTypeId);
+				Log.Logger.Error("Battleground ID {0} not found in BattlemasterList.dbc. Battleground not created.", bgTypeId);
 
 				continue;
 			}
@@ -318,11 +318,11 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 				}
 				else if (bgTemplate.StartLocation[TeamIds.Alliance] != null) // reload case
 				{
-					Log.outError(LogFilter.Sql, $"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. Ignoring.");
+					Log.Logger.Error($"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. Ignoring.");
 				}
 				else
 				{
-					Log.outError(LogFilter.Sql, $"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. BG not created.");
+					Log.Logger.Error($"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. BG not created.");
 
 					continue;
 				}
@@ -336,11 +336,11 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 				}
 				else if (bgTemplate.StartLocation[TeamIds.Horde] != null) // reload case
 				{
-					Log.outError(LogFilter.Sql, $"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. Ignoring.");
+					Log.Logger.Error($"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. Ignoring.");
 				}
 				else
 				{
-					Log.outError(LogFilter.Sql, $"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. BG not created.");
+					Log.Logger.Error($"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. BG not created.");
 
 					continue;
 				}
@@ -348,7 +348,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 			if (!CreateBattleground(bgTemplate))
 			{
-				Log.outError(LogFilter.Battleground, $"Could not create battleground template class ({bgTemplate.Id})!");
+				Log.Logger.Error($"Could not create battleground template class ({bgTemplate.Id})!");
 
 				continue;
 			}
@@ -361,7 +361,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Battlegrounds in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Battlegrounds in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SendBattlegroundList(Player player, ObjectGuid guid, BattlegroundTypeId bgTypeId)
@@ -391,12 +391,12 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			var team = player.GetBgTeam();
 
 			var pos = bg.GetTeamStartPosition(Battleground.GetTeamIndexByTeamId(team));
-			Log.outDebug(LogFilter.Battleground, $"BattlegroundMgr.SendToBattleground: Sending {player.GetName()} to map {mapid}, {pos.Loc} (bgType {bgTypeId})");
+			Log.Logger.Debug($"BattlegroundMgr.SendToBattleground: Sending {player.GetName()} to map {mapid}, {pos.Loc} (bgType {bgTypeId})");
 			player.TeleportTo(pos.Loc);
 		}
 		else
 		{
-			Log.outError(LogFilter.Battleground, $"BattlegroundMgr.SendToBattleground: Instance {instanceId} (bgType {bgTypeId}) not found while trying to teleport player {player.GetName()}");
+			Log.Logger.Error($"BattlegroundMgr.SendToBattleground: Instance {instanceId} (bgType {bgTypeId}) not found while trying to teleport player {player.GetName()}");
 		}
 	}
 
@@ -541,7 +541,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
+			Log.Logger.Information("Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
 
 			return;
 		}
@@ -556,11 +556,11 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			if (cInfo != null)
 			{
 				if (!cInfo.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster))
-					Log.outError(LogFilter.Sql, "Creature (Entry: {0}) listed in `battlemaster_entry` is not a battlemaster.", entry);
+					Log.Logger.Error("Creature (Entry: {0}) listed in `battlemaster_entry` is not a battlemaster.", entry);
 			}
 			else
 			{
-				Log.outError(LogFilter.Sql, "Creature (Entry: {0}) listed in `battlemaster_entry` does not exist.", entry);
+				Log.Logger.Error("Creature (Entry: {0}) listed in `battlemaster_entry` does not exist.", entry);
 
 				continue;
 			}
@@ -569,7 +569,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 			if (!CliDB.BattlemasterListStorage.ContainsKey(bgTypeId))
 			{
-				Log.outError(LogFilter.Sql, "Table `battlemaster_entry` contain entry {0} for not existed Battleground type {1}, ignored.", entry, bgTypeId);
+				Log.Logger.Error("Table `battlemaster_entry` contain entry {0} for not existed Battleground type {1}, ignored.", entry, bgTypeId);
 
 				continue;
 			}
@@ -580,7 +580,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		CheckBattleMasters();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} battlemaster entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} battlemaster entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday)
@@ -812,7 +812,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		foreach (var creature in templates)
 			if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !mBattleMastersMap.ContainsKey(creature.Value.Entry))
 			{
-				Log.outError(LogFilter.Sql, "CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", creature.Value.Entry);
+				Log.Logger.Error("CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", creature.Value.Entry);
 				templates[creature.Key].Npcflag &= ~(uint)NPCFlags.BattleMaster;
 			}
 	}

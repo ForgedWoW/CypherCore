@@ -33,7 +33,7 @@ public class MultiPersonalPhaseTracker
 			if (playerTracker.IsGridLoadedForPhase(grid.GetGridId(), phaseRef.Key))
 				continue;
 
-			Log.outDebug(LogFilter.Maps, $"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.Id} instance {map.InstanceId}");
+			Log.Logger.Debug($"Loading personal phase objects (phase {phaseRef.Key}) in {cell} for map {map.Id} instance {map.InstanceId}");
 
 			loader.Load(phaseRef.Key);
 

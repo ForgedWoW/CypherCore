@@ -28,7 +28,7 @@ public class StaticMapTree
 
 	public LoadResult InitMap(string fname)
 	{
-		Log.outDebug(LogFilter.Maps, "StaticMapTree.InitMap() : initializing StaticMapTree '{0}'", fname);
+		Log.Logger.Debug("StaticMapTree.InitMap() : initializing StaticMapTree '{0}'", fname);
 
 		if (!File.Exists(fname))
 			return LoadResult.FileNotFound;
@@ -89,7 +89,7 @@ public class StaticMapTree
 		{
 			if (_treeValues == null)
 			{
-				Log.outError(LogFilter.Server, "StaticMapTree.LoadMapTile() : tree has not been initialized [{0}, {1}]", tileX, tileY);
+				Log.Logger.Error("StaticMapTree.LoadMapTile() : tree has not been initialized [{0}, {1}]", tileX, tileY);
 
 				return LoadResult.ReadFromFileFailed;
 			}
@@ -118,7 +118,7 @@ public class StaticMapTree
 							var model = vm.AcquireModelInstance(spawn.Name, spawn.Flags);
 
 							if (model == null)
-								Log.outError(LogFilter.Server, "StaticMapTree.LoadMapTile() : could not acquire WorldModel [{0}, {1}]", tileX, tileY);
+								Log.Logger.Error("StaticMapTree.LoadMapTile() : could not acquire WorldModel [{0}, {1}]", tileX, tileY);
 
 							// update tree
 							if (_spawnIndices.TryGetValue(spawn.Id, out var referencedVal))
@@ -127,7 +127,7 @@ public class StaticMapTree
 								{
 									if (referencedVal >= _nTreeValues)
 									{
-										Log.outError(LogFilter.Maps, "StaticMapTree.LoadMapTile() : invalid tree element ({0}/{1}) referenced in tile {2}", referencedVal, _nTreeValues, fileResult.Name);
+										Log.Logger.Error("StaticMapTree.LoadMapTile() : invalid tree element ({0}/{1}) referenced in tile {2}", referencedVal, _nTreeValues, fileResult.Name);
 
 										continue;
 									}
@@ -145,13 +145,13 @@ public class StaticMapTree
 								// unknown parent spawn might appear in because it overlaps multiple tiles
 								// in case the original tile is swapped but its neighbour is now (adding this spawn)
 								// we want to not mark it as loading error and just skip that model
-								Log.outError(LogFilter.Maps, $"StaticMapTree.LoadMapTile() : invalid tree element (spawn {spawn.Id}) referenced in tile fileResult.Name{fileResult.Name} by map {_mapId}");
+								Log.Logger.Error($"StaticMapTree.LoadMapTile() : invalid tree element (spawn {spawn.Id}) referenced in tile fileResult.Name{fileResult.Name} by map {_mapId}");
 								result = LoadResult.ReadFromFileFailed;
 							}
 						}
 						else
 						{
-							Log.outError(LogFilter.Maps, $"StaticMapTree.LoadMapTile() : cannot read model from file (spawn index {i}) referenced in tile {fileResult.Name} by map {_mapId}");
+							Log.Logger.Error($"StaticMapTree.LoadMapTile() : cannot read model from file (spawn index {i}) referenced in tile {fileResult.Name} by map {_mapId}");
 							result = LoadResult.ReadFromFileFailed;
 						}
 				}

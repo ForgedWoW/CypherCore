@@ -37,7 +37,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 ceature texts. DB table `creature_texts` is empty.");
+			Log.Logger.Information("Loaded 0 ceature texts. DB table `creature_texts` is empty.");
 
 			return;
 		}
@@ -69,7 +69,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE creature_text SET Sound = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 					else
-						Log.outError(LogFilter.Sql, $"GossipManager: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Sound {temp.sound} but sound does not exist.");
+						Log.Logger.Error($"GossipManager: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Sound {temp.sound} but sound does not exist.");
 
 					temp.sound = 0;
 				}
@@ -79,7 +79,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"UPDATE creature_text SET SoundPlayType = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
-					Log.outError(LogFilter.Sql, $"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_text` has PlayType {temp.SoundPlayType} but does not exist.");
+					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_text` has PlayType {temp.SoundPlayType} but does not exist.");
 
 				temp.SoundPlayType = SoundKitPlayType.Normal;
 			}
@@ -89,7 +89,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"UPDATE creature_text SET Language = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
-					Log.outError(LogFilter.Sql, $"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` using Language {temp.lang} but Language does not exist.");
+					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` using Language {temp.lang} but Language does not exist.");
 
 				temp.lang = Language.Universal;
 			}
@@ -99,7 +99,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"UPDATE creature_text SET Type = {ChatMsg.Say} WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
-					Log.outError(LogFilter.Sql, $"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Type {temp.type} but this Chat Type does not exist.");
+					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Type {temp.type} but this Chat Type does not exist.");
 
 				temp.type = ChatMsg.Say;
 			}
@@ -110,7 +110,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE creature_text SET Emote = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 					else
-						Log.outError(LogFilter.Sql, $"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Emote {temp.emote} but emote does not exist.");
+						Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId} in table `creature_texts` has Emote {temp.emote} but emote does not exist.");
 
 					temp.emote = Emote.OneshotNone;
 				}
@@ -121,7 +121,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE creature_text SET BroadcastTextId = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 					else
-						Log.outError(LogFilter.Sql, $"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_texts` has non-existing or incompatible BroadcastTextId {temp.BroadcastTextId}.");
+						Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_texts` has non-existing or incompatible BroadcastTextId {temp.BroadcastTextId}.");
 
 					temp.BroadcastTextId = 0;
 				}
@@ -131,7 +131,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"UPDATE creature_text SET TextRange = 0 WHERE CreatureID = {temp.creatureId} AND GroupID = {temp.groupId}");
 				else
-					Log.outError(LogFilter.Sql, $"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_text` has incorrect TextRange {temp.TextRange}.");
+					Log.Logger.Error($"CreatureTextMgr: Entry {temp.creatureId}, Group {temp.groupId}, Id {temp.id} in table `creature_text` has incorrect TextRange {temp.TextRange}.");
 
 				temp.TextRange = CreatureTextRange.Normal;
 			}
@@ -146,7 +146,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			++textCount;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {textCount} creature texts for {creatureCount} creatures in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {textCount} creature texts for {creatureCount} creatures in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadCreatureTextLocales()
@@ -180,7 +180,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			ObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public uint SendChat(Creature source, byte textGroup, WorldObject whisperTarget = null, ChatMsg msgType = ChatMsg.Addon, Language language = Language.Addon,
@@ -193,7 +193,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 		if (sList == null)
 		{
-			Log.outError(LogFilter.Sql, "GossipManager: Could not find Text for Creature({0}) Entry {1} in 'creature_text' table. Ignoring.", source.GetName(), source.Entry);
+			Log.Logger.Error("GossipManager: Could not find Text for Creature({0}) Entry {1} in 'creature_text' table. Ignoring.", source.GetName(), source.Entry);
 
 			return 0;
 		}
@@ -202,7 +202,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 		if (textGroupContainer.Empty())
 		{
-			Log.outError(LogFilter.ChatSystem, "GossipManager: Could not find TextGroup {0} for Creature({1}) GuidLow {2} Entry {3}. Ignoring.", textGroup, source.GetName(), source.GUID.ToString(), source.Entry);
+			Log.Logger.Error("GossipManager: Could not find TextGroup {0} for Creature({1}) GuidLow {2} Entry {3}. Ignoring.", textGroup, source.GetName(), source.GUID.ToString(), source.Entry);
 
 			return 0;
 		}
@@ -327,7 +327,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 		if (textHolder == null)
 		{
-			Log.outDebug(LogFilter.Unit, "CreatureTextMgr.TextExist: Could not find Text for Creature (entry {0}) in 'creature_text' table.", sourceEntry);
+			Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find Text for Creature (entry {0}) in 'creature_text' table.", sourceEntry);
 
 			return false;
 		}
@@ -336,7 +336,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 		if (textEntryList.Empty())
 		{
-			Log.outDebug(LogFilter.Unit, "CreatureTextMgr.TextExist: Could not find TextGroup {0} for Creature (entry {1}).", textGroup, sourceEntry);
+			Log.Logger.Debug("CreatureTextMgr.TextExist: Could not find TextGroup {0} for Creature (entry {1}).", textGroup, sourceEntry);
 
 			return false;
 		}

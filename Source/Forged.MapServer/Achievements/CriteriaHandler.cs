@@ -42,14 +42,14 @@ public class CriteriaHandler
     {
         if (type >= CriteriaType.Count)
         {
-            Log.outDebug(LogFilter.Achievement, "UpdateCriteria: Wrong criteria type {0}", type);
+            Log.Logger.Debug("UpdateCriteria: Wrong criteria type {0}", type);
 
             return;
         }
 
         if (!referencePlayer)
         {
-            Log.outDebug(LogFilter.Achievement, "UpdateCriteria: Player is NULL! Cant update criteria");
+            Log.Logger.Debug("UpdateCriteria: Player is NULL! Cant update criteria");
 
             return;
         }
@@ -57,14 +57,14 @@ public class CriteriaHandler
         // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
         if (referencePlayer.IsGameMaster || referencePlayer.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
         {
-            Log.outDebug(LogFilter.Achievement,
+            Log.Logger.Debug(
                         $"CriteriaHandler::UpdateCriteria: [Player {referencePlayer.GetName()} {(referencePlayer.IsGameMaster ? "GM mode on" : "disallowed by RBAC")}]" +
                         $" {GetOwnerInfo()}, {type} ({(uint)type}), {miscValue1}, {miscValue2}, {miscValue3}");
 
             return;
         }
 
-        Log.outDebug(LogFilter.Achievement, "UpdateCriteria({0}, {1}, {2}, {3}) {4}", type, type, miscValue1, miscValue2, miscValue3, GetOwnerInfo());
+        Log.Logger.Debug("UpdateCriteria({0}, {1}, {2}, {3}) {4}", type, type, miscValue1, miscValue2, miscValue3, GetOwnerInfo());
 
         var criteriaList = GetCriteriaByType(type, (uint)miscValue1);
 
@@ -593,7 +593,7 @@ public class CriteriaHandler
                 return;
         }
 
-        Log.outDebug(LogFilter.Achievement, "SetCriteriaProgress({0}, {1}) for {2}", criteria.Id, changeValue, GetOwnerInfo());
+        Log.Logger.Debug("SetCriteriaProgress({0}, {1}) for {2}", criteria.Id, changeValue, GetOwnerInfo());
 
         var progress = GetCriteriaProgress(criteria);
 
@@ -793,7 +793,7 @@ public class CriteriaHandler
         if (tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.HordeOnly) && referencePlayer.Team != TeamFaction.Horde ||
             tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.AllianceOnly) && referencePlayer.Team != TeamFaction.Alliance)
         {
-            Log.outTrace(LogFilter.Achievement,
+            Log.Logger.Verbose(
                         "CriteriaHandler.CanUpdateCriteriaTree: (Id: {0} Type {1} CriteriaTree {2}) Wrong faction",
                         criteria.Id,
                         criteria.Entry.Type,
@@ -970,7 +970,7 @@ public class CriteriaHandler
     {
         if (Global.DisableMgr.IsDisabledFor(DisableType.Criteria, criteria.Id, null))
         {
-            Log.outError(LogFilter.Achievement, "CanUpdateCriteria: (Id: {0} Type {1}) Disabled", criteria.Id, criteria.Entry.Type);
+            Log.Logger.Error("CanUpdateCriteria: (Id: {0} Type {1}) Disabled", criteria.Id, criteria.Entry.Type);
 
             return false;
         }
@@ -992,21 +992,21 @@ public class CriteriaHandler
 
         if (!RequirementsSatisfied(criteria, miscValue1, miscValue2, miscValue3, refe, referencePlayer))
         {
-            Log.outTrace(LogFilter.Achievement, "CanUpdateCriteria: (Id: {0} Type {1}) Requirements not satisfied", criteria.Id, criteria.Entry.Type);
+            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Requirements not satisfied", criteria.Id, criteria.Entry.Type);
 
             return false;
         }
 
         if (criteria.Modifier != null && !ModifierTreeSatisfied(criteria.Modifier, miscValue1, miscValue2, refe, referencePlayer))
         {
-            Log.outTrace(LogFilter.Achievement, "CanUpdateCriteria: (Id: {0} Type {1}) Requirements have not been satisfied", criteria.Id, criteria.Entry.Type);
+            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Requirements have not been satisfied", criteria.Id, criteria.Entry.Type);
 
             return false;
         }
 
         if (!ConditionsSatisfied(criteria, referencePlayer))
         {
-            Log.outTrace(LogFilter.Achievement, "CanUpdateCriteria: (Id: {0} Type {1}) Conditions have not been satisfied", criteria.Id, criteria.Entry.Type);
+            Log.Logger.Verbose("CanUpdateCriteria: (Id: {0} Type {1}) Conditions have not been satisfied", criteria.Id, criteria.Entry.Type);
 
             return false;
         }

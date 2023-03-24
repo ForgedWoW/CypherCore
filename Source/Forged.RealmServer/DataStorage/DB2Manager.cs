@@ -194,13 +194,13 @@ public class DB2Manager : Singleton<DB2Manager>
 		{
 			if (battlemaster.MaxLevel < battlemaster.MinLevel)
 			{
-				Log.outError(LogFilter.ServerLoading, $"Battlemaster ({battlemaster.Id}) contains bad values for MinLevel ({battlemaster.MinLevel}) and MaxLevel ({battlemaster.MaxLevel}). Swapping values.");
+				Log.Logger.Error($"Battlemaster ({battlemaster.Id}) contains bad values for MinLevel ({battlemaster.MinLevel}) and MaxLevel ({battlemaster.MaxLevel}). Swapping values.");
 				MathFunctions.Swap(ref battlemaster.MaxLevel, ref battlemaster.MinLevel);
 			}
 
 			if (battlemaster.MaxPlayers < battlemaster.MinPlayers)
 			{
-				Log.outError(LogFilter.ServerLoading, $"Battlemaster ({battlemaster.Id}) contains bad values for MinPlayers ({battlemaster.MinPlayers}) and MaxPlayers ({battlemaster.MaxPlayers}). Swapping values.");
+				Log.Logger.Error($"Battlemaster ({battlemaster.Id}) contains bad values for MinPlayers ({battlemaster.MinPlayers}) and MaxPlayers ({battlemaster.MaxPlayers}). Swapping values.");
 				var minPlayers = battlemaster.MinPlayers;
 				battlemaster.MinPlayers = (sbyte)battlemaster.MaxPlayers;
 				battlemaster.MaxPlayers = minPlayers;
@@ -761,7 +761,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 hotfix info entries.");
+			Log.Logger.Information("Loaded 0 hotfix info entries.");
 
 			return;
 		}
@@ -781,7 +781,7 @@ public class DB2Manager : Singleton<DB2Manager>
 			if (status == HotfixRecord.Status.Valid && !_storage.ContainsKey(tableHash))
 				if (!_hotfixBlob.Any(p => p.ContainsKey((tableHash, recordId))))
 				{
-					Log.outError(LogFilter.Sql, $"Table `hotfix_data` references unknown DB2 store by hash 0x{tableHash:X} and has no reference to `hotfix_blob` in hotfix id {id} with RecordID: {recordId}");
+					Log.Logger.Error($"Table `hotfix_data` references unknown DB2 store by hash 0x{tableHash:X} and has no reference to `hotfix_blob` in hotfix id {id} with RecordID: {recordId}");
 
 					continue;
 				}
@@ -808,7 +808,7 @@ public class DB2Manager : Singleton<DB2Manager>
 					store.EraseRecord((uint)itr.Key.recordId);
 			}
 
-		Log.outInfo(LogFilter.Server, "Loaded {0} hotfix info entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} hotfix info entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadHotfixBlob(BitSet availableDb2Locales)
@@ -819,7 +819,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 hotfix blob entries.");
+			Log.Logger.Information("Loaded 0 hotfix blob entries.");
 
 			return;
 		}
@@ -836,7 +836,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (storeItr != null)
 			{
-				Log.outWarn(LogFilter.Sql, $"Table hash 0x{tableHash:X}({tableHash}) points to a loaded DB2 store {storeItr.GetName()} {recordId}:{localeName}, fill related table instead of hotfix_blob");
+				Log.Logger.Warning($"Table hash 0x{tableHash:X}({tableHash}) points to a loaded DB2 store {storeItr.GetName()} {recordId}:{localeName}, fill related table instead of hotfix_blob");
 
 				continue;
 			}
@@ -845,7 +845,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (!SharedConst.IsValidLocale(locale))
 			{
-				Log.outWarn(LogFilter.Sql, $"`hotfix_blob` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
+				Log.Logger.Warning($"`hotfix_blob` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
 
 				continue;
 			}
@@ -857,7 +857,7 @@ public class DB2Manager : Singleton<DB2Manager>
 			hotfixBlobCount++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {hotfixBlobCount} hotfix blob records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {hotfixBlobCount} hotfix blob records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadHotfixOptionalData(BitSet availableDb2Locales)
@@ -871,7 +871,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 hotfix optional data records.");
+			Log.Logger.Information("Loaded 0 hotfix optional data records.");
 
 			return;
 		}
@@ -885,7 +885,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (allowedHotfixes.Empty())
 			{
-				Log.outError(LogFilter.Sql, $"Table `hotfix_optional_data` references DB2 store by hash 0x{tableHash:X} that is not allowed to have optional data");
+				Log.Logger.Error($"Table `hotfix_optional_data` references DB2 store by hash 0x{tableHash:X} that is not allowed to have optional data");
 
 				continue;
 			}
@@ -895,7 +895,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (db2storage == null)
 			{
-				Log.outError(LogFilter.Sql, $"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
+				Log.Logger.Error($"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
 
 				continue;
 			}
@@ -905,7 +905,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (!SharedConst.IsValidLocale(locale))
 			{
-				Log.outError(LogFilter.Sql, $"`hotfix_optional_data` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
+				Log.Logger.Error($"`hotfix_optional_data` contains invalid locale: {localeName} at TableHash: 0x{tableHash:X} and RecordID: {recordId}");
 
 				continue;
 			}
@@ -919,7 +919,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (allowedHotfixItr == null)
 			{
-				Log.outError(LogFilter.Sql, $"Table `hotfix_optional_data` references non-allowed optional data key 0x{optionalData.Key:X} for DB2 store by hash 0x{tableHash:X} and RecordID: {recordId}");
+				Log.Logger.Error($"Table `hotfix_optional_data` references non-allowed optional data key 0x{optionalData.Key:X} for DB2 store by hash 0x{tableHash:X} and RecordID: {recordId}");
 
 				continue;
 			}
@@ -928,7 +928,7 @@ public class DB2Manager : Singleton<DB2Manager>
 
 			if (!allowedHotfixItr.Item2(optionalData.Data))
 			{
-				Log.outError(LogFilter.Sql, $"Table `hotfix_optional_data` contains invalid data for DB2 store 0x{tableHash:X}, RecordID: {recordId} and Key: 0x{optionalData.Key:X}");
+				Log.Logger.Error($"Table `hotfix_optional_data` contains invalid data for DB2 store 0x{tableHash:X}, RecordID: {recordId} and Key: 0x{optionalData.Key:X}");
 
 				continue;
 			}
@@ -937,7 +937,7 @@ public class DB2Manager : Singleton<DB2Manager>
 			hotfixOptionalDataCount++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {hotfixOptionalDataCount} hotfix optional data records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {hotfixOptionalDataCount} hotfix optional data records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public bool ValidateBroadcastTextTactKeyOptionalData(byte[] data)

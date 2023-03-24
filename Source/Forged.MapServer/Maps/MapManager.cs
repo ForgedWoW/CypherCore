@@ -345,7 +345,7 @@ public class MapManager : Singleton<MapManager>
 	{
 		if (_nextInstanceId == 0xFFFFFFFF)
 		{
-			Log.outError(LogFilter.Maps, "Instance ID overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Instance ID overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 
 			return _nextInstanceId;
@@ -485,7 +485,7 @@ public class MapManager : Singleton<MapManager>
 
 		if (entry == null)
 		{
-			Log.outError(LogFilter.Maps, $"CreateInstance: no entry for map {mapId}");
+			Log.Logger.Error($"CreateInstance: no entry for map {mapId}");
 
 			//ABORT();
 			return null;
@@ -494,7 +494,7 @@ public class MapManager : Singleton<MapManager>
 		// some instances only have one difficulty
 		Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty);
 
-		Log.outDebug(LogFilter.Maps, $"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
+		Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
 		var map = new InstanceMap(mapId, _gridCleanUpDelay, instanceId, difficulty, team, instanceLock);
 
@@ -515,7 +515,7 @@ public class MapManager : Singleton<MapManager>
 
 	BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
 	{
-		Log.outDebug(LogFilter.Maps, $"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
+		Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
 
 		var map = new BattlegroundMap(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
 		map.SetBG(bg);

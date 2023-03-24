@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Serilog;
 
 namespace Framework.Networking;
 
@@ -12,21 +13,21 @@ public abstract class SocketBase : ISocket, IDisposable
 	public delegate void SocketReadCallback(SocketAsyncEventArgs args);
 
 	readonly Socket _socket;
-	readonly IPEndPoint _remoteIPEndPoint;
-	readonly SocketAsyncEventArgs receiveSocketAsyncEventArgsWithCallback;
-	readonly SocketAsyncEventArgs receiveSocketAsyncEventArgs;
+	readonly IPEndPoint _remoteIpEndPoint;
+	readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgsWithCallback;
+	readonly SocketAsyncEventArgs _receiveSocketAsyncEventArgs;
 
 	protected SocketBase(Socket socket)
 	{
 		_socket = socket;
-		_remoteIPEndPoint = (IPEndPoint)_socket.RemoteEndPoint;
+		_remoteIpEndPoint = (IPEndPoint)_socket.RemoteEndPoint;
 
-		receiveSocketAsyncEventArgsWithCallback = new SocketAsyncEventArgs();
-		receiveSocketAsyncEventArgsWithCallback.SetBuffer(new byte[0x4000], 0, 0x4000);
+		_receiveSocketAsyncEventArgsWithCallback = new SocketAsyncEventArgs();
+		_receiveSocketAsyncEventArgsWithCallback.SetBuffer(new byte[0x4000], 0, 0x4000);
 
-		receiveSocketAsyncEventArgs = new SocketAsyncEventArgs();
-		receiveSocketAsyncEventArgs.SetBuffer(new byte[0x4000], 0, 0x4000);
-		receiveSocketAsyncEventArgs.Completed += (sender, args) => ProcessReadAsync(args);
+		_receiveSocketAsyncEventArgs = new SocketAsyncEventArgs();
+		_receiveSocketAsyncEventArgs.SetBuffer(new byte[0x4000], 0, 0x4000);
+		_receiveSocketAsyncEventArgs.Completed += (sender, args) => ProcessReadAsync(args);
 	}
 
 	public virtual void Dispose()
@@ -53,7 +54,7 @@ public abstract class SocketBase : ISocket, IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.outDebug(LogFilter.Network, $"WorldSocket.CloseSocket: {GetRemoteIpAddress()} errored when shutting down socket: {ex.Message}");
+			Log.Logger.Debug($"WorldSocket.CloseSocket: {GetRemoteIpAddress()} errored when shutting down socket: {ex.Message}");
 		}
 
 		OnClose();
@@ -66,7 +67,7 @@ public abstract class SocketBase : ISocket, IDisposable
 
 	public IPEndPoint GetRemoteIpAddress()
 	{
-		return _remoteIPEndPoint;
+		return _remoteIpEndPoint;
 	}
 
 	public void AsyncReadWithCallback(SocketReadCallback callback)
@@ -74,11 +75,11 @@ public abstract class SocketBase : ISocket, IDisposable
 		if (!IsOpen())
 			return;
 
-		receiveSocketAsyncEventArgsWithCallback.Completed += (sender, args) => callback(args);
-		receiveSocketAsyncEventArgsWithCallback.SetBuffer(0, 0x4000);
+		_receiveSocketAsyncEventArgsWithCallback.Completed += (sender, args) => callback(args);
+		_receiveSocketAsyncEventArgsWithCallback.SetBuffer(0, 0x4000);
 
-		if (!_socket.ReceiveAsync(receiveSocketAsyncEventArgsWithCallback))
-			callback(receiveSocketAsyncEventArgsWithCallback);
+		if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgsWithCallback))
+			callback(_receiveSocketAsyncEventArgsWithCallback);
 	}
 
 	public void AsyncRead()
@@ -86,10 +87,10 @@ public abstract class SocketBase : ISocket, IDisposable
 		if (!IsOpen())
 			return;
 
-		receiveSocketAsyncEventArgs.SetBuffer(0, 0x4000);
+		_receiveSocketAsyncEventArgs.SetBuffer(0, 0x4000);
 
-		if (!_socket.ReceiveAsync(receiveSocketAsyncEventArgs))
-			ProcessReadAsync(receiveSocketAsyncEventArgs);
+		if (!_socket.ReceiveAsync(_receiveSocketAsyncEventArgs))
+			ProcessReadAsync(_receiveSocketAsyncEventArgs);
 	}
 
 	public abstract void ReadHandler(SocketAsyncEventArgs args);

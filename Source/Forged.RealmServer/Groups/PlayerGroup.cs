@@ -1478,7 +1478,7 @@ public class PlayerGroup
 				pp.Values.ModifyValue(pp.UnitData).ModifyValue(pp.UnitData.PvpFlags);
 				pp.Values.ModifyValue(pp.UnitData).ModifyValue(pp.UnitData.FactionTemplate);
 				pp.ForceUpdateFieldChange();
-				Log.outDebug(LogFilter.Server, "-- Forced group value update for '{0}'", pp.GetName());
+				Log.Logger.Debug("-- Forced group value update for '{0}'", pp.GetName());
 			}
 		}
 	}

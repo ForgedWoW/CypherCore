@@ -392,7 +392,7 @@ public partial class WorldSession
 			if (!_player.IsInRaidWith(target) || !_player.IsInMap(target))
 			{
 				_player.SendLootError(req.Object, loot.GetOwnerGUID(), LootError.MasterOther);
-				Log.outInfo(LogFilter.Cheat, $"MasterLootItem: Player {Player.GetName()} tried to give an item to ineligible player {target.GetName()} !");
+				Log.Logger.Information($"MasterLootItem: Player {Player.GetName()} tried to give an item to ineligible player {target.GetName()} !");
 
 				return;
 			}
@@ -406,7 +406,7 @@ public partial class WorldSession
 
 			if (req.LootListID >= loot.items.Count)
 			{
-				Log.outDebug(LogFilter.Loot, $"MasterLootItem: Player {Player.GetName()} might be using a hack! (slot {req.LootListID}, size {loot.items.Count})");
+				Log.Logger.Debug($"MasterLootItem: Player {Player.GetName()} might be using a hack! (slot {req.LootListID}, size {loot.items.Count})");
 
 				return;
 			}

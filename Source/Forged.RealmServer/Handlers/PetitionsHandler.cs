@@ -27,7 +27,7 @@ public partial class WorldSession
 		{
 			responsePacket.Allow = false;
 			SendPacket(responsePacket);
-			Log.outDebug(LogFilter.Network, $"CMSG_PETITION_Select failed for petition ({petitionGuid})");
+			Log.Logger.Debug($"CMSG_PETITION_Select failed for petition ({petitionGuid})");
 
 			return;
 		}
@@ -53,7 +53,7 @@ public partial class WorldSession
 
 		if (!creature)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandlePetitionShowListOpcode - {0} not found or you can't interact with him.", guid.ToString());
+			Log.Logger.Debug("WORLD: HandlePetitionShowListOpcode - {0} not found or you can't interact with him.", guid.ToString());
 
 			return;
 		}
@@ -75,7 +75,7 @@ public partial class WorldSession
 
 		if (!creature)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandlePetitionBuyOpcode - {0} not found or you can't interact with him.", packet.Unit.ToString());
+			Log.Logger.Debug("WORLD: HandlePetitionBuyOpcode - {0} not found or you can't interact with him.", packet.Unit.ToString());
 
 			return;
 		}
@@ -151,7 +151,7 @@ public partial class WorldSession
 		{
 			// clear from petition store
 			Global.PetitionMgr.RemovePetition(petition.PetitionGuid);
-			Log.outDebug(LogFilter.Network, $"Invalid petition GUID: {petition.PetitionGuid.Counter}");
+			Log.Logger.Debug($"Invalid petition GUID: {petition.PetitionGuid.Counter}");
 		}
 
 		// fill petition store
@@ -165,7 +165,7 @@ public partial class WorldSession
 
 		if (petition == null)
 		{
-			Log.outDebug(LogFilter.PlayerItems, $"Petition {packet.Item} is not found for player {Player.GUID.Counter} {Player.GetName()}");
+			Log.Logger.Debug($"Petition {packet.Item} is not found for player {Player.GUID.Counter} {Player.GetName()}");
 
 			return;
 		}
@@ -214,7 +214,7 @@ public partial class WorldSession
 
 		if (petition == null)
 		{
-			Log.outDebug(LogFilter.Network, $"CMSG_PETITION_QUERY failed for petition {packet.PetitionGuid}");
+			Log.Logger.Debug($"CMSG_PETITION_QUERY failed for petition {packet.PetitionGuid}");
 
 			return;
 		}
@@ -249,7 +249,7 @@ public partial class WorldSession
 
 		if (petition == null)
 		{
-			Log.outError(LogFilter.Network, $"Petition {packet.PetitionGUID} is not found for player {Player.GUID} {Player.GetName()}");
+			Log.Logger.Error($"Petition {packet.PetitionGUID} is not found for player {Player.GUID} {Player.GetName()}");
 
 			return;
 		}
@@ -313,7 +313,7 @@ public partial class WorldSession
 		// fill petition store
 		petition.AddSignature(AccountId, _player.GUID, false);
 
-		Log.outDebug(LogFilter.Network, "PETITION SIGN: {0} by player: {1} ({2} Account: {3})", packet.PetitionGUID.ToString(), Player.GetName(), Player.GUID.ToString(), AccountId);
+		Log.Logger.Debug("PETITION SIGN: {0} by player: {1} ({2} Account: {3})", packet.PetitionGUID.ToString(), Player.GetName(), Player.GUID.ToString(), AccountId);
 
 		signResult.Error = PetitionSigns.Ok;
 		SendPacket(signResult);
@@ -404,7 +404,7 @@ public partial class WorldSession
 
 		if (petition == null)
 		{
-			Log.outError(LogFilter.Network, "Player {0} ({1}) tried to turn in petition ({2}) that is not present in the database", Player.GetName(), Player.GUID.ToString(), packet.Item.ToString());
+			Log.Logger.Error("Player {0} ({1}) tried to turn in petition ({2}) that is not present in the database", Player.GetName(), Player.GUID.ToString(), packet.Item.ToString());
 
 			return;
 		}
@@ -472,7 +472,7 @@ public partial class WorldSession
 		Global.PetitionMgr.RemovePetition(packet.Item);
 
 		// created
-		Log.outDebug(LogFilter.Network, $"Player {Player.GetName()} ({Player.GUID}) turning in petition {packet.Item}");
+		Log.Logger.Debug($"Player {Player.GetName()} ({Player.GUID}) turning in petition {packet.Item}");
 
 		resultPacket.Result = PetitionTurns.Ok;
 		SendPacket(resultPacket);

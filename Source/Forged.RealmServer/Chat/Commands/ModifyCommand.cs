@@ -308,7 +308,7 @@ class ModifyCommand
 		{
 			var newmoney = (long)targetMoney + moneyToAdd;
 
-			Log.outDebug(LogFilter.ChatSystem, Global.ObjectMgr.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
+			Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.CurrentMoney), targetMoney, moneyToAdd, newmoney);
 
 			if (newmoney <= 0)
 			{
@@ -349,7 +349,7 @@ class ModifyCommand
 			target.ModifyMoney(moneyToAdd);
 		}
 
-		Log.outDebug(LogFilter.ChatSystem, Global.ObjectMgr.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
+		Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.NewMoney), targetMoney, moneyToAdd, target.Money);
 
 		return true;
 	}

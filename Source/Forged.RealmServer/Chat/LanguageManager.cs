@@ -64,7 +64,7 @@ public class LanguageManager : Singleton<LanguageManager>
 		_langsMap.Add((uint)Language.AddonLogged, new LanguageDesc());
 
 		// Log load time
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_langsMap.Count} languages in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_langsMap.Count} languages in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadLanguagesWords()
@@ -84,7 +84,7 @@ public class LanguageManager : Singleton<LanguageManager>
 		}
 
 		// log load time
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_wordsMap.Count} word groups from {wordsNum} words in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_wordsMap.Count} word groups from {wordsNum} words in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public string Translate(string msg, uint language, Locale locale)

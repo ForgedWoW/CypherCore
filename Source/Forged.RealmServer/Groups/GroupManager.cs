@@ -36,7 +36,7 @@ public class GroupManager : Singleton<GroupManager>
 
 		if (newStorageId == NextGroupDbStoreId)
 		{
-			Log.outError(LogFilter.Server, "Group storage ID overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Group storage ID overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -67,7 +67,7 @@ public class GroupManager : Singleton<GroupManager>
 	{
 		if (NextGroupId >= 0xFFFFFFFE)
 		{
-			Log.outError(LogFilter.Server, "Group guid overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Group guid overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -116,7 +116,7 @@ public class GroupManager : Singleton<GroupManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 group definitions. DB table `groups` is empty!");
+				Log.Logger.Information("Loaded 0 group definitions. DB table `groups` is empty!");
 
 				return;
 			}
@@ -141,10 +141,10 @@ public class GroupManager : Singleton<GroupManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Group members...");
+		Log.Logger.Information("Loading Group members...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -154,7 +154,7 @@ public class GroupManager : Singleton<GroupManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 group members. DB table `group_member` is empty!");
+				Log.Logger.Information("Loaded 0 group members. DB table `group_member` is empty!");
 
 				return;
 			}
@@ -168,12 +168,12 @@ public class GroupManager : Singleton<GroupManager>
 				if (group)
 					group.LoadMemberFromDB(result.Read<uint>(1), result.Read<byte>(2), result.Read<byte>(3), (LfgRoles)result.Read<byte>(4));
 				else
-					Log.outError(LogFilter.Server, "GroupMgr:LoadGroups: Consistency failed, can't find group (storage id: {0})", result.Read<uint>(0));
+					Log.Logger.Error("GroupMgr:LoadGroups: Consistency failed, can't find group (storage id: {0})", result.Read<uint>(0));
 
 				++count;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} group members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} group members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 }

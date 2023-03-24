@@ -79,7 +79,7 @@ public class Channel
 			if (banned.IsEmpty)
 				continue;
 
-			Log.outDebug(LogFilter.ChatSystem, $"Channel({name}) loaded player {banned} into bannedStore");
+			Log.Logger.Debug($"Channel({name}) loaded player {banned} into bannedStore");
 			_bannedStore.Add(banned);
 		}
 	}
@@ -452,7 +452,7 @@ public class Channel
 		}
 
 		var channelName = GetName(player.Session.SessionDbcLocale);
-		Log.outDebug(LogFilter.ChatSystem, "SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
+		Log.Logger.Debug("SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
 
 		ChannelListResponse list = new();
 		list.Display = true; // always true?

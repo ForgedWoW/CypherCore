@@ -185,7 +185,7 @@ internal class BattlefieldWG : BattleField
 		}
 		else
 		{
-			Log.outError(LogFilter.Battlefield, "WG: Failed to spawn titan relic.");
+			Log.Logger.Error("WG: Failed to spawn titan relic.");
 		}
 
 		Global.WorldStateMgr.SetValue(WorldStates.BattlefieldWgAttacker, (int)GetAttackerTeam(), false, m_Map);
@@ -838,7 +838,7 @@ internal class BattlefieldWG : BattleField
 			case AreaId.TheChilledQuagmire:
 				return WGGraveyardId.Horde;
 			default:
-				Log.outError(LogFilter.Battlefield, "BattlefieldWG.GetSpiritGraveyardId: Unexpected Area Id {0}", areaId);
+				Log.Logger.Error("BattlefieldWG.GetSpiritGraveyardId: Unexpected Area Id {0}", areaId);
 
 				break;
 		}
@@ -1219,7 +1219,7 @@ internal class BfWGGameObjectBuilding
 				if (_wg.GetRelic())
 					_wg.GetRelic().RemoveFlag(GameObjectFlags.InUse | GameObjectFlags.NotSelectable);
 				else
-					Log.outError(LogFilter.Server, "BattlefieldWG: Titan Relic not found.");
+					Log.Logger.Error("BattlefieldWG: Titan Relic not found.");
 
 				break;
 		}

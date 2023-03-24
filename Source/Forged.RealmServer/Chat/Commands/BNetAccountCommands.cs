@@ -29,7 +29,7 @@ class BNetAccountCommands
 					handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
 
 				if (handler.Session != null)
-					Log.outInfo(LogFilter.Player,
+					Log.Logger.Information(
 								"Account: {0} (IP: {1}) Character:[{2}] ({3}) created Battle.net account {4}{5}{6}",
 								handler.Session.AccountId,
 								handler.Session.RemoteAddress,
@@ -83,7 +83,7 @@ class BNetAccountCommands
 				handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
 
 				if (handler.Session != null)
-					Log.outInfo(LogFilter.Player,
+					Log.Logger.Information(
 								"Account: {0} (IP: {1}) Character:[{2}] ({3}) created Account {4} (Email: '{5}')",
 								handler.Session.AccountId,
 								handler.Session.RemoteAddress,
@@ -189,7 +189,7 @@ class BNetAccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
-			Log.outInfo(LogFilter.Player,
+			Log.Logger.Information(
 						"Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Tried to change password, but the provided old password is wrong.",
 						handler.Session.BattlenetAccountId,
 						handler.Session.RemoteAddress,
@@ -215,7 +215,7 @@ class BNetAccountCommands
 			case AccountOpResult.Ok:
 				handler.SendSysMessage(CypherStrings.CommandPassword);
 
-				Log.outInfo(LogFilter.Player,
+				Log.Logger.Information(
 							"Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Changed Password.",
 							handler.Session.BattlenetAccountId,
 							handler.Session.RemoteAddress,

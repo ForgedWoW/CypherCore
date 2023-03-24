@@ -72,11 +72,11 @@ public class AuraApplication
 			_slot = slot;
 			Target.SetVisibleAura(this);
 			_needClientUpdate = true;
-			Log.outDebug(LogFilter.Spells, "Aura: {0} Effect: {1} put to unit visible auras slot: {2}", Base.Id, EffectMask, slot);
+			Log.Logger.Debug("Aura: {0} Effect: {1} put to unit visible auras slot: {2}", Base.Id, EffectMask, slot);
 		}
 		else
 		{
-			Log.outError(LogFilter.Spells, "Aura: {0} Effect: {1} could not find empty unit visible slot", Base.Id, EffectMask);
+			Log.Logger.Error("Aura: {0} Effect: {1} could not find empty unit visible slot", Base.Id, EffectMask);
 		}
 
 
@@ -99,19 +99,19 @@ public class AuraApplication
 
 		if (aurEff == null)
 		{
-			Log.outError(LogFilter.Spells, "Aura {0} has no effect at effectIndex {1} but _HandleEffect was called", Base.SpellInfo.Id, effIndex);
+			Log.Logger.Error("Aura {0} has no effect at effectIndex {1} but _HandleEffect was called", Base.SpellInfo.Id, effIndex);
 
 			return;
 		}
 
 		if (HasEffect(effIndex) != (!apply))
 		{
-			Log.outError(LogFilter.Spells, "Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
+			Log.Logger.Error("Aura {0} has effect at effectIndex {1}(has effect: {2}) but _HandleEffect with {3} was called", Base.SpellInfo.Id, effIndex, HasEffect(effIndex), apply);
 
 			return;
 		}
 
-		Log.outDebug(LogFilter.Spells, "AuraApplication._HandleEffect: {0}, apply: {1}: amount: {2}", aurEff.AuraType, apply, aurEff.Amount);
+		Log.Logger.Debug("AuraApplication._HandleEffect: {0}, apply: {1}: amount: {2}", aurEff.AuraType, apply, aurEff.Amount);
 
 		if (apply)
 		{

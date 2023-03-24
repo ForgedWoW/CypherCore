@@ -140,7 +140,7 @@ public partial class Unit
 
 		if (!map.IsDungeon)
 		{
-			Log.outError(LogFilter.Unit, $"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.Entry}) that isn't an instance.");
+			Log.Logger.Error($"Creature entry {Entry} call SetInCombatWithZone for map (id: {map.Entry}) that isn't an instance.");
 
 			return;
 		}
@@ -194,7 +194,7 @@ public partial class Unit
 
 			if (!iter.AttackStop())
 			{
-				Log.outError(LogFilter.Unit, "WORLD: Unit has an attacker that isn't attacking it!");
+				Log.Logger.Error("WORLD: Unit has an attacker that isn't attacking it!");
 				AttackerList.Remove(iter);
 			}
 		}
@@ -494,14 +494,14 @@ public partial class Unit
 		SendMessageToSet(new SAttackStop(this, victim), true);
 
 		if (victim)
-			Log.outInfo(LogFilter.Unit,
+			Log.Logger.Information(
 						"{0} {1} stopped attacking {2} {3}",
 						(IsTypeId(TypeId.Player) ? "Player" : "Creature"),
 						GUID.ToString(),
 						(victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
 						victim.GUID.ToString());
 		else
-			Log.outInfo(LogFilter.Unit, "{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
+			Log.Logger.Information("{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
 	}
 
 	public virtual void SetTarget(ObjectGuid guid) { }
@@ -687,7 +687,7 @@ public partial class Unit
 				DamageInfo dmgInfo = new(damageInfo);
 				ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.HitMask, null, dmgInfo, null);
 
-				Log.outDebug(LogFilter.Unit,
+				Log.Logger.Debug(
 							"AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
 							GUID.ToString(),
 							victim.GUID.ToString(),
@@ -992,7 +992,7 @@ public partial class Unit
 
 		if (!skipSettingDeathState)
 		{
-			Log.outDebug(LogFilter.Unit, "SET JUST_DIED");
+			Log.Logger.Debug("SET JUST_DIED");
 			victim.SetDeathState(DeathState.JustDied);
 		}
 
@@ -1008,7 +1008,7 @@ public partial class Unit
 				if (pet.IsAIEnabled)
 					pet.AI.KilledUnit(victim);
 				else
-					Log.outError(LogFilter.Unit, $"Pet doesn't have any AI in Unit.Kill() {pet.GetDebugInfo()}");
+					Log.Logger.Error($"Pet doesn't have any AI in Unit.Kill() {pet.GetDebugInfo()}");
 			}
 		}
 
@@ -1026,7 +1026,7 @@ public partial class Unit
 			{
 				double baseLoss = WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath);
 				var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
-				Log.outDebug(LogFilter.Unit, "We are dead, losing {0} percent durability", loss);
+				Log.Logger.Debug("We are dead, losing {0} percent durability", loss);
 				// Durability loss is calculated more accurately again for each item in Player.DurabilityLoss
 				plrVictim.DurabilityLossAll(baseLoss, false);
 				// durability lost message
@@ -1047,7 +1047,7 @@ public partial class Unit
 		}
 		else // creature died
 		{
-			Log.outDebug(LogFilter.Unit, "DealDamageNotPlayer");
+			Log.Logger.Debug("DealDamageNotPlayer");
 
 			if (!creature.IsPet)
 			{
@@ -1747,7 +1747,7 @@ public partial class Unit
 
 			if (roll < (sum += tmp))
 			{
-				Log.outDebug(LogFilter.Unit, "RollMeleeOutcomeAgainst: CRUSHING <{0}, {1})", sum - tmp, sum);
+				Log.Logger.Debug("RollMeleeOutcomeAgainst: CRUSHING <{0}, {1})", sum - tmp, sum);
 
 				return MeleeHitOutcome.Crushing;
 			}

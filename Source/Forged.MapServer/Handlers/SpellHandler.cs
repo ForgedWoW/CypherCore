@@ -161,7 +161,7 @@ public partial class WorldSession
 		{
 			player.SendEquipError(InventoryResult.ClientLockedOut, item);
 
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"Possible hacking attempt: Player {0} [guid: {1}] tried to open item [guid: {2}, entry: {3}] which is not openable!",
 						player.GetName(),
 						player.GUID.ToString(),
@@ -181,7 +181,7 @@ public partial class WorldSession
 			if (lockInfo == null)
 			{
 				player.SendEquipError(InventoryResult.ItemLocked, item);
-				Log.outError(LogFilter.Network, "WORLD:OpenItem: item [guid = {0}] has an unknown lockId: {1}!", item.GUID.ToString(), lockId);
+				Log.Logger.Error("WORLD:OpenItem: item [guid = {0}] has an unknown lockId: {1}!", item.GUID.ToString(), lockId);
 
 				return;
 			}
@@ -245,7 +245,7 @@ public partial class WorldSession
 
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.Network, $"Wrapped item {item.GUID} don't have record in character_gifts table and will deleted");
+			Log.Logger.Error($"Wrapped item {item.GUID} don't have record in character_gifts table and will deleted");
 			Player.DestroyItem(item.BagSlot, item.Slot, true);
 
 			return;
@@ -318,7 +318,7 @@ public partial class WorldSession
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Network, "WORLD: unknown spell id {0}", cast.Cast.SpellID);
+			Log.Logger.Error("WORLD: unknown spell id {0}", cast.Cast.SpellID);
 
 			return;
 		}
@@ -481,7 +481,7 @@ public partial class WorldSession
 	{
 		if (!Global.SpellMgr.HasSpellInfo(packet.SpellID, Difficulty.None))
 		{
-			Log.outError(LogFilter.Network, "WORLD: unknown PET spell id {0}", packet.SpellID);
+			Log.Logger.Error("WORLD: unknown PET spell id {0}", packet.SpellID);
 
 			return;
 		}
@@ -490,14 +490,14 @@ public partial class WorldSession
 
 		if (pet == null)
 		{
-			Log.outError(LogFilter.Network, "HandlePetCancelAura: Attempt to cancel an aura for non-existant {0} by player '{1}'", packet.PetGUID.ToString(), Player.GetName());
+			Log.Logger.Error("HandlePetCancelAura: Attempt to cancel an aura for non-existant {0} by player '{1}'", packet.PetGUID.ToString(), Player.GetName());
 
 			return;
 		}
 
 		if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
 		{
-			Log.outError(LogFilter.Network, "HandlePetCancelAura: {0} is not a pet of player '{1}'", packet.PetGUID.ToString(), Player.GetName());
+			Log.Logger.Error("HandlePetCancelAura: {0} is not a pet of player '{1}'", packet.PetGUID.ToString(), Player.GetName());
 
 			return;
 		}

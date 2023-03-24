@@ -46,7 +46,7 @@ public partial class WorldSession
 
 		if (command == null)
 		{
-			Log.outError(LogFilter.SessionRpc, "{0} sent ClientRequest with no command.", GetPlayerInfo());
+			Log.Logger.Error("{0} sent ClientRequest with no command.", GetPlayerInfo());
 
 			return BattlenetRpcErrorCode.RpcMalformedRequest;
 		}

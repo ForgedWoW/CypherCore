@@ -30,14 +30,14 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 				if (!((factionGroup & (FactionMasks.Player | FactionMasks.Alliance)) == (FactionMasks.Player | FactionMasks.Alliance)) &&
 					!((factionGroup & (FactionMasks.Player | FactionMasks.Horde)) == (FactionMasks.Player | FactionMasks.Horde)))
 				{
-					Log.outError(LogFilter.Sql, "Faction group {0} defined for character template {1} in `character_template_class` is invalid. Skipped.", factionGroup, templateId);
+					Log.Logger.Error("Faction group {0} defined for character template {1} in `character_template_class` is invalid. Skipped.", factionGroup, templateId);
 
 					continue;
 				}
 
 				if (!CliDB.ChrClassesStorage.ContainsKey(classID))
 				{
-					Log.outError(LogFilter.Sql, "Class {0} defined for character template {1} in `character_template_class` does not exists, skipped.", classID, templateId);
+					Log.Logger.Error("Class {0} defined for character template {1} in `character_template_class` does not exists, skipped.", classID, templateId);
 
 					continue;
 				}
@@ -45,13 +45,13 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 				characterTemplateClasses.Add(templateId, new CharacterTemplateClass(factionGroup, classID));
 			} while (classesResult.NextRow());
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 character template classes. DB table `character_template_class` is empty.");
+			Log.Logger.Information("Loaded 0 character template classes. DB table `character_template_class` is empty.");
 
 		var templates = DB.World.Query("SELECT Id, Name, Description, Level FROM character_template");
 
 		if (templates.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 character templates. DB table `character_template` is empty.");
+			Log.Logger.Information("Loaded 0 character templates. DB table `character_template` is empty.");
 
 			return;
 		}
@@ -67,7 +67,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 
 			if (templ.Classes.Empty())
 			{
-				Log.outError(LogFilter.Sql, "Character template {0} does not have any classes defined in `character_template_class`. Skipped.", templ.TemplateSetId);
+				Log.Logger.Error("Character template {0} does not have any classes defined in `character_template_class`. Skipped.", templ.TemplateSetId);
 
 				continue;
 			}
@@ -75,7 +75,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 			_characterTemplateStore[templ.TemplateSetId] = templ;
 		} while (templates.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()

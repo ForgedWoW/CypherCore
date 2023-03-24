@@ -1110,7 +1110,7 @@ internal class boss_julianne : ScriptedAI
 
 		if (Phase == RAJPhase.Romulo)
 		{
-			Log.outError(LogFilter.Scripts, "boss_julianneAI: cannot take Damage in PhaseRomulo, why was i here?");
+			Log.Logger.Error("boss_julianneAI: cannot take Damage in PhaseRomulo, why was i here?");
 			damage = 0;
 
 			return;
@@ -1150,7 +1150,7 @@ internal class boss_julianne : ScriptedAI
 			}
 		}
 
-		Log.outError(LogFilter.Scripts, "boss_julianneAI: DamageTaken reach end of code, that should not happen.");
+		Log.Logger.Error("boss_julianneAI: DamageTaken reach end of code, that should not happen.");
 	}
 
 	public override void JustDied(Unit killer)
@@ -1447,7 +1447,7 @@ internal class boss_romulo : ScriptedAI
 			}
 		}
 
-		Log.outError(LogFilter.Scenario, "boss_romulo: DamageTaken reach end of code, that should not happen.");
+		Log.Logger.Error("boss_romulo: DamageTaken reach end of code, that should not happen.");
 	}
 
 	public override void JustEngagedWith(Unit who)

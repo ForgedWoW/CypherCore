@@ -74,7 +74,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 		if (CliDB.AchievementStorage.Empty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 achievement references.");
+			Log.Logger.Information("Loaded 0 achievement references.");
 
 			return;
 		}
@@ -96,7 +96,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 		if (achievement1 != null)
 			achievement1.InstanceID = 631; // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} achievement references in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} achievement references in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAchievementScripts()
@@ -109,7 +109,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 achievement scripts. DB table `achievement_scripts` is empty.");
+			Log.Logger.Information("Loaded 0 achievement scripts. DB table `achievement_scripts` is empty.");
 
 			return;
 		}
@@ -123,7 +123,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 			if (achievement == null)
 			{
-				Log.outError(LogFilter.Sql, $"Table `achievement_scripts` contains non-existing Achievement (ID: {achievementId}), skipped.");
+				Log.Logger.Error($"Table `achievement_scripts` contains non-existing Achievement (ID: {achievementId}), skipped.");
 
 				continue;
 			}
@@ -131,7 +131,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			_achievementScripts[achievementId] = Global.ObjectMgr.GetScriptId(scriptName);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_achievementScripts.Count} achievement scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_achievementScripts.Count} achievement scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadCompletedAchievements()
@@ -149,7 +149,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 realm first completed achievements. DB table `character_achievement` is empty.");
+			Log.Logger.Information("Loaded 0 realm first completed achievements. DB table `character_achievement` is empty.");
 
 			return;
 		}
@@ -162,7 +162,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			if (achievement == null)
 			{
 				// Remove non-existing achievements from all characters
-				Log.outError(LogFilter.Achievement, "Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
+				Log.Logger.Error("Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
 
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
 				stmt.AddValue(0, achievementId);
@@ -176,7 +176,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			}
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} realm first completed achievements in {1} ms.", _allCompletedAchievements.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} realm first completed achievements in {1} ms.", _allCompletedAchievements.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadRewards()
@@ -190,7 +190,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, ">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
+			Log.Logger.Information(">> Loaded 0 achievement rewards. DB table `achievement_reward` is empty.");
 
 			return;
 		}
@@ -202,7 +202,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 			if (achievement == null)
 			{
-				Log.outError(LogFilter.Sql, $"Table `achievement_reward` contains a wrong achievement ID ({id}), ignored.");
+				Log.Logger.Error($"Table `achievement_reward` contains a wrong achievement ID ({id}), ignored.");
 
 				continue;
 			}
@@ -219,13 +219,13 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			// must be title or mail at least
 			if (reward.TitleId[0] == 0 && reward.TitleId[1] == 0 && reward.SenderCreatureId == 0)
 			{
-				Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) does not contain title or item reward data. Ignored.");
+				Log.Logger.Error($"Table `achievement_reward` (ID: {id}) does not contain title or item reward data. Ignored.");
 
 				continue;
 			}
 
 			if (achievement.Faction == AchievementFaction.Any && (reward.TitleId[0] == 0 ^ reward.TitleId[1] == 0))
-				Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains the title (A: {reward.TitleId[0]} H: {reward.TitleId[1]}) for only one team.");
+				Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains the title (A: {reward.TitleId[0]} H: {reward.TitleId[1]}) for only one team.");
 
 			if (reward.TitleId[0] != 0)
 			{
@@ -233,7 +233,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 				if (titleEntry == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[0]}) in `title_A`, set to 0");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[0]}) in `title_A`, set to 0");
 					reward.TitleId[0] = 0;
 				}
 			}
@@ -244,7 +244,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 				if (titleEntry == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[1]}) in `title_H`, set to 0");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid title ID ({reward.TitleId[1]}) in `title_H`, set to 0");
 					reward.TitleId[1] = 0;
 				}
 			}
@@ -254,49 +254,49 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			{
 				if (Global.ObjectMgr.GetCreatureTemplate(reward.SenderCreatureId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid creature ID {reward.SenderCreatureId} as sender, mail reward skipped.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid creature ID {reward.SenderCreatureId} as sender, mail reward skipped.");
 					reward.SenderCreatureId = 0;
 				}
 			}
 			else
 			{
 				if (reward.ItemId != 0)
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) does not have sender data, but contains an item reward. Item will not be rewarded.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) does not have sender data, but contains an item reward. Item will not be rewarded.");
 
 				if (!reward.Subject.IsEmpty())
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) does not have sender data, but contains a mail subject.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) does not have sender data, but contains a mail subject.");
 
 				if (!reward.Body.IsEmpty())
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) does not have sender data, but contains mail text.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) does not have sender data, but contains mail text.");
 
 				if (reward.MailTemplateId != 0)
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) does not have sender data, but has a MailTemplateId.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) does not have sender data, but has a MailTemplateId.");
 			}
 
 			if (reward.MailTemplateId != 0)
 			{
 				if (!CliDB.MailTemplateStorage.ContainsKey(reward.MailTemplateId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) is using an invalid MailTemplateId ({reward.MailTemplateId}).");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) is using an invalid MailTemplateId ({reward.MailTemplateId}).");
 					reward.MailTemplateId = 0;
 				}
 				else if (!reward.Subject.IsEmpty() || !reward.Body.IsEmpty())
 				{
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) is using MailTemplateId ({reward.MailTemplateId}) and mail subject/text.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) is using MailTemplateId ({reward.MailTemplateId}) and mail subject/text.");
 				}
 			}
 
 			if (reward.ItemId != 0)
 				if (Global.ObjectMgr.GetItemTemplate(reward.ItemId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
+					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
 					reward.ItemId = 0;
 				}
 
 			_achievementRewards[id] = reward;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} achievement rewards in {1} ms.", _achievementRewards.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} achievement rewards in {1} ms.", _achievementRewards.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadRewardLocales()
@@ -310,7 +310,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty.");
+			Log.Logger.Information("Loaded 0 achievement reward locale strings.  DB table `achievement_reward_locale` is empty.");
 
 			return;
 		}
@@ -322,7 +322,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 			if (!_achievementRewards.ContainsKey(id))
 			{
-				Log.outError(LogFilter.Sql, $"Table `achievement_reward_locale` (ID: {id}) contains locale strings for a non-existing achievement reward.");
+				Log.Logger.Error($"Table `achievement_reward_locale` (ID: {id}) contains locale strings for a non-existing achievement reward.");
 
 				continue;
 			}
@@ -339,7 +339,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			_achievementRewardLocales[id] = data;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} achievement reward locale strings in {1} ms.", _achievementRewardLocales.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} achievement reward locale strings in {1} ms.", _achievementRewardLocales.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public uint GetAchievementScriptId(uint achievementId)

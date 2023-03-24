@@ -38,7 +38,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 SmartAI scripts. DB table `smartai_scripts` is empty.");
+			Log.Logger.Information("Loaded 0 SmartAI scripts. DB table `smartai_scripts` is empty.");
 
 			return;
 		}
@@ -56,7 +56,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 				else
-					Log.outError(LogFilter.Sql, "SmartAIMgr.LoadFromDB: invalid entryorguid (0), skipped loading.");
+					Log.Logger.Error("SmartAIMgr.LoadFromDB: invalid entryorguid (0), skipped loading.");
 
 				continue;
 			}
@@ -68,7 +68,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 				else
-					Log.outError(LogFilter.Sql, "SmartAIMgr.LoadSmartAI: invalid source_type ({0}), skipped loading.", source_type);
+					Log.Logger.Error("SmartAIMgr.LoadSmartAI: invalid source_type ({0}), skipped loading.", source_type);
 
 				continue;
 			}
@@ -82,7 +82,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, "SmartAIMgr.LoadSmartAI: Creature entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
+								Log.Logger.Error("SmartAIMgr.LoadSmartAI: Creature entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
 							continue;
 						}
@@ -96,7 +96,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, "SmartAIMgr.LoadSmartAI: GameObject entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
+								Log.Logger.Error("SmartAIMgr.LoadSmartAI: GameObject entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
 							continue;
 						}
@@ -110,7 +110,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, "SmartAIMgr.LoadSmartAI: AreaTrigger entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
+								Log.Logger.Error("SmartAIMgr.LoadSmartAI: AreaTrigger entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
 							continue;
 						}
@@ -124,7 +124,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, "SmartAIMgr.LoadFromDB: Scene id ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
+								Log.Logger.Error("SmartAIMgr.LoadFromDB: Scene id ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
 							continue;
 						}
@@ -138,7 +138,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Quest id ({temp.EntryOrGuid}) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Quest id ({temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -154,7 +154,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: AreaTrigger entry ({temp.EntryOrGuid} IsServerSide false) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: AreaTrigger entry ({temp.EntryOrGuid} IsServerSide false) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -168,7 +168,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: AreaTrigger entry ({temp.EntryOrGuid} IsServerSide true) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: AreaTrigger entry ({temp.EntryOrGuid} IsServerSide true) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -179,7 +179,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 						else
-							Log.outError(LogFilter.Sql, "SmartAIMgr.LoadFromDB: not yet implemented source_type {0}", source_type);
+							Log.Logger.Error("SmartAIMgr.LoadFromDB: not yet implemented source_type {0}", source_type);
 
 						continue;
 				}
@@ -195,7 +195,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Creature guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Creature guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -207,7 +207,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Creature entry ({creature.Id}) guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Creature entry ({creature.Id}) guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -217,7 +217,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Creature entry ({creature.Id}) guid ({-temp.EntryOrGuid}) is not using SmartAI, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Creature entry ({creature.Id}) guid ({-temp.EntryOrGuid}) is not using SmartAI, skipped loading.");
 
 							continue;
 						}
@@ -233,7 +233,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: GameObject guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: GameObject guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -245,7 +245,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: GameObject entry ({gameObject.Id}) guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: GameObject entry ({gameObject.Id}) guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
@@ -255,7 +255,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
-								Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: GameObject entry ({gameObject.Id}) guid ({-temp.EntryOrGuid}) is not using SmartGameObjectAI, skipped loading.");
+								Log.Logger.Error($"SmartAIMgr.LoadFromDB: GameObject entry ({gameObject.Id}) guid ({-temp.EntryOrGuid}) is not using SmartGameObjectAI, skipped loading.");
 
 							continue;
 						}
@@ -266,7 +266,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 						else
-							Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: GUID-specific scripting not yet implemented for source_type {source_type}");
+							Log.Logger.Error($"SmartAIMgr.LoadFromDB: GUID-specific scripting not yet implemented for source_type {source_type}");
 
 						continue;
 				}
@@ -329,7 +329,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					if (temp.Event.minMaxRepeat.repeatMin == 0 && temp.Event.minMaxRepeat.repeatMax == 0 && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
 					{
 						temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
-						Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
+						Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
 					}
 
 					break;
@@ -338,7 +338,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					if (temp.Event.minMaxRepeat.min == 0 && temp.Event.minMaxRepeat.max == 0 && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
 					{
 						temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
-						Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
+						Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
 					}
 
 					break;
@@ -346,7 +346,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					if (temp.Event.friendlyCC.repeatMin == 0 && temp.Event.friendlyCC.repeatMax == 0 && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
 					{
 						temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
-						Log.outError(LogFilter.Sql, $"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
+						Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
 					}
 
 					break;
@@ -376,7 +376,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					if (e.Link != 0)
 						if (FindLinkedEvent(list, e.Link) == null)
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"SmartAIMgr.LoadFromDB: Entry {0} SourceType {1}, Event {2}, Link Event {3} not found or invalid.",
 										e.EntryOrGuid,
 										e.GetScriptType(),
@@ -385,7 +385,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					if (e.GetEventType() == SmartEvents.Link)
 						if (FindLinkedSourceEvent(list, e.EventId) == null)
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"SmartAIMgr.LoadFromDB: Entry {0} SourceType {1}, Event {2}, Link Source Event not found or invalid. Event will never trigger.",
 										e.EntryOrGuid,
 										e.GetScriptType(),
@@ -394,7 +394,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} SmartAI scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SmartAI scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadWaypointFromDB()
@@ -408,7 +408,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
+			Log.Logger.Information("Loaded 0 SmartAI Waypoint Paths. DB table `waypoints` is empty.");
 
 			return;
 		}
@@ -439,7 +439,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 
 			if (lastId != id)
-				Log.outError(LogFilter.Sql, $"SmartWaypointMgr.LoadFromDB: Path entry {entry}, unexpected point id {id}, expected {lastId}.");
+				Log.Logger.Error($"SmartWaypointMgr.LoadFromDB: Path entry {entry}, unexpected point id {id}, expected {lastId}.");
 
 			++lastId;
 
@@ -454,7 +454,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			++total;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} SmartAI waypoint paths (total {total} waypoints) in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} SmartAI waypoint paths (total {total} waypoints) in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<SmartScriptHolder> GetScript(int entry, SmartScriptType type)
@@ -469,7 +469,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		else
 		{
 			if (entry > 0) //first search is for guid (negative), do not drop error if not found
-				Log.outDebug(LogFilter.ScriptsAi, "SmartAIMgr.GetScript: Could not load Script for Entry {0} ScriptType {1}.", entry, type);
+				Log.Logger.Debug("SmartAIMgr.GetScript: Could not load Script for Entry {0} ScriptType {1}.", entry, type);
 		}
 
 		return temp;
@@ -615,7 +615,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	public static void TC_SAI_IS_BOOLEAN_VALID(SmartScriptHolder e, uint value, [CallerArgumentExpression("value")] string valueName = null)
 	{
 		if (value > 1)
-			Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses param {valueName} of type Boolean with value {value}, valid values are 0 or 1, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses param {valueName} of type Boolean with value {value}, valid values are 0 or 1, skipped.");
 	}
 
 	static bool EventHasInvoker(SmartEvents smartEvent)
@@ -677,7 +677,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	static bool IsTargetValid(SmartScriptHolder e)
 	{
 		if (Math.Abs(e.Target.o) > 2 * MathFunctions.PI)
-			Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} has abs(`target.o` = {e.Target.o}) > 2*PI (orientation is expressed in radians)");
+			Log.Logger.Error($"SmartAIMgr: {e} has abs(`target.o` = {e.Target.o}) > 2*PI (orientation is expressed in radians)");
 
 		switch (e.GetTargetType())
 		{
@@ -686,7 +686,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Target.unitDistance.creature != 0 && Global.ObjectMgr.GetCreatureTemplate(e.Target.unitDistance.creature) == null)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Creature entry {e.Target.unitDistance.creature} as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Target.unitDistance.creature} as target_param1, skipped.");
 
 					return false;
 				}
@@ -698,7 +698,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Target.goDistance.entry != 0 && Global.ObjectMgr.GetGameObjectTemplate(e.Target.goDistance.entry) == null)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent GameObject entry {e.Target.goDistance.entry} as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {e.Target.goDistance.entry} as target_param1, skipped.");
 
 					return false;
 				}
@@ -715,13 +715,13 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (data == null)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} using invalid creature guid {guid} as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} using invalid creature guid {guid} as target_param1, skipped.");
 
 					return false;
 				}
 				else if (e.Target.unitGUID.entry != 0 && e.Target.unitGUID.entry != data.Id)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} using invalid creature entry {e.Target.unitGUID.entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} using invalid creature entry {e.Target.unitGUID.entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
 
 					return false;
 				}
@@ -738,13 +738,13 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (data == null)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} using invalid gameobject guid {guid} as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} using invalid gameobject guid {guid} as target_param1, skipped.");
 
 					return false;
 				}
 				else if (e.Target.goGUID.entry != 0 && e.Target.goGUID.entry != data.Id)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} using invalid gameobject entry {e.Target.goGUID.entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} using invalid gameobject entry {e.Target.goGUID.entry} (expected {data.Id}) for guid {guid} as target_param1, skipped.");
 
 					return false;
 				}
@@ -756,7 +756,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Target.playerDistance.dist == 0)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} has maxDist 0 as target_param1, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} has maxDist 0 as target_param1, skipped.");
 
 					return false;
 				}
@@ -768,7 +768,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartTargets.InvokerParty:
 				if (e.GetScriptType() != SmartScriptType.TimedActionlist && e.GetEventType() != SmartEvents.Link && !EventHasInvoker(e.Event.type))
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.GetEventType()} Action {e.GetActionType()} has invoker target, but event does not provide any invoker!");
+					Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.GetEventType()} Action {e.GetActionType()} has invoker target, but event does not provide any invoker!");
 
 					return false;
 				}
@@ -815,7 +815,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartTargets.ClosestUnspawnedGameobject:
 				break;
 			default:
-				Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: Not handled target_type({0}), Entry {1} SourceType {2} Event {3} Action {4}, skipped.", e.GetTargetType(), e.EntryOrGuid, e.GetScriptType(), e.EventId, e.GetActionType());
+				Log.Logger.Error("SmartAIMgr: Not handled target_type({0}), Entry {1} SourceType {2} Event {3} Action {4}, skipped.", e.GetTargetType(), e.EntryOrGuid, e.GetScriptType(), e.EventId, e.GetActionType());
 
 				return false;
 		}
@@ -830,7 +830,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.SpellVisualKitStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent SpellVisualKit entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent SpellVisualKit entry {entry}, skipped.");
 
 			return false;
 		}
@@ -957,7 +957,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 
 			if (value != 0)
-				Log.outWarn(LogFilter.Sql, $"SmartAIMgr: {e} has unused event_param{index + 1} with value {value}, it should be 0.");
+				Log.Logger.Warning($"SmartAIMgr: {e} has unused event_param{index + 1} with value {value}, it should be 0.");
 		}
 
 		return true;
@@ -1141,7 +1141,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 
 			if (value != 0)
-				Log.outWarn(LogFilter.Sql, $"SmartAIMgr: {e} has unused action_param{index + 1} with value {value}, it should be 0.");
+				Log.Logger.Warning($"SmartAIMgr: {e} has unused action_param{index + 1} with value {value}, it should be 0.");
 		}
 
 		return true;
@@ -1213,7 +1213,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 
 			if (value != 0)
-				Log.outWarn(LogFilter.Sql, $"SmartAIMgr: {e} has unused target_param{index + 1} with value {value}, it must be 0, skipped.");
+				Log.Logger.Warning($"SmartAIMgr: {e} has unused target_param{index + 1} with value {value}, it must be 0, skipped.");
 		}
 
 		return true;
@@ -1223,7 +1223,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (e.Event.type >= SmartEvents.End)
 		{
-			Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetEventType());
+			Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetEventType());
 
 			return false;
 		}
@@ -1231,35 +1231,35 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		// in SMART_SCRIPT_TYPE_TIMED_ACTIONLIST all event types are overriden by core
 		if (e.GetScriptType() != SmartScriptType.TimedActionlist && !Convert.ToBoolean(GetEventMask(e.Event.type) & GetTypeMask(e.GetScriptType())))
 		{
-			Log.outError(LogFilter.Scripts, "SmartAIMgr: EntryOrGuid {0}, event type {1} can not be used for Script type {2}", e.EntryOrGuid, e.GetEventType(), e.GetScriptType());
+			Log.Logger.Error("SmartAIMgr: EntryOrGuid {0}, event type {1} can not be used for Script type {2}", e.EntryOrGuid, e.GetEventType(), e.GetScriptType());
 
 			return false;
 		}
 
 		if (e.Action.type <= 0 || e.Action.type >= SmartActions.End)
 		{
-			Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid action type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetActionType());
+			Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid action type ({2}), skipped.", e.EntryOrGuid, e.EventId, e.GetActionType());
 
 			return false;
 		}
 
 		if (e.Event.event_phase_mask > (uint)SmartEventPhaseBits.All)
 		{
-			Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid phase mask ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.event_phase_mask);
+			Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid phase mask ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.event_phase_mask);
 
 			return false;
 		}
 
 		if (e.Event.event_flags > SmartEventFlags.All)
 		{
-			Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event flags ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.event_flags);
+			Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} using event({1}) has invalid event flags ({2}), skipped.", e.EntryOrGuid, e.EventId, e.Event.event_flags);
 
 			return false;
 		}
 
 		if (e.Link != 0 && e.Link == e.EventId)
 		{
-			Log.outError(LogFilter.Sql, "SmartAIMgr: EntryOrGuid {0} SourceType {1}, Event {2}, Event is linking self (infinite loop), skipped.", e.EntryOrGuid, e.GetScriptType(), e.EventId);
+			Log.Logger.Error("SmartAIMgr: EntryOrGuid {0} SourceType {1}, Event {2}, Event is linking self (infinite loop), skipped.", e.EntryOrGuid, e.GetScriptType(), e.EventId);
 
 			return false;
 		}
@@ -1302,14 +1302,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 						if (spellInfo == null)
 						{
-							Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Spell entry {e.Event.spellHit.spell}, skipped.");
+							Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Spell entry {e.Event.spellHit.spell}, skipped.");
 
 							return false;
 						}
 
 						if (e.Event.spellHit.school != 0 && ((SpellSchoolMask)e.Event.spellHit.school & spellInfo.SchoolMask) != spellInfo.SchoolMask)
 						{
-							Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses Spell entry {e.Event.spellHit.spell} with invalid school mask, skipped.");
+							Log.Logger.Error($"SmartAIMgr: {e} uses Spell entry {e.Event.spellHit.spell} with invalid school mask, skipped.");
 
 							return false;
 						}
@@ -1338,7 +1338,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					if (e.Event.los.hostilityMode >= (uint)LOSHostilityMode.End)
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses hostilityMode with invalid value {e.Event.los.hostilityMode} (max allowed value {LOSHostilityMode.End - 1}), skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses hostilityMode with invalid value {e.Event.los.hostilityMode} (max allowed value {LOSHostilityMode.End - 1}), skipped.");
 
 						return false;
 					}
@@ -1349,14 +1349,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.Respawn:
 					if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && CliDB.MapStorage.LookupByKey(e.Event.respawn.map) == null)
 					{
-						Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Map entry {e.Event.respawn.map}, skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Event.respawn.map}, skipped.");
 
 						return false;
 					}
 
 					if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && !CliDB.AreaTableStorage.ContainsKey(e.Event.respawn.area))
 					{
-						Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Area entry {e.Event.respawn.area}, skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Area entry {e.Event.respawn.area}, skipped.");
 
 						return false;
 					}
@@ -1393,7 +1393,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.VictimCasting:
 					if (e.Event.targetCasting.spellId > 0 && !Global.SpellMgr.HasSpellInfo(e.Event.targetCasting.spellId, Difficulty.None))
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent Spell entry {e.Event.spellHit.spell}, skipped.");
+						Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent Spell entry {e.Event.spellHit.spell}, skipped.");
 
 						return false;
 					}
@@ -1459,7 +1459,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					if (MotionMaster.IsInvalidMovementGeneratorType((MovementGeneratorType)e.Event.movementInform.type))
 					{
-						Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses invalid Motion type {e.Event.movementInform.type}, skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses invalid Motion type {e.Event.movementInform.type}, skipped.");
 
 						return false;
 					}
@@ -1477,7 +1477,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					if (e.Event.areatrigger.id != 0 && (e.GetScriptType() == SmartScriptType.AreaTriggerEntity || e.GetScriptType() == SmartScriptType.AreaTriggerEntityServerside))
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, skipped.");
+						Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} areatrigger param not supported for SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY and SMART_SCRIPT_TYPE_AREATRIGGER_ENTITY_SERVERSIDE, skipped.");
 
 						return false;
 					}
@@ -1510,7 +1510,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					if (e.Event.friendlyHealthPct.maxHpPct > 100 || e.Event.friendlyHealthPct.minHpPct > 100)
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} has pct value above 100, skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} has pct value above 100, skipped.");
 
 						return false;
 					}
@@ -1531,7 +1531,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 							break;
 						default:
-							Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses invalid target_type {e.GetTargetType()}, skipped.");
+							Log.Logger.Error($"SmartAIMgr: {e} uses invalid target_type {e.GetTargetType()}, skipped.");
 
 							return false;
 					}
@@ -1540,28 +1540,28 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.DistanceCreature:
 					if (e.Event.distance.guid == 0 && e.Event.distance.entry == 0)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE did not provide creature guid or entry, skipped.");
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE did not provide creature guid or entry, skipped.");
 
 						return false;
 					}
 
 					if (e.Event.distance.guid != 0 && e.Event.distance.entry != 0)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE provided both an entry and guid, skipped.");
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE provided both an entry and guid, skipped.");
 
 						return false;
 					}
 
 					if (e.Event.distance.guid != 0 && Global.ObjectMgr.GetCreatureData(e.Event.distance.guid) == null)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid {0}, skipped.", e.Event.distance.guid);
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid {0}, skipped.", e.Event.distance.guid);
 
 						return false;
 					}
 
 					if (e.Event.distance.entry != 0 && Global.ObjectMgr.GetCreatureTemplate(e.Event.distance.entry) == null)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry {0}, skipped.", e.Event.distance.entry);
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry {0}, skipped.", e.Event.distance.entry);
 
 						return false;
 					}
@@ -1570,28 +1570,28 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.DistanceGameobject:
 					if (e.Event.distance.guid == 0 && e.Event.distance.entry == 0)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT did not provide gameobject guid or entry, skipped.");
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT did not provide gameobject guid or entry, skipped.");
 
 						return false;
 					}
 
 					if (e.Event.distance.guid != 0 && e.Event.distance.entry != 0)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT provided both an entry and guid, skipped.");
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT provided both an entry and guid, skipped.");
 
 						return false;
 					}
 
 					if (e.Event.distance.guid != 0 && Global.ObjectMgr.GetGameObjectData(e.Event.distance.guid) == null)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.distance.guid);
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.distance.guid);
 
 						return false;
 					}
 
 					if (e.Event.distance.entry != 0 && Global.ObjectMgr.GetGameObjectTemplate(e.Event.distance.entry) == null)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry {0}, skipped.", e.Event.distance.entry);
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry {0}, skipped.", e.Event.distance.entry);
 
 						return false;
 					}
@@ -1603,14 +1603,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					if (e.Event.counter.id == 0)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid counter id {0}, skipped.", e.Event.counter.id);
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid counter id {0}, skipped.", e.Event.counter.id);
 
 						return false;
 					}
 
 					if (e.Event.counter.value == 0)
 					{
-						Log.outError(LogFilter.Sql, "SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid value {0}, skipped.", e.Event.counter.value);
+						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_COUNTER_SET using invalid value {0}, skipped.", e.Event.counter.value);
 
 						return false;
 					}
@@ -1620,7 +1620,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					if (e.Action.type == SmartActions.CallScriptReset)
 					{
 						// There might be SMART_TARGET_* cases where this should be allowed, they will be handled if needed
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses event SMART_EVENT_RESET and action SMART_ACTION_CALL_SCRIPT_RESET, skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses event SMART_EVENT_RESET and action SMART_ACTION_CALL_SCRIPT_RESET, skipped.");
 
 						return false;
 					}
@@ -1633,7 +1633,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.QuestObjCompletion:
 					if (Global.ObjectMgr.GetQuestObjective(e.Event.questObjective.id) == null)
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {e.Event.questObjective.id}, skipped.");
+						Log.Logger.Error($"SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {e.Event.questObjective.id}, skipped.");
 
 						return false;
 					}
@@ -1685,11 +1685,11 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.WaypointStart:
 				case SmartEvents.PhaseChange:
 				case SmartEvents.IsBehindTarget:
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: Unused event_type {e} skipped.");
+					Log.Logger.Error($"SmartAIMgr: Unused event_type {e} skipped.");
 
 					return false;
 				default:
-					Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: Not handled event_type({0}), Entry {1} SourceType {2} Event {3} Action {4}, skipped.", e.GetEventType(), e.EntryOrGuid, e.GetScriptType(), e.EventId, e.GetActionType());
+					Log.Logger.Error("SmartAIMgr: Not handled event_type({0}), Entry {1} SourceType {2} Event {3} Action {4}, skipped.", e.GetEventType(), e.EntryOrGuid, e.GetScriptType(), e.EventId, e.GetActionType());
 
 					return false;
 			}
@@ -1719,7 +1719,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.SetFaction:
 				if (e.Action.faction.factionId != 0 && CliDB.FactionTemplateStorage.LookupByKey(e.Action.faction.factionId) == null)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Faction {e.Action.faction.factionId}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Faction {e.Action.faction.factionId}, skipped.");
 
 					return false;
 				}
@@ -1731,7 +1731,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					if (e.Action.morphOrMount.creature > 0 && Global.ObjectMgr.GetCreatureTemplate(e.Action.morphOrMount.creature) == null)
 					{
-						Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Creature entry {e.Action.morphOrMount.creature}, skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Action.morphOrMount.creature}, skipped.");
 
 						return false;
 					}
@@ -1740,13 +1740,13 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					{
 						if (e.Action.morphOrMount.creature != 0)
 						{
-							Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} has ModelID set with also set CreatureId, skipped.");
+							Log.Logger.Error($"SmartAIMgr: {e} has ModelID set with also set CreatureId, skipped.");
 
 							return false;
 						}
 						else if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.morphOrMount.model))
 						{
-							Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Model id {e.Action.morphOrMount.model}, skipped.");
+							Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Model id {e.Action.morphOrMount.model}, skipped.");
 
 							return false;
 						}
@@ -1773,7 +1773,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (e.Action.animKit.type > 3)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses invalid AnimKit type {e.Action.animKit.type}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses invalid AnimKit type {e.Action.animKit.type}, skipped.");
 
 					return false;
 				}
@@ -1800,7 +1800,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (!CliDB.TaxiPathStorage.ContainsKey(e.Action.taxi.id))
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses invalid Taxi path ID {e.Action.taxi.id}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses invalid Taxi path ID {e.Action.taxi.id}, skipped.");
 
 					return false;
 				}
@@ -1853,7 +1853,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				foreach (var spellEffectInfo in spellInfo.Effects)
 					if (spellEffectInfo.IsEffect(SpellEffectName.KillCredit) || spellEffectInfo.IsEffect(SpellEffectName.KillCredit2))
 						if (spellEffectInfo.TargetA.Target == Targets.UnitCaster)
-							Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: {e.Action.cast.spell} targetA: {spellEffectInfo.TargetA.Target} - targetB: {spellEffectInfo.TargetB.Target}) has invalid target for this Action");
+							Log.Logger.Error($"SmartAIMgr: {e} Effect: SPELL_EFFECT_KILL_CREDIT: (SpellId: {e.Action.cast.spell} targetA: {spellEffectInfo.TargetA.Target} - targetB: {spellEffectInfo.TargetB.Target}) has invalid target for this Action");
 
 				break;
 			}
@@ -1880,13 +1880,13 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					if (data == null)
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} specifies invalid CasterTargetType guid ({spawnType},{guid})");
+						Log.Logger.Error($"SmartAIMgr: {e} specifies invalid CasterTargetType guid ({spawnType},{guid})");
 
 						return false;
 					}
 					else if (e.Action.crossCast.targetParam2 != 0 && e.Action.crossCast.targetParam2 != data.Id)
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} specifies invalid entry {e.Action.crossCast.targetParam2} (expected {data.Id}) for CasterTargetType guid ({spawnType},{guid})");
+						Log.Logger.Error($"SmartAIMgr: {e} specifies invalid entry {e.Action.crossCast.targetParam2} (expected {data.Id}) for CasterTargetType guid ({spawnType},{guid})");
 
 						return false;
 					}
@@ -1897,7 +1897,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.InvokerCast:
 				if (e.GetScriptType() != SmartScriptType.TimedActionlist && e.GetEventType() != SmartEvents.Link && !EventHasInvoker(e.Event.type))
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} has invoker cast action, but event does not provide any invoker!");
+					Log.Logger.Error($"SmartAIMgr: {e} has invoker cast action, but event does not provide any invoker!");
 
 					return false;
 				}
@@ -1919,14 +1919,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					if (!qid.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
 					{
-						Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} SpecialFlags for Quest entry {e.Action.quest.questId} does not include FLAGS_EXPLORATION_OR_EVENT(2), skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} SpecialFlags for Quest entry {e.Action.quest.questId} does not include FLAGS_EXPLORATION_OR_EVENT(2), skipped.");
 
 						return false;
 					}
 				}
 				else
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Quest entry {e.Action.quest.questId}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Quest entry {e.Action.quest.questId}, skipped.");
 
 					return false;
 				}
@@ -1935,7 +1935,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.SetEventPhase:
 				if (e.Action.setEventPhase.phase >= (uint)SmartPhase.Max)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} attempts to set phase {e.Action.setEventPhase.phase}. Phase mask cannot be used past phase {SmartPhase.Max - 1}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} attempts to set phase {e.Action.setEventPhase.phase}. Phase mask cannot be used past phase {SmartPhase.Max - 1}, skipped.");
 
 					return false;
 				}
@@ -1944,13 +1944,13 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.IncEventPhase:
 				if (e.Action.incEventPhase.inc == 0 && e.Action.incEventPhase.dec == 0)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} is incrementing phase by 0, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} is incrementing phase by 0, skipped.");
 
 					return false;
 				}
 				else if (e.Action.incEventPhase.inc > (uint)SmartPhase.Max || e.Action.incEventPhase.dec > (uint)SmartPhase.Max)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} attempts to increment phase by too large value, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} attempts to increment phase by too large value, skipped.");
 
 					return false;
 				}
@@ -1972,7 +1972,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					e.Action.randomPhase.phase5 >= (uint)SmartPhase.Max ||
 					e.Action.randomPhase.phase6 >= (uint)SmartPhase.Max)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} attempts to set invalid phase, skipped.");
+					Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} attempts to set invalid phase, skipped.");
 
 					return false;
 				}
@@ -1984,7 +1984,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				if (e.Action.randomPhaseRange.phaseMin >= (uint)SmartPhase.Max ||
 					e.Action.randomPhaseRange.phaseMax >= (uint)SmartPhase.Max)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} attempts to set invalid phase, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} attempts to set invalid phase, skipped.");
 
 					return false;
 				}
@@ -2000,7 +2000,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (e.Action.summonCreature.type < (uint)TempSummonType.TimedOrDeadDespawn || e.Action.summonCreature.type > (uint)TempSummonType.ManualDespawn)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.summonCreature.type}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.summonCreature.type}, skipped.");
 
 					return false;
 				}
@@ -2014,7 +2014,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (e.GetTargetType() == SmartTargets.Position)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses incorrect TargetType {e.GetTargetType()}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TargetType {e.GetTargetType()}, skipped.");
 
 					return false;
 				}
@@ -2030,7 +2030,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.SetSheath:
 				if (e.Action.setSheath.sheath != 0 && e.Action.setSheath.sheath >= (uint)SheathState.Max)
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses incorrect Sheath state {e.Action.setSheath.sheath}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses incorrect Sheath state {e.Action.setSheath.sheath}, skipped.");
 
 					return false;
 				}
@@ -2040,7 +2040,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.react.state > (uint)ReactStates.Aggressive)
 				{
-					Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: Creature {0} Event {1} Action {2} uses invalid React State {3}, skipped.", e.EntryOrGuid, e.EventId, e.GetActionType(), e.Action.react.state);
+					Log.Logger.Error("SmartAIMgr: Creature {0} Event {1} Action {2} uses invalid React State {3}, skipped.", e.EntryOrGuid, e.EventId, e.GetActionType(), e.Action.react.state);
 
 					return false;
 				}
@@ -2071,7 +2071,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.Teleport:
 				if (!CliDB.MapStorage.ContainsKey(e.Action.teleport.mapID))
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Map entry {e.Action.teleport.mapID}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Action.teleport.mapID}, skipped.");
 
 					return false;
 				}
@@ -2090,7 +2090,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (path == null || path.nodes.Empty())
 				{
-					Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent WaypointPath id {e.Action.wpStart.pathID}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent WaypointPath id {e.Action.wpStart.pathID}, skipped.");
 
 					return false;
 				}
@@ -2125,7 +2125,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.RemovePower:
 				if (e.Action.power.powerType > (int)PowerType.Max)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent Power {e.Action.power.powerType}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Power {e.Action.power.powerType}, skipped.");
 
 					return false;
 				}
@@ -2139,7 +2139,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (eventId < 1 || eventId >= events.Length)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStop.id}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStop.id}, skipped.");
 
 					return false;
 				}
@@ -2148,7 +2148,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (!eventData.IsValid())
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStop.id}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStop.id}, skipped.");
 
 					return false;
 				}
@@ -2163,7 +2163,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (eventId < 1 || eventId >= events.Length)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStart.id}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStart.id}, skipped.");
 
 					return false;
 				}
@@ -2172,7 +2172,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (!eventData.IsValid())
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStart.id}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent event, eventId {e.Action.gameEventStart.id}, skipped.");
 
 					return false;
 				}
@@ -2187,7 +2187,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					if (equipId != 0 && Global.ObjectMgr.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
 					{
-						Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id {0} for creature {1}, skipped.", equipId, e.EntryOrGuid);
+						Log.Logger.Error("SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id {0} for creature {1}, skipped.", equipId, e.EntryOrGuid);
 
 						return false;
 					}
@@ -2199,7 +2199,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.setInstanceData.type > 1)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses invalid data type {e.Action.setInstanceData.type} (value range 0-1), skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses invalid data type {e.Action.setInstanceData.type} (value range 0-1), skipped.");
 
 					return false;
 				}
@@ -2207,7 +2207,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					if (e.Action.setInstanceData.data > (int)EncounterState.ToBeDecided)
 					{
-						Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.data} (value range 0-5), skipped.");
+						Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.data} (value range 0-5), skipped.");
 
 						return false;
 					}
@@ -2222,14 +2222,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (apply != 0 && apply != 1)
 				{
-					Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid apply value {0} (Should be 0 or 1) for creature {1}, skipped", apply, e.EntryOrGuid);
+					Log.Logger.Error("SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid apply value {0} (Should be 0 or 1) for creature {1}, skipped", apply, e.EntryOrGuid);
 
 					return false;
 				}
 
 				if (!CliDB.PhaseStorage.ContainsKey(phaseId))
 				{
-					Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid phaseid {0} for creature {1}, skipped", phaseId, e.EntryOrGuid);
+					Log.Logger.Error("SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid phaseid {0} for creature {1}, skipped", phaseId, e.EntryOrGuid);
 
 					return false;
 				}
@@ -2243,14 +2243,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (apply != 0 && apply != 1)
 				{
-					Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid apply value {0} (Should be 0 or 1) for creature {1}, skipped", apply, e.EntryOrGuid);
+					Log.Logger.Error("SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid apply value {0} (Should be 0 or 1) for creature {1}, skipped", apply, e.EntryOrGuid);
 
 					return false;
 				}
 
 				if (Global.DB2Mgr.GetPhasesForGroup(phaseGroup).Empty())
 				{
-					Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id {0} for creature {1}, skipped", phaseGroup, e.EntryOrGuid);
+					Log.Logger.Error("SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id {0} for creature {1}, skipped", phaseGroup, e.EntryOrGuid);
 
 					return false;
 				}
@@ -2261,7 +2261,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (Global.ObjectMgr.GetSceneTemplate(e.Action.scene.sceneId) == null)
 				{
-					Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {0} but scene don't exist, skipped", e.Action.scene.sceneId);
+					Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {0} but scene don't exist, skipped", e.Action.scene.sceneId);
 
 					return false;
 				}
@@ -2272,7 +2272,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (Global.ObjectMgr.GetSceneTemplate(e.Action.scene.sceneId) == null)
 				{
-					Log.outError(LogFilter.Sql, "SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {0} but scene don't exist, skipped", e.Action.scene.sceneId);
+					Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {0} but scene don't exist, skipped", e.Action.scene.sceneId);
 
 					return false;
 				}
@@ -2283,7 +2283,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (Global.ObjectMgr.GetSpawnData((SpawnObjectType)e.Action.respawnData.spawnType, e.Action.respawnData.spawnId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} specifies invalid spawn data ({e.Action.respawnData.spawnType},{e.Action.respawnData.spawnId})");
+					Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} specifies invalid spawn data ({e.Action.respawnData.spawnType},{e.Action.respawnData.spawnId})");
 
 					return false;
 				}
@@ -2294,7 +2294,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.enableTempGO.duration == 0)
 				{
-					Log.outError(LogFilter.Sql, $"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} does not specify duration");
+					Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} does not specify duration");
 
 					return false;
 				}
@@ -2305,7 +2305,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (!CliDB.CinematicSequencesStorage.ContainsKey(e.Action.cinematic.entry))
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC {e} uses invalid entry {e.Action.cinematic.entry}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC {e} uses invalid entry {e.Action.cinematic.entry}, skipped.");
 
 					return false;
 				}
@@ -2316,7 +2316,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.pauseMovement.pauseTimer == 0)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} does not specify pause duration");
+					Log.Logger.Error($"SmartAIMgr: {e} does not specify pause duration");
 
 					return false;
 				}
@@ -2329,14 +2329,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.movementSpeed.movementType >= (int)MovementGeneratorType.Max)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid movementType {e.Action.movementSpeed.movementType}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid movementType {e.Action.movementSpeed.movementType}, skipped.");
 
 					return false;
 				}
 
 				if (e.Action.movementSpeed.speedInteger == 0 && e.Action.movementSpeed.speedFraction == 0)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses speed 0, skipped.");
+					Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses speed 0, skipped.");
 
 					return false;
 				}
@@ -2349,28 +2349,28 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (areaEntry == null)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideLight.zoneId}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideLight.zoneId}, skipped.");
 
 					return false;
 				}
 
 				if (areaEntry.ParentAreaID != 0)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses subzone (ID: {e.Action.overrideLight.zoneId}) instead of zone, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses subzone (ID: {e.Action.overrideLight.zoneId}) instead of zone, skipped.");
 
 					return false;
 				}
 
 				if (!CliDB.LightStorage.ContainsKey(e.Action.overrideLight.areaLightId))
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent areaLightId {e.Action.overrideLight.areaLightId}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent areaLightId {e.Action.overrideLight.areaLightId}, skipped.");
 
 					return false;
 				}
 
 				if (e.Action.overrideLight.overrideLightId != 0 && !CliDB.LightStorage.ContainsKey(e.Action.overrideLight.overrideLightId))
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent overrideLightId {e.Action.overrideLight.overrideLightId}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent overrideLightId {e.Action.overrideLight.overrideLightId}, skipped.");
 
 					return false;
 				}
@@ -2383,14 +2383,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (areaEntry == null)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideWeather.zoneId}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent zoneId {e.Action.overrideWeather.zoneId}, skipped.");
 
 					return false;
 				}
 
 				if (areaEntry.ParentAreaID != 0)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses subzone (ID: {e.Action.overrideWeather.zoneId}) instead of zone, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses subzone (ID: {e.Action.overrideWeather.zoneId}) instead of zone, skipped.");
 
 					return false;
 				}
@@ -2399,7 +2399,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.SetAIAnimKit:
 			{
-				Log.outError(LogFilter.Sql, $"SmartAIMgr: Deprecated Event:({e}) skipped.");
+				Log.Logger.Error($"SmartAIMgr: Deprecated Event:({e}) skipped.");
 
 				break;
 			}
@@ -2407,7 +2407,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.setHealthPct.percent > 100 || e.Action.setHealthPct.percent == 0)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} is trying to set invalid HP percent {e.Action.setHealthPct.percent}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} is trying to set invalid HP percent {e.Action.setHealthPct.percent}, skipped.");
 
 					return false;
 				}
@@ -2528,7 +2528,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (Global.ConversationDataStorage.GetConversationTemplate(e.Action.conversation.id) == null)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid entry {e.Action.conversation.id}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid entry {e.Action.conversation.id}, skipped.");
 
 					return false;
 				}
@@ -2560,7 +2560,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				if (e.Action.activateGameObject.gameObjectAction >= (uint)GameObjectActions.Max)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} has gameObjectAction parameter out of range (max allowed {(uint)GameObjectActions.Max - 1}, current value {e.Action.activateGameObject.gameObjectAction}), skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} has gameObjectAction parameter out of range (max allowed {(uint)GameObjectActions.Max - 1}, current value {e.Action.activateGameObject.gameObjectAction}), skipped.");
 
 					return false;
 				}
@@ -2619,7 +2619,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				if (e.Action.becomePersonalClone.type < (uint)TempSummonType.TimedOrDeadDespawn || e.Action.becomePersonalClone.type > (uint)TempSummonType.ManualDespawn)
 				{
-					Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.becomePersonalClone.type}, skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses incorrect TempSummonType {e.Action.becomePersonalClone.type}, skipped.");
 
 					return false;
 				}
@@ -2652,11 +2652,11 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.SetSightDist:
 			case SmartActions.Flee:
 			case SmartActions.RemoveAllGameobjects:
-				Log.outError(LogFilter.Sql, $"SmartAIMgr: Unused action_type: {e} Skipped.");
+				Log.Logger.Error($"SmartAIMgr: Unused action_type: {e} Skipped.");
 
 				return false;
 			default:
-				Log.outError(LogFilter.ScriptsAi, "SmartAIMgr: Not handled action_type({0}), event_type({1}), Entry {2} SourceType {3} Event {4}, skipped.", e.GetActionType(), e.GetEventType(), e.EntryOrGuid, e.GetScriptType(), e.EventId);
+				Log.Logger.Error("SmartAIMgr: Not handled action_type({0}), event_type({1}), Entry {2} SourceType {3} Event {4}, skipped.", e.GetActionType(), e.GetEventType(), e.EntryOrGuid, e.GetScriptType(), e.EventId);
 
 				return false;
 		}
@@ -2671,7 +2671,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.AnimKitStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} uses non-existent AnimKit entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent AnimKit entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2703,7 +2703,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 						if (data == null)
 						{
-							Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} using non-existent Creature guid {guid}, skipped.");
+							Log.Logger.Error($"SmartAIMgr: {e} using non-existent Creature guid {guid}, skipped.");
 
 							return false;
 						}
@@ -2722,7 +2722,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		if (entry == 0 || !Global.CreatureTextMgr.TextExist(entry, (byte)id))
 		{
-			Log.outError(LogFilter.Sql, $"SmartAIMgr: {e} using non-existent Text id {id}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} using non-existent Text id {id}, skipped.");
 
 			return false;
 		}
@@ -2734,7 +2734,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Creature entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2746,7 +2746,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent GameObject entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2758,7 +2758,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (Global.ObjectMgr.GetQuestTemplate(entry) == null)
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Quest entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Quest entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2770,7 +2770,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!Global.SpellMgr.HasSpellInfo(entry, Difficulty.None))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Spell entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Spell entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2782,7 +2782,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (max < min)
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses min/max params wrong ({min}/{max}), skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses min/max params wrong ({min}/{max}), skipped.");
 
 			return false;
 		}
@@ -2794,7 +2794,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (data == 0)
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} Parameter can not be NULL, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} Parameter can not be NULL, skipped.");
 
 			return false;
 		}
@@ -2806,7 +2806,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.EmotesStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Emote entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Emote entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2818,7 +2818,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.ItemSparseStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Item entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Item entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2830,7 +2830,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.EmotesTextStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Text Emote entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Text Emote entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2842,7 +2842,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.AreaTriggerStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent AreaTrigger entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent AreaTrigger entry {entry}, skipped.");
 
 			return false;
 		}
@@ -2854,7 +2854,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 	{
 		if (!CliDB.SoundKitStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"SmartAIMgr: {e} uses non-existent Sound entry {entry}, skipped.");
+			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Sound entry {entry}, skipped.");
 
 			return false;
 		}

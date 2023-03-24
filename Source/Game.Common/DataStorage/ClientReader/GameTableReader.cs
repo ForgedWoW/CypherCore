@@ -16,7 +16,7 @@ public class GameTableReader
 
 		if (!File.Exists(path + fileName))
 		{
-			Log.outError(LogFilter.ServerLoading, "File {0} not found.", fileName);
+			Log.Logger.Error("File {0} not found.", fileName);
 
 			return storage;
 		}
@@ -27,7 +27,7 @@ public class GameTableReader
 
 			if (headers.IsEmpty())
 			{
-				Log.outError(LogFilter.ServerLoading, "GameTable file {0} is empty.", fileName);
+				Log.Logger.Error("GameTable file {0} is empty.", fileName);
 
 				return storage;
 			}

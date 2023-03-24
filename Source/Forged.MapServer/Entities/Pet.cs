@@ -269,7 +269,7 @@ public class Pet : Guardian
 
 			if (!Location.IsPositionValid)
 			{
-				Log.outError(LogFilter.Pet,
+				Log.Logger.Error(
 							"Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
 							GUID.ToString(),
 							Entry,
@@ -312,7 +312,7 @@ public class Pet : Guardian
 				break;
 			default:
 				if (!IsPetGhoul())
-					Log.outError(LogFilter.Pet, "Pet have incorrect type ({0}) for pet loading.", PetType);
+					Log.Logger.Error("Pet have incorrect type ({0}) for pet loading.", PetType);
 
 				break;
 		}
@@ -331,7 +331,7 @@ public class Pet : Guardian
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Pet, "Pet ({0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})", GUID.ToString(), Entry, Location.X, Location.Y);
+			Log.Logger.Error("Pet ({0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})", GUID.ToString(), Entry, Location.X, Location.Y);
 
 			return false;
 		}
@@ -443,7 +443,7 @@ public class Pet : Guardian
 					CastPetAuras(current);
 				}
 
-				Log.outDebug(LogFilter.Pet, $"New Pet has {GUID}");
+				Log.Logger.Debug($"New Pet has {GUID}");
 
 				var specId = specializationId;
 				var petSpec = CliDB.ChrSpecializationStorage.LookupByKey(specId);
@@ -696,7 +696,7 @@ public class Pet : Guardian
 				if (IsControlled)
 					if (owner.PetGUID != GUID)
 					{
-						Log.outError(LogFilter.Pet, $"Pet {Entry} is not pet of owner {OwningPlayer.GetName()}, removed");
+						Log.Logger.Error($"Pet {Entry} is not pet of owner {OwningPlayer.GetName()}, removed");
 						Remove(PetSaveMode.NotInSlot);
 
 						return;
@@ -819,7 +819,7 @@ public class Pet : Guardian
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Pet,
+			Log.Logger.Error(
 						"Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
 						GUID.ToString(),
 						Entry,
@@ -833,7 +833,7 @@ public class Pet : Guardian
 
 		if (cinfo == null)
 		{
-			Log.outError(LogFilter.Pet, "CreateBaseAtCreature() failed, creatureInfo is missing!");
+			Log.Logger.Error("CreateBaseAtCreature() failed, creatureInfo is missing!");
 
 			return false;
 		}
@@ -1167,7 +1167,7 @@ public class Pet : Guardian
 
 	bool CreateBaseAtTamed(CreatureTemplate cinfo, Map map)
 	{
-		Log.outDebug(LogFilter.Pet, "CreateBaseForTamed");
+		Log.Logger.Debug("CreateBaseForTamed");
 
 		if (!Create(map.GenerateLowGuid(HighGuid.Pet), map, cinfo.Entry, Global.ObjectMgr.GeneratePetNumber()))
 			return false;
@@ -1251,7 +1251,7 @@ public class Pet : Guardian
 
 	void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
 	{
-		Log.outDebug(LogFilter.Pet, "Loading auras for {0}", GUID.ToString());
+		Log.Logger.Debug("Loading auras for {0}", GUID.ToString());
 
 		ObjectGuid casterGuid = default;
 		ObjectGuid itemGuid = default;
@@ -1297,14 +1297,14 @@ public class Pet : Guardian
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Pet, "Pet._LoadAuras: Unknown aura (spellid {0}), ignore.", key.SpellId);
+					Log.Logger.Error("Pet._LoadAuras: Unknown aura (spellid {0}), ignore.", key.SpellId);
 
 					continue;
 				}
 
 				if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.ContainsKey(difficulty))
 				{
-					Log.outError(LogFilter.Pet, $"Pet._LoadAuras: Unknown difficulty {difficulty} (spellid {key.SpellId}), ignore.");
+					Log.Logger.Error($"Pet._LoadAuras: Unknown difficulty {difficulty} (spellid {key.SpellId}), ignore.");
 
 					continue;
 				}
@@ -1349,7 +1349,7 @@ public class Pet : Guardian
 
 					aura.SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts);
 					aura.ApplyForTargets();
-					Log.outInfo(LogFilter.Pet, "Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
+					Log.Logger.Information("Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
 				}
 			} while (auraResult.NextRow());
 	}
@@ -1413,7 +1413,7 @@ public class Pet : Guardian
 			// do pet spell book cleanup
 			if (state == PetSpellState.Unchanged) // spell load case
 			{
-				Log.outError(LogFilter.Pet, "addSpell: Non-existed in SpellStore spell #{0} request, deleting for all pets in `pet_spell`.", spellId);
+				Log.Logger.Error("addSpell: Non-existed in SpellStore spell #{0} request, deleting for all pets in `pet_spell`.", spellId);
 
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_PET_SPELL);
 
@@ -1423,7 +1423,7 @@ public class Pet : Guardian
 			}
 			else
 			{
-				Log.outError(LogFilter.Pet, "addSpell: Non-existed in SpellStore spell #{0} request.", spellId);
+				Log.Logger.Error("addSpell: Non-existed in SpellStore spell #{0} request.", spellId);
 			}
 
 			return false;

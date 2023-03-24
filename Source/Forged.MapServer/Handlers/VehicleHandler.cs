@@ -35,7 +35,7 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"HandleRequestVehiclePrevSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
 						Player.GUID.ToString(),
 						seat.Flags);
@@ -58,7 +58,7 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"HandleRequestVehicleNextSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
 						Player.GUID.ToString(),
 						seat.Flags);
@@ -81,7 +81,7 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"HandleMoveChangeVehicleSeats, {0} tried to switch seats but current seatflags {1} don't permit that.",
 						Player.GUID.ToString(),
 						seat.Flags);
@@ -127,7 +127,7 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"HandleRequestVehicleSwitchSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
 						Player.GUID.ToString(),
 						seat.Flags);
@@ -185,7 +185,7 @@ public partial class WorldSession
 
 		if (!vehicle)
 		{
-			Log.outError(LogFilter.Network, "HandleEjectPassenger: {0} is not in a vehicle!", Player.GUID.ToString());
+			Log.Logger.Error("HandleEjectPassenger: {0} is not in a vehicle!", Player.GUID.ToString());
 
 			return;
 		}
@@ -196,14 +196,14 @@ public partial class WorldSession
 
 			if (!unit)
 			{
-				Log.outError(LogFilter.Network, "{0} tried to eject {1} from vehicle, but the latter was not found in world!", Player.GUID.ToString(), packet.Passenger.ToString());
+				Log.Logger.Error("{0} tried to eject {1} from vehicle, but the latter was not found in world!", Player.GUID.ToString(), packet.Passenger.ToString());
 
 				return;
 			}
 
 			if (!unit.IsOnVehicle(vehicle.GetBase()))
 			{
-				Log.outError(LogFilter.Network, "{0} tried to eject {1}, but they are not in the same vehicle", Player.GUID.ToString(), packet.Passenger.ToString());
+				Log.Logger.Error("{0} tried to eject {1}, but they are not in the same vehicle", Player.GUID.ToString(), packet.Passenger.ToString());
 
 				return;
 			}
@@ -213,12 +213,12 @@ public partial class WorldSession
 			if (seat.IsEjectable())
 				unit.ExitVehicle();
 			else
-				Log.outError(LogFilter.Network, "{0} attempted to eject {1} from non-ejectable seat.", Player.GUID.ToString(), packet.Passenger.ToString());
+				Log.Logger.Error("{0} attempted to eject {1} from non-ejectable seat.", Player.GUID.ToString(), packet.Passenger.ToString());
 		}
 
 		else
 		{
-			Log.outError(LogFilter.Network, "HandleEjectPassenger: {0} tried to eject invalid {1}", Player.GUID.ToString(), packet.Passenger.ToString());
+			Log.Logger.Error("HandleEjectPassenger: {0} tried to eject invalid {1}", Player.GUID.ToString(), packet.Passenger.ToString());
 		}
 	}
 
@@ -236,7 +236,7 @@ public partial class WorldSession
 				if (seat.CanEnterOrExit())
 					Player.ExitVehicle();
 				else
-					Log.outError(LogFilter.Network,
+					Log.Logger.Error(
 								"{0} tried to exit vehicle, but seatflags {1} (ID: {2}) don't permit that.",
 								Player.GUID.ToString(),
 								seat.Id,

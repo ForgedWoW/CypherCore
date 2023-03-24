@@ -756,7 +756,7 @@ public class Garrison
 
 			if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
 			{
-				Log.outError(LogFilter.Garrison, "Garrison attempted to spawn gameobject whose template doesn't exist ({0})", entry);
+				Log.Logger.Error("Garrison attempted to spawn gameobject whose template doesn't exist ({0})", entry);
 
 				return null;
 			}

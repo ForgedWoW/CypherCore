@@ -28,7 +28,7 @@ class RuinsofLordaeronArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RuinsofLordaeronArena: Failed to spawn door object!");
+			Log.Logger.Error("RuinsofLordaeronArena: Failed to spawn door object!");
 
 			return false;
 		}
@@ -38,7 +38,7 @@ class RuinsofLordaeronArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RuinsofLordaeronArena: Failed to spawn buff object!");
+			Log.Logger.Error("RuinsofLordaeronArena: Failed to spawn buff object!");
 
 			return false;
 		}

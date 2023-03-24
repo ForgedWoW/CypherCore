@@ -57,7 +57,7 @@ internal class spell_item_flask_of_the_north : SpellScript, IHasSpellEffects
 
 		if (possibleSpells.Empty())
 		{
-			Log.outWarn(LogFilter.Spells, "Missing spells for class {0} in script spell_item_flask_of_the_north", caster.Class);
+			Log.Logger.Warning("Missing spells for class {0} in script spell_item_flask_of_the_north", caster.Class);
 
 			return;
 		}

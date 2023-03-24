@@ -45,7 +45,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
         if (CliDB.ModifierTreeStorage.Empty())
         {
-            Log.outInfo(LogFilter.ServerLoading, "Loaded 0 criteria modifiers.");
+            Log.Logger.Information("Loaded 0 criteria modifiers.");
 
             return;
         }
@@ -67,7 +67,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
                 parentNode.Children.Add(treeNode);
         }
 
-        Log.outInfo(LogFilter.ServerLoading, "Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public void LoadCriteriaList()
@@ -245,7 +245,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
                 _criteriasByFailEvent[criteriaEntry.FailEvent].Add((int)criteriaEntry.FailAsset, criteria);
         }
 
-        Log.outInfo(LogFilter.ServerLoading, $"Loaded {criterias} criteria, {guildCriterias} guild criteria, {scenarioCriterias} scenario criteria and {questObjectiveCriterias} quest objective criteria in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+        Log.Logger.Information($"Loaded {criterias} criteria, {guildCriterias} guild criteria, {scenarioCriterias} scenario criteria and {questObjectiveCriterias} quest objective criteria in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
     }
 
     public void LoadCriteriaData()
@@ -258,7 +258,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
         if (result.IsEmpty())
         {
-            Log.outInfo(LogFilter.ServerLoading, "Loaded 0 additional criteria data. DB table `criteria_data` is empty.");
+            Log.Logger.Information("Loaded 0 additional criteria data. DB table `criteria_data` is empty.");
 
             return;
         }
@@ -273,7 +273,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
             if (criteria == null)
             {
-                Log.outError(LogFilter.Sql, "Table `criteria_data` contains data for non-existing criteria (Entry: {0}). Ignored.", criteria_id);
+                Log.Logger.Error("Table `criteria_data` contains data for non-existing criteria (Entry: {0}). Ignored.", criteria_id);
 
                 continue;
             }
@@ -285,7 +285,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
             if (!scriptName.IsEmpty())
             {
                 if (dataType != CriteriaDataType.Script)
-                    Log.outError(LogFilter.Sql, "Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteria_id, dataType);
+                    Log.Logger.Error("Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteria_id, dataType);
                 else
                     scriptId = Global.ObjectMgr.GetScriptId(scriptName);
             }
@@ -308,7 +308,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
             ++count;
         } while (result.NextRow());
 
-        Log.outInfo(LogFilter.ServerLoading, "Loaded {0} additional criteria data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} additional criteria data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
     public CriteriaTree GetCriteriaTree(uint criteriaTreeId)

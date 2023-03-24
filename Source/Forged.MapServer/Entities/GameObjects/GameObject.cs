@@ -460,7 +460,7 @@ namespace Game.Entities
 				}
 				catch (Exception ex)
 				{
-					Log.outException(ex);	
+					Log.Logger.Error(ex, "");	
 				}
 			}
 		}
@@ -497,7 +497,7 @@ namespace Game.Entities
 			if (AI != null)
 				AI.UpdateAI(diff);
 			else if (!AIM_Initialize())
-				Log.outError(LogFilter.Server, "Could not initialize GameObjectAI");
+				Log.Logger.Error("Could not initialize GameObjectAI");
 
 			if (_despawnDelay != 0)
 			{
@@ -1158,7 +1158,7 @@ namespace Game.Entities
 
 			if (data == null)
 			{
-				Log.outError(LogFilter.Maps, "GameObject.SaveToDB failed, cannot get gameobject data!");
+				Log.Logger.Error("GameObject.SaveToDB failed, cannot get gameobject data!");
 
 				return;
 			}
@@ -1238,7 +1238,7 @@ namespace Game.Entities
 
 			if (data == null)
 			{
-				Log.outError(LogFilter.Maps, "Gameobject (SpawnId: {0}) not found in table `gameobject`, can't load. ", spawnId);
+				Log.Logger.Error("Gameobject (SpawnId: {0}) not found in table `gameobject`, can't load. ", spawnId);
 
 				return false;
 			}
@@ -1285,7 +1285,7 @@ namespace Game.Entities
 			{
 				if (!_respawnCompatibilityMode)
 				{
-					Log.outWarn(LogFilter.Sql, $"GameObject {entry} (SpawnID {spawnId}) is not spawned by default, but tries to use a non-hack spawn system. This will not work. Defaulting to compatibility mode.");
+					Log.Logger.Warning($"GameObject {entry} (SpawnID {spawnId}) is not spawned by default, but tries to use a non-hack spawn system. This will not work. Defaulting to compatibility mode.");
 					_respawnCompatibilityMode = true;
 				}
 
@@ -1578,7 +1578,7 @@ namespace Game.Entities
 			switch (action)
 			{
 				case GameObjectActions.None:
-					Log.outFatal(LogFilter.Spells, $"Spell {spellId} has action type NONE in effect {effectIndex}");
+					Log.Logger.Fatal($"Spell {spellId} has action type NONE in effect {effectIndex}");
 
 					break;
 				case GameObjectActions.AnimateCustom0:
@@ -1665,7 +1665,7 @@ namespace Game.Entities
 						artKitValue = templateAddon.ArtKits[artKitIndex];
 
 					if (artKitValue == 0)
-						Log.outError(LogFilter.Sql, $"GameObject {Entry} hit by spell {spellId} needs `artkit{artKitIndex}` in `gameobject_template_addon`");
+						Log.Logger.Error($"GameObject {Entry} hit by spell {spellId} needs `artkit{artKitIndex}` in `gameobject_template_addon`");
 					else
 						GoArtKit = artKitValue;
 
@@ -1684,7 +1684,7 @@ namespace Game.Entities
 					if (GoType == GameObjectTypes.Transport)
 						SetGoState((GameObjectState)action);
 					else
-						Log.outError(LogFilter.Spells, $"Spell {spellId} targeted non-transport gameobject for transport only action \"Go to Floor\" {action} in effect {effectIndex}");
+						Log.Logger.Error($"Spell {spellId} targeted non-transport gameobject for transport only action \"Go to Floor\" {action} in effect {effectIndex}");
 
 					break;
 				case GameObjectActions.PlayAnimKit:
@@ -1732,7 +1732,7 @@ namespace Game.Entities
 
 					break;
 				default:
-					Log.outError(LogFilter.Spells, $"Spell {spellId} has unhandled action {action} in effect {effectIndex}");
+					Log.Logger.Error($"Spell {spellId} has unhandled action {action} in effect {effectIndex}");
 
 					break;
 			}
@@ -2063,7 +2063,7 @@ namespace Game.Entities
 
 						if (info.Goober.eventID != 0)
 						{
-							Log.outDebug(LogFilter.Scripts, "Goober ScriptStart id {0} for GO entry {1} (GUID {2}).", info.Goober.eventID, Entry, SpawnId);
+							Log.Logger.Debug("Goober ScriptStart id {0} for GO entry {1} (GUID {2}).", info.Goober.eventID, Entry, SpawnId);
 							GameEvents.Trigger(info.Goober.eventID, player, this);
 						}
 
@@ -2173,7 +2173,7 @@ namespace Game.Entities
 
 							//provide error, no fishable zone or area should be 0
 							if (zone_skill == 0)
-								Log.outError(LogFilter.Sql, "Fishable areaId {0} are not properly defined in `skill_fishing_base_level`.", subzone);
+								Log.Logger.Error("Fishable areaId {0} are not properly defined in `skill_fishing_base_level`.", subzone);
 
 							int skill = player.GetSkillValue(SkillType.ClassicFishing);
 
@@ -2193,7 +2193,7 @@ namespace Game.Entities
 
 							var roll = RandomHelper.IRand(1, 100);
 
-							Log.outDebug(LogFilter.Server, "Fishing check (skill: {0} zone min skill: {1} chance {2} roll: {3}", skill, zone_skill, chance, roll);
+							Log.Logger.Debug("Fishing check (skill: {0} zone min skill: {1} chance {2} roll: {3}", skill, zone_skill, chance, roll);
 
 							player.UpdateFishingSkill();
 
@@ -2713,7 +2713,7 @@ namespace Game.Entities
 				}
 				default:
 					if (GoType >= GameObjectTypes.Max)
-						Log.outError(LogFilter.Server,
+						Log.Logger.Error(
 									"GameObject.Use(): unit (type: {0}, guid: {1}, name: {2}) tries to use object (guid: {3}, entry: {4}, name: {5}) of unknown type ({6})",
 									user.TypeId,
 									user.GUID.ToString(),
@@ -2732,9 +2732,9 @@ namespace Game.Entities
 			if (!Global.SpellMgr.HasSpellInfo(spellId, Map.DifficultyID))
 			{
 				if (!user.IsTypeId(TypeId.Player) || !Global.OutdoorPvPMgr.HandleCustomSpell(user.AsPlayer, spellId, this))
-					Log.outError(LogFilter.Server, "WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GoType);
+					Log.Logger.Error("WORLD: unknown spell id {0} at use action for gameobject (Entry: {1} GoType: {2})", spellId, Entry, GoType);
 				else
-					Log.outDebug(LogFilter.Outdoorpvp, "WORLD: {0} non-dbc spell was handled by OutdoorPvP", spellId);
+					Log.Logger.Debug("WORLD: {0} non-dbc spell was handled by OutdoorPvP", spellId);
 
 				return;
 			}
@@ -3610,7 +3610,7 @@ namespace Game.Entities
 		{
 			// Owner already found and different than expected owner - remove object from old owner
 			if (!owner.IsEmpty && !OwnerGUID.IsEmpty && OwnerGUID != owner)
-				Log.outWarn(LogFilter.Spells, "Owner already found and different than expected owner - remove object from old owner");
+				Log.Logger.Warning("Owner already found and different than expected owner - remove object from old owner");
 			else
 			{
 				_spawnedByDefault = false; // all object with owner is despawned after delay
@@ -3775,7 +3775,7 @@ namespace Game.Entities
 			}
 
 			// This happens when a mage portal is despawned after the caster changes map (for example using the portal)
-			Log.outDebug(LogFilter.Server,
+			Log.Logger.Debug(
 						"Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
 						GUID.ToString(),
 						Template.entry,
@@ -3795,7 +3795,7 @@ namespace Game.Entities
 
 			if (!Location.IsPositionValid)
 			{
-				Log.outError(LogFilter.Server, "Gameobject (Spawn id: {0} Entry: {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})", SpawnId, entry, pos.X, pos.Y);
+				Log.Logger.Error("Gameobject (Spawn id: {0} Entry: {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})", SpawnId, entry, pos.X, pos.Y);
 
 				return false;
 			}
@@ -3820,14 +3820,14 @@ namespace Game.Entities
 
 			if (goInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing entry in `gameobject_template`. Map: {2} (X: {3} Y: {4} Z: {5})", SpawnId, entry, map.Id, pos.X, pos.Y, pos.Z);
+				Log.Logger.Error("Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing entry in `gameobject_template`. Map: {2} (X: {3} Y: {4} Z: {5})", SpawnId, entry, map.Id, pos.X, pos.Y, pos.Z);
 
 				return false;
 			}
 
 			if (goInfo.type == GameObjectTypes.MapObjTransport)
 			{
-				Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: gameobject type GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT cannot be manually created.", SpawnId, entry);
+				Log.Logger.Error("Gameobject (Spawn id: {0} Entry: {1}) not created: gameobject type GAMEOBJECT_TYPE_MAP_OBJ_TRANSPORT cannot be manually created.", SpawnId, entry);
 
 				return false;
 			}
@@ -3851,7 +3851,7 @@ namespace Game.Entities
 
 			if (goInfo.type >= GameObjectTypes.Max)
 			{
-				Log.outError(LogFilter.Sql, "Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing GO type '{2}' in `gameobject_template`. It will crash client if created.", SpawnId, entry, goInfo.type);
+				Log.Logger.Error("Gameobject (Spawn id: {0} Entry: {1}) not created: non-existing GO type '{2}' in `gameobject_template`. It will crash client if created.", SpawnId, entry, goInfo.type);
 
 				return false;
 			}

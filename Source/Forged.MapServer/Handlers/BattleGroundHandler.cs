@@ -53,7 +53,7 @@ public partial class WorldSession
 
 		if (battlemasterJoin.QueueIDs.Empty())
 		{
-			Log.outError(LogFilter.Network, $"Battleground: no bgtype received. possible cheater? {_player.GUID}");
+			Log.Logger.Error($"Battleground: no bgtype received. possible cheater? {_player.GUID}");
 
 			return;
 		}
@@ -62,7 +62,7 @@ public partial class WorldSession
 
 		if (!Global.BattlegroundMgr.IsValidQueueId(bgQueueTypeId))
 		{
-			Log.outError(LogFilter.Network, $"Battleground: invalid bg queue {bgQueueTypeId} received. possible cheater? {_player.GUID}");
+			Log.Logger.Error($"Battleground: invalid bg queue {bgQueueTypeId} received. possible cheater? {_player.GUID}");
 
 			return;
 		}
@@ -190,7 +190,7 @@ public partial class WorldSession
 			Global.BattlegroundMgr.BuildBattlegroundStatusQueued(out var battlefieldStatusQueued, bg, Player, queueSlot, ginfo.JoinTime, bgQueueTypeId, avgTime, 0, false);
 			SendPacket(battlefieldStatusQueued);
 
-			Log.outDebug(LogFilter.Battleground, $"Battleground: player joined queue for bg queue {bgQueueTypeId}, {_player.GUID}, NAME {_player.GetName()}");
+			Log.Logger.Debug($"Battleground: player joined queue for bg queue {bgQueueTypeId}, {_player.GUID}, NAME {_player.GetName()}");
 		}
 		else
 		{
@@ -206,7 +206,7 @@ public partial class WorldSession
 
 			if (err == 0)
 			{
-				Log.outDebug(LogFilter.Battleground, "Battleground: the following players are joining as group:");
+				Log.Logger.Debug("Battleground: the following players are joining as group:");
 				ginfo = bgQueue.AddGroup(Player, grp, getQueueTeam(), bracketEntry, isPremade, 0, 0);
 				avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
 			}
@@ -231,10 +231,10 @@ public partial class WorldSession
 
 				Global.BattlegroundMgr.BuildBattlegroundStatusQueued(out var battlefieldStatusQueued, bg, member, queueSlot, ginfo.JoinTime, bgQueueTypeId, avgTime, 0, true);
 				member.SendPacket(battlefieldStatusQueued);
-				Log.outDebug(LogFilter.Battleground, $"Battleground: player joined queue for bg queue {bgQueueTypeId}, {member.GUID}, NAME {member.GetName()}");
+				Log.Logger.Debug($"Battleground: player joined queue for bg queue {bgQueueTypeId}, {member.GUID}, NAME {member.GetName()}");
 			}
 
-			Log.outDebug(LogFilter.Battleground, "Battleground: group end");
+			Log.Logger.Debug("Battleground: group end");
 		}
 
 		Global.BattlegroundMgr.ScheduleQueueUpdate(0, bgQueueTypeId, bracketEntry.GetBracketId());
@@ -264,7 +264,7 @@ public partial class WorldSession
 
 		if (bl == null)
 		{
-			Log.outDebug(LogFilter.Battleground, "BattlegroundHandler: invalid bgtype ({0}) with player (Name: {1}, GUID: {2}) received.", battlefieldList.ListID, Player.GetName(), Player.GUID.ToString());
+			Log.Logger.Debug("BattlegroundHandler: invalid bgtype ({0}) with player (Name: {1}, GUID: {2}) received.", battlefieldList.ListID, Player.GetName(), Player.GUID.ToString());
 
 			return;
 		}
@@ -277,7 +277,7 @@ public partial class WorldSession
 	{
 		if (!Player.InBattlegroundQueue())
 		{
-			Log.outDebug(LogFilter.Battleground,
+			Log.Logger.Debug(
 						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue!",
 						GetPlayerInfo(),
 						battlefieldPort.Ticket.Id,
@@ -292,7 +292,7 @@ public partial class WorldSession
 
 		if (bgQueueTypeId == default)
 		{
-			Log.outDebug(LogFilter.Battleground,
+			Log.Logger.Debug(
 						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Invalid queueSlot!",
 						GetPlayerInfo(),
 						battlefieldPort.Ticket.Id,
@@ -308,7 +308,7 @@ public partial class WorldSession
 		//we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue.RemovePlayer() function
 		if (!bgQueue.GetPlayerGroupInfoData(Player.GUID, out var ginfo))
 		{
-			Log.outDebug(LogFilter.Battleground,
+			Log.Logger.Debug(
 						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue (No player Group Info)!",
 						GetPlayerInfo(),
 						battlefieldPort.Ticket.Id,
@@ -322,7 +322,7 @@ public partial class WorldSession
 		// if action == 1, then instanceId is required
 		if (ginfo.IsInvitedToBGInstanceGUID == 0 && battlefieldPort.AcceptedInvite)
 		{
-			Log.outDebug(LogFilter.Battleground,
+			Log.Logger.Debug(
 						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player is not invited to any bg!",
 						GetPlayerInfo(),
 						battlefieldPort.Ticket.Id,
@@ -342,7 +342,7 @@ public partial class WorldSession
 		{
 			if (battlefieldPort.AcceptedInvite)
 			{
-				Log.outDebug(LogFilter.Battleground,
+				Log.Logger.Debug(
 							"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Cant find BG with id {5}!",
 							GetPlayerInfo(),
 							battlefieldPort.Ticket.Id,
@@ -358,7 +358,7 @@ public partial class WorldSession
 
 			if (!bg)
 			{
-				Log.outError(LogFilter.Network, "BattlegroundHandler: bg_template not found for type id {0}.", bgTypeId);
+				Log.Logger.Error("BattlegroundHandler: bg_template not found for type id {0}.", bgTypeId);
 
 				return;
 			}
@@ -383,13 +383,13 @@ public partial class WorldSession
 				Global.BattlegroundMgr.BuildBattlegroundStatusFailed(out var battlefieldStatus, bgQueueTypeId, Player, battlefieldPort.Ticket.Id, GroupJoinBattlegroundResult.Deserters);
 				SendPacket(battlefieldStatus);
 				battlefieldPort.AcceptedInvite = false;
-				Log.outDebug(LogFilter.Battleground, "Player {0} ({1}) has a deserter debuff, do not port him to Battleground!", Player.GetName(), Player.GUID.ToString());
+				Log.Logger.Debug("Player {0} ({1}) has a deserter debuff, do not port him to Battleground!", Player.GetName(), Player.GUID.ToString());
 			}
 
 			//if player don't match Battlegroundmax level, then do not allow him to enter! (this might happen when player leveled up during his waiting in queue
 			if (Player.Level > bg.GetMaxLevel())
 			{
-				Log.outDebug(LogFilter.Network,
+				Log.Logger.Debug(
 							"Player {0} ({1}) has level ({2}) higher than maxlevel ({3}) of Battleground({4})! Do not port him to Battleground!",
 							Player.GetName(),
 							Player.GUID.ToString(),
@@ -441,7 +441,7 @@ public partial class WorldSession
 			Player.SetBgTeam(ginfo.Team);
 
 			Global.BattlegroundMgr.SendToBattleground(Player, ginfo.IsInvitedToBGInstanceGUID, bgTypeId);
-			Log.outDebug(LogFilter.Battleground, $"Battleground: player {_player.GetName()} ({_player.GUID}) joined battle for bg {bg.GetInstanceID()}, bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
+			Log.Logger.Debug($"Battleground: player {_player.GetName()} ({_player.GUID}) joined battle for bg {bg.GetInstanceID()}, bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
 		}
 		else // leave queue
 		{
@@ -452,7 +452,7 @@ public partial class WorldSession
 
 				if (at != null)
 				{
-					Log.outDebug(LogFilter.Battleground, "UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}, because he has left queue!", Player.GUID.ToString(), ginfo.OpponentsTeamRating);
+					Log.Logger.Debug("UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}, because he has left queue!", Player.GUID.ToString(), ginfo.OpponentsTeamRating);
 					at.MemberLost(Player, ginfo.OpponentsMatchmakerRating);
 					at.SaveToDB();
 				}
@@ -469,7 +469,7 @@ public partial class WorldSession
 			if (bgQueue.GetQueueId().TeamSize == 0)
 				Global.BattlegroundMgr.ScheduleQueueUpdate(ginfo.ArenaMatchmakerRating, bgQueueTypeId, bracketEntry.GetBracketId());
 
-			Log.outDebug(LogFilter.Battleground, $"Battleground: player {_player.GetName()} ({_player.GUID}) left queue for bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
+			Log.Logger.Debug($"Battleground: player {_player.GetName()} ({_player.GUID}) left queue for bgtype {bg.GetTypeID()}, queue {bgQueueTypeId}.");
 		}
 	}
 
@@ -567,7 +567,7 @@ public partial class WorldSession
 
 		if (!bg)
 		{
-			Log.outError(LogFilter.Network, "Battleground: template bg (all arenas) not found");
+			Log.Logger.Error("Battleground: template bg (all arenas) not found");
 
 			return;
 		}
@@ -619,7 +619,7 @@ public partial class WorldSession
 
 		if (err == 0)
 		{
-			Log.outDebug(LogFilter.Battleground, "Battleground: arena team id {0}, leader {1} queued with matchmaker rating {2} for type {3}", Player.GetArenaTeamId(packet.TeamSizeIndex), Player.GetName(), matchmakerRating, arenatype);
+			Log.Logger.Debug("Battleground: arena team id {0}, leader {1} queued with matchmaker rating {2} for type {3}", Player.GetArenaTeamId(packet.TeamSizeIndex), Player.GetName(), matchmakerRating, arenatype);
 
 			ginfo = bgQueue.AddGroup(Player, grp, _player.Team, bracketEntry, false, arenaRating, matchmakerRating, ateamId);
 			avgTime = bgQueue.GetAverageQueueWaitTime(ginfo, bracketEntry.GetBracketId());
@@ -654,7 +654,7 @@ public partial class WorldSession
 			Global.BattlegroundMgr.BuildBattlegroundStatusQueued(out var battlefieldStatusQueued, bg, member, queueSlot, ginfo.JoinTime, bgQueueTypeId, avgTime, arenatype, true);
 			member.SendPacket(battlefieldStatusQueued);
 
-			Log.outDebug(LogFilter.Battleground, $"Battleground: player joined queue for arena as group bg queue {bgQueueTypeId}, {member.GUID}, NAME {member.GetName()}");
+			Log.Logger.Debug($"Battleground: player joined queue for arena as group bg queue {bgQueueTypeId}, {member.GUID}, NAME {member.GetName()}");
 		}
 
 		Global.BattlegroundMgr.ScheduleQueueUpdate(matchmakerRating, bgQueueTypeId, bracketEntry.GetBracketId());
@@ -667,12 +667,12 @@ public partial class WorldSession
 
 		if (!reportedPlayer)
 		{
-			Log.outDebug(LogFilter.Battleground, "WorldSession.HandleReportPvPAFK: player not found");
+			Log.Logger.Debug("WorldSession.HandleReportPvPAFK: player not found");
 
 			return;
 		}
 
-		Log.outDebug(LogFilter.BattlegroundReportPvpAfk, "WorldSession.HandleReportPvPAFK:  {0} [IP: {1}] reported {2}", _player.GetName(), _player.Session.RemoteAddress, reportedPlayer.GUID.ToString());
+		Log.Logger.Debug("WorldSession.HandleReportPvPAFK:  {0} [IP: {1}] reported {2}", _player.GetName(), _player.Session.RemoteAddress, reportedPlayer.GUID.ToString());
 
 		reportedPlayer.ReportedAfkBy(Player);
 	}

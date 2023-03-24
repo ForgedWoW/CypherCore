@@ -1,11 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Microsoft.Extensions.Configuration;
+
 namespace Framework.Database;
 
 public class WorldDatabase : MySqlBase<WorldStatements>
 {
-	public override void PreparedStatements()
+    public WorldDatabase(IConfiguration configuration) : base(configuration)
+    {
+
+    }
+
+    public override void PreparedStatements()
 	{
 		PrepareStatement(WorldStatements.DEL_LINKED_RESPAWN, "DELETE FROM linked_respawn WHERE guid = ? AND linkType  = ?");
 		PrepareStatement(WorldStatements.DEL_LINKED_RESPAWN_MASTER, "DELETE FROM linked_respawn WHERE linkedGuid = ? AND linkType = ?");

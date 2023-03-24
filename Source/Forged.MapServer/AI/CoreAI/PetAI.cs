@@ -48,7 +48,7 @@ public class PetAI : CreatureAI
 
 			if (NeedToStop())
 			{
-				Log.outTrace(LogFilter.ScriptsAi, $"PetAI::UpdateAI: AI stopped attacking {Me.GUID}");
+				Log.Logger.Verbose($"PetAI::UpdateAI: AI stopped attacking {Me.GUID}");
 				StopAttack();
 
 				return;
@@ -362,7 +362,7 @@ public class PetAI : CreatureAI
 
 		if (Me.GetCharmInfo() == null)
 		{
-			Log.outWarn(LogFilter.ScriptsAi, $"me.GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: {GetDebugInfo()}");
+			Log.Logger.Warning($"me.GetCharmInfo() is NULL in PetAI::CanAttack(). Debug info: {GetDebugInfo()}");
 
 			return false;
 		}
@@ -530,7 +530,7 @@ public class PetAI : CreatureAI
 
 		if (Me.GetCharmInfo() == null)
 		{
-			Log.outWarn(LogFilter.ScriptsAi, $"me.GetCharmInfo() is NULL in PetAI::HandleReturnMovement(). Debug info: {GetDebugInfo()}");
+			Log.Logger.Warning($"me.GetCharmInfo() is NULL in PetAI::HandleReturnMovement(). Debug info: {GetDebugInfo()}");
 
 			return;
 		}

@@ -43,7 +43,7 @@ public class ObjectGuidGenerator
 
 	void HandleCounterOverflow()
 	{
-		Log.outFatal(LogFilter.Server, "{0} guid overflow!! Can't continue, shutting down server. ", _highGuid);
+		Log.Logger.Fatal("{0} guid overflow!! Can't continue, shutting down server. ", _highGuid);
 		Global.WorldMgr.StopNow();
 	}
 

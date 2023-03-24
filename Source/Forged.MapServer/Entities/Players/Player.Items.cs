@@ -36,7 +36,7 @@ public partial class Player
 	{
 		if (!item.IsRefundable)
 		{
-			Log.outDebug(LogFilter.Player, "Item refund: item not refundable!");
+			Log.Logger.Debug("Item refund: item not refundable!");
 
 			return;
 		}
@@ -51,7 +51,7 @@ public partial class Player
 
 		if (GUID != item.RefundRecipient) // Formerly refundable item got traded
 		{
-			Log.outDebug(LogFilter.Player, "Item refund: item was traded!");
+			Log.Logger.Debug("Item refund: item was traded!");
 			item.SetNotRefundable(this);
 
 			return;
@@ -61,7 +61,7 @@ public partial class Player
 
 		if (iece == null)
 		{
-			Log.outDebug(LogFilter.Player, "Item refund: cannot find extendedcost data.");
+			Log.Logger.Debug("Item refund: cannot find extendedcost data.");
 
 			return;
 		}
@@ -152,14 +152,14 @@ public partial class Player
 
 		if (!item.IsRefundable)
 		{
-			Log.outDebug(LogFilter.Player, "Item refund: item not refundable!");
+			Log.Logger.Debug("Item refund: item not refundable!");
 
 			return;
 		}
 
 		if (GUID != item.RefundRecipient) // Formerly refundable item got traded
 		{
-			Log.outDebug(LogFilter.Player, "Item refund: item was traded!");
+			Log.Logger.Debug("Item refund: item was traded!");
 			item.SetNotRefundable(this);
 
 			return;
@@ -169,7 +169,7 @@ public partial class Player
 
 		if (iece == null)
 		{
-			Log.outDebug(LogFilter.Player, "Item refund: cannot find extendedcost data.");
+			Log.Logger.Debug("Item refund: cannot find extendedcost data.");
 
 			return;
 		}
@@ -521,7 +521,7 @@ public partial class Player
 
 			if (!HasEnoughMoney(cost))
 			{
-				Log.outDebug(LogFilter.PlayerItems, $"Player::DurabilityRepair: Player '{GetName()}' ({GUID}) has not enough money to repair item");
+				Log.Logger.Debug($"Player::DurabilityRepair: Player '{GetName()}' ({GUID}) has not enough money to repair item");
 
 				return;
 			}
@@ -617,7 +617,7 @@ public partial class Player
 
 			var remaining_count = item.Count;
 
-			Log.outDebug(LogFilter.Player, $"STORAGE: CanStoreItems {k + 1}. item = {item.Entry}, count = {remaining_count}");
+			Log.Logger.Debug($"STORAGE: CanStoreItems {k + 1}. item = {item.Entry}, count = {remaining_count}");
 			var pProto = item.Template;
 
 			// strange item
@@ -899,7 +899,7 @@ public partial class Player
 	{
 		if (pItem != null)
 		{
-			Log.outDebug(LogFilter.Player, "ItemStorage: CanUseItem item = {0}", pItem.Entry);
+			Log.Logger.Debug("ItemStorage: CanUseItem item = {0}", pItem.Entry);
 
 			if (!IsAlive && not_loading)
 				return InventoryResult.PlayerDead;
@@ -1056,7 +1056,7 @@ public partial class Player
 
 					if (spellProto == null)
 					{
-						Log.outError(LogFilter.Player, "Weapon switch cooldown spell {0} couldn't be found in Spell.dbc", cooldownSpell);
+						Log.Logger.Error("Weapon switch cooldown spell {0} couldn't be found in Spell.dbc", cooldownSpell);
 					}
 					else
 					{
@@ -1340,7 +1340,7 @@ public partial class Player
 
 		if (pItem != null)
 		{
-			Log.outDebug(LogFilter.Player, "STORAGE: RemoveItem bag = {0}, slot = {1}, item = {2}", bag, slot, pItem.Entry);
+			Log.Logger.Debug("STORAGE: RemoveItem bag = {0}, slot = {1}, item = {2}", bag, slot, pItem.Entry);
 
 			RemoveEnchantmentDurations(pItem);
 			RemoveItemDurations(pItem);
@@ -1440,7 +1440,7 @@ public partial class Player
 
 		foreach (var item in BunchOfItems)
 		{
-			Log.outInfo(LogFilter.PlayerItems, "[BunchOfItems]: {}.", item);
+			Log.Logger.Information("[BunchOfItems]: {}.", item);
 			var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
 
 			if (pItem != null)
@@ -1609,7 +1609,7 @@ public partial class Player
 			if (tradeData.GetTradeSlotForItem(pSrcItem.GUID) != TradeSlots.Invalid)
 				return;
 
-		Log.outDebug(LogFilter.Player, "STORAGE: SplitItem bag = {0}, slot = {1}, item = {2}, count = {3}", dstbag, dstslot, pSrcItem.Entry, count);
+		Log.Logger.Debug("STORAGE: SplitItem bag = {0}, slot = {1}, item = {2}, count = {3}", dstbag, dstslot, pSrcItem.Entry, count);
 		var pNewItem = pSrcItem.CloneItem(count, this);
 
 		if (!pNewItem)
@@ -1730,7 +1730,7 @@ public partial class Player
 				}
 		}
 
-		Log.outDebug(LogFilter.Player, "STORAGE: SwapItem bag = {0}, slot = {1}, item = {2}", dstbag, dstslot, pSrcItem.Entry);
+		Log.Logger.Debug("STORAGE: SwapItem bag = {0}, slot = {1}, item = {2}", dstbag, dstslot, pSrcItem.Entry);
 
 		if (!IsAlive)
 		{
@@ -2509,7 +2509,7 @@ public partial class Player
 	{
 		// used when entering arena
 		// destroys all conjured items
-		Log.outDebug(LogFilter.Player, "STORAGE: DestroyConjuredItems");
+		Log.Logger.Debug("STORAGE: DestroyConjuredItems");
 
 		// in inventory
 		var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
@@ -2630,7 +2630,7 @@ public partial class Player
 			}
 
 			RemoveItemFromBuyBackSlot(slot, true);
-			Log.outDebug(LogFilter.Player, "STORAGE: AddItemToBuyBackSlot item = {0}, slot = {1}", pItem.Entry, slot);
+			Log.Logger.Debug("STORAGE: AddItemToBuyBackSlot item = {0}, slot = {1}", pItem.Entry, slot);
 
 			_items[slot] = pItem;
 			var time = GameTime.GetGameTime();
@@ -2675,7 +2675,7 @@ public partial class Player
 
 		if (!creature)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: BuyCurrencyFromVendorSlot - {0} not found or you can't interact with him.", vendorGuid.ToString());
+			Log.Logger.Debug("WORLD: BuyCurrencyFromVendorSlot - {0} not found or you can't interact with him.", vendorGuid.ToString());
 			SendBuyError(BuyResult.DistanceTooFar, null, currency);
 
 			return false;
@@ -2723,7 +2723,7 @@ public partial class Player
 
 			if (iece == null)
 			{
-				Log.outError(LogFilter.Player, "Currency {0} have wrong ExtendedCost field value {1}", currency, crItem.ExtendedCost);
+				Log.Logger.Error("Currency {0} have wrong ExtendedCost field value {1}", currency, crItem.ExtendedCost);
 
 				return false;
 			}
@@ -2865,7 +2865,7 @@ public partial class Player
 
 		if (!creature)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: BuyItemFromVendor - {0} not found or you can't interact with him.", vendorguid.ToString());
+			Log.Logger.Debug("WORLD: BuyItemFromVendor - {0} not found or you can't interact with him.", vendorguid.ToString());
 			SendBuyError(BuyResult.DistanceTooFar, null, item);
 
 			return false;
@@ -2873,7 +2873,7 @@ public partial class Player
 
 		if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(creature.Entry, item, this, creature))
 		{
-			Log.outDebug(LogFilter.Condition, "BuyItemFromVendor: conditions not met for creature entry {0} item {1}", creature.Entry, item);
+			Log.Logger.Debug("BuyItemFromVendor: conditions not met for creature entry {0} item {1}", creature.Entry, item);
 			SendBuyError(BuyResult.CantFindItem, creature, item);
 
 			return false;
@@ -2946,7 +2946,7 @@ public partial class Player
 
 			if (iece == null)
 			{
-				Log.outError(LogFilter.Player, "Item {0} have wrong ExtendedCost field value {1}", pProto.Id, crItem.ExtendedCost);
+				Log.Logger.Error("Item {0} have wrong ExtendedCost field value {1}", pProto.Id, crItem.ExtendedCost);
 
 				return false;
 			}
@@ -3027,7 +3027,7 @@ public partial class Player
 
 			if (count > maxCount)
 			{
-				Log.outError(LogFilter.Player, "Player {0} tried to buy {1} item id {2}, causing overflow", GetName(), count, pProto.Id);
+				Log.Logger.Error("Player {0} tried to buy {1} item id {2}, causing overflow", GetName(), count, pProto.Id);
 				count = (byte)maxCount;
 			}
 
@@ -3139,7 +3139,7 @@ public partial class Player
 
 	public Item GetItemFromBuyBackSlot(uint slot)
 	{
-		Log.outDebug(LogFilter.Player, "STORAGE: GetItemFromBuyBackSlot slot = {0}", slot);
+		Log.Logger.Debug("STORAGE: GetItemFromBuyBackSlot slot = {0}", slot);
 
 		if (slot >= InventorySlots.BuyBackStart && slot < InventorySlots.BuyBackEnd)
 			return _items[slot];
@@ -3149,7 +3149,7 @@ public partial class Player
 
 	public void RemoveItemFromBuyBackSlot(uint slot, bool del)
 	{
-		Log.outDebug(LogFilter.Player, "STORAGE: RemoveItemFromBuyBackSlot slot = {0}", slot);
+		Log.Logger.Debug("STORAGE: RemoveItemFromBuyBackSlot slot = {0}", slot);
 
 		if (slot >= InventorySlots.BuyBackStart && slot < InventorySlots.BuyBackEnd)
 		{
@@ -3239,7 +3239,7 @@ public partial class Player
 		if (item.IsBroken)
 			return;
 
-		Log.outInfo(LogFilter.Player, "applying mods for item {0} ", item.GUID.ToString());
+		Log.Logger.Information("applying mods for item {0} ", item.GUID.ToString());
 
 		if (item.GetSocketColor(0) != 0) //only (un)equipping of items with sockets can influence metagems, so no need to waste time with normal items
 			CorrectMetaGemEnchants(slot, apply);
@@ -3260,7 +3260,7 @@ public partial class Player
 		ApplyAzeritePowers(item, apply);
 		ApplyEnchantment(item, apply);
 
-		Log.outDebug(LogFilter.Player, "_ApplyItemMods complete.");
+		Log.Logger.Debug("_ApplyItemMods complete.");
 	}
 
 	public void _ApplyItemBonuses(Item item, byte slot, bool apply)
@@ -3573,7 +3573,7 @@ public partial class Player
 					return;
 				}
 
-			Log.outDebug(LogFilter.Player, "WORLD: cast {0} Equip spellId - {1}", (item != null ? "item" : "itemset"), spellInfo.Id);
+			Log.Logger.Debug("WORLD: cast {0} Equip spellId - {1}", (item != null ? "item" : "itemset"), spellInfo.Id);
 
 			CastSpell(this, spellInfo.Id, new CastSpellExtraArgs(item));
 		}
@@ -3759,7 +3759,7 @@ public partial class Player
 
 		var count = pItem.Count;
 
-		Log.outDebug(LogFilter.Player, "STORAGE: CanBankItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, pItem.Entry, count);
+		Log.Logger.Debug("STORAGE: CanBankItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, pItem.Entry, count);
 		var pProto = pItem.Template;
 
 		if (pProto == null)
@@ -3775,7 +3775,7 @@ public partial class Player
 		// Currency tokens are not supposed to be swapped out of their hidden bag
 		if (pItem.IsCurrencyToken)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Possible hacking attempt: Player {0} [guid: {1}] tried to move token [guid: {2}, entry: {3}] out of the currency bag!",
 						GetName(),
 						GUID.ToString(),
@@ -4136,7 +4136,7 @@ public partial class Player
 
 		if (pItem != null)
 		{
-			Log.outDebug(LogFilter.Player, "STORAGE: CanEquipItem slot = {0}, item = {1}, count = {2}", slot, pItem.Entry, pItem.Count);
+			Log.Logger.Debug("STORAGE: CanEquipItem slot = {0}, item = {1}, count = {2}", slot, pItem.Entry, pItem.Count);
 			var pProto = pItem.Template;
 
 			if (pProto != null)
@@ -4484,7 +4484,7 @@ public partial class Player
 		if (pItem == null)
 			return InventoryResult.Ok;
 
-		Log.outDebug(LogFilter.Player, "STORAGE: CanUnequipItem slot = {0}, item = {1}, count = {2}", pos, pItem.Entry, pItem.Count);
+		Log.Logger.Debug("STORAGE: CanUnequipItem slot = {0}, item = {1}, count = {2}", pos, pItem.Entry, pItem.Count);
 
 		var pProto = pItem.Template;
 
@@ -4695,7 +4695,7 @@ public partial class Player
 
 		if (pItem != null)
 		{
-			Log.outDebug(LogFilter.Player, "STORAGE: DestroyItem bag = {0}, slot = {1}, item = {2}", bag, slot, pItem.Entry);
+			Log.Logger.Debug("STORAGE: DestroyItem bag = {0}, slot = {1}, item = {2}", bag, slot, pItem.Entry);
 
 			// Also remove all contained items if the item is a bag.
 			// This if () prevents item saving crashes if the condition for a bag to be empty before being destroyed was bypassed somehow.
@@ -4796,7 +4796,7 @@ public partial class Player
 
 	public uint DestroyItemCount(uint itemEntry, uint count, bool update, bool unequip_check = true)
 	{
-		Log.outDebug(LogFilter.Player, "STORAGE: DestroyItemCount item = {0}, count = {1}", itemEntry, count);
+		Log.Logger.Debug("STORAGE: DestroyItemCount item = {0}, count = {1}", itemEntry, count);
 		uint remcount = 0;
 
 		// in inventory
@@ -5078,7 +5078,7 @@ public partial class Player
 		if (pItem == null)
 			return;
 
-		Log.outDebug(LogFilter.Player, "STORAGE: DestroyItemCount item (GUID: {0}, Entry: {1}) count = {2}", pItem.GUID.ToString(), pItem.Entry, count);
+		Log.Logger.Debug("STORAGE: DestroyItemCount item (GUID: {0}, Entry: {1}) count = {2}", pItem.GUID.ToString(), pItem.Entry, count);
 
 		if (pItem.Count <= count)
 		{
@@ -5345,7 +5345,7 @@ public partial class Player
 		if (!GetLootGUID().IsEmpty && !aeLooting)
 			_session.DoLootReleaseAll();
 
-		Log.outDebug(LogFilter.Loot, $"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.GetOwnerGUID()}");
+		Log.Logger.Debug($"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.GetOwnerGUID()}");
 
 		if (!loot.GetOwnerGUID().IsItem && !aeLooting)
 			SetLootGUID(loot.GetOwnerGUID());
@@ -5403,7 +5403,7 @@ public partial class Player
 
 			if (equipmentSetInfo == null || equipmentSetInfo.Data.Guid != newEqSet.Guid)
 			{
-				Log.outError(LogFilter.Player, "Player {0} tried to save equipment set {1} (index: {2}), but that equipment set not found!", GetName(), newEqSet.Guid, newEqSet.SetId);
+				Log.Logger.Error("Player {0} tried to save equipment set {1} (index: {2}), but that equipment set not found!", GetName(), newEqSet.Guid, newEqSet.SetId);
 
 				return;
 			}
@@ -5781,7 +5781,7 @@ public partial class Player
 	InventoryResult CanStoreItem(byte bag, byte slot, List<ItemPosCount> dest, uint entry, uint count, Item pItem, bool swap, out uint no_space_count)
 	{
 		no_space_count = 0;
-		Log.outDebug(LogFilter.Player, "STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
+		Log.Logger.Debug("STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
 
 		var pProto = Global.ObjectMgr.GetItemTemplate(entry);
 
@@ -6182,7 +6182,7 @@ public partial class Player
 		var bag = (byte)(pos >> 8);
 		var slot = (byte)(pos & 255);
 
-		Log.outDebug(LogFilter.Player, "STORAGE: StoreItem bag = {0}, slot = {1}, item = {2}, count = {3}, guid = {4}", bag, slot, pItem.Entry, count, pItem.GUID.ToString());
+		Log.Logger.Debug("STORAGE: StoreItem bag = {0}, slot = {1}, item = {2}, count = {3}, guid = {4}", bag, slot, pItem.Entry, count, pItem.GUID.ToString());
 
 		var pItem2 = GetItemByPos(bag, slot);
 
@@ -6281,7 +6281,7 @@ public partial class Player
 
 	bool StoreNewItemInBestSlots(uint itemId, uint amount, ItemContext context)
 	{
-		Log.outDebug(LogFilter.Player, "STORAGE: Creating initial item, itemId = {0}, count = {1}", itemId, amount);
+		Log.Logger.Debug("STORAGE: Creating initial item, itemId = {0}, count = {1}", itemId, amount);
 
 		var bonusListIDs = Global.DB2Mgr.GetDefaultItemBonusTree(itemId, context);
 
@@ -6317,7 +6317,7 @@ public partial class Player
 		}
 
 		// item can't be added
-		Log.outError(LogFilter.Player, "STORAGE: Can't equip or store initial item {0} for race {1} class {2}, error msg = {3}", itemId, Race, Class, msg);
+		Log.Logger.Error("STORAGE: Can't equip or store initial item {0} for race {1} class {2}, error msg = {3}", itemId, Race, Class, msg);
 
 		return false;
 	}
@@ -6554,7 +6554,7 @@ public partial class Player
 		if (_itemDuration.Empty())
 			return;
 
-		Log.outDebug(LogFilter.Player, "Player:UpdateItemDuration({0}, {1})", time, realtimeonly);
+		Log.Logger.Debug("Player:UpdateItemDuration({0}, {1})", time, realtimeonly);
 
 		foreach (var item in _itemDuration)
 			if (!realtimeonly || item.Template.HasFlag(ItemFlags.RealDuration))
@@ -6597,7 +6597,7 @@ public partial class Player
 
 	void DestroyZoneLimitedItem(bool update, uint new_zone)
 	{
-		Log.outDebug(LogFilter.Player, "STORAGE: DestroyZoneLimitedItem in map {0} and area {1}", Location.MapId, new_zone);
+		Log.Logger.Debug("STORAGE: DestroyZoneLimitedItem in map {0} and area {1}", Location.MapId, new_zone);
 
 		// in inventory
 		var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
@@ -6716,7 +6716,7 @@ public partial class Player
 
 	void _RemoveAllItemMods()
 	{
-		Log.outDebug(LogFilter.Player, "_RemoveAllItemMods start.");
+		Log.Logger.Debug("_RemoveAllItemMods start.");
 
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
@@ -6748,12 +6748,12 @@ public partial class Player
 				_ApplyItemBonuses(_items[i], i, false);
 			}
 
-		Log.outDebug(LogFilter.Player, "_RemoveAllItemMods complete.");
+		Log.Logger.Debug("_RemoveAllItemMods complete.");
 	}
 
 	void _ApplyAllItemMods()
 	{
-		Log.outDebug(LogFilter.Player, "_ApplyAllItemMods start.");
+		Log.Logger.Debug("_ApplyAllItemMods start.");
 
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
@@ -6790,7 +6790,7 @@ public partial class Player
 				ApplyEnchantment(_items[i], true);
 			}
 
-		Log.outDebug(LogFilter.Player, "_ApplyAllItemMods complete.");
+		Log.Logger.Debug("_ApplyAllItemMods complete.");
 	}
 
 	void ApplyAllAzeriteItemMods(bool apply)
@@ -7455,7 +7455,7 @@ public partial class Player
 				Session.CollectionMgr.AddItemAppearance(pItem);
 		}
 
-		Log.outDebug(LogFilter.Player, "STORAGE: EquipItem slot = {0}, item = {1}", slot, pItem.Entry);
+		Log.Logger.Debug("STORAGE: EquipItem slot = {0}, item = {1}", slot, pItem.Entry);
 
 		_items[slot] = pItem;
 		SetInvSlot(slot, pItem.GUID);

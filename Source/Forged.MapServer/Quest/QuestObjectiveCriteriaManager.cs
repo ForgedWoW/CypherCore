@@ -87,7 +87,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 				if (criteria == null)
 				{
 					// Removing non-existing criteria data for all characters
-					Log.outError(LogFilter.Player, $"Non-existing quest objective criteria {criteriaId} data has been removed from the table `character_queststatus_objectives_criteria_progress`.");
+					Log.Logger.Error($"Non-existing quest objective criteria {criteriaId} data has been removed from the table `character_queststatus_objectives_criteria_progress`.");
 
 					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_QUEST_PROGRESS_CRITERIA);
 					stmt.AddValue(0, criteriaId);
@@ -151,7 +151,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 	public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete)
 	{
-		Log.outDebug(LogFilter.Player, $"QuestObjectiveCriteriaMgr.ResetCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
+		Log.Logger.Debug($"QuestObjectiveCriteriaMgr.ResetCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
 
 		// disable for gamemasters with GM-mode enabled
 		if (_owner.IsGameMaster)
@@ -248,14 +248,14 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 		if (HasCompletedObjective(objective))
 		{
-			Log.outTrace(LogFilter.Player, $"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Objective already completed");
+			Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Objective already completed");
 
 			return false;
 		}
 
 		if (_owner.GetQuestStatus(objective.QuestID) != QuestStatus.Incomplete)
 		{
-			Log.outTrace(LogFilter.Achievement, $"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Not on quest");
+			Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Not on quest");
 
 			return false;
 		}
@@ -264,7 +264,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 		if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Map.DifficultyID))
 		{
-			Log.outTrace(LogFilter.Achievement, $"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Quest cannot be completed in raid group");
+			Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Quest cannot be completed in raid group");
 
 			return false;
 		}
@@ -273,7 +273,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 		if (slot >= SharedConst.MaxQuestLogSize || !_owner.IsQuestObjectiveCompletable(slot, quest, objective))
 		{
-			Log.outTrace(LogFilter.Achievement, $"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Objective not completable");
+			Log.Logger.Verbose($"QuestObjectiveCriteriaMgr.CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Quest Objective {objective.Id}) Objective not completable");
 
 			return false;
 		}
@@ -323,7 +323,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 		_owner.KillCreditCriteriaTreeObjective(questObjective);
 
-		Log.outInfo(LogFilter.Player, $"QuestObjectiveCriteriaMgr.CompletedObjective({questObjective.Id}). {GetOwnerInfo()}");
+		Log.Logger.Information($"QuestObjectiveCriteriaMgr.CompletedObjective({questObjective.Id}). {GetOwnerInfo()}");
 
 		_completedObjectives.Add(questObjective.Id);
 	}

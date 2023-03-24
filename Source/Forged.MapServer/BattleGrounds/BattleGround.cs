@@ -176,7 +176,7 @@ public class Battleground : ZoneScript, IDisposable
 			player = Global.ObjAccessor.FindPlayer(guid);
 
 			if (!player)
-				Log.outError(LogFilter.Battleground, $"Battleground.{context}: player ({guid}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+				Log.Logger.Error($"Battleground.{context}: player ({guid}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		}
 
 		return player;
@@ -217,7 +217,7 @@ public class Battleground : ZoneScript, IDisposable
 	{
 		if (!CliDB.BroadcastTextStorage.ContainsKey(id))
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.SendBroadcastText: `broadcast_text` (ID: {id}) was not found");
+			Log.Logger.Error($"Battleground.SendBroadcastText: `broadcast_text` (ID: {id}) was not found");
 
 			return;
 		}
@@ -566,7 +566,7 @@ public class Battleground : ZoneScript, IDisposable
 			if (Transport)
 				player.TeleportToBGEntryPoint();
 
-			Log.outDebug(LogFilter.Battleground, "Removed player {0} from Battleground.", player.GetName());
+			Log.Logger.Debug("Removed player {0} from Battleground.", player.GetName());
 		}
 
 		//Battleground object will be deleted next Battleground.Update() call
@@ -583,7 +583,7 @@ public class Battleground : ZoneScript, IDisposable
 		m_Events = 0;
 
 		if (m_InvitedAlliance > 0 || m_InvitedHorde > 0)
-			Log.outError(LogFilter.Battleground, $"Battleground.Reset: one of the counters is not 0 (Team.Alliance: {m_InvitedAlliance}, Team.Horde: {m_InvitedHorde}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.Reset: one of the counters is not 0 (Team.Alliance: {m_InvitedAlliance}, Team.Horde: {m_InvitedHorde}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 		m_InvitedAlliance = 0;
 		m_InvitedHorde = 0;
@@ -609,7 +609,7 @@ public class Battleground : ZoneScript, IDisposable
 		Global.BattlegroundMgr.AddBattleground(this);
 
 		if (m_IsRated)
-			Log.outDebug(LogFilter.Arena, "Arena match type: {0} for Team1Id: {1} - Team2Id: {2} started.", m_ArenaType, m_ArenaTeamIds[TeamIds.Alliance], m_ArenaTeamIds[TeamIds.Horde]);
+			Log.Logger.Debug("Arena match type: {0} for Team1Id: {1} - Team2Id: {2} started.", m_ArenaType, m_ArenaTeamIds[TeamIds.Alliance], m_ArenaTeamIds[TeamIds.Horde]);
 	}
 
 	public void TeleportPlayerToExploitLocation(Player player)
@@ -1026,7 +1026,7 @@ public class Battleground : ZoneScript, IDisposable
 		// Temporally add safety check for bad spawns and send log (object rotations need to be rechecked in sniff)
 		if (rotation0 == 0 && rotation1 == 0 && rotation2 == 0 && rotation3 == 0)
 		{
-			Log.outDebug(LogFilter.Battleground,
+			Log.Logger.Debug(
 						$"Battleground.AddObject: gameoobject [entry: {entry}, object type: {type}] for BG (map: {GetMapId()}) has zeroed rotation fields, " +
 						"orientation used temporally, but please fix the spawn");
 
@@ -1040,7 +1040,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (!go)
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.AddObject: cannot create gameobject (entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.AddObject: cannot create gameobject (entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 			return false;
 		}
@@ -1076,7 +1076,7 @@ public class Battleground : ZoneScript, IDisposable
 		}
 		else
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.DoorClose: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.DoorClose: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		}
 	}
 
@@ -1091,7 +1091,7 @@ public class Battleground : ZoneScript, IDisposable
 		}
 		else
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.DoorOpen: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.DoorOpen: door gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		}
 	}
 
@@ -1103,7 +1103,7 @@ public class Battleground : ZoneScript, IDisposable
 		var obj = GetBgMap().GetGameObject(BgObjects[type]);
 
 		if (!obj)
-			Log.outError(LogFilter.Battleground, $"Battleground.GetBGObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.GetBGObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 		return obj;
 	}
@@ -1116,7 +1116,7 @@ public class Battleground : ZoneScript, IDisposable
 		var creature = GetBgMap().GetCreature(BgCreatures[type]);
 
 		if (!creature)
-			Log.outError(LogFilter.Battleground, $"Battleground.GetBGCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.GetBGCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 		return creature;
 	}
@@ -1171,7 +1171,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.AddCreature: creature template (entry: {entry}) does not exist for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.AddCreature: creature template (entry: {entry}) does not exist for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 			return null;
 		}
@@ -1197,7 +1197,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (!creature)
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.AddCreature: cannot create creature (entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.AddCreature: cannot create creature (entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 			return null;
 		}
@@ -1235,7 +1235,7 @@ public class Battleground : ZoneScript, IDisposable
 			return true;
 		}
 
-		Log.outError(LogFilter.Battleground, $"Battleground.DelCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+		Log.Logger.Error($"Battleground.DelCreature: creature (type: {type}, {BgCreatures[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		BgCreatures[type].Clear();
 
 		return false;
@@ -1257,7 +1257,7 @@ public class Battleground : ZoneScript, IDisposable
 			return true;
 		}
 
-		Log.outError(LogFilter.Battleground, $"Battleground.DelObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+		Log.Logger.Error($"Battleground.DelObject: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		BgObjects[type].Clear();
 
 		return false;
@@ -1290,7 +1290,7 @@ public class Battleground : ZoneScript, IDisposable
 			return true;
 		}
 
-		Log.outError(LogFilter.Battleground, $"Battleground.AddSpiritGuide: cannot create spirit guide (type: {type}, entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+		Log.Logger.Error($"Battleground.AddSpiritGuide: cannot create spirit guide (type: {type}, entry: {entry}) for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 		EndNow();
 
 		return false;
@@ -1338,7 +1338,7 @@ public class Battleground : ZoneScript, IDisposable
 	{
 		if (!FindBgMap())
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground::HandleTriggerBuff called with null bg map, {goGuid}");
+			Log.Logger.Error($"Battleground::HandleTriggerBuff called with null bg map, {goGuid}");
 
 			return;
 		}
@@ -1356,7 +1356,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (index < 0)
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GoType}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+			Log.Logger.Error($"Battleground.HandleTriggerBuff: cannot find buff gameobject ({goGuid}, entry: {obj.Entry}, type: {obj.GoType}) in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 			return;
 		}
@@ -1513,14 +1513,14 @@ public class Battleground : ZoneScript, IDisposable
 		if (teamIndex == TeamIds.Alliance || teamIndex == TeamIds.Horde)
 			return m_TeamScores[teamIndex];
 
-		Log.outError(LogFilter.Battleground, "GetTeamScore with wrong Team {0} for BG {1}", teamIndex, GetTypeID());
+		Log.Logger.Error("GetTeamScore with wrong Team {0} for BG {1}", teamIndex, GetTypeID());
 
 		return 0;
 	}
 
 	public virtual void HandleAreaTrigger(Player player, uint trigger, bool entered)
 	{
-		Log.outDebug(LogFilter.Battleground,
+		Log.Logger.Debug(
 					"Unhandled AreaTrigger {0} in Battleground {1}. Player coords (x: {2}, y: {3}, z: {4})",
 					trigger,
 					player.Location.MapId,
@@ -1852,7 +1852,7 @@ public class Battleground : ZoneScript, IDisposable
 
 					if (pos.GetExactDistSq(startPos.Loc) > maxDist)
 					{
-						Log.outDebug(LogFilter.Battleground, $"Battleground: Sending {player.GetName()} back to start location (map: {GetMapId()}) (possible exploit)");
+						Log.Logger.Debug($"Battleground: Sending {player.GetName()} back to start location (map: {GetMapId()}) (possible exploit)");
 						player.TeleportTo(startPos.Loc);
 					}
 				}
@@ -2055,7 +2055,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			if (!FindBgMap())
 			{
-				Log.outError(LogFilter.Battleground, $"Battleground._ProcessJoin: map (map id: {GetMapId()}, instance id: {m_InstanceID}) is not created!");
+				Log.Logger.Error($"Battleground._ProcessJoin: map (map id: {GetMapId()}, instance id: {m_InstanceID}) is not created!");
 				EndNow();
 
 				return;
@@ -2270,7 +2270,7 @@ public class Battleground : ZoneScript, IDisposable
 			return true;
 		}
 
-		Log.outInfo(LogFilter.Battleground, $"Battleground::RemoveObjectFromWorld: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
+		Log.Logger.Information($"Battleground::RemoveObjectFromWorld: gameobject (type: {type}, {BgObjects[type]}) not found for BG (map: {GetMapId()}, instance id: {m_InstanceID})!");
 
 		return false;
 	}
@@ -2300,7 +2300,7 @@ public class Battleground : ZoneScript, IDisposable
 			if (BgObjects[i] == guid)
 				return i;
 
-		Log.outError(LogFilter.Battleground, $"Battleground.GetObjectType: player used gameobject ({guid}) which is not in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID}), cheating?");
+		Log.Logger.Error($"Battleground.GetObjectType: player used gameobject ({guid}) which is not in internal data for BG (map: {GetMapId()}, instance id: {m_InstanceID}), cheating?");
 
 		return -1;
 	}

@@ -98,7 +98,7 @@ public class ScriptedAI : CreatureAI
 
 		if (!CliDB.SoundKitStorage.ContainsKey(soundId))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GUID})");
+			Log.Logger.Error($"ScriptedAI::DoPlaySoundToSet: Invalid soundId {soundId} used in DoPlaySoundToSet (Source: {source.GUID})");
 
 			return;
 		}
@@ -294,7 +294,7 @@ public class ScriptedAI : CreatureAI
 		if (player != null)
 			player.TeleportTo(unit.Location.MapId, x, y, z, o, TeleportToOptions.NotLeaveCombat);
 		else
-			Log.outError(LogFilter.ScriptsAi, $"ScriptedAI::DoTeleportPlayer: Creature {Me.GUID} Tried to teleport non-player unit ({unit.GUID}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
+			Log.Logger.Error($"ScriptedAI::DoTeleportPlayer: Creature {Me.GUID} Tried to teleport non-player unit ({unit.GUID}) to X: {x} Y: {y} Z: {z} O: {o}. Aborted.");
 	}
 
 	public void DoTeleportAll(float x, float y, float z, float o)
@@ -496,7 +496,7 @@ public class ScriptedAI : CreatureAI
 	/// <param name="reset"> </param>
 	void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
 	{
-		Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
+		Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
 
 		List<Creature> creatures = new();
 		AllCreaturesOfEntryInRange check = new(Me, entry, maxSearchRange);

@@ -12,7 +12,7 @@ public class TurretAI : CreatureAI
 	public TurretAI(Creature creature) : base(creature)
 	{
 		if (creature.Spells[0] == 0)
-			Log.outError(LogFilter.Server, $"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GUID})");
+			Log.Logger.Error($"TurretAI set for creature with spell1=0. AI will do nothing ({creature.GUID})");
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Map.DifficultyID);
 		_minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;

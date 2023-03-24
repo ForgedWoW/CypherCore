@@ -117,7 +117,7 @@ public class PlayerAchievementMgr : AchievementManager
                 if (criteria == null)
                 {
                     // Removing non-existing criteria data for all characters
-                    Log.outError(LogFilter.Achievement, "Non-existing achievement criteria {0} data removed from table `character_achievement_progress`.", id);
+                    Log.Logger.Error("Non-existing achievement criteria {0} data removed from table `character_achievement_progress`.", id);
 
                     var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
                     stmt.AddValue(0, id);
@@ -189,7 +189,7 @@ public class PlayerAchievementMgr : AchievementManager
 
     public void ResetCriteria(CriteriaFailEvent failEvent, uint failAsset, bool evenIfCriteriaComplete)
     {
-        Log.outDebug(LogFilter.Achievement, $"ResetAchievementCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
+        Log.Logger.Debug($"ResetAchievementCriteria({failEvent}, {failAsset}, {evenIfCriteriaComplete})");
 
         // Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
         if (_owner.IsGameMaster || _owner.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
@@ -343,7 +343,7 @@ public class PlayerAchievementMgr : AchievementManager
         if (!_owner.Session.PlayerLoading)
             SendAchievementEarned(achievement);
 
-        Log.outDebug(LogFilter.Achievement, "PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
+        Log.Logger.Debug("PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
 
         CompletedAchievementData ca = new();
         ca.Date = GameTime.GetGameTime();
@@ -503,7 +503,7 @@ public class PlayerAchievementMgr : AchievementManager
         if (achievement.Flags.HasAnyFlag(AchievementFlags.Hidden))
             return;
 
-        Log.outDebug(LogFilter.Achievement, "PlayerAchievementMgr.SendAchievementEarned({0})", achievement.Id);
+        Log.Logger.Debug("PlayerAchievementMgr.SendAchievementEarned({0})", achievement.Id);
 
         if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
         {

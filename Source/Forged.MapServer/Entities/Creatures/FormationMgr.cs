@@ -21,7 +21,7 @@ public class FormationMgr
 		if (creatureGroup != null)
 		{
 			//Add member to an existing group
-			Log.outDebug(LogFilter.Unit, "Group found: {0}, inserting creature GUID: {1}, Group InstanceID {2}", leaderSpawnId, creature.GUID.ToString(), creature.InstanceId);
+			Log.Logger.Debug("Group found: {0}, inserting creature GUID: {1}, Group InstanceID {2}", leaderSpawnId, creature.GUID.ToString(), creature.InstanceId);
 
 			// With dynamic spawn the creature may have just respawned
 			// we need to find previous instance of creature and delete it from the formation, as it'll be invalidated
@@ -41,7 +41,7 @@ public class FormationMgr
 		else
 		{
 			//Create new group
-			Log.outDebug(LogFilter.Unit, "Group not found: {0}. Creating new group.", leaderSpawnId);
+			Log.Logger.Debug("Group not found: {0}. Creating new group.", leaderSpawnId);
 			CreatureGroup group = new(leaderSpawnId);
 			map.CreatureGroupHolder[leaderSpawnId] = group;
 			group.AddMember(creature);
@@ -50,14 +50,14 @@ public class FormationMgr
 
 	public static void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
 	{
-		Log.outDebug(LogFilter.Unit, "Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
+		Log.Logger.Debug("Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
 		group.RemoveMember(member);
 
 		if (group.IsEmpty)
 		{
 			var map = member.Map;
 
-			Log.outDebug(LogFilter.Unit, "Deleting group with InstanceID {0}", member.InstanceId);
+			Log.Logger.Debug("Deleting group with InstanceID {0}", member.InstanceId);
 			map.CreatureGroupHolder.Remove(group.LeaderSpawnId);
 		}
 	}
@@ -71,7 +71,7 @@ public class FormationMgr
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
+			Log.Logger.Information("Loaded 0 creatures in formations. DB table `creature_formations` is empty!");
 
 			return;
 		}
@@ -107,7 +107,7 @@ public class FormationMgr
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
 					else
-						Log.outError(LogFilter.Sql, $"creature_formations table leader guid {member.LeaderSpawnId} incorrect (not exist)");
+						Log.Logger.Error($"creature_formations table leader guid {member.LeaderSpawnId} incorrect (not exist)");
 
 					continue;
 				}
@@ -117,7 +117,7 @@ public class FormationMgr
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");
 					else
-						Log.outError(LogFilter.Sql, $"creature_formations table member guid {memberSpawnId} incorrect (not exist)");
+						Log.Logger.Error($"creature_formations table member guid {memberSpawnId} incorrect (not exist)");
 
 					continue;
 				}
@@ -132,14 +132,14 @@ public class FormationMgr
 		foreach (var leaderSpawnId in leaderSpawnIds)
 			if (!CreatureGroupMap.ContainsKey(leaderSpawnId))
 			{
-				Log.outError(LogFilter.Sql, $"creature_formation contains leader spawn {leaderSpawnId} which is not included on its formation, removing");
+				Log.Logger.Error($"creature_formation contains leader spawn {leaderSpawnId} which is not included on its formation, removing");
 
 				foreach (var itr in CreatureGroupMap.ToList())
 					if (itr.Value.LeaderSpawnId == leaderSpawnId)
 						CreatureGroupMap.Remove(itr.Key);
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creatures in formations in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creatures in formations in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static FormationInfo GetFormationInfo(ulong spawnId)

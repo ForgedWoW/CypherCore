@@ -50,7 +50,7 @@ public class MMapManager : Singleton<MMapManager>
 
 		if (!File.Exists(fileName))
 		{
-			Log.outDebug(LogFilter.Maps, "MMAP:loadMap: Could not open mmtile file '{0}'", fileName);
+			Log.Logger.Debug("MMAP:loadMap: Could not open mmtile file '{0}'", fileName);
 
 			return false;
 		}
@@ -60,14 +60,14 @@ public class MMapManager : Singleton<MMapManager>
 
 		if (fileHeader.mmapMagic != MapConst.mmapMagic)
 		{
-			Log.outError(LogFilter.Maps, "MMAP:loadMap: Bad header in mmap {0:D4}{1:D2}{2:D2}.mmtile", mapId, x, y);
+			Log.Logger.Error("MMAP:loadMap: Bad header in mmap {0:D4}{1:D2}{2:D2}.mmtile", mapId, x, y);
 
 			return false;
 		}
 
 		if (fileHeader.mmapVersion != MapConst.mmapVersion)
 		{
-			Log.outError(LogFilter.Maps,
+			Log.Logger.Error(
 						"MMAP:loadMap: {0:D4}{1:D2}{2:D2}.mmtile was built with generator v{3}, expected v{4}",
 						mapId,
 						x,
@@ -89,12 +89,12 @@ public class MMapManager : Singleton<MMapManager>
 		{
 			mmap.loadedTileRefs.Add(packedGridPos, tileRef);
 			++loadedTiles;
-			Log.outInfo(LogFilter.Maps, "MMAP:loadMap: Loaded mmtile {0:D4}[{1:D2}, {2:D2}]", mapId, x, y);
+			Log.Logger.Information("MMAP:loadMap: Loaded mmtile {0:D4}[{1:D2}, {2:D2}]", mapId, x, y);
 
 			return true;
 		}
 
-		Log.outError(LogFilter.Maps, "MMAP:loadMap: Could not load {0:D4}{1:D2}{2:D2}.mmtile into navmesh", mapId, x, y);
+		Log.Logger.Error("MMAP:loadMap: Could not load {0:D4}{1:D2}{2:D2}.mmtile into navmesh", mapId, x, y);
 
 		return false;
 	}
@@ -114,12 +114,12 @@ public class MMapManager : Singleton<MMapManager>
 
 		if (Detour.dtStatusFailed(query.init(mmap.navMesh, 1024)))
 		{
-			Log.outError(LogFilter.Maps, "MMAP.GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId {0:D4} instanceId {1}", mapId, instanceId);
+			Log.Logger.Error("MMAP.GetNavMeshQuery: Failed to initialize dtNavMeshQuery for mapId {0:D4} instanceId {1}", mapId, instanceId);
 
 			return false;
 		}
 
-		Log.outDebug(LogFilter.Maps, "MMAP.GetNavMeshQuery: created dtNavMeshQuery for mapId {0:D4} instanceId {1}", mapId, instanceId);
+		Log.Logger.Debug("MMAP.GetNavMeshQuery: created dtNavMeshQuery for mapId {0:D4} instanceId {1}", mapId, instanceId);
 		mmap.navMeshQueries.Add(instanceId, query);
 
 		return true;
@@ -142,7 +142,7 @@ public class MMapManager : Singleton<MMapManager>
 		{
 			mmap.loadedTileRefs.Remove(packedGridPos);
 			--loadedTiles;
-			Log.outInfo(LogFilter.Maps, "MMAP:unloadMap: Unloaded mmtile {0:D4}[{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
+			Log.Logger.Information("MMAP:unloadMap: Unloaded mmtile {0:D4}[{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
 
 			return true;
 		}
@@ -155,7 +155,7 @@ public class MMapManager : Singleton<MMapManager>
 		if (!loadedMMaps.ContainsKey(mapId))
 		{
 			// file may not exist, therefore not loaded
-			Log.outDebug(LogFilter.Maps, "MMAP:unloadMap: Asked to unload not loaded navmesh map {0:D4}", mapId);
+			Log.Logger.Debug("MMAP:unloadMap: Asked to unload not loaded navmesh map {0:D4}", mapId);
 
 			return false;
 		}
@@ -170,17 +170,17 @@ public class MMapManager : Singleton<MMapManager>
 
 			if (Detour.dtStatusFailed(mmap.navMesh.removeTile(i.Value, out _)))
 			{
-				Log.outError(LogFilter.Maps, "MMAP:unloadMap: Could not unload {0:D4}{1:D2}{2:D2}.mmtile from navmesh", mapId, x, y);
+				Log.Logger.Error("MMAP:unloadMap: Could not unload {0:D4}{1:D2}{2:D2}.mmtile from navmesh", mapId, x, y);
 			}
 			else
 			{
 				--loadedTiles;
-				Log.outInfo(LogFilter.Maps, "MMAP:unloadMap: Unloaded mmtile {0:D4} [{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
+				Log.Logger.Information("MMAP:unloadMap: Unloaded mmtile {0:D4} [{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
 			}
 		}
 
 		loadedMMaps.Remove(mapId);
-		Log.outInfo(LogFilter.Maps, "MMAP:unloadMap: Unloaded {0:D4}.mmap", mapId);
+		Log.Logger.Information("MMAP:unloadMap: Unloaded {0:D4}.mmap", mapId);
 
 		return true;
 	}
@@ -191,20 +191,20 @@ public class MMapManager : Singleton<MMapManager>
 		if (!loadedMMaps.TryGetValue(mapId, out var mmap))
 		{
 			// file may not exist, therefore not loaded
-			Log.outDebug(LogFilter.Maps, "MMAP:unloadMapInstance: Asked to unload not loaded navmesh map {0}", mapId);
+			Log.Logger.Debug("MMAP:unloadMapInstance: Asked to unload not loaded navmesh map {0}", mapId);
 
 			return false;
 		}
 
 		if (!mmap.navMeshQueries.ContainsKey(instanceId))
 		{
-			Log.outDebug(LogFilter.Maps, "MMAP:unloadMapInstance: Asked to unload not loaded dtNavMeshQuery mapId {0} instanceId {1}", mapId, instanceId);
+			Log.Logger.Debug("MMAP:unloadMapInstance: Asked to unload not loaded dtNavMeshQuery mapId {0} instanceId {1}", mapId, instanceId);
 
 			return false;
 		}
 
 		mmap.navMeshQueries.Remove(instanceId);
-		Log.outInfo(LogFilter.Maps, "MMAP:unloadMapInstance: Unloaded mapId {0} instanceId {1}", mapId, instanceId);
+		Log.Logger.Information("MMAP:unloadMapInstance: Unloaded mapId {0} instanceId {1}", mapId, instanceId);
 
 		return true;
 	}
@@ -251,7 +251,7 @@ public class MMapManager : Singleton<MMapManager>
 
 		if (!File.Exists(filename))
 		{
-			Log.outError(LogFilter.Maps, "Could not open mmap file {0}", filename);
+			Log.Logger.Error("Could not open mmap file {0}", filename);
 
 			return false;
 		}
@@ -271,12 +271,12 @@ public class MMapManager : Singleton<MMapManager>
 
 		if (Detour.dtStatusFailed(mesh.init(Params)))
 		{
-			Log.outError(LogFilter.Maps, "MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {0:D4} from file {1}", mapId, filename);
+			Log.Logger.Error("MMAP:loadMapData: Failed to initialize dtNavMesh for mmap {0:D4} from file {1}", mapId, filename);
 
 			return false;
 		}
 
-		Log.outInfo(LogFilter.Maps, "MMAP:loadMapData: Loaded {0:D4}.mmap", mapId);
+		Log.Logger.Information("MMAP:loadMapData: Loaded {0:D4}.mmap", mapId);
 
 		// store inside our map list
 		loadedMMaps[mapId] = new MMapData(mesh);

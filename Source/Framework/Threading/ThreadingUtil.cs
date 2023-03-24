@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Serilog;
 
 namespace Framework.Threading;
 
@@ -15,7 +16,7 @@ public static class ThreadingUtil
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 	}
 }

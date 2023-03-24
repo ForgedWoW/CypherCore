@@ -64,7 +64,7 @@ public partial class WorldSession
 
 				break;
 			default:
-				Log.outError(LogFilter.Network, "HandleMessagechatOpcode : Unknown chat opcode ({0})", packet.GetOpcode());
+				Log.Logger.Error("HandleMessagechatOpcode : Unknown chat opcode ({0})", packet.GetOpcode());
 
 				return;
 		}
@@ -96,7 +96,7 @@ public partial class WorldSession
 
 		if (lang == Language.Universal && type != ChatMsg.Emote)
 		{
-			Log.outError(LogFilter.Network, "CMSG_MESSAGECHAT: Possible hacking-attempt: {0} tried to send a message in universal language", GetPlayerInfo());
+			Log.Logger.Error("CMSG_MESSAGECHAT: Possible hacking-attempt: {0} tried to send a message in universal language", GetPlayerInfo());
 			SendNotification(CypherStrings.UnknownLanguage);
 
 			return;
@@ -401,7 +401,7 @@ public partial class WorldSession
 				break;
 			}
 			default:
-				Log.outError(LogFilter.ChatSystem, "CHAT: unknown message type {0}, lang: {1}", type, lang);
+				Log.Logger.Error("CHAT: unknown message type {0}, lang: {1}", type, lang);
 
 				break;
 		}
@@ -498,7 +498,7 @@ public partial class WorldSession
 				break;
 
 			default:
-				Log.outError(LogFilter.Server, "HandleAddonMessagechat: unknown addon message type {0}", type);
+				Log.Logger.Error("HandleAddonMessagechat: unknown addon message type {0}", type);
 
 				break;
 		}

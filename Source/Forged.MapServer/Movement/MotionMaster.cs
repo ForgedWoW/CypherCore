@@ -359,7 +359,7 @@ public class MotionMaster
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 		finally
 		{
@@ -578,7 +578,7 @@ public class MotionMaster
 
 		if (owner == null)
 		{
-			Log.outError(LogFilter.Movement, $"MotionMaster::MoveTargetedHome: '{_owner.GUID}', attempted to move towards target home.");
+			Log.Logger.Error($"MotionMaster::MoveTargetedHome: '{_owner.GUID}', attempted to move towards target home.");
 
 			return;
 		}
@@ -816,7 +816,7 @@ public class MotionMaster
 
 	public void MoveJump(float x, float y, float z, float o, float speedXY, float speedZ, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
 	{
-		Log.outDebug(LogFilter.Server, "Unit ({0}) jump to point (X: {1} Y: {2} Z: {3})", _owner.GUID.ToString(), x, y, z);
+		Log.Logger.Debug("Unit ({0}) jump to point (X: {1} Y: {2} Z: {3})", _owner.GUID.ToString(), x, y, z);
 
 		if (speedXY < 0.01f)
 			return;
@@ -854,7 +854,7 @@ public class MotionMaster
 
 	public void MoveJumpWithGravity(Position pos, float speedXY, float gravity, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
 	{
-		Log.outDebug(LogFilter.Movement, $"MotionMaster.MoveJumpWithGravity: '{_owner.GUID}', jumps to point Id: {id} ({pos})");
+		Log.Logger.Debug($"MotionMaster.MoveJumpWithGravity: '{_owner.GUID}', jumps to point Id: {id} ({pos})");
 
 		if (speedXY < 0.01f)
 			return;
@@ -958,7 +958,7 @@ public class MotionMaster
 
 		if (!owner)
 		{
-			Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", _owner.GUID.ToString());
+			Log.Logger.Error("MotionMaster.MoveAlongSplineChain: non-creature {0} tried to walk along DB spline chain. Ignoring.", _owner.GUID.ToString());
 
 			return;
 		}
@@ -967,7 +967,7 @@ public class MotionMaster
 
 		if (chain.Empty())
 		{
-			Log.outError(LogFilter.Misc, "MotionMaster.MoveAlongSplineChain: creature with entry {0} tried to walk along non-existing spline chain with DB id {1}.", owner.Entry, dbChainId);
+			Log.Logger.Error("MotionMaster.MoveAlongSplineChain: creature with entry {0} tried to walk along non-existing spline chain with DB id {1}.", owner.Entry, dbChainId);
 
 			return;
 		}
@@ -1018,7 +1018,7 @@ public class MotionMaster
 
 		if (creature != null)
 		{
-			Log.outDebug(LogFilter.Movement, $"MotionMaster::MoveSeekAssistance: '{creature.GUID}', seeks assistance (X: {x}, Y: {y}, Z: {z})");
+			Log.Logger.Debug($"MotionMaster::MoveSeekAssistance: '{creature.GUID}', seeks assistance (X: {x}, Y: {y}, Z: {z})");
 			creature.AttackStop();
 			creature.CastStop();
 			creature.DoNotReacquireSpellFocusTarget();
@@ -1027,7 +1027,7 @@ public class MotionMaster
 		}
 		else
 		{
-			Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistance: {_owner.GUID}, attempted to seek assistance");
+			Log.Logger.Error($"MotionMaster::MoveSeekAssistance: {_owner.GUID}, attempted to seek assistance");
 		}
 	}
 
@@ -1036,7 +1036,7 @@ public class MotionMaster
 		if (_owner.IsCreature)
 			Add(new AssistanceDistractMovementGenerator(time, _owner.Location.Orientation));
 		else
-			Log.outError(LogFilter.Server, $"MotionMaster::MoveSeekAssistanceDistract: {_owner.GUID} attempted to call distract after assistance");
+			Log.Logger.Error($"MotionMaster::MoveSeekAssistanceDistract: {_owner.GUID} attempted to call distract after assistance");
 	}
 
 	public void MoveTaxiFlight(uint path, uint pathnode)
@@ -1045,7 +1045,7 @@ public class MotionMaster
 		{
 			if (path < CliDB.TaxiPathNodesByPath.Count)
 			{
-				Log.outDebug(LogFilter.Server, $"MotionMaster::MoveTaxiFlight: {_owner.GUID} taxi to Path Id: {path} (node {pathnode})");
+				Log.Logger.Debug($"MotionMaster::MoveTaxiFlight: {_owner.GUID} taxi to Path Id: {path} (node {pathnode})");
 
 				// Only one FLIGHT_MOTION_TYPE is allowed
 				var hasExisting = HasMovementGenerator(gen => gen.GetMovementGeneratorType() == MovementGeneratorType.Flight);
@@ -1056,12 +1056,12 @@ public class MotionMaster
 			}
 			else
 			{
-				Log.outError(LogFilter.Movement, $"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
+				Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to non-existing path Id: {path} (node: {pathnode})");
 			}
 		}
 		else
 		{
-			Log.outError(LogFilter.Movement, $"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to path Id: {path} (node: {pathnode})");
+			Log.Logger.Error($"MotionMaster::MoveTaxiFlight: '{_owner.GUID}', attempted taxi to path Id: {path} (node: {pathnode})");
 		}
 	}
 
@@ -1106,7 +1106,7 @@ public class MotionMaster
 	{
 		if (IsInvalidMovementGeneratorType(type))
 		{
-			Log.outDebug(LogFilter.Movement, $"MotionMaster::LaunchMoveSpline: '{_owner.GUID}', tried to launch a spline with an invalid MovementGeneratorType: {type} (Id: {id}, Priority: {priority})");
+			Log.Logger.Debug($"MotionMaster::LaunchMoveSpline: '{_owner.GUID}', tried to launch a spline with an invalid MovementGeneratorType: {type} (Id: {id}, Priority: {priority})");
 
 			return;
 		}
@@ -1160,7 +1160,7 @@ public class MotionMaster
 	{
 		if (info.Empty())
 		{
-			Log.outError(LogFilter.Movement, "MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", _owner.Entry);
+			Log.Logger.Error("MotionMaster.ResumeSplineChain: unit with entry {0} tried to resume a spline chain from empty info.", _owner.Entry);
 
 			return;
 		}

@@ -48,7 +48,7 @@ public class OutdoorPvP : ZoneScript
 			SendRemoveWorldStates(player);
 
 		m_players[player.TeamId].Remove(player.GUID);
-		Log.outDebug(LogFilter.Outdoorpvp, "Player {0} left an outdoorpvp zone", player.GetName());
+		Log.Logger.Debug("Player {0} left an outdoorpvp zone", player.GetName());
 	}
 
 	public virtual void HandlePlayerResurrects(Player player, uint zone) { }
@@ -219,7 +219,7 @@ public class OutdoorPvP : ZoneScript
 	public void AddCapturePoint(OPvPCapturePoint cp)
 	{
 		if (m_capturePoints.ContainsKey(cp.m_capturePointSpawnId))
-			Log.outError(LogFilter.Outdoorpvp, "OutdoorPvP.AddCapturePoint: CapturePoint {0} already exists!", cp.m_capturePointSpawnId);
+			Log.Logger.Error("OutdoorPvP.AddCapturePoint: CapturePoint {0} already exists!", cp.m_capturePointSpawnId);
 
 		m_capturePoints[cp.m_capturePointSpawnId] = cp;
 	}
@@ -349,14 +349,14 @@ public class OPvPCapturePoint
 
 	public bool SetCapturePointData(uint entry)
 	{
-		Log.outDebug(LogFilter.Outdoorpvp, "Creating capture point {0}", entry);
+		Log.Logger.Debug("Creating capture point {0}", entry);
 
 		// check info existence
 		var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
 
 		if (goinfo == null || goinfo.type != GameObjectTypes.ControlZone)
 		{
-			Log.outError(LogFilter.Outdoorpvp, "OutdoorPvP: GO {0} is not capture point!", entry);
+			Log.Logger.Error("OutdoorPvP: GO {0} is not capture point!", entry);
 
 			return false;
 		}

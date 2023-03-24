@@ -81,14 +81,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					if (parameters.Length < 3)
 					{
-						Log.outError(LogFilter.ServerLoading, "Method: {0} has wrong parameter count: {1} Should be 3. Can't load AuraEffect.", methodInfo.Name, parameters.Length);
+						Log.Logger.Error("Method: {0} has wrong parameter count: {1} Should be 3. Can't load AuraEffect.", methodInfo.Name, parameters.Length);
 
 						continue;
 					}
 
 					if (parameters[0].ParameterType != typeof(AuraApplication) || parameters[1].ParameterType != typeof(AuraEffectHandleModes) || parameters[2].ParameterType != typeof(bool))
 					{
-						Log.outError(LogFilter.ServerLoading,
+						Log.Logger.Error(
 									"Method: {0} has wrong parameter Types: ({1}, {2}, {3}) Should be (AuraApplication, AuraEffectHandleModes, Bool). Can't load AuraEffect.",
 									methodInfo.Name,
 									parameters[0].ParameterType,
@@ -100,7 +100,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					if (_effectHandlers.ContainsKey(auraEffect.AuraType))
 					{
-						Log.outError(LogFilter.ServerLoading, "Tried to override AuraEffectHandler of {0} with {1} (AuraType {2}).", _effectHandlers[auraEffect.AuraType].GetMethodInfo().Name, methodInfo.Name, auraEffect.AuraType);
+						Log.Logger.Error("Tried to override AuraEffectHandler of {0} with {1} (AuraType {2}).", _effectHandlers[auraEffect.AuraType].GetMethodInfo().Name, methodInfo.Name, auraEffect.AuraType);
 
 						continue;
 					}
@@ -115,7 +115,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					if (_spellEffectsHandlers.ContainsKey(spellEffect.EffectName))
 					{
-						Log.outError(LogFilter.ServerLoading, "Tried to override SpellEffectsHandler of {0} with {1} (EffectName {2}).", _spellEffectsHandlers[spellEffect.EffectName].ToString(), methodInfo.Name, spellEffect.EffectName);
+						Log.Logger.Error("Tried to override SpellEffectsHandler of {0} with {1} (EffectName {2}).", _spellEffectsHandlers[spellEffect.EffectName].ToString(), methodInfo.Name, spellEffect.EffectName);
 
 						continue;
 					}
@@ -127,7 +127,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (_spellEffectsHandlers.Count == 0)
 		{
-			Log.outFatal(LogFilter.ServerLoading, "Could'nt find any SpellEffectHandlers. Dev needs to check this out.");
+			Log.Logger.Fatal("Could'nt find any SpellEffectHandlers. Dev needs to check this out.");
 			Environment.Exit(1);
 		}
 	}
@@ -168,7 +168,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 								if (player)
 									player.SendSysMessage("Craft spell {0} not have create item entry.", spellInfo.Id);
 								else
-									Log.outError(LogFilter.Spells, "Craft spell {0} not have create item entry.", spellInfo.Id);
+									Log.Logger.Error("Craft spell {0} not have create item entry.", spellInfo.Id);
 							}
 
 							return false;
@@ -182,7 +182,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							if (player)
 								player.SendSysMessage("Craft spell {0} create not-exist in DB item (Entry: {1}) and then...", spellInfo.Id, spellEffectInfo.ItemType);
 							else
-								Log.outError(LogFilter.Spells, "Craft spell {0} create not-exist in DB item (Entry: {1}) and then...", spellInfo.Id, spellEffectInfo.ItemType);
+								Log.Logger.Error("Craft spell {0} create not-exist in DB item (Entry: {1}) and then...", spellInfo.Id, spellEffectInfo.ItemType);
 						}
 
 						return false;
@@ -203,7 +203,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							if (player != null)
 								player.SendSysMessage("Spell {0} learn to broken spell {1}, and then...", spellInfo.Id, spellEffectInfo.TriggerSpell);
 							else
-								Log.outError(LogFilter.Spells, "Spell {0} learn to invalid spell {1}, and then...", spellInfo.Id, spellEffectInfo.TriggerSpell);
+								Log.Logger.Error("Spell {0} learn to invalid spell {1}, and then...", spellInfo.Id, spellEffectInfo.TriggerSpell);
 						}
 
 						return false;
@@ -222,7 +222,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 						if (player != null)
 							player.SendSysMessage("Craft spell {0} have not-exist reagent in DB item (Entry: {1}) and then...", spellInfo.Id, spellInfo.Reagent[j]);
 						else
-							Log.outError(LogFilter.Spells, "Craft spell {0} have not-exist reagent in DB item (Entry: {1}) and then...", spellInfo.Id, spellInfo.Reagent[j]);
+							Log.Logger.Error("Craft spell {0} have not-exist reagent in DB item (Entry: {1}) and then...", spellInfo.Id, spellInfo.Reagent[j]);
 					}
 
 					return false;
@@ -745,7 +745,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 	{
 		if (!_spellEffectsHandlers.TryGetValue(eff, out var eh))
 		{
-			Log.outError(LogFilter.Spells, "No defined handler for SpellEffect {0}", eff);
+			Log.Logger.Error("No defined handler for SpellEffect {0}", eff);
 
 			return _spellEffectsHandlers[SpellEffectName.None];
 		}
@@ -757,7 +757,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 	{
 		if (!_effectHandlers.TryGetValue(type, out var eh))
 		{
-			Log.outError(LogFilter.Spells, "No defined handler for AuraEffect {0}", type);
+			Log.Logger.Error("No defined handler for AuraEffect {0}", type);
 
 			return _effectHandlers[AuraType.None];
 		}
@@ -1090,7 +1090,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell rank records in {1}ms", _spellChainNodes.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell rank records in {1}ms", _spellChainNodes.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellRequired()
@@ -1105,7 +1105,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell required records. DB table `spell_required` is empty.");
+			Log.Logger.Information("Loaded 0 spell required records. DB table `spell_required` is empty.");
 
 			return;
 		}
@@ -1122,7 +1122,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spell == null)
 			{
-				Log.outError(LogFilter.Sql, "spell_id {0} in `spell_required` table is not found in dbcs, skipped", spell_id);
+				Log.Logger.Error("spell_id {0} in `spell_required` table is not found in dbcs, skipped", spell_id);
 
 				continue;
 			}
@@ -1131,21 +1131,21 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (req_spell == null)
 			{
-				Log.outError(LogFilter.Sql, "req_spell {0} in `spell_required` table is not found in dbcs, skipped", spell_req);
+				Log.Logger.Error("req_spell {0} in `spell_required` table is not found in dbcs, skipped", spell_req);
 
 				continue;
 			}
 
 			if (spell.IsRankOf(req_spell))
 			{
-				Log.outError(LogFilter.Sql, "req_spell {0} and spell_id {1} in `spell_required` table are ranks of the same spell, entry not needed, skipped", spell_req, spell_id);
+				Log.Logger.Error("req_spell {0} and spell_id {1} in `spell_required` table are ranks of the same spell, entry not needed, skipped", spell_req, spell_id);
 
 				continue;
 			}
 
 			if (IsSpellRequiringSpell(spell_id, spell_req))
 			{
-				Log.outError(LogFilter.Sql, "duplicated entry of req_spell {0} and spell_id {1} in `spell_required`, skipped", spell_req, spell_id);
+				Log.Logger.Error("duplicated entry of req_spell {0} and spell_id {1} in `spell_required`, skipped", spell_req, spell_id);
 
 				continue;
 			}
@@ -1155,7 +1155,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell required records in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell required records in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellLearnSkills()
@@ -1207,7 +1207,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				}
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Spell Learn Skills from DBC", dbc_count);
+		Log.Logger.Information("Loaded {0} Spell Learn Skills from DBC", dbc_count);
 	}
 
 	public void LoadSpellLearnSpells()
@@ -1221,7 +1221,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell learn spells. DB table `spell_learn_spell` is empty.");
+			Log.Logger.Information("Loaded 0 spell learn spells. DB table `spell_learn_spell` is empty.");
 
 			return;
 		}
@@ -1242,21 +1242,21 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_learn_spell` does not exist", spell_id);
+				Log.Logger.Error("Spell {0} listed in `spell_learn_spell` does not exist", spell_id);
 
 				continue;
 			}
 
 			if (!HasSpellInfo(node.Spell, Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_learn_spell` learning not existed spell {1}", spell_id, node.Spell);
+				Log.Logger.Error("Spell {0} listed in `spell_learn_spell` learning not existed spell {1}", spell_id, node.Spell);
 
 				continue;
 			}
 
 			if (spellInfo.HasAttribute(SpellCustomAttributes.IsTalent))
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_learn_spell` attempt learning talent spell {1}, skipped", spell_id, node.Spell);
+				Log.Logger.Error("Spell {0} listed in `spell_learn_spell` attempt learning talent spell {1}, skipped", spell_id, node.Spell);
 
 				continue;
 			}
@@ -1298,7 +1298,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 						foreach (var bound in db_node_bounds)
 							if (bound.Spell == dbc_node.Spell)
 							{
-								Log.outError(LogFilter.Sql,
+								Log.Logger.Error(
 											"Spell {0} auto-learn spell {1} in spell.dbc then the record in `spell_learn_spell` is redundant, please fix DB.",
 											entry.Id,
 											dbc_node.Spell);
@@ -1327,7 +1327,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			foreach (var spellNode in db_node_bounds)
 				if (spellNode.Spell == spellLearnSpell.LearnSpellID)
 				{
-					Log.outError(LogFilter.Sql, $"Found redundant record (entry: {spellLearnSpell.SpellID}, SpellID: {spellLearnSpell.LearnSpellID}) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2");
+					Log.Logger.Error($"Found redundant record (entry: {spellLearnSpell.SpellID}, SpellID: {spellLearnSpell.LearnSpellID}) in `spell_learn_spell`, spell added automatically from SpellLearnSpell.db2");
 					found = true;
 
 					break;
@@ -1361,7 +1361,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++dbc_count;
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell learn spells, {1} found in Spell.dbc in {2} ms", count, dbc_count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell learn spells, {1} found in Spell.dbc in {2} ms", count, dbc_count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellTargetPositions()
@@ -1375,7 +1375,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
+			Log.Logger.Information("Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
 
 			return;
 		}
@@ -1397,14 +1397,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (mapEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Spell (ID: {0}, EffectIndex: {1}) is using a non-existant MapID (ID: {2})", spellId, effIndex, st.TargetMapId);
+				Log.Logger.Error("Spell (ID: {0}, EffectIndex: {1}) is using a non-existant MapID (ID: {2})", spellId, effIndex, st.TargetMapId);
 
 				continue;
 			}
 
 			if (st.X == 0 && st.Y == 0 && st.Z == 0)
 			{
-				Log.outError(LogFilter.Sql, "Spell (ID: {0}, EffectIndex: {1}) target coordinates not provided.", spellId, effIndex);
+				Log.Logger.Error("Spell (ID: {0}, EffectIndex: {1}) target coordinates not provided.", spellId, effIndex);
 
 				continue;
 			}
@@ -1413,14 +1413,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Spell (ID: {0}) listed in `spell_target_position` does not exist.", spellId);
+				Log.Logger.Error("Spell (ID: {0}) listed in `spell_target_position` does not exist.", spellId);
 
 				continue;
 			}
 
 			if (effIndex >= spellInfo.Effects.Count)
 			{
-				Log.outError(LogFilter.Sql, "Spell (Id: {0}, effIndex: {1}) listed in `spell_target_position` does not have an effect at index {2}.", spellId, effIndex, effIndex);
+				Log.Logger.Error("Spell (Id: {0}, effIndex: {1}) listed in `spell_target_position` does not have an effect at index {2}.", spellId, effIndex, effIndex);
 
 				continue;
 			}
@@ -1439,13 +1439,13 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 			else
 			{
-				Log.outError(LogFilter.Sql, "Spell (Id: {0}, effIndex: {1}) listed in `spell_target_position` does not have target TARGET_DEST_DB (17).", spellId, effIndex);
+				Log.Logger.Error("Spell (Id: {0}, effIndex: {1}) listed in `spell_target_position` does not have target TARGET_DEST_DB (17).", spellId, effIndex);
 
 				continue;
 			}
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell teleport coordinates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell teleport coordinates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellGroups()
@@ -1460,7 +1460,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell group definitions. DB table `spell_group` is empty.");
+			Log.Logger.Information("Loaded 0 spell group definitions. DB table `spell_group` is empty.");
 
 			return;
 		}
@@ -1474,7 +1474,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (group_id <= 1000 && group_id >= (uint)SpellGroup.CoreRangeMax)
 			{
-				Log.outError(LogFilter.Sql, "SpellGroup id {0} listed in `spell_group` is in core range, but is not defined in core!", group_id);
+				Log.Logger.Error("SpellGroup id {0} listed in `spell_group` is in core range, but is not defined in core!", group_id);
 
 				continue;
 			}
@@ -1491,7 +1491,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			{
 				if (!groups.Contains((uint)Math.Abs(group.Value)))
 				{
-					Log.outError(LogFilter.Sql, "SpellGroup id {0} listed in `spell_group` does not exist", Math.Abs(group.Value));
+					Log.Logger.Error("SpellGroup id {0} listed in `spell_group` does not exist", Math.Abs(group.Value));
 
 					return true;
 				}
@@ -1502,13 +1502,13 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_group` does not exist", group.Value);
+					Log.Logger.Error("Spell {0} listed in `spell_group` does not exist", group.Value);
 
 					return true;
 				}
 				else if (spellInfo.Rank > 1)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_group` is not first rank of spell", group.Value);
+					Log.Logger.Error("Spell {0} listed in `spell_group` is not first rank of spell", group.Value);
 
 					return true;
 				}
@@ -1528,7 +1528,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellGroupStackRules()
@@ -1545,7 +1545,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
+			Log.Logger.Information("Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
 
 			return;
 		}
@@ -1559,7 +1559,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (stack_rule >= SpellGroupStackRule.Max)
 			{
-				Log.outError(LogFilter.Sql, "SpellGroupStackRule {0} listed in `spell_group_stack_rules` does not exist", stack_rule);
+				Log.Logger.Error("SpellGroupStackRule {0} listed in `spell_group_stack_rules` does not exist", stack_rule);
 
 				continue;
 			}
@@ -1568,7 +1568,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellGroup == null)
 			{
-				Log.outError(LogFilter.Sql, "SpellGroup id {0} listed in `spell_group_stack_rules` does not exist", group_id);
+				Log.Logger.Error("SpellGroup id {0} listed in `spell_group_stack_rules` does not exist", group_id);
 
 				continue;
 			}
@@ -1582,11 +1582,11 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell group stack rules in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell group stack rules in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		count = 0;
 		oldMSTime = Time.MSTime;
-		Log.outInfo(LogFilter.ServerLoading, "Parsing SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules...");
+		Log.Logger.Information("Parsing SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules...");
 
 		foreach (var group_id in sameEffectGroups)
 		{
@@ -1673,14 +1673,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				// not found either, log error
 				if (!found)
-					Log.outError(LogFilter.Sql, $"SpellId {spellId} listed in `spell_group` with stack rule 3 does not share aura assigned for group {group_id}");
+					Log.Logger.Error($"SpellId {spellId} listed in `spell_group` with stack rule 3 does not share aura assigned for group {group_id}");
 			}
 
 			_spellSameEffectStack[group_id] = auraTypes;
 			++count;
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, $"Parsed {count} SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Parsed {count} SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellProcs()
@@ -1714,7 +1714,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_proc` does not exist", spellId);
+					Log.Logger.Error("Spell {0} listed in `spell_proc` does not exist", spellId);
 
 					continue;
 				}
@@ -1722,7 +1722,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				if (allRanks)
 					if (spellInfo.GetFirstRankSpell().Id != (uint)spellId)
 					{
-						Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_proc` is not first rank of spell.", spellId);
+						Log.Logger.Error("Spell {0} listed in `spell_proc` is not first rank of spell.", spellId);
 
 						continue;
 					}
@@ -1747,7 +1747,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				{
 					if (!_spellProcMap.ContainsKey(spellInfo.Id, spellInfo.Difficulty))
 					{
-						Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_proc` has duplicate entry in the table", spellInfo.Id);
+						Log.Logger.Error("Spell {0} listed in `spell_proc` has duplicate entry in the table", spellInfo.Id);
 
 						break;
 					}
@@ -1769,50 +1769,50 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					// validate data
 					if (Convert.ToBoolean(procEntry.SchoolMask & ~SpellSchoolMask.All))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has wrong `SchoolMask` set: {1}", spellInfo.Id, procEntry.SchoolMask);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has wrong `SchoolMask` set: {1}", spellInfo.Id, procEntry.SchoolMask);
 
 					if (procEntry.SpellFamilyName != 0 && !Global.DB2Mgr.IsValidSpellFamiliyName(procEntry.SpellFamilyName))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has wrong `SpellFamilyName` set: {1}", spellInfo.Id, procEntry.SpellFamilyName);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has wrong `SpellFamilyName` set: {1}", spellInfo.Id, procEntry.SpellFamilyName);
 
 					if (procEntry.Chance < 0)
 					{
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has negative value in `Chance` field", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has negative value in `Chance` field", spellInfo.Id);
 						procEntry.Chance = 0;
 					}
 
 					if (procEntry.ProcsPerMinute < 0)
 					{
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has negative value in `ProcsPerMinute` field", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has negative value in `ProcsPerMinute` field", spellInfo.Id);
 						procEntry.ProcsPerMinute = 0;
 					}
 
 					if (!procEntry.ProcFlags)
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} doesn't have `ProcFlags` value defined, proc will not be triggered", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} doesn't have `ProcFlags` value defined, proc will not be triggered", spellInfo.Id);
 
 					if (Convert.ToBoolean(procEntry.SpellTypeMask & ~ProcFlagsSpellType.MaskAll))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has wrong `SpellTypeMask` set: {1}", spellInfo.Id, procEntry.SpellTypeMask);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has wrong `SpellTypeMask` set: {1}", spellInfo.Id, procEntry.SpellTypeMask);
 
 					if (procEntry.SpellTypeMask != 0 && !procEntry.ProcFlags.HasFlag(ProcFlags.SpellMask))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has `SpellTypeMask` value defined, but it won't be used for defined `ProcFlags` value", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has `SpellTypeMask` value defined, but it won't be used for defined `ProcFlags` value", spellInfo.Id);
 
 					if (procEntry.SpellPhaseMask == 0 && procEntry.ProcFlags.HasFlag(ProcFlags.ReqSpellPhaseMask))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} doesn't have `SpellPhaseMask` value defined, but it's required for defined `ProcFlags` value, proc will not be triggered", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} doesn't have `SpellPhaseMask` value defined, but it's required for defined `ProcFlags` value, proc will not be triggered", spellInfo.Id);
 
 					if (Convert.ToBoolean(procEntry.SpellPhaseMask & ~ProcFlagsSpellPhase.MaskAll))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has wrong `SpellPhaseMask` set: {1}", spellInfo.Id, procEntry.SpellPhaseMask);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has wrong `SpellPhaseMask` set: {1}", spellInfo.Id, procEntry.SpellPhaseMask);
 
 					if (procEntry.SpellPhaseMask != 0 && !procEntry.ProcFlags.HasFlag(ProcFlags.ReqSpellPhaseMask))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has `SpellPhaseMask` value defined, but it won't be used for defined `ProcFlags` value", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has `SpellPhaseMask` value defined, but it won't be used for defined `ProcFlags` value", spellInfo.Id);
 
 					if (Convert.ToBoolean(procEntry.HitMask & ~ProcFlagsHit.MaskAll))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has wrong `HitMask` set: {1}", spellInfo.Id, procEntry.HitMask);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has wrong `HitMask` set: {1}", spellInfo.Id, procEntry.HitMask);
 
 					if (procEntry.HitMask != 0 && !(procEntry.ProcFlags.HasFlag(ProcFlags.TakenHitMask) || (procEntry.ProcFlags.HasFlag(ProcFlags.DoneHitMask) && (procEntry.SpellPhaseMask == 0 || Convert.ToBoolean(procEntry.SpellPhaseMask & (ProcFlagsSpellPhase.Hit | ProcFlagsSpellPhase.Finish))))))
-						Log.outError(LogFilter.Sql, "`spell_proc` table entry for spellId {0} has `HitMask` value defined, but it won't be used for defined `ProcFlags` and `SpellPhaseMask` values", spellInfo.Id);
+						Log.Logger.Error("`spell_proc` table entry for spellId {0} has `HitMask` value defined, but it won't be used for defined `ProcFlags` and `SpellPhaseMask` values", spellInfo.Id);
 
 					foreach (var spellEffectInfo in spellInfo.Effects)
 						if ((procEntry.DisableEffectsMask & (1u << (int)spellEffectInfo.EffectIndex)) != 0 && !spellEffectInfo.IsAura())
-							Log.outError(LogFilter.Sql, $"The `spell_proc` table entry for spellId {spellInfo.Id} has DisableEffectsMask with effect {spellEffectInfo.EffectIndex}, but effect {spellEffectInfo.EffectIndex} is not an aura effect");
+							Log.Logger.Error($"The `spell_proc` table entry for spellId {spellInfo.Id} has DisableEffectsMask with effect {spellEffectInfo.EffectIndex}, but effect {spellEffectInfo.EffectIndex} is not an aura effect");
 
 					if (procEntry.AttributesMask.HasFlag(ProcAttributes.ReqSpellmod))
 					{
@@ -1832,12 +1832,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 						}
 
 						if (!found)
-							Log.outError(LogFilter.Sql, $"The `spell_proc` table entry for spellId {spellInfo.Id} has Attribute PROC_ATTR_REQ_SPELLMOD, but spell has no spell mods. Proc will not be triggered");
+							Log.Logger.Error($"The `spell_proc` table entry for spellId {spellInfo.Id} has Attribute PROC_ATTR_REQ_SPELLMOD, but spell has no spell mods. Proc will not be triggered");
 					}
 
 					if ((procEntry.AttributesMask & ~ProcAttributes.AllAllowed) != 0)
 					{
-						Log.outError(LogFilter.Sql, $"The `spell_proc` table entry for spellId {spellInfo.Id} has `AttributesMask` value specifying invalid attributes 0x{(procEntry.AttributesMask & ~ProcAttributes.AllAllowed):X}.");
+						Log.Logger.Error($"The `spell_proc` table entry for spellId {spellInfo.Id} has `AttributesMask` value specifying invalid attributes 0x{(procEntry.AttributesMask & ~ProcAttributes.AllAllowed):X}.");
 						procEntry.AttributesMask &= ProcAttributes.AllAllowed;
 					}
 
@@ -1851,15 +1851,15 @@ public sealed class SpellManager : Singleton<SpellManager>
 				}
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell proc conditions and data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} spell proc conditions and data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
+			Log.Logger.Information("Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
 		}
 
 		// This generates default procs to retain compatibility with previous proc system
-		Log.outInfo(LogFilter.ServerLoading, "Generating spell proc data from SpellMap...");
+		Log.Logger.Information("Generating spell proc data from SpellMap...");
 		count = 0;
 		oldMSTime = Time.MSTime;
 
@@ -1921,7 +1921,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 					foreach (var spellEffectInfo in spellInfo.Effects)
 						if (spellEffectInfo.IsAura())
 						{
-							Log.outDebug(LogFilter.Sql, $"Spell Id {spellInfo.Id} has DBC ProcFlags 0x{spellInfo.ProcFlags[0]:X} 0x{spellInfo.ProcFlags[1]:X}, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.");
+							Log.Logger.Debug($"Spell Id {spellInfo.Id} has DBC ProcFlags 0x{spellInfo.ProcFlags[0]:X} 0x{spellInfo.ProcFlags[1]:X}, but it's of non-proc aura type, it probably needs an entry in `spell_proc` table to be handled correctly.");
 
 							break;
 						}
@@ -1999,7 +1999,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				++count;
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Generated spell proc data for {0} spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Generated spell proc data for {0} spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellThreats()
@@ -2013,7 +2013,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
+			Log.Logger.Information("Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
 
 			return;
 		}
@@ -2026,7 +2026,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (!HasSpellInfo(entry, Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_threat` does not exist", entry);
+				Log.Logger.Error("Spell {0} listed in `spell_threat` does not exist", entry);
 
 				continue;
 			}
@@ -2040,7 +2040,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} SpellThreatEntries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SpellThreatEntries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSkillLineAbilityMap()
@@ -2052,7 +2052,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		foreach (var skill in CliDB.SkillLineAbilityStorage.Values)
 			_skillLineAbilityMap.Add(skill.Spell, skill);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} SkillLineAbility MultiMap Data in {1} ms", _skillLineAbilityMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SkillLineAbility MultiMap Data in {1} ms", _skillLineAbilityMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellPetAuras()
@@ -2066,7 +2066,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
+			Log.Logger.Information("Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
 
 			return;
 		}
@@ -2092,21 +2092,21 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_pet_auras` does not exist", spell);
+					Log.Logger.Error("Spell {0} listed in `spell_pet_auras` does not exist", spell);
 
 					continue;
 				}
 
 				if (eff >= spellInfo.Effects.Count)
 				{
-					Log.outError(LogFilter.Spells, "Spell {0} listed in `spell_pet_auras` does not have effect at index {1}", spell, eff);
+					Log.Logger.Error("Spell {0} listed in `spell_pet_auras` does not have effect at index {1}", spell, eff);
 
 					continue;
 				}
 
 				if (spellInfo.GetEffect(eff).Effect != SpellEffectName.Dummy && (spellInfo.GetEffect(eff).Effect != SpellEffectName.ApplyAura || spellInfo.GetEffect(eff).ApplyAuraName != AuraType.Dummy))
 				{
-					Log.outError(LogFilter.Spells, "Spell {0} listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
+					Log.Logger.Error("Spell {0} listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
 
 					continue;
 				}
@@ -2115,7 +2115,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (spellInfo2 == null)
 				{
-					Log.outError(LogFilter.Sql, "Aura {0} listed in `spell_pet_auras` does not exist", aura);
+					Log.Logger.Error("Aura {0} listed in `spell_pet_auras` does not exist", aura);
 
 					continue;
 				}
@@ -2131,7 +2131,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell pet auras in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell pet auras in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellEnchantProcData()
@@ -2145,7 +2145,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
+			Log.Logger.Information("Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
 
 			return;
 		}
@@ -2160,7 +2160,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (ench == null)
 			{
-				Log.outError(LogFilter.Sql, "Enchancment {0} listed in `spell_enchant_proc_data` does not exist", enchantId);
+				Log.Logger.Error("Enchancment {0} listed in `spell_enchant_proc_data` does not exist", enchantId);
 
 				continue;
 			}
@@ -2176,7 +2176,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} enchant proc data definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} enchant proc data definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellLinked()
@@ -2190,7 +2190,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
+			Log.Logger.Information("Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
 
 			return;
 		}
@@ -2207,7 +2207,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_linked_spell` does not exist", Math.Abs(trigger));
+				Log.Logger.Error("Spell {0} listed in `spell_linked_spell` does not exist", Math.Abs(trigger));
 
 				continue;
 			}
@@ -2215,18 +2215,18 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (effect >= 0)
 				foreach (var spellEffectInfo in spellInfo.Effects)
 					if (spellEffectInfo.CalcValue() == Math.Abs(effect))
-						Log.outError(LogFilter.Sql, $"The spell {Math.Abs(trigger)} Effect: {Math.Abs(effect)} listed in `spell_linked_spell` has same bp{spellEffectInfo.EffectIndex} like effect (possible hack)");
+						Log.Logger.Error($"The spell {Math.Abs(trigger)} Effect: {Math.Abs(effect)} listed in `spell_linked_spell` has same bp{spellEffectInfo.EffectIndex} like effect (possible hack)");
 
 			if (!HasSpellInfo((uint)Math.Abs(effect), Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_linked_spell` does not exist", Math.Abs(effect));
+				Log.Logger.Error("Spell {0} listed in `spell_linked_spell` does not exist", Math.Abs(effect));
 
 				continue;
 			}
 
 			if (type < SpellLinkedType.Cast || type > SpellLinkedType.Remove)
 			{
-				Log.outError(LogFilter.Sql, $"The spell trigger {trigger}, effect {effect} listed in `spell_linked_spell` has invalid link type {type}, skipped.");
+				Log.Logger.Error($"The spell trigger {trigger}, effect {effect} listed in `spell_linked_spell` has invalid link type {type}, skipped.");
 
 				continue;
 			}
@@ -2234,7 +2234,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (trigger < 0)
 			{
 				if (type != SpellLinkedType.Cast)
-					Log.outError(LogFilter.Sql, $"The spell trigger {trigger} listed in `spell_linked_spell` has invalid link type {type}, changed to 0.");
+					Log.Logger.Error($"The spell trigger {trigger} listed in `spell_linked_spell` has invalid link type {type}, changed to 0.");
 
 				trigger = -trigger;
 				type = SpellLinkedType.Remove;
@@ -2244,7 +2244,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (type != SpellLinkedType.Aura)
 				if (trigger == effect)
 				{
-					Log.outError(LogFilter.Sql, $"The spell trigger {trigger}, effect {effect} listed in `spell_linked_spell` triggers itself (infinite loop), skipped.");
+					Log.Logger.Error($"The spell trigger {trigger}, effect {effect} listed in `spell_linked_spell` triggers itself (infinite loop), skipped.");
 
 					continue;
 				}
@@ -2254,7 +2254,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} linked spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} linked spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetLevelupSpellMap()
@@ -2303,7 +2303,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				}
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} pet levelup and default spells for {1} families in {2} ms", count, family_count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} pet levelup and default spells for {1} families in {2} ms", count, family_count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetDefaultSpells()
@@ -2314,7 +2314,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		uint countCreature = 0;
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading summonable creature templates...");
+		Log.Logger.Information("Loading summonable creature templates...");
 
 		// different summon spells
 		foreach (var kvp in _spellInfoMap.Values)
@@ -2347,7 +2347,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							}
 						}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} summonable creature templates in {1} ms", countCreature, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} summonable creature templates in {1} ms", countCreature, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	bool LoadPetDefaultSpells_helper(CreatureTemplate cInfo, PetDefaultSpellsEntry petDefSpells)
@@ -2413,7 +2413,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell area requirements. DB table `spell_area` is empty.");
+			Log.Logger.Information("Loaded 0 spell area requirements. DB table `spell_area` is empty.");
 
 			return;
 		}
@@ -2445,7 +2445,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 			else
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` does not exist", spell);
+				Log.Logger.Error("Spell {0} listed in `spell_area` does not exist", spell);
 
 				continue;
 			}
@@ -2482,7 +2482,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (!ok)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` already listed with similar requirements.", spell);
+					Log.Logger.Error("Spell {0} listed in `spell_area` already listed with similar requirements.", spell);
 
 					continue;
 				}
@@ -2490,14 +2490,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellArea.AreaId != 0 && !CliDB.AreaTableStorage.ContainsKey(spellArea.AreaId))
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have wrong area ({1}) requirement", spell, spellArea.AreaId);
+				Log.Logger.Error("Spell {0} listed in `spell_area` have wrong area ({1}) requirement", spell, spellArea.AreaId);
 
 				continue;
 			}
 
 			if (spellArea.QuestStart != 0 && Global.ObjectMgr.GetQuestTemplate(spellArea.QuestStart) == null)
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have wrong start quest ({1}) requirement", spell, spellArea.QuestStart);
+				Log.Logger.Error("Spell {0} listed in `spell_area` have wrong start quest ({1}) requirement", spell, spellArea.QuestStart);
 
 				continue;
 			}
@@ -2505,7 +2505,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (spellArea.QuestEnd != 0)
 				if (Global.ObjectMgr.GetQuestTemplate(spellArea.QuestEnd) == null)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have wrong end quest ({1}) requirement", spell, spellArea.QuestEnd);
+					Log.Logger.Error("Spell {0} listed in `spell_area` have wrong end quest ({1}) requirement", spell, spellArea.QuestEnd);
 
 					continue;
 				}
@@ -2516,14 +2516,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (info == null)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have wrong aura spell ({1}) requirement", spell, Math.Abs(spellArea.AuraSpell));
+					Log.Logger.Error("Spell {0} listed in `spell_area` have wrong aura spell ({1}) requirement", spell, Math.Abs(spellArea.AuraSpell));
 
 					continue;
 				}
 
 				if (Math.Abs(spellArea.AuraSpell) == spellArea.SpellId)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have aura spell ({1}) requirement for itself", spell, Math.Abs(spellArea.AuraSpell));
+					Log.Logger.Error("Spell {0} listed in `spell_area` have aura spell ({1}) requirement for itself", spell, Math.Abs(spellArea.AuraSpell));
 
 					continue;
 				}
@@ -2544,7 +2544,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					if (chain)
 					{
-						Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have aura spell ({1}) requirement that itself autocast from aura", spell, spellArea.AuraSpell);
+						Log.Logger.Error("Spell {0} listed in `spell_area` have aura spell ({1}) requirement that itself autocast from aura", spell, spellArea.AuraSpell);
 
 						continue;
 					}
@@ -2561,7 +2561,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 					if (chain)
 					{
-						Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have aura spell ({1}) requirement that itself autocast from aura", spell, spellArea.AuraSpell);
+						Log.Logger.Error("Spell {0} listed in `spell_area` have aura spell ({1}) requirement that itself autocast from aura", spell, spellArea.AuraSpell);
 
 						continue;
 					}
@@ -2570,14 +2570,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellArea.RaceMask != 0 && (spellArea.RaceMask & SharedConst.RaceMaskAllPlayable) == 0)
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have wrong race mask ({1}) requirement", spell, spellArea.RaceMask);
+				Log.Logger.Error("Spell {0} listed in `spell_area` have wrong race mask ({1}) requirement", spell, spellArea.RaceMask);
 
 				continue;
 			}
 
 			if (spellArea.Gender != Gender.None && spellArea.Gender != Gender.Female && spellArea.Gender != Gender.Male)
 			{
-				Log.outError(LogFilter.Sql, "Spell {0} listed in `spell_area` have wrong gender ({1}) requirement", spell, spellArea.Gender);
+				Log.Logger.Error("Spell {0} listed in `spell_area` have wrong gender ({1}) requirement", spell, spellArea.Gender);
 
 				continue;
 			}
@@ -2617,7 +2617,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell area requirements in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell area requirements in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellInfoStore()
@@ -2747,7 +2747,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (CliDB.SpellEmpowerStorage.TryGetValue(empwerRank.Value.SpellEmpowerID, out var empowerRecord))
 				GetLoadHelper(empowerRecord.SpellID, 0).EmpowerStages.Add(empwerRank.Value);
 			else
-				Log.outWarn(LogFilter.ServerLoading, $"SpellEmpowerStageStorage contains SpellEmpowerID: {empwerRank.Value.SpellEmpowerID} that is not found in SpellEmpowerStorage.");
+				Log.Logger.Warning($"SpellEmpowerStageStorage contains SpellEmpowerID: {empwerRank.Value.SpellEmpowerID} that is not found in SpellEmpowerStorage.");
 
 		foreach (var data in loadData)
 		{
@@ -2841,7 +2841,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			AddSpellInfo(new SpellInfo(spellNameEntry, data.Key.difficulty, data.Value));
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded SpellInfo store in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo store in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void UnloadSpellInfoImplicitTargetConditionLists()
@@ -2910,51 +2910,51 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (existingSpellBounds.Empty())
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} effext index {effect.EffectIndex} references a regular spell loaded from file. Adding serverside effects to existing spells is not allowed.");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} effext index {effect.EffectIndex} references a regular spell loaded from file. Adding serverside effects to existing spells is not allowed.");
 
 					continue;
 				}
 
 				if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.HasRecord((uint)difficulty))
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} effect index {effect.EffectIndex} references non-existing difficulty {difficulty}, skipped");
+					Log.Logger.Error($"Serverside spell {spellId} effect index {effect.EffectIndex} references non-existing difficulty {difficulty}, skipped");
 
 					continue;
 				}
 
 				if (effect.Effect >= (uint)SpellEffectName.TotalSpellEffects)
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} has invalid effect type {effect.Effect} at index {effect.EffectIndex}, skipped");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} has invalid effect type {effect.Effect} at index {effect.EffectIndex}, skipped");
 
 					continue;
 				}
 
 				if (effect.EffectAura >= (uint)AuraType.Total)
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} has invalid aura type {effect.EffectAura} at index {effect.EffectIndex}, skipped");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} has invalid aura type {effect.EffectAura} at index {effect.EffectIndex}, skipped");
 
 					continue;
 				}
 
 				if (effect.ImplicitTarget[0] >= (uint)Targets.TotalSpellTargets)
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} has invalid targetA type {effect.ImplicitTarget[0]} at index {effect.EffectIndex}, skipped");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} has invalid targetA type {effect.ImplicitTarget[0]} at index {effect.EffectIndex}, skipped");
 
 					continue;
 				}
 
 				if (effect.ImplicitTarget[1] >= (uint)Targets.TotalSpellTargets)
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} has invalid targetB type {effect.ImplicitTarget[1]} at index {effect.EffectIndex}, skipped");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} has invalid targetB type {effect.ImplicitTarget[1]} at index {effect.EffectIndex}, skipped");
 
 					continue;
 				}
 
 				if (effect.EffectRadiusIndex[0] != 0 && !CliDB.SpellRadiusStorage.HasRecord(effect.EffectRadiusIndex[0]))
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} has invalid radius id {effect.EffectRadiusIndex[0]} at index {effect.EffectIndex}, set to 0");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} has invalid radius id {effect.EffectRadiusIndex[0]} at index {effect.EffectIndex}, set to 0");
 
 				if (effect.EffectRadiusIndex[1] != 0 && !CliDB.SpellRadiusStorage.HasRecord(effect.EffectRadiusIndex[1]))
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} has invalid max radius id {effect.EffectRadiusIndex[1]} at index {effect.EffectIndex}, set to 0");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} has invalid max radius id {effect.EffectRadiusIndex[1]} at index {effect.EffectIndex}, set to 0");
 
 				spellEffects.Add((spellId, difficulty), effect);
 			} while (effectsResult.NextRow());
@@ -2988,7 +2988,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (CliDB.SpellNameStorage.HasRecord(spellId))
 				{
-					Log.outError(LogFilter.Sql, $"Serverside spell {spellId} difficulty {difficulty} is already loaded from file. Overriding existing spells is not allowed.");
+					Log.Logger.Error($"Serverside spell {spellId} difficulty {difficulty} is already loaded from file. Overriding existing spells is not allowed.");
 
 					continue;
 				}
@@ -3074,7 +3074,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				AddSpellInfo(spellInfo);
 			} while (spellsResult.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_serversideSpellNames.Count} serverside spells {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_serversideSpellNames.Count} serverside spells {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellInfoCustomAttributes()
@@ -3086,7 +3086,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell custom attributes from DB. DB table `spell_custom_attr` is empty.");
+			Log.Logger.Information("Loaded 0 spell custom attributes from DB. DB table `spell_custom_attr` is empty.");
 		}
 		else
 		{
@@ -3101,7 +3101,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				if (spells.Empty())
 				{
-					Log.outError(LogFilter.Sql, "Table `spell_custom_attr` has wrong spell (entry: {0}), ignored.", spellId);
+					Log.Logger.Error("Table `spell_custom_attr` has wrong spell (entry: {0}), ignored.", spellId);
 
 					continue;
 				}
@@ -3111,7 +3111,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 					if (attributes.HasAnyFlag((uint)SpellCustomAttributes.ShareDamage))
 						if (!spellInfo.HasEffect(SpellEffectName.SchoolDamage))
 						{
-							Log.outError(LogFilter.Sql, "Spell {0} listed in table `spell_custom_attr` with SPELL_ATTR0_CU_SHARE_DAMAGE has no SPELL_EFFECT_SCHOOL_DAMAGE, ignored.", spellId);
+							Log.Logger.Error("Spell {0} listed in table `spell_custom_attr` with SPELL_ATTR0_CU_SHARE_DAMAGE has no SPELL_EFFECT_SCHOOL_DAMAGE, ignored.", spellId);
 
 							continue;
 						}
@@ -3122,7 +3122,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell custom attributes from DB in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime2));
+			Log.Logger.Information("Loaded {0} spell custom attributes from DB in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime2));
 		}
 
 		List<uint> talentSpells = new();
@@ -3468,7 +3468,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				foreach (var spellInfo in _GetSpellInfo(liquid.SpellID).Values)
 					spellInfo.AttributesCu |= SpellCustomAttributes.AuraCannotBeSaved;
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded SpellInfo custom attributes in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo custom attributes in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	void ApplySpellFix(int[] spellIds, Action<SpellInfo> fix)
@@ -3479,7 +3479,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (range.Empty())
 			{
-				Log.outError(LogFilter.ServerLoading, $"Spell info correction specified for non-existing spell {spellId}");
+				Log.Logger.Error($"Spell info correction specified for non-existing spell {spellId}");
 
 				continue;
 			}
@@ -3493,7 +3493,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 	{
 		if (spellInfo.Effects.Count <= effectIndex)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Spell effect info correction specified for non-existing effect {effectIndex} of spell {spellInfo.Id}");
+			Log.Logger.Error($"Spell effect info correction specified for non-existing effect {effectIndex} of spell {spellInfo.Id}");
 
 			return;
 		}
@@ -5122,7 +5122,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		if (properties != null) // Hungry Plaguehound
 			properties.Control = SummonCategory.Pet;
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded SpellInfo corrections in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo corrections in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellInfoSpellSpecificAndAuraState()
@@ -5137,7 +5137,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadAuraState();
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded SpellInfo SpellSpecific and AuraState in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded SpellInfo SpellSpecific and AuraState in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellInfoDiminishing()
@@ -5153,7 +5153,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadSpellDiminishInfo();
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded SpellInfo diminishing infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo diminishing infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellInfoImmunities()
@@ -5169,7 +5169,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadImmunityInfo();
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded SpellInfo immunity infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo immunity infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetFamilySpellsStore()
@@ -5214,7 +5214,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell totem model records. DB table `spell_totem_model` is empty.");
+			Log.Logger.Information("Loaded 0 spell totem model records. DB table `spell_totem_model` is empty.");
 
 			return;
 		}
@@ -5231,21 +5231,21 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 			if (spellEntry == null)
 			{
-				Log.outError(LogFilter.Sql, $"SpellID: {spellId} in `spell_totem_model` table could not be found in dbc, skipped.");
+				Log.Logger.Error($"SpellID: {spellId} in `spell_totem_model` table could not be found in dbc, skipped.");
 
 				continue;
 			}
 
 			if (!CliDB.ChrRacesStorage.ContainsKey(race))
 			{
-				Log.outError(LogFilter.Sql, $"Race {race} defined in `spell_totem_model` does not exists, skipped.");
+				Log.Logger.Error($"Race {race} defined in `spell_totem_model` does not exists, skipped.");
 
 				continue;
 			}
 
 			if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(displayId))
 			{
-				Log.outError(LogFilter.Sql, $"SpellID: {spellId} defined in `spell_totem_model` has non-existing model ({displayId}).");
+				Log.Logger.Error($"SpellID: {spellId} defined in `spell_totem_model` has non-existing model ({displayId}).");
 
 				continue;
 			}
@@ -5254,7 +5254,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} spell totem model records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} spell totem model records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	#endregion

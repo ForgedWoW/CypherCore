@@ -115,7 +115,7 @@ public class SmartAI : CreatureAI
 
 		if (HasEscortState(SmartEscortState.Paused))
 		{
-			Log.outError(LogFilter.Server, $"SmartAI.PausePath: Creature entry {Me.Entry} wanted to pause waypoint movement while already paused, ignoring.");
+			Log.Logger.Error($"SmartAI.PausePath: Creature entry {Me.Entry} wanted to pause waypoint movement while already paused, ignoring.");
 
 			return;
 		}

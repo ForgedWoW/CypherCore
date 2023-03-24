@@ -462,7 +462,7 @@ class BgWarsongGluch : Battleground
 		{
 			if (!player)
 			{
-				Log.outError(LogFilter.Battleground, "BattlegroundWS: Removing offline player who has the FLAG!!");
+				Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
 				SetAllianceFlagPicker(ObjectGuid.Empty);
 				RespawnFlag(TeamFaction.Alliance, false);
 			}
@@ -476,7 +476,7 @@ class BgWarsongGluch : Battleground
 		{
 			if (!player)
 			{
-				Log.outError(LogFilter.Battleground, "BattlegroundWS: Removing offline player who has the FLAG!!");
+				Log.Logger.Error("BattlegroundWS: Removing offline player who has the FLAG!!");
 				SetHordeFlagPicker(ObjectGuid.Empty);
 				RespawnFlag(TeamFaction.Horde, false);
 			}
@@ -552,7 +552,7 @@ class BgWarsongGluch : Battleground
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn flag object!");
+			Log.Logger.Error("BgWarsongGluch: Failed to spawn flag object!");
 
 			return false;
 		}
@@ -567,7 +567,7 @@ class BgWarsongGluch : Battleground
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn buff object!");
+			Log.Logger.Error("BgWarsongGluch: Failed to spawn buff object!");
 
 			return false;
 		}
@@ -587,7 +587,7 @@ class BgWarsongGluch : Battleground
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn door object Battleground not created!");
+			Log.Logger.Error("BgWarsongGluch: Failed to spawn door object Battleground not created!");
 
 			return false;
 		}
@@ -596,7 +596,7 @@ class BgWarsongGluch : Battleground
 
 		if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
 		{
-			Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn Alliance spirit guide! Battleground not created!");
+			Log.Logger.Error("BgWarsongGluch: Failed to spawn Alliance spirit guide! Battleground not created!");
 
 			return false;
 		}
@@ -605,7 +605,7 @@ class BgWarsongGluch : Battleground
 
 		if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
 		{
-			Log.outError(LogFilter.Sql, "BgWarsongGluch: Failed to spawn Horde spirit guide! Battleground not created!");
+			Log.Logger.Error("BgWarsongGluch: Failed to spawn Horde spirit guide! Battleground not created!");
 
 			return false;
 		}
@@ -754,12 +754,12 @@ class BgWarsongGluch : Battleground
 	{
 		if (Team == TeamFaction.Alliance)
 		{
-			Log.outDebug(LogFilter.Battleground, "Respawn Alliance flag");
+			Log.Logger.Debug("Respawn Alliance flag");
 			_flagState[TeamIds.Alliance] = WSGFlagState.OnBase;
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Battleground, "Respawn Horde flag");
+			Log.Logger.Debug("Respawn Horde flag");
 			_flagState[TeamIds.Horde] = WSGFlagState.OnBase;
 		}
 
@@ -795,7 +795,7 @@ class BgWarsongGluch : Battleground
 		if (obj)
 			obj.Delete();
 		else
-			Log.outError(LogFilter.Battleground, "unknown droped flag ({0})", GetDroppedFlagGUID(team).ToString());
+			Log.Logger.Error("unknown droped flag ({0})", GetDroppedFlagGUID(team).ToString());
 
 		SetDroppedFlagGUID(ObjectGuid.Empty, GetTeamIndexByTeamId(team));
 		_bothFlagsKept = false;

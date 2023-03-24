@@ -390,7 +390,7 @@ public partial class WorldSession : IDisposable
 			// calls to GetMap in this case may cause crashes
 			_player.SetDestroyedObject(true);
 			_player.CleanupsBeforeDelete();
-			Log.outInfo(LogFilter.Player, $"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_player.GetName()}] ({_player.GUID}) Level: {_player.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
+			Log.Logger.Information($"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_player.GetName()}] ({_player.GUID}) Level: {_player.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
 
 			var map = Player.Map;
 
@@ -499,7 +499,7 @@ public partial class WorldSession : IDisposable
 
 		if (packet.GetOpcode() == ServerOpcodes.Unknown || packet.GetOpcode() == ServerOpcodes.Max)
 		{
-			Log.outError(LogFilter.Network, "Prevented sending of UnknownOpcode to {0}", GetPlayerInfo());
+			Log.Logger.Error("Prevented sending of UnknownOpcode to {0}", GetPlayerInfo());
 
 			return;
 		}
@@ -508,14 +508,14 @@ public partial class WorldSession : IDisposable
 
 		if (conIdx != ConnectionType.Instance && PacketManager.IsInstanceOnlyOpcode(packet.GetOpcode()))
 		{
-			Log.outError(LogFilter.Network, "Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.GetOpcode(), packet.GetConnection(), GetPlayerInfo());
+			Log.Logger.Error("Prevented sending of instance only opcode {0} with connection type {1} to {2}", packet.GetOpcode(), packet.GetConnection(), GetPlayerInfo());
 
 			return;
 		}
 
 		if (_socket[(int)conIdx] == null)
 		{
-			Log.outTrace(LogFilter.Network, "Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
+			Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
 
 			return;
 		}
@@ -530,7 +530,7 @@ public partial class WorldSession : IDisposable
 
 	public void KickPlayer(string reason)
 	{
-		Log.outInfo(LogFilter.Network, $"Account: {AccountId} Character: '{(_player ? _player.GetName() : "<none>")}' {(_player ? _player.GUID : "")} kicked with reason: {reason}");
+		Log.Logger.Information($"Account: {AccountId} Character: '{(_player ? _player.GetName() : "<none>")}' {(_player ? _player.GUID : "")} kicked with reason: {reason}");
 
 		for (byte i = 0; i < 2; ++i)
 			if (_socket[i] != null)
@@ -638,7 +638,7 @@ public partial class WorldSession : IDisposable
 		if (!str.Contains('|'))
 			return true;
 
-		Log.outError(LogFilter.Network, $"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
+		Log.Logger.Error($"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
 
 		if (WorldConfig.GetIntValue(WorldCfg.ChatStrictLinkCheckingKick) != 0)
 			KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
@@ -697,7 +697,7 @@ public partial class WorldSession : IDisposable
 		var id = AccountId;
 		var secLevel = Security;
 
-		Log.outDebug(LogFilter.Rbac,
+		Log.Logger.Debug(
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
@@ -713,7 +713,7 @@ public partial class WorldSession : IDisposable
 		var id = AccountId;
 		var secLevel = Security;
 
-		Log.outDebug(LogFilter.Rbac,
+		Log.Logger.Debug(
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
@@ -762,7 +762,7 @@ public partial class WorldSession : IDisposable
 
 		var hasPermission = _rbacData.HasPermission(permission);
 
-		Log.outDebug(LogFilter.Rbac,
+		Log.Logger.Debug(
 					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
@@ -773,7 +773,7 @@ public partial class WorldSession : IDisposable
 
 	public void InvalidateRBACData()
 	{
-		Log.outDebug(LogFilter.Rbac,
+		Log.Logger.Debug(
 					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
@@ -876,7 +876,7 @@ public partial class WorldSession : IDisposable
 									firstDelayedPacket = packet;
 
 								QueuePacket(packet);
-								Log.outDebug(LogFilter.Network, "Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.GetOpcode());
+								Log.Logger.Debug("Re-enqueueing packet with opcode {0} with with status OpcodeStatus.Loggedin. Player is currently not in world yet.", (ClientOpcodes)packet.GetOpcode());
 							}
 
 							break;
@@ -920,18 +920,18 @@ public partial class WorldSession : IDisposable
 
 						break;
 					default:
-						Log.outError(LogFilter.Network, "Received not handled opcode {0} from {1}", (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
+						Log.Logger.Error("Received not handled opcode {0} from {1}", (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
 
 						break;
 				}
 			}
 			catch (InternalBufferOverflowException ex)
 			{
-				Log.outError(LogFilter.Network, "InternalBufferOverflowException: {0} while parsing {1} from {2}.", ex.Message, (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
+				Log.Logger.Error("InternalBufferOverflowException: {0} while parsing {1} from {2}.", ex.Message, (ClientOpcodes)packet.GetOpcode(), GetPlayerInfo());
 			}
 			catch (EndOfStreamException)
 			{
-				Log.outError(LogFilter.Network,
+				Log.Logger.Error(
 							"WorldSession:Update EndOfStreamException occured while parsing a packet (opcode: {0}) from client {1}, accountid={2}. Skipped packet.",
 							(ClientOpcodes)packet.GetOpcode(),
 							RemoteAddress,
@@ -949,7 +949,7 @@ public partial class WorldSession : IDisposable
 
 	void LogUnexpectedOpcode(WorldPacket packet, SessionStatus status, string reason)
 	{
-		Log.outError(LogFilter.Network, "Received unexpected opcode {0} Status: {1} Reason: {2} from {3}", (ClientOpcodes)packet.GetOpcode(), status, reason, GetPlayerInfo());
+		Log.Logger.Error("Received unexpected opcode {0} Status: {1} Reason: {2} from {3}", (ClientOpcodes)packet.GetOpcode(), status, reason, GetPlayerInfo());
 	}
 
 	void LoadAccountData(SQLResult result, AccountDataTypes mask)
@@ -967,7 +967,7 @@ public partial class WorldSession : IDisposable
 
 			if (type >= (int)AccountDataTypes.Max)
 			{
-				Log.outError(LogFilter.Server,
+				Log.Logger.Error(
 							"Table `{0}` have invalid account data type ({1}), ignore.",
 							mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
 							type);
@@ -977,7 +977,7 @@ public partial class WorldSession : IDisposable
 
 			if (((int)mask & (1 << type)) == 0)
 			{
-				Log.outError(LogFilter.Server,
+				Log.Logger.Error(
 							"Table `{0}` have non appropriate for table  account data type ({1}), ignore.",
 							mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
 							type);
@@ -1026,7 +1026,7 @@ public partial class WorldSession : IDisposable
 		if (Hyperlink.CheckAllLinks(str))
 			return true;
 
-		Log.outError(LogFilter.Network, $"Player {Player.GetName()} {Player.GUID} sent a message with an invalid link:\n{str}");
+		Log.Logger.Error($"Player {Player.GetName()} {Player.GUID} sent a message with an invalid link:\n{str}");
 
 		if (WorldConfig.GetIntValue(WorldCfg.ChatStrictLinkCheckingKick) != 0)
 			KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
@@ -1146,7 +1146,7 @@ public partial class WorldSession : IDisposable
 
 		if (_timeSyncClockDelta == 0 || movementTime < 0 || movementTime > 0xFFFFFFFF)
 		{
-			Log.outWarn(LogFilter.Misc, "The computed movement time using clockDelta is erronous. Using fallback instead");
+			Log.Logger.Warning("The computed movement time using clockDelta is erronous. Using fallback instead");
 
 			return GameTime.GetGameTimeMS();
 		}

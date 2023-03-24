@@ -46,9 +46,9 @@ public class MoveSplineInitArgs
 			if (!exp)
 			{
 				if (unit)
-					Log.outError(LogFilter.Movement, $"MoveSplineInitArgs::Validate: expression '{exp}' failed for {(verbose ? unit.GetDebugInfo() : unit.GUID.ToString())}");
+					Log.Logger.Error($"MoveSplineInitArgs::Validate: expression '{exp}' failed for {(verbose ? unit.GetDebugInfo() : unit.GUID.ToString())}");
 				else
-					Log.outError(LogFilter.Movement, $"MoveSplineInitArgs::Validate: expression '{exp}' failed for cyclic spline continuation");
+					Log.Logger.Error($"MoveSplineInitArgs::Validate: expression '{exp}' failed for cyclic spline continuation");
 
 				return false;
 			}

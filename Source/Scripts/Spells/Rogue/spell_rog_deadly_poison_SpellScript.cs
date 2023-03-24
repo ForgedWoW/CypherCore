@@ -50,7 +50,7 @@ internal class spell_rog_deadly_poison_SpellScript : SpellScript, ISpellBeforeHi
 
 					if (spellInfo == null)
 					{
-						Log.outError(LogFilter.Spells, $"Player::CastItemCombatSpell Enchant {enchant.Id}, player (Name: {player.GetName()}, {player.GUID}) cast unknown spell {enchant.EffectArg[s]}");
+						Log.Logger.Error($"Player::CastItemCombatSpell Enchant {enchant.Id}, player (Name: {player.GetName()}, {player.GUID}) cast unknown spell {enchant.EffectArg[s]}");
 
 						continue;
 					}

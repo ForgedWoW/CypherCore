@@ -52,7 +52,7 @@ public partial class Unit
 					}
 					else
 					{
-						Log.outError(LogFilter.Misc, $"Attempt to assign charm AI to player {GUID} who is charmed by non-creature {CharmerGUID}.");
+						Log.Logger.Error($"Attempt to assign charm AI to player {GUID} who is charmed by non-creature {CharmerGUID}.");
 					}
 				}
 
@@ -84,20 +84,20 @@ public partial class Unit
 
 	public void SetMinion(Minion minion, bool apply)
 	{
-		Log.outDebug(LogFilter.Unit, "SetMinion {0} for {1}, apply {2}", minion.Entry, Entry, apply);
+		Log.Logger.Debug("SetMinion {0} for {1}, apply {2}", minion.Entry, Entry, apply);
 
 		if (apply)
 		{
 			if (!minion.OwnerGUID.IsEmpty)
 			{
-				Log.outFatal(LogFilter.Unit, "SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
+				Log.Logger.Fatal("SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
 
 				return;
 			}
 
 			if (!IsInWorld)
 			{
-				Log.outFatal(LogFilter.Unit, $"SetMinion: Minion being added to owner not in world. Minion: {minion.GUID}, Owner: {GetDebugInfo()}");
+				Log.Logger.Fatal($"SetMinion: Minion being added to owner not in world. Minion: {minion.GUID}, Owner: {GetDebugInfo()}");
 
 				return;
 			}
@@ -192,7 +192,7 @@ public partial class Unit
 		{
 			if (minion.OwnerGUID != GUID)
 			{
-				Log.outFatal(LogFilter.Unit, "SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
+				Log.Logger.Fatal("SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
 
 				return;
 			}
@@ -277,18 +277,18 @@ public partial class Unit
 		if (charmer.IsTypeId(TypeId.Player))
 			charmer.RemoveAurasByType(AuraType.Mounted);
 
-		Log.outDebug(LogFilter.Unit, "SetCharmedBy: charmer {0} (GUID {1}), charmed {2} (GUID {3}), type {4}.", charmer.Entry, charmer.GUID.ToString(), Entry, GUID.ToString(), type);
+		Log.Logger.Debug("SetCharmedBy: charmer {0} (GUID {1}), charmed {2} (GUID {3}), type {4}.", charmer.Entry, charmer.GUID.ToString(), Entry, GUID.ToString(), type);
 
 		if (this == charmer)
 		{
-			Log.outFatal(LogFilter.Unit, "Unit:SetCharmedBy: Unit {0} (GUID {1}) is trying to charm itself!", Entry, GUID.ToString());
+			Log.Logger.Fatal("Unit:SetCharmedBy: Unit {0} (GUID {1}) is trying to charm itself!", Entry, GUID.ToString());
 
 			return false;
 		}
 
 		if (IsPlayer && AsPlayer.Transport != null)
 		{
-			Log.outFatal(LogFilter.Unit, "Unit:SetCharmedBy: Player on transport is trying to charm {0} (GUID {1})", Entry, GUID.ToString());
+			Log.Logger.Fatal("Unit:SetCharmedBy: Player on transport is trying to charm {0} (GUID {1})", Entry, GUID.ToString());
 
 			return false;
 		}
@@ -296,7 +296,7 @@ public partial class Unit
 		// Already charmed
 		if (!CharmerGUID.IsEmpty)
 		{
-			Log.outFatal(LogFilter.Unit, "Unit:SetCharmedBy: {0} (GUID {1}) has already been charmed but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
+			Log.Logger.Fatal("Unit:SetCharmedBy: {0} (GUID {1}) has already been charmed but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
 
 			return false;
 		}
@@ -323,7 +323,7 @@ public partial class Unit
 		// StopCastingCharm may remove a possessed pet?
 		if (!IsInWorld)
 		{
-			Log.outFatal(LogFilter.Unit, "Unit:SetCharmedBy: {0} (GUID {1}) is not in world but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
+			Log.Logger.Fatal("Unit:SetCharmedBy: {0} (GUID {1}) is not in world but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
 
 			return false;
 		}
@@ -519,7 +519,7 @@ public partial class Unit
 							if (GetCharmInfo() != null)
 								GetCharmInfo().SetPetNumber(0, true);
 							else
-								Log.outError(LogFilter.Unit, "Aura:HandleModCharm: target={0} with typeid={1} has a charm aura but no charm info!", GUID, TypeId);
+								Log.Logger.Error("Aura:HandleModCharm: target={0} with typeid={1} has a charm aura but no charm info!", GUID, TypeId);
 						}
 					}
 
@@ -693,17 +693,17 @@ public partial class Unit
 			else if (target.OwnerGUID == GUID && target.IsSummon)
 				target.ToTempSummon().UnSummon();
 			else
-				Log.outError(LogFilter.Unit, "Unit {0} is trying to release unit {1} which is neither charmed nor owned by it", Entry, target.Entry);
+				Log.Logger.Error("Unit {0} is trying to release unit {1} which is neither charmed nor owned by it", Entry, target.Entry);
 		}
 
 		if (!PetGUID.IsEmpty)
-			Log.outFatal(LogFilter.Unit, "Unit {0} is not able to release its pet {1}", Entry, PetGUID);
+			Log.Logger.Fatal("Unit {0} is not able to release its pet {1}", Entry, PetGUID);
 
 		if (!MinionGUID.IsEmpty)
-			Log.outFatal(LogFilter.Unit, "Unit {0} is not able to release its minion {1}", Entry, MinionGUID);
+			Log.Logger.Fatal("Unit {0} is not able to release its minion {1}", Entry, MinionGUID);
 
 		if (!CharmedGUID.IsEmpty)
-			Log.outFatal(LogFilter.Unit, "Unit {0} is not able to release its charm {1}", Entry, CharmedGUID);
+			Log.Logger.Fatal("Unit {0} is not able to release its charm {1}", Entry, CharmedGUID);
 
 		if (!IsPet)                                // pets don't use the flag for this
 			RemoveUnitFlag(UnitFlags.PetInCombat); // m_controlled is now empty, so we know none of our minions are in combat
@@ -835,7 +835,7 @@ public partial class Unit
 
 		if (!pet.InitStatsForLevel(level))
 		{
-			Log.outError(LogFilter.Unit, "Pet:InitStatsForLevel() failed for creature (Entry: {0})!", pet.Entry);
+			Log.Logger.Error("Pet:InitStatsForLevel() failed for creature (Entry: {0})!", pet.Entry);
 
 			return false;
 		}

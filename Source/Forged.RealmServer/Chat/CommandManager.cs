@@ -65,7 +65,7 @@ public class CommandManager
 					}
 					else
 					{
-						Log.outError(LogFilter.Sql, $"Table `command` contains data for non-existant command '{name}'. Skipped.");
+						Log.Logger.Error($"Table `command` contains data for non-existant command '{name}'. Skipped.");
 						cmd = null;
 
 						break;
@@ -76,12 +76,12 @@ public class CommandManager
 					continue;
 
 				if (!cmd.HelpText.IsEmpty())
-					Log.outError(LogFilter.Sql, $"Table `command` contains duplicate data for command '{name}'. Skipped.");
+					Log.Logger.Error($"Table `command` contains duplicate data for command '{name}'. Skipped.");
 
 				if (cmd.HelpString == 0)
 					cmd.HelpText = help;
 				else
-					Log.outError(LogFilter.Sql, $"Table `command` contains legacy help text for command '{name}', which uses `trinity_string`. Skipped.");
+					Log.Logger.Error($"Table `command` contains legacy help text for command '{name}', which uses `trinity_string`. Skipped.");
 			} while (result.NextRow());
 
 		foreach (var (name, cmd) in _commands)

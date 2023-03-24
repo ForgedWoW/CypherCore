@@ -19,7 +19,7 @@ class CharacterDatabaseCleaner
 		if (!WorldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
 			return;
 
-		Log.outInfo(LogFilter.Server, "Cleaning character database...");
+		Log.Logger.Information("Cleaning character database...");
 
 		var oldMSTime = Time.MSTime;
 
@@ -48,7 +48,7 @@ class CharacterDatabaseCleaner
 
 		Global.WorldMgr.CleaningFlags = flags;
 
-		Log.outInfo(LogFilter.ServerLoading, "Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	static void CheckUnique(string column, string table, CheckFor check)
@@ -57,7 +57,7 @@ class CharacterDatabaseCleaner
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.Sql, "Table {0} is empty.", table);
+			Log.Logger.Information("Table {0} is empty.", table);
 
 			return;
 		}

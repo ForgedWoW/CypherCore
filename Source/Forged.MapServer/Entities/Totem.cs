@@ -67,7 +67,7 @@ public class Totem : Minion
 			if (totemDisplayId != 0)
 				SetDisplayId(totemDisplayId);
 			else
-				Log.outDebug(LogFilter.Misc, $"Totem with entry {Entry}, does not have a specialized model for spell {UnitData.CreatedBySpell} and race {owner.Race}. Set to default.");
+				Log.Logger.Debug($"Totem with entry {Entry}, does not have a specialized model for spell {UnitData.CreatedBySpell} and race {owner.Race}. Set to default.");
 		}
 
 		base.InitStats(duration);

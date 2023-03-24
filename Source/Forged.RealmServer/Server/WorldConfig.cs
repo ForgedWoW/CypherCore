@@ -35,7 +35,7 @@ public class WorldConfig : ConfigMgr
 
 			if ((float)Values[rate] < 0.0f)
 			{
-				Log.outError(LogFilter.ServerLoading, "{0} ({1}) must be > 0. Using 1 instead.", configKey, Values[rate]);
+				Log.Logger.Error("{0} ({1}) must be > 0. Using 1 instead.", configKey, Values[rate]);
 				Values[rate] = 1;
 			}
 		}
@@ -82,7 +82,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateRepaircost] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "Rate.RepairCost ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateRepaircost]);
+			Log.Logger.Error("Rate.RepairCost ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateRepaircost]);
 			Values[WorldCfg.RateRepaircost] = 0.0f;
 		}
 
@@ -119,7 +119,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateTalent] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "Rate.Talent ({0}) must be > 0. Using 1 instead.", Values[WorldCfg.RateTalent]);
+			Log.Logger.Error("Rate.Talent ({0}) must be > 0. Using 1 instead.", Values[WorldCfg.RateTalent]);
 			Values[WorldCfg.RateTalent] = 1.0f;
 		}
 
@@ -127,7 +127,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateMovespeed] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "Rate.MoveSpeed ({0}) must be > 0. Using 1 instead.", Values[WorldCfg.RateMovespeed]);
+			Log.Logger.Error("Rate.MoveSpeed ({0}) must be > 0. Using 1 instead.", Values[WorldCfg.RateMovespeed]);
 			Values[WorldCfg.RateMovespeed] = 1.0f;
 		}
 
@@ -137,13 +137,13 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateDurabilityLossOnDeath] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "DurabilityLoss.OnDeath ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossOnDeath]);
+			Log.Logger.Error("DurabilityLoss.OnDeath ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossOnDeath]);
 			Values[WorldCfg.RateDurabilityLossOnDeath] = 0.0f;
 		}
 
 		if ((float)Values[WorldCfg.RateDurabilityLossOnDeath] > 100.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "DurabilityLoss.OnDeath ({0}) must be <= 100. Using 100.0 instead.", Values[WorldCfg.RateDurabilityLossOnDeath]);
+			Log.Logger.Error("DurabilityLoss.OnDeath ({0}) must be <= 100. Using 100.0 instead.", Values[WorldCfg.RateDurabilityLossOnDeath]);
 			Values[WorldCfg.RateDurabilityLossOnDeath] = 0.0f;
 		}
 
@@ -153,7 +153,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateDurabilityLossDamage] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "DurabilityLossChance.Damage ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossDamage]);
+			Log.Logger.Error("DurabilityLossChance.Damage ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossDamage]);
 			Values[WorldCfg.RateDurabilityLossDamage] = 0.0f;
 		}
 
@@ -161,7 +161,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateDurabilityLossAbsorb] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "DurabilityLossChance.Absorb ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossAbsorb]);
+			Log.Logger.Error("DurabilityLossChance.Absorb ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossAbsorb]);
 			Values[WorldCfg.RateDurabilityLossAbsorb] = 0.0f;
 		}
 
@@ -169,7 +169,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateDurabilityLossParry] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "DurabilityLossChance.Parry ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossParry]);
+			Log.Logger.Error("DurabilityLossChance.Parry ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossParry]);
 			Values[WorldCfg.RateDurabilityLossParry] = 0.0f;
 		}
 
@@ -177,7 +177,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateDurabilityLossBlock] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "DurabilityLossChance.Block ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossBlock]);
+			Log.Logger.Error("DurabilityLossChance.Block ({0}) must be >=0. Using 0.0 instead.", Values[WorldCfg.RateDurabilityLossBlock]);
 			Values[WorldCfg.RateDurabilityLossBlock] = 0.0f;
 		}
 
@@ -185,7 +185,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateMoneyQuest] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "Rate.Quest.Money.Reward ({0}) must be >=0. Using 0 instead.", Values[WorldCfg.RateMoneyQuest]);
+			Log.Logger.Error("Rate.Quest.Money.Reward ({0}) must be >=0. Using 0 instead.", Values[WorldCfg.RateMoneyQuest]);
 			Values[WorldCfg.RateMoneyQuest] = 0.0f;
 		}
 
@@ -193,7 +193,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RateMoneyMaxLevelQuest] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, "Rate.Quest.Money.Max.Level.Reward ({0}) must be >=0. Using 0 instead.", Values[WorldCfg.RateMoneyMaxLevelQuest]);
+			Log.Logger.Error("Rate.Quest.Money.Max.Level.Reward ({0}) must be >=0. Using 0 instead.", Values[WorldCfg.RateMoneyMaxLevelQuest]);
 			Values[WorldCfg.RateMoneyMaxLevelQuest] = 0.0f;
 		}
 
@@ -204,7 +204,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.Compression] < 1 || (int)Values[WorldCfg.Compression] > 9)
 		{
-			Log.outError(LogFilter.ServerLoading, "Compression Level ({0}) must be in range 1..9. Using default compression Level (1).", Values[WorldCfg.Compression]);
+			Log.Logger.Error("Compression Level ({0}) must be in range 1..9. Using default compression Level (1).", Values[WorldCfg.Compression]);
 			Values[WorldCfg.Compression] = 1;
 		}
 
@@ -216,7 +216,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.AuctionSearchDelay] < 100 || (int)Values[WorldCfg.AuctionSearchDelay] > 10000)
 		{
-			Log.outError(LogFilter.ServerLoading, "Auction.SearchDelay ({0}) must be between 100 and 10000. Using default of 300ms", Values[WorldCfg.AuctionSearchDelay]);
+			Log.Logger.Error("Auction.SearchDelay ({0}) must be between 100 and 10000. Using default of 300ms", Values[WorldCfg.AuctionSearchDelay]);
 			Values[WorldCfg.AuctionSearchDelay] = 300;
 		}
 
@@ -224,7 +224,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.AuctionTaintedSearchDelay] < 100 || (int)Values[WorldCfg.AuctionTaintedSearchDelay] > 10000)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Auction.TaintedSearchDelay ({Values[WorldCfg.AuctionTaintedSearchDelay]}) must be between 100 and 10000. Using default of 3s");
+			Log.Logger.Error($"Auction.TaintedSearchDelay ({Values[WorldCfg.AuctionTaintedSearchDelay]}) must be between 100 and 10000. Using default of 3s");
 			Values[WorldCfg.AuctionTaintedSearchDelay] = 3000;
 		}
 
@@ -245,7 +245,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((bool)Values[WorldCfg.BasemapLoadGrids] && (bool)Values[WorldCfg.GridUnload])
 		{
-			Log.outError(LogFilter.ServerLoading, "BaseMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable base map pre-loading. Base map pre-loading disabled");
+			Log.Logger.Error("BaseMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable base map pre-loading. Base map pre-loading disabled");
 			Values[WorldCfg.BasemapLoadGrids] = false;
 		}
 
@@ -253,7 +253,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((bool)Values[WorldCfg.InstancemapLoadGrids] && (bool)Values[WorldCfg.GridUnload])
 		{
-			Log.outError(LogFilter.ServerLoading, "InstanceMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable instance map pre-loading. Instance map pre-loading disabled");
+			Log.Logger.Error("InstanceMapLoadAllGrids enabled, but GridUnload also enabled. GridUnload must be disabled to enable instance map pre-loading. Instance map pre-loading disabled");
 			Values[WorldCfg.InstancemapLoadGrids] = false;
 		}
 
@@ -265,7 +265,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinLevelStatSave] > SharedConst.MaxLevel)
 		{
-			Log.outError(LogFilter.ServerLoading, "PlayerSave.Stats.MinLevel ({0}) must be in range 0..80. Using default, do not save character stats (0).", Values[WorldCfg.MinLevelStatSave]);
+			Log.Logger.Error("PlayerSave.Stats.MinLevel ({0}) must be in range 0..80. Using default, do not save character stats (0).", Values[WorldCfg.MinLevelStatSave]);
 			Values[WorldCfg.MinLevelStatSave] = 0;
 		}
 
@@ -273,7 +273,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.IntervalGridclean] < MapConst.MinGridDelay)
 		{
-			Log.outError(LogFilter.ServerLoading, "GridCleanUpDelay ({0}) must be greater {1} Use this minimal value.", Values[WorldCfg.IntervalGridclean], MapConst.MinGridDelay);
+			Log.Logger.Error("GridCleanUpDelay ({0}) must be greater {1} Use this minimal value.", Values[WorldCfg.IntervalGridclean], MapConst.MinGridDelay);
 			Values[WorldCfg.IntervalGridclean] = MapConst.MinGridDelay;
 		}
 
@@ -281,7 +281,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.IntervalMapupdate] < MapConst.MinMapUpdateDelay)
 		{
-			Log.outError(LogFilter.ServerLoading, "MapUpdateInterval ({0}) must be greater {1}. Use this minimal value.", Values[WorldCfg.IntervalMapupdate], MapConst.MinMapUpdateDelay);
+			Log.Logger.Error("MapUpdateInterval ({0}) must be greater {1}. Use this minimal value.", Values[WorldCfg.IntervalMapupdate], MapConst.MinMapUpdateDelay);
 			Values[WorldCfg.IntervalMapupdate] = MapConst.MinMapUpdateDelay;
 		}
 
@@ -292,12 +292,12 @@ public class WorldConfig : ConfigMgr
 			var val = GetDefaultValue("WorldServerPort", 8085);
 
 			if (val != (int)Values[WorldCfg.PortWorld])
-				Log.outError(LogFilter.ServerLoading, "WorldServerPort option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.PortWorld]);
+				Log.Logger.Error("WorldServerPort option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.PortWorld]);
 
 			val = GetDefaultValue("InstanceServerPort", 8086);
 
 			if (val != (int)Values[WorldCfg.PortInstance])
-				Log.outError(LogFilter.ServerLoading, "InstanceServerPort option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.PortInstance]);
+				Log.Logger.Error("InstanceServerPort option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.PortInstance]);
 		}
 		else
 		{
@@ -316,7 +316,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinQuestScaledXpRatio] > 100)
 		{
-			Log.outError(LogFilter.ServerLoading, $"MinQuestScaledXPRatio ({Values[WorldCfg.MinQuestScaledXpRatio]}) must be in range 0..100. Set to 0.");
+			Log.Logger.Error($"MinQuestScaledXPRatio ({Values[WorldCfg.MinQuestScaledXpRatio]}) must be in range 0..100. Set to 0.");
 			Values[WorldCfg.MinQuestScaledXpRatio] = 0;
 		}
 
@@ -324,7 +324,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinCreatureScaledXpRatio] > 100)
 		{
-			Log.outError(LogFilter.ServerLoading, $"MinCreatureScaledXPRatio ({Values[WorldCfg.MinCreatureScaledXpRatio]}) must be in range 0..100. Set to 0.");
+			Log.Logger.Error($"MinCreatureScaledXPRatio ({Values[WorldCfg.MinCreatureScaledXpRatio]}) must be in range 0..100. Set to 0.");
 			Values[WorldCfg.MinCreatureScaledXpRatio] = 0;
 		}
 
@@ -332,7 +332,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinDiscoveredScaledXpRatio] > 100)
 		{
-			Log.outError(LogFilter.ServerLoading, $"MinDiscoveredScaledXPRatio ({Values[WorldCfg.MinDiscoveredScaledXpRatio]}) must be in range 0..100. Set to 0.");
+			Log.Logger.Error($"MinDiscoveredScaledXPRatio ({Values[WorldCfg.MinDiscoveredScaledXpRatio]}) must be in range 0..100. Set to 0.");
 			Values[WorldCfg.MinDiscoveredScaledXpRatio] = 0;
 		}
 
@@ -346,7 +346,7 @@ public class WorldConfig : ConfigMgr
 			var val = GetDefaultValue("GameType", 0);
 
 			if (val != (int)Values[WorldCfg.GameType])
-				Log.outError(LogFilter.ServerLoading, "GameType option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.GameType]);
+				Log.Logger.Error("GameType option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.GameType]);
 		}
 		else
 		{
@@ -358,7 +358,7 @@ public class WorldConfig : ConfigMgr
 			var val = (int)GetDefaultValue("RealmZone", RealmZones.Development);
 
 			if (val != (int)Values[WorldCfg.RealmZone])
-				Log.outError(LogFilter.ServerLoading, "RealmZone option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.RealmZone]);
+				Log.Logger.Error("RealmZone option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.RealmZone]);
 		}
 		else
 		{
@@ -379,7 +379,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinPlayerName] < 1 || (int)Values[WorldCfg.MinPlayerName] > 12)
 		{
-			Log.outError(LogFilter.ServerLoading, "MinPlayerName ({0}) must be in range 1..{1}. Set to 2.", Values[WorldCfg.MinPlayerName], 12);
+			Log.Logger.Error("MinPlayerName ({0}) must be in range 1..{1}. Set to 2.", Values[WorldCfg.MinPlayerName], 12);
 			Values[WorldCfg.MinPlayerName] = 2;
 		}
 
@@ -387,7 +387,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinCharterName] < 1 || (int)Values[WorldCfg.MinCharterName] > 24)
 		{
-			Log.outError(LogFilter.ServerLoading, "MinCharterName ({0}) must be in range 1..{1}. Set to 2.", Values[WorldCfg.MinCharterName], 24);
+			Log.Logger.Error("MinCharterName ({0}) must be in range 1..{1}. Set to 2.", Values[WorldCfg.MinCharterName], 24);
 			Values[WorldCfg.MinCharterName] = 2;
 		}
 
@@ -395,7 +395,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinPetName] < 1 || (int)Values[WorldCfg.MinPetName] > 12)
 		{
-			Log.outError(LogFilter.ServerLoading, "MinPetName ({0}) must be in range 1..{1}. Set to 2.", Values[WorldCfg.MinPetName], 12);
+			Log.Logger.Error("MinPetName ({0}) must be in range 1..{1}. Set to 2.", Values[WorldCfg.MinPetName], 12);
 			Values[WorldCfg.MinPetName] = 2;
 		}
 
@@ -412,7 +412,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.CharactersPerRealm] < 1 || (int)Values[WorldCfg.CharactersPerRealm] > 200)
 		{
-			Log.outError(LogFilter.ServerLoading, "CharactersPerRealm ({0}) must be in range 1..200. Set to 200.", Values[WorldCfg.CharactersPerRealm]);
+			Log.Logger.Error("CharactersPerRealm ({0}) must be in range 1..200. Set to 200.", Values[WorldCfg.CharactersPerRealm]);
 			Values[WorldCfg.CharactersPerRealm] = 200;
 		}
 
@@ -421,7 +421,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.CharactersPerAccount] < (int)Values[WorldCfg.CharactersPerRealm])
 		{
-			Log.outError(LogFilter.ServerLoading, "CharactersPerAccount ({0}) can't be less than CharactersPerRealm ({1}).", Values[WorldCfg.CharactersPerAccount], Values[WorldCfg.CharactersPerRealm]);
+			Log.Logger.Error("CharactersPerAccount ({0}) can't be less than CharactersPerRealm ({1}).", Values[WorldCfg.CharactersPerAccount], Values[WorldCfg.CharactersPerRealm]);
 			Values[WorldCfg.CharactersPerAccount] = Values[WorldCfg.CharactersPerRealm];
 		}
 
@@ -429,7 +429,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.CharacterCreatingEvokersPerRealm] < 0 || (int)Values[WorldCfg.CharacterCreatingEvokersPerRealm] > 10)
 		{
-			Log.outError(LogFilter.ServerLoading, $"CharacterCreating.EvokersPerRealm ({Values[WorldCfg.CharacterCreatingEvokersPerRealm]}) must be in range 0..10. Set to 1.");
+			Log.Logger.Error($"CharacterCreating.EvokersPerRealm ({Values[WorldCfg.CharacterCreatingEvokersPerRealm]}) must be in range 0..10. Set to 1.");
 			Values[WorldCfg.CharacterCreatingEvokersPerRealm] = 1;
 		}
 
@@ -441,7 +441,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.SkipCinematics] < 0 || (int)Values[WorldCfg.SkipCinematics] > 2)
 		{
-			Log.outError(LogFilter.ServerLoading, "SkipCinematics ({0}) must be in range 0..2. Set to 0.", Values[WorldCfg.SkipCinematics]);
+			Log.Logger.Error("SkipCinematics ({0}) must be in range 0..2. Set to 0.", Values[WorldCfg.SkipCinematics]);
 			Values[WorldCfg.SkipCinematics] = 0;
 		}
 
@@ -450,7 +450,7 @@ public class WorldConfig : ConfigMgr
 			var val = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 			if (val != (int)Values[WorldCfg.MaxPlayerLevel])
-				Log.outError(LogFilter.ServerLoading, "MaxPlayerLevel option can't be changed at config reload, using current value ({0}).", Values[WorldCfg.MaxPlayerLevel]);
+				Log.Logger.Error("MaxPlayerLevel option can't be changed at config reload, using current value ({0}).", Values[WorldCfg.MaxPlayerLevel]);
 		}
 		else
 		{
@@ -459,7 +459,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MaxPlayerLevel] > SharedConst.MaxLevel)
 		{
-			Log.outError(LogFilter.ServerLoading, "MaxPlayerLevel ({0}) must be in range 1..{1}. Set to {1}.", Values[WorldCfg.MaxPlayerLevel], SharedConst.MaxLevel);
+			Log.Logger.Error("MaxPlayerLevel ({0}) must be in range 1..{1}. Set to {1}.", Values[WorldCfg.MaxPlayerLevel], SharedConst.MaxLevel);
 			Values[WorldCfg.MaxPlayerLevel] = SharedConst.MaxLevel;
 		}
 
@@ -469,12 +469,12 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartPlayerLevel] < 1)
 		{
-			Log.outError(LogFilter.ServerLoading, "StartPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.", Values[WorldCfg.StartPlayerLevel], Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("StartPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.", Values[WorldCfg.StartPlayerLevel], Values[WorldCfg.MaxPlayerLevel]);
 			Values[WorldCfg.StartPlayerLevel] = 1;
 		}
 		else if ((int)Values[WorldCfg.StartPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading, "StartPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.", Values[WorldCfg.StartPlayerLevel], Values[WorldCfg.MaxPlayerLevel], Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("StartPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.", Values[WorldCfg.StartPlayerLevel], Values[WorldCfg.MaxPlayerLevel], Values[WorldCfg.MaxPlayerLevel]);
 			Values[WorldCfg.StartPlayerLevel] = Values[WorldCfg.MaxPlayerLevel];
 		}
 
@@ -482,7 +482,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartDeathKnightPlayerLevel] < 1)
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"StartDeathKnightPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.",
 						Values[WorldCfg.StartDeathKnightPlayerLevel],
 						Values[WorldCfg.MaxPlayerLevel]);
@@ -491,7 +491,7 @@ public class WorldConfig : ConfigMgr
 		}
 		else if ((int)Values[WorldCfg.StartDeathKnightPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"StartDeathKnightPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.",
 						Values[WorldCfg.StartDeathKnightPlayerLevel],
 						Values[WorldCfg.MaxPlayerLevel],
@@ -504,7 +504,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartDemonHunterPlayerLevel] < 1)
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"StartDemonHunterPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.",
 						Values[WorldCfg.StartDemonHunterPlayerLevel],
 						Values[WorldCfg.MaxPlayerLevel]);
@@ -513,7 +513,7 @@ public class WorldConfig : ConfigMgr
 		}
 		else if ((int)Values[WorldCfg.StartDemonHunterPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"StartDemonHunterPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.",
 						Values[WorldCfg.StartDemonHunterPlayerLevel],
 						Values[WorldCfg.MaxPlayerLevel],
@@ -526,12 +526,12 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartEvokerPlayerLevel] < 1)
 		{
-			Log.outError(LogFilter.ServerLoading, $"StartEvokerPlayerLevel ({Values[WorldCfg.StartEvokerPlayerLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to 1.");
+			Log.Logger.Error($"StartEvokerPlayerLevel ({Values[WorldCfg.StartEvokerPlayerLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to 1.");
 			Values[WorldCfg.StartEvokerPlayerLevel] = 1;
 		}
 		else if ((int)Values[WorldCfg.StartEvokerPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading, $"StartEvokerPlayerLevel ({Values[WorldCfg.StartEvokerPlayerLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to {Values[WorldCfg.MaxPlayerLevel]}.");
+			Log.Logger.Error($"StartEvokerPlayerLevel ({Values[WorldCfg.StartEvokerPlayerLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to {Values[WorldCfg.MaxPlayerLevel]}.");
 			Values[WorldCfg.StartEvokerPlayerLevel] = Values[WorldCfg.MaxPlayerLevel];
 		}
 
@@ -539,12 +539,12 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartAlliedRaceLevel] < 1)
 		{
-			Log.outError(LogFilter.ServerLoading, $"StartAlliedRaceLevel ({Values[WorldCfg.StartAlliedRaceLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to 1.");
+			Log.Logger.Error($"StartAlliedRaceLevel ({Values[WorldCfg.StartAlliedRaceLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to 1.");
 			Values[WorldCfg.StartAlliedRaceLevel] = 1;
 		}
 		else if ((int)Values[WorldCfg.StartAlliedRaceLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading, $"StartAlliedRaceLevel ({Values[WorldCfg.StartAlliedRaceLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to {Values[WorldCfg.MaxPlayerLevel]}.");
+			Log.Logger.Error($"StartAlliedRaceLevel ({Values[WorldCfg.StartAlliedRaceLevel]}) must be in range 1..MaxPlayerLevel({Values[WorldCfg.MaxPlayerLevel]}). Set to {Values[WorldCfg.MaxPlayerLevel]}.");
 			Values[WorldCfg.StartAlliedRaceLevel] = Values[WorldCfg.MaxPlayerLevel];
 		}
 
@@ -552,12 +552,12 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartPlayerMoney] < 0)
 		{
-			Log.outError(LogFilter.ServerLoading, "StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.", Values[WorldCfg.StartPlayerMoney], PlayerConst.MaxMoneyAmount, 0);
+			Log.Logger.Error("StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.", Values[WorldCfg.StartPlayerMoney], PlayerConst.MaxMoneyAmount, 0);
 			Values[WorldCfg.StartPlayerMoney] = 0;
 		}
 		else if ((int)Values[WorldCfg.StartPlayerMoney] > 0x7FFFFFFF - 1) // TODO: (See MaxMoneyAMOUNT)
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.",
 						Values[WorldCfg.StartPlayerMoney],
 						0x7FFFFFFF - 1,
@@ -569,13 +569,13 @@ public class WorldConfig : ConfigMgr
 		Values[WorldCfg.CurrencyResetHour] = GetDefaultValue("Currency.ResetHour", 3);
 
 		if ((int)Values[WorldCfg.CurrencyResetHour] > 23)
-			Log.outError(LogFilter.ServerLoading, "StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.", Values[WorldCfg.CurrencyResetHour] = 3);
+			Log.Logger.Error("StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.", Values[WorldCfg.CurrencyResetHour] = 3);
 
 		Values[WorldCfg.CurrencyResetDay] = GetDefaultValue("Currency.ResetDay", 3);
 
 		if ((int)Values[WorldCfg.CurrencyResetDay] > 6)
 		{
-			Log.outError(LogFilter.ServerLoading, "Currency.ResetDay ({0}) can't be load. Set to 3.", Values[WorldCfg.CurrencyResetDay]);
+			Log.Logger.Error("Currency.ResetDay ({0}) can't be load. Set to 3.", Values[WorldCfg.CurrencyResetDay]);
 			Values[WorldCfg.CurrencyResetDay] = 3;
 		}
 
@@ -583,7 +583,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.CurrencyResetInterval] <= 0)
 		{
-			Log.outError(LogFilter.ServerLoading, "Currency.ResetInterval ({0}) must be > 0, set to default 7.", Values[WorldCfg.CurrencyResetInterval]);
+			Log.Logger.Error("Currency.ResetInterval ({0}) must be > 0, set to default 7.", Values[WorldCfg.CurrencyResetInterval]);
 			Values[WorldCfg.CurrencyResetInterval] = 7;
 		}
 
@@ -591,7 +591,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MaxRecruitAFriendBonusPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"RecruitAFriend.MaxLevel ({0}) must be in the range 0..MaxLevel({1}). Set to {2}.",
 						Values[WorldCfg.MaxRecruitAFriendBonusPlayerLevel],
 						Values[WorldCfg.MaxPlayerLevel],
@@ -615,7 +615,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.DailyQuestResetTimeHour] > 23)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Quests.DailyResetTime ({Values[WorldCfg.DailyQuestResetTimeHour]}) must be in range 0..23. Set to 3.");
+			Log.Logger.Error($"Quests.DailyResetTime ({Values[WorldCfg.DailyQuestResetTimeHour]}) must be in range 0..23. Set to 3.");
 			Values[WorldCfg.DailyQuestResetTimeHour] = 3;
 		}
 
@@ -623,7 +623,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.WeeklyQuestResetTimeWDay] > 6)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Quests.WeeklyResetDay ({Values[WorldCfg.WeeklyQuestResetTimeWDay]}) must be in range 0..6. Set to 3 (Wednesday).");
+			Log.Logger.Error($"Quests.WeeklyResetDay ({Values[WorldCfg.WeeklyQuestResetTimeWDay]}) must be in range 0..6. Set to 3 (Wednesday).");
 			Values[WorldCfg.WeeklyQuestResetTimeWDay] = 3;
 		}
 
@@ -632,7 +632,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MinPetitionSigns] > 4)
 		{
-			Log.outError(LogFilter.ServerLoading, "MinPetitionSigns ({0}) must be in range 0..4. Set to 4.", Values[WorldCfg.MinPetitionSigns]);
+			Log.Logger.Error("MinPetitionSigns ({0}) must be in range 0..4. Set to 4.", Values[WorldCfg.MinPetitionSigns]);
 			Values[WorldCfg.MinPetitionSigns] = 4;
 		}
 
@@ -648,7 +648,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartGmLevel] < (int)Values[WorldCfg.StartPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading,
+			Log.Logger.Error(
 						"GM.StartLevel ({0}) must be in range StartPlayerLevel({1})..{2}. Set to {3}.",
 						Values[WorldCfg.StartGmLevel],
 						Values[WorldCfg.StartPlayerLevel],
@@ -659,7 +659,7 @@ public class WorldConfig : ConfigMgr
 		}
 		else if ((int)Values[WorldCfg.StartGmLevel] > SharedConst.MaxLevel)
 		{
-			Log.outError(LogFilter.ServerLoading, "GM.StartLevel ({0}) must be in range 1..{1}. Set to {1}.", Values[WorldCfg.StartGmLevel], SharedConst.MaxLevel);
+			Log.Logger.Error("GM.StartLevel ({0}) must be in range 1..{1}. Set to {1}.", Values[WorldCfg.StartGmLevel], SharedConst.MaxLevel);
 			Values[WorldCfg.StartGmLevel] = SharedConst.MaxLevel;
 		}
 
@@ -674,7 +674,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.CleanOldMailTime] > 23)
 		{
-			Log.outError(LogFilter.ServerLoading, $"CleanOldMailTime ({Values[WorldCfg.CleanOldMailTime]}) must be an hour, between 0 and 23. Set to 4.");
+			Log.Logger.Error($"CleanOldMailTime ({Values[WorldCfg.CleanOldMailTime]}) must be an hour, between 0 and 23. Set to 4.");
 			Values[WorldCfg.CleanOldMailTime] = 4;
 		}
 
@@ -682,7 +682,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.UptimeUpdate] <= 0)
 		{
-			Log.outError(LogFilter.ServerLoading, "UpdateUptimeInterval ({0}) must be > 0, set to default 10.", Values[WorldCfg.UptimeUpdate]);
+			Log.Logger.Error("UpdateUptimeInterval ({0}) must be > 0, set to default 10.", Values[WorldCfg.UptimeUpdate]);
 			Values[WorldCfg.UptimeUpdate] = 10;
 		}
 
@@ -691,12 +691,12 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.LogdbClearinterval] <= 0)
 		{
-			Log.outError(LogFilter.ServerLoading, "LogDB.Opt.ClearInterval ({0}) must be > 0, set to default 10.", Values[WorldCfg.LogdbClearinterval]);
+			Log.Logger.Error("LogDB.Opt.ClearInterval ({0}) must be > 0, set to default 10.", Values[WorldCfg.LogdbClearinterval]);
 			Values[WorldCfg.LogdbClearinterval] = 10;
 		}
 
 		Values[WorldCfg.LogdbCleartime] = GetDefaultValue("LogDB.Opt.ClearTime", 1209600); // 14 days default
-		Log.outInfo(LogFilter.ServerLoading, "Will clear `logs` table of entries older than {0} seconds every {1} minutes.", Values[WorldCfg.LogdbCleartime], Values[WorldCfg.LogdbClearinterval]);
+		Log.Logger.Information("Will clear `logs` table of entries older than {0} seconds every {1} minutes.", Values[WorldCfg.LogdbCleartime], Values[WorldCfg.LogdbClearinterval]);
 
 		Values[WorldCfg.SkillChanceOrange] = GetDefaultValue("SkillChance.Orange", 100);
 		Values[WorldCfg.SkillChanceYellow] = GetDefaultValue("SkillChance.Yellow", 75);
@@ -717,7 +717,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MaxOverspeedPings] != 0 && (int)Values[WorldCfg.MaxOverspeedPings] < 2)
 		{
-			Log.outError(LogFilter.ServerLoading, "MaxOverspeedPings ({0}) must be in range 2..infinity (or 0 to disable check). Set to 2.", Values[WorldCfg.MaxOverspeedPings]);
+			Log.Logger.Error("MaxOverspeedPings ({0}) must be in range 2..infinity (or 0 to disable check). Set to 2.", Values[WorldCfg.MaxOverspeedPings]);
 			Values[WorldCfg.MaxOverspeedPings] = 2;
 		}
 
@@ -730,7 +730,7 @@ public class WorldConfig : ConfigMgr
 			var val = GetDefaultValue("Expansion", (int)Expansion.Dragonflight);
 
 			if (val != (int)Values[WorldCfg.Expansion])
-				Log.outError(LogFilter.ServerLoading, "Expansion option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.Expansion]);
+				Log.Logger.Error("Expansion option can't be changed at worldserver.conf reload, using current value ({0}).", Values[WorldCfg.Expansion]);
 		}
 		else
 		{
@@ -771,7 +771,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.RandomBgResetHour] > 23)
 		{
-			Log.outError(LogFilter.ServerLoading, "Battleground.Random.ResetHour ({0}) can't be load. Set to 6.", Values[WorldCfg.RandomBgResetHour]);
+			Log.Logger.Error("Battleground.Random.ResetHour ({0}) can't be load. Set to 6.", Values[WorldCfg.RandomBgResetHour]);
 			Values[WorldCfg.RandomBgResetHour] = 6;
 		}
 
@@ -779,7 +779,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.CalendarDeleteOldEventsHour] > 23)
 		{
-			Log.outError(LogFilter.Misc, $"Calendar.DeleteOldEventsHour ({Values[WorldCfg.CalendarDeleteOldEventsHour]}) can't be load. Set to 6.");
+			Log.Logger.Error($"Calendar.DeleteOldEventsHour ({Values[WorldCfg.CalendarDeleteOldEventsHour]}) can't be load. Set to 6.");
 			Values[WorldCfg.CalendarDeleteOldEventsHour] = 6;
 		}
 
@@ -787,7 +787,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.GuildResetHour] > 23)
 		{
-			Log.outError(LogFilter.Server, "Guild.ResetHour ({0}) can't be load. Set to 6.", Values[WorldCfg.GuildResetHour]);
+			Log.Logger.Error("Guild.ResetHour ({0}) can't be load. Set to 6.", Values[WorldCfg.GuildResetHour]);
 			Values[WorldCfg.GuildResetHour] = 6;
 		}
 
@@ -830,13 +830,13 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.BattlegroundReportAfk] < 1)
 		{
-			Log.outError(LogFilter.ServerLoading, "Battleground.ReportAFK ({0}) must be >0. Using 3 instead.", Values[WorldCfg.BattlegroundReportAfk]);
+			Log.Logger.Error("Battleground.ReportAFK ({0}) must be >0. Using 3 instead.", Values[WorldCfg.BattlegroundReportAfk]);
 			Values[WorldCfg.BattlegroundReportAfk] = 3;
 		}
 
 		if ((int)Values[WorldCfg.BattlegroundReportAfk] > 9)
 		{
-			Log.outError(LogFilter.ServerLoading, "Battleground.ReportAFK ({0}) must be <10. Using 3 instead.", Values[WorldCfg.BattlegroundReportAfk]);
+			Log.Logger.Error("Battleground.ReportAFK ({0}) must be <10. Using 3 instead.", Values[WorldCfg.BattlegroundReportAfk]);
 			Values[WorldCfg.BattlegroundReportAfk] = 3;
 		}
 
@@ -878,10 +878,10 @@ public class WorldConfig : ConfigMgr
 			if (clientCacheId > 0)
 				Values[WorldCfg.ClientCacheVersion] = clientCacheId;
 			else
-				Log.outError(LogFilter.ServerLoading, "ClientCacheVersion can't be negative {0}, ignored.", clientCacheId);
+				Log.Logger.Error("ClientCacheVersion can't be negative {0}, ignored.", clientCacheId);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Client cache version set to: {0}", clientCacheId);
+		Log.Logger.Information("Client cache version set to: {0}", clientCacheId);
 
 		Values[WorldCfg.GuildNewsLogCount] = GetDefaultValue("Guild.NewsLogRecordsCount", GuildConst.NewsLogMaxRecords);
 
@@ -911,19 +911,19 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.NoGrayAggroAbove] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading, "NoGrayAggro.Above ({0}) must be in range 0..{1}. Set to {1}.", Values[WorldCfg.NoGrayAggroAbove], Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("NoGrayAggro.Above ({0}) must be in range 0..{1}. Set to {1}.", Values[WorldCfg.NoGrayAggroAbove], Values[WorldCfg.MaxPlayerLevel]);
 			Values[WorldCfg.NoGrayAggroAbove] = Values[WorldCfg.MaxPlayerLevel];
 		}
 
 		if ((int)Values[WorldCfg.NoGrayAggroBelow] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.outError(LogFilter.ServerLoading, "NoGrayAggro.Below ({0}) must be in range 0..{1}. Set to {1}.", Values[WorldCfg.NoGrayAggroBelow], Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("NoGrayAggro.Below ({0}) must be in range 0..{1}. Set to {1}.", Values[WorldCfg.NoGrayAggroBelow], Values[WorldCfg.MaxPlayerLevel]);
 			Values[WorldCfg.NoGrayAggroBelow] = Values[WorldCfg.MaxPlayerLevel];
 		}
 
 		if ((int)Values[WorldCfg.NoGrayAggroAbove] > 0 && (int)Values[WorldCfg.NoGrayAggroAbove] < (int)Values[WorldCfg.NoGrayAggroBelow])
 		{
-			Log.outError(LogFilter.ServerLoading, "NoGrayAggro.Below ({0}) cannot be greater than NoGrayAggro.Above ({1}). Set to {1}.", Values[WorldCfg.NoGrayAggroBelow], Values[WorldCfg.NoGrayAggroAbove]);
+			Log.Logger.Error("NoGrayAggro.Below ({0}) cannot be greater than NoGrayAggro.Above ({1}). Set to {1}.", Values[WorldCfg.NoGrayAggroBelow], Values[WorldCfg.NoGrayAggroAbove]);
 			Values[WorldCfg.NoGrayAggroBelow] = Values[WorldCfg.NoGrayAggroAbove];
 		}
 
@@ -933,7 +933,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.RespawnDynamicMode] > 1)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Invalid value for Respawn.DynamicMode ({Values[WorldCfg.RespawnDynamicMode]}). Set to 0.");
+			Log.Logger.Error($"Invalid value for Respawn.DynamicMode ({Values[WorldCfg.RespawnDynamicMode]}). Set to 0.");
 			Values[WorldCfg.RespawnDynamicMode] = 0;
 		}
 
@@ -942,7 +942,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.RespawnGuidWarnLevel] > 16777215)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Respawn.GuidWarnLevel ({Values[WorldCfg.RespawnGuidWarnLevel]}) cannot be greater than maximum GUID (16777215). Set to 12000000.");
+			Log.Logger.Error($"Respawn.GuidWarnLevel ({Values[WorldCfg.RespawnGuidWarnLevel]}) cannot be greater than maximum GUID (16777215). Set to 12000000.");
 			Values[WorldCfg.RespawnGuidWarnLevel] = 12000000;
 		}
 
@@ -950,7 +950,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.RespawnGuidAlertLevel] > 16777215)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Respawn.GuidWarnLevel ({Values[WorldCfg.RespawnGuidAlertLevel]}) cannot be greater than maximum GUID (16777215). Set to 16000000.");
+			Log.Logger.Error($"Respawn.GuidWarnLevel ({Values[WorldCfg.RespawnGuidAlertLevel]}) cannot be greater than maximum GUID (16777215). Set to 16000000.");
 			Values[WorldCfg.RespawnGuidAlertLevel] = 16000000;
 		}
 
@@ -958,7 +958,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.RespawnRestartQuietTime] > 23)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Respawn.RestartQuietTime ({Values[WorldCfg.RespawnRestartQuietTime]}) must be an hour, between 0 and 23. Set to 3.");
+			Log.Logger.Error($"Respawn.RestartQuietTime ({Values[WorldCfg.RespawnRestartQuietTime]}) must be an hour, between 0 and 23. Set to 3.");
 			Values[WorldCfg.RespawnRestartQuietTime] = 3;
 		}
 
@@ -966,7 +966,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RespawnDynamicRateCreature] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Respawn.DynamicRateCreature ({Values[WorldCfg.RespawnDynamicRateCreature]}) must be positive. Set to 10.");
+			Log.Logger.Error($"Respawn.DynamicRateCreature ({Values[WorldCfg.RespawnDynamicRateCreature]}) must be positive. Set to 10.");
 			Values[WorldCfg.RespawnDynamicRateCreature] = 10.0f;
 		}
 
@@ -975,7 +975,7 @@ public class WorldConfig : ConfigMgr
 
 		if ((float)Values[WorldCfg.RespawnDynamicRateGameobject] < 0.0f)
 		{
-			Log.outError(LogFilter.ServerLoading, $"Respawn.DynamicRateGameObject ({Values[WorldCfg.RespawnDynamicRateGameobject]}) must be positive. Set to 10.");
+			Log.Logger.Error($"Respawn.DynamicRateGameObject ({Values[WorldCfg.RespawnDynamicRateGameobject]}) must be positive. Set to 10.");
 			Values[WorldCfg.RespawnDynamicRateGameobject] = 10.0f;
 		}
 
@@ -989,7 +989,7 @@ public class WorldConfig : ConfigMgr
 		Values[WorldCfg.StartAllSpells] = GetDefaultValue("PlayerStart.AllSpells", false);
 
 		if ((bool)Values[WorldCfg.StartAllSpells])
-			Log.outWarn(LogFilter.ServerLoading, "PlayerStart.AllSpells Enabled - may not function as intended!");
+			Log.Logger.Warning("PlayerStart.AllSpells Enabled - may not function as intended!");
 
 		Values[WorldCfg.HonorAfterDuel] = GetDefaultValue("HonorPointsAfterDuel", 0);
 		Values[WorldCfg.ResetDuelCooldowns] = GetDefaultValue("ResetDuelCooldowns", false);

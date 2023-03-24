@@ -53,8 +53,8 @@ public partial class WorldSession
 		if (target.PlayerData.DuelArbiter != arbiterGuid)
 			return;
 
-		Log.outDebug(LogFilter.Network, "Player 1 is: {0} ({1})", player.GUID.ToString(), player.GetName());
-		Log.outDebug(LogFilter.Network, "Player 2 is: {0} ({1})", target.GUID.ToString(), target.GetName());
+		Log.Logger.Debug("Player 1 is: {0} ({1})", player.GUID.ToString(), player.GetName());
+		Log.Logger.Debug("Player 2 is: {0} ({1})", target.GUID.ToString(), target.GetName());
 
 		var now = GameTime.GetGameTime();
 		player.Duel.StartTime = now + 3;

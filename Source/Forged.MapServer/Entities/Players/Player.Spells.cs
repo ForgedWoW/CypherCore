@@ -171,7 +171,7 @@ public partial class Player
 		if (!pet)
 			return;
 
-		Log.outDebug(LogFilter.Pet, "Pet Spells Groups");
+		Log.Logger.Debug("Pet Spells Groups");
 
 		var charmInfo = pet.GetCharmInfo();
 
@@ -313,14 +313,14 @@ public partial class Player
 			75, 150, 225, 300, 375, 450, 525, 600, 700, 850
 		};
 
-		Log.outDebug(LogFilter.Player, "UpdateSkillPro(SkillId {0}, Chance {0:D3}%)", skillId, chance / 10.0f);
+		Log.Logger.Debug("UpdateSkillPro(SkillId {0}, Chance {0:D3}%)", skillId, chance / 10.0f);
 
 		if (skillId == 0)
 			return false;
 
 		if (chance <= 0) // speedup in 0 chance case
 		{
-			Log.outDebug(LogFilter.Player, "Player:UpdateSkillPro Chance={0:D3}% missed", chance / 10.0f);
+			Log.Logger.Debug("Player:UpdateSkillPro Chance={0:D3}% missed", chance / 10.0f);
 
 			return false;
 		}
@@ -340,7 +340,7 @@ public partial class Player
 
 		if (RandomHelper.IRand(1, 1000) > chance)
 		{
-			Log.outDebug(LogFilter.Player, "Player:UpdateSkillPro Chance={0:F3}% missed", chance / 10.0f);
+			Log.Logger.Debug("Player:UpdateSkillPro Chance={0:F3}% missed", chance / 10.0f);
 
 			return false;
 		}
@@ -365,7 +365,7 @@ public partial class Player
 
 		UpdateSkillEnchantments(skillId, value, new_value);
 		UpdateCriteria(CriteriaType.SkillRaised, skillId);
-		Log.outDebug(LogFilter.Player, "Player:UpdateSkillPro Chance={0:F3}% taken", chance / 10.0f);
+		Log.Logger.Debug("Player:UpdateSkillPro Chance={0:F3}% taken", chance / 10.0f);
 
 		return true;
 	}
@@ -509,97 +509,97 @@ public partial class Player
 
 						enchant_amount = Math.Max(enchant_amount, 1u);
 
-						Log.outDebug(LogFilter.Player, "Adding {0} to stat nb {1}", enchant_amount, enchant_spell_id);
+						Log.Logger.Debug("Adding {0} to stat nb {1}", enchant_amount, enchant_spell_id);
 
 						switch ((ItemModType)enchant_spell_id)
 						{
 							case ItemModType.Mana:
-								Log.outDebug(LogFilter.Player, "+ {0} MANA", enchant_amount);
+								Log.Logger.Debug("+ {0} MANA", enchant_amount);
 								HandleStatFlatModifier(UnitMods.Mana, UnitModifierFlatType.Base, enchant_amount, apply);
 
 								break;
 							case ItemModType.Health:
-								Log.outDebug(LogFilter.Player, "+ {0} HEALTH", enchant_amount);
+								Log.Logger.Debug("+ {0} HEALTH", enchant_amount);
 								HandleStatFlatModifier(UnitMods.Health, UnitModifierFlatType.Base, enchant_amount, apply);
 
 								break;
 							case ItemModType.Agility:
-								Log.outDebug(LogFilter.Player, "+ {0} AGILITY", enchant_amount);
+								Log.Logger.Debug("+ {0} AGILITY", enchant_amount);
 								HandleStatFlatModifier(UnitMods.StatAgility, UnitModifierFlatType.Total, enchant_amount, apply);
 								UpdateStatBuffMod(Stats.Agility);
 
 								break;
 							case ItemModType.Strength:
-								Log.outDebug(LogFilter.Player, "+ {0} STRENGTH", enchant_amount);
+								Log.Logger.Debug("+ {0} STRENGTH", enchant_amount);
 								HandleStatFlatModifier(UnitMods.StatStrength, UnitModifierFlatType.Total, enchant_amount, apply);
 								UpdateStatBuffMod(Stats.Strength);
 
 								break;
 							case ItemModType.Intellect:
-								Log.outDebug(LogFilter.Player, "+ {0} INTELLECT", enchant_amount);
+								Log.Logger.Debug("+ {0} INTELLECT", enchant_amount);
 								HandleStatFlatModifier(UnitMods.StatIntellect, UnitModifierFlatType.Total, enchant_amount, apply);
 								UpdateStatBuffMod(Stats.Intellect);
 
 								break;
 							//case ItemModType.Spirit:
-							//Log.outDebug(LogFilter.Player, "+ {0} SPIRIT", enchant_amount);
+							//Log.Logger.Debug("+ {0} SPIRIT", enchant_amount);
 							//HandleStatModifier(UnitMods.StatSpirit, UnitModifierType.TotalValue, enchant_amount, apply);
 							//ApplyStatBuffMod(Stats.Spirit, enchant_amount, apply);
 							//break;
 							case ItemModType.Stamina:
-								Log.outDebug(LogFilter.Player, "+ {0} STAMINA", enchant_amount);
+								Log.Logger.Debug("+ {0} STAMINA", enchant_amount);
 								HandleStatFlatModifier(UnitMods.StatStamina, UnitModifierFlatType.Total, enchant_amount, apply);
 								UpdateStatBuffMod(Stats.Stamina);
 
 								break;
 							case ItemModType.DefenseSkillRating:
 								ApplyRatingMod(CombatRating.DefenseSkill, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} DEFENSE", enchant_amount);
+								Log.Logger.Debug("+ {0} DEFENSE", enchant_amount);
 
 								break;
 							case ItemModType.DodgeRating:
 								ApplyRatingMod(CombatRating.Dodge, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} DODGE", enchant_amount);
+								Log.Logger.Debug("+ {0} DODGE", enchant_amount);
 
 								break;
 							case ItemModType.ParryRating:
 								ApplyRatingMod(CombatRating.Parry, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} PARRY", enchant_amount);
+								Log.Logger.Debug("+ {0} PARRY", enchant_amount);
 
 								break;
 							case ItemModType.BlockRating:
 								ApplyRatingMod(CombatRating.Block, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} SHIELD_BLOCK", enchant_amount);
+								Log.Logger.Debug("+ {0} SHIELD_BLOCK", enchant_amount);
 
 								break;
 							case ItemModType.HitMeleeRating:
 								ApplyRatingMod(CombatRating.HitMelee, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} MELEE_HIT", enchant_amount);
+								Log.Logger.Debug("+ {0} MELEE_HIT", enchant_amount);
 
 								break;
 							case ItemModType.HitRangedRating:
 								ApplyRatingMod(CombatRating.HitRanged, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} RANGED_HIT", enchant_amount);
+								Log.Logger.Debug("+ {0} RANGED_HIT", enchant_amount);
 
 								break;
 							case ItemModType.HitSpellRating:
 								ApplyRatingMod(CombatRating.HitSpell, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} SPELL_HIT", enchant_amount);
+								Log.Logger.Debug("+ {0} SPELL_HIT", enchant_amount);
 
 								break;
 							case ItemModType.CritMeleeRating:
 								ApplyRatingMod(CombatRating.CritMelee, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} MELEE_CRIT", enchant_amount);
+								Log.Logger.Debug("+ {0} MELEE_CRIT", enchant_amount);
 
 								break;
 							case ItemModType.CritRangedRating:
 								ApplyRatingMod(CombatRating.CritRanged, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} RANGED_CRIT", enchant_amount);
+								Log.Logger.Debug("+ {0} RANGED_CRIT", enchant_amount);
 
 								break;
 							case ItemModType.CritSpellRating:
 								ApplyRatingMod(CombatRating.CritSpell, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} SPELL_CRIT", enchant_amount);
+								Log.Logger.Debug("+ {0} SPELL_CRIT", enchant_amount);
 
 								break;
 							case ItemModType.HasteSpellRating:
@@ -610,84 +610,84 @@ public partial class Player
 								ApplyRatingMod(CombatRating.HitMelee, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.HitRanged, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.HitSpell, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} HIT", enchant_amount);
+								Log.Logger.Debug("+ {0} HIT", enchant_amount);
 
 								break;
 							case ItemModType.CritRating:
 								ApplyRatingMod(CombatRating.CritMelee, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.CritRanged, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.CritSpell, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} CRITICAL", enchant_amount);
+								Log.Logger.Debug("+ {0} CRITICAL", enchant_amount);
 
 								break;
 							case ItemModType.ResilienceRating:
 								ApplyRatingMod(CombatRating.ResiliencePlayerDamage, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} RESILIENCE", enchant_amount);
+								Log.Logger.Debug("+ {0} RESILIENCE", enchant_amount);
 
 								break;
 							case ItemModType.HasteRating:
 								ApplyRatingMod(CombatRating.HasteMelee, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.HasteRanged, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.HasteSpell, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} HASTE", enchant_amount);
+								Log.Logger.Debug("+ {0} HASTE", enchant_amount);
 
 								break;
 							case ItemModType.ExpertiseRating:
 								ApplyRatingMod(CombatRating.Expertise, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} EXPERTISE", enchant_amount);
+								Log.Logger.Debug("+ {0} EXPERTISE", enchant_amount);
 
 								break;
 							case ItemModType.AttackPower:
 								HandleStatFlatModifier(UnitMods.AttackPower, UnitModifierFlatType.Total, enchant_amount, apply);
 								HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} ATTACK_POWER", enchant_amount);
+								Log.Logger.Debug("+ {0} ATTACK_POWER", enchant_amount);
 
 								break;
 							case ItemModType.RangedAttackPower:
 								HandleStatFlatModifier(UnitMods.AttackPowerRanged, UnitModifierFlatType.Total, enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} RANGED_ATTACK_POWER", enchant_amount);
+								Log.Logger.Debug("+ {0} RANGED_ATTACK_POWER", enchant_amount);
 
 								break;
 							case ItemModType.ManaRegeneration:
 								ApplyManaRegenBonus((int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} MANA_REGENERATION", enchant_amount);
+								Log.Logger.Debug("+ {0} MANA_REGENERATION", enchant_amount);
 
 								break;
 							case ItemModType.ArmorPenetrationRating:
 								ApplyRatingMod(CombatRating.ArmorPenetration, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} ARMOR PENETRATION", enchant_amount);
+								Log.Logger.Debug("+ {0} ARMOR PENETRATION", enchant_amount);
 
 								break;
 							case ItemModType.SpellPower:
 								ApplySpellPowerBonus((int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} SPELL_POWER", enchant_amount);
+								Log.Logger.Debug("+ {0} SPELL_POWER", enchant_amount);
 
 								break;
 							case ItemModType.HealthRegen:
 								ApplyHealthRegenBonus((int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} HEALTH_REGENERATION", enchant_amount);
+								Log.Logger.Debug("+ {0} HEALTH_REGENERATION", enchant_amount);
 
 								break;
 							case ItemModType.SpellPenetration:
 								ApplySpellPenetrationBonus((int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} SPELL_PENETRATION", enchant_amount);
+								Log.Logger.Debug("+ {0} SPELL_PENETRATION", enchant_amount);
 
 								break;
 							case ItemModType.BlockValue:
 								HandleBaseModFlatValue(BaseModGroup.ShieldBlockValue, enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} BLOCK_VALUE", enchant_amount);
+								Log.Logger.Debug("+ {0} BLOCK_VALUE", enchant_amount);
 
 								break;
 							case ItemModType.MasteryRating:
 								ApplyRatingMod(CombatRating.Mastery, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} MASTERY", enchant_amount);
+								Log.Logger.Debug("+ {0} MASTERY", enchant_amount);
 
 								break;
 							case ItemModType.Versatility:
 								ApplyRatingMod(CombatRating.VersatilityDamageDone, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.VersatilityHealingDone, (int)enchant_amount, apply);
 								ApplyRatingMod(CombatRating.VersatilityDamageTaken, (int)enchant_amount, apply);
-								Log.outDebug(LogFilter.Player, "+ {0} VERSATILITY", enchant_amount);
+								Log.Logger.Debug("+ {0} VERSATILITY", enchant_amount);
 
 								break;
 							default:
@@ -717,7 +717,7 @@ public partial class Player
 						// nothing do..
 						break;
 					default:
-						Log.outError(LogFilter.Player, "Unknown item enchantment (id = {0}) display type: {1}", enchant_id, enchant_display_type);
+						Log.Logger.Error("Unknown item enchantment (id = {0}) display type: {1}", enchant_id, enchant_display_type);
 
 						break;
 				}
@@ -915,7 +915,7 @@ public partial class Player
 
 		if (skillEntry == null)
 		{
-			Log.outError(LogFilter.Misc, $"Player.Spells.SetSkill: Skillid: {id} not found in SkillLineStorage for player {GetName()} ({GUID})");
+			Log.Logger.Error($"Player.Spells.SetSkill: Skillid: {id} not found in SkillLineStorage for player {GetName()} ({GUID})");
 
 			return;
 		}
@@ -1074,7 +1074,7 @@ public partial class Player
 
 			if (skillSlot == 0)
 			{
-				Log.outError(LogFilter.Misc, $"Tried to add skill {id} but player {GetName()} ({GUID}) cannot have additional skills");
+				Log.Logger.Error($"Tried to add skill {id} but player {GetName()} ({GUID}) cannot have additional skills");
 
 				return;
 			}
@@ -1146,7 +1146,7 @@ public partial class Player
 		if (spellInfo.HasAttribute(SpellAttr1.NoSkillIncrease))
 			return false;
 
-		Log.outDebug(LogFilter.Player, "UpdateCraftSkill spellid {0}", spellInfo.Id);
+		Log.Logger.Debug("UpdateCraftSkill spellid {0}", spellInfo.Id);
 
 		var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellInfo.Id);
 
@@ -1184,7 +1184,7 @@ public partial class Player
 
 	public bool UpdateGatherSkill(SkillType SkillId, uint SkillValue, uint RedLevel, uint Multiplicator = 1, WorldObject obj = null)
 	{
-		Log.outDebug(LogFilter.Player, "UpdateGatherSkill(SkillId {0} SkillLevel {1} RedLevel {2})", SkillId, SkillValue, RedLevel);
+		Log.Logger.Debug("UpdateGatherSkill(SkillId {0} SkillLevel {1} RedLevel {2})", SkillId, SkillValue, RedLevel);
 
 		var gathering_skill_gain = WorldConfig.GetUIntValue(WorldCfg.SkillGainGathering);
 
@@ -1258,7 +1258,7 @@ public partial class Player
 
 	public bool UpdateFishingSkill()
 	{
-		Log.outDebug(LogFilter.Player, "UpdateFishingSkill");
+		Log.Logger.Debug("UpdateFishingSkill");
 
 		uint SkillValue = GetPureSkillValue(SkillType.ClassicFishing);
 
@@ -1294,7 +1294,7 @@ public partial class Player
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Player, "Player.CastItemUseSpell: Item (Entry: {0}) in have wrong spell id {1}, ignoring", item.Entry, effectData.SpellID);
+					Log.Logger.Error("Player.CastItemUseSpell: Item (Entry: {0}) in have wrong spell id {1}, ignoring", item.Entry, effectData.SpellID);
 
 					continue;
 				}
@@ -1333,7 +1333,7 @@ public partial class Player
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Player, "Player.CastItemUseSpell Enchant {0}, cast unknown spell {1}", enchant_id, pEnchant.EffectArg[s]);
+					Log.Logger.Error("Player.CastItemUseSpell Enchant {0}, cast unknown spell {1}", enchant_id, pEnchant.EffectArg[s]);
 
 					continue;
 				}
@@ -1523,7 +1523,7 @@ public partial class Player
 				break;
 			}
 			default:
-				Log.outError(LogFilter.Player, "HasItemFitToSpellRequirements: Not handled spell requirement for item class {0}", spellInfo.EquippedItemClass);
+				Log.Logger.Error("HasItemFitToSpellRequirements: Not handled spell requirement for item class {0}", spellInfo.EquippedItemClass);
 
 				break;
 		}
@@ -1683,7 +1683,7 @@ public partial class Player
 
 		foreach (var tspell in info.CustomSpells)
 		{
-			Log.outDebug(LogFilter.Player, "PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", Class, Race, tspell);
+			Log.Logger.Debug("PLAYER (Class: {0} Race: {1}): Adding initial spell, id = {2}", Class, Race, tspell);
 
 			if (!IsInWorld) // will send in INITIAL_SPELLS in list anyway at map add
 				AddSpell(tspell, true, true, true, false);
@@ -2064,7 +2064,7 @@ public partial class Player
 
 	public void AddSpellMod(SpellModifier mod, bool apply)
 	{
-		Log.outDebug(LogFilter.Spells, "Player.AddSpellMod {0}", mod.SpellId);
+		Log.Logger.Debug("Player.AddSpellMod {0}", mod.SpellId);
 
 		// First, manipulate our spellmodifier container
 		if (apply)
@@ -2612,7 +2612,7 @@ public partial class Player
 
 					if (spellInfo == null)
 					{
-						Log.outError(LogFilter.Player, "WORLD: unknown Item spellid {0}", effectData.SpellID);
+						Log.Logger.Error("WORLD: unknown Item spellid {0}", effectData.SpellID);
 
 						continue;
 					}
@@ -2670,7 +2670,7 @@ public partial class Player
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Player,
+					Log.Logger.Error(
 								"Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
 								GUID.ToString(),
 								GetName(),
@@ -3166,7 +3166,7 @@ public partial class Player
 			}
 		}
 
-		Log.outDebug(LogFilter.Player, "Checking Condition {0}, there are {1} Meta Gems, {2} Red Gems, {3} Yellow Gems and {4} Blue Gems, Activate:{5}", enchantmentcondition, curcount[0], curcount[1], curcount[2], curcount[3], activate ? "yes" : "no");
+		Log.Logger.Debug("Checking Condition {0}, there are {1} Meta Gems, {2} Red Gems, {3} Yellow Gems and {4} Blue Gems, Activate:{5}", enchantmentcondition, curcount[0], curcount[1], curcount[2], curcount[3], activate ? "yes" : "no");
 
 		return activate;
 	}
@@ -3420,13 +3420,13 @@ public partial class Player
 			// do character spell book cleanup (all characters)
 			if (!IsInWorld && !learning)
 			{
-				Log.outError(LogFilter.Spells, "Player.AddSpell: Spell (ID: {0}) does not exist. deleting for all characters in `character_spell`.", spellId);
+				Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) does not exist. deleting for all characters in `character_spell`.", spellId);
 
 				DeleteSpellFromAllPlayers(spellId);
 			}
 			else
 			{
-				Log.outError(LogFilter.Spells, "Player.AddSpell: Spell (ID: {0}) does not exist", spellId);
+				Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) does not exist", spellId);
 			}
 
 			return false;
@@ -3437,13 +3437,13 @@ public partial class Player
 			// do character spell book cleanup (all characters)
 			if (!IsInWorld && !learning)
 			{
-				Log.outError(LogFilter.Spells, "Player.AddSpell: Spell (ID: {0}) is invalid. deleting for all characters in `character_spell`.", spellId);
+				Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) is invalid. deleting for all characters in `character_spell`.", spellId);
 
 				DeleteSpellFromAllPlayers(spellId);
 			}
 			else
 			{
-				Log.outError(LogFilter.Spells, "Player.AddSpell: Spell (ID: {0}) is invalid", spellId);
+				Log.Logger.Error("Player.AddSpell: Spell (ID: {0}) is invalid", spellId);
 			}
 
 			return false;

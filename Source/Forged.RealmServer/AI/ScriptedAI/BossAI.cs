@@ -129,7 +129,7 @@ public class BossAI : ScriptedAI
 	{
 		if (delayToRespawn < TimeSpan.FromSeconds(2))
 		{
-			Log.outError(LogFilter.ScriptsAi, $"BossAI::_DespawnAtEvade: called with delay of {delayToRespawn} seconds, defaulting to 2 (me: {Me.GUID})");
+			Log.Logger.Error($"BossAI::_DespawnAtEvade: called with delay of {delayToRespawn} seconds, defaulting to 2 (me: {Me.GUID})");
 			delayToRespawn = TimeSpan.FromSeconds(2);
 		}
 
@@ -140,7 +140,7 @@ public class BossAI : ScriptedAI
 
 		if (whoSummon)
 		{
-			Log.outWarn(LogFilter.ScriptsAi, $"BossAI::_DespawnAtEvade: called on a temporary summon (who: {who.GUID})");
+			Log.Logger.Warning($"BossAI::_DespawnAtEvade: called on a temporary summon (who: {who.GUID})");
 			whoSummon.UnSummon();
 
 			return;
@@ -193,7 +193,7 @@ public class BossAI : ScriptedAI
 
 	void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
 	{
-		Log.outDebug(LogFilter.ScriptsAi, $"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
+		Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
 
 		var creatures = Me.GetCreatureListWithEntryInGrid(entry, maxSearchRange);
 

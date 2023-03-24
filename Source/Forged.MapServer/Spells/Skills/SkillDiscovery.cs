@@ -27,7 +27,7 @@ public class SkillDiscovery
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
+			Log.Logger.Information("Loaded 0 skill discovery definitions. DB table `skill_discovery_template` is empty.");
 
 			return;
 		}
@@ -60,7 +60,7 @@ public class SkillDiscovery
 				{
 					if (!reportedReqSpells.Contains(absReqSkillOrSpell))
 					{
-						Log.outError(LogFilter.Sql, "Spell (ID: {0}) have not existed spell (ID: {1}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
+						Log.Logger.Error("Spell (ID: {0}) have not existed spell (ID: {1}) in `reqSpell` field in `skill_discovery_template` table", spellId, reqSkillOrSpell);
 						reportedReqSpells.Add(absReqSkillOrSpell);
 					}
 
@@ -74,7 +74,7 @@ public class SkillDiscovery
 				{
 					if (!reportedReqSpells.Contains(absReqSkillOrSpell))
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Spell (ID: {0}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc" +
 									" and not 100%% chance random discovery ability but listed for spellId {1} (and maybe more) in `skill_discovery_template` table",
 									absReqSkillOrSpell,
@@ -94,7 +94,7 @@ public class SkillDiscovery
 
 				if (bounds.Empty())
 				{
-					Log.outError(LogFilter.Sql, "Spell (ID: {0}) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
+					Log.Logger.Error("Spell (ID: {0}) not listed in `SkillLineAbility.dbc` but listed with `reqSpell`=0 in `skill_discovery_template` table", spellId);
 
 					continue;
 				}
@@ -104,7 +104,7 @@ public class SkillDiscovery
 			}
 			else
 			{
-				Log.outError(LogFilter.Sql, "Spell (ID: {0}) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
+				Log.Logger.Error("Spell (ID: {0}) have negative value in `reqSpell` field in `skill_discovery_template` table", spellId);
 
 				continue;
 			}
@@ -113,7 +113,7 @@ public class SkillDiscovery
 		} while (result.NextRow());
 
 		if (ssNonDiscoverableEntries.Length != 0)
-			Log.outError(LogFilter.Sql, "Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n{0}", ssNonDiscoverableEntries.ToString());
+			Log.Logger.Error("Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n{0}", ssNonDiscoverableEntries.ToString());
 
 		// report about empty data for explicit discovery spells
 		foreach (var spellNameEntry in CliDB.SpellNameStorage.Values)
@@ -128,10 +128,10 @@ public class SkillDiscovery
 				continue;
 
 			if (!SkillDiscoveryStorage.ContainsKey((int)spellEntry.Id))
-				Log.outError(LogFilter.Sql, "Spell (ID: {0}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spellEntry.Id);
+				Log.Logger.Error("Spell (ID: {0}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spellEntry.Id);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} skill discovery definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMsTime));
+		Log.Logger.Information("Loaded {0} skill discovery definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public static uint GetExplicitDiscoverySpell(uint spellId, Player player)

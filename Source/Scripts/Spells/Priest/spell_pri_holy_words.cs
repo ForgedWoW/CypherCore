@@ -57,7 +57,7 @@ internal class spell_pri_holy_words : AuraScript, IHasAuraEffects
 
 				break;
 			default:
-				Log.outWarn(LogFilter.Spells, $"HolyWords aura has been proced by an unknown spell: {SpellInfo.Id}");
+				Log.Logger.Warning($"HolyWords aura has been proced by an unknown spell: {SpellInfo.Id}");
 
 				return;
 		}

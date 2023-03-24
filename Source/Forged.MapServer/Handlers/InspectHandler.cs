@@ -18,7 +18,7 @@ public partial class WorldSession
 
 		if (!player)
 		{
-			Log.outDebug(LogFilter.Network, "WorldSession.HandleInspectOpcode: Target {0} not found.", inspect.Target.ToString());
+			Log.Logger.Debug("WorldSession.HandleInspectOpcode: Target {0} not found.", inspect.Target.ToString());
 
 			return;
 		}
@@ -91,7 +91,7 @@ public partial class WorldSession
 
 		if (!player)
 		{
-			Log.outDebug(LogFilter.Network, "WorldSession.HandleQueryInspectAchievements: [{0}] inspected unknown Player [{1}]", Player.GUID.ToString(), inspect.Guid.ToString());
+			Log.Logger.Debug("WorldSession.HandleQueryInspectAchievements: [{0}] inspected unknown Player [{1}]", Player.GUID.ToString(), inspect.Guid.ToString());
 
 			return;
 		}

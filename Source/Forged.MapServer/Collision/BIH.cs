@@ -386,7 +386,7 @@ public class BIH
 
 			for (var i = 0; i < 3; i++)
 				if (nodeBox.Hi.GetAt(i) < gridBox.Lo.GetAt(i) || nodeBox.Lo.GetAt(i) > gridBox.Hi.GetAt(i))
-					Log.outError(LogFilter.Server, "Reached tree area in error - discarding node with: {0} objects", right - left + 1);
+					Log.Logger.Error("Reached tree area in error - discarding node with: {0} objects", right - left + 1);
 
 			// find longest axis
 			axis = (int)d.primaryAxis();

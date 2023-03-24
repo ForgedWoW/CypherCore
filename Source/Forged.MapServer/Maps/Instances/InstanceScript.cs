@@ -109,7 +109,7 @@ public class InstanceScript : ZoneScript
 				_minions.Add(minion.Entry, new MinionInfo(_bosses[minion.BossId]));
 		}
 
-		Log.outDebug(LogFilter.Scripts, "InstanceScript.LoadMinionData: {0} minions loaded.", _minions.Count);
+		Log.Logger.Debug("InstanceScript.LoadMinionData: {0} minions loaded.", _minions.Count);
 	}
 
 	public void LoadDoorData(params DoorData[] data)
@@ -123,7 +123,7 @@ public class InstanceScript : ZoneScript
 				_doors.Add(door.Entry, new DoorInfo(_bosses[door.bossId], door.Type));
 		}
 
-		Log.outDebug(LogFilter.Scripts, "InstanceScript.LoadDoorData: {0} doors loaded.", _doors.Count);
+		Log.Logger.Debug("InstanceScript.LoadDoorData: {0} doors loaded.", _doors.Count);
 	}
 
 	public void LoadObjectData(ObjectData[] creatureData, ObjectData[] gameObjectData)
@@ -134,7 +134,7 @@ public class InstanceScript : ZoneScript
 		if (gameObjectData != null)
 			LoadObjectData(gameObjectData, _gameObjectInfo);
 
-		Log.outDebug(LogFilter.Scripts, "InstanceScript.LoadObjectData: {0} objects loaded.", _creatureInfo.Count + _gameObjectInfo.Count);
+		Log.Logger.Debug("InstanceScript.LoadObjectData: {0} objects loaded.", _creatureInfo.Count + _gameObjectInfo.Count);
 	}
 
 	public void LoadDungeonEncounterData(DungeonEncounterData[] encounters)
@@ -250,7 +250,7 @@ public class InstanceScript : ZoneScript
 			if (bossInfo.State == EncounterState.ToBeDecided) // loading
 			{
 				bossInfo.State = state;
-				Log.outDebug(LogFilter.Scripts, $"InstanceScript: Initialize boss {id} state as {state} (map {Instance.Id}, {Instance.InstanceId}).");
+				Log.Logger.Debug($"InstanceScript: Initialize boss {id} state as {state} (map {Instance.Id}, {Instance.InstanceId}).");
 
 				return false;
 			}
@@ -261,7 +261,7 @@ public class InstanceScript : ZoneScript
 
 				if (bossInfo.State == EncounterState.Done)
 				{
-					Log.outError(LogFilter.Maps, $"InstanceScript: Tried to set instance boss {id} state from {bossInfo.State} back to {state} for map {Instance.Id}, instance id {Instance.InstanceId}. Blocked!");
+					Log.Logger.Error($"InstanceScript: Tried to set instance boss {id} state from {bossInfo.State} back to {state} for map {Instance.Id}, instance id {Instance.InstanceId}. Blocked!");
 
 					return false;
 				}
@@ -449,7 +449,7 @@ public class InstanceScript : ZoneScript
 		if (go)
 			go.SetGoState(open ? GameObjectState.Active : GameObjectState.Ready);
 		else
-			Log.outDebug(LogFilter.Scripts, "InstanceScript: HandleGameObject failed");
+			Log.Logger.Debug("InstanceScript: HandleGameObject failed");
 	}
 
 	public void DoUseDoorOrButton(ObjectGuid uiGuid, uint withRestoreTime = 0, bool useAlternativeState = false)
@@ -470,12 +470,12 @@ public class InstanceScript : ZoneScript
 			}
 			else
 			{
-				Log.outError(LogFilter.Scripts, "InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
+				Log.Logger.Error("InstanceScript: DoUseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 			}
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Scripts, "InstanceScript: DoUseDoorOrButton failed");
+			Log.Logger.Debug("InstanceScript: DoUseDoorOrButton failed");
 		}
 	}
 
@@ -492,7 +492,7 @@ public class InstanceScript : ZoneScript
 				case GameObjectTypes.Trap:
 				case GameObjectTypes.FishingNode:
 					// not expect any of these should ever be handled
-					Log.outError(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
+					Log.Logger.Error("InstanceScript: DoRespawnGameObject can't respawn gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 
 					return;
 				default:
@@ -506,7 +506,7 @@ public class InstanceScript : ZoneScript
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Scripts, "InstanceScript: DoRespawnGameObject failed");
+			Log.Logger.Debug("InstanceScript: DoRespawnGameObject failed");
 		}
 	}
 
@@ -622,7 +622,7 @@ public class InstanceScript : ZoneScript
 
 	public virtual bool CheckAchievementCriteriaMeet(uint criteria_id, Player source, Unit target = null, uint miscvalue1 = 0)
 	{
-		Log.outError(LogFilter.Server,
+		Log.Logger.Error(
 					"Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
 					Instance.Id,
 					criteria_id);
@@ -878,27 +878,27 @@ public class InstanceScript : ZoneScript
 
 	public void OutSaveInstData()
 	{
-		Log.outDebug(LogFilter.Scripts, "Saving Instance Data for Instance {0} (Map {1}, Instance Id {2})", Instance.MapName, Instance.Id, Instance.InstanceId);
+		Log.Logger.Debug("Saving Instance Data for Instance {0} (Map {1}, Instance Id {2})", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public void OutSaveInstDataComplete()
 	{
-		Log.outDebug(LogFilter.Scripts, "Saving Instance Data for Instance {0} (Map {1}, Instance Id {2}) completed.", Instance.MapName, Instance.Id, Instance.InstanceId);
+		Log.Logger.Debug("Saving Instance Data for Instance {0} (Map {1}, Instance Id {2}) completed.", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public void OutLoadInstData(string input)
 	{
-		Log.outDebug(LogFilter.Scripts, "Loading Instance Data for Instance {0} (Map {1}, Instance Id {2}). Input is '{3}'", Instance.MapName, Instance.Id, Instance.InstanceId, input);
+		Log.Logger.Debug("Loading Instance Data for Instance {0} (Map {1}, Instance Id {2}). Input is '{3}'", Instance.MapName, Instance.Id, Instance.InstanceId, input);
 	}
 
 	public void OutLoadInstDataComplete()
 	{
-		Log.outDebug(LogFilter.Scripts, "Instance Data Load for Instance {0} (Map {1}, Instance Id: {2}) is complete.", Instance.MapName, Instance.Id, Instance.InstanceId);
+		Log.Logger.Debug("Instance Data Load for Instance {0} (Map {1}, Instance Id: {2}) is complete.", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public void OutLoadInstDataFail()
 	{
-		Log.outDebug(LogFilter.Scripts, "Unable to load Instance Data for Instance {0} (Map {1}, Instance Id: {2}).", Instance.MapName, Instance.Id, Instance.InstanceId);
+		Log.Logger.Debug("Unable to load Instance Data for Instance {0} (Map {1}, Instance Id: {2}).", Instance.MapName, Instance.Id, Instance.InstanceId);
 	}
 
 	public List<InstanceSpawnGroupInfo> GetInstanceSpawnGroups()
@@ -1034,12 +1034,12 @@ public class InstanceScript : ZoneScript
 			}
 			else
 			{
-				Log.outError(LogFilter.Scripts, "InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
+				Log.Logger.Error("InstanceScript: DoCloseDoorOrButton can't use gameobject entry {0}, because type is {1}.", go.Entry, go.GoType);
 			}
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Scripts, "InstanceScript: DoCloseDoorOrButton failed");
+			Log.Logger.Debug("InstanceScript: DoCloseDoorOrButton failed");
 		}
 	}
 
@@ -1086,7 +1086,7 @@ public class InstanceScript : ZoneScript
 				{
 					dungeonId = encounter.lastEncounterDungeon;
 
-					Log.outDebug(LogFilter.Lfg,
+					Log.Logger.Debug(
 								"UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
 								Instance.MapName,
 								Instance.InstanceId,

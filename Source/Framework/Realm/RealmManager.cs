@@ -12,6 +12,7 @@ using Framework.Database;
 using Framework.Realm;
 using Framework.Serialization;
 using Framework.Web;
+using Serilog;
 
 public class RealmManager
 {
@@ -324,15 +325,15 @@ public class RealmManager
 					_subRegions.Add(subRegion);
 
 				if (!existingRealms.ContainsKey(realm.Id))
-					Log.outInfo(LogFilter.Realmlist, "Added realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
+					Log.Logger.Information("Added realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
 				else
-					Log.outDebug(LogFilter.Realmlist, "Updating realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
+					Log.Logger.Debug("Updating realm \"{0}\" at {1}:{2}", realm.Name, realm.ExternalAddress.ToString(), realm.Port);
 
 				existingRealms.Remove(realm.Id);
 			} while (result.NextRow());
 
 		foreach (var pair in existingRealms)
-			Log.outInfo(LogFilter.Realmlist, "Removed realm \"{0}\".", pair.Value);
+			Log.Logger.Information("Removed realm \"{0}\".", pair.Value);
 	}
 
 	List<string> GetSubRegions()

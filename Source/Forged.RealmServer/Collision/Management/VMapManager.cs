@@ -255,12 +255,12 @@ public class VMapManager : Singleton<VMapManager>
 
 				if (!model.GetModel().ReadFile(VMapPath + filename))
 				{
-					Log.outError(LogFilter.Server, "VMapManager: could not load '{0}'", filename);
+					Log.Logger.Error("VMapManager: could not load '{0}'", filename);
 
 					return null;
 				}
 
-				Log.outDebug(LogFilter.Maps, "VMapManager: loading file '{0}'", filename);
+				Log.Logger.Debug("VMapManager: loading file '{0}'", filename);
 				model.GetModel().Flags = flags;
 
 				_loadedModelFiles.Add(filename, model);
@@ -281,14 +281,14 @@ public class VMapManager : Singleton<VMapManager>
 
 			if (model == null)
 			{
-				Log.outError(LogFilter.Server, "VMapManager: trying to unload non-loaded file '{0}'", filename);
+				Log.Logger.Error("VMapManager: trying to unload non-loaded file '{0}'", filename);
 
 				return;
 			}
 
 			if (model.DecRefCount() == 0)
 			{
-				Log.outDebug(LogFilter.Maps, "VMapManager: unloading file '{0}'", filename);
+				Log.Logger.Debug("VMapManager: unloading file '{0}'", filename);
 				_loadedModelFiles.Remove(filename);
 			}
 		}

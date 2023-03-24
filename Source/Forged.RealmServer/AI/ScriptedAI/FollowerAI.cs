@@ -92,7 +92,7 @@ class FollowerAI : ScriptedAI
 			{
 				if (HasFollowState(FollowState.Complete) && !HasFollowState(FollowState.PostEvent))
 				{
-					Log.outDebug(LogFilter.ScriptsAi, $"FollowerAI::UpdateAI: is set completed, despawns. ({Me.GUID})");
+					Log.Logger.Debug($"FollowerAI::UpdateAI: is set completed, despawns. ({Me.GUID})");
 					Me.DespawnOrUnsummon();
 
 					return;
@@ -145,7 +145,7 @@ class FollowerAI : ScriptedAI
 
 				if (maxRangeExceeded || questAbandoned)
 				{
-					Log.outDebug(LogFilter.ScriptsAi, $"FollowerAI::UpdateAI: failed because player/group was to far away or not found ({Me.GUID})");
+					Log.Logger.Debug($"FollowerAI::UpdateAI: failed because player/group was to far away or not found ({Me.GUID})");
 					Me.DespawnOrUnsummon();
 
 					return;
@@ -172,14 +172,14 @@ class FollowerAI : ScriptedAI
 
 		if (Me.IsEngaged)
 		{
-			Log.outDebug(LogFilter.Scripts, $"FollowerAI::StartFollow: attempt to StartFollow while in combat. ({Me.GUID})");
+			Log.Logger.Debug($"FollowerAI::StartFollow: attempt to StartFollow while in combat. ({Me.GUID})");
 
 			return;
 		}
 
 		if (HasFollowState(FollowState.Inprogress))
 		{
-			Log.outError(LogFilter.Scenario, $"FollowerAI::StartFollow: attempt to StartFollow while already following. ({Me.GUID})");
+			Log.Logger.Error($"FollowerAI::StartFollow: attempt to StartFollow while already following. ({Me.GUID})");
 
 			return;
 		}
@@ -202,7 +202,7 @@ class FollowerAI : ScriptedAI
 
 		Me.MotionMaster.MoveFollow(player, SharedConst.PetFollowDist, SharedConst.PetFollowAngle);
 
-		Log.outDebug(LogFilter.Scripts, $"FollowerAI::StartFollow: start follow {player.GetName()} - {_leaderGUID} ({Me.GUID})");
+		Log.Logger.Debug($"FollowerAI::StartFollow: start follow {player.GetName()} - {_leaderGUID} ({Me.GUID})");
 	}
 
 	public void SetFollowPaused(bool paused)
@@ -280,7 +280,7 @@ class FollowerAI : ScriptedAI
 
 						if (member && Me.IsWithinDistInMap(member, 100.0f) && member.IsAlive)
 						{
-							Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
+							Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader changed and returned new leader. ({Me.GUID})");
 							_leaderGUID = member.GUID;
 
 							return member;
@@ -289,7 +289,7 @@ class FollowerAI : ScriptedAI
 			}
 		}
 
-		Log.outDebug(LogFilter.Scripts, $"FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. ({Me.GUID})");
+		Log.Logger.Debug($"FollowerAI::GetLeaderForFollower: GetLeader can not find suitable leader. ({Me.GUID})");
 
 		return null;
 	}

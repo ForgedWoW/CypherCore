@@ -472,7 +472,7 @@ public partial class Player
 				if (entry != null)
 					_bgData.JoinPos = entry.Loc;
 				else
-					Log.outError(LogFilter.Player, "SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.MapId);
+					Log.Logger.Error("SetBattlegroundEntryPoint: Dungeon map {0} has no linked graveyard, setting home location as entry point.", Location.MapId);
 			}
 			// If new entry point is not BG or arena set it
 			else if (!Map.IsBattlegroundOrArena)

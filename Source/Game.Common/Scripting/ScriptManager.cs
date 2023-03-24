@@ -35,13 +35,13 @@ public class ScriptManager
 	{
 		var oldMSTime = Time.MSTime;
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading C# scripts");
+		Log.Logger.Information("Loading C# scripts");
 
 		//Load Scripts.dll
 		LoadScripts();
 
 		// MapScripts
-        Log.outInfo(LogFilter.ServerLoading, $"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+        Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
     public void ForEach<T>(Action<T> a) where T : IScriptObject
@@ -54,7 +54,7 @@ public class ScriptManager
                 }
                 catch (Exception ex)
                 {
-					Log.outException(ex);
+					Log.Logger.Error(ex, "");
                 }
     }
 
@@ -70,7 +70,7 @@ public class ScriptManager
                     }
                     catch (Exception ex)
                     {
-                        Log.outException(ex);
+                        Log.Logger.Error(ex, "");
                     }
 
             if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
@@ -81,7 +81,7 @@ public class ScriptManager
                     }
                     catch (Exception ex)
                     {
-                        Log.outException(ex);
+                        Log.Logger.Error(ex, "");
                     }
         }
 	}
@@ -104,7 +104,7 @@ public class ScriptManager
         }
         catch (Exception e)
         {
-            Log.outException(e);
+            Log.Logger.Error(e);
         }
 
         return ret;
@@ -121,7 +121,7 @@ public class ScriptManager
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
     }
 
@@ -259,7 +259,7 @@ public class ScriptManager
 
 						if (!validArgs)
 						{
-							Log.outError(LogFilter.Scripts, "Script: {0} contains no Public Constructors with the right parameter types. Can't load script.", type.Name);
+							Log.Logger.Error("Script: {0} contains no Public Constructors with the right parameter types. Can't load script.", type.Name);
 
 							continue;
 						}

@@ -34,7 +34,7 @@ public partial class WorldSession
 		{
 			if (!HasPermission(RBACPermissions.CommandMailbox))
 			{
-				Log.outWarn(LogFilter.ChatSystem, "{0} attempt open mailbox in cheating way.", Player.GetName());
+				Log.Logger.Warning("{0} attempt open mailbox in cheating way.", Player.GetName());
 
 				return false;
 			}
@@ -92,7 +92,7 @@ public partial class WorldSession
 
 		if (receiverGuid.IsEmpty)
 		{
-			Log.outInfo(LogFilter.Network,
+			Log.Logger.Information(
 						"Player {0} is sending mail to {1} (GUID: not existed!) with subject {2}" +
 						"and body {3} includes {4} items, {5} copper and {6} COD copper with StationeryID = {7}",
 						GetPlayerInfo(),
@@ -113,7 +113,7 @@ public partial class WorldSession
 		{
 			Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
 
-			Log.outWarn(LogFilter.Server,
+			Log.Logger.Warning(
 						"Player {0} attempted to send mail to {1} ({2}) with negative money value (SendMoney: {3})",
 						GetPlayerInfo(),
 						sendMail.Info.Target,
@@ -127,7 +127,7 @@ public partial class WorldSession
 		{
 			Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
 
-			Log.outWarn(LogFilter.Server,
+			Log.Logger.Warning(
 						"Player {0} attempted to send mail to {1} ({2}) with negative COD value (Cod: {3})",
 						GetPlayerInfo(),
 						sendMail.Info.Target,
@@ -137,7 +137,7 @@ public partial class WorldSession
 			return;
 		}
 
-		Log.outInfo(LogFilter.Network,
+		Log.Logger.Information(
 					"Player {0} is sending mail to {1} ({2}) with subject {3} and body {4}" +
 					"includes {5} items, {6} copper and {7} COD copper with StationeryID = {8}",
 					GetPlayerInfo(),
@@ -716,7 +716,7 @@ public partial class WorldSession
 
 		bodyItem.SetItemFlag(ItemFieldFlags.Readable);
 
-		Log.outInfo(LogFilter.Network, "HandleMailCreateTextItem mailid={0}", createTextItem.MailID);
+		Log.Logger.Information("HandleMailCreateTextItem mailid={0}", createTextItem.MailID);
 
 		List<ItemPosCount> dest = new();
 		var msg = Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, dest, bodyItem, false);

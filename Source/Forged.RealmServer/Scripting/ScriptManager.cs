@@ -54,7 +54,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 		LoadDatabase();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading C# scripts");
+		Log.Logger.Information("Loading C# scripts");
 
 		FillSpellSummary();
 
@@ -64,7 +64,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		// MapScripts
 		Global.MapMgr.AddSC_BuiltInScripts();
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	//AreaTriggerScript
@@ -92,7 +92,7 @@ public class ScriptManager : Singleton<ScriptManager>
                 }
                 catch (Exception ex)
                 {
-					Log.outException(ex);
+					Log.Logger.Error(ex, "");
                 }
     }
 
@@ -108,7 +108,7 @@ public class ScriptManager : Singleton<ScriptManager>
                     }
                     catch (Exception ex)
                     {
-                        Log.outException(ex);
+                        Log.Logger.Error(ex, "");
                     }
 
             if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
@@ -119,7 +119,7 @@ public class ScriptManager : Singleton<ScriptManager>
                     }
                     catch (Exception ex)
                     {
-                        Log.outException(ex);
+                        Log.Logger.Error(ex, "");
                     }
         }
 	}
@@ -142,7 +142,7 @@ public class ScriptManager : Singleton<ScriptManager>
         }
         catch (Exception e)
         {
-            Log.outException(e);
+            Log.Logger.Error(e);
         }
 
         return ret;
@@ -159,7 +159,7 @@ public class ScriptManager : Singleton<ScriptManager>
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
     }
 
@@ -300,7 +300,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 						if (!validArgs)
 						{
-							Log.outError(LogFilter.Scripts, "Script: {0} contains no Public Constructors with the right parameter types. Can't load script.", type.Name);
+							Log.Logger.Error("Script: {0} contains no Public Constructors with the right parameter types. Can't load script.", type.Name);
 
 							continue;
 						}
@@ -415,14 +415,14 @@ public class ScriptManager : Singleton<ScriptManager>
 		if (!result.IsEmpty())
 			entryCount = result.Read<uint>(0);
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loading Script Waypoints for {entryCount} creature(s)...");
+		Log.Logger.Information($"Loading Script Waypoints for {entryCount} creature(s)...");
 
 		//                                0       1         2           3           4           5
 		result = DB.World.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
+			Log.Logger.Information("Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
 
 			return;
 		}
@@ -442,13 +442,13 @@ public class ScriptManager : Singleton<ScriptManager>
 
 			if (info == null)
 			{
-				Log.outError(LogFilter.Sql, $"SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry {entry}");
+				Log.Logger.Error($"SystemMgr: DB table script_waypoint has waypoint for non-existant creature entry {entry}");
 
 				continue;
 			}
 
 			if (info.ScriptID == 0)
-				Log.outError(LogFilter.Sql, $"SystemMgr: DB table script_waypoint has waypoint for creature entry {entry}, but creature does not have ScriptName defined and then useless.");
+				Log.Logger.Error($"SystemMgr: DB table script_waypoint has waypoint for creature entry {entry}, but creature does not have ScriptName defined and then useless.");
 
 			if (!_waypointStore.ContainsKey(entry))
 				_waypointStore[entry] = new WaypointPath();
@@ -460,7 +460,7 @@ public class ScriptManager : Singleton<ScriptManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Script Waypoint nodes in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	private void LoadScriptSplineChains()
@@ -477,7 +477,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		if (resultMeta.IsEmpty() ||
 			resultWP.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded spline chain _data for 0 chains, consisting of 0 splines with 0 waypoints. DB tables `script_spline_chain_meta` and `script_spline_chain_waypoints` are empty.");
+			Log.Logger.Information("Loaded spline chain _data for 0 chains, consisting of 0 splines with 0 waypoints. DB tables `script_spline_chain_meta` and `script_spline_chain_waypoints` are empty.");
 		}
 		else
 		{
@@ -498,7 +498,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 				if (splineId != chain.Count)
 				{
-					Log.outWarn(LogFilter.ServerLoading, "Creature #{0}: Chain {1} has orphaned spline {2}, skipped.", entry, chainId, splineId);
+					Log.Logger.Warning("Creature #{0}: Chain {1} has orphaned spline {2}, skipped.", entry, chainId, splineId);
 
 					continue;
 				}
@@ -527,14 +527,14 @@ public class ScriptManager : Singleton<ScriptManager>
 
 				if (chain == null)
 				{
-					Log.outWarn(LogFilter.ServerLoading, "Creature #{0} has waypoint _data for spline chain {1}. No such chain exists - entry skipped.", entry, chainId);
+					Log.Logger.Warning("Creature #{0} has waypoint _data for spline chain {1}. No such chain exists - entry skipped.", entry, chainId);
 
 					continue;
 				}
 
 				if (splineId >= chain.Count)
 				{
-					Log.outWarn(LogFilter.ServerLoading, "Creature #{0} has waypoint _data for spline ({1},{2}). The specified chain does not have a spline with this index - entry skipped.", entry, chainId, splineId);
+					Log.Logger.Warning("Creature #{0} has waypoint _data for spline ({1},{2}). The specified chain does not have a spline with this index - entry skipped.", entry, chainId, splineId);
 
 					continue;
 				}
@@ -543,7 +543,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 				if (wpId != spline.Points.Count)
 				{
-					Log.outWarn(LogFilter.ServerLoading, "Creature #{0} has orphaned waypoint _data in spline ({1},{2}) at index {3}. Skipped.", entry, chainId, splineId, wpId);
+					Log.Logger.Warning("Creature #{0} has orphaned waypoint _data in spline ({1},{2}) at index {3}. Skipped.", entry, chainId, splineId, wpId);
 
 					continue;
 				}
@@ -552,7 +552,7 @@ public class ScriptManager : Singleton<ScriptManager>
 				++wpCount;
 			} while (resultWP.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 

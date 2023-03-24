@@ -45,14 +45,14 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (action.ActionType >= AreaTriggerActionTypes.Max)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_template_actions` has invalid ActionType ({action.ActionType}, IsServerSide: {areaTriggerId.IsServerSide}) for AreaTriggerId {areaTriggerId.Id} and Param {action.Param}");
+					Log.Logger.Error($"Table `areatrigger_template_actions` has invalid ActionType ({action.ActionType}, IsServerSide: {areaTriggerId.IsServerSide}) for AreaTriggerId {areaTriggerId.Id} and Param {action.Param}");
 
 					continue;
 				}
 
 				if (action.TargetType >= AreaTriggerActionUserTypes.Max)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_template_actions` has invalid TargetType ({action.TargetType}, IsServerSide: {areaTriggerId.IsServerSide}) for AreaTriggerId {areaTriggerId} and Param {action.Param}");
+					Log.Logger.Error($"Table `areatrigger_template_actions` has invalid TargetType ({action.TargetType}, IsServerSide: {areaTriggerId.IsServerSide}) for AreaTriggerId {areaTriggerId} and Param {action.Param}");
 
 					continue;
 				}
@@ -61,7 +61,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				if (action.ActionType == AreaTriggerActionTypes.Teleport)
 					if (Global.ObjectMgr.GetWorldSafeLoc(action.Param) == null)
 					{
-						Log.outError(LogFilter.Sql, $"Table `areatrigger_template_actions` has invalid (Id: {areaTriggerId}, IsServerSide: {areaTriggerId.IsServerSide}) with TargetType=Teleport and Param ({action.Param}) not a valid world safe loc entry");
+						Log.Logger.Error($"Table `areatrigger_template_actions` has invalid (Id: {areaTriggerId}, IsServerSide: {areaTriggerId.IsServerSide}) with TargetType=Teleport and Param ({action.Param}) not a valid world safe loc entry");
 
 						continue;
 					}
@@ -69,7 +69,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				actionsByAreaTrigger.Add(areaTriggerId, action);
 			} while (templateActions.NextRow());
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 AreaTrigger templates actions. DB table `areatrigger_template_actions` is empty.");
+			Log.Logger.Information("Loaded 0 AreaTrigger templates actions. DB table `areatrigger_template_actions` is empty.");
 
 		//                                           0                              1    2         3         4               5
 		var vertices = DB.World.Query("SELECT AreaTriggerCreatePropertiesId, Idx, VerticeX, VerticeY, VerticeTargetX, VerticeTargetY FROM `areatrigger_create_properties_polygon_vertex` ORDER BY `AreaTriggerCreatePropertiesId`, `Idx`");
@@ -84,10 +84,10 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				if (!vertices.IsNull(4) && !vertices.IsNull(5))
 					verticesTargetByCreateProperties.Add(areaTriggerCreatePropertiesId, new Vector2(vertices.Read<float>(4), vertices.Read<float>(5)));
 				else if (vertices.IsNull(4) != vertices.IsNull(5))
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties_polygon_vertex` has listed invalid target vertices (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}, Index: {vertices.Read<uint>(1)}).");
+					Log.Logger.Error($"Table `areatrigger_create_properties_polygon_vertex` has listed invalid target vertices (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}, Index: {vertices.Read<uint>(1)}).");
 			} while (vertices.NextRow());
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 AreaTrigger polygon polygon vertices. DB table `areatrigger_create_properties_polygon_vertex` is empty.");
+			Log.Logger.Information("Loaded 0 AreaTrigger polygon polygon vertices. DB table `areatrigger_create_properties_polygon_vertex` is empty.");
 
 		//                                         0                              1  2  3
 		var splines = DB.World.Query("SELECT AreaTriggerCreatePropertiesId, X, Y, Z FROM `areatrigger_create_properties_spline_point` ORDER BY `AreaTriggerCreatePropertiesId`, `Idx`");
@@ -101,7 +101,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				splinesByCreateProperties.Add(areaTriggerCreatePropertiesId, spline);
 			} while (splines.NextRow());
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 AreaTrigger splines. DB table `areatrigger_create_properties_spline_point` is empty.");
+			Log.Logger.Information("Loaded 0 AreaTrigger splines. DB table `areatrigger_create_properties_spline_point` is empty.");
 
 		//                                            0   1             2
 		var templates = DB.World.Query("SELECT Id, IsServerSide, Flags FROM `areatrigger_template`");
@@ -119,7 +119,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM areatrigger_template WHERE Id = {areaTriggerTemplate.Id}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `areatrigger_template` has listed server-side areatrigger (Id: {areaTriggerTemplate.Id.Id}, IsServerSide: {areaTriggerTemplate.Id.IsServerSide}) with none-zero flags");
+						Log.Logger.Error($"Table `areatrigger_template` has listed server-side areatrigger (Id: {areaTriggerTemplate.Id.Id}, IsServerSide: {areaTriggerTemplate.Id.IsServerSide}) with none-zero flags");
 
 					continue;
 				}
@@ -147,14 +147,14 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (areatriggerId != 0 && createProperties.Template == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties` reference invalid AreaTriggerId {areatriggerId} for AreaTriggerCreatePropertiesId {createProperties.Id}");
+					Log.Logger.Error($"Table `areatrigger_create_properties` reference invalid AreaTriggerId {areatriggerId} for AreaTriggerCreatePropertiesId {createProperties.Id}");
 
 					continue;
 				}
 
 				if (shape >= AreaTriggerTypes.Max)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties` has listed areatrigger create properties {createProperties.Id} with invalid shape {shape}.");
+					Log.Logger.Error($"Table `areatrigger_create_properties` has listed areatrigger create properties {createProperties.Id} with invalid shape {shape}.");
 
 					continue;
 				}
@@ -163,7 +163,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				{
 					if (value != 0 && !CliDB.CurveStorage.ContainsKey(value))
 					{
-						Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties` has listed areatrigger (AreaTriggerCreatePropertiesId: {createProperties.Id}, Id: {areatriggerId}) with invalid Curve ({value}), set to 0!");
+						Log.Logger.Error($"Table `areatrigger_create_properties` has listed areatrigger (AreaTriggerCreatePropertiesId: {createProperties.Id}, Id: {areatriggerId}) with invalid Curve ({value}), set to 0!");
 
 						return 0;
 					}
@@ -204,7 +204,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				_areaTriggerCreateProperties[createProperties.Id] = createProperties;
 			} while (areatriggerCreateProperties.NextRow());
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 AreaTrigger create properties. DB table `areatrigger_create_properties` is empty.");
+			Log.Logger.Information("Loaded 0 AreaTrigger create properties. DB table `areatrigger_create_properties` is empty.");
 
 		//                                                       0                               1           2             3                4             5        6                 7
 		var circularMovementInfos = DB.World.Query("SELECT AreaTriggerCreatePropertiesId, StartDelay, CircleRadius, BlendFromRadius, InitialAngle, ZOffset, CounterClockwise, CanLoop FROM `areatrigger_create_properties_orbit`");
@@ -218,7 +218,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (createProperties == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties_orbit` reference invalid AreaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}");
+					Log.Logger.Error($"Table `areatrigger_create_properties_orbit` reference invalid AreaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}");
 
 					continue;
 				}
@@ -230,7 +230,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (!float.IsFinite(orbitInfo.Radius))
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid Radius ({orbitInfo.Radius}), set to 0!");
+					Log.Logger.Error($"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid Radius ({orbitInfo.Radius}), set to 0!");
 					orbitInfo.Radius = 0.0f;
 				}
 
@@ -238,7 +238,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (!float.IsFinite(orbitInfo.BlendFromRadius))
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid BlendFromRadius ({orbitInfo.BlendFromRadius}), set to 0!");
+					Log.Logger.Error($"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid BlendFromRadius ({orbitInfo.BlendFromRadius}), set to 0!");
 					orbitInfo.BlendFromRadius = 0.0f;
 				}
 
@@ -246,7 +246,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (!float.IsFinite(orbitInfo.InitialAngle))
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid InitialAngle ({orbitInfo.InitialAngle}), set to 0!");
+					Log.Logger.Error($"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid InitialAngle ({orbitInfo.InitialAngle}), set to 0!");
 					orbitInfo.InitialAngle = 0.0f;
 				}
 
@@ -254,7 +254,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (!float.IsFinite(orbitInfo.ZOffset))
 				{
-					Log.outError(LogFilter.Sql, $"Table `spell_areatrigger_circular` has listed areatrigger (MiscId: {areaTriggerCreatePropertiesId}) with invalid ZOffset ({orbitInfo.ZOffset}), set to 0!");
+					Log.Logger.Error($"Table `spell_areatrigger_circular` has listed areatrigger (MiscId: {areaTriggerCreatePropertiesId}) with invalid ZOffset ({orbitInfo.ZOffset}), set to 0!");
 					orbitInfo.ZOffset = 0.0f;
 				}
 
@@ -264,9 +264,9 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				createProperties.OrbitInfo = orbitInfo;
 			} while (circularMovementInfos.NextRow());
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
+			Log.Logger.Information("Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void LoadAreaTriggerSpawns()
@@ -289,21 +289,21 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 				if (GetAreaTriggerTemplate(areaTriggerId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger` has listed areatrigger that doesn't exist: Id: {areaTriggerId.Id}, IsServerSide: {areaTriggerId.IsServerSide} for SpawnId {spawnId}");
+					Log.Logger.Error($"Table `areatrigger` has listed areatrigger that doesn't exist: Id: {areaTriggerId.Id}, IsServerSide: {areaTriggerId.IsServerSide} for SpawnId {spawnId}");
 
 					continue;
 				}
 
 				if (!GridDefines.IsValidMapCoord(location))
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.MapId}, Position: {location}");
+					Log.Logger.Error($"Table `areatrigger` has listed an invalid position: SpawnId: {spawnId}, MapId: {location.MapId}, Position: {location}");
 
 					continue;
 				}
 
 				if (shape >= AreaTriggerTypes.Max)
 				{
-					Log.outError(LogFilter.Sql, $"Table `areatrigger` has listed areatrigger SpawnId: {spawnId} with invalid shape {shape}.");
+					Log.Logger.Error($"Table `areatrigger` has listed areatrigger SpawnId: {spawnId} with invalid shape {shape}.");
 
 					continue;
 				}
@@ -344,7 +344,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				_areaTriggerSpawnsBySpawnId[spawnId] = spawn;
 			} while (templates.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public AreaTriggerTemplate GetAreaTriggerTemplate(AreaTriggerId areaTriggerId)
@@ -356,7 +356,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 	{
 		if (!_areaTriggerCreateProperties.TryGetValue(spellMiscValue, out var val))
 		{
-			Log.outWarn(LogFilter.ServerLoading, $"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
+			Log.Logger.Warning($"AreaTriggerCreateProperties did not exist for {spellMiscValue}. Using default area trigger properties.");
 			val = AreaTriggerCreateProperties.CreateDefault(spellMiscValue);
 			_areaTriggerCreateProperties[spellMiscValue] = val;
 		}

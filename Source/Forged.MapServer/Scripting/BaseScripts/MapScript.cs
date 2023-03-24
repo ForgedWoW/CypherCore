@@ -18,7 +18,7 @@ public class MapScript<T> : ScriptObject where T : Map
 		_mapEntry = CliDB.MapStorage.LookupByKey(mapId);
 
 		if (_mapEntry == null)
-			Log.outError(LogFilter.Scripts, "Invalid MapScript for {0}; no such map ID.", mapId);
+			Log.Logger.Error("Invalid MapScript for {0}; no such map ID.", mapId);
 	}
 
 	// Gets the MapEntry structure associated with this script. Can return NULL.

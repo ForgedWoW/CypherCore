@@ -3,6 +3,7 @@
 
 using System;
 using System.Net.Sockets;
+using Serilog;
 
 namespace Framework.Networking;
 
@@ -21,7 +22,7 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 
 		if (!Acceptor.Start(bindIp, port))
 		{
-			Log.outError(LogFilter.Network, "StartNetwork failed to Start AsyncAcceptor");
+			Log.Logger.Error("StartNetwork failed to Start AsyncAcceptor");
 
 			return false;
 		}
@@ -68,7 +69,7 @@ public class SocketManager<TSocketType> where TSocketType : ISocket
 		}
 		catch (Exception err)
 		{
-			Log.outException(err);
+			Log.Logger.Error(err, "");
 		}
 	}
 

@@ -65,7 +65,7 @@ public class CalendarManager : Singleton<CalendarManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} calendar events in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} calendar events in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		count = 0;
 		oldMSTime = Time.MSTime;
 
@@ -92,7 +92,7 @@ public class CalendarManager : Singleton<CalendarManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} calendar invites in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} calendar invites in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
 		for (ulong i = 1; i < _maxEventId; ++i)
 			if (GetEvent(i) == null)
@@ -245,7 +245,7 @@ public class CalendarManager : Singleton<CalendarManager>
 			if (calendarEvent.EventId == eventId)
 				return calendarEvent;
 
-		Log.outDebug(LogFilter.Calendar, "CalendarMgr:GetEvent: {0} not found!", eventId);
+		Log.Logger.Debug("CalendarMgr:GetEvent: {0} not found!", eventId);
 
 		return null;
 	}
@@ -256,7 +256,7 @@ public class CalendarManager : Singleton<CalendarManager>
 			if (calendarEvent.InviteId == inviteId)
 				return calendarEvent;
 
-		Log.outDebug(LogFilter.Calendar, "CalendarMgr:GetInvite: {0} not found!", inviteId);
+		Log.Logger.Debug("CalendarMgr:GetInvite: {0} not found!", inviteId);
 
 		return null;
 	}

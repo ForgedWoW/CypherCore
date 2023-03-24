@@ -165,7 +165,7 @@ public class Arena : Battleground
 					winnerMatchmakerChange = winnerArenaTeam.WonAgainst(winnerMatchmakerRating, loserMatchmakerRating, ref winnerChange);
 					loserMatchmakerChange = loserArenaTeam.LostAgainst(loserMatchmakerRating, winnerMatchmakerRating, ref loserChange);
 
-					Log.outDebug(LogFilter.Arena,
+					Log.Logger.Debug(
 								"match Type: {0} --- Winner: old rating: {1}, rating gain: {2}, old MMR: {3}, MMR gain: {4} --- Loser: old rating: {5}, " +
 								"rating loss: {6}, old MMR: {7}, MMR loss: {8} ---",
 								GetArenaType(),
@@ -189,7 +189,7 @@ public class Arena : Battleground
 					_arenaTeamScores[winnerTeam].Assign(winnerTeamRating, (uint)(winnerTeamRating + winnerChange), winnerMatchmakerRating, GetArenaMatchmakerRating(winner));
 					_arenaTeamScores[loserTeam].Assign(loserTeamRating, (uint)(loserTeamRating + loserChange), loserMatchmakerRating, GetArenaMatchmakerRating(GetOtherTeam(winner)));
 
-					Log.outDebug(LogFilter.Arena,
+					Log.Logger.Debug(
 								"Arena match Type: {0} for Team1Id: {1} - Team2Id: {2} ended. WinnerTeamId: {3}. Winner rating: +{4}, Loser rating: {5}",
 								GetArenaType(),
 								GetArenaTeamIdByIndex(TeamIds.Alliance),
@@ -204,7 +204,7 @@ public class Arena : Battleground
 							var player = Global.ObjAccessor.FindPlayer(score.Key);
 
 							if (player)
-								Log.outDebug(LogFilter.Arena,
+								Log.Logger.Debug(
 											"Statistics match Type: {0} for {1} (GUID: {2}, Team: {3}, IP: {4}): {5}",
 											GetArenaType(),
 											player.GetName(),

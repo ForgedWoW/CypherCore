@@ -24,7 +24,7 @@ public partial class WorldSession
 
 		if (!pet)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"Critter {0} does not exist - player '{1}' ({2} / account: {3}) attempted to dismiss it (possibly lagged out)",
 						packet.CritterGUID.ToString(),
 						Player.GetName(),
@@ -58,14 +58,14 @@ public partial class WorldSession
 
 		if (!pet)
 		{
-			Log.outError(LogFilter.Network, "HandlePetAction: {0} doesn't exist for {1}", guid1.ToString(), Player.GUID.ToString());
+			Log.Logger.Error("HandlePetAction: {0} doesn't exist for {1}", guid1.ToString(), Player.GUID.ToString());
 
 			return;
 		}
 
 		if (pet != Player.GetFirstControlled())
 		{
-			Log.outError(LogFilter.Network, "HandlePetAction: {0} does not belong to {1}", guid1.ToString(), Player.GUID.ToString());
+			Log.Logger.Error("HandlePetAction: {0} does not belong to {1}", guid1.ToString(), Player.GUID.ToString());
 
 			return;
 		}
@@ -110,14 +110,14 @@ public partial class WorldSession
 
 		if (!pet)
 		{
-			Log.outError(LogFilter.Network, "HandlePetStopAttack: {0} does not exist", packet.PetGUID.ToString());
+			Log.Logger.Error("HandlePetStopAttack: {0} does not exist", packet.PetGUID.ToString());
 
 			return;
 		}
 
 		if (pet != Player.CurrentPet && pet != Player.Charmed)
 		{
-			Log.outError(LogFilter.Network, "HandlePetStopAttack: {0} isn't a pet or charmed creature of player {1}", packet.PetGUID.ToString(), Player.GetName());
+			Log.Logger.Error("HandlePetStopAttack: {0} isn't a pet or charmed creature of player {1}", packet.PetGUID.ToString(), Player.GetName());
 
 			return;
 		}
@@ -134,7 +134,7 @@ public partial class WorldSession
 
 		if (charmInfo == null)
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"WorldSession.HandlePetAction(petGuid: {0}, tagGuid: {1}, spellId: {2}, flag: {3}): object (GUID: {4} Entry: {5} TypeId: {6}) is considered pet-like but doesn't have a charminfo!",
 						guid1,
 						guid2,
@@ -275,7 +275,7 @@ public partial class WorldSession
 
 						break;
 					default:
-						Log.outError(LogFilter.Network, "WORLD: unknown PET flag Action {0} and spellid {1}.", flag, spellid);
+						Log.Logger.Error("WORLD: unknown PET flag Action {0} and spellid {1}.", flag, spellid);
 
 						break;
 				}
@@ -310,7 +310,7 @@ public partial class WorldSession
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Network, "WORLD: unknown PET spell id {0}", spellid);
+					Log.Logger.Error("WORLD: unknown PET spell id {0}", spellid);
 
 					return;
 				}
@@ -427,7 +427,7 @@ public partial class WorldSession
 				break;
 			}
 			default:
-				Log.outError(LogFilter.Network, "WORLD: unknown PET flag Action {0} and spellid {1}.", flag, spellid);
+				Log.Logger.Error("WORLD: unknown PET flag Action {0} and spellid {1}.", flag, spellid);
 
 				break;
 		}
@@ -476,7 +476,7 @@ public partial class WorldSession
 		{
 			if (!Player.IsGameMaster && !Player.HasAuraType(AuraType.OpenStable))
 			{
-				Log.outDebug(LogFilter.Network, "{0} attempt open stable in cheating way.", guid.ToString());
+				Log.Logger.Debug("{0} attempt open stable in cheating way.", guid.ToString());
 
 				return false;
 			}
@@ -486,7 +486,7 @@ public partial class WorldSession
 		{
 			if (!Player.GetNPCIfCanInteractWith(guid, NPCFlags.StableMaster, NPCFlags2.None))
 			{
-				Log.outDebug(LogFilter.Network, "Stablemaster {0} not found or you can't interact with him.", guid.ToString());
+				Log.Logger.Debug("Stablemaster {0} not found or you can't interact with him.", guid.ToString());
 
 				return false;
 			}
@@ -503,7 +503,7 @@ public partial class WorldSession
 
 		if (!pet || pet != Player.GetFirstControlled())
 		{
-			Log.outError(LogFilter.Network, "HandlePetSetAction: Unknown {0} or pet owner {1}", petguid.ToString(), Player.GUID.ToString());
+			Log.Logger.Error("HandlePetSetAction: Unknown {0} or pet owner {1}", petguid.ToString(), Player.GUID.ToString());
 
 			return;
 		}
@@ -512,7 +512,7 @@ public partial class WorldSession
 
 		if (charmInfo == null)
 		{
-			Log.outError(LogFilter.Network, "WorldSession.HandlePetSetAction: {0} is considered pet-like but doesn't have a charminfo!", pet.GUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetSetAction: {0} is considered pet-like but doesn't have a charminfo!", pet.GUID.ToString());
 
 			return;
 		}
@@ -529,7 +529,7 @@ public partial class WorldSession
 		var spell_id = UnitActionBarEntry.UNIT_ACTION_BUTTON_ACTION(actionData);
 		var act_state = (ActiveStates)UnitActionBarEntry.UNIT_ACTION_BUTTON_TYPE(actionData);
 
-		Log.outDebug(LogFilter.Network, "Player {0} has changed pet spell action. Position: {1}, Spell: {2}, State: {3}", Player.GetName(), position, spell_id, act_state);
+		Log.Logger.Debug("Player {0} has changed pet spell action. Position: {1}, Spell: {2}, State: {3}", Player.GetName(), position, spell_id, act_state);
 
 		foreach (var petControlled in pets)
 			//if it's act for spell (en/disable/cast) and there is a spell given (0 = remove spell) which pet doesn't know, don't add
@@ -660,14 +660,14 @@ public partial class WorldSession
 
 		if (!pet)
 		{
-			Log.outError(LogFilter.Network, "WorldSession.HandlePetSpellAutocast: {0} not found.", packet.PetGUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetSpellAutocast: {0} not found.", packet.PetGUID.ToString());
 
 			return;
 		}
 
 		if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"WorldSession.HandlePetSpellAutocast: {0} isn't pet of player {1} ({2}).",
 						packet.PetGUID.ToString(),
 						Player.GetName(),
@@ -680,7 +680,7 @@ public partial class WorldSession
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Network, "WorldSession.HandlePetSpellAutocast: Unknown spell id {0} used by {1}.", packet.SpellID, packet.PetGUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetSpellAutocast: Unknown spell id {0} used by {1}.", packet.SpellID, packet.PetGUID.ToString());
 
 			return;
 		}
@@ -701,7 +701,7 @@ public partial class WorldSession
 
 			if (charmInfo == null)
 			{
-				Log.outError(LogFilter.Network, "WorldSession.HandlePetSpellAutocastOpcod: object {0} is considered pet-like but doesn't have a charminfo!", petControlled.GUID.ToString());
+				Log.Logger.Error("WorldSession.HandlePetSpellAutocastOpcod: object {0} is considered pet-like but doesn't have a charminfo!", petControlled.GUID.ToString());
 
 				return;
 			}
@@ -722,7 +722,7 @@ public partial class WorldSession
 
 		if (!caster)
 		{
-			Log.outError(LogFilter.Network, "WorldSession.HandlePetCastSpell: Caster {0} not found.", petCastSpell.PetGUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetCastSpell: Caster {0} not found.", petCastSpell.PetGUID.ToString());
 
 			return;
 		}
@@ -731,7 +731,7 @@ public partial class WorldSession
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Network, "WorldSession.HandlePetCastSpell: unknown spell id {0} tried to cast by {1}", petCastSpell.Cast.SpellID, petCastSpell.PetGUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetCastSpell: unknown spell id {0} tried to cast by {1}", petCastSpell.Cast.SpellID, petCastSpell.PetGUID.ToString());
 
 			return;
 		}
@@ -739,7 +739,7 @@ public partial class WorldSession
 		// This opcode is also sent from charmed and possessed units (players and creatures)
 		if (caster != Player.GetGuardianPet() && caster != Player.Charmed)
 		{
-			Log.outError(LogFilter.Network, "WorldSession.HandlePetCastSpell: {0} isn't pet of player {1} ({2}).", petCastSpell.PetGUID.ToString(), Player.GetName(), Player.GUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetCastSpell: {0} isn't pet of player {1} ({2}).", petCastSpell.PetGUID.ToString(), Player.GetName(), Player.GUID.ToString());
 
 			return;
 		}

@@ -36,7 +36,7 @@ public partial class WorldSession
 
 		if (trainer == null)
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: SendTrainerList - trainer spells not found for trainer {npc.GUID} id {trainerId}");
+			Log.Logger.Debug($"WORLD: SendTrainerList - trainer spells not found for trainer {npc.GUID} id {trainerId}");
 
 			return;
 		}
@@ -106,7 +106,7 @@ public partial class WorldSession
 
 		if (vendor == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: SendListInventory - {0} not found or you can not interact with him.", vendorGuid.ToString());
+			Log.Logger.Debug("WORLD: SendListInventory - {0} not found or you can not interact with him.", vendorGuid.ToString());
 			Player.SendSellError(SellResult.CantFindVendor, null, ObjectGuid.Empty);
 
 			return;
@@ -172,7 +172,7 @@ public partial class WorldSession
 
 				if (!Global.ConditionMgr.IsObjectMeetingVendorItemConditions(vendor.Entry, vendorItem.Item, _player, vendor))
 				{
-					Log.outDebug(LogFilter.Condition, "SendListInventory: conditions not met for creature entry {0} item {1}", vendor.Entry, vendorItem.Item);
+					Log.Logger.Debug("SendListInventory: conditions not met for creature entry {0} item {1}", vendor.Entry, vendorItem.Item);
 
 					continue;
 				}
@@ -245,7 +245,7 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleTabardVendorActivateOpcode - {0} not found or you can not interact with him.", packet.Unit.ToString());
+			Log.Logger.Debug("WORLD: HandleTabardVendorActivateOpcode - {0} not found or you can not interact with him.", packet.Unit.ToString());
 
 			return;
 		}
@@ -264,7 +264,7 @@ public partial class WorldSession
 
 		if (!npc)
 		{
-			Log.outDebug(LogFilter.Network, $"WorldSession.SendTrainerList - {packet.Unit} not found or you can not interact with him.");
+			Log.Logger.Debug($"WorldSession.SendTrainerList - {packet.Unit} not found or you can not interact with him.");
 
 			return;
 		}
@@ -274,7 +274,7 @@ public partial class WorldSession
 		if (trainerId != 0)
 			SendTrainerList(npc, trainerId);
 		else
-			Log.outDebug(LogFilter.Network, $"WorldSession.SendTrainerList - Creature id {npc.Entry} has no trainer data.");
+			Log.Logger.Debug($"WorldSession.SendTrainerList - Creature id {npc.Entry} has no trainer data.");
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TrainerBuySpell, Processing = PacketProcessing.Inplace)]
@@ -284,7 +284,7 @@ public partial class WorldSession
 
 		if (npc == null)
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleTrainerBuySpell - {packet.TrainerGUID} not found or you can not interact with him.");
+			Log.Logger.Debug($"WORLD: HandleTrainerBuySpell - {packet.TrainerGUID} not found or you can not interact with him.");
 
 			return;
 		}
@@ -324,7 +324,7 @@ public partial class WorldSession
 
 		if (unit == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleGossipHello - {0} not found or you can not interact with him.", packet.Unit.ToString());
+			Log.Logger.Debug("WORLD: HandleGossipHello - {0} not found or you can not interact with him.", packet.Unit.ToString());
 
 			return;
 		}
@@ -389,7 +389,7 @@ public partial class WorldSession
 
 			if (unit == null)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: HandleGossipSelectOption - {0} not found or you can't interact with him.", packet.GossipUnit.ToString());
+				Log.Logger.Debug("WORLD: HandleGossipSelectOption - {0} not found or you can't interact with him.", packet.GossipUnit.ToString());
 
 				return;
 			}
@@ -400,14 +400,14 @@ public partial class WorldSession
 
 			if (go == null)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: HandleGossipSelectOption - {0} not found or you can't interact with it.", packet.GossipUnit.ToString());
+				Log.Logger.Debug("WORLD: HandleGossipSelectOption - {0} not found or you can't interact with it.", packet.GossipUnit.ToString());
 
 				return;
 			}
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleGossipSelectOption - unsupported {0}.", packet.GossipUnit.ToString());
+			Log.Logger.Debug("WORLD: HandleGossipSelectOption - unsupported {0}.", packet.GossipUnit.ToString());
 
 			return;
 		}
@@ -418,7 +418,7 @@ public partial class WorldSession
 
 		if ((unit && unit.GetScriptId() != unit.LastUsedScriptID) || (go != null && go.ScriptId != go.LastUsedScriptID))
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleGossipSelectOption - Script reloaded while in use, ignoring and set new scipt id");
+			Log.Logger.Debug("WORLD: HandleGossipSelectOption - Script reloaded while in use, ignoring and set new scipt id");
 
 			if (unit != null)
 				unit.LastUsedScriptID = unit.GetScriptId();
@@ -466,7 +466,7 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleSpiritHealerActivateOpcode - {0} not found or you can not interact with him.", packet.Healer.ToString());
+			Log.Logger.Debug("WORLD: HandleSpiritHealerActivateOpcode - {0} not found or you can not interact with him.", packet.Healer.ToString());
 
 			return;
 		}
@@ -514,7 +514,7 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleBinderActivate - {0} not found or you can not interact with him.", packet.Unit.ToString());
+			Log.Logger.Debug("WORLD: HandleBinderActivate - {0} not found or you can not interact with him.", packet.Unit.ToString());
 
 			return;
 		}
@@ -734,7 +734,7 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleRepairItemOpcode - {0} not found or you can not interact with him.", packet.NpcGUID.ToString());
+			Log.Logger.Debug("WORLD: HandleRepairItemOpcode - {0} not found or you can not interact with him.", packet.NpcGUID.ToString());
 
 			return;
 		}
@@ -748,7 +748,7 @@ public partial class WorldSession
 
 		if (!packet.ItemGUID.IsEmpty)
 		{
-			Log.outDebug(LogFilter.Network, "ITEM: Repair {0}, at {1}", packet.ItemGUID.ToString(), packet.NpcGUID.ToString());
+			Log.Logger.Debug("ITEM: Repair {0}, at {1}", packet.ItemGUID.ToString(), packet.NpcGUID.ToString());
 
 			var item = Player.GetItemByGuid(packet.ItemGUID);
 
@@ -757,7 +757,7 @@ public partial class WorldSession
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Network, "ITEM: Repair all items at {0}", packet.NpcGUID.ToString());
+			Log.Logger.Debug("ITEM: Repair all items at {0}", packet.NpcGUID.ToString());
 			Player.DurabilityRepairAll(true, discountMod, packet.UseGuildBank);
 		}
 	}

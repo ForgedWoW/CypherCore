@@ -408,7 +408,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 CypherStrings. DB table `trinity_string` is empty.");
+			Log.Logger.Information("Loaded 0 CypherStrings. DB table `trinity_string` is empty.");
 
 			return false;
 		}
@@ -426,7 +426,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				AddLocaleString(result.Read<string>((int)i + 1).ConvertFormatSyntax(), i, _cypherStringStorage[entry]);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} CypherStrings in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} CypherStrings in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 
 		return true;
 	}
@@ -453,21 +453,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (raceEntry == null)
 				{
-					Log.outError(LogFilter.Sql, "Race {0} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
+					Log.Logger.Error("Race {0} defined in `race_unlock_requirement` does not exists, skipped.", raceID);
 
 					continue;
 				}
 
 				if (expansion >= (int)Expansion.MaxAccountExpansions)
 				{
-					Log.outError(LogFilter.Sql, "Race {0} defined in `race_unlock_requirement` has incorrect expansion {1}, skipped.", raceID, expansion);
+					Log.Logger.Error("Race {0} defined in `race_unlock_requirement` has incorrect expansion {1}, skipped.", raceID, expansion);
 
 					continue;
 				}
 
 				if (achievementId != 0 && !CliDB.AchievementStorage.ContainsKey(achievementId))
 				{
-					Log.outError(LogFilter.Sql, $"Race {raceID} defined in `race_unlock_requirement` has incorrect achievement {achievementId}, skipped.");
+					Log.Logger.Error($"Race {raceID} defined in `race_unlock_requirement` has incorrect achievement {achievementId}, skipped.");
 
 					continue;
 				}
@@ -481,11 +481,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} race expansion requirements in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} race expansion requirements in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
+			Log.Logger.Information("Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
 		}
 
 		oldMSTime = Time.MSTime;
@@ -512,7 +512,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (classEntry == null)
 				{
-					Log.outError(LogFilter.Sql, $"Class {classID} (race {raceID}) defined in `class_expansion_requirement` does not exists, skipped.");
+					Log.Logger.Error($"Class {classID} (race {raceID}) defined in `class_expansion_requirement` does not exists, skipped.");
 
 					continue;
 				}
@@ -521,21 +521,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (raceEntry == null)
 				{
-					Log.outError(LogFilter.Sql, $"Race {raceID} (class {classID}) defined in `class_expansion_requirement` does not exists, skipped.");
+					Log.Logger.Error($"Race {raceID} (class {classID}) defined in `class_expansion_requirement` does not exists, skipped.");
 
 					continue;
 				}
 
 				if (activeExpansionLevel >= (int)Expansion.Max)
 				{
-					Log.outError(LogFilter.Sql, $"Class {classID} Race {raceID} defined in `class_expansion_requirement` has incorrect ActiveExpansionLevel {activeExpansionLevel}, skipped.");
+					Log.Logger.Error($"Class {classID} Race {raceID} defined in `class_expansion_requirement` has incorrect ActiveExpansionLevel {activeExpansionLevel}, skipped.");
 
 					continue;
 				}
 
 				if (accountExpansionLevel >= (int)Expansion.MaxAccountExpansions)
 				{
-					Log.outError(LogFilter.Sql, $"Class {classID} Race {raceID} defined in `class_expansion_requirement` has incorrect AccountExpansionLevel {accountExpansionLevel}, skipped.");
+					Log.Logger.Error($"Class {classID} Race {raceID} defined in `class_expansion_requirement` has incorrect AccountExpansionLevel {accountExpansionLevel}, skipped.");
 
 					continue;
 				}
@@ -568,11 +568,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				_classExpansionRequirementStorage.Add(raceClassAvailability);
 			}
 
-			Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} class expansion requirements in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+			Log.Logger.Information($"Loaded {count} class expansion requirements in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 		}
 		else
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
+			Log.Logger.Information("Loaded 0 class expansion requirements. DB table `class_expansion_requirement` is empty.");
 		}
 	}
 
@@ -586,7 +586,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 realm names. DB table `realmlist` is empty.");
+			Log.Logger.Information("Loaded 0 realm names. DB table `realmlist` is empty.");
 
 			return;
 		}
@@ -603,14 +603,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} realm names in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} realm names in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public string GetCypherString(uint entry, Locale locale = Locale.enUS)
 	{
 		if (!_cypherStringStorage.ContainsKey(entry))
 		{
-			Log.outError(LogFilter.Sql, "Cypher string entry {0} not found in DB.", entry);
+			Log.Logger.Error("Cypher string entry {0} not found in DB.", entry);
 
 			return "<Error>";
 		}
@@ -709,7 +709,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gossip_menu entries. DB table `gossip_menu` is empty!");
+			Log.Logger.Information("Loaded 0 gossip_menu entries. DB table `gossip_menu` is empty!");
 
 			return;
 		}
@@ -726,7 +726,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
 				else
-					Log.outError(LogFilter.Sql, "Table gossip_menu: Id {0} is using non-existing TextId {1}", gMenu.MenuId, gMenu.TextId);
+					Log.Logger.Error("Table gossip_menu: Id {0} is using non-existing TextId {1}", gMenu.MenuId, gMenu.TextId);
 
 				continue;
 			}
@@ -734,7 +734,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_gossipMenusStorage.Add(gMenu.MenuId, gMenu);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} gossip_menu Ids in {1} ms", _gossipMenusStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gossip_menu Ids in {1} ms", _gossipMenusStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGossipMenuItems()
@@ -750,7 +750,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gossip_menu_option Ids. DB table `gossip_menu_option` is empty!");
+			Log.Logger.Information("Loaded 0 gossip_menu_option Ids. DB table `gossip_menu_option` is empty!");
 
 			return;
 		}
@@ -791,7 +791,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (gMenuItem.OptionNpc >= GossipOptionNpc.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} has unknown NPC option id {gMenuItem.OptionNpc}. Replacing with GossipOptionNpc.None");
+				Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} has unknown NPC option id {gMenuItem.OptionNpc}. Replacing with GossipOptionNpc.None");
 				gMenuItem.OptionNpc = GossipOptionNpc.None;
 			}
 
@@ -801,7 +801,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
+						Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
 
 					gMenuItem.OptionBroadcastTextId = 0;
 				}
@@ -811,7 +811,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 				else
-					Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
+					Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
 
 				gMenuItem.Language = 0;
 			}
@@ -821,7 +821,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 				else
-					Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
+					Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
 
 				gMenuItem.ActionMenuId = 0;
 			}
@@ -833,7 +833,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
+						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
 
 					gMenuItem.ActionPoiId = 0;
 				}
@@ -842,7 +842,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
+						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
 
 					gMenuItem.ActionPoiId = 0;
 				}
@@ -855,7 +855,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
+						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
 
 					gMenuItem.GossipNpcOptionId = null;
 				}
@@ -874,7 +874,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
+						Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
 
 					gMenuItem.BoxBroadcastTextId = 0;
 				}
@@ -885,7 +885,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
+						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
 
 					gMenuItem.SpellId = null;
 				}
@@ -893,7 +893,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_gossipMenuItemsStorage.Add(gMenuItem.MenuId, gMenuItem);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_gossipMenuItemsStorage.Count} gossip_menu_option entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_gossipMenuItemsStorage.Count} gossip_menu_option entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadGossipMenuAddon()
@@ -907,7 +907,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gossip_menu_addon IDs. DB table `gossip_menu_addon` is empty!");
+			Log.Logger.Information("Loaded 0 gossip_menu_addon IDs. DB table `gossip_menu_addon` is empty!");
 
 			return;
 		}
@@ -924,20 +924,20 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (!CliDB.FriendshipReputationStorage.ContainsKey(faction.FriendshipRepID))
 				{
-					Log.outError(LogFilter.Sql, $"Table gossip_menu_addon: ID {menuID} is using FriendshipFactionID {addon.FriendshipFactionId} referencing non-existing FriendshipRepID {faction.FriendshipRepID}");
+					Log.Logger.Error($"Table gossip_menu_addon: ID {menuID} is using FriendshipFactionID {addon.FriendshipFactionId} referencing non-existing FriendshipRepID {faction.FriendshipRepID}");
 					addon.FriendshipFactionId = 0;
 				}
 			}
 			else
 			{
-				Log.outError(LogFilter.Sql, $"Table gossip_menu_addon: ID {menuID} is using non-existing FriendshipFactionID {addon.FriendshipFactionId}");
+				Log.Logger.Error($"Table gossip_menu_addon: ID {menuID} is using non-existing FriendshipFactionID {addon.FriendshipFactionId}");
 				addon.FriendshipFactionId = 0;
 			}
 
 			_gossipMenuAddonStorage[menuID] = addon;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_gossipMenuAddonStorage.Count} gossip_menu_addon IDs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_gossipMenuAddonStorage.Count} gossip_menu_addon IDs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadPointsOfInterest()
@@ -951,7 +951,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
+			Log.Logger.Information("Loaded 0 Points of Interest definitions. DB table `points_of_interest` is empty.");
 
 			return;
 		}
@@ -973,7 +973,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!GridDefines.IsValidMapCoord(POI.Pos.X, POI.Pos.Y, POI.Pos.Z))
 			{
-				Log.outError(LogFilter.Sql, $"Table `points_of_interest` (ID: {id}) have invalid coordinates (PositionX: {POI.Pos.X} PositionY: {POI.Pos.Y} PositionZ: {POI.Pos.Z}), ignored.");
+				Log.Logger.Error($"Table `points_of_interest` (ID: {id}) have invalid coordinates (PositionX: {POI.Pos.X} PositionY: {POI.Pos.Y} PositionZ: {POI.Pos.Z}), ignored.");
 
 				continue;
 			}
@@ -983,7 +983,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} Points of Interest definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} Points of Interest definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<GossipMenus> GetGossipMenusMapBounds(uint uiMenuId)
@@ -1017,7 +1017,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 graveyard-zone links. DB table `graveyard_zone` is empty.");
+			Log.Logger.Information("Loaded 0 graveyard-zone links. DB table `graveyard_zone` is empty.");
 
 			return;
 		}
@@ -1035,7 +1035,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (entry == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `graveyard_zone` has a record for not existing graveyard (WorldSafeLocs.dbc id) {0}, skipped.", safeLocId);
+				Log.Logger.Error("Table `graveyard_zone` has a record for not existing graveyard (WorldSafeLocs.dbc id) {0}, skipped.", safeLocId);
 
 				continue;
 			}
@@ -1044,23 +1044,23 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (areaEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `graveyard_zone` has a record for not existing zone id ({0}), skipped.", zoneId);
+				Log.Logger.Error("Table `graveyard_zone` has a record for not existing zone id ({0}), skipped.", zoneId);
 
 				continue;
 			}
 
 			if (team != 0 && team != TeamFaction.Horde && team != TeamFaction.Alliance)
 			{
-				Log.outError(LogFilter.Sql, "Table `graveyard_zone` has a record for non player faction ({0}), skipped.", team);
+				Log.Logger.Error("Table `graveyard_zone` has a record for non player faction ({0}), skipped.", team);
 
 				continue;
 			}
 
 			if (!AddGraveYardLink(safeLocId, zoneId, team, false))
-				Log.outError(LogFilter.Sql, "Table `graveyard_zone` has a duplicate record for Graveyard (ID: {0}) and Zone (ID: {1}), skipped.", safeLocId, zoneId);
+				Log.Logger.Error("Table `graveyard_zone` has a duplicate record for Graveyard (ID: {0}) and Zone (ID: {1}), skipped.", safeLocId, zoneId);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} graveyard-zone links in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} graveyard-zone links in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadWorldSafeLocs()
@@ -1072,7 +1072,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 world locations. DB table `world_safe_locs` is empty.");
+			Log.Logger.Information("Loaded 0 world locations. DB table `world_safe_locs` is empty.");
 
 			return;
 		}
@@ -1084,7 +1084,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!GridDefines.IsValidMapCoord(loc))
 			{
-				Log.outError(LogFilter.Sql, $"World location (ID: {id}) has a invalid position MapID: {loc.MapId} {loc}, skipped");
+				Log.Logger.Error($"World location (ID: {id}) has a invalid position MapID: {loc.MapId} {loc}, skipped");
 
 				continue;
 			}
@@ -1095,7 +1095,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_worldSafeLocs[id] = worldSafeLocs;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_worldSafeLocs.Count} world locations {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_worldSafeLocs.Count} world locations {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public WorldSafeLocsEntry GetDefaultGraveYard(TeamFaction team)
@@ -1117,7 +1117,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (zoneId == 0)
 			if (location.Z > -500)
 			{
-				Log.outError(LogFilter.Server, "ZoneId not found for map {0} coords ({1}, {2}, {3})", MapId, location.X, location.Y, location.Z);
+				Log.Logger.Error("ZoneId not found for map {0} coords ({1}, {2}, {3})", MapId, location.X, location.Y, location.Z);
 
 				return GetDefaultGraveYard(team);
 			}
@@ -1138,7 +1138,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (range.Empty() && !mapEntry.IsBattlegroundOrArena())
 		{
 			if (zoneId != 0) // zone == 0 can't be fixed, used by bliz for bugged zones
-				Log.outError(LogFilter.Sql, "Table `game_graveyard_zone` incomplete: Zone {0} Team {1} does not have a linked graveyard.", zoneId, team);
+				Log.Logger.Error("Table `game_graveyard_zone` incomplete: Zone {0} Team {1} does not have a linked graveyard.", zoneId, team);
 
 			return GetDefaultGraveYard(team);
 		}
@@ -1162,7 +1162,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (entry == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `game_graveyard_zone` has record for not existing graveyard (WorldSafeLocs.dbc id) {0}, skipped.", data.safeLocId);
+				Log.Logger.Error("Table `game_graveyard_zone` has record for not existing graveyard (WorldSafeLocs.dbc id) {0}, skipped.", data.safeLocId);
 
 				continue;
 			}
@@ -1296,7 +1296,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (range.Empty())
 		{
-			Log.outError(LogFilter.Sql, "Table `game_graveyard_zone` incomplete: Zone {0} Team {1} does not have a linked graveyard.", zoneId, team);
+			Log.Logger.Error("Table `game_graveyard_zone` incomplete: Zone {0} Team {1} does not have a linked graveyard.", zoneId, team);
 
 			return;
 		}
@@ -1350,7 +1350,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 areatrigger scripts. DB table `areatrigger_scripts` is empty.");
+			Log.Logger.Information("Loaded 0 areatrigger scripts. DB table `areatrigger_scripts` is empty.");
 
 			return;
 		}
@@ -1366,7 +1366,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (atEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Area trigger (Id:{0}) does not exist in `AreaTrigger.dbc`.", id);
+				Log.Logger.Error("Area trigger (Id:{0}) does not exist in `AreaTrigger.dbc`.", id);
 
 				continue;
 			}
@@ -1386,7 +1386,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (areaTriggerScript == null)
 				{
-					Log.outError(LogFilter.Scripts, "Functions LoadAreaTriggerScripts() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+					Log.Logger.Error("Functions LoadAreaTriggerScripts() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
 					valid = false;
 				}
 
@@ -1403,7 +1403,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			return false;
 		});
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} areatrigger scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} areatrigger scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellScripts()
@@ -1418,7 +1418,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (spellInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `spell_scripts` has not existing spell (Id: {0}) as script id", spellId);
+				Log.Logger.Error("Table `spell_scripts` has not existing spell (Id: {0}) as script id", spellId);
 
 				continue;
 			}
@@ -1427,14 +1427,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (spellEffIndex >= spellInfo.Effects.Count)
 			{
-				Log.outError(LogFilter.Sql, $"Table `spell_scripts` has too high effect index {spellEffIndex} for spell (Id: {spellId}) as script id");
+				Log.Logger.Error($"Table `spell_scripts` has too high effect index {spellEffIndex} for spell (Id: {spellId}) as script id");
 
 				continue;
 			}
 
 			//check for correct spellEffect
 			if (spellInfo.GetEffect(spellEffIndex).Effect == 0 || (spellInfo.GetEffect(spellEffIndex).Effect != SpellEffectName.ScriptEffect && spellInfo.GetEffect(spellEffIndex).Effect != SpellEffectName.Dummy))
-				Log.outError(LogFilter.Sql, $"Table `spell_scripts` - spell {spellId} effect {spellEffIndex} is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY");
+				Log.Logger.Error($"Table `spell_scripts` - spell {spellId} effect {spellEffIndex} is not SPELL_EFFECT_SCRIPT_EFFECT or SPELL_EFFECT_DUMMY");
 		}
 	}
 
@@ -1483,7 +1483,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var id = evt_scripts.Find(p => p == script.Key);
 
 			if (id == 0)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Table `event_scripts` has script (Id: {0}) not referring to any gameobject_template type 10 data2 field, type 3 data6 field, type 13 data 2 field or any spell effect {1}",
 							script.Key,
 							SpellEffectName.SendEvent);
@@ -1512,7 +1512,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			} while (result.NextRow());
 
 		foreach (var id in actionSet)
-			Log.outError(LogFilter.Sql, "There is no waypoint which links to the waypoint script {0}", id);
+			Log.Logger.Error("There is no waypoint which links to the waypoint script {0}", id);
 	}
 
 	public bool RegisterSpellScript(int spellId, string scriptName)
@@ -1534,7 +1534,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.ServerLoading, "Scriptname: `{0}` spell (Id: {1}) does not exist.", scriptName, spellId);
+			Log.Logger.Error("Scriptname: `{0}` spell (Id: {1}) does not exist.", scriptName, spellId);
 
 			return false;
 		}
@@ -1542,7 +1542,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (allRanks)
 		{
 			if (!spellInfo.IsRanked)
-				Log.outDebug(LogFilter.ServerLoading, "Scriptname: `{0}` spell (Id: {1}) has no ranks of spell.", scriptName, spellId);
+				Log.Logger.Debug("Scriptname: `{0}` spell (Id: {1}) has no ranks of spell.", scriptName, spellId);
 
 			while (spellInfo != null)
 			{
@@ -1553,7 +1553,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		else
 		{
 			if (spellInfo.IsRanked)
-				Log.outDebug(LogFilter.ServerLoading, "Scriptname: `{0}` spell (Id: {1}) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
+				Log.Logger.Debug("Scriptname: `{0}` spell (Id: {1}) is ranked spell. Perhaps not all ranks are assigned to this script.", scriptName, spellId);
 
 			_spellScriptsStorage.AddUnique(spellInfo.Id, GetScriptId(scriptName));
 		}
@@ -1578,7 +1578,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell script names. DB table `spell_script_names` is empty!");
+			Log.Logger.Information("Loaded 0 spell script names. DB table `spell_script_names` is empty!");
 
 			return;
 		}
@@ -1594,7 +1594,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void ValidateSpellScripts()
@@ -1603,7 +1603,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (_spellScriptsStorage.Empty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Validated 0 scripts.");
+			Log.Logger.Information("Validated 0 scripts.");
 
 			return;
 		}
@@ -1623,7 +1623,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (spellScript == null)
 				{
-					Log.outError(LogFilter.Scripts, "Functions GetSpellScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+					Log.Logger.Error("Functions GetSpellScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
 					valid = false;
 				}
 
@@ -1649,7 +1649,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (auraScript == null)
 				{
-					Log.outError(LogFilter.Scripts, "Functions GetAuraScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
+					Log.Logger.Error("Functions GetAuraScript() of script `{0}` do not return object - script skipped", GetScriptName(pair.Value));
 					valid = false;
 				}
 
@@ -1671,7 +1671,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			return false;
 		});
 
-		Log.outInfo(LogFilter.ServerLoading, "Validated {0} scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Validated {0} scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 
@@ -1751,7 +1751,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creatures. DB table `creature_template` is empty.");
+			Log.Logger.Information("Loaded 0 creatures. DB table `creature_template` is empty.");
 
 			return;
 		}
@@ -1773,7 +1773,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var template in _creatureTemplateStorage.Values)
 			CheckCreatureTemplate(template);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature definitions in {1} ms", _creatureTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creature definitions in {1} ms", _creatureTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureTemplate(SQLFields fields)
@@ -1889,7 +1889,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
+			Log.Logger.Information("Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
 
 			return;
 		}
@@ -1905,7 +1905,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 				else
-					Log.outError(LogFilter.Sql, $"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_addon`");
+					Log.Logger.Error($"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_addon`");
 
 				continue;
 			}
@@ -1940,20 +1940,20 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
-						Log.outError(LogFilter.Sql, $"Creature (Entry: {entry}) has wrong spell {spellId} defined in `auras` field in `creature_template_addon`.");
+						Log.Logger.Error($"Creature (Entry: {entry}) has wrong spell {spellId} defined in `auras` field in `creature_template_addon`.");
 
 					continue;
 				}
 
 				if (AdditionalSpellInfo.HasAura(AuraType.ControlVehicle))
-					Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has SPELL_AURA_CONTROL_VEHICLE aura {spellId} defined in `auras` field in `creature_template_addon`.");
+					Log.Logger.Debug($"Creature (Entry: {entry}) has SPELL_AURA_CONTROL_VEHICLE aura {spellId} defined in `auras` field in `creature_template_addon`.");
 
 				if (creatureAddon.Auras.Contains(spellId))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
-						Log.outError(LogFilter.Sql, $"Creature (Entry: {entry}) has duplicate aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
+						Log.Logger.Error($"Creature (Entry: {entry}) has duplicate aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
 
 					continue;
 				}
@@ -1963,7 +1963,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
-						Log.outError(LogFilter.Sql, $"Creature (Entry: {entry}) has temporary aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
+						Log.Logger.Error($"Creature (Entry: {entry}) has temporary aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
 
 					continue;
 				}
@@ -1974,25 +1974,25 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (creatureAddon.Mount != 0)
 				if (CliDB.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.Mount) == null)
 				{
-					Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creature_template_addon`");
+					Log.Logger.Debug($"Creature (Entry: {entry}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creature_template_addon`");
 					creatureAddon.Mount = 0;
 				}
 
 			if (creatureAddon.StandState >= (int)UnitStandStateType.Max)
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid unit stand state ({creatureAddon.StandState}) defined in `creature_template_addon`. Truncated to 0.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid unit stand state ({creatureAddon.StandState}) defined in `creature_template_addon`. Truncated to 0.");
 				creatureAddon.StandState = 0;
 			}
 
 			if (creatureAddon.AnimTier >= (int)AnimTier.Max)
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid animation tier ({creatureAddon.AnimTier}) defined in `creature_template_addon`. Truncated to 0.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid animation tier ({creatureAddon.AnimTier}) defined in `creature_template_addon`. Truncated to 0.");
 				creatureAddon.AnimTier = 0;
 			}
 
 			if (creatureAddon.SheathState >= (int)SheathState.Max)
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid sheath state ({creatureAddon.SheathState}) defined in `creature_template_addon`. Truncated to 0.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid sheath state ({creatureAddon.SheathState}) defined in `creature_template_addon`. Truncated to 0.");
 				creatureAddon.SheathState = 0;
 			}
 
@@ -2000,31 +2000,31 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
 				creatureAddon.Emote = 0;
 			}
 
 			if (creatureAddon.AiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_template_addon`.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_template_addon`.");
 				creatureAddon.AiAnimKit = 0;
 			}
 
 			if (creatureAddon.MovementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_template_addon`.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_template_addon`.");
 				creatureAddon.MovementAnimKit = 0;
 			}
 
 			if (creatureAddon.MeleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_template_addon`.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_template_addon`.");
 				creatureAddon.MeleeAnimKit = 0;
 			}
 
 			if (creatureAddon.VisibilityDistanceType >= VisibilityDistanceType.Max)
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {entry}) has invalid visibilityDistanceType ({creatureAddon.VisibilityDistanceType}) defined in `creature_template_addon`.");
+				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid visibilityDistanceType ({creatureAddon.VisibilityDistanceType}) defined in `creature_template_addon`.");
 				creatureAddon.VisibilityDistanceType = VisibilityDistanceType.Normal;
 			}
 
@@ -2032,7 +2032,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} creature template addons in {Time.GetMSTimeDiffToNow(time)} ms");
+		Log.Logger.Information($"Loaded {count} creature template addons in {Time.GetMSTimeDiffToNow(time)} ms");
 	}
 
 	public void LoadCreatureAddons()
@@ -2043,7 +2043,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
+			Log.Logger.Information("Loaded 0 creature addon definitions. DB table `creature_addon` is empty.");
 
 			return;
 		}
@@ -2060,7 +2060,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_addon WHERE guid = {guid}");
 				else
-					Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) does not exist but has a record in `creatureaddon`");
+					Log.Logger.Error($"Creature (GUID: {guid}) does not exist but has a record in `creatureaddon`");
 
 				continue;
 			}
@@ -2072,7 +2072,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (creData.MovementType == (byte)MovementGeneratorType.Waypoint && creatureAddon.PathId == 0)
 			{
 				creData.MovementType = (byte)MovementGeneratorType.Idle;
-				Log.outError(LogFilter.Sql, $"Creature (GUID {guid}) has movement type set to WAYPOINTMOTIONTYPE but no path assigned");
+				Log.Logger.Error($"Creature (GUID {guid}) has movement type set to WAYPOINTMOTIONTYPE but no path assigned");
 			}
 
 			creatureAddon.Mount = result.Read<uint>(2);
@@ -2100,24 +2100,24 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (AdditionalSpellInfo == null)
 				{
-					Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has wrong spell {spellId} defined in `auras` field in `creatureaddon`.");
+					Log.Logger.Error($"Creature (GUID: {guid}) has wrong spell {spellId} defined in `auras` field in `creatureaddon`.");
 
 					continue;
 				}
 
 				if (AdditionalSpellInfo.HasAura(AuraType.ControlVehicle))
-					Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has SPELL_AURA_CONTROL_VEHICLE aura {spellId} defined in `auras` field in `creature_addon`.");
+					Log.Logger.Error($"Creature (GUID: {guid}) has SPELL_AURA_CONTROL_VEHICLE aura {spellId} defined in `auras` field in `creature_addon`.");
 
 				if (creatureAddon.Auras.Contains(spellId))
 				{
-					Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has duplicate aura (spell {spellId}) in `auras` field in `creature_addon`.");
+					Log.Logger.Error($"Creature (GUID: {guid}) has duplicate aura (spell {spellId}) in `auras` field in `creature_addon`.");
 
 					continue;
 				}
 
 				if (AdditionalSpellInfo.Duration > 0)
 				{
-					Log.outDebug(LogFilter.Sql, $"Creature (GUID: {guid}) has temporary aura (spell {spellId}) in `auras` field in `creature_addon`.");
+					Log.Logger.Debug($"Creature (GUID: {guid}) has temporary aura (spell {spellId}) in `auras` field in `creature_addon`.");
 
 					continue;
 				}
@@ -2128,25 +2128,25 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (creatureAddon.Mount != 0)
 				if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.Mount))
 				{
-					Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creatureaddon`");
+					Log.Logger.Error($"Creature (GUID: {guid}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creatureaddon`");
 					creatureAddon.Mount = 0;
 				}
 
 			if (creatureAddon.StandState >= (int)UnitStandStateType.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid unit stand state ({creatureAddon.StandState}) defined in `creature_addon`. Truncated to 0.");
+				Log.Logger.Error($"Creature (GUID: {guid}) has invalid unit stand state ({creatureAddon.StandState}) defined in `creature_addon`. Truncated to 0.");
 				creatureAddon.StandState = 0;
 			}
 
 			if (creatureAddon.AnimTier >= (int)AnimTier.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid animation tier ({creatureAddon.AnimTier}) defined in `creature_addon`. Truncated to 0.");
+				Log.Logger.Error($"Creature (GUID: {guid}) has invalid animation tier ({creatureAddon.AnimTier}) defined in `creature_addon`. Truncated to 0.");
 				creatureAddon.AnimTier = 0;
 			}
 
 			if (creatureAddon.SheathState >= (int)SheathState.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid sheath state ({creatureAddon.SheathState}) defined in `creature_addon`. Truncated to 0.");
+				Log.Logger.Error($"Creature (GUID: {guid}) has invalid sheath state ({creatureAddon.SheathState}) defined in `creature_addon`. Truncated to 0.");
 				creatureAddon.SheathState = 0;
 			}
 
@@ -2154,32 +2154,32 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
 			{
-				Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
+				Log.Logger.Error($"Creature (GUID: {guid}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
 				creatureAddon.Emote = 0;
 			}
 
 
 			if (creatureAddon.AiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
 			{
-				Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_addon`.");
+				Log.Logger.Error($"Creature (Guid: {guid}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_addon`.");
 				creatureAddon.AiAnimKit = 0;
 			}
 
 			if (creatureAddon.MovementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
 			{
-				Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_addon`.");
+				Log.Logger.Error($"Creature (Guid: {guid}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_addon`.");
 				creatureAddon.MovementAnimKit = 0;
 			}
 
 			if (creatureAddon.MeleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
 			{
-				Log.outError(LogFilter.Sql, $"Creature (Guid: {guid}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_addon`.");
+				Log.Logger.Error($"Creature (Guid: {guid}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_addon`.");
 				creatureAddon.MeleeAnimKit = 0;
 			}
 
 			if (creatureAddon.VisibilityDistanceType >= VisibilityDistanceType.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Creature (GUID: {guid}) has invalid visibilityDistanceType ({creatureAddon.VisibilityDistanceType}) defined in `creature_addon`.");
+				Log.Logger.Error($"Creature (GUID: {guid}) has invalid visibilityDistanceType ({creatureAddon.VisibilityDistanceType}) defined in `creature_addon`.");
 				creatureAddon.VisibilityDistanceType = VisibilityDistanceType.Normal;
 			}
 
@@ -2187,7 +2187,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} creature addons in {Time.GetMSTimeDiffToNow(time)} ms");
+		Log.Logger.Information($"Loaded {count} creature addons in {Time.GetMSTimeDiffToNow(time)} ms");
 	}
 
 	public void LoadCreatureQuestItems()
@@ -2199,7 +2199,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature quest items. DB table `creature_questitem` is empty.");
+			Log.Logger.Information("Loaded 0 creature quest items. DB table `creature_questitem` is empty.");
 
 			return;
 		}
@@ -2217,14 +2217,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_questitem WHERE CreatureEntry = {entry}");
 				else
-					Log.outError(LogFilter.Sql, "Table `creature_questitem` has data for nonexistent creature (entry: {0}, idx: {1}), skipped", entry, idx);
+					Log.Logger.Error("Table `creature_questitem` has data for nonexistent creature (entry: {0}, idx: {1}), skipped", entry, idx);
 
 				continue;
 			}
 
 			if (!CliDB.ItemStorage.ContainsKey(item))
 			{
-				Log.outError(LogFilter.Sql, "Table `creature_questitem` has nonexistent item (ID: {0}) in creature (entry: {1}, idx: {2}), skipped", item, entry, idx);
+				Log.Logger.Error("Table `creature_questitem` has nonexistent item (ID: {0}) in creature (entry: {1}, idx: {2}), skipped", item, entry, idx);
 
 				continue;
 			}
@@ -2234,7 +2234,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature quest items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature quest items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadEquipmentTemplates()
@@ -2249,7 +2249,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature equipment templates. DB table `creature_equip_template` is empty!");
+			Log.Logger.Information("Loaded 0 creature equipment templates. DB table `creature_equip_template` is empty!");
 
 			return;
 		}
@@ -2265,7 +2265,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_equip_template WHERE CreatureID = {entry}");
 				else
-					Log.outError(LogFilter.Sql, "Creature template (CreatureID: {0}) does not exist but has a record in `creature_equip_template`", entry);
+					Log.Logger.Error("Creature template (CreatureID: {0}) does not exist but has a record in `creature_equip_template`", entry);
 
 				continue;
 			}
@@ -2287,7 +2287,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (dbcItem == null)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Unknown item (ID: {0}) in creature_equip_template.ItemID{1} for CreatureID  = {2}, forced to 0.",
 								equipmentInfo.Items[i].ItemId,
 								i + 1,
@@ -2300,7 +2300,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (Global.DB2Mgr.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId) == null)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Unknown item appearance for (ID: {0}, AppearanceModID: {1}) pair in creature_equip_template.ItemID{2} creature_equip_template.AppearanceModID{3} " +
 								"for CreatureID: {4} and ID: {5}, forced to default.",
 								equipmentInfo.Items[i].ItemId,
@@ -2330,7 +2330,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					dbcItem.inventoryType != InventoryType.Thrown &&
 					dbcItem.inventoryType != InventoryType.RangedRight)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Item (ID {0}) in creature_equip_template.ItemID{1} for CreatureID  = {2} is not equipable in a hand, forced to 0.",
 								equipmentInfo.Items[i].ItemId,
 								i + 1,
@@ -2344,7 +2344,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} equipment templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} equipment templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureMovementOverrides()
@@ -2359,7 +2359,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature movement overrides. DB table `creature_movement_override` is empty!");
+			Log.Logger.Information("Loaded 0 creature movement overrides. DB table `creature_movement_override` is empty!");
 
 			return;
 		}
@@ -2373,7 +2373,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_movement_override WHERE SpawnId = {spawnId}");
 				else
-					Log.outError(LogFilter.Sql, $"Creature (GUID: {spawnId}) does not exist but has a record in `creature_movement_override`");
+					Log.Logger.Error($"Creature (GUID: {spawnId}) does not exist but has a record in `creature_movement_override`");
 
 				continue;
 			}
@@ -2406,7 +2406,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_creatureMovementOverrides[spawnId] = movement;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_creatureMovementOverrides.Count} movement overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_creatureMovementOverrides.Count} movement overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadCreatureClassLevelStats()
@@ -2420,7 +2420,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
+			Log.Logger.Information("Loaded 0 creature base stats. DB table `creature_classlevelstats` is empty.");
 
 			return;
 		}
@@ -2433,7 +2433,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var _class = result.Read<byte>(1);
 
 			if (_class == 0 || ((1 << (_class - 1)) & (int)PlayerClass.ClassMaskAllCreatures) == 0)
-				Log.outError(LogFilter.Sql, "Creature base stats for level {0} has invalid class {1}", Level, _class);
+				Log.Logger.Error("Creature base stats for level {0} has invalid class {1}", Level, _class);
 
 			CreatureBaseStats stats = new();
 
@@ -2449,9 +2449,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var creatureTemplate in _creatureTemplateStorage.Values)
 			for (var lvl = creatureTemplate.Minlevel; lvl <= creatureTemplate.Maxlevel; ++lvl)
 				if (_creatureBaseStatsStorage.LookupByKey(MathFunctions.MakePair16((uint)lvl, creatureTemplate.UnitClass)) == null)
-					Log.outError(LogFilter.Sql, "Missing base stats for creature class {0} level {1}", creatureTemplate.UnitClass, lvl);
+					Log.Logger.Error("Missing base stats for creature class {0} level {1}", creatureTemplate.UnitClass, lvl);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature base stats in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creature base stats in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureModelInfo()
@@ -2461,7 +2461,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature model definitions. DB table `creaturemodelinfo` is empty.");
+			Log.Logger.Information("Loaded 0 creature model definitions. DB table `creaturemodelinfo` is empty.");
 
 			return;
 		}
@@ -2482,7 +2482,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (creatureDisplay == null)
 			{
-				Log.outDebug(LogFilter.Sql, "Table `creature_model_info` has a non-existent DisplayID (ID: {0}). Skipped.", displayId);
+				Log.Logger.Debug("Table `creature_model_info` has a non-existent DisplayID (ID: {0}). Skipped.", displayId);
 
 				continue;
 			}
@@ -2499,7 +2499,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (modelInfo.DisplayIdOtherGender != 0 && !CliDB.CreatureDisplayInfoStorage.ContainsKey(modelInfo.DisplayIdOtherGender))
 			{
-				Log.outDebug(LogFilter.Sql, "Table `creature_model_info` has a non-existent DisplayID_Other_Gender (ID: {0}) being used by DisplayID (ID: {1}).", modelInfo.DisplayIdOtherGender, displayId);
+				Log.Logger.Debug("Table `creature_model_info` has a non-existent DisplayID_Other_Gender (ID: {0}) being used by DisplayID (ID: {1}).", modelInfo.DisplayIdOtherGender, displayId);
 				modelInfo.DisplayIdOtherGender = 0;
 			}
 
@@ -2521,7 +2521,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature model based info in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creature model based info in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureScalingData()
@@ -2533,7 +2533,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature template scaling definitions. DB table `creature_template_scaling` is empty.");
+			Log.Logger.Information("Loaded 0 creature template scaling definitions. DB table `creature_template_scaling` is empty.");
 
 			return;
 		}
@@ -2552,7 +2552,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_template_scaling WHERE entry = {entry}");
 				else
-					Log.outError(LogFilter.Sql, $"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_scaling`");
+					Log.Logger.Error($"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_scaling`");
 
 				continue;
 			}
@@ -2567,7 +2567,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} creature template scaling data in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} creature template scaling data in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void CheckCreatureTemplate(CreatureTemplate cInfo)
@@ -2588,7 +2588,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (difficultyInfo == null)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}) has `difficulty_entry_{1}`={2} but creature entry {3} does not exist.",
 							cInfo.Entry,
 							diff + 1,
@@ -2606,7 +2606,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (_difficultyEntries[diff2].Contains(cInfo.Entry))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Creature (Entry: {0}) is listed as `difficulty_entry_{1}` of another creature, but itself lists {2} in `difficulty_entry_{3}`.",
 								cInfo.Entry,
 								diff2 + 1,
@@ -2618,14 +2618,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (_difficultyEntries[diff2].Contains(cInfo.DifficultyEntry[diff]))
 				{
-					Log.outError(LogFilter.Sql, "Creature (Entry: {0}) already listed as `difficulty_entry_{1}` for another entry.", cInfo.DifficultyEntry[diff], diff2 + 1);
+					Log.Logger.Error("Creature (Entry: {0}) already listed as `difficulty_entry_{1}` for another entry.", cInfo.DifficultyEntry[diff], diff2 + 1);
 
 					continue;
 				}
 
 				if (_hasDifficultyEntries[diff2].Contains(cInfo.DifficultyEntry[diff]))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Creature (Entry: {0}) has `difficulty_entry_{1}`={2} but creature entry {3} has itself a value in `difficulty_entry_{4}`.",
 								cInfo.Entry,
 								diff + 1,
@@ -2643,7 +2643,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				continue;
 
 			if (cInfo.HealthScalingExpansion > difficultyInfo.HealthScalingExpansion)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Id: {0}, Expansion {1}) has different `HealthScalingExpansion` in difficulty {2} mode (Id: {3}, Expansion: {4}).",
 							cInfo.Entry,
 							cInfo.HealthScalingExpansion,
@@ -2652,7 +2652,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							difficultyInfo.HealthScalingExpansion);
 
 			if (cInfo.Minlevel > difficultyInfo.Minlevel)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, minlevel: {1}) has lower `minlevel` in difficulty {2} mode (Entry: {3}, minlevel: {4}).",
 							cInfo.Entry,
 							cInfo.Minlevel,
@@ -2661,7 +2661,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							difficultyInfo.Minlevel);
 
 			if (cInfo.Maxlevel > difficultyInfo.Maxlevel)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, maxlevel: {1}) has lower `maxlevel` in difficulty {2} mode (Entry: {3}, maxlevel: {4}).",
 							cInfo.Entry,
 							cInfo.Maxlevel,
@@ -2670,7 +2670,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							difficultyInfo.Maxlevel);
 
 			if (cInfo.Faction != difficultyInfo.Faction)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, faction: {1}) has different `faction` in difficulty {2} mode (Entry: {3}, faction: {4}).",
 							cInfo.Entry,
 							cInfo.Faction,
@@ -2680,7 +2680,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo.UnitClass != difficultyInfo.UnitClass)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, class: {1}) has different `unit_class` in difficulty {2} mode (Entry: {3}, class: {4}).",
 							cInfo.Entry,
 							cInfo.UnitClass,
@@ -2693,15 +2693,15 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo.Npcflag != difficultyInfo.Npcflag)
 			{
-				Log.outError(LogFilter.Sql, "Creature (Entry: {0}) has different `npcflag` in difficulty {1} mode (Entry: {2}).", cInfo.Entry, diff + 1, cInfo.DifficultyEntry[diff]);
-				Log.outError(LogFilter.Sql, "Possible FIX: UPDATE `creature_template` SET `npcflag`=`npcflag`^{0} WHERE `entry`={1};", cInfo.Npcflag ^ difficultyInfo.Npcflag, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Creature (Entry: {0}) has different `npcflag` in difficulty {1} mode (Entry: {2}).", cInfo.Entry, diff + 1, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `npcflag`=`npcflag`^{0} WHERE `entry`={1};", cInfo.Npcflag ^ difficultyInfo.Npcflag, cInfo.DifficultyEntry[diff]);
 
 				continue;
 			}
 
 			if (cInfo.DmgSchool != difficultyInfo.DmgSchool)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, `dmgschool`: {1}) has different `dmgschool` in difficulty {2} mode (Entry: {3}, `dmgschool`: {4}).",
 							cInfo.Entry,
 							cInfo.DmgSchool,
@@ -2709,12 +2709,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							cInfo.DifficultyEntry[diff],
 							difficultyInfo.DmgSchool);
 
-				Log.outError(LogFilter.Sql, "Possible FIX: UPDATE `creature_template` SET `dmgschool`={0} WHERE `entry`={1};", cInfo.DmgSchool, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `dmgschool`={0} WHERE `entry`={1};", cInfo.DmgSchool, cInfo.DifficultyEntry[diff]);
 			}
 
 			if (cInfo.UnitFlags2 != difficultyInfo.UnitFlags2)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, `unit_flags2`: {1}) has different `unit_flags2` in difficulty {2} mode (Entry: {3}, `unit_flags2`: {4}).",
 							cInfo.Entry,
 							cInfo.UnitFlags2,
@@ -2722,11 +2722,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							cInfo.DifficultyEntry[diff],
 							difficultyInfo.UnitFlags2);
 
-				Log.outError(LogFilter.Sql, "Possible FIX: UPDATE `creature_template` SET `unit_flags2`=`unit_flags2`^{0} WHERE `entry`={1};", cInfo.UnitFlags2 ^ difficultyInfo.UnitFlags2, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `unit_flags2`=`unit_flags2`^{0} WHERE `entry`={1};", cInfo.UnitFlags2 ^ difficultyInfo.UnitFlags2, cInfo.DifficultyEntry[diff]);
 			}
 
 			if (cInfo.Family != difficultyInfo.Family)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, family: {1}) has different `family` in difficulty {2} mode (Entry: {3}, family: {4}).",
 							cInfo.Entry,
 							cInfo.Family,
@@ -2736,13 +2736,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo.TrainerClass != difficultyInfo.TrainerClass)
 			{
-				Log.outError(LogFilter.Sql, "Creature (Entry: {0}) has different `trainer_class` in difficulty {1} mode (Entry: {2}).", cInfo.Entry, diff + 1, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Creature (Entry: {0}) has different `trainer_class` in difficulty {1} mode (Entry: {2}).", cInfo.Entry, diff + 1, cInfo.DifficultyEntry[diff]);
 
 				continue;
 			}
 
 			if (cInfo.CreatureType != difficultyInfo.CreatureType)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, type: {1}) has different `type` in difficulty {2} mode (Entry: {3}, type: {4}).",
 							cInfo.Entry,
 							cInfo.CreatureType,
@@ -2751,7 +2751,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							difficultyInfo.CreatureType);
 
 			if (cInfo.VehicleId == 0 && difficultyInfo.VehicleId != 0)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Non-vehicle Creature (Entry: {0}, VehicleId: {1}) has `VehicleId` set in difficulty {2} mode (Entry: {3}, VehicleId: {4}).",
 							cInfo.Entry,
 							cInfo.VehicleId,
@@ -2761,7 +2761,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo.RegenHealth != difficultyInfo.RegenHealth)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, RegenHealth: {1}) has different `RegenHealth` in difficulty {2} mode (Entry: {3}, RegenHealth: {4}).",
 							cInfo.Entry,
 							cInfo.RegenHealth,
@@ -2769,14 +2769,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							cInfo.DifficultyEntry[diff],
 							difficultyInfo.RegenHealth);
 
-				Log.outError(LogFilter.Sql, "Possible FIX: UPDATE `creature_template` SET `RegenHealth`={0} WHERE `entry`={1};", cInfo.RegenHealth, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `RegenHealth`={0} WHERE `entry`={1};", cInfo.RegenHealth, cInfo.DifficultyEntry[diff]);
 			}
 
 			var differenceMask = cInfo.MechanicImmuneMask & (~difficultyInfo.MechanicImmuneMask);
 
 			if (differenceMask != 0)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, mechanic_immune_mask: {1}) has weaker immunities in difficulty {2} mode (Entry: {3}, mechanic_immune_mask: {4}).",
 							cInfo.Entry,
 							cInfo.MechanicImmuneMask,
@@ -2784,14 +2784,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							cInfo.DifficultyEntry[diff],
 							difficultyInfo.MechanicImmuneMask);
 
-				Log.outError(LogFilter.Sql, "Possible FIX: UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
 			}
 
 			differenceMask = (uint)((cInfo.FlagsExtra ^ difficultyInfo.FlagsExtra) & (~CreatureFlagsExtra.InstanceBind));
 
 			if (differenceMask != 0)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}, flags_extra: {1}) has different `flags_extra` in difficulty {2} mode (Entry: {3}, flags_extra: {4}).",
 							cInfo.Entry,
 							cInfo.FlagsExtra,
@@ -2799,12 +2799,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							cInfo.DifficultyEntry[diff],
 							difficultyInfo.FlagsExtra);
 
-				Log.outError(LogFilter.Sql, "Possible FIX: UPDATE `creature_template` SET `flags_extra`=`flags_extra`^{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `flags_extra`=`flags_extra`^{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
 			}
 
 			if (difficultyInfo.AIName.IsEmpty())
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}) lists difficulty {1} mode entry {2} with `AIName` filled in. `AIName` of difficulty 0 mode creature is always used instead.",
 							cInfo.Entry,
 							diff + 1,
@@ -2815,7 +2815,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (difficultyInfo.ScriptID != 0)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Creature (Entry: {0}) lists difficulty {1} mode entry {2} with `ScriptName` filled in. `ScriptName` of difficulty 0 mode creature is always used instead.",
 							cInfo.Entry,
 							diff + 1,
@@ -2831,13 +2831,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (cInfo.MinGold > cInfo.MaxGold)
 		{
-			Log.outTrace(LogFilter.Sql, $"Creature (Entry: {cInfo.Entry}) has `mingold` {cInfo.MinGold} which is greater than `maxgold` {cInfo.MaxGold}, setting `maxgold` to {cInfo.MinGold}.");
+			Log.Logger.Verbose($"Creature (Entry: {cInfo.Entry}) has `mingold` {cInfo.MinGold} which is greater than `maxgold` {cInfo.MaxGold}, setting `maxgold` to {cInfo.MinGold}.");
 			cInfo.MaxGold = cInfo.MinGold;
 		}
 
 		if (!CliDB.FactionTemplateStorage.ContainsKey(cInfo.Faction))
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has non-existing faction template ({1}). This can lead to crashes, set to faction 35", cInfo.Entry, cInfo.Faction);
+			Log.Logger.Verbose("Creature (Entry: {0}) has non-existing faction template ({1}). This can lead to crashes, set to faction 35", cInfo.Entry, cInfo.Faction);
 			cInfo.Faction = 35;
 		}
 
@@ -2845,22 +2845,22 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (cInfo.KillCredit[k] != 0)
 				if (GetCreatureTemplate(cInfo.KillCredit[k]) == null)
 				{
-					Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) lists non-existing creature entry {1} in `KillCredit{2}`.", cInfo.Entry, cInfo.KillCredit[k], k + 1);
+					Log.Logger.Verbose("Creature (Entry: {0}) lists non-existing creature entry {1} in `KillCredit{2}`.", cInfo.Entry, cInfo.KillCredit[k], k + 1);
 					cInfo.KillCredit[k] = 0;
 				}
 
 		if (cInfo.Models.Empty())
-			Log.outError(LogFilter.Sql, $"Creature (Entry: {cInfo.Entry}) does not have any existing display id in creature_template_model.");
+			Log.Logger.Error($"Creature (Entry: {cInfo.Entry}) does not have any existing display id in creature_template_model.");
 
 		if (cInfo.UnitClass == 0 || ((1 << ((int)cInfo.UnitClass - 1)) & (int)PlayerClass.ClassMaskAllCreatures) == 0)
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has invalid unit_class ({1}) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo.Entry, cInfo.UnitClass);
+			Log.Logger.Verbose("Creature (Entry: {0}) has invalid unit_class ({1}) in creature_template. Set to 1 (UNIT_CLASS_WARRIOR).", cInfo.Entry, cInfo.UnitClass);
 			cInfo.UnitClass = (uint)PlayerClass.Warrior;
 		}
 
 		if (cInfo.DmgSchool >= (uint)SpellSchools.Max)
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has invalid spell school value ({1}) in `dmgschool`.", cInfo.Entry, cInfo.DmgSchool);
+			Log.Logger.Verbose("Creature (Entry: {0}) has invalid spell school value ({1}) in `dmgschool`.", cInfo.Entry, cInfo.DmgSchool);
 			cInfo.DmgSchool = (uint)SpellSchools.Normal;
 		}
 
@@ -2872,25 +2872,25 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (cInfo.SpeedWalk == 0.0f)
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has wrong value ({1}) in speed_walk, set to 1.", cInfo.Entry, cInfo.SpeedWalk);
+			Log.Logger.Verbose("Creature (Entry: {0}) has wrong value ({1}) in speed_walk, set to 1.", cInfo.Entry, cInfo.SpeedWalk);
 			cInfo.SpeedWalk = 1.0f;
 		}
 
 		if (cInfo.SpeedRun == 0.0f)
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has wrong value ({1}) in speed_run, set to 1.14286.", cInfo.Entry, cInfo.SpeedRun);
+			Log.Logger.Verbose("Creature (Entry: {0}) has wrong value ({1}) in speed_run, set to 1.14286.", cInfo.Entry, cInfo.SpeedRun);
 			cInfo.SpeedRun = 1.14286f;
 		}
 
 		if (cInfo.CreatureType != 0 && !CliDB.CreatureTypeStorage.ContainsKey((uint)cInfo.CreatureType))
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has invalid creature type ({1}) in `type`.", cInfo.Entry, cInfo.CreatureType);
+			Log.Logger.Verbose("Creature (Entry: {0}) has invalid creature type ({1}) in `type`.", cInfo.Entry, cInfo.CreatureType);
 			cInfo.CreatureType = CreatureType.Humanoid;
 		}
 
 		if (cInfo.Family != 0 && !CliDB.CreatureFamilyStorage.ContainsKey(cInfo.Family))
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has invalid creature family ({1}) in `family`.", cInfo.Entry, cInfo.Family);
+			Log.Logger.Verbose("Creature (Entry: {0}) has invalid creature family ({1}) in `family`.", cInfo.Entry, cInfo.Family);
 			cInfo.Family = CreatureFamily.None;
 		}
 
@@ -2898,39 +2898,39 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (cInfo.HoverHeight < 0.0f)
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has wrong value ({1}) in `HoverHeight`", cInfo.Entry, cInfo.HoverHeight);
+			Log.Logger.Verbose("Creature (Entry: {0}) has wrong value ({1}) in `HoverHeight`", cInfo.Entry, cInfo.HoverHeight);
 			cInfo.HoverHeight = 1.0f;
 		}
 
 		if (cInfo.VehicleId != 0)
 			if (!CliDB.VehicleStorage.ContainsKey(cInfo.VehicleId))
 			{
-				Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has a non-existing VehicleId ({1}). This *WILL* cause the client to freeze!", cInfo.Entry, cInfo.VehicleId);
+				Log.Logger.Verbose("Creature (Entry: {0}) has a non-existing VehicleId ({1}). This *WILL* cause the client to freeze!", cInfo.Entry, cInfo.VehicleId);
 				cInfo.VehicleId = 0;
 			}
 
 		for (byte j = 0; j < SharedConst.MaxCreatureSpells; ++j)
 			if (cInfo.Spells[j] != 0 && !Global.SpellMgr.HasSpellInfo(cInfo.Spells[j], Difficulty.None))
 			{
-				Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has non-existing Spell{1} ({2}), set to 0.", cInfo.Entry, j + 1, cInfo.Spells[j]);
+				Log.Logger.Verbose("Creature (Entry: {0}) has non-existing Spell{1} ({2}), set to 0.", cInfo.Entry, j + 1, cInfo.Spells[j]);
 				cInfo.Spells[j] = 0;
 			}
 
 		if (cInfo.MovementType >= (uint)MovementGeneratorType.MaxDB)
 		{
-			Log.outTrace(LogFilter.Sql, "Creature (Entry: {0}) has wrong movement generator type ({1}), ignored and set to IDLE.", cInfo.Entry, cInfo.MovementType);
+			Log.Logger.Verbose("Creature (Entry: {0}) has wrong movement generator type ({1}), ignored and set to IDLE.", cInfo.Entry, cInfo.MovementType);
 			cInfo.MovementType = (uint)MovementGeneratorType.Idle;
 		}
 
 		if (cInfo.HealthScalingExpansion < (int)Expansion.LevelCurrent || cInfo.HealthScalingExpansion >= (int)Expansion.Max)
 		{
-			Log.outTrace(LogFilter.Sql, "Table `creature_template` lists creature (Id: {0}) with invalid `HealthScalingExpansion` {1}. Ignored and set to 0.", cInfo.Entry, cInfo.HealthScalingExpansion);
+			Log.Logger.Verbose("Table `creature_template` lists creature (Id: {0}) with invalid `HealthScalingExpansion` {1}. Ignored and set to 0.", cInfo.Entry, cInfo.HealthScalingExpansion);
 			cInfo.HealthScalingExpansion = 0;
 		}
 
 		if (cInfo.RequiredExpansion > (int)Expansion.Max)
 		{
-			Log.outTrace(LogFilter.Sql, "Table `creature_template` lists creature (Entry: {0}) with `RequiredExpansion` {1}. Ignored and set to 0.", cInfo.Entry, cInfo.RequiredExpansion);
+			Log.Logger.Verbose("Table `creature_template` lists creature (Entry: {0}) with `RequiredExpansion` {1}. Ignored and set to 0.", cInfo.Entry, cInfo.RequiredExpansion);
 			cInfo.RequiredExpansion = 0;
 		}
 
@@ -2938,7 +2938,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (badFlags != 0)
 		{
-			Log.outTrace(LogFilter.Sql, "Table `creature_template` lists creature (Entry: {0}) with disallowed `flags_extra` {1}, removing incorrect flag.", cInfo.Entry, badFlags);
+			Log.Logger.Verbose("Table `creature_template` lists creature (Entry: {0}) with disallowed `flags_extra` {1}, removing incorrect flag.", cInfo.Entry, badFlags);
 			cInfo.FlagsExtra &= CreatureFlagsExtra.DBAllowed;
 		}
 
@@ -2946,7 +2946,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (disallowedUnitFlags != 0)
 		{
-			Log.outTrace(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect flag.");
+			Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect flag.");
 			cInfo.UnitFlags &= UnitFlags.Allowed;
 		}
 
@@ -2954,7 +2954,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (disallowedUnitFlags2 != 0)
 		{
-			Log.outTrace(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect flag.");
+			Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect flag.");
 			cInfo.UnitFlags2 &= (uint)UnitFlags2.Allowed;
 		}
 
@@ -2962,13 +2962,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (disallowedUnitFlags3 != 0)
 		{
-			Log.outTrace(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect flag.");
+			Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect flag.");
 			cInfo.UnitFlags3 &= (uint)UnitFlags3.Allowed;
 		}
 
 		if (cInfo.DynamicFlags != 0)
 		{
-			Log.outTrace(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with `dynamicflags` > 0. Ignored and set to 0.");
+			Log.Logger.Verbose($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with `dynamicflags` > 0. Ignored and set to 0.");
 			cInfo.DynamicFlags = 0;
 		}
 
@@ -2976,22 +2976,22 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (levels[0] < 1 || levels[0] > SharedConst.StrongMaxLevel)
 		{
-			Log.outTrace(LogFilter.Sql, $"Creature (ID: {cInfo.Entry}): Calculated minLevel {cInfo.Minlevel} is not within [1, 255], value has been set to {(cInfo.HealthScalingExpansion == (int)Expansion.LevelCurrent ? SharedConst.MaxLevel : 1)}.");
+			Log.Logger.Verbose($"Creature (ID: {cInfo.Entry}): Calculated minLevel {cInfo.Minlevel} is not within [1, 255], value has been set to {(cInfo.HealthScalingExpansion == (int)Expansion.LevelCurrent ? SharedConst.MaxLevel : 1)}.");
 			cInfo.Minlevel = (short)(cInfo.HealthScalingExpansion == (int)Expansion.LevelCurrent ? 0 : 1);
 		}
 
 		if (levels[1] < 1 || levels[1] > SharedConst.StrongMaxLevel)
 		{
-			Log.outTrace(LogFilter.Sql, $"Creature (ID: {cInfo.Entry}): Calculated maxLevel {cInfo.Maxlevel} is not within [1, 255], value has been set to {(cInfo.HealthScalingExpansion == (int)Expansion.LevelCurrent ? SharedConst.MaxLevel : 1)}.");
+			Log.Logger.Verbose($"Creature (ID: {cInfo.Entry}): Calculated maxLevel {cInfo.Maxlevel} is not within [1, 255], value has been set to {(cInfo.HealthScalingExpansion == (int)Expansion.LevelCurrent ? SharedConst.MaxLevel : 1)}.");
 			cInfo.Maxlevel = (short)(cInfo.HealthScalingExpansion == (int)Expansion.LevelCurrent ? 0 : 1);
 		}
 
 		cInfo.ModDamage *= Creature._GetDamageMod(cInfo.Rank);
 
 		if (cInfo.GossipMenuId != 0 && !cInfo.Npcflag.HasAnyFlag((ulong)NPCFlags.Gossip))
-			Log.outInfo(LogFilter.Sql, $"Creature (Entry: {cInfo.Entry}) has assigned gossip menu {cInfo.GossipMenuId}, but npcflag does not include UNIT_NPC_FLAG_GOSSIP.");
+			Log.Logger.Information($"Creature (Entry: {cInfo.Entry}) has assigned gossip menu {cInfo.GossipMenuId}, but npcflag does not include UNIT_NPC_FLAG_GOSSIP.");
 		else if (cInfo.GossipMenuId == 0 && cInfo.Npcflag.HasAnyFlag((ulong)NPCFlags.Gossip))
-			Log.outInfo(LogFilter.Sql, $"Creature (Entry: {cInfo.Entry}) has npcflag UNIT_NPC_FLAG_GOSSIP, but gossip menu is unassigned.");
+			Log.Logger.Information($"Creature (Entry: {cInfo.Entry}) has npcflag UNIT_NPC_FLAG_GOSSIP, but gossip menu is unassigned.");
 	}
 
 	public void LoadLinkedRespawn()
@@ -3004,7 +3004,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
+			Log.Logger.Information("Loaded 0 linked respawns. DB table `linked_respawn` is empty.");
 
 			return;
 		}
@@ -3030,7 +3030,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", guidLow);
+							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", guidLow);
 
 						error = true;
 
@@ -3044,7 +3044,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
+							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
 
 						error = true;
 
@@ -3058,7 +3058,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
+							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3071,7 +3071,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
+							Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3092,7 +3092,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", guidLow);
+							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", guidLow);
 
 						error = true;
 
@@ -3106,7 +3106,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
+							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
 
 						error = true;
 
@@ -3120,7 +3120,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
+							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3130,7 +3130,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					// they must have a possibility to meet (normal/heroic difficulty)
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
-						Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
+						Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 						error = true;
 
 						break;
@@ -3150,7 +3150,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", guidLow);
+							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", guidLow);
 
 						error = true;
 
@@ -3164,7 +3164,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
+							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
 
 						error = true;
 
@@ -3178,7 +3178,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
+							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3191,7 +3191,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
+							Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3212,7 +3212,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get gameobject data for GUIDLow {0}", guidLow);
+							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", guidLow);
 
 						error = true;
 
@@ -3226,7 +3226,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
+							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
 
 						error = true;
 
@@ -3240,7 +3240,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
+							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3253,7 +3253,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
-							Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
+							Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
 						error = true;
 
@@ -3271,7 +3271,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				_linkedRespawnStorage[guid] = linkedGuid;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} linked respawns in {1} ms", _linkedRespawnStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} linked respawns in {1} ms", _linkedRespawnStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadNPCText()
@@ -3285,7 +3285,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 npc texts, table is empty!");
+			Log.Logger.Information("Loaded 0 npc texts, table is empty!");
 
 			return;
 		}
@@ -3296,7 +3296,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (textID == 0)
 			{
-				Log.outError(LogFilter.Sql, "Table `npc_text` has record wit reserved id 0, ignore.");
+				Log.Logger.Error("Table `npc_text` has record wit reserved id 0, ignore.");
 
 				continue;
 			}
@@ -3313,7 +3313,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (npcText.Data[i].BroadcastTextID != 0)
 					if (!CliDB.BroadcastTextStorage.ContainsKey(npcText.Data[i].BroadcastTextID))
 					{
-						Log.outDebug(LogFilter.Sql, "NPCText (Id: {0}) has a non-existing BroadcastText (ID: {1}, Index: {2})", textID, npcText.Data[i].BroadcastTextID, i);
+						Log.Logger.Debug("NPCText (Id: {0}) has a non-existing BroadcastText (ID: {1}, Index: {2})", textID, npcText.Data[i].BroadcastTextID, i);
 						npcText.Data[i].Probability = 0.0f;
 						npcText.Data[i].BroadcastTextID = 0;
 					}
@@ -3321,7 +3321,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			for (byte i = 0; i < SharedConst.MaxNpcTextOptions; i++)
 				if (npcText.Data[i].Probability > 0 && npcText.Data[i].BroadcastTextID == 0)
 				{
-					Log.outDebug(LogFilter.Sql, "NPCText (ID: {0}) has a probability (Index: {1}) set, but no BroadcastTextID to go with it", textID, i);
+					Log.Logger.Debug("NPCText (ID: {0}) has a probability (Index: {1}) set, but no BroadcastTextID to go with it", textID, i);
 					npcText.Data[i].Probability = 0;
 				}
 
@@ -3329,7 +3329,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (probabilitySum <= 0.0f)
 			{
-				Log.outDebug(LogFilter.Sql, $"NPCText (ID: {textID}) has a probability sum 0, no text can be selected from it, skipped.");
+				Log.Logger.Debug($"NPCText (ID: {textID}) has a probability sum 0, no text can be selected from it, skipped.");
 
 				continue;
 			}
@@ -3337,7 +3337,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_npcTextStorage[textID] = npcText;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} npc texts in {1} ms", _npcTextStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} npc texts in {1} ms", _npcTextStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTrainers()
@@ -3368,14 +3368,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `trainer_spell` references non-existing spell (SpellId: {spell.SpellId}) for TrainerId {trainerId}, ignoring");
+					Log.Logger.Error($"Table `trainer_spell` references non-existing spell (SpellId: {spell.SpellId}) for TrainerId {trainerId}, ignoring");
 
 					continue;
 				}
 
 				if (spell.ReqSkillLine != 0 && !CliDB.SkillLineStorage.ContainsKey(spell.ReqSkillLine))
 				{
-					Log.outError(LogFilter.Sql, $"Table `trainer_spell` references non-existing skill (ReqSkillLine: {spell.ReqSkillLine}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
+					Log.Logger.Error($"Table `trainer_spell` references non-existing skill (ReqSkillLine: {spell.ReqSkillLine}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
 
 					continue;
 				}
@@ -3388,7 +3388,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (requiredSpell != 0 && !Global.SpellMgr.HasSpellInfo(requiredSpell, Difficulty.None))
 					{
-						Log.outError(LogFilter.Sql, $"Table `trainer_spell` references non-existing spell (ReqAbility {i + 1}: {requiredSpell}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
+						Log.Logger.Error($"Table `trainer_spell` references non-existing spell (ReqAbility {i + 1}: {requiredSpell}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
 						allReqValid = false;
 					}
 				}
@@ -3420,7 +3420,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			} while (trainersResult.NextRow());
 
 		foreach (var unusedSpells in spellsByTrainer.KeyValueList)
-			Log.outError(LogFilter.Sql, $"Table `trainer_spell` references non-existing trainer (TrainerId: {unusedSpells.Key}) for SpellId {unusedSpells.Value.SpellId}, ignoring");
+			Log.Logger.Error($"Table `trainer_spell` references non-existing trainer (TrainerId: {unusedSpells.Key}) for SpellId {unusedSpells.Value.SpellId}, ignoring");
 
 		var trainerLocalesResult = DB.World.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale");
 
@@ -3440,10 +3440,10 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (trainer != null)
 					trainer.AddGreetingLocale(locale, trainerLocalesResult.Read<string>(2));
 				else
-					Log.outError(LogFilter.Sql, $"Table `trainer_locale` references non-existing trainer (TrainerId: {trainerId}) for locale {localeName}, ignoring");
+					Log.Logger.Error($"Table `trainer_locale` references non-existing trainer (TrainerId: {trainerId}) for locale {localeName}, ignoring");
 			} while (trainerLocalesResult.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_trainers.Count} Trainers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_trainers.Count} Trainers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadCreatureTrainers()
@@ -3467,7 +3467,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `creature_trainer` references non-existing creature template (CreatureId: {creatureId}), ignoring");
+						Log.Logger.Error($"Table `creature_trainer` references non-existing creature template (CreatureId: {creatureId}), ignoring");
 
 					continue;
 				}
@@ -3477,7 +3477,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `creature_trainer` references non-existing trainer (TrainerId: {trainerId}) for CreatureId {creatureId} MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}, ignoring");
+						Log.Logger.Error($"Table `creature_trainer` references non-existing trainer (TrainerId: {trainerId}) for CreatureId {creatureId} MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}, ignoring");
 
 					continue;
 				}
@@ -3492,7 +3492,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 						else
-							Log.outError(LogFilter.Sql, $"Table `creature_trainer` references non-existing gossip menu option (MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}) for CreatureId {creatureId} and TrainerId {trainerId}, ignoring");
+							Log.Logger.Error($"Table `creature_trainer` references non-existing gossip menu option (MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}) for CreatureId {creatureId} and TrainerId {trainerId}, ignoring");
 
 						continue;
 					}
@@ -3501,7 +3501,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				_creatureDefaultTrainers[(creatureId, gossipMenuId, gossipOptionIndex)] = trainerId;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_creatureDefaultTrainers.Count} default trainers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_creatureDefaultTrainers.Count} default trainers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadVendors()
@@ -3516,7 +3516,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Vendors. DB table `npc_vendor` is empty!");
+			Log.Logger.Information("Loaded 0 Vendors. DB table `npc_vendor` is empty!");
 
 			return;
 		}
@@ -3562,7 +3562,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			}
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Vendors in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} Vendors in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatures()
@@ -3579,7 +3579,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creatures. DB table `creature` is empty.");
+			Log.Logger.Information("Loaded 0 creatures. DB table `creature` is empty.");
 
 			return;
 		}
@@ -3614,7 +3614,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature WHERE id = {entry}");
 				else
-					Log.outError(LogFilter.Sql, "Table `creature` has creature (GUID: {0}) with non existing creature entry {1}, skipped.", guid, entry);
+					Log.Logger.Error("Table `creature` has creature (GUID: {0}) with non existing creature entry {1}, skipped.", guid, entry);
 
 				continue;
 			}
@@ -3657,14 +3657,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (mapEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0}) that spawned at not existed map (Id: {1}), skipped.", guid, data.MapId);
+				Log.Logger.Error("Table `creature` have creature (GUID: {0}) that spawned at not existed map (Id: {1}), skipped.", guid, data.MapId);
 
 				continue;
 			}
 
 			if (data.SpawnDifficulties.Empty())
 			{
-				Log.outError(LogFilter.Sql, $"Table `creature` has creature (GUID: {guid}) that is not spawned in any difficulty, skipped.");
+				Log.Logger.Error($"Table `creature` has creature (GUID: {guid}) that is not spawned in any difficulty, skipped.");
 
 				continue;
 			}
@@ -3674,7 +3674,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			for (uint diff = 0; diff < SharedConst.MaxCreatureDifficulties && ok; ++diff)
 				if (_difficultyEntries[diff].Contains(data.Id))
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0}) that listed as difficulty {1} template (entry: {2}) in `creaturetemplate`, skipped.", guid, diff + 1, data.Id);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0}) that listed as difficulty {1} template (entry: {2}) in `creaturetemplate`, skipped.", guid, diff + 1, data.Id);
 					ok = false;
 				}
 
@@ -3685,13 +3685,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (data.EquipmentId != 0)
 				if (GetEquipmentInfo(data.Id, data.EquipmentId) == null)
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (Entry: {0}) with equipmentid {1} not found in table `creatureequiptemplate`, set to no equipment.", data.Id, data.EquipmentId);
+					Log.Logger.Error("Table `creature` have creature (Entry: {0}) with equipmentid {1} not found in table `creatureequiptemplate`, set to no equipment.", data.Id, data.EquipmentId);
 					data.EquipmentId = 0;
 				}
 
 			if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.InstanceBind))
 				if (!mapEntry.IsDungeon())
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Table `creature` have creature (GUID: {0} Entry: {1}) with `creature_template`.`flagsextra` including CREATUREFLAGEXTRAINSTANCEBIND " +
 								"but creature are not in instance.",
 								guid,
@@ -3699,14 +3699,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (data.WanderDistance < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `wander_distance`< 0, set to 0.", guid, data.Id);
+				Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `wander_distance`< 0, set to 0.", guid, data.Id);
 				data.WanderDistance = 0.0f;
 			}
 			else if (data.MovementType == (byte)MovementGeneratorType.Random)
 			{
 				if (MathFunctions.fuzzyEq(data.WanderDistance, 0.0f))
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `MovementType`=1 (random movement) but with `wander_distance`=0, replace by idle movement type (0).", guid, data.Id);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `MovementType`=1 (random movement) but with `wander_distance`=0, replace by idle movement type (0).", guid, data.Id);
 					data.MovementType = (byte)MovementGeneratorType.Idle;
 				}
 			}
@@ -3714,20 +3714,20 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (data.WanderDistance != 0.0f)
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `MovementType`=0 (idle) have `wander_distance`<>0, set to 0.", guid, data.Id);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `MovementType`=0 (idle) have `wander_distance`<>0, set to 0.", guid, data.Id);
 					data.WanderDistance = 0.0f;
 				}
 			}
 
 			if (Convert.ToBoolean(data.PhaseUseFlags & ~PhaseUseFlagsValues.All))
 			{
-				Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) has unknown `phaseUseFlags` set, removed unknown value.", guid, data.Id);
+				Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) has unknown `phaseUseFlags` set, removed unknown value.", guid, data.Id);
 				data.PhaseUseFlags &= PhaseUseFlagsValues.All;
 			}
 
 			if (data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.AlwaysVisible) && data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.Inverse))
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Table `creature` have creature (GUID: {0} Entry: {1}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE," +
 							" removing PHASE_USE_FLAGS_INVERSE.",
 							guid,
@@ -3738,21 +3738,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (data.PhaseGroup != 0 && data.PhaseId != 0)
 			{
-				Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.Id);
+				Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.Id);
 				data.PhaseGroup = 0;
 			}
 
 			if (data.PhaseId != 0)
 				if (!CliDB.PhaseStorage.ContainsKey(data.PhaseId))
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
 					data.PhaseId = 0;
 				}
 
 			if (data.PhaseGroup != 0)
 				if (Global.DB2Mgr.GetPhasesForGroup(data.PhaseGroup).Empty())
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `phasegroup` {2} does not exist, set to 0", guid, data.Id, data.PhaseGroup);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `phasegroup` {2} does not exist, set to 0", guid, data.Id, data.PhaseGroup);
 					data.PhaseGroup = 0;
 				}
 
@@ -3762,12 +3762,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (terrainSwapEntry == null)
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.terrainSwapMap);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.terrainSwapMap);
 					data.terrainSwapMap = -1;
 				}
 				else if (terrainSwapEntry.ParentMapID != data.MapId)
 				{
-					Log.outError(LogFilter.Sql, "Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.terrainSwapMap);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.terrainSwapMap);
 					data.terrainSwapMap = -1;
 				}
 			}
@@ -3776,7 +3776,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (disallowedUnitFlags != 0)
 			{
-				Log.outError(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect flag.");
+				Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags` {disallowedUnitFlags}, removing incorrect flag.");
 				cInfo.UnitFlags &= UnitFlags.Allowed;
 			}
 
@@ -3784,7 +3784,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (disallowedUnitFlags2 != 0)
 			{
-				Log.outError(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect flag.");
+				Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags2}, removing incorrect flag.");
 				cInfo.UnitFlags2 &= (uint)UnitFlags2.Allowed;
 			}
 
@@ -3792,13 +3792,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (disallowedUnitFlags3 != 0)
 			{
-				Log.outError(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect flag.");
+				Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with disallowed `unit_flags2` {disallowedUnitFlags3}, removing incorrect flag.");
 				cInfo.UnitFlags3 &= (uint)UnitFlags3.Allowed;
 			}
 
 			if (cInfo.DynamicFlags != 0)
 			{
-				Log.outError(LogFilter.Sql, $"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with `dynamicflags` > 0. Ignored and set to 0.");
+				Log.Logger.Error($"Table `creature_template` lists creature (Entry: {cInfo.Entry}) with `dynamicflags` > 0. Ignored and set to 0.");
 				cInfo.DynamicFlags = 0;
 			}
 
@@ -3823,7 +3823,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creatures in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creatures in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public bool HasPersonalSpawns(uint mapid, Difficulty spawnMode, uint phaseId)
@@ -3930,7 +3930,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (slave == null)
 		{
-			Log.outError(LogFilter.Sql, "Creature '{0}' linking to non-existent creature '{1}'.", guidLow, linkedGuidLow);
+			Log.Logger.Error("Creature '{0}' linking to non-existent creature '{1}'.", guidLow, linkedGuidLow);
 
 			return false;
 		}
@@ -3939,7 +3939,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 		{
-			Log.outError(LogFilter.Sql, "Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
+			Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
 			return false;
 		}
@@ -3947,7 +3947,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// they must have a possibility to meet (normal/heroic difficulty)
 		if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 		{
-			Log.outError(LogFilter.Sql, "LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
+			Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
 			return false;
 		}
@@ -4009,7 +4009,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (minfotmp == null)
 			{
-				Log.outError(LogFilter.Sql, $"Model (Entry: {model.CreatureDisplayId}) has modelidothergender {modelInfo.DisplayIdOtherGender} not found in table `creaturemodelinfo`. ");
+				Log.Logger.Error($"Model (Entry: {model.CreatureDisplayId}) has modelidothergender {modelInfo.DisplayIdOtherGender} not found in table `creaturemodelinfo`. ");
 			}
 			else
 			{
@@ -4083,7 +4083,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobject definitions. DB table `gameobject_template` is empty.");
+			Log.Logger.Information("Loaded 0 gameobject definitions. DB table `gameobject_template` is empty.");
 		}
 		else
 		{
@@ -4157,7 +4157,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case GameObjectTypes.SpellFocus: //8
 						if (got.SpellFocus.spellFocusType != 0)
 							if (!CliDB.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
-								Log.outError(LogFilter.Sql,
+								Log.Logger.Error(
 											"GameObject (Entry: {0} GoType: {1}) have data0={2} but SpellFocus (Id: {3}) not exist.",
 											entry,
 											got.type,
@@ -4176,7 +4176,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 						if (got.Goober.pageID != 0) // pageId
 							if (GetPageText(got.Goober.pageID) == null)
-								Log.outError(LogFilter.Sql, "GameObject (Entry: {0} GoType: {1}) have data7={2} but PageText (Entry {3}) not exist.", entry, got.type, got.Goober.pageID, got.Goober.pageID);
+								Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data7={2} but PageText (Entry {3}) not exist.", entry, got.type, got.Goober.pageID, got.Goober.pageID);
 
 						CheckGONoDamageImmuneId(got, got.Goober.noDamageImmune, 11);
 
@@ -4198,7 +4198,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					{
 						if (got.MoTransport.taxiPathID != 0)
 							if (got.MoTransport.taxiPathID >= CliDB.TaxiPathNodesByPath.Count || CliDB.TaxiPathNodesByPath[got.MoTransport.taxiPathID].Empty())
-								Log.outError(LogFilter.Sql,
+								Log.Logger.Error(
 											"GameObject (Entry: {0} GoType: {1}) have data0={2} but TaxiPath (Id: {3}) not exist.",
 											entry,
 											got.type,
@@ -4241,7 +4241,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 						if (got.BarberChair.SitAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(got.BarberChair.SitAnimKit))
 						{
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"GameObject (Entry: {0} GoType: {1}) have data2 = {2} but AnimKit.dbc (Id: {3}) not exist, set to 0.",
 										entry,
 										got.type,
@@ -4274,7 +4274,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				_gameObjectTemplateStorage[entry] = got;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} game object templates in {1} ms", _gameObjectTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} game object templates in {1} ms", _gameObjectTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
 		}
 	}
 
@@ -4287,7 +4287,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobject template addon definitions. DB table `gameobject_template_addon` is empty.");
+			Log.Logger.Information("Loaded 0 gameobject template addon definitions. DB table `gameobject_template_addon` is empty.");
 
 			return;
 		}
@@ -4305,7 +4305,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM gameobject_template_addon WHERE entry = {entry}");
 				else
-					Log.outError(LogFilter.Sql, $"GameObject template (Entry: {entry}) does not exist but has a record in `gameobject_template_addon`");
+					Log.Logger.Error($"GameObject template (Entry: {entry}) does not exist but has a record in `gameobject_template_addon`");
 
 				continue;
 			}
@@ -4327,7 +4327,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!CliDB.GameObjectArtKitStorage.ContainsKey(artKitID))
 				{
-					Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid `artkit{i}` ({artKitID}) defined, set to zero instead.");
+					Log.Logger.Error($"GameObject (Entry: {entry}) has invalid `artkit{i}` ({artKitID}) defined, set to zero instead.");
 
 					continue;
 				}
@@ -4337,7 +4337,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			// checks
 			if (gameObjectAddon.Faction != 0 && !CliDB.FactionTemplateStorage.ContainsKey(gameObjectAddon.Faction))
-				Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid faction ({gameObjectAddon.Faction}) defined in `gameobject_template_addon`.");
+				Log.Logger.Error($"GameObject (Entry: {entry}) has invalid faction ({gameObjectAddon.Faction}) defined in `gameobject_template_addon`.");
 
 			if (gameObjectAddon.Maxgold > 0)
 				switch (got.type)
@@ -4346,20 +4346,20 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case GameObjectTypes.FishingHole:
 						break;
 					default:
-						Log.outError(LogFilter.Sql, $"GameObject (Entry {entry} GoType: {got.type}) cannot be looted but has maxgold set in `gameobject_template_addon`.");
+						Log.Logger.Error($"GameObject (Entry {entry} GoType: {got.type}) cannot be looted but has maxgold set in `gameobject_template_addon`.");
 
 						break;
 				}
 
 			if (gameObjectAddon.WorldEffectId != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectId}) defined in `gameobject_template_addon`, set to 0.");
+				Log.Logger.Error($"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectId}) defined in `gameobject_template_addon`, set to 0.");
 				gameObjectAddon.WorldEffectId = 0;
 			}
 
 			if (gameObjectAddon.AiAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AiAnimKitId))
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (Entry: {entry}) has invalid AIAnimKitID ({gameObjectAddon.AiAnimKitId}) defined in `gameobject_template_addon`, set to 0.");
+				Log.Logger.Error($"GameObject (Entry: {entry}) has invalid AIAnimKitID ({gameObjectAddon.AiAnimKitId}) defined in `gameobject_template_addon`, set to 0.");
 				gameObjectAddon.AiAnimKitId = 0;
 			}
 
@@ -4367,7 +4367,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} game object template addons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} game object template addons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGameObjectOverrides()
@@ -4379,7 +4379,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobject faction and flags overrides. DB table `gameobject_overrides` is empty.");
+			Log.Logger.Information("Loaded 0 gameobject faction and flags overrides. DB table `gameobject_overrides` is empty.");
 
 			return;
 		}
@@ -4396,7 +4396,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM gameobject_overrides WHERE spawnId = {spawnId}");
 				else
-					Log.outError(LogFilter.Sql, $"GameObject (SpawnId: {spawnId}) does not exist but has a record in `gameobject_overrides`");
+					Log.Logger.Error($"GameObject (SpawnId: {spawnId}) does not exist but has a record in `gameobject_overrides`");
 
 				continue;
 			}
@@ -4408,12 +4408,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_gameObjectOverrideStorage[spawnId] = gameObjectOverride;
 
 			if (gameObjectOverride.Faction != 0 && !CliDB.FactionTemplateStorage.ContainsKey(gameObjectOverride.Faction))
-				Log.outError(LogFilter.Sql, $"GameObject (SpawnId: {spawnId}) has invalid faction ({gameObjectOverride.Faction}) defined in `gameobject_overrides`.");
+				Log.Logger.Error($"GameObject (SpawnId: {spawnId}) has invalid faction ({gameObjectOverride.Faction}) defined in `gameobject_overrides`.");
 
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} gameobject faction and flags overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} gameobject faction and flags overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadGameObjects()
@@ -4431,7 +4431,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobjects. DB table `gameobject` is empty.");
+			Log.Logger.Information("Loaded 0 gameobjects. DB table `gameobject` is empty.");
 
 			return;
 		}
@@ -4463,7 +4463,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (gInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0}) with non existing gameobject entry {1}, skipped.", guid, entry);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0}) with non existing gameobject entry {1}, skipped.", guid, entry);
 
 				continue;
 			}
@@ -4475,14 +4475,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					case GameObjectTypes.SpellFocus:
 						break;
 					default:
-						Log.outError(LogFilter.Sql, "Gameobject (GUID: {0} Entry {1} GoType: {2}) doesn't have a displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
+						Log.Logger.Error("Gameobject (GUID: {0} Entry {1} GoType: {2}) doesn't have a displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
 
 						break;
 				}
 
 			if (gInfo.displayId != 0 && !CliDB.GameObjectDisplayInfoStorage.ContainsKey(gInfo.displayId))
 			{
-				Log.outError(LogFilter.Sql, "Gameobject (GUID: {0} Entry {1} GoType: {2}) has an invalid displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
+				Log.Logger.Error("Gameobject (GUID: {0} Entry {1} GoType: {2}) has an invalid displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
 
 				continue;
 			}
@@ -4503,13 +4503,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (mapEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) spawned on a non-existed map (Id: {2}), skip", guid, data.Id, data.MapId);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) spawned on a non-existed map (Id: {2}), skip", guid, data.Id, data.MapId);
 
 				continue;
 			}
 
 			if (data.spawntimesecs == 0 && gInfo.IsDespawnAtAction())
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.Id);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with `spawntimesecs` (0) value, but the gameobejct is marked as despawnable at action.", guid, data.Id);
 
 			data.Animprogress = result.Read<uint>(12);
 			data.ArtKit = 0;
@@ -4519,7 +4519,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (gostate >= (uint)GameObjectState.Max)
 				if (gInfo.type != GameObjectTypes.Transport || gostate > (int)GameObjectState.TransportActive + SharedConst.MaxTransportStopFrames)
 				{
-					Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid `state` ({2}) value, skip", guid, data.Id, gostate);
+					Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid `state` ({2}) value, skip", guid, data.Id, gostate);
 
 					continue;
 				}
@@ -4530,7 +4530,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (data.SpawnDifficulties.Empty())
 			{
-				Log.outError(LogFilter.Sql, $"Table `creature` has creature (GUID: {guid}) that is not spawned in any difficulty, skipped.");
+				Log.Logger.Error($"Table `creature` has creature (GUID: {guid}) that is not spawned in any difficulty, skipped.");
 
 				continue;
 			}
@@ -4543,13 +4543,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (Convert.ToBoolean(data.PhaseUseFlags & ~PhaseUseFlagsValues.All))
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` have gameobject (GUID: {0} Entry: {1}) has unknown `phaseUseFlags` set, removed unknown value.", guid, data.Id);
+				Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) has unknown `phaseUseFlags` set, removed unknown value.", guid, data.Id);
 				data.PhaseUseFlags &= PhaseUseFlagsValues.All;
 			}
 
 			if (data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.AlwaysVisible) && data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.Inverse))
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Table `gameobject` have gameobject (GUID: {0} Entry: {1}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE," +
 							" removing PHASE_USE_FLAGS_INVERSE.",
 							guid,
@@ -4560,21 +4560,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (data.PhaseGroup != 0 && data.PhaseId != 0)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.Id);
+				Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0", guid, data.Id);
 				data.PhaseGroup = 0;
 			}
 
 			if (data.PhaseId != 0)
 				if (!CliDB.PhaseStorage.ContainsKey(data.PhaseId))
 				{
-					Log.outError(LogFilter.Sql, "Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
+					Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
 					data.PhaseId = 0;
 				}
 
 			if (data.PhaseGroup != 0)
 				if (Global.DB2Mgr.GetPhasesForGroup(data.PhaseGroup).Empty())
 				{
-					Log.outError(LogFilter.Sql, "Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseGroup` {2} does not exist, set to 0", guid, data.Id, data.PhaseGroup);
+					Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseGroup` {2} does not exist, set to 0", guid, data.Id, data.PhaseGroup);
 					data.PhaseGroup = 0;
 				}
 
@@ -4586,12 +4586,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (terrainSwapEntry == null)
 				{
-					Log.outError(LogFilter.Sql, "Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.terrainSwapMap);
+					Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} does not exist, set to -1", guid, data.Id, data.terrainSwapMap);
 					data.terrainSwapMap = -1;
 				}
 				else if (terrainSwapEntry.ParentMapID != data.MapId)
 				{
-					Log.outError(LogFilter.Sql, "Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.terrainSwapMap);
+					Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `terrainSwapMap` {2} which cannot be used on spawn map, set to -1", guid, data.Id, data.terrainSwapMap);
 					data.terrainSwapMap = -1;
 				}
 			}
@@ -4600,42 +4600,42 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (data.Rotation.X < -1.0f || data.Rotation.X > 1.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationX ({2}) value, skip", guid, data.Id, data.Rotation.X);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationX ({2}) value, skip", guid, data.Id, data.Rotation.X);
 
 				continue;
 			}
 
 			if (data.Rotation.Y < -1.0f || data.Rotation.Y > 1.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationY ({2}) value, skip", guid, data.Id, data.Rotation.Y);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationY ({2}) value, skip", guid, data.Id, data.Rotation.Y);
 
 				continue;
 			}
 
 			if (data.Rotation.Z < -1.0f || data.Rotation.Z > 1.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationZ ({2}) value, skip", guid, data.Id, data.Rotation.Z);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationZ ({2}) value, skip", guid, data.Id, data.Rotation.Z);
 
 				continue;
 			}
 
 			if (data.Rotation.W < -1.0f || data.Rotation.W > 1.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationW ({2}) value, skip", guid, data.Id, data.Rotation.W);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid rotationW ({2}) value, skip", guid, data.Id, data.Rotation.W);
 
 				continue;
 			}
 
 			if (!GridDefines.IsValidMapCoord(data.MapId, data.SpawnPoint))
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid coordinates, skip", guid, data.Id);
+				Log.Logger.Error("Table `gameobject` has gameobject (GUID: {0} Entry: {1}) with invalid coordinates, skip", guid, data.Id);
 
 				continue;
 			}
 
 			if (!(Math.Abs(Quaternion.Dot(data.Rotation, data.Rotation) - 1) < 1e-5))
 			{
-				Log.outError(LogFilter.Sql, $"Table `gameobject` has gameobject (GUID: {guid} Entry: {data.Id}) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only");
+				Log.Logger.Error($"Table `gameobject` has gameobject (GUID: {guid} Entry: {data.Id}) with invalid rotation quaternion (non-unit), defaulting to orientation on Z axis only");
 				data.Rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.Orientation, 0f, 0f));
 			}
 
@@ -4659,7 +4659,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} gameobjects in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} gameobjects in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadGameObjectAddons()
@@ -4673,7 +4673,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobject addon definitions. DB table `gameobject_addon` is empty.");
+			Log.Logger.Information("Loaded 0 gameobject addon definitions. DB table `gameobject_addon` is empty.");
 
 			return;
 		}
@@ -4691,7 +4691,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM gameobject_addon WHERE guid = {guid}");
 				else
-					Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) does not exist but has a record in `gameobject_addon`");
+					Log.Logger.Error($"GameObject (GUID: {guid}) does not exist but has a record in `gameobject_addon`");
 
 				continue;
 			}
@@ -4705,32 +4705,32 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (gameObjectAddon.invisibilityType >= InvisibilityType.Max)
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) has invalid InvisibilityType in `gameobject_addon`, disabled invisibility");
+				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid InvisibilityType in `gameobject_addon`, disabled invisibility");
 				gameObjectAddon.invisibilityType = InvisibilityType.General;
 				gameObjectAddon.invisibilityValue = 0;
 			}
 
 			if (gameObjectAddon.invisibilityType != 0 && gameObjectAddon.invisibilityValue == 0)
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) has InvisibilityType set but has no InvisibilityValue in `gameobject_addon`, set to 1");
+				Log.Logger.Error($"GameObject (GUID: {guid}) has InvisibilityType set but has no InvisibilityValue in `gameobject_addon`, set to 1");
 				gameObjectAddon.invisibilityValue = 1;
 			}
 
 			if (!(Math.Abs(Quaternion.Dot(gameObjectAddon.ParentRotation, gameObjectAddon.ParentRotation) - 1) < 1e-5))
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) has invalid parent rotation in `gameobject_addon`, set to default");
+				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid parent rotation in `gameobject_addon`, set to default");
 				gameObjectAddon.ParentRotation = Quaternion.Identity;
 			}
 
 			if (gameObjectAddon.WorldEffectID != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectID}) in `gameobject_addon`, set to 0.");
+				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectID}) in `gameobject_addon`, set to 0.");
 				gameObjectAddon.WorldEffectID = 0;
 			}
 
 			if (gameObjectAddon.AIAnimKitID != 0 && !CliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AIAnimKitID))
 			{
-				Log.outError(LogFilter.Sql, $"GameObject (GUID: {guid}) has invalid AIAnimKitID ({gameObjectAddon.AIAnimKitID}) in `gameobject_addon`, set to 0.");
+				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid AIAnimKitID ({gameObjectAddon.AIAnimKitID}) in `gameobject_addon`, set to 0.");
 				gameObjectAddon.AIAnimKitID = 0;
 			}
 
@@ -4738,7 +4738,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} gameobject addons in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} gameobject addons in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadGameObjectQuestItems()
@@ -4750,7 +4750,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobject quest items. DB table `gameobject_questitem` is empty.");
+			Log.Logger.Information("Loaded 0 gameobject quest items. DB table `gameobject_questitem` is empty.");
 
 			return;
 		}
@@ -4765,14 +4765,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!_gameObjectTemplateStorage.ContainsKey(entry))
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject_questitem` has data for nonexistent gameobject (entry: {0}, idx: {1}), skipped", entry, idx);
+				Log.Logger.Error("Table `gameobject_questitem` has data for nonexistent gameobject (entry: {0}, idx: {1}), skipped", entry, idx);
 
 				continue;
 			}
 
 			if (!CliDB.ItemStorage.ContainsKey(item))
 			{
-				Log.outError(LogFilter.Sql, "Table `gameobject_questitem` has nonexistent item (ID: {0}) in gameobject (entry: {1}, idx: {2}), skipped", item, entry, idx);
+				Log.Logger.Error("Table `gameobject_questitem` has nonexistent item (ID: {0}) in gameobject (entry: {1}, idx: {2}), skipped", item, entry, idx);
 
 				continue;
 			}
@@ -4782,7 +4782,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} gameobject quest items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gameobject quest items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGameObjectForQuests()
@@ -4793,7 +4793,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (GetGameObjectTemplates().Empty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GameObjects for quests");
+			Log.Logger.Information("Loaded 0 GameObjects for quests");
 
 			return;
 		}
@@ -4847,7 +4847,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GameObjects for quests in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameObjects for quests in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void AddGameObjectToGrid(GameObjectData data)
@@ -5025,7 +5025,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} item templates in {1} ms", sparseCount, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} item templates in {1} ms", sparseCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadItemTemplateAddon()
@@ -5043,7 +5043,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (itemTemplate == null)
 				{
-					Log.outError(LogFilter.Sql, "Item {0} specified in `itemtemplateaddon` does not exist, skipped.", itemId);
+					Log.Logger.Error("Item {0} specified in `itemtemplateaddon` does not exist, skipped.", itemId);
 
 					continue;
 				}
@@ -5053,7 +5053,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (minMoneyLoot > maxMoneyLoot)
 				{
-					Log.outError(LogFilter.Sql, "Minimum money loot specified in `itemtemplateaddon` for item {0} was greater than maximum amount, swapping.", itemId);
+					Log.Logger.Error("Minimum money loot specified in `itemtemplateaddon` for item {0} was greater than maximum amount, swapping.", itemId);
 					var temp = minMoneyLoot;
 					minMoneyLoot = maxMoneyLoot;
 					maxMoneyLoot = temp;
@@ -5068,7 +5068,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} item addon templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} item addon templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadItemScriptNames()
@@ -5085,7 +5085,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (GetItemTemplate(itemId) == null)
 				{
-					Log.outError(LogFilter.Sql, "Item {0} specified in `item_script_names` does not exist, skipped.", itemId);
+					Log.Logger.Error("Item {0} specified in `item_script_names` does not exist, skipped.", itemId);
 
 					continue;
 				}
@@ -5094,7 +5094,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} item script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} item script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public ItemTemplate GetItemTemplate(uint ItemId)
@@ -5167,7 +5167,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			else if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 				DB.World.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
 			else
-				Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have data for not existed creature template (Entry: {0}), ignore", vendorentry);
+				Log.Logger.Error("Table `(gameevent)npcvendor` have data for not existed creature template (Entry: {0}), ignore", vendorentry);
 
 			return false;
 		}
@@ -5181,7 +5181,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				else if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
 				else
-					Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor flag, ignore", vendorentry);
+					Log.Logger.Error("Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor flag, ignore", vendorentry);
 
 				if (skipvendors != null)
 					skipvendors.Add(vendorentry);
@@ -5196,14 +5196,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (player != null)
 				player.SendSysMessage(CypherStrings.ItemNotFound, vItem.Item, vItem.Type);
 			else
-				Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` for Vendor (Entry: {0}) have in item list non-existed item ({1}, type {2}), ignore", vendorentry, vItem.Item, vItem.Type);
+				Log.Logger.Error("Table `(gameevent)npcvendor` for Vendor (Entry: {0}) have in item list non-existed item ({1}, type {2}), ignore", vendorentry, vItem.Item, vItem.Type);
 
 			return false;
 		}
 
 		if (vItem.PlayerConditionId != 0 && !CliDB.PlayerConditionStorage.ContainsKey(vItem.PlayerConditionId))
 		{
-			Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` has Item (Entry: {0}) with invalid PlayerConditionId ({1}) for vendor ({2}), ignore", vItem.Item, vItem.PlayerConditionId, vendorentry);
+			Log.Logger.Error("Table `(game_event_)npc_vendor` has Item (Entry: {0}) with invalid PlayerConditionId ({1}) for vendor ({2}), ignore", vItem.Item, vItem.PlayerConditionId, vendorentry);
 
 			return false;
 		}
@@ -5213,7 +5213,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (player != null)
 				player.SendSysMessage(CypherStrings.ExtendedCostNotExist, vItem.ExtendedCost);
 			else
-				Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` have Item (Entry: {0}) with wrong ExtendedCost ({1}) for vendor ({2}), ignore", vItem.Item, vItem.ExtendedCost, vendorentry);
+				Log.Logger.Error("Table `(gameevent)npcvendor` have Item (Entry: {0}) with wrong ExtendedCost ({1}) for vendor ({2}), ignore", vItem.Item, vItem.ExtendedCost, vendorentry);
 
 			return false;
 		}
@@ -5225,7 +5225,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (player != null)
 					player.SendSysMessage("MaxCount != 0 ({0}) but IncrTime == 0", vItem.Maxcount);
 				else
-					Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` has `maxcount` ({0}) for item {1} of vendor (Entry: {2}) but `incrtime`=0, ignore", vItem.Maxcount, vItem.Item, vendorentry);
+					Log.Logger.Error("Table `(gameevent)npcvendor` has `maxcount` ({0}) for item {1} of vendor (Entry: {2}) but `incrtime`=0, ignore", vItem.Maxcount, vItem.Item, vendorentry);
 
 				return false;
 			}
@@ -5234,7 +5234,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (player != null)
 					player.SendSysMessage("MaxCount == 0 but IncrTime<>= 0");
 				else
-					Log.outError(LogFilter.Sql, "Table `(gameevent)npcvendor` has `maxcount`=0 for item {0} of vendor (Entry: {0}) but `incrtime`<>0, ignore", vItem.Item, vendorentry);
+					Log.Logger.Error("Table `(gameevent)npcvendor` has `maxcount`=0 for item {0} of vendor (Entry: {0}) but `incrtime`<>0, ignore", vItem.Item, vendorentry);
 
 				return false;
 			}
@@ -5242,7 +5242,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			foreach (var bonusList in vItem.BonusListIDs)
 				if (Global.DB2Mgr.GetItemBonusList(bonusList) == null)
 				{
-					Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` have Item (Entry: {0}) with invalid bonus {1} for vendor ({2}), ignore", vItem.Item, bonusList, vendorentry);
+					Log.Logger.Error("Table `(game_event_)npc_vendor` have Item (Entry: {0}) with invalid bonus {1} for vendor ({2}), ignore", vItem.Item, bonusList, vendorentry);
 
 					return false;
 				}
@@ -5258,14 +5258,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (player != null)
 				player.SendSysMessage(CypherStrings.ItemAlreadyInList, vItem.Item, vItem.ExtendedCost, vItem.Type);
 			else
-				Log.outError(LogFilter.Sql, "Table `npcvendor` has duplicate items {0} (with extended cost {1}, type {2}) for vendor (Entry: {3}), ignoring", vItem.Item, vItem.ExtendedCost, vItem.Type, vendorentry);
+				Log.Logger.Error("Table `npcvendor` has duplicate items {0} (with extended cost {1}, type {2}) for vendor (Entry: {3}), ignoring", vItem.Item, vItem.ExtendedCost, vItem.Type, vendorentry);
 
 			return false;
 		}
 
 		if (vItem.Type == ItemVendorType.Currency && vItem.Maxcount == 0)
 		{
-			Log.outError(LogFilter.Sql, "Table `(game_event_)npc_vendor` have Item (Entry: {0}, type: {1}) with missing maxcount for vendor ({2}), ignore", vItem.Item, vItem.Type, vendorentry);
+			Log.Logger.Error("Table `(game_event_)npc_vendor` have Item (Entry: {0}, type: {1}) with missing maxcount for vendor ({2}), ignore", vItem.Item, vItem.Type, vendorentry);
 
 			return false;
 		}
@@ -5308,7 +5308,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 instance templates. DB table `instance_template` is empty!");
+			Log.Logger.Information("Loaded 0 instance templates. DB table `instance_template` is empty!");
 
 			return;
 		}
@@ -5321,7 +5321,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!Global.MapMgr.IsValidMAP(mapID))
 			{
-				Log.outError(LogFilter.Sql, "ObjectMgr.LoadInstanceTemplate: bad mapid {0} for template!", mapID);
+				Log.Logger.Error("ObjectMgr.LoadInstanceTemplate: bad mapid {0} for template!", mapID);
 
 				continue;
 			}
@@ -5335,7 +5335,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} instance templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} instance templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadGameTele()
@@ -5349,7 +5349,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.ServerLoading, "Loaded 0 GameTeleports. DB table `game_tele` is empty!");
+			Log.Logger.Error("Loaded 0 GameTeleports. DB table `game_tele` is empty!");
 
 			return;
 		}
@@ -5373,7 +5373,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!GridDefines.IsValidMapCoord(gt.mapId, gt.posX, gt.posY, gt.posZ, gt.orientation))
 			{
-				Log.outError(LogFilter.Sql, "Wrong position for id {0} (name: {1}) in `game_tele` table, ignoring.", id, gt.name);
+				Log.Logger.Error("Wrong position for id {0} (name: {1}) in `game_tele` table, ignoring.", id, gt.name);
 
 				continue;
 			}
@@ -5382,7 +5382,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GameTeleports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameTeleports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAreaTriggerTeleports()
@@ -5396,7 +5396,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
+			Log.Logger.Information("Loaded 0 area trigger teleport definitions. DB table `areatrigger_teleport` is empty.");
 
 			return;
 		}
@@ -5414,7 +5414,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (portLoc == null)
 			{
-				Log.outError(LogFilter.Sql, "Area Trigger (ID: {0}) has a non-existing Port Loc (ID: {1}) in WorldSafeLocs.dbc, skipped", Trigger_ID, PortLocID);
+				Log.Logger.Error("Area Trigger (ID: {0}) has a non-existing Port Loc (ID: {1}) in WorldSafeLocs.dbc, skipped", Trigger_ID, PortLocID);
 
 				continue;
 			}
@@ -5431,7 +5431,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (atEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Area trigger (ID: {0}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
+				Log.Logger.Error("Area trigger (ID: {0}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
 
 				continue;
 			}
@@ -5439,7 +5439,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_areaTriggerStorage[Trigger_ID] = at;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} area trigger teleport definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} area trigger teleport definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAccessRequirements()
@@ -5453,7 +5453,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 access requirement definitions. DB table `access_requirement` is empty.");
+			Log.Logger.Information("Loaded 0 access requirement definitions. DB table `access_requirement` is empty.");
 
 			return;
 		}
@@ -5466,7 +5466,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.MapStorage.ContainsKey(mapid))
 			{
-				Log.outError(LogFilter.Sql, "Map {0} referenced in `access_requirement` does not exist, skipped.", mapid);
+				Log.Logger.Error("Map {0} referenced in `access_requirement` does not exist, skipped.", mapid);
 
 				continue;
 			}
@@ -5475,7 +5475,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (Global.DB2Mgr.GetMapDifficultyData(mapid, (Difficulty)difficulty) == null)
 			{
-				Log.outError(LogFilter.Sql, "Map {0} referenced in `access_requirement` does not have difficulty {1}, skipped", mapid, difficulty);
+				Log.Logger.Error("Map {0} referenced in `access_requirement` does not have difficulty {1}, skipped", mapid, difficulty);
 
 				continue;
 			}
@@ -5498,7 +5498,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (pProto == null)
 				{
-					Log.outError(LogFilter.Sql, "Key item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item, mapid, difficulty);
+					Log.Logger.Error("Key item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item, mapid, difficulty);
 					ar.Item = 0;
 				}
 			}
@@ -5509,7 +5509,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (pProto == null)
 				{
-					Log.outError(LogFilter.Sql, "Second item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item2, mapid, difficulty);
+					Log.Logger.Error("Second item {0} does not exist for map {1} difficulty {2}, removing key requirement.", ar.Item2, mapid, difficulty);
 					ar.Item2 = 0;
 				}
 			}
@@ -5517,21 +5517,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (ar.QuestA != 0)
 				if (GetQuestTemplate(ar.QuestA) == null)
 				{
-					Log.outError(LogFilter.Sql, "Required Alliance Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
+					Log.Logger.Error("Required Alliance Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestA, mapid, difficulty);
 					ar.QuestA = 0;
 				}
 
 			if (ar.QuestH != 0)
 				if (GetQuestTemplate(ar.QuestH) == null)
 				{
-					Log.outError(LogFilter.Sql, "Required Horde Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
+					Log.Logger.Error("Required Horde Quest {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.QuestH, mapid, difficulty);
 					ar.QuestH = 0;
 				}
 
 			if (ar.Achievement != 0)
 				if (!CliDB.AchievementStorage.ContainsKey(ar.Achievement))
 				{
-					Log.outError(LogFilter.Sql, "Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.Achievement, mapid, difficulty);
+					Log.Logger.Error("Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.Achievement, mapid, difficulty);
 					ar.Achievement = 0;
 				}
 
@@ -5539,7 +5539,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} access requirement definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} access requirement definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadInstanceEncounters()
@@ -5551,7 +5551,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 instance encounters, table is empty!");
+			Log.Logger.Information("Loaded 0 instance encounters, table is empty!");
 
 			return;
 		}
@@ -5569,14 +5569,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (dungeonEncounter == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `instance_encounters` has an invalid encounter id {0}, skipped!", entry);
+				Log.Logger.Error("Table `instance_encounters` has an invalid encounter id {0}, skipped!", entry);
 
 				continue;
 			}
 
 			if (lastEncounterDungeon != 0 && Global.LFGMgr.GetLFGDungeonEntry(lastEncounterDungeon) == 0)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Table `instance_encounters` has an encounter {0} ({1}) marked as final for invalid dungeon id {2}, skipped!",
 							entry,
 							dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale],
@@ -5591,7 +5591,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (pair != null)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Table `instance_encounters` specified encounter {0} ({1}) as last encounter but {2} ({3}) is already marked as one, skipped!",
 								entry,
 								dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale],
@@ -5612,7 +5612,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (creatureInfo == null)
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Table `instance_encounters` has an invalid creature (entry {0}) linked to the encounter {1} ({2}), skipped!",
 									creditEntry,
 									entry,
@@ -5641,7 +5641,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case EncounterCreditType.CastSpell:
 					if (!Global.SpellMgr.HasSpellInfo(creditEntry, Difficulty.None))
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Table `instance_encounters` has an invalid spell (entry {0}) linked to the encounter {1} ({2}), skipped!",
 									creditEntry,
 									entry,
@@ -5652,7 +5652,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					break;
 				default:
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Table `instance_encounters` has an invalid credit type ({0}) for encounter {1} ({2}), skipped!",
 								creditType,
 								entry,
@@ -5675,7 +5675,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} instance encounters in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} instance encounters in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpawnGroupTemplates()
@@ -5698,13 +5698,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (flags.HasAnyFlag(~SpawnGroupFlags.All))
 				{
 					flags &= SpawnGroupFlags.All;
-					Log.outError(LogFilter.Sql, $"Invalid spawn group flag {flags} on group ID {groupId} ({group.Name}), reduced to valid flag {group.Flags}.");
+					Log.Logger.Error($"Invalid spawn group flag {flags} on group ID {groupId} ({group.Name}), reduced to valid flag {group.Flags}.");
 				}
 
 				if (flags.HasAnyFlag(SpawnGroupFlags.System) && flags.HasAnyFlag(SpawnGroupFlags.ManualSpawn))
 				{
 					flags &= ~SpawnGroupFlags.ManualSpawn;
-					Log.outError(LogFilter.Sql, $"System spawn group {groupId} ({group.Name}) has invalid manual spawn flag. Ignored.");
+					Log.Logger.Error($"System spawn group {groupId} ({group.Name}) has invalid manual spawn flag. Ignored.");
 				}
 
 				group.Flags = flags;
@@ -5714,7 +5714,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (!_spawnGroupDataStorage.ContainsKey(0))
 		{
-			Log.outError(LogFilter.Sql, "Default spawn group (index 0) is missing from DB! Manually inserted.");
+			Log.Logger.Error("Default spawn group (index 0) is missing from DB! Manually inserted.");
 			SpawnGroupTemplateData data = new();
 			data.GroupId = 0;
 			data.Name = "Default Group";
@@ -5725,7 +5725,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (!_spawnGroupDataStorage.ContainsKey(1))
 		{
-			Log.outError(LogFilter.Sql, "Default legacy spawn group (index 1) is missing from DB! Manually inserted.");
+			Log.Logger.Error("Default legacy spawn group (index 1) is missing from DB! Manually inserted.");
 			SpawnGroupTemplateData data = new();
 			data.GroupId = 1;
 			data.Name = "Legacy Group";
@@ -5735,9 +5735,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		}
 
 		if (!result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, $"Loaded {_spawnGroupDataStorage.Count} spawn group templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+			Log.Logger.Information($"Loaded {_spawnGroupDataStorage.Count} spawn group templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		else
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spawn group templates. DB table `spawn_group_template` is empty.");
+			Log.Logger.Information("Loaded 0 spawn group templates. DB table `spawn_group_template` is empty.");
 	}
 
 	public void LoadSpawnGroups()
@@ -5749,7 +5749,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spawn group members. DB table `spawn_group` is empty.");
+			Log.Logger.Information("Loaded 0 spawn group members. DB table `spawn_group` is empty.");
 
 			return;
 		}
@@ -5767,7 +5767,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
-					Log.outError(LogFilter.Sql, $"Spawn data with invalid type {spawnType} listed for spawn group {groupId}. Skipped.");
+					Log.Logger.Error($"Spawn data with invalid type {spawnType} listed for spawn group {groupId}. Skipped.");
 
 				continue;
 			}
@@ -5779,7 +5779,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
-					Log.outError(LogFilter.Sql, $"Spawn data with ID ({spawnType},{spawnId}) not found, but is listed as a member of spawn group {groupId}!");
+					Log.Logger.Error($"Spawn data with ID ({spawnType},{spawnId}) not found, but is listed as a member of spawn group {groupId}!");
 
 				continue;
 			}
@@ -5788,7 +5788,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
-					Log.outError(LogFilter.Sql, $"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.SpawnGroupData.GroupId}. Skipping.");
+					Log.Logger.Error($"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.SpawnGroupData.GroupId}. Skipping.");
 
 				continue;
 			}
@@ -5797,7 +5797,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (groupTemplate == null)
 			{
-				Log.outError(LogFilter.Sql, $"Spawn group {groupId} assigned to spawn ID ({spawnType},{spawnId}), but group is found!");
+				Log.Logger.Error($"Spawn group {groupId} assigned to spawn ID ({spawnType},{spawnId}), but group is found!");
 
 				continue;
 			}
@@ -5813,7 +5813,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 					else
-						Log.outError(LogFilter.Sql, $"Spawn group {groupId} has map ID {groupTemplate.MapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
+						Log.Logger.Error($"Spawn group {groupId} has map ID {groupTemplate.MapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
 
 					continue;
 				}
@@ -5827,7 +5827,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			}
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {numMembers} spawn group members in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {numMembers} spawn group members in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadInstanceSpawnGroups()
@@ -5839,7 +5839,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 instance spawn groups. DB table `instance_spawn_groups` is empty.");
+			Log.Logger.Information("Loaded 0 instance spawn groups. DB table `instance_spawn_groups` is empty.");
 
 			return;
 		}
@@ -5857,7 +5857,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
 				else
-					Log.outError(LogFilter.Sql, $"Invalid spawn group {spawnGroupId} specified for instance {instanceMapId}. Skipped.");
+					Log.Logger.Error($"Invalid spawn group {spawnGroupId} specified for instance {instanceMapId}. Skipped.");
 
 				continue;
 			}
@@ -5867,7 +5867,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
 				else
-					Log.outError(LogFilter.Sql, $"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.MapId}. Skipped.");
+					Log.Logger.Error($"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.MapId}. Skipped.");
 
 				continue;
 			}
@@ -5882,7 +5882,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if ((states & ~ALL_STATES) != 0)
 			{
 				info.BossStates = (byte)(states & ALL_STATES);
-				Log.outError(LogFilter.Sql, $"Instance spawn group ({instanceMapId},{spawnGroupId}) had invalid boss state mask {states} - truncated to {info.BossStates}.");
+				Log.Logger.Error($"Instance spawn group ({instanceMapId},{spawnGroupId}) had invalid boss state mask {states} - truncated to {info.BossStates}.");
 			}
 			else
 			{
@@ -5894,7 +5894,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if ((flags & ~InstanceSpawnGroupFlags.All) != 0)
 			{
 				info.Flags = flags & InstanceSpawnGroupFlags.All;
-				Log.outError(LogFilter.Sql, $"Instance spawn group ({instanceMapId},{spawnGroupId}) had invalid flags {flags} - truncated to {info.Flags}.");
+				Log.Logger.Error($"Instance spawn group ({instanceMapId},{spawnGroupId}) had invalid flags {flags} - truncated to {info.Flags}.");
 			}
 			else
 			{
@@ -5904,7 +5904,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (flags.HasFlag(InstanceSpawnGroupFlags.AllianceOnly) && flags.HasFlag(InstanceSpawnGroupFlags.HordeOnly))
 			{
 				info.Flags = flags & ~(InstanceSpawnGroupFlags.AllianceOnly | InstanceSpawnGroupFlags.HordeOnly);
-				Log.outError(LogFilter.Sql, $"Instance spawn group ({instanceMapId},{spawnGroupId}) FLAG_ALLIANCE_ONLY and FLAG_HORDE_ONLY may not be used together in a single entry - truncated to {info.Flags}.");
+				Log.Logger.Error($"Instance spawn group ({instanceMapId},{spawnGroupId}) FLAG_ALLIANCE_ONLY and FLAG_HORDE_ONLY may not be used together in a single entry - truncated to {info.Flags}.");
 			}
 
 			_instanceSpawnGroupStorage.Add(instanceMapId, info);
@@ -5912,7 +5912,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} instance spawn groups in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} instance spawn groups in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public Dictionary<uint, InstanceTemplate> GetInstanceTemplates()
@@ -6096,7 +6096,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
+				Log.Logger.Information("Loaded 0 player create definitions. DB table `playercreateinfo` is empty.");
 
 				return;
 			}
@@ -6115,14 +6115,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!CliDB.ChrRacesStorage.ContainsKey(currentrace))
 				{
-					Log.outError(LogFilter.Sql, $"Wrong race {currentrace} in `playercreateinfo` table, ignoring.");
+					Log.Logger.Error($"Wrong race {currentrace} in `playercreateinfo` table, ignoring.");
 
 					continue;
 				}
 
 				if (!CliDB.ChrClassesStorage.ContainsKey(currentclass))
 				{
-					Log.outError(LogFilter.Sql, $"Wrong class {currentclass} in `playercreateinfo` table, ignoring.");
+					Log.Logger.Error($"Wrong class {currentclass} in `playercreateinfo` table, ignoring.");
 
 					continue;
 				}
@@ -6130,28 +6130,28 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				// accept DB data only for valid position (and non instanceable)
 				if (!GridDefines.IsValidMapCoord(mapId, positionX, positionY, positionZ, orientation))
 				{
-					Log.outError(LogFilter.Sql, $"Wrong home position for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+					Log.Logger.Error($"Wrong home position for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 
 					continue;
 				}
 
 				if (CliDB.MapStorage.LookupByKey(mapId).Instanceable())
 				{
-					Log.outError(LogFilter.Sql, $"Home position in instanceable map for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+					Log.Logger.Error($"Home position in instanceable map for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 
 					continue;
 				}
 
 				if (Global.DB2Mgr.GetChrModel((Race)currentrace, Gender.Male) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Missing male model for race {currentrace}, ignoring.");
+					Log.Logger.Error($"Missing male model for race {currentrace}, ignoring.");
 
 					continue;
 				}
 
 				if (Global.DB2Mgr.GetChrModel((Race)currentrace, Gender.Female) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Missing female model for race {currentrace}, ignoring.");
+					Log.Logger.Error($"Missing female model for race {currentrace}, ignoring.");
 
 					continue;
 				}
@@ -6172,13 +6172,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (!CliDB.MapStorage.ContainsKey(info.CreatePositionNpe.Value.Loc.MapId))
 					{
-						Log.outError(LogFilter.Sql, $"Invalid NPE map id {info.CreatePositionNpe.Value.Loc.MapId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+						Log.Logger.Error($"Invalid NPE map id {info.CreatePositionNpe.Value.Loc.MapId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 						info.CreatePositionNpe = null;
 					}
 
 					if (info.CreatePositionNpe.HasValue && info.CreatePositionNpe.Value.TransportGuid.HasValue && Global.TransportMgr.GetTransportSpawn(info.CreatePositionNpe.Value.TransportGuid.Value) == null)
 					{
-						Log.outError(LogFilter.Sql, $"Invalid NPE transport spawn id {info.CreatePositionNpe.Value.TransportGuid.Value} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+						Log.Logger.Error($"Invalid NPE transport spawn id {info.CreatePositionNpe.Value.TransportGuid.Value} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 						info.CreatePositionNpe = null; // remove entire NPE data - assume user put transport offsets into npe_position fields
 					}
 				}
@@ -6190,7 +6190,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (CliDB.MovieStorage.ContainsKey(introMovieId))
 						info.IntroMovieId = introMovieId;
 					else
-						Log.outDebug(LogFilter.Sql, $"Invalid intro movie id {introMovieId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+						Log.Logger.Debug($"Invalid intro movie id {introMovieId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 				}
 
 				if (!result.IsNull(14))
@@ -6200,7 +6200,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (GetSceneTemplate(introSceneId) != null)
 						info.IntroSceneId = introSceneId;
 					else
-						Log.outDebug(LogFilter.Sql, $"Invalid intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+						Log.Logger.Debug($"Invalid intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 				}
 
 				if (!result.IsNull(15))
@@ -6210,7 +6210,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (GetSceneTemplate(introSceneId) != null)
 						info.IntroSceneIdNpe = introSceneId;
 					else
-						Log.outDebug(LogFilter.Sql, $"Invalid NPE intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
+						Log.Logger.Debug($"Invalid NPE intro scene id {introSceneId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 				}
 
 				_playerInfo.Add((Race)currentrace, (PlayerClass)currentclass, info);
@@ -6218,12 +6218,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} player create definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} player create definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 		}
 
 		time = Time.MSTime;
 		// Load playercreate items
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Items Data...");
+		Log.Logger.Information("Loading Player Create Items Data...");
 
 		{
 			MultiMap<uint, ItemTemplate> itemsByCharacterLoadout = new();
@@ -6287,7 +6287,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Items Override Data...");
+		Log.Logger.Information("Loading Player Create Items Override Data...");
 
 		{
 			//                                         0     1      2       3
@@ -6295,7 +6295,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 custom player create items. DB table `playercreateinfo_item` is empty.");
+				Log.Logger.Information("Loaded 0 custom player create items. DB table `playercreateinfo_item` is empty.");
 			}
 			else
 			{
@@ -6307,7 +6307,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (currentrace >= (int)Race.Max)
 					{
-						Log.outError(LogFilter.Sql, "Wrong race {0} in `playercreateinfo_item` table, ignoring.", currentrace);
+						Log.Logger.Error("Wrong race {0} in `playercreateinfo_item` table, ignoring.", currentrace);
 
 						continue;
 					}
@@ -6316,7 +6316,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (currentclass >= (int)PlayerClass.Max)
 					{
-						Log.outError(LogFilter.Sql, "Wrong class {0} in `playercreateinfo_item` table, ignoring.", currentclass);
+						Log.Logger.Error("Wrong class {0} in `playercreateinfo_item` table, ignoring.", currentclass);
 
 						continue;
 					}
@@ -6325,7 +6325,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (GetItemTemplate(itemid).Id == 0)
 					{
-						Log.outError(LogFilter.Sql, "Item id {0} (race {1} class {2}) in `playercreateinfo_item` table but not listed in `itemtemplate`, ignoring.", itemid, currentrace, currentclass);
+						Log.Logger.Error("Item id {0} (race {1} class {2}) in `playercreateinfo_item` table but not listed in `itemtemplate`, ignoring.", itemid, currentrace, currentclass);
 
 						continue;
 					}
@@ -6334,7 +6334,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (amount == 0)
 					{
-						Log.outError(LogFilter.Sql, "Item id {0} (class {1} race {2}) have amount == 0 in `playercreateinfo_item` table, ignoring.", itemid, currentrace, currentclass);
+						Log.Logger.Error("Item id {0} (class {1} race {2}) have amount == 0 in `playercreateinfo_item` table, ignoring.", itemid, currentrace, currentclass);
 
 						continue;
 					}
@@ -6358,12 +6358,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} custom player create items in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+				Log.Logger.Information("Loaded {0} custom player create items in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 			}
 		}
 
 		// Load playercreate skills
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Skill Data...");
+		Log.Logger.Information("Loading Player Create Skill Data...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -6377,11 +6377,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 									if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
 										info.Skills.Add(rcInfo);
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded player create skills in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded player create skills in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		// Load playercreate custom spells
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Custom Spell Data...");
+		Log.Logger.Information("Loading Player Create Custom Spell Data...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -6390,7 +6390,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 player create custom spells. DB table `playercreateinfo_spell_custom` is empty.");
+				Log.Logger.Information("Loaded 0 player create custom spells. DB table `playercreateinfo_spell_custom` is empty.");
 			}
 			else
 			{
@@ -6404,14 +6404,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (raceMask != 0 && !Convert.ToBoolean(raceMask & SharedConst.RaceMaskAllPlayable))
 					{
-						Log.outError(LogFilter.Sql, "Wrong race mask {0} in `playercreateinfo_spell_custom` table, ignoring.", raceMask);
+						Log.Logger.Error("Wrong race mask {0} in `playercreateinfo_spell_custom` table, ignoring.", raceMask);
 
 						continue;
 					}
 
 					if (classMask != 0 && !Convert.ToBoolean(classMask & (int)PlayerClass.ClassMaskAllPlayable))
 					{
-						Log.outError(LogFilter.Sql, "Wrong class mask {0} in `playercreateinfo_spell_custom` table, ignoring.", classMask);
+						Log.Logger.Error("Wrong class mask {0} in `playercreateinfo_spell_custom` table, ignoring.", classMask);
 
 						continue;
 					}
@@ -6427,12 +6427,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 									}
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} custom player create spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} custom player create spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// Load playercreate cast spell
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Cast Spell Data...");
+		Log.Logger.Information("Loading Player Create Cast Spell Data...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -6441,7 +6441,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 player create cast spells. DB table `playercreateinfo_cast_spell` is empty.");
+				Log.Logger.Information("Loaded 0 player create cast spells. DB table `playercreateinfo_cast_spell` is empty.");
 			}
 			else
 			{
@@ -6456,21 +6456,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (raceMask != 0 && (raceMask & SharedConst.RaceMaskAllPlayable) == 0)
 					{
-						Log.outError(LogFilter.Sql, $"Wrong race mask {raceMask} in `playercreateinfo_cast_spell` table, ignoring.");
+						Log.Logger.Error($"Wrong race mask {raceMask} in `playercreateinfo_cast_spell` table, ignoring.");
 
 						continue;
 					}
 
 					if (classMask != 0 && !classMask.HasAnyFlag((uint)PlayerClass.ClassMaskAllPlayable))
 					{
-						Log.outError(LogFilter.Sql, $"Wrong class mask {classMask} in `playercreateinfo_cast_spell` table, ignoring.");
+						Log.Logger.Error($"Wrong class mask {classMask} in `playercreateinfo_cast_spell` table, ignoring.");
 
 						continue;
 					}
 
 					if (playerCreateMode < 0 || playerCreateMode >= (sbyte)PlayerCreateMode.Max)
 					{
-						Log.outError(LogFilter.Sql, $"Uses invalid createMode {playerCreateMode} in `playercreateinfo_cast_spell` table, ignoring.");
+						Log.Logger.Error($"Uses invalid createMode {playerCreateMode} in `playercreateinfo_cast_spell` table, ignoring.");
 
 						continue;
 					}
@@ -6486,13 +6486,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 									}
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} player create cast spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} player create cast spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// Load playercreate actions
 		time = Time.MSTime;
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Action Data...");
+		Log.Logger.Information("Loading Player Create Action Data...");
 
 		{
 			//                                         0     1      2       3       4
@@ -6500,7 +6500,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 player create actions. DB table `playercreateinfo_action` is empty.");
+				Log.Logger.Information("Loaded 0 player create actions. DB table `playercreateinfo_action` is empty.");
 			}
 			else
 			{
@@ -6512,7 +6512,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (currentrace >= Race.Max)
 					{
-						Log.outError(LogFilter.Sql, "Wrong race {0} in `playercreateinfo_action` table, ignoring.", currentrace);
+						Log.Logger.Error("Wrong race {0} in `playercreateinfo_action` table, ignoring.", currentrace);
 
 						continue;
 					}
@@ -6521,7 +6521,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (currentclass >= PlayerClass.Max)
 					{
-						Log.outError(LogFilter.Sql, "Wrong class {0} in `playercreateinfo_action` table, ignoring.", currentclass);
+						Log.Logger.Error("Wrong class {0} in `playercreateinfo_action` table, ignoring.", currentclass);
 
 						continue;
 					}
@@ -6532,13 +6532,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} player create actions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+				Log.Logger.Information("Loaded {0} player create actions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 			}
 		}
 
 		time = Time.MSTime;
 		// Loading levels data (class/race dependent)
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create Level Stats Data...");
+		Log.Logger.Information("Loading Player Create Level Stats Data...");
 
 		{
 			var raceStatModifiers = new short[(int)Race.Max][];
@@ -6551,7 +6551,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 level stats definitions. DB table `player_racestats` is empty.");
+				Log.Logger.Information("Loaded 0 level stats definitions. DB table `player_racestats` is empty.");
 				Global.WorldMgr.StopNow();
 
 				return;
@@ -6563,7 +6563,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (currentrace >= Race.Max)
 				{
-					Log.outError(LogFilter.Sql, $"Wrong race {currentrace} in `player_racestats` table, ignoring.");
+					Log.Logger.Error($"Wrong race {currentrace} in `player_racestats` table, ignoring.");
 
 					continue;
 				}
@@ -6577,7 +6577,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 level stats definitions. DB table `player_classlevelstats` is empty.");
+				Log.Logger.Information("Loaded 0 level stats definitions. DB table `player_classlevelstats` is empty.");
 				Global.WorldMgr.StopNow();
 
 				return;
@@ -6591,7 +6591,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (currentclass >= PlayerClass.Max)
 				{
-					Log.outError(LogFilter.Sql, "Wrong class {0} in `player_classlevelstats` table, ignoring.", currentclass);
+					Log.Logger.Error("Wrong class {0} in `player_classlevelstats` table, ignoring.", currentclass);
 
 					continue;
 				}
@@ -6601,9 +6601,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (currentlevel > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 				{
 					if (currentlevel > 255) // hardcoded level maximum
-						Log.outError(LogFilter.Sql, $"Wrong (> 255) level {currentlevel} in `player_classlevelstats` table, ignoring.");
+						Log.Logger.Error($"Wrong (> 255) level {currentlevel} in `player_classlevelstats` table, ignoring.");
 					else
-						Log.outWarn(LogFilter.Sql, $"Unused (> MaxPlayerLevel in worldserver.conf) level {currentlevel} in `player_levelstats` table, ignoring.");
+						Log.Logger.Warning($"Unused (> MaxPlayerLevel in worldserver.conf) level {currentlevel} in `player_levelstats` table, ignoring.");
 
 					continue;
 				}
@@ -6659,7 +6659,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					// fatal error if no level 1 data
 					if (playerInfo.LevelInfo[0].Stats[0] == 0)
 					{
-						Log.outError(LogFilter.Sql, "Race {0} Class {1} Level 1 does not have stats data!", race, _class);
+						Log.Logger.Error("Race {0} Class {1} Level 1 does not have stats data!", race, _class);
 						Environment.Exit(1);
 
 						return;
@@ -6669,18 +6669,18 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					for (var level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
 						if (playerInfo.LevelInfo[level].Stats[0] == 0)
 						{
-							Log.outError(LogFilter.Sql, "Race {0} Class {1} Level {2} does not have stats data. Using stats data of level {3}.", race, _class, level + 1, level);
+							Log.Logger.Error("Race {0} Class {1} Level {2} does not have stats data. Using stats data of level {3}.", race, _class, level + 1, level);
 							playerInfo.LevelInfo[level] = playerInfo.LevelInfo[level - 1];
 						}
 				}
 			}
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} level stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} level stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 		}
 
 		time = Time.MSTime;
 		// Loading xp per level data
-		Log.outInfo(LogFilter.ServerLoading, "Loading Player Create XP Data...");
+		Log.Logger.Information("Loading Player Create XP Data...");
 
 		{
 			_playerXPperLevel = new uint[CliDB.XpGameTable.GetTableRowCount() + 1];
@@ -6706,11 +6706,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					{
 						if (currentlevel > SharedConst.StrongMaxLevel) // hardcoded level maximum
 						{
-							Log.outError(LogFilter.Sql, "Wrong (> {0}) level {1} in `player_xp_for_level` table, ignoring.", 255, currentlevel);
+							Log.Logger.Error("Wrong (> {0}) level {1} in `player_xp_for_level` table, ignoring.", 255, currentlevel);
 						}
 						else
 						{
-							Log.outWarn(LogFilter.Sql, "Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `player_xp_for_levels` table, ignoring.", currentlevel);
+							Log.Logger.Warning("Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `player_xp_for_levels` table, ignoring.", currentlevel);
 							++count; // make result loading percent "expected" correct in case disabled detail mode for example.
 						}
 
@@ -6726,12 +6726,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				for (var level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
 					if (_playerXPperLevel[level] == 0)
 					{
-						Log.outError(LogFilter.Sql, "Level {0} does not have XP for level data. Using data of level [{1}] + 12000.", level + 1, level);
+						Log.Logger.Error("Level {0} does not have XP for level data. Using data of level [{1}] + 12000.", level + 1, level);
 						_playerXPperLevel[level] = _playerXPperLevel[level - 1] + 12000;
 					}
 			}
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} xp for level definition(s) from database in {1} ms", count, Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} xp for level definition(s) from database in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 		}
 	}
 
@@ -6763,7 +6763,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (mp == null)
 		{
-			Log.outError(LogFilter.Sql, "Tried to get non-existant Class-Level combination data for base mp. Class {0} Level {1}", _class, level);
+			Log.Logger.Error("Tried to get non-existant Class-Level combination data for base mp. Class {0} Level {1}", _class, level);
 
 			return;
 		}
@@ -6795,7 +6795,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
+			Log.Logger.Information("Loaded 0 level pet stats definitions. DB table `pet_levelstats` is empty.");
 
 			return;
 		}
@@ -6811,7 +6811,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM pet_levelstats WHERE creature_entry = {creatureid}");
 				else
-					Log.outError(LogFilter.Sql, "Wrong creature id {0} in `pet_levelstats` table, ignoring.", creatureid);
+					Log.Logger.Error("Wrong creature id {0} in `pet_levelstats` table, ignoring.", creatureid);
 
 				continue;
 			}
@@ -6822,11 +6822,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (currentlevel > SharedConst.StrongMaxLevel) // hardcoded level maximum
 				{
-					Log.outError(LogFilter.Sql, "Wrong (> {0}) level {1} in `pet_levelstats` table, ignoring.", SharedConst.StrongMaxLevel, currentlevel);
+					Log.Logger.Error("Wrong (> {0}) level {1} in `pet_levelstats` table, ignoring.", SharedConst.StrongMaxLevel, currentlevel);
 				}
 				else
 				{
-					Log.outWarn(LogFilter.Server, "Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
+					Log.Logger.Warning("Unused (> MaxPlayerLevel in worldserver.conf) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
 					++count; // make result loading percent "expected" correct in case disabled detail mode for example.
 				}
 
@@ -6834,7 +6834,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			}
 			else if (currentlevel < 1)
 			{
-				Log.outError(LogFilter.Sql, "Wrong (<1) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
+				Log.Logger.Error("Wrong (<1) level {0} in `pet_levelstats` table, ignoring.", currentlevel);
 
 				continue;
 			}
@@ -6865,7 +6865,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			// fatal error if no level 1 data
 			if (pInfo == null || pInfo[0].health == 0)
 			{
-				Log.outError(LogFilter.Sql, "Creature {0} does not have pet stats data for Level 1!", map.Key);
+				Log.Logger.Error("Creature {0} does not have pet stats data for Level 1!", map.Key);
 				Global.WorldMgr.StopNow();
 			}
 
@@ -6873,12 +6873,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			for (byte level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
 				if (pInfo[level].health == 0)
 				{
-					Log.outError(LogFilter.Sql, "Creature {0} has no data for Level {1} pet stats data, using data of Level {2}.", map.Key, level + 1, level);
+					Log.Logger.Error("Creature {0} has no data for Level {1} pet stats data, using data of Level {2}.", map.Key, level + 1, level);
 					pInfo[level] = pInfo[level - 1];
 				}
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} level pet stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} level pet stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetNames()
@@ -6889,7 +6889,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 pet name parts. DB table `pet_name_generation` is empty!");
+			Log.Logger.Information("Loaded 0 pet name parts. DB table `pet_name_generation` is empty!");
 
 			return;
 		}
@@ -6910,7 +6910,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} pet name parts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} pet name parts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetNumber()
@@ -6922,7 +6922,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (!result.IsEmpty())
 			_hiPetNumber = result.Read<uint>(0) + 1;
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded the max pet number: {0} in {1} ms", _hiPetNumber - 1, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded the max pet number: {0} in {1} ms", _hiPetNumber - 1, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public PetLevelInfo GetPetLevelInfo(uint creatureid, uint level)
@@ -6965,7 +6965,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_hiPetNumber >= 0xFFFFFFFE)
 		{
-			Log.outError(LogFilter.Misc, "_hiPetNumber Id overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("_hiPetNumber Id overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow(ShutdownExitCode.Error);
 		}
 
@@ -6981,7 +6981,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
+			Log.Logger.Information("Loaded 0 faction change achievement pairs. DB table `player_factionchange_achievement` is empty.");
 
 			return;
 		}
@@ -6994,16 +6994,16 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var horde = result.Read<uint>(1);
 
 			if (!CliDB.AchievementStorage.ContainsKey(alliance))
-				Log.outError(LogFilter.Sql, "Achievement {0} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
+				Log.Logger.Error("Achievement {0} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
 			else if (!CliDB.AchievementStorage.ContainsKey(horde))
-				Log.outError(LogFilter.Sql, "Achievement {0} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
+				Log.Logger.Error("Achievement {0} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
 			else
 				FactionChangeAchievements[alliance] = horde;
 
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} faction change achievement pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change achievement pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeItems()
@@ -7026,7 +7026,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} faction change item pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change item pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeQuests()
@@ -7037,7 +7037,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 faction change quest pairs. DB table `player_factionchange_quests` is empty.");
+			Log.Logger.Information("Loaded 0 faction change quest pairs. DB table `player_factionchange_quests` is empty.");
 
 			return;
 		}
@@ -7050,16 +7050,16 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var horde = result.Read<uint>(1);
 
 			if (GetQuestTemplate(alliance) == null)
-				Log.outError(LogFilter.Sql, "Quest {0} (alliance_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
+				Log.Logger.Error("Quest {0} (alliance_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", alliance);
 			else if (GetQuestTemplate(horde) == null)
-				Log.outError(LogFilter.Sql, "Quest {0} (horde_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", horde);
+				Log.Logger.Error("Quest {0} (horde_id) referenced in `player_factionchange_quests` does not exist, pair skipped!", horde);
 			else
 				FactionChangeQuests[alliance] = horde;
 
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} faction change quest pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change quest pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeReputations()
@@ -7070,7 +7070,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
+			Log.Logger.Information("Loaded 0 faction change reputation pairs. DB table `player_factionchange_reputations` is empty.");
 
 			return;
 		}
@@ -7083,16 +7083,16 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var horde = result.Read<uint>(1);
 
 			if (!CliDB.FactionStorage.ContainsKey(alliance))
-				Log.outError(LogFilter.Sql, "Reputation {0} (alliance_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
+				Log.Logger.Error("Reputation {0} (alliance_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
 			else if (!CliDB.FactionStorage.ContainsKey(horde))
-				Log.outError(LogFilter.Sql, "Reputation {0} (horde_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
+				Log.Logger.Error("Reputation {0} (horde_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
 			else
 				FactionChangeReputation[alliance] = horde;
 
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} faction change reputation pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change reputation pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeSpells()
@@ -7103,7 +7103,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
+			Log.Logger.Information("Loaded 0 faction change spell pairs. DB table `player_factionchange_spells` is empty.");
 
 			return;
 		}
@@ -7116,16 +7116,16 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var horde = result.Read<uint>(1);
 
 			if (!Global.SpellMgr.HasSpellInfo(alliance, Difficulty.None))
-				Log.outError(LogFilter.Sql, "Spell {0} (alliance_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", alliance);
+				Log.Logger.Error("Spell {0} (alliance_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", alliance);
 			else if (!Global.SpellMgr.HasSpellInfo(horde, Difficulty.None))
-				Log.outError(LogFilter.Sql, "Spell {0} (horde_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", horde);
+				Log.Logger.Error("Spell {0} (horde_id) referenced in `player_factionchange_spells` does not exist, pair skipped!", horde);
 			else
 				FactionChangeSpells[alliance] = horde;
 
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} faction change spell pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change spell pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeTitles()
@@ -7136,7 +7136,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");
+			Log.Logger.Information("Loaded 0 faction change title pairs. DB table `player_factionchange_title` is empty.");
 
 			return;
 		}
@@ -7149,16 +7149,16 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var horde = result.Read<uint>(1);
 
 			if (!CliDB.CharTitlesStorage.ContainsKey(alliance))
-				Log.outError(LogFilter.Sql, "Title {0} (alliance_id) referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
+				Log.Logger.Error("Title {0} (alliance_id) referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
 			else if (!CliDB.CharTitlesStorage.ContainsKey(horde))
-				Log.outError(LogFilter.Sql, "Title {0} (horde_id) referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
+				Log.Logger.Error("Title {0} (horde_id) referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
 			else
 				FactionChangeTitles[alliance] = horde;
 
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} faction change title pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change title pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	//Quests
@@ -7209,7 +7209,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quests definitions. DB table `quest_template` is empty.");
+			Log.Logger.Information("Loaded 0 quests definitions. DB table `quest_template` is empty.");
 
 			return;
 		}
@@ -7232,7 +7232,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT QuestID, Type1, Type2, Type3, Type4, Type5, Type6 FROM quest_reward_choice_items");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest reward choice items. DB table `quest_reward_choice_items` is empty.");
+			Log.Logger.Information("Loaded 0 quest reward choice items. DB table `quest_reward_choice_items` is empty.");
 		else
 			do
 			{
@@ -7243,7 +7243,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadRewardChoiceItems(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, $"Table `quest_reward_choice_items` has data for quest {questId} but such quest does not exist");
+					Log.Logger.Error($"Table `quest_reward_choice_items` has data for quest {questId} but such quest does not exist");
 			} while (result.NextRow());
 
 
@@ -7252,7 +7252,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT QuestID, SpellID, PlayerConditionID FROM quest_reward_display_spell ORDER BY QuestID ASC, Idx ASC");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest reward display spells. DB table `quest_reward_display_spell` is empty.");
+			Log.Logger.Information("Loaded 0 quest reward display spells. DB table `quest_reward_display_spell` is empty.");
 		else
 			do
 			{
@@ -7263,7 +7263,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadRewardDisplaySpell(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, $"Table `quest_reward_display_spell` has data for quest {questId} but such quest does not exist");
+					Log.Logger.Error($"Table `quest_reward_display_spell` has data for quest {questId} but such quest does not exist");
 			} while (result.NextRow());
 
 
@@ -7272,7 +7272,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4 FROM quest_details");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest details. DB table `quest_details` is empty.");
+			Log.Logger.Information("Loaded 0 quest details. DB table `quest_details` is empty.");
 		else
 			do
 			{
@@ -7283,7 +7283,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadQuestDetails(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, "Table `quest_details` has data for quest {0} but such quest does not exist", questId);
+					Log.Logger.Error("Table `quest_details` has data for quest {0} but such quest does not exist", questId);
 			} while (result.NextRow());
 
 		// Load `quest_request_items`
@@ -7291,7 +7291,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText FROM quest_request_items");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest request items. DB table `quest_request_items` is empty.");
+			Log.Logger.Information("Loaded 0 quest request items. DB table `quest_request_items` is empty.");
 		else
 			do
 			{
@@ -7302,7 +7302,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadQuestRequestItems(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, "Table `quest_request_items` has data for quest {0} but such quest does not exist", questId);
+					Log.Logger.Error("Table `quest_request_items` has data for quest {0} but such quest does not exist", questId);
 			} while (result.NextRow());
 
 		// Load `quest_offer_reward`
@@ -7310,7 +7310,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText FROM quest_offer_reward");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest reward emotes. DB table `quest_offer_reward` is empty.");
+			Log.Logger.Information("Loaded 0 quest reward emotes. DB table `quest_offer_reward` is empty.");
 		else
 			do
 			{
@@ -7321,7 +7321,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadQuestOfferReward(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, "Table `quest_offer_reward` has data for quest {0} but such quest does not exist", questId);
+					Log.Logger.Error("Table `quest_offer_reward` has data for quest {0} but such quest does not exist", questId);
 			} while (result.NextRow());
 
 		// Load `quest_template_addon`
@@ -7333,7 +7333,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 								"SpecialFlags, ScriptName FROM quest_template_addon LEFT JOIN quest_mail_sender ON Id=QuestId");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest template addons. DB table `quest_template_addon` is empty.");
+			Log.Logger.Information("Loaded 0 quest template addons. DB table `quest_template_addon` is empty.");
 		else
 			do
 			{
@@ -7344,7 +7344,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadQuestTemplateAddon(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, "Table `quest_template_addon` has data for quest {0} but such quest does not exist", questId);
+					Log.Logger.Error("Table `quest_template_addon` has data for quest {0} but such quest does not exist", questId);
 			} while (result.NextRow());
 
 		// Load `quest_mail_sender`
@@ -7352,7 +7352,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT QuestId, RewardMailSenderEntry FROM quest_mail_sender");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest mail senders. DB table `quest_mail_sender` is empty.");
+			Log.Logger.Information("Loaded 0 quest mail senders. DB table `quest_mail_sender` is empty.");
 		else
 			do
 			{
@@ -7363,7 +7363,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadQuestMailSender(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, "Table `quest_mail_sender` has data for quest {0} but such quest does not exist", questId);
+					Log.Logger.Error("Table `quest_mail_sender` has data for quest {0} but such quest does not exist", questId);
 			} while (result.NextRow());
 
 		// Load `quest_objectives`
@@ -7371,7 +7371,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description FROM quest_objectives ORDER BY `Order` ASC, StorageIndex ASC");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest objectives. DB table `quest_objectives` is empty.");
+			Log.Logger.Information("Loaded 0 quest objectives. DB table `quest_objectives` is empty.");
 		else
 			do
 			{
@@ -7381,7 +7381,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (quest != null)
 					quest.LoadQuestObjective(result.GetFields());
 				else
-					Log.outError(LogFilter.Sql, "Table `quest_objectives` has objective for quest {0} but such quest does not exist", questId);
+					Log.Logger.Error("Table `quest_objectives` has objective for quest {0} but such quest does not exist", questId);
 			} while (result.NextRow());
 
 		// Load `quest_visual_effect` join table with quest_objectives because visual effects are based on objective ID (core stores objectives by their index in quest)
@@ -7389,7 +7389,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		result = DB.World.Query("SELECT v.ID, o.ID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
 
 		if (result.IsEmpty())
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
+			Log.Logger.Information("Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
 		else
 			do
 			{
@@ -7398,7 +7398,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (vID == 0)
 				{
-					Log.outError(LogFilter.Sql, "Table `quest_visual_effect` has visual effect for null objective id");
+					Log.Logger.Error("Table `quest_visual_effect` has visual effect for null objective id");
 
 					continue;
 				}
@@ -7406,7 +7406,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				// objID will be null if match for table join is not found
 				if (vID != oID)
 				{
-					Log.outError(LogFilter.Sql, "Table `quest_visual_effect` has visual effect for objective {0} but such objective does not exist.", vID);
+					Log.Logger.Error("Table `quest_visual_effect` has visual effect for objective {0} but such objective does not exist.", vID);
 
 					continue;
 				}
@@ -7432,11 +7432,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			// additional quest integrity checks (GO, creaturetemplate and itemtemplate must be loaded already)
 
 			if (qinfo.Type >= QuestType.Max)
-				Log.outError(LogFilter.Sql, "Quest {0} has `Method` = {1}, expected values are 0, 1 or 2.", qinfo.Id, qinfo.Type);
+				Log.Logger.Error("Quest {0} has `Method` = {1}, expected values are 0, 1 or 2.", qinfo.Id, qinfo.Type);
 
 			if (Convert.ToBoolean(qinfo.SpecialFlags & ~QuestSpecialFlags.DbAllowed))
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `SpecialFlags` = {1} > max allowed value. Correct `SpecialFlags` to value <= {2}",
 							qinfo.Id,
 							qinfo.SpecialFlags,
@@ -7447,28 +7447,28 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (qinfo.Flags.HasAnyFlag(QuestFlags.Daily) && qinfo.Flags.HasAnyFlag(QuestFlags.Weekly))
 			{
-				Log.outError(LogFilter.Sql, "Weekly Quest {0} is marked as daily quest in `Flags`, removed daily flag.", qinfo.Id);
+				Log.Logger.Error("Weekly Quest {0} is marked as daily quest in `Flags`, removed daily flag.", qinfo.Id);
 				qinfo.Flags &= ~QuestFlags.Daily;
 			}
 
 			if (qinfo.Flags.HasAnyFlag(QuestFlags.Daily))
 				if (!qinfo.SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable))
 				{
-					Log.outError(LogFilter.Sql, "Daily Quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
+					Log.Logger.Error("Daily Quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
 					qinfo.SpecialFlags |= QuestSpecialFlags.Repeatable;
 				}
 
 			if (qinfo.Flags.HasAnyFlag(QuestFlags.Weekly))
 				if (!qinfo.SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable))
 				{
-					Log.outError(LogFilter.Sql, "Weekly Quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
+					Log.Logger.Error("Weekly Quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
 					qinfo.SpecialFlags |= QuestSpecialFlags.Repeatable;
 				}
 
 			if (qinfo.SpecialFlags.HasAnyFlag(QuestSpecialFlags.Monthly))
 				if (!qinfo.SpecialFlags.HasAnyFlag(QuestSpecialFlags.Repeatable))
 				{
-					Log.outError(LogFilter.Sql, "Monthly quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
+					Log.Logger.Error("Monthly quest {0} not marked as repeatable in `SpecialFlags`, added.", qinfo.Id);
 					qinfo.SpecialFlags |= QuestSpecialFlags.Repeatable;
 				}
 
@@ -7479,7 +7479,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					var id = qinfo.RewardChoiceItemId[j];
 
 					if (id != 0)
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RewardChoiceItemId{1}` = {2} but item from `RewardChoiceItemId{3}` can't be rewarded with quest flag QUESTFLAGSTRACKING.",
 									qinfo.Id,
 									j + 1,
@@ -7489,12 +7489,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 
 			if (qinfo.ContentTuningId != 0 && !CliDB.ContentTuningStorage.ContainsKey(qinfo.ContentTuningId))
-				Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has `ContentTuningID` = {qinfo.ContentTuningId} but content tuning with this id does not exist.");
+				Log.Logger.Error($"Quest {qinfo.Id} has `ContentTuningID` = {qinfo.ContentTuningId} but content tuning with this id does not exist.");
 
 			// client quest log visual (area case)
 			if (qinfo.QuestSortID > 0)
 				if (!CliDB.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
 								qinfo.Id,
 								qinfo.QuestSortID);
@@ -7506,7 +7506,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				var qSort = CliDB.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
 
 				if (qSort == null)
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
 								qinfo.Id,
 								qinfo.QuestSortID);
@@ -7517,7 +7517,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (skillid != SkillType.None)
 					if (qinfo.RequiredSkillId != (uint)skillid)
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `ZoneOrSort` = {1} but `RequiredSkillId` does not have a corresponding value ({2}).",
 									qinfo.Id,
 									qinfo.QuestSortID,
@@ -7529,7 +7529,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.AllowableClasses != 0)
 				if (!Convert.ToBoolean(qinfo.AllowableClasses & (uint)PlayerClass.ClassMaskAllPlayable))
 				{
-					Log.outError(LogFilter.Sql, "Quest {0} does not contain any playable classes in `RequiredClasses` ({1}), value set to 0 (all classes).", qinfo.Id, qinfo.AllowableClasses);
+					Log.Logger.Error("Quest {0} does not contain any playable classes in `RequiredClasses` ({1}), value set to 0 (all classes).", qinfo.Id, qinfo.AllowableClasses);
 					qinfo.AllowableClasses = 0;
 				}
 
@@ -7537,21 +7537,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.AllowableRaces != -1)
 				if (qinfo.AllowableRaces > 0 && !Convert.ToBoolean(qinfo.AllowableRaces & (long)SharedConst.RaceMaskAllPlayable))
 				{
-					Log.outError(LogFilter.Sql, "Quest {0} does not contain any playable races in `RequiredRaces` ({1}), value set to 0 (all races).", qinfo.Id, qinfo.AllowableRaces);
+					Log.Logger.Error("Quest {0} does not contain any playable races in `RequiredRaces` ({1}), value set to 0 (all races).", qinfo.Id, qinfo.AllowableRaces);
 					qinfo.AllowableRaces = -1;
 				}
 
 			// RequiredSkillId, can be 0
 			if (qinfo.RequiredSkillId != 0)
 				if (!CliDB.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RequiredSkillId` = {1} but this skill does not exist",
 								qinfo.Id,
 								qinfo.RequiredSkillId);
 
 			if (qinfo.RequiredSkillPoints != 0)
 				if (qinfo.RequiredSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RequiredSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
 								qinfo.Id,
 								qinfo.RequiredSkillPoints,
@@ -7560,7 +7560,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			// else Skill quests can have 0 skill level, this is ok
 
 			if (qinfo.RequiredMinRepFaction != 0 && !CliDB.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
 							qinfo.Id,
 							qinfo.RequiredMinRepFaction,
@@ -7568,7 +7568,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMaxRepFaction != 0 && !CliDB.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
 							qinfo.Id,
 							qinfo.RequiredMaxRepFaction,
@@ -7576,7 +7576,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMinRepValue != 0 && qinfo.RequiredMinRepValue > SharedConst.ReputationCap)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RequiredMinRepValue` = {1} but max reputation is {2}, quest can't be done.",
 							qinfo.Id,
 							qinfo.RequiredMinRepValue,
@@ -7584,7 +7584,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMinRepValue != 0 && qinfo.RequiredMaxRepValue != 0 && qinfo.RequiredMaxRepValue <= qinfo.RequiredMinRepValue)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RequiredMaxRepValue` = {1} and `RequiredMinRepValue` = {2}, quest can't be done.",
 							qinfo.Id,
 							qinfo.RequiredMaxRepValue,
@@ -7592,14 +7592,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMinRepFaction == 0 && qinfo.RequiredMinRepValue != 0)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RequiredMinRepValue` = {1} but `RequiredMinRepFaction` is 0, value has no effect",
 							qinfo.Id,
 							qinfo.RequiredMinRepValue);
 
 			// warning
 			if (qinfo.RequiredMaxRepFaction == 0 && qinfo.RequiredMaxRepValue != 0)
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RequiredMaxRepValue` = {1} but `RequiredMaxRepFaction` is 0, value has no effect",
 							qinfo.Id,
 							qinfo.RequiredMaxRepValue);
@@ -7607,7 +7607,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			// warning
 			if (qinfo.RewardTitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
 							qinfo.Id,
 							qinfo.RewardTitleId);
@@ -7620,7 +7620,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (GetItemTemplate(qinfo.SourceItemId) == null)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `SourceItemId` = {1} but item with entry {2} does not exist, quest can't be done.",
 								qinfo.Id,
 								qinfo.SourceItemId,
@@ -7633,7 +7633,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
 					else
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
 									qinfo.Id,
 									qinfo.SourceItemId);
@@ -7643,7 +7643,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			}
 			else if (qinfo.SourceItemIdCount > 0)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Quest {0} has `SourceItemId` = 0 but `SourceItemIdCount` = {1}, useless value.",
 							qinfo.Id,
 							qinfo.SourceItemIdCount);
@@ -7657,7 +7657,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `SourceSpellid` = {1} but spell {1} doesn't exist, quest can't be done.",
 								qinfo.Id,
 								qinfo.SourceSpellID);
@@ -7666,7 +7666,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 				else if (!Global.SpellMgr.IsSpellValid(spellInfo))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `SourceSpellid` = {1} but spell {1} is broken, quest can't be done.",
 								qinfo.Id,
 								qinfo.SourceSpellID);
@@ -7692,7 +7692,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						case QuestObjectiveType.AreaTrigger:
 						case QuestObjectiveType.WinPetBattleAgainstNpc:
 						case QuestObjectiveType.ObtainCurrency:
-							Log.outError(LogFilter.Sql, "Quest {0} objective {1} has invalid StorageIndex = {2} for objective type {3}", qinfo.Id, obj.Id, obj.StorageIndex, obj.Type);
+							Log.Logger.Error("Quest {0} objective {1} has invalid StorageIndex = {2} for objective type {3}", qinfo.Id, obj.Id, obj.StorageIndex, obj.Type);
 
 							break;
 						default:
@@ -7706,7 +7706,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
+								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.Monster:
@@ -7714,7 +7714,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
+								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.GameObject:
@@ -7722,7 +7722,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
+								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.TalkTo:
@@ -7730,7 +7730,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
+								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.MinReputation:
@@ -7740,7 +7740,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.PlayerKills:
@@ -7748,7 +7748,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
+								Log.Logger.Error("Quest {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
 
 						break;
 					case QuestObjectiveType.Currency:
@@ -7758,13 +7758,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						if (obj.Amount <= 0)
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
+								Log.Logger.Error("Quest {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
 
 						break;
 					case QuestObjectiveType.LearnSpell:
@@ -7772,7 +7772,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.WinPetBattleAgainstNpc:
@@ -7780,7 +7780,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.DefeatBattlePet:
@@ -7788,7 +7788,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.CriteriaTree:
@@ -7796,7 +7796,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.AreaTrigger:
@@ -7804,7 +7804,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.AreaTriggerEnter:
@@ -7813,7 +7813,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
-								Log.outError(LogFilter.Sql, "Quest {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
+								Log.Logger.Error("Quest {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.Money:
@@ -7824,7 +7824,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 						else
-							Log.outError(LogFilter.Sql, "Quest {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
+							Log.Logger.Error("Quest {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
 
 						break;
 				}
@@ -7840,7 +7840,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (id != 0)
 				{
 					if (GetItemTemplate(id) == null)
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RequiredSourceItemId{1}` = {2} but item with entry {2} does not exist, quest can't be done.",
 									qinfo.Id,
 									j + 1,
@@ -7850,7 +7850,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				else
 				{
 					if (qinfo.ItemDropQuantity[j] > 0)
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RequiredSourceItemId{1}` = 0 but `RequiredSourceItemCount{1}` = {2}.",
 									qinfo.Id,
 									j + 1,
@@ -7870,7 +7870,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						case LootItemType.Item:
 							if (GetItemTemplate(id) == null)
 							{
-								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but item with entry {id} does not exist, quest will not reward this item.");
+								Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but item with entry {id} does not exist, quest will not reward this item.");
 								qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
 							}
 
@@ -7878,24 +7878,24 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						case LootItemType.Currency:
 							if (!CliDB.CurrencyTypesStorage.HasRecord(id))
 							{
-								Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but currency with id {id} does not exist, quest will not reward this currency.");
+								Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but currency with id {id} does not exist, quest will not reward this currency.");
 								qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
 							}
 
 							break;
 						default:
-							Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has `RewardChoiceItemType{j + 1}` = {qinfo.RewardChoiceItemType[j]} but it is not a valid item type, reward removed.");
+							Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemType{j + 1}` = {qinfo.RewardChoiceItemType[j]} but it is not a valid item type, reward removed.");
 							qinfo.RewardChoiceItemId[j] = 0;
 
 							break;
 					}
 
 					if (qinfo.RewardChoiceItemCount[j] == 0)
-						Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but `RewardChoiceItemCount{j + 1}` = 0, quest can't be done.");
+						Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but `RewardChoiceItemCount{j + 1}` = 0, quest can't be done.");
 				}
 				else if (qinfo.RewardChoiceItemCount[j] > 0)
 				{
-					Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = 0 but `RewardChoiceItemCount{j + 1}` = {qinfo.RewardChoiceItemCount[j]}.");
+					Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = 0 but `RewardChoiceItemCount{j + 1}` = {qinfo.RewardChoiceItemCount[j]}.");
 					// no changes, quest ignore this data
 				}
 			}
@@ -7908,7 +7908,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				{
 					if (GetItemTemplate(id) == null)
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RewardItemId{1}` = {2} but item with entry {3} does not exist, quest will not reward this item.",
 									qinfo.Id,
 									j + 1,
@@ -7919,7 +7919,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					}
 
 					if (qinfo.RewardItemCount[j] == 0)
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RewardItemId{1}` = {2} but `RewardItemIdCount{3}` = 0, quest will not reward this item.",
 									qinfo.Id,
 									j + 1,
@@ -7929,7 +7929,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 				else if (qinfo.RewardItemCount[j] > 0)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardItemId{1}` = 0 but `RewardItemIdCount{2}` = {3}.",
 								qinfo.Id,
 								j + 1,
@@ -7943,11 +7943,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (qinfo.RewardFactionId[j] != 0)
 				{
 					if (Math.Abs(qinfo.RewardFactionValue[j]) > 9)
-						Log.outError(LogFilter.Sql, "Quest {0} has RewardFactionValueId{1} = {2}. That is outside the range of valid values (-9 to 9).", qinfo.Id, j + 1, qinfo.RewardFactionValue[j]);
+						Log.Logger.Error("Quest {0} has RewardFactionValueId{1} = {2}. That is outside the range of valid values (-9 to 9).", qinfo.Id, j + 1, qinfo.RewardFactionValue[j]);
 
 					if (!CliDB.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
 									qinfo.Id,
 									j + 1,
@@ -7960,7 +7960,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				else if (qinfo.RewardFactionOverride[j] != 0)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardFactionId{1}` = 0 but `RewardFactionValueIdOverride{2}` = {3}.",
 								qinfo.Id,
 								j + 1,
@@ -7975,7 +7975,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardSpellCast` = {1} but spell {2} does not exist, quest will not have a spell reward.",
 								qinfo.Id,
 								qinfo.RewardSpell,
@@ -7986,7 +7986,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				else if (!Global.SpellMgr.IsSpellValid(spellInfo))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardSpellCast` = {1} but spell {2} is broken, quest will not have a spell reward.",
 								qinfo.Id,
 								qinfo.RewardSpell,
@@ -8000,7 +8000,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (!CliDB.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
 								qinfo.Id,
 								qinfo.RewardMailTemplateId,
@@ -8014,7 +8014,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				{
 					var usedId = usedMailTemplates.LookupByKey(qinfo.RewardMailTemplateId);
 
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardMailTemplateId` = {1} but mail template  {2} already used for quest {3}, quest will not have a mail reward.",
 								qinfo.Id,
 								qinfo.RewardMailTemplateId,
@@ -8034,7 +8034,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.NextQuestInChain != 0)
 				if (!_questTemplates.ContainsKey(qinfo.NextQuestInChain))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `NextQuestIdChain` = {1} but quest {2} does not exist, quest chain will not work.",
 								qinfo.Id,
 								qinfo.NextQuestInChain,
@@ -8047,7 +8047,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (qinfo.RewardCurrencyId[j] != 0)
 				{
 					if (qinfo.RewardCurrencyCount[j] == 0)
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RewardCurrencyId{1}` = {2} but `RewardCurrencyCount{3}` = 0, quest can't be done.",
 									qinfo.Id,
 									j + 1,
@@ -8057,7 +8057,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					// no changes, quest can't be done for this requirement
 					if (!CliDB.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Quest {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
 									qinfo.Id,
 									j + 1,
@@ -8069,7 +8069,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 				else if (qinfo.RewardCurrencyCount[j] > 0)
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardCurrencyId{1}` = 0 but `RewardCurrencyCount{2}` = {3}, quest can't be done.",
 								qinfo.Id,
 								j + 1,
@@ -8082,7 +8082,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.SoundAccept != 0)
 				if (!CliDB.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
 								qinfo.Id,
 								qinfo.SoundAccept,
@@ -8094,7 +8094,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.SoundTurnIn != 0)
 				if (!CliDB.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
 								qinfo.Id,
 								qinfo.SoundTurnIn,
@@ -8106,13 +8106,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.RewardSkillId > 0)
 			{
 				if (!CliDB.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardSkillId` = {1} but this skill does not exist",
 								qinfo.Id,
 								qinfo.RewardSkillId);
 
 				if (qinfo.RewardSkillPoints == 0)
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardSkillId` = {1} but `RewardSkillPoints` is 0",
 								qinfo.Id,
 								qinfo.RewardSkillId);
@@ -8121,7 +8121,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (qinfo.RewardSkillPoints != 0)
 			{
 				if (qinfo.RewardSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
 								qinfo.Id,
 								qinfo.RewardSkillPoints,
@@ -8129,7 +8129,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				// no changes, quest can't be done for this requirement
 				if (qinfo.RewardSkillId == 0)
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Quest {0} has `RewardSkillPoints` = {1} but `RewardSkillId` is 0",
 								qinfo.Id,
 								qinfo.RewardSkillPoints);
@@ -8143,9 +8143,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				var prevQuestItr = _questTemplates.LookupByKey(prevQuestId);
 
 				if (prevQuestItr == null)
-					Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} has PrevQuestId {prevQuestId}, but no such quest");
+					Log.Logger.Error($"Quest {qinfo.Id} has PrevQuestId {prevQuestId}, but no such quest");
 				else if (prevQuestItr.BreadcrumbForQuestId != 0)
-					Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} should not be unlocked by breadcrumb quest {prevQuestId}");
+					Log.Logger.Error($"Quest {qinfo.Id} should not be unlocked by breadcrumb quest {prevQuestId}");
 				else if (qinfo.PrevQuestId > 0)
 					qinfo.DependentPreviousQuests.Add(prevQuestId);
 			}
@@ -8155,7 +8155,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				var nextquest = _questTemplates.LookupByKey(qinfo.NextQuestId);
 
 				if (nextquest == null)
-					Log.outError(LogFilter.Sql, "Quest {0} has NextQuestId {1}, but no such quest", qinfo.Id, qinfo.NextQuestId);
+					Log.Logger.Error("Quest {0} has NextQuestId {1}, but no such quest", qinfo.Id, qinfo.NextQuestId);
 				else
 					nextquest.DependentPreviousQuests.Add(qinfo.Id);
 			}
@@ -8166,12 +8166,12 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			{
 				if (!_questTemplates.ContainsKey(breadcrumbForQuestId))
 				{
-					Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} is a breadcrumb for quest {breadcrumbForQuestId}, but no such quest exists");
+					Log.Logger.Error($"Quest {qinfo.Id} is a breadcrumb for quest {breadcrumbForQuestId}, but no such quest exists");
 					qinfo.BreadcrumbForQuestId = 0;
 				}
 
 				if (qinfo.NextQuestId != 0)
-					Log.outError(LogFilter.Sql, $"Quest {qinfo.Id} is a breadcrumb, should not unlock quest {qinfo.NextQuestId}");
+					Log.Logger.Error($"Quest {qinfo.Id} is a breadcrumb, should not unlock quest {qinfo.NextQuestId}");
 			}
 
 			if (qinfo.ExclusiveGroup != 0)
@@ -8195,7 +8195,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				//breadcrumb loop found!
 				if (questSet.Contains(qinfo.Id))
 				{
-					Log.outError(LogFilter.Sql, $"Breadcrumb quests {qid} and {breadcrumbForQuestId} are in a loop");
+					Log.Logger.Error($"Breadcrumb quests {qid} and {breadcrumbForQuestId} are in a loop");
 					qinfo.BreadcrumbForQuestId = 0;
 
 					break;
@@ -8234,7 +8234,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
 				{
-					Log.outError(LogFilter.Sql,
+					Log.Logger.Error(
 								"Spell (id: {0}) have SPELL_EFFECT_QUEST_COMPLETE for quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. " +
 								"Quest flags must be fixed, quest modified to enable objective.",
 								spellInfo.Id,
@@ -8255,18 +8255,18 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				quest.SetSpecialFlag(QuestSpecialFlags.Repeatable);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} quests definitions in {1} ms", _questTemplates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quests definitions in {1} ms", _questTemplates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestStartersAndEnders()
 	{
-		Log.outInfo(LogFilter.ServerLoading, "Loading GO Start Quest Data...");
+		Log.Logger.Information("Loading GO Start Quest Data...");
 		LoadGameobjectQuestStarters();
-		Log.outInfo(LogFilter.ServerLoading, "Loading GO End Quest Data...");
+		Log.Logger.Information("Loading GO End Quest Data...");
 		LoadGameobjectQuestEnders();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature Start Quest Data...");
+		Log.Logger.Information("Loading Creature Start Quest Data...");
 		LoadCreatureQuestStarters();
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creature End Quest Data...");
+		Log.Logger.Information("Loading Creature End Quest Data...");
 		LoadCreatureQuestEnders();
 	}
 
@@ -8279,9 +8279,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var goInfo = GetGameObjectTemplate(pair.Key);
 
 			if (goInfo == null)
-				Log.outError(LogFilter.Sql, "Table `gameobject_queststarter` have data for not existed gameobject entry ({0}) and existed quest {1}", pair.Key, pair.Value);
+				Log.Logger.Error("Table `gameobject_queststarter` have data for not existed gameobject entry ({0}) and existed quest {1}", pair.Key, pair.Value);
 			else if (goInfo.type != GameObjectTypes.QuestGiver)
-				Log.outError(LogFilter.Sql, "Table `gameobject_queststarter` have data gameobject entry ({0}) for quest {1}, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", pair.Key, pair.Value);
+				Log.Logger.Error("Table `gameobject_queststarter` have data gameobject entry ({0}) for quest {1}, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", pair.Key, pair.Value);
 		}
 	}
 
@@ -8294,9 +8294,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var goInfo = GetGameObjectTemplate(pair.Key);
 
 			if (goInfo == null)
-				Log.outError(LogFilter.Sql, "Table `gameobject_questender` have data for not existed gameobject entry ({0}) and existed quest {1}", pair.Key, pair.Value);
+				Log.Logger.Error("Table `gameobject_questender` have data for not existed gameobject entry ({0}) and existed quest {1}", pair.Key, pair.Value);
 			else if (goInfo.type != GameObjectTypes.QuestGiver)
-				Log.outError(LogFilter.Sql, "Table `gameobject_questender` have data gameobject entry ({0}) for quest {1}, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", pair.Key, pair.Value);
+				Log.Logger.Error("Table `gameobject_questender` have data gameobject entry ({0}) for quest {1}, but GO is not GAMEOBJECT_TYPE_QUESTGIVER", pair.Key, pair.Value);
 		}
 	}
 
@@ -8310,11 +8310,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo == null)
 			{
-				Log.outDebug(LogFilter.Sql, "Table `creature_queststarter` have data for not existed creature entry ({0}) and existed quest {1}", pair.Key, pair.Value);
+				Log.Logger.Debug("Table `creature_queststarter` have data for not existed creature entry ({0}) and existed quest {1}", pair.Key, pair.Value);
 			}
 			else if (!Convert.ToBoolean(cInfo.Npcflag & (uint)NPCFlags.QuestGiver))
 			{
-				Log.outTrace(LogFilter.Sql, "Table `creature_queststarter` has creature entry ({0}) for quest {1}, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", pair.Key, pair.Value);
+				Log.Logger.Verbose("Table `creature_queststarter` has creature entry ({0}) for quest {1}, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", pair.Key, pair.Value);
 				cInfo.Npcflag &= (uint)NPCFlags.QuestGiver;
 			}
 		}
@@ -8330,11 +8330,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `creature_questender` have data for not existed creature entry ({0}) and existed quest {1}", pair.Key, pair.Value);
+				Log.Logger.Error("Table `creature_questender` have data for not existed creature entry ({0}) and existed quest {1}", pair.Key, pair.Value);
 			}
 			else if (!Convert.ToBoolean(cInfo.Npcflag & (uint)NPCFlags.QuestGiver))
 			{
-				Log.outTrace(LogFilter.Sql, "Table `creature_questender` has creature entry ({0}) for quest {1}, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", pair.Key, pair.Value);
+				Log.Logger.Verbose("Table `creature_questender` has creature entry ({0}) for quest {1}, but npcflag does not include UNIT_NPC_FLAG_QUESTGIVER", pair.Key, pair.Value);
 				cInfo.Npcflag &= (uint)NPCFlags.QuestGiver;
 			}
 		}
@@ -8351,7 +8351,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
+			Log.Logger.Information("Loaded 0 quest POI definitions. DB table `quest_poi` is empty.");
 
 			return;
 		}
@@ -8398,7 +8398,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM quest_poi WHERE QuestID = {questID}");
 				else
-					Log.outError(LogFilter.Sql, $"`quest_poi` quest id ({questID}) Idx1 ({idx1}) does not exist in `quest_template`");
+					Log.Logger.Error($"`quest_poi` quest id ({questID}) Idx1 ({idx1}) does not exist in `quest_template`");
 
 			var blobs = allPoints.LookupByKey(questID);
 
@@ -8433,10 +8433,10 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 			}
 
-			Log.outError(LogFilter.Sql, $"Table quest_poi references unknown quest points for quest {questID} POI id {blobIndex}");
+			Log.Logger.Error($"Table quest_poi references unknown quest points for quest {questID} POI id {blobIndex}");
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} quest POI definitions in {1} ms", _questPOIStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quest POI definitions in {1} ms", _questPOIStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestAreaTriggers()
@@ -8449,7 +8449,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest trigger points. DB table `areatrigger_involvedrelation` is empty.");
+			Log.Logger.Information("Loaded 0 quest trigger points. DB table `areatrigger_involvedrelation` is empty.");
 
 			return;
 		}
@@ -8467,7 +8467,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (atEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Area trigger (ID:{0}) does not exist in `AreaTrigger.dbc`.", trigger_ID);
+				Log.Logger.Error("Area trigger (ID:{0}) does not exist in `AreaTrigger.dbc`.", trigger_ID);
 
 				continue;
 			}
@@ -8476,14 +8476,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (quest == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `areatrigger_involvedrelation` has record (id: {0}) for not existing quest {1}", trigger_ID, quest_ID);
+				Log.Logger.Error("Table `areatrigger_involvedrelation` has record (id: {0}) for not existing quest {1}", trigger_ID, quest_ID);
 
 				continue;
 			}
 
 			if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
 			{
-				Log.outError(LogFilter.Sql, "Table `areatrigger_involvedrelation` has record (id: {0}) for not quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. Trigger or quest flags must be fixed, quest modified to require objective.", trigger_ID, quest_ID);
+				Log.Logger.Error("Table `areatrigger_involvedrelation` has record (id: {0}) for not quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. Trigger or quest flags must be fixed, quest modified to require objective.", trigger_ID, quest_ID);
 
 				// this will prevent quest completing without objective
 				quest.SetSpecialFlag(QuestSpecialFlags.ExplorationOrEvent);
@@ -8502,7 +8502,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				_questAreaTriggerStorage.Add((uint)objective.ObjectID, objective.QuestID);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} quest trigger points in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quest trigger points in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestGreetings()
@@ -8517,7 +8517,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 npc texts, table is empty!");
+			Log.Logger.Information("Loaded 0 npc texts, table is empty!");
 
 			return;
 		}
@@ -8534,7 +8534,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case 0: // Creature
 					if (GetCreatureTemplate(id) == null)
 					{
-						Log.outError(LogFilter.Sql, "Table `quest_greeting`: creature template entry {0} does not exist.", id);
+						Log.Logger.Error("Table `quest_greeting`: creature template entry {0} does not exist.", id);
 
 						continue;
 					}
@@ -8543,7 +8543,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case 1: // GameObject
 					if (GetGameObjectTemplate(id) == null)
 					{
-						Log.outError(LogFilter.Sql, "Table `quest_greeting`: gameobject template entry {0} does not exist.", id);
+						Log.Logger.Error("Table `quest_greeting`: gameobject template entry {0} does not exist.", id);
 
 						continue;
 					}
@@ -8561,7 +8561,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} quest_greeting in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} quest_greeting in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public Quest GetQuestTemplate(uint questId)
@@ -8682,13 +8682,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			if (map.ParentMapID != -1)
 				_terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Terrain World Map definitions...");
+		Log.Logger.Information("Loading Terrain World Map definitions...");
 		LoadTerrainWorldMaps();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Terrain Swap Default definitions...");
+		Log.Logger.Information("Loading Terrain Swap Default definitions...");
 		LoadTerrainSwapDefaults();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Phase Area definitions...");
+		Log.Logger.Information("Loading Phase Area definitions...");
 		LoadAreaPhases();
 	}
 
@@ -8708,7 +8708,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
+			Log.Logger.Information("Loaded 0 spellclick spells. DB table `npc_spellclick_spells` is empty.");
 
 			return;
 		}
@@ -8722,7 +8722,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (cInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Table npc_spellclick_spells references unknown creature_template {0}. Skipping entry.", npc_entry);
+				Log.Logger.Error("Table npc_spellclick_spells references unknown creature_template {0}. Skipping entry.", npc_entry);
 
 				continue;
 			}
@@ -8732,7 +8732,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (spellinfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Table npc_spellclick_spells creature: {0} references unknown spellid {1}. Skipping entry.", npc_entry, spellid);
+				Log.Logger.Error("Table npc_spellclick_spells creature: {0} references unknown spellid {1}. Skipping entry.", npc_entry, spellid);
 
 				continue;
 			}
@@ -8740,7 +8740,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var userType = (SpellClickUserTypes)result.Read<byte>(3);
 
 			if (userType >= SpellClickUserTypes.Max)
-				Log.outError(LogFilter.Sql, "Table npc_spellclick_spells creature: {0} references unknown user type {1}. Skipping entry.", npc_entry, userType);
+				Log.Logger.Error("Table npc_spellclick_spells creature: {0} references unknown user type {1}. Skipping entry.", npc_entry, userType);
 
 			var castFlags = result.Read<byte>(2);
 			SpellClickInfo info = new();
@@ -8759,11 +8759,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var creature in ctc.Values)
 			if (creature.Npcflag.HasAnyFlag((uint)NPCFlags.SpellClick) && !_spellClickInfoStorage.ContainsKey(creature.Entry))
 			{
-				Log.outWarn(LogFilter.Sql, "npc_spellclick_spells: Creature template {0} has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", creature.Entry);
+				Log.Logger.Warning("npc_spellclick_spells: Creature template {0} has UNIT_NPC_FLAG_SPELLCLICK but no data in spellclick table! Removing flag", creature.Entry);
 				creature.Npcflag &= ~(uint)NPCFlags.SpellClick;
 			}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spellclick definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spellclick definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFishingBaseSkillLevel()
@@ -8776,7 +8776,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
+			Log.Logger.Information("Loaded 0 areas for fishing base skill level. DB table `skill_fishing_base_level` is empty.");
 
 			return;
 		}
@@ -8792,7 +8792,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (fArea == null)
 			{
-				Log.outError(LogFilter.Sql, "AreaId {0} defined in `skill_fishing_base_level` does not exist", entry);
+				Log.Logger.Error("AreaId {0} defined in `skill_fishing_base_level` does not exist", entry);
 
 				continue;
 			}
@@ -8801,7 +8801,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} areas for fishing base skill level in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} areas for fishing base skill level in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSkillTiers()
@@ -8815,7 +8815,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 skill max values. DB table `skill_tiers` is empty.");
+			Log.Logger.Information("Loaded 0 skill max values. DB table `skill_tiers` is empty.");
 
 			return;
 		}
@@ -8831,7 +8831,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_skillTiers[id] = tier;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} skill max values in {1} ms", _skillTiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} skill max values in {1} ms", _skillTiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public PhaseInfoStruct GetPhaseInfo(uint phaseId)
@@ -8901,7 +8901,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(5), locale, data.TitleAlt);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature locale strings in {1} ms", _creatureLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature locale strings in {1} ms", _creatureLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGameObjectLocales()
@@ -8934,7 +8934,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(4), locale, data.Unk1);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} gameobject_template_locale locale strings in {1} ms", _gameObjectLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gameobject_template_locale locale strings in {1} ms", _gameObjectLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestTemplateLocale()
@@ -8974,7 +8974,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(10), locale, data.QuestCompletionLog);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Quest Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestObjectivesLocale()
@@ -9004,7 +9004,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.Description);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Quest Objectives locale strings in {1} ms", _questObjectivesLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Objectives locale strings in {1} ms", _questObjectivesLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestGreetingLocales()
@@ -9032,7 +9032,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case 0: // Creature
 					if (GetCreatureTemplate(id) == null)
 					{
-						Log.outError(LogFilter.Sql, $"Table `quest_greeting_locale`: creature template entry {id} does not exist.");
+						Log.Logger.Error($"Table `quest_greeting_locale`: creature template entry {id} does not exist.");
 
 						continue;
 					}
@@ -9041,7 +9041,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case 1: // GameObject
 					if (GetGameObjectTemplate(id) == null)
 					{
-						Log.outError(LogFilter.Sql, $"Table `quest_greeting_locale`: gameobject template entry {id} does not exist.");
+						Log.Logger.Error($"Table `quest_greeting_locale`: gameobject template entry {id} does not exist.");
 
 						continue;
 					}
@@ -9066,7 +9066,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} Quest Greeting locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} Quest Greeting locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadQuestOfferRewardLocale()
@@ -9096,7 +9096,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.RewardText);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Quest Offer Reward locale strings in {1} ms", _questOfferRewardLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Offer Reward locale strings in {1} ms", _questOfferRewardLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestRequestItemsLocale()
@@ -9126,7 +9126,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.CompletionText);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Quest Request Items locale strings in {1} ms", _questRequestItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Request Items locale strings in {1} ms", _questRequestItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGossipMenuItemsLocales()
@@ -9159,7 +9159,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_gossipMenuItemsLocaleStorage[Tuple.Create(menuId, optionIndex)] = data;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} gossip_menu_option locale strings in {1} ms", _gossipMenuItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gossip_menu_option locale strings in {1} ms", _gossipMenuItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPageTextLocales()
@@ -9190,7 +9190,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.Text);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} PageText locale strings in {1} ms", _pageTextLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} PageText locale strings in {1} ms", _pageTextLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPointOfInterestLocales()
@@ -9221,7 +9221,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.Name);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} points_of_interest locale strings in {1} ms", _pointOfInterestLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} points_of_interest locale strings in {1} ms", _pointOfInterestLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public CreatureLocale GetCreatureLocale(uint entry)
@@ -9281,7 +9281,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.ServerLoading, "Loaded `reputation_reward_rate`, table is empty!");
+			Log.Logger.Error("Loaded `reputation_reward_rate`, table is empty!");
 
 			return;
 		}
@@ -9306,56 +9306,56 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (factionEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Faction (faction.dbc) {0} does not exist but is used in `reputation_reward_rate`", factionId);
+				Log.Logger.Error("Faction (faction.dbc) {0} does not exist but is used in `reputation_reward_rate`", factionId);
 
 				continue;
 			}
 
 			if (repRate.QuestRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has quest_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestRate, factionId);
 
 				continue;
 			}
 
 			if (repRate.QuestDailyRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_daily_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestDailyRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has quest_daily_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestDailyRate, factionId);
 
 				continue;
 			}
 
 			if (repRate.QuestWeeklyRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_weekly_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestWeeklyRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has quest_weekly_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestWeeklyRate, factionId);
 
 				continue;
 			}
 
 			if (repRate.QuestMonthlyRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_monthly_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestMonthlyRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has quest_monthly_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestMonthlyRate, factionId);
 
 				continue;
 			}
 
 			if (repRate.QuestRepeatableRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has quest_repeatable_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestRepeatableRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has quest_repeatable_rate with invalid rate {0}, skipping data for faction {1}", repRate.QuestRepeatableRate, factionId);
 
 				continue;
 			}
 
 			if (repRate.CreatureRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has creature_rate with invalid rate {0}, skipping data for faction {1}", repRate.CreatureRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has creature_rate with invalid rate {0}, skipping data for faction {1}", repRate.CreatureRate, factionId);
 
 				continue;
 			}
 
 			if (repRate.SpellRate < 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Table reputation_reward_rate has spell_rate with invalid rate {0}, skipping data for faction {1}", repRate.SpellRate, factionId);
+				Log.Logger.Error("Table reputation_reward_rate has spell_rate with invalid rate {0}, skipping data for faction {1}", repRate.SpellRate, factionId);
 
 				continue;
 			}
@@ -9365,7 +9365,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} reputation_reward_rate in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} reputation_reward_rate in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadReputationOnKill()
@@ -9383,7 +9383,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.ServerLoading, "oaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
+			Log.Logger.Error("oaded 0 creature award reputation definitions. DB table `creature_onkill_reputation` is empty.");
 
 			return;
 		}
@@ -9407,7 +9407,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetCreatureTemplate(creature_id) == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `creature_onkill_reputation` have data for not existed creature entry ({0}), skipped", creature_id);
+				Log.Logger.Error("Table `creature_onkill_reputation` have data for not existed creature entry ({0}), skipped", creature_id);
 
 				continue;
 			}
@@ -9418,7 +9418,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (factionEntry1 == null)
 				{
-					Log.outError(LogFilter.Sql, "Faction (faction.dbc) {0} does not exist but is used in `creature_onkill_reputation`", repOnKill.RepFaction1);
+					Log.Logger.Error("Faction (faction.dbc) {0} does not exist but is used in `creature_onkill_reputation`", repOnKill.RepFaction1);
 
 					continue;
 				}
@@ -9430,7 +9430,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (factionEntry2 == null)
 				{
-					Log.outError(LogFilter.Sql, "Faction (faction.dbc) {0} does not exist but is used in `creature_onkill_reputation`", repOnKill.RepFaction2);
+					Log.Logger.Error("Faction (faction.dbc) {0} does not exist but is used in `creature_onkill_reputation`", repOnKill.RepFaction2);
 
 					continue;
 				}
@@ -9441,7 +9441,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creature award reputation definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature award reputation definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadReputationSpilloverTemplate()
@@ -9456,7 +9456,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.ServerLoading, "Loaded `reputation_spillover_template`, table is empty.");
+			Log.Logger.Error("Loaded `reputation_spillover_template`, table is empty.");
 
 			return;
 		}
@@ -9488,14 +9488,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (factionEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Faction (faction.dbc) {0} does not exist but is used in `reputation_spillover_template`", factionId);
+				Log.Logger.Error("Faction (faction.dbc) {0} does not exist but is used in `reputation_spillover_template`", factionId);
 
 				continue;
 			}
 
 			if (factionEntry.ParentFactionID == 0)
 			{
-				Log.outError(LogFilter.Sql, "Faction (faction.dbc) {0} in `reputation_spillover_template` does not belong to any team, skipping", factionId);
+				Log.Logger.Error("Faction (faction.dbc) {0} in `reputation_spillover_template` does not belong to any team, skipping", factionId);
 
 				continue;
 			}
@@ -9509,7 +9509,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (factionSpillover.Id == 0)
 					{
-						Log.outError(LogFilter.Sql, "Spillover faction (faction.dbc) {0} does not exist but is used in `reputation_spillover_template` for faction {1}, skipping", repTemplate.Faction[i], factionId);
+						Log.Logger.Error("Spillover faction (faction.dbc) {0} does not exist but is used in `reputation_spillover_template` for faction {1}, skipping", repTemplate.Faction[i], factionId);
 						invalidSpilloverFaction = true;
 
 						break;
@@ -9517,7 +9517,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (!factionSpillover.CanHaveReputation())
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Spillover faction (faction.dbc) {0} for faction {1} in `reputation_spillover_template` can not be listed for client, and then useless, skipping",
 									repTemplate.Faction[i],
 									factionId);
@@ -9529,7 +9529,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (repTemplate.FactionRank[i] >= (uint)ReputationRank.Max)
 					{
-						Log.outError(LogFilter.Sql, "Rank {0} used in `reputation_spillover_template` for spillover faction {1} is not valid, skipping", repTemplate.FactionRank[i], repTemplate.Faction[i]);
+						Log.Logger.Error("Rank {0} used in `reputation_spillover_template` for spillover faction {1} is not valid, skipping", repTemplate.FactionRank[i], repTemplate.Faction[i]);
 						invalidSpilloverFaction = true;
 
 						break;
@@ -9543,7 +9543,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} reputation_spillover_template in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} reputation_spillover_template in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTavernAreaTriggers()
@@ -9556,7 +9556,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 tavern triggers. DB table `areatrigger_tavern` is empty.");
+			Log.Logger.Information("Loaded 0 tavern triggers. DB table `areatrigger_tavern` is empty.");
 
 			return;
 		}
@@ -9573,7 +9573,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (atEntry == null)
 			{
-				Log.outError(LogFilter.Sql, "Area trigger (ID:{0}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
+				Log.Logger.Error("Area trigger (ID:{0}) does not exist in `AreaTrigger.dbc`.", Trigger_ID);
 
 				continue;
 			}
@@ -9581,7 +9581,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_tavernAreaTriggerStorage.Add(Trigger_ID);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} tavern triggers in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} tavern triggers in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadMailLevelRewards()
@@ -9595,7 +9595,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
+			Log.Logger.Information("Loaded 0 level dependent mail rewards. DB table `mail_level_reward` is empty.");
 
 			return;
 		}
@@ -9611,28 +9611,28 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 			{
-				Log.outError(LogFilter.Sql, "Table `mail_level_reward` have data for level {0} that more supported by client ({1}), ignoring.", level, WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel));
+				Log.Logger.Error("Table `mail_level_reward` have data for level {0} that more supported by client ({1}), ignoring.", level, WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel));
 
 				continue;
 			}
 
 			if (!Convert.ToBoolean(raceMask & SharedConst.RaceMaskAllPlayable))
 			{
-				Log.outError(LogFilter.Sql, "Table `mail_level_reward` have raceMask ({0}) for level {1} that not include any player races, ignoring.", raceMask, level);
+				Log.Logger.Error("Table `mail_level_reward` have raceMask ({0}) for level {1} that not include any player races, ignoring.", raceMask, level);
 
 				continue;
 			}
 
 			if (!CliDB.MailTemplateStorage.ContainsKey(mailTemplateId))
 			{
-				Log.outError(LogFilter.Sql, "Table `mail_level_reward` have invalid mailTemplateId ({0}) for level {1} that invalid not include any player races, ignoring.", mailTemplateId, level);
+				Log.Logger.Error("Table `mail_level_reward` have invalid mailTemplateId ({0}) for level {1} that invalid not include any player races, ignoring.", mailTemplateId, level);
 
 				continue;
 			}
 
 			if (GetCreatureTemplate(senderEntry) == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `mail_level_reward` have not existed sender creature entry ({0}) for level {1} that invalid not include any player races, ignoring.", senderEntry, level);
+				Log.Logger.Error("Table `mail_level_reward` have not existed sender creature entry ({0}) for level {1} that invalid not include any player races, ignoring.", senderEntry, level);
 
 				continue;
 			}
@@ -9642,7 +9642,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} level dependent mail rewards in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} level dependent mail rewards in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadExplorationBaseXP()
@@ -9653,7 +9653,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
+			Log.Logger.Information("Loaded 0 BaseXP definitions. DB table `exploration_basexp` is empty.");
 
 			return;
 		}
@@ -9668,7 +9668,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} BaseXP definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} BaseXP definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTempSummons()
@@ -9682,7 +9682,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 temp summons. DB table `creature_summon_groups` is empty.");
+			Log.Logger.Information("Loaded 0 temp summons. DB table `creature_summon_groups` is empty.");
 
 			return;
 		}
@@ -9700,7 +9700,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case SummonerType.Creature:
 					if (GetCreatureTemplate(summonerId) == null)
 					{
-						Log.outError(LogFilter.Sql, "Table `creature_summon_groups` has summoner with non existing entry {0} for creature summoner type, skipped.", summonerId);
+						Log.Logger.Error("Table `creature_summon_groups` has summoner with non existing entry {0} for creature summoner type, skipped.", summonerId);
 
 						continue;
 					}
@@ -9709,7 +9709,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case SummonerType.GameObject:
 					if (GetGameObjectTemplate(summonerId) == null)
 					{
-						Log.outError(LogFilter.Sql, "Table `creature_summon_groups` has summoner with non existing entry {0} for gameobject summoner type, skipped.", summonerId);
+						Log.Logger.Error("Table `creature_summon_groups` has summoner with non existing entry {0} for gameobject summoner type, skipped.", summonerId);
 
 						continue;
 					}
@@ -9718,14 +9718,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				case SummonerType.Map:
 					if (!CliDB.MapStorage.ContainsKey(summonerId))
 					{
-						Log.outError(LogFilter.Sql, "Table `creature_summon_groups` has summoner with non existing entry {0} for map summoner type, skipped.", summonerId);
+						Log.Logger.Error("Table `creature_summon_groups` has summoner with non existing entry {0} for map summoner type, skipped.", summonerId);
 
 						continue;
 					}
 
 					break;
 				default:
-					Log.outError(LogFilter.Sql, "Table `creature_summon_groups` has unhandled summoner type {0} for summoner {1}, skipped.", summonerType, summonerId);
+					Log.Logger.Error("Table `creature_summon_groups` has unhandled summoner type {0} for summoner {1}, skipped.", summonerType, summonerId);
 
 					continue;
 			}
@@ -9735,7 +9735,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetCreatureTemplate(data.entry) == null)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Table `creature_summon_groups` has creature in group [Summoner ID: {0}, Summoner Type: {1}, Group ID: {2}] with non existing creature entry {3}, skipped.",
 							summonerId,
 							summonerType,
@@ -9756,7 +9756,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (data.type > TempSummonType.ManualDespawn)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Table `creature_summon_groups` has unhandled temp summon type {0} in group [Summoner ID: {1}, Summoner Type: {2}, Group ID: {3}] for creature entry {4}, skipped.",
 							data.type,
 							summonerId,
@@ -9775,7 +9775,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} temp summons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} temp summons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPageTexts()
@@ -9787,7 +9787,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 page texts. DB table `page_text` is empty!");
+			Log.Logger.Information("Loaded 0 page texts. DB table `page_text` is empty!");
 
 			return;
 		}
@@ -9811,9 +9811,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		foreach (var pair in _pageTextStorage)
 			if (pair.Value.NextPageID != 0)
 				if (!_pageTextStorage.ContainsKey(pair.Value.NextPageID))
-					Log.outError(LogFilter.Sql, "Page text (ID: {0}) has non-existing `NextPageID` ({1})", pair.Key, pair.Value.NextPageID);
+					Log.Logger.Error("Page text (ID: {0}) has non-existing `NextPageID` ({1})", pair.Key, pair.Value.NextPageID);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} page texts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} page texts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadReservedPlayersNames()
@@ -9826,7 +9826,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 reserved player names. DB table `reserved_name` is empty!");
+			Log.Logger.Information("Loaded 0 reserved player names. DB table `reserved_name` is empty!");
 
 			return;
 		}
@@ -9841,7 +9841,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} reserved player names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} reserved player names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	//not very fast function but it is called only once a day, or on starting-up
@@ -9851,7 +9851,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		var curTime = GameTime.GetGameTime();
 		var lt = Time.UnixTimeToDateTime(curTime).ToLocalTime();
-		Log.outInfo(LogFilter.Server, "Returning mails current time: hour: {0}, minute: {1}, second: {2} ", lt.Hour, lt.Minute, lt.Second);
+		Log.Logger.Information("Returning mails current time: hour: {0}, minute: {1}, second: {2} ", lt.Hour, lt.Minute, lt.Second);
 
 		PreparedStatement stmt;
 
@@ -9869,7 +9869,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "No expired mails found.");
+			Log.Logger.Information("No expired mails found.");
 
 			return; // any mails need to be returned or deleted
 		}
@@ -9974,7 +9974,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++deletedCount;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Processed {0} expired mails: {1} deleted and {2} returned in {3} ms", deletedCount + returnedCount, deletedCount, returnedCount, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Processed {0} expired mails: {1} deleted and {2} returned in {3} ms", deletedCount + returnedCount, deletedCount, returnedCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSceneTemplates()
@@ -9986,7 +9986,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 scene templates. DB table `scene_template` is empty.");
+			Log.Logger.Information("Loaded 0 scene templates. DB table `scene_template` is empty.");
 
 			return;
 		}
@@ -10006,7 +10006,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_sceneTemplateStorage[sceneId] = sceneTemplate;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} scene templates in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} scene templates in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPlayerChoices()
@@ -10018,7 +10018,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (choiceResult.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 player choices. DB table `playerchoice` is empty.");
+			Log.Logger.Information("Loaded 0 player choices. DB table `playerchoice` is empty.");
 
 			return;
 		}
@@ -10061,7 +10061,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!_playerChoices.ContainsKey(choiceId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10103,7 +10103,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!_playerChoices.ContainsKey(choiceId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10113,7 +10113,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (response == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
 
 					continue;
 				}
@@ -10130,19 +10130,19 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (reward.TitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(reward.TitleId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward` references non-existing Title {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
+					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing Title {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
 					reward.TitleId = 0;
 				}
 
 				if (reward.PackageId != 0 && Global.DB2Mgr.GetQuestPackageItems((uint)reward.PackageId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward` references non-existing QuestPackage {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
+					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing QuestPackage {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
 					reward.PackageId = 0;
 				}
 
 				if (reward.SkillLineId != 0 && !CliDB.SkillLineStorage.ContainsKey(reward.SkillLineId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward` references non-existing SkillLine {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
+					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing SkillLine {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
 					reward.SkillLineId = 0;
 					reward.SkillPointCount = 0;
 				}
@@ -10170,7 +10170,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!_playerChoices.TryGetValue(choiceId, out var choice) || choice == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10179,21 +10179,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (response == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
 
 					continue;
 				}
 
 				if (response.Reward == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
 
 				if (GetItemTemplate(itemId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item` references non-existing item {itemId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item` references non-existing item {itemId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
@@ -10216,7 +10216,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (choice == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_currency` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_currency` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10225,21 +10225,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (response == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_currency` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_currency` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
 
 					continue;
 				}
 
 				if (response.Reward == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_currency` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_currency` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
 
 				if (!CliDB.CurrencyTypesStorage.ContainsKey(currencyId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_currency` references non-existing currency {currencyId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_currency` references non-existing currency {currencyId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
@@ -10262,7 +10262,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (choice == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_faction` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_faction` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10271,21 +10271,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (response == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_faction` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_faction` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
 
 					continue;
 				}
 
 				if (response.Reward == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_faction` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_faction` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
 
 				if (!CliDB.FactionStorage.ContainsKey(factionId))
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_faction` references non-existing faction {factionId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_faction` references non-existing faction {factionId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
@@ -10314,7 +10314,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (choice == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item_choice` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item_choice` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10323,21 +10323,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (response == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item_choice` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item_choice` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
 
 					continue;
 				}
 
 				if (response.Reward == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item_choice` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item_choice` references non-existing player choice reward for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
 
 				if (GetItemTemplate(itemId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_reward_item_choice` references non-existing item {itemId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_reward_item_choice` references non-existing item {itemId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
 					continue;
 				}
@@ -10358,7 +10358,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (choice == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_maw_power` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
+					Log.Logger.Error($"Table `playerchoice_response_maw_power` references non-existing ChoiceId: {choiceId} (ResponseId: {responseId}), skipped");
 
 					continue;
 				}
@@ -10367,7 +10367,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (response == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_response_maw_power` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
+					Log.Logger.Error($"Table `playerchoice_response_maw_power` references non-existing ResponseId: {responseId} for ChoiceId {choiceId}, skipped");
 
 					continue;
 				}
@@ -10388,7 +10388,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				++mawPowersCount;
 			} while (mawPowersResult.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading,
+		Log.Logger.Information(
 					$"Loaded {_playerChoices.Count} player choices, {responseCount} responses, {rewardCount} rewards, {itemRewardCount} item rewards, " +
 					$"{currencyRewardCount} currency rewards, {factionRewardCount} faction rewards, {itemChoiceRewardCount} item choice rewards and {mawPowersCount} maw powers in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
@@ -10416,7 +10416,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (GetPlayerChoice(choiceId) == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for locale {localeName}, skipped");
+					Log.Logger.Error($"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for locale {localeName}, skipped");
 
 					continue;
 				}
@@ -10428,7 +10428,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				AddLocaleString(result.Read<string>(2), locale, data.Question);
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, $"Loaded {_playerChoiceLocales.Count} Player Choice locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+			Log.Logger.Information($"Loaded {_playerChoiceLocales.Count} Player Choice locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		}
 
 		oldMSTime = Time.MSTime;
@@ -10457,7 +10457,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
-						Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for ResponseId {responseId} locale {localeName}, skipped");
+						Log.Logger.Error($"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for ResponseId {responseId} locale {localeName}, skipped");
 
 					continue;
 				}
@@ -10469,7 +10469,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
-						Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
+						Log.Logger.Error($"Table `playerchoice_locale` references non-existing ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
 
 					continue;
 				}
@@ -10489,11 +10489,11 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
-						Log.outError(LogFilter.Sql, $"Table `playerchoice_locale` references non-existing locale for ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
+						Log.Logger.Error($"Table `playerchoice_locale` references non-existing locale for ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
 				}
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} Player Choice Response locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+			Log.Logger.Information($"Loaded {count} Player Choice Response locale strings in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		}
 	}
 
@@ -10504,7 +10504,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// cache disabled
 		if (!WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Query data caching is disabled. Skipped initialization.");
+			Log.Logger.Information("Query data caching is disabled. Skipped initialization.");
 
 			return;
 		}
@@ -10529,7 +10529,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			foreach (var poiPair in _questPOIStorage)
 				poiPair.Value.InitializeQueryData();
 
-		Log.outInfo(LogFilter.ServerLoading, $"Initialized query cache data in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Initialized query cache data in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadJumpChargeParams()
@@ -10557,13 +10557,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (speed <= 0.0f)
 			{
-				Log.outError(LogFilter.Sql, $"Table `jump_charge_params` uses invalid speed {speed} for id {id}, set to default charge speed {MotionMaster.SPEED_CHARGE}.");
+				Log.Logger.Error($"Table `jump_charge_params` uses invalid speed {speed} for id {id}, set to default charge speed {MotionMaster.SPEED_CHARGE}.");
 				speed = MotionMaster.SPEED_CHARGE;
 			}
 
 			if (jumpGravity <= 0.0f)
 			{
-				Log.outError(LogFilter.Sql, $"Table `jump_charge_params` uses invalid jump gravity {jumpGravity} for id {id}, set to default {MotionMaster.gravity}.");
+				Log.Logger.Error($"Table `jump_charge_params` uses invalid jump gravity {jumpGravity} for id {id}, set to default {MotionMaster.gravity}.");
 				jumpGravity = (float)MotionMaster.gravity;
 			}
 
@@ -10572,7 +10572,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (CliDB.SpellVisualStorage.ContainsKey(result.Read<uint>(4)))
 					spellVisualId = result.Read<uint>(4);
 				else
-					Log.outError(LogFilter.Sql, $"Table `jump_charge_params` references non-existing SpellVisual: {result.Read<uint>(4)} for id {id}, ignored.");
+					Log.Logger.Error($"Table `jump_charge_params` references non-existing SpellVisual: {result.Read<uint>(4)} for id {id}, ignored.");
 			}
 
 			if (!result.IsNull(5))
@@ -10580,7 +10580,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (CliDB.CurveStorage.ContainsKey(result.Read<uint>(5)))
 					progressCurveId = result.Read<uint>(5);
 				else
-					Log.outError(LogFilter.Sql, $"Table `jump_charge_params` references non-existing progress Curve: {result.Read<uint>(5)} for id {id}, ignored.");
+					Log.Logger.Error($"Table `jump_charge_params` references non-existing progress Curve: {result.Read<uint>(5)} for id {id}, ignored.");
 			}
 
 			if (!result.IsNull(6))
@@ -10588,7 +10588,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (CliDB.CurveStorage.ContainsKey(result.Read<uint>(6)))
 					parabolicCurveId = result.Read<uint>(6);
 				else
-					Log.outError(LogFilter.Sql, $"Table `jump_charge_params` references non-existing parabolic Curve: {result.Read<uint>(6)} for id {id}, ignored.");
+					Log.Logger.Error($"Table `jump_charge_params` references non-existing parabolic Curve: {result.Read<uint>(6)} for id {id}, ignored.");
 			}
 
 			JumpChargeParams jumpParams = new();
@@ -10601,7 +10601,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_jumpChargeParams[id] = jumpParams;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_jumpChargeParams.Count} Jump Charge Params in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_jumpChargeParams.Count} Jump Charge Params in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadPhaseNames()
@@ -10614,7 +10614,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 phase names. DB table `phase_name` is empty.");
+			Log.Logger.Information("Loaded 0 phase names. DB table `phase_name` is empty.");
 
 			return;
 		}
@@ -10631,7 +10631,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} phase names in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {count} phase names in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public MailLevelReward GetMailLevelReward(uint level, ulong raceMask)
@@ -10734,7 +10734,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_auctionId >= 0xFFFFFFFE)
 		{
-			Log.outError(LogFilter.Server, "Auctions ids overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Auctions ids overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -10745,7 +10745,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_equipmentSetGuid >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outError(LogFilter.Server, "EquipmentSet guid overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("EquipmentSet guid overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -10756,7 +10756,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_mailId >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outError(LogFilter.Server, "Mail ids overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Mail ids overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -10767,7 +10767,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_voidItemId >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outError(LogFilter.Misc, "_voidItemId overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("_voidItemId overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow(ShutdownExitCode.Error);
 		}
 
@@ -10778,7 +10778,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_creatureSpawnId >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outFatal(LogFilter.Server, "Creature spawn id overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Fatal("Creature spawn id overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -10789,7 +10789,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_gameObjectSpawnId >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outFatal(LogFilter.Server, "GameObject spawn id overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Fatal("GameObject spawn id overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -10967,7 +10967,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (model == null)
 				{
-					Log.outError(LogFilter.Sql, $"No displayid found for the taxi mount with the entry {mount_entry}! Can't load it!");
+					Log.Logger.Error($"No displayid found for the taxi mount with the entry {mount_entry}! Can't load it!");
 
 					return 0;
 				}
@@ -11080,7 +11080,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 vehicle template. DB table `vehicle_template` is empty.");
+			Log.Logger.Information("Loaded 0 vehicle template. DB table `vehicle_template` is empty.");
 
 			return;
 		}
@@ -11091,7 +11091,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetCreatureTemplate(creatureId) == null)
 			{
-				Log.outError(LogFilter.Sql, $"Table `vehicle_template`: Vehicle {creatureId} does not exist.");
+				Log.Logger.Error($"Table `vehicle_template`: Vehicle {creatureId} does not exist.");
 
 				continue;
 			}
@@ -11101,7 +11101,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			_vehicleTemplateStore[creatureId] = vehicleTemplate;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_vehicleTemplateStore.Count} Vehicle Template entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_vehicleTemplateStore.Count} Vehicle Template entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadVehicleTemplateAccessories()
@@ -11117,7 +11117,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
+			Log.Logger.Information("Loaded 0 vehicle template accessories. DB table `vehicle_template_accessory` is empty.");
 
 			return;
 		}
@@ -11133,21 +11133,21 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetCreatureTemplate(entry) == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `vehicle_template_accessory`: creature template entry {0} does not exist.", entry);
+				Log.Logger.Error("Table `vehicle_template_accessory`: creature template entry {0} does not exist.", entry);
 
 				continue;
 			}
 
 			if (GetCreatureTemplate(accessory) == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `vehicle_template_accessory`: Accessory {0} does not exist.", accessory);
+				Log.Logger.Error("Table `vehicle_template_accessory`: Accessory {0} does not exist.", accessory);
 
 				continue;
 			}
 
 			if (!_spellClickInfoStorage.ContainsKey(entry))
 			{
-				Log.outError(LogFilter.Sql, "Table `vehicle_template_accessory`: creature template entry {0} has no data in npc_spellclick_spells", entry);
+				Log.Logger.Error("Table `vehicle_template_accessory`: creature template entry {0} has no data in npc_spellclick_spells", entry);
 
 				continue;
 			}
@@ -11157,7 +11157,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Vehicle Template Accessories in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Vehicle Template Accessories in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadVehicleAccessories()
@@ -11173,7 +11173,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Vehicle Accessories in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded 0 Vehicle Accessories in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 
 			return;
 		}
@@ -11189,7 +11189,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetCreatureTemplate(uiAccessory) == null)
 			{
-				Log.outError(LogFilter.Sql, "Table `vehicle_accessory`: Accessory {0} does not exist.", uiAccessory);
+				Log.Logger.Error("Table `vehicle_accessory`: Accessory {0} does not exist.", uiAccessory);
 
 				continue;
 			}
@@ -11199,7 +11199,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Vehicle Accessories in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Vehicle Accessories in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadVehicleSeatAddon()
@@ -11213,7 +11213,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.ServerLoading, "Loaded 0 vehicle seat addons. DB table `vehicle_seat_addon` is empty.");
+			Log.Logger.Error("Loaded 0 vehicle seat addons. DB table `vehicle_seat_addon` is empty.");
 
 			return;
 		}
@@ -11232,7 +11232,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.VehicleSeatStorage.ContainsKey(seatID))
 			{
-				Log.outError(LogFilter.Sql, $"Table `vehicle_seat_addon`: SeatID: {seatID} does not exist in VehicleSeat.dbc. Skipping entry.");
+				Log.Logger.Error($"Table `vehicle_seat_addon`: SeatID: {seatID} does not exist in VehicleSeat.dbc. Skipping entry.");
 
 				continue;
 			}
@@ -11240,13 +11240,13 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			// Sanitizing values
 			if (orientation > MathF.PI * 2)
 			{
-				Log.outError(LogFilter.Sql, $"Table `vehicle_seat_addon`: SeatID: {seatID} is using invalid angle offset value ({orientation}). Set Value to 0.");
+				Log.Logger.Error($"Table `vehicle_seat_addon`: SeatID: {seatID} is using invalid angle offset value ({orientation}). Set Value to 0.");
 				orientation = 0.0f;
 			}
 
 			if (exitParam >= (byte)VehicleExitParameters.VehicleExitParamMax)
 			{
-				Log.outError(LogFilter.Sql, $"Table `vehicle_seat_addon`: SeatID: {seatID} is using invalid exit parameter value ({exitParam}). Setting to 0 (none).");
+				Log.Logger.Error($"Table `vehicle_seat_addon`: SeatID: {seatID} is using invalid exit parameter value ({exitParam}). Setting to 0 (none).");
 
 				continue;
 			}
@@ -11256,7 +11256,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} Vehicle Seat Addon entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} Vehicle Seat Addon entries in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public VehicleTemplate GetVehicleTemplate(Vehicle veh)
@@ -11459,7 +11459,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (Global.MapMgr.IsScriptScheduled()) // function cannot be called when scripts are in use.
 			return;
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading {0}...", tableName);
+		Log.Logger.Information("Loading {0}...", tableName);
 
 		scripts.Clear(); // need for reload support
 
@@ -11469,7 +11469,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 script definitions. DB table `{0}` is empty!", tableName);
+			Log.Logger.Information("Loaded 0 script definitions. DB table `{0}` is empty!", tableName);
 
 			return;
 		}
@@ -11509,7 +11509,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
 										tableName,
 										tmp.Talk.ChatType,
@@ -11523,7 +11523,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
 										tableName,
 										tmp.Talk.TextID,
@@ -11542,7 +11542,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
 										tableName,
 										tmp.Emote.EmoteID,
@@ -11561,7 +11561,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
 										tableName,
 										tmp.TeleportTo.MapID,
@@ -11575,7 +11575,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
 										tableName,
 										tmp.TeleportTo.DestX,
@@ -11599,7 +11599,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
 										tableName,
 										tmp.QuestExplored.QuestID,
@@ -11610,7 +11610,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Table `{0}` has quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. Quest modified to require objective.",
 									tableName,
 									tmp.QuestExplored.QuestID,
@@ -11624,7 +11624,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 					if (tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
 					{
-						Log.outError(LogFilter.Sql,
+						Log.Logger.Error(
 									"Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
 									tableName,
 									tmp.QuestExplored.Distance,
@@ -11638,7 +11638,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
 										tableName,
 										tmp.QuestExplored.Distance,
@@ -11653,7 +11653,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
 										tableName,
 										tmp.QuestExplored.Distance,
@@ -11673,7 +11673,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
 										tableName,
 										tmp.KillCredit.CreatureEntry,
@@ -11694,7 +11694,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
 										tableName,
 										tmp.RespawnGameObject.GOGuid,
@@ -11710,7 +11710,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
 										tableName,
 										tmp.RespawnGameObject.GOGuid,
@@ -11729,7 +11729,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
 										tableName,
 										info.entry,
@@ -11748,7 +11748,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
 										tableName,
 										tmp.TempSummonCreature.PosX,
@@ -11765,7 +11765,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
 										tableName,
 										tmp.TempSummonCreature.CreatureEntry,
@@ -11787,7 +11787,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
 										tableName,
 										tmp.ToggleDoor.GOGuid,
@@ -11804,7 +11804,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
 										tableName,
 										tmp.ToggleDoor.GOGuid,
@@ -11820,7 +11820,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
 										tableName,
 										info.entry,
@@ -11840,7 +11840,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
 										tableName,
 										tmp.RemoveAura.SpellID,
@@ -11854,7 +11854,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
 										tableName,
 										tmp.RemoveAura.Flags,
@@ -11873,7 +11873,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 										tableName,
 										tmp.CastSpell.SpellID,
@@ -11887,7 +11887,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 										tableName,
 										tmp.CastSpell.Flags,
@@ -11901,7 +11901,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 										tableName,
 										tmp.CastSpell.CreatureEntry,
@@ -11914,7 +11914,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 										tableName,
 										tmp.CastSpell.CreatureEntry,
@@ -11933,7 +11933,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
 										tableName,
 										tmp.CreateItem.ItemEntry,
@@ -11947,7 +11947,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
 										tableName,
 										tmp.CreateItem.Amount,
@@ -11965,7 +11965,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.outError(LogFilter.Sql,
+							Log.Logger.Error(
 										"Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
 										tableName,
 										tmp.PlayAnimKit.AnimKitID,
@@ -11983,7 +11983,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 					else
-						Log.outError(LogFilter.Sql, $"Table `{tableName}` uses deprecated direct updatefield modify command {tmp.command} for script id {tmp.id}");
+						Log.Logger.Error($"Table `{tableName}` uses deprecated direct updatefield modify command {tmp.command} for script id {tmp.id}");
 
 					continue;
 				}
@@ -11999,7 +11999,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} script definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} script definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	bool IsScriptDatabaseBound(uint id)
@@ -12021,7 +12021,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature template resistance definitions. DB table `creature_template_resistance` is empty.");
+			Log.Logger.Information("Loaded 0 creature template resistance definitions. DB table `creature_template_resistance` is empty.");
 
 			return;
 		}
@@ -12035,14 +12035,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (school == SpellSchools.Normal || school >= SpellSchools.Max)
 			{
-				Log.outError(LogFilter.Sql, $"creature_template_resistance has resistance definitions for creature {creatureID} but this school {school} doesn't exist");
+				Log.Logger.Error($"creature_template_resistance has resistance definitions for creature {creatureID} but this school {school} doesn't exist");
 
 				continue;
 			}
 
 			if (!_creatureTemplateStorage.TryGetValue(creatureID, out var creatureTemplate))
 			{
-				Log.outError(LogFilter.Sql, $"creature_template_resistance has resistance definitions for creature {creatureID} but this creature doesn't exist");
+				Log.Logger.Error($"creature_template_resistance has resistance definitions for creature {creatureID} but this creature doesn't exist");
 
 				continue;
 			}
@@ -12052,7 +12052,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} creature template resistances in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} creature template resistances in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	void LoadCreatureTemplateSpells()
@@ -12064,7 +12064,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature template spell definitions. DB table `creature_template_spell` is empty.");
+			Log.Logger.Information("Loaded 0 creature template spell definitions. DB table `creature_template_spell` is empty.");
 
 			return;
 		}
@@ -12078,14 +12078,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (index >= SharedConst.MaxCreatureSpells)
 			{
-				Log.outError(LogFilter.Sql, $"creature_template_spell has spell definitions for creature {creatureID} with a incorrect index {index}");
+				Log.Logger.Error($"creature_template_spell has spell definitions for creature {creatureID} with a incorrect index {index}");
 
 				continue;
 			}
 
 			if (!_creatureTemplateStorage.TryGetValue(creatureID, out var creatureTemplate))
 			{
-				Log.outError(LogFilter.Sql, $"creature_template_spell has spell definitions for creature {creatureID} but this creature doesn't exist");
+				Log.Logger.Error($"creature_template_spell has spell definitions for creature {creatureID} but this creature doesn't exist");
 
 				continue;
 			}
@@ -12095,7 +12095,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} creature template spells in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} creature template spells in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	void LoadCreatureTemplateModels()
@@ -12106,7 +12106,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature template model definitions. DB table `creature_template_model` is empty.");
+			Log.Logger.Information("Loaded 0 creature template model definitions. DB table `creature_template_model` is empty.");
 
 			return;
 		}
@@ -12127,7 +12127,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM creature_template_model WHERE CreatureID = {creatureId}");
 				else
-					Log.outDebug(LogFilter.Sql, $"Creature template (Entry: {creatureId}) does not exist but has a record in `creature_template_model`");
+					Log.Logger.Debug($"Creature template (Entry: {creatureId}) does not exist but has a record in `creature_template_model`");
 
 				continue;
 			}
@@ -12136,7 +12136,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (displayEntry == null)
 			{
-				Log.outDebug(LogFilter.Sql, $"Creature (Entry: {creatureId}) lists non-existing CreatureDisplayID id ({creatureDisplayId}), this can crash the client.");
+				Log.Logger.Debug($"Creature (Entry: {creatureId}) lists non-existing CreatureDisplayID id ({creatureDisplayId}), this can crash the client.");
 
 				continue;
 			}
@@ -12144,7 +12144,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			var modelInfo = GetCreatureModelInfo(creatureDisplayId);
 
 			if (modelInfo == null)
-				Log.outDebug(LogFilter.Sql, $"No model data exist for `CreatureDisplayID` = {creatureDisplayId} listed by creature (Entry: {creatureId}).");
+				Log.Logger.Debug($"No model data exist for `CreatureDisplayID` = {creatureDisplayId} listed by creature (Entry: {creatureId}).");
 
 			if (displayScale <= 0.0f)
 				displayScale = 1.0f;
@@ -12153,7 +12153,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} creature template models in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} creature template models in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	void LoadCreatureSummonedData()
@@ -12165,7 +12165,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creature summoned data definitions. DB table `creature_summoned_data` is empty.");
+			Log.Logger.Information("Loaded 0 creature summoned data definitions. DB table `creature_summoned_data` is empty.");
 
 			return;
 		}
@@ -12176,7 +12176,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (GetCreatureTemplate(creatureId) == null)
 			{
-				Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing creature {creatureId}, skipped");
+				Log.Logger.Debug($"Table `creature_summoned_data` references non-existing creature {creatureId}, skipped");
 
 				continue;
 			}
@@ -12192,7 +12192,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (GetCreatureTemplate(summonedData.CreatureIdVisibleToSummoner.Value) == null)
 				{
-					Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing creature {summonedData.CreatureIdVisibleToSummoner.Value} in CreatureIDVisibleToSummoner for creature {creatureId}, set to 0");
+					Log.Logger.Debug($"Table `creature_summoned_data` references non-existing creature {summonedData.CreatureIdVisibleToSummoner.Value} in CreatureIDVisibleToSummoner for creature {creatureId}, set to 0");
 					summonedData.CreatureIdVisibleToSummoner = null;
 				}
 			}
@@ -12203,7 +12203,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayId.Value))
 				{
-					Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing display id {summonedData.GroundMountDisplayId.Value} in GroundMountDisplayID for creature {creatureId}, set to 0");
+					Log.Logger.Debug($"Table `creature_summoned_data` references non-existing display id {summonedData.GroundMountDisplayId.Value} in GroundMountDisplayID for creature {creatureId}, set to 0");
 					summonedData.CreatureIdVisibleToSummoner = null;
 				}
 			}
@@ -12214,38 +12214,38 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 				if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayId.Value))
 				{
-					Log.outDebug(LogFilter.Sql, $"Table `creature_summoned_data` references non-existing display id {summonedData.FlyingMountDisplayId.Value} in FlyingMountDisplayID for creature {creatureId}, set to 0");
+					Log.Logger.Debug($"Table `creature_summoned_data` references non-existing display id {summonedData.FlyingMountDisplayId.Value} in FlyingMountDisplayID for creature {creatureId}, set to 0");
 					summonedData.GroundMountDisplayId = null;
 				}
 			}
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_creatureSummonedDataStorage.Count} creature summoned data definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_creatureSummonedDataStorage.Count} creature summoned data definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	void CheckCreatureMovement(string table, ulong id, CreatureMovementData creatureMovement)
 	{
 		if (creatureMovement.Ground >= CreatureGroundMovementType.Max)
 		{
-			Log.outError(LogFilter.Sql, $"`{table}`.`Ground` wrong value ({creatureMovement.Ground}) for Id {id}, setting to Run.");
+			Log.Logger.Error($"`{table}`.`Ground` wrong value ({creatureMovement.Ground}) for Id {id}, setting to Run.");
 			creatureMovement.Ground = CreatureGroundMovementType.Run;
 		}
 
 		if (creatureMovement.Flight >= CreatureFlightMovementType.Max)
 		{
-			Log.outError(LogFilter.Sql, $"`{table}`.`Flight` wrong value ({creatureMovement.Flight}) for Id {id}, setting to None.");
+			Log.Logger.Error($"`{table}`.`Flight` wrong value ({creatureMovement.Flight}) for Id {id}, setting to None.");
 			creatureMovement.Flight = CreatureFlightMovementType.None;
 		}
 
 		if (creatureMovement.Chase >= CreatureChaseMovementType.Max)
 		{
-			Log.outError(LogFilter.Sql, $"`{table}`.`Chase` wrong value ({creatureMovement.Chase}) for Id {id}, setting to Run.");
+			Log.Logger.Error($"`{table}`.`Chase` wrong value ({creatureMovement.Chase}) for Id {id}, setting to Run.");
 			creatureMovement.Chase = CreatureChaseMovementType.Run;
 		}
 
 		if (creatureMovement.Random >= CreatureRandomMovementType.Max)
 		{
-			Log.outError(LogFilter.Sql, $"`{table}`.`Random` wrong value ({creatureMovement.Random}) for Id {id}, setting to Walk.");
+			Log.Logger.Error($"`{table}`.`Random` wrong value ({creatureMovement.Random}) for Id {id}, setting to Walk.");
 			creatureMovement.Random = CreatureRandomMovementType.Walk;
 		}
 	}
@@ -12375,7 +12375,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (CliDB.LockStorage.ContainsKey(dataN))
 			return;
 
-		Log.outDebug(LogFilter.Sql, "Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but lock (Id: {4}) not found.", goInfo.entry, goInfo.type, N, goInfo.Door.open, goInfo.Door.open);
+		Log.Logger.Debug("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but lock (Id: {4}) not found.", goInfo.entry, goInfo.type, N, goInfo.Door.open, goInfo.Door.open);
 	}
 
 	void CheckGOLinkedTrapId(GameObjectTemplate goInfo, uint dataN, uint N)
@@ -12384,7 +12384,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (trapInfo != null)
 			if (trapInfo.type != GameObjectTypes.Trap)
-				Log.outError(LogFilter.Sql, "Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but GO (Entry {4}) have not GAMEOBJECT_TYPE_TRAP type.", goInfo.entry, goInfo.type, N, dataN, dataN);
+				Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but GO (Entry {4}) have not GAMEOBJECT_TYPE_TRAP type.", goInfo.entry, goInfo.type, N, dataN, dataN);
 	}
 
 	void CheckGOSpellId(GameObjectTemplate goInfo, uint dataN, uint N)
@@ -12392,7 +12392,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (Global.SpellMgr.HasSpellInfo(dataN, Difficulty.None))
 			return;
 
-		Log.outError(LogFilter.Sql, "Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but Spell (Entry {4}) not exist.", goInfo.entry, goInfo.type, N, dataN, dataN);
+		Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but Spell (Entry {4}) not exist.", goInfo.entry, goInfo.type, N, dataN, dataN);
 	}
 
 	void CheckAndFixGOChairHeightId(GameObjectTemplate goInfo, ref uint dataN, uint N)
@@ -12400,7 +12400,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (dataN <= (UnitStandStateType.SitHighChair - UnitStandStateType.SitLowChair))
 			return;
 
-		Log.outError(LogFilter.Sql, "Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but correct chair height in range 0..{4}.", goInfo.entry, goInfo.type, N, dataN, UnitStandStateType.SitHighChair - UnitStandStateType.SitLowChair);
+		Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but correct chair height in range 0..{4}.", goInfo.entry, goInfo.type, N, dataN, UnitStandStateType.SitHighChair - UnitStandStateType.SitLowChair);
 
 		// prevent client and server unexpected work
 		dataN = 0;
@@ -12412,7 +12412,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (dataN <= 1)
 			return;
 
-		Log.outError(LogFilter.Sql, "Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but expected boolean (0/1) noDamageImmune field value.", goTemplate.entry, goTemplate.type, N, dataN);
+		Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but expected boolean (0/1) noDamageImmune field value.", goTemplate.entry, goTemplate.type, N, dataN);
 	}
 
 	void CheckGOConsumable(GameObjectTemplate goInfo, uint dataN, uint N)
@@ -12421,7 +12421,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		if (dataN <= 1)
 			return;
 
-		Log.outError(LogFilter.Sql,
+		Log.Logger.Error(
 					"Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but expected boolean (0/1) consumable field value.",
 					goInfo.entry,
 					goInfo.type,
@@ -12445,14 +12445,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (difficultyId != 0 && !CliDB.DifficultyStorage.ContainsKey(difficultyId))
 			{
-				Log.outError(LogFilter.Sql, $"Table `{table}` has {table} (GUID: {spawnId}) with non invalid difficulty id {difficultyId}, skipped.");
+				Log.Logger.Error($"Table `{table}` has {table} (GUID: {spawnId}) with non invalid difficulty id {difficultyId}, skipped.");
 
 				continue;
 			}
 
 			if (!isTransportMap && !mapDifficulties.Contains(difficultyId))
 			{
-				Log.outError(LogFilter.Sql, $"Table `{table}` has {table} (GUID: {spawnId}) has unsupported difficulty {difficultyId} for map (Id: {mapId}).");
+				Log.Logger.Error($"Table `{table}` has {table} (GUID: {spawnId}) has unsupported difficulty {difficultyId} for map (Id: {mapId}).");
 
 				continue;
 			}
@@ -12519,7 +12519,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		else
 		{
 			if (count < -1)
-				Log.outError(LogFilter.Sql, "Invalid count {0} specified on item {1} be removed from original player create info (use -1)!", count, itemId);
+				Log.Logger.Error("Invalid count {0} specified on item {1} be removed from original player create info (use -1)!", count, itemId);
 
 			playerInfo.Items.RemoveAll(item => item.ItemId == itemId);
 		}
@@ -12613,7 +12613,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest relations from `{0}`, table is empty.", table);
+			Log.Logger.Information("Loaded 0 quest relations from `{0}`, table is empty.", table);
 
 			return;
 		}
@@ -12625,7 +12625,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!_questTemplates.ContainsKey(quest))
 			{
-				Log.outError(LogFilter.Sql, "Table `{0}`: Quest {1} listed for entry {2} does not exist.", table, quest, id);
+				Log.Logger.Error("Table `{0}`: Quest {1} listed for entry {2} does not exist.", table, quest, id);
 
 				continue;
 			}
@@ -12638,7 +12638,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} quest relations from {1} in {2} ms", count, table, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quest relations from {1} in {2} ms", count, table, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)
@@ -12655,7 +12655,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 terrain world maps. DB table `terrain_worldmap` is empty.");
+			Log.Logger.Information("Loaded 0 terrain world maps. DB table `terrain_worldmap` is empty.");
 
 			return;
 		}
@@ -12669,14 +12669,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.MapStorage.ContainsKey(mapId))
 			{
-				Log.outError(LogFilter.Sql, "TerrainSwapMap {0} defined in `terrain_worldmap` does not exist, skipped.", mapId);
+				Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_worldmap` does not exist, skipped.", mapId);
 
 				continue;
 			}
 
 			if (!Global.DB2Mgr.IsUiMapPhase((int)uiMapPhaseId))
 			{
-				Log.outError(LogFilter.Sql, $"Phase {uiMapPhaseId} defined in `terrain_worldmap` is not a valid terrain swap phase, skipped.");
+				Log.Logger.Error($"Phase {uiMapPhaseId} defined in `terrain_worldmap` is not a valid terrain swap phase, skipped.");
 
 				continue;
 			}
@@ -12691,7 +12691,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} terrain world maps in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} terrain world maps in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	void LoadTerrainSwapDefaults()
@@ -12702,7 +12702,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 terrain swap defaults. DB table `terrain_swap_defaults` is empty.");
+			Log.Logger.Information("Loaded 0 terrain swap defaults. DB table `terrain_swap_defaults` is empty.");
 
 			return;
 		}
@@ -12715,7 +12715,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.MapStorage.ContainsKey(mapId))
 			{
-				Log.outError(LogFilter.Sql, "Map {0} defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
+				Log.Logger.Error("Map {0} defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
 
 				continue;
 			}
@@ -12724,7 +12724,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.MapStorage.ContainsKey(terrainSwap))
 			{
-				Log.outError(LogFilter.Sql, "TerrainSwapMap {0} defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
+				Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
 
 				continue;
 			}
@@ -12736,7 +12736,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} terrain swap defaults in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} terrain swap defaults in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	void LoadAreaPhases()
@@ -12748,7 +12748,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 phase areas. DB table `phase_area` is empty.");
+			Log.Logger.Information("Loaded 0 phase areas. DB table `phase_area` is empty.");
 
 			return;
 		}
@@ -12770,14 +12770,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 			if (!CliDB.AreaTableStorage.ContainsKey(area))
 			{
-				Log.outError(LogFilter.Sql, $"Area {area} defined in `phase_area` does not exist, skipped.");
+				Log.Logger.Error($"Area {area} defined in `phase_area` does not exist, skipped.");
 
 				continue;
 			}
 
 			if (!CliDB.PhaseStorage.ContainsKey(phaseId))
 			{
-				Log.outError(LogFilter.Sql, $"Phase {phaseId} defined in `phase_area` does not exist, skipped.");
+				Log.Logger.Error($"Phase {phaseId} defined in `phase_area` does not exist, skipped.");
 
 				continue;
 			}
@@ -12813,7 +12813,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 			} while (true);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} phase areas in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {count} phase areas in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)

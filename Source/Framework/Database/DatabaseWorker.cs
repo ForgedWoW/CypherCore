@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Framework.Database;
 
@@ -56,7 +57,7 @@ class DatabaseWorker<T>
 						}
 						catch (Exception ex)
 						{
-							Log.outException(ex, "DatabaseWorker.CallbackSuccessStatus");
+							Log.Logger.Error(ex, "DatabaseWorker.CallbackSuccessStatus");
 						}
 					});
 			}

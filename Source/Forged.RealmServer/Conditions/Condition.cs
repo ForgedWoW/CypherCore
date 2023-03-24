@@ -143,7 +143,7 @@ public class Condition
 		// object not present, return false
 		if (needsObject && obj == null)
 		{
-			Log.outDebug(LogFilter.Condition, "Condition object not found for condition (Entry: {0} Type: {1} Group: {2})", SourceEntry, SourceType, SourceGroup);
+			Log.Logger.Debug("Condition object not found for condition (Entry: {0} Type: {1} Group: {2})", SourceEntry, SourceType, SourceGroup);
 
 			return false;
 		}

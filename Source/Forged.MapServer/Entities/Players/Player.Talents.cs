@@ -68,14 +68,14 @@ public partial class Player
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Spells, "Player.AddTalent: Spell (ID: {0}) does not exist.", talent.SpellID);
+			Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) does not exist.", talent.SpellID);
 
 			return false;
 		}
 
 		if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
 		{
-			Log.outError(LogFilter.Spells, "Player.AddTalent: Spell (ID: {0}) is invalid", talent.SpellID);
+			Log.Logger.Error("Player.AddTalent: Spell (ID: {0}) is invalid", talent.SpellID);
 
 			return false;
 		}
@@ -204,7 +204,7 @@ public partial class Player
 
 		if (spellid == 0)
 		{
-			Log.outError(LogFilter.Player, "Player.LearnTalent: Talent.dbc has no spellInfo for talent: {0} (spell id = 0)", talentId);
+			Log.Logger.Error("Player.LearnTalent: Talent.dbc has no spellInfo for talent: {0} (spell id = 0)", talentId);
 
 			return TalentLearnResult.FailedUnknown;
 		}
@@ -216,7 +216,7 @@ public partial class Player
 		if (!AddTalent(talentInfo, GetActiveTalentGroup(), true))
 			return TalentLearnResult.FailedUnknown;
 
-		Log.outDebug(LogFilter.Misc, "Player.LearnTalent: TalentID: {0} Spell: {1} Group: {2}", talentId, spellid, GetActiveTalentGroup());
+		Log.Logger.Debug("Player.LearnTalent: TalentID: {0} Spell: {1} Group: {2}", talentId, spellid, GetActiveTalentGroup());
 
 		return TalentLearnResult.LearnOk;
 	}
@@ -625,7 +625,7 @@ public partial class Player
 
 				if (talentInfo == null)
 				{
-					Log.outError(LogFilter.Player, "Player {0} has unknown talent id: {1}", GetName(), pair.Key);
+					Log.Logger.Error("Player {0} has unknown talent id: {1}", GetName(), pair.Key);
 
 					continue;
 				}
@@ -634,7 +634,7 @@ public partial class Player
 
 				if (spellEntry == null)
 				{
-					Log.outError(LogFilter.Player, "Player {0} has unknown talent spell: {1}", GetName(), talentInfo.SpellID);
+					Log.Logger.Error("Player {0} has unknown talent spell: {1}", GetName(), talentInfo.SpellID);
 
 					continue;
 				}
@@ -651,7 +651,7 @@ public partial class Player
 
 				if (talentInfo == null)
 				{
-					Log.outError(LogFilter.Player, $"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent id: {pvpTalents[slot]}");
+					Log.Logger.Error($"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent id: {pvpTalents[slot]}");
 
 					continue;
 				}
@@ -660,7 +660,7 @@ public partial class Player
 
 				if (spellEntry == null)
 				{
-					Log.outError(LogFilter.Player, $"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent spell: {talentInfo.SpellID}");
+					Log.Logger.Error($"Player.SendTalentsInfoData: Player '{GetName()}' ({GUID}) has unknown pvp talent spell: {talentInfo.SpellID}");
 
 					continue;
 				}
@@ -1071,14 +1071,14 @@ public partial class Player
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Spells, $"Player.AddPvpTalent: Spell (ID: {talent.SpellID}) does not exist.");
+			Log.Logger.Error($"Player.AddPvpTalent: Spell (ID: {talent.SpellID}) does not exist.");
 
 			return false;
 		}
 
 		if (!Global.SpellMgr.IsSpellValid(spellInfo, this, false))
 		{
-			Log.outError(LogFilter.Spells, $"Player.AddPvpTalent: Spell (ID: {talent.SpellID}) is invalid");
+			Log.Logger.Error($"Player.AddPvpTalent: Spell (ID: {talent.SpellID}) is invalid");
 
 			return false;
 		}

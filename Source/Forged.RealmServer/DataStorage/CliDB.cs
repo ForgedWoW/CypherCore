@@ -389,11 +389,11 @@ public class CliDB
 
 		Global.DB2Mgr.LoadStores();
 #if DEBUG
-		Log.outInfo(LogFilter.ServerLoading, $"DB2  TableHash");
+		Log.Logger.Information($"DB2  TableHash");
 
 		foreach (var kvp in DB2Manager.Instance.Storage)
 			if (kvp.Value != null)
-				Log.outInfo(LogFilter.ServerLoading, $"{kvp.Value.GetName()}    {kvp.Key}");
+				Log.Logger.Information($"{kvp.Value.GetName()}    {kvp.Key}");
 #endif
 		foreach (var entry in TaxiPathStorage.Values)
 			TaxiPathSetBySource.Add(entry.FromTaxiNode, entry.ToTaxiNode, new TaxiPathBySourceAndDestination(entry.Id, entry.Cost));
@@ -454,11 +454,11 @@ public class CliDB
 			!MapStorage.ContainsKey(2582) ||              // last map added in 10.0.5 (47660)
 			!SpellNameStorage.ContainsKey(401848))        // last spell added in 10.0.5 (47660)
 		{
-			Log.outFatal(LogFilter.ServerLoading, "You have _outdated_ DB2 files. Please extract correct versions from current using client.");
+			Log.Logger.Fatal("You have _outdated_ DB2 files. Please extract correct versions from current using client.");
 			Environment.Exit(1);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Initialized {0} DB2 data storages in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Initialized {0} DB2 data storages in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		return availableDb2Locales;
 	}
@@ -490,7 +490,7 @@ public class CliDB
 		StaminaMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("StaminaMultByILvl.txt");
 		XpGameTable = ReadGameTable<GtXpRecord>("xp.txt");
 
-		Log.outInfo(LogFilter.ServerLoading, "Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	#region Main Collections

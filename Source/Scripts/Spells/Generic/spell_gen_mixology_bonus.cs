@@ -234,7 +234,7 @@ internal class spell_gen_mixology_bonus : AuraScript, IHasAuraEffects
 
 					break;
 				default:
-					Log.outError(LogFilter.Spells, "SpellId {0} couldn't be processed in spell_gen_mixology_bonus", Id);
+					Log.Logger.Error("SpellId {0} couldn't be processed in spell_gen_mixology_bonus", Id);
 
 					break;
 			}

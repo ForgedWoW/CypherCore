@@ -91,7 +91,7 @@ public class InstanceMap : Map
 	{
 		if (player.Map == this)
 		{
-			Log.outError(LogFilter.Maps, "InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), Id, InstanceId, DifficultyID);
+			Log.Logger.Error("InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), Id, InstanceId, DifficultyID);
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 
@@ -104,7 +104,7 @@ public class InstanceMap : Map
 
 		if (GetPlayersCountExceptGMs() >= maxPlayers)
 		{
-			Log.outInfo(LogFilter.Maps, "MAP: Instance '{0}' of map '{1}' cannot have more than '{2}' players. Player '{3}' rejected", InstanceId, MapName, maxPlayers, player.GetName());
+			Log.Logger.Information("MAP: Instance '{0}' of map '{1}' cannot have more than '{2}' players. Player '{3}' rejected", InstanceId, MapName, maxPlayers, player.GetName());
 
 			return new TransferAbortParams(TransferAbortReason.MaxPlayers);
 		}
@@ -153,7 +153,7 @@ public class InstanceMap : Map
 				}
 			}
 
-		Log.outInfo(LogFilter.Maps,
+		Log.Logger.Information(
 					"MAP: Player '{0}' entered instance '{1}' of map '{2}'",
 					player.GetName(),
 					InstanceId,
@@ -196,7 +196,7 @@ public class InstanceMap : Map
 
 	public override void RemovePlayerFromMap(Player player, bool remove)
 	{
-		Log.outInfo(LogFilter.Maps, "MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), InstanceId, MapName);
+		Log.Logger.Information("MAP: Removing player '{0}' from instance '{1}' of map '{2}' before relocating to another map", player.GetName(), InstanceId, MapName);
 
 		if (_data != null)
 			_data.OnPlayerLeave(player);
@@ -249,7 +249,7 @@ public class InstanceMap : Map
 
 		if (!lockData.Data.IsEmpty())
 		{
-			Log.outDebug(LogFilter.Maps, $"Loading instance data for `{Global.ObjectMgr.GetScriptName(_scriptId)}` with id {InstanceIdInternal}");
+			Log.Logger.Debug($"Loading instance data for `{Global.ObjectMgr.GetScriptName(_scriptId)}` with id {InstanceIdInternal}");
 			_data.Load(lockData.Data);
 		}
 		else

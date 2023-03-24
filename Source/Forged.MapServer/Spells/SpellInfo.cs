@@ -984,7 +984,7 @@ public class SpellInfo
 
 			if (shapeInfo == null)
 			{
-				Log.outError(LogFilter.Spells, "GetErrorAtShapeshiftedCast: unknown shapeshift {0}", form);
+				Log.Logger.Error("GetErrorAtShapeshiftedCast: unknown shapeshift {0}", form);
 
 				return SpellCastResult.SpellCastOk;
 			}
@@ -2468,7 +2468,7 @@ public class SpellInfo
 				return cost;
 			}
 
-			Log.outError(LogFilter.Spells, $"SpellInfo.CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id}");
+			Log.Logger.Error($"SpellInfo.CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id}");
 
 			return default;
 		}
@@ -2497,7 +2497,7 @@ public class SpellInfo
 
 						break;
 					case PowerType.AlternatePower:
-						Log.outError(LogFilter.Spells, $"SpellInfo.CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id}");
+						Log.Logger.Error($"SpellInfo.CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id}");
 
 						return null;
 					default:
@@ -2511,7 +2511,7 @@ public class SpellInfo
 							break;
 						}
 
-						Log.outError(LogFilter.Spells, $"SpellInfo.CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id}");
+						Log.Logger.Error($"SpellInfo.CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id}");
 
 						return null;
 					}
@@ -2534,7 +2534,7 @@ public class SpellInfo
 
 						break;
 					case PowerType.AlternatePower:
-						Log.outError(LogFilter.Spells, $"SpellInfo::CalcPowerCost: Unsupported power type POWER_ALTERNATE_POWER in spell {Id} for optional cost percent");
+						Log.Logger.Error($"SpellInfo::CalcPowerCost: Unsupported power type POWER_ALTERNATE_POWER in spell {Id} for optional cost percent");
 
 						return null;
 					default:
@@ -2548,7 +2548,7 @@ public class SpellInfo
 							break;
 						}
 
-						Log.outError(LogFilter.Spells, $"SpellInfo::CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id} for optional cost percent");
+						Log.Logger.Error($"SpellInfo::CalcPowerCost: Unknown power type '{power.PowerType}' in spell {Id} for optional cost percent");
 
 						return null;
 					}

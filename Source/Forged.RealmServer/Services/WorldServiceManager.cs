@@ -30,7 +30,7 @@ public class WorldServiceManager : Singleton<WorldServiceManager>
 
 					if (_serviceHandlers.ContainsKey(key))
 					{
-						Log.outError(LogFilter.Network, $"Tried to override ServiceHandler: {_serviceHandlers[key]} with {methodInfo.Name} (ServiceHash: {serviceAttr.ServiceHash} MethodId: {serviceAttr.MethodId})");
+						Log.Logger.Error($"Tried to override ServiceHandler: {_serviceHandlers[key]} with {methodInfo.Name} (ServiceHash: {serviceAttr.ServiceHash} MethodId: {serviceAttr.MethodId})");
 
 						continue;
 					}
@@ -39,7 +39,7 @@ public class WorldServiceManager : Singleton<WorldServiceManager>
 
 					if (parameters.Length == 0)
 					{
-						Log.outError(LogFilter.Network, $"Method: {methodInfo.Name} needs atleast one paramter");
+						Log.Logger.Error($"Method: {methodInfo.Name} needs atleast one paramter");
 
 						continue;
 					}

@@ -57,7 +57,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 	{
 		if (NextArenaTeamId >= 0xFFFFFFFE)
 		{
-			Log.outError(LogFilter.Battleground, "Arena team ids overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Arena team ids overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -78,7 +78,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 arena teams. DB table `arena_team` is empty!");
+			Log.Logger.Information("Loaded 0 arena teams. DB table `arena_team` is empty!");
 
 			return;
 		}
@@ -108,7 +108,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SetNextArenaTeamId(uint Id)

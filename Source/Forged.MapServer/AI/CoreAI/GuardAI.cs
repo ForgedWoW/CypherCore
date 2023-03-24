@@ -40,7 +40,7 @@ public class GuardAI : ScriptedAI
 			return;
 		}
 
-		Log.outTrace(LogFilter.ScriptsAi, $"GuardAI::EnterEvadeMode: {Me.GUID} enters evade mode.");
+		Log.Logger.Verbose($"GuardAI::EnterEvadeMode: {Me.GUID} enters evade mode.");
 
 		Me.RemoveAllAuras();
 		Me.CombatStop(true);

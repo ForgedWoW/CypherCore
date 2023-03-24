@@ -25,8 +25,8 @@ public class WorldObjectTypedList
 	{
 		if (obj == null)
 		{
-			Log.outWarn(LogFilter.Maps, $"Tried to insert null during {nameof(WorldObject)} to {nameof(WorldObjectTypedList)}");
-			Log.outWarn(LogFilter.Maps, Environment.StackTrace);
+			Log.Logger.Warning($"Tried to insert null during {nameof(WorldObject)} to {nameof(WorldObjectTypedList)}");
+			Log.Logger.Warning(Environment.StackTrace);
 
 			return;
 		}
@@ -77,8 +77,8 @@ public class WorldObjectTypedList
 	{
 		if (obj == null)
 		{
-			Log.outWarn(LogFilter.Maps, $"Tried to remove null during {nameof(WorldObject)} to {nameof(WorldObjectTypedList)}");
-			Log.outWarn(LogFilter.Maps, Environment.StackTrace);
+			Log.Logger.Warning($"Tried to remove null during {nameof(WorldObject)} to {nameof(WorldObjectTypedList)}");
+			Log.Logger.Warning(Environment.StackTrace);
 
 			return;
 		}

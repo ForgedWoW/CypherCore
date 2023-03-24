@@ -8,6 +8,7 @@ using System.Text;
 using System.Transactions;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
+using Serilog;
 
 namespace Framework.Database;
 
@@ -26,7 +27,7 @@ public abstract class MySqlBase<T>
         _configuration = configuration;
     }
 
-	public MySqlErrorCode Initialize(MySqlConnectionInfo connectionInfo)
+    public MySqlErrorCode Initialize(MySqlConnectionInfo connectionInfo)
 	{
 		_connectionInfo = connectionInfo;
 		_updater = new DatabaseUpdater<T>(this, _configuration);
@@ -39,7 +40,7 @@ public abstract class MySqlBase<T>
 				connection.Open();
 
 				version = DBVersion.Parse(connection.ServerVersion);
-				Log.outInfo(LogFilter.SqlDriver, $"Connected to DB: {_connectionInfo.Database} Server: {(version.IsMariaDB ? "MariaDB" : "MySQL")} Ver: {connection.ServerVersion}");
+				Log.Logger.Information($"Connected to DB: {_connectionInfo.Database} Server: {(version.IsMariaDB ? "MariaDB" : "MySQL")} Ver: {connection.ServerVersion}");
 
 				return MySqlErrorCode.None;
 			}
@@ -260,12 +261,12 @@ public abstract class MySqlBase<T>
 
 		process.WaitForExit();
 
-		Log.outInfo(LogFilter.SqlUpdates, process.StandardOutput.ReadToEnd());
-		Log.outError(LogFilter.SqlUpdates, process.StandardError.ReadToEnd());
+		Log.Logger.Information(process.StandardOutput.ReadToEnd());
+		Log.Logger.Error(process.StandardError.ReadToEnd());
 
 		if (process.ExitCode != 0)
 		{
-			Log.outFatal(LogFilter.SqlUpdates,
+			Log.Logger.Fatal(
 						$"Applying of file \'{path}\' to database \'{GetDatabaseName()}\' failed!" +
 						" If you are a user, please pull the latest revision from the repository. " +
 						"Also make sure you have not applied any of the databases with your sql client. " +
@@ -391,17 +392,17 @@ public abstract class MySqlBase<T>
 				stringBuilder.Append($"{pair.Key} : {pair.Value}");
 		}
 
-		Log.outError(LogFilter.Sql, stringBuilder.ToString());
+		Log.Logger.Error(stringBuilder.ToString());
 
 		switch (code)
 		{
 			case MySqlErrorCode.BadFieldError:
 			case MySqlErrorCode.NoSuchTable:
-				Log.outError(LogFilter.Sql, "Your database structure is not up to date. Please make sure you've executed all queries in the sql/updates folders.");
+				Log.Logger.Error("Your database structure is not up to date. Please make sure you've executed all queries in the sql/updates folders.");
 
 				break;
 			case MySqlErrorCode.ParseError:
-				Log.outError(LogFilter.Sql, "Error while parsing SQL. Core fix required.");
+				Log.Logger.Error("Error while parsing SQL. Core fix required.");
 
 				break;
 		}

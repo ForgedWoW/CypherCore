@@ -278,7 +278,7 @@ public class Conversation : WorldObject
 
 			if (actor == null || (actor.CreatureID == 0 && actor.ActorGUID.IsEmpty && actor.NoActorObject == 0))
 			{
-				Log.outError(LogFilter.Conversation, $"Failed to create conversation (Id: {Entry}) due to missing actor (Idx: {line.ActorIndex}).");
+				Log.Logger.Error($"Failed to create conversation (Id: {Entry}) due to missing actor (Idx: {line.ActorIndex}).");
 
 				return false;
 			}

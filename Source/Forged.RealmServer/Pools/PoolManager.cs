@@ -49,7 +49,7 @@ public class PoolManager : Singleton<PoolManager>
 			if (result.IsEmpty())
 			{
 				_poolTemplate.Clear();
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 object pools. DB table `pool_template` is empty.");
+				Log.Logger.Information("Loaded 0 object pools. DB table `pool_template` is empty.");
 
 				return;
 			}
@@ -67,12 +67,12 @@ public class PoolManager : Singleton<PoolManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} objects pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} objects pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		// Creatures
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Creatures Pooling Data...");
+		Log.Logger.Information("Loading Creatures Pooling Data...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -82,7 +82,7 @@ public class PoolManager : Singleton<PoolManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
+				Log.Logger.Information("Loaded 0 creatures in  pools. DB table `pool_creature` is empty.");
 			}
 			else
 			{
@@ -98,21 +98,21 @@ public class PoolManager : Singleton<PoolManager>
 
 					if (data == null)
 					{
-						Log.outError(LogFilter.Sql, "`pool_creature` has a non existing creature spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, pool_id);
+						Log.Logger.Error("`pool_creature` has a non existing creature spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, pool_id);
 
 						continue;
 					}
 
 					if (!_poolTemplate.ContainsKey(pool_id))
 					{
-						Log.outError(LogFilter.Sql, "`pool_creature` pool id ({0}) is not in `pool_template`, skipped.", pool_id);
+						Log.Logger.Error("`pool_creature` pool id ({0}) is not in `pool_template`, skipped.", pool_id);
 
 						continue;
 					}
 
 					if (chance < 0 || chance > 100)
 					{
-						Log.outError(LogFilter.Sql, "`pool_creature` has an invalid chance ({0}) for creature guid ({1}) in pool id ({2}), skipped.", chance, guid, pool_id);
+						Log.Logger.Error("`pool_creature` has an invalid chance ({0}) for creature guid ({1}) in pool id ({2}), skipped.", chance, guid, pool_id);
 
 						continue;
 					}
@@ -124,7 +124,7 @@ public class PoolManager : Singleton<PoolManager>
 
 					if (pPoolTemplate.MapId != data.MapId)
 					{
-						Log.outError(LogFilter.Sql, $"`pool_creature` has creature spawns on multiple different maps for creature guid ({guid}) in pool id ({pool_id}), skipped.");
+						Log.Logger.Error($"`pool_creature` has creature spawns on multiple different maps for creature guid ({guid}) in pool id ({pool_id}), skipped.");
 
 						continue;
 					}
@@ -142,13 +142,13 @@ public class PoolManager : Singleton<PoolManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} creatures in pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} creatures in pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// Gameobjects
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Gameobject Pooling Data...");
+		Log.Logger.Information("Loading Gameobject Pooling Data...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -158,7 +158,7 @@ public class PoolManager : Singleton<PoolManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
+				Log.Logger.Information("Loaded 0 gameobjects in  pools. DB table `pool_gameobject` is empty.");
 			}
 			else
 			{
@@ -174,21 +174,21 @@ public class PoolManager : Singleton<PoolManager>
 
 					if (data == null)
 					{
-						Log.outError(LogFilter.Sql, "`pool_gameobject` has a non existing gameobject spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, pool_id);
+						Log.Logger.Error("`pool_gameobject` has a non existing gameobject spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, pool_id);
 
 						continue;
 					}
 
 					if (!_poolTemplate.ContainsKey(pool_id))
 					{
-						Log.outError(LogFilter.Sql, "`pool_gameobject` pool id ({0}) is not in `pool_template`, skipped.", pool_id);
+						Log.Logger.Error("`pool_gameobject` pool id ({0}) is not in `pool_template`, skipped.", pool_id);
 
 						continue;
 					}
 
 					if (chance < 0 || chance > 100)
 					{
-						Log.outError(LogFilter.Sql, "`pool_gameobject` has an invalid chance ({0}) for gameobject guid ({1}) in pool id ({2}), skipped.", chance, guid, pool_id);
+						Log.Logger.Error("`pool_gameobject` has an invalid chance ({0}) for gameobject guid ({1}) in pool id ({2}), skipped.", chance, guid, pool_id);
 
 						continue;
 					}
@@ -200,7 +200,7 @@ public class PoolManager : Singleton<PoolManager>
 
 					if (pPoolTemplate.MapId != data.MapId)
 					{
-						Log.outError(LogFilter.Sql, $"`pool_gameobject` has gameobject spawns on multiple different maps for gameobject guid ({guid}) in pool id ({pool_id}), skipped.");
+						Log.Logger.Error($"`pool_gameobject` has gameobject spawns on multiple different maps for gameobject guid ({guid}) in pool id ({pool_id}), skipped.");
 
 						continue;
 					}
@@ -218,13 +218,13 @@ public class PoolManager : Singleton<PoolManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} gameobject in pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} gameobject in pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// Pool of pools
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading Mother Pooling Data...");
+		Log.Logger.Information("Loading Mother Pooling Data...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -234,7 +234,7 @@ public class PoolManager : Singleton<PoolManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 pools in pools");
+				Log.Logger.Information("Loaded 0 pools in pools");
 			}
 			else
 			{
@@ -248,28 +248,28 @@ public class PoolManager : Singleton<PoolManager>
 
 					if (!_poolTemplate.ContainsKey(mother_pool_id))
 					{
-						Log.outError(LogFilter.Sql, "`pool_pool` mother_pool id ({0}) is not in `pool_template`, skipped.", mother_pool_id);
+						Log.Logger.Error("`pool_pool` mother_pool id ({0}) is not in `pool_template`, skipped.", mother_pool_id);
 
 						continue;
 					}
 
 					if (!_poolTemplate.ContainsKey(child_pool_id))
 					{
-						Log.outError(LogFilter.Sql, "`pool_pool` included pool_id ({0}) is not in `pool_template`, skipped.", child_pool_id);
+						Log.Logger.Error("`pool_pool` included pool_id ({0}) is not in `pool_template`, skipped.", child_pool_id);
 
 						continue;
 					}
 
 					if (mother_pool_id == child_pool_id)
 					{
-						Log.outError(LogFilter.Sql, "`pool_pool` pool_id ({0}) includes itself, dead-lock detected, skipped.", child_pool_id);
+						Log.Logger.Error("`pool_pool` pool_id ({0}) includes itself, dead-lock detected, skipped.", child_pool_id);
 
 						continue;
 					}
 
 					if (chance < 0 || chance > 100)
 					{
-						Log.outError(LogFilter.Sql, "`pool_pool` has an invalid chance ({0}) for pool id ({1}) in mother pool id ({2}), skipped.", chance, child_pool_id, mother_pool_id);
+						Log.Logger.Error("`pool_pool` has an invalid chance ({0}) for pool id ({1}) in mother pool id ({2}), skipped.", chance, child_pool_id, mother_pool_id);
 
 						continue;
 					}
@@ -304,7 +304,7 @@ public class PoolManager : Singleton<PoolManager>
 
 							if (_poolTemplate[poolItr].MapId != poolData.MapId)
 							{
-								Log.outError(LogFilter.Sql, $"`pool_pool` has child pools on multiple maps in pool id ({poolItr}), skipped.");
+								Log.Logger.Error($"`pool_pool` has child pools on multiple maps in pool id ({poolItr}), skipped.");
 								_poolPoolGroups[poolItr].RemoveOneRelation(id);
 								_poolSearchMap.Remove(poolItr);
 								--count;
@@ -323,7 +323,7 @@ public class PoolManager : Singleton<PoolManager>
 								ss += $"{itr} ";
 
 							ss += $"create(s) a circular reference, which can cause the server to freeze.\nRemoving the last link between mother pool {id} and child pool {poolItr}";
-							Log.outError(LogFilter.Sql, ss);
+							Log.Logger.Error(ss);
 							_poolPoolGroups[poolItr].RemoveOneRelation(id);
 							_poolSearchMap.Remove(poolItr);
 							--count;
@@ -335,7 +335,7 @@ public class PoolManager : Singleton<PoolManager>
 					}
 				}
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} pools in mother pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} pools in mother pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -343,14 +343,14 @@ public class PoolManager : Singleton<PoolManager>
 		{
 			if (IsEmpty(poolId))
 			{
-				Log.outError(LogFilter.Sql, $"Pool Id {poolId} is empty (has no creatures and no gameobects and either no child pools or child pools are all empty. The pool will not be spawned");
+				Log.Logger.Error($"Pool Id {poolId} is empty (has no creatures and no gameobects and either no child pools or child pools are all empty. The pool will not be spawned");
 
 				continue;
 			}
 		}
 
 		// The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
-		Log.outInfo(LogFilter.ServerLoading, "Starting objects pooling system...");
+		Log.Logger.Information("Starting objects pooling system...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -361,7 +361,7 @@ public class PoolManager : Singleton<PoolManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Pool handling system initialized, 0 pools spawned.");
+				Log.Logger.Information("Pool handling system initialized, 0 pools spawned.");
 			}
 			else
 			{
@@ -380,9 +380,9 @@ public class PoolManager : Singleton<PoolManager>
 						if (pool_pool_id != 0)
 							// The pool is a child pool in pool_pool table. Ideally we should remove it from the pool handler to ensure it never gets spawned,
 							// however that could recursively invalidate entire chain of mother pools. It can be done in the future but for now we'll do nothing.
-							Log.outError(LogFilter.Sql, "Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id {1} and cannot be safely removed.", pool_entry, result.Read<uint>(2));
+							Log.Logger.Error("Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id {1} and cannot be safely removed.", pool_entry, result.Read<uint>(2));
 						else
-							Log.outError(LogFilter.Sql, "Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
+							Log.Logger.Error("Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
 
 						continue;
 					}
@@ -395,7 +395,7 @@ public class PoolManager : Singleton<PoolManager>
 					}
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Pool handling system initialized, {0} pools will be spawned by default in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Pool handling system initialized, {0} pools will be spawned by default in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 	}

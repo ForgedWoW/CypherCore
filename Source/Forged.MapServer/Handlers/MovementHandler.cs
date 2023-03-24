@@ -67,7 +67,7 @@ public partial class WorldSession
 
 		if (movementInfo.Guid != mover.GUID)
 		{
-			Log.outError(LogFilter.Network, "HandleMovementOpcodes: guid error");
+			Log.Logger.Error("HandleMovementOpcodes: guid error");
 
 			return;
 		}
@@ -193,7 +193,7 @@ public partial class WorldSession
 					// @todo discard movement packets after the player is rooted
 					if (plrMover.IsAlive)
 					{
-						Log.outDebug(LogFilter.Player, $"FALLDAMAGE Below map. Map min height: {plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
+						Log.Logger.Debug($"FALLDAMAGE Below map. Map min height: {plrMover.Map.GetMinHeight(plrMover.PhaseShift, movementInfo.Pos.X, movementInfo.Pos.Y)}, Player debug info:\n{plrMover.GetDebugInfo()}");
 						plrMover.SetPlayerFlag(PlayerFlags.IsOutOfBounds);
 						plrMover.EnvironmentalDamage(EnviromentalDamage.FallToVoid, (uint)Player.MaxHealth);
 
@@ -263,7 +263,7 @@ public partial class WorldSession
 
 		if (player.IsInWorld)
 		{
-			Log.outError(LogFilter.Network, $"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
+			Log.Logger.Error($"Player (Name {player.GetName()}) is still in world when teleported from map {oldMap.Id} to new map {loc.MapId}");
 			oldMap.RemovePlayerFromMap(player, false);
 		}
 
@@ -272,7 +272,7 @@ public partial class WorldSession
 		// while the player is in transit, for example the map may get full
 		if (newMap == null || newMap.CannotEnter(player) != null)
 		{
-			Log.outError(LogFilter.Network, $"Map {loc.MapId} could not be created for {(newMap ? newMap.MapName : "Unknown")} ({player.GUID}), porting player to homebind");
+			Log.Logger.Error($"Map {loc.MapId} could not be created for {(newMap ? newMap.MapName : "Unknown")} ({player.GUID}), porting player to homebind");
 			player.TeleportTo(player.Homebind);
 
 			return;
@@ -304,7 +304,7 @@ public partial class WorldSession
 
 		if (!player.Map.AddPlayerToMap(player, !seamlessTeleport))
 		{
-			Log.outError(LogFilter.Network, $"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
+			Log.Logger.Error($"WORLD: failed to teleport player {player.GetName()} ({player.GUID}) to map {loc.MapId} ({(newMap ? newMap.MapName : "Unknown")}) because of unknown reason!");
 			player.ResetMap();
 			player.Map = oldMap;
 			player.TeleportTo(player.Homebind);
@@ -560,7 +560,7 @@ public partial class WorldSession
 
 				break;
 			default:
-				Log.outError(LogFilter.Network, "WorldSession.HandleForceSpeedChangeAck: Unknown move type opcode: {0}", opcode);
+				Log.Logger.Error("WorldSession.HandleForceSpeedChangeAck: Unknown move type opcode: {0}", opcode);
 
 				return;
 		}
@@ -579,7 +579,7 @@ public partial class WorldSession
 		{
 			if (Player.GetSpeed(move_type) > packet.Speed) // must be greater - just correct
 			{
-				Log.outError(LogFilter.Network,
+				Log.Logger.Error(
 							"{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
 							move_type,
 							Player.GetName(),
@@ -590,7 +590,7 @@ public partial class WorldSession
 			}
 			else // must be lesser - cheating
 			{
-				Log.outDebug(LogFilter.Server,
+				Log.Logger.Debug(
 							"Player {0} from account id {1} kicked for incorrect speed (must be {2} instead {3})",
 							Player.GetName(),
 							Player.Session.AccountId,
@@ -607,7 +607,7 @@ public partial class WorldSession
 	{
 		if (Player.IsInWorld)
 			if (_player.UnitBeingMoved.GUID != packet.ActiveMover)
-				Log.outError(LogFilter.Network, "HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _player.UnitBeingMoved.GUID.ToString());
+				Log.Logger.Error("HandleSetActiveMover: incorrect mover guid: mover is {0} and should be {1},", packet.ActiveMover.ToString(), _player.UnitBeingMoved.GUID.ToString());
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveKnockBackAck, Processing = PacketProcessing.ThreadSafe)]
@@ -658,7 +658,7 @@ public partial class WorldSession
 		// prevent tampered movement data
 		if (moveApplyMovementForceAck.Ack.Status.Guid != mover.GUID)
 		{
-			Log.outError(LogFilter.Network, $"HandleMoveApplyMovementForceAck: guid error, expected {mover.GUID}, got {moveApplyMovementForceAck.Ack.Status.Guid}");
+			Log.Logger.Error($"HandleMoveApplyMovementForceAck: guid error, expected {mover.GUID}, got {moveApplyMovementForceAck.Ack.Status.Guid}");
 
 			return;
 		}
@@ -680,7 +680,7 @@ public partial class WorldSession
 		// prevent tampered movement data
 		if (moveRemoveMovementForceAck.Ack.Status.Guid != mover.GUID)
 		{
-			Log.outError(LogFilter.Network, $"HandleMoveRemoveMovementForceAck: guid error, expected {mover.GUID}, got {moveRemoveMovementForceAck.Ack.Status.Guid}");
+			Log.Logger.Error($"HandleMoveRemoveMovementForceAck: guid error, expected {mover.GUID}, got {moveRemoveMovementForceAck.Ack.Status.Guid}");
 
 			return;
 		}
@@ -702,7 +702,7 @@ public partial class WorldSession
 		// prevent tampered movement data
 		if (setModMovementForceMagnitudeAck.Ack.Status.Guid != mover.GUID)
 		{
-			Log.outError(LogFilter.Network, $"HandleSetModMovementForceMagnitudeAck: guid error, expected {mover.GUID}, got {setModMovementForceMagnitudeAck.Ack.Status.Guid}");
+			Log.Logger.Error($"HandleSetModMovementForceMagnitudeAck: guid error, expected {mover.GUID}, got {setModMovementForceMagnitudeAck.Ack.Status.Guid}");
 
 			return;
 		}
@@ -722,7 +722,7 @@ public partial class WorldSession
 
 				if (Math.Abs(expectedModMagnitude - setModMovementForceMagnitudeAck.Speed) > 0.01f)
 				{
-					Log.outDebug(LogFilter.Misc, $"Player {_player.GetName()} from account id {_player.Session.AccountId} kicked for incorrect movement force magnitude (must be {expectedModMagnitude} instead {setModMovementForceMagnitudeAck.Speed})");
+					Log.Logger.Debug($"Player {_player.GetName()} from account id {_player.Session.AccountId} kicked for incorrect movement force magnitude (must be {expectedModMagnitude} instead {setModMovementForceMagnitudeAck.Speed})");
 					_player.Session.KickPlayer("WorldSession::HandleMoveSetModMovementForceMagnitudeAck Incorrect magnitude");
 
 					return;
@@ -745,7 +745,7 @@ public partial class WorldSession
 
 		if (mover == null)
 		{
-			Log.outWarn(LogFilter.Player, $"WorldSession.HandleMoveTimeSkipped wrong mover state from the unit moved by {Player.GUID}");
+			Log.Logger.Warning($"WorldSession.HandleMoveTimeSkipped wrong mover state from the unit moved by {Player.GUID}");
 
 			return;
 		}
@@ -753,7 +753,7 @@ public partial class WorldSession
 		// prevent tampered movement data
 		if (moveTimeSkipped.MoverGUID != mover.GUID)
 		{
-			Log.outWarn(LogFilter.Player, $"WorldSession.HandleMoveTimeSkipped wrong guid from the unit moved by {Player.GUID}");
+			Log.Logger.Warning($"WorldSession.HandleMoveTimeSkipped wrong guid from the unit moved by {Player.GUID}");
 
 			return;
 		}

@@ -13,7 +13,7 @@ public class ArcherAI : CreatureAI
 	public ArcherAI(Creature creature) : base(creature)
 	{
 		if (creature.Spells[0] == 0)
-			Log.outError(LogFilter.ScriptsAi, $"ArcherAI set for creature with spell1=0. AI will do nothing ({Me.GUID})");
+			Log.Logger.Error($"ArcherAI set for creature with spell1=0. AI will do nothing ({Me.GUID})");
 
 		var spellInfo = Global.SpellMgr.GetSpellInfo(creature.Spells[0], creature.Map.DifficultyID);
 		_minRange = spellInfo != null ? spellInfo.GetMinRange(false) : 0;

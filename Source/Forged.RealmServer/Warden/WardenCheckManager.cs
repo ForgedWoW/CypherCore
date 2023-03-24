@@ -30,7 +30,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		// Check if Warden is enabled by config before loading anything
 		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
 		{
-			Log.outInfo(LogFilter.Warden, "Warden disabled, loading checks skipped.");
+			Log.Logger.Information("Warden disabled, loading checks skipped.");
 
 			return;
 		}
@@ -40,7 +40,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Warden checks. DB table `warden_checks` is empty!");
+			Log.Logger.Information("Loaded 0 Warden checks. DB table `warden_checks` is empty!");
 
 			return;
 		}
@@ -56,14 +56,14 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 			if (category == WardenCheckCategory.Max)
 			{
-				Log.outError(LogFilter.Sql, $"Warden check with id {id} lists check type {checkType} in `warden_checks`, which is not supported. Skipped.");
+				Log.Logger.Error($"Warden check with id {id} lists check type {checkType} in `warden_checks`, which is not supported. Skipped.");
 
 				continue;
 			}
 
 			if ((checkType == WardenCheckType.LuaEval) && (id > 9999))
 			{
-				Log.outError(LogFilter.Sql, $"Warden Lua check with id {id} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.");
+				Log.Logger.Error($"Warden Lua check with id {id} found in `warden_checks`. Lua checks may have four-digit IDs at most. Skipped.");
 
 				continue;
 			}
@@ -97,7 +97,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			{
 				if (wardenCheck.Str.Length > WARDEN_MAX_LUA_CHECK_LENGTH)
 				{
-					Log.outError(LogFilter.Sql, $"Found over-long Lua check for Warden check with id {id} in `warden_checks`. Max length is {WARDEN_MAX_LUA_CHECK_LENGTH}. Skipped.");
+					Log.Logger.Error($"Found over-long Lua check for Warden check with id {id} in `warden_checks`. Max length is {WARDEN_MAX_LUA_CHECK_LENGTH}. Skipped.");
 
 					continue;
 				}
@@ -113,7 +113,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} warden checks in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} warden checks in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadWardenOverrides()
@@ -123,7 +123,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		// Check if Warden is enabled by config before loading anything
 		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
 		{
-			Log.outInfo(LogFilter.Warden, "Warden disabled, loading check overrides skipped.");
+			Log.Logger.Information("Warden disabled, loading check overrides skipped.");
 
 			return;
 		}
@@ -133,7 +133,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
+			Log.Logger.Information("Loaded 0 Warden action overrides. DB table `warden_action` is empty!");
 
 			return;
 		}
@@ -148,12 +148,12 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			// Check if action value is in range (0-2, see WardenActions enum)
 			if (action > WardenActions.Ban)
 			{
-				Log.outError(LogFilter.Warden, $"Warden check override action out of range (ID: {checkId}, action: {action})");
+				Log.Logger.Error($"Warden check override action out of range (ID: {checkId}, action: {action})");
 			}
 			// Check if check actually exists before accessing the CheckStore vector
 			else if (checkId >= _checks.Count)
 			{
-				Log.outError(LogFilter.Warden, $"Warden check action override for non-existing check (ID: {checkId}, action: {action}), skipped");
+				Log.Logger.Error($"Warden check action override for non-existing check (ID: {checkId}, action: {action}), skipped");
 			}
 			else
 			{
@@ -162,7 +162,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} warden action overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} warden action overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public WardenCheck GetCheckData(ushort Id)

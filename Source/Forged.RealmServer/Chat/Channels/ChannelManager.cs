@@ -33,7 +33,7 @@ public class ChannelManager
 	{
 		if (!WorldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 custom chat channels. Custom channel saving is disabled.");
+			Log.Logger.Information("Loaded 0 custom chat channels. Custom channel saving is disabled.");
 
 			return;
 		}
@@ -52,7 +52,7 @@ public class ChannelManager
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 custom chat channels. DB table `channels` is empty.");
+			Log.Logger.Information("Loaded 0 custom chat channels. DB table `channels` is empty.");
 
 			return;
 		}
@@ -73,7 +73,7 @@ public class ChannelManager
 
 			if (mgr == null)
 			{
-				Log.outError(LogFilter.ServerLoading, $"Failed to load custom chat channel '{dbName}' from database - invalid team {team}. Deleted.");
+				Log.Logger.Error($"Failed to load custom chat channel '{dbName}' from database - invalid team {team}. Deleted.");
 				toDelete.Add((dbName, team));
 
 				continue;
@@ -96,7 +96,7 @@ public class ChannelManager
 			DB.Characters.Execute(stmt);
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public static ChannelManager ForTeam(TeamFaction team)

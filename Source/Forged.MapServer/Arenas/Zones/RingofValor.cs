@@ -24,7 +24,7 @@ class RingofValorArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RingofValorArena: Failed to spawn elevator object!");
+			Log.Logger.Error("RingofValorArena: Failed to spawn elevator object!");
 
 			return false;
 		}
@@ -34,7 +34,7 @@ class RingofValorArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RingofValorArena: Failed to spawn buff object!");
+			Log.Logger.Error("RingofValorArena: Failed to spawn buff object!");
 
 			return false;
 		}
@@ -46,7 +46,7 @@ class RingofValorArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RingofValorArena: Failed to spawn fire/firedoor object!");
+			Log.Logger.Error("RingofValorArena: Failed to spawn fire/firedoor object!");
 
 			return false;
 		}
@@ -58,7 +58,7 @@ class RingofValorArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RingofValorArena: Failed to spawn gear/pully object!");
+			Log.Logger.Error("RingofValorArena: Failed to spawn gear/pully object!");
 
 			return false;
 		}
@@ -74,7 +74,7 @@ class RingofValorArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "RingofValorArena: Failed to spawn pilar object!");
+			Log.Logger.Error("RingofValorArena: Failed to spawn pilar object!");
 
 			return false;
 		}

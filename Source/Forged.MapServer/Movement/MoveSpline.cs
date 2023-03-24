@@ -339,7 +339,7 @@ public class MoveSpline
 		// TODO: what to do in such cases? problem is in input data (all points are at same coords)
 		if (spline.Length() < 1)
 		{
-			Log.outError(LogFilter.Unit, "MoveSpline.init_spline: zero length spline, wrong input data?");
+			Log.Logger.Error("MoveSpline.init_spline: zero length spline, wrong input data?");
 			spline.Set_length(spline.Last(), spline.IsCyclic() ? 1000 : 1);
 		}
 

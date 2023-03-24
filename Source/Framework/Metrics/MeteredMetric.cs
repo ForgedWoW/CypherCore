@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using Serilog;
 
 namespace Framework.Metrics;
 
@@ -60,7 +61,7 @@ public class MeteredMetric : IDisposable
 			Console.WriteLine(msg);
 
 			if (_log)
-				Log.outDebug(LogFilter.Metric, msg);
+				Log.Logger.Debug(msg);
 
 			Console.ForegroundColor = ConsoleColor.Green;
 			_total = TimeSpan.Zero;

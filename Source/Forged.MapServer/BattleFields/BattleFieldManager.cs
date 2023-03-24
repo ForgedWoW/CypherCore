@@ -58,7 +58,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 
 				if (typeId >= BattleFieldTypes.Max)
 				{
-					Log.outError(LogFilter.Sql, $"BattlefieldMgr::InitBattlefield: Invalid TypeId value {typeId} in battlefield_template, skipped.");
+					Log.Logger.Error($"BattlefieldMgr::InitBattlefield: Invalid TypeId value {typeId} in battlefield_template, skipped.");
 
 					continue;
 				}
@@ -67,7 +67,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void CreateBattlefieldsForMap(Map map)
@@ -87,13 +87,13 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 
 			if (!bf.SetupBattlefield())
 			{
-				Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} failed.");
+				Log.Logger.Information($"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} failed.");
 
 				continue;
 			}
 
 			_battlefieldsByMap.Add(map, bf);
-			Log.outInfo(LogFilter.Battlefield, $"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} succeeded.");
+			Log.Logger.Information($"Setting up battlefield with TypeId {(BattleFieldTypes)i} on map {map.Id} instance id {map.InstanceId} succeeded.");
 		}
 	}
 
@@ -118,7 +118,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 			return;
 
 		bf.HandlePlayerEnterZone(player, zoneId);
-		Log.outDebug(LogFilter.Battlefield, "Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
+		Log.Logger.Debug("Player {0} entered battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
 	}
 
 	public void HandlePlayerLeaveZone(Player player, uint zoneId)
@@ -133,7 +133,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 			return;
 
 		bf.HandlePlayerLeaveZone(player, zoneId);
-		Log.outDebug(LogFilter.Battlefield, "Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
+		Log.Logger.Debug("Player {0} left battlefield id {1}", player.GUID.ToString(), bf.GetTypeId());
 	}
 
 	public bool IsWorldPvpArea(uint zoneId)

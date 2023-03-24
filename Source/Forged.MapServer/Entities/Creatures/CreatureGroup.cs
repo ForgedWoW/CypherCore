@@ -31,12 +31,12 @@ public class CreatureGroup
 
 	public void AddMember(Creature member)
 	{
-		Log.outDebug(LogFilter.Unit, "CreatureGroup.AddMember: Adding {0}.", member.GUID.ToString());
+		Log.Logger.Debug("CreatureGroup.AddMember: Adding {0}.", member.GUID.ToString());
 
 		//Check if it is a leader
 		if (member.SpawnId == _leaderSpawnId)
 		{
-			Log.outDebug(LogFilter.Unit, "{0} is formation leader. Adding group.", member.GUID.ToString());
+			Log.Logger.Debug("{0} is formation leader. Adding group.", member.GUID.ToString());
 			_leader = member;
 		}
 

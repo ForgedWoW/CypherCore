@@ -34,7 +34,7 @@ public abstract class Warden
 
 	public void MakeModuleForClient()
 	{
-		Log.outDebug(LogFilter.Warden, "Make module for client");
+		Log.Logger.Debug("Make module for client");
 		InitializeModuleForClient(out Module);
 
 		// md5 hash
@@ -46,7 +46,7 @@ public abstract class Warden
 
 	public void SendModuleToClient()
 	{
-		Log.outDebug(LogFilter.Warden, "Send module to client");
+		Log.Logger.Debug("Send module to client");
 
 		// Create packet structure
 		WardenModuleTransfer packet = new();
@@ -72,7 +72,7 @@ public abstract class Warden
 
 	public void RequestModule()
 	{
-		Log.outDebug(LogFilter.Warden, "Request module");
+		Log.Logger.Debug("Request module");
 
 		// Create packet structure
 		WardenModuleUse request = new();
@@ -101,7 +101,7 @@ public abstract class Warden
 				// Kick player if client response delays more than set in config
 				if (ClientResponseTimer > maxClientResponseDelay * Time.InMilliseconds)
 				{
-					Log.outWarn(LogFilter.Warden,
+					Log.Logger.Warning(
 								"{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
 								Session.GetPlayerInfo(),
 								Session.Latency,
@@ -143,13 +143,13 @@ public abstract class Warden
 
 		if (checksum != newChecksum)
 		{
-			Log.outDebug(LogFilter.Warden, "CHECKSUM IS NOT VALID");
+			Log.Logger.Debug("CHECKSUM IS NOT VALID");
 
 			return false;
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Warden, "CHECKSUM IS VALID");
+			Log.Logger.Debug("CHECKSUM IS VALID");
 
 			return true;
 		}
@@ -209,7 +209,7 @@ public abstract class Warden
 		var data = buff.GetData();
 		DecryptData(data);
 		var opcode = data[0];
-		Log.outDebug(LogFilter.Warden, $"Got packet, opcode 0x{opcode:X}, size {data.Length - 1}");
+		Log.Logger.Debug($"Got packet, opcode 0x{opcode:X}, size {data.Length - 1}");
 
 		switch ((WardenOpcodes)opcode)
 		{
@@ -226,7 +226,7 @@ public abstract class Warden
 
 				break;
 			case WardenOpcodes.CmsgMemChecksResult:
-				Log.outDebug(LogFilter.Warden, "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+				Log.Logger.Debug("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
 
 				break;
 			case WardenOpcodes.CmsgHashResult:
@@ -235,11 +235,11 @@ public abstract class Warden
 
 				break;
 			case WardenOpcodes.CmsgModuleFailed:
-				Log.outDebug(LogFilter.Warden, "NYI WARDEN_CMSG_MODULE_FAILED received!");
+				Log.Logger.Debug("NYI WARDEN_CMSG_MODULE_FAILED received!");
 
 				break;
 			default:
-				Log.outWarn(LogFilter.Warden, $"Got unknown warden opcode 0x{opcode:X} of size {data.Length - 1}.");
+				Log.Logger.Warning($"Got unknown warden opcode 0x{opcode:X} of size {data.Length - 1}.");
 
 				break;
 		}
@@ -276,14 +276,14 @@ public abstract class Warden
 			if (check.Type == WardenCheckType.LuaEval)
 			{
 				var penalty1 = ApplyPenalty(check);
-				Log.outWarn(LogFilter.Warden, $"{Session.GetPlayerInfo()} failed Warden check {id} ({check.Type}). Action: {penalty1}");
+				Log.Logger.Warning($"{Session.GetPlayerInfo()} failed Warden check {id} ({check.Type}). Action: {penalty1}");
 
 				return true;
 			}
 		}
 
 		var penalty = ApplyPenalty(null);
-		Log.outWarn(LogFilter.Warden, $"{Session.GetPlayerInfo()} sent bogus Lua check response for Warden. Action: {penalty}");
+		Log.Logger.Warning($"{Session.GetPlayerInfo()} sent bogus Lua check response for Warden. Action: {penalty}");
 
 		return true;
 	}

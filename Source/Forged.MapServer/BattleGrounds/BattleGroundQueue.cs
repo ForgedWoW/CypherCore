@@ -94,7 +94,7 @@ public class BattlegroundQueue
 		if (ginfo.Team == TeamFaction.Horde)
 			index++;
 
-		Log.outDebug(LogFilter.Battleground, "Adding Group to BattlegroundQueue bgTypeId : {0}, bracket_id : {1}, index : {2}", m_queueId.BattlemasterListId, bracketId, index);
+		Log.Logger.Debug("Adding Group to BattlegroundQueue bgTypeId : {0}, bracket_id : {1}, index : {2}", m_queueId.BattlemasterListId, bracketId, index);
 
 		var lastOnlineTime = GameTime.GetGameTimeMS();
 
@@ -230,7 +230,7 @@ public class BattlegroundQueue
 			if (player)
 				playerName = player.GetName();
 
-			Log.outDebug(LogFilter.Battleground, "BattlegroundQueue: couldn't find player {0} ({1})", playerName, guid.ToString());
+			Log.Logger.Debug("BattlegroundQueue: couldn't find player {0} ({1})", playerName, guid.ToString());
 
 			return;
 		}
@@ -262,12 +262,12 @@ public class BattlegroundQueue
 		//player can't be in queue without group, but just in case
 		if (bracket_id == -1)
 		{
-			Log.outError(LogFilter.Battleground, "BattlegroundQueue: ERROR Cannot find groupinfo for {0}", guid.ToString());
+			Log.Logger.Error("BattlegroundQueue: ERROR Cannot find groupinfo for {0}", guid.ToString());
 
 			return;
 		}
 
-		Log.outDebug(LogFilter.Battleground, "BattlegroundQueue: Removing {0}, from bracket_id {1}", guid.ToString(), bracket_id);
+		Log.Logger.Debug("BattlegroundQueue: Removing {0}, from bracket_id {1}", guid.ToString(), bracket_id);
 
 		// ALL variables are correctly set
 		// We can ignore leveling up in queue - it should not cause crash
@@ -306,7 +306,7 @@ public class BattlegroundQueue
 
 			if (at != null)
 			{
-				Log.outDebug(LogFilter.Battleground, "UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}", guid.ToString(), group.OpponentsTeamRating);
+				Log.Logger.Debug("UPDATING memberLost's personal arena rating for {0} by opponents rating: {1}", guid.ToString(), group.OpponentsTeamRating);
 				var player = Global.ObjAccessor.FindPlayer(guid);
 
 				if (player)
@@ -432,7 +432,7 @@ public class BattlegroundQueue
 
 		if (!bg_template)
 		{
-			Log.outError(LogFilter.Battleground, $"Battleground: Update: bg template not found for {m_queueId.BattlemasterListId}");
+			Log.Logger.Error($"Battleground: Update: bg template not found for {m_queueId.BattlemasterListId}");
 
 			return;
 		}
@@ -441,7 +441,7 @@ public class BattlegroundQueue
 
 		if (bracketEntry == null)
 		{
-			Log.outError(LogFilter.Battleground, "Battleground: Update: bg bracket entry not found for map {0} bracket id {1}", bg_template.GetMapId(), bracket_id);
+			Log.Logger.Error("Battleground: Update: bg bracket entry not found for map {0} bracket id {1}", bg_template.GetMapId(), bracket_id);
 
 			return;
 		}
@@ -471,7 +471,7 @@ public class BattlegroundQueue
 
 				if (bg2 == null)
 				{
-					Log.outError(LogFilter.Battleground, $"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
+					Log.Logger.Error($"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
 
 					return;
 				}
@@ -498,7 +498,7 @@ public class BattlegroundQueue
 
 				if (bg2 == null)
 				{
-					Log.outError(LogFilter.Battleground, $"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
+					Log.Logger.Error($"BattlegroundQueue.Update - Cannot create Battleground: {m_queueId.BattlemasterListId}");
 
 					return;
 				}
@@ -592,7 +592,7 @@ public class BattlegroundQueue
 
 				if (!arena)
 				{
-					Log.outError(LogFilter.Battleground, "BattlegroundQueue.Update couldn't create arena instance for rated arena match!");
+					Log.Logger.Error("BattlegroundQueue.Update couldn't create arena instance for rated arena match!");
 
 					return;
 				}
@@ -601,8 +601,8 @@ public class BattlegroundQueue
 				hTeam.OpponentsTeamRating = aTeam.ArenaTeamRating;
 				aTeam.OpponentsMatchmakerRating = hTeam.ArenaMatchmakerRating;
 				hTeam.OpponentsMatchmakerRating = aTeam.ArenaMatchmakerRating;
-				Log.outDebug(LogFilter.Battleground, "setting oposite teamrating for team {0} to {1}", aTeam.ArenaTeamId, aTeam.OpponentsTeamRating);
-				Log.outDebug(LogFilter.Battleground, "setting oposite teamrating for team {0} to {1}", hTeam.ArenaTeamId, hTeam.OpponentsTeamRating);
+				Log.Logger.Debug("setting oposite teamrating for team {0} to {1}", aTeam.ArenaTeamId, aTeam.OpponentsTeamRating);
+				Log.Logger.Debug("setting oposite teamrating for team {0} to {1}", hTeam.ArenaTeamId, hTeam.OpponentsTeamRating);
 
 				// now we must move team if we changed its faction to another faction queue, because then we will spam log by errors in Queue.RemovePlayer
 				if (aTeam.Team != TeamFaction.Alliance)
@@ -622,7 +622,7 @@ public class BattlegroundQueue
 				InviteGroupToBG(aTeam, arena, TeamFaction.Alliance);
 				InviteGroupToBG(hTeam, arena, TeamFaction.Horde);
 
-				Log.outDebug(LogFilter.Battleground, "Starting rated arena match!");
+				Log.Logger.Debug("Starting rated arena match!");
 				arena.StartBattleground();
 			}
 		}
@@ -715,7 +715,7 @@ public class BattlegroundQueue
 
 				var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
 
-				Log.outDebug(LogFilter.Battleground,
+				Log.Logger.Debug(
 							"Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
 							player.GetName(),
 							player.GUID.ToString(),
@@ -1321,7 +1321,7 @@ class BGQueueRemoveEvent : BasicEvent
 
 			if (bgQueue.IsPlayerInvited(m_PlayerGuid, m_BgInstanceGUID, m_RemoveTime))
 			{
-				Log.outDebug(LogFilter.Battleground, "Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GUID.ToString(), m_BgInstanceGUID);
+				Log.Logger.Debug("Battleground: removing player {0} from bg queue for instance {1} because of not pressing enter battle in time.", player.GUID.ToString(), m_BgInstanceGUID);
 
 				player.RemoveBattlegroundQueueId(m_BgQueueTypeId);
 				bgQueue.RemovePlayer(m_PlayerGuid, true);

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Serilog;
 
 namespace Framework.Collections;
 
@@ -119,7 +120,7 @@ public class ManyToOneLookup<TKey, TValue>
 					}
 					else
 					{
-						Log.outError(LogFilter.Misc, $"ManyToOneLookup: Unknown index {index} for key type {typeof(TKey)} and value type {typeof(TValue)}.");
+						Log.Logger.Error($"ManyToOneLookup: Unknown index {index} for key type {typeof(TKey)} and value type {typeof(TValue)}.");
 					}
 				}
 			}

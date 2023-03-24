@@ -545,7 +545,7 @@ public partial class Unit
 				break;
 			}
 			default:
-				Log.outError(LogFilter.Unit, "Unit.UpdateSpeed: Unsupported move type ({0})", mtype);
+				Log.Logger.Error("Unit.UpdateSpeed: Unsupported move type ({0})", mtype);
 
 				return;
 		}
@@ -661,7 +661,7 @@ public partial class Unit
 	{
 		if (!GridDefines.IsValidMapCoord(x, y, z, orientation))
 		{
-			Log.outError(LogFilter.Unit, "Unit.UpdatePosition({0}, {1}, {2}) .. bad coordinates!", x, y, z);
+			Log.Logger.Error("Unit.UpdatePosition({0}, {1}, {2}) .. bad coordinates!", x, y, z);
 
 			return false;
 		}

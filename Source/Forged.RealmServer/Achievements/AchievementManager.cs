@@ -54,7 +54,7 @@ public class AchievementManager : CriteriaHandler
 
 		if (HasAchieved(achievement.Id))
 		{
-			Log.outTrace(LogFilter.Achievement,
+			Log.Logger.Verbose(
 						"CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Achievement already earned",
 						criteria.Id,
 						criteria.Entry.Type,
@@ -65,7 +65,7 @@ public class AchievementManager : CriteriaHandler
 
 		if (achievement.InstanceID != -1 && referencePlayer.Location.MapId != achievement.InstanceID)
 		{
-			Log.outTrace(LogFilter.Achievement,
+			Log.Logger.Verbose(
 						"CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong map",
 						criteria.Id,
 						criteria.Entry.Type,
@@ -77,7 +77,7 @@ public class AchievementManager : CriteriaHandler
 		if ((achievement.Faction == AchievementFaction.Horde && referencePlayer.Team != TeamFaction.Horde) ||
 			(achievement.Faction == AchievementFaction.Alliance && referencePlayer.Team != TeamFaction.Alliance))
 		{
-			Log.outTrace(LogFilter.Achievement,
+			Log.Logger.Verbose(
 						"CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong faction",
 						criteria.Id,
 						criteria.Entry.Type,
@@ -93,7 +93,7 @@ public class AchievementManager : CriteriaHandler
 
 		if (achievement.CovenantID != 0 && referencePlayer.PlayerData.CovenantID != achievement.CovenantID)
 		{
-			Log.outTrace(LogFilter.Achievement, $"CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Achievement {achievement.Id}) Wrong covenant");
+			Log.Logger.Verbose($"CanUpdateCriteriaTree: (Id: {criteria.Id} Type {criteria.Entry.Type} Achievement {achievement.Id}) Wrong covenant");
 
 			return false;
 		}

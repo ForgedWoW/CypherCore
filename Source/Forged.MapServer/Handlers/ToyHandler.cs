@@ -63,7 +63,7 @@ public partial class WorldSession
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Network, "HandleUseToy: unknown spell id: {0} used by Toy Item entry {1}", packet.Cast.SpellID, itemId);
+			Log.Logger.Error("HandleUseToy: unknown spell id: {0} used by Toy Item entry {1}", packet.Cast.SpellID, itemId);
 
 			return;
 		}

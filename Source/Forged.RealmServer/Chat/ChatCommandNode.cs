@@ -177,7 +177,7 @@ public class ChatCommandNode
 	public void ResolveNames(string name)
 	{
 		if (_methodInfo != null && (HelpText.IsEmpty() && HelpString == 0))
-			Log.outWarn(LogFilter.Sql, $"Table `command` is missing help text for command '{name}'.");
+			Log.Logger.Warning($"Table `command` is missing help text for command '{name}'.");
 
 		Name = name;
 
@@ -241,7 +241,7 @@ public class ChatCommandNode
 		else
 		{
 			if (!SubCommands.TryAdd(command.Name, command))
-				Log.outError(LogFilter.Commands, $"Error trying to add subcommand, Already exists Command: {Name} SubCommand: {command.Name}");
+				Log.Logger.Error($"Error trying to add subcommand, Already exists Command: {Name} SubCommand: {command.Name}");
 		}
 	}
 

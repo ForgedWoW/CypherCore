@@ -4,6 +4,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Serilog;
 
 namespace Framework.Networking;
 
@@ -16,7 +17,7 @@ public class AsyncAcceptor
 	{
 		if (!IPAddress.TryParse(ip, out var bindIP))
 		{
-			Log.outError(LogFilter.Network, $"Server can't be started: Invalid IP-Address: {ip}");
+			Log.Logger.Error($"Server can't be started: Invalid IP-Address: {ip}");
 
 			return false;
 		}
@@ -28,7 +29,7 @@ public class AsyncAcceptor
 		}
 		catch (SocketException ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 
 			return false;
 		}
@@ -52,7 +53,7 @@ public class AsyncAcceptor
 		}
 		catch (ObjectDisposedException ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 	}
 

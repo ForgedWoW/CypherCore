@@ -152,7 +152,7 @@ public class VehicleJoinEvent : BasicEvent
 		// Check if the Vehicle was already uninstalled, in which case all auras were removed already
 		if (Target != null)
 		{
-			Log.outDebug(LogFilter.Vehicle,
+			Log.Logger.Debug(
 						"Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
 						Passenger.GUID.ToString(),
 						Passenger.Entry,
@@ -170,7 +170,7 @@ public class VehicleJoinEvent : BasicEvent
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Vehicle,
+			Log.Logger.Debug(
 						"Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
 						Passenger.GUID.ToString(),
 						Passenger.Entry,

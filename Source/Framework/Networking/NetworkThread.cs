@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Framework.Networking;
 
@@ -76,7 +77,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 
 	void Run()
 	{
-		Log.outDebug(LogFilter.Network, "Network Thread Starting");
+		Log.Logger.Debug("Network Thread Starting");
 
 		var sleepTime = 1;
 
@@ -108,7 +109,7 @@ public class NetworkThread<TSocketType> where TSocketType : ISocket
 			sleepTime = (int)(diff > 1 ? 0 : 1 - diff);
 		}
 
-		Log.outDebug(LogFilter.Misc, "Network Thread exits");
+		Log.Logger.Debug("Network Thread exits");
         lock (_newSockets)
             _newSockets.Clear();
 		_sockets.Clear();

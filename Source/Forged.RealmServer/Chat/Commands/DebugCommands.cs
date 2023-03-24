@@ -1281,7 +1281,7 @@ class DebugCommands
 	{
 		var player = handler.Player;
 
-		Log.outInfo(LogFilter.SqlDev, $"(@PATH, XX, {player.Location.X:3F}, {player.Location.Y:3F}, {player.Location.Z:5F}, {player.Location.Orientation:5F}, 0, 0, 0, 100, 0)");
+		Log.Logger.Information($"(@PATH, XX, {player.Location.X:3F}, {player.Location.Y:3F}, {player.Location.Z:5F}, {player.Location.Orientation:5F}, 0, 0, 0, 100, 0)");
 
 		handler.SendSysMessage("Waypoint SQL written to SQL Developer log");
 

@@ -122,7 +122,7 @@ public partial class WorldSession
 			lfgPartyInfo.Player.Add(lfgBlackList);
 		}
 
-		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_PARTY_INFO {0}", GetPlayerInfo());
+		Log.Logger.Debug("SMSG_LFG_PARTY_INFO {0}", GetPlayerInfo());
 		SendPacket(lfgPartyInfo);
 	}
 
@@ -199,7 +199,7 @@ public partial class WorldSession
 		else
 			dungeons = roleCheck.dungeons;
 
-		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_ROLE_CHECK_UPDATE {0}", GetPlayerInfo());
+		Log.Logger.Debug("SMSG_LFG_ROLE_CHECK_UPDATE {0}", GetPlayerInfo());
 
 		LFGRoleCheckUpdate lfgRoleCheckUpdate = new();
 		lfgRoleCheckUpdate.PartyIndex = 127;
@@ -253,7 +253,7 @@ public partial class WorldSession
 
 			foreach (var lockInfo in it.Value)
 			{
-				Log.outTrace(LogFilter.Lfg,
+				Log.Logger.Verbose(
 							"SendLfgJoinResult:: {0} DungeonID: {1} Lock status: {2} Required itemLevel: {3} Current itemLevel: {4}",
 							it.Key.ToString(),
 							(lockInfo.Key & 0x00FFFFFF),
@@ -272,7 +272,7 @@ public partial class WorldSession
 
 	public void SendLfgQueueStatus(LfgQueueStatusData queueData)
 	{
-		Log.outDebug(LogFilter.Lfg,
+		Log.Logger.Debug(
 					"SMSG_LFG_QUEUE_STATUS {0} state: {1} dungeon: {2}, waitTime: {3}, " +
 					"avgWaitTime: {4}, waitTimeTanks: {5}, waitTimeHealer: {6}, waitTimeDps: {7}, queuedTime: {8}, tanks: {9}, healers: {10}, dps: {11}",
 					GetPlayerInfo(),
@@ -314,7 +314,7 @@ public partial class WorldSession
 		if (rewardData.rdungeonEntry == 0 || rewardData.sdungeonEntry == 0 || rewardData.quest == null)
 			return;
 
-		Log.outDebug(LogFilter.Lfg,
+		Log.Logger.Debug(
 					"SMSG_LFG_PLAYER_REWARD {0} rdungeonEntry: {1}, sdungeonEntry: {2}, done: {3}",
 					GetPlayerInfo(),
 					rewardData.rdungeonEntry,
@@ -362,7 +362,7 @@ public partial class WorldSession
 					++agreeNum;
 			}
 
-		Log.outDebug(LogFilter.Lfg,
+		Log.Logger.Debug(
 					"SMSG_LFG_BOOT_PROPOSAL_UPDATE {0} inProgress: {1} - didVote: {2} - agree: {3} - victim: {4} votes: {5} - agrees: {6} - left: {7} - needed: {8} - reason {9}",
 					GetPlayerInfo(),
 					boot.inProgress,
@@ -396,7 +396,7 @@ public partial class WorldSession
 		var silent = !proposal.isNew && guildGuid == proposal.group;
 		var dungeonEntry = proposal.dungeonId;
 
-		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_PROPOSAL_UPDATE {0} state: {1}", GetPlayerInfo(), proposal.state);
+		Log.Logger.Debug("SMSG_LFG_PROPOSAL_UPDATE {0} state: {1}", GetPlayerInfo(), proposal.state);
 
 		// show random dungeon if player selected random dungeon and it's not lfg group
 		if (!silent)
@@ -446,13 +446,13 @@ public partial class WorldSession
 
 	public void SendLfgOfferContinue(uint dungeonEntry)
 	{
-		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_OFFER_CONTINUE {0} dungeon entry: {1}", GetPlayerInfo(), dungeonEntry);
+		Log.Logger.Debug("SMSG_LFG_OFFER_CONTINUE {0} dungeon entry: {1}", GetPlayerInfo(), dungeonEntry);
 		SendPacket(new LfgOfferContinue(Global.LFGMgr.GetLFGDungeonEntry(dungeonEntry)));
 	}
 
 	public void SendLfgTeleportError(LfgTeleportResult err)
 	{
-		Log.outDebug(LogFilter.Lfg, "SMSG_LFG_TELEPORT_DENIED {0} reason: {1}", GetPlayerInfo(), err);
+		Log.Logger.Debug("SMSG_LFG_TELEPORT_DENIED {0} reason: {1}", GetPlayerInfo(), err);
 		SendPacket(new LfgTeleportDenied(err));
 	}
 
@@ -467,7 +467,7 @@ public partial class WorldSession
 
 		if (dfJoin.Slots.Empty())
 		{
-			Log.outDebug(LogFilter.Lfg, "CMSG_DF_JOIN {0} no dungeons selected", GetPlayerInfo());
+			Log.Logger.Debug("CMSG_DF_JOIN {0} no dungeons selected", GetPlayerInfo());
 
 			return;
 		}
@@ -482,7 +482,7 @@ public partial class WorldSession
 				newDungeons.Add(dungeon);
 		}
 
-		Log.outDebug(LogFilter.Lfg, "CMSG_DF_JOIN {0} roles: {1}, Dungeons: {2}", GetPlayerInfo(), dfJoin.Roles, newDungeons.Count);
+		Log.Logger.Debug("CMSG_DF_JOIN {0} roles: {1}, Dungeons: {2}", GetPlayerInfo(), dfJoin.Roles, newDungeons.Count);
 
 		Global.LFGMgr.JoinLfg(Player, dfJoin.Roles, newDungeons);
 	}
@@ -492,7 +492,7 @@ public partial class WorldSession
 	{
 		var group = Player.Group;
 
-		Log.outDebug(LogFilter.Lfg, "CMSG_DF_LEAVE {0} in group: {1} sent guid {2}.", GetPlayerInfo(), group ? 1 : 0, dfLeave.Ticket.RequesterGuid.ToString());
+		Log.Logger.Debug("CMSG_DF_LEAVE {0} in group: {1} sent guid {2}.", GetPlayerInfo(), group ? 1 : 0, dfLeave.Ticket.RequesterGuid.ToString());
 
 		// Check cheating - only leader can leave the queue
 		if (!group || group.LeaderGUID == dfLeave.Ticket.RequesterGuid)
@@ -502,7 +502,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.DfProposalResponse)]
 	void HandleLfgProposalResult(DFProposalResponse dfProposalResponse)
 	{
-		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_PROPOSAL_RESULT {0} proposal: {1} accept: {2}", GetPlayerInfo(), dfProposalResponse.ProposalID, dfProposalResponse.Accepted ? 1 : 0);
+		Log.Logger.Debug("CMSG_LFG_PROPOSAL_RESULT {0} proposal: {1} accept: {2}", GetPlayerInfo(), dfProposalResponse.ProposalID, dfProposalResponse.Accepted ? 1 : 0);
 		Global.LFGMgr.UpdateProposal(dfProposalResponse.ProposalID, Player.GUID, dfProposalResponse.Accepted);
 	}
 
@@ -514,7 +514,7 @@ public partial class WorldSession
 
 		if (!group)
 		{
-			Log.outDebug(LogFilter.Lfg,
+			Log.Logger.Debug(
 						"CMSG_DF_SET_ROLES {0} Not in group",
 						GetPlayerInfo());
 
@@ -522,7 +522,7 @@ public partial class WorldSession
 		}
 
 		var gguid = group.GUID;
-		Log.outDebug(LogFilter.Lfg, "CMSG_DF_SET_ROLES: Group {0}, Player {1}, Roles: {2}", gguid.ToString(), GetPlayerInfo(), dfSetRoles.RolesDesired);
+		Log.Logger.Debug("CMSG_DF_SET_ROLES: Group {0}, Player {1}, Roles: {2}", gguid.ToString(), GetPlayerInfo(), dfSetRoles.RolesDesired);
 		Global.LFGMgr.UpdateRoleCheck(gguid, guid, dfSetRoles.RolesDesired);
 	}
 
@@ -530,14 +530,14 @@ public partial class WorldSession
 	void HandleLfgSetBootVote(DFBootPlayerVote dfBootPlayerVote)
 	{
 		var guid = Player.GUID;
-		Log.outDebug(LogFilter.Lfg, "CMSG_LFG_SET_BOOT_VOTE {0} agree: {1}", GetPlayerInfo(), dfBootPlayerVote.Vote ? 1 : 0);
+		Log.Logger.Debug("CMSG_LFG_SET_BOOT_VOTE {0} agree: {1}", GetPlayerInfo(), dfBootPlayerVote.Vote ? 1 : 0);
 		Global.LFGMgr.UpdateBoot(guid, dfBootPlayerVote.Vote);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DfTeleport)]
 	void HandleLfgTeleport(DFTeleport dfTeleport)
 	{
-		Log.outDebug(LogFilter.Lfg, "CMSG_DF_TELEPORT {0} out: {1}", GetPlayerInfo(), dfTeleport.TeleportOut ? 1 : 0);
+		Log.Logger.Debug("CMSG_DF_TELEPORT {0} out: {1}", GetPlayerInfo(), dfTeleport.TeleportOut ? 1 : 0);
 		Global.LFGMgr.TeleportPlayer(Player, dfTeleport.TeleportOut, true);
 	}
 }

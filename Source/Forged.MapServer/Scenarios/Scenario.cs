@@ -37,7 +37,7 @@ public class Scenario : CriteriaHandler
 		if (firstStep != null)
 			SetStep(firstStep);
 		else
-			Log.outError(LogFilter.Scenario, "Scenario.Scenario: Could not launch Scenario (id: {0}), found no valid scenario step", _data.Entry.Id);
+			Log.Logger.Error("Scenario.Scenario: Could not launch Scenario (id: {0}), found no valid scenario step", _data.Entry.Id);
 	}
 
 	public override void Reset()
@@ -81,7 +81,7 @@ public class Scenario : CriteriaHandler
 		if (IsComplete())
 			CompleteScenario();
 		else
-			Log.outError(LogFilter.Scenario, "Scenario.CompleteStep: Scenario (id: {0}, step: {1}) was completed, but could not determine new step, or validate scenario completion.", step.ScenarioID, step.Id);
+			Log.Logger.Error("Scenario.CompleteStep: Scenario (id: {0}, step: {1}) was completed, but could not determine new step, or validate scenario completion.", step.ScenarioID, step.Id);
 	}
 
 	public virtual void CompleteScenario()

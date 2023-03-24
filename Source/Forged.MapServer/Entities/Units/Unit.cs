@@ -844,7 +844,7 @@ public partial class Unit : WorldObject
 	{
 		if (!CliDB.BroadcastTextStorage.ContainsKey(textId))
 		{
-			Log.outError(LogFilter.Unit, "Unit.Talk: `broadcast_text` (Id: {0}) was not found", textId);
+			Log.Logger.Error("Unit.Talk: `broadcast_text` (Id: {0}) was not found", textId);
 
 			return;
 		}
@@ -879,7 +879,7 @@ public partial class Unit : WorldObject
 
 		if (bct == null)
 		{
-			Log.outError(LogFilter.Unit, "Unit.Whisper: `broadcast_text` was not {0} found", textId);
+			Log.Logger.Error("Unit.Whisper: `broadcast_text` was not {0} found", textId);
 
 			return;
 		}
@@ -952,7 +952,7 @@ public partial class Unit : WorldObject
 
 			if (owner != null)
 				if (owner.Controlled.Contains(this))
-					Log.outFatal(LogFilter.Unit, "Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
+					Log.Logger.Fatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
 
 			base.RemoveFromWorld();
 			_duringRemoveFromWorld = false;
@@ -1275,7 +1275,7 @@ public partial class Unit : WorldObject
 				if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
 					return (Guardian)pet;
 
-			Log.outFatal(LogFilter.Unit, "Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
+			Log.Logger.Fatal("Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
 			PetGUID = ObjectGuid.Empty;
 		}
 
@@ -1358,7 +1358,7 @@ public partial class Unit : WorldObject
 		{
 			if (Vehicle != vehicle)
 			{
-				Log.outDebug(LogFilter.Vehicle, "EnterVehicle: {0} exit {1} and enter {2}.", Entry, Vehicle.GetBase().Entry, vehicle.GetBase().Entry);
+				Log.Logger.Debug("EnterVehicle: {0} exit {1} and enter {2}.", Entry, Vehicle.GetBase().Entry, vehicle.GetBase().Entry);
 				ExitVehicle();
 			}
 			else if (seatId >= 0 && seatId == TransSeat)
@@ -1461,7 +1461,7 @@ public partial class Unit : WorldObject
 
 		if (vehicle == null)
 		{
-			Log.outError(LogFilter.Vehicle, $"RemovePassenger() couldn't remove current unit from vehicle. Debug info: {GetDebugInfo()}");
+			Log.Logger.Error($"RemovePassenger() couldn't remove current unit from vehicle. Debug info: {GetDebugInfo()}");
 
 			return;
 		}
@@ -1872,7 +1872,7 @@ public partial class Unit : WorldObject
 		// this can happen if OnEffectHitTarget() script hook killed the unit or the aura owner (which can be different)
 		if (aura.IsRemoved)
 		{
-			Log.outError(LogFilter.Spells, $"Unit::_CreateAuraApplication() called with a removed aura. Check if OnEffectHitTarget() is triggering any spell with apply aura effect (that's not allowed!)\nUnit: {GetDebugInfo()}\nAura: {aura.GetDebugInfo()}");
+			Log.Logger.Error($"Unit::_CreateAuraApplication() called with a removed aura. Check if OnEffectHitTarget() is triggering any spell with apply aura effect (that's not allowed!)\nUnit: {GetDebugInfo()}\nAura: {aura.GetDebugInfo()}");
 
 			return null;
 		}
@@ -1996,7 +1996,7 @@ public partial class Unit : WorldObject
 	{
 		if (!CliDB.AnimKitStorage.ContainsKey(animKitId))
 		{
-			Log.outError(LogFilter.Unit, "Unit.PlayOneShotAnimKitId using invalid AnimKit ID: {0}", animKitId);
+			Log.Logger.Error("Unit.PlayOneShotAnimKitId using invalid AnimKit ID: {0}", animKitId);
 
 			return;
 		}

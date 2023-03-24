@@ -11,7 +11,7 @@ public class BattlegroundMapScript : MapScript<BattlegroundMap>
 	{
 		if (GetEntry() != null &&
 			GetEntry().IsBattleground())
-			Log.outError(LogFilter.Scripts, "BattlegroundMapScript for map {0} is invalid.", mapId);
+			Log.Logger.Error("BattlegroundMapScript for map {0} is invalid.", mapId);
 
 		Global.ScriptMgr.AddScript(this);
 	}

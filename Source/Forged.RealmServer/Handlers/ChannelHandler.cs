@@ -57,7 +57,7 @@ public partial class WorldSession
 
 			if (packet.Password.Length > 127)
 			{
-				Log.outError(LogFilter.Network, $"Player {Player.GUID} tried to create a channel with a password more than {127} characters long - blocked");
+				Log.Logger.Error($"Player {Player.GUID} tried to create a channel with a password more than {127} characters long - blocked");
 
 				return;
 			}
@@ -164,7 +164,7 @@ public partial class WorldSession
 	{
 		if (packet.Name.Length >= 49)
 		{
-			Log.outDebug(LogFilter.ChatSystem, "{0} {1} ChannelName: {2}, Name: {3}, Name too long.", packet.GetOpcode(), GetPlayerInfo(), packet.ChannelName, packet.Name);
+			Log.Logger.Debug("{0} {1} ChannelName: {2}, Name: {3}, Name too long.", packet.GetOpcode(), GetPlayerInfo(), packet.ChannelName, packet.Name);
 
 			return;
 		}
@@ -223,7 +223,7 @@ public partial class WorldSession
 	{
 		if (packet.Password.Length > 31)
 		{
-			Log.outDebug(LogFilter.ChatSystem,
+			Log.Logger.Debug(
 						"{0} {1} ChannelName: {2}, Password: {3}, Password too long.",
 						packet.GetOpcode(),
 						GetPlayerInfo(),
@@ -233,7 +233,7 @@ public partial class WorldSession
 			return;
 		}
 
-		Log.outDebug(LogFilter.ChatSystem, "{0} {1} ChannelName: {2}, Password: {3}", packet.GetOpcode(), GetPlayerInfo(), packet.ChannelName, packet.Password);
+		Log.Logger.Debug("{0} {1} ChannelName: {2}, Password: {3}", packet.GetOpcode(), GetPlayerInfo(), packet.ChannelName, packet.Password);
 
 		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, Player);
 

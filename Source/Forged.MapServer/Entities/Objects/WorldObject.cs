@@ -481,22 +481,22 @@ public abstract class WorldObject : IDisposable
 		if (IsWorldObject() && _currMap)
 		{
 			if (IsTypeId(TypeId.Corpse))
-				Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+				Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
 			else
 				ResetMap();
 		}
 
 		if (IsInWorld)
 		{
-			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
 
 			if (IsTypeMask(TypeMask.Item))
-				Log.outFatal(LogFilter.Misc, "Item slot {0}", ((Item)this).Slot);
+				Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
 		}
 
 		if (_objectUpdated)
 		{
-			Log.outFatal(LogFilter.Misc, "WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
+			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
 		}
 	}
 
@@ -1739,7 +1739,7 @@ public abstract class WorldObject : IDisposable
 
 		if (map == null)
 		{
-			Log.outError(LogFilter.Server, "Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", TypeId, Entry, GUID.ToString(), Location.MapId);
+			Log.Logger.Error("Object (TypeId: {0} Entry: {1} GUID: {2}) at attempt add to move list not have valid map (Id: {3}).", TypeId, Entry, GUID.ToString(), Location.MapId);
 
 			return;
 		}
@@ -1851,7 +1851,7 @@ public abstract class WorldObject : IDisposable
 
 		if (goinfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Gameobject template {0} not found in database!", entry);
+			Log.Logger.Error("Gameobject template {0} not found in database!", entry);
 
 			return null;
 		}
@@ -1908,7 +1908,7 @@ public abstract class WorldObject : IDisposable
 
 		if (data.Empty())
 		{
-			Log.outWarn(LogFilter.Scripts, "{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GUID.ToString(), group);
+			Log.Logger.Warning("{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GUID.ToString(), group);
 
 			return;
 		}
@@ -2369,20 +2369,20 @@ public abstract class WorldObject : IDisposable
 			switch (TypeId)
 			{
 				case TypeId.Player:
-					Log.outError(LogFilter.Unit, $"Player {AsPlayer.GetName()} has invalid faction (faction template id) #{factionId}");
+					Log.Logger.Error($"Player {AsPlayer.GetName()} has invalid faction (faction template id) #{factionId}");
 
 					break;
 				case TypeId.Unit:
-					Log.outError(LogFilter.Unit, $"Creature (template id: {AsCreature.Template.Entry}) has invalid faction (faction template Id) #{factionId}");
+					Log.Logger.Error($"Creature (template id: {AsCreature.Template.Entry}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 				case TypeId.GameObject:
 					if (factionId != 0) // Gameobjects may have faction template id = 0
-						Log.outError(LogFilter.Unit, $"GameObject (template id: {AsGameObject.Template.entry}) has invalid faction (faction template Id) #{factionId}");
+						Log.Logger.Error($"GameObject (template id: {AsGameObject.Template.entry}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 				default:
-					Log.outError(LogFilter.Unit, $"Object (name={GetName()}, type={TypeId}) has invalid faction (faction template Id) #{factionId}");
+					Log.Logger.Error($"Object (name={GetName()}, type={TypeId}) has invalid faction (faction template Id) #{factionId}");
 
 					break;
 			}
@@ -2708,14 +2708,14 @@ public abstract class WorldObject : IDisposable
 
 		if (info == null)
 		{
-			Log.outError(LogFilter.Unit, $"CastSpell: unknown spell {spellId} by caster {GUID}");
+			Log.Logger.Error($"CastSpell: unknown spell {spellId} by caster {GUID}");
 
 			return SpellCastResult.SpellUnavailable;
 		}
 
 		if (targets.Targets == null)
 		{
-			Log.outError(LogFilter.Unit, $"CastSpell: Invalid target passed to spell cast {spellId} by {GUID}");
+			Log.Logger.Error($"CastSpell: Invalid target passed to spell cast {spellId} by {GUID}");
 
 			return SpellCastResult.BadTargets;
 		}
@@ -3982,7 +3982,7 @@ public abstract class WorldObject : IDisposable
 		// Prevent invalid coordinates here, position is unchanged
 		if (!GridDefines.IsValidMapCoord(destx, desty, pos.Z))
 		{
-			Log.outError(LogFilter.Server, "WorldObject.MovePosition invalid coordinates X: {0} and Y: {1} were passed!", destx, desty);
+			Log.Logger.Error("WorldObject.MovePosition invalid coordinates X: {0} and Y: {1} were passed!", destx, desty);
 
 			return;
 		}
@@ -4027,7 +4027,7 @@ public abstract class WorldObject : IDisposable
 		// Prevent invalid coordinates here, position is unchanged
 		if (!GridDefines.IsValidMapCoord(destx, desty))
 		{
-			Log.outError(LogFilter.Server, "WorldObject.MovePositionToFirstCollision invalid coordinates X: {0} and Y: {1} were passed!", destx, desty);
+			Log.Logger.Error("WorldObject.MovePositionToFirstCollision invalid coordinates X: {0} and Y: {1} were passed!", destx, desty);
 
 			return;
 		}

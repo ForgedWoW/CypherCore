@@ -59,7 +59,7 @@ public class CollectionMgr
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 mount definitions. DB table `mount_definitions` is empty.");
+			Log.Logger.Information("Loaded 0 mount definitions. DB table `mount_definitions` is empty.");
 
 			return;
 		}
@@ -71,14 +71,14 @@ public class CollectionMgr
 
 			if (Global.DB2Mgr.GetMount(spellId) == null)
 			{
-				Log.outError(LogFilter.Sql, "Mount spell {0} defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
+				Log.Logger.Error("Mount spell {0} defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
 
 				continue;
 			}
 
 			if (otherFactionSpellId != 0 && Global.DB2Mgr.GetMount(otherFactionSpellId) == null)
 			{
-				Log.outError(LogFilter.Sql, "otherFactionSpellId {0} defined in `mount_definitions` for spell {1} does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
+				Log.Logger.Error("otherFactionSpellId {0} defined in `mount_definitions` for spell {1} does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
 
 				continue;
 			}
@@ -86,7 +86,7 @@ public class CollectionMgr
 			FactionSpecificMounts[spellId] = otherFactionSpellId;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, Time.GetMSTimeDiffToNow(oldMsTime));
+		Log.Logger.Information("Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public void LoadToys()

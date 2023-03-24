@@ -65,7 +65,7 @@ public class Transport : GameObject, ITransport
 			{
 				passenger.SetTransport(null);
 				passenger.MovementInfo.Transport.Reset();
-				Log.outDebug(LogFilter.Transport, "Object {0} removed from transport {1}.", passenger.GetName(), GetName());
+				Log.Logger.Debug("Object {0} removed from transport {1}.", passenger.GetName(), GetName());
 
 				var plr = passenger.AsPlayer;
 
@@ -117,7 +117,7 @@ public class Transport : GameObject, ITransport
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Transport, $"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
+			Log.Logger.Error($"Transport (GUID: {guidlow}) not created. Suggested coordinates isn't valid (X: {x} Y: {y})");
 
 			return false;
 		}
@@ -128,7 +128,7 @@ public class Transport : GameObject, ITransport
 
 		if (goinfo == null)
 		{
-			Log.outError(LogFilter.Sql, $"Transport not created: entry in `gameobject_template` not found, entry: {entry}");
+			Log.Logger.Error($"Transport not created: entry in `gameobject_template` not found, entry: {entry}");
 
 			return false;
 		}
@@ -140,7 +140,7 @@ public class Transport : GameObject, ITransport
 
 		if (tInfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Transport {0} (name: {1}) will not be created, missing `transport_template` entry.", entry, goinfo.name);
+			Log.Logger.Error("Transport {0} (name: {1}) will not be created, missing `transport_template` entry.", entry, goinfo.name);
 
 			return false;
 		}
@@ -203,7 +203,7 @@ public class Transport : GameObject, ITransport
 		if (AI != null)
 			AI.UpdateAI(diff);
 		else if (!AIM_Initialize())
-			Log.outError(LogFilter.Transport, "Could not initialize GameObjectAI for Transport");
+			Log.Logger.Error("Could not initialize GameObjectAI for Transport");
 
 		Global.ScriptMgr.RunScript<ITransportOnUpdate>(p => p.OnUpdate(this, diff), ScriptId);
 
@@ -343,7 +343,7 @@ public class Transport : GameObject, ITransport
 
 		if (!creature.Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Transport, "Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GUID.ToString(), creature.Entry, creature.Location.X, creature.Location.Y);
+			Log.Logger.Error("Creature (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", creature.GUID.ToString(), creature.Entry, creature.Location.X, creature.Location.Y);
 
 			return null;
 		}
@@ -612,7 +612,7 @@ public class Transport : GameObject, ITransport
 
 		if (!go.Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Transport, "GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GUID.ToString(), go.Entry, go.Location.X, go.Location.Y);
+			Log.Logger.Error("GameObject (guidlow {0}, entry {1}) not created. Suggested coordinates aren't valid (X: {2} Y: {3})", go.GUID.ToString(), go.Entry, go.Location.X, go.Location.Y);
 
 			return null;
 		}

@@ -72,7 +72,7 @@ public class BladesEdgeArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "BatteGroundBE: Failed to spawn door object!");
+			Log.Logger.Error("BatteGroundBE: Failed to spawn door object!");
 
 			return false;
 		}
@@ -82,7 +82,7 @@ public class BladesEdgeArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "BladesEdgeArena: Failed to spawn buff object!");
+			Log.Logger.Error("BladesEdgeArena: Failed to spawn buff object!");
 
 			return false;
 		}

@@ -63,7 +63,7 @@ public class ScriptRegistry
 		else
 		{
 			// The script uses a script Name from database, but isn't assigned to anything.
-			Log.outError(LogFilter.ServerLoading, "Script named '{0}' does not have a script Name assigned in database.", script.GetName());
+			Log.Logger.Error("Script named '{0}' does not have a script Name assigned in database.", script.GetName());
 		}
 	}
 

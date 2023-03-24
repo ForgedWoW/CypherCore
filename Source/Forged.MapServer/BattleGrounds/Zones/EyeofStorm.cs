@@ -327,7 +327,7 @@ class BgEyeofStorm : Battleground
 			!AddObject(EotSObjectTypes.BerserkbuffMageTower, EotSObjectIds.BerserkBuffMageTowerEyEntry, 2283.7099609375f, 1748.8699951171875f, 1189.7071533203125f, 4.782202720642089843f, 0.0f, 0.0f, -0.68199825286865234f, 0.731353819370269775f, BattlegroundConst.RespawnOneDay)
 			)
 		{
-			Log.outError(LogFilter.Sql, "BatteGroundEY: Failed to spawn some objects. The battleground was not created.");
+			Log.Logger.Error("BatteGroundEY: Failed to spawn some objects. The battleground was not created.");
 
 			return false;
 		}
@@ -336,7 +336,7 @@ class BgEyeofStorm : Battleground
 
 		if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
 		{
-			Log.outError(LogFilter.Sql, "BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
+			Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
 
 			return false;
 		}
@@ -345,7 +345,7 @@ class BgEyeofStorm : Battleground
 
 		if (sg == null || !AddSpiritGuide(EotSCreaturesTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
 		{
-			Log.outError(LogFilter.Sql, "BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
+			Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. The battleground was not created.");
 
 			return false;
 		}
@@ -504,7 +504,7 @@ class BgEyeofStorm : Battleground
 
 		if (entry == null)
 		{
-			Log.outError(LogFilter.Battleground, "BattlegroundEY: The main team graveyard could not be found. The graveyard system will not be operational!");
+			Log.Logger.Error("BattlegroundEY: The main team graveyard could not be found. The graveyard system will not be operational!");
 
 			return null;
 		}
@@ -523,7 +523,7 @@ class BgEyeofStorm : Battleground
 
 				if (entry == null)
 				{
-					Log.outError(LogFilter.Battleground, "BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.m_CapturingPointTypes[i].GraveYardId);
+					Log.Logger.Error("BattlegroundEY: Graveyard {0} could not be found.", EotSMisc.m_CapturingPointTypes[i].GraveYardId);
 				}
 				else
 				{
@@ -614,7 +614,7 @@ class BgEyeofStorm : Battleground
 
 					if (!player)
 					{
-						Log.outError(LogFilter.Battleground, "BattlegroundEY:CheckSomeoneJoinedPoint: Player ({0}) could not be found!", m_PlayersNearPoint[EotSPoints.PointsMax][j].ToString());
+						Log.Logger.Error("BattlegroundEY:CheckSomeoneJoinedPoint: Player ({0}) could not be found!", m_PlayersNearPoint[EotSPoints.PointsMax][j].ToString());
 						++j;
 
 						continue;
@@ -663,7 +663,7 @@ class BgEyeofStorm : Battleground
 
 					if (!player)
 					{
-						Log.outError(LogFilter.Battleground, "BattlegroundEY:CheckSomeoneLeftPoint Player ({0}) could not be found!", m_PlayersNearPoint[i][j].ToString());
+						Log.Logger.Error("BattlegroundEY:CheckSomeoneLeftPoint Player ({0}) could not be found!", m_PlayersNearPoint[i][j].ToString());
 						//move non-existing players to "free space" - this will cause many errors showing in log, but it is a very important bug
 						m_PlayersNearPoint[EotSPoints.PointsMax].Add(m_PlayersNearPoint[i][j]);
 						m_PlayersNearPoint[i].RemoveAt(j);
@@ -837,7 +837,7 @@ class BgEyeofStorm : Battleground
 		if (obj)
 			obj.Delete();
 		else
-			Log.outError(LogFilter.Battleground, "BattlegroundEY: Unknown dropped flag ({0}).", GetDroppedFlagGUID().ToString());
+			Log.Logger.Error("BattlegroundEY: Unknown dropped flag ({0}).", GetDroppedFlagGUID().ToString());
 
 		SetDroppedFlagGUID(ObjectGuid.Empty);
 	}
@@ -932,7 +932,7 @@ class BgEyeofStorm : Battleground
 		var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
 
 		if (sg == null || !AddSpiritGuide(Point, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, GetTeamIndexByTeamId(Team)))
-			Log.outError(LogFilter.Battleground,
+			Log.Logger.Error(
 						"BatteGroundEY: Failed to spawn spirit guide. point: {0}, team: {1}, graveyard_id: {2}",
 						Point,
 						Team,

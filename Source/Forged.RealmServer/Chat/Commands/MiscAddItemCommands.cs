@@ -214,7 +214,7 @@ class MiscAddItemCommands
 		if (!playerTarget)
 			playerTarget = player;
 
-		Log.outDebug(LogFilter.Server, Global.ObjectMgr.GetCypherString(CypherStrings.Additemset), itemSetId);
+		Log.Logger.Debug(Global.ObjectMgr.GetCypherString(CypherStrings.Additemset), itemSetId);
 
 		var found = false;
 		var its = Global.ObjectMgr.GetItemTemplates();

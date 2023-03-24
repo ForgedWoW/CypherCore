@@ -23,7 +23,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 petitions.");
+			Log.Logger.Information("Loaded 0 petitions.");
 
 			return;
 		}
@@ -36,7 +36,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
+		Log.Logger.Information($"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
 	}
 
 	public void LoadSignatures()
@@ -47,7 +47,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Petition signs!");
+			Log.Logger.Information("Loaded 0 Petition signs!");
 
 			return;
 		}
@@ -65,7 +65,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)

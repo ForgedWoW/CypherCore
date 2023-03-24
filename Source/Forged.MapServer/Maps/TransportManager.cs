@@ -31,7 +31,7 @@ public class TransportManager : Singleton<TransportManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 transports templates. DB table `gameobject_template` has no transports!");
+			Log.Logger.Information("Loaded 0 transports templates. DB table `gameobject_template` has no transports!");
 
 			return;
 		}
@@ -45,14 +45,14 @@ public class TransportManager : Singleton<TransportManager>
 
 			if (goInfo == null)
 			{
-				Log.outError(LogFilter.Sql, "Transport {0} has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
+				Log.Logger.Error("Transport {0} has no associated GameObjectTemplate from `gameobject_template` , skipped.", entry);
 
 				continue;
 			}
 
 			if (!CliDB.TaxiPathNodesByPath.ContainsKey(goInfo.MoTransport.taxiPathID))
 			{
-				Log.outError(LogFilter.Sql, "Transport {0} (name: {1}) has an invalid path specified in `gameobject_template`.`data0` ({2}) field, skipped.", entry, goInfo.name, goInfo.MoTransport.taxiPathID);
+				Log.Logger.Error("Transport {0} (name: {1}) has an invalid path specified in `gameobject_template`.`data0` ({2}) field, skipped.", entry, goInfo.name, goInfo.MoTransport.taxiPathID);
 
 				continue;
 			}
@@ -70,7 +70,7 @@ public class TransportManager : Singleton<TransportManager>
 		} while (result.NextRow());
 
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} transports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} transports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTransportAnimationAndRotation()
@@ -106,40 +106,40 @@ public class TransportManager : Singleton<TransportManager>
 
 				if (transportTemplate == null)
 				{
-					Log.outError(LogFilter.Sql, $"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown gameobject `entry` set, skipped.");
+					Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown gameobject `entry` set, skipped.");
 
 					continue;
 				}
 
 				if ((phaseUseFlags & ~PhaseUseFlagsValues.All) != 0)
 				{
-					Log.outError(LogFilter.Sql, $"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown `phaseUseFlags` set, removed unknown value.");
+					Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with unknown `phaseUseFlags` set, removed unknown value.");
 					phaseUseFlags &= PhaseUseFlagsValues.All;
 				}
 
 				if (phaseUseFlags.HasFlag(PhaseUseFlagsValues.AlwaysVisible) && phaseUseFlags.HasFlag(PhaseUseFlagsValues.Inverse))
 				{
-					Log.outError(LogFilter.Sql, $"Table `transports` have transport (GUID: {guid} Entry: {entry}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE, removing PHASE_USE_FLAGS_INVERSE.");
+					Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE, removing PHASE_USE_FLAGS_INVERSE.");
 					phaseUseFlags &= ~PhaseUseFlagsValues.Inverse;
 				}
 
 				if (phaseGroupId != 0 && phaseId != 0)
 				{
-					Log.outError(LogFilter.Sql, $"Table `transports` have transport (GUID: {guid} Entry: {entry}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0");
+					Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with both `phaseid` and `phasegroup` set, `phasegroup` set to 0");
 					phaseGroupId = 0;
 				}
 
 				if (phaseId != 0)
 					if (!CliDB.PhaseStorage.ContainsKey(phaseId))
 					{
-						Log.outError(LogFilter.Sql, $"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseid` {phaseId} does not exist, set to 0");
+						Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseid` {phaseId} does not exist, set to 0");
 						phaseId = 0;
 					}
 
 				if (phaseGroupId != 0)
 					if (Global.DB2Mgr.GetPhasesForGroup(phaseGroupId) == null)
 					{
-						Log.outError(LogFilter.Sql, $"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseGroup` {phaseGroupId} does not exist, set to 0");
+						Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseGroup` {phaseGroupId} does not exist, set to 0");
 						phaseGroupId = 0;
 					}
 
@@ -158,7 +158,7 @@ public class TransportManager : Singleton<TransportManager>
 				count++;
 			} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Spawned {count} continent transports in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Spawned {count} continent transports in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void AddPathNodeToTransport(uint transportEntry, uint timeSeg, TransportAnimationRecord node)
@@ -206,14 +206,14 @@ public class TransportManager : Singleton<TransportManager>
 
 		if (tInfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Transport {0} will not be loaded, `transport_template` missing", entry);
+			Log.Logger.Error("Transport {0} will not be loaded, `transport_template` missing", entry);
 
 			return null;
 		}
 
 		if (!tInfo.MapIds.Contains(map.Id))
 		{
-			Log.outError(LogFilter.Transport, $"Transport {entry} attempted creation on map it has no path for {map.Id}!");
+			Log.Logger.Error($"Transport {entry} attempted creation on map it has no path for {map.Id}!");
 
 			return null;
 		}
@@ -222,7 +222,7 @@ public class TransportManager : Singleton<TransportManager>
 
 		if (startingPosition == null)
 		{
-			Log.outError(LogFilter.Sql, $"Transport {entry} will not be loaded, failed to compute starting position");
+			Log.Logger.Error($"Transport {entry} will not be loaded, failed to compute starting position");
 
 			return null;
 		}

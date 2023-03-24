@@ -19,7 +19,7 @@ public class CreatureScriptRegister : IScriptRegister
 
 				if (creatureTemplate == null)
 				{
-					Log.outError(LogFilter.Scripts, $"CreatureScriptAttribute: Unknown creature id {id} for script name {scriptName}");
+					Log.Logger.Error($"CreatureScriptAttribute: Unknown creature id {id} for script name {scriptName}");
 
 					continue;
 				}

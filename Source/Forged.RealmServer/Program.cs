@@ -50,7 +50,7 @@ namespace Forged.RealmServer
                 string raListener = ConfigMgr.GetDefaultValue("Ra.IP", "0.0.0.0");
                 AsyncAcceptor raAcceptor = new();
                 if (!raAcceptor.Start(raListener, raPort))
-                    Log.outError(LogFilter.Server, "Failed to initialize RemoteAccess Socket Server");
+                    Log.Logger.Error("Failed to initialize RemoteAccess Socket Server");
                 else
                     raAcceptor.AsyncAccept<RASocket>();
             }
@@ -62,7 +62,7 @@ namespace Forged.RealmServer
             int networkThreads = ConfigMgr.GetDefaultValue("Network.Threads", 1);
             if (networkThreads <= 0)
             {
-                Log.outError(LogFilter.Server, "Network.Threads must be greater than 0");
+                Log.Logger.Error("Network.Threads must be greater than 0");
                 ExitNow();
                 return;
             }
@@ -70,7 +70,7 @@ namespace Forged.RealmServer
             var WorldSocketMgr = new WorldSocketManager();
             if (!WorldSocketMgr.StartNetwork(worldListener, worldPort, networkThreads))
             {
-                Log.outError(LogFilter.Network, "Failed to start Realm Network");
+                Log.Logger.Error("Failed to start Realm Network");
                 ExitNow();
             }
 
@@ -84,7 +84,7 @@ namespace Forged.RealmServer
             GC.Collect();
 
             uint startupDuration = Time.GetMSTimeDiffToNow(startupBegin);
-            Log.outInfo(LogFilter.Server, "World initialized in {0} minutes {1} seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
+            Log.Logger.Information("World initialized in {0} minutes {1} seconds", (startupDuration / 60000), ((startupDuration % 60000) / 1000));
 
             //- Launch CliRunnable thread
             if (ConfigMgr.GetDefaultValue("Console.Enable", true))
@@ -99,7 +99,7 @@ namespace Forged.RealmServer
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
 
             try
@@ -128,7 +128,7 @@ namespace Forged.RealmServer
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
                 ExitNow();
             }
         }
@@ -151,15 +151,15 @@ namespace Forged.RealmServer
             Realm.Id.Index = ConfigMgr.GetDefaultValue("RealmID", 0u);
             if (Global.WorldMgr.Realm.Id.Index == 0)
             {
-                Log.outError(LogFilter.Server, "Realm ID not defined in configuration file");
+                Log.Logger.Error("Realm ID not defined in configuration file");
                 return false;
             }
-            Log.outInfo(LogFilter.ServerLoading, "Realm running as realm ID {0} ", Global.WorldMgr.Realm.Id.Index);
+            Log.Logger.Information("Realm running as realm ID {0} ", Global.WorldMgr.Realm.Id.Index);
 
             // Clean the database before starting
             ClearOnlineAccounts();
 
-            Log.outInfo(LogFilter.Server, "Using World DB: {0}", Global.WorldMgr.LoadDBVersion());
+            Log.Logger.Information("Using World DB: {0}", Global.WorldMgr.LoadDBVersion());
             return true;
         }
 
@@ -197,7 +197,7 @@ namespace Forged.RealmServer
                 {
                     uint sleepTime = (uint)(minUpdateDiff - diff);
                     if (sleepTime >= halfMaxCoreStuckTime)
-                        Log.outError(LogFilter.Server, $"WorldUpdateLoop() waiting for {sleepTime} ms with MaxCoreStuckTime set to {maxCoreStuckTime} ms");
+                        Log.Logger.Error($"WorldUpdateLoop() waiting for {sleepTime} ms with MaxCoreStuckTime set to {maxCoreStuckTime} ms");
 
                     // sleep until enough time passes that we can update all timers
                     Thread.Sleep(TimeSpan.FromMilliseconds(sleepTime));
@@ -217,12 +217,12 @@ namespace Forged.RealmServer
         static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
             var ex = e.ExceptionObject as Exception;
-            Log.outException(ex);
+            Log.Logger.Error(ex, "");
         }
 
         static void ExitNow()
         {
-            Log.outInfo(LogFilter.Server, "Halting process...");
+            Log.Logger.Information("Halting process...");
             Thread.Sleep(5000);
             Environment.Exit(Global.WorldMgr.ExitCode);
         }

@@ -1445,7 +1445,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestSkill: Sent QuestFailedReason.None (questId: {0}) because player does not have required skill value.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestSkill: Sent QuestFailedReason.None (questId: {0}) because player does not have required skill value.", qInfo.Id);
 			}
 
 			return false;
@@ -1461,7 +1461,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.FailedLowLevel);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestMinLevel: Sent QuestFailedReasons.FailedLowLevel (questId: {0}) because player does not have required (min) level.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestMinLevel: Sent QuestFailedReasons.FailedLowLevel (questId: {0}) because player does not have required (min) level.", qInfo.Id);
 			}
 
 			return false;
@@ -1477,7 +1477,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None); // There doesn't seem to be a specific response for too high player level
-				Log.outDebug(LogFilter.Server, "SatisfyQuestMaxLevel: Sent QuestFailedReasons.None (questId: {0}) because player does not have required (max) level.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestMaxLevel: Sent QuestFailedReasons.None (questId: {0}) because player does not have required (max) level.", qInfo.Id);
 			}
 
 			return false;
@@ -1527,7 +1527,7 @@ public partial class Player
 		if (msg)
 		{
 			SendCanTakeQuestResponse(QuestFailedReasons.None);
-			Log.outDebug(LogFilter.Misc, $"Player.SatisfyQuestPreviousQuest: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have required quest {prevId}.");
+			Log.Logger.Debug($"Player.SatisfyQuestPreviousQuest: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have required quest {prevId}.");
 		}
 
 		return false;
@@ -1545,7 +1545,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestClass: Sent QuestFailedReason.None (questId: {0}) because player does not have required class.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestClass: Sent QuestFailedReason.None (questId: {0}) because player does not have required class.", qInfo.Id);
 			}
 
 			return false;
@@ -1566,7 +1566,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.FailedWrongRace);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestRace: Sent QuestFailedReasons.FailedWrongRace (questId: {0}) because player does not have required race.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestRace: Sent QuestFailedReasons.FailedWrongRace (questId: {0}) because player does not have required race.", qInfo.Id);
 			}
 
 			return false;
@@ -1584,7 +1584,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestReputation: Sent QuestFailedReason.None (questId: {0}) because player does not have required reputation (min).", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestReputation: Sent QuestFailedReason.None (questId: {0}) because player does not have required reputation (min).", qInfo.Id);
 			}
 
 			return false;
@@ -1597,7 +1597,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestReputation: Sent QuestFailedReason.None (questId: {0}) because player does not have required reputation (max).", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestReputation: Sent QuestFailedReason.None (questId: {0}) because player does not have required reputation (max).", qInfo.Id);
 			}
 
 			return false;
@@ -1614,7 +1614,7 @@ public partial class Player
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.AlreadyDone);
 
-				Log.outDebug(LogFilter.Misc,
+				Log.Logger.Debug(
 							"Player.SatisfyQuestStatus: Sent QUEST_STATUS_REWARDED (QuestID: {0}) because player '{1}' ({2}) quest status is already REWARDED.",
 							qInfo.Id,
 							GetName(),
@@ -1629,7 +1629,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.AlreadyOn1);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestStatus: Sent QuestFailedReasons.AlreadyOn1 (questId: {0}) because player quest status is not NONE.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestStatus: Sent QuestFailedReasons.AlreadyOn1 (questId: {0}) because player quest status is not NONE.", qInfo.Id);
 			}
 
 			return false;
@@ -1645,10 +1645,10 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestConditions: Sent QuestFailedReason.None (questId: {0}) because player does not meet conditions.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestConditions: Sent QuestFailedReason.None (questId: {0}) because player does not meet conditions.", qInfo.Id);
 			}
 
-			Log.outDebug(LogFilter.Condition, "SatisfyQuestConditions: conditions not met for quest {0}", qInfo.Id);
+			Log.Logger.Debug("SatisfyQuestConditions: conditions not met for quest {0}", qInfo.Id);
 
 			return false;
 		}
@@ -1663,7 +1663,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.OnlyOneTimed);
-				Log.outDebug(LogFilter.Server, "SatisfyQuestTimed: Sent QuestFailedReasons.OnlyOneTimed (questId: {0}) because player is already on a timed quest.", qInfo.Id);
+				Log.Logger.Debug("SatisfyQuestTimed: Sent QuestFailedReasons.OnlyOneTimed (questId: {0}) because player is already on a timed quest.", qInfo.Id);
 			}
 
 			return false;
@@ -1695,7 +1695,7 @@ public partial class Player
 				if (msg)
 				{
 					SendCanTakeQuestResponse(QuestFailedReasons.None);
-					Log.outDebug(LogFilter.Server, "SatisfyQuestExclusiveGroup: Sent QuestFailedReason.None (questId: {0}) because player already did daily quests in exclusive group.", qInfo.Id);
+					Log.Logger.Debug("SatisfyQuestExclusiveGroup: Sent QuestFailedReason.None (questId: {0}) because player already did daily quests in exclusive group.", qInfo.Id);
 				}
 
 				return false;
@@ -1707,7 +1707,7 @@ public partial class Player
 				if (msg)
 				{
 					SendCanTakeQuestResponse(QuestFailedReasons.None);
-					Log.outDebug(LogFilter.Server, "SatisfyQuestExclusiveGroup: Sent QuestFailedReason.None (questId: {0}) because player already did quest in exclusive group.", qInfo.Id);
+					Log.Logger.Debug("SatisfyQuestExclusiveGroup: Sent QuestFailedReason.None (questId: {0}) because player already did quest in exclusive group.", qInfo.Id);
 				}
 
 				return false;
@@ -1763,7 +1763,7 @@ public partial class Player
 			if (msg)
 				SendCanTakeQuestResponse(QuestFailedReasons.FailedExpansion);
 
-			Log.outDebug(LogFilter.Misc, $"Player.SatisfyQuestExpansion: Sent QUEST_ERR_FAILED_EXPANSION (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) does not have required expansion.");
+			Log.Logger.Debug($"Player.SatisfyQuestExpansion: Sent QUEST_ERR_FAILED_EXPANSION (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) does not have required expansion.");
 
 			return false;
 		}
@@ -2018,7 +2018,7 @@ public partial class Player
 			}
 			default:
 				// it's impossible, but check
-				Log.outError(LogFilter.Player, "GetQuestDialogStatus called for unexpected type {0}", questgiver.TypeId);
+				Log.Logger.Error("GetQuestDialogStatus called for unexpected type {0}", questgiver.TypeId);
 
 				return QuestGiverStatus.None;
 		}
@@ -2187,14 +2187,14 @@ public partial class Player
 	{
 		if (objective.StorageIndex < 0)
 		{
-			Log.outError(LogFilter.Player, $"Player.GetQuestObjectiveData: Called for quest {objective.QuestID} with invalid StorageIndex {objective.StorageIndex} (objective data is not tracked)");
+			Log.Logger.Error($"Player.GetQuestObjectiveData: Called for quest {objective.QuestID} with invalid StorageIndex {objective.StorageIndex} (objective data is not tracked)");
 
 			return 0;
 		}
 
 		if (objective.StorageIndex >= SharedConst.MaxQuestCounts)
 		{
-			Log.outError(LogFilter.Player, $"Player.GetQuestObjectiveData: Player '{GetName()}' ({GUID}) quest {objective.QuestID} out of range StorageIndex {objective.StorageIndex}");
+			Log.Logger.Error($"Player.GetQuestObjectiveData: Player '{GetName()}' ({GUID}) quest {objective.QuestID} out of range StorageIndex {objective.StorageIndex}");
 
 			return 0;
 		}
@@ -2577,7 +2577,7 @@ public partial class Player
 	{
 		if (objective.StorageIndex < 0)
 		{
-			Log.outError(LogFilter.Player, $"Player.SetQuestObjectiveData: called for quest {objective.QuestID} with invalid StorageIndex {objective.StorageIndex} (objective data is not tracked)");
+			Log.Logger.Error($"Player.SetQuestObjectiveData: called for quest {objective.QuestID} with invalid StorageIndex {objective.StorageIndex} (objective data is not tracked)");
 
 			return;
 		}
@@ -2586,14 +2586,14 @@ public partial class Player
 
 		if (status == null)
 		{
-			Log.outError(LogFilter.Player, $"Player.SetQuestObjectiveData: player '{GetName()}' ({GUID}) doesn't have quest status data (QuestID: {objective.QuestID})");
+			Log.Logger.Error($"Player.SetQuestObjectiveData: player '{GetName()}' ({GUID}) doesn't have quest status data (QuestID: {objective.QuestID})");
 
 			return;
 		}
 
 		if (objective.StorageIndex >= SharedConst.MaxQuestCounts)
 		{
-			Log.outError(LogFilter.Player, $"Player.SetQuestObjectiveData: player '{GetName()}' ({GUID}) quest {objective.QuestID} out of range StorageIndex {objective.StorageIndex}");
+			Log.Logger.Error($"Player.SetQuestObjectiveData: player '{GetName()}' ({GUID}) quest {objective.QuestID} out of range StorageIndex {objective.StorageIndex}");
 
 			return;
 		}
@@ -2741,7 +2741,7 @@ public partial class Player
 
 				break;
 			default:
-				Log.outError(LogFilter.Player,
+				Log.Logger.Error(
 							"Player.CanCompleteQuest: Player '{0}' ({1}) tried to complete a quest (ID: {2}) with an unknown objective type {3}",
 							GetName(),
 							GUID.ToString(),
@@ -3164,7 +3164,7 @@ public partial class Player
 						if (msg)
 						{
 							SendCanTakeQuestResponse(QuestFailedReasons.None);
-							Log.outDebug(LogFilter.Misc, $"Player.SatisfyQuestDependentPreviousQuests: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have the required quest (1).");
+							Log.Logger.Debug($"Player.SatisfyQuestDependentPreviousQuests: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have the required quest (1).");
 						}
 
 						return false;
@@ -3179,7 +3179,7 @@ public partial class Player
 		if (msg)
 		{
 			SendCanTakeQuestResponse(QuestFailedReasons.None);
-			Log.outDebug(LogFilter.Misc, $"Player.SatisfyQuestDependentPreviousQuests: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have required quest (2).");
+			Log.Logger.Debug($"Player.SatisfyQuestDependentPreviousQuests: Sent QUEST_ERR_NONE (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) doesn't have required quest (2).");
 		}
 
 		return false;
@@ -3199,7 +3199,7 @@ public partial class Player
 			if (msg)
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.None);
-				Log.outDebug(LogFilter.Misc, $"Player.SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: {qInfo.Id}) because target quest (QuestID: {breadcrumbTargetQuestId}) is not available to player '{GetName()}' ({GUID}).");
+				Log.Logger.Debug($"Player.SatisfyQuestBreadcrumbQuest: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: {qInfo.Id}) because target quest (QuestID: {breadcrumbTargetQuestId}) is not available to player '{GetName()}' ({GUID}).");
 			}
 
 			return false;
@@ -3220,7 +3220,7 @@ public partial class Player
 				if (msg)
 				{
 					SendCanTakeQuestResponse(QuestFailedReasons.None);
-					Log.outDebug(LogFilter.Misc, $"Player.SatisfyQuestDependentBreadcrumbQuests: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) has a breadcrumb quest towards this quest in the quest log.");
+					Log.Logger.Debug($"Player.SatisfyQuestDependentBreadcrumbQuests: Sent INVALIDREASON_DONT_HAVE_REQ (QuestID: {qInfo.Id}) because player '{GetName()}' ({GUID}) has a breadcrumb quest towards this quest in the quest log.");
 				}
 
 				return false;

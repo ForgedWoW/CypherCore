@@ -19,9 +19,13 @@ namespace Framework
                    {
                        var configuration = c.Resolve<IConfiguration>();
 
-                       return new LoggerConfiguration()
-                              .ReadFrom.Configuration(configuration)
-                              .CreateLogger();
+                       var logger = new LoggerConfiguration()
+                                    .ReadFrom.Configuration(configuration)
+                                    .CreateLogger();
+
+                       Log.Logger = logger;
+
+                       return logger;
                    })
                    .As<ILogger>()
                    .SingleInstance();

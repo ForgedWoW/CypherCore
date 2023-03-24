@@ -1854,7 +1854,7 @@ public class AuraEffect
 					if (ci == null)
 					{
 						target.SetDisplayId(16358); // pig pink ^_^
-						Log.outError(LogFilter.Spells, "Auras: unknown creature id = {0} (only need its modelid) From Spell Aura Transform in Spell ID = {1}", MiscValue, Id);
+						Log.Logger.Error("Auras: unknown creature id = {0} (only need its modelid) From Spell Aura Transform in Spell ID = {1}", MiscValue, Id);
 					}
 					else
 					{
@@ -3414,7 +3414,7 @@ public class AuraEffect
 
 		if (MiscValue < -2 || MiscValue > 4)
 		{
-			Log.outError(LogFilter.Spells, "WARNING: Spell {0} effect {1} has an unsupported misc value ({2}) for SPELL_AURA_MOD_STAT ", Id, EffIndex, MiscValue);
+			Log.Logger.Error("WARNING: Spell {0} effect {1} has an unsupported misc value ({2}) for SPELL_AURA_MOD_STAT ", Id, EffIndex, MiscValue);
 
 			return;
 		}
@@ -3454,7 +3454,7 @@ public class AuraEffect
 
 		if (MiscValue < -1 || MiscValue > 4)
 		{
-			Log.outError(LogFilter.Spells, "WARNING: Misc Value for SPELL_AURA_MOD_PERCENT_STAT not valid");
+			Log.Logger.Error("WARNING: Misc Value for SPELL_AURA_MOD_PERCENT_STAT not valid");
 
 			return;
 		}
@@ -3659,7 +3659,7 @@ public class AuraEffect
 
 		if (MiscValue < -1 || MiscValue > 4)
 		{
-			Log.outError(LogFilter.Spells, "WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
+			Log.Logger.Error("WARNING: Misc Value for SPELL_AURA_MOD_STAT_BONUS_PCT not valid");
 
 			return;
 		}
@@ -5437,7 +5437,7 @@ public class AuraEffect
 
 		if (triggerSpellId == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"AuraEffect::HandlePeriodicTriggerSpellAuraTick: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -5451,12 +5451,12 @@ public class AuraEffect
 			if (triggerCaster != null)
 			{
 				triggerCaster.CastSpell(target, triggerSpellId, new CastSpellExtraArgs(this));
-				Log.outDebug(LogFilter.Spells, "AuraEffect.HandlePeriodicTriggerSpellAuraTick: Spell {0} Trigger {1}", Id, triggeredSpellInfo.Id);
+				Log.Logger.Debug("AuraEffect.HandlePeriodicTriggerSpellAuraTick: Spell {0} Trigger {1}", Id, triggeredSpellInfo.Id);
 			}
 		}
 		else
 		{
-			Log.outError(LogFilter.Spells, "AuraEffect.HandlePeriodicTriggerSpellAuraTick: Spell {0} has non-existent spell {1} in EffectTriggered[{2}] and is therefor not triggered.", Id, triggerSpellId, EffIndex);
+			Log.Logger.Error("AuraEffect.HandlePeriodicTriggerSpellAuraTick: Spell {0} has non-existent spell {1} in EffectTriggered[{2}] and is therefor not triggered.", Id, triggerSpellId, EffIndex);
 		}
 	}
 
@@ -5466,7 +5466,7 @@ public class AuraEffect
 
 		if (triggerSpellId == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"AuraEffect::HandlePeriodicTriggerSpellWithValueAuraTick: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -5485,12 +5485,12 @@ public class AuraEffect
 					args.AddSpellMod(SpellValueMod.BasePoint0 + effect.EffectIndex, Amount);
 
 				triggerCaster.CastSpell(target, triggerSpellId, args);
-				Log.outDebug(LogFilter.Spells, "AuraEffect.HandlePeriodicTriggerSpellWithValueAuraTick: Spell {0} Trigger {1}", Id, triggeredSpellInfo.Id);
+				Log.Logger.Debug("AuraEffect.HandlePeriodicTriggerSpellWithValueAuraTick: Spell {0} Trigger {1}", Id, triggeredSpellInfo.Id);
 			}
 		}
 		else
 		{
-			Log.outError(LogFilter.Spells, "AuraEffect.HandlePeriodicTriggerSpellWithValueAuraTick: Spell {0} has non-existent spell {1} in EffectTriggered[{2}] and is therefor not triggered.", Id, triggerSpellId, EffIndex);
+			Log.Logger.Error("AuraEffect.HandlePeriodicTriggerSpellWithValueAuraTick: Spell {0} has non-existent spell {1} in EffectTriggered[{2}] and is therefor not triggered.", Id, triggerSpellId, EffIndex);
 		}
 	}
 
@@ -5759,7 +5759,7 @@ public class AuraEffect
 			return;
 
 		caster.ModifyHealth(-damage);
-		Log.outDebug(LogFilter.Spells, "PeriodicTick: donator {0} target {1} damage {2}.", caster.Entry, target.Entry, damage);
+		Log.Logger.Debug("PeriodicTick: donator {0} target {1} damage {2}.", caster.Entry, target.Entry, damage);
 
 		var gainMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
 
@@ -5803,7 +5803,7 @@ public class AuraEffect
 		if (crit)
 			damage = Unit.SpellCriticalHealingBonus(caster, _spellInfo, damage, target);
 
-		Log.outDebug(LogFilter.Spells,
+		Log.Logger.Debug(
 					"PeriodicTick: {0} (TypeId: {1}) heal of {2} (TypeId: {3}) for {4} health inflicted by {5}",
 					CasterGuid.ToString(),
 					Caster.TypeId,
@@ -6055,7 +6055,7 @@ public class AuraEffect
 
 		if (triggerSpellId == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"AuraEffect::HandleProcTriggerSpellAuraProc: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"AuraEffect::HandleProcTriggerSpellAuraProc: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -6064,12 +6064,12 @@ public class AuraEffect
 
 		if (triggeredSpellInfo != null)
 		{
-			Log.outDebug(LogFilter.Spells, $"AuraEffect.HandleProcTriggerSpellAuraProc: Triggering spell {triggeredSpellInfo.Id} from aura {Id} proc");
+			Log.Logger.Debug($"AuraEffect.HandleProcTriggerSpellAuraProc: Triggering spell {triggeredSpellInfo.Id} from aura {Id} proc");
 			triggerCaster.CastSpell(triggerTarget, triggeredSpellInfo.Id, new CastSpellExtraArgs(this).SetTriggeringSpell(eventInfo.ProcSpell));
 		}
 		else if (triggerSpellId != 0 && AuraType != AuraType.Dummy)
 		{
-			Log.outError(LogFilter.Spells, $"AuraEffect.HandleProcTriggerSpellAuraProc: Spell {Id} has non-existent spell {triggerSpellId} in EffectTriggered[{EffIndex}] and is therefore not triggered.");
+			Log.Logger.Error($"AuraEffect.HandleProcTriggerSpellAuraProc: Spell {Id} has non-existent spell {triggerSpellId} in EffectTriggered[{EffIndex}] and is therefore not triggered.");
 		}
 	}
 
@@ -6082,7 +6082,7 @@ public class AuraEffect
 
 		if (triggerSpellId == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"AuraEffect::HandleProcTriggerSpellAuraProc: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"AuraEffect::HandleProcTriggerSpellAuraProc: Spell {Id} [EffectIndex: {EffIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -6095,11 +6095,11 @@ public class AuraEffect
 			args.SetTriggeringSpell(eventInfo.ProcSpell);
 			args.AddSpellMod(SpellValueMod.BasePoint0, Amount);
 			triggerCaster.CastSpell(triggerTarget, triggerSpellId, args);
-			Log.outDebug(LogFilter.Spells, "AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Triggering spell {0} with value {1} from aura {2} proc", triggeredSpellInfo.Id, Amount, Id);
+			Log.Logger.Debug("AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Triggering spell {0} with value {1} from aura {2} proc", triggeredSpellInfo.Id, Amount, Id);
 		}
 		else
 		{
-			Log.outError(LogFilter.Spells, "AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Spell {GetId()} has non-existent spell {triggerSpellId} in EffectTriggered[{GetEffIndex()}] and is therefore not triggered.");
+			Log.Logger.Error("AuraEffect.HandleProcTriggerSpellWithValueAuraProc: Spell {GetId()} has non-existent spell {triggerSpellId} in EffectTriggered[{GetEffIndex()}] and is therefore not triggered.");
 		}
 	}
 
@@ -6420,7 +6420,7 @@ public class AuraEffect
 			else if (AuraType == AuraType.BattleGroundPlayerPosition)
 				playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconAllianceFlag : BattlegroundConst.PlayerPositionIconHordeFlag;
 			else
-				Log.outWarn(LogFilter.Spells, $"Unknown aura effect {AuraType} handled by HandleBattlegroundPlayerPosition.");
+				Log.Logger.Warning($"Unknown aura effect {AuraType} handled by HandleBattlegroundPlayerPosition.");
 
 			bg.AddPlayerPosition(playerPosition);
 		}

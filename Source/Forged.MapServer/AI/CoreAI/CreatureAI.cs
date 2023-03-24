@@ -74,7 +74,7 @@ public class CreatureAI : UnitAI
 
 		if (!map.IsDungeon) // use IsDungeon instead of Instanceable, in case Battlegrounds will be instantiated
 		{
-			Log.outError(LogFilter.Server, "DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.AsCreature.Entry : 0);
+			Log.Logger.Error("DoZoneInCombat call for map that isn't an instance (creature entry = {0})", creature.IsTypeId(TypeId.Unit) ? creature.AsCreature.Entry : 0);
 
 			return;
 		}
@@ -210,7 +210,7 @@ public class CreatureAI : UnitAI
 		if (!_EnterEvadeMode(why))
 			return;
 
-		Log.outDebug(LogFilter.Unit, $"CreatureAI::EnterEvadeMode: entering evade mode (why: {why}) ({Me.GUID})");
+		Log.Logger.Debug($"CreatureAI::EnterEvadeMode: entering evade mode (why: {why}) ({Me.GUID})");
 
 		if (Me.Vehicle1 == null) // otherwise me will be in evade mode forever
 		{
@@ -272,7 +272,7 @@ public class CreatureAI : UnitAI
 	{
 		if (_isEngaged)
 		{
-			Log.outError(LogFilter.ScriptsAi, $"CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n{Me.GetDebugInfo()}");
+			Log.Logger.Error($"CreatureAI::EngagementStart called even though creature is already engaged. Creature debug info:\n{Me.GetDebugInfo()}");
 
 			return;
 		}
@@ -286,7 +286,7 @@ public class CreatureAI : UnitAI
 	{
 		if (!_isEngaged)
 		{
-			Log.outDebug(LogFilter.ScriptsAi, $"CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n{Me.GetDebugInfo()}");
+			Log.Logger.Debug($"CreatureAI::EngagementOver called even though creature is not currently engaged. Creature debug info:\n{Me.GetDebugInfo()}");
 
 			return;
 		}

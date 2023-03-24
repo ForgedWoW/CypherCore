@@ -203,7 +203,7 @@ public class TempSummon : Creature
 			}
 			default:
 				UnSummon();
-				Log.outError(LogFilter.Unit, "Temporary summoned creature (entry: {0}) have unknown type {1} of ", Entry, _summonType);
+				Log.Logger.Error("Temporary summoned creature (entry: {0}) have unknown type {1} of ", Entry, _summonType);
 
 				break;
 		}
@@ -414,7 +414,7 @@ public class TempSummon : Creature
 		}
 
 		if (!OwnerGUID.IsEmpty)
-			Log.outError(LogFilter.Unit, "Unit {0} has owner guid when removed from world", Entry);
+			Log.Logger.Error("Unit {0} has owner guid when removed from world", Entry);
 
 		base.RemoveFromWorld();
 	}

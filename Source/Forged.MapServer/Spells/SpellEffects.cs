@@ -423,7 +423,7 @@ public partial class Spell
 		}
 
 		// normal DB scripted effect
-		Log.outDebug(LogFilter.Spells, "Spell ScriptStart spellid {0} in EffectDummy({1})", SpellInfo.Id, EffectInfo.EffectIndex);
+		Log.Logger.Debug("Spell ScriptStart spellid {0} in EffectDummy({1})", SpellInfo.Id, EffectInfo.EffectIndex);
 		_caster.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
 	}
 
@@ -485,7 +485,7 @@ public partial class Spell
 
 		if (triggered_spell_id == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"Spell::EffectTriggerSpell: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"Spell::EffectTriggerSpell: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -495,7 +495,7 @@ public partial class Spell
 
 		if (spellInfo == null)
 		{
-			Log.outDebug(LogFilter.Spells, "Spell.EffectTriggerSpell spell {0} tried to trigger unknown spell {1}", SpellInfo.Id, triggered_spell_id);
+			Log.Logger.Debug("Spell.EffectTriggerSpell spell {0} tried to trigger unknown spell {1}", SpellInfo.Id, triggered_spell_id);
 
 			return;
 		}
@@ -596,7 +596,7 @@ public partial class Spell
 
 		if (triggered_spell_id == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"Spell::EffectTriggerMissileSpell: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"Spell::EffectTriggerMissileSpell: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -606,7 +606,7 @@ public partial class Spell
 
 		if (spellInfo == null)
 		{
-			Log.outDebug(LogFilter.Spells, "Spell.EffectTriggerMissileSpell spell {0} tried to trigger unknown spell {1}", SpellInfo.Id, triggered_spell_id);
+			Log.Logger.Debug("Spell.EffectTriggerMissileSpell spell {0} tried to trigger unknown spell {1}", SpellInfo.Id, triggered_spell_id);
 
 			return;
 		}
@@ -671,7 +671,7 @@ public partial class Spell
 
 		if (triggered_spell_id == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"Spell::EffectForceCast: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"Spell::EffectForceCast: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -681,7 +681,7 @@ public partial class Spell
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Spells, "Spell.EffectForceCast of spell {0}: triggering unknown spell id {1}", SpellInfo.Id, triggered_spell_id);
+			Log.Logger.Error("Spell.EffectForceCast of spell {0}: triggering unknown spell id {1}", SpellInfo.Id, triggered_spell_id);
 
 			return;
 		}
@@ -740,7 +740,7 @@ public partial class Spell
 
 		if (triggered_spell_id == 0)
 		{
-			Log.outWarn(LogFilter.Spells, $"Spell::EffectTriggerRitualOfSummoning: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
+			Log.Logger.Warning($"Spell::EffectTriggerRitualOfSummoning: Spell {SpellInfo.Id} [EffectIndex: {EffectInfo.EffectIndex}] does not have triggered spell.");
 
 			return;
 		}
@@ -749,7 +749,7 @@ public partial class Spell
 
 		if (spellInfo == null)
 		{
-			Log.outError(LogFilter.Spells, $"EffectTriggerRitualOfSummoning of spell {SpellInfo.Id}: triggering unknown spell id {triggered_spell_id}");
+			Log.Logger.Error($"EffectTriggerRitualOfSummoning of spell {SpellInfo.Id}: triggering unknown spell id {triggered_spell_id}");
 
 			return;
 		}
@@ -850,7 +850,7 @@ public partial class Spell
 		// If not exist data for dest location - return
 		if (!Targets.HasDst)
 		{
-			Log.outError(LogFilter.Spells, "Spell.EffectTeleportUnits - does not have a destination for spellId {0}.", SpellInfo.Id);
+			Log.Logger.Error("Spell.EffectTeleportUnits - does not have a destination for spellId {0}.", SpellInfo.Id);
 
 			return;
 		}
@@ -885,7 +885,7 @@ public partial class Spell
 		}
 		else
 		{
-			Log.outError(LogFilter.Spells, "Spell.EffectTeleportUnits - spellId {0} attempted to teleport creature to a different map.", SpellInfo.Id);
+			Log.Logger.Error("Spell.EffectTeleportUnits - spellId {0} attempted to teleport creature to a different map.", SpellInfo.Id);
 
 			return;
 		}
@@ -903,7 +903,7 @@ public partial class Spell
 		// If not exist data for dest location - return
 		if (!Targets.HasDst)
 		{
-			Log.outError(LogFilter.Spells, $"Spell::EffectTeleportUnitsWithVisualLoadingScreen - does not have a destination for spellId {SpellInfo.Id}.");
+			Log.Logger.Error($"Spell::EffectTeleportUnitsWithVisualLoadingScreen - does not have a destination for spellId {SpellInfo.Id}.");
 
 			return;
 		}
@@ -975,7 +975,7 @@ public partial class Spell
 
 		player.RemoveSpell(spellToUnlearn);
 
-		Log.outDebug(LogFilter.Spells, "Spell: Player {0} has unlearned spell {1} from NpcGUID: {2}", player.GUID.ToString(), spellToUnlearn, _caster.GUID.ToString());
+		Log.Logger.Debug("Spell: Player {0} has unlearned spell {1} from NpcGUID: {2}", player.GUID.ToString(), spellToUnlearn, _caster.GUID.ToString());
 	}
 
 	[SpellEffectHandler(SpellEffectName.PowerDrain)]
@@ -1052,7 +1052,7 @@ public partial class Spell
 			// @todo there should be a possibility to pass dest target to event script
 		}
 
-		Log.outDebug(LogFilter.Spells, "Spell ScriptStart {0} for spellid {1} in EffectSendEvent ", EffectInfo.MiscValue, SpellInfo.Id);
+		Log.Logger.Debug("Spell ScriptStart {0} for spellid {1} in EffectSendEvent ", EffectInfo.MiscValue, SpellInfo.Id);
 
 		GameEvents.Trigger((uint)EffectInfo.MiscValue, _caster, target);
 	}
@@ -1201,7 +1201,7 @@ public partial class Spell
 		if (unitCaster != null)
 			Damage = UnitTarget.SpellDamageBonusTaken(unitCaster, SpellInfo, Damage, DamageEffectType.SpellDirect);
 
-		Log.outDebug(LogFilter.Spells, "HealthLeech :{0}", Damage);
+		Log.Logger.Debug("HealthLeech :{0}", Damage);
 
 		var healMultiplier = EffectInfo.CalcValueMultiplier(unitCaster, this);
 
@@ -1394,7 +1394,7 @@ public partial class Spell
 
 		if (!_caster.IsTypeId(TypeId.Player))
 		{
-			Log.outDebug(LogFilter.Spells, "WORLD: Open Lock - No Player Caster!");
+			Log.Logger.Debug("WORLD: Open Lock - No Player Caster!");
 
 			return;
 		}
@@ -1477,7 +1477,7 @@ public partial class Spell
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Spells, "WORLD: Open Lock - No GameObject/Item Target!");
+			Log.Logger.Debug("WORLD: Open Lock - No GameObject/Item Target!");
 
 			return;
 		}
@@ -1691,7 +1691,7 @@ public partial class Spell
 
 		if (properties == null)
 		{
-			Log.outError(LogFilter.Spells, "EffectSummonType: Unhandled summon type {0}", EffectInfo.MiscValueB);
+			Log.Logger.Error("EffectSummonType: Unhandled summon type {0}", EffectInfo.MiscValueB);
 
 			return;
 		}
@@ -1954,7 +1954,7 @@ public partial class Spell
 		if (EffectInfo.TriggerSpell != 0)
 		{
 			player.LearnSpell(EffectInfo.TriggerSpell, false);
-			Log.outDebug(LogFilter.Spells, $"Spell: {player.GUID} has learned spell {EffectInfo.TriggerSpell} from {_caster.GUID}");
+			Log.Logger.Debug($"Spell: {player.GUID} has learned spell {EffectInfo.TriggerSpell} from {_caster.GUID}");
 		}
 	}
 
@@ -2352,7 +2352,7 @@ public partial class Spell
 
 			if (!add_socket)
 			{
-				Log.outError(LogFilter.Spells,
+				Log.Logger.Error(
 							"Spell.EffectEnchantItemPrismatic: attempt apply enchant spell {0} with SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC ({1}) but without ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET ({2}), not suppoted yet.",
 							SpellInfo.Id,
 							SpellEffectName.EnchantItemPrismatic,
@@ -2408,7 +2408,7 @@ public partial class Spell
 
 		if (enchant_id == 0)
 		{
-			Log.outError(LogFilter.Spells, "Spell {0} Effect {1} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have 0 as enchanting id", SpellInfo.Id, EffectInfo.EffectIndex);
+			Log.Logger.Error("Spell {0} Effect {1} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have 0 as enchanting id", SpellInfo.Id, EffectInfo.EffectIndex);
 
 			return;
 		}
@@ -2417,7 +2417,7 @@ public partial class Spell
 
 		if (pEnchant == null)
 		{
-			Log.outError(LogFilter.Spells, "Spell {0} Effect {1} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id {2}", SpellInfo.Id, EffectInfo.EffectIndex, enchant_id);
+			Log.Logger.Error("Spell {0} Effect {1} (SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY) have not existed enchanting id {2}", SpellInfo.Id, EffectInfo.EffectIndex, enchant_id);
 
 			return;
 		}
@@ -3172,7 +3172,7 @@ public partial class Spell
 		}
 
 		// normal DB scripted effect
-		Log.outDebug(LogFilter.Spells, "Spell ScriptStart spellid {0} in EffectScriptEffect({1})", SpellInfo.Id, EffectInfo.EffectIndex);
+		Log.Logger.Debug("Spell ScriptStart spellid {0} in EffectScriptEffect({1})", SpellInfo.Id, EffectInfo.EffectIndex);
 		_caster.Map.ScriptsStart(ScriptsType.Spell, (uint)((int)SpellInfo.Id | (int)(EffectInfo.EffectIndex << 24)), _caster, UnitTarget);
 	}
 
@@ -3299,8 +3299,8 @@ public partial class Spell
 		if (player == null)
 			return;
 
-		Log.outDebug(LogFilter.Spells, "Spell Effect: Stuck");
-		Log.outInfo(LogFilter.Spells, "Player {0} (guid {1}) used auto-unstuck future at map {2} ({3}, {4}, {5})", player.GetName(), player.GUID.ToString(), player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z);
+		Log.Logger.Debug("Spell Effect: Stuck");
+		Log.Logger.Information("Player {0} (guid {1}) used auto-unstuck future at map {2} ({3}, {4}, {5})", player.GetName(), player.GUID.ToString(), player.Location.MapId, player.Location.X, player.Location.Y, player.Location.Z);
 
 		if (player.IsInFlight)
 			return;
@@ -4180,7 +4180,7 @@ public partial class Spell
 
 		if (!float.IsFinite(speedZ))
 		{
-			Log.outError(LogFilter.Spells, $"Spell {SpellInfo.Id} with SPELL_EFFECT_PULL_TOWARDS called with invalid speedZ. {GetDebugInfo()}");
+			Log.Logger.Error($"Spell {SpellInfo.Id} with SPELL_EFFECT_PULL_TOWARDS called with invalid speedZ. {GetDebugInfo()}");
 
 			return;
 		}
@@ -4199,7 +4199,7 @@ public partial class Spell
 
 		if (!Targets.HasDst)
 		{
-			Log.outError(LogFilter.Spells, $"Spell {SpellInfo.Id} with SPELL_EFFECT_PULL_TOWARDS_DEST has no dest target");
+			Log.Logger.Error($"Spell {SpellInfo.Id} with SPELL_EFFECT_PULL_TOWARDS_DEST has no dest target");
 
 			return;
 		}
@@ -4219,7 +4219,7 @@ public partial class Spell
 
 		if (!float.IsFinite(speedZ))
 		{
-			Log.outError(LogFilter.Spells, $"Spell {SpellInfo.Id} with SPELL_EFFECT_PULL_TOWARDS_DEST called with invalid speedZ. {GetDebugInfo()}");
+			Log.Logger.Error($"Spell {SpellInfo.Id} with SPELL_EFFECT_PULL_TOWARDS_DEST called with invalid speedZ. {GetDebugInfo()}");
 
 			return;
 		}
@@ -4503,7 +4503,7 @@ public partial class Spell
 
 		if (goinfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Gameobject (Entry: {0}) not exist and not created at spell (ID: {1}) cast", name_id, SpellInfo.Id);
+			Log.Logger.Error("Gameobject (Entry: {0}) not exist and not created at spell (ID: {1}) cast", name_id, SpellInfo.Id);
 
 			return;
 		}
@@ -4610,7 +4610,7 @@ public partial class Spell
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
 
-		Log.outDebug(LogFilter.Spells, "AddObject at SpellEfects.cpp EffectTransmitted");
+		Log.Logger.Debug("AddObject at SpellEfects.cpp EffectTransmitted");
 
 		cMap.AddToMap(go);
 		var linkedTrap = go.LinkedTrap;
@@ -4690,7 +4690,7 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
 
-		Log.outDebug(LogFilter.Spells, "WORLD: SkillEFFECT");
+		Log.Logger.Debug("WORLD: SkillEFFECT");
 	}
 
 	/* There is currently no need for this effect. We handle it in Battleground.cpp
@@ -4710,7 +4710,7 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
 
-		Log.outDebug(LogFilter.Spells, "Effect: SkinPlayerCorpse");
+		Log.Logger.Debug("Effect: SkinPlayerCorpse");
 
 		var player = _caster.AsPlayer;
 		Player target = null;
@@ -4732,7 +4732,7 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
 
-		Log.outDebug(LogFilter.Spells, "Effect: StealBeneficialBuff");
+		Log.Logger.Debug("Effect: StealBeneficialBuff");
 
 		if (UnitTarget == null || UnitTarget == _caster) // can't steal from self
 			return;
@@ -5138,7 +5138,7 @@ public partial class Spell
 
 		if (!CliDB.SoundKitStorage.ContainsKey(soundid))
 		{
-			Log.outError(LogFilter.Spells, "EffectPlayMusic: Sound (Id: {0}) not exist in spell {1}.", soundid, SpellInfo.Id);
+			Log.Logger.Error("EffectPlayMusic: Sound (Id: {0}) not exist in spell {1}.", soundid, SpellInfo.Id);
 
 			return;
 		}
@@ -5194,7 +5194,7 @@ public partial class Spell
 
 		if (!CliDB.SoundKitStorage.ContainsKey(soundId))
 		{
-			Log.outError(LogFilter.Spells, "EffectPlaySound: Sound (Id: {0}) not exist in spell {1}.", soundId, SpellInfo.Id);
+			Log.Logger.Error("EffectPlaySound: Sound (Id: {0}) not exist in spell {1}.", soundId, SpellInfo.Id);
 
 			return;
 		}
@@ -5345,7 +5345,7 @@ public partial class Spell
 		player.SetHomebind(homeLoc, areaId);
 		player.SendBindPointUpdate();
 
-		Log.outDebug(LogFilter.Spells, $"EffectBind: New homebind: {homeLoc}, AreaId: {areaId}");
+		Log.Logger.Debug($"EffectBind: New homebind: {homeLoc}, AreaId: {areaId}");
 
 		// zone update
 		player.SendPlayerBound(_caster.GUID, areaId);
@@ -5435,7 +5435,7 @@ public partial class Spell
 
 		if (!go)
 		{
-			Log.outWarn(LogFilter.Spells, $"SpellEffect Failed to summon personal gameobject. SpellId {SpellInfo.Id}, effect {EffectInfo.EffectIndex}");
+			Log.Logger.Warning($"SpellEffect Failed to summon personal gameobject. SpellId {SpellInfo.Id}, effect {EffectInfo.EffectIndex}");
 
 			return;
 		}

@@ -68,7 +68,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 quest pools. DB table `quest_pool_members` is empty.");
+				Log.Logger.Information("Loaded 0 quest pools. DB table `quest_pool_members` is empty.");
 
 				return;
 			}
@@ -77,7 +77,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 			{
 				if (result.IsNull(2))
 				{
-					Log.outError(LogFilter.Sql, $"Table `quest_pool_members` contains reference to non-existing pool {result.Read<uint>(1)}. Skipped.");
+					Log.Logger.Error($"Table `quest_pool_members` contains reference to non-existing pool {result.Read<uint>(1)}. Skipped.");
 
 					continue;
 				}
@@ -91,14 +91,14 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 				if (quest == null)
 				{
-					Log.outError(LogFilter.Sql, "Table `quest_pool_members` contains reference to non-existing quest %u. Skipped.", questId);
+					Log.Logger.Error("Table `quest_pool_members` contains reference to non-existing quest %u. Skipped.", questId);
 
 					continue;
 				}
 
 				if (!quest.IsDailyOrWeekly && !quest.IsMonthly)
 				{
-					Log.outError(LogFilter.Sql, "Table `quest_pool_members` contains reference to quest %u, which is neither daily, weekly nor monthly. Skipped.", questId);
+					Log.Logger.Error("Table `quest_pool_members` contains reference to quest %u, which is neither daily, weekly nor monthly. Skipped.", questId);
 
 					continue;
 				}
@@ -140,7 +140,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 					if (it == null || it.Item1 == null)
 					{
-						Log.outError(LogFilter.Sql, "Table `pool_quest_save` contains reference to non-existant quest pool %u. Deleted.", poolId);
+						Log.Logger.Error("Table `pool_quest_save` contains reference to non-existant quest pool %u. Deleted.", poolId);
 						unknownPoolIds.Add(poolId);
 
 						continue;
@@ -174,7 +174,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 			if (pool.Members.Count < pool.NumActive)
 			{
-				Log.outError(LogFilter.Sql, $"Table `quest_pool_template` contains quest pool {pool.PoolId} requesting {pool.NumActive} spawns, but only has {pool.Members.Count} members. Requested spawns reduced.");
+				Log.Logger.Error($"Table `quest_pool_template` contains quest pool {pool.PoolId} requesting {pool.NumActive} spawns, but only has {pool.Members.Count} members. Requested spawns reduced.");
 				pool.NumActive = (uint)pool.Members.Count;
 			}
 
@@ -191,7 +191,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 					if (member.Empty())
 					{
-						Log.outError(LogFilter.Sql, $"Table `quest_pool_members` contains no entries at index {i} for quest pool {pool.PoolId}. Index removed.");
+						Log.Logger.Error($"Table `quest_pool_members` contains no entries at index {i} for quest pool {pool.PoolId}. Index removed.");
 						pool.Members.Remove(i);
 
 						continue;
@@ -213,7 +213,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 						var otherStatus = pool.ActiveQuests.Contains(id);
 
 						if (status != otherStatus)
-							Log.outWarn(LogFilter.Sql,
+							Log.Logger.Warning(
 										$"Table `pool_quest_save` {(status ? "does not have" : "has")} quest {id} (in pool {pool.PoolId}, index {i}) saved, but its index is{(status ? "" : " not")} " +
 										$"active (because quest {member[0]} is{(status ? "" : " not")} in the table). Set quest {id} to {(status ? "" : "in")}active.");
 
@@ -230,7 +230,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 				// warn for any remaining active spawns (not part of the pool)
 				foreach (var quest in pool.ActiveQuests)
-					Log.outWarn(LogFilter.Sql, $"Table `pool_quest_save` has saved quest {quest} for pool {pool.PoolId}, but that quest is not part of the pool. Skipped.");
+					Log.Logger.Warning($"Table `pool_quest_save` has saved quest {quest} for pool {pool.PoolId}, but that quest is not part of the pool. Skipped.");
 
 				// only the previously-found spawns should actually be active
 				pool.ActiveQuests = accountedFor;
@@ -238,7 +238,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 				if (activeCount != pool.NumActive)
 				{
 					doRegenerate = true;
-					Log.outError(LogFilter.Sql, $"Table `pool_quest_save` has {activeCount} active members saved for pool {pool.PoolId}, which requests {pool.NumActive} active members. Pool spawns re-generated.");
+					Log.Logger.Error($"Table `pool_quest_save` has {activeCount} active members saved for pool {pool.PoolId}, which requests {pool.NumActive} active members. Pool spawns re-generated.");
 				}
 			}
 
@@ -254,7 +254,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 				{
 					if (_poolLookup.ContainsKey(quest))
 					{
-						Log.outError(LogFilter.Sql, $"Table `quest_pool_members` lists quest {quest} as member of pool {pool.PoolId}, but it is already a member of pool {_poolLookup[quest].PoolId}. Skipped.");
+						Log.Logger.Error($"Table `quest_pool_members` lists quest {quest} as member of pool {pool.PoolId}, but it is already a member of pool {_poolLookup[quest].PoolId}. Skipped.");
 
 						continue;
 					}
@@ -266,7 +266,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	// the storage structure ends up making this kind of inefficient

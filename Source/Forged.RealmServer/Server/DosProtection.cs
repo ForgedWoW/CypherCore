@@ -43,7 +43,7 @@ public class DosProtection
 		if (++packetCounter.AmountCounter <= maxPacketCounterAllowed)
 			return true;
 
-		Log.outWarn(LogFilter.Network,
+		Log.Logger.Warning(
 					"AntiDOS: Account {0}, IP: {1}, Ping: {2}, Character: {3}, flooding packet (opc: {4} (0x{4}), count: {5})",
 					Session.AccountId,
 					Session.RemoteAddress,
@@ -57,7 +57,7 @@ public class DosProtection
 			case Policy.Log:
 				return true;
 			case Policy.Kick:
-				Log.outInfo(LogFilter.Network, "AntiDOS: Player kicked!");
+				Log.Logger.Information("AntiDOS: Player kicked!");
 
 				return false;
 			case Policy.Ban:
@@ -79,7 +79,7 @@ public class DosProtection
 				}
 
 				Global.WorldMgr.BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
-				Log.outInfo(LogFilter.Network, "AntiDOS: Player automatically banned for {0} seconds.", duration);
+				Log.Logger.Information("AntiDOS: Player automatically banned for {0} seconds.", duration);
 
 				return false;
 		}

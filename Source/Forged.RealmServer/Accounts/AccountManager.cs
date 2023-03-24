@@ -353,18 +353,18 @@ public sealed class AccountManager : Singleton<AccountManager>
 		_permissions.Clear();
 		_defaultPermissions.Clear();
 
-		Log.outDebug(LogFilter.Rbac, "AccountMgr:LoadRBAC");
+		Log.Logger.Debug("AccountMgr:LoadRBAC");
 		var oldMSTime = Time.MSTime;
 		uint count1 = 0;
 		uint count2 = 0;
 		uint count3 = 0;
 
-		Log.outDebug(LogFilter.Rbac, "AccountMgr:LoadRBAC: Loading permissions");
+		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading permissions");
 		var result = DB.Login.Query("SELECT id, name FROM rbac_permissions");
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 account permission definitions. DB table `rbac_permissions` is empty.");
+			Log.Logger.Information("Loaded 0 account permission definitions. DB table `rbac_permissions` is empty.");
 
 			return;
 		}
@@ -376,12 +376,12 @@ public sealed class AccountManager : Singleton<AccountManager>
 			++count1;
 		} while (result.NextRow());
 
-		Log.outDebug(LogFilter.Rbac, "AccountMgr:LoadRBAC: Loading linked permissions");
+		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading linked permissions");
 		result = DB.Login.Query("SELECT id, linkedId FROM rbac_linked_permissions ORDER BY id ASC");
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 linked permissions. DB table `rbac_linked_permissions` is empty.");
+			Log.Logger.Information("Loaded 0 linked permissions. DB table `rbac_linked_permissions` is empty.");
 
 			return;
 		}
@@ -403,7 +403,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 			if (linkedPermissionId == permissionId)
 			{
-				Log.outError(LogFilter.Sql, "RBAC Permission {0} has itself as linked permission. Ignored", permissionId);
+				Log.Logger.Error("RBAC Permission {0} has itself as linked permission. Ignored", permissionId);
 
 				continue;
 			}
@@ -412,12 +412,12 @@ public sealed class AccountManager : Singleton<AccountManager>
 			++count2;
 		} while (result.NextRow());
 
-		Log.outDebug(LogFilter.Rbac, "AccountMgr:LoadRBAC: Loading default permissions");
+		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading default permissions");
 		result = DB.Login.Query("SELECT secId, permissionId FROM rbac_default_permissions ORDER BY secId ASC");
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
+			Log.Logger.Information("Loaded 0 default permission definitions. DB table `rbac_default_permissions` is empty.");
 
 			return;
 		}
@@ -435,7 +435,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 			++count3;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} permission definitions, {1} linked permissions and {2} default permissions in {3} ms", count1, count2, count3, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} permission definitions, {1} linked permissions and {2} default permissions in {3} ms", count1, count2, count3, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void UpdateAccountAccess(RBACData rbac, uint accountId, byte securityLevel, int realmId)
@@ -476,7 +476,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public RBACPermission GetRBACPermission(uint permissionId)
 	{
-		Log.outDebug(LogFilter.Rbac, "AccountMgr:GetRBACPermission: {0}", permissionId);
+		Log.Logger.Debug("AccountMgr:GetRBACPermission: {0}", permissionId);
 
 		return _permissions.LookupByKey(permissionId);
 	}
@@ -485,7 +485,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 	{
 		if (accountId == 0)
 		{
-			Log.outError(LogFilter.Rbac, "AccountMgr:HasPermission: Wrong accountId 0");
+			Log.Logger.Error("AccountMgr:HasPermission: Wrong accountId 0");
 
 			return false;
 		}
@@ -494,7 +494,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 		rbac.LoadFromDB();
 		var hasPermission = rbac.HasPermission(permissionId);
 
-		Log.outDebug(LogFilter.Rbac,
+		Log.Logger.Debug(
 					"AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
 					accountId,
 					permissionId,

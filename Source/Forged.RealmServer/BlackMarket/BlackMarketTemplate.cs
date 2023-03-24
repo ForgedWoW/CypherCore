@@ -45,14 +45,14 @@ public class BlackMarketTemplate
 
 		if (Global.ObjectMgr.GetCreatureTemplate(SellerNPC) == null)
 		{
-			Log.outError(LogFilter.Misc, "Black market template {0} does not have a valid seller. (Entry: {1})", MarketID, SellerNPC);
+			Log.Logger.Error("Black market template {0} does not have a valid seller. (Entry: {1})", MarketID, SellerNPC);
 
 			return false;
 		}
 
 		if (Global.ObjectMgr.GetItemTemplate(Item.ItemID) == null)
 		{
-			Log.outError(LogFilter.Misc, "Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);
+			Log.Logger.Error("Black market template {0} does not have a valid item. (Entry: {1})", MarketID, Item.ItemID);
 
 			return false;
 		}

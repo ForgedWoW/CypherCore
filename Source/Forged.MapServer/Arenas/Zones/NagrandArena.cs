@@ -69,7 +69,7 @@ public class NagrandArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "NagrandArena: Failed to spawn door object!");
+			Log.Logger.Error("NagrandArena: Failed to spawn door object!");
 
 			return false;
 		}
@@ -79,7 +79,7 @@ public class NagrandArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "NagrandArena: Failed to spawn buff object!");
+			Log.Logger.Error("NagrandArena: Failed to spawn buff object!");
 
 			return false;
 		}

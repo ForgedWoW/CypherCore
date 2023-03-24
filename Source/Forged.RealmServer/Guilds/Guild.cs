@@ -50,7 +50,7 @@ public class Guild
 		m_bankMoney = 0;
 		m_createdDate = GameTime.GetGameTime();
 
-		Log.outDebug(LogFilter.Guild,
+		Log.Logger.Debug(
 					"GUILD: creating guild [{0}] for leader {1} ({2})",
 					name,
 					pLeader.GetName(),
@@ -175,7 +175,7 @@ public class Guild
 
 					break;
 				default:
-					Log.outError(LogFilter.Guild, "Guild.UpdateMemberData: Called with incorrect DATAID {0} (value {1})", dataid, value);
+					Log.Logger.Error("Guild.UpdateMemberData: Called with incorrect DATAID {0} (value {1})", dataid, value);
 
 					return;
 			}
@@ -459,7 +459,7 @@ public class Guild
 
 		if (tab == null)
 		{
-			Log.outError(LogFilter.Guild,
+			Log.Logger.Error(
 						"Guild.HandleSetBankTabInfo: Player {0} trying to change bank tab info from unexisting tab {1}.",
 						session.Player.GetName(),
 						tabId);
@@ -612,7 +612,7 @@ public class Guild
 
 		SendCommandResult(session, GuildCommandType.InvitePlayer, GuildCommandError.Success, name);
 
-		Log.outDebug(LogFilter.Guild, "Player {0} invited {1} to join his Guild", player.GetName(), name);
+		Log.Logger.Debug("Player {0} invited {1} to join his Guild", player.GetName(), name);
 
 		pInvitee.GuildIdInvited = m_id;
 		_LogEvent(GuildEventLogTypes.InvitePlayer, player.GUID.Counter, pInvitee.GUID.Counter);
@@ -1052,7 +1052,7 @@ public class Guild
 		if (_IsLeader(session.Player))
 		{
 			Disband();
-			Log.outDebug(LogFilter.Guild, "Guild Successfully Disbanded");
+			Log.Logger.Debug("Guild Successfully Disbanded");
 		}
 	}
 
@@ -1250,7 +1250,7 @@ public class Guild
 
 		if (!m_emblemInfo.LoadFromDB(fields))
 		{
-			Log.outError(LogFilter.Guild,
+			Log.Logger.Error(
 						"Guild {0} has invalid emblem colors (Background: {1}, Border: {2}, Emblem: {3}), skipped.",
 						m_id,
 						m_emblemInfo.GetBackgroundColor(),
@@ -1297,7 +1297,7 @@ public class Guild
 
 		if (!isNew)
 		{
-			Log.outError(LogFilter.Guild, $"Tried to add {playerGuid} to guild '{m_name}'. Member already exists.");
+			Log.Logger.Error($"Tried to add {playerGuid} to guild '{m_name}'. Member already exists.");
 
 			return false;
 		}
@@ -1360,14 +1360,14 @@ public class Guild
 				{
 					if (!isMoneyTab)
 					{
-						Log.outError(LogFilter.Guild, "GuildBankEventLog ERROR: MoneyEvent(LogGuid: {0}, Guild: {1}) does not belong to money tab ({2}), ignoring...", guid, m_id, dbTabId);
+						Log.Logger.Error("GuildBankEventLog ERROR: MoneyEvent(LogGuid: {0}, Guild: {1}) does not belong to money tab ({2}), ignoring...", guid, m_id, dbTabId);
 
 						return false;
 					}
 				}
 				else if (isMoneyTab)
 				{
-					Log.outError(LogFilter.Guild, "GuildBankEventLog ERROR: non-money event (LogGuid: {0}, Guild: {1}) belongs to money tab, ignoring...", guid, m_id);
+					Log.Logger.Error("GuildBankEventLog ERROR: non-money event (LogGuid: {0}, Guild: {1}) belongs to money tab, ignoring...", guid, m_id);
 
 					return false;
 				}
@@ -1408,7 +1408,7 @@ public class Guild
 		var tabId = field.Read<byte>(1);
 
 		if (tabId >= _GetPurchasedTabsSize())
-			Log.outError(LogFilter.Guild, "Invalid tab (tabId: {0}) in guild bank, skipped.", tabId);
+			Log.Logger.Error("Invalid tab (tabId: {0}) in guild bank, skipped.", tabId);
 		else
 			m_bankTabs[tabId].LoadFromDB(field);
 	}
@@ -1419,7 +1419,7 @@ public class Guild
 
 		if (tabId >= _GetPurchasedTabsSize())
 		{
-			Log.outError(LogFilter.Guild,
+			Log.Logger.Error(
 						"Invalid tab for item (GUID: {0}, id: {1}) in guild bank, skipped.",
 						field.Read<uint>(0),
 						field.Read<uint>(1));
@@ -1444,7 +1444,7 @@ public class Guild
 
 		if (ranks < GuildConst.MinRanks || ranks > GuildConst.MaxRanks)
 		{
-			Log.outError(LogFilter.Guild, "Guild {0} has invalid number of ranks, creating new...", m_id);
+			Log.Logger.Error("Guild {0} has invalid number of ranks, creating new...", m_id);
 			broken_ranks = true;
 		}
 		else
@@ -1455,7 +1455,7 @@ public class Guild
 
 				if (rankInfo.GetId() != (GuildRankId)rankId)
 				{
-					Log.outError(LogFilter.Guild, "Guild {0} has broken rank id {1}, creating default set of ranks...", m_id, rankId);
+					Log.Logger.Error("Guild {0} has broken rank id {1}, creating default set of ranks...", m_id, rankId);
 					broken_ranks = true;
 				}
 				else
@@ -1648,7 +1648,7 @@ public class Guild
 
 		if (!isNew)
 		{
-			Log.outError(LogFilter.Guild, $"Tried to add {guid} to guild '{m_name}'. Member already exists.");
+			Log.Logger.Error($"Tried to add {guid} to guild '{m_name}'. Member already exists.");
 
 			return false;
 		}
@@ -1959,7 +1959,7 @@ public class Guild
 
 		if (newsLog == null)
 		{
-			Log.outDebug(LogFilter.Guild, "HandleNewsSetSticky: [{0}] requested unknown newsId {1} - Sticky: {2}", session.GetPlayerInfo(), newsId, sticky);
+			Log.Logger.Debug("HandleNewsSetSticky: [{0}] requested unknown newsId {1} - Sticky: {2}", session.GetPlayerInfo(), newsId, sticky);
 
 			return;
 		}
@@ -2111,7 +2111,7 @@ public class Guild
 		else
 		{
 			session.SendPacket(eventPacket);
-			Log.outDebug(LogFilter.Guild, "SMSG_GUILD_EVENT_MOTD [{0}] ", session.GetPlayerInfo());
+			Log.Logger.Debug("SMSG_GUILD_EVENT_MOTD [{0}] ", session.GetPlayerInfo());
 		}
 	}
 
@@ -2736,7 +2736,7 @@ public class Guild
 
 		member.ChangeRank(null, rank);
 
-		Log.outDebug(LogFilter.Network, "SMSG_GUILD_RANKS_UPDATE [Broadcast] Target: {0}, Issuer: {1}, RankId: {2}", targetGuid.ToString(), setterGuid.ToString(), rank);
+		Log.Logger.Debug("SMSG_GUILD_RANKS_UPDATE [Broadcast] Target: {0}, Issuer: {1}, RankId: {2}", targetGuid.ToString(), setterGuid.ToString(), rank);
 	}
 
 	bool HasAchieved(uint achievementId)
@@ -2958,7 +2958,7 @@ public class Guild
 
 			if (m_zoneId == 0)
 			{
-				Log.outError(LogFilter.Guild, "Player ({0}) has broken zone-data", m_guid.ToString());
+				Log.Logger.Error("Player ({0}) has broken zone-data", m_guid.ToString());
 				m_zoneId = Player.GetZoneIdFromDB(m_guid);
 			}
 
@@ -2971,21 +2971,21 @@ public class Guild
 		{
 			if (m_level < 1)
 			{
-				Log.outError(LogFilter.Guild, $"{m_guid} has a broken data in field `characters`.`level`, deleting him from guild!");
+				Log.Logger.Error($"{m_guid} has a broken data in field `characters`.`level`, deleting him from guild!");
 
 				return false;
 			}
 
 			if (!CliDB.ChrRacesStorage.ContainsKey((uint)m_race))
 			{
-				Log.outError(LogFilter.Guild, $"{m_guid} has a broken data in field `characters`.`race`, deleting him from guild!");
+				Log.Logger.Error($"{m_guid} has a broken data in field `characters`.`race`, deleting him from guild!");
 
 				return false;
 			}
 
 			if (!CliDB.ChrClassesStorage.ContainsKey((uint)m_class))
 			{
-				Log.outError(LogFilter.Guild, $"{m_guid} has a broken data in field `characters`.`class`, deleting him from guild!");
+				Log.Logger.Error($"{m_guid} has a broken data in field `characters`.`class`, deleting him from guild!");
 
 				return false;
 			}
@@ -3670,7 +3670,7 @@ public class Guild
 					rightsAndSlots.SetGuildMasterValues();
 
 				if (logOnCreate)
-					Log.outError(LogFilter.Guild, $"Guild {m_guildId} has broken Tab {i} for rank {m_rankId}. Created default tab.");
+					Log.Logger.Error($"Guild {m_guildId} has broken Tab {i} for rank {m_rankId}. Created default tab.");
 
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GUILD_BANK_RIGHT);
 				stmt.AddValue(0, m_guildId);
@@ -3817,7 +3817,7 @@ public class Guild
 
 			if (slotId >= GuildConst.MaxBankSlots)
 			{
-				Log.outError(LogFilter.Guild, "Invalid slot for item (GUID: {0}, id: {1}) in guild bank, skipped.", itemGuid, itemEntry);
+				Log.Logger.Error("Invalid slot for item (GUID: {0}, id: {1}) in guild bank, skipped.", itemGuid, itemEntry);
 
 				return false;
 			}
@@ -3826,7 +3826,7 @@ public class Guild
 
 			if (proto == null)
 			{
-				Log.outError(LogFilter.Guild, "Unknown item (GUID: {0}, id: {1}) in guild bank, skipped.", itemGuid, itemEntry);
+				Log.Logger.Error("Unknown item (GUID: {0}, id: {1}) in guild bank, skipped.", itemGuid, itemEntry);
 
 				return false;
 			}
@@ -3835,7 +3835,7 @@ public class Guild
 
 			if (!pItem.LoadFromDB(itemGuid, ObjectGuid.Empty, field, itemEntry))
 			{
-				Log.outError(LogFilter.Guild, "Item (GUID {0}, id: {1}) not found in item_instance, deleting from guild bank!", itemGuid, itemEntry);
+				Log.Logger.Error("Item (GUID {0}, id: {1}) not found in item_instance, deleting from guild bank!", itemGuid, itemEntry);
 
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_NONEXISTENT_GUILD_BANK_ITEM);
 				stmt.AddValue(0, m_guildId);
@@ -3906,12 +3906,12 @@ public class Guild
 
 			if (session != null)
 			{
-				Log.outDebug(LogFilter.Guild, "SMSG_GUILD_BANK_QUERY_TEXT_RESULT [{0}]: Tabid: {1}, Text: {2}", session.GetPlayerInfo(), m_tabId, m_text);
+				Log.Logger.Debug("SMSG_GUILD_BANK_QUERY_TEXT_RESULT [{0}]: Tabid: {1}, Text: {2}", session.GetPlayerInfo(), m_tabId, m_text);
 				session.SendPacket(textQuery);
 			}
 			else
 			{
-				Log.outDebug(LogFilter.Guild, "SMSG_GUILD_BANK_QUERY_TEXT_RESULT [Broadcast]: Tabid: {0}, Text: {1}", m_tabId, m_text);
+				Log.Logger.Debug("SMSG_GUILD_BANK_QUERY_TEXT_RESULT [Broadcast]: Tabid: {0}, Text: {1}", m_tabId, m_text);
 				guild.BroadcastPacket(textQuery);
 			}
 		}
@@ -4373,7 +4373,7 @@ public class Guild
 
 			foreach (var pos in m_vec)
 			{
-				Log.outDebug(LogFilter.Guild,
+				Log.Logger.Debug(
 							"GUILD STORAGE: StoreItem tab = {0}, slot = {1}, item = {2}, count = {3}",
 							m_container,
 							m_slotId,
@@ -4426,7 +4426,7 @@ public class Guild
 
 		public override InventoryResult CanStore(Item pItem, bool swap)
 		{
-			Log.outDebug(LogFilter.Guild,
+			Log.Logger.Debug(
 						"GUILD STORAGE: CanStore() tab = {0}, slot = {1}, item = {2}, count = {3}",
 						m_container,
 						m_slotId,

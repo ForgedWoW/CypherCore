@@ -23,7 +23,7 @@ public partial class WorldSession
 
 		if (!questgiver)
 		{
-			Log.outInfo(LogFilter.Network, "Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver {0}", packet.QuestGiverGUID.ToString());
+			Log.Logger.Information("Error in CMSG_QUESTGIVER_STATUS_QUERY, called for non-existing questgiver {0}", packet.QuestGiverGUID.ToString());
 
 			return;
 		}
@@ -40,7 +40,7 @@ public partial class WorldSession
 
 				break;
 			default:
-				Log.outError(LogFilter.Network, "QuestGiver called for unexpected type {0}", questgiver.TypeId);
+				Log.Logger.Error("QuestGiver called for unexpected type {0}", questgiver.TypeId);
 
 				break;
 		}
@@ -56,7 +56,7 @@ public partial class WorldSession
 
 		if (creature == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleQuestgiverHello - {0} not found or you can't interact with him.", packet.QuestGiverGUID.ToString());
+			Log.Logger.Debug("WORLD: HandleQuestgiverHello - {0} not found or you can't interact with him.", packet.QuestGiverGUID.ToString());
 
 			return;
 		}
@@ -265,7 +265,7 @@ public partial class WorldSession
 
 					if (rewardProto == null)
 					{
-						Log.outError(LogFilter.Network, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get invalid reward item (Item Entry: {2}) for quest {3} (possible packet-hacking detected)", _player.GetName(), _player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
+						Log.Logger.Error("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get invalid reward item (Item Entry: {2}) for quest {3} (possible packet-hacking detected)", _player.GetName(), _player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
 
 						return;
 					}
@@ -317,7 +317,7 @@ public partial class WorldSession
 
 					if (!itemValid)
 					{
-						Log.outError(LogFilter.Network, "Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get reward item (Item Entry: {2}) wich is not a reward for quest {3} (possible packet-hacking detected)", _player.GetName(), _player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
+						Log.Logger.Error("Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {0} ({1}) tried to get reward item (Item Entry: {2}) wich is not a reward for quest {3} (possible packet-hacking detected)", _player.GetName(), _player.GUID.ToString(), packet.Choice.Item.ItemID, packet.QuestID);
 
 						return;
 					}
@@ -326,7 +326,7 @@ public partial class WorldSession
 				case LootItemType.Currency:
 					if (!CliDB.CurrencyTypesStorage.HasRecord(packet.Choice.Item.ItemID))
 					{
-						Log.outError(LogFilter.Player, $"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_player.GetName()} ({_player.GUID}) tried to get invalid reward currency (Currency ID: {packet.Choice.Item.ItemID}) for quest {packet.QuestID} (possible packet-hacking detected)");
+						Log.Logger.Error($"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_player.GetName()} ({_player.GUID}) tried to get invalid reward currency (Currency ID: {packet.Choice.Item.ItemID}) for quest {packet.QuestID} (possible packet-hacking detected)");
 
 						return;
 					}
@@ -343,7 +343,7 @@ public partial class WorldSession
 
 					if (!currencyValid)
 					{
-						Log.outError(LogFilter.Player, $"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_player.GetName()} ({_player.GUID}) tried to get reward currency (Currency ID: {packet.Choice.Item.ItemID}) wich is not a reward for quest {packet.QuestID} (possible packet-hacking detected)");
+						Log.Logger.Error($"Error in CMSG_QUESTGIVER_CHOOSE_REWARD: player {_player.GetName()} ({_player.GUID}) tried to get reward currency (Currency ID: {packet.Choice.Item.ItemID}) wich is not a reward for quest {packet.QuestID} (possible packet-hacking detected)");
 
 						return;
 					}
@@ -368,7 +368,7 @@ public partial class WorldSession
 		if ((!_player.CanSeeStartQuest(quest) && _player.GetQuestStatus(packet.QuestID) == QuestStatus.None) ||
 			(_player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete && !quest.IsAutoComplete))
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"Error in QuestStatus.Complete: player {0} ({1}) tried to complete quest {2}, but is not allowed to do so (possible packet-hacking or high latency)",
 						_player.GetName(),
 						_player.GUID.ToString(),
@@ -452,7 +452,7 @@ public partial class WorldSession
 				_player.RemoveActiveQuest(questId);
 				_player.RemoveCriteriaTimer(CriteriaStartEvent.AcceptQuest, questId);
 
-				Log.outInfo(LogFilter.Network, "Player {0} abandoned quest {1}", _player.GUID.ToString(), questId);
+				Log.Logger.Information("Player {0} abandoned quest {1}", _player.GUID.ToString(), questId);
 
 				Global.ScriptMgr.ForEach<IPlayerOnQuestStatusChange>(p => p.OnQuestStatusChange(_player, questId));
 
@@ -541,7 +541,7 @@ public partial class WorldSession
 
 		if (!_player.CanSeeStartQuest(quest) && _player.GetQuestStatus(packet.QuestID) == QuestStatus.None)
 		{
-			Log.outError(LogFilter.Network,
+			Log.Logger.Error(
 						"Possible hacking attempt: Player {0} ({1}) tried to complete quest [entry: {2}] without being in possession of the quest!",
 						_player.GetName(),
 						_player.GUID.ToString(),
@@ -803,7 +803,7 @@ public partial class WorldSession
 	{
 		if (_player.PlayerTalkClass.GetInteractionData().PlayerChoiceId != choiceResponse.ChoiceID)
 		{
-			Log.outError(LogFilter.Player, $"Error in CMSG_CHOICE_RESPONSE: {GetPlayerInfo()} tried to respond to invalid player choice {choiceResponse.ChoiceID} (allowed {_player.PlayerTalkClass.GetInteractionData().PlayerChoiceId}) (possible packet-hacking detected)");
+			Log.Logger.Error($"Error in CMSG_CHOICE_RESPONSE: {GetPlayerInfo()} tried to respond to invalid player choice {choiceResponse.ChoiceID} (allowed {_player.PlayerTalkClass.GetInteractionData().PlayerChoiceId}) (possible packet-hacking detected)");
 
 			return;
 		}
@@ -817,7 +817,7 @@ public partial class WorldSession
 
 		if (playerChoiceResponse == null)
 		{
-			Log.outError(LogFilter.Player, $"Error in CMSG_CHOICE_RESPONSE: {GetPlayerInfo()} tried to select invalid player choice response {choiceResponse.ResponseIdentifier} (possible packet-hacking detected)");
+			Log.Logger.Error($"Error in CMSG_CHOICE_RESPONSE: {GetPlayerInfo()} tried to select invalid player choice response {choiceResponse.ResponseIdentifier} (possible packet-hacking detected)");
 
 			return;
 		}

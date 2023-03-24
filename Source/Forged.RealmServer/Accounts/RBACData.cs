@@ -50,7 +50,7 @@ public class RBACData
 
 		if (perm == null)
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission does not exists",
 						Id,
 						Name,
@@ -63,7 +63,7 @@ public class RBACData
 		// Check if already added in denied list
 		if (HasDeniedPermission(permissionId))
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission in deny list",
 						Id,
 						Name,
@@ -76,7 +76,7 @@ public class RBACData
 		// Already added?
 		if (HasGrantedPermission(permissionId))
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission already granted",
 						Id,
 						Name,
@@ -91,7 +91,7 @@ public class RBACData
 		// Do not save to db when loading data from DB (realmId = 0)
 		if (realmId != 0)
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
 						Id,
 						Name,
@@ -103,7 +103,7 @@ public class RBACData
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
 						Id,
 						Name,
@@ -121,7 +121,7 @@ public class RBACData
 
 		if (perm == null)
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission does not exists",
 						Id,
 						Name,
@@ -134,7 +134,7 @@ public class RBACData
 		// Check if already added in granted list
 		if (HasGrantedPermission(permissionId))
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission in grant list",
 						Id,
 						Name,
@@ -147,7 +147,7 @@ public class RBACData
 		// Already added?
 		if (HasDeniedPermission(permissionId))
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission already denied",
 						Id,
 						Name,
@@ -162,7 +162,7 @@ public class RBACData
 		// Do not save to db when loading data from DB (realmId = 0)
 		if (realmId != 0)
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
 						Id,
 						Name,
@@ -174,7 +174,7 @@ public class RBACData
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
 						Id,
 						Name,
@@ -190,7 +190,7 @@ public class RBACData
 		// Check if it's present in any list
 		if (!HasGrantedPermission(permissionId) && !HasDeniedPermission(permissionId))
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Not granted or revoked",
 						Id,
 						Name,
@@ -206,7 +206,7 @@ public class RBACData
 		// Do not save to db when loading data from DB (realmId = 0)
 		if (realmId != 0)
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
 						Id,
 						Name,
@@ -223,7 +223,7 @@ public class RBACData
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Rbac,
+			Log.Logger.Debug(
 						"RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
 						Id,
 						Name,
@@ -238,7 +238,7 @@ public class RBACData
 	{
 		ClearData();
 
-		Log.outDebug(LogFilter.Rbac, "RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
+		Log.Logger.Debug("RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
 		// Load account permissions (granted and denied) that affect current realm
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
 		stmt.AddValue(0, Id);
@@ -251,7 +251,7 @@ public class RBACData
 	{
 		ClearData();
 
-		Log.outDebug(LogFilter.Rbac, "RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
+		Log.Logger.Debug("RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
 		// Load account permissions (granted and denied) that affect current realm
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
 		stmt.AddValue(0, Id);
@@ -315,7 +315,7 @@ public class RBACData
 
 	void CalculateNewPermissions()
 	{
-		Log.outDebug(LogFilter.Rbac, "RBACData.CalculateNewPermissions [Id: {0} Name: {1}]", Id, Name);
+		Log.Logger.Debug("RBACData.CalculateNewPermissions [Id: {0} Name: {1}]", Id, Name);
 
 		// Get the list of granted permissions
 		_globalPerms = GrantedPermissions;
@@ -363,7 +363,7 @@ public class RBACData
 					toCheck.Add(id);
 		}
 
-		//Log.outDebug(LogFilter.General, "RBACData:ExpandPermissions: Expanded: {0}", GetDebugPermissionString(permissions));
+		//Log.Logger.Debug("RBACData:ExpandPermissions: Expanded: {0}", GetDebugPermissionString(permissions));
 	}
 
 	void ClearData()

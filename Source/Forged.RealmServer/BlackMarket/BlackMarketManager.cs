@@ -34,7 +34,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 black market templates. DB table `blackmarket_template` is empty.");
+			Log.Logger.Information("Loaded 0 black market templates. DB table `blackmarket_template` is empty.");
 
 			return;
 		}
@@ -49,7 +49,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			AddTemplate(templ);
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} black market templates in {1} ms.", _templates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAuctions()
@@ -64,7 +64,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 black market auctions. DB table `blackmarket_auctions` is empty.");
+			Log.Logger.Information("Loaded 0 black market auctions. DB table `blackmarket_auctions` is empty.");
 
 			return;
 		}
@@ -96,7 +96,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void Update(bool updateTime = false)

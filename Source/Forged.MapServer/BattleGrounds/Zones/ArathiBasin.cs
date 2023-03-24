@@ -555,7 +555,7 @@ class BgArathiBasin : Battleground
 
 			if (!result)
 			{
-				Log.outError(LogFilter.Sql, "BatteGroundAB: Failed to spawn some object Battleground not created!");
+				Log.Logger.Error("BatteGroundAB: Failed to spawn some object Battleground not created!");
 
 				return false;
 			}
@@ -566,7 +566,7 @@ class BgArathiBasin : Battleground
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "BatteGroundAB: Failed to spawn door object Battleground not created!");
+			Log.Logger.Error("BatteGroundAB: Failed to spawn door object Battleground not created!");
 
 			return false;
 		}
@@ -580,7 +580,7 @@ class BgArathiBasin : Battleground
 
 			if (!result)
 			{
-				Log.outError(LogFilter.Sql, "BatteGroundAB: Failed to spawn buff object!");
+				Log.Logger.Error("BatteGroundAB: Failed to spawn buff object!");
 
 				return false;
 			}
@@ -818,7 +818,7 @@ class BgArathiBasin : Battleground
 	void _NodeOccupied(byte node, TeamFaction team)
 	{
 		if (!AddSpiritGuide(node, SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
-			Log.outError(LogFilter.Battleground, "Failed to spawn spirit guide! point: {0}, team: {1}, ", node, team);
+			Log.Logger.Error("Failed to spawn spirit guide! point: {0}, team: {1}, ", node, team);
 
 		if (node >= ABBattlegroundNodes.DynamicNodesCount) //only dynamic nodes, no start points
 			return;

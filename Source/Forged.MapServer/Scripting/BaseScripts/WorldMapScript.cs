@@ -11,7 +11,7 @@ public class WorldMapScript : MapScript<Map>
 	{
 		if (GetEntry() != null &&
 			!GetEntry().IsWorldMap())
-			Log.outError(LogFilter.Scripts, "WorldMapScript for map {0} is invalid.", mapId);
+			Log.Logger.Error("WorldMapScript for map {0} is invalid.", mapId);
 
 		Global.ScriptMgr.AddScript(this);
 	}

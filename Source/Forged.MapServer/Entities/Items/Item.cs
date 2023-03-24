@@ -313,7 +313,7 @@ public class Item : WorldObject
 		if (duration == 0)
 			return;
 
-		Log.outDebug(LogFilter.Player, "Item.UpdateDuration Item (Entry: {0} Duration {1} Diff {2})", Entry, duration, diff);
+		Log.Logger.Debug("Item.UpdateDuration Item (Entry: {0} Duration {1} Diff {2})", Entry, duration, diff);
 
 		if (duration <= diff)
 		{
@@ -938,7 +938,7 @@ public class Item : WorldObject
 
 		if (player.GUID != item.OwnerGUID)
 		{
-			Log.outError(LogFilter.Player, "Item.RemoveFromUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID.ToString(), player.GUID.ToString());
+			Log.Logger.Error("Item.RemoveFromUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID.ToString(), player.GUID.ToString());
 
 			return;
 		}
@@ -2220,7 +2220,7 @@ public class Item : WorldObject
 
 		if (set == null)
 		{
-			Log.outError(LogFilter.Sql, "Item set {0} for item (id {1}) not found, mods not applied.", setid, proto.Id);
+			Log.Logger.Error("Item set {0} for item (id {1}) not found, mods not applied.", setid, proto.Id);
 
 			return;
 		}
@@ -2290,7 +2290,7 @@ public class Item : WorldObject
 
 			if (spellInfo == null)
 			{
-				Log.outError(LogFilter.Player, "WORLD: unknown spell id {0} in items set {1} effects", itemSetSpell.SpellID, setid);
+				Log.Logger.Error("WORLD: unknown spell id {0} in items set {1} effects", itemSetSpell.SpellID, setid);
 
 				continue;
 			}
@@ -2311,7 +2311,7 @@ public class Item : WorldObject
 
 		if (set == null)
 		{
-			Log.outError(LogFilter.Sql, $"Item set {setid} for item {item.Entry} not found, mods not removed.");
+			Log.Logger.Error($"Item set {setid} for item {item.Entry} not found, mods not removed.");
 
 			return;
 		}
@@ -2643,7 +2643,7 @@ public class Item : WorldObject
 
 		if (player.GUID != item.OwnerGUID)
 		{
-			Log.outError(LogFilter.Player, "Item.AddToUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID, player.GUID.ToString());
+			Log.Logger.Error("Item.AddToUpdateQueueOf - Owner's guid ({0}) and player's guid ({1}) don't match!", item.OwnerGUID, player.GUID.ToString());
 
 			return;
 		}

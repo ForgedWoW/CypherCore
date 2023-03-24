@@ -11,7 +11,7 @@ public class InstanceMapScript : MapScript<InstanceMap>
 	{
 		if (GetEntry() != null &&
 			!GetEntry().IsDungeon())
-			Log.outError(LogFilter.Scripts, "InstanceMapScript for map {0} is invalid.", mapId);
+			Log.Logger.Error("InstanceMapScript for map {0} is invalid.", mapId);
 
 		Global.ScriptMgr.AddScript(this);
 	}

@@ -208,7 +208,7 @@ public class Map : IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 			throw;
 		}
 	}
@@ -360,7 +360,7 @@ public class Map : IDisposable
 
 		if (!cellCoord.IsCoordValid())
 		{
-			Log.outError(LogFilter.Maps,
+			Log.Logger.Error(
 						"Map.AddPlayer (GUID: {0}) has invalid coordinates X:{1} Y:{2}",
 						player.GUID.ToString(),
 						player.Location.X,
@@ -467,7 +467,7 @@ public class Map : IDisposable
 
 		if (!cellCoord.IsCoordValid())
 		{
-			Log.outError(LogFilter.Maps,
+			Log.Logger.Error(
 						"Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
 						obj.GUID,
 						obj.Location.X,
@@ -486,7 +486,7 @@ public class Map : IDisposable
 			EnsureGridCreated(new GridCoord(cell.GetGridX(), cell.GetGridY()));
 
 		AddToGrid(obj, cell);
-		Log.outDebug(LogFilter.Maps, "Object {0} enters grid[{1}, {2}]", obj.GUID.ToString(), cell.GetGridX(), cell.GetGridY());
+		Log.Logger.Debug("Object {0} enters grid[{1}, {2}]", obj.GUID.ToString(), cell.GetGridX(), cell.GetGridY());
 
 		obj.AddToWorld();
 
@@ -514,7 +514,7 @@ public class Map : IDisposable
 
 		if (!cellCoord.IsCoordValid())
 		{
-			Log.outError(LogFilter.Maps,
+			Log.Logger.Error(
 						"Map.Add: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
 						obj.GUID,
 						obj.Location.X,
@@ -977,7 +977,7 @@ public class Map : IDisposable
 		// delay creature move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
-			Log.outDebug(LogFilter.Maps,
+			Log.Logger.Debug(
 						"GameObject (GUID: {0} Entry: {1}) added to moving list from grid[{2}, {3}]cell[{4}, {5}] to grid[{6}, {7}]cell[{8}, {9}].",
 						go.GUID.ToString(),
 						go.Entry,
@@ -1018,7 +1018,7 @@ public class Map : IDisposable
 		// delay creature move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
-			Log.outDebug(LogFilter.Maps,
+			Log.Logger.Debug(
 						"DynamicObject (GUID: {0}) added to moving list from grid[{1}, {2}]cell[{3}, {4}] to grid[{5}, {6}]cell[{7}, {8}].",
 						dynObj.GUID.ToString(),
 						old_cell.GetGridX(),
@@ -1059,7 +1059,7 @@ public class Map : IDisposable
 		// delay areatrigger move for grid/cell to grid/cell moves
 		if (old_cell.DiffCell(new_cell) || old_cell.DiffGrid(new_cell))
 		{
-			Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) added to moving list from {1} to {2}.", at.GUID.ToString(), old_cell.ToString(), new_cell.ToString());
+			Log.Logger.Debug("AreaTrigger ({0}) added to moving list from {1} to {2}.", at.GUID.ToString(), old_cell.ToString(), new_cell.ToString());
 
 			AddAreaTriggerToMoveList(at, x, y, z, orientation);
 			// in diffcell/diffgrid case notifiers called at finishing move at in Map::MoveAllAreaTriggersInMoveList
@@ -1108,7 +1108,7 @@ public class Map : IDisposable
 		if (diffGridOnly && !go.Location.GetCurrentCell().DiffGrid(resp_cell))
 			return true;
 
-		Log.outDebug(LogFilter.Maps,
+		Log.Logger.Debug(
 					"GameObject (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to respawn grid[{4}, {5}].",
 					go.GUID.ToString(),
 					go.Entry,
@@ -1145,7 +1145,7 @@ public class Map : IDisposable
 				return false;
 		}
 
-		Log.outDebug(LogFilter.Maps, "Unloading grid[{0}, {1}] for map {2}", x, y, Id);
+		Log.Logger.Debug("Unloading grid[{0}, {1}] for map {2}", x, y, Id);
 
 		if (!unloadAll)
 		{
@@ -1191,7 +1191,7 @@ public class Map : IDisposable
 
 		_terrain.UnloadMap(gx, gy);
 
-		Log.outDebug(LogFilter.Maps, "Unloading grid[{0}, {1}] for map {2} finished", x, y, Id);
+		Log.Logger.Debug("Unloading grid[{0}, {1}] for map {2} finished", x, y, Id);
 
 		return true;
 	}
@@ -1203,7 +1203,7 @@ public class Map : IDisposable
 				if (!pl.IsBeingTeleportedFar)
 				{
 					// this is happening for bg
-					Log.outError(LogFilter.Maps, $"Map.UnloadAll: player {pl.GetName()} is still in map {Id} during unload, this should not happen!");
+					Log.Logger.Error($"Map.UnloadAll: player {pl.GetName()} is still in map {Id} during unload, this should not happen!");
 					pl.TeleportTo(pl.Homebind);
 				}
 	}
@@ -1618,7 +1618,7 @@ public class Map : IDisposable
 
 		if (groupData == null || groupData.Flags.HasAnyFlag(SpawnGroupFlags.System))
 		{
-			Log.outError(LogFilter.Maps, $"Tried to spawn non-existing (or system) spawn group {groupId}. on map {Id} Blocked.");
+			Log.Logger.Error($"Tried to spawn non-existing (or system) spawn group {groupId}. on map {Id} Blocked.");
 
 			return false;
 		}
@@ -1722,7 +1722,7 @@ public class Map : IDisposable
 
 		if (groupData == null || groupData.Flags.HasAnyFlag(SpawnGroupFlags.System))
 		{
-			Log.outError(LogFilter.Maps, $"Tried to despawn non-existing (or system) spawn group {groupId} on map {Id}. Blocked.");
+			Log.Logger.Error($"Tried to despawn non-existing (or system) spawn group {groupId} on map {Id}. Blocked.");
 
 			return false;
 		}
@@ -1746,7 +1746,7 @@ public class Map : IDisposable
 
 		if (data == null || data.Flags.HasAnyFlag(SpawnGroupFlags.System))
 		{
-			Log.outError(LogFilter.Maps, $"Tried to set non-existing (or system) spawn group {groupId} to {(state ? "active" : "inactive")} on map {Id}. Blocked.");
+			Log.Logger.Error($"Tried to set non-existing (or system) spawn group {groupId} to {(state ? "active" : "inactive")} on map {Id}. Blocked.");
 
 			return;
 		}
@@ -1770,7 +1770,7 @@ public class Map : IDisposable
 
 		if (data == null)
 		{
-			Log.outError(LogFilter.Maps, $"Tried to query state of non-existing spawn group {groupId} on map {Id}.");
+			Log.Logger.Error($"Tried to query state of non-existing spawn group {groupId} on map {Id}.");
 
 			return false;
 		}
@@ -1963,7 +1963,7 @@ public class Map : IDisposable
 			else
 			{
 				var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
-				Log.outError(LogFilter.Maps, $"Active object {obj.GUID} added to grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
+				Log.Logger.Error($"Active object {obj.GUID} added to grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
 			}
 		}
 	}
@@ -2005,7 +2005,7 @@ public class Map : IDisposable
 			else
 			{
 				var p2 = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
-				Log.outDebug(LogFilter.Maps, $"Active object {obj.GUID} removed from grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
+				Log.Logger.Debug($"Active object {obj.GUID} removed from grid[{p.X_Coord}, {p.Y_Coord}] but spawn grid[{p2.X_Coord}, {p2.Y_Coord}] was not loaded.");
 			}
 		}
 	}
@@ -2016,7 +2016,7 @@ public class Map : IDisposable
 
 		if (data == null)
 		{
-			Log.outError(LogFilter.Maps, $"Map {Id} attempt to save respawn time for nonexistant spawnid ({type},{spawnId}).");
+			Log.Logger.Error($"Map {Id} attempt to save respawn time for nonexistant spawnid ({type},{spawnId}).");
 
 			return;
 		}
@@ -2040,7 +2040,7 @@ public class Map : IDisposable
 		if (startup)
 		{
 			if (!success)
-				Log.outError(LogFilter.Maps, $"Attempt to load saved respawn {respawnTime} for ({type},{spawnId}) failed - duplicate respawn? Skipped.");
+				Log.Logger.Error($"Attempt to load saved respawn {respawnTime} for ({type},{spawnId}) failed - duplicate respawn? Skipped.");
 		}
 		else if (success)
 		{
@@ -2086,11 +2086,11 @@ public class Map : IDisposable
 					if (data != null)
 						SaveRespawnTime(type, spawnId, data.Id, respawnTime, GridDefines.ComputeGridCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId(), null, true);
 					else
-						Log.outError(LogFilter.Maps, $"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - spawn does not exist, ignoring");
+						Log.Logger.Error($"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - spawn does not exist, ignoring");
 				}
 				else
 				{
-					Log.outError(LogFilter.Maps, $"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - invalid spawn type, ignoring");
+					Log.Logger.Error($"Loading saved respawn time of {respawnTime} for spawnid ({type},{spawnId}) - invalid spawn type, ignoring");
 				}
 			} while (result.NextRow());
 	}
@@ -2188,7 +2188,7 @@ public class Map : IDisposable
 
 			if (type >= CorpseType.Max || type == CorpseType.Bones)
 			{
-				Log.outError(LogFilter.Maps, "Corpse (guid: {0}) have wrong corpse type ({1}), not loading.", guid, type);
+				Log.Logger.Error("Corpse (guid: {0}) have wrong corpse type ({1}), not loading.", guid, type);
 
 				continue;
 			}
@@ -2936,7 +2936,7 @@ public class Map : IDisposable
 
 		if (!p.IsCoordValid())
 		{
-			Log.outError(LogFilter.Maps,
+			Log.Logger.Error(
 						"Map.SwitchGridContainers: Object {0} has invalid coordinates X:{1} Y:{2} grid cell [{3}:{4}]",
 						obj.GUID,
 						obj.Location.X,
@@ -2952,7 +2952,7 @@ public class Map : IDisposable
 		if (!IsGridLoaded(cell.GetGridX(), cell.GetGridY()))
 			return;
 
-		Log.outDebug(LogFilter.Maps, "Switch object {0} from grid[{1}, {2}] {3}", obj.GUID, cell.GetGridX(), cell.GetGridY(), on);
+		Log.Logger.Debug("Switch object {0} from grid[{1}, {2}] {3}", obj.GUID, cell.GetGridX(), cell.GetGridY(), on);
 		var ngrid = GetGrid(cell.GetGridX(), cell.GetGridY());
 
 		RemoveFromGrid(obj, cell);
@@ -2999,7 +2999,7 @@ public class Map : IDisposable
 		{
 			if (GetGrid(p.X_Coord, p.Y_Coord) == null)
 			{
-				Log.outDebug(LogFilter.Maps, "Creating grid[{0}, {1}] for map {2} instance {3}", p.X_Coord, p.Y_Coord, Id, InstanceIdInternal);
+				Log.Logger.Debug("Creating grid[{0}, {1}] for map {2} instance {3}", p.X_Coord, p.Y_Coord, Id, InstanceIdInternal);
 
 				var grid = new Grid(p.X_Coord * MapConst.MaxGrids + p.Y_Coord, p.X_Coord, p.Y_Coord, _gridExpiry, WorldConfig.GetBoolValue(WorldCfg.GridUnload));
 				grid.SetGridState(GridState.Idle);
@@ -3026,7 +3026,7 @@ public class Map : IDisposable
 		// refresh grid state & timer
 		if (grid.GetGridState() != GridState.Active)
 		{
-			Log.outDebug(LogFilter.Maps,
+			Log.Logger.Debug(
 						"Active object {0} triggers loading of grid [{1}, {2}] on map {3}",
 						obj.GUID,
 						cell.GetGridX(),
@@ -3045,7 +3045,7 @@ public class Map : IDisposable
 
 		if (grid != null && !IsGridObjectDataLoaded(cell.GetGridX(), cell.GetGridY()))
 		{
-			Log.outDebug(LogFilter.Maps,
+			Log.Logger.Debug(
 						"Loading grid[{0}, {1}] for map {2} instance {3}",
 						cell.GetGridX(),
 						cell.GetGridY(),
@@ -3227,7 +3227,7 @@ public class Map : IDisposable
 		if (xy_cell != cur_cell)
 		{
 			//$"grid[{GetGridX()}, {GetGridY()}]cell[{GetCellX()}, {GetCellY()}]";
-			Log.outDebug(LogFilter.Maps, $"{obj.TypeId} ({obj.GUID}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
+			Log.Logger.Debug($"{obj.TypeId} ({obj.GUID}) X: {obj.Location.X} Y: {obj.Location.Y} ({(moved ? "final" : "original")}) is in {cur_cell} instead of {xy_cell}");
 
 			return true; // not crash at error, just output error in debug mode
 		}
@@ -3411,7 +3411,7 @@ public class Map : IDisposable
 					if (!GameObjectRespawnRelocation(go, false))
 					{
 						// ... or unload (if respawn grid also not loaded)
-						Log.outDebug(LogFilter.Maps,
+						Log.Logger.Debug(
 									"GameObject (GUID: {0} Entry: {1}) cannot be move to unloaded respawn grid.",
 									go.GUID.ToString(),
 									go.Entry);
@@ -3456,7 +3456,7 @@ public class Map : IDisposable
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Maps, "DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GUID.ToString());
+					Log.Logger.Debug("DynamicObject (GUID: {0}) cannot be moved to unloaded grid.", dynObj.GUID.ToString());
 				}
 			}
 		}
@@ -3495,7 +3495,7 @@ public class Map : IDisposable
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Maps, "AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GUID.ToString());
+					Log.Logger.Debug("AreaTrigger ({0}) cannot be moved to unloaded grid.", at.GUID.ToString());
 				}
 			}
 		}
@@ -3522,7 +3522,7 @@ public class Map : IDisposable
 		{
 			EnsureGridLoadedForActiveObject(new_cell, obj);
 
-			Log.outDebug(LogFilter.Maps,
+			Log.Logger.Debug(
 						"Active creature (GUID: {0} Entry: {1}) moved from grid[{2}, {3}] to grid[{4}, {5}].",
 						obj.GUID.ToString(),
 						obj.Entry,
@@ -3617,7 +3617,7 @@ public class Map : IDisposable
 	{
 		if (x >= MapConst.MaxGrids || y >= MapConst.MaxGrids)
 		{
-			Log.outError(LogFilter.Maps, "Map.setNGrid Invalid grid coordinates found: {0}, {1}!", x, y);
+			Log.Logger.Error("Map.setNGrid Invalid grid coordinates found: {0}, {1}!", x, y);
 
 			return;
 		}
@@ -3762,7 +3762,7 @@ public class Map : IDisposable
 	{
 		if (info.SpawnId == 0)
 		{
-			Log.outError(LogFilter.Maps, $"Attempt to insert respawn info for zero spawn id (type {info.ObjectType})");
+			Log.Logger.Error($"Attempt to insert respawn info for zero spawn id (type {info.ObjectType})");
 
 			return false;
 		}
@@ -4004,7 +4004,7 @@ public class Map : IDisposable
 						var corpse = ObjectAccessor.GetCorpse(obj, obj.GUID);
 
 						if (corpse == null)
-							Log.outError(LogFilter.Maps, "Tried to delete corpse/bones {0} that is not in map.", obj.GUID.ToString());
+							Log.Logger.Error("Tried to delete corpse/bones {0} that is not in map.", obj.GUID.ToString());
 						else
 							RemoveFromMap(corpse, true);
 
@@ -4043,7 +4043,7 @@ public class Map : IDisposable
 
 						break;
 					default:
-						Log.outError(LogFilter.Maps, "Non-grid object (TypeId: {0}) is in grid object remove list, ignored.", obj.TypeId);
+						Log.Logger.Error("Non-grid object (TypeId: {0}) is in grid object remove list, ignored.", obj.TypeId);
 
 						break;
 				}
@@ -4330,7 +4330,7 @@ public class Map : IDisposable
 
 		if (source == null && target == null)
 		{
-			Log.outError(LogFilter.Scripts, "{0} source and target objects are NULL.", scriptInfo.GetDebugInfo());
+			Log.Logger.Error("{0} source and target objects are NULL.", scriptInfo.GetDebugInfo());
 		}
 		else
 		{
@@ -4342,7 +4342,7 @@ public class Map : IDisposable
 				player = source.AsPlayer;
 
 			if (player == null)
-				Log.outError(LogFilter.Scripts,
+				Log.Logger.Error(
 							"{0} neither source nor target object is player (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
 							scriptInfo.GetDebugInfo(),
 							source ? source.TypeId : 0,
@@ -4362,7 +4362,7 @@ public class Map : IDisposable
 
 		if (source == null && target == null)
 		{
-			Log.outError(LogFilter.Scripts, "{0} source and target objects are NULL.", scriptInfo.GetDebugInfo());
+			Log.Logger.Error("{0} source and target objects are NULL.", scriptInfo.GetDebugInfo());
 		}
 		else
 		{
@@ -4386,7 +4386,7 @@ public class Map : IDisposable
 			}
 
 			if (creature == null)
-				Log.outError(LogFilter.Scripts,
+				Log.Logger.Error(
 							"{0} neither source nor target are creatures (source: TypeId: {1}, Entry: {2}, {3}; target: TypeId: {4}, Entry: {5}, {6}), skipping.",
 							scriptInfo.GetDebugInfo(),
 							source ? source.TypeId : 0,
@@ -4406,7 +4406,7 @@ public class Map : IDisposable
 
 		if (source == null && target == null)
 		{
-			Log.outError(LogFilter.MapsScript, $"{scriptInfo.GetDebugInfo()} source and target objects are NULL.");
+			Log.Logger.Error($"{scriptInfo.GetDebugInfo()} source and target objects are NULL.");
 		}
 		else
 		{
@@ -4430,7 +4430,7 @@ public class Map : IDisposable
 			}
 
 			if (gameobject == null)
-				Log.outError(LogFilter.MapsScript,
+				Log.Logger.Error(
 							$"{scriptInfo.GetDebugInfo()} neither source nor target are gameobjects " +
 							$"(source: TypeId: {(source != null ? source.TypeId : 0)}, Entry: {(source != null ? source.Entry : 0)}, {(source != null ? source.GUID : ObjectGuid.Empty)}; " +
 							$"target: TypeId: {(target != null ? target.TypeId : 0)}, Entry: {(target != null ? target.Entry : 0)}, {(target != null ? target.GUID : ObjectGuid.Empty)}), skipping.");
@@ -4445,14 +4445,14 @@ public class Map : IDisposable
 
 		if (obj == null)
 		{
-			Log.outError(LogFilter.Scripts,
+			Log.Logger.Error(
 						"{0} {1} object is NULL.",
 						scriptInfo.GetDebugInfo(),
 						isSource ? "source" : "target");
 		}
 		else if (!obj.IsTypeMask(TypeMask.Unit))
 		{
-			Log.outError(LogFilter.Scripts,
+			Log.Logger.Error(
 						"{0} {1} object is not unit (TypeId: {2}, Entry: {3}, GUID: {4}), skipping.",
 						scriptInfo.GetDebugInfo(),
 						isSource ? "source" : "target",
@@ -4465,7 +4465,7 @@ public class Map : IDisposable
 			unit = obj.AsUnit;
 
 			if (unit == null)
-				Log.outError(LogFilter.Scripts, "{0} {1} object could not be casted to unit.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
+				Log.Logger.Error("{0} {1} object could not be casted to unit.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
 		}
 
 		return unit;
@@ -4477,7 +4477,7 @@ public class Map : IDisposable
 
 		if (obj == null)
 		{
-			Log.outError(LogFilter.Scripts,
+			Log.Logger.Error(
 						"{0} {1} object is NULL.",
 						scriptInfo.GetDebugInfo(),
 						isSource ? "source" : "target");
@@ -4487,7 +4487,7 @@ public class Map : IDisposable
 			player = obj.AsPlayer;
 
 			if (player == null)
-				Log.outError(LogFilter.Scripts,
+				Log.Logger.Error(
 							"{0} {1} object is not a player (TypeId: {2}, Entry: {3}, GUID: {4}).",
 							scriptInfo.GetDebugInfo(),
 							isSource ? "source" : "target",
@@ -4505,14 +4505,14 @@ public class Map : IDisposable
 
 		if (obj == null)
 		{
-			Log.outError(LogFilter.Scripts, "{0} {1} object is NULL.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
+			Log.Logger.Error("{0} {1} object is NULL.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
 		}
 		else
 		{
 			creature = obj.AsCreature;
 
 			if (creature == null)
-				Log.outError(LogFilter.Scripts,
+				Log.Logger.Error(
 							"{0} {1} object is not a creature (TypeId: {2}, Entry: {3}, GUID: {4}).",
 							scriptInfo.GetDebugInfo(),
 							isSource ? "source" : "target",
@@ -4530,14 +4530,14 @@ public class Map : IDisposable
 
 		if (obj == null)
 		{
-			Log.outError(LogFilter.Scripts, "{0} {1} object is NULL.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
+			Log.Logger.Error("{0} {1} object is NULL.", scriptInfo.GetDebugInfo(), isSource ? "source" : "target");
 		}
 		else
 		{
 			pWorldObject = obj;
 
 			if (pWorldObject == null)
-				Log.outError(LogFilter.Scripts,
+				Log.Logger.Error(
 							"{0} {1} object is not a world object (TypeId: {2}, Entry: {3}, GUID: {4}).",
 							scriptInfo.GetDebugInfo(),
 							isSource ? "source" : "target",
@@ -4564,22 +4564,22 @@ public class Map : IDisposable
 			case ScriptCommands.CloseDoor:
 				break;
 			default:
-				Log.outError(LogFilter.Scripts, "{0} unknown command for _ScriptProcessDoor.", scriptInfo.GetDebugInfo());
+				Log.Logger.Error("{0} unknown command for _ScriptProcessDoor.", scriptInfo.GetDebugInfo());
 
 				return;
 		}
 
 		if (guid == 0)
 		{
-			Log.outError(LogFilter.Scripts, "{0} door guid is not specified.", scriptInfo.GetDebugInfo());
+			Log.Logger.Error("{0} door guid is not specified.", scriptInfo.GetDebugInfo());
 		}
 		else if (source == null)
 		{
-			Log.outError(LogFilter.Scripts, "{0} source object is NULL.", scriptInfo.GetDebugInfo());
+			Log.Logger.Error("{0} source object is NULL.", scriptInfo.GetDebugInfo());
 		}
 		else if (!source.IsTypeMask(TypeMask.Unit))
 		{
-			Log.outError(LogFilter.Scripts,
+			Log.Logger.Error(
 						"{0} source object is not unit (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 						scriptInfo.GetDebugInfo(),
 						source.TypeId,
@@ -4590,7 +4590,7 @@ public class Map : IDisposable
 		{
 			if (source == null)
 			{
-				Log.outError(LogFilter.Scripts,
+				Log.Logger.Error(
 							"{0} source object could not be casted to world object (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 							scriptInfo.GetDebugInfo(),
 							source.TypeId,
@@ -4603,11 +4603,11 @@ public class Map : IDisposable
 
 				if (pDoor == null)
 				{
-					Log.outError(LogFilter.Scripts, "{0} gameobject was not found (guid: {1}).", scriptInfo.GetDebugInfo(), guid);
+					Log.Logger.Error("{0} gameobject was not found (guid: {1}).", scriptInfo.GetDebugInfo(), guid);
 				}
 				else if (pDoor.GoType != GameObjectTypes.Door)
 				{
-					Log.outError(LogFilter.Scripts, "{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GoType, pDoor.Entry, pDoor.GUID.ToString());
+					Log.Logger.Error("{0} gameobject is not a door (GoType: {1}, Entry: {2}, GUID: {3}).", scriptInfo.GetDebugInfo(), pDoor.GoType, pDoor.Entry, pDoor.GUID.ToString());
 				}
 				else if (bOpen == (pDoor.GoState == GameObjectState.Ready))
 				{
@@ -4689,7 +4689,7 @@ public class Map : IDisposable
 
 							break;
 						default:
-							Log.outError(LogFilter.Scripts,
+							Log.Logger.Error(
 										"{0} source with unsupported high guid (GUID: {1}, high guid: {2}).",
 										step.Script.GetDebugInfo(),
 										step.SourceGUID,
@@ -4726,7 +4726,7 @@ public class Map : IDisposable
 
 							break;
 						default:
-							Log.outError(LogFilter.Scripts, "{0} target with unsupported high guid {1}.", step.Script.GetDebugInfo(), step.TargetGUID.ToString());
+							Log.Logger.Error("{0} target with unsupported high guid {1}.", step.Script.GetDebugInfo(), step.TargetGUID.ToString());
 
 							break;
 					}
@@ -4737,7 +4737,7 @@ public class Map : IDisposable
 					{
 						if (step.Script.Talk.ChatType > ChatMsg.Whisper && step.Script.Talk.ChatType != ChatMsg.RaidBossWhisper)
 						{
-							Log.outError(LogFilter.Scripts,
+							Log.Logger.Error(
 										"{0} invalid chat type ({1}) specified, skipping.",
 										step.Script.GetDebugInfo(),
 										step.Script.Talk.ChatType);
@@ -4756,7 +4756,7 @@ public class Map : IDisposable
 
 							if (!sourceUnit)
 							{
-								Log.outError(LogFilter.Scripts, "{0} source object ({1}) is not an unit, skipping.", step.Script.GetDebugInfo(), source.GUID.ToString());
+								Log.Logger.Error("{0} source object ({1}) is not an unit, skipping.", step.Script.GetDebugInfo(), source.GUID.ToString());
 
 								break;
 							}
@@ -4782,7 +4782,7 @@ public class Map : IDisposable
 									var receiver = target ? target.AsPlayer : null;
 
 									if (!receiver)
-										Log.outError(LogFilter.Scripts, "{0} attempt to whisper to non-player unit, skipping.", step.Script.GetDebugInfo());
+										Log.Logger.Error("{0} attempt to whisper to non-player unit, skipping.", step.Script.GetDebugInfo());
 									else
 										sourceUnit.Whisper((uint)step.Script.Talk.TextID, receiver, step.Script.Talk.ChatType == ChatMsg.RaidBossWhisper);
 
@@ -4875,14 +4875,14 @@ public class Map : IDisposable
 					{
 						if (!source)
 						{
-							Log.outError(LogFilter.Scripts, "{0} source object is NULL.", step.Script.GetDebugInfo());
+							Log.Logger.Error("{0} source object is NULL.", step.Script.GetDebugInfo());
 
 							break;
 						}
 
 						if (!target)
 						{
-							Log.outError(LogFilter.Scripts, "{0} target object is NULL.", step.Script.GetDebugInfo());
+							Log.Logger.Error("{0} target object is NULL.", step.Script.GetDebugInfo());
 
 							break;
 						}
@@ -4895,7 +4895,7 @@ public class Map : IDisposable
 						{
 							if (!source.IsTypeId(TypeId.Unit) && !source.IsTypeId(TypeId.GameObject) && !source.IsTypeId(TypeId.Player))
 							{
-								Log.outError(LogFilter.Scripts,
+								Log.Logger.Error(
 											"{0} source is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 											step.Script.GetDebugInfo(),
 											source.TypeId,
@@ -4915,7 +4915,7 @@ public class Map : IDisposable
 							{
 								if (!target.IsTypeId(TypeId.Unit) && !target.IsTypeId(TypeId.GameObject) && !target.IsTypeId(TypeId.Player))
 								{
-									Log.outError(LogFilter.Scripts,
+									Log.Logger.Error(
 												"{0} target is not unit, gameobject or player (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 												step.Script.GetDebugInfo(),
 												target.TypeId,
@@ -4929,7 +4929,7 @@ public class Map : IDisposable
 							}
 							else
 							{
-								Log.outError(LogFilter.Scripts,
+								Log.Logger.Error(
 											"{0} neither source nor target is player (Entry: {0}, GUID: {1}; target: Entry: {2}, GUID: {3}), skipping.",
 											step.Script.GetDebugInfo(),
 											source.Entry,
@@ -4971,7 +4971,7 @@ public class Map : IDisposable
 					{
 						if (step.Script.RespawnGameObject.GOGuid == 0)
 						{
-							Log.outError(LogFilter.Scripts, "{0} gameobject guid (datalong) is not specified.", step.Script.GetDebugInfo());
+							Log.Logger.Error("{0} gameobject guid (datalong) is not specified.", step.Script.GetDebugInfo());
 
 							break;
 						}
@@ -4985,7 +4985,7 @@ public class Map : IDisposable
 
 							if (pGO == null)
 							{
-								Log.outError(LogFilter.Scripts, "{0} gameobject was not found (guid: {1}).", step.Script.GetDebugInfo(), step.Script.RespawnGameObject.GOGuid);
+								Log.Logger.Error("{0} gameobject was not found (guid: {1}).", step.Script.GetDebugInfo(), step.Script.RespawnGameObject.GOGuid);
 
 								break;
 							}
@@ -4995,7 +4995,7 @@ public class Map : IDisposable
 								pGO.GoType == GameObjectTypes.Button ||
 								pGO.GoType == GameObjectTypes.Trap)
 							{
-								Log.outError(LogFilter.Scripts,
+								Log.Logger.Error(
 											"{0} can not be used with gameobject of type {1} (guid: {2}).",
 											step.Script.GetDebugInfo(),
 											pGO.GoType,
@@ -5026,7 +5026,7 @@ public class Map : IDisposable
 						{
 							if (step.Script.TempSummonCreature.CreatureEntry == 0)
 							{
-								Log.outError(LogFilter.Scripts, "{0} creature entry (datalong) is not specified.", step.Script.GetDebugInfo());
+								Log.Logger.Error("{0} creature entry (datalong) is not specified.", step.Script.GetDebugInfo());
 							}
 							else
 							{
@@ -5036,7 +5036,7 @@ public class Map : IDisposable
 								var o = step.Script.TempSummonCreature.Orientation;
 
 								if (pSummoner.SummonCreature(step.Script.TempSummonCreature.CreatureEntry, new Position(x, y, z, o), TempSummonType.TimedOrDeadDespawn, TimeSpan.FromMilliseconds(step.Script.TempSummonCreature.DespawnDelay)) == null)
-									Log.outError(LogFilter.Scripts, "{0} creature was not spawned (entry: {1}).", step.Script.GetDebugInfo(), step.Script.TempSummonCreature.CreatureEntry);
+									Log.Logger.Error("{0} creature was not spawned (entry: {1}).", step.Script.GetDebugInfo(), step.Script.TempSummonCreature.CreatureEntry);
 							}
 						}
 
@@ -5058,14 +5058,14 @@ public class Map : IDisposable
 							// Target must be GameObject.
 							if (target == null)
 							{
-								Log.outError(LogFilter.Scripts, "{0} target object is NULL.", step.Script.GetDebugInfo());
+								Log.Logger.Error("{0} target object is NULL.", step.Script.GetDebugInfo());
 
 								break;
 							}
 
 							if (!target.IsTypeId(TypeId.GameObject))
 							{
-								Log.outError(LogFilter.Scripts,
+								Log.Logger.Error(
 											"{0} target object is not gameobject (TypeId: {1}, Entry: {2}, GUID: {3}), skipping.",
 											step.Script.GetDebugInfo(),
 											target.TypeId,
@@ -5098,7 +5098,7 @@ public class Map : IDisposable
 					{
 						if (source == null && target == null)
 						{
-							Log.outError(LogFilter.Scripts, "{0} source and target objects are NULL.", step.Script.GetDebugInfo());
+							Log.Logger.Error("{0} source and target objects are NULL.", step.Script.GetDebugInfo());
 
 							break;
 						}
@@ -5138,14 +5138,14 @@ public class Map : IDisposable
 
 						if (uSource == null)
 						{
-							Log.outError(LogFilter.Scripts, "{0} no source worldobject found for spell {1}", step.Script.GetDebugInfo(), step.Script.CastSpell.SpellID);
+							Log.Logger.Error("{0} no source worldobject found for spell {1}", step.Script.GetDebugInfo(), step.Script.CastSpell.SpellID);
 
 							break;
 						}
 
 						if (uTarget == null)
 						{
-							Log.outError(LogFilter.Scripts, "{0} no target worldobject found for spell {1}", step.Script.GetDebugInfo(), step.Script.CastSpell.SpellID);
+							Log.Logger.Error("{0} no target worldobject found for spell {1}", step.Script.GetDebugInfo(), step.Script.CastSpell.SpellID);
 
 							break;
 						}
@@ -5236,7 +5236,7 @@ public class Map : IDisposable
 						if (unit)
 						{
 							if (Global.WaypointMgr.GetPath(step.Script.LoadPath.PathID) == null)
-								Log.outError(LogFilter.Scripts, "{0} source object has an invalid path ({1}), skipping.", step.Script.GetDebugInfo(), step.Script.LoadPath.PathID);
+								Log.Logger.Error("{0} source object has an invalid path ({1}), skipping.", step.Script.GetDebugInfo(), step.Script.LoadPath.PathID);
 							else
 								unit.MotionMaster.MovePath(step.Script.LoadPath.PathID, step.Script.LoadPath.IsRepeatable != 0);
 						}
@@ -5247,14 +5247,14 @@ public class Map : IDisposable
 					{
 						if (step.Script.CallScript.CreatureEntry == 0)
 						{
-							Log.outError(LogFilter.Scripts, "{0} creature entry is not specified, skipping.", step.Script.GetDebugInfo());
+							Log.Logger.Error("{0} creature entry is not specified, skipping.", step.Script.GetDebugInfo());
 
 							break;
 						}
 
 						if (step.Script.CallScript.ScriptID == 0)
 						{
-							Log.outError(LogFilter.Scripts, "{0} script id is not specified, skipping.", step.Script.GetDebugInfo());
+							Log.Logger.Error("{0} script id is not specified, skipping.", step.Script.GetDebugInfo());
 
 							break;
 						}
@@ -5272,7 +5272,7 @@ public class Map : IDisposable
 
 						if (cTarget == null)
 						{
-							Log.outError(LogFilter.Scripts, "{0} target was not found (entry: {1})", step.Script.GetDebugInfo(), step.Script.CallScript.CreatureEntry);
+							Log.Logger.Error("{0} target was not found (entry: {1})", step.Script.GetDebugInfo(), step.Script.CallScript.CreatureEntry);
 
 							break;
 						}
@@ -5292,7 +5292,7 @@ public class Map : IDisposable
 						{
 							if (cSource.IsDead)
 							{
-								Log.outError(LogFilter.Scripts, "{0} creature is already dead (Entry: {1}, GUID: {2})", step.Script.GetDebugInfo(), cSource.Entry, cSource.GUID.ToString());
+								Log.Logger.Error("{0} creature is already dead (Entry: {1}, GUID: {2})", step.Script.GetDebugInfo(), cSource.Entry, cSource.GUID.ToString());
 							}
 							else
 							{
@@ -5407,7 +5407,7 @@ public class Map : IDisposable
 						break;
 					}
 					default:
-						Log.outError(LogFilter.Scripts, "Unknown script command {0}.", step.Script.GetDebugInfo());
+						Log.Logger.Error("Unknown script command {0}.", step.Script.GetDebugInfo());
 
 						break;
 				}

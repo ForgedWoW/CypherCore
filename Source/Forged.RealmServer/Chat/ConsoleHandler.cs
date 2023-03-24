@@ -29,7 +29,7 @@ public class ConsoleHandler : CommandHandler
 	public override void SendSysMessage(string str, bool escapeCharacters)
 	{
 		SetSentErrorMessage(true);
-		Log.outInfo(LogFilter.Server, str);
+		Log.Logger.Information(str);
 	}
 
 	public override bool ParseCommands(string str)

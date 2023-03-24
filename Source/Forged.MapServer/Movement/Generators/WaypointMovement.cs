@@ -105,7 +105,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
 		if (_path == null)
 		{
-			Log.outError(LogFilter.Sql, $"WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({owner.GUID}) (_pathId: {_pathId})");
+			Log.Logger.Error($"WaypointMovementGenerator::DoInitialize: couldn't load path for creature ({owner.GUID}) (_pathId: {_pathId})");
 
 			return;
 		}
@@ -268,7 +268,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
 		if (waypoint.eventId != 0 && RandomHelper.URand(0, 99) < waypoint.eventChance)
 		{
-			Log.outDebug(LogFilter.MapsScript, $"Creature movement start script {waypoint.eventId} at point {_currentNode} for {owner.GUID}.");
+			Log.Logger.Debug($"Creature movement start script {waypoint.eventId} at point {_currentNode} for {owner.GUID}.");
 			owner.ClearUnitState(UnitState.RoamingMove);
 			owner.Map.ScriptsStart(ScriptsType.Waypoint, waypoint.eventId, owner, null);
 		}

@@ -78,7 +78,7 @@ public class Corpse : WorldObject
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
 						guidlow,
 						owner.GetName(),
@@ -220,7 +220,7 @@ public class Corpse : WorldObject
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
 						GUID.ToString(),
 						OwnerGUID.ToString(),

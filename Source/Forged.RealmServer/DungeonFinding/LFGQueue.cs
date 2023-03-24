@@ -102,7 +102,7 @@ public class LFGQueue
 	{
 		if (!QueueDataStore.ContainsKey(guid))
 		{
-			Log.outError(LogFilter.Lfg, "AddToQueue: Queue data not found for [{0}]", guid);
+			Log.Logger.Error("AddToQueue: Queue data not found for [{0}]", guid);
 
 			return;
 		}
@@ -212,7 +212,7 @@ public class LFGQueue
 		while (!newToQueueStore.Empty())
 		{
 			var frontguid = newToQueueStore.First();
-			Log.outDebug(LogFilter.Lfg, "FindGroups: checking [{0}] newToQueue({1}), currentQueue({2})", frontguid, newToQueueStore.Count, currentQueueStore.Count);
+			Log.Logger.Debug("FindGroups: checking [{0}] newToQueue({1}), currentQueue({2})", frontguid, newToQueueStore.Count, currentQueueStore.Count);
 			firstNew.Clear();
 			firstNew.Add(frontguid);
 			RemoveFromNewQueue(frontguid);
@@ -231,7 +231,7 @@ public class LFGQueue
 
 	public void UpdateQueueTimers(byte queueId, long currTime)
 	{
-		Log.outDebug(LogFilter.Lfg, "Updating queue timers...");
+		Log.Logger.Debug("Updating queue timers...");
 
 		foreach (var itQueue in QueueDataStore)
 		{
@@ -355,7 +355,7 @@ public class LFGQueue
 		if (size <= storedSize)
 			return;
 
-		Log.outDebug(LogFilter.Lfg,
+		Log.Logger.Debug(
 					"UpdateBestCompatibleInQueue: Changed ({0}) to ({1}) as best compatible group for {2}",
 					queueData.bestCompatible,
 					key,
@@ -417,7 +417,7 @@ public class LFGQueue
 	{
 		var strGuid = guid.ToString();
 
-		Log.outDebug(LogFilter.Lfg, "RemoveFromCompatibles: Removing [{0}]", guid);
+		Log.Logger.Debug("RemoveFromCompatibles: Removing [{0}]", guid);
 
 		foreach (var itNext in CompatibleMapStore.ToList())
 			if (itNext.Key.Contains(strGuid))
@@ -462,14 +462,14 @@ public class LFGQueue
 		var strGuids = ConcatenateGuids(check);
 		var compatibles = GetCompatibles(strGuids);
 
-		Log.outDebug(LogFilter.Lfg, "FindNewGroup: ({0}): {1} - all({2})", strGuids, GetCompatibleString(compatibles), ConcatenateGuids(all));
+		Log.Logger.Debug("FindNewGroup: ({0}): {1} - all({2})", strGuids, GetCompatibleString(compatibles), ConcatenateGuids(all));
 
 		if (compatibles == LfgCompatibility.Pending) // Not previously cached, calculate
 			compatibles = CheckCompatibility(check);
 
 		if (compatibles == LfgCompatibility.BadStates && Global.LFGMgr.AllQueued(check))
 		{
-			Log.outDebug(LogFilter.Lfg, "FindNewGroup: ({0}) compatibles (cached) changed from bad states to match", strGuids);
+			Log.Logger.Debug("FindNewGroup: ({0}) compatibles (cached) changed from bad states to match", strGuids);
 			SetCompatibles(strGuids, LfgCompatibility.Match);
 
 			return LfgCompatibility.Match;
@@ -505,7 +505,7 @@ public class LFGQueue
 		// Check for correct size
 		if (check.Count > MapConst.MaxGroupSize || check.Empty())
 		{
-			Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}): Size wrong - Not compatibles", strGuids);
+			Log.Logger.Debug("CheckCompatibility: ({0}): Size wrong - Not compatibles", strGuids);
 
 			return LfgCompatibility.WrongGroupSize;
 		}
@@ -521,7 +521,7 @@ public class LFGQueue
 
 			if (child_compatibles < LfgCompatibility.WithLessPlayers) // Group not compatible
 			{
-				Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) child {1} not compatibles", strGuids, ConcatenateGuids(check));
+				Log.Logger.Debug("CheckCompatibility: ({0}) child {1} not compatibles", strGuids, ConcatenateGuids(check));
 				SetCompatibles(strGuids, child_compatibles);
 
 				return child_compatibles;
@@ -543,7 +543,7 @@ public class LFGQueue
 
 			if (itQueue == null)
 			{
-				Log.outError(LogFilter.Lfg, "CheckCompatibility: [{0}] is not queued but listed as queued!", guid);
+				Log.Logger.Error("CheckCompatibility: [{0}] is not queued but listed as queued!", guid);
 				RemoveFromQueue(guid);
 
 				return LfgCompatibility.Pending;
@@ -567,7 +567,7 @@ public class LFGQueue
 		// Group with less that MAXGROUPSIZE members always compatible
 		if (check.Count == 1 && numPlayers != MapConst.MaxGroupSize)
 		{
-			Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) sigle group. Compatibles", strGuids);
+			Log.Logger.Debug("CheckCompatibility: ({0}) sigle group. Compatibles", strGuids);
 			var guid = check.First();
 			var itQueue = QueueDataStore.LookupByKey(guid);
 
@@ -583,7 +583,7 @@ public class LFGQueue
 
 		if (numLfgGroups > 1)
 		{
-			Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) More than one Lfggroup ({1})", strGuids, numLfgGroups);
+			Log.Logger.Debug("CheckCompatibility: ({0}) More than one Lfggroup ({1})", strGuids, numLfgGroups);
 			SetCompatibles(strGuids, LfgCompatibility.MultipleLfgGroups);
 
 			return LfgCompatibility.MultipleLfgGroups;
@@ -591,7 +591,7 @@ public class LFGQueue
 
 		if (numPlayers > MapConst.MaxGroupSize)
 		{
-			Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) Too much players ({1})", strGuids, numPlayers);
+			Log.Logger.Debug("CheckCompatibility: ({0}) Too much players ({1})", strGuids, numPlayers);
 			SetCompatibles(strGuids, LfgCompatibility.TooMuchPlayers);
 
 			return LfgCompatibility.TooMuchPlayers;
@@ -613,7 +613,7 @@ public class LFGQueue
 						itPlayer = _player;
 
 						if (rolePair.Key == itPlayer.Key)
-							Log.outError(LogFilter.Lfg, "CheckCompatibility: ERROR! Player multiple times in queue! [{0}]", rolePair.Key);
+							Log.Logger.Error("CheckCompatibility: ERROR! Player multiple times in queue! [{0}]", rolePair.Key);
 						else if (Global.LFGMgr.HasIgnore(rolePair.Key, itPlayer.Key))
 							break;
 					}
@@ -627,7 +627,7 @@ public class LFGQueue
 
 			if (playersize != 0)
 			{
-				Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) not compatible, {1} players are ignoring each other", strGuids, playersize);
+				Log.Logger.Debug("CheckCompatibility: ({0}) not compatible, {1} players are ignoring each other", strGuids, playersize);
 				SetCompatibles(strGuids, LfgCompatibility.HasIgnores);
 
 				return LfgCompatibility.HasIgnores;
@@ -643,7 +643,7 @@ public class LFGQueue
 				foreach (var it in debugRoles)
 					o.AppendFormat(", {0}: {1}", it.Key, GetRolesString(it.Value));
 
-				Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) Roles not compatible{1}", strGuids, o.ToString());
+				Log.Logger.Debug("CheckCompatibility: ({0}) Roles not compatible{1}", strGuids, o.ToString());
 				SetCompatibles(strGuids, LfgCompatibility.NoRoles);
 
 				return LfgCompatibility.NoRoles;
@@ -667,7 +667,7 @@ public class LFGQueue
 
 			if (proposalDungeons.Empty())
 			{
-				Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) No compatible dungeons{1}", strGuids, o.ToString());
+				Log.Logger.Debug("CheckCompatibility: ({0}) No compatible dungeons{1}", strGuids, o.ToString());
 				SetCompatibles(strGuids, LfgCompatibility.NoDungeons);
 
 				return LfgCompatibility.NoDungeons;
@@ -685,7 +685,7 @@ public class LFGQueue
 		// Enough players?
 		if (numPlayers != MapConst.MaxGroupSize)
 		{
-			Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) Compatibles but not enough players({1})", strGuids, numPlayers);
+			Log.Logger.Debug("CheckCompatibility: ({0}) Compatibles but not enough players({1})", strGuids, numPlayers);
 			LfgCompatibilityData data = new(LfgCompatibility.WithLessPlayers);
 			data.roles = proposalRoles;
 
@@ -706,7 +706,7 @@ public class LFGQueue
 
 		if (!Global.LFGMgr.AllQueued(check))
 		{
-			Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) Group MATCH but can't create proposal!", strGuids);
+			Log.Logger.Debug("CheckCompatibility: ({0}) Group MATCH but can't create proposal!", strGuids);
 			SetCompatibles(strGuids, LfgCompatibility.BadStates);
 
 			return LfgCompatibility.BadStates;
@@ -755,7 +755,7 @@ public class LFGQueue
 
 		Global.LFGMgr.AddProposal(proposal);
 
-		Log.outDebug(LogFilter.Lfg, "CheckCompatibility: ({0}) MATCH! Group formed", strGuids);
+		Log.Logger.Debug("CheckCompatibility: ({0}) MATCH! Group formed", strGuids);
 		SetCompatibles(strGuids, LfgCompatibility.Match);
 
 		return LfgCompatibility.Match;
@@ -763,7 +763,7 @@ public class LFGQueue
 
 	void FindBestCompatibleInQueue(ObjectGuid guid, LfgQueueData data)
 	{
-		Log.outDebug(LogFilter.Lfg, "FindBestCompatibleInQueue: {0}", guid);
+		Log.Logger.Debug("FindBestCompatibleInQueue: {0}", guid);
 
 		foreach (var pair in CompatibleMapStore)
 			if (pair.Value.compatibility == LfgCompatibility.WithLessPlayers && pair.Key.Contains(guid.ToString()))

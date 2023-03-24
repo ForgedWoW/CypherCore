@@ -83,7 +83,7 @@ public class SupportManager : Singleton<SupportManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM bugs. DB table `gm_bug` is empty!");
+			Log.Logger.Information("Loaded 0 GM bugs. DB table `gm_bug` is empty!");
 
 			return;
 		}
@@ -107,7 +107,7 @@ public class SupportManager : Singleton<SupportManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM bugs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GM bugs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadComplaintTickets()
@@ -123,7 +123,7 @@ public class SupportManager : Singleton<SupportManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM complaints. DB table `gm_complaint` is empty!");
+			Log.Logger.Information("Loaded 0 GM complaints. DB table `gm_complaint` is empty!");
 
 			return;
 		}
@@ -159,7 +159,7 @@ public class SupportManager : Singleton<SupportManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM complaints in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GM complaints in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSuggestionTickets()
@@ -175,7 +175,7 @@ public class SupportManager : Singleton<SupportManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 GM suggestions. DB table `gm_suggestion` is empty!");
+			Log.Logger.Information("Loaded 0 GM suggestions. DB table `gm_suggestion` is empty!");
 
 			return;
 		}
@@ -199,7 +199,7 @@ public class SupportManager : Singleton<SupportManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void AddTicket<T>(T ticket) where T : Ticket

@@ -154,7 +154,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 	{
 		if (!File.Exists(fullFileName))
 		{
-			Log.outError(LogFilter.ServerLoading, $"File {fullFileName} not found.");
+			Log.Logger.Error($"File {fullFileName} not found.");
 
 			return;
 		}
@@ -166,7 +166,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 		{
 			if (!reader.Load(stream))
 			{
-				Log.outError(LogFilter.ServerLoading, $"Error loading {fullFileName}.");
+				Log.Logger.Error($"Error loading {fullFileName}.");
 
 				return;
 			}
@@ -295,7 +295,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 
 							continue;
 						default:
-							Log.outError(LogFilter.ServerLoading, "Wrong Array Type: {0}", arrayElementType.Name);
+							Log.Logger.Error("Wrong Array Type: {0}", arrayElementType.Name);
 
 							break;
 					}
@@ -376,7 +376,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 
 							break;
 						default:
-							Log.outError(LogFilter.ServerLoading, "Wrong Type: {0}", type.Name);
+							Log.Logger.Error("Wrong Type: {0}", type.Name);
 
 							break;
 					}

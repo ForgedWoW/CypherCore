@@ -154,7 +154,7 @@ public class GameObjectModel : IModel
 		// ignore models with no bounds
 		if (mdl_box == AxisAlignedBox.Zero())
 		{
-			Log.outError(LogFilter.Server, "GameObject model {0} has zero bounds, loading skipped", it.Name);
+			Log.Logger.Error("GameObject model {0} has zero bounds, loading skipped", it.Name);
 
 			return false;
 		}
@@ -207,7 +207,7 @@ public class GameObjectModel : IModel
 
 		if (!File.Exists(filename))
 		{
-			Log.outWarn(LogFilter.Server, "Unable to open '{0}' file.", filename);
+			Log.Logger.Warning("Unable to open '{0}' file.", filename);
 
 			return false;
 		}
@@ -219,7 +219,7 @@ public class GameObjectModel : IModel
 
 			if (magic != MapConst.VMapMagic)
 			{
-				Log.outError(LogFilter.Misc, $"File '{filename}' has wrong header, expected {MapConst.VMapMagic}.");
+				Log.Logger.Error($"File '{filename}' has wrong header, expected {MapConst.VMapMagic}.");
 
 				return false;
 			}
@@ -243,10 +243,10 @@ public class GameObjectModel : IModel
 		}
 		catch (EndOfStreamException ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		return true;
 	}
@@ -263,7 +263,7 @@ public class GameObjectModel : IModel
 		// ignore models with no bounds
 		if (mdl_box == AxisAlignedBox.Zero())
 		{
-			Log.outError(LogFilter.Server, "GameObject model {0} has zero bounds, loading skipped", modelData.Name);
+			Log.Logger.Error("GameObject model {0} has zero bounds, loading skipped", modelData.Name);
 
 			return false;
 		}

@@ -456,7 +456,7 @@ public class AreaTrigger : WorldObject
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
+			Log.Logger.Error($"AreaTrigger (areaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
 
 			return false;
 		}
@@ -469,7 +469,7 @@ public class AreaTrigger : WorldObject
 
 			if (_areaTriggerCreateProperties == null)
 			{
-				Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (areaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}) not created. Invalid areatrigger create properties id ({areaTriggerCreatePropertiesId})");
+				Log.Logger.Error($"AreaTrigger (areaTriggerCreatePropertiesId {areaTriggerCreatePropertiesId}) not created. Invalid areatrigger create properties id ({areaTriggerCreatePropertiesId})");
 
 				return false;
 			}
@@ -605,7 +605,7 @@ public class AreaTrigger : WorldObject
 
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.AreaTrigger, $"AreaTriggerServer (id {areaTriggerTemplate.Id}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
+			Log.Logger.Error($"AreaTriggerServer (id {areaTriggerTemplate.Id}) not created. Invalid coordinates (X: {Location.X} Y: {Location.Y})");
 
 			return false;
 		}
@@ -1138,7 +1138,7 @@ public class AreaTrigger : WorldObject
 			var progress = Global.DB2Mgr.GetCurveValueAt(CreateProperties.MoveCurveId, currentTimePercent);
 
 			if (progress < 0.0f || progress > 1.0f)
-				Log.outError(LogFilter.AreaTrigger, $"AreaTrigger (Id: {Entry}, AreaTriggerCreatePropertiesId: {CreateProperties.Id}) has wrong progress ({progress}) caused by curve calculation (MoveCurveId: {CreateProperties.MorphCurveId})");
+				Log.Logger.Error($"AreaTrigger (Id: {Entry}, AreaTriggerCreatePropertiesId: {CreateProperties.Id}) has wrong progress ({progress}) caused by curve calculation (MoveCurveId: {CreateProperties.MorphCurveId})");
 			else
 				currentTimePercent = progress;
 		}
@@ -1189,7 +1189,7 @@ public class AreaTrigger : WorldObject
 
 		foreach (var script in _loadedScripts)
 		{
-			Log.outDebug(LogFilter.Spells, "AreaTrigger.LoadScripts: Script `{0}` for AreaTrigger `{1}` is loaded now", script._GetScriptName(), _areaTriggerId);
+			Log.Logger.Debug("AreaTrigger.LoadScripts: Script `{0}` for AreaTrigger `{1}` is loaded now", script._GetScriptName(), _areaTriggerId);
 			script.Register();
 
 			if (script is IAreaTriggerScript)

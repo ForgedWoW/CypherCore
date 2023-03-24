@@ -1,11 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Microsoft.Extensions.Configuration;
+
 namespace Framework.Database;
 
 public class HotfixDatabase : MySqlBase<HotfixStatements>
 {
-	public override void PreparedStatements()
+    public HotfixDatabase(IConfiguration configuration) : base(configuration)
+    {
+
+    }
+
+    public override void PreparedStatements()
 	{
 		// Achievement.db2
 		PrepareStatement(HotfixStatements.SEL_ACHIEVEMENT,

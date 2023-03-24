@@ -52,7 +52,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
 		if (currentNodeId == end)
 		{
-			Log.outDebug(LogFilter.Movement, $"FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {owner.GetDebugInfo()}");
+			Log.Logger.Debug($"FlightPathMovementGenerator::DoReset: trying to start a flypath from the end point. {owner.GetDebugInfo()}");
 
 			return;
 		}
@@ -282,7 +282,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
 		if (eventid != 0)
 		{
-			Log.outDebug(LogFilter.MapsScript, $"FlightPathMovementGenerator::DoEventIfAny: taxi {(departure ? "departure" : "arrival")} event {eventid} of node {node.NodeIndex} of path {node.PathID} for player {owner.GetName()}");
+			Log.Logger.Debug($"FlightPathMovementGenerator::DoEventIfAny: taxi {(departure ? "departure" : "arrival")} event {eventid} of node {node.NodeIndex} of path {node.PathID} for player {owner.GetName()}");
 			GameEvents.Trigger(eventid, owner, owner);
 		}
 	}
@@ -312,12 +312,12 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		// Load the grid
 		if (endMap != null)
 		{
-			Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Preloading grid ({0}, {1}) for map {2} at node index {3}/{4}", _endGridX, _endGridY, _endMapId, _preloadTargetNode, _path.Count - 1);
+			Log.Logger.Debug("FlightPathMovementGenerator::PreloadEndGrid: Preloading grid ({0}, {1}) for map {2} at node index {3}/{4}", _endGridX, _endGridY, _endMapId, _preloadTargetNode, _path.Count - 1);
 			endMap.LoadGrid(_endGridX, _endGridY);
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Server, "FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
+			Log.Logger.Debug("FlightPathMovementGenerator::PreloadEndGrid: Unable to determine map to preload flightmaster grid");
 		}
 	}
 

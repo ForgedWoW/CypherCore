@@ -24,7 +24,7 @@ internal class SmartTrigger : ScriptObjectAutoAddDBBound, IAreaTriggerOnTrigger
 		if (!player.IsAlive)
 			return false;
 
-		Log.outDebug(LogFilter.ScriptsAi, "AreaTrigger {0} is using SmartTrigger script", trigger.Id);
+		Log.Logger.Debug("AreaTrigger {0} is using SmartTrigger script", trigger.Id);
 		SmartScript script = new();
 		script.OnInitialize(player, trigger);
 		script.ProcessEventsFor(SmartEvents.AreatriggerOntrigger, player, trigger.Id);

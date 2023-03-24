@@ -106,7 +106,7 @@ public class GuildAchievementMgr : AchievementManager
                 if (criteria == null)
                 {
                     // we will remove not existed criteria for all guilds
-                    Log.outError(LogFilter.Achievement, "Non-existing achievement criteria {0} data removed from table `guild_achievement_progress`.", id);
+                    Log.Logger.Error("Non-existing achievement criteria {0} data removed from table `guild_achievement_progress`.", id);
 
                     var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA_GUILD);
                     stmt.AddValue(0, id);
@@ -280,7 +280,7 @@ public class GuildAchievementMgr : AchievementManager
 
     public override void CompletedAchievement(AchievementRecord achievement, Player referencePlayer)
     {
-        Log.outDebug(LogFilter.Achievement, "CompletedAchievement({0})", achievement.Id);
+        Log.Logger.Debug("CompletedAchievement({0})", achievement.Id);
 
         if (achievement.Flags.HasAnyFlag(AchievementFlags.Counter) || HasAchieved(achievement.Id))
             return;

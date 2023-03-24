@@ -62,7 +62,7 @@ public partial class WorldSession
 	{
 		if (packet.CurrentSheathState >= (int)SheathState.Max)
 		{
-			Log.outError(LogFilter.Network, "Unknown sheath state {0} ??", packet.CurrentSheathState);
+			Log.Logger.Error("Unknown sheath state {0} ??", packet.CurrentSheathState);
 
 			return;
 		}

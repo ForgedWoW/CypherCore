@@ -44,7 +44,7 @@ public partial class WorldSession
 	{
 		if (splitItem.Inv.Items.Count != 0)
 		{
-			Log.outError(LogFilter.Network, "WORLD: HandleSplitItemOpcode - Invalid itemCount ({0})", splitItem.Inv.Items.Count);
+			Log.Logger.Error("WORLD: HandleSplitItemOpcode - Invalid itemCount ({0})", splitItem.Inv.Items.Count);
 
 			return;
 		}
@@ -80,7 +80,7 @@ public partial class WorldSession
 	{
 		if (swapInvItem.Inv.Items.Count != 2)
 		{
-			Log.outError(LogFilter.Network, "WORLD: HandleSwapInvItemOpcode - Invalid itemCount ({0})", swapInvItem.Inv.Items.Count);
+			Log.Logger.Error("WORLD: HandleSwapInvItemOpcode - Invalid itemCount ({0})", swapInvItem.Inv.Items.Count);
 
 			return;
 		}
@@ -105,14 +105,14 @@ public partial class WorldSession
 
 		if (Player.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot1) && !CanUseBank())
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+			Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
 			return;
 		}
 
 		if (Player.IsBankPos(InventorySlots.Bag0, swapInvItem.Slot2) && !CanUseBank())
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+			Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
 			return;
 		}
@@ -145,7 +145,7 @@ public partial class WorldSession
 	{
 		if (swapItem.Inv.Items.Count != 2)
 		{
-			Log.outError(LogFilter.Network, "WORLD: HandleSwapItem - Invalid itemCount ({0})", swapItem.Inv.Items.Count);
+			Log.Logger.Error("WORLD: HandleSwapItem - Invalid itemCount ({0})", swapItem.Inv.Items.Count);
 
 			return;
 		}
@@ -176,14 +176,14 @@ public partial class WorldSession
 
 		if (Player.IsBankPos(swapItem.ContainerSlotA, swapItem.SlotA) && !CanUseBank())
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+			Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
 			return;
 		}
 
 		if (Player.IsBankPos(swapItem.ContainerSlotB, swapItem.SlotB) && !CanUseBank())
 		{
-			Log.outDebug(LogFilter.Network, $"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
+			Log.Logger.Debug($"WORLD: HandleSwapInvItemOpcode - {_player.PlayerTalkClass.GetInteractionData().SourceGuid} not found or you can't interact with him.");
 
 			return;
 		}
@@ -196,7 +196,7 @@ public partial class WorldSession
 	{
 		if (autoEquipItem.Inv.Items.Count != 1)
 		{
-			Log.outError(LogFilter.Network, "WORLD: HandleAutoEquipItem - Invalid itemCount ({0})", autoEquipItem.Inv.Items.Count);
+			Log.Logger.Error("WORLD: HandleAutoEquipItem - Invalid itemCount ({0})", autoEquipItem.Inv.Items.Count);
 
 			return;
 		}
@@ -414,7 +414,7 @@ public partial class WorldSession
 				packet.Delay = ??;
 				SendPacket(packet);*/
 
-				Log.outInfo(LogFilter.Network, "STORAGE: Unable to read item");
+				Log.Logger.Information("STORAGE: Unable to read item");
 				_player.SendEquipError(msg, item);
 			}
 		}
@@ -436,7 +436,7 @@ public partial class WorldSession
 
 		if (creature == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleSellItemOpcode - {0} not found or you can not interact with him.", packet.VendorGUID.ToString());
+			Log.Logger.Debug("WORLD: HandleSellItemOpcode - {0} not found or you can not interact with him.", packet.VendorGUID.ToString());
 			pl.SendSellError(SellResult.CantFindVendor, null, packet.ItemGUID);
 
 			return;
@@ -527,7 +527,7 @@ public partial class WorldSession
 
 						if (pNewItem == null)
 						{
-							Log.outError(LogFilter.Network, "WORLD: HandleSellItemOpcode - could not create clone of item {0}; count = {1}", pItem.Entry, packet.Amount);
+							Log.Logger.Error("WORLD: HandleSellItemOpcode - could not create clone of item {0}; count = {1}", pItem.Entry, packet.Amount);
 							pl.SendSellError(SellResult.CantSellItem, creature, packet.ItemGUID);
 
 							return;
@@ -575,7 +575,7 @@ public partial class WorldSession
 
 		if (creature == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleBuybackItem - {0} not found or you can not interact with him.", packet.VendorGUID.ToString());
+			Log.Logger.Debug("WORLD: HandleBuybackItem - {0} not found or you can not interact with him.", packet.VendorGUID.ToString());
 			_player.SendSellError(SellResult.CantFindVendor, null, ObjectGuid.Empty);
 
 			return;
@@ -650,7 +650,7 @@ public partial class WorldSession
 
 				break;
 			default:
-				Log.outDebug(LogFilter.Network, "WORLD: received wrong itemType {0} in HandleBuyItem", packet.ItemType);
+				Log.Logger.Debug("WORLD: received wrong itemType {0} in HandleBuyItem", packet.ItemType);
 
 				break;
 		}
@@ -661,7 +661,7 @@ public partial class WorldSession
 	{
 		if (!packet.Inv.Items.Empty())
 		{
-			Log.outError(LogFilter.Network, "HandleAutoStoreBagItemOpcode - Invalid itemCount ({0})", packet.Inv.Items.Count);
+			Log.Logger.Error("HandleAutoStoreBagItemOpcode - Invalid itemCount ({0})", packet.Inv.Items.Count);
 
 			return;
 		}
@@ -722,7 +722,7 @@ public partial class WorldSession
 	{
 		if (packet.Inv.Items.Count != 2)
 		{
-			Log.outError(LogFilter.Network, "HandleWrapItem - Invalid itemCount ({0})", packet.Inv.Items.Count);
+			Log.Logger.Error("HandleWrapItem - Invalid itemCount ({0})", packet.Inv.Items.Count);
 
 			return;
 		}
@@ -1116,7 +1116,7 @@ public partial class WorldSession
 
 		if (!item)
 		{
-			Log.outDebug(LogFilter.Network, "HandleGetItemPurchaseData: Item {0} not found!", packet.ItemGUID.ToString());
+			Log.Logger.Debug("HandleGetItemPurchaseData: Item {0} not found!", packet.ItemGUID.ToString());
 
 			return;
 		}
@@ -1131,7 +1131,7 @@ public partial class WorldSession
 
 		if (!item)
 		{
-			Log.outDebug(LogFilter.Network, "WorldSession.HandleItemRefund: Item {0} not found!", packet.ItemGUID.ToString());
+			Log.Logger.Debug("WorldSession.HandleItemRefund: Item {0} not found!", packet.ItemGUID.ToString());
 
 			return;
 		}
@@ -1215,7 +1215,7 @@ public partial class WorldSession
 
 		if (!item)
 		{
-			Log.outDebug(LogFilter.Network, $"WorldSession.HandleRemoveNewItem: Item ({removeNewItem.ItemGuid}) not found for {GetPlayerInfo()}!");
+			Log.Logger.Debug($"WorldSession.HandleRemoveNewItem: Item ({removeNewItem.ItemGuid}) not found for {GetPlayerInfo()}!");
 
 			return;
 		}

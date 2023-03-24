@@ -5,16 +5,17 @@ using System;
 using System.IO;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Framework.Database;
 
 public static class DBExecutableUtil
 {
-	static string mysqlExecutablePath;
+	static string _mysqlExecutablePath;
 
 	public static string GetMySQLExecutable()
 	{
-		return mysqlExecutablePath;
+		return _mysqlExecutablePath;
 	}
 
 	public static bool CheckExecutable(IConfiguration configuration)
@@ -23,13 +24,13 @@ public static class DBExecutableUtil
 
 		if (mysqlExePath.IsEmpty() || !File.Exists(mysqlExePath))
 		{
-			Log.outFatal(LogFilter.SqlUpdates, $"Didn't find any executable MySQL binary at \'{mysqlExePath}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").");
+			Log.Logger.Fatal($"Didn't find any executable MySQL binary at \'{mysqlExePath}\' or in path, correct the path in the *.conf (\"MySQLExecutable\").");
 
 			return false;
 		}
 
 		// Correct the path to the cli
-		mysqlExecutablePath = mysqlExePath;
+		_mysqlExecutablePath = mysqlExePath;
 
 		return true;
 	}

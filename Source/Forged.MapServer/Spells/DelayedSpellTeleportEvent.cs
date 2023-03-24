@@ -35,7 +35,7 @@ class DelayedSpellTeleportEvent : BasicEvent
 			if (player != null)
 				player.TeleportTo(_targetDest, _options);
 			else
-				Log.outError(LogFilter.Spells, $"Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {_spellId} attempted to teleport creature to a different map.");
+				Log.Logger.Error($"Spell::EffectTeleportUnitsWithVisualLoadingScreen - spellId {_spellId} attempted to teleport creature to a different map.");
 		}
 
 		return true;

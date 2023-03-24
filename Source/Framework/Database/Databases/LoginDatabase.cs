@@ -1,11 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Microsoft.Extensions.Configuration;
+
 namespace Framework.Database;
 
 public class LoginDatabase : MySqlBase<LoginStatements>
 {
-	public override void PreparedStatements()
+    public LoginDatabase(IConfiguration configuration) : base(configuration)
+    {
+
+    }
+    public override void PreparedStatements()
 	{
 		const string BnetAccountInfo = "ba.id, ba.email, ba.locked, ba.lock_country, ba.last_ip, ba.LoginTicketExpiry, bab.unbandate > UNIX_TIMESTAMP() OR bab.unbandate = bab.bandate, bab.unbandate = bab.bandate";
 		const string BnetGameAccountInfo = "a.id, a.username, ab.unbandate, ab.unbandate = ab.bandate, aa.SecurityLevel";

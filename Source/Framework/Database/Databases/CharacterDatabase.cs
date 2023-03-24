@@ -1,11 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Microsoft.Extensions.Configuration;
+
 namespace Framework.Database;
 
 public class CharacterDatabase : MySqlBase<CharStatements>
 {
-	public override void PreparedStatements()
+    public CharacterDatabase(IConfiguration configuration) : base(configuration)
+    {
+
+    }
+
+    public override void PreparedStatements()
 	{
 		const string SelectItemInstanceContent = "ii.guid, ii.itemEntry, ii.creatorGuid, ii.giftCreatorGuid, ii.count, ii.duration, ii.charges, ii.flags, ii.enchantments, ii.randomBonusListId, " +
 												"ii.durability, ii.playedTime, ii.text, ii.battlePetSpeciesId, ii.battlePetBreedData, ii.battlePetLevel, ii.battlePetDisplayId, ii.context, ii.bonusListIDs, " +

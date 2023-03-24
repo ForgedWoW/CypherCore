@@ -8,12 +8,13 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace Framework.Networking;
 
 public abstract class SSLSocket : ISocket, IDisposable
 {
-	internal SslStream _stream;
+	internal SslStream Stream;
 	readonly Socket _socket;
 	readonly IPEndPoint _remoteEndPoint;
 	byte[] _receiveBuffer;
@@ -24,13 +25,13 @@ public abstract class SSLSocket : ISocket, IDisposable
 		_remoteEndPoint = (IPEndPoint)_socket.RemoteEndPoint;
 		_receiveBuffer = new byte[ushort.MaxValue];
 
-		_stream = new SslStream(new NetworkStream(socket), false);
+		Stream = new SslStream(new NetworkStream(socket), false);
 	}
 
 	public virtual void Dispose()
 	{
 		_receiveBuffer = null;
-		_stream.Dispose();
+		Stream.Dispose();
 	}
 
 	public abstract void Accept();
@@ -49,7 +50,7 @@ public abstract class SSLSocket : ISocket, IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.outDebug(LogFilter.Network, $"WorldSocket.CloseSocket: {GetRemoteIpEndPoint()} errored when shutting down socket: {ex.Message}");
+			Log.Logger.Debug($"WorldSocket.CloseSocket: {GetRemoteIpEndPoint()} errored when shutting down socket: {ex.Message}");
 		}
 	}
 
@@ -70,7 +71,7 @@ public abstract class SSLSocket : ISocket, IDisposable
 
 		try
 		{
-			var result = await _stream.ReadAsync(_receiveBuffer, 0, _receiveBuffer.Length);
+			var result = await Stream.ReadAsync(_receiveBuffer, 0, _receiveBuffer.Length);
 
 			if (result == 0)
 			{
@@ -83,7 +84,7 @@ public abstract class SSLSocket : ISocket, IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 	}
 
@@ -91,11 +92,11 @@ public abstract class SSLSocket : ISocket, IDisposable
 	{
 		try
 		{
-			await _stream.AuthenticateAsServerAsync(certificate, false, SslProtocols.Tls12, false);
+			await Stream.AuthenticateAsServerAsync(certificate, false, SslProtocols.Tls12, false);
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 			CloseSocket();
 
 			return;
@@ -113,11 +114,11 @@ public abstract class SSLSocket : ISocket, IDisposable
 
 		try
 		{
-			await _stream.WriteAsync(data, 0, data.Length);
+			await Stream.WriteAsync(data, 0, data.Length);
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
 		}
 	}
 

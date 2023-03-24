@@ -534,7 +534,7 @@ class GameObjectCommands
 			if (objectInfo.displayId != 0 && !CliDB.GameObjectDisplayInfoStorage.ContainsKey(objectInfo.displayId))
 			{
 				// report to DB errors log as in loading case
-				Log.outError(LogFilter.Sql, "Gameobject (Entry {0} GoType: {1}) have invalid displayId ({2}), not spawned.", objectId, objectInfo.type, objectInfo.displayId);
+				Log.Logger.Error("Gameobject (Entry {0} GoType: {1}) have invalid displayId ({2}), not spawned.", objectId, objectInfo.type, objectInfo.displayId);
 				handler.SendSysMessage(CypherStrings.GameobjectHaveInvalidData, objectId);
 
 				return false;

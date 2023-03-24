@@ -92,7 +92,7 @@ public partial class Creature : Unit
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 	}
@@ -208,7 +208,7 @@ public partial class Creature : Unit
 
 		if (normalInfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Creature.InitEntry creature entry {0} does not exist.", entry);
+			Log.Logger.Error("Creature.InitEntry creature entry {0} does not exist.", entry);
 
 			return false;
 		}
@@ -250,7 +250,7 @@ public partial class Creature : Unit
 		// Cancel load if no model defined
 		if (cInfo.GetFirstValidModel() == null)
 		{
-			Log.outError(LogFilter.Sql, "Creature (Entry: {0}) has no model defined in table `creature_template`, can't load. ", entry);
+			Log.Logger.Error("Creature (Entry: {0}) has no model defined in table `creature_template`, can't load. ", entry);
 
 			return false;
 		}
@@ -260,7 +260,7 @@ public partial class Creature : Unit
 
 		if (minfo == null) // Cancel load if no model defined
 		{
-			Log.outError(LogFilter.Sql, "Creature (Entry: {0}) has invalid model {1} defined in table `creature_template`, can't load.", entry, model.CreatureDisplayId);
+			Log.Logger.Error("Creature (Entry: {0}) has invalid model {1} defined in table `creature_template`, can't load.", entry, model.CreatureDisplayId);
 
 			return false;
 		}
@@ -453,14 +453,14 @@ public partial class Creature : Unit
 		{
 			case DeathState.JustRespawned:
 			case DeathState.JustDied:
-				Log.outError(LogFilter.Unit, $"Creature ({GUID}) in wrong state: {DeathState}");
+				Log.Logger.Error($"Creature ({GUID}) in wrong state: {DeathState}");
 
 				break;
 			case DeathState.Dead:
 			{
 				if (!RespawnCompatibilityMode)
 				{
-					Log.outError(LogFilter.Unit, $"Creature (GUID: {GUID.Counter} Entry: {Entry}) in wrong state: DEAD (3)");
+					Log.Logger.Error($"Creature (GUID: {GUID.Counter} Entry: {Entry}) in wrong state: DEAD (3)");
 
 					break;
 				}
@@ -530,7 +530,7 @@ public partial class Creature : Unit
 				if (CorpseRemoveTime <= GameTime.GetGameTime())
 				{
 					RemoveCorpse(false);
-					Log.outDebug(LogFilter.Unit, "Removing corpse... {0} ", Entry);
+					Log.Logger.Debug("Removing corpse... {0} ", Entry);
 				}
 
 				break;
@@ -621,11 +621,11 @@ public partial class Creature : Unit
 							if (WorldConfig.GetBoolValue(WorldCfg.RegenHpCannotReachTargetInRaid) || !Map.IsRaid)
 							{
 								RegenerateHealth();
-								Log.outDebug(LogFilter.Unit, $"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
+								Log.Logger.Debug($"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
 							}
 							else
 							{
-								Log.outDebug(LogFilter.Unit, $"RegenerateHealth() disabled even if the Creature cannot reach the target. Detail: {GetDebugInfo()}");
+								Log.Logger.Debug($"RegenerateHealth() disabled even if the Creature cannot reach the target. Detail: {GetDebugInfo()}");
 							}
 						}
 					}
@@ -802,7 +802,7 @@ public partial class Creature : Unit
 
 		if (cinfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Creature.Create: creature template (guidlow: {0}, entry: {1}) does not exist.", guidlow, entry);
+			Log.Logger.Error("Creature.Create: creature template (guidlow: {0}, entry: {1}) does not exist.", guidlow, entry);
 
 			return false;
 		}
@@ -815,7 +815,7 @@ public partial class Creature : Unit
 		// invalid position, triggering a crash about Auras not removed in the destructor
 		if (!Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Unit, $"Creature.Create: given coordinates for creature (guidlow {guidlow}, entry {entry}) are not valid ({pos})");
+			Log.Logger.Error($"Creature.Create: given coordinates for creature (guidlow {guidlow}, entry {entry}) are not valid ({pos})");
 
 			return false;
 		}
@@ -1037,7 +1037,7 @@ public partial class Creature : Unit
 		if (!repeats.Contains(id))
 			repeats.Add(id);
 		else
-			Log.outError(LogFilter.Sql, "CreatureTextMgr: TextGroup {0} for ({1}) {2}, id {3} already added", textGroup, GetName(), GUID.ToString(), id);
+			Log.Logger.Error("CreatureTextMgr: TextGroup {0} for ({1}) {2}, id {3} already added", textGroup, GetName(), GUID.ToString(), id);
 	}
 
 	public List<byte> GetTextRepeatGroup(byte textGroup)
@@ -1246,7 +1246,7 @@ public partial class Creature : Unit
 
 		if (data == null)
 		{
-			Log.outError(LogFilter.Unit, "Creature.SaveToDB failed, cannot get creature data!");
+			Log.Logger.Error("Creature.SaveToDB failed, cannot get creature data!");
 
 			return;
 		}
@@ -1890,7 +1890,7 @@ public partial class Creature : Unit
 
 			if (DeathState == DeathState.Dead)
 			{
-				Log.outDebug(LogFilter.Unit, "Respawning creature {0} ({1})", GetName(), GUID.ToString());
+				Log.Logger.Debug("Respawning creature {0} ({1})", GetName(), GUID.ToString());
 				RespawnTime = 0;
 				ResetPickPocketRefillTimer();
 				Loot = null;
@@ -1936,7 +1936,7 @@ public partial class Creature : Unit
 				Map.Respawn(SpawnObjectType.Creature, SpawnId);
 		}
 
-		Log.outDebug(LogFilter.Unit, $"Respawning creature {GetName()} ({GUID})");
+		Log.Logger.Debug($"Respawning creature {GetName()} ({GUID})");
 	}
 
 	public void ForcedDespawn(uint timeMSToDespawn = 0, TimeSpan forceRespawnTimer = default)
@@ -2066,7 +2066,7 @@ public partial class Creature : Unit
 	{
 		if (dist > SharedConst.MaxVisibilityDistance)
 		{
-			Log.outError(LogFilter.Unit, "Creature ({0}) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GUID.ToString());
+			Log.Logger.Error("Creature ({0}) SelectNearestTargetInAttackDistance called with dist > MAX_VISIBILITY_DISTANCE. Distance set to ATTACK_DISTANCE.", GUID.ToString());
 			dist = SharedConst.AttackDistance;
 		}
 
@@ -2136,7 +2136,7 @@ public partial class Creature : Unit
 
 		if (target == null)
 		{
-			Log.outError(LogFilter.Unit, $"Creature {Entry} ({GetName()}) trying to call for help without being in combat.");
+			Log.Logger.Error($"Creature {Entry} ({GetName()}) trying to call for help without being in combat.");
 
 			return;
 		}
@@ -2349,7 +2349,7 @@ public partial class Creature : Unit
 
 				if (AdditionalSpellInfo == null)
 				{
-					Log.outError(LogFilter.Sql, "Creature ({0}) has wrong spell {1} defined in `auras` field.", GUID.ToString(), id);
+					Log.Logger.Error("Creature ({0}) has wrong spell {1} defined in `auras` field.", GUID.ToString(), id);
 
 					continue;
 				}
@@ -2359,7 +2359,7 @@ public partial class Creature : Unit
 					continue;
 
 				AddAura(id, this);
-				Log.outDebug(LogFilter.Unit, "Spell: {0} added to creature ({1})", id, GUID.ToString());
+				Log.Logger.Debug("Spell: {0} added to creature ({1})", id, GUID.ToString());
 			}
 
 		return true;
@@ -2762,7 +2762,7 @@ public partial class Creature : Unit
 		_cannotReachTimer = 0;
 
 		if (cannotReach)
-			Log.outDebug(LogFilter.Unit, $"Creature::SetCannotReachTarget() called with true. Details: {GetDebugInfo()}");
+			Log.Logger.Debug($"Creature::SetCannotReachTarget() called with true. Details: {GetDebugInfo()}");
 	}
 
 	public float GetAggroRange(Unit target)
@@ -2917,7 +2917,7 @@ public partial class Creature : Unit
 		if (IsDead) // dead creatures cannot focus
 		{
 			if (_spellFocusInfo.Spell != null || _spellFocusInfo.Delay != 0)
-				Log.outWarn(LogFilter.Unit, $"Creature '{GetName()}' (entry {Entry}) has spell focus (spell id {(_spellFocusInfo.Spell != null ? _spellFocusInfo.Spell.SpellInfo.Id : 0)}, delay {_spellFocusInfo.Delay}ms) despite being dead.");
+				Log.Logger.Warning($"Creature '{GetName()}' (entry {Entry}) has spell focus (spell id {(_spellFocusInfo.Spell != null ? _spellFocusInfo.Spell.SpellInfo.Id : 0)}, delay {_spellFocusInfo.Delay}ms) despite being dead.");
 
 			return false;
 		}
@@ -3014,14 +3014,14 @@ public partial class Creature : Unit
 			foreach (var creature in creatureBounds)
 				if (creature.IsAlive)
 				{
-					Log.outDebug(LogFilter.Maps, "Would have spawned {0} but {1} already exists", spawnId, creature.GUID.ToString());
+					Log.Logger.Debug("Would have spawned {0} but {1} already exists", spawnId, creature.GUID.ToString());
 
 					return false;
 				}
 				else
 				{
 					despawnList.Add(creature);
-					Log.outDebug(LogFilter.Maps, "Despawned dead instance of spawn {0} ({1})", spawnId, creature.GUID.ToString());
+					Log.Logger.Debug("Despawned dead instance of spawn {0} ({1})", spawnId, creature.GUID.ToString());
 				}
 
 			foreach (var despawnCreature in despawnList)
@@ -3032,7 +3032,7 @@ public partial class Creature : Unit
 
 		if (data == null)
 		{
-			Log.outError(LogFilter.Sql, $"Creature (SpawnID: {spawnId}) not found in table `creature`, can't load.");
+			Log.Logger.Error($"Creature (SpawnID: {spawnId}) not found in table `creature`, can't load.");
 
 			return false;
 		}
@@ -3059,7 +3059,7 @@ public partial class Creature : Unit
 				// @todo pools need fixing! this is just a temporary thing, but they violate dynspawn principles
 				if (data.poolId == 0)
 				{
-					Log.outError(LogFilter.Unit, $"Creature (SpawnID {spawnId}) trying to load in inactive spawn group '{data.SpawnGroupData.Name}':\n{GetDebugInfo()}");
+					Log.Logger.Error($"Creature (SpawnID {spawnId}) trying to load in inactive spawn group '{data.SpawnGroupData.Name}':\n{GetDebugInfo()}");
 
 					return false;
 				}
@@ -3074,7 +3074,7 @@ public partial class Creature : Unit
 				// @todo same as above
 				if (data.poolId == 0)
 				{
-					Log.outError(LogFilter.Unit, $"Creature (SpawnID {spawnId}) trying to load despite a respawn timer in progress:\n{GetDebugInfo()}");
+					Log.Logger.Error($"Creature (SpawnID {spawnId}) trying to load despite a respawn timer in progress:\n{GetDebugInfo()}");
 
 					return false;
 				}
@@ -3291,7 +3291,7 @@ public partial class Creature : Unit
 
 		if (cinfo == null)
 		{
-			Log.outError(LogFilter.Sql, "Creature.CreateFromProto: creature template (guidlow: {0}, entry: {1}) does not exist.", guidlow, entry);
+			Log.Logger.Error("Creature.CreateFromProto: creature template (guidlow: {0}, entry: {1}) does not exist.", guidlow, entry);
 
 			return false;
 		}
@@ -3374,7 +3374,7 @@ public partial class Creature : Unit
 	{
 		if (!HasSpellFocus())
 		{
-			Log.outError(LogFilter.Unit, $"Creature::ReacquireSpellFocusTarget() being called with HasSpellFocus() returning false. {GetDebugInfo()}");
+			Log.Logger.Error($"Creature::ReacquireSpellFocusTarget() being called with HasSpellFocus() returning false. {GetDebugInfo()}");
 
 			return;
 		}

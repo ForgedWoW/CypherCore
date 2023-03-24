@@ -40,7 +40,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 	{
 		if (NextGuildId >= 0xFFFFFFFE)
 		{
-			Log.outError(LogFilter.Guild, "Guild ids overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Guild ids overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -97,7 +97,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 	public void LoadGuilds()
 	{
-		Log.outInfo(LogFilter.ServerLoading, "Loading Guilds Definitions...");
+		Log.Logger.Information("Loading Guilds Definitions...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -110,7 +110,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.Guild, "Loaded 0 guild definitions. DB table `guild` is empty.");
+				Log.Logger.Information("Loaded 0 guild definitions. DB table `guild` is empty.");
 
 				return;
 			}
@@ -128,10 +128,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 				count++;
 			} while (result.NextRow());
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} guild definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
-		Log.outInfo(LogFilter.ServerLoading, "Loading guild ranks...");
+		Log.Logger.Information("Loading guild ranks...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -144,7 +144,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild ranks. DB table `guild_rank` is empty.");
+				Log.Logger.Information("Loaded 0 guild ranks. DB table `guild_rank` is empty.");
 			}
 			else
 			{
@@ -161,12 +161,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild ranks in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild ranks in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 3. Load all guild members
-		Log.outInfo(LogFilter.ServerLoading, "Loading guild members...");
+		Log.Logger.Information("Loading guild members...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -184,7 +184,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild members. DB table `guild_member` is empty.");
+				Log.Logger.Information("Loaded 0 guild members. DB table `guild_member` is empty.");
 			}
 			else
 			{
@@ -201,12 +201,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 4. Load all guild bank tab rights
-		Log.outInfo(LogFilter.ServerLoading, "Loading bank tab rights...");
+		Log.Logger.Information("Loading bank tab rights...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -219,7 +219,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
+				Log.Logger.Information("Loaded 0 guild bank tab rights. DB table `guild_bank_right` is empty.");
 			}
 			else
 			{
@@ -236,12 +236,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} bank tab rights in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} bank tab rights in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 5. Load all event logs
-		Log.outInfo(LogFilter.ServerLoading, "Loading guild event logs...");
+		Log.Logger.Information("Loading guild event logs...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -253,7 +253,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
+				Log.Logger.Information("Loaded 0 guild event logs. DB table `guild_eventlog` is empty.");
 			}
 			else
 			{
@@ -270,12 +270,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild event logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild event logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 6. Load all bank event logs
-		Log.outInfo(LogFilter.ServerLoading, "Loading guild bank event logs...");
+		Log.Logger.Information("Loading guild bank event logs...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -288,7 +288,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
+				Log.Logger.Information("Loaded 0 guild bank event logs. DB table `guild_bank_eventlog` is empty.");
 			}
 			else
 			{
@@ -305,12 +305,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild bank event logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild bank event logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 7. Load all news event logs
-		Log.outInfo(LogFilter.ServerLoading, "Loading Guild News...");
+		Log.Logger.Information("Loading Guild News...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -322,7 +322,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild event logs. DB table `guild_newslog` is empty.");
+				Log.Logger.Information("Loaded 0 guild event logs. DB table `guild_newslog` is empty.");
 			}
 			else
 			{
@@ -339,12 +339,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild new logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild new logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 8. Load all guild bank tabs
-		Log.outInfo(LogFilter.ServerLoading, "Loading guild bank tabs...");
+		Log.Logger.Information("Loading guild bank tabs...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -357,7 +357,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
+				Log.Logger.Information("Loaded 0 guild bank tabs. DB table `guild_bank_tab` is empty.");
 			}
 			else
 			{
@@ -374,12 +374,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild bank tabs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild bank tabs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 9. Fill all guild bank tabs
-		Log.outInfo(LogFilter.ServerLoading, "Filling bank tabs with items...");
+		Log.Logger.Information("Filling bank tabs with items...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -391,7 +391,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (result.IsEmpty())
 			{
-				Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
+				Log.Logger.Information("Loaded 0 guild bank tab items. DB table `guild_bank_item` or `item_instance` is empty.");
 			}
 			else
 			{
@@ -408,12 +408,12 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild bank tab items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild bank tab items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// 10. Load guild achievements
-		Log.outInfo(LogFilter.ServerLoading, "Loading guild achievements...");
+		Log.Logger.Information("Loading guild achievements...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -431,11 +431,11 @@ public sealed class GuildManager : Singleton<GuildManager>
 				pair.Value.GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
 			}
 
-			Log.outInfo(LogFilter.ServerLoading, "Loaded guild achievements and criterias in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded guild achievements and criterias in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		// 11. Validate loaded guild data
-		Log.outInfo(LogFilter.Server, "Validating data of loaded guilds...");
+		Log.Logger.Information("Validating data of loaded guilds...");
 
 		{
 			var oldMSTime = Time.MSTime;
@@ -444,7 +444,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 				if (!guild.Value.Validate())
 					GuildStore.Remove(guild.Key);
 
-			Log.outInfo(LogFilter.ServerLoading, "Validated data of loaded guilds in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Validated data of loaded guilds in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 
@@ -457,7 +457,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 guild reward definitions. DB table `guild_rewards` is empty.");
+			Log.Logger.Information("Loaded 0 guild reward definitions. DB table `guild_rewards` is empty.");
 
 			return;
 		}
@@ -475,14 +475,14 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 			if (Global.ObjectMgr.GetItemTemplate(reward.ItemID) == null)
 			{
-				Log.outError(LogFilter.ServerLoading, "Guild rewards constains not existing item entry {0}", reward.ItemID);
+				Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
 
 				continue;
 			}
 
 			if (reward.MinGuildRep >= (int)ReputationRank.Max)
 			{
-				Log.outError(LogFilter.ServerLoading, "Guild rewards contains wrong reputation standing {0}, max is {1}", reward.MinGuildRep, (int)ReputationRank.Max - 1);
+				Log.Logger.Error("Guild rewards contains wrong reputation standing {0}, max is {1}", reward.MinGuildRep, (int)ReputationRank.Max - 1);
 
 				continue;
 			}
@@ -498,7 +498,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 					if (!CliDB.AchievementStorage.ContainsKey(requiredAchievementId))
 					{
-						Log.outError(LogFilter.ServerLoading, "Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
+						Log.Logger.Error("Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
 
 						continue;
 					}
@@ -510,7 +510,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} guild reward definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} guild reward definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void ResetTimes(bool week)

@@ -35,7 +35,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 
 			if (gguid != gguid2)
 			{
-				Log.outError(LogFilter.Lfg, "{0} on group {1} but LFG has group {2} saved... Fixing.", player.Session.GetPlayerInfo(), gguid2.ToString(), gguid.ToString());
+				Log.Logger.Error("{0} on group {1} but LFG has group {2} saved... Fixing.", player.Session.GetPlayerInfo(), gguid2.ToString(), gguid.ToString());
 				Global.LFGMgr.SetupGroupMember(guid, group.GUID);
 			}
 		}
@@ -74,7 +74,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 				player.RemoveAura(SharedConst.LFGSpellLuckOfTheDraw);
 				player.TeleportTo(player.Homebind);
 
-				Log.outError(LogFilter.Lfg,
+				Log.Logger.Error(
 							"LFGPlayerScript.OnMapChanged, Player {0} ({1}) is in LFG dungeon map but does not have a valid group! Teleporting to homebind.",
 							player.GetName(),
 							player.GUID.ToString());
@@ -104,7 +104,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 				Global.LFGMgr.LeaveLfg(group.GUID);
 				group.Disband();
 
-				Log.outDebug(LogFilter.Lfg,
+				Log.Logger.Debug(
 							"LFGPlayerScript::OnMapChanged, Player {0}({1}) is last in the lfggroup so we disband the group.",
 							player.GetName(),
 							player.GUID.ToString());
@@ -130,14 +130,14 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 
 		if (leader == guid)
 		{
-			Log.outDebug(LogFilter.Lfg, "LFGScripts.OnAddMember [{0}]: added [{1} leader {2}]", gguid, guid, leader);
+			Log.Logger.Debug("LFGScripts.OnAddMember [{0}]: added [{1} leader {2}]", gguid, guid, leader);
 			Global.LFGMgr.SetLeader(gguid, guid);
 		}
 		else
 		{
 			var gstate = Global.LFGMgr.GetState(gguid);
 			var state = Global.LFGMgr.GetState(guid);
-			Log.outDebug(LogFilter.Lfg, "LFGScripts.OnAddMember [{0}]: added [{1} leader {2}] gstate: {3}, state: {4}", gguid, guid, leader, gstate, state);
+			Log.Logger.Debug("LFGScripts.OnAddMember [{0}]: added [{1} leader {2}] gstate: {3}, state: {4}", gguid, guid, leader, gstate, state);
 
 			if (state == LfgState.Queued)
 				Global.LFGMgr.LeaveLfg(guid);
@@ -157,7 +157,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 
 		var gguid = group.GUID;
 
-		Log.outDebug(LogFilter.Lfg, "LFGScripts.OnChangeLeader {0}: old {0} new {0}", gguid, newLeaderGuid, oldLeaderGuid);
+		Log.Logger.Debug("LFGScripts.OnChangeLeader {0}: old {0} new {0}", gguid, newLeaderGuid, oldLeaderGuid);
 		Global.LFGMgr.SetLeader(gguid, newLeaderGuid);
 	}
 
@@ -167,7 +167,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 			return;
 
 		var gguid = group.GUID;
-		Log.outDebug(LogFilter.Lfg, "LFGScripts.OnDisband {0}", gguid);
+		Log.Logger.Debug("LFGScripts.OnDisband {0}", gguid);
 
 		Global.LFGMgr.RemoveGroupData(gguid);
 	}
@@ -179,7 +179,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 
 		var gguid = group.GUID;
 		var leader = group.LeaderGUID;
-		Log.outDebug(LogFilter.Lfg, "LFGScripts.OnInviteMember {0}: invite {0} leader {0}", gguid, guid, leader);
+		Log.Logger.Debug("LFGScripts.OnInviteMember {0}: invite {0} leader {0}", gguid, guid, leader);
 
 		// No gguid ==  new group being formed
 		// No leader == after group creation first invite is new leader
@@ -194,7 +194,7 @@ class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMem
 			return;
 
 		var gguid = group.GUID;
-		Log.outDebug(LogFilter.Lfg, "LFGScripts.OnRemoveMember [{0}]: remove [{1}] Method: {2} Kicker: {3} Reason: {4}", gguid, guid, method, kicker, reason);
+		Log.Logger.Debug("LFGScripts.OnRemoveMember [{0}]: remove [{1}] Method: {2} Kicker: {3} Reason: {4}", gguid, guid, method, kicker, reason);
 
 		var isLFG = group.IsLFGGroup;
 

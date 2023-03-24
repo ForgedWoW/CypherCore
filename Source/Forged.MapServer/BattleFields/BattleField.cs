@@ -242,7 +242,7 @@ public class BattleField : ZoneScript
 		if (creature)
 			StalkerGuid = creature.GUID;
 		else
-			Log.outError(LogFilter.Battlefield, "Battlefield.InitStalker: could not spawn Stalker (Creature entry {0}), zone messeges will be un-available", entry);
+			Log.Logger.Error("Battlefield.InitStalker: could not spawn Stalker (Creature entry {0}), zone messeges will be un-available", entry);
 	}
 
 	public void KickPlayerFromBattlefield(ObjectGuid guid)
@@ -400,7 +400,7 @@ public class BattleField : ZoneScript
 	public void AddCapturePoint(BfCapturePoint cp)
 	{
 		if (m_capturePoints.ContainsKey(cp.GetCapturePointEntry()))
-			Log.outError(LogFilter.Battlefield, "Battlefield.AddCapturePoint: CapturePoint {0} already exists!", cp.GetCapturePointEntry());
+			Log.Logger.Error("Battlefield.AddCapturePoint: CapturePoint {0} already exists!", cp.GetCapturePointEntry());
 
 		m_capturePoints[cp.GetCapturePointEntry()] = cp;
 	}
@@ -449,11 +449,11 @@ public class BattleField : ZoneScript
 			if (graveyard != null)
 				return graveyard;
 			else
-				Log.outError(LogFilter.Battlefield, "Battlefield:GetGraveyardById Id: {0} not existed", id);
+				Log.Logger.Error("Battlefield:GetGraveyardById Id: {0} not existed", id);
 		}
 		else
 		{
-			Log.outError(LogFilter.Battlefield, "Battlefield:GetGraveyardById Id: {0} cant be found", id);
+			Log.Logger.Error("Battlefield:GetGraveyardById Id: {0} cant be found", id);
 		}
 
 		return null;
@@ -530,7 +530,7 @@ public class BattleField : ZoneScript
 	{
 		if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
 		{
-			Log.outError(LogFilter.Battlefield, "Battlefield:SpawnCreature: entry {0} does not exist.", entry);
+			Log.Logger.Error("Battlefield:SpawnCreature: entry {0} does not exist.", entry);
 
 			return null;
 		}
@@ -539,7 +539,7 @@ public class BattleField : ZoneScript
 
 		if (!creature)
 		{
-			Log.outError(LogFilter.Battlefield, "Battlefield:SpawnCreature: Can't create creature entry: {0}", entry);
+			Log.Logger.Error("Battlefield:SpawnCreature: Can't create creature entry: {0}", entry);
 
 			return null;
 		}
@@ -559,7 +559,7 @@ public class BattleField : ZoneScript
 	{
 		if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
 		{
-			Log.outError(LogFilter.Battlefield, "Battlefield.SpawnGameObject: GameObject template {0} not found in database! Battlefield not created!", entry);
+			Log.Logger.Error("Battlefield.SpawnGameObject: GameObject template {0} not found in database! Battlefield not created!", entry);
 
 			return null;
 		}
@@ -569,7 +569,7 @@ public class BattleField : ZoneScript
 
 		if (!go)
 		{
-			Log.outError(LogFilter.Battlefield, "Battlefield:SpawnGameObject: Cannot create gameobject template {1}! Battlefield not created!", entry);
+			Log.Logger.Error("Battlefield:SpawnGameObject: Cannot create gameobject template {1}! Battlefield not created!", entry);
 
 			return null;
 		}
@@ -974,7 +974,7 @@ public class BfGraveyard
 	{
 		if (!spirit)
 		{
-			Log.outError(LogFilter.Battlefield, "BfGraveyard:SetSpirit: Invalid Spirit.");
+			Log.Logger.Error("BfGraveyard:SetSpirit: Invalid Spirit.");
 
 			return;
 		}
@@ -1217,7 +1217,7 @@ public class BfCapturePoint
 
 	public bool SetCapturePointData(GameObject capturePoint)
 	{
-		Log.outError(LogFilter.Battlefield, "Creating capture point {0}", capturePoint.Entry);
+		Log.Logger.Error("Creating capture point {0}", capturePoint.Entry);
 
 		m_capturePointGUID = capturePoint.GUID;
 		m_capturePointEntry = capturePoint.Entry;
@@ -1227,7 +1227,7 @@ public class BfCapturePoint
 
 		if (goinfo.type != GameObjectTypes.ControlZone)
 		{
-			Log.outError(LogFilter.Server, "OutdoorPvP: GO {0} is not capture point!", capturePoint.Entry);
+			Log.Logger.Error("OutdoorPvP: GO {0} is not capture point!", capturePoint.Entry);
 
 			return false;
 		}

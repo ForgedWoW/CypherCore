@@ -325,14 +325,14 @@ public class Quest
 
 		if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
 		{
-			Log.outError(LogFilter.Sql, $"Table `quest_reward_display_spell` has non-existing Spell ({spellId}) set for quest {Id}. Skipped.");
+			Log.Logger.Error($"Table `quest_reward_display_spell` has non-existing Spell ({spellId}) set for quest {Id}. Skipped.");
 
 			return;
 		}
 
 		if (playerConditionId != 0 && !CliDB.PlayerConditionStorage.ContainsKey(playerConditionId))
 		{
-			Log.outError(LogFilter.Sql, $"Table `quest_reward_display_spell` has non-existing PlayerCondition ({playerConditionId}) set for quest {Id}. and spell {spellId} Set to 0.");
+			Log.Logger.Error($"Table `quest_reward_display_spell` has non-existing PlayerCondition ({playerConditionId}) set for quest {Id}. and spell {spellId} Set to 0.");
 			playerConditionId = 0;
 		}
 
@@ -353,7 +353,7 @@ public class Quest
 
 			if (!CliDB.EmotesStorage.ContainsKey(emoteId))
 			{
-				Log.outError(LogFilter.Sql, "Table `quest_details` has non-existing Emote{0} ({1}) set for quest {2}. Skipped.", 1 + i, emoteId, fields.Read<uint>(0));
+				Log.Logger.Error("Table `quest_details` has non-existing Emote{0} ({1}) set for quest {2}. Skipped.", 1 + i, emoteId, fields.Read<uint>(0));
 
 				continue;
 			}
@@ -371,10 +371,10 @@ public class Quest
 		EmoteOnIncomplete = fields.Read<ushort>(2);
 
 		if (!CliDB.EmotesStorage.ContainsKey(EmoteOnComplete))
-			Log.outError(LogFilter.Sql, "Table `quest_request_items` has non-existing EmoteOnComplete ({0}) set for quest {1}.", EmoteOnComplete, fields.Read<uint>(0));
+			Log.Logger.Error("Table `quest_request_items` has non-existing EmoteOnComplete ({0}) set for quest {1}.", EmoteOnComplete, fields.Read<uint>(0));
 
 		if (!CliDB.EmotesStorage.ContainsKey(EmoteOnIncomplete))
-			Log.outError(LogFilter.Sql, "Table `quest_request_items` has non-existing EmoteOnIncomplete ({0}) set for quest {1}.", EmoteOnIncomplete, fields.Read<uint>(0));
+			Log.Logger.Error("Table `quest_request_items` has non-existing EmoteOnIncomplete ({0}) set for quest {1}.", EmoteOnIncomplete, fields.Read<uint>(0));
 
 		EmoteOnCompleteDelay = fields.Read<uint>(3);
 		EmoteOnIncompleteDelay = fields.Read<uint>(4);
@@ -389,7 +389,7 @@ public class Quest
 
 			if (emoteId < 0 || !CliDB.EmotesStorage.ContainsKey(emoteId))
 			{
-				Log.outError(LogFilter.Sql, "Table `quest_offer_reward` has non-existing Emote{0} ({1}) set for quest {2}. Skipped.", 1 + i, emoteId, fields.Read<uint>(0));
+				Log.Logger.Error("Table `quest_offer_reward` has non-existing Emote{0} ({1}) set for quest {2}. Skipped.", 1 + i, emoteId, fields.Read<uint>(0));
 
 				continue;
 			}
@@ -864,7 +864,7 @@ public class Quest
 
 		if (locale >= Locale.Total)
 		{
-			Log.outError(LogFilter.Sql, $"Table `quest_description_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
+			Log.Logger.Error($"Table `quest_description_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
 
 			return;
 		}
@@ -888,7 +888,7 @@ public class Quest
 
 		if (locale >= Locale.Total)
 		{
-			Log.outError(LogFilter.Sql, $"Table `quest_request_items_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
+			Log.Logger.Error($"Table `quest_request_items_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
 
 			return;
 		}
@@ -912,7 +912,7 @@ public class Quest
 
 		if (locale >= Locale.Total)
 		{
-			Log.outError(LogFilter.Sql, $"Table `quest_offer_reward_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
+			Log.Logger.Error($"Table `quest_offer_reward_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
 
 			return;
 		}
@@ -936,7 +936,7 @@ public class Quest
 
 		if (locale >= Locale.Total)
 		{
-			Log.outError(LogFilter.Sql, $"Table `quest_completion_log_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
+			Log.Logger.Error($"Table `quest_completion_log_conditional` has invalid locale {fields.Read<string>(4)} set for quest {fields.Read<uint>(0)}. Skipped.");
 
 			return;
 		}

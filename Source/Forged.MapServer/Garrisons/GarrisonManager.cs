@@ -173,7 +173,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	{
 		if (_followerDbIdGenerator >= ulong.MaxValue)
 		{
-			Log.outFatal(LogFilter.Server, "Garrison follower db id overflow! Can't continue, shutting down server. ");
+			Log.Logger.Fatal("Garrison follower db id overflow! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -374,7 +374,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 garrison follower class spec abilities. DB table `garrison_plot_finalize_info` is empty.");
+			Log.Logger.Information("Loaded 0 garrison follower class spec abilities. DB table `garrison_plot_finalize_info` is empty.");
 
 			return;
 		}
@@ -391,7 +391,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (!CliDB.GarrPlotInstanceStorage.ContainsKey(garrPlotInstanceId))
 			{
-				Log.outError(LogFilter.Sql, "Non-existing GarrPlotInstance.db2 entry {0} was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
+				Log.Logger.Error("Non-existing GarrPlotInstance.db2 entry {0} was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
 
 				continue;
 			}
@@ -400,7 +400,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (goTemplate == null)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Non-existing gameobject_template entry {0} was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {1}.",
 							hordeGameObjectId,
 							garrPlotInstanceId);
@@ -410,7 +410,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (goTemplate.type != GameObjectTypes.Goober)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Invalid gameobject type {0} (entry {1}) was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {2}.",
 							goTemplate.type,
 							hordeGameObjectId,
@@ -423,7 +423,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (goTemplate == null)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Non-existing gameobject_template entry {0} was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {1}.",
 							allianceGameObjectId,
 							garrPlotInstanceId);
@@ -433,7 +433,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (goTemplate.type != GameObjectTypes.Goober)
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Invalid gameobject type {0} (entry {1}) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {2}.",
 							goTemplate.type,
 							allianceGameObjectId,
@@ -444,7 +444,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (hordeAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(hordeAnimKitId))
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId {1}.",
 							hordeAnimKitId,
 							garrPlotInstanceId);
@@ -454,7 +454,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (allianceAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(allianceAnimKitId))
 			{
-				Log.outError(LogFilter.Sql,
+				Log.Logger.Error(
 							"Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId {1}.",
 							allianceAnimKitId,
 							garrPlotInstanceId);
@@ -474,7 +474,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			_finalizePlotGOInfo[garrPlotInstanceId] = info;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, Time.GetMSTimeDiffToNow(msTime));
+		Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, Time.GetMSTimeDiffToNow(msTime));
 	}
 
 	void LoadFollowerClassSpecAbilities()
@@ -483,7 +483,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 garrison follower class spec abilities. DB table `garrison_follower_class_spec_abilities` is empty.");
+			Log.Logger.Information("Loaded 0 garrison follower class spec abilities. DB table `garrison_follower_class_spec_abilities` is empty.");
 
 			return;
 		}
@@ -498,7 +498,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (!CliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
 			{
-				Log.outError(LogFilter.Sql, "Non-existing GarrClassSpec.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", classSpecId, classSpecId, abilityId);
+				Log.Logger.Error("Non-existing GarrClassSpec.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", classSpecId, classSpecId, abilityId);
 
 				continue;
 			}
@@ -507,7 +507,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (ability == null)
 			{
-				Log.outError(LogFilter.Sql, "Non-existing GarrAbility.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", abilityId, classSpecId, abilityId);
+				Log.Logger.Error("Non-existing GarrAbility.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", abilityId, classSpecId, abilityId);
 
 				continue;
 			}
@@ -519,7 +519,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 		//foreach (var key in _garrisonFollowerClassSpecAbilities.Keys)
 		//_garrisonFollowerClassSpecAbilities[key].Sort();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} garrison follower class spec abilities in {1}.", count, Time.GetMSTimeDiffToNow(msTime));
+		Log.Logger.Information("Loaded {0} garrison follower class spec abilities in {1}.", count, Time.GetMSTimeDiffToNow(msTime));
 	}
 }
 

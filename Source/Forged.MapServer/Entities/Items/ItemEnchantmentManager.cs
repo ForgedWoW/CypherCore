@@ -23,7 +23,7 @@ public class ItemEnchantmentManager
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.Player, "Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
+			Log.Logger.Information("Loaded 0 Item Enchantment definitions. DB table `item_enchantment_template` is empty.");
 
 			return;
 		}
@@ -38,14 +38,14 @@ public class ItemEnchantmentManager
 
 			if (Global.DB2Mgr.GetItemBonusList(bonusListId) == null)
 			{
-				Log.outError(LogFilter.Sql, $"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} doesn't have exist in ItemBonus.db2");
+				Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} doesn't have exist in ItemBonus.db2");
 
 				continue;
 			}
 
 			if (chance < 0.000001f || chance > 100.0f)
 			{
-				Log.outError(LogFilter.Sql, $"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} has invalid chance {chance}");
+				Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} has invalid chance {chance}");
 
 				continue;
 			}
@@ -60,7 +60,7 @@ public class ItemEnchantmentManager
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.Player, $"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
+		Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
 	}
 
 	public static uint GenerateItemRandomBonusListId(uint item_id)
@@ -78,7 +78,7 @@ public class ItemEnchantmentManager
 
 		if (tab == null)
 		{
-			Log.outError(LogFilter.Sql, $"Item RandomBonusListTemplateId id {itemProto.RandomBonusListTemplateId} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.");
+			Log.Logger.Error($"Item RandomBonusListTemplateId id {itemProto.RandomBonusListTemplateId} used in `item_template_addon` but it does not have records in `item_random_bonus_list_template` table.");
 
 			return 0;
 		}

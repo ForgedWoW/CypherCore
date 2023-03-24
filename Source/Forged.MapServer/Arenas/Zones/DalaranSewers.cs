@@ -80,7 +80,7 @@ class DalaranSewersArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "DalaranSewersArena: Failed to spawn door object!");
+			Log.Logger.Error("DalaranSewersArena: Failed to spawn door object!");
 
 			return false;
 		}
@@ -91,7 +91,7 @@ class DalaranSewersArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "DalaranSewersArena: Failed to spawn buff object!");
+			Log.Logger.Error("DalaranSewersArena: Failed to spawn buff object!");
 
 			return false;
 		}
@@ -104,7 +104,7 @@ class DalaranSewersArena : Arena
 
 		if (!result)
 		{
-			Log.outError(LogFilter.Sql, "DalaranSewersArena: Failed to spawn collision object!");
+			Log.Logger.Error("DalaranSewersArena: Failed to spawn collision object!");
 
 			return false;
 		}

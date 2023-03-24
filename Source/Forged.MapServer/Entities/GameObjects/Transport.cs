@@ -102,7 +102,7 @@ class Transport : GameObjectTypeBase, ITransport
 			_passengers.Add(passenger);
 			passenger.SetTransport(this);
 			passenger.MovementInfo.Transport.Guid = GetTransportGUID();
-			Log.outDebug(LogFilter.Transport, $"Object {passenger.GetName()} boarded transport {Owner.GetName()}.");
+			Log.Logger.Debug($"Object {passenger.GetName()} boarded transport {Owner.GetName()}.");
 		}
 	}
 
@@ -112,7 +112,7 @@ class Transport : GameObjectTypeBase, ITransport
 		{
 			passenger.SetTransport(null);
 			passenger.MovementInfo.Transport.Reset();
-			Log.outDebug(LogFilter.Transport, $"Object {passenger.GetName()} removed from transport {Owner.GetName()}.");
+			Log.Logger.Debug($"Object {passenger.GetName()} removed from transport {Owner.GetName()}.");
 
 			var plr = passenger.AsPlayer;
 

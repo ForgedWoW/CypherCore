@@ -913,7 +913,7 @@ internal class npc_doctor : ScriptedAI
 
 						break;
 					default:
-						Log.outError(LogFilter.Scripts, "Invalid entry for Triage doctor. Please check your database");
+						Log.Logger.Error("Invalid entry for Triage doctor. Please check your database");
 
 						return;
 				}

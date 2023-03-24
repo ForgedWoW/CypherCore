@@ -79,7 +79,7 @@ public class Vehicle : ITransport
 
 		var seat = GetSeatKeyValuePairForPassenger(unit);
 
-		Log.outDebug(LogFilter.Vehicle,
+		Log.Logger.Debug(
 					"Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
 					unit.GetName(),
 					_me.Entry,
@@ -133,7 +133,7 @@ public class Vehicle : ITransport
 
 	public void AddPassenger(WorldObject passenger)
 	{
-		Log.outFatal(LogFilter.Vehicle, "Vehicle cannot directly gain passengers without auras");
+		Log.Logger.Fatal("Vehicle cannot directly gain passengers without auras");
 	}
 
 	public void CalculatePassengerPosition(Position pos)
@@ -187,7 +187,7 @@ public class Vehicle : ITransport
 		// @Prevent recursive uninstall call. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
 		if (_status == Status.UnInstalling && !GetBase().HasUnitTypeMask(UnitTypeMask.Minion))
 		{
-			Log.outError(LogFilter.Vehicle,
+			Log.Logger.Error(
 						"Vehicle GuidLow: {0}, Entry: {1} attempts to uninstall, but already has STATUS_UNINSTALLING! " +
 						"Check Uninstall/PassengerBoarded script hooks for errors.",
 						_me.GUID.ToString(),
@@ -197,7 +197,7 @@ public class Vehicle : ITransport
 		}
 
 		_status = Status.UnInstalling;
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.Uninstall Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GUID.ToString());
+		Log.Logger.Debug("Vehicle.Uninstall Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GUID.ToString());
 		RemoveAllPassengers();
 
 		if (GetBase().IsTypeId(TypeId.Unit))
@@ -209,7 +209,7 @@ public class Vehicle : ITransport
 		if (!GetBase().IsTypeId(TypeId.Unit))
 			return;
 
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.Reset (Entry: {0}, GuidLow: {1}, DBGuid: {2})", GetCreatureEntry(), _me.GUID.ToString(), _me.AsCreature.SpawnId);
+		Log.Logger.Debug("Vehicle.Reset (Entry: {0}, GuidLow: {1}, DBGuid: {2})", GetCreatureEntry(), _me.GUID.ToString(), _me.AsCreature.SpawnId);
 
 		ApplyAllImmunities();
 
@@ -221,7 +221,7 @@ public class Vehicle : ITransport
 
 	public void RemoveAllPassengers()
 	{
-		Log.outDebug(LogFilter.Vehicle, "Vehicle.RemoveAllPassengers. Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GUID.ToString());
+		Log.Logger.Debug("Vehicle.RemoveAllPassengers. Entry: {0}, GuidLow: {1}", _creatureEntry, _me.GUID.ToString());
 
 		// Setting to_Abort to true will cause @VehicleJoinEvent.Abort to be executed on next @Unit.UpdateEvents call
 		// This will properly "reset" the pending join process for the passenger.
@@ -317,7 +317,7 @@ public class Vehicle : ITransport
 		// @Prevent adding passengers when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
 		if (_status == Status.UnInstalling)
 		{
-			Log.outError(LogFilter.Vehicle,
+			Log.Logger.Error(
 						"Passenger GuidLow: {0}, Entry: {1}, attempting to board vehicle GuidLow: {2}, Entry: {3} during uninstall! SeatId: {4}",
 						unit.GUID.ToString(),
 						unit.Entry,
@@ -328,7 +328,7 @@ public class Vehicle : ITransport
 			return false;
 		}
 
-		Log.outDebug(LogFilter.Vehicle,
+		Log.Logger.Debug(
 					"Unit {0} scheduling enter vehicle (entry: {1}, vehicleId: {2}, guid: {3} (dbguid: {4}) on seat {5}",
 					unit.GetName(),
 					_me.Entry,
@@ -607,7 +607,7 @@ public class Vehicle : ITransport
 
 		if (_status == Status.UnInstalling)
 		{
-			Log.outError(LogFilter.Vehicle,
+			Log.Logger.Error(
 						"Vehicle ({0}, Entry: {1}) attempts to install accessory (Entry: {2}) on seat {3} with STATUS_UNINSTALLING! " +
 						"Check Uninstall/PassengerBoarded script hooks for errors.",
 						_me.GUID.ToString(),
@@ -618,7 +618,7 @@ public class Vehicle : ITransport
 			return;
 		}
 
-		Log.outDebug(LogFilter.Vehicle, "Vehicle ({0}, Entry {1}): installing accessory (Entry: {2}) on seat: {3}", _me.GUID.ToString(), GetCreatureEntry(), entry, seatId);
+		Log.Logger.Debug("Vehicle ({0}, Entry {1}): installing accessory (Entry: {2}) on seat: {3}", _me.GUID.ToString(), GetCreatureEntry(), entry, seatId);
 
 		var accessory = _me.SummonCreature(entry, _me.Location, (TempSummonType)type, TimeSpan.FromMilliseconds(summonTime));
 

@@ -53,7 +53,7 @@ class ResetCommands
 
 		if (classEntry == null)
 		{
-			Log.outError(LogFilter.Server, "Class {0} not found in DBC (Wrong DBC files?)", player.Class);
+			Log.Logger.Error("Class {0} not found in DBC (Wrong DBC files?)", player.Class);
 
 			return false;
 		}

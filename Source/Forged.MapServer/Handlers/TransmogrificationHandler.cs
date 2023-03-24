@@ -30,7 +30,7 @@ public partial class WorldSession
 		// Validate
 		if (!player.GetNPCIfCanInteractWith(transmogrifyItems.Npc, NPCFlags.Transmogrifier, NPCFlags2.None))
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Unit (GUID: {0}) not found or player can't interact with it.", transmogrifyItems.ToString());
+			Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Unit (GUID: {0}) not found or player can't interact with it.", transmogrifyItems.ToString());
 
 			return;
 		}
@@ -49,14 +49,14 @@ public partial class WorldSession
 
 			if (itemModifiedAppearance == null)
 			{
-				Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
+				Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using invalid appearance ({itemModifiedAppearanceId}).");
 
 				return false;
 			}
 
 			if (isSecondary && itemTransmogrified.Template.InventoryType != InventoryType.Shoulders)
 			{
-				Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify secondary appearance to non-shoulder item.");
+				Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify secondary appearance to non-shoulder item.");
 
 				return false;
 			}
@@ -66,7 +66,7 @@ public partial class WorldSession
 
 			if (!hasAppearance)
 			{
-				Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he has not collected ({itemModifiedAppearanceId}).");
+				Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he has not collected ({itemModifiedAppearanceId}).");
 
 				return false;
 			}
@@ -75,7 +75,7 @@ public partial class WorldSession
 
 			if (player.CanUseItem(itemTemplate) != InventoryResult.Ok)
 			{
-				Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he can never use ({itemModifiedAppearanceId}).");
+				Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} tried to transmogrify using appearance he can never use ({itemModifiedAppearanceId}).");
 
 				return false;
 			}
@@ -83,7 +83,7 @@ public partial class WorldSession
 			// validity of the transmogrification items
 			if (!Item.CanTransmogrifyItemWithItem(itemTransmogrified, itemModifiedAppearance))
 			{
-				Log.outDebug(LogFilter.Network, $"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.Entry} with appearance {itemModifiedAppearanceId}).");
+				Log.Logger.Debug($"WORLD: HandleTransmogrifyItems - {player.GUID}, Name: {player.GetName()} failed CanTransmogrifyItemWithItem ({itemTransmogrified.Entry} with appearance {itemModifiedAppearanceId}).");
 
 				return false;
 			}
@@ -109,7 +109,7 @@ public partial class WorldSession
 			// slot of the transmogrified item
 			if (transmogItem.Slot >= EquipmentSlot.End)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Player ({0}, name: {1}) tried to transmogrify wrong slot {2} when transmogrifying items.", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
+				Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Player ({0}, name: {1}) tried to transmogrify wrong slot {2} when transmogrifying items.", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
 
 				return;
 			}
@@ -119,7 +119,7 @@ public partial class WorldSession
 
 			if (!itemTransmogrified)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - Player (GUID: {0}, name: {1}) tried to transmogrify an invalid item in a valid slot (slot: {2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
+				Log.Logger.Debug("WORLD: HandleTransmogrifyItems - Player (GUID: {0}, name: {1}) tried to transmogrify an invalid item in a valid slot (slot: {2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
 
 				return;
 			}
@@ -144,7 +144,7 @@ public partial class WorldSession
 			{
 				if (transmogItem.Slot != EquipmentSlot.MainHand && transmogItem.Slot != EquipmentSlot.OffHand)
 				{
-					Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion into non-weapon slot ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
+					Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion into non-weapon slot ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.Slot);
 
 					return;
 				}
@@ -153,7 +153,7 @@ public partial class WorldSession
 
 				if (illusion == null)
 				{
-					Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using invalid enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
+					Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using invalid enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
 
 					return;
 				}
@@ -163,7 +163,7 @@ public partial class WorldSession
 				if (condition != null)
 					if (!ConditionManager.IsPlayerMeetingCondition(player, condition))
 					{
-						Log.outDebug(LogFilter.Network, "WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
+						Log.Logger.Debug("WORLD: HandleTransmogrifyItems - {0}, Name: {1} tried to transmogrify illusion using not allowed enchant ({2}).", player.GUID.ToString(), player.GetName(), transmogItem.SpellItemEnchantmentID);
 
 						return;
 					}

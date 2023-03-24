@@ -55,7 +55,7 @@ public partial class WorldSession
 
 		if (packet.Size > 0xFFFF)
 		{
-			Log.outError(LogFilter.Network, "UpdateAccountData: Account data packet too big, size {0}", packet.Size);
+			Log.Logger.Error("UpdateAccountData: Account data packet too big, size {0}", packet.Size);
 
 			return;
 		}
@@ -67,7 +67,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
 	void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
 	{
-		Log.outError(LogFilter.Network, "Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+		Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
 		// If create object failed for current player then client will be stuck on loading screen
 		if (Player.GUID == objectUpdateFailed.ObjectGUID)
@@ -84,7 +84,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
 	void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
 	{
-		Log.outError(LogFilter.Network, "Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+		Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
 		// Client received values update after destroying object
 		// re-register object in m_clientGUIDs to send DestroyObject on next visibility update
@@ -111,7 +111,7 @@ public partial class WorldSession
 	{
 		if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
 		{
-			Log.outError(LogFilter.Player, "HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
+			Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
 
 			return;
 		}
@@ -231,7 +231,7 @@ public partial class WorldSession
 
 		if (difficultyEntry == null)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an invalid instance mode {1}!",
 						Player.GUID.ToString(),
 						setDungeonDifficulty.DifficultyID);
@@ -241,7 +241,7 @@ public partial class WorldSession
 
 		if (difficultyEntry.InstanceType != MapTypes.Instance)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an non-dungeon instance mode {1}!",
 						Player.GUID.ToString(),
 						difficultyEntry.Id);
@@ -251,7 +251,7 @@ public partial class WorldSession
 
 		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent unselectable instance mode {1}!",
 						Player.GUID.ToString(),
 						difficultyEntry.Id);
@@ -269,7 +269,7 @@ public partial class WorldSession
 
 		if (map && map.Instanceable)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession:HandleSetDungeonDifficulty: player (Name: {0}, {1}) tried to reset the instance while player is inside!",
 						Player.GetName(),
 						Player.GUID.ToString());
@@ -306,7 +306,7 @@ public partial class WorldSession
 
 		if (difficultyEntry == null)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an invalid instance mode {1}!",
 						Player.GUID.ToString(),
 						setRaidDifficulty.DifficultyID);
@@ -316,7 +316,7 @@ public partial class WorldSession
 
 		if (difficultyEntry.InstanceType != MapTypes.Raid)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an non-dungeon instance mode {1}!",
 						Player.GUID.ToString(),
 						difficultyEntry.Id);
@@ -326,7 +326,7 @@ public partial class WorldSession
 
 		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent unselectable instance mode {1}!",
 						Player.GUID.ToString(),
 						difficultyEntry.Id);
@@ -336,7 +336,7 @@ public partial class WorldSession
 
 		if (((int)(difficultyEntry.Flags & DifficultyFlags.Legacy) != 0) != (setRaidDifficulty.Legacy != 0))
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent not matching legacy difficulty {1}!",
 						Player.GUID.ToString(),
 						difficultyEntry.Id);
@@ -354,7 +354,7 @@ public partial class WorldSession
 
 		if (map && map.Instanceable)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"WorldSession:HandleSetRaidDifficulty: player (Name: {0}, {1} tried to reset the instance while inside!",
 						Player.GetName(),
 						Player.GUID.ToString());
@@ -416,7 +416,7 @@ public partial class WorldSession
 	{
 		if (!Player.HasPendingBind)
 		{
-			Log.outInfo(LogFilter.Network,
+			Log.Logger.Information(
 						"InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
 						Player.GetName(),
 						Player.GUID.ToString());

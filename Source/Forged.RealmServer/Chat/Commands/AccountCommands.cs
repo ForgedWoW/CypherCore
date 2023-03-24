@@ -74,7 +74,7 @@ class AccountCommands
 
 			if (result.IsEmpty())
 			{
-				Log.outError(LogFilter.Misc, $"Account {accountId} not found in login database when processing .account 2fa setup command.");
+				Log.Logger.Error($"Account {accountId} not found in login database when processing .account 2fa setup command.");
 				handler.SendSysMessage(CypherStrings.UnknownError);
 				return false;
 			}
@@ -95,7 +95,7 @@ class AccountCommands
 				bool success = AES.Decrypt(secret, masterKey.GetValue());
 				if (!success)
 				{
-					Log.outError(LogFilter.Misc, $"Account {accountId} has invalid ciphertext in TOTP token.");
+					Log.Logger.Error($"Account {accountId} has invalid ciphertext in TOTP token.");
 					handler.SendSysMessage(CypherStrings.UnknownError);
 					return false;
 				}
@@ -137,7 +137,7 @@ class AccountCommands
 
 			if (result.IsEmpty())
 			{
-				Log.outError(LogFilter.Misc, $"Account {accountId} not found in login database when processing .account 2fa setup command.");
+				Log.Logger.Error($"Account {accountId} not found in login database when processing .account 2fa setup command.");
 				handler.SendSysMessage(CypherStrings.UnknownError);
 				return false;
 			}
@@ -217,7 +217,7 @@ class AccountCommands
 				handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
 
 				if (handler.Session != null)
-					Log.outInfo(LogFilter.Player,
+					Log.Logger.Information(
 								"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) created Account {4} (Email: '{5}')",
 								handler.Session.AccountId,
 								handler.Session.RemoteAddress,
@@ -299,7 +299,7 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
-			Log.outInfo(LogFilter.Player,
+			Log.Logger.Information(
 						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided email [{4}] is not equal to registration email [{5}].",
 						handler.Session.AccountId,
 						handler.Session.RemoteAddress,
@@ -315,7 +315,7 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
-			Log.outInfo(LogFilter.Player,
+			Log.Logger.Information(
 						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
 						handler.Session.AccountId,
 						handler.Session.RemoteAddress,
@@ -336,7 +336,7 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.NewEmailsNotMatch);
 
-			Log.outInfo(LogFilter.Player,
+			Log.Logger.Information(
 						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
 						handler.Session.AccountId,
 						handler.Session.RemoteAddress,
@@ -354,7 +354,7 @@ class AccountCommands
 			case AccountOpResult.Ok:
 				handler.SendSysMessage(CypherStrings.CommandEmail);
 
-				Log.outInfo(LogFilter.Player,
+				Log.Logger.Information(
 							"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Email from [{4}] to [{5}].",
 							handler.Session.AccountId,
 							handler.Session.RemoteAddress,
@@ -388,7 +388,7 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
-			Log.outInfo(LogFilter.Player,
+			Log.Logger.Information(
 						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the provided old password is wrong.",
 						handler.Session.AccountId,
 						handler.Session.RemoteAddress,
@@ -405,7 +405,7 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
-			Log.outInfo(LogFilter.Player,
+			Log.Logger.Information(
 						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the entered email [{4}] is wrong.",
 						handler.Session.AccountId,
 						handler.Session.RemoteAddress,
@@ -432,7 +432,7 @@ class AccountCommands
 			case AccountOpResult.Ok:
 				handler.SendSysMessage(CypherStrings.CommandPassword);
 
-				Log.outInfo(LogFilter.Player,
+				Log.Logger.Information(
 							"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Password.",
 							handler.Session.AccountId,
 							handler.Session.RemoteAddress,
@@ -480,7 +480,7 @@ class AccountCommands
 				else
 				{
 					handler.SendSysMessage("[IP2NATION] Table empty");
-					Log.outDebug(LogFilter.Server, "[IP2NATION] Table empty");
+					Log.Logger.Debug("[IP2NATION] Table empty");
 				}*/
 			}
 			else
@@ -900,7 +900,7 @@ class AccountCommands
 				{
 					case AccountOpResult.Ok:
 						handler.SendSysMessage(CypherStrings.CommandEmail);
-						Log.outInfo(LogFilter.Player, "ChangeEmail: Account {0} [Id: {1}] had it's email changed to {2}.", accountName, targetAccountId, email);
+						Log.Logger.Information("ChangeEmail: Account {0} [Id: {1}] had it's email changed to {2}.", accountName, targetAccountId, email);
 
 						break;
 					case AccountOpResult.NameNotExist:
@@ -950,7 +950,7 @@ class AccountCommands
 				{
 					case AccountOpResult.Ok:
 						handler.SendSysMessage(CypherStrings.CommandEmail);
-						Log.outInfo(LogFilter.Player, "ChangeRegEmail: Account {0} [Id: {1}] had it's Registration Email changed to {2}.", accountName, targetAccountId, email);
+						Log.Logger.Information("ChangeRegEmail: Account {0} [Id: {1}] had it's Registration Email changed to {2}.", accountName, targetAccountId, email);
 
 						break;
 					case AccountOpResult.NameNotExist:

@@ -340,7 +340,7 @@ internal class go_ethereum_prison : GameObjectAI
 					if (spellId != 0)
 						creature.CastSpell(player, spellId, false);
 					else
-						Log.outError(LogFilter.Scripts, $"go_ethereum_prison summoned Creature (entry {creature.Entry}) but faction ({creature.Faction}) are not expected by script.");
+						Log.Logger.Error($"go_ethereum_prison summoned Creature (entry {creature.Entry}) but faction ({creature.Faction}) are not expected by script.");
 				}
 			}
 

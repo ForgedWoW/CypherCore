@@ -117,7 +117,7 @@ public class PlayerMenu
 
 		if (pointOfInterest == null)
 		{
-			Log.outError(LogFilter.Sql, "Request to send non-existing PointOfInterest (Id: {0}), ignored.", id);
+			Log.Logger.Error("Request to send non-existing PointOfInterest (Id: {0}), ignored.", id);
 
 			return;
 		}

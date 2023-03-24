@@ -40,7 +40,7 @@ public class PathGenerator
 		_source = owner;
 		_navMesh = null;
 		_navMeshQuery = null;
-		Log.outDebug(LogFilter.Maps, "PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
+		Log.Logger.Debug("PathGenerator:PathGenerator for {0}", _source.GUID.ToString());
 
 		var mapId = PhasingHandler.GetTerrainMapId(_source.PhaseShift, _source.Location.MapId, _source.Map.Terrain, _source.Location.X, _source.Location.Y);
 
@@ -66,7 +66,7 @@ public class PathGenerator
 
 		_forceDestination = forceDest;
 
-		Log.outDebug(LogFilter.Maps, "PathGenerator.CalculatePath() for {0} \n", _source.GUID.ToString());
+		Log.Logger.Debug("PathGenerator.CalculatePath() for {0} \n", _source.GUID.ToString());
 
 		// make sure navMesh works - we can run on map w/o mmap
 		// check if the start and end point have a .mmtile loaded (can we pass via not loaded tile on the way?)
@@ -95,7 +95,7 @@ public class PathGenerator
 	{
 		if (GetPathType() == PathType.Blank || _pathPoints.Length < 2)
 		{
-			Log.outError(LogFilter.Maps, "PathGenerator.ReducePathLengthByDist called before path was successfully built");
+			Log.Logger.Error("PathGenerator.ReducePathLengthByDist called before path was successfully built");
 
 			return;
 		}
@@ -307,7 +307,7 @@ public class PathGenerator
 		// its up to caller how he will use this info
 		if (startPoly == 0 || endPoly == 0)
 		{
-			Log.outDebug(LogFilter.Maps, "++ BuildPolyPath . (startPoly == 0 || endPoly == 0)\n");
+			Log.Logger.Debug("++ BuildPolyPath . (startPoly == 0 || endPoly == 0)\n");
 			BuildShortcut();
 			var path = _source.IsTypeId(TypeId.Unit) && _source.AsCreature.CanFly;
 
@@ -350,14 +350,14 @@ public class PathGenerator
 
 		if (startFarFromPoly || endFarFromPoly)
 		{
-			Log.outDebug(LogFilter.Maps, "++ BuildPolyPath . farFromPoly distToStartPoly={0:F3} distToEndPoly={1:F3}\n", distToStartPoly, distToEndPoly);
+			Log.Logger.Debug("++ BuildPolyPath . farFromPoly distToStartPoly={0:F3} distToEndPoly={1:F3}\n", distToStartPoly, distToEndPoly);
 
 			var buildShotrcut = false;
 			var p = (distToStartPoly > 7.0f) ? startPos : endPos;
 
 			if (_source.Map.IsUnderWater(_source.PhaseShift, p.X, p.Y, p.Z))
 			{
-				Log.outDebug(LogFilter.Maps, "++ BuildPolyPath :: underWater case");
+				Log.Logger.Debug("++ BuildPolyPath :: underWater case");
 				var _sourceUnit = _source.AsUnit;
 
 				if (_sourceUnit != null)
@@ -366,7 +366,7 @@ public class PathGenerator
 			}
 			else
 			{
-				Log.outDebug(LogFilter.Maps, "++ BuildPolyPath :: flying case");
+				Log.Logger.Debug("++ BuildPolyPath :: flying case");
 				var _sourceUnit = _source.AsUnit;
 
 				if (_sourceUnit != null)
@@ -412,7 +412,7 @@ public class PathGenerator
 		// handle this case as if they were 2 different polygons, building a line path split in some few points
 		if (startPoly == endPoly && !_useRaycast)
 		{
-			Log.outDebug(LogFilter.Maps, "++ BuildPolyPath . (startPoly == endPoly)\n");
+			Log.Logger.Debug("++ BuildPolyPath . (startPoly == endPoly)\n");
 
 			_pathPolyRefs[0] = startPoly;
 			_polyLength = 1;
@@ -447,7 +447,7 @@ public class PathGenerator
 				// here to carch few bugs
 				if (_pathPolyRefs[pathStartIndex] == 0)
 				{
-					Log.outError(LogFilter.Maps,
+					Log.Logger.Error(
 								"Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
 								" startPos: {2}, endPos: {3}, mapid: {4}",
 								_polyLength,
@@ -478,7 +478,7 @@ public class PathGenerator
 
 		if (startPolyFound && endPolyFound)
 		{
-			Log.outDebug(LogFilter.Maps, "BuildPolyPath : (startPolyFound && endPolyFound)\n");
+			Log.Logger.Debug("BuildPolyPath : (startPolyFound && endPolyFound)\n");
 
 			// we moved along the path and the target did not move out of our old poly-path
 			// our path is a simple subpath case, we have all the data we need
@@ -489,7 +489,7 @@ public class PathGenerator
 		}
 		else if (startPolyFound && !endPolyFound)
 		{
-			Log.outDebug(LogFilter.Maps, "BuildPolyPath : (startPolyFound && !endPolyFound)\n");
+			Log.Logger.Debug("BuildPolyPath : (startPolyFound && !endPolyFound)\n");
 
 			// we are moving on the old path but target moved out
 			// so we have atleast part of poly-path ready
@@ -537,7 +537,7 @@ public class PathGenerator
 
 			if (_useRaycast)
 			{
-				Log.outError(LogFilter.Maps, $"PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {_source.GUID}");
+				Log.Logger.Error($"PathGenerator::BuildPolyPath() called with _useRaycast with a previous path for unit {_source.GUID}");
 				BuildShortcut();
 				pathType = PathType.NoPath;
 
@@ -559,9 +559,9 @@ public class PathGenerator
 				// this is probably an error state, but we'll leave it
 				// and hopefully recover on the next Update
 				// we still need to copy our preffix
-				Log.outError(LogFilter.Maps, $"Path Build failed\n{_source.GetDebugInfo()}");
+				Log.Logger.Error($"Path Build failed\n{_source.GetDebugInfo()}");
 
-			Log.outDebug(LogFilter.Maps, "m_polyLength={0} prefixPolyLength={1} suffixPolyLength={2} \n", _polyLength, prefixPolyLength, suffixPolyLength);
+			Log.Logger.Debug("m_polyLength={0} prefixPolyLength={1} suffixPolyLength={2} \n", _polyLength, prefixPolyLength, suffixPolyLength);
 
 			for (var i = 0; i < _pathPolyRefs.Length - (prefixPolyLength - 1); ++i)
 				_pathPolyRefs[(prefixPolyLength - 1) + i] = tempPolyRefs[i];
@@ -571,7 +571,7 @@ public class PathGenerator
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Maps, "++ BuildPolyPath . (!startPolyFound && !endPolyFound)\n");
+			Log.Logger.Debug("++ BuildPolyPath . (!startPolyFound && !endPolyFound)\n");
 
 			// either we have no path at all . first run
 			// or something went really wrong . we aren't moving along the path to the target
@@ -670,7 +670,7 @@ public class PathGenerator
 			if (_polyLength == 0 || Detour.dtStatusFailed(dtResult))
 			{
 				// only happens if we passed bad data to findPath(), or navmesh is messed up
-				Log.outError(LogFilter.Maps, "{0}'s Path Build failed: 0 length path", _source.GUID.ToString());
+				Log.Logger.Error("{0}'s Path Build failed: 0 length path", _source.GUID.ToString());
 				BuildShortcut();
 				pathType = PathType.NoPath;
 
@@ -699,7 +699,7 @@ public class PathGenerator
 		if (_useRaycast)
 		{
 			// _straightLine uses raycast and it currently doesn't support building a point path, only a 2-point path with start and hitpoint/end is returned
-			Log.outError(LogFilter.Maps, $"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
+			Log.Logger.Error($"PathGenerator::BuildPointPath() called with _useRaycast for unit {_source.GUID}");
 			BuildShortcut();
 			pathType = PathType.NoPath;
 
@@ -741,7 +741,7 @@ public class PathGenerator
 			// only happens if pass bad data to findStraightPath or navmesh is broken
 			// single point paths can be generated here
 			// @todo check the exact cases
-			Log.outDebug(LogFilter.Maps, "++ PathGenerator.BuildPointPath FAILED! path sized {0} returned\n", pointCount);
+			Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned\n", pointCount);
 			BuildShortcut();
 			pathType |= PathType.NoPath;
 
@@ -749,7 +749,7 @@ public class PathGenerator
 		}
 		else if (pointCount == _pointPathLimit)
 		{
-			Log.outDebug(LogFilter.Maps, "++ PathGenerator.BuildPointPath FAILED! path sized {0} returned, lower than limit set to {1}\n", pointCount, _pointPathLimit);
+			Log.Logger.Debug("++ PathGenerator.BuildPointPath FAILED! path sized {0} returned, lower than limit set to {1}\n", pointCount, _pointPathLimit);
 			BuildShortcut();
 			pathType |= PathType.Short;
 
@@ -784,7 +784,7 @@ public class PathGenerator
 			pathType = (PathType.Normal | PathType.NotUsingPath);
 		}
 
-		Log.outDebug(LogFilter.Maps, "PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
+		Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
 	}
 
 	uint FixupCorridor(ulong[] path, uint npath, uint maxPath, ulong[] visited, int nvisited)
@@ -946,7 +946,7 @@ public class PathGenerator
 			npolys = FixupCorridor(polys, npolys, 74, visited, nvisited);
 
 			if (Detour.dtStatusFailed(_navMeshQuery.getPolyHeight(polys[0], result, ref result[1])))
-				Log.outDebug(LogFilter.Maps, $"Cannot find height at position X: {result[2]} Y: {result[0]} Z: {result[1]} for {_source.GetDebugInfo()}");
+				Log.Logger.Debug($"Cannot find height at position X: {result[2]} Y: {result[0]} Z: {result[1]} for {_source.GetDebugInfo()}");
 
 			result[1] += 0.5f;
 			Detour.dtVcopy(iterPos, result);
@@ -1031,7 +1031,7 @@ public class PathGenerator
 
 	void BuildShortcut()
 	{
-		Log.outDebug(LogFilter.Maps, "BuildShortcut : making shortcut\n");
+		Log.Logger.Debug("BuildShortcut : making shortcut\n");
 
 		Clear();
 

@@ -130,6 +130,6 @@ class GarrisonGridLoader : IGridNotifierGameObject
 			}
 		}
 
-		Log.outDebug(LogFilter.Maps, "{0} GameObjects and {1} Creatures loaded for grid {2} on map {3}", i_gameObjects, i_creatures, i_grid.GetGridId(), i_map.Id);
+		Log.Logger.Debug("{0} GameObjects and {1} Creatures loaded for grid {2} on map {3}", i_gameObjects, i_creatures, i_grid.GetGridId(), i_map.Id);
 	}
 }

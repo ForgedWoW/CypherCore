@@ -75,7 +75,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
 	void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
 	{
-		Log.outError(LogFilter.Network, "Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+		Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
 		// If create object failed for current player then client will be stuck on loading screen
 		if (Player.GUID == objectUpdateFailed.ObjectGUID)
@@ -92,7 +92,7 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
 	void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
 	{
-		Log.outError(LogFilter.Network, "Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+		Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
 		// Client received values update after destroying object
 		// re-register object in m_clientGUIDs to send DestroyObject on next visibility update
@@ -109,7 +109,7 @@ public partial class WorldSession
 		if (!Player) // ignore until not logged (check needed because STATUS_AUTHED)
 		{
 			if (packet.Mask != 0)
-				Log.outError(LogFilter.Network, "WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
+				Log.Logger.Error("WorldSession.HandleSetActionBarToggles in not logged state with value: {0}, ignored", packet.Mask);
 
 			return;
 		}
@@ -158,7 +158,7 @@ public partial class WorldSession
 
 		if (player.IsInFlight)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"HandleAreaTrigger: Player '{0}' (GUID: {1}) in flight, ignore Area Trigger ID:{2}",
 						player.GetName(),
 						player.GUID.ToString(),
@@ -171,7 +171,7 @@ public partial class WorldSession
 
 		if (atEntry == null)
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
 						player.GetName(),
 						player.GUID.ToString(),
@@ -182,7 +182,7 @@ public partial class WorldSession
 
 		if (packet.Entered && !player.IsInAreaTriggerRadius(atEntry))
 		{
-			Log.outDebug(LogFilter.Network,
+			Log.Logger.Debug(
 						"HandleAreaTrigger: Player '{0}' ({1}) too far, ignore Area Trigger ID: {2}",
 						player.GetName(),
 						player.GUID.ToString(),
@@ -304,11 +304,11 @@ public partial class WorldSession
 						return;
 					}
 
-					Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' has corpse in instance {at.target_mapId} and can enter.");
+					Log.Logger.Debug($"MAP: Player '{player.GetName()}' has corpse in instance {at.target_mapId} and can enter.");
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Maps, $"Map::CanPlayerEnter - player '{player.GetName()}' is dead but does not have a corpse!");
+					Log.Logger.Debug($"Map::CanPlayerEnter - player '{player.GetName()}' is dead but does not have a corpse!");
 				}
 			}
 
@@ -319,35 +319,35 @@ public partial class WorldSession
 				switch (denyReason.Reason)
 				{
 					case TransferAbortReason.MapNotAllowed:
-						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' attempted to enter map with id {at.target_mapId} which has no entry");
+						Log.Logger.Debug($"MAP: Player '{player.GetName()}' attempted to enter map with id {at.target_mapId} which has no entry");
 
 						break;
 					case TransferAbortReason.Difficulty:
-						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' attempted to enter instance map {at.target_mapId} but the requested difficulty was not found");
+						Log.Logger.Debug($"MAP: Player '{player.GetName()}' attempted to enter instance map {at.target_mapId} but the requested difficulty was not found");
 
 						break;
 					case TransferAbortReason.NeedGroup:
-						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' must be in a raid group to enter map {at.target_mapId}");
+						Log.Logger.Debug($"MAP: Player '{player.GetName()}' must be in a raid group to enter map {at.target_mapId}");
 						player.SendRaidGroupOnlyMessage(RaidGroupReason.Only, 0);
 
 						break;
 					case TransferAbortReason.LockedToDifferentInstance:
-						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
+						Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
 
 						break;
 					case TransferAbortReason.AlreadyCompletedEncounter:
-						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
+						Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because their permanent bind is incompatible with their group's");
 
 						break;
 					case TransferAbortReason.TooManyInstances:
-						Log.outDebug(LogFilter.Maps, "MAP: Player '{0}' cannot enter instance map {1} because he has exceeded the maximum number of instances per hour.", player.GetName(), at.target_mapId);
+						Log.Logger.Debug("MAP: Player '{0}' cannot enter instance map {1} because he has exceeded the maximum number of instances per hour.", player.GetName(), at.target_mapId);
 
 						break;
 					case TransferAbortReason.MaxPlayers:
 					case TransferAbortReason.ZoneInCombat:
 						break;
 					case TransferAbortReason.NotFound:
-						Log.outDebug(LogFilter.Maps, $"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because instance is resetting.");
+						Log.Logger.Debug($"MAP: Player '{player.GetName()}' cannot enter instance map {at.target_mapId} because instance is resetting.");
 
 						break;
 					default:
@@ -427,7 +427,7 @@ public partial class WorldSession
 	{
 		if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
 		{
-			Log.outError(LogFilter.Player, "HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
+			Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
 
 			return;
 		}
@@ -551,17 +551,17 @@ public partial class WorldSession
 	{
 		if (farSight.Enable)
 		{
-			Log.outDebug(LogFilter.Network, "Added FarSight {0} to player {1}", Player.ActivePlayerData.FarsightObject.ToString(), Player.GUID.ToString());
+			Log.Logger.Debug("Added FarSight {0} to player {1}", Player.ActivePlayerData.FarsightObject.ToString(), Player.GUID.ToString());
 			var target = Player.Viewpoint;
 
 			if (target)
 				Player.SetSeer(target);
 			else
-				Log.outDebug(LogFilter.Network, "Player {0} (GUID: {1}) requests non-existing seer {2}", Player.GetName(), Player.GUID.ToString(), Player.ActivePlayerData.FarsightObject.ToString());
+				Log.Logger.Debug("Player {0} (GUID: {1}) requests non-existing seer {2}", Player.GetName(), Player.GUID.ToString(), Player.ActivePlayerData.FarsightObject.ToString());
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Network, "Player {0} set vision to self", Player.GUID.ToString());
+			Log.Logger.Debug("Player {0} set vision to self", Player.GUID.ToString());
 			Player.SetSeer(Player);
 		}
 
@@ -634,7 +634,7 @@ public partial class WorldSession
 	{
 		if (!Player.HasPendingBind)
 		{
-			Log.outInfo(LogFilter.Network,
+			Log.Logger.Information(
 						"InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
 						Player.GetName(),
 						Player.GUID.ToString());
@@ -674,7 +674,7 @@ public partial class WorldSession
 
 				break;
 			case WardenOpcodes.CmsgMemChecksResult:
-				Log.outDebug(LogFilter.Warden, "NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
+				Log.Logger.Debug("NYI WARDEN_CMSG_MEM_CHECKS_RESULT received!");
 
 				break;
 			case WardenOpcodes.CmsgHashResult:
@@ -683,11 +683,11 @@ public partial class WorldSession
 
 				break;
 			case WardenOpcodes.CmsgModuleFailed:
-				Log.outDebug(LogFilter.Warden, "NYI WARDEN_CMSG_MODULE_FAILED received!");
+				Log.Logger.Debug("NYI WARDEN_CMSG_MODULE_FAILED received!");
 
 				break;
 			default:
-				Log.outDebug(LogFilter.Warden, "Got unknown warden opcode {0} of size {1}.", opcode, packet.Data.GetSize() - 1);
+				Log.Logger.Debug("Got unknown warden opcode {0} of size {1}.", opcode, packet.Data.GetSize() - 1);
 
 				break;
 		}

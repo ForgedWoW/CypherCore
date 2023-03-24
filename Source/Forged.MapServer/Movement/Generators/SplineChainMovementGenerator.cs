@@ -59,14 +59,14 @@ public class SplineChainMovementGenerator : MovementGenerator
 
 		if (_chainSize == 0)
 		{
-			Log.outError(LogFilter.Movement, $"SplineChainMovementGenerator::Initialize: couldn't initialize generator, referenced spline is empty! ({owner.GUID})");
+			Log.Logger.Error($"SplineChainMovementGenerator::Initialize: couldn't initialize generator, referenced spline is empty! ({owner.GUID})");
 
 			return;
 		}
 
 		if (_nextIndex >= _chainSize)
 		{
-			Log.outWarn(LogFilter.Movement, $"SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize ({owner.GUID})");
+			Log.Logger.Warning($"SplineChainMovementGenerator::Initialize: couldn't initialize generator, _nextIndex is >= _chainSize ({owner.GUID})");
 			_msToNext = 0;
 
 			return;
@@ -81,7 +81,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 
 			if (_nextFirstWP >= thisLink.Points.Count)
 			{
-				Log.outError(LogFilter.Movement, $"SplineChainMovementGenerator::Initialize: attempted to resume spline chain from invalid resume state, _nextFirstWP >= path size (_nextIndex: {_nextIndex}, _nextFirstWP: {_nextFirstWP}). ({owner.GUID})");
+				Log.Logger.Error($"SplineChainMovementGenerator::Initialize: attempted to resume spline chain from invalid resume state, _nextFirstWP >= path size (_nextIndex: {_nextIndex}, _nextFirstWP: {_nextFirstWP}). ({owner.GUID})");
 				_nextFirstWP = (byte)(thisLink.Points.Count - 1);
 			}
 
@@ -89,7 +89,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 			Span<Vector3> partial = thisLink.Points.ToArray();
 			SendPathSpline(owner, thisLink.Velocity, partial[(_nextFirstWP - 1)..]);
 
-			Log.outDebug(LogFilter.Movement, $"SplineChainMovementGenerator::Initialize: resumed spline chain generator from resume state. ({owner.GUID})");
+			Log.Logger.Debug($"SplineChainMovementGenerator::Initialize: resumed spline chain generator from resume state. ({owner.GUID})");
 
 			++_nextIndex;
 
@@ -141,7 +141,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 		if (_msToNext <= diff)
 		{
 			// Send next spline
-			Log.outDebug(LogFilter.Movement, $"SplineChainMovementGenerator::Update: sending spline on index {_nextIndex} ({diff - _msToNext} ms late). ({owner.GUID})");
+			Log.Logger.Debug($"SplineChainMovementGenerator::Update: sending spline on index {_nextIndex} ({diff - _msToNext} ms late). ({owner.GUID})");
 			_msToNext = Math.Max(_chain[_nextIndex].TimeToNext, 1u);
 			SendSplineFor(owner, _nextIndex, ref _msToNext);
 			++_nextIndex;
@@ -215,19 +215,19 @@ public class SplineChainMovementGenerator : MovementGenerator
 
 	void SendSplineFor(Unit owner, int index, ref uint duration)
 	{
-		Log.outDebug(LogFilter.Movement, $"SplineChainMovementGenerator::SendSplineFor: sending spline on index: {index}. ({owner.GUID})");
+		Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sending spline on index: {index}. ({owner.GUID})");
 
 		var thisLink = _chain[index];
 		var actualDuration = SendPathSpline(owner, thisLink.Velocity, new Span<Vector3>(thisLink.Points.ToArray()));
 
 		if (actualDuration != thisLink.ExpectedDuration)
 		{
-			Log.outDebug(LogFilter.Movement, $"SplineChainMovementGenerator::SendSplineFor: sent spline on index: {index}, duration: {actualDuration} ms. Expected duration: {thisLink.ExpectedDuration} ms (delta {actualDuration - thisLink.ExpectedDuration} ms). Adjusting. ({owner.GUID})");
+			Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sent spline on index: {index}, duration: {actualDuration} ms. Expected duration: {thisLink.ExpectedDuration} ms (delta {actualDuration - thisLink.ExpectedDuration} ms). Adjusting. ({owner.GUID})");
 			duration = (uint)((double)actualDuration / (double)thisLink.ExpectedDuration * duration);
 		}
 		else
 		{
-			Log.outDebug(LogFilter.Movement, $"SplineChainMovementGenerator::SendSplineFor: sent spline on index {index}, duration: {actualDuration} ms. ({owner.GUID})");
+			Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sent spline on index {index}, duration: {actualDuration} ms. ({owner.GUID})");
 		}
 	}
 

@@ -153,7 +153,7 @@ public class BattlePetMgr
 					{
 						if (ownerGuid.IsEmpty)
 						{
-							Log.outError(LogFilter.Misc, $"Battlenet account with id {_owner.BattlenetAccountId} has battle pet of species {species} with BattlePetSpeciesFlags::NotAccountWide but no owner");
+							Log.Logger.Error($"Battlenet account with id {_owner.BattlenetAccountId} has battle pet of species {species} with BattlePetSpeciesFlags::NotAccountWide but no owner");
 
 							continue;
 						}
@@ -162,7 +162,7 @@ public class BattlePetMgr
 					{
 						if (!ownerGuid.IsEmpty)
 						{
-							Log.outError(LogFilter.Misc, $"Battlenet account with id {_owner.BattlenetAccountId} has battle pet of species {species} without BattlePetSpeciesFlags::NotAccountWide but with owner");
+							Log.Logger.Error($"Battlenet account with id {_owner.BattlenetAccountId} has battle pet of species {species} without BattlePetSpeciesFlags::NotAccountWide but with owner");
 
 							continue;
 						}
@@ -171,9 +171,9 @@ public class BattlePetMgr
 					if (HasMaxPetCount(speciesEntry, ownerGuid))
 					{
 						if (ownerGuid.IsEmpty)
-							Log.outError(LogFilter.Misc, $"Battlenet account with id {_owner.BattlenetAccountId} has more than maximum battle pets of species {species}");
+							Log.Logger.Error($"Battlenet account with id {_owner.BattlenetAccountId} has more than maximum battle pets of species {species}");
 						else
-							Log.outError(LogFilter.Misc, $"Battlenet account with id {_owner.BattlenetAccountId} has more than maximum battle pets of species {species} for player {ownerGuid}");
+							Log.Logger.Error($"Battlenet account with id {_owner.BattlenetAccountId} has more than maximum battle pets of species {species} for player {ownerGuid}");
 
 						continue;
 					}
@@ -860,7 +860,7 @@ public class BattlePetMgr
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 battle pet breeds. DB table `battle_pet_breeds` is empty.");
+			Log.Logger.Information("Loaded 0 battle pet breeds. DB table `battle_pet_breeds` is empty.");
 
 			return;
 		}
@@ -874,7 +874,7 @@ public class BattlePetMgr
 
 			if (!CliDB.BattlePetSpeciesStorage.ContainsKey(speciesId))
 			{
-				Log.outError(LogFilter.Sql, "Non-existing BattlePetSpecies.db2 entry {0} was referenced in `battle_pet_breeds` by row ({1}, {2}).", speciesId, speciesId, breedId);
+				Log.Logger.Error("Non-existing BattlePetSpecies.db2 entry {0} was referenced in `battle_pet_breeds` by row ({1}, {2}).", speciesId, speciesId, breedId);
 
 				continue;
 			}
@@ -885,7 +885,7 @@ public class BattlePetMgr
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} battle pet breeds.", count);
+		Log.Logger.Information("Loaded {0} battle pet breeds.", count);
 	}
 
 	static void LoadDefaultPetQualities()
@@ -894,7 +894,7 @@ public class BattlePetMgr
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 battle pet qualities. DB table `battle_pet_quality` is empty.");
+			Log.Logger.Information("Loaded 0 battle pet qualities. DB table `battle_pet_quality` is empty.");
 
 			return;
 		}
@@ -908,21 +908,21 @@ public class BattlePetMgr
 
 			if (battlePetSpecies == null)
 			{
-				Log.outError(LogFilter.Sql, $"Non-existing BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` by row ({speciesId}, {quality}).");
+				Log.Logger.Error($"Non-existing BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` by row ({speciesId}, {quality}).");
 
 				continue;
 			}
 
 			if (quality >= BattlePetBreedQuality.Max)
 			{
-				Log.outError(LogFilter.Sql, $"BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` with non-existing quality {quality}).");
+				Log.Logger.Error($"BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` with non-existing quality {quality}).");
 
 				continue;
 			}
 
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.WellKnown) && quality > BattlePetBreedQuality.Rare)
 			{
-				Log.outError(LogFilter.Sql, $"Learnable BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` with invalid quality {quality}. Maximum allowed quality is BattlePetBreedQuality::Rare.");
+				Log.Logger.Error($"Learnable BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` with invalid quality {quality}. Maximum allowed quality is BattlePetBreedQuality::Rare.");
 
 				continue;
 			}
@@ -930,7 +930,7 @@ public class BattlePetMgr
 			_defaultQualityPerSpecies[speciesId] = quality;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} battle pet qualities.", _defaultQualityPerSpecies.Count);
+		Log.Logger.Information("Loaded {0} battle pet qualities.", _defaultQualityPerSpecies.Count);
 	}
 
 	bool IsPetInSlot(ObjectGuid guid)

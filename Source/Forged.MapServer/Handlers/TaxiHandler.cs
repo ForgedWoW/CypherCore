@@ -22,7 +22,7 @@ public partial class WorldSession
 
 		if (!unit || unit.IsHostileTo(player) || !unit.HasNpcFlag(NPCFlags.FlightMaster))
 		{
-			Log.outDebug(LogFilter.Network, "WorldSession.SendTaxiStatus - {0} not found.", guid.ToString());
+			Log.Logger.Debug("WorldSession.SendTaxiStatus - {0} not found.", guid.ToString());
 
 			return;
 		}
@@ -153,7 +153,7 @@ public partial class WorldSession
 
 		if (unit == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleTaxiQueryAvailableNodes - {0} not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString());
+			Log.Logger.Debug("WORLD: HandleTaxiQueryAvailableNodes - {0} not found or you can't interact with him.", taxiQueryAvailableNodes.Unit.ToString());
 
 			return;
 		}
@@ -177,7 +177,7 @@ public partial class WorldSession
 
 		if (unit == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleActivateTaxiOpcode - {0} not found or you can't interact with it.", activateTaxi.Vendor.ToString());
+			Log.Logger.Debug("WORLD: HandleActivateTaxiOpcode - {0} not found or you can't interact with it.", activateTaxi.Vendor.ToString());
 			SendActivateTaxiReply(ActivateTaxiReply.TooFarAway);
 
 			return;

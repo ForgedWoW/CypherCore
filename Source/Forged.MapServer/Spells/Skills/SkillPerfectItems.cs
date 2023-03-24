@@ -23,7 +23,7 @@ public class SkillPerfectItems
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell perfection definitions. DB table `skill_perfect_item_template` is empty.");
+			Log.Logger.Information("Loaded 0 spell perfection definitions. DB table `skill_perfect_item_template` is empty.");
 
 			return;
 		}
@@ -36,7 +36,7 @@ public class SkillPerfectItems
 
 			if (!Global.SpellMgr.HasSpellInfo(spellId, Framework.Constants.Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Skill perfection data for spell {0} has non-existent spell id in `skill_perfect_item_template`!", spellId);
+				Log.Logger.Error("Skill perfection data for spell {0} has non-existent spell id in `skill_perfect_item_template`!", spellId);
 
 				continue;
 			}
@@ -45,7 +45,7 @@ public class SkillPerfectItems
 
 			if (!Global.SpellMgr.HasSpellInfo(requiredSpecialization, Framework.Constants.Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Skill perfection data for spell {0} has non-existent required specialization spell id {1} in `skill_perfect_item_template`!", spellId, requiredSpecialization);
+				Log.Logger.Error("Skill perfection data for spell {0} has non-existent required specialization spell id {1} in `skill_perfect_item_template`!", spellId, requiredSpecialization);
 
 				continue;
 			}
@@ -54,7 +54,7 @@ public class SkillPerfectItems
 
 			if (perfectCreateChance <= 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Skill perfection data for spell {0} has impossibly low proc chance in `skill_perfect_item_template`!", spellId);
+				Log.Logger.Error("Skill perfection data for spell {0} has impossibly low proc chance in `skill_perfect_item_template`!", spellId);
 
 				continue;
 			}
@@ -63,7 +63,7 @@ public class SkillPerfectItems
 
 			if (Global.ObjectMgr.GetItemTemplate(perfectItemType) == null)
 			{
-				Log.outError(LogFilter.Sql, "Skill perfection data for spell {0} references non-existent perfect item id {1} in `skill_perfect_item_template`!", spellId, perfectItemType);
+				Log.Logger.Error("Skill perfection data for spell {0} references non-existent perfect item id {1} in `skill_perfect_item_template`!", spellId, perfectItemType);
 
 				continue;
 			}
@@ -73,7 +73,7 @@ public class SkillPerfectItems
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell perfection definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)

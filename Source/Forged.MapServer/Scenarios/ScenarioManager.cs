@@ -48,7 +48,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		if (scenarioData == null)
 		{
-			Log.outError(LogFilter.Scenario,
+			Log.Logger.Error(
 						"Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
 						scenarioID,
 						map.Id,
@@ -70,7 +70,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 scenarios. DB table `scenarios` is empty!");
+			Log.Logger.Information("Loaded 0 scenarios. DB table `scenarios` is empty!");
 
 			return;
 		}
@@ -84,7 +84,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 			if (scenarioAllianceId > 0 && !_scenarioData.ContainsKey(scenarioAllianceId))
 			{
-				Log.outError(LogFilter.Sql, "ScenarioMgr.LoadDBData: DB Table `scenarios`, column scenario_A contained an invalid scenario (Id: {0})!", scenarioAllianceId);
+				Log.Logger.Error("ScenarioMgr.LoadDBData: DB Table `scenarios`, column scenario_A contained an invalid scenario (Id: {0})!", scenarioAllianceId);
 
 				continue;
 			}
@@ -93,7 +93,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 			if (scenarioHordeId > 0 && !_scenarioData.ContainsKey(scenarioHordeId))
 			{
-				Log.outError(LogFilter.Sql, "ScenarioMgr.LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: {0})!", scenarioHordeId);
+				Log.Logger.Error("ScenarioMgr.LoadDBData: DB Table `scenarios`, column scenario_H contained an invalid scenario (Id: {0})!", scenarioHordeId);
 
 				continue;
 			}
@@ -109,7 +109,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			_scenarioDBData[Tuple.Create(mapId, difficulty)] = data;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadDB2Data()
@@ -159,7 +159,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 scenario POI definitions. DB table `scenario_poi` is empty.");
+			Log.Logger.Information("Loaded 0 scenario POI definitions. DB table `scenario_poi` is empty.");
 
 			return;
 		}
@@ -198,7 +198,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			var navigationPlayerConditionID = result.Read<int>(9);
 
 			if (Global.CriteriaMgr.GetCriteriaTree(criteriaTreeID) == null)
-				Log.outError(LogFilter.Sql, $"`scenario_poi` CriteriaTreeID ({criteriaTreeID}) Idx1 ({idx1}) does not correspond to a valid criteria tree");
+				Log.Logger.Error($"`scenario_poi` CriteriaTreeID ({criteriaTreeID}) Idx1 ({idx1}) does not correspond to a valid criteria tree");
 
 			var blobs = allPoints.LookupByKey(criteriaTreeID);
 
@@ -218,10 +218,10 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 				DB.World.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");
 			else
-				Log.outError(LogFilter.Sql, $"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");
+				Log.Logger.Error($"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, $"Loaded {count} scenario POI definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} scenario POI definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<ScenarioPOI> GetScenarioPOIs(uint CriteriaTreeID)

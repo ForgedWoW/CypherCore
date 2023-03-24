@@ -83,7 +83,7 @@ public class Guardian : Minion
 			}
 			else
 			{
-				Log.outError(LogFilter.Unit, "Unknown type pet {0} is summoned by player class {1}", Entry, OwnerUnit.Class);
+				Log.Logger.Error("Unknown type pet {0} is summoned by player class {1}", Entry, OwnerUnit.Class);
 			}
 		}
 

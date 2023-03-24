@@ -321,7 +321,7 @@ public partial class Spell : IDisposable
 		{
 			// Clean the reference to avoid later crash.
 			// If this error is repeating, we may have to add an ASSERT to better track down how we get into this case.
-			Log.outError(LogFilter.Spells, "SPELL: deleting spell for spell ID {0}. However, spell still referenced.", SpellInfo.Id);
+			Log.Logger.Error("SPELL: deleting spell for spell ID {0}. However, spell still referenced.", SpellInfo.Id);
 			SelfContainer = null;
 		}
 	}
@@ -829,7 +829,7 @@ public partial class Spell : IDisposable
 										.SetTriggeringSpell(this)
 										.SetCastDifficulty(hit.TriggeredSpell.Difficulty));
 
-					Log.outDebug(LogFilter.Spells, "Spell {0} triggered spell {1} by SPELL_AURA_ADD_TARGET_TRIGGER aura", SpellInfo.Id, hit.TriggeredSpell.Id);
+					Log.Logger.Debug("Spell {0} triggered spell {1} by SPELL_AURA_ADD_TARGET_TRIGGER aura", SpellInfo.Id, hit.TriggeredSpell.Id);
 
 					// SPELL_AURA_ADD_TARGET_TRIGGER auras shouldn't trigger auras without duration
 					// set duration of current aura to the triggered spell
@@ -1008,7 +1008,7 @@ public partial class Spell : IDisposable
 		// set timer base at cast time
 		ReSetTimer();
 
-		Log.outDebug(LogFilter.Spells, "Spell.prepare: spell id {0} source {1} caster {2} customCastFlags {3} mask {4}", SpellInfo.Id, _caster.Entry, _originalCaster != null ? (int)_originalCaster.Entry : -1, _triggeredCastFlags, Targets.TargetMask);
+		Log.Logger.Debug("Spell.prepare: spell id {0} source {1} caster {2} customCastFlags {3} mask {4}", SpellInfo.Id, _caster.Entry, _originalCaster != null ? (int)_originalCaster.Entry : -1, _triggeredCastFlags, Targets.TargetMask);
 
 		if (SpellInfo.HasAttribute(SpellAttr12.StartCooldownOnCastStart))
 			SendSpellCooldown();
@@ -1281,7 +1281,7 @@ public partial class Spell : IDisposable
 
 		if (!Targets.UnitTargetGUID.IsEmpty && Targets.UnitTarget == null)
 		{
-			Log.outDebug(LogFilter.Spells, "Spell {0} is cancelled due to removal of target.", SpellInfo.Id);
+			Log.Logger.Debug("Spell {0} is cancelled due to removal of target.", SpellInfo.Id);
 			Cancel();
 
 			return;
@@ -1321,7 +1321,7 @@ public partial class Spell : IDisposable
 					// check if there are alive targets left
 					if (!UpdateChanneledTargetList())
 					{
-						Log.outDebug(LogFilter.Spells, "Channeled spell {0} is removed due to lack of targets", SpellInfo.Id);
+						Log.Logger.Debug("Channeled spell {0} is removed due to lack of targets", SpellInfo.Id);
 						_timer = 0;
 
 						// Also remove applied auras
@@ -1459,7 +1459,7 @@ public partial class Spell : IDisposable
 
 			if (spellInfo != null && spellInfo.IconFileDataId == 134230)
 			{
-				Log.outDebug(LogFilter.Spells, "Statue {0} is unsummoned in spell {1} finish", unitCaster.GUID.ToString(), SpellInfo.Id);
+				Log.Logger.Debug("Statue {0} is unsummoned in spell {1} finish", unitCaster.GUID.ToString(), SpellInfo.Id);
 
 				// Avoid infinite loops with setDeathState(JUST_DIED) being called over and over
 				// It might make sense to do this check in Unit::setDeathState() and all overloaded functions
@@ -3320,7 +3320,7 @@ public partial class Spell : IDisposable
             }
             catch (Exception e)
             {
-                Log.outException(e);
+                Log.Logger.Error(e);
             }
 	}
 
@@ -3585,7 +3585,7 @@ public partial class Spell : IDisposable
 
 				break;
 			case SpellTargetSelectionCategories.Nyi:
-				Log.outDebug(LogFilter.Spells, "SPELL: target type {0}, found in spellID {1}, effect {2} is not implemented yet!", SpellInfo.Id, spellEffectInfo.EffectIndex, targetType.Target);
+				Log.Logger.Debug("SPELL: target type {0}, found in spellID {1}, effect {2} is not implemented yet!", SpellInfo.Id, spellEffectInfo.EffectIndex, targetType.Target);
 
 				break;
 		}
@@ -3600,7 +3600,7 @@ public partial class Spell : IDisposable
 
 		if (channeledSpell == null)
 		{
-			Log.outDebug(LogFilter.Spells, "Spell.SelectImplicitChannelTargets: cannot find channel spell for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+			Log.Logger.Debug("Spell.SelectImplicitChannelTargets: cannot find channel spell for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
 
 			return;
 		}
@@ -3619,7 +3619,7 @@ public partial class Spell : IDisposable
 					if (unitTarget)
 						AddUnitTarget(unitTarget, spellEffectInfo.EffectIndex);
 					else
-						Log.outDebug(LogFilter.Spells, "SPELL: cannot find channel spell target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+						Log.Logger.Debug("SPELL: cannot find channel spell target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
 				}
 
 				break;
@@ -3652,7 +3652,7 @@ public partial class Spell : IDisposable
 					}
 					else
 					{
-						Log.outDebug(LogFilter.Spells, "SPELL: cannot find channel spell destination for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+						Log.Logger.Debug("SPELL: cannot find channel spell destination for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
 					}
 				}
 
@@ -3705,7 +3705,7 @@ public partial class Spell : IDisposable
 		// handle emergency case - try to use other provided targets if no conditions provided
 		if (targetType.CheckType == SpellTargetCheckTypes.Entry && (condList == null || condList.Empty()))
 		{
-			Log.outDebug(LogFilter.Spells, "Spell.SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID {0}, effect {1} - selecting default targets", SpellInfo.Id, spellEffectInfo.EffectIndex);
+			Log.Logger.Debug("Spell.SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID {0}, effect {1} - selecting default targets", SpellInfo.Id, spellEffectInfo.EffectIndex);
 
 			switch (targetType.ObjectType)
 			{
@@ -3758,7 +3758,7 @@ public partial class Spell : IDisposable
 
 		if (target == null)
 		{
-			Log.outDebug(LogFilter.Spells, "Spell.SelectImplicitNearbyTargets: cannot find nearby target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
+			Log.Logger.Debug("Spell.SelectImplicitNearbyTargets: cannot find nearby target for spell ID {0}, effect {1}", SpellInfo.Id, spellEffectInfo.EffectIndex);
 			SendCastResult(SpellCastResult.BadImplicitTargets);
 			Finish(SpellCastResult.BadImplicitTargets);
 
@@ -3769,7 +3769,7 @@ public partial class Spell : IDisposable
 
 		if (!target)
 		{
-			Log.outDebug(LogFilter.Spells, $"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set NULL target, effect {spellEffectInfo.EffectIndex}");
+			Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set NULL target, effect {spellEffectInfo.EffectIndex}");
 			SendCastResult(SpellCastResult.BadImplicitTargets);
 			Finish(SpellCastResult.BadImplicitTargets);
 
@@ -3787,7 +3787,7 @@ public partial class Spell : IDisposable
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Spells, $"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected unit, got {target.GUID.High}, effect {effMask}");
+					Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected unit, got {target.GUID.High}, effect {effMask}");
 					SendCastResult(SpellCastResult.BadImplicitTargets);
 					Finish(SpellCastResult.BadImplicitTargets);
 
@@ -3804,7 +3804,7 @@ public partial class Spell : IDisposable
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Spells, $"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected gameobject, got {target.GUID.High}, effect {effMask}");
+					Log.Logger.Debug($"Spell.SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected gameobject, got {target.GUID.High}, effect {effMask}");
 					SendCastResult(SpellCastResult.BadImplicitTargets);
 					Finish(SpellCastResult.BadImplicitTargets);
 
@@ -3821,7 +3821,7 @@ public partial class Spell : IDisposable
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Spells, $"Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected corpse, got {target.GUID.TypeId}, effect {effMask}");
+					Log.Logger.Debug($"Spell::SelectImplicitNearbyTargets: OnObjectTargetSelect script hook for spell Id {SpellInfo.Id} set object of wrong type, expected corpse, got {target.GUID.TypeId}, effect {effMask}");
 					SendCastResult(SpellCastResult.BadImplicitTargets);
 					Finish(SpellCastResult.BadImplicitTargets);
 
@@ -4081,7 +4081,7 @@ public partial class Spell : IDisposable
 				}
 				else
 				{
-					Log.outDebug(LogFilter.Spells, "SPELL: unknown target coordinates for spell ID {0}", SpellInfo.Id);
+					Log.Logger.Debug("SPELL: unknown target coordinates for spell ID {0}", SpellInfo.Id);
 					var target = Targets.ObjectTarget;
 
 					if (target)
@@ -6359,7 +6359,7 @@ public partial class Spell : IDisposable
 		if (!IsNeedSendToClient())
 			return;
 
-		Log.outDebug(LogFilter.Spells, "Sending SMSG_SPELL_GO id={0}", SpellInfo.Id);
+		Log.Logger.Debug("Sending SMSG_SPELL_GO id={0}", SpellInfo.Id);
 
 		var castFlags = SpellCastFlags.Unk9;
 
@@ -6863,7 +6863,7 @@ public partial class Spell : IDisposable
 		{
 			// This code is to avoid a crash
 			// I'm not sure, if this is really an error, but I guess every item needs a prototype
-			Log.outError(LogFilter.Spells, "Cast item has no item prototype {0}", CastItem.GUID.ToString());
+			Log.Logger.Error("Cast item has no item prototype {0}", CastItem.GUID.ToString());
 
 			return;
 		}
@@ -6979,7 +6979,7 @@ public partial class Spell : IDisposable
 
 			if (cost.Power >= PowerType.Max)
 			{
-				Log.outError(LogFilter.Spells, "Spell.TakePower: Unknown power type '{0}'", cost.Power);
+				Log.Logger.Error("Spell.TakePower: Unknown power type '{0}'", cost.Power);
 
 				continue;
 			}
@@ -7154,7 +7154,7 @@ public partial class Spell : IDisposable
 			}
 		}
 
-		Log.outDebug(LogFilter.Spells, "Spell {0}, added an additional {1} threat for {2} {3} target(s)", SpellInfo.Id, threat, IsPositive ? "assisting" : "harming", UniqueTargetInfo.Count);
+		Log.Logger.Debug("Spell {0}, added an additional {1} threat for {2} {3} target(s)", SpellInfo.Id, threat, IsPositive ? "assisting" : "harming", UniqueTargetInfo.Count);
 	}
 
 	SpellCastResult CheckCasterAuras(ref int param1)
@@ -7553,7 +7553,7 @@ public partial class Spell : IDisposable
 			// Check valid power type
 			if (cost.Power >= PowerType.Max)
 			{
-				Log.outError(LogFilter.Spells, "Spell.CheckPower: Unknown power type '{0}'", cost.Power);
+				Log.Logger.Error("Spell.CheckPower: Unknown power type '{0}'", cost.Power);
 
 				return SpellCastResult.Unknown;
 			}
@@ -8647,7 +8647,7 @@ public partial class Spell : IDisposable
 
 		foreach (var script in _loadedScripts)
 		{
-			Log.outDebug(LogFilter.Spells, "Spell.LoadScripts: Script `{0}` for spell `{1}` is loaded now", script._GetScriptName(), SpellInfo.Id);
+			Log.Logger.Debug("Spell.LoadScripts: Script `{0}` for spell `{1}` is loaded now", script._GetScriptName(), SpellInfo.Id);
 			script.Register();
 
 			if (script is ISpellScript)
@@ -8750,7 +8750,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 	}
@@ -8770,7 +8770,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 	}
@@ -8789,7 +8789,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 	}
@@ -8808,7 +8808,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 	}
@@ -8832,7 +8832,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 
@@ -8852,7 +8852,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex, "");
 			}
 		}
 
@@ -8916,7 +8916,7 @@ public partial class Spell : IDisposable
         }
         catch (Exception ex)
         {
-			Log.outException(ex);
+			Log.Logger.Error(ex, "");
         }
 
         return preventDefault;
@@ -8937,7 +8937,7 @@ public partial class Spell : IDisposable
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
         }
 	}
@@ -8958,7 +8958,7 @@ public partial class Spell : IDisposable
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
         }
 	}
@@ -8979,7 +8979,7 @@ public partial class Spell : IDisposable
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
         }
 	}
@@ -9000,7 +9000,7 @@ public partial class Spell : IDisposable
             }
             catch (Exception ex)
             {
-                Log.outException(ex);
+                Log.Logger.Error(ex, "");
             }
         }
 	}

@@ -78,7 +78,7 @@ public partial class Player
 
 				if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
 				{
-					Log.outError(LogFilter.Player, $"Player:_LoadMail - Mail ({m.messageID}) have not existed MailTemplateId ({m.mailTemplateId}), remove at load");
+					Log.Logger.Error($"Player:_LoadMail - Mail ({m.messageID}) have not existed MailTemplateId ({m.mailTemplateId}), remove at load");
 					m.mailTemplateId = 0;
 				}
 
@@ -205,7 +205,7 @@ public partial class Player
 		if (result.IsEmpty())
 		{
 			Global.CharacterCacheStorage.GetCharacterNameByGuid(guid, out var cacheName);
-			Log.outError(LogFilter.Player, "Player {0} {1} not found in table `characters`, can't load. ", cacheName, guid.ToString());
+			Log.Logger.Error("Player {0} {1} not found in table `characters`, can't load. ", cacheName, guid.ToString());
 
 			return false;
 		}
@@ -287,7 +287,7 @@ public partial class Player
 		// player should be able to load/delete character only with correct account!
 		if (accountId != Session.AccountId)
 		{
-			Log.outError(LogFilter.Player, "Player (GUID: {0}) loading from wrong account (is: {1}, should be: {2})", GUID.ToString(), Session.AccountId, accountId);
+			Log.Logger.Error("Player (GUID: {0}) loading from wrong account (is: {1}, should be: {2})", GUID.ToString(), Session.AccountId, accountId);
 
 			return false;
 		}
@@ -296,7 +296,7 @@ public partial class Player
 
 		if (!banResult.IsEmpty())
 		{
-			Log.outError(LogFilter.Player, "{0} is banned, can't load.", guid.ToString());
+			Log.Logger.Error("{0} is banned, can't load.", guid.ToString());
 
 			return false;
 		}
@@ -323,7 +323,7 @@ public partial class Player
 
 		if (gender >= Gender.None)
 		{
-			Log.outError(LogFilter.Player, "Player {0} has wrong gender ({1}), can't be loaded.", guid.ToString(), gender);
+			Log.Logger.Error("Player {0} has wrong gender ({1}), can't be loaded.", guid.ToString(), gender);
 
 			return false;
 		}
@@ -337,7 +337,7 @@ public partial class Player
 
 		if (info == null)
 		{
-			Log.outError(LogFilter.Player, "Player {0} has wrong race/class ({1}/{2}), can't be loaded.", guid.ToString(), Race, Class);
+			Log.Logger.Error("Player {0} has wrong race/class ({1}/{2}), can't be loaded.", guid.ToString(), Race, Class);
 
 			return false;
 		}
@@ -390,7 +390,7 @@ public partial class Player
 
 		if (!Session.ValidateAppearance(Race, Class, gender, customizations))
 		{
-			Log.outError(LogFilter.Player, "Player {0} has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString());
+			Log.Logger.Error("Player {0} has wrong Appearance values (Hair/Skin/Color), can't be loaded.", guid.ToString());
 
 			return false;
 		}
@@ -445,7 +445,7 @@ public partial class Player
 
 		if (mapEntry == null || !Location.IsPositionValid)
 		{
-			Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid coordinates (MapId: {1} {2}). Teleport to default race/class locations.", guid.ToString(), mapId, Location);
+			Log.Logger.Error("Player (guidlow {0}) have invalid coordinates (MapId: {1} {2}). Teleport to default race/class locations.", guid.ToString(), mapId, Location);
 			RelocateToHomebind();
 		}
 		else if (mapEntry.IsBattlegroundOrArena())
@@ -489,7 +489,7 @@ public partial class Player
 
 				if (mapId == 0xFFFFFFFF) // BattlegroundEntry Point not found (???)
 				{
-					Log.outError(LogFilter.Player, "Player (guidlow {0}) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid.ToString());
+					Log.Logger.Error("Player (guidlow {0}) was in BG in database, but BG was not found, and entry point was invalid! Teleport to default race/class locations.", guid.ToString());
 					RelocateToHomebind();
 				}
 				else
@@ -544,7 +544,7 @@ public partial class Player
 					Math.Abs(MovementInfo.Transport.Pos.Y) > 250.0f ||
 					Math.Abs(MovementInfo.Transport.Pos.Z) > 250.0f)
 				{
-					Log.outError(LogFilter.Player, "Player (guidlow {0}) have invalid transport coordinates ({1}). Teleport to bind location.", guid.ToString(), pos.ToString());
+					Log.Logger.Error("Player (guidlow {0}) have invalid transport coordinates ({1}). Teleport to bind location.", guid.ToString(), pos.ToString());
 
 					MovementInfo.Transport.Reset();
 					RelocateToHomebind();
@@ -559,7 +559,7 @@ public partial class Player
 			}
 			else
 			{
-				Log.outError(LogFilter.Player, "Player (guidlow {0}) have problems with transport guid ({1}). Teleport to bind location.", guid.ToString(), transguid);
+				Log.Logger.Error("Player (guidlow {0}) have problems with transport guid ({1}). Teleport to bind location.", guid.ToString(), transguid);
 
 				RelocateToHomebind();
 			}
@@ -585,12 +585,12 @@ public partial class Player
 
 				if (nodeEntry == null) // don't know taxi start node, to homebind
 				{
-					Log.outError(LogFilter.Player, "Character {0} have wrong data in taxi destination list, teleport to homebind.", GUID.ToString());
+					Log.Logger.Error("Character {0} have wrong data in taxi destination list, teleport to homebind.", GUID.ToString());
 					RelocateToHomebind();
 				}
 				else // have start node, to it
 				{
-					Log.outError(LogFilter.Player, "Character {0} have too short taxi destination list, teleport to original node.", GUID.ToString());
+					Log.Logger.Error("Character {0} have too short taxi destination list, teleport to original node.", GUID.ToString());
 					mapId = nodeEntry.ContinentID;
 					Location.Relocate(nodeEntry.Pos.X, nodeEntry.Pos.Y, nodeEntry.Pos.Z, 0.0f);
 				}
@@ -627,7 +627,7 @@ public partial class Player
 		if (mapEntry != null)
 			if (Session.Expansion < mapEntry.Expansion())
 			{
-				Log.outDebug(LogFilter.Player, "Player {0} using client without required expansion tried login at non accessible map {1}", GetName(), mapId);
+				Log.Logger.Debug("Player {0} using client without required expansion tried login at non accessible map {1}", GetName(), mapId);
 				RelocateToHomebind();
 			}
 
@@ -680,7 +680,7 @@ public partial class Player
 
 			if (!map)
 			{
-				Log.outError(LogFilter.Player, "Player {0} {1} Map: {2}, {3}. Invalid default map coordinates or instance couldn't be created.", GetName(), guid.ToString(), mapId, Location);
+				Log.Logger.Error("Player {0} {1} Map: {2}, {3}. Invalid default map coordinates or instance couldn't be created.", GetName(), guid.ToString(), mapId, Location);
 
 				return false;
 			}
@@ -902,7 +902,7 @@ public partial class Player
 			}
 		}
 
-		Log.outDebug(LogFilter.Player, "The value of player {0} after load item and aura is: ", GetName());
+		Log.Logger.Debug("The value of player {0} after load item and aura is: ", GetName());
 
 		// GM state
 		if (Session.HasPermission(RBACPermissions.RestoreSavedGmState))
@@ -1068,7 +1068,7 @@ public partial class Player
 		// first save/honor gain after midnight will also update the player's honor fields
 		UpdateHonorFields();
 
-		Log.outDebug(LogFilter.Player, $"Player::SaveToDB: The value of player {GetName()} at save: ");
+		Log.Logger.Debug($"Player::SaveToDB: The value of player {GetName()} at save: ");
 
 		if (!create)
 			Global.ScriptMgr.ForEach<IPlayerOnSave>(p => p.OnSave(this));
@@ -2006,7 +2006,7 @@ public partial class Player
 				break;
 			}
 			default:
-				Log.outError(LogFilter.Player, "Player:DeleteFromDB: Unsupported delete method: {0}.", charDelete_method);
+				Log.Logger.Error("Player:DeleteFromDB: Unsupported delete method: {0}.", charDelete_method);
 
 				if (trans.commands.Count > 0)
 					DB.Characters.CommitTransaction(trans);
@@ -2033,7 +2033,7 @@ public partial class Player
 
 	public static void DeleteOldCharacters(int keepDays)
 	{
-		Log.outInfo(LogFilter.Player, "Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
+		Log.Logger.Information("Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
 		stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * Time.Day));
@@ -2049,7 +2049,7 @@ public partial class Player
 				count++;
 			} while (result.NextRow());
 
-			Log.outDebug(LogFilter.Player, "Player:DeleteOldChars: Deleted {0} character(s)", count);
+			Log.Logger.Debug("Player:DeleteOldChars: Deleted {0} character(s)", count);
 		}
 	}
 
@@ -2156,7 +2156,7 @@ public partial class Player
 						}
 						else
 						{
-							Log.outError(LogFilter.Player, $"Player._LoadInventory: Player '{GetName()}' ({GUID}) has child item ({item.GUID}, entry: {item.Entry}) which can't be loaded into inventory because parent item was not found (Bag {bagGuid}, slot: {slot}). Item will be sent by mail.");
+							Log.Logger.Error($"Player._LoadInventory: Player '{GetName()}' ({GUID}) has child item ({item.GUID}, entry: {item.Entry}) which can't be loaded into inventory because parent item was not found (Bag {bagGuid}, slot: {slot}). Item will be sent by mail.");
 							item.DeleteFromInventoryDB(trans);
 							problematicItems.Enqueue(item);
 
@@ -2234,7 +2234,7 @@ public partial class Player
 						}
 						else
 						{
-							Log.outError(LogFilter.Player,
+							Log.Logger.Error(
 										"LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which doesnt have a valid bag (Bag GUID: {4}, slot: {5}). Possible cheat?",
 										GUID.ToString(),
 										GetName(),
@@ -2256,7 +2256,7 @@ public partial class Player
 					}
 					else
 					{
-						Log.outError(LogFilter.Player,
+						Log.Logger.Error(
 									"LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which can't be loaded into inventory (Bag GUID: {4}, slot: {5}) by reason {6}. " +
 									"Item will be sent by mail.",
 									GUID.ToString(),
@@ -2314,7 +2314,7 @@ public partial class Player
 				// Do not allow to have item limited to another map/zone in alive state
 				if (IsAlive && item.IsLimitedToAnotherMapOrZone(Location.MapId, zoneId))
 				{
-					Log.outDebug(LogFilter.Player,
+					Log.Logger.Debug(
 								"LoadInventory: player (GUID: {0}, name: '{1}', map: {2}) has item (GUID: {3}, entry: {4}) limited to another map ({5}). Deleting item.",
 								GUID.ToString(),
 								GetName(),
@@ -2328,7 +2328,7 @@ public partial class Player
 				// "Conjured items disappear if you are logged out for more than 15 minutes"
 				else if (timeDiff > 15 * Time.Minute && proto.HasFlag(ItemFlags.Conjured))
 				{
-					Log.outDebug(LogFilter.Player,
+					Log.Logger.Debug(
 								"LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
 								GUID.ToString(),
 								GetName(),
@@ -2343,7 +2343,7 @@ public partial class Player
 				{
 					if (item.PlayedTime > (2 * Time.Hour))
 					{
-						Log.outDebug(LogFilter.Player,
+						Log.Logger.Debug(
 									"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
 									"efundable flag.",
 									GUID.ToString(),
@@ -2374,7 +2374,7 @@ public partial class Player
 						}
 						else
 						{
-							Log.outDebug(LogFilter.Player,
+							Log.Logger.Debug(
 										"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing flag.",
 										GUID.ToString(),
 										GetName(),
@@ -2413,7 +2413,7 @@ public partial class Player
 					}
 					else
 					{
-						Log.outDebug(LogFilter.ServerLoading,
+						Log.Logger.Debug(
 									"LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE flag, " +
 									"but without data in item_soulbound_trade_data. Removing flag.",
 									GUID.ToString(),
@@ -2441,7 +2441,7 @@ public partial class Player
 			}
 			else
 			{
-				Log.outError(LogFilter.Player,
+				Log.Logger.Error(
 							"LoadInventory: player (GUID: {0}, name: {1}) has broken item (GUID: {2}, entry: {3}) in inventory. Deleting item.",
 							GUID.ToString(),
 							GetName(),
@@ -2462,7 +2462,7 @@ public partial class Player
 		}
 		else
 		{
-			Log.outError(LogFilter.Player,
+			Log.Logger.Error(
 						"LoadInventory: player (GUID: {0}, name: {1}) has unknown item (entry: {2}) in inventory. Deleting item.",
 						GUID.ToString(),
 						GetName(),
@@ -2489,7 +2489,7 @@ public partial class Player
 			{
 				if (_skillStatus.Count >= SkillConst.MaxPlayerSkills) // client limit
 				{
-					Log.outError(LogFilter.Player, $"Player::_LoadSkills: Player '{GetName()}' ({GUID}) has more than {SkillConst.MaxPlayerSkills} skills.");
+					Log.Logger.Error($"Player::_LoadSkills: Player '{GetName()}' ({GUID}) has more than {SkillConst.MaxPlayerSkills} skills.");
 
 					break;
 				}
@@ -2503,7 +2503,7 @@ public partial class Player
 
 				if (rcEntry == null)
 				{
-					Log.outError(LogFilter.Player, $"Player::_LoadSkills: Player '{GetName()}' ({GUID}, Race: {race}, Class: {Class}) has forbidden skill {skill} for his race/class combination");
+					Log.Logger.Error($"Player::_LoadSkills: Player '{GetName()}' ({GUID}, Race: {race}, Class: {Class}) has forbidden skill {skill} for his race/class combination");
 					_skillStatus.Add(skill, new SkillStatusData((uint)_skillStatus.Count, SkillState.Deleted));
 
 					continue;
@@ -2622,7 +2622,7 @@ public partial class Player
 
 	void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
 	{
-		Log.outDebug(LogFilter.Player, "Loading auras for player {0}", GUID.ToString());
+		Log.Logger.Debug("Loading auras for player {0}", GUID.ToString());
 
 		ObjectGuid casterGuid = new();
 		ObjectGuid itemGuid = new();
@@ -2664,14 +2664,14 @@ public partial class Player
 
 				if (spellInfo == null)
 				{
-					Log.outError(LogFilter.Player, "Unknown aura (spellid {0}), ignore.", key.SpellId);
+					Log.Logger.Error("Unknown aura (spellid {0}), ignore.", key.SpellId);
 
 					continue;
 				}
 
 				if (difficulty != Difficulty.None && !CliDB.DifficultyStorage.ContainsKey(difficulty))
 				{
-					Log.outError(LogFilter.Player, $"Player._LoadAuras: Player '{GetName()}' ({GUID}) has an invalid aura difficulty {difficulty} (SpellID: {key.SpellId}), ignoring.");
+					Log.Logger.Error($"Player._LoadAuras: Player '{GetName()}' ({GUID}) has an invalid aura difficulty {difficulty} (SpellID: {key.SpellId}), ignoring.");
 
 					continue;
 				}
@@ -2719,7 +2719,7 @@ public partial class Player
 
 					aura.SetLoadedState(maxDuration, remainTime, remainCharges, stackCount, recalculateMask, info.Amounts);
 					aura.ApplyForTargets();
-					Log.outInfo(LogFilter.Player, "Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
+					Log.Logger.Information("Added aura spellid {0}, effectmask {1}", spellInfo.Id, key.EffectMask);
 				}
 			} while (auraResult.NextRow());
 	}
@@ -2730,7 +2730,7 @@ public partial class Player
 
 		if (info == null)
 		{
-			Log.outError(LogFilter.Player, "Player (Name {0}) has incorrect race/class ({1}/{2}) pair. Can't be loaded.", GetName(), Race, Class);
+			Log.Logger.Error("Player (Name {0}) has incorrect race/class ({1}/{2}) pair. Can't be loaded.", GetName(), Race, Class);
 
 			return false;
 		}
@@ -2801,7 +2801,7 @@ public partial class Player
 			saveHomebindToDb();
 		}
 
-		Log.outDebug(LogFilter.Player, $"Setting player home position - mapid: {_homebind.MapId}, areaid: {_homebindAreaId}, {_homebind}");
+		Log.Logger.Debug($"Setting player home position - mapid: {_homebind.MapId}, areaid: {_homebindAreaId}, {_homebind}");
 
 		return true;
 	}
@@ -2859,7 +2859,7 @@ public partial class Player
 				}
 				else
 				{
-					Log.outError(LogFilter.Player, $"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
+					Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
 
 					// Will deleted in DB at next save (it can create data until save but marked as deleted)
 					_actionButtons[button] = new ActionButton();
@@ -2894,7 +2894,7 @@ public partial class Player
 					{
 						questStatusData.Status = QuestStatus.Incomplete;
 
-						Log.outError(LogFilter.Player,
+						Log.Logger.Error(
 									"Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
 									GetName(),
 									GUID.ToString(),
@@ -2947,7 +2947,7 @@ public partial class Player
 					}
 
 					_mQuestStatus[questId] = questStatusData;
-					Log.outDebug(LogFilter.ServerLoading, "Quest status is {0} for quest {1} for player (GUID: {2})", questStatusData.Status, questId, GUID.ToString());
+					Log.Logger.Debug("Quest status is {0} for quest {1} for player (GUID: {2})", questStatusData.Status, questId, GUID.ToString());
 				}
 			} while (result.NextRow());
 
@@ -2984,12 +2984,12 @@ public partial class Player
 					}
 					else
 					{
-						Log.outError(LogFilter.Player, $"Player {GetName()} ({GUID}) has quest {questID} out of range objective index {storageIndex}.");
+						Log.Logger.Error($"Player {GetName()} ({GUID}) has quest {questID} out of range objective index {storageIndex}.");
 					}
 				}
 				else
 				{
-					Log.outError(LogFilter.Player, $"Player {GetName()} ({GUID}) does not have quest {questID} but has objective data for it.");
+					Log.Logger.Error($"Player {GetName()} ({GUID}) does not have quest {questID} but has objective data for it.");
 				}
 			} while (result.NextRow());
 	}
@@ -3085,7 +3085,7 @@ public partial class Player
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
 
-				Log.outDebug(LogFilter.Player, "Daily quest ({0}) cooldown for player (GUID: {1})", quest_id, GUID.ToString());
+				Log.Logger.Debug("Daily quest ({0}) cooldown for player (GUID: {1})", quest_id, GUID.ToString());
 			} while (result.NextRow());
 
 		_dailyQuestChanged = false;
@@ -3110,7 +3110,7 @@ public partial class Player
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
 
-				Log.outDebug(LogFilter.Player, "Weekly quest {0} cooldown for player (GUID: {1})", quest_id, GUID.ToString());
+				Log.Logger.Debug("Weekly quest {0} cooldown for player (GUID: {1})", quest_id, GUID.ToString());
 			} while (result.NextRow());
 
 		_weeklyQuestChanged = false;
@@ -3141,7 +3141,7 @@ public partial class Player
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
 
-				Log.outDebug(LogFilter.Player, "Seasonal quest {0} cooldown for player (GUID: {1})", quest_id, GUID.ToString());
+				Log.Logger.Debug("Seasonal quest {0} cooldown for player (GUID: {1})", quest_id, GUID.ToString());
 			} while (result.NextRow());
 
 		_seasonalQuestChanged = false;
@@ -3170,7 +3170,7 @@ public partial class Player
 				if (questBit != 0)
 					SetQuestCompletedBit(questBit, true);
 
-				Log.outDebug(LogFilter.Player, "Monthly quest {0} cooldown for player (GUID: {1})", quest_id, GUID.ToString());
+				Log.Logger.Debug("Monthly quest {0} cooldown for player (GUID: {1})", quest_id, GUID.ToString());
 			} while (result.NextRow());
 
 		_monthlyQuestChanged = false;
@@ -3385,21 +3385,21 @@ public partial class Player
 
 			if (itemId == 0)
 			{
-				Log.outError(LogFilter.Player, "Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid id (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
+				Log.Logger.Error("Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid id (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
 
 				continue;
 			}
 
 			if (Global.ObjectMgr.GetItemTemplate(itemEntry) == null)
 			{
-				Log.outError(LogFilter.Player, "Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid entry (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
+				Log.Logger.Error("Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid entry (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
 
 				continue;
 			}
 
 			if (slot >= SharedConst.VoidStorageMaxSlot)
 			{
-				Log.outError(LogFilter.Player, "Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid slot (item id: item id: {2}, entry: {3}, slot: {4}).", GUID.ToString(), GetName(), itemId, itemEntry, slot);
+				Log.Logger.Error("Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid slot (item id: item id: {2}, entry: {3}, slot: {4}).", GUID.ToString(), GetName(), itemId, itemEntry, slot);
 
 				continue;
 			}
@@ -3420,7 +3420,7 @@ public partial class Player
 
 		if (proto == null)
 		{
-			Log.outError(LogFilter.Player, $"Player {(player != null ? player.GetName() : "<unknown>")} ({playerGuid}) has unknown item in mailed items (GUID: {itemGuid} template: {itemEntry}) in mail ({mailId}), deleted.");
+			Log.Logger.Error($"Player {(player != null ? player.GetName() : "<unknown>")} ({playerGuid}) has unknown item in mailed items (GUID: {itemGuid} template: {itemEntry}) in mail ({mailId}), deleted.");
 
 			SQLTransaction trans = new();
 
@@ -3442,7 +3442,7 @@ public partial class Player
 
 		if (!item.LoadFromDB(itemGuid, ownerGuid, fields, itemEntry))
 		{
-			Log.outError(LogFilter.Player, $"Player._LoadMailedItems: Item (GUID: {itemGuid}) in mail ({mailId}) doesn't exist, deleted from mail.");
+			Log.Logger.Error($"Player._LoadMailedItems: Item (GUID: {itemGuid}) in mail ({mailId}) doesn't exist, deleted from mail.");
 
 			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM);
 			stmt.AddValue(0, itemGuid);
@@ -3518,7 +3518,7 @@ public partial class Player
 
 				if (arenaTeam == null)
 				{
-					Log.outError(LogFilter.Player, "Player:_LoadArenaTeamInfo: couldn't load arenateam {0}", arenaTeamId);
+					Log.Logger.Error("Player:_LoadArenaTeamInfo: couldn't load arenateam {0}", arenaTeamId);
 
 					continue;
 				}
@@ -3553,7 +3553,7 @@ public partial class Player
 
 				if (!Global.SpellMgr.HasSpellInfo(spellId, Difficulty.None))
 				{
-					Log.outError(LogFilter.Spells, $"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
+					Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) does not exist");
 
 					continue;
 				}
@@ -3562,7 +3562,7 @@ public partial class Player
 
 				if (!GridDefines.IsValidMapCoord(location))
 				{
-					Log.outError(LogFilter.Spells, $"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) has invalid position on map {location.MapId}, {location}.");
+					Log.Logger.Error($"Player._LoadStoredAuraTeleportLocations: Player {GetName()} ({GUID}) spell (ID: {spellId}) has invalid position on map {location.MapId}, {location}.");
 
 					continue;
 				}
@@ -3704,7 +3704,7 @@ public partial class Player
 
 			if (id > PlayerConst.MaxCUFProfiles)
 			{
-				Log.outError(LogFilter.Player, "Player._LoadCUFProfiles - Player (GUID: {0}, name: {1}) has an CUF profile with invalid id (id: {2}), max is {3}.", GUID.ToString(), GetName(), id, PlayerConst.MaxCUFProfiles);
+				Log.Logger.Error("Player._LoadCUFProfiles - Player (GUID: {0}, name: {1}) has an CUF profile with invalid id (id: {2}), max is {3}.", GUID.ToString(), GetName(), id, PlayerConst.MaxCUFProfiles);
 
 				continue;
 			}
@@ -3827,7 +3827,7 @@ public partial class Player
 			}
 			else
 			{
-				Log.outError(LogFilter.Player, "Can't find item guid {0} but is in refundable storage for player {1} ! Removing.", guid, GUID.ToString());
+				Log.Logger.Error("Can't find item guid {0} but is in refundable storage for player {1} ! Removing.", guid, GUID.ToString());
 				_refundableItems.Remove(guid);
 			}
 		}
@@ -3861,7 +3861,7 @@ public partial class Player
 					if (test2 != null)
 						bagTestGUID = test2.GUID.Counter;
 
-					Log.outError(LogFilter.Player,
+					Log.Logger.Error(
 								"Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} (state {5}) are incorrect, " +
 								"the player doesn't have an item at that position!",
 								GUID.ToString(),
@@ -3888,7 +3888,7 @@ public partial class Player
 				}
 				else if (test != item)
 				{
-					Log.outError(LogFilter.Player,
+					Log.Logger.Error(
 								"Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} are incorrect, " +
 								"the item with guid {5} is there instead!",
 								GUID.ToString(),

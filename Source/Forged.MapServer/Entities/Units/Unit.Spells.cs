@@ -976,7 +976,7 @@ public partial class Unit
 
 					break;
 				default:
-					Log.outDebug(LogFilter.Unit, "Spell {0} SPELL_AURA_IGNORE_COMBAT_RESULT has unhandled state {1}", aurEff.Id, aurEff.MiscValue);
+					Log.Logger.Debug("Spell {0} SPELL_AURA_IGNORE_COMBAT_RESULT has unhandled state {1}", aurEff.Id, aurEff.MiscValue);
 
 					break;
 			}
@@ -2121,7 +2121,7 @@ public partial class Unit
 
 		if (damageInfo.Spell == null)
 		{
-			Log.outDebug(LogFilter.Unit, "Unit.DealSpellDamage has no spell");
+			Log.Logger.Debug("Unit.DealSpellDamage has no spell");
 
 			return;
 		}
@@ -2460,7 +2460,7 @@ public partial class Unit
 
 	public Spell InterruptSpell(CurrentSpellTypes spellType, bool withDelayed = true, bool withInstant = true, Spell interruptingSpell = null)
 	{
-		Log.outDebug(LogFilter.Unit, "Interrupt spell for unit {0}", Entry);
+		Log.Logger.Debug("Interrupt spell for unit {0}", Entry);
 		var spell = CurrentSpells.LookupByKey(spellType);
 
 		if (spell != null && (withDelayed || spell.State != SpellState.Delayed) && (withInstant || spell.CastTime > 0 || spell.State == SpellState.Casting))
@@ -2634,7 +2634,7 @@ public partial class Unit
 
 				if (!valid)
 				{
-					Log.outError(LogFilter.Sql, "Spell {0} specified in npc_spellclick_spells is not a valid vehicle enter aura!", clickInfo.spellId);
+					Log.Logger.Error("Spell {0} specified in npc_spellclick_spells is not a valid vehicle enter aura!", clickInfo.spellId);
 
 					continue;
 				}
@@ -3153,7 +3153,7 @@ public partial class Unit
 
 		if (removeMode == AuraRemoveMode.None)
 		{
-			Log.outError(LogFilter.Spells, "Unit.RemoveOwnedAura() called with unallowed removeMode AURA_REMOVE_NONE, spellId {0}", auraToRemove.Id);
+			Log.Logger.Error("Unit.RemoveOwnedAura() called with unallowed removeMode AURA_REMOVE_NONE, spellId {0}", auraToRemove.Id);
 
 			return;
 		}
@@ -3403,7 +3403,7 @@ public partial class Unit
 						sstr.AppendLine(auraPair.GetDebugInfo());
 				}
 
-				Log.outError(LogFilter.Unit, sstr.ToString());
+				Log.Logger.Error(sstr.ToString());
 
 				break;
 			}
@@ -3542,7 +3542,7 @@ public partial class Unit
 
 		if (check != aurApp)
 		{
-			Log.outError(LogFilter.Server, $"Tried to remove aura app with spell ID: {aurApp.Base.SpellInfo.Id} that does not match. GetApplicationOfTarget: {aurApp.Base.GetApplicationOfTarget(GUID).Guid} AuraApp: {aurApp.Guid}");
+			Log.Logger.Error($"Tried to remove aura app with spell ID: {aurApp.Base.SpellInfo.Id} that does not match. GetApplicationOfTarget: {aurApp.Base.GetApplicationOfTarget(GUID).Guid} AuraApp: {aurApp.Guid}");
 
 			return;
 		}
@@ -3553,7 +3553,7 @@ public partial class Unit
 
 		aurApp.RemoveMode = removeMode;
 		var aura = aurApp.Base;
-		Log.outDebug(LogFilter.Spells, "Aura {0} now is remove mode {1}", aura.Id, removeMode);
+		Log.Logger.Debug("Aura {0} now is remove mode {1}", aura.Id, removeMode);
 
 		++_removedAurasCount;
 
@@ -4227,7 +4227,7 @@ public partial class Unit
 	{
 		if (unitMod >= UnitMods.End)
 		{
-			Log.outError(LogFilter.Unit, "attempt to access non-existing UnitMods in GetTotalAuraModValue()!");
+			Log.Logger.Error("attempt to access non-existing UnitMods in GetTotalAuraModValue()!");
 
 			return 0.0f;
 		}

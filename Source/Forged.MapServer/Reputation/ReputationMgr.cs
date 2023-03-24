@@ -107,7 +107,7 @@ public class ReputationMgr
 
 		if (factionEntry == null)
 		{
-			Log.outError(LogFilter.Player, "ReputationMgr.GetReputation: Can't get reputation of {0} for unknown faction (faction id) #{1}.", _player.GetName(), faction_id);
+			Log.Logger.Error("ReputationMgr.GetReputation: Can't get reputation of {0} for unknown faction (faction id) #{1}.", _player.GetName(), faction_id);
 
 			return 0;
 		}

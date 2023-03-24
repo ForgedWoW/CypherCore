@@ -23,7 +23,7 @@ public class WeatherManager : Singleton<WeatherManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 weather definitions. DB table `game_weather` is empty.");
+			Log.Logger.Information("Loaded 0 weather definitions. DB table `game_weather` is empty.");
 
 			return;
 		}
@@ -43,19 +43,19 @@ public class WeatherManager : Singleton<WeatherManager>
 				if (wzc.Data[season].RainChance > 100)
 				{
 					wzc.Data[season].RainChance = 25;
-					Log.outError(LogFilter.Sql, "Weather for zone {0} season {1} has wrong rain chance > 100%", zone_id, season);
+					Log.Logger.Error("Weather for zone {0} season {1} has wrong rain chance > 100%", zone_id, season);
 				}
 
 				if (wzc.Data[season].SnowChance > 100)
 				{
 					wzc.Data[season].SnowChance = 25;
-					Log.outError(LogFilter.Sql, "Weather for zone {0} season {1} has wrong snow chance > 100%", zone_id, season);
+					Log.Logger.Error("Weather for zone {0} season {1} has wrong snow chance > 100%", zone_id, season);
 				}
 
 				if (wzc.Data[season].StormChance > 100)
 				{
 					wzc.Data[season].StormChance = 25;
-					Log.outError(LogFilter.Sql, "Weather for zone {0} season {1} has wrong storm chance > 100%", zone_id, season);
+					Log.Logger.Error("Weather for zone {0} season {1} has wrong storm chance > 100%", zone_id, season);
 				}
 			}
 
@@ -64,7 +64,7 @@ public class WeatherManager : Singleton<WeatherManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} weather definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} weather definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public WeatherData GetWeatherData(uint zoneId)

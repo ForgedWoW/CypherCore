@@ -27,7 +27,7 @@ public class Weather
 		_type = WeatherType.Fine;
 		_intensity = 0;
 
-		//Log.outInfo(LogFilter.General, "WORLD: Starting weather system for zone {0} (change every {1} minutes).", m_zone, (m_timer.GetInterval() / (Time.Minute * Time.InMilliseconds)));
+		//Log.Logger.Information("WORLD: Starting weather system for zone {0} (change every {1} minutes).", m_zone, (m_timer.GetInterval() / (Time.Minute * Time.InMilliseconds)));
 	}
 
 	public bool Update(uint diff)
@@ -87,7 +87,7 @@ public class Weather
 			"spring", "summer", "fall", "winter"
 		};
 
-		Log.outTrace(LogFilter.Server, "Generating a change in {0} weather for zone {1}.", seasonName[season], _zone);
+		Log.Logger.Verbose("Generating a change in {0} weather for zone {1}.", seasonName[season], _zone);
 
 		if ((u < 60) && (_intensity < 0.33333334f)) // Get fair
 		{
@@ -278,7 +278,7 @@ public class Weather
 				break;
 		}
 
-		Log.outDebug(LogFilter.Server, "Change the weather of zone {0} to {1}.", _zone, wthstr);
+		Log.Logger.Debug("Change the weather of zone {0} to {1}.", _zone, wthstr);
 
 		Global.ScriptMgr.RunScript<IWeatherOnChange>(p => p.OnChange(this, state, _intensity), ScriptId);
 

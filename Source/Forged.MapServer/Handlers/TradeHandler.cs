@@ -120,7 +120,7 @@ public partial class WorldSession
 				if (myItems[i])
 				{
 					// logging
-					Log.outDebug(LogFilter.Network, "partner storing: {0}", myItems[i].GUID.ToString());
+					Log.Logger.Debug("partner storing: {0}", myItems[i].GUID.ToString());
 
 					if (HasPermission(RBACPermissions.LogGmTrade))
 						Log.outCommand(_player.Session.AccountId,
@@ -144,7 +144,7 @@ public partial class WorldSession
 				if (hisItems[i])
 				{
 					// logging
-					Log.outDebug(LogFilter.Network, "player storing: {0}", hisItems[i].GUID.ToString());
+					Log.Logger.Debug("player storing: {0}", hisItems[i].GUID.ToString());
 
 					if (HasPermission(RBACPermissions.LogGmTrade))
 						Log.outCommand(trader.Session.AccountId,
@@ -173,24 +173,24 @@ public partial class WorldSession
 				if (myItems[i])
 				{
 					if (!traderCanTrade)
-						Log.outError(LogFilter.Network, "trader can't store item: {0}", myItems[i].GUID.ToString());
+						Log.Logger.Error("trader can't store item: {0}", myItems[i].GUID.ToString());
 
 					if (Player.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, playerDst, myItems[i], false) == InventoryResult.Ok)
 						Player.MoveItemToInventory(playerDst, myItems[i], true, true);
 					else
-						Log.outError(LogFilter.Network, "player can't take item back: {0}", myItems[i].GUID.ToString());
+						Log.Logger.Error("player can't take item back: {0}", myItems[i].GUID.ToString());
 				}
 
 				// return the already removed items to the original owner
 				if (hisItems[i])
 				{
 					if (!playerCanTrade)
-						Log.outError(LogFilter.Network, "player can't store item: {0}", hisItems[i].GUID.ToString());
+						Log.Logger.Error("player can't store item: {0}", hisItems[i].GUID.ToString());
 
 					if (trader.CanStoreItem(ItemConst.NullBag, ItemConst.NullSlot, traderDst, hisItems[i], false) == InventoryResult.Ok)
 						trader.MoveItemToInventory(traderDst, hisItems[i], true, true);
 					else
-						Log.outError(LogFilter.Network, "trader can't take item back: {0}", hisItems[i].GUID.ToString());
+						Log.Logger.Error("trader can't take item back: {0}", hisItems[i].GUID.ToString());
 				}
 			}
 		}
@@ -208,7 +208,7 @@ public partial class WorldSession
 
 			if (item)
 			{
-				Log.outDebug(LogFilter.Network, "player trade item {0} bag: {1} slot: {2}", item.GUID.ToString(), item.BagSlot, item.Slot);
+				Log.Logger.Debug("player trade item {0} bag: {1} slot: {2}", item.GUID.ToString(), item.BagSlot, item.Slot);
 				//Can return null
 				myItems[i] = item;
 				myItems[i].SetInTrade();
@@ -218,7 +218,7 @@ public partial class WorldSession
 
 			if (item)
 			{
-				Log.outDebug(LogFilter.Network, "partner trade item {0} bag: {1} slot: {2}", item.GUID.ToString(), item.BagSlot, item.Slot);
+				Log.Logger.Debug("partner trade item {0} bag: {1} slot: {2}", item.GUID.ToString(), item.BagSlot, item.Slot);
 				hisItems[i] = item;
 				hisItems[i].SetInTrade();
 			}

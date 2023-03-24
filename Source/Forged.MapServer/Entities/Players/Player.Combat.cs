@@ -244,7 +244,7 @@ public partial class Player
 		Duel.State = DuelState.Completed;
 		opponent.Duel.State = DuelState.Completed;
 
-		Log.outDebug(LogFilter.Player, $"Duel Complete {GetName()} {opponent.GetName()}");
+		Log.Logger.Debug($"Duel Complete {GetName()} {opponent.GetName()}");
 
 		DuelComplete duelCompleted = new();
 		duelCompleted.Started = type != DuelCompleteType.Interrupted;

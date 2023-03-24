@@ -46,7 +46,7 @@ public class WorldServiceHandler
 		{
 			var response = (IMessage)Activator.CreateInstance(_responseType);
 			status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request, response);
-			Log.outDebug(LogFilter.ServiceProtobuf, "{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
+			Log.Logger.Debug("{0} Client called server Method: {1}) Returned: {2} Status: {3}.", session.RemoteAddress, request, response, status);
 
 			if (status == 0)
 				session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, response);
@@ -56,7 +56,7 @@ public class WorldServiceHandler
 		else
 		{
 			status = (BattlenetRpcErrorCode)_methodCaller.DynamicInvoke(session, request);
-			Log.outDebug(LogFilter.ServiceProtobuf, "{0} Client called server Method: {1}) Status: {2}.", session.RemoteAddress, request, status);
+			Log.Logger.Debug("{0} Client called server Method: {1}) Status: {2}.", session.RemoteAddress, request, status);
 
 			if (status != 0)
 				session.SendBattlenetResponse(methodCall.GetServiceHash(), methodCall.GetMethodId(), methodCall.Token, status);

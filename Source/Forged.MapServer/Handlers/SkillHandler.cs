@@ -78,14 +78,14 @@ public partial class WorldSession
 
 		if (unit == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleTalentWipeConfirm - {0} not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString());
+			Log.Logger.Debug("WORLD: HandleTalentWipeConfirm - {0} not found or you can't interact with him.", confirmRespecWipe.RespecMaster.ToString());
 
 			return;
 		}
 
 		if (confirmRespecWipe.RespecType != SpecResetType.Talents)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleConfirmRespecWipe - reset type {0} is not implemented.", confirmRespecWipe.RespecType);
+			Log.Logger.Debug("WORLD: HandleConfirmRespecWipe - reset type {0} is not implemented.", confirmRespecWipe.RespecType);
 
 			return;
 		}

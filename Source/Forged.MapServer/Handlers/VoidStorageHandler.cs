@@ -24,14 +24,14 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageUnlock - {0} not found or player can't interact with it.", unlockVoidStorage.Npc.ToString());
+			Log.Logger.Debug("WORLD: HandleVoidStorageUnlock - {0} not found or player can't interact with it.", unlockVoidStorage.Npc.ToString());
 
 			return;
 		}
 
 		if (Player.IsVoidStorageUnlocked())
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageUnlock - Player({0}, name: {1}) tried to unlock void storage a 2nd time.", Player.GUID.ToString(), Player.GetName());
+			Log.Logger.Debug("WORLD: HandleVoidStorageUnlock - Player({0}, name: {1}) tried to unlock void storage a 2nd time.", Player.GUID.ToString(), Player.GetName());
 
 			return;
 		}
@@ -49,7 +49,7 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageQuery - {0} not found or player can't interact with it.", queryVoidStorage.Npc.ToString());
+			Log.Logger.Debug("WORLD: HandleVoidStorageQuery - {0} not found or player can't interact with it.", queryVoidStorage.Npc.ToString());
 			SendPacket(new VoidStorageFailed());
 
 			return;
@@ -57,7 +57,7 @@ public partial class WorldSession
 
 		if (!Player.IsVoidStorageUnlocked())
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageQuery - {0} name: {1} queried void storage without unlocking it.", player.GUID.ToString(), player.GetName());
+			Log.Logger.Debug("WORLD: HandleVoidStorageQuery - {0} name: {1} queried void storage without unlocking it.", player.GUID.ToString(), player.GetName());
 			SendPacket(new VoidStorageFailed());
 
 			return;
@@ -93,14 +93,14 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageTransfer - {0} not found or player can't interact with it.", voidStorageTransfer.Npc.ToString());
+			Log.Logger.Debug("WORLD: HandleVoidStorageTransfer - {0} not found or player can't interact with it.", voidStorageTransfer.Npc.ToString());
 
 			return;
 		}
 
 		if (!player.IsVoidStorageUnlocked())
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageTransfer - Player ({0}, name: {1}) queried void storage without unlocking it.", player.GUID.ToString(), player.GetName());
+			Log.Logger.Debug("WORLD: HandleVoidStorageTransfer - Player ({0}, name: {1}) queried void storage without unlocking it.", player.GUID.ToString(), player.GetName());
 
 			return;
 		}
@@ -156,7 +156,7 @@ public partial class WorldSession
 
 			if (!item)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageTransfer - {0} {1} wants to deposit an invalid item ({2}).", player.GUID.ToString(), player.GetName(), voidStorageTransfer.Deposits[i].ToString());
+				Log.Logger.Debug("WORLD: HandleVoidStorageTransfer - {0} {1} wants to deposit an invalid item ({2}).", player.GUID.ToString(), player.GetName(), voidStorageTransfer.Deposits[i].ToString());
 
 				continue;
 			}
@@ -192,7 +192,7 @@ public partial class WorldSession
 
 			if (itemVS == null)
 			{
-				Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageTransfer - {0} {1} tried to withdraw an invalid item ({2})", player.GUID.ToString(), player.GetName(), voidStorageTransfer.Withdrawals[i].ToString());
+				Log.Logger.Debug("WORLD: HandleVoidStorageTransfer - {0} {1} tried to withdraw an invalid item ({2})", player.GUID.ToString(), player.GetName(), voidStorageTransfer.Withdrawals[i].ToString());
 
 				continue;
 			}
@@ -203,7 +203,7 @@ public partial class WorldSession
 			if (msg != InventoryResult.Ok)
 			{
 				SendVoidStorageTransferResult(VoidTransferError.InventoryFull);
-				Log.outDebug(LogFilter.Network, "WORLD: HandleVoidStorageTransfer - {0} {1} couldn't withdraw {2} because inventory was full.", player.GUID.ToString(), player.GetName(), voidStorageTransfer.Withdrawals[i].ToString());
+				Log.Logger.Debug("WORLD: HandleVoidStorageTransfer - {0} {1} couldn't withdraw {2} because inventory was full.", player.GUID.ToString(), player.GetName(), voidStorageTransfer.Withdrawals[i].ToString());
 
 				return;
 			}
@@ -231,21 +231,21 @@ public partial class WorldSession
 
 		if (!unit)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidSwapItem - {0} not found or player can't interact with it.", swapVoidItem.Npc.ToString());
+			Log.Logger.Debug("WORLD: HandleVoidSwapItem - {0} not found or player can't interact with it.", swapVoidItem.Npc.ToString());
 
 			return;
 		}
 
 		if (!player.IsVoidStorageUnlocked())
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidSwapItem - Player ({0}, name: {1}) queried void storage without unlocking it.", player.GUID.ToString(), player.GetName());
+			Log.Logger.Debug("WORLD: HandleVoidSwapItem - Player ({0}, name: {1}) queried void storage without unlocking it.", player.GUID.ToString(), player.GetName());
 
 			return;
 		}
 
 		if (player.GetVoidStorageItem(swapVoidItem.VoidItemGuid.Counter, out var oldSlot) == null)
 		{
-			Log.outDebug(LogFilter.Network, "WORLD: HandleVoidSwapItem - Player (GUID: {0}, name: {1}) requested swapping an invalid item (slot: {2}, itemid: {3}).", player.GUID.ToString(), player.GetName(), swapVoidItem.DstSlot, swapVoidItem.VoidItemGuid.ToString());
+			Log.Logger.Debug("WORLD: HandleVoidSwapItem - Player (GUID: {0}, name: {1}) requested swapping an invalid item (slot: {2}, itemid: {3}).", player.GUID.ToString(), player.GetName(), swapVoidItem.DstSlot, swapVoidItem.VoidItemGuid.ToString());
 
 			return;
 		}

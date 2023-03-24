@@ -23,7 +23,7 @@ public class SkillExtraItems
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
+			Log.Logger.Information("Loaded 0 spell specialization definitions. DB table `skill_extra_item_template` is empty.");
 
 			return;
 		}
@@ -36,7 +36,7 @@ public class SkillExtraItems
 
 			if (!Global.SpellMgr.HasSpellInfo(spellId, Framework.Constants.Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Skill specialization {0} has non-existent spell id in `skill_extra_item_template`!", spellId);
+				Log.Logger.Error("Skill specialization {0} has non-existent spell id in `skill_extra_item_template`!", spellId);
 
 				continue;
 			}
@@ -45,7 +45,7 @@ public class SkillExtraItems
 
 			if (!Global.SpellMgr.HasSpellInfo(requiredSpecialization, Framework.Constants.Difficulty.None))
 			{
-				Log.outError(LogFilter.Sql, "Skill specialization {0} have not existed required specialization spell id {1} in `skill_extra_item_template`!", spellId, requiredSpecialization);
+				Log.Logger.Error("Skill specialization {0} have not existed required specialization spell id {1} in `skill_extra_item_template`!", spellId, requiredSpecialization);
 
 				continue;
 			}
@@ -54,7 +54,7 @@ public class SkillExtraItems
 
 			if (additionalCreateChance <= 0.0f)
 			{
-				Log.outError(LogFilter.Sql, "Skill specialization {0} has too low additional create chance in `skill_extra_item_template`!", spellId);
+				Log.Logger.Error("Skill specialization {0} has too low additional create chance in `skill_extra_item_template`!", spellId);
 
 				continue;
 			}
@@ -63,7 +63,7 @@ public class SkillExtraItems
 
 			if (additionalMaxNum == 0)
 			{
-				Log.outError(LogFilter.Sql, "Skill specialization {0} has 0 max number of extra items in `skill_extra_item_template`!", spellId);
+				Log.Logger.Error("Skill specialization {0} has 0 max number of extra items in `skill_extra_item_template`!", spellId);
 
 				continue;
 			}
@@ -77,7 +77,7 @@ public class SkillExtraItems
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
