@@ -93,34 +93,33 @@
     "Default:               - (Disabled)"
   ],
   "PacketLogFile": "ForgedCore.pkt",
-  "MaxNumberLogRotations._comment": [
-    "MaxNumberLogRotations",
-    "Description: Number of logs to keep in rotation. A new log is rotated in at every server startup. ex: WorldServer.1.log",
-    "Default:     20"
-  ],
-  "MaxNumberLogRotations": 20,
-  "MaxLogSize._comment": [
-    "MaxLogSize",
-    "Description: Max Size of a log file in MB before its rotated.",
-    "Default:     50"
-  ],
-  "MaxLogSize": 50,
-  "Appender": {
-    "Console": "1,3,3",
-    "Server": "2,1,3",
-    "GM": "2,2,3,gm/gm_{0}.log",
-    "DBErrors": "2,4,3,DBErrors.log",
-    "Metrics": "2,3,3,Metrics.log"
-  },
-  "Logger": {
-    "Server": "3,Console Server",
-    "ServerLoading": "3,Console Server",
-    "Commands": "3,Console GM",
-    "Sql": "3,Console DBErrors",
-    "SqlUpdates": "3,Console Server",
-    "Network": "3,Console Server",
-    "Metrics": "3,Metrics",
-    "Misc": "3,Console Metrics"
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File", "Serilog.Exceptions" ],
+    "MinimumLevel": "Debug",
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "Logs/log-{Date}.log"
+        }
+      },
+      {
+        "Name": "SubLogger",
+        "Args": {
+          "configure": [
+            {
+              "Name": "File",
+              "Args": {
+                "path": "Logs/{SourceContext}-{Date}.log"
+              }
+            }
+          ],
+          "filter": "Contains(Properties['SourceContext'], SourceContext)"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId", "WithExceptionDetails" ]
   },
   "Allow": {
     "IP": {

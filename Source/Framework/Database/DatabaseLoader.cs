@@ -7,6 +7,7 @@ using System.IO;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
+using Serilog;
 
 namespace Framework.Database;
 
@@ -56,8 +57,8 @@ public class DatabaseLoader
 				// If the error wasn't handled quit
 				if (error != MySqlErrorCode.None)
 				{
-					Log.outError(LogFilter.ServerLoading, $"\nDatabase {connectionObject.Database} NOT opened. There were errors opening the MySQL connections. Check your SQLErrors for specific errors.");
-
+					Log.Logger.Error($"\nDatabase {connectionObject.Database} NOT opened. There were errors opening the MySQL connections. Check your SQLErrors for specific errors.");
+					Log.Logger.ForContext<DatabaseLoader>().Information("");
 					return false;
 				}
 			}

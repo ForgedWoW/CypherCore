@@ -5,19 +5,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Framework
 {
     public static class FrameworkBuilder
     {
-        public static ContainerBuilder AddFramework(this ContainerBuilder builder)
+        public static ContainerBuilder AddFramework(this ContainerBuilder builder, IConfiguration configuration)
         {
             builder.RegisterType<LoginDatabase>().SingleInstance();
             builder.RegisterType<CharacterDatabase>().SingleInstance();
             builder.RegisterType<WorldDatabase>().SingleInstance();
             builder.RegisterType<HotfixDatabase>().SingleInstance();
             builder.RegisterType<RealmManager>().SingleInstance();
-
+            builder.RegisterType<ILogger>((c, p) =>
+            {
+                return new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
+            }).SingleInstance();
             return builder;
         }
     }

@@ -76,37 +76,32 @@
     "AllowRehash": 1,
     "CleanDeadRefMaxCount": 3
   },
-  "LogsDir._comment": [
-    "LOGGING SYSTEM SETTINGS",
-    "LogsDir",
-    "Description: Logs directory setting.",
-    "Important:   LogsDir needs to be quoted, as the string might contain space characters.",
-    "Logs directory must exists, or log file creation will be disabled.",
-    "Default:     Logs - (Log files will be stored in the current path)"
-  ],
-  "LogsDir": "Logs",
-  "MaxNumberLogRotations._comment": [
-    "MaxNumberLogRotations",
-    "Description: Number of logs to keep in rotation. A new log is rotated in at every server startup.  ex: WorldServer.1.log",
-    "Default:     20"
-  ],
-  "MaxNumberLogRotations": 20,
-  "MaxLogSize._comment": [
-    "MaxLogSize",
-    "Description: Max Size of a log file in MB before its rotated.",
-    "Default:     50"
-  ],
-  "MaxLogSize": 50,
-  "Appender": {
-    "Console": "1,2,0",
-    "Bnet": "2,2,0,Bnet.log"
-  },
-  "Logger": {
-    "Server": "3,Console Bnet",
-    "Realmlist": "3,Console Bnet",
-    "Session": "3,Console Bnet",
-    "Network": "3,Console Bnet",
-    "SqlUpdates": "3,Console Bnet",
-    "ServiceProtobuf": "2,Console Bnet"
+  "Serilog": {
+    "Using": [ "Serilog.Sinks.Console", "Serilog.Sinks.File", "Serilog.Exceptions" ],
+    "MinimumLevel": "Debug",
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "File",
+        "Args": {
+          "path": "Logs/log-{Date}.log"
+        }
+      },
+      {
+        "Name": "SubLogger",
+        "Args": {
+          "configure": [
+            {
+              "Name": "File",
+              "Args": {
+                "path": "Logs/{SourceContext}-{Date}.log",
+              }
+            }
+          ],
+          "filter": "Contains(Properties['SourceContext'], SourceContext)"
+        }
+      }
+    ],
+    "Enrich": [ "FromLogContext", "WithMachineName", "WithThreadId", "WithExceptionDetails" ]
   }
 }
