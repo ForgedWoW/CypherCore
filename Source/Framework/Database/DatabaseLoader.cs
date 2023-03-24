@@ -57,9 +57,8 @@ public class DatabaseLoader
 				// If the error wasn't handled quit
 				if (error != MySqlErrorCode.None)
 				{
-					Log.Logger.Error($"\nDatabase {connectionObject.Database} NOT opened. There were errors opening the MySQL connections. Check your SQLErrors for specific errors.");
-					Log.Logger.ForContext<DatabaseLoader>().Information("");
-					return false;
+					Log.Logger.ForContext<DatabaseLoader>().Error($"\nDatabase {connectionObject.Database} NOT opened. There were errors opening the MySQL connections. Check your SQLErrors for specific errors.");
+                    return false;
 				}
 			}
 
@@ -73,7 +72,7 @@ public class DatabaseLoader
 			{
 				if (!database.GetUpdater().Populate())
 				{
-					Log.outError(LogFilter.ServerLoading, $"Could not populate the {database.GetDatabaseName()} database, see log for details.");
+					Log.Logger.ForContext<DatabaseLoader>().Error($"Could not populate the {database.GetDatabaseName()} database, see log for details.");
 
 					return false;
 				}

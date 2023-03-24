@@ -13,17 +13,21 @@ namespace Framework
 {
     public static class FrameworkBuilder
     {
-        public static ContainerBuilder AddFramework(this ContainerBuilder builder, IConfiguration configuration)
+        public static ContainerBuilder AddFramework(this ContainerBuilder builder)
         {
             builder.RegisterType<LoginDatabase>().SingleInstance();
             builder.RegisterType<CharacterDatabase>().SingleInstance();
             builder.RegisterType<WorldDatabase>().SingleInstance();
             builder.RegisterType<HotfixDatabase>().SingleInstance();
             builder.RegisterType<RealmManager>().SingleInstance();
-            builder.RegisterType<ILogger>((c, p) =>
+            builder.Register((c, p) =>
             {
-                return new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
-            }).SingleInstance();
+                var configuration = c.Resolve<IConfiguration>();
+                return new LoggerConfiguration()
+                       .ReadFrom.Configuration(configuration)
+                       .CreateLogger();
+            }).As<ILogger>().SingleInstance();
+
             return builder;
         }
     }
