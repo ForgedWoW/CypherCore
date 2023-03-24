@@ -15,18 +15,21 @@ namespace Framework
     {
         public static ContainerBuilder AddFramework(this ContainerBuilder builder)
         {
+            builder.Register((c, p) =>
+                   {
+                       var configuration = c.Resolve<IConfiguration>();
+
+                       return new LoggerConfiguration()
+                              .ReadFrom.Configuration(configuration)
+                              .CreateLogger();
+                   })
+                   .As<ILogger>()
+                   .SingleInstance();
             builder.RegisterType<LoginDatabase>().SingleInstance();
             builder.RegisterType<CharacterDatabase>().SingleInstance();
             builder.RegisterType<WorldDatabase>().SingleInstance();
             builder.RegisterType<HotfixDatabase>().SingleInstance();
-            builder.RegisterType<RealmManager>().SingleInstance();
-            builder.Register((c, p) =>
-            {
-                var configuration = c.Resolve<IConfiguration>();
-                return new LoggerConfiguration()
-                       .ReadFrom.Configuration(configuration)
-                       .CreateLogger();
-            }).As<ILogger>().SingleInstance();
+            builder.RegisterType<RealmManager>().SingleInstance(); ;
 
             return builder;
         }
