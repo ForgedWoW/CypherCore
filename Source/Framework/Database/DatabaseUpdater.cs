@@ -7,18 +7,21 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using Framework.Configuration;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Framework.Database;
 
 public class DatabaseUpdater<T>
 {
 	readonly MySqlBase<T> _database;
+    private readonly IConfiguration _configuration;
 
-	public DatabaseUpdater(MySqlBase<T> database)
-	{
-		_database = database;
-	}
+    public DatabaseUpdater(MySqlBase<T> database, IConfiguration configuration)
+    {
+        _database = database;
+        _configuration = configuration;
+    }
 
 	public bool Populate()
 	{
@@ -94,8 +97,8 @@ public class DatabaseUpdater<T>
 		var availableFiles = GetFileList();
 		var appliedFiles = ReceiveAppliedFiles();
 
-		var redundancyChecks = ConfigMgr.GetDefaultValue("Updates.Redundancy", true);
-		var archivedRedundancy = ConfigMgr.GetDefaultValue("Updates.Redundancy", true);
+		var redundancyChecks = _configuration.GetDefaultValue("Updates.Redundancy", true);
+		var archivedRedundancy = _configuration.GetDefaultValue("Updates.Redundancy", true);
 
 		UpdateResult result = new();
 
@@ -173,7 +176,7 @@ public class DatabaseUpdater<T>
 				}
 			}
 			// Rehash the update entry if it is contained in our database but with an empty hash.
-			else if (ConfigMgr.GetDefaultValue("Updates.AllowRehash", true) && string.IsNullOrEmpty(applied.Hash))
+			else if (_configuration.GetDefaultValue("Updates.AllowRehash", true) && string.IsNullOrEmpty(applied.Hash))
 			{
 				mode = UpdateMode.Rehash;
 
@@ -228,7 +231,7 @@ public class DatabaseUpdater<T>
 		// Cleanup up orphaned entries if enabled
 		if (!appliedFiles.Empty())
 		{
-			var cleanDeadReferencesMaxCount = ConfigMgr.GetDefaultValue("Updates.CleanDeadRefMaxCount", 3);
+			var cleanDeadReferencesMaxCount = _configuration.GetDefaultValue("Updates.CleanDeadRefMaxCount", 3);
 			var doCleanup = (cleanDeadReferencesMaxCount < 0) || (appliedFiles.Count <= cleanDeadReferencesMaxCount);
 
 			foreach (var entry in appliedFiles)
@@ -257,7 +260,7 @@ public class DatabaseUpdater<T>
 
 	string GetSourceDirectory()
 	{
-		return ConfigMgr.GetDefaultValue("Updates.SourcePath", "../../../");
+		return _configuration.GetDefaultValue("Updates.SourcePath", "../../../");
 	}
 
 	uint ApplyTimedFile(string path)
@@ -371,7 +374,7 @@ public class DatabaseUpdater<T>
 		} while (result.NextRow());
 
 
-		var moreFiles = ConfigMgr.GetDefaultValue($"Updates.{_database.GetType().Name}.Path", "");
+		var moreFiles = _configuration.GetDefaultValue($"Updates.{_database.GetType().Name}.Path", "");
 
 		if (!string.IsNullOrEmpty(moreFiles) && Directory.Exists(moreFiles))
 			foreach (var file in GetFilesFromDirectory(moreFiles, State.RELEASED))

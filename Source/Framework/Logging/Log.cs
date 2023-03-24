@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Framework.Collections;
-using Framework.Configuration;
 
 public class Log
 {

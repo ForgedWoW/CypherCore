@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using Framework.Constants;
 using System.Linq;
-using Framework.Configuration;
+using System.Text;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 class FileAppender : Appender, IDisposable
 {
@@ -16,23 +16,25 @@ class FileAppender : Appender, IDisposable
     const string DOT_STAR_DOT_LOG = ".*.log";
     const string DOT_LOG = ".log";
     const int LOGGER_TRY = 1000;
-    readonly long _maxLogSize = (1024L * 1024) * ConfigMgr.GetDefaultValue("MaxLogSize", 50);
+    readonly long _maxLogSize;
     readonly string _logFile;
     readonly string _logName;
     readonly string _logDir;
-	readonly bool _dynamicName;
+    private readonly IConfiguration _configuration;
+    readonly bool _dynamicName;
     FileStream _logStream;
 	readonly object _locker = new();
     static readonly char[] _dot = new char[] { '.' };
 
-    public FileAppender(byte id, string name, LogLevel level, string fileName, string logDir, AppenderFlags flags) : base(id, name, level, flags)
+    public FileAppender(byte id, string name, LogLevel level, string fileName, string logDir, AppenderFlags flags, IConfiguration configuration) : base(id, name, level, flags)
 	{
 		Directory.CreateDirectory(logDir);
 		_logFile = fileName;
         _logName = fileName.Replace(DOT_LOG, string.Empty);
         _logDir = logDir;
-		_dynamicName = _logFile.Contains("{0}");
-
+        _configuration = configuration;
+        _dynamicName = _logFile.Contains("{0}");
+        _maxLogSize = (1024L * 1024) * _configuration.GetDefaultValue("MaxLogSize", 50);
         RotateLogs(true);
 
 		if (_dynamicName)
@@ -85,7 +87,7 @@ class FileAppender : Appender, IDisposable
             return;
         }
 
-        foreach (var fi in new DirectoryInfo(_logDir).GetFiles().OrderByDescending(x => x.LastWriteTime).Skip(ConfigMgr.GetDefaultValue("MaxNumberLogRotations", 20)))
+        foreach (var fi in new DirectoryInfo(_logDir).GetFiles().OrderByDescending(x => x.LastWriteTime).Skip(_configuration.GetDefaultValue("MaxNumberLogRotations", 20)))
             fi.Delete();
 
         FileInfo fix = new FileInfo(currentLog);

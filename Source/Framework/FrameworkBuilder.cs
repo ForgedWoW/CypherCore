@@ -16,6 +16,7 @@ namespace Framework
             builder.RegisterType<CharacterDatabase>().SingleInstance();
             builder.RegisterType<WorldDatabase>().SingleInstance();
             builder.RegisterType<HotfixDatabase>().SingleInstance();
+            builder.RegisterType<RealmManager>().SingleInstance();
 
             return builder;
         }

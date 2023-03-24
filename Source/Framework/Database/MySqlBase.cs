@@ -6,23 +6,30 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Transactions;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 
 namespace Framework.Database;
 
 public abstract class MySqlBase<T>
 {
-	readonly Dictionary<T, string> _preparedQueries = new();
+    private readonly IConfiguration _configuration;
+    readonly Dictionary<T, string> _preparedQueries = new();
 
 	MySqlConnectionInfo _connectionInfo;
 	DatabaseUpdater<T> _updater;
 	DatabaseWorker<T> _worker;
 	DBVersion version;
 
+	public MySqlBase(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
 	public MySqlErrorCode Initialize(MySqlConnectionInfo connectionInfo)
 	{
 		_connectionInfo = connectionInfo;
-		_updater = new DatabaseUpdater<T>(this);
+		_updater = new DatabaseUpdater<T>(this, _configuration);
 		_worker = new DatabaseWorker<T>(this);
 
 		try
@@ -241,7 +248,7 @@ public abstract class MySqlBase<T>
 
 		// Invokes a mysql process which doesn't leak credentials to logs
 		Process process = new();
-		DBExecutableUtil.CheckExecutable();
+		DBExecutableUtil.CheckExecutable(_configuration);
 		process.StartInfo = new ProcessStartInfo(DBExecutableUtil.GetMySQLExecutable());
 		process.StartInfo.UseShellExecute = false;
 		process.StartInfo.RedirectStandardOutput = true;

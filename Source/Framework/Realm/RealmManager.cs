@@ -13,13 +13,18 @@ using Framework.Realm;
 using Framework.Serialization;
 using Framework.Web;
 
-public class RealmManager : Singleton<RealmManager>
+public class RealmManager
 {
-	readonly List<RealmBuildInfo> _builds = new();
+    private readonly LoginDatabase _loginDatabase;
+    readonly List<RealmBuildInfo> _builds = new();
 	readonly ConcurrentDictionary<RealmId, Realm> _realms = new();
 	readonly List<string> _subRegions = new();
 	Timer _updateTimer;
-	RealmManager() { }
+
+    public RealmManager(LoginDatabase loginDatabase)
+    {
+        _loginDatabase = loginDatabase;
+    }
 
 	public void Initialize(int updateInterval)
 	{
@@ -190,13 +195,13 @@ public class RealmManager : Singleton<RealmManager>
 			var serverSecret = new byte[0].GenerateRandomKey(32);
 			var keyData = clientSecret.ToArray().Combine(serverSecret);
 
-			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
+			var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BNET_GAME_ACCOUNT_LOGIN_INFO);
 			stmt.AddValue(0, keyData);
 			stmt.AddValue(1, clientAddress.ToString());
 			stmt.AddValue(2, (byte)locale);
 			stmt.AddValue(3, os);
 			stmt.AddValue(4, accountName);
-			DB.Login.DirectExecute(stmt);
+			_loginDatabase.DirectExecute(stmt);
 
 			Bgs.Protocol.Attribute attribute = new();
 			attribute.Name = "Param_RealmJoinTicket";
@@ -230,7 +235,7 @@ public class RealmManager : Singleton<RealmManager>
 	void LoadBuildInfo()
 	{
 		//                                         0             1             2              3              4      5              6
-		var result = DB.Login.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC");
+		var result = _loginDatabase.Query("SELECT majorVersion, minorVersion, bugfixVersion, hotfixVersion, build, win64AuthSeed, mac64AuthSeed FROM build_info ORDER BY build ASC");
 
 		if (!result.IsEmpty())
 			do
@@ -271,8 +276,8 @@ public class RealmManager : Singleton<RealmManager>
 
 	void UpdateRealms(object source, ElapsedEventArgs e)
 	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_REALMLIST);
-		var result = DB.Login.Query(stmt);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_REALMLIST);
+		var result = _loginDatabase.Query(stmt);
 		Dictionary<RealmId, string> existingRealms = new();
 
 		foreach (var p in _realms)

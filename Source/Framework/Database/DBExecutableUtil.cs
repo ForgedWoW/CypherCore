@@ -3,7 +3,8 @@
 
 using System;
 using System.IO;
-using Framework.Configuration;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Framework.Database;
 
@@ -16,9 +17,9 @@ public static class DBExecutableUtil
 		return mysqlExecutablePath;
 	}
 
-	public static bool CheckExecutable()
+	public static bool CheckExecutable(IConfiguration configuration)
 	{
-		var mysqlExePath = ConfigMgr.GetDefaultValue("MySQLExecutable", "");
+		var mysqlExePath = configuration.GetDefaultValue("MySQLExecutable", "");
 
 		if (mysqlExePath.IsEmpty() || !File.Exists(mysqlExePath))
 		{

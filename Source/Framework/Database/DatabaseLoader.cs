@@ -4,24 +4,27 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Framework.Configuration;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 
 namespace Framework.Database;
 
 public class DatabaseLoader
 {
-	readonly bool _autoSetup;
+    private readonly IConfiguration _configuration;
+    readonly bool _autoSetup;
 	readonly DatabaseTypeFlags _updateFlags;
 	readonly List<Func<bool>> _open = new();
 	readonly List<Func<bool>> _populate = new();
 	readonly List<Func<bool>> _update = new();
 	readonly List<Func<bool>> _prepare = new();
 
-	public DatabaseLoader(DatabaseTypeFlags defaultUpdateMask)
+	public DatabaseLoader(DatabaseTypeFlags defaultUpdateMask, IConfiguration configuration)
 	{
-		_autoSetup = ConfigMgr.GetDefaultValue("Updates.AutoSetup", true);
-		_updateFlags = ConfigMgr.GetDefaultValue("Updates.EnableDatabases", defaultUpdateMask);
+        _configuration = configuration;
+        _autoSetup = _configuration.GetDefaultValue("Updates.AutoSetup", true);
+		_updateFlags = _configuration.GetDefaultValue("Updates.EnableDatabases", defaultUpdateMask);
 	}
 
 	public void AddDatabase<T>(MySqlBase<T> database, string baseDBName)
@@ -32,12 +35,12 @@ public class DatabaseLoader
 		{
 			MySqlConnectionInfo connectionObject = new()
 			{
-				Host = ConfigMgr.GetDefaultValue(baseDBName + "DatabaseInfo.Host", ""),
-				PortOrSocket = ConfigMgr.GetDefaultValue(baseDBName + "DatabaseInfo.Port", ""),
-				Username = ConfigMgr.GetDefaultValue(baseDBName + "DatabaseInfo.Username", ""),
-				Password = ConfigMgr.GetDefaultValue(baseDBName + "DatabaseInfo.Password", ""),
-				Database = ConfigMgr.GetDefaultValue(baseDBName + "DatabaseInfo.Database", ""),
-				UseSSL = ConfigMgr.GetDefaultValue(baseDBName + "DatabaseInfo.SSL", false)
+				Host = _configuration.GetDefaultValue(baseDBName + "DatabaseInfo.Host", ""),
+				PortOrSocket = _configuration.GetDefaultValue(baseDBName + "DatabaseInfo.Port", ""),
+				Username = _configuration.GetDefaultValue(baseDBName + "DatabaseInfo.Username", ""),
+				Password = _configuration.GetDefaultValue(baseDBName + "DatabaseInfo.Password", ""),
+				Database = _configuration.GetDefaultValue(baseDBName + "DatabaseInfo.Database", ""),
+				UseSSL = _configuration.GetDefaultValue(baseDBName + "DatabaseInfo.SSL", false)
 			};
 
 			var error = database.Initialize(connectionObject);
@@ -148,7 +151,7 @@ public class DatabaseLoader
 		if (_updateFlags == 0)
 			Log.outInfo(LogFilter.SqlUpdates, "Automatic database updates are disabled for all databases!");
 
-		if (_updateFlags != 0 && !DBExecutableUtil.CheckExecutable())
+		if (_updateFlags != 0 && !DBExecutableUtil.CheckExecutable(_configuration))
 			return false;
 
 		if (!OpenDatabases())
