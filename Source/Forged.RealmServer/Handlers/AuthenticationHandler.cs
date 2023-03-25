@@ -14,12 +14,16 @@ public class AuthenticationHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly Realm _realm;
     private readonly IConfiguration _configuration;
+    private readonly GameTime _gameTime;
+    private readonly WorldConfig _worldConfig;
 
-    public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration)
+    public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration, GameTime gameTime, WorldConfig worldConfig)
     {
         _session = session;
         _realm = realm;
         _configuration = configuration;
+        _gameTime = gameTime;
+        _worldConfig = worldConfig;
     }
 
 	public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
@@ -36,7 +40,7 @@ public class AuthenticationHandler : IWorldSessionHandler
 			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.Expansion;
 			response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.AccountExpansion;
 			response.SuccessInfo.VirtualRealmAddress = _realm.Id.GetAddress();
-			response.SuccessInfo.Time = (uint)_session.Player.GameTime.GetGameTime();
+			response.SuccessInfo.Time = _gameTime.GetGameTime;
 
             // Send current home realm. Also there is no need to send it later in realm queries.
 			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.GetAddress(), true, false, _realm.Name, _realm.NormalizedName));
@@ -95,23 +99,23 @@ public class AuthenticationHandler : IWorldSessionHandler
 	public void SendFeatureSystemStatusGlueScreen()
 	{
 		FeatureSystemStatusGlueScreen features = new();
-		features.BpayStoreAvailable = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+		features.BpayStoreAvailable = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
 		features.BpayStoreDisabledByParentalControls = false;
-		features.CharUndeleteEnabled = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled);
-		features.BpayStoreEnabled = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
-		features.MaxCharactersPerRealm = WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm);
+		features.CharUndeleteEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled);
+		features.BpayStoreEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+		features.MaxCharactersPerRealm = _worldConfig.GetIntValue(WorldCfg.CharactersPerRealm);
 		features.MinimumExpansionLevel = (int)Expansion.Classic;
-		features.MaximumExpansionLevel = WorldConfig.GetIntValue(WorldCfg.Expansion);
+		features.MaximumExpansionLevel = _worldConfig.GetIntValue(WorldCfg.Expansion);
 
 		var europaTicketConfig = new EuropaTicketConfig();
 		europaTicketConfig.ThrottleState.MaxTries = 10;
 		europaTicketConfig.ThrottleState.PerMilliseconds = 60000;
 		europaTicketConfig.ThrottleState.TryCount = 1;
 		europaTicketConfig.ThrottleState.LastResetTimeBeforeNow = 111111;
-		europaTicketConfig.TicketsEnabled = WorldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled);
-		europaTicketConfig.BugsEnabled = WorldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled);
-		europaTicketConfig.ComplaintsEnabled = WorldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled);
-		europaTicketConfig.SuggestionsEnabled = WorldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled);
+		europaTicketConfig.TicketsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled);
+		europaTicketConfig.BugsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled);
+		europaTicketConfig.ComplaintsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled);
+		europaTicketConfig.SuggestionsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled);
 
 		features.EuropaTicketSystemStatus = europaTicketConfig;
 

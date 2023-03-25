@@ -59,7 +59,7 @@ public class SocialHandler : IWorldSessionHandler
 
 		var team = Player.Team;
 
-		var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
+		var gmLevelInWhoList = _worldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
 
 		WhoResponsePkt response = new();
 		response.RequestID = whoRequest.RequestID;

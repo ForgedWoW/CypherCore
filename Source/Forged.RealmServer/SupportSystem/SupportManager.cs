@@ -33,11 +33,11 @@ public class SupportManager : Singleton<SupportManager>
 
 	public void Initialize()
 	{
-		SetSupportSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportEnabled));
-		SetTicketSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled));
-		SetBugSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled));
-		SetComplaintSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled));
-		SetSuggestionSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled));
+		SetSupportSystemStatus(_worldConfig.GetBoolValue(WorldCfg.SupportEnabled));
+		SetTicketSystemStatus(_worldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled));
+		SetBugSystemStatus(_worldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled));
+		SetComplaintSystemStatus(_worldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled));
+		SetSuggestionSystemStatus(_worldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled));
 	}
 
 	public T GetTicket<T>(uint Id) where T : Ticket
@@ -436,7 +436,7 @@ public class SupportManager : Singleton<SupportManager>
 
 	public void UpdateLastChange()
 	{
-		_lastChange = (ulong)GameTime.GetGameTime();
+		_lastChange = (ulong)_gameTime.GetGameTime;
 	}
 
 	public uint GenerateBugId()
@@ -456,7 +456,7 @@ public class SupportManager : Singleton<SupportManager>
 
 	long GetAge(ulong t)
 	{
-		return (GameTime.GetGameTime() - (long)t) / Time.Day;
+		return (_gameTime.GetGameTime - (long)t) / Time.Day;
 	}
 
 	IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)

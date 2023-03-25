@@ -172,7 +172,7 @@ class WardenWin : Warden
 			}
 		}
 
-		_serverTicks = GameTime.GetGameTimeMS();
+		_serverTicks = _gameTime.GetGameTimeMS;
 		_currentChecks.Clear();
 
 		// Build check request
@@ -186,7 +186,7 @@ class WardenWin : Warden
 
 			var checks = _checks[(int)category];
 
-			for (uint i = 0, n = WorldConfig.GetUIntValue(WardenCheckManager.GetWardenCategoryCountConfig(category)); i < n; ++i)
+			for (uint i = 0, n = _worldConfig.GetUIntValue(WardenCheckManager.GetWardenCategoryCountConfig(category)); i < n; ++i)
 			{
 				if (checks.IsAtEnd()) // all checks were already sent, list will be re-filled on next Update() run
 					break;
@@ -361,7 +361,7 @@ class WardenWin : Warden
 
 			var newClientTicks = buff.ReadUInt32();
 
-			var ticksNow = GameTime.GetGameTimeMS();
+			var ticksNow = _gameTime.GetGameTimeMS;
 			var ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
 			Log.Logger.Debug("ServerTicks {0}", ticksNow);      // Now
@@ -472,7 +472,7 @@ class WardenWin : Warden
 		}
 
 		// Set hold off timer, minimum timer should at least be 1 second
-		var holdOff = WorldConfig.GetUIntValue(WorldCfg.WardenClientCheckHoldoff);
+		var holdOff = _worldConfig.GetUIntValue(WorldCfg.WardenClientCheckHoldoff);
 		CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.InMilliseconds;
 	}
 

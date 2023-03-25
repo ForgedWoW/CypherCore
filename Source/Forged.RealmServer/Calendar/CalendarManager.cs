@@ -293,7 +293,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void DeleteOldEvents()
 	{
-		var oldEventsTime = GameTime.GetGameTime() - SharedConst.CalendarOldEventsDeletionTime;
+		var oldEventsTime = _gameTime.GetGameTime - SharedConst.CalendarOldEventsDeletionTime;
 
 		foreach (var calendarEvent in _events)
 			if (calendarEvent.Date < oldEventsTime)

@@ -182,7 +182,7 @@ class AccountCommands
 	[Command("addon", CypherStrings.CommandAccAddonHelp, RBACPermissions.CommandAccountAddon)]
 	static bool HandleAccountAddonCommand(CommandHandler handler, byte expansion)
 	{
-		if (expansion > WorldConfig.GetIntValue(WorldCfg.Expansion))
+		if (expansion > _worldConfig.GetIntValue(WorldCfg.Expansion))
 		{
 			handler.SendSysMessage(CypherStrings.ImproperValue);
 
@@ -381,7 +381,7 @@ class AccountCommands
 	static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string confirmPassword, [OptionalArg] string confirmEmail)
 	{
 		// First, we check config. What security type (sec type) is it ? Depending on it, the command branches out
-		var pwConfig = WorldConfig.GetUIntValue(WorldCfg.AccPasschangesec); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
+		var pwConfig = _worldConfig.GetUIntValue(WorldCfg.AccPasschangesec); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
 
 		// We compare the old, saved password to the entered old password - no chance for the unauthorized.
 		if (!Global.AccountMgr.CheckPassword(handler.Session.AccountId, oldPassword))
@@ -711,7 +711,7 @@ class AccountCommands
 				handler.HasLowerSecurityAccount(null, accountId, true))
 				return false;
 
-			if (expansion > WorldConfig.GetIntValue(WorldCfg.Expansion))
+			if (expansion > _worldConfig.GetIntValue(WorldCfg.Expansion))
 				return false;
 
 			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EXPANSION);

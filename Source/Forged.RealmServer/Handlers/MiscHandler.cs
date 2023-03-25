@@ -175,7 +175,7 @@ public class MiscHandler : IWorldSessionHandler
 			Player.SetPlayerFlag(PlayerFlags.PVPTimer);
 
 			if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-				Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+				Player.PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
 		}
 	}
 
@@ -196,7 +196,7 @@ public class MiscHandler : IWorldSessionHandler
 			Player.SetPlayerFlag(PlayerFlags.PVPTimer);
 
 			if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-				Player.PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+				Player.PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
 		}
 	}
 

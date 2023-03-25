@@ -638,7 +638,7 @@ public class CriteriaHandler
 		}
 
 		progress.Changed = true;
-		progress.Date = GameTime.GetGameTime(); // set the date to the latest update.
+		progress.Date = _gameTime.GetGameTime; // set the date to the latest update.
 		progress.PlayerGUID = referencePlayer ? referencePlayer.GUID : ObjectGuid.Empty;
 		_criteriaProgress[criteria.Id] = progress;
 
@@ -1975,7 +1975,7 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.ServerExpansionEqualOrGreaterThan: // 92
-				if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && WorldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
+				if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && _worldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
 					return false;
 
 				break;
@@ -2084,7 +2084,7 @@ public class CriteriaHandler
 				var from = Time.GetUnixTimeFromPackedTime(reqValue);
 				var to = Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
 
-				if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
+				if (_gameTime.GetGameTime < from || _gameTime.GetGameTime > to)
 					return false;
 
 				break;
@@ -2223,12 +2223,12 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.PvpSeasonIsActive: // 124
-				if (!WorldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress))
+				if (!_worldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress))
 					return false;
 
 				break;
 			case ModifierTreeType.PvpSeason: // 125
-				if (WorldConfig.GetIntValue(WorldCfg.ArenaSeasonId) != reqValue)
+				if (_worldConfig.GetIntValue(WorldCfg.ArenaSeasonId) != reqValue)
 					return false;
 
 				break;
@@ -3808,7 +3808,7 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.HasTimeEventPassed: // 289
 			{
-				var eventTimestamp = GameTime.GetGameTime();
+				var eventTimestamp = _gameTime.GetGameTime;
 
 				switch (reqValue)
 				{
@@ -3836,7 +3836,7 @@ public class CriteriaHandler
 						break;
 				}
 
-				if (GameTime.GetGameTime() < eventTimestamp)
+				if (_gameTime.GetGameTime < eventTimestamp)
 					return false;
 
 				break;
@@ -4150,7 +4150,7 @@ public class CriteriaHandler
 				break;
 			}
 			case ModifierTreeType.PlayerDaysSinceLogout: // 344
-				if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
+				if (_gameTime.GetGameTime - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
 					return false;
 
 				break;

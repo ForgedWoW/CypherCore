@@ -512,7 +512,7 @@ public partial class Player
 		}
 		else
 		{
-			var months = (ulong)(GameTime.GetGameTime() - GetTalentResetTime()) / Time.Month;
+			var months = (ulong)(_gameTime.GetGameTime - GetTalentResetTime()) / Time.Month;
 
 			if (months > 0)
 			{
@@ -546,7 +546,7 @@ public partial class Player
 
 		uint cost = 0;
 
-		if (!noCost && !WorldConfig.GetBoolValue(WorldCfg.NoResetTalentCost))
+		if (!noCost && !_worldConfig.GetBoolValue(WorldCfg.NoResetTalentCost))
 		{
 			cost = GetNextResetTalentsCost();
 
@@ -587,7 +587,7 @@ public partial class Player
 			UpdateCriteria(CriteriaType.TotalRespecs, 1);
 
 			SetTalentResetCost(cost);
-			SetTalentResetTime(GameTime.GetGameTime());
+			SetTalentResetTime(_gameTime.GetGameTime);
 		}
 
 		return true;

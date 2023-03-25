@@ -1,16 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using Forged.RealmServer.Cache;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Handlers;
-using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Calendar;
-using Forged.RealmServer.Server;
+using Game.Common.Handlers;
+using System;
 
 namespace Forged.RealmServer;
 
@@ -19,15 +17,17 @@ public class CalendarHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly Player _player;
     private readonly CalendarManager _calendarManager;
-    private readonly InstanceLockManager _instanceLockManager;
     private readonly CharacterCache _characterCache;
     private readonly GuildManager _guildManager;
-    private readonly ObjectAccessor _objectAccessor;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly GameTime _gameTime;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly InstanceLockManager _instanceLockManager;
     private long _calendarEventCreationCooldown = 0;
 
     public CalendarHandler(WorldSession session, Player player, CalendarManager calendarManager, InstanceLockManager instanceLockManager,
-        CharacterCache characterCache, GuildManager guildManager, ObjectAccessor objectAccessor, CharacterDatabase characterDatabase)
+        CharacterCache characterCache, GuildManager guildManager, ObjectAccessor objectAccessor, CharacterDatabase characterDatabase,
+		GameTime gameTime)
     {
         _session = session;
         _player = player;
@@ -37,6 +37,7 @@ public class CalendarHandler : IWorldSessionHandler
         _guildManager = guildManager;
         _objectAccessor = objectAccessor;
 		_characterDatabase = characterDatabase;
+        _gameTime = gameTime;
     }
 
     [WorldPacketHandler(ClientOpcodes.CalendarGet)]
@@ -44,7 +45,7 @@ public class CalendarHandler : IWorldSessionHandler
 	{
 		var guid = _player.GUID;
 
-		var currTime = GameTime.GetGameTime();
+		var currTime = _gameTime.GetGameTime;
 
 		CalendarSendCalendar packet = new();
 		packet.ServerTime = currTime;
@@ -90,7 +91,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 			lockoutInfo.MapID = (int)instanceLock.GetMapId();
 			lockoutInfo.DifficultyID = (uint)instanceLock.GetDifficultyId();
-			lockoutInfo.ExpireTime = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - GameTime.GetSystemTime()).TotalSeconds, 0);
+			lockoutInfo.ExpireTime = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - _gameTime.GetSystemTime).TotalSeconds, 0);
 			lockoutInfo.InstanceID = instanceLock.GetInstanceId();
 
 			packet.RaidLockouts.Add(lockoutInfo);
@@ -128,7 +129,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarAddEvent.EventInfo.Time < (GameTime.GetGameTime() - 86400L))
+		if (calendarAddEvent.EventInfo.Time < (_session._gameTime.GetGameTime - 86400L))
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.EventPassed);
 
@@ -164,14 +165,14 @@ public class CalendarHandler : IWorldSessionHandler
 			}
 		}
 
-		if (_session.CalendarEventCreationCooldown > GameTime.GetGameTime())
+		if (_session.CalendarEventCreationCooldown > _gameTime.GetGameTime)
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.Internal);
 
 			return;
 		}
 
-        _session.CalendarEventCreationCooldown = GameTime.GetGameTime() + SharedConst.CalendarCreateEventCooldown;
+        _session.CalendarEventCreationCooldown = _gameTime.GetGameTime + SharedConst.CalendarCreateEventCooldown;
 
 		CalendarEvent calendarEvent = new(_calendarManager.GetFreeEventId(),
 										guid,
@@ -232,7 +233,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarUpdateEvent.EventInfo.Time < (GameTime.GetGameTime() - 86400L))
+		if (calendarUpdateEvent.EventInfo.Time < (_gameTime.GetGameTime - 86400L))
 			return;
 
 		var calendarEvent = _calendarManager.GetEvent(calendarUpdateEvent.EventInfo.EventID);
@@ -273,7 +274,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarCopyEvent.Date < (GameTime.GetGameTime() - 86400L))
+		if (calendarCopyEvent.Date < (_gameTime.GetGameTime - 86400L))
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.EventPassed);
 
@@ -324,14 +325,14 @@ public class CalendarHandler : IWorldSessionHandler
 				}
 			}
 
-			if (_session.CalendarEventCreationCooldown > GameTime.GetGameTime())
+			if (_session.CalendarEventCreationCooldown > _gameTime.GetGameTime)
 			{
 				_calendarManager.SendCalendarCommandResult(guid, CalendarError.Internal);
 
 				return;
 			}
 
-            _session.CalendarEventCreationCooldown = GameTime.GetGameTime() + SharedConst.CalendarCreateEventCooldown;
+            _session.CalendarEventCreationCooldown = _gameTime.GetGameTime + SharedConst.CalendarCreateEventCooldown;
 
 			CalendarEvent newEvent = new(oldEvent, _calendarManager.GetFreeEventId());
 			newEvent.Date = calendarCopyEvent.Date;
@@ -402,7 +403,7 @@ public class CalendarHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (_player.Team != inviteeTeam && !WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionCalendar))
+		if (_player.Team != inviteeTeam && !_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionCalendar))
 		{
 			_calendarManager.SendCalendarCommandResult(playerGuid, CalendarError.NotAllied);
 
@@ -472,7 +473,7 @@ public class CalendarHandler : IWorldSessionHandler
 			}
 
 			var status = calendarEventSignUp.Tentative ? CalendarInviteStatus.Tentative : CalendarInviteStatus.SignedUp;
-			CalendarInvite invite = new(_calendarManager.GetFreeInviteId(), calendarEventSignUp.EventID, guid, guid, GameTime.GetGameTime(), status, CalendarModerationRank.Player, "");
+			CalendarInvite invite = new(_calendarManager.GetFreeInviteId(), calendarEventSignUp.EventID, guid, guid, _gameTime.GetGameTime, status, CalendarModerationRank.Player, "");
 			_calendarManager.AddInvite(calendarEvent, invite);
 			_calendarManager.SendCalendarClearPendingAction(guid);
 		}
@@ -504,7 +505,7 @@ public class CalendarHandler : IWorldSessionHandler
 			if (invite != null)
 			{
 				invite.Status = calendarRSVP.Status;
-				invite.ResponseTime = GameTime.GetGameTime();
+				invite.ResponseTime = _gameTime.GetGameTime;
 
 				_calendarManager.UpdateInvite(invite);
 				_calendarManager.SendCalendarEventStatus(calendarEvent, invite);
@@ -631,11 +632,11 @@ public class CalendarHandler : IWorldSessionHandler
 			return;
 
 		CalendarRaidLockoutUpdated calendarRaidLockoutUpdated = new();
-		calendarRaidLockoutUpdated.ServerTime = GameTime.GetGameTime();
+		calendarRaidLockoutUpdated.ServerTime = _gameTime.GetGameTime;
 		calendarRaidLockoutUpdated.MapID = setSavedInstanceExtend.MapID;
 		calendarRaidLockoutUpdated.DifficultyID = setSavedInstanceExtend.DifficultyID;
-		calendarRaidLockoutUpdated.OldTimeRemaining = (int)Math.Max((expiryTimes.Item1 - GameTime.GetSystemTime()).TotalSeconds, 0);
-		calendarRaidLockoutUpdated.NewTimeRemaining = (int)Math.Max((expiryTimes.Item2 - GameTime.GetSystemTime()).TotalSeconds, 0);
+		calendarRaidLockoutUpdated.OldTimeRemaining = (int)Math.Max((expiryTimes.Item1 - _gameTime.GetSystemTime).TotalSeconds, 0);
+		calendarRaidLockoutUpdated.NewTimeRemaining = (int)Math.Max((expiryTimes.Item2 - _gameTime.GetSystemTime).TotalSeconds, 0);
         _session.SendPacket(calendarRaidLockoutUpdated);
 	}
 

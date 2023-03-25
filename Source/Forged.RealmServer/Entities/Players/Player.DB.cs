@@ -696,7 +696,7 @@ public partial class Player
 
 		SaveRecallPosition();
 
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 		var logoutTime = logout_time;
 
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LogoutTime), logoutTime);
@@ -901,7 +901,7 @@ public partial class Player
 		// GM state
 		if (Session.HasPermission(RBACPermissions.RestoreSavedGmState))
 		{
-			switch (WorldConfig.GetIntValue(WorldCfg.GmLoginState))
+			switch (_worldConfig.GetIntValue(WorldCfg.GmLoginState))
 			{
 				default:
 				case 0:
@@ -917,7 +917,7 @@ public partial class Player
 					break;
 			}
 
-			switch (WorldConfig.GetIntValue(WorldCfg.GmVisibleState))
+			switch (_worldConfig.GetIntValue(WorldCfg.GmVisibleState))
 			{
 				default:
 				case 0:
@@ -933,7 +933,7 @@ public partial class Player
 					break;
 			}
 
-			switch (WorldConfig.GetIntValue(WorldCfg.GmChat))
+			switch (_worldConfig.GetIntValue(WorldCfg.GmChat))
 			{
 				default:
 				case 0:
@@ -949,7 +949,7 @@ public partial class Player
 					break;
 			}
 
-			switch (WorldConfig.GetIntValue(WorldCfg.GmWhisperingTo))
+			switch (_worldConfig.GetIntValue(WorldCfg.GmWhisperingTo))
 			{
 				default:
 				case 0:
@@ -1000,8 +1000,8 @@ public partial class Player
 			var bubble1 = 0.125f;
 
 			var bubble = is_logout_resting > 0
-							? bubble1 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInTavernOrCity)
-							: bubble0 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInWilderness);
+							? bubble1 * _worldConfig.GetFloatValue(WorldCfg.RateRestOfflineInTavernOrCity)
+							: bubble0 * _worldConfig.GetFloatValue(WorldCfg.RateRestOfflineInWilderness);
 
 			_restMgr.AddRestBonus(RestTypes.XP, time_diff * _restMgr.CalcExtraPerSec(RestTypes.XP, bubble));
 		}
@@ -1049,7 +1049,7 @@ public partial class Player
 	public void SaveToDB(SQLTransaction loginTransaction, SQLTransaction characterTransaction, bool create = false)
 	{
 		// delay auto save at any saves (manual, in code, or autosave)
-		_nextSave = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+		_nextSave = _worldConfig.GetUIntValue(WorldCfg.IntervalSave);
 
 		//lets allow only players in world to be saved
 		if (IsBeingTeleportedFar)
@@ -1136,7 +1136,7 @@ public partial class Player
 			stmt.AddValue(index++, _playedTimeTotal);
 			stmt.AddValue(index++, _playedTimeLevel);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.XP)));
-			stmt.AddValue(index++, GameTime.GetGameTime());
+			stmt.AddValue(index++, _gameTime.GetGameTime);
 			stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
 			//save, far from tavern/city
 			//save, but in tavern/city
@@ -1289,7 +1289,7 @@ public partial class Player
 			stmt.AddValue(index++, _playedTimeTotal);
 			stmt.AddValue(index++, _playedTimeLevel);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.XP)));
-			stmt.AddValue(index++, GameTime.GetGameTime());
+			stmt.AddValue(index++, _gameTime.GetGameTime);
 			stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
 			//save, far from tavern/city
 			//save, but in tavern/city
@@ -1438,7 +1438,7 @@ public partial class Player
 
 		// check if stats should only be saved on logout
 		// save stats can be out of transaction
-		if (Session.IsLogingOut || !WorldConfig.GetBoolValue(WorldCfg.StatsSaveOnlyOnLogout))
+		if (Session.IsLogingOut || !_worldConfig.GetBoolValue(WorldCfg.StatsSaveOnlyOnLogout))
 			_SaveStats(characterTransaction);
 
 		// TODO: Move this out
@@ -1465,7 +1465,7 @@ public partial class Player
 		stmt.AddValue(3, Global.WorldMgr.RealmId.Index);
 		stmt.AddValue(4, GetName());
 		stmt.AddValue(5, GUID.Counter);
-		stmt.AddValue(6, GameTime.GetGameTime());
+		stmt.AddValue(6, _gameTime.GetGameTime);
 		loginTransaction.Append(stmt);
 
 		// save pet (hunter pet level and experience and all type pets health/mana).
@@ -1535,7 +1535,7 @@ public partial class Player
 
 		// Convert guid to low GUID for CharacterNameData, but also other methods on success
 		var guid = playerGuid.Counter;
-		var charDelete_method = (CharDeleteMethod)WorldConfig.GetIntValue(WorldCfg.ChardeleteMethod);
+		var charDelete_method = (CharDeleteMethod)_worldConfig.GetIntValue(WorldCfg.ChardeleteMethod);
 		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid);
 		var name = "<Unknown>";
 
@@ -1552,11 +1552,11 @@ public partial class Player
 			uint charDeleteMinLvl;
 
 			if (characterInfo.ClassId == PlayerClass.Deathknight)
-				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteDeathKnightMinLevel);
+				charDeleteMinLvl = _worldConfig.GetUIntValue(WorldCfg.ChardeleteDeathKnightMinLevel);
 			else if (characterInfo.ClassId == PlayerClass.DemonHunter)
-				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteDemonHunterMinLevel);
+				charDeleteMinLvl = _worldConfig.GetUIntValue(WorldCfg.ChardeleteDemonHunterMinLevel);
 			else
-				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteMinLevel);
+				charDeleteMinLvl = _worldConfig.GetUIntValue(WorldCfg.ChardeleteMinLevel);
 
 			// if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
 			// we set it to mode CHAR_DELETE_REMOVE
@@ -2017,7 +2017,7 @@ public partial class Player
 
 	public static void DeleteOldCharacters()
 	{
-		var keepDays = WorldConfig.GetIntValue(WorldCfg.ChardeleteKeepDays);
+		var keepDays = _worldConfig.GetIntValue(WorldCfg.ChardeleteKeepDays);
 
 		if (keepDays == 0)
 			return;
@@ -2030,7 +2030,7 @@ public partial class Player
 		Log.outInfo(LogFilter.Player, "Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
-		stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * Time.Day));
+		stmt.AddValue(0, (uint)(_gameTime.GetGameTime - keepDays * Time.Day));
 		var result = DB.Characters.Query(stmt);
 
 		if (!result.IsEmpty())
@@ -2905,10 +2905,10 @@ public partial class Player
 					{
 						AddTimedQuest(questId);
 
-						if (endTime <= GameTime.GetGameTime())
+						if (endTime <= _gameTime.GetGameTime)
 							questStatusData.Timer = 1;
 						else
-							questStatusData.Timer = (uint)((endTime - GameTime.GetGameTime()) * Time.InMilliseconds);
+							questStatusData.Timer = (uint)((endTime - _gameTime.GetGameTime) * Time.InMilliseconds);
 					}
 					else
 					{
@@ -4590,7 +4590,7 @@ public partial class Player
 	void _SaveStats(SQLTransaction trans)
 	{
 		// check if stat saving is enabled and if char level is high enough
-		if (WorldConfig.GetIntValue(WorldCfg.MinLevelStatSave) == 0 || Level < WorldConfig.GetIntValue(WorldCfg.MinLevelStatSave))
+		if (_worldConfig.GetIntValue(WorldCfg.MinLevelStatSave) == 0 || Level < _worldConfig.GetIntValue(WorldCfg.MinLevelStatSave))
 			return;
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);

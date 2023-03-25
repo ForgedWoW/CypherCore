@@ -713,7 +713,7 @@ public class LFGQueue
 		}
 
 		// Create a new proposal
-		proposal.cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeProposal;
+		proposal.cancelTime = _gameTime.GetGameTime + SharedConst.LFGTimeProposal;
 		proposal.state = LfgProposalState.Initiating;
 		proposal.leader = ObjectGuid.Empty;
 		proposal.dungeonId = proposalDungeons.SelectRandom();
@@ -806,7 +806,7 @@ public class LfgQueueData
 
 	public LfgQueueData()
 	{
-		joinTime = GameTime.GetGameTime();
+		joinTime = _gameTime.GetGameTime;
 		tanks = SharedConst.LFGTanksNeeded;
 		healers = SharedConst.LFGHealersNeeded;
 		dps = SharedConst.LFGDPSNeeded;

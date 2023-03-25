@@ -43,7 +43,7 @@ class ServerCommands
 		var queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
 		var maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
 		var maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
-		var uptime = Time.secsToTimeString(GameTime.GetUptime());
+		var uptime = Time.secsToTimeString(_gameTime.DateTime);
 		var updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
 
 		handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
@@ -229,9 +229,9 @@ class ServerCommands
 				return false;
 
 		// Override parameter "delay" with the configuration value if there are still players connected and "force" parameter was not specified
-		if (delay < WorldConfig.GetIntValue(WorldCfg.ForceShutdownThreshold) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
+		if (delay < _worldConfig.GetIntValue(WorldCfg.ForceShutdownThreshold) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
 		{
-			delay = WorldConfig.GetIntValue(WorldCfg.ForceShutdownThreshold);
+			delay = _worldConfig.GetIntValue(WorldCfg.ForceShutdownThreshold);
 			handler.SendSysMessage(CypherStrings.ShutdownDelayed, delay);
 		}
 

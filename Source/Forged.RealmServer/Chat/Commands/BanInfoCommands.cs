@@ -77,7 +77,7 @@ class BanInfoCommands
 			var unbanDate = result.Read<long>(3);
 			var active = false;
 
-			if (result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= GameTime.GetGameTime()))
+			if (result.Read<bool>(2) && (result.Read<long>(1) == 0L || unbanDate >= _gameTime.GetGameTime))
 				active = true;
 
 			var permanent = (result.Read<long>(1) == 0L);
@@ -140,7 +140,7 @@ class BanInfoCommands
 			long unbanDate = result.Read<uint>(3);
 			var active = false;
 
-			if (result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= GameTime.GetGameTime()))
+			if (result.Read<bool>(2) && (result.Read<ulong>(1) == 0 || unbanDate >= _gameTime.GetGameTime))
 				active = true;
 
 			var permanent = (result.Read<ulong>(1) == 0);

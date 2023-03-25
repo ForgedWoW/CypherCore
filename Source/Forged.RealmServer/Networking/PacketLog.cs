@@ -33,7 +33,7 @@ public class PacketLog
 			writer.Write(Global.WorldMgr.Realm.Build);
 			writer.Write(Encoding.ASCII.GetBytes("enUS"));
 			writer.Write(new byte[40]); //SessionKey
-			writer.Write((uint)GameTime.GetGameTime());
+			writer.Write((uint)_gameTime.GetGameTime);
 			writer.Write(Time.MSTime);
 			writer.Write(0);
 		}

@@ -458,7 +458,7 @@ public partial class Player
 			SatisfyQuestWeek(quest, false) &&
 			SatisfyQuestMonth(quest, false) &&
 			SatisfyQuestSeasonal(quest, false))
-			return Level + WorldConfig.GetIntValue(WorldCfg.QuestHighLevelHideDiff) >= GetQuestMinLevel(quest);
+			return Level + _worldConfig.GetIntValue(WorldCfg.QuestHighLevelHideDiff) >= GetQuestMinLevel(quest);
 
 		return false;
 	}
@@ -835,7 +835,7 @@ public partial class Player
 
 			AddTimedQuest(questId);
 			questStatusData.Timer = limittime * Time.InMilliseconds;
-			endTime = GameTime.GetGameTime() + limittime;
+			endTime = _gameTime.GetGameTime + limittime;
 		}
 		else
 		{
@@ -865,7 +865,7 @@ public partial class Player
 		}
 
 		SetQuestSlotEndTime(logSlot, endTime);
-		SetQuestSlotAcceptTime(logSlot, GameTime.GetGameTime());
+		SetQuestSlotAcceptTime(logSlot, _gameTime.GetGameTime);
 
 		_questStatusSave[questId] = QuestSaveType.Default;
 
@@ -911,7 +911,7 @@ public partial class Player
 
 	public uint GetQuestMoneyReward(Quest quest)
 	{
-		return (uint)(quest.MoneyValue(this) * WorldConfig.GetFloatValue(WorldCfg.RateMoneyQuest));
+		return (uint)(quest.MoneyValue(this) * _worldConfig.GetFloatValue(WorldCfg.RateMoneyQuest));
 	}
 
 	public uint GetQuestXPReward(Quest quest)
@@ -922,7 +922,7 @@ public partial class Player
 		if (rewarded)
 			return 0;
 
-		var XP = (uint)(quest.XPValue(this) * WorldConfig.GetFloatValue(WorldCfg.RateXpQuest));
+		var XP = (uint)(quest.XPValue(this) * _worldConfig.GetFloatValue(WorldCfg.RateXpQuest));
 
 		// handle SPELL_AURA_MOD_XP_QUEST_PCT auras
 		var ModXPPctAuras = GetAuraEffectsByType(AuraType.ModXpQuestPct);
@@ -1120,7 +1120,7 @@ public partial class Player
 		if (!IsMaxLevel)
 			GiveXP(XP, null);
 		else
-			moneyRew = (int)(quest.GetRewMoneyMaxLevel() * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney));
+			moneyRew = (int)(quest.GetRewMoneyMaxLevel() * _worldConfig.GetFloatValue(WorldCfg.RateDropMoney));
 
 		moneyRew += (int)GetQuestMoneyReward(quest);
 
@@ -2050,7 +2050,7 @@ public partial class Player
 
 			if (quest.IsAutoComplete && CanTakeQuest(quest, false) && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly)
 			{
-				if (Level <= (GetQuestLevel(quest) + WorldConfig.GetIntValue(WorldCfg.QuestLowLevelHideDiff)))
+				if (Level <= (GetQuestLevel(quest) + _worldConfig.GetIntValue(WorldCfg.QuestLowLevelHideDiff)))
 					result |= QuestGiverStatus.RepeatableTurnin;
 				else
 					result |= QuestGiverStatus.TrivialRepeatableTurnin;
@@ -2072,7 +2072,7 @@ public partial class Player
 				{
 					if (SatisfyQuestLevel(quest, false))
 					{
-						if (Level <= (GetQuestLevel(quest) + WorldConfig.GetIntValue(WorldCfg.QuestLowLevelHideDiff)))
+						if (Level <= (GetQuestLevel(quest) + _worldConfig.GetIntValue(WorldCfg.QuestLowLevelHideDiff)))
 						{
 							if (quest.QuestTag == QuestTagType.CovenantCalling)
 								result |= QuestGiverStatus.CovenantCallingQuest;
@@ -2788,7 +2788,7 @@ public partial class Player
 		else // At max level, increase gold reward
 		{
 			xp = 0;
-			moneyReward = (uint)(GetQuestMoneyReward(quest) + (int)(quest.GetRewMoneyMaxLevel() * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney)));
+			moneyReward = (uint)(GetQuestMoneyReward(quest) + (int)(quest.GetRewMoneyMaxLevel() * _worldConfig.GetFloatValue(WorldCfg.RateDropMoney)));
 		}
 
 		QuestGiverQuestComplete packet = new();
@@ -3340,13 +3340,13 @@ public partial class Player
 			if (!qQuest.IsDFQuest)
 			{
 				AddDynamicUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DailyQuestsCompleted), quest_id);
-				_lastDailyQuestTime = GameTime.GetGameTime(); // last daily quest time
+				_lastDailyQuestTime = _gameTime.GetGameTime; // last daily quest time
 				_dailyQuestChanged = true;
 			}
 			else
 			{
 				_dfQuests.Add(quest_id);
-				_lastDailyQuestTime = GameTime.GetGameTime();
+				_lastDailyQuestTime = _gameTime.GetGameTime;
 				_dailyQuestChanged = true;
 			}
 		}
@@ -3368,7 +3368,7 @@ public partial class Player
 		if (!_seasonalquests.ContainsKey(quest.EventIdForQuest))
 			_seasonalquests[quest.EventIdForQuest] = new Dictionary<uint, long>();
 
-		_seasonalquests[quest.EventIdForQuest][quest_id] = GameTime.GetGameTime();
+		_seasonalquests[quest.EventIdForQuest][quest_id] = _gameTime.GetGameTime;
 		_seasonalQuestChanged = true;
 	}
 

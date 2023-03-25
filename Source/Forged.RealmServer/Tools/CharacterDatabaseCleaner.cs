@@ -15,7 +15,7 @@ class CharacterDatabaseCleaner
 	public static void CleanDatabase()
 	{
 		// config to disable
-		if (!WorldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
+		if (!_worldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
 			return;
 
 		Log.Logger.Information("Cleaning character database...");
@@ -42,7 +42,7 @@ class CharacterDatabaseCleaner
 
 		// NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
 		// you need to define them at least once in worldstates.
-		flags &= (CleaningFlags)WorldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
+		flags &= (CleaningFlags)_worldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
 		Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
 
 		Global.WorldMgr.CleaningFlags = flags;

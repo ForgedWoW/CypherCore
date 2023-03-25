@@ -16,7 +16,7 @@ public class DosProtection
 	public DosProtection(WorldSession s)
 	{
 		Session = s;
-		_policy = (Policy)WorldConfig.GetIntValue(WorldCfg.PacketSpoofPolicy);
+		_policy = (Policy)_worldConfig.GetIntValue(WorldCfg.PacketSpoofPolicy);
 	}
 
 	//todo fix me
@@ -61,8 +61,8 @@ public class DosProtection
 
 				return false;
 			case Policy.Ban:
-				var bm = (BanMode)WorldConfig.GetIntValue(WorldCfg.PacketSpoofBanmode);
-				var duration = WorldConfig.GetUIntValue(WorldCfg.PacketSpoofBanduration); // in seconds
+				var bm = (BanMode)_worldConfig.GetIntValue(WorldCfg.PacketSpoofBanmode);
+				var duration = _worldConfig.GetUIntValue(WorldCfg.PacketSpoofBanduration); // in seconds
 				var nameOrIp = "";
 
 				switch (bm)

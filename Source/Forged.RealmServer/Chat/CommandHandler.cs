@@ -518,7 +518,7 @@ public class CommandHandler
 			return false;
 
 		// ignore only for non-players for non strong checks (when allow apply command at least to same sec level)
-		if (!Global.AccountMgr.IsPlayerAccount(_session.Security) && !strong && !WorldConfig.GetBoolValue(WorldCfg.GmLowerSecurity))
+		if (!Global.AccountMgr.IsPlayerAccount(_session.Security) && !strong && !_worldConfig.GetBoolValue(WorldCfg.GmLowerSecurity))
 			return false;
 
 		if (target != null)

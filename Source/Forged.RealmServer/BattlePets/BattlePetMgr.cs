@@ -435,7 +435,7 @@ public class BattlePetMgr
 			return;
 
 		pet.PacketInfo.Name = name;
-		pet.NameTimestamp = GameTime.GetGameTime();
+		pet.NameTimestamp = _gameTime.GetGameTime;
 
 		pet.DeclinedName = new DeclinedName();
 

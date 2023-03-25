@@ -28,7 +28,7 @@ public class WorldSocketManager : SocketManager<WorldSocket>
 
 		_instanceAcceptor = new AsyncAcceptor();
 
-		if (!_instanceAcceptor.Start(bindIp, WorldConfig.GetIntValue(WorldCfg.PortInstance)))
+		if (!_instanceAcceptor.Start(bindIp, _worldConfig.GetIntValue(WorldCfg.PortInstance)))
 		{
 			Log.outError(LogFilter.Network, "StartNetwork failed to start instance AsyncAcceptor");
 

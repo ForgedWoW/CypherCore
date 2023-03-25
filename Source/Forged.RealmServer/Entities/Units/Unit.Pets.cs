@@ -415,7 +415,7 @@ public partial class Unit
 								GetCharmInfo().SetPetNumber(Global.ObjectMgr.GeneratePetNumber(), true);
 
 							// if charmed two demons the same session, the 2nd gets the 1st one's name
-							SetPetNameTimestamp((uint)GameTime.GetGameTime()); // cast can't be helped
+							SetPetNameTimestamp((uint)_gameTime.GetGameTime); // cast can't be helped
 						}
 					}
 

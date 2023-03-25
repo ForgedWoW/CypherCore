@@ -28,7 +28,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
-		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
+		if (!_worldConfig.GetBoolValue(WorldCfg.WardenEnabled))
 		{
 			Log.Logger.Information("Warden disabled, loading checks skipped.");
 
@@ -107,7 +107,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 
 			// initialize action with default action from config, this may be overridden later
-			wardenCheck.Action = (WardenActions)WorldConfig.GetIntValue(WorldCfg.WardenClientFailAction);
+			wardenCheck.Action = (WardenActions)_worldConfig.GetIntValue(WorldCfg.WardenClientFailAction);
 
 			_pools[(int)category].Add(id);
 			++count;
@@ -121,7 +121,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
-		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
+		if (!_worldConfig.GetBoolValue(WorldCfg.WardenEnabled))
 		{
 			Log.Logger.Information("Warden disabled, loading check overrides skipped.");
 

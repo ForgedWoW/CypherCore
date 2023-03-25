@@ -39,7 +39,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 	public uint NextCheck(ushort entry)
 	{
-		var currenttime = GameTime.GetGameTime();
+		var currenttime = _gameTime.GetGameTime;
 
 		// for NEXTPHASE state world events, return the delay to start the next event, so the followup event will be checked correctly
 		if ((mGameEvent[entry].state == GameEventState.WorldNextPhase || mGameEvent[entry].state == GameEventState.WorldFinished) && mGameEvent[entry].nextstart >= currenttime)
@@ -89,7 +89,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 			if (overwrite)
 			{
-				mGameEvent[event_id].start = GameTime.GetGameTime();
+				mGameEvent[event_id].start = _gameTime.GetGameTime;
 
 				if (data.end <= data.start)
 					data.end = data.start + data.length;
@@ -133,7 +133,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 		if (overwrite && !serverwide_evt)
 		{
-			data.start = GameTime.GetGameTime() - data.length * Time.Minute;
+			data.start = _gameTime.GetGameTime - data.length * Time.Minute;
 
 			if (data.end <= data.start)
 				data.end = data.start + data.length;
@@ -1025,7 +1025,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 	public void StartArenaSeason()
 	{
-		var season = WorldConfig.GetIntValue(WorldCfg.ArenaSeasonId);
+		var season = _worldConfig.GetIntValue(WorldCfg.ArenaSeasonId);
 		var result = DB.World.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{0}'", season);
 
 		if (result.IsEmpty())
@@ -1050,7 +1050,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 	public uint Update() // return the next event delay in ms
 	{
-		var currenttime = GameTime.GetGameTime();
+		var currenttime = _gameTime.GetGameTime;
 		uint nextEventDelay = Time.Day; // 1 day
 		uint calcDelay;
 		List<ushort> activate = new();
@@ -1237,7 +1237,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			default:
 			case GameEventState.Normal:
 			{
-				var currenttime = GameTime.GetGameTime();
+				var currenttime = _gameTime.GetGameTime;
 
 				// Get the event information
 				return mGameEvent[entry].start < currenttime && currenttime < mGameEvent[entry].end && (currenttime - mGameEvent[entry].start) % (mGameEvent[entry].occurence * Time.Minute) < mGameEvent[entry].length * Time.Minute;
@@ -1253,7 +1253,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			// if inactive world event, check the prerequisite events
 			case GameEventState.WorldInactive:
 			{
-				var currenttime = GameTime.GetGameTime();
+				var currenttime = _gameTime.GetGameTime;
 
 				foreach (var gameEventId in mGameEvent[entry].prerequisite_events)
 					if ((mGameEvent[gameEventId].state != GameEventState.WorldNextPhase && mGameEvent[gameEventId].state != GameEventState.WorldFinished) || // if prereq not in nextphase or finished state, then can't start this one
@@ -1762,7 +1762,7 @@ public class GameEventManager : Singleton<GameEventManager>
 		// set the followup events' start time
 		if (mGameEvent[event_id].nextstart == 0)
 		{
-			var currenttime = GameTime.GetGameTime();
+			var currenttime = _gameTime.GetGameTime;
 			mGameEvent[event_id].nextstart = currenttime + mGameEvent[event_id].length * 60;
 		}
 
@@ -1857,7 +1857,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 		var singleDate = ((holiday.Date[0] >> 24) & 0x1F) == 31; // Events with fixed date within year have - 1
 
-		var curTime = GameTime.GetGameTime();
+		var curTime = _gameTime.GetGameTime;
 
 		for (var i = 0; i < SharedConst.MaxHolidayDates && holiday.Date[i] != 0; ++i)
 		{
@@ -1903,7 +1903,7 @@ public class GameEventManager : Singleton<GameEventManager>
 		if (mGameEvent[event_id].state != GameEventState.Normal)
 			return 0;
 
-		var now = GameTime.GetSystemTime();
+		var now = _gameTime.GetSystemTime;
 		var eventInitialStart = Time.UnixTimeToDateTime(mGameEvent[event_id].start);
 		var occurence = TimeSpan.FromMinutes(mGameEvent[event_id].occurence);
 		var durationSinceLastStart = TimeSpan.FromTicks((now - eventInitialStart).Ticks % occurence.Ticks);

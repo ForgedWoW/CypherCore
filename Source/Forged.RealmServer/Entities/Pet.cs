@@ -315,7 +315,7 @@ public class Pet : Guardian
 				break;
 		}
 
-		SetPetNameTimestamp((uint)GameTime.GetGameTime()); // cast can't be helped here
+		SetPetNameTimestamp((uint)_gameTime.GetGameTime); // cast can't be helped here
 		SetCreatorGUID(owner.GUID);
 
 		InitStatsForLevel(petlevel);
@@ -424,7 +424,7 @@ public class Pet : Guardian
 				if (Removed)
 					return;
 
-				var timediff = (uint)(GameTime.GetGameTime() - lastSaveTime);
+				var timediff = (uint)(_gameTime.GetGameTime - lastSaveTime);
 				_LoadAuras(holder.GetResult(PetLoginQueryLoad.Auras), holder.GetResult(PetLoginQueryLoad.AuraEffects), timediff);
 
 				// load action bar, if data broken will fill later by default spells.
@@ -569,7 +569,7 @@ public class Pet : Guardian
 
 			stmt.AddValue(12, actionBar);
 
-			stmt.AddValue(13, GameTime.GetGameTime());
+			stmt.AddValue(13, _gameTime.GetGameTime);
 			stmt.AddValue(14, UnitData.CreatedBySpell);
 			stmt.AddValue(15, (byte)PetType);
 			stmt.AddValue(16, Specialization);
@@ -598,7 +598,7 @@ public class Pet : Guardian
 		petInfo.Health = (uint)Health;
 		petInfo.Mana = (uint)GetPower(PowerType.Mana);
 		petInfo.ActionBar = GenerateActionBarData();
-		petInfo.LastSaveTime = (uint)GameTime.GetGameTime();
+		petInfo.LastSaveTime = (uint)_gameTime.GetGameTime;
 		petInfo.CreatedBySpellId = UnitData.CreatedBySpell;
 		petInfo.Type = PetType;
 		petInfo.SpecializationId = Specialization;
@@ -670,7 +670,7 @@ public class Pet : Guardian
 		{
 			case DeathState.Corpse:
 			{
-				if (PetType != PetType.Hunter || CorpseRemoveTime <= GameTime.GetGameTime())
+				if (PetType != PetType.Hunter || CorpseRemoveTime <= _gameTime.GetGameTime)
 				{
 					Remove(PetSaveMode.NotInSlot); //hunters' pets never get removed because of death, NEVER!
 
@@ -766,7 +766,7 @@ public class Pet : Guardian
 		if (!IsAlive)
 			return;
 
-		var maxlevel = Math.Min(WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel), OwningPlayer.Level);
+		var maxlevel = Math.Min(_worldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel), OwningPlayer.Level);
 		var petlevel = Level;
 
 		// If pet is detected to be at, or above(?) the players level, don't hand out XP

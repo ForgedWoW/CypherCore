@@ -500,7 +500,7 @@ class ListCommands
 				var gridY = ri.GridId / MapConst.MaxGrids;
 				var gridX = ri.GridId % MapConst.MaxGrids;
 
-				var respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
+				var respawnTime = ri.RespawnTime > _gameTime.GetGameTime ? Time.secsToTimeString((ulong)(ri.RespawnTime - _gameTime.GetGameTime), TimeFormat.ShortText) : stringOverdue;
 				handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
 			}
 		}

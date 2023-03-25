@@ -58,7 +58,7 @@ public class MailQueryNextTimeResult : ServerPacket
 					break;
 			}
 
-			TimeLeft = mail.deliver_time - GameTime.GetGameTime();
+			TimeLeft = mail.deliver_time - _gameTime.GetGameTime;
 			AltSenderType = (sbyte)mail.messageType;
 			StationeryID = (int)mail.stationery;
 		}

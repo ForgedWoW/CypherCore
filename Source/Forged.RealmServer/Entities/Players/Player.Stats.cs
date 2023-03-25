@@ -670,8 +670,8 @@ public partial class Player
 			// apply diminishing formula to diminishing parry chance
 			value = CalculateDiminishingReturns(parry_cap, Class, nondiminishing, diminishing);
 
-			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) : value;
+			if (_worldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
+				value = value > _worldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) ? _worldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) : value;
 		}
 
 		SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ParryPercentage), (float)value);
@@ -688,8 +688,8 @@ public partial class Player
 		// apply diminishing formula to diminishing dodge chance
 		var value = CalculateDiminishingReturns(dodge_cap, Class, nondiminishing, diminishing);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-			value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) : value;
+		if (_worldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
+			value = value > _worldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) ? _worldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) : value;
 
 		SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DodgePercentage), (float)value);
 	}
@@ -708,8 +708,8 @@ public partial class Player
 			// Increase from rating
 			value += GetRatingBonusValue(CombatRating.Block);
 
-			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsBlock) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsBlock) : value;
+			if (_worldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
+				value = value > _worldConfig.GetFloatValue(WorldCfg.StatsLimitsBlock) ? _worldConfig.GetFloatValue(WorldCfg.StatsLimitsBlock) : value;
 		}
 
 		SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.BlockPercentage), (float)value);
@@ -719,8 +719,8 @@ public partial class Player
 	{
 		static float applyCritLimit(double value)
 		{
-			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsCrit) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsCrit) : value;
+			if (_worldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
+				value = value > _worldConfig.GetFloatValue(WorldCfg.StatsLimitsCrit) ? _worldConfig.GetFloatValue(WorldCfg.StatsLimitsCrit) : value;
 
 			return (float)value;
 		}

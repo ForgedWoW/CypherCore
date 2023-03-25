@@ -18,7 +18,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 	long _lastUpdate;
 
 
-	public bool IsEnabled => WorldConfig.GetBoolValue(WorldCfg.BlackmarketEnabled);
+	public bool IsEnabled => _worldConfig.GetBoolValue(WorldCfg.BlackmarketEnabled);
 	public long LastUpdate => _lastUpdate;
 
 	BlackMarketManager() { }
@@ -69,7 +69,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			return;
 		}
 
-		_lastUpdate = GameTime.GetGameTime(); //Set update time before loading
+		_lastUpdate = _gameTime.GetGameTime; //Set update time before loading
 
 		SQLTransaction trans = new();
 
@@ -102,7 +102,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 	public void Update(bool updateTime = false)
 	{
 		SQLTransaction trans = new();
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 
 		foreach (var entry in _auctions.Values)
 		{
@@ -149,7 +149,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			templates.Add(pair.Value);
 		}
 
-		templates.RandomResize(WorldConfig.GetUIntValue(WorldCfg.BlackmarketMaxAuctions));
+		templates.RandomResize(_worldConfig.GetUIntValue(WorldCfg.BlackmarketMaxAuctions));
 
 		foreach (var templat in templates)
 		{

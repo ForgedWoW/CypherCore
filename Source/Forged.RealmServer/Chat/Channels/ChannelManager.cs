@@ -31,7 +31,7 @@ public class ChannelManager
 
 	public static void LoadFromDB()
 	{
-		if (!WorldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
+		if (!_worldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
 		{
 			Log.Logger.Information("Loaded 0 custom chat channels. Custom channel saving is disabled.");
 
@@ -39,7 +39,7 @@ public class ChannelManager
 		}
 
 		var oldMSTime = Time.MSTime;
-		var days = WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelDuration);
+		var days = _worldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelDuration);
 
 		if (days != 0)
 		{
@@ -101,7 +101,7 @@ public class ChannelManager
 
 	public static ChannelManager ForTeam(TeamFaction team)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
+		if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
 			return allianceChannelMgr; // cross-faction
 
 		if (team == TeamFaction.Alliance)

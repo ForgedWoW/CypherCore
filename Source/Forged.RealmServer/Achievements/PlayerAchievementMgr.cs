@@ -102,7 +102,7 @@ public class PlayerAchievementMgr : AchievementManager
 
 		if (!criteriaResult.IsEmpty())
 		{
-			var now = GameTime.GetGameTime();
+			var now = _gameTime.GetGameTime;
 
 			do
 			{
@@ -344,7 +344,7 @@ public class PlayerAchievementMgr : AchievementManager
 		Log.Logger.Debug("PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
 
 		CompletedAchievementData ca = new();
-		ca.Date = GameTime.GetGameTime();
+		ca.Date = _gameTime.GetGameTime;
 		ca.Changed = true;
 		_completedAchievements[achievement.Id] = ca;
 
@@ -528,8 +528,8 @@ public class PlayerAchievementMgr : AchievementManager
 			{
 				BroadcastTextBuilder _builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
 				var _localizer = new LocalizedDo(_builder);
-				var _worker = new PlayerDistWorker(_owner, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), _localizer, GridType.World);
-				Cell.VisitGrid(_owner, _worker, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
+				var _worker = new PlayerDistWorker(_owner, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), _localizer, GridType.World);
+				Cell.VisitGrid(_owner, _worker, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
 			}
 		}
 
@@ -538,10 +538,10 @@ public class PlayerAchievementMgr : AchievementManager
 		achievementEarned.Earner = _owner.GUID;
 		achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
 		achievementEarned.AchievementID = achievement.Id;
-		achievementEarned.Time = GameTime.GetGameTime();
+		achievementEarned.Time = _gameTime.GetGameTime;
 
 		if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
-			_owner.SendMessageToSetInRange(achievementEarned, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), true);
+			_owner.SendMessageToSetInRange(achievementEarned, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), true);
 		else
 			_owner.SendPacket(achievementEarned);
 	}

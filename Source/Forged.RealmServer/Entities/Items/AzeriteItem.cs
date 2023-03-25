@@ -465,7 +465,7 @@ public class AzeriteItem : Item
 	uint GetCurrentKnowledgeLevel()
 	{
 		// count weeks from 14.01.2020
-		var now = GameTime.GetDateAndTime();
+		var now = GameTime.DateTime;
 		DateTime beginDate = new(2020, 1, 14);
 		uint knowledge = 0;
 

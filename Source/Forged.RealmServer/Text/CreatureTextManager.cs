@@ -277,17 +277,17 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 
 	public float GetRangeForChatType(ChatMsg msgType)
 	{
-		var dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay);
+		var dist = _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay);
 
 		switch (msgType)
 		{
 			case ChatMsg.MonsterYell:
-				dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell);
+				dist = _worldConfig.GetFloatValue(WorldCfg.ListenRangeYell);
 
 				break;
 			case ChatMsg.MonsterEmote:
 			case ChatMsg.RaidBossEmote:
-				dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote);
+				dist = _worldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote);
 
 				break;
 			default:

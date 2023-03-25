@@ -125,10 +125,10 @@ public class LFGManager : Singleton<LFGManager>
 				continue;
 			}
 
-			if (maxLevel == 0 || maxLevel > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+			if (maxLevel == 0 || maxLevel > _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 			{
 				Log.Logger.Error("Level {0} specified for dungeon {1} in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
-				maxLevel = WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
+				maxLevel = _worldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
 			}
 
 			if (firstQuestId == 0 || Global.ObjectMgr.GetQuestTemplate(firstQuestId) == null)
@@ -249,7 +249,7 @@ public class LFGManager : Singleton<LFGManager>
 		if (!IsOptionEnabled(LfgOptions.EnableDungeonFinder | LfgOptions.EnableRaidBrowser))
 			return;
 
-		var currTime = GameTime.GetGameTime();
+		var currTime = _gameTime.GetGameTime;
 
 		// Remove obsolete role checks
 		foreach (var pairCheck in RoleChecksStore)
@@ -556,7 +556,7 @@ public class LFGManager : Singleton<LFGManager>
 		ticket.RequesterGuid = guid;
 		ticket.Id = GetQueueId(gguid);
 		ticket.Type = RideType.Lfg;
-		ticket.Time = GameTime.GetGameTime();
+		ticket.Time = _gameTime.GetGameTime;
 
 		var debugNames = "";
 
@@ -564,7 +564,7 @@ public class LFGManager : Singleton<LFGManager>
 		{
 			// Create new rolecheck
 			LfgRoleCheck roleCheck = new();
-			roleCheck.cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeRolecheck;
+			roleCheck.cancelTime = _gameTime.GetGameTime + SharedConst.LFGTimeRolecheck;
 			roleCheck.state = LfgRoleCheckState.Initialiting;
 			roleCheck.leader = guid;
 			roleCheck.dungeons = dungeons;
@@ -613,7 +613,7 @@ public class LFGManager : Singleton<LFGManager>
 			Dictionary<ObjectGuid, LfgRoles> rolesMap = new();
 			rolesMap[guid] = roles;
 			var queue = GetQueue(guid);
-			queue.AddQueueData(guid, GameTime.GetGameTime(), dungeons, rolesMap);
+			queue.AddQueueData(guid, _gameTime.GetGameTime, dungeons, rolesMap);
 
 			if (!isContinue)
 			{
@@ -837,7 +837,7 @@ public class LFGManager : Singleton<LFGManager>
 		{
 			SetState(gguid, LfgState.Queued);
 			var queue = GetQueue(gguid);
-			queue.AddQueueData(gguid, GameTime.GetGameTime(), roleCheck.dungeons, roleCheck.roles);
+			queue.AddQueueData(gguid, _gameTime.GetGameTime, roleCheck.dungeons, roleCheck.roles);
 			RoleChecksStore.Remove(gguid);
 		}
 		else if (roleCheck.state != LfgRoleCheckState.Initialiting)
@@ -982,7 +982,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		var sendUpdate = proposal.state != LfgProposalState.Success;
 		proposal.state = LfgProposalState.Success;
-		var joinTime = GameTime.GetGameTime();
+		var joinTime = _gameTime.GetGameTime;
 
 		var queue = GetQueue(guid);
 		LfgUpdateData updateData = new(LfgUpdateType.GroupFound);
@@ -1064,7 +1064,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		var boot = BootsStore[gguid];
 		boot.inProgress = true;
-		boot.cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeBoot;
+		boot.cancelTime = _gameTime.GetGameTime + SharedConst.LFGTimeBoot;
 		boot.reason = reason;
 		boot.victim = victim;
 
@@ -1698,7 +1698,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SetTeam(ObjectGuid guid, TeamFaction team)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup))
+		if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup))
 			team = 0;
 
 		PlayersStore[guid].SetTeam(team);

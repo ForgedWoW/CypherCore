@@ -114,7 +114,7 @@ public class Channel
 
 	public void UpdateChannelInDB()
 	{
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 
 		if (_isDirty)
 		{
@@ -148,7 +148,7 @@ public class Channel
 		}
 
 		_isDirty = false;
-		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
+		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, _worldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
 	}
 
 	public void JoinChannel(Player player, string pass = "")
@@ -184,7 +184,7 @@ public class Channel
 		}
 
 		if (HasFlag(ChannelFlags.Lfg) &&
-			WorldConfig.GetBoolValue(WorldCfg.RestrictedLfgChannel) &&
+			_worldConfig.GetBoolValue(WorldCfg.RestrictedLfgChannel) &&
 			Global.AccountMgr.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
 			player.Group)
 		{
@@ -459,7 +459,7 @@ public class Channel
 		list.Channel = channelName;
 		list.ChannelFlags = GetFlags();
 
-		var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
+		var gmLevelInWhoList = _worldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
 
 		foreach (var pair in _playersStore)
 		{
@@ -521,7 +521,7 @@ public class Channel
 			return;
 
 		// TODO: Add proper RBAC check
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
+		if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
 			lang = Language.Universal;
 
 		if (!IsOn(guid))

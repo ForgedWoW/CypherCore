@@ -1066,7 +1066,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		uint factionTemplate = unitData.FactionTemplate;
 
-		if (unit.IsControlledByPlayer && receiver != unit && WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
+		if (unit.IsControlledByPlayer && receiver != unit && _worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
 		{
 			var ft1 = unit.GetFactionTemplateEntry();
 			var ft2 = receiver.GetFactionTemplateEntry();
@@ -1110,7 +1110,7 @@ public class UnitData : BaseUpdateData<Unit>
 	{
 		byte pvpFlags = unitData.PvpFlags;
 
-		if (unit.IsControlledByPlayer && receiver != unit && WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
+		if (unit.IsControlledByPlayer && receiver != unit && _worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup) && unit.IsInRaidWith(receiver))
 		{
 			var ft1 = unit.GetFactionTemplateEntry();
 			var ft2 = receiver.GetFactionTemplateEntry();

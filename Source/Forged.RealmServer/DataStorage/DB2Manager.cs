@@ -1179,7 +1179,7 @@ public class DB2Manager
         int getLevelAdjustment(ContentTuningCalcType type) => type switch
         {
             ContentTuningCalcType.PlusOne => 1,
-            ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_objectManager.GetMaxLevelForExpansion((Expansion)WorldConfig.GetUIntValue(WorldCfg.Expansion)),
+            ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_objectManager.GetMaxLevelForExpansion((Expansion)_worldConfig.GetUIntValue(WorldCfg.Expansion)),
             _ => 0
         };
 
@@ -3839,7 +3839,7 @@ public class DB2Manager
         int getLevelAdjustment(ContentTuningCalcType type) => type switch
         {
             ContentTuningCalcType.PlusOne => 1,
-            ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_objectManager.GetMaxLevelForExpansion((Expansion)WorldConfig.GetUIntValue(WorldCfg.Expansion)),
+            ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_objectManager.GetMaxLevelForExpansion((Expansion)_worldConfig.GetUIntValue(WorldCfg.Expansion)),
             _ => 0
         };
 

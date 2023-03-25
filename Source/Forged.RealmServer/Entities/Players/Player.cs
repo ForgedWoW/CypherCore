@@ -70,7 +70,7 @@ public partial class Player : Unit
 
 	public byte CUFProfilesCount => (byte)_cufProfiles.Count(p => p != null);
 
-	public bool HasSummonPending => _summonExpire >= GameTime.GetGameTime();
+	public bool HasSummonPending => _summonExpire >= _gameTime.GetGameTime;
 
 	//GM
 	public bool IsDeveloper => HasPlayerFlag(PlayerFlags.Developer);
@@ -195,7 +195,7 @@ public partial class Player : Unit
 		get
 		{
 			if (ConfigMgr.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
-				return Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+				return Level >= _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
 
 			return Level >= ActivePlayerData.MaxLevel;
 		}
@@ -445,7 +445,7 @@ public partial class Player : Unit
 			SetAcceptWhispers(true);
 
 		_zoneUpdateId = 0xffffffff;
-		_nextSave = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+		_nextSave = _worldConfig.GetUIntValue(WorldCfg.IntervalSave);
 		_customizationsChanged = false;
 
 		GroupInvite = null;
@@ -457,7 +457,7 @@ public partial class Player : Unit
 		for (byte i = 0; i < (int)MirrorTimerType.Max; i++)
 			_mirrorTimer[i] = -1;
 
-		_logintime = GameTime.GetGameTime();
+		_logintime = _gameTime.GetGameTime;
 		_lastTick = _logintime;
 
 		_dungeonDifficulty = Difficulty.Normal;
@@ -482,7 +482,7 @@ public partial class Player : Unit
 		}
 
 		// Honor System
-		_lastHonorUpdateTime = GameTime.GetGameTime();
+		_lastHonorUpdateTime = _gameTime.GetGameTime;
 
 		UnitMovedByMe = this;
 		PlayerMovingMe = this;
@@ -594,7 +594,7 @@ public partial class Player : Unit
 
 		var position = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? info.CreatePositionNpe.Value : info.CreatePosition;
 
-		_createTime = GameTime.GetGameTime();
+		_createTime = _gameTime.GetGameTime;
 		_createMode = createInfo.UseNPE && info.CreatePositionNpe.HasValue ? PlayerCreateMode.NPE : PlayerCreateMode.Normal;
 
 		Location.Relocate(position.Loc);
@@ -641,7 +641,7 @@ public partial class Player : Unit
 		SetPowerType(powertype, false);
 		InitDisplayIds();
 
-		if ((RealmType)WorldConfig.GetIntValue(WorldCfg.GameType) == RealmType.PVP || (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType) == RealmType.RPPVP)
+		if ((RealmType)_worldConfig.GetIntValue(WorldCfg.GameType) == RealmType.PVP || (RealmType)_worldConfig.GetIntValue(WorldCfg.GameType) == RealmType.RPPVP)
 		{
 			SetPvpFlag(UnitPVPStateFlags.PvP);
 			SetUnitFlag(UnitFlags.PlayerControlled);
@@ -663,10 +663,10 @@ public partial class Player : Unit
 
 		InitRunes();
 
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), (ulong)WorldConfig.GetIntValue(WorldCfg.StartPlayerMoney));
+		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), (ulong)_worldConfig.GetIntValue(WorldCfg.StartPlayerMoney));
 
 		// Played time
-		_lastTick = GameTime.GetGameTime();
+		_lastTick = _gameTime.GetGameTime;
 		_playedTimeTotal = 0;
 		_playedTimeLevel = 0;
 
@@ -758,7 +758,7 @@ public partial class Player : Unit
 			return;
 
 		// undelivered mail
-		if (_nextMailDelivereTime != 0 && _nextMailDelivereTime <= GameTime.GetGameTime())
+		if (_nextMailDelivereTime != 0 && _nextMailDelivereTime <= _gameTime.GetGameTime)
 		{
 			SendNewMail();
 			++UnReadMails;
@@ -772,7 +772,7 @@ public partial class Player : Unit
 
 		if (_cinematicMgr.CinematicCamera != null && _cinematicMgr.ActiveCinematic != null && Time.GetMSTimeDiffToNow(_cinematicMgr.LastCinematicCheck) > 500)
 		{
-			_cinematicMgr.LastCinematicCheck = GameTime.GetGameTimeMS();
+			_cinematicMgr.LastCinematicCheck = _gameTime.GetGameTimeMS;
 			_cinematicMgr.UpdateCinematicLocation(diff);
 		}
 
@@ -781,7 +781,7 @@ public partial class Player : Unit
 		base.Update(diff);
 		SetCanDelayTeleport(false);
 
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 
 		UpdatePvPFlag(now);
 
@@ -1887,7 +1887,7 @@ public partial class Player : Unit
 		switch (source)
 		{
 			case ReputationSource.Kill:
-				rate = WorldConfig.GetFloatValue(WorldCfg.RateReputationLowLevelKill);
+				rate = _worldConfig.GetFloatValue(WorldCfg.RateReputationLowLevelKill);
 
 				break;
 			case ReputationSource.Quest:
@@ -1895,7 +1895,7 @@ public partial class Player : Unit
 			case ReputationSource.WeeklyQuest:
 			case ReputationSource.MonthlyQuest:
 			case ReputationSource.RepeatableQuest:
-				rate = WorldConfig.GetFloatValue(WorldCfg.RateReputationLowLevelQuest);
+				rate = _worldConfig.GetFloatValue(WorldCfg.RateReputationLowLevelQuest);
 
 				break;
 			case ReputationSource.Spell:
@@ -1958,7 +1958,7 @@ public partial class Player : Unit
 		}
 
 		if (source != ReputationSource.Spell && GetsRecruitAFriendBonus(false))
-			percent *= 1.0f + WorldConfig.GetFloatValue(WorldCfg.RateReputationRecruitAFriendBonus);
+			percent *= 1.0f + _worldConfig.GetFloatValue(WorldCfg.RateReputationRecruitAFriendBonus);
 
 		return MathFunctions.CalculatePct(rep, percent);
 	}
@@ -2316,25 +2316,25 @@ public partial class Player : Unit
 
 	public uint GetStartLevel(Race race, PlayerClass playerClass, uint? characterTemplateId = null)
 	{
-		var startLevel = WorldConfig.GetUIntValue(WorldCfg.StartPlayerLevel);
+		var startLevel = _worldConfig.GetUIntValue(WorldCfg.StartPlayerLevel);
 
 		if (CliDB.ChrRacesStorage.LookupByKey(race).GetFlags().HasAnyFlag(ChrRacesFlag.IsAlliedRace))
-			startLevel = WorldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel);
+			startLevel = _worldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel);
 
 		if (playerClass == PlayerClass.Deathknight)
 		{
 			if (race == Race.PandarenAlliance || race == Race.PandarenHorde)
-				startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel), startLevel);
+				startLevel = Math.Max(_worldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel), startLevel);
 			else
-				startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartDeathKnightPlayerLevel), startLevel);
+				startLevel = Math.Max(_worldConfig.GetUIntValue(WorldCfg.StartDeathKnightPlayerLevel), startLevel);
 		}
 		else if (playerClass == PlayerClass.DemonHunter)
 		{
-			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartDemonHunterPlayerLevel), startLevel);
+			startLevel = Math.Max(_worldConfig.GetUIntValue(WorldCfg.StartDemonHunterPlayerLevel), startLevel);
 		}
 		else if (playerClass == PlayerClass.Evoker)
 		{
-			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartEvokerPlayerLevel), startLevel);
+			startLevel = Math.Max(_worldConfig.GetUIntValue(WorldCfg.StartEvokerPlayerLevel), startLevel);
 		}
 
 		if (characterTemplateId.HasValue)
@@ -2353,7 +2353,7 @@ public partial class Player : Unit
 		}
 
 		if (Session.HasPermission(RBACPermissions.UseStartGmLevel))
-			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartGmLevel), startLevel);
+			startLevel = Math.Max(_worldConfig.GetUIntValue(WorldCfg.StartGmLevel), startLevel);
 
 		return startLevel;
 	}
@@ -2464,7 +2464,7 @@ public partial class Player : Unit
 
 			if (damageperc > 0)
 			{
-				var damage = damageperc * MaxHealth * WorldConfig.GetFloatValue(WorldCfg.RateDamageFall);
+				var damage = damageperc * MaxHealth * _worldConfig.GetFloatValue(WorldCfg.RateDamageFall);
 
 				var height = movementInfo.Pos.Z;
 				height = UpdateGroundPositionZ(movementInfo.Pos.X, movementInfo.Pos.Y, height);
@@ -2514,7 +2514,7 @@ public partial class Player : Unit
 		if (HasAura(23445))
 			return;
 
-		_summonExpire = GameTime.GetGameTime() + PlayerConst.MaxPlayerSummonDelay;
+		_summonExpire = _gameTime.GetGameTime + PlayerConst.MaxPlayerSummonDelay;
 		_summonLocation = new WorldLocation(summoner.Location);
 		_summonInstanceId = summoner.InstanceId;
 
@@ -2589,7 +2589,7 @@ public partial class Player : Unit
 		}
 
 		// expire and auto declined
-		if (_summonExpire < GameTime.GetGameTime())
+		if (_summonExpire < _gameTime.GetGameTime)
 		{
 			broadcastSummonResponse(false);
 
@@ -2956,7 +2956,7 @@ public partial class Player : Unit
 				break;
 			case GossipOptionNpc.TalentMaster:
 				PlayerTalkClass.SendCloseGossip();
-				SendRespecWipeConfirm(guid, WorldConfig.GetBoolValue(WorldCfg.NoResetTalentCost) ? 0 : GetNextResetTalentsCost(), SpecResetType.Talents);
+				SendRespecWipeConfirm(guid, _worldConfig.GetBoolValue(WorldCfg.NoResetTalentCost) ? 0 : GetNextResetTalentsCost(), SpecResetType.Talents);
 
 				break;
 			case GossipOptionNpc.Stablemaster:
@@ -2965,7 +2965,7 @@ public partial class Player : Unit
 				break;
 			case GossipOptionNpc.PetSpecializationMaster:
 				PlayerTalkClass.SendCloseGossip();
-				SendRespecWipeConfirm(guid, WorldConfig.GetBoolValue(WorldCfg.NoResetTalentCost) ? 0 : GetNextResetTalentsCost(), SpecResetType.PetTalents);
+				SendRespecWipeConfirm(guid, _worldConfig.GetBoolValue(WorldCfg.NoResetTalentCost) ? 0 : GetNextResetTalentsCost(), SpecResetType.PetTalents);
 
 				break;
 			case GossipOptionNpc.GuildBanker:
@@ -3192,7 +3192,7 @@ public partial class Player : Unit
 	{
 		// calculate next delivery time (min. from non-delivered mails
 		// and recalculate unReadMail
-		var cTime = GameTime.GetGameTime();
+		var cTime = _gameTime.GetGameTime;
 		_nextMailDelivereTime = 0;
 		UnReadMails = 0;
 
@@ -3210,7 +3210,7 @@ public partial class Player : Unit
 
 	public void AddNewMailDeliverTime(long deliver_time)
 	{
-		if (deliver_time <= GameTime.GetGameTime()) // ready now
+		if (deliver_time <= _gameTime.GetGameTime) // ready now
 		{
 			++UnReadMails;
 			SendNewMail();
@@ -3583,10 +3583,10 @@ public partial class Player : Unit
 		{
 			if (type == EnviromentalDamage.Fall) // DealDamage not apply item durability loss at self damage
 			{
-				Log.outDebug(LogFilter.Player, $"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
-				DurabilityLossAll(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath), false);
+				Log.outDebug(LogFilter.Player, $"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {_worldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
+				DurabilityLossAll(_worldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath), false);
 				// durability lost message
-				SendDurabilityLoss(this, (uint)(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath) * 100.0f));
+				SendDurabilityLoss(this, (uint)(_worldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath) * 100.0f));
 			}
 
 			UpdateCriteria(CriteriaType.DieFromEnviromentalDamage, 1, (ulong)type);
@@ -3795,7 +3795,7 @@ public partial class Player : Unit
 		//Characters from level 11-19 will suffer from one minute of sickness
 		//for each level they are above 10.
 		//Characters level 20 and up suffer from ten minutes of sickness.
-		var startLevel = WorldConfig.GetIntValue(WorldCfg.DeathSicknessLevel);
+		var startLevel = _worldConfig.GetIntValue(WorldCfg.DeathSicknessLevel);
 		var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
 
 		if (Level >= startLevel)
@@ -3937,15 +3937,15 @@ public partial class Player : Unit
 	{
 		if (pvp)
 		{
-			if (!WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp))
+			if (!_worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp))
 				return PlayerConst.copseReclaimDelay[0];
 		}
-		else if (!WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve))
+		else if (!_worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve))
 		{
 			return 0;
 		}
 
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 		// 0..2 full period
 		// should be ceil(x)-1 but not floor(x)
 		var count = (ulong)((now < _deathExpireTime - 1) ? (_deathExpireTime - 1 - now) / PlayerConst.DeathExpireStep : 0);
@@ -4030,7 +4030,7 @@ public partial class Player : Unit
 		pet.SetPetNextLevelExperience(1000);
 		pet.SetFullHealth();
 		pet.SetFullPower(PowerType.Mana);
-		pet.SetPetNameTimestamp((uint)GameTime.GetGameTime());
+		pet.SetPetNameTimestamp((uint)_gameTime.GetGameTime);
 
 		map.AddToMap(pet.AsCreature);
 
@@ -4392,7 +4392,7 @@ public partial class Player : Unit
 		var k_grey = Formulas.GetGrayLevel(Level);
 
 		// Victim level less gray level
-		if (v_level < k_grey && WorldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) == 0)
+		if (v_level < k_grey && _worldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) == 0)
 			return false;
 
 		var creature = victim.AsCreature;
@@ -4850,8 +4850,8 @@ public partial class Player : Unit
 		var TimeSpeed = 0.01666667f;
 		LoginSetTimeSpeed loginSetTimeSpeed = new();
 		loginSetTimeSpeed.NewSpeed = TimeSpeed;
-		loginSetTimeSpeed.GameTime = (uint)GameTime.GetGameTime();
-		loginSetTimeSpeed.ServerTime = (uint)GameTime.GetGameTime();
+		loginSetTimeSpeed.GameTime = (uint)_gameTime.GetGameTime;
+		loginSetTimeSpeed.ServerTime = (uint)_gameTime.GetGameTime;
 		loginSetTimeSpeed.GameTimeHolidayOffset = 0;   // @todo
 		loginSetTimeSpeed.ServerTimeHolidayOffset = 0; // @todo
 		SendPacket(loginSetTimeSpeed);
@@ -4890,7 +4890,7 @@ public partial class Player : Unit
 		Session.CollectionMgr.SendFavoriteAppearances();
 
 		InitialSetup initialSetup = new();
-		initialSetup.ServerExpansionLevel = (byte)WorldConfig.GetIntValue(WorldCfg.Expansion);
+		initialSetup.ServerExpansionLevel = (byte)_worldConfig.GetIntValue(WorldCfg.Expansion);
 		SendPacket(initialSetup);
 
 		SetMovedUnit(this);
@@ -5026,7 +5026,7 @@ public partial class Player : Unit
 		var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, Level);
 
 		var exp_max_lvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(Session.Expansion);
-		var conf_max_lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+		var conf_max_lvl = _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
 
 		if (exp_max_lvl == SharedConst.DefaultMaxLevel || exp_max_lvl >= conf_max_lvl)
 			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), conf_max_lvl);
@@ -5710,7 +5710,7 @@ public partial class Player : Unit
 		//Checks and preparations done, DO FLIGHT
 		UpdateCriteria(CriteriaType.BuyTaxi, 1);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.InstantTaxi))
+		if (_worldConfig.GetBoolValue(WorldCfg.InstantTaxi))
 		{
 			var lastPathNode = CliDB.TaxiNodesStorage.LookupByKey(nodes[^1]);
 			Taxi.ClearTaxiDestinations();
@@ -5819,7 +5819,7 @@ public partial class Player : Unit
 	{
 		var recruitAFriend = false;
 
-		if (Level <= WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel) || !forXP)
+		if (Level <= _worldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel) || !forXP)
 		{
 			var group = Group;
 
@@ -5837,12 +5837,12 @@ public partial class Player : Unit
 					if (forXP)
 					{
 						// level must be allowed to get RaF bonus
-						if (player.Level > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel))
+						if (player.Level > _worldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel))
 							continue;
 
 						// level difference must be small enough to get RaF bonus, UNLESS we are lower level
 						if (player.Level < Level)
-							if (Level - player.Level > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevelDifference))
+							if (Level - player.Level > _worldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevelDifference))
 								continue;
 					}
 
@@ -7200,7 +7200,7 @@ public partial class Player : Unit
 		};
 
 		if (RatesForPower[(int)power] != 0)
-			addvalue *= WorldConfig.GetFloatValue(RatesForPower[(int)power]);
+			addvalue *= _worldConfig.GetFloatValue(RatesForPower[(int)power]);
 
 		// Mana regen calculated in Player.UpdateManaRegen()
 		if (power != PowerType.Mana)
@@ -7301,7 +7301,7 @@ public partial class Player : Unit
 		if (curValue >= maxValue)
 			return;
 
-		var HealthIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RateHealth);
+		var HealthIncreaseRate = _worldConfig.GetFloatValue(WorldCfg.RateHealth);
 		double addValue = 0.0f;
 
 		// polymorphed case
@@ -7550,7 +7550,7 @@ public partial class Player : Unit
 				return Time.Minute * Time.InMilliseconds;
 			case MirrorTimerType.Breath:
 			{
-				if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.DisableBreathing))
+				if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)_worldConfig.GetIntValue(WorldCfg.DisableBreathing))
 					return -1;
 
 				var UnderWaterTime = 3 * Time.Minute * Time.InMilliseconds;
@@ -7634,11 +7634,11 @@ public partial class Player : Unit
 	{
 		var pvp = _extraFlags.HasAnyFlag(PlayerExtraFlags.PVPDeath);
 
-		if ((pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
-			(!pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
+		if ((pvp && !_worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
+			(!pvp && !_worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
 			return;
 
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 
 		if (now < _deathExpireTime)
 		{
@@ -7674,8 +7674,8 @@ public partial class Player : Unit
 
 			ulong count = 0;
 
-			if ((pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
-				(!pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
+			if ((pvp && _worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
+				(!pvp && _worldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
 			{
 				count = (ulong)(_deathExpireTime - corpse.GetGhostTime()) / PlayerConst.DeathExpireStep;
 
@@ -7684,7 +7684,7 @@ public partial class Player : Unit
 			}
 
 			var expected_time = corpse.GetGhostTime() + PlayerConst.copseReclaimDelay[count];
-			var now = GameTime.GetGameTime();
+			var now = _gameTime.GetGameTime;
 
 			if (now >= expected_time)
 				return -1;
@@ -7845,7 +7845,7 @@ public partial class Player : Unit
 		if (!player || IsAlive)
 			player = this;
 
-		return pOther.GetDistance(player) <= WorldConfig.GetFloatValue(WorldCfg.MaxRecruitAFriendDistance);
+		return pOther.GetDistance(player) <= _worldConfig.GetFloatValue(WorldCfg.MaxRecruitAFriendDistance);
 	}
 
 
@@ -7856,7 +7856,7 @@ public partial class Player : Unit
 
 	void InitPrimaryProfessions()
 	{
-		SetFreePrimaryProfessions(WorldConfig.GetUIntValue(WorldCfg.MaxPrimaryTradeSkill));
+		SetFreePrimaryProfessions(_worldConfig.GetUIntValue(WorldCfg.MaxPrimaryTradeSkill));
 	}
 
 	void SetFreePrimaryProfessions(ushort profs)
@@ -8272,7 +8272,7 @@ public partial class Player : Unit
 		if (IsInFlight)
 			return;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.VmapIndoorCheck))
+		if (_worldConfig.GetBoolValue(WorldCfg.VmapIndoorCheck))
 			RemoveAurasWithAttribute(IsOutdoors ? SpellAttr0.OnlyIndoors : SpellAttr0.OnlyOutdoors);
 
 		var areaId = Area;
@@ -8337,7 +8337,7 @@ public partial class Player : Unit
 
 					if (diff < -5)
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 					else if (diff > 5)
 					{
@@ -8346,16 +8346,16 @@ public partial class Player : Unit
 						if (exploration_percent < 0)
 							exploration_percent = 0;
 
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * exploration_percent / 100 * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * exploration_percent / 100 * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 					else
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore));
 					}
 
-					if (WorldConfig.GetIntValue(WorldCfg.MinDiscoveredScaledXpRatio) != 0)
+					if (_worldConfig.GetIntValue(WorldCfg.MinDiscoveredScaledXpRatio) != 0)
 					{
-						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore)) * WorldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
+						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * _worldConfig.GetFloatValue(WorldCfg.RateXpExplore)) * _worldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
 						XP = Math.Max(minScaledXP, XP);
 					}
 
@@ -8420,7 +8420,7 @@ public partial class Player : Unit
 	{
 		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Say, language, text);
 
-		SendChatMessageToSetInRange(ChatMsg.Say, language, text, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
+		SendChatMessageToSetInRange(ChatMsg.Say, language, text, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
 	}
 
 	void SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, string text, float range)
@@ -8438,7 +8438,7 @@ public partial class Player : Unit
 
 	public override void Say(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.Say, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+		Talk(textId, ChatMsg.Say, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
 	}
 
 	public override void Yell(string text, Language language, WorldObject obj = null)
@@ -8447,12 +8447,12 @@ public partial class Player : Unit
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Yell, language, this, this, text);
-		SendMessageToSetInRange(data, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), true);
+		SendMessageToSetInRange(data, _worldConfig.GetFloatValue(WorldCfg.ListenRangeYell), true);
 	}
 
 	public override void Yell(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.Yell, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+		Talk(textId, ChatMsg.Yell, _worldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
 	}
 
 	public override void TextEmote(string text, WorldObject obj = null, bool something = false)
@@ -8461,12 +8461,12 @@ public partial class Player : Unit
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Emote, Language.Universal, this, this, text);
-		SendMessageToSetInRange(data, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
+		SendMessageToSetInRange(data, _worldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
 	}
 
 	public override void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
 	{
-		Talk(textId, ChatMsg.Emote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+		Talk(textId, ChatMsg.Emote, _worldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
 	}
 
 	public void WhisperAddon(string text, string prefix, bool isLogged, Player receiver)

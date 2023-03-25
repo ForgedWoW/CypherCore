@@ -83,7 +83,7 @@ class GMCommands
 
 			if ((player.IsGameMaster ||
 				(player.Session.HasPermission(RBACPermissions.CommandsAppearInGmList) &&
-				playerSec <= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInGmList))) &&
+				playerSec <= (AccountTypes)_worldConfig.GetIntValue(WorldCfg.GmLevelInGmList))) &&
 				(handler.Session == null || player.IsVisibleGloballyFor(handler.Session.Player)))
 			{
 				if (first)

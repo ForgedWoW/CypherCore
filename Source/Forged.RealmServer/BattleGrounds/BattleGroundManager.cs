@@ -31,7 +31,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	BattlegroundManager()
 	{
-		m_NextRatedArenaUpdate = WorldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
+		m_NextRatedArenaUpdate = _worldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
 	}
 
 	public void DeleteAllBattlegrounds()
@@ -107,7 +107,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		}
 
 		// if rating difference counts, maybe force-update queues
-		if (WorldConfig.GetIntValue(WorldCfg.ArenaMaxRatingDifference) != 0 && WorldConfig.GetIntValue(WorldCfg.ArenaRatedUpdateTimer) != 0)
+		if (_worldConfig.GetIntValue(WorldCfg.ArenaMaxRatingDifference) != 0 && _worldConfig.GetIntValue(WorldCfg.ArenaRatedUpdateTimer) != 0)
 		{
 			// it's time to force update
 			if (m_NextRatedArenaUpdate < diff)
@@ -126,7 +126,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 						GetBattlegroundQueue(ratedArenaQueueId).BattlegroundQueueUpdate(diff, bracket, 0);
 				}
 
-				m_NextRatedArenaUpdate = WorldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
+				m_NextRatedArenaUpdate = _worldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
 			}
 			else
 			{
@@ -506,7 +506,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 	public uint GetMaxRatingDifference()
 	{
 		// this is for stupid people who can't use brain and set max rating difference to 0
-		var diff = WorldConfig.GetUIntValue(WorldCfg.ArenaMaxRatingDifference);
+		var diff = _worldConfig.GetUIntValue(WorldCfg.ArenaMaxRatingDifference);
 
 		if (diff == 0)
 			diff = 5000;
@@ -516,12 +516,12 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public uint GetRatingDiscardTimer()
 	{
-		return WorldConfig.GetUIntValue(WorldCfg.ArenaRatingDiscardTimer);
+		return _worldConfig.GetUIntValue(WorldCfg.ArenaRatingDiscardTimer);
 	}
 
 	public uint GetPrematureFinishTime()
 	{
-		return WorldConfig.GetUIntValue(WorldCfg.BattlegroundPrematureFinishTimer);
+		return _worldConfig.GetUIntValue(WorldCfg.BattlegroundPrematureFinishTimer);
 	}
 
 	public void LoadBattleMastersEntry()

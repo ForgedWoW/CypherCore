@@ -108,7 +108,7 @@ public class DynamicObject : WorldObject
 
 		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.SpellID), spell.Id);
 		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.Radius), radius);
-		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.CastTime), GameTime.GetGameTimeMS());
+		SetUpdateFieldValue(Values.ModifyValue(_dynamicObjectData).ModifyValue(_dynamicObjectData.CastTime), _gameTime.GetGameTimeMS);
 
 		if (IsWorldObject())
 			SetActive(true); //must before add to map to be put in world container

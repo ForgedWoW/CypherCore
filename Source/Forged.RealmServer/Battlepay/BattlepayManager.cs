@@ -132,7 +132,7 @@ public class BattlepayManager
 
 	public bool IsAvailable()
 	{
-		return WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+		return _worldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
 	}
 
 	public bool AlreadyOwnProduct(uint itemId)

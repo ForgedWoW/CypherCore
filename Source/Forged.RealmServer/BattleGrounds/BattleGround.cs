@@ -312,7 +312,7 @@ public class Battleground : ZoneScript, IDisposable
 		PreparedStatement stmt;
 		ulong battlegroundId = 1;
 
-		if (IsBattleground() && WorldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
+		if (IsBattleground() && _worldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 		{
 			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_MAXID);
 			var result = DB.Characters.Query(stmt);
@@ -366,10 +366,10 @@ public class Battleground : ZoneScript, IDisposable
 			player.RemoveAura(BattlegroundConst.SpellHonorableDefender25y);
 			player.RemoveAura(BattlegroundConst.SpellHonorableDefender60y);
 
-			var winnerKills = player.GetRandomWinner() ? WorldConfig.GetUIntValue(WorldCfg.BgRewardWinnerHonorLast) : WorldConfig.GetUIntValue(WorldCfg.BgRewardWinnerHonorFirst);
-			var loserKills = player.GetRandomWinner() ? WorldConfig.GetUIntValue(WorldCfg.BgRewardLoserHonorLast) : WorldConfig.GetUIntValue(WorldCfg.BgRewardLoserHonorFirst);
+			var winnerKills = player.GetRandomWinner() ? _worldConfig.GetUIntValue(WorldCfg.BgRewardWinnerHonorLast) : _worldConfig.GetUIntValue(WorldCfg.BgRewardWinnerHonorFirst);
+			var loserKills = player.GetRandomWinner() ? _worldConfig.GetUIntValue(WorldCfg.BgRewardLoserHonorLast) : _worldConfig.GetUIntValue(WorldCfg.BgRewardLoserHonorFirst);
 
-			if (IsBattleground() && WorldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
+			if (IsBattleground() && _worldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 			{
 				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PVPSTATS_PLAYER);
 				var score = PlayerScores.LookupByKey(player.GUID);
@@ -668,7 +668,7 @@ public class Battleground : ZoneScript, IDisposable
 		if (GetElapsedTime() >= (int)BattlegroundStartTimeIntervals.Delay2m)
 		{
 			pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.InMilliseconds;
-			pvpMatchInitialize.StartTime = GameTime.GetGameTime() - pvpMatchInitialize.Duration;
+			pvpMatchInitialize.StartTime = _gameTime.GetGameTime - pvpMatchInitialize.Duration;
 		}
 
 		pvpMatchInitialize.ArenaFaction = (byte)(player.GetBgTeam() == TeamFaction.Horde ? PvPTeamId.Horde : PvPTeamId.Alliance);
@@ -800,7 +800,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		// player is correct pointer, it is checked in WorldSession.LogoutPlayer()
 		m_OfflineQueue.Add(player.GUID);
-		m_Players[guid].OfflineRemoveTime = GameTime.GetGameTime() + BattlegroundConst.MaxOfflineTime;
+		m_Players[guid].OfflineRemoveTime = _gameTime.GetGameTime + BattlegroundConst.MaxOfflineTime;
 
 		if (GetStatus() == BattlegroundStatus.InProgress)
 		{
@@ -829,7 +829,7 @@ public class Battleground : ZoneScript, IDisposable
 	public uint GetFreeSlotsForTeam(TeamFaction Team)
 	{
 		// if BG is starting and WorldCfg.BattlegroundInvitationType == BattlegroundQueueInvitationTypeB.NoBalance, invite anyone
-		if (GetStatus() == BattlegroundStatus.WaitJoin && WorldConfig.GetIntValue(WorldCfg.BattlegroundInvitationType) == (int)BattlegroundQueueInvitationType.NoBalance)
+		if (GetStatus() == BattlegroundStatus.WaitJoin && _worldConfig.GetIntValue(WorldCfg.BattlegroundInvitationType) == (int)BattlegroundQueueInvitationType.NoBalance)
 			return (GetInvitedCount(Team) < GetMaxPlayersPerTeam()) ? GetMaxPlayersPerTeam() - GetInvitedCount(Team) : 0;
 
 		// if BG is already started or WorldCfg.BattlegroundInvitationType != BattlegroundQueueInvitationType.NoBalance, do not allow to join too much players of one faction
@@ -1889,7 +1889,7 @@ public class Battleground : ZoneScript, IDisposable
 			var bgPlayer = m_Players.LookupByKey(guid);
 
 			if (bgPlayer != null)
-				if (bgPlayer.OfflineRemoveTime <= GameTime.GetGameTime())
+				if (bgPlayer.OfflineRemoveTime <= _gameTime.GetGameTime)
 				{
 					RemovePlayerAtLeave(guid, true, true); // remove player from BG
 					m_OfflineQueue.RemoveAt(0);            // remove from offline queue
@@ -2150,7 +2150,7 @@ public class Battleground : ZoneScript, IDisposable
 				}
 
 				// Announce BG starting
-				if (WorldConfig.GetBoolValue(WorldCfg.BattlegroundQueueAnnouncerEnable))
+				if (_worldConfig.GetBoolValue(WorldCfg.BattlegroundQueueAnnouncerEnable))
 					Global.WorldMgr.SendWorldText(CypherStrings.BgStartedAnnounceWorld, GetName(), GetMinLevel(), GetMaxLevel());
 			}
 		}
@@ -2314,7 +2314,7 @@ public class Battleground : ZoneScript, IDisposable
 
 	void RewardXPAtKill(Player killer, Player victim)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.BgXpForKill) && killer && victim)
+		if (_worldConfig.GetBoolValue(WorldCfg.BgXpForKill) && killer && victim)
 			new KillRewarder(new[]
 							{
 								killer

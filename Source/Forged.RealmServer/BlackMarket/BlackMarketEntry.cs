@@ -60,7 +60,7 @@ public class BlackMarketEntry
 
 	public uint GetSecondsRemaining()
 	{
-		return (uint)(_secondsRemaining - (GameTime.GetGameTime() - Global.BlackMarketMgr.LastUpdate));
+		return (uint)(_secondsRemaining - (_gameTime.GetGameTime - Global.BlackMarketMgr.LastUpdate));
 	}
 
 	public bool IsCompleted()
@@ -178,6 +178,6 @@ public class BlackMarketEntry
 
 	long GetExpirationTime()
 	{
-		return GameTime.GetGameTime() + GetSecondsRemaining();
+		return _gameTime.GetGameTime + GetSecondsRemaining();
 	}
 }

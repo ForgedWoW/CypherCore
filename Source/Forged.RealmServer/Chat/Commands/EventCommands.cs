@@ -37,8 +37,8 @@ class EventCommands
 		var endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
 		var delay = Global.GameEventMgr.NextCheck(eventId);
-		var nextTime = GameTime.GetGameTime() + delay;
-		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(GameTime.GetGameTime() + delay).ToShortTimeString() : "-";
+		var nextTime = _gameTime.GetGameTime + delay;
+		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(_gameTime.GetGameTime + delay).ToShortTimeString() : "-";
 
 		var occurenceStr = Time.secsToTimeString(eventData.occurence * Time.Minute);
 		var lengthStr = Time.secsToTimeString(eventData.length * Time.Minute);
