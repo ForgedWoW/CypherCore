@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Trait;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class TraitHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.TraitsCommitConfig)]
 	void HandleTraitsCommitConfig(TraitsCommitConfig traitsCommitConfig)

@@ -267,7 +267,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 		else
 			Log.Logger.Information("Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
 
-		Log.Logger.Information($"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void LoadAreaTriggerSpawns()
@@ -348,7 +348,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				_areaTriggerSpawnsBySpawnId[spawnId] = spawn;
 			} while (templates.NextRow());
 
-		Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public AreaTriggerTemplate GetAreaTriggerTemplate(AreaTriggerId areaTriggerId)

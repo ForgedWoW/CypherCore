@@ -7,6 +7,9 @@ using Autofac;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.AuctionHouse;
+using Forged.MapServer.BattleFields;
 using Forged.MapServer.DataStorage;
 using Framework;
 using Framework.Constants;
@@ -26,12 +29,8 @@ builder.Register((c, s) => configuration).As<IConfiguration>().SingleInstance();
 
 builder.AddFramework();
 builder.AddCommon();
-builder.RegisterType<AccountManager>().SingleInstance();
-builder.RegisterType<BNetAccountManager>().SingleInstance();
-builder.RegisterType<AchievementGlobalMgr>().SingleInstance();
-builder.RegisterType<DB2Manager>().SingleInstance();
-builder.RegisterType<CriteriaManager>().SingleInstance();
-builder.RegisterType<SmartAIManager>().SingleInstance();
+BuildServerTypes(builder);
+
 
 BitSet localeMask = null;
 
@@ -46,3 +45,25 @@ builder.Register((c, p) =>
 
 var container = builder.Build();
 container.Resolve<CliDB>();
+
+void BuildServerTypes(ContainerBuilder containerBuilder)
+{
+    containerBuilder.RegisterType<AccountManager>().SingleInstance();
+    containerBuilder.RegisterType<BNetAccountManager>().SingleInstance();
+    containerBuilder.RegisterType<AchievementGlobalMgr>().SingleInstance();
+    containerBuilder.RegisterType<DB2Manager>().SingleInstance();
+    containerBuilder.RegisterType<CriteriaManager>().SingleInstance();
+    containerBuilder.RegisterType<SmartAIManager>().SingleInstance();
+    containerBuilder.RegisterType<ArenaTeamManager>().SingleInstance();
+    containerBuilder.RegisterType<BattleFieldManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+}

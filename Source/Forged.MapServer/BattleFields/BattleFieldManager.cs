@@ -3,16 +3,28 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IBattlefield;
+using Framework.Database;
 using Framework.Threading;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.MapServer.BattleFields;
 
-public class BattleFieldManager : Singleton<BattleFieldManager>
+public class BattleFieldManager
 {
-	static readonly uint[] BattlefieldIdToMapId =
+    private readonly IConfiguration _configuration;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _objectManager;
+    private readonly ScriptManager _scriptManager;
+
+    static readonly uint[] BattlefieldIdToMapId =
 	{
 		0, 571, 732
 	};
@@ -35,19 +47,26 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 	// used in player event handling
 	readonly Dictionary<(Map map, uint zoneId), BattleField> _battlefieldsByZone = new();
 
-	readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+	readonly LimitedThreadTaskManager _threadTaskManager;
 
 	// update interval
 	uint _updateTimer;
 
-	BattleFieldManager() { }
+    public BattleFieldManager(IConfiguration configuration, WorldDatabase worldDatabase, GameObjectManager objectManager, ScriptManager scriptManager)
+    {
+        _configuration = configuration;
+        _worldDatabase = worldDatabase;
+        _objectManager = objectManager;
+        _scriptManager = scriptManager;
+        _threadTaskManager = new(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+    }
 
 	public void InitBattlefield()
 	{
 		var oldMSTime = Time.MSTime;
 
 		uint count = 0;
-		var result = DB.World.Query("SELECT TypeId, ScriptName FROM battlefield_template");
+		var result = _worldDatabase.Query("SELECT TypeId, ScriptName FROM battlefield_template");
 
 		if (!result.IsEmpty())
 			do
@@ -61,11 +80,11 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 					continue;
 				}
 
-				BattlefieldIdToScriptId[(int)typeId] = Global.ObjectMgr.GetScriptId(result.Read<string>(1));
+				BattlefieldIdToScriptId[(int)typeId] = _objectManager.GetScriptId(result.Read<string>(1));
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} battlefields in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void CreateBattlefieldsForMap(Map map)
@@ -78,7 +97,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 			if (BattlefieldIdToMapId[i] != map.Id)
 				continue;
 
-			var bf = Global.ScriptMgr.RunScriptRet<IBattlefieldGetBattlefield, BattleField>(p => p.GetBattlefield(map), BattlefieldIdToScriptId[i], null);
+			var bf = _scriptManager.RunScriptRet<IBattlefieldGetBattlefield, BattleField>(p => p.GetBattlefield(map), BattlefieldIdToScriptId[i]);
 
 			if (bf == null)
 				continue;

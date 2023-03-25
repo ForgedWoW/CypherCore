@@ -20,7 +20,7 @@ using Forged.MapServer.Scripting.Interfaces.IGuild;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Guilds;
 
@@ -3624,7 +3624,7 @@ public class Guild
 
 		public LogHolder()
 		{
-			m_maxRecords = WorldConfig.GetUIntValue(typeof(T) == typeof(BankEventLogEntry) ? WorldCfg.GuildBankEventLogCount : WorldCfg.GuildEventLogCount);
+			m_maxRecords = GetDefaultValue(typeof(T) == typeof(BankEventLogEntry) ? "Guild.BankEventLogRecordsCount" : "Guild.EventLogRecordsCount");
 			m_nextGUID = GuildConst.EventLogGuidUndefined;
 		}
 

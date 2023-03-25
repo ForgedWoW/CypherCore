@@ -15,6 +15,7 @@ using Forged.MapServer.Server;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Events;
 
@@ -1027,7 +1028,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 	public void StartArenaSeason()
 	{
-		var season = WorldConfig.GetIntValue(WorldCfg.ArenaSeasonId);
+		var season = GetDefaultValue("Arena.ArenaSeason.ID", 32);
 		var result = DB.World.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{0}'", season);
 
 		if (result.IsEmpty())

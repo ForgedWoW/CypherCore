@@ -2145,7 +2145,7 @@ public partial class Spell
 			// Generate extra money for pick pocket loot
 			var a = RandomHelper.URand(0, creature.Level / 2);
 			var b = RandomHelper.URand(0, player.Level / 2);
-			creature.Loot.gold = (uint)(10 * (a + b) * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney));
+			creature.Loot.gold = (uint)(10 * (a + b) * GetDefaultValue("Rate.Drop.Money", 1.0f));
 		}
 		else if (creature.Loot != null)
 		{

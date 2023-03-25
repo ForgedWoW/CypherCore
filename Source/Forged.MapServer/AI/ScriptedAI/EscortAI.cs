@@ -11,6 +11,7 @@ using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.ScriptedAI;
 
@@ -209,7 +210,7 @@ public class EscortAI : ScriptedAI
 					var creatureData = Me.CreatureData;
 
 					if (creatureData != null)
-						isEscort = (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
+						isEscort = (GetDefaultValue("Respawn.DynamicEscortNPC", false) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
 
 					if (_instantRespawn)
 					{
@@ -329,7 +330,7 @@ public class EscortAI : ScriptedAI
 		var cdata = Me.CreatureData;
 
 		if (cdata != null)
-			if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+			if (GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
 				Me.SaveRespawnTime(Me.RespawnDelay);
 
 		if (Me.IsEngaged)

@@ -21,6 +21,7 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Achievements;
 
@@ -565,8 +566,8 @@ public class PlayerAchievementMgr : AchievementManager
 			{
 				BroadcastTextBuilder _builder = new(_owner, ChatMsg.Achievement, (uint)BroadcastTextIds.AchivementEarned, _owner.NativeGender, _owner, achievement.Id);
 				var _localizer = new LocalizedDo(_builder);
-				var _worker = new PlayerDistWorker(_owner, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), _localizer, GridType.World);
-				Cell.VisitGrid(_owner, _worker, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
+				var _worker = new PlayerDistWorker(_owner, GetDefaultValue("ListenRange.Say", 25.0f), _localizer, GridType.World);
+				Cell.VisitGrid(_owner, _worker, GetDefaultValue("ListenRange.Say", 25.0f));
 			}
 		}
 
@@ -581,7 +582,7 @@ public class PlayerAchievementMgr : AchievementManager
 		achievementEarned.Time = GameTime.GetGameTime();
 
 		if (!achievement.Flags.HasAnyFlag(AchievementFlags.TrackingFlag))
-			_owner.SendMessageToSetInRange(achievementEarned, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), true);
+			_owner.SendMessageToSetInRange(achievementEarned, GetDefaultValue("ListenRange.Say", 25.0f), true);
 		else
 			_owner.SendPacket(achievementEarned);
 	}

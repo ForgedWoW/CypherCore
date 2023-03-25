@@ -9,7 +9,8 @@ using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using Serilog;
+using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Warden;
 
@@ -103,7 +104,7 @@ public abstract class Warden
 
 		if (DataSent)
 		{
-			var maxClientResponseDelay = WorldConfig.GetUIntValue(WorldCfg.WardenClientResponseDelay);
+			var maxClientResponseDelay = GetDefaultValue("Warden.ClientResponseDelay", 600);
 
 			if (maxClientResponseDelay > 0)
 			{
@@ -183,7 +184,7 @@ public abstract class Warden
 		if (check != null)
 			action = check.Action;
 		else
-			action = (WardenActions)WorldConfig.GetIntValue(WorldCfg.WardenClientFailAction);
+			action = (WardenActions)GetDefaultValue("Warden.ClientCheckFailAction", 0);
 
 		switch (action)
 		{
@@ -200,7 +201,7 @@ public abstract class Warden
 				if (check != null)
 					banReason += ": " + check.Comment + " (CheckId: " + check.CheckId + ")";
 
-				Global.WorldMgr.BanAccount(BanMode.Account, accountName, WorldConfig.GetUIntValue(WorldCfg.WardenClientBanDuration), banReason, "Server");
+				Global.WorldMgr.BanAccount(BanMode.Account, accountName, GetDefaultValue("Warden.BanDuration", 86400u), banReason, "Server");
 
 				break;
 			}

@@ -131,7 +131,7 @@ public class EnumCharactersResult : ServerPacket
 			if (fields.Read<uint>(18) != 0)
 				Flags |= CharacterFlags.LockedByBilling;
 
-			if (WorldConfig.GetBoolValue(WorldCfg.DeclinedNamesUsed) && !string.IsNullOrEmpty(fields.Read<string>(23)))
+			if (GetDefaultValue("DeclinedNames", false) && !string.IsNullOrEmpty(fields.Read<string>(23)))
 				Flags |= CharacterFlags.Declined;
 
 			if (atLoginFlags.HasAnyFlag(AtLoginFlags.Customize))

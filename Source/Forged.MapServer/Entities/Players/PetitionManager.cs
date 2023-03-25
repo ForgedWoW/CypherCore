@@ -37,7 +37,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} petitions in: {global::Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
+		Log.Logger.Information($"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
 	}
 
 	public void LoadSignatures()
@@ -66,7 +66,7 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} Petition signs in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)

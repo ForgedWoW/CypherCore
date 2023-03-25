@@ -3,11 +3,14 @@
 
 using System.Linq;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.AdventureMap;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class AdventureMapHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
 	void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)

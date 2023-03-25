@@ -7,10 +7,11 @@ using Framework.Constants;
 using Framework.Serialization;
 using Framework.Web;
 using Google.Protobuf;
+using Serilog;
 
 namespace Forged.MapServer.Services;
 
-public partial class WorldSession
+public class WorldService
 {
 	[Service(OriginalHash.GameUtilitiesService, 1)]
 	BattlenetRpcErrorCode HandleProcessClientRequest(ClientRequest request, ClientResponse response)

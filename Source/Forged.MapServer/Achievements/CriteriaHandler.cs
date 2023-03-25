@@ -1977,7 +1977,7 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.ServerExpansionEqualOrGreaterThan: // 92
-				if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && WorldConfig.GetIntValue(WorldCfg.Expansion) < reqValue)
+				if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true) && GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < reqValue)
 					return false;
 
 				break;
@@ -2225,12 +2225,12 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.PvpSeasonIsActive: // 124
-				if (!WorldConfig.GetBoolValue(WorldCfg.ArenaSeasonInProgress))
+				if (!GetDefaultValue("Arena.ArenaSeason.InProgress", false))
 					return false;
 
 				break;
 			case ModifierTreeType.PvpSeason: // 125
-				if (WorldConfig.GetIntValue(WorldCfg.ArenaSeasonId) != reqValue)
+				if (GetDefaultValue("Arena.ArenaSeason.ID", 32) != reqValue)
 					return false;
 
 				break;

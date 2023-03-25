@@ -37,9 +37,9 @@ public class MapManager : Singleton<MapManager>
 
 	public void Initialize()
 	{
-		var num_threads = WorldConfig.GetIntValue(WorldCfg.Numthreads);
+		var numThreads = GetDefaultValue("MapUpdate.Threads", 10);
 
-		_updater = new LimitedThreadTaskManager(num_threads > 0 ? num_threads : 1);
+		_updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
 	}
 
 	public void InitializeVisibilityDistanceInfo()

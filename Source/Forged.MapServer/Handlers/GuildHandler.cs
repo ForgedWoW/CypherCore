@@ -1,12 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Guilds;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Guild;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class GuildHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
 	void HandleGuildGetRanks(GuildGetRanks packet)

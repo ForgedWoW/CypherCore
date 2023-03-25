@@ -7,7 +7,7 @@ using Forged.MapServer.Server;
 using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.IO;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Chat.Commands;
 

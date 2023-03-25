@@ -265,7 +265,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	// the storage structure ends up making this kind of inefficient

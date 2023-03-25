@@ -3,11 +3,16 @@
 
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Duel;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class DuelHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.CanDuel)]
 	void HandleCanDuel(CanDuel packet)

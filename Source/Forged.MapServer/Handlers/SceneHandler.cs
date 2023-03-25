@@ -1,11 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Scene;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class SceneHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
 	void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)

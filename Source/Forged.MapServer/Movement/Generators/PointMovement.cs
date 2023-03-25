@@ -249,7 +249,7 @@ public class AssistanceMovementGenerator : PointMovementGenerator
 			ownerCreature.CallAssistance();
 
 			if (ownerCreature.IsAlive)
-				ownerCreature.MotionMaster.MoveSeekAssistanceDistract(WorldConfig.GetUIntValue(WorldCfg.CreatureFamilyAssistanceDelay));
+				ownerCreature.MotionMaster.MoveSeekAssistanceDistract(GetDefaultValue("CreatureFamilyAssistanceDelay", 1500));
 		}
 	}
 

@@ -154,7 +154,7 @@ public class CreatureTemplate
 
 	public int GetHealthScalingExpansion()
 	{
-		return HealthScalingExpansion == (int)Expansion.LevelCurrent ? WorldConfig.GetIntValue(WorldCfg.Expansion) : HealthScalingExpansion;
+		return HealthScalingExpansion == (int)Expansion.LevelCurrent ? GetDefaultValue("Expansion", (int)Expansion.Dragonflight) : HealthScalingExpansion;
 	}
 
 	public SkillType GetRequiredLootSkill()

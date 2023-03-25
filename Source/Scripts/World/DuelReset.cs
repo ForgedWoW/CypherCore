@@ -13,13 +13,9 @@ namespace Scripts.World.DuelReset;
 [Script]
 internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlayerOnDuelEnd
 {
-	private readonly bool _resetCooldowns;
-	private readonly bool _resetHealthMana;
 
 	public DuelResetScript() : base("DuelResetScript")
 	{
-		_resetCooldowns = WorldConfig.GetBoolValue(WorldCfg.ResetDuelCooldowns);
-		_resetHealthMana = WorldConfig.GetBoolValue(WorldCfg.ResetDuelHealthMana);
 	}
 
 	// Called when a Duel ends
@@ -29,7 +25,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 		if (type == DuelCompleteType.Won)
 		{
 			// Cooldown restore
-			if (_resetCooldowns)
+			if (GetDefaultValue("ResetDuelCooldowns", false))
 			{
 				ResetSpellCooldowns(winner, false);
 				ResetSpellCooldowns(loser, false);
@@ -39,7 +35,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 			}
 
 			// Health and mana restore
-			if (_resetHealthMana)
+			if (GetDefaultValue("ResetDuelHealthMana", false))
 			{
 				winner.RestoreHealthAfterDuel();
 				loser.RestoreHealthAfterDuel();
@@ -61,7 +57,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 	public void OnDuelStart(Player player1, Player player2)
 	{
 		// Cooldowns reset
-		if (_resetCooldowns)
+		if (GetDefaultValue("ResetDuelCooldowns", false))
 		{
 			player1.SpellHistory.SaveCooldownStateBeforeDuel();
 			player2.SpellHistory.SaveCooldownStateBeforeDuel();
@@ -71,7 +67,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 		}
 
 		// Health and mana reset
-		if (_resetHealthMana)
+		if (GetDefaultValue("ResetDuelHealthMana", false))
 		{
 			player1.SaveHealthBeforeDuel();
 			player1.SaveManaBeforeDuel();
@@ -90,7 +86,7 @@ internal class DuelResetScript : ScriptObjectAutoAdd, IPlayerOnDuelStart, IPlaye
 			SpellHistory
 			.ResetCooldowns(pair =>
 							{
-								var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key, Difficulty.None);
+								var spellInfo = Global.SpellMgr.GetSpellInfo(pair.Key);
 								var remainingCooldown = player.SpellHistory.GetRemainingCooldown(spellInfo);
 								var totalCooldown = TimeSpan.FromMilliseconds(spellInfo.RecoveryTime);
 								var categoryCooldown = TimeSpan.FromMilliseconds(spellInfo.CategoryRecoveryTime);

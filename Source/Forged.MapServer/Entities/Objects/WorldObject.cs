@@ -3939,7 +3939,7 @@ public abstract class WorldObject : IDisposable
 		pos.Y = y;
 
 		// if detection disabled, return first point
-		if (!WorldConfig.GetBoolValue(WorldCfg.DetectPosCollision))
+		if (!GetDefaultValue("DetectPosCollision", true))
 			return floor;
 
 		// return if the point is already in LoS

@@ -14,11 +14,12 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Handlers;
 using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class ItemHandler : IWorldSessionHandler
 {
 	public void SendEnchantmentLog(ObjectGuid owner, ObjectGuid caster, ObjectGuid itemGuid, uint itemId, uint enchantId, uint enchantSlot)
 	{

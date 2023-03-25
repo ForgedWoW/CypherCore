@@ -138,7 +138,7 @@ public class Quest
 		}
 	}
 
-	public uint MaxMoneyReward => (uint)(MaxMoneyValue * WorldConfig.GetFloatValue(WorldCfg.RateMoneyQuest));
+	public uint MaxMoneyReward => (uint)(MaxMoneyValue * GetDefaultValue("Rate.Quest.Money.Reward", 1.0f));
 
 	public QuestTagType? QuestTag
 	{
@@ -153,9 +153,9 @@ public class Quest
 		}
 	}
 
-	public bool IsAutoAccept => !WorldConfig.GetBoolValue(WorldCfg.QuestIgnoreAutoAccept) && HasFlag(QuestFlags.AutoAccept);
+	public bool IsAutoAccept => !GetDefaultValue("Quests.IgnoreAutoAccept", false) && HasFlag(QuestFlags.AutoAccept);
 
-	public bool IsAutoComplete => !WorldConfig.GetBoolValue(WorldCfg.QuestIgnoreAutoComplete) && Type == QuestType.AutoComplete;
+	public bool IsAutoComplete => !GetDefaultValue("Quests.IgnoreAutoComplete", false) && Type == QuestType.AutoComplete;
 
 	public bool IsAutoPush => HasFlagEx(QuestFlagsEx.AutoPush);
 
@@ -499,7 +499,9 @@ public class Quest
 
 			var xp = (uint)(diffFactor * questXp.Difficulty[xpDifficulty] * xpMultiplier / 10);
 
-			if (player.Level >= Global.ObjectMgr.GetMaxLevelForExpansion((Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion) - 1) && player.Session.Expansion == (Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion) && expansion >= 0 && expansion < (int)WorldConfig.GetIntValue(WorldCfg.Expansion))
+			if (player.Level >= Global.ObjectMgr.GetMaxLevelForExpansion((Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) && 
+                player.Session.Expansion == (Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) && expansion >= 0 && 
+                expansion < (int)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight))
 				xp = (uint)(xp / 9.0f);
 
 			xp = RoundXPValue(xp);
@@ -601,7 +603,7 @@ public class Quest
 			return 0;
 
 		// Else, return the rewarded copper sum modified by the rate
-		return (uint)(RewardBonusMoney * WorldConfig.GetFloatValue(WorldCfg.RateMoneyMaxLevelQuest));
+		return (uint)(RewardBonusMoney * GetDefaultValue("Rate.Quest.Money.Max.Level.Reward", 1.0f));
 	}
 
 	public bool IsRaidQuest(Difficulty difficulty)
@@ -629,7 +631,7 @@ public class Quest
 		if (IsRaidQuest(difficulty))
 			return true;
 
-		return WorldConfig.GetBoolValue(WorldCfg.QuestIgnoreRaid);
+		return GetDefaultValue("Quests.IgnoreRaid", false);
 	}
 
 	public uint CalculateHonorGain(uint level)

@@ -12,7 +12,8 @@ using Forged.MapServer.Warden.Modules;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using Serilog;
+using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Warden;
 
@@ -494,7 +495,7 @@ class WardenWin : Warden
 		}
 
 		// Set hold off timer, minimum timer should at least be 1 second
-		var holdOff = WorldConfig.GetUIntValue(WorldCfg.WardenClientCheckHoldoff);
+		uint holdOff = GetDefaultValue("Warden.ClientCheckHoldOff", 30u);
 		CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.InMilliseconds;
 	}
 

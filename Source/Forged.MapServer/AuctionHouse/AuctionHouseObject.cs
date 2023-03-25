@@ -694,7 +694,7 @@ public class AuctionHouseObject
 
 	public ulong CalculateAuctionHouseCut(ulong bidAmount)
 	{
-		return (ulong)Math.Max((long)(MathFunctions.CalculatePct(bidAmount, _auctionHouse.ConsignmentRate) * WorldConfig.GetFloatValue(WorldCfg.RateAuctionCut)), 0);
+		return (ulong)Math.Max((long)(MathFunctions.CalculatePct(bidAmount, _auctionHouse.ConsignmentRate) * GetDefaultValue("Rate.Auction.Cut", 1.0f)), 0);
 	}
 
 	public CommodityQuote CreateCommodityQuote(Player player, uint itemId, uint quantity)

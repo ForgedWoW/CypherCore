@@ -13,7 +13,8 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using Serilog;
+using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Arenas;
 
@@ -35,7 +36,7 @@ public class ArenaTeam
 
 	public ArenaTeam()
 	{
-		stats.Rating = (ushort)WorldConfig.GetIntValue(WorldCfg.ArenaStartRating);
+		stats.Rating = GetDefaultValue<ushort>("Arena.ArenaStartRating", 0);
 	}
 
 	public bool Create(ObjectGuid captainGuid, byte _type, string arenaTeamName, uint backgroundColor, byte emblemStyle, uint emblemColor, byte borderStyle, uint borderColor)
@@ -123,8 +124,8 @@ public class ArenaTeam
 		// Set player's personal rating
 		uint personalRating = 0;
 
-		if (WorldConfig.GetIntValue(WorldCfg.ArenaStartPersonalRating) > 0)
-			personalRating = WorldConfig.GetUIntValue(WorldCfg.ArenaStartPersonalRating);
+		if (GetDefaultValue("Arena.ArenaStartPersonalRating", 1000) > 0)
+			personalRating = GetDefaultValue("Arena.ArenaStartPersonalRating", 1000);
 		else if (GetRating() >= 1000)
 			personalRating = 1000;
 
@@ -139,7 +140,7 @@ public class ArenaTeam
 		if (!result.IsEmpty())
 			matchMakerRating = result.Read<ushort>(0);
 		else
-			matchMakerRating = WorldConfig.GetUIntValue(WorldCfg.ArenaStartMatchmakerRating);
+			matchMakerRating = GetDefaultValue("Arena.ArenaStartMatchmakerRating", 1500);
 
 		// Remove all player signatures from other petitions
 		// This will prevent player from joining too many arena teams and corrupt arena team data integrity
@@ -823,7 +824,7 @@ public class ArenaTeam
 		*/
 
 		// Real rating modification
-		mod *= WorldConfig.GetFloatValue(WorldCfg.ArenaMatchmakerRatingModifier);
+		mod *= GetDefaultValue("Arena.ArenaMatchmakerRatingModifier", 24.0f);
 
 		return (int)Math.Ceiling(mod);
 	}
@@ -842,21 +843,21 @@ public class ArenaTeam
 		{
 			if (ownRating < 1300)
 			{
-				var win_rating_modifier1 = WorldConfig.GetFloatValue(WorldCfg.ArenaWinRatingModifier1);
+				var winRatingModifier1 = GetDefaultValue("Arena.ArenaWinRatingModifier1", 48.0f);
 
 				if (ownRating < 1000)
-					mod = win_rating_modifier1 * (1.0f - chance);
+					mod = winRatingModifier1 * (1.0f - chance);
 				else
-					mod = ((win_rating_modifier1 / 2.0f) + ((win_rating_modifier1 / 2.0f) * (1300.0f - ownRating) / 300.0f)) * (1.0f - chance);
+					mod = ((winRatingModifier1 / 2.0f) + ((winRatingModifier1 / 2.0f) * (1300.0f - ownRating) / 300.0f)) * (1.0f - chance);
 			}
 			else
 			{
-				mod = WorldConfig.GetFloatValue(WorldCfg.ArenaWinRatingModifier2) * (1.0f - chance);
+				mod = GetDefaultValue("Arena.ArenaWinRatingModifier2", 24.0f) * (1.0f - chance);
 			}
 		}
 		else
 		{
-			mod = WorldConfig.GetFloatValue(WorldCfg.ArenaLoseRatingModifier) * (-chance);
+			mod = GetDefaultValue("Arena.ArenaLoseRatingModifier", 24.0f) * (-chance);
 		}
 
 		return (int)Math.Ceiling(mod);

@@ -2,13 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Character;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class LogoutHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.LogoutRequest)]
 	void HandleLogoutRequest(LogoutRequest packet)

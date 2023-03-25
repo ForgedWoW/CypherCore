@@ -65,7 +65,7 @@ public class CalendarManager : Singleton<CalendarManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} calendar events in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} calendar events in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		count = 0;
 		oldMSTime = Time.MSTime;
 
@@ -92,7 +92,7 @@ public class CalendarManager : Singleton<CalendarManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} calendar invites in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} calendar invites in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
 		for (ulong i = 1; i < _maxEventId; ++i)
 			if (GetEvent(i) == null)

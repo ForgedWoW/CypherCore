@@ -901,7 +901,7 @@ class MiscCommands
 		if (kickReason != null)
 			kickReasonStr = kickReason;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.ShowKickInWorld))
+		if (GetDefaultValue("ShowKickInWorld", false))
 			Global.WorldMgr.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
 		else
 			handler.SendSysMessage(CypherStrings.CommandKickmessage, playerName);
@@ -1173,7 +1173,7 @@ class MiscCommands
 
 		var nameLink = handler.PlayerLink(player.GetName());
 
-		if (WorldConfig.GetBoolValue(WorldCfg.ShowMuteInWorld))
+		if (GetDefaultValue("ShowMuteInWorld", false))
 			Global.WorldMgr.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
 
 		if (target)
@@ -1696,7 +1696,7 @@ class MiscCommands
 	[CommandNonGroup("pvpstats", RBACPermissions.CommandPvpstats, true)]
 	static bool HandlePvPstatsCommand(CommandHandler handler)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
+		if (GetDefaultValue("Battleground.StoreStatistics.Enable", false))
 		{
 			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
 			var result = DB.Characters.Query(stmt);

@@ -6,10 +6,12 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Hotfix;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class HotfixHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
 	void HandleDBQueryBulk(DBQueryBulk dbQuery)

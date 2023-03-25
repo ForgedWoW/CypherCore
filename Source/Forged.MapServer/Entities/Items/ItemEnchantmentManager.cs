@@ -59,7 +59,7 @@ public class ItemEnchantmentManager
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {global::Time.GetMSTimeDiffToNow(oldMsTime)} ms");
+		Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
 	}
 
 	public static uint GenerateItemRandomBonusListId(uint item_id)

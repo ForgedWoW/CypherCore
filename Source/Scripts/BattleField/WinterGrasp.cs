@@ -38,13 +38,13 @@ internal class BattlefieldWG : BattleField
 
 		InitStalker(WGNpcs.Stalker, WGConst.WintergraspStalkerPos);
 
-		m_MaxPlayer = WorldConfig.GetUIntValue(WorldCfg.WintergraspPlrMax);
-		m_IsEnabled = WorldConfig.GetBoolValue(WorldCfg.WintergraspEnable);
-		m_MinPlayer = WorldConfig.GetUIntValue(WorldCfg.WintergraspPlrMin);
-		m_MinLevel = WorldConfig.GetUIntValue(WorldCfg.WintergraspPlrMinLvl);
-		m_BattleTime = WorldConfig.GetUIntValue(WorldCfg.WintergraspBattletime) * Time.Minute * Time.InMilliseconds;
-		m_NoWarBattleTime = WorldConfig.GetUIntValue(WorldCfg.WintergraspNobattletime) * Time.Minute * Time.InMilliseconds;
-		m_RestartAfterCrash = WorldConfig.GetUIntValue(WorldCfg.WintergraspRestartAfterCrash) * Time.Minute * Time.InMilliseconds;
+		m_MaxPlayer = GetDefaultValue("Wintergrasp.PlayerMax", 100);
+		m_IsEnabled = GetDefaultValue("Wintergrasp.Enable", false);
+		m_MinPlayer = GetDefaultValue("Wintergrasp.PlayerMin", 0);
+		m_MinLevel = GetDefaultValue("Wintergrasp.PlayerMinLvl", 77);
+		m_BattleTime = GetDefaultValue("Wintergrasp.BattleTimer", 30) * Time.Minute * Time.InMilliseconds;
+		m_NoWarBattleTime = GetDefaultValue("Wintergrasp.NoBattleTimer", 150) * Time.Minute * Time.InMilliseconds;
+		m_RestartAfterCrash = GetDefaultValue("Wintergrasp.CrashRestartTimer", 10) * Time.Minute * Time.InMilliseconds;
 
 		m_TimeForAcceptInvite = 20;
 		m_StartGroupingTimer = 15 * Time.Minute * Time.InMilliseconds;

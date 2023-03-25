@@ -10,7 +10,7 @@ using Forged.MapServer.Networking.Packets.Bpay;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using Serilog;
 
 namespace Forged.MapServer.Battlepay;
 
@@ -134,7 +134,7 @@ public class BattlepayManager
 
 	public bool IsAvailable()
 	{
-		return WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+		return GetDefaultValue("FeatureSystem.BpayStore.Enabled", false);
 	}
 
 	public bool AlreadyOwnProduct(uint itemId)

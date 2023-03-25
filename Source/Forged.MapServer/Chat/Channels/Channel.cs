@@ -187,7 +187,7 @@ public class Channel
 		}
 
 		if (HasFlag(ChannelFlags.Lfg) &&
-			WorldConfig.GetBoolValue(WorldCfg.RestrictedLfgChannel) &&
+            GetDefaultValue("Channel.RestrictedLfg", true) &&
 			Global.AccountMgr.IsPlayerAccount(player.Session.Security) && //FIXME: Move to RBAC
 			player.Group)
 		{

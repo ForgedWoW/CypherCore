@@ -11,7 +11,7 @@ using Framework.Cryptography;
 using Framework.Database;
 using Framework.IO;
 using Framework.Networking;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using Serilog;
 
 namespace Forged.MapServer.Networking;
 
@@ -629,7 +629,7 @@ public class WorldSocket : SocketBase
 
 		PreparedStatement stmt = null;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
+		if (GetDefaultValue("AllowLoggingIPAddressesInDatabase", true))
 		{
 			// As we don't know if attempted login process by ip works, we update last_attempt_ip right away
 			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
@@ -669,7 +669,7 @@ public class WorldSocket : SocketBase
 		}
 
 		// Must be done before WorldSession is created
-		var wardenActive = WorldConfig.GetBoolValue(WorldCfg.WardenEnabled);
+		var wardenActive = GetDefaultValue("Warden.Enabled", false);
 
 		if (wardenActive && account.game.OS != "Win" && account.game.OS != "Wn64" && account.game.OS != "Mc64")
 		{
@@ -740,7 +740,7 @@ public class WorldSocket : SocketBase
 
 		Log.Logger.Debug("WorldSocket:HandleAuthSession: Client '{0}' authenticated successfully from {1}.", authSession.RealmJoinTicket, address);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
+		if (GetDefaultValue("AllowLoggingIPAddressesInDatabase", true))
 		{
 			// Update the last_ip in the database
 			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LAST_IP);

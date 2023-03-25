@@ -1,12 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Networking.Packets.Toy;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class ToyHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.AddToy)]
 	void HandleAddToy(AddToy packet)

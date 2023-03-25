@@ -1983,7 +1983,7 @@ public partial class Unit
 			if (caster == null)
 				caster = GetAttackerForHelper();
 
-			MotionMaster.MoveFleeing(caster, (uint)(fearAuras.Empty() ? WorldConfig.GetIntValue(WorldCfg.CreatureFamilyFleeDelay) : 0)); // caster == NULL processed in MoveFleeing
+			MotionMaster.MoveFleeing(caster, (uint)(fearAuras.Empty() ? GetDefaultValue("CreatureFamilyFleeDelay", 7000) : 0)); // caster == NULL processed in MoveFleeing
 		}
 		else
 		{

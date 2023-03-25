@@ -60,11 +60,12 @@ using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
+using Serilog;
 using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponse;
 using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
 using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
 using PlayerChoiceResponseRewardEntry = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry;
-using WorldSession = Forged.MapServer.Services.WorldSession;
+using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -1947,7 +1948,7 @@ public partial class Player : Unit
 		switch (source)
 		{
 			case ReputationSource.Kill:
-				rate = WorldConfig.GetFloatValue(WorldCfg.RateReputationLowLevelKill);
+				rate = GetDefaultValue("Rate.Reputation.LowLevel.Kill", 1.0f);
 
 				break;
 			case ReputationSource.Quest:
@@ -1955,7 +1956,7 @@ public partial class Player : Unit
 			case ReputationSource.WeeklyQuest:
 			case ReputationSource.MonthlyQuest:
 			case ReputationSource.RepeatableQuest:
-				rate = WorldConfig.GetFloatValue(WorldCfg.RateReputationLowLevelQuest);
+				rate = GetDefaultValue("Rate.Reputation.LowLevel.Quest", 1.0f);
 
 				break;
 			case ReputationSource.Spell:
@@ -2018,7 +2019,7 @@ public partial class Player : Unit
 		}
 
 		if (source != ReputationSource.Spell && GetsRecruitAFriendBonus(false))
-			percent *= 1.0f + WorldConfig.GetFloatValue(WorldCfg.RateReputationRecruitAFriendBonus);
+			percent *= 1.0f + GetDefaultValue("Rate.Reputation.RecruitAFriendBonus", 0.1f);
 
 		return MathFunctions.CalculatePct(rep, percent);
 	}
@@ -2533,7 +2534,7 @@ public partial class Player : Unit
 
 			if (damageperc > 0)
 			{
-				var damage = damageperc * MaxHealth * WorldConfig.GetFloatValue(WorldCfg.RateDamageFall);
+				var damage = damageperc * MaxHealth * GetDefaultValue("Rate.Damage.Fall", 1.0f);
 
 				var height = movementInfo.Pos.Z;
 				height = UpdateGroundPositionZ(movementInfo.Pos.X, movementInfo.Pos.Y, height);
@@ -3038,7 +3039,7 @@ public partial class Player : Unit
 				break;
 			case GossipOptionNpc.TalentMaster:
 				PlayerTalkClass.SendCloseGossip();
-				SendRespecWipeConfirm(guid, WorldConfig.GetBoolValue(WorldCfg.NoResetTalentCost) ? 0 : GetNextResetTalentsCost(), SpecResetType.Talents);
+				SendRespecWipeConfirm(guid, GetDefaultValue("NoResetTalentsCost", false) ? 0 : GetNextResetTalentsCost(), SpecResetType.Talents);
 
 				break;
 			case GossipOptionNpc.Stablemaster:
@@ -3047,7 +3048,7 @@ public partial class Player : Unit
 				break;
 			case GossipOptionNpc.PetSpecializationMaster:
 				PlayerTalkClass.SendCloseGossip();
-				SendRespecWipeConfirm(guid, WorldConfig.GetBoolValue(WorldCfg.NoResetTalentCost) ? 0 : GetNextResetTalentsCost(), SpecResetType.PetTalents);
+				SendRespecWipeConfirm(guid, GetDefaultValue("NoResetTalentsCost", false) ? 0 : GetNextResetTalentsCost(), SpecResetType.PetTalents);
 
 				break;
 			case GossipOptionNpc.GuildBanker:
@@ -3700,10 +3701,10 @@ public partial class Player : Unit
 		{
 			if (type == EnviromentalDamage.Fall) // DealDamage not apply item durability loss at self damage
 			{
-				Log.Logger.Debug($"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath)} durability");
-				DurabilityLossAll(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath), false);
+				Log.Logger.Debug($"Player::EnvironmentalDamage: Player '{GetName()}' ({GUID}) fall to death, losing {GetDefaultValue("DurabilityLoss.OnDeath", 10.0f)} durability");
+				DurabilityLossAll(GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100, false);
 				// durability lost message
-				SendDurabilityLoss(this, (uint)(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath) * 100.0f));
+				SendDurabilityLoss(this, (uint)GetDefaultValue("DurabilityLoss.OnDeath", 10.0f)));
 			}
 
 			UpdateCriteria(CriteriaType.DieFromEnviromentalDamage, 1, (ulong)type);
@@ -3922,7 +3923,7 @@ public partial class Player : Unit
 		//Characters from level 11-19 will suffer from one minute of sickness
 		//for each level they are above 10.
 		//Characters level 20 and up suffer from ten minutes of sickness.
-		var startLevel = WorldConfig.GetIntValue(WorldCfg.DeathSicknessLevel);
+		var startLevel = GetDefaultValue("Death.SicknessLevel", 11);
 		var raceEntry = CliDB.ChrRacesStorage.LookupByKey(Race);
 
 		if (Level >= startLevel)
@@ -4068,10 +4069,10 @@ public partial class Player : Unit
 	{
 		if (pvp)
 		{
-			if (!WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp))
+			if (!GetDefaultValue("Death.CorpseReclaimDelay.PvP", true))
 				return PlayerConst.copseReclaimDelay[0];
 		}
-		else if (!WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve))
+		else if (!GetDefaultValue("Death.CorpseReclaimDelay.PvE", true))
 		{
 			return 0;
 		}
@@ -5070,29 +5071,27 @@ public partial class Player : Unit
 
 		// SMSG_LOGIN_SETTIMESPEED
 		var TimeSpeed = 0.01666667f;
-		LoginSetTimeSpeed loginSetTimeSpeed = new();
 
-		{
-			NewSpeed = TimeSpeed,
-			GameTime = (uint)GameTime.GetGameTime(),
-			ServerTime = (uint)GameTime.GetGameTime(),
-			GameTimeHolidayOffset = 0,  // @todo
-			ServerTimeHolidayOffset = 0 // @todo
-		}
+        LoginSetTimeSpeed loginSetTimeSpeed = new()
+        {
+            NewSpeed = TimeSpeed,
+            GameTime = (uint)GameTime.GetGameTime(),
+            ServerTime = (uint)GameTime.GetGameTime(),
+            GameTimeHolidayOffset = 0,  // @todo
+            ServerTimeHolidayOffset = 0 // @todo
+        };
 
-		l
-		dPacket(loginSetTimeSpeed);
+		SendPacket(loginSetTimeSpeed);
 
 		// SMSG_WORLD_SERVER_INFO
-		WorldServerInfo worldServerInfo = new();
-
-		{
-			InstanceGroupSize = Map.MapDifficulty.MaxPlayers, // @todo
-			IsTournamentRealm = false,                        // @todo
-			RestrictedAccountMaxLevel = null,                 // @todo
-			RestrictedAccountMaxMoney = null,                 // @todo
-			DifficultyID = (uint)Map.DifficultyID
-		}
+        WorldServerInfo worldServerInfo = new()
+        {
+            InstanceGroupSize = Map.MapDifficulty.MaxPlayers, // @todo
+            IsTournamentRealm = false,                        // @todo
+            RestrictedAccountMaxLevel = null,                 // @todo
+            RestrictedAccountMaxMoney = null,                 // @todo
+            DifficultyID = (uint)Map.DifficultyID
+        };
 
 		worldServerInfo.XRealmPvpAlert; // @todo
 		SendPacket(worldServerInfo);
@@ -5101,48 +5100,41 @@ public partial class Player : Unit
 		SendSpellModifiers();
 
 		// SMSG_ACCOUNT_MOUNT_UPDATE
-		AccountMountUpdate mountUpdate = new();
+        AccountMountUpdate mountUpdate = new()
+        {
+            IsFullUpdate = true,
+            Mounts = Session.CollectionMgr.GetAccountMounts()
+        };
 
-		{
-			IsFullUpdate = true,
-			Mounts = Session.CollectionMgr.GetAccountMounts()
-		}
-
-		m
-		dPacket(mountUpdate);
+		SendPacket(mountUpdate);
 
 		// SMSG_ACCOUNT_TOYS_UPDATE
-		AccountToyUpdate toyUpdate = new();
+        AccountToyUpdate toyUpdate = new()
+        {
+            IsFullUpdate = true,
+            Toys = Session.CollectionMgr.GetAccountToys()
+        };
 
-		{
-			IsFullUpdate = true,
-			Toys = Session.CollectionMgr.GetAccountToys()
-		}
-
-		t
-		dPacket(toyUpdate);
+        SendPacket(toyUpdate);
 
 		// SMSG_ACCOUNT_HEIRLOOM_UPDATE
-		AccountHeirloomUpdate heirloomUpdate = new();
+        AccountHeirloomUpdate heirloomUpdate = new()
+        {
+            IsFullUpdate = true,
+            Heirlooms = Session.CollectionMgr.GetAccountHeirlooms()
+        };
 
-		{
-			IsFullUpdate = true,
-			Heirlooms = Session.CollectionMgr.GetAccountHeirlooms()
-		}
-
-		h
-		dPacket(heirloomUpdate);
+        SendPacket(heirloomUpdate);
 
 		Session.CollectionMgr.SendFavoriteAppearances();
 
-		InitialSetup initialSetup = new();
+        InitialSetup initialSetup = new()
+        {
+            ServerExpansionLevel = (byte)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)
 
-		{
-			ServerExpansionLevel = (byte)WorldConfig.GetIntValue(WorldCfg.Expansion)
-		}
+        };
 
-		S
-		dPacket(initialSetup);
+        SendPacket(initialSetup);
 
 		SetMovedUnit(this);
 	}
@@ -7489,19 +7481,25 @@ public partial class Player : Unit
 			addvalue = (powerType.RegenCombat + UnitData.PowerRegenInterruptedFlatModifier[(int)powerIndex]) * 0.001f * RegenTimer;
 		}
 
-		WorldCfg[] RatesForPower =
+		string[] RatesForPower =
 		{
-			WorldCfg.RatePowerMana, WorldCfg.RatePowerRageLoss, WorldCfg.RatePowerFocus, WorldCfg.RatePowerEnergy, WorldCfg.RatePowerComboPointsLoss, 0, // runes
-			WorldCfg.RatePowerRunicPowerLoss, WorldCfg.RatePowerSoulShards, WorldCfg.RatePowerLunarPower, WorldCfg.RatePowerHolyPower, 0,                // alternate
-			WorldCfg.RatePowerMaelstrom, WorldCfg.RatePowerChi, WorldCfg.RatePowerInsanity, 0,                                                           // burning embers, unused
-			0,                                                                                                                                           // demonic fury, unused
-			WorldCfg.RatePowerArcaneCharges, WorldCfg.RatePowerFury, WorldCfg.RatePowerPain, 0                                                           // todo add config for Essence power
+            "Rate.Mana", "Rate.Rage.Loss", "Rate.Focus", "Rate.Energy","Rate.ComboPoints.Loss", "Rate.RunicPower.Gain", // runes
+            "Rate.RunicPower.Loss", "Rate.SoulShards.Loss", "Rate.LunarPower.Loss", "Rate.HolyPower.Loss", "0",         // alternate
+            "Rate.Maelstrom.Loss", "Rate.Chi.Loss", "Rate.Insanity.Loss", "0",                                          // burning embers, unused
+			"0",                                                                                                        // demonic fury, unused
+            "Rate.ArcaneCharges.Loss", "Rate.Fury.Loss", "Rate.Pain.Loss", "0"                                          // todo add config for Essence power
 		};
 
-		if (RatesForPower[(int)power] != 0)
-			addvalue *= WorldConfig.GetFloatValue(RatesForPower[(int)power]);
+        if (RatesForPower[(int)power] != "0")
+        {
+            var rate = GetDefaultValue(RatesForPower[(int)power], 0f);
 
-		// Mana regen calculated in Player.UpdateManaRegen()
+			if (rate != 0)
+                addvalue *= rate;
+        }
+
+
+        // Mana regen calculated in Player.UpdateManaRegen()
 		if (power != PowerType.Mana)
 		{
 			addvalue *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)power);
@@ -7600,7 +7598,7 @@ public partial class Player : Unit
 		if (curValue >= maxValue)
 			return;
 
-		var HealthIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RateHealth);
+		var HealthIncreaseRate = GetDefaultValue("Rate.Health", 1.0f);
 		double addValue = 0.0f;
 
 		// polymorphed case
@@ -7933,8 +7931,8 @@ public partial class Player : Unit
 	{
 		var pvp = _extraFlags.HasAnyFlag(PlayerExtraFlags.PVPDeath);
 
-		if ((pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
-			(!pvp && !WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
+		if ((pvp && !GetDefaultValue("Death.CorpseReclaimDelay.PvP", true)) ||
+			(!pvp && !GetDefaultValue("Death.CorpseReclaimDelay.PvE", true)))
 			return;
 
 		var now = GameTime.GetGameTime();
@@ -7973,8 +7971,8 @@ public partial class Player : Unit
 
 			ulong count = 0;
 
-			if ((pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPvp)) ||
-				(!pvp && WorldConfig.GetBoolValue(WorldCfg.DeathCorpseReclaimDelayPve)))
+			if ((pvp && GetDefaultValue("Death.CorpseReclaimDelay.PvP", true)) ||
+				(!pvp && GetDefaultValue("Death.CorpseReclaimDelay.PvE", true)))
 			{
 				count = (ulong)(_deathExpireTime - corpse.GetGhostTime()) / PlayerConst.DeathExpireStep;
 
@@ -7999,15 +7997,13 @@ public partial class Player : Unit
 	}
 
 	void SendCorpseReclaimDelay(int delay)
-	{
-		CorpseReclaimDelay packet = new();
+    {
+        CorpseReclaimDelay packet = new()
+        {
+            Remaining = (uint)delay
+        };
 
-		{
-			Remaining = (uint)delay
-		}
-
-		S
-		dPacket(packet);
+		SendPacket(packet);
 	}
 
 	bool IsFriendlyArea(AreaTableRecord areaEntry)
@@ -8581,7 +8577,7 @@ public partial class Player : Unit
 		if (IsInFlight)
 			return;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.VmapIndoorCheck))
+		if (GetDefaultValue("vmap.EnableIndoorCheck", false))
 			RemoveAurasWithAttribute(IsOutdoors ? SpellAttr0.OnlyIndoors : SpellAttr0.OnlyOutdoors);
 
 		var areaId = Area;
@@ -8644,7 +8640,7 @@ public partial class Player : Unit
 
 					if (diff < -5)
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(Level + 5) * GetDefaultValue("Rate.XP.Explore", 1.0f));
 					}
 					else if (diff > 5)
 					{
@@ -8653,16 +8649,16 @@ public partial class Player : Unit
 						if (exploration_percent < 0)
 							exploration_percent = 0;
 
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * exploration_percent / 100 * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * exploration_percent / 100 * GetDefaultValue("Rate.XP.Explore", 1.0f));
 					}
 					else
 					{
-						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore));
+						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f));
 					}
 
 					if (WorldConfig.GetIntValue(WorldCfg.MinDiscoveredScaledXpRatio) != 0)
 					{
-						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * WorldConfig.GetFloatValue(WorldCfg.RateXpExplore)) * WorldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
+						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f)) * WorldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
 						XP = Math.Max(minScaledXP, XP);
 					}
 
@@ -8737,7 +8733,7 @@ public partial class Player : Unit
 	{
 		Global.ScriptMgr.OnPlayerChat(this, ChatMsg.Say, language, text);
 
-		SendChatMessageToSetInRange(ChatMsg.Say, language, text, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay));
+		SendChatMessageToSetInRange(ChatMsg.Say, language, text, GetDefaultValue("ListenRange.Say", 25.0f));
 	}
 
 	void SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, string text, float range)
@@ -8755,7 +8751,7 @@ public partial class Player : Unit
 
 	public override void Say(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.Say, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+		Talk(textId, ChatMsg.Say, GetDefaultValue("ListenRange.Say", 25.0f), target);
 	}
 
 	public override void Yell(string text, Language language, WorldObject obj = null)
@@ -8764,12 +8760,12 @@ public partial class Player : Unit
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Yell, language, this, this, text);
-		SendMessageToSetInRange(data, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), true);
+		SendMessageToSetInRange(data, GetDefaultValue("ListenRange.Yell", 300.0f), true);
 	}
 
 	public override void Yell(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.Yell, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+		Talk(textId, ChatMsg.Yell, GetDefaultValue("ListenRange.Yell", 300.0f), target);
 	}
 
 	public override void TextEmote(string text, WorldObject obj = null, bool something = false)
@@ -8778,12 +8774,12 @@ public partial class Player : Unit
 
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.Emote, Language.Universal, this, this, text);
-		SendMessageToSetInRange(data, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
+		SendMessageToSetInRange(data, GetDefaultValue("ListenRange.TextEmote", 25.0f), true, !Session.HasPermission(RBACPermissions.TwoSideInteractionChat), true);
 	}
 
 	public override void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
 	{
-		Talk(textId, ChatMsg.Emote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+		Talk(textId, ChatMsg.Emote, GetDefaultValue("ListenRange.TextEmote", 25.0f), target);
 	}
 
 	public void WhisperAddon(string text, string prefix, bool isLogged, Player receiver)

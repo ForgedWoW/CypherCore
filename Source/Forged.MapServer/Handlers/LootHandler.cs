@@ -12,12 +12,16 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Loot;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class LootHandler : IWorldSessionHandler
 {
 	public void DoLootRelease(Loot.Loot loot)
 	{

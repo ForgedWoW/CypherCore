@@ -2008,7 +2008,7 @@ public partial class Player
 			if (spellInfo != null && spellInfo.IsPassive && spellInfo.HasEffect(SpellEffectName.DualWield))
 				SetCanDualWield(false);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.OffhandCheckAtSpellUnlearn))
+		if (GetDefaultValue("OffhandCheckAtSpellUnlearn", true))
 			AutoUnequipOffhandIfNeed();
 
 		// remove from spell book if not replaced by lesser rank

@@ -10,6 +10,7 @@ using Forged.MapServer.Scripting.Interfaces.IWorldState;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.World;
 
@@ -20,7 +21,11 @@ public class WorldStateManager : Singleton<WorldStateManager>
 	readonly Dictionary<int, int> _realmWorldStateValues = new();
 	readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
 
-	WorldStateManager() { }
+    public WorldStateManager()
+    {
+        SetValue(WorldStates.CurrentPvpSeasonId, GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
+        SetValue(WorldStates.PreviousPvpSeasonId, GetDefaultValue("Arena.ArenaSeason.ID", 32) - (GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
+    }
 
 	public void LoadFromDB()
 	{
@@ -131,7 +136,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 			_worldStateTemplates[id] = worldState;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {_worldStateTemplates.Count} world state templates {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_worldStateTemplates.Count} world state templates {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
 		oldMSTime = Time.MSTime;
 
@@ -167,7 +172,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 				++savedValueCount;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {savedValueCount} saved world state values {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {savedValueCount} saved world state values {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public WorldStateTemplate GetWorldStateTemplate(int worldStateId)

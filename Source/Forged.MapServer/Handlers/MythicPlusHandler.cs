@@ -4,10 +4,11 @@
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.MythicPlus;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class MythicPlusHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.RequestMythicPlusSeasonData)]
 	void RequestMythicPlusSeasonData(ClientPacket packet)

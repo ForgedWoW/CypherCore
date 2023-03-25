@@ -19,7 +19,6 @@ using Forged.MapServer.Server;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
-using WorldSession = Forged.MapServer.Services.WorldSession;
 
 namespace Forged.MapServer.Chat;
 

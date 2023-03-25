@@ -24,6 +24,7 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Creatures;
 
@@ -677,7 +678,7 @@ public partial class Creature : Unit
 			case PowerType.Focus:
 			{
 				// For hunter pets.
-				addvalue = 24 * WorldConfig.GetFloatValue(WorldCfg.RatePowerFocus);
+				addvalue = 24 * GetDefaultValue("Rate.Focus", 1.0f);
 
 				break;
 			}
@@ -693,7 +694,7 @@ public partial class Creature : Unit
 				// Combat and any controlled creature
 				if (IsInCombat || CharmerOrOwnerGUID.IsEmpty)
 				{
-					var ManaIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RatePowerMana);
+					var ManaIncreaseRate = GetDefaultValue("Rate.Mana", 1.0f);
 					addvalue = (27.0f / 5.0f + 17.0f) * ManaIncreaseRate;
 				}
 				else
@@ -722,7 +723,7 @@ public partial class Creature : Unit
 		if (HasAuraType(AuraType.PreventsFleeing))
 			return;
 
-		var radius = WorldConfig.GetFloatValue(WorldCfg.CreatureFamilyFleeAssistanceRadius);
+		var radius = GetDefaultValue("CreatureFamilyFleeAssistanceRadius", 30.0f);
 
 		if (radius > 0)
 		{
@@ -846,23 +847,23 @@ public partial class Creature : Unit
 		switch (cinfo.Rank)
 		{
 			case CreatureEliteType.Rare:
-				CorpseDelay = WorldConfig.GetUIntValue(WorldCfg.CorpseDecayRare);
+				CorpseDelay = GetDefaultValue("Corpse.Decay.RARE", 300);
 
 				break;
 			case CreatureEliteType.Elite:
-				CorpseDelay = WorldConfig.GetUIntValue(WorldCfg.CorpseDecayElite);
+				CorpseDelay = GetDefaultValue("Corpse.Decay.ELITE", 300);
 
 				break;
 			case CreatureEliteType.RareElite:
-				CorpseDelay = WorldConfig.GetUIntValue(WorldCfg.CorpseDecayRareelite);
+				CorpseDelay = GetDefaultValue("Corpse.Decay.RAREELITE", 300);
 
 				break;
 			case CreatureEliteType.WorldBoss:
-				CorpseDelay = WorldConfig.GetUIntValue(WorldCfg.CorpseDecayWorldboss);
+				CorpseDelay = GetDefaultValue("Corpse.Decay.WORLDBOSS", 3600);
 
 				break;
 			default:
-				CorpseDelay = WorldConfig.GetUIntValue(WorldCfg.CorpseDecayNormal);
+				CorpseDelay = GetDefaultValue("Corpse.Decay.NORMAL", 60);
 
 				break;
 		}
@@ -1160,7 +1161,7 @@ public partial class Creature : Unit
 
 	public void StartPickPocketRefillTimer()
 	{
-		_pickpocketLootRestore = GameTime.GetGameTime() + WorldConfig.GetIntValue(WorldCfg.CreaturePickpocketRefill);
+		_pickpocketLootRestore = GameTime.GetGameTime() + GetDefaultValue("Creature.PickPocketRefillDelay", 10 * Time.Minute));
 	}
 
 	public void ResetPickPocketRefillTimer()
@@ -1464,17 +1465,17 @@ public partial class Creature : Unit
 		switch (Rank) // define rates for each elite rank
 		{
 			case CreatureEliteType.Normal:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureNormalHp);
+				return GetDefaultValue("Rate.Creature.Normal.HP", 1.0f);
 			case CreatureEliteType.Elite:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteEliteHp);
+				return GetDefaultValue("Rate.Creature.Elite.Elite.HP", 1.0f);
 			case CreatureEliteType.RareElite:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareeliteHp);
+				return GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
 			case CreatureEliteType.WorldBoss:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteWorldbossHp);
+				return GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.HP", 1.0f);
 			case CreatureEliteType.Rare:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareHp);
+				return GetDefaultValue("Rate.Creature.Elite.RARE.HP", 1.0f);
 			default:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareeliteHp);
+				return GetDefaultValue("Rate.Creature.Elite.RAREELITE.HP", 1.0f);
 		}
 	}
 
@@ -1499,17 +1500,17 @@ public partial class Creature : Unit
 		switch (Rank) // define rates for each elite rank
 		{
 			case CreatureEliteType.Normal:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureNormalDamage);
+				return GetDefaultValue("Rate.Creature.Normal.Damage", 1.0f);
 			case CreatureEliteType.Elite:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteEliteDamage);
+				return GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f); ;
 			case CreatureEliteType.RareElite:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareeliteDamage);
+				return GetDefaultValue("Rate.Creature.Elite.RAREELITE.Damage", 1.0f);
 			case CreatureEliteType.WorldBoss:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteWorldbossDamage);
+				return GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.Damage", 1.0f);
 			case CreatureEliteType.Rare:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareDamage);
+				return GetDefaultValue("Rate.Creature.Elite.RARE.Damage", 1.0f);
 			default:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteEliteDamage);
+				return GetDefaultValue("Rate.Creature.Elite.Elite.Damage", 1.0f);
 		}
 	}
 
@@ -1518,17 +1519,17 @@ public partial class Creature : Unit
 		switch (Rank) // define rates for each elite rank
 		{
 			case CreatureEliteType.Normal:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureNormalSpelldamage);
+				return GetDefaultValue("Rate.Creature.Normal.SpellDamage", 1.0f);
 			case CreatureEliteType.Elite:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteEliteSpelldamage);
+				return GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f);
 			case CreatureEliteType.RareElite:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareeliteSpelldamage);
+				return GetDefaultValue("Rate.Creature.Elite.RAREELITE.SpellDamage", 1.0f);
 			case CreatureEliteType.WorldBoss:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteWorldbossSpelldamage);
+				return GetDefaultValue("Rate.Creature.Elite.WORLDBOSS.SpellDamage", 1.0f);
 			case CreatureEliteType.Rare:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteRareSpelldamage);
+				return GetDefaultValue("Rate.Creature.Elite.RARE.SpellDamage", 1.0f);
 			default:
-				return WorldConfig.GetFloatValue(WorldCfg.RateCreatureEliteEliteSpelldamage);
+				return GetDefaultValue("Rate.Creature.Elite.Elite.SpellDamage", 1.0f);
 		}
 	}
 
@@ -1734,7 +1735,7 @@ public partial class Creature : Unit
 
 	public double GetAttackDistance(Unit player)
 	{
-		var aggroRate = WorldConfig.GetFloatValue(WorldCfg.RateCreatureAggro);
+		var aggroRate = GetDefaultValue("Rate.Creature.Aggro", 1.0f);
 
 		if (aggroRate == 0)
 			return 0.0f;
@@ -1785,7 +1786,7 @@ public partial class Creature : Unit
 		{
 			CorpseRemoveTime = GameTime.GetGameTime() + CorpseDelay;
 			var respawnDelay = RespawnDelay;
-			var scalingMode = WorldConfig.GetUIntValue(WorldCfg.RespawnDynamicMode);
+			var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
 			if (scalingMode != 0)
 				Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
@@ -1989,7 +1990,7 @@ public partial class Creature : Unit
 			else
 			{
 				var respawnDelay = RespawnDelay;
-				var scalingMode = WorldConfig.GetUIntValue(WorldCfg.RespawnDynamicMode);
+				var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
 				if (scalingMode != 0)
 					Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
@@ -2099,7 +2100,7 @@ public partial class Creature : Unit
 		{
 			SetNoCallAssistance(true);
 
-			var radius = WorldConfig.GetFloatValue(WorldCfg.CreatureFamilyAssistanceRadius);
+			var radius = GetDefaultValue("CreatureFamilyAssistanceRadius", 10.0f);
 
 			if (radius > 0)
 			{
@@ -2120,7 +2121,7 @@ public partial class Creature : Unit
 						assistList.Remove(assistList.First());
 					}
 
-					Events.AddEvent(e, Events.CalculateTime(TimeSpan.FromMilliseconds(WorldConfig.GetUIntValue(WorldCfg.CreatureFamilyAssistanceDelay))));
+					Events.AddEvent(e, Events.CalculateTime(TimeSpan.FromMilliseconds(GetDefaultValue("CreatureFamilyAssistanceDelay", 1500))));
 				}
 			}
 		}
@@ -2468,7 +2469,7 @@ public partial class Creature : Unit
 			return;
 
 		// Scripts can choose to ignore RATE_CORPSE_DECAY_LOOTED by calling SetCorpseDelay(timer, true)
-		var decayRate = _ignoreCorpseDecayRatio ? 1.0f : WorldConfig.GetFloatValue(WorldCfg.RateCorpseDecayLooted);
+		var decayRate = _ignoreCorpseDecayRatio ? 1.0f : GetDefaultValue("Rate.Corpse.Decay.Looted", 0.5f);
 
 		// corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
 		bool isFullySkinned()
@@ -2564,7 +2565,7 @@ public partial class Creature : Unit
 		{
 			if (IsWorldBoss)
 			{
-				var level = (int)(unitTarget.Level + WorldConfig.GetIntValue(WorldCfg.WorldBossLevelDiff));
+				var level = (int)(unitTarget.Level + GetDefaultValue("WorldBossLevelDiff", 3));
 
 				return (uint)MathFunctions.RoundToInterval(ref level, 1u, 255u);
 			}
@@ -3228,7 +3229,7 @@ public partial class Creature : Unit
 		// Not only pet, but any controlled creature (and not polymorphed)
 		if (!CharmerOrOwnerGUID.IsEmpty && !IsPolymorphed)
 		{
-			var HealthIncreaseRate = WorldConfig.GetFloatValue(WorldCfg.RateHealth);
+			var HealthIncreaseRate = GetDefaultValue("Rate.Health", 1.0f);
 			addvalue = 0.015f * MaxHealth * HealthIncreaseRate;
 		}
 		else

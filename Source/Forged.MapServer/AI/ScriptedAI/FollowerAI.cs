@@ -8,6 +8,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.ScriptedAI;
 
@@ -167,7 +168,7 @@ class FollowerAI : ScriptedAI
 		var cdata = Me.CreatureData;
 
 		if (cdata != null)
-			if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+			if (GetDefaultValue("Respawn.DynamicEscortNPC", false) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
 				Me.SaveRespawnTime(Me.RespawnDelay);
 
 		if (Me.IsEngaged)

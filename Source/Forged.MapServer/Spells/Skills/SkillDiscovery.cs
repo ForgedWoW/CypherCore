@@ -208,7 +208,7 @@ public class SkillDiscovery
 		if (!tab.Empty())
 		{
 			foreach (var item_iter in tab)
-				if (RandomHelper.randChance(item_iter.Chance * WorldConfig.GetFloatValue(WorldCfg.RateSkillDiscovery)) &&
+				if (RandomHelper.randChance(item_iter.Chance * GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
 					item_iter.ReqSkillValue <= skillvalue &&
 					!player.HasSpell(item_iter.SpellId))
 					return item_iter.SpellId;
@@ -225,7 +225,7 @@ public class SkillDiscovery
 		if (!tab.Empty())
 		{
 			foreach (var item_iter in tab)
-				if (RandomHelper.randChance(item_iter.Chance * WorldConfig.GetFloatValue(WorldCfg.RateSkillDiscovery)) &&
+				if (RandomHelper.randChance(item_iter.Chance * GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
 					item_iter.ReqSkillValue <= skillvalue &&
 					!player.HasSpell(item_iter.SpellId))
 					return item_iter.SpellId;

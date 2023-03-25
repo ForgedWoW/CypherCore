@@ -20,6 +20,7 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Units;
 
@@ -1041,7 +1042,7 @@ public partial class Unit
 			// only if not player and not controlled by player pet. And not at BG
 			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
 			{
-				double baseLoss = WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath);
+				double baseLoss = GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100;
 				var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
 				Log.Logger.Debug("We are dead, losing {0} percent durability", loss);
 				// Durability loss is calculated more accurately again for each item in Player.DurabilityLoss

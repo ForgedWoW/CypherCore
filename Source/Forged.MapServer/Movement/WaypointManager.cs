@@ -74,7 +74,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} waypoints in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} waypoints in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void ReloadPath(uint id)

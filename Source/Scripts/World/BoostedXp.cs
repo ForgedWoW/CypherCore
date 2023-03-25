@@ -17,14 +17,14 @@ internal class xp_boost_PlayerScript : ScriptObjectAutoAdd, IPlayerOnGiveXP
 	public void OnGiveXP(Player player, ref uint amount, Unit victim)
 	{
 		if (IsXPBoostActive())
-			amount *= (uint)WorldConfig.GetFloatValue(WorldCfg.RateXpBoost);
+			amount *= (uint)GetDefaultValue("XP.Boost.Rate", 2.0f);
 	}
 
 	private bool IsXPBoostActive()
 	{
 		var time = GameTime.GetGameTime();
 		var localTm = Time.UnixTimeToDateTime(time);
-		var weekdayMaskBoosted = WorldConfig.GetUIntValue(WorldCfg.XpBoostDaymask);
+		var weekdayMaskBoosted = GetDefaultValue("XP.Boost.Daymask", 0);
 		var weekdayMask = 1u << localTm.Day;
 		var currentDayBoosted = (weekdayMask & weekdayMaskBoosted) != 0;
 

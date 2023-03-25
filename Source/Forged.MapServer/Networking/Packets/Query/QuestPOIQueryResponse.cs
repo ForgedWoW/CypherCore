@@ -18,7 +18,7 @@ public class QuestPOIQueryResponse : ServerPacket
 		_worldPacket.WriteInt32(QuestPOIDataStats.Count);
 		_worldPacket.WriteInt32(QuestPOIDataStats.Count);
 
-		var useCache = WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries);
+		var useCache = GetDefaultValue("CacheDataQueries", true);
 
 		foreach (var questPOIData in QuestPOIDataStats)
 			if (useCache)

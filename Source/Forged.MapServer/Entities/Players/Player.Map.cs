@@ -431,7 +431,7 @@ public partial class Player
 		var group = Group;
 
 		// raid instances require the player to be in a raid group to be valid
-		if (map.IsRaid && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.Entry.Expansion() >= (Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion)))
+		if (map.IsRaid && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.Entry.Expansion() >= (Expansion)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
 			if (group == null || group.IsRaidGroup)
 				return false;
 
@@ -453,7 +453,7 @@ public partial class Player
 
 	public bool CheckInstanceCount(uint instanceId)
 	{
-		if (_instanceResetTimes.Count < WorldConfig.GetIntValue(WorldCfg.MaxInstancesPerHour))
+		if (_instanceResetTimes.Count < GetDefaultValue("AccountInstancesPerHour", 5))
 			return true;
 
 		return _instanceResetTimes.ContainsKey(instanceId);

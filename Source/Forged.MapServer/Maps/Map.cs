@@ -40,6 +40,7 @@ using Forged.MapServer.Weather;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Threading;
+using Serilog;
 using Transport = Forged.MapServer.Entities.Transport;
 
 namespace Forged.MapServer.Maps;
@@ -631,7 +632,7 @@ public class Map : IDisposable
 		{
 			_threadManager.Schedule(ProcessRespawns);
 			_threadManager.Schedule(UpdateSpawnGroupConditions);
-			_respawnCheckTimer = WorldConfig.GetUIntValue(WorldCfg.RespawnMinCheckIntervalMs);
+			_respawnCheckTimer = GetDefaultValue("Respawn.MinCheckIntervalMS", 5000u);
 		}
 		else
 		{
@@ -1382,7 +1383,7 @@ public class Map : IDisposable
 		if (checks.HasAnyFlag(LineOfSightChecks.Vmap) && !Global.VMapMgr.IsInLineOfSight(PhasingHandler.GetTerrainMapId(phaseShift, Id, _terrain, x1, y1), x1, y1, z1, x2, y2, z2, ignoreFlags))
 			return false;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.CheckGobjectLos) && checks.HasAnyFlag(LineOfSightChecks.Gobject) && !_dynamicTree.IsInLineOfSight(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2), phaseShift))
+		if (GetDefaultValue("CheckGameObjectLoS", true)) && checks.HasAnyFlag(LineOfSightChecks.Gobject) && !_dynamicTree.IsInLineOfSight(new Vector3(x1, y1, z1), new Vector3(x2, y2, z2), phaseShift))
 			return false;
 
 		return true;
@@ -1434,7 +1435,7 @@ public class Map : IDisposable
 
 		var group = player.Group;
 
-		if (entry.IsRaid() && (int)entry.Expansion() >= WorldConfig.GetIntValue(WorldCfg.Expansion)) // can only enter in a raid group but raids from old expansion don't need a group
+		if (entry.IsRaid() && (int)entry.Expansion() >= GetDefaultValue("Expansion", (int)Expansion.Dragonflight)) // can only enter in a raid group but raids from old expansion don't need a group
 			if ((!group || !group.IsRaidGroup) && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid))
 				return new TransferAbortParams(TransferAbortReason.NeedGroup);
 
@@ -1605,12 +1606,12 @@ public class Map : IDisposable
 		if (playerCount == 0)
 			return;
 
-		double adjustFactor = WorldConfig.GetFloatValue(type == SpawnObjectType.GameObject ? WorldCfg.RespawnDynamicRateGameobject : WorldCfg.RespawnDynamicRateCreature) / playerCount;
+		double adjustFactor = GetDefaultValue(type == SpawnObjectType.GameObject ? "Respawn.DynamicRateGameObject" : "Respawn.DynamicRateCreature", 10) / playerCount;
 
 		if (adjustFactor >= 1.0) // nothing to do here
 			return;
 
-		var timeMinimum = WorldConfig.GetUIntValue(type == SpawnObjectType.GameObject ? WorldCfg.RespawnDynamicMinimumGameObject : WorldCfg.RespawnDynamicMinimumCreature);
+		var timeMinimum = GetDefaultValue(type == SpawnObjectType.GameObject ? "Respawn.DynamicMinimumGameObject" : "Respawn.DynamicMinimumCreature", 10);
 
 		if (respawnDelay <= timeMinimum)
 			return;
@@ -2266,7 +2267,7 @@ public class Map : IDisposable
 		// create the bones only if the map and the grid is loaded at the corpse's location
 		// ignore bones creating option in case insignia
 		if ((insignia ||
-			(IsBattlegroundOrArena ? WorldConfig.GetBoolValue(WorldCfg.DeathBonesBgOrArena) : WorldConfig.GetBoolValue(WorldCfg.DeathBonesWorld))) &&
+			(IsBattlegroundOrArena ? GetDefaultValue("Death.Bones.BattlegroundOrArena", true) : GetDefaultValue("Death.Bones.World", true))) &&
 			!IsRemovalGrid(corpse.Location.X, corpse.Location.Y))
 		{
 			// Create bones, don't change Corpse
@@ -3692,7 +3693,7 @@ public class Map : IDisposable
 			case SpawnObjectType.Creature:
 			{
 				// escort check for creatures only (if the world config boolean is set)
-				var isEscort = WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && data.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc);
+				var isEscort = GetDefaultValue("Respawn.DynamicEscortNPC", false) && data.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc);
 
 				var range = _creatureBySpawnIdStore.LookupByKey(info.SpawnId);
 

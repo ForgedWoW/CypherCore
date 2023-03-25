@@ -37,6 +37,7 @@ using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Text;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Units;
 
@@ -828,17 +829,17 @@ public partial class Unit : WorldObject
 
 	public virtual void Say(string text, Language language, WorldObject target = null)
 	{
-		Talk(text, ChatMsg.MonsterSay, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+		Talk(text, ChatMsg.MonsterSay, language, GetDefaultValue("ListenRange.Say", 25.0f), target);
 	}
 
 	public virtual void Yell(string text, Language language = Language.Universal, WorldObject target = null)
 	{
-		Talk(text, ChatMsg.MonsterYell, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+		Talk(text, ChatMsg.MonsterYell, language, GetDefaultValue("ListenRange.Yell", 300.0f), target);
 	}
 
 	public virtual void TextEmote(string text, WorldObject target = null, bool isBossEmote = false)
 	{
-		Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+		Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, GetDefaultValue("ListenRange.TextEmote", 25.0f), target);
 	}
 
 	public virtual void Whisper(string text, Player target, bool isBossWhisper = false)
@@ -874,17 +875,17 @@ public partial class Unit : WorldObject
 
 	public virtual void Say(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.MonsterSay, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+		Talk(textId, ChatMsg.MonsterSay, GetDefaultValue("ListenRange.Say", 25.0f), target);
 	}
 
 	public virtual void Yell(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.MonsterYell, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+		Talk(textId, ChatMsg.MonsterYell, GetDefaultValue("ListenRange.Yell", 300.0f), target);
 	}
 
 	public virtual void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
 	{
-		Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+		Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, GetDefaultValue("ListenRange.TextEmote", 25.0f), target);
 	}
 
 	public virtual void Whisper(uint textId, Player target, bool isBossWhisper = false)
@@ -3460,7 +3461,7 @@ public partial class Unit : WorldObject
 		// talent who gave more rage on attack
 		MathFunctions.AddPct(ref addRage, GetTotalAuraModifier(AuraType.ModRageFromDamageDealt));
 
-		addRage *= WorldConfig.GetFloatValue(WorldCfg.RatePowerRageIncome);
+		addRage *= GetDefaultValue("Rate.Rage.Gain", 1.0f);
 
 		ModifyPower(PowerType.Rage, (int)(addRage * 10));
 	}

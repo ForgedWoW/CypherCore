@@ -224,7 +224,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 				Log.Logger.Error($"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} scenario POI definitions in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} scenario POI definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<ScenarioPOI> GetScenarioPOIs(uint CriteriaTreeID)

@@ -1,12 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
+using Forged.MapServer.BattlePets;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.BattlePet;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class BattlePetHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.BattlePetSetBattleSlot)]
 	void HandleBattlePetSetBattleSlot(BattlePetSetBattleSlot battlePetSetBattleSlot)

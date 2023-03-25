@@ -4,6 +4,7 @@
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -146,7 +147,7 @@ public class RestMgr
 			{
 				_restTime = now;
 
-				var bubble = 0.125f * WorldConfig.GetFloatValue(WorldCfg.RateRestIngame);
+				var bubble = 0.125f * GetDefaultValue("Rate.Rest.InGame", 1.0f);
 				AddRestBonus(RestTypes.XP, timeDiff * CalcExtraPerSec(RestTypes.XP, bubble));
 			}
 		}

@@ -32,6 +32,7 @@ using Forged.MapServer.Tools;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -1019,8 +1020,8 @@ public partial class Player
 			var bubble1 = 0.125f;
 
 			var bubble = is_logout_resting > 0
-							? bubble1 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInTavernOrCity)
-							: bubble0 * WorldConfig.GetFloatValue(WorldCfg.RateRestOfflineInWilderness);
+							? bubble1 * GetDefaultValue("Rate.Rest.Offline.InTavernOrCity", 1.0f)
+                            : bubble0 * GetDefaultValue("Rate.Rest.Offline.InWilderness", 1.0f);
 
 			_restMgr.AddRestBonus(RestTypes.XP, time_diff * _restMgr.CalcExtraPerSec(RestTypes.XP, bubble));
 		}
@@ -1554,7 +1555,7 @@ public partial class Player
 
 		// Convert guid to low GUID for CharacterNameData, but also other methods on success
 		var guid = playerGuid.Counter;
-		var charDelete_method = (CharDeleteMethod)WorldConfig.GetIntValue(WorldCfg.ChardeleteMethod);
+		var charDelete_method = (CharDeleteMethod)GetDefaultValue("CharDelete.Method", 0);
 		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid);
 		var name = "<Unknown>";
 
@@ -1571,11 +1572,11 @@ public partial class Player
 			uint charDeleteMinLvl;
 
 			if (characterInfo.ClassId == PlayerClass.Deathknight)
-				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteDeathKnightMinLevel);
+				charDeleteMinLvl = GetDefaultValue("CharDelete.DeathKnight.MinLevel", 0);
 			else if (characterInfo.ClassId == PlayerClass.DemonHunter)
-				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteDemonHunterMinLevel);
+				charDeleteMinLvl = GetDefaultValue("CharDelete.DemonHunter.MinLevel", 0);
 			else
-				charDeleteMinLvl = WorldConfig.GetUIntValue(WorldCfg.ChardeleteMinLevel);
+				charDeleteMinLvl = GetDefaultValue("CharDelete.MinLevel", 0);
 
 			// if we want to finalize the character removal or the character does not meet the level requirement of either heroic or non-heroic settings,
 			// we set it to mode CHAR_DELETE_REMOVE
@@ -2036,7 +2037,7 @@ public partial class Player
 
 	public static void DeleteOldCharacters()
 	{
-		var keepDays = WorldConfig.GetIntValue(WorldCfg.ChardeleteKeepDays);
+		var keepDays = GetDefaultValue("CharDelete.KeepDays", 30);
 
 		if (keepDays == 0)
 			return;

@@ -9,6 +9,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Loot;
 
@@ -482,15 +483,15 @@ public class LootManager : LootStorage
 
 public class LootStoreItem
 {
-	public static WorldCfg[] qualityToRate = new WorldCfg[7]
+	public static string[] qualityToRate = new string[7]
 	{
-		WorldCfg.RateDropItemPoor,      // ITEM_QUALITY_POOR
-		WorldCfg.RateDropItemNormal,    // ITEM_QUALITY_NORMAL
-		WorldCfg.RateDropItemUncommon,  // ITEM_QUALITY_UNCOMMON
-		WorldCfg.RateDropItemRare,      // ITEM_QUALITY_RARE
-		WorldCfg.RateDropItemEpic,      // ITEM_QUALITY_EPIC
-		WorldCfg.RateDropItemLegendary, // ITEM_QUALITY_LEGENDARY
-		WorldCfg.RateDropItemArtifact,  // ITEM_QUALITY_ARTIFACT
+        "Rate.Drop.Item.Poor",      // ITEM_QUALITY_POOR
+        "Rate.Drop.Item.Normal",    // ITEM_QUALITY_NORMAL
+        "Rate.Drop.Item.Uncommon",  // ITEM_QUALITY_UNCOMMON
+        "Rate.Drop.Item.Rare",      // ITEM_QUALITY_RARE
+        "Rate.Drop.Item.Epic",      // ITEM_QUALITY_EPIC
+        "Rate.Drop.Item.Legendary", // ITEM_QUALITY_LEGENDARY
+        "Rate.Drop.Item.Artifact",  // ITEM_QUALITY_ARTIFACT
 	};
 
 	public uint itemid;    // id of the item
@@ -522,11 +523,11 @@ public class LootStoreItem
 			return true;
 
 		if (reference > 0) // reference case
-			return RandomHelper.randChance(chance * (rate ? WorldConfig.GetFloatValue(WorldCfg.RateDropItemReferenced) : 1.0f));
+			return RandomHelper.randChance(chance * (rate ? GetDefaultValue("Rate.Drop.Item.Referenced", 1.0f) : 1.0f));
 
 		var pProto = Global.ObjectMgr.GetItemTemplate(itemid);
 
-		var qualityModifier = pProto != null && rate ? WorldConfig.GetFloatValue(qualityToRate[(int)pProto.Quality]) : 1.0f;
+		var qualityModifier = pProto != null && rate ? GetDefaultValue(qualityToRate[(int)pProto.Quality]) : 1.0f;
 
 		return RandomHelper.randChance(chance * qualityModifier);
 	}
@@ -829,7 +830,7 @@ public class LootTemplate
 				if (Referenced == null)
 					continue; // Error message already printed at loading stage
 
-				var maxcount = (uint)(item.maxcount * WorldConfig.GetFloatValue(WorldCfg.RateDropItemReferencedAmount));
+				var maxcount = (uint)(item.maxcount * GetDefaultValue("Rate.Drop.Item.ReferencedAmount", 1.0f));
 
 				for (uint loop = 0; loop < maxcount; ++loop) // Ref multiplicator
 					Referenced.Process(loot, rate, lootMode, item.groupid, personalLooter);
@@ -885,7 +886,7 @@ public class LootTemplate
 				if (referenced == null)
 					continue; // Error message already printed at loading stage
 
-				var maxcount = (uint)((float)item.maxcount * WorldConfig.GetFloatValue(WorldCfg.RateDropItemReferencedAmount));
+				var maxcount = (uint)((float)item.maxcount * GetDefaultValue("Rate.Drop.Item.ReferencedAmount", 1.0f));
 				List<Player> gotLoot = new();
 
 				for (uint loop = 0; loop < maxcount; ++loop) // Ref multiplicator

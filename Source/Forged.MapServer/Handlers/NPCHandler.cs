@@ -9,13 +9,20 @@ using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.NPC;
+using Forged.MapServer.Networking.Packets.Pet;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class NPCHandler : IWorldSessionHandler
 {
 	public void SendTabardVendorActivate(ObjectGuid guid)
 	{

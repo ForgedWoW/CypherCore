@@ -9,17 +9,29 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.U;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Networking.Packets.AreaTrigger;
+using Forged.MapServer.Networking.Packets.Character;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Networking.Packets.ClientConfig;
+using Forged.MapServer.Networking.Packets.Instance;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Warden;
 using Forged.MapServer.Scripting.Interfaces.IConversation;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
 using Framework.IO;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class MiscHandler : IWorldSessionHandler
 {
 	public void SendLoadCUFProfiles()
 	{

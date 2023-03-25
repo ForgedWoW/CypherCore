@@ -1164,7 +1164,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		if (condition.MaxExpansionLevel != -1 && (int)player.Session.Expansion > condition.MaxExpansionLevel)
 			return false;
 
-		if (condition.MinExpansionLevel != -1 && condition.MinExpansionTier != -1 && !player.IsGameMaster && ((condition.MinExpansionLevel == WorldConfig.GetIntValue(WorldCfg.Expansion) && condition.MinExpansionTier > 0) /*TODO: implement tier*/ || condition.MinExpansionLevel > WorldConfig.GetIntValue(WorldCfg.Expansion)))
+		if (condition.MinExpansionLevel != -1 && condition.MinExpansionTier != -1 && !player.IsGameMaster && ((condition.MinExpansionLevel == GetDefaultValue("Expansion", (int)Expansion.Dragonflight) && condition.MinExpansionTier > 0) /*TODO: implement tier*/ || condition.MinExpansionLevel > GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
 			return false;
 
 		if (condition.PhaseID != 0 || condition.PhaseGroupID != 0 || condition.PhaseUseFlags != 0)

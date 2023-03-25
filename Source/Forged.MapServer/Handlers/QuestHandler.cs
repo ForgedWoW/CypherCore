@@ -5,16 +5,18 @@ using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Quest;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Framework.Constants;
+using Game.Common.Handlers;
 using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class QuestHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.QuestGiverStatusQuery, Processing = PacketProcessing.Inplace)]
 	void HandleQuestgiverStatusQuery(QuestGiverStatusQuery packet)

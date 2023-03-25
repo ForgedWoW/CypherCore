@@ -1,12 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Inspect;
+using Forged.MapServer.Networking.Packets.Trait;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class InspectHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.Inspect, Processing = PacketProcessing.Inplace)]
 	void HandleInspect(Inspect inspect)
@@ -29,7 +35,7 @@ public partial class WorldSession
 		InspectResult inspectResult = new();
 		inspectResult.DisplayInfo.Initialize(player);
 
-		if (Player.CanBeGameMaster || WorldConfig.GetIntValue(WorldCfg.TalentsInspecting) + (Player.EffectiveTeam == player.EffectiveTeam ? 1 : 0) > 1)
+		if (Player.CanBeGameMaster || GetDefaultValue("TalentsInspecting", 1) + (Player.EffectiveTeam == player.EffectiveTeam ? 1 : 0) > 1)
 		{
 			var talents = player.GetTalentMap(player.GetActiveTalentGroup());
 

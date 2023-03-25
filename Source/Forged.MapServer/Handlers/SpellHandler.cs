@@ -5,17 +5,25 @@ using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Loot;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.GameObject;
+using Forged.MapServer.Networking.Packets.Pet;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Networking.Packets.Totem;
 using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class SpellHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.UseItem, Processing = PacketProcessing.Inplace)]
 	void HandleUseItem(UseItem packet)

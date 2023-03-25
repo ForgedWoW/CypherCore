@@ -448,7 +448,7 @@ public class DisableManager : Singleton<DisableManager>
 
 	public bool IsPathfindingEnabled(uint mapId)
 	{
-		return WorldConfig.GetBoolValue(WorldCfg.EnableMmaps) && !Global.DisableMgr.IsDisabledFor(DisableType.MMAP, mapId, null);
+		return GetDefaultValue("mmap.EnablePathFinding", true) && !Global.DisableMgr.IsDisabledFor(DisableType.MMAP, mapId, null);
 	}
 
 	public class DisableData

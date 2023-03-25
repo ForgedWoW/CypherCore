@@ -1042,7 +1042,7 @@ public class Item : WorldObject
 			dmultiplier = durabilityCost.ArmorSubClassCost[itemTemplate.SubClass];
 
 		var cost = (ulong)Math.Round(lostDurability * dmultiplier * durabilityQualityEntry.Data * RepairCostMultiplier);
-		cost = (ulong)(cost * discount * WorldConfig.GetFloatValue(WorldCfg.RateRepaircost));
+		cost = (ulong)(cost * discount * GetDefaultValue("Rate.RepairCost", 1.0f));
 
 		if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
 			cost = 1;

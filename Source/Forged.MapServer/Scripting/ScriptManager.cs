@@ -63,7 +63,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		// MapScripts
 		Global.MapMgr.AddSC_BuiltInScripts();
 
-		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	//AreaTriggerScript

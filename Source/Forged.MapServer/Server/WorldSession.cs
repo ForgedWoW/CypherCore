@@ -35,7 +35,7 @@ using Serilog;
 
 namespace Forged.MapServer.Server;
 
-public partial class WorldSession : IDisposable
+public class WorldSession : IDisposable
 {
 	public long MuteTime;
 
@@ -216,7 +216,7 @@ public partial class WorldSession : IDisposable
 		_battlenetAccountId = battlenetAccountId;
 		_configuredExpansion = ConfigMgr.GetDefaultValue<int>("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)ConfigMgr.GetDefaultValue<int>("Player.OverrideExpansion", -1);
 		_accountExpansion = Expansion.LevelCurrent == _configuredExpansion ? expansion : _configuredExpansion;
-		_expansion = (Expansion)Math.Min((byte)expansion, WorldConfig.GetIntValue(WorldCfg.Expansion));
+		_expansion = (Expansion)Math.Min((byte)expansion, GetDefaultValue("Expansion", (int)Expansion.Dragonflight));
 		_os = os;
 		_sessionDbcLocale = Global.WorldMgr.GetAvailableDbcLocale(locale);
 		_sessionDbLocaleIndex = locale;
@@ -651,7 +651,7 @@ public partial class WorldSession : IDisposable
 
 		Log.Logger.Error($"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
 
-		if (WorldConfig.GetIntValue(WorldCfg.ChatStrictLinkCheckingKick) != 0)
+		if (GetDefaultValue("ChatStrictLinkChecking.Kick", 0) != 0)
 			KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
 
 		return false;
@@ -819,7 +819,7 @@ public partial class WorldSession : IDisposable
 			_timeOutTime = GameTime.GetGameTime() + WorldConfig.GetIntValue(WorldCfg.SocketTimeoutTime);
 	}
 
-	public static implicit operator bool(Services.WorldSession session)
+	public static implicit operator bool(WorldSession session)
 	{
 		return session != null;
 	}
@@ -1034,7 +1034,7 @@ public partial class WorldSession : IDisposable
 
 		Log.Logger.Error($"Player {Player.GetName()} {Player.GUID} sent a message with an invalid link:\n{str}");
 
-		if (WorldConfig.GetIntValue(WorldCfg.ChatStrictLinkCheckingKick) != 0)
+		if (GetDefaultValue("ChatStrictLinkChecking.Kick", 0) != 0)
 			KickPlayer("WorldSession::ValidateHyperlinksAndMaybeKick Invalid chat link");
 
 		return false;
@@ -1107,7 +1107,7 @@ public partial class WorldSession : IDisposable
 
 		SendSetTimeZoneInformation();
 		SendFeatureSystemStatusGlueScreen();
-		SendClientCacheVersion(WorldConfig.GetUIntValue(WorldCfg.ClientCacheVersion));
+		SendClientCacheVersion(GetDefaultValue("ClientCacheVersion", 0));
 		SendAvailableHotfixes();
 		SendAccountDataTimes(ObjectGuid.Empty, AccountDataTypes.GlobalCacheMask);
 		SendTutorialsData();

@@ -2,19 +2,27 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Bgs.Protocol.Account.V1;
 using Forged.MapServer.AI.CoreAI;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Pet;
+using Forged.MapServer.Networking.Packets.Query;
+using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class PetHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.DismissCritter)]
 	void HandleDismissCritter(DismissCritter packet)

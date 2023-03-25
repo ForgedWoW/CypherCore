@@ -97,7 +97,7 @@ public class ChannelManager
 			DB.Characters.Execute(stmt);
 		}
 
-		Log.Logger.Information($"Loaded {count} custom chat channels in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public static ChannelManager ForTeam(TeamFaction team)

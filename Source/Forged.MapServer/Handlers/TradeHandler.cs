@@ -11,11 +11,12 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Handlers;
 using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class TradeHandler : IWorldSessionHandler
 {
 	public void SendTradeStatus(TradeStatusPkt info)
 	{

@@ -1686,7 +1686,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		}
 
-		Log.Logger.Information($"Parsed {count} SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Parsed {count} SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellProcs()
@@ -3103,7 +3103,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				AddSpellInfo(spellInfo);
 			} while (spellsResult.NextRow());
 
-		Log.Logger.Information($"Loaded {_serversideSpellNames.Count} serverside spells {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_serversideSpellNames.Count} serverside spells {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellInfoCustomAttributes()
@@ -5166,7 +5166,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadAuraState();
 			}
 
-		Log.Logger.Information($"Loaded SpellInfo SpellSpecific and AuraState in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded SpellInfo SpellSpecific and AuraState in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellInfoDiminishing()
@@ -5283,7 +5283,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} spell totem model records in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} spell totem model records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	#endregion

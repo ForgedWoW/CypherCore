@@ -161,7 +161,7 @@ public class TransportManager : Singleton<TransportManager>
 				count++;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Spawned {count} continent transports in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Spawned {count} continent transports in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void AddPathNodeToTransport(uint transportEntry, uint timeSeg, TransportAnimationRecord node)

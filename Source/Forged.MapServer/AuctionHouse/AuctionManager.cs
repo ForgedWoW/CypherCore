@@ -4,21 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.AuctionHouse;
 
-public class AuctionManager : Singleton<AuctionManager>
+public class AuctionManager
 {
-	const int MIN_AUCTION_TIME = 12 * Time.Hour;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _objectManager;
+    private readonly CharacterCache _characterCache;
+    const int MIN_AUCTION_TIME = 12 * Time.Hour;
 	readonly AuctionHouseObject _hordeAuctions;
 	readonly AuctionHouseObject _allianceAuctions;
 	readonly AuctionHouseObject _neutralAuctions;
@@ -32,9 +39,13 @@ public class AuctionManager : Singleton<AuctionManager>
 
 	public uint GenerateReplicationId => ++_replicateIdGenerator;
 
-	AuctionManager()
+	public AuctionManager(CharacterDatabase characterDatabase, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache)
 	{
-		_hordeAuctions = new AuctionHouseObject(6);
+        _characterDatabase = characterDatabase;
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+        _characterCache = characterCache;
+        _hordeAuctions = new AuctionHouseObject(6);
 		_allianceAuctions = new AuctionHouseObject(2);
 		_neutralAuctions = new AuctionHouseObject(1);
 		_goblinAuctions = new AuctionHouseObject(7);
@@ -48,7 +59,7 @@ public class AuctionManager : Singleton<AuctionManager>
 			return _neutralAuctions;
 
 		// teams have linked auction houses
-		var uEntry = CliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
+		var uEntry = _cliDB.FactionTemplateStorage.LookupByKey(factionTemplateId);
 
 		if (uEntry == null)
 			return _neutralAuctions;
@@ -146,7 +157,7 @@ public class AuctionManager : Singleton<AuctionManager>
 		// need to clear in case we are reloading
 		_itemsByGuid.Clear();
 
-		var result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTION_ITEMS));
+		var result = _characterDatabase.Query(_characterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTION_ITEMS));
 
 		if (result.IsEmpty())
 		{
@@ -165,7 +176,7 @@ public class AuctionManager : Singleton<AuctionManager>
 			var itemGuid = result.Read<ulong>(0);
 			var itemEntry = result.Read<uint>(1);
 
-			var proto = Global.ObjectMgr.GetItemTemplate(itemEntry);
+			var proto = _objectManager.GetItemTemplate(itemEntry);
 
 			if (proto == null)
 			{
@@ -189,12 +200,12 @@ public class AuctionManager : Singleton<AuctionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} auction items in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} auction items in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
 		oldMSTime = Time.MSTime;
 		count = 0;
 
-		result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTION_BIDDERS));
+		result = _characterDatabase.Query(_characterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTION_BIDDERS));
 
 		if (!result.IsEmpty())
 			do
@@ -202,12 +213,12 @@ public class AuctionManager : Singleton<AuctionManager>
 				biddersByAuction.Add(result.Read<uint>(0), ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(1)));
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} auction bidders in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} auction bidders in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
 		oldMSTime = Time.MSTime;
 		count = 0;
 
-		result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONS));
+		result = _characterDatabase.Query(_characterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTIONS));
 
 		if (!result.IsEmpty())
 		{
@@ -227,7 +238,7 @@ public class AuctionManager : Singleton<AuctionManager>
 				if (auctionHouse == null)
 				{
 					Log.Logger.Error($"Auction {auction.Id} has wrong auctionHouseId {auctionHouseId}");
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_AUCTION);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION);
 					stmt.AddValue(0, auction.Id);
 					trans.Append(stmt);
 
@@ -237,7 +248,7 @@ public class AuctionManager : Singleton<AuctionManager>
 				if (!itemsByAuction.ContainsKey(auction.Id))
 				{
 					Log.Logger.Error($"Auction {auction.Id} has no items");
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_AUCTION);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_AUCTION);
 					stmt.AddValue(0, auction.Id);
 					trans.Append(stmt);
 
@@ -246,7 +257,7 @@ public class AuctionManager : Singleton<AuctionManager>
 
 				auction.Items = itemsByAuction[auction.Id];
 				auction.Owner = ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(2));
-				auction.OwnerAccount = ObjectGuid.Create(HighGuid.WowAccount, Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(auction.Owner));
+				auction.OwnerAccount = ObjectGuid.Create(HighGuid.WowAccount, _characterCache.GetCharacterAccountIdByGuid(auction.Owner));
 				var bidder = result.Read<ulong>(3);
 
 				if (bidder != 0)
@@ -268,10 +279,10 @@ public class AuctionManager : Singleton<AuctionManager>
 				++count;
 			} while (result.NextRow());
 
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
-		Log.Logger.Information($"Loaded {count} auctions in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} auctions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void AddAItem(Item item)
@@ -362,14 +373,14 @@ public class AuctionManager : Singleton<AuctionManager>
 				if (auction != null)
 					auction.EndTime = GameTime.GetSystemTime();
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
 				stmt.AddValue(0, (uint)GameTime.GetGameTime());
 				stmt.AddValue(1, pendingAuction.AuctionId);
 				trans.Append(stmt);
 				++auctionIndex;
 			} while (auctionIndex < playerPendingAuctions.Auctions.Count);
 
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
 		_pendingAuctionsByPlayer.Remove(player.GUID);
@@ -405,13 +416,13 @@ public class AuctionManager : Singleton<AuctionManager>
 					if (auction != null)
 						auction.EndTime = GameTime.GetSystemTime();
 
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_AUCTION_EXPIRATION);
 					stmt.AddValue(0, (uint)GameTime.GetGameTime());
 					stmt.AddValue(1, pendingAuction.AuctionId);
 					trans.Append(stmt);
 				}
 
-				DB.Characters.CommitTransaction(trans);
+				_characterDatabase.CommitTransaction(trans);
 				_pendingAuctionsByPlayer.Remove(playerGUID);
 			}
 		}
@@ -509,7 +520,7 @@ public class AuctionManager : Singleton<AuctionManager>
 
 		houseId = houseid;
 
-		return CliDB.AuctionHouseStorage.LookupByKey(houseid);
+		return _cliDB.AuctionHouseStorage.LookupByKey(houseid);
 	}
 
 	class PendingAuctionInfo

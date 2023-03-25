@@ -72,7 +72,7 @@ public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void CreateOutdoorPvPForMap(Map map)

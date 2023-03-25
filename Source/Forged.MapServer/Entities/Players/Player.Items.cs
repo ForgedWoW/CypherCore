@@ -25,6 +25,7 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -5353,7 +5354,7 @@ public partial class Player
 
 		// It may need a better formula
 		// Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-		bones.Loot.gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney));
+		bones.Loot.gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * GetDefaultValue("Rate.Drop.Money", 1.0f));
 		bones.LootRecipient = looterPlr;
 		looterPlr.SendLoot(bones.Loot);
 	}
@@ -5367,8 +5368,7 @@ public partial class Player
 			Owner = GUID
 		}
 
-		p
-		dPacket(packet);
+		SendPacket(packet);
 	}
 
 	public void SendLootReleaseAll()

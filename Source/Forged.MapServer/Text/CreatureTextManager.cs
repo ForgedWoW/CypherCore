@@ -147,7 +147,7 @@ public sealed class CreatureTextManager
 			++textCount;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {textCount} creature texts for {creatureCount} creatures in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {textCount} creature texts for {creatureCount} creatures in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadCreatureTextLocales()
@@ -278,17 +278,17 @@ public sealed class CreatureTextManager
 
 	public float GetRangeForChatType(ChatMsg msgType)
 	{
-		var dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay);
+		var dist = GetDefaultValue("ListenRange.Say", 25.0f);
 
 		switch (msgType)
 		{
 			case ChatMsg.MonsterYell:
-				dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell);
+				dist = GetDefaultValue("ListenRange.Yell", 300.0f);
 
 				break;
 			case ChatMsg.MonsterEmote:
 			case ChatMsg.RaidBossEmote:
-				dist = WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote);
+				dist = GetDefaultValue("ListenRange.TextEmote", 25.0f);
 
 				break;
 			default:

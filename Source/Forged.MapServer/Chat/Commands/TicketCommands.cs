@@ -16,7 +16,7 @@ class TicketCommands
 	[Command("togglesystem", RBACPermissions.CommandTicketTogglesystem, true)]
 	static bool HandleToggleGMTicketSystem(CommandHandler handler)
 	{
-		if (!WorldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled))
+		if (!GetDefaultValue("Support.TicketsEnabled", false))
 		{
 			handler.SendSysMessage(CypherStrings.DisallowTicketsConfig);
 

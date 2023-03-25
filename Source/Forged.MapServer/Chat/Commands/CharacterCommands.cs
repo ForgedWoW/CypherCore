@@ -626,7 +626,7 @@ class CharacterCommands
 		[Command("old", RBACPermissions.CommandCharacterDeletedOld, true)]
 		static bool HandleCharacterDeletedOldCommand(CommandHandler handler, ushort? days)
 		{
-			var keepDays = WorldConfig.GetIntValue(WorldCfg.ChardeleteKeepDays);
+			var keepDays = GetDefaultValue("CharDelete.KeepDays", 30);
 
 			if (days.HasValue)
 				keepDays = days.Value;

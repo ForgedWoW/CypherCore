@@ -11,10 +11,12 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking.Packets.BattlePet;
+using Forged.MapServer.Server;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.BattlePets;
 

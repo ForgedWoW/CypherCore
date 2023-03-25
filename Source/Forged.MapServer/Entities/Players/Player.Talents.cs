@@ -555,7 +555,7 @@ public partial class Player
 
 		uint cost = 0;
 
-		if (!noCost && !WorldConfig.GetBoolValue(WorldCfg.NoResetTalentCost))
+		if (!noCost && !GetDefaultValue("NoResetTalentsCost", false))
 		{
 			cost = GetNextResetTalentsCost();
 

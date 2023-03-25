@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Warden;
 
@@ -28,7 +29,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
-		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
+		if (!GetDefaultValue("Warden.Enabled", false))
 		{
 			Log.Logger.Information("Warden disabled, loading checks skipped.");
 
@@ -109,13 +110,13 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 
 			// initialize action with default action from config, this may be overridden later
-			wardenCheck.Action = (WardenActions)WorldConfig.GetIntValue(WorldCfg.WardenClientFailAction);
+			wardenCheck.Action = (WardenActions)GetDefaultValue("Warden.ClientCheckFailAction", 0);
 
 			_pools[(int)category].Add(id);
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} warden checks in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} warden checks in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadWardenOverrides()
@@ -123,7 +124,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
-		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
+		if (!GetDefaultValue("Warden.Enabled", false))
 		{
 			Log.Logger.Information("Warden disabled, loading check overrides skipped.");
 
@@ -164,7 +165,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} warden action overrides in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} warden action overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public WardenCheck GetCheckData(ushort Id)
@@ -199,12 +200,12 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		_                       => WardenCheckCategory.Max,
 	};
 
-	public static WorldCfg GetWardenCategoryCountConfig(WardenCheckCategory category) => category switch
+	public static string GetWardenCategoryCountConfig(WardenCheckCategory category) => category switch
 	{
-		WardenCheckCategory.Inject => WorldCfg.WardenNumInjectChecks,
-		WardenCheckCategory.Lua    => WorldCfg.WardenNumLuaChecks,
-		WardenCheckCategory.Modded => WorldCfg.WardenNumClientModChecks,
-		_                          => WorldCfg.Max,
+		WardenCheckCategory.Inject => "Warden.NumInjectionChecks",
+		WardenCheckCategory.Lua    => "Warden.NumLuaSandboxChecks",
+		WardenCheckCategory.Modded => "Warden.NumClientModChecks",
+		_                          => "",
 	};
 
 	public static bool IsWardenCategoryInWorldOnly(WardenCheckCategory category) => category switch

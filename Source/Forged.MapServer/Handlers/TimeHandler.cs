@@ -5,10 +5,11 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Misc;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class TimeHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]
 	void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)

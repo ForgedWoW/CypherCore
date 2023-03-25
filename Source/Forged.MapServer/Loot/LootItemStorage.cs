@@ -63,7 +63,7 @@ public class LootItemStorage : Singleton<LootItemStorage>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information($"Loaded {count} stored item loots in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+			Log.Logger.Information($"Loaded {count} stored item loots in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		}
 		else
 		{
@@ -90,7 +90,7 @@ public class LootItemStorage : Singleton<LootItemStorage>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information($"Loaded {count} stored item money in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+			Log.Logger.Information($"Loaded {count} stored item money in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		}
 		else
 		{

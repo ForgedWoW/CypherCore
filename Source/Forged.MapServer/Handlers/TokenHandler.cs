@@ -4,10 +4,11 @@
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Token;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class TokenHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
 	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)

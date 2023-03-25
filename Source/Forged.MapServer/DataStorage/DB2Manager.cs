@@ -1197,7 +1197,7 @@ public class DB2Manager
 		int getLevelAdjustment(ContentTuningCalcType type) => type switch
 		{
 			ContentTuningCalcType.PlusOne                  => 1,
-			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)WorldConfig.GetUIntValue(WorldCfg.Expansion)),
+			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)),
 			_                                              => 0
 		};
 

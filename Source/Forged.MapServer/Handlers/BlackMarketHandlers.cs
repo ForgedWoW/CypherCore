@@ -5,12 +5,19 @@ using Forged.MapServer.BlackMarket;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.BlackMarket;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
 using Framework.Database;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class BlackMarketHandlers : IWorldSessionHandler
 {
 	public void SendBlackMarketWonNotification(BlackMarketEntry entry, Item item)
 	{

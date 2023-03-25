@@ -673,8 +673,8 @@ public partial class Player
 			// apply diminishing formula to diminishing parry chance
 			value = CalculateDiminishingReturns(parry_cap, Class, nondiminishing, diminishing);
 
-			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsParry) : value;
+			if (GetDefaultValue("Stats.Limits.Enable", false))
+				value = value > GetDefaultValue("Stats.Limits.Parry", 95.0f) ? GetDefaultValue("Stats.Limits.Parry", 95.0f) : value;
 		}
 
 		SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ParryPercentage), (float)value);
@@ -691,8 +691,8 @@ public partial class Player
 		// apply diminishing formula to diminishing dodge chance
 		var value = CalculateDiminishingReturns(dodge_cap, Class, nondiminishing, diminishing);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-			value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsDodge) : value;
+		if (GetDefaultValue("Stats.Limits.Enable", false))
+			value = value > GetDefaultValue("Stats.Limits.Dodge", 95.0f) ? GetDefaultValue("Stats.Limits.Dodge", 95.0f) : value;
 
 		SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DodgePercentage), (float)value);
 	}
@@ -711,8 +711,8 @@ public partial class Player
 			// Increase from rating
 			value += GetRatingBonusValue(CombatRating.Block);
 
-			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsBlock) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsBlock) : value;
+			if (GetDefaultValue("Stats.Limits.Enable", false))
+				value = value > GetDefaultValue("Stats.Limits.Block", 95.0f) ? GetDefaultValue("Stats.Limits.Block", 95.0f) : value;
 		}
 
 		SetUpdateFieldStatValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.BlockPercentage), (float)value);
@@ -722,8 +722,8 @@ public partial class Player
 	{
 		static float applyCritLimit(double value)
 		{
-			if (WorldConfig.GetBoolValue(WorldCfg.StatsLimitsEnable))
-				value = value > WorldConfig.GetFloatValue(WorldCfg.StatsLimitsCrit) ? WorldConfig.GetFloatValue(WorldCfg.StatsLimitsCrit) : value;
+			if (GetDefaultValue("Stats.Limits.Enable", false))
+				value = value > GetDefaultValue("Stats.Limits.Crit", 95.0f) ? GetDefaultValue("Stats.Limits.Crit", 95.0f) : value;
 
 			return (float)value;
 		}

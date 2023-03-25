@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Artifact;
 using Framework.Constants;
+using Game.Common.Handlers;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class ArtifactHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.ArtifactAddPower, Processing = PacketProcessing.Inplace)]
 	void HandleArtifactAddPower(ArtifactAddPower artifactAddPower)

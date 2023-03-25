@@ -6,14 +6,19 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Taxi;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class TaxiHandler : IWorldSessionHandler
 {
 	public void SendTaxiStatus(ObjectGuid guid)
 	{

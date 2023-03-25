@@ -10,6 +10,7 @@ using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Arenas;
 
@@ -197,7 +198,7 @@ public class Arena : Battleground
 									winnerChange,
 									loserChange);
 
-					if (WorldConfig.GetBoolValue(WorldCfg.ArenaLogExtendedInfo))
+					if (GetDefaultValue("ArenaLog.ExtendedInfo", false))
 						foreach (var score in PlayerScores)
 						{
 							var player = Global.ObjAccessor.FindPlayer(score.Key);

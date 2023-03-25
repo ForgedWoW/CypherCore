@@ -34,11 +34,11 @@ public class SupportManager : Singleton<SupportManager>
 
 	public void Initialize()
 	{
-		SetSupportSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportEnabled));
-		SetTicketSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled));
-		SetBugSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled));
-		SetComplaintSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled));
-		SetSuggestionSystemStatus(WorldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled));
+		SetSupportSystemStatus(GetDefaultValue("Support.Enabled", true));
+		SetTicketSystemStatus(GetDefaultValue("Support.TicketsEnabled", false));
+		SetBugSystemStatus(GetDefaultValue("Support.BugsEnabled", false));
+		SetComplaintSystemStatus(GetDefaultValue("Support.ComplaintsEnabled", false));
+		SetSuggestionSystemStatus(GetDefaultValue("Support.SuggestionsEnabled", false));
 	}
 
 	public T GetTicket<T>(uint Id) where T : Ticket

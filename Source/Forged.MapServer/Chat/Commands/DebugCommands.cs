@@ -504,8 +504,8 @@ class DebugCommands
 		else
 			Global.MapMgr.DoForAllMaps(map => HandleDebugGuidLimitsMap(handler, map));
 
-		handler.SendSysMessage($"Guid Warn Level: {WorldConfig.GetIntValue(WorldCfg.RespawnGuidWarnLevel)}");
-		handler.SendSysMessage($"Guid Alert Level: {WorldConfig.GetIntValue(WorldCfg.RespawnGuidAlertLevel)}");
+		handler.SendSysMessage($"Guid Warn Level: {GetDefaultValue("Respawn.GuidWarnLevel", 12000000)}");
+		handler.SendSysMessage($"Guid Alert Level: {GetDefaultValue("Respawn.GuidAlertLevel", 16000000)}");
 
 		return true;
 	}
@@ -950,19 +950,19 @@ class DebugCommands
 		if (daily)
 		{
 			Global.WorldMgr.DailyReset();
-			handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {global::Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextDailyQuestResetTimeVarId)).ToShortTimeString()}");
+			handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextDailyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		if (weekly)
 		{
 			Global.WorldMgr.ResetWeeklyQuests();
-			handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {global::Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextWeeklyQuestResetTimeVarId)).ToShortTimeString()}");
+			handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextWeeklyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		if (monthly)
 		{
 			Global.WorldMgr.ResetMonthlyQuests();
-			handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {global::Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextMonthlyQuestResetTimeVarId)).ToShortTimeString()}");
+			handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextMonthlyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		return true;

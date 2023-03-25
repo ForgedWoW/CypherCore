@@ -11,6 +11,7 @@ using Forged.MapServer.Networking.Packets.BlackMarket;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.BlackMarket;
 
@@ -21,7 +22,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 	long _lastUpdate;
 
 
-	public bool IsEnabled => WorldConfig.GetBoolValue(WorldCfg.BlackmarketEnabled);
+	public bool IsEnabled => GetDefaultValue("BlackMarket.Enabled", true);
 	public long LastUpdate => _lastUpdate;
 
 	BlackMarketManager() { }
@@ -152,7 +153,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			templates.Add(pair.Value);
 		}
 
-		templates.RandomResize(WorldConfig.GetUIntValue(WorldCfg.BlackmarketMaxAuctions));
+		templates.RandomResize(GetDefaultValue("BlackMarket.MaxAuctions", 12));
 
 		foreach (var templat in templates)
 		{

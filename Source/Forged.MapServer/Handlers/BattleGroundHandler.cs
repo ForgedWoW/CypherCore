@@ -8,12 +8,19 @@ using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
+using Game.Common.Handlers;
+using Serilog;
 
 namespace Forged.MapServer.Handlers;
 
-public partial class WorldSession
+public class BattleGroundHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.BattlemasterHello)]
 	void HandleBattlemasterHello(Hello hello)

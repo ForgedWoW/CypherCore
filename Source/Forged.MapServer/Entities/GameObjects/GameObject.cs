@@ -1017,7 +1017,7 @@ namespace Forged.MapServer.Entities.GameObjects
 					}
 
 					var respawnDelay = _respawnDelayTime;
-					var scalingMode = WorldConfig.GetUIntValue(WorldCfg.RespawnDynamicMode);
+					var scalingMode = GetDefaultValue("Respawn.DynamicMode", 0u);
 
 					if (scalingMode != 0)
 						Map.ApplyDynamicModeRespawnScaling(this, _spawnId, ref respawnDelay, scalingMode);

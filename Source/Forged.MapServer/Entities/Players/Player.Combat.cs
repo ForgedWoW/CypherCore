@@ -313,7 +313,7 @@ public partial class Player
 					opponent.CastSpell(Duel.Opponent, 52994, true);
 
 				// Honor points after duel (the winner) - ImpConfig
-				var amount = WorldConfig.GetIntValue(WorldCfg.HonorAfterDuel);
+				var amount = GetDefaultValue("HonorPointsAfterDuel", 0);
 
 				if (amount != 0)
 					opponent.RewardHonor(null, 1, amount);

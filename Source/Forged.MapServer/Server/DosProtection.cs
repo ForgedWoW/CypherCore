@@ -4,19 +4,20 @@
 using System.Collections.Generic;
 using Forged.MapServer.Networking;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Server;
 
 public class DosProtection
 {
 	readonly Policy _policy;
-	readonly Services.WorldSession Session;
+	readonly WorldSession Session;
 	readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
 
-	public DosProtection(Services.WorldSession s)
+	public DosProtection(WorldSession s)
 	{
 		Session = s;
-		_policy = (Policy)WorldConfig.GetIntValue(WorldCfg.PacketSpoofPolicy);
+		_policy = (Policy)GetDefaultValue("PacketSpoof.Policy", 1);
 	}
 
 	//todo fix me
@@ -60,8 +61,8 @@ public class DosProtection
 
 				return false;
 			case Policy.Ban:
-				var bm = (BanMode)WorldConfig.GetIntValue(WorldCfg.PacketSpoofBanmode);
-				var duration = WorldConfig.GetUIntValue(WorldCfg.PacketSpoofBanduration); // in seconds
+				var bm = (BanMode)GetDefaultValue("PacketSpoof.BanMode", (int)BanMode.Account);
+				var duration = GetDefaultValue("PacketSpoof.BanDuration", 86400); // in seconds
 				var nameOrIp = "";
 
 				switch (bm)

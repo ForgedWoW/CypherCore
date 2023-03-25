@@ -3,30 +3,34 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
+using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Arenas;
 
-public class ArenaTeamManager : Singleton<ArenaTeamManager>
+public class ArenaTeamManager
 {
-	readonly Dictionary<uint, ArenaTeam> ArenaTeamStorage = new();
+    private readonly CharacterDatabase _characterDatabase;
+    readonly Dictionary<uint, ArenaTeam> _arenaTeamStorage = new();
 
-	uint NextArenaTeamId;
+	uint _nextArenaTeamId;
 
-	ArenaTeamManager()
-	{
-		NextArenaTeamId = 1;
-	}
+	public ArenaTeamManager(CharacterDatabase characterDatabase)
+    {
+        _characterDatabase = characterDatabase;
+        _nextArenaTeamId = 1;
+    }
 
 	public ArenaTeam GetArenaTeamById(uint arenaTeamId)
 	{
-		return ArenaTeamStorage.LookupByKey(arenaTeamId);
+		return _arenaTeamStorage.LookupByKey(arenaTeamId);
 	}
 
 	public ArenaTeam GetArenaTeamByName(string arenaTeamName)
 	{
 		var search = arenaTeamName.ToLower();
 
-		foreach (var (_, team) in ArenaTeamStorage)
+		foreach (var (_, team) in _arenaTeamStorage)
 			if (search == team.GetName().ToLower())
 				return team;
 
@@ -35,7 +39,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 
 	public ArenaTeam GetArenaTeamByCaptain(ObjectGuid guid)
 	{
-		foreach (var (_, team) in ArenaTeamStorage)
+		foreach (var (_, team) in _arenaTeamStorage)
 			if (team.GetCaptain() == guid)
 				return team;
 
@@ -44,23 +48,17 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 
 	public void AddArenaTeam(ArenaTeam arenaTeam)
 	{
-		var added = ArenaTeamStorage.TryAdd(arenaTeam.GetId(), arenaTeam);
+		_arenaTeamStorage.TryAdd(arenaTeam.GetId(), arenaTeam);
 	}
 
 	public void RemoveArenaTeam(uint arenaTeamId)
 	{
-		ArenaTeamStorage.Remove(arenaTeamId);
+		_arenaTeamStorage.Remove(arenaTeamId);
 	}
 
 	public uint GenerateArenaTeamId()
 	{
-		if (NextArenaTeamId >= 0xFFFFFFFE)
-		{
-			Log.Logger.Error("Arena team ids overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
-		}
-
-		return NextArenaTeamId++;
+        return _nextArenaTeamId++;
 	}
 
 	public void LoadArenaTeams()
@@ -68,10 +66,10 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 		var oldMSTime = Time.MSTime;
 
 		// Clean out the trash before loading anything
-		DB.Characters.DirectExecute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)"); // One-time query
+		_characterDatabase.DirectExecute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)"); // One-time query
 
 		//                                                        0        1         2         3          4              5            6            7           8
-		var result = DB.Characters.Query("SELECT arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor, " +
+		var result = _characterDatabase.Query("SELECT arenaTeamId, name, captainGuid, type, backgroundColor, emblemStyle, emblemColor, borderStyle, borderColor, " +
 										//      9        10        11         12           13       14
 										"rating, weekGames, weekWins, seasonGames, seasonWins, `rank` FROM arena_team ORDER BY arenaTeamId ASC");
 
@@ -82,7 +80,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 			return;
 		}
 
-		var result2 = DB.Characters.Query(
+		var result2 = _characterDatabase.Query(
 										//              0              1           2             3              4                 5          6     7          8                  9
 										"SELECT arenaTeamId, atm.guid, atm.weekGames, atm.weekWins, atm.seasonGames, atm.seasonWins, c.name, class, personalRating, matchMakerRating FROM arena_team_member atm" +
 										" INNER JOIN arena_team ate USING (arenaTeamId) LEFT JOIN characters AS c ON atm.guid = c.guid" +
@@ -110,13 +108,13 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 		Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public void SetNextArenaTeamId(uint Id)
+	public void SetNextArenaTeamId(uint id)
 	{
-		NextArenaTeamId = Id;
+		_nextArenaTeamId = id;
 	}
 
 	public Dictionary<uint, ArenaTeam> GetArenaTeamMap()
 	{
-		return ArenaTeamStorage;
+		return _arenaTeamStorage;
 	}
 }
