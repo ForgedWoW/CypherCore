@@ -198,7 +198,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, ConditionSourceInfo sourceInfo)
 	{
-		if (sourceType > ConditionSourceType.None && sourceType < ConditionSourceType.Max)
+		if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
 		{
 			var conditions = conditionStorage[sourceType].LookupByKey(entry);
 
@@ -229,7 +229,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	public bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint entry)
 	{
-		if (sourceType > ConditionSourceType.None && sourceType < ConditionSourceType.Max)
+		if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
 			if (conditionStorage[sourceType].ContainsKey(entry))
 				return true;
 
@@ -3175,7 +3175,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case UnitConditionVariable.SpellKnown:
 				return unit.HasSpell((uint)value) ? value : 0;
 			case UnitConditionVariable.HasHarmfulAuraEffect:
-				return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+				return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
 			case UnitConditionVariable.IsImmuneToAreaOfEffect:
 				break;
 			case UnitConditionVariable.IsPlayer:
@@ -3246,7 +3246,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case UnitConditionVariable.IsHovering:
 				return unit.IsHovering ? 1 : 0;
 			case UnitConditionVariable.HasHelpfulAuraEffect:
-				return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+				return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
 			case UnitConditionVariable.HasHelpfulAuraSchool:
 				return unit.GetAppliedAurasQuery()
 							.HasNegitiveFlag()

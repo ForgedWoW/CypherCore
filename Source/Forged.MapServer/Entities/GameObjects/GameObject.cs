@@ -898,7 +898,7 @@ namespace Forged.MapServer.Entities.GameObjects
 									SetLootState(LootState.Ready);
 
 								// Battleground gameobjects have data2 == 0 && data5 == 3
-								if (goInfo.Trap.radius == 0 && goInfo.Trap.cooldown == 3)
+								if (goInfo.Trap is { radius: 0, cooldown: 3 })
 								{
 									var player = target.AsPlayer;
 
@@ -1471,7 +1471,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			{
 				var state = _perPlayerState.LookupByKey(seer.GUID);
 
-				if (state != null && state.Despawned)
+				if (state is { Despawned: true })
 					return true;
 			}
 
@@ -3233,7 +3233,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			{
 				var state = _perPlayerState.LookupByKey(viewer);
 
-				if (state != null && state.State.HasValue)
+				if (state is { State: { } })
 					return state.State.Value;
 			}
 

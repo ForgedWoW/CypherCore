@@ -95,7 +95,7 @@ public class GridCoord : ICoord
 
 	public override bool Equals(object obj)
 	{
-		return obj != null && obj is ObjectGuid && Equals((ObjectGuid)obj);
+		return obj is ObjectGuid && Equals((ObjectGuid)obj);
 	}
 
 	public bool Equals(GridCoord other)

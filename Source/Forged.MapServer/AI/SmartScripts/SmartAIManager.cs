@@ -355,7 +355,7 @@ public class SmartAIManager
 				case SmartEvents.FriendlyMissingBuff:
 				case SmartEvents.HasAura:
 				case SmartEvents.TargetBuffed:
-					if (temp.Event.minMaxRepeat.repeatMin == 0 && temp.Event.minMaxRepeat.repeatMax == 0 && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
+					if (temp.Event.minMaxRepeat is { repeatMin: 0, repeatMax: 0 } && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
 					{
 						temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
 						Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
@@ -364,7 +364,7 @@ public class SmartAIManager
 					break;
 				case SmartEvents.VictimCasting:
 				case SmartEvents.IsBehindTarget:
-					if (temp.Event.minMaxRepeat.min == 0 && temp.Event.minMaxRepeat.max == 0 && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
+					if (temp.Event.minMaxRepeat is { min: 0, max: 0 } && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
 					{
 						temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
 						Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
@@ -372,7 +372,7 @@ public class SmartAIManager
 
 					break;
 				case SmartEvents.FriendlyIsCc:
-					if (temp.Event.friendlyCC.repeatMin == 0 && temp.Event.friendlyCC.repeatMax == 0 && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
+					if (temp.Event.friendlyCC is { repeatMin: 0, repeatMax: 0 } && !temp.Event.event_flags.HasAnyFlag(SmartEventFlags.NotRepeatable) && temp.SourceType != SmartScriptType.TimedActionlist)
 					{
 						temp.Event.event_flags |= SmartEventFlags.NotRepeatable;
 						Log.Logger.Error($"SmartAIMgr.LoadFromDB: Entry {temp.EntryOrGuid} SourceType {temp.GetScriptType()}, Event {temp.EventId}, Missing Repeat flag.");
@@ -1563,7 +1563,7 @@ public class SmartAIManager
 
 					break;
 				case SmartEvents.DistanceCreature:
-					if (e.Event.distance.guid == 0 && e.Event.distance.entry == 0)
+					if (e.Event.distance is { guid: 0, entry: 0 })
 					{
 						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE did not provide creature guid or entry, skipped.");
 
@@ -1593,7 +1593,7 @@ public class SmartAIManager
 
 					break;
 				case SmartEvents.DistanceGameobject:
-					if (e.Event.distance.guid == 0 && e.Event.distance.entry == 0)
+					if (e.Event.distance is { guid: 0, entry: 0 })
 					{
 						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT did not provide gameobject guid or entry, skipped.");
 
@@ -1967,7 +1967,7 @@ public class SmartAIManager
 
 				break;
 			case SmartActions.IncEventPhase:
-				if (e.Action.incEventPhase.inc == 0 && e.Action.incEventPhase.dec == 0)
+				if (e.Action.incEventPhase is { inc: 0, dec: 0 })
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} is incrementing phase by 0, skipped.");
 
@@ -2228,15 +2228,12 @@ public class SmartAIManager
 
 					return false;
 				}
-				else if (e.Action.setInstanceData.type == 1)
+				else if (e.Action.setInstanceData is { type: 1, data: > (int)EncounterState.ToBeDecided })
 				{
-					if (e.Action.setInstanceData.data > (int)EncounterState.ToBeDecided)
-					{
-						Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.data} (value range 0-5), skipped.");
+                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.data} (value range 0-5), skipped.");
 
-						return false;
-					}
-				}
+                    return false;
+                }
 
 				break;
 			}
@@ -2359,7 +2356,7 @@ public class SmartAIManager
 					return false;
 				}
 
-				if (e.Action.movementSpeed.speedInteger == 0 && e.Action.movementSpeed.speedFraction == 0)
+				if (e.Action.movementSpeed is { speedInteger: 0, speedFraction: 0 })
 				{
 					Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses speed 0, skipped.");
 

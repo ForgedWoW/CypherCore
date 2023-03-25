@@ -48,7 +48,7 @@ public class Pet : Guardian
 		{
 			var creatureFamily = CliDB.CreatureFamilyStorage.LookupByKey(Template.Family);
 
-			if (creatureFamily != null && creatureFamily.MinScale > 0.0f && PetType == PetType.Hunter)
+			if (creatureFamily is { MinScale: > 0.0f } && PetType == PetType.Hunter)
 			{
 				float scale;
 
@@ -184,11 +184,11 @@ public class Pet : Guardian
 				if (stable.GetCurrentActivePetIndex().HasValue && stable.ActivePets[stable.GetCurrentActivePetIndex().Value] != null)
 					return Tuple.Create(stable.ActivePets[stable.GetCurrentActivePetIndex().Value], (PetSaveMode)stable.GetCurrentActivePetIndex());
 
-			if (slot >= PetSaveMode.FirstActiveSlot && slot < PetSaveMode.LastActiveSlot)
+			if (slot is >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot)
 				if (stable.ActivePets[(int)slot.Value] != null)
 					return Tuple.Create(stable.ActivePets[(int)slot.Value], slot.Value);
 
-			if (slot >= PetSaveMode.FirstStableSlot && slot < PetSaveMode.LastStableSlot)
+			if (slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
 				if (stable.StabledPets[(int)slot.Value] != null)
 					return Tuple.Create(stable.StabledPets[(int)slot.Value], slot.Value);
 		}
@@ -222,7 +222,7 @@ public class Pet : Guardian
 		var ownerid = owner.GUID.Counter;
 		var (petInfo, slot) = GetLoadPetInfo(petStable, petEntry, petnumber, forcedSlot);
 
-		if (petInfo == null || (slot >= PetSaveMode.FirstStableSlot && slot < PetSaveMode.LastStableSlot))
+		if (petInfo == null || slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
 		{
 			_loading = false;
 
@@ -381,7 +381,7 @@ public class Pet : Guardian
 
 			petStable.SetCurrentUnslottedPetIndex((uint)unslottedPetIndex);
 		}
-		else if (PetSaveMode.FirstActiveSlot <= slot && slot <= PetSaveMode.LastActiveSlot)
+		else if (slot is >= PetSaveMode.FirstActiveSlot and <= PetSaveMode.LastActiveSlot)
 		{
 			var activePetIndex = Array.FindIndex(petStable.ActivePets, pet => pet?.PetNumber == petnumber);
 

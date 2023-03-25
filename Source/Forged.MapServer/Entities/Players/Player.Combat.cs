@@ -494,7 +494,7 @@ public partial class Player
 		{
 			var tmpitem = GetWeaponForAttack(weaponAttackType, true);
 
-			if (tmpitem != null && !tmpitem.IsBroken)
+			if (tmpitem is { IsBroken: false })
 			{
 				var proto = tmpitem.Template;
 
@@ -697,7 +697,7 @@ public partial class Player
 
 	void UpdateDuelFlag(long currTime)
 	{
-		if (Duel != null && Duel.State == DuelState.Countdown && Duel.StartTime <= currTime)
+		if (Duel is { State: DuelState.Countdown } && Duel.StartTime <= currTime)
 		{
 			Global.ScriptMgr.ForEach<IPlayerOnDuelStart>(p => p.OnDuelStart(this, Duel.Opponent));
 

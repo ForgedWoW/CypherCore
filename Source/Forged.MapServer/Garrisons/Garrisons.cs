@@ -444,7 +444,7 @@ public class Garrison
 		var plot = GetPlot(garrPlotInstanceId);
 
 		if (plot != null)
-			if (plot.BuildingInfo.CanActivate() && plot.BuildingInfo.PacketInfo != null && !plot.BuildingInfo.PacketInfo.Active)
+			if (plot.BuildingInfo.CanActivate() && plot.BuildingInfo.PacketInfo is { Active: false })
 			{
 				plot.BuildingInfo.PacketInfo.Active = true;
 				var map = FindMap();
@@ -739,11 +739,10 @@ public class Garrison
 			return GarrisonError.NotEnoughGold;
 
 		// New building cannot replace another building currently under construction
-		if (plot.BuildingInfo.PacketInfo != null)
-			if (!plot.BuildingInfo.PacketInfo.Active)
-				return GarrisonError.NoBuilding;
+		if (plot.BuildingInfo.PacketInfo is { Active: false })
+            return GarrisonError.NoBuilding;
 
-		return GarrisonError.Success;
+        return GarrisonError.Success;
 	}
 
 	GarrisonError CheckBuildingRemoval(uint garrPlotInstanceId)
@@ -818,7 +817,7 @@ public class Garrison
 			if (!go)
 				return null;
 
-			if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo != null && !BuildingInfo.PacketInfo.Active)
+			if (BuildingInfo.CanActivate() && BuildingInfo.PacketInfo is { Active: false })
 			{
 				var finalizeInfo = Global.GarrisonMgr.GetPlotFinalizeGOInfo(PacketInfo.GarrPlotInstanceID);
 

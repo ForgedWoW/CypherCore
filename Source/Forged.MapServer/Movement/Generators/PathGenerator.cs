@@ -361,10 +361,9 @@ public class PathGenerator
 				Log.Logger.Debug("++ BuildPolyPath :: underWater case");
 				var _sourceUnit = _source.AsUnit;
 
-				if (_sourceUnit != null)
-					if (_sourceUnit.CanSwim)
-						buildShotrcut = true;
-			}
+				if (_sourceUnit is { CanSwim: true })
+                    buildShotrcut = true;
+            }
 			else
 			{
 				Log.Logger.Debug("++ BuildPolyPath :: flying case");

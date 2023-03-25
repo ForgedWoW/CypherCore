@@ -97,7 +97,7 @@ public class Item : WorldObject
 	public ItemTemplate Template => Global.ObjectMgr.GetItemTemplate(Entry);
 	public byte BagSlot => _container != null ? _container.Slot : InventorySlots.Bag0;
 
-	public bool IsEquipped => !IsInBag && (_slot < EquipmentSlot.End || (_slot >= ProfessionSlots.Start && _slot < ProfessionSlots.End));
+	public bool IsEquipped => !IsInBag && (_slot < EquipmentSlot.End || _slot is >= ProfessionSlots.Start and < ProfessionSlots.End);
 
 	public SkillType Skill
 	{
@@ -3090,7 +3090,7 @@ public class Item : WorldObject
 
 						break;
 					case ItemEnchantmentType.ArtifactPowerBonusRankPicker:
-						if (slot >= EnchantmentSlot.Sock1 && slot <= EnchantmentSlot.Sock3 && BonusData.GemRelicType[slot - EnchantmentSlot.Sock1] != -1)
+						if (slot is >= EnchantmentSlot.Sock1 and <= EnchantmentSlot.Sock3 && BonusData.GemRelicType[slot - EnchantmentSlot.Sock1] != -1)
 						{
 							var artifactPowerPicker = CliDB.ArtifactPowerPickerStorage.LookupByKey(enchant.EffectArg[i]);
 

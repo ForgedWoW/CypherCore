@@ -531,7 +531,7 @@ public class SpellEffectInfo
 
 			if (target && _spellInfo.IsPositiveEffect(EffectIndex) && (Effect == SpellEffectName.ApplyAura))
 				level = target.Level;
-			else if (caster != null && caster.IsUnit)
+			else if (caster is { IsUnit: true })
 				level = caster.AsUnit.Level;
 
 			if (_spellInfo.BaseLevel != 0 && !_spellInfo.HasAttribute(SpellAttr11.ScalesWithItemLevel) && _spellInfo.HasAttribute(SpellAttr10.UseSpellBaseLevelForScaling))
@@ -605,7 +605,7 @@ public class SpellEffectInfo
 
 			tempValue *= Scaling.Coefficient;
 
-			if (tempValue > 0.0f && tempValue < 1.0f)
+			if (tempValue is > 0.0f and < 1.0f)
 				tempValue = 1.0f;
 
 			return tempValue;
@@ -628,7 +628,7 @@ public class SpellEffectInfo
 				if (contentTuning != null)
 					expansion = contentTuning.ExpansionID;
 
-				var level = caster != null && caster.IsUnit ? caster.AsUnit.Level : 1;
+				var level = caster is { IsUnit: true } ? caster.AsUnit.Level : 1;
 				tempValue = Global.DB2Mgr.EvaluateExpectedStat(stat, level, expansion, 0, PlayerClass.None) * BasePoints / 100.0f;
 			}
 

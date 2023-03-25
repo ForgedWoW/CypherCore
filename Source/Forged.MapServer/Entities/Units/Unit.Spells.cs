@@ -1920,7 +1920,7 @@ public partial class Unit
 
 		var unit = healer;
 
-		if (healer != null && healer.IsCreature && healer.IsTotem)
+		if (healer is { IsCreature: true, IsTotem: true })
 			unit = healer.OwnerUnit;
 
 		if (unit)
@@ -2538,13 +2538,12 @@ public partial class Unit
 
 		var spell = GetCurrentSpell(CurrentSpellTypes.Channeled);
 
-		if (spell != null)
-			if (spell.State == SpellState.Casting)
-			{
-				_interruptMask |= spell.SpellInfo.ChannelInterruptFlags;
-				_interruptMask2 |= spell.SpellInfo.ChannelInterruptFlags2;
-			}
-	}
+		if (spell is { State: SpellState.Casting })
+        {
+            _interruptMask |= spell.SpellInfo.ChannelInterruptFlags;
+            _interruptMask2 |= spell.SpellInfo.ChannelInterruptFlags2;
+        }
+    }
 
 	public AuraCollection.AuraQuery GetAuraQuery()
 	{

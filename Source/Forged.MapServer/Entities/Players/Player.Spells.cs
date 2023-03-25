@@ -1639,14 +1639,12 @@ public partial class Player
 		var spell = _spells.LookupByKey(spellId);
 
 		// spell already not in list - do not do anything
-		if (spell == null)
+		if (spell is not { State: PlayerSpellState.Temporary })
 			return;
 
 		// spell has other state than temporary - do not change it
-		if (spell.State != PlayerSpellState.Temporary)
-			return;
 
-		_spells.Remove(spellId);
+        _spells.Remove(spellId);
 	}
 
 	public void UpdateZoneDependentAuras(uint newZone)
@@ -1783,7 +1781,7 @@ public partial class Player
 	{
 		var spell = _spells.LookupByKey(spellId);
 
-		var disabled = (spell != null) && spell.Disabled;
+		var disabled = spell is { Disabled: true };
 		var active = !disabled || spell.Active;
 		var favorite = spell != null ? spell.Favorite : false;
 
@@ -1824,7 +1822,7 @@ public partial class Player
 			{
 				var spell1 = _spells.LookupByKey(id);
 
-				if (spell1 != null && spell1.Disabled)
+				if (spell1 is { Disabled: true })
 					LearnSpell(id, false, fromSkill);
 			}
 		}
@@ -3150,7 +3148,7 @@ public partial class Player
 
 			var pItem2 = GetItemByPos(InventorySlots.Bag0, i);
 
-			if (pItem2 != null && !pItem2.IsBroken)
+			if (pItem2 is { IsBroken: false })
 				foreach (var gemData in pItem2.ItemData.Gems)
 				{
 					var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
@@ -3493,7 +3491,7 @@ public partial class Player
 
 		var spell = _spells.LookupByKey(spellId);
 
-		if (spell != null && spell.State == PlayerSpellState.Temporary)
+		if (spell is { State: PlayerSpellState.Temporary })
 			RemoveTemporarySpell(spellId);
 
 		if (spell != null)

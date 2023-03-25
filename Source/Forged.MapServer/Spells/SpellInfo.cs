@@ -1097,9 +1097,9 @@ public class SpellInfo
 		{
 			case 23333: // Warsong Flag
 			case 23335: // Silverwing Flag
-				return map_id == 489 && player != null && player.InBattleground ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
+				return map_id == 489 && player is { InBattleground: true } ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
 			case 34976: // Netherstorm Flag
-				return map_id == 566 && player != null && player.InBattleground ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
+				return map_id == 566 && player is { InBattleground: true } ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
 			case 2584:  // Waiting to Resurrect
 			case 22011: // Spirit Heal Channel
 			case 22012: // Spirit Heal
@@ -1109,7 +1109,7 @@ public class SpellInfo
 				if (mapEntry == null)
 					return SpellCastResult.IncorrectArea;
 
-				return zone_id == (uint)AreaId.Wintergrasp || (mapEntry.IsBattleground() && player != null && player.InBattleground) ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
+				return zone_id == (uint)AreaId.Wintergrasp || (mapEntry.IsBattleground() && player is { InBattleground: true }) ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
 			case 44521: // Preparation
 			{
 				if (player == null)
@@ -1132,7 +1132,7 @@ public class SpellInfo
 				if (mapEntry == null)
 					return SpellCastResult.IncorrectArea;
 
-				return mapEntry.IsBattleArena() && player != null && player.InBattleground ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
+				return mapEntry.IsBattleArena() && player is { InBattleground: true } ? SpellCastResult.SpellCastOk : SpellCastResult.RequiresArea;
 			case 32727: // Arena Preparation
 			{
 				if (player == null)
@@ -3163,7 +3163,7 @@ public class SpellInfo
 
 	public bool CanBeInterrupted(WorldObject interruptCaster, Unit interruptTarget, bool ignoreImmunity = false)
 	{
-		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster != null && interruptCaster.IsUnit && interruptCaster.AsUnit.HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.MechanicImmunityMask & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
+		return HasAttribute(SpellAttr7.CanAlwaysBeInterrupted) || HasChannelInterruptFlag(SpellAuraInterruptFlags.Damage | SpellAuraInterruptFlags.EnteringCombat) || (interruptTarget.IsPlayer && InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancelsPlayerOnly)) || InterruptFlags.HasFlag(SpellInterruptFlags.DamageCancels) || (interruptCaster is { IsUnit: true } && interruptCaster.AsUnit.HasAuraTypeWithMiscvalue(AuraType.AllowInterruptSpell, (int)Id)) || (((interruptTarget.MechanicImmunityMask & (1 << (int)Mechanics.Interrupt)) == 0 || ignoreImmunity) && !interruptTarget.HasAuraTypeWithAffectMask(AuraType.PreventInterrupt, this) && PreventionType.HasAnyFlag(SpellPreventionType.Silence));
 	}
 
 	public bool HasAuraInterruptFlag(SpellAuraInterruptFlags flag)

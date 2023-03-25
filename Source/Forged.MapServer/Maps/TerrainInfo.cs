@@ -419,7 +419,7 @@ public class TerrainInfo
 		// liquid processing
 		data.LiquidStatus = ZLiquidStatus.NoWater;
 
-		if (wmoData != null && wmoData.LiquidInfo.HasValue && wmoData.LiquidInfo.Value.Level > wmoData.FloorZ)
+		if (wmoData is { LiquidInfo: { } } && wmoData.LiquidInfo.Value.Level > wmoData.FloorZ)
 		{
 			var liquidType = wmoData.LiquidInfo.Value.LiquidType;
 

@@ -227,7 +227,7 @@ public class TempSummon : Creature
 			if (owner.IsTypeId(TypeId.Player))
 				ControlledByPlayer = true;
 
-		if (owner != null && owner.IsPlayer)
+		if (owner is { IsPlayer: true })
 		{
 			var summonedData = Global.ObjectMgr.GetCreatureSummonedData(Entry);
 
@@ -256,7 +256,7 @@ public class TempSummon : Creature
 				{
 					var oldSummon = Map.GetCreature(owner.SummonSlot[slot]);
 
-					if (oldSummon != null && oldSummon.IsSummon)
+					if (oldSummon is { IsSummon: true })
 						oldSummon.ToTempSummon().UnSummon();
 				}
 
@@ -306,7 +306,7 @@ public class TempSummon : Creature
 		{
 			var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
 
-			if (infoForSeer != null && infoForSeer.ReplaceObject.HasValue && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
+			if (infoForSeer is { ReplaceObject: { } } && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
 			{
 				var original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
@@ -331,7 +331,7 @@ public class TempSummon : Creature
 		{
 			var infoForSeer = smoothPhasing.GetInfoForSeer(DemonCreatorGUID);
 
-			if (infoForSeer != null && infoForSeer.ReplaceObject.HasValue && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
+			if (infoForSeer is { ReplaceObject: { } } && smoothPhasing.IsReplacing(infoForSeer.ReplaceObject.Value))
 				original = Global.ObjAccessor.GetWorldObject(this, infoForSeer.ReplaceObject.Value);
 
 			if (original != null)

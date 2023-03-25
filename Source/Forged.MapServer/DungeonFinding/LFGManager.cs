@@ -1514,7 +1514,7 @@ public class LFGManager : Singleton<LFGManager>
 			{
 				var dungeon = GetLFGDungeon(dungeons.First());
 
-				if (dungeon != null && dungeon.type == LfgType.Raid)
+				if (dungeon is { type: LfgType.Raid })
 					return dungeons.First();
 			}
 		}
@@ -1803,7 +1803,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public bool IsLfgGroup(ObjectGuid guid)
 	{
-		return !guid.IsEmpty && guid.IsParty && GroupsStore[guid].IsLfgGroup();
+		return guid is { IsEmpty: false, IsParty: true } && GroupsStore[guid].IsLfgGroup();
 	}
 
 	public byte GetQueueId(ObjectGuid guid)
@@ -2157,7 +2157,7 @@ public class LFGManager : Singleton<LFGManager>
 				var rDungeonId = dungeons[0];
 				var rDungeon = GetLFGDungeon(rDungeonId);
 
-				if (rDungeon != null && rDungeon.type == LfgType.Random)
+				if (rDungeon is { type: LfgType.Random })
 					player.CastSpell(player, SharedConst.LFGSpellDungeonCooldown, false);
 			}
 		}

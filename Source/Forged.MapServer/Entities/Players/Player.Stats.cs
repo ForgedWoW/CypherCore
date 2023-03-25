@@ -391,7 +391,7 @@ public partial class Player
 		{
 			UpdateDamagePhysical(WeaponAttackType.RangedAttack);
 
-			if (pet != null && pet.IsHunterPet) // At ranged attack change for hunter pet
+			if (pet is { IsHunterPet: true }) // At ranged attack change for hunter pet
 				pet.UpdateAttackPowerAndDamage();
 		}
 		else

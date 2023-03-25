@@ -12,7 +12,7 @@ public class AreaTriggerScriptRegister : IScriptRegister
 
 	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
 	{
-		if (attribute is AreaTriggerScriptAttribute atScript && atScript.AreaTriggerIds != null)
+		if (attribute is AreaTriggerScriptAttribute { AreaTriggerIds: { } } atScript)
 			foreach (var id in atScript.AreaTriggerIds)
 				Global.ObjectMgr.RegisterAreaTriggerScript(id, scriptName);
 	}

@@ -2025,7 +2025,7 @@ class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCreature, IG
 		{
 			var gameObject = objs[i] as GameObject;
 
-			if (gameObject != null && gameObject.IsInWorld)
+			if (gameObject is { IsInWorld: true })
 			{
 				var ai = gameObject.AI;
 

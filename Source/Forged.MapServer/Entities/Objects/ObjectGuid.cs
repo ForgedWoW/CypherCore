@@ -332,7 +332,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
 	public override bool Equals(object obj)
 	{
-		return obj != null && obj is ObjectGuid && Equals((ObjectGuid)obj);
+		return obj is ObjectGuid && Equals((ObjectGuid)obj);
 	}
 
 	public bool Equals(ObjectGuid other)

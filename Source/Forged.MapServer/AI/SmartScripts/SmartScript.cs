@@ -155,7 +155,7 @@ public class SmartScript
 		if ((_scriptType == SmartScriptType.Creature || _scriptType == SmartScriptType.GameObject || _scriptType == SmartScriptType.AreaTriggerEntity || _scriptType == SmartScriptType.AreaTriggerEntityServerside) && !GetBaseObject())
 			return;
 
-		if (_me != null && _me.IsInEvadeMode)
+		if (_me is { IsInEvadeMode: true })
 		{
 			// Check if the timed action list finished and clear it if so.
 			// This is required by SMART_ACTION_CALL_TIMED_ACTIONLIST failing if mTimedActionList is not empty.
@@ -1390,7 +1390,7 @@ public class SmartScript
 			}
 			case SmartActions.Die:
 			{
-				if (_me != null && !_me.IsDead)
+				if (_me is { IsDead: false })
 				{
 					_me.KillSelf();
 					Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_DIE: Creature {0}", _me.GUID.ToString());
@@ -1400,7 +1400,7 @@ public class SmartScript
 			}
 			case SmartActions.SetInCombatWithZone:
 			{
-				if (_me != null && _me.IsAIEnabled)
+				if (_me is { IsAIEnabled: true })
 				{
 					_me.AI.DoZoneInCombat();
 					Log.Logger.Debug($"SmartScript.ProcessAction: SMART_ACTION_SET_IN_COMBAT_WITH_ZONE: Creature: {_me.GUID}");
@@ -2016,7 +2016,7 @@ public class SmartScript
 
 				ne.event_flags = 0;
 
-				if (ne.minMaxRepeat.repeatMin == 0 && ne.minMaxRepeat.repeatMax == 0)
+				if (ne.minMaxRepeat is { repeatMin: 0, repeatMax: 0 })
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
 				SmartAction ac = new()
@@ -2700,7 +2700,7 @@ public class SmartScript
 			}
 			case SmartActions.SpawnSpawngroup:
 			{
-				if (e.Action.groupSpawn.minDelay == 0 && e.Action.groupSpawn.maxDelay == 0)
+				if (e.Action.groupSpawn is { minDelay: 0, maxDelay: 0 })
 				{
 					var ignoreRespawn = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.IgnoreRespawn) != 0);
 					var force = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.ForceSpawn) != 0);
@@ -2755,7 +2755,7 @@ public class SmartScript
 			}
 			case SmartActions.DespawnSpawngroup:
 			{
-				if (e.Action.groupSpawn.minDelay == 0 && e.Action.groupSpawn.maxDelay == 0)
+				if (e.Action.groupSpawn is { minDelay: 0, maxDelay: 0 })
 				{
 					var deleteRespawnTimes = ((e.Action.groupSpawn.spawnflags & (uint)SmartAiSpawnFlags.NosaveRespawn) != 0);
 
@@ -3265,7 +3265,7 @@ public class SmartScript
 
 				break;
 			case SmartTargets.Victim:
-				if (_me != null && _me.Victim != null)
+				if (_me is { Victim: { } })
 					targets.Add(_me.Victim);
 
 				break;
@@ -3365,7 +3365,7 @@ public class SmartScript
 
 				break;
 			case SmartTargets.ActionInvokerVehicle:
-				if (scriptTrigger != null && scriptTrigger.AsUnit?.Vehicle1 != null && scriptTrigger.AsUnit.Vehicle1.GetBase() != null)
+				if (scriptTrigger is { AsUnit.Vehicle1: { } } && scriptTrigger.AsUnit.Vehicle1.GetBase() != null)
 					targets.Add(scriptTrigger.AsUnit.Vehicle1.GetBase());
 
 				break;
@@ -3694,7 +3694,7 @@ public class SmartScript
 			}
 			case SmartTargets.ThreatList:
 			{
-				if (_me != null && _me.CanHaveThreatList)
+				if (_me is { CanHaveThreatList: true })
 					foreach (var refe in _me.GetThreatManager().SortedThreatList)
 						if (e.Target.threatList.maxDist == 0 || _me.IsWithinCombatRange(refe.Victim, e.Target.threatList.maxDist))
 							targets.Add(refe.Victim);
@@ -3807,7 +3807,7 @@ public class SmartScript
 
 				break;
 			case SmartEvents.UpdateOoc:
-				if (_me != null && _me.IsEngaged)
+				if (_me is { IsEngaged: true })
 					return;
 
 				ProcessTimedAction(e, e.Event.minMaxRepeat.repeatMin, e.Event.minMaxRepeat.repeatMax);
@@ -4506,7 +4506,7 @@ public class SmartScript
 		if (e.GetEventType() == SmartEvents.UpdateIc && (_me == null || !_me.IsEngaged))
 			return;
 
-		if (e.GetEventType() == SmartEvents.UpdateOoc && (_me != null && _me.IsEngaged)) //can be used with me=NULL (go script)
+		if (e.GetEventType() == SmartEvents.UpdateOoc && _me is { IsEngaged: true }) //can be used with me=NULL (go script)
 			return;
 
 		if (e.Timer < diff)

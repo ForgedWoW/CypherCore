@@ -110,7 +110,7 @@ public class AISelector
 		var type = unit.GetDefaultMovementType();
 		var creature = unit.AsCreature;
 
-		if (creature != null && creature.PlayerMovingMe1 == null)
+		if (creature is { PlayerMovingMe1: null })
 			type = creature.GetDefaultMovementType();
 
 		return type switch

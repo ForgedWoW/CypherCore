@@ -1807,7 +1807,7 @@ public class DB2Manager
 	public uint GetDefaultMapLight(uint mapId)
 	{
 		foreach (var light in _cliDB.LightStorage.Values.Reverse())
-			if (light.ContinentID == mapId && light.GameCoords.X == 0.0f && light.GameCoords.Y == 0.0f && light.GameCoords.Z == 0.0f)
+			if (light.ContinentID == mapId && light.GameCoords.X == 0.0f && light.GameCoords is { Y: 0.0f, Z: 0.0f })
 				return light.Id;
 
 		return 0;

@@ -63,7 +63,7 @@ public class MoveSplineInitArgs
 		if (!CHECK(velocity >= 0.01f, true))
 			return false;
 
-		if (!CHECK(time_perc >= 0.0f && time_perc <= 1.0f, true))
+		if (!CHECK(time_perc is >= 0.0f and <= 1.0f, true))
 			return false;
 
 		if (!CHECK(_checkPathLengths(), false))

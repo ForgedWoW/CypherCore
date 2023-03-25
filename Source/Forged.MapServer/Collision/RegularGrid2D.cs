@@ -239,7 +239,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
 		public bool IsValid()
 		{
-			return x >= 0 && x < CELL_NUMBER && y >= 0 && y < CELL_NUMBER;
+			return x is >= 0 and < CELL_NUMBER && y is >= 0 and < CELL_NUMBER;
 		}
 	}
 }

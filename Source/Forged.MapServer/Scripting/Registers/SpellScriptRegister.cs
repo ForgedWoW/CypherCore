@@ -12,7 +12,7 @@ public class SpellScriptRegister : IScriptRegister
 
 	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
 	{
-		if (attribute is SpellScriptAttribute spellScript && spellScript.SpellIds != null)
+		if (attribute is SpellScriptAttribute { SpellIds: { } } spellScript)
 			foreach (var id in spellScript.SpellIds)
 				Global.ObjectMgr.RegisterSpellScript(id, scriptName, spellScript.AllRanks);
 	}

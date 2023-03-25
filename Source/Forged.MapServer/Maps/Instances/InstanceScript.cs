@@ -1127,14 +1127,13 @@ public class InstanceScript : ZoneScript
 			{
 				var grp = player.Group;
 
-				if (grp != null)
-					if (grp.IsLFGGroup)
-					{
-						Global.LFGMgr.FinishDungeon(grp.GUID, dungeonId, Instance);
+				if (grp is { IsLFGGroup: true })
+                {
+                    Global.LFGMgr.FinishDungeon(grp.GUID, dungeonId, Instance);
 
-						return;
-					}
-			}
+                    return;
+                }
+            }
 		}
 	}
 

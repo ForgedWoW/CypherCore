@@ -380,7 +380,7 @@ public partial class Unit : WorldObject
 				var form = ShapeshiftForm;
 				var ssEntry = CliDB.SpellShapeshiftFormStorage.LookupByKey((uint)form);
 
-				if (ssEntry != null && ssEntry.CreatureType > 0)
+				if (ssEntry is { CreatureType: > 0 })
 				{
 					return (CreatureType)ssEntry.CreatureType;
 				}
@@ -1486,7 +1486,7 @@ public partial class Unit : WorldObject
 		var player = AsPlayer;
 
 		// If the player is on mounted duel and exits the mount, he should immediatly lose the duel
-		if (player && player.Duel != null && player.Duel.IsMounted)
+		if (player && player.Duel is { IsMounted: true })
 			player.DuelComplete(DuelCompleteType.Fled);
 
 		SetControlled(false, UnitState.Root); // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT
@@ -1561,10 +1561,9 @@ public partial class Unit : WorldObject
 
 			var OldTotem = Map.GetCreature(SummonSlot[i]);
 
-			if (OldTotem != null)
-				if (OldTotem.IsSummon)
-					OldTotem.ToTempSummon().UnSummon();
-		}
+			if (OldTotem is { IsSummon: true })
+                OldTotem.ToTempSummon().UnSummon();
+        }
 	}
 
 	public bool IsOnVehicle(Unit vehicle)
@@ -1962,7 +1961,7 @@ public partial class Unit : WorldObject
 				{
 					var cEntry = CliDB.ChrClassesStorage.LookupByKey(Class);
 
-					if (cEntry != null && cEntry.DisplayPower < PowerType.Max)
+					if (cEntry is { DisplayPower: < PowerType.Max })
 						displayPower = cEntry.DisplayPower;
 				}
 				else if (TypeId == TypeId.Unit)
@@ -3004,7 +3003,7 @@ public partial class Unit : WorldObject
 		{
 			var victimRider = victim.Charmer.AsPlayer;
 
-			if (victimRider != null && victimRider.Duel != null && victimRider.Duel.IsMounted)
+			if (victimRider is { Duel: { IsMounted: true } })
 			{
 				if (!attacker)
 					return 0;
@@ -3162,7 +3161,7 @@ public partial class Unit : WorldObject
 				}
 			}
 
-			if (attacker != null && attacker.IsPlayer)
+			if (attacker is { IsPlayer: true })
 				// random durability for items (HIT DONE)
 				if (durabilityLoss && RandomHelper.randChance(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
 				{
@@ -3176,45 +3175,44 @@ public partial class Unit : WorldObject
 				{
 					var spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
 
-					if (spell != null)
-						if (spell.State == SpellState.Preparing)
-						{
-							bool isCastInterrupted()
-							{
-								if (damageTaken == 0)
-									return spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
+					if (spell is { State: SpellState.Preparing })
+                    {
+                        bool isCastInterrupted()
+                        {
+                            if (damageTaken == 0)
+                                return spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
 
-								if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
-									return true;
+                            if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
+                                return true;
 
-								if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
-									return true;
+                            if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
+                                return true;
 
-								return false;
-							}
+                            return false;
+                        }
 
-							;
+                        ;
 
-							bool isCastDelayed()
-							{
-								if (damageTaken == 0)
-									return false;
+                        bool isCastDelayed()
+                        {
+                            if (damageTaken == 0)
+                                return false;
 
-								if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
-									return true;
+                            if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
+                                return true;
 
-								if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
-									return true;
+                            if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
+                                return true;
 
-								return false;
-							}
+                            return false;
+                        }
 
-							if (isCastInterrupted())
-								victim.InterruptNonMeleeSpells(false);
-							else if (isCastDelayed())
-								spell.Delayed();
-						}
-				}
+                        if (isCastInterrupted())
+                            victim.InterruptNonMeleeSpells(false);
+                        else if (isCastDelayed())
+                            spell.Delayed();
+                    }
+                }
 
 				if (damageTaken != 0 && victim.IsPlayer)
 				{
@@ -4997,14 +4995,14 @@ public partial class Unit : WorldObject
 			victimResistance = 0.0f;
 
 		// Chaos Bolt exception, ignore all target resistances (unknown attribute?)
-		if (spellInfo != null && spellInfo.SpellFamilyName == SpellFamilyNames.Warlock && spellInfo.Id == 116858)
+		if (spellInfo is { SpellFamilyName: SpellFamilyNames.Warlock, Id: 116858 })
 			victimResistance = 0.0f;
 
 		victimResistance = Math.Max(victimResistance, 0.0f);
 
 		// level-based resistance does not apply to binary spells, and cannot be overcome by spell penetration
 		// gameobject caster -- should it have level based resistance?
-		if (caster != null && !caster.IsGameObject && (spellInfo == null || !spellInfo.HasAttribute(SpellCustomAttributes.BinarySpell)))
+		if (caster is { IsGameObject: false } && (spellInfo == null || !spellInfo.HasAttribute(SpellCustomAttributes.BinarySpell)))
 			victimResistance += Math.Max(((float)victim.GetLevelForTarget(caster) - (float)caster.GetLevelForTarget(victim)) * 5.0f, 0.0f);
 
 		uint bossLevel = 83;

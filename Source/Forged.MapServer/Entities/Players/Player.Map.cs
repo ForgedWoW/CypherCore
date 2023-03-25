@@ -70,13 +70,10 @@ public partial class Player
 	{
 		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
 
-		if (difficultyEntry == null)
+		if (difficultyEntry is not { InstanceType: MapTypes.Instance })
 			return Difficulty.Normal;
 
-		if (difficultyEntry.InstanceType != MapTypes.Instance)
-			return Difficulty.Normal;
-
-		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
 			return Difficulty.Normal;
 
 		return difficulty;
@@ -86,13 +83,10 @@ public partial class Player
 	{
 		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
 
-		if (difficultyEntry == null)
+		if (difficultyEntry is not { InstanceType: MapTypes.Raid })
 			return Difficulty.NormalRaid;
 
-		if (difficultyEntry.InstanceType != MapTypes.Raid)
-			return Difficulty.NormalRaid;
-
-		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
 			return Difficulty.NormalRaid;
 
 		return difficulty;
@@ -102,13 +96,10 @@ public partial class Player
 	{
 		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(difficulty);
 
-		if (difficultyEntry == null)
+		if (difficultyEntry is not { InstanceType: MapTypes.Raid })
 			return Difficulty.Raid10N;
 
-		if (difficultyEntry.InstanceType != MapTypes.Raid)
-			return Difficulty.Raid10N;
-
-		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
 			return Difficulty.Raid10N;
 
 		return difficulty;

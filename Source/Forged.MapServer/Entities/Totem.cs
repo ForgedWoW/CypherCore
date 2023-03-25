@@ -52,7 +52,7 @@ public class Totem : Minion
 
 		if (owner)
 		{
-			if (SummonPropertiesRecord.Slot >= (int)Framework.Constants.SummonSlot.Totem && SummonPropertiesRecord.Slot < SharedConst.MaxTotemSlot)
+			if (SummonPropertiesRecord.Slot is >= (int)Framework.Constants.SummonSlot.Totem and < SharedConst.MaxTotemSlot)
 			{
 				TotemCreated packet = new()
                 {

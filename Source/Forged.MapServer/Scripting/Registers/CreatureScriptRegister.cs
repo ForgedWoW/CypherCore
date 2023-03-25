@@ -12,7 +12,7 @@ public class CreatureScriptRegister : IScriptRegister
 
 	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
 	{
-		if (attribute is CreatureScriptAttribute creatureScript && creatureScript.CreatureIds != null)
+		if (attribute is CreatureScriptAttribute { CreatureIds: { } } creatureScript)
 			foreach (var id in creatureScript.CreatureIds)
 			{
 				var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(id);

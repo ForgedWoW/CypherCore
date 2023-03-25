@@ -152,7 +152,7 @@ public partial class Unit
 
 			var properties = minion.SummonPropertiesRecord;
 
-			if (properties != null && properties.Title == SummonTitle.Companion)
+			if (properties is { Title: SummonTitle.Companion })
 			{
 				CritterGUID = minion.GUID;
 				var thisPlayer = AsPlayer;
@@ -204,7 +204,7 @@ public partial class Unit
 
 			Controlled.Remove(minion);
 
-			if (minion.SummonPropertiesRecord != null && minion.SummonPropertiesRecord.Title == SummonTitle.Companion)
+			if (minion.SummonPropertiesRecord is { Title: SummonTitle.Companion })
 				if (CritterGUID == minion.GUID)
 					CritterGUID = ObjectGuid.Empty;
 
@@ -411,7 +411,7 @@ public partial class Unit
 					{
 						var cinfo = AsCreature.Template;
 
-						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
+						if (cinfo is { CreatureType: CreatureType.Demon })
 						{
 							// to prevent client crash
 							Class = PlayerClass.Mage;
@@ -517,7 +517,7 @@ public partial class Unit
 					{
 						var cinfo = AsCreature.Template;
 
-						if (cinfo != null && cinfo.CreatureType == CreatureType.Demon)
+						if (cinfo is { CreatureType: CreatureType.Demon })
 						{
 							Class = (PlayerClass)cinfo.UnitClass;
 

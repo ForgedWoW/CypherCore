@@ -577,7 +577,7 @@ public partial class WorldSession
 
 		var totem = ObjectAccessor.GetCreature(Player, _player.SummonSlot[slotId]);
 
-		if (totem != null && totem.IsTotem) // && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
+		if (totem is { IsTotem: true }) // && totem.GetGUID() == packet.TotemGUID)  Unknown why blizz doesnt send the guid when you right click it.
 			totem.ToTotem().UnSummon();
 	}
 
@@ -607,14 +607,12 @@ public partial class WorldSession
 		// this will get something not in world. crash
 		var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.SpellClickUnitGuid);
 
-		if (unit == null)
+		if (unit is not { IsInWorld: true })
 			return;
 
 		// @todo Unit.SetCharmedBy: 28782 is not in world but 0 is trying to charm it! . crash
-		if (!unit.IsInWorld)
-			return;
 
-		unit.HandleSpellClick(Player);
+        unit.HandleSpellClick(Player);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GetMirrorImageData)]

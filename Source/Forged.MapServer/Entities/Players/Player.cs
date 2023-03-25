@@ -837,10 +837,9 @@ public partial class Player : Unit
 		{
 			var aura = GetAura(PlayerConst.SpellPvpRulesEnabled);
 
-			if (aura != null)
-				if (!aura.IsPermanent)
-					aura.SetDuration(aura.SpellInfo.MaxDuration);
-		}
+			if (aura is { IsPermanent: false })
+                aura.SetDuration(aura.SpellInfo.MaxDuration);
+        }
 
 		AIUpdateTick(diff);
 
@@ -4198,7 +4197,7 @@ public partial class Player : Unit
 		if (pet == null)
 		{
 			// Handle removing pet while it is in "temporarily unsummoned" state, for example on mount
-			if (mode == PetSaveMode.NotInSlot && _petStable != null && _petStable.CurrentPetIndex.HasValue)
+			if (mode == PetSaveMode.NotInSlot && _petStable is { CurrentPetIndex: { } })
 				_petStable.CurrentPetIndex = null;
 
 			return;

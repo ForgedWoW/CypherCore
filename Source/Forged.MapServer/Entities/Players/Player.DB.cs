@@ -2984,7 +2984,7 @@ public partial class Player
 
 				var questStatusData = _mQuestStatus.LookupByKey(questID);
 
-				if (questStatusData != null && questStatusData.Slot < SharedConst.MaxQuestLogSize && quest != null)
+				if (questStatusData is { Slot: < SharedConst.MaxQuestLogSize } && quest != null)
 				{
 					var storageIndex = result.Read<byte>(1);
 
@@ -3802,9 +3802,9 @@ public partial class Player
 				petInfo.Type = (PetType)result.Read<byte>(14);
 				petInfo.SpecializationId = result.Read<ushort>(15);
 
-				if (slot >= PetSaveMode.FirstActiveSlot && slot < PetSaveMode.LastActiveSlot)
+				if (slot is >= PetSaveMode.FirstActiveSlot and < PetSaveMode.LastActiveSlot)
 					_petStable.ActivePets[(int)slot] = petInfo;
-				else if (slot >= PetSaveMode.FirstStableSlot && slot < PetSaveMode.LastStableSlot)
+				else if (slot is >= PetSaveMode.FirstStableSlot and < PetSaveMode.LastStableSlot)
 					_petStable.StabledPets[slot - PetSaveMode.FirstStableSlot] = petInfo;
 				else if (slot == PetSaveMode.NotInSlot)
 					_petStable.UnslottedPets.Add(petInfo);

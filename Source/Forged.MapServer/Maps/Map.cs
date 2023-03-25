@@ -861,7 +861,7 @@ public class Map : IDisposable
 
 	public void RemoveFromMap(WorldObject obj, bool remove)
 	{
-		var inWorld = obj.IsInWorld && obj.TypeId >= TypeId.Unit && obj.TypeId <= TypeId.GameObject;
+		var inWorld = obj.IsInWorld && obj.TypeId is >= TypeId.Unit and <= TypeId.GameObject;
 		obj.RemoveFromWorld();
 
 		if (obj.IsActiveObject)
@@ -1954,7 +1954,7 @@ public class Map : IDisposable
 			case TypeId.Unit:
 				var creature = obj.AsCreature;
 
-				if (creature != null && !creature.IsPet && creature.SpawnId != 0)
+				if (creature is { IsPet: false } && creature.SpawnId != 0)
 					respawnLocation = creature.RespawnPosition;
 
 				break;
@@ -1996,7 +1996,7 @@ public class Map : IDisposable
 			case TypeId.Unit:
 				var creature = obj.AsCreature;
 
-				if (creature != null && !creature.IsPet && creature.SpawnId != 0)
+				if (creature is { IsPet: false } && creature.SpawnId != 0)
 					respawnLocation = creature.RespawnPosition;
 
 				break;
@@ -3570,7 +3570,7 @@ public class Map : IDisposable
 
 		var c = obj.AsCreature;
 
-		if (c != null && c.CharmerOrOwnerGUID.IsPlayer)
+		if (c is { CharmerOrOwnerGUID.IsPlayer: true })
 			EnsureGridLoaded(new_cell);
 
 		// in diff. loaded grid normal creature
@@ -4650,7 +4650,7 @@ public class Map : IDisposable
 					{
 						var goTarget = target.AsGameObject;
 
-						if (goTarget != null && goTarget.GoType == GameObjectTypes.Button)
+						if (goTarget is { GoType: GameObjectTypes.Button })
 							goTarget.UseDoorOrButton((uint)nTimeToToggle);
 					}
 				}

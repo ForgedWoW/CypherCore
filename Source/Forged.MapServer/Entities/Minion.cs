@@ -12,7 +12,7 @@ public class Minion : TempSummon
 	protected Unit Owner;
 	float _followAngle;
 
-	public bool IsGuardianPet => IsPet || (SummonPropertiesRecord != null && SummonPropertiesRecord.Control == SummonCategory.Pet);
+	public bool IsGuardianPet => IsPet || SummonPropertiesRecord is { Control: SummonCategory.Pet };
 
 	public override float FollowAngle
 	{

@@ -144,7 +144,7 @@ public class LootItem
 			{
 				var ffaItemItr = ffaItems.Find(ffaItem => ffaItem.LootListId == LootListId);
 
-				if (ffaItemItr != null && !ffaItemItr.is_looted)
+				if (ffaItemItr is { is_looted: false })
 					return loot.GetLootMethod() == LootMethod.FreeForAll ? LootSlotType.Owner : LootSlotType.AllowLoot;
 			}
 

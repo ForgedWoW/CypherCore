@@ -348,7 +348,7 @@ public sealed class AccountManager
 
 	public bool IsAdminAccount(AccountTypes gmlevel)
 	{
-		return gmlevel >= AccountTypes.Administrator && gmlevel <= AccountTypes.Console;
+		return gmlevel is >= AccountTypes.Administrator and <= AccountTypes.Console;
 	}
 
 	public bool IsConsoleAccount(AccountTypes gmlevel)

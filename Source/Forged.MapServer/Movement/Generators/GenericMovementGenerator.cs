@@ -99,7 +99,7 @@ class GenericMovementGenerator : MovementGenerator
 
 		var creature = owner.AsCreature;
 
-		if (creature != null && creature.AI != null)
+		if (creature is { AI: { } })
 			creature.AI.MovementInform(_type, _pointId);
 	}
 }

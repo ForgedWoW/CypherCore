@@ -49,7 +49,7 @@ public class ThreatManager
 	{
 		get
 		{
-			if (_currentVictimRef != null && !_currentVictimRef.ShouldBeOffline)
+			if (_currentVictimRef is { ShouldBeOffline: false })
 				return _currentVictimRef.Victim;
 
 			return null;
@@ -723,12 +723,12 @@ public class ThreatManager
 			pair.Value.UpdateOffline(); // AI notifies are processed in ::UpdateVictim caller
 
 		// fixated target is always preferred
-		if (_fixateRef != null && _fixateRef.IsAvailable)
+		if (_fixateRef is { IsAvailable: true })
 			return _fixateRef;
 
 		var oldVictimRef = _currentVictimRef;
 
-		if (oldVictimRef != null && oldVictimRef.IsOffline)
+		if (oldVictimRef is { IsOffline: true })
 			oldVictimRef = null;
 
 		// in 99% of cases - we won't need to actually look at anything beyond the first element

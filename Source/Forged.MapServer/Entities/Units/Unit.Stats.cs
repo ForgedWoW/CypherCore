@@ -844,10 +844,9 @@ public partial class Unit
 		{
 			var owner = victim.OwnerUnit;
 
-			if (owner != null)
-				if (owner.IsPlayer)
-					target = owner;
-		}
+			if (owner is { IsPlayer: true })
+                target = owner;
+        }
 
 		if (!target)
 			return;

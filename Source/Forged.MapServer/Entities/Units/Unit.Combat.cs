@@ -1022,7 +1022,7 @@ public partial class Unit
 		{
 			var pet = tapper.CurrentPet;
 
-			if (pet != null && pet.IsAlive && pet.IsControlled)
+			if (pet is { IsAlive: true, IsControlled: true })
 			{
 				if (pet.IsAIEnabled)
 					pet.AI.KilledUnit(victim);
@@ -1053,7 +1053,7 @@ public partial class Unit
 			}
 
 			// Call KilledUnit for creatures
-			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
+			if (attacker is { IsCreature: true, IsAIEnabled: true })
 				attacker.AsCreature.AI.KilledUnit(victim);
 
 			// last damage from non duel opponent or opponent controlled creature
@@ -1084,7 +1084,7 @@ public partial class Unit
 			}
 
 			// Call KilledUnit for creatures, this needs to be called after the lootable flag is set
-			if (attacker != null && attacker.IsCreature && attacker.IsAIEnabled)
+			if (attacker is { IsCreature: true, IsAIEnabled: true })
 				attacker.AsCreature.AI.KilledUnit(victim);
 
 			// Call creature just died function
@@ -1125,7 +1125,7 @@ public partial class Unit
 		}
 
 		// Battlegroundthings (do this at the end, so the death state flag will be properly set to handle in the bg.handlekill)
-		if (player != null && player.InBattleground)
+		if (player is { InBattleground: true })
 		{
 			var bg = player.Battleground;
 

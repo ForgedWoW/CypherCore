@@ -856,7 +856,7 @@ public partial class Player
 			item.SetFixedLevel(Level);
 			item.SetItemRandomBonusList(randomBonusListId);
 
-			if (allowedLooters != null && allowedLooters.Count > 1 && item.Template.MaxStackSize == 1 && item.IsSoulBound)
+			if (allowedLooters is { Count: > 1 } && item.Template.MaxStackSize == 1 && item.IsSoulBound)
 			{
 				item.SetSoulboundTradeable(allowedLooters);
 				item.SetCreatePlayedTime(TotalPlayedTime);

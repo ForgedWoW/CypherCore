@@ -199,7 +199,7 @@ public class SpellHistory
 
 	public void HandleCooldowns(SpellInfo spellInfo, uint itemId, Spell spell = null)
 	{
-		if (spell != null && spell.IsIgnoringCooldowns)
+		if (spell is { IsIgnoringCooldowns: true })
 			return;
 
 		if (ConsumeCharge(spellInfo.ChargeCategoryId))

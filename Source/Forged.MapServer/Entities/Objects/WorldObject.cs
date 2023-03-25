@@ -1511,9 +1511,9 @@ public abstract class WorldObject : IDisposable
 		{
 			if (IsPlayer)
 			{
-				if (target != null && target.IsVisibilityOverridden && !target.IsPlayer)
+				if (target is { IsVisibilityOverridden: true, IsPlayer: false })
 					return target._visibilityDistanceOverride.Value;
-				else if (target != null && target.IsFarVisible && !target.IsPlayer)
+				else if (target is { IsFarVisible: true, IsPlayer: false })
 					return SharedConst.MaxVisibilityDistance;
 				else if (AsPlayer.CinematicMgr.IsOnCinematic())
 					return SharedConst.DefaultVisibilityInstance;
@@ -2606,7 +2606,7 @@ public abstract class WorldObject : IDisposable
 
 		var raw_faction = CliDB.FactionStorage.LookupByKey(my_faction.Faction);
 
-		if (raw_faction != null && raw_faction.ReputationIndex >= 0)
+		if (raw_faction is { ReputationIndex: >= 0 })
 			return false;
 
 		return my_faction.IsHostileToPlayers();
@@ -2621,7 +2621,7 @@ public abstract class WorldObject : IDisposable
 
 		var raw_faction = CliDB.FactionStorage.LookupByKey(my_faction.Faction);
 
-		if (raw_faction != null && raw_faction.ReputationIndex >= 0)
+		if (raw_faction is { ReputationIndex: >= 0 })
 			return false;
 
 		return my_faction.IsNeutralToAll();
@@ -2851,7 +2851,7 @@ public abstract class WorldObject : IDisposable
 	public bool IsValidAttackTarget(WorldObject target, SpellInfo bySpell = null)
 	{
 		// some positive spells can be casted at hostile target
-		var isPositiveSpell = bySpell != null && bySpell.IsPositive;
+		var isPositiveSpell = bySpell is { IsPositive: true };
 
 		// can't attack self (spells can, attribute check)
 		if (bySpell == null && this == target)
@@ -2873,11 +2873,11 @@ public abstract class WorldObject : IDisposable
 		if (unit != null)
 			// can't attack invisible
 			if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift))
-				if (!unit.CanSeeOrDetect(target, bySpell != null && bySpell.IsAffectingArea))
+				if (!unit.CanSeeOrDetect(target, bySpell is { IsAffectingArea: true }))
 					return false;
 
 		// can't attack dead
-		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget != null && !unitTarget.IsAlive)
+		if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget is { IsAlive: false })
 			return false;
 
 		// can't attack untargetable
@@ -3008,7 +3008,7 @@ public abstract class WorldObject : IDisposable
 	public bool IsValidAssistTarget(WorldObject target, SpellInfo bySpell = null, bool spellCheck = true)
 	{
 		// some negative spells can be casted at friendly target
-		var isNegativeSpell = bySpell != null && !bySpell.IsPositive;
+		var isNegativeSpell = bySpell is { IsPositive: false };
 
 		// can assist to self
 		if (this == target)
@@ -3037,7 +3037,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		// can't assist invisible
-		if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !CanSeeOrDetect(target, bySpell != null && bySpell.IsAffectingArea))
+		if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !CanSeeOrDetect(target, bySpell is { IsAffectingArea: true }))
 			return false;
 
 		// can't assist dead
@@ -3102,7 +3102,7 @@ public abstract class WorldObject : IDisposable
 		else if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
 		{
 			if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
-				if (unitTarget != null && !unitTarget.IsPvP)
+				if (unitTarget is { IsPvP: false })
 				{
 					var creatureTarget = target.AsCreature;
 
@@ -4287,11 +4287,10 @@ public abstract class WorldObject : IDisposable
 		// Traps should detect stealth always
 		var go = AsGameObject;
 
-		if (go != null)
-			if (go.GoType == GameObjectTypes.Trap)
-				return true;
+		if (go is { GoType: GameObjectTypes.Trap })
+            return true;
 
-		go = obj.AsGameObject;
+        go = obj.AsGameObject;
 
 		for (var i = 0; i < (int)StealthType.Max; ++i)
 		{

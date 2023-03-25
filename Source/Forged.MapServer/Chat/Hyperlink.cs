@@ -184,6 +184,6 @@ class Hyperlink
 
 	static byte toHex(char c)
 	{
-		return (byte)((c >= '0' && c <= '9') ? c - '0' + 0x10 : (c >= 'a' && c <= 'f') ? c - 'a' + 0x1a : 0x00);
+		return (byte)(c is >= '0' and <= '9' ? c - '0' + 0x10 : c is >= 'a' and <= 'f' ? c - 'a' + 0x1a : 0x00);
 	}
 }

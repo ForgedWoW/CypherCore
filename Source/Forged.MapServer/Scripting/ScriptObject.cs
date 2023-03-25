@@ -31,7 +31,7 @@ public abstract class ScriptObject : IScriptObject
 	{
 		var instance = obj.Map.ToInstanceMap;
 
-		if (instance != null && instance.InstanceScript != null)
+		if (instance is { InstanceScript: { } })
 			return (T)Activator.CreateInstance(typeof(T),
 												new object[]
 												{

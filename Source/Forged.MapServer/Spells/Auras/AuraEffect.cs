@@ -1113,7 +1113,7 @@ public class AuraEffect
 
 		// Update serverside orientation of tracking channeled auras on periodic update ticks
 		// exclude players because can turn during channeling and shouldn't desync orientation client/server
-		if (caster != null && !caster.IsPlayer && _spellInfo.IsChanneled && _spellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel) && caster.UnitData.ChannelObjects.Size() != 0)
+		if (caster is { IsPlayer: false } && _spellInfo.IsChanneled && _spellInfo.HasAttribute(SpellAttr1.TrackTargetInChannel) && caster.UnitData.ChannelObjects.Size() != 0)
 		{
 			var channelGuid = caster.UnitData.ChannelObjects[0];
 
@@ -2707,7 +2707,7 @@ public class AuraEffect
 
 		var caster = Caster;
 
-		if (caster != null && caster.IsAlive)
+		if (caster is { IsAlive: true })
 			caster.GetThreatManager().UpdateMyTempModifiers();
 	}
 

@@ -39,10 +39,9 @@ class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
 		{
 			var c = u.AsCreature;
 
-			if (c != null)
-				if (c.IsCivilian)
-					return false;
-		}
+			if (c is { IsCivilian: true })
+                return false;
+        }
 
 		return true;
 	}

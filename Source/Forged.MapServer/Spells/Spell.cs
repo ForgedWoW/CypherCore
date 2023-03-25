@@ -284,7 +284,7 @@ public partial class Spell : IDisposable
 		{
 			_originalCaster = Global.ObjAccessor.GetUnit(_caster, _originalCasterGuid);
 
-			if (_originalCaster != null && !_originalCaster.IsInWorld)
+			if (_originalCaster is { IsInWorld: false })
 				_originalCaster = null;
 			else
 				_originalCaster = _caster.AsUnit;
@@ -597,7 +597,7 @@ public partial class Spell : IDisposable
 		// Target may have begun evading between launch and hit phases - re-check now
 		var creatureTarget = unit.AsCreature;
 
-		if (creatureTarget != null && creatureTarget.IsEvadingAttacks)
+		if (creatureTarget is { IsEvadingAttacks: true })
 			return SpellMissInfo.Evade;
 
 		// For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
@@ -1063,11 +1063,10 @@ public partial class Spell : IDisposable
 			// Call CreatureAI hook OnSpellStart
 			var caster = _caster.AsCreature;
 
-			if (caster != null)
-				if (caster.IsAIEnabled)
-					caster.AI.OnSpellStart(SpellInfo);
+			if (caster is { IsAIEnabled: true })
+                caster.AI.OnSpellStart(SpellInfo);
 
-			if (willCastDirectly)
+            if (willCastDirectly)
 				Cast(true);
 		}
 
@@ -1366,10 +1365,9 @@ public partial class Spell : IDisposable
 					// We call the hook here instead of in Spell::finish because we only want to call it for completed channeling. Everything else is handled by interrupts
 					var creatureCaster = _caster.AsCreature;
 
-					if (creatureCaster != null)
-						if (creatureCaster.IsAIEnabled)
-							creatureCaster.AI.OnChannelFinished(SpellInfo);
-				}
+					if (creatureCaster is { IsAIEnabled: true })
+                        creatureCaster.AI.OnChannelFinished(SpellInfo);
+                }
 
 				break;
 			}
@@ -1943,16 +1941,16 @@ public partial class Spell : IDisposable
 		// do not allow spells to be cast in arenas or rated Battlegrounds
 		var player = _caster.AsPlayer;
 
-		if (player != null)
-			if (player.InArena /* || player.InRatedBattleground() NYI*/)
-			{
-				castResult = CheckArenaAndRatedBattlegroundCastRules();
+		if (player is { InArena: true })
+            /* || player.InRatedBattleground() NYI*/
+        {
+            castResult = CheckArenaAndRatedBattlegroundCastRules();
 
-				if (castResult != SpellCastResult.SpellCastOk)
-					return castResult;
-			}
+            if (castResult != SpellCastResult.SpellCastOk)
+                return castResult;
+        }
 
-		// zone check
+        // zone check
 		if (!_caster.IsPlayer || !_caster.AsPlayer.IsGameMaster)
 		{
 			_caster.GetZoneAndAreaId(out var zone, out var area);
@@ -2349,7 +2347,7 @@ public partial class Spell : IDisposable
 
 					var pet = playerCaster.CurrentPet;
 
-					if (pet != null && pet.IsAlive)
+					if (pet is { IsAlive: true })
 						return SpellCastResult.AlreadyHaveSummon;
 
 					var petStable = playerCaster.PetStable1;
@@ -2432,7 +2430,7 @@ public partial class Spell : IDisposable
 
 					var playerCaster = unitCaster.AsPlayer;
 
-					if (playerCaster != null && playerCaster.PetStable1 != null)
+					if (playerCaster is { PetStable1: { } })
 					{
 						PetSaveMode? petSlot = null;
 
@@ -2941,11 +2939,10 @@ public partial class Spell : IDisposable
 		// dead owner (pets still alive when owners ressed?)
 		var owner = _caster.CharmerOrOwner;
 
-		if (owner != null)
-			if (!owner.IsAlive)
-				return SpellCastResult.CasterDead;
+		if (owner is { IsAlive: false })
+            return SpellCastResult.CasterDead;
 
-		if (target == null && Targets.UnitTarget != null)
+        if (target == null && Targets.UnitTarget != null)
 			target = Targets.UnitTarget;
 
 		if (SpellInfo.NeedsExplicitUnitTarget)
@@ -4408,11 +4405,10 @@ public partial class Spell : IDisposable
 			{
 				var unitCaster = _caster.AsUnit;
 
-				if (unitCaster != null)
-					if (unitCaster.IsSummon)
-						target = unitCaster.ToTempSummon().GetSummonerUnit();
+				if (unitCaster is { IsSummon: true })
+                    target = unitCaster.ToTempSummon().GetSummonerUnit();
 
-				break;
+                break;
 			}
 			case Framework.Constants.Targets.UnitVehicle:
 			{
@@ -4433,7 +4429,7 @@ public partial class Spell : IDisposable
 			case Framework.Constants.Targets.UnitPassenger7:
 				var vehicleBase = _caster.AsCreature;
 
-				if (vehicleBase != null && vehicleBase.IsVehicle)
+				if (vehicleBase is { IsVehicle: true })
 					target = vehicleBase.VehicleKit1.GetPassenger((sbyte)(targetType.Target - Framework.Constants.Targets.UnitPassenger0));
 
 				break;
@@ -4549,7 +4545,7 @@ public partial class Spell : IDisposable
 	{
 		x = (float)Math.Tan(x);
 
-		if (x < 100000.0f && x > -100000.0f) return x;
+		if (x is < 100000.0f and > -100000.0f) return x;
 		if (x >= 100000.0f) return 100000.0f;
 		if (x <= 100000.0f) return -100000.0f;
 
@@ -4730,7 +4726,7 @@ public partial class Spell : IDisposable
 					CallScriptObjectTargetSelectHandlers(ref rafTarget, spellEffectInfo.EffectIndex, new SpellImplicitTargetInfo());
 
 					// scripts may modify the target - recheck
-					if (rafTarget != null && rafTarget.IsPlayer)
+					if (rafTarget is { IsPlayer: true })
 					{
 						// target is not stored in target map for those spells
 						// since we're completely skipping AddUnitTarget logic, we need to check immunity manually
@@ -6610,38 +6606,37 @@ public partial class Spell : IDisposable
 					{
 						var itemEntry = CliDB.ItemStorage.LookupByKey(itemId);
 
-						if (itemEntry != null)
-							if (itemEntry.ClassID == ItemClass.Weapon)
-							{
-								switch ((ItemSubClassWeapon)itemEntry.SubclassID)
-								{
-									case ItemSubClassWeapon.Thrown:
-										ammoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
-										ammoInventoryType = (InventoryType)itemEntry.inventoryType;
+						if (itemEntry is { ClassID: ItemClass.Weapon })
+                        {
+                            switch ((ItemSubClassWeapon)itemEntry.SubclassID)
+                            {
+                                case ItemSubClassWeapon.Thrown:
+                                    ammoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
+                                    ammoInventoryType = (InventoryType)itemEntry.inventoryType;
 
-										break;
-									case ItemSubClassWeapon.Bow:
-									case ItemSubClassWeapon.Crossbow:
-										ammoDisplayID = 5996; // is this need fixing?
-										ammoInventoryType = InventoryType.Ammo;
+                                    break;
+                                case ItemSubClassWeapon.Bow:
+                                case ItemSubClassWeapon.Crossbow:
+                                    ammoDisplayID = 5996; // is this need fixing?
+                                    ammoInventoryType = InventoryType.Ammo;
 
-										break;
-									case ItemSubClassWeapon.Gun:
-										ammoDisplayID = 5998; // is this need fixing?
-										ammoInventoryType = InventoryType.Ammo;
+                                    break;
+                                case ItemSubClassWeapon.Gun:
+                                    ammoDisplayID = 5998; // is this need fixing?
+                                    ammoInventoryType = InventoryType.Ammo;
 
-										break;
-									default:
-										nonRangedAmmoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
-										nonRangedAmmoInventoryType = itemEntry.inventoryType;
+                                    break;
+                                default:
+                                    nonRangedAmmoDisplayID = Global.DB2Mgr.GetItemDisplayId(itemId, unitCaster.GetVirtualItemAppearanceMod(i));
+                                    nonRangedAmmoInventoryType = itemEntry.inventoryType;
 
-										break;
-								}
+                                    break;
+                            }
 
-								if (ammoDisplayID != 0)
-									break;
-							}
-					}
+                            if (ammoDisplayID != 0)
+                                break;
+                        }
+                    }
 				}
 
 				if (ammoDisplayID == 0 && ammoInventoryType == 0)
@@ -7566,12 +7561,11 @@ public partial class Spell : IDisposable
 			}
 
 			if (target != null &&
-				unitCaster != null &&
-				unitCaster.IsMoving &&
-				target.IsMoving &&
-				!unitCaster.IsWalking &&
-				!target.IsWalking &&
-				(SpellInfo.RangeEntry.Flags.HasFlag(SpellRangeFlag.Melee) || target.IsPlayer))
+                unitCaster is { IsMoving: true } &&
+                target.IsMoving &&
+                !unitCaster.IsWalking &&
+                !target.IsWalking &&
+                (SpellInfo.RangeEntry.Flags.HasFlag(SpellRangeFlag.Melee) || target.IsPlayer))
 				rangeMod += 8.0f / 3.0f;
 		}
 
@@ -7933,7 +7927,7 @@ public partial class Spell : IDisposable
 					break;
 				}
 				case SpellEffectName.EnchantItem:
-					if (spellEffectInfo.ItemType != 0 && Targets.ItemTarget != null && Targets.ItemTarget.IsVellum)
+					if (spellEffectInfo.ItemType != 0 && Targets.ItemTarget is { IsVellum: true })
 					{
 						// cannot enchant vellum for other player
 						if (Targets.ItemTarget.OwnerUnit != player)
@@ -8284,7 +8278,7 @@ public partial class Spell : IDisposable
 		{
 			_originalCaster = Global.ObjAccessor.GetUnit(_caster, _originalCasterGuid);
 
-			if (_originalCaster != null && !_originalCaster.IsInWorld)
+			if (_originalCaster is { IsInWorld: false })
 				_originalCaster = null;
 			else
 				_originalCaster = _caster.AsUnit;

@@ -2230,7 +2230,7 @@ public partial class Creature : Unit
 
 	public void SaveRespawnTime(uint forceDelay = 0)
 	{
-		if (IsSummon || SpawnId == 0 || (CreatureData != null && !CreatureData.DbData))
+		if (IsSummon || SpawnId == 0 || CreatureData is { DbData: false })
 			return;
 
 		if (RespawnCompatibilityMode)
@@ -2475,7 +2475,7 @@ public partial class Creature : Unit
 		// corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
 		bool isFullySkinned()
 		{
-			if (Loot != null && Loot.loot_type == LootType.Skinning && Loot.IsLooted())
+			if (Loot is { loot_type: LootType.Skinning } && Loot.IsLooted())
 				return true;
 
 			foreach (var (_, loot) in PersonalLoot)
@@ -3280,11 +3280,10 @@ public partial class Creature : Unit
 
 			var areaTable = CliDB.AreaTableStorage.LookupByKey(Zone);
 
-			if (areaTable != null)
-				if (areaTable.WildBattlePetLevelMin > 0)
-					wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
+			if (areaTable is { WildBattlePetLevelMin: > 0 })
+                wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
 
-			WildBattlePetLevel = wildBattlePetLevel;
+            WildBattlePetLevel = wildBattlePetLevel;
 		}
 	}
 

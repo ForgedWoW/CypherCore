@@ -12,7 +12,7 @@ public class GameObjectScriptRegister : IScriptRegister
 
 	public void Register(ScriptAttribute attribute, IScriptObject script, string scriptName)
 	{
-		if (attribute is GameObjectScriptAttribute gameObjectScript && gameObjectScript.GameObjectIds != null)
+		if (attribute is GameObjectScriptAttribute { GameObjectIds: { } } gameObjectScript)
 			foreach (var id in gameObjectScript.GameObjectIds)
 			{
 				var gameObject = Global.ObjectMgr.GetGameObjectTemplate(id);

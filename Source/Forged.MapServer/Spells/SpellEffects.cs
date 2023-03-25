@@ -393,7 +393,7 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
 
-		if (UnitTarget != null && UnitTarget.IsAlive)
+		if (UnitTarget is { IsAlive: true })
 		{
 			// Meteor like spells (divided damage to targets)
 			if (SpellInfo.HasAttribute(SpellCustomAttributes.ShareDamage))
@@ -1239,7 +1239,7 @@ public partial class Spell
 		// get max possible damage, don't count overkill for heal
 		var healthGain = (-UnitTarget.GetHealthGain(-Damage) * healMultiplier);
 
-		if (unitCaster != null && unitCaster.IsAlive)
+		if (unitCaster is { IsAlive: true })
 		{
 			healthGain = unitCaster.SpellHealingBonusDone(unitCaster, SpellInfo, healthGain, DamageEffectType.Heal, EffectInfo, 1, this);
 			healthGain = unitCaster.SpellHealingBonusTaken(unitCaster, SpellInfo, healthGain, DamageEffectType.Heal);
@@ -1919,7 +1919,7 @@ public partial class Spell
 				args.SetTriggeringSpell(this);
 
 				// if we have small value, it indicates seat position
-				if (basePoints > 0 && basePoints < SharedConst.MaxVehicleSeats)
+				if (basePoints is > 0 and < SharedConst.MaxVehicleSeats)
 					args.AddSpellMod(SpellValueMod.BasePoint0, basePoints);
 
 				unitCaster.CastSpell(summon, spellId, args);
@@ -2861,13 +2861,10 @@ public partial class Spell
 		if (unitCaster == null || !unitCaster.IsAlive)
 			return;
 
-		if (UnitTarget == null)
+		if (UnitTarget is not { CanHaveThreatList: true })
 			return;
 
-		if (!UnitTarget.CanHaveThreatList)
-			return;
-
-		UnitTarget.GetThreatManager().AddThreat(unitCaster, Damage, SpellInfo, true);
+        UnitTarget.GetThreatManager().AddThreat(unitCaster, Damage, SpellInfo, true);
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealMaxHealth)]
@@ -3061,7 +3058,7 @@ public partial class Spell
 						{
 							item = _caster.AsPlayer.GetItemByPos(bag, slot);
 
-							if (item != null && item.Entry == 38587)
+							if (item is { Entry: 38587 })
 								break;
 
 							++slot;
@@ -3462,14 +3459,12 @@ public partial class Spell
 		var item_owner = UnitTarget.AsPlayer;
 		var item = item_owner.GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
-		if (item == null)
+		if (item is not { IsEquipped: true })
 			return;
 
 		// must be equipped
-		if (!item.IsEquipped)
-			return;
 
-		if (EffectInfo.MiscValue != 0)
+        if (EffectInfo.MiscValue != 0)
 		{
 			var enchant_id = (uint)EffectInfo.MiscValue;
 			var duration = SpellInfo.Duration; //Try duration index first ..
@@ -3566,13 +3561,10 @@ public partial class Spell
 
 		var pet = player.CurrentPet;
 
-		if (pet == null)
+		if (pet is not { IsAlive: true })
 			return;
 
-		if (!pet.IsAlive)
-			return;
-
-		ExecuteLogEffectDestroyItem(EffectInfo.Effect, foodItem.Entry);
+        ExecuteLogEffectDestroyItem(EffectInfo.Effect, foodItem.Entry);
 
 		int pct;
 		var levelDiff = (int)pet.Level - (int)foodItem.Template.BaseItemLevel;
@@ -4412,7 +4404,7 @@ public partial class Spell
 
 			var totem = unitCaster.Map.GetCreature(unitCaster.SummonSlot[slot]);
 
-			if (totem != null && totem.IsTotem)
+			if (totem is { IsTotem: true })
 			{
 				uint spell_id = totem.UnitData.CreatedBySpell;
 				var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, CastDifficulty);
@@ -5125,15 +5117,14 @@ public partial class Spell
 				{
 					var proto = CastItem.Template;
 
-					if (proto != null)
-						if (proto.RequiredSkill == (uint)SkillType.Engineering)
-						{
-							var skill202 = unitCaster.AsPlayer.GetSkillValue(SkillType.Engineering);
+					if (proto is { RequiredSkill: (uint)SkillType.Engineering })
+                    {
+                        var skill202 = unitCaster.AsPlayer.GetSkillValue(SkillType.Engineering);
 
-							if (skill202 != 0)
-								level = skill202 / 5u;
-						}
-				}
+                        if (skill202 != 0)
+                            level = skill202 / 5u;
+                    }
+                }
 
 				((Guardian)summon).InitStatsForLevel(level);
 			}

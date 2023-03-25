@@ -143,7 +143,7 @@ public class CriteriaData
 
 				return true;
 			case CriteriaDataType.TPlayerClassRace:
-				if (ClassRace.ClassId == 0 && ClassRace.RaceId == 0)
+				if (ClassRace is { ClassId: 0, RaceId: 0 })
 				{
 					Log.Logger.Error(
 								"Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_T_PLAYER_CLASS_RACE ({2}) must not have 0 in either value field, ignored.",
@@ -397,7 +397,7 @@ public class CriteriaData
 
 				return true;
 			case CriteriaDataType.SPlayerClassRace:
-				if (ClassRace.ClassId == 0 && ClassRace.RaceId == 0)
+				if (ClassRace is { ClassId: 0, RaceId: 0 })
 				{
 					Log.Logger.Error(
 								"Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_S_PLAYER_CLASS_RACE ({2}) must not have 0 in either value field, ignored.",

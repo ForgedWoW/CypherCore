@@ -35,7 +35,7 @@ public class CombatAI : CreatureAI
 		{
 			var info = GetAISpellInfo(id, Me.Map.DifficultyID);
 
-			if (info != null && info.Condition == AICondition.Die)
+			if (info is { Condition: AICondition.Die })
 				Me.CastSpell(killer, id, true);
 		}
 	}

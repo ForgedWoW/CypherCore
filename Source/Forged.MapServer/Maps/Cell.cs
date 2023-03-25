@@ -37,7 +37,7 @@ public class Cell
 
 	public bool IsCellValid()
 	{
-		return Data.Cellx < MapConst.MaxCells && Data.Celly < MapConst.MaxCells;
+		return Data is { Cellx: < MapConst.MaxCells, Celly: < MapConst.MaxCells };
 	}
 
 	public uint GetId()

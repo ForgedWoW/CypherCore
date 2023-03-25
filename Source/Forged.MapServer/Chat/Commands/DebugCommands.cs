@@ -219,7 +219,7 @@ class DebugCommands
 
 			for (byte i = (int)PlayerSlots.Start; i < (int)PlayerSlots.End; ++i)
 			{
-				if (i >= InventorySlots.BuyBackStart && i < InventorySlots.BuyBackEnd)
+				if (i is >= InventorySlots.BuyBackStart and < InventorySlots.BuyBackEnd)
 					continue;
 
 				var item = player.GetItemByPos(InventorySlots.Bag0, i);
@@ -293,7 +293,7 @@ class DebugCommands
 
 			for (byte i = (int)PlayerSlots.Start; i < (int)PlayerSlots.End; ++i)
 			{
-				if (i >= InventorySlots.BuyBackStart && i < InventorySlots.BuyBackEnd)
+				if (i is >= InventorySlots.BuyBackStart and < InventorySlots.BuyBackEnd)
 					continue;
 
 				var item = player.GetItemByPos(InventorySlots.Bag0, i);

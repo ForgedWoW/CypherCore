@@ -1205,7 +1205,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (MapId != entry.Loc.MapId && entry.Loc.MapId != mapEntry.ParentMapID)
 			{
 				// if find graveyard at different map from where entrance placed (or no entrance data), use any first
-				if (mapEntry == null || mapEntry.CorpseMapID < 0 || mapEntry.CorpseMapID != entry.Loc.MapId || (mapEntry.Corpse.X == 0 && mapEntry.Corpse.Y == 0))
+				if (mapEntry == null || mapEntry.CorpseMapID < 0 || mapEntry.CorpseMapID != entry.Loc.MapId || mapEntry.Corpse is { X: 0, Y: 0 })
 				{
 					// not have any corrdinates for check distance anyway
 					entryFar = entry;
@@ -6246,7 +6246,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						info.CreatePositionNpe = null;
 					}
 
-					if (info.CreatePositionNpe.HasValue && info.CreatePositionNpe.Value.TransportGuid.HasValue && Global.TransportMgr.GetTransportSpawn(info.CreatePositionNpe.Value.TransportGuid.Value) == null)
+					if (info.CreatePositionNpe is { TransportGuid: { } } && Global.TransportMgr.GetTransportSpawn(info.CreatePositionNpe.Value.TransportGuid.Value) == null)
 					{
 						Log.Logger.Error($"Invalid NPE transport spawn id {info.CreatePositionNpe.Value.TransportGuid.Value} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 						info.CreatePositionNpe = null; // remove entire NPE data - assume user put transport offsets into npe_position fields
@@ -11483,10 +11483,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			switch (culture)
 			{
 				case LanguageType.BasicLatin:
-					if (wchar >= 'a' && wchar <= 'z') // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
+					if (wchar is >= 'a' and <= 'z') // LATIN SMALL LETTER A - LATIN SMALL LETTER Z
 						return true;
 
-					if (wchar >= 'A' && wchar <= 'Z') // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
+					if (wchar is >= 'A' and <= 'Z') // LATIN CAPITAL LETTER A - LATIN CAPITAL LETTER Z
 						return true;
 
 					return false;
@@ -13665,7 +13665,7 @@ class ItemSpecStats
 						ItemType = 6;
 						AddStat(ItemSpecStat.Shield);
 					}
-					else if (item.SubclassID > (int)ItemSubClassArmor.Shield && item.SubclassID <= (int)ItemSubClassArmor.Relic)
+					else if (item.SubclassID is > (int)ItemSubClassArmor.Shield and <= (int)ItemSubClassArmor.Relic)
 					{
 						ItemType = 6;
 						AddStat(ItemSpecStat.Relic);

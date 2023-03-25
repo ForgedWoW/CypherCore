@@ -131,9 +131,9 @@ public class SpellScript : BaseSpellScript, ISpellScript
 		}
 	}
 
-	public bool IsInHitPhase => CurrentScriptState >= (byte)SpellScriptHookType.EffectHit && CurrentScriptState < (byte)SpellScriptHookType.AfterHit + 1;
+	public bool IsInHitPhase => CurrentScriptState is >= (byte)SpellScriptHookType.EffectHit and < (byte)SpellScriptHookType.AfterHit + 1;
 
-	public bool IsInEffectHook => CurrentScriptState >= (byte)SpellScriptHookType.Launch && CurrentScriptState <= (byte)SpellScriptHookType.EffectHitTarget || CurrentScriptState == (byte)SpellScriptHookType.EffectSuccessfulDispel;
+	public bool IsInEffectHook => CurrentScriptState is >= (byte)SpellScriptHookType.Launch and <= (byte)SpellScriptHookType.EffectHitTarget || CurrentScriptState == (byte)SpellScriptHookType.EffectSuccessfulDispel;
 
 	// hooks are executed in following order, at specified event of spell:
 	// 1. BeforeCast - executed when spell preparation is finished (when cast bar becomes full) before cast is handled

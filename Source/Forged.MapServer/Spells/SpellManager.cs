@@ -262,22 +262,20 @@ public sealed class SpellManager : Singleton<SpellManager>
 	{
 		var node = GetSpellChainNode(spell_id);
 
-		if (node != null)
-			if (node.Next != null)
-				return node.Next.Id;
+		if (node is { Next: { } })
+            return node.Next.Id;
 
-		return 0;
+        return 0;
 	}
 
 	public uint GetPrevSpellInChain(uint spell_id)
 	{
 		var node = GetSpellChainNode(spell_id);
 
-		if (node != null)
-			if (node.Prev != null)
-				return node.Prev.Id;
+		if (node is { Prev: { } })
+            return node.Prev.Id;
 
-		return 0;
+        return 0;
 	}
 
 	public byte GetSpellRank(uint spell_id)
@@ -795,14 +793,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 	{
 		var pSkill = CliDB.SkillLineStorage.LookupByKey(skill);
 
-		return pSkill != null && pSkill.CategoryID == SkillCategory.Profession && pSkill.ParentSkillLineID == 0;
+		return pSkill is { CategoryID: SkillCategory.Profession, ParentSkillLineID: 0 };
 	}
 
 	public bool IsWeaponSkill(uint skill)
 	{
 		var pSkill = CliDB.SkillLineStorage.LookupByKey(skill);
 
-		return pSkill != null && pSkill.CategoryID == SkillCategory.Weapon;
+		return pSkill is { CategoryID: SkillCategory.Weapon };
 	}
 
 	public bool IsProfessionOrRidingSkill(uint skill)

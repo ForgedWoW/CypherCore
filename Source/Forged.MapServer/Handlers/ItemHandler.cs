@@ -649,7 +649,7 @@ public partial class WorldSession
 
 				var bag = ItemConst.NullBag;
 
-				if (bagItem != null && bagItem.IsBag)
+				if (bagItem is { IsBag: true })
 					bag = bagItem.Slot;
 				else if (packet.ContainerGUID == Player.GUID) // The client sends the player guid when trying to store an item in the default backpack
 					bag = InventorySlots.Bag0;

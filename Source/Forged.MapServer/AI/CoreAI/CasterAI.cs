@@ -28,7 +28,7 @@ public class CasterAI : CombatAI
 		{
 			var info = GetAISpellInfo(id, Me.Map.DifficultyID);
 
-			if (info != null && info.Condition == AICondition.Combat && _attackDistance > info.MaxRange)
+			if (info is { Condition: AICondition.Combat } && _attackDistance > info.MaxRange)
 				_attackDistance = info.MaxRange;
 		}
 

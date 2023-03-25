@@ -750,10 +750,9 @@ public class CriteriaHandler
 					{
 						var criteriaProgress = GetCriteriaProgress(node.Criteria);
 
-						if (criteriaProgress != null)
-							if (criteriaProgress.Counter >= 1)
-								if (++progress >= requiredCount)
-									return true;
+						if (criteriaProgress is { Counter: >= 1 })
+							if (++progress >= requiredCount)
+                                return true;
 					}
 
 				return false;
@@ -3278,10 +3277,9 @@ public class CriteriaHandler
 						{
 							var itemModifiedAppearaceExtra = CliDB.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
 
-							if (itemModifiedAppearaceExtra != null)
-								if (itemModifiedAppearaceExtra.DisplayWeaponSubclassID > 0)
-									itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
-						}
+							if (itemModifiedAppearaceExtra is { DisplayWeaponSubclassID: > 0 })
+                                itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
+                        }
 					}
 
 				if (itemSubclass != reqValue)
@@ -3306,10 +3304,9 @@ public class CriteriaHandler
 						{
 							var itemModifiedAppearaceExtra = CliDB.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
 
-							if (itemModifiedAppearaceExtra != null)
-								if (itemModifiedAppearaceExtra.DisplayWeaponSubclassID > 0)
-									itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
-						}
+							if (itemModifiedAppearaceExtra is { DisplayWeaponSubclassID: > 0 })
+                                itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
+                        }
 					}
 
 				if (itemSubclass != reqValue)

@@ -238,7 +238,7 @@ public class PetAI : CreatureAI
 		if (target == null || target == Me)
 			return;
 
-		if (Me.Victim != null && Me.Victim.IsAlive)
+		if (Me.Victim is { IsAlive: true })
 			return;
 
 		_AttackStart(target);
