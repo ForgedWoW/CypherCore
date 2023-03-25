@@ -10,13 +10,13 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.BattleGrounds;
 using Forged.RealmServer.DataStorage;
-using Game.Garrisons;
-using Game.Mails;
-using Game.Common.Maps;
-using Game.Common.Maps.Grids;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
+using Forged.RealmServer.Garrisons;
+using Forged.RealmServer.Mails;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Maps.Grids;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.Networking;
+using Forged.RealmServer.Networking;
 
 namespace Forged.RealmServer.Entities;
 

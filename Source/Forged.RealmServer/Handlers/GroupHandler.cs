@@ -7,10 +7,10 @@ using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Party;
-using Game.Common.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Misc;
+using Forged.RealmServer.Networking.Packets.Party;
+using Forged.RealmServer.Handlers;
 
 namespace Forged.RealmServer;
 

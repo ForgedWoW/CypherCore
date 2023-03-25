@@ -9,9 +9,9 @@ using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
-using Game.Common.Networking.Packets.Scenario;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking.Packets.Scenario;
 
 namespace Forged.RealmServer.Scenarios;
 

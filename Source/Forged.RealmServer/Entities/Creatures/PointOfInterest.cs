@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class PointOfInterest
 {

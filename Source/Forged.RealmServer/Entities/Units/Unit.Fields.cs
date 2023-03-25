@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using Framework.Collections;
 using Framework.Constants;
-using Game.AI;
-using Game.Combat;
+using Forged.RealmServer.AI;
+using Forged.RealmServer.Combat;
 using Forged.RealmServer.DataStorage;
-using Game.Movement;
-using Game.Spells;
-using Game.Spells.Auras;
+using Forged.RealmServer.Movement;
+using Forged.RealmServer.Spells;
+using Forged.RealmServer.Spells.Auras;
 
 namespace Forged.RealmServer.Entities;
 

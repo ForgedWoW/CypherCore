@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Database;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Entities;
 

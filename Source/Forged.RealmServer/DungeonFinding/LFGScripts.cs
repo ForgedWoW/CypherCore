@@ -9,7 +9,7 @@ using Forged.RealmServer.Scripting.Interfaces.IGroup;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking.Packets.Query;
+using Forged.RealmServer.Networking.Packets.Query;
 
 namespace Forged.RealmServer.DungeonFinding;
 

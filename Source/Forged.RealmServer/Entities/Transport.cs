@@ -8,8 +8,8 @@ using System.Linq;
 using System.Numerics;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
-using Game.Scripting.Interfaces.ITransport;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Scripting.Interfaces.ITransport;
 
 namespace Forged.RealmServer.Entities;
 

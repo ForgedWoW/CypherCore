@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class QuestMenu
 {

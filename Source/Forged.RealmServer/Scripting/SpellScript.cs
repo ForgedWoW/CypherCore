@@ -12,7 +12,7 @@ using Forged.RealmServer.Entities.Items;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Entities.Units;
-using Game.Common.Scripting.Interfaces;
+using Forged.RealmServer.Scripting.Interfaces;
 
 namespace Forged.RealmServer.Scripting;
 

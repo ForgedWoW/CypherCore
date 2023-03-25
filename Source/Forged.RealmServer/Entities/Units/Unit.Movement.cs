@@ -7,11 +7,11 @@ using System.Linq;
 using System.Numerics;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
-using Game.Common.Maps.Grids;
-using Game.Movement;
-using Game.Common.Networking.Packets;
-using Game.Spells;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Maps.Grids;
+using Forged.RealmServer.Movement;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

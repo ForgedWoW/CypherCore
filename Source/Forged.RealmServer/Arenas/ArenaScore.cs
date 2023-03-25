@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Forged.RealmServer.BattleGrounds;
 using Forged.RealmServer.Entities;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Arenas;
 

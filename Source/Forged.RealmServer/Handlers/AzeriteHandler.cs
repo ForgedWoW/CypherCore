@@ -4,14 +4,12 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities.Items;
-using Forged.RealmServer.Entities.Objects;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Azerite;
-using Game.Common.Networking.Packets.NPC;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Entities;
 using Game.Common.Handlers;
-using Forged.RealmServer.Entities.Players;
-using Game.Common.Server;
+using Forged.RealmServer.DataStorage.ClientReader;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer;
 
@@ -56,7 +54,7 @@ public class AzeriteHandler : IWorldSessionHandler
 		if (!azeriteItem || !azeriteItem.CanUseEssences())
 			return;
 
-		var milestonePower = _azeriteItemMilestonePowerStorage.LookupByKey(azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
+		var milestonePower = _azeriteItemMilestonePowerStorage.LookupByKey((uint)azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
 
 		if (milestonePower == null || milestonePower.RequiredLevel > azeriteItem.GetLevel())
 			return;

@@ -3,14 +3,14 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Achievements;
+using Forged.RealmServer.Achievements;
 using Forged.RealmServer.Chat;
-using Game.Garrisons;
+using Forged.RealmServer.Garrisons;
 using Forged.RealmServer.Groups;
-using Game.Loots;
-using Game.Mails;
-using Game.Misc;
-using Game.Spells;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Mails;
+using Forged.RealmServer.Misc;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

@@ -8,6 +8,7 @@ using Framework.Serialization;
 using Framework.Web;
 using Forged.RealmServer.Services;
 using Google.Protobuf;
+using Serilog;
 
 namespace Forged.RealmServer;
 

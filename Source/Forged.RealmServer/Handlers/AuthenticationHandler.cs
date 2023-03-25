@@ -2,14 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Common.Extentions;
-using Game.Common.Networking.Packets.Authentication;
-using Game.Common.Networking.Packets.ClientConfig;
-using Game.Common.Networking.Packets.System;
-using Game.Common.Server;
 using Microsoft.Extensions.Configuration;
+using Forged.RealmServer.Networking.Packets;
+using Framework.Util;
+using Game.Common.Handlers;
 
-namespace Game.Common.Handlers;
+namespace Forged.RealmServer.Handlers;
 
 public class AuthenticationHandler : IWorldSessionHandler
 {
@@ -38,7 +36,7 @@ public class AuthenticationHandler : IWorldSessionHandler
 			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.Expansion;
 			response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)_session.AccountExpansion;
 			response.SuccessInfo.VirtualRealmAddress = _realm.Id.GetAddress();
-			response.SuccessInfo.Time = (uint)GameTime.GetGameTime();
+			response.SuccessInfo.Time = (uint)_session.Player.GameTime.GetGameTime();
 
             // Send current home realm. Also there is no need to send it later in realm queries.
 			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.GetAddress(), true, false, _realm.Name, _realm.NormalizedName));

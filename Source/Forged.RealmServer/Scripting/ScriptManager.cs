@@ -12,7 +12,7 @@ using Framework.Database;
 using Forged.RealmServer.AI;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Extendability;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Guilds;
@@ -25,9 +25,9 @@ using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Scripting.Interfaces.ISpell;
 using Forged.RealmServer.Scripting.Registers;
 using Forged.RealmServer.Spells;
-using Game.Common.Entities.AreaTriggers;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.AreaTriggers;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer.Scripting;
 

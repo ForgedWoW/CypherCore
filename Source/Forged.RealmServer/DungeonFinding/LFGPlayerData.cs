@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
-using Game.Common.Networking.Packets.LFG;
+using Forged.RealmServer.Networking.Packets.LFG;
 
 namespace Forged.RealmServer.DungeonFinding;
 

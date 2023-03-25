@@ -10,7 +10,7 @@ using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps.Grids;
+using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.Entities.GameObjects;
 using Forged.RealmServer.Entities.Objects;
 

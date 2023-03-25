@@ -8,17 +8,17 @@ using System.Text;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IItem;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Creatures;
 using Forged.RealmServer.Entities.GameObjects;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Units;
-using Game.Common.Networking.Packets.Channel;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Networking.Packets.Movement;
-using Game.Common.Networking.Packets.Spell;
+using Forged.RealmServer.Networking.Packets.Channel;
+using Forged.RealmServer.Networking.Packets.Chat;
+using Forged.RealmServer.Networking.Packets.Movement;
+using Forged.RealmServer.Networking.Packets.Spell;
 
 namespace Forged.RealmServer.Chat;
 

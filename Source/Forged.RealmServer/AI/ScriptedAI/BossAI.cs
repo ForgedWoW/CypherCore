@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Entities.Creatures;
 using Forged.RealmServer.Entities.Units;
 

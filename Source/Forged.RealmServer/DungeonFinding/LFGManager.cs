@@ -11,10 +11,10 @@ using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking.Packets.LFG;
+using Forged.RealmServer.Networking.Packets.LFG;
 
 namespace Forged.RealmServer.DungeonFinding;
 

@@ -5,14 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.Combat;
+using Forged.RealmServer.Combat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Groups;
-using Game.Loots;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IUnit;
-using Game.Spells;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Scripting.Interfaces.IUnit;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

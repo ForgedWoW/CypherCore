@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Forged.RealmServer.Entities;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking.Packets;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class PlayerMenu
 {

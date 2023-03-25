@@ -3,7 +3,7 @@
 
 using Forged.RealmServer.Entities;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class InteractionData
 {

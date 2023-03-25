@@ -11,9 +11,9 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
-using Game.Common.Maps;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.BattleGrounds;
 

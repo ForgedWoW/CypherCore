@@ -7,13 +7,13 @@ using System.Linq;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Game.AI;
+using Forged.RealmServer.AI;
 using Forged.RealmServer.DataStorage;
-using Game.Loots;
-using Game.Common.Maps;
-using Game.Common.Maps.Grids;
-using Game.Common.Networking.Packets;
-using Game.Spells;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Maps.Grids;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

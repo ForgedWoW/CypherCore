@@ -4,8 +4,8 @@
 using System;
 using Framework.Collections;
 using Framework.Constants;
-using Game.Common.Networking;
-using Game.Spells;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 
 namespace Forged.RealmServer.Entities;
 

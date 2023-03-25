@@ -9,13 +9,13 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Mails;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
 using Forged.RealmServer.Entities.Items;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Achievements;
 
 namespace Forged.RealmServer.Achievements;
 

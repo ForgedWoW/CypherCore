@@ -3,7 +3,7 @@
 
 using System;
 using Framework.Constants;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 
 namespace Forged.RealmServer.Entities;
 

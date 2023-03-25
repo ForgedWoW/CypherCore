@@ -11,7 +11,7 @@ using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Objects.Update;
 using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Entities.Units;
-using Game.Common.Networking.Packets.Spell;
+using Forged.RealmServer.Networking.Packets.Spell;
 
 namespace Forged.RealmServer.Chat;
 

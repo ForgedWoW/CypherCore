@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.Handlers;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Scenario;
+using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Scenario;
 
 namespace Forged.RealmServer;
 

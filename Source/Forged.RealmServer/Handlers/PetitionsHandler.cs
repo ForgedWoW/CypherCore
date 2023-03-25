@@ -9,9 +9,9 @@ using Forged.RealmServer.Guilds;
 using Forged.RealmServer.Entities.Items;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Petition;
-using Game.Common.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Petition;
+using Forged.RealmServer.Handlers;
 
 namespace Forged.RealmServer;
 

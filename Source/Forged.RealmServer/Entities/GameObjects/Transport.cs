@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 
 namespace Forged.RealmServer.Entities.GameObjectType;
 

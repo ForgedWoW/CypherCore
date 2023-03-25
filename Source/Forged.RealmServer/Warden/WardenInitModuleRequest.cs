@@ -2,7 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.IO;
-using Game.Common.Networking.Packets.Warden;
+using Forged.RealmServer.Networking.Packets.Warden;
 
 namespace Forged.RealmServer;
 

@@ -11,7 +11,7 @@ using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Loots;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Spells;
 using Forged.RealmServer.Entities.AreaTriggers;
 using Forged.RealmServer.Entities.Creatures;

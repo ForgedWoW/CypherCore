@@ -3,7 +3,7 @@
 
 using System.Runtime.InteropServices;
 using Framework.Constants;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Entities;
 

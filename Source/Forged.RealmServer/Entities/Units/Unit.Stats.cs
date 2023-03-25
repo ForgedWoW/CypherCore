@@ -3,9 +3,9 @@
 
 using System;
 using Framework.Constants;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

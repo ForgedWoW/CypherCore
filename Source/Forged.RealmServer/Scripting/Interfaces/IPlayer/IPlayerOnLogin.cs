@@ -2,7 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Scripting.Interfaces;
+using Forged.RealmServer.Scripting.Interfaces;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IPlayer;
 

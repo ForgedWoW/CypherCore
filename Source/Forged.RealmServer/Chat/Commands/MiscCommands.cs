@@ -8,16 +8,16 @@ using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
-using Game.Common.Maps.Grids;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.Spells;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Objects.Update;
 using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Entities.Units;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Spell;
+using Forged.RealmServer.Networking.Packets.Misc;
+using Forged.RealmServer.Networking.Packets.Spell;
 
 namespace Forged.RealmServer.Chat;
 

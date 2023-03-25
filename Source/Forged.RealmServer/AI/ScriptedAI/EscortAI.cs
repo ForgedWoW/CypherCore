@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps.Grids;
+using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.Entities.Creatures;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;

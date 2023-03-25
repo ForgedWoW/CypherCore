@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IScene;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IScene;
 
 namespace Forged.RealmServer.Entities;
 

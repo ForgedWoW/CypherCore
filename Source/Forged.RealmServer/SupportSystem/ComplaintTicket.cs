@@ -9,7 +9,7 @@ using Forged.RealmServer.Chat;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking.Packets.Ticket;
+using Forged.RealmServer.Networking.Packets.Ticket;
 
 namespace Forged.RealmServer.SupportSystem;
 

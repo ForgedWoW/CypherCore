@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Scripting.Interfaces.IVehicle;
+using Forged.RealmServer.Scripting.Interfaces.IVehicle;
 
 namespace Forged.RealmServer.Entities;
 

@@ -17,7 +17,7 @@ using Forged.RealmServer.Entities;
 using Forged.RealmServer.Garrisons;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Loots;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.PvP;
 using Forged.RealmServer.Scenarios;
 using Forged.RealmServer.Scripting;

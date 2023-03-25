@@ -9,7 +9,7 @@ using Forged.RealmServer.Entities.GameObjects;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Entities.Units;
-using Game.Common.Scripting.Interfaces;
+using Forged.RealmServer.Scripting.Interfaces;
 
 namespace Forged.RealmServer.Scripting;
 

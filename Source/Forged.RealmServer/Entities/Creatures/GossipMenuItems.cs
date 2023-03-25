@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Conditions;
+using Forged.RealmServer.Conditions;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class GossipMenuItems
 {

@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Movement;
-using Game.Scripting.Interfaces.IVehicle;
+using Forged.RealmServer.Movement;
+using Forged.RealmServer.Scripting.Interfaces.IVehicle;
 
 namespace Forged.RealmServer.Entities;
 

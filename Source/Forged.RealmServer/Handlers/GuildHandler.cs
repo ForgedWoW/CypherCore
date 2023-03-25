@@ -5,10 +5,10 @@ using Framework.Constants;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
-using Game.Common.Networking.Packets.Guild;
-using Game.Common.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking.Packets.Guild;
+using Forged.RealmServer.Handlers;
 
 namespace Forged.RealmServer;
 

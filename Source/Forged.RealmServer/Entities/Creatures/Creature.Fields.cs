@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Loots;
+using Forged.RealmServer.Loots;
 
 namespace Forged.RealmServer.Entities;
 

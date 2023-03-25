@@ -9,13 +9,13 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Creatures;
 using Forged.RealmServer.Entities.GameObjects;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking.Packets.Garrison;
+using Forged.RealmServer.Networking.Packets.Garrison;
 
 namespace Forged.RealmServer.Garrisons;
 

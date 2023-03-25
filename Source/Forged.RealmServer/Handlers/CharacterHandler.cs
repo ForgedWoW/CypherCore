@@ -8,12 +8,12 @@ using Framework.Collections;
 using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Spells;
 
 namespace Game;
 

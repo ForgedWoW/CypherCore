@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
 using Framework.Database;
 
 namespace Forged.RealmServer.DataStorage;

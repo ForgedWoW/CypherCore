@@ -3,7 +3,7 @@
 
 using System;
 using Framework.Constants;
-using Game.Spells;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

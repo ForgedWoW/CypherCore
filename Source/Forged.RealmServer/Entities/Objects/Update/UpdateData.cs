@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using Framework.IO;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Entities;
 

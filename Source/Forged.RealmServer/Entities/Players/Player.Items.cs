@@ -8,12 +8,12 @@ using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Loots;
-using Game.Mails;
-using Game.Common.Maps;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IItem;
-using Game.Spells;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Mails;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IItem;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 
