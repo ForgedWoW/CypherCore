@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.ISpell;
+namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellEffectHandler : ISpellEffect
 {

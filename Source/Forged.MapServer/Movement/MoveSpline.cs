@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement;
 
 public class MoveSpline
 {

@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Framework.Configuration;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Movement;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Movement;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartAIManager : Singleton<SmartAIManager>
 {
@@ -27,7 +26,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		for (byte i = 0; i < (int)SmartScriptType.Max; i++)
 			_eventMap[i].Clear(); //Drop Existing SmartAI List
@@ -46,11 +45,12 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		do
 		{
-			SmartScriptHolder temp = new();
+			SmartScriptHolder temp = new()
+            {
+                EntryOrGuid = result.Read<int>(0)
+            };
 
-			temp.EntryOrGuid = result.Read<int>(0);
-
-			if (temp.EntryOrGuid == 0)
+            if (temp.EntryOrGuid == 0)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
@@ -393,12 +393,12 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} SmartAI scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SmartAI scripts in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadWaypointFromDB()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_waypointStore.Clear();
 
@@ -453,7 +453,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			++total;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} SmartAI waypoint paths (total {total} waypoints) in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} SmartAI waypoint paths (total {total} waypoints) in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<SmartScriptHolder> GetScript(int entry, SmartScriptType type)

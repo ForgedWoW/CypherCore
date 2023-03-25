@@ -3,7 +3,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 public struct Value32
 {

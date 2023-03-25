@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class ScenarioStepRecord
 {

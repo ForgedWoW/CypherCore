@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class AchievementManager : CriteriaHandler
 {

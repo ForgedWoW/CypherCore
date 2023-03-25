@@ -3,7 +3,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 public struct SectionHeader

@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement;
 
 public class MoveSplineFlag
 {

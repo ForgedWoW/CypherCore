@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.DataStorage;
-using Game.Maps;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Maps;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects;
 
 public class WorldLocation : Position
 {

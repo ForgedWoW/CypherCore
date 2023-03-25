@@ -3,10 +3,11 @@
 
 using System;
 using System.Numerics;
+using Forged.MapServer.Collision.Maps;
 using Framework.Constants;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class ModelInstance : ModelMinimalData
 {

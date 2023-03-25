@@ -4,26 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.U;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Scripting.Interfaces.IConversation;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting.Interfaces.IConversation;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Common.DataStorage.Structs.U;
-using Game.Common.Globals;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
-using Game.Common.Networking.Packets.AreaTrigger;
-using Game.Common.Networking.Packets.Character;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Networking.Packets.ClientConfig;
-using Game.Common.Networking.Packets.Instance;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Warden;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -57,10 +51,10 @@ public partial class WorldSession
 		data.Time = (uint)adata.Time;
 		data.DataType = request.DataType;
 
-		if (!adata.Data.IsEmpty())
+		if (!Extensions.IsEmpty(adata.Data))
 		{
 			data.Size = (uint)adata.Data.Length;
-			data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes(adata.Data)));
+			data.CompressedData = new ByteBuffer(ZLib.Compress(Encoding.UTF8.GetBytes((string)adata.Data)));
 		}
 
 		SendPacket(data);

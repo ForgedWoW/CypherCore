@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
 using Framework.Database;
-using Game.Achievements;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("reset")]
 class ResetCommands

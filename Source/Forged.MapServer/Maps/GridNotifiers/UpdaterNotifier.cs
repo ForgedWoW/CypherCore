@@ -4,11 +4,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Interfaces;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class UpdaterNotifier : IGridNotifierWorldObject
 {

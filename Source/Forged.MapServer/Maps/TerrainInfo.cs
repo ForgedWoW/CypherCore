@@ -5,13 +5,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Forged.MapServer.Collision;
+using Forged.MapServer.Collision.Management;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
-using Game.Collision;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class TerrainInfo
 {
@@ -451,13 +453,15 @@ public class TerrainInfo
 				}
 			}
 
-			data.LiquidInfo = new LiquidData();
-			data.LiquidInfo.level = wmoData.LiquidInfo.Value.Level;
-			data.LiquidInfo.depth_level = wmoData.FloorZ;
-			data.LiquidInfo.entry = liquidType;
-			data.LiquidInfo.type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType);
+			data.LiquidInfo = new LiquidData
+            {
+                level = wmoData.LiquidInfo.Value.Level,
+                depth_level = wmoData.FloorZ,
+                entry = liquidType,
+                type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType)
+            };
 
-			var delta = wmoData.LiquidInfo.Value.Level - z;
+            var delta = wmoData.LiquidInfo.Value.Level - z;
 
 			if (delta > collisionHeight)
 				data.LiquidStatus = ZLiquidStatus.UnderWater;

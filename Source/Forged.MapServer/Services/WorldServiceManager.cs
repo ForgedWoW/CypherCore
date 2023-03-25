@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Game.Services;
+namespace Forged.MapServer.Services;
 
 public class WorldServiceManager : Singleton<WorldServiceManager>
 {

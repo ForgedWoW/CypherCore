@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Game.Groups;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {

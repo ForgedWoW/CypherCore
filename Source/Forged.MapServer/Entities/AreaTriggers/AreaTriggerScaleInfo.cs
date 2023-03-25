@@ -4,7 +4,7 @@
 using System.Runtime.InteropServices;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.AreaTriggers;
 
 /// 6 bool is_override, only valid for AREATRIGGER_OVERRIDE_SCALE_CURVE, if true then use data from AREATRIGGER_OVERRIDE_SCALE_CURVE instead of ScaleCurveId from CreateObject
 /// </summary>

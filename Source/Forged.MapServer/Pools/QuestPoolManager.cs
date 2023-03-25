@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Database;
 
-namespace Game;
+namespace Forged.MapServer.Pools;
 
 public class QuestPoolManager : Singleton<QuestPoolManager>
 {
@@ -54,7 +54,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 		Dictionary<uint, Tuple<List<QuestPool>, int>> lookup = new(); // poolId -> (list, index)
 
 		_poolLookup.Clear();
@@ -266,7 +266,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	// the storage structure ends up making this kind of inefficient

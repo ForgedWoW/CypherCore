@@ -3,14 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Achievements;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Quest;
 
 class QuestObjectiveCriteriaManager : CriteriaHandler
 {
@@ -99,12 +101,14 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 				if (criteria.Entry.StartTimer != 0 && date + criteria.Entry.StartTimer < now)
 					continue;
 
-				CriteriaProgress progress = new();
-				progress.Counter = counter;
-				progress.Date = date;
-				progress.Changed = false;
+				CriteriaProgress progress = new()
+                {
+                    Counter = counter,
+                    Date = date,
+                    Changed = false
+                };
 
-				_criteriaProgress[criteriaId] = progress;
+                _criteriaProgress[criteriaId] = progress;
 			} while (criteriaResult.NextRow());
 		}
 	}
@@ -194,17 +198,17 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 	{
 		foreach (var pair in _criteriaProgress)
 		{
-			CriteriaUpdate criteriaUpdate = new();
+			CriteriaUpdate criteriaUpdate = new()
+            {
+                CriteriaID = pair.Key,
+                Quantity = pair.Value.Counter,
+                PlayerGUID = _owner.GUID,
+                Flags = 0,
+                CurrentTime = pair.Value.Date,
+                CreationTime = 0
+            };
 
-			criteriaUpdate.CriteriaID = pair.Key;
-			criteriaUpdate.Quantity = pair.Value.Counter;
-			criteriaUpdate.PlayerGUID = _owner.GUID;
-			criteriaUpdate.Flags = 0;
-
-			criteriaUpdate.CurrentTime = pair.Value.Date;
-			criteriaUpdate.CreationTime = 0;
-
-			SendPacket(criteriaUpdate);
+            SendPacket(criteriaUpdate);
 		}
 	}
 
@@ -215,14 +219,15 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 	public override void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
 	{
-		CriteriaUpdate criteriaUpdate = new();
+		CriteriaUpdate criteriaUpdate = new()
+        {
+            CriteriaID = criteria.Id,
+            Quantity = progress.Counter,
+            PlayerGUID = _owner.GUID,
+            Flags = 0
+        };
 
-		criteriaUpdate.CriteriaID = criteria.Id;
-		criteriaUpdate.Quantity = progress.Counter;
-		criteriaUpdate.PlayerGUID = _owner.GUID;
-		criteriaUpdate.Flags = 0;
-
-		if (criteria.Entry.StartTimer != 0)
+        if (criteria.Entry.StartTimer != 0)
 			criteriaUpdate.Flags = timedCompleted ? 1 : 0u; // 1 is for keeping the counter at 0 in client
 
 		criteriaUpdate.CurrentTime = progress.Date;
@@ -234,9 +239,12 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 
 	public override void SendCriteriaProgressRemoved(uint criteriaId)
 	{
-		CriteriaDeleted criteriaDeleted = new();
-		criteriaDeleted.CriteriaID = criteriaId;
-		SendPacket(criteriaDeleted);
+		CriteriaDeleted criteriaDeleted = new()
+        {
+            CriteriaID = criteriaId
+        };
+
+        SendPacket(criteriaDeleted);
 	}
 
 	public override bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)

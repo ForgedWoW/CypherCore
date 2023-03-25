@@ -3,7 +3,7 @@
 
 using Framework.Database;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 class PetLoadQueryHolder : SQLQueryHolder<PetLoginQueryLoad>
 {

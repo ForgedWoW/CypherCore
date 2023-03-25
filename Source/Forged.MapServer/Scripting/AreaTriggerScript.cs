@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting.Interfaces;
-using Game.Spells;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 public class AreaTriggerScript : IAreaTriggerScript
 {

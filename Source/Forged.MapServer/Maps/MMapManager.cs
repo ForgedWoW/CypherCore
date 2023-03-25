@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using Framework.Constants;
 
-namespace Game;
+namespace Forged.MapServer.Maps;
 
 public class MMapManager : Singleton<MMapManager>
 {
@@ -257,17 +257,21 @@ public class MMapManager : Singleton<MMapManager>
 		}
 
 		using BinaryReader reader = new(new FileStream(filename, FileMode.Open, FileAccess.Read), Encoding.UTF8);
-		Detour.dtNavMeshParams Params = new();
-		Params.orig[0] = reader.ReadSingle();
-		Params.orig[1] = reader.ReadSingle();
-		Params.orig[2] = reader.ReadSingle();
+		Detour.dtNavMeshParams Params = new()
+        {
+            orig =
+            {
+                [0] = reader.ReadSingle(),
+                [1] = reader.ReadSingle(),
+                [2] = reader.ReadSingle()
+            },
+            tileWidth = reader.ReadSingle(),
+            tileHeight = reader.ReadSingle(),
+            maxTiles = reader.ReadInt32(),
+            maxPolys = reader.ReadInt32()
+        };
 
-		Params.tileWidth = reader.ReadSingle();
-		Params.tileHeight = reader.ReadSingle();
-		Params.maxTiles = reader.ReadInt32();
-		Params.maxPolys = reader.ReadInt32();
-
-		Detour.dtNavMesh mesh = new();
+        Detour.dtNavMesh mesh = new();
 
 		if (Detour.dtStatusFailed(mesh.init(Params)))
 		{

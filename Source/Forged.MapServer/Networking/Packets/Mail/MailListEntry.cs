@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Entities;
-using Game.Mails;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailListEntry
 {
@@ -25,7 +26,7 @@ public class MailListEntry
 	public string Body = "";
 	public List<MailAttachedItem> Attachments = new();
 
-	public MailListEntry(Mail mail, Player player)
+	public MailListEntry(Mails.Mail mail, Player player)
 	{
 		MailID = mail.messageID;
 		SenderType = (byte)mail.messageType;
@@ -49,7 +50,7 @@ public class MailListEntry
 		StationeryID = (int)mail.stationery;
 		SentMoney = mail.money;
 		Flags = (int)mail.checkMask;
-		DaysLeft = (float)(mail.expire_time - GameTime.GetGameTime()) / Time.Day;
+		DaysLeft = (float)(mail.expire_time - GameTime.GetGameTime()) / global::Time.Day;
 		MailTemplateID = (int)mail.mailTemplateId;
 		Subject = mail.subject;
 		Body = mail.body;

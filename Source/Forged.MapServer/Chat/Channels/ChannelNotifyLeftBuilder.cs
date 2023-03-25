@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 class ChannelNotifyLeftBuilder : MessageBuilder
 {
@@ -22,11 +23,16 @@ class ChannelNotifyLeftBuilder : MessageBuilder
 	{
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChannelNotifyLeft> notify = new();
-		notify.Data.Channel = _source.GetName(localeIdx);
-		notify.Data.ChatChannelID = _source.GetChannelId();
-		notify.Data.Suspended = _suspended;
+		PacketSenderOwning<ChannelNotifyLeft> notify = new()
+        {
+            Data =
+            {
+                Channel = _source.GetName(localeIdx),
+                ChatChannelID = _source.GetChannelId(),
+                Suspended = _suspended
+            }
+        };
 
-		return notify;
+        return notify;
 	}
 }

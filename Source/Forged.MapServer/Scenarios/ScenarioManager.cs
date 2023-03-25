@@ -3,14 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using Framework.Configuration;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Maps;
 using Framework.Constants;
-using Framework.Database;
-using Game.Achievements;
-using Game.DataStorage;
-using Game.Maps;
 
-namespace Game.Scenarios;
+namespace Forged.MapServer.Scenarios;
 
 public class ScenarioManager : Singleton<ScenarioManager>
 {
@@ -63,7 +62,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 	{
 		_scenarioDBData.Clear();
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var result = DB.World.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
 
@@ -100,15 +99,18 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			if (scenarioHordeId == 0)
 				scenarioHordeId = scenarioAllianceId;
 
-			ScenarioDBData data = new();
-			data.MapID = mapId;
-			data.DifficultyID = difficulty;
-			data.Scenario_A = scenarioAllianceId;
-			data.Scenario_H = scenarioHordeId;
-			_scenarioDBData[Tuple.Create(mapId, difficulty)] = data;
+			ScenarioDBData data = new()
+            {
+                MapID = mapId,
+                DifficultyID = difficulty,
+                Scenario_A = scenarioAllianceId,
+                Scenario_H = scenarioHordeId
+            };
+
+            _scenarioDBData[Tuple.Create(mapId, difficulty)] = data;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadDB2Data()
@@ -138,16 +140,19 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		foreach (var scenario in CliDB.ScenarioStorage.Values)
 		{
-			ScenarioData data = new();
-			data.Entry = scenario;
-			data.Steps = scenarioSteps.LookupByKey(scenario.Id);
-			_scenarioData[scenario.Id] = data;
+			ScenarioData data = new()
+            {
+                Entry = scenario,
+                Steps = scenarioSteps.LookupByKey(scenario.Id)
+            };
+
+            _scenarioData[scenario.Id] = data;
 		}
 	}
 
 	public void LoadScenarioPOI()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_scenarioPOIStore.Clear(); // need for reload case
 
@@ -220,7 +225,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 				Log.Logger.Error($"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} scenario POI definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} scenario POI definitions in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<ScenarioPOI> GetScenarioPOIs(uint CriteriaTreeID)

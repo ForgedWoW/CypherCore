@@ -2,13 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Scene;
+using Forged.MapServer.Scripting.Interfaces.IScene;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IScene;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class SceneMgr
 {
@@ -53,15 +55,18 @@ public class SceneMgr
 		if (_isDebuggingScenes)
 			Player.SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceId, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
 
-		PlayScene playScene = new();
-		playScene.SceneID = sceneTemplate.SceneId;
-		playScene.PlaybackFlags = (uint)sceneTemplate.PlaybackFlags;
-		playScene.SceneInstanceID = sceneInstanceId;
-		playScene.SceneScriptPackageID = sceneTemplate.ScenePackageId;
-		playScene.Location = position;
-		playScene.TransportGUID = Player.GetTransGUID();
-		playScene.Encrypted = sceneTemplate.Encrypted;
-		playScene.Write();
+		PlayScene playScene = new()
+        {
+            SceneID = sceneTemplate.SceneId,
+            PlaybackFlags = (uint)sceneTemplate.PlaybackFlags,
+            SceneInstanceID = sceneInstanceId,
+            SceneScriptPackageID = sceneTemplate.ScenePackageId,
+            Location = position,
+            TransportGUID = Player.GetTransGUID(),
+            Encrypted = sceneTemplate.Encrypted
+        };
+
+        playScene.Write();
 
 		if (Player.IsInWorld)
 			Player.SendPacket(playScene);
@@ -77,14 +82,16 @@ public class SceneMgr
 
 	public uint PlaySceneByPackageId(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
 	{
-		SceneTemplate sceneTemplate = new();
-		sceneTemplate.SceneId = 0;
-		sceneTemplate.ScenePackageId = sceneScriptPackageId;
-		sceneTemplate.PlaybackFlags = playbackflags;
-		sceneTemplate.Encrypted = false;
-		sceneTemplate.ScriptId = 0;
+		SceneTemplate sceneTemplate = new()
+        {
+            SceneId = 0,
+            ScenePackageId = sceneScriptPackageId,
+            PlaybackFlags = playbackflags,
+            Encrypted = false,
+            ScriptId = 0
+        };
 
-		return PlaySceneByTemplate(sceneTemplate, position);
+        return PlaySceneByTemplate(sceneTemplate, position);
 	}
 
 	public void OnSceneTrigger(uint sceneInstanceId, string triggerName)
@@ -209,9 +216,12 @@ public class SceneMgr
 		if (removeFromMap)
 			RemoveSceneInstanceId(sceneInstanceId);
 
-		CancelScene cancelScene = new();
-		cancelScene.SceneInstanceID = sceneInstanceId;
-		Player.SendPacket(cancelScene);
+		CancelScene cancelScene = new()
+        {
+            SceneInstanceID = sceneInstanceId
+        };
+
+        Player.SendPacket(cancelScene);
 	}
 
 	bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)

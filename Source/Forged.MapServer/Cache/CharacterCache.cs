@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.Misc;
 using Framework.Constants;
-using Framework.Database;
-using Game.Arenas;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Cache;
+namespace Forged.MapServer.Cache;
 
 public class CharacterCache : Singleton<CharacterCache>
 {
@@ -21,7 +21,7 @@ public class CharacterCache : Singleton<CharacterCache>
 	public void LoadCharacterCacheStorage()
 	{
 		_characterCacheStore.Clear();
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
 
@@ -37,22 +37,24 @@ public class CharacterCache : Singleton<CharacterCache>
 			AddCharacterCacheEntry(ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0)), result.Read<uint>(2), result.Read<string>(1), result.Read<byte>(4), result.Read<byte>(3), result.Read<byte>(5), result.Read<byte>(6), result.Read<uint>(7) != 0);
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded character infos for {_characterCacheStore.Count} characters in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded character infos for {_characterCacheStore.Count} characters in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void AddCharacterCacheEntry(ObjectGuid guid, uint accountId, string name, byte gender, byte race, byte playerClass, byte level, bool isDeleted)
 	{
-		var data = new CharacterCacheEntry();
-		data.Guid = guid;
-		data.Name = name;
-		data.AccountId = accountId;
-		data.RaceId = (Race)race;
-		data.Sex = (Gender)gender;
-		data.ClassId = (PlayerClass)playerClass;
-		data.Level = level;
-		data.GuildId = 0; // Will be set in guild loading or guild setting
+		var data = new CharacterCacheEntry
+        {
+            Guid = guid,
+            Name = name,
+            AccountId = accountId,
+            RaceId = (Race)race,
+            Sex = (Gender)gender,
+            ClassId = (PlayerClass)playerClass,
+            Level = level,
+            GuildId = 0 // Will be set in guild loading or guild setting
+        };
 
-		for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
+        for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
 			data.ArenaTeamId[i] = 0; // Will be set in arena teams loading
 
 		data.IsDeleted = isDeleted;
@@ -84,9 +86,12 @@ public class CharacterCache : Singleton<CharacterCache>
 		if (race.HasValue)
 			characterCacheEntry.RaceId = (Race)race.Value;
 
-		InvalidatePlayer invalidatePlayer = new();
-		invalidatePlayer.Guid = guid;
-		Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
+		InvalidatePlayer invalidatePlayer = new()
+        {
+            Guid = guid
+        };
+
+        Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
 
 		// Correct name -> pointer storage
 		_characterCacheByNameStore.Remove(oldName);

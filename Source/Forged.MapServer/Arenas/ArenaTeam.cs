@@ -4,14 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Cache;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game.Cache;
-using Game.Entities;
-using Game.Groups;
-using Game.Networking;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game.Arenas;
+namespace Forged.MapServer.Arenas;
 
 public class ArenaTeam
 {
@@ -142,18 +146,20 @@ public class ArenaTeam
 		//Player.RemovePetitionsAndSigns(playerGuid, GetArenaType());
 
 		// Feed data to the struct
-		ArenaTeamMember newMember = new();
-		newMember.Name = playerName;
-		newMember.Guid = playerGuid;
-		newMember.Class = (byte)playerClass;
-		newMember.SeasonGames = 0;
-		newMember.WeekGames = 0;
-		newMember.SeasonWins = 0;
-		newMember.WeekWins = 0;
-		newMember.PersonalRating = (ushort)personalRating;
-		newMember.MatchMakerRating = (ushort)matchMakerRating;
+		ArenaTeamMember newMember = new()
+        {
+            Name = playerName,
+            Guid = playerGuid,
+            Class = (byte)playerClass,
+            SeasonGames = 0,
+            WeekGames = 0,
+            SeasonWins = 0,
+            WeekWins = 0,
+            PersonalRating = (ushort)personalRating,
+            MatchMakerRating = (ushort)matchMakerRating
+        };
 
-		Members.Add(newMember);
+        Members.Add(newMember);
 		Global.CharacterCacheStorage.UpdateCharacterArenaTeamId(playerGuid, GetSlot(), GetId());
 
 		// Save player's arena team membership to db
@@ -218,18 +224,20 @@ public class ArenaTeam
 			if (arenaTeamId > teamId)
 				break;
 
-			ArenaTeamMember newMember = new();
-			newMember.Guid = ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(1));
-			newMember.WeekGames = result.Read<ushort>(2);
-			newMember.WeekWins = result.Read<ushort>(3);
-			newMember.SeasonGames = result.Read<ushort>(4);
-			newMember.SeasonWins = result.Read<ushort>(5);
-			newMember.Name = result.Read<string>(6);
-			newMember.Class = result.Read<byte>(7);
-			newMember.PersonalRating = result.Read<ushort>(8);
-			newMember.MatchMakerRating = (ushort)(result.Read<ushort>(9) > 0 ? result.Read<ushort>(9) : 1500);
+			ArenaTeamMember newMember = new()
+            {
+                Guid = ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(1)),
+                WeekGames = result.Read<ushort>(2),
+                WeekWins = result.Read<ushort>(3),
+                SeasonGames = result.Read<ushort>(4),
+                SeasonWins = result.Read<ushort>(5),
+                Name = result.Read<string>(6),
+                Class = result.Read<byte>(7),
+                PersonalRating = result.Read<ushort>(8),
+                MatchMakerRating = (ushort)(result.Read<ushort>(9) > 0 ? result.Read<ushort>(9) : 1500)
+            };
 
-			// Delete member if character information is missing
+            // Delete member if character information is missing
 			if (string.IsNullOrEmpty(newMember.Name))
 			{
 				Log.Logger.Error("ArenaTeam {0} has member with empty name - probably {1} doesn't exist, deleting him from memberlist!", arenaTeamId, newMember.Guid.ToString());

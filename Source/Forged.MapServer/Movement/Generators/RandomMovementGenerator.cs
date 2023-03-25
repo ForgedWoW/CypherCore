@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement.Generators;
 
 public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 {
@@ -229,7 +230,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 		else
 		{
 			// Creature has made all its steps, time for a little break
-			_timer.Reset(splineDuration + RandomHelper.URand(4, 10) * Time.InMilliseconds); // Retails seems to use rounded numbers so we do as well
+			_timer.Reset(splineDuration + RandomHelper.URand(4, 10) * global::Time.InMilliseconds); // Retails seems to use rounded numbers so we do as well
 			_wanderSteps = RandomHelper.URand(2, 10);
 		}
 

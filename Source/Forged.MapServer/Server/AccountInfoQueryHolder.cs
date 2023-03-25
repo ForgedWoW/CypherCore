@@ -3,7 +3,7 @@
 
 using Framework.Database;
 
-namespace Game;
+namespace Forged.MapServer.Server;
 
 class AccountInfoQueryHolder : SQLQueryHolder<AccountInfoQueryLoad>
 {

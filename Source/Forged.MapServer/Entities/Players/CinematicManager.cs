@@ -4,10 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class CinematicManager : IDisposable
 {
@@ -141,7 +143,7 @@ public class CinematicManager : IDisposable
 		var workDiff = (int)CinematicDiff;
 
 		// Modify result based on camera direction (Humans for example, have the camera point behind)
-		workDiff += (int)((2 * Time.InMilliseconds) * Math.Cos(angle));
+		workDiff += (int)((2 * global::Time.InMilliseconds) * Math.Cos(angle));
 
 		// Get an iterator to the last entry in the cameras, to make sure we don't go beyond the end
 		var endItr = CinematicCamera.LastOrDefault();
@@ -190,7 +192,7 @@ public class CinematicManager : IDisposable
 			_cinematicObject.MonsterMoveWithSpeed(interPosition.X, interPosition.Y, interPosition.Z, 500.0f, false, true);
 
 		// If we never received an end packet 10 seconds after the final timestamp then force an end
-		if (CinematicDiff > CinematicLength + 10 * Time.InMilliseconds)
+		if (CinematicDiff > CinematicLength + 10 * global::Time.InMilliseconds)
 			EndCinematic();
 	}
 

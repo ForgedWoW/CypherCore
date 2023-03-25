@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.V;
 
 public sealed class VehicleSeatRecord
 {

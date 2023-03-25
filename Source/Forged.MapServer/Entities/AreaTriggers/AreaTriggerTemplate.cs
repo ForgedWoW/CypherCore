@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.AreaTriggers;
 
 /// <summary>
 ///  Scale array definition

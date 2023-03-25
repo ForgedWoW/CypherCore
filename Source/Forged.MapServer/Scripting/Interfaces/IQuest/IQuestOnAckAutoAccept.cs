@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.Entities.Players;
 
-namespace Game.Scripting.Interfaces.IQuest;
+namespace Forged.MapServer.Scripting.Interfaces.IQuest;
 
 public interface IQuestOnAckAutoAccept : IScriptObject
 {
-	void OnAcknowledgeAutoAccept(Player player, Quest quest);
+	void OnAcknowledgeAutoAccept(Player player, Quest.Quest quest);
 }

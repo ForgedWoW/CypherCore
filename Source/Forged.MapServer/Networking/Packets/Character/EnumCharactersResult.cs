@@ -4,12 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Character;
 
 public class EnumCharactersResult : ServerPacket
 {

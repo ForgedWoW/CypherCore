@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Artifact;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -150,7 +149,7 @@ public partial class WorldSession
 			}
 		}
 
-		artifactTier = Math.Max(artifactTier, currentArtifactTier);
+		artifactTier = Math.Max(artifactTier, (uint)currentArtifactTier);
 
 		for (var i = currentArtifactTier; i <= artifactTier; ++i)
 			artifact.InitArtifactPowers(artifact.Template.ArtifactID, (byte)i);

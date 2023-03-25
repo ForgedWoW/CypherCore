@@ -4,12 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Reputation;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("character")]
 class CharacterCommands
@@ -697,7 +701,7 @@ class CharacterCommands
 
 			foreach (var info in foundList)
 			{
-				var dateStr = Time.UnixTimeToDateTime(info.deleteDate).ToShortDateString();
+				var dateStr = global::Time.UnixTimeToDateTime(info.deleteDate).ToShortDateString();
 
 				if (!handler.Session)
 					handler.SendSysMessage(CypherStrings.CharacterDeletedListLineConsole,

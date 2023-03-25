@@ -5,20 +5,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking.Packets.Pet;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class Pet : Guardian
 {
 	public new Dictionary<uint, PetSpell> Spells = new();
 	public bool Removed;
-	const int PetFocusRegenInterval = 4 * Time.InMilliseconds;
+	const int PetFocusRegenInterval = 4 * global::Time.InMilliseconds;
 	const int HappinessLevelSize = 333000;
 	const float PetXPFactor = 0.05f;
 	readonly List<uint> _autospells = new();
@@ -394,7 +404,7 @@ public class Pet : Guardian
 			castData.CastID = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, owner.Location.MapId, petInfo.CreatedBySpellId, map.GenerateLowGuid(HighGuid.Cast));
 			castData.SpellID = (int)petInfo.CreatedBySpellId;
 			castData.CastFlags = SpellCastFlags.Unk9;
-			castData.CastTime = Time.MSTime;
+			castData.CastTime = global::Time.MSTime;
 			owner.SendMessageToSet(spellGo, true);
 		}
 
@@ -466,7 +476,7 @@ public class Pet : Guardian
 				{
 					var result = holder.GetResult(PetLoginQueryLoad.DeclinedNames);
 
-					if (!result.IsEmpty())
+					if (!SQLEx.IsEmpty(result))
 					{
 						_declinedname = new DeclinedName();
 
@@ -1148,9 +1158,12 @@ public class Pet : Guardian
 		CleanupActionBar();
 		OwningPlayer.PetSpellInitialize();
 
-		SetPetSpecialization setPetSpecialization = new();
-		setPetSpecialization.SpecID = _petSpecialization;
-		OwningPlayer.SendPacket(setPetSpecialization);
+		SetPetSpecialization setPetSpecialization = new()
+        {
+            SpecID = _petSpecialization
+        };
+
+        OwningPlayer.SendPacket(setPetSpecialization);
 	}
 
 	public override string GetDebugInfo()
@@ -1310,10 +1323,10 @@ public class Pet : Guardian
 				// negative effects should continue counting down after logout
 				if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
 				{
-					if (remainTime / Time.InMilliseconds <= timediff)
+					if (remainTime / global::Time.InMilliseconds <= timediff)
 						continue;
 
-					remainTime -= (int)timediff * Time.InMilliseconds;
+					remainTime -= (int)timediff * global::Time.InMilliseconds;
 				}
 
 				// prevent wrong values of remaincharges
@@ -1452,11 +1465,13 @@ public class Pet : Guardian
 			}
 		}
 
-		PetSpell newspell = new();
-		newspell.State = state;
-		newspell.Type = type;
+		PetSpell newspell = new()
+        {
+            State = state,
+            Type = type
+        };
 
-		if (active == ActiveStates.Decide) // active was not used before, so we save it's autocast/passive state here
+        if (active == ActiveStates.Decide) // active was not used before, so we save it's autocast/passive state here
 		{
 			if (spellInfo.IsAutocastable)
 				newspell.Active = ActiveStates.Disabled;

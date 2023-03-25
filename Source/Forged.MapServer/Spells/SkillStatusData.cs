@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class SkillStatusData
 {

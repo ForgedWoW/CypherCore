@@ -4,14 +4,23 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Entities;
-using Game.Groups;
-using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.BattleFields;
+namespace Forged.MapServer.BattleFields;
 
 public enum BattleFieldTypes
 {
@@ -77,7 +86,7 @@ public class BattleField : ZoneScript
 		m_uiKickDontAcceptTimer = 1000;
 		m_uiKickAfkPlayersTimer = 1000;
 
-		m_LastResurectTimer = 30 * Time.InMilliseconds;
+		m_LastResurectTimer = 30 * global::Time.InMilliseconds;
 
 		m_Map = map;
 		m_MapId = map.Id;
@@ -517,11 +526,13 @@ public class BattleField : ZoneScript
 
 	public void SendAreaSpiritHealerQuery(Player player, ObjectGuid guid)
 	{
-		AreaSpiritHealerTime areaSpiritHealerTime = new();
-		areaSpiritHealerTime.HealerGuid = guid;
-		areaSpiritHealerTime.TimeLeft = m_LastResurectTimer; // resurrect every 30 seconds
+		AreaSpiritHealerTime areaSpiritHealerTime = new()
+        {
+            HealerGuid = guid,
+            TimeLeft = m_LastResurectTimer // resurrect every 30 seconds
+        };
 
-		player.SendPacket(areaSpiritHealerTime);
+        player.SendPacket(areaSpiritHealerTime);
 	}
 
 	public Creature SpawnCreature(uint entry, Position pos)

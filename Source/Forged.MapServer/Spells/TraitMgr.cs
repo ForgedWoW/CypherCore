@@ -4,12 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.Trait;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Spells;
 
 class TraitMgr
 {
@@ -130,10 +132,12 @@ class TraitMgr
 
 		foreach (var traitTree in CliDB.TraitTreeStorage.Values)
 		{
-			Tree tree = new();
-			tree.Data = traitTree;
+			Tree tree = new()
+            {
+                Data = traitTree
+            };
 
-			var costs = treeCosts.LookupByKey(traitTree.Id);
+            var costs = treeCosts.LookupByKey(traitTree.Id);
 
 			if (costs != null)
 				tree.Costs = costs;
@@ -154,10 +158,12 @@ class TraitMgr
 
 		foreach (var traitNodeGroup in CliDB.TraitNodeGroupStorage.Values)
 		{
-			NodeGroup nodeGroup = new();
-			nodeGroup.Data = traitNodeGroup;
+			NodeGroup nodeGroup = new()
+            {
+                Data = traitNodeGroup
+            };
 
-			var conditions = nodeGroupConditions.LookupByKey(traitNodeGroup.Id);
+            var conditions = nodeGroupConditions.LookupByKey(traitNodeGroup.Id);
 
 			if (conditions != null)
 				nodeGroup.Conditions = conditions;
@@ -172,20 +178,24 @@ class TraitMgr
 
 		foreach (var traitNode in CliDB.TraitNodeStorage.Values)
 		{
-			Node node = new();
-			node.Data = traitNode;
+			Node node = new()
+            {
+                Data = traitNode
+            };
 
-			var tree = TraitTrees.LookupByKey(traitNode.TraitTreeID);
+            var tree = TraitTrees.LookupByKey(traitNode.TraitTreeID);
 
 			if (tree != null)
 				tree.Nodes.Add(node);
 
 			foreach (var traitNodeEntry in nodeEntries.LookupByKey(traitNode.Id))
 			{
-				NodeEntry entry = new();
-				entry.Data = traitNodeEntry;
+				NodeEntry entry = new()
+                {
+                    Data = traitNodeEntry
+                };
 
-				var conditions = nodeEntryConditions.LookupByKey(traitNodeEntry.Id);
+                var conditions = nodeEntryConditions.LookupByKey(traitNodeEntry.Id);
 
 				if (conditions != null)
 					entry.Conditions = conditions;
@@ -576,12 +586,15 @@ class TraitMgr
 
 			if (foundTraitEntry == null)
 			{
-				foundTraitEntry = new TraitEntry();
-				foundTraitEntry.TraitNodeID = (int)nodeId;
-				foundTraitEntry.TraitNodeEntryID = (int)entryId;
-				foundTraitEntry.Rank = 0;
-				foundTraitEntry.GrantedRanks = 0;
-				entries.Add(foundTraitEntry);
+				foundTraitEntry = new TraitEntry
+                {
+                    TraitNodeID = (int)nodeId,
+                    TraitNodeEntryID = (int)entryId,
+                    Rank = 0,
+                    GrantedRanks = 0
+                };
+
+                entries.Add(foundTraitEntry);
 			}
 
 			return foundTraitEntry;
@@ -775,11 +788,14 @@ class TraitMgr
 
 		foreach (var grant in GetGrantedTraitEntriesForConfig(traitConfig, player))
 		{
-			TraitEntryPacket newEntry = new();
-			newEntry.TraitNodeID = grant.TraitNodeID;
-			newEntry.TraitNodeEntryID = grant.TraitNodeEntryID;
-			newEntry.GrantedRanks = grant.GrantedRanks;
-			traitConfig.AddEntry(newEntry);
+			TraitEntryPacket newEntry = new()
+            {
+                TraitNodeID = grant.TraitNodeID,
+                TraitNodeEntryID = grant.TraitNodeEntryID,
+                GrantedRanks = grant.GrantedRanks
+            };
+
+            traitConfig.AddEntry(newEntry);
 		}
 
 		Dictionary<int, int> currencies = new();
@@ -799,11 +815,13 @@ class TraitMgr
 				var addedRanks = loadoutEntry.NumPoints;
 				var node = TraitNodes.LookupByKey(loadoutEntry.SelectedTraitNodeID);
 
-				TraitEntryPacket newEntry = new();
-				newEntry.TraitNodeID = loadoutEntry.SelectedTraitNodeID;
-				newEntry.TraitNodeEntryID = loadoutEntry.SelectedTraitNodeEntryID;
+				TraitEntryPacket newEntry = new()
+                {
+                    TraitNodeID = loadoutEntry.SelectedTraitNodeID,
+                    TraitNodeEntryID = loadoutEntry.SelectedTraitNodeEntryID
+                };
 
-				if (newEntry.TraitNodeEntryID == 0)
+                if (newEntry.TraitNodeEntryID == 0)
 					newEntry.TraitNodeEntryID = (int)node.Entries[0].Data.Id;
 
 				var entryInConfig = FindEntry(traitConfig, newEntry.TraitNodeID, newEntry.TraitNodeEntryID);

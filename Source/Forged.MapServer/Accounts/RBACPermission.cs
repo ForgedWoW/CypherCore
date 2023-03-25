@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Accounts;
+namespace Forged.MapServer.Accounts;
 
 public class RBACPermission
 {

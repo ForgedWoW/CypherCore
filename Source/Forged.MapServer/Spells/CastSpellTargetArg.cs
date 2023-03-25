@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class CastSpellTargetArg
 {
@@ -22,27 +23,33 @@ public class CastSpellTargetArg
 
 			if (unitTarget != null)
 			{
-				Targets = new SpellCastTargets();
-				Targets.UnitTarget = unitTarget;
-			}
+				Targets = new SpellCastTargets
+                {
+                    UnitTarget = unitTarget
+                };
+            }
 			else
 			{
 				var goTarget = target.AsGameObject;
 
 				if (goTarget != null)
 				{
-					Targets = new SpellCastTargets();
-					Targets.GOTarget = goTarget;
-				}
+					Targets = new SpellCastTargets
+                    {
+                        GOTarget = goTarget
+                    };
+                }
 				else
 				{
 					var itemTarget = target.AsItem;
 
 					if (itemTarget != null)
 					{
-						Targets = new SpellCastTargets();
-						Targets.ItemTarget = itemTarget;
-					}
+						Targets = new SpellCastTargets
+                        {
+                            ItemTarget = itemTarget
+                        };
+                    }
 				}
 				// error when targeting anything other than units and gameobjects
 			}
@@ -55,9 +62,11 @@ public class CastSpellTargetArg
 
 	public CastSpellTargetArg(Item itemTarget)
 	{
-		Targets = new SpellCastTargets();
-		Targets.ItemTarget = itemTarget;
-	}
+		Targets = new SpellCastTargets
+        {
+            ItemTarget = itemTarget
+        };
+    }
 
 	public CastSpellTargetArg(Position dest)
 	{

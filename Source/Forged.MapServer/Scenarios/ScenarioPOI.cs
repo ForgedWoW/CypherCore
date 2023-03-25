@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Scenarios;
+namespace Forged.MapServer.Scenarios;
 
 public class ScenarioPOI
 {

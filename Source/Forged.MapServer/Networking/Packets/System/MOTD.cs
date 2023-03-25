@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.System;
 
 public class MOTD : ServerPacket
 {

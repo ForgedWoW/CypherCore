@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailListResult : ServerPacket
 {

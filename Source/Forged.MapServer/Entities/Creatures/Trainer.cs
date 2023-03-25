@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
-using Game.BattlePets;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class Trainer
 {
@@ -29,13 +30,15 @@ public class Trainer
 	{
 		var reputationDiscount = player.GetReputationPriceDiscount(npc);
 
-		TrainerList trainerList = new();
-		trainerList.TrainerGUID = npc.GUID;
-		trainerList.TrainerType = (int)_type;
-		trainerList.TrainerID = (int)_id;
-		trainerList.Greeting = GetGreeting(locale);
+		TrainerList trainerList = new()
+        {
+            TrainerGUID = npc.GUID,
+            TrainerType = (int)_type,
+            TrainerID = (int)_id,
+            Greeting = GetGreeting(locale)
+        };
 
-		foreach (var trainerSpell in _spells)
+        foreach (var trainerSpell in _spells)
 		{
 			if (!player.IsSpellFitByClassAndRace(trainerSpell.SpellId))
 				continue;
@@ -47,15 +50,18 @@ public class Trainer
 				continue;
 			}
 
-			TrainerListSpell trainerListSpell = new();
-			trainerListSpell.SpellID = trainerSpell.SpellId;
-			trainerListSpell.MoneyCost = (uint)(trainerSpell.MoneyCost * reputationDiscount);
-			trainerListSpell.ReqSkillLine = trainerSpell.ReqSkillLine;
-			trainerListSpell.ReqSkillRank = trainerSpell.ReqSkillRank;
-			trainerListSpell.ReqAbility = trainerSpell.ReqAbility.ToArray();
-			trainerListSpell.Usable = GetSpellState(player, trainerSpell);
-			trainerListSpell.ReqLevel = trainerSpell.ReqLevel;
-			trainerList.Spells.Add(trainerListSpell);
+			TrainerListSpell trainerListSpell = new()
+            {
+                SpellID = trainerSpell.SpellId,
+                MoneyCost = (uint)(trainerSpell.MoneyCost * reputationDiscount),
+                ReqSkillLine = trainerSpell.ReqSkillLine,
+                ReqSkillRank = trainerSpell.ReqSkillRank,
+                ReqAbility = trainerSpell.ReqAbility.ToArray(),
+                Usable = GetSpellState(player, trainerSpell),
+                ReqLevel = trainerSpell.ReqLevel
+            };
+
+            trainerList.Spells.Add(trainerListSpell);
 		}
 
 		player.SendPacket(trainerList);
@@ -203,11 +209,14 @@ public class Trainer
 
 	void SendTeachFailure(Creature npc, Player player, uint spellId, TrainerFailReason reason)
 	{
-		TrainerBuyFailed trainerBuyFailed = new();
-		trainerBuyFailed.TrainerGUID = npc.GUID;
-		trainerBuyFailed.SpellID = spellId;
-		trainerBuyFailed.TrainerFailedReason = reason;
-		player.SendPacket(trainerBuyFailed);
+		TrainerBuyFailed trainerBuyFailed = new()
+        {
+            TrainerGUID = npc.GUID,
+            SpellID = spellId,
+            TrainerFailedReason = reason
+        };
+
+        player.SendPacket(trainerBuyFailed);
 	}
 
 	string GetGreeting(Locale locale)

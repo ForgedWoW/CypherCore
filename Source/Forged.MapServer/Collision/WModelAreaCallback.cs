@@ -3,8 +3,9 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Collision.Models;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision;
 
 public class WModelAreaCallback : WorkerCallback
 {

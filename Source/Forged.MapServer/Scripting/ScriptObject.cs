@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
-using Game.Scripting.Interfaces;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Scripting.Interfaces;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 public abstract class ScriptObject : IScriptObject
 {

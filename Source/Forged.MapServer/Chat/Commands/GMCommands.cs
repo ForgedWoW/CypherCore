@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("gm")]
 class GMCommands

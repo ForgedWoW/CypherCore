@@ -4,16 +4,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game;
+namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionManager : Singleton<AuctionManager>
 {
-	const int MIN_AUCTION_TIME = 12 * Time.Hour;
+	const int MIN_AUCTION_TIME = 12 * global::Time.Hour;
 	readonly AuctionHouseObject _hordeAuctions;
 	readonly AuctionHouseObject _allianceAuctions;
 	readonly AuctionHouseObject _neutralAuctions;
@@ -83,14 +88,14 @@ public class AuctionManager : Singleton<AuctionManager>
 	{
 		var sellPrice = item.SellPrice;
 
-		return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.Minute)));
+		return (ulong)((Math.Ceiling(Math.Floor(Math.Max(0.15 * quantity * sellPrice, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / global::Time.Minute)));
 	}
 
 	public ulong GetItemAuctionDeposit(Player player, Item item, TimeSpan time)
 	{
 		var sellPrice = item.GetSellPrice(player);
 
-		return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / Time.Minute)));
+		return (ulong)((Math.Ceiling(Math.Floor(Math.Max(sellPrice * 0.15, 100.0)) / MoneyConstants.Silver) * MoneyConstants.Silver) * (time.Minutes / (MIN_AUCTION_TIME / global::Time.Minute)));
 	}
 
 	public string BuildItemAuctionMailSubject(AuctionMailType type, AuctionPosting auction)
@@ -136,7 +141,7 @@ public class AuctionManager : Singleton<AuctionManager>
 
 	public void LoadAuctions()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// need to clear in case we are reloading
 		_itemsByGuid.Clear();
@@ -184,9 +189,9 @@ public class AuctionManager : Singleton<AuctionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} auction items in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} auction items in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-		oldMSTime = Time.MSTime;
+		oldMSTime = global::Time.MSTime;
 		count = 0;
 
 		result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTION_BIDDERS));
@@ -197,9 +202,9 @@ public class AuctionManager : Singleton<AuctionManager>
 				biddersByAuction.Add(result.Read<uint>(0), ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(1)));
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} auction bidders in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} auction bidders in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-		oldMSTime = Time.MSTime;
+		oldMSTime = global::Time.MSTime;
 		count = 0;
 
 		result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONS));
@@ -210,9 +215,12 @@ public class AuctionManager : Singleton<AuctionManager>
 
 			do
 			{
-				AuctionPosting auction = new();
-				auction.Id = result.Read<uint>(0);
-				var auctionHouseId = result.Read<uint>(1);
+				AuctionPosting auction = new()
+                {
+                    Id = result.Read<uint>(0)
+                };
+
+                var auctionHouseId = result.Read<uint>(1);
 
 				var auctionHouse = GetAuctionsById(auctionHouseId);
 
@@ -248,8 +256,8 @@ public class AuctionManager : Singleton<AuctionManager>
 				auction.BuyoutOrUnitPrice = result.Read<ulong>(5);
 				auction.Deposit = result.Read<ulong>(6);
 				auction.BidAmount = result.Read<ulong>(7);
-				auction.StartTime = Time.UnixTimeToDateTime(result.Read<long>(8));
-				auction.EndTime = Time.UnixTimeToDateTime(result.Read<long>(9));
+				auction.StartTime = global::Time.UnixTimeToDateTime(result.Read<long>(8));
+				auction.EndTime = global::Time.UnixTimeToDateTime(result.Read<long>(9));
 				auction.ServerFlags = (AuctionPostingServerFlag)result.Read<byte>(10);
 
 				if (biddersByAuction.ContainsKey(auction.Id))
@@ -263,7 +271,7 @@ public class AuctionManager : Singleton<AuctionManager>
 			DB.Characters.CommitTransaction(trans);
 		}
 
-		Log.Logger.Information($"Loaded {count} auctions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} auctions in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void AddAItem(Item item)

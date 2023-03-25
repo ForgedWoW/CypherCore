@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement.Generators;
 
 public abstract class MovementGenerator : IEquatable<MovementGenerator>
 {

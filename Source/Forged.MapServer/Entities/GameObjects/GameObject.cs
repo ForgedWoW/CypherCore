@@ -5,21 +5,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.AI;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Collision.Models;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Artifact;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Networking.Packets.GameObject;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
-using Game.AI;
-using Game.BattleGrounds;
-using Game.Collision;
-using Game.DataStorage;
-using Game.Loots;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Entities
+namespace Forged.MapServer.Entities.GameObjects
 {
 	public class GameObject : WorldObject
 	{
@@ -63,7 +80,7 @@ namespace Game.Entities
 		Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
 
 		GameObjectState _prevGoState; // What state to set whenever resetting
-		Dictionary<ObjectGuid, Loot> _personalLoot = new();
+		Dictionary<ObjectGuid, Loot.Loot> _personalLoot = new();
 
 		ObjectGuid _linkedTrap;
 
@@ -71,7 +88,7 @@ namespace Game.Entities
 		public GameObjectFieldData GameObjectFieldData { get; set; }
 		public Position StationaryPosition { get; set; }
 
-		public Loot Loot { get; set; }
+		public Loot.Loot Loot { get; set; }
 
 		public GameObjectModel Model { get; set; }
 
@@ -164,7 +181,7 @@ namespace Game.Entities
 			}
 		}
 
-		public Transport AsTransport => Template.type == GameObjectTypes.MapObjTransport ? (this as Transport) : null;
+		public Entities.Transport AsTransport => Template.type == GameObjectTypes.MapObjTransport ? (this as Entities.Transport) : null;
 
 		public uint ScriptId
 		{
@@ -556,10 +573,10 @@ namespace Game.Entities
 							var owner = OwnerUnit;
 
 							if (goInfo.Trap.charges == 2)
-								_cooldownTime = GameTime.GetGameTimeMS() + 10 * Time.InMilliseconds; // Hardcoded tooltip value
+								_cooldownTime = GameTime.GetGameTimeMS() + 10 * global::Time.InMilliseconds; // Hardcoded tooltip value
 							else if (owner)
 								if (owner.IsInCombat)
-									_cooldownTime = GameTime.GetGameTimeMS() + goInfo.Trap.startDelay * Time.InMilliseconds;
+									_cooldownTime = GameTime.GetGameTimeMS() + goInfo.Trap.startDelay * global::Time.InMilliseconds;
 
 							_lootState = LootState.Ready;
 
@@ -617,9 +634,9 @@ namespace Game.Entities
 									var targetGuid = Global.ObjectMgr.GetLinkedRespawnGuid(dbtableHighGuid);
 
 									if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
-										SetRespawnTime(Time.Week);
+										SetRespawnTime(global::Time.Week);
 									else
-										_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + RandomHelper.IRand(5, Time.Minute); // else copy time from master and add a little
+										_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + RandomHelper.IRand(5, global::Time.Minute); // else copy time from master and add a little
 
 									SaveRespawnTime();
 
@@ -873,7 +890,7 @@ namespace Game.Entities
 									CastSpell(target, goInfo.Trap.spell, args);
 
 								// Template value or 4 seconds
-								_cooldownTime = (GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * Time.InMilliseconds;
+								_cooldownTime = (GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * global::Time.InMilliseconds;
 
 								if (goInfo.Trap.charges == 1)
 									SetLootState(LootState.JustDeactivated);
@@ -1089,16 +1106,19 @@ namespace Game.Entities
 
 		public void SendGameObjectDespawn()
 		{
-			GameObjectDespawn packet = new();
-			packet.ObjectGUID = GUID;
-			SendMessageToSet(packet, true);
+			GameObjectDespawn packet = new()
+            {
+                ObjectGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
-		public Loot GetFishLoot(Player lootOwner)
+		public Loot.Loot GetFishLoot(Player lootOwner)
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
+			Loot.Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
 
 			var areaId = Area;
 			AreaTableRecord areaEntry;
@@ -1119,11 +1139,11 @@ namespace Game.Entities
 			return fishLoot;
 		}
 
-		public Loot GetFishLootJunk(Player lootOwner)
+		public Loot.Loot GetFishLootJunk(Player lootOwner)
 		{
 			uint defaultzone = 1;
 
-			Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
+			Loot.Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
 
 			var areaId = Area;
 			AreaTableRecord areaEntry;
@@ -1379,11 +1399,14 @@ namespace Game.Entities
 			{
 				if (_respawnCompatibilityMode)
 				{
-					RespawnInfo ri = new();
-					ri.ObjectType = SpawnObjectType.GameObject;
-					ri.SpawnId = _spawnId;
-					ri.RespawnTime = _respawnTime;
-					Map.SaveRespawnInfoDB(ri);
+					RespawnInfo ri = new()
+                    {
+                        ObjectType = SpawnObjectType.GameObject,
+                        SpawnId = _spawnId,
+                        RespawnTime = _respawnTime
+                    };
+
+                    Map.SaveRespawnInfoDB(ri);
 
 					return;
 				}
@@ -1781,7 +1804,7 @@ namespace Game.Entities
 				if (_cooldownTime > GameTime.GetGameTime())
 					return;
 
-				_cooldownTime = GameTime.GetGameTimeMS() + cooldown * Time.InMilliseconds;
+				_cooldownTime = GameTime.GetGameTimeMS() + cooldown * global::Time.InMilliseconds;
 			}
 
 			switch (GoType)
@@ -1825,7 +1848,7 @@ namespace Game.Entities
 							var group = player.Group;
 							var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-							Loot = new Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
+							Loot = new Loot.Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
 							Loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
 							Loot.FillLoot(info.GetLootId(), LootStorage.Gameobject, player, !groupRules, false, LootMode, Map.GetDifficultyLootItemContext());
 
@@ -1882,7 +1905,7 @@ namespace Game.Entities
 							}
 							else
 							{
-								Loot loot = new(Map, GUID, LootType.Chest, null);
+								Loot.Loot loot = new(Map, GUID, LootType.Chest, null);
 								_personalLoot[player.GUID] = loot;
 
 								loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
@@ -1898,7 +1921,7 @@ namespace Game.Entities
 					{
 						if (info.Chest.chestPushLoot != 0)
 						{
-							Loot pushLoot = new(Map, GUID, LootType.Chest, null);
+							Loot.Loot pushLoot = new(Map, GUID, LootType.Chest, null);
 							pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
 							pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
 						}
@@ -1933,7 +1956,7 @@ namespace Game.Entities
 					if (goInfo.Trap.spell != 0)
 						CastSpell(user, goInfo.Trap.spell);
 
-					_cooldownTime = GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * Time.InMilliseconds; // template or 4 seconds
+					_cooldownTime = GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * global::Time.InMilliseconds; // template or 4 seconds
 
 					if (goInfo.Trap.charges == 1) // Deactivate after trigger
 						SetLootState(LootState.JustDeactivated);
@@ -2045,9 +2068,12 @@ namespace Game.Entities
 					{
 						if (info.Goober.pageID != 0) // show page...
 						{
-							PageTextPkt data = new();
-							data.GameObjectGUID = GUID;
-							player.SendPacket(data);
+							PageTextPkt data = new()
+                            {
+                                GameObjectGUID = GUID
+                            };
+
+                            player.SendPacket(data);
 						}
 						else if (info.Goober.gossipID != 0)
 						{
@@ -2444,7 +2470,7 @@ namespace Game.Entities
 
 					var player = user.AsPlayer;
 
-					var loot = new Loot(Map, GUID, LootType.Fishinghole, null);
+					var loot = new Loot.Loot(Map, GUID, LootType.Fishinghole, null);
 					loot.FillLoot(Template.GetLootId(), LootStorage.Gameobject, player, true);
 					_personalLoot[player.GUID] = loot;
 
@@ -2576,10 +2602,13 @@ namespace Game.Entities
 								return;
 							}
 
-							OpenArtifactForge openArtifactForge = new();
-							openArtifactForge.ArtifactGUID = item.GUID;
-							openArtifactForge.ForgeGUID = GUID;
-							player.SendPacket(openArtifactForge);
+							OpenArtifactForge openArtifactForge = new()
+                            {
+                                ArtifactGUID = item.GUID,
+                                ForgeGUID = GUID
+                            };
+
+                            player.SendPacket(openArtifactForge);
 
 							break;
 						}
@@ -2590,10 +2619,13 @@ namespace Game.Entities
 							if (!item)
 								return;
 
-							GameObjectInteraction openHeartForge = new();
-							openHeartForge.ObjectGUID = GUID;
-							openHeartForge.InteractionType = PlayerInteractionType.AzeriteForge;
-							player.SendPacket(openHeartForge);
+							GameObjectInteraction openHeartForge = new()
+                            {
+                                ObjectGUID = GUID,
+                                InteractionType = PlayerInteractionType.AzeriteForge
+                            };
+
+                            player.SendPacket(openHeartForge);
 
 							break;
 						}
@@ -2610,10 +2642,12 @@ namespace Game.Entities
 					if (!player)
 						return;
 
-					GameObjectInteraction gameObjectUILink = new();
-					gameObjectUILink.ObjectGUID = GUID;
+					GameObjectInteraction gameObjectUILink = new()
+                    {
+                        ObjectGUID = GUID
+                    };
 
-					switch (Template.UILink.UILinkType)
+                    switch (Template.UILink.UILinkType)
 					{
 						case 0:
 							gameObjectUILink.InteractionType = PlayerInteractionType.AdventureJournal;
@@ -2652,7 +2686,7 @@ namespace Game.Entities
 					{
 						if (info.GatheringNode.chestLoot != 0)
 						{
-							Loot newLoot = new(Map, GUID, LootType.Chest, null);
+							Loot.Loot newLoot = new(Map, GUID, LootType.Chest, null);
 							_personalLoot[player.GUID] = newLoot;
 
 							newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
@@ -2673,7 +2707,7 @@ namespace Game.Entities
 
 							if (questXp != null)
 							{
-								var xp = Quest.RoundXPValue(questXp.Difficulty[info.GatheringNode.xpDifficulty]);
+								var xp = Quest.Quest.RoundXPValue(questXp.Difficulty[info.GatheringNode.xpDifficulty]);
 
 								if (xp != 0)
 									player.GiveXP(xp, null);
@@ -2746,10 +2780,13 @@ namespace Game.Entities
 
 		public void SendCustomAnim(uint anim)
 		{
-			GameObjectCustomAnim customAnim = new();
-			customAnim.ObjectGUID = GUID;
-			customAnim.CustomAnim = anim;
-			SendMessageToSet(customAnim, true);
+			GameObjectCustomAnim customAnim = new()
+            {
+                ObjectGUID = GUID,
+                CustomAnim = anim
+            };
+
+            SendMessageToSet(customAnim, true);
 		}
 
 		public bool IsInRange(float x, float y, float z, float radius)
@@ -2835,7 +2872,7 @@ namespace Game.Entities
 		{
 			var localRotation = LocalRotation;
 
-			var transport = GetTransport<Transport>();
+			var transport = GetTransport<Entities.Transport>();
 
 			if (transport != null)
 			{
@@ -2953,13 +2990,16 @@ namespace Game.Entities
 
 			if (player != null)
 			{
-				DestructibleBuildingDamage packet = new();
-				packet.Caster = attackerOrHealer.GUID; // todo: this can be a GameObject
-				packet.Target = GUID;
-				packet.Damage = -change;
-				packet.Owner = player.GUID;
-				packet.SpellID = spellId;
-				player.SendPacket(packet);
+				DestructibleBuildingDamage packet = new()
+                {
+                    Caster = attackerOrHealer.GUID, // todo: this can be a GameObject
+                    Target = GUID,
+                    Damage = -change,
+                    Owner = player.GUID,
+                    SpellID = spellId
+                };
+
+                player.SendPacket(packet);
 			}
 
 			if (change < 0 && Template.DestructibleBuilding.DamageEvent != 0)
@@ -3255,7 +3295,7 @@ namespace Game.Entities
 			return true;
 		}
 
-		public override Loot GetLootForPlayer(Player player)
+		public override Loot.Loot GetLootForPlayer(Player player)
 		{
 			if (_personalLoot.Empty())
 				return Loot;
@@ -3329,7 +3369,7 @@ namespace Game.Entities
 
 		public List<uint> GetPauseTimes()
 		{
-			var transport = _goTypeImpl as GameObjectType.Transport;
+			var transport = _goTypeImpl as Transport;
 
 			if (transport != null)
 				return transport.GetPauseTimes();
@@ -3368,9 +3408,9 @@ namespace Game.Entities
 			switch (GoType)
 			{
 				case GameObjectTypes.Transport:
-					return (GameObjectType.Transport)_goTypeImpl;
+					return (Transport)_goTypeImpl;
 				case GameObjectTypes.MapObjTransport:
-					return (Transport)this;
+					return (Entities.Transport)this;
 				default:
 					break;
 			}
@@ -3454,22 +3494,28 @@ namespace Game.Entities
 			else
 				_animKitId = 0;
 
-			GameObjectActivateAnimKit activateAnimKit = new();
-			activateAnimKit.ObjectGUID = GUID;
-			activateAnimKit.AnimKitID = animKitId;
-			activateAnimKit.Maintain = !oneshot;
-			SendMessageToSet(activateAnimKit, true);
+			GameObjectActivateAnimKit activateAnimKit = new()
+            {
+                ObjectGUID = GUID,
+                AnimKitID = animKitId,
+                Maintain = !oneshot
+            };
+
+            SendMessageToSet(activateAnimKit, true);
 		}
 
 		public void SetSpellVisualId(uint spellVisualId, ObjectGuid activatorGuid = default)
 		{
 			SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpellVisualID), spellVisualId);
 
-			GameObjectPlaySpellVisual packet = new();
-			packet.ObjectGUID = GUID;
-			packet.ActivatorGUID = activatorGuid;
-			packet.SpellVisualID = spellVisualId;
-			SendMessageToSet(packet, true);
+			GameObjectPlaySpellVisual packet = new()
+            {
+                ObjectGUID = GUID,
+                ActivatorGUID = activatorGuid,
+                SpellVisualID = spellVisualId
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		public void AssaultCapturePoint(Player player)
@@ -3916,7 +3962,7 @@ namespace Game.Entities
 
 					break;
 				case GameObjectTypes.Transport:
-					_goTypeImpl = new GameObjectType.Transport(this);
+					_goTypeImpl = new Transport(this);
 
 					if (goInfo.Transport.startOpen != 0)
 						SetGoState(GameObjectState.TransportStopped);
@@ -4091,10 +4137,13 @@ namespace Game.Entities
 			perPlayerState.ValidUntil = GameTime.GetSystemTime() + TimeSpan.FromSeconds(_respawnDelayTime);
 			perPlayerState.State = state;
 
-			GameObjectSetStateLocal setStateLocal = new();
-			setStateLocal.ObjectGUID = GUID;
-			setStateLocal.State = (byte)state;
-			viewer.SendPacket(setStateLocal);
+			GameObjectSetStateLocal setStateLocal = new()
+            {
+                ObjectGUID = GUID,
+                State = (byte)state
+            };
+
+            viewer.SendPacket(setStateLocal);
 		}
 
 		void EnableCollision(bool enable)
@@ -4180,13 +4229,19 @@ namespace Game.Entities
 
 				if (bg != null)
 				{
-					UpdateCapturePoint packet = new();
-					packet.CapturePointInfo.State = GoValueProtected.CapturePoint.State;
-					packet.CapturePointInfo.Pos = Location;
-					packet.CapturePointInfo.Guid = GUID;
-					packet.CapturePointInfo.CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime);
-					packet.CapturePointInfo.CaptureTime = GoValueProtected.CapturePoint.AssaultTimer;
-					bg.SendPacketToAll(packet);
+					UpdateCapturePoint packet = new()
+                    {
+                        CapturePointInfo =
+                        {
+                            State = GoValueProtected.CapturePoint.State,
+                            Pos = Location,
+                            Guid = GUID,
+                            CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime),
+                            CaptureTime = GoValueProtected.CapturePoint.AssaultTimer
+                        }
+                    };
+
+                    bg.SendPacketToAll(packet);
 					bg.UpdateWorldState((int)Template.CapturePoint.worldState1, (byte)GoValueProtected.CapturePoint.State);
 				}
 			}

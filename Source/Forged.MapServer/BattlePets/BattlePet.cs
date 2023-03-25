@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.BattlePet;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattlePets;
+namespace Forged.MapServer.BattlePets;
 
 public class BattlePet
 {

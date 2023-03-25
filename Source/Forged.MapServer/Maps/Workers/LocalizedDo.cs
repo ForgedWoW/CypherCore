@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Chat;
-using Game.Entities;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Workers;
 
 public class LocalizedDo : IDoWork<Player>
 {

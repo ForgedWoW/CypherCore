@@ -2,11 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Spell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class SpellCastTargets
 {
@@ -235,10 +240,12 @@ public class SpellCastTargets
 
 		if (TargetMask.HasAnyFlag(SpellCastTargetFlags.SourceLocation))
 		{
-			TargetLocation target = new();
-			target.Transport = _src.TransportGuid; // relative position guid here - transport for example
+			TargetLocation target = new()
+            {
+                Transport = _src.TransportGuid // relative position guid here - transport for example
+            };
 
-			if (!_src.TransportGuid.IsEmpty)
+            if (!_src.TransportGuid.IsEmpty)
 				target.Location = _src.TransportOffset;
 			else
 				target.Location = _src.Position;
@@ -248,10 +255,12 @@ public class SpellCastTargets
 
 		if (Convert.ToBoolean(TargetMask & SpellCastTargetFlags.DestLocation))
 		{
-			TargetLocation target = new();
-			target.Transport = _dst.TransportGuid; // relative position guid here - transport for example
+			TargetLocation target = new()
+            {
+                Transport = _dst.TransportGuid // relative position guid here - transport for example
+            };
 
-			if (!_dst.TransportGuid.IsEmpty)
+            if (!_dst.TransportGuid.IsEmpty)
 				target.Location = _dst.TransportOffset;
 			else
 				target.Location = _dst.Position;

@@ -3,12 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting.Interfaces;
-using Game.Spells;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 public class AuraScript : BaseSpellScript, IAuraScript
 {

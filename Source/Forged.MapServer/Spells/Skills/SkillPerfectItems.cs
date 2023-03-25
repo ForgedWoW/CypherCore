@@ -2,10 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Database;
-using Game.Entities;
+using Forged.MapServer.Entities.Players;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Skills;
 
 public class SkillPerfectItems
 {
@@ -14,7 +13,7 @@ public class SkillPerfectItems
 	// loads the perfection proc info from DB
 	public static void LoadSkillPerfectItemTable()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		SkillPerfectItemStorage.Clear(); // reload capability
 
@@ -73,7 +72,7 @@ public class SkillPerfectItems
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)

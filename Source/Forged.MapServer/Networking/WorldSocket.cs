@@ -3,14 +3,17 @@
 
 using System;
 using System.Net.Sockets;
+using Forged.MapServer.Networking.Packets.Authentication;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.IO;
 using Framework.Networking;
-using Game.Networking.Packets;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public class WorldSocket : SocketBase
 {
@@ -194,9 +197,12 @@ public class WorldSocket : SocketBase
 
 				data = buffer.GetData();
 
-				PacketHeader header = new();
-				header.Size = packetSize;
-				_worldCrypt.Encrypt(ref data, ref header.Tag);
+				PacketHeader header = new()
+                {
+                    Size = packetSize
+                };
+
+                _worldCrypt.Encrypt(ref data, ref header.Tag);
 
 				ByteBuffer byteBuffer = new();
 				header.Write(byteBuffer);
@@ -268,11 +274,14 @@ public class WorldSocket : SocketBase
 
 	public void SendAuthResponseError(BattlenetRpcErrorCode code)
 	{
-		AuthResponse response = new();
-		response.SuccessInfo = null;
-		response.WaitInfo = null;
-		response.Result = code;
-		SendPacket(response);
+		AuthResponse response = new()
+        {
+            SuccessInfo = null,
+            WaitInfo = null,
+            Result = code
+        };
+
+        SendPacket(response);
 	}
 
 	void CheckIpCallback(SQLResult result)
@@ -518,12 +527,14 @@ public class WorldSocket : SocketBase
 
 	void HandleSendAuthSession()
 	{
-		AuthChallenge challenge = new();
-		challenge.Challenge = _serverChallenge;
-		challenge.DosChallenge = new byte[32].GenerateRandomKey(32);
-		challenge.DosZeroBits = 1;
+		AuthChallenge challenge = new()
+        {
+            Challenge = _serverChallenge,
+            DosChallenge = new byte[32].GenerateRandomKey(32),
+            DosZeroBits = 1
+        };
 
-		SendPacket(challenge);
+        SendPacket(challenge);
 	}
 
 	void HandleAuthSession(AuthSession authSession)

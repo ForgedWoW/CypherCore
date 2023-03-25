@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects.Update;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharRaceOrFactionChange : ClientPacket
 {
@@ -13,11 +13,12 @@ public class CharRaceOrFactionChange : ClientPacket
 
 	public override void Read()
 	{
-		RaceOrFactionChangeInfo = new CharRaceOrFactionChangeInfo();
+		RaceOrFactionChangeInfo = new CharRaceOrFactionChangeInfo
+        {
+            FactionChange = _worldPacket.HasBit()
+        };
 
-		RaceOrFactionChangeInfo.FactionChange = _worldPacket.HasBit();
-
-		var nameLength = _worldPacket.ReadBits<uint>(6);
+        var nameLength = _worldPacket.ReadBits<uint>(6);
 
 		RaceOrFactionChangeInfo.Guid = _worldPacket.ReadPackedGuid();
 		RaceOrFactionChangeInfo.SexID = (Gender)_worldPacket.ReadUInt8();

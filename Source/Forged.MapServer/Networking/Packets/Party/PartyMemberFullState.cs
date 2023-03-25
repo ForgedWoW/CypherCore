@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Party;
 
 class PartyMemberFullState : ServerPacket
 {
@@ -96,12 +98,14 @@ class PartyMemberFullState : ServerPacket
 		// Auras
 		foreach (var aurApp in player.VisibleAuras)
 		{
-			PartyMemberAuraStates aura = new();
-			aura.SpellID = (int)aurApp.Base.Id;
-			aura.ActiveFlags = aurApp.EffectMask.ToUMask();
-			aura.Flags = (byte)aurApp.Flags;
+			PartyMemberAuraStates aura = new()
+            {
+                SpellID = (int)aurApp.Base.Id,
+                ActiveFlags = aurApp.EffectMask.ToUMask(),
+                Flags = (byte)aurApp.Flags
+            };
 
-			if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
+            if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
 				foreach (var aurEff in aurApp.Base.AuraEffects)
 					if (aurApp.HasEffect(aurEff.Value.EffIndex))
 						aura.Points.Add((float)aurEff.Value.Amount);
@@ -117,24 +121,25 @@ class PartyMemberFullState : ServerPacket
 		{
 			var pet = player.CurrentPet;
 
-			MemberStats.PetStats = new PartyMemberPetStats();
+			MemberStats.PetStats = new PartyMemberPetStats
+            {
+                GUID = pet.GUID,
+                Name = pet.GetName(),
+                ModelId = (short)pet.DisplayId,
+                CurrentHealth = (int)pet.Health,
+                MaxHealth = (int)pet.MaxHealth
+            };
 
-			MemberStats.PetStats.GUID = pet.GUID;
-			MemberStats.PetStats.Name = pet.GetName();
-			MemberStats.PetStats.ModelId = (short)pet.DisplayId;
-
-			MemberStats.PetStats.CurrentHealth = (int)pet.Health;
-			MemberStats.PetStats.MaxHealth = (int)pet.MaxHealth;
-
-			foreach (var aurApp in pet.VisibleAuras)
+            foreach (var aurApp in pet.VisibleAuras)
 			{
-				PartyMemberAuraStates aura = new();
+				PartyMemberAuraStates aura = new()
+                {
+                    SpellID = (int)aurApp.Base.Id,
+                    ActiveFlags = aurApp.EffectMask.ToUMask(),
+                    Flags = (byte)aurApp.Flags
+                };
 
-				aura.SpellID = (int)aurApp.Base.Id;
-				aura.ActiveFlags = aurApp.EffectMask.ToUMask();
-				aura.Flags = (byte)aurApp.Flags;
-
-				if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
+                if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
 					foreach (var aurEff in aurApp.Base.AuraEffects)
 						if (aurApp.HasEffect(aurEff.Value.EffIndex))
 							aura.Points.Add((float)aurEff.Value.Amount);

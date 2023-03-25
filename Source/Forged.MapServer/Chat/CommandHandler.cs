@@ -4,16 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Server;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Groups;
-using Game.Maps;
-using Game.Networking.Packets;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 public class CommandHandler
 {
@@ -441,7 +449,7 @@ public class CommandHandler
 		var bounds = _session.Player.Map.GameObjectBySpawnIdStore.LookupByKey(lowguid);
 
 		if (!bounds.Empty())
-			return bounds.First();
+			return Enumerable.First<GameObject>(bounds);
 
 		return null;
 	}

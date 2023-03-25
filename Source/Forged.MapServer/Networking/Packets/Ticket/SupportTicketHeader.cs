@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public struct SupportTicketHeader
 {

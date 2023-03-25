@@ -5,10 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Forged.MapServer.Collision.Maps;
 using Framework.Constants;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class WorldModel : IModel
 {

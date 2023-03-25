@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Checks;
 
 public class ObjectGUIDCheck : ICheck<WorldObject>
 {

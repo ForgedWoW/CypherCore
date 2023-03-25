@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Quest;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestInfo
 {

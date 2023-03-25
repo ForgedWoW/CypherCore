@@ -6,10 +6,9 @@ using Bgs.Protocol.GameUtilities.V1;
 using Framework.Constants;
 using Framework.Serialization;
 using Framework.Web;
-using Game.Services;
 using Google.Protobuf;
 
-namespace Game;
+namespace Forged.MapServer.Services;
 
 public partial class WorldSession
 {
@@ -85,29 +84,42 @@ public partial class WorldSession
 		if (compressed.Empty())
 			return BattlenetRpcErrorCode.UtilServerFailedToSerializeResponse;
 
-		Bgs.Protocol.Attribute attribute = new();
-		attribute.Name = "Param_RealmList";
-		attribute.Value = new Bgs.Protocol.Variant();
-		attribute.Value.BlobValue = ByteString.CopyFrom(compressed);
-		response.Attribute.Add(attribute);
+		Bgs.Protocol.Attribute attribute = new()
+        {
+            Name = "Param_RealmList",
+            Value = new Bgs.Protocol.Variant
+            {
+                BlobValue = ByteString.CopyFrom(compressed)
+            }
+        };
+
+        response.Attribute.Add(attribute);
 
 		var realmCharacterCounts = new RealmCharacterCountList();
 
 		foreach (var characterCount in RealmCharacterCounts)
 		{
-			RealmCharacterCountEntry countEntry = new();
-			countEntry.WowRealmAddress = (int)characterCount.Key;
-			countEntry.Count = characterCount.Value;
-			realmCharacterCounts.Counts.Add(countEntry);
+			RealmCharacterCountEntry countEntry = new()
+            {
+                WowRealmAddress = (int)characterCount.Key,
+                Count = characterCount.Value
+            };
+
+            realmCharacterCounts.Counts.Add(countEntry);
 		}
 
 		compressed = Json.Deflate("JSONRealmCharacterCountList", realmCharacterCounts);
 
-		attribute = new Bgs.Protocol.Attribute();
-		attribute.Name = "Param_CharacterCountList";
-		attribute.Value = new Bgs.Protocol.Variant();
-		attribute.Value.BlobValue = ByteString.CopyFrom(compressed);
-		response.Attribute.Add(attribute);
+		attribute = new Bgs.Protocol.Attribute
+        {
+            Name = "Param_CharacterCountList",
+            Value = new Bgs.Protocol.Variant
+            {
+                BlobValue = ByteString.CopyFrom(compressed)
+            }
+        };
+
+        response.Attribute.Add(attribute);
 
 		return BattlenetRpcErrorCode.Ok;
 	}
@@ -119,7 +131,7 @@ public partial class WorldSession
 		if (realmAddress != null)
 			return Global.RealmMgr.JoinRealm((uint)realmAddress.UintValue,
 											Global.WorldMgr.Realm.Build,
-											System.Net.IPAddress.Parse(RemoteAddress),
+											System.Net.IPAddress.Parse((string)RemoteAddress),
 											RealmListSecret,
 											SessionDbcLocale,
 											OS,

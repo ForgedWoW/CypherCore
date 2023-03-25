@@ -2,11 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.AuctionHouse;
+using Forged.MapServer.BlackMarket;
+using Forged.MapServer.Calendar;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.BlackMarket;
-using Game.Entities;
 
-namespace Game.Mails;
+namespace Forged.MapServer.Mails;
 
 public class Mail
 {
@@ -29,10 +32,13 @@ public class Mail
 
 	public void AddItem(ulong itemGuidLow, uint item_template)
 	{
-		MailItemInfo mii = new();
-		mii.item_guid = itemGuidLow;
-		mii.item_template = item_template;
-		items.Add(mii);
+		MailItemInfo mii = new()
+        {
+            item_guid = itemGuidLow,
+            item_template = item_template
+        };
+
+        items.Add(mii);
 	}
 
 	public bool RemoveItem(ulong itemGuid)

@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Net.Sockets;
-using Framework.Configuration;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Networking;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public class WorldSocketManager : SocketManager<WorldSocket>
 {

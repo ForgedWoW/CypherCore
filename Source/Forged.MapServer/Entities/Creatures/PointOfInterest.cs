@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.Misc;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class PointOfInterest
 {

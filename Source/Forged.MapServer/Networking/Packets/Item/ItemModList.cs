@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemModList
 {

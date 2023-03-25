@@ -2,12 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
@@ -748,9 +749,12 @@ public partial class Unit
 
 		if (IsInWorld && withPowerUpdate)
 		{
-			PowerUpdate packet = new();
-			packet.Guid = GUID;
-			packet.Powers.Add(new PowerUpdatePower(val, (byte)powerType));
+			PowerUpdate packet = new()
+            {
+                Guid = GUID
+            };
+
+            packet.Powers.Add(new PowerUpdatePower(val, (byte)powerType));
 			SendMessageToSet(packet, IsTypeId(TypeId.Player));
 		}
 

@@ -2,12 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking;
 using Framework.Constants;
-using Game.Achievements;
-using Game.Maps;
-using Game.Networking;
 
-namespace Game.Scenarios;
+namespace Forged.MapServer.Scenarios;
 
 public class InstanceScenario : Scenario
 {

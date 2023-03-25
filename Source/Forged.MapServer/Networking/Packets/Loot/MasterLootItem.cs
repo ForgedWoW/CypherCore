@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Loot;
 
 class MasterLootItem : ClientPacket
 {
@@ -19,10 +19,13 @@ class MasterLootItem : ClientPacket
 
 		for (var i = 0; i < Count; ++i)
 		{
-			LootRequest lootRequest = new();
-			lootRequest.Object = _worldPacket.ReadPackedGuid();
-			lootRequest.LootListID = _worldPacket.ReadUInt8();
-			Loot[i] = lootRequest;
+			LootRequest lootRequest = new()
+            {
+                Object = _worldPacket.ReadPackedGuid(),
+                LootListID = _worldPacket.ReadUInt8()
+            };
+
+            Loot[i] = lootRequest;
 		}
 	}
 }

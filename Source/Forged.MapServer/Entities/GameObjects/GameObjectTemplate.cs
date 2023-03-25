@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Runtime.InteropServices;
+using Forged.MapServer.Networking.Packets.Query;
 using Framework.Constants;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.GameObjects;
 
 [StructLayout(LayoutKind.Explicit)]
 public class GameObjectTemplate
@@ -648,23 +648,27 @@ public class GameObjectTemplate
 
 	public void InitializeQueryData()
 	{
-		QueryData = new QueryGameObjectResponse();
+		QueryData = new QueryGameObjectResponse
+        {
+            GameObjectID = entry,
+            Allow = true
+        };
 
-		QueryData.GameObjectID = entry;
-		QueryData.Allow = true;
+        GameObjectStats stats = new()
+        {
+            Type = (uint)type,
+            DisplayID = displayId,
+            Name =
+            {
+                [0] = name
+            },
+            IconName = IconName,
+            CastBarCaption = castBarCaption,
+            UnkString = unk1,
+            Size = size
+        };
 
-		GameObjectStats stats = new();
-		stats.Type = (uint)type;
-		stats.DisplayID = displayId;
-
-		stats.Name[0] = name;
-		stats.IconName = IconName;
-		stats.CastBarCaption = castBarCaption;
-		stats.UnkString = unk1;
-
-		stats.Size = size;
-
-		var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
+        var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
 
 		foreach (var item in items)
 			stats.QuestItems.Add(item);

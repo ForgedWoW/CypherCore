@@ -3,15 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DungeonFinding;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.DataStorage;
-using Game.DungeonFinding;
-using Game.Entities;
-using Game.Groups;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("group")]
 class GroupCommands

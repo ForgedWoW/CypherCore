@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Globals;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Misc;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class GossipMenu
 {
@@ -46,25 +47,27 @@ public class GossipMenu
 		if (gossipOptionId == 0)
 			gossipOptionId = -((int)_menuId * 100 + orderIndex);
 
-		GossipMenuItem menuItem = new();
-		menuItem.GossipOptionId = gossipOptionId;
-		menuItem.OrderIndex = (uint)orderIndex;
-		menuItem.OptionNpc = optionNpc;
-		menuItem.OptionText = optionText;
-		menuItem.Language = language;
-		menuItem.Flags = flags;
-		menuItem.GossipNpcOptionId = gossipNpcOptionId;
-		menuItem.BoxCoded = boxCoded;
-		menuItem.BoxMoney = boxMoney;
-		menuItem.BoxText = boxText;
-		menuItem.SpellId = spellId;
-		menuItem.OverrideIconId = overrideIconId;
-		menuItem.ActionMenuId = actionMenuId;
-		menuItem.ActionPoiId = actionPoiId;
-		menuItem.Sender = sender;
-		menuItem.Action = action;
+		GossipMenuItem menuItem = new()
+        {
+            GossipOptionId = gossipOptionId,
+            OrderIndex = (uint)orderIndex,
+            OptionNpc = optionNpc,
+            OptionText = optionText,
+            Language = language,
+            Flags = flags,
+            GossipNpcOptionId = gossipNpcOptionId,
+            BoxCoded = boxCoded,
+            BoxMoney = boxMoney,
+            BoxText = boxText,
+            SpellId = spellId,
+            OverrideIconId = overrideIconId,
+            ActionMenuId = actionMenuId,
+            ActionPoiId = actionPoiId,
+            Sender = sender,
+            Action = action
+        };
 
-		_menuItems.Add((uint)orderIndex, menuItem);
+        _menuItems.Add((uint)orderIndex, menuItem);
 
 		return (uint)orderIndex;
 	}

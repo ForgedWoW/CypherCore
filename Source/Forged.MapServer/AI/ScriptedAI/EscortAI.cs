@@ -3,11 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.ScriptedAI;
 
 public class EscortAI : ScriptedAI
 {
@@ -19,7 +24,7 @@ public class EscortAI : ScriptedAI
 	EscortState _escortState;
 	float _maxPlayerDistance;
 
-	Quest _escortQuest; //generally passed in Start() when regular escort script.
+	Quest.Quest _escortQuest; //generally passed in Start() when regular escort script.
 
 	bool _activeAttacker; // obsolete, determined by faction.
 	bool _running;        // all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
@@ -286,17 +291,20 @@ public class EscortAI : ScriptedAI
 		x = GridDefines.NormalizeMapCoord(x);
 		y = GridDefines.NormalizeMapCoord(y);
 
-		WaypointNode waypoint = new();
-		waypoint.id = id;
-		waypoint.x = x;
-		waypoint.y = y;
-		waypoint.z = z;
-		waypoint.orientation = orientation;
-		waypoint.moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk;
-		waypoint.delay = (uint)waitTime.TotalMilliseconds;
-		waypoint.eventId = 0;
-		waypoint.eventChance = 100;
-		_path.nodes.Add(waypoint);
+		WaypointNode waypoint = new()
+        {
+            id = id,
+            x = x,
+            y = y,
+            z = z,
+            orientation = orientation,
+            moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk,
+            delay = (uint)waitTime.TotalMilliseconds,
+            eventId = 0,
+            eventChance = 100
+        };
+
+        _path.nodes.Add(waypoint);
 
 		_manualPath = true;
 	}
@@ -315,7 +323,7 @@ public class EscortAI : ScriptedAI
 	}
 
 	/// todo get rid of this many variables passed in function.
-	public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
+	public void Start(bool isActiveAttacker = true, bool run = false, ObjectGuid playerGUID = default, Quest.Quest quest = null, bool instantRespawn = false, bool canLoopPath = false, bool resetWaypoints = true)
 	{
 		// Queue respawn from the point it starts
 		var cdata = Me.CreatureData;

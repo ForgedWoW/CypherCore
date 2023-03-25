@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Time;
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("event")]
 class EventCommands
@@ -33,15 +34,15 @@ class EventCommands
 		var active = activeEvents.Contains(eventId);
 		var activeStr = active ? Global.ObjectMgr.GetCypherString(CypherStrings.Active) : "";
 
-		var startTimeStr = Time.UnixTimeToDateTime(eventData.start).ToLongDateString();
-		var endTimeStr = Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
+		var startTimeStr = global::Time.UnixTimeToDateTime(eventData.start).ToLongDateString();
+		var endTimeStr = global::Time.UnixTimeToDateTime(eventData.end).ToLongDateString();
 
 		var delay = Global.GameEventMgr.NextCheck(eventId);
 		var nextTime = GameTime.GetGameTime() + delay;
-		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? Time.UnixTimeToDateTime(GameTime.GetGameTime() + delay).ToShortTimeString() : "-";
+		var nextStr = nextTime >= eventData.start && nextTime < eventData.end ? global::Time.UnixTimeToDateTime(GameTime.GetGameTime() + delay).ToShortTimeString() : "-";
 
-		var occurenceStr = Time.secsToTimeString(eventData.occurence * Time.Minute);
-		var lengthStr = Time.secsToTimeString(eventData.length * Time.Minute);
+		var occurenceStr = global::Time.secsToTimeString(eventData.occurence * global::Time.Minute);
+		var lengthStr = global::Time.secsToTimeString(eventData.length * global::Time.Minute);
 
 		handler.SendSysMessage(CypherStrings.EventInfo,
 								eventId,

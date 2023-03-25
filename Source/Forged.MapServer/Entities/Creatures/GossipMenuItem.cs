@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Misc;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class GossipMenuItem
 {

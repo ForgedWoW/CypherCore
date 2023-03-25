@@ -1,13 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using Framework.Constants;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Networking.Packets.Talent;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {

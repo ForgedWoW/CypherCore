@@ -6,7 +6,7 @@ using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Cryptography.Ed25519;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Authentication;
 
 class EnterEncryptedMode : ServerPacket
 {

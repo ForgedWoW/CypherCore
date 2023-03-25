@@ -4,18 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Mails;
-using Game.Common.Globals;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Mail;
-using Game.Common.Networking.Packets.NPC;
-using Game.Common.Server;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -501,7 +500,7 @@ public partial class WorldSession
 		}
 
 		// verify that the mail has the item to avoid cheaters taking COD items without paying
-		if (!m.items.Any(p => p.item_guid == AttachID))
+		if (!Enumerable.Any<MailItemInfo>(m.items, p => p.item_guid == AttachID))
 		{
 			player.SendMailResult(takeItem.MailID, MailResponseType.ItemTaken, MailResponseResult.InternalError);
 
@@ -750,7 +749,7 @@ public partial class WorldSession
 
 			foreach (var mail in Player.Mails)
 			{
-				if (mail.checkMask.HasAnyFlag(MailCheckMask.Read))
+				if (Extensions.HasAnyFlag(mail.checkMask, MailCheckMask.Read))
 					continue;
 
 				// and already delivered
@@ -772,7 +771,7 @@ public partial class WorldSession
 		}
 		else
 		{
-			result.NextMailTime = -Time.Day;
+			result.NextMailTime = -global::Time.Day;
 		}
 
 		SendPacket(result);

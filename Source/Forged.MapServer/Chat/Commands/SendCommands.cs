@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Mails;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Mails;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("send")]
 class SendCommands

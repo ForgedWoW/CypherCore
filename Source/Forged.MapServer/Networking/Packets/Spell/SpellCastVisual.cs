@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.Entities.Objects.Update;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Spell;
 
 public struct SpellCastVisual
 {
@@ -30,10 +30,12 @@ public struct SpellCastVisual
 
 	public static implicit operator SpellCastVisualField(SpellCastVisual spellCastVisual)
 	{
-		SpellCastVisualField visual = new();
-		visual.SpellXSpellVisualID = spellCastVisual.SpellXSpellVisualID;
-		visual.ScriptVisualID = spellCastVisual.ScriptVisualID;
+		SpellCastVisualField visual = new()
+        {
+            SpellXSpellVisualID = spellCastVisual.SpellXSpellVisualID,
+            ScriptVisualID = spellCastVisual.ScriptVisualID
+        };
 
-		return visual;
+        return visual;
 	}
 }

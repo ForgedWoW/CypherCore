@@ -2,11 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 public class ItemEnchantmentManager
 {
@@ -14,7 +13,7 @@ public class ItemEnchantmentManager
 
 	public static void LoadItemRandomBonusListTemplates()
 	{
-		var oldMsTime = Time.MSTime;
+		var oldMsTime = global::Time.MSTime;
 
 		_storage.Clear();
 
@@ -60,7 +59,7 @@ public class ItemEnchantmentManager
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
+		Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {global::Time.GetMSTimeDiffToNow(oldMsTime)} ms");
 	}
 
 	public static uint GenerateItemRandomBonusListId(uint item_id)

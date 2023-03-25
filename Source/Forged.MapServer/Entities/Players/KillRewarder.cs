@@ -3,11 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Miscellaneous;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Groups;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class KillRewarder
 {

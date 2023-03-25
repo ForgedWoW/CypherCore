@@ -4,7 +4,7 @@
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.GameObjects;
 
 public class GameObjectAddon
 {

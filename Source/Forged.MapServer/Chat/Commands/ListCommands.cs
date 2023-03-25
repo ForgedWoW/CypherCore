@@ -3,14 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Spells;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("list")]
 class ListCommands
@@ -309,7 +312,7 @@ class ListCommands
 					var senderStr = handler.PlayerLink(sender);
 					handler.SendSysMessage(CypherStrings.ListMailInfo1, messageId, subject, gold, silv, copp);
 					handler.SendSysMessage(CypherStrings.ListMailInfo2, senderStr, senderId, receiverStr, receiverId);
-					handler.SendSysMessage(CypherStrings.ListMailInfo3, Time.UnixTimeToDateTime(deliverTime).ToLongDateString(), Time.UnixTimeToDateTime(expireTime).ToLongDateString());
+					handler.SendSysMessage(CypherStrings.ListMailInfo3, global::Time.UnixTimeToDateTime(deliverTime).ToLongDateString(), global::Time.UnixTimeToDateTime(expireTime).ToLongDateString());
 
 					if (hasItem == 1)
 					{
@@ -498,7 +501,7 @@ class ListCommands
 				var gridY = ri.GridId / MapConst.MaxGrids;
 				var gridX = ri.GridId % MapConst.MaxGrids;
 
-				var respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
+				var respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? global::Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
 				handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
 			}
 		}

@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Chat.Channels;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.Chat;
-using Game.Entities;
 
-namespace Game.Scripting.Interfaces.IPlayer;
+namespace Forged.MapServer.Scripting.Interfaces.IPlayer;
 
 public interface IPlayerOnChatChannel : IScriptObject
 {

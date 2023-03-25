@@ -5,17 +5,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Text;
+using Forged.MapServer.Weather;
 using Framework.Constants;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Misc;
-using Game.Movement;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartScript
 {
@@ -39,7 +52,7 @@ public class SmartScript
 	AreaTriggerRecord _trigger;
 	AreaTrigger _areaTrigger;
 	SceneTemplate _sceneTemplate;
-	Quest _quest;
+	Quest.Quest _quest;
 	SmartScriptType _scriptType;
 	uint _eventPhase;
 
@@ -227,7 +240,7 @@ public class SmartScript
 		}
 	}
 
-	public void OnInitialize(WorldObject obj, AreaTriggerRecord at = null, SceneTemplate scene = null, Quest qst = null)
+	public void OnInitialize(WorldObject obj, AreaTriggerRecord at = null, SceneTemplate scene = null, Quest.Quest qst = null)
 	{
 		if (at != null)
 		{
@@ -1987,11 +2000,13 @@ public class SmartScript
 			}
 			case SmartActions.CreateTimedEvent:
 			{
-				SmartEvent ne = new();
-				ne.type = SmartEvents.Update;
-				ne.event_chance = e.Action.timeEvent.chance;
+				SmartEvent ne = new()
+                {
+                    type = SmartEvents.Update,
+                    event_chance = e.Action.timeEvent.chance
+                };
 
-				if (ne.event_chance == 0)
+                if (ne.event_chance == 0)
 					ne.event_chance = 100;
 
 				ne.minMaxRepeat.min = e.Action.timeEvent.min;
@@ -2004,16 +2019,22 @@ public class SmartScript
 				if (ne.minMaxRepeat.repeatMin == 0 && ne.minMaxRepeat.repeatMax == 0)
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
-				SmartAction ac = new();
-				ac.type = SmartActions.TriggerTimedEvent;
-				ac.timeEvent.id = e.Action.timeEvent.id;
+				SmartAction ac = new()
+                {
+                    type = SmartActions.TriggerTimedEvent
+                };
 
-				SmartScriptHolder ev = new();
-				ev.Event = ne;
-				ev.EventId = e.Action.timeEvent.id;
-				ev.Target = e.Target;
-				ev.Action = ac;
-				InitTimer(ev);
+                ac.timeEvent.id = e.Action.timeEvent.id;
+
+				SmartScriptHolder ev = new()
+                {
+                    Event = ne,
+                    EventId = e.Action.timeEvent.id,
+                    Target = e.Target,
+                    Action = ac
+                };
+
+                InitTimer(ev);
 				_storedEvents.Add(ev);
 
 				break;
@@ -2693,11 +2714,13 @@ public class SmartScript
 				else
 				{
 					// Delayed spawn (use values from parameter to schedule event to call us back
-					SmartEvent ne = new();
-					ne.type = SmartEvents.Update;
-					ne.event_chance = 100;
+					SmartEvent ne = new()
+                    {
+                        type = SmartEvents.Update,
+                        event_chance = 100
+                    };
 
-					ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
+                    ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
 					ne.minMaxRepeat.max = e.Action.groupSpawn.maxDelay;
 					ne.minMaxRepeat.repeatMin = 0;
 					ne.minMaxRepeat.repeatMax = 0;
@@ -2705,20 +2728,26 @@ public class SmartScript
 					ne.event_flags = 0;
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
-					SmartAction ac = new();
-					ac.type = SmartActions.SpawnSpawngroup;
-					ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
+					SmartAction ac = new()
+                    {
+                        type = SmartActions.SpawnSpawngroup
+                    };
+
+                    ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
 					ac.groupSpawn.minDelay = 0;
 					ac.groupSpawn.maxDelay = 0;
 					ac.groupSpawn.spawnflags = e.Action.groupSpawn.spawnflags;
 					ac.timeEvent.id = e.Action.timeEvent.id;
 
-					SmartScriptHolder ev = new();
-					ev.Event = ne;
-					ev.EventId = e.EventId;
-					ev.Target = e.Target;
-					ev.Action = ac;
-					InitTimer(ev);
+					SmartScriptHolder ev = new()
+                    {
+                        Event = ne,
+                        EventId = e.EventId,
+                        Target = e.Target,
+                        Action = ac
+                    };
+
+                    InitTimer(ev);
 					_storedEvents.Add(ev);
 				}
 
@@ -2739,11 +2768,13 @@ public class SmartScript
 				else
 				{
 					// Delayed spawn (use values from parameter to schedule event to call us back
-					SmartEvent ne = new();
-					ne.type = SmartEvents.Update;
-					ne.event_chance = 100;
+					SmartEvent ne = new()
+                    {
+                        type = SmartEvents.Update,
+                        event_chance = 100
+                    };
 
-					ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
+                    ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
 					ne.minMaxRepeat.max = e.Action.groupSpawn.maxDelay;
 					ne.minMaxRepeat.repeatMin = 0;
 					ne.minMaxRepeat.repeatMax = 0;
@@ -2751,20 +2782,26 @@ public class SmartScript
 					ne.event_flags = 0;
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
-					SmartAction ac = new();
-					ac.type = SmartActions.DespawnSpawngroup;
-					ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
+					SmartAction ac = new()
+                    {
+                        type = SmartActions.DespawnSpawngroup
+                    };
+
+                    ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
 					ac.groupSpawn.minDelay = 0;
 					ac.groupSpawn.maxDelay = 0;
 					ac.groupSpawn.spawnflags = e.Action.groupSpawn.spawnflags;
 					ac.timeEvent.id = e.Action.timeEvent.id;
 
-					SmartScriptHolder ev = new();
-					ev.Event = ne;
-					ev.EventId = e.EventId;
-					ev.Target = e.Target;
-					ev.Action = ac;
-					InitTimer(ev);
+					SmartScriptHolder ev = new()
+                    {
+                        Event = ne,
+                        EventId = e.EventId,
+                        Target = e.Target,
+                        Action = ac
+                    };
+
+                    InitTimer(ev);
 					_storedEvents.Add(ev);
 				}
 
@@ -4555,7 +4592,7 @@ public class SmartScript
 			e.Timer -= diff;
 
 			if (e.EntryOrGuid == 15294 && _me.GUID.Counter == 55039 && e.Timer != 0)
-				Log.Logger.Error("Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, Time.MSTime);
+				Log.Logger.Error("Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, global::Time.MSTime);
 		}
 	}
 
@@ -4601,7 +4638,7 @@ public class SmartScript
 		e.RunOnce = false;
 	}
 
-	void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest quest)
+	void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest.Quest quest)
 	{
 		if (e.Empty())
 		{

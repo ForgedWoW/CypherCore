@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Conditions;
-using Game.Entities;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class WorldObjectSpellConeTargetCheck : WorldObjectSpellAreaTargetCheck
 {

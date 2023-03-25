@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureBaseStats
 {

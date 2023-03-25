@@ -5,14 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Chat;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.PvP;
+namespace Forged.MapServer.OutdoorPVP;
 
 // base class for specific outdoor pvp handlers
 public class OutdoorPvP : ZoneScript
@@ -575,11 +581,16 @@ class DefenseMessageBuilder : MessageBuilder
 	{
 		var text = Global.OutdoorPvPMgr.GetDefenseMessage(_zoneId, _id, locale);
 
-		PacketSenderOwning<DefenseMessage> defenseMessage = new();
-		defenseMessage.Data.ZoneID = _zoneId;
-		defenseMessage.Data.MessageText = text;
+		PacketSenderOwning<DefenseMessage> defenseMessage = new()
+        {
+            Data =
+            {
+                ZoneID = _zoneId,
+                MessageText = text
+            }
+        };
 
-		return defenseMessage;
+        return defenseMessage;
 	}
 }
 

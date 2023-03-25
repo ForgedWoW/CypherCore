@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Scenarios;
+using Forged.MapServer.Scenarios;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Scenario;
 
 struct ScenarioPOIData
 {

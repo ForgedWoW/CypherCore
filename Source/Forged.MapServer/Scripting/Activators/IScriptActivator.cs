@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces;
 
-namespace Game.Scripting.Activators;
+namespace Forged.MapServer.Scripting.Activators;
 
 public interface IScriptActivator
 {

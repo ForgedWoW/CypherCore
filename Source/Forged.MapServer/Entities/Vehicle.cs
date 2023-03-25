@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.V;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting.Interfaces.IVehicle;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Scripting.Interfaces.IVehicle;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class Vehicle : ITransport
 {

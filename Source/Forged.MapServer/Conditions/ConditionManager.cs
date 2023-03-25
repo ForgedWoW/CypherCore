@@ -4,17 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.DataStorage.Structs.U;
+using Forged.MapServer.DataStorage.Structs.W;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Time;
+using Forged.MapServer.Weather;
 using Framework.Constants;
-using Framework.Database;
 using Framework.IO;
-using Game.Conditions;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Loots;
-using Game.Maps;
-using Game.Spells;
 
-namespace Game;
+namespace Forged.MapServer.Conditions;
 
 public sealed class ConditionManager : Singleton<ConditionManager>
 {
@@ -369,7 +380,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	public void LoadConditions(bool isReload = false)
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		Clean();
 
@@ -679,7 +690,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} conditions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} conditions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
@@ -1079,8 +1090,8 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 		if (condition.Time[0] != 0)
 		{
-			var from = Time.GetUnixTimeFromPackedTime(condition.Time[0]);
-			var to = Time.GetUnixTimeFromPackedTime(condition.Time[1]);
+			var from = global::Time.GetUnixTimeFromPackedTime(condition.Time[0]);
+			var to = global::Time.GetUnixTimeFromPackedTime(condition.Time[1]);
 
 			if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
 				return false;
@@ -3304,7 +3315,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case WorldStateExpressionFunctions.TimeOfDay:
 				var localTime = GameTime.GetDateAndTime();
 
-				return localTime.Hour * Time.Minute + localTime.Minute;
+				return localTime.Hour * global::Time.Minute + localTime.Minute;
 			case WorldStateExpressionFunctions.Region:
 				return Global.WorldMgr.RealmId.Region;
 			case WorldStateExpressionFunctions.ClockHour:
@@ -3330,7 +3341,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				if (region != null)
 					raidOrigin = region.Raidorigin;
 
-				return (int)(now - raidOrigin) / Time.Week;
+				return (int)(now - raidOrigin) / global::Time.Week;
 			case WorldStateExpressionFunctions.DifficultyId:
 				return (int)player.Map.DifficultyID;
 			case WorldStateExpressionFunctions.WarModeActive:

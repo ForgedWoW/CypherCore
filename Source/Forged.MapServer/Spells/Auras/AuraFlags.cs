@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 [Flags]
 public enum AuraFlags

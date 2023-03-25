@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game;
+namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionSearchClassFilters
 {

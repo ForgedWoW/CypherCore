@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 [AttributeUsage(AttributeTargets.Method)]
 public class CommandNonGroupAttribute : CommandAttribute

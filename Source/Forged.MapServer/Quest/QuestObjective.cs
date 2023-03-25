@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game;
+namespace Forged.MapServer.Quest;
 
 public class QuestObjective
 {

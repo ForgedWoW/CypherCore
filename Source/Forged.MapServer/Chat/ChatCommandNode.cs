@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Services;
 using Framework.Constants;
 using Framework.IO;
-using Game.DataStorage;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 public class ChatCommandNode
 {

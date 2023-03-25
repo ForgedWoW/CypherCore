@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.BattleFields;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.BattleFields;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Spells;
 
 public class SpellArea
 {

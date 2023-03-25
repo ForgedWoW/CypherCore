@@ -1,11 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.BattleGround;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattleGrounds;
+namespace Forged.MapServer.BattleGrounds;
 
 public class BattlegroundScore
 {
@@ -62,18 +62,23 @@ public class BattlegroundScore
 
 	public virtual void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
 	{
-		playerData = new PVPMatchStatistics.PVPMatchPlayerStatistics();
-		playerData.PlayerGUID = PlayerGuid;
-		playerData.Kills = KillingBlows;
-		playerData.Faction = (byte)TeamId;
+		playerData = new PVPMatchStatistics.PVPMatchPlayerStatistics
+        {
+            PlayerGUID = PlayerGuid,
+            Kills = KillingBlows,
+            Faction = (byte)TeamId
+        };
 
-		if (HonorableKills != 0 || Deaths != 0 || BonusHonor != 0)
+        if (HonorableKills != 0 || Deaths != 0 || BonusHonor != 0)
 		{
-			PVPMatchStatistics.HonorData playerDataHonor = new();
-			playerDataHonor.HonorKills = HonorableKills;
-			playerDataHonor.Deaths = Deaths;
-			playerDataHonor.ContributionPoints = BonusHonor;
-			playerData.Honor = playerDataHonor;
+			PVPMatchStatistics.HonorData playerDataHonor = new()
+            {
+                HonorKills = HonorableKills,
+                Deaths = Deaths,
+                ContributionPoints = BonusHonor
+            };
+
+            playerData.Honor = playerDataHonor;
 		}
 
 		playerData.DamageDone = DamageDone;

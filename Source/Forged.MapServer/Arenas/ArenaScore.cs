@@ -1,12 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.BattleGround;
 using Framework.Constants;
-using Game.BattleGrounds;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Arenas;
+namespace Forged.MapServer.Arenas;
 
 class ArenaScore : BattlegroundScore
 {

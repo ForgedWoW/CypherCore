@@ -4,14 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting.Interfaces.ICondition;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Scenarios;
-using Game.Scripting.Interfaces.ICondition;
 
-namespace Game.Conditions;
+namespace Forged.MapServer.Conditions;
 
 public class Condition
 {
@@ -503,7 +504,7 @@ public class Condition
 			case ConditionTypes.BattlePetCount:
 			{
 				if (player != null)
-					condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
+					condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, (uint)player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
 
 				break;
 			}

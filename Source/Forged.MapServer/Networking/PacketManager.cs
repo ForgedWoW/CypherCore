@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Framework.Constants;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public static class PacketManager
 {

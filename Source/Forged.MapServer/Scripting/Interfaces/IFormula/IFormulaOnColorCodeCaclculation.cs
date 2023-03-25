@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.IFormula;
+namespace Forged.MapServer.Scripting.Interfaces.IFormula;
 
 public interface IFormulaOnColorCodeCaclculation : IScriptObject
 {

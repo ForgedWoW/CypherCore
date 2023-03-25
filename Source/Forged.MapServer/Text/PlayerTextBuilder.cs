@@ -1,13 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Chat;
 using Framework.Constants;
-using Game.Chat;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Text;
 
 public class PlayerTextBuilder : MessageBuilder
 {

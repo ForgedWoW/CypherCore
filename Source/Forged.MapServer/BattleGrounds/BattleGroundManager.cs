@@ -4,17 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
+using Forged.MapServer.Arenas.Zones;
+using Forged.MapServer.BattleGrounds.Zones;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Networking.Packets.LFG;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Threading;
-using Game.Arenas;
-using Game.BattleGrounds.Zones;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattleGrounds;
+namespace Forged.MapServer.BattleGrounds;
 
 public class BattlegroundManager : Singleton<BattlegroundManager>
 {
@@ -139,12 +144,17 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public void BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, Player player, uint ticketId, uint joinTime)
 	{
-		battlefieldStatus = new BattlefieldStatusNone();
-		battlefieldStatus.Ticket.RequesterGuid = player.GUID;
-		battlefieldStatus.Ticket.Id = ticketId;
-		battlefieldStatus.Ticket.Type = RideType.Battlegrounds;
-		battlefieldStatus.Ticket.Time = (int)joinTime;
-	}
+		battlefieldStatus = new BattlefieldStatusNone
+        {
+            Ticket =
+            {
+                RequesterGuid = player.GUID,
+                Id = ticketId,
+                Type = RideType.Battlegrounds,
+                Time = (int)joinTime
+            }
+        };
+    }
 
 	public void BuildBattlegroundStatusNeedConfirmation(out BattlefieldStatusNeedConfirmation battlefieldStatus, Battleground bg, Player player, uint ticketId, uint joinTime, uint timeout, ArenaTypes arenaType)
 	{
@@ -174,20 +184,25 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		battlefieldStatus.AsGroup = asGroup;
 		battlefieldStatus.SuspendedQueue = false;
 		battlefieldStatus.EligibleForMatchmaking = true;
-		battlefieldStatus.WaitTime = Time.GetMSTimeDiffToNow(joinTime);
+		battlefieldStatus.WaitTime = global::Time.GetMSTimeDiffToNow(joinTime);
 	}
 
 	public void BuildBattlegroundStatusFailed(out BattlefieldStatusFailed battlefieldStatus, BattlegroundQueueTypeId queueId, Player pPlayer, uint ticketId, GroupJoinBattlegroundResult result, ObjectGuid errorGuid = default)
 	{
-		battlefieldStatus = new BattlefieldStatusFailed();
-		battlefieldStatus.Ticket.RequesterGuid = pPlayer.GUID;
-		battlefieldStatus.Ticket.Id = ticketId;
-		battlefieldStatus.Ticket.Type = RideType.Battlegrounds;
-		battlefieldStatus.Ticket.Time = (int)pPlayer.GetBattlegroundQueueJoinTime(queueId);
-		battlefieldStatus.QueueID = queueId.GetPacked();
-		battlefieldStatus.Reason = (int)result;
+		battlefieldStatus = new BattlefieldStatusFailed
+        {
+            Ticket =
+            {
+                RequesterGuid = pPlayer.GUID,
+                Id = ticketId,
+                Type = RideType.Battlegrounds,
+                Time = (int)pPlayer.GetBattlegroundQueueJoinTime(queueId)
+            },
+            QueueID = queueId.GetPacked(),
+            Reason = (int)result
+        };
 
-		if (!errorGuid.IsEmpty && (result == GroupJoinBattlegroundResult.NotInBattleground || result == GroupJoinBattlegroundResult.JoinTimedOut))
+        if (!errorGuid.IsEmpty && (result == GroupJoinBattlegroundResult.NotInBattleground || result == GroupJoinBattlegroundResult.JoinTimedOut))
 			battlefieldStatus.ClientID = errorGuid;
 	}
 
@@ -262,7 +277,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public void LoadBattlegroundTemplates()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		//                                         0   1                 2              3             4       5
 		var result = DB.World.Query("SELECT ID, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
@@ -293,9 +308,12 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 				continue;
 			}
 
-			BattlegroundTemplate bgTemplate = new();
-			bgTemplate.Id = bgTypeId;
-			var dist = result.Read<float>(3);
+			BattlegroundTemplate bgTemplate = new()
+            {
+                Id = bgTypeId
+            };
+
+            var dist = result.Read<float>(3);
 			bgTemplate.MaxStartDistSq = dist * dist;
 			bgTemplate.Weight = result.Read<byte>(4);
 
@@ -356,7 +374,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Battlegrounds in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Battlegrounds in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SendBattlegroundList(Player player, ObjectGuid guid, BattlegroundTypeId bgTypeId)
@@ -366,14 +384,17 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		if (bgTemplate == null)
 			return;
 
-		BattlefieldList battlefieldList = new();
-		battlefieldList.BattlemasterGuid = guid;
-		battlefieldList.BattlemasterListID = (int)bgTypeId;
-		battlefieldList.MinLevel = bgTemplate.GetMinLevel();
-		battlefieldList.MaxLevel = bgTemplate.GetMaxLevel();
-		battlefieldList.PvpAnywhere = guid.IsEmpty;
-		battlefieldList.HasRandomWinToday = player.GetRandomWinner();
-		player.SendPacket(battlefieldList);
+		BattlefieldList battlefieldList = new()
+        {
+            BattlemasterGuid = guid,
+            BattlemasterListID = (int)bgTypeId,
+            MinLevel = bgTemplate.GetMinLevel(),
+            MaxLevel = bgTemplate.GetMaxLevel(),
+            PvpAnywhere = guid.IsEmpty,
+            HasRandomWinToday = player.GetRandomWinner()
+        };
+
+        player.SendPacket(battlefieldList);
 	}
 
 	public void SendToBattleground(Player player, uint instanceId, BattlegroundTypeId bgTypeId)
@@ -402,11 +423,13 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		if (time == 0xFFFFFFFF)
 			time = 0;
 
-		AreaSpiritHealerTime areaSpiritHealerTime = new();
-		areaSpiritHealerTime.HealerGuid = guid;
-		areaSpiritHealerTime.TimeLeft = time;
+		AreaSpiritHealerTime areaSpiritHealerTime = new()
+        {
+            HealerGuid = guid,
+            TimeLeft = time
+        };
 
-		player.SendPacket(areaSpiritHealerTime);
+        player.SendPacket(areaSpiritHealerTime);
 	}
 
 	public BattlegroundQueueTypeId BGQueueTypeId(ushort battlemasterListId, BattlegroundQueueIdType type, bool rated, ArenaTypes teamSize)
@@ -528,7 +551,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public void LoadBattleMastersEntry()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		mBattleMastersMap.Clear(); // need for reload case
 
@@ -575,7 +598,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		CheckBattleMasters();
 
-		Log.Logger.Information("Loaded {0} battlemaster entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} battlemaster entries in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday)
@@ -667,12 +690,15 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	void BuildBattlegroundStatusHeader(BattlefieldStatusHeader header, Battleground bg, Player player, uint ticketId, uint joinTime, BattlegroundQueueTypeId queueId, ArenaTypes arenaType)
 	{
-		header.Ticket = new RideTicket();
-		header.Ticket.RequesterGuid = player.GUID;
-		header.Ticket.Id = ticketId;
-		header.Ticket.Type = RideType.Battlegrounds;
-		header.Ticket.Time = (int)joinTime;
-		header.QueueID.Add(queueId.GetPacked());
+		header.Ticket = new RideTicket
+        {
+            RequesterGuid = player.GUID,
+            Id = ticketId,
+            Type = RideType.Battlegrounds,
+            Time = (int)joinTime
+        };
+
+        header.QueueID.Add(queueId.GetPacked());
 		header.RangeMin = (byte)bg.GetMinLevel();
 		header.RangeMax = (byte)bg.GetMaxLevel();
 		header.TeamSize = (byte)(bg.IsArena() ? arenaType : 0);

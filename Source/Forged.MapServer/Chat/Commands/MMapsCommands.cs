@@ -3,13 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.IO;
-using Game.Entities;
-using Game.Maps;
-using Game.Movement;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("mmap")]
 class MMapsCommands
@@ -257,7 +261,7 @@ class MMapsCommands
 			handler.SendSysMessage("Found {0} Creatures.", creatureList.Count);
 
 			uint paths = 0;
-			var uStartTime = Time.MSTime;
+			var uStartTime = global::Time.MSTime;
 
 			foreach (var creature in creatureList)
 			{
@@ -266,7 +270,7 @@ class MMapsCommands
 				++paths;
 			}
 
-			var uPathLoadTime = Time.GetMSTimeDiffToNow(uStartTime);
+			var uPathLoadTime = global::Time.GetMSTimeDiffToNow(uStartTime);
 			handler.SendSysMessage("Generated {0} paths in {1} ms", paths, uPathLoadTime);
 		}
 		else

@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Spells;
 
 public class SpellEnchantProcEntry
 {

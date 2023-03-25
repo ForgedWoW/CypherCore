@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 public class BonusData
 {

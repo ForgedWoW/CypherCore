@@ -8,7 +8,7 @@ using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Authentication;
 
 class ConnectTo : ServerPacket
 {

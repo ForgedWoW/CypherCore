@@ -4,13 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Groups;
-using Game.Movement;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.CoreAI;
 
 public class PetAI : CreatureAI
 {
@@ -187,10 +190,12 @@ public class PetAI : CreatureAI
 
 				targetSpellStore.RemoveAt(index);
 
-				SpellCastTargets targets = new();
-				targets.UnitTarget = target;
+				SpellCastTargets targets = new()
+                {
+                    UnitTarget = target
+                };
 
-				spell.Prepare(targets);
+                spell.Prepare(targets);
 			}
 
 			// deleted cached Spell objects
@@ -645,7 +650,7 @@ public class PetAI : CreatureAI
 
 	void UpdateAllies()
 	{
-		_updateAlliesTimer = 10 * Time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
+		_updateAlliesTimer = 10 * global::Time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
 
 		var owner = Me.CharmerOrOwner;
 

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game;
+namespace Forged.MapServer.Pools;
 
 public class PoolObject
 {

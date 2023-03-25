@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 public class CharacterTemplate
 {

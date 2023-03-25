@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting.Interfaces.IGameObject;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Scripting.Interfaces.IGameObject;
 
-namespace Game.Scripting.BaseScripts;
+namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class GenericGameObjectScript<AI> : ScriptObjectAutoAddDBBound, IGameObjectGetAI where AI : GameObjectAI
 {

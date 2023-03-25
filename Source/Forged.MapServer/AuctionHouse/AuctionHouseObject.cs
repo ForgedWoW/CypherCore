@@ -5,17 +5,23 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Networking.Packets.AuctionHouse;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Scripting.Interfaces.IAuctionHouse;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.BattlePets;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Mails;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IAuctionHouse;
 
-namespace Game;
+namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionHouseObject
 {
@@ -54,10 +60,12 @@ public class AuctionHouseObject
 		if (bucket == null)
 		{
 			// we don't have any item for this key yet, create new bucket
-			bucket = new AuctionsBucketData();
-			bucket.Key = key;
+			bucket = new AuctionsBucketData
+            {
+                Key = key
+            };
 
-			var itemTemplate = auction.Items[0].Template;
+            var itemTemplate = auction.Items[0].Template;
 			bucket.ItemClass = (byte)itemTemplate.Class;
 			bucket.ItemSubClass = (byte)itemTemplate.SubClass;
 			bucket.InventoryType = (byte)itemTemplate.InventoryType;
@@ -168,8 +176,8 @@ public class AuctionHouseObject
 			stmt.AddValue(5, auction.BuyoutOrUnitPrice);
 			stmt.AddValue(6, auction.Deposit);
 			stmt.AddValue(7, auction.BidAmount);
-			stmt.AddValue(8, Time.DateTimeToUnixTime(auction.StartTime));
-			stmt.AddValue(9, Time.DateTimeToUnixTime(auction.EndTime));
+			stmt.AddValue(8, global::Time.DateTimeToUnixTime(auction.StartTime));
+			stmt.AddValue(9, global::Time.DateTimeToUnixTime(auction.EndTime));
 			stmt.AddValue(10, (byte)auction.ServerFlags);
 			trans.Append(stmt);
 
@@ -648,10 +656,12 @@ public class AuctionHouseObject
 
 		if (throttleData == null)
 		{
-			throttleData = new PlayerReplicateThrottleData();
-			throttleData.NextAllowedReplication = curTime + TimeSpan.FromSeconds(WorldConfig.GetIntValue(WorldCfg.AuctionReplicateDelay));
-			throttleData.Global = Global.AuctionHouseMgr.GenerateReplicationId;
-		}
+			throttleData = new PlayerReplicateThrottleData
+            {
+                NextAllowedReplication = curTime + TimeSpan.FromSeconds(WorldConfig.GetIntValue(WorldCfg.AuctionReplicateDelay)),
+                Global = Global.AuctionHouseMgr.GenerateReplicationId
+            };
+        }
 		else
 		{
 			if (throttleData.Global != global || throttleData.Cursor != cursor || throttleData.Tombstone != tombstone)
@@ -959,10 +969,13 @@ public class AuctionHouseObject
 		{
 			if (oldBidder)
 			{
-				AuctionOutbidNotification packet = new();
-				packet.BidAmount = newBidAmount;
-				packet.MinIncrement = AuctionPosting.CalculateMinIncrement(newBidAmount);
-				packet.Info.AuctionID = auction.Id;
+				AuctionOutbidNotification packet = new()
+                {
+                    BidAmount = newBidAmount,
+                    MinIncrement = AuctionPosting.CalculateMinIncrement(newBidAmount)
+                };
+
+                packet.Info.AuctionID = auction.Id;
 				packet.Info.Bidder = newBidder;
 				packet.Info.Item = new ItemInstance(auction.Items[0]);
 				oldBidder.SendPacket(packet);

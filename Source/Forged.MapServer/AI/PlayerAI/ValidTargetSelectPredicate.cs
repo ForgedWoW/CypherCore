@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Units;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.PlayerAI;
 
 struct ValidTargetSelectPredicate : ICheck<Unit>
 {

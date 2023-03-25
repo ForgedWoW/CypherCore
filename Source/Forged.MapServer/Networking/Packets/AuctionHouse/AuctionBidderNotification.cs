@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.AuctionHouse;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Item;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
 struct AuctionBidderNotification
 {
@@ -11,7 +13,7 @@ struct AuctionBidderNotification
 	public ObjectGuid Bidder;
 	public ItemInstance Item;
 
-	public void Initialize(AuctionPosting auction, Item item)
+	public void Initialize(AuctionPosting auction, Entities.Items.Item item)
 	{
 		AuctionID = auction.Id;
 		Item = new ItemInstance(item);

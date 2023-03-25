@@ -3,13 +3,15 @@
 
 using System.Numerics;
 using System.Text;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.Ticket;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Chat;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.SupportSystem;
+namespace Forged.MapServer.SupportSystem;
 
 public class ComplaintTicket : Ticket
 {
@@ -141,7 +143,7 @@ public class ComplaintTicket : Ticket
 		StringBuilder ss = new();
 		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
 		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText, false)));
+		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, global::Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText, false)));
 
 		if (!AssignedToProtected.IsEmpty)
 			ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));

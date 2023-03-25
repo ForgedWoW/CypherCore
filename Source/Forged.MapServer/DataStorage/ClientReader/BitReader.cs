@@ -4,7 +4,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class BitReader
 {

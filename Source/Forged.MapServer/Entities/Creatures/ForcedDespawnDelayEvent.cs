@@ -4,7 +4,7 @@
 using System;
 using Framework.Dynamic;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class ForcedDespawnDelayEvent : BasicEvent
 {

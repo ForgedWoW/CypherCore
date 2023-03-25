@@ -3,17 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Arenas;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
-using Game.Arenas;
-using Game.BattleGrounds;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Common.Groups;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.BattleGround;
-using Game.Common.Networking.Packets.NPC;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -530,7 +528,7 @@ public partial class WorldSession
 				if (!bg)
 					continue;
 
-				Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, Player, i, Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), Time.GetMSTimeDiff(Time.MSTime, ginfo.RemoveInviteTime), arenaType);
+				Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, Player, i, Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), global::Time.GetMSTimeDiff(global::Time.MSTime, ginfo.RemoveInviteTime), arenaType);
 				SendPacket(battlefieldStatus);
 			}
 			else

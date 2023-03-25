@@ -6,7 +6,7 @@ using System.IO;
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class WmoLiquid
 {
@@ -121,14 +121,15 @@ public class WmoLiquid
 
 	public static WmoLiquid ReadFromFile(BinaryReader reader)
 	{
-		WmoLiquid liquid = new();
+		WmoLiquid liquid = new()
+        {
+            _tilesX = reader.ReadUInt32(),
+            _tilesY = reader.ReadUInt32(),
+            _corner = reader.Read<Vector3>(),
+            _type = reader.ReadUInt32()
+        };
 
-		liquid._tilesX = reader.ReadUInt32();
-		liquid._tilesY = reader.ReadUInt32();
-		liquid._corner = reader.Read<Vector3>();
-		liquid._type = reader.ReadUInt32();
-
-		if (liquid._tilesX != 0 && liquid._tilesY != 0)
+        if (liquid._tilesX != 0 && liquid._tilesY != 0)
 		{
 			var size = (liquid._tilesX + 1) * (liquid._tilesY + 1);
 			liquid._height = reader.ReadArray<float>(size);

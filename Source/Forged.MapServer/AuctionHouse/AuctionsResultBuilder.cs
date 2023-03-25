@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game;
+namespace Forged.MapServer.AuctionHouse;
 
 class AuctionsResultBuilder<T>
 {

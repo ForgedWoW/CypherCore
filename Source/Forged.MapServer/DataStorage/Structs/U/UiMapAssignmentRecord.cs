@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.U;
 
 public sealed class UiMapAssignmentRecord
 {

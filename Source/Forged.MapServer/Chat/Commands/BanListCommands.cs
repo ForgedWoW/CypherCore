@@ -5,7 +5,7 @@ using System;
 using Framework.Constants;
 using Framework.Database;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("banlist")]
 class BanListCommands
@@ -93,7 +93,7 @@ class BanListCommands
 					do
 					{
 						var timeBan = banInfo.Read<long>(0);
-						var tmBan = Time.UnixTimeToDateTime(timeBan);
+						var tmBan = global::Time.UnixTimeToDateTime(timeBan);
 						var bannedby = banInfo.Read<string>(2).Substring(0, 15);
 						var banreason = banInfo.Read<string>(3).Substring(0, 15);
 
@@ -112,7 +112,7 @@ class BanListCommands
 						else
 						{
 							var timeUnban = banInfo.Read<long>(1);
-							var tmUnban = Time.UnixTimeToDateTime(timeUnban);
+							var tmUnban = global::Time.UnixTimeToDateTime(timeUnban);
 
 							handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
 													char_name,
@@ -187,7 +187,7 @@ class BanListCommands
 				handler.SendSysMessage("-------------------------------------------------------------------------------");
 
 				long timeBan = result.Read<uint>(1);
-				var tmBan = Time.UnixTimeToDateTime(timeBan);
+				var tmBan = global::Time.UnixTimeToDateTime(timeBan);
 				var bannedby = result.Read<string>(3).Substring(0, 15);
 				var banreason = result.Read<string>(4).Substring(0, 15);
 
@@ -207,7 +207,7 @@ class BanListCommands
 				{
 					long timeUnban = result.Read<uint>(2);
 					DateTime tmUnban;
-					tmUnban = Time.UnixTimeToDateTime(timeUnban);
+					tmUnban = global::Time.UnixTimeToDateTime(timeUnban);
 
 					handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
 											result.Read<string>(0),
@@ -279,7 +279,7 @@ class BanListCommands
 					{
 						long timeBan = banInfo.Read<uint>(0);
 						DateTime tmBan;
-						tmBan = Time.UnixTimeToDateTime(timeBan);
+						tmBan = global::Time.UnixTimeToDateTime(timeBan);
 						var bannedby = banInfo.Read<string>(2).Substring(0, 15);
 						var banreason = banInfo.Read<string>(3).Substring(0, 15);
 
@@ -299,7 +299,7 @@ class BanListCommands
 						{
 							long timeUnban = banInfo.Read<uint>(1);
 							DateTime tmUnban;
-							tmUnban = Time.UnixTimeToDateTime(timeUnban);
+							tmUnban = global::Time.UnixTimeToDateTime(timeUnban);
 
 							handler.SendSysMessage("|{0}|{1:D2}-{2:D2}-{3:D2} {4:D2}:{5:D2}|{6:D2}-{7:D2}-{8:D2} {9:D2}:{10:D2}|{11}|{12}|",
 													accountName.Substring(0, 15),

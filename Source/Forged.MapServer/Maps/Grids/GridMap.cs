@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Forged.MapServer.Collision.Management;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
 using Framework.GameMath;
-using Game.Collision;
-using Game.DataStorage;
 
-namespace Game.Maps.Grids;
+namespace Forged.MapServer.Maps.Grids;
 
 public class GridMap
 {

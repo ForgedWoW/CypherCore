@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.DungeonFinding;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
 using Framework.Constants;
 using Framework.Database;
-using Game.DungeonFinding;
-using Game.Entities;
-using Game.Groups;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("lfg")]
 class LFGCommands

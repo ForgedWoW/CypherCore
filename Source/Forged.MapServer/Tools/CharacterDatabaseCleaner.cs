@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
 
-namespace Game;
+namespace Forged.MapServer.Tools;
 
 class CharacterDatabaseCleaner
 {
@@ -20,7 +21,7 @@ class CharacterDatabaseCleaner
 
 		Log.Logger.Information("Cleaning character database...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var flags = (CleaningFlags)Global.WorldMgr.GetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId);
 
@@ -47,7 +48,7 @@ class CharacterDatabaseCleaner
 
 		Global.WorldMgr.CleaningFlags = flags;
 
-		Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Cleaned character database in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	static void CheckUnique(string column, string table, CheckFor check)

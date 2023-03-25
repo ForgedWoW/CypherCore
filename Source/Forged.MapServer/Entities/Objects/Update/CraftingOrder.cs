@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Networking;
-using Game.Networking.Packets;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Item;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class CraftingOrder : BaseUpdateData<Player>
 {

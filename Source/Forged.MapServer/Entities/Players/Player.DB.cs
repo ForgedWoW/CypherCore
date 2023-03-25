@@ -5,20 +5,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Garrisons;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Time;
+using Forged.MapServer.Tools;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.BattleGrounds;
-using Game.DataStorage;
-using Game.Garrisons;
-using Game.Mails;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
@@ -54,23 +69,24 @@ public partial class Player
 		if (!mailsResult.IsEmpty())
 			do
 			{
-				Mail m = new();
+				Mail m = new()
+                {
+                    messageID = mailsResult.Read<ulong>(0),
+                    messageType = (MailMessageType)mailsResult.Read<byte>(1),
+                    sender = mailsResult.Read<uint>(2),
+                    receiver = mailsResult.Read<uint>(3),
+                    subject = mailsResult.Read<string>(4),
+                    body = mailsResult.Read<string>(5),
+                    expire_time = mailsResult.Read<long>(6),
+                    deliver_time = mailsResult.Read<long>(7),
+                    money = mailsResult.Read<ulong>(8),
+                    COD = mailsResult.Read<ulong>(9),
+                    checkMask = (MailCheckMask)mailsResult.Read<byte>(10),
+                    stationery = (MailStationery)mailsResult.Read<byte>(11),
+                    mailTemplateId = mailsResult.Read<ushort>(12)
+                };
 
-				m.messageID = mailsResult.Read<ulong>(0);
-				m.messageType = (MailMessageType)mailsResult.Read<byte>(1);
-				m.sender = mailsResult.Read<uint>(2);
-				m.receiver = mailsResult.Read<uint>(3);
-				m.subject = mailsResult.Read<string>(4);
-				m.body = mailsResult.Read<string>(5);
-				m.expire_time = mailsResult.Read<long>(6);
-				m.deliver_time = mailsResult.Read<long>(7);
-				m.money = mailsResult.Read<ulong>(8);
-				m.COD = mailsResult.Read<ulong>(9);
-				m.checkMask = (MailCheckMask)mailsResult.Read<byte>(10);
-				m.stationery = (MailStationery)mailsResult.Read<byte>(11);
-				m.mailTemplateId = mailsResult.Read<ushort>(12);
-
-				if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
+                if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
 				{
 					Log.Logger.Error($"Player:_LoadMail - Mail ({m.messageID}) have not existed MailTemplateId ({m.mailTemplateId}), remove at load");
 					m.mailTemplateId = 0;
@@ -365,10 +381,13 @@ public partial class Player
 		if (!customizationsResult.IsEmpty())
 			do
 			{
-				ChrCustomizationChoice choice = new();
-				choice.ChrCustomizationOptionID = customizationsResult.Read<uint>(0);
-				choice.ChrCustomizationChoiceID = customizationsResult.Read<uint>(1);
-				customizations.Add(choice);
+				ChrCustomizationChoice choice = new()
+                {
+                    ChrCustomizationOptionID = customizationsResult.Read<uint>(0),
+                    ChrCustomizationChoiceID = customizationsResult.Read<uint>(1)
+                };
+
+                customizations.Add(choice);
 			} while (customizationsResult.NextRow());
 
 		SetCustomizations(customizations, false);
@@ -1087,7 +1106,7 @@ public partial class Player
 			/// @todo: Filter out more redundant fields that can take their default value at player create
 			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER);
 			stmt.AddValue(index++, GUID.Counter);
-			stmt.AddValue(index++, Session.AccountId);
+			stmt.AddValue((int)index++, (uint)Session.AccountId);
 			stmt.AddValue(index++, GetName());
 			stmt.AddValue(index++, (byte)Race);
 			stmt.AddValue(index++, (byte)Class);
@@ -1174,7 +1193,7 @@ public partial class Player
 			for (; storedPowers < (int)PowerType.MaxPerClass; ++storedPowers)
 				stmt.AddValue(index++, 0);
 
-			stmt.AddValue(index++, Session.Latency);
+			stmt.AddValue((int)index++, (uint)Session.Latency);
 			stmt.AddValue(index++, GetActiveTalentGroup());
 			stmt.AddValue(index++, GetLootSpecId());
 
@@ -1335,7 +1354,7 @@ public partial class Player
 			for (; storedPowers < (int)PowerType.MaxPerClass; ++storedPowers)
 				stmt.AddValue(index++, 0);
 
-			stmt.AddValue(index++, Session.Latency);
+			stmt.AddValue((int)index++, (uint)Session.Latency);
 			stmt.AddValue(index++, GetActiveTalentGroup());
 			stmt.AddValue(index++, GetLootSpecId());
 
@@ -1453,13 +1472,13 @@ public partial class Player
 		Session.CollectionMgr.SaveAccountTransmogIllusions(loginTransaction);
 
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
-		stmt.AddValue(0, Session.AccountId);
+		stmt.AddValue((int)0, (uint)Session.AccountId);
 		stmt.AddValue(1, Global.WorldMgr.RealmId.Region);
 		stmt.AddValue(2, Global.WorldMgr.RealmId.Site);
 		loginTransaction.Append(stmt);
 
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
-		stmt.AddValue(0, Session.AccountId);
+		stmt.AddValue((int)0, (uint)Session.AccountId);
 		stmt.AddValue(1, Global.WorldMgr.RealmId.Region);
 		stmt.AddValue(2, Global.WorldMgr.RealmId.Site);
 		stmt.AddValue(3, Global.WorldMgr.RealmId.Index);
@@ -2030,7 +2049,7 @@ public partial class Player
 		Log.Logger.Information("Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
-		stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * Time.Day));
+		stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * global::Time.Day));
 		var result = DB.Characters.Query(stmt);
 
 		if (!result.IsEmpty())
@@ -2320,7 +2339,7 @@ public partial class Player
 					remove = true;
 				}
 				// "Conjured items disappear if you are logged out for more than 15 minutes"
-				else if (timeDiff > 15 * Time.Minute && proto.HasFlag(ItemFlags.Conjured))
+				else if (timeDiff > 15 * global::Time.Minute && proto.HasFlag(ItemFlags.Conjured))
 				{
 					Log.Logger.Debug(
 								"LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
@@ -2335,7 +2354,7 @@ public partial class Player
 
 				if (item.IsRefundable)
 				{
-					if (item.PlayedTime > (2 * Time.Hour))
+					if (item.PlayedTime > (2 * global::Time.Hour))
 					{
 						Log.Logger.Debug(
 									"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
@@ -2673,10 +2692,10 @@ public partial class Player
 				// negative effects should continue counting down after logout
 				if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
 				{
-					if (remainTime / Time.InMilliseconds <= timediff)
+					if (remainTime / global::Time.InMilliseconds <= timediff)
 						continue;
 
-					remainTime -= (int)(timediff * Time.InMilliseconds);
+					remainTime -= (int)(timediff * global::Time.InMilliseconds);
 				}
 
 				// prevent wrong values of remaincharges
@@ -2814,16 +2833,18 @@ public partial class Player
 			if (currency == null)
 				continue;
 
-			PlayerCurrency cur = new();
-			cur.State = PlayerCurrencyState.Unchanged;
-			cur.Quantity = result.Read<uint>(1);
-			cur.WeeklyQuantity = result.Read<uint>(2);
-			cur.TrackedQuantity = result.Read<uint>(3);
-			cur.IncreasedCapQuantity = result.Read<uint>(4);
-			cur.EarnedQuantity = result.Read<uint>(5);
-			cur.Flags = (CurrencyDbFlags)result.Read<byte>(6);
+			PlayerCurrency cur = new()
+            {
+                State = PlayerCurrencyState.Unchanged,
+                Quantity = result.Read<uint>(1),
+                WeeklyQuantity = result.Read<uint>(2),
+                TrackedQuantity = result.Read<uint>(3),
+                IncreasedCapQuantity = result.Read<uint>(4),
+                EarnedQuantity = result.Read<uint>(5),
+                Flags = (CurrencyDbFlags)result.Read<byte>(6)
+            };
 
-			_currencyStorage.Add(currencyID, cur);
+            _currencyStorage.Add(currencyID, cur);
 		} while (result.NextRow());
 	}
 
@@ -2856,9 +2877,11 @@ public partial class Player
 					Log.Logger.Error($"Player::_LoadActions: Player '{GetName()}' ({GUID}) has an invalid action button (Button: {button}, Action: {action}, Type: {type}). It will be deleted at next save. This can be due to a player changing their talents.");
 
 					// Will deleted in DB at next save (it can create data until save but marked as deleted)
-					_actionButtons[button] = new ActionButton();
-					_actionButtons[button].UState = ActionButtonUpdateState.Deleted;
-				}
+					_actionButtons[button] = new ActionButton
+                    {
+                        UState = ActionButtonUpdateState.Deleted
+                    };
+                }
 			} while (result.NextRow());
 	}
 
@@ -2908,7 +2931,7 @@ public partial class Player
 						if (endTime <= GameTime.GetGameTime())
 							questStatusData.Timer = 1;
 						else
-							questStatusData.Timer = (uint)((endTime - GameTime.GetGameTime()) * Time.InMilliseconds);
+							questStatusData.Timer = (uint)((endTime - GameTime.GetGameTime()) * global::Time.InMilliseconds);
 					}
 					else
 					{
@@ -3207,13 +3230,15 @@ public partial class Player
 			// SELECT traitConfigId, traitNodeId, traitNodeEntryId, rank, grantedRanks FROM character_trait_entry WHERE guid = ?
 			do
 			{
-				TraitEntryPacket traitEntry = new();
-				traitEntry.TraitNodeID = entriesResult.Read<int>(1);
-				traitEntry.TraitNodeEntryID = entriesResult.Read<int>(2);
-				traitEntry.Rank = entriesResult.Read<int>(3);
-				traitEntry.GrantedRanks = entriesResult.Read<int>(4);
+				TraitEntryPacket traitEntry = new()
+                {
+                    TraitNodeID = entriesResult.Read<int>(1),
+                    TraitNodeEntryID = entriesResult.Read<int>(2),
+                    Rank = entriesResult.Read<int>(3),
+                    GrantedRanks = entriesResult.Read<int>(4)
+                };
 
-				if (!TraitMgr.IsValidEntry(traitEntry))
+                if (!TraitMgr.IsValidEntry(traitEntry))
 					continue;
 
 				traitEntriesByConfig.Add(entriesResult.Read<int>(0), traitEntry);
@@ -3224,11 +3249,13 @@ public partial class Player
 			// SELECT traitConfigId, type, chrSpecializationId, combatConfigFlags, localIdentifier, skillLineId, traitSystemId, `name` FROM character_trait_config WHERE guid = ?
 			do
 			{
-				TraitConfigPacket traitConfig = new();
-				traitConfig.ID = configsResult.Read<int>(0);
-				traitConfig.Type = (TraitConfigType)configsResult.Read<int>(1);
+				TraitConfigPacket traitConfig = new()
+                {
+                    ID = configsResult.Read<int>(0),
+                    Type = (TraitConfigType)configsResult.Read<int>(1)
+                };
 
-				switch (traitConfig.Type)
+                switch (traitConfig.Type)
 				{
 					case TraitConfigType.Combat:
 						traitConfig.ChrSpecializationID = configsResult.Read<int>(2);
@@ -3288,14 +3315,16 @@ public partial class Player
 				if (hasConfigForSpec((int)spec.Id))
 					continue;
 
-				TraitConfigPacket traitConfig = new();
-				traitConfig.Type = TraitConfigType.Combat;
-				traitConfig.ChrSpecializationID = (int)spec.Id;
-				traitConfig.CombatConfigFlags = TraitCombatConfigFlags.ActiveForSpec;
-				traitConfig.LocalIdentifier = findFreeLocalIdentifier((int)spec.Id);
-				traitConfig.Name = spec.Name[Session.SessionDbcLocale];
+				TraitConfigPacket traitConfig = new()
+                {
+                    Type = TraitConfigType.Combat,
+                    ChrSpecializationID = (int)spec.Id,
+                    CombatConfigFlags = TraitCombatConfigFlags.ActiveForSpec,
+                    LocalIdentifier = findFreeLocalIdentifier((int)spec.Id),
+                    Name = spec.Name[Session.SessionDbcLocale]
+                };
 
-				CreateTraitConfig(traitConfig);
+                CreateTraitConfig(traitConfig);
 			}
 		}
 
@@ -3561,11 +3590,13 @@ public partial class Player
 					continue;
 				}
 
-				StoredAuraTeleportLocation storedLocation = new();
-				storedLocation.Loc = location;
-				storedLocation.CurrentState = StoredAuraTeleportLocation.State.Unchanged;
+				StoredAuraTeleportLocation storedLocation = new()
+                {
+                    Loc = location,
+                    CurrentState = StoredAuraTeleportLocation.State.Unchanged
+                };
 
-				_storedAuraTeleportLocations[spellId] = storedLocation;
+                _storedAuraTeleportLocations[spellId] = storedLocation;
 			} while (result.NextRow());
 	}
 
@@ -3614,17 +3645,22 @@ public partial class Player
 
 		do
 		{
-			EquipmentSetInfo eqSet = new();
-			eqSet.Data.Guid = result.Read<ulong>(0);
-			eqSet.Data.Type = EquipmentSetInfo.EquipmentSetType.Equipment;
-			eqSet.Data.SetId = result.Read<byte>(1);
-			eqSet.Data.SetName = result.Read<string>(2);
-			eqSet.Data.SetIcon = result.Read<string>(3);
-			eqSet.Data.IgnoreMask = result.Read<uint>(4);
-			eqSet.Data.AssignedSpecIndex = result.Read<int>(5);
-			eqSet.State = EquipmentSetUpdateState.Unchanged;
+			EquipmentSetInfo eqSet = new()
+            {
+                Data =
+                {
+                    Guid = result.Read<ulong>(0),
+                    Type = EquipmentSetInfo.EquipmentSetType.Equipment,
+                    SetId = result.Read<byte>(1),
+                    SetName = result.Read<string>(2),
+                    SetIcon = result.Read<string>(3),
+                    IgnoreMask = result.Read<uint>(4),
+                    AssignedSpecIndex = result.Read<int>(5)
+                },
+                State = EquipmentSetUpdateState.Unchanged
+            };
 
-			for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
 			{
 				ulong guid = result.Read<uint>(6 + i);
 
@@ -3652,17 +3688,21 @@ public partial class Player
 
 		do
 		{
-			EquipmentSetInfo eqSet = new();
+			EquipmentSetInfo eqSet = new()
+            {
+                Data =
+                {
+                    Guid = result.Read<ulong>(0),
+                    Type = EquipmentSetInfo.EquipmentSetType.Transmog,
+                    SetId = result.Read<byte>(1),
+                    SetName = result.Read<string>(2),
+                    SetIcon = result.Read<string>(3),
+                    IgnoreMask = result.Read<uint>(4)
+                },
+                State = EquipmentSetUpdateState.Unchanged
+            };
 
-			eqSet.Data.Guid = result.Read<ulong>(0);
-			eqSet.Data.Type = EquipmentSetInfo.EquipmentSetType.Transmog;
-			eqSet.Data.SetId = result.Read<byte>(1);
-			eqSet.Data.SetName = result.Read<string>(2);
-			eqSet.Data.SetIcon = result.Read<string>(3);
-			eqSet.Data.IgnoreMask = result.Read<uint>(4);
-			eqSet.State = EquipmentSetUpdateState.Unchanged;
-
-			for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
 				eqSet.Data.Appearances[i] = result.Read<int>(5 + i);
 
 			for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
@@ -3741,14 +3781,17 @@ public partial class Player
 		if (!result.IsEmpty())
 			do
 			{
-				PetStable.PetInfo petInfo = new();
-				petInfo.PetNumber = result.Read<uint>(0);
-				petInfo.CreatureId = result.Read<uint>(1);
-				petInfo.DisplayId = result.Read<uint>(2);
-				petInfo.Level = result.Read<byte>(3);
-				petInfo.Experience = result.Read<uint>(4);
-				petInfo.ReactState = (ReactStates)result.Read<byte>(5);
-				var slot = (PetSaveMode)result.Read<short>(6);
+				PetStable.PetInfo petInfo = new()
+                {
+                    PetNumber = result.Read<uint>(0),
+                    CreatureId = result.Read<uint>(1),
+                    DisplayId = result.Read<uint>(2),
+                    Level = result.Read<byte>(3),
+                    Experience = result.Read<uint>(4),
+                    ReactState = (ReactStates)result.Read<byte>(5)
+                };
+
+                var slot = (PetSaveMode)result.Read<short>(6);
 				petInfo.Name = result.Read<string>(7);
 				petInfo.WasRenamed = result.Read<bool>(8);
 				petInfo.Health = result.Read<uint>(9);

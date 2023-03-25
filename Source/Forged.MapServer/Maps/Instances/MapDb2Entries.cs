@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.M;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 public struct MapDb2Entries
 {

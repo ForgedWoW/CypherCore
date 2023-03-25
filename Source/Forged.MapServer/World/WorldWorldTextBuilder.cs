@@ -2,14 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Text;
 using Framework.Collections;
 using Framework.Constants;
-using Game.Chat;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.World;
 
 public class WorldWorldTextBuilder : MessageBuilder
 {

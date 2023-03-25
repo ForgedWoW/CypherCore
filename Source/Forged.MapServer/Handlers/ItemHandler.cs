@@ -3,41 +3,49 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.G;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
 using Framework.Database;
-using Game.BattlePets;
-using Game.Common.DataStorage.Structs.G;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 using Serilog;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
 	public void SendEnchantmentLog(ObjectGuid owner, ObjectGuid caster, ObjectGuid itemGuid, uint itemId, uint enchantId, uint enchantSlot)
 	{
-		EnchantmentLog packet = new();
-		packet.Owner = owner;
-		packet.Caster = caster;
-		packet.ItemGUID = itemGuid;
-		packet.ItemID = itemId;
-		packet.Enchantment = enchantId;
-		packet.EnchantSlot = enchantSlot;
+		EnchantmentLog packet = new()
+        {
+            Owner = owner,
+            Caster = caster,
+            ItemGUID = itemGuid,
+            ItemID = itemId,
+            Enchantment = enchantId,
+            EnchantSlot = enchantSlot
+        };
 
-		Player.SendMessageToSet(packet, true);
+        Player.SendMessageToSet(packet, true);
 	}
 
 	public void SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint slot, uint Duration)
 	{
-		ItemEnchantTimeUpdate data = new();
-		data.ItemGuid = Itemguid;
-		data.DurationLeft = Duration;
-		data.Slot = slot;
-		data.OwnerGuid = Playerguid;
-		SendPacket(data);
+		ItemEnchantTimeUpdate data = new()
+        {
+            ItemGuid = Itemguid,
+            DurationLeft = Duration,
+            Slot = slot,
+            OwnerGuid = Playerguid
+        };
+
+        SendPacket(data);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SplitItem, Processing = PacketProcessing.Inplace)]
@@ -402,9 +410,12 @@ public partial class WorldSession
 
 			if (msg == InventoryResult.Ok)
 			{
-				ReadItemResultOK packet = new();
-				packet.Item = item.GUID;
-				SendPacket(packet);
+				ReadItemResultOK packet = new()
+                {
+                    Item = item.GUID
+                };
+
+                SendPacket(packet);
 			}
 			else
 			{
@@ -528,7 +539,7 @@ public partial class WorldSession
 
 						if (pNewItem == null)
 						{
-							Log.Logger.Error("WORLD: HandleSellItemOpcode - could not create clone of item {0}; count = {1}", pItem.Entry, packet.Amount);
+							Log.Logger.Error<uint, uint>("WORLD: HandleSellItemOpcode - could not create clone of item {0}; count = {1}", pItem.Entry, packet.Amount);
 							pl.SendSellError(SellResult.CantSellItem, creature, packet.ItemGUID);
 
 							return;

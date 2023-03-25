@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.NPC;
 
 public class ClientGossipText
 {

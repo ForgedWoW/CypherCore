@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.LFG;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public class SupportTicketSubmitComplaint : ClientPacket
 {
@@ -51,9 +52,12 @@ public class SupportTicketSubmitComplaint : ClientPacket
 
 		if (hasClubMessage)
 		{
-			SupportTicketCommunityMessage communityMessage = new();
-			communityMessage.IsPlayerUsingVoice = _worldPacket.HasBit();
-			CommunityMessage = communityMessage;
+			SupportTicketCommunityMessage communityMessage = new()
+            {
+                IsPlayerUsingVoice = _worldPacket.HasBit()
+            };
+
+            CommunityMessage = communityMessage;
 			_worldPacket.ResetBitPos();
 		}
 
@@ -175,11 +179,14 @@ public class SupportTicketSubmitComplaint : ClientPacket
 
 			if (hasRealmAddress)
 			{
-				SenderRealm senderRealm = new();
-				senderRealm.VirtualRealmAddress = data.ReadUInt32();
-				senderRealm.field_4 = data.ReadUInt16();
-				senderRealm.field_6 = data.ReadUInt8();
-				RealmAddress = senderRealm;
+				SenderRealm senderRealm = new()
+                {
+                    VirtualRealmAddress = data.ReadUInt32(),
+                    field_4 = data.ReadUInt16(),
+                    field_6 = data.ReadUInt8()
+                };
+
+                RealmAddress = senderRealm;
 			}
 
 			if (hasSlashCmd)

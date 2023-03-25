@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 public class AuraLoadEffectInfo
 {

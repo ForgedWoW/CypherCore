@@ -4,7 +4,7 @@
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class BindPointUpdate : ServerPacket
 {

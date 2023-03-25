@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Equipment;
 
 public class LoadEquipmentSet : ServerPacket
 {

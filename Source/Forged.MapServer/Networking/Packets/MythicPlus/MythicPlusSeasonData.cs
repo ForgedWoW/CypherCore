@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets.MythicPlus;
+namespace Forged.MapServer.Networking.Packets.MythicPlus;
 
 public class MythicPlusSeasonData : ServerPacket
 {

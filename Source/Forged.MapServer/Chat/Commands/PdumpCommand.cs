@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("pdump")]
 class PdumpCommand

@@ -2,9 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
-using Game.Networking;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ScaleCurve : BaseUpdateData<AreaTrigger>
 {

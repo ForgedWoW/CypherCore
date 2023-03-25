@@ -2,8 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
+using Forged.MapServer.DataStorage.ClientReader;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.J;
 
 public sealed class JournalEncounterRecord
 {

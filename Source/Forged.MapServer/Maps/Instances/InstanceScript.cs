@@ -4,14 +4,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.D;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking.Packets.Instance;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.AI;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 public class InstanceScript : ZoneScript
 {
@@ -662,29 +671,38 @@ public class InstanceScript : ZoneScript
 				if (unit == null)
 					return;
 
-				InstanceEncounterEngageUnit encounterEngageMessage = new();
-				encounterEngageMessage.Unit = unit.GUID;
-				encounterEngageMessage.TargetFramePriority = priority;
-				Instance.SendToPlayers(encounterEngageMessage);
+				InstanceEncounterEngageUnit encounterEngageMessage = new()
+                {
+                    Unit = unit.GUID,
+                    TargetFramePriority = priority
+                };
+
+                Instance.SendToPlayers(encounterEngageMessage);
 
 				break;
 			case EncounterFrameType.Disengage:
 				if (!unit)
 					return;
 
-				InstanceEncounterDisengageUnit encounterDisengageMessage = new();
-				encounterDisengageMessage.Unit = unit.GUID;
-				Instance.SendToPlayers(encounterDisengageMessage);
+				InstanceEncounterDisengageUnit encounterDisengageMessage = new()
+                {
+                    Unit = unit.GUID
+                };
+
+                Instance.SendToPlayers(encounterDisengageMessage);
 
 				break;
 			case EncounterFrameType.UpdatePriority:
 				if (!unit)
 					return;
 
-				InstanceEncounterChangePriority encounterChangePriorityMessage = new();
-				encounterChangePriorityMessage.Unit = unit.GUID;
-				encounterChangePriorityMessage.TargetFramePriority = priority;
-				Instance.SendToPlayers(encounterChangePriorityMessage);
+				InstanceEncounterChangePriority encounterChangePriorityMessage = new()
+                {
+                    Unit = unit.GUID,
+                    TargetFramePriority = priority
+                };
+
+                Instance.SendToPlayers(encounterChangePriorityMessage);
 
 				break;
 			default:
@@ -694,10 +712,12 @@ public class InstanceScript : ZoneScript
 
 	public void SendBossKillCredit(uint encounterId)
 	{
-		BossKill bossKillCreditMessage = new();
-		bossKillCreditMessage.DungeonEncounterID = encounterId;
+		BossKill bossKillCreditMessage = new()
+        {
+            DungeonEncounterID = encounterId
+        };
 
-		Instance.SendToPlayers(bossKillCreditMessage);
+        Instance.SendToPlayers(bossKillCreditMessage);
 	}
 
 	public void UpdateEncounterStateForKilledCreature(uint creatureId, Unit source)
@@ -739,10 +759,13 @@ public class InstanceScript : ZoneScript
 		_combatResurrectionTimer = GetCombatResurrectionChargeInterval();
 		_combatResurrectionTimerStarted = true;
 
-		var gainCombatResurrectionCharge = new InstanceEncounterGainCombatResurrectionCharge();
-		gainCombatResurrectionCharge.InCombatResCount = _combatResurrectionCharges;
-		gainCombatResurrectionCharge.CombatResChargeRecovery = _combatResurrectionTimer;
-		Instance.SendToPlayers(gainCombatResurrectionCharge);
+		var gainCombatResurrectionCharge = new InstanceEncounterGainCombatResurrectionCharge
+        {
+            InCombatResCount = _combatResurrectionCharges,
+            CombatResChargeRecovery = _combatResurrectionTimer
+        };
+
+        Instance.SendToPlayers(gainCombatResurrectionCharge);
 	}
 
 	public void UseCombatResurrection()
@@ -765,7 +788,7 @@ public class InstanceScript : ZoneScript
 		var playerCount = Instance.Players.Count;
 
 		if (playerCount != 0)
-			interval = (uint)(90 * Time.Minute * Time.InMilliseconds / playerCount);
+			interval = (uint)(90 * global::Time.Minute * global::Time.InMilliseconds / playerCount);
 
 		return interval;
 	}
@@ -1048,13 +1071,15 @@ public class InstanceScript : ZoneScript
 
 	void SendEncounterStart(uint inCombatResCount = 0, uint maxInCombatResCount = 0, uint inCombatResChargeRecovery = 0, uint nextCombatResChargeTime = 0)
 	{
-		InstanceEncounterStart encounterStartMessage = new();
-		encounterStartMessage.InCombatResCount = inCombatResCount;
-		encounterStartMessage.MaxInCombatResCount = maxInCombatResCount;
-		encounterStartMessage.CombatResChargeRecovery = inCombatResChargeRecovery;
-		encounterStartMessage.NextCombatResChargeTime = nextCombatResChargeTime;
+		InstanceEncounterStart encounterStartMessage = new()
+        {
+            InCombatResCount = inCombatResCount,
+            MaxInCombatResCount = maxInCombatResCount,
+            CombatResChargeRecovery = inCombatResChargeRecovery,
+            NextCombatResChargeTime = nextCombatResChargeTime
+        };
 
-		Instance.SendToPlayers(encounterStartMessage);
+        Instance.SendToPlayers(encounterStartMessage);
 	}
 
 	void SendEncounterEnd()

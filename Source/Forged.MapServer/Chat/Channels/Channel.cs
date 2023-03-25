@@ -4,15 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Server;
+using Forged.MapServer.Text;
+using Forged.MapServer.Time;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 public class Channel
 {
@@ -146,7 +151,7 @@ public class Channel
 		}
 
 		_isDirty = false;
-		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
+		_nextActivityUpdateTime = now + RandomHelper.URand(1 * global::Time.Minute, 6 * global::Time.Minute) * Math.Max(1u, WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
 	}
 
 	public void JoinChannel(Player player, string pass = "")
@@ -452,12 +457,14 @@ public class Channel
 		var channelName = GetName(player.Session.SessionDbcLocale);
 		Log.Logger.Debug("SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
 
-		ChannelListResponse list = new();
-		list.Display = true; // always true?
-		list.Channel = channelName;
-		list.ChannelFlags = GetFlags();
+		ChannelListResponse list = new()
+        {
+            Display = true, // always true?
+            Channel = channelName,
+            ChannelFlags = GetFlags()
+        };
 
-		var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
+        var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
 
 		foreach (var pair in _playersStore)
 		{

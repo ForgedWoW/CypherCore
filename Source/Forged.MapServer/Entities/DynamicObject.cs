@@ -2,12 +2,19 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting.Interfaces.IDynamicObject;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Networking;
-using Game.Scripting.Interfaces.IDynamicObject;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class DynamicObject : WorldObject
 {

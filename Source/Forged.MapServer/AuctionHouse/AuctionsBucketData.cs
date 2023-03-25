@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.AuctionHouse;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionsBucketData
 {

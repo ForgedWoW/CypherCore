@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class PetitionManager : Singleton<PetitionManager>
 {
@@ -16,7 +17,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 	public void LoadPetitions()
 	{
-		var oldMsTime = Time.MSTime;
+		var oldMsTime = global::Time.MSTime;
 		_petitionStorage.Clear();
 
 		var result = DB.Characters.Query("SELECT petitionguid, ownerguid, name FROM petition");
@@ -36,12 +37,12 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} petitions in: {Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
+		Log.Logger.Information($"Loaded {count} petitions in: {global::Time.GetMSTimeDiffToNow(oldMsTime)} ms.");
 	}
 
 	public void LoadSignatures()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
 
@@ -65,16 +66,19 @@ public class PetitionManager : Singleton<PetitionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} Petition signs in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {count} Petition signs in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
 	{
-		Petition p = new();
-		p.PetitionGuid = petitionGuid;
-		p.OwnerGuid = ownerGuid;
-		p.PetitionName = name;
-		p.Signatures.Clear();
+		Petition p = new()
+        {
+            PetitionGuid = petitionGuid,
+            OwnerGuid = ownerGuid,
+            PetitionName = name
+        };
+
+        p.Signatures.Clear();
 
 		_petitionStorage[petitionGuid] = p;
 

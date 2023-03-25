@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.PlayerAI;
 
 class SimpleCharmedPlayerAI : PlayerAI
 {

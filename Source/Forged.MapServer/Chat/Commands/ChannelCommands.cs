@@ -2,11 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Chat.Channels;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("channel")]
 class ChannelCommands

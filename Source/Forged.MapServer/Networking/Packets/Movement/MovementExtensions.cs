@@ -3,11 +3,11 @@
 
 using System;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Movement;
 using Framework.Constants;
-using Game.Entities;
-using Game.Movement;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Movement;
 
 public static class MovementExtensions
 {
@@ -57,10 +57,13 @@ public static class MovementExtensions
 
 	public static MovementInfo ReadMovementInfo(WorldPacket data)
 	{
-		var movementInfo = new MovementInfo();
-		movementInfo.Guid = data.ReadPackedGuid();
-		movementInfo.MovementFlags = (MovementFlag)data.ReadUInt32();
-		movementInfo.SetMovementFlags2((MovementFlag2)data.ReadUInt32());
+		var movementInfo = new MovementInfo
+        {
+            Guid = data.ReadPackedGuid(),
+            MovementFlags = (MovementFlag)data.ReadUInt32()
+        };
+
+        movementInfo.SetMovementFlags2((MovementFlag2)data.ReadUInt32());
 		movementInfo.SetExtraMovementFlags2((MovementFlags3)data.ReadUInt32());
 		movementInfo.Time = data.ReadUInt32();
 		var x = data.ReadFloat();
@@ -95,21 +98,25 @@ public static class MovementExtensions
 
 		if (hasInertia)
 		{
-			MovementInfo.MovementInertia inertia = new();
-			inertia.Id = data.ReadInt32();
-			inertia.Force = data.ReadPosition();
-			inertia.Lifetime = data.ReadUInt32();
+			MovementInfo.MovementInertia inertia = new()
+            {
+                Id = data.ReadInt32(),
+                Force = data.ReadPosition(),
+                Lifetime = data.ReadUInt32()
+            };
 
-			movementInfo.Inertia = inertia;
+            movementInfo.Inertia = inertia;
 		}
 
 		if (hasAdvFlying)
 		{
-			MovementInfo.AdvFlyingMovement advFlying = new();
+			MovementInfo.AdvFlyingMovement advFlying = new()
+            {
+                ForwardVelocity = data.ReadFloat(),
+                UpVelocity = data.ReadFloat()
+            };
 
-			advFlying.ForwardVelocity = data.ReadFloat();
-			advFlying.UpVelocity = data.ReadFloat();
-			movementInfo.AdvFlying = advFlying;
+            movementInfo.AdvFlying = advFlying;
 		}
 
 		if (hasFall)

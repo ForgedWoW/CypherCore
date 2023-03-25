@@ -4,13 +4,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
+using Forged.MapServer.Weather;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class CriteriaHandler
 {
@@ -207,7 +215,7 @@ public class CriteriaHandler
 					if (miscValue1 == 0) // Login case.
 					{
 						// reset if player missed one day.
-						if (progress != null && progress.Date < (nextDailyResetTime - 2 * Time.Day))
+						if (progress != null && progress.Date < (nextDailyResetTime - 2 * global::Time.Day))
 							SetCriteriaProgress(criteria, 0, referencePlayer);
 
 						continue;
@@ -218,10 +226,10 @@ public class CriteriaHandler
 					if (progress == null)
 						// 1st time. Start count.
 						progressType = ProgressType.Set;
-					else if (progress.Date < (nextDailyResetTime - 2 * Time.Day))
+					else if (progress.Date < (nextDailyResetTime - 2 * global::Time.Day))
 						// last progress is older than 2 days. Player missed 1 day => Restart count.
 						progressType = ProgressType.Set;
-					else if (progress.Date < (nextDailyResetTime - Time.Day))
+					else if (progress.Date < (nextDailyResetTime - global::Time.Day))
 						// last progress is between 1 and 2 days. => 1st time of the day.
 						progressType = ProgressType.Accumulate;
 					else
@@ -520,9 +528,9 @@ public class CriteriaHandler
 			foreach (var tree in trees)
 				if ((!_timeCriteriaTrees.ContainsKey(tree.Id) || criteria.Entry.GetFlags().HasFlag(CriteriaFlags.ResetOnStart)) && !IsCompletedCriteriaTree(tree))
 					// Start the timer
-					if (criteria.Entry.StartTimer * Time.InMilliseconds > timeLost)
+					if (criteria.Entry.StartTimer * global::Time.InMilliseconds > timeLost)
 					{
-						_timeCriteriaTrees[tree.Id] = (uint)(criteria.Entry.StartTimer * Time.InMilliseconds - timeLost);
+						_timeCriteriaTrees[tree.Id] = (uint)(criteria.Entry.StartTimer * global::Time.InMilliseconds - timeLost);
 						canStart = true;
 					}
 
@@ -600,9 +608,11 @@ public class CriteriaHandler
 			if (changeValue == 0 && criteria.Entry.StartTimer == 0)
 				return;
 
-			progress = new CriteriaProgress();
-			progress.Counter = changeValue;
-		}
+			progress = new CriteriaProgress
+            {
+                Counter = changeValue
+            };
+        }
 		else
 		{
 			ulong newValue = 0;
@@ -650,7 +660,7 @@ public class CriteriaHandler
 				if (timed != 0)
 				{
 					// Client expects this in packet
-					timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / Time.InMilliseconds));
+					timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / global::Time.InMilliseconds));
 
 					// Remove the timer, we wont need it anymore
 					if (IsCompletedCriteriaTree(tree))
@@ -2078,8 +2088,8 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.TimeBetween: // 109
 			{
-				var from = Time.GetUnixTimeFromPackedTime(reqValue);
-				var to = Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
+				var from = global::Time.GetUnixTimeFromPackedTime(reqValue);
+				var to = global::Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
 
 				if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
 					return false;
@@ -4147,7 +4157,7 @@ public class CriteriaHandler
 				break;
 			}
 			case ModifierTreeType.PlayerDaysSinceLogout: // 344
-				if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
+				if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * global::Time.Day)
 					return false;
 
 				break;

@@ -4,12 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class SpellInfo
 {
@@ -1232,7 +1240,7 @@ public class SpellInfo
 						if (targetCreature == null)
 							return SpellCastResult.BadTargets;
 
-						if (!targetCreature.CanHaveLoot || !Loots.LootStorage.Pickpocketing.HaveLootFor(targetCreature.Template.PickPocketId))
+						if (!targetCreature.CanHaveLoot || !LootStorage.Pickpocketing.HaveLootFor(targetCreature.Template.PickPocketId))
 							return SpellCastResult.TargetNoPockets;
 					}
 
@@ -1852,9 +1860,12 @@ public class SpellInfo
 
 	public void _LoadSpellDiminishInfo()
 	{
-		SpellDiminishInfo diminishInfo = new();
-		diminishInfo.DiminishGroup = DiminishingGroupCompute();
-		diminishInfo.DiminishReturnType = DiminishingTypeCompute(diminishInfo.DiminishGroup);
+		SpellDiminishInfo diminishInfo = new()
+        {
+            DiminishGroup = DiminishingGroupCompute()
+        };
+
+        diminishInfo.DiminishReturnType = DiminishingTypeCompute(diminishInfo.DiminishGroup);
 		diminishInfo.DiminishMaxLevel = DiminishingMaxLevelCompute(diminishInfo.DiminishGroup);
 		diminishInfo.DiminishDurationLimit = DiminishingLimitDurationCompute();
 
@@ -2686,10 +2697,13 @@ public class SpellInfo
 				if (itr != null)
 					return itr;
 
-				SpellPowerCost cost = new();
-				cost.Power = powerType;
-				cost.Amount = 0;
-				costs.Add(cost);
+				SpellPowerCost cost = new()
+                {
+                    Power = powerType,
+                    Amount = 0
+                };
+
+                costs.Add(cost);
 
 				return costs.Last();
 			}
@@ -3621,29 +3635,29 @@ public class SpellInfo
 			case SpellFamilyNames.Mage:
 				// Dragon's Breath - 3 seconds in PvP
 				if (SpellFamilyFlags[0].HasAnyFlag(0x800000u))
-					return 3 * Time.InMilliseconds;
+					return 3 * global::Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.Warlock:
 				// Cripple - 4 seconds in PvP
 				if (Id == 170995)
-					return 4 * Time.InMilliseconds;
+					return 4 * global::Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.Hunter:
 				// Binding Shot - 3 seconds in PvP
 				if (Id == 117526)
-					return 3 * Time.InMilliseconds;
+					return 3 * global::Time.InMilliseconds;
 
 				// Wyvern Sting - 6 seconds in PvP
 				if (SpellFamilyFlags[1].HasAnyFlag(0x1000u))
-					return 6 * Time.InMilliseconds;
+					return 6 * global::Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.Monk:
 				// Paralysis - 4 seconds in PvP regardless of if they are facing you
 				if (SpellFamilyFlags[2].HasAnyFlag(0x800000u))
-					return 4 * Time.InMilliseconds;
+					return 4 * global::Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.DemonHunter:
@@ -3651,7 +3665,7 @@ public class SpellInfo
 				{
 					case 217832: // Imprison
 					case 221527: // Imprison
-						return 4 * Time.InMilliseconds;
+						return 4 * global::Time.InMilliseconds;
 					default:
 						break;
 				}
@@ -3661,7 +3675,7 @@ public class SpellInfo
 				break;
 		}
 
-		return 8 * Time.InMilliseconds;
+		return 8 * global::Time.InMilliseconds;
 	}
 
 	bool CanSpellProvideImmunityAgainstAura(SpellInfo auraSpellInfo)

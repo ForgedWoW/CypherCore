@@ -2,17 +2,24 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.Chat.Channels;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Garrisons;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Reputation;
+using Forged.MapServer.Services;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Achievements;
-using Game.Chat;
-using Game.Garrisons;
-using Game.Groups;
-using Game.Loots;
-using Game.Mails;
-using Game.Misc;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
@@ -76,7 +83,7 @@ public partial class Player
 	readonly QuestObjectiveCriteriaManager _questObjectiveCriteriaManager;
 	readonly WorldLocation _homebind = new();
 	readonly SceneMgr _sceneMgr;
-	readonly Dictionary<ObjectGuid, Loot> _aeLootView = new();
+	readonly Dictionary<ObjectGuid, Loot.Loot> _aeLootView = new();
 	readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
 
 	readonly CufProfile[] _cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];

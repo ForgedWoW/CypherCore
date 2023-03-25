@@ -4,10 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Social;
 using Framework.Database;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class PlayerSocial
 {
@@ -114,10 +115,12 @@ public class PlayerSocial
 		uint friendsCount = 0;
 		uint ignoredCount = 0;
 
-		ContactList contactList = new();
-		contactList.Flags = flags;
+		ContactList contactList = new()
+        {
+            Flags = flags
+        };
 
-		foreach (var v in PlayerSocialMap)
+        foreach (var v in PlayerSocialMap)
 		{
 			var contactFlags = v.Value.Flags;
 

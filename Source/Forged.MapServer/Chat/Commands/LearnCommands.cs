@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("learn")]
 class LearnCommands

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects.Update;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharCustomize : ClientPacket
 {
@@ -13,10 +13,13 @@ public class CharCustomize : ClientPacket
 
 	public override void Read()
 	{
-		CustomizeInfo = new CharCustomizeInfo();
-		CustomizeInfo.CharGUID = _worldPacket.ReadPackedGuid();
-		CustomizeInfo.SexID = (Gender)_worldPacket.ReadUInt8();
-		var customizationCount = _worldPacket.ReadUInt32();
+		CustomizeInfo = new CharCustomizeInfo
+        {
+            CharGUID = _worldPacket.ReadPackedGuid(),
+            SexID = (Gender)_worldPacket.ReadUInt8()
+        };
+
+        var customizationCount = _worldPacket.ReadUInt32();
 
 		for (var i = 0; i < customizationCount; ++i)
 			CustomizeInfo.Customizations[i] = new ChrCustomizationChoice()

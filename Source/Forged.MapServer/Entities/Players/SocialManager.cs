@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Social;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class SocialManager : Singleton<SocialManager>
 {

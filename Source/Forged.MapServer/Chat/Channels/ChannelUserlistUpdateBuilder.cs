@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 class ChannelUserlistUpdateBuilder : MessageBuilder
 {
@@ -23,13 +24,18 @@ class ChannelUserlistUpdateBuilder : MessageBuilder
 	{
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<UserlistUpdate> userlistUpdate = new();
-		userlistUpdate.Data.UpdatedUserGUID = _guid;
-		userlistUpdate.Data.ChannelFlags = _source.GetFlags();
-		userlistUpdate.Data.UserFlags = _source.GetPlayerFlags(_guid);
-		userlistUpdate.Data.ChannelID = _source.GetChannelId();
-		userlistUpdate.Data.ChannelName = _source.GetName(localeIdx);
+		PacketSenderOwning<UserlistUpdate> userlistUpdate = new()
+        {
+            Data =
+            {
+                UpdatedUserGUID = _guid,
+                ChannelFlags = _source.GetFlags(),
+                UserFlags = _source.GetPlayerFlags(_guid),
+                ChannelID = _source.GetChannelId(),
+                ChannelName = _source.GetName(localeIdx)
+            }
+        };
 
-		return userlistUpdate;
+        return userlistUpdate;
 	}
 }

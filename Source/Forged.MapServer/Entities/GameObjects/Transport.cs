@@ -4,10 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Events;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Maps;
 
-namespace Game.Entities.GameObjectType;
+namespace Forged.MapServer.Entities.GameObjects;
 
 class Transport : GameObjectTypeBase, ITransport
 {

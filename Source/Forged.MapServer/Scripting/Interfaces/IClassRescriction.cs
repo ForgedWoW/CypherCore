@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces;
+namespace Forged.MapServer.Scripting.Interfaces;
 
 public interface IClassRescriction
 {

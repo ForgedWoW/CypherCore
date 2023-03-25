@@ -5,17 +5,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.AreaTrigger;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Maps;
-using Game.Movement;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.AreaTriggers;
 
 public class AreaTrigger : WorldObject
 {
@@ -314,18 +323,26 @@ public class AreaTrigger : WorldObject
 		{
 			if (_reachedDestination)
 			{
-				AreaTriggerRePath reshapeDest = new();
-				reshapeDest.TriggerGUID = GUID;
-				SendMessageToSet(reshapeDest, true);
+				AreaTriggerRePath reshapeDest = new()
+                {
+                    TriggerGUID = GUID
+                };
+
+                SendMessageToSet(reshapeDest, true);
 			}
 
-			AreaTriggerRePath reshape = new();
-			reshape.TriggerGUID = GUID;
-			reshape.AreaTriggerSpline = new AreaTriggerSplineInfo();
-			reshape.AreaTriggerSpline.ElapsedTimeForMovement = ElapsedTimeForMovement;
-			reshape.AreaTriggerSpline.TimeToTarget = timeToTarget;
-			reshape.AreaTriggerSpline.Points = splinePoints;
-			SendMessageToSet(reshape, true);
+			AreaTriggerRePath reshape = new()
+            {
+                TriggerGUID = GUID,
+                AreaTriggerSpline = new AreaTriggerSplineInfo
+                {
+                    ElapsedTimeForMovement = ElapsedTimeForMovement,
+                    TimeToTarget = timeToTarget,
+                    Points = splinePoints
+                }
+            };
+
+            SendMessageToSet(reshape, true);
 		}
 
 		_reachedDestination = false;
@@ -1023,11 +1040,13 @@ public class AreaTrigger : WorldObject
 
 		if (IsInWorld)
 		{
-			AreaTriggerRePath reshape = new();
-			reshape.TriggerGUID = GUID;
-			reshape.AreaTriggerOrbit = _orbitInfo;
+			AreaTriggerRePath reshape = new()
+            {
+                TriggerGUID = GUID,
+                AreaTriggerOrbit = _orbitInfo
+            };
 
-			SendMessageToSet(reshape, true);
+            SendMessageToSet(reshape, true);
 		}
 	}
 

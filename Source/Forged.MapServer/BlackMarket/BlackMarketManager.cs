@@ -2,13 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Networking.Packets.BlackMarket;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Mails;
-using Game.Networking.Packets;
 
-namespace Game.BlackMarket;
+namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketManager : Singleton<BlackMarketManager>
 {
@@ -24,7 +28,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 	public void LoadTemplates()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Clear in case we are reloading
 		_templates.Clear();
@@ -48,12 +52,12 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			AddTemplate(templ);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAuctions()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Clear in case we are reloading
 		_auctions.Clear();
@@ -95,7 +99,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void Update(bool updateTime = false)
@@ -172,13 +176,15 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 		{
 			var templ = pair.Value.GetTemplate();
 
-			BlackMarketItem item = new();
-			item.MarketID = pair.Value.MarketId;
-			item.SellerNPC = templ.SellerNPC;
-			item.Item = templ.Item;
-			item.Quantity = templ.Quantity;
+			BlackMarketItem item = new()
+            {
+                MarketID = pair.Value.MarketId,
+                SellerNPC = templ.SellerNPC,
+                Item = templ.Item,
+                Quantity = templ.Quantity
+            };
 
-			// No bids yet
+            // No bids yet
 			if (pair.Value.NumBids == 0)
 			{
 				item.MinBid = templ.MinBid;

@@ -2,11 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Framework.Database;
-using Game.Entities;
 
-namespace Game.Groups;
+namespace Forged.MapServer.Groups;
 
 public class GroupManager : Singleton<GroupManager>
 {
@@ -97,7 +96,7 @@ public class GroupManager : Singleton<GroupManager>
 	public void LoadGroups()
 	{
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Delete all members that does not exist
 			DB.Characters.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
@@ -140,13 +139,13 @@ public class GroupManager : Singleton<GroupManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} group definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		Log.Logger.Information("Loading Group members...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			//                                                0        1           2            3       4
 			var result = DB.Characters.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
@@ -172,7 +171,7 @@ public class GroupManager : Singleton<GroupManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} group members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} group members in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 }

@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Game.DataStorage;
+using Forged.MapServer.DataStorage.Structs.T;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class TransportAnimation
 {

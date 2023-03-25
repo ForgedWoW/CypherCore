@@ -4,19 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Movement;
-using Game.Spells;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Instance;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Movement;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -238,7 +236,7 @@ public partial class WorldSession
 		var loc = player.TeleportDest;
 
 		// possible errors in the coordinate validity check
-		if (!GridDefines.IsValidMapCoord(loc))
+		if (!GridDefines.IsValidMapCoord((WorldLocation)loc))
 		{
 			LogoutPlayer(false);
 
@@ -367,7 +365,7 @@ public partial class WorldSession
 			player.FinishTaxiFlight();
 		}
 
-		if (!player.IsAlive && player.TeleportOptions.HasAnyFlag(TeleportToOptions.ReviveAtTeleport))
+		if (!player.IsAlive && Extensions.HasAnyFlag(player.TeleportOptions, TeleportToOptions.ReviveAtTeleport))
 			player.ResurrectPlayer(0.5f);
 
 		// resurrect character at enter into instance where his corpse exist after add to map
@@ -575,7 +573,7 @@ public partial class WorldSession
 				return;
 		}
 
-		if (Player.Transport == null && Math.Abs(Player.GetSpeed(move_type) - packet.Speed) > 0.01f)
+		if (Player.Transport == null && Math.Abs((float)(Player.GetSpeed(move_type) - packet.Speed)) > 0.01f)
 		{
 			if (Player.GetSpeed(move_type) > packet.Speed) // must be greater - just correct
 			{
@@ -826,7 +824,7 @@ public partial class WorldSession
 		// we are going to make 2 assumptions:
 		// 1) we assume that the request processing time equals 0.
 		// 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-		var roundTripDuration = Time.GetMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
+		var roundTripDuration = global::Time.GetMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
 		var lagDelay = roundTripDuration / 2;
 
 		/*

@@ -4,7 +4,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace Game;
+namespace Forged.MapServer.Warden;
 
 class SHA1Randx
 {

@@ -5,15 +5,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.L;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Movement;
+using Forged.MapServer.Networking.Packets.Vehicle;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Movement;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
@@ -148,24 +158,33 @@ public partial class Unit
 		if (playerMover)
 		{
 			// Send notification to self
-			MoveSetSpeed selfpacket = new(moveTypeToOpcode[(int)mtype, 1]);
-			selfpacket.MoverGUID = GUID;
-			selfpacket.SequenceIndex = MovementCounter++;
-			selfpacket.Speed = GetSpeed(mtype);
-			playerMover.SendPacket(selfpacket);
+			MoveSetSpeed selfpacket = new(moveTypeToOpcode[(int)mtype, 1])
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++,
+                Speed = GetSpeed(mtype)
+            };
+
+            playerMover.SendPacket(selfpacket);
 
 			// Send notification to other players
-			MoveUpdateSpeed packet = new(moveTypeToOpcode[(int)mtype, 2]);
-			packet.Status = MovementInfo;
-			packet.Speed = GetSpeed(mtype);
-			playerMover.SendMessageToSet(packet, false);
+			MoveUpdateSpeed packet = new(moveTypeToOpcode[(int)mtype, 2])
+            {
+                Status = MovementInfo,
+                Speed = GetSpeed(mtype)
+            };
+
+            playerMover.SendMessageToSet(packet, false);
 		}
 		else
 		{
-			MoveSplineSetSpeed packet = new(moveTypeToOpcode[(int)mtype, 0]);
-			packet.MoverGUID = GUID;
-			packet.Speed = GetSpeed(mtype);
-			SendMessageToSet(packet, true);
+			MoveSplineSetSpeed packet = new(moveTypeToOpcode[(int)mtype, 0])
+            {
+                MoverGUID = GUID,
+                Speed = GetSpeed(mtype)
+            };
+
+            SendMessageToSet(packet, true);
 		}
 	}
 
@@ -345,14 +364,20 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableTransitionBetweenSwimAndFly : ServerOpcodes.MoveDisableTransitionBetweenSwimAndFly);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableTransitionBetweenSwimAndFly : ServerOpcodes.MoveDisableTransitionBetweenSwimAndFly)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 
 		return true;
@@ -373,14 +398,20 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanTurnWhileFalling : ServerOpcodes.MoveUnsetCanTurnWhileFalling);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanTurnWhileFalling : ServerOpcodes.MoveUnsetCanTurnWhileFalling)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 
 		return true;
@@ -400,14 +431,20 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableDoubleJump : ServerOpcodes.MoveDisableDoubleJump);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveEnableDoubleJump : ServerOpcodes.MoveDisableDoubleJump)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 
 		return true;
@@ -427,14 +464,20 @@ public partial class Unit
 
 		if (playerMover != null)
 		{
-			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableInertia : ServerOpcodes.MoveEnableInertia);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableInertia : ServerOpcodes.MoveEnableInertia)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 
 		return true;
@@ -727,20 +770,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableGravity : ServerOpcodes.MoveEnableGravity);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveDisableGravity : ServerOpcodes.MoveEnableGravity)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(disable ? ServerOpcodes.MoveSplineDisableGravity : ServerOpcodes.MoveSplineEnableGravity);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(disable ? ServerOpcodes.MoveSplineDisableGravity : ServerOpcodes.MoveSplineEnableGravity)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
@@ -949,9 +1001,12 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag(MovementFlag.Walking);
 
-		MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetWalkMode : ServerOpcodes.MoveSplineSetRunMode);
-		packet.MoverGUID = GUID;
-		SendMessageToSet(packet, true);
+		MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetWalkMode : ServerOpcodes.MoveSplineSetRunMode)
+        {
+            MoverGUID = GUID
+        };
+
+        SendMessageToSet(packet, true);
 
 		return true;
 	}
@@ -984,9 +1039,12 @@ public partial class Unit
 		else
 			RemoveUnitMovementFlag(MovementFlag.Swimming);
 
-		MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineStartSwim : ServerOpcodes.MoveSplineStopSwim);
-		packet.MoverGUID = GUID;
-		SendMessageToSet(packet, true);
+		MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineStartSwim : ServerOpcodes.MoveSplineStopSwim)
+        {
+            MoverGUID = GUID
+        };
+
+        SendMessageToSet(packet, true);
 
 		return true;
 	}
@@ -1013,20 +1071,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanFly : ServerOpcodes.MoveUnsetCanFly);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetCanFly : ServerOpcodes.MoveUnsetCanFly)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetFlying : ServerOpcodes.MoveSplineUnsetFlying);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetFlying : ServerOpcodes.MoveSplineUnsetFlying)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		return true;
@@ -1047,20 +1114,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetWaterWalk : ServerOpcodes.MoveSetLandWalk);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetWaterWalk : ServerOpcodes.MoveSetLandWalk)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetWaterWalk : ServerOpcodes.MoveSplineSetLandWalk);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetWaterWalk : ServerOpcodes.MoveSplineSetLandWalk)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		return true;
@@ -1082,20 +1158,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetFeatherFall : ServerOpcodes.MoveSetNormalFall);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetFeatherFall : ServerOpcodes.MoveSetNormalFall)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetFeatherFall : ServerOpcodes.MoveSplineSetNormalFall);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetFeatherFall : ServerOpcodes.MoveSplineSetNormalFall)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		return true;
@@ -1133,20 +1218,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetHovering : ServerOpcodes.MoveUnsetHovering);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(enable ? ServerOpcodes.MoveSetHovering : ServerOpcodes.MoveUnsetHovering)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetHover : ServerOpcodes.MoveSplineUnsetHover);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(enable ? ServerOpcodes.MoveSplineSetHover : ServerOpcodes.MoveSplineUnsetHover)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		if (IsCreature && updateAnimTier && IsAlive && !HasUnitState(UnitState.Root) && !AsCreature.MovementTemplate.IsRooted())
@@ -1224,9 +1318,12 @@ public partial class Unit
 		UnitMovedByMe = target;
 		UnitMovedByMe.PlayerMovingMe = AsPlayer;
 
-		MoveSetActiveMover packet = new();
-		packet.MoverGUID = target.GUID;
-		AsPlayer.SendPacket(packet);
+		MoveSetActiveMover packet = new()
+        {
+            MoverGUID = target.GUID
+        };
+
+        AsPlayer.SendPacket(packet);
 	}
 
 	public void SetControlled(bool apply, UnitState state)
@@ -1345,20 +1442,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(apply ? ServerOpcodes.MoveRoot : ServerOpcodes.MoveUnroot);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(apply ? ServerOpcodes.MoveRoot : ServerOpcodes.MoveUnroot)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(apply ? ServerOpcodes.MoveSplineRoot : ServerOpcodes.MoveSplineUnroot);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(apply ? ServerOpcodes.MoveSplineRoot : ServerOpcodes.MoveSplineUnroot)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 	}
 
@@ -1524,14 +1630,20 @@ public partial class Unit
 
 		if (movingPlayer != null)
 		{
-			MoveSetFlag packet = new(ignoreMovementForcesOpcodeTable[ignore ? 1 : 0]);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			movingPlayer.SendPacket(packet);
+			MoveSetFlag packet = new(ignoreMovementForcesOpcodeTable[ignore ? 1 : 0])
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, movingPlayer);
+            movingPlayer.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, movingPlayer);
 		}
 
 		return true;
@@ -1545,19 +1657,25 @@ public partial class Unit
 
 		if (movingPlayer != null)
 		{
-			MoveSetSpeed setModMovementForceMagnitude = new(ServerOpcodes.MoveSetModMovementForceMagnitude);
-			setModMovementForceMagnitude.MoverGUID = GUID;
-			setModMovementForceMagnitude.SequenceIndex = MovementCounter++;
-			setModMovementForceMagnitude.Speed = modMagnitude;
-			movingPlayer.SendPacket(setModMovementForceMagnitude);
+			MoveSetSpeed setModMovementForceMagnitude = new(ServerOpcodes.MoveSetModMovementForceMagnitude)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++,
+                Speed = modMagnitude
+            };
+
+            movingPlayer.SendPacket(setModMovementForceMagnitude);
 			++movingPlayer.MovementForceModMagnitudeChanges;
 		}
 		else
 		{
-			MoveUpdateSpeed updateModMovementForceMagnitude = new(ServerOpcodes.MoveUpdateModMovementForceMagnitude);
-			updateModMovementForceMagnitude.Status = MovementInfo;
-			updateModMovementForceMagnitude.Speed = modMagnitude;
-			SendMessageToSet(updateModMovementForceMagnitude, true);
+			MoveUpdateSpeed updateModMovementForceMagnitude = new(ServerOpcodes.MoveUpdateModMovementForceMagnitude)
+            {
+                Status = MovementInfo,
+                Speed = modMagnitude
+            };
+
+            SendMessageToSet(updateModMovementForceMagnitude, true);
 		}
 
 		if (modMagnitude != 1.0f && _movementForces == null)
@@ -1666,10 +1784,12 @@ public partial class Unit
 		// SMSG_MOVE_UPDATE_TELEPORT is sent to nearby players to signal the teleport
 		// SMSG_MOVE_TELEPORT is sent to self in order to trigger CMSG_MOVE_TELEPORT_ACK and update the position server side
 
-		MoveUpdateTeleport moveUpdateTeleport = new();
-		moveUpdateTeleport.Status = MovementInfo;
+		MoveUpdateTeleport moveUpdateTeleport = new()
+        {
+            Status = MovementInfo
+        };
 
-		if (_movementForces != null)
+        if (_movementForces != null)
 			moveUpdateTeleport.MovementForces = _movementForces.GetForces();
 
 		var broadcastSource = this;
@@ -1686,11 +1806,13 @@ public partial class Unit
 			if (transportBase != null)
 				transportBase.CalculatePassengerOffset(newPos);
 
-			MoveTeleport moveTeleport = new();
-			moveTeleport.MoverGUID = GUID;
-			moveTeleport.Pos = newPos;
+			MoveTeleport moveTeleport = new()
+            {
+                MoverGUID = GUID,
+                Pos = newPos
+            };
 
-			if (GetTransGUID() != ObjectGuid.Empty)
+            if (GetTransGUID() != ObjectGuid.Empty)
 				moveTeleport.TransportGUID = GetTransGUID();
 
 			moveTeleport.Facing = newPos.Orientation;
@@ -1705,7 +1827,7 @@ public partial class Unit
 			// we do not update m_movementInfo for creatures so it needs to be done manually here
 			moveUpdateTeleport.Status.Guid = GUID;
 			moveUpdateTeleport.Status.Pos.Relocate(pos);
-			moveUpdateTeleport.Status.Time = Time.MSTime;
+			moveUpdateTeleport.Status.Time = global::Time.MSTime;
 			var transportBase = DirectTransport;
 
 			if (transportBase != null)
@@ -1727,10 +1849,13 @@ public partial class Unit
 
 	void SendMoveKnockBack(Player player, float speedXY, float speedZ, float vcos, float vsin)
 	{
-		MoveKnockBack moveKnockBack = new();
-		moveKnockBack.MoverGUID = GUID;
-		moveKnockBack.SequenceIndex = MovementCounter++;
-		moveKnockBack.Speeds.HorzSpeed = speedXY;
+		MoveKnockBack moveKnockBack = new()
+        {
+            MoverGUID = GUID,
+            SequenceIndex = MovementCounter++
+        };
+
+        moveKnockBack.Speeds.HorzSpeed = speedXY;
 		moveKnockBack.Speeds.VertSpeed = speedZ;
 		moveKnockBack.Direction = new Vector2(vcos, vsin);
 		player.SendPacket(moveKnockBack);
@@ -1750,20 +1875,29 @@ public partial class Unit
 
 		if (playerMover)
 		{
-			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveSplineEnableCollision : ServerOpcodes.MoveEnableCollision);
-			packet.MoverGUID = GUID;
-			packet.SequenceIndex = MovementCounter++;
-			playerMover.SendPacket(packet);
+			MoveSetFlag packet = new(disable ? ServerOpcodes.MoveSplineEnableCollision : ServerOpcodes.MoveEnableCollision)
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++
+            };
 
-			MoveUpdate moveUpdate = new();
-			moveUpdate.Status = MovementInfo;
-			SendMessageToSet(moveUpdate, playerMover);
+            playerMover.SendPacket(packet);
+
+			MoveUpdate moveUpdate = new()
+            {
+                Status = MovementInfo
+            };
+
+            SendMessageToSet(moveUpdate, playerMover);
 		}
 		else
 		{
-			MoveSplineSetFlag packet = new(disable ? ServerOpcodes.MoveSplineDisableCollision : ServerOpcodes.MoveDisableCollision);
-			packet.MoverGUID = GUID;
-			SendMessageToSet(packet, true);
+			MoveSplineSetFlag packet = new(disable ? ServerOpcodes.MoveSplineDisableCollision : ServerOpcodes.MoveDisableCollision)
+            {
+                MoverGUID = GUID
+            };
+
+            SendMessageToSet(packet, true);
 		}
 
 		return true;
@@ -1901,17 +2035,23 @@ public partial class Unit
 
 		if (player)
 		{
-			MoveSetVehicleRecID moveSetVehicleRec = new();
-			moveSetVehicleRec.MoverGUID = GUID;
-			moveSetVehicleRec.SequenceIndex = MovementCounter++;
-			moveSetVehicleRec.VehicleRecID = vehicleId;
-			player.SendPacket(moveSetVehicleRec);
+			MoveSetVehicleRecID moveSetVehicleRec = new()
+            {
+                MoverGUID = GUID,
+                SequenceIndex = MovementCounter++,
+                VehicleRecID = vehicleId
+            };
+
+            player.SendPacket(moveSetVehicleRec);
 		}
 
-		SetVehicleRecID setVehicleRec = new();
-		setVehicleRec.VehicleGUID = GUID;
-		setVehicleRec.VehicleRecID = vehicleId;
-		SendMessageToSet(setVehicleRec, true);
+		SetVehicleRecID setVehicleRec = new()
+        {
+            VehicleGUID = GUID,
+            VehicleRecID = vehicleId
+        };
+
+        SendMessageToSet(setVehicleRec, true);
 	}
 
 	void ApplyMovementForce(ObjectGuid id, Vector3 origin, float magnitude, MovementForceType type, Vector3 direction, ObjectGuid transportGuid = default)
@@ -1919,12 +2059,14 @@ public partial class Unit
 		if (_movementForces == null)
 			_movementForces = new MovementForces();
 
-		MovementForce force = new();
-		force.ID = id;
-		force.Origin = origin;
-		force.Direction = direction;
+		MovementForce force = new()
+        {
+            ID = id,
+            Origin = origin,
+            Direction = direction
+        };
 
-		if (transportGuid.IsMOTransport)
+        if (transportGuid.IsMOTransport)
 			force.TransportID = (uint)transportGuid.Counter;
 
 		force.Magnitude = magnitude;
@@ -1936,18 +2078,24 @@ public partial class Unit
 
 			if (movingPlayer != null)
 			{
-				MoveApplyMovementForce applyMovementForce = new();
-				applyMovementForce.MoverGUID = GUID;
-				applyMovementForce.SequenceIndex = (int)MovementCounter++;
-				applyMovementForce.Force = force;
-				movingPlayer.SendPacket(applyMovementForce);
+				MoveApplyMovementForce applyMovementForce = new()
+                {
+                    MoverGUID = GUID,
+                    SequenceIndex = (int)MovementCounter++,
+                    Force = force
+                };
+
+                movingPlayer.SendPacket(applyMovementForce);
 			}
 			else
 			{
-				MoveUpdateApplyMovementForce updateApplyMovementForce = new();
-				updateApplyMovementForce.Status = MovementInfo;
-				updateApplyMovementForce.Force = force;
-				SendMessageToSet(updateApplyMovementForce, true);
+				MoveUpdateApplyMovementForce updateApplyMovementForce = new()
+                {
+                    Status = MovementInfo,
+                    Force = force
+                };
+
+                SendMessageToSet(updateApplyMovementForce, true);
 			}
 		}
 	}
@@ -1963,18 +2111,24 @@ public partial class Unit
 
 			if (movingPlayer != null)
 			{
-				MoveRemoveMovementForce moveRemoveMovementForce = new();
-				moveRemoveMovementForce.MoverGUID = GUID;
-				moveRemoveMovementForce.SequenceIndex = (int)MovementCounter++;
-				moveRemoveMovementForce.ID = id;
-				movingPlayer.SendPacket(moveRemoveMovementForce);
+				MoveRemoveMovementForce moveRemoveMovementForce = new()
+                {
+                    MoverGUID = GUID,
+                    SequenceIndex = (int)MovementCounter++,
+                    ID = id
+                };
+
+                movingPlayer.SendPacket(moveRemoveMovementForce);
 			}
 			else
 			{
-				MoveUpdateRemoveMovementForce updateRemoveMovementForce = new();
-				updateRemoveMovementForce.Status = MovementInfo;
-				updateRemoveMovementForce.TriggerGUID = id;
-				SendMessageToSet(updateRemoveMovementForce, true);
+				MoveUpdateRemoveMovementForce updateRemoveMovementForce = new()
+                {
+                    Status = MovementInfo,
+                    TriggerGUID = id
+                };
+
+                SendMessageToSet(updateRemoveMovementForce, true);
 			}
 		}
 
@@ -1986,11 +2140,13 @@ public partial class Unit
 	{
 		_playHoverAnim = enable;
 
-		SetPlayHoverAnim data = new();
-		data.UnitGUID = GUID;
-		data.PlayHoverAnim = enable;
+		SetPlayHoverAnim data = new()
+        {
+            UnitGUID = GUID,
+            PlayHoverAnim = enable
+        };
 
-		SendMessageToSet(data, true);
+        SendMessageToSet(data, true);
 	}
 
 	Player GetPlayerBeingMoved()
@@ -2024,10 +2180,13 @@ public partial class Unit
 			{
 				_splineSyncTimer.Reset(5000); // Retail value, do not change
 
-				FlightSplineSync flightSplineSync = new();
-				flightSplineSync.Guid = GUID;
-				flightSplineSync.SplineDist = MoveSpline.TimePassed() / MoveSpline.Duration();
-				SendMessageToSet(flightSplineSync, true);
+				FlightSplineSync flightSplineSync = new()
+                {
+                    Guid = GUID,
+                    SplineDist = MoveSpline.TimePassed() / MoveSpline.Duration()
+                };
+
+                SendMessageToSet(flightSplineSync, true);
 			}
 		}
 

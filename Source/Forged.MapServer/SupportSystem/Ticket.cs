@@ -3,12 +3,14 @@
 
 using System.Numerics;
 using System.Text;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Chat;
-using Game.Entities;
 
-namespace Game.SupportSystem;
+namespace Forged.MapServer.SupportSystem;
 
 public class Ticket
 {

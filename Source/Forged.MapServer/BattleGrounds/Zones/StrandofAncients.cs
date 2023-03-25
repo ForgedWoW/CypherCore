@@ -3,11 +3,17 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattleGrounds.Zones;
+namespace Forged.MapServer.BattleGrounds.Zones;
 
 public class BgStrandOfAncients : Battleground
 {
@@ -1435,9 +1441,9 @@ struct SAGameObjectIds
 
 struct SATimers
 {
-	public const uint BoatStart = 60 * Time.InMilliseconds;
-	public const uint WarmupLength = 120 * Time.InMilliseconds;
-	public const uint RoundLength = 600 * Time.InMilliseconds;
+	public const uint BoatStart = 60 * global::Time.InMilliseconds;
+	public const uint WarmupLength = 120 * global::Time.InMilliseconds;
+	public const uint RoundLength = 600 * global::Time.InMilliseconds;
 }
 
 struct SASoundIds

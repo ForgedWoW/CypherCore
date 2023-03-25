@@ -3,18 +3,26 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Scripting.Interfaces.IAchievement;
+using Forged.MapServer.Server;
+using Forged.MapServer.Text;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Mails;
-using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IAchievement;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class PlayerAchievementMgr : AchievementManager
 {
@@ -31,9 +39,12 @@ public class PlayerAchievementMgr : AchievementManager
 
 		foreach (var iter in _completedAchievements)
 		{
-			AchievementDeleted achievementDeleted = new();
-			achievementDeleted.AchievementID = iter.Key;
-			SendPacket(achievementDeleted);
+			AchievementDeleted achievementDeleted = new()
+            {
+                AchievementID = iter.Key
+            };
+
+            SendPacket(achievementDeleted);
 		}
 
 		_completedAchievements.Clear();
@@ -72,11 +83,13 @@ public class PlayerAchievementMgr : AchievementManager
 				if (achievement == null)
 					continue;
 
-				CompletedAchievementData ca = new();
-				ca.Date = achievementResult.Read<long>(1);
-				ca.Changed = false;
+				CompletedAchievementData ca = new()
+                {
+                    Date = achievementResult.Read<long>(1),
+                    Changed = false
+                };
 
-				_achievementPoints += achievement.Points;
+                _achievementPoints += achievement.Points;
 
 				// title achievement rewards are retroactive
 				var reward = Global.AchievementMgr.GetAchievementReward(achievement);
@@ -124,13 +137,15 @@ public class PlayerAchievementMgr : AchievementManager
 				if (criteria.Entry.StartTimer != 0 && (date + criteria.Entry.StartTimer) < now)
 					continue;
 
-				CriteriaProgress progress = new();
-				progress.Counter = counter;
-				progress.Date = date;
-				progress.PlayerGUID = _owner.GUID;
-				progress.Changed = false;
+				CriteriaProgress progress = new()
+                {
+                    Counter = counter,
+                    Date = date,
+                    PlayerGUID = _owner.GUID,
+                    Changed = false
+                };
 
-				_criteriaProgress[id] = progress;
+                _criteriaProgress[id] = progress;
 			} while (criteriaResult.NextRow());
 		}
 	}
@@ -226,11 +241,13 @@ public class PlayerAchievementMgr : AchievementManager
 			if (achievement == null)
 				continue;
 
-			EarnedAchievement earned = new();
-			earned.Id = pair.Key;
-			earned.Date = pair.Value.Date;
+			EarnedAchievement earned = new()
+            {
+                Id = pair.Key,
+                Date = pair.Value.Date
+            };
 
-			if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
+            if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
 			{
 				earned.Owner = _owner.GUID;
 				earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
@@ -243,27 +260,33 @@ public class PlayerAchievementMgr : AchievementManager
 		{
 			var criteria = Global.CriteriaMgr.GetCriteria(pair.Key);
 
-			CriteriaProgressPkt progress = new();
-			progress.Id = pair.Key;
-			progress.Quantity = pair.Value.Counter;
-			progress.Player = pair.Value.PlayerGUID;
-			progress.Flags = 0;
-			progress.Date = pair.Value.Date;
-			progress.TimeFromStart = 0;
-			progress.TimeFromCreate = 0;
-			achievementData.Data.Progress.Add(progress);
+			CriteriaProgressPkt progress = new()
+            {
+                Id = pair.Key,
+                Quantity = pair.Value.Counter,
+                Player = pair.Value.PlayerGUID,
+                Flags = 0,
+                Date = pair.Value.Date,
+                TimeFromStart = 0,
+                TimeFromCreate = 0
+            };
+
+            achievementData.Data.Progress.Add(progress);
 
 			if (criteria.FlagsCu.HasAnyFlag(CriteriaFlagsCu.Account))
 			{
-				CriteriaProgressPkt accountProgress = new();
-				accountProgress.Id = pair.Key;
-				accountProgress.Quantity = pair.Value.Counter;
-				accountProgress.Player = _owner.Session.BattlenetAccountGUID;
-				accountProgress.Flags = 0;
-				accountProgress.Date = pair.Value.Date;
-				accountProgress.TimeFromStart = 0;
-				accountProgress.TimeFromCreate = 0;
-				allAccountCriteria.Progress.Add(accountProgress);
+				CriteriaProgressPkt accountProgress = new()
+                {
+                    Id = pair.Key,
+                    Quantity = pair.Value.Counter,
+                    Player = _owner.Session.BattlenetAccountGUID,
+                    Flags = 0,
+                    Date = pair.Value.Date,
+                    TimeFromStart = 0,
+                    TimeFromCreate = 0
+                };
+
+                allAccountCriteria.Progress.Add(accountProgress);
 			}
 		}
 
@@ -275,21 +298,25 @@ public class PlayerAchievementMgr : AchievementManager
 
 	public void SendAchievementInfo(Player receiver)
 	{
-		RespondInspectAchievements inspectedAchievements = new();
-		inspectedAchievements.Player = _owner.GUID;
+		RespondInspectAchievements inspectedAchievements = new()
+        {
+            Player = _owner.GUID
+        };
 
-		foreach (var pair in _completedAchievements)
+        foreach (var pair in _completedAchievements)
 		{
 			var achievement = VisibleAchievementCheck(pair);
 
 			if (achievement == null)
 				continue;
 
-			EarnedAchievement earned = new();
-			earned.Id = pair.Key;
-			earned.Date = pair.Value.Date;
+			EarnedAchievement earned = new()
+            {
+                Id = pair.Key,
+                Date = pair.Value.Date
+            };
 
-			if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
+            if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
 			{
 				earned.Owner = _owner.GUID;
 				earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
@@ -300,15 +327,18 @@ public class PlayerAchievementMgr : AchievementManager
 
 		foreach (var pair in _criteriaProgress)
 		{
-			CriteriaProgressPkt progress = new();
-			progress.Id = pair.Key;
-			progress.Quantity = pair.Value.Counter;
-			progress.Player = pair.Value.PlayerGUID;
-			progress.Flags = 0;
-			progress.Date = pair.Value.Date;
-			progress.TimeFromStart = 0;
-			progress.TimeFromCreate = 0;
-			inspectedAchievements.Data.Progress.Add(progress);
+			CriteriaProgressPkt progress = new()
+            {
+                Id = pair.Key,
+                Quantity = pair.Value.Counter,
+                Player = pair.Value.PlayerGUID,
+                Flags = 0,
+                Date = pair.Value.Date,
+                TimeFromStart = 0,
+                TimeFromCreate = 0
+            };
+
+            inspectedAchievements.Data.Progress.Add(progress);
 		}
 
 		receiver.SendPacket(inspectedAchievements);
@@ -340,10 +370,13 @@ public class PlayerAchievementMgr : AchievementManager
 
 		Log.Logger.Debug("PlayerAchievementMgr.CompletedAchievement({0}). {1}", achievement.Id, GetOwnerInfo());
 
-		CompletedAchievementData ca = new();
-		ca.Date = GameTime.GetGameTime();
-		ca.Changed = true;
-		_completedAchievements[achievement.Id] = ca;
+		CompletedAchievementData ca = new()
+        {
+            Date = GameTime.GetGameTime(),
+            Changed = true
+        };
+
+        _completedAchievements[achievement.Id] = ca;
 
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 			Global.AchievementMgr.SetRealmCompleted(achievement);
@@ -452,14 +485,15 @@ public class PlayerAchievementMgr : AchievementManager
 		}
 		else
 		{
-			CriteriaUpdate criteriaUpdate = new();
+			CriteriaUpdate criteriaUpdate = new()
+            {
+                CriteriaID = criteria.Id,
+                Quantity = progress.Counter,
+                PlayerGUID = _owner.GUID,
+                Flags = 0
+            };
 
-			criteriaUpdate.CriteriaID = criteria.Id;
-			criteriaUpdate.Quantity = progress.Counter;
-			criteriaUpdate.PlayerGUID = _owner.GUID;
-			criteriaUpdate.Flags = 0;
-
-			if (criteria.Entry.StartTimer != 0)
+            if (criteria.Entry.StartTimer != 0)
 				criteriaUpdate.Flags = timedCompleted ? 1 : 0u; // 1 is for keeping the counter at 0 in client
 
 			criteriaUpdate.CurrentTime = progress.Date;
@@ -472,9 +506,12 @@ public class PlayerAchievementMgr : AchievementManager
 
 	public override void SendCriteriaProgressRemoved(uint criteriaId)
 	{
-		CriteriaDeleted criteriaDeleted = new();
-		criteriaDeleted.CriteriaID = criteriaId;
-		SendPacket(criteriaDeleted);
+		CriteriaDeleted criteriaDeleted = new()
+        {
+            CriteriaID = criteriaId
+        };
+
+        SendPacket(criteriaDeleted);
 	}
 
 	public override void SendPacket(ServerPacket data)
@@ -514,11 +551,14 @@ public class PlayerAchievementMgr : AchievementManager
 			if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 			{
 				// broadcast realm first reached
-				BroadcastAchievement serverFirstAchievement = new();
-				serverFirstAchievement.Name = _owner.GetName();
-				serverFirstAchievement.PlayerGUID = _owner.GUID;
-				serverFirstAchievement.AchievementID = achievement.Id;
-				Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
+				BroadcastAchievement serverFirstAchievement = new()
+                {
+                    Name = _owner.GetName(),
+                    PlayerGUID = _owner.GUID,
+                    AchievementID = achievement.Id
+                };
+
+                Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
 			}
 			// if player is in world he can tell his friends about new achievement
 			else if (_owner.IsInWorld)
@@ -530,10 +570,13 @@ public class PlayerAchievementMgr : AchievementManager
 			}
 		}
 
-		AchievementEarned achievementEarned = new();
-		achievementEarned.Sender = _owner.GUID;
-		achievementEarned.Earner = _owner.GUID;
-		achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
+		AchievementEarned achievementEarned = new()
+        {
+            Sender = _owner.GUID,
+            Earner = _owner.GUID
+        };
+
+        achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
 		achievementEarned.AchievementID = achievement.Id;
 		achievementEarned.Time = GameTime.GetGameTime();
 

@@ -3,11 +3,11 @@
 
 using System;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Movement;
 using Framework.Constants;
-using Game.Entities;
-using Game.Movement;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MonsterMove : ServerPacket
 {
@@ -35,21 +35,27 @@ public class MonsterMove : ServerPacket
 
 		if (splineFlags.HasFlag(SplineFlag.Animation))
 		{
-			MonsterSplineAnimTierTransition animTierTransition = new();
-			animTierTransition.TierTransitionID = (int)moveSpline.anim_tier.TierTransitionId;
-			animTierTransition.StartTime = (uint)moveSpline.effect_start_time;
-			animTierTransition.AnimTier = moveSpline.anim_tier.AnimTier;
-			movementSpline.AnimTierTransition = animTierTransition;
+			MonsterSplineAnimTierTransition animTierTransition = new()
+            {
+                TierTransitionID = (int)moveSpline.anim_tier.TierTransitionId,
+                StartTime = (uint)moveSpline.effect_start_time,
+                AnimTier = moveSpline.anim_tier.AnimTier
+            };
+
+            movementSpline.AnimTierTransition = animTierTransition;
 		}
 
 		movementSpline.MoveTime = (uint)moveSpline.Duration();
 
 		if (splineFlags.HasFlag(SplineFlag.Parabolic) && (moveSpline.spell_effect_extra == null || moveSpline.effect_start_time != 0))
 		{
-			MonsterSplineJumpExtraData jumpExtraData = new();
-			jumpExtraData.JumpGravity = moveSpline.vertical_acceleration;
-			jumpExtraData.StartTime = (uint)moveSpline.effect_start_time;
-			movementSpline.JumpExtraData = jumpExtraData;
+			MonsterSplineJumpExtraData jumpExtraData = new()
+            {
+                JumpGravity = moveSpline.vertical_acceleration,
+                StartTime = (uint)moveSpline.effect_start_time
+            };
+
+            movementSpline.JumpExtraData = jumpExtraData;
 		}
 
 		if (splineFlags.HasFlag(SplineFlag.FadeObject))
@@ -57,13 +63,16 @@ public class MonsterMove : ServerPacket
 
 		if (moveSpline.spell_effect_extra != null)
 		{
-			MonsterSplineSpellEffectExtraData spellEffectExtraData = new();
-			spellEffectExtraData.TargetGuid = moveSpline.spell_effect_extra.Target;
-			spellEffectExtraData.SpellVisualID = moveSpline.spell_effect_extra.SpellVisualId;
-			spellEffectExtraData.ProgressCurveID = moveSpline.spell_effect_extra.ProgressCurveId;
-			spellEffectExtraData.ParabolicCurveID = moveSpline.spell_effect_extra.ParabolicCurveId;
-			spellEffectExtraData.JumpGravity = moveSpline.vertical_acceleration;
-			movementSpline.SpellEffectExtraData = spellEffectExtraData;
+			MonsterSplineSpellEffectExtraData spellEffectExtraData = new()
+            {
+                TargetGuid = moveSpline.spell_effect_extra.Target,
+                SpellVisualID = moveSpline.spell_effect_extra.SpellVisualId,
+                ProgressCurveID = moveSpline.spell_effect_extra.ProgressCurveId,
+                ParabolicCurveID = moveSpline.spell_effect_extra.ParabolicCurveId,
+                JumpGravity = moveSpline.vertical_acceleration
+            };
+
+            movementSpline.SpellEffectExtraData = spellEffectExtraData;
 		}
 
         lock (moveSpline.spline)

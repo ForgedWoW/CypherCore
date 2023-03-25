@@ -2,8 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.Structs.F;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 class FriendshipRepReactionRecordComparer : IComparer<FriendshipRepReactionRecord>
 {

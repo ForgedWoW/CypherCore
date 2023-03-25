@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
 using Framework.Constants;
-using Game.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class ConversationData : BaseUpdateData<Conversation>
 {

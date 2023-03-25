@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game;
+namespace Forged.MapServer.Pools;
 
 public class QuestPool
 {

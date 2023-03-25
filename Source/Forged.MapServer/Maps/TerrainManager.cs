@@ -2,15 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Configuration;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Threading;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class TerrainManager
 {

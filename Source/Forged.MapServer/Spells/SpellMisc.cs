@@ -3,7 +3,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 [StructLayout(LayoutKind.Explicit)]
 public struct SpellMisc

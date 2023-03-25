@@ -3,14 +3,23 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.R;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.OutdoorPVP;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.BattleGrounds;
-using Game.DataStorage;
-using Game.Networking.Packets;
-using Game.PvP;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
@@ -61,11 +70,11 @@ public partial class Player
 	{
 		// called when rewarding honor and at each save
 		var now = GameTime.GetGameTime();
-		var today = (GameTime.GetGameTime() / Time.Day) * Time.Day;
+		var today = (GameTime.GetGameTime() / global::Time.Day) * global::Time.Day;
 
 		if (_lastHonorUpdateTime < today)
 		{
-			var yesterday = today - Time.Day;
+			var yesterday = today - global::Time.Day;
 
 			// update yesterday's contribution
 			if (_lastHonorUpdateTime >= yesterday)
@@ -196,13 +205,15 @@ public partial class Player
 		// victim_rank [1..4]  HK: <dishonored rank>
 		// victim_rank [5..19] HK: <alliance\horde rank>
 		// victim_rank [0, 20+] HK: <>
-		PvPCredit data = new();
-		data.Honor = honor;
-		data.OriginalHonor = honor;
-		data.Target = victimGuid;
-		data.Rank = victim_rank;
+		PvPCredit data = new()
+        {
+            Honor = honor,
+            OriginalHonor = honor,
+            Target = victimGuid,
+            Rank = victim_rank
+        };
 
-		SendPacket(data);
+        SendPacket(data);
 
 		AddHonorXp((uint)honor);
 
@@ -546,9 +557,12 @@ public partial class Player
 	/// <param name="reporter"> </param>
 	public void ReportedAfkBy(Player reporter)
 	{
-		ReportPvPPlayerAFKResult reportAfkResult = new();
-		reportAfkResult.Offender = GUID;
-		var bg = Battleground;
+		ReportPvPPlayerAFKResult reportAfkResult = new()
+        {
+            Offender = GUID
+        };
+
+        var bg = Battleground;
 
 		// Battleground also must be in progress!
 		if (!bg || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.GetStatus() != BattlegroundStatus.InProgress)

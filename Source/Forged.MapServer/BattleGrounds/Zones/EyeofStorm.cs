@@ -2,11 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking.Packets.BattleGround;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattleGrounds.Zones;
+namespace Forged.MapServer.BattleGrounds.Zones;
 
 class BgEyeofStorm : Battleground
 {
@@ -1108,8 +1111,8 @@ struct BattlegroundEYCapturingPointStruct
 struct EotSMisc
 {
 	public const uint EventStartBattle = 13180; // Achievement: Flurry
-	public const int FlagRespawnTime = (8 * Time.InMilliseconds);
-	public const int FPointsTickTime = (2 * Time.InMilliseconds);
+	public const int FlagRespawnTime = (8 * global::Time.InMilliseconds);
+	public const int FPointsTickTime = (2 * global::Time.InMilliseconds);
 
 	public const uint NotEYWeekendHonorTicks = 260;
 	public const uint EYWeekendHonorTicks = 160;

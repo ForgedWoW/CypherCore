@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Framework.Database;
 
-namespace Game;
+namespace Forged.MapServer.Warden;
 
 public class WardenCheckManager : Singleton<WardenCheckManager>
 {
@@ -25,7 +25,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 	public void LoadWardenChecks()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
 		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
@@ -68,11 +68,13 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 				continue;
 			}
 
-			WardenCheck wardenCheck = new();
-			wardenCheck.Type = checkType;
-			wardenCheck.CheckId = id;
+			WardenCheck wardenCheck = new()
+            {
+                Type = checkType,
+                CheckId = id
+            };
 
-			if (checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Driver)
+            if (checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Driver)
 				wardenCheck.Data = result.Read<byte[]>(2);
 
 			if (checkType == WardenCheckType.Mpq || checkType == WardenCheckType.Mem)
@@ -113,12 +115,12 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} warden checks in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} warden checks in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadWardenOverrides()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
 		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
@@ -162,7 +164,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} warden action overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} warden action overrides in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public WardenCheck GetCheckData(ushort Id)

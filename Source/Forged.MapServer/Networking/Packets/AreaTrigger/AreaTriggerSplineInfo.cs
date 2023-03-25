@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
 class AreaTriggerSplineInfo
 {

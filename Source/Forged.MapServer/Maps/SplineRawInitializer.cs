@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Game.Movement;
+using Forged.MapServer.Movement;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class SplineRawInitializer
 {

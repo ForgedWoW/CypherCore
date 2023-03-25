@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Services;
 using Framework.Constants;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public abstract class ClientPacket : IDisposable
 {

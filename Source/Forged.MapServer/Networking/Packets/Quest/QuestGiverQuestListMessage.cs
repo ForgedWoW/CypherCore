@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class QuestGiverQuestListMessage : ServerPacket
 {

@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Game.DataStorage;
+using Forged.MapServer.DataStorage.Structs.G;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Garrison;
 
 public class GarrisonFollower
 {

@@ -3,13 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Azerite;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteItem : Item
 {
@@ -271,10 +276,13 @@ public class AzeriteItem : Item
 			SetState(ItemUpdateState.Changed, owner);
 		}
 
-		PlayerAzeriteItemGains xpGain = new();
-		xpGain.ItemGUID = GUID;
-		xpGain.XP = xp;
-		owner.SendPacket(xpGain);
+		PlayerAzeriteItemGains xpGain = new()
+        {
+            ItemGUID = GUID,
+            XP = xp
+        };
+
+        owner.SendPacket(xpGain);
 	}
 
 	public static GameObject FindHeartForge(Player owner)
@@ -341,10 +349,13 @@ public class AzeriteItem : Item
 
 		if (index < 0)
 		{
-			UnlockedAzeriteEssence unlockedEssence = new();
-			unlockedEssence.AzeriteEssenceID = azeriteEssenceId;
-			unlockedEssence.Rank = rank;
-			AddDynamicUpdateFieldValue(Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.UnlockedEssences), unlockedEssence);
+			UnlockedAzeriteEssence unlockedEssence = new()
+            {
+                AzeriteEssenceID = azeriteEssenceId,
+                Rank = rank
+            };
+
+            AddDynamicUpdateFieldValue(Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.UnlockedEssences), unlockedEssence);
 		}
 		else
 		{

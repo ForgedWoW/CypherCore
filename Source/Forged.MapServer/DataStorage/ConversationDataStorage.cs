@@ -3,10 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
-using Framework.Database;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 public class ConversationDataStorage : Singleton<ConversationDataStorage>
 {
@@ -25,7 +23,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 
 		if (!lineTemplates.IsEmpty())
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			do
 			{
@@ -38,16 +36,18 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 					continue;
 				}
 
-				ConversationLineTemplate conversationLine = new();
-				conversationLine.Id = id;
-				conversationLine.UiCameraID = lineTemplates.Read<uint>(1);
-				conversationLine.ActorIdx = lineTemplates.Read<byte>(2);
-				conversationLine.Flags = lineTemplates.Read<byte>(3);
+				ConversationLineTemplate conversationLine = new()
+                {
+                    Id = id,
+                    UiCameraID = lineTemplates.Read<uint>(1),
+                    ActorIdx = lineTemplates.Read<byte>(2),
+                    Flags = lineTemplates.Read<byte>(3)
+                };
 
-				_conversationLineTemplateStorage[id] = conversationLine;
+                _conversationLineTemplateStorage[id] = conversationLine;
 			} while (lineTemplates.NextRow());
 
-			Log.Logger.Information("Loaded {0} Conversation line templates in {1} ms", _conversationLineTemplateStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} Conversation line templates in {1} ms", _conversationLineTemplateStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{
@@ -58,7 +58,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 
 		if (!actorResult.IsEmpty())
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 			uint count = 0;
 
 			do
@@ -96,7 +96,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 				++count;
 			} while (actorResult.NextRow());
 
-			Log.Logger.Information("Loaded {0} Conversation actors in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} Conversation actors in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{
@@ -124,17 +124,19 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 
 		if (!templateResult.IsEmpty())
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			do
 			{
-				ConversationTemplate conversationTemplate = new();
-				conversationTemplate.Id = templateResult.Read<uint>(0);
-				conversationTemplate.FirstLineId = templateResult.Read<uint>(1);
-				conversationTemplate.TextureKitId = templateResult.Read<uint>(2);
-				conversationTemplate.ScriptId = Global.ObjectMgr.GetScriptId(templateResult.Read<string>(3));
+				ConversationTemplate conversationTemplate = new()
+                {
+                    Id = templateResult.Read<uint>(0),
+                    FirstLineId = templateResult.Read<uint>(1),
+                    TextureKitId = templateResult.Read<uint>(2),
+                    ScriptId = Global.ObjectMgr.GetScriptId(templateResult.Read<string>(3))
+                };
 
-				conversationTemplate.Actors = actorsByConversation.TryGetValue(conversationTemplate.Id, out var actors) ? actors.ToList() : new List<ConversationActorTemplate>();
+                conversationTemplate.Actors = actorsByConversation.TryGetValue(conversationTemplate.Id, out var actors) ? actors.ToList() : new List<ConversationActorTemplate>();
 
 				var correctedFirstLineId = getFirstLineIdFromAnyLineId(conversationTemplate.FirstLineId);
 
@@ -167,7 +169,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 				_conversationTemplateStorage[conversationTemplate.Id] = conversationTemplate;
 			} while (templateResult.NextRow());
 
-			Log.Logger.Information("Loaded {0} Conversation templates in {1} ms", _conversationTemplateStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} Conversation templates in {1} ms", _conversationTemplateStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{

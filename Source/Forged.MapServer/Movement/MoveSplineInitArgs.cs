@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Game.DataStorage;
-using Game.Entities;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement;
 
 public class MoveSplineInitArgs
 {

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Game.Scripting.Activators;
+using Forged.MapServer.Scripting.Activators;
 
-namespace Game.Extendability;
+namespace Forged.MapServer.Extendability;
 
 public static class IOHelpers
 {

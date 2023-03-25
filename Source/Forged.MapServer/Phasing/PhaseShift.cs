@@ -4,10 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Conditions;
-using Game.Entities;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 public class PhaseShift
 {

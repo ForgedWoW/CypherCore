@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class TransportTemplate
 {

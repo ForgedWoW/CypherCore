@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateMask
 {

@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Framework.Dynamic;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class ProcFlagsInit : FlagsArray<int>
 {

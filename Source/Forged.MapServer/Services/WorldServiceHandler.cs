@@ -4,11 +4,11 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Forged.MapServer.Networking.Packets.Battlenet;
 using Framework.Constants;
-using Game.Networking.Packets;
 using Google.Protobuf;
 
-namespace Game.Services;
+namespace Forged.MapServer.Services;
 
 public class WorldServiceHandler
 {

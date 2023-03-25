@@ -2,13 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Framework.Configuration;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting.Interfaces.IFormula;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting.Interfaces.IFormula;
 
-namespace Game;
+namespace Forged.MapServer.Miscellaneous;
 
 public class Formulas
 {

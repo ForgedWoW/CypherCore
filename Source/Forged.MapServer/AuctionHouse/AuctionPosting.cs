@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.AuctionHouse;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionPosting
 {
@@ -80,10 +83,13 @@ public class AuctionPosting
 
 				if (gemData.ItemId != 0)
 				{
-					ItemGemData gem = new();
-					gem.Slot = i;
-					gem.Item = new ItemInstance(gemData);
-					auctionItem.Gems.Add(gem);
+					ItemGemData gem = new()
+                    {
+                        Slot = i,
+                        Item = new ItemInstance(gemData)
+                    };
+
+                    auctionItem.Gems.Add(gem);
 				}
 			}
 
@@ -107,7 +113,7 @@ public class AuctionPosting
 		auctionItem.CensorServerSideInfo = censorServerInfo;
 		auctionItem.ItemGuid = IsCommodity ? ObjectGuid.Empty : Items[0].GUID;
 		auctionItem.OwnerAccountID = OwnerAccount;
-		auctionItem.EndTime = (uint)Time.DateTimeToUnixTime(EndTime);
+		auctionItem.EndTime = (uint)global::Time.DateTimeToUnixTime(EndTime);
 
 		// SMSG_AUCTION_LIST_BIDDER_ITEMS_RESULT, SMSG_AUCTION_LIST_ITEMS_RESULT (if has bid), SMSG_AUCTION_LIST_OWNER_ITEMS_RESULT, SMSG_AUCTION_REPLICATE_RESPONSE (if has bid)
 		auctionItem.CensorBidInfo = censorBidInfo;

@@ -2,18 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Networking;
 using Framework.Constants;
-using Game.Networking;
 
-namespace Game;
+namespace Forged.MapServer.Server;
 
 public class DosProtection
 {
 	readonly Policy _policy;
-	readonly WorldSession Session;
+	readonly Services.WorldSession Session;
 	readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
 
-	public DosProtection(WorldSession s)
+	public DosProtection(Services.WorldSession s)
 	{
 		Session = s;
 		_policy = (Policy)WorldConfig.GetIntValue(WorldCfg.PacketSpoofPolicy);

@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Entities;
-using Game.Mails;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailQueryNextTimeResult : ServerPacket
 {
@@ -41,7 +41,7 @@ public class MailQueryNextTimeResult : ServerPacket
 		public sbyte AltSenderType;
 		public int StationeryID;
 
-		public MailNextTimeEntry(Mail mail)
+		public MailNextTimeEntry(Mails.Mail mail)
 		{
 			switch (mail.messageType)
 			{

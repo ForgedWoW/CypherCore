@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Checks;
 
 public class AnyUnfriendlyUnitInObjectRangeCheck : ICheck<Unit>
 {

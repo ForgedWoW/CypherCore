@@ -4,12 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting.Interfaces;
-using Game.Spells;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 // helper class from which SpellScript and SpellAura derive, use these classes instead
 public class BaseSpellScript : IBaseSpellScript

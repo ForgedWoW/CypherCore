@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Framework.IO;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 class ChangeRealmTicketResponse : ServerPacket
 {

@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Framework.Configuration;
 using Framework.Database;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 public class CommandManager
 {

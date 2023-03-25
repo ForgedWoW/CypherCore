@@ -3,7 +3,7 @@
 
 using Framework.IO;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Battlenet;
 
 public struct MethodCall
 {

@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("bf")]
 class BattleFieldCommands
@@ -90,7 +90,7 @@ class BattleFieldCommands
 		if (bf == null)
 			return false;
 
-		bf.SetTimer(time * Time.InMilliseconds);
+		bf.SetTimer(time * global::Time.InMilliseconds);
 
 		if (battleId == 1)
 			handler.SendGlobalGMSysMessage("Wintergrasp (Command timer used)");

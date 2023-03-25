@@ -3,12 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Scripting.Interfaces.IVehicle;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Movement;
-using Game.Scripting.Interfaces.IVehicle;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class VehicleJoinEvent : BasicEvent
 {

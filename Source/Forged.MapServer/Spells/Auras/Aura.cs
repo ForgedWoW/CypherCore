@@ -4,17 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Models;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces;
-using Game.Scripting.Interfaces.IAura;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 public class Aura
 {
@@ -181,7 +186,7 @@ public class Aura
 				_periodicCosts.Add(power);
 
 		if (!_periodicCosts.Empty())
-			_timeCla = 1 * Time.InMilliseconds;
+			_timeCla = 1 * global::Time.InMilliseconds;
 
 		_maxDuration = CalcMaxDuration(createInfo.Caster);
 		_duration = _maxDuration;
@@ -592,7 +597,7 @@ public class Aura
 		}
 
 		if (!_periodicCosts.Empty())
-			_timeCla = 1 * Time.InMilliseconds;
+			_timeCla = 1 * global::Time.InMilliseconds;
 
 		// also reset periodic counters
 		foreach (var aurEff in AuraEffects)

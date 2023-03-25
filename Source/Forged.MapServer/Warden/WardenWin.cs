@@ -5,12 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.Networking.Packets.Warden;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
+using Forged.MapServer.Warden.Modules;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Networking.Packets;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game;
+namespace Forged.MapServer.Warden;
 
 class WardenWin : Warden
 {
@@ -57,34 +61,41 @@ class WardenWin : Warden
 	public override void InitializeModuleForClient(out ClientWardenModule module)
 	{
 		// data assign
-		module = new ClientWardenModule();
-		module.CompressedData = WardenModuleWin.Module;
-		module.CompressedSize = (uint)WardenModuleWin.Module.Length;
-		module.Key = WardenModuleWin.ModuleKey;
-	}
+		module = new ClientWardenModule
+        {
+            CompressedData = WardenModuleWin.Module,
+            CompressedSize = (uint)WardenModuleWin.Module.Length,
+            Key = WardenModuleWin.ModuleKey
+        };
+    }
 
 	public override void InitializeModule()
 	{
 		Log.Logger.Debug("Initialize module");
 
 		// Create packet structure
-		WardenInitModuleRequest Request = new();
-		Request.Command1 = WardenOpcodes.SmsgModuleInitialize;
-		Request.Size1 = 20;
-		Request.Unk1 = 1;
-		Request.Unk2 = 0;
-		Request.Type = 1;
-		Request.String_library1 = 0;
-		Request.Function1[0] = 0x00024F80; // 0x00400000 + 0x00024F80 SFileOpenFile
-		Request.Function1[1] = 0x000218C0; // 0x00400000 + 0x000218C0 SFileGetFileSize
-		Request.Function1[2] = 0x00022530; // 0x00400000 + 0x00022530 SFileReadFile
-		Request.Function1[3] = 0x00022910; // 0x00400000 + 0x00022910 SFileCloseFile
+		WardenInitModuleRequest Request = new()
+        {
+            Command1 = WardenOpcodes.SmsgModuleInitialize,
+            Size1 = 20,
+            Unk1 = 1,
+            Unk2 = 0,
+            Type = 1,
+            String_library1 = 0,
+            Function1 =
+            {
+                [0] = 0x00024F80, // 0x00400000 + 0x00024F80 SFileOpenFile
+                [1] = 0x000218C0, // 0x00400000 + 0x000218C0 SFileGetFileSize
+                [2] = 0x00022530, // 0x00400000 + 0x00022530 SFileReadFile
+                [3] = 0x00022910  // 0x00400000 + 0x00022910 SFileCloseFile
+            }
+        };
 
-		Request.CheckSumm1 = BuildChecksum(new byte[]
-											{
-												Request.Unk1
-											},
-											20);
+        Request.CheckSumm1 = BuildChecksum(new byte[]
+                                           {
+                                               Request.Unk1
+                                           },
+                                           20);
 
 		Request.Command2 = WardenOpcodes.SmsgModuleInitialize;
 		Request.Size2 = 8;
@@ -114,9 +125,12 @@ class WardenWin : Warden
 											},
 											8);
 
-		Warden3DataServer packet = new();
-		packet.Data = EncryptData(Request);
-		Session.SendPacket(packet);
+		Warden3DataServer packet = new()
+        {
+            Data = EncryptData(Request)
+        };
+
+        Session.SendPacket(packet);
 	}
 
 	public override void RequestHash()
@@ -124,13 +138,18 @@ class WardenWin : Warden
 		Log.Logger.Debug("Request hash");
 
 		// Create packet structure
-		WardenHashRequest Request = new();
-		Request.Command = WardenOpcodes.SmsgHashRequest;
-		Request.Seed = Seed;
+		WardenHashRequest Request = new()
+        {
+            Command = WardenOpcodes.SmsgHashRequest,
+            Seed = Seed
+        };
 
-		Warden3DataServer packet = new();
-		packet.Data = EncryptData(Request);
-		Session.SendPacket(packet);
+        Warden3DataServer packet = new()
+        {
+            Data = EncryptData(Request)
+        };
+
+        Session.SendPacket(packet);
 	}
 
 	public override void HandleHashResult(ByteBuffer buff)
@@ -321,9 +340,12 @@ class WardenWin : Warden
 			Log.Logger.Warning($"Sent checks: {idstring}");
 		}
 
-		Warden3DataServer packet = new();
-		packet.Data = EncryptData(buff.GetData());
-		Session.SendPacket(packet);
+		Warden3DataServer packet = new()
+        {
+            Data = EncryptData(buff.GetData())
+        };
+
+        Session.SendPacket(packet);
 
 		DataSent = true;
 	}
@@ -473,7 +495,7 @@ class WardenWin : Warden
 
 		// Set hold off timer, minimum timer should at least be 1 second
 		var holdOff = WorldConfig.GetUIntValue(WorldCfg.WardenClientCheckHoldoff);
-		CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.InMilliseconds;
+		CheckTimer = (holdOff < 1 ? 1 : holdOff) * global::Time.InMilliseconds;
 	}
 
 	static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch

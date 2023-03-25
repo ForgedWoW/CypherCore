@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 struct CompareRespawnInfo : IComparer<RespawnInfo>
 {

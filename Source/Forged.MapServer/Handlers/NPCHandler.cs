@@ -3,17 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Common.Globals;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Item;
-using Game.Common.Networking.Packets.NPC;
-using Game.Common.Networking.Packets.Pet;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -159,7 +159,7 @@ public partial class WorldSession
 
 				if (!Player.IsGameMaster)
 				{
-					if (!Convert.ToBoolean(itemTemplate.AllowableClass & Player.ClassMask) && itemTemplate.Bonding == ItemBondingType.OnAcquire)
+					if (!Convert.ToBoolean((uint)(itemTemplate.AllowableClass & Player.ClassMask)) && itemTemplate.Bonding == ItemBondingType.OnAcquire)
 						continue;
 
 					if ((itemTemplate.HasFlag(ItemFlags2.FactionHorde) && Player.Team == TeamFaction.Alliance) ||
@@ -177,13 +177,13 @@ public partial class WorldSession
 					continue;
 				}
 
-				var price = (ulong)Math.Floor(itemTemplate.BuyPrice * discountMod);
+				var price = (ulong)Math.Floor((double)(itemTemplate.BuyPrice * discountMod));
 				price = itemTemplate.BuyPrice > 0 ? Math.Max(1ul, price) : price;
 
 				var priceMod = Player.GetTotalAuraModifier(AuraType.ModVendorItemsPrices);
 
 				if (priceMod != 0)
-					price -= MathFunctions.CalculatePct(price, priceMod);
+					price -= MathFunctions.CalculatePct(price, (double)priceMod);
 
 				item.MuID = (int)slot + 1;
 				item.Durability = (int)itemTemplate.MaxDurability;

@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Forged.MapServer.Collision.Maps;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class GameObjectModel : IModel
 {
@@ -202,7 +204,7 @@ public class GameObjectModel : IModel
 
 	public static bool LoadGameObjectModelList()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 		var filename = Global.WorldMgr.DataPath + "/vmaps/GameObjectModels.dtree";
 
 		if (!File.Exists(filename))
@@ -246,7 +248,7 @@ public class GameObjectModel : IModel
 			Log.outException(ex);
 		}
 
-		Log.Logger.Information("Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 
 		return true;
 	}

@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("cast")]
 class CastCommands
@@ -56,7 +56,7 @@ class CastCommands
 		if (!triggerFlags.HasValue)
 			return false;
 
-		caster.CastSpell(handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
+		caster.CastSpell((WorldObject)handler.Session.Player, spellId, new CastSpellExtraArgs(triggerFlags.Value));
 
 		return true;
 	}

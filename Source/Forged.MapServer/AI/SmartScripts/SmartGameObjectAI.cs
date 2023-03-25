@@ -1,11 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartGameObjectAI : GameObjectAI
 {
@@ -56,12 +61,12 @@ public class SmartGameObjectAI : GameObjectAI
 		return false;
 	}
 
-	public override void OnQuestAccept(Player player, Quest quest)
+	public override void OnQuestAccept(Player player, Quest.Quest quest)
 	{
 		GetScript().ProcessEventsFor(SmartEvents.AcceptedQuest, player, quest.Id, 0, false, null, Me);
 	}
 
-	public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
+	public override void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt)
 	{
 		GetScript().ProcessEventsFor(SmartEvents.RewardQuest, player, quest.Id, opt, false, null, Me);
 	}

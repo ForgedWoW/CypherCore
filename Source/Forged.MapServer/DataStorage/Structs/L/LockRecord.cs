@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.L;
 
 public sealed class LockRecord
 {

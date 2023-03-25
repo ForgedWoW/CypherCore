@@ -3,11 +3,11 @@
 
 using System;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement;
 
 public class Spline<T>
 {

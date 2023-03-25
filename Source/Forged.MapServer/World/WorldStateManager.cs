@@ -1,18 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking.Packets.WorldState;
+using Forged.MapServer.Scripting.Interfaces.IWorldState;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IWorldState;
 
-namespace Game;
+namespace Forged.MapServer.World;
 
 public class WorldStateManager : Singleton<WorldStateManager>
 {
@@ -25,7 +24,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		//                                         0   1             2       3        4
 		var result = DB.World.Query("SELECT ID, DefaultValue, MapIDs, AreaIDs, ScriptName FROM world_state");
@@ -36,11 +35,13 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		do
 		{
 			var id = result.Read<int>(0);
-			WorldStateTemplate worldState = new();
-			worldState.Id = id;
-			worldState.DefaultValue = result.Read<int>(1);
+			WorldStateTemplate worldState = new()
+            {
+                Id = id,
+                DefaultValue = result.Read<int>(1)
+            };
 
-			var mapIds = result.Read<string>(2);
+            var mapIds = result.Read<string>(2);
 
 			if (!mapIds.IsEmpty())
 				foreach (string mapIdToken in new StringArray(mapIds, ','))
@@ -129,9 +130,9 @@ public class WorldStateManager : Singleton<WorldStateManager>
 			_worldStateTemplates[id] = worldState;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {_worldStateTemplates.Count} world state templates {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_worldStateTemplates.Count} world state templates {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-		oldMSTime = Time.MSTime;
+		oldMSTime = global::Time.MSTime;
 
 		result = DB.Characters.Query("SELECT Id, Value FROM world_state_value");
 		uint savedValueCount = 0;
@@ -165,7 +166,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 				++savedValueCount;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {savedValueCount} saved world state values {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {savedValueCount} saved world state values {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public WorldStateTemplate GetWorldStateTemplate(int worldStateId)
@@ -223,11 +224,14 @@ public class WorldStateManager : Singleton<WorldStateManager>
 				Global.ScriptMgr.RunScript<IWorldStateOnValueChange>(script => script.OnValueChange(worldStateTemplate.Id, oldValue, value, null), worldStateTemplate.ScriptId);
 
 			// Broadcast update to all players on the server
-			UpdateWorldState updateWorldState = new();
-			updateWorldState.VariableID = (uint)worldStateId;
-			updateWorldState.Value = value;
-			updateWorldState.Hidden = hidden;
-			Global.WorldMgr.SendGlobalMessage(updateWorldState);
+			UpdateWorldState updateWorldState = new()
+            {
+                VariableID = (uint)worldStateId,
+                Value = value,
+                Hidden = hidden
+            };
+
+            Global.WorldMgr.SendGlobalMessage(updateWorldState);
 
 			return;
 		}

@@ -4,15 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.Loot;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Conditions;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Groups;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Loots;
+namespace Forged.MapServer.Loot;
 
 public class LootItem
 {
@@ -394,14 +399,16 @@ public class LootRoll
 			if (player == null)
 				continue;
 
-			StartLootRoll startLootRoll = new();
-			startLootRoll.LootObj = m_loot.GetGUID();
-			startLootRoll.MapID = (int)m_map.Id;
-			startLootRoll.RollTime = (uint)LOOT_ROLL_TIMEOUT.TotalMilliseconds;
-			startLootRoll.Method = m_loot.GetLootMethod();
-			startLootRoll.ValidRolls = m_voteMask;
+			StartLootRoll startLootRoll = new()
+            {
+                LootObj = m_loot.GetGUID(),
+                MapID = (int)m_map.Id,
+                RollTime = (uint)LOOT_ROLL_TIMEOUT.TotalMilliseconds,
+                Method = m_loot.GetLootMethod(),
+                ValidRolls = m_voteMask
+            };
 
-			// In NEED_BEFORE_GREED need disabled for non-usable item for player
+            // In NEED_BEFORE_GREED need disabled for non-usable item for player
 			if (m_loot.GetLootMethod() == LootMethod.NeedBeforeGreed && player.CanRollNeedForItem(itemTemplate, m_map, true) != InventoryResult.Ok)
 				startLootRoll.ValidRolls &= ~RollMask.Need;
 
@@ -424,9 +431,12 @@ public class LootRoll
 	// Send all passed message
 	void SendAllPassed()
 	{
-		LootAllPassed lootAllPassed = new();
-		lootAllPassed.LootObj = m_loot.GetGUID();
-		FillPacket(lootAllPassed.Item);
+		LootAllPassed lootAllPassed = new()
+        {
+            LootObj = m_loot.GetGUID()
+        };
+
+        FillPacket(lootAllPassed.Item);
 		lootAllPassed.Item.UIType = LootSlotType.AllowLoot;
 		lootAllPassed.Write();
 
@@ -447,13 +457,16 @@ public class LootRoll
 	// Send roll of targetGuid to the whole group (included targuetGuid)
 	void SendRoll(ObjectGuid targetGuid, int rollNumber, RollVote rollType, ObjectGuid? rollWinner)
 	{
-		LootRollBroadcast lootRoll = new();
-		lootRoll.LootObj = m_loot.GetGUID();
-		lootRoll.Player = targetGuid;
-		lootRoll.Roll = rollNumber;
-		lootRoll.RollType = rollType;
-		lootRoll.Autopassed = false;
-		FillPacket(lootRoll.Item);
+		LootRollBroadcast lootRoll = new()
+        {
+            LootObj = m_loot.GetGUID(),
+            Player = targetGuid,
+            Roll = rollNumber,
+            RollType = rollType,
+            Autopassed = false
+        };
+
+        FillPacket(lootRoll.Item);
 		lootRoll.Item.UIType = LootSlotType.RollOngoing;
 		lootRoll.Write();
 
@@ -506,12 +519,15 @@ public class LootRoll
 					break;
 			}
 
-		LootRollWon lootRollWon = new();
-		lootRollWon.LootObj = m_loot.GetGUID();
-		lootRollWon.Winner = targetGuid;
-		lootRollWon.Roll = rollNumber;
-		lootRollWon.RollType = rollType;
-		FillPacket(lootRollWon.Item);
+		LootRollWon lootRollWon = new()
+        {
+            LootObj = m_loot.GetGUID(),
+            Winner = targetGuid,
+            Roll = rollNumber,
+            RollType = rollType
+        };
+
+        FillPacket(lootRollWon.Item);
 		lootRollWon.Item.UIType = LootSlotType.Locked;
 		lootRollWon.MainSpec = true; // offspec rolls not implemented
 		lootRollWon.Write();
@@ -727,12 +743,14 @@ public class Loot
 
 		for (uint i = 0; i < stacks && items.Count < SharedConst.MaxNRLootItems; ++i)
 		{
-			LootItem generatedLoot = new(item);
-			generatedLoot.context = _itemContext;
-			generatedLoot.count = (byte)Math.Min(count, proto.MaxStackSize);
-			generatedLoot.LootListId = (uint)items.Count;
+			LootItem generatedLoot = new(item)
+            {
+                context = _itemContext,
+                count = (byte)Math.Min(count, proto.MaxStackSize),
+                LootListId = (uint)items.Count
+            };
 
-			if (_itemContext != 0)
+            if (_itemContext != 0)
 			{
 				var bonusListIDs = Global.DB2Mgr.GetDefaultItemBonusTree(generatedLoot.itemid, _itemContext);
 				generatedLoot.BonusListIDs.AddRange(bonusListIDs);
@@ -994,10 +1012,13 @@ public class Loot
 
 					if (lootMaster != null)
 					{
-						MasterLootCandidateList masterLootCandidateList = new();
-						masterLootCandidateList.LootObj = GetGUID();
-						masterLootCandidateList.Players = _allowedLooters;
-						lootMaster.SendPacket(masterLootCandidateList);
+						MasterLootCandidateList masterLootCandidateList = new()
+                        {
+                            LootObj = GetGUID(),
+                            Players = _allowedLooters
+                        };
+
+                        lootMaster.SendPacket(masterLootCandidateList);
 					}
 				}
 			}
@@ -1114,23 +1135,27 @@ public class Loot
 			if (!uiType.HasValue)
 				continue;
 
-			LootItemData lootItem = new();
-			lootItem.LootListID = (byte)item.LootListId;
-			lootItem.UIType = uiType.Value;
-			lootItem.Quantity = item.count;
-			lootItem.Loot = new ItemInstance(item);
-			packet.Items.Add(lootItem);
+			LootItemData lootItem = new()
+            {
+                LootListID = (byte)item.LootListId,
+                UIType = uiType.Value,
+                Quantity = item.count,
+                Loot = new ItemInstance(item)
+            };
+
+            packet.Items.Add(lootItem);
 		}
 	}
 
 	public void NotifyLootList(Map map)
 	{
-		LootList lootList = new();
+		LootList lootList = new()
+        {
+            Owner = GetOwnerGUID(),
+            LootObj = GetGUID()
+        };
 
-		lootList.Owner = GetOwnerGUID();
-		lootList.LootObj = GetGUID();
-
-		if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
+        if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
 			lootList.Master = GetLootMasterGUID();
 
 		if (!roundRobinPlayer.IsEmpty)

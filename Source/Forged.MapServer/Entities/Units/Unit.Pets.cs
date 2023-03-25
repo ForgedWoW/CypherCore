@@ -4,13 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.PlayerAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Networking.Packets.Pet;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.AI;
-using Game.Movement;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
@@ -715,10 +721,13 @@ public partial class Unit
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;
 
-		PetActionFeedbackPacket petActionFeedback = new();
-		petActionFeedback.SpellID = spellId;
-		petActionFeedback.Response = msg;
-		owner.AsPlayer.SendPacket(petActionFeedback);
+		PetActionFeedbackPacket petActionFeedback = new()
+        {
+            SpellID = spellId,
+            Response = msg
+        };
+
+        owner.AsPlayer.SendPacket(petActionFeedback);
 	}
 
 	public void SendPetTalk(PetTalk pettalk)
@@ -728,10 +737,13 @@ public partial class Unit
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;
 
-		PetActionSound petActionSound = new();
-		petActionSound.UnitGUID = GUID;
-		petActionSound.Action = pettalk;
-		owner.AsPlayer.SendPacket(petActionSound);
+		PetActionSound petActionSound = new()
+        {
+            UnitGUID = GUID,
+            Action = pettalk
+        };
+
+        owner.AsPlayer.SendPacket(petActionSound);
 	}
 
 	public void SendPetAIReaction(ObjectGuid guid)
@@ -741,11 +753,13 @@ public partial class Unit
 		if (!owner || !owner.IsTypeId(TypeId.Player))
 			return;
 
-		AIReaction packet = new();
-		packet.UnitGUID = guid;
-		packet.Reaction = AiReaction.Hostile;
+		AIReaction packet = new()
+        {
+            UnitGUID = guid,
+            Reaction = AiReaction.Hostile
+        };
 
-		owner.AsPlayer.SendPacket(packet);
+        owner.AsPlayer.SendPacket(packet);
 	}
 
 	public Pet CreateTamedPetFrom(Creature creatureTarget, uint spell_id = 0)

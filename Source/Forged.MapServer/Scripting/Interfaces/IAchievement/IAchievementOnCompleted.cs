@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.DataStorage;
-using Game.Entities;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Players;
 
-namespace Game.Scripting.Interfaces.IAchievement;
+namespace Forged.MapServer.Scripting.Interfaces.IAchievement;
 
 public interface IAchievementOnCompleted : IScriptObject
 {

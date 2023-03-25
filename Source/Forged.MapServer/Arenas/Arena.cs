@@ -3,13 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.BattleGrounds;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Arenas;
+namespace Forged.MapServer.Arenas;
 
 public class Arena : Battleground
 {

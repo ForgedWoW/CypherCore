@@ -4,13 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Items;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("additem")]
 class MiscAddItemCommands

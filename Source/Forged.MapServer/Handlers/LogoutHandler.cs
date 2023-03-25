@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Character;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -32,10 +33,13 @@ public partial class WorldSession
 		else if (pl.Duel != null || pl.HasAura(9454)) // is dueling or frozen by GM via freeze command
 			reason = 2;                               // FIXME - Need the correct value
 
-		LogoutResponse logoutResponse = new();
-		logoutResponse.LogoutResult = reason;
-		logoutResponse.Instant = instantLogout;
-		SendPacket(logoutResponse);
+		LogoutResponse logoutResponse = new()
+        {
+            LogoutResult = reason,
+            Instant = instantLogout
+        };
+
+        SendPacket(logoutResponse);
 
 		if (reason != 0)
 		{

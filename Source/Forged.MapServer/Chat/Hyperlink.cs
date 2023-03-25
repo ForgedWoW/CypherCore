@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 class Hyperlink
 {

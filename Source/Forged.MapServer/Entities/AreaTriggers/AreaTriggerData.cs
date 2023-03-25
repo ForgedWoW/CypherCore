@@ -4,7 +4,7 @@
 using System.Runtime.InteropServices;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.AreaTriggers;
 
 [StructLayout(LayoutKind.Explicit)]
 public unsafe class AreaTriggerData

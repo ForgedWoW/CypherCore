@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision;
 
 public struct AABound
 {

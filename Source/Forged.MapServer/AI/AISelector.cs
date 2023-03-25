@@ -1,13 +1,18 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Scripting.Interfaces.ICreature;
+using Forged.MapServer.Scripting.Interfaces.IGameObject;
 using Framework.Constants;
-using Game.Entities;
-using Game.Movement;
-using Game.Scripting.Interfaces.ICreature;
-using Game.Scripting.Interfaces.IGameObject;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI;
 
 public class AISelector
 {

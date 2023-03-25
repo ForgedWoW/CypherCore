@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage.Structs.D;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 public class BossInfo
 {

@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using Game.AI;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.AI.ScriptedAI;
+using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces;
 
-namespace Game.Scripting.Activators;
+namespace Forged.MapServer.Scripting.Activators;
 
 public class CreatureAIActivator : IScriptActivator
 {

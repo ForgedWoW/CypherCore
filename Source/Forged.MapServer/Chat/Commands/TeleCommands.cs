@@ -2,13 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("tele")]
 class TeleCommands
@@ -67,16 +71,18 @@ class TeleCommands
 			return false;
 		}
 
-		GameTele tele = new();
-		tele.posX = player.Location.X;
-		tele.posY = player.Location.Y;
-		tele.posZ = player.Location.Z;
-		tele.orientation = player.Location.Orientation;
-		tele.mapId = player.Location.MapId;
-		tele.name = name;
-		tele.nameLow = name.ToLowerInvariant();
+		GameTele tele = new()
+        {
+            posX = player.Location.X,
+            posY = player.Location.Y,
+            posZ = player.Location.Z,
+            orientation = player.Location.Orientation,
+            mapId = player.Location.MapId,
+            name = name,
+            nameLow = name.ToLowerInvariant()
+        };
 
-		if (Global.ObjectMgr.AddGameTele(tele))
+        if (Global.ObjectMgr.AddGameTele(tele))
 		{
 			handler.SendSysMessage(CypherStrings.CommandTpAdded);
 		}

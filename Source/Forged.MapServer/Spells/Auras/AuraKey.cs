@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 public class AuraKey : IEquatable<AuraKey>
 {

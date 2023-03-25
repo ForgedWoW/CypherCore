@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using Framework.Collections;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class GameTableReader
 {

@@ -3,11 +3,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.GridNotifiers;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 public class UnitAura : Aura
 {

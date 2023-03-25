@@ -4,14 +4,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Networking.Packets.Instance;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Movement;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
@@ -107,11 +116,13 @@ public partial class Player
 
 	public void SendRaidGroupOnlyMessage(RaidGroupReason reason, int delay)
 	{
-		RaidGroupOnly raidGroupOnly = new();
-		raidGroupOnly.Delay = delay;
-		raidGroupOnly.Reason = reason;
+		RaidGroupOnly raidGroupOnly = new()
+        {
+            Delay = delay,
+            Reason = reason
+        };
 
-		SendPacket(raidGroupOnly);
+        SendPacket(raidGroupOnly);
 	}
 
 	public void UpdateZone(uint newZone, uint newArea)
@@ -121,7 +132,7 @@ public partial class Player
 
 		var oldZone = _zoneUpdateId;
 		_zoneUpdateId = newZone;
-		_zoneUpdateTimer = 1 * Time.InMilliseconds;
+		_zoneUpdateTimer = 1 * global::Time.InMilliseconds;
 
 		Map.UpdatePlayerZoneStats(oldZone, newZone);
 
@@ -289,17 +300,18 @@ public partial class Player
 
 		foreach (var instanceLock in instanceLocks)
 		{
-			InstanceLockPkt lockInfos = new();
-			lockInfos.InstanceID = instanceLock.GetInstanceId();
-			lockInfos.MapID = instanceLock.GetMapId();
-			lockInfos.DifficultyID = (uint)instanceLock.GetDifficultyId();
-			lockInfos.TimeRemaining = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds, 0);
-			lockInfos.CompletedMask = instanceLock.GetData().CompletedEncountersMask;
+			InstanceLockPkt lockInfos = new()
+            {
+                InstanceID = instanceLock.GetInstanceId(),
+                MapID = instanceLock.GetMapId(),
+                DifficultyID = (uint)instanceLock.GetDifficultyId(),
+                TimeRemaining = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds, 0),
+                CompletedMask = instanceLock.GetData().CompletedEncountersMask,
+                Locked = !instanceLock.IsExpired(),
+                Extended = instanceLock.IsExtended()
+            };
 
-			lockInfos.Locked = !instanceLock.IsExpired();
-			lockInfos.Extended = instanceLock.IsExtended();
-
-			instanceInfo.LockList.Add(lockInfos);
+            instanceInfo.LockList.Add(lockInfos);
 		}
 
 		SendPacket(instanceInfo);
@@ -459,22 +471,28 @@ public partial class Player
 	public void AddInstanceEnterTime(uint instanceId, long enterTime)
 	{
 		if (!_instanceResetTimes.ContainsKey(instanceId))
-			_instanceResetTimes.Add(instanceId, enterTime + Time.Hour);
+			_instanceResetTimes.Add(instanceId, enterTime + global::Time.Hour);
 	}
 
 	public void SendDungeonDifficulty(int forcedDifficulty = -1)
 	{
-		DungeonDifficultySet dungeonDifficultySet = new();
-		dungeonDifficultySet.DifficultyID = forcedDifficulty == -1 ? (int)DungeonDifficultyId : forcedDifficulty;
-		SendPacket(dungeonDifficultySet);
+		DungeonDifficultySet dungeonDifficultySet = new()
+        {
+            DifficultyID = forcedDifficulty == -1 ? (int)DungeonDifficultyId : forcedDifficulty
+        };
+
+        SendPacket(dungeonDifficultySet);
 	}
 
 	public void SendRaidDifficulty(bool legacy, int forcedDifficulty = -1)
 	{
-		RaidDifficultySet raidDifficultySet = new();
-		raidDifficultySet.DifficultyID = forcedDifficulty == -1 ? (int)(legacy ? LegacyRaidDifficultyId : RaidDifficultyId) : forcedDifficulty;
-		raidDifficultySet.Legacy = legacy;
-		SendPacket(raidDifficultySet);
+		RaidDifficultySet raidDifficultySet = new()
+        {
+            DifficultyID = forcedDifficulty == -1 ? (int)(legacy ? LegacyRaidDifficultyId : RaidDifficultyId) : forcedDifficulty,
+            Legacy = legacy
+        };
+
+        SendPacket(raidDifficultySet);
 	}
 
 	public void SendResetFailedNotify(uint mapid)
@@ -521,27 +539,36 @@ public partial class Player
 
 	public void SendResetInstanceSuccess(uint mapId)
 	{
-		InstanceReset data = new();
-		data.MapID = mapId;
-		SendPacket(data);
+		InstanceReset data = new()
+        {
+            MapID = mapId
+        };
+
+        SendPacket(data);
 	}
 
 	public void SendResetInstanceFailed(ResetFailedReason reason, uint mapId)
 	{
-		InstanceResetFailed data = new();
-		data.MapID = mapId;
-		data.ResetFailedReason = reason;
-		SendPacket(data);
+		InstanceResetFailed data = new()
+        {
+            MapID = mapId,
+            ResetFailedReason = reason
+        };
+
+        SendPacket(data);
 	}
 
 	public void SendTransferAborted(uint mapid, TransferAbortReason reason, byte arg = 0, uint mapDifficultyXConditionId = 0)
 	{
-		TransferAborted transferAborted = new();
-		transferAborted.MapID = mapid;
-		transferAborted.Arg = arg;
-		transferAborted.TransfertAbort = reason;
-		transferAborted.MapDifficultyXConditionID = mapDifficultyXConditionId;
-		SendPacket(transferAborted);
+		TransferAborted transferAborted = new()
+        {
+            MapID = mapid,
+            Arg = arg,
+            TransfertAbort = reason,
+            MapDifficultyXConditionID = mapDifficultyXConditionId
+        };
+
+        SendPacket(transferAborted);
 	}
 
 	public bool IsLockedToDungeonEncounter(uint dungeonEncounterId)

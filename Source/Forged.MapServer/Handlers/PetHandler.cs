@@ -2,18 +2,17 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.AI;
-using Game.Entities;
-using Game.Spells;
-using Game.Common.Globals;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Pet;
-using Game.Common.Networking.Packets.Query;
-using Game.Common.Networking.Packets.Spell;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -621,7 +620,7 @@ public partial class WorldSession
 
 			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_PET_DECLINEDNAME);
 			stmt.AddValue(0, pet.GetCharmInfo().GetPetNumber());
-			stmt.AddValue(1, Player.GUID.ToString());
+			stmt.AddValue((int)1, (string)Player.GUID.ToString());
 
 			for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
 				stmt.AddValue(i + 1, packet.RenameData.DeclinedNames.Name[i]);
@@ -631,7 +630,7 @@ public partial class WorldSession
 
 		stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHAR_PET_NAME);
 		stmt.AddValue(0, name);
-		stmt.AddValue(1, Player.GUID.ToString());
+		stmt.AddValue((int)1, (string)Player.GUID.ToString());
 		stmt.AddValue(2, pet.GetCharmInfo().GetPetNumber());
 		trans.Append(stmt);
 

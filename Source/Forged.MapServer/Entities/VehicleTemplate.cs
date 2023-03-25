@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class VehicleTemplate
 {

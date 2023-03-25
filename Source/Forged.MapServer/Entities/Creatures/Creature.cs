@@ -4,18 +4,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
+using Forged.MapServer.AI;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.AI;
-using Game.DataStorage;
-using Game.Loots;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Creatures;
 
 public partial class Creature : Unit
 {
@@ -486,13 +496,13 @@ public partial class Creature : Unit
 
 						if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
 						{
-							SetRespawnTime(Time.Week);
+							SetRespawnTime(global::Time.Week);
 						}
 						else
 						{
 							// else copy time from master and add a little
 							var baseRespawnTime = Math.Max(linkedRespawnTime, now);
-							var offset = RandomHelper.LRand(5, Time.Minute);
+							var offset = RandomHelper.LRand(5, global::Time.Minute);
 
 							// linked guid can be a boss, uses std::numeric_limits<time_t>::max to never respawn in that instance
 							// we shall inherit it instead of adding and causing an overflow
@@ -584,7 +594,7 @@ public partial class Creature : Unit
 								EngageWithTarget(player);
 						}
 
-						_combatPulseTime = _combatPulseDelay * Time.InMilliseconds;
+						_combatPulseTime = _combatPulseDelay * global::Time.InMilliseconds;
 					}
 				}
 
@@ -701,7 +711,7 @@ public partial class Creature : Unit
 
 		// Apply modifiers (if any).
 		addvalue *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)power);
-		addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * (IsHunterPet ? SharedConst.PetFocusRegenInterval : SharedConst.CreatureRegenInterval) / (5 * Time.InMilliseconds);
+		addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * (IsHunterPet ? SharedConst.PetFocusRegenInterval : SharedConst.CreatureRegenInterval) / (5 * global::Time.InMilliseconds);
 
 		ModifyPower(power, (int)addvalue);
 	}
@@ -1206,7 +1216,7 @@ public partial class Creature : Unit
 		return TapList.Contains(player.GUID);
 	}
 
-	public override Loot GetLootForPlayer(Player player)
+	public override Loot.Loot GetLootForPlayer(Player player)
 	{
 		if (PersonalLoot.Empty())
 			return Loot;
@@ -2076,12 +2086,13 @@ public partial class Creature : Unit
 
 	public void SendAIReaction(AiReaction reactionType)
 	{
-		AIReaction packet = new();
+		AIReaction packet = new()
+        {
+            UnitGUID = GUID,
+            Reaction = reactionType
+        };
 
-		packet.UnitGUID = GUID;
-		packet.Reaction = reactionType;
-
-		SendMessageToSet(packet, true);
+        SendMessageToSet(packet, true);
 	}
 
 	public void CallAssistance()
@@ -2224,11 +2235,14 @@ public partial class Creature : Unit
 
 		if (RespawnCompatibilityMode)
 		{
-			RespawnInfo ri = new();
-			ri.ObjectType = SpawnObjectType.Creature;
-			ri.SpawnId = SpawnId;
-			ri.RespawnTime = RespawnTime;
-			Map.SaveRespawnInfoDB(ri);
+			RespawnInfo ri = new()
+            {
+                ObjectType = SpawnObjectType.Creature,
+                SpawnId = SpawnId,
+                RespawnTime = RespawnTime
+            };
+
+            Map.SaveRespawnInfoDB(ri);
 
 			return;
 		}
@@ -2366,9 +2380,12 @@ public partial class Creature : Unit
 	{
 		var enemy_team = attacker.Team;
 
-		ZoneUnderAttack packet = new();
-		packet.AreaID = (int)Area;
-		Global.WorldMgr.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
+		ZoneUnderAttack packet = new()
+        {
+            AreaID = (int)Area
+        };
+
+        Global.WorldMgr.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
 	}
 
 	public override bool HasSpell(uint spellId)
@@ -3223,7 +3240,7 @@ public partial class Creature : Unit
 
 		// Apply modifiers (if any).
 		addvalue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);
-		addvalue += GetTotalAuraModifier(AuraType.ModRegen) * SharedConst.CreatureRegenInterval / (5 * Time.InMilliseconds);
+		addvalue += GetTotalAuraModifier(AuraType.ModRegen) * SharedConst.CreatureRegenInterval / (5 * global::Time.InMilliseconds);
 
 		ModifyHealth(addvalue);
 	}

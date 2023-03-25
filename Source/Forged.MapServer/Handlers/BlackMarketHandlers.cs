@@ -1,16 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.BlackMarket;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
-using Game.BlackMarket;
-using Game.Entities;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.BlackMarket;
-using Game.Common.Networking.Packets.Item;
-using Game.Common.Networking.Packets.NPC;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {

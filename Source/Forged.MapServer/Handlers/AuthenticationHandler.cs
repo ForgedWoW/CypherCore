@@ -1,31 +1,38 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Framework.Configuration;
+using Forged.MapServer.Networking.Packets.Authentication;
+using Forged.MapServer.Networking.Packets.ClientConfig;
+using Forged.MapServer.Networking.Packets.System;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
 	public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
 	{
-		AuthResponse response = new();
-		response.Result = code;
+		AuthResponse response = new()
+        {
+            Result = code
+        };
 
-		if (code == BattlenetRpcErrorCode.Ok)
+        if (code == BattlenetRpcErrorCode.Ok)
 		{
 			response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
 			var forceRaceAndClass = ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
 
-			response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
-			response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion;
-			response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion;
-			response.SuccessInfo.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-			response.SuccessInfo.Time = (uint)GameTime.GetGameTime();
+			response.SuccessInfo = new AuthResponse.AuthSuccessInfo
+            {
+                ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion,
+                AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion,
+                VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+                Time = (uint)GameTime.GetGameTime()
+            };
 
-			var realm = Global.WorldMgr.Realm;
+            var realm = Global.WorldMgr.Realm;
 
 			// Send current home realm. Also there is no need to send it later in realm queries.
 			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName));
@@ -39,9 +46,12 @@ public partial class WorldSession
 
 		if (queued)
 		{
-			AuthWaitInfo waitInfo = new();
-			waitInfo.WaitCount = queuePos;
-			response.WaitInfo = waitInfo;
+			AuthWaitInfo waitInfo = new()
+            {
+                WaitCount = queuePos
+            };
+
+            response.WaitInfo = waitInfo;
 		}
 
 		SendPacket(response);
@@ -65,34 +75,41 @@ public partial class WorldSession
 
 	public void SendClientCacheVersion(uint version)
 	{
-		ClientCacheVersion cache = new();
-		cache.CacheVersion = version;
-		SendPacket(cache); //enabled it
+		ClientCacheVersion cache = new()
+        {
+            CacheVersion = version
+        };
+
+        SendPacket(cache); //enabled it
 	}
 
 	public void SendSetTimeZoneInformation()
 	{
 		// @todo: replace dummy values
-		SetTimeZoneInformation packet = new();
-		packet.ServerTimeTZ = "Europe/Paris";
-		packet.GameTimeTZ = "Europe/Paris";
-		packet.ServerRegionalTZ = "Europe/Paris";
+		SetTimeZoneInformation packet = new()
+        {
+            ServerTimeTZ = "Europe/Paris",
+            GameTimeTZ = "Europe/Paris",
+            ServerRegionalTZ = "Europe/Paris"
+        };
 
-		SendPacket(packet); //enabled it
+        SendPacket(packet); //enabled it
 	}
 
 	public void SendFeatureSystemStatusGlueScreen()
 	{
-		FeatureSystemStatusGlueScreen features = new();
-		features.BpayStoreAvailable = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
-		features.BpayStoreDisabledByParentalControls = false;
-		features.CharUndeleteEnabled = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled);
-		features.BpayStoreEnabled = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
-		features.MaxCharactersPerRealm = WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm);
-		features.MinimumExpansionLevel = (int)Expansion.Classic;
-		features.MaximumExpansionLevel = WorldConfig.GetIntValue(WorldCfg.Expansion);
+		FeatureSystemStatusGlueScreen features = new()
+        {
+            BpayStoreAvailable = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled),
+            BpayStoreDisabledByParentalControls = false,
+            CharUndeleteEnabled = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled),
+            BpayStoreEnabled = WorldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled),
+            MaxCharactersPerRealm = WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm),
+            MinimumExpansionLevel = (int)Expansion.Classic,
+            MaximumExpansionLevel = WorldConfig.GetIntValue(WorldCfg.Expansion)
+        };
 
-		var europaTicketConfig = new EuropaTicketConfig();
+        var europaTicketConfig = new EuropaTicketConfig();
 		europaTicketConfig.ThrottleState.MaxTries = 10;
 		europaTicketConfig.ThrottleState.PerMilliseconds = 60000;
 		europaTicketConfig.ThrottleState.TryCount = 1;

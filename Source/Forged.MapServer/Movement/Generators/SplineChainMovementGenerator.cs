@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement.Generators;
 
 public class SplineChainMovementGenerator : MovementGenerator
 {

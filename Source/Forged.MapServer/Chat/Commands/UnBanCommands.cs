@@ -3,9 +3,10 @@
 
 using System;
 using System.Net;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("unban")]
 class UnBanCommands

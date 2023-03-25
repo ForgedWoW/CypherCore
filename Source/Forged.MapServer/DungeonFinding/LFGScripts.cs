@@ -1,15 +1,16 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Networking.Packets.Query;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IGroup;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
-using Game.Entities;
-using Game.Groups;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IGroup;
-using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game.DungeonFinding;
+namespace Forged.MapServer.DungeonFinding;
 
 class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IPlayerOnMapChanged
 {

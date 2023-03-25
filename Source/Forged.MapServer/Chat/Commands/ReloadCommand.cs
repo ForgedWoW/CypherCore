@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.Entities;
-using Game.Loots;
-using Game.Spells;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("reload")]
 class ReloadCommand

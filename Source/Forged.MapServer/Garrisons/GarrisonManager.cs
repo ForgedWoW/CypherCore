@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.G;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Garrisons;
+namespace Forged.MapServer.Garrisons;
 
 public class GarrisonManager : Singleton<GarrisonManager>
 {
@@ -378,7 +378,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			return;
 		}
 
-		var msTime = Time.MSTime;
+		var msTime = global::Time.MSTime;
 
 		do
 		{
@@ -473,7 +473,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			_finalizePlotGOInfo[garrPlotInstanceId] = info;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, Time.GetMSTimeDiffToNow(msTime));
+		Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, global::Time.GetMSTimeDiffToNow(msTime));
 	}
 
 	void LoadFollowerClassSpecAbilities()
@@ -487,7 +487,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			return;
 		}
 
-		var msTime = Time.MSTime;
+		var msTime = global::Time.MSTime;
 		uint count = 0;
 
 		do
@@ -518,7 +518,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 		//foreach (var key in _garrisonFollowerClassSpecAbilities.Keys)
 		//_garrisonFollowerClassSpecAbilities[key].Sort();
 
-		Log.Logger.Information("Loaded {0} garrison follower class spec abilities in {1}.", count, Time.GetMSTimeDiffToNow(msTime));
+		Log.Logger.Information("Loaded {0} garrison follower class spec abilities in {1}.", count, global::Time.GetMSTimeDiffToNow(msTime));
 	}
 }
 

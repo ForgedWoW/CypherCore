@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Framework.IO;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 public interface IDB2Storage
 {

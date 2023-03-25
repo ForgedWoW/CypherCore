@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.AreaTriggers;
 
 public class AreaTriggerShapeInfo : AreaTriggerData
 {

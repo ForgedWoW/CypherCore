@@ -1,14 +1,17 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking.Packets.WorldState;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IOutdoorPvP;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IOutdoorPvP;
 
-namespace Game.PvP;
+namespace Forged.MapServer.OutdoorPVP.Zones;
 
 class HellfirePeninsulaPvP : OutdoorPvP
 {
@@ -129,11 +132,14 @@ class HellfirePeninsulaPvP : OutdoorPvP
 
 	public override void SendRemoveWorldStates(Player player)
 	{
-		InitWorldStates initWorldStates = new();
-		initWorldStates.MapID = player.Location.MapId;
-		initWorldStates.AreaID = player.Zone;
-		initWorldStates.SubareaID = player.Area;
-		initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);
+		InitWorldStates initWorldStates = new()
+        {
+            MapID = player.Location.MapId,
+            AreaID = player.Zone,
+            SubareaID = player.Area
+        };
+
+        initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);
 		initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_H, 0);
 		initWorldStates.AddState(OutdoorPvPHPWorldStates.Count_H, 0);
 		initWorldStates.AddState(OutdoorPvPHPWorldStates.Count_A, 0);

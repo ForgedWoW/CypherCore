@@ -1,7 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-namespace Game.Networking.Packets;
+using Forged.MapServer.Networking.Packets.Item;
+
+namespace Forged.MapServer.Networking.Packets.LFG;
 
 public struct LFGPlayerRewards
 {
@@ -14,9 +16,11 @@ public struct LFGPlayerRewards
 
 		if (!isCurrency)
 		{
-			RewardItem = new ItemInstance();
-			RewardItem.ItemID = id;
-		}
+			RewardItem = new ItemInstance
+            {
+                ItemID = id
+            };
+        }
 		else
 		{
 			RewardCurrency = id;

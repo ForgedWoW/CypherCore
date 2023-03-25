@@ -3,7 +3,7 @@
 
 using System.Numerics;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.G;
 
 public sealed class GarrSiteLevelRecord
 {

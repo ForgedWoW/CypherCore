@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace System;
+namespace Forged.MapServer.Extendability;
 
 public static class Extentions
 {

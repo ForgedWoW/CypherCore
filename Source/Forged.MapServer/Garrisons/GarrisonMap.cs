@@ -2,13 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Maps.Interfaces;
 
-namespace Game.Garrisons;
+namespace Forged.MapServer.Garrisons;
 
 class GarrisonMap : Map
 {

@@ -8,24 +8,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks.Dataflow;
-using Bgs.Protocol.Account.V1;
-using Framework.Configuration;
+using Forged.MapServer.Collision;
+using Forged.MapServer.Collision.Models;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Interfaces;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.WorldState;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Pools;
+using Forged.MapServer.Scripting.Interfaces.IMap;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Scripting.Interfaces.IWorldState;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
+using Forged.MapServer.Weather;
 using Framework.Constants;
 using Framework.Database;
-using Framework.Metrics;
 using Framework.Threading;
-using Game.Collision;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps.Grids;
-using Game.Maps.Interfaces;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IMap;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IWorldState;
+using Transport = Forged.MapServer.Entities.Transport;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class Map : IDisposable
 {
@@ -175,10 +192,12 @@ public class Map : IDisposable
 
 			//lets initialize visibility distance for map
 			InitVisibilityDistance();
-			_weatherUpdateTimer = new IntervalTimer();
-			_weatherUpdateTimer.Interval = 1 * Time.InMilliseconds;
+			_weatherUpdateTimer = new IntervalTimer
+            {
+                Interval = 1 * global::Time.InMilliseconds
+            };
 
-			GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
+            GetGuidSequenceGenerator(HighGuid.Transport).Set(Global.ObjectMgr.GetGenerator(HighGuid.Transport).GetNextAfterMaxUsed());
 
 			_poolData = Global.PoolMgr.InitPoolsForMap(this);
 
@@ -428,11 +447,14 @@ public class Map : IDisposable
 			Global.ScriptMgr.RunScript<IWorldStateOnValueChange>(script => script.OnValueChange(worldStateTemplate.Id, oldValue, value, this), worldStateTemplate.ScriptId);
 
 		// Broadcast update to all players on the map
-		UpdateWorldState updateWorldState = new();
-		updateWorldState.VariableID = (uint)worldStateId;
-		updateWorldState.Value = value;
-		updateWorldState.Hidden = hidden;
-		updateWorldState.Write();
+		UpdateWorldState updateWorldState = new()
+        {
+            VariableID = (uint)worldStateId,
+            Value = value,
+            Hidden = hidden
+        };
+
+        updateWorldState.Write();
 
 		foreach (var player in Players)
 		{
@@ -2024,13 +2046,16 @@ public class Map : IDisposable
 			return;
 		}
 
-		RespawnInfo ri = new();
-		ri.ObjectType = data.Type;
-		ri.SpawnId = data.SpawnId;
-		ri.Entry = entry;
-		ri.RespawnTime = respawnTime;
-		ri.GridId = gridId;
-		var success = AddRespawnInfo(ri);
+		RespawnInfo ri = new()
+        {
+            ObjectType = data.Type,
+            SpawnId = data.SpawnId,
+            Entry = entry,
+            RespawnTime = respawnTime,
+            GridId = gridId
+        };
+
+        var success = AddRespawnInfo(ri);
 
 		if (startup)
 		{
@@ -2170,10 +2195,13 @@ public class Map : IDisposable
 			{
 				var guid = customizationResult.Read<ulong>(0);
 
-				ChrCustomizationChoice choice = new();
-				choice.ChrCustomizationOptionID = customizationResult.Read<uint>(1);
-				choice.ChrCustomizationChoiceID = customizationResult.Read<uint>(2);
-				customizations.Add(guid, choice);
+				ChrCustomizationChoice choice = new()
+                {
+                    ChrCustomizationOptionID = customizationResult.Read<uint>(1),
+                    ChrCustomizationChoiceID = customizationResult.Read<uint>(2)
+                };
+
+                customizations.Add(guid, choice);
 			} while (customizationResult.NextRow());
 
 		do
@@ -2326,11 +2354,14 @@ public class Map : IDisposable
 
 		foreach (var lightOverride in zoneInfo.LightOverrides)
 		{
-			OverrideLight overrideLight = new();
-			overrideLight.AreaLightID = lightOverride.AreaLightId;
-			overrideLight.OverrideLightID = lightOverride.OverrideLightId;
-			overrideLight.TransitionMilliseconds = lightOverride.TransitionMilliseconds;
-			player.SendPacket(overrideLight);
+			OverrideLight overrideLight = new()
+            {
+                AreaLightID = lightOverride.AreaLightId,
+                OverrideLightID = lightOverride.OverrideLightId,
+                TransitionMilliseconds = lightOverride.TransitionMilliseconds
+            };
+
+            player.SendPacket(overrideLight);
 		}
 	}
 
@@ -2366,7 +2397,7 @@ public class Map : IDisposable
 		}
 	}
 
-	public Weather GetOrGenerateZoneDefaultWeather(uint zoneId)
+	public Weather.Weather GetOrGenerateZoneDefaultWeather(uint zoneId)
 	{
 		var weatherData = Global.WeatherMgr.GetWeatherData(zoneId);
 
@@ -2380,7 +2411,7 @@ public class Map : IDisposable
 
 		if (info.DefaultWeather == null)
 		{
-			info.DefaultWeather = new Weather(zoneId, weatherData);
+			info.DefaultWeather = new Weather.Weather(zoneId, weatherData);
 			info.DefaultWeather.ReGenerate();
 			info.DefaultWeather.UpdateWeather();
 		}
@@ -2437,23 +2468,28 @@ public class Map : IDisposable
 		// set new override (if any)
 		if (overrideLightId != 0)
 		{
-			ZoneDynamicInfo.LightOverride lightOverride = new();
-			lightOverride.AreaLightId = areaLightId;
-			lightOverride.OverrideLightId = overrideLightId;
-			lightOverride.TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds;
-			info.LightOverrides.Add(lightOverride);
+			ZoneDynamicInfo.LightOverride lightOverride = new()
+            {
+                AreaLightId = areaLightId,
+                OverrideLightId = overrideLightId,
+                TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds
+            };
+
+            info.LightOverrides.Add(lightOverride);
 		}
 
 		var players = Players;
 
 		if (!players.Empty())
 		{
-			OverrideLight overrideLight = new();
-			overrideLight.AreaLightID = areaLightId;
-			overrideLight.OverrideLightID = overrideLightId;
-			overrideLight.TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds;
+			OverrideLight overrideLight = new()
+            {
+                AreaLightID = areaLightId,
+                OverrideLightID = overrideLightId,
+                TransitionMilliseconds = (uint)transitionTime.TotalMilliseconds
+            };
 
-			foreach (var player in players)
+            foreach (var player in players)
 				if (player.Zone == zoneId)
 					player.SendPacket(overrideLight);
 		}
@@ -3714,7 +3750,7 @@ public class Map : IDisposable
 			if (linkedTime == long.MaxValue)
 				respawnTime = linkedTime;
 			else if (Global.ObjectMgr.GetLinkedRespawnGuid(thisGUID) == thisGUID) // never respawn, save "something" in DB
-				respawnTime = now + Time.Week;
+				respawnTime = now + global::Time.Week;
 			else // set us to check again shortly after linked unit
 				respawnTime = Math.Max(now, linkedTime) + RandomHelper.URand(5, 15);
 
@@ -4094,7 +4130,7 @@ public class Map : IDisposable
 		}
 		else
 		{
-			Weather.SendFineWeatherUpdateToPlayer(player);
+			Weather.Weather.SendFineWeatherUpdateToPlayer(player);
 		}
 	}
 
@@ -4300,13 +4336,15 @@ public class Map : IDisposable
 		var targetGUID = target != null ? target.GUID : ObjectGuid.Empty;
 		var ownerGUID = (source != null && source.IsTypeMask(TypeMask.Item)) ? ((Item)source).OwnerGUID : ObjectGuid.Empty;
 
-		var sa = new ScriptAction();
-		sa.SourceGUID = sourceGUID;
-		sa.TargetGUID = targetGUID;
-		sa.OwnerGUID = ownerGUID;
+		var sa = new ScriptAction
+        {
+            SourceGUID = sourceGUID,
+            TargetGUID = targetGUID,
+            OwnerGUID = ownerGUID,
+            Script = script
+        };
 
-		sa.Script = script;
-		_scriptSchedule.Add(GameTime.GetGameTime() + delay, sa);
+        _scriptSchedule.Add(GameTime.GetGameTime() + delay, sa);
 
 		Global.MapMgr.IncreaseScheduledScriptsCount();
 

@@ -4,12 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Grids;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartAI : CreatureAI
 {
@@ -740,12 +745,12 @@ public class SmartAI : CreatureAI
 		return false;
 	}
 
-	public override void OnQuestAccept(Player player, Quest quest)
+	public override void OnQuestAccept(Player player, Quest.Quest quest)
 	{
 		GetScript().ProcessEventsFor(SmartEvents.AcceptedQuest, player, quest.Id);
 	}
 
-	public override void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt)
+	public override void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt)
 	{
 		GetScript().ProcessEventsFor(SmartEvents.RewardQuest, player, quest.Id, opt);
 	}

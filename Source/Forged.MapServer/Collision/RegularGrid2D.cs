@@ -4,9 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Collision.Models;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision;
 
 public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, new()
 {
@@ -227,11 +228,13 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 
 		public static Cell ComputeCell(float fx, float fy)
 		{
-			Cell c = new();
-			c.x = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f));
-			c.y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f));
+			Cell c = new()
+            {
+                x = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f)),
+                y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f))
+            };
 
-			return c;
+            return c;
 		}
 
 		public bool IsValid()

@@ -2,11 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Framework.Configuration;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.IO;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("server")]
 class ServerCommands
@@ -43,7 +46,7 @@ class ServerCommands
 		var queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
 		var maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
 		var maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
-		var uptime = Time.secsToTimeString(GameTime.GetUptime());
+		var uptime = global::Time.secsToTimeString(GameTime.GetUptime());
 		var updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
 
 		handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
@@ -53,7 +56,7 @@ class ServerCommands
 
 		// Can't use Global.WorldMgr.ShutdownMsg here in case of console command
 		if (Global.WorldMgr.IsShuttingDown)
-			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
+			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, global::Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
 
 		return true;
 	}
@@ -199,7 +202,7 @@ class ServerCommands
 		}
 		else
 		{
-			delay = (int)Time.TimeStringToSecs(delayStr);
+			delay = (int)global::Time.TimeStringToSecs(delayStr);
 
 			if (delay == 0)
 				return false;

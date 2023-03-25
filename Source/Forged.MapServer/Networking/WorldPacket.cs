@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.IO;
-using Game.Entities;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public class WorldPacket : ByteBuffer
 {

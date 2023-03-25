@@ -4,7 +4,7 @@
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.A;
 
 public sealed class ArtifactPowerRecord
 {

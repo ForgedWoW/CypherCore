@@ -4,7 +4,7 @@
 using System.Runtime.InteropServices;
 using Framework.Constants;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.SmartScripts;
 
 [StructLayout(LayoutKind.Explicit)]
 public struct SmartAction

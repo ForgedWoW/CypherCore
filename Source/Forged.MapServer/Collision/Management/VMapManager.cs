@@ -4,9 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Collision.Maps;
+using Forged.MapServer.Collision.Models;
+using Forged.MapServer.Conditions;
 using Framework.Constants;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Management;
 
 public class VMapManager : Singleton<VMapManager>
 {

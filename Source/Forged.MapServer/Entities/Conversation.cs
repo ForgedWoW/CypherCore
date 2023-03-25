@@ -4,14 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting.Interfaces.IConversation;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Networking;
-using Game.Scripting.Interfaces.IConversation;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class Conversation : WorldObject
 {
@@ -231,13 +236,15 @@ public class Conversation : WorldObject
 			if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.ConversationLine, line.Id, creator))
 				continue;
 
-			ConversationLine lineField = new();
-			lineField.ConversationLineID = line.Id;
-			lineField.UiCameraID = line.UiCameraID;
-			lineField.ActorIndex = line.ActorIdx;
-			lineField.Flags = line.Flags;
+			ConversationLine lineField = new()
+            {
+                ConversationLineID = line.Id,
+                UiCameraID = line.UiCameraID,
+                ActorIndex = line.ActorIdx,
+                Flags = line.Flags
+            };
 
-			var convoLine = CliDB.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
+            var convoLine = CliDB.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
 
 			for (var locale = Locale.enUS; locale < Locale.Total; locale = locale + 1)
 			{

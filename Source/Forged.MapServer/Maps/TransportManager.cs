@@ -5,13 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Movement;
+using Transport = Forged.MapServer.Entities.Transport;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class TransportManager : Singleton<TransportManager>
 {
@@ -24,7 +26,7 @@ public class TransportManager : Singleton<TransportManager>
 
 	public void LoadTransportTemplates()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var result = DB.World.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
 
@@ -69,7 +71,7 @@ public class TransportManager : Singleton<TransportManager>
 		} while (result.NextRow());
 
 
-		Log.Logger.Information("Loaded {0} transports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} transports in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTransportAnimationAndRotation()
@@ -86,7 +88,7 @@ public class TransportManager : Singleton<TransportManager>
 		if (_transportTemplates.Empty())
 			return;
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var result = DB.World.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
 
@@ -142,14 +144,16 @@ public class TransportManager : Singleton<TransportManager>
 						phaseGroupId = 0;
 					}
 
-				TransportSpawn spawn = new();
-				spawn.SpawnId = guid;
-				spawn.TransportGameObjectId = entry;
-				spawn.PhaseUseFlags = phaseUseFlags;
-				spawn.PhaseId = phaseId;
-				spawn.PhaseGroup = phaseGroupId;
+				TransportSpawn spawn = new()
+                {
+                    SpawnId = guid,
+                    TransportGameObjectId = entry,
+                    PhaseUseFlags = phaseUseFlags,
+                    PhaseId = phaseId,
+                    PhaseGroup = phaseGroupId
+                };
 
-				foreach (var mapId in transportTemplate.MapIds)
+                foreach (var mapId in transportTemplate.MapIds)
 					_transportsByMap.Add(mapId, spawn);
 
 				_transportSpawns[guid] = spawn;
@@ -157,7 +161,7 @@ public class TransportManager : Singleton<TransportManager>
 				count++;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Spawned {count} continent transports in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Spawned {count} continent transports in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void AddPathNodeToTransport(uint transportEntry, uint timeSeg, TransportAnimationRecord node)
@@ -357,18 +361,24 @@ public class TransportManager : Singleton<TransportManager>
 
 					if (pathPoints[eventPointIndex].ArrivalEventID != 0)
 					{
-						TransportPathEvent Event = new();
-						Event.Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum;
-						Event.EventId = pathPoints[eventPointIndex].ArrivalEventID;
-						outEvents.Add(Event);
+						TransportPathEvent Event = new()
+                        {
+                            Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum,
+                            EventId = pathPoints[eventPointIndex].ArrivalEventID
+                        };
+
+                        outEvents.Add(Event);
 					}
 
 					if (pathPoints[eventPointIndex].DepartureEventID != 0)
 					{
-						TransportPathEvent Event = new();
-						Event.Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * Time.InMilliseconds : 0);
-						Event.EventId = pathPoints[eventPointIndex].DepartureEventID;
-						outEvents.Add(Event);
+						TransportPathEvent Event = new()
+                        {
+                            Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * global::Time.InMilliseconds : 0),
+                            EventId = pathPoints[eventPointIndex].DepartureEventID
+                        };
+
+                        outEvents.Add(Event);
 					}
 				}
 
@@ -382,12 +392,15 @@ public class TransportManager : Singleton<TransportManager>
 					movementTime = legTimeAccel(length1);
 
 				leg.Duration += movementTime;
-				TransportPathSegment segment = new();
-				segment.SegmentEndArrivalTimestamp = leg.Duration + delaySum;
-				segment.Delay = pathPoints[pausePointIndex].Delay * Time.InMilliseconds;
-				segment.DistanceFromLegStartAtEnd = splineLengthToCurrentNode;
-				leg.Segments.Add(segment);
-				delaySum += pathPoints[pausePointIndex].Delay * Time.InMilliseconds;
+				TransportPathSegment segment = new()
+                {
+                    SegmentEndArrivalTimestamp = leg.Duration + delaySum,
+                    Delay = pathPoints[pausePointIndex].Delay * global::Time.InMilliseconds,
+                    DistanceFromLegStartAtEnd = splineLengthToCurrentNode
+                };
+
+                leg.Segments.Add(segment);
+				delaySum += pathPoints[pausePointIndex].Delay * global::Time.InMilliseconds;
 				splineLengthToPreviousNode = splineLengthToCurrentNode;
 			}
 
@@ -409,18 +422,24 @@ public class TransportManager : Singleton<TransportManager>
 
 			if (pathPoints[eventPointIndex].ArrivalEventID != 0)
 			{
-				TransportPathEvent Event = new();
-				Event.Timestamp = totalTime + eventSplineTime + leg.Duration;
-				Event.EventId = pathPoints[eventPointIndex].ArrivalEventID;
-				outEvents.Add(Event);
+				TransportPathEvent Event = new()
+                {
+                    Timestamp = totalTime + eventSplineTime + leg.Duration,
+                    EventId = pathPoints[eventPointIndex].ArrivalEventID
+                };
+
+                outEvents.Add(Event);
 			}
 
 			if (pathPoints[eventPointIndex].DepartureEventID != 0)
 			{
-				TransportPathEvent Event = new();
-				Event.Timestamp = totalTime + eventSplineTime + leg.Duration;
-				Event.EventId = pathPoints[eventPointIndex].DepartureEventID;
-				outEvents.Add(Event);
+				TransportPathEvent Event = new()
+                {
+                    Timestamp = totalTime + eventSplineTime + leg.Duration,
+                    EventId = pathPoints[eventPointIndex].DepartureEventID
+                };
+
+                outEvents.Add(Event);
 			}
 		}
 
@@ -435,11 +454,14 @@ public class TransportManager : Singleton<TransportManager>
 
 		leg.StartTimestamp = totalTime;
 		leg.Duration += splineTime + delaySum;
-		TransportPathSegment pauseSegment = new();
-		pauseSegment.SegmentEndArrivalTimestamp = leg.Duration;
-		pauseSegment.Delay = 0;
-		pauseSegment.DistanceFromLegStartAtEnd = leg.Spline.Length();
-		leg.Segments.Add(pauseSegment);
+		TransportPathSegment pauseSegment = new()
+        {
+            SegmentEndArrivalTimestamp = leg.Duration,
+            Delay = 0,
+            DistanceFromLegStartAtEnd = leg.Spline.Length()
+        };
+
+        leg.Segments.Add(pauseSegment);
 		totalTime += leg.Segments[pauseItr].SegmentEndArrivalTimestamp + leg.Segments[pauseItr].Delay;
 
 		for (var i = 0; i < leg.Segments.Count; ++i)
@@ -473,9 +495,12 @@ public class TransportManager : Singleton<TransportManager>
 			{
 				InitializeLeg(leg, transport.Events, pathPoints, pauses, events, goInfo, ref totalTime);
 
-				leg = new TransportPathLeg();
-				leg.MapId = node.ContinentID;
-				pathPoints.Clear();
+				leg = new TransportPathLeg
+                {
+                    MapId = node.ContinentID
+                };
+
+                pathPoints.Clear();
 				pauses.Clear();
 				events.Clear();
 				transport.PathLegs.Add(leg);

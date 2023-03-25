@@ -3,9 +3,10 @@
 
 using System;
 using System.Reflection;
+using Forged.MapServer.Services;
 using Framework.Constants;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public class PacketHandler
 {

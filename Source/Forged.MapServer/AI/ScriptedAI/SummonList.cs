@@ -4,9 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.ScriptedAI;
 
 public class SummonList : List<ObjectGuid>
 {

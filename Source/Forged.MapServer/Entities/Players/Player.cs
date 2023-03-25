@@ -5,28 +5,68 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Framework.Configuration;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.AI.PlayerAI;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Chat.Channels;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Garrisons;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Character;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Networking.Packets.CombatLog;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.Mail;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Movement;
+using Forged.MapServer.Networking.Packets.NPC;
+using Forged.MapServer.Networking.Packets.Party;
+using Forged.MapServer.Networking.Packets.Pet;
+using Forged.MapServer.Networking.Packets.Quest;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Networking.Packets.Talent;
+using Forged.MapServer.Networking.Packets.Toy;
+using Forged.MapServer.Networking.Packets.Vehicle;
+using Forged.MapServer.Networking.Packets.WorldState;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Reputation;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Text;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
-using Game.Achievements;
-using Game.AI;
-using Game.BattlePets;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Garrisons;
-using Game.Guilds;
-using Game.Mails;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Misc;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
+using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponse;
+using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
+using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
+using PlayerChoiceResponseRewardEntry = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player : Unit
 {
@@ -770,7 +810,7 @@ public partial class Player : Unit
 		// Update cinematic location, if 500ms have passed and we're doing a cinematic now.
 		_cinematicMgr.CinematicDiff += diff;
 
-		if (_cinematicMgr.CinematicCamera != null && _cinematicMgr.ActiveCinematic != null && Time.GetMSTimeDiffToNow(_cinematicMgr.LastCinematicCheck) > 500)
+		if (_cinematicMgr.CinematicCamera != null && _cinematicMgr.ActiveCinematic != null && global::Time.GetMSTimeDiffToNow(_cinematicMgr.LastCinematicCheck) > 500)
 		{
 			_cinematicMgr.LastCinematicCheck = GameTime.GetGameTimeMS();
 			_cinematicMgr.UpdateCinematicLocation(diff);
@@ -950,7 +990,7 @@ public partial class Player : Unit
 					if (_areaUpdateId != newarea)
 						UpdateArea(newarea);
 
-					_zoneUpdateTimer = 1 * Time.InMilliseconds;
+					_zoneUpdateTimer = 1 * global::Time.InMilliseconds;
 				}
 			}
 			else
@@ -999,7 +1039,7 @@ public partial class Player : Unit
 		{
 			_drunkTimer += diff;
 
-			if (_drunkTimer > 9 * Time.InMilliseconds)
+			if (_drunkTimer > 9 * global::Time.InMilliseconds)
 				HandleSobering();
 		}
 
@@ -1060,7 +1100,7 @@ public partial class Player : Unit
 		{
 			if (_hostileReferenceCheckTimer <= diff)
 			{
-				_hostileReferenceCheckTimer = 15 * Time.InMilliseconds;
+				_hostileReferenceCheckTimer = 15 * global::Time.InMilliseconds;
 
 				if (!Map.IsDungeon)
 					GetCombatManager().EndCombatBeyondRange(VisibilityRange, true);
@@ -1425,10 +1465,12 @@ public partial class Player : Unit
 			return;
 		}
 
-		PetSpells petSpells = new();
-		petSpells.PetGUID = charm.GUID;
+		PetSpells petSpells = new()
+        {
+            PetGUID = charm.GUID
+        };
 
-		if (charm.IsTypeId(TypeId.Unit))
+        if (charm.IsTypeId(TypeId.Unit))
 		{
 			petSpells.ReactState = charm.AsCreature.ReactState;
 			petSpells.CommandState = charmInfo.GetCommandState();
@@ -1469,9 +1511,11 @@ public partial class Player : Unit
 		}
 
 		PetSpells petSpellsPacket = new();
-		petSpellsPacket.PetGUID = charm.GUID;
 
-		for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
+        {
+            PetGUID = charm.GUID
+        }	
+		f     (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
 			petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
 
 		// Cooldowns
@@ -1490,15 +1534,17 @@ public partial class Player : Unit
 			return;
 
 		PetSpells petSpells = new();
-		petSpells.PetGUID = vehicle.GUID;
-		petSpells.CreatureFamily = 0; // Pet Family (0 for all vehicles)
-		petSpells.Specialization = 0;
-		petSpells.TimeLimit = vehicle.IsSummon ? vehicle.ToTempSummon().GetTimer() : 0;
-		petSpells.ReactState = vehicle.ReactState;
-		petSpells.CommandState = CommandStates.Follow;
-		petSpells.Flag = 0x8;
 
-		for (uint i = 0; i < SharedConst.MaxSpellControlBar; ++i)
+        {
+            PetGUID = vehicle.GUID,
+            CreatureFamily = 0, // Pet Family (0 for all vehicles)
+            Specialization = 0,
+            TimeLimit = vehicle.IsSummon ? vehicle.ToTempSummon().GetTimer() : 0,
+            ReactState = vehicle.ReactState,
+            CommandState = CommandStates.Follow,
+            Flag = 0x8
+        }	
+		f     (uint i = 0; i < SharedConst.MaxSpellControlBar; ++i)
 			petSpells.ActionButtons[i] = UnitActionBarEntry.MAKE_UNIT_ACTION_BUTTON(0, i + 8);
 
 		for (uint i = 0; i < SharedConst.MaxCreatureSpells; ++i)
@@ -1599,8 +1645,10 @@ public partial class Player : Unit
 		if (playerCurrency == null)
 		{
 			playerCurrency = new PlayerCurrency();
-			playerCurrency.State = PlayerCurrencyState.New;
-			_currencyStorage.Add(id, playerCurrency);
+            {
+                State = PlayerCurrencyState.New
+            }			
+            rrencyStorage.Add(id, playerCurrency);
 		}
 
 		// Weekly cap
@@ -1645,11 +1693,14 @@ public partial class Player : Unit
 		CurrencyChanged(id, amount);
 
 		SetCurrency packet = new();
-		packet.Type = currency.Id;
-		packet.Quantity = (int)playerCurrency.Quantity;
-		packet.Flags = CurrencyGainFlags.None; // TODO: Check when flags are applied
 
-		if ((playerCurrency.WeeklyQuantity / currency.GetScaler()) > 0)
+        {
+            Type = currency.Id,
+            Quantity = (int)playerCurrency.Quantity,
+            Flags = CurrencyGainFlags.None // TODO: Check when flags are applied
+        }	
+
+    ((playerCurrency.WeeklyQuantity / currency.GetScaler()) > 0)
 			packet.WeeklyQuantity = (int)playerCurrency.WeeklyQuantity;
 
 		if (currency.HasMaxQuantity(false, gainSource == CurrencyGainSource.UpdatingVersion))
@@ -1710,9 +1761,11 @@ public partial class Player : Unit
 		if (playerCurrency == null)
 		{
 			playerCurrency = new PlayerCurrency();
-			playerCurrency.State = PlayerCurrencyState.New;
-			playerCurrency.IncreasedCapQuantity = amount;
-			_currencyStorage[id] = playerCurrency;
+            {
+                State = PlayerCurrencyState.New,
+                IncreasedCapQuantity = amount
+            }			
+            rrencyStorage[id] = playerCurrency;
 		}
 		else
 		{
@@ -1723,11 +1776,13 @@ public partial class Player : Unit
 			playerCurrency.State = PlayerCurrencyState.Changed;
 
 		SetCurrency packet = new();
-		packet.Type = currency.Id;
-		packet.Quantity = (int)playerCurrency.Quantity;
-		packet.Flags = CurrencyGainFlags.None;
 
-		if ((playerCurrency.WeeklyQuantity / currency.GetScaler()) > 0)
+        {
+            Type = currency.Id,
+            Quantity = (int)playerCurrency.Quantity,
+            Flags = CurrencyGainFlags.None
+        }	
+		i    ((playerCurrency.WeeklyQuantity / currency.GetScaler()) > 0)
 			packet.WeeklyQuantity = (int)playerCurrency.WeeklyQuantity;
 
 		if (currency.IsTrackingQuantity())
@@ -2259,17 +2314,22 @@ public partial class Player : Unit
 			{
 				// send transfer packets
 				TransferPending transferPending = new();
-				transferPending.MapID = (int)mapid;
-				transferPending.OldMapPosition = Location;
 
-				var transport1 = (Transport)Transport;
+                {
+                    MapID = (int)mapid,
+                    OldMapPosition = Location
+                }	
+			                 transport1 = (Transport)Transport;
 
 				if (transport1 != null)
 				{
 					TransferPending.ShipTransferPending shipTransferPending = new();
-					shipTransferPending.Id = transport1.Entry;
-					shipTransferPending.OriginMapID = (int)Location.MapId;
-					transferPending.Ship = shipTransferPending;
+
+                    {
+                        Id = transport1.Entry,
+                        OriginMapID = (int)Location.MapId
+                    }			
+                    nsferPending.Ship = shipTransferPending;
 				}
 
 				SendPacket(transferPending);
@@ -2289,9 +2349,13 @@ public partial class Player : Unit
 			if (!Session.PlayerLogout)
 			{
 				SuspendToken suspendToken = new();
-				suspendToken.SequenceIndex = MovementCounter; // not incrementing
-				suspendToken.Reason = options.HasAnyFlag(TeleportToOptions.Seamless) ? 2 : 1u;
-				SendPacket(suspendToken);
+
+                {
+                    SequenceIndex = MovementCounter, // not incrementing
+                    Reason = options.HasAnyFlag(TeleportToOptions.Seamless) ? 2 : 1u
+                }	
+
+                dPacket(suspendToken);
 			}
 
 			// move packet sent by client always after far teleport
@@ -2519,18 +2583,24 @@ public partial class Player : Unit
 		_summonInstanceId = summoner.InstanceId;
 
 		SummonRequest summonRequest = new();
-		summonRequest.SummonerGUID = summoner.GUID;
-		summonRequest.SummonerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-		summonRequest.AreaID = (int)summoner.Zone;
-		SendPacket(summonRequest);
+
+        {
+            SummonerGUID = summoner.GUID,
+            SummonerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+            AreaID = (int)summoner.Zone
+        }		s
+    dPacket(summonRequest);
 
 		var group = Group;
 
 		if (group != null)
 		{
 			BroadcastSummonCast summonCast = new();
-			summonCast.Target = GUID;
-			group.BroadcastPacket(summonCast, false);
+
+            {
+                Target = GUID
+            }			
+            up.BroadcastPacket(summonCast, false);
 		}
 	}
 
@@ -2574,9 +2644,12 @@ public partial class Player : Unit
 			if (group != null)
 			{
 				BroadcastSummonResponse summonResponse = new();
-				summonResponse.Target = GUID;
-				summonResponse.Accepted = accepted;
-				group.BroadcastPacket(summonResponse, false);
+
+                {
+                    Target = GUID,
+                    Accepted = accepted
+                }			
+                up.BroadcastPacket(summonResponse, false);
 			}
 		}
 
@@ -3034,10 +3107,12 @@ public partial class Player : Unit
 				var addon = Global.ObjectMgr.GetGossipMenuAddon(menuId);
 
 				GossipOptionNPCInteraction npcInteraction = new();
-				npcInteraction.GossipGUID = source.GUID;
-				npcInteraction.GossipNpcOptionID = item.GossipNpcOptionId.Value;
 
-				if (addon != null && addon.FriendshipFactionId != 0)
+                {
+                    GossipGUID = source.GUID,
+                    GossipNpcOptionID = item.GossipNpcOptionId.Value
+                }	
+			                (addon != null && addon.FriendshipFactionId != 0)
 					npcInteraction.FriendshipFactionID = addon.FriendshipFactionId;
 
 				SendPacket(npcInteraction);
@@ -3054,10 +3129,13 @@ public partial class Player : Unit
 				if (interactionType != PlayerInteractionType.None)
 				{
 					NPCInteractionOpenResult npcInteraction = new();
-					npcInteraction.Npc = source.GUID;
-					npcInteraction.InteractionType = interactionType;
-					npcInteraction.Success = true;
-					SendPacket(npcInteraction);
+
+                    {
+                        Npc = source.GUID,
+                        InteractionType = interactionType,
+                        Success = true
+                    }			
+                    dPacket(npcInteraction);
 				}
 			}
 		}
@@ -3171,11 +3249,13 @@ public partial class Player : Unit
 	public void SendMailResult(ulong mailId, MailResponseType mailAction, MailResponseResult mailError, InventoryResult equipError = 0, ulong itemGuid = 0, uint itemCount = 0)
 	{
 		MailCommandResult result = new();
-		result.MailID = mailId;
-		result.Command = (int)mailAction;
-		result.ErrorCode = (int)mailError;
 
-		if (mailError == MailResponseResult.EquipError)
+        {
+            MailID = mailId,
+            Command = (int)mailAction,
+            ErrorCode = (int)mailError
+        }	
+		i    (mailError == MailResponseResult.EquipError)
 		{
 			result.BagResult = (int)equipError;
 		}
@@ -3262,19 +3342,25 @@ public partial class Player : Unit
 	public void SetBindPoint(ObjectGuid guid)
 	{
 		NPCInteractionOpenResult npcInteraction = new();
-		npcInteraction.Npc = guid;
-		npcInteraction.InteractionType = PlayerInteractionType.Binder;
-		npcInteraction.Success = true;
-		SendPacket(npcInteraction);
+
+        {
+            Npc = guid,
+            InteractionType = PlayerInteractionType.Binder,
+            Success = true
+        }		n
+    dPacket(npcInteraction);
 	}
 
 	public void SendBindPointUpdate()
 	{
 		BindPointUpdate packet = new();
-		packet.BindPosition = new Vector3(_homebind.X, _homebind.Y, _homebind.Z);
-		packet.BindMapID = _homebind.MapId;
-		packet.BindAreaID = _homebindAreaId;
-		SendPacket(packet);
+
+        {
+            BindPosition = new Vector3(_homebind.X, _homebind.Y, _homebind.Z),
+            BindMapID = _homebind.MapId,
+            BindAreaID = _homebindAreaId
+        }		p
+    dPacket(packet);
 	}
 
 	public void SendPlayerBound(ObjectGuid binderGuid, uint areaId)
@@ -3291,10 +3377,13 @@ public partial class Player : Unit
 	public void SendUpdateWorldState(uint variable, uint value, bool hidden = false)
 	{
 		UpdateWorldState worldstate = new();
-		worldstate.VariableID = variable;
-		worldstate.Value = (int)value;
-		worldstate.Hidden = hidden;
-		SendPacket(worldstate);
+
+        {
+            VariableID = variable,
+            Value = (int)value,
+            Hidden = hidden
+        }		w
+    dPacket(worldstate);
 	}
 
 	public long GetBarberShopCost(List<ChrCustomizationChoice> newCustomizations)
@@ -3356,8 +3445,10 @@ public partial class Player : Unit
 	public void SetResurrectRequestData(WorldObject caster, uint health, uint mana, uint appliedAura)
 	{
 		_resurrectionData = new ResurrectionData();
-		_resurrectionData.Guid = caster.GUID;
-		_resurrectionData.Location.WorldRelocate(caster.Location);
+        {
+            Guid = caster.GUID
+        }		_
+    surrectionData.Location.WorldRelocate(caster.Location);
 		_resurrectionData.Health = health;
 		_resurrectionData.Mana = mana;
 		_resurrectionData.Aura = appliedAura;
@@ -3568,13 +3659,15 @@ public partial class Player : Unit
 
 		DealDamageMods(null, this, ref damage, ref absorb);
 		EnvironmentalDamageLog packet = new();
-		packet.Victim = GUID;
-		packet.Type = type != EnviromentalDamage.FallToVoid ? type : EnviromentalDamage.Fall;
-		packet.Amount = (int)damage;
-		packet.Absorbed = (int)absorb;
-		packet.Resisted = (int)resist;
 
-		var final_damage = DealDamage(this, this, damage, null, DamageEffectType.Self, dmgSchool, null, false);
+        {
+            Victim = GUID,
+            Type = type != EnviromentalDamage.FallToVoid ? type : EnviromentalDamage.Fall,
+            Amount = (int)damage,
+            Absorbed = (int)absorb,
+            Resisted = (int)resist
+        }	
+		v     final_damage = DealDamage(this, this, damage, null, DamageEffectType.Self, dmgSchool, null, false);
 		packet.LogData.Initialize(this);
 
 		SendCombatLogMessage(packet);
@@ -3648,8 +3741,11 @@ public partial class Player : Unit
 	public void BuildPlayerRepop()
 	{
 		PreRessurect packet = new();
-		packet.PlayerGUID = GUID;
-		SendPacket(packet);
+
+        {
+            PlayerGUID = GUID
+        }		S
+    dPacket(packet);
 
 		// If the player has the Wisp racial then cast the Wisp aura on them
 		if (HasSpell(20585))
@@ -3732,8 +3828,11 @@ public partial class Player : Unit
 	public void ResurrectPlayer(float restore_percent, bool applySickness = false)
 	{
 		DeathReleaseLoc packet = new();
-		packet.MapID = -1;
-		SendPacket(packet);
+
+        {
+            MapID = -1
+        }		S
+    dPacket(packet);
 
 		// speed change, land walk
 
@@ -3806,11 +3905,11 @@ public partial class Player : Unit
 			// not full duration
 			if (Level < startLevel + 9)
 			{
-				var delta = (int)(Level - startLevel + 1) * Time.Minute;
+				var delta = (int)(Level - startLevel + 1) * global::Time.Minute;
 				var aur = GetAura(raceEntry.ResSicknessSpellID, GUID);
 
 				if (aur != null)
-					aur.SetDuration(delta * Time.InMilliseconds);
+					aur.SetDuration(delta * global::Time.InMilliseconds);
 			}
 		}
 	}
@@ -3834,7 +3933,7 @@ public partial class Player : Unit
 			RemovePlayerLocalFlag(PlayerLocalFlags.ReleaseTimer);
 
 		// 6 minutes until repop at graveyard
-		_deathTimer = 6 * Time.Minute * Time.InMilliseconds;
+		_deathTimer = 6 * global::Time.Minute * global::Time.InMilliseconds;
 
 		UpdateCorpseReclaimDelay(); // dependent at use SetDeathPvP() call before kill
 
@@ -3920,9 +4019,12 @@ public partial class Player : Unit
 			if (IsDead) // not send if alive, because it used in TeleportTo()
 			{
 				DeathReleaseLoc packet = new();
-				packet.MapID = (int)ClosestGrave.Loc.MapId;
-				packet.Loc = ClosestGrave.Loc;
-				SendPacket(packet);
+
+                {
+                    MapID = (int)ClosestGrave.Loc.MapId,
+                    Loc = ClosestGrave.Loc
+                }			
+                dPacket(packet);
 			}
 		}
 		else if (Location.Z < Map.GetMinHeight(PhaseShift, Location.X, Location.Y))
@@ -4131,8 +4233,11 @@ public partial class Player : Unit
 	public void SendTameFailure(PetTameResult result)
 	{
 		PetTameFailure petTameFailure = new();
-		petTameFailure.Result = (byte)result;
-		SendPacket(petTameFailure);
+
+        {
+            Result = (byte)result
+        }		S
+    dPacket(petTameFailure);
 	}
 
 	public void AddPetAura(PetAura petSpell)
@@ -4163,20 +4268,26 @@ public partial class Player : Unit
 	public void SendMovementSetCollisionHeight(float height, UpdateCollisionHeightReason reason)
 	{
 		MoveSetCollisionHeight setCollisionHeight = new();
-		setCollisionHeight.MoverGUID = GUID;
-		setCollisionHeight.SequenceIndex = MovementCounter++;
-		setCollisionHeight.Height = height;
-		setCollisionHeight.Scale = ObjectScale;
-		setCollisionHeight.MountDisplayID = MountDisplayId;
-		setCollisionHeight.ScaleDuration = UnitData.ScaleDuration;
-		setCollisionHeight.Reason = reason;
-		SendPacket(setCollisionHeight);
+
+        {
+            MoverGUID = GUID,
+            SequenceIndex = MovementCounter++,
+            Height = height,
+            Scale = ObjectScale,
+            MountDisplayID = MountDisplayId,
+            ScaleDuration = UnitData.ScaleDuration,
+            Reason = reason
+        }		s
+    dPacket(setCollisionHeight);
 
 		MoveUpdateCollisionHeight updateCollisionHeight = new();
-		updateCollisionHeight.Status = MovementInfo;
-		updateCollisionHeight.Height = height;
-		updateCollisionHeight.Scale = ObjectScale;
-		SendMessageToSet(updateCollisionHeight, false);
+
+        {
+            Status = MovementInfo,
+            Height = height,
+            Scale = ObjectScale
+        }		u
+    dMessageToSet(updateCollisionHeight, false);
 	}
 
 	public void SendPlayerChoice(ObjectGuid sender, int choiceId)
@@ -4194,13 +4305,15 @@ public partial class Player : Unit
 		PlayerTalkClass.GetInteractionData().PlayerChoiceId = (uint)choiceId;
 
 		DisplayPlayerChoice displayPlayerChoice = new();
-		displayPlayerChoice.SenderGUID = sender;
-		displayPlayerChoice.ChoiceID = choiceId;
-		displayPlayerChoice.UiTextureKitID = playerChoice.UiTextureKitId;
-		displayPlayerChoice.SoundKitID = playerChoice.SoundKitId;
-		displayPlayerChoice.Question = playerChoice.Question;
 
-		if (playerChoiceLocale != null)
+        {
+            SenderGUID = sender,
+            ChoiceID = choiceId,
+            UiTextureKitID = playerChoice.UiTextureKitId,
+            SoundKitID = playerChoice.SoundKitId,
+            Question = playerChoice.Question
+        }	
+		i    (playerChoiceLocale != null)
 			ObjectManager.GetLocaleString(playerChoiceLocale.Question, locale, ref displayPlayerChoice.Question);
 
 		displayPlayerChoice.CloseChoiceFrame = false;
@@ -4210,25 +4323,25 @@ public partial class Player : Unit
 		for (var i = 0; i < playerChoice.Responses.Count; ++i)
 		{
 			var playerChoiceResponseTemplate = playerChoice.Responses[i];
-			var playerChoiceResponse = new Networking.Packets.PlayerChoiceResponse();
-
-			playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
-			playerChoiceResponse.ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier;
-			playerChoiceResponse.ChoiceArtFileID = playerChoiceResponseTemplate.ChoiceArtFileId;
-			playerChoiceResponse.Flags = playerChoiceResponseTemplate.Flags;
-			playerChoiceResponse.WidgetSetID = playerChoiceResponseTemplate.WidgetSetID;
-			playerChoiceResponse.UiTextureAtlasElementID = playerChoiceResponseTemplate.UiTextureAtlasElementID;
-			playerChoiceResponse.SoundKitID = playerChoiceResponseTemplate.SoundKitID;
-			playerChoiceResponse.GroupID = playerChoiceResponseTemplate.GroupID;
-			playerChoiceResponse.UiTextureKitID = playerChoiceResponseTemplate.UiTextureKitID;
-			playerChoiceResponse.Answer = playerChoiceResponseTemplate.Answer;
-			playerChoiceResponse.Header = playerChoiceResponseTemplate.Header;
-			playerChoiceResponse.SubHeader = playerChoiceResponseTemplate.SubHeader;
-			playerChoiceResponse.ButtonTooltip = playerChoiceResponseTemplate.ButtonTooltip;
-			playerChoiceResponse.Description = playerChoiceResponseTemplate.Description;
-			playerChoiceResponse.Confirmation = playerChoiceResponseTemplate.Confirmation;
-
-			if (playerChoiceLocale != null)
+			var playerChoiceResponse = new PlayerChoiceResponse();
+            {
+                ResponseID = playerChoiceResponseTemplate.ResponseId,
+                ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier,
+                ChoiceArtFileID = playerChoiceResponseTemplate.ChoiceArtFileId,
+                Flags = playerChoiceResponseTemplate.Flags,
+                WidgetSetID = playerChoiceResponseTemplate.WidgetSetID,
+                UiTextureAtlasElementID = playerChoiceResponseTemplate.UiTextureAtlasElementID,
+                SoundKitID = playerChoiceResponseTemplate.SoundKitID,
+                GroupID = playerChoiceResponseTemplate.GroupID,
+                UiTextureKitID = playerChoiceResponseTemplate.UiTextureKitID,
+                Answer = playerChoiceResponseTemplate.Answer,
+                Header = playerChoiceResponseTemplate.Header,
+                SubHeader = playerChoiceResponseTemplate.SubHeader,
+                ButtonTooltip = playerChoiceResponseTemplate.ButtonTooltip,
+                Description = playerChoiceResponseTemplate.Description,
+                Confirmation = playerChoiceResponseTemplate.Confirmation
+            }
+			            (playerChoiceLocale != null)
 			{
 				var playerChoiceResponseLocale = playerChoiceLocale.Responses.LookupByKey(playerChoiceResponseTemplate.ResponseId);
 
@@ -4245,59 +4358,78 @@ public partial class Player : Unit
 
 			if (playerChoiceResponseTemplate.Reward != null)
 			{
-				var reward = new Networking.Packets.PlayerChoiceResponseReward();
-				reward.TitleID = playerChoiceResponseTemplate.Reward.TitleId;
-				reward.PackageID = playerChoiceResponseTemplate.Reward.PackageId;
-				reward.SkillLineID = playerChoiceResponseTemplate.Reward.SkillLineId;
-				reward.SkillPointCount = playerChoiceResponseTemplate.Reward.SkillPointCount;
-				reward.ArenaPointCount = playerChoiceResponseTemplate.Reward.ArenaPointCount;
-				reward.HonorPointCount = playerChoiceResponseTemplate.Reward.HonorPointCount;
-				reward.Money = playerChoiceResponseTemplate.Reward.Money;
-				reward.Xp = playerChoiceResponseTemplate.Reward.Xp;
-
-				foreach (var item in playerChoiceResponseTemplate.Reward.Items)
+				var reward = new PlayerChoiceResponseReward();
+                {
+                    TitleID = playerChoiceResponseTemplate.Reward.TitleId,
+                    PackageID = playerChoiceResponseTemplate.Reward.PackageId,
+                    SkillLineID = playerChoiceResponseTemplate.Reward.SkillLineId,
+                    SkillPointCount = playerChoiceResponseTemplate.Reward.SkillPointCount,
+                    ArenaPointCount = playerChoiceResponseTemplate.Reward.ArenaPointCount,
+                    HonorPointCount = playerChoiceResponseTemplate.Reward.HonorPointCount,
+                    Money = playerChoiceResponseTemplate.Reward.Money,
+                    Xp = playerChoiceResponseTemplate.Reward.Xp
+                }	
+			                each (var item in playerChoiceResponseTemplate.Reward.Items)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
-					rewardEntry.Item.ItemID = item.Id;
-					rewardEntry.Quantity = item.Quantity;
-
-					if (!item.BonusListIDs.Empty())
+					var rewardEntry = new PlayerChoiceResponseRewardEntry();
+                    {
+                        Item =
+                        {
+                            ItemID = item.Id
+                        },
+                        Quantity = item.Quantity
+                    }	
+			                    (!item.BonusListIDs.Empty())
 					{
 						rewardEntry.Item.ItemBonus = new ItemBonuses();
-						rewardEntry.Item.ItemBonus.BonusListIDs = item.BonusListIDs;
-					}
-
+                        {
+                            BonusListIDs = item.BonusListIDs
+                        }			                    
 					reward.Items.Add(rewardEntry);
 				}
 
 				foreach (var currency in playerChoiceResponseTemplate.Reward.Currency)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
-					rewardEntry.Item.ItemID = currency.Id;
-					rewardEntry.Quantity = currency.Quantity;
-					reward.Items.Add(rewardEntry);
+					var rewardEntry = new PlayerChoiceResponseRewardEntry();
+                    {
+                        Item =
+                        {
+                            ItemID = currency.Id
+                        },
+                        Quantity = currency.Quantity
+                    }			
+                    ard.Items.Add(rewardEntry);
 				}
 
 				foreach (var faction in playerChoiceResponseTemplate.Reward.Faction)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
-					rewardEntry.Item.ItemID = faction.Id;
-					rewardEntry.Quantity = faction.Quantity;
-					reward.Items.Add(rewardEntry);
+					var rewardEntry = new PlayerChoiceResponseRewardEntry();
+                    {
+                        Item =
+                        {
+                            ItemID = faction.Id
+                        },
+                        Quantity = faction.Quantity
+                    }			
+                    ard.Items.Add(rewardEntry);
 				}
 
 				foreach (var item in playerChoiceResponseTemplate.Reward.ItemChoices)
 				{
-					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
-					rewardEntry.Item.ItemID = item.Id;
-					rewardEntry.Quantity = item.Quantity;
-
-					if (!item.BonusListIDs.Empty())
+					var rewardEntry = new PlayerChoiceResponseRewardEntry();
+                    {
+                        Item =
+                        {
+                            ItemID = item.Id
+                        },
+                        Quantity = item.Quantity
+                    }	
+			                    (!item.BonusListIDs.Empty())
 					{
 						rewardEntry.Item.ItemBonus = new ItemBonuses();
-						rewardEntry.Item.ItemBonus.BonusListIDs = item.BonusListIDs;
-					}
-
+                        {
+                            BonusListIDs = item.BonusListIDs
+                        }			                    
 					reward.ItemChoices.Add(rewardEntry);
 				}
 
@@ -4309,14 +4441,15 @@ public partial class Player : Unit
 
 			if (playerChoiceResponseTemplate.MawPower.HasValue)
 			{
-				var mawPower = new Networking.Packets.PlayerChoiceResponseMawPower();
-				mawPower.TypeArtFileID = playerChoiceResponse.MawPower.Value.TypeArtFileID;
-				mawPower.Rarity = playerChoiceResponse.MawPower.Value.Rarity;
-				mawPower.RarityColor = playerChoiceResponse.MawPower.Value.RarityColor;
-				mawPower.SpellID = playerChoiceResponse.MawPower.Value.SpellID;
-				mawPower.MaxStacks = playerChoiceResponse.MawPower.Value.MaxStacks;
-
-				playerChoiceResponse.MawPower = mawPower;
+				var mawPower = new PlayerChoiceResponseMawPower();
+                {
+                    TypeArtFileID = playerChoiceResponse.MawPower.Value.TypeArtFileID,
+                    Rarity = playerChoiceResponse.MawPower.Value.Rarity,
+                    RarityColor = playerChoiceResponse.MawPower.Value.RarityColor,
+                    SpellID = playerChoiceResponse.MawPower.Value.SpellID,
+                    MaxStacks = playerChoiceResponse.MawPower.Value.MaxStacks
+                }	
+			                yerChoiceResponse.MawPower = mawPower;
 			}
 		}
 
@@ -4556,19 +4689,23 @@ public partial class Player : Unit
 		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, level, out var basemana);
 
 		LevelUpInfo packet = new();
-		packet.Level = level;
-		packet.HealthDelta = 0;
 
-		// @todo find some better solution
-		packet.PowerDelta[0] = (int)basemana - (int)GetCreateMana();
-		packet.PowerDelta[1] = 0;
-		packet.PowerDelta[2] = 0;
-		packet.PowerDelta[3] = 0;
-		packet.PowerDelta[4] = 0;
-		packet.PowerDelta[5] = 0;
-		packet.PowerDelta[6] = 0;
-
-		for (var i = Stats.Strength; i < Stats.Max; ++i)
+        {
+            Level = level,
+            HealthDelta = 0,
+            PowerDelta =
+            {
+                // @todo find some better solution
+                [0] = (int)basemana - (int)GetCreateMana(),
+                [1] = 0,
+                [2] = 0,
+                [3] = 0,
+                [4] = 0,
+                [5] = 0,
+                [6] = 0
+            }
+        }	
+		f     (var i = Stats.Strength; i < Stats.Max; ++i)
 			packet.StatDelta[(int)i] = info.Stats[(int)i] - (int)GetCreateStat(i);
 
 		packet.NumNewTalents = (int)(Global.DB2Mgr.GetNumTalentsAtLevel(level, Class) - Global.DB2Mgr.GetNumTalentsAtLevel(oldLevel, Class));
@@ -4849,21 +4986,28 @@ public partial class Player : Unit
 		// SMSG_LOGIN_SETTIMESPEED
 		var TimeSpeed = 0.01666667f;
 		LoginSetTimeSpeed loginSetTimeSpeed = new();
-		loginSetTimeSpeed.NewSpeed = TimeSpeed;
-		loginSetTimeSpeed.GameTime = (uint)GameTime.GetGameTime();
-		loginSetTimeSpeed.ServerTime = (uint)GameTime.GetGameTime();
-		loginSetTimeSpeed.GameTimeHolidayOffset = 0;   // @todo
-		loginSetTimeSpeed.ServerTimeHolidayOffset = 0; // @todo
-		SendPacket(loginSetTimeSpeed);
+
+        {
+            NewSpeed = TimeSpeed,
+            GameTime = (uint)GameTime.GetGameTime(),
+            ServerTime = (uint)GameTime.GetGameTime(),
+            GameTimeHolidayOffset = 0,  // @todo
+            ServerTimeHolidayOffset = 0 // @todo
+        }		l
+    dPacket(loginSetTimeSpeed);
 
 		// SMSG_WORLD_SERVER_INFO
 		WorldServerInfo worldServerInfo = new();
-		worldServerInfo.InstanceGroupSize = Map.MapDifficulty.MaxPlayers; // @todo
-		worldServerInfo.IsTournamentRealm = false;                        // @todo
-		worldServerInfo.RestrictedAccountMaxLevel = null;                 // @todo
-		worldServerInfo.RestrictedAccountMaxMoney = null;                 // @todo
-		worldServerInfo.DifficultyID = (uint)Map.DifficultyID;
-		// worldServerInfo.XRealmPvpAlert;  // @todo
+
+        {
+            InstanceGroupSize = Map.MapDifficulty.MaxPlayers, // @todo
+            IsTournamentRealm = false,                        // @todo
+            RestrictedAccountMaxLevel = null,                 // @todo
+            RestrictedAccountMaxMoney = null,                 // @todo
+            DifficultyID = (uint)Map.DifficultyID
+        }	
+
+    worldServerInfo.XRealmPvpAlert;  // @todo
 		SendPacket(worldServerInfo);
 
 		// Spell modifiers
@@ -4871,27 +5015,39 @@ public partial class Player : Unit
 
 		// SMSG_ACCOUNT_MOUNT_UPDATE
 		AccountMountUpdate mountUpdate = new();
-		mountUpdate.IsFullUpdate = true;
-		mountUpdate.Mounts = Session.CollectionMgr.GetAccountMounts();
-		SendPacket(mountUpdate);
+
+        {
+            IsFullUpdate = true,
+            Mounts = Session.CollectionMgr.GetAccountMounts()
+        }		m
+    dPacket(mountUpdate);
 
 		// SMSG_ACCOUNT_TOYS_UPDATE
 		AccountToyUpdate toyUpdate = new();
-		toyUpdate.IsFullUpdate = true;
-		toyUpdate.Toys = Session.CollectionMgr.GetAccountToys();
-		SendPacket(toyUpdate);
+
+        {
+            IsFullUpdate = true,
+            Toys = Session.CollectionMgr.GetAccountToys()
+        }		t
+    dPacket(toyUpdate);
 
 		// SMSG_ACCOUNT_HEIRLOOM_UPDATE
 		AccountHeirloomUpdate heirloomUpdate = new();
-		heirloomUpdate.IsFullUpdate = true;
-		heirloomUpdate.Heirlooms = Session.CollectionMgr.GetAccountHeirlooms();
-		SendPacket(heirloomUpdate);
+
+        {
+            IsFullUpdate = true,
+            Heirlooms = Session.CollectionMgr.GetAccountHeirlooms()
+        }		h
+    dPacket(heirloomUpdate);
 
 		Session.CollectionMgr.SendFavoriteAppearances();
 
 		InitialSetup initialSetup = new();
-		initialSetup.ServerExpansionLevel = (byte)WorldConfig.GetIntValue(WorldCfg.Expansion);
-		SendPacket(initialSetup);
+
+        {
+            ServerExpansionLevel = (byte)WorldConfig.GetIntValue(WorldCfg.Expansion)
+        }		S
+    dPacket(initialSetup);
 
 		SetMovedUnit(this);
 	}
@@ -5285,8 +5441,11 @@ public partial class Player : Unit
 	public void SendCinematicStart(uint CinematicSequenceId)
 	{
 		TriggerCinematic packet = new();
-		packet.CinematicID = CinematicSequenceId;
-		SendPacket(packet);
+
+        {
+            CinematicID = CinematicSequenceId
+        }		S
+    dPacket(packet);
 
 		var sequence = CliDB.CinematicSequencesStorage.LookupByKey(CinematicSequenceId);
 
@@ -5298,8 +5457,11 @@ public partial class Player : Unit
 	{
 		Movie = movieId;
 		TriggerMovie packet = new();
-		packet.MovieID = movieId;
-		SendPacket(packet);
+
+        {
+            MovieID = movieId
+        }		S
+    dPacket(packet);
 	}
 
 	public bool HasRaceChanged()
@@ -5364,12 +5526,15 @@ public partial class Player : Unit
 			bonus_xp = victim != null ? _restMgr.GetRestBonusFor(RestTypes.XP, xp) : 0; // XP resting bonus
 
 		LogXPGain packet = new();
-		packet.Victim = victim ? victim.GUID : ObjectGuid.Empty;
-		packet.Original = (int)(xp + bonus_xp);
-		packet.Reason = victim ? PlayerLogXPReason.Kill : PlayerLogXPReason.NoKill;
-		packet.Amount = (int)xp;
-		packet.GroupBonus = group_rate;
-		SendPacket(packet);
+
+        {
+            Victim = victim ? victim.GUID : ObjectGuid.Empty,
+            Original = (int)(xp + bonus_xp),
+            Reason = victim ? PlayerLogXPReason.Kill : PlayerLogXPReason.NoKill,
+            Amount = (int)xp,
+            GroupBonus = group_rate
+        }		p
+    dPacket(packet);
 
 		var nextLvlXP = XPForNextLevel;
 		var newXP = XP + xp + (uint)bonus_xp;
@@ -5512,11 +5677,13 @@ public partial class Player : Unit
 			return;
 
 		CrossedInebriationThreshold data = new();
-		data.Guid = GUID;
-		data.Threshold = (uint)newDrunkenState;
-		data.ItemID = itemId;
 
-		SendMessageToSet(data, true);
+        {
+            Guid = GUID,
+            Threshold = (uint)newDrunkenState,
+            ItemID = itemId
+        }	
+		S    dMessageToSet(data, true);
 	}
 
 	public static DrunkenState GetDrunkenstateByValue(byte value)
@@ -5882,13 +6049,15 @@ public partial class Player : Unit
 		var roll = RandomHelper.URand(minimum, maximum);
 
 		RandomRoll randomRoll = new();
-		randomRoll.Min = (int)minimum;
-		randomRoll.Max = (int)maximum;
-		randomRoll.Result = (int)roll;
-		randomRoll.Roller = GUID;
-		randomRoll.RollerWowAccount = Session.AccountGUID;
 
-		var group = Group;
+        {
+            Min = (int)minimum,
+            Max = (int)maximum,
+            Result = (int)roll,
+            Roller = GUID,
+            RollerWowAccount = Session.AccountGUID
+        }	
+		v     group = Group;
 
 		if (group)
 			group.BroadcastPacket(randomRoll, false);
@@ -6016,8 +6185,11 @@ public partial class Player : Unit
 		}
 
 		TitleEarned packet = new(lost ? ServerOpcodes.TitleLost : ServerOpcodes.TitleEarned);
-		packet.Index = title.MaskID;
-		SendPacket(packet);
+
+        {
+            Index = title.MaskID
+        }		S
+    dPacket(packet);
 	}
 
 	public void SetChosenTitle(uint title)
@@ -6090,9 +6262,12 @@ public partial class Player : Unit
 			allowMove = false;
 
 		ControlUpdate packet = new();
-		packet.Guid = target.GUID;
-		packet.On = allowMove;
-		SendPacket(packet);
+
+        {
+            Guid = target.GUID,
+            On = allowMove
+        }		p
+    dPacket(packet);
 
 		var viewpoint = Viewpoint;
 
@@ -6286,9 +6461,12 @@ public partial class Player : Unit
 		foreach (var customization in customizations)
 		{
 			ChrCustomizationChoice newChoice = new();
-			newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-			newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-			AddDynamicUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Customizations), newChoice);
+
+            {
+                ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
+                ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
+            }			
+            DynamicUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.Customizations), newChoice);
 		}
 	}
 
@@ -6478,8 +6656,12 @@ public partial class Player : Unit
 	public void SendAutoRepeatCancel(Unit target)
 	{
 		CancelAutoRepeat cancelAutoRepeat = new();
-		cancelAutoRepeat.Guid = target.GUID; // may be it's target guid
-		SendMessageToSet(cancelAutoRepeat, true);
+
+        {
+            Guid = target.GUID // may be it's target guid
+        }	
+
+    dMessageToSet(cancelAutoRepeat, true);
 	}
 
 	public override void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
@@ -6733,9 +6915,12 @@ public partial class Player : Unit
 		if (!_currencyStorage.ContainsKey(id))
 		{
 			PlayerCurrency playerCurrency = new();
-			playerCurrency.State = PlayerCurrencyState.New;
-			playerCurrency.Quantity = amount;
-			_currencyStorage.Add(id, playerCurrency);
+
+            {
+                State = PlayerCurrencyState.New,
+                Quantity = amount
+            }			
+            rrencyStorage.Add(id, playerCurrency);
 		}
 	}
 
@@ -6862,7 +7047,7 @@ public partial class Player : Unit
 	}
 
 	// Calculate how many reputation points player gain with the quest
-	void RewardReputation(Quest quest)
+	void RewardReputation(Quest.Quest quest)
 	{
 		for (byte i = 0; i < SharedConst.QuestRewardReputationsCount; ++i)
 		{
@@ -7045,11 +7230,13 @@ public partial class Player : Unit
 		var mapid = Location.MapId;
 
 		InitWorldStates packet = new();
-		packet.MapID = mapid;
-		packet.AreaID = zoneId;
-		packet.SubareaID = areaId;
 
-		Global.WorldStateMgr.FillInitialWorldStates(packet, Map, areaId);
+        {
+            MapID = mapid,
+            AreaID = zoneId,
+            SubareaID = areaId
+        }	
+		G    bal.WorldStateMgr.FillInitialWorldStates(packet, Map, areaId);
 
 		SendPacket(packet);
 	}
@@ -7180,7 +7367,7 @@ public partial class Player : Unit
 
 		if (!IsInCombat)
 		{
-			if (powerType.RegenInterruptTimeMS != 0 && Time.GetMSTimeDiffToNow(_combatExitTime) < powerType.RegenInterruptTimeMS)
+			if (powerType.RegenInterruptTimeMS != 0 && global::Time.GetMSTimeDiffToNow(_combatExitTime) < powerType.RegenInterruptTimeMS)
 				return;
 
 			addvalue = (powerType.RegenPeace + UnitData.PowerRegenFlatModifier[(int)powerIndex]) * 0.001f * RegenTimer;
@@ -7206,7 +7393,7 @@ public partial class Player : Unit
 		if (power != PowerType.Mana)
 		{
 			addvalue *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)power);
-			addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * ((power != PowerType.Energy) ? _regenTimerCount : RegenTimer) / (5 * Time.InMilliseconds);
+			addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * ((power != PowerType.Energy) ? _regenTimerCount : RegenTimer) / (5 * global::Time.InMilliseconds);
 		}
 
 		var minPower = powerType.MinPower;
@@ -7322,7 +7509,7 @@ public partial class Player : Unit
 					addValue = 0.015f * (MaxHealth) * HealthIncreaseRate;
 
 				addValue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);
-				addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * Time.InMilliseconds / (5 * Time.InMilliseconds);
+				addValue += GetTotalAuraModifier(AuraType.ModRegen) * 2 * global::Time.InMilliseconds / (5 * global::Time.InMilliseconds);
 			}
 			else if (HasAuraType(AuraType.ModRegenDuringCombat))
 			{
@@ -7399,7 +7586,7 @@ public partial class Player : Unit
 				// Timer limit - need deal damage
 				if (_mirrorTimer[breathTimer] < 0)
 				{
-					_mirrorTimer[breathTimer] += 1 * Time.InMilliseconds;
+					_mirrorTimer[breathTimer] += 1 * global::Time.InMilliseconds;
 					// Calculate and deal damage
 					// @todo Check this formula
 					var damage = (uint)(MaxHealth / 5 + RandomHelper.URand(0, Level - 1));
@@ -7439,7 +7626,7 @@ public partial class Player : Unit
 				// Timer limit - need deal damage or teleport ghost to graveyard
 				if (_mirrorTimer[fatigueTimer] < 0)
 				{
-					_mirrorTimer[fatigueTimer] += 1 * Time.InMilliseconds;
+					_mirrorTimer[fatigueTimer] += 1 * global::Time.InMilliseconds;
 
 					if (IsAlive) // Calculate and deal damage
 					{
@@ -7481,7 +7668,7 @@ public partial class Player : Unit
 
 				if (_mirrorTimer[fireTimer] < 0)
 				{
-					_mirrorTimer[fireTimer] += 1 * Time.InMilliseconds;
+					_mirrorTimer[fireTimer] += 1 * global::Time.InMilliseconds;
 					// Calculate and deal damage
 					// @todo Check this formula
 					var damage = RandomHelper.URand(600, 700);
@@ -7547,13 +7734,13 @@ public partial class Player : Unit
 		switch (timer)
 		{
 			case MirrorTimerType.Fatigue:
-				return Time.Minute * Time.InMilliseconds;
+				return global::Time.Minute * global::Time.InMilliseconds;
 			case MirrorTimerType.Breath:
 			{
 				if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.DisableBreathing))
 					return -1;
 
-				var UnderWaterTime = 3 * Time.Minute * Time.InMilliseconds;
+				var UnderWaterTime = 3 * global::Time.Minute * global::Time.InMilliseconds;
 				UnderWaterTime *= (int)GetTotalAuraMultiplier(AuraType.ModWaterBreathing);
 
 				return UnderWaterTime;
@@ -7563,7 +7750,7 @@ public partial class Player : Unit
 				if (!IsAlive)
 					return -1;
 
-				return 1 * Time.InMilliseconds;
+				return 1 * global::Time.InMilliseconds;
 			}
 			default:
 				return 0;
@@ -7696,14 +7883,17 @@ public partial class Player : Unit
 			delay = GetCorpseReclaimDelay(pvp);
 		}
 
-		return (int)(delay * Time.InMilliseconds);
+		return (int)(delay * global::Time.InMilliseconds);
 	}
 
 	void SendCorpseReclaimDelay(int delay)
 	{
 		CorpseReclaimDelay packet = new();
-		packet.Remaining = (uint)delay;
-		SendPacket(packet);
+
+        {
+            Remaining = (uint)delay
+        }		S
+    dPacket(packet);
 	}
 
 	bool IsFriendlyArea(AreaTableRecord areaEntry)
@@ -7773,11 +7963,12 @@ public partial class Player : Unit
 		var visibleAuras = target.VisibleAuras;
 
 		AuraUpdate update = new();
-		update.UpdateAll = true;
-		update.UnitGUID = target.GUID;
 
-
-		foreach (var auraApp in visibleAuras.ToList())
+        {
+            UpdateAll = true,
+            UnitGUID = target.GUID
+        }	
+		f    each (var auraApp in visibleAuras.ToList())
 		{
 			AuraInfo auraInfo = new();
 			auraApp.BuildUpdatePacket(ref auraInfo, false);
@@ -8203,10 +8394,12 @@ public partial class Player : Unit
 			}
 
 			SetupCurrency.Record record = new();
-			record.Type = currencyRecord.Id;
-			record.Quantity = currency.Quantity;
 
-			if ((currency.WeeklyQuantity / currencyRecord.GetScaler()) > 0)
+            {
+                Type = currencyRecord.Id,
+                Quantity = currency.Quantity
+            }	
+			            ((currency.WeeklyQuantity / currencyRecord.GetScaler()) > 0)
 				record.WeeklyQuantity = currency.WeeklyQuantity;
 
 			if (currencyRecord.HasMaxEarnablePerWeek())
@@ -8397,19 +8590,25 @@ public partial class Player : Unit
 	public void SendBuyError(BuyResult msg, Creature creature, uint item)
 	{
 		BuyFailed packet = new();
-		packet.VendorGUID = creature ? creature.GUID : ObjectGuid.Empty;
-		packet.Muid = item;
-		packet.Reason = msg;
-		SendPacket(packet);
+
+        {
+            VendorGUID = creature ? creature.GUID : ObjectGuid.Empty,
+            Muid = item,
+            Reason = msg
+        }		p
+    dPacket(packet);
 	}
 
 	public void SendSellError(SellResult msg, Creature creature, ObjectGuid guid)
 	{
 		SellResponse sellResponse = new();
-		sellResponse.VendorGUID = (creature ? creature.GUID : ObjectGuid.Empty);
-		sellResponse.ItemGUID = guid;
-		sellResponse.Reason = msg;
-		SendPacket(sellResponse);
+
+        {
+            VendorGUID = (creature ? creature.GUID : ObjectGuid.Empty),
+            ItemGUID = guid,
+            Reason = msg
+        }		s
+    dPacket(sellResponse);
 	}
 
 	#endregion

@@ -2,11 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Server;
+using Forged.MapServer.SupportSystem;
 using Framework.Constants;
-using Game.Entities;
-using Game.SupportSystem;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("ticket")]
 class TicketCommands

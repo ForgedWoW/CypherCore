@@ -4,7 +4,7 @@
 using System.Collections;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class CufProfile
 {

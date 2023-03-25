@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Scripting.Interfaces.IAreaTrigger;
+namespace Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
 
 public interface IAreaTriggerScriptValues : IAreaTriggerScript
 {

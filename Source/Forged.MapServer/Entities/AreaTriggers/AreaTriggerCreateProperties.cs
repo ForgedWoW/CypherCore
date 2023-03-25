@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.AreaTriggers;
 
 public unsafe class AreaTriggerCreateProperties
 {
@@ -72,19 +74,23 @@ public unsafe class AreaTriggerCreateProperties
 
 	public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId)
 	{
-		AreaTriggerCreateProperties ret = new();
-		ret.Id = areaTriggerId;
-		ret.ScriptIds = ObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId);
-		ret.Template = new AreaTriggerTemplate();
-		ret.Template.Id = new AreaTriggerId(areaTriggerId, false);
-		ret.Template.Flags = 0;
+		AreaTriggerCreateProperties ret = new()
+        {
+            Id = areaTriggerId,
+            ScriptIds = ObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId),
+            Template = new AreaTriggerTemplate
+            {
+                Id = new AreaTriggerId(areaTriggerId, false),
+                Flags = 0
+            }
+        };
 
-		ret.Template.Actions.Add(new AreaTriggerAction
-		{
-			ActionType = AreaTriggerActionTypes.Cast,
-			Param = 0,
-			TargetType = AreaTriggerActionUserTypes.Friend
-		});
+        ret.Template.Actions.Add(new AreaTriggerAction
+        {
+            ActionType = AreaTriggerActionTypes.Cast,
+            Param = 0,
+            TargetType = AreaTriggerActionUserTypes.Friend
+        });
 
 		ret.MoveCurveId = 0;
 		ret.ScaleCurveId = 0;

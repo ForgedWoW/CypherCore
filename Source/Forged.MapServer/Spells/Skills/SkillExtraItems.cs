@@ -2,10 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Database;
-using Game.Entities;
+using Forged.MapServer.Entities.Players;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Skills;
 
 public class SkillExtraItems
 {
@@ -14,7 +13,7 @@ public class SkillExtraItems
 	// loads the extra item creation info from DB
 	public static void LoadSkillExtraItemTable()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		SkillExtraItemStorage.Clear(); // need for reload
 
@@ -68,16 +67,18 @@ public class SkillExtraItems
 				continue;
 			}
 
-			SkillExtraItemEntry skillExtraItemEntry = new();
-			skillExtraItemEntry.RequiredSpecialization = requiredSpecialization;
-			skillExtraItemEntry.AdditionalCreateChance = additionalCreateChance;
-			skillExtraItemEntry.AdditionalMaxNum = additionalMaxNum;
+			SkillExtraItemEntry skillExtraItemEntry = new()
+            {
+                RequiredSpecialization = requiredSpecialization,
+                AdditionalCreateChance = additionalCreateChance,
+                AdditionalMaxNum = additionalMaxNum
+            };
 
-			SkillExtraItemStorage[spellId] = skillExtraItemEntry;
+            SkillExtraItemStorage[spellId] = skillExtraItemEntry;
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)

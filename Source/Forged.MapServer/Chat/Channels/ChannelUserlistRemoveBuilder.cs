@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 class ChannelUserlistRemoveBuilder : MessageBuilder
 {
@@ -23,12 +24,17 @@ class ChannelUserlistRemoveBuilder : MessageBuilder
 	{
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<UserlistRemove> userlistRemove = new();
-		userlistRemove.Data.RemovedUserGUID = _guid;
-		userlistRemove.Data.ChannelFlags = _source.GetFlags();
-		userlistRemove.Data.ChannelID = _source.GetChannelId();
-		userlistRemove.Data.ChannelName = _source.GetName(localeIdx);
+		PacketSenderOwning<UserlistRemove> userlistRemove = new()
+        {
+            Data =
+            {
+                RemovedUserGUID = _guid,
+                ChannelFlags = _source.GetFlags(),
+                ChannelID = _source.GetChannelId(),
+                ChannelName = _source.GetName(localeIdx)
+            }
+        };
 
-		return userlistRemove;
+        return userlistRemove;
 	}
 }

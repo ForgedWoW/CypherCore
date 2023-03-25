@@ -7,9 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Forged.MapServer.Collision.Models;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision;
 
 public class BIH
 {
@@ -352,10 +353,13 @@ public class BIH
 		tempTree.Add(0);
 
 		// seed bbox
-		AABound gridBox = new();
-		gridBox.Lo = _bounds.Lo;
-		gridBox.Hi = _bounds.Hi;
-		var nodeBox = gridBox;
+		AABound gridBox = new()
+        {
+            Lo = _bounds.Lo,
+            Hi = _bounds.Hi
+        };
+
+        var nodeBox = gridBox;
 		// seed subdivide function
 		Subdivide(0, (int)(dat.numPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
 	}
@@ -616,18 +620,22 @@ public class BIH
 
 	uint FloatToRawIntBits(float f)
 	{
-		FloatToIntConverter converter = new();
-		converter.FloatValue = f;
+		FloatToIntConverter converter = new()
+        {
+            FloatValue = f
+        };
 
-		return converter.IntValue;
+        return converter.IntValue;
 	}
 
 	float IntBitsToFloat(uint i)
 	{
-		FloatToIntConverter converter = new();
-		converter.IntValue = i;
+		FloatToIntConverter converter = new()
+        {
+            IntValue = i
+        };
 
-		return converter.FloatValue;
+        return converter.FloatValue;
 	}
 
 	struct buildData

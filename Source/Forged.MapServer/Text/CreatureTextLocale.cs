@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game;
+namespace Forged.MapServer.Text;
 
 public class CreatureTextLocale
 {

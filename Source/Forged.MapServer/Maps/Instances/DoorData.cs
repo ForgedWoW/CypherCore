@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 public class DoorData
 {

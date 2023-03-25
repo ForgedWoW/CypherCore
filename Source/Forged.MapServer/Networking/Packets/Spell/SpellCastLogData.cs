@@ -2,11 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellCastLogData
 {
@@ -26,7 +25,7 @@ public class SpellCastLogData
 		PowerData.Add(new SpellLogPowerData((int)unit.DisplayPowerType, unit.GetPower(unit.DisplayPowerType), 0));
 	}
 
-	public void Initialize(Spell spell)
+	public void Initialize(Spells.Spell spell)
 	{
 		var unitCaster = spell.Caster.AsUnit;
 

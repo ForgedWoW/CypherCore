@@ -5,11 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement.Generators;
 
 public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 {

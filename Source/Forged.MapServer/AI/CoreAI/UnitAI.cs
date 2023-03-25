@@ -4,12 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Combat;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Combat;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.CoreAI;
 
 public class UnitAI : IUnitAI
 {

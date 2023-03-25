@@ -2,11 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Maps;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("instance")]
 class InstanceCommands
@@ -75,7 +76,7 @@ class InstanceCommands
 		foreach (var instanceLock in instanceLocks)
 		{
 			MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-			var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+			var timeleft = !instanceLock.IsExpired() ? global::Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
 			handler.SendSysMessage(CypherStrings.CommandListBindInfo,
 									entries.Map.Id,
@@ -185,7 +186,7 @@ class InstanceCommands
 		foreach (var instanceLock in locksReset)
 		{
 			MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-			var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+			var timeleft = !instanceLock.IsExpired() ? global::Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
 			handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
 									entries.Map.Id,
@@ -203,7 +204,7 @@ class InstanceCommands
 		foreach (var instanceLock in locksNotReset)
 		{
 			MapDb2Entries entries = new(instanceLock.GetMapId(), instanceLock.GetDifficultyId());
-			var timeleft = !instanceLock.IsExpired() ? Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
+			var timeleft = !instanceLock.IsExpired() ? global::Time.secsToTimeString((ulong)(instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds) : "-";
 
 			handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
 									entries.Map.Id,

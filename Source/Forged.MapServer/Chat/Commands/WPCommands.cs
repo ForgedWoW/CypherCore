@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("wp")]
 class WPCommands
@@ -64,10 +66,10 @@ class WPCommands
 		stmt = DB.World.GetPreparedStatement(WorldStatements.INS_WAYPOINT_DATA);
 		stmt.AddValue(0, pathId);
 		stmt.AddValue(1, point + 1);
-		stmt.AddValue(2, player.Location.X);
-		stmt.AddValue(3, player.Location.Y);
-		stmt.AddValue(4, player.Location.Z);
-		stmt.AddValue(5, player.Location.Orientation);
+		stmt.AddValue((int)2, (float)player.Location.X);
+		stmt.AddValue((int)3, (float)player.Location.Y);
+		stmt.AddValue((int)4, (float)player.Location.Z);
+		stmt.AddValue((int)5, (float)player.Location.Orientation);
 
 		DB.World.Execute(stmt);
 

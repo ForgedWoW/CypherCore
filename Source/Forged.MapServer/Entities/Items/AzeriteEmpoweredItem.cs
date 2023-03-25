@@ -3,12 +3,15 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteEmpoweredItem : Item
 {

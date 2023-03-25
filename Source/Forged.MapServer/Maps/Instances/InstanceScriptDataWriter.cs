@@ -8,7 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Framework.Constants;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 class InstanceScriptDataWriter
 {

@@ -3,11 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.PlayerAI;
 
 public class PlayerAI : UnitAI
 {
@@ -104,9 +109,12 @@ public class PlayerAI : UnitAI
 
 	public void DoCastAtTarget(Tuple<Spell, Unit> spell)
 	{
-		SpellCastTargets targets = new();
-		targets.UnitTarget = spell.Item2;
-		spell.Item1.Prepare(targets);
+		SpellCastTargets targets = new()
+        {
+            UnitTarget = spell.Item2
+        };
+
+        spell.Item1.Prepare(targets);
 	}
 
 	public void DoAutoAttackIfReady()
@@ -327,9 +335,12 @@ public class PlayerAI : UnitAI
 		if (spell.CheckPetCast(victim) != SpellCastResult.SpellCastOk)
 			return;
 
-		SpellCastTargets targets = new();
-		targets.UnitTarget = victim;
-		spell.Prepare(targets);
+		SpellCastTargets targets = new()
+        {
+            UnitTarget = victim
+        };
+
+        spell.Prepare(targets);
 
 		Me.ResetAttackTimer(WeaponAttackType.RangedAttack);
 	}

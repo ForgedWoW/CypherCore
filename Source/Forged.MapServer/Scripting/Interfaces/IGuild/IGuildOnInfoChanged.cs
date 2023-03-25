@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Guilds;
+using Forged.MapServer.Guilds;
 
-namespace Game.Scripting.Interfaces.IGuild;
+namespace Forged.MapServer.Scripting.Interfaces.IGuild;
 
 public interface IGuildOnInfoChanged : IScriptObject
 {

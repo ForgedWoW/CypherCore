@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharFactionChangeResult : ServerPacket
 {

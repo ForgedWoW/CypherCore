@@ -3,7 +3,7 @@
 
 using System.IO;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Maps;
 
 class TileFileOpenResult
 {

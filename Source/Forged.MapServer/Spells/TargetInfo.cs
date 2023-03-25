@@ -4,11 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Spells.Auras;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.Entities;
-using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class TargetInfo : TargetInfoBase
 {

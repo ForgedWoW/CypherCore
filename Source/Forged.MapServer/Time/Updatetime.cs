@@ -2,9 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Framework.Configuration;
 
-namespace Game;
+namespace Forged.MapServer.Time;
 
 public class UpdateTime
 {
@@ -80,13 +79,13 @@ public class UpdateTime
 
 	public void RecordUpdateTimeReset()
 	{
-		_recordedTime = Time.MSTime;
+		_recordedTime = global::Time.MSTime;
 	}
 
 	public void RecordUpdateTimeDuration(string text, uint minUpdateTime)
 	{
-		var thisTime = Time.MSTime;
-		var diff = Time.GetMSTimeDiff(_recordedTime, thisTime);
+		var thisTime = global::Time.MSTime;
+		var diff = global::Time.GetMSTimeDiff(_recordedTime, thisTime);
 
 		if (diff > minUpdateTime)
 			Log.Logger.Information($"Recored Update Time of {text}: {diff}.");
@@ -115,7 +114,7 @@ public class WorldUpdateTime : UpdateTime
 	public void RecordUpdateTime(uint gameTimeMs, uint diff, uint sessionCount)
 	{
 		if (_recordUpdateTimeInverval > 0 && diff > _recordUpdateTimeMin)
-			if (Time.GetMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
+			if (global::Time.GetMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
 			{
 				Log.Logger.Debug($"Update time diff: {GetAverageUpdateTime()}. Players online: {sessionCount}.");
 				_lastRecordTime = gameTimeMs;

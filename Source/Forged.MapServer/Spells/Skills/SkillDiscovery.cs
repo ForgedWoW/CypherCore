@@ -2,14 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Skills;
 
 public class SkillDiscovery
 {
@@ -17,7 +16,7 @@ public class SkillDiscovery
 
 	public static void LoadSkillDiscoveryTable()
 	{
-		var oldMsTime = Time.MSTime;
+		var oldMsTime = global::Time.MSTime;
 
 		SkillDiscoveryStorage.Clear(); // need for reload
 
@@ -130,7 +129,7 @@ public class SkillDiscovery
 				Log.Logger.Error("Spell (ID: {0}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spellEntry.Id);
 		}
 
-		Log.Logger.Information("Loaded {0} skill discovery definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMsTime));
+		Log.Logger.Information("Loaded {0} skill discovery definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public static uint GetExplicitDiscoverySpell(uint spellId, Player player)

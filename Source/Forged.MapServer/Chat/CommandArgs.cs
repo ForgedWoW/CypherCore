@@ -4,12 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 class CommandArgs
 {
@@ -251,7 +254,7 @@ class CommandArgs
 
 						return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserSpellNoExist, tempVal));
 					}
-					case nameof(Quest):
+					case nameof(Quest.Quest):
 					{
 						var result = TryConsume(out var tempVal, typeof(uint), handler, args);
 

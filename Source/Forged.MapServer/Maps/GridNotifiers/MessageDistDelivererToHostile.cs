@@ -2,11 +2,15 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Interfaces;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Interfaces;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifierDynamicObject, IGridNotifierCreature where T : IDoWork<Player>
 {

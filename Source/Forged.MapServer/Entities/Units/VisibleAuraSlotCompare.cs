@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Spells;
+using Forged.MapServer.Spells.Auras;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 class VisibleAuraSlotCompare : IComparer<AuraApplication>
 {

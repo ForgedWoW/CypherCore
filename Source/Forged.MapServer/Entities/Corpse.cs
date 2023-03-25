@@ -3,16 +3,20 @@
 
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Time;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Loots;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class Corpse : WorldObject
 {
@@ -22,7 +26,7 @@ public class Corpse : WorldObject
 
 	public CorpseData CorpseData { get; set; }
 
-	public Loot Loot { get; set; }
+	public Loot.Loot Loot { get; set; }
 	public Player LootRecipient { get; set; }
 
 	public override ObjectGuid OwnerGUID => CorpseData.Owner;
@@ -242,9 +246,9 @@ public class Corpse : WorldObject
 			return true;
 
 		if (_type == CorpseType.Bones)
-			return _time < t - 60 * Time.Minute;
+			return _time < t - 60 * global::Time.Minute;
 		else
-			return _time < t - 3 * Time.Day;
+			return _time < t - 3 * global::Time.Day;
 	}
 
 	public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -364,10 +368,13 @@ public class Corpse : WorldObject
 
 		foreach (var customization in customizations)
 		{
-			var newChoice = new ChrCustomizationChoice();
-			newChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-			newChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-			AddDynamicUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.Customizations), newChoice);
+			var newChoice = new ChrCustomizationChoice
+            {
+                ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
+                ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
+            };
+
+            AddDynamicUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.Customizations), newChoice);
 		}
 	}
 
@@ -396,7 +403,7 @@ public class Corpse : WorldObject
 		_cellCoord = cellCoord;
 	}
 
-	public override Loot GetLootForPlayer(Player player)
+	public override Loot.Loot GetLootForPlayer(Player player)
 	{
 		return Loot;
 	}

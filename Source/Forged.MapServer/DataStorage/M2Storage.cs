@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Forged.MapServer.DataStorage.Structs;
+using Forged.MapServer.DataStorage.Structs.C;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 public class M2Storage
 {
@@ -17,7 +19,7 @@ public class M2Storage
 		FlyByCameraStorage.Clear();
 		Log.Logger.Information("Loading Cinematic Camera files");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		foreach (var cameraEntry in CliDB.CinematicCameraStorage.Values)
 		{
@@ -57,7 +59,7 @@ public class M2Storage
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static List<FlyByCamera> GetFlyByCameras(uint cameraId)
@@ -119,10 +121,13 @@ public class M2Storage
 				var newPos = TranslateLocation(dbcData, cam.target_position_base, targPositions[i].p0);
 
 				// Add to vector
-				FlyByCamera thisCam = new();
-				thisCam.timeStamp = targTimestamps[i];
-				thisCam.locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0.0f);
-				targetcam.Add(thisCam);
+				FlyByCamera thisCam = new()
+                {
+                    timeStamp = targTimestamps[i],
+                    locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0.0f)
+                };
+
+                targetcam.Add(thisCam);
 			}
 		}
 
@@ -152,11 +157,13 @@ public class M2Storage
 				var newPos = TranslateLocation(dbcData, cam.position_base, positions[i].p0);
 
 				// Add to vector
-				FlyByCamera thisCam = new();
-				thisCam.timeStamp = posTimestamps[i];
-				thisCam.locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0);
+				FlyByCamera thisCam = new()
+                {
+                    timeStamp = posTimestamps[i],
+                    locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0)
+                };
 
-				if (targetcam.Count > 0)
+                if (targetcam.Count > 0)
 				{
 					// Find the target camera before and after this camera
 					// Pre-load first item

@@ -6,7 +6,7 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 
-namespace Game.Accounts;
+namespace Forged.MapServer.Accounts;
 
 public class RBACData
 {

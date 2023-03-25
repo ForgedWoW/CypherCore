@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelWinner : ServerPacket
 {

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Scripting.BaseScripts;
+namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class GenericSpellScriptLoader<S> : SpellScriptLoader where S : SpellScript
 {

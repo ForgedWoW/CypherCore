@@ -3,14 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Achievements;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Networking.Packets.Scenario;
 using Framework.Constants;
-using Game.Achievements;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Scenarios;
+namespace Forged.MapServer.Scenarios;
 
 public class Scenario : CriteriaHandler
 {
@@ -355,12 +357,15 @@ public class Scenario : CriteriaHandler
 		if (!_criteriaProgress.Empty())
 			foreach (var pair in _criteriaProgress)
 			{
-				CriteriaProgressPkt criteriaProgress = new();
-				criteriaProgress.Id = pair.Key;
-				criteriaProgress.Quantity = pair.Value.Counter;
-				criteriaProgress.Date = pair.Value.Date;
-				criteriaProgress.Player = pair.Value.PlayerGUID;
-				criteriasProgress.Add(criteriaProgress);
+				CriteriaProgressPkt criteriaProgress = new()
+                {
+                    Id = pair.Key,
+                    Quantity = pair.Value.Counter,
+                    Date = pair.Value.Date,
+                    Player = pair.Value.PlayerGUID
+                };
+
+                criteriasProgress.Add(criteriaProgress);
 			}
 
 		return criteriasProgress;
@@ -368,9 +373,12 @@ public class Scenario : CriteriaHandler
 
 	void SendBootPlayer(Player player)
 	{
-		ScenarioVacate scenarioBoot = new();
-		scenarioBoot.ScenarioID = (int)_data.Entry.Id;
-		player.SendPacket(scenarioBoot);
+		ScenarioVacate scenarioBoot = new()
+        {
+            ScenarioID = (int)_data.Entry.Id
+        };
+
+        player.SendPacket(scenarioBoot);
 	}
 
 	~Scenario()

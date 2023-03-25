@@ -2,11 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Interfaces;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class ResetNotifier : IGridNotifierPlayer, IGridNotifierCreature
 {

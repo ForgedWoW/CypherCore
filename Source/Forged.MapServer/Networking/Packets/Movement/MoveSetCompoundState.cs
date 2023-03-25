@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Movement;
 
 class MoveSetCompoundState : ServerPacket
 {

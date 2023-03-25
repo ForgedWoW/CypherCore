@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using Game.AI;
-using Game.Entities;
-using Game.Scripting.Interfaces.IAreaTriggerEntity;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Scripting.Interfaces.IAreaTriggerEntity;
 
-namespace Game.Scripting.BaseScripts;
+namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class GenericAreaTriggerScript<AI> : ScriptObjectAutoAddDBBound, IAreaTriggerEntityGetAI where AI : AreaTriggerAI
 {

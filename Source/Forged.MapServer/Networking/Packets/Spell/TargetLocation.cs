@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class TargetLocation
 {
@@ -13,11 +13,13 @@ public class TargetLocation
 	public void Read(WorldPacket data)
 	{
 		Transport = data.ReadPackedGuid();
-		Location = new Position();
-		Location.X = data.ReadFloat();
-		Location.Y = data.ReadFloat();
-		Location.Z = data.ReadFloat();
-	}
+		Location = new Position
+        {
+            X = data.ReadFloat(),
+            Y = data.ReadFloat(),
+            Z = data.ReadFloat()
+        };
+    }
 
 	public void Write(WorldPacket data)
 	{

@@ -3,16 +3,21 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Combat;
+using Forged.MapServer.DataStorage.Structs.L;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Collections;
 using Framework.Constants;
-using Game.AI;
-using Game.Combat;
-using Game.DataStorage;
-using Game.Movement;
-using Game.Spells;
-using Game.Spells.Auras;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {

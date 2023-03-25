@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
 
-namespace Game.BlackMarket;
+namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketEntry
 {
@@ -138,8 +140,8 @@ public class BlackMarketEntry
 		_currentBid = bid;
 		++_numBids;
 
-		if (GetSecondsRemaining() < 30 * Time.Minute)
-			_secondsRemaining += 30 * Time.Minute;
+		if (GetSecondsRemaining() < 30 * global::Time.Minute)
+			_secondsRemaining += 30 * global::Time.Minute;
 
 		_bidder = player.GUID.Counter;
 

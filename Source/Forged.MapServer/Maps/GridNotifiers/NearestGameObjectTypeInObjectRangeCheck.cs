@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.GridNotifiers;
 
 class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
 {

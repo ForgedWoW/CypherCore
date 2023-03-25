@@ -4,7 +4,7 @@
 using System.IO;
 using System.Numerics;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs;
 
 public struct M2SplineKey
 {

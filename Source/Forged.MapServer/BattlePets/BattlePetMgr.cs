@@ -4,14 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.BattlePet;
+using Forged.MapServer.Services;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.BattlePets;
+namespace Forged.MapServer.BattlePets;
 
 public class BattlePetMgr
 {
@@ -46,9 +51,12 @@ public class BattlePetMgr
 
 		for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
 		{
-			BattlePetSlot slot = new();
-			slot.Index = i;
-			_slots.Add(slot);
+			BattlePetSlot slot = new()
+            {
+                Index = i
+            };
+
+            _slots.Add(slot);
 		}
 	}
 
@@ -201,11 +209,14 @@ public class BattlePetMgr
 
 					if (!ownerGuid.IsEmpty)
 					{
-						BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new();
-						battlePetOwnerInfo.Guid = ownerGuid;
-						battlePetOwnerInfo.PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
-						battlePetOwnerInfo.PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress;
-						pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
+						BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
+                        {
+                            Guid = ownerGuid,
+                            PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
+                            PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
+                        };
+
+                        pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
 					}
 
 					pet.SaveInfo = BattlePetSaveInfo.Unchanged;
@@ -243,7 +254,7 @@ public class BattlePetMgr
 					case BattlePetSaveInfo.New:
 						stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
 						stmt.AddValue(0, pair.Key);
-						stmt.AddValue(1, _owner.BattlenetAccountId);
+						stmt.AddValue((int)1, (uint)_owner.BattlenetAccountId);
 						stmt.AddValue(2, pair.Value.PacketInfo.Species);
 						stmt.AddValue(3, pair.Value.PacketInfo.Breed);
 						stmt.AddValue(4, pair.Value.PacketInfo.DisplayID);
@@ -292,7 +303,7 @@ public class BattlePetMgr
 						stmt.AddValue(4, pair.Value.PacketInfo.Flags);
 						stmt.AddValue(5, pair.Value.PacketInfo.Name);
 						stmt.AddValue(6, pair.Value.NameTimestamp);
-						stmt.AddValue(7, _owner.BattlenetAccountId);
+						stmt.AddValue((int)7, (uint)_owner.BattlenetAccountId);
 						stmt.AddValue(8, pair.Key);
 						trans.Append(stmt);
 
@@ -320,7 +331,7 @@ public class BattlePetMgr
 						trans.Append(stmt);
 
 						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
-						stmt.AddValue(0, _owner.BattlenetAccountId);
+						stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 						stmt.AddValue(1, pair.Key);
 						trans.Append(stmt);
 						_pets.Remove(pair.Key);
@@ -329,14 +340,14 @@ public class BattlePetMgr
 				}
 
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
-		stmt.AddValue(0, _owner.BattlenetAccountId);
+		stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 		trans.Append(stmt);
 
 		foreach (var slot in _slots)
 		{
 			stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
 			stmt.AddValue(0, slot.Index);
-			stmt.AddValue(1, _owner.BattlenetAccountId);
+			stmt.AddValue((int)1, (uint)_owner.BattlenetAccountId);
 			stmt.AddValue(2, slot.Pet.Guid.Counter);
 			stmt.AddValue(3, slot.Locked);
 			trans.Append(stmt);
@@ -376,11 +387,14 @@ public class BattlePetMgr
 
 		if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
 		{
-			BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new();
-			battlePetOwnerInfo.Guid = player.GUID;
-			battlePetOwnerInfo.PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
-			battlePetOwnerInfo.PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress;
-			pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
+			BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
+            {
+                Guid = player.GUID,
+                PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
+                PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
+            };
+
+            pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
 		}
 
 		pet.SaveInfo = BattlePetSaveInfo.New;
@@ -558,9 +572,12 @@ public class BattlePetMgr
 
 		RemovePet(guid);
 
-		BattlePetDeleted deletePet = new();
-		deletePet.PetGuid = guid;
-		_owner.SendPacket(deletePet);
+		BattlePetDeleted deletePet = new()
+        {
+            PetGuid = guid
+        };
+
+        _owner.SendPacket(deletePet);
 
 		// Battle pet despawns if it's summoned
 		var player = _owner.Player;
@@ -811,11 +828,13 @@ public class BattlePetMgr
 		if (!HasJournalLock)
 			SendJournalLockStatus();
 
-		BattlePetJournal battlePetJournal = new();
-		battlePetJournal.Trap = _trapLevel;
-		battlePetJournal.HasJournalLock = _hasJournalLock;
+		BattlePetJournal battlePetJournal = new()
+        {
+            Trap = _trapLevel,
+            HasJournalLock = _hasJournalLock
+        };
 
-		foreach (var pet in _pets)
+        foreach (var pet in _pets)
 			if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
 				if (!pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == _owner.Player.GUID)
 					battlePetJournal.Pets.Add(pet.Value.PacketInfo);
@@ -826,10 +845,13 @@ public class BattlePetMgr
 
 	public void SendError(BattlePetError error, uint creatureId)
 	{
-		BattlePetErrorPacket battlePetError = new();
-		battlePetError.Result = error;
-		battlePetError.CreatureID = creatureId;
-		_owner.SendPacket(battlePetError);
+		BattlePetErrorPacket battlePetError = new()
+        {
+            Result = error,
+            CreatureID = creatureId
+        };
+
+        _owner.SendPacket(battlePetError);
 	}
 
 	public void SendJournalLockStatus()

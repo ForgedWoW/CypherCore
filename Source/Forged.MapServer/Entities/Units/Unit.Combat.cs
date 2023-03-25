@@ -4,17 +4,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Combat;
+using Forged.MapServer.DataStorage.Structs.D;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Networking.Packets.CombatLog;
+using Forged.MapServer.Networking.Packets.Party;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Scripting.Interfaces.IUnit;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Combat;
-using Game.DataStorage;
-using Game.Groups;
-using Game.Loots;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IUnit;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public partial class Unit
 {
@@ -477,10 +484,13 @@ public partial class Unit
 
 	public void SendMeleeAttackStart(Unit victim)
 	{
-		AttackStart packet = new();
-		packet.Attacker = GUID;
-		packet.Victim = victim.GUID;
-		SendMessageToSet(packet, true);
+		AttackStart packet = new()
+        {
+            Attacker = GUID,
+            Victim = victim.GUID
+        };
+
+        SendMessageToSet(packet, true);
 	}
 
 	public void SendMeleeAttackStop(Unit victim = null)
@@ -731,38 +741,47 @@ public partial class Unit
 
 	public void SendAttackStateUpdate(HitInfo HitInfo, Unit target, SpellSchoolMask damageSchoolMask, double Damage, double AbsorbDamage, double Resist, VictimState TargetState, uint BlockedAmount)
 	{
-		CalcDamageInfo dmgInfo = new();
-		dmgInfo.HitInfo = HitInfo;
-		dmgInfo.Attacker = this;
-		dmgInfo.Target = target;
-		dmgInfo.Damage = Damage - AbsorbDamage - Resist - BlockedAmount;
-		dmgInfo.OriginalDamage = Damage;
-		dmgInfo.DamageSchoolMask = (uint)damageSchoolMask;
-		dmgInfo.Absorb = AbsorbDamage;
-		dmgInfo.Resist = Resist;
-		dmgInfo.TargetState = TargetState;
-		dmgInfo.Blocked = BlockedAmount;
-		SendAttackStateUpdate(dmgInfo);
+		CalcDamageInfo dmgInfo = new()
+        {
+            HitInfo = HitInfo,
+            Attacker = this,
+            Target = target,
+            Damage = Damage - AbsorbDamage - Resist - BlockedAmount,
+            OriginalDamage = Damage,
+            DamageSchoolMask = (uint)damageSchoolMask,
+            Absorb = AbsorbDamage,
+            Resist = Resist,
+            TargetState = TargetState,
+            Blocked = BlockedAmount
+        };
+
+        SendAttackStateUpdate(dmgInfo);
 	}
 
 	public void SendAttackStateUpdate(CalcDamageInfo damageInfo)
 	{
-		AttackerStateUpdate packet = new();
-		packet.hitInfo = damageInfo.HitInfo;
-		packet.AttackerGUID = damageInfo.Attacker.GUID;
-		packet.VictimGUID = damageInfo.Target.GUID;
-		packet.Damage = (int)damageInfo.Damage;
-		packet.OriginalDamage = (int)damageInfo.OriginalDamage;
-		var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
+		AttackerStateUpdate packet = new()
+        {
+            hitInfo = damageInfo.HitInfo,
+            AttackerGUID = damageInfo.Attacker.GUID,
+            VictimGUID = damageInfo.Target.GUID,
+            Damage = (int)damageInfo.Damage,
+            OriginalDamage = (int)damageInfo.OriginalDamage
+        };
+
+        var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
 		packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
-		SubDamage subDmg = new();
-		subDmg.SchoolMask = (int)damageInfo.DamageSchoolMask; // School of sub damage
-		subDmg.FDamage = (float)damageInfo.Damage;            // sub damage
-		subDmg.Damage = (int)damageInfo.Damage;               // Sub Damage
-		subDmg.Absorbed = (int)damageInfo.Absorb;
-		subDmg.Resisted = (int)damageInfo.Resist;
-		packet.SubDmg = subDmg;
+		SubDamage subDmg = new()
+        {
+            SchoolMask = (int)damageInfo.DamageSchoolMask, // School of sub damage
+            FDamage = (float)damageInfo.Damage,            // sub damage
+            Damage = (int)damageInfo.Damage,               // Sub Damage
+            Absorbed = (int)damageInfo.Absorb,
+            Resisted = (int)damageInfo.Resist
+        };
+
+        packet.SubDmg = subDmg;
 
 		packet.VictimState = (byte)damageInfo.TargetState;
 		packet.BlockAmount = (int)damageInfo.Blocked;
@@ -855,10 +874,13 @@ public partial class Unit
 				{
 					if (groups.Add(tapperGroup))
 					{
-						PartyKillLog partyKillLog = new();
-						partyKillLog.Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID;
-						partyKillLog.Victim = victim.GUID;
-						partyKillLog.Write();
+						PartyKillLog partyKillLog = new()
+                        {
+                            Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID,
+                            Victim = victim.GUID
+                        };
+
+                        partyKillLog.Write();
 
 						tapperGroup.BroadcastPacket(partyKillLog, tapperGroup.GetMemberGroup(tapper.GUID) != 0);
 
@@ -868,10 +890,13 @@ public partial class Unit
 				}
 				else
 				{
-					PartyKillLog partyKillLog = new();
-					partyKillLog.Player = tapper.GUID;
-					partyKillLog.Victim = victim.GUID;
-					tapper.SendPacket(partyKillLog);
+					PartyKillLog partyKillLog = new()
+                    {
+                        Player = tapper.GUID,
+                        Victim = victim.GUID
+                    };
+
+                    tapper.SendPacket(partyKillLog);
 				}
 			}
 
@@ -904,7 +929,7 @@ public partial class Unit
 						var group = !groups.Empty() ? groups.First() : null;
 						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
-						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
+						Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
 						var lootid = creature.LootId;
 
@@ -930,7 +955,7 @@ public partial class Unit
 				{
 					foreach (var tapper in tappers)
 					{
-						Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
+						Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
 
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);
@@ -1410,28 +1435,26 @@ public partial class Unit
 	// TODO for melee need create structure as in
 	void CalculateMeleeDamage(Unit victim, out CalcDamageInfo damageInfo, WeaponAttackType attackType)
 	{
-		damageInfo = new CalcDamageInfo();
+		damageInfo = new CalcDamageInfo
+        {
+            Attacker = this,
+            Target = victim,
+            DamageSchoolMask = (uint)SpellSchoolMask.Normal,
+            Damage = 0,
+            OriginalDamage = 0,
+            Absorb = 0,
+            Resist = 0,
+            Blocked = 0,
+            HitInfo = 0,
+            TargetState = 0,
+            AttackType = attackType,
+            ProcAttacker = new ProcFlagsInit(),
+            ProcVictim = new ProcFlagsInit(),
+            CleanDamage = 0,
+            HitOutCome = MeleeHitOutcome.Evade
+        };
 
-		damageInfo.Attacker = this;
-		damageInfo.Target = victim;
-
-		damageInfo.DamageSchoolMask = (uint)SpellSchoolMask.Normal;
-		damageInfo.Damage = 0;
-		damageInfo.OriginalDamage = 0;
-		damageInfo.Absorb = 0;
-		damageInfo.Resist = 0;
-
-		damageInfo.Blocked = 0;
-		damageInfo.HitInfo = 0;
-		damageInfo.TargetState = 0;
-
-		damageInfo.AttackType = attackType;
-		damageInfo.ProcAttacker = new ProcFlagsInit();
-		damageInfo.ProcVictim = new ProcFlagsInit();
-		damageInfo.CleanDamage = 0;
-		damageInfo.HitOutCome = MeleeHitOutcome.Evade;
-
-		if (victim == null)
+        if (victim == null)
 			return;
 
 		if (!IsAlive || !victim.IsAlive)

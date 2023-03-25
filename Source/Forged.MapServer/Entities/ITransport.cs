@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
 using Framework.Constants;
-using Game.Maps;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public interface ITransport
 {

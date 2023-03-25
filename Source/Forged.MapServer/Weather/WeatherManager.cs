@@ -2,9 +2,8 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Database;
 
-namespace Game;
+namespace Forged.MapServer.Weather;
 
 public class WeatherManager : Singleton<WeatherManager>
 {
@@ -13,7 +12,7 @@ public class WeatherManager : Singleton<WeatherManager>
 
 	public void LoadWeatherData()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		uint count = 0;
 
@@ -64,7 +63,7 @@ public class WeatherManager : Singleton<WeatherManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} weather definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} weather definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public WeatherData GetWeatherData(uint zoneId)

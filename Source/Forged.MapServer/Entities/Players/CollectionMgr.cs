@@ -5,12 +5,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.H;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Transmogification;
+using Forged.MapServer.Services;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class CollectionMgr
 {
@@ -50,7 +57,7 @@ public class CollectionMgr
 
 	public static void LoadMountDefinitions()
 	{
-		var oldMsTime = Time.MSTime;
+		var oldMsTime = global::Time.MSTime;
 
 		var result = DB.World.Query("SELECT spellId, otherFactionSpellId FROM mount_definitions");
 
@@ -83,7 +90,7 @@ public class CollectionMgr
 			FactionSpecificMounts[spellId] = otherFactionSpellId;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, Time.GetMSTimeDiffToNow(oldMsTime));
+		Log.Logger.Information("Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, global::Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public void LoadToys()
@@ -123,7 +130,7 @@ public class CollectionMgr
 		foreach (var pair in _toys)
 		{
 			stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
-			stmt.AddValue(0, _owner.BattlenetAccountId);
+			stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.HasAnyFlag(ToyFlags.Favorite));
 			stmt.AddValue(3, pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
@@ -194,7 +201,7 @@ public class CollectionMgr
 		foreach (var heirloom in _heirlooms)
 		{
 			stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
-			stmt.AddValue(0, _owner.BattlenetAccountId);
+			stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 			stmt.AddValue(1, heirloom.Key);
 			stmt.AddValue(2, (uint)heirloom.Value.Flags);
 			trans.Append(stmt);
@@ -491,7 +498,7 @@ public class CollectionMgr
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
 				stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_APPEARANCES);
-				stmt.AddValue(0, _owner.BattlenetAccountId);
+				stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);
 				trans.Append(stmt);
@@ -508,7 +515,7 @@ public class CollectionMgr
 			{
 				case FavoriteAppearanceState.New:
 					stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_FAVORITE_APPEARANCE);
-					stmt.AddValue(0, _owner.BattlenetAccountId);
+					stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
 					_favoriteAppearances[key] = FavoriteAppearanceState.Unchanged;
@@ -516,7 +523,7 @@ public class CollectionMgr
 					break;
 				case FavoriteAppearanceState.Removed:
 					stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
-					stmt.AddValue(0, _owner.BattlenetAccountId);
+					stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
 					_favoriteAppearances.Remove(key);
@@ -632,20 +639,25 @@ public class CollectionMgr
 
 		_favoriteAppearances[itemModifiedAppearanceId] = apperanceState;
 
-		AccountTransmogUpdate accountTransmogUpdate = new();
-		accountTransmogUpdate.IsFullUpdate = false;
-		accountTransmogUpdate.IsSetFavorite = apply;
-		accountTransmogUpdate.FavoriteAppearances.Add(itemModifiedAppearanceId);
+		AccountTransmogUpdate accountTransmogUpdate = new()
+        {
+            IsFullUpdate = false,
+            IsSetFavorite = apply
+        };
+
+        accountTransmogUpdate.FavoriteAppearances.Add(itemModifiedAppearanceId);
 
 		_owner.SendPacket(accountTransmogUpdate);
 	}
 
 	public void SendFavoriteAppearances()
 	{
-		AccountTransmogUpdate accountTransmogUpdate = new();
-		accountTransmogUpdate.IsFullUpdate = true;
+		AccountTransmogUpdate accountTransmogUpdate = new()
+        {
+            IsFullUpdate = true
+        };
 
-		foreach (var pair in _favoriteAppearances)
+        foreach (var pair in _favoriteAppearances)
 			if (pair.Value != FavoriteAppearanceState.Removed)
 				accountTransmogUpdate.FavoriteAppearances.Add(pair.Key);
 
@@ -816,9 +828,12 @@ public class CollectionMgr
 		if (!player)
 			return;
 
-		AccountMountUpdate mountUpdate = new();
-		mountUpdate.IsFullUpdate = false;
-		mountUpdate.Mounts.Add(spellId, mountStatusFlags);
+		AccountMountUpdate mountUpdate = new()
+        {
+            IsFullUpdate = false
+        };
+
+        mountUpdate.Mounts.Add(spellId, mountStatusFlags);
 		player.SendPacket(mountUpdate);
 	}
 
@@ -851,7 +866,7 @@ public class CollectionMgr
 		{
 			case ItemClass.Weapon:
 			{
-				if (!Convert.ToBoolean(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.SubClass)))
+				if (!Convert.ToBoolean((long)(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.SubClass))))
 					return false;
 
 				if (itemTemplate.SubClass == (int)ItemSubClassWeapon.Exotic ||

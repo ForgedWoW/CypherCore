@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class GameTable<T> where T : new()
 {

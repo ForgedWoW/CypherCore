@@ -3,12 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 using InstanceLockKey = Tuple<uint, uint>;
 
@@ -34,12 +36,14 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			{
 				var instanceId = result.Read<uint>(0);
 
-				SharedInstanceLockData data = new();
-				data.Data = result.Read<string>(1);
-				data.CompletedEncountersMask = result.Read<uint>(2);
-				data.InstanceId = instanceId;
+				SharedInstanceLockData data = new()
+                {
+                    Data = result.Read<string>(1),
+                    CompletedEncountersMask = result.Read<uint>(2),
+                    InstanceId = instanceId
+                };
 
-				instanceLockDataById[instanceId] = data;
+                instanceLockDataById[instanceId] = data;
 			} while (result.NextRow());
 
 		//                                                  0     1      2       3           4           5     6                        7           8
@@ -53,7 +57,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 				var lockId = lockResult.Read<uint>(2);
 				var instanceId = lockResult.Read<uint>(3);
 				var difficulty = (Difficulty)lockResult.Read<byte>(4);
-				var expiryTime = Time.UnixTimeToDateTime(lockResult.Read<long>(7));
+				var expiryTime = global::Time.UnixTimeToDateTime(lockResult.Read<long>(7));
 
 				// Mark instance id as being used
 				Global.MapMgr.RegisterInstanceId(instanceId);
@@ -309,7 +313,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 		stmt.AddValue(5, instanceLock.GetData().Data);
 		stmt.AddValue(6, instanceLock.GetData().CompletedEncountersMask);
 		stmt.AddValue(7, instanceLock.GetData().EntranceWorldSafeLocId);
-		stmt.AddValue(8, (ulong)Time.DateTimeToUnixTime(instanceLock.GetExpiryTime()));
+		stmt.AddValue(8, (ulong)global::Time.DateTimeToUnixTime(instanceLock.GetExpiryTime()));
 		stmt.AddValue(9, instanceLock.IsExtended() ? 1 : 0);
 		trans.Append(stmt);
 
@@ -426,7 +430,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 				instanceLock.SetExtended(false);
 
 				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_INSTANCE_LOCK_FORCE_EXPIRE);
-				stmt.AddValue(0, (ulong)Time.DateTimeToUnixTime(newExpiryTime));
+				stmt.AddValue(0, (ulong)global::Time.DateTimeToUnixTime(newExpiryTime));
 				stmt.AddValue(1, playerGuid.Counter);
 				stmt.AddValue(2, entries.MapDifficulty.MapID);
 				stmt.AddValue(3, entries.MapDifficulty.LockID);

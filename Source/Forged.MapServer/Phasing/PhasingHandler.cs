@@ -5,16 +5,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Party;
 using Framework.Constants;
-using Game.Chat;
-using Game.Conditions;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 public class PhasingHandler
 {
@@ -339,12 +342,17 @@ public class PhasingHandler
 
 	public static void SendToPlayer(Player player, PhaseShift phaseShift)
 	{
-		PhaseShiftChange phaseShiftChange = new();
-		phaseShiftChange.Client = player.GUID;
-		phaseShiftChange.Phaseshift.PhaseShiftFlags = (uint)phaseShift.Flags;
-		phaseShiftChange.Phaseshift.PersonalGUID = phaseShift.PersonalGuid;
+		PhaseShiftChange phaseShiftChange = new()
+        {
+            Client = player.GUID,
+            Phaseshift =
+            {
+                PhaseShiftFlags = (uint)phaseShift.Flags,
+                PersonalGUID = phaseShift.PersonalGuid
+            }
+        };
 
-		foreach (var pair in phaseShift.Phases)
+        foreach (var pair in phaseShift.Phases)
 			phaseShiftChange.Phaseshift.Phases.Add(new PhaseShiftDataPhase((uint)pair.Value.Flags, pair.Key));
 
 		foreach (var visibleMapId in phaseShift.VisibleMapIds)

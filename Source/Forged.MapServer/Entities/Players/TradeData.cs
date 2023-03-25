@@ -1,10 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Trade;
 using Framework.Constants;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public class TradeData
 {
@@ -115,10 +117,13 @@ public class TradeData
 
 		if (!_player.HasEnoughMoney(money))
 		{
-			TradeStatusPkt info = new();
-			info.Status = TradeStatus.Failed;
-			info.BagResult = InventoryResult.NotEnoughMoney;
-			_player.Session.SendTradeStatus(info);
+			TradeStatusPkt info = new()
+            {
+                Status = TradeStatus.Failed,
+                BagResult = InventoryResult.NotEnoughMoney
+            };
+
+            _player.Session.SendTradeStatus(info);
 
 			return;
 		}
@@ -139,10 +144,12 @@ public class TradeData
 
 		if (!state)
 		{
-			TradeStatusPkt info = new();
-			info.Status = TradeStatus.Unaccepted;
+			TradeStatusPkt info = new()
+            {
+                Status = TradeStatus.Unaccepted
+            };
 
-			if (crosssend)
+            if (crosssend)
 				_trader.Session.SendTradeStatus(info);
 			else
 				_player.Session.SendTradeStatus(info);

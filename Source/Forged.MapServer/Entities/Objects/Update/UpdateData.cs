@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Update;
 using Framework.IO;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateData
 {
@@ -44,12 +44,13 @@ public class UpdateData
 
 	public bool BuildPacket(out UpdateObject packet)
 	{
-		packet = new UpdateObject();
+		packet = new UpdateObject
+        {
+            NumObjUpdates = _blockCount,
+            MapID = (ushort)_mapId
+        };
 
-		packet.NumObjUpdates = _blockCount;
-		packet.MapID = (ushort)_mapId;
-
-		WorldPacket buffer = new();
+        WorldPacket buffer = new();
 
 		if (buffer.WriteBit(!_outOfRangeGUIDs.Empty() || !_destroyGUIDs.Empty()))
 		{

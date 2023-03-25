@@ -3,7 +3,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 [StructLayout(LayoutKind.Sequential)]
 public class ItemDynamicFieldGems

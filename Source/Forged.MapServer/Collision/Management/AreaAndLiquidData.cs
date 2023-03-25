@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Management;
 
 public class AreaAndLiquidData
 {

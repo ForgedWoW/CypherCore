@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 class PersonalPhaseSpawns
 {

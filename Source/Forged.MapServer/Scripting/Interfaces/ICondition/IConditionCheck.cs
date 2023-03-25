@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Conditions;
+using Forged.MapServer.Conditions;
 
-namespace Game.Scripting.Interfaces.ICondition;
+namespace Forged.MapServer.Scripting.Interfaces.ICondition;
 
 public interface IConditionCheck : IScriptObject
 {

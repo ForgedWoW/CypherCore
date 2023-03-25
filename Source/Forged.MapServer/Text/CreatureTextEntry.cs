@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game;
+namespace Forged.MapServer.Text;
 
 public class CreatureTextEntry
 {

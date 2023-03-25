@@ -2,15 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.Trade;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Spells;
 using Serilog;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -26,37 +29,43 @@ public partial class WorldSession
 	{
 		var view_trade = trader_data ? Player.GetTradeData().GetTraderData() : Player.GetTradeData();
 
-		TradeUpdated tradeUpdated = new();
-		tradeUpdated.WhichPlayer = (byte)(trader_data ? 1 : 0);
-		tradeUpdated.ClientStateIndex = view_trade.GetClientStateIndex();
-		tradeUpdated.CurrentStateIndex = view_trade.GetServerStateIndex();
-		tradeUpdated.Gold = view_trade.GetMoney();
-		tradeUpdated.ProposedEnchantment = (int)view_trade.GetSpell();
+		TradeUpdated tradeUpdated = new()
+        {
+            WhichPlayer = (byte)(trader_data ? 1 : 0),
+            ClientStateIndex = view_trade.GetClientStateIndex(),
+            CurrentStateIndex = view_trade.GetServerStateIndex(),
+            Gold = view_trade.GetMoney(),
+            ProposedEnchantment = (int)view_trade.GetSpell()
+        };
 
-		for (byte i = 0; i < (byte)TradeSlots.Count; ++i)
+        for (byte i = 0; i < (byte)TradeSlots.Count; ++i)
 		{
 			var item = view_trade.GetItem((TradeSlots)i);
 
 			if (item)
 			{
-				TradeUpdated.TradeItem tradeItem = new();
-				tradeItem.Slot = i;
-				tradeItem.Item = new ItemInstance(item);
-				tradeItem.StackCount = (int)item.Count;
-				tradeItem.GiftCreator = item.GiftCreator;
+				TradeUpdated.TradeItem tradeItem = new()
+                {
+                    Slot = i,
+                    Item = new ItemInstance(item),
+                    StackCount = (int)item.Count,
+                    GiftCreator = item.GiftCreator
+                };
 
-				if (!item.IsWrapped)
+                if (!item.IsWrapped)
 				{
-					TradeUpdated.UnwrappedTradeItem unwrappedItem = new();
-					unwrappedItem.EnchantID = (int)item.GetEnchantmentId(EnchantmentSlot.Perm);
-					unwrappedItem.OnUseEnchantmentID = (int)item.GetEnchantmentId(EnchantmentSlot.Use);
-					unwrappedItem.Creator = item.Creator;
-					unwrappedItem.Charges = item.GetSpellCharges();
-					unwrappedItem.Lock = item.Template.LockID != 0 && !item.HasItemFlag(ItemFieldFlags.Unlocked);
-					unwrappedItem.MaxDurability = item.ItemData.MaxDurability;
-					unwrappedItem.Durability = item.ItemData.Durability;
+					TradeUpdated.UnwrappedTradeItem unwrappedItem = new()
+                    {
+                        EnchantID = (int)item.GetEnchantmentId(EnchantmentSlot.Perm),
+                        OnUseEnchantmentID = (int)item.GetEnchantmentId(EnchantmentSlot.Use),
+                        Creator = item.Creator,
+                        Charges = item.GetSpellCharges(),
+                        Lock = item.Template.LockID != 0 && !item.HasItemFlag(ItemFieldFlags.Unlocked),
+                        MaxDurability = item.ItemData.MaxDurability,
+                        Durability = item.ItemData.Durability
+                    };
 
-					tradeItem.Unwrapped = unwrappedItem;
+                    tradeItem.Unwrapped = unwrappedItem;
 
 					byte g = 0;
 
@@ -64,10 +73,13 @@ public partial class WorldSession
 					{
 						if (gemData.ItemId != 0)
 						{
-							ItemGemData gem = new();
-							gem.Slot = g;
-							gem.Item = new ItemInstance(gemData);
-							tradeItem.Unwrapped.Gems.Add(gem);
+							ItemGemData gem = new()
+                            {
+                                Slot = g,
+                                Item = new ItemInstance(gemData)
+                            };
+
+                            tradeItem.Unwrapped.Gems.Add(gem);
 						}
 
 						++g;
@@ -86,9 +98,12 @@ public partial class WorldSession
 		if (PlayerRecentlyLoggedOut || PlayerLogout)
 			return;
 
-		TradeStatusPkt info = new();
-		info.Status = TradeStatus.Cancelled;
-		SendTradeStatus(info);
+		TradeStatusPkt info = new()
+        {
+            Status = TradeStatus.Cancelled
+        };
+
+        SendTradeStatus(info);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.IgnoreTrade)]

@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemBonusKey : IEquatable<ItemBonusKey>
 {

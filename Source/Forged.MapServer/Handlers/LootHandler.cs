@@ -2,21 +2,24 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Common.Loot;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Loots;
-using Game.Maps;
-using Game.Spells;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Loot;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
-	public void DoLootRelease(Loot loot)
+	public void DoLootRelease(Loot.Loot loot)
 	{
 		var lguid = loot.GetOwnerGUID();
 		var player = Player;
@@ -280,7 +283,7 @@ public partial class WorldSession
 			}
 			else
 			{
-				var goldMod = MathFunctions.CalculatePct(loot.gold, player.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
+				var goldMod = MathFunctions.CalculatePct((uint)loot.gold, (double)player.GetTotalAuraModifierByMiscValue(AuraType.ModMoneyGain, 1));
 
 				player.ModifyMoney((long)(loot.gold + goldMod));
 				player.UpdateCriteria(CriteriaType.MoneyLootedFromCreatures, loot.gold);

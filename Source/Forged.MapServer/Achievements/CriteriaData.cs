@@ -3,13 +3,15 @@
 
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Scripting.Interfaces.IAchievement;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting.Interfaces.IAchievement;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 [StructLayout(LayoutKind.Explicit)]
 public class CriteriaData

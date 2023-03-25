@@ -5,7 +5,7 @@ using System;
 using System.Numerics;
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.NPC;
 
 class GossipPOI : ServerPacket
 {

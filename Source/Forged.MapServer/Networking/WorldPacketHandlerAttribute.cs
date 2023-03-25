@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public sealed class WorldPacketHandlerAttribute : Attribute

@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Maps.Grids;
+namespace Forged.MapServer.Maps.Grids;
 
 public struct MapHeightHeader
 {

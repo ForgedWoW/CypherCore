@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Bpay;
+namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class PurchaseListResponse : ServerPacket
 {

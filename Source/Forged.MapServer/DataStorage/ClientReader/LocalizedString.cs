@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class LocalizedString
 {

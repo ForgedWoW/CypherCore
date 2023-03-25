@@ -3,6 +3,6 @@
 
 using Framework.IO;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 public delegate bool HandleCommandDelegate(CommandHandler handler, StringArguments args);

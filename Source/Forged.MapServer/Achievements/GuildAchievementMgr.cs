@@ -4,17 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Achievements;
+using Forged.MapServer.Scripting.Interfaces.IAchievement;
+using Forged.MapServer.Time;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Guilds;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IAchievement;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class GuildAchievementMgr : AchievementManager
 {
@@ -33,11 +36,14 @@ public class GuildAchievementMgr : AchievementManager
 
 		foreach (var iter in _completedAchievements)
 		{
-			GuildAchievementDeleted guildAchievementDeleted = new();
-			guildAchievementDeleted.AchievementID = iter.Key;
-			guildAchievementDeleted.GuildGUID = guid;
-			guildAchievementDeleted.TimeDeleted = GameTime.GetGameTime();
-			SendPacket(guildAchievementDeleted);
+			GuildAchievementDeleted guildAchievementDeleted = new()
+            {
+                AchievementID = iter.Key,
+                GuildGUID = guid,
+                TimeDeleted = GameTime.GetGameTime()
+            };
+
+            SendPacket(guildAchievementDeleted);
 		}
 
 		_achievementPoints = 0;
@@ -117,13 +123,15 @@ public class GuildAchievementMgr : AchievementManager
 				if (criteria.Entry.StartTimer != 0 && date + criteria.Entry.StartTimer < now)
 					continue;
 
-				CriteriaProgress progress = new();
-				progress.Counter = counter;
-				progress.Date = date;
-				progress.PlayerGUID = ObjectGuid.Create(HighGuid.Player, guidLow);
-				progress.Changed = false;
+				CriteriaProgress progress = new()
+                {
+                    Counter = counter,
+                    Date = date,
+                    PlayerGUID = ObjectGuid.Create(HighGuid.Player, guidLow),
+                    Changed = false
+                };
 
-				_criteriaProgress[id] = progress;
+                _criteriaProgress[id] = progress;
 			} while (criteriaResult.NextRow());
 		}
 	}
@@ -188,10 +196,13 @@ public class GuildAchievementMgr : AchievementManager
 			if (achievement == null)
 				continue;
 
-			EarnedAchievement earned = new();
-			earned.Id = pair.Key;
-			earned.Date = pair.Value.Date;
-			allGuildAchievements.Earned.Add(earned);
+			EarnedAchievement earned = new()
+            {
+                Id = pair.Key,
+                Date = pair.Value.Date
+            };
+
+            allGuildAchievements.Earned.Add(earned);
 		}
 
 		receiver.SendPacket(allGuildAchievements);
@@ -216,16 +227,18 @@ public class GuildAchievementMgr : AchievementManager
 
 														if (progress != null)
 														{
-															GuildCriteriaProgress guildCriteriaProgress = new();
-															guildCriteriaProgress.CriteriaID = node.Criteria.Id;
-															guildCriteriaProgress.DateCreated = 0;
-															guildCriteriaProgress.DateStarted = 0;
-															guildCriteriaProgress.DateUpdated = progress.Date;
-															guildCriteriaProgress.Quantity = progress.Counter;
-															guildCriteriaProgress.PlayerGUID = progress.PlayerGUID;
-															guildCriteriaProgress.Flags = 0;
+															GuildCriteriaProgress guildCriteriaProgress = new()
+                                                            {
+                                                                CriteriaID = node.Criteria.Id,
+                                                                DateCreated = 0,
+                                                                DateStarted = 0,
+                                                                DateUpdated = progress.Date,
+                                                                Quantity = progress.Counter,
+                                                                PlayerGUID = progress.PlayerGUID,
+                                                                Flags = 0
+                                                            };
 
-															guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
+                                                            guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
 														}
 													}
 												});
@@ -245,16 +258,18 @@ public class GuildAchievementMgr : AchievementManager
 			if (progress == null)
 				continue;
 
-			GuildCriteriaProgress guildCriteriaProgress = new();
-			guildCriteriaProgress.CriteriaID = criteriaId;
-			guildCriteriaProgress.DateCreated = 0;
-			guildCriteriaProgress.DateStarted = 0;
-			guildCriteriaProgress.DateUpdated = progress.Date;
-			guildCriteriaProgress.Quantity = progress.Counter;
-			guildCriteriaProgress.PlayerGUID = progress.PlayerGUID;
-			guildCriteriaProgress.Flags = 0;
+			GuildCriteriaProgress guildCriteriaProgress = new()
+            {
+                CriteriaID = criteriaId,
+                DateCreated = 0,
+                DateStarted = 0,
+                DateUpdated = progress.Date,
+                Quantity = progress.Counter,
+                PlayerGUID = progress.PlayerGUID,
+                Flags = 0
+            };
 
-			guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
+            guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
 		}
 
 		receiver.SendPacket(guildCriteriaUpdate);
@@ -266,11 +281,13 @@ public class GuildAchievementMgr : AchievementManager
 
 		if (achievementData != null)
 		{
-			GuildAchievementMembers guildAchievementMembers = new();
-			guildAchievementMembers.GuildGUID = _owner.GetGUID();
-			guildAchievementMembers.AchievementID = achievementId;
+			GuildAchievementMembers guildAchievementMembers = new()
+            {
+                GuildGUID = _owner.GetGUID(),
+                AchievementID = achievementId
+            };
 
-			foreach (var guid in achievementData.CompletingPlayers)
+            foreach (var guid in achievementData.CompletingPlayers)
 				guildAchievementMembers.Member.Add(guid);
 
 			receiver.SendPacket(guildAchievementMembers);
@@ -293,11 +310,13 @@ public class GuildAchievementMgr : AchievementManager
 		}
 
 		SendAchievementEarned(achievement);
-		CompletedAchievementData ca = new();
-		ca.Date = GameTime.GetGameTime();
-		ca.Changed = true;
+		CompletedAchievementData ca = new()
+        {
+            Date = GameTime.GetGameTime(),
+            Changed = true
+        };
 
-		if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowGuildMembers))
+        if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowGuildMembers))
 		{
 			if (referencePlayer.GuildId == _owner.GetId())
 				ca.CompletingPlayers.Add(referencePlayer.GUID);
@@ -333,26 +352,31 @@ public class GuildAchievementMgr : AchievementManager
 	{
 		GuildCriteriaUpdate guildCriteriaUpdate = new();
 
-		GuildCriteriaProgress guildCriteriaProgress = new();
-		guildCriteriaProgress.CriteriaID = entry.Id;
-		guildCriteriaProgress.DateCreated = 0;
-		guildCriteriaProgress.DateStarted = 0;
-		guildCriteriaProgress.DateUpdated = progress.Date;
-		guildCriteriaProgress.Quantity = progress.Counter;
-		guildCriteriaProgress.PlayerGUID = progress.PlayerGUID;
-		guildCriteriaProgress.Flags = 0;
+		GuildCriteriaProgress guildCriteriaProgress = new()
+        {
+            CriteriaID = entry.Id,
+            DateCreated = 0,
+            DateStarted = 0,
+            DateUpdated = progress.Date,
+            Quantity = progress.Counter,
+            PlayerGUID = progress.PlayerGUID,
+            Flags = 0
+        };
 
-		guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
+        guildCriteriaUpdate.Progress.Add(guildCriteriaProgress);
 
 		_owner.BroadcastPacketIfTrackingAchievement(guildCriteriaUpdate, entry.Id);
 	}
 
 	public override void SendCriteriaProgressRemoved(uint criteriaId)
 	{
-		GuildCriteriaDeleted guildCriteriaDeleted = new();
-		guildCriteriaDeleted.GuildGUID = _owner.GetGUID();
-		guildCriteriaDeleted.CriteriaID = criteriaId;
-		SendPacket(guildCriteriaDeleted);
+		GuildCriteriaDeleted guildCriteriaDeleted = new()
+        {
+            GuildGUID = _owner.GetGUID(),
+            CriteriaID = criteriaId
+        };
+
+        SendPacket(guildCriteriaDeleted);
 	}
 
 	public override void SendPacket(ServerPacket data)
@@ -375,18 +399,24 @@ public class GuildAchievementMgr : AchievementManager
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 		{
 			// broadcast realm first reached
-			BroadcastAchievement serverFirstAchievement = new();
-			serverFirstAchievement.Name = _owner.GetName();
-			serverFirstAchievement.PlayerGUID = _owner.GetGUID();
-			serverFirstAchievement.AchievementID = achievement.Id;
-			serverFirstAchievement.GuildAchievement = true;
-			Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
+			BroadcastAchievement serverFirstAchievement = new()
+            {
+                Name = _owner.GetName(),
+                PlayerGUID = _owner.GetGUID(),
+                AchievementID = achievement.Id,
+                GuildAchievement = true
+            };
+
+            Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
 		}
 
-		GuildAchievementEarned guildAchievementEarned = new();
-		guildAchievementEarned.AchievementID = achievement.Id;
-		guildAchievementEarned.GuildGUID = _owner.GetGUID();
-		guildAchievementEarned.TimeEarned = GameTime.GetGameTime();
-		SendPacket(guildAchievementEarned);
+		GuildAchievementEarned guildAchievementEarned = new()
+        {
+            AchievementID = achievement.Id,
+            GuildGUID = _owner.GetGUID(),
+            TimeEarned = GameTime.GetGameTime()
+        };
+
+        SendPacket(guildAchievementEarned);
 	}
 }

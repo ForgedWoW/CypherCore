@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.Structs.T;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game;
+namespace Forged.MapServer.Spells;
 
 class Node
 {

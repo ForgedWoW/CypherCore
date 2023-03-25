@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Groups;
 using Framework.Constants;
-using Game.Groups;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Party;
 
 class RaidMarkersChanged : ServerPacket
 {

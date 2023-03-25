@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Scripting.Interfaces.ISpell;
+namespace Forged.MapServer.Scripting.Interfaces.ISpell;
 
 public interface ISpellObjectAreaTargetSelect : ITargetHookHandler
 {

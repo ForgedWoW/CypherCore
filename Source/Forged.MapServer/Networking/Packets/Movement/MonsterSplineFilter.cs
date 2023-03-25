@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Movement;
 
 public class MonsterSplineFilter
 {

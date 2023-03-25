@@ -2,11 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps.Instances;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.ScriptedAI;
 
 public class BossAI : ScriptedAI
 {

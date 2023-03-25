@@ -7,14 +7,37 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks.Dataflow;
 using Autofac;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.D;
+using Forged.MapServer.DataStorage.Structs.E;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.DataStorage.Structs.G;
+using Forged.MapServer.DataStorage.Structs.GameTable;
+using Forged.MapServer.DataStorage.Structs.H;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.DataStorage.Structs.J;
+using Forged.MapServer.DataStorage.Structs.K;
+using Forged.MapServer.DataStorage.Structs.L;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.DataStorage.Structs.MetaStructs;
+using Forged.MapServer.DataStorage.Structs.N;
+using Forged.MapServer.DataStorage.Structs.O;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.DataStorage.Structs.Q;
+using Forged.MapServer.DataStorage.Structs.R;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.DataStorage.Structs.U;
+using Forged.MapServer.DataStorage.Structs.V;
+using Forged.MapServer.DataStorage.Structs.W;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage.Structs.Q;
 using Serilog;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 public class CliDB
 {
@@ -34,7 +57,7 @@ public class CliDB
                                                {
                                                    MaxDegreeOfParallelism = 20
                                                });
-        var oldMSTime = Time.MSTime;
+        var oldMSTime = global::Time.MSTime;
 
 		var db2Path = $"{dataPath}/dbc";
 
@@ -470,14 +493,14 @@ public class CliDB
 			Environment.Exit(1);
 		}
 
-        Log.Logger.Information("Initialized {0} DB2 data storages in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Initialized {0} DB2 data storages in {1} ms", loadedFileCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
 
 		return availableDb2Locales;
 	}
 
 	public void LoadGameTables(string dataPath)
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var gtPath = dataPath + "/gt/";
 
@@ -502,7 +525,7 @@ public class CliDB
 		StaminaMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("StaminaMultByILvl.txt");
 		XpGameTable = ReadGameTable<GtXpRecord>("xp.txt");
 
-		Log.Logger.Information("Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	#region Main Collections

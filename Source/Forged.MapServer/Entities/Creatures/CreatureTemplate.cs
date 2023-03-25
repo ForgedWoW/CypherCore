@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Networking.Packets.Query;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureTemplate
 {
@@ -216,25 +217,34 @@ public class CreatureTemplate
 
 	public void InitializeQueryData()
 	{
-		QueryData = new QueryCreatureResponse();
+		QueryData = new QueryCreatureResponse
+        {
+            CreatureID = Entry,
+            Allow = true
+        };
 
-		QueryData.CreatureID = Entry;
-		QueryData.Allow = true;
+        CreatureStats stats = new()
+        {
+            Leader = RacialLeader,
+            Name =
+            {
+                [0] = Name
+            },
+            NameAlt =
+            {
+                [0] = FemaleName
+            },
+            Flags =
+            {
+                [0] = (uint)TypeFlags,
+                [1] = TypeFlags2
+            },
+            CreatureType = (int)CreatureType,
+            CreatureFamily = (int)Family,
+            Classification = (int)Rank
+        };
 
-		CreatureStats stats = new();
-		stats.Leader = RacialLeader;
-
-		stats.Name[0] = Name;
-		stats.NameAlt[0] = FemaleName;
-
-		stats.Flags[0] = (uint)TypeFlags;
-		stats.Flags[1] = TypeFlags2;
-
-		stats.CreatureType = (int)CreatureType;
-		stats.CreatureFamily = (int)Family;
-		stats.Classification = (int)Rank;
-
-		for (uint i = 0; i < SharedConst.MaxCreatureKillCredit; ++i)
+        for (uint i = 0; i < SharedConst.MaxCreatureKillCredit; ++i)
 			stats.ProxyCreatureID[i] = KillCredit[i];
 
 		foreach (var model in Models)

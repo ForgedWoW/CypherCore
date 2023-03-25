@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Globals;
 using Framework.Collections;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 public class LanguageManager : Singleton<LanguageManager>
 {
@@ -30,7 +32,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public void LoadLanguages()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Load languages from Languages.db2. Just the id, we don't need the name
 		foreach (var langEntry in CliDB.LanguagesStorage.Values)
@@ -64,12 +66,12 @@ public class LanguageManager : Singleton<LanguageManager>
 		_langsMap.Add((uint)Language.AddonLogged, new LanguageDesc());
 
 		// Log load time
-		Log.Logger.Information($"Loaded {_langsMap.Count} languages in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_langsMap.Count} languages in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadLanguagesWords()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		uint wordsNum = 0;
 
@@ -84,7 +86,7 @@ public class LanguageManager : Singleton<LanguageManager>
 		}
 
 		// log load time
-		Log.Logger.Information($"Loaded {_wordsMap.Count} word groups from {wordsNum} words in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_wordsMap.Count} word groups from {wordsNum} words in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public string Translate(string msg, uint language, Locale locale)

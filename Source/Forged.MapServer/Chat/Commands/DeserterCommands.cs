@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("deserter")]
 class DeserterCommands
@@ -28,7 +28,7 @@ class DeserterCommands
 			return false;
 		}
 
-		aura.SetDuration((int)(time * Time.InMilliseconds));
+		aura.SetDuration((int)(time * global::Time.InMilliseconds));
 
 		return true;
 	}

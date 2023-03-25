@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.BattleGround;
 
 public class BattlefieldStatusActive : ServerPacket
 {

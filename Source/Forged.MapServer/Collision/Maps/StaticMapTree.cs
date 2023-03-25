@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Numerics;
+using Forged.MapServer.Collision.Management;
+using Forged.MapServer.Collision.Models;
 using Framework.Constants;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Maps;
 
 public class StaticMapTree
 {
@@ -383,10 +384,12 @@ public class StaticMapTree
 
 	static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
 	{
-		TileFileOpenResult result = new();
-		result.Name = vmapPath + GetTileFileName(mapID, tileX, tileY);
+		TileFileOpenResult result = new()
+        {
+            Name = vmapPath + GetTileFileName(mapID, tileX, tileY)
+        };
 
-		if (File.Exists(result.Name))
+        if (File.Exists(result.Name))
 		{
 			result.UsedMapId = mapID;
 			result.File = new FileStream(result.Name, FileMode.Open, FileAccess.Read);

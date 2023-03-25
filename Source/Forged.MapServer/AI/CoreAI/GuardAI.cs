@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.CoreAI;
 
-public class GuardAI : ScriptedAI
+public class GuardAI : ScriptedAI.ScriptedAI
 {
 	public GuardAI(Creature creature) : base(creature) { }
 

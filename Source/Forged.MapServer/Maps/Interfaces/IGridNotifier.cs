@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Maps.Interfaces;
+namespace Forged.MapServer.Maps.Interfaces;
 
 public interface IGridNotifier
 {

@@ -3,7 +3,7 @@
 
 using Framework.Dynamic;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 public class ChargeDropEvent : BasicEvent
 {

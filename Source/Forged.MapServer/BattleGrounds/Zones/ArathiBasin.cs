@@ -3,11 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking.Packets.BattleGround;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattleGrounds.Zones;
+namespace Forged.MapServer.BattleGrounds.Zones;
 
 class BgArathiBasin : Battleground
 {

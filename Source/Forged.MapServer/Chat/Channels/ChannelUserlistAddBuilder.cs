@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 class ChannelUserlistAddBuilder : MessageBuilder
 {
@@ -23,13 +24,18 @@ class ChannelUserlistAddBuilder : MessageBuilder
 	{
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<UserlistAdd> userlistAdd = new();
-		userlistAdd.Data.AddedUserGUID = _guid;
-		userlistAdd.Data.ChannelFlags = _source.GetFlags();
-		userlistAdd.Data.UserFlags = _source.GetPlayerFlags(_guid);
-		userlistAdd.Data.ChannelID = _source.GetChannelId();
-		userlistAdd.Data.ChannelName = _source.GetName(localeIdx);
+		PacketSenderOwning<UserlistAdd> userlistAdd = new()
+        {
+            Data =
+            {
+                AddedUserGUID = _guid,
+                ChannelFlags = _source.GetFlags(),
+                UserFlags = _source.GetPlayerFlags(_guid),
+                ChannelID = _source.GetChannelId(),
+                ChannelName = _source.GetName(localeIdx)
+            }
+        };
 
-		return userlistAdd;
+        return userlistAdd;
 	}
 }

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 struct Tail
 {

@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Networking;
+using Forged.MapServer.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class DynamicUpdateField<T> where T : new()
 {
@@ -127,7 +127,7 @@ public class DynamicUpdateField<T> where T : new()
 		}
 
 		if ((Values.Count % 32) != 0)
-			UpdateMask[Entities.UpdateMask.GetBlockIndex(Values.Count)] &= (uint)~Entities.UpdateMask.GetBlockFlag(Values.Count);
+			UpdateMask[Update.UpdateMask.GetBlockIndex(Values.Count)] &= (uint)~Update.UpdateMask.GetBlockFlag(Values.Count);
 		else
 			UpdateMask.RemoveAt(UpdateMask.Count - 1);
 	}
@@ -140,22 +140,22 @@ public class DynamicUpdateField<T> where T : new()
 
 	public void MarkChanged(int index)
 	{
-		var block = Entities.UpdateMask.GetBlockIndex(index);
+		var block = Update.UpdateMask.GetBlockIndex(index);
 
 		if (block >= UpdateMask.Count)
 			UpdateMask.Add(0);
 
-		UpdateMask[block] |= (uint)Entities.UpdateMask.GetBlockFlag(index);
+		UpdateMask[block] |= (uint)Update.UpdateMask.GetBlockFlag(index);
 	}
 
 	public void ClearChanged(int index)
 	{
-		var block = Entities.UpdateMask.GetBlockIndex(index);
+		var block = Update.UpdateMask.GetBlockIndex(index);
 
 		if (block >= UpdateMask.Count)
 			UpdateMask.Add(0);
 
-		UpdateMask[block] &= ~(uint)Entities.UpdateMask.GetBlockFlag(index);
+		UpdateMask[block] &= ~(uint)Update.UpdateMask.GetBlockFlag(index);
 	}
 
 	public bool Empty()

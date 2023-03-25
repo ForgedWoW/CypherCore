@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Networking.Packets.Movement;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement;
 
 public class MoveSplineInit
 {
@@ -120,10 +122,13 @@ public class MoveSplineInit
 		unit.MovementInfo.MovementFlags = moveFlags;
 		move_spline.Initialize(args);
 
-		MonsterMove packet = new();
-		packet.MoverGUID = unit.GUID;
-		packet.Pos = new Vector3(real_position.X, real_position.Y, real_position.Z);
-		packet.InitializeSplineData(move_spline);
+		MonsterMove packet = new()
+        {
+            MoverGUID = unit.GUID,
+            Pos = new Vector3(real_position.X, real_position.Y, real_position.Z)
+        };
+
+        packet.InitializeSplineData(move_spline);
 
 		if (transport)
 		{
@@ -171,13 +176,18 @@ public class MoveSplineInit
 		move_spline.onTransport = transport;
 		move_spline.Initialize(args);
 
-		MonsterMove packet = new();
-		packet.MoverGUID = unit.GUID;
-		packet.Pos = new Vector3(loc.X, loc.Y, loc.Z);
-		packet.SplineData.StopDistanceTolerance = 2;
-		packet.SplineData.Id = move_spline.GetId();
+		MonsterMove packet = new()
+        {
+            MoverGUID = unit.GUID,
+            Pos = new Vector3(loc.X, loc.Y, loc.Z),
+            SplineData =
+            {
+                StopDistanceTolerance = 2,
+                Id = move_spline.GetId()
+            }
+        };
 
-		if (transport)
+        if (transport)
 		{
 			packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
 			packet.SplineData.Move.VehicleSeat = unit.TransSeat;
@@ -332,9 +342,12 @@ public class MoveSplineInit
 	public void SetAnimation(AnimTier anim)
 	{
 		args.time_perc = 0.0f;
-		args.animTier = new AnimTierTransition();
-		args.animTier.AnimTier = (byte)anim;
-		args.flags.EnableAnimation();
+		args.animTier = new AnimTierTransition
+        {
+            AnimTier = (byte)anim
+        };
+
+        args.flags.EnableAnimation();
 	}
 
 	public void SetFacing(Vector3 spot)

@@ -3,7 +3,7 @@
 
 using Framework.Dynamic;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class ForcedUnsummonDelayEvent : BasicEvent
 {

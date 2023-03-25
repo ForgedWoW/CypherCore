@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.DataStorage;
-using Game.Maps;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.Maps;
 
-namespace Game.Scripting.BaseScripts;
+namespace Forged.MapServer.Scripting.BaseScripts;
 
 public class MapScript<T> : ScriptObject where T : Map
 {

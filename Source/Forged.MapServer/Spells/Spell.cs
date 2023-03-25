@@ -4,23 +4,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Maps.Interfaces;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Networking.Packets.CombatLog;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Conditions;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Loots;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Maps.Interfaces;
-using Game.Movement;
-using Game.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.ISpell;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public partial class Spell : IDisposable
 {
@@ -1376,11 +1390,14 @@ public partial class Spell : IDisposable
 				return;
 
 			ForEachSpellScript<ISpellOnEpowerSpellEnd>(s => s.EmpowerSpellEnd(stageinfo, _empoweredSpellDelta));
-			var stageUpdate = new SpellEmpowerStageUpdate();
-			stageUpdate.Caster = p.GUID;
-			stageUpdate.CastID = CastId;
-			stageUpdate.TimeRemaining = _timer;
-			var unusedDurations = new List<uint>();
+			var stageUpdate = new SpellEmpowerStageUpdate
+            {
+                Caster = p.GUID,
+                CastID = CastId,
+                TimeRemaining = _timer
+            };
+
+            var unusedDurations = new List<uint>();
 
 			var nextStage = _empoweredSpellStage;
 			nextStage++;
@@ -1504,8 +1521,11 @@ public partial class Spell : IDisposable
 			result = SpellCastResult.DontReport;
 
 		CastFailed castFailed = new();
-		castFailed.Visual = SpellVisual;
-		FillSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, _caster.AsPlayer);
+
+        {
+            Visual = SpellVisual
+        }		F
+    lSpellCastFailedArgs(castFailed, CastId, SpellInfo, result, CustomErrors, param1, param2, _caster.AsPlayer);
 		_caster.AsPlayer.SendPacket(castFailed);
 	}
 
@@ -1533,8 +1553,11 @@ public partial class Spell : IDisposable
 			return;
 
 		CastFailed packet = new();
-		packet.Visual = spellVisual;
-		FillSpellCastFailedArgs(packet, castCount, spellInfo, result, customError, param1, param2, caster);
+
+        {
+            Visual = spellVisual
+        }		F
+    lSpellCastFailedArgs(packet, castCount, spellInfo, result, customError, param1, param2, caster);
 		caster.SendPacket(packet);
 	}
 
@@ -1546,8 +1569,11 @@ public partial class Spell : IDisposable
 			return spellLogEffect;
 
 		SpellLogEffect executeLogEffect = new();
-		executeLogEffect.Effect = (int)effect;
-		_executeLogEffects.Add(effect, executeLogEffect);
+
+        {
+            Effect = (int)effect
+        }		_
+    ecuteLogEffects.Add(effect, executeLogEffect);
 
 		return executeLogEffect;
 	}
@@ -1568,9 +1594,12 @@ public partial class Spell : IDisposable
 		}
 
 		SpellChannelUpdate spellChannelUpdate = new();
-		spellChannelUpdate.CasterGUID = unitCaster.GUID;
-		spellChannelUpdate.TimeRemaining = (int)time;
-		unitCaster.SendMessageToSet(spellChannelUpdate, true);
+
+        {
+            CasterGUID = unitCaster.GUID,
+            TimeRemaining = (int)time
+        }		s
+    tCaster.SendMessageToSet(spellChannelUpdate, true);
 	}
 
 	public void HandleEffects(Unit pUnitTarget, Item pItemTarget, GameObject pGoTarget, Corpse pCorpseTarget, SpellEffectInfo spellEffectInfo, SpellEffectHandleMode mode)
@@ -3042,10 +3071,12 @@ public partial class Spell : IDisposable
 		}
 
 		SpellDelayed spellDelayed = new();
-		spellDelayed.Caster = unitCaster.GUID;
-		spellDelayed.ActualDelay = delaytime;
 
-		unitCaster.SendMessageToSet(spellDelayed, true);
+        {
+            Caster = unitCaster.GUID,
+            ActualDelay = delaytime
+        }	
+		u    tCaster.SendMessageToSet(spellDelayed, true);
 	}
 
 	public void DelayedChannel()
@@ -5076,11 +5107,13 @@ public partial class Spell : IDisposable
 
 		// Get spell hit result on target
 		TargetInfo targetInfo = new();
-		targetInfo.TargetGuid = targetGUID; // Store target GUID
-		targetInfo.Effects = removeEffect;  // Store all effects not immune
-		targetInfo.IsAlive = target.IsAlive;
 
-		// Calculate hit result
+        {
+            TargetGuid = targetGUID, // Store target GUID
+            Effects = removeEffect,  // Store all effects not immune
+            IsAlive = target.IsAlive
+        }	
+		/    Calculate hit result
 		var caster = _originalCaster ? _originalCaster : _caster;
 		targetInfo.MissCondition = caster.SpellHitResult(target, SpellInfo, _canReflect && !(IsPositive && _caster.IsFriendlyTo(target)));
 
@@ -5192,10 +5225,12 @@ public partial class Spell : IDisposable
 
 		// This is new target calculate data for him
 		GOTargetInfo target = new();
-		target.TargetGUID = targetGUID;
-		target.Effects = effectMask;
 
-		// Spell have speed - need calculate incoming time
+        {
+            TargetGUID = targetGUID,
+            Effects = effectMask
+        }	
+		/    Spell have speed - need calculate incoming time
 		if (_caster != go)
 		{
 			var hitDelay = SpellInfo.LaunchDelay;
@@ -5261,10 +5296,12 @@ public partial class Spell : IDisposable
 		// This is new target add data
 
 		ItemTargetInfo target = new();
-		target.TargetItem = item;
-		target.Effects = effectMask;
 
-		_uniqueItemInfo.Add(target);
+        {
+            TargetItem = item,
+            Effects = effectMask
+        }	
+		_    iqueItemInfo.Add(target);
 	}
 
 	void AddCorpseTarget(Corpse corpse, int effIndex)
@@ -5304,10 +5341,12 @@ public partial class Spell : IDisposable
 
 		// This is new target calculate data for him
 		CorpseTargetInfo target = new();
-		target.TargetGuid = targetGUID;
-		target.Effects = effectMask;
 
-		// Spell have speed - need calculate incoming time
+        {
+            TargetGuid = targetGUID,
+            Effects = effectMask
+        }	
+		/    Spell have speed - need calculate incoming time
 		if (_caster != corpse)
 		{
 			var hitDelay = SpellInfo.LaunchDelay;
@@ -5961,10 +6000,12 @@ public partial class Spell : IDisposable
 			{
 				ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(null, stageinfo));
 				var stageZero = new SpellEmpowerSetStage();
-				stageZero.Stage = 0;
-				stageZero.Caster = p.GUID;
-				stageZero.CastID = CastId;
-				p.SendPacket(stageZero);
+                {
+                    Stage = 0,
+                    Caster = p.GUID,
+                    CastID = CastId
+                }			
+                endPacket(stageZero);
                 _empowerState = EmpowerState.Empowering;
             }
 
@@ -5980,10 +6021,12 @@ public partial class Spell : IDisposable
 					_empoweredSpellStage = nextStageId;
 					_empoweredSpellDelta -= stageinfo.DurationMs;
 					var stageUpdate = new SpellEmpowerSetStage();
-					stageUpdate.Stage = 0;
-					stageUpdate.Caster = p.GUID;
-					stageUpdate.CastID = CastId;
-					p.SendPacket(stageUpdate);
+                    {
+                        Stage = 0,
+                        Caster = p.GUID,
+                        CastID = CastId
+                    }			
+                    endPacket(stageUpdate);
 					ForEachSpellScript<ISpellOnEpowerSpellStageChange>(s => s.EmpowerSpellStageChange(stageinfo, nextStage));
 				}
 				else
@@ -6237,8 +6280,11 @@ public partial class Spell : IDisposable
 			return;
 
 		MountResultPacket packet = new();
-		packet.Result = (uint)result;
-		caster.SendPacket(packet);
+
+        {
+            Result = (uint)result
+        }		c
+    ter.SendPacket(packet);
 	}
 
 	void SendSpellStart()
@@ -6401,7 +6447,7 @@ public partial class Spell : IDisposable
 		castData.Visual = SpellVisual;
 		castData.CastFlags = castFlags;
 		castData.CastFlagsEx = CastFlagsEx;
-		castData.CastTime = Time.MSTime;
+		castData.CastTime = global::Time.MSTime;
 
 		castData.HitTargets = new List<ObjectGuid>();
 		UpdateSpellCastDataTargets(castData);
@@ -6452,12 +6498,15 @@ public partial class Spell : IDisposable
 		{
 			ForEachSpellScript<ISpellOnEpowerSpellStart>(s => s.EmpowerSpellStart());
 			SpellEmpowerStart spellEmpowerSart = new();
-			spellEmpowerSart.CastID = packet.Cast.CastID;
-			spellEmpowerSart.Caster = packet.Cast.CasterGUID;
-			spellEmpowerSart.Targets = UniqueTargetInfo.Select(t => t.TargetGuid).ToList();
-			spellEmpowerSart.SpellID = SpellInfo.Id;
-			spellEmpowerSart.Visual = packet.Cast.Visual;
-			TryGetTotalEmpowerDuration(false, out int dur);
+
+            {
+                CastID = packet.Cast.CastID,
+                Caster = packet.Cast.CasterGUID,
+                Targets = UniqueTargetInfo.Select(t => t.TargetGuid).ToList(),
+                SpellID = SpellInfo.Id,
+                Visual = packet.Cast.Visual
+            }			
+            GetTotalEmpowerDuration(false, out int dur);
 			spellEmpowerSart.Duration = (uint)dur;
 			spellEmpowerSart.FirstStageDuration = _empowerStages.FirstOrDefault().Value.DurationMs;
 			spellEmpowerSart.FinalStageDuration = _empowerStages.LastOrDefault().Value.DurationMs;
@@ -6469,10 +6518,12 @@ public partial class Spell : IDisposable
 			if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
 			{
 				SpellChannelStartInterruptImmunities interruptImmunities = new();
-				interruptImmunities.SchoolImmunities = (int)schoolImmunityMask;
-				interruptImmunities.Immunities = (int)mechanicImmunityMask;
 
-				spellEmpowerSart.Immunities = interruptImmunities;
+                {
+                    SchoolImmunities = (int)schoolImmunityMask,
+                    Immunities = (int)mechanicImmunityMask
+                }	
+			                llEmpowerSart.Immunities = interruptImmunities;
 			}
 
 			p.SendPacket(spellEmpowerSart);
@@ -6612,10 +6663,12 @@ public partial class Spell : IDisposable
 
 		SpellExecuteLog spellExecuteLog = new();
 
-		spellExecuteLog.Caster = _caster.GUID;
-		spellExecuteLog.SpellID = SpellInfo.Id;
-		spellExecuteLog.Effects = _executeLogEffects.Values.ToList();
-		spellExecuteLog.LogData.Initialize(this);
+        {
+            Caster = _caster.GUID,
+            SpellID = SpellInfo.Id,
+            Effects = _executeLogEffects.Values.ToList()
+        }
+		s    llExecuteLog.LogData.Initialize(this);
 
 		_caster.SendCombatLogMessage(spellExecuteLog);
 	}
@@ -6644,12 +6697,14 @@ public partial class Spell : IDisposable
 	void SendSpellInterruptLog(Unit victim, uint spellId)
 	{
 		SpellInterruptLog data = new();
-		data.Caster = _caster.GUID;
-		data.Victim = victim.GUID;
-		data.InterruptedSpellID = SpellInfo.Id;
-		data.SpellID = spellId;
 
-		_caster.SendMessageToSet(data, true);
+        {
+            Caster = _caster.GUID,
+            Victim = victim.GUID,
+            InterruptedSpellID = SpellInfo.Id,
+            SpellID = spellId
+        }	
+		_    ster.SendMessageToSet(data, true);
 	}
 
 	void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit victim, int itemId, int amount)
@@ -6713,20 +6768,26 @@ public partial class Spell : IDisposable
 	void SendInterrupted(byte result)
 	{
 		SpellFailure failurePacket = new();
-		failurePacket.CasterUnit = _caster.GUID;
-		failurePacket.CastID = CastId;
-		failurePacket.SpellID = SpellInfo.Id;
-		failurePacket.Visual = SpellVisual;
-		failurePacket.Reason = result;
-		_caster.SendMessageToSet(failurePacket, true);
+
+        {
+            CasterUnit = _caster.GUID,
+            CastID = CastId,
+            SpellID = SpellInfo.Id,
+            Visual = SpellVisual,
+            Reason = result
+        }		f
+    ster.SendMessageToSet(failurePacket, true);
 
 		SpellFailedOther failedPacket = new();
-		failedPacket.CasterUnit = _caster.GUID;
-		failedPacket.CastID = CastId;
-		failedPacket.SpellID = SpellInfo.Id;
-		failedPacket.Visual = SpellVisual;
-		failedPacket.Reason = result;
-		_caster.SendMessageToSet(failedPacket, true);
+
+        {
+            CasterUnit = _caster.GUID,
+            CastID = CastId,
+            SpellID = SpellInfo.Id,
+            Visual = SpellVisual,
+            Reason = result
+        }		f
+    ster.SendMessageToSet(failedPacket, true);
 	}
 
 	void SendChannelStart(uint duration)
@@ -6738,12 +6799,14 @@ public partial class Spell : IDisposable
 			return;
 
 		SpellChannelStart spellChannelStart = new();
-		spellChannelStart.CasterGUID = unitCaster.GUID;
-		spellChannelStart.SpellID = (int)SpellInfo.Id;
-		spellChannelStart.Visual = SpellVisual;
-        spellChannelStart.ChannelDuration = duration;
 
-		if (IsEmpowered) // remove the first second of casting time to display correctly
+        {
+            CasterGUID = unitCaster.GUID,
+            SpellID = (int)SpellInfo.Id,
+            Visual = SpellVisual,
+            ChannelDuration = duration
+        }	
+		i    (IsEmpowered) // remove the first second of casting time to display correctly
 			spellChannelStart.ChannelDuration -= 1000;
 
         var schoolImmunityMask = unitCaster.SchoolImmunityMask;
@@ -6752,10 +6815,12 @@ public partial class Spell : IDisposable
 		if (schoolImmunityMask != 0 || mechanicImmunityMask != 0)
 		{
 			SpellChannelStartInterruptImmunities interruptImmunities = new();
-			interruptImmunities.SchoolImmunities = (int)schoolImmunityMask;
-			interruptImmunities.Immunities = (int)mechanicImmunityMask;
 
-			spellChannelStart.InterruptImmunities = interruptImmunities;
+            {
+                SchoolImmunities = (int)schoolImmunityMask,
+                Immunities = (int)mechanicImmunityMask
+            }	
+			            llChannelStart.InterruptImmunities = interruptImmunities;
 		}
 
 		unitCaster.SendMessageToSet(spellChannelStart, true);
@@ -6825,13 +6890,15 @@ public partial class Spell : IDisposable
 			sentName = _caster.GetName(target.Session.SessionDbLocaleIndex);
 
 		ResurrectRequest resurrectRequest = new();
-		resurrectRequest.ResurrectOffererGUID = _caster.GUID;
-		resurrectRequest.ResurrectOffererVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-		resurrectRequest.Name = sentName;
-		resurrectRequest.Sickness = _caster.IsUnit && !_caster.IsTypeId(TypeId.Player); // "you'll be afflicted with resurrection sickness"
-		resurrectRequest.UseTimer = !SpellInfo.HasAttribute(SpellAttr3.NoResTimer);
 
-		var pet = target.CurrentPet;
+        {
+            ResurrectOffererGUID = _caster.GUID,
+            ResurrectOffererVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+            Name = sentName,
+            Sickness = _caster.IsUnit && !_caster.IsTypeId(TypeId.Player), // "you'll be afflicted with resurrection sickness"
+            UseTimer = !SpellInfo.HasAttribute(SpellAttr3.NoResTimer)
+        }	
+		v     pet = target.CurrentPet;
 
 		if (pet)
 		{
@@ -7398,10 +7465,10 @@ public partial class Spell : IDisposable
 		// check cooldowns
 		var spellCooldown = SpellInfo.RecoveryTime1;
 
-		if (isArena && spellCooldown > 10 * Time.Minute * Time.InMilliseconds) // not sure if still needed
+		if (isArena && spellCooldown > 10 * global::Time.Minute * global::Time.InMilliseconds) // not sure if still needed
 			return SpellCastResult.NotInArena;
 
-		if (isRatedBattleground && spellCooldown > 15 * Time.Minute * Time.InMilliseconds)
+		if (isRatedBattleground && spellCooldown > 15 * global::Time.Minute * global::Time.InMilliseconds)
 			return SpellCastResult.NotInBattleground;
 
 		return SpellCastResult.SpellCastOk;

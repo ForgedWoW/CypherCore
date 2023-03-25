@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public class HealthPctOrderPred : IComparer<WorldObject>
 {

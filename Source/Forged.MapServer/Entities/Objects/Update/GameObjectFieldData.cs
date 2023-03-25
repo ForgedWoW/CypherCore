@@ -3,10 +3,12 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
 using Framework.Constants;
-using Game.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class GameObjectFieldData : BaseUpdateData<GameObject>
 {

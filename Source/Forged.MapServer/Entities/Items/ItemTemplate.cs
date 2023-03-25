@@ -4,11 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Framework.Configuration;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 public class ItemTemplate
 {

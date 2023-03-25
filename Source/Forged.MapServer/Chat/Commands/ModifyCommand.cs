@@ -3,13 +3,18 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Reputation;
 using Framework.Constants;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("modify")]
 class ModifyCommand
@@ -202,9 +207,12 @@ class ModifyCommand
 			target.SendSysMessage(CypherStrings.YoursSpellflatidChanged, handler.NameLink, spellflatid, val, mark);
 
 		SetSpellModifier packet = new(ServerOpcodes.SetFlatSpellModifier);
-		SpellModifierInfo spellMod = new();
-		spellMod.ModIndex = op;
-		SpellModifierData modData;
+		SpellModifierInfo spellMod = new()
+        {
+            ModIndex = op
+        };
+
+        SpellModifierData modData;
 		modData.ClassIndex = spellflatid;
 		modData.ModifierValue = val;
 		spellMod.ModifierData.Add(modData);
@@ -697,10 +705,13 @@ class ModifyCommand
 					continue;
 
 				var choiceEntry = choicesForOption[0];
-				ChrCustomizationChoice choice = new();
-				choice.ChrCustomizationOptionID = option.Id;
-				choice.ChrCustomizationChoiceID = choiceEntry.Id;
-				customizations.Add(choice);
+				ChrCustomizationChoice choice = new()
+                {
+                    ChrCustomizationOptionID = option.Id,
+                    ChrCustomizationChoiceID = choiceEntry.Id
+                };
+
+                customizations.Add(choice);
 
 				break;
 			}

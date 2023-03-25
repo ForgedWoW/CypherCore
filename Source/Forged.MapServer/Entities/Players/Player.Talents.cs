@@ -4,14 +4,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Networking.Packets.Talent;
+using Forged.MapServer.Networking.Packets.Trait;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
@@ -512,7 +521,7 @@ public partial class Player
 		}
 		else
 		{
-			var months = (ulong)(GameTime.GetGameTime() - GetTalentResetTime()) / Time.Month;
+			var months = (ulong)(GameTime.GetGameTime() - GetTalentResetTime()) / global::Time.Month;
 
 			if (months > 0)
 			{
@@ -595,10 +604,15 @@ public partial class Player
 
 	public void SendTalentsInfoData()
 	{
-		UpdateTalentData packet = new();
-		packet.Info.PrimarySpecialization = GetPrimarySpecialization();
+		UpdateTalentData packet = new()
+        {
+            Info =
+            {
+                PrimarySpecialization = GetPrimarySpecialization()
+            }
+        };
 
-		for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
+        for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
 			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
 
@@ -608,10 +622,12 @@ public partial class Player
 			var talents = GetTalentMap(i);
 			var pvpTalents = GetPvpTalentMap(i);
 
-			UpdateTalentData.TalentGroupInfo groupInfoPkt = new();
-			groupInfoPkt.SpecID = spec.Id;
+			UpdateTalentData.TalentGroupInfo groupInfoPkt = new()
+            {
+                SpecID = spec.Id
+            };
 
-			foreach (var pair in talents)
+            foreach (var pair in talents)
 			{
 				if (pair.Value == PlayerSpellState.Removed)
 					continue;
@@ -660,10 +676,13 @@ public partial class Player
 					continue;
 				}
 
-				PvPTalent pvpTalent = new();
-				pvpTalent.PvPTalentID = (ushort)pvpTalents[slot];
-				pvpTalent.Slot = slot;
-				groupInfoPkt.PvPTalents.Add(pvpTalent);
+				PvPTalent pvpTalent = new()
+                {
+                    PvPTalentID = (ushort)pvpTalents[slot],
+                    Slot = slot
+                };
+
+                groupInfoPkt.PvPTalents.Add(pvpTalent);
 			}
 
 			if (i == GetActiveTalentGroup())
@@ -678,11 +697,14 @@ public partial class Player
 
 	public void SendRespecWipeConfirm(ObjectGuid guid, uint cost, SpecResetType respecType)
 	{
-		RespecWipeConfirm respecWipeConfirm = new();
-		respecWipeConfirm.RespecMaster = guid;
-		respecWipeConfirm.Cost = cost;
-		respecWipeConfirm.RespecType = respecType;
-		SendPacket(respecWipeConfirm);
+		RespecWipeConfirm respecWipeConfirm = new()
+        {
+            RespecMaster = guid,
+            Cost = cost,
+            RespecType = respecType
+        };
+
+        SendPacket(respecWipeConfirm);
 	}
 
 	public TalentLearnResult LearnPvpTalent(uint talentID, byte slot, ref uint spellOnCooldown)
@@ -1135,12 +1157,15 @@ public partial class Player
 		foreach (var kvp in traitConfig.Entries.Values)
 			foreach (var traitEntry in kvp.Values)
 			{
-				TraitEntry newEntry = new();
-				newEntry.TraitNodeID = traitEntry.TraitNodeID;
-				newEntry.TraitNodeEntryID = traitEntry.TraitNodeEntryID;
-				newEntry.Rank = traitEntry.Rank;
-				newEntry.GrantedRanks = traitEntry.GrantedRanks;
-				AddDynamicUpdateFieldValue(setter.ModifyValue(setter.Entries), newEntry);
+				TraitEntry newEntry = new()
+                {
+                    TraitNodeID = traitEntry.TraitNodeID,
+                    TraitNodeEntryID = traitEntry.TraitNodeEntryID,
+                    Rank = traitEntry.Rank,
+                    GrantedRanks = traitEntry.GrantedRanks
+                };
+
+                AddDynamicUpdateFieldValue(setter.ModifyValue(setter.Entries), newEntry);
 			}
 	}
 
@@ -1190,13 +1215,15 @@ public partial class Player
 						costEntries.Add(newEntry);
 
 					TraitConfig newTraitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, editedIndex);
-					TraitEntry newUfEntry = new();
-					newUfEntry.TraitNodeID = newEntry.TraitNodeID;
-					newUfEntry.TraitNodeEntryID = newEntry.TraitNodeEntryID;
-					newUfEntry.Rank = newEntry.Rank;
-					newUfEntry.GrantedRanks = newEntry.GrantedRanks;
+					TraitEntry newUfEntry = new()
+                    {
+                        TraitNodeID = newEntry.TraitNodeID,
+                        TraitNodeEntryID = newEntry.TraitNodeEntryID,
+                        Rank = newEntry.Rank,
+                        GrantedRanks = newEntry.GrantedRanks
+                    };
 
-					AddDynamicUpdateFieldValue(newTraitConfig.ModifyValue(newTraitConfig.Entries), newUfEntry);
+                    AddDynamicUpdateFieldValue(newTraitConfig.ModifyValue(newTraitConfig.Entries), newUfEntry);
 
 					if (applyTraits)
 						ApplyTraitEntry(newUfEntry.TraitNodeEntryID, newUfEntry.Rank, 0, true);

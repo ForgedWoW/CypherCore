@@ -3,14 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using Framework.Configuration;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Framework.Database;
-using Game.Conditions;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Loots;
+namespace Forged.MapServer.Loot;
 
 using LootStoreItemList = List<LootStoreItem>;
 using LootTemplateMap = Dictionary<uint, LootTemplate>;
@@ -77,7 +77,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading creature loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		List<uint> lootIdSetUsed = new();
 		var count = Creature.LoadAndCollectLootIds(out var lootIdSet);
@@ -108,7 +108,7 @@ public class LootManager : LootStorage
 		Creature.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} creature loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} creature loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 creature loot templates. DB table `creature_loot_template` is empty");
 	}
@@ -117,7 +117,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading disenchanting loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		List<uint> lootIdSetUsed = new();
 		var count = Disenchant.LoadAndCollectLootIds(out var lootIdSet);
@@ -139,7 +139,7 @@ public class LootManager : LootStorage
 		Disenchant.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} disenchanting loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} disenchanting loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 disenchanting loot templates. DB table `disenchant_loot_template` is empty");
 	}
@@ -148,7 +148,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading fishing loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var count = Fishing.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -161,7 +161,7 @@ public class LootManager : LootStorage
 		Fishing.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} fishing loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} fishing loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 fishing loot templates. DB table `fishing_loot_template` is empty");
 	}
@@ -170,7 +170,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading gameobject loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		List<uint> lootIdSetUsed = new();
 		var count = Gameobject.LoadAndCollectLootIds(out var lootIdSet);
@@ -210,7 +210,7 @@ public class LootManager : LootStorage
 		Gameobject.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} gameobject loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} gameobject loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 gameobject loot templates. DB table `gameobject_loot_template` is empty");
 	}
@@ -219,7 +219,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading item loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var count = Items.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -234,7 +234,7 @@ public class LootManager : LootStorage
 		Items.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} item loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} item loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 item loot templates. DB table `item_loot_template` is empty");
 	}
@@ -243,7 +243,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading milling loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var count = Milling.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -263,7 +263,7 @@ public class LootManager : LootStorage
 		Milling.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} milling loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} milling loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 milling loot templates. DB table `milling_loot_template` is empty");
 	}
@@ -272,7 +272,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading pickpocketing loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		List<uint> lootIdSetUsed = new();
 		var count = Pickpocketing.LoadAndCollectLootIds(out var lootIdSet);
@@ -300,7 +300,7 @@ public class LootManager : LootStorage
 		Pickpocketing.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} pickpocketing loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} pickpocketing loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 pickpocketing loot templates. DB table `pickpocketing_loot_template` is empty");
 	}
@@ -309,7 +309,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading prospecting loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var count = Prospecting.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -329,7 +329,7 @@ public class LootManager : LootStorage
 		Prospecting.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} prospecting loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} prospecting loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 prospecting loot templates. DB table `prospecting_loot_template` is empty");
 	}
@@ -338,7 +338,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading mail loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var count = Mail.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -351,7 +351,7 @@ public class LootManager : LootStorage
 		Mail.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} mail loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} mail loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 mail loot templates. DB table `mail_loot_template` is empty");
 	}
@@ -360,7 +360,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading skinning loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		List<uint> lootIdSetUsed = new();
 		var count = Skinning.LoadAndCollectLootIds(out var lootIdSet);
@@ -388,7 +388,7 @@ public class LootManager : LootStorage
 		Skinning.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} skinning loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} skinning loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 skinning loot templates. DB table `skinning_loot_template` is empty");
 	}
@@ -398,7 +398,7 @@ public class LootManager : LootStorage
 		// TODO: change this to use MiscValue from spell effect as id instead of spell id
 		Log.Logger.Information("Loading spell loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var count = Spell.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -431,7 +431,7 @@ public class LootManager : LootStorage
 		Spell.ReportUnusedIds(lootIdSet);
 
 		if (count != 0)
-			Log.Logger.Information("Loaded {0} spell loot templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} spell loot templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		else
 			Log.Logger.Information("Loaded 0 spell loot templates. DB table `spell_loot_template` is empty");
 	}
@@ -440,7 +440,7 @@ public class LootManager : LootStorage
 	{
 		Log.Logger.Information("Loading reference loot templates...");
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		Reference.LoadAndCollectLootIds(out var lootIdSet);
 
@@ -460,7 +460,7 @@ public class LootManager : LootStorage
 		// output error for any still listed ids (not referenced from any loot table)
 		Reference.ReportUnusedIds(lootIdSet);
 
-		Log.Logger.Information("Loaded reference loot templates in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded reference loot templates in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	static void Initialize()

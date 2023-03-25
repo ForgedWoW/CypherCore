@@ -2,11 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
 using Framework.Constants;
-using Game.Chat;
-using Game.Entities;
 
-namespace Game;
+namespace Forged.MapServer.Text;
 
 public class CreatureTextLocalizer : IDoWork<Player>
 {

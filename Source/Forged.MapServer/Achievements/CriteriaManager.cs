@@ -6,12 +6,16 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
+using Serilog;
 
 namespace Game.Achievements;
 
-public class CriteriaManager : Singleton<CriteriaManager>
+public class CriteriaManager 
 {
-	readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
+    private readonly CliDB _cliDB;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly ObjectManager _objectManager;
+    readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
 	readonly Dictionary<uint, CriteriaTree> _criteriaTrees = new();
 	readonly Dictionary<uint, Criteria> _criteria = new();
 	readonly Dictionary<uint, ModifierTreeNode> _criteriaModifiers = new();
@@ -26,20 +30,24 @@ public class CriteriaManager : Singleton<CriteriaManager>
 	readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
 	readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
 
-	CriteriaManager()
-	{
-		for (var i = 0; i < (int)CriteriaType.Count; ++i)
+	public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, ObjectManager objectManager)
+    {
+        _cliDB = cliDB;
+        _worldDatabase = worldDatabase;
+        _objectManager = objectManager;
+
+        for (var i = 0; i < (int)CriteriaType.Count; ++i)
 		{
 			_criteriasByAsset[i] = new MultiMap<uint, Criteria>();
 			_scenarioCriteriasByTypeAndScenarioId[i] = new MultiMap<uint, Criteria>();
 		}
-	}
+    }
 
 	public void LoadCriteriaModifiersTree()
 	{
 		var oldMSTime = Time.MSTime;
 
-		if (CliDB.ModifierTreeStorage.Empty())
+		if (_cliDB.ModifierTreeStorage.Empty())
 		{
 			Log.Logger.Information("Loaded 0 criteria modifiers.");
 
@@ -47,7 +55,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		}
 
 		// Load modifier tree nodes
-		foreach (var tree in CliDB.ModifierTreeStorage.Values)
+		foreach (var tree in _cliDB.ModifierTreeStorage.Values)
 		{
 			ModifierTreeNode node = new();
 			node.Entry = tree;
@@ -72,19 +80,19 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
 		Dictionary<uint /*criteriaTreeID*/, AchievementRecord> achievementCriteriaTreeIds = new();
 
-		foreach (var achievement in CliDB.AchievementStorage.Values)
+		foreach (var achievement in _cliDB.AchievementStorage.Values)
 			if (achievement.CriteriaTree != 0)
 				achievementCriteriaTreeIds[achievement.CriteriaTree] = achievement;
 
 		Dictionary<uint, ScenarioStepRecord> scenarioCriteriaTreeIds = new();
 
-		foreach (var scenarioStep in CliDB.ScenarioStepStorage.Values)
+		foreach (var scenarioStep in _cliDB.ScenarioStepStorage.Values)
 			if (scenarioStep.CriteriaTreeId != 0)
 				scenarioCriteriaTreeIds[scenarioStep.CriteriaTreeId] = scenarioStep;
 
 		Dictionary<uint /*criteriaTreeID*/, QuestObjective> questObjectiveCriteriaTreeIds = new();
 
-		foreach (var pair in Global.ObjectMgr.GetQuestTemplates())
+		foreach (var pair in _objectManager.GetQuestTemplates())
 		{
 			foreach (var objective in pair.Value.Objectives)
 			{
@@ -97,7 +105,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		}
 
 		// Load criteria tree nodes
-		foreach (var tree in CliDB.CriteriaTreeStorage.Values)
+		foreach (var tree in _cliDB.CriteriaTreeStorage.Values)
 		{
 			// Find linked achievement
 			var achievement = GetEntry(achievementCriteriaTreeIds, tree);
@@ -125,7 +133,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 			if (parent != null)
 				parent.Children.Add(pair.Value);
 
-			if (CliDB.CriteriaStorage.HasRecord(pair.Value.Entry.CriteriaID))
+			if (_cliDB.CriteriaStorage.HasRecord(pair.Value.Entry.CriteriaID))
 				_criteriaTreeByCriteria.Add(pair.Value.Entry.CriteriaID, pair.Value);
 		}
 
@@ -138,7 +146,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 		uint scenarioCriterias = 0;
 		uint questObjectiveCriterias = 0;
 
-		foreach (var criteriaEntry in CliDB.CriteriaStorage.Values)
+		foreach (var criteriaEntry in _cliDB.CriteriaStorage.Values)
 		{
 			var treeList = _criteriaTreeByCriteria.LookupByKey(criteriaEntry.Id);
 
@@ -193,7 +201,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 					}
 					else
 					{
-						var worldOverlayEntry = CliDB.WorldMapOverlayStorage.LookupByKey(criteriaEntry.Asset);
+						var worldOverlayEntry = _cliDB.WorldMapOverlayStorage.LookupByKey(criteriaEntry.Asset);
 
 						if (worldOverlayEntry == null)
 							break;
@@ -250,7 +258,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 
 		_criteriaDataMap.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM criteria_data");
+		var result = _worldDatabase.Query("SELECT criteria_id, type, value1, value2, ScriptName FROM criteria_data");
 
 		if (result.IsEmpty())
 		{
@@ -283,7 +291,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 				if (dataType != CriteriaDataType.Script)
 					Log.Logger.Error("Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteria_id, dataType);
 				else
-					scriptId = Global.ObjectMgr.GetScriptId(scriptName);
+					scriptId = _objectManager.GetScriptId(scriptName);
 			}
 
 			CriteriaData data = new(dataType, result.Read<uint>(2), result.Read<uint>(3), scriptId);
@@ -406,7 +414,7 @@ public class CriteriaManager : Singleton<CriteriaManager>
 			if (cur.Parent == 0)
 				break;
 
-			cur = CliDB.CriteriaTreeStorage.LookupByKey(cur.Parent);
+			cur = _cliDB.CriteriaTreeStorage.LookupByKey(cur.Parent);
 
 			if (cur == null)
 				break;

@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Spells;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Spells.Auras;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class AuraDataInfo
 {

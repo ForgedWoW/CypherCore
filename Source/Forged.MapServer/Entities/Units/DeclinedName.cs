@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public class DeclinedName
 {

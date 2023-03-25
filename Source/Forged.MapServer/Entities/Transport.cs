@@ -6,12 +6,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Events;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting.Interfaces.ITransport;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Maps;
-using Game.Scripting.Interfaces.ITransport;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class Transport : GameObject, ITransport
 {
@@ -155,7 +164,7 @@ public class Transport : GameObject, ITransport
 			ReplaceAllFlags(goOverride.Flags);
 		}
 
-		_pathProgress = goinfo.MoTransport.allowstopping == 0 ? Time.MSTime /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
+		_pathProgress = goinfo.MoTransport.allowstopping == 0 ? global::Time.MSTime /*might be called before world update loop begins, don't use GameTime*/ % tInfo.TotalPathTime : 0;
 		SetPathProgressForClient((float)_pathProgress / (float)tInfo.TotalPathTime);
 		ObjectScale = goinfo.size;
 		SetPeriod(tInfo.TotalPathTime);

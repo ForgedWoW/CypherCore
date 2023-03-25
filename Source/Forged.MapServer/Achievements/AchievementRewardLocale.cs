@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class AchievementRewardLocale
 {

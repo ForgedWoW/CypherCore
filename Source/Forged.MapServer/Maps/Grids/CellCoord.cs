@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Maps.Grids;
+namespace Forged.MapServer.Maps.Grids;
 
 public class CellCoord : ICoord
 {

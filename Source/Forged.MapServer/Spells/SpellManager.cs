@@ -6,17 +6,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Extendability;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Scripting.Interfaces.ISpellManager;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Dynamic;
-using Game.BattlePets;
-using Game.DataStorage;
-using Game.Extendability;
-using Game.Movement;
-using Game.Scripting.Interfaces.ISpellManager;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Spells;
 
 public sealed class SpellManager : Singleton<SpellManager>
 {
@@ -999,7 +1003,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellRanks()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		Dictionary<uint /*spell*/, uint /*next*/> chains = new();
 		List<uint> hasPrev = new();
@@ -1088,12 +1092,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} spell rank records in {1}ms", _spellChainNodes.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell rank records in {1}ms", _spellChainNodes.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellRequired()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellsReqSpell.Clear(); // need for reload case
 		_spellReq.Clear();       // need for reload case
@@ -1153,7 +1157,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell required records in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell required records in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellLearnSkills()
@@ -1210,7 +1214,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellLearnSpells()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellLearnSpells.Clear();
 
@@ -1230,13 +1234,15 @@ public sealed class SpellManager : Singleton<SpellManager>
 		{
 			var spell_id = result.Read<uint>(0);
 
-			var node = new SpellLearnSpellNode();
-			node.Spell = result.Read<uint>(1);
-			node.OverridesSpell = 0;
-			node.Active = result.Read<bool>(2);
-			node.AutoLearned = false;
+			var node = new SpellLearnSpellNode
+            {
+                Spell = result.Read<uint>(1),
+                OverridesSpell = 0,
+                Active = result.Read<bool>(2),
+                AutoLearned = false
+            };
 
-			var spellInfo = GetSpellInfo(spell_id, Difficulty.None);
+            var spellInfo = GetSpellInfo(spell_id, Difficulty.None);
 
 			if (spellInfo == null)
 			{
@@ -1275,12 +1281,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 				foreach (var spellEffectInfo in entry.Effects)
 					if (spellEffectInfo.Effect == SpellEffectName.LearnSpell)
 					{
-						var dbc_node = new SpellLearnSpellNode();
-						dbc_node.Spell = spellEffectInfo.TriggerSpell;
-						dbc_node.Active = true; // all dbc based learned spells is active (show in spell book or hide by client itself)
-						dbc_node.OverridesSpell = 0;
+						var dbc_node = new SpellLearnSpellNode
+                        {
+                            Spell = spellEffectInfo.TriggerSpell,
+                            Active = true, // all dbc based learned spells is active (show in spell book or hide by client itself)
+                            OverridesSpell = 0
+                        };
 
-						// ignore learning not existed spells (broken/outdated/or generic learnig spell 483
+                        // ignore learning not existed spells (broken/outdated/or generic learnig spell 483
 						if (GetSpellInfo(dbc_node.Spell, Difficulty.None) == null)
 							continue;
 
@@ -1349,22 +1357,24 @@ public sealed class SpellManager : Singleton<SpellManager>
 			if (found)
 				continue;
 
-			SpellLearnSpellNode dbcLearnNode = new();
-			dbcLearnNode.Spell = spellLearnSpell.LearnSpellID;
-			dbcLearnNode.OverridesSpell = spellLearnSpell.OverridesSpellID;
-			dbcLearnNode.Active = true;
-			dbcLearnNode.AutoLearned = false;
+			SpellLearnSpellNode dbcLearnNode = new()
+            {
+                Spell = spellLearnSpell.LearnSpellID,
+                OverridesSpell = spellLearnSpell.OverridesSpellID,
+                Active = true,
+                AutoLearned = false
+            };
 
-			_spellLearnSpells.Add(spellLearnSpell.SpellID, dbcLearnNode);
+            _spellLearnSpells.Add(spellLearnSpell.SpellID, dbcLearnNode);
 			++dbc_count;
 		}
 
-		Log.Logger.Information("Loaded {0} spell learn spells, {1} found in Spell.dbc in {2} ms", count, dbc_count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell learn spells, {1} found in Spell.dbc in {2} ms", count, dbc_count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellTargetPositions()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellTargetPositions.Clear(); // need for reload case
 
@@ -1385,13 +1395,15 @@ public sealed class SpellManager : Singleton<SpellManager>
 			var spellId = result.Read<uint>(0);
 			int effIndex = result.Read<byte>(1);
 
-			SpellTargetPosition st = new();
-			st.TargetMapId = result.Read<uint>(2);
-			st.X = result.Read<float>(3);
-			st.Y = result.Read<float>(4);
-			st.Z = result.Read<float>(5);
+			SpellTargetPosition st = new()
+            {
+                TargetMapId = result.Read<uint>(2),
+                X = result.Read<float>(3),
+                Y = result.Read<float>(4),
+                Z = result.Read<float>(5)
+            };
 
-			var mapEntry = CliDB.MapStorage.LookupByKey(st.TargetMapId);
+            var mapEntry = CliDB.MapStorage.LookupByKey(st.TargetMapId);
 
 			if (mapEntry == null)
 			{
@@ -1443,12 +1455,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell teleport coordinates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell teleport coordinates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellGroups()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellSpellGroup.Clear(); // need for reload case
 		_spellGroupSpell.Clear();
@@ -1526,12 +1538,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} spell group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell group definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellGroupStackRules()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellGroupStack.Clear(); // need for reload case
 		_spellSameEffectStack.Clear();
@@ -1580,10 +1592,10 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell group stack rules in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell group stack rules in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 
 		count = 0;
-		oldMSTime = Time.MSTime;
+		oldMSTime = global::Time.MSTime;
 		Log.Logger.Information("Parsing SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules...");
 
 		foreach (var group_id in sameEffectGroups)
@@ -1678,12 +1690,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		}
 
-		Log.Logger.Information($"Parsed {count} SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Parsed {count} SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT stack rules in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellProcs()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellProcMap.Clear(); // need for reload case
 
@@ -1725,23 +1737,24 @@ public sealed class SpellManager : Singleton<SpellManager>
 						continue;
 					}
 
-				SpellProcEntry baseProcEntry = new();
+				SpellProcEntry baseProcEntry = new()
+                {
+                    SchoolMask = (SpellSchoolMask)result.Read<uint>(1),
+                    SpellFamilyName = (SpellFamilyNames)result.Read<uint>(2),
+                    SpellFamilyMask = new FlagArray128(result.Read<uint>(3), result.Read<uint>(4), result.Read<uint>(5), result.Read<uint>(6)),
+                    ProcFlags = new ProcFlagsInit(result.Read<int>(7), result.Read<int>(8), 2),
+                    SpellTypeMask = (ProcFlagsSpellType)result.Read<uint>(9),
+                    SpellPhaseMask = (ProcFlagsSpellPhase)result.Read<uint>(10),
+                    HitMask = (ProcFlagsHit)result.Read<uint>(11),
+                    AttributesMask = (ProcAttributes)result.Read<uint>(12),
+                    DisableEffectsMask = result.Read<uint>(13),
+                    ProcsPerMinute = result.Read<float>(14),
+                    Chance = result.Read<float>(15),
+                    Cooldown = result.Read<uint>(16),
+                    Charges = result.Read<uint>(17)
+                };
 
-				baseProcEntry.SchoolMask = (SpellSchoolMask)result.Read<uint>(1);
-				baseProcEntry.SpellFamilyName = (SpellFamilyNames)result.Read<uint>(2);
-				baseProcEntry.SpellFamilyMask = new FlagArray128(result.Read<uint>(3), result.Read<uint>(4), result.Read<uint>(5), result.Read<uint>(6));
-				baseProcEntry.ProcFlags = new ProcFlagsInit(result.Read<int>(7), result.Read<int>(8), 2);
-				baseProcEntry.SpellTypeMask = (ProcFlagsSpellType)result.Read<uint>(9);
-				baseProcEntry.SpellPhaseMask = (ProcFlagsSpellPhase)result.Read<uint>(10);
-				baseProcEntry.HitMask = (ProcFlagsHit)result.Read<uint>(11);
-				baseProcEntry.AttributesMask = (ProcAttributes)result.Read<uint>(12);
-				baseProcEntry.DisableEffectsMask = result.Read<uint>(13);
-				baseProcEntry.ProcsPerMinute = result.Read<float>(14);
-				baseProcEntry.Chance = result.Read<float>(15);
-				baseProcEntry.Cooldown = result.Read<uint>(16);
-				baseProcEntry.Charges = result.Read<uint>(17);
-
-				while (spellInfo != null)
+                while (spellInfo != null)
 				{
 					if (!_spellProcMap.ContainsKey(spellInfo.Id, spellInfo.Difficulty))
 					{
@@ -1849,7 +1862,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				}
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} spell proc conditions and data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} spell proc conditions and data in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{
@@ -1859,7 +1872,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		// This generates default procs to retain compatibility with previous proc system
 		Log.Logger.Information("Generating spell proc data from SpellMap...");
 		count = 0;
-		oldMSTime = Time.MSTime;
+		oldMSTime = global::Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -1927,12 +1940,14 @@ public sealed class SpellManager : Singleton<SpellManager>
 					continue;
 				}
 
-				SpellProcEntry procEntry = new();
-				procEntry.SchoolMask = 0;
-				procEntry.ProcFlags = spellInfo.ProcFlags;
-				procEntry.SpellFamilyName = 0;
+				SpellProcEntry procEntry = new()
+                {
+                    SchoolMask = 0,
+                    ProcFlags = spellInfo.ProcFlags,
+                    SpellFamilyName = 0
+                };
 
-				foreach (var spellEffectInfo in spellInfo.Effects)
+                foreach (var spellEffectInfo in spellInfo.Effects)
 					if (spellEffectInfo.IsEffect() && IsTriggerAura(spellEffectInfo.ApplyAuraName))
 						procEntry.SpellFamilyMask |= spellEffectInfo.SpellClassMask;
 
@@ -1997,12 +2012,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 				++count;
 			}
 
-		Log.Logger.Information("Generated spell proc data for {0} spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Generated spell proc data for {0} spells in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellThreats()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellThreatMap.Clear(); // need for reload case
 
@@ -2029,33 +2044,35 @@ public sealed class SpellManager : Singleton<SpellManager>
 				continue;
 			}
 
-			SpellThreatEntry ste = new();
-			ste.FlatMod = result.Read<int>(1);
-			ste.PctMod = result.Read<float>(2);
-			ste.ApPctMod = result.Read<float>(3);
+			SpellThreatEntry ste = new()
+            {
+                FlatMod = result.Read<int>(1),
+                PctMod = result.Read<float>(2),
+                ApPctMod = result.Read<float>(3)
+            };
 
-			_spellThreatMap[entry] = ste;
+            _spellThreatMap[entry] = ste;
 			count++;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} SpellThreatEntries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SpellThreatEntries in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSkillLineAbilityMap()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_skillLineAbilityMap.Clear();
 
 		foreach (var skill in CliDB.SkillLineAbilityStorage.Values)
 			_skillLineAbilityMap.Add(skill.Spell, skill);
 
-		Log.Logger.Information("Loaded {0} SkillLineAbility MultiMap Data in {1} ms", _skillLineAbilityMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SkillLineAbility MultiMap Data in {1} ms", _skillLineAbilityMap.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellPetAuras()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellPetAuraMap.Clear(); // need for reload case
 
@@ -2129,12 +2146,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell pet auras in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell pet auras in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellEnchantProcData()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellEnchantProcEventMap.Clear(); // need for reload case
 
@@ -2163,23 +2180,25 @@ public sealed class SpellManager : Singleton<SpellManager>
 				continue;
 			}
 
-			SpellEnchantProcEntry spe = new();
-			spe.Chance = result.Read<uint>(1);
-			spe.ProcsPerMinute = result.Read<float>(2);
-			spe.HitMask = result.Read<uint>(3);
-			spe.AttributesMask = (EnchantProcAttributes)result.Read<uint>(4);
+			SpellEnchantProcEntry spe = new()
+            {
+                Chance = result.Read<uint>(1),
+                ProcsPerMinute = result.Read<float>(2),
+                HitMask = result.Read<uint>(3),
+                AttributesMask = (EnchantProcAttributes)result.Read<uint>(4)
+            };
 
-			_spellEnchantProcEventMap[enchantId] = spe;
+            _spellEnchantProcEventMap[enchantId] = spe;
 
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} enchant proc data definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} enchant proc data definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellLinked()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellLinkedMap.Clear(); // need for reload case
 
@@ -2252,12 +2271,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} linked spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} linked spells in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetLevelupSpellMap()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_petLevelupSpellMap.Clear(); // need for reload case
 
@@ -2301,12 +2320,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 				}
 			}
 
-		Log.Logger.Information("Loaded {0} pet levelup and default spells for {1} families in {2} ms", count, family_count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} pet levelup and default spells for {1} families in {2} ms", count, family_count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetDefaultSpells()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_petDefaultSpellsEntries.Clear();
 
@@ -2345,7 +2364,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							}
 						}
 
-		Log.Logger.Information("Loaded {0} summonable creature templates in {1} ms", countCreature, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} summonable creature templates in {1} ms", countCreature, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	bool LoadPetDefaultSpells_helper(CreatureTemplate cInfo, PetDefaultSpellsEntry petDefSpells)
@@ -2398,7 +2417,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellAreas()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellAreaMap.Clear(); // need for reload case
 		_spellAreaForAreaMap.Clear();
@@ -2422,19 +2441,21 @@ public sealed class SpellManager : Singleton<SpellManager>
 		{
 			var spell = result.Read<uint>(0);
 
-			SpellArea spellArea = new();
-			spellArea.SpellId = spell;
-			spellArea.AreaId = result.Read<uint>(1);
-			spellArea.QuestStart = result.Read<uint>(2);
-			spellArea.QuestStartStatus = result.Read<uint>(3);
-			spellArea.QuestEndStatus = result.Read<uint>(4);
-			spellArea.QuestEnd = result.Read<uint>(5);
-			spellArea.AuraSpell = result.Read<int>(6);
-			spellArea.RaceMask = result.Read<ulong>(7);
-			spellArea.Gender = (Gender)result.Read<uint>(8);
-			spellArea.Flags = (SpellAreaFlag)result.Read<byte>(9);
+			SpellArea spellArea = new()
+            {
+                SpellId = spell,
+                AreaId = result.Read<uint>(1),
+                QuestStart = result.Read<uint>(2),
+                QuestStartStatus = result.Read<uint>(3),
+                QuestEndStatus = result.Read<uint>(4),
+                QuestEnd = result.Read<uint>(5),
+                AuraSpell = result.Read<int>(6),
+                RaceMask = result.Read<ulong>(7),
+                Gender = (Gender)result.Read<uint>(8),
+                Flags = (SpellAreaFlag)result.Read<byte>(9)
+            };
 
-			var spellInfo = GetSpellInfo(spell, Difficulty.None);
+            var spellInfo = GetSpellInfo(spell, Difficulty.None);
 
 			if (spellInfo != null)
 			{
@@ -2615,12 +2636,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell area requirements in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell area requirements in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellInfoStore()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_spellInfoMap.Clear();
 		var loadData = new Dictionary<(uint Id, Difficulty difficulty), SpellInfoLoadHelper>();
@@ -2839,7 +2860,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			AddSpellInfo(new SpellInfo(spellNameEntry, data.Key.difficulty, data.Value));
 		}
 
-		Log.Logger.Information("Loaded SpellInfo store in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo store in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void UnloadSpellInfoImplicitTargetConditionLists()
@@ -2851,7 +2872,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoServerside()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		MultiMap<(uint spellId, Difficulty difficulty), SpellEffectRecord> spellEffects = new();
 
@@ -2873,38 +2894,49 @@ public sealed class SpellManager : Singleton<SpellManager>
 			{
 				var spellId = effectsResult.Read<uint>(0);
 				var difficulty = (Difficulty)effectsResult.Read<uint>(2);
-				SpellEffectRecord effect = new();
-				effect.EffectIndex = effectsResult.Read<int>(1);
-				effect.Effect = effectsResult.Read<uint>(3);
-				effect.EffectAura = effectsResult.Read<short>(4);
-				effect.EffectAmplitude = effectsResult.Read<float>(5);
-				effect.EffectAttributes = (SpellEffectAttributes)effectsResult.Read<int>(6);
-				effect.EffectAuraPeriod = effectsResult.Read<uint>(7);
-				effect.EffectBonusCoefficient = effectsResult.Read<float>(8);
-				effect.EffectChainAmplitude = effectsResult.Read<float>(9);
-				effect.EffectChainTargets = effectsResult.Read<int>(10);
-				effect.EffectItemType = effectsResult.Read<uint>(11);
-				effect.EffectMechanic = effectsResult.Read<int>(12);
-				effect.EffectPointsPerResource = effectsResult.Read<float>(13);
-				effect.EffectPosFacing = effectsResult.Read<float>(14);
-				effect.EffectRealPointsPerLevel = effectsResult.Read<float>(15);
-				effect.EffectTriggerSpell = effectsResult.Read<uint>(16);
-				effect.BonusCoefficientFromAP = effectsResult.Read<float>(17);
-				effect.PvpMultiplier = effectsResult.Read<float>(18);
-				effect.Coefficient = effectsResult.Read<float>(19);
-				effect.Variance = effectsResult.Read<float>(20);
-				effect.ResourceCoefficient = effectsResult.Read<float>(21);
-				effect.GroupSizeBasePointsCoefficient = effectsResult.Read<float>(22);
-				effect.EffectBasePoints = effectsResult.Read<float>(23);
-				effect.EffectMiscValue[0] = effectsResult.Read<int>(24);
-				effect.EffectMiscValue[1] = effectsResult.Read<int>(25);
-				effect.EffectRadiusIndex[0] = effectsResult.Read<uint>(26);
-				effect.EffectRadiusIndex[1] = effectsResult.Read<uint>(27);
-				effect.EffectSpellClassMask = new FlagArray128(effectsResult.Read<uint>(28), effectsResult.Read<uint>(29), effectsResult.Read<uint>(30), effectsResult.Read<uint>(31));
-				effect.ImplicitTarget[0] = effectsResult.Read<short>(32);
-				effect.ImplicitTarget[1] = effectsResult.Read<short>(33);
+				SpellEffectRecord effect = new()
+                {
+                    EffectIndex = effectsResult.Read<int>(1),
+                    Effect = effectsResult.Read<uint>(3),
+                    EffectAura = effectsResult.Read<short>(4),
+                    EffectAmplitude = effectsResult.Read<float>(5),
+                    EffectAttributes = (SpellEffectAttributes)effectsResult.Read<int>(6),
+                    EffectAuraPeriod = effectsResult.Read<uint>(7),
+                    EffectBonusCoefficient = effectsResult.Read<float>(8),
+                    EffectChainAmplitude = effectsResult.Read<float>(9),
+                    EffectChainTargets = effectsResult.Read<int>(10),
+                    EffectItemType = effectsResult.Read<uint>(11),
+                    EffectMechanic = effectsResult.Read<int>(12),
+                    EffectPointsPerResource = effectsResult.Read<float>(13),
+                    EffectPosFacing = effectsResult.Read<float>(14),
+                    EffectRealPointsPerLevel = effectsResult.Read<float>(15),
+                    EffectTriggerSpell = effectsResult.Read<uint>(16),
+                    BonusCoefficientFromAP = effectsResult.Read<float>(17),
+                    PvpMultiplier = effectsResult.Read<float>(18),
+                    Coefficient = effectsResult.Read<float>(19),
+                    Variance = effectsResult.Read<float>(20),
+                    ResourceCoefficient = effectsResult.Read<float>(21),
+                    GroupSizeBasePointsCoefficient = effectsResult.Read<float>(22),
+                    EffectBasePoints = effectsResult.Read<float>(23),
+                    EffectMiscValue =
+                    {
+                        [0] = effectsResult.Read<int>(24),
+                        [1] = effectsResult.Read<int>(25)
+                    },
+                    EffectRadiusIndex =
+                    {
+                        [0] = effectsResult.Read<uint>(26),
+                        [1] = effectsResult.Read<uint>(27)
+                    },
+                    EffectSpellClassMask = new FlagArray128(effectsResult.Read<uint>(28), effectsResult.Read<uint>(29), effectsResult.Read<uint>(30), effectsResult.Read<uint>(31)),
+                    ImplicitTarget =
+                    {
+                        [0] = effectsResult.Read<short>(32),
+                        [1] = effectsResult.Read<short>(33)
+                    }
+                };
 
-				var existingSpellBounds = _GetSpellInfo(spellId);
+                var existingSpellBounds = _GetSpellInfo(spellId);
 
 				if (existingSpellBounds.Empty())
 				{
@@ -2993,91 +3025,93 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 				_serversideSpellNames.Add(new ServersideSpellName(spellId, spellsResult.Read<string>(66)));
 
-				SpellInfo spellInfo = new(_serversideSpellNames.Last().Name, difficulty, spellEffects[(spellId, difficulty)]);
-				spellInfo.CategoryId = spellsResult.Read<uint>(2);
-				spellInfo.Dispel = (DispelType)spellsResult.Read<uint>(3);
-				spellInfo.Mechanic = (Mechanics)spellsResult.Read<uint>(4);
-				spellInfo.Attributes = (SpellAttr0)spellsResult.Read<uint>(5);
-				spellInfo.AttributesEx = (SpellAttr1)spellsResult.Read<uint>(6);
-				spellInfo.AttributesEx2 = (SpellAttr2)spellsResult.Read<uint>(7);
-				spellInfo.AttributesEx3 = (SpellAttr3)spellsResult.Read<uint>(8);
-				spellInfo.AttributesEx4 = (SpellAttr4)spellsResult.Read<uint>(9);
-				spellInfo.AttributesEx5 = (SpellAttr5)spellsResult.Read<uint>(10);
-				spellInfo.AttributesEx6 = (SpellAttr6)spellsResult.Read<uint>(11);
-				spellInfo.AttributesEx7 = (SpellAttr7)spellsResult.Read<uint>(12);
-				spellInfo.AttributesEx8 = (SpellAttr8)spellsResult.Read<uint>(13);
-				spellInfo.AttributesEx9 = (SpellAttr9)spellsResult.Read<uint>(14);
-				spellInfo.AttributesEx10 = (SpellAttr10)spellsResult.Read<uint>(15);
-				spellInfo.AttributesEx11 = (SpellAttr11)spellsResult.Read<uint>(16);
-				spellInfo.AttributesEx12 = (SpellAttr12)spellsResult.Read<uint>(17);
-				spellInfo.AttributesEx13 = (SpellAttr13)spellsResult.Read<uint>(18);
-				spellInfo.AttributesEx14 = (SpellAttr14)spellsResult.Read<uint>(19);
-				spellInfo.Stances = spellsResult.Read<ulong>(20);
-				spellInfo.StancesNot = spellsResult.Read<ulong>(21);
-				spellInfo.Targets = (SpellCastTargetFlags)spellsResult.Read<uint>(22);
-				spellInfo.TargetCreatureType = spellsResult.Read<uint>(23);
-				spellInfo.RequiresSpellFocus = spellsResult.Read<uint>(24);
-				spellInfo.FacingCasterFlags = spellsResult.Read<uint>(25);
-				spellInfo.CasterAuraState = (AuraStateType)spellsResult.Read<uint>(26);
-				spellInfo.TargetAuraState = (AuraStateType)spellsResult.Read<uint>(27);
-				spellInfo.ExcludeCasterAuraState = (AuraStateType)spellsResult.Read<uint>(28);
-				spellInfo.ExcludeTargetAuraState = (AuraStateType)spellsResult.Read<uint>(29);
-				spellInfo.CasterAuraSpell = spellsResult.Read<uint>(30);
-				spellInfo.TargetAuraSpell = spellsResult.Read<uint>(31);
-				spellInfo.ExcludeCasterAuraSpell = spellsResult.Read<uint>(32);
-				spellInfo.ExcludeTargetAuraSpell = spellsResult.Read<uint>(33);
-				spellInfo.CasterAuraType = (AuraType)spellsResult.Read<int>(34);
-				spellInfo.TargetAuraType = (AuraType)spellsResult.Read<int>(35);
-				spellInfo.ExcludeCasterAuraType = (AuraType)spellsResult.Read<int>(36);
-				spellInfo.ExcludeTargetAuraType = (AuraType)spellsResult.Read<int>(37);
-				spellInfo.CastTimeEntry = CliDB.SpellCastTimesStorage.LookupByKey(spellsResult.Read<uint>(38));
-				spellInfo.RecoveryTime = spellsResult.Read<uint>(39);
-				spellInfo.CategoryRecoveryTime = spellsResult.Read<uint>(40);
-				spellInfo.StartRecoveryCategory = spellsResult.Read<uint>(41);
-				spellInfo.StartRecoveryTime = spellsResult.Read<uint>(42);
-				spellInfo.InterruptFlags = (SpellInterruptFlags)spellsResult.Read<uint>(43);
-				spellInfo.AuraInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(44);
-				spellInfo.AuraInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(45);
-				spellInfo.ChannelInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(46);
-				spellInfo.ChannelInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(47);
-				spellInfo.ProcFlags = new ProcFlagsInit(spellsResult.Read<int>(48), spellsResult.Read<int>(49));
-				spellInfo.ProcChance = spellsResult.Read<uint>(50);
-				spellInfo.ProcCharges = spellsResult.Read<uint>(51);
-				spellInfo.ProcCooldown = spellsResult.Read<uint>(52);
-				spellInfo.ProcBasePpm = spellsResult.Read<float>(53);
-				spellInfo.MaxLevel = spellsResult.Read<uint>(54);
-				spellInfo.BaseLevel = spellsResult.Read<uint>(55);
-				spellInfo.SpellLevel = spellsResult.Read<uint>(56);
-				spellInfo.DurationEntry = CliDB.SpellDurationStorage.LookupByKey(spellsResult.Read<uint>(57));
-				spellInfo.RangeEntry = CliDB.SpellRangeStorage.LookupByKey(spellsResult.Read<uint>(58));
-				spellInfo.Speed = spellsResult.Read<float>(59);
-				spellInfo.LaunchDelay = spellsResult.Read<float>(60);
-				spellInfo.StackAmount = spellsResult.Read<uint>(61);
-				spellInfo.EquippedItemClass = (ItemClass)spellsResult.Read<int>(62);
-				spellInfo.EquippedItemSubClassMask = spellsResult.Read<int>(63);
-				spellInfo.EquippedItemInventoryTypeMask = spellsResult.Read<int>(64);
-				spellInfo.ContentTuningId = spellsResult.Read<uint>(65);
-				spellInfo.ConeAngle = spellsResult.Read<float>(67);
-				spellInfo.Width = spellsResult.Read<float>(68);
-				spellInfo.MaxTargetLevel = spellsResult.Read<uint>(69);
-				spellInfo.MaxAffectedTargets = spellsResult.Read<uint>(70);
-				spellInfo.SpellFamilyName = (SpellFamilyNames)spellsResult.Read<uint>(71);
-				spellInfo.SpellFamilyFlags = new FlagArray128(spellsResult.Read<uint>(72), spellsResult.Read<uint>(73), spellsResult.Read<uint>(74), spellsResult.Read<uint>(75));
-				spellInfo.DmgClass = (SpellDmgClass)spellsResult.Read<uint>(76);
-				spellInfo.PreventionType = (SpellPreventionType)spellsResult.Read<uint>(77);
-				spellInfo.RequiredAreasId = spellsResult.Read<int>(78);
-				spellInfo.SchoolMask = (SpellSchoolMask)spellsResult.Read<uint>(79);
-				spellInfo.ChargeCategoryId = spellsResult.Read<uint>(80);
+				SpellInfo spellInfo = new(_serversideSpellNames.Last().Name, difficulty, spellEffects[(spellId, difficulty)])
+                {
+                    CategoryId = spellsResult.Read<uint>(2),
+                    Dispel = (DispelType)spellsResult.Read<uint>(3),
+                    Mechanic = (Mechanics)spellsResult.Read<uint>(4),
+                    Attributes = (SpellAttr0)spellsResult.Read<uint>(5),
+                    AttributesEx = (SpellAttr1)spellsResult.Read<uint>(6),
+                    AttributesEx2 = (SpellAttr2)spellsResult.Read<uint>(7),
+                    AttributesEx3 = (SpellAttr3)spellsResult.Read<uint>(8),
+                    AttributesEx4 = (SpellAttr4)spellsResult.Read<uint>(9),
+                    AttributesEx5 = (SpellAttr5)spellsResult.Read<uint>(10),
+                    AttributesEx6 = (SpellAttr6)spellsResult.Read<uint>(11),
+                    AttributesEx7 = (SpellAttr7)spellsResult.Read<uint>(12),
+                    AttributesEx8 = (SpellAttr8)spellsResult.Read<uint>(13),
+                    AttributesEx9 = (SpellAttr9)spellsResult.Read<uint>(14),
+                    AttributesEx10 = (SpellAttr10)spellsResult.Read<uint>(15),
+                    AttributesEx11 = (SpellAttr11)spellsResult.Read<uint>(16),
+                    AttributesEx12 = (SpellAttr12)spellsResult.Read<uint>(17),
+                    AttributesEx13 = (SpellAttr13)spellsResult.Read<uint>(18),
+                    AttributesEx14 = (SpellAttr14)spellsResult.Read<uint>(19),
+                    Stances = spellsResult.Read<ulong>(20),
+                    StancesNot = spellsResult.Read<ulong>(21),
+                    Targets = (SpellCastTargetFlags)spellsResult.Read<uint>(22),
+                    TargetCreatureType = spellsResult.Read<uint>(23),
+                    RequiresSpellFocus = spellsResult.Read<uint>(24),
+                    FacingCasterFlags = spellsResult.Read<uint>(25),
+                    CasterAuraState = (AuraStateType)spellsResult.Read<uint>(26),
+                    TargetAuraState = (AuraStateType)spellsResult.Read<uint>(27),
+                    ExcludeCasterAuraState = (AuraStateType)spellsResult.Read<uint>(28),
+                    ExcludeTargetAuraState = (AuraStateType)spellsResult.Read<uint>(29),
+                    CasterAuraSpell = spellsResult.Read<uint>(30),
+                    TargetAuraSpell = spellsResult.Read<uint>(31),
+                    ExcludeCasterAuraSpell = spellsResult.Read<uint>(32),
+                    ExcludeTargetAuraSpell = spellsResult.Read<uint>(33),
+                    CasterAuraType = (AuraType)spellsResult.Read<int>(34),
+                    TargetAuraType = (AuraType)spellsResult.Read<int>(35),
+                    ExcludeCasterAuraType = (AuraType)spellsResult.Read<int>(36),
+                    ExcludeTargetAuraType = (AuraType)spellsResult.Read<int>(37),
+                    CastTimeEntry = CliDB.SpellCastTimesStorage.LookupByKey(spellsResult.Read<uint>(38)),
+                    RecoveryTime = spellsResult.Read<uint>(39),
+                    CategoryRecoveryTime = spellsResult.Read<uint>(40),
+                    StartRecoveryCategory = spellsResult.Read<uint>(41),
+                    StartRecoveryTime = spellsResult.Read<uint>(42),
+                    InterruptFlags = (SpellInterruptFlags)spellsResult.Read<uint>(43),
+                    AuraInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(44),
+                    AuraInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(45),
+                    ChannelInterruptFlags = (SpellAuraInterruptFlags)spellsResult.Read<uint>(46),
+                    ChannelInterruptFlags2 = (SpellAuraInterruptFlags2)spellsResult.Read<uint>(47),
+                    ProcFlags = new ProcFlagsInit(spellsResult.Read<int>(48), spellsResult.Read<int>(49)),
+                    ProcChance = spellsResult.Read<uint>(50),
+                    ProcCharges = spellsResult.Read<uint>(51),
+                    ProcCooldown = spellsResult.Read<uint>(52),
+                    ProcBasePpm = spellsResult.Read<float>(53),
+                    MaxLevel = spellsResult.Read<uint>(54),
+                    BaseLevel = spellsResult.Read<uint>(55),
+                    SpellLevel = spellsResult.Read<uint>(56),
+                    DurationEntry = CliDB.SpellDurationStorage.LookupByKey(spellsResult.Read<uint>(57)),
+                    RangeEntry = CliDB.SpellRangeStorage.LookupByKey(spellsResult.Read<uint>(58)),
+                    Speed = spellsResult.Read<float>(59),
+                    LaunchDelay = spellsResult.Read<float>(60),
+                    StackAmount = spellsResult.Read<uint>(61),
+                    EquippedItemClass = (ItemClass)spellsResult.Read<int>(62),
+                    EquippedItemSubClassMask = spellsResult.Read<int>(63),
+                    EquippedItemInventoryTypeMask = spellsResult.Read<int>(64),
+                    ContentTuningId = spellsResult.Read<uint>(65),
+                    ConeAngle = spellsResult.Read<float>(67),
+                    Width = spellsResult.Read<float>(68),
+                    MaxTargetLevel = spellsResult.Read<uint>(69),
+                    MaxAffectedTargets = spellsResult.Read<uint>(70),
+                    SpellFamilyName = (SpellFamilyNames)spellsResult.Read<uint>(71),
+                    SpellFamilyFlags = new FlagArray128(spellsResult.Read<uint>(72), spellsResult.Read<uint>(73), spellsResult.Read<uint>(74), spellsResult.Read<uint>(75)),
+                    DmgClass = (SpellDmgClass)spellsResult.Read<uint>(76),
+                    PreventionType = (SpellPreventionType)spellsResult.Read<uint>(77),
+                    RequiredAreasId = spellsResult.Read<int>(78),
+                    SchoolMask = (SpellSchoolMask)spellsResult.Read<uint>(79),
+                    ChargeCategoryId = spellsResult.Read<uint>(80)
+                };
 
-				AddSpellInfo(spellInfo);
+                AddSpellInfo(spellInfo);
 			} while (spellsResult.NextRow());
 
-		Log.Logger.Information($"Loaded {_serversideSpellNames.Count} serverside spells {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {_serversideSpellNames.Count} serverside spells {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellInfoCustomAttributes()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 		var oldMSTime2 = oldMSTime;
 
 		var result = DB.World.Query("SELECT entry, attributes FROM spell_custom_attr");
@@ -3120,7 +3154,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} spell custom attributes from DB in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime2));
+			Log.Logger.Information("Loaded {0} spell custom attributes from DB in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime2));
 		}
 
 		List<uint> talentSpells = new();
@@ -3466,7 +3500,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				foreach (var spellInfo in _GetSpellInfo(liquid.SpellID).Values)
 					spellInfo.AttributesCu |= SpellCustomAttributes.AuraCannotBeSaved;
 
-		Log.Logger.Information("Loaded SpellInfo custom attributes in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo custom attributes in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	void ApplySpellFix(int[] spellIds, Action<SpellInfo> fix)
@@ -3507,7 +3541,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellInfoCorrections()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		foreach (var fix in IOHelpers.GetAllObjectsFromAssemblies<ISpellManagerSpellFix>(Path.Combine(AppContext.BaseDirectory, "Scripts")))
 			ApplySpellFix(fix.SpellIds, fix.ApplySpellFix);
@@ -3527,7 +3561,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 							57550,    // Tirion Aggro
 							65755
 						},
-						spellInfo => { ApplySpellEffectFix(spellInfo, 0, spellEffectInfo => { spellEffectInfo.ApplyAuraPeriod = 1 * Time.InMilliseconds; }); });
+						spellInfo => { ApplySpellEffectFix(spellInfo, 0, spellEffectInfo => { spellEffectInfo.ApplyAuraPeriod = 1 * global::Time.InMilliseconds; }); });
 
 			ApplySpellFix(new[]
 						{
@@ -3541,7 +3575,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 												1,
 												spellEffectInfo =>
 												{
-													spellEffectInfo.ApplyAuraPeriod = 1 * Time.InMilliseconds;
+													spellEffectInfo.ApplyAuraPeriod = 1 * global::Time.InMilliseconds;
 													;
 												});
 						});
@@ -3557,7 +3591,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 												1,
 												spellEffectInfo =>
 												{
-													spellEffectInfo.ApplyAuraPeriod = 5 * Time.InMilliseconds;
+													spellEffectInfo.ApplyAuraPeriod = 5 * global::Time.InMilliseconds;
 													;
 												});
 						});
@@ -3573,7 +3607,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 												1,
 												spellEffectInfo =>
 												{
-													spellEffectInfo.ApplyAuraPeriod = 1 * Time.InMilliseconds;
+													spellEffectInfo.ApplyAuraPeriod = 1 * global::Time.InMilliseconds;
 													;
 												});
 						});
@@ -5120,12 +5154,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 		if (properties != null) // Hungry Plaguehound
 			properties.Control = SummonCategory.Pet;
 
-		Log.Logger.Information("Loaded SpellInfo corrections in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo corrections in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellInfoSpellSpecificAndAuraState()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -5135,12 +5169,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadAuraState();
 			}
 
-		Log.Logger.Information($"Loaded SpellInfo SpellSpecific and AuraState in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded SpellInfo SpellSpecific and AuraState in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void LoadSpellInfoDiminishing()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -5151,12 +5185,12 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadSpellDiminishInfo();
 			}
 
-		Log.Logger.Information("Loaded SpellInfo diminishing infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo diminishing infos in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellInfoImmunities()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		foreach (var kvp in _spellInfoMap.Values)
 			foreach (var spellInfo in kvp.Values)
@@ -5167,7 +5201,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 				spellInfo._LoadImmunityInfo();
 			}
 
-		Log.Logger.Information("Loaded SpellInfo immunity infos in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded SpellInfo immunity infos in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetFamilySpellsStore()
@@ -5206,7 +5240,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public void LoadSpellTotemModel()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		var result = DB.World.Query("SELECT SpellID, RaceID, DisplayID from spell_totem_model");
 
@@ -5252,7 +5286,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} spell totem model records in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} spell totem model records in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	#endregion

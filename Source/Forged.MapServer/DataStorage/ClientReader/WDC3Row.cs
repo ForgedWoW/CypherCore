@@ -8,7 +8,7 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Dynamic;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 class WDC3Row
 {

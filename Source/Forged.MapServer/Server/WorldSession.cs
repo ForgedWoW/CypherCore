@@ -10,22 +10,30 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Forged.MapServer.Accounts;
+using Forged.MapServer.Battlepay;
+using Forged.MapServer.BattlePets;
+using Forged.MapServer.Chat;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Authentication;
+using Forged.MapServer.Networking.Packets.Battlenet;
+using Forged.MapServer.Networking.Packets.Character;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Networking.Packets.ClientConfig;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Warden;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Time;
+using Forged.MapServer.Warden;
 using Framework.Collections;
-using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Realm;
-using Game.Accounts;
-using Game.Battlepay;
-using Game.BattlePets;
-using Game.Chat;
-using Game.Entities;
-using Game.Networking;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
 using Serilog;
 
-namespace Game;
+namespace Forged.MapServer.Server;
 
 public partial class WorldSession : IDisposable
 {
@@ -82,7 +90,7 @@ public partial class WorldSession : IDisposable
 
 	uint _expireTime;
 	bool _forceExit;
-	Warden _warden; // Remains NULL if Warden system is not enabled by config
+	Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
 
 	long _logoutTime;
 	bool _inQueue;
@@ -548,11 +556,13 @@ public partial class WorldSession : IDisposable
 
 	public void SendAccountDataTimes(ObjectGuid playerGuid, AccountDataTypes mask)
 	{
-		AccountDataTimes accountDataTimes = new();
-		accountDataTimes.PlayerGuid = playerGuid;
-		accountDataTimes.ServerTime = GameTime.GetGameTime();
+		AccountDataTimes accountDataTimes = new()
+        {
+            PlayerGuid = playerGuid,
+            ServerTime = GameTime.GetGameTime()
+        };
 
-		for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
+        for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
 			if (((int)mask & (1 << i)) != 0)
 				accountDataTimes.AccountTimes[i] = GetAccountData((AccountDataTypes)i).Time;
 
@@ -601,13 +611,18 @@ public partial class WorldSession : IDisposable
 		_instanceConnectKey.connectionType = ConnectionType.Instance;
 		_instanceConnectKey.Key = RandomHelper.URand(0, 0x7FFFFFFF);
 
-		ConnectTo connectTo = new();
-		connectTo.Key = _instanceConnectKey.Raw;
-		connectTo.Serial = serial;
-		connectTo.Payload.Port = (ushort)WorldConfig.GetIntValue(WorldCfg.PortInstance);
-		connectTo.Con = (byte)ConnectionType.Instance;
+		ConnectTo connectTo = new()
+        {
+            Key = _instanceConnectKey.Raw,
+            Serial = serial,
+            Payload =
+            {
+                Port = (ushort)WorldConfig.GetIntValue(WorldCfg.PortInstance)
+            },
+            Con = (byte)ConnectionType.Instance
+        };
 
-		if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+        if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 		{
 			connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
 			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv4;
@@ -784,11 +799,14 @@ public partial class WorldSession : IDisposable
 
 	public void SendTimeSync()
 	{
-		TimeSyncRequest timeSyncRequest = new();
-		timeSyncRequest.SequenceIndex = _timeSyncNextCounter;
-		SendPacket(timeSyncRequest);
+		TimeSyncRequest timeSyncRequest = new()
+        {
+            SequenceIndex = _timeSyncNextCounter
+        };
 
-		_pendingTimeSyncRequests[_timeSyncNextCounter] = Time.MSTime;
+        SendPacket(timeSyncRequest);
+
+		_pendingTimeSyncRequests[_timeSyncNextCounter] = global::Time.MSTime;
 
 		// Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
 		_timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000u;
@@ -803,7 +821,7 @@ public partial class WorldSession : IDisposable
 			_timeOutTime = GameTime.GetGameTime() + WorldConfig.GetIntValue(WorldCfg.SocketTimeoutTime);
 	}
 
-	public static implicit operator bool(WorldSession session)
+	public static implicit operator bool(Services.WorldSession session)
 	{
 		return session != null;
 	}
@@ -1108,9 +1126,12 @@ public partial class WorldSession : IDisposable
 				_realmCharacterCounts[new RealmId(result.Read<byte>(3), result.Read<byte>(4), result.Read<uint>(2)).GetAddress()] = result.Read<byte>(1);
 			} while (result.NextRow());
 
-		ConnectionStatus bnetConnected = new();
-		bnetConnected.State = 1;
-		SendPacket(bnetConnected);
+		ConnectionStatus bnetConnected = new()
+        {
+            State = 1
+        };
+
+        SendPacket(bnetConnected);
 
 		_battlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
 	}

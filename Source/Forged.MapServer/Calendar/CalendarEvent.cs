@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game;
+namespace Forged.MapServer.Calendar;
 
 public class CalendarEvent
 {
@@ -68,7 +68,7 @@ public class CalendarEvent
 
 	public string BuildCalendarMailBody()
 	{
-		var now = Time.UnixTimeToDateTime(Date);
+		var now = global::Time.UnixTimeToDateTime(Date);
 		var time = Convert.ToUInt32(((now.Year - 1900) - 100) << 24 | (now.Month - 1) << 20 | (now.Day - 1) << 14 | (int)now.DayOfWeek << 11 | now.Hour << 6 | now.Minute);
 
 		return time.ToString();

@@ -5,17 +5,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Garrisons;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Server;
 using Framework.Collections;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Threading;
-using Game.BattleGrounds;
-using Game.DataStorage;
-using Game.Garrisons;
-using Game.Groups;
-using Game.Maps;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Maps;
 
 public class MapManager : Singleton<MapManager>
 {

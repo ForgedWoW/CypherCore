@@ -1,13 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
+using Forged.MapServer.Entities.Units;
 
-namespace Game.Combat;
+namespace Forged.MapServer.Combat;
 
 public class PvPCombatReference : CombatReference
 {
-	public static uint PVP_COMBAT_TIMEOUT = 5 * Time.InMilliseconds;
+	public static uint PVP_COMBAT_TIMEOUT = 5 * global::Time.InMilliseconds;
 
 	uint _combatTimer = PVP_COMBAT_TIMEOUT;
 

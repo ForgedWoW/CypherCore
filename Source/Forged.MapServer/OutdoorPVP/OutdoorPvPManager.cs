@@ -2,16 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Configuration;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Scripting.Interfaces.IOutdoorPvP;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Threading;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting.Interfaces.IOutdoorPvP;
 
-namespace Game.PvP;
+namespace Forged.MapServer.OutdoorPVP;
 
 public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
 {
@@ -39,7 +39,7 @@ public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
 
 	public void InitOutdoorPvP()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		//                                             0       1
 		var result = DB.World.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");
@@ -72,7 +72,7 @@ public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} outdoor PvP definitions in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void CreateOutdoorPvPForMap(Map map)

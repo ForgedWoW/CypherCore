@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Spells.Auras;
+namespace Forged.MapServer.Spells.Auras;
 
 public class AuraApplicationCollection
 {

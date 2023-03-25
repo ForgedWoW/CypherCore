@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Game.Entities;
-using Game.Spells;
 
-namespace Game.Scripting.Interfaces.IAura;
+namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraCheckEffectProc : IAuraEffectHandler
 {

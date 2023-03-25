@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Scripting.Interfaces.IAura;
+namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IAuraEffectHandler
 {

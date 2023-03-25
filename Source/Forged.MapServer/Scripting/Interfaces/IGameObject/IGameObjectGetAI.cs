@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.AI;
-using Game.Entities;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Entities.GameObjects;
 
-namespace Game.Scripting.Interfaces.IGameObject;
+namespace Forged.MapServer.Scripting.Interfaces.IGameObject;
 
 public interface IGameObjectGetAI : IScriptObject
 {

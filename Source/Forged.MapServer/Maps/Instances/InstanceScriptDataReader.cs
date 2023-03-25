@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Text.Json;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Instances;
 
 class InstanceScriptDataReader
 {

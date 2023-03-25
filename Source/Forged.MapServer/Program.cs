@@ -12,6 +12,7 @@ using Game.Common;
 using Game.Achievements;
 using Game.DataStorage;
 using System.Collections;
+using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
 using Framework.Constants;
 using Framework.Util;
@@ -31,6 +32,7 @@ builder.RegisterType<AccountManager>().SingleInstance();
 builder.RegisterType<BNetAccountManager>().SingleInstance();
 builder.RegisterType<AchievementGlobalMgr>().SingleInstance();
 builder.RegisterType<DB2Manager>().SingleInstance();
+builder.RegisterType<CriteriaManager>().SingleInstance();
 
 BitSet localeMask = null;
 builder.Register((c, p) =>

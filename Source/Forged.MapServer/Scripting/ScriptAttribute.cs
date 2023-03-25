@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public class ScriptAttribute : Attribute

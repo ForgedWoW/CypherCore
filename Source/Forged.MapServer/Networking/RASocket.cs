@@ -6,14 +6,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using Framework.Configuration;
+using Forged.MapServer.Chat;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.Networking;
-using Game.Chat;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public class RASocket : ISocket
 {

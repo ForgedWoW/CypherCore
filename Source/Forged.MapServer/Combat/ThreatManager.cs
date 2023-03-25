@@ -4,12 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Combat;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Combat;
+namespace Forged.MapServer.Combat;
 
 public class ThreatManager
 {
@@ -634,10 +636,13 @@ public class ThreatManager
 
 	public void SendRemoveToClients(Unit victim)
 	{
-		ThreatRemove threatRemove = new();
-		threatRemove.UnitGUID = _owner.GUID;
-		threatRemove.AboutGUID = victim.GUID;
-		_owner.SendMessageToSet(threatRemove, false);
+		ThreatRemove threatRemove = new()
+        {
+            UnitGUID = _owner.GUID,
+            AboutGUID = victim.GUID
+        };
+
+        _owner.SendMessageToSet(threatRemove, false);
 	}
 
 	public void PurgeThreatListRef(ObjectGuid guid)
@@ -796,9 +801,12 @@ public class ThreatManager
 
 	void SendClearAllThreatToClients()
 	{
-		ThreatClear threatClear = new();
-		threatClear.UnitGUID = _owner.GUID;
-		_owner.SendMessageToSet(threatClear, false);
+		ThreatClear threatClear = new()
+        {
+            UnitGUID = _owner.GUID
+        };
+
+        _owner.SendMessageToSet(threatClear, false);
 	}
 
 	void SendThreatListToClients(bool newHighest)
@@ -812,10 +820,13 @@ public class ThreatManager
 				if (!refe.IsAvailable)
 					continue;
 
-				ThreatInfo threatInfo = new();
-				threatInfo.UnitGUID = refe.Victim.GUID;
-				threatInfo.Threat = (long)(refe.Threat * 100);
-				packet.ThreatList.Add(threatInfo);
+				ThreatInfo threatInfo = new()
+                {
+                    UnitGUID = refe.Victim.GUID,
+                    Threat = (long)(refe.Threat * 100)
+                };
+
+                packet.ThreatList.Add(threatInfo);
 			}
 
 			_owner.SendMessageToSet(packet, false);
@@ -823,9 +834,12 @@ public class ThreatManager
 
 		if (newHighest)
 		{
-			HighestThreatUpdate highestThreatUpdate = new();
-			highestThreatUpdate.HighestThreatGUID = _currentVictimRef.Victim.GUID;
-			fillSharedPacketDataAndSend(highestThreatUpdate);
+			HighestThreatUpdate highestThreatUpdate = new()
+            {
+                HighestThreatGUID = _currentVictimRef.Victim.GUID
+            };
+
+            fillSharedPacketDataAndSend(highestThreatUpdate);
 		}
 		else
 		{

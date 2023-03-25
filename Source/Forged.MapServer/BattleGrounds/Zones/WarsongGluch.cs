@@ -2,12 +2,16 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.BattleGrounds.Zones;
+namespace Forged.MapServer.BattleGrounds.Zones;
 
 class BgWarsongGluch : Battleground
 {
@@ -55,7 +59,7 @@ class BgWarsongGluch : Battleground
 	{
 		if (GetStatus() == BattlegroundStatus.InProgress)
 		{
-			if (GetElapsedTime() >= 17 * Time.Minute * Time.InMilliseconds)
+			if (GetElapsedTime() >= 17 * global::Time.Minute * global::Time.InMilliseconds)
 			{
 				if (GetTeamScore(TeamIds.Alliance) == 0)
 				{
@@ -132,7 +136,7 @@ class BgWarsongGluch : Battleground
 			{
 				_flagSpellForceTimer += (int)diff;
 
-				if (_flagDebuffState == 0 && _flagSpellForceTimer >= 10 * Time.Minute * Time.InMilliseconds) //10 minutes
+				if (_flagDebuffState == 0 && _flagSpellForceTimer >= 10 * global::Time.Minute * global::Time.InMilliseconds) //10 minutes
 				{
 					// Apply Stage 1 (Focused Assault)
 					var player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[0]);
@@ -226,7 +230,7 @@ class BgWarsongGluch : Battleground
 		SpawnBGObject(WSGObjectTypes.DoorH4, BattlegroundConst.RespawnOneDay);
 
 		UpdateWorldState(WSGWorldStates.StateTimerActive, 1);
-		UpdateWorldState(WSGWorldStates.StateTimer, (int)(GameTime.GetGameTime() + 15 * Time.Minute));
+		UpdateWorldState(WSGWorldStates.StateTimer, (int)(GameTime.GetGameTime() + 15 * global::Time.Minute));
 
 		// players joining later are not eligibles
 		TriggerGameEvent(8563);

@@ -6,12 +6,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.AI;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Movement.Generators;
 using Framework.Constants;
-using Game.AI;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement;
 
 class MovementGeneratorComparator : IComparer<MovementGenerator>
 {
@@ -730,10 +734,13 @@ public class MotionMaster
 			return;
 		*/
 
-		PointMovementGenerator movement = new(id, x, y, z, generatePath, speed, null, target, spellEffectExtraData);
-		movement.Priority = MovementGeneratorPriority.Highest;
-		movement.BaseUnitState = UnitState.Charging;
-		Add(movement);
+		PointMovementGenerator movement = new(id, x, y, z, generatePath, speed, null, target, spellEffectExtraData)
+        {
+            Priority = MovementGeneratorPriority.Highest,
+            BaseUnitState = UnitState.Charging
+        };
+
+        Add(movement);
 	}
 
 	public void MoveCharge(PathGenerator path, float speed = SPEED_CHARGE, Unit target = null, SpellEffectExtraData spellEffectExtraData = null)
@@ -784,9 +791,12 @@ public class MotionMaster
 				init.SetSpellEffectExtraData(spellEffectExtraData);
 		};
 
-		GenericMovementGenerator movement = new(initializer, MovementGeneratorType.Effect, 0);
-		movement.Priority = MovementGeneratorPriority.Highest;
-		movement.AddFlag(MovementGeneratorFlags.PersistOnDeath);
+		GenericMovementGenerator movement = new(initializer, MovementGeneratorType.Effect, 0)
+        {
+            Priority = MovementGeneratorPriority.Highest
+        };
+
+        movement.AddFlag(MovementGeneratorFlags.PersistOnDeath);
 		Add(movement);
 	}
 
@@ -846,10 +856,13 @@ public class MotionMaster
 			arrivalSpellTargetGuid = arrivalCast.Target;
 		}
 
-		GenericMovementGenerator movement = new(initializer, MovementGeneratorType.Effect, id, arrivalSpellId, arrivalSpellTargetGuid);
-		movement.Priority = MovementGeneratorPriority.Highest;
-		movement.BaseUnitState = UnitState.Jumping;
-		Add(movement);
+		GenericMovementGenerator movement = new(initializer, MovementGeneratorType.Effect, id, arrivalSpellId, arrivalSpellTargetGuid)
+        {
+            Priority = MovementGeneratorPriority.Highest,
+            BaseUnitState = UnitState.Jumping
+        };
+
+        Add(movement);
 	}
 
 	public void MoveJumpWithGravity(Position pos, float speedXY, float gravity, uint id = EventId.Jump, bool hasOrientation = false, JumpArrivalCastArgs arrivalCast = null, SpellEffectExtraData spellEffectExtraData = null)
@@ -883,10 +896,13 @@ public class MotionMaster
 			arrivalSpellTargetGuid = arrivalCast.Target;
 		}
 
-		var movement = new GenericMovementGenerator(initializer, MovementGeneratorType.Effect, id, arrivalSpellId, arrivalSpellTargetGuid);
-		movement.Priority = MovementGeneratorPriority.Highest;
-		movement.BaseUnitState = UnitState.Jumping;
-		movement.AddFlag(MovementGeneratorFlags.PersistOnDeath);
+		var movement = new GenericMovementGenerator(initializer, MovementGeneratorType.Effect, id, arrivalSpellId, arrivalSpellTargetGuid)
+        {
+            Priority = MovementGeneratorPriority.Highest,
+            BaseUnitState = UnitState.Jumping
+        };
+
+        movement.AddFlag(MovementGeneratorFlags.PersistOnDeath);
 		Add(movement);
 	}
 
@@ -903,11 +919,13 @@ public class MotionMaster
 
 			for (byte i = 0; i < stepCount; angle += step, ++i)
 			{
-				Vector3 point = new();
-				point.X = (float)(x + radius * Math.Cos(angle));
-				point.Y = (float)(y + radius * Math.Sin(angle));
+				Vector3 point = new()
+                {
+                    X = (float)(x + radius * Math.Cos(angle)),
+                    Y = (float)(y + radius * Math.Sin(angle))
+                };
 
-				if (_owner.IsFlying)
+                if (_owner.IsFlying)
 					point.Z = z;
 				else
 					point.Z = _owner.GetMapHeight(point.X, point.Y, z) + _owner.HoverOffset;
@@ -1007,9 +1025,12 @@ public class MotionMaster
 			init.SetFall();
 		};
 
-		GenericMovementGenerator movement = new(initializer, MovementGeneratorType.Effect, id);
-		movement.Priority = MovementGeneratorPriority.Highest;
-		Add(movement);
+		GenericMovementGenerator movement = new(initializer, MovementGeneratorType.Effect, id)
+        {
+            Priority = MovementGeneratorPriority.Highest
+        };
+
+        Add(movement);
 	}
 
 	public void MoveSeekAssistance(float x, float y, float z)
@@ -1111,9 +1132,12 @@ public class MotionMaster
 			return;
 		}
 
-		GenericMovementGenerator movement = new(initializer, type, id);
-		movement.Priority = priority;
-		Add(movement);
+		GenericMovementGenerator movement = new(initializer, type, id)
+        {
+            Priority = priority
+        };
+
+        Add(movement);
 	}
 
 	public static MovementGenerator GetIdleMovementGenerator()

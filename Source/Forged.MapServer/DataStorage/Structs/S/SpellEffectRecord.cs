@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Framework.Dynamic;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.Structs.S;
 
 public sealed class SpellEffectRecord
 {

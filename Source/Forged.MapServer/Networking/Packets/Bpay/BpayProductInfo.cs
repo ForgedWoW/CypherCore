@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Networking.Packets.Bpay;
+namespace Forged.MapServer.Networking.Packets.Bpay;
 
 public class BpayProductInfo
 {

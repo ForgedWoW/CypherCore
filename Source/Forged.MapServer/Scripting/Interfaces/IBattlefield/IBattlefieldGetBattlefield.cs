@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.BattleFields;
-using Game.Maps;
+using Forged.MapServer.BattleFields;
+using Forged.MapServer.Maps;
 
-namespace Game.Scripting.Interfaces.IBattlefield;
+namespace Forged.MapServer.Scripting.Interfaces.IBattlefield;
 
 public interface IBattlefieldGetBattlefield : IScriptObject
 {

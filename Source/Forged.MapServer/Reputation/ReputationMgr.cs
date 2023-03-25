@@ -4,14 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.Character;
+using Forged.MapServer.Networking.Packets.Reputation;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IPlayer;
 
-namespace Game;
+namespace Forged.MapServer.Reputation;
 
 public class ReputationMgr
 {
@@ -179,10 +182,12 @@ public class ReputationMgr
 
 	public void SendState(FactionState faction)
 	{
-		SetFactionStanding setFactionStanding = new();
-		setFactionStanding.BonusFromAchievementSystem = 0.0f;
+		SetFactionStanding setFactionStanding = new()
+        {
+            BonusFromAchievementSystem = 0.0f
+        };
 
-		var standing = faction.VisualStandingIncrease != 0 ? faction.VisualStandingIncrease : faction.Standing;
+        var standing = faction.VisualStandingIncrease != 0 ? faction.VisualStandingIncrease : faction.Standing;
 
 		if (faction != null)
 			setFactionStanding.Faction.Add(new FactionStandingData((int)faction.ReputationListID, standing));
@@ -226,9 +231,12 @@ public class ReputationMgr
 			return;
 
 		//make faction visible / not visible in reputation list at client
-		SetFactionVisible packet = new(visible);
-		packet.FactionIndex = faction.ReputationListID;
-		_player.SendPacket(packet);
+		SetFactionVisible packet = new(visible)
+        {
+            FactionIndex = faction.ReputationListID
+        };
+
+        _player.SendPacket(packet);
 	}
 
 	public bool ModifyReputation(FactionRecord factionEntry, int standing, bool spillOverOnly = false, bool noSpillover = false)
@@ -810,16 +818,18 @@ public class ReputationMgr
 		foreach (var factionEntry in CliDB.FactionStorage.Values)
 			if (factionEntry.CanHaveReputation())
 			{
-				FactionState newFaction = new();
-				newFaction.Id = factionEntry.Id;
-				newFaction.ReputationListID = (uint)factionEntry.ReputationIndex;
-				newFaction.Standing = 0;
-				newFaction.VisualStandingIncrease = 0;
-				newFaction.Flags = GetDefaultStateFlags(factionEntry);
-				newFaction.needSend = true;
-				newFaction.needSave = true;
+				FactionState newFaction = new()
+                {
+                    Id = factionEntry.Id,
+                    ReputationListID = (uint)factionEntry.ReputationIndex,
+                    Standing = 0,
+                    VisualStandingIncrease = 0,
+                    Flags = GetDefaultStateFlags(factionEntry),
+                    needSend = true,
+                    needSave = true
+                };
 
-				if (newFaction.Flags.HasFlag(ReputationFlags.Visible))
+                if (newFaction.Flags.HasFlag(ReputationFlags.Visible))
 					++_visibleFactionCount;
 
 				if (factionEntry.FriendshipRepID == 0)

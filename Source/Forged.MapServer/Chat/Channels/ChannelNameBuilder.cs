@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Text;
 using Framework.Constants;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 // initial packet data (notify type and channel name)
 class ChannelNameBuilder : MessageBuilder
@@ -24,10 +25,16 @@ class ChannelNameBuilder : MessageBuilder
 		// LocalizedPacketDo sends client DBC locale, we need to get available to server locale
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
-		PacketSenderOwning<ChannelNotify> sender = new();
-		sender.Data.Type = _modifier.GetNotificationType();
-		sender.Data.Channel = _source.GetName(localeIdx);
-		_modifier.Append(sender.Data);
+		PacketSenderOwning<ChannelNotify> sender = new()
+        {
+            Data =
+            {
+                Type = _modifier.GetNotificationType(),
+                Channel = _source.GetName(localeIdx)
+            }
+        };
+
+        _modifier.Append(sender.Data);
 		sender.Data.Write();
 
 		return sender;

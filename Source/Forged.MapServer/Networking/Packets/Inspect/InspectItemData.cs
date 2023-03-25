@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Inspect;
 
 public class InspectItemData
 {
@@ -18,7 +19,7 @@ public class InspectItemData
 	public List<int> AzeritePowers = new();
 	public List<AzeriteEssenceData> AzeriteEssences = new();
 
-	public InspectItemData(Item item, byte index)
+	public InspectItemData(Entities.Items.Item item, byte index)
 	{
 		CreatorGUID = item.Creator;
 
@@ -40,10 +41,13 @@ public class InspectItemData
 		{
 			if (gemData.ItemId != 0)
 			{
-				ItemGemData gem = new();
-				gem.Slot = i;
-				gem.Item = new ItemInstance(gemData);
-				Gems.Add(gem);
+				ItemGemData gem = new()
+                {
+                    Slot = i,
+                    Item = new ItemInstance(gemData)
+                };
+
+                Gems.Add(gem);
 			}
 
 			++i;
@@ -58,11 +62,13 @@ public class InspectItemData
 			if (essences != null)
 				for (byte slot = 0; slot < essences.AzeriteEssenceID.GetSize(); ++slot)
 				{
-					AzeriteEssenceData essence = new();
-					essence.Index = slot;
-					essence.AzeriteEssenceID = essences.AzeriteEssenceID[slot];
+					AzeriteEssenceData essence = new()
+                    {
+                        Index = slot,
+                        AzeriteEssenceID = essences.AzeriteEssenceID[slot]
+                    };
 
-					if (essence.AzeriteEssenceID != 0)
+                    if (essence.AzeriteEssenceID != 0)
 					{
 						essence.Rank = azeriteItem.GetEssenceRank(essence.AzeriteEssenceID);
 						essence.SlotUnlocked = true;

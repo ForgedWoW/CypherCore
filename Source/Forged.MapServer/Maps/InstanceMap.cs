@@ -2,15 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Networking.Packets.Instance;
+using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting.Interfaces.IMap;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Groups;
-using Game.Networking.Packets;
-using Game.Scenarios;
-using Game.Scripting.Interfaces.IMap;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class InstanceMap : Map
 {
@@ -140,12 +143,15 @@ public class InstanceMap : Map
 					(playerLock.IsExpired() && playerLock.IsExtended()) ||
 					playerLock.GetData().CompletedEncountersMask != _instanceLock.GetData().CompletedEncountersMask)
 				{
-					PendingRaidLock pendingRaidLock = new();
-					pendingRaidLock.TimeUntilLock = 60000;
-					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
-					pendingRaidLock.Extending = playerLock != null && playerLock.IsExtended();
-					pendingRaidLock.WarningOnly = entries.Map.IsFlexLocking(); // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-					player.Session.SendPacket(pendingRaidLock);
+					PendingRaidLock pendingRaidLock = new()
+                    {
+                        TimeUntilLock = 60000,
+                        CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
+                        Extending = playerLock != null && playerLock.IsExtended(),
+                        WarningOnly = entries.Map.IsFlexLocking() // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
+                    };
+
+                    player.Session.SendPacket(pendingRaidLock);
 
 					if (!entries.Map.IsFlexLocking())
 						player.SetPendingBind(InstanceId, 60000);
@@ -289,18 +295,24 @@ public class InstanceMap : Map
 					break;
 				case InstanceResetMethod.Expire:
 				{
-					RaidInstanceMessage raidInstanceMessage = new();
-					raidInstanceMessage.Type = InstanceResetWarningType.Expired;
-					raidInstanceMessage.MapID = Id;
-					raidInstanceMessage.DifficultyID = DifficultyID;
-					raidInstanceMessage.Write();
+					RaidInstanceMessage raidInstanceMessage = new()
+                    {
+                        Type = InstanceResetWarningType.Expired,
+                        MapID = Id,
+                        DifficultyID = DifficultyID
+                    };
 
-					PendingRaidLock pendingRaidLock = new();
-					pendingRaidLock.TimeUntilLock = 60000;
-					pendingRaidLock.CompletedMask = _instanceLock.GetData().CompletedEncountersMask;
-					pendingRaidLock.Extending = true;
-					pendingRaidLock.WarningOnly = Entry.IsFlexLocking();
-					pendingRaidLock.Write();
+                    raidInstanceMessage.Write();
+
+					PendingRaidLock pendingRaidLock = new()
+                    {
+                        TimeUntilLock = 60000,
+                        CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
+                        Extending = true,
+                        WarningOnly = Entry.IsFlexLocking()
+                    };
+
+                    pendingRaidLock.Write();
 
 					foreach (var player in Players)
 					{
@@ -380,9 +392,12 @@ public class InstanceMap : Map
 
 				if (isNewLock)
 				{
-					InstanceSaveCreated data = new();
-					data.Gm = player.IsGameMaster;
-					player.SendPacket(data);
+					InstanceSaveCreated data = new()
+                    {
+                        Gm = player.IsGameMaster
+                    };
+
+                    player.SendPacket(data);
 
 					player.Session.SendCalendarRaidLockoutAdded(newLock);
 				}
@@ -430,9 +445,12 @@ public class InstanceMap : Map
 
 				if (isNewLock)
 				{
-					InstanceSaveCreated data = new();
-					data.Gm = player.IsGameMaster;
-					player.SendPacket(data);
+					InstanceSaveCreated data = new()
+                    {
+                        Gm = player.IsGameMaster
+                    };
+
+                    player.SendPacket(data);
 
 					player.Session.SendCalendarRaidLockoutAdded(newLock);
 				}
@@ -457,9 +475,12 @@ public class InstanceMap : Map
 
 		if (isNewLock)
 		{
-			InstanceSaveCreated data = new();
-			data.Gm = player.IsGameMaster;
-			player.SendPacket(data);
+			InstanceSaveCreated data = new()
+            {
+                Gm = player.IsGameMaster
+            };
+
+            player.SendPacket(data);
 
 			player.Session.SendCalendarRaidLockoutAdded(newLock);
 		}

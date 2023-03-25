@@ -7,7 +7,7 @@ using System.IO;
 using System.Numerics;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class GroupModel : IModel
 {

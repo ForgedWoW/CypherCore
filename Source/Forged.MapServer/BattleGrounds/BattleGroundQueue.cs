@@ -4,13 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Groups;
 
-namespace Game.BattleGrounds;
+namespace Forged.MapServer.BattleGrounds;
 
 public class BattlegroundQueue
 {
@@ -70,18 +73,20 @@ public class BattlegroundQueue
 		var bracketId = bracketEntry.GetBracketId();
 
 		// create new ginfo
-		GroupQueueInfo ginfo = new();
-		ginfo.ArenaTeamId = arenateamid;
-		ginfo.IsInvitedToBGInstanceGUID = 0;
-		ginfo.JoinTime = GameTime.GetGameTimeMS();
-		ginfo.RemoveInviteTime = 0;
-		ginfo.Team = team;
-		ginfo.ArenaTeamRating = ArenaRating;
-		ginfo.ArenaMatchmakerRating = MatchmakerRating;
-		ginfo.OpponentsTeamRating = 0;
-		ginfo.OpponentsMatchmakerRating = 0;
+		GroupQueueInfo ginfo = new()
+        {
+            ArenaTeamId = arenateamid,
+            IsInvitedToBGInstanceGUID = 0,
+            JoinTime = GameTime.GetGameTimeMS(),
+            RemoveInviteTime = 0,
+            Team = team,
+            ArenaTeamRating = ArenaRating,
+            ArenaMatchmakerRating = MatchmakerRating,
+            OpponentsTeamRating = 0,
+            OpponentsMatchmakerRating = 0
+        };
 
-		ginfo.Players.Clear();
+        ginfo.Players.Clear();
 
 		//compute index (if group is premade or joined a rated match) to queues
 		uint index = 0;
@@ -115,22 +120,26 @@ public class BattlegroundQueue
 				if (!member)
 					continue; // this should never happen
 
-				PlayerQueueInfo pl_info = new();
-				pl_info.LastOnlineTime = lastOnlineTime;
-				pl_info.GroupInfo = ginfo;
+				PlayerQueueInfo pl_info = new()
+                {
+                    LastOnlineTime = lastOnlineTime,
+                    GroupInfo = ginfo
+                };
 
-				m_QueuedPlayers[member.GUID] = pl_info;
+                m_QueuedPlayers[member.GUID] = pl_info;
 				// add the pinfo to ginfo's list
 				ginfo.Players[member.GUID] = pl_info;
 			}
 		}
 		else
 		{
-			PlayerQueueInfo pl_info = new();
-			pl_info.LastOnlineTime = lastOnlineTime;
-			pl_info.GroupInfo = ginfo;
+			PlayerQueueInfo pl_info = new()
+            {
+                LastOnlineTime = lastOnlineTime,
+                GroupInfo = ginfo
+            };
 
-			m_QueuedPlayers[leader.GUID] = pl_info;
+            m_QueuedPlayers[leader.GUID] = pl_info;
 			ginfo.Players[leader.GUID] = pl_info;
 		}
 
@@ -633,7 +642,7 @@ public class BattlegroundQueue
 
 	void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
 	{
-		var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
+		var timeInQueue = global::Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
 		uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
 
 		if (m_queueId.TeamSize == 0)

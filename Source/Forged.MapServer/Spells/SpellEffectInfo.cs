@@ -3,13 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Conditions;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells;
 
 public class SpellEffectInfo
 {

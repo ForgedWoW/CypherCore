@@ -4,17 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Movement.Generators;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Loots;
-using Game.Maps;
-using Game.Movement;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("npc")]
 class NPCCommands
@@ -100,8 +105,8 @@ class NPCCommands
 		if (curRespawnDelay < 0)
 			curRespawnDelay = 0;
 
-		var curRespawnDelayStr = Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
-		var defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
+		var curRespawnDelayStr = global::Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
+		var defRespawnDelayStr = global::Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
 		handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.SpawnId, target.GUID.ToString(), entry, faction, npcflags, displayid, nativeid);
 
@@ -699,14 +704,16 @@ class NPCCommands
 			var extendedcost = ec.GetValueOrDefault(0);
 			var vendor_entry = vendor.Entry;
 
-			VendorItem vItem = new();
-			vItem.Item = itemId;
-			vItem.Maxcount = maxcount;
-			vItem.Incrtime = incrtime;
-			vItem.ExtendedCost = extendedcost;
-			vItem.Type = ItemVendorType.Item;
+			VendorItem vItem = new()
+            {
+                Item = itemId,
+                Maxcount = maxcount,
+                Incrtime = incrtime,
+                ExtendedCost = extendedcost,
+                Type = ItemVendorType.Item
+            };
 
-			if (!bonusListIds.IsEmpty())
+            if (!bonusListIds.IsEmpty())
 			{
 				var bonusListIDsTok = new StringArray(bonusListIds, ';');
 

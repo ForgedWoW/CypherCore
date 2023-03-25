@@ -3,9 +3,10 @@
 
 using System.Collections.Generic;
 using System.Numerics;
+using Forged.MapServer.Collision.Models;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision;
 
 public class TriBoundFunc
 {

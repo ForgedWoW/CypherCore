@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Scripting.BaseScripts;
+using Forged.MapServer.Scripting.Interfaces.IMap;
 using Framework.Constants;
-using Game.Maps;
-using Game.Scripting.BaseScripts;
-using Game.Scripting.Interfaces.IMap;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Maps;
 
 class SplitByFactionMapScript : WorldMapScript, IMapOnCreate<Map>
 {

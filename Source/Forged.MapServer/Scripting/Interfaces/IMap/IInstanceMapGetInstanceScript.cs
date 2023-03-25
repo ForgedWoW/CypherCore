@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Maps;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
 
-namespace Game.Scripting.Interfaces.IMap;
+namespace Forged.MapServer.Scripting.Interfaces.IMap;
 
 public interface IInstanceMapGetInstanceScript : IScriptObject
 {

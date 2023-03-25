@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Constants;
 
-namespace Game.Networking.Packets.Quest;
+namespace Forged.MapServer.Networking.Packets.Quest;
 
 public class UiMapQuestLinesResponse : ServerPacket
 {

@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.CoreAI;
 
 public class CasterAI : CombatAI
 {

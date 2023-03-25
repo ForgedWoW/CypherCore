@@ -3,11 +3,12 @@
 
 using System;
 using System.Numerics;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.Movement;
+namespace Forged.MapServer.Movement.Generators;
 
 public class PathGenerator
 {

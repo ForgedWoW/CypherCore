@@ -2,12 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Grids;
-using Game.Maps.Interfaces;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps;
 
 public class Cell
 {

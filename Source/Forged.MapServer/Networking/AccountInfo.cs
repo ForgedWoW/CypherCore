@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Framework.Database;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 class AccountInfo
 {

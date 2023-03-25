@@ -3,9 +3,8 @@
 
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Spells;
 
 public class SpellProcEntry
 {

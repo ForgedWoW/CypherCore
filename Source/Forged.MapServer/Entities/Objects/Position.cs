@@ -3,9 +3,9 @@
 
 using System;
 using System.Numerics;
-using Game.Maps.Grids;
+using Forged.MapServer.Maps.Grids;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects;
 
 public class Position
 {

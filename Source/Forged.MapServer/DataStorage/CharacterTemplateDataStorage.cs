@@ -3,9 +3,8 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Framework.Database;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStorage>
 {
@@ -14,7 +13,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 
 	public void LoadCharacterTemplates()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 		_characterTemplateStore.Clear();
 
 		MultiMap<uint, CharacterTemplateClass> characterTemplateClasses = new();
@@ -58,12 +57,15 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 
 		do
 		{
-			CharacterTemplate templ = new();
-			templ.TemplateSetId = templates.Read<uint>(0);
-			templ.Name = templates.Read<string>(1);
-			templ.Description = templates.Read<string>(2);
-			templ.Level = templates.Read<byte>(3);
-			templ.Classes = characterTemplateClasses[templ.TemplateSetId];
+			CharacterTemplate templ = new()
+            {
+                TemplateSetId = templates.Read<uint>(0),
+                Name = templates.Read<string>(1),
+                Description = templates.Read<string>(2),
+                Level = templates.Read<byte>(3)
+            };
+
+            templ.Classes = characterTemplateClasses[templ.TemplateSetId];
 
 			if (templ.Classes.Empty())
 			{
@@ -75,7 +77,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 			_characterTemplateStore[templ.TemplateSetId] = templ;
 		} while (templates.NextRow());
 
-		Log.Logger.Information("Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()

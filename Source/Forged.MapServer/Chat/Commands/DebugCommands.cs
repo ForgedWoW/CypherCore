@@ -5,14 +5,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Checks;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Networking.Packets.Movement;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Scripting.Interfaces.IItem;
+using Forged.MapServer.Server;
+using Forged.MapServer.Time;
+using Forged.MapServer.World;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IItem;
+using Transport = Forged.MapServer.Entities.Transport;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("debug")]
 class DebugCommands
@@ -753,9 +769,12 @@ class DebugCommands
 			}
 			else
 			{
-				MoveUpdate moveUpdate = new();
-				moveUpdate.Status = target.MovementInfo;
-				target.SendMessageToSet(moveUpdate, true);
+				MoveUpdate moveUpdate = new()
+                {
+                    Status = target.MovementInfo
+                };
+
+                target.SendMessageToSet(moveUpdate, true);
 			}
 
 			handler.SendSysMessage(CypherStrings.MoveflagsSet, target.GetUnitMovementFlags(), target.GetUnitMovementFlags2());
@@ -932,19 +951,19 @@ class DebugCommands
 		if (daily)
 		{
 			Global.WorldMgr.DailyReset();
-			handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextDailyQuestResetTimeVarId)).ToShortTimeString()}");
+			handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {global::Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextDailyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		if (weekly)
 		{
 			Global.WorldMgr.ResetWeeklyQuests();
-			handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextWeeklyQuestResetTimeVarId)).ToShortTimeString()}");
+			handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {global::Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextWeeklyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		if (monthly)
 		{
 			Global.WorldMgr.ResetMonthlyQuests();
-			handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextMonthlyQuestResetTimeVarId)).ToShortTimeString()}");
+			handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {global::Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextMonthlyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		return true;
@@ -1015,9 +1034,12 @@ class DebugCommands
 	[Command("spawnvehicle", RBACPermissions.CommandDebug)]
 	static bool HandleDebugSpawnVehicleCommand(CommandHandler handler, uint entry, uint id)
 	{
-		var pos = new Position();
-		pos.Orientation = handler.Player.Location.Orientation;
-		handler.Player.GetClosePoint(pos, handler.Player.CombatReach);
+		var pos = new Position
+        {
+            Orientation = handler.Player.Location.Orientation
+        };
+
+        handler.Player.GetClosePoint(pos, handler.Player.CombatReach);
 
 		if (id == 0)
 			return handler.Player.SummonCreature(entry, pos);
@@ -1482,10 +1504,13 @@ class DebugCommands
 		[Command("channelnotify", RBACPermissions.CommandDebug)]
 		static bool HandleDebugSendChannelNotifyCommand(CommandHandler handler, ChatNotify type)
 		{
-			ChannelNotify packet = new();
-			packet.Type = type;
-			packet.Channel = "test";
-			handler.Session.SendPacket(packet);
+			ChannelNotify packet = new()
+            {
+                Type = type,
+                Channel = "test"
+            };
+
+            handler.Session.SendPacket(packet);
 
 			return true;
 		}
@@ -1584,13 +1609,16 @@ class DebugCommands
 		[Command("spellfail", RBACPermissions.CommandDebug)]
 		static bool HandleDebugSendSpellFailCommand(CommandHandler handler, SpellCastResult result, int? failArg1, int? failArg2)
 		{
-			CastFailed castFailed = new();
-			castFailed.CastID = ObjectGuid.Empty;
-			castFailed.SpellID = 133;
-			castFailed.Reason = result;
-			castFailed.FailedArg1 = failArg1.GetValueOrDefault(-1);
-			castFailed.FailedArg2 = failArg2.GetValueOrDefault(-1);
-			handler.Session.SendPacket(castFailed);
+			CastFailed castFailed = new()
+            {
+                CastID = ObjectGuid.Empty,
+                SpellID = 133,
+                Reason = result,
+                FailedArg1 = failArg1.GetValueOrDefault(-1),
+                FailedArg2 = failArg2.GetValueOrDefault(-1)
+            };
+
+            handler.Session.SendPacket(castFailed);
 
 			return true;
 		}

@@ -6,7 +6,7 @@ using System.IO;
 using System.Numerics;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class ModelSpawn : ModelMinimalData
 {
@@ -28,16 +28,17 @@ public class ModelSpawn : ModelMinimalData
 
 	public static bool ReadFromFile(BinaryReader reader, out ModelSpawn spawn)
 	{
-		spawn = new ModelSpawn();
+		spawn = new ModelSpawn
+        {
+            Flags = reader.ReadByte(),
+            AdtId = reader.ReadByte(),
+            Id = reader.ReadUInt32(),
+            IPos = reader.Read<Vector3>(),
+            IRot = reader.Read<Vector3>(),
+            IScale = reader.ReadSingle()
+        };
 
-		spawn.Flags = reader.ReadByte();
-		spawn.AdtId = reader.ReadByte();
-		spawn.Id = reader.ReadUInt32();
-		spawn.IPos = reader.Read<Vector3>();
-		spawn.IRot = reader.Read<Vector3>();
-		spawn.IScale = reader.ReadSingle();
-
-		var has_bound = Convert.ToBoolean(spawn.Flags & (uint)ModelFlags.HasBound);
+        var has_bound = Convert.ToBoolean(spawn.Flags & (uint)ModelFlags.HasBound);
 
 		if (has_bound) // only WMOs have bound in MPQ, only available after computation
 		{

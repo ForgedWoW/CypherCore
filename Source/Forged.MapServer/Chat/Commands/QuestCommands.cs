@@ -2,20 +2,23 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using System.Linq;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Quest;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Scripting.Interfaces.IQuest;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.IQuest;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("quest")]
 class QuestCommands
 {
 	[Command("add", RBACPermissions.CommandQuestAdd)]
-	static bool HandleQuestAdd(CommandHandler handler, Quest quest)
+	static bool HandleQuestAdd(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -55,7 +58,7 @@ class QuestCommands
 	}
 
 	[Command("complete", RBACPermissions.CommandQuestComplete)]
-	static bool HandleQuestComplete(CommandHandler handler, Quest quest)
+	static bool HandleQuestComplete(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -83,7 +86,7 @@ class QuestCommands
 	}
 
 	[Command("remove", RBACPermissions.CommandQuestRemove)]
-	static bool HandleQuestRemove(CommandHandler handler, Quest quest)
+	static bool HandleQuestRemove(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -137,7 +140,7 @@ class QuestCommands
 	}
 
 	[Command("reward", RBACPermissions.CommandQuestReward)]
-	static bool HandleQuestReward(CommandHandler handler, Quest quest)
+	static bool HandleQuestReward(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 

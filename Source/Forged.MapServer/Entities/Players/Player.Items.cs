@@ -5,17 +5,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking.Packets.Equipment;
+using Forged.MapServer.Networking.Packets.Item;
+using Forged.MapServer.Networking.Packets.Loot;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Scripting.Interfaces.IItem;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Loots;
-using Game.Mails;
-using Game.Maps;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IItem;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
@@ -166,12 +177,17 @@ public partial class Player
 			return;
 		}
 
-		SetItemPurchaseData setItemPurchaseData = new();
-		setItemPurchaseData.ItemGUID = item.GUID;
-		setItemPurchaseData.PurchaseTime = TotalPlayedTime - item.PlayedTime;
-		setItemPurchaseData.Contents.Money = item.PaidMoney;
+		SetItemPurchaseData setItemPurchaseData = new()
+        {
+            ItemGUID = item.GUID,
+            PurchaseTime = TotalPlayedTime - item.PlayedTime,
+            Contents =
+            {
+                Money = item.PaidMoney
+            }
+        };
 
-		for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
+        for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
 		{
 			setItemPurchaseData.Contents.Items[i].ItemCount = iece.ItemCount[i];
 			setItemPurchaseData.Contents.Items[i].ItemID = iece.ItemID[i];
@@ -192,15 +208,18 @@ public partial class Player
 	public void SendItemRefundResult(Item item, ItemExtendedCostRecord iece, byte error)
 	{
 		ItemPurchaseRefundResult itemPurchaseRefundResult = new();
-		itemPurchaseRefundResult.ItemGUID = item.GUID;
-		itemPurchaseRefundResult.Result = error;
 
-		if (error == 0)
+        {
+            ItemGUID = item.GUID,
+            Result = error
+        }	
+		i    (error == 0)
 		{
 			itemPurchaseRefundResult.Contents = new ItemPurchaseContents();
-			itemPurchaseRefundResult.Contents.Money = item.PaidMoney;
-
-			for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
+            {
+                Money = item.PaidMoney
+            }	
+			             (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
 			{
 				itemPurchaseRefundResult.Contents.Items[i].ItemCount = iece.ItemCount[i];
 				itemPurchaseRefundResult.Contents.Items[i].ItemID = iece.ItemID[i];
@@ -1057,9 +1076,12 @@ public partial class Player
 						SpellHistory.AddGlobalCooldown(spellProto, TimeSpan.FromMilliseconds(_weaponChangeTimer));
 
 						SpellCooldownPkt spellCooldown = new();
-						spellCooldown.Caster = GUID;
-						spellCooldown.Flags = SpellCooldownFlags.IncludeGCD;
-						spellCooldown.SpellCooldowns.Add(new SpellCooldownStruct(cooldownSpell, 0));
+
+                        {
+                            Caster = GUID,
+                            Flags = SpellCooldownFlags.IncludeGCD
+                        }			
+                        llCooldown.SpellCooldowns.Add(new SpellCooldownStruct(cooldownSpell, 0));
 						SendPacket(spellCooldown);
 					}
 				}
@@ -1249,9 +1271,11 @@ public partial class Player
 	public void SendEquipError(InventoryResult msg, Item item1 = null, Item item2 = null, uint itemId = 0)
 	{
 		InventoryChangeFailure failure = new();
-		failure.BagResult = msg;
 
-		if (msg != InventoryResult.Ok)
+        {
+            BagResult = msg
+        }	
+		i    (msg != InventoryResult.Ok)
 		{
 			if (item1)
 				failure.Item[0] = item1.GUID;
@@ -2136,27 +2160,24 @@ public partial class Player
 
 		ItemPushResult packet = new();
 
-		packet.PlayerGUID = GUID;
-
-		packet.Slot = item.BagSlot;
-		packet.SlotInBag = item.Count == quantity ? item.Slot : -1;
-
-		packet.Item = new ItemInstance(item);
-
-		//packet.QuestLogItemID;
-		packet.Quantity = quantity;
-		packet.QuantityInInventory = GetItemCount(item.Entry);
-		packet.BattlePetSpeciesID = (int)item.GetModifier(ItemModifier.BattlePetSpeciesId);
-		packet.BattlePetBreedID = (int)item.GetModifier(ItemModifier.BattlePetBreedData) & 0xFFFFFF;
-		packet.BattlePetBreedQuality = (item.GetModifier(ItemModifier.BattlePetBreedData) >> 24) & 0xFF;
-		packet.BattlePetLevel = (int)item.GetModifier(ItemModifier.BattlePetLevel);
-
-		packet.ItemGUID = item.GUID;
-
-		packet.Pushed = pushed;
-		packet.DisplayText = ItemPushResult.DisplayType.Normal;
-		packet.Created = created;
-		//packet.IsBonusRoll;
+        {
+            PlayerGUID = GUID,
+            Slot = item.BagSlot,
+            SlotInBag = item.Count == quantity ? item.Slot : -1,
+            Item = new ItemInstance(item),
+            //packet.QuestLogItemID;
+            Quantity = quantity,
+            QuantityInInventory = GetItemCount(item.Entry),
+            BattlePetSpeciesID = (int)item.GetModifier(ItemModifier.BattlePetSpeciesId),
+            BattlePetBreedID = (int)item.GetModifier(ItemModifier.BattlePetBreedData) & 0xFFFFFF,
+            BattlePetBreedQuality = (item.GetModifier(ItemModifier.BattlePetBreedData) >> 24) & 0xFF,
+            BattlePetLevel = (int)item.GetModifier(ItemModifier.BattlePetLevel),
+            ItemGUID = item.GUID,
+            Pushed = pushed,
+            DisplayText = ItemPushResult.DisplayType.Normal,
+            Created = created
+        }
+		p    acket.IsBonusRoll;
 
 		if (dungeonEncounterId != 0)
 		{
@@ -3620,7 +3641,7 @@ public partial class Player
 			}
 	}
 
-	public Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
+	public Loot.Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
 	{
 		return _aeLootView.FirstOrDefault(pair => pair.Value.GetOwnerGUID() == lootWorldObjectGuid).Value;
 	}
@@ -4560,8 +4581,11 @@ public partial class Player
 				AddTemporarySpell(artifactPowerRank.SpellID);
 				LearnedSpells learnedSpells = new();
 				LearnedSpellInfo learnedSpellInfo = new();
-				learnedSpellInfo.SpellID = artifactPowerRank.SpellID;
-				learnedSpells.SuppressMessaging = true;
+
+                {
+                    SpellID = artifactPowerRank.SpellID
+                }			
+                rnedSpells.SuppressMessaging = true;
 				learnedSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
 				SendPacket(learnedSpells);
 			}
@@ -4569,8 +4593,11 @@ public partial class Player
 			{
 				RemoveTemporarySpell(artifactPowerRank.SpellID);
 				UnlearnedSpells unlearnedSpells = new();
-				unlearnedSpells.SuppressMessaging = true;
-				unlearnedSpells.SpellID.Add(artifactPowerRank.SpellID);
+
+                {
+                    SuppressMessaging = true
+                }			
+                earnedSpells.SpellID.Add(artifactPowerRank.SpellID);
 				SendPacket(unlearnedSpells);
 			}
 		}
@@ -5169,7 +5196,7 @@ public partial class Player
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LootTargetGUID), guid);
 	}
 
-	public void StoreLootItem(ObjectGuid lootWorldObjectGuid, byte lootSlot, Loot loot, AELootResult aeResult = null)
+	public void StoreLootItem(ObjectGuid lootWorldObjectGuid, byte lootSlot, Loot.Loot loot, AELootResult aeResult = null)
 	{
 		var item = loot.LootItemInSlot(lootSlot, this, out var ffaItem);
 
@@ -5260,7 +5287,7 @@ public partial class Player
 		}
 	}
 
-	public Dictionary<ObjectGuid, Loot> GetAELootView()
+	public Dictionary<ObjectGuid, Loot.Loot> GetAELootView()
 	{
 		return _aeLootView;
 	}
@@ -5296,7 +5323,7 @@ public partial class Player
 		// Now we must make bones lootable, and send player loot
 		bones.SetCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-		bones.Loot = new Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
+		bones.Loot = new Loot.Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
 
 		// For AV Achievement
 		var bg = Battleground;
@@ -5322,9 +5349,12 @@ public partial class Player
 	public void SendLootRelease(ObjectGuid guid)
 	{
 		LootReleaseResponse packet = new();
-		packet.LootObj = guid;
-		packet.Owner = GUID;
-		SendPacket(packet);
+
+        {
+            LootObj = guid,
+            Owner = GUID
+        }		p
+    dPacket(packet);
 	}
 
 	public void SendLootReleaseAll()
@@ -5332,7 +5362,7 @@ public partial class Player
 		SendPacket(new LootReleaseAll());
 	}
 
-	public void SendLoot(Loot loot, bool aeLooting = false)
+	public void SendLoot(Loot.Loot loot, bool aeLooting = false)
 	{
 		if (!GetLootGUID().IsEmpty && !aeLooting)
 			_session.DoLootReleaseAll();
@@ -5343,13 +5373,16 @@ public partial class Player
 			SetLootGUID(loot.GetOwnerGUID());
 
 		LootResponse packet = new();
-		packet.Owner = loot.GetOwnerGUID();
-		packet.LootObj = loot.GetGUID();
-		packet.LootMethod = loot.GetLootMethod();
-		packet.AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.loot_type);
-		packet.Acquired = true; // false == No Loot (this too^^)
-		packet.AELooting = aeLooting;
-		loot.BuildLootResponse(packet, this);
+
+        {
+            Owner = loot.GetOwnerGUID(),
+            LootObj = loot.GetGUID(),
+            LootMethod = loot.GetLootMethod(),
+            AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.loot_type),
+            Acquired = true, // false == No Loot (this too^^)
+            AELooting = aeLooting
+        }		p
+    t.BuildLootResponse(packet, this);
 		SendPacket(packet);
 
 		// add 'this' player as one of the players that are looting 'loot'
@@ -5363,27 +5396,36 @@ public partial class Player
 	public void SendLootError(ObjectGuid lootObj, ObjectGuid owner, LootError error)
 	{
 		LootResponse packet = new();
-		packet.LootObj = lootObj;
-		packet.Owner = owner;
-		packet.Acquired = false;
-		packet.FailureReason = error;
-		SendPacket(packet);
+
+        {
+            LootObj = lootObj,
+            Owner = owner,
+            Acquired = false,
+            FailureReason = error
+        }		p
+    dPacket(packet);
 	}
 
 	public void SendNotifyLootMoneyRemoved(ObjectGuid lootObj)
 	{
 		CoinRemoved packet = new();
-		packet.LootObj = lootObj;
-		SendPacket(packet);
+
+        {
+            LootObj = lootObj
+        }		S
+    dPacket(packet);
 	}
 
 	public void SendNotifyLootItemRemoved(ObjectGuid lootObj, ObjectGuid owner, byte lootListId)
 	{
 		LootRemoved packet = new();
-		packet.LootObj = lootObj;
-		packet.Owner = owner;
-		packet.LootListID = lootListId;
-		SendPacket(packet);
+
+        {
+            LootObj = lootObj,
+            Owner = owner,
+            LootListID = lootListId
+        }		p
+    dPacket(packet);
 	}
 
 	public void SetEquipmentSet(EquipmentSetInfo.EquipmentSetData newEqSet)
@@ -5414,10 +5456,13 @@ public partial class Player
 			eqSlot.Data.Guid = setGuid;
 
 			EquipmentSetID data = new();
-			data.GUID = eqSlot.Data.Guid;
-			data.Type = (int)eqSlot.Data.Type;
-			data.SetID = eqSlot.Data.SetId;
-			SendPacket(data);
+
+            {
+                GUID = eqSlot.Data.Guid,
+                Type = (int)eqSlot.Data.Type,
+                SetID = eqSlot.Data.SetId
+            }			
+            dPacket(data);
 		}
 
 		eqSlot.State = eqSlot.State == EquipmentSetUpdateState.New ? EquipmentSetUpdateState.New : EquipmentSetUpdateState.Changed;
@@ -6499,11 +6544,14 @@ public partial class Player
 			var new_count = pVendor.UpdateVendorItemCurrentCount(crItem, count);
 
 			BuySucceeded packet = new();
-			packet.VendorGUID = pVendor.GUID;
-			packet.Muid = vendorslot + 1;
-			packet.NewQuantity = crItem.Maxcount > 0 ? new_count : 0xFFFFFFFF;
-			packet.QuantityBought = count;
-			SendPacket(packet);
+
+            {
+                VendorGUID = pVendor.GUID,
+                Muid = vendorslot + 1,
+                NewQuantity = crItem.Maxcount > 0 ? new_count : 0xFFFFFFFF,
+                QuantityBought = count
+            }			
+            dPacket(packet);
 
 			SendNewItem(it, count, true, false, false);
 
@@ -6699,10 +6747,13 @@ public partial class Player
 			SpellHistory.AddCooldown((uint)effectData.SpellID, pItem.Entry, TimeSpan.FromSeconds(30));
 
 			ItemCooldown data = new();
-			data.ItemGuid = pItem.GUID;
-			data.SpellID = (uint)effectData.SpellID;
-			data.Cooldown = 30 * Time.InMilliseconds; //Always 30secs?
-			SendPacket(data);
+
+            {
+                ItemGuid = pItem.GUID,
+                SpellID = (uint)effectData.SpellID,
+                Cooldown = 30 * global::Time.InMilliseconds //Always 30secs?
+            }			
+            dPacket(data);
 		}
 	}
 
@@ -7464,7 +7515,7 @@ public partial class Player
 
 	void AutoStoreLoot(byte bag, byte slot, uint loot_id, LootStore store, ItemContext context = 0, bool broadcast = false, bool createdByPlayer = false)
 	{
-		Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
+		Loot.Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
 		loot.FillLoot(loot_id, store, this, true, false, LootModes.Default, context);
 
 		loot.AutoStore(this, bag, slot, broadcast, createdByPlayer);

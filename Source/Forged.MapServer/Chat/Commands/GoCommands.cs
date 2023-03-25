@@ -4,13 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.SupportSystem;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps.Grids;
-using Game.SupportSystem;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("go")]
 class GoCommands

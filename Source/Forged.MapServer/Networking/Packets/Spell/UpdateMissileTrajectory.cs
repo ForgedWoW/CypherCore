@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Networking.Packets.Movement;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Spell;
 
 class UpdateMissileTrajectory : ClientPacket
 {

@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Maps;
 using Framework.Constants;
-using Game.Maps;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.GameObjects;
 
 public struct GameObjectValue
 {

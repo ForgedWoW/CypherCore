@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Server;
 using Framework.Collections;
 using Framework.Constants;
-using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
 
-namespace Game;
+namespace Forged.MapServer.Conditions;
 
 public class DisableManager : Singleton<DisableManager>
 {
@@ -18,7 +18,7 @@ public class DisableManager : Singleton<DisableManager>
 
 	public void LoadDisables()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// reload case
 		m_DisableMap.Clear();
@@ -50,10 +50,12 @@ public class DisableManager : Singleton<DisableManager>
 			var params_0 = result.Read<string>(3);
 			var params_1 = result.Read<string>(4);
 
-			DisableData data = new();
-			data.flags = (ushort)flags;
+			DisableData data = new()
+            {
+                flags = (ushort)flags
+            };
 
-			switch (type)
+            switch (type)
 			{
 				case DisableType.Spell:
 					if (!(Global.SpellMgr.HasSpellInfo(entry, Difficulty.None) || flags.HasFlag(DisableFlags.SpellDeprecatedSpell)))
@@ -279,7 +281,7 @@ public class DisableManager : Singleton<DisableManager>
 			++total_count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} disables in {1} ms", total_count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} disables in {1} ms", total_count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void CheckQuestDisables()
@@ -291,7 +293,7 @@ public class DisableManager : Singleton<DisableManager>
 			return;
 		}
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// check only quests, rest already done at startup
 		foreach (var pair in m_DisableMap[DisableType.Quest])
@@ -310,7 +312,7 @@ public class DisableManager : Singleton<DisableManager>
 				Log.Logger.Error("Disable flags specified for quest {0}, useless data.", entry);
 		}
 
-		Log.Logger.Information("Checked {0} quest disables in {1} ms", m_DisableMap[DisableType.Quest].Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Checked {0} quest disables in {1} ms", m_DisableMap[DisableType.Quest].Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public bool IsDisabledFor(DisableType type, uint entry, WorldObject refe, ushort flags = 0)

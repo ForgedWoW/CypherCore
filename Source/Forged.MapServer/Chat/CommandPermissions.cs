@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 public struct CommandPermissions
 {

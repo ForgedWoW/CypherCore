@@ -7,26 +7,28 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.Chat.Channels;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Extendability;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Guilds;
+using Forged.MapServer.Movement;
+using Forged.MapServer.Scripting.Activators;
+using Forged.MapServer.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.MapServer.Scripting.Interfaces.IAura;
+using Forged.MapServer.Scripting.Interfaces.IPlayer;
+using Forged.MapServer.Scripting.Interfaces.ISpell;
+using Forged.MapServer.Scripting.Registers;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
-using Framework.Database;
-using Game.AI;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Extendability;
-using Game.Groups;
-using Game.Guilds;
-using Game.Movement;
-using Game.Scripting.Activators;
-using Game.Scripting.Interfaces;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Scripting.Interfaces.IAura;
-using Game.Scripting.Interfaces.IPlayer;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Scripting.Registers;
-using Game.Spells;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 // Manages registration, loading, and execution of Scripts.
 public class ScriptManager : Singleton<ScriptManager>
@@ -47,7 +49,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	//Initialization
 	public void Initialize()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		LoadDatabase();
 
@@ -61,7 +63,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		// MapScripts
 		Global.MapMgr.AddSC_BuiltInScripts();
 
-		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	//AreaTriggerScript
@@ -399,7 +401,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 	private void LoadScriptWaypoints()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Drop Existing Waypoint list
 		_waypointStore.Clear();
@@ -457,12 +459,12 @@ public class ScriptManager : Singleton<ScriptManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	private void LoadScriptSplineChains()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_mSplineChainsMap.Clear();
 
@@ -549,7 +551,7 @@ public class ScriptManager : Singleton<ScriptManager>
 				++wpCount;
 			} while (resultWP.NextRow());
 
-			Log.Logger.Information("Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 

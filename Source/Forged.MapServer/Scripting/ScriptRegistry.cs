@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Game.Scripting.Interfaces;
+using Forged.MapServer.Scripting.Interfaces;
 
-namespace Game.Scripting;
+namespace Forged.MapServer.Scripting;
 
 public class ScriptRegistry
 {

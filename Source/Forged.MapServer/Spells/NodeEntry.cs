@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.DataStorage;
+using Forged.MapServer.DataStorage.Structs.T;
 
-namespace Game;
+namespace Forged.MapServer.Spells;
 
 class NodeEntry
 {

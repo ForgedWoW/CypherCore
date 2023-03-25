@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Spells;
 
 [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
 public class SpellEffectHandlerAttribute : Attribute

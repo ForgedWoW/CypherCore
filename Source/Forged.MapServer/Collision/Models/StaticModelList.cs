@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class StaticModelList
 {

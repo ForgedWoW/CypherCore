@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Combat;
+namespace Forged.MapServer.Combat;
 
 public class CombatManager
 {

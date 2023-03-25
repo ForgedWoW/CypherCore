@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Movement;
 using Framework.Constants;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects;
 
 public class MovementForce
 {

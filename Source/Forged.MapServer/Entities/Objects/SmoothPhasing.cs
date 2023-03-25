@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects;
 
 public class SmoothPhasing
 {

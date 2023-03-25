@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Game.Entities;
-using Game.Networking.Packets;
-using Game.Scripting.Interfaces.IWeather;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Scripting.Interfaces.IWeather;
+using Forged.MapServer.Time;
 
-namespace Game;
+namespace Forged.MapServer.Weather;
 
 public class Weather
 {
@@ -23,7 +24,7 @@ public class Weather
 	{
 		_zone = zoneId;
 		_weatherChances = weatherChances;
-		_timer.Interval = 10 * Time.Minute * Time.InMilliseconds;
+		_timer.Interval = 10 * global::Time.Minute * global::Time.InMilliseconds;
 		_type = WeatherType.Fine;
 		_intensity = 0;
 
@@ -79,7 +80,7 @@ public class Weather
 		var old_intensity = _intensity;
 
 		var gtime = GameTime.GetGameTime();
-		var ltime = Time.UnixTimeToDateTime(gtime).ToLocalTime();
+		var ltime = global::Time.UnixTimeToDateTime(gtime).ToLocalTime();
 		var season = (uint)((ltime.DayOfYear - 78 + 365) / 91) % 4;
 
 		string[] seasonName =

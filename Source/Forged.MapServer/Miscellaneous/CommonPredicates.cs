@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
 
-namespace Game.Miscellaneous;
+namespace Forged.MapServer.Miscellaneous;
 
 /// Only returns true for the given attacker's current victim, if any
 public class IsVictimOf : ICheck<WorldObject>

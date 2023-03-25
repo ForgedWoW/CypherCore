@@ -1,12 +1,13 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Hotfix;
+using Forged.MapServer.Time;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -17,11 +18,13 @@ public partial class WorldSession
 
 		foreach (var record in dbQuery.Queries)
 		{
-			DBReply dbReply = new();
-			dbReply.TableHash = dbQuery.TableHash;
-			dbReply.RecordID = record.RecordID;
+			DBReply dbReply = new()
+            {
+                TableHash = dbQuery.TableHash,
+                RecordID = record.RecordID
+            };
 
-			if (store != null && store.HasRecord(record.RecordID))
+            if (store != null && store.HasRecord(record.RecordID))
 			{
 				dbReply.Status = HotfixRecord.Status.Valid;
 				dbReply.Timestamp = (uint)GameTime.GetGameTime();
@@ -64,10 +67,12 @@ public partial class WorldSession
 			if (hotfixRecords != null)
 				foreach (var hotfixRecord in hotfixRecords)
 				{
-					HotfixConnect.HotfixData hotfixData = new();
-					hotfixData.Record = hotfixRecord;
+					HotfixConnect.HotfixData hotfixData = new()
+                    {
+                        Record = hotfixRecord
+                    };
 
-					if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
+                    if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
 					{
 						var storage = Global.DB2Mgr.GetStorage(hotfixRecord.TableHash);
 

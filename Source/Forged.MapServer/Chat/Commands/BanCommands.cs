@@ -3,9 +3,11 @@
 
 using System;
 using System.Net;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Server;
 using Framework.Constants;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("ban")]
 class BanCommands
@@ -44,9 +46,9 @@ class BanCommands
 				if (duration > 0)
 				{
 					if (WorldConfig.GetBoolValue(WorldCfg.ShowBanInWorld))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+						Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, global::Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
 					else
-						handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+						handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, global::Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
 				}
 				else
 				{
@@ -117,9 +119,9 @@ class BanCommands
 				if (duration > 0)
 				{
 					if (WorldConfig.GetBoolValue(WorldCfg.ShowBanInWorld))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.secsToTimeString(duration), reason);
+						Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, global::Time.secsToTimeString(duration), reason);
 					else
-						handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+						handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, global::Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
 				}
 				else
 				{

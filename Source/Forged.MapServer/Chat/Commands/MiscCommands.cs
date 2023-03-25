@@ -3,17 +3,29 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.GridNotifiers;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Time;
+using Forged.MapServer.Weather;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Maps.Grids;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 class MiscCommands
 {
@@ -361,9 +373,12 @@ class MiscCommands
 		if (spellInfo == null)
 			return false;
 
-		SpellNonMeleeDamage damageInfo = new(attacker, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(attacker), 0), spellInfo.SchoolMask);
-		damageInfo.Damage = damage_;
-		Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
+		SpellNonMeleeDamage damageInfo = new(attacker, target, spellInfo, new SpellCastVisual(spellInfo.GetSpellXSpellVisualId(attacker), 0), spellInfo.SchoolMask)
+        {
+            Damage = damage_
+        };
+
+        Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
 		target.DealSpellDamage(damageInfo, true);
 		target.SendSpellNonMeleeDamageLog(damageInfo);
 
@@ -601,7 +616,7 @@ class MiscCommands
 				if (freeze != null)
 				{
 					if (freezeDuration != 0)
-						freeze.SetDuration(freezeDuration * Time.InMilliseconds);
+						freeze.SetDuration(freezeDuration * global::Time.InMilliseconds);
 
 					handler.SendSysMessage(CypherStrings.CommandFreeze, player.GetName());
 					// save player
@@ -974,7 +989,7 @@ class MiscCommands
 				handler.SendSysMessage(CypherStrings.CommandPermaFrozenPlayer, player);
 			else
 				// show time left (seconds)
-				handler.SendSysMessage(CypherStrings.CommandTempFrozenPlayer, player, remaintime / Time.InMilliseconds);
+				handler.SendSysMessage(CypherStrings.CommandTempFrozenPlayer, player, remaintime / global::Time.InMilliseconds);
 		} while (result.NextRow());
 
 		return true;
@@ -1135,13 +1150,13 @@ class MiscCommands
 		if (target)
 		{
 			// Target is online, mute will be in effect right away.
-			var mutedUntil = GameTime.GetGameTime() + muteTime * Time.Minute;
+			var mutedUntil = GameTime.GetGameTime() + muteTime * global::Time.Minute;
 			target.Session.MuteTime = mutedUntil;
 			stmt.AddValue(0, mutedUntil);
 		}
 		else
 		{
-			stmt.AddValue(0, -(muteTime * Time.Minute));
+			stmt.AddValue(0, -(muteTime * global::Time.Minute));
 		}
 
 		stmt.AddValue(1, muteReasonStr);
@@ -1207,7 +1222,7 @@ class MiscCommands
 			long sqlTime = result.Read<uint>(0);
 
 			// set it to string
-			var buffer = Time.UnixTimeToDateTime(sqlTime).ToShortTimeString();
+			var buffer = global::Time.UnixTimeToDateTime(sqlTime).ToShortTimeString();
 
 			handler.SendSysMessage(CypherStrings.CommandMutehistoryOutput, buffer, result.Read<uint>(1), result.Read<string>(2), result.Read<string>(3));
 		} while (result.NextRow());
@@ -1542,11 +1557,11 @@ class MiscCommands
 
 		// Output III. LANG_PINFO_BANNED if ban exists and is applied
 		if (banTime >= 0)
-			handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.secsToTimeString((ulong)(banTime - GameTime.GetGameTime()), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
+			handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? global::Time.secsToTimeString((ulong)(banTime - GameTime.GetGameTime()), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
 
 		// Output IV. LANG_PINFO_MUTED if mute is applied
 		if (muteTime > 0)
-			handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.secsToTimeString((ulong)(muteTime - GameTime.GetGameTime()), TimeFormat.ShortText), muteBy);
+			handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, global::Time.secsToTimeString((ulong)(muteTime - GameTime.GetGameTime()), TimeFormat.ShortText), muteBy);
 
 		// Output V. LANG_PINFO_ACC_ACCOUNT
 		handler.SendSysMessage(CypherStrings.PinfoAccAccount, userName, accId, security);
@@ -1627,7 +1642,7 @@ class MiscCommands
 		}
 
 		// Output XX. LANG_PINFO_CHR_PLAYEDTIME
-		handler.SendSysMessage(CypherStrings.PinfoChrPlayedtime, (Time.secsToTimeString(totalPlayerTime, TimeFormat.ShortText, true)));
+		handler.SendSysMessage(CypherStrings.PinfoChrPlayedtime, (global::Time.secsToTimeString(totalPlayerTime, TimeFormat.ShortText, true)));
 
 		// Mail Data - an own query, because it may or may not be useful.
 		// SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
@@ -1853,7 +1868,7 @@ class MiscCommands
 		// save if the player has last been saved over 20 seconds ago
 		var saveInterval = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
 
-		if (saveInterval == 0 || (saveInterval > 20 * Time.InMilliseconds && player.SaveTimer <= saveInterval - 20 * Time.InMilliseconds))
+		if (saveInterval == 0 || (saveInterval > 20 * global::Time.InMilliseconds && player.SaveTimer <= saveInterval - 20 * global::Time.InMilliseconds))
 			player.SaveToDB();
 
 		return true;

@@ -3,13 +3,16 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking.Packets.Channel;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Channels;
 
 public class ChannelManager
 {
@@ -36,13 +39,13 @@ public class ChannelManager
 			return;
 		}
 
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 		var days = WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelDuration);
 
 		if (days != 0)
 		{
 			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
-			stmt.AddValue(0, days * Time.Day);
+			stmt.AddValue(0, days * global::Time.Day);
 			DB.Characters.Execute(stmt);
 		}
 
@@ -94,7 +97,7 @@ public class ChannelManager
 			DB.Characters.Execute(stmt);
 		}
 
-		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} custom chat channels in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public static ChannelManager ForTeam(TeamFaction team)
@@ -215,10 +218,13 @@ public class ChannelManager
 
 	public static void SendNotOnChannelNotify(Player player, string name)
 	{
-		ChannelNotify notify = new();
-		notify.Type = ChatNotify.NotMemberNotice;
-		notify.Channel = name;
-		player.SendPacket(notify);
+		ChannelNotify notify = new()
+        {
+            Type = ChatNotify.NotMemberNotice,
+            Channel = name
+        };
+
+        player.SendPacket(notify);
 	}
 
 	ObjectGuid CreateCustomChannelGuid()

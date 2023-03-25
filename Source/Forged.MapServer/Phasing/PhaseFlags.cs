@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 [Flags]
 public enum PhaseFlags : ushort

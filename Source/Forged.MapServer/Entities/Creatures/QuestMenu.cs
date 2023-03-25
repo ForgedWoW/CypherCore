@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Misc;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class QuestMenu
 {
@@ -14,12 +14,13 @@ public class QuestMenu
 		if (Global.ObjectMgr.GetQuestTemplate(QuestId) == null)
 			return;
 
-		QuestMenuItem questMenuItem = new();
+		QuestMenuItem questMenuItem = new()
+        {
+            QuestId = QuestId,
+            QuestIcon = Icon
+        };
 
-		questMenuItem.QuestId = QuestId;
-		questMenuItem.QuestIcon = Icon;
-
-		_questMenuItems.Add(questMenuItem);
+        _questMenuItems.Add(questMenuItem);
 	}
 
 	public void ClearMenu()

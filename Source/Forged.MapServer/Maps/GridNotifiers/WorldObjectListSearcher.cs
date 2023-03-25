@@ -3,11 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps.Interfaces;
+using Forged.MapServer.Phasing;
 using Framework.Constants;
-using Game.Entities;
-using Game.Maps.Interfaces;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierCorpse, IGridNotifierGameObject, IGridNotifierDynamicObject, IGridNotifierAreaTrigger, IGridNotifierSceneObject, IGridNotifierConversation
 {

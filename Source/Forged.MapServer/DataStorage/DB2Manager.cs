@@ -7,11 +7,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Forged.MapServer.DataStorage.ClientReader;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.B;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.E;
+using Forged.MapServer.DataStorage.Structs.F;
+using Forged.MapServer.DataStorage.Structs.H;
+using Forged.MapServer.DataStorage.Structs.I;
+using Forged.MapServer.DataStorage.Structs.J;
+using Forged.MapServer.DataStorage.Structs.L;
+using Forged.MapServer.DataStorage.Structs.M;
+using Forged.MapServer.DataStorage.Structs.N;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.DataStorage.Structs.Q;
+using Forged.MapServer.DataStorage.Structs.R;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.DataStorage.Structs.T;
+using Forged.MapServer.DataStorage.Structs.U;
+using Forged.MapServer.DataStorage.Structs.W;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
 using Game;
-using Game.DataStorage;
-using Game.DataStorage.Structs.Q;
 using Serilog;
 
 namespace Forged.MapServer.DataStorage;
@@ -317,11 +335,13 @@ public class DB2Manager
 				// link shapeshift displays to race/gender/form
 				foreach (var shapeshiftOptionsForModel in shapeshiftFormByModel.LookupByKey(model.Id))
 				{
-					ShapeshiftFormModelData data = new();
-					data.OptionID = shapeshiftOptionsForModel.Item1;
-					data.Choices = _chrCustomizationChoicesByOption.LookupByKey(shapeshiftOptionsForModel.Item1);
+					ShapeshiftFormModelData data = new()
+                    {
+                        OptionID = shapeshiftOptionsForModel.Item1,
+                        Choices = _chrCustomizationChoicesByOption.LookupByKey(shapeshiftOptionsForModel.Item1)
+                    };
 
-					if (!data.Choices.Empty())
+                    if (!data.Choices.Empty())
 						for (var i = 0; i < data.Choices.Count; ++i)
 							data.Displays.Add(displayInfoByCustomizationChoice.LookupByKey(data.Choices[i].Id));
 
@@ -796,10 +816,13 @@ public class DB2Manager
 					continue;
 				}
 
-			HotfixRecord hotfixRecord = new();
-			hotfixRecord.TableHash = tableHash;
-			hotfixRecord.RecordID = recordId;
-			hotfixRecord.ID.PushID = id;
+			HotfixRecord hotfixRecord = new()
+            {
+                TableHash = tableHash,
+                RecordID = recordId
+            };
+
+            hotfixRecord.ID.PushID = id;
 			hotfixRecord.ID.UniqueID = uniqueId;
 			hotfixRecord.HotfixStatus = status;
 
@@ -923,9 +946,12 @@ public class DB2Manager
 			if (!availableDb2Locales[(int)locale])
 				continue;
 
-			HotfixOptionalData optionalData = new();
-			optionalData.Key = result.Read<uint>(3);
-			var allowedHotfixItr = allowedHotfixes.Find(v => { return v.Item1 == optionalData.Key; });
+			HotfixOptionalData optionalData = new()
+            {
+                Key = result.Read<uint>(3)
+            };
+
+            var allowedHotfixItr = allowedHotfixes.Find(v => { return v.Item1 == optionalData.Key; });
 
 			if (allowedHotfixItr == null)
 			{
@@ -1184,10 +1210,13 @@ public class DB2Manager
 			_                                              => 0
 		};
 
-		ContentTuningLevels levels = new();
-		levels.MinLevel = (short)(contentTuning.MinLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType));
-		levels.MaxLevel = (short)(contentTuning.MaxLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType));
-		levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
+		ContentTuningLevels levels = new()
+        {
+            MinLevel = (short)(contentTuning.MinLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
+            MaxLevel = (short)(contentTuning.MaxLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
+        };
+
+        levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
 		levels.MaxLevelWithDelta = (short)Math.Clamp(levels.MaxLevel + contentTuning.TargetLevelMaxDelta, 1, SharedConst.MaxLevel);
 
 		// clamp after calculating levels with delta (delta can bring "overflown" level back into correct range)
@@ -2449,10 +2478,12 @@ public class DB2Manager
 
     bool CheckUiMapAssignmentStatus(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapAssignmentRecord uiMapAssignment, out UiMapAssignmentStatus status)
 	{
-		status = new UiMapAssignmentStatus();
-		status.UiMapAssignment = uiMapAssignment;
+		status = new UiMapAssignmentStatus
+        {
+            UiMapAssignment = uiMapAssignment
+        };
 
-		// x,y not in region
+        // x,y not in region
 		if (x < uiMapAssignment.Region[0].X || x > uiMapAssignment.Region[1].X || y < uiMapAssignment.Region[0].Y || y > uiMapAssignment.Region[1].Y)
 		{
 			float xDiff, yDiff;

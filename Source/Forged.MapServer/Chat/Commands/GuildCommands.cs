@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
 using Framework.Constants;
 using Framework.IO;
-using Game.Guilds;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("guild")]
 class GuildCommands
@@ -217,7 +218,7 @@ class GuildCommands
 
 		// Format creation date
 
-		var createdDateTime = Time.UnixTimeToDateTime(guild.GetCreatedDate());
+		var createdDateTime = global::Time.UnixTimeToDateTime(guild.GetCreatedDate());
 		handler.SendSysMessage(CypherStrings.GuildInfoCreationDate, createdDateTime.ToLongDateString()); // Creation Date
 		handler.SendSysMessage(CypherStrings.GuildInfoMemberCount, guild.GetMembersCount());             // Number of Members
 		handler.SendSysMessage(CypherStrings.GuildInfoBankGold, guild.GetBankMoney() / 100 / 100);       // Bank Gold (in gold coins)

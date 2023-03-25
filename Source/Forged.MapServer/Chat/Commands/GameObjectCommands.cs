@@ -5,14 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("gobject")]
 class GameObjectCommands
@@ -465,8 +468,8 @@ class GameObjectCommands
 			if (curRespawnDelay < 0)
 				curRespawnDelay = 0;
 
-			var curRespawnDelayStr = Time.secsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
-			var defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
+			var curRespawnDelayStr = global::Time.secsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
+			var defRespawnDelayStr = global::Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
 			handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
 		}

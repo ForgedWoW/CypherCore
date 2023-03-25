@@ -4,7 +4,7 @@
 using System.Numerics;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision.Models;
 
 public class GameobjectModelData
 {

@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Networking.Packets.Item;
 using Framework.Collections;
 using Framework.Database;
-using Game.Networking.Packets;
 
-namespace Game.BlackMarket;
+namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketTemplate
 {
@@ -22,9 +22,12 @@ public class BlackMarketTemplate
 	{
 		MarketID = fields.Read<uint>(0);
 		SellerNPC = fields.Read<uint>(1);
-		Item = new ItemInstance();
-		Item.ItemID = fields.Read<uint>(2);
-		Quantity = fields.Read<uint>(3);
+		Item = new ItemInstance
+        {
+            ItemID = fields.Read<uint>(2)
+        };
+
+        Quantity = fields.Read<uint>(3);
 		MinBid = fields.Read<ulong>(4);
 		Duration = fields.Read<uint>(5);
 		Chance = fields.Read<float>(6);
@@ -39,9 +42,11 @@ public class BlackMarketTemplate
 
 		if (!bonusListIDs.Empty())
 		{
-			Item.ItemBonus = new ItemBonuses();
-			Item.ItemBonus.BonusListIDs = bonusListIDs;
-		}
+			Item.ItemBonus = new ItemBonuses
+            {
+                BonusListIDs = bonusListIDs
+            };
+        }
 
 		if (Global.ObjectMgr.GetCreatureTemplate(SellerNPC) == null)
 		{

@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Networking;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Networking;
 
-namespace Game.Maps;
+namespace Forged.MapServer.Maps.Workers;
 
 public class PacketSenderOwning<T> : IDoWork<Player> where T : ServerPacket, new()
 {

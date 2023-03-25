@@ -2,12 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Totem;
+using Forged.MapServer.Spells;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Networking.Packets;
-using Game.Spells;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities;
 
 public class Totem : Minion
 {
@@ -52,12 +54,15 @@ public class Totem : Minion
 		{
 			if (SummonPropertiesRecord.Slot >= (int)Framework.Constants.SummonSlot.Totem && SummonPropertiesRecord.Slot < SharedConst.MaxTotemSlot)
 			{
-				TotemCreated packet = new();
-				packet.Totem = GUID;
-				packet.Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem);
-				packet.Duration = duration;
-				packet.SpellID = UnitData.CreatedBySpell;
-				owner.AsPlayer.SendPacket(packet);
+				TotemCreated packet = new()
+                {
+                    Totem = GUID,
+                    Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem),
+                    Duration = duration,
+                    SpellID = UnitData.CreatedBySpell
+                };
+
+                owner.AsPlayer.SendPacket(packet);
 			}
 
 			// set display id depending on caster's race

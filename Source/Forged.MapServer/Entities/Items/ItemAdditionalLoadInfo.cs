@@ -3,11 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Items;
 
 class ItemAdditionalLoadInfo
 {
@@ -38,11 +38,13 @@ class ItemAdditionalLoadInfo
 				info.Artifact.ArtifactAppearanceId = artifactResult.Read<uint>(2);
 				info.Artifact.ArtifactTierId = artifactResult.Read<uint>(3);
 
-				ArtifactPowerData artifactPowerData = new();
-				artifactPowerData.ArtifactPowerId = artifactResult.Read<uint>(4);
-				artifactPowerData.PurchasedRank = artifactResult.Read<byte>(5);
+				ArtifactPowerData artifactPowerData = new()
+                {
+                    ArtifactPowerId = artifactResult.Read<uint>(4),
+                    PurchasedRank = artifactResult.Read<byte>(5)
+                };
 
-				var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
+                var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
 
 				if (artifactPower != null)
 				{

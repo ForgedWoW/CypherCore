@@ -3,10 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Globals;
 using Framework.Constants;
-using Game.DataStorage;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Authentication;
 
 class AuthResponse : ServerPacket
 {

@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Networking.Packets.Item;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Mail;
 
 public class MailAttachedItem
 {
@@ -20,7 +20,7 @@ public class MailAttachedItem
 	readonly List<ItemEnchantData> Enchants = new();
 	readonly List<ItemGemData> Gems = new();
 
-	public MailAttachedItem(Item item, byte pos)
+	public MailAttachedItem(Entities.Items.Item item, byte pos)
 	{
 		Position = pos;
 		AttachID = item.GUID.Counter;
@@ -45,10 +45,13 @@ public class MailAttachedItem
 		{
 			if (gemData.ItemId != 0)
 			{
-				ItemGemData gem = new();
-				gem.Slot = i;
-				gem.Item = new ItemInstance(gemData);
-				Gems.Add(gem);
+				ItemGemData gem = new()
+                {
+                    Slot = i,
+                    Item = new ItemInstance(gemData)
+                };
+
+                Gems.Add(gem);
 			}
 
 			++i;

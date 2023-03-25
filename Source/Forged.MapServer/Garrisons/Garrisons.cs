@@ -5,14 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.G;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Networking.Packets.Garrison;
+using Forged.MapServer.Phasing;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Networking.Packets;
 
-namespace Game.Garrisons;
+namespace Forged.MapServer.Garrisons;
 
 public class Garrison
 {
@@ -69,12 +76,14 @@ public class Garrison
 				if (!CliDB.GarrBuildingStorage.ContainsKey(buildingId))
 					continue;
 
-				plot.BuildingInfo.PacketInfo = new GarrisonBuildingInfo();
-				plot.BuildingInfo.PacketInfo.GarrPlotInstanceID = plotInstanceId;
-				plot.BuildingInfo.PacketInfo.GarrBuildingID = buildingId;
-				plot.BuildingInfo.PacketInfo.TimeBuilt = timeBuilt;
-				plot.BuildingInfo.PacketInfo.Active = active;
-			} while (buildings.NextRow());
+				plot.BuildingInfo.PacketInfo = new GarrisonBuildingInfo
+                {
+                    GarrPlotInstanceID = plotInstanceId,
+                    GarrBuildingID = buildingId,
+                    TimeBuilt = timeBuilt,
+                    Active = active
+                };
+            } while (buildings.NextRow());
 
 		if (!followers.IsEmpty())
 		{
@@ -88,19 +97,24 @@ public class Garrison
 
 				_followerIds.Add(followerId);
 
-				var follower = new Follower();
-				follower.PacketInfo.DbID = dbId;
-				follower.PacketInfo.GarrFollowerID = followerId;
-				follower.PacketInfo.Quality = followers.Read<uint>(2);
-				follower.PacketInfo.FollowerLevel = followers.Read<uint>(3);
-				follower.PacketInfo.ItemLevelWeapon = followers.Read<uint>(4);
-				follower.PacketInfo.ItemLevelArmor = followers.Read<uint>(5);
-				follower.PacketInfo.Xp = followers.Read<uint>(6);
-				follower.PacketInfo.CurrentBuildingID = followers.Read<uint>(7);
-				follower.PacketInfo.CurrentMissionID = followers.Read<uint>(8);
-				follower.PacketInfo.FollowerStatus = followers.Read<uint>(9);
+				var follower = new Follower
+                {
+                    PacketInfo =
+                    {
+                        DbID = dbId,
+                        GarrFollowerID = followerId,
+                        Quality = followers.Read<uint>(2),
+                        FollowerLevel = followers.Read<uint>(3),
+                        ItemLevelWeapon = followers.Read<uint>(4),
+                        ItemLevelArmor = followers.Read<uint>(5),
+                        Xp = followers.Read<uint>(6),
+                        CurrentBuildingID = followers.Read<uint>(7),
+                        CurrentMissionID = followers.Read<uint>(8),
+                        FollowerStatus = followers.Read<uint>(9)
+                    }
+                };
 
-				if (!CliDB.GarrBuildingStorage.ContainsKey(follower.PacketInfo.CurrentBuildingID))
+                if (!CliDB.GarrBuildingStorage.ContainsKey(follower.PacketInfo.CurrentBuildingID))
 					follower.PacketInfo.CurrentBuildingID = 0;
 
 				//if (!sGarrMissionStore.LookupEntry(follower.PacketInfo.CurrentMissionID))
@@ -223,9 +237,12 @@ public class Garrison
 
 		InitializePlots();
 
-		GarrisonCreateResult garrisonCreateResult = new();
-		garrisonCreateResult.GarrSiteLevelID = _siteLevel.Id;
-		_owner.SendPacket(garrisonCreateResult);
+		GarrisonCreateResult garrisonCreateResult = new()
+        {
+            GarrSiteLevelID = _siteLevel.Id
+        };
+
+        _owner.SendPacket(garrisonCreateResult);
 		PhasingHandler.OnConditionChange(_owner);
 		SendRemoteInfo();
 
@@ -238,10 +255,13 @@ public class Garrison
 		DeleteFromDB(_owner.GUID.Counter, trans);
 		DB.Characters.CommitTransaction(trans);
 
-		GarrisonDeleteResult garrisonDelete = new();
-		garrisonDelete.Result = GarrisonError.Success;
-		garrisonDelete.GarrSiteID = _siteLevel.GarrSiteID;
-		_owner.SendPacket(garrisonDelete);
+		GarrisonDeleteResult garrisonDelete = new()
+        {
+            Result = GarrisonError.Success,
+            GarrSiteID = _siteLevel.GarrSiteID
+        };
+
+        _owner.SendPacket(garrisonDelete);
 	}
 
 	public uint GetFaction()
@@ -276,12 +296,14 @@ public class Garrison
 
 	public void LearnBlueprint(uint garrBuildingId)
 	{
-		GarrisonLearnBlueprintResult learnBlueprintResult = new();
-		learnBlueprintResult.GarrTypeID = GetGarrisonType();
-		learnBlueprintResult.BuildingID = garrBuildingId;
-		learnBlueprintResult.Result = GarrisonError.Success;
+		GarrisonLearnBlueprintResult learnBlueprintResult = new()
+        {
+            GarrTypeID = GetGarrisonType(),
+            BuildingID = garrBuildingId,
+            Result = GarrisonError.Success
+        };
 
-		if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
+        if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
 			learnBlueprintResult.Result = GarrisonError.InvalidBuildingId;
 		else if (HasBlueprint(garrBuildingId))
 			learnBlueprintResult.Result = GarrisonError.BlueprintExists;
@@ -293,11 +315,13 @@ public class Garrison
 
 	public void PlaceBuilding(uint garrPlotInstanceId, uint garrBuildingId)
 	{
-		GarrisonPlaceBuildingResult placeBuildingResult = new();
-		placeBuildingResult.GarrTypeID = GetGarrisonType();
-		placeBuildingResult.Result = CheckBuildingPlacement(garrPlotInstanceId, garrBuildingId);
+		GarrisonPlaceBuildingResult placeBuildingResult = new()
+        {
+            GarrTypeID = GetGarrisonType(),
+            Result = CheckBuildingPlacement(garrPlotInstanceId, garrBuildingId)
+        };
 
-		if (placeBuildingResult.Result == GarrisonError.Success)
+        if (placeBuildingResult.Result == GarrisonError.Success)
 		{
 			placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
 			placeBuildingResult.BuildingInfo.GarrBuildingID = garrBuildingId;
@@ -334,12 +358,15 @@ public class Garrison
 
 			if (oldBuildingId != 0)
 			{
-				GarrisonBuildingRemoved buildingRemoved = new();
-				buildingRemoved.GarrTypeID = GetGarrisonType();
-				buildingRemoved.Result = GarrisonError.Success;
-				buildingRemoved.GarrPlotInstanceID = garrPlotInstanceId;
-				buildingRemoved.GarrBuildingID = oldBuildingId;
-				_owner.SendPacket(buildingRemoved);
+				GarrisonBuildingRemoved buildingRemoved = new()
+                {
+                    GarrTypeID = GetGarrisonType(),
+                    Result = GarrisonError.Success,
+                    GarrPlotInstanceID = garrPlotInstanceId,
+                    GarrBuildingID = oldBuildingId
+                };
+
+                _owner.SendPacket(buildingRemoved);
 			}
 
 			_owner.UpdateCriteria(CriteriaType.PlaceGarrisonBuilding, garrBuildingId);
@@ -350,11 +377,13 @@ public class Garrison
 
 	public void CancelBuildingConstruction(uint garrPlotInstanceId)
 	{
-		GarrisonBuildingRemoved buildingRemoved = new();
-		buildingRemoved.GarrTypeID = GetGarrisonType();
-		buildingRemoved.Result = CheckBuildingRemoval(garrPlotInstanceId);
+		GarrisonBuildingRemoved buildingRemoved = new()
+        {
+            GarrTypeID = GetGarrisonType(),
+            Result = CheckBuildingRemoval(garrPlotInstanceId)
+        };
 
-		if (buildingRemoved.Result == GarrisonError.Success)
+        if (buildingRemoved.Result == GarrisonError.Success)
 		{
 			var plot = GetPlot(garrPlotInstanceId);
 
@@ -379,15 +408,20 @@ public class Garrison
 				// Restore previous level building
 				var restored = Global.GarrisonMgr.GetPreviousLevelBuilding((byte)constructing.BuildingType, constructing.UpgradeLevel);
 
-				GarrisonPlaceBuildingResult placeBuildingResult = new();
-				placeBuildingResult.GarrTypeID = GetGarrisonType();
-				placeBuildingResult.Result = GarrisonError.Success;
-				placeBuildingResult.BuildingInfo.GarrPlotInstanceID = garrPlotInstanceId;
-				placeBuildingResult.BuildingInfo.GarrBuildingID = restored;
-				placeBuildingResult.BuildingInfo.TimeBuilt = GameTime.GetGameTime();
-				placeBuildingResult.BuildingInfo.Active = true;
+				GarrisonPlaceBuildingResult placeBuildingResult = new()
+                {
+                    GarrTypeID = GetGarrisonType(),
+                    Result = GarrisonError.Success,
+                    BuildingInfo =
+                    {
+                        GarrPlotInstanceID = garrPlotInstanceId,
+                        GarrBuildingID = restored,
+                        TimeBuilt = GameTime.GetGameTime(),
+                        Active = true
+                    }
+                };
 
-				plot.SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
+                plot.SetBuildingInfo(placeBuildingResult.BuildingInfo, _owner);
 				_owner.SendPacket(placeBuildingResult);
 			}
 
@@ -424,9 +458,12 @@ public class Garrison
 						map.AddToMap(go);
 				}
 
-				GarrisonBuildingActivated buildingActivated = new();
-				buildingActivated.GarrPlotInstanceID = garrPlotInstanceId;
-				_owner.SendPacket(buildingActivated);
+				GarrisonBuildingActivated buildingActivated = new()
+                {
+                    GarrPlotInstanceID = garrPlotInstanceId
+                };
+
+                _owner.SendPacket(buildingActivated);
 
 				_owner.UpdateCriteria(CriteriaType.ActivateAnyGarrisonBuilding, plot.BuildingInfo.PacketInfo.GarrBuildingID);
 			}
@@ -434,9 +471,12 @@ public class Garrison
 
 	public void AddFollower(uint garrFollowerId)
 	{
-		GarrisonAddFollowerResult addFollowerResult = new();
-		addFollowerResult.GarrTypeID = GetGarrisonType();
-		var followerEntry = CliDB.GarrFollowerStorage.LookupByKey(garrFollowerId);
+		GarrisonAddFollowerResult addFollowerResult = new()
+        {
+            GarrTypeID = GetGarrisonType()
+        };
+
+        var followerEntry = CliDB.GarrFollowerStorage.LookupByKey(garrFollowerId);
 
 		if (_followerIds.Contains(garrFollowerId) || followerEntry == null)
 		{
@@ -449,17 +489,23 @@ public class Garrison
 		_followerIds.Add(garrFollowerId);
 		var dbId = Global.GarrisonMgr.GenerateFollowerDbId();
 
-		Follower follower = new();
-		follower.PacketInfo.DbID = dbId;
-		follower.PacketInfo.GarrFollowerID = garrFollowerId;
-		follower.PacketInfo.Quality = (uint)followerEntry.Quality; // TODO: handle magic upgrades
-		follower.PacketInfo.FollowerLevel = followerEntry.FollowerLevel;
-		follower.PacketInfo.ItemLevelWeapon = followerEntry.ItemLevelWeapon;
-		follower.PacketInfo.ItemLevelArmor = followerEntry.ItemLevelArmor;
-		follower.PacketInfo.Xp = 0;
-		follower.PacketInfo.CurrentBuildingID = 0;
-		follower.PacketInfo.CurrentMissionID = 0;
-		follower.PacketInfo.AbilityID = Global.GarrisonMgr.RollFollowerAbilities(garrFollowerId, followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
+		Follower follower = new()
+        {
+            PacketInfo =
+            {
+                DbID = dbId,
+                GarrFollowerID = garrFollowerId,
+                Quality = (uint)followerEntry.Quality, // TODO: handle magic upgrades
+                FollowerLevel = followerEntry.FollowerLevel,
+                ItemLevelWeapon = followerEntry.ItemLevelWeapon,
+                ItemLevelArmor = followerEntry.ItemLevelArmor,
+                Xp = 0,
+                CurrentBuildingID = 0,
+                CurrentMissionID = 0
+            }
+        };
+
+        follower.PacketInfo.AbilityID = Global.GarrisonMgr.RollFollowerAbilities(garrFollowerId, followerEntry, follower.PacketInfo.Quality, GetFaction(), true);
 		follower.PacketInfo.FollowerStatus = 0;
 
 		_followers[dbId] = follower;
@@ -487,16 +533,20 @@ public class Garrison
 
 	public void SendInfo()
 	{
-		GetGarrisonInfoResult garrisonInfo = new();
-		garrisonInfo.FactionIndex = GetFaction();
+		GetGarrisonInfoResult garrisonInfo = new()
+        {
+            FactionIndex = GetFaction()
+        };
 
-		GarrisonInfo garrison = new();
-		garrison.GarrTypeID = GetGarrisonType();
-		garrison.GarrSiteID = _siteLevel.GarrSiteID;
-		garrison.GarrSiteLevelID = _siteLevel.Id;
-		garrison.NumFollowerActivationsRemaining = _followerActivationsRemainingToday;
+        GarrisonInfo garrison = new()
+        {
+            GarrTypeID = GetGarrisonType(),
+            GarrSiteID = _siteLevel.GarrSiteID,
+            GarrSiteLevelID = _siteLevel.Id,
+            NumFollowerActivationsRemaining = _followerActivationsRemainingToday
+        };
 
-		foreach (var plot in _plots.Values)
+        foreach (var plot in _plots.Values)
 		{
 			garrison.Plots.Add(plot.PacketInfo);
 
@@ -521,10 +571,12 @@ public class Garrison
 
 		GarrisonRemoteInfo remoteInfo = new();
 
-		GarrisonRemoteSiteInfo remoteSiteInfo = new();
-		remoteSiteInfo.GarrSiteLevelID = _siteLevel.Id;
+		GarrisonRemoteSiteInfo remoteSiteInfo = new()
+        {
+            GarrSiteLevelID = _siteLevel.Id
+        };
 
-		foreach (var p in _plots)
+        foreach (var p in _plots)
 			if (p.Value.BuildingInfo.PacketInfo != null)
 				remoteSiteInfo.Buildings.Add(new GarrisonRemoteBuildingInfo(p.Key, p.Value.BuildingInfo.PacketInfo.GarrBuildingID));
 
@@ -534,10 +586,13 @@ public class Garrison
 
 	public void SendBlueprintAndSpecializationData()
 	{
-		GarrisonRequestBlueprintAndSpecializationDataResult data = new();
-		data.GarrTypeID = GetGarrisonType();
-		data.BlueprintsKnown = _knownBuildings;
-		_owner.SendPacket(data);
+		GarrisonRequestBlueprintAndSpecializationDataResult data = new()
+        {
+            GarrTypeID = GetGarrisonType(),
+            BlueprintsKnown = _knownBuildings
+        };
+
+        _owner.SendPacket(data);
 	}
 
 	public void SendMapData(Player receiver)
@@ -612,12 +667,14 @@ public class Garrison
 
 	void UnlearnBlueprint(uint garrBuildingId)
 	{
-		GarrisonUnlearnBlueprintResult unlearnBlueprintResult = new();
-		unlearnBlueprintResult.GarrTypeID = GetGarrisonType();
-		unlearnBlueprintResult.BuildingID = garrBuildingId;
-		unlearnBlueprintResult.Result = GarrisonError.Success;
+		GarrisonUnlearnBlueprintResult unlearnBlueprintResult = new()
+        {
+            GarrTypeID = GetGarrisonType(),
+            BuildingID = garrBuildingId,
+            Result = GarrisonError.Success
+        };
 
-		if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
+        if (!CliDB.GarrBuildingStorage.ContainsKey(garrBuildingId))
 			unlearnBlueprintResult.Result = GarrisonError.InvalidBuildingId;
 		else if (HasBlueprint(garrBuildingId))
 			unlearnBlueprintResult.Result = GarrisonError.RequiresBlueprint;
@@ -852,10 +909,13 @@ public class Garrison
 
 		public void ClearBuildingInfo(GarrisonType garrisonType, Player owner)
 		{
-			GarrisonPlotPlaced plotPlaced = new();
-			plotPlaced.GarrTypeID = garrisonType;
-			plotPlaced.PlotInfo = PacketInfo;
-			owner.SendPacket(plotPlaced);
+			GarrisonPlotPlaced plotPlaced = new()
+            {
+                GarrTypeID = garrisonType,
+                PlotInfo = PacketInfo
+            };
+
+            owner.SendPacket(plotPlaced);
 
 			BuildingInfo.PacketInfo = null;
 		}
@@ -864,9 +924,12 @@ public class Garrison
 		{
 			if (BuildingInfo.PacketInfo == null)
 			{
-				GarrisonPlotRemoved plotRemoved = new();
-				plotRemoved.GarrPlotInstanceID = PacketInfo.GarrPlotInstanceID;
-				owner.SendPacket(plotRemoved);
+				GarrisonPlotRemoved plotRemoved = new()
+                {
+                    GarrPlotInstanceID = PacketInfo.GarrPlotInstanceID
+                };
+
+                owner.SendPacket(plotRemoved);
 			}
 
 			BuildingInfo.PacketInfo = buildingInfo;

@@ -4,7 +4,7 @@
 using System;
 using Framework.IO;
 
-namespace Game.Networking;
+namespace Forged.MapServer.Networking;
 
 public class PacketHeader
 {

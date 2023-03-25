@@ -2,10 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Loot;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.Networking.Packets;
+namespace Forged.MapServer.Networking.Packets.Item;
 
 public class ItemInstance
 {
@@ -15,7 +17,7 @@ public class ItemInstance
 
 	public ItemInstance() { }
 
-	public ItemInstance(Item item)
+	public ItemInstance(Entities.Items.Item item)
 	{
 		ItemID = item.Entry;
 		var bonusListIds = item.GetBonusListIDs();
@@ -31,17 +33,19 @@ public class ItemInstance
 			Modifications.Values.Add(new ItemMod(mod.Value, (ItemModifier)mod.Type));
 	}
 
-	public ItemInstance(Loots.LootItem lootItem)
+	public ItemInstance(LootItem lootItem)
 	{
 		ItemID = lootItem.itemid;
 
 		if (!lootItem.BonusListIDs.Empty() || lootItem.randomBonusListId != 0)
 		{
-			ItemBonus = new ItemBonuses();
-			ItemBonus.BonusListIDs = lootItem.BonusListIDs;
-			ItemBonus.Context = lootItem.context;
+			ItemBonus = new ItemBonuses
+            {
+                BonusListIDs = lootItem.BonusListIDs,
+                Context = lootItem.context
+            };
 
-			if (lootItem.randomBonusListId != 0)
+            if (lootItem.randomBonusListId != 0)
 				ItemBonus.BonusListIDs.Add(lootItem.randomBonusListId);
 		}
 	}
@@ -58,20 +62,24 @@ public class ItemInstance
 
 		if (!voidItem.BonusListIDs.Empty())
 		{
-			ItemBonus = new ItemBonuses();
-			ItemBonus.Context = voidItem.Context;
-			ItemBonus.BonusListIDs = voidItem.BonusListIDs;
-		}
+			ItemBonus = new ItemBonuses
+            {
+                Context = voidItem.Context,
+                BonusListIDs = voidItem.BonusListIDs
+            };
+        }
 	}
 
 	public ItemInstance(SocketedGem gem)
 	{
 		ItemID = gem.ItemId;
 
-		ItemBonuses bonus = new();
-		bonus.Context = (ItemContext)(byte)gem.Context;
+		ItemBonuses bonus = new()
+        {
+            Context = (ItemContext)(byte)gem.Context
+        };
 
-		foreach (var bonusListId in gem.BonusListIDs)
+        foreach (var bonusListId in gem.BonusListIDs)
 			if (bonusListId != 0)
 				bonus.BonusListIDs.Add(bonusListId);
 

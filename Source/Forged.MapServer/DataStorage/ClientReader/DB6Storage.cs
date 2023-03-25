@@ -12,7 +12,6 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
 using Framework.IO;
-using Game.DataStorage;
 using Serilog;
 
 namespace Forged.MapServer.DataStorage.ClientReader;
@@ -363,10 +362,12 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 						case TypeCode.Object:
 							if (type == typeof(LocalizedString))
 							{
-								LocalizedString locString = new();
-								locString[_defaultLocale] = result.Read<string>(dbIndex++);
+								LocalizedString locString = new()
+                                {
+                                    [_defaultLocale] = result.Read<string>(dbIndex++)
+                                };
 
-								f.SetValue(obj, locString);
+                                f.SetValue(obj, locString);
 							}
 							else if (type == typeof(Vector2))
 							{

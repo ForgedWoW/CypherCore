@@ -2,14 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Items;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.NPC;
-using Game.Common.Networking.Packets.Transmogification;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {

@@ -5,17 +5,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.P;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Workers;
+using Forged.MapServer.Miscellaneous;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.BattleGround;
+using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.Server;
+using Forged.MapServer.Text;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Chat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Groups;
-using Game.Maps;
-using Game.Networking;
-using Game.Networking.Packets;
+using Transport = Forged.MapServer.Entities.Transport;
 
-namespace Game.BattleGrounds;
+namespace Forged.MapServer.BattleGrounds;
 
 public class Battleground : ZoneScript, IDisposable
 {
@@ -111,7 +124,7 @@ public class Battleground : ZoneScript, IDisposable
 				// after 47 Time.Minutes without one team losing, the arena closes with no winner and no rating change
 				if (IsArena())
 				{
-					if (GetElapsedTime() >= 47 * Time.Minute * Time.InMilliseconds)
+					if (GetElapsedTime() >= 47 * global::Time.Minute * global::Time.InMilliseconds)
 					{
 						EndBattleground(0);
 
@@ -332,10 +345,13 @@ public class Battleground : ZoneScript, IDisposable
 		//we must set it this way, because end time is sent in packet!
 		SetRemainingTime(BattlegroundConst.AutocloseBattleground);
 
-		PVPMatchComplete pvpMatchComplete = new();
-		pvpMatchComplete.Winner = (byte)GetWinner();
-		pvpMatchComplete.Duration = (int)Math.Max(0, (GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.InMilliseconds);
-		BuildPvPLogDataPacket(out pvpMatchComplete.LogData);
+		PVPMatchComplete pvpMatchComplete = new()
+        {
+            Winner = (byte)GetWinner(),
+            Duration = (int)Math.Max(0, (GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / global::Time.InMilliseconds)
+        };
+
+        BuildPvPLogDataPacket(out pvpMatchComplete.LogData);
 		pvpMatchComplete.Write();
 
 		foreach (var pair in m_Players)
@@ -542,9 +558,12 @@ public class Battleground : ZoneScript, IDisposable
 			}
 
 			// Let others know
-			BattlegroundPlayerLeft playerLeft = new();
-			playerLeft.Guid = guid;
-			SendPacketToTeam(team, playerLeft, player);
+			BattlegroundPlayerLeft playerLeft = new()
+            {
+                Guid = guid
+            };
+
+            SendPacketToTeam(team, playerLeft, player);
 		}
 
 		if (player)
@@ -625,27 +644,34 @@ public class Battleground : ZoneScript, IDisposable
 		var guid = player.GUID;
 		var team = player.GetBgTeam();
 
-		BattlegroundPlayer bp = new();
-		bp.OfflineRemoveTime = 0;
-		bp.Team = team;
-		bp.ActiveSpec = (int)player.GetPrimarySpecialization();
-		bp.Mercenary = player.IsMercenaryForBattlegroundQueueType(GetQueueId());
+		BattlegroundPlayer bp = new()
+        {
+            OfflineRemoveTime = 0,
+            Team = team,
+            ActiveSpec = (int)player.GetPrimarySpecialization(),
+            Mercenary = player.IsMercenaryForBattlegroundQueueType(GetQueueId())
+        };
 
-		var isInBattleground = IsPlayerInBattleground(player.GUID);
+        var isInBattleground = IsPlayerInBattleground(player.GUID);
 		// Add to list/maps
 		m_Players[guid] = bp;
 
 		if (!isInBattleground)
 			UpdatePlayersCountByTeam(team, false); // +1 player
 
-		BattlegroundPlayerJoined playerJoined = new();
-		playerJoined.Guid = player.GUID;
-		SendPacketToTeam(team, playerJoined, player);
+		BattlegroundPlayerJoined playerJoined = new()
+        {
+            Guid = player.GUID
+        };
 
-		PVPMatchInitialize pvpMatchInitialize = new();
-		pvpMatchInitialize.MapID = GetMapId();
+        SendPacketToTeam(team, playerJoined, player);
 
-		switch (GetStatus())
+		PVPMatchInitialize pvpMatchInitialize = new()
+        {
+            MapID = GetMapId()
+        };
+
+        switch (GetStatus())
 		{
 			case BattlegroundStatus.None:
 			case BattlegroundStatus.WaitQueue:
@@ -667,7 +693,7 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (GetElapsedTime() >= (int)BattlegroundStartTimeIntervals.Delay2m)
 		{
-			pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / Time.InMilliseconds;
+			pvpMatchInitialize.Duration = (int)(GetElapsedTime() - (int)BattlegroundStartTimeIntervals.Delay2m) / global::Time.InMilliseconds;
 			pvpMatchInitialize.StartTime = GameTime.GetGameTime() - pvpMatchInitialize.Duration;
 		}
 
@@ -701,12 +727,14 @@ public class Battleground : ZoneScript, IDisposable
 				player.CastSpell(player, BattlegroundConst.SpellPreparation, true); // reduces all mana cost of spells.
 
 				var countdownMaxForBGType = IsArena() ? BattlegroundConst.ArenaCountdownMax : BattlegroundConst.BattlegroundCountdownMax;
-				StartTimer timer = new();
-				timer.Type = TimerType.Pvp;
-				timer.TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000);
-				timer.TotalTime = countdownMaxForBGType;
+				StartTimer timer = new()
+                {
+                    Type = TimerType.Pvp,
+                    TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000),
+                    TotalTime = countdownMaxForBGType
+                };
 
-				player.SendPacket(timer);
+                player.SendPacket(timer);
 			}
 
 			if (bp.Mercenary)
@@ -1983,16 +2011,16 @@ public class Battleground : ZoneScript, IDisposable
 			var newtime = m_PrematureCountDownTimer - diff;
 
 			// announce every Time.Minute
-			if (newtime > (Time.Minute * Time.InMilliseconds))
+			if (newtime > (global::Time.Minute * global::Time.InMilliseconds))
 			{
-				if (newtime / (Time.Minute * Time.InMilliseconds) != m_PrematureCountDownTimer / (Time.Minute * Time.InMilliseconds))
-					SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarning, ChatMsg.System, null, m_PrematureCountDownTimer / (Time.Minute * Time.InMilliseconds));
+				if (newtime / (global::Time.Minute * global::Time.InMilliseconds) != m_PrematureCountDownTimer / (global::Time.Minute * global::Time.InMilliseconds))
+					SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarning, ChatMsg.System, null, m_PrematureCountDownTimer / (global::Time.Minute * global::Time.InMilliseconds));
 			}
 			else
 			{
 				//announce every 15 seconds
-				if (newtime / (15 * Time.InMilliseconds) != m_PrematureCountDownTimer / (15 * Time.InMilliseconds))
-					SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarningSecs, ChatMsg.System, null, m_PrematureCountDownTimer / Time.InMilliseconds);
+				if (newtime / (15 * global::Time.InMilliseconds) != m_PrematureCountDownTimer / (15 * global::Time.InMilliseconds))
+					SendMessageToAll(CypherStrings.BattlegroundPrematureFinishWarningSecs, ChatMsg.System, null, m_PrematureCountDownTimer / global::Time.InMilliseconds);
 			}
 
 			m_PrematureCountDownTimer = newtime;
@@ -2027,12 +2055,14 @@ public class Battleground : ZoneScript, IDisposable
 		{
 			var countdownMaxForBGType = IsArena() ? BattlegroundConst.ArenaCountdownMax : BattlegroundConst.BattlegroundCountdownMax;
 
-			StartTimer timer = new();
-			timer.Type = TimerType.Pvp;
-			timer.TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000);
-			timer.TotalTime = countdownMaxForBGType;
+			StartTimer timer = new()
+            {
+                Type = TimerType.Pvp,
+                TimeLeft = countdownMaxForBGType - (GetElapsedTime() / 1000),
+                TotalTime = countdownMaxForBGType
+            };
 
-			foreach (var guid in GetPlayers().Keys)
+            foreach (var guid in GetPlayers().Keys)
 			{
 				var player = Global.ObjAccessor.FindPlayer(guid);
 
@@ -2124,7 +2154,7 @@ public class Battleground : ZoneScript, IDisposable
 								{
 									var aura = aurApp.Base;
 
-									return aura.Duration <= 30 * Time.InMilliseconds &&
+									return aura.Duration <= 30 * global::Time.InMilliseconds &&
 											!aura.SpellInfo.HasAttribute(SpellAttr0.NoImmunities) &&
 											!aura.HasEffectType(AuraType.ModInvisibility);
 								})

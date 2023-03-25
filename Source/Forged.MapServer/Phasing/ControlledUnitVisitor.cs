@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 class ControlledUnitVisitor
 {

@@ -3,14 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Framework.Configuration;
-using Framework.Database;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Scripting.Interfaces.IBattlefield;
 using Framework.Threading;
-using Game.Entities;
-using Game.Maps;
-using Game.Scripting.Interfaces.IBattlefield;
 
-namespace Game.BattleFields;
+namespace Forged.MapServer.BattleFields;
 
 public class BattleFieldManager : Singleton<BattleFieldManager>
 {
@@ -46,7 +44,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 
 	public void InitBattlefield()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		uint count = 0;
 		var result = DB.World.Query("SELECT TypeId, ScriptName FROM battlefield_template");
@@ -67,7 +65,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} battlefields in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} battlefields in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void CreateBattlefieldsForMap(Map map)

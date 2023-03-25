@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities;
-using Game.Maps;
-using Game.Maps.Grids;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Grids;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 public class MultiPersonalPhaseTracker
 {

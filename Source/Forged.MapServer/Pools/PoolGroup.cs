@@ -3,10 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game;
+namespace Forged.MapServer.Pools;
 
 public class PoolGroup<T>
 {

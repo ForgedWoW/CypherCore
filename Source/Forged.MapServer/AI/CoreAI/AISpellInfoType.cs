@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.CoreAI;
 
 public class AISpellInfoType
 {

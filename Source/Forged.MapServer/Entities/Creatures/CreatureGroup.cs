@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Units;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureGroup
 {

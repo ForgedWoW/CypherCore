@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Maps.Grids;
 using Framework.Database;
-using Game.Maps.Grids;
 
-namespace Game;
+namespace Forged.MapServer.Movement;
 
 public sealed class WaypointManager : Singleton<WaypointManager>
 {
@@ -14,7 +14,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 
 	public void Load()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		//                                          0    1         2           3          4            5           6        7      8           9
 		var result = DB.World.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
@@ -43,15 +43,17 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			x = GridDefines.NormalizeMapCoord(x);
 			y = GridDefines.NormalizeMapCoord(y);
 
-			WaypointNode waypoint = new();
-			waypoint.id = result.Read<uint>(1);
-			waypoint.x = x;
-			waypoint.y = y;
-			waypoint.z = z;
-			waypoint.orientation = o;
-			waypoint.moveType = (WaypointMoveType)result.Read<uint>(6);
+			WaypointNode waypoint = new()
+            {
+                id = result.Read<uint>(1),
+                x = x,
+                y = y,
+                z = z,
+                orientation = o,
+                moveType = (WaypointMoveType)result.Read<uint>(6)
+            };
 
-			if (waypoint.moveType >= WaypointMoveType.Max)
+            if (waypoint.moveType >= WaypointMoveType.Max)
 			{
 				Log.Logger.Error($"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 
@@ -72,7 +74,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} waypoints in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} waypoints in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public void ReloadPath(uint id)
@@ -101,15 +103,17 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			x = GridDefines.NormalizeMapCoord(x);
 			y = GridDefines.NormalizeMapCoord(y);
 
-			WaypointNode waypoint = new();
-			waypoint.id = result.Read<uint>(0);
-			waypoint.x = x;
-			waypoint.y = y;
-			waypoint.z = z;
-			waypoint.orientation = o;
-			waypoint.moveType = (WaypointMoveType)result.Read<uint>(5);
+			WaypointNode waypoint = new()
+            {
+                id = result.Read<uint>(0),
+                x = x,
+                y = y,
+                z = z,
+                orientation = o,
+                moveType = (WaypointMoveType)result.Read<uint>(5)
+            };
 
-			if (waypoint.moveType >= WaypointMoveType.Max)
+            if (waypoint.moveType >= WaypointMoveType.Max)
 			{
 				Log.Logger.Error($"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 

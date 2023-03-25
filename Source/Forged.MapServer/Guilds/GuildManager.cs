@@ -3,13 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Guilds;
 
-namespace Game;
+namespace Forged.MapServer.Guilds;
 
 public sealed class GuildManager : Singleton<GuildManager>
 {
@@ -99,7 +98,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading Guilds Definitions...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			//          0          1       2             3              4              5              6
 			var result = DB.Characters.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, " +
@@ -127,13 +126,13 @@ public sealed class GuildManager : Singleton<GuildManager>
 				count++;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} guild definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} guild definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		Log.Logger.Information("Loading guild ranks...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Delete orphaned guild rank entries before loading the valid ones
 			DB.Characters.DirectExecute("DELETE gr FROM guild_rank gr LEFT JOIN guild g ON gr.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -160,7 +159,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild ranks in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild ranks in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -168,7 +167,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading guild members...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Delete orphaned guild member entries before loading the valid ones
 			DB.Characters.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -200,7 +199,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild members in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -208,7 +207,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading bank tab rights...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Delete orphaned guild bank right entries before loading the valid ones
 			DB.Characters.DirectExecute("DELETE gbr FROM guild_bank_right gbr LEFT JOIN guild g ON gbr.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -235,7 +234,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} bank tab rights in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} bank tab rights in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -243,7 +242,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading guild event logs...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			DB.Characters.DirectExecute("DELETE FROM guild_eventlog WHERE LogGuid > {0}", GuildConst.EventLogMaxRecords);
 
@@ -269,7 +268,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild event logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild event logs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -277,7 +276,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading guild bank event logs...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Remove log entries that exceed the number of allowed entries per guild
 			DB.Characters.DirectExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > {0}", GuildConst.BankLogMaxRecords);
@@ -304,7 +303,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild bank event logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild bank event logs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -312,7 +311,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading Guild News...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			DB.Characters.DirectExecute("DELETE FROM guild_newslog WHERE LogGuid > {0}", GuildConst.NewsLogMaxRecords);
 
@@ -338,7 +337,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild new logs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild new logs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -346,7 +345,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading guild bank tabs...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Delete orphaned guild bank tab entries before loading the valid ones
 			DB.Characters.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -373,7 +372,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild bank tabs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild bank tabs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -381,7 +380,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Filling bank tabs with items...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			// Delete orphan guild bank items
 			DB.Characters.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
@@ -407,7 +406,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} guild bank tab items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} guild bank tab items in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -415,7 +414,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		Log.Logger.Information("Loading guild achievements...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			foreach (var pair in GuildStore)
 			{
@@ -430,26 +429,26 @@ public sealed class GuildManager : Singleton<GuildManager>
 				pair.Value.GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
 			}
 
-			Log.Logger.Information("Loaded guild achievements and criterias in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded guild achievements and criterias in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		// 11. Validate loaded guild data
 		Log.Logger.Information("Validating data of loaded guilds...");
 
 		{
-			var oldMSTime = Time.MSTime;
+			var oldMSTime = global::Time.MSTime;
 
 			foreach (var guild in GuildStore.ToList())
 				if (!guild.Value.Validate())
 					GuildStore.Remove(guild.Key);
 
-			Log.Logger.Information("Validated data of loaded guilds in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Validated data of loaded guilds in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 
 	public void LoadGuildRewards()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		//                                            0      1            2         3
 		var result = DB.World.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
@@ -465,14 +464,15 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 		do
 		{
-			GuildReward reward = new();
+			GuildReward reward = new()
+            {
+                ItemID = result.Read<uint>(0),
+                MinGuildRep = result.Read<byte>(1),
+                RaceMask = result.Read<ulong>(2),
+                Cost = result.Read<ulong>(3)
+            };
 
-			reward.ItemID = result.Read<uint>(0);
-			reward.MinGuildRep = result.Read<byte>(1);
-			reward.RaceMask = result.Read<ulong>(2);
-			reward.Cost = result.Read<ulong>(3);
-
-			if (Global.ObjectMgr.GetItemTemplate(reward.ItemID) == null)
+            if (Global.ObjectMgr.GetItemTemplate(reward.ItemID) == null)
 			{
 				Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
 
@@ -509,7 +509,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} guild reward definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} guild reward definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void ResetTimes(bool week)

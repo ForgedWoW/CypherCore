@@ -3,13 +3,12 @@
 
 using System.Collections.Generic;
 using System.Numerics;
-using Framework.Configuration;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps.Grids;
 using Framework.Constants;
-using Framework.Database;
-using Game.Entities;
-using Game.Maps.Grids;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage;
 
 public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 {
@@ -22,7 +21,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 	public void LoadAreaTriggerTemplates()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 		MultiMap<uint, Vector2> verticesByCreateProperties = new();
 		MultiMap<uint, Vector2> verticesTargetByCreateProperties = new();
 		MultiMap<uint, Vector3> splinesByCreateProperties = new();
@@ -107,12 +106,13 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 		if (!templates.IsEmpty())
 			do
 			{
-				AreaTriggerTemplate areaTriggerTemplate = new();
-				areaTriggerTemplate.Id = new AreaTriggerId(templates.Read<uint>(0), templates.Read<byte>(1) == 1);
+				AreaTriggerTemplate areaTriggerTemplate = new()
+                {
+                    Id = new AreaTriggerId(templates.Read<uint>(0), templates.Read<byte>(1) == 1),
+                    Flags = (AreaTriggerFlags)templates.Read<uint>(2)
+                };
 
-				areaTriggerTemplate.Flags = (AreaTriggerFlags)templates.Read<uint>(2);
-
-				if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
+                if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM areatrigger_template WHERE Id = {areaTriggerTemplate.Id}");
@@ -135,10 +135,12 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 		if (!areatriggerCreateProperties.IsEmpty())
 			do
 			{
-				AreaTriggerCreateProperties createProperties = new();
-				createProperties.Id = areatriggerCreateProperties.Read<uint>(0);
+				AreaTriggerCreateProperties createProperties = new()
+                {
+                    Id = areatriggerCreateProperties.Read<uint>(0)
+                };
 
-				var areatriggerId = areatriggerCreateProperties.Read<uint>(1);
+                var areatriggerId = areatriggerCreateProperties.Read<uint>(1);
 				createProperties.Template = GetAreaTriggerTemplate(new AreaTriggerId(areatriggerId, false));
 
 				var shape = (AreaTriggerTypes)areatriggerCreateProperties.Read<byte>(11);
@@ -221,12 +223,13 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 					continue;
 				}
 
-				AreaTriggerOrbitInfo orbitInfo = new();
+				AreaTriggerOrbitInfo orbitInfo = new()
+                {
+                    StartDelay = circularMovementInfos.Read<uint>(1),
+                    Radius = circularMovementInfos.Read<float>(2)
+                };
 
-				orbitInfo.StartDelay = circularMovementInfos.Read<uint>(1);
-				orbitInfo.Radius = circularMovementInfos.Read<float>(2);
-
-				if (!float.IsFinite(orbitInfo.Radius))
+                if (!float.IsFinite(orbitInfo.Radius))
 				{
 					Log.Logger.Error($"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid Radius ({orbitInfo.Radius}), set to 0!");
 					orbitInfo.Radius = 0.0f;
@@ -264,12 +267,12 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 		else
 			Log.Logger.Information("Loaded 0 AreaTrigger templates circular movement infos. DB table `areatrigger_create_properties_orbit` is empty.");
 
-		Log.Logger.Information($"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_areaTriggerTemplateStore.Count} spell areatrigger templates in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void LoadAreaTriggerSpawns()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Load area trigger positions (to put them on the server)
 		//                                            0        1              2             3      4     5     6     7            8              9        10
@@ -306,19 +309,22 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 					continue;
 				}
 
-				AreaTriggerSpawn spawn = new();
-				spawn.SpawnId = spawnId;
-				spawn.MapId = location.MapId;
-				spawn.TriggerId = areaTriggerId;
-				spawn.SpawnPoint = new Position(location);
+				AreaTriggerSpawn spawn = new()
+                {
+                    SpawnId = spawnId,
+                    MapId = location.MapId,
+                    TriggerId = areaTriggerId,
+                    SpawnPoint = new Position(location),
+                    PhaseUseFlags = (PhaseUseFlagsValues)templates.Read<byte>(8),
+                    PhaseId = templates.Read<uint>(9),
+                    PhaseGroup = templates.Read<uint>(10),
+                    Shape =
+                    {
+                        TriggerType = shape
+                    }
+                };
 
-				spawn.PhaseUseFlags = (PhaseUseFlagsValues)templates.Read<byte>(8);
-				spawn.PhaseId = templates.Read<uint>(9);
-				spawn.PhaseGroup = templates.Read<uint>(10);
-
-				spawn.Shape.TriggerType = shape;
-
-				unsafe
+                unsafe
 				{
 					for (var i = 0; i < SharedConst.MaxAreatriggerEntityData; ++i)
 						spawn.Shape.DefaultDatas.Data[i] = templates.Read<float>(12 + i);
@@ -342,7 +348,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				_areaTriggerSpawnsBySpawnId[spawnId] = spawn;
 			} while (templates.NextRow());
 
-		Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_areaTriggerSpawnsBySpawnId.Count} areatrigger spawns in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public AreaTriggerTemplate GetAreaTriggerTemplate(AreaTriggerId areaTriggerId)

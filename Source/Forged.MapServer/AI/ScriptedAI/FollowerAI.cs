@@ -2,10 +2,14 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Game.Entities;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.ScriptedAI;
 
 class FollowerAI : ScriptedAI
 {
@@ -158,7 +162,7 @@ class FollowerAI : ScriptedAI
 		UpdateFollowerAI(uiDiff);
 	}
 
-	public void StartFollow(Player player, uint factionForFollower = 0, Quest quest = null)
+	public void StartFollow(Player player, uint factionForFollower = 0, Quest.Quest quest = null)
 	{
 		var cdata = Me.CreatureData;
 

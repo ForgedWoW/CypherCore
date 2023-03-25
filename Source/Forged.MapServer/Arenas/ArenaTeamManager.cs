@@ -2,10 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Framework.Database;
-using Game.Entities;
+using Forged.MapServer.Entities.Objects;
 
-namespace Game.Arenas;
+namespace Forged.MapServer.Arenas;
 
 public class ArenaTeamManager : Singleton<ArenaTeamManager>
 {
@@ -66,7 +65,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 
 	public void LoadArenaTeams()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		// Clean out the trash before loading anything
 		DB.Characters.DirectExecute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)"); // One-time query
@@ -108,7 +107,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SetNextArenaTeamId(uint Id)

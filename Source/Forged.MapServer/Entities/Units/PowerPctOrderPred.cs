@@ -3,9 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Units;
 
 public class PowerPctOrderPred : IComparer<WorldObject>
 {

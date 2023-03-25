@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Game;
+namespace Forged.MapServer.World;
 
 [Flags]
 public enum ShutdownMask

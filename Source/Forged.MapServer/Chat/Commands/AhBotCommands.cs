@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Framework.IO;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 //Holder for now.
 [CommandGroup("ahbot")]

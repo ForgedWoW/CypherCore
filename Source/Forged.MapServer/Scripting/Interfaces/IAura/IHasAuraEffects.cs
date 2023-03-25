@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace Game.Scripting.Interfaces.IAura;
+namespace Forged.MapServer.Scripting.Interfaces.IAura;
 
 public interface IHasAuraEffects
 {

@@ -2,22 +2,18 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using System.Linq;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Objects.Update;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Loot;
+using Forged.MapServer.Scripting.Interfaces.IItem;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Database;
-using Game.Common.Loot;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Loots;
-using Game.Scripting.Interfaces.IItem;
-using Game.Spells;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.GameObject;
-using Game.Common.Networking.Packets.Pet;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Networking.Packets.Totem;
 
-namespace Game;
+namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
@@ -212,7 +208,7 @@ public partial class WorldSession
 			// fails then this is first time opening, generate loot
 			if (!item.LootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
 			{
-				Loot loot = new(player.Map, item.GUID, LootType.Item, null);
+				Loot.Loot loot = new(player.Map, item.GUID, LootType.Item, null);
 				item.Loot = loot;
 				loot.GenerateMoneyLoot(item.Template.MinMoneyLoot, item.Template.MaxMoneyLoot);
 				loot.FillLoot(item.Entry, LootStorage.Items, player, true, loot.gold != 0);
@@ -654,10 +650,13 @@ public partial class WorldSession
 
 			foreach (var customization in player.PlayerData.Customizations)
 			{
-				var chrCustomizationChoice = new ChrCustomizationChoice();
-				chrCustomizationChoice.ChrCustomizationOptionID = customization.ChrCustomizationOptionID;
-				chrCustomizationChoice.ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID;
-				mirrorImageComponentedData.Customizations.Add(chrCustomizationChoice);
+				var chrCustomizationChoice = new ChrCustomizationChoice
+                {
+                    ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
+                    ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
+                };
+
+                mirrorImageComponentedData.Customizations.Add(chrCustomizationChoice);
 			}
 
 			var guild = player.Guild;

@@ -2,10 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Text;
+using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Services;
 using Framework.Constants;
-using Game.Networking.Packets;
 
-namespace Game.Chat;
+namespace Forged.MapServer.Chat;
 
 class AddonChannelCommandHandler : CommandHandler
 {

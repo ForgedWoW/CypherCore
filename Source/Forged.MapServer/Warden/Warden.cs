@@ -4,12 +4,14 @@
 using System;
 using System.Numerics;
 using System.Security.Cryptography;
+using Forged.MapServer.Networking.Packets.Warden;
+using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Networking.Packets;
+using WorldSession = Forged.MapServer.Services.WorldSession;
 
-namespace Game;
+namespace Forged.MapServer.Warden;
 
 public abstract class Warden
 {
@@ -29,7 +31,7 @@ public abstract class Warden
 	{
 		InputCrypto = new SARC4();
 		OutputCrypto = new SARC4();
-		CheckTimer = 10 * Time.InMilliseconds;
+		CheckTimer = 10 * global::Time.InMilliseconds;
 	}
 
 	public void MakeModuleForClient()
@@ -64,9 +66,12 @@ public abstract class Warden
 			sizeLeft -= burstSize;
 			pos += (int)burstSize;
 
-			Warden3DataServer pkt1 = new();
-			pkt1.Data = EncryptData(packet);
-			Session.SendPacket(pkt1);
+			Warden3DataServer pkt1 = new()
+            {
+                Data = EncryptData(packet)
+            };
+
+            Session.SendPacket(pkt1);
 		}
 	}
 
@@ -75,16 +80,20 @@ public abstract class Warden
 		Log.Logger.Debug("Request module");
 
 		// Create packet structure
-		WardenModuleUse request = new();
-		request.Command = WardenOpcodes.SmsgModuleUse;
+		WardenModuleUse request = new()
+        {
+            Command = WardenOpcodes.SmsgModuleUse,
+            ModuleId = Module.Id,
+            ModuleKey = Module.Key,
+            Size = Module.CompressedSize
+        };
 
-		request.ModuleId = Module.Id;
-		request.ModuleKey = Module.Key;
-		request.Size = Module.CompressedSize;
+        Warden3DataServer packet = new()
+        {
+            Data = EncryptData(request)
+        };
 
-		Warden3DataServer packet = new();
-		packet.Data = EncryptData(request);
-		Session.SendPacket(packet);
+        Session.SendPacket(packet);
 	}
 
 	public void Update(uint diff)
@@ -99,14 +108,14 @@ public abstract class Warden
 			if (maxClientResponseDelay > 0)
 			{
 				// Kick player if client response delays more than set in config
-				if (ClientResponseTimer > maxClientResponseDelay * Time.InMilliseconds)
+				if (ClientResponseTimer > maxClientResponseDelay * global::Time.InMilliseconds)
 				{
 					Log.Logger.Warning(
 								"{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
 								Session.GetPlayerInfo(),
 								Session.Latency,
 								Session.RemoteAddress,
-								Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
+								global::Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
 
 					Session.KickPlayer("Warden::Update Warden module response delay exceeded");
 				}

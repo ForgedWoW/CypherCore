@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities;
-using Game.Maps;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Maps;
 
-namespace Game;
+namespace Forged.MapServer.Phasing;
 
 class PlayerPersonalPhasesTracker
 {

@@ -4,14 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Mails;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Networking.Packets.Calendar;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Game.Mails;
-using Game.Networking;
-using Game.Networking.Packets;
 
-namespace Game;
+namespace Forged.MapServer.Calendar;
 
 public class CalendarManager : Singleton<CalendarManager>
 {
@@ -30,7 +31,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		uint count = 0;
 		_maxEventId = 0;
@@ -64,9 +65,9 @@ public class CalendarManager : Singleton<CalendarManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} calendar events in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} calendar events in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		count = 0;
-		oldMSTime = Time.MSTime;
+		oldMSTime = global::Time.MSTime;
 
 		//                                    0         1        2        3       4       5             6               7
 		result = DB.Characters.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites");
@@ -91,7 +92,7 @@ public class CalendarManager : Singleton<CalendarManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} calendar invites in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} calendar invites in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
 		for (ulong i = 1; i < _maxEventId; ++i)
 			if (GetEvent(i) == null)
@@ -395,17 +396,19 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		var level = player ? player.Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(invitee);
 
-		CalendarInviteAdded packet = new();
-		packet.EventID = calendarEvent != null ? calendarEvent.EventId : 0;
-		packet.InviteGuid = invitee;
-		packet.InviteID = calendarEvent != null ? invite.InviteId : 0;
-		packet.Level = (byte)level;
-		packet.ResponseTime = invite.ResponseTime;
-		packet.Status = invite.Status;
-		packet.Type = (byte)(calendarEvent != null ? calendarEvent.IsGuildEvent ? 1 : 0 : 0); // Correct ?
-		packet.ClearPending = calendarEvent == null || !calendarEvent.IsGuildEvent;           // Correct ?
+		CalendarInviteAdded packet = new()
+        {
+            EventID = calendarEvent != null ? calendarEvent.EventId : 0,
+            InviteGuid = invitee,
+            InviteID = calendarEvent != null ? invite.InviteId : 0,
+            Level = (byte)level,
+            ResponseTime = invite.ResponseTime,
+            Status = invite.Status,
+            Type = (byte)(calendarEvent != null ? calendarEvent.IsGuildEvent ? 1 : 0 : 0), // Correct ?
+            ClearPending = calendarEvent == null || !calendarEvent.IsGuildEvent            // Correct ?
+        };
 
-		if (calendarEvent == null) // Pre-invite
+        if (calendarEvent == null) // Pre-invite
 		{
 			player = Global.ObjAccessor.FindPlayer(invite.SenderGuid);
 
@@ -421,44 +424,50 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void SendCalendarEventUpdateAlert(CalendarEvent calendarEvent, long originalDate)
 	{
-		CalendarEventUpdatedAlert packet = new();
-		packet.ClearPending = true; // FIXME
-		packet.Date = calendarEvent.Date;
-		packet.Description = calendarEvent.Description;
-		packet.EventID = calendarEvent.EventId;
-		packet.EventName = calendarEvent.Title;
-		packet.EventType = calendarEvent.EventType;
-		packet.Flags = calendarEvent.Flags;
-		packet.LockDate = calendarEvent.LockDate; // Always 0 ?
-		packet.OriginalDate = originalDate;
-		packet.TextureID = calendarEvent.TextureId;
+		CalendarEventUpdatedAlert packet = new()
+        {
+            ClearPending = true, // FIXME
+            Date = calendarEvent.Date,
+            Description = calendarEvent.Description,
+            EventID = calendarEvent.EventId,
+            EventName = calendarEvent.Title,
+            EventType = calendarEvent.EventType,
+            Flags = calendarEvent.Flags,
+            LockDate = calendarEvent.LockDate, // Always 0 ?
+            OriginalDate = originalDate,
+            TextureID = calendarEvent.TextureId
+        };
 
-		SendPacketToAllEventRelatives(packet, calendarEvent);
+        SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
 	public void SendCalendarEventStatus(CalendarEvent calendarEvent, CalendarInvite invite)
 	{
-		CalendarInviteStatusPacket packet = new();
-		packet.ClearPending = true; // FIXME
-		packet.Date = calendarEvent.Date;
-		packet.EventID = calendarEvent.EventId;
-		packet.Flags = calendarEvent.Flags;
-		packet.InviteGuid = invite.InviteeGuid;
-		packet.ResponseTime = invite.ResponseTime;
-		packet.Status = invite.Status;
+		CalendarInviteStatusPacket packet = new()
+        {
+            ClearPending = true, // FIXME
+            Date = calendarEvent.Date,
+            EventID = calendarEvent.EventId,
+            Flags = calendarEvent.Flags,
+            InviteGuid = invite.InviteeGuid,
+            ResponseTime = invite.ResponseTime,
+            Status = invite.Status
+        };
 
-		SendPacketToAllEventRelatives(packet, calendarEvent);
+        SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
 	public void SendCalendarEventModeratorStatusAlert(CalendarEvent calendarEvent, CalendarInvite invite)
 	{
-		CalendarModeratorStatus packet = new();
-		packet.ClearPending = true; // FIXME
-		packet.EventID = calendarEvent.EventId;
-		packet.InviteGuid = invite.InviteeGuid;
-		packet.Status = invite.Status;
+		CalendarModeratorStatus packet = new()
+        {
+            ClearPending = true, // FIXME
+            EventID = calendarEvent.EventId,
+            InviteGuid = invite.InviteeGuid,
+            Status = invite.Status
+        };
 
-		SendPacketToAllEventRelatives(packet, calendarEvent);
+        SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
 	public void SendCalendarEvent(ObjectGuid guid, CalendarEvent calendarEvent, CalendarSendEventType sendType)
@@ -470,19 +479,21 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		var eventInviteeList = _invites[calendarEvent.EventId];
 
-		CalendarSendEvent packet = new();
-		packet.Date = calendarEvent.Date;
-		packet.Description = calendarEvent.Description;
-		packet.EventID = calendarEvent.EventId;
-		packet.EventName = calendarEvent.Title;
-		packet.EventType = sendType;
-		packet.Flags = calendarEvent.Flags;
-		packet.GetEventType = calendarEvent.EventType;
-		packet.LockDate = calendarEvent.LockDate; // Always 0 ?
-		packet.OwnerGuid = calendarEvent.OwnerGuid;
-		packet.TextureID = calendarEvent.TextureId;
+		CalendarSendEvent packet = new()
+        {
+            Date = calendarEvent.Date,
+            Description = calendarEvent.Description,
+            EventID = calendarEvent.EventId,
+            EventName = calendarEvent.Title,
+            EventType = sendType,
+            Flags = calendarEvent.Flags,
+            GetEventType = calendarEvent.EventType,
+            LockDate = calendarEvent.LockDate, // Always 0 ?
+            OwnerGuid = calendarEvent.OwnerGuid,
+            TextureID = calendarEvent.TextureId
+        };
 
-		var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
+        var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
 		packet.EventGuildID = (guild ? guild.GetGUID() : ObjectGuid.Empty);
 
 		foreach (var calendarInvite in eventInviteeList)
@@ -493,17 +504,19 @@ public class CalendarManager : Singleton<CalendarManager>
 			var inviteeLevel = invitee ? invitee.Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(inviteeGuid);
 			var inviteeGuildId = invitee ? invitee.GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(inviteeGuid);
 
-			CalendarEventInviteInfo inviteInfo = new();
-			inviteInfo.Guid = inviteeGuid;
-			inviteInfo.Level = (byte)inviteeLevel;
-			inviteInfo.Status = calendarInvite.Status;
-			inviteInfo.Moderator = calendarInvite.Rank;
-			inviteInfo.InviteType = (byte)(calendarEvent.IsGuildEvent && calendarEvent.GuildId == inviteeGuildId ? 1 : 0);
-			inviteInfo.InviteID = calendarInvite.InviteId;
-			inviteInfo.ResponseTime = calendarInvite.ResponseTime;
-			inviteInfo.Notes = calendarInvite.Note;
+			CalendarEventInviteInfo inviteInfo = new()
+            {
+                Guid = inviteeGuid,
+                Level = (byte)inviteeLevel,
+                Status = calendarInvite.Status,
+                Moderator = calendarInvite.Rank,
+                InviteType = (byte)(calendarEvent.IsGuildEvent && calendarEvent.GuildId == inviteeGuildId ? 1 : 0),
+                InviteID = calendarInvite.InviteId,
+                ResponseTime = calendarInvite.ResponseTime,
+                Notes = calendarInvite.Note
+            };
 
-			packet.Invites.Add(inviteInfo);
+            packet.Invites.Add(inviteInfo);
 		}
 
 		player.SendPacket(packet);
@@ -523,11 +536,13 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		if (player)
 		{
-			CalendarCommandResult packet = new();
-			packet.Command = 1; // FIXME
-			packet.Result = err;
+			CalendarCommandResult packet = new()
+            {
+                Command = 1, // FIXME
+                Result = err
+            };
 
-			switch (err)
+            switch (err)
 			{
 				case CalendarError.OtherInvitesExceeded:
 				case CalendarError.AlreadyInvitedToEventS:
@@ -591,41 +606,47 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	void SendCalendarEventRemovedAlert(CalendarEvent calendarEvent)
 	{
-		CalendarEventRemovedAlert packet = new();
-		packet.ClearPending = true; // FIXME
-		packet.Date = calendarEvent.Date;
-		packet.EventID = calendarEvent.EventId;
+		CalendarEventRemovedAlert packet = new()
+        {
+            ClearPending = true, // FIXME
+            Date = calendarEvent.Date,
+            EventID = calendarEvent.EventId
+        };
 
-		SendPacketToAllEventRelatives(packet, calendarEvent);
+        SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
 	void SendCalendarEventInviteRemove(CalendarEvent calendarEvent, CalendarInvite invite, uint flags)
 	{
-		CalendarInviteRemoved packet = new();
-		packet.ClearPending = true; // FIXME
-		packet.EventID = calendarEvent.EventId;
-		packet.Flags = flags;
-		packet.InviteGuid = invite.InviteeGuid;
+		CalendarInviteRemoved packet = new()
+        {
+            ClearPending = true, // FIXME
+            EventID = calendarEvent.EventId,
+            Flags = flags,
+            InviteGuid = invite.InviteeGuid
+        };
 
-		SendPacketToAllEventRelatives(packet, calendarEvent);
+        SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
 	void SendCalendarEventInviteAlert(CalendarEvent calendarEvent, CalendarInvite invite)
 	{
-		CalendarInviteAlert packet = new();
-		packet.Date = calendarEvent.Date;
-		packet.EventID = calendarEvent.EventId;
-		packet.EventName = calendarEvent.Title;
-		packet.EventType = calendarEvent.EventType;
-		packet.Flags = calendarEvent.Flags;
-		packet.InviteID = invite.InviteId;
-		packet.InvitedByGuid = invite.SenderGuid;
-		packet.ModeratorStatus = invite.Rank;
-		packet.OwnerGuid = calendarEvent.OwnerGuid;
-		packet.Status = invite.Status;
-		packet.TextureID = calendarEvent.TextureId;
+		CalendarInviteAlert packet = new()
+        {
+            Date = calendarEvent.Date,
+            EventID = calendarEvent.EventId,
+            EventName = calendarEvent.Title,
+            EventType = calendarEvent.EventType,
+            Flags = calendarEvent.Flags,
+            InviteID = invite.InviteId,
+            InvitedByGuid = invite.SenderGuid,
+            ModeratorStatus = invite.Rank,
+            OwnerGuid = calendarEvent.OwnerGuid,
+            Status = invite.Status,
+            TextureID = calendarEvent.TextureId
+        };
 
-		var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
+        var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
 		packet.EventGuildID = guild ? guild.GetGUID() : ObjectGuid.Empty;
 
 		if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
@@ -650,13 +671,15 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		if (player)
 		{
-			CalendarInviteRemovedAlert packet = new();
-			packet.Date = calendarEvent.Date;
-			packet.EventID = calendarEvent.EventId;
-			packet.Flags = calendarEvent.Flags;
-			packet.Status = status;
+			CalendarInviteRemovedAlert packet = new()
+            {
+                Date = calendarEvent.Date,
+                EventID = calendarEvent.EventId,
+                Flags = calendarEvent.Flags,
+                Status = status
+            };
 
-			player.SendPacket(packet);
+            player.SendPacket(packet);
 		}
 	}
 

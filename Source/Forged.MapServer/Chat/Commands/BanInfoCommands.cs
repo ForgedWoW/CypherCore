@@ -2,11 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
 
-namespace Game.Chat.Commands;
+namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("baninfo")]
 class BanInfoCommands
@@ -80,10 +82,10 @@ class BanInfoCommands
 				active = true;
 
 			var permanent = (result.Read<long>(1) == 0L);
-			var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.secsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
+			var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : global::Time.secsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
 
 			handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,
-									Time.UnixTimeToDateTime(result.Read<long>(0)).ToShortTimeString(),
+									global::Time.UnixTimeToDateTime(result.Read<long>(0)).ToShortTimeString(),
 									banTime,
 									active ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No),
 									result.Read<string>(4),
@@ -114,7 +116,7 @@ class BanInfoCommands
 								result.Read<string>(0),
 								result.Read<string>(1),
 								permanent ? handler.GetCypherString(CypherStrings.BaninfoNever) : result.Read<string>(2),
-								permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.secsToTimeString(result.Read<ulong>(3), TimeFormat.ShortText),
+								permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : global::Time.secsToTimeString(result.Read<ulong>(3), TimeFormat.ShortText),
 								result.Read<string>(4),
 								result.Read<string>(5));
 
@@ -143,7 +145,7 @@ class BanInfoCommands
 				active = true;
 
 			var permanent = (result.Read<ulong>(1) == 0);
-			var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : Time.secsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
+			var banTime = permanent ? handler.GetCypherString(CypherStrings.BaninfoInfinite) : global::Time.secsToTimeString(result.Read<ulong>(1), TimeFormat.ShortText);
 
 			handler.SendSysMessage(CypherStrings.BaninfoHistoryentry,
 									result.Read<string>(0),

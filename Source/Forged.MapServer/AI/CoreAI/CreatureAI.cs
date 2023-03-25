@@ -4,15 +4,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Combat;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Entities;
+using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Entities.Creatures;
+using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Maps;
+using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Combat;
-using Game.DataStorage;
-using Game.Entities;
-using Game.Maps;
-using Game.Spells;
 
-namespace Game.AI;
+namespace Forged.MapServer.AI.CoreAI;
 
 public class CreatureAI : UnitAI
 {
@@ -139,7 +146,7 @@ public class CreatureAI : UnitAI
 		// Face the unit (stealthed player) and set distracted state for 5 seconds
 		Me.
 			// Face the unit (stealthed player) and set distracted state for 5 seconds
-			MotionMaster.MoveDistract(5 * Time.InMilliseconds, Me.Location.GetAbsoluteAngle(who.Location));
+			MotionMaster.MoveDistract(5 * global::Time.InMilliseconds, Me.Location.GetAbsoluteAngle(who.Location));
 	}
 
 	// adapted from logic in Spell:EffectSummonType
@@ -592,10 +599,10 @@ public class CreatureAI : UnitAI
 	}
 
 	// Called when a player accepts a quest from the creature.
-	public virtual void OnQuestAccept(Player player, Quest quest) { }
+	public virtual void OnQuestAccept(Player player, Quest.Quest quest) { }
 
 	// Called when a player completes a quest and is rewarded, opt is the selected item's index or 0
-	public virtual void OnQuestReward(Player player, Quest quest, LootItemType type, uint opt) { }
+	public virtual void OnQuestReward(Player player, Quest.Quest quest, LootItemType type, uint opt) { }
 
 	/// == Waypoints system =============================
 	public virtual void WaypointStarted(uint nodeId, uint pathId) { }
@@ -616,7 +623,7 @@ public class CreatureAI : UnitAI
 	// Called when a player is charmed by the creature
 	// If a PlayerAI* is returned, that AI is placed on the player instead of the default charm AI
 	// Object destruction is handled by Unit::RemoveCharmedBy
-	public virtual PlayerAI GetAIForCharmedPlayer(Player who)
+	public virtual PlayerAI.PlayerAI GetAIForCharmedPlayer(Player who)
 	{
 		return null;
 	}

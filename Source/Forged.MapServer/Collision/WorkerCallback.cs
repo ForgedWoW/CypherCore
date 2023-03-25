@@ -2,9 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
+using Forged.MapServer.Collision.Models;
 using Framework.GameMath;
 
-namespace Game.Collision;
+namespace Forged.MapServer.Collision;
 
 public class WorkerCallback
 {

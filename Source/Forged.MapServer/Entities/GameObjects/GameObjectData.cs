@@ -2,10 +2,10 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Numerics;
+using Forged.MapServer.Maps;
 using Framework.Constants;
-using Game.Maps;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.GameObjects;
 // From `gameobject_template_addon`, `gameobject_overrides`
 
 public class GameObjectData : SpawnData

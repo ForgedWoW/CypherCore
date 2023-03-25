@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking.Packets.Spell;
 using Framework.Constants;
-using Game.Entities;
-using Game.Networking.Packets;
 
-namespace Game.Spells;
+namespace Forged.MapServer.Spells.Auras;
 
 public class AuraApplication
 {
@@ -240,11 +241,13 @@ public class AuraApplication
 	{
 		_needClientUpdate = false;
 
-		AuraUpdate update = new();
-		update.UpdateAll = false;
-		update.UnitGUID = Target.GUID;
+		AuraUpdate update = new()
+        {
+            UpdateAll = false,
+            UnitGUID = Target.GUID
+        };
 
-		AuraInfo auraInfo = new();
+        AuraInfo auraInfo = new();
 		BuildUpdatePacket(ref auraInfo, remove);
 		update.Auras.Add(auraInfo);
 

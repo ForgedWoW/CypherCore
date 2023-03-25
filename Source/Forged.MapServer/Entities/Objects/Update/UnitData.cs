@@ -3,10 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Networking;
+using Forged.MapServer.Server;
 using Framework.Constants;
-using Game.Networking;
 
-namespace Game.Entities;
+namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UnitData : BaseUpdateData<Unit>
 {
