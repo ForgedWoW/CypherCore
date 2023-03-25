@@ -3,12 +3,17 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage;
+using Forged.MapServer.DataStorage.Structs.A;
+using Forged.MapServer.DataStorage.Structs.C;
+using Forged.MapServer.DataStorage.Structs.S;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Quest;
 using Framework.Constants;
 using Framework.Database;
-using Game.DataStorage;
 using Serilog;
 
-namespace Game.Achievements;
+namespace Forged.MapServer.Achievements;
 
 public class CriteriaManager 
 {
@@ -45,7 +50,7 @@ public class CriteriaManager
 
 	public void LoadCriteriaModifiersTree()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		if (_cliDB.ModifierTreeStorage.Empty())
 		{
@@ -57,9 +62,12 @@ public class CriteriaManager
 		// Load modifier tree nodes
 		foreach (var tree in _cliDB.ModifierTreeStorage.Values)
 		{
-			ModifierTreeNode node = new();
-			node.Entry = tree;
-			_criteriaModifiers[node.Entry.Id] = node;
+			ModifierTreeNode node = new()
+            {
+                Entry = tree
+            };
+
+            _criteriaModifiers[node.Entry.Id] = node;
 		}
 
 		// Build tree
@@ -71,12 +79,12 @@ public class CriteriaManager
 				parentNode.Children.Add(treeNode);
 		}
 
-		Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadCriteriaList()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		Dictionary<uint /*criteriaTreeID*/, AchievementRecord> achievementCriteriaTreeIds = new();
 
@@ -115,14 +123,16 @@ public class CriteriaManager
 			if (achievement == null && scenarioStep == null && questObjective == null)
 				continue;
 
-			CriteriaTree criteriaTree = new();
-			criteriaTree.Id = tree.Id;
-			criteriaTree.Achievement = achievement;
-			criteriaTree.ScenarioStep = scenarioStep;
-			criteriaTree.QuestObjective = questObjective;
-			criteriaTree.Entry = tree;
+			CriteriaTree criteriaTree = new()
+            {
+                Id = tree.Id,
+                Achievement = achievement,
+                ScenarioStep = scenarioStep,
+                QuestObjective = questObjective,
+                Entry = tree
+            };
 
-			_criteriaTrees[criteriaTree.Entry.Id] = criteriaTree;
+            _criteriaTrees[criteriaTree.Entry.Id] = criteriaTree;
 		}
 
 		// Build tree
@@ -153,12 +163,14 @@ public class CriteriaManager
 			if (treeList.Empty())
 				continue;
 
-			Criteria criteria = new();
-			criteria.Id = criteriaEntry.Id;
-			criteria.Entry = criteriaEntry;
-			criteria.Modifier = _criteriaModifiers.LookupByKey(criteriaEntry.ModifierTreeId);
+			Criteria criteria = new()
+            {
+                Id = criteriaEntry.Id,
+                Entry = criteriaEntry,
+                Modifier = _criteriaModifiers.LookupByKey(criteriaEntry.ModifierTreeId)
+            };
 
-			_criteria[criteria.Id] = criteria;
+            _criteria[criteria.Id] = criteria;
 
 			List<uint> scenarioIds = new();
 
@@ -249,12 +261,12 @@ public class CriteriaManager
 				_criteriasByFailEvent[criteriaEntry.FailEvent].Add((int)criteriaEntry.FailAsset, criteria);
 		}
 
-		Log.Logger.Information($"Loaded {criterias} criteria, {guildCriterias} guild criteria, {scenarioCriterias} scenario criteria and {questObjectiveCriterias} quest objective criteria in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {criterias} criteria, {guildCriterias} guild criteria, {scenarioCriterias} scenario criteria and {questObjectiveCriterias} quest objective criteria in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void LoadCriteriaData()
 	{
-		var oldMSTime = Time.MSTime;
+		var oldMSTime = global::Time.MSTime;
 
 		_criteriaDataMap.Clear(); // need for reload case
 
@@ -312,7 +324,7 @@ public class CriteriaManager
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} additional criteria data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} additional criteria data in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public CriteriaTree GetCriteriaTree(uint criteriaTreeId)
