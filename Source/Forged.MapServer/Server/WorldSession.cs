@@ -385,7 +385,7 @@ public partial class WorldSession : IDisposable
 			// calls to GetMap in this case may cause crashes
 			_player.SetDestroyedObject(true);
 			_player.CleanupsBeforeDelete();
-			Log.outInfo($"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_player.GetName()}] ({_player.GUID}) Level: {_player.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
+			Log.Logger.Information($"Account: {AccountId} (IP: {RemoteAddress}) Logout Character:[{_player.GetName()}] ({_player.GUID}) Level: {_player.Level}, XP: {_player.XP}/{_player.XPForNextLevel} ({_player.XPForNextLevel - _player.XP} left)");
 
 			var map = Player.Map;
 
@@ -510,7 +510,7 @@ public partial class WorldSession : IDisposable
 
 		if (_socket[(int)conIdx] == null)
 		{
-			Log.outTrace("Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
+			Log.Logger.Verbose("Prevented sending of {0} to non existent socket {1} to {2}", packet.GetOpcode(), conIdx, GetPlayerInfo());
 
 			return;
 		}

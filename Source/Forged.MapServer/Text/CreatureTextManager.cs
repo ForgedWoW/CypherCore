@@ -12,10 +12,11 @@ using Game.Entities;
 using Game.Maps;
 using Game.Networking;
 using Game.Networking.Packets;
+using Serilog;
 
 namespace Game;
 
-public sealed class CreatureTextManager : Singleton<CreatureTextManager>
+public sealed class CreatureTextManager
 {
 	readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
 	readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
