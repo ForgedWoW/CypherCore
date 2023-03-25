@@ -40,7 +40,7 @@ public class PoolManager : Singleton<PoolManager>
 	{
 		// Pool templates
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			var result = DB.World.Query("SELECT entry, max_limit FROM pool_template");
 
@@ -59,16 +59,16 @@ public class PoolManager : Singleton<PoolManager>
 				var pool_id = result.Read<uint>(0);
 
 				PoolTemplateData pPoolTemplate = new()
-                {
-                    MaxLimit = result.Read<uint>(1),
-                    MapId = -1
-                };
+				{
+					MaxLimit = result.Read<uint>(1),
+					MapId = -1
+				};
 
-                _poolTemplate[pool_id] = pPoolTemplate;
+				_poolTemplate[pool_id] = pPoolTemplate;
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} objects pools in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} objects pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		// Creatures
@@ -76,7 +76,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.Logger.Information("Loading Creatures Pooling Data...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
 			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
@@ -143,7 +143,7 @@ public class PoolManager : Singleton<PoolManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} creatures in pools in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} creatures in pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -152,7 +152,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.Logger.Information("Loading Gameobject Pooling Data...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
 			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
@@ -219,7 +219,7 @@ public class PoolManager : Singleton<PoolManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} gameobject in pools in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} gameobject in pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -228,7 +228,7 @@ public class PoolManager : Singleton<PoolManager>
 		Log.Logger.Information("Loading Mother Pooling Data...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
 			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
@@ -336,25 +336,23 @@ public class PoolManager : Singleton<PoolManager>
 					}
 				}
 
-				Log.Logger.Information("Loaded {0} pools in mother pools in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} pools in mother pools in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		foreach (var (poolId, templateData) in _poolTemplate)
-		{
 			if (IsEmpty(poolId))
 			{
 				Log.Logger.Error($"Pool Id {poolId} is empty (has no creatures and no gameobects and either no child pools or child pools are all empty. The pool will not be spawned");
 
 				continue;
 			}
-		}
 
 		// The initialize method will spawn all pools not in an event and not in another pool, this is why there is 2 left joins with 2 null checks
 		Log.Logger.Information("Starting objects pooling system...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			var result = DB.World.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template" +
 										" LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry" +
@@ -396,7 +394,7 @@ public class PoolManager : Singleton<PoolManager>
 					}
 				} while (result.NextRow());
 
-				Log.Logger.Information("Pool handling system initialized, {0} pools will be spawned by default in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Pool handling system initialized, {0} pools will be spawned by default in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 	}

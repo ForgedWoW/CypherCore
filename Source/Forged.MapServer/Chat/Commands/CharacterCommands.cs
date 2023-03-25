@@ -701,7 +701,7 @@ class CharacterCommands
 
 			foreach (var info in foundList)
 			{
-				var dateStr = global::Time.UnixTimeToDateTime(info.deleteDate).ToShortDateString();
+				var dateStr = Time.UnixTimeToDateTime(info.deleteDate).ToShortDateString();
 
 				if (!handler.Session)
 					handler.SendSysMessage(CypherStrings.CharacterDeletedListLineConsole,

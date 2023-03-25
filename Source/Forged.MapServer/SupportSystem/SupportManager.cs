@@ -73,7 +73,7 @@ public class SupportManager : Singleton<SupportManager>
 
 	public void LoadBugTickets()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_bugTicketList.Clear();
 
 		_lastBugId = 0;
@@ -108,12 +108,12 @@ public class SupportManager : Singleton<SupportManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} GM bugs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GM bugs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadComplaintTickets()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_complaintTicketList.Clear();
 
 		_lastComplaintId = 0;
@@ -160,12 +160,12 @@ public class SupportManager : Singleton<SupportManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} GM complaints in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GM complaints in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSuggestionTickets()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_suggestionTicketList.Clear();
 
 		_lastSuggestionId = 0;
@@ -200,7 +200,7 @@ public class SupportManager : Singleton<SupportManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} GM suggestions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GM suggestions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void AddTicket<T>(T ticket) where T : Ticket
@@ -457,7 +457,7 @@ public class SupportManager : Singleton<SupportManager>
 
 	long GetAge(ulong t)
 	{
-		return (GameTime.GetGameTime() - (long)t) / global::Time.Day;
+		return (GameTime.GetGameTime() - (long)t) / Time.Day;
 	}
 
 	IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)

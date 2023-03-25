@@ -12,7 +12,7 @@ public class WeatherManager : Singleton<WeatherManager>
 
 	public void LoadWeatherData()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		uint count = 0;
 
@@ -63,7 +63,7 @@ public class WeatherManager : Singleton<WeatherManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} weather definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} weather definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public WeatherData GetWeatherData(uint zoneId)

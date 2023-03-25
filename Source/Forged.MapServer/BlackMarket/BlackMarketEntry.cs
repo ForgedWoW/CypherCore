@@ -140,8 +140,8 @@ public class BlackMarketEntry
 		_currentBid = bid;
 		++_numBids;
 
-		if (GetSecondsRemaining() < 30 * global::Time.Minute)
-			_secondsRemaining += 30 * global::Time.Minute;
+		if (GetSecondsRemaining() < 30 * Time.Minute)
+			_secondsRemaining += 30 * Time.Minute;
 
 		_bidder = player.GUID.Counter;
 

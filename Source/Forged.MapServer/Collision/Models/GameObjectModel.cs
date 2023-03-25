@@ -204,7 +204,7 @@ public class GameObjectModel : IModel
 
 	public static bool LoadGameObjectModelList()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		var filename = Global.WorldMgr.DataPath + "/vmaps/GameObjectModels.dtree";
 
 		if (!File.Exists(filename))
@@ -248,7 +248,7 @@ public class GameObjectModel : IModel
 			Log.outException(ex);
 		}
 
-		Log.Logger.Information("Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		return true;
 	}

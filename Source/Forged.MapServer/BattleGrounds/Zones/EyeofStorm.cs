@@ -934,11 +934,10 @@ class BgEyeofStorm : Battleground
 		var sg = Global.ObjectMgr.GetWorldSafeLoc(EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
 
 		if (sg == null || !AddSpiritGuide(Point, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, GetTeamIndexByTeamId(Team)))
-			Log.Logger.Error(
-						"BatteGroundEY: Failed to spawn spirit guide. point: {0}, team: {1}, graveyard_id: {2}",
-						Point,
-						Team,
-						EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
+			Log.Logger.Error("BatteGroundEY: Failed to spawn spirit guide. point: {0}, team: {1}, graveyard_id: {2}",
+							Point,
+							Team,
+							EotSMisc.m_CapturingPointTypes[Point].GraveYardId);
 
 		//    SpawnBGCreature(Point, RESPAWN_IMMEDIATELY);
 
@@ -1111,8 +1110,8 @@ struct BattlegroundEYCapturingPointStruct
 struct EotSMisc
 {
 	public const uint EventStartBattle = 13180; // Achievement: Flurry
-	public const int FlagRespawnTime = (8 * global::Time.InMilliseconds);
-	public const int FPointsTickTime = (2 * global::Time.InMilliseconds);
+	public const int FlagRespawnTime = (8 * Time.InMilliseconds);
+	public const int FPointsTickTime = (2 * Time.InMilliseconds);
 
 	public const uint NotEYWeekendHonorTicks = 260;
 	public const uint EYWeekendHonorTicks = 160;

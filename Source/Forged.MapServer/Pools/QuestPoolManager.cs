@@ -54,7 +54,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		Dictionary<uint, Tuple<List<QuestPool>, int>> lookup = new(); // poolId -> (list, index)
 
 		_poolLookup.Clear();
@@ -213,9 +213,8 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 						var otherStatus = pool.ActiveQuests.Contains(id);
 
 						if (status != otherStatus)
-							Log.Logger.Warning(
-										$"Table `pool_quest_save` {(status ? "does not have" : "has")} quest {id} (in pool {pool.PoolId}, index {i}) saved, but its index is{(status ? "" : " not")} " +
-										$"active (because quest {member[0]} is{(status ? "" : " not")} in the table). Set quest {id} to {(status ? "" : "in")}active.");
+							Log.Logger.Warning($"Table `pool_quest_save` {(status ? "does not have" : "has")} quest {id} (in pool {pool.PoolId}, index {i}) saved, but its index is{(status ? "" : " not")} " +
+												$"active (because quest {member[0]} is{(status ? "" : " not")} in the table). Set quest {id} to {(status ? "" : "in")}active.");
 
 						if (otherStatus)
 							pool.ActiveQuests.Remove(id);

@@ -14,7 +14,7 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 
 	public void Load()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                          0    1         2           3          4            5           6        7      8           9
 		var result = DB.World.Query("SELECT id, point, position_x, position_y, position_z, orientation, move_type, delay, action, action_chance FROM waypoint_data ORDER BY id, point");
@@ -44,16 +44,16 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			y = GridDefines.NormalizeMapCoord(y);
 
 			WaypointNode waypoint = new()
-            {
-                id = result.Read<uint>(1),
-                x = x,
-                y = y,
-                z = z,
-                orientation = o,
-                moveType = (WaypointMoveType)result.Read<uint>(6)
-            };
+			{
+				id = result.Read<uint>(1),
+				x = x,
+				y = y,
+				z = z,
+				orientation = o,
+				moveType = (WaypointMoveType)result.Read<uint>(6)
+			};
 
-            if (waypoint.moveType >= WaypointMoveType.Max)
+			if (waypoint.moveType >= WaypointMoveType.Max)
 			{
 				Log.Logger.Error($"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 
@@ -104,16 +104,16 @@ public sealed class WaypointManager : Singleton<WaypointManager>
 			y = GridDefines.NormalizeMapCoord(y);
 
 			WaypointNode waypoint = new()
-            {
-                id = result.Read<uint>(0),
-                x = x,
-                y = y,
-                z = z,
-                orientation = o,
-                moveType = (WaypointMoveType)result.Read<uint>(5)
-            };
+			{
+				id = result.Read<uint>(0),
+				x = x,
+				y = y,
+				z = z,
+				orientation = o,
+				moveType = (WaypointMoveType)result.Read<uint>(5)
+			};
 
-            if (waypoint.moveType >= WaypointMoveType.Max)
+			if (waypoint.moveType >= WaypointMoveType.Max)
 			{
 				Log.Logger.Error($"Waypoint {waypoint.id} in waypoint_data has invalid move_type, ignoring");
 

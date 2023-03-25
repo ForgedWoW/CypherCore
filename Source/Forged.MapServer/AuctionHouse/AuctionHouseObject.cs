@@ -61,11 +61,11 @@ public class AuctionHouseObject
 		{
 			// we don't have any item for this key yet, create new bucket
 			bucket = new AuctionsBucketData
-            {
-                Key = key
-            };
+			{
+				Key = key
+			};
 
-            var itemTemplate = auction.Items[0].Template;
+			var itemTemplate = auction.Items[0].Template;
 			bucket.ItemClass = (byte)itemTemplate.Class;
 			bucket.ItemSubClass = (byte)itemTemplate.SubClass;
 			bucket.InventoryType = (byte)itemTemplate.InventoryType;
@@ -176,8 +176,8 @@ public class AuctionHouseObject
 			stmt.AddValue(5, auction.BuyoutOrUnitPrice);
 			stmt.AddValue(6, auction.Deposit);
 			stmt.AddValue(7, auction.BidAmount);
-			stmt.AddValue(8, global::Time.DateTimeToUnixTime(auction.StartTime));
-			stmt.AddValue(9, global::Time.DateTimeToUnixTime(auction.EndTime));
+			stmt.AddValue(8, Time.DateTimeToUnixTime(auction.StartTime));
+			stmt.AddValue(9, Time.DateTimeToUnixTime(auction.EndTime));
 			stmt.AddValue(10, (byte)auction.ServerFlags);
 			trans.Append(stmt);
 
@@ -657,11 +657,11 @@ public class AuctionHouseObject
 		if (throttleData == null)
 		{
 			throttleData = new PlayerReplicateThrottleData
-            {
-                NextAllowedReplication = curTime + TimeSpan.FromSeconds(WorldConfig.GetIntValue(WorldCfg.AuctionReplicateDelay)),
-                Global = Global.AuctionHouseMgr.GenerateReplicationId
-            };
-        }
+			{
+				NextAllowedReplication = curTime + TimeSpan.FromSeconds(WorldConfig.GetIntValue(WorldCfg.AuctionReplicateDelay)),
+				Global = Global.AuctionHouseMgr.GenerateReplicationId
+			};
+		}
 		else
 		{
 			if (throttleData.Global != global || throttleData.Cursor != cursor || throttleData.Tombstone != tombstone)
@@ -970,12 +970,12 @@ public class AuctionHouseObject
 			if (oldBidder)
 			{
 				AuctionOutbidNotification packet = new()
-                {
-                    BidAmount = newBidAmount,
-                    MinIncrement = AuctionPosting.CalculateMinIncrement(newBidAmount)
-                };
+				{
+					BidAmount = newBidAmount,
+					MinIncrement = AuctionPosting.CalculateMinIncrement(newBidAmount)
+				};
 
-                packet.Info.AuctionID = auction.Id;
+				packet.Info.AuctionID = auction.Id;
 				packet.Info.Bidder = newBidder;
 				packet.Info.Item = new ItemInstance(auction.Items[0]);
 				oldBidder.SendPacket(packet);

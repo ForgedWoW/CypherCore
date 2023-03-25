@@ -197,7 +197,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 	uint SendPathSpline(Unit owner, float velocity, Span<Vector3> path)
 	{
 		var nodeCount = path.Length;
-		
+
 		MoveSplineInit init = new(owner);
 
 		if (nodeCount > 2)

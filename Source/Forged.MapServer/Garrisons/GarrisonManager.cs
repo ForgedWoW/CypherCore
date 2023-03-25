@@ -378,7 +378,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			return;
 		}
 
-		var msTime = global::Time.MSTime;
+		var msTime = Time.MSTime;
 
 		do
 		{
@@ -399,21 +399,19 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (goTemplate == null)
 			{
-				Log.Logger.Error(
-							"Non-existing gameobject_template entry {0} was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {1}.",
-							hordeGameObjectId,
-							garrPlotInstanceId);
+				Log.Logger.Error("Non-existing gameobject_template entry {0} was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {1}.",
+								hordeGameObjectId,
+								garrPlotInstanceId);
 
 				continue;
 			}
 
 			if (goTemplate.type != GameObjectTypes.Goober)
 			{
-				Log.Logger.Error(
-							"Invalid gameobject type {0} (entry {1}) was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {2}.",
-							goTemplate.type,
-							hordeGameObjectId,
-							garrPlotInstanceId);
+				Log.Logger.Error("Invalid gameobject type {0} (entry {1}) was referenced in `garrison_plot_finalize_info`.`hordeGameObjectId` for garrPlotInstanceId {2}.",
+								goTemplate.type,
+								hordeGameObjectId,
+								garrPlotInstanceId);
 
 				continue;
 			}
@@ -422,41 +420,37 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 			if (goTemplate == null)
 			{
-				Log.Logger.Error(
-							"Non-existing gameobject_template entry {0} was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {1}.",
-							allianceGameObjectId,
-							garrPlotInstanceId);
+				Log.Logger.Error("Non-existing gameobject_template entry {0} was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {1}.",
+								allianceGameObjectId,
+								garrPlotInstanceId);
 
 				continue;
 			}
 
 			if (goTemplate.type != GameObjectTypes.Goober)
 			{
-				Log.Logger.Error(
-							"Invalid gameobject type {0} (entry {1}) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {2}.",
-							goTemplate.type,
-							allianceGameObjectId,
-							garrPlotInstanceId);
+				Log.Logger.Error("Invalid gameobject type {0} (entry {1}) was referenced in `garrison_plot_finalize_info`.`allianceGameObjectId` for garrPlotInstanceId {2}.",
+								goTemplate.type,
+								allianceGameObjectId,
+								garrPlotInstanceId);
 
 				continue;
 			}
 
 			if (hordeAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(hordeAnimKitId))
 			{
-				Log.Logger.Error(
-							"Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId {1}.",
-							hordeAnimKitId,
-							garrPlotInstanceId);
+				Log.Logger.Error("Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId {1}.",
+								hordeAnimKitId,
+								garrPlotInstanceId);
 
 				continue;
 			}
 
 			if (allianceAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(allianceAnimKitId))
 			{
-				Log.Logger.Error(
-							"Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId {1}.",
-							allianceAnimKitId,
-							garrPlotInstanceId);
+				Log.Logger.Error("Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId {1}.",
+								allianceAnimKitId,
+								garrPlotInstanceId);
 
 				continue;
 			}
@@ -473,7 +467,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			_finalizePlotGOInfo[garrPlotInstanceId] = info;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, global::Time.GetMSTimeDiffToNow(msTime));
+		Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, Time.GetMSTimeDiffToNow(msTime));
 	}
 
 	void LoadFollowerClassSpecAbilities()
@@ -487,7 +481,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			return;
 		}
 
-		var msTime = global::Time.MSTime;
+		var msTime = Time.MSTime;
 		uint count = 0;
 
 		do
@@ -518,7 +512,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 		//foreach (var key in _garrisonFollowerClassSpecAbilities.Keys)
 		//_garrisonFollowerClassSpecAbilities[key].Sort();
 
-		Log.Logger.Information("Loaded {0} garrison follower class spec abilities in {1}.", count, global::Time.GetMSTimeDiffToNow(msTime));
+		Log.Logger.Information("Loaded {0} garrison follower class spec abilities in {1}.", count, Time.GetMSTimeDiffToNow(msTime));
 	}
 }
 

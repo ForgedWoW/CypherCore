@@ -585,7 +585,7 @@ public partial class WorldSession
 			return;
 		}
 
-		(var srcPet, var srcPetSlot) = Pet.GetLoadPetInfo(petStable, 0, setPetSlot.PetNumber, null);
+		var (srcPet, srcPetSlot) = Pet.GetLoadPetInfo(petStable, 0, setPetSlot.PetNumber, null);
 		var dstPetSlot = (PetSaveMode)setPetSlot.DestSlot;
 		var dstPet = Pet.GetLoadPetInfo(petStable, 0, 0, dstPetSlot).Item1;
 

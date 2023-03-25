@@ -649,26 +649,26 @@ public class GameObjectTemplate
 	public void InitializeQueryData()
 	{
 		QueryData = new QueryGameObjectResponse
-        {
-            GameObjectID = entry,
-            Allow = true
-        };
+		{
+			GameObjectID = entry,
+			Allow = true
+		};
 
-        GameObjectStats stats = new()
-        {
-            Type = (uint)type,
-            DisplayID = displayId,
-            Name =
-            {
-                [0] = name
-            },
-            IconName = IconName,
-            CastBarCaption = castBarCaption,
-            UnkString = unk1,
-            Size = size
-        };
+		GameObjectStats stats = new()
+		{
+			Type = (uint)type,
+			DisplayID = displayId,
+			Name =
+			{
+				[0] = name
+			},
+			IconName = IconName,
+			CastBarCaption = castBarCaption,
+			UnkString = unk1,
+			Size = size
+		};
 
-        var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
+		var items = Global.ObjectMgr.GetGameObjectQuestItemList(entry);
 
 		foreach (var item in items)
 			stats.QuestItems.Add(item);

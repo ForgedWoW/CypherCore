@@ -1322,16 +1322,16 @@ public partial class Unit
 	public void SendEnergizeSpellLog(Unit victim, uint spellId, int amount, int overEnergize, PowerType powerType)
 	{
 		SpellEnergizeLog data = new()
-        {
-            CasterGUID = GUID,
-            TargetGUID = victim.GUID,
-            SpellID = spellId,
-            Type = powerType,
-            Amount = amount,
-            OverEnergize = overEnergize
-        };
+		{
+			CasterGUID = GUID,
+			TargetGUID = victim.GUID,
+			SpellID = spellId,
+			Type = powerType,
+			Amount = amount,
+			OverEnergize = overEnergize
+		};
 
-        data.LogData.Initialize(victim);
+		data.LogData.Initialize(victim);
 
 		SendCombatLogMessage(data);
 	}
@@ -1339,58 +1339,58 @@ public partial class Unit
 	public void SendPlaySpellVisual(Unit target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime, float launchDelay)
 	{
 		var playSpellVisual = new PlaySpellVisual
-        {
-            Source = GUID,
-            Target = target.GUID,
-            TargetPosition = target.Location,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime,
-            LaunchDelay = launchDelay
-        };
+		{
+			Source = GUID,
+			Target = target.GUID,
+			TargetPosition = target.Location,
+			SpellVisualID = spellVisualId,
+			TravelSpeed = travelSpeed,
+			MissReason = missReason,
+			ReflectStatus = reflectStatus,
+			SpeedAsTime = speedAsTime,
+			LaunchDelay = launchDelay
+		};
 
-        SendMessageToSet(playSpellVisual, true);
+		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisual(in Position targetPosition, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime, float launchDelay)
 	{
 		var playSpellVisual = new PlaySpellVisual
-        {
-            Source = GUID,
-            TargetPosition = targetPosition,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime,
-            LaunchDelay = launchDelay
-        };
+		{
+			Source = GUID,
+			TargetPosition = targetPosition,
+			SpellVisualID = spellVisualId,
+			TravelSpeed = travelSpeed,
+			MissReason = missReason,
+			ReflectStatus = reflectStatus,
+			SpeedAsTime = speedAsTime,
+			LaunchDelay = launchDelay
+		};
 
-        SendMessageToSet(playSpellVisual, true);
+		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendCancelSpellVisual(uint id)
 	{
 		var cancelSpellVisual = new CancelSpellVisual
-        {
-            Source = GUID,
-            SpellVisualID = id
-        };
+		{
+			Source = GUID,
+			SpellVisualID = id
+		};
 
-        SendMessageToSet(cancelSpellVisual, true);
+		SendMessageToSet(cancelSpellVisual, true);
 	}
 
 	public void SendCancelSpellVisualKit(uint id)
 	{
 		var cancelSpellVisualKit = new CancelSpellVisualKit
-        {
-            Source = GUID,
-            SpellVisualKitID = id
-        };
+		{
+			Source = GUID,
+			SpellVisualKitID = id
+		};
 
-        SendMessageToSet(cancelSpellVisualKit, true);
+		SendMessageToSet(cancelSpellVisualKit, true);
 	}
 
 
@@ -1728,16 +1728,16 @@ public partial class Unit
 		for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
 			if (CurrentSpells.TryGetValue(i, out var spell) && spell != null && spell.SpellInfo.Id != except_spellid)
 				InterruptSpell(i, false);
-    }
+	}
 
-    public void UpdateEmpowerState(EmpowerState state, uint except_spellid = 0)
-    {
-        for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
-            if (CurrentSpells.TryGetValue(i, out var spell) && spell != null && spell.SpellInfo.Id == except_spellid)
-                spell.SetEmpowerState(state);
-    }
+	public void UpdateEmpowerState(EmpowerState state, uint except_spellid = 0)
+	{
+		for (var i = CurrentSpellTypes.Generic; i < CurrentSpellTypes.Max; i++)
+			if (CurrentSpells.TryGetValue(i, out var spell) && spell != null && spell.SpellInfo.Id == except_spellid)
+				spell.SetEmpowerState(state);
+	}
 
-    public ushort GetMaxSkillValueForLevel(Unit target = null)
+	public ushort GetMaxSkillValueForLevel(Unit target = null)
 	{
 		return (ushort)(target != null ? GetLevelForTarget(target) : Level * 5);
 	}
@@ -1886,10 +1886,12 @@ public partial class Unit
 	public void _DeleteRemovedAuras()
 	{
 		lock (_removedAuras)
-		while (!_removedAuras.Empty())
 		{
-			_removedAuras.First().Dispose();
-			_removedAuras.RemoveAt(0);
+			while (!_removedAuras.Empty())
+			{
+				_removedAuras.First().Dispose();
+				_removedAuras.RemoveAt(0);
+			}
 		}
 
 		_removedAurasCount = 0;
@@ -2150,17 +2152,17 @@ public partial class Unit
 	public void SendSpellNonMeleeDamageLog(SpellNonMeleeDamage log)
 	{
 		SpellNonMeleeDamageLog packet = new()
-        {
-            Me = log.Target.GUID,
-            CasterGUID = log.Attacker.GUID,
-            CastID = log.CastId,
-            SpellID = (int)(log.Spell != null ? log.Spell.Id : 0),
-            Visual = log.SpellVisual,
-            Damage = (int)log.Damage,
-            OriginalDamage = (int)log.OriginalDamage
-        };
+		{
+			Me = log.Target.GUID,
+			CasterGUID = log.Attacker.GUID,
+			CastID = log.CastId,
+			SpellID = (int)(log.Spell != null ? log.Spell.Id : 0),
+			Visual = log.SpellVisual,
+			Damage = (int)log.Damage,
+			OriginalDamage = (int)log.OriginalDamage
+		};
 
-        if (log.Damage > log.PreHitHealth)
+		if (log.Damage > log.PreHitHealth)
 			packet.Overkill = (int)(log.Damage - log.PreHitHealth);
 		else
 			packet.Overkill = -1;
@@ -2185,27 +2187,27 @@ public partial class Unit
 		var aura = info.AuraEff;
 
 		SpellPeriodicAuraLog data = new()
-        {
-            TargetGUID = GUID,
-            CasterGUID = aura.CasterGuid,
-            SpellID = aura.Id
-        };
+		{
+			TargetGUID = GUID,
+			CasterGUID = aura.CasterGuid,
+			SpellID = aura.Id
+		};
 
-        data.LogData.Initialize(this);
+		data.LogData.Initialize(this);
 
 		SpellPeriodicAuraLog.SpellLogEffect spellLogEffect = new()
-        {
-            Effect = (uint)aura.AuraType,
-            Amount = (uint)info.Damage,
-            OriginalDamage = (int)info.OriginalDamage,
-            OverHealOrKill = (uint)info.OverDamage,
-            SchoolMaskOrPower = (uint)aura.SpellInfo.GetSchoolMask(),
-            AbsorbedOrAmplitude = (uint)info.Absorb,
-            Resisted = (uint)info.Resist,
-            Crit = info.Critical
-        };
+		{
+			Effect = (uint)aura.AuraType,
+			Amount = (uint)info.Damage,
+			OriginalDamage = (int)info.OriginalDamage,
+			OverHealOrKill = (uint)info.OverDamage,
+			SchoolMaskOrPower = (uint)aura.SpellInfo.GetSchoolMask(),
+			AbsorbedOrAmplitude = (uint)info.Absorb,
+			Resisted = (uint)info.Resist,
+			Crit = info.Critical
+		};
 
-        // @todo: implement debug info
+		// @todo: implement debug info
 
 		ContentTuningParams contentTuningParams = new();
 		var caster = Global.ObjAccessor.GetUnit(this, aura.CasterGuid);
@@ -2221,26 +2223,26 @@ public partial class Unit
 	public void SendSpellDamageImmune(Unit target, uint spellId, bool isPeriodic)
 	{
 		SpellOrDamageImmune spellOrDamageImmune = new()
-        {
-            CasterGUID = GUID,
-            VictimGUID = target.GUID,
-            SpellID = spellId,
-            IsPeriodic = isPeriodic
-        };
+		{
+			CasterGUID = GUID,
+			VictimGUID = target.GUID,
+			SpellID = spellId,
+			IsPeriodic = isPeriodic
+		};
 
-        SendMessageToSet(spellOrDamageImmune, true);
+		SendMessageToSet(spellOrDamageImmune, true);
 	}
 
 	public void SendSpellInstakillLog(uint spellId, Unit caster, Unit target = null)
 	{
 		SpellInstakillLog spellInstakillLog = new()
-        {
-            Caster = caster.GUID,
-            Target = target ? target.GUID : caster.GUID,
-            SpellID = spellId
-        };
+		{
+			Caster = caster.GUID,
+			Target = target ? target.GUID : caster.GUID,
+			SpellID = spellId
+		};
 
-        SendMessageToSet(spellInstakillLog, false);
+		SendMessageToSet(spellInstakillLog, false);
 	}
 
 	public void RemoveAurasOnEvade()
@@ -2315,7 +2317,7 @@ public partial class Unit
 			return DiminishingLevels.Level1;
 
 		// If last spell was cast more than 18 seconds ago - reset level.
-		if (diminish.Stack == 0 && global::Time.GetMSTimeDiffToNow(diminish.HitTime) > 18 * global::Time.InMilliseconds)
+		if (diminish.Stack == 0 && Time.GetMSTimeDiffToNow(diminish.HitTime) > 18 * Time.InMilliseconds)
 			return DiminishingLevels.Level1;
 
 		return diminish.HitCount;
@@ -2539,11 +2541,11 @@ public partial class Unit
 		var spell = GetCurrentSpell(CurrentSpellTypes.Channeled);
 
 		if (spell is { State: SpellState.Casting })
-        {
-            _interruptMask |= spell.SpellInfo.ChannelInterruptFlags;
-            _interruptMask2 |= spell.SpellInfo.ChannelInterruptFlags2;
-        }
-    }
+		{
+			_interruptMask |= spell.SpellInfo.ChannelInterruptFlags;
+			_interruptMask2 |= spell.SpellInfo.ChannelInterruptFlags2;
+		}
+	}
 
 	public AuraCollection.AuraQuery GetAuraQuery()
 	{
@@ -2671,11 +2673,11 @@ public partial class Unit
 				if (IsInMap(caster))
 				{
 					CastSpellExtraArgs args = new(flags)
-                    {
-                        OriginalCaster = origCasterGUID
-                    };
+					{
+						OriginalCaster = origCasterGUID
+					};
 
-                    args.AddSpellMod(SpellValueMod.BasePoint0 + i, seatId + 1);
+					args.AddSpellMod(SpellValueMod.BasePoint0 + i, seatId + 1);
 					caster.CastSpell(target, clickInfo.spellId, args);
 				}
 				else // This can happen during Player._LoadAuras
@@ -3029,7 +3031,7 @@ public partial class Unit
 
 			var stealCharge = aura.SpellInfo.HasAttribute(SpellAttr7.DispelCharges);
 			// Cast duration to unsigned to prevent permanent aura's such as Righteous Fury being permanently added to caster
-			var dur = (uint)Math.Min(2u * global::Time.Minute * global::Time.InMilliseconds, aura.Duration);
+			var dur = (uint)Math.Min(2u * Time.Minute * Time.InMilliseconds, aura.Duration);
 
 			var unitStealer = stealer.AsUnit;
 
@@ -3161,7 +3163,9 @@ public partial class Unit
 		_ownedAuras.Remove(aura);
 
 		lock (_removedAuras)
+		{
 			_removedAuras.Add(aura);
+		}
 
 		// Unregister single target aura
 		if (aura.IsSingleTarget)
@@ -4473,43 +4477,39 @@ public partial class Unit
 	void SetCantProc(bool apply)
 	{
 		if (apply)
-		{
 			++ProcDeep;
-		}
 		else
-		{
 			--ProcDeep;
-		}
 	}
 
 	void SendHealSpellLog(HealInfo healInfo, bool critical = false)
 	{
 		SpellHealLog spellHealLog = new()
-        {
-            TargetGUID = healInfo.Target.GUID,
-            CasterGUID = healInfo.Healer.GUID,
-            SpellID = healInfo.SpellInfo.Id,
-            Health = (uint)healInfo.Heal,
-            OriginalHeal = (int)healInfo.OriginalHeal,
-            OverHeal = (uint)(healInfo.Heal - healInfo.EffectiveHeal),
-            Absorbed = (uint)healInfo.Absorb,
-            Crit = critical
-        };
+		{
+			TargetGUID = healInfo.Target.GUID,
+			CasterGUID = healInfo.Healer.GUID,
+			SpellID = healInfo.SpellInfo.Id,
+			Health = (uint)healInfo.Heal,
+			OriginalHeal = (int)healInfo.OriginalHeal,
+			OverHeal = (uint)(healInfo.Heal - healInfo.EffectiveHeal),
+			Absorbed = (uint)healInfo.Absorb,
+			Crit = critical
+		};
 
-        spellHealLog.LogData.Initialize(healInfo.Target);
+		spellHealLog.LogData.Initialize(healInfo.Target);
 		SendCombatLogMessage(spellHealLog);
 	}
 
 	void SendSpellDamageResist(Unit target, uint spellId)
 	{
 		ProcResist procResist = new()
-        {
-            Caster = GUID,
-            SpellID = spellId,
-            Target = target.GUID
-        };
+		{
+			Caster = GUID,
+			SpellID = spellId,
+			Target = target.GUID
+		};
 
-        SendMessageToSet(procResist, true);
+		SendMessageToSet(procResist, true);
 	}
 
 	void ClearDiminishings()

@@ -42,12 +42,12 @@ public class InspectItemData
 			if (gemData.ItemId != 0)
 			{
 				ItemGemData gem = new()
-                {
-                    Slot = i,
-                    Item = new ItemInstance(gemData)
-                };
+				{
+					Slot = i,
+					Item = new ItemInstance(gemData)
+				};
 
-                Gems.Add(gem);
+				Gems.Add(gem);
 			}
 
 			++i;
@@ -63,12 +63,12 @@ public class InspectItemData
 				for (byte slot = 0; slot < essences.AzeriteEssenceID.GetSize(); ++slot)
 				{
 					AzeriteEssenceData essence = new()
-                    {
-                        Index = slot,
-                        AzeriteEssenceID = essences.AzeriteEssenceID[slot]
-                    };
+					{
+						Index = slot,
+						AzeriteEssenceID = essences.AzeriteEssenceID[slot]
+					};
 
-                    if (essence.AzeriteEssenceID != 0)
+					if (essence.AzeriteEssenceID != 0)
 					{
 						essence.Rank = azeriteItem.GetEssenceRank(essence.AzeriteEssenceID);
 						essence.SlotUnlocked = true;

@@ -14,11 +14,11 @@ public class CharRaceOrFactionChange : ClientPacket
 	public override void Read()
 	{
 		RaceOrFactionChangeInfo = new CharRaceOrFactionChangeInfo
-        {
-            FactionChange = _worldPacket.HasBit()
-        };
+		{
+			FactionChange = _worldPacket.HasBit()
+		};
 
-        var nameLength = _worldPacket.ReadBits<uint>(6);
+		var nameLength = _worldPacket.ReadBits<uint>(6);
 
 		RaceOrFactionChangeInfo.Guid = _worldPacket.ReadPackedGuid();
 		RaceOrFactionChangeInfo.SexID = (Gender)_worldPacket.ReadUInt8();

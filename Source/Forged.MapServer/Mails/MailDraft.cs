@@ -118,9 +118,9 @@ public class MailDraft
 			expire_delay = WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay);
 		// default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
 		else if (m_COD != 0)
-			expire_delay = 3 * global::Time.Day;
+			expire_delay = 3 * Time.Day;
 		else
-			expire_delay = (uint)(pSender != null && pSender.IsGameMaster ? 90 * global::Time.Day : 30 * global::Time.Day);
+			expire_delay = (uint)(pSender != null && pSender.IsGameMaster ? 90 * Time.Day : 30 * Time.Day);
 
 		var expire_time = deliver_time + expire_delay;
 
@@ -159,16 +159,16 @@ public class MailDraft
 
 
 			Mail m = new()
-            {
-                messageID = mailId,
-                mailTemplateId = GetMailTemplateId(),
-                subject = GetSubject(),
-                body = GetBody(),
-                money = GetMoney(),
-                COD = GetCOD()
-            };
+			{
+				messageID = mailId,
+				mailTemplateId = GetMailTemplateId(),
+				subject = GetSubject(),
+				body = GetBody(),
+				money = GetMoney(),
+				COD = GetCOD()
+			};
 
-            foreach (var item in m_items.Values)
+			foreach (var item in m_items.Values)
 				m.AddItem(item.GUID.Counter, item.Entry);
 
 			m.messageType = sender.GetMailMessageType();

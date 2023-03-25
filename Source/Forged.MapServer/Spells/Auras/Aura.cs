@@ -160,7 +160,7 @@ public class Aura
 
 	public Aura(AuraCreateInfo createInfo)
 	{
-        _spellInfo = createInfo.SpellInfoInternal;
+		_spellInfo = createInfo.SpellInfoInternal;
 		_castDifficulty = createInfo.CastDifficulty;
 		_castId = createInfo.CastId;
 		_casterGuid = createInfo.CasterGuid;
@@ -186,7 +186,7 @@ public class Aura
 				_periodicCosts.Add(power);
 
 		if (!_periodicCosts.Empty())
-			_timeCla = 1 * global::Time.InMilliseconds;
+			_timeCla = 1 * Time.InMilliseconds;
 
 		_maxDuration = CalcMaxDuration(createInfo.Caster);
 		_duration = _maxDuration;
@@ -262,11 +262,10 @@ public class Aura
 		// @todo Figure out why this happens
 		if (app == null)
 		{
-			Log.Logger.Error(
-						"Aura._UnapplyForTarget, target: {0}, caster: {1}, spell: {2} was not found in owners application map!",
-						target.GUID.ToString(),
-						caster ? caster.GUID.ToString() : "",
-						auraApp.Base.SpellInfo.Id);
+			Log.Logger.Error("Aura._UnapplyForTarget, target: {0}, caster: {1}, spell: {2} was not found in owners application map!",
+							target.GUID.ToString(),
+							caster ? caster.GUID.ToString() : "",
+							auraApp.Base.SpellInfo.Id);
 
 			return;
 		}
@@ -405,13 +404,12 @@ public class Aura
 				// owner has to be in world, or effect has to be applied to self
 				if (!_owner.IsSelfOrInSameMap(unit))
 					// @todo There is a crash caused by shadowfiend load addon
-					Log.Logger.Fatal(
-								"Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
-								SpellInfo.Id,
-								_owner.GetName(),
-								_owner.IsInWorld ? (int)_owner.Map.Id : -1,
-								unit.GetName(),
-								unit.IsInWorld ? (int)unit.Map.Id : -1);
+					Log.Logger.Fatal("Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
+									SpellInfo.Id,
+									_owner.GetName(),
+									_owner.IsInWorld ? (int)_owner.Map.Id : -1,
+									unit.GetName(),
+									unit.IsInWorld ? (int)unit.Map.Id : -1);
 
 				if (aurApp != null)
 				{
@@ -461,10 +459,8 @@ public class Aura
 		// apply effect to targets
 		foreach (var unit in targetList)
 			if (GetApplicationOfTarget(unit.GUID) != null)
-			{
 				// owner has to be in world, or effect has to be applied to self
 				unit._ApplyAuraEffect(this, effIndex);
-			}
 	}
 
 	public void UpdateOwner(uint diff, WorldObject owner)
@@ -597,7 +593,7 @@ public class Aura
 		}
 
 		if (!_periodicCosts.Empty())
-			_timeCla = 1 * global::Time.InMilliseconds;
+			_timeCla = 1 * Time.InMilliseconds;
 
 		// also reset periodic counters
 		foreach (var aurEff in AuraEffects)
@@ -1444,7 +1440,7 @@ public class Aura
 	{
 		SpellProcEntry procEntry = null;
 		ForEachAuraScript<IAuraOverrideProcInfo>(a => procEntry = a.SpellProcEntry);
-			
+
 		if (procEntry == null)
 			Global.SpellMgr.GetSpellProcEntry(SpellInfo);
 
@@ -1670,7 +1666,7 @@ public class Aura
 	public void ForEachAuraScript<T>(Action<T> action) where T : IAuraScript
 	{
 		foreach (T script in GetAuraScripts<T>())
-            try
+			try
 			{
 				action.Invoke(script);
 			}
@@ -2202,10 +2198,8 @@ public class Aura
 		var result = true;
 
 		foreach (IAuraCheckAreaTarget auraScript in GetAuraScripts<IAuraCheckAreaTarget>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.CheckAreaTarget);
 
 				result &= auraScript.CheckAreaTarget(target);
@@ -2216,7 +2210,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return result;
 	}
@@ -2224,10 +2217,8 @@ public class Aura
 	public void CallScriptDispel(DispelInfo dispelInfo)
 	{
 		foreach (IAuraOnDispel auraScript in GetAuraScripts<IAuraOnDispel>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.Dispel);
 
 				auraScript.OnDispel(dispelInfo);
@@ -2238,16 +2229,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptAfterDispel(DispelInfo dispelInfo)
 	{
 		foreach (IAfterAuraDispel auraScript in GetAuraScripts<IAfterAuraDispel>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.AfterDispel);
 
 				auraScript.HandleDispel(dispelInfo);
@@ -2258,7 +2246,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public bool CallScriptEffectApplyHandlers(AuraEffect aurEff, AuraApplication aurApp, AuraEffectHandleModes mode)
@@ -2266,10 +2253,8 @@ public class Aura
 		var preventDefault = false;
 
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectApply, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectApply, aurApp);
 
 				((IAuraApplyHandler)auraScript.Item2).Apply(aurEff, mode);
@@ -2283,7 +2268,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return preventDefault;
 	}
@@ -2293,10 +2277,8 @@ public class Aura
 		var preventDefault = false;
 
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectRemove, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectRemove, aurApp);
 
 				((IAuraApplyHandler)auraScript.Item2).Apply(aurEff, mode);
@@ -2310,7 +2292,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return preventDefault;
 	}
@@ -2318,10 +2299,8 @@ public class Aura
 	public void CallScriptAfterEffectApplyHandlers(AuraEffect aurEff, AuraApplication aurApp, AuraEffectHandleModes mode)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAfterApply, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterApply, aurApp);
 
 				((IAuraApplyHandler)auraScript.Item2).Apply(aurEff, mode);
@@ -2332,16 +2311,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptAfterEffectRemoveHandlers(AuraEffect aurEff, AuraApplication aurApp, AuraEffectHandleModes mode)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAfterRemove, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterRemove, aurApp);
 
 				((IAuraApplyHandler)auraScript.Item2).Apply(aurEff, mode);
@@ -2352,7 +2328,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public bool CallScriptEffectPeriodicHandlers(AuraEffect aurEff, AuraApplication aurApp)
@@ -2360,10 +2335,8 @@ public class Aura
 		var preventDefault = false;
 
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectPeriodic, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectPeriodic, aurApp);
 
 				((IAuraPeriodic)auraScript.Item2).HandlePeriodic(aurEff);
@@ -2377,7 +2350,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return preventDefault;
 	}
@@ -2385,10 +2357,8 @@ public class Aura
 	public void CallScriptEffectUpdatePeriodicHandlers(AuraEffect aurEff)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectUpdatePeriodic, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectUpdatePeriodic);
 
 				((IAuraUpdatePeriodic)auraScript.Item2).UpdatePeriodic(aurEff);
@@ -2399,16 +2369,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectCalcAmountHandlers(AuraEffect aurEff, ref double amount, ref bool canBeRecalculated)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectCalcAmount, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcAmount);
 
 				((IAuraCalcAmount)auraScript.Item2).HandleCalcAmount(aurEff, ref amount, ref canBeRecalculated);
@@ -2419,16 +2386,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectCalcPeriodicHandlers(AuraEffect aurEff, ref bool isPeriodic, ref int amplitude)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectCalcPeriodic, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcPeriodic);
 
 				var boxed = new BoxedValue<bool>(isPeriodic);
@@ -2445,16 +2409,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectCalcSpellModHandlers(AuraEffect aurEff, SpellModifier spellMod)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectCalcSpellmod, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcSpellmod);
 
 				((IAuraCalcSpellMod)auraScript.Item2).CalcSpellMod(aurEff, spellMod);
@@ -2465,16 +2426,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectCalcCritChanceHandlers(AuraEffect aurEff, AuraApplication aurApp, Unit victim, ref double critChance)
 	{
 		foreach (var loadedScript in GetEffectScripts(AuraScriptHookType.EffectCalcCritChance, aurEff.EffIndex))
-		{
 			try
 			{
-
 				loadedScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectCalcCritChance, aurApp);
 
 				critChance = ((IAuraCalcCritChance)loadedScript.Item2).CalcCritChance(aurEff, victim, critChance);
@@ -2485,16 +2443,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectAbsorbHandlers(AuraEffect aurEff, AuraApplication aurApp, DamageInfo dmgInfo, ref double absorbAmount, ref bool defaultPrevented)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAbsorb, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAbsorb, aurApp);
 
 				absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
@@ -2506,16 +2461,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectAfterAbsorbHandlers(AuraEffect aurEff, AuraApplication aurApp, DamageInfo dmgInfo, ref double absorbAmount)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAfterAbsorb, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterAbsorb, aurApp);
 
 				absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
@@ -2526,16 +2478,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectAbsorbHandlers(AuraEffect aurEff, AuraApplication aurApp, HealInfo healInfo, ref double absorbAmount, ref bool defaultPrevented)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAbsorbHeal, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAbsorb, aurApp);
 
 				absorbAmount = ((IAuraEffectAbsorbHeal)auraScript.Item2).HandleAbsorb(aurEff, healInfo, absorbAmount);
@@ -2547,16 +2496,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectAfterAbsorbHandlers(AuraEffect aurEff, AuraApplication aurApp, HealInfo healInfo, ref double absorbAmount)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAfterAbsorb, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterAbsorbHeal, aurApp);
 
 				absorbAmount = ((IAuraEffectAbsorbHeal)auraScript.Item2).HandleAbsorb(aurEff, healInfo, absorbAmount);
@@ -2567,16 +2513,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectManaShieldHandlers(AuraEffect aurEff, AuraApplication aurApp, DamageInfo dmgInfo, ref double absorbAmount, ref bool defaultPrevented)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectManaShield, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectManaShield, aurApp);
 
 				absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
@@ -2587,16 +2530,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectAfterManaShieldHandlers(AuraEffect aurEff, AuraApplication aurApp, DamageInfo dmgInfo, ref double absorbAmount)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAfterManaShield, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterManaShield, aurApp);
 
 				absorbAmount = ((IAuraEffectAbsorb)auraScript.Item2).HandleAbsorb(aurEff, dmgInfo, absorbAmount);
@@ -2607,16 +2547,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEffectSplitHandlers(AuraEffect aurEff, AuraApplication aurApp, DamageInfo dmgInfo, ref double splitAmount)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectSplit, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectSplit, aurApp);
 
 				splitAmount = ((IAuraSplitHandler)auraScript.Item2).Split(aurEff, dmgInfo, splitAmount);
@@ -2627,16 +2564,13 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void CallScriptEnterLeaveCombatHandlers(AuraApplication aurApp, bool isNowInCombat)
 	{
 		foreach (IAuraEnterLeaveCombat loadedScript in GetAuraScripts<IAuraEnterLeaveCombat>())
-		{
 			try
 			{
-
 				loadedScript._PrepareScriptCall(AuraScriptHookType.EnterLeaveCombat, aurApp);
 
 				loadedScript.EnterLeaveCombat(isNowInCombat);
@@ -2647,7 +2581,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public bool CallScriptCheckProcHandlers(AuraApplication aurApp, ProcEventInfo eventInfo)
@@ -2655,10 +2588,8 @@ public class Aura
 		var result = true;
 
 		foreach (IAuraCheckProc auraScript in GetAuraScripts<IAuraCheckProc>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.CheckProc, aurApp);
 
 				result &= auraScript.CheckProc(eventInfo);
@@ -2669,7 +2600,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return result;
 	}
@@ -2679,10 +2609,8 @@ public class Aura
 		var prepare = true;
 
 		foreach (IAuraPrepareProc auraScript in GetAuraScripts<IAuraPrepareProc>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.PrepareProc, aurApp);
 
 				auraScript.DoPrepareProc(eventInfo);
@@ -2696,7 +2624,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return prepare;
 	}
@@ -2706,10 +2633,8 @@ public class Aura
 		var handled = false;
 
 		foreach (IAuraOnProc auraScript in GetAuraScripts<IAuraOnProc>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.Proc, aurApp);
 
 				auraScript.OnProc(eventInfo);
@@ -2721,7 +2646,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return handled;
 	}
@@ -2729,10 +2653,8 @@ public class Aura
 	public void CallScriptAfterProcHandlers(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		foreach (IAuraAfterProc auraScript in GetAuraScripts<IAuraAfterProc>())
-		{
 			try
 			{
-
 				auraScript._PrepareScriptCall(AuraScriptHookType.AfterProc, aurApp);
 
 				auraScript.AfterProc(eventInfo);
@@ -2743,7 +2665,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public bool CallScriptCheckEffectProcHandlers(AuraEffect aurEff, AuraApplication aurApp, ProcEventInfo eventInfo)
@@ -2751,10 +2672,8 @@ public class Aura
 		var result = true;
 
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.CheckEffectProc, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.CheckEffectProc, aurApp);
 
 				result &= ((IAuraCheckEffectProc)auraScript.Item2).CheckProc(aurEff, eventInfo);
@@ -2765,7 +2684,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return result;
 	}
@@ -2775,10 +2693,8 @@ public class Aura
 		var preventDefault = false;
 
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectProc, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectProc, aurApp);
 
 				((IAuraEffectProcHandler)auraScript.Item2).HandleProc(aurEff, eventInfo);
@@ -2792,7 +2708,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 
 		return preventDefault;
 	}
@@ -2800,10 +2715,8 @@ public class Aura
 	public void CallScriptAfterEffectProcHandlers(AuraEffect aurEff, AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		foreach (var auraScript in GetEffectScripts(AuraScriptHookType.EffectAfterProc, aurEff.EffIndex))
-		{
 			try
 			{
-
 				auraScript.Item1._PrepareScriptCall(AuraScriptHookType.EffectAfterProc, aurApp);
 
 				((IAuraEffectProcHandler)auraScript.Item2).HandleProc(aurEff, eventInfo);
@@ -2814,7 +2727,6 @@ public class Aura
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public virtual string GetDebugInfo()

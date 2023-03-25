@@ -24,10 +24,10 @@ public class CastSpellTargetArg
 			if (unitTarget != null)
 			{
 				Targets = new SpellCastTargets
-                {
-                    UnitTarget = unitTarget
-                };
-            }
+				{
+					UnitTarget = unitTarget
+				};
+			}
 			else
 			{
 				var goTarget = target.AsGameObject;
@@ -35,21 +35,19 @@ public class CastSpellTargetArg
 				if (goTarget != null)
 				{
 					Targets = new SpellCastTargets
-                    {
-                        GOTarget = goTarget
-                    };
-                }
+					{
+						GOTarget = goTarget
+					};
+				}
 				else
 				{
 					var itemTarget = target.AsItem;
 
 					if (itemTarget != null)
-					{
 						Targets = new SpellCastTargets
-                        {
-                            ItemTarget = itemTarget
-                        };
-                    }
+						{
+							ItemTarget = itemTarget
+						};
 				}
 				// error when targeting anything other than units and gameobjects
 			}
@@ -63,10 +61,10 @@ public class CastSpellTargetArg
 	public CastSpellTargetArg(Item itemTarget)
 	{
 		Targets = new SpellCastTargets
-        {
-            ItemTarget = itemTarget
-        };
-    }
+		{
+			ItemTarget = itemTarget
+		};
+	}
 
 	public CastSpellTargetArg(Position dest)
 	{

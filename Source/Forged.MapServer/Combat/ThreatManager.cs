@@ -637,12 +637,12 @@ public class ThreatManager
 	public void SendRemoveToClients(Unit victim)
 	{
 		ThreatRemove threatRemove = new()
-        {
-            UnitGUID = _owner.GUID,
-            AboutGUID = victim.GUID
-        };
+		{
+			UnitGUID = _owner.GUID,
+			AboutGUID = victim.GUID
+		};
 
-        _owner.SendMessageToSet(threatRemove, false);
+		_owner.SendMessageToSet(threatRemove, false);
 	}
 
 	public void PurgeThreatListRef(ObjectGuid guid)
@@ -802,11 +802,11 @@ public class ThreatManager
 	void SendClearAllThreatToClients()
 	{
 		ThreatClear threatClear = new()
-        {
-            UnitGUID = _owner.GUID
-        };
+		{
+			UnitGUID = _owner.GUID
+		};
 
-        _owner.SendMessageToSet(threatClear, false);
+		_owner.SendMessageToSet(threatClear, false);
 	}
 
 	void SendThreatListToClients(bool newHighest)
@@ -821,12 +821,12 @@ public class ThreatManager
 					continue;
 
 				ThreatInfo threatInfo = new()
-                {
-                    UnitGUID = refe.Victim.GUID,
-                    Threat = (long)(refe.Threat * 100)
-                };
+				{
+					UnitGUID = refe.Victim.GUID,
+					Threat = (long)(refe.Threat * 100)
+				};
 
-                packet.ThreatList.Add(threatInfo);
+				packet.ThreatList.Add(threatInfo);
 			}
 
 			_owner.SendMessageToSet(packet, false);
@@ -835,11 +835,11 @@ public class ThreatManager
 		if (newHighest)
 		{
 			HighestThreatUpdate highestThreatUpdate = new()
-            {
-                HighestThreatGUID = _currentVictimRef.Victim.GUID
-            };
+			{
+				HighestThreatGUID = _currentVictimRef.Victim.GUID
+			};
 
-            fillSharedPacketDataAndSend(highestThreatUpdate);
+			fillSharedPacketDataAndSend(highestThreatUpdate);
 		}
 		else
 		{

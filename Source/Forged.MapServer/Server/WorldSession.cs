@@ -62,7 +62,7 @@ public partial class WorldSession : IDisposable
 	readonly uint _recruiterId;
 	readonly bool _isRecruiter;
 
-    private readonly ActionBlock<WorldPacket> _recvQueue;
+	private readonly ActionBlock<WorldPacket> _recvQueue;
 
 	readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
 	readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
@@ -228,14 +228,15 @@ public partial class WorldSession : IDisposable
 		_battlePayMgr = new BattlepayManager(this);
 		CommandHandler = new CommandHandler(this);
 
-        _recvQueue = new(ProcessQueue, new ExecutionDataflowBlockOptions()
-        {
-            MaxDegreeOfParallelism = 10,
-            EnsureOrdered = true,
-			CancellationToken = _cancellationToken.Token
-        });
+		_recvQueue = new ActionBlock<WorldPacket>(ProcessQueue,
+												new ExecutionDataflowBlockOptions()
+												{
+													MaxDegreeOfParallelism = 10,
+													EnsureOrdered = true,
+													CancellationToken = _cancellationToken.Token
+												});
 
-        Task.Run(ProcessInPlace, _cancellationToken.Token);
+		Task.Run(ProcessInPlace, _cancellationToken.Token);
 
 		_address = sock.GetRemoteIpAddress().Address.ToString();
 		ResetTimeOutTime(false);
@@ -557,12 +558,12 @@ public partial class WorldSession : IDisposable
 	public void SendAccountDataTimes(ObjectGuid playerGuid, AccountDataTypes mask)
 	{
 		AccountDataTimes accountDataTimes = new()
-        {
-            PlayerGuid = playerGuid,
-            ServerTime = GameTime.GetGameTime()
-        };
+		{
+			PlayerGuid = playerGuid,
+			ServerTime = GameTime.GetGameTime()
+		};
 
-        for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
+		for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
 			if (((int)mask & (1 << i)) != 0)
 				accountDataTimes.AccountTimes[i] = GetAccountData((AccountDataTypes)i).Time;
 
@@ -612,17 +613,17 @@ public partial class WorldSession : IDisposable
 		_instanceConnectKey.Key = RandomHelper.URand(0, 0x7FFFFFFF);
 
 		ConnectTo connectTo = new()
-        {
-            Key = _instanceConnectKey.Raw,
-            Serial = serial,
-            Payload =
-            {
-                Port = (ushort)WorldConfig.GetIntValue(WorldCfg.PortInstance)
-            },
-            Con = (byte)ConnectionType.Instance
-        };
+		{
+			Key = _instanceConnectKey.Raw,
+			Serial = serial,
+			Payload =
+			{
+				Port = (ushort)WorldConfig.GetIntValue(WorldCfg.PortInstance)
+			},
+			Con = (byte)ConnectionType.Instance
+		};
 
-        if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+		if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 		{
 			connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
 			connectTo.Payload.Where.Type = ConnectTo.AddressType.IPv4;
@@ -648,7 +649,7 @@ public partial class WorldSession : IDisposable
 		if (!str.Contains('|'))
 			return true;
 
-        Log.Logger.Error($"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
+		Log.Logger.Error($"Player {Player.GetName()} ({Player.GUID}) sent a message which illegally contained a hyperlink:\n{str}");
 
 		if (WorldConfig.GetIntValue(WorldCfg.ChatStrictLinkCheckingKick) != 0)
 			KickPlayer("WorldSession::DisallowHyperlinksAndMaybeKick Illegal chat link");
@@ -707,11 +708,11 @@ public partial class WorldSession : IDisposable
 		var id = AccountId;
 		var secLevel = Security;
 
-        Log.Logger.Debug("WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
-                               id,
-                               _accountName,
-                               Global.WorldMgr.Realm.Id.Index,
-                               secLevel);
+		Log.Logger.Debug("WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
+						id,
+						_accountName,
+						Global.WorldMgr.Realm.Id.Index,
+						secLevel);
 
 		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
 		_rbacData.LoadFromDB();
@@ -722,12 +723,11 @@ public partial class WorldSession : IDisposable
 		var id = AccountId;
 		var secLevel = Security;
 
-		Log.Logger.Debug(
-					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
-					id,
-					_accountName,
-					Global.WorldMgr.Realm.Id.Index,
-					secLevel);
+		Log.Logger.Debug("WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
+						id,
+						_accountName,
+						Global.WorldMgr.Realm.Id.Index,
+						secLevel);
 
 		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
 
@@ -771,22 +771,20 @@ public partial class WorldSession : IDisposable
 
 		var hasPermission = _rbacData.HasPermission(permission);
 
-		Log.Logger.Debug(
-					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
-					_rbacData.Id,
-					_rbacData.Name,
-					Global.WorldMgr.Realm.Id.Index);
+		Log.Logger.Debug("WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
+						_rbacData.Id,
+						_rbacData.Name,
+						Global.WorldMgr.Realm.Id.Index);
 
 		return hasPermission;
 	}
 
 	public void InvalidateRBACData()
 	{
-		Log.Logger.Debug(
-					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
-					_rbacData.Id,
-					_rbacData.Name,
-					Global.WorldMgr.Realm.Id.Index);
+		Log.Logger.Debug("WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
+						_rbacData.Id,
+						_rbacData.Name,
+						Global.WorldMgr.Realm.Id.Index);
 
 		_rbacData = null;
 	}
@@ -800,13 +798,13 @@ public partial class WorldSession : IDisposable
 	public void SendTimeSync()
 	{
 		TimeSyncRequest timeSyncRequest = new()
-        {
-            SequenceIndex = _timeSyncNextCounter
-        };
+		{
+			SequenceIndex = _timeSyncNextCounter
+		};
 
-        SendPacket(timeSyncRequest);
+		SendPacket(timeSyncRequest);
 
-		_pendingTimeSyncRequests[_timeSyncNextCounter] = global::Time.MSTime;
+		_pendingTimeSyncRequests[_timeSyncNextCounter] = Time.MSTime;
 
 		// Schedule next sync in 10 sec (except for the 2 first packets, which are spaced by only 5s)
 		_timeSyncTimer = _timeSyncNextCounter == 0 ? 5000 : 10000u;
@@ -846,7 +844,6 @@ public partial class WorldSession : IDisposable
 				_threadUnsafe.Enqueue(packet);
 			}
 		}
-				
 	}
 
 	void ProcessInPlace()
@@ -943,11 +940,10 @@ public partial class WorldSession : IDisposable
 			}
 			catch (EndOfStreamException)
 			{
-				Log.Logger.Error(
-							"WorldSession:Update EndOfStreamException occured while parsing a packet (opcode: {0}) from client {1}, accountid={2}. Skipped packet.",
-							(ClientOpcodes)packet.GetOpcode(),
-							RemoteAddress,
-							AccountId);
+				Log.Logger.Error("WorldSession:Update EndOfStreamException occured while parsing a packet (opcode: {0}) from client {1}, accountid={2}. Skipped packet.",
+								(ClientOpcodes)packet.GetOpcode(),
+								RemoteAddress,
+								AccountId);
 			}
 
 			processedPackets++;
@@ -979,20 +975,18 @@ public partial class WorldSession : IDisposable
 
 			if (type >= (int)AccountDataTypes.Max)
 			{
-				Log.Logger.Error(
-							"Table `{0}` have invalid account data type ({1}), ignore.",
-							mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
-							type);
+				Log.Logger.Error("Table `{0}` have invalid account data type ({1}), ignore.",
+								mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
+								type);
 
 				continue;
 			}
 
 			if (((int)mask & (1 << type)) == 0)
 			{
-				Log.Logger.Error(
-							"Table `{0}` have non appropriate for table  account data type ({1}), ignore.",
-							mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
-							type);
+				Log.Logger.Error("Table `{0}` have non appropriate for table  account data type ({1}), ignore.",
+								mask == AccountDataTypes.GlobalCacheMask ? "account_data" : "character_account_data",
+								type);
 
 				continue;
 			}
@@ -1127,11 +1121,11 @@ public partial class WorldSession : IDisposable
 			} while (result.NextRow());
 
 		ConnectionStatus bnetConnected = new()
-        {
-            State = 1
-        };
+		{
+			State = 1
+		};
 
-        SendPacket(bnetConnected);
+		SendPacket(bnetConnected);
 
 		_battlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
 	}

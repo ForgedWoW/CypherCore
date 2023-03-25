@@ -343,13 +343,13 @@ public partial class Spell
 			Finish();
 
 		SpellInstakillLog data = new()
-        {
-            Target = UnitTarget.GUID,
-            Caster = _caster.GUID,
-            SpellID = SpellInfo.Id
-        };
+		{
+			Target = UnitTarget.GUID,
+			Caster = _caster.GUID,
+			SpellID = SpellInfo.Id
+		};
 
-        _caster.SendMessageToSet(data, true);
+		_caster.SendMessageToSet(data, true);
 
 		Unit.Kill(UnitCasterForEffectHandlers, UnitTarget, false);
 	}
@@ -375,14 +375,14 @@ public partial class Spell
 			Unit.CalcAbsorbResist(damageInfo);
 
 			SpellNonMeleeDamage log = new(unitCaster, UnitTarget, SpellInfo, SpellVisual, SpellInfo.GetSchoolMask(), CastId)
-            {
-                Damage = damageInfo.Damage,
-                OriginalDamage = Damage,
-                Absorb = damageInfo.Absorb,
-                Resist = damageInfo.Resist
-            };
+			{
+				Damage = damageInfo.Damage,
+				OriginalDamage = Damage,
+				Absorb = damageInfo.Absorb,
+				Resist = damageInfo.Resist
+			};
 
-            if (unitCaster != null)
+			if (unitCaster != null)
 				unitCaster.SendSpellNonMeleeDamageLog(log);
 		}
 	}
@@ -827,13 +827,14 @@ public partial class Spell
 			return;
 
 		CalculateJumpSpeeds(EffectInfo, unitCaster.Location.GetExactDist2d(UnitTarget.Location), out var speedXY, out var speedZ);
-		JumpArrivalCastArgs arrivalCast = new()
-        {
-            SpellId = EffectInfo.TriggerSpell,
-            Target = UnitTarget.GUID
-        };
 
-        unitCaster.MotionMaster.MoveJump(UnitTarget.Location, speedXY, speedZ, EventId.Jump, false, arrivalCast);
+		JumpArrivalCastArgs arrivalCast = new()
+		{
+			SpellId = EffectInfo.TriggerSpell,
+			Target = UnitTarget.GUID
+		};
+
+		unitCaster.MotionMaster.MoveJump(UnitTarget.Location, speedXY, speedZ, EventId.Jump, false, arrivalCast);
 	}
 
 	[SpellEffectHandler(SpellEffectName.JumpDest)]
@@ -854,12 +855,13 @@ public partial class Spell
 			return;
 
 		CalculateJumpSpeeds(EffectInfo, unitCaster.Location.GetExactDist2d(DestTarget), out var speedXY, out var speedZ);
-		JumpArrivalCastArgs arrivalCast = new()
-        {
-            SpellId = EffectInfo.TriggerSpell
-        };
 
-        unitCaster.MotionMaster.MoveJump(DestTarget, speedXY, speedZ, EventId.Jump, !Targets.ObjectTargetGUID.IsEmpty, arrivalCast);
+		JumpArrivalCastArgs arrivalCast = new()
+		{
+			SpellId = EffectInfo.TriggerSpell
+		};
+
+		unitCaster.MotionMaster.MoveJump(DestTarget, speedXY, speedZ, EventId.Jump, !Targets.ObjectTargetGUID.IsEmpty, arrivalCast);
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportUnits)]
@@ -981,7 +983,7 @@ public partial class Spell
 			aurApp.UpdateApplyEffectMask(aurApp.EffectsToApply, false);
 		}
 
-		if (TryGetTotalEmpowerDuration(true, out int dur))
+		if (TryGetTotalEmpowerDuration(true, out var dur))
 			SpellAura.SetDuration(dur, false, true);
 	}
 
@@ -1727,7 +1729,7 @@ public partial class Spell
 
 		var privateObjectOwner = caster.GUID;
 
-		if (!properties.GetFlags().HasAnyFlag(SummonPropertiesFlags.OnlyVisibleToSummoner | SummonPropertiesFlags.OnlyVisibleToSummonerGroup))
+		if (!Extensions.HasAnyFlag(properties.GetFlags(), SummonPropertiesFlags.OnlyVisibleToSummoner | SummonPropertiesFlags.OnlyVisibleToSummonerGroup))
 			privateObjectOwner = ObjectGuid.Empty;
 
 		if (caster.IsPrivateObject)
@@ -2006,13 +2008,13 @@ public partial class Spell
 		List<DispelableAura> successList = new();
 
 		DispelFailed dispelFailed = new()
-        {
-            CasterGUID = _caster.GUID,
-            VictimGUID = UnitTarget.GUID,
-            SpellID = SpellInfo.Id
-        };
+		{
+			CasterGUID = _caster.GUID,
+			VictimGUID = UnitTarget.GUID,
+			SpellID = SpellInfo.Id
+		};
 
-        // dispel N = damage buffs (or while exist buffs for dispel)
+		// dispel N = damage buffs (or while exist buffs for dispel)
 		for (var count = 0; count < Damage && remaining > 0;)
 		{
 			// Random select buff for dispel
@@ -2059,23 +2061,23 @@ public partial class Spell
 			return;
 
 		SpellDispellLog spellDispellLog = new()
-        {
-            IsBreak = false, // TODO: use me
-            IsSteal = false,
-            TargetGUID = UnitTarget.GUID,
-            CasterGUID = _caster.GUID,
-            DispelledBySpellID = SpellInfo.Id
-        };
+		{
+			IsBreak = false, // TODO: use me
+			IsSteal = false,
+			TargetGUID = UnitTarget.GUID,
+			CasterGUID = _caster.GUID,
+			DispelledBySpellID = SpellInfo.Id
+		};
 
-        foreach (var dispelableAura in successList)
+		foreach (var dispelableAura in successList)
 		{
 			var dispellData = new SpellDispellData
-            {
-                SpellID = dispelableAura.GetAura().Id,
-                Harmful = false // TODO: use me
-            };
+			{
+				SpellID = dispelableAura.GetAura().Id,
+				Harmful = false // TODO: use me
+			};
 
-            UnitTarget.RemoveAurasDueToSpellByDispel(dispelableAura.GetAura().Id, SpellInfo.Id, dispelableAura.GetAura().CasterGuid, _caster, dispelableAura.GetDispelCharges());
+			UnitTarget.RemoveAurasDueToSpellByDispel(dispelableAura.GetAura().Id, SpellInfo.Id, dispelableAura.GetAura().CasterGuid, _caster, dispelableAura.GetDispelCharges());
 
 			spellDispellLog.DispellData.Add(dispellData);
 		}
@@ -2111,7 +2113,7 @@ public partial class Spell
 		if (UnitTarget.HasUnitState(UnitState.Confused | UnitState.Stunned | UnitState.Fleeing))
 			return;
 
-		UnitTarget.MotionMaster.MoveDistract((uint)(Damage * global::Time.InMilliseconds), UnitTarget.Location.GetAbsoluteAngle(DestTarget));
+		UnitTarget.MotionMaster.MoveDistract((uint)(Damage * Time.InMilliseconds), UnitTarget.Location.GetAbsoluteAngle(DestTarget));
 	}
 
 	[SpellEffectHandler(SpellEffectName.Pickpocket)]
@@ -2381,11 +2383,10 @@ public partial class Spell
 
 			if (!add_socket)
 			{
-				Log.Logger.Error(
-							"Spell.EffectEnchantItemPrismatic: attempt apply enchant spell {0} with SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC ({1}) but without ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET ({2}), not suppoted yet.",
-							SpellInfo.Id,
-							SpellEffectName.EnchantItemPrismatic,
-							ItemEnchantmentType.PrismaticSocket);
+				Log.Logger.Error("Spell.EffectEnchantItemPrismatic: attempt apply enchant spell {0} with SPELL_EFFECT_ENCHANT_ITEM_PRISMATIC ({1}) but without ITEM_ENCHANTMENT_TYPE_PRISMATIC_SOCKET ({2}), not suppoted yet.",
+								SpellInfo.Id,
+								SpellEffectName.EnchantItemPrismatic,
+								ItemEnchantmentType.PrismaticSocket);
 
 				return;
 			}
@@ -2864,7 +2865,7 @@ public partial class Spell
 		if (UnitTarget is not { CanHaveThreatList: true })
 			return;
 
-        UnitTarget.GetThreatManager().AddThreat(unitCaster, Damage, SpellInfo, true);
+		UnitTarget.GetThreatManager().AddThreat(unitCaster, Damage, SpellInfo, true);
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealMaxHealth)]
@@ -2964,7 +2965,7 @@ public partial class Spell
 
 		var duration = SpellInfo.CalcDuration(_caster);
 
-		go.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
@@ -2990,7 +2991,7 @@ public partial class Spell
 		if (linkedTrap)
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
-			linkedTrap.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 			linkedTrap.SpellId = SpellInfo.Id;
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
@@ -3282,7 +3283,7 @@ public partial class Spell
 		go.Faction = caster.Faction;
 		go.SetLevel(caster.Level + 1);
 		var duration = SpellInfo.CalcDuration(caster);
-		go.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SpellId = SpellInfo.Id;
 
 		ExecuteLogEffectSummonObject(EffectInfo.Effect, go);
@@ -3293,13 +3294,13 @@ public partial class Spell
 
 		// Send request
 		DuelRequested packet = new()
-        {
-            ArbiterGUID = go.GUID,
-            RequestedByGUID = caster.GUID,
-            RequestedByWowAccount = caster.Session.AccountGUID
-        };
+		{
+			ArbiterGUID = go.GUID,
+			RequestedByGUID = caster.GUID,
+			RequestedByWowAccount = caster.Session.AccountGUID
+		};
 
-        caster.SendPacket(packet);
+		caster.SendPacket(packet);
 		target.SendPacket(packet);
 
 		// create duel-info
@@ -3464,7 +3465,7 @@ public partial class Spell
 
 		// must be equipped
 
-        if (EffectInfo.MiscValue != 0)
+		if (EffectInfo.MiscValue != 0)
 		{
 			var enchant_id = (uint)EffectInfo.MiscValue;
 			var duration = SpellInfo.Duration; //Try duration index first ..
@@ -3473,10 +3474,10 @@ public partial class Spell
 				duration = (int)Damage; //+1;            //Base points after ..
 
 			if (duration == 0)
-				duration = 10 * global::Time.InMilliseconds; //10 seconds for enchants which don't have listed duration
+				duration = 10 * Time.InMilliseconds; //10 seconds for enchants which don't have listed duration
 
 			if (SpellInfo.Id == 14792) // Venomhide Poison
-				duration = 5 * global::Time.Minute * global::Time.InMilliseconds;
+				duration = 5 * Time.Minute * Time.InMilliseconds;
 
 			var pEnchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchant_id);
 
@@ -3564,7 +3565,7 @@ public partial class Spell
 		if (pet is not { IsAlive: true })
 			return;
 
-        ExecuteLogEffectDestroyItem(EffectInfo.Effect, foodItem.Entry);
+		ExecuteLogEffectDestroyItem(EffectInfo.Effect, foodItem.Entry);
 
 		int pct;
 		var levelDiff = (int)pet.Level - (int)foodItem.Template.BaseItemLevel;
@@ -3659,7 +3660,7 @@ public partial class Spell
 		go.Faction = unitCaster.Faction;
 		go.SetLevel(unitCaster.Level);
 		var duration = SpellInfo.CalcDuration(_caster);
-		go.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SpellId = SpellInfo.Id;
 		unitCaster.AddGameObject(go);
 
@@ -3819,28 +3820,28 @@ public partial class Spell
 
 		// clear focus
 		PacketSenderOwning<BreakTarget> breakTarget = new()
-        {
-            Data =
-            {
-                UnitGUID = _caster.GUID
-            }
-        };
+		{
+			Data =
+			{
+				UnitGUID = _caster.GUID
+			}
+		};
 
-        breakTarget.Data.Write();
+		breakTarget.Data.Write();
 
 		var notifierBreak = new MessageDistDelivererToHostile<PacketSenderOwning<BreakTarget>>(unitCaster, breakTarget, dist, GridType.World);
 		Cell.VisitGrid(_caster, notifierBreak, dist);
 
 		// and selection
 		PacketSenderOwning<ClearTarget> clearTarget = new()
-        {
-            Data =
-            {
-                Guid = _caster.GUID
-            }
-        };
+		{
+			Data =
+			{
+				Guid = _caster.GUID
+			}
+		};
 
-        clearTarget.Data.Write();
+		clearTarget.Data.Write();
 		var notifierClear = new MessageDistDelivererToHostile<PacketSenderOwning<ClearTarget>>(unitCaster, clearTarget, dist, GridType.World);
 		Cell.VisitGrid(_caster, notifierClear, dist);
 
@@ -3920,6 +3921,7 @@ public partial class Spell
 
 		if (loot != null)
 			creature.PersonalLoot[player.GUID] = loot;
+
 		loot.FillLoot(creature.Template.SkinLootId, LootStorage.Skinning, player, true);
 		player.SendLoot(loot);
 
@@ -3978,13 +3980,11 @@ public partial class Spell
 			SpellEffectExtraData spellEffectExtraData = null;
 
 			if (EffectInfo.MiscValueB != 0)
-			{
 				spellEffectExtraData = new SpellEffectExtraData
-                {
-                    Target = UnitTarget.GUID,
-                    SpellVisualId = (uint)EffectInfo.MiscValueB
-                };
-            }
+				{
+					Target = UnitTarget.GUID,
+					SpellVisualId = (uint)EffectInfo.MiscValueB
+				};
 
 			// Spell is not using explicit target - no generated path
 			if (_preGeneratedPath == null)
@@ -4617,7 +4617,7 @@ public partial class Spell
 				}
 
 				// Duration of the fishing bobber can't be higher than the Fishing channeling duration
-				duration = Math.Min(duration, duration - lastSec * global::Time.InMilliseconds + 5 * global::Time.InMilliseconds);
+				duration = Math.Min(duration, duration - lastSec * Time.InMilliseconds + 5 * Time.InMilliseconds);
 
 				break;
 			}
@@ -4641,7 +4641,7 @@ public partial class Spell
 				break;
 		}
 
-		go.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SetOwnerGUID(unitCaster.GUID);
 		go.SpellId = SpellInfo.Id;
 
@@ -4655,7 +4655,7 @@ public partial class Spell
 		if (linkedTrap != null)
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
-			linkedTrap.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 			linkedTrap.SpellId = SpellInfo.Id;
 			linkedTrap.SetOwnerGUID(unitCaster.GUID);
 
@@ -4818,13 +4818,13 @@ public partial class Spell
 		List<Tuple<uint, ObjectGuid, int>> successList = new();
 
 		DispelFailed dispelFailed = new()
-        {
-            CasterGUID = _caster.GUID,
-            VictimGUID = UnitTarget.GUID,
-            SpellID = SpellInfo.Id
-        };
+		{
+			CasterGUID = _caster.GUID,
+			VictimGUID = UnitTarget.GUID,
+			SpellID = SpellInfo.Id
+		};
 
-        // dispel N = damage buffs (or while exist buffs for dispel)
+		// dispel N = damage buffs (or while exist buffs for dispel)
 		for (var count = 0; count < Damage && remaining > 0;)
 		{
 			// Random select buff for dispel
@@ -4860,23 +4860,23 @@ public partial class Spell
 			return;
 
 		SpellDispellLog spellDispellLog = new()
-        {
-            IsBreak = false, // TODO: use me
-            IsSteal = true,
-            TargetGUID = UnitTarget.GUID,
-            CasterGUID = _caster.GUID,
-            DispelledBySpellID = SpellInfo.Id
-        };
+		{
+			IsBreak = false, // TODO: use me
+			IsSteal = true,
+			TargetGUID = UnitTarget.GUID,
+			CasterGUID = _caster.GUID,
+			DispelledBySpellID = SpellInfo.Id
+		};
 
-        foreach (var (spellId, auraCaster, stolenCharges) in successList)
+		foreach (var (spellId, auraCaster, stolenCharges) in successList)
 		{
 			var dispellData = new SpellDispellData
-            {
-                SpellID = spellId,
-                Harmful = false // TODO: use me
-            };
+			{
+				SpellID = spellId,
+				Harmful = false // TODO: use me
+			};
 
-            UnitTarget.RemoveAurasDueToSpellBySteal(spellId, auraCaster, _caster, stolenCharges);
+			UnitTarget.RemoveAurasDueToSpellBySteal(spellId, auraCaster, _caster, stolenCharges);
 
 			spellDispellLog.DispellData.Add(dispellData);
 		}
@@ -5118,13 +5118,13 @@ public partial class Spell
 					var proto = CastItem.Template;
 
 					if (proto is { RequiredSkill: (uint)SkillType.Engineering })
-                    {
-                        var skill202 = unitCaster.AsPlayer.GetSkillValue(SkillType.Engineering);
+					{
+						var skill202 = unitCaster.AsPlayer.GetSkillValue(SkillType.Engineering);
 
-                        if (skill202 != 0)
-                            level = skill202 / 5u;
-                    }
-                }
+						if (skill202 != 0)
+							level = skill202 / 5u;
+					}
+				}
 
 				((Guardian)summon).InitStatsForLevel(level);
 			}
@@ -5324,12 +5324,12 @@ public partial class Spell
 				continue;
 
 			CastSpellExtraArgs args = new(TriggerCastFlags.IgnoreGCD | TriggerCastFlags.IgnoreCastInProgress | TriggerCastFlags.CastDirectly | TriggerCastFlags.DontReportCastError)
-            {
-                OriginalCastId = CastId,
-                CastDifficulty = CastDifficulty
-            };
+			{
+				OriginalCastId = CastId,
+				CastDifficulty = CastDifficulty
+			};
 
-            _caster.CastSpell(_caster, spellInfo.Id, args);
+			_caster.CastSpell(_caster, spellInfo.Id, args);
 		}
 	}
 
@@ -5488,7 +5488,7 @@ public partial class Spell
 
 		var duration = SpellInfo.CalcDuration(_caster);
 
-		go.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+		go.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 		go.SpellId = SpellInfo.Id;
 		go.PrivateObjectOwner = _caster.GUID;
 
@@ -5502,7 +5502,7 @@ public partial class Spell
 		{
 			PhasingHandler.InheritPhaseShift(linkedTrap, _caster);
 
-			linkedTrap.SetRespawnTime(duration > 0 ? duration / global::Time.InMilliseconds : 0);
+			linkedTrap.SetRespawnTime(duration > 0 ? duration / Time.InMilliseconds : 0);
 			linkedTrap.SpellId = SpellInfo.Id;
 
 			ExecuteLogEffectSummonObject(EffectInfo.Effect, linkedTrap);
@@ -5770,7 +5770,7 @@ public partial class Spell
 		// effect value is number of resting hours
 		playerTarget.
 			// effect value is number of resting hours
-			RestMgr.AddRestBonus(RestTypes.XP, Damage * global::Time.Hour * playerTarget.RestMgr.CalcExtraPerSec(RestTypes.XP, 0.125f));
+			RestMgr.AddRestBonus(RestTypes.XP, Damage * Time.Hour * playerTarget.RestMgr.CalcExtraPerSec(RestTypes.XP, 0.125f));
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealBattlepetPct)]
@@ -6085,12 +6085,12 @@ public partial class Spell
 			return;
 
 		PvPCredit packet = new()
-        {
-            Honor = (int)Damage,
-            OriginalHonor = (int)Damage
-        };
+		{
+			Honor = (int)Damage,
+			OriginalHonor = (int)Damage
+		};
 
-        var playerTarget = UnitTarget.AsPlayer;
+		var playerTarget = UnitTarget.AsPlayer;
 		playerTarget.AddHonorXp((uint)Damage);
 		playerTarget.SendPacket(packet);
 	}
@@ -6122,12 +6122,10 @@ public partial class Spell
 		JumpArrivalCastArgs arrivalCast = null;
 
 		if (EffectInfo.TriggerSpell != 0)
-		{
 			arrivalCast = new JumpArrivalCastArgs
-            {
-                SpellId = EffectInfo.TriggerSpell
-            };
-        }
+			{
+				SpellId = EffectInfo.TriggerSpell
+			};
 
 		SpellEffectExtraData effectExtra = null;
 
@@ -6327,11 +6325,11 @@ public partial class Spell
 										return false;
 
 									FlagArray128 reqFlag = new()
-                                    {
-                                        [bitIndex / 32] = 1u << (bitIndex % 32)
-                                    };
+									{
+										[bitIndex / 32] = 1u << (bitIndex % 32)
+									};
 
-                                    return (spellOnCooldown.SpellFamilyFlags & reqFlag);
+									return (spellOnCooldown.SpellFamilyFlags & reqFlag);
 								},
 								TimeSpan.FromMilliseconds(Damage));
 	}
@@ -6367,11 +6365,11 @@ public partial class Spell
 			return;
 
 		TraitConfigPacket newConfig = new()
-        {
-            Type = TraitMgr.GetConfigTypeForTree(EffectInfo.MiscValue)
-        };
+		{
+			Type = TraitMgr.GetConfigTypeForTree(EffectInfo.MiscValue)
+		};
 
-        if (newConfig.Type != TraitConfigType.Generic)
+		if (newConfig.Type != TraitConfigType.Generic)
 			return;
 
 		newConfig.TraitSystemID = CliDB.TraitTreeStorage.LookupByKey(EffectInfo.MiscValue).TraitSystemID;

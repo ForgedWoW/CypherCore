@@ -56,17 +56,17 @@ public class SceneMgr
 			Player.SendSysMessage(CypherStrings.CommandSceneDebugPlay, sceneInstanceId, sceneTemplate.ScenePackageId, sceneTemplate.PlaybackFlags);
 
 		PlayScene playScene = new()
-        {
-            SceneID = sceneTemplate.SceneId,
-            PlaybackFlags = (uint)sceneTemplate.PlaybackFlags,
-            SceneInstanceID = sceneInstanceId,
-            SceneScriptPackageID = sceneTemplate.ScenePackageId,
-            Location = position,
-            TransportGUID = Player.GetTransGUID(),
-            Encrypted = sceneTemplate.Encrypted
-        };
+		{
+			SceneID = sceneTemplate.SceneId,
+			PlaybackFlags = (uint)sceneTemplate.PlaybackFlags,
+			SceneInstanceID = sceneInstanceId,
+			SceneScriptPackageID = sceneTemplate.ScenePackageId,
+			Location = position,
+			TransportGUID = Player.GetTransGUID(),
+			Encrypted = sceneTemplate.Encrypted
+		};
 
-        playScene.Write();
+		playScene.Write();
 
 		if (Player.IsInWorld)
 			Player.SendPacket(playScene);
@@ -83,15 +83,15 @@ public class SceneMgr
 	public uint PlaySceneByPackageId(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
 	{
 		SceneTemplate sceneTemplate = new()
-        {
-            SceneId = 0,
-            ScenePackageId = sceneScriptPackageId,
-            PlaybackFlags = playbackflags,
-            Encrypted = false,
-            ScriptId = 0
-        };
+		{
+			SceneId = 0,
+			ScenePackageId = sceneScriptPackageId,
+			PlaybackFlags = playbackflags,
+			Encrypted = false,
+			ScriptId = 0
+		};
 
-        return PlaySceneByTemplate(sceneTemplate, position);
+		return PlaySceneByTemplate(sceneTemplate, position);
 	}
 
 	public void OnSceneTrigger(uint sceneInstanceId, string triggerName)
@@ -217,11 +217,11 @@ public class SceneMgr
 			RemoveSceneInstanceId(sceneInstanceId);
 
 		CancelScene cancelScene = new()
-        {
-            SceneInstanceID = sceneInstanceId
-        };
+		{
+			SceneInstanceID = sceneInstanceId
+		};
 
-        Player.SendPacket(cancelScene);
+		Player.SendPacket(cancelScene);
 	}
 
 	bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)

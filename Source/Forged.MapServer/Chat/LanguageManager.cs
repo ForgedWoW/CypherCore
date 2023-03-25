@@ -32,7 +32,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public void LoadLanguages()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Load languages from Languages.db2. Just the id, we don't need the name
 		foreach (var langEntry in CliDB.LanguagesStorage.Values)
@@ -71,7 +71,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public void LoadLanguagesWords()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		uint wordsNum = 0;
 

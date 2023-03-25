@@ -13,7 +13,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 
 	public void LoadCharacterTemplates()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_characterTemplateStore.Clear();
 
 		MultiMap<uint, CharacterTemplateClass> characterTemplateClasses = new();
@@ -58,14 +58,14 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 		do
 		{
 			CharacterTemplate templ = new()
-            {
-                TemplateSetId = templates.Read<uint>(0),
-                Name = templates.Read<string>(1),
-                Description = templates.Read<string>(2),
-                Level = templates.Read<byte>(3)
-            };
+			{
+				TemplateSetId = templates.Read<uint>(0),
+				Name = templates.Read<string>(1),
+				Description = templates.Read<string>(2),
+				Level = templates.Read<byte>(3)
+			};
 
-            templ.Classes = characterTemplateClasses[templ.TemplateSetId];
+			templ.Classes = characterTemplateClasses[templ.TemplateSetId];
 
 			if (templ.Classes.Empty())
 			{
@@ -77,7 +77,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 			_characterTemplateStore[templ.TemplateSetId] = templ;
 		} while (templates.NextRow());
 
-		Log.Logger.Information("Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} character templates in {1} ms.", _characterTemplateStore.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public Dictionary<uint, CharacterTemplate> GetCharacterTemplates()

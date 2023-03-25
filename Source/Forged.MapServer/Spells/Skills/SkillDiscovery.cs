@@ -16,7 +16,7 @@ public class SkillDiscovery
 
 	public static void LoadSkillDiscoveryTable()
 	{
-		var oldMsTime = global::Time.MSTime;
+		var oldMsTime = Time.MSTime;
 
 		SkillDiscoveryStorage.Clear(); // need for reload
 
@@ -72,11 +72,10 @@ public class SkillDiscovery
 				{
 					if (!reportedReqSpells.Contains(absReqSkillOrSpell))
 					{
-						Log.Logger.Error(
-									"Spell (ID: {0}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc" +
-									" and not 100%% chance random discovery ability but listed for spellId {1} (and maybe more) in `skill_discovery_template` table",
-									absReqSkillOrSpell,
-									spellId);
+						Log.Logger.Error("Spell (ID: {0}) not have MECHANIC_DISCOVERY (28) value in Mechanic field in spell.dbc" +
+										" and not 100%% chance random discovery ability but listed for spellId {1} (and maybe more) in `skill_discovery_template` table",
+										absReqSkillOrSpell,
+										spellId);
 
 						reportedReqSpells.Add(absReqSkillOrSpell);
 					}
@@ -129,7 +128,7 @@ public class SkillDiscovery
 				Log.Logger.Error("Spell (ID: {0}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spellEntry.Id);
 		}
 
-		Log.Logger.Information("Loaded {0} skill discovery definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMsTime));
+		Log.Logger.Information("Loaded {0} skill discovery definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public static uint GetExplicitDiscoverySpell(uint spellId, Player player)

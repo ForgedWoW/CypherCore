@@ -166,18 +166,17 @@ public class Arena : Battleground
 					winnerMatchmakerChange = winnerArenaTeam.WonAgainst(winnerMatchmakerRating, loserMatchmakerRating, ref winnerChange);
 					loserMatchmakerChange = loserArenaTeam.LostAgainst(loserMatchmakerRating, winnerMatchmakerRating, ref loserChange);
 
-					Log.Logger.Debug(
-								"match Type: {0} --- Winner: old rating: {1}, rating gain: {2}, old MMR: {3}, MMR gain: {4} --- Loser: old rating: {5}, " +
-								"rating loss: {6}, old MMR: {7}, MMR loss: {8} ---",
-								GetArenaType(),
-								winnerTeamRating,
-								winnerChange,
-								winnerMatchmakerRating,
-								winnerMatchmakerChange,
-								loserTeamRating,
-								loserChange,
-								loserMatchmakerRating,
-								loserMatchmakerChange);
+					Log.Logger.Debug("match Type: {0} --- Winner: old rating: {1}, rating gain: {2}, old MMR: {3}, MMR gain: {4} --- Loser: old rating: {5}, " +
+									"rating loss: {6}, old MMR: {7}, MMR loss: {8} ---",
+									GetArenaType(),
+									winnerTeamRating,
+									winnerChange,
+									winnerMatchmakerRating,
+									winnerMatchmakerChange,
+									loserTeamRating,
+									loserChange,
+									loserMatchmakerRating,
+									loserMatchmakerChange);
 
 					SetArenaMatchmakerRating(winner, (uint)(winnerMatchmakerRating + winnerMatchmakerChange));
 					SetArenaMatchmakerRating(GetOtherTeam(winner), (uint)(loserMatchmakerRating + loserMatchmakerChange));
@@ -190,14 +189,13 @@ public class Arena : Battleground
 					_arenaTeamScores[winnerTeam].Assign(winnerTeamRating, (uint)(winnerTeamRating + winnerChange), winnerMatchmakerRating, GetArenaMatchmakerRating(winner));
 					_arenaTeamScores[loserTeam].Assign(loserTeamRating, (uint)(loserTeamRating + loserChange), loserMatchmakerRating, GetArenaMatchmakerRating(GetOtherTeam(winner)));
 
-					Log.Logger.Debug(
-								"Arena match Type: {0} for Team1Id: {1} - Team2Id: {2} ended. WinnerTeamId: {3}. Winner rating: +{4}, Loser rating: {5}",
-								GetArenaType(),
-								GetArenaTeamIdByIndex(TeamIds.Alliance),
-								GetArenaTeamIdByIndex(TeamIds.Horde),
-								winnerArenaTeam.GetId(),
-								winnerChange,
-								loserChange);
+					Log.Logger.Debug("Arena match Type: {0} for Team1Id: {1} - Team2Id: {2} ended. WinnerTeamId: {3}. Winner rating: +{4}, Loser rating: {5}",
+									GetArenaType(),
+									GetArenaTeamIdByIndex(TeamIds.Alliance),
+									GetArenaTeamIdByIndex(TeamIds.Horde),
+									winnerArenaTeam.GetId(),
+									winnerChange,
+									loserChange);
 
 					if (WorldConfig.GetBoolValue(WorldCfg.ArenaLogExtendedInfo))
 						foreach (var score in PlayerScores)
@@ -205,14 +203,13 @@ public class Arena : Battleground
 							var player = Global.ObjAccessor.FindPlayer(score.Key);
 
 							if (player)
-								Log.Logger.Debug(
-											"Statistics match Type: {0} for {1} (GUID: {2}, Team: {3}, IP: {4}): {5}",
-											GetArenaType(),
-											player.GetName(),
-											score.Key,
-											player.GetArenaTeamId((byte)(GetArenaType() == ArenaTypes.Team5v5 ? 2 : (GetArenaType() == ArenaTypes.Team3v3 ? 1 : 0))),
-											player.Session.RemoteAddress,
-											score.Value.ToString());
+								Log.Logger.Debug("Statistics match Type: {0} for {1} (GUID: {2}, Team: {3}, IP: {4}): {5}",
+												GetArenaType(),
+												player.GetName(),
+												score.Key,
+												player.GetArenaTeamId((byte)(GetArenaType() == ArenaTypes.Team5v5 ? 2 : (GetArenaType() == ArenaTypes.Team3v3 ? 1 : 0))),
+												player.Session.RemoteAddress,
+												score.Value.ToString());
 						}
 				}
 				// Deduct 16 points from each teams arena-rating if there are no winners after 45+2 minutes

@@ -120,7 +120,7 @@ public class Item : WorldObject
 		}
 	}
 
-	public bool IsRefundExpired => (PlayedTime > 2 * global::Time.Hour);
+	public bool IsRefundExpired => (PlayedTime > 2 * Time.Hour);
 
 	public bool IsNotEmptyBag
 	{
@@ -694,11 +694,11 @@ public class Item : WorldObject
 		for (var i = 0; i < ItemConst.MaxGemSockets; ++i)
 		{
 			gemData[i] = new ItemDynamicFieldGems
-            {
-                ItemId = fields.Read<uint>(37 + i * gemFields)
-            };
+			{
+				ItemId = fields.Read<uint>(37 + i * gemFields)
+			};
 
-            var gemBonusListIDs = new StringArray(fields.Read<string>(38 + i * gemFields), ' ');
+			var gemBonusListIDs = new StringArray(fields.Read<string>(38 + i * gemFields), ' ');
 
 			if (!gemBonusListIDs.IsEmpty())
 			{
@@ -1315,11 +1315,11 @@ public class Item : WorldObject
 	public void SendUpdateSockets()
 	{
 		SocketGemsSuccess socketGems = new()
-        {
-            Item = GUID
-        };
+		{
+			Item = GUID
+		};
 
-        OwnerUnit.SendPacket(socketGems);
+		OwnerUnit.SendPacket(socketGems);
 	}
 
 	public void SendTimeUpdate(Player owner)
@@ -1330,12 +1330,12 @@ public class Item : WorldObject
 			return;
 
 		ItemTimeUpdate itemTimeUpdate = new()
-        {
-            ItemGuid = GUID,
-            DurationLeft = duration
-        };
+		{
+			ItemGuid = GUID,
+			DurationLeft = duration
+		};
 
-        owner.SendPacket(itemTimeUpdate);
+		owner.SendPacket(itemTimeUpdate);
 	}
 
 	public static Item CreateItem(uint item, uint count, ItemContext context, Player player = null)
@@ -1524,11 +1524,11 @@ public class Item : WorldObject
 			return;
 
 		ItemExpirePurchaseRefund itemExpirePurchaseRefund = new()
-        {
-            ItemGUID = GUID
-        };
+		{
+			ItemGUID = GUID
+		};
 
-        owner.SendPacket(itemExpirePurchaseRefund);
+		owner.SendPacket(itemExpirePurchaseRefund);
 
 		RemoveItemFlag(ItemFieldFlags.Refundable);
 
@@ -1557,7 +1557,7 @@ public class Item : WorldObject
 		var new_playtime = current_playtime + elapsed;
 
 		// Check if the refund timer has expired yet
-		if (new_playtime <= 2 * global::Time.Hour)
+		if (new_playtime <= 2 * Time.Hour)
 		{
 			// No? Proceed.
 			// Update the data field
@@ -1599,7 +1599,7 @@ public class Item : WorldObject
 	public bool CheckSoulboundTradeExpire()
 	{
 		// called from owner's update - GetOwner() MUST be valid
-		if (ItemData.CreatePlayedTime + 2 * global::Time.Hour < OwnerUnit.TotalPlayedTime)
+		if (ItemData.CreatePlayedTime + 2 * Time.Hour < OwnerUnit.TotalPlayedTime)
 		{
 			ClearSoulboundTradeable(OwnerUnit);
 
@@ -1882,12 +1882,12 @@ public class Item : WorldObject
 			if (modifierIndex == -1)
 			{
 				ItemMod mod = new()
-                {
-                    Value = value,
-                    Type = (byte)modifier
-                };
+				{
+					Value = value,
+					Type = (byte)modifier
+				};
 
-                AddDynamicUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Modifiers).Value.ModifyValue(ItemData.Modifiers.Value.Values), mod);
+				AddDynamicUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Modifiers).Value.ModifyValue(ItemData.Modifiers.Value.Values), mod);
 			}
 			else
 			{
@@ -1985,12 +1985,12 @@ public class Item : WorldObject
 		if (bonuses != null)
 		{
 			ItemBonusKey itemBonusKey = new()
-            {
-                ItemID = Entry,
-                BonusListIDs = GetBonusListIDs()
-            };
+			{
+				ItemID = Entry,
+				BonusListIDs = GetBonusListIDs()
+			};
 
-            itemBonusKey.BonusListIDs.Add(bonusListID);
+			itemBonusKey.BonusListIDs.Add(bonusListID);
 			SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
 
 			foreach (var bonus in bonuses)
@@ -2006,12 +2006,12 @@ public class Item : WorldObject
 			bonusListIDs = new List<uint>();
 
 		ItemBonusKey itemBonusKey = new()
-        {
-            ItemID = Entry,
-            BonusListIDs = bonusListIDs
-        };
+		{
+			ItemID = Entry,
+			BonusListIDs = bonusListIDs
+		};
 
-        SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
+		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
 
 		foreach (var bonusListID in GetBonusListIDs())
 			BonusData.AddBonusList(bonusListID);
@@ -2022,11 +2022,11 @@ public class Item : WorldObject
 	public void ClearBonuses()
 	{
 		ItemBonusKey itemBonusKey = new()
-        {
-            ItemID = Entry
-        };
+		{
+			ItemID = Entry
+		};
 
-        SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
+		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemBonusKey), itemBonusKey);
 		BonusData = new BonusData(Template);
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ItemAppearanceModID), (byte)BonusData.AppearanceModID);
 	}
@@ -2074,13 +2074,13 @@ public class Item : WorldObject
 				continue;
 
 			ArtifactPowerData powerData = new()
-            {
-                ArtifactPowerId = artifactPower.Id,
-                PurchasedRank = 0,
-                CurrentRankWithBonus = (byte)((artifactPower.Flags & ArtifactPowerFlag.First) == ArtifactPowerFlag.First ? 1 : 0)
-            };
+			{
+				ArtifactPowerId = artifactPower.Id,
+				PurchasedRank = 0,
+				CurrentRankWithBonus = (byte)((artifactPower.Flags & ArtifactPowerFlag.First) == ArtifactPowerFlag.First ? 1 : 0)
+			};
 
-            AddArtifactPower(powerData);
+			AddArtifactPower(powerData);
 		}
 	}
 
@@ -2161,12 +2161,12 @@ public class Item : WorldObject
 		SetArtifactXP(ItemData.ArtifactXP + amount);
 
 		ArtifactXpGain artifactXpGain = new()
-        {
-            ArtifactGUID = GUID,
-            Amount = amount
-        };
+		{
+			ArtifactGUID = GUID,
+			Amount = amount
+		};
 
-        owner.SendPacket(artifactXpGain);
+		owner.SendPacket(artifactXpGain);
 
 		SetState(ItemUpdateState.Changed, owner);
 	}
@@ -2292,11 +2292,11 @@ public class Item : WorldObject
 		if (eff == null)
 		{
 			eff = new ItemSetEffect
-            {
-                ItemSetId = setid
-            };
+			{
+				ItemSetId = setid
+			};
 
-            var x = 0;
+			var x = 0;
 
 			for (; x < player.ItemSetEff.Count; ++x)
 				if (player.ItemSetEff[x] == null)
@@ -3015,13 +3015,13 @@ public class Item : WorldObject
 		_artifactPowerIdToIndex[artifactPower.ArtifactPowerId] = (ushort)index;
 
 		ArtifactPower powerField = new()
-        {
-            ArtifactPowerId = (ushort)artifactPower.ArtifactPowerId,
-            PurchasedRank = artifactPower.PurchasedRank,
-            CurrentRankWithBonus = artifactPower.CurrentRankWithBonus
-        };
+		{
+			ArtifactPowerId = (ushort)artifactPower.ArtifactPowerId,
+			PurchasedRank = artifactPower.PurchasedRank,
+			CurrentRankWithBonus = artifactPower.CurrentRankWithBonus
+		};
 
-        AddDynamicUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers), powerField);
+		AddDynamicUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers), powerField);
 	}
 
 	void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint enchantId, bool apply, Player owner)

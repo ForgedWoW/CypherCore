@@ -19,16 +19,16 @@ public class BattlegroundQueue
 {
 	readonly Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
 
-    /// <summary>
-    ///  This two dimensional array is used to store All queued groups
-    ///  First dimension specifies the bgTypeId
-    ///  Second dimension specifies the player's group types -
-    ///  BG_QUEUE_PREMADE_ALLIANCE  is used for premade alliance groups and alliance rated arena teams
-    ///  BG_QUEUE_PREMADE_HORDE     is used for premade horde groups and horde rated arena teams
-    ///  BattlegroundConst.BgQueueNormalAlliance   is used for normal (or small) alliance groups or non-rated arena matches
-    ///  BattlegroundConst.BgQueueNormalHorde      is used for normal (or small) horde groups or non-rated arena matches
-    /// </summary>
-    readonly List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
+	/// <summary>
+	///  This two dimensional array is used to store All queued groups
+	///  First dimension specifies the bgTypeId
+	///  Second dimension specifies the player's group types -
+	///  BG_QUEUE_PREMADE_ALLIANCE  is used for premade alliance groups and alliance rated arena teams
+	///  BG_QUEUE_PREMADE_HORDE     is used for premade horde groups and horde rated arena teams
+	///  BattlegroundConst.BgQueueNormalAlliance   is used for normal (or small) alliance groups or non-rated arena matches
+	///  BattlegroundConst.BgQueueNormalHorde      is used for normal (or small) horde groups or non-rated arena matches
+	/// </summary>
+	readonly List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
 
 	readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
 	readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
@@ -74,19 +74,19 @@ public class BattlegroundQueue
 
 		// create new ginfo
 		GroupQueueInfo ginfo = new()
-        {
-            ArenaTeamId = arenateamid,
-            IsInvitedToBGInstanceGUID = 0,
-            JoinTime = GameTime.GetGameTimeMS(),
-            RemoveInviteTime = 0,
-            Team = team,
-            ArenaTeamRating = ArenaRating,
-            ArenaMatchmakerRating = MatchmakerRating,
-            OpponentsTeamRating = 0,
-            OpponentsMatchmakerRating = 0
-        };
+		{
+			ArenaTeamId = arenateamid,
+			IsInvitedToBGInstanceGUID = 0,
+			JoinTime = GameTime.GetGameTimeMS(),
+			RemoveInviteTime = 0,
+			Team = team,
+			ArenaTeamRating = ArenaRating,
+			ArenaMatchmakerRating = MatchmakerRating,
+			OpponentsTeamRating = 0,
+			OpponentsMatchmakerRating = 0
+		};
 
-        ginfo.Players.Clear();
+		ginfo.Players.Clear();
 
 		//compute index (if group is premade or joined a rated match) to queues
 		uint index = 0;
@@ -121,12 +121,12 @@ public class BattlegroundQueue
 					continue; // this should never happen
 
 				PlayerQueueInfo pl_info = new()
-                {
-                    LastOnlineTime = lastOnlineTime,
-                    GroupInfo = ginfo
-                };
+				{
+					LastOnlineTime = lastOnlineTime,
+					GroupInfo = ginfo
+				};
 
-                m_QueuedPlayers[member.GUID] = pl_info;
+				m_QueuedPlayers[member.GUID] = pl_info;
 				// add the pinfo to ginfo's list
 				ginfo.Players[member.GUID] = pl_info;
 			}
@@ -134,12 +134,12 @@ public class BattlegroundQueue
 		else
 		{
 			PlayerQueueInfo pl_info = new()
-            {
-                LastOnlineTime = lastOnlineTime,
-                GroupInfo = ginfo
-            };
+			{
+				LastOnlineTime = lastOnlineTime,
+				GroupInfo = ginfo
+			};
 
-            m_QueuedPlayers[leader.GUID] = pl_info;
+			m_QueuedPlayers[leader.GUID] = pl_info;
 			ginfo.Players[leader.GUID] = pl_info;
 		}
 
@@ -384,18 +384,18 @@ public class BattlegroundQueue
 		m_events.Update(diff);
 	}
 
-    /// <summary>
-    ///  this method is called when group is inserted, or player / group is removed from BG Queue - there is only one player's status changed, so we don't use while (true) cycles to invite whole queue
-    ///  it must be called after fully adding the members of a group to ensure group joining
-    ///  should be called from Battleground.RemovePlayer function in some cases
-    /// </summary>
-    /// <param name="diff"> </param>
-    /// <param name="bgTypeId"> </param>
-    /// <param name="bracket_id"> </param>
-    /// <param name="arenaType"> </param>
-    /// <param name="isRated"> </param>
-    /// <param name="arenaRating"> </param>
-    public void BattlegroundQueueUpdate(uint diff, BattlegroundBracketId bracket_id, uint arenaRating)
+	/// <summary>
+	///  this method is called when group is inserted, or player / group is removed from BG Queue - there is only one player's status changed, so we don't use while (true) cycles to invite whole queue
+	///  it must be called after fully adding the members of a group to ensure group joining
+	///  should be called from Battleground.RemovePlayer function in some cases
+	/// </summary>
+	/// <param name="diff"> </param>
+	/// <param name="bgTypeId"> </param>
+	/// <param name="bracket_id"> </param>
+	/// <param name="arenaType"> </param>
+	/// <param name="isRated"> </param>
+	/// <param name="arenaRating"> </param>
+	public void BattlegroundQueueUpdate(uint diff, BattlegroundBracketId bracket_id, uint arenaRating)
 	{
 		//if no players in queue - do nothing
 		if (m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Empty() &&
@@ -642,7 +642,7 @@ public class BattlegroundQueue
 
 	void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
 	{
-		var timeInQueue = global::Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
+		var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
 		uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
 
 		if (m_queueId.TeamSize == 0)
@@ -722,13 +722,12 @@ public class BattlegroundQueue
 
 				var queueSlot = player.GetBattlegroundQueueIndex(bgQueueTypeId);
 
-				Log.Logger.Debug(
-							"Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
-							player.GetName(),
-							player.GUID.ToString(),
-							bg.GetInstanceID(),
-							queueSlot,
-							bg.GetTypeID());
+				Log.Logger.Debug("Battleground: invited player {0} ({1}) to BG instance {2} queueindex {3} bgtype {4}",
+								player.GetName(),
+								player.GUID.ToString(),
+								bg.GetInstanceID(),
+								queueSlot,
+								bg.GetTypeID());
 
 				Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, player, queueSlot, player.GetBattlegroundQueueJoinTime(bgQueueTypeId), BattlegroundConst.InviteAcceptWaitTime, (ArenaTypes)m_queueId.TeamSize);
 				player.SendPacket(battlefieldStatus);

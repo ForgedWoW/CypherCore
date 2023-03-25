@@ -14,12 +14,12 @@ struct ServersideSpellName
 	public ServersideSpellName(uint id, string name)
 	{
 		Name = new SpellNameRecord
-        {
-            Name = new LocalizedString(),
-            Id = id
-        };
+		{
+			Name = new LocalizedString(),
+			Id = id
+		};
 
-        for (Locale i = 0; i < Locale.Total; ++i)
+		for (Locale i = 0; i < Locale.Total; ++i)
 			Name.Name[i] = name;
 	}
 }

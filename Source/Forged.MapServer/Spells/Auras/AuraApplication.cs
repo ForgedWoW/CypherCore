@@ -242,12 +242,12 @@ public class AuraApplication
 		_needClientUpdate = false;
 
 		AuraUpdate update = new()
-        {
-            UpdateAll = false,
-            UnitGUID = Target.GUID
-        };
+		{
+			UpdateAll = false,
+			UnitGUID = Target.GUID
+		};
 
-        AuraInfo auraInfo = new();
+		AuraInfo auraInfo = new();
 		BuildUpdatePacket(ref auraInfo, remove);
 		update.Auras.Add(auraInfo);
 

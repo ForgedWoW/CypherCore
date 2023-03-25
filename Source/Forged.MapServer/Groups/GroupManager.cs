@@ -96,7 +96,7 @@ public class GroupManager : Singleton<GroupManager>
 	public void LoadGroups()
 	{
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			// Delete all members that does not exist
 			DB.Characters.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
@@ -139,13 +139,13 @@ public class GroupManager : Singleton<GroupManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} group definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} group definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		Log.Logger.Information("Loading Group members...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			//                                                0        1           2            3       4
 			var result = DB.Characters.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
@@ -171,7 +171,7 @@ public class GroupManager : Singleton<GroupManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} group members in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} group members in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 }

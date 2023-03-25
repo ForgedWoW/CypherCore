@@ -133,13 +133,13 @@ class HellfirePeninsulaPvP : OutdoorPvP
 	public override void SendRemoveWorldStates(Player player)
 	{
 		InitWorldStates initWorldStates = new()
-        {
-            MapID = player.Location.MapId,
-            AreaID = player.Zone,
-            SubareaID = player.Area
-        };
+		{
+			MapID = player.Location.MapId,
+			AreaID = player.Zone,
+			SubareaID = player.Area
+		};
 
-        initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);
+		initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_A, 0);
 		initWorldStates.AddState(OutdoorPvPHPWorldStates.Display_H, 0);
 		initWorldStates.AddState(OutdoorPvPHPWorldStates.Count_H, 0);
 		initWorldStates.AddState(OutdoorPvPHPWorldStates.Count_A, 0);

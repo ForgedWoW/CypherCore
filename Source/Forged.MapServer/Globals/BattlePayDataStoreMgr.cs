@@ -136,16 +136,16 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			var fields = result.GetFields();
 
 			var productAddon = new ProductAddon
-            {
-                DisplayInfoEntry = fields.Read<uint>(0),
-                DisableListing = fields.Read<byte>(1),
-                DisableBuy = fields.Read<byte>(2),
-                NameColorIndex = fields.Read<byte>(3),
-                ScriptName = fields.Read<string>(4),
-                Comment = fields.Read<string>(5)
-            };
+			{
+				DisplayInfoEntry = fields.Read<uint>(0),
+				DisableListing = fields.Read<byte>(1),
+				DisableBuy = fields.Read<byte>(2),
+				NameColorIndex = fields.Read<byte>(3),
+				ScriptName = fields.Read<string>(4),
+				Comment = fields.Read<string>(5)
+			};
 
-            ProductAddons.Add(fields.Read<uint>(0), productAddon);
+			ProductAddons.Add(fields.Read<uint>(0), productAddon);
 		} while (result.NextRow());
 
 		Log.Logger.Information(">> Loaded {} Battlepay product addons", (ulong)ProductAddons.Count);
@@ -166,18 +166,18 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			var fields = result.GetFields();
 
 			var productGroup = new BpayGroup
-            {
-                Entry = fields.Read<uint>(0),
-                GroupId = fields.Read<uint>(1),
-                IconFileDataID = fields.Read<uint>(2),
-                DisplayType = fields.Read<byte>(3),
-                Ordering = fields.Read<uint>(4),
-                Unk = fields.Read<uint>(5),
-                Name = fields.Read<string>(6),
-                Description = fields.Read<string>(7)
-            };
+			{
+				Entry = fields.Read<uint>(0),
+				GroupId = fields.Read<uint>(1),
+				IconFileDataID = fields.Read<uint>(2),
+				DisplayType = fields.Read<byte>(3),
+				Ordering = fields.Read<uint>(4),
+				Unk = fields.Read<uint>(5),
+				Name = fields.Read<string>(6),
+				Description = fields.Read<string>(7)
+			};
 
-            ProductGroups.Add(productGroup);
+			ProductGroups.Add(productGroup);
 		} while (result.NextRow());
 
 		Log.Logger.Information(">> Loaded {} Battlepay product groups", (ulong)ProductGroups.Count);
@@ -200,14 +200,14 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			var fields = result.GetFields();
 
 			var productInfo = new BpayProductInfo
-            {
-                Entry = fields.Read<uint>(0),
-                ProductId = fields.Read<uint>(1),
-                NormalPriceFixedPoint = fields.Read<uint>(2),
-                CurrentPriceFixedPoint = fields.Read<uint>(3)
-            };
+			{
+				Entry = fields.Read<uint>(0),
+				ProductId = fields.Read<uint>(1),
+				NormalPriceFixedPoint = fields.Read<uint>(2),
+				CurrentPriceFixedPoint = fields.Read<uint>(3)
+			};
 
-            var subproducts_stream = new StringArray(fields.Read<string>(4), ',');
+			var subproducts_stream = new StringArray(fields.Read<string>(4), ',');
 
 			foreach (string subproduct in subproducts_stream)
 				if (uint.TryParse(subproduct, out var productId))
@@ -235,27 +235,27 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			var fields = result.GetFields();
 
 			var product = new BpayProduct
-            {
-                Entry = fields.Read<uint>(0),
-                ProductId = fields.Read<uint>(1),
-                Type = fields.Read<byte>(2),
-                Flags = fields.Read<uint>(3),
-                Unk1 = fields.Read<uint>(4),
-                DisplayId = fields.Read<uint>(5),
-                ItemId = fields.Read<uint>(6),
-                Unk4 = fields.Read<uint>(7),
-                Unk5 = fields.Read<uint>(8),
-                Unk6 = fields.Read<uint>(9),
-                Unk7 = fields.Read<uint>(10),
-                Unk8 = fields.Read<uint>(11),
-                Unk9 = fields.Read<uint>(12),
-                UnkString = fields.Read<string>(13),
-                UnkBit = fields.Read<bool>(14),
-                UnkBits = fields.Read<uint>(15),
-                Name = fields.Read<string>(16) // unused in packets but useful in other ways
-            };
+			{
+				Entry = fields.Read<uint>(0),
+				ProductId = fields.Read<uint>(1),
+				Type = fields.Read<byte>(2),
+				Flags = fields.Read<uint>(3),
+				Unk1 = fields.Read<uint>(4),
+				DisplayId = fields.Read<uint>(5),
+				ItemId = fields.Read<uint>(6),
+				Unk4 = fields.Read<uint>(7),
+				Unk5 = fields.Read<uint>(8),
+				Unk6 = fields.Read<uint>(9),
+				Unk7 = fields.Read<uint>(10),
+				Unk8 = fields.Read<uint>(11),
+				Unk9 = fields.Read<uint>(12),
+				UnkString = fields.Read<string>(13),
+				UnkBit = fields.Read<bool>(14),
+				UnkBits = fields.Read<uint>(15),
+				Name = fields.Read<string>(16) // unused in packets but useful in other ways
+			};
 
-            Products.Add(fields.Read<uint>(1), product);
+			Products.Add(fields.Read<uint>(1), product);
 		} while (result.NextRow());
 
 		// Product Items
@@ -274,11 +274,11 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 				continue;
 
 			var productItem = new BpayProductItem
-            {
-                ItemID = fields.Read<uint>(2)
-            };
+			{
+				ItemID = fields.Read<uint>(2)
+			};
 
-            if (Global.ObjectMgr.GetItemTemplate(productItem.ItemID) != null)
+			if (Global.ObjectMgr.GetItemTemplate(productItem.ItemID) != null)
 				continue;
 
 			productItem.Entry = fields.Read<uint>(0);
@@ -311,17 +311,17 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			var fields = result.GetFields();
 
 			var shopEntry = new BpayShop
-            {
-                Entry = fields.Read<uint>(0),
-                EntryId = fields.Read<uint>(1),
-                GroupID = fields.Read<uint>(2),
-                ProductID = fields.Read<uint>(3),
-                Ordering = fields.Read<uint>(4),
-                VasServiceType = fields.Read<uint>(5),
-                StoreDeliveryType = fields.Read<byte>(6)
-            };
+			{
+				Entry = fields.Read<uint>(0),
+				EntryId = fields.Read<uint>(1),
+				GroupID = fields.Read<uint>(2),
+				ProductID = fields.Read<uint>(3),
+				Ordering = fields.Read<uint>(4),
+				VasServiceType = fields.Read<uint>(5),
+				StoreDeliveryType = fields.Read<byte>(6)
+			};
 
-            ShopEntries.Add(shopEntry);
+			ShopEntries.Add(shopEntry);
 		} while (result.NextRow());
 
 		Log.Logger.Information(">> Loaded {} Battlepay shop entries", (ulong)ShopEntries.Count);
@@ -342,27 +342,27 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			var fields = result.GetFields();
 
 			var displayInfo = new BpayDisplayInfo
-            {
-                Entry = fields.Read<uint>(0),
-                CreatureDisplayID = fields.Read<uint>(1),
-                VisualID = fields.Read<uint>(2),
-                Name1 = fields.Read<string>(3),
-                Name2 = fields.Read<string>(4),
-                Name3 = fields.Read<string>(5),
-                Name4 = fields.Read<string>(6),
-                Name5 = fields.Read<string>(7),
-                Name6 = fields.Read<string>(8),
-                Name7 = fields.Read<string>(9),
-                Flags = fields.Read<uint>(10),
-                Unk1 = fields.Read<uint>(11),
-                Unk2 = fields.Read<uint>(12),
-                Unk3 = fields.Read<uint>(13),
-                UnkInt1 = fields.Read<uint>(14),
-                UnkInt2 = fields.Read<uint>(15),
-                UnkInt3 = fields.Read<uint>(16)
-            };
+			{
+				Entry = fields.Read<uint>(0),
+				CreatureDisplayID = fields.Read<uint>(1),
+				VisualID = fields.Read<uint>(2),
+				Name1 = fields.Read<string>(3),
+				Name2 = fields.Read<string>(4),
+				Name3 = fields.Read<string>(5),
+				Name4 = fields.Read<string>(6),
+				Name5 = fields.Read<string>(7),
+				Name6 = fields.Read<string>(8),
+				Name7 = fields.Read<string>(9),
+				Flags = fields.Read<uint>(10),
+				Unk1 = fields.Read<uint>(11),
+				Unk2 = fields.Read<uint>(12),
+				Unk3 = fields.Read<uint>(13),
+				UnkInt1 = fields.Read<uint>(14),
+				UnkInt2 = fields.Read<uint>(15),
+				UnkInt3 = fields.Read<uint>(16)
+			};
 
-            DisplayInfos.Add(fields.Read<uint>(0), displayInfo);
+			DisplayInfos.Add(fields.Read<uint>(0), displayInfo);
 		} while (result.NextRow());
 
 		result = DB.World.Query("SELECT Entry, DisplayId, VisualId, Unk, Name, DisplayInfoEntry FROM battlepay_visual");
@@ -379,16 +379,16 @@ public class BattlePayDataStoreMgr : Singleton<BattlePayDataStoreMgr>
 			visualCounter++;
 
 			var visualInfo = new BpayVisual
-            {
-                Entry = fields.Read<uint>(0),
-                DisplayId = fields.Read<uint>(1),
-                VisualId = fields.Read<uint>(2),
-                Unk = fields.Read<uint>(3),
-                Name = fields.Read<string>(4),
-                DisplayInfoEntry = fields.Read<uint>(5)
-            };
+			{
+				Entry = fields.Read<uint>(0),
+				DisplayId = fields.Read<uint>(1),
+				VisualId = fields.Read<uint>(2),
+				Unk = fields.Read<uint>(3),
+				Name = fields.Read<string>(4),
+				DisplayInfoEntry = fields.Read<uint>(5)
+			};
 
-            if (!DisplayInfos.TryGetValue(visualInfo.DisplayInfoEntry, out var bpayDisplayInfo))
+			if (!DisplayInfos.TryGetValue(visualInfo.DisplayInfoEntry, out var bpayDisplayInfo))
 				continue;
 
 			bpayDisplayInfo.Visuals.Add(visualInfo);

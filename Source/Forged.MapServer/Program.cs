@@ -1,24 +1,23 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
+using System.Collections;
 using System.IO;
-using Microsoft.Extensions.Configuration;
 using Autofac;
 using Forged.MapServer.Accounts;
-using Framework;
-using Framework.Database;
-using Game;
-using Game.Common;
-using System.Collections;
 using Forged.MapServer.Achievements;
-using Forged.MapServer.DataStorage;
-using Framework.Constants;
-using Framework.Util;
 using Forged.MapServer.AI.SmartScripts;
+using Forged.MapServer.DataStorage;
+using Framework;
+using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
+using Game.Common;
+using Microsoft.Extensions.Configuration;
 
 var configBuilder = new ConfigurationBuilder()
-                    .SetBasePath(Directory.GetCurrentDirectory())
-                    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+					.SetBasePath(Directory.GetCurrentDirectory())
+					.AddJsonFile("appsettings.json", false, true);
 
 var configuration = configBuilder.Build();
 
@@ -35,14 +34,15 @@ builder.RegisterType<CriteriaManager>().SingleInstance();
 builder.RegisterType<SmartAIManager>().SingleInstance();
 
 BitSet localeMask = null;
+
 builder.Register((c, p) =>
-{
-    var cli = new CliDB(c.Resolve<HotfixDatabase>(), c.Resolve<DB2Manager>());
-    localeMask = cli.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
-    return cli;
-}).SingleInstance();
+		{
+			var cli = new CliDB(c.Resolve<HotfixDatabase>(), c.Resolve<DB2Manager>());
+			localeMask = cli.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
+
+			return cli;
+		})
+		.SingleInstance();
 
 var container = builder.Build();
 container.Resolve<CliDB>();
-
-

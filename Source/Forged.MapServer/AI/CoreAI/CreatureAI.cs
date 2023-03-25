@@ -146,7 +146,7 @@ public class CreatureAI : UnitAI
 		// Face the unit (stealthed player) and set distracted state for 5 seconds
 		Me.
 			// Face the unit (stealthed player) and set distracted state for 5 seconds
-			MotionMaster.MoveDistract(5 * global::Time.InMilliseconds, Me.Location.GetAbsoluteAngle(who.Location));
+			MotionMaster.MoveDistract(5 * Time.InMilliseconds, Me.Location.GetAbsoluteAngle(who.Location));
 	}
 
 	// adapted from logic in Spell:EffectSummonType

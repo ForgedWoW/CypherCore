@@ -67,13 +67,12 @@ public class MMapManager : Singleton<MMapManager>
 
 		if (fileHeader.mmapVersion != MapConst.mmapVersion)
 		{
-			Log.Logger.Error(
-						"MMAP:loadMap: {0:D4}{1:D2}{2:D2}.mmtile was built with generator v{3}, expected v{4}",
-						mapId,
-						x,
-						y,
-						fileHeader.mmapVersion,
-						MapConst.mmapVersion);
+			Log.Logger.Error("MMAP:loadMap: {0:D4}{1:D2}{2:D2}.mmtile was built with generator v{3}, expected v{4}",
+							mapId,
+							x,
+							y,
+							fileHeader.mmapVersion,
+							MapConst.mmapVersion);
 
 			return false;
 		}
@@ -257,21 +256,22 @@ public class MMapManager : Singleton<MMapManager>
 		}
 
 		using BinaryReader reader = new(new FileStream(filename, FileMode.Open, FileAccess.Read), Encoding.UTF8);
-		Detour.dtNavMeshParams Params = new()
-        {
-            orig =
-            {
-                [0] = reader.ReadSingle(),
-                [1] = reader.ReadSingle(),
-                [2] = reader.ReadSingle()
-            },
-            tileWidth = reader.ReadSingle(),
-            tileHeight = reader.ReadSingle(),
-            maxTiles = reader.ReadInt32(),
-            maxPolys = reader.ReadInt32()
-        };
 
-        Detour.dtNavMesh mesh = new();
+		Detour.dtNavMeshParams Params = new()
+		{
+			orig =
+			{
+				[0] = reader.ReadSingle(),
+				[1] = reader.ReadSingle(),
+				[2] = reader.ReadSingle()
+			},
+			tileWidth = reader.ReadSingle(),
+			tileHeight = reader.ReadSingle(),
+			maxTiles = reader.ReadInt32(),
+			maxPolys = reader.ReadInt32()
+		};
+
+		Detour.dtNavMesh mesh = new();
 
 		if (Detour.dtStatusFailed(mesh.init(Params)))
 		{

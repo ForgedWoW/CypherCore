@@ -77,11 +77,11 @@ public static class IOHelpers
 		return !AreObjectsEqual(obj1, obj2);
 	}
 
-    /// <summary>
-    ///  Compares the values of 2 objects
-    /// </summary>
-    /// <returns> if types are equal and have the same property values </returns>
-    public static bool AreObjectsEqual(object obj1, object obj2)
+	/// <summary>
+	///  Compares the values of 2 objects
+	/// </summary>
+	/// <returns> if types are equal and have the same property values </returns>
+	public static bool AreObjectsEqual(object obj1, object obj2)
 	{
 		if (obj1 == null || obj2 == null)
 			return obj1 == obj2;

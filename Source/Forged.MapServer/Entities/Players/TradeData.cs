@@ -118,12 +118,12 @@ public class TradeData
 		if (!_player.HasEnoughMoney(money))
 		{
 			TradeStatusPkt info = new()
-            {
-                Status = TradeStatus.Failed,
-                BagResult = InventoryResult.NotEnoughMoney
-            };
+			{
+				Status = TradeStatus.Failed,
+				BagResult = InventoryResult.NotEnoughMoney
+			};
 
-            _player.Session.SendTradeStatus(info);
+			_player.Session.SendTradeStatus(info);
 
 			return;
 		}
@@ -145,11 +145,11 @@ public class TradeData
 		if (!state)
 		{
 			TradeStatusPkt info = new()
-            {
-                Status = TradeStatus.Unaccepted
-            };
+			{
+				Status = TradeStatus.Unaccepted
+			};
 
-            if (crosssend)
+			if (crosssend)
 				_trader.Session.SendTradeStatus(info);
 			else
 				_player.Session.SendTradeStatus(info);

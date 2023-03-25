@@ -15,12 +15,12 @@ public class QuestMenu
 			return;
 
 		QuestMenuItem questMenuItem = new()
-        {
-            QuestId = QuestId,
-            QuestIcon = Icon
-        };
+		{
+			QuestId = QuestId,
+			QuestIcon = Icon
+		};
 
-        _questMenuItems.Add(questMenuItem);
+		_questMenuItems.Add(questMenuItem);
 	}
 
 	public void ClearMenu()

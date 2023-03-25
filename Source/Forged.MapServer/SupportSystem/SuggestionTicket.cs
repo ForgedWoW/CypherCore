@@ -92,7 +92,7 @@ public class SuggestionTicket : Ticket
 		StringBuilder ss = new();
 		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));
 		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistname, PlayerName));
-		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, global::Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText, false)));
+		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistagecreate, Time.secsToTimeString(curTime - CreateTimeProtected, TimeFormat.ShortText, false)));
 
 		if (!AssignedToProtected.IsEmpty)
 			ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistassignedto, AssignedToName));

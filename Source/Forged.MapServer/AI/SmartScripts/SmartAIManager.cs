@@ -22,37 +22,37 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartAIManager
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CliDB _cliDB;
-    private readonly IConfiguration _configuration;
-    private readonly GameEventManager _eventManager;
-    private readonly GameObjectManager _gameObjectManager;
-    private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
-    private readonly SpellManager _spellManager;
-    private readonly DB2Manager _db2Manager;
-    private readonly ConversationDataStorage _conversationDataStorage;
-    private readonly CreatureTextManager _creatureTextManager;
-    readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
+	private readonly WorldDatabase _worldDatabase;
+	private readonly CliDB _cliDB;
+	private readonly IConfiguration _configuration;
+	private readonly GameEventManager _eventManager;
+	private readonly GameObjectManager _gameObjectManager;
+	private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
+	private readonly SpellManager _spellManager;
+	private readonly DB2Manager _db2Manager;
+	private readonly ConversationDataStorage _conversationDataStorage;
+	private readonly CreatureTextManager _creatureTextManager;
+	readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
 	readonly Dictionary<uint, WaypointPath> _waypointStore = new();
 
-	public SmartAIManager(WorldDatabase worldDatabase, CliDB cliDB, IConfiguration configuration, GameEventManager eventManager, 
-                          GameObjectManager gameObjectManager, AreaTriggerDataStorage areaTriggerDataStorage, SpellManager spellManager,
-                          DB2Manager db2Manager, ConversationDataStorage conversationDataStorage, CreatureTextManager creatureTextManager)
-    {
-        _worldDatabase = worldDatabase;
-        _cliDB = cliDB;
-        _configuration = configuration;
-        _eventManager = eventManager;
-        _gameObjectManager = gameObjectManager;
-        _areaTriggerDataStorage = areaTriggerDataStorage;
-        _spellManager = spellManager;
-        _db2Manager = db2Manager;
-        _conversationDataStorage = conversationDataStorage;
-        _creatureTextManager = creatureTextManager;
+	public SmartAIManager(WorldDatabase worldDatabase, CliDB cliDB, IConfiguration configuration, GameEventManager eventManager,
+						GameObjectManager gameObjectManager, AreaTriggerDataStorage areaTriggerDataStorage, SpellManager spellManager,
+						DB2Manager db2Manager, ConversationDataStorage conversationDataStorage, CreatureTextManager creatureTextManager)
+	{
+		_worldDatabase = worldDatabase;
+		_cliDB = cliDB;
+		_configuration = configuration;
+		_eventManager = eventManager;
+		_gameObjectManager = gameObjectManager;
+		_areaTriggerDataStorage = areaTriggerDataStorage;
+		_spellManager = spellManager;
+		_db2Manager = db2Manager;
+		_conversationDataStorage = conversationDataStorage;
+		_creatureTextManager = creatureTextManager;
 
-        for (byte i = 0; i < (int)SmartScriptType.Max; i++)
+		for (byte i = 0; i < (int)SmartScriptType.Max; i++)
 			_eventMap[i] = new MultiMap<int, SmartScriptHolder>();
-    }
+	}
 
 	public void LoadFromDB()
 	{
@@ -76,11 +76,11 @@ public class SmartAIManager
 		do
 		{
 			SmartScriptHolder temp = new()
-            {
-                EntryOrGuid = result.Read<int>(0)
-            };
+			{
+				EntryOrGuid = result.Read<int>(0)
+			};
 
-            if (temp.EntryOrGuid == 0)
+			if (temp.EntryOrGuid == 0)
 			{
 				if (_configuration.GetDefaultValue("load.autoclean", false))
 					_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
@@ -403,20 +403,18 @@ public class SmartAIManager
 				{
 					if (e.Link != 0)
 						if (FindLinkedEvent(list, e.Link) == null)
-							Log.Logger.Error(
-										"SmartAIMgr.LoadFromDB: Entry {0} SourceType {1}, Event {2}, Link Event {3} not found or invalid.",
-										e.EntryOrGuid,
-										e.GetScriptType(),
-										e.EventId,
-										e.Link);
+							Log.Logger.Error("SmartAIMgr.LoadFromDB: Entry {0} SourceType {1}, Event {2}, Link Event {3} not found or invalid.",
+											e.EntryOrGuid,
+											e.GetScriptType(),
+											e.EventId,
+											e.Link);
 
 					if (e.GetEventType() == SmartEvents.Link)
 						if (FindLinkedSourceEvent(list, e.EventId) == null)
-							Log.Logger.Error(
-										"SmartAIMgr.LoadFromDB: Entry {0} SourceType {1}, Event {2}, Link Source Event not found or invalid. Event will never trigger.",
-										e.EntryOrGuid,
-										e.GetScriptType(),
-										e.EventId);
+							Log.Logger.Error("SmartAIMgr.LoadFromDB: Entry {0} SourceType {1}, Event {2}, Link Source Event not found or invalid. Event will never trigger.",
+											e.EntryOrGuid,
+											e.GetScriptType(),
+											e.EventId);
 				}
 			}
 		}
@@ -700,7 +698,8 @@ public class SmartAIManager
 				return false;
 		}
 	}
-    bool IsTargetValid(SmartScriptHolder e)
+
+	bool IsTargetValid(SmartScriptHolder e)
 	{
 		if (Math.Abs(e.Target.o) > 2 * MathFunctions.PI)
 			Log.Logger.Error($"SmartAIMgr: {e} has abs(`target.o` = {e.Target.o}) > 2*PI (orientation is expressed in radians)");
@@ -851,7 +850,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
+
+	bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.SpellVisualKitStorage.ContainsKey(entry))
 		{
@@ -2230,10 +2230,10 @@ public class SmartAIManager
 				}
 				else if (e.Action.setInstanceData is { type: 1, data: > (int)EncounterState.ToBeDecided })
 				{
-                    Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.data} (value range 0-5), skipped.");
+					Log.Logger.Error($"SmartAIMgr: {e} uses invalid boss state {e.Action.setInstanceData.data} (value range 0-5), skipped.");
 
-                    return false;
-                }
+					return false;
+				}
 
 				break;
 			}
@@ -2688,7 +2688,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsAnimKitValid(SmartScriptHolder e, uint entry)
+
+	bool IsAnimKitValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.AnimKitStorage.ContainsKey(entry))
 		{
@@ -2699,7 +2700,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsTextValid(SmartScriptHolder e, uint id)
+
+	bool IsTextValid(SmartScriptHolder e, uint id)
 	{
 		if (e.GetScriptType() != SmartScriptType.Creature)
 			return true;
@@ -2749,7 +2751,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsCreatureValid(SmartScriptHolder e, uint entry)
+
+	bool IsCreatureValid(SmartScriptHolder e, uint entry)
 	{
 		if (_gameObjectManager.GetCreatureTemplate(entry) == null)
 		{
@@ -2760,7 +2763,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsGameObjectValid(SmartScriptHolder e, uint entry)
+
+	bool IsGameObjectValid(SmartScriptHolder e, uint entry)
 	{
 		if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
 		{
@@ -2771,7 +2775,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsQuestValid(SmartScriptHolder e, uint entry)
+
+	bool IsQuestValid(SmartScriptHolder e, uint entry)
 	{
 		if (_gameObjectManager.GetQuestTemplate(entry) == null)
 		{
@@ -2782,7 +2787,8 @@ public class SmartAIManager
 
 		return true;
 	}
-    bool IsSpellValid(SmartScriptHolder e, uint entry)
+
+	bool IsSpellValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_spellManager.HasSpellInfo(entry))
 		{

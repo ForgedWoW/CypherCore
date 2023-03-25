@@ -46,11 +46,10 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		if (scenarioData == null)
 		{
-			Log.Logger.Error(
-						"Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
-						scenarioID,
-						map.Id,
-						map.DifficultyID);
+			Log.Logger.Error("Table `scenarios` contained data linking scenario (Id: {0}) to map (Id: {1}), difficulty (Id: {2}) but no scenario data was found related to that scenario Id.",
+							scenarioID,
+							map.Id,
+							map.DifficultyID);
 
 			return null;
 		}
@@ -62,7 +61,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 	{
 		_scenarioDBData.Clear();
 
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
 
@@ -100,17 +99,17 @@ public class ScenarioManager : Singleton<ScenarioManager>
 				scenarioHordeId = scenarioAllianceId;
 
 			ScenarioDBData data = new()
-            {
-                MapID = mapId,
-                DifficultyID = difficulty,
-                Scenario_A = scenarioAllianceId,
-                Scenario_H = scenarioHordeId
-            };
+			{
+				MapID = mapId,
+				DifficultyID = difficulty,
+				Scenario_A = scenarioAllianceId,
+				Scenario_H = scenarioHordeId
+			};
 
-            _scenarioDBData[Tuple.Create(mapId, difficulty)] = data;
+			_scenarioDBData[Tuple.Create(mapId, difficulty)] = data;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} instance scenario entries in {1} ms", _scenarioDBData.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadDB2Data()
@@ -141,18 +140,18 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		foreach (var scenario in CliDB.ScenarioStorage.Values)
 		{
 			ScenarioData data = new()
-            {
-                Entry = scenario,
-                Steps = scenarioSteps.LookupByKey(scenario.Id)
-            };
+			{
+				Entry = scenario,
+				Steps = scenarioSteps.LookupByKey(scenario.Id)
+			};
 
-            _scenarioData[scenario.Id] = data;
+			_scenarioData[scenario.Id] = data;
 		}
 	}
 
 	public void LoadScenarioPOI()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_scenarioPOIStore.Clear(); // need for reload case
 

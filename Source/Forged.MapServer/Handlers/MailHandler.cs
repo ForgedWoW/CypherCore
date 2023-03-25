@@ -91,17 +91,16 @@ public partial class WorldSession
 
 		if (receiverGuid.IsEmpty)
 		{
-			Log.Logger.Information(
-						"Player {0} is sending mail to {1} (GUID: not existed!) with subject {2}" +
-						"and body {3} includes {4} items, {5} copper and {6} COD copper with StationeryID = {7}",
-						GetPlayerInfo(),
-						sendMail.Info.Target,
-						sendMail.Info.Subject,
-						sendMail.Info.Body,
-						sendMail.Info.Attachments.Count,
-						sendMail.Info.SendMoney,
-						sendMail.Info.Cod,
-						sendMail.Info.StationeryID);
+			Log.Logger.Information("Player {0} is sending mail to {1} (GUID: not existed!) with subject {2}" +
+									"and body {3} includes {4} items, {5} copper and {6} COD copper with StationeryID = {7}",
+									GetPlayerInfo(),
+									sendMail.Info.Target,
+									sendMail.Info.Subject,
+									sendMail.Info.Body,
+									sendMail.Info.Attachments.Count,
+									sendMail.Info.SendMoney,
+									sendMail.Info.Cod,
+									sendMail.Info.StationeryID);
 
 			player.SendMailResult(0, MailResponseType.Send, MailResponseResult.RecipientNotFound);
 
@@ -112,12 +111,11 @@ public partial class WorldSession
 		{
 			Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
 
-			Log.Logger.Warning(
-						"Player {0} attempted to send mail to {1} ({2}) with negative money value (SendMoney: {3})",
-						GetPlayerInfo(),
-						sendMail.Info.Target,
-						receiverGuid.ToString(),
-						sendMail.Info.SendMoney);
+			Log.Logger.Warning("Player {0} attempted to send mail to {1} ({2}) with negative money value (SendMoney: {3})",
+								GetPlayerInfo(),
+								sendMail.Info.Target,
+								receiverGuid.ToString(),
+								sendMail.Info.SendMoney);
 
 			return;
 		}
@@ -126,28 +124,26 @@ public partial class WorldSession
 		{
 			Player.SendMailResult(0, MailResponseType.Send, MailResponseResult.InternalError);
 
-			Log.Logger.Warning(
-						"Player {0} attempted to send mail to {1} ({2}) with negative COD value (Cod: {3})",
-						GetPlayerInfo(),
-						sendMail.Info.Target,
-						receiverGuid.ToString(),
-						sendMail.Info.Cod);
+			Log.Logger.Warning("Player {0} attempted to send mail to {1} ({2}) with negative COD value (Cod: {3})",
+								GetPlayerInfo(),
+								sendMail.Info.Target,
+								receiverGuid.ToString(),
+								sendMail.Info.Cod);
 
 			return;
 		}
 
-		Log.Logger.Information(
-					"Player {0} is sending mail to {1} ({2}) with subject {3} and body {4}" +
-					"includes {5} items, {6} copper and {7} COD copper with StationeryID = {8}",
-					GetPlayerInfo(),
-					sendMail.Info.Target,
-					receiverGuid.ToString(),
-					sendMail.Info.Subject,
-					sendMail.Info.Body,
-					sendMail.Info.Attachments.Count,
-					sendMail.Info.SendMoney,
-					sendMail.Info.Cod,
-					sendMail.Info.StationeryID);
+		Log.Logger.Information("Player {0} is sending mail to {1} ({2}) with subject {3} and body {4}" +
+								"includes {5} items, {6} copper and {7} COD copper with StationeryID = {8}",
+								GetPlayerInfo(),
+								sendMail.Info.Target,
+								receiverGuid.ToString(),
+								sendMail.Info.Subject,
+								sendMail.Info.Body,
+								sendMail.Info.Attachments.Count,
+								sendMail.Info.SendMoney,
+								sendMail.Info.Cod,
+								sendMail.Info.StationeryID);
 
 		if (player.GUID == receiverGuid)
 		{
@@ -771,7 +767,7 @@ public partial class WorldSession
 		}
 		else
 		{
-			result.NextMailTime = -global::Time.Day;
+			result.NextMailTime = -Time.Day;
 		}
 
 		SendPacket(result);

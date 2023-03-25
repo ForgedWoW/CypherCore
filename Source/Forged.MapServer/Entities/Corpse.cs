@@ -81,12 +81,11 @@ public class Corpse : WorldObject
 
 		if (!Location.IsPositionValid)
 		{
-			Log.Logger.Error(
-						"Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
-						guidlow,
-						owner.GetName(),
-						owner.Location.X,
-						owner.Location.Y);
+			Log.Logger.Error("Corpse (guidlow {0}, owner {1}) not created. Suggested coordinates isn't valid (X: {2} Y: {3})",
+							guidlow,
+							owner.GetName(),
+							owner.Location.X,
+							owner.Location.Y);
 
 			return false;
 		}
@@ -223,13 +222,12 @@ public class Corpse : WorldObject
 
 		if (!Location.IsPositionValid)
 		{
-			Log.Logger.Error(
-						"Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
-						GUID.ToString(),
-						OwnerGUID.ToString(),
-						posX,
-						posY,
-						posZ);
+			Log.Logger.Error("Corpse ({0}, owner: {1}) is not created, given coordinates are not valid (X: {2}, Y: {3}, Z: {4})",
+							GUID.ToString(),
+							OwnerGUID.ToString(),
+							posX,
+							posY,
+							posZ);
 
 			return false;
 		}
@@ -246,9 +244,9 @@ public class Corpse : WorldObject
 			return true;
 
 		if (_type == CorpseType.Bones)
-			return _time < t - 60 * global::Time.Minute;
+			return _time < t - 60 * Time.Minute;
 		else
-			return _time < t - 3 * global::Time.Day;
+			return _time < t - 3 * Time.Day;
 	}
 
 	public override void BuildValuesCreate(WorldPacket data, Player target)
@@ -369,12 +367,12 @@ public class Corpse : WorldObject
 		foreach (var customization in customizations)
 		{
 			var newChoice = new ChrCustomizationChoice
-            {
-                ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
-                ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
-            };
+			{
+				ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
+				ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
+			};
 
-            AddDynamicUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.Customizations), newChoice);
+			AddDynamicUpdateFieldValue(Values.ModifyValue(CorpseData).ModifyValue(CorpseData.Customizations), newChoice);
 		}
 	}
 

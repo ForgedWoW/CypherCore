@@ -382,6 +382,7 @@ public class TempSummon : Creature
 		if (IsPet)
 		{
 			AsPet.Remove(PetSaveMode.NotInSlot);
+
 			return;
 		}
 

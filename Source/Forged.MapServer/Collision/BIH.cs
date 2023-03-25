@@ -354,12 +354,12 @@ public class BIH
 
 		// seed bbox
 		AABound gridBox = new()
-        {
-            Lo = _bounds.Lo,
-            Hi = _bounds.Hi
-        };
+		{
+			Lo = _bounds.Lo,
+			Hi = _bounds.Hi
+		};
 
-        var nodeBox = gridBox;
+		var nodeBox = gridBox;
 		// seed subdivide function
 		Subdivide(0, (int)(dat.numPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
 	}
@@ -621,21 +621,21 @@ public class BIH
 	uint FloatToRawIntBits(float f)
 	{
 		FloatToIntConverter converter = new()
-        {
-            FloatValue = f
-        };
+		{
+			FloatValue = f
+		};
 
-        return converter.IntValue;
+		return converter.IntValue;
 	}
 
 	float IntBitsToFloat(uint i)
 	{
 		FloatToIntConverter converter = new()
-        {
-            IntValue = i
-        };
+		{
+			IntValue = i
+		};
 
-        return converter.FloatValue;
+		return converter.FloatValue;
 	}
 
 	struct buildData

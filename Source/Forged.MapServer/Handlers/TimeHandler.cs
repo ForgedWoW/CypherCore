@@ -14,10 +14,10 @@ public partial class WorldSession
 	void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
 	{
 		ServerTimeOffset response = new()
-        {
-            Time = GameTime.GetGameTime()
-        };
+		{
+			Time = GameTime.GetGameTime()
+		};
 
-        SendPacket(response);
+		SendPacket(response);
 	}
 }

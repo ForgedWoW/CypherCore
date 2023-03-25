@@ -90,7 +90,7 @@ class BattleFieldCommands
 		if (bf == null)
 			return false;
 
-		bf.SetTimer(time * global::Time.InMilliseconds);
+		bf.SetTimer(time * Time.InMilliseconds);
 
 		if (battleId == 1)
 			handler.SendGlobalGMSysMessage("Wintergrasp (Command timer used)");

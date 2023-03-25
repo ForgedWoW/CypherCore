@@ -396,13 +396,9 @@ public class CombatManager
 		lock (_pveRefs)
 		{
 			if (refe.IsPvP)
-			{
 				_pvpRefs[guid] = (PvPCombatReference)refe;
-			}
 			else
-			{
 				_pveRefs[guid] = refe;
-			}
 		}
 	}
 }

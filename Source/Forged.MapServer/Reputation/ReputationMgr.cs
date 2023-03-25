@@ -183,11 +183,11 @@ public class ReputationMgr
 	public void SendState(FactionState faction)
 	{
 		SetFactionStanding setFactionStanding = new()
-        {
-            BonusFromAchievementSystem = 0.0f
-        };
+		{
+			BonusFromAchievementSystem = 0.0f
+		};
 
-        var standing = faction.VisualStandingIncrease != 0 ? faction.VisualStandingIncrease : faction.Standing;
+		var standing = faction.VisualStandingIncrease != 0 ? faction.VisualStandingIncrease : faction.Standing;
 
 		if (faction != null)
 			setFactionStanding.Faction.Add(new FactionStandingData((int)faction.ReputationListID, standing));
@@ -232,11 +232,11 @@ public class ReputationMgr
 
 		//make faction visible / not visible in reputation list at client
 		SetFactionVisible packet = new(visible)
-        {
-            FactionIndex = faction.ReputationListID
-        };
+		{
+			FactionIndex = faction.ReputationListID
+		};
 
-        _player.SendPacket(packet);
+		_player.SendPacket(packet);
 	}
 
 	public bool ModifyReputation(FactionRecord factionEntry, int standing, bool spillOverOnly = false, bool noSpillover = false)
@@ -819,17 +819,17 @@ public class ReputationMgr
 			if (factionEntry.CanHaveReputation())
 			{
 				FactionState newFaction = new()
-                {
-                    Id = factionEntry.Id,
-                    ReputationListID = (uint)factionEntry.ReputationIndex,
-                    Standing = 0,
-                    VisualStandingIncrease = 0,
-                    Flags = GetDefaultStateFlags(factionEntry),
-                    needSend = true,
-                    needSave = true
-                };
+				{
+					Id = factionEntry.Id,
+					ReputationListID = (uint)factionEntry.ReputationIndex,
+					Standing = 0,
+					VisualStandingIncrease = 0,
+					Flags = GetDefaultStateFlags(factionEntry),
+					needSend = true,
+					needSave = true
+				};
 
-                if (newFaction.Flags.HasFlag(ReputationFlags.Visible))
+				if (newFaction.Flags.HasFlag(ReputationFlags.Visible))
 					++_visibleFactionCount;
 
 				if (factionEntry.FriendshipRepID == 0)

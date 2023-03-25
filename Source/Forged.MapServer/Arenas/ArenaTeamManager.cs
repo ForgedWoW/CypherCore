@@ -65,7 +65,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 
 	public void LoadArenaTeams()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Clean out the trash before loading anything
 		DB.Characters.DirectExecute("DELETE FROM arena_team_member WHERE arenaTeamId NOT IN (SELECT arenaTeamId FROM arena_team)"); // One-time query
@@ -107,7 +107,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SetNextArenaTeamId(uint Id)

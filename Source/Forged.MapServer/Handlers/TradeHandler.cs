@@ -30,42 +30,42 @@ public partial class WorldSession
 		var view_trade = trader_data ? Player.GetTradeData().GetTraderData() : Player.GetTradeData();
 
 		TradeUpdated tradeUpdated = new()
-        {
-            WhichPlayer = (byte)(trader_data ? 1 : 0),
-            ClientStateIndex = view_trade.GetClientStateIndex(),
-            CurrentStateIndex = view_trade.GetServerStateIndex(),
-            Gold = view_trade.GetMoney(),
-            ProposedEnchantment = (int)view_trade.GetSpell()
-        };
+		{
+			WhichPlayer = (byte)(trader_data ? 1 : 0),
+			ClientStateIndex = view_trade.GetClientStateIndex(),
+			CurrentStateIndex = view_trade.GetServerStateIndex(),
+			Gold = view_trade.GetMoney(),
+			ProposedEnchantment = (int)view_trade.GetSpell()
+		};
 
-        for (byte i = 0; i < (byte)TradeSlots.Count; ++i)
+		for (byte i = 0; i < (byte)TradeSlots.Count; ++i)
 		{
 			var item = view_trade.GetItem((TradeSlots)i);
 
 			if (item)
 			{
 				TradeUpdated.TradeItem tradeItem = new()
-                {
-                    Slot = i,
-                    Item = new ItemInstance(item),
-                    StackCount = (int)item.Count,
-                    GiftCreator = item.GiftCreator
-                };
+				{
+					Slot = i,
+					Item = new ItemInstance(item),
+					StackCount = (int)item.Count,
+					GiftCreator = item.GiftCreator
+				};
 
-                if (!item.IsWrapped)
+				if (!item.IsWrapped)
 				{
 					TradeUpdated.UnwrappedTradeItem unwrappedItem = new()
-                    {
-                        EnchantID = (int)item.GetEnchantmentId(EnchantmentSlot.Perm),
-                        OnUseEnchantmentID = (int)item.GetEnchantmentId(EnchantmentSlot.Use),
-                        Creator = item.Creator,
-                        Charges = item.GetSpellCharges(),
-                        Lock = item.Template.LockID != 0 && !item.HasItemFlag(ItemFieldFlags.Unlocked),
-                        MaxDurability = item.ItemData.MaxDurability,
-                        Durability = item.ItemData.Durability
-                    };
+					{
+						EnchantID = (int)item.GetEnchantmentId(EnchantmentSlot.Perm),
+						OnUseEnchantmentID = (int)item.GetEnchantmentId(EnchantmentSlot.Use),
+						Creator = item.Creator,
+						Charges = item.GetSpellCharges(),
+						Lock = item.Template.LockID != 0 && !item.HasItemFlag(ItemFieldFlags.Unlocked),
+						MaxDurability = item.ItemData.MaxDurability,
+						Durability = item.ItemData.Durability
+					};
 
-                    tradeItem.Unwrapped = unwrappedItem;
+					tradeItem.Unwrapped = unwrappedItem;
 
 					byte g = 0;
 
@@ -74,12 +74,12 @@ public partial class WorldSession
 						if (gemData.ItemId != 0)
 						{
 							ItemGemData gem = new()
-                            {
-                                Slot = g,
-                                Item = new ItemInstance(gemData)
-                            };
+							{
+								Slot = g,
+								Item = new ItemInstance(gemData)
+							};
 
-                            tradeItem.Unwrapped.Gems.Add(gem);
+							tradeItem.Unwrapped.Gems.Add(gem);
 						}
 
 						++g;
@@ -99,11 +99,11 @@ public partial class WorldSession
 			return;
 
 		TradeStatusPkt info = new()
-        {
-            Status = TradeStatus.Cancelled
-        };
+		{
+			Status = TradeStatus.Cancelled
+		};
 
-        SendTradeStatus(info);
+		SendTradeStatus(info);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.IgnoreTrade)]

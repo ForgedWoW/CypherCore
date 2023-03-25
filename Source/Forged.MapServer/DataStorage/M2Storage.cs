@@ -19,7 +19,7 @@ public class M2Storage
 		FlyByCameraStorage.Clear();
 		Log.Logger.Information("Loading Cinematic Camera files");
 
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		foreach (var cameraEntry in CliDB.CinematicCameraStorage.Values)
 		{
@@ -59,7 +59,7 @@ public class M2Storage
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static List<FlyByCamera> GetFlyByCameras(uint cameraId)
@@ -122,12 +122,12 @@ public class M2Storage
 
 				// Add to vector
 				FlyByCamera thisCam = new()
-                {
-                    timeStamp = targTimestamps[i],
-                    locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0.0f)
-                };
+				{
+					timeStamp = targTimestamps[i],
+					locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0.0f)
+				};
 
-                targetcam.Add(thisCam);
+				targetcam.Add(thisCam);
 			}
 		}
 
@@ -158,12 +158,12 @@ public class M2Storage
 
 				// Add to vector
 				FlyByCamera thisCam = new()
-                {
-                    timeStamp = posTimestamps[i],
-                    locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0)
-                };
+				{
+					timeStamp = posTimestamps[i],
+					locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0)
+				};
 
-                if (targetcam.Count > 0)
+				if (targetcam.Count > 0)
 				{
 					// Find the target camera before and after this camera
 					// Pre-load first item

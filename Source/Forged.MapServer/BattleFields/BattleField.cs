@@ -86,7 +86,7 @@ public class BattleField : ZoneScript
 		m_uiKickDontAcceptTimer = 1000;
 		m_uiKickAfkPlayersTimer = 1000;
 
-		m_LastResurectTimer = 30 * global::Time.InMilliseconds;
+		m_LastResurectTimer = 30 * Time.InMilliseconds;
 
 		m_Map = map;
 		m_MapId = map.Id;
@@ -527,12 +527,12 @@ public class BattleField : ZoneScript
 	public void SendAreaSpiritHealerQuery(Player player, ObjectGuid guid)
 	{
 		AreaSpiritHealerTime areaSpiritHealerTime = new()
-        {
-            HealerGuid = guid,
-            TimeLeft = m_LastResurectTimer // resurrect every 30 seconds
-        };
+		{
+			HealerGuid = guid,
+			TimeLeft = m_LastResurectTimer // resurrect every 30 seconds
+		};
 
-        player.SendPacket(areaSpiritHealerTime);
+		player.SendPacket(areaSpiritHealerTime);
 	}
 
 	public Creature SpawnCreature(uint entry, Position pos)

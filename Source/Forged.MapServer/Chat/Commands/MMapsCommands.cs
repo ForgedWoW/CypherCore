@@ -261,7 +261,7 @@ class MMapsCommands
 			handler.SendSysMessage("Found {0} Creatures.", creatureList.Count);
 
 			uint paths = 0;
-			var uStartTime = global::Time.MSTime;
+			var uStartTime = Time.MSTime;
 
 			foreach (var creature in creatureList)
 			{
@@ -270,7 +270,7 @@ class MMapsCommands
 				++paths;
 			}
 
-			var uPathLoadTime = global::Time.GetMSTimeDiffToNow(uStartTime);
+			var uPathLoadTime = Time.GetMSTimeDiffToNow(uStartTime);
 			handler.SendSysMessage("Generated {0} paths in {1} ms", paths, uPathLoadTime);
 		}
 		else

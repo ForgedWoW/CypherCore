@@ -17,7 +17,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 	public void LoadPetitions()
 	{
-		var oldMsTime = global::Time.MSTime;
+		var oldMsTime = Time.MSTime;
 		_petitionStorage.Clear();
 
 		var result = DB.Characters.Query("SELECT petitionguid, ownerguid, name FROM petition");
@@ -42,7 +42,7 @@ public class PetitionManager : Singleton<PetitionManager>
 
 	public void LoadSignatures()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
 
@@ -72,13 +72,13 @@ public class PetitionManager : Singleton<PetitionManager>
 	public void AddPetition(ObjectGuid petitionGuid, ObjectGuid ownerGuid, string name, bool isLoading)
 	{
 		Petition p = new()
-        {
-            PetitionGuid = petitionGuid,
-            OwnerGuid = ownerGuid,
-            PetitionName = name
-        };
+		{
+			PetitionGuid = petitionGuid,
+			OwnerGuid = ownerGuid,
+			PetitionName = name
+		};
 
-        p.Signatures.Clear();
+		p.Signatures.Clear();
 
 		_petitionStorage[petitionGuid] = p;
 

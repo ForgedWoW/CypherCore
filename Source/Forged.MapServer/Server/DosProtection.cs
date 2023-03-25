@@ -43,14 +43,13 @@ public class DosProtection
 		if (++packetCounter.AmountCounter <= maxPacketCounterAllowed)
 			return true;
 
-		Log.Logger.Warning(
-					"AntiDOS: Account {0}, IP: {1}, Ping: {2}, Character: {3}, flooding packet (opc: {4} (0x{4}), count: {5})",
-					Session.AccountId,
-					Session.RemoteAddress,
-					Session.Latency,
-					Session.PlayerName,
-					packet.GetOpcode(),
-					packetCounter.AmountCounter);
+		Log.Logger.Warning("AntiDOS: Account {0}, IP: {1}, Ping: {2}, Character: {3}, flooding packet (opc: {4} (0x{4}), count: {5})",
+							Session.AccountId,
+							Session.RemoteAddress,
+							Session.Latency,
+							Session.PlayerName,
+							packet.GetOpcode(),
+							packetCounter.AmountCounter);
 
 		switch (_policy)
 		{

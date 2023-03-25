@@ -437,20 +437,20 @@ public class Quest
 	public void LoadQuestObjective(SQLFields fields)
 	{
 		QuestObjective obj = new()
-        {
-            QuestID = fields.Read<uint>(0),
-            Id = fields.Read<uint>(1),
-            Type = (QuestObjectiveType)fields.Read<byte>(2),
-            StorageIndex = fields.Read<sbyte>(3),
-            ObjectID = fields.Read<int>(4),
-            Amount = fields.Read<int>(5),
-            Flags = (QuestObjectiveFlags)fields.Read<uint>(6),
-            Flags2 = fields.Read<uint>(7),
-            ProgressBarWeight = fields.Read<float>(8),
-            Description = fields.Read<string>(9)
-        };
+		{
+			QuestID = fields.Read<uint>(0),
+			Id = fields.Read<uint>(1),
+			Type = (QuestObjectiveType)fields.Read<byte>(2),
+			StorageIndex = fields.Read<sbyte>(3),
+			ObjectID = fields.Read<int>(4),
+			Amount = fields.Read<int>(5),
+			Flags = (QuestObjectiveFlags)fields.Read<uint>(6),
+			Flags2 = fields.Read<uint>(7),
+			ProgressBarWeight = fields.Read<float>(8),
+			Description = fields.Read<string>(9)
+		};
 
-        Objectives.Add(obj);
+		Objectives.Add(obj);
 		_usedQuestObjectiveTypes[(int)obj.Type] = true;
 	}
 
@@ -655,40 +655,40 @@ public class Quest
 	public QueryQuestInfoResponse BuildQueryData(Locale loc, Player player)
 	{
 		QueryQuestInfoResponse response = new()
-        {
-            Allow = true,
-            QuestID = Id,
-            Info =
-            {
-                LogTitle = LogTitle,
-                LogDescription = LogDescription,
-                QuestDescription = QuestDescription,
-                AreaDescription = AreaDescription,
-                QuestCompletionLog = QuestCompletionLog,
-                PortraitGiverText = PortraitGiverText,
-                PortraitGiverName = PortraitGiverName,
-                PortraitTurnInText = PortraitTurnInText,
-                PortraitTurnInName = PortraitTurnInName,
-                ConditionalQuestDescription = ConditionalQuestDescription.Select(text =>
-                                                                         {
-                                                                             var content = text.Text[(int)Locale.enUS];
-                                                                             GameObjectManager.GetLocaleString(text.Text, loc, ref content);
+		{
+			Allow = true,
+			QuestID = Id,
+			Info =
+			{
+				LogTitle = LogTitle,
+				LogDescription = LogDescription,
+				QuestDescription = QuestDescription,
+				AreaDescription = AreaDescription,
+				QuestCompletionLog = QuestCompletionLog,
+				PortraitGiverText = PortraitGiverText,
+				PortraitGiverName = PortraitGiverName,
+				PortraitTurnInText = PortraitTurnInText,
+				PortraitTurnInName = PortraitTurnInName,
+				ConditionalQuestDescription = ConditionalQuestDescription.Select(text =>
+																		{
+																			var content = text.Text[(int)Locale.enUS];
+																			GameObjectManager.GetLocaleString(text.Text, loc, ref content);
 
-                                                                             return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
-                                                                         })
-                                                                         .ToList(),
-                ConditionalQuestCompletionLog = ConditionalQuestCompletionLog.Select(text =>
-                                                                             {
-                                                                                 var content = text.Text[(int)Locale.enUS];
-                                                                                 GameObjectManager.GetLocaleString(text.Text, loc, ref content);
+																			return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
+																		})
+																		.ToList(),
+				ConditionalQuestCompletionLog = ConditionalQuestCompletionLog.Select(text =>
+																			{
+																				var content = text.Text[(int)Locale.enUS];
+																				GameObjectManager.GetLocaleString(text.Text, loc, ref content);
 
-                                                                                 return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
-                                                                             })
-                                                                             .ToList()
-            }
-        };
+																				return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
+																			})
+																			.ToList()
+			}
+		};
 
-        if (loc != Locale.enUS)
+		if (loc != Locale.enUS)
 		{
 			var questTemplateLocale = Global.ObjectMgr.GetQuestLocale(Id);
 

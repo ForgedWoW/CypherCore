@@ -46,7 +46,7 @@ class ServerCommands
 		var queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
 		var maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
 		var maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
-		var uptime = global::Time.secsToTimeString(GameTime.GetUptime());
+		var uptime = Time.secsToTimeString(GameTime.GetUptime());
 		var updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
 
 		handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
@@ -56,7 +56,7 @@ class ServerCommands
 
 		// Can't use Global.WorldMgr.ShutdownMsg here in case of console command
 		if (Global.WorldMgr.IsShuttingDown)
-			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, global::Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
+			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
 
 		return true;
 	}
@@ -202,7 +202,7 @@ class ServerCommands
 		}
 		else
 		{
-			delay = (int)global::Time.TimeStringToSecs(delayStr);
+			delay = (int)Time.TimeStringToSecs(delayStr);
 
 			if (delay == 0)
 				return false;

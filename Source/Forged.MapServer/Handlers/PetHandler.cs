@@ -23,12 +23,11 @@ public partial class WorldSession
 
 		if (!pet)
 		{
-			Log.Logger.Debug(
-						"Critter {0} does not exist - player '{1}' ({2} / account: {3}) attempted to dismiss it (possibly lagged out)",
-						packet.CritterGUID.ToString(),
-						Player.GetName(),
-						Player.GUID.ToString(),
-						AccountId);
+			Log.Logger.Debug("Critter {0} does not exist - player '{1}' ({2} / account: {3}) attempted to dismiss it (possibly lagged out)",
+							packet.CritterGUID.ToString(),
+							Player.GetName(),
+							Player.GUID.ToString(),
+							AccountId);
 
 			return;
 		}
@@ -133,15 +132,14 @@ public partial class WorldSession
 
 		if (charmInfo == null)
 		{
-			Log.Logger.Error(
-						"WorldSession.HandlePetAction(petGuid: {0}, tagGuid: {1}, spellId: {2}, flag: {3}): object (GUID: {4} Entry: {5} TypeId: {6}) is considered pet-like but doesn't have a charminfo!",
-						guid1,
-						guid2,
-						spellid,
-						flag,
-						pet.GUID.ToString(),
-						pet.Entry,
-						pet.TypeId);
+			Log.Logger.Error("WorldSession.HandlePetAction(petGuid: {0}, tagGuid: {1}, spellId: {2}, flag: {3}): object (GUID: {4} Entry: {5} TypeId: {6}) is considered pet-like but doesn't have a charminfo!",
+							guid1,
+							guid2,
+							spellid,
+							flag,
+							pet.GUID.ToString(),
+							pet.Entry,
+							pet.TypeId);
 
 			return;
 		}
@@ -666,11 +664,10 @@ public partial class WorldSession
 
 		if (pet != Player.GetGuardianPet() && pet != Player.Charmed)
 		{
-			Log.Logger.Error(
-						"WorldSession.HandlePetSpellAutocast: {0} isn't pet of player {1} ({2}).",
-						packet.PetGUID.ToString(),
-						Player.GetName(),
-						Player.GUID.ToString());
+			Log.Logger.Error("WorldSession.HandlePetSpellAutocast: {0} isn't pet of player {1} ({2}).",
+							packet.PetGUID.ToString(),
+							Player.GetName(),
+							Player.GUID.ToString());
 
 			return;
 		}

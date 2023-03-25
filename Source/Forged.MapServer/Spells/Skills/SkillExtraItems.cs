@@ -13,7 +13,7 @@ public class SkillExtraItems
 	// loads the extra item creation info from DB
 	public static void LoadSkillExtraItemTable()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		SkillExtraItemStorage.Clear(); // need for reload
 
@@ -68,17 +68,17 @@ public class SkillExtraItems
 			}
 
 			SkillExtraItemEntry skillExtraItemEntry = new()
-            {
-                RequiredSpecialization = requiredSpecialization,
-                AdditionalCreateChance = additionalCreateChance,
-                AdditionalMaxNum = additionalMaxNum
-            };
+			{
+				RequiredSpecialization = requiredSpecialization,
+				AdditionalCreateChance = additionalCreateChance,
+				AdditionalMaxNum = additionalMaxNum
+			};
 
-            SkillExtraItemStorage[spellId] = skillExtraItemEntry;
+			SkillExtraItemStorage[spellId] = skillExtraItemEntry;
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)

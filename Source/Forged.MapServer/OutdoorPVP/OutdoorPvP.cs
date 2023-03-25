@@ -582,15 +582,15 @@ class DefenseMessageBuilder : MessageBuilder
 		var text = Global.OutdoorPvPMgr.GetDefenseMessage(_zoneId, _id, locale);
 
 		PacketSenderOwning<DefenseMessage> defenseMessage = new()
-        {
-            Data =
-            {
-                ZoneID = _zoneId,
-                MessageText = text
-            }
-        };
+		{
+			Data =
+			{
+				ZoneID = _zoneId,
+				MessageText = text
+			}
+		};
 
-        return defenseMessage;
+		return defenseMessage;
 	}
 }
 

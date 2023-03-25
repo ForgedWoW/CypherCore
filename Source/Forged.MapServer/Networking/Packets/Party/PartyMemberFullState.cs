@@ -99,13 +99,13 @@ class PartyMemberFullState : ServerPacket
 		foreach (var aurApp in player.VisibleAuras)
 		{
 			PartyMemberAuraStates aura = new()
-            {
-                SpellID = (int)aurApp.Base.Id,
-                ActiveFlags = aurApp.EffectMask.ToUMask(),
-                Flags = (byte)aurApp.Flags
-            };
+			{
+				SpellID = (int)aurApp.Base.Id,
+				ActiveFlags = aurApp.EffectMask.ToUMask(),
+				Flags = (byte)aurApp.Flags
+			};
 
-            if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
+			if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
 				foreach (var aurEff in aurApp.Base.AuraEffects)
 					if (aurApp.HasEffect(aurEff.Value.EffIndex))
 						aura.Points.Add((float)aurEff.Value.Amount);
@@ -122,24 +122,24 @@ class PartyMemberFullState : ServerPacket
 			var pet = player.CurrentPet;
 
 			MemberStats.PetStats = new PartyMemberPetStats
-            {
-                GUID = pet.GUID,
-                Name = pet.GetName(),
-                ModelId = (short)pet.DisplayId,
-                CurrentHealth = (int)pet.Health,
-                MaxHealth = (int)pet.MaxHealth
-            };
+			{
+				GUID = pet.GUID,
+				Name = pet.GetName(),
+				ModelId = (short)pet.DisplayId,
+				CurrentHealth = (int)pet.Health,
+				MaxHealth = (int)pet.MaxHealth
+			};
 
-            foreach (var aurApp in pet.VisibleAuras)
+			foreach (var aurApp in pet.VisibleAuras)
 			{
 				PartyMemberAuraStates aura = new()
-                {
-                    SpellID = (int)aurApp.Base.Id,
-                    ActiveFlags = aurApp.EffectMask.ToUMask(),
-                    Flags = (byte)aurApp.Flags
-                };
+				{
+					SpellID = (int)aurApp.Base.Id,
+					ActiveFlags = aurApp.EffectMask.ToUMask(),
+					Flags = (byte)aurApp.Flags
+				};
 
-                if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
+				if (aurApp.Flags.HasAnyFlag(AuraFlags.Scalable))
 					foreach (var aurEff in aurApp.Base.AuraEffects)
 						if (aurApp.HasEffect(aurEff.Value.EffIndex))
 							aura.Points.Add((float)aurEff.Value.Amount);

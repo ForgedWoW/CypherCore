@@ -194,11 +194,11 @@ public partial class Player
 		}
 
 		DailyQuestsReset dailyQuestsReset = new()
-        {
-            Count = ActivePlayerData.DailyQuestsCompleted.Size()
-        };
+		{
+			Count = ActivePlayerData.DailyQuestsCompleted.Size()
+		};
 
-        SendPacket(dailyQuestsReset);
+		SendPacket(dailyQuestsReset);
 
 		ClearDynamicUpdateFieldValues(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.DailyQuestsCompleted));
 
@@ -849,10 +849,10 @@ public partial class Player
 		{
 			// shared timed quest
 			if (questGiver != null && questGiver.IsTypeId(TypeId.Player))
-				limittime = questGiver.AsPlayer._mQuestStatus[questId].Timer / global::Time.InMilliseconds;
+				limittime = questGiver.AsPlayer._mQuestStatus[questId].Timer / Time.InMilliseconds;
 
 			AddTimedQuest(questId);
-			questStatusData.Timer = limittime * global::Time.InMilliseconds;
+			questStatusData.Timer = limittime * Time.InMilliseconds;
 			endTime = GameTime.GetGameTime() + limittime;
 		}
 		else
@@ -1626,11 +1626,10 @@ public partial class Player
 			{
 				SendCanTakeQuestResponse(QuestFailedReasons.AlreadyDone);
 
-				Log.Logger.Debug(
-							"Player.SatisfyQuestStatus: Sent QUEST_STATUS_REWARDED (QuestID: {0}) because player '{1}' ({2}) quest status is already REWARDED.",
-							qInfo.Id,
-							GetName(),
-							GUID.ToString());
+				Log.Logger.Debug("Player.SatisfyQuestStatus: Sent QUEST_STATUS_REWARDED (QuestID: {0}) because player '{1}' ({2}) quest status is already REWARDED.",
+								qInfo.Id,
+								GetName(),
+								GUID.ToString());
 			}
 
 			return false;
@@ -2753,12 +2752,11 @@ public partial class Player
 
 				break;
 			default:
-				Log.Logger.Error(
-							"Player.CanCompleteQuest: Player '{0}' ({1}) tried to complete a quest (ID: {2}) with an unknown objective type {3}",
-							GetName(),
-							GUID.ToString(),
-							objective.QuestID,
-							objective.Type);
+				Log.Logger.Error("Player.CanCompleteQuest: Player '{0}' ({1}) tried to complete a quest (ID: {2}) with an unknown objective type {3}",
+								GetName(),
+								GUID.ToString(),
+								objective.QuestID,
+								objective.Type);
 
 				return false;
 		}
@@ -2787,11 +2785,11 @@ public partial class Player
 		if (questId != 0)
 		{
 			QuestUpdateComplete data = new()
-            {
-                QuestID = questId
-            };
+			{
+				QuestID = questId
+			};
 
-            SendPacket(data);
+			SendPacket(data);
 		}
 	}
 
@@ -2813,15 +2811,15 @@ public partial class Player
 		}
 
 		QuestGiverQuestComplete packet = new()
-        {
-            QuestID = questId,
-            MoneyReward = moneyReward,
-            XPReward = xp,
-            SkillLineIDReward = quest.RewardSkillId,
-            NumSkillUpsReward = quest.RewardSkillPoints
-        };
+		{
+			QuestID = questId,
+			MoneyReward = moneyReward,
+			XPReward = xp,
+			SkillLineIDReward = quest.RewardSkillId,
+			NumSkillUpsReward = quest.RewardSkillPoints
+		};
 
-        if (questGiver)
+		if (questGiver)
 		{
 			if (questGiver.IsGossip)
 			{
@@ -2850,12 +2848,12 @@ public partial class Player
 		if (questId != 0)
 		{
 			QuestGiverQuestFailed questGiverQuestFailed = new()
-            {
-                QuestID = questId,
-                Reason = reason // failed reason (valid reasons: 4, 16, 50, 17, other values show default message)
-            };
+			{
+				QuestID = questId,
+				Reason = reason // failed reason (valid reasons: 4, 16, 50, 17, other values show default message)
+			};
 
-            SendPacket(questGiverQuestFailed);
+			SendPacket(questGiverQuestFailed);
 		}
 	}
 
@@ -2864,24 +2862,24 @@ public partial class Player
 		if (questId != 0)
 		{
 			QuestUpdateFailedTimer questUpdateFailedTimer = new()
-            {
-                QuestID = questId
-            };
+			{
+				QuestID = questId
+			};
 
-            SendPacket(questUpdateFailedTimer);
+			SendPacket(questUpdateFailedTimer);
 		}
 	}
 
 	public void SendCanTakeQuestResponse(QuestFailedReasons reason, bool sendErrorMessage = true, string reasonText = "")
 	{
 		QuestGiverInvalidQuest questGiverInvalidQuest = new()
-        {
-            Reason = reason,
-            SendErrorMessage = sendErrorMessage,
-            ReasonText = reasonText
-        };
+		{
+			Reason = reason,
+			SendErrorMessage = sendErrorMessage,
+			ReasonText = reasonText
+		};
 
-        SendPacket(questGiverInvalidQuest);
+		SendPacket(questGiverInvalidQuest);
 	}
 
 	public void SendQuestConfirmAccept(Quest.Quest quest, Player receiver)
@@ -2890,11 +2888,11 @@ public partial class Player
 			return;
 
 		QuestConfirmAcceptResponse packet = new()
-        {
-            QuestTitle = quest.LogTitle
-        };
+		{
+			QuestTitle = quest.LogTitle
+		};
 
-        var loc_idx = receiver.Session.SessionDbLocaleIndex;
+		var loc_idx = receiver.Session.SessionDbLocaleIndex;
 
 		if (loc_idx != Locale.enUS)
 		{
@@ -2915,12 +2913,12 @@ public partial class Player
 		if (player != null)
 		{
 			QuestPushResultResponse response = new()
-            {
-                SenderGUID = player.GUID,
-                Result = reason
-            };
+			{
+				SenderGUID = player.GUID,
+				Result = reason
+			};
 
-            if (quest != null)
+			if (quest != null)
 			{
 				response.QuestTitle = quest.LogTitle;
 				var localeConstant = Session.SessionDbLocaleIndex;
@@ -2941,24 +2939,24 @@ public partial class Player
 	public void SendQuestUpdateAddCreditSimple(QuestObjective obj)
 	{
 		QuestUpdateAddCreditSimple packet = new()
-        {
-            QuestID = obj.QuestID,
-            ObjectID = obj.ObjectID,
-            ObjectiveType = obj.Type
-        };
+		{
+			QuestID = obj.QuestID,
+			ObjectID = obj.ObjectID,
+			ObjectiveType = obj.Type
+		};
 
-        SendPacket(packet);
+		SendPacket(packet);
 	}
 
 	public void SendQuestUpdateAddPlayer(Quest.Quest quest, uint newCount)
 	{
 		QuestUpdateAddPvPCredit packet = new()
-        {
-            QuestID = quest.Id,
-            Count = (ushort)newCount
-        };
+		{
+			QuestID = quest.Id,
+			Count = (ushort)newCount
+		};
 
-        SendPacket(packet);
+		SendPacket(packet);
 	}
 
 	public void SendQuestGiverStatusMultiple()
@@ -3360,16 +3358,16 @@ public partial class Player
 	void SendQuestUpdateAddCredit(Quest.Quest quest, ObjectGuid guid, QuestObjective obj, uint count)
 	{
 		QuestUpdateAddCredit packet = new()
-        {
-            VictimGUID = guid,
-            QuestID = quest.Id,
-            ObjectID = obj.ObjectID,
-            Count = (ushort)count,
-            Required = (ushort)obj.Amount,
-            ObjectiveType = (byte)obj.Type
-        };
+		{
+			VictimGUID = guid,
+			QuestID = quest.Id,
+			ObjectID = obj.ObjectID,
+			Count = (ushort)count,
+			Required = (ushort)obj.Amount,
+			ObjectiveType = (byte)obj.Type
+		};
 
-        SendPacket(packet);
+		SendPacket(packet);
 	}
 
 	void SetDailyQuestStatus(uint quest_id)
@@ -3434,14 +3432,14 @@ public partial class Player
 	void SendDisplayToast(uint entry, DisplayToastType type, bool isBonusRoll, uint quantity, DisplayToastMethod method, uint questId, Item item = null)
 	{
 		DisplayToast displayToast = new()
-        {
-            Quantity = quantity,
-            DisplayToastMethod = method,
-            QuestID = questId,
-            Type = type
-        };
+		{
+			Quantity = quantity,
+			DisplayToastMethod = method,
+			QuestID = questId,
+			Type = type
+		};
 
-        switch (type)
+		switch (type)
 		{
 			case DisplayToastType.NewItem:
 			{

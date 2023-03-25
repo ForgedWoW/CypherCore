@@ -19,7 +19,7 @@ public class LootItemStorage : Singleton<LootItemStorage>
 
 	public void LoadStorageFromDB()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_lootItemStorage.Clear();
 		uint count = 0;
 
@@ -38,21 +38,21 @@ public class LootItemStorage : Singleton<LootItemStorage>
 				var storedContainer = _lootItemStorage[key];
 
 				LootItem lootItem = new()
-                {
-                    itemid = result.Read<uint>(1),
-                    count = result.Read<byte>(2),
-                    LootListId = result.Read<uint>(3),
-                    follow_loot_rules = result.Read<bool>(4),
-                    freeforall = result.Read<bool>(5),
-                    is_blocked = result.Read<bool>(6),
-                    is_counted = result.Read<bool>(7),
-                    is_underthreshold = result.Read<bool>(8),
-                    needs_quest = result.Read<bool>(9),
-                    randomBonusListId = result.Read<uint>(10),
-                    context = (ItemContext)result.Read<byte>(11)
-                };
+				{
+					itemid = result.Read<uint>(1),
+					count = result.Read<byte>(2),
+					LootListId = result.Read<uint>(3),
+					follow_loot_rules = result.Read<bool>(4),
+					freeforall = result.Read<bool>(5),
+					is_blocked = result.Read<bool>(6),
+					is_counted = result.Read<bool>(7),
+					is_underthreshold = result.Read<bool>(8),
+					needs_quest = result.Read<bool>(9),
+					randomBonusListId = result.Read<uint>(10),
+					context = (ItemContext)result.Read<byte>(11)
+				};
 
-                StringArray bonusLists = new(result.Read<string>(12), ' ');
+				StringArray bonusLists = new(result.Read<string>(12), ' ');
 
 				if (bonusLists != null && !bonusLists.IsEmpty())
 					foreach (string str in bonusLists)
@@ -106,32 +106,32 @@ public class LootItemStorage : Singleton<LootItemStorage>
 		var container = _lootItemStorage[item.GUID.Counter];
 
 		Loot loot = new(player.Map, item.GUID, LootType.Item, null)
-        {
-            gold = container.GetMoney()
-        };
+		{
+			gold = container.GetMoney()
+		};
 
-        var lt = LootStorage.Items.GetLootFor(item.Entry);
+		var lt = LootStorage.Items.GetLootFor(item.Entry);
 
 		if (lt != null)
 			foreach (var (id, storedItem) in container.GetLootItems().KeyValueList)
 			{
 				LootItem li = new()
-                {
-                    itemid = id,
-                    count = (byte)storedItem.Count,
-                    LootListId = storedItem.ItemIndex,
-                    follow_loot_rules = storedItem.FollowRules,
-                    freeforall = storedItem.FFA,
-                    is_blocked = storedItem.Blocked,
-                    is_counted = storedItem.Counted,
-                    is_underthreshold = storedItem.UnderThreshold,
-                    needs_quest = storedItem.NeedsQuest,
-                    randomBonusListId = storedItem.RandomBonusListId,
-                    context = storedItem.Context,
-                    BonusListIDs = storedItem.BonusListIDs
-                };
+				{
+					itemid = id,
+					count = (byte)storedItem.Count,
+					LootListId = storedItem.ItemIndex,
+					follow_loot_rules = storedItem.FollowRules,
+					freeforall = storedItem.FFA,
+					is_blocked = storedItem.Blocked,
+					is_counted = storedItem.Counted,
+					is_underthreshold = storedItem.UnderThreshold,
+					needs_quest = storedItem.NeedsQuest,
+					randomBonusListId = storedItem.RandomBonusListId,
+					context = storedItem.Context,
+					BonusListIDs = storedItem.BonusListIDs
+				};
 
-                // Copy the extra loot conditions from the item in the loot template
+				// Copy the extra loot conditions from the item in the loot template
 				lt.CopyConditions(li);
 
 				// If container item is in a bag, add that player as an allowed looter

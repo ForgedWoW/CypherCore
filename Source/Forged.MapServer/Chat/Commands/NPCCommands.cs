@@ -105,8 +105,8 @@ class NPCCommands
 		if (curRespawnDelay < 0)
 			curRespawnDelay = 0;
 
-		var curRespawnDelayStr = global::Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
-		var defRespawnDelayStr = global::Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
+		var curRespawnDelayStr = Time.secsToTimeString((ulong)curRespawnDelay, TimeFormat.ShortText);
+		var defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
 		handler.SendSysMessage(CypherStrings.NpcinfoChar, target.GetName(), target.SpawnId, target.GUID.ToString(), entry, faction, npcflags, displayid, nativeid);
 
@@ -705,15 +705,15 @@ class NPCCommands
 			var vendor_entry = vendor.Entry;
 
 			VendorItem vItem = new()
-            {
-                Item = itemId,
-                Maxcount = maxcount,
-                Incrtime = incrtime,
-                ExtendedCost = extendedcost,
-                Type = ItemVendorType.Item
-            };
+			{
+				Item = itemId,
+				Maxcount = maxcount,
+				Incrtime = incrtime,
+				ExtendedCost = extendedcost,
+				Type = ItemVendorType.Item
+			};
 
-            if (!bonusListIds.IsEmpty())
+			if (!bonusListIds.IsEmpty())
 			{
 				var bonusListIDsTok = new StringArray(bonusListIds, ';');
 

@@ -28,7 +28,7 @@ class DeserterCommands
 			return false;
 		}
 
-		aura.SetDuration((int)(time * global::Time.InMilliseconds));
+		aura.SetDuration((int)(time * Time.InMilliseconds));
 
 		return true;
 	}

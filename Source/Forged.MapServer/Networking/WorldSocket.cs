@@ -46,6 +46,7 @@ public class WorldSocket : SocketBase
 	readonly WorldCrypt _worldCrypt;
 	readonly byte[] _encryptKey;
 	readonly object _worldSessionLock = new();
+	readonly object _sendlock = new();
 
 	ConnectionType _connectType;
 	ulong _key;
@@ -61,7 +62,6 @@ public class WorldSocket : SocketBase
 
 	AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
 	string _ipCountry;
-	readonly object _sendlock = new();
 
 	public WorldSocket(Socket socket) : base(socket)
 	{
@@ -198,11 +198,11 @@ public class WorldSocket : SocketBase
 				data = buffer.GetData();
 
 				PacketHeader header = new()
-                {
-                    Size = packetSize
-                };
+				{
+					Size = packetSize
+				};
 
-                _worldCrypt.Encrypt(ref data, ref header.Tag);
+				_worldCrypt.Encrypt(ref data, ref header.Tag);
 
 				ByteBuffer byteBuffer = new();
 				header.Write(byteBuffer);
@@ -275,13 +275,13 @@ public class WorldSocket : SocketBase
 	public void SendAuthResponseError(BattlenetRpcErrorCode code)
 	{
 		AuthResponse response = new()
-        {
-            SuccessInfo = null,
-            WaitInfo = null,
-            Result = code
-        };
+		{
+			SuccessInfo = null,
+			WaitInfo = null,
+			Result = code
+		};
 
-        SendPacket(response);
+		SendPacket(response);
 	}
 
 	void CheckIpCallback(SQLResult result)
@@ -528,13 +528,13 @@ public class WorldSocket : SocketBase
 	void HandleSendAuthSession()
 	{
 		AuthChallenge challenge = new()
-        {
-            Challenge = _serverChallenge,
-            DosChallenge = new byte[32].GenerateRandomKey(32),
-            DosZeroBits = 1
-        };
+		{
+			Challenge = _serverChallenge,
+			DosChallenge = new byte[32].GenerateRandomKey(32),
+			DosZeroBits = 1
+		};
 
-        SendPacket(challenge);
+		SendPacket(challenge);
 	}
 
 	void HandleAuthSession(AuthSession authSession)
@@ -658,11 +658,10 @@ public class WorldSocket : SocketBase
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
 
-			Log.Logger.Error(
-						"WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
-						GetRemoteIpAddress().ToString(),
-						authSession.RealmID,
-						Global.WorldMgr.Realm.Id.Index);
+			Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
+							GetRemoteIpAddress().ToString(),
+							authSession.RealmID,
+							Global.WorldMgr.Realm.Id.Index);
 
 			CloseSocket();
 

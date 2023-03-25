@@ -292,19 +292,19 @@ public class EscortAI : ScriptedAI
 		y = GridDefines.NormalizeMapCoord(y);
 
 		WaypointNode waypoint = new()
-        {
-            id = id,
-            x = x,
-            y = y,
-            z = z,
-            orientation = orientation,
-            moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk,
-            delay = (uint)waitTime.TotalMilliseconds,
-            eventId = 0,
-            eventChance = 100
-        };
+		{
+			id = id,
+			x = x,
+			y = y,
+			z = z,
+			orientation = orientation,
+			moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk,
+			delay = (uint)waitTime.TotalMilliseconds,
+			eventId = 0,
+			eventChance = 100
+		};
 
-        _path.nodes.Add(waypoint);
+		_path.nodes.Add(waypoint);
 
 		_manualPath = true;
 	}

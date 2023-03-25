@@ -31,14 +31,14 @@ public class Trainer
 		var reputationDiscount = player.GetReputationPriceDiscount(npc);
 
 		TrainerList trainerList = new()
-        {
-            TrainerGUID = npc.GUID,
-            TrainerType = (int)_type,
-            TrainerID = (int)_id,
-            Greeting = GetGreeting(locale)
-        };
+		{
+			TrainerGUID = npc.GUID,
+			TrainerType = (int)_type,
+			TrainerID = (int)_id,
+			Greeting = GetGreeting(locale)
+		};
 
-        foreach (var trainerSpell in _spells)
+		foreach (var trainerSpell in _spells)
 		{
 			if (!player.IsSpellFitByClassAndRace(trainerSpell.SpellId))
 				continue;
@@ -51,17 +51,17 @@ public class Trainer
 			}
 
 			TrainerListSpell trainerListSpell = new()
-            {
-                SpellID = trainerSpell.SpellId,
-                MoneyCost = (uint)(trainerSpell.MoneyCost * reputationDiscount),
-                ReqSkillLine = trainerSpell.ReqSkillLine,
-                ReqSkillRank = trainerSpell.ReqSkillRank,
-                ReqAbility = trainerSpell.ReqAbility.ToArray(),
-                Usable = GetSpellState(player, trainerSpell),
-                ReqLevel = trainerSpell.ReqLevel
-            };
+			{
+				SpellID = trainerSpell.SpellId,
+				MoneyCost = (uint)(trainerSpell.MoneyCost * reputationDiscount),
+				ReqSkillLine = trainerSpell.ReqSkillLine,
+				ReqSkillRank = trainerSpell.ReqSkillRank,
+				ReqAbility = trainerSpell.ReqAbility.ToArray(),
+				Usable = GetSpellState(player, trainerSpell),
+				ReqLevel = trainerSpell.ReqLevel
+			};
 
-            trainerList.Spells.Add(trainerListSpell);
+			trainerList.Spells.Add(trainerListSpell);
 		}
 
 		player.SendPacket(trainerList);
@@ -210,13 +210,13 @@ public class Trainer
 	void SendTeachFailure(Creature npc, Player player, uint spellId, TrainerFailReason reason)
 	{
 		TrainerBuyFailed trainerBuyFailed = new()
-        {
-            TrainerGUID = npc.GUID,
-            SpellID = spellId,
-            TrainerFailedReason = reason
-        };
+		{
+			TrainerGUID = npc.GUID,
+			SpellID = spellId,
+			TrainerFailedReason = reason
+		};
 
-        player.SendPacket(trainerBuyFailed);
+		player.SendPacket(trainerBuyFailed);
 	}
 
 	string GetGreeting(Locale locale)

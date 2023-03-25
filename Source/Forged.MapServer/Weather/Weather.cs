@@ -24,7 +24,7 @@ public class Weather
 	{
 		_zone = zoneId;
 		_weatherChances = weatherChances;
-		_timer.Interval = 10 * global::Time.Minute * global::Time.InMilliseconds;
+		_timer.Interval = 10 * Time.Minute * Time.InMilliseconds;
 		_type = WeatherType.Fine;
 		_intensity = 0;
 
@@ -80,7 +80,7 @@ public class Weather
 		var old_intensity = _intensity;
 
 		var gtime = GameTime.GetGameTime();
-		var ltime = global::Time.UnixTimeToDateTime(gtime).ToLocalTime();
+		var ltime = Time.UnixTimeToDateTime(gtime).ToLocalTime();
 		var season = (uint)((ltime.DayOfYear - 78 + 365) / 91) % 4;
 
 		string[] seasonName =

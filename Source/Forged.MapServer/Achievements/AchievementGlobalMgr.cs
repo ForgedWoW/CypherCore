@@ -8,19 +8,18 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
-using Game;
 using Serilog;
 
 namespace Forged.MapServer.Achievements;
 
 public class AchievementGlobalMgr
 {
-    private readonly WorldDatabase _worldDatabase;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly GameObjectManager _gameObjectManager;
-    private readonly CliDB _cliDB;
+	private readonly WorldDatabase _worldDatabase;
+	private readonly CharacterDatabase _characterDatabase;
+	private readonly GameObjectManager _gameObjectManager;
+	private readonly CliDB _cliDB;
 
-    // store achievements by referenced achievement id to speed up lookup
+	// store achievements by referenced achievement id to speed up lookup
 	readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
 
 	// store realm first achievements
@@ -29,13 +28,13 @@ public class AchievementGlobalMgr
 	readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
 	readonly Dictionary<uint, uint> _achievementScripts = new();
 
-    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
-    {
-        _worldDatabase = worldDatabase;
-        _characterDatabase = characterDatabase;
-        _gameObjectManager = gameObjectManager;
-        _cliDB = cliDB;
-    }
+	public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
+	{
+		_worldDatabase = worldDatabase;
+		_characterDatabase = characterDatabase;
+		_gameObjectManager = gameObjectManager;
+		_cliDB = cliDB;
+	}
 
 	public List<AchievementRecord> GetAchievementByReferencedId(uint id)
 	{
@@ -223,20 +222,20 @@ public class AchievementGlobalMgr
 			}
 
 			AchievementReward reward = new()
-            {
-                TitleId =
-                {
-                    [0] = result.Read<uint>(1),
-                    [1] = result.Read<uint>(2)
-                },
-                ItemId = result.Read<uint>(3),
-                SenderCreatureId = result.Read<uint>(4),
-                Subject = result.Read<string>(5),
-                Body = result.Read<string>(6),
-                MailTemplateId = result.Read<uint>(7)
-            };
+			{
+				TitleId =
+				{
+					[0] = result.Read<uint>(1),
+					[1] = result.Read<uint>(2)
+				},
+				ItemId = result.Read<uint>(3),
+				SenderCreatureId = result.Read<uint>(4),
+				Subject = result.Read<string>(5),
+				Body = result.Read<string>(6),
+				MailTemplateId = result.Read<uint>(7)
+			};
 
-            // must be title or mail at least
+			// must be title or mail at least
 			if (reward.TitleId[0] == 0 && reward.TitleId[1] == 0 && reward.SenderCreatureId == 0)
 			{
 				Log.Logger.Error($"Table `achievement_reward` (ID: {id}) does not contain title or item reward data. Ignored.");

@@ -324,25 +324,25 @@ public class AreaTrigger : WorldObject
 			if (_reachedDestination)
 			{
 				AreaTriggerRePath reshapeDest = new()
-                {
-                    TriggerGUID = GUID
-                };
+				{
+					TriggerGUID = GUID
+				};
 
-                SendMessageToSet(reshapeDest, true);
+				SendMessageToSet(reshapeDest, true);
 			}
 
 			AreaTriggerRePath reshape = new()
-            {
-                TriggerGUID = GUID,
-                AreaTriggerSpline = new AreaTriggerSplineInfo
-                {
-                    ElapsedTimeForMovement = ElapsedTimeForMovement,
-                    TimeToTarget = timeToTarget,
-                    Points = splinePoints
-                }
-            };
+			{
+				TriggerGUID = GUID,
+				AreaTriggerSpline = new AreaTriggerSplineInfo
+				{
+					ElapsedTimeForMovement = ElapsedTimeForMovement,
+					TimeToTarget = timeToTarget,
+					Points = splinePoints
+				}
+			};
 
-            SendMessageToSet(reshape, true);
+			SendMessageToSet(reshape, true);
 		}
 
 		_reachedDestination = false;
@@ -426,22 +426,22 @@ public class AreaTrigger : WorldObject
 	public override bool IsNeverVisibleFor(WorldObject seer)
 	{
 		return base.IsNeverVisibleFor(seer) || IsServerSide;
-    }
+	}
 
-    public bool SetDestination(uint timeToTarget, Position targetPos = null, WorldObject startingObject = null)
-    {
-        var path = new PathGenerator(startingObject != null ? startingObject : GetCaster());
-        var result = path.CalculatePath(targetPos != null ? targetPos : Location, true);
+	public bool SetDestination(uint timeToTarget, Position targetPos = null, WorldObject startingObject = null)
+	{
+		var path = new PathGenerator(startingObject != null ? startingObject : GetCaster());
+		var result = path.CalculatePath(targetPos != null ? targetPos : Location, true);
 
-        if (!result || (path.GetPathType() & PathType.NoPath) != 0)
-            return false;
+		if (!result || (path.GetPathType() & PathType.NoPath) != 0)
+			return false;
 
-        InitSplines(path.GetPath().ToList(), timeToTarget);
+		InitSplines(path.GetPath().ToList(), timeToTarget);
 
-        return true;
-    }
+		return true;
+	}
 
-    public void Delay(int delaytime)
+	public void Delay(int delaytime)
 	{
 		SetDuration(Duration - delaytime);
 	}
@@ -1041,12 +1041,12 @@ public class AreaTrigger : WorldObject
 		if (IsInWorld)
 		{
 			AreaTriggerRePath reshape = new()
-            {
-                TriggerGUID = GUID,
-                AreaTriggerOrbit = _orbitInfo
-            };
+			{
+				TriggerGUID = GUID,
+				AreaTriggerOrbit = _orbitInfo
+			};
 
-            SendMessageToSet(reshape, true);
+			SendMessageToSet(reshape, true);
 		}
 	}
 

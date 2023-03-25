@@ -73,10 +73,9 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 				player.RemoveAura(SharedConst.LFGSpellLuckOfTheDraw);
 				player.TeleportTo(player.Homebind);
 
-				Log.Logger.Error(
-							"LFGPlayerScript.OnMapChanged, Player {0} ({1}) is in LFG dungeon map but does not have a valid group! Teleporting to homebind.",
-							player.GetName(),
-							player.GUID.ToString());
+				Log.Logger.Error("LFGPlayerScript.OnMapChanged, Player {0} ({1}) is in LFG dungeon map but does not have a valid group! Teleporting to homebind.",
+								player.GetName(),
+								player.GUID.ToString());
 
 				return;
 			}
@@ -103,10 +102,9 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 				Global.LFGMgr.LeaveLfg(group.GUID);
 				group.Disband();
 
-				Log.Logger.Debug(
-							"LFGPlayerScript::OnMapChanged, Player {0}({1}) is last in the lfggroup so we disband the group.",
-							player.GetName(),
-							player.GUID.ToString());
+				Log.Logger.Debug("LFGPlayerScript::OnMapChanged, Player {0}({1}) is last in the lfggroup so we disband the group.",
+								player.GetName(),
+								player.GUID.ToString());
 			}
 
 			player.RemoveAura(SharedConst.LFGSpellLuckOfTheDraw);

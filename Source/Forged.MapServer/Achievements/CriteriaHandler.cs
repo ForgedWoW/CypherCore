@@ -33,16 +33,16 @@ public class CriteriaHandler
 		_criteriaProgress.Clear();
 	}
 
-    /// <summary>
-    ///  this function will be called whenever the user might have done a criteria relevant action
-    /// </summary>
-    /// <param name="type"> </param>
-    /// <param name="miscValue1"> </param>
-    /// <param name="miscValue2"> </param>
-    /// <param name="miscValue3"> </param>
-    /// <param name="refe"> </param>
-    /// <param name="referencePlayer"> </param>
-    public void UpdateCriteria(CriteriaType type, ulong miscValue1 = 0, ulong miscValue2 = 0, ulong miscValue3 = 0, WorldObject refe = null, Player referencePlayer = null)
+	/// <summary>
+	///  this function will be called whenever the user might have done a criteria relevant action
+	/// </summary>
+	/// <param name="type"> </param>
+	/// <param name="miscValue1"> </param>
+	/// <param name="miscValue2"> </param>
+	/// <param name="miscValue3"> </param>
+	/// <param name="refe"> </param>
+	/// <param name="referencePlayer"> </param>
+	public void UpdateCriteria(CriteriaType type, ulong miscValue1 = 0, ulong miscValue2 = 0, ulong miscValue3 = 0, WorldObject refe = null, Player referencePlayer = null)
 	{
 		if (type >= CriteriaType.Count)
 		{
@@ -61,9 +61,8 @@ public class CriteriaHandler
 		// Disable for GameMasters with GM-mode enabled or for players that don't have the related RBAC permission
 		if (referencePlayer.IsGameMaster || referencePlayer.Session.HasPermission(RBACPermissions.CannotEarnAchievements))
 		{
-			Log.Logger.Debug(
-						$"CriteriaHandler::UpdateCriteria: [Player {referencePlayer.GetName()} {(referencePlayer.IsGameMaster ? "GM mode on" : "disallowed by RBAC")}]" +
-						$" {GetOwnerInfo()}, {type} ({(uint)type}), {miscValue1}, {miscValue2}, {miscValue3}");
+			Log.Logger.Debug($"CriteriaHandler::UpdateCriteria: [Player {referencePlayer.GetName()} {(referencePlayer.IsGameMaster ? "GM mode on" : "disallowed by RBAC")}]" +
+							$" {GetOwnerInfo()}, {type} ({(uint)type}), {miscValue1}, {miscValue2}, {miscValue3}");
 
 			return;
 		}
@@ -215,7 +214,7 @@ public class CriteriaHandler
 					if (miscValue1 == 0) // Login case.
 					{
 						// reset if player missed one day.
-						if (progress != null && progress.Date < (nextDailyResetTime - 2 * global::Time.Day))
+						if (progress != null && progress.Date < (nextDailyResetTime - 2 * Time.Day))
 							SetCriteriaProgress(criteria, 0, referencePlayer);
 
 						continue;
@@ -226,10 +225,10 @@ public class CriteriaHandler
 					if (progress == null)
 						// 1st time. Start count.
 						progressType = ProgressType.Set;
-					else if (progress.Date < (nextDailyResetTime - 2 * global::Time.Day))
+					else if (progress.Date < (nextDailyResetTime - 2 * Time.Day))
 						// last progress is older than 2 days. Player missed 1 day => Restart count.
 						progressType = ProgressType.Set;
-					else if (progress.Date < (nextDailyResetTime - global::Time.Day))
+					else if (progress.Date < (nextDailyResetTime - Time.Day))
 						// last progress is between 1 and 2 days. => 1st time of the day.
 						progressType = ProgressType.Accumulate;
 					else
@@ -528,9 +527,9 @@ public class CriteriaHandler
 			foreach (var tree in trees)
 				if ((!_timeCriteriaTrees.ContainsKey(tree.Id) || criteria.Entry.GetFlags().HasFlag(CriteriaFlags.ResetOnStart)) && !IsCompletedCriteriaTree(tree))
 					// Start the timer
-					if (criteria.Entry.StartTimer * global::Time.InMilliseconds > timeLost)
+					if (criteria.Entry.StartTimer * Time.InMilliseconds > timeLost)
 					{
-						_timeCriteriaTrees[tree.Id] = (uint)(criteria.Entry.StartTimer * global::Time.InMilliseconds - timeLost);
+						_timeCriteriaTrees[tree.Id] = (uint)(criteria.Entry.StartTimer * Time.InMilliseconds - timeLost);
 						canStart = true;
 					}
 
@@ -609,10 +608,10 @@ public class CriteriaHandler
 				return;
 
 			progress = new CriteriaProgress
-            {
-                Counter = changeValue
-            };
-        }
+			{
+				Counter = changeValue
+			};
+		}
 		else
 		{
 			ulong newValue = 0;
@@ -652,7 +651,6 @@ public class CriteriaHandler
 		var timeElapsed = TimeSpan.Zero;
 
 		if (criteria.Entry.StartTimer != 0)
-		{
 			foreach (var tree in trees)
 			{
 				var timed = _timeCriteriaTrees.LookupByKey(tree.Id);
@@ -660,14 +658,13 @@ public class CriteriaHandler
 				if (timed != 0)
 				{
 					// Client expects this in packet
-					timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / global::Time.InMilliseconds));
+					timeElapsed = TimeSpan.FromSeconds(criteria.Entry.StartTimer - (timed / Time.InMilliseconds));
 
 					// Remove the timer, we wont need it anymore
 					if (IsCompletedCriteriaTree(tree))
 						_timeCriteriaTrees.Remove(tree.Id);
 				}
 			}
-		}
 
 		SendCriteriaUpdate(criteria, progress, timeElapsed, true);
 	}
@@ -752,7 +749,7 @@ public class CriteriaHandler
 
 						if (criteriaProgress is { Counter: >= 1 })
 							if (++progress >= requiredCount)
-                                return true;
+								return true;
 					}
 
 				return false;
@@ -798,11 +795,10 @@ public class CriteriaHandler
 		if ((tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.HordeOnly) && referencePlayer.Team != TeamFaction.Horde) ||
 			(tree.Entry.Flags.HasAnyFlag(CriteriaTreeFlags.AllianceOnly) && referencePlayer.Team != TeamFaction.Alliance))
 		{
-			Log.Logger.Verbose(
-						"CriteriaHandler.CanUpdateCriteriaTree: (Id: {0} Type {1} CriteriaTree {2}) Wrong faction",
-						criteria.Id,
-						criteria.Entry.Type,
-						tree.Entry.Id);
+			Log.Logger.Verbose("CriteriaHandler.CanUpdateCriteriaTree: (Id: {0} Type {1} CriteriaTree {2}) Wrong faction",
+								criteria.Id,
+								criteria.Entry.Type,
+								tree.Entry.Id);
 
 			return false;
 		}
@@ -2087,8 +2083,8 @@ public class CriteriaHandler
 				break;
 			case ModifierTreeType.TimeBetween: // 109
 			{
-				var from = global::Time.GetUnixTimeFromPackedTime(reqValue);
-				var to = global::Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
+				var from = Time.GetUnixTimeFromPackedTime(reqValue);
+				var to = Time.GetUnixTimeFromPackedTime((uint)secondaryAsset);
 
 				if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
 					return false;
@@ -3278,8 +3274,8 @@ public class CriteriaHandler
 							var itemModifiedAppearaceExtra = CliDB.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
 
 							if (itemModifiedAppearaceExtra is { DisplayWeaponSubclassID: > 0 })
-                                itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
-                        }
+								itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
+						}
 					}
 
 				if (itemSubclass != reqValue)
@@ -3305,8 +3301,8 @@ public class CriteriaHandler
 							var itemModifiedAppearaceExtra = CliDB.ItemModifiedAppearanceExtraStorage.LookupByKey(itemModifiedAppearance.Id);
 
 							if (itemModifiedAppearaceExtra is { DisplayWeaponSubclassID: > 0 })
-                                itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
-                        }
+								itemSubclass = (uint)itemModifiedAppearaceExtra.DisplayWeaponSubclassID;
+						}
 					}
 
 				if (itemSubclass != reqValue)
@@ -4154,7 +4150,7 @@ public class CriteriaHandler
 				break;
 			}
 			case ModifierTreeType.PlayerDaysSinceLogout: // 344
-				if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * global::Time.Day)
+				if (GameTime.GetGameTime() - referencePlayer.PlayerData.LogoutTime < reqValue * Time.Day)
 					return false;
 
 				break;

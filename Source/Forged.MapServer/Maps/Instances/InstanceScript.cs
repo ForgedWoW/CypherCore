@@ -628,10 +628,9 @@ public class InstanceScript : ZoneScript
 
 	public virtual bool CheckAchievementCriteriaMeet(uint criteria_id, Player source, Unit target = null, uint miscvalue1 = 0)
 	{
-		Log.Logger.Error(
-					"Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
-					Instance.Id,
-					criteria_id);
+		Log.Logger.Error("Achievement system call CheckAchievementCriteriaMeet but instance script for map {0} not have implementation for achievement criteria {1}",
+						Instance.Id,
+						criteria_id);
 
 		return false;
 	}
@@ -672,12 +671,12 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterEngageUnit encounterEngageMessage = new()
-                {
-                    Unit = unit.GUID,
-                    TargetFramePriority = priority
-                };
+				{
+					Unit = unit.GUID,
+					TargetFramePriority = priority
+				};
 
-                Instance.SendToPlayers(encounterEngageMessage);
+				Instance.SendToPlayers(encounterEngageMessage);
 
 				break;
 			case EncounterFrameType.Disengage:
@@ -685,11 +684,11 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterDisengageUnit encounterDisengageMessage = new()
-                {
-                    Unit = unit.GUID
-                };
+				{
+					Unit = unit.GUID
+				};
 
-                Instance.SendToPlayers(encounterDisengageMessage);
+				Instance.SendToPlayers(encounterDisengageMessage);
 
 				break;
 			case EncounterFrameType.UpdatePriority:
@@ -697,12 +696,12 @@ public class InstanceScript : ZoneScript
 					return;
 
 				InstanceEncounterChangePriority encounterChangePriorityMessage = new()
-                {
-                    Unit = unit.GUID,
-                    TargetFramePriority = priority
-                };
+				{
+					Unit = unit.GUID,
+					TargetFramePriority = priority
+				};
 
-                Instance.SendToPlayers(encounterChangePriorityMessage);
+				Instance.SendToPlayers(encounterChangePriorityMessage);
 
 				break;
 			default:
@@ -713,11 +712,11 @@ public class InstanceScript : ZoneScript
 	public void SendBossKillCredit(uint encounterId)
 	{
 		BossKill bossKillCreditMessage = new()
-        {
-            DungeonEncounterID = encounterId
-        };
+		{
+			DungeonEncounterID = encounterId
+		};
 
-        Instance.SendToPlayers(bossKillCreditMessage);
+		Instance.SendToPlayers(bossKillCreditMessage);
 	}
 
 	public void UpdateEncounterStateForKilledCreature(uint creatureId, Unit source)
@@ -760,12 +759,12 @@ public class InstanceScript : ZoneScript
 		_combatResurrectionTimerStarted = true;
 
 		var gainCombatResurrectionCharge = new InstanceEncounterGainCombatResurrectionCharge
-        {
-            InCombatResCount = _combatResurrectionCharges,
-            CombatResChargeRecovery = _combatResurrectionTimer
-        };
+		{
+			InCombatResCount = _combatResurrectionCharges,
+			CombatResChargeRecovery = _combatResurrectionTimer
+		};
 
-        Instance.SendToPlayers(gainCombatResurrectionCharge);
+		Instance.SendToPlayers(gainCombatResurrectionCharge);
 	}
 
 	public void UseCombatResurrection()
@@ -788,7 +787,7 @@ public class InstanceScript : ZoneScript
 		var playerCount = Instance.Players.Count;
 
 		if (playerCount != 0)
-			interval = (uint)(90 * global::Time.Minute * global::Time.InMilliseconds / playerCount);
+			interval = (uint)(90 * Time.Minute * Time.InMilliseconds / playerCount);
 
 		return interval;
 	}
@@ -932,9 +931,7 @@ public class InstanceScript : ZoneScript
 	void LoadObjectData(ObjectData[] objectData, Dictionary<uint, uint> objectInfo)
 	{
 		foreach (var data in objectData)
-		{
 			objectInfo[data.Entry] = data.Type;
-		}
 	}
 
 	void LoadDungeonEncounterData(uint bossId, uint[] dungeonEncounterIds)
@@ -1072,14 +1069,14 @@ public class InstanceScript : ZoneScript
 	void SendEncounterStart(uint inCombatResCount = 0, uint maxInCombatResCount = 0, uint inCombatResChargeRecovery = 0, uint nextCombatResChargeTime = 0)
 	{
 		InstanceEncounterStart encounterStartMessage = new()
-        {
-            InCombatResCount = inCombatResCount,
-            MaxInCombatResCount = maxInCombatResCount,
-            CombatResChargeRecovery = inCombatResChargeRecovery,
-            NextCombatResChargeTime = nextCombatResChargeTime
-        };
+		{
+			InCombatResCount = inCombatResCount,
+			MaxInCombatResCount = maxInCombatResCount,
+			CombatResChargeRecovery = inCombatResChargeRecovery,
+			NextCombatResChargeTime = nextCombatResChargeTime
+		};
 
-        Instance.SendToPlayers(encounterStartMessage);
+		Instance.SendToPlayers(encounterStartMessage);
 	}
 
 	void SendEncounterEnd()
@@ -1108,12 +1105,11 @@ public class InstanceScript : ZoneScript
 				{
 					dungeonId = encounter.lastEncounterDungeon;
 
-					Log.Logger.Debug(
-								"UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
-								Instance.MapName,
-								Instance.InstanceId,
-								encounter.dbcEntry.Name[Global.WorldMgr.DefaultDbcLocale],
-								dungeonId);
+					Log.Logger.Debug("UpdateEncounterState: Instance {0} (instanceId {1}) completed encounter {2}. Credit Dungeon: {3}",
+									Instance.MapName,
+									Instance.InstanceId,
+									encounter.dbcEntry.Name[Global.WorldMgr.DefaultDbcLocale],
+									dungeonId);
 
 					break;
 				}
@@ -1128,12 +1124,12 @@ public class InstanceScript : ZoneScript
 				var grp = player.Group;
 
 				if (grp is { IsLFGGroup: true })
-                {
-                    Global.LFGMgr.FinishDungeon(grp.GUID, dungeonId, Instance);
+				{
+					Global.LFGMgr.FinishDungeon(grp.GUID, dungeonId, Instance);
 
-                    return;
-                }
-            }
+					return;
+				}
+			}
 		}
 	}
 

@@ -722,12 +722,12 @@ public partial class Unit
 			return;
 
 		PetActionFeedbackPacket petActionFeedback = new()
-        {
-            SpellID = spellId,
-            Response = msg
-        };
+		{
+			SpellID = spellId,
+			Response = msg
+		};
 
-        owner.AsPlayer.SendPacket(petActionFeedback);
+		owner.AsPlayer.SendPacket(petActionFeedback);
 	}
 
 	public void SendPetTalk(PetTalk pettalk)
@@ -738,12 +738,12 @@ public partial class Unit
 			return;
 
 		PetActionSound petActionSound = new()
-        {
-            UnitGUID = GUID,
-            Action = pettalk
-        };
+		{
+			UnitGUID = GUID,
+			Action = pettalk
+		};
 
-        owner.AsPlayer.SendPacket(petActionSound);
+		owner.AsPlayer.SendPacket(petActionSound);
 	}
 
 	public void SendPetAIReaction(ObjectGuid guid)
@@ -754,12 +754,12 @@ public partial class Unit
 			return;
 
 		AIReaction packet = new()
-        {
-            UnitGUID = guid,
-            Reaction = AiReaction.Hostile
-        };
+		{
+			UnitGUID = guid,
+			Reaction = AiReaction.Hostile
+		};
 
-        owner.AsPlayer.SendPacket(packet);
+		owner.AsPlayer.SendPacket(packet);
 	}
 
 	public Pet CreateTamedPetFrom(Creature creatureTarget, uint spell_id = 0)

@@ -110,11 +110,11 @@ public class PlayerAI : UnitAI
 	public void DoCastAtTarget(Tuple<Spell, Unit> spell)
 	{
 		SpellCastTargets targets = new()
-        {
-            UnitTarget = spell.Item2
-        };
+		{
+			UnitTarget = spell.Item2
+		};
 
-        spell.Item1.Prepare(targets);
+		spell.Item1.Prepare(targets);
 	}
 
 	public void DoAutoAttackIfReady()
@@ -336,11 +336,11 @@ public class PlayerAI : UnitAI
 			return;
 
 		SpellCastTargets targets = new()
-        {
-            UnitTarget = victim
-        };
+		{
+			UnitTarget = victim
+		};
 
-        spell.Prepare(targets);
+		spell.Prepare(targets);
 
 		Me.ResetAttackTimer(WeaponAttackType.RangedAttack);
 	}

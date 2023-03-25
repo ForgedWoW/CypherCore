@@ -508,11 +508,10 @@ public class SmartScript
 				_useTextTimer = true;
 				Global.CreatureTextMgr.SendChat(talker, (byte)e.Action.talk.textGroupId, talkTarget);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction: SMART_ACTION_TALK: talker: {0} (Guid: {1}), textGuid: {2}",
-							talker.GetName(),
-							talker.GUID.ToString(),
-							_textGUID.ToString());
+				Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_TALK: talker: {0} (Guid: {1}), textGuid: {2}",
+								talker.GetName(),
+								talker.GUID.ToString(),
+								_textGUID.ToString());
 
 				break;
 			}
@@ -530,11 +529,10 @@ public class SmartScript
 						Global.CreatureTextMgr.SendChat(_me, (byte)e.Action.simpleTalk.textGroupId, IsPlayer(templastInvoker) ? templastInvoker : null, ChatMsg.Addon, Language.Addon, CreatureTextRange.Normal, 0, SoundKitPlayType.Normal, TeamFaction.Other, false, target.AsPlayer);
 					}
 
-					Log.Logger.Debug(
-								"SmartScript.ProcessAction. SMART_ACTION_SIMPLE_TALK: talker: {0} (GuidLow: {1}), textGroupId: {2}",
-								target.GetName(),
-								target.GUID.ToString(),
-								e.Action.simpleTalk.textGroupId);
+					Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SIMPLE_TALK: talker: {0} (GuidLow: {1}), textGroupId: {2}",
+									target.GetName(),
+									target.GUID.ToString(),
+									e.Action.simpleTalk.textGroupId);
 				}
 
 				break;
@@ -546,11 +544,10 @@ public class SmartScript
 					{
 						target.AsUnit.HandleEmoteCommand((Emote)e.Action.emote.emoteId);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_PLAY_EMOTE: target: {0} (GuidLow: {1}), emote: {2}",
-									target.GetName(),
-									target.GUID.ToString(),
-									e.Action.emote.emoteId);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_PLAY_EMOTE: target: {0} (GuidLow: {1}), emote: {2}",
+										target.GetName(),
+										target.GUID.ToString(),
+										e.Action.emote.emoteId);
 					}
 
 				break;
@@ -565,12 +562,11 @@ public class SmartScript
 						else
 							target.PlayDirectSound(e.Action.sound.soundId, e.Action.sound.onlySelf != 0 ? target.AsPlayer : null, e.Action.sound.keyBroadcastTextId);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_SOUND: target: {0} (GuidLow: {1}), sound: {2}, onlyself: {3}",
-									target.GetName(),
-									target.GUID.ToString(),
-									e.Action.sound.soundId,
-									e.Action.sound.onlySelf);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SOUND: target: {0} (GuidLow: {1}), sound: {2}, onlyself: {3}",
+										target.GetName(),
+										target.GUID.ToString(),
+										e.Action.sound.soundId,
+										e.Action.sound.onlySelf);
 					}
 
 				break;
@@ -584,11 +580,10 @@ public class SmartScript
 						{
 							target.AsCreature.Faction = e.Action.faction.factionId;
 
-							Log.Logger.Debug(
-										"SmartScript.ProcessAction. SMART_ACTION_SET_FACTION: Creature entry {0}, GuidLow {1} set faction to {2}",
-										target.Entry,
-										target.GUID.ToString(),
-										e.Action.faction.factionId);
+							Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SET_FACTION: Creature entry {0}, GuidLow {1} set faction to {2}",
+											target.Entry,
+											target.GUID.ToString(),
+											e.Action.faction.factionId);
 						}
 						else
 						{
@@ -599,11 +594,10 @@ public class SmartScript
 								{
 									target.AsCreature.Faction = ci.Faction;
 
-									Log.Logger.Debug(
-												"SmartScript.ProcessAction. SMART_ACTION_SET_FACTION: Creature entry {0}, GuidLow {1} set faction to {2}",
-												target.Entry,
-												target.GUID.ToString(),
-												ci.Faction);
+									Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SET_FACTION: Creature entry {0}, GuidLow {1} set faction to {2}",
+													target.Entry,
+													target.GUID.ToString(),
+													ci.Faction);
 								}
 						}
 					}
@@ -629,11 +623,10 @@ public class SmartScript
 								var model = GameObjectManager.ChooseDisplayId(ci);
 								target.AsCreature.SetDisplayId(model.CreatureDisplayId, model.DisplayScale);
 
-								Log.Logger.Debug(
-											"SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} set displayid to {2}",
-											target.Entry,
-											target.GUID.ToString(),
-											model.CreatureDisplayId);
+								Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} set displayid to {2}",
+												target.Entry,
+												target.GUID.ToString(),
+												model.CreatureDisplayId);
 							}
 						}
 						//if no param1, then use value from param2 (modelId)
@@ -641,21 +634,19 @@ public class SmartScript
 						{
 							target.AsCreature.SetDisplayId(e.Action.morphOrMount.model);
 
-							Log.Logger.Debug(
-										"SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} set displayid to {2}",
-										target.Entry,
-										target.GUID.ToString(),
-										e.Action.morphOrMount.model);
+							Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} set displayid to {2}",
+											target.Entry,
+											target.GUID.ToString(),
+											e.Action.morphOrMount.model);
 						}
 					}
 					else
 					{
 						target.AsCreature.DeMorph();
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} demorphs.",
-									target.Entry,
-									target.GUID.ToString());
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_MORPH_TO_ENTRY_OR_MODEL: Creature entry {0}, GuidLow {1} demorphs.",
+										target.Entry,
+										target.GUID.ToString());
 					}
 				}
 
@@ -668,10 +659,9 @@ public class SmartScript
 					{
 						target.AsPlayer.FailQuest(e.Action.quest.questId);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_FAIL_QUEST: Player guidLow {0} fails quest {1}",
-									target.GUID.ToString(),
-									e.Action.quest.questId);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_FAIL_QUEST: Player guidLow {0} fails quest {1}",
+										target.GUID.ToString(),
+										e.Action.quest.questId);
 					}
 
 				break;
@@ -743,10 +733,9 @@ public class SmartScript
 						var emote = emotes.SelectRandom();
 						target.AsUnit.HandleEmoteCommand((Emote)emote);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_RANDOM_EMOTE: Creature guidLow {0} handle random emote {1}",
-									target.GUID.ToString(),
-									emote);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_RANDOM_EMOTE: Creature guidLow {0} handle random emote {1}",
+										target.GUID.ToString(),
+										emote);
 					}
 
 				break;
@@ -801,10 +790,9 @@ public class SmartScript
 					{
 						target.AsPlayer.AreaExploredOrEventHappens(e.Action.quest.questId);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: {0} credited quest {1}",
-									target.GUID.ToString(),
-									e.Action.quest.questId);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_CALL_AREAEXPLOREDOREVENTHAPPENS: {0} credited quest {1}",
+										target.GUID.ToString(),
+										e.Action.quest.questId);
 					}
 				}
 
@@ -861,12 +849,11 @@ public class SmartScript
 					}
 					else
 					{
-						Log.Logger.Debug(
-									"Spell {0} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: {1} Entry: {2} Type: {3}) already has the aura",
-									e.Action.cast.spell,
-									target.GUID,
-									target.Entry,
-									target.TypeId);
+						Log.Logger.Debug("Spell {0} not casted because it has flag SMARTCAST_AURA_NOT_PRESENT and the target (Guid: {1} Entry: {2} Type: {3}) already has the aura",
+										e.Action.cast.spell,
+										target.GUID,
+										target.Entry,
+										target.TypeId);
 					}
 				}
 
@@ -952,12 +939,11 @@ public class SmartScript
 
 						tempLastInvoker.CastSpell(target.AsUnit, e.Action.cast.spell, new CastSpellExtraArgs(triggerFlag));
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_INVOKER_CAST: Invoker {0} casts spell {1} on target {2} with castflags {3}",
-									tempLastInvoker.GUID.ToString(),
-									e.Action.cast.spell,
-									target.GUID.ToString(),
-									e.Action.cast.castFlags);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_INVOKER_CAST: Invoker {0} casts spell {1} on target {2} with castflags {3}",
+										tempLastInvoker.GUID.ToString(),
+										e.Action.cast.spell,
+										target.GUID.ToString(),
+										e.Action.cast.castFlags);
 					}
 					else
 					{
@@ -978,10 +964,9 @@ public class SmartScript
 
 						target.AsGameObject.UseDoorOrButton(0, false, unit);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_ACTIVATE_GOBJECT. Gameobject {0} (entry: {1}) activated",
-									target.GUID.ToString(),
-									target.Entry);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_ACTIVATE_GOBJECT. Gameobject {0} (entry: {1}) activated",
+										target.GUID.ToString(),
+										target.Entry);
 					}
 
 				break;
@@ -993,10 +978,9 @@ public class SmartScript
 					{
 						target.AsGameObject.ResetDoorOrButton();
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_RESET_GOBJECT. Gameobject {0} (entry: {1}) reset",
-									target.GUID.ToString(),
-									target.Entry);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_RESET_GOBJECT. Gameobject {0} (entry: {1}) reset",
+										target.GUID.ToString(),
+										target.Entry);
 					}
 
 				break;
@@ -1008,10 +992,9 @@ public class SmartScript
 					{
 						target.AsUnit.EmoteState = (Emote)e.Action.emote.emoteId;
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction. SMART_ACTION_SET_EMOTE_STATE. Unit {0} set emotestate to {1}",
-									target.GUID.ToString(),
-									e.Action.emote.emoteId);
+						Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SET_EMOTE_STATE. Unit {0} set emotestate to {1}",
+										target.GUID.ToString(),
+										e.Action.emote.emoteId);
 					}
 
 				break;
@@ -1020,10 +1003,9 @@ public class SmartScript
 			{
 				_me.CanMelee = e.Action.autoAttack.attack != 0;
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction. SMART_ACTION_AUTO_ATTACK: Creature: {0} bool on = {1}",
-							_me.GUID.ToString(),
-							e.Action.autoAttack.attack);
+				Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_AUTO_ATTACK: Creature: {0} bool on = {1}",
+								_me.GUID.ToString(),
+								e.Action.autoAttack.attack);
 
 				break;
 			}
@@ -1035,10 +1017,9 @@ public class SmartScript
 				var move = e.Action.combatMove.move != 0;
 				((SmartAI)_me.AI).SetCombatMove(move);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction. SMART_ACTION_ALLOW_COMBAT_MOVEMENT: Creature {0} bool on = {1}",
-							_me.GUID.ToString(),
-							e.Action.combatMove.move);
+				Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_ALLOW_COMBAT_MOVEMENT: Creature {0} bool on = {1}",
+								_me.GUID.ToString(),
+								e.Action.combatMove.move);
 
 				break;
 			}
@@ -1049,10 +1030,9 @@ public class SmartScript
 
 				SetPhase(e.Action.setEventPhase.phase);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction. SMART_ACTION_SET_EVENT_PHASE: Creature {0} set event phase {1}",
-							GetBaseObject().GUID.ToString(),
-							e.Action.setEventPhase.phase);
+				Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SET_EVENT_PHASE: Creature {0} set event phase {1}",
+								GetBaseObject().GUID.ToString(),
+								e.Action.setEventPhase.phase);
 
 				break;
 			}
@@ -1064,12 +1044,11 @@ public class SmartScript
 				IncPhase(e.Action.incEventPhase.inc);
 				DecPhase(e.Action.incEventPhase.dec);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction. SMART_ACTION_INC_EVENT_PHASE: Creature {0} inc event phase by {1}, " +
-							"decrease by {2}",
-							GetBaseObject().GUID.ToString(),
-							e.Action.incEventPhase.inc,
-							e.Action.incEventPhase.dec);
+				Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_INC_EVENT_PHASE: Creature {0} inc event phase by {1}, " +
+								"decrease by {2}",
+								GetBaseObject().GUID.ToString(),
+								e.Action.incEventPhase.inc,
+								e.Action.incEventPhase.dec);
 
 				break;
 			}
@@ -1116,10 +1095,9 @@ public class SmartScript
 				{
 					playerCharmed.GroupEventHappens(e.Action.quest.questId, GetBaseObject());
 
-					Log.Logger.Debug(
-								"SmartScript.ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player {0}, group credit for quest {1}",
-								unit.GUID.ToString(),
-								e.Action.quest.questId);
+					Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_CALL_GROUPEVENTHAPPENS: Player {0}, group credit for quest {1}",
+									unit.GUID.ToString(),
+									e.Action.quest.questId);
 				}
 
 				// Special handling for vehicles
@@ -1180,10 +1158,9 @@ public class SmartScript
 						target.AsUnit.RemoveAllAuras();
 					}
 
-					Log.Logger.Debug(
-								"SmartScript.ProcessAction: SMART_ACTION_REMOVEAURASFROMSPELL: Unit {0}, spell {1}",
-								target.GUID.ToString(),
-								e.Action.removeAura.spell);
+					Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_REMOVEAURASFROMSPELL: Unit {0}, spell {1}",
+									target.GUID.ToString(),
+									e.Action.removeAura.spell);
 				}
 
 				break;
@@ -1206,10 +1183,9 @@ public class SmartScript
 						var angle = e.Action.follow.angle > 6 ? (e.Action.follow.angle * (float)Math.PI / 180.0f) : e.Action.follow.angle;
 						((SmartAI)_me.AI).SetFollow(target.AsUnit, e.Action.follow.dist + 0.1f, angle, e.Action.follow.credit, e.Action.follow.entry, e.Action.follow.creditType);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction: SMART_ACTION_FOLLOW: Creature {0} following target {1}",
-									_me.GUID.ToString(),
-									target.GUID.ToString());
+						Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_FOLLOW: Creature {0} following target {1}",
+										_me.GUID.ToString(),
+										target.GUID.ToString());
 
 						break;
 					}
@@ -1234,10 +1210,9 @@ public class SmartScript
 				var phase = phases.SelectRandom();
 				SetPhase(phase);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction: SMART_ACTION_RANDOM_PHASE: Creature {0} sets event phase to {1}",
-							GetBaseObject().GUID.ToString(),
-							phase);
+				Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_RANDOM_PHASE: Creature {0} sets event phase to {1}",
+								GetBaseObject().GUID.ToString(),
+								phase);
 
 				break;
 			}
@@ -1249,10 +1224,9 @@ public class SmartScript
 				var phase = RandomHelper.URand(e.Action.randomPhaseRange.phaseMin, e.Action.randomPhaseRange.phaseMax);
 				SetPhase(phase);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction: SMART_ACTION_RANDOM_PHASE_RANGE: Creature {0} sets event phase to {1}",
-							GetBaseObject().GUID.ToString(),
-							phase);
+				Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_RANDOM_PHASE_RANGE: Creature {0} sets event phase to {1}",
+								GetBaseObject().GUID.ToString(),
+								phase);
 
 				break;
 			}
@@ -1281,10 +1255,9 @@ public class SmartScript
 						{
 							target.AsPlayer.KilledMonsterCredit(e.Action.killedMonster.creature);
 
-							Log.Logger.Debug(
-										"SmartScript.ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player {0}, Killcredit: {1}",
-										target.GUID.ToString(),
-										e.Action.killedMonster.creature);
+							Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_CALL_KILLEDMONSTER: Player {0}, Killcredit: {1}",
+											target.GUID.ToString(),
+											e.Action.killedMonster.creature);
 						}
 						else if (IsUnit(target)) // Special handling for vehicles
 						{
@@ -1327,20 +1300,18 @@ public class SmartScript
 					case 0:
 						instance.SetData(e.Action.setInstanceData.field, e.Action.setInstanceData.data);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction: SMART_ACTION_SET_INST_DATA: SetData Field: {0}, data: {1}",
-									e.Action.setInstanceData.field,
-									e.Action.setInstanceData.data);
+						Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_SET_INST_DATA: SetData Field: {0}, data: {1}",
+										e.Action.setInstanceData.field,
+										e.Action.setInstanceData.data);
 
 						break;
 					case 1:
 						instance.SetBossState(e.Action.setInstanceData.field, (EncounterState)e.Action.setInstanceData.data);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction: SMART_ACTION_SET_INST_DATA: SetBossState BossId: {0}, State: {1} ({2})",
-									e.Action.setInstanceData.field,
-									e.Action.setInstanceData.data,
-									(EncounterState)e.Action.setInstanceData.data);
+						Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_SET_INST_DATA: SetBossState BossId: {0}, State: {1} ({2})",
+										e.Action.setInstanceData.field,
+										e.Action.setInstanceData.data,
+										(EncounterState)e.Action.setInstanceData.data);
 
 						break;
 					default: // Static analysis
@@ -1373,10 +1344,9 @@ public class SmartScript
 
 				instance.SetGuidData(e.Action.setInstanceData64.field, targets.First().GUID);
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction: SMART_ACTION_SET_INST_DATA64: Field: {0}, data: {1}",
-							e.Action.setInstanceData64.field,
-							targets.First().GUID);
+				Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_SET_INST_DATA64: Field: {0}, data: {1}",
+								e.Action.setInstanceData64.field,
+								targets.First().GUID);
 
 				break;
 			}
@@ -1431,10 +1401,9 @@ public class SmartScript
 				{
 					_me.Sheath = (SheathState)e.Action.setSheath.sheath;
 
-					Log.Logger.Debug(
-								"SmartScript.ProcessAction: SMART_ACTION_SET_SHEATH: Creature {0}, State: {1}",
-								_me.GUID.ToString(),
-								e.Action.setSheath.sheath);
+					Log.Logger.Debug("SmartScript.ProcessAction: SMART_ACTION_SET_SHEATH: Creature {0}, State: {1}",
+									_me.GUID.ToString(),
+									e.Action.setSheath.sheath);
 				}
 
 				break;
@@ -2001,12 +1970,12 @@ public class SmartScript
 			case SmartActions.CreateTimedEvent:
 			{
 				SmartEvent ne = new()
-                {
-                    type = SmartEvents.Update,
-                    event_chance = e.Action.timeEvent.chance
-                };
+				{
+					type = SmartEvents.Update,
+					event_chance = e.Action.timeEvent.chance
+				};
 
-                if (ne.event_chance == 0)
+				if (ne.event_chance == 0)
 					ne.event_chance = 100;
 
 				ne.minMaxRepeat.min = e.Action.timeEvent.min;
@@ -2020,21 +1989,21 @@ public class SmartScript
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
 				SmartAction ac = new()
-                {
-                    type = SmartActions.TriggerTimedEvent
-                };
+				{
+					type = SmartActions.TriggerTimedEvent
+				};
 
-                ac.timeEvent.id = e.Action.timeEvent.id;
+				ac.timeEvent.id = e.Action.timeEvent.id;
 
 				SmartScriptHolder ev = new()
-                {
-                    Event = ne,
-                    EventId = e.Action.timeEvent.id,
-                    Target = e.Target,
-                    Action = ac
-                };
+				{
+					Event = ne,
+					EventId = e.Action.timeEvent.id,
+					Target = e.Target,
+					Action = ac
+				};
 
-                InitTimer(ev);
+				InitTimer(ev);
 				_storedEvents.Add(ev);
 
 				break;
@@ -2464,10 +2433,9 @@ public class SmartScript
 				if (GetBaseObject() == null || !IsSmart())
 					break;
 
-				Log.Logger.Debug(
-							"SmartScript.ProcessAction. SMART_ACTION_SEND_GOSSIP_MENU: gossipMenuId {0}, gossipNpcTextId {1}",
-							e.Action.sendGossipMenu.gossipMenuId,
-							e.Action.sendGossipMenu.gossipNpcTextId);
+				Log.Logger.Debug("SmartScript.ProcessAction. SMART_ACTION_SEND_GOSSIP_MENU: gossipMenuId {0}, gossipNpcTextId {1}",
+								e.Action.sendGossipMenu.gossipMenuId,
+								e.Action.sendGossipMenu.gossipNpcTextId);
 
 				// override default gossip
 				if (_me)
@@ -2680,12 +2648,11 @@ public class SmartScript
 						else
 							target.PlayDirectSound(sound, onlySelf ? target.AsPlayer : null);
 
-						Log.Logger.Debug(
-									"SmartScript.ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: {0} ({1}), sound: {2}, onlyself: {3}",
-									target.GetName(),
-									target.GUID.ToString(),
-									sound,
-									onlySelf);
+						Log.Logger.Debug("SmartScript.ProcessAction:: SMART_ACTION_RANDOM_SOUND: target: {0} ({1}), sound: {2}, onlyself: {3}",
+										target.GetName(),
+										target.GUID.ToString(),
+										sound,
+										onlySelf);
 					}
 
 				break;
@@ -2715,12 +2682,12 @@ public class SmartScript
 				{
 					// Delayed spawn (use values from parameter to schedule event to call us back
 					SmartEvent ne = new()
-                    {
-                        type = SmartEvents.Update,
-                        event_chance = 100
-                    };
+					{
+						type = SmartEvents.Update,
+						event_chance = 100
+					};
 
-                    ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
+					ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
 					ne.minMaxRepeat.max = e.Action.groupSpawn.maxDelay;
 					ne.minMaxRepeat.repeatMin = 0;
 					ne.minMaxRepeat.repeatMax = 0;
@@ -2729,25 +2696,25 @@ public class SmartScript
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
 					SmartAction ac = new()
-                    {
-                        type = SmartActions.SpawnSpawngroup
-                    };
+					{
+						type = SmartActions.SpawnSpawngroup
+					};
 
-                    ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
+					ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
 					ac.groupSpawn.minDelay = 0;
 					ac.groupSpawn.maxDelay = 0;
 					ac.groupSpawn.spawnflags = e.Action.groupSpawn.spawnflags;
 					ac.timeEvent.id = e.Action.timeEvent.id;
 
 					SmartScriptHolder ev = new()
-                    {
-                        Event = ne,
-                        EventId = e.EventId,
-                        Target = e.Target,
-                        Action = ac
-                    };
+					{
+						Event = ne,
+						EventId = e.EventId,
+						Target = e.Target,
+						Action = ac
+					};
 
-                    InitTimer(ev);
+					InitTimer(ev);
 					_storedEvents.Add(ev);
 				}
 
@@ -2769,12 +2736,12 @@ public class SmartScript
 				{
 					// Delayed spawn (use values from parameter to schedule event to call us back
 					SmartEvent ne = new()
-                    {
-                        type = SmartEvents.Update,
-                        event_chance = 100
-                    };
+					{
+						type = SmartEvents.Update,
+						event_chance = 100
+					};
 
-                    ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
+					ne.minMaxRepeat.min = e.Action.groupSpawn.minDelay;
 					ne.minMaxRepeat.max = e.Action.groupSpawn.maxDelay;
 					ne.minMaxRepeat.repeatMin = 0;
 					ne.minMaxRepeat.repeatMax = 0;
@@ -2783,25 +2750,25 @@ public class SmartScript
 					ne.event_flags |= SmartEventFlags.NotRepeatable;
 
 					SmartAction ac = new()
-                    {
-                        type = SmartActions.DespawnSpawngroup
-                    };
+					{
+						type = SmartActions.DespawnSpawngroup
+					};
 
-                    ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
+					ac.groupSpawn.groupId = e.Action.groupSpawn.groupId;
 					ac.groupSpawn.minDelay = 0;
 					ac.groupSpawn.maxDelay = 0;
 					ac.groupSpawn.spawnflags = e.Action.groupSpawn.spawnflags;
 					ac.timeEvent.id = e.Action.timeEvent.id;
 
 					SmartScriptHolder ev = new()
-                    {
-                        Event = ne,
-                        EventId = e.EventId,
-                        Target = e.Target,
-                        Action = ac
-                    };
+					{
+						Event = ne,
+						EventId = e.EventId,
+						Target = e.Target,
+						Action = ac
+					};
 
-                    InitTimer(ev);
+					InitTimer(ev);
 					_storedEvents.Add(ev);
 				}
 
@@ -2974,9 +2941,8 @@ public class SmartScript
 				{
 					obj.Map.SetZoneOverrideLight(e.Action.overrideLight.zoneId, e.Action.overrideLight.areaLightId, e.Action.overrideLight.overrideLightId, TimeSpan.FromMilliseconds(e.Action.overrideLight.transitionMilliseconds));
 
-					Log.Logger.Debug(
-								$"SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_LIGHT: {obj.GUID} sets zone override light (zoneId: {e.Action.overrideLight.zoneId}, " +
-								$"areaLightId: {e.Action.overrideLight.areaLightId}, overrideLightId: {e.Action.overrideLight.overrideLightId}, transitionMilliseconds: {e.Action.overrideLight.transitionMilliseconds})");
+					Log.Logger.Debug($"SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_LIGHT: {obj.GUID} sets zone override light (zoneId: {e.Action.overrideLight.zoneId}, " +
+									$"areaLightId: {e.Action.overrideLight.areaLightId}, overrideLightId: {e.Action.overrideLight.overrideLightId}, transitionMilliseconds: {e.Action.overrideLight.transitionMilliseconds})");
 				}
 
 				break;
@@ -2989,9 +2955,8 @@ public class SmartScript
 				{
 					obj.Map.SetZoneWeather(e.Action.overrideWeather.zoneId, (WeatherState)e.Action.overrideWeather.weatherId, e.Action.overrideWeather.intensity);
 
-					Log.Logger.Debug(
-								$"SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_WEATHER: {obj.GUID} sets zone weather (zoneId: {e.Action.overrideWeather.zoneId}, " +
-								$"weatherId: {e.Action.overrideWeather.weatherId}, intensity: {e.Action.overrideWeather.intensity})");
+					Log.Logger.Debug($"SmartScript::ProcessAction: SMART_ACTION_OVERRIDE_WEATHER: {obj.GUID} sets zone weather (zoneId: {e.Action.overrideWeather.zoneId}, " +
+									$"weatherId: {e.Action.overrideWeather.weatherId}, intensity: {e.Action.overrideWeather.intensity})");
 				}
 
 				break;
@@ -4592,7 +4557,7 @@ public class SmartScript
 			e.Timer -= diff;
 
 			if (e.EntryOrGuid == 15294 && _me.GUID.Counter == 55039 && e.Timer != 0)
-				Log.Logger.Error("Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, global::Time.MSTime);
+				Log.Logger.Error("Called UpdateTimer: reduce timer: e.timer: {0}, diff: {1}  current time: {2}", e.Timer, diff, Time.MSTime);
 		}
 	}
 

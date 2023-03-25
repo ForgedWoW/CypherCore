@@ -81,13 +81,12 @@ public class Vehicle : ITransport
 
 		var seat = GetSeatKeyValuePairForPassenger(unit);
 
-		Log.Logger.Debug(
-					"Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
-					unit.GetName(),
-					_me.Entry,
-					_vehicleInfo.Id,
-					_me.GUID.ToString(),
-					seat.Key);
+		Log.Logger.Debug("Unit {0} exit vehicle entry {1} id {2} dbguid {3} seat {4}",
+						unit.GetName(),
+						_me.Entry,
+						_vehicleInfo.Id,
+						_me.GUID.ToString(),
+						seat.Key);
 
 		if (seat.Value.SeatInfo.CanEnterOrExit() && ++UsableSeatNum != 0)
 			_me.SetNpcFlag(_me.IsTypeId(TypeId.Player) ? NPCFlags.PlayerVehicle : NPCFlags.SpellClick);
@@ -189,11 +188,10 @@ public class Vehicle : ITransport
 		// @Prevent recursive uninstall call. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
 		if (_status == Status.UnInstalling && !GetBase().HasUnitTypeMask(UnitTypeMask.Minion))
 		{
-			Log.Logger.Error(
-						"Vehicle GuidLow: {0}, Entry: {1} attempts to uninstall, but already has STATUS_UNINSTALLING! " +
-						"Check Uninstall/PassengerBoarded script hooks for errors.",
-						_me.GUID.ToString(),
-						_me.Entry);
+			Log.Logger.Error("Vehicle GuidLow: {0}, Entry: {1} attempts to uninstall, but already has STATUS_UNINSTALLING! " +
+							"Check Uninstall/PassengerBoarded script hooks for errors.",
+							_me.GUID.ToString(),
+							_me.Entry);
 
 			return;
 		}
@@ -319,25 +317,23 @@ public class Vehicle : ITransport
 		// @Prevent adding passengers when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
 		if (_status == Status.UnInstalling)
 		{
-			Log.Logger.Error(
-						"Passenger GuidLow: {0}, Entry: {1}, attempting to board vehicle GuidLow: {2}, Entry: {3} during uninstall! SeatId: {4}",
-						unit.GUID.ToString(),
-						unit.Entry,
-						_me.GUID.ToString(),
-						_me.Entry,
-						seatId);
+			Log.Logger.Error("Passenger GuidLow: {0}, Entry: {1}, attempting to board vehicle GuidLow: {2}, Entry: {3} during uninstall! SeatId: {4}",
+							unit.GUID.ToString(),
+							unit.Entry,
+							_me.GUID.ToString(),
+							_me.Entry,
+							seatId);
 
 			return false;
 		}
 
-		Log.Logger.Debug(
-					"Unit {0} scheduling enter vehicle (entry: {1}, vehicleId: {2}, guid: {3} (dbguid: {4}) on seat {5}",
-					unit.GetName(),
-					_me.Entry,
-					_vehicleInfo.Id,
-					_me.GUID.ToString(),
-					(_me.IsTypeId(TypeId.Unit) ? _me.AsCreature.SpawnId : 0),
-					seatId);
+		Log.Logger.Debug("Unit {0} scheduling enter vehicle (entry: {1}, vehicleId: {2}, guid: {3} (dbguid: {4}) on seat {5}",
+						unit.GetName(),
+						_me.Entry,
+						_vehicleInfo.Id,
+						_me.GUID.ToString(),
+						(_me.IsTypeId(TypeId.Unit) ? _me.AsCreature.SpawnId : 0),
+						seatId);
 
 		// The seat selection code may kick other passengers off the vehicle.
 		// While the validity of the following may be arguable, it is possible that when such a passenger
@@ -609,13 +605,12 @@ public class Vehicle : ITransport
 
 		if (_status == Status.UnInstalling)
 		{
-			Log.Logger.Error(
-						"Vehicle ({0}, Entry: {1}) attempts to install accessory (Entry: {2}) on seat {3} with STATUS_UNINSTALLING! " +
-						"Check Uninstall/PassengerBoarded script hooks for errors.",
-						_me.GUID.ToString(),
-						GetCreatureEntry(),
-						entry,
-						seatId);
+			Log.Logger.Error("Vehicle ({0}, Entry: {1}) attempts to install accessory (Entry: {2}) on seat {3} with STATUS_UNINSTALLING! " +
+							"Check Uninstall/PassengerBoarded script hooks for errors.",
+							_me.GUID.ToString(),
+							GetCreatureEntry(),
+							entry,
+							seatId);
 
 			return;
 		}

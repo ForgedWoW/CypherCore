@@ -25,17 +25,17 @@ class ChannelUserlistAddBuilder : MessageBuilder
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<UserlistAdd> userlistAdd = new()
-        {
-            Data =
-            {
-                AddedUserGUID = _guid,
-                ChannelFlags = _source.GetFlags(),
-                UserFlags = _source.GetPlayerFlags(_guid),
-                ChannelID = _source.GetChannelId(),
-                ChannelName = _source.GetName(localeIdx)
-            }
-        };
+		{
+			Data =
+			{
+				AddedUserGUID = _guid,
+				ChannelFlags = _source.GetFlags(),
+				UserFlags = _source.GetPlayerFlags(_guid),
+				ChannelID = _source.GetChannelId(),
+				ChannelName = _source.GetName(localeIdx)
+			}
+		};
 
-        return userlistAdd;
+		return userlistAdd;
 	}
 }

@@ -750,11 +750,11 @@ public partial class Unit
 		if (IsInWorld && withPowerUpdate)
 		{
 			PowerUpdate packet = new()
-            {
-                Guid = GUID
-            };
+			{
+				Guid = GUID
+			};
 
-            packet.Powers.Add(new PowerUpdatePower(val, (byte)powerType));
+			packet.Powers.Add(new PowerUpdatePower(val, (byte)powerType));
 			SendMessageToSet(packet, IsTypeId(TypeId.Player));
 		}
 
@@ -845,8 +845,8 @@ public partial class Unit
 			var owner = victim.OwnerUnit;
 
 			if (owner is { IsPlayer: true })
-                target = owner;
-        }
+				target = owner;
+		}
 
 		if (!target)
 			return;

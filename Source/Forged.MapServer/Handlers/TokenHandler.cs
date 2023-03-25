@@ -13,27 +13,27 @@ public partial class WorldSession
 	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
 	{
 		CommerceTokenGetLogResponse response = new()
-        {
-            // @todo: fix 6.x implementation
-            UnkInt = commerceTokenGetLog.UnkInt,
-            Result = TokenResult.Success
-        };
+		{
+			// @todo: fix 6.x implementation
+			UnkInt = commerceTokenGetLog.UnkInt,
+			Result = TokenResult.Success
+		};
 
-        SendPacket(response);
+		SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
 	void HandleCommerceTokenGetMarketPrice(CommerceTokenGetMarketPrice commerceTokenGetMarketPrice)
 	{
 		CommerceTokenGetMarketPriceResponse response = new()
-        {
-            // @todo: 6.x fix implementation
-            CurrentMarketPrice = 300000000,
-            UnkInt = commerceTokenGetMarketPrice.UnkInt,
-            Result = TokenResult.Success
-        };
+		{
+			// @todo: 6.x fix implementation
+			CurrentMarketPrice = 300000000,
+			UnkInt = commerceTokenGetMarketPrice.UnkInt,
+			Result = TokenResult.Success
+		};
 
-        //packet.ReadUInt32("UnkInt32");
+		//packet.ReadUInt32("UnkInt32");
 
 		SendPacket(response);
 	}

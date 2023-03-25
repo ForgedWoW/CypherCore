@@ -8,7 +8,6 @@ namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
-
 	[WorldPacketHandler(ClientOpcodes.BattlePetSetBattleSlot)]
 	void HandleBattlePetSetBattleSlot(BattlePetSetBattleSlot battlePetSetBattleSlot)
 	{

@@ -218,33 +218,33 @@ public class CreatureTemplate
 	public void InitializeQueryData()
 	{
 		QueryData = new QueryCreatureResponse
-        {
-            CreatureID = Entry,
-            Allow = true
-        };
+		{
+			CreatureID = Entry,
+			Allow = true
+		};
 
-        CreatureStats stats = new()
-        {
-            Leader = RacialLeader,
-            Name =
-            {
-                [0] = Name
-            },
-            NameAlt =
-            {
-                [0] = FemaleName
-            },
-            Flags =
-            {
-                [0] = (uint)TypeFlags,
-                [1] = TypeFlags2
-            },
-            CreatureType = (int)CreatureType,
-            CreatureFamily = (int)Family,
-            Classification = (int)Rank
-        };
+		CreatureStats stats = new()
+		{
+			Leader = RacialLeader,
+			Name =
+			{
+				[0] = Name
+			},
+			NameAlt =
+			{
+				[0] = FemaleName
+			},
+			Flags =
+			{
+				[0] = (uint)TypeFlags,
+				[1] = TypeFlags2
+			},
+			CreatureType = (int)CreatureType,
+			CreatureFamily = (int)Family,
+			Classification = (int)Rank
+		};
 
-        for (uint i = 0; i < SharedConst.MaxCreatureKillCredit; ++i)
+		for (uint i = 0; i < SharedConst.MaxCreatureKillCredit; ++i)
 			stats.ProxyCreatureID[i] = KillCredit[i];
 
 		foreach (var model in Models)

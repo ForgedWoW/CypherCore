@@ -241,11 +241,11 @@ public class SpellCastTargets
 		if (TargetMask.HasAnyFlag(SpellCastTargetFlags.SourceLocation))
 		{
 			TargetLocation target = new()
-            {
-                Transport = _src.TransportGuid // relative position guid here - transport for example
-            };
+			{
+				Transport = _src.TransportGuid // relative position guid here - transport for example
+			};
 
-            if (!_src.TransportGuid.IsEmpty)
+			if (!_src.TransportGuid.IsEmpty)
 				target.Location = _src.TransportOffset;
 			else
 				target.Location = _src.Position;
@@ -256,11 +256,11 @@ public class SpellCastTargets
 		if (Convert.ToBoolean(TargetMask & SpellCastTargetFlags.DestLocation))
 		{
 			TargetLocation target = new()
-            {
-                Transport = _dst.TransportGuid // relative position guid here - transport for example
-            };
+			{
+				Transport = _dst.TransportGuid // relative position guid here - transport for example
+			};
 
-            if (!_dst.TransportGuid.IsEmpty)
+			if (!_dst.TransportGuid.IsEmpty)
 				target.Location = _dst.TransportOffset;
 			else
 				target.Location = _dst.Position;

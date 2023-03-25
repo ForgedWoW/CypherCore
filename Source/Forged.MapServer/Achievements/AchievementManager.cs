@@ -29,11 +29,11 @@ public class AchievementManager : CriteriaHandler
 
 	public ICollection<uint> CompletedAchievementIds => _completedAchievements.Keys;
 
-    /// <summary>
-    ///  called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
-    /// </summary>
-    /// <param name="referencePlayer"> </param>
-    public void CheckAllAchievementCriteria(Player referencePlayer)
+	/// <summary>
+	///  called at player login. The player might have fulfilled some achievements when the achievement system wasn't working yet
+	/// </summary>
+	/// <param name="referencePlayer"> </param>
+	public void CheckAllAchievementCriteria(Player referencePlayer)
 	{
 		// suppress sending packets
 		for (CriteriaType i = 0; i < CriteriaType.Count; ++i)
@@ -54,22 +54,20 @@ public class AchievementManager : CriteriaHandler
 
 		if (HasAchieved(achievement.Id))
 		{
-			Log.Logger.Verbose(
-						"CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Achievement already earned",
-						criteria.Id,
-						criteria.Entry.Type,
-						achievement.Id);
+			Log.Logger.Verbose("CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Achievement already earned",
+								criteria.Id,
+								criteria.Entry.Type,
+								achievement.Id);
 
 			return false;
 		}
 
 		if (achievement.InstanceID != -1 && referencePlayer.Location.MapId != achievement.InstanceID)
 		{
-			Log.Logger.Verbose(
-						"CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong map",
-						criteria.Id,
-						criteria.Entry.Type,
-						achievement.Id);
+			Log.Logger.Verbose("CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong map",
+								criteria.Id,
+								criteria.Entry.Type,
+								achievement.Id);
 
 			return false;
 		}
@@ -77,11 +75,10 @@ public class AchievementManager : CriteriaHandler
 		if ((achievement.Faction == AchievementFaction.Horde && referencePlayer.Team != TeamFaction.Horde) ||
 			(achievement.Faction == AchievementFaction.Alliance && referencePlayer.Team != TeamFaction.Alliance))
 		{
-			Log.Logger.Verbose(
-						"CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong faction",
-						criteria.Id,
-						criteria.Entry.Type,
-						achievement.Id);
+			Log.Logger.Verbose("CanUpdateCriteriaTree: (Id: {0} Type {1} Achievement {2}) Wrong faction",
+								criteria.Id,
+								criteria.Entry.Type,
+								achievement.Id);
 
 			return false;
 		}

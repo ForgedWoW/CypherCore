@@ -25,7 +25,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 	public void LoadWardenChecks()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
 		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))
@@ -69,12 +69,12 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 
 			WardenCheck wardenCheck = new()
-            {
-                Type = checkType,
-                CheckId = id
-            };
+			{
+				Type = checkType,
+				CheckId = id
+			};
 
-            if (checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Driver)
+			if (checkType == WardenCheckType.PageA || checkType == WardenCheckType.PageB || checkType == WardenCheckType.Driver)
 				wardenCheck.Data = result.Read<byte[]>(2);
 
 			if (checkType == WardenCheckType.Mpq || checkType == WardenCheckType.Mem)
@@ -120,7 +120,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 	public void LoadWardenOverrides()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
 		if (!WorldConfig.GetBoolValue(WorldCfg.WardenEnabled))

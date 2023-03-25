@@ -1861,11 +1861,11 @@ public class SpellInfo
 	public void _LoadSpellDiminishInfo()
 	{
 		SpellDiminishInfo diminishInfo = new()
-        {
-            DiminishGroup = DiminishingGroupCompute()
-        };
+		{
+			DiminishGroup = DiminishingGroupCompute()
+		};
 
-        diminishInfo.DiminishReturnType = DiminishingTypeCompute(diminishInfo.DiminishGroup);
+		diminishInfo.DiminishReturnType = DiminishingTypeCompute(diminishInfo.DiminishGroup);
 		diminishInfo.DiminishMaxLevel = DiminishingMaxLevelCompute(diminishInfo.DiminishGroup);
 		diminishInfo.DiminishDurationLimit = DiminishingLimitDurationCompute();
 
@@ -2698,12 +2698,12 @@ public class SpellInfo
 					return itr;
 
 				SpellPowerCost cost = new()
-                {
-                    Power = powerType,
-                    Amount = 0
-                };
+				{
+					Power = powerType,
+					Amount = 0
+				};
 
-                costs.Add(cost);
+				costs.Add(cost);
 
 				return costs.Last();
 			}
@@ -3635,29 +3635,29 @@ public class SpellInfo
 			case SpellFamilyNames.Mage:
 				// Dragon's Breath - 3 seconds in PvP
 				if (SpellFamilyFlags[0].HasAnyFlag(0x800000u))
-					return 3 * global::Time.InMilliseconds;
+					return 3 * Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.Warlock:
 				// Cripple - 4 seconds in PvP
 				if (Id == 170995)
-					return 4 * global::Time.InMilliseconds;
+					return 4 * Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.Hunter:
 				// Binding Shot - 3 seconds in PvP
 				if (Id == 117526)
-					return 3 * global::Time.InMilliseconds;
+					return 3 * Time.InMilliseconds;
 
 				// Wyvern Sting - 6 seconds in PvP
 				if (SpellFamilyFlags[1].HasAnyFlag(0x1000u))
-					return 6 * global::Time.InMilliseconds;
+					return 6 * Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.Monk:
 				// Paralysis - 4 seconds in PvP regardless of if they are facing you
 				if (SpellFamilyFlags[2].HasAnyFlag(0x800000u))
-					return 4 * global::Time.InMilliseconds;
+					return 4 * Time.InMilliseconds;
 
 				break;
 			case SpellFamilyNames.DemonHunter:
@@ -3665,7 +3665,7 @@ public class SpellInfo
 				{
 					case 217832: // Imprison
 					case 221527: // Imprison
-						return 4 * global::Time.InMilliseconds;
+						return 4 * Time.InMilliseconds;
 					default:
 						break;
 				}
@@ -3675,7 +3675,7 @@ public class SpellInfo
 				break;
 		}
 
-		return 8 * global::Time.InMilliseconds;
+		return 8 * Time.InMilliseconds;
 	}
 
 	bool CanSpellProvideImmunityAgainstAura(SpellInfo auraSpellInfo)

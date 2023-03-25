@@ -22,12 +22,13 @@ public class BlackMarketTemplate
 	{
 		MarketID = fields.Read<uint>(0);
 		SellerNPC = fields.Read<uint>(1);
-		Item = new ItemInstance
-        {
-            ItemID = fields.Read<uint>(2)
-        };
 
-        Quantity = fields.Read<uint>(3);
+		Item = new ItemInstance
+		{
+			ItemID = fields.Read<uint>(2)
+		};
+
+		Quantity = fields.Read<uint>(3);
 		MinBid = fields.Read<ulong>(4);
 		Duration = fields.Read<uint>(5);
 		Chance = fields.Read<float>(6);
@@ -41,12 +42,10 @@ public class BlackMarketTemplate
 					bonusListIDs.Add(id);
 
 		if (!bonusListIDs.Empty())
-		{
 			Item.ItemBonus = new ItemBonuses
-            {
-                BonusListIDs = bonusListIDs
-            };
-        }
+			{
+				BonusListIDs = bonusListIDs
+			};
 
 		if (Global.ObjectMgr.GetCreatureTemplate(SellerNPC) == null)
 		{

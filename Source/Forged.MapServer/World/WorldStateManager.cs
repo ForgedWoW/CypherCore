@@ -24,7 +24,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0   1             2       3        4
 		var result = DB.World.Query("SELECT ID, DefaultValue, MapIDs, AreaIDs, ScriptName FROM world_state");
@@ -35,13 +35,14 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		do
 		{
 			var id = result.Read<int>(0);
-			WorldStateTemplate worldState = new()
-            {
-                Id = id,
-                DefaultValue = result.Read<int>(1)
-            };
 
-            var mapIds = result.Read<string>(2);
+			WorldStateTemplate worldState = new()
+			{
+				Id = id,
+				DefaultValue = result.Read<int>(1)
+			};
+
+			var mapIds = result.Read<string>(2);
 
 			if (!mapIds.IsEmpty())
 				foreach (string mapIdToken in new StringArray(mapIds, ','))
@@ -132,7 +133,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 		Log.Logger.Information($"Loaded {_worldStateTemplates.Count} world state templates {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 
-		oldMSTime = global::Time.MSTime;
+		oldMSTime = Time.MSTime;
 
 		result = DB.Characters.Query("SELECT Id, Value FROM world_state_value");
 		uint savedValueCount = 0;
@@ -225,13 +226,13 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 			// Broadcast update to all players on the server
 			UpdateWorldState updateWorldState = new()
-            {
-                VariableID = (uint)worldStateId,
-                Value = value,
-                Hidden = hidden
-            };
+			{
+				VariableID = (uint)worldStateId,
+				Value = value,
+				Hidden = hidden
+			};
 
-            Global.WorldMgr.SendGlobalMessage(updateWorldState);
+			Global.WorldMgr.SendGlobalMessage(updateWorldState);
 
 			return;
 		}

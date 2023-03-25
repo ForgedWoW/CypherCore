@@ -39,12 +39,12 @@ public class PlayerMenu
 		_interactionData.SourceGuid = objectGUID;
 
 		GossipMessagePkt packet = new()
-        {
-            GossipGUID = objectGUID,
-            GossipID = _gossipMenu.GetMenuId()
-        };
+		{
+			GossipGUID = objectGUID,
+			GossipID = _gossipMenu.GetMenuId()
+		};
 
-        var addon = Global.ObjectMgr.GetGossipMenuAddon(packet.GossipID);
+		var addon = Global.ObjectMgr.GetGossipMenuAddon(packet.GossipID);
 
 		if (addon != null)
 			packet.FriendshipFactionID = addon.FriendshipFactionId;
@@ -57,22 +57,22 @@ public class PlayerMenu
 		foreach (var (index, item) in _gossipMenu.GetMenuItems())
 		{
 			ClientGossipOptions opt = new()
-            {
-                GossipOptionID = item.GossipOptionId,
-                OptionNPC = item.OptionNpc,
-                OptionFlags = (byte)(item.BoxCoded ? 1 : 0), // makes pop up box password
-                OptionCost = (int)item.BoxMoney,             // money required to open menu, 2.0.3
-                OptionLanguage = item.Language,
-                Flags = item.Flags,
-                OrderIndex = (int)item.OrderIndex,
-                Text = item.OptionText, // text for gossip item
-                Confirm = item.BoxText, // accept text (related to money) pop up box, 2.0.3
-                Status = GossipOptionStatus.Available,
-                SpellID = item.SpellId,
-                OverrideIconID = item.OverrideIconId
-            };
+			{
+				GossipOptionID = item.GossipOptionId,
+				OptionNPC = item.OptionNpc,
+				OptionFlags = (byte)(item.BoxCoded ? 1 : 0), // makes pop up box password
+				OptionCost = (int)item.BoxMoney,             // money required to open menu, 2.0.3
+				OptionLanguage = item.Language,
+				Flags = item.Flags,
+				OrderIndex = (int)item.OrderIndex,
+				Text = item.OptionText, // text for gossip item
+				Confirm = item.BoxText, // accept text (related to money) pop up box, 2.0.3
+				Status = GossipOptionStatus.Available,
+				SpellID = item.SpellId,
+				OverrideIconID = item.OverrideIconId
+			};
 
-            packet.GossipOptions.Add(opt);
+			packet.GossipOptions.Add(opt);
 		}
 
 		for (byte i = 0; i < _questMenu.GetMenuItemCount(); ++i)
@@ -84,17 +84,17 @@ public class PlayerMenu
 			if (quest != null)
 			{
 				ClientGossipText gossipText = new()
-                {
-                    QuestID = questID,
-                    ContentTuningID = quest.ContentTuningId,
-                    QuestType = item.QuestIcon,
-                    QuestFlags = (uint)quest.Flags,
-                    QuestFlagsEx = (uint)quest.FlagsEx,
-                    Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly,
-                    QuestTitle = quest.LogTitle
-                };
+				{
+					QuestID = questID,
+					ContentTuningID = quest.ContentTuningId,
+					QuestType = item.QuestIcon,
+					QuestFlags = (uint)quest.Flags,
+					QuestFlagsEx = (uint)quest.FlagsEx,
+					Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly,
+					QuestTitle = quest.LogTitle
+				};
 
-                var locale = _session.SessionDbLocaleIndex;
+				var locale = _session.SessionDbLocaleIndex;
 
 				if (locale != Locale.enUS)
 				{
@@ -130,12 +130,12 @@ public class PlayerMenu
 		}
 
 		GossipPOI packet = new()
-        {
-            Id = pointOfInterest.Id,
-            Name = pointOfInterest.Name
-        };
+		{
+			Id = pointOfInterest.Id,
+			Name = pointOfInterest.Name
+		};
 
-        var locale = _session.SessionDbLocaleIndex;
+		var locale = _session.SessionDbLocaleIndex;
 
 		if (locale != Locale.enUS)
 		{
@@ -160,11 +160,11 @@ public class PlayerMenu
 		var localeConstant = _session.SessionDbLocaleIndex;
 
 		QuestGiverQuestListMessage questList = new()
-        {
-            QuestGiverGUID = guid
-        };
+		{
+			QuestGiverGUID = guid
+		};
 
-        var questGreeting = Global.ObjectMgr.GetQuestGreeting(questgiver.TypeId, questgiver.Entry);
+		var questGreeting = Global.ObjectMgr.GetQuestGreeting(questgiver.TypeId, questgiver.Entry);
 
 		if (questGreeting != null)
 		{
@@ -191,17 +191,17 @@ public class PlayerMenu
 			if (quest != null)
 			{
 				ClientGossipText text = new()
-                {
-                    QuestID = questID,
-                    ContentTuningID = quest.ContentTuningId,
-                    QuestType = questMenuItem.QuestIcon,
-                    QuestFlags = (uint)quest.Flags,
-                    QuestFlagsEx = (uint)quest.FlagsEx,
-                    Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly,
-                    QuestTitle = quest.LogTitle
-                };
+				{
+					QuestID = questID,
+					ContentTuningID = quest.ContentTuningId,
+					QuestType = questMenuItem.QuestIcon,
+					QuestFlags = (uint)quest.Flags,
+					QuestFlagsEx = (uint)quest.FlagsEx,
+					Repeatable = quest.IsAutoComplete && quest.IsRepeatable && !quest.IsDailyOrWeekly && !quest.IsMonthly,
+					QuestTitle = quest.LogTitle
+				};
 
-                if (localeConstant != Locale.enUS)
+				if (localeConstant != Locale.enUS)
 				{
 					var localeData = Global.ObjectMgr.GetQuestLocale(quest.Id);
 
@@ -219,31 +219,31 @@ public class PlayerMenu
 	public void SendQuestGiverStatus(QuestGiverStatus questStatus, ObjectGuid npcGUID)
 	{
 		var packet = new QuestGiverStatusPkt
-        {
-            QuestGiver =
-            {
-                Guid = npcGUID,
-                Status = questStatus
-            }
-        };
+		{
+			QuestGiver =
+			{
+				Guid = npcGUID,
+				Status = questStatus
+			}
+		};
 
-        _session.SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	public void SendQuestGiverQuestDetails(Quest.Quest quest, ObjectGuid npcGUID, bool autoLaunched, bool displayPopup)
 	{
 		QuestGiverQuestDetails packet = new()
-        {
-            QuestTitle = quest.LogTitle,
-            LogDescription = quest.LogDescription,
-            DescriptionText = quest.QuestDescription,
-            PortraitGiverText = quest.PortraitGiverText,
-            PortraitGiverName = quest.PortraitGiverName,
-            PortraitTurnInText = quest.PortraitTurnInText,
-            PortraitTurnInName = quest.PortraitTurnInName
-        };
+		{
+			QuestTitle = quest.LogTitle,
+			LogDescription = quest.LogDescription,
+			DescriptionText = quest.QuestDescription,
+			PortraitGiverText = quest.PortraitGiverText,
+			PortraitGiverName = quest.PortraitGiverName,
+			PortraitTurnInText = quest.PortraitTurnInText,
+			PortraitTurnInName = quest.PortraitTurnInName
+		};
 
-        var locale = _session.SessionDbLocaleIndex;
+		var locale = _session.SessionDbLocaleIndex;
 
 		packet.ConditionalDescriptionText = quest.ConditionalQuestDescription.Select(text =>
 												{
@@ -313,14 +313,14 @@ public class PlayerMenu
 		for (var i = 0; i < objs.Count; ++i)
 		{
 			var obj = new QuestObjectiveSimple
-            {
-                Id = objs[i].Id,
-                ObjectID = objs[i].ObjectID,
-                Amount = objs[i].Amount,
-                Type = (byte)objs[i].Type
-            };
+			{
+				Id = objs[i].Id,
+				ObjectID = objs[i].ObjectID,
+				Amount = objs[i].Amount,
+				Type = (byte)objs[i].Type
+			};
 
-            packet.Objectives.Add(obj);
+			packet.Objectives.Add(obj);
 		}
 
 		_session.SendPacket(packet);
@@ -342,16 +342,16 @@ public class PlayerMenu
 	public void SendQuestGiverOfferReward(Quest.Quest quest, ObjectGuid npcGUID, bool autoLaunched)
 	{
 		QuestGiverOfferRewardMessage packet = new()
-        {
-            QuestTitle = quest.LogTitle,
-            RewardText = quest.OfferRewardText,
-            PortraitGiverText = quest.PortraitGiverText,
-            PortraitGiverName = quest.PortraitGiverName,
-            PortraitTurnInText = quest.PortraitTurnInText,
-            PortraitTurnInName = quest.PortraitTurnInName
-        };
+		{
+			QuestTitle = quest.LogTitle,
+			RewardText = quest.OfferRewardText,
+			PortraitGiverText = quest.PortraitGiverText,
+			PortraitGiverName = quest.PortraitGiverName,
+			PortraitTurnInText = quest.PortraitTurnInText,
+			PortraitTurnInName = quest.PortraitTurnInName
+		};
 
-        var locale = _session.SessionDbLocaleIndex;
+		var locale = _session.SessionDbLocaleIndex;
 
 		packet.ConditionalRewardText = quest.ConditionalOfferRewardText.Select(text =>
 											{
@@ -430,12 +430,12 @@ public class PlayerMenu
 		}
 
 		QuestGiverRequestItems packet = new()
-        {
-            QuestTitle = quest.LogTitle,
-            CompletionText = quest.RequestItemsText
-        };
+		{
+			QuestTitle = quest.LogTitle,
+			CompletionText = quest.RequestItemsText
+		};
 
-        var locale = _session.SessionDbLocaleIndex;
+		var locale = _session.SessionDbLocaleIndex;
 
 		packet.ConditionalCompletionText = quest.ConditionalRequestItemsText.Select(text =>
 												{

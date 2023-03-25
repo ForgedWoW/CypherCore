@@ -26,11 +26,11 @@ class DBReader
 		using (var reader = new BinaryReader(stream, Encoding.UTF8))
 		{
 			Header = new WDCHeader
-            {
-                Signature = reader.ReadUInt32()
-            };
+			{
+				Signature = reader.ReadUInt32()
+			};
 
-            if (Header.Signature != WDC3FmtSig)
+			if (Header.Signature != WDC3FmtSig)
 				return false;
 
 			Header.RecordCount = reader.ReadUInt32();
@@ -149,10 +149,10 @@ class DBReader
 						NumRecords = reader.ReadInt32(),
 						MinId = reader.ReadInt32(),
 						MaxId = reader.ReadInt32(),
-                        Entries = new Dictionary<int, int>()
-                    };
+						Entries = new Dictionary<int, int>()
+					};
 
-                    var entries = reader.ReadArray<ReferenceEntry>((uint)refData.NumRecords);
+					var entries = reader.ReadArray<ReferenceEntry>((uint)refData.NumRecords);
 
 					foreach (var entry in entries)
 						refData.Entries[entry.Index] = entry.Id;

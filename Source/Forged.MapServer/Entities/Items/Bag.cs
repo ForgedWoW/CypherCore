@@ -34,15 +34,14 @@ public class Bag : Item
 			{
 				if (item.IsInWorld)
 				{
-					Log.Logger.Fatal(
-								"Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
-								item.Entry,
-								item.Slot,
-								item.BagSlot,
-								Entry,
-								Slot,
-								BagSlot,
-								i);
+					Log.Logger.Fatal("Item {0} (slot {1}, bag slot {2}) in bag {3} (slot {4}, bag slot {5}, m_bagslot {6}) is to be deleted but is still in world.",
+									item.Entry,
+									item.Slot,
+									item.BagSlot,
+									Entry,
+									Slot,
+									BagSlot,
+									i);
 
 					item.RemoveFromWorld();
 				}

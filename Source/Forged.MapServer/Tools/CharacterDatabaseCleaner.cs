@@ -21,7 +21,7 @@ class CharacterDatabaseCleaner
 
 		Log.Logger.Information("Cleaning character database...");
 
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var flags = (CleaningFlags)Global.WorldMgr.GetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId);
 
@@ -48,7 +48,7 @@ class CharacterDatabaseCleaner
 
 		Global.WorldMgr.CleaningFlags = flags;
 
-		Log.Logger.Information("Cleaned character database in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	static void CheckUnique(string column, string table, CheckFor check)

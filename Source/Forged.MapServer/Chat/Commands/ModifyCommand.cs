@@ -207,12 +207,13 @@ class ModifyCommand
 			target.SendSysMessage(CypherStrings.YoursSpellflatidChanged, handler.NameLink, spellflatid, val, mark);
 
 		SetSpellModifier packet = new(ServerOpcodes.SetFlatSpellModifier);
-		SpellModifierInfo spellMod = new()
-        {
-            ModIndex = op
-        };
 
-        SpellModifierData modData;
+		SpellModifierInfo spellMod = new()
+		{
+			ModIndex = op
+		};
+
+		SpellModifierData modData;
 		modData.ClassIndex = spellflatid;
 		modData.ModifierValue = val;
 		spellMod.ModifierData.Add(modData);
@@ -705,13 +706,14 @@ class ModifyCommand
 					continue;
 
 				var choiceEntry = choicesForOption[0];
-				ChrCustomizationChoice choice = new()
-                {
-                    ChrCustomizationOptionID = option.Id,
-                    ChrCustomizationChoiceID = choiceEntry.Id
-                };
 
-                customizations.Add(choice);
+				ChrCustomizationChoice choice = new()
+				{
+					ChrCustomizationOptionID = option.Id,
+					ChrCustomizationChoiceID = choiceEntry.Id
+				};
+
+				customizations.Add(choice);
 
 				break;
 			}

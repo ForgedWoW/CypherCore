@@ -1441,9 +1441,9 @@ struct SAGameObjectIds
 
 struct SATimers
 {
-	public const uint BoatStart = 60 * global::Time.InMilliseconds;
-	public const uint WarmupLength = 120 * global::Time.InMilliseconds;
-	public const uint RoundLength = 600 * global::Time.InMilliseconds;
+	public const uint BoatStart = 60 * Time.InMilliseconds;
+	public const uint WarmupLength = 120 * Time.InMilliseconds;
+	public const uint RoundLength = 600 * Time.InMilliseconds;
 }
 
 struct SASoundIds

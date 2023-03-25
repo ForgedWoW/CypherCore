@@ -85,7 +85,7 @@ public class StaticMapTree
 	}
 
 	public LoadResult LoadMapTile(int tileX, int tileY, VMapManager vm)
-    {
+	{
 		lock (_loadedSpawns)
 		{
 			if (_treeValues == null)
@@ -385,11 +385,11 @@ public class StaticMapTree
 	static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
 	{
 		TileFileOpenResult result = new()
-        {
-            Name = vmapPath + GetTileFileName(mapID, tileX, tileY)
-        };
+		{
+			Name = vmapPath + GetTileFileName(mapID, tileX, tileY)
+		};
 
-        if (File.Exists(result.Name))
+		if (File.Exists(result.Name))
 		{
 			result.UsedMapId = mapID;
 			result.File = new FileStream(result.Name, FileMode.Open, FileAccess.Read);

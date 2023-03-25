@@ -19,12 +19,12 @@ public partial class WorldSession
 		foreach (var record in dbQuery.Queries)
 		{
 			DBReply dbReply = new()
-            {
-                TableHash = dbQuery.TableHash,
-                RecordID = record.RecordID
-            };
+			{
+				TableHash = dbQuery.TableHash,
+				RecordID = record.RecordID
+			};
 
-            if (store != null && store.HasRecord(record.RecordID))
+			if (store != null && store.HasRecord(record.RecordID))
 			{
 				dbReply.Status = HotfixRecord.Status.Valid;
 				dbReply.Timestamp = (uint)GameTime.GetGameTime();
@@ -68,11 +68,11 @@ public partial class WorldSession
 				foreach (var hotfixRecord in hotfixRecords)
 				{
 					HotfixConnect.HotfixData hotfixData = new()
-                    {
-                        Record = hotfixRecord
-                    };
+					{
+						Record = hotfixRecord
+					};
 
-                    if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
+					if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
 					{
 						var storage = Global.DB2Mgr.GetStorage(hotfixRecord.TableHash);
 

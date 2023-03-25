@@ -152,11 +152,10 @@ public partial class WorldSession
 
 		if (player.IsInFlight)
 		{
-			Log.Logger.Debug(
-						"HandleAreaTrigger: Player '{0}' (GUID: {1}) in flight, ignore Area Trigger ID:{2}",
-						player.GetName(),
-						player.GUID.ToString(),
-						packet.AreaTriggerID);
+			Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) in flight, ignore Area Trigger ID:{2}",
+							player.GetName(),
+							player.GUID.ToString(),
+							packet.AreaTriggerID);
 
 			return;
 		}
@@ -165,22 +164,20 @@ public partial class WorldSession
 
 		if (atEntry == null)
 		{
-			Log.Logger.Debug(
-						"HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
-						player.GetName(),
-						player.GUID.ToString(),
-						packet.AreaTriggerID);
+			Log.Logger.Debug("HandleAreaTrigger: Player '{0}' (GUID: {1}) send unknown (by DBC) Area Trigger ID:{2}",
+							player.GetName(),
+							player.GUID.ToString(),
+							packet.AreaTriggerID);
 
 			return;
 		}
 
 		if (packet.Entered && !player.IsInAreaTriggerRadius(atEntry))
 		{
-			Log.Logger.Debug(
-						"HandleAreaTrigger: Player '{0}' ({1}) too far, ignore Area Trigger ID: {2}",
-						player.GetName(),
-						player.GUID.ToString(),
-						packet.AreaTriggerID);
+			Log.Logger.Debug("HandleAreaTrigger: Player '{0}' ({1}) too far, ignore Area Trigger ID: {2}",
+							player.GetName(),
+							player.GUID.ToString(),
+							packet.AreaTriggerID);
 
 			return;
 		}
@@ -628,10 +625,9 @@ public partial class WorldSession
 	{
 		if (!Player.HasPendingBind)
 		{
-			Log.Logger.Information(
-						"InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
-						Player.GetName(),
-						Player.GUID.ToString());
+			Log.Logger.Information("InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
+									Player.GetName(),
+									Player.GUID.ToString());
 
 			return;
 		}

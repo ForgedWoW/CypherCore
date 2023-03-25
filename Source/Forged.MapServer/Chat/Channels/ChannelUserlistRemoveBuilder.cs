@@ -25,16 +25,16 @@ class ChannelUserlistRemoveBuilder : MessageBuilder
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<UserlistRemove> userlistRemove = new()
-        {
-            Data =
-            {
-                RemovedUserGUID = _guid,
-                ChannelFlags = _source.GetFlags(),
-                ChannelID = _source.GetChannelId(),
-                ChannelName = _source.GetName(localeIdx)
-            }
-        };
+		{
+			Data =
+			{
+				RemovedUserGUID = _guid,
+				ChannelFlags = _source.GetFlags(),
+				ChannelID = _source.GetChannelId(),
+				ChannelName = _source.GetName(localeIdx)
+			}
+		};
 
-        return userlistRemove;
+		return userlistRemove;
 	}
 }

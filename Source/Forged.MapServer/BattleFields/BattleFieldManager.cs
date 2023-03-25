@@ -44,7 +44,7 @@ public class BattleFieldManager : Singleton<BattleFieldManager>
 
 	public void InitBattlefield()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		uint count = 0;
 		var result = DB.World.Query("SELECT TypeId, ScriptName FROM battlefield_template");

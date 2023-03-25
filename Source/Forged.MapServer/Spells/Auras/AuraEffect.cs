@@ -291,14 +291,14 @@ public class AuraEffect
 				if (_spellModifier == null)
 				{
 					SpellModifierByClassMask spellmod = new(Base)
-                    {
-                        Op = (SpellModOp)MiscValue,
-                        Type = AuraType == AuraType.AddPctModifier ? SpellModType.Pct : SpellModType.Flat,
-                        SpellId = Id,
-                        Mask = GetSpellEffectInfo().SpellClassMask
-                    };
+					{
+						Op = (SpellModOp)MiscValue,
+						Type = AuraType == AuraType.AddPctModifier ? SpellModType.Pct : SpellModType.Flat,
+						SpellId = Id,
+						Mask = GetSpellEffectInfo().SpellClassMask
+					};
 
-                    _spellModifier = spellmod;
+					_spellModifier = spellmod;
 				}
 
 				(_spellModifier as SpellModifierByClassMask).Value = Amount;
@@ -308,18 +308,18 @@ public class AuraEffect
 				if (_spellModifier == null)
 				{
 					SpellFlatModifierByLabel spellmod = new(Base)
-                    {
-                        Op = (SpellModOp)MiscValue,
-                        Type = SpellModType.LabelFlat,
-                        SpellId = Id,
-                        Value =
-                        {
-                            ModIndex = MiscValue,
-                            LabelID = MiscValueB
-                        }
-                    };
+					{
+						Op = (SpellModOp)MiscValue,
+						Type = SpellModType.LabelFlat,
+						SpellId = Id,
+						Value =
+						{
+							ModIndex = MiscValue,
+							LabelID = MiscValueB
+						}
+					};
 
-                    _spellModifier = spellmod;
+					_spellModifier = spellmod;
 				}
 
 				(_spellModifier as SpellFlatModifierByLabel).Value.ModifierValue = Amount;
@@ -329,18 +329,18 @@ public class AuraEffect
 				if (_spellModifier == null)
 				{
 					SpellPctModifierByLabel spellmod = new(Base)
-                    {
-                        Op = (SpellModOp)MiscValue,
-                        Type = SpellModType.LabelPct,
-                        SpellId = Id,
-                        Value =
-                        {
-                            ModIndex = MiscValue,
-                            LabelID = MiscValueB
-                        }
-                    };
+					{
+						Op = (SpellModOp)MiscValue,
+						Type = SpellModType.LabelPct,
+						SpellId = Id,
+						Value =
+						{
+							ModIndex = MiscValue,
+							LabelID = MiscValueB
+						}
+					};
 
-                    _spellModifier = spellmod;
+					_spellModifier = spellmod;
 				}
 
 				(_spellModifier as SpellPctModifierByLabel).Value.ModifierValue = 1.0f + MathFunctions.CalculatePct(1.0f, Amount);
@@ -815,30 +815,30 @@ public class AuraEffect
 	public void SetAmount(uint amount)
 	{
 		SetAmount((double)amount);
-    }
+	}
 
-    public void ModAmount(double amount)
-    {
-        _amount += amount;
-        _canBeRecalculated = false;
-    }
+	public void ModAmount(double amount)
+	{
+		_amount += amount;
+		_canBeRecalculated = false;
+	}
 
-    public void ModAmount(long amount)
-    {
-        ModAmount((double)amount);
-    }
+	public void ModAmount(long amount)
+	{
+		ModAmount((double)amount);
+	}
 
-    public void ModAmount(int amount)
-    {
-        ModAmount((double)amount);
-    }
+	public void ModAmount(int amount)
+	{
+		ModAmount((double)amount);
+	}
 
-    public void ModAmount(uint amount)
-    {
-        ModAmount((double)amount);
-    }
+	public void ModAmount(uint amount)
+	{
+		ModAmount((double)amount);
+	}
 
-    public double? GetEstimatedAmount()
+	public double? GetEstimatedAmount()
 	{
 		return _estimatedAmount;
 	}
@@ -1900,7 +1900,7 @@ public class AuraEffect
 				// for players, start regeneration after 1s (in polymorph fast regeneration case)
 				// only if caster is Player (after patch 2.4.2)
 				if (CasterGuid.IsPlayer)
-					target.AsPlayer.SetRegenTimerCount(1 * global::Time.InMilliseconds);
+					target.AsPlayer.SetRegenTimerCount(1 * Time.InMilliseconds);
 
 				//dismount polymorphed target (after patch 2.4.2)
 				if (target.IsMounted)
@@ -4849,15 +4849,16 @@ public class AuraEffect
 						if (apply && caster != null)
 						{
 							var spell = Global.SpellMgr.GetSpellInfo(spellId, Base.CastDifficulty);
-							CastSpellExtraArgs args = new()
-                            {
-                                TriggerFlags = TriggerCastFlags.FullMask,
-                                OriginalCaster = CasterGuid,
-                                OriginalCastId = Base.CastId,
-                                CastDifficulty = Base.CastDifficulty
-                            };
 
-                            for (uint i = 0; i < spell.StackAmount; ++i)
+							CastSpellExtraArgs args = new()
+							{
+								TriggerFlags = TriggerCastFlags.FullMask,
+								OriginalCaster = CasterGuid,
+								OriginalCastId = Base.CastId,
+								CastDifficulty = Base.CastDifficulty
+							};
+
+							for (uint i = 0; i < spell.StackAmount; ++i)
 								caster.CastSpell(target, spell.Id, args);
 
 							break;
@@ -4875,14 +4876,15 @@ public class AuraEffect
 						if (apply && caster != null)
 						{
 							var spell = Global.SpellMgr.GetSpellInfo(spellId, Base.CastDifficulty);
-							CastSpellExtraArgs args = new(TriggerCastFlags.FullMask)
-                            {
-                                OriginalCaster = CasterGuid,
-                                OriginalCastId = Base.CastId,
-                                CastDifficulty = Base.CastDifficulty
-                            };
 
-                            for (uint i = 0; i < spell.StackAmount; ++i)
+							CastSpellExtraArgs args = new(TriggerCastFlags.FullMask)
+							{
+								OriginalCaster = CasterGuid,
+								OriginalCastId = Base.CastId,
+								CastDifficulty = Base.CastDifficulty
+							};
+
+							for (uint i = 0; i < spell.StackAmount; ++i)
 								caster.CastSpell(target, spell.Id, args);
 
 							break;
@@ -5721,15 +5723,15 @@ public class AuraEffect
 
 		// SendSpellNonMeleeDamageLog expects non-absorbed/non-resisted damage
 		SpellNonMeleeDamage log = new(caster, target, SpellInfo, Base.SpellVisual, SpellInfo.GetSchoolMask(), Base.CastId)
-        {
-            Damage = damage,
-            OriginalDamage = dmg,
-            Absorb = absorb,
-            Resist = resist,
-            PeriodicLog = true
-        };
+		{
+			Damage = damage,
+			OriginalDamage = dmg,
+			Absorb = absorb,
+			Resist = resist,
+			PeriodicLog = true
+		};
 
-        if (crit)
+		if (crit)
 			log.HitInfo |= (int)SpellHitType.Crit;
 
 		// Set trigger flag
@@ -5830,14 +5832,13 @@ public class AuraEffect
 		if (crit)
 			damage = Unit.SpellCriticalHealingBonus(caster, _spellInfo, damage, target);
 
-		Log.Logger.Debug(
-					"PeriodicTick: {0} (TypeId: {1}) heal of {2} (TypeId: {3}) for {4} health inflicted by {5}",
-					CasterGuid.ToString(),
-					Caster.TypeId,
-					target.GUID.ToString(),
-					target.TypeId,
-					damage,
-					Id);
+		Log.Logger.Debug("PeriodicTick: {0} (TypeId: {1}) heal of {2} (TypeId: {3}) for {4} health inflicted by {5}",
+						CasterGuid.ToString(),
+						Caster.TypeId,
+						target.GUID.ToString(),
+						target.TypeId,
+						damage,
+						Id);
 
 		var heal = damage;
 
@@ -6012,13 +6013,14 @@ public class AuraEffect
 		var dmgMultiplier = GetSpellEffectInfo().CalcValueMultiplier(caster);
 
 		var spellProto = SpellInfo;
+
 		// maybe has to be sent different to client, but not by SMSG_PERIODICAURALOG
 		SpellNonMeleeDamage damageInfo = new(caster, target, spellProto, Base.SpellVisual, spellProto.SchoolMask, Base.CastId)
-        {
-            PeriodicLog = true
-        };
+		{
+			PeriodicLog = true
+		};
 
-        // no SpellDamageBonus for burn mana
+		// no SpellDamageBonus for burn mana
 		caster.CalculateSpellDamageTaken(damageInfo, gain * dmgMultiplier, spellProto);
 
 		Unit.DealDamageMods(damageInfo.Attacker, damageInfo.Target, ref damageInfo.Damage, ref damageInfo.Absorb);
@@ -6334,11 +6336,11 @@ public class AuraEffect
 		if (apply)
 		{
 			CastSpellExtraArgs args = new(this)
-            {
-                CastDifficulty = triggerSpellInfo.Difficulty
-            };
+			{
+				CastDifficulty = triggerSpellInfo.Difficulty
+			};
 
-            target.CastSpell(target, triggerSpellInfo.Id, args);
+			target.CastSpell(target, triggerSpellInfo.Id, args);
 		}
 		// on unapply we need to search for and remove the summoned creature
 		else
@@ -6444,13 +6446,13 @@ public class AuraEffect
 		if (apply)
 		{
 			BattlegroundPlayerPosition playerPosition = new()
-            {
-                Guid = target.GUID,
-                ArenaSlot = (sbyte)MiscValue,
-                Pos = target.Location
-            };
+			{
+				Guid = target.GUID,
+				ArenaSlot = (sbyte)MiscValue,
+				Pos = target.Location
+			};
 
-            if (AuraType == AuraType.BattleGroundPlayerPositionFactional)
+			if (AuraType == AuraType.BattleGroundPlayerPositionFactional)
 				playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconHordeFlag : BattlegroundConst.PlayerPositionIconAllianceFlag;
 			else if (AuraType == AuraType.BattleGroundPlayerPosition)
 				playerPosition.IconID = target.EffectiveTeam == TeamFaction.Alliance ? BattlegroundConst.PlayerPositionIconAllianceFlag : BattlegroundConst.PlayerPositionIconHordeFlag;

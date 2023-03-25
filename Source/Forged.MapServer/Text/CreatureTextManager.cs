@@ -27,7 +27,7 @@ public sealed class CreatureTextManager
 
 	public void LoadCreatureTexts()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_textMap.Clear(); // for reload case
 		//all currently used temp texts are NOT reset
@@ -48,23 +48,23 @@ public sealed class CreatureTextManager
 		do
 		{
 			CreatureTextEntry temp = new()
-            {
-                creatureId = result.Read<uint>(0),
-                groupId = result.Read<byte>(1),
-                id = result.Read<byte>(2),
-                text = result.Read<string>(3),
-                type = (ChatMsg)result.Read<byte>(4),
-                lang = (Language)result.Read<byte>(5),
-                probability = result.Read<float>(6),
-                emote = (Emote)result.Read<uint>(7),
-                duration = result.Read<uint>(8),
-                sound = result.Read<uint>(9),
-                SoundPlayType = (SoundKitPlayType)result.Read<byte>(10),
-                BroadcastTextId = result.Read<uint>(11),
-                TextRange = (CreatureTextRange)result.Read<byte>(12)
-            };
+			{
+				creatureId = result.Read<uint>(0),
+				groupId = result.Read<byte>(1),
+				id = result.Read<byte>(2),
+				text = result.Read<string>(3),
+				type = (ChatMsg)result.Read<byte>(4),
+				lang = (Language)result.Read<byte>(5),
+				probability = result.Read<float>(6),
+				emote = (Emote)result.Read<uint>(7),
+				duration = result.Read<uint>(8),
+				sound = result.Read<uint>(9),
+				SoundPlayType = (SoundKitPlayType)result.Read<byte>(10),
+				BroadcastTextId = result.Read<uint>(11),
+				TextRange = (CreatureTextRange)result.Read<byte>(12)
+			};
 
-            if (temp.sound != 0)
+			if (temp.sound != 0)
 				if (!CliDB.SoundKitStorage.ContainsKey(temp.sound))
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
@@ -152,7 +152,7 @@ public sealed class CreatureTextManager
 
 	public void LoadCreatureTextLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_localeTextMap.Clear(); // for reload case
 
@@ -181,7 +181,7 @@ public sealed class CreatureTextManager
 			GameObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public uint SendChat(Creature source, byte textGroup, WorldObject whisperTarget = null, ChatMsg msgType = ChatMsg.Addon, Language language = Language.Addon,
@@ -306,15 +306,15 @@ public sealed class CreatureTextManager
 		if (playType == SoundKitPlayType.ObjectSound)
 		{
 			PlayObjectSound pkt = new()
-            {
-                TargetObjectGUID = whisperTarget.GUID,
-                SourceObjectGUID = source.GUID,
-                SoundKitID = sound,
-                Position = whisperTarget.Location,
-                BroadcastTextID = (int)keyBroadcastTextId
-            };
+			{
+				TargetObjectGUID = whisperTarget.GUID,
+				SourceObjectGUID = source.GUID,
+				SoundKitID = sound,
+				Position = whisperTarget.Location,
+				BroadcastTextID = (int)keyBroadcastTextId
+			};
 
-            SendNonChatPacket(source, pkt, msgType, whisperTarget, range, team, gmOnly);
+			SendNonChatPacket(source, pkt, msgType, whisperTarget, range, team, gmOnly);
 		}
 		else if (playType == SoundKitPlayType.Normal)
 		{

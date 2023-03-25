@@ -362,8 +362,8 @@ public class PathGenerator
 				var _sourceUnit = _source.AsUnit;
 
 				if (_sourceUnit is { CanSwim: true })
-                    buildShotrcut = true;
-            }
+					buildShotrcut = true;
+			}
 			else
 			{
 				Log.Logger.Debug("++ BuildPolyPath :: flying case");
@@ -447,14 +447,13 @@ public class PathGenerator
 				// here to carch few bugs
 				if (_pathPolyRefs[pathStartIndex] == 0)
 				{
-					Log.Logger.Error(
-								"Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
-								" startPos: {2}, endPos: {3}, mapid: {4}",
-								_polyLength,
-								pathStartIndex,
-								startPos,
-								endPos,
-								_source.Location.MapId);
+					Log.Logger.Error("Invalid poly ref in BuildPolyPath. _polyLength: {0}, pathStartIndex: {1}," +
+									" startPos: {2}, endPos: {3}, mapid: {4}",
+									_polyLength,
+									pathStartIndex,
+									startPos,
+									endPos,
+									_source.Location.MapId);
 
 					break;
 				}

@@ -123,15 +123,15 @@ class BgArathiBasin : Battleground
 		1842, 1846, 1845, 1844, 1843
 	};
 
-    /// <summary>
-    ///  Nodes info:
-    ///  0: neutral
-    ///  1: ally contested
-    ///  2: horde contested
-    ///  3: ally occupied
-    ///  4: horde occupied
-    /// </summary>
-    readonly ABNodeStatus[] m_Nodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
+	/// <summary>
+	///  Nodes info:
+	///  0: neutral
+	///  1: ally contested
+	///  2: horde contested
+	///  3: ally occupied
+	///  4: horde occupied
+	/// </summary>
+	readonly ABNodeStatus[] m_Nodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
 
 	readonly ABNodeStatus[] m_prevNodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
 	readonly BannerTimer[] m_BannerTimers = new BannerTimer[ABBattlegroundNodes.DynamicNodesCount];

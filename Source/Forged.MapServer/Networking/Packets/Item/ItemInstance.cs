@@ -40,12 +40,12 @@ public class ItemInstance
 		if (!lootItem.BonusListIDs.Empty() || lootItem.randomBonusListId != 0)
 		{
 			ItemBonus = new ItemBonuses
-            {
-                BonusListIDs = lootItem.BonusListIDs,
-                Context = lootItem.context
-            };
+			{
+				BonusListIDs = lootItem.BonusListIDs,
+				Context = lootItem.context
+			};
 
-            if (lootItem.randomBonusListId != 0)
+			if (lootItem.randomBonusListId != 0)
 				ItemBonus.BonusListIDs.Add(lootItem.randomBonusListId);
 		}
 	}
@@ -61,13 +61,11 @@ public class ItemInstance
 			Modifications.Values.Add(new ItemMod(voidItem.ArtifactKnowledgeLevel, ItemModifier.ArtifactKnowledgeLevel));
 
 		if (!voidItem.BonusListIDs.Empty())
-		{
 			ItemBonus = new ItemBonuses
-            {
-                Context = voidItem.Context,
-                BonusListIDs = voidItem.BonusListIDs
-            };
-        }
+			{
+				Context = voidItem.Context,
+				BonusListIDs = voidItem.BonusListIDs
+			};
 	}
 
 	public ItemInstance(SocketedGem gem)
@@ -75,11 +73,11 @@ public class ItemInstance
 		ItemID = gem.ItemId;
 
 		ItemBonuses bonus = new()
-        {
-            Context = (ItemContext)(byte)gem.Context
-        };
+		{
+			Context = (ItemContext)(byte)gem.Context
+		};
 
-        foreach (var bonusListId in gem.BonusListIDs)
+		foreach (var bonusListId in gem.BonusListIDs)
 			if (bonusListId != 0)
 				bonus.BonusListIDs.Add(bonusListId);
 

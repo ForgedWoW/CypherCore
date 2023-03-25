@@ -45,12 +45,12 @@ public class UpdateData
 	public bool BuildPacket(out UpdateObject packet)
 	{
 		packet = new UpdateObject
-        {
-            NumObjUpdates = _blockCount,
-            MapID = (ushort)_mapId
-        };
+		{
+			NumObjUpdates = _blockCount,
+			MapID = (ushort)_mapId
+		};
 
-        WorldPacket buffer = new();
+		WorldPacket buffer = new();
 
 		if (buffer.WriteBit(!_outOfRangeGUIDs.Empty() || !_destroyGUIDs.Empty()))
 		{

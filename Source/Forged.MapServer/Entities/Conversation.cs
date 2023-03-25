@@ -237,14 +237,14 @@ public class Conversation : WorldObject
 				continue;
 
 			ConversationLine lineField = new()
-            {
-                ConversationLineID = line.Id,
-                UiCameraID = line.UiCameraID,
-                ActorIndex = line.ActorIdx,
-                Flags = line.Flags
-            };
+			{
+				ConversationLineID = line.Id,
+				UiCameraID = line.UiCameraID,
+				ActorIndex = line.ActorIdx,
+				Flags = line.Flags
+			};
 
-            var convoLine = CliDB.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
+			var convoLine = CliDB.ConversationLineStorage.LookupByKey(line.Id); // never null for conversationTemplate->Lines
 
 			for (var locale = Locale.enUS; locale < Locale.Total; locale = locale + 1)
 			{

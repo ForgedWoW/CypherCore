@@ -178,16 +178,16 @@ public partial class Player
 		}
 
 		SetItemPurchaseData setItemPurchaseData = new()
-        {
-            ItemGUID = item.GUID,
-            PurchaseTime = TotalPlayedTime - item.PlayedTime,
-            Contents =
-            {
-                Money = item.PaidMoney
-            }
-        };
+		{
+			ItemGUID = item.GUID,
+			PurchaseTime = TotalPlayedTime - item.PlayedTime,
+			Contents =
+			{
+				Money = item.PaidMoney
+			}
+		};
 
-        for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
+		for (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
 		{
 			setItemPurchaseData.Contents.Items[i].ItemCount = iece.ItemCount[i];
 			setItemPurchaseData.Contents.Items[i].ItemID = iece.ItemID[i];
@@ -209,17 +209,24 @@ public partial class Player
 	{
 		ItemPurchaseRefundResult itemPurchaseRefundResult = new();
 
-        {
-            ItemGUID = item.GUID,
-            Result = error
-        }	
-		i    (error == 0)
+		{
+			ItemGUID = item.GUID,
+			Result = error
+		}
+
+		i(error == 0)
+
 		{
 			itemPurchaseRefundResult.Contents = new ItemPurchaseContents();
-            {
-                Money = item.PaidMoney
-            }	
-			             (byte i = 0; i < ItemConst.MaxItemExtCostItems; ++i) // item cost data
+
+			{
+				Money = item.PaidMoney
+			}
+
+			(byte i = 0;
+			i < ItemConst.MaxItemExtCostItems;
+			++i) // item cost data
+
 			{
 				itemPurchaseRefundResult.Contents.Items[i].ItemCount = iece.ItemCount[i];
 				itemPurchaseRefundResult.Contents.Items[i].ItemID = iece.ItemID[i];
@@ -1077,11 +1084,12 @@ public partial class Player
 
 						SpellCooldownPkt spellCooldown = new();
 
-                        {
-                            Caster = GUID,
-                            Flags = SpellCooldownFlags.IncludeGCD
-                        }			
-                        llCooldown.SpellCooldowns.Add(new SpellCooldownStruct(cooldownSpell, 0));
+						{
+							Caster = GUID,
+							Flags = SpellCooldownFlags.IncludeGCD
+						}
+
+						llCooldown.SpellCooldowns.Add(new SpellCooldownStruct(cooldownSpell, 0));
 						SendPacket(spellCooldown);
 					}
 				}
@@ -1272,10 +1280,12 @@ public partial class Player
 	{
 		InventoryChangeFailure failure = new();
 
-        {
-            BagResult = msg
-        }	
-		i    (msg != InventoryResult.Ok)
+		{
+			BagResult = msg
+		}
+
+		i(msg != InventoryResult.Ok)
+
 		{
 			if (item1)
 				failure.Item[0] = item1.GUID;
@@ -2160,24 +2170,25 @@ public partial class Player
 
 		ItemPushResult packet = new();
 
-        {
-            PlayerGUID = GUID,
-            Slot = item.BagSlot,
-            SlotInBag = item.Count == quantity ? item.Slot : -1,
-            Item = new ItemInstance(item),
-            //packet.QuestLogItemID;
-            Quantity = quantity,
-            QuantityInInventory = GetItemCount(item.Entry),
-            BattlePetSpeciesID = (int)item.GetModifier(ItemModifier.BattlePetSpeciesId),
-            BattlePetBreedID = (int)item.GetModifier(ItemModifier.BattlePetBreedData) & 0xFFFFFF,
-            BattlePetBreedQuality = (item.GetModifier(ItemModifier.BattlePetBreedData) >> 24) & 0xFF,
-            BattlePetLevel = (int)item.GetModifier(ItemModifier.BattlePetLevel),
-            ItemGUID = item.GUID,
-            Pushed = pushed,
-            DisplayText = ItemPushResult.DisplayType.Normal,
-            Created = created
-        }
-		p    acket.IsBonusRoll;
+		{
+			PlayerGUID = GUID,
+			Slot = item.BagSlot,
+			SlotInBag = item.Count == quantity ? item.Slot : -1,
+			Item = new ItemInstance(item),
+			//packet.QuestLogItemID;
+			Quantity = quantity,
+			QuantityInInventory = GetItemCount(item.Entry),
+			BattlePetSpeciesID = (int)item.GetModifier(ItemModifier.BattlePetSpeciesId),
+			BattlePetBreedID = (int)item.GetModifier(ItemModifier.BattlePetBreedData) & 0xFFFFFF,
+			BattlePetBreedQuality = (item.GetModifier(ItemModifier.BattlePetBreedData) >> 24) & 0xFF,
+			BattlePetLevel = (int)item.GetModifier(ItemModifier.BattlePetLevel),
+			ItemGUID = item.GUID,
+			Pushed = pushed,
+			DisplayText = ItemPushResult.DisplayType.Normal,
+			Created = created
+		}
+
+		p acket.IsBonusRoll;
 
 		if (dungeonEncounterId != 0)
 		{
@@ -3788,12 +3799,11 @@ public partial class Player
 		// Currency tokens are not supposed to be swapped out of their hidden bag
 		if (pItem.IsCurrencyToken)
 		{
-			Log.Logger.Error(
-						"Possible hacking attempt: Player {0} [guid: {1}] tried to move token [guid: {2}, entry: {3}] out of the currency bag!",
-						GetName(),
-						GUID.ToString(),
-						pItem.GUID.ToString(),
-						pProto.Id);
+			Log.Logger.Error("Possible hacking attempt: Player {0} [guid: {1}] tried to move token [guid: {2}, entry: {3}] out of the currency bag!",
+							GetName(),
+							GUID.ToString(),
+							pItem.GUID.ToString(),
+							pProto.Id);
 
 			return InventoryResult.CantSwap;
 		}
@@ -4582,10 +4592,11 @@ public partial class Player
 				LearnedSpells learnedSpells = new();
 				LearnedSpellInfo learnedSpellInfo = new();
 
-                {
-                    SpellID = artifactPowerRank.SpellID
-                }			
-                rnedSpells.SuppressMessaging = true;
+				{
+					SpellID = artifactPowerRank.SpellID
+				}
+
+				rnedSpells.SuppressMessaging = true;
 				learnedSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
 				SendPacket(learnedSpells);
 			}
@@ -4594,10 +4605,11 @@ public partial class Player
 				RemoveTemporarySpell(artifactPowerRank.SpellID);
 				UnlearnedSpells unlearnedSpells = new();
 
-                {
-                    SuppressMessaging = true
-                }			
-                earnedSpells.SpellID.Add(artifactPowerRank.SpellID);
+				{
+					SuppressMessaging = true
+				}
+
+				earnedSpells.SpellID.Add(artifactPowerRank.SpellID);
 				SendPacket(unlearnedSpells);
 			}
 		}
@@ -5350,11 +5362,13 @@ public partial class Player
 	{
 		LootReleaseResponse packet = new();
 
-        {
-            LootObj = guid,
-            Owner = GUID
-        }		p
-    dPacket(packet);
+		{
+			LootObj = guid,
+			Owner = GUID
+		}
+
+		p
+		dPacket(packet);
 	}
 
 	public void SendLootReleaseAll()
@@ -5374,15 +5388,17 @@ public partial class Player
 
 		LootResponse packet = new();
 
-        {
-            Owner = loot.GetOwnerGUID(),
-            LootObj = loot.GetGUID(),
-            LootMethod = loot.GetLootMethod(),
-            AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.loot_type),
-            Acquired = true, // false == No Loot (this too^^)
-            AELooting = aeLooting
-        }		p
-    t.BuildLootResponse(packet, this);
+		{
+			Owner = loot.GetOwnerGUID(),
+			LootObj = loot.GetGUID(),
+			LootMethod = loot.GetLootMethod(),
+			AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.loot_type),
+			Acquired = true, // false == No Loot (this too^^)
+			AELooting = aeLooting
+		}
+
+		p
+		t.BuildLootResponse(packet, this);
 		SendPacket(packet);
 
 		// add 'this' player as one of the players that are looting 'loot'
@@ -5397,35 +5413,41 @@ public partial class Player
 	{
 		LootResponse packet = new();
 
-        {
-            LootObj = lootObj,
-            Owner = owner,
-            Acquired = false,
-            FailureReason = error
-        }		p
-    dPacket(packet);
+		{
+			LootObj = lootObj,
+			Owner = owner,
+			Acquired = false,
+			FailureReason = error
+		}
+
+		p
+		dPacket(packet);
 	}
 
 	public void SendNotifyLootMoneyRemoved(ObjectGuid lootObj)
 	{
 		CoinRemoved packet = new();
 
-        {
-            LootObj = lootObj
-        }		S
-    dPacket(packet);
+		{
+			LootObj = lootObj
+		}
+
+		S
+		dPacket(packet);
 	}
 
 	public void SendNotifyLootItemRemoved(ObjectGuid lootObj, ObjectGuid owner, byte lootListId)
 	{
 		LootRemoved packet = new();
 
-        {
-            LootObj = lootObj,
-            Owner = owner,
-            LootListID = lootListId
-        }		p
-    dPacket(packet);
+		{
+			LootObj = lootObj,
+			Owner = owner,
+			LootListID = lootListId
+		}
+
+		p
+		dPacket(packet);
 	}
 
 	public void SetEquipmentSet(EquipmentSetInfo.EquipmentSetData newEqSet)
@@ -5457,12 +5479,13 @@ public partial class Player
 
 			EquipmentSetID data = new();
 
-            {
-                GUID = eqSlot.Data.Guid,
-                Type = (int)eqSlot.Data.Type,
-                SetID = eqSlot.Data.SetId
-            }			
-            dPacket(data);
+			{
+				GUID = eqSlot.Data.Guid,
+				Type = (int)eqSlot.Data.Type,
+				SetID = eqSlot.Data.SetId
+			}
+
+			dPacket(data);
 		}
 
 		eqSlot.State = eqSlot.State == EquipmentSetUpdateState.New ? EquipmentSetUpdateState.New : EquipmentSetUpdateState.Changed;
@@ -6545,13 +6568,14 @@ public partial class Player
 
 			BuySucceeded packet = new();
 
-            {
-                VendorGUID = pVendor.GUID,
-                Muid = vendorslot + 1,
-                NewQuantity = crItem.Maxcount > 0 ? new_count : 0xFFFFFFFF,
-                QuantityBought = count
-            }			
-            dPacket(packet);
+			{
+				VendorGUID = pVendor.GUID,
+				Muid = vendorslot + 1,
+				NewQuantity = crItem.Maxcount > 0 ? new_count : 0xFFFFFFFF,
+				QuantityBought = count
+			}
+
+			dPacket(packet);
 
 			SendNewItem(it, count, true, false, false);
 
@@ -6748,12 +6772,13 @@ public partial class Player
 
 			ItemCooldown data = new();
 
-            {
-                ItemGuid = pItem.GUID,
-                SpellID = (uint)effectData.SpellID,
-                Cooldown = 30 * global::Time.InMilliseconds //Always 30secs?
-            }			
-            dPacket(data);
+			{
+				ItemGuid = pItem.GUID,
+				SpellID = (uint)effectData.SpellID,
+				Cooldown = 30 * Time.InMilliseconds //Always 30secs?
+			}
+
+			dPacket(data);
 		}
 	}
 

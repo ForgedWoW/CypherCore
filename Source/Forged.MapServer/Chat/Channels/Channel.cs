@@ -151,7 +151,7 @@ public class Channel
 		}
 
 		_isDirty = false;
-		_nextActivityUpdateTime = now + RandomHelper.URand(1 * global::Time.Minute, 6 * global::Time.Minute) * Math.Max(1u, WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
+		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
 	}
 
 	public void JoinChannel(Player player, string pass = "")
@@ -458,13 +458,13 @@ public class Channel
 		Log.Logger.Debug("SMSG_CHANNEL_LIST {0} Channel: {1}", player.Session.GetPlayerInfo(), channelName);
 
 		ChannelListResponse list = new()
-        {
-            Display = true, // always true?
-            Channel = channelName,
-            ChannelFlags = GetFlags()
-        };
+		{
+			Display = true, // always true?
+			Channel = channelName,
+			ChannelFlags = GetFlags()
+		};
 
-        var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
+		var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
 
 		foreach (var pair in _playersStore)
 		{

@@ -277,12 +277,12 @@ public class AzeriteItem : Item
 		}
 
 		PlayerAzeriteItemGains xpGain = new()
-        {
-            ItemGUID = GUID,
-            XP = xp
-        };
+		{
+			ItemGUID = GUID,
+			XP = xp
+		};
 
-        owner.SendPacket(xpGain);
+		owner.SendPacket(xpGain);
 	}
 
 	public static GameObject FindHeartForge(Player owner)
@@ -350,12 +350,12 @@ public class AzeriteItem : Item
 		if (index < 0)
 		{
 			UnlockedAzeriteEssence unlockedEssence = new()
-            {
-                AzeriteEssenceID = azeriteEssenceId,
-                Rank = rank
-            };
+			{
+				AzeriteEssenceID = azeriteEssenceId,
+				Rank = rank
+			};
 
-            AddDynamicUpdateFieldValue(Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.UnlockedEssences), unlockedEssence);
+			AddDynamicUpdateFieldValue(Values.ModifyValue(AzeriteItemData).ModifyValue(AzeriteItemData.UnlockedEssences), unlockedEssence);
 		}
 		else
 		{

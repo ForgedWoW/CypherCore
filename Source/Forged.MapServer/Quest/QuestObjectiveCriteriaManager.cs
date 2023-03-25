@@ -102,13 +102,13 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 					continue;
 
 				CriteriaProgress progress = new()
-                {
-                    Counter = counter,
-                    Date = date,
-                    Changed = false
-                };
+				{
+					Counter = counter,
+					Date = date,
+					Changed = false
+				};
 
-                _criteriaProgress[criteriaId] = progress;
+				_criteriaProgress[criteriaId] = progress;
 			} while (criteriaResult.NextRow());
 		}
 	}
@@ -199,16 +199,16 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 		foreach (var pair in _criteriaProgress)
 		{
 			CriteriaUpdate criteriaUpdate = new()
-            {
-                CriteriaID = pair.Key,
-                Quantity = pair.Value.Counter,
-                PlayerGUID = _owner.GUID,
-                Flags = 0,
-                CurrentTime = pair.Value.Date,
-                CreationTime = 0
-            };
+			{
+				CriteriaID = pair.Key,
+				Quantity = pair.Value.Counter,
+				PlayerGUID = _owner.GUID,
+				Flags = 0,
+				CurrentTime = pair.Value.Date,
+				CreationTime = 0
+			};
 
-            SendPacket(criteriaUpdate);
+			SendPacket(criteriaUpdate);
 		}
 	}
 
@@ -220,14 +220,14 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 	public override void SendCriteriaUpdate(Criteria criteria, CriteriaProgress progress, TimeSpan timeElapsed, bool timedCompleted)
 	{
 		CriteriaUpdate criteriaUpdate = new()
-        {
-            CriteriaID = criteria.Id,
-            Quantity = progress.Counter,
-            PlayerGUID = _owner.GUID,
-            Flags = 0
-        };
+		{
+			CriteriaID = criteria.Id,
+			Quantity = progress.Counter,
+			PlayerGUID = _owner.GUID,
+			Flags = 0
+		};
 
-        if (criteria.Entry.StartTimer != 0)
+		if (criteria.Entry.StartTimer != 0)
 			criteriaUpdate.Flags = timedCompleted ? 1 : 0u; // 1 is for keeping the counter at 0 in client
 
 		criteriaUpdate.CurrentTime = progress.Date;
@@ -240,11 +240,11 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 	public override void SendCriteriaProgressRemoved(uint criteriaId)
 	{
 		CriteriaDeleted criteriaDeleted = new()
-        {
-            CriteriaID = criteriaId
-        };
+		{
+			CriteriaID = criteriaId
+		};
 
-        SendPacket(criteriaDeleted);
+		SendPacket(criteriaDeleted);
 	}
 
 	public override bool CanUpdateCriteriaTree(Criteria criteria, CriteriaTree tree, Player referencePlayer)

@@ -20,12 +20,12 @@ class MasterLootItem : ClientPacket
 		for (var i = 0; i < Count; ++i)
 		{
 			LootRequest lootRequest = new()
-            {
-                Object = _worldPacket.ReadPackedGuid(),
-                LootListID = _worldPacket.ReadUInt8()
-            };
+			{
+				Object = _worldPacket.ReadPackedGuid(),
+				LootListID = _worldPacket.ReadUInt8()
+			};
 
-            Loot[i] = lootRequest;
+			Loot[i] = lootRequest;
 		}
 	}
 }

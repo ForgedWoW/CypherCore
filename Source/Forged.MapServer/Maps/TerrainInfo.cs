@@ -454,14 +454,14 @@ public class TerrainInfo
 			}
 
 			data.LiquidInfo = new LiquidData
-            {
-                level = wmoData.LiquidInfo.Value.Level,
-                depth_level = wmoData.FloorZ,
-                entry = liquidType,
-                type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType)
-            };
+			{
+				level = wmoData.LiquidInfo.Value.Level,
+				depth_level = wmoData.FloorZ,
+				entry = liquidType,
+				type_flags = (LiquidHeaderTypeFlags)(1 << (int)liquidFlagType)
+			};
 
-            var delta = wmoData.LiquidInfo.Value.Level - z;
+			var delta = wmoData.LiquidInfo.Value.Level - z;
 
 			if (delta > collisionHeight)
 				data.LiquidStatus = ZLiquidStatus.UnderWater;

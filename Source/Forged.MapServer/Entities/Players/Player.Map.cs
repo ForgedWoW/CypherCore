@@ -73,7 +73,7 @@ public partial class Player
 		if (difficultyEntry is not { InstanceType: MapTypes.Instance })
 			return Difficulty.Normal;
 
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
+		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect))
 			return Difficulty.Normal;
 
 		return difficulty;
@@ -86,7 +86,7 @@ public partial class Player
 		if (difficultyEntry is not { InstanceType: MapTypes.Raid })
 			return Difficulty.NormalRaid;
 
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
 			return Difficulty.NormalRaid;
 
 		return difficulty;
@@ -99,7 +99,7 @@ public partial class Player
 		if (difficultyEntry is not { InstanceType: MapTypes.Raid })
 			return Difficulty.Raid10N;
 
-        if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
+		if (!difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.CanSelect) || !difficultyEntry.Flags.HasAnyFlag(DifficultyFlags.Legacy))
 			return Difficulty.Raid10N;
 
 		return difficulty;
@@ -108,12 +108,12 @@ public partial class Player
 	public void SendRaidGroupOnlyMessage(RaidGroupReason reason, int delay)
 	{
 		RaidGroupOnly raidGroupOnly = new()
-        {
-            Delay = delay,
-            Reason = reason
-        };
+		{
+			Delay = delay,
+			Reason = reason
+		};
 
-        SendPacket(raidGroupOnly);
+		SendPacket(raidGroupOnly);
 	}
 
 	public void UpdateZone(uint newZone, uint newArea)
@@ -123,7 +123,7 @@ public partial class Player
 
 		var oldZone = _zoneUpdateId;
 		_zoneUpdateId = newZone;
-		_zoneUpdateTimer = 1 * global::Time.InMilliseconds;
+		_zoneUpdateTimer = 1 * Time.InMilliseconds;
 
 		Map.UpdatePlayerZoneStats(oldZone, newZone);
 
@@ -292,17 +292,17 @@ public partial class Player
 		foreach (var instanceLock in instanceLocks)
 		{
 			InstanceLockPkt lockInfos = new()
-            {
-                InstanceID = instanceLock.GetInstanceId(),
-                MapID = instanceLock.GetMapId(),
-                DifficultyID = (uint)instanceLock.GetDifficultyId(),
-                TimeRemaining = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds, 0),
-                CompletedMask = instanceLock.GetData().CompletedEncountersMask,
-                Locked = !instanceLock.IsExpired(),
-                Extended = instanceLock.IsExtended()
-            };
+			{
+				InstanceID = instanceLock.GetInstanceId(),
+				MapID = instanceLock.GetMapId(),
+				DifficultyID = (uint)instanceLock.GetDifficultyId(),
+				TimeRemaining = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - now).TotalSeconds, 0),
+				CompletedMask = instanceLock.GetData().CompletedEncountersMask,
+				Locked = !instanceLock.IsExpired(),
+				Extended = instanceLock.IsExtended()
+			};
 
-            instanceInfo.LockList.Add(lockInfos);
+			instanceInfo.LockList.Add(lockInfos);
 		}
 
 		SendPacket(instanceInfo);
@@ -462,28 +462,28 @@ public partial class Player
 	public void AddInstanceEnterTime(uint instanceId, long enterTime)
 	{
 		if (!_instanceResetTimes.ContainsKey(instanceId))
-			_instanceResetTimes.Add(instanceId, enterTime + global::Time.Hour);
+			_instanceResetTimes.Add(instanceId, enterTime + Time.Hour);
 	}
 
 	public void SendDungeonDifficulty(int forcedDifficulty = -1)
 	{
 		DungeonDifficultySet dungeonDifficultySet = new()
-        {
-            DifficultyID = forcedDifficulty == -1 ? (int)DungeonDifficultyId : forcedDifficulty
-        };
+		{
+			DifficultyID = forcedDifficulty == -1 ? (int)DungeonDifficultyId : forcedDifficulty
+		};
 
-        SendPacket(dungeonDifficultySet);
+		SendPacket(dungeonDifficultySet);
 	}
 
 	public void SendRaidDifficulty(bool legacy, int forcedDifficulty = -1)
 	{
 		RaidDifficultySet raidDifficultySet = new()
-        {
-            DifficultyID = forcedDifficulty == -1 ? (int)(legacy ? LegacyRaidDifficultyId : RaidDifficultyId) : forcedDifficulty,
-            Legacy = legacy
-        };
+		{
+			DifficultyID = forcedDifficulty == -1 ? (int)(legacy ? LegacyRaidDifficultyId : RaidDifficultyId) : forcedDifficulty,
+			Legacy = legacy
+		};
 
-        SendPacket(raidDifficultySet);
+		SendPacket(raidDifficultySet);
 	}
 
 	public void SendResetFailedNotify(uint mapid)
@@ -531,35 +531,35 @@ public partial class Player
 	public void SendResetInstanceSuccess(uint mapId)
 	{
 		InstanceReset data = new()
-        {
-            MapID = mapId
-        };
+		{
+			MapID = mapId
+		};
 
-        SendPacket(data);
+		SendPacket(data);
 	}
 
 	public void SendResetInstanceFailed(ResetFailedReason reason, uint mapId)
 	{
 		InstanceResetFailed data = new()
-        {
-            MapID = mapId,
-            ResetFailedReason = reason
-        };
+		{
+			MapID = mapId,
+			ResetFailedReason = reason
+		};
 
-        SendPacket(data);
+		SendPacket(data);
 	}
 
 	public void SendTransferAborted(uint mapid, TransferAbortReason reason, byte arg = 0, uint mapDifficultyXConditionId = 0)
 	{
 		TransferAborted transferAborted = new()
-        {
-            MapID = mapid,
-            Arg = arg,
-            TransfertAbort = reason,
-            MapDifficultyXConditionID = mapDifficultyXConditionId
-        };
+		{
+			MapID = mapid,
+			Arg = arg,
+			TransfertAbort = reason,
+			MapDifficultyXConditionID = mapDifficultyXConditionId
+		};
 
-        SendPacket(transferAborted);
+		SendPacket(transferAborted);
 	}
 
 	public bool IsLockedToDungeonEncounter(uint dungeonEncounterId)

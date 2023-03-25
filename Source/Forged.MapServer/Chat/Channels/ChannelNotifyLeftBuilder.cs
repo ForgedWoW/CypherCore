@@ -24,15 +24,15 @@ class ChannelNotifyLeftBuilder : MessageBuilder
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChannelNotifyLeft> notify = new()
-        {
-            Data =
-            {
-                Channel = _source.GetName(localeIdx),
-                ChatChannelID = _source.GetChannelId(),
-                Suspended = _suspended
-            }
-        };
+		{
+			Data =
+			{
+				Channel = _source.GetName(localeIdx),
+				ChatChannelID = _source.GetChannelId(),
+				Suspended = _suspended
+			}
+		};
 
-        return notify;
+		return notify;
 	}
 }

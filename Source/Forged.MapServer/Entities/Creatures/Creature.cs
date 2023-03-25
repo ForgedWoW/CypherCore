@@ -80,7 +80,6 @@ public partial class Creature : Unit
 	public override void RemoveFromWorld()
 	{
 		if (IsInWorld)
-		{
 			try
 			{
 				if (ZoneScript != null)
@@ -100,7 +99,6 @@ public partial class Creature : Unit
 			{
 				Log.outException(ex);
 			}
-		}
 	}
 
 	public void DisappearAndDie()
@@ -496,13 +494,13 @@ public partial class Creature : Unit
 
 						if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
 						{
-							SetRespawnTime(global::Time.Week);
+							SetRespawnTime(Time.Week);
 						}
 						else
 						{
 							// else copy time from master and add a little
 							var baseRespawnTime = Math.Max(linkedRespawnTime, now);
-							var offset = RandomHelper.LRand(5, global::Time.Minute);
+							var offset = RandomHelper.LRand(5, Time.Minute);
 
 							// linked guid can be a boss, uses std::numeric_limits<time_t>::max to never respawn in that instance
 							// we shall inherit it instead of adding and causing an overflow
@@ -594,7 +592,7 @@ public partial class Creature : Unit
 								EngageWithTarget(player);
 						}
 
-						_combatPulseTime = _combatPulseDelay * global::Time.InMilliseconds;
+						_combatPulseTime = _combatPulseDelay * Time.InMilliseconds;
 					}
 				}
 
@@ -711,7 +709,7 @@ public partial class Creature : Unit
 
 		// Apply modifiers (if any).
 		addvalue *= GetTotalAuraMultiplierByMiscValue(AuraType.ModPowerRegenPercent, (int)power);
-		addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * (IsHunterPet ? SharedConst.PetFocusRegenInterval : SharedConst.CreatureRegenInterval) / (5 * global::Time.InMilliseconds);
+		addvalue += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)power) * (IsHunterPet ? SharedConst.PetFocusRegenInterval : SharedConst.CreatureRegenInterval) / (5 * Time.InMilliseconds);
 
 		ModifyPower(power, (int)addvalue);
 	}
@@ -2087,12 +2085,12 @@ public partial class Creature : Unit
 	public void SendAIReaction(AiReaction reactionType)
 	{
 		AIReaction packet = new()
-        {
-            UnitGUID = GUID,
-            Reaction = reactionType
-        };
+		{
+			UnitGUID = GUID,
+			Reaction = reactionType
+		};
 
-        SendMessageToSet(packet, true);
+		SendMessageToSet(packet, true);
 	}
 
 	public void CallAssistance()
@@ -2236,13 +2234,13 @@ public partial class Creature : Unit
 		if (RespawnCompatibilityMode)
 		{
 			RespawnInfo ri = new()
-            {
-                ObjectType = SpawnObjectType.Creature,
-                SpawnId = SpawnId,
-                RespawnTime = RespawnTime
-            };
+			{
+				ObjectType = SpawnObjectType.Creature,
+				SpawnId = SpawnId,
+				RespawnTime = RespawnTime
+			};
 
-            Map.SaveRespawnInfoDB(ri);
+			Map.SaveRespawnInfoDB(ri);
 
 			return;
 		}
@@ -2381,11 +2379,11 @@ public partial class Creature : Unit
 		var enemy_team = attacker.Team;
 
 		ZoneUnderAttack packet = new()
-        {
-            AreaID = (int)Area
-        };
+		{
+			AreaID = (int)Area
+		};
 
-        Global.WorldMgr.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
+		Global.WorldMgr.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
 	}
 
 	public override bool HasSpell(uint spellId)
@@ -3240,7 +3238,7 @@ public partial class Creature : Unit
 
 		// Apply modifiers (if any).
 		addvalue *= GetTotalAuraMultiplier(AuraType.ModHealthRegenPercent);
-		addvalue += GetTotalAuraModifier(AuraType.ModRegen) * SharedConst.CreatureRegenInterval / (5 * global::Time.InMilliseconds);
+		addvalue += GetTotalAuraModifier(AuraType.ModRegen) * SharedConst.CreatureRegenInterval / (5 * Time.InMilliseconds);
 
 		ModifyHealth(addvalue);
 	}
@@ -3281,9 +3279,9 @@ public partial class Creature : Unit
 			var areaTable = CliDB.AreaTableStorage.LookupByKey(Zone);
 
 			if (areaTable is { WildBattlePetLevelMin: > 0 })
-                wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
+				wildBattlePetLevel = (byte)RandomHelper.URand(areaTable.WildBattlePetLevelMin, areaTable.WildBattlePetLevelMax);
 
-            WildBattlePetLevel = wildBattlePetLevel;
+			WildBattlePetLevel = wildBattlePetLevel;
 		}
 	}
 

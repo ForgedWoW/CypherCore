@@ -21,7 +21,7 @@ public class CharacterCache : Singleton<CharacterCache>
 	public void LoadCharacterCacheStorage()
 	{
 		_characterCacheStore.Clear();
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
 
@@ -43,18 +43,18 @@ public class CharacterCache : Singleton<CharacterCache>
 	public void AddCharacterCacheEntry(ObjectGuid guid, uint accountId, string name, byte gender, byte race, byte playerClass, byte level, bool isDeleted)
 	{
 		var data = new CharacterCacheEntry
-        {
-            Guid = guid,
-            Name = name,
-            AccountId = accountId,
-            RaceId = (Race)race,
-            Sex = (Gender)gender,
-            ClassId = (PlayerClass)playerClass,
-            Level = level,
-            GuildId = 0 // Will be set in guild loading or guild setting
-        };
+		{
+			Guid = guid,
+			Name = name,
+			AccountId = accountId,
+			RaceId = (Race)race,
+			Sex = (Gender)gender,
+			ClassId = (PlayerClass)playerClass,
+			Level = level,
+			GuildId = 0 // Will be set in guild loading or guild setting
+		};
 
-        for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
+		for (byte i = 0; i < SharedConst.MaxArenaSlot; ++i)
 			data.ArenaTeamId[i] = 0; // Will be set in arena teams loading
 
 		data.IsDeleted = isDeleted;
@@ -87,11 +87,11 @@ public class CharacterCache : Singleton<CharacterCache>
 			characterCacheEntry.RaceId = (Race)race.Value;
 
 		InvalidatePlayer invalidatePlayer = new()
-        {
-            Guid = guid
-        };
+		{
+			Guid = guid
+		};
 
-        Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
+		Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
 
 		// Correct name -> pointer storage
 		_characterCacheByNameStore.Remove(oldName);

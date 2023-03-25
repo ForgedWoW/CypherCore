@@ -26,15 +26,15 @@ class ChannelNameBuilder : MessageBuilder
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChannelNotify> sender = new()
-        {
-            Data =
-            {
-                Type = _modifier.GetNotificationType(),
-                Channel = _source.GetName(localeIdx)
-            }
-        };
+		{
+			Data =
+			{
+				Type = _modifier.GetNotificationType(),
+				Channel = _source.GetName(localeIdx)
+			}
+		};
 
-        _modifier.Append(sender.Data);
+		_modifier.Append(sender.Data);
 		sender.Data.Write();
 
 		return sender;

@@ -72,17 +72,17 @@ class TeleCommands
 		}
 
 		GameTele tele = new()
-        {
-            posX = player.Location.X,
-            posY = player.Location.Y,
-            posZ = player.Location.Z,
-            orientation = player.Location.Orientation,
-            mapId = player.Location.MapId,
-            name = name,
-            nameLow = name.ToLowerInvariant()
-        };
+		{
+			posX = player.Location.X,
+			posY = player.Location.Y,
+			posZ = player.Location.Z,
+			orientation = player.Location.Orientation,
+			mapId = player.Location.MapId,
+			name = name,
+			nameLow = name.ToLowerInvariant()
+		};
 
-        if (Global.ObjectMgr.AddGameTele(tele))
+		if (Global.ObjectMgr.AddGameTele(tele))
 		{
 			handler.SendSysMessage(CypherStrings.CommandTpAdded);
 		}

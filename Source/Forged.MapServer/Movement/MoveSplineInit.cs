@@ -96,8 +96,8 @@ public class MoveSplineInit
 			var creature = unit.AsCreature;
 
 			if (creature is { HasSearchedAssistance: true })
-                args.velocity *= 0.66f;
-        }
+				args.velocity *= 0.66f;
+		}
 
 		// limit the speed in the same way the client does
 		float speedLimit()
@@ -122,12 +122,12 @@ public class MoveSplineInit
 		move_spline.Initialize(args);
 
 		MonsterMove packet = new()
-        {
-            MoverGUID = unit.GUID,
-            Pos = new Vector3(real_position.X, real_position.Y, real_position.Z)
-        };
+		{
+			MoverGUID = unit.GUID,
+			Pos = new Vector3(real_position.X, real_position.Y, real_position.Z)
+		};
 
-        packet.InitializeSplineData(move_spline);
+		packet.InitializeSplineData(move_spline);
 
 		if (transport)
 		{
@@ -176,17 +176,17 @@ public class MoveSplineInit
 		move_spline.Initialize(args);
 
 		MonsterMove packet = new()
-        {
-            MoverGUID = unit.GUID,
-            Pos = new Vector3(loc.X, loc.Y, loc.Z),
-            SplineData =
-            {
-                StopDistanceTolerance = 2,
-                Id = move_spline.GetId()
-            }
-        };
+		{
+			MoverGUID = unit.GUID,
+			Pos = new Vector3(loc.X, loc.Y, loc.Z),
+			SplineData =
+			{
+				StopDistanceTolerance = 2,
+				Id = move_spline.GetId()
+			}
+		};
 
-        if (transport)
+		if (transport)
 		{
 			packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
 			packet.SplineData.Move.VehicleSeat = unit.TransSeat;
@@ -341,12 +341,13 @@ public class MoveSplineInit
 	public void SetAnimation(AnimTier anim)
 	{
 		args.time_perc = 0.0f;
-		args.animTier = new AnimTierTransition
-        {
-            AnimTier = (byte)anim
-        };
 
-        args.flags.EnableAnimation();
+		args.animTier = new AnimTierTransition
+		{
+			AnimTier = (byte)anim
+		};
+
+		args.flags.EnableAnimation();
 	}
 
 	public void SetFacing(Vector3 spot)

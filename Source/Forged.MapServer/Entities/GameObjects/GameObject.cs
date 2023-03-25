@@ -444,7 +444,6 @@ namespace Forged.MapServer.Entities.GameObjects
 		{
 			//- Remove the gameobject from the accessor
 			if (IsInWorld)
-			{
 				try
 				{
 					if (ZoneScript != null)
@@ -471,9 +470,8 @@ namespace Forged.MapServer.Entities.GameObjects
 				}
 				catch (Exception ex)
 				{
-					Log.outException(ex);	
+					Log.outException(ex);
 				}
-			}
 		}
 
 		public static GameObject CreateGameObject(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit = 0)
@@ -573,10 +571,10 @@ namespace Forged.MapServer.Entities.GameObjects
 							var owner = OwnerUnit;
 
 							if (goInfo.Trap.charges == 2)
-								_cooldownTime = GameTime.GetGameTimeMS() + 10 * global::Time.InMilliseconds; // Hardcoded tooltip value
+								_cooldownTime = GameTime.GetGameTimeMS() + 10 * Time.InMilliseconds; // Hardcoded tooltip value
 							else if (owner)
 								if (owner.IsInCombat)
-									_cooldownTime = GameTime.GetGameTimeMS() + goInfo.Trap.startDelay * global::Time.InMilliseconds;
+									_cooldownTime = GameTime.GetGameTimeMS() + goInfo.Trap.startDelay * Time.InMilliseconds;
 
 							_lootState = LootState.Ready;
 
@@ -634,9 +632,9 @@ namespace Forged.MapServer.Entities.GameObjects
 									var targetGuid = Global.ObjectMgr.GetLinkedRespawnGuid(dbtableHighGuid);
 
 									if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
-										SetRespawnTime(global::Time.Week);
+										SetRespawnTime(Time.Week);
 									else
-										_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + RandomHelper.IRand(5, global::Time.Minute); // else copy time from master and add a little
+										_respawnTime = (now > linkedRespawntime ? now : linkedRespawntime) + RandomHelper.IRand(5, Time.Minute); // else copy time from master and add a little
 
 									SaveRespawnTime();
 
@@ -890,7 +888,7 @@ namespace Forged.MapServer.Entities.GameObjects
 									CastSpell(target, goInfo.Trap.spell, args);
 
 								// Template value or 4 seconds
-								_cooldownTime = (GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * global::Time.InMilliseconds;
+								_cooldownTime = (GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4u)) * Time.InMilliseconds;
 
 								if (goInfo.Trap.charges == 1)
 									SetLootState(LootState.JustDeactivated);
@@ -1107,11 +1105,11 @@ namespace Forged.MapServer.Entities.GameObjects
 		public void SendGameObjectDespawn()
 		{
 			GameObjectDespawn packet = new()
-            {
-                ObjectGUID = GUID
-            };
+			{
+				ObjectGUID = GUID
+			};
 
-            SendMessageToSet(packet, true);
+			SendMessageToSet(packet, true);
 		}
 
 		public Loot.Loot GetFishLoot(Player lootOwner)
@@ -1400,13 +1398,13 @@ namespace Forged.MapServer.Entities.GameObjects
 				if (_respawnCompatibilityMode)
 				{
 					RespawnInfo ri = new()
-                    {
-                        ObjectType = SpawnObjectType.GameObject,
-                        SpawnId = _spawnId,
-                        RespawnTime = _respawnTime
-                    };
+					{
+						ObjectType = SpawnObjectType.GameObject,
+						SpawnId = _spawnId,
+						RespawnTime = _respawnTime
+					};
 
-                    Map.SaveRespawnInfoDB(ri);
+					Map.SaveRespawnInfoDB(ri);
 
 					return;
 				}
@@ -1804,7 +1802,7 @@ namespace Forged.MapServer.Entities.GameObjects
 				if (_cooldownTime > GameTime.GetGameTime())
 					return;
 
-				_cooldownTime = GameTime.GetGameTimeMS() + cooldown * global::Time.InMilliseconds;
+				_cooldownTime = GameTime.GetGameTimeMS() + cooldown * Time.InMilliseconds;
 			}
 
 			switch (GoType)
@@ -1956,7 +1954,7 @@ namespace Forged.MapServer.Entities.GameObjects
 					if (goInfo.Trap.spell != 0)
 						CastSpell(user, goInfo.Trap.spell);
 
-					_cooldownTime = GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * global::Time.InMilliseconds; // template or 4 seconds
+					_cooldownTime = GameTime.GetGameTimeMS() + (goInfo.Trap.cooldown != 0 ? goInfo.Trap.cooldown : 4) * Time.InMilliseconds; // template or 4 seconds
 
 					if (goInfo.Trap.charges == 1) // Deactivate after trigger
 						SetLootState(LootState.JustDeactivated);
@@ -2069,11 +2067,11 @@ namespace Forged.MapServer.Entities.GameObjects
 						if (info.Goober.pageID != 0) // show page...
 						{
 							PageTextPkt data = new()
-                            {
-                                GameObjectGUID = GUID
-                            };
+							{
+								GameObjectGUID = GUID
+							};
 
-                            player.SendPacket(data);
+							player.SendPacket(data);
 						}
 						else if (info.Goober.gossipID != 0)
 						{
@@ -2603,12 +2601,12 @@ namespace Forged.MapServer.Entities.GameObjects
 							}
 
 							OpenArtifactForge openArtifactForge = new()
-                            {
-                                ArtifactGUID = item.GUID,
-                                ForgeGUID = GUID
-                            };
+							{
+								ArtifactGUID = item.GUID,
+								ForgeGUID = GUID
+							};
 
-                            player.SendPacket(openArtifactForge);
+							player.SendPacket(openArtifactForge);
 
 							break;
 						}
@@ -2620,12 +2618,12 @@ namespace Forged.MapServer.Entities.GameObjects
 								return;
 
 							GameObjectInteraction openHeartForge = new()
-                            {
-                                ObjectGUID = GUID,
-                                InteractionType = PlayerInteractionType.AzeriteForge
-                            };
+							{
+								ObjectGUID = GUID,
+								InteractionType = PlayerInteractionType.AzeriteForge
+							};
 
-                            player.SendPacket(openHeartForge);
+							player.SendPacket(openHeartForge);
 
 							break;
 						}
@@ -2643,11 +2641,11 @@ namespace Forged.MapServer.Entities.GameObjects
 						return;
 
 					GameObjectInteraction gameObjectUILink = new()
-                    {
-                        ObjectGUID = GUID
-                    };
+					{
+						ObjectGUID = GUID
+					};
 
-                    switch (Template.UILink.UILinkType)
+					switch (Template.UILink.UILinkType)
 					{
 						case 0:
 							gameObjectUILink.InteractionType = PlayerInteractionType.AdventureJournal;
@@ -2741,15 +2739,14 @@ namespace Forged.MapServer.Entities.GameObjects
 				}
 				default:
 					if (GoType >= GameObjectTypes.Max)
-						Log.Logger.Error(
-									"GameObject.Use(): unit (type: {0}, guid: {1}, name: {2}) tries to use object (guid: {3}, entry: {4}, name: {5}) of unknown type ({6})",
-									user.TypeId,
-									user.GUID.ToString(),
-									user.GetName(),
-									GUID.ToString(),
-									Entry,
-									Template.name,
-									GoType);
+						Log.Logger.Error("GameObject.Use(): unit (type: {0}, guid: {1}, name: {2}) tries to use object (guid: {3}, entry: {4}, name: {5}) of unknown type ({6})",
+										user.TypeId,
+										user.GUID.ToString(),
+										user.GetName(),
+										GUID.ToString(),
+										Entry,
+										Template.name,
+										GoType);
 
 					break;
 			}
@@ -2781,12 +2778,12 @@ namespace Forged.MapServer.Entities.GameObjects
 		public void SendCustomAnim(uint anim)
 		{
 			GameObjectCustomAnim customAnim = new()
-            {
-                ObjectGUID = GUID,
-                CustomAnim = anim
-            };
+			{
+				ObjectGUID = GUID,
+				CustomAnim = anim
+			};
 
-            SendMessageToSet(customAnim, true);
+			SendMessageToSet(customAnim, true);
 		}
 
 		public bool IsInRange(float x, float y, float z, float radius)
@@ -2991,15 +2988,15 @@ namespace Forged.MapServer.Entities.GameObjects
 			if (player != null)
 			{
 				DestructibleBuildingDamage packet = new()
-                {
-                    Caster = attackerOrHealer.GUID, // todo: this can be a GameObject
-                    Target = GUID,
-                    Damage = -change,
-                    Owner = player.GUID,
-                    SpellID = spellId
-                };
+				{
+					Caster = attackerOrHealer.GUID, // todo: this can be a GameObject
+					Target = GUID,
+					Damage = -change,
+					Owner = player.GUID,
+					SpellID = spellId
+				};
 
-                player.SendPacket(packet);
+				player.SendPacket(packet);
 			}
 
 			if (change < 0 && Template.DestructibleBuilding.DamageEvent != 0)
@@ -3495,13 +3492,13 @@ namespace Forged.MapServer.Entities.GameObjects
 				_animKitId = 0;
 
 			GameObjectActivateAnimKit activateAnimKit = new()
-            {
-                ObjectGUID = GUID,
-                AnimKitID = animKitId,
-                Maintain = !oneshot
-            };
+			{
+				ObjectGUID = GUID,
+				AnimKitID = animKitId,
+				Maintain = !oneshot
+			};
 
-            SendMessageToSet(activateAnimKit, true);
+			SendMessageToSet(activateAnimKit, true);
 		}
 
 		public void SetSpellVisualId(uint spellVisualId, ObjectGuid activatorGuid = default)
@@ -3509,13 +3506,13 @@ namespace Forged.MapServer.Entities.GameObjects
 			SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.SpellVisualID), spellVisualId);
 
 			GameObjectPlaySpellVisual packet = new()
-            {
-                ObjectGUID = GUID,
-                ActivatorGUID = activatorGuid,
-                SpellVisualID = spellVisualId
-            };
+			{
+				ObjectGUID = GUID,
+				ActivatorGUID = activatorGuid,
+				SpellVisualID = spellVisualId
+			};
 
-            SendMessageToSet(packet, true);
+			SendMessageToSet(packet, true);
 		}
 
 		public void AssaultCapturePoint(Player player)
@@ -3650,7 +3647,9 @@ namespace Forged.MapServer.Entities.GameObjects
 		{
 			// Owner already found and different than expected owner - remove object from old owner
 			if (!owner.IsEmpty && !OwnerGUID.IsEmpty && OwnerGUID != owner)
+			{
 				Log.Logger.Warning("Owner already found and different than expected owner - remove object from old owner");
+			}
 			else
 			{
 				_spawnedByDefault = false; // all object with owner is despawned after delay
@@ -3811,17 +3810,17 @@ namespace Forged.MapServer.Entities.GameObjects
 			if (owner)
 			{
 				owner.RemoveGameObject(this, false);
+
 				return;
 			}
 
 			// This happens when a mage portal is despawned after the caster changes map (for example using the portal)
-			Log.Logger.Debug(
-						"Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
-						GUID.ToString(),
-						Template.entry,
-						_spellId,
-						Template.GetLinkedGameObjectEntry(),
-						ownerGUID.ToString());
+			Log.Logger.Debug("Removed GameObject (GUID: {0} Entry: {1} SpellId: {2} LinkedGO: {3}) that just lost any reference to the owner {4} GO list",
+							GUID.ToString(),
+							Template.entry,
+							_spellId,
+							Template.GetLinkedGameObjectEntry(),
+							ownerGUID.ToString());
 
 			SetOwnerGUID(ObjectGuid.Empty);
 		}
@@ -4138,12 +4137,12 @@ namespace Forged.MapServer.Entities.GameObjects
 			perPlayerState.State = state;
 
 			GameObjectSetStateLocal setStateLocal = new()
-            {
-                ObjectGUID = GUID,
-                State = (byte)state
-            };
+			{
+				ObjectGUID = GUID,
+				State = (byte)state
+			};
 
-            viewer.SendPacket(setStateLocal);
+			viewer.SendPacket(setStateLocal);
 		}
 
 		void EnableCollision(bool enable)
@@ -4230,18 +4229,18 @@ namespace Forged.MapServer.Entities.GameObjects
 				if (bg != null)
 				{
 					UpdateCapturePoint packet = new()
-                    {
-                        CapturePointInfo =
-                        {
-                            State = GoValueProtected.CapturePoint.State,
-                            Pos = Location,
-                            Guid = GUID,
-                            CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime),
-                            CaptureTime = GoValueProtected.CapturePoint.AssaultTimer
-                        }
-                    };
+					{
+						CapturePointInfo =
+						{
+							State = GoValueProtected.CapturePoint.State,
+							Pos = Location,
+							Guid = GUID,
+							CaptureTotalDuration = TimeSpan.FromMilliseconds(Template.CapturePoint.CaptureTime),
+							CaptureTime = GoValueProtected.CapturePoint.AssaultTimer
+						}
+					};
 
-                    bg.SendPacketToAll(packet);
+					bg.SendPacketToAll(packet);
 					bg.UpdateWorldState((int)Template.CapturePoint.worldState1, (byte)GoValueProtected.CapturePoint.State);
 				}
 			}

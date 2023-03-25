@@ -118,12 +118,12 @@ public class BattlepayManager
 	public void SendBattlePayBattlePetDelivered(ObjectGuid petguid, uint creatureID)
 	{
 		var response = new BattlePayBattlePetDelivered
-        {
-            DisplayID = creatureID,
-            BattlePetGuid = petguid
-        };
+		{
+			DisplayID = creatureID,
+			BattlePetGuid = petguid
+		};
 
-        _session.SendPacket(response);
+		_session.SendPacket(response);
 		Log.Logger.Error("Send BattlePayBattlePetDelivered guid: {} && creatureID: {}", petguid.Counter, creatureID);
 	}
 
@@ -1069,14 +1069,14 @@ public class BattlepayManager
 			var visual = displayInfo.Visuals[v];
 
 			var _Visual = new BpayVisual
-            {
-                Name = visual.Name,
-                DisplayId = visual.DisplayId,
-                VisualId = visual.VisualId,
-                Unk = visual.Unk
-            };
+			{
+				Name = visual.Name,
+				DisplayId = visual.DisplayId,
+				VisualId = visual.VisualId,
+				Unk = visual.Unk
+			};
 
-            info.Visuals.Add(_Visual);
+			info.Visuals.Add(_Visual);
 		}
 
 		if (displayInfo.Flags != 0)
@@ -1092,7 +1092,7 @@ public class BattlepayManager
 	//	auto ProductFilter(WorldPackets::BattlePay::Product product);
 	public void SendProductList()
 	{
-        var response = new ProductListResponse();
+		var response = new ProductListResponse();
 		var player = _session.Player; // it's a false value if player is in character screen
 
 		if (!IsAvailable())
@@ -1110,33 +1110,33 @@ public class BattlepayManager
 		foreach (var itr in BattlePayDataStoreMgr.Instance.ProductGroups)
 		{
 			var group = new BpayGroup
-            {
-                GroupId = itr.GroupId,
-                IconFileDataID = itr.IconFileDataID,
-                DisplayType = itr.DisplayType,
-                Ordering = itr.Ordering,
-                Unk = itr.Unk,
-                Name = itr.Name,
-                Description = itr.Description
-            };
+			{
+				GroupId = itr.GroupId,
+				IconFileDataID = itr.IconFileDataID,
+				DisplayType = itr.DisplayType,
+				Ordering = itr.Ordering,
+				Unk = itr.Unk,
+				Name = itr.Name,
+				Description = itr.Description
+			};
 
-            response.ProductGroups.Add(group);
+			response.ProductGroups.Add(group);
 		}
 
 		// BATTLEPAY SHOP
 		foreach (var itr in BattlePayDataStoreMgr.Instance.ShopEntries)
 		{
 			var shop = new BpayShop
-            {
-                EntryId = itr.EntryId,
-                GroupID = itr.GroupID,
-                ProductID = itr.ProductID,
-                Ordering = itr.Ordering,
-                VasServiceType = itr.VasServiceType,
-                StoreDeliveryType = itr.StoreDeliveryType
-            };
+			{
+				EntryId = itr.EntryId,
+				GroupID = itr.GroupID,
+				ProductID = itr.ProductID,
+				Ordering = itr.Ordering,
+				VasServiceType = itr.VasServiceType,
+				StoreDeliveryType = itr.StoreDeliveryType
+			};
 
-            // shop entry and display entry must be the same
+			// shop entry and display entry must be the same
 			var data = WriteDisplayInfo(itr.Entry);
 
 			if (data.Item1)
@@ -1167,19 +1167,19 @@ public class BattlepayManager
 					continue;
 
 			var productinfo = new BpayProductInfo
-            {
-                ProductId = productInfo.ProductId,
-                NormalPriceFixedPoint = productInfo.NormalPriceFixedPoint,
-                CurrentPriceFixedPoint = productInfo.CurrentPriceFixedPoint,
-                ProductIds = productInfo.ProductIds,
-                Unk1 = productInfo.Unk1,
-                Unk2 = productInfo.Unk2,
-                UnkInts = productInfo.UnkInts,
-                Unk3 = productInfo.Unk3,
-                ChoiceType = productInfo.ChoiceType
-            };
+			{
+				ProductId = productInfo.ProductId,
+				NormalPriceFixedPoint = productInfo.NormalPriceFixedPoint,
+				CurrentPriceFixedPoint = productInfo.CurrentPriceFixedPoint,
+				ProductIds = productInfo.ProductIds,
+				Unk1 = productInfo.Unk1,
+				Unk2 = productInfo.Unk2,
+				UnkInts = productInfo.UnkInts,
+				Unk3 = productInfo.Unk3,
+				ChoiceType = productInfo.ChoiceType
+			};
 
-            // productinfo entry and display entry must be the same
+			// productinfo entry and display entry must be the same
 			var data = WriteDisplayInfo(productInfo.Entry);
 
 			if (data.Item1)
@@ -1201,41 +1201,41 @@ public class BattlepayManager
 
 			// BATTLEPAY PRODUCTS
 			var pProduct = new BpayProduct
-            {
-                ProductId = product.ProductId,
-                Type = product.Type,
-                Flags = product.Flags,
-                Unk1 = product.Unk1,
-                DisplayId = product.DisplayId,
-                ItemId = product.ItemId,
-                Unk4 = product.Unk4,
-                Unk5 = product.Unk5,
-                Unk6 = product.Unk6,
-                Unk7 = product.Unk7,
-                Unk8 = product.Unk8,
-                Unk9 = product.Unk9,
-                UnkString = product.UnkString,
-                UnkBit = product.UnkBit,
-                UnkBits = product.UnkBits
-            };
+			{
+				ProductId = product.ProductId,
+				Type = product.Type,
+				Flags = product.Flags,
+				Unk1 = product.Unk1,
+				DisplayId = product.DisplayId,
+				ItemId = product.ItemId,
+				Unk4 = product.Unk4,
+				Unk5 = product.Unk5,
+				Unk6 = product.Unk6,
+				Unk7 = product.Unk7,
+				Unk8 = product.Unk8,
+				Unk9 = product.Unk9,
+				UnkString = product.UnkString,
+				UnkBit = product.UnkBit,
+				UnkBits = product.UnkBits
+			};
 
-            // BATTLEPAY ITEM
+			// BATTLEPAY ITEM
 			if (product.Items.Count > 0)
 				foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
 				{
 					var pItem = new BpayProductItem
-                    {
-                        ID = item.ID,
-                        UnkByte = item.UnkByte,
-                        ItemID = item.ItemID,
-                        Quantity = item.Quantity,
-                        UnkInt1 = item.UnkInt1,
-                        UnkInt2 = item.UnkInt2,
-                        IsPet = item.IsPet,
-                        PetResult = item.PetResult
-                    };
+					{
+						ID = item.ID,
+						UnkByte = item.UnkByte,
+						ItemID = item.ItemID,
+						Quantity = item.Quantity,
+						UnkInt1 = item.UnkInt1,
+						UnkInt2 = item.UnkInt2,
+						IsPet = item.IsPet,
+						PetResult = item.PetResult
+					};
 
-                    if (BattlePayDataStoreMgr.Instance.DisplayInfoExist(productInfo.Entry))
+					if (BattlePayDataStoreMgr.Instance.DisplayInfoExist(productInfo.Entry))
 					{
 						// productinfo entry and display entry must be the same
 						var disInfo = WriteDisplayInfo(productInfo.Entry);
@@ -1317,39 +1317,39 @@ public class BattlepayManager
 		}
 
 		var productData = new BpayProduct
-        {
-            ProductId = product.ProductId,
-            Type = product.Type,
-            Flags = product.Flags,
-            Unk1 = product.Unk1,
-            DisplayId = product.DisplayId,
-            ItemId = product.ItemId,
-            Unk4 = product.Unk4,
-            Unk5 = product.Unk5,
-            Unk6 = product.Unk6,
-            Unk7 = product.Unk7,
-            Unk8 = product.Unk8,
-            Unk9 = product.Unk9,
-            UnkString = product.UnkString,
-            UnkBit = product.UnkBit,
-            UnkBits = product.UnkBits
-        };
+		{
+			ProductId = product.ProductId,
+			Type = product.Type,
+			Flags = product.Flags,
+			Unk1 = product.Unk1,
+			DisplayId = product.DisplayId,
+			ItemId = product.ItemId,
+			Unk4 = product.Unk4,
+			Unk5 = product.Unk5,
+			Unk6 = product.Unk6,
+			Unk7 = product.Unk7,
+			Unk8 = product.Unk8,
+			Unk9 = product.Unk9,
+			UnkString = product.UnkString,
+			UnkBit = product.UnkBit,
+			UnkBits = product.UnkBits
+		};
 
-        foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
+		foreach (var item in BattlePayDataStoreMgr.Instance.GetItemsOfProduct(product.ProductId))
 		{
 			var productItem = new BpayProductItem
-            {
-                ID = item.ID,
-                UnkByte = item.UnkByte,
-                ItemID = item.ItemID,
-                Quantity = item.Quantity,
-                UnkInt1 = item.UnkInt1,
-                UnkInt2 = item.UnkInt2,
-                IsPet = item.IsPet,
-                PetResult = item.PetResult
-            };
+			{
+				ID = item.ID,
+				UnkByte = item.UnkByte,
+				ItemID = item.ItemID,
+				Quantity = item.Quantity,
+				UnkInt1 = item.UnkInt1,
+				UnkInt2 = item.UnkInt2,
+				IsPet = item.IsPet,
+				PetResult = item.PetResult
+			};
 
-            var dInfo = WriteDisplayInfo(productInfo.Entry);
+			var dInfo = WriteDisplayInfo(productInfo.Entry);
 
 			if (dInfo.Item1)
 				productItem.Display = dInfo.Item2;
@@ -1367,20 +1367,20 @@ public class BattlepayManager
 	public void AssignDistributionToCharacter(in ObjectGuid targetCharGuid, ulong distributionId, uint productId, ushort specialization_id, ushort choice_id)
 	{
 		var upgrade = new UpgradeStarted
-        {
-            CharacterGUID = targetCharGuid
-        };
+		{
+			CharacterGUID = targetCharGuid
+		};
 
-        _session.SendPacket(upgrade);
+		_session.SendPacket(upgrade);
 
 		var assignResponse = new BattlePayStartDistributionAssignToTargetResponse
-        {
-            DistributionID = distributionId,
-            unkint1 = 0,
-            unkint2 = 0
-        };
+		{
+			DistributionID = distributionId,
+			unkint1 = 0,
+			unkint2 = 0
+		};
 
-        _session.SendPacket(upgrade);
+		_session.SendPacket(upgrade);
 
 		var purchase = GetPurchase();
 		purchase.Status = (ushort)BpayDistributionStatus.ADD_TO_PROCESS; // DistributionStatus.Globals.BATTLE_PAY_DIST_STATUS_ADD_TO_PROCESS;

@@ -275,13 +275,12 @@ public partial class WorldSession
 	{
 		if (!Player.InBattlegroundQueue())
 		{
-			Log.Logger.Debug(
-						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue!",
-						GetPlayerInfo(),
-						battlefieldPort.Ticket.Id,
-						battlefieldPort.Ticket.Type,
-						battlefieldPort.Ticket.Time,
-						battlefieldPort.AcceptedInvite);
+			Log.Logger.Debug("CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue!",
+							GetPlayerInfo(),
+							battlefieldPort.Ticket.Id,
+							battlefieldPort.Ticket.Type,
+							battlefieldPort.Ticket.Time,
+							battlefieldPort.AcceptedInvite);
 
 			return;
 		}
@@ -290,13 +289,12 @@ public partial class WorldSession
 
 		if (bgQueueTypeId == default)
 		{
-			Log.Logger.Debug(
-						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Invalid queueSlot!",
-						GetPlayerInfo(),
-						battlefieldPort.Ticket.Id,
-						battlefieldPort.Ticket.Type,
-						battlefieldPort.Ticket.Time,
-						battlefieldPort.AcceptedInvite);
+			Log.Logger.Debug("CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Invalid queueSlot!",
+							GetPlayerInfo(),
+							battlefieldPort.Ticket.Id,
+							battlefieldPort.Ticket.Type,
+							battlefieldPort.Ticket.Time,
+							battlefieldPort.AcceptedInvite);
 
 			return;
 		}
@@ -306,13 +304,12 @@ public partial class WorldSession
 		//we must use temporary variable, because GroupQueueInfo pointer can be deleted in BattlegroundQueue.RemovePlayer() function
 		if (!bgQueue.GetPlayerGroupInfoData(Player.GUID, out var ginfo))
 		{
-			Log.Logger.Debug(
-						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue (No player Group Info)!",
-						GetPlayerInfo(),
-						battlefieldPort.Ticket.Id,
-						battlefieldPort.Ticket.Type,
-						battlefieldPort.Ticket.Time,
-						battlefieldPort.AcceptedInvite);
+			Log.Logger.Debug("CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player not in queue (No player Group Info)!",
+							GetPlayerInfo(),
+							battlefieldPort.Ticket.Id,
+							battlefieldPort.Ticket.Type,
+							battlefieldPort.Ticket.Time,
+							battlefieldPort.AcceptedInvite);
 
 			return;
 		}
@@ -320,13 +317,12 @@ public partial class WorldSession
 		// if action == 1, then instanceId is required
 		if (ginfo.IsInvitedToBGInstanceGUID == 0 && battlefieldPort.AcceptedInvite)
 		{
-			Log.Logger.Debug(
-						"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player is not invited to any bg!",
-						GetPlayerInfo(),
-						battlefieldPort.Ticket.Id,
-						battlefieldPort.Ticket.Type,
-						battlefieldPort.Ticket.Time,
-						battlefieldPort.AcceptedInvite);
+			Log.Logger.Debug("CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Player is not invited to any bg!",
+							GetPlayerInfo(),
+							battlefieldPort.Ticket.Id,
+							battlefieldPort.Ticket.Type,
+							battlefieldPort.Ticket.Time,
+							battlefieldPort.AcceptedInvite);
 
 			return;
 		}
@@ -340,14 +336,13 @@ public partial class WorldSession
 		{
 			if (battlefieldPort.AcceptedInvite)
 			{
-				Log.Logger.Debug(
-							"CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Cant find BG with id {5}!",
-							GetPlayerInfo(),
-							battlefieldPort.Ticket.Id,
-							battlefieldPort.Ticket.Type,
-							battlefieldPort.Ticket.Time,
-							battlefieldPort.AcceptedInvite,
-							ginfo.IsInvitedToBGInstanceGUID);
+				Log.Logger.Debug("CMSG_BATTLEFIELD_PORT {0} Slot: {1}, Unk: {2}, Time: {3}, AcceptedInvite: {4}. Cant find BG with id {5}!",
+								GetPlayerInfo(),
+								battlefieldPort.Ticket.Id,
+								battlefieldPort.Ticket.Type,
+								battlefieldPort.Ticket.Time,
+								battlefieldPort.AcceptedInvite,
+								ginfo.IsInvitedToBGInstanceGUID);
 
 				return;
 			}
@@ -387,13 +382,12 @@ public partial class WorldSession
 			//if player don't match Battlegroundmax level, then do not allow him to enter! (this might happen when player leveled up during his waiting in queue
 			if (Player.Level > bg.GetMaxLevel())
 			{
-				Log.Logger.Debug(
-							"Player {0} ({1}) has level ({2}) higher than maxlevel ({3}) of Battleground({4})! Do not port him to Battleground!",
-							Player.GetName(),
-							Player.GUID.ToString(),
-							Player.Level,
-							bg.GetMaxLevel(),
-							bg.GetTypeID());
+				Log.Logger.Debug("Player {0} ({1}) has level ({2}) higher than maxlevel ({3}) of Battleground({4})! Do not port him to Battleground!",
+								Player.GetName(),
+								Player.GUID.ToString(),
+								Player.Level,
+								bg.GetMaxLevel(),
+								bg.GetTypeID());
 
 				battlefieldPort.AcceptedInvite = false;
 			}
@@ -528,7 +522,7 @@ public partial class WorldSession
 				if (!bg)
 					continue;
 
-				Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, Player, i, Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), global::Time.GetMSTimeDiff(global::Time.MSTime, ginfo.RemoveInviteTime), arenaType);
+				Global.BattlegroundMgr.BuildBattlegroundStatusNeedConfirmation(out var battlefieldStatus, bg, Player, i, Player.GetBattlegroundQueueJoinTime(bgQueueTypeId), Time.GetMSTimeDiff(Time.MSTime, ginfo.RemoveInviteTime), arenaType);
 				SendPacket(battlefieldStatus);
 			}
 			else

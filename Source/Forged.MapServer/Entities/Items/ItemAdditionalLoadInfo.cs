@@ -39,12 +39,12 @@ class ItemAdditionalLoadInfo
 				info.Artifact.ArtifactTierId = artifactResult.Read<uint>(3);
 
 				ArtifactPowerData artifactPowerData = new()
-                {
-                    ArtifactPowerId = artifactResult.Read<uint>(4),
-                    PurchasedRank = artifactResult.Read<byte>(5)
-                };
+				{
+					ArtifactPowerId = artifactResult.Read<uint>(4),
+					PurchasedRank = artifactResult.Read<byte>(5)
+				};
 
-                var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
+				var artifactPower = CliDB.ArtifactPowerStorage.LookupByKey(artifactPowerData.ArtifactPowerId);
 
 				if (artifactPower != null)
 				{

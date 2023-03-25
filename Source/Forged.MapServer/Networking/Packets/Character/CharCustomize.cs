@@ -14,12 +14,12 @@ public class CharCustomize : ClientPacket
 	public override void Read()
 	{
 		CustomizeInfo = new CharCustomizeInfo
-        {
-            CharGUID = _worldPacket.ReadPackedGuid(),
-            SexID = (Gender)_worldPacket.ReadUInt8()
-        };
+		{
+			CharGUID = _worldPacket.ReadPackedGuid(),
+			SexID = (Gender)_worldPacket.ReadUInt8()
+		};
 
-        var customizationCount = _worldPacket.ReadUInt32();
+		var customizationCount = _worldPacket.ReadUInt32();
 
 		for (var i = 0; i < customizationCount; ++i)
 			CustomizeInfo.Customizations[i] = new ChrCustomizationChoice()

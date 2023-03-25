@@ -33,10 +33,9 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.Logger.Error(
-						"HandleRequestVehiclePrevSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
-						Player.GUID.ToString(),
-						seat.Flags);
+			Log.Logger.Error("HandleRequestVehiclePrevSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
+							Player.GUID.ToString(),
+							seat.Flags);
 
 			return;
 		}
@@ -56,10 +55,9 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.Logger.Error(
-						"HandleRequestVehicleNextSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
-						Player.GUID.ToString(),
-						seat.Flags);
+			Log.Logger.Error("HandleRequestVehicleNextSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
+							Player.GUID.ToString(),
+							seat.Flags);
 
 			return;
 		}
@@ -79,10 +77,9 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.Logger.Error(
-						"HandleMoveChangeVehicleSeats, {0} tried to switch seats but current seatflags {1} don't permit that.",
-						Player.GUID.ToString(),
-						seat.Flags);
+			Log.Logger.Error("HandleMoveChangeVehicleSeats, {0} tried to switch seats but current seatflags {1} don't permit that.",
+							Player.GUID.ToString(),
+							seat.Flags);
 
 			return;
 		}
@@ -125,10 +122,9 @@ public partial class WorldSession
 
 		if (!seat.CanSwitchFromSeat())
 		{
-			Log.Logger.Error(
-						"HandleRequestVehicleSwitchSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
-						Player.GUID.ToString(),
-						seat.Flags);
+			Log.Logger.Error("HandleRequestVehicleSwitchSeat: {0} tried to switch seats but current seatflags {1} don't permit that.",
+							Player.GUID.ToString(),
+							seat.Flags);
 
 			return;
 		}
@@ -234,11 +230,10 @@ public partial class WorldSession
 				if (seat.CanEnterOrExit())
 					Player.ExitVehicle();
 				else
-					Log.Logger.Error(
-								"{0} tried to exit vehicle, but seatflags {1} (ID: {2}) don't permit that.",
-								Player.GUID.ToString(),
-								seat.Id,
-								seat.Flags);
+					Log.Logger.Error("{0} tried to exit vehicle, but seatflags {1} (ID: {2}) don't permit that.",
+									Player.GUID.ToString(),
+									seat.Id,
+									seat.Flags);
 			}
 		}
 	}

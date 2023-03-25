@@ -29,17 +29,16 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
-using Game;
 using Serilog;
 
 namespace Forged.MapServer.DataStorage;
 
 public class DB2Manager
 {
-    private readonly HotfixDatabase _hotfixDatabase;
-    private readonly GameObjectManager _gameObjectManager;
-    public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
+	public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
 	public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
+	private readonly HotfixDatabase _hotfixDatabase;
+	private readonly GameObjectManager _gameObjectManager;
 	readonly Dictionary<uint, IDB2Storage> _storage = new();
 	readonly MultiMap<int, HotfixRecord> _hotfixData = new();
 	readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
@@ -126,15 +125,15 @@ public class DB2Manager
 	readonly List<int> _uiMapPhases = new();
 	readonly Dictionary<Tuple<short, sbyte, int>, WMOAreaTableRecord> _wmoAreaTableLookup = new();
 	List<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowers = new();
+	private CliDB _cliDB;
 	internal Dictionary<uint, IDB2Storage> Storage => _storage;
-    private CliDB _cliDB;
 
-    public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager)
+	public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager)
 	{
-        _hotfixDatabase = hotfixDatabase;
-        _gameObjectManager = gameObjectManager;
+		_hotfixDatabase = hotfixDatabase;
+		_gameObjectManager = gameObjectManager;
 
-        for (uint i = 0; i < (int)PlayerClass.Max; ++i)
+		for (uint i = 0; i < (int)PlayerClass.Max; ++i)
 		{
 			_powersByClass[i] = new uint[(int)PowerType.Max];
 
@@ -153,10 +152,10 @@ public class DB2Manager
 	}
 
 	public void LoadStores(CliDB cliDB)
-    {
-        _cliDB = cliDB;
+	{
+		_cliDB = cliDB;
 
-        foreach (var areaGroupMember in _cliDB.AreaGroupMemberStorage.Values)
+		foreach (var areaGroupMember in _cliDB.AreaGroupMemberStorage.Values)
 			_areaGroupMembers.Add(areaGroupMember.AreaGroupID, areaGroupMember.AreaID);
 
 		foreach (var arPoi in _cliDB.AreaPOIStorage.Values)
@@ -240,9 +239,7 @@ public class DB2Manager
 
 
 		foreach (var uiDisplay in _cliDB.ChrClassUIDisplayStorage.Values)
-		{
 			_uiDisplayByClass[uiDisplay.ChrClassesID] = uiDisplay;
-		}
 
 		var powers = new List<ChrClassesXPowerTypesRecord>();
 
@@ -336,12 +333,12 @@ public class DB2Manager
 				foreach (var shapeshiftOptionsForModel in shapeshiftFormByModel.LookupByKey(model.Id))
 				{
 					ShapeshiftFormModelData data = new()
-                    {
-                        OptionID = shapeshiftOptionsForModel.Item1,
-                        Choices = _chrCustomizationChoicesByOption.LookupByKey(shapeshiftOptionsForModel.Item1)
-                    };
+					{
+						OptionID = shapeshiftOptionsForModel.Item1,
+						Choices = _chrCustomizationChoicesByOption.LookupByKey(shapeshiftOptionsForModel.Item1)
+					};
 
-                    if (!data.Choices.Empty())
+					if (!data.Choices.Empty())
 						for (var i = 0; i < data.Choices.Count; ++i)
 							data.Displays.Add(displayInfoByCustomizationChoice.LookupByKey(data.Choices[i].Id));
 
@@ -513,7 +510,6 @@ public class DB2Manager
 		}
 
 		foreach (var namesProfanity in _cliDB.NamesProfanityStorage.Values)
-		{
 			if (namesProfanity.Language != -1)
 				_nameValidators[namesProfanity.Language].Add(namesProfanity.Name);
 			else
@@ -524,13 +520,11 @@ public class DB2Manager
 
 					_nameValidators[i].Add(namesProfanity.Name);
 				}
-		}
 
 		foreach (var namesReserved in _cliDB.NamesReservedStorage.Values)
 			_nameValidators[(int)Locale.Total].Add(namesReserved.Name);
 
 		foreach (var namesReserved in _cliDB.NamesReservedLocaleStorage.Values)
-		{
 			for (var i = 0; i < (int)Locale.Total; ++i)
 			{
 				if (i == (int)Locale.None)
@@ -539,7 +533,6 @@ public class DB2Manager
 				if (Convert.ToBoolean(namesReserved.LocaleMask & (1 << i)))
 					_nameValidators[i].Add(namesReserved.Name);
 			}
-		}
 
 		foreach (var paragonReputation in _cliDB.ParagonReputationStorage.Values)
 			if (_cliDB.FactionStorage.HasRecord(paragonReputation.FactionID))
@@ -554,9 +547,7 @@ public class DB2Manager
 		}
 
 		foreach (var powerType in _cliDB.PowerTypeStorage.Values)
-		{
 			_powerTypes[powerType.PowerTypeEnum] = powerType;
-		}
 
 		foreach (var pvpItem in _cliDB.PvpItemStorage.Values)
 			_pvpItemBonus[pvpItem.ItemID] = pvpItem.ItemLevelDelta;
@@ -817,12 +808,12 @@ public class DB2Manager
 				}
 
 			HotfixRecord hotfixRecord = new()
-            {
-                TableHash = tableHash,
-                RecordID = recordId
-            };
+			{
+				TableHash = tableHash,
+				RecordID = recordId
+			};
 
-            hotfixRecord.ID.PushID = id;
+			hotfixRecord.ID.PushID = id;
 			hotfixRecord.ID.UniqueID = uniqueId;
 			hotfixRecord.HotfixStatus = status;
 
@@ -947,11 +938,11 @@ public class DB2Manager
 				continue;
 
 			HotfixOptionalData optionalData = new()
-            {
-                Key = result.Read<uint>(3)
-            };
+			{
+				Key = result.Read<uint>(3)
+			};
 
-            var allowedHotfixItr = allowedHotfixes.Find(v => { return v.Item1 == optionalData.Key; });
+			var allowedHotfixItr = allowedHotfixes.Find(v => { return v.Item1 == optionalData.Key; });
 
 			if (allowedHotfixItr == null)
 			{
@@ -1203,7 +1194,7 @@ public class DB2Manager
 		if (forItem && contentTuning.GetFlags().HasFlag(ContentTuningFlag.DisabledForItem))
 			return null;
 
-        int getLevelAdjustment(ContentTuningCalcType type) => type switch
+		int getLevelAdjustment(ContentTuningCalcType type) => type switch
 		{
 			ContentTuningCalcType.PlusOne                  => 1,
 			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)WorldConfig.GetUIntValue(WorldCfg.Expansion)),
@@ -1211,12 +1202,12 @@ public class DB2Manager
 		};
 
 		ContentTuningLevels levels = new()
-        {
-            MinLevel = (short)(contentTuning.MinLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
-            MaxLevel = (short)(contentTuning.MaxLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
-        };
+		{
+			MinLevel = (short)(contentTuning.MinLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
+			MaxLevel = (short)(contentTuning.MaxLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
+		};
 
-        levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
+		levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
 		levels.MaxLevelWithDelta = (short)Math.Clamp(levels.MaxLevel + contentTuning.TargetLevelMaxDelta, 1, SharedConst.MaxLevel);
 
 		// clamp after calculating levels with delta (delta can bring "overflown" level back into correct range)
@@ -2476,14 +2467,14 @@ public class DB2Manager
 								});
 	}
 
-    bool CheckUiMapAssignmentStatus(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapAssignmentRecord uiMapAssignment, out UiMapAssignmentStatus status)
+	bool CheckUiMapAssignmentStatus(float x, float y, float z, int mapId, int areaId, int wmoDoodadPlacementId, int wmoGroupId, UiMapAssignmentRecord uiMapAssignment, out UiMapAssignmentStatus status)
 	{
 		status = new UiMapAssignmentStatus
-        {
-            UiMapAssignment = uiMapAssignment
-        };
+		{
+			UiMapAssignment = uiMapAssignment
+		};
 
-        // x,y not in region
+		// x,y not in region
 		if (x < uiMapAssignment.Region[0].X || x > uiMapAssignment.Region[1].X || y < uiMapAssignment.Region[0].Y || y > uiMapAssignment.Region[1].Y)
 		{
 			float xDiff, yDiff;

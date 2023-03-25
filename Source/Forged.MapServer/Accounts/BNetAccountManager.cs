@@ -5,20 +5,19 @@ using System;
 using System.Security.Cryptography;
 using System.Text;
 using Framework.Database;
-using Game;
 
 namespace Forged.MapServer.Accounts;
 
-public sealed class BNetAccountManager 
+public sealed class BNetAccountManager
 {
-    private readonly LoginDatabase _loginDatabase;
-    private readonly AccountManager _accountManager;
+	private readonly LoginDatabase _loginDatabase;
+	private readonly AccountManager _accountManager;
 
-    public BNetAccountManager(LoginDatabase loginDatabase, AccountManager accountManager)
-    {
-        _loginDatabase = loginDatabase;
-        _accountManager = accountManager;
-    }
+	public BNetAccountManager(LoginDatabase loginDatabase, AccountManager accountManager)
+	{
+		_loginDatabase = loginDatabase;
+		_accountManager = accountManager;
+	}
 
 	public AccountOpResult CreateBattlenetAccount(string email, string password, bool withGameAccount, out string gameAccountName)
 	{
@@ -43,7 +42,7 @@ public sealed class BNetAccountManager
 		if (withGameAccount)
 		{
 			gameAccountName = newAccountId + "#1";
-            _accountManager.CreateAccount(gameAccountName, password, email, newAccountId, 1);
+			_accountManager.CreateAccount(gameAccountName, password, email, newAccountId, 1);
 		}
 
 		return AccountOpResult.Ok;

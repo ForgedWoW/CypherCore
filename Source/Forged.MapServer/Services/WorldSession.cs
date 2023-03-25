@@ -85,41 +85,41 @@ public partial class WorldSession
 			return BattlenetRpcErrorCode.UtilServerFailedToSerializeResponse;
 
 		Bgs.Protocol.Attribute attribute = new()
-        {
-            Name = "Param_RealmList",
-            Value = new Bgs.Protocol.Variant
-            {
-                BlobValue = ByteString.CopyFrom(compressed)
-            }
-        };
+		{
+			Name = "Param_RealmList",
+			Value = new Bgs.Protocol.Variant
+			{
+				BlobValue = ByteString.CopyFrom(compressed)
+			}
+		};
 
-        response.Attribute.Add(attribute);
+		response.Attribute.Add(attribute);
 
 		var realmCharacterCounts = new RealmCharacterCountList();
 
 		foreach (var characterCount in RealmCharacterCounts)
 		{
 			RealmCharacterCountEntry countEntry = new()
-            {
-                WowRealmAddress = (int)characterCount.Key,
-                Count = characterCount.Value
-            };
+			{
+				WowRealmAddress = (int)characterCount.Key,
+				Count = characterCount.Value
+			};
 
-            realmCharacterCounts.Counts.Add(countEntry);
+			realmCharacterCounts.Counts.Add(countEntry);
 		}
 
 		compressed = Json.Deflate("JSONRealmCharacterCountList", realmCharacterCounts);
 
 		attribute = new Bgs.Protocol.Attribute
-        {
-            Name = "Param_CharacterCountList",
-            Value = new Bgs.Protocol.Variant
-            {
-                BlobValue = ByteString.CopyFrom(compressed)
-            }
-        };
+		{
+			Name = "Param_CharacterCountList",
+			Value = new Bgs.Protocol.Variant
+			{
+				BlobValue = ByteString.CopyFrom(compressed)
+			}
+		};
 
-        response.Attribute.Add(attribute);
+		response.Attribute.Add(attribute);
 
 		return BattlenetRpcErrorCode.Ok;
 	}

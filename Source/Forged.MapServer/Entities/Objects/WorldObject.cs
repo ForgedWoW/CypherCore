@@ -507,9 +507,7 @@ public abstract class WorldObject : IDisposable
 		}
 
 		if (_objectUpdated)
-		{
 			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
-		}
 	}
 
 	public void Create(ObjectGuid guid)
@@ -2366,12 +2364,12 @@ public abstract class WorldObject : IDisposable
 	public void SendSpellMiss(Unit target, uint spellID, SpellMissInfo missInfo)
 	{
 		SpellMissLog spellMissLog = new()
-        {
-            SpellID = spellID,
-            Caster = GUID
-        };
+		{
+			SpellID = spellID,
+			Caster = GUID
+		};
 
-        spellMissLog.Entries.Add(new SpellLogMissEntry(target.GUID, (byte)missInfo));
+		spellMissLog.Entries.Add(new SpellLogMissEntry(target.GUID, (byte)missInfo));
 		SendMessageToSet(spellMissLog, true);
 	}
 
@@ -2640,67 +2638,67 @@ public abstract class WorldObject : IDisposable
 	public SpellCastResult CastSpell(WorldObject target, uint spellId, Spell triggeringSpell)
 	{
 		CastSpellExtraArgs args = new(true)
-        {
-            TriggeringSpell = triggeringSpell
-        };
+		{
+			TriggeringSpell = triggeringSpell
+		};
 
-        return CastSpell(target, spellId, args);
+		return CastSpell(target, spellId, args);
 	}
 
 	public SpellCastResult CastSpell(WorldObject target, uint spellId, AuraEffect triggeringAura)
 	{
 		CastSpellExtraArgs args = new(true)
-        {
-            TriggeringAura = triggeringAura
-        };
+		{
+			TriggeringAura = triggeringAura
+		};
 
-        return CastSpell(target, spellId, args);
+		return CastSpell(target, spellId, args);
 	}
 
 	public SpellCastResult CastSpell(WorldObject target, uint spellId, bool triggered = false, byte? empowerStage = null)
 	{
 		CastSpellExtraArgs args = new(triggered)
-        {
-            EmpowerStage = empowerStage
-        };
+		{
+			EmpowerStage = empowerStage
+		};
 
-        return CastSpell(target, spellId, args);
+		return CastSpell(target, spellId, args);
 	}
 
 	public SpellCastResult CastSpell(WorldObject target, uint spellId, TriggerCastFlags triggerCastFlags, bool triggered = false)
 	{
 		CastSpellExtraArgs args = new(triggered)
-        {
-            TriggerFlags = triggerCastFlags
-        };
+		{
+			TriggerFlags = triggerCastFlags
+		};
 
-        return CastSpell(target, spellId, args);
+		return CastSpell(target, spellId, args);
 	}
 
 	public SpellCastResult CastSpell(WorldObject target, uint spellId, double bp0Val, bool triggered = false)
 	{
 		CastSpellExtraArgs args = new(triggered)
-        {
-            SpellValueOverrides =
-            {
-                [SpellValueMod.BasePoint0] = bp0Val
-            }
-        };
+		{
+			SpellValueOverrides =
+			{
+				[SpellValueMod.BasePoint0] = bp0Val
+			}
+		};
 
-        return CastSpell(target, spellId, args);
+		return CastSpell(target, spellId, args);
 	}
 
 	public SpellCastResult CastSpell(WorldObject target, uint spellId, SpellValueMod spellValueMod, double bp0Val, bool triggered = false)
 	{
 		CastSpellExtraArgs args = new(triggered)
-        {
-            SpellValueOverrides =
-            {
-                [spellValueMod] = bp0Val
-            }
-        };
+		{
+			SpellValueOverrides =
+			{
+				[spellValueMod] = bp0Val
+			}
+		};
 
-        return CastSpell(target, spellId, args);
+		return CastSpell(target, spellId, args);
 	}
 
 	public SpellCastResult CastSpell(SpellCastTargets targets, uint spellId, CastSpellExtraArgs args)
@@ -2786,65 +2784,65 @@ public abstract class WorldObject : IDisposable
 	public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
 	{
 		PlaySpellVisual playSpellVisual = new()
-        {
-            Source = GUID,
-            Target = target.GUID,
-            TargetPosition = target.Location,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime,
-            LaunchDelay = launchDelay
-        };
+		{
+			Source = GUID,
+			Target = target.GUID,
+			TargetPosition = target.Location,
+			SpellVisualID = spellVisualId,
+			TravelSpeed = travelSpeed,
+			MissReason = missReason,
+			ReflectStatus = reflectStatus,
+			SpeedAsTime = speedAsTime,
+			LaunchDelay = launchDelay
+		};
 
-        SendMessageToSet(playSpellVisual, true);
+		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisual(Position targetPosition, float launchDelay, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
 	{
 		PlaySpellVisual playSpellVisual = new()
-        {
-            Source = GUID,
-            TargetPosition = targetPosition,
-            LaunchDelay = launchDelay,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime
-        };
+		{
+			Source = GUID,
+			TargetPosition = targetPosition,
+			LaunchDelay = launchDelay,
+			SpellVisualID = spellVisualId,
+			TravelSpeed = travelSpeed,
+			MissReason = missReason,
+			ReflectStatus = reflectStatus,
+			SpeedAsTime = speedAsTime
+		};
 
-        SendMessageToSet(playSpellVisual, true);
+		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisual(Position targetPosition, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
 	{
 		PlaySpellVisual playSpellVisual = new()
-        {
-            Source = GUID,
-            TargetPosition = targetPosition,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime
-        };
+		{
+			Source = GUID,
+			TargetPosition = targetPosition,
+			SpellVisualID = spellVisualId,
+			TravelSpeed = travelSpeed,
+			MissReason = missReason,
+			ReflectStatus = reflectStatus,
+			SpeedAsTime = speedAsTime
+		};
 
-        SendMessageToSet(playSpellVisual, true);
+		SendMessageToSet(playSpellVisual, true);
 	}
 
 	public void SendPlaySpellVisualKit(uint id, uint type, uint duration)
 	{
 		PlaySpellVisualKit playSpellVisualKit = new()
-        {
-            Unit = GUID,
-            KitRecID = id,
-            KitType = type,
-            Duration = duration
-        };
+		{
+			Unit = GUID,
+			KitRecID = id,
+			KitType = type,
+			Duration = duration
+		};
 
-        SendMessageToSet(playSpellVisualKit, true);
+		SendMessageToSet(playSpellVisualKit, true);
 	}
 
 	// function based on function Unit::CanAttack from 13850 client
@@ -4288,9 +4286,9 @@ public abstract class WorldObject : IDisposable
 		var go = AsGameObject;
 
 		if (go is { GoType: GameObjectTypes.Trap })
-            return true;
+			return true;
 
-        go = obj.AsGameObject;
+		go = obj.AsGameObject;
 
 		for (var i = 0; i < (int)StealthType.Max; ++i)
 		{
@@ -4449,22 +4447,22 @@ public abstract class WorldObject : IDisposable
 	void SendCancelSpellVisual(uint id)
 	{
 		CancelSpellVisual cancelSpellVisual = new()
-        {
-            Source = GUID,
-            SpellVisualID = id
-        };
+		{
+			Source = GUID,
+			SpellVisualID = id
+		};
 
-        SendMessageToSet(cancelSpellVisual, true);
+		SendMessageToSet(cancelSpellVisual, true);
 	}
 
 	void SendPlayOrphanSpellVisual(ObjectGuid target, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
 	{
 		PlayOrphanSpellVisual playOrphanSpellVisual = new()
-        {
-            SourceLocation = Location
-        };
+		{
+			SourceLocation = Location
+		};
 
-        if (withSourceOrientation)
+		if (withSourceOrientation)
 		{
 			if (IsGameObject)
 			{
@@ -4491,11 +4489,11 @@ public abstract class WorldObject : IDisposable
 	void SendPlayOrphanSpellVisual(Position targetLocation, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
 	{
 		PlayOrphanSpellVisual playOrphanSpellVisual = new()
-        {
-            SourceLocation = Location
-        };
+		{
+			SourceLocation = Location
+		};
 
-        if (withSourceOrientation)
+		if (withSourceOrientation)
 		{
 			if (IsGameObject)
 			{
@@ -4522,22 +4520,22 @@ public abstract class WorldObject : IDisposable
 	void SendCancelOrphanSpellVisual(uint id)
 	{
 		CancelOrphanSpellVisual cancelOrphanSpellVisual = new()
-        {
-            SpellVisualID = id
-        };
+		{
+			SpellVisualID = id
+		};
 
-        SendMessageToSet(cancelOrphanSpellVisual, true);
+		SendMessageToSet(cancelOrphanSpellVisual, true);
 	}
 
 	void SendCancelSpellVisualKit(uint id)
 	{
 		CancelSpellVisualKit cancelSpellVisualKit = new()
-        {
-            Source = GUID,
-            SpellVisualKitID = id
-        };
+		{
+			Source = GUID,
+			SpellVisualKitID = id
+		};
 
-        SendMessageToSet(cancelSpellVisualKit, true);
+		SendMessageToSet(cancelSpellVisualKit, true);
 	}
 
 	bool IsInBetween(Position pos1, Position pos2, float size)

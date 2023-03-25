@@ -94,6 +94,7 @@ public class InstanceMap : Map
 		if (player.Map == this)
 		{
 			Log.Logger.Error("InstanceMap:CannotEnter - player {0} ({1}) already in map {2}, {3}, {4}!", player.GetName(), player.GUID.ToString(), Id, InstanceId, DifficultyID);
+
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 
@@ -144,25 +145,24 @@ public class InstanceMap : Map
 					playerLock.GetData().CompletedEncountersMask != _instanceLock.GetData().CompletedEncountersMask)
 				{
 					PendingRaidLock pendingRaidLock = new()
-                    {
-                        TimeUntilLock = 60000,
-                        CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
-                        Extending = playerLock != null && playerLock.IsExtended(),
-                        WarningOnly = entries.Map.IsFlexLocking() // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
-                    };
+					{
+						TimeUntilLock = 60000,
+						CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
+						Extending = playerLock != null && playerLock.IsExtended(),
+						WarningOnly = entries.Map.IsFlexLocking() // events it triggers:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
+					};
 
-                    player.Session.SendPacket(pendingRaidLock);
+					player.Session.SendPacket(pendingRaidLock);
 
 					if (!entries.Map.IsFlexLocking())
 						player.SetPendingBind(InstanceId, 60000);
 				}
 			}
 
-		Log.Logger.Information(
-					"MAP: Player '{0}' entered instance '{1}' of map '{2}'",
-					player.GetName(),
-					InstanceId,
-					MapName);
+		Log.Logger.Information("MAP: Player '{0}' entered instance '{1}' of map '{2}'",
+								player.GetName(),
+								InstanceId,
+								MapName);
 
 		// initialize unload state
 		UnloadTimer = 0;
@@ -296,23 +296,23 @@ public class InstanceMap : Map
 				case InstanceResetMethod.Expire:
 				{
 					RaidInstanceMessage raidInstanceMessage = new()
-                    {
-                        Type = InstanceResetWarningType.Expired,
-                        MapID = Id,
-                        DifficultyID = DifficultyID
-                    };
+					{
+						Type = InstanceResetWarningType.Expired,
+						MapID = Id,
+						DifficultyID = DifficultyID
+					};
 
-                    raidInstanceMessage.Write();
+					raidInstanceMessage.Write();
 
 					PendingRaidLock pendingRaidLock = new()
-                    {
-                        TimeUntilLock = 60000,
-                        CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
-                        Extending = true,
-                        WarningOnly = Entry.IsFlexLocking()
-                    };
+					{
+						TimeUntilLock = 60000,
+						CompletedMask = _instanceLock.GetData().CompletedEncountersMask,
+						Extending = true,
+						WarningOnly = Entry.IsFlexLocking()
+					};
 
-                    pendingRaidLock.Write();
+					pendingRaidLock.Write();
 
 					foreach (var player in Players)
 					{
@@ -393,11 +393,11 @@ public class InstanceMap : Map
 				if (isNewLock)
 				{
 					InstanceSaveCreated data = new()
-                    {
-                        Gm = player.IsGameMaster
-                    };
+					{
+						Gm = player.IsGameMaster
+					};
 
-                    player.SendPacket(data);
+					player.SendPacket(data);
 
 					player.Session.SendCalendarRaidLockoutAdded(newLock);
 				}
@@ -446,11 +446,11 @@ public class InstanceMap : Map
 				if (isNewLock)
 				{
 					InstanceSaveCreated data = new()
-                    {
-                        Gm = player.IsGameMaster
-                    };
+					{
+						Gm = player.IsGameMaster
+					};
 
-                    player.SendPacket(data);
+					player.SendPacket(data);
 
 					player.Session.SendCalendarRaidLockoutAdded(newLock);
 				}
@@ -476,11 +476,11 @@ public class InstanceMap : Map
 		if (isNewLock)
 		{
 			InstanceSaveCreated data = new()
-            {
-                Gm = player.IsGameMaster
-            };
+			{
+				Gm = player.IsGameMaster
+			};
 
-            player.SendPacket(data);
+			player.SendPacket(data);
 
 			player.Session.SendCalendarRaidLockoutAdded(newLock);
 		}

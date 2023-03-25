@@ -153,13 +153,12 @@ public class VehicleJoinEvent : BasicEvent
 		// Check if the Vehicle was already uninstalled, in which case all auras were removed already
 		if (Target != null)
 		{
-			Log.Logger.Debug(
-						"Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
-						Passenger.GUID.ToString(),
-						Passenger.Entry,
-						Target.GetBase().GUID.ToString(),
-						Target.GetBase().Entry,
-						Seat.Key);
+			Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on vehicle GuidLow: {2}, Entry: {3} SeatId: {4} cancelled",
+							Passenger.GUID.ToString(),
+							Passenger.Entry,
+							Target.GetBase().GUID.ToString(),
+							Target.GetBase().Entry,
+							Seat.Key);
 
 			// Remove the pending event when Abort was called on the event directly
 			Target.RemovePendingEvent(this);
@@ -171,11 +170,10 @@ public class VehicleJoinEvent : BasicEvent
 		}
 		else
 		{
-			Log.Logger.Debug(
-						"Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
-						Passenger.GUID.ToString(),
-						Passenger.Entry,
-						Seat.Key);
+			Log.Logger.Debug("Passenger GuidLow: {0}, Entry: {1}, board on uninstalled vehicle SeatId: {2} cancelled",
+							Passenger.GUID.ToString(),
+							Passenger.Entry,
+							Seat.Key);
 		}
 
 		if (Passenger.IsInWorld && Passenger.HasUnitTypeMask(UnitTypeMask.Accessory))

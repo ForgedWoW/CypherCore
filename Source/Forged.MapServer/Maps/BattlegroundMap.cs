@@ -28,6 +28,7 @@ public class BattlegroundMap : Map
 		if (player.Map == this)
 		{
 			Log.Logger.Error("BGMap:CannotEnter - player {0} is already in map!", player.GUID.ToString());
+
 			return new TransferAbortParams(TransferAbortReason.Error);
 		}
 
@@ -46,11 +47,10 @@ public class BattlegroundMap : Map
 
 	public override void RemovePlayerFromMap(Player player, bool remove)
 	{
-		Log.Logger.Information(
-					"MAP: Removing player '{0}' from bg '{1}' of map '{2}' before relocating to another map",
-					player.GetName(),
-					InstanceId,
-					MapName);
+		Log.Logger.Information("MAP: Removing player '{0}' from bg '{1}' of map '{2}' before relocating to another map",
+								player.GetName(),
+								InstanceId,
+								MapName);
 
 		base.RemovePlayerFromMap(player, remove);
 	}

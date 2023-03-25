@@ -358,14 +358,14 @@ public class Scenario : CriteriaHandler
 			foreach (var pair in _criteriaProgress)
 			{
 				CriteriaProgressPkt criteriaProgress = new()
-                {
-                    Id = pair.Key,
-                    Quantity = pair.Value.Counter,
-                    Date = pair.Value.Date,
-                    Player = pair.Value.PlayerGUID
-                };
+				{
+					Id = pair.Key,
+					Quantity = pair.Value.Counter,
+					Date = pair.Value.Date,
+					Player = pair.Value.PlayerGUID
+				};
 
-                criteriasProgress.Add(criteriaProgress);
+				criteriasProgress.Add(criteriaProgress);
 			}
 
 		return criteriasProgress;
@@ -374,11 +374,11 @@ public class Scenario : CriteriaHandler
 	void SendBootPlayer(Player player)
 	{
 		ScenarioVacate scenarioBoot = new()
-        {
-            ScenarioID = (int)_data.Entry.Id
-        };
+		{
+			ScenarioID = (int)_data.Entry.Id
+		};
 
-        player.SendPacket(scenarioBoot);
+		player.SendPacket(scenarioBoot);
 	}
 
 	~Scenario()

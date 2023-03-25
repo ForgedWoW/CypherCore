@@ -53,13 +53,13 @@ public class LootItem
 		randomBonusListId = ItemEnchantmentManager.GenerateItemRandomBonusListId(itemid);
 	}
 
-    /// <summary>
-    ///  Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
-    /// </summary>
-    /// <param name="player"> </param>
-    /// <param name="loot"> </param>
-    /// <returns> </returns>
-    public bool AllowedForPlayer(Player player, Loot loot)
+	/// <summary>
+	///  Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
+	/// </summary>
+	/// <param name="player"> </param>
+	/// <param name="loot"> </param>
+	/// <returns> </returns>
+	public bool AllowedForPlayer(Player player, Loot loot)
 	{
 		return AllowedForPlayer(player, loot, itemid, needs_quest, follow_loot_rules, false, conditions);
 	}
@@ -400,15 +400,15 @@ public class LootRoll
 				continue;
 
 			StartLootRoll startLootRoll = new()
-            {
-                LootObj = m_loot.GetGUID(),
-                MapID = (int)m_map.Id,
-                RollTime = (uint)LOOT_ROLL_TIMEOUT.TotalMilliseconds,
-                Method = m_loot.GetLootMethod(),
-                ValidRolls = m_voteMask
-            };
+			{
+				LootObj = m_loot.GetGUID(),
+				MapID = (int)m_map.Id,
+				RollTime = (uint)LOOT_ROLL_TIMEOUT.TotalMilliseconds,
+				Method = m_loot.GetLootMethod(),
+				ValidRolls = m_voteMask
+			};
 
-            // In NEED_BEFORE_GREED need disabled for non-usable item for player
+			// In NEED_BEFORE_GREED need disabled for non-usable item for player
 			if (m_loot.GetLootMethod() == LootMethod.NeedBeforeGreed && player.CanRollNeedForItem(itemTemplate, m_map, true) != InventoryResult.Ok)
 				startLootRoll.ValidRolls &= ~RollMask.Need;
 
@@ -432,11 +432,11 @@ public class LootRoll
 	void SendAllPassed()
 	{
 		LootAllPassed lootAllPassed = new()
-        {
-            LootObj = m_loot.GetGUID()
-        };
+		{
+			LootObj = m_loot.GetGUID()
+		};
 
-        FillPacket(lootAllPassed.Item);
+		FillPacket(lootAllPassed.Item);
 		lootAllPassed.Item.UIType = LootSlotType.AllowLoot;
 		lootAllPassed.Write();
 
@@ -458,15 +458,15 @@ public class LootRoll
 	void SendRoll(ObjectGuid targetGuid, int rollNumber, RollVote rollType, ObjectGuid? rollWinner)
 	{
 		LootRollBroadcast lootRoll = new()
-        {
-            LootObj = m_loot.GetGUID(),
-            Player = targetGuid,
-            Roll = rollNumber,
-            RollType = rollType,
-            Autopassed = false
-        };
+		{
+			LootObj = m_loot.GetGUID(),
+			Player = targetGuid,
+			Roll = rollNumber,
+			RollType = rollType,
+			Autopassed = false
+		};
 
-        FillPacket(lootRoll.Item);
+		FillPacket(lootRoll.Item);
 		lootRoll.Item.UIType = LootSlotType.RollOngoing;
 		lootRoll.Write();
 
@@ -520,14 +520,14 @@ public class LootRoll
 			}
 
 		LootRollWon lootRollWon = new()
-        {
-            LootObj = m_loot.GetGUID(),
-            Winner = targetGuid,
-            Roll = rollNumber,
-            RollType = rollType
-        };
+		{
+			LootObj = m_loot.GetGUID(),
+			Winner = targetGuid,
+			Roll = rollNumber,
+			RollType = rollType
+		};
 
-        FillPacket(lootRollWon.Item);
+		FillPacket(lootRollWon.Item);
 		lootRollWon.Item.UIType = LootSlotType.Locked;
 		lootRollWon.MainSpec = true; // offspec rolls not implemented
 		lootRollWon.Write();
@@ -566,12 +566,12 @@ public class LootRoll
 		lootItem.Loot = new ItemInstance(m_lootItem);
 	}
 
-    /**
+	/**
 	 * \brief Check if all player have voted and return true in that case. Also return current winner.
 	 * \param winnerItr > will be different than m_rollCoteMap.end() if winner exist. (Someone voted greed or need)
 	 * \returns true if all players voted
 	 */
-    bool AllPlayerVoted(ref KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
+	bool AllPlayerVoted(ref KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
 	{
 		uint notVoted = 0;
 		var isSomeoneNeed = false;
@@ -715,8 +715,8 @@ public class Loot
 	// Loot GUID
 	readonly ObjectGuid _guid;
 	readonly ObjectGuid _owner; // The WorldObject that holds this loot
-	ItemContext _itemContext;
 	readonly ObjectGuid _lootMaster;
+	ItemContext _itemContext;
 	bool _wasOpened; // true if at least one player received the loot content
 	uint _dungeonEncounterId;
 
@@ -744,13 +744,13 @@ public class Loot
 		for (uint i = 0; i < stacks && items.Count < SharedConst.MaxNRLootItems; ++i)
 		{
 			LootItem generatedLoot = new(item)
-            {
-                context = _itemContext,
-                count = (byte)Math.Min(count, proto.MaxStackSize),
-                LootListId = (uint)items.Count
-            };
+			{
+				context = _itemContext,
+				count = (byte)Math.Min(count, proto.MaxStackSize),
+				LootListId = (uint)items.Count
+			};
 
-            if (_itemContext != 0)
+			if (_itemContext != 0)
 			{
 				var bonusListIDs = Global.DB2Mgr.GetDefaultItemBonusTree(generatedLoot.itemid, _itemContext);
 				generatedLoot.BonusListIDs.AddRange(bonusListIDs);
@@ -1013,12 +1013,12 @@ public class Loot
 					if (lootMaster != null)
 					{
 						MasterLootCandidateList masterLootCandidateList = new()
-                        {
-                            LootObj = GetGUID(),
-                            Players = _allowedLooters
-                        };
+						{
+							LootObj = GetGUID(),
+							Players = _allowedLooters
+						};
 
-                        lootMaster.SendPacket(masterLootCandidateList);
+						lootMaster.SendPacket(masterLootCandidateList);
 					}
 				}
 			}
@@ -1136,26 +1136,26 @@ public class Loot
 				continue;
 
 			LootItemData lootItem = new()
-            {
-                LootListID = (byte)item.LootListId,
-                UIType = uiType.Value,
-                Quantity = item.count,
-                Loot = new ItemInstance(item)
-            };
+			{
+				LootListID = (byte)item.LootListId,
+				UIType = uiType.Value,
+				Quantity = item.count,
+				Loot = new ItemInstance(item)
+			};
 
-            packet.Items.Add(lootItem);
+			packet.Items.Add(lootItem);
 		}
 	}
 
 	public void NotifyLootList(Map map)
 	{
 		LootList lootList = new()
-        {
-            Owner = GetOwnerGUID(),
-            LootObj = GetGUID()
-        };
+		{
+			Owner = GetOwnerGUID(),
+			LootObj = GetGUID()
+		};
 
-        if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
+		if (GetLootMethod() == LootMethod.MasterLoot && HasOverThresholdItem())
 			lootList.Master = GetLootMasterGUID();
 
 		if (!roundRobinPlayer.IsEmpty)

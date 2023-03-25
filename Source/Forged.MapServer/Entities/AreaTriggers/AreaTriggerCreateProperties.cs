@@ -75,22 +75,22 @@ public unsafe class AreaTriggerCreateProperties
 	public static AreaTriggerCreateProperties CreateDefault(uint areaTriggerId)
 	{
 		AreaTriggerCreateProperties ret = new()
-        {
-            Id = areaTriggerId,
-            ScriptIds = GameObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId),
-            Template = new AreaTriggerTemplate
-            {
-                Id = new AreaTriggerId(areaTriggerId, false),
-                Flags = 0
-            }
-        };
+		{
+			Id = areaTriggerId,
+			ScriptIds = GameObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId),
+			Template = new AreaTriggerTemplate
+			{
+				Id = new AreaTriggerId(areaTriggerId, false),
+				Flags = 0
+			}
+		};
 
-        ret.Template.Actions.Add(new AreaTriggerAction
-        {
-            ActionType = AreaTriggerActionTypes.Cast,
-            Param = 0,
-            TargetType = AreaTriggerActionUserTypes.Friend
-        });
+		ret.Template.Actions.Add(new AreaTriggerAction
+		{
+			ActionType = AreaTriggerActionTypes.Cast,
+			Param = 0,
+			TargetType = AreaTriggerActionUserTypes.Friend
+		});
 
 		ret.MoveCurveId = 0;
 		ret.ScaleCurveId = 0;

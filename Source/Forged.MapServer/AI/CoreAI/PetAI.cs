@@ -191,11 +191,11 @@ public class PetAI : CreatureAI
 				targetSpellStore.RemoveAt(index);
 
 				SpellCastTargets targets = new()
-                {
-                    UnitTarget = target
-                };
+				{
+					UnitTarget = target
+				};
 
-                spell.Prepare(targets);
+				spell.Prepare(targets);
 			}
 
 			// deleted cached Spell objects
@@ -650,7 +650,7 @@ public class PetAI : CreatureAI
 
 	void UpdateAllies()
 	{
-		_updateAlliesTimer = 10 * global::Time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
+		_updateAlliesTimer = 10 * Time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
 
 		var owner = Me.CharmerOrOwner;
 

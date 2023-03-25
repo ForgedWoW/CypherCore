@@ -229,12 +229,12 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 		public static Cell ComputeCell(float fx, float fy)
 		{
 			Cell c = new()
-            {
-                x = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f)),
-                y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f))
-            };
+			{
+				x = (int)(fx * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f)),
+				y = (int)(fy * (1.0f / CELL_SIZE) + (CELL_NUMBER / 2f))
+			};
 
-            return c;
+			return c;
 		}
 
 		public bool IsValid()

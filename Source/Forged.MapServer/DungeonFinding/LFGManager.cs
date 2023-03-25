@@ -98,7 +98,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void LoadRewards()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		RewardMapStore.Clear();
 
@@ -151,12 +151,12 @@ public class LFGManager : Singleton<LFGManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} lfg dungeon rewards in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} lfg dungeon rewards in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadLFGDungeons(bool reload = false)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		LfgDungeonStore.Clear();
 
@@ -211,7 +211,7 @@ public class LFGManager : Singleton<LFGManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} lfg dungeon templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} lfg dungeon templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		// Fill all other teleport coords from areatriggers
 		foreach (var pair in LfgDungeonStore)
@@ -556,28 +556,28 @@ public class LFGManager : Singleton<LFGManager>
 		}
 
 		RideTicket ticket = new()
-        {
-            RequesterGuid = guid,
-            Id = GetQueueId(gguid),
-            Type = RideType.Lfg,
-            Time = GameTime.GetGameTime()
-        };
+		{
+			RequesterGuid = guid,
+			Id = GetQueueId(gguid),
+			Type = RideType.Lfg,
+			Time = GameTime.GetGameTime()
+		};
 
-        var debugNames = "";
+		var debugNames = "";
 
 		if (grp) // Begin rolecheck
 		{
 			// Create new rolecheck
 			LfgRoleCheck roleCheck = new()
-            {
-                cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeRolecheck,
-                state = LfgRoleCheckState.Initialiting,
-                leader = guid,
-                dungeons = dungeons,
-                rDungeonId = rDungeonId
-            };
+			{
+				cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeRolecheck,
+				state = LfgRoleCheckState.Initialiting,
+				leader = guid,
+				dungeons = dungeons,
+				rDungeonId = rDungeonId
+			};
 
-            RoleChecksStore[gguid] = roleCheck;
+			RoleChecksStore[gguid] = roleCheck;
 
 			if (rDungeonId != 0)
 			{
@@ -618,11 +618,11 @@ public class LFGManager : Singleton<LFGManager>
 		else // Add player to queue
 		{
 			Dictionary<ObjectGuid, LfgRoles> rolesMap = new()
-            {
-                [guid] = roles
-            };
+			{
+				[guid] = roles
+			};
 
-            var queue = GetQueue(guid);
+			var queue = GetQueue(guid);
 			queue.AddQueueData(guid, GameTime.GetGameTime(), dungeons, rolesMap);
 
 			if (!isContinue)
@@ -1009,12 +1009,12 @@ public class LFGManager : Singleton<LFGManager>
 
 			if (!gguid.IsEmpty)
 			{
-				waitTime = (int)((joinTime - queue.GetJoinTime(gguid)) / global::Time.InMilliseconds);
+				waitTime = (int)((joinTime - queue.GetJoinTime(gguid)) / Time.InMilliseconds);
 				SendLfgUpdateStatus(pguid, updateData, false);
 			}
 			else
 			{
-				waitTime = (int)((joinTime - queue.GetJoinTime(pguid)) / global::Time.InMilliseconds);
+				waitTime = (int)((joinTime - queue.GetJoinTime(pguid)) / Time.InMilliseconds);
 				SendLfgUpdateStatus(pguid, updateData, false);
 			}
 

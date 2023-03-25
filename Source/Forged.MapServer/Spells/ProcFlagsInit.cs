@@ -38,5 +38,5 @@ public class ProcFlagsInit : FlagsArray<int>
 	public bool HasFlag(ProcFlags2 procFlags)
 	{
 		return (_storage[1] & (int)procFlags) != 0;
-    }
+	}
 }

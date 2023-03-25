@@ -7,7 +7,7 @@ namespace Forged.MapServer.Combat;
 
 public class PvPCombatReference : CombatReference
 {
-	public static uint PVP_COMBAT_TIMEOUT = 5 * global::Time.InMilliseconds;
+	public static uint PVP_COMBAT_TIMEOUT = 5 * Time.InMilliseconds;
 
 	uint _combatTimer = PVP_COMBAT_TIMEOUT;
 

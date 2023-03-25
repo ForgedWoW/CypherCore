@@ -13,7 +13,7 @@ public class SkillPerfectItems
 	// loads the perfection proc info from DB
 	public static void LoadSkillPerfectItemTable()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		SkillPerfectItemStorage.Clear(); // reload capability
 
@@ -72,7 +72,7 @@ public class SkillPerfectItems
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)

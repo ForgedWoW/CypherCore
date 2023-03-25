@@ -33,12 +33,12 @@ public class Mail
 	public void AddItem(ulong itemGuidLow, uint item_template)
 	{
 		MailItemInfo mii = new()
-        {
-            item_guid = itemGuidLow,
-            item_template = item_template
-        };
+		{
+			item_guid = itemGuidLow,
+			item_template = item_template
+		};
 
-        items.Add(mii);
+		items.Add(mii);
 	}
 
 	public bool RemoveItem(ulong itemGuid)

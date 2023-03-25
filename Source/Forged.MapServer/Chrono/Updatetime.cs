@@ -79,13 +79,13 @@ public class UpdateTime
 
 	public void RecordUpdateTimeReset()
 	{
-		_recordedTime = global::Time.MSTime;
+		_recordedTime = Time.MSTime;
 	}
 
 	public void RecordUpdateTimeDuration(string text, uint minUpdateTime)
 	{
-		var thisTime = global::Time.MSTime;
-		var diff = global::Time.GetMSTimeDiff(_recordedTime, thisTime);
+		var thisTime = Time.MSTime;
+		var diff = Time.GetMSTimeDiff(_recordedTime, thisTime);
 
 		if (diff > minUpdateTime)
 			Log.Logger.Information($"Recored Update Time of {text}: {diff}.");
@@ -114,7 +114,7 @@ public class WorldUpdateTime : UpdateTime
 	public void RecordUpdateTime(uint gameTimeMs, uint diff, uint sessionCount)
 	{
 		if (_recordUpdateTimeInverval > 0 && diff > _recordUpdateTimeMin)
-			if (global::Time.GetMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
+			if (Time.GetMSTimeDiff(_lastRecordTime, gameTimeMs) > _recordUpdateTimeInverval)
 			{
 				Log.Logger.Debug($"Update time diff: {GetAverageUpdateTime()}. Players online: {sessionCount}.");
 				_lastRecordTime = gameTimeMs;

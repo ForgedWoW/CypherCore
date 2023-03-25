@@ -420,10 +420,7 @@ public class SpellScript : BaseSpellScript, ISpellScript
 
 	public SpellEffectInfo EffectInfo
 	{
-		get
-		{
-			return _spell.EffectInfo;
-		}
+		get { return _spell.EffectInfo; }
 	}
 
 	// method avalible only in EffectHandler method

@@ -23,29 +23,29 @@ public partial class WorldSession
 	public void SendEnchantmentLog(ObjectGuid owner, ObjectGuid caster, ObjectGuid itemGuid, uint itemId, uint enchantId, uint enchantSlot)
 	{
 		EnchantmentLog packet = new()
-        {
-            Owner = owner,
-            Caster = caster,
-            ItemGUID = itemGuid,
-            ItemID = itemId,
-            Enchantment = enchantId,
-            EnchantSlot = enchantSlot
-        };
+		{
+			Owner = owner,
+			Caster = caster,
+			ItemGUID = itemGuid,
+			ItemID = itemId,
+			Enchantment = enchantId,
+			EnchantSlot = enchantSlot
+		};
 
-        Player.SendMessageToSet(packet, true);
+		Player.SendMessageToSet(packet, true);
 	}
 
 	public void SendItemEnchantTimeUpdate(ObjectGuid Playerguid, ObjectGuid Itemguid, uint slot, uint Duration)
 	{
 		ItemEnchantTimeUpdate data = new()
-        {
-            ItemGuid = Itemguid,
-            DurationLeft = Duration,
-            Slot = slot,
-            OwnerGuid = Playerguid
-        };
+		{
+			ItemGuid = Itemguid,
+			DurationLeft = Duration,
+			Slot = slot,
+			OwnerGuid = Playerguid
+		};
 
-        SendPacket(data);
+		SendPacket(data);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SplitItem, Processing = PacketProcessing.Inplace)]
@@ -411,11 +411,11 @@ public partial class WorldSession
 			if (msg == InventoryResult.Ok)
 			{
 				ReadItemResultOK packet = new()
-                {
-                    Item = item.GUID
-                };
+				{
+					Item = item.GUID
+				};
 
-                SendPacket(packet);
+				SendPacket(packet);
 			}
 			else
 			{

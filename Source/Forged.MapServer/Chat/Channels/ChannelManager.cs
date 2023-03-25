@@ -39,13 +39,13 @@ public class ChannelManager
 			return;
 		}
 
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		var days = WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelDuration);
 
 		if (days != 0)
 		{
 			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
-			stmt.AddValue(0, days * global::Time.Day);
+			stmt.AddValue(0, days * Time.Day);
 			DB.Characters.Execute(stmt);
 		}
 
@@ -219,12 +219,12 @@ public class ChannelManager
 	public static void SendNotOnChannelNotify(Player player, string name)
 	{
 		ChannelNotify notify = new()
-        {
-            Type = ChatNotify.NotMemberNotice,
-            Channel = name
-        };
+		{
+			Type = ChatNotify.NotMemberNotice,
+			Channel = name
+		};
 
-        player.SendPacket(notify);
+		player.SendPacket(notify);
 	}
 
 	ObjectGuid CreateCustomChannelGuid()

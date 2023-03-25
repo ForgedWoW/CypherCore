@@ -183,16 +183,16 @@ public partial class Player
 		var charmInfo = pet.GetCharmInfo();
 
 		PetSpells petSpellsPacket = new()
-        {
-            PetGUID = pet.GUID,
-            CreatureFamily = (ushort)pet.Template.Family, // creature family (required for pet talents)
-            Specialization = pet.Specialization,
-            TimeLimit = (uint)pet.Duration,
-            ReactState = pet.ReactState,
-            CommandState = charmInfo.GetCommandState()
-        };
+		{
+			PetGUID = pet.GUID,
+			CreatureFamily = (ushort)pet.Template.Family, // creature family (required for pet talents)
+			Specialization = pet.Specialization,
+			TimeLimit = (uint)pet.Duration,
+			ReactState = pet.ReactState,
+			CommandState = charmInfo.GetCommandState()
+		};
 
-        // action bar loop
+		// action bar loop
 		for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
 			petSpellsPacket.ActionButtons[i] = charmInfo.GetActionBarEntry(i).packedData;
 
@@ -1311,12 +1311,12 @@ public partial class Player
 				Spell spell = new(this, spellInfo, TriggerCastFlags.None);
 
 				SpellPrepare spellPrepare = new()
-                {
-                    ClientCastID = castCount,
-                    ServerCastID = spell.CastId
-                };
+				{
+					ClientCastID = castCount,
+					ServerCastID = spell.CastId
+				};
 
-                SendPacket(spellPrepare);
+				SendPacket(spellPrepare);
 
 				spell.FromClient = true;
 				spell.CastItem = item;
@@ -1353,12 +1353,12 @@ public partial class Player
 				Spell spell = new(this, spellInfo, TriggerCastFlags.None);
 
 				SpellPrepare spellPrepare = new()
-                {
-                    ClientCastID = castCount,
-                    ServerCastID = spell.CastId
-                };
+				{
+					ClientCastID = castCount,
+					ServerCastID = spell.CastId
+				};
 
-                SendPacket(spellPrepare);
+				SendPacket(spellPrepare);
 
 				spell.FromClient = true;
 				spell.CastItem = item;
@@ -1624,14 +1624,14 @@ public partial class Player
 			return;
 
 		PlayerSpell newspell = new()
-        {
-            State = PlayerSpellState.Temporary,
-            Active = true,
-            Dependent = false,
-            Disabled = false
-        };
+		{
+			State = PlayerSpellState.Temporary,
+			Active = true,
+			Dependent = false,
+			Disabled = false
+		};
 
-        _spells[spellId] = newspell;
+		_spells[spellId] = newspell;
 	}
 
 	public void RemoveTemporarySpell(uint spellId)
@@ -1644,7 +1644,7 @@ public partial class Player
 
 		// spell has other state than temporary - do not change it
 
-        _spells.Remove(spellId);
+		_spells.Remove(spellId);
 	}
 
 	public void UpdateZoneDependentAuras(uint newZone)
@@ -1791,14 +1791,15 @@ public partial class Player
 		if (learning && IsInWorld)
 		{
 			LearnedSpells learnedSpells = new();
-			LearnedSpellInfo learnedSpellInfo = new()
-            {
-                SpellID = spellId,
-                IsFavorite = favorite,
-                TraitDefinitionID = traitDefinitionId
-            };
 
-            learnedSpells.SuppressMessaging = suppressMessaging;
+			LearnedSpellInfo learnedSpellInfo = new()
+			{
+				SpellID = spellId,
+				IsFavorite = favorite,
+				TraitDefinitionID = traitDefinitionId
+			};
+
+			learnedSpells.SuppressMessaging = suppressMessaging;
 			learnedSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
 			SendPacket(learnedSpells);
 		}
@@ -2036,12 +2037,12 @@ public partial class Player
 	public void AddStoredAuraTeleportLocation(uint spellId)
 	{
 		StoredAuraTeleportLocation storedLocation = new()
-        {
-            Loc = new WorldLocation(Location),
-            CurrentState = StoredAuraTeleportLocation.State.Changed
-        };
+		{
+			Loc = new WorldLocation(Location),
+			CurrentState = StoredAuraTeleportLocation.State.Changed
+		};
 
-        _storedAuraTeleportLocations[spellId] = storedLocation;
+		_storedAuraTeleportLocations[spellId] = storedLocation;
 	}
 
 	public void RemoveStoredAuraTeleportLocation(uint spellId)
@@ -2104,18 +2105,18 @@ public partial class Player
 
 					// @todo Implement sending of bulk modifiers instead of single
 					SpellModifierInfo spellMod = new()
-                    {
-                        ModIndex = (byte)mod.Op
-                    };
+					{
+						ModIndex = (byte)mod.Op
+					};
 
-                    for (var eff = 0; eff < 128; ++eff)
+					for (var eff = 0; eff < 128; ++eff)
 					{
 						FlagArray128 mask = new()
-                        {
-                            [eff / 32] = 1u << (eff % 32)
-                        };
+						{
+							[eff / 32] = 1u << (eff % 32)
+						};
 
-                        if ((mod as SpellModifierByClassMask).Mask & mask)
+						if ((mod as SpellModifierByClassMask).Mask & mask)
 						{
 							SpellModifierData modData = new();
 
@@ -2420,7 +2421,7 @@ public partial class Player
 							{
 								var spellInfo = Global.SpellMgr.GetSpellInfo(p.Key, Difficulty.None);
 
-								return spellInfo.RecoveryTime < 10 * global::Time.Minute * global::Time.InMilliseconds && spellInfo.CategoryRecoveryTime < 10 * global::Time.Minute * global::Time.InMilliseconds && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
+								return spellInfo.RecoveryTime < 10 * Time.Minute * Time.InMilliseconds && spellInfo.CategoryRecoveryTime < 10 * Time.Minute * Time.InMilliseconds && !spellInfo.HasAttribute(SpellAttr6.DoNotResetCooldownInArena);
 							},
 							true);
 
@@ -2480,15 +2481,15 @@ public partial class Player
 		var maxRunes = GetMaxPower(PowerType.Runes);
 
 		ResyncRunes data = new()
-        {
-            Runes =
-            {
-                Start = (byte)((1 << maxRunes) - 1),
-                Count = GetRunesState()
-            }
-        };
+		{
+			Runes =
+			{
+				Start = (byte)((1 << maxRunes) - 1),
+				Count = GetRunesState()
+			}
+		};
 
-        float baseCd = GetRuneBaseCooldown();
+		float baseCd = GetRuneBaseCooldown();
 
 		for (byte i = 0; i < maxRunes; ++i)
 			data.Runes.Cooldowns.Add((byte)((baseCd - GetRuneCooldown(i)) / baseCd * 255));
@@ -2507,11 +2508,11 @@ public partial class Player
 			return;
 
 		_runes = new Runes
-        {
-            RuneState = 0
-        };
+		{
+			RuneState = 0
+		};
 
-        for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
+		for (byte i = 0; i < PlayerConst.MaxRunes; ++i)
 			SetRuneCooldown(i, 0); // reset cooldowns
 
 		// set a base regen timer equal to 10 sec
@@ -2532,8 +2533,8 @@ public partial class Player
 		var runeEntry = Global.DB2Mgr.GetPowerTypeEntry(PowerType.Runes);
 
 		var cooldown = GetRuneBaseCooldown();
-		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), (float)(1 * global::Time.InMilliseconds) / cooldown - runeEntry.RegenPeace);
-		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)runeIndex), (float)(1 * global::Time.InMilliseconds) / cooldown - runeEntry.RegenCombat);
+		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenFlatModifier, (int)runeIndex), (float)(1 * Time.InMilliseconds) / cooldown - runeEntry.RegenPeace);
+		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.PowerRegenInterruptedFlatModifier, (int)runeIndex), (float)(1 * Time.InMilliseconds) / cooldown - runeEntry.RegenCombat);
 	}
 
 	public uint GetRuneCooldown(byte index)
@@ -2550,14 +2551,14 @@ public partial class Player
 
 		// Check no reagent use mask
 		FlagArray128 noReagentMask = new()
-        {
-            [0] = ActivePlayerData.NoReagentCostMask[0],
-            [1] = ActivePlayerData.NoReagentCostMask[1],
-            [2] = ActivePlayerData.NoReagentCostMask[2],
-            [3] = ActivePlayerData.NoReagentCostMask[3]
-        };
+		{
+			[0] = ActivePlayerData.NoReagentCostMask[0],
+			[1] = ActivePlayerData.NoReagentCostMask[1],
+			[2] = ActivePlayerData.NoReagentCostMask[2],
+			[3] = ActivePlayerData.NoReagentCostMask[3]
+		};
 
-        if (spellInfo.SpellFamilyFlags & noReagentMask)
+		if (spellInfo.SpellFamilyFlags & noReagentMask)
 			return true;
 
 		return false;
@@ -2702,12 +2703,11 @@ public partial class Player
 
 				if (spellInfo == null)
 				{
-					Log.Logger.Error(
-								"Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
-								GUID.ToString(),
-								GetName(),
-								enchant_id,
-								pEnchant.EffectArg[s]);
+					Log.Logger.Error("Player.CastItemCombatSpell(GUID: {0}, name: {1}, enchant: {2}): unknown spell {3} is casted, ignoring...",
+									GUID.ToString(),
+									GetName(),
+									enchant_id,
+									pEnchant.EffectArg[s]);
 
 					continue;
 				}
@@ -3393,11 +3393,11 @@ public partial class Player
 	void SendKnownSpells()
 	{
 		SendKnownSpells knownSpells = new()
-        {
-            InitialLogin = IsLoading
-        };
+		{
+			InitialLogin = IsLoading
+		};
 
-        foreach (var spell in _spells.ToList())
+		foreach (var spell in _spells.ToList())
 		{
 			if (spell.Value.State == PlayerSpellState.Removed)
 				continue;
@@ -3633,15 +3633,15 @@ public partial class Player
 			}
 
 			PlayerSpell newspell = new()
-            {
-                State = state,
-                Active = active,
-                Dependent = dependent,
-                Disabled = disabled,
-                Favorite = favorite
-            };
+			{
+				State = state,
+				Active = active,
+				Dependent = dependent,
+				Disabled = disabled,
+				Favorite = favorite
+			};
 
-            if (traitDefinitionId.HasValue)
+			if (traitDefinitionId.HasValue)
 				newspell.TraitDefinitionId = traitDefinitionId.Value;
 
 			// replace spells in action bars and spellbook to bigger rank if only one spell rank must be accessible
@@ -3920,11 +3920,11 @@ public partial class Player
 			for (byte j = 0; j < 128; ++j)
 			{
 				FlagArray128 mask = new()
-                {
-                    [j / 32] = 1u << (j % 32)
-                };
+				{
+					[j / 32] = 1u << (j % 32)
+				};
 
-                SpellModifierData flatData;
+				SpellModifierData flatData;
 				SpellModifierData pctData;
 
 				flatData.ClassIndex = j;
@@ -3962,13 +3962,14 @@ public partial class Player
 	void SendSupercededSpell(uint oldSpell, uint newSpell)
 	{
 		SupercededSpells supercededSpells = new();
-		LearnedSpellInfo learnedSpellInfo = new()
-        {
-            SpellID = newSpell,
-            Superceded = (int)oldSpell
-        };
 
-        supercededSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
+		LearnedSpellInfo learnedSpellInfo = new()
+		{
+			SpellID = newSpell,
+			Superceded = (int)oldSpell
+		};
+
+		supercededSpells.ClientLearnedSpellData.Add(learnedSpellInfo);
 		SendPacket(supercededSpells);
 	}
 

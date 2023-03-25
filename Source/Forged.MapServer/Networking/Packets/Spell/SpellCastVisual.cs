@@ -31,11 +31,11 @@ public struct SpellCastVisual
 	public static implicit operator SpellCastVisualField(SpellCastVisual spellCastVisual)
 	{
 		SpellCastVisualField visual = new()
-        {
-            SpellXSpellVisualID = spellCastVisual.SpellXSpellVisualID,
-            ScriptVisualID = spellCastVisual.ScriptVisualID
-        };
+		{
+			SpellXSpellVisualID = spellCastVisual.SpellXSpellVisualID,
+			ScriptVisualID = spellCastVisual.ScriptVisualID
+		};
 
-        return visual;
+		return visual;
 	}
 }

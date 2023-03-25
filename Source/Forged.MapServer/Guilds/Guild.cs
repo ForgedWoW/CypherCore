@@ -53,11 +53,10 @@ public class Guild
 		m_bankMoney = 0;
 		m_createdDate = GameTime.GetGameTime();
 
-		Log.Logger.Debug(
-					"GUILD: creating guild [{0}] for leader {1} ({2})",
-					name,
-					pLeader.GetName(),
-					m_leaderGuid);
+		Log.Logger.Debug("GUILD: creating guild [{0}] for leader {1} ({2})",
+						name,
+						pLeader.GetName(),
+						m_leaderGuid);
 
 		SQLTransaction trans = new();
 
@@ -196,12 +195,12 @@ public class Guild
 		DB.Characters.Execute(stmt);
 
 		GuildNameChanged guildNameChanged = new()
-        {
-            GuildGUID = GetGUID(),
-            GuildName = m_name
-        };
+		{
+			GuildGUID = GetGUID(),
+			GuildName = m_name
+		};
 
-        BroadcastPacket(guildNameChanged);
+		BroadcastPacket(guildNameChanged);
 
 		return true;
 	}
@@ -209,38 +208,38 @@ public class Guild
 	public void HandleRoster(WorldSession session = null)
 	{
 		GuildRoster roster = new()
-        {
-            NumAccounts = (int)m_accountsNumber,
-            CreateDate = (uint)m_createdDate,
-            GuildFlags = 0
-        };
+		{
+			NumAccounts = (int)m_accountsNumber,
+			CreateDate = (uint)m_createdDate,
+			GuildFlags = 0
+		};
 
-        var sendOfficerNote = _HasRankRight(session.Player, GuildRankRights.ViewOffNote);
+		var sendOfficerNote = _HasRankRight(session.Player, GuildRankRights.ViewOffNote);
 
 		foreach (var member in m_members.Values)
 		{
 			GuildRosterMemberData memberData = new()
-            {
-                Guid = member.GetGUID(),
-                RankID = (int)member.GetRankId(),
-                AreaID = (int)member.GetZoneId(),
-                PersonalAchievementPoints = (int)member.GetAchievementPoints(),
-                GuildReputation = (int)member.GetTotalReputation(),
-                LastSave = member.GetInactiveDays(),
-                //GuildRosterProfessionData
-                VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-                Status = (byte)member.GetFlags(),
-                Level = member.GetLevel(),
-                ClassID = (byte)member.GetClass(),
-                Gender = (byte)member.GetGender(),
-                RaceID = (byte)member.GetRace(),
-                Authenticated = false,
-                SorEligible = false,
-                Name = member.GetName(),
-                Note = member.GetPublicNote()
-            };
+			{
+				Guid = member.GetGUID(),
+				RankID = (int)member.GetRankId(),
+				AreaID = (int)member.GetZoneId(),
+				PersonalAchievementPoints = (int)member.GetAchievementPoints(),
+				GuildReputation = (int)member.GetTotalReputation(),
+				LastSave = member.GetInactiveDays(),
+				//GuildRosterProfessionData
+				VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+				Status = (byte)member.GetFlags(),
+				Level = member.GetLevel(),
+				ClassID = (byte)member.GetClass(),
+				Gender = (byte)member.GetGender(),
+				RaceID = (byte)member.GetRace(),
+				Authenticated = false,
+				SorEligible = false,
+				Name = member.GetName(),
+				Note = member.GetPublicNote()
+			};
 
-            if (sendOfficerNote)
+			if (sendOfficerNote)
 				memberData.OfficerNote = member.GetOfficerNote();
 
 			roster.MemberData.Add(memberData);
@@ -256,22 +255,22 @@ public class Guild
 	public void SendQueryResponse(WorldSession session)
 	{
 		QueryGuildInfoResponse response = new()
-        {
-            GuildGUID = GetGUID(),
-            HasGuildInfo = true,
-            Info =
-            {
-                GuildGuid = GetGUID(),
-                VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-                EmblemStyle = m_emblemInfo.GetStyle(),
-                EmblemColor = m_emblemInfo.GetColor(),
-                BorderStyle = m_emblemInfo.GetBorderStyle(),
-                BorderColor = m_emblemInfo.GetBorderColor(),
-                BackgroundColor = m_emblemInfo.GetBackgroundColor()
-            }
-        };
+		{
+			GuildGUID = GetGUID(),
+			HasGuildInfo = true,
+			Info =
+			{
+				GuildGuid = GetGUID(),
+				VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+				EmblemStyle = m_emblemInfo.GetStyle(),
+				EmblemColor = m_emblemInfo.GetColor(),
+				BorderStyle = m_emblemInfo.GetBorderStyle(),
+				BorderColor = m_emblemInfo.GetBorderColor(),
+				BackgroundColor = m_emblemInfo.GetBackgroundColor()
+			}
+		};
 
-        foreach (var rankInfo in m_ranks)
+		foreach (var rankInfo in m_ranks)
 			response.Info.Ranks.Add(new QueryGuildInfoResponse.GuildInfo.RankInfo((byte)rankInfo.GetId(), (byte)rankInfo.GetOrder(), rankInfo.GetName()));
 
 		response.Info.GuildName = m_name;
@@ -286,15 +285,15 @@ public class Guild
 		foreach (var rankInfo in m_ranks)
 		{
 			GuildRankData rankData = new()
-            {
-                RankID = (byte)rankInfo.GetId(),
-                RankOrder = (byte)rankInfo.GetOrder(),
-                Flags = (uint)rankInfo.GetRights(),
-                WithdrawGoldLimit = (rankInfo.GetId() == GuildRankId.GuildMaster ? uint.MaxValue : (rankInfo.GetBankMoneyPerDay() / MoneyConstants.Gold)),
-                RankName = rankInfo.GetName()
-            };
+			{
+				RankID = (byte)rankInfo.GetId(),
+				RankOrder = (byte)rankInfo.GetOrder(),
+				Flags = (uint)rankInfo.GetRights(),
+				WithdrawGoldLimit = (rankInfo.GetId() == GuildRankId.GuildMaster ? uint.MaxValue : (rankInfo.GetBankMoneyPerDay() / MoneyConstants.Gold)),
+				RankName = rankInfo.GetName()
+			};
 
-            for (byte j = 0; j < GuildConst.MaxBankTabs; ++j)
+			for (byte j = 0; j < GuildConst.MaxBankTabs; ++j)
 			{
 				rankData.TabFlags[j] = (uint)rankInfo.GetBankTabRights(j);
 				rankData.TabWithdrawItemLimit[j] = (uint)rankInfo.GetBankTabSlotsPerDay(j);
@@ -468,10 +467,9 @@ public class Guild
 
 		if (tab == null)
 		{
-			Log.Logger.Error(
-						"Guild.HandleSetBankTabInfo: Player {0} trying to change bank tab info from unexisting tab {1}.",
-						session.Player.GetName(),
-						tabId);
+			Log.Logger.Error("Guild.HandleSetBankTabInfo: Player {0} trying to change bank tab info from unexisting tab {1}.",
+							session.Player.GetName(),
+							tabId);
 
 			return;
 		}
@@ -479,13 +477,13 @@ public class Guild
 		tab.SetInfo(name, icon);
 
 		GuildEventTabModified packet = new()
-        {
-            Tab = tabId,
-            Name = name,
-            Icon = icon
-        };
+		{
+			Tab = tabId,
+			Name = name,
+			Icon = icon
+		};
 
-        BroadcastPacket(packet);
+		BroadcastPacket(packet);
 	}
 
 	public void HandleSetMemberNote(WorldSession session, string note, ObjectGuid guid, bool isPublic)
@@ -504,13 +502,13 @@ public class Guild
 				member.SetOfficerNote(note);
 
 			GuildMemberUpdateNote updateNote = new()
-            {
-                Member = guid,
-                IsPublic = isPublic,
-                Note = note
-            };
+			{
+				Member = guid,
+				IsPublic = isPublic,
+				Note = note
+			};
 
-            BroadcastPacket(updateNote);
+			BroadcastPacket(updateNote);
 		}
 	}
 
@@ -532,11 +530,11 @@ public class Guild
 				_SetRankBankTabRightsAndSlots(rankId, rightsAndSlot);
 
 			GuildEventRankChanged packet = new()
-            {
-                RankID = (byte)rankId
-            };
+			{
+				RankID = (byte)rankId
+			};
 
-            BroadcastPacket(packet);
+			BroadcastPacket(packet);
 		}
 	}
 
@@ -636,21 +634,21 @@ public class Guild
 		_LogEvent(GuildEventLogTypes.InvitePlayer, player.GUID.Counter, pInvitee.GUID.Counter);
 
 		GuildInvite invite = new()
-        {
-            InviterVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-            GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-            GuildGUID = GetGUID(),
-            EmblemStyle = m_emblemInfo.GetStyle(),
-            EmblemColor = m_emblemInfo.GetColor(),
-            BorderStyle = m_emblemInfo.GetBorderStyle(),
-            BorderColor = m_emblemInfo.GetBorderColor(),
-            Background = m_emblemInfo.GetBackgroundColor(),
-            AchievementPoints = (int)GetAchievementMgr().AchievementPoints,
-            InviterName = player.GetName(),
-            GuildName = GetName()
-        };
+		{
+			InviterVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+			GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+			GuildGUID = GetGUID(),
+			EmblemStyle = m_emblemInfo.GetStyle(),
+			EmblemColor = m_emblemInfo.GetColor(),
+			BorderStyle = m_emblemInfo.GetBorderStyle(),
+			BorderColor = m_emblemInfo.GetBorderColor(),
+			Background = m_emblemInfo.GetBackgroundColor(),
+			AchievementPoints = (int)GetAchievementMgr().AchievementPoints,
+			InviterName = player.GetName(),
+			GuildName = GetName()
+		};
 
-        var oldGuild = pInvitee.Guild;
+		var oldGuild = pInvitee.Guild;
 
 		if (oldGuild)
 		{
@@ -1083,14 +1081,14 @@ public class Guild
 			return;
 
 		GuildPartyState partyStateResponse = new()
-        {
-            InGuildParty = (player.Map.GetOwnerGuildId(player.Team) == GetId()),
-            NumMembers = 0,
-            NumRequired = 0,
-            GuildXPEarnedMult = 0.0f
-        };
+		{
+			InGuildParty = (player.Map.GetOwnerGuildId(player.Team) == GetId()),
+			NumMembers = 0,
+			NumRequired = 0,
+			GuildXPEarnedMult = 0.0f
+		};
 
-        session.SendPacket(partyStateResponse);
+		session.SendPacket(partyStateResponse);
 	}
 
 	public void HandleGuildRequestChallengeUpdate(WorldSession session)
@@ -1144,11 +1142,11 @@ public class Guild
 			var bankEventLog = m_bankEventLog[tabId].GetGuildLog();
 
 			GuildBankLogQueryResults packet = new()
-            {
-                Tab = tabId
-            };
+			{
+				Tab = tabId
+			};
 
-            //if (tabId == GUILD_BANK_MAX_TABS && hasCashFlow)
+			//if (tabId == GUILD_BANK_MAX_TABS && hasCashFlow)
 			//    packet.WeeklyBonusMoney.Set(uint64(weeklyBonusMoney));
 
 			foreach (var entry in bankEventLog)
@@ -1176,14 +1174,14 @@ public class Guild
 		var rankId = member.GetRankId();
 
 		GuildPermissionsQueryResults queryResult = new()
-        {
-            RankID = (byte)rankId,
-            WithdrawGoldLimit = (int)_GetMemberRemainingMoney(member),
-            Flags = (int)_GetRankRights(rankId),
-            NumTabs = _GetPurchasedTabsSize()
-        };
+		{
+			RankID = (byte)rankId,
+			WithdrawGoldLimit = (int)_GetMemberRemainingMoney(member),
+			Flags = (int)_GetRankRights(rankId),
+			NumTabs = _GetPurchasedTabsSize()
+		};
 
-        for (byte tabId = 0; tabId < GuildConst.MaxBankTabs; ++tabId)
+		for (byte tabId = 0; tabId < GuildConst.MaxBankTabs; ++tabId)
 		{
 			GuildPermissionsQueryResults.GuildRankTabPermissions tabPerm;
 			tabPerm.Flags = (int)_GetRankBankTabRights(rankId, tabId);
@@ -1204,11 +1202,11 @@ public class Guild
 		var amount = _GetMemberRemainingMoney(member);
 
 		GuildBankRemainingWithdrawMoney packet = new()
-        {
-            RemainingWithdrawMoney = amount
-        };
+		{
+			RemainingWithdrawMoney = amount
+		};
 
-        session.SendPacket(packet);
+		session.SendPacket(packet);
 	}
 
 	public void SendLoginInfo(WorldSession session)
@@ -1229,11 +1227,11 @@ public class Guild
 		if (member.GetGUID() == GetLeaderGUID())
 		{
 			GuildFlaggedForRename renameFlag = new()
-            {
-                FlagSet = false
-            };
+			{
+				FlagSet = false
+			};
 
-            player.SendPacket(renameFlag);
+			player.SendPacket(renameFlag);
 		}
 
 		foreach (var entry in CliDB.GuildPerkSpellsStorage.Values)
@@ -1266,13 +1264,13 @@ public class Guild
 			member.RemoveFlag(GuildMemberFlags.DND);
 
 		GuildEventStatusChange statusChange = new()
-        {
-            Guid = memberGuid,
-            AFK = afk,
-            DND = dnd
-        };
+		{
+			Guid = memberGuid,
+			AFK = afk,
+			DND = dnd
+		};
 
-        BroadcastPacket(statusChange);
+		BroadcastPacket(statusChange);
 	}
 
 	public bool LoadFromDB(SQLFields fields)
@@ -1283,12 +1281,11 @@ public class Guild
 
 		if (!m_emblemInfo.LoadFromDB(fields))
 		{
-			Log.Logger.Error(
-						"Guild {0} has invalid emblem colors (Background: {1}, Border: {2}, Emblem: {3}), skipped.",
-						m_id,
-						m_emblemInfo.GetBackgroundColor(),
-						m_emblemInfo.GetBorderColor(),
-						m_emblemInfo.GetColor());
+			Log.Logger.Error("Guild {0} has invalid emblem colors (Background: {1}, Border: {2}, Emblem: {3}), skipped.",
+							m_id,
+							m_emblemInfo.GetBackgroundColor(),
+							m_emblemInfo.GetBorderColor(),
+							m_emblemInfo.GetColor());
 
 			return false;
 		}
@@ -1452,10 +1449,9 @@ public class Guild
 
 		if (tabId >= _GetPurchasedTabsSize())
 		{
-			Log.Logger.Error(
-						"Invalid tab for item (GUID: {0}, id: {1}) in guild bank, skipped.",
-						field.Read<uint>(0),
-						field.Read<uint>(1));
+			Log.Logger.Error("Invalid tab for item (GUID: {0}, id: {1}) in guild bank, skipped.",
+							field.Read<uint>(0),
+							field.Read<uint>(1));
 
 			return false;
 		}
@@ -1738,13 +1734,13 @@ public class Guild
 		_LogEvent(GuildEventLogTypes.JoinGuild, lowguid);
 
 		GuildEventPlayerJoined joinNotificationPacket = new()
-        {
-            Guid = guid,
-            Name = name,
-            VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress
-        };
+		{
+			Guid = guid,
+			Name = name,
+			VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress
+		};
 
-        BroadcastPacket(joinNotificationPacket);
+		BroadcastPacket(joinNotificationPacket);
 
 		// Call scripts if member was succesfully added (and stored to database)
 		Global.ScriptMgr.ForEach<IGuildOnAddMember>(p => p.OnAddMember(this, player, (byte)rankId));
@@ -1884,11 +1880,11 @@ public class Guild
 			pTab.SendText(this);
 
 			GuildEventTabTextChanged eventPacket = new()
-            {
-                Tab = tabId
-            };
+			{
+				Tab = tabId
+			};
 
-            BroadcastPacket(eventPacket);
+			BroadcastPacket(eventPacket);
 		}
 	}
 
@@ -1900,14 +1896,14 @@ public class Guild
 			return;
 
 		GuildBankQueryResults packet = new()
-        {
-            Money = m_bankMoney,
-            WithdrawalsRemaining = _GetMemberRemainingSlots(member, tabId),
-            Tab = tabId,
-            FullUpdate = fullUpdate
-        };
+		{
+			Money = m_bankMoney,
+			WithdrawalsRemaining = _GetMemberRemainingSlots(member, tabId),
+			Tab = tabId,
+			FullUpdate = fullUpdate
+		};
 
-        // TabInfo
+		// TabInfo
 		if (fullUpdate)
 			for (byte i = 0; i < _GetPurchasedTabsSize(); ++i)
 			{
@@ -1930,32 +1926,32 @@ public class Guild
 					if (tabItem)
 					{
 						GuildBankItemInfo itemInfo = new()
-                        {
-                            Slot = slotId,
-                            Item =
-                            {
-                                ItemID = tabItem.Entry
-                            },
-                            Count = (int)tabItem.Count,
-                            Charges = Math.Abs(tabItem.GetSpellCharges()),
-                            EnchantmentID = (int)tabItem.GetEnchantmentId(EnchantmentSlot.Perm),
-                            OnUseEnchantmentID = (int)tabItem.GetEnchantmentId(EnchantmentSlot.Use),
-                            Flags = tabItem.ItemData.DynamicFlags
-                        };
+						{
+							Slot = slotId,
+							Item =
+							{
+								ItemID = tabItem.Entry
+							},
+							Count = (int)tabItem.Count,
+							Charges = Math.Abs(tabItem.GetSpellCharges()),
+							EnchantmentID = (int)tabItem.GetEnchantmentId(EnchantmentSlot.Perm),
+							OnUseEnchantmentID = (int)tabItem.GetEnchantmentId(EnchantmentSlot.Use),
+							Flags = tabItem.ItemData.DynamicFlags
+						};
 
-                        byte i = 0;
+						byte i = 0;
 
 						foreach (var gemData in tabItem.ItemData.Gems)
 						{
 							if (gemData.ItemId != 0)
 							{
 								ItemGemData gem = new()
-                                {
-                                    Slot = i,
-                                    Item = new ItemInstance(gemData)
-                                };
+								{
+									Slot = i,
+									Item = new ItemInstance(gemData)
+								};
 
-                                itemInfo.SocketEnchant.Add(gem);
+								itemInfo.SocketEnchant.Add(gem);
 							}
 
 							++i;
@@ -2108,23 +2104,23 @@ public class Guild
 	public static void SendCommandResult(WorldSession session, GuildCommandType type, GuildCommandError errCode, string param = "")
 	{
 		GuildCommandResult resultPacket = new()
-        {
-            Command = type,
-            Result = errCode,
-            Name = param
-        };
+		{
+			Command = type,
+			Result = errCode,
+			Name = param
+		};
 
-        session.SendPacket(resultPacket);
+		session.SendPacket(resultPacket);
 	}
 
 	public static void SendSaveEmblemResult(WorldSession session, GuildEmblemError errCode)
 	{
 		PlayerSaveGuildEmblem saveResponse = new()
-        {
-            Error = errCode
-        };
+		{
+			Error = errCode
+		};
 
-        session.SendPacket(saveResponse);
+		session.SendPacket(saveResponse);
 	}
 
 	public static implicit operator bool(Guild guild)
@@ -2148,21 +2144,21 @@ public class Guild
 	void SendEventBankMoneyChanged()
 	{
 		GuildEventBankMoneyChanged eventPacket = new()
-        {
-            Money = GetBankMoney()
-        };
+		{
+			Money = GetBankMoney()
+		};
 
-        BroadcastPacket(eventPacket);
+		BroadcastPacket(eventPacket);
 	}
 
 	void SendEventMOTD(WorldSession session, bool broadcast = false)
 	{
 		GuildEventMotd eventPacket = new()
-        {
-            MotdText = GetMOTD()
-        };
+		{
+			MotdText = GetMOTD()
+		};
 
-        if (broadcast)
+		if (broadcast)
 		{
 			BroadcastPacket(eventPacket);
 		}
@@ -2176,11 +2172,11 @@ public class Guild
 	void SendEventNewLeader(Member newLeader, Member oldLeader, bool isSelfPromoted = false)
 	{
 		GuildEventNewLeader eventPacket = new()
-        {
-            SelfPromoted = isSelfPromoted
-        };
+		{
+			SelfPromoted = isSelfPromoted
+		};
 
-        if (newLeader != null)
+		if (newLeader != null)
 		{
 			eventPacket.NewLeaderGUID = newLeader.GetGUID();
 			eventPacket.NewLeaderName = newLeader.GetName();
@@ -2200,14 +2196,14 @@ public class Guild
 	void SendEventPlayerLeft(Player leaver, Player remover = null, bool isRemoved = false)
 	{
 		GuildEventPlayerLeft eventPacket = new()
-        {
-            Removed = isRemoved,
-            LeaverGUID = leaver.GUID,
-            LeaverName = leaver.GetName(),
-            LeaverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress
-        };
+		{
+			Removed = isRemoved,
+			LeaverGUID = leaver.GUID,
+			LeaverName = leaver.GetName(),
+			LeaverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress
+		};
 
-        if (isRemoved && remover)
+		if (isRemoved && remover)
 		{
 			eventPacket.RemoverGUID = remover.GUID;
 			eventPacket.RemoverName = remover.GetName();
@@ -2222,15 +2218,15 @@ public class Guild
 		var player = session.Player;
 
 		GuildEventPresenceChange eventPacket = new()
-        {
-            Guid = player.GUID,
-            Name = player.GetName(),
-            VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-            LoggedOn = loggedOn,
-            Mobile = false
-        };
+		{
+			Guid = player.GUID,
+			Name = player.GetName(),
+			VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+			LoggedOn = loggedOn,
+			Mobile = false
+		};
 
-        if (broadcast)
+		if (broadcast)
 			BroadcastPacket(eventPacket);
 		else
 			session.SendPacket(eventPacket);
@@ -2731,32 +2727,32 @@ public class Guild
 		if (tab != null)
 		{
 			GuildBankQueryResults packet = new()
-            {
-                FullUpdate = true, // @todo
-                Tab = tabId,
-                Money = m_bankMoney
-            };
+			{
+				FullUpdate = true, // @todo
+				Tab = tabId,
+				Money = m_bankMoney
+			};
 
-            foreach (var slot in slots)
+			foreach (var slot in slots)
 			{
 				var tabItem = tab.GetItem(slot);
 
 				GuildBankItemInfo itemInfo = new()
-                {
-                    Slot = slot,
-                    Item =
-                    {
-                        ItemID = tabItem ? tabItem.Entry : 0
-                    },
-                    Count = (int)(tabItem ? tabItem.Count : 0),
-                    EnchantmentID = (int)(tabItem ? tabItem.GetEnchantmentId(EnchantmentSlot.Perm) : 0),
-                    Charges = tabItem ? Math.Abs(tabItem.GetSpellCharges()) : 0,
-                    OnUseEnchantmentID = (int)(tabItem ? tabItem.GetEnchantmentId(EnchantmentSlot.Use) : 0),
-                    Flags = 0,
-                    Locked = false
-                };
+				{
+					Slot = slot,
+					Item =
+					{
+						ItemID = tabItem ? tabItem.Entry : 0
+					},
+					Count = (int)(tabItem ? tabItem.Count : 0),
+					EnchantmentID = (int)(tabItem ? tabItem.GetEnchantmentId(EnchantmentSlot.Perm) : 0),
+					Charges = tabItem ? Math.Abs(tabItem.GetSpellCharges()) : 0,
+					OnUseEnchantmentID = (int)(tabItem ? tabItem.GetEnchantmentId(EnchantmentSlot.Use) : 0),
+					Flags = 0,
+					Locked = false
+				};
 
-                if (tabItem != null)
+				if (tabItem != null)
 				{
 					byte i = 0;
 
@@ -2765,12 +2761,12 @@ public class Guild
 						if (gemData.ItemId != 0)
 						{
 							ItemGemData gem = new()
-                            {
-                                Slot = i,
-                                Item = new ItemInstance(gemData)
-                            };
+							{
+								Slot = i,
+								Item = new ItemInstance(gemData)
+							};
 
-                            itemInfo.SocketEnchant.Add(gem);
+							itemInfo.SocketEnchant.Add(gem);
 						}
 
 						++i;
@@ -2801,14 +2797,14 @@ public class Guild
 		var member = GetMember(targetGuid);
 
 		GuildSendRankChange rankChange = new()
-        {
-            Officer = setterGuid,
-            Other = targetGuid,
-            RankID = (byte)rank,
-            Promote = (rank < member.GetRankId())
-        };
+		{
+			Officer = setterGuid,
+			Other = targetGuid,
+			RankID = (byte)rank,
+			Promote = (rank < member.GetRankId())
+		};
 
-        BroadcastPacket(rankChange);
+		BroadcastPacket(rankChange);
 
 		member.ChangeRank(null, rank);
 
@@ -3074,7 +3070,7 @@ public class Guild
 			if (IsOnline())
 				return 0.0f;
 
-			return (float)((GameTime.GetGameTime() - (long)GetLogoutTime()) / (float)global::Time.Day);
+			return (float)((GameTime.GetGameTime() - (long)GetLogoutTime()) / (float)Time.Day);
 		}
 
 		// Decreases amount of slots left for today.
@@ -3406,15 +3402,15 @@ public class Guild
 			var otherGUID = ObjectGuid.Create(HighGuid.Player, m_playerGuid2);
 
 			GuildEventEntry eventEntry = new()
-            {
-                PlayerGUID = playerGUID,
-                OtherGUID = otherGUID,
-                TransactionType = (byte)m_eventType,
-                TransactionDate = (uint)(GameTime.GetGameTime() - m_timestamp),
-                RankID = m_newRank
-            };
+			{
+				PlayerGUID = playerGUID,
+				OtherGUID = otherGUID,
+				TransactionType = (byte)m_eventType,
+				TransactionDate = (uint)(GameTime.GetGameTime() - m_timestamp),
+				RankID = m_newRank
+			};
 
-            packet.Entry.Add(eventEntry);
+			packet.Entry.Add(eventEntry);
 		}
 	}
 
@@ -3496,13 +3492,13 @@ public class Guild
 			var hasStack = (hasItem && m_itemStackCount > 1) || itemMoved;
 
 			GuildBankLogEntry bankLogEntry = new()
-            {
-                PlayerGUID = logGuid,
-                TimeOffset = (uint)(GameTime.GetGameTime() - m_timestamp),
-                EntryType = (sbyte)m_eventType
-            };
+			{
+				PlayerGUID = logGuid,
+				TimeOffset = (uint)(GameTime.GetGameTime() - m_timestamp),
+				EntryType = (sbyte)m_eventType
+			};
 
-            if (hasStack)
+			if (hasStack)
 				bankLogEntry.Count = m_itemStackCount;
 
 			if (IsMoneyEvent())
@@ -3593,15 +3589,15 @@ public class Guild
 		public void WritePacket(GuildNewsPkt newsPacket)
 		{
 			GuildNewsEvent newsEvent = new()
-            {
-                Id = (int)GetGUID(),
-                MemberGuid = GetPlayerGuid(),
-                CompletedDate = (uint)GetTimestamp(),
-                Flags = GetFlags(),
-                Type = (int)GetNewsType()
-            };
+			{
+				Id = (int)GetGUID(),
+				MemberGuid = GetPlayerGuid(),
+				CompletedDate = (uint)GetTimestamp(),
+				Flags = GetFlags(),
+				Type = (int)GetNewsType()
+			};
 
-            //for (public byte i = 0; i < 2; i++)
+			//for (public byte i = 0; i < 2; i++)
 			//    newsEvent.Data[i] =
 
 			//newsEvent.MemberList.push_back(MemberGuid);
@@ -3609,11 +3605,11 @@ public class Guild
 			if (GetNewsType() == GuildNews.ItemLooted || GetNewsType() == GuildNews.ItemCrafted || GetNewsType() == GuildNews.ItemPurchased)
 			{
 				ItemInstance itemInstance = new()
-                {
-                    ItemID = GetValue()
-                };
+				{
+					ItemID = GetValue()
+				};
 
-                newsEvent.Item = itemInstance;
+				newsEvent.Item = itemInstance;
 			}
 
 			newsPacket.NewsEvents.Add(newsEvent);
@@ -3987,12 +3983,12 @@ public class Guild
 		public void SendText(Guild guild, WorldSession session = null)
 		{
 			GuildBankTextQueryResult textQuery = new()
-            {
-                Tab = m_tabId,
-                Text = m_text
-            };
+			{
+				Tab = m_tabId,
+				Text = m_text
+			};
 
-            if (session != null)
+			if (session != null)
 			{
 				Log.Logger.Debug("SMSG_GUILD_BANK_QUERY_TEXT_RESULT [{0}]: Tabid: {1}, Text: {2}", session.GetPlayerInfo(), m_tabId, m_text);
 				session.SendPacket(textQuery);
@@ -4461,12 +4457,11 @@ public class Guild
 
 			foreach (var pos in m_vec)
 			{
-				Log.Logger.Debug(
-							"GUILD STORAGE: StoreItem tab = {0}, slot = {1}, item = {2}, count = {3}",
-							m_container,
-							m_slotId,
-							pItem.Entry,
-							pItem.Count);
+				Log.Logger.Debug("GUILD STORAGE: StoreItem tab = {0}, slot = {1}, item = {2}, count = {3}",
+								m_container,
+								m_slotId,
+								pItem.Entry,
+								pItem.Count);
 
 				pLastItem = _StoreItem(trans, pTab, pItem, pos, pos.Equals(m_vec.Last()));
 			}
@@ -4514,12 +4509,11 @@ public class Guild
 
 		public override InventoryResult CanStore(Item pItem, bool swap)
 		{
-			Log.Logger.Debug(
-						"GUILD STORAGE: CanStore() tab = {0}, slot = {1}, item = {2}, count = {3}",
-						m_container,
-						m_slotId,
-						pItem.Entry,
-						pItem.Count);
+			Log.Logger.Debug("GUILD STORAGE: CanStore() tab = {0}, slot = {1}, item = {2}, count = {3}",
+							m_container,
+							m_slotId,
+							pItem.Entry,
+							pItem.Count);
 
 			var count = pItem.Count;
 

@@ -63,22 +63,22 @@ public class BattlegroundScore
 	public virtual void BuildPvPLogPlayerDataPacket(out PVPMatchStatistics.PVPMatchPlayerStatistics playerData)
 	{
 		playerData = new PVPMatchStatistics.PVPMatchPlayerStatistics
-        {
-            PlayerGUID = PlayerGuid,
-            Kills = KillingBlows,
-            Faction = (byte)TeamId
-        };
+		{
+			PlayerGUID = PlayerGuid,
+			Kills = KillingBlows,
+			Faction = (byte)TeamId
+		};
 
-        if (HonorableKills != 0 || Deaths != 0 || BonusHonor != 0)
+		if (HonorableKills != 0 || Deaths != 0 || BonusHonor != 0)
 		{
 			PVPMatchStatistics.HonorData playerDataHonor = new()
-            {
-                HonorKills = HonorableKills,
-                Deaths = Deaths,
-                ContributionPoints = BonusHonor
-            };
+			{
+				HonorKills = HonorableKills,
+				Deaths = Deaths,
+				ContributionPoints = BonusHonor
+			};
 
-            playerData.Honor = playerDataHonor;
+			playerData.Honor = playerDataHonor;
 		}
 
 		playerData.DamageDone = DamageDone;

@@ -19,19 +19,19 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 [Serializable]
 public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 {
-    private readonly HotfixDatabase _hotfixDatabase;
-    private readonly Locale _defaultLocale;
-    readonly string _tableName = typeof(T).Name;
+	private readonly HotfixDatabase _hotfixDatabase;
+	private readonly Locale _defaultLocale;
+	readonly string _tableName = typeof(T).Name;
 	WDCHeader _header;
 	string _db2Name;
 
-    public DB6Storage(HotfixDatabase hotfixDatabase, Locale defaultLocale = Locale.enUS)
-    {
-        _hotfixDatabase = hotfixDatabase;
-        _defaultLocale = defaultLocale;
-    }
+	public DB6Storage(HotfixDatabase hotfixDatabase, Locale defaultLocale = Locale.enUS)
+	{
+		_hotfixDatabase = hotfixDatabase;
+		_defaultLocale = defaultLocale;
+	}
 
-    public bool HasRecord(uint id)
+	public bool HasRecord(uint id)
 	{
 		return ContainsKey(id);
 	}
@@ -363,11 +363,11 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 							if (type == typeof(LocalizedString))
 							{
 								LocalizedString locString = new()
-                                {
-                                    [_defaultLocale] = result.Read<string>(dbIndex++)
-                                };
+								{
+									[_defaultLocale] = result.Read<string>(dbIndex++)
+								};
 
-                                f.SetValue(obj, locString);
+								f.SetValue(obj, locString);
 							}
 							else if (type == typeof(Vector2))
 							{

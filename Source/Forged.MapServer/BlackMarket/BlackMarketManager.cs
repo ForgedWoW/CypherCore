@@ -28,7 +28,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 	public void LoadTemplates()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Clear in case we are reloading
 		_templates.Clear();
@@ -52,12 +52,12 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			AddTemplate(templ);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} black market templates in {1} ms.", _templates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAuctions()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Clear in case we are reloading
 		_auctions.Clear();
@@ -99,7 +99,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 
 		DB.Characters.CommitTransaction(trans);
 
-		Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void Update(bool updateTime = false)
@@ -177,14 +177,14 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			var templ = pair.Value.GetTemplate();
 
 			BlackMarketItem item = new()
-            {
-                MarketID = pair.Value.MarketId,
-                SellerNPC = templ.SellerNPC,
-                Item = templ.Item,
-                Quantity = templ.Quantity
-            };
+			{
+				MarketID = pair.Value.MarketId,
+				SellerNPC = templ.SellerNPC,
+				Item = templ.Item,
+				Quantity = templ.Quantity
+			};
 
-            // No bids yet
+			// No bids yet
 			if (pair.Value.NumBids == 0)
 			{
 				item.MinBid = templ.MinBid;

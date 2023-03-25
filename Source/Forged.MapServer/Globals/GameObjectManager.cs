@@ -406,7 +406,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//General
 	public bool LoadCypherStrings()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 		_cypherStringStorage.Clear();
 
 		var result = DB.World.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
@@ -431,14 +431,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				AddLocaleString(result.Read<string>((int)i + 1).ConvertFormatSyntax(), i, _cypherStringStorage[entry]);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} CypherStrings in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} CypherStrings in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 
 		return true;
 	}
 
 	public void LoadRaceAndClassExpansionRequirements()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_raceUnlockRequirementStorage.Clear();
 
 		//                                         0       1          2
@@ -478,24 +478,24 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 				RaceUnlockRequirement raceUnlockRequirement = new()
-                {
-                    Expansion = expansion,
-                    AchievementId = achievementId
-                };
+				{
+					Expansion = expansion,
+					AchievementId = achievementId
+				};
 
-                _raceUnlockRequirementStorage[raceID] = raceUnlockRequirement;
+				_raceUnlockRequirementStorage[raceID] = raceUnlockRequirement;
 
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} race expansion requirements in {1} ms.", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded {0} race expansion requirements in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 		else
 		{
 			Log.Logger.Information("Loaded 0 race expansion requirements. DB table `race_expansion_requirement` is empty.");
 		}
 
-		oldMSTime = global::Time.MSTime;
+		oldMSTime = Time.MSTime;
 		_classExpansionRequirementStorage.Clear();
 
 		//                               0        1       2                     3
@@ -559,21 +559,21 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			foreach (var race in temp)
 			{
 				RaceClassAvailability raceClassAvailability = new()
-                {
-                    RaceID = race.Key
-                };
+				{
+					RaceID = race.Key
+				};
 
-                foreach (var class_ in race.Value)
+				foreach (var class_ in race.Value)
 				{
 					ClassAvailability classAvailability = new()
-                    {
-                        ClassID = class_.Key,
-                        ActiveExpansionLevel = class_.Value.Item1,
-                        AccountExpansionLevel = class_.Value.Item2,
-                        MinActiveExpansionLevel = minRequirementForClass[class_.Key]
-                    };
+					{
+						ClassID = class_.Key,
+						ActiveExpansionLevel = class_.Value.Item1,
+						AccountExpansionLevel = class_.Value.Item2,
+						MinActiveExpansionLevel = minRequirementForClass[class_.Key]
+					};
 
-                    raceClassAvailability.Classes.Add(classAvailability);
+					raceClassAvailability.Classes.Add(classAvailability);
 				}
 
 				_classExpansionRequirementStorage.Add(raceClassAvailability);
@@ -589,7 +589,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadRealmNames()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_realmNameStorage.Clear();
 
 		//                                         0   1
@@ -614,7 +614,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} realm names in {1} ms.", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} realm names in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public string GetCypherString(uint entry, Locale locale = Locale.enUS)
@@ -712,7 +712,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Gossip
 	public void LoadGossipMenu()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gossipMenusStorage.Clear();
 
@@ -728,12 +728,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		do
 		{
 			GossipMenus gMenu = new()
-            {
-                MenuId = result.Read<uint>(0),
-                TextId = result.Read<uint>(1)
-            };
+			{
+				MenuId = result.Read<uint>(0),
+				TextId = result.Read<uint>(1)
+			};
 
-            if (GetNpcText(gMenu.TextId) == null)
+			if (GetNpcText(gMenu.TextId) == null)
 			{
 				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 					DB.World.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
@@ -746,12 +746,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_gossipMenusStorage.Add(gMenu.MenuId, gMenu);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} gossip_menu Ids in {1} ms", _gossipMenusStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gossip_menu Ids in {1} ms", _gossipMenusStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGossipMenuItems()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gossipMenuItemsStorage.Clear();
 
@@ -775,20 +775,20 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		do
 		{
 			GossipMenuItems gMenuItem = new()
-            {
-                MenuId = result.Read<uint>(0),
-                GossipOptionId = result.Read<int>(1),
-                OrderIndex = result.Read<uint>(2),
-                OptionNpc = (GossipOptionNpc)result.Read<byte>(3),
-                OptionText = result.Read<string>(4),
-                OptionBroadcastTextId = result.Read<uint>(5),
-                Language = result.Read<uint>(6),
-                Flags = (GossipOptionFlags)result.Read<int>(7),
-                ActionMenuId = result.Read<uint>(8),
-                ActionPoiId = result.Read<uint>(9)
-            };
+			{
+				MenuId = result.Read<uint>(0),
+				GossipOptionId = result.Read<int>(1),
+				OrderIndex = result.Read<uint>(2),
+				OptionNpc = (GossipOptionNpc)result.Read<byte>(3),
+				OptionText = result.Read<string>(4),
+				OptionBroadcastTextId = result.Read<uint>(5),
+				Language = result.Read<uint>(6),
+				Flags = (GossipOptionFlags)result.Read<int>(7),
+				ActionMenuId = result.Read<uint>(8),
+				ActionPoiId = result.Read<uint>(9)
+			};
 
-            if (!result.IsNull(10))
+			if (!result.IsNull(10))
 				gMenuItem.GossipNpcOptionId = result.Read<int>(10);
 
 			gMenuItem.BoxCoded = result.Read<bool>(11);
@@ -911,7 +911,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadGossipMenuAddon()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gossipMenuAddonStorage.Clear();
 
@@ -928,12 +928,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		do
 		{
 			var menuID = result.Read<uint>(0);
-			GossipMenuAddon addon = new()
-            {
-                FriendshipFactionId = result.Read<int>(1)
-            };
 
-            var faction = CliDB.FactionStorage.LookupByKey(addon.FriendshipFactionId);
+			GossipMenuAddon addon = new()
+			{
+				FriendshipFactionId = result.Read<int>(1)
+			};
+
+			var faction = CliDB.FactionStorage.LookupByKey(addon.FriendshipFactionId);
 
 			if (faction != null)
 			{
@@ -957,7 +958,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadPointsOfInterest()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_pointsOfInterestStorage.Clear(); // need for reload case
 
@@ -978,17 +979,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var id = result.Read<uint>(0);
 
 			PointOfInterest POI = new()
-            {
-                Id = id,
-                Pos = new Vector3(result.Read<float>(1), result.Read<float>(2), result.Read<float>(3)),
-                Icon = result.Read<uint>(4),
-                Flags = result.Read<uint>(5),
-                Importance = result.Read<uint>(6),
-                Name = result.Read<string>(7),
-                WmoGroupId = result.Read<uint>(8)
-            };
+			{
+				Id = id,
+				Pos = new Vector3(result.Read<float>(1), result.Read<float>(2), result.Read<float>(3)),
+				Icon = result.Read<uint>(4),
+				Flags = result.Read<uint>(5),
+				Importance = result.Read<uint>(6),
+				Name = result.Read<string>(7),
+				WmoGroupId = result.Read<uint>(8)
+			};
 
-            if (!GridDefines.IsValidMapCoord(POI.Pos.X, POI.Pos.Y, POI.Pos.Z))
+			if (!GridDefines.IsValidMapCoord(POI.Pos.X, POI.Pos.Y, POI.Pos.Z))
 			{
 				Log.Logger.Error($"Table `points_of_interest` (ID: {id}) have invalid coordinates (PositionX: {POI.Pos.X} PositionY: {POI.Pos.Y} PositionZ: {POI.Pos.Z}), ignored.");
 
@@ -1025,7 +1026,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadGraveyardZones()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		GraveYardStorage.Clear(); // need for reload case
 
@@ -1077,12 +1078,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				Log.Logger.Error("Table `graveyard_zone` has a duplicate record for Graveyard (ID: {0}) and Zone (ID: {1}), skipped.", safeLocId, zoneId);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} graveyard-zone links in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} graveyard-zone links in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadWorldSafeLocs()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0   1      2     3     4     5
 		var result = DB.World.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
@@ -1107,12 +1108,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			WorldSafeLocsEntry worldSafeLocs = new()
-            {
-                Id = id,
-                Loc = loc
-            };
+			{
+				Id = id,
+				Loc = loc
+			};
 
-            _worldSafeLocs[id] = worldSafeLocs;
+			_worldSafeLocs[id] = worldSafeLocs;
 		} while (result.NextRow());
 
 		Log.Logger.Information($"Loaded {_worldSafeLocs.Count} world locations {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
@@ -1290,12 +1291,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// add link to loaded data
 		GraveYardData data = new()
-        {
-            safeLocId = id,
-            team = (uint)team
-        };
+		{
+			safeLocId = id,
+			team = (uint)team
+		};
 
-        GraveYardStorage.Add(zoneId, data);
+		GraveYardStorage.Add(zoneId, data);
 
 		// add link to DB
 		if (persist)
@@ -1365,7 +1366,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Scripts
 	public void LoadAreaTriggerScripts()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_areaTriggerScriptStorage.Clear(); // need for reload case
 		var result = DB.World.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
@@ -1425,7 +1426,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			return false;
 		});
 
-		Log.Logger.Information("Loaded {0} areatrigger scripts in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} areatrigger scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpellScripts()
@@ -1505,10 +1506,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var id = evt_scripts.Find(p => p == script.Key);
 
 			if (id == 0)
-				Log.Logger.Error(
-							"Table `event_scripts` has script (Id: {0}) not referring to any gameobject_template type 10 data2 field, type 3 data6 field, type 13 data 2 field or any spell effect {1}",
-							script.Key,
-							SpellEffectName.SendEvent);
+				Log.Logger.Error("Table `event_scripts` has script (Id: {0}) not referring to any gameobject_template type 10 data2 field, type 3 data6 field, type 13 data 2 field or any spell effect {1}",
+								script.Key,
+								SpellEffectName.SendEvent);
 		}
 	}
 
@@ -1592,7 +1592,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadSpellScriptNames()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_spellScriptsStorage.Clear(); // need for reload case
 
@@ -1616,12 +1616,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} spell script names in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spell script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void ValidateSpellScripts()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		if (_spellScriptsStorage.Empty())
 		{
@@ -1693,7 +1693,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			return false;
 		});
 
-		Log.Logger.Information("Validated {0} scripts in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Validated {0} scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 
@@ -1763,7 +1763,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Creatures
 	public void LoadCreatureTemplates()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
 		stmt.AddValue(0, 0);
@@ -1795,7 +1795,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		foreach (var template in _creatureTemplateStorage.Values)
 			CheckCreatureTemplate(template);
 
-		Log.Logger.Information("Loaded {0} creature definitions in {1} ms", _creatureTemplateStorage.Count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creature definitions in {1} ms", _creatureTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureTemplate(SQLFields fields)
@@ -1803,11 +1803,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var entry = fields.Read<uint>(0);
 
 		CreatureTemplate creature = new()
-        {
-            Entry = entry
-        };
+		{
+			Entry = entry
+		};
 
-        for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
+		for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
 			creature.DifficultyEntry[i] = fields.Read<uint>(1 + i);
 
 		for (var i = 0; i < 2; ++i)
@@ -1907,7 +1907,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadCreatureTemplateAddons()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 		//                                         0      1        2      3           4         5         6            7         8      9          10               11            12                      13
 		var result = DB.World.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
@@ -1935,22 +1935,22 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			CreatureAddon creatureAddon = new()
-            {
-                PathId = result.Read<uint>(1),
-                Mount = result.Read<uint>(2),
-                StandState = result.Read<byte>(3),
-                AnimTier = result.Read<byte>(4),
-                VisFlags = result.Read<byte>(5),
-                SheathState = result.Read<byte>(6),
-                PvpFlags = result.Read<byte>(7),
-                Emote = result.Read<uint>(8),
-                AiAnimKit = result.Read<ushort>(9),
-                MovementAnimKit = result.Read<ushort>(10),
-                MeleeAnimKit = result.Read<ushort>(11),
-                VisibilityDistanceType = (VisibilityDistanceType)result.Read<byte>(12)
-            };
+			{
+				PathId = result.Read<uint>(1),
+				Mount = result.Read<uint>(2),
+				StandState = result.Read<byte>(3),
+				AnimTier = result.Read<byte>(4),
+				VisFlags = result.Read<byte>(5),
+				SheathState = result.Read<byte>(6),
+				PvpFlags = result.Read<byte>(7),
+				Emote = result.Read<uint>(8),
+				AiAnimKit = result.Read<ushort>(9),
+				MovementAnimKit = result.Read<ushort>(10),
+				MeleeAnimKit = result.Read<ushort>(11),
+				VisibilityDistanceType = (VisibilityDistanceType)result.Read<byte>(12)
+			};
 
-            var tokens = new StringArray(result.Read<string>(13), ' ');
+			var tokens = new StringArray(result.Read<string>(13), ' ');
 
 			for (var c = 0; c < tokens.Length; ++c)
 			{
@@ -2063,7 +2063,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadCreatureAddons()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 		//                                         0     1        2      3           4         5         6            7         8      9          10               11            12                      13
 		var result = DB.World.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
@@ -2092,11 +2092,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			CreatureAddon creatureAddon = new()
-            {
-                PathId = result.Read<uint>(1)
-            };
+			{
+				PathId = result.Read<uint>(1)
+			};
 
-            if (creData.MovementType == (byte)MovementGeneratorType.Waypoint && creatureAddon.PathId == 0)
+			if (creData.MovementType == (byte)MovementGeneratorType.Waypoint && creatureAddon.PathId == 0)
 			{
 				creData.MovementType = (byte)MovementGeneratorType.Idle;
 				Log.Logger.Error($"Creature (GUID {guid}) has movement type set to WAYPOINTMOTIONTYPE but no path assigned");
@@ -2219,7 +2219,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadCreatureQuestItems()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                          0              1      2
 		var result = DB.World.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
@@ -2261,12 +2261,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} creature quest items in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature quest items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadEquipmentTemplates()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		//                                                0   1        2                 3            4
 		var result = DB.World.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, " +
@@ -2314,11 +2314,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (dbcItem == null)
 				{
-					Log.Logger.Error(
-								"Unknown item (ID: {0}) in creature_equip_template.ItemID{1} for CreatureID  = {2}, forced to 0.",
-								equipmentInfo.Items[i].ItemId,
-								i + 1,
-								entry);
+					Log.Logger.Error("Unknown item (ID: {0}) in creature_equip_template.ItemID{1} for CreatureID  = {2}, forced to 0.",
+									equipmentInfo.Items[i].ItemId,
+									i + 1,
+									entry);
 
 					equipmentInfo.Items[i].ItemId = 0;
 
@@ -2327,15 +2326,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (Global.DB2Mgr.GetItemModifiedAppearance(equipmentInfo.Items[i].ItemId, equipmentInfo.Items[i].AppearanceModId) == null)
 				{
-					Log.Logger.Error(
-								"Unknown item appearance for (ID: {0}, AppearanceModID: {1}) pair in creature_equip_template.ItemID{2} creature_equip_template.AppearanceModID{3} " +
-								"for CreatureID: {4} and ID: {5}, forced to default.",
-								equipmentInfo.Items[i].ItemId,
-								equipmentInfo.Items[i].AppearanceModId,
-								i + 1,
-								i + 1,
-								entry,
-								id);
+					Log.Logger.Error("Unknown item appearance for (ID: {0}, AppearanceModID: {1}) pair in creature_equip_template.ItemID{2} creature_equip_template.AppearanceModID{3} " +
+									"for CreatureID: {4} and ID: {5}, forced to default.",
+									equipmentInfo.Items[i].ItemId,
+									equipmentInfo.Items[i].AppearanceModId,
+									i + 1,
+									i + 1,
+									entry,
+									id);
 
 					var defaultAppearance = Global.DB2Mgr.GetDefaultItemModifiedAppearance(equipmentInfo.Items[i].ItemId);
 
@@ -2357,11 +2355,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					dbcItem.inventoryType != InventoryType.Thrown &&
 					dbcItem.inventoryType != InventoryType.RangedRight)
 				{
-					Log.Logger.Error(
-								"Item (ID {0}) in creature_equip_template.ItemID{1} for CreatureID  = {2} is not equipable in a hand, forced to 0.",
-								equipmentInfo.Items[i].ItemId,
-								i + 1,
-								entry);
+					Log.Logger.Error("Item (ID {0}) in creature_equip_template.ItemID{1} for CreatureID  = {2} is not equipable in a hand, forced to 0.",
+									equipmentInfo.Items[i].ItemId,
+									i + 1,
+									entry);
 
 					equipmentInfo.Items[i].ItemId = 0;
 				}
@@ -2371,12 +2368,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} equipment templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} equipment templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureMovementOverrides()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_creatureMovementOverrides.Clear();
 
@@ -2438,7 +2435,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadCreatureClassLevelStats()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		_creatureBaseStatsStorage.Clear();
 
@@ -2463,13 +2460,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				Log.Logger.Error("Creature base stats for level {0} has invalid class {1}", Level, _class);
 
 			CreatureBaseStats stats = new()
-            {
-                BaseMana = result.Read<uint>(2),
-                AttackPower = result.Read<ushort>(3),
-                RangedAttackPower = result.Read<ushort>(4)
-            };
+			{
+				BaseMana = result.Read<uint>(2),
+				AttackPower = result.Read<ushort>(3),
+				RangedAttackPower = result.Read<ushort>(4)
+			};
 
-            _creatureBaseStatsStorage.Add(MathFunctions.MakePair16(Level, _class), stats);
+			_creatureBaseStatsStorage.Add(MathFunctions.MakePair16(Level, _class), stats);
 
 			++count;
 		} while (result.NextRow());
@@ -2479,12 +2476,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (_creatureBaseStatsStorage.LookupByKey(MathFunctions.MakePair16((uint)lvl, creatureTemplate.UnitClass)) == null)
 					Log.Logger.Error("Missing base stats for creature class {0} level {1}", creatureTemplate.UnitClass, lvl);
 
-		Log.Logger.Information("Loaded {0} creature base stats in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creature base stats in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureModelInfo()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 		var result = DB.World.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender FROM creature_model_info");
 
 		if (result.IsEmpty())
@@ -2516,14 +2513,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			CreatureModelInfo modelInfo = new()
-            {
-                BoundingRadius = result.Read<float>(1),
-                CombatReach = result.Read<float>(2),
-                DisplayIdOtherGender = result.Read<uint>(3),
-                Gender = creatureDisplay.Gender
-            };
+			{
+				BoundingRadius = result.Read<float>(1),
+				CombatReach = result.Read<float>(2),
+				DisplayIdOtherGender = result.Read<uint>(3),
+				Gender = creatureDisplay.Gender
+			};
 
-            // Checks
+			// Checks
 			if (modelInfo.Gender == (sbyte)Gender.Unknown)
 				modelInfo.Gender = (sbyte)Gender.Male;
 
@@ -2551,12 +2548,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} creature model based info in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creature model based info in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatureScalingData()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                   0      1             2                     3                     4
 		var result = DB.World.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
@@ -2588,13 +2585,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			CreatureLevelScaling creatureLevelScaling = new()
-            {
-                DeltaLevelMin = result.Read<short>(2),
-                DeltaLevelMax = result.Read<short>(3),
-                ContentTuningId = result.Read<uint>(4)
-            };
+			{
+				DeltaLevelMin = result.Read<short>(2),
+				DeltaLevelMax = result.Read<short>(3),
+				ContentTuningId = result.Read<uint>(4)
+			};
 
-            template.scalingStorage[difficulty] = creatureLevelScaling;
+			template.scalingStorage[difficulty] = creatureLevelScaling;
 
 			++count;
 		} while (result.NextRow());
@@ -2620,12 +2617,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (difficultyInfo == null)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}) has `difficulty_entry_{1}`={2} but creature entry {3} does not exist.",
-							cInfo.Entry,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Creature (Entry: {0}) has `difficulty_entry_{1}`={2} but creature entry {3} does not exist.",
+								cInfo.Entry,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								cInfo.DifficultyEntry[diff]);
 
 				continue;
 			}
@@ -2638,12 +2634,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (_difficultyEntries[diff2].Contains(cInfo.Entry))
 				{
-					Log.Logger.Error(
-								"Creature (Entry: {0}) is listed as `difficulty_entry_{1}` of another creature, but itself lists {2} in `difficulty_entry_{3}`.",
-								cInfo.Entry,
-								diff2 + 1,
-								cInfo.DifficultyEntry[diff],
-								diff + 1);
+					Log.Logger.Error("Creature (Entry: {0}) is listed as `difficulty_entry_{1}` of another creature, but itself lists {2} in `difficulty_entry_{3}`.",
+									cInfo.Entry,
+									diff2 + 1,
+									cInfo.DifficultyEntry[diff],
+									diff + 1);
 
 					continue;
 				}
@@ -2657,13 +2652,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (_hasDifficultyEntries[diff2].Contains(cInfo.DifficultyEntry[diff]))
 				{
-					Log.Logger.Error(
-								"Creature (Entry: {0}) has `difficulty_entry_{1}`={2} but creature entry {3} has itself a value in `difficulty_entry_{4}`.",
-								cInfo.Entry,
-								diff + 1,
-								cInfo.DifficultyEntry[diff],
-								cInfo.DifficultyEntry[diff],
-								diff2 + 1);
+					Log.Logger.Error("Creature (Entry: {0}) has `difficulty_entry_{1}`={2} but creature entry {3} has itself a value in `difficulty_entry_{4}`.",
+									cInfo.Entry,
+									diff + 1,
+									cInfo.DifficultyEntry[diff],
+									cInfo.DifficultyEntry[diff],
+									diff2 + 1);
 
 					continue;
 				}
@@ -2675,50 +2669,45 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				continue;
 
 			if (cInfo.HealthScalingExpansion > difficultyInfo.HealthScalingExpansion)
-				Log.Logger.Error(
-							"Creature (Id: {0}, Expansion {1}) has different `HealthScalingExpansion` in difficulty {2} mode (Id: {3}, Expansion: {4}).",
-							cInfo.Entry,
-							cInfo.HealthScalingExpansion,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.HealthScalingExpansion);
+				Log.Logger.Error("Creature (Id: {0}, Expansion {1}) has different `HealthScalingExpansion` in difficulty {2} mode (Id: {3}, Expansion: {4}).",
+								cInfo.Entry,
+								cInfo.HealthScalingExpansion,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.HealthScalingExpansion);
 
 			if (cInfo.Minlevel > difficultyInfo.Minlevel)
-				Log.Logger.Error(
-							"Creature (Entry: {0}, minlevel: {1}) has lower `minlevel` in difficulty {2} mode (Entry: {3}, minlevel: {4}).",
-							cInfo.Entry,
-							cInfo.Minlevel,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.Minlevel);
+				Log.Logger.Error("Creature (Entry: {0}, minlevel: {1}) has lower `minlevel` in difficulty {2} mode (Entry: {3}, minlevel: {4}).",
+								cInfo.Entry,
+								cInfo.Minlevel,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.Minlevel);
 
 			if (cInfo.Maxlevel > difficultyInfo.Maxlevel)
-				Log.Logger.Error(
-							"Creature (Entry: {0}, maxlevel: {1}) has lower `maxlevel` in difficulty {2} mode (Entry: {3}, maxlevel: {4}).",
-							cInfo.Entry,
-							cInfo.Maxlevel,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.Maxlevel);
+				Log.Logger.Error("Creature (Entry: {0}, maxlevel: {1}) has lower `maxlevel` in difficulty {2} mode (Entry: {3}, maxlevel: {4}).",
+								cInfo.Entry,
+								cInfo.Maxlevel,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.Maxlevel);
 
 			if (cInfo.Faction != difficultyInfo.Faction)
-				Log.Logger.Error(
-							"Creature (Entry: {0}, faction: {1}) has different `faction` in difficulty {2} mode (Entry: {3}, faction: {4}).",
-							cInfo.Entry,
-							cInfo.Faction,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.Faction);
+				Log.Logger.Error("Creature (Entry: {0}, faction: {1}) has different `faction` in difficulty {2} mode (Entry: {3}, faction: {4}).",
+								cInfo.Entry,
+								cInfo.Faction,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.Faction);
 
 			if (cInfo.UnitClass != difficultyInfo.UnitClass)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}, class: {1}) has different `unit_class` in difficulty {2} mode (Entry: {3}, class: {4}).",
-							cInfo.Entry,
-							cInfo.UnitClass,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.UnitClass);
+				Log.Logger.Error("Creature (Entry: {0}, class: {1}) has different `unit_class` in difficulty {2} mode (Entry: {3}, class: {4}).",
+								cInfo.Entry,
+								cInfo.UnitClass,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.UnitClass);
 
 				continue;
 			}
@@ -2733,38 +2722,35 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (cInfo.DmgSchool != difficultyInfo.DmgSchool)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}, `dmgschool`: {1}) has different `dmgschool` in difficulty {2} mode (Entry: {3}, `dmgschool`: {4}).",
-							cInfo.Entry,
-							cInfo.DmgSchool,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.DmgSchool);
+				Log.Logger.Error("Creature (Entry: {0}, `dmgschool`: {1}) has different `dmgschool` in difficulty {2} mode (Entry: {3}, `dmgschool`: {4}).",
+								cInfo.Entry,
+								cInfo.DmgSchool,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.DmgSchool);
 
 				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `dmgschool`={0} WHERE `entry`={1};", cInfo.DmgSchool, cInfo.DifficultyEntry[diff]);
 			}
 
 			if (cInfo.UnitFlags2 != difficultyInfo.UnitFlags2)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}, `unit_flags2`: {1}) has different `unit_flags2` in difficulty {2} mode (Entry: {3}, `unit_flags2`: {4}).",
-							cInfo.Entry,
-							cInfo.UnitFlags2,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.UnitFlags2);
+				Log.Logger.Error("Creature (Entry: {0}, `unit_flags2`: {1}) has different `unit_flags2` in difficulty {2} mode (Entry: {3}, `unit_flags2`: {4}).",
+								cInfo.Entry,
+								cInfo.UnitFlags2,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.UnitFlags2);
 
 				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `unit_flags2`=`unit_flags2`^{0} WHERE `entry`={1};", cInfo.UnitFlags2 ^ difficultyInfo.UnitFlags2, cInfo.DifficultyEntry[diff]);
 			}
 
 			if (cInfo.Family != difficultyInfo.Family)
-				Log.Logger.Error(
-							"Creature (Entry: {0}, family: {1}) has different `family` in difficulty {2} mode (Entry: {3}, family: {4}).",
-							cInfo.Entry,
-							cInfo.Family,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.Family);
+				Log.Logger.Error("Creature (Entry: {0}, family: {1}) has different `family` in difficulty {2} mode (Entry: {3}, family: {4}).",
+								cInfo.Entry,
+								cInfo.Family,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.Family);
 
 			if (cInfo.TrainerClass != difficultyInfo.TrainerClass)
 			{
@@ -2774,32 +2760,29 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (cInfo.CreatureType != difficultyInfo.CreatureType)
-				Log.Logger.Error(
-							"Creature (Entry: {0}, type: {1}) has different `type` in difficulty {2} mode (Entry: {3}, type: {4}).",
-							cInfo.Entry,
-							cInfo.CreatureType,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.CreatureType);
+				Log.Logger.Error("Creature (Entry: {0}, type: {1}) has different `type` in difficulty {2} mode (Entry: {3}, type: {4}).",
+								cInfo.Entry,
+								cInfo.CreatureType,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.CreatureType);
 
 			if (cInfo.VehicleId == 0 && difficultyInfo.VehicleId != 0)
-				Log.Logger.Error(
-							"Non-vehicle Creature (Entry: {0}, VehicleId: {1}) has `VehicleId` set in difficulty {2} mode (Entry: {3}, VehicleId: {4}).",
-							cInfo.Entry,
-							cInfo.VehicleId,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.VehicleId);
+				Log.Logger.Error("Non-vehicle Creature (Entry: {0}, VehicleId: {1}) has `VehicleId` set in difficulty {2} mode (Entry: {3}, VehicleId: {4}).",
+								cInfo.Entry,
+								cInfo.VehicleId,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.VehicleId);
 
 			if (cInfo.RegenHealth != difficultyInfo.RegenHealth)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}, RegenHealth: {1}) has different `RegenHealth` in difficulty {2} mode (Entry: {3}, RegenHealth: {4}).",
-							cInfo.Entry,
-							cInfo.RegenHealth,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.RegenHealth);
+				Log.Logger.Error("Creature (Entry: {0}, RegenHealth: {1}) has different `RegenHealth` in difficulty {2} mode (Entry: {3}, RegenHealth: {4}).",
+								cInfo.Entry,
+								cInfo.RegenHealth,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.RegenHealth);
 
 				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `RegenHealth`={0} WHERE `entry`={1};", cInfo.RegenHealth, cInfo.DifficultyEntry[diff]);
 			}
@@ -2808,13 +2791,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (differenceMask != 0)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}, mechanic_immune_mask: {1}) has weaker immunities in difficulty {2} mode (Entry: {3}, mechanic_immune_mask: {4}).",
-							cInfo.Entry,
-							cInfo.MechanicImmuneMask,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.MechanicImmuneMask);
+				Log.Logger.Error("Creature (Entry: {0}, mechanic_immune_mask: {1}) has weaker immunities in difficulty {2} mode (Entry: {3}, mechanic_immune_mask: {4}).",
+								cInfo.Entry,
+								cInfo.MechanicImmuneMask,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.MechanicImmuneMask);
 
 				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `mechanic_immune_mask`=`mechanic_immune_mask`|{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
 			}
@@ -2823,35 +2805,32 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (differenceMask != 0)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}, flags_extra: {1}) has different `flags_extra` in difficulty {2} mode (Entry: {3}, flags_extra: {4}).",
-							cInfo.Entry,
-							cInfo.FlagsExtra,
-							diff + 1,
-							cInfo.DifficultyEntry[diff],
-							difficultyInfo.FlagsExtra);
+				Log.Logger.Error("Creature (Entry: {0}, flags_extra: {1}) has different `flags_extra` in difficulty {2} mode (Entry: {3}, flags_extra: {4}).",
+								cInfo.Entry,
+								cInfo.FlagsExtra,
+								diff + 1,
+								cInfo.DifficultyEntry[diff],
+								difficultyInfo.FlagsExtra);
 
 				Log.Logger.Error("Possible FIX: UPDATE `creature_template` SET `flags_extra`=`flags_extra`^{0} WHERE `entry`={1};", differenceMask, cInfo.DifficultyEntry[diff]);
 			}
 
 			if (difficultyInfo.AIName.IsEmpty())
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}) lists difficulty {1} mode entry {2} with `AIName` filled in. `AIName` of difficulty 0 mode creature is always used instead.",
-							cInfo.Entry,
-							diff + 1,
-							cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Creature (Entry: {0}) lists difficulty {1} mode entry {2} with `AIName` filled in. `AIName` of difficulty 0 mode creature is always used instead.",
+								cInfo.Entry,
+								diff + 1,
+								cInfo.DifficultyEntry[diff]);
 
 				continue;
 			}
 
 			if (difficultyInfo.ScriptID != 0)
 			{
-				Log.Logger.Error(
-							"Creature (Entry: {0}) lists difficulty {1} mode entry {2} with `ScriptName` filled in. `ScriptName` of difficulty 0 mode creature is always used instead.",
-							cInfo.Entry,
-							diff + 1,
-							cInfo.DifficultyEntry[diff]);
+				Log.Logger.Error("Creature (Entry: {0}) lists difficulty {1} mode entry {2} with `ScriptName` filled in. `ScriptName` of difficulty 0 mode creature is always used instead.",
+								cInfo.Entry,
+								diff + 1,
+								cInfo.DifficultyEntry[diff]);
 
 				continue;
 			}
@@ -3028,7 +3007,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadLinkedRespawn()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_linkedRespawnStorage.Clear();
 		//                                                 0        1          2
@@ -3303,12 +3282,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				_linkedRespawnStorage[guid] = linkedGuid;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} linked respawns in {1} ms", _linkedRespawnStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} linked respawns in {1} ms", _linkedRespawnStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadNPCText()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_npcTextStorage.Clear();
 
@@ -3369,12 +3348,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_npcTextStorage[textID] = npcText;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} npc texts in {1} ms", _npcTextStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} npc texts in {1} ms", _npcTextStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTrainers()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// For reload case
 		_trainers.Clear();
@@ -3480,7 +3459,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadCreatureTrainers()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_creatureDefaultTrainers.Clear();
 
@@ -3538,7 +3517,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadVendors()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 		// For reload case
 		_cacheVendorItemStorage.Clear();
 
@@ -3568,17 +3547,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			else
 			{
 				VendorItem vItem = new()
-                {
-                    Item = (uint)itemid,
-                    Maxcount = result.Read<uint>(2),
-                    Incrtime = result.Read<uint>(3),
-                    ExtendedCost = result.Read<uint>(4),
-                    Type = (ItemVendorType)result.Read<byte>(5),
-                    PlayerConditionId = result.Read<uint>(7),
-                    IgnoreFiltering = result.Read<bool>(8)
-                };
+				{
+					Item = (uint)itemid,
+					Maxcount = result.Read<uint>(2),
+					Incrtime = result.Read<uint>(3),
+					ExtendedCost = result.Read<uint>(4),
+					Type = (ItemVendorType)result.Read<byte>(5),
+					PlayerConditionId = result.Read<uint>(7),
+					IgnoreFiltering = result.Read<bool>(8)
+				};
 
-                var bonusListIDsTok = new StringArray(result.Read<string>(6), ' ');
+				var bonusListIDsTok = new StringArray(result.Read<string>(6), ' ');
 
 				if (!bonusListIDsTok.IsEmpty())
 					foreach (string token in bonusListIDsTok)
@@ -3596,12 +3575,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Vendors in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} Vendors in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadCreatures()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		//                                         0              1   2    3           4           5           6            7        8             9              10
 		var result = DB.World.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, " +
@@ -3654,22 +3633,22 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			CreatureData data = new()
-            {
-                SpawnId = guid,
-                Id = entry,
-                MapId = result.Read<ushort>(2),
-                SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6)),
-                Displayid = result.Read<uint>(7),
-                EquipmentId = result.Read<sbyte>(8),
-                spawntimesecs = result.Read<int>(9),
-                WanderDistance = result.Read<float>(10),
-                Currentwaypoint = result.Read<uint>(11),
-                Curhealth = result.Read<uint>(12),
-                Curmana = result.Read<uint>(13),
-                MovementType = result.Read<byte>(14)
-            };
+			{
+				SpawnId = guid,
+				Id = entry,
+				MapId = result.Read<ushort>(2),
+				SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6)),
+				Displayid = result.Read<uint>(7),
+				EquipmentId = result.Read<sbyte>(8),
+				spawntimesecs = result.Read<int>(9),
+				WanderDistance = result.Read<float>(10),
+				Currentwaypoint = result.Read<uint>(11),
+				Curhealth = result.Read<uint>(12),
+				Curmana = result.Read<uint>(13),
+				MovementType = result.Read<byte>(14)
+			};
 
-            data.SpawnDifficulties = ParseSpawnDifficulties(result.Read<string>(15), "creature", guid, data.MapId, spawnMasks.LookupByKey(data.MapId));
+			data.SpawnDifficulties = ParseSpawnDifficulties(result.Read<string>(15), "creature", guid, data.MapId, spawnMasks.LookupByKey(data.MapId));
 			var gameEvent = result.Read<short>(16);
 			data.poolId = result.Read<uint>(17);
 			data.Npcflag = result.Read<ulong>(18);
@@ -3728,11 +3707,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.InstanceBind))
 				if (!mapEntry.IsDungeon())
-					Log.Logger.Error(
-								"Table `creature` have creature (GUID: {0} Entry: {1}) with `creature_template`.`flagsextra` including CREATUREFLAGEXTRAINSTANCEBIND " +
-								"but creature are not in instance.",
-								guid,
-								data.Id);
+					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `creature_template`.`flagsextra` including CREATUREFLAGEXTRAINSTANCEBIND " +
+									"but creature are not in instance.",
+									guid,
+									data.Id);
 
 			if (data.WanderDistance < 0.0f)
 			{
@@ -3764,11 +3742,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.AlwaysVisible) && data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.Inverse))
 			{
-				Log.Logger.Error(
-							"Table `creature` have creature (GUID: {0} Entry: {1}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE," +
-							" removing PHASE_USE_FLAGS_INVERSE.",
-							guid,
-							data.Id);
+				Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE," +
+								" removing PHASE_USE_FLAGS_INVERSE.",
+								guid,
+								data.Id);
 
 				data.PhaseUseFlags &= ~PhaseUseFlagsValues.Inverse;
 			}
@@ -3860,7 +3837,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			count++;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} creatures in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} creatures in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public bool HasPersonalSpawns(uint mapid, Difficulty spawnMode, uint phaseId)
@@ -4086,20 +4063,20 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//GameObjects
 	public void LoadGameObjectTemplate()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		foreach (var db2go in CliDB.GameObjectsStorage.Values)
 		{
 			GameObjectTemplate go = new()
-            {
-                entry = db2go.Id,
-                type = db2go.TypeID,
-                displayId = db2go.DisplayID,
-                name = db2go.Name[Global.WorldMgr.DefaultDbcLocale],
-                size = db2go.Scale
-            };
+			{
+				entry = db2go.Id,
+				type = db2go.TypeID,
+				displayId = db2go.DisplayID,
+				name = db2go.Name[Global.WorldMgr.DefaultDbcLocale],
+				size = db2go.Scale
+			};
 
-            unsafe
+			unsafe
 			{
 				for (byte x = 0; x < db2go.PropValue.Length; ++x)
 					go.Raw.data[x] = db2go.PropValue[x];
@@ -4131,18 +4108,18 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				var entry = result.Read<uint>(0);
 
 				GameObjectTemplate got = new()
-                {
-                    entry = entry,
-                    type = (GameObjectTypes)result.Read<uint>(1),
-                    displayId = result.Read<uint>(2),
-                    name = result.Read<string>(3),
-                    IconName = result.Read<string>(4),
-                    castBarCaption = result.Read<string>(5),
-                    unk1 = result.Read<string>(6),
-                    size = result.Read<float>(7)
-                };
+				{
+					entry = entry,
+					type = (GameObjectTypes)result.Read<uint>(1),
+					displayId = result.Read<uint>(2),
+					name = result.Read<string>(3),
+					IconName = result.Read<string>(4),
+					castBarCaption = result.Read<string>(5),
+					unk1 = result.Read<string>(6),
+					size = result.Read<float>(7)
+				};
 
-                unsafe
+				unsafe
 				{
 					for (byte x = 0; x < SharedConst.MaxGOData; ++x)
 						got.Raw.data[x] = result.Read<int>(8 + x);
@@ -4197,12 +4174,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case GameObjectTypes.SpellFocus: //8
 						if (got.SpellFocus.spellFocusType != 0)
 							if (!CliDB.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
-								Log.Logger.Error(
-											"GameObject (Entry: {0} GoType: {1}) have data0={2} but SpellFocus (Id: {3}) not exist.",
-											entry,
-											got.type,
-											got.SpellFocus.spellFocusType,
-											got.SpellFocus.spellFocusType);
+								Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data0={2} but SpellFocus (Id: {3}) not exist.",
+												entry,
+												got.type,
+												got.SpellFocus.spellFocusType,
+												got.SpellFocus.spellFocusType);
 
 						if (got.SpellFocus.linkedTrap != 0) // linked trap
 							CheckGOLinkedTrapId(got, got.SpellFocus.linkedTrap, 2);
@@ -4238,12 +4214,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					{
 						if (got.MoTransport.taxiPathID != 0)
 							if (got.MoTransport.taxiPathID >= CliDB.TaxiPathNodesByPath.Count || CliDB.TaxiPathNodesByPath[got.MoTransport.taxiPathID].Empty())
-								Log.Logger.Error(
-											"GameObject (Entry: {0} GoType: {1}) have data0={2} but TaxiPath (Id: {3}) not exist.",
-											entry,
-											got.type,
-											got.MoTransport.taxiPathID,
-											got.MoTransport.taxiPathID);
+								Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data0={2} but TaxiPath (Id: {3}) not exist.",
+												entry,
+												got.type,
+												got.MoTransport.taxiPathID,
+												got.MoTransport.taxiPathID);
 
 						var transportMap = got.MoTransport.SpawnMap;
 
@@ -4281,12 +4256,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 						if (got.BarberChair.SitAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(got.BarberChair.SitAnimKit))
 						{
-							Log.Logger.Error(
-										"GameObject (Entry: {0} GoType: {1}) have data2 = {2} but AnimKit.dbc (Id: {3}) not exist, set to 0.",
-										entry,
-										got.type,
-										got.BarberChair.SitAnimKit,
-										got.BarberChair.SitAnimKit);
+							Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data2 = {2} but AnimKit.dbc (Id: {3}) not exist, set to 0.",
+											entry,
+											got.type,
+											got.BarberChair.SitAnimKit,
+											got.BarberChair.SitAnimKit);
 
 							got.BarberChair.SitAnimKit = 0;
 						}
@@ -4314,13 +4288,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				_gameObjectTemplateStorage[entry] = got;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} game object templates in {1} ms", _gameObjectTemplateStorage.Count, global::Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} game object templates in {1} ms", _gameObjectTemplateStorage.Count, Time.GetMSTimeDiffToNow(time));
 		}
 	}
 
 	public void LoadGameObjectTemplateAddons()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0       1       2      3        4        5        6        7        8        9        10             11
 		var result = DB.World.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
@@ -4351,16 +4325,16 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			GameObjectTemplateAddon gameObjectAddon = new()
-            {
-                Faction = result.Read<ushort>(1),
-                Flags = (GameObjectFlags)result.Read<uint>(2),
-                Mingold = result.Read<uint>(3),
-                Maxgold = result.Read<uint>(4),
-                WorldEffectId = result.Read<uint>(10),
-                AiAnimKitId = result.Read<uint>(11)
-            };
+			{
+				Faction = result.Read<ushort>(1),
+				Flags = (GameObjectFlags)result.Read<uint>(2),
+				Mingold = result.Read<uint>(3),
+				Maxgold = result.Read<uint>(4),
+				WorldEffectId = result.Read<uint>(10),
+				AiAnimKitId = result.Read<uint>(11)
+			};
 
-            for (var i = 0; i < gameObjectAddon.ArtKits.Length; ++i)
+			for (var i = 0; i < gameObjectAddon.ArtKits.Length; ++i)
 			{
 				var artKitID = result.Read<uint>(5 + i);
 
@@ -4409,12 +4383,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} game object template addons in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} game object template addons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGameObjectOverrides()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                   0        1        2
 		var result = DB.World.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
@@ -4444,12 +4418,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			GameObjectOverride gameObjectOverride = new()
-            {
-                Faction = result.Read<ushort>(1),
-                Flags = (GameObjectFlags)result.Read<uint>(2)
-            };
+			{
+				Faction = result.Read<ushort>(1),
+				Flags = (GameObjectFlags)result.Read<uint>(2)
+			};
 
-            _gameObjectOverrideStorage[spawnId] = gameObjectOverride;
+			_gameObjectOverrideStorage[spawnId] = gameObjectOverride;
 
 			if (gameObjectOverride.Faction != 0 && !CliDB.FactionTemplateStorage.ContainsKey(gameObjectOverride.Faction))
 				Log.Logger.Error($"GameObject (SpawnId: {spawnId}) has invalid faction ({gameObjectOverride.Faction}) defined in `gameobject_overrides`.");
@@ -4462,7 +4436,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadGameObjects()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		//                                         0                1   2    3           4           5           6
 		var result = DB.World.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, " +
@@ -4532,14 +4506,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			GameObjectData data = new()
-            {
-                SpawnId = guid,
-                Id = entry,
-                MapId = result.Read<ushort>(2),
-                SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6))
-            };
+			{
+				SpawnId = guid,
+				Id = entry,
+				MapId = result.Read<ushort>(2),
+				SpawnPoint = new Position(result.Read<float>(3), result.Read<float>(4), result.Read<float>(5), result.Read<float>(6))
+			};
 
-            data.Rotation.X = result.Read<float>(7);
+			data.Rotation.X = result.Read<float>(7);
 			data.Rotation.Y = result.Read<float>(8);
 			data.Rotation.Z = result.Read<float>(9);
 			data.Rotation.W = result.Read<float>(10);
@@ -4596,11 +4570,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.AlwaysVisible) && data.PhaseUseFlags.HasAnyFlag(PhaseUseFlagsValues.Inverse))
 			{
-				Log.Logger.Error(
-							"Table `gameobject` have gameobject (GUID: {0} Entry: {1}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE," +
-							" removing PHASE_USE_FLAGS_INVERSE.",
-							guid,
-							data.Id);
+				Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) has both `phaseUseFlags` PHASE_USE_FLAGS_ALWAYS_VISIBLE and PHASE_USE_FLAGS_INVERSE," +
+								" removing PHASE_USE_FLAGS_INVERSE.",
+								guid,
+								data.Id);
 
 				data.PhaseUseFlags &= ~PhaseUseFlagsValues.Inverse;
 			}
@@ -4706,12 +4679,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} gameobjects in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} gameobjects in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadGameObjectAddons()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gameObjectAddonStorage.Clear();
 
@@ -4744,15 +4717,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			GameObjectAddon gameObjectAddon = new()
-            {
-                ParentRotation = new Quaternion(result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)),
-                invisibilityType = (InvisibilityType)result.Read<byte>(5),
-                invisibilityValue = result.Read<uint>(6),
-                WorldEffectID = result.Read<uint>(7),
-                AIAnimKitID = result.Read<uint>(8)
-            };
+			{
+				ParentRotation = new Quaternion(result.Read<float>(1), result.Read<float>(2), result.Read<float>(3), result.Read<float>(4)),
+				invisibilityType = (InvisibilityType)result.Read<byte>(5),
+				invisibilityValue = result.Read<uint>(6),
+				WorldEffectID = result.Read<uint>(7),
+				AIAnimKitID = result.Read<uint>(8)
+			};
 
-            if (gameObjectAddon.invisibilityType >= InvisibilityType.Max)
+			if (gameObjectAddon.invisibilityType >= InvisibilityType.Max)
 			{
 				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid InvisibilityType in `gameobject_addon`, disabled invisibility");
 				gameObjectAddon.invisibilityType = InvisibilityType.General;
@@ -4792,7 +4765,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadGameObjectQuestItems()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                           0                1
 		var result = DB.World.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
@@ -4831,12 +4804,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} gameobject quest items in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gameobject quest items in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGameObjectForQuests()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gameObjectForQuestStorage.Clear(); // need for reload case
 
@@ -4896,7 +4869,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		}
 
-		Log.Logger.Information("Loaded {0} GameObjects for quests in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameObjects for quests in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void AddGameObjectToGrid(GameObjectData data)
@@ -4978,7 +4951,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Items
 	public void LoadItemTemplates()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		uint sparseCount = 0;
 
 		foreach (var sparse in CliDB.ItemSparseStorage.Values)
@@ -4989,11 +4962,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				continue;
 
 			var itemTemplate = new ItemTemplate(db2Data, sparse)
-            {
-                MaxDurability = FillMaxDurability(db2Data.ClassID, db2Data.SubclassID, sparse.inventoryType, (ItemQuality)sparse.OverallQualityID, sparse.ItemLevel)
-            };
+			{
+				MaxDurability = FillMaxDurability(db2Data.ClassID, db2Data.SubclassID, sparse.inventoryType, (ItemQuality)sparse.OverallQualityID, sparse.ItemLevel)
+			};
 
-            var itemSpecOverrides = Global.DB2Mgr.GetItemSpecOverrides(sparse.Id);
+			var itemSpecOverrides = Global.DB2Mgr.GetItemSpecOverrides(sparse.Id);
 
 			if (itemSpecOverrides != null)
 			{
@@ -5076,12 +5049,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} item templates in {1} ms", sparseCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} item templates in {1} ms", sparseCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadItemTemplateAddon()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		uint count = 0;
 		var result = DB.World.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
@@ -5119,12 +5092,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} item addon templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} item addon templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadItemScriptNames()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		uint count = 0;
 
 		var result = DB.World.Query("SELECT Id, ScriptName FROM item_script_names");
@@ -5145,7 +5118,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++count;
 			} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} item script names in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} item script names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public ItemTemplate GetItemTemplate(uint ItemId)
@@ -5352,7 +5325,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Maps
 	public void LoadInstanceTemplate()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		//                                          0     1       2
 		var result = DB.World.Query("SELECT map, parent, script FROM instance_template");
@@ -5378,22 +5351,22 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			var instanceTemplate = new InstanceTemplate
-            {
-                Parent = result.Read<uint>(1),
-                ScriptId = GetScriptId(result.Read<string>(2))
-            };
+			{
+				Parent = result.Read<uint>(1),
+				ScriptId = GetScriptId(result.Read<string>(2))
+			};
 
-            _instanceTemplateStorage.Add(mapID, instanceTemplate);
+			_instanceTemplateStorage.Add(mapID, instanceTemplate);
 
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} instance templates in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+		Log.Logger.Information("Loaded {0} instance templates in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 	}
 
 	public void LoadGameTele()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		GameTeleStorage.Clear();
 
@@ -5414,16 +5387,16 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var id = result.Read<uint>(0);
 
 			GameTele gt = new()
-            {
-                posX = result.Read<float>(1),
-                posY = result.Read<float>(2),
-                posZ = result.Read<float>(3),
-                orientation = result.Read<float>(4),
-                mapId = result.Read<uint>(5),
-                name = result.Read<string>(6)
-            };
+			{
+				posX = result.Read<float>(1),
+				posY = result.Read<float>(2),
+				posZ = result.Read<float>(3),
+				orientation = result.Read<float>(4),
+				mapId = result.Read<uint>(5),
+				name = result.Read<string>(6)
+			};
 
-            gt.nameLow = gt.name.ToLowerInvariant();
+			gt.nameLow = gt.name.ToLowerInvariant();
 
 			if (!GridDefines.IsValidMapCoord(gt.mapId, gt.posX, gt.posY, gt.posZ, gt.orientation))
 			{
@@ -5436,12 +5409,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} GameTeleports in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} GameTeleports in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAreaTriggerTeleports()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_areaTriggerStorage.Clear(); // need for reload case
 
@@ -5474,16 +5447,16 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			AreaTriggerStruct at = new()
-            {
-                target_mapId = portLoc.Loc.MapId,
-                target_X = portLoc.Loc.X,
-                target_Y = portLoc.Loc.Y,
-                target_Z = portLoc.Loc.Z,
-                target_Orientation = portLoc.Loc.Orientation,
-                PortLocId = portLoc.Id
-            };
+			{
+				target_mapId = portLoc.Loc.MapId,
+				target_X = portLoc.Loc.X,
+				target_Y = portLoc.Loc.Y,
+				target_Z = portLoc.Loc.Z,
+				target_Orientation = portLoc.Loc.Orientation,
+				PortLocId = portLoc.Id
+			};
 
-            var atEntry = CliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
+			var atEntry = CliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
 
 			if (atEntry == null)
 			{
@@ -5495,12 +5468,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_areaTriggerStorage[Trigger_ID] = at;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} area trigger teleport definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} area trigger teleport definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadAccessRequirements()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_accessRequirementStorage.Clear();
 
@@ -5539,18 +5512,18 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var requirementId = MathFunctions.MakePair64(mapid, difficulty);
 
 			AccessRequirement ar = new()
-            {
-                LevelMin = result.Read<byte>(2),
-                LevelMax = result.Read<byte>(3),
-                Item = result.Read<uint>(4),
-                Item2 = result.Read<uint>(5),
-                QuestA = result.Read<uint>(6),
-                QuestH = result.Read<uint>(7),
-                Achievement = result.Read<uint>(8),
-                QuestFailedText = result.Read<string>(9)
-            };
+			{
+				LevelMin = result.Read<byte>(2),
+				LevelMax = result.Read<byte>(3),
+				Item = result.Read<uint>(4),
+				Item2 = result.Read<uint>(5),
+				QuestA = result.Read<uint>(6),
+				QuestH = result.Read<uint>(7),
+				Achievement = result.Read<uint>(8),
+				QuestFailedText = result.Read<string>(9)
+			};
 
-            if (ar.Item != 0)
+			if (ar.Item != 0)
 			{
 				var pProto = GetItemTemplate(ar.Item);
 
@@ -5597,12 +5570,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} access requirement definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} access requirement definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadInstanceEncounters()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                           0         1            2                3
 		var result = DB.World.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
@@ -5634,11 +5607,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (lastEncounterDungeon != 0 && Global.LFGMgr.GetLFGDungeonEntry(lastEncounterDungeon) == 0)
 			{
-				Log.Logger.Error(
-							"Table `instance_encounters` has an encounter {0} ({1}) marked as final for invalid dungeon id {2}, skipped!",
-							entry,
-							dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale],
-							lastEncounterDungeon);
+				Log.Logger.Error("Table `instance_encounters` has an encounter {0} ({1}) marked as final for invalid dungeon id {2}, skipped!",
+								entry,
+								dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale],
+								lastEncounterDungeon);
 
 				continue;
 			}
@@ -5649,12 +5621,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				if (pair != null)
 				{
-					Log.Logger.Error(
-								"Table `instance_encounters` specified encounter {0} ({1}) as last encounter but {2} ({3}) is already marked as one, skipped!",
-								entry,
-								dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale],
-								pair.Item1,
-								pair.Item2.Name[Global.WorldMgr.DefaultDbcLocale]);
+					Log.Logger.Error("Table `instance_encounters` specified encounter {0} ({1}) as last encounter but {2} ({3}) is already marked as one, skipped!",
+									entry,
+									dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale],
+									pair.Item1,
+									pair.Item2.Name[Global.WorldMgr.DefaultDbcLocale]);
 
 					continue;
 				}
@@ -5670,11 +5641,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (creatureInfo == null)
 					{
-						Log.Logger.Error(
-									"Table `instance_encounters` has an invalid creature (entry {0}) linked to the encounter {1} ({2}), skipped!",
-									creditEntry,
-									entry,
-									dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
+						Log.Logger.Error("Table `instance_encounters` has an invalid creature (entry {0}) linked to the encounter {1} ({2}), skipped!",
+										creditEntry,
+										entry,
+										dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
 
 						continue;
 					}
@@ -5699,22 +5669,20 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				case EncounterCreditType.CastSpell:
 					if (!Global.SpellMgr.HasSpellInfo(creditEntry, Difficulty.None))
 					{
-						Log.Logger.Error(
-									"Table `instance_encounters` has an invalid spell (entry {0}) linked to the encounter {1} ({2}), skipped!",
-									creditEntry,
-									entry,
-									dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
+						Log.Logger.Error("Table `instance_encounters` has an invalid spell (entry {0}) linked to the encounter {1} ({2}), skipped!",
+										creditEntry,
+										entry,
+										dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
 
 						continue;
 					}
 
 					break;
 				default:
-					Log.Logger.Error(
-								"Table `instance_encounters` has an invalid credit type ({0}) for encounter {1} ({2}), skipped!",
-								creditType,
-								entry,
-								dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
+					Log.Logger.Error("Table `instance_encounters` has an invalid credit type ({0}) for encounter {1} ({2}), skipped!",
+									creditType,
+									entry,
+									dungeonEncounter.Name[Global.WorldMgr.DefaultDbcLocale]);
 
 					continue;
 			}
@@ -5733,12 +5701,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} instance encounters in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} instance encounters in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSpawnGroupTemplates()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0        1          2
 		var result = DB.World.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
@@ -5747,14 +5715,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			do
 			{
 				var groupId = result.Read<uint>(0);
-				SpawnGroupTemplateData group = new()
-                {
-                    GroupId = groupId,
-                    Name = result.Read<string>(1),
-                    MapId = 0xFFFFFFFF
-                };
 
-                var flags = (SpawnGroupFlags)result.Read<uint>(2);
+				SpawnGroupTemplateData group = new()
+				{
+					GroupId = groupId,
+					Name = result.Read<string>(1),
+					MapId = 0xFFFFFFFF
+				};
+
+				var flags = (SpawnGroupFlags)result.Read<uint>(2);
 
 				if (flags.HasAnyFlag(~SpawnGroupFlags.All))
 				{
@@ -5776,29 +5745,31 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (!_spawnGroupDataStorage.ContainsKey(0))
 		{
 			Log.Logger.Error("Default spawn group (index 0) is missing from DB! Manually inserted.");
-			SpawnGroupTemplateData data = new()
-            {
-                GroupId = 0,
-                Name = "Default Group",
-                MapId = 0,
-                Flags = SpawnGroupFlags.System
-            };
 
-            _spawnGroupDataStorage[0] = data;
+			SpawnGroupTemplateData data = new()
+			{
+				GroupId = 0,
+				Name = "Default Group",
+				MapId = 0,
+				Flags = SpawnGroupFlags.System
+			};
+
+			_spawnGroupDataStorage[0] = data;
 		}
 
 		if (!_spawnGroupDataStorage.ContainsKey(1))
 		{
 			Log.Logger.Error("Default legacy spawn group (index 1) is missing from DB! Manually inserted.");
-			SpawnGroupTemplateData data = new()
-            {
-                GroupId = 1,
-                Name = "Legacy Group",
-                MapId = 0,
-                Flags = SpawnGroupFlags.System | SpawnGroupFlags.CompatibilityMode
-            };
 
-            _spawnGroupDataStorage[1] = data;
+			SpawnGroupTemplateData data = new()
+			{
+				GroupId = 1,
+				Name = "Legacy Group",
+				MapId = 0,
+				Flags = SpawnGroupFlags.System | SpawnGroupFlags.CompatibilityMode
+			};
+
+			_spawnGroupDataStorage[1] = data;
 		}
 
 		if (!result.IsEmpty())
@@ -5809,7 +5780,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadSpawnGroups()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0        1          2
 		var result = DB.World.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
@@ -5899,7 +5870,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadInstanceSpawnGroups()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0              1            2           3             4
 		var result = DB.World.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
@@ -5940,12 +5911,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			InstanceSpawnGroupInfo info = new()
-            {
-                SpawnGroupId = spawnGroupId,
-                BossStateId = result.Read<byte>(1)
-            };
+			{
+				SpawnGroupId = spawnGroupId,
+				BossStateId = result.Read<byte>(1)
+			};
 
-            byte ALL_STATES = (1 << (int)EncounterState.ToBeDecided) - 1;
+			byte ALL_STATES = (1 << (int)EncounterState.ToBeDecided) - 1;
 			var states = result.Read<byte>(2);
 
 			if ((states & ~ALL_STATES) != 0)
@@ -6156,7 +6127,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Player
 	public void LoadPlayerInfo()
 	{
-		var time = global::Time.MSTime;
+		var time = Time.MSTime;
 
 		// Load playercreate
 		{
@@ -6231,11 +6202,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (!result.IsNull(7))
 				{
 					PlayerInfo.CreatePositionModel createPosition = new()
-                    {
-                        Loc = new WorldLocation(result.Read<uint>(7), result.Read<float>(8), result.Read<float>(9), result.Read<float>(10), result.Read<float>(11))
-                    };
+					{
+						Loc = new WorldLocation(result.Read<uint>(7), result.Read<float>(8), result.Read<float>(9), result.Read<float>(10), result.Read<float>(11))
+					};
 
-                    if (!result.IsNull(12))
+					if (!result.IsNull(12))
 						createPosition.TransportGuid = result.Read<ulong>(12);
 
 					info.CreatePositionNpe = createPosition;
@@ -6288,10 +6259,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++count;
 			} while (result.NextRow());
 
-			Log.Logger.Information("Loaded {0} player create definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} player create definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 		}
 
-		time = global::Time.MSTime;
+		time = Time.MSTime;
 		// Load playercreate items
 		Log.Logger.Information("Loading Player Create Items Data...");
 
@@ -6428,7 +6399,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} custom player create items in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+				Log.Logger.Information("Loaded {0} custom player create items in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 			}
 		}
 
@@ -6436,7 +6407,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		Log.Logger.Information("Loading Player Create Skill Data...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			foreach (var rcInfo in CliDB.SkillRaceClassInfoStorage.Values)
 				if (rcInfo.Availability == 1)
@@ -6447,14 +6418,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 									if (_playerInfo.TryGetValue(raceIndex, classIndex, out var info))
 										info.Skills.Add(rcInfo);
 
-			Log.Logger.Information("Loaded player create skills in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded player create skills in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 
 		// Load playercreate custom spells
 		Log.Logger.Information("Loading Player Create Custom Spell Data...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			var result = DB.World.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
 
@@ -6497,7 +6468,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 									}
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} custom player create spells in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} custom player create spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
@@ -6505,7 +6476,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		Log.Logger.Information("Loading Player Create Cast Spell Data...");
 
 		{
-			var oldMSTime = global::Time.MSTime;
+			var oldMSTime = Time.MSTime;
 
 			var result = DB.World.Query("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
 
@@ -6556,12 +6527,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 									}
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} player create cast spells in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+				Log.Logger.Information("Loaded {0} player create cast spells in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 			}
 		}
 
 		// Load playercreate actions
-		time = global::Time.MSTime;
+		time = Time.MSTime;
 		Log.Logger.Information("Loading Player Create Action Data...");
 
 		{
@@ -6602,11 +6573,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					++count;
 				} while (result.NextRow());
 
-				Log.Logger.Information("Loaded {0} player create actions in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+				Log.Logger.Information("Loaded {0} player create actions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 			}
 		}
 
-		time = global::Time.MSTime;
+		time = Time.MSTime;
 		// Loading levels data (class/race dependent)
 		Log.Logger.Information("Loading Player Create Level Stats Data...");
 
@@ -6745,10 +6716,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 			}
 
-			Log.Logger.Information("Loaded {0} level stats definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} level stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 		}
 
-		time = global::Time.MSTime;
+		time = Time.MSTime;
 		// Loading xp per level data
 		Log.Logger.Information("Loading Player Create XP Data...");
 
@@ -6801,7 +6772,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					}
 			}
 
-			Log.Logger.Information("Loaded {0} xp for level definition(s) from database in {1} ms", count, global::Time.GetMSTimeDiffToNow(time));
+			Log.Logger.Information("Loaded {0} xp for level definition(s) from database in {1} ms", count, Time.GetMSTimeDiffToNow(time));
 		}
 	}
 
@@ -6858,7 +6829,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Pets
 	public void LoadPetLevelInfo()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0               1      2   3     4    5    6    7     8    9
 		var result = DB.World.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
@@ -6915,13 +6886,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				pInfoMapEntry = new PetLevelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel)];
 
 			PetLevelInfo pLevelInfo = new()
-            {
-                health = result.Read<uint>(2),
-                mana = result.Read<uint>(3),
-                armor = result.Read<uint>(9)
-            };
+			{
+				health = result.Read<uint>(2),
+				mana = result.Read<uint>(3),
+				armor = result.Read<uint>(9)
+			};
 
-            for (var i = 0; i < (int)Stats.Max; i++)
+			for (var i = 0; i < (int)Stats.Max; i++)
 				pLevelInfo.stats[i] = result.Read<uint>(i + 4);
 
 			pInfoMapEntry[currentlevel - 1] = pLevelInfo;
@@ -6950,12 +6921,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 		}
 
-		Log.Logger.Information("Loaded {0} level pet stats definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} level pet stats definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetNames()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		//                                          0     1      2
 		var result = DB.World.Query("SELECT word, entry, half FROM pet_name_generation");
 
@@ -6982,19 +6953,19 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} pet name parts in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} pet name parts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPetNumber()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.Characters.Query("SELECT MAX(id) FROM character_pet");
 
 		if (!result.IsEmpty())
 			_hiPetNumber = result.Read<uint>(0) + 1;
 
-		Log.Logger.Information("Loaded the max pet number: {0} in {1} ms", _hiPetNumber - 1, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded the max pet number: {0} in {1} ms", _hiPetNumber - 1, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public PetLevelInfo GetPetLevelInfo(uint creatureid, uint level)
@@ -7047,7 +7018,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Faction Change
 	public void LoadFactionChangeAchievements()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
 
@@ -7075,12 +7046,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} faction change achievement pairs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change achievement pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeItems()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		uint count = 0;
 
@@ -7098,12 +7069,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		}
 
-		Log.Logger.Information("Loaded {0} faction change item pairs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change item pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeQuests()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
 
@@ -7131,12 +7102,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} faction change quest pairs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change quest pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeReputations()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
 
@@ -7164,12 +7135,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} faction change reputation pairs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change reputation pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeSpells()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
 
@@ -7197,12 +7168,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} faction change spell pairs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change spell pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFactionChangeTitles()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
 
@@ -7230,13 +7201,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} faction change title pairs in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} faction change title pairs in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	//Quests
 	public void LoadQuests()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// For reload case
 		_questTemplates.Clear();
@@ -7508,11 +7479,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (Convert.ToBoolean(qinfo.SpecialFlags & ~QuestSpecialFlags.DbAllowed))
 			{
-				Log.Logger.Error(
-							"Quest {0} has `SpecialFlags` = {1} > max allowed value. Correct `SpecialFlags` to value <= {2}",
-							qinfo.Id,
-							qinfo.SpecialFlags,
-							QuestSpecialFlags.DbAllowed);
+				Log.Logger.Error("Quest {0} has `SpecialFlags` = {1} > max allowed value. Correct `SpecialFlags` to value <= {2}",
+								qinfo.Id,
+								qinfo.SpecialFlags,
+								QuestSpecialFlags.DbAllowed);
 
 				qinfo.SpecialFlags &= QuestSpecialFlags.DbAllowed;
 			}
@@ -7551,12 +7521,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					var id = qinfo.RewardChoiceItemId[j];
 
 					if (id != 0)
-						Log.Logger.Error(
-									"Quest {0} has `RewardChoiceItemId{1}` = {2} but item from `RewardChoiceItemId{3}` can't be rewarded with quest flag QUESTFLAGSTRACKING.",
-									qinfo.Id,
-									j + 1,
-									id,
-									j + 1);
+						Log.Logger.Error("Quest {0} has `RewardChoiceItemId{1}` = {2} but item from `RewardChoiceItemId{3}` can't be rewarded with quest flag QUESTFLAGSTRACKING.",
+										qinfo.Id,
+										j + 1,
+										id,
+										j + 1);
 					// no changes, quest ignore this data
 				}
 
@@ -7566,10 +7535,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			// client quest log visual (area case)
 			if (qinfo.QuestSortID > 0)
 				if (!CliDB.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
-					Log.Logger.Error(
-								"Quest {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
-								qinfo.Id,
-								qinfo.QuestSortID);
+					Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
+									qinfo.Id,
+									qinfo.QuestSortID);
 
 			// no changes, quest not dependent from this value but can have problems at client
 			// client quest log visual (sort case)
@@ -7578,10 +7546,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				var qSort = CliDB.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
 
 				if (qSort == null)
-					Log.Logger.Error(
-								"Quest {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
-								qinfo.Id,
-								qinfo.QuestSortID);
+					Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
+									qinfo.Id,
+									qinfo.QuestSortID);
 
 				// no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
 				//check for proper RequiredSkillId value (skill case)
@@ -7589,11 +7556,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (skillid != SkillType.None)
 					if (qinfo.RequiredSkillId != (uint)skillid)
-						Log.Logger.Error(
-									"Quest {0} has `ZoneOrSort` = {1} but `RequiredSkillId` does not have a corresponding value ({2}).",
-									qinfo.Id,
-									qinfo.QuestSortID,
-									skillid);
+						Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} but `RequiredSkillId` does not have a corresponding value ({2}).",
+										qinfo.Id,
+										qinfo.QuestSortID,
+										skillid);
 				//override, and force proper value here?
 			}
 
@@ -7616,73 +7582,64 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			// RequiredSkillId, can be 0
 			if (qinfo.RequiredSkillId != 0)
 				if (!CliDB.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
-					Log.Logger.Error(
-								"Quest {0} has `RequiredSkillId` = {1} but this skill does not exist",
-								qinfo.Id,
-								qinfo.RequiredSkillId);
+					Log.Logger.Error("Quest {0} has `RequiredSkillId` = {1} but this skill does not exist",
+									qinfo.Id,
+									qinfo.RequiredSkillId);
 
 			if (qinfo.RequiredSkillPoints != 0)
 				if (qinfo.RequiredSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
-					Log.Logger.Error(
-								"Quest {0} has `RequiredSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
-								qinfo.Id,
-								qinfo.RequiredSkillPoints,
-								Global.WorldMgr.ConfigMaxSkillValue);
+					Log.Logger.Error("Quest {0} has `RequiredSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
+									qinfo.Id,
+									qinfo.RequiredSkillPoints,
+									Global.WorldMgr.ConfigMaxSkillValue);
 			// no changes, quest can't be done for this requirement
 			// else Skill quests can have 0 skill level, this is ok
 
 			if (qinfo.RequiredMinRepFaction != 0 && !CliDB.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
-				Log.Logger.Error(
-							"Quest {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
-							qinfo.Id,
-							qinfo.RequiredMinRepFaction,
-							qinfo.RequiredMinRepFaction);
+				Log.Logger.Error("Quest {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
+								qinfo.Id,
+								qinfo.RequiredMinRepFaction,
+								qinfo.RequiredMinRepFaction);
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMaxRepFaction != 0 && !CliDB.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
-				Log.Logger.Error(
-							"Quest {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
-							qinfo.Id,
-							qinfo.RequiredMaxRepFaction,
-							qinfo.RequiredMaxRepFaction);
+				Log.Logger.Error("Quest {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
+								qinfo.Id,
+								qinfo.RequiredMaxRepFaction,
+								qinfo.RequiredMaxRepFaction);
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMinRepValue != 0 && qinfo.RequiredMinRepValue > SharedConst.ReputationCap)
-				Log.Logger.Error(
-							"Quest {0} has `RequiredMinRepValue` = {1} but max reputation is {2}, quest can't be done.",
-							qinfo.Id,
-							qinfo.RequiredMinRepValue,
-							SharedConst.ReputationCap);
+				Log.Logger.Error("Quest {0} has `RequiredMinRepValue` = {1} but max reputation is {2}, quest can't be done.",
+								qinfo.Id,
+								qinfo.RequiredMinRepValue,
+								SharedConst.ReputationCap);
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMinRepValue != 0 && qinfo.RequiredMaxRepValue != 0 && qinfo.RequiredMaxRepValue <= qinfo.RequiredMinRepValue)
-				Log.Logger.Error(
-							"Quest {0} has `RequiredMaxRepValue` = {1} and `RequiredMinRepValue` = {2}, quest can't be done.",
-							qinfo.Id,
-							qinfo.RequiredMaxRepValue,
-							qinfo.RequiredMinRepValue);
+				Log.Logger.Error("Quest {0} has `RequiredMaxRepValue` = {1} and `RequiredMinRepValue` = {2}, quest can't be done.",
+								qinfo.Id,
+								qinfo.RequiredMaxRepValue,
+								qinfo.RequiredMinRepValue);
 
 			// no changes, quest can't be done for this requirement
 			if (qinfo.RequiredMinRepFaction == 0 && qinfo.RequiredMinRepValue != 0)
-				Log.Logger.Error(
-							"Quest {0} has `RequiredMinRepValue` = {1} but `RequiredMinRepFaction` is 0, value has no effect",
-							qinfo.Id,
-							qinfo.RequiredMinRepValue);
+				Log.Logger.Error("Quest {0} has `RequiredMinRepValue` = {1} but `RequiredMinRepFaction` is 0, value has no effect",
+								qinfo.Id,
+								qinfo.RequiredMinRepValue);
 
 			// warning
 			if (qinfo.RequiredMaxRepFaction == 0 && qinfo.RequiredMaxRepValue != 0)
-				Log.Logger.Error(
-							"Quest {0} has `RequiredMaxRepValue` = {1} but `RequiredMaxRepFaction` is 0, value has no effect",
-							qinfo.Id,
-							qinfo.RequiredMaxRepValue);
+				Log.Logger.Error("Quest {0} has `RequiredMaxRepValue` = {1} but `RequiredMaxRepFaction` is 0, value has no effect",
+								qinfo.Id,
+								qinfo.RequiredMaxRepValue);
 
 			// warning
 			if (qinfo.RewardTitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
 			{
-				Log.Logger.Error(
-							"Quest {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
-							qinfo.Id,
-							qinfo.RewardTitleId);
+				Log.Logger.Error("Quest {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
+								qinfo.Id,
+								qinfo.RewardTitleId);
 
 				qinfo.RewardTitleId = 0;
 				// quest can't reward this title
@@ -7692,11 +7649,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				if (GetItemTemplate(qinfo.SourceItemId) == null)
 				{
-					Log.Logger.Error(
-								"Quest {0} has `SourceItemId` = {1} but item with entry {2} does not exist, quest can't be done.",
-								qinfo.Id,
-								qinfo.SourceItemId,
-								qinfo.SourceItemId);
+					Log.Logger.Error("Quest {0} has `SourceItemId` = {1} but item with entry {2} does not exist, quest can't be done.",
+									qinfo.Id,
+									qinfo.SourceItemId,
+									qinfo.SourceItemId);
 
 					qinfo.SourceItemId = 0; // quest can't be done for this requirement
 				}
@@ -7705,20 +7661,18 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
 					else
-						Log.Logger.Error(
-									"Quest {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
-									qinfo.Id,
-									qinfo.SourceItemId);
+						Log.Logger.Error("Quest {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
+										qinfo.Id,
+										qinfo.SourceItemId);
 
 					qinfo.SourceItemIdCount = 1; // update to 1 for allow quest work for backward compatibility with DB
 				}
 			}
 			else if (qinfo.SourceItemIdCount > 0)
 			{
-				Log.Logger.Error(
-							"Quest {0} has `SourceItemId` = 0 but `SourceItemIdCount` = {1}, useless value.",
-							qinfo.Id,
-							qinfo.SourceItemIdCount);
+				Log.Logger.Error("Quest {0} has `SourceItemId` = 0 but `SourceItemIdCount` = {1}, useless value.",
+								qinfo.Id,
+								qinfo.SourceItemIdCount);
 
 				qinfo.SourceItemIdCount = 0; // no quest work changes in fact
 			}
@@ -7729,19 +7683,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (spellInfo == null)
 				{
-					Log.Logger.Error(
-								"Quest {0} has `SourceSpellid` = {1} but spell {1} doesn't exist, quest can't be done.",
-								qinfo.Id,
-								qinfo.SourceSpellID);
+					Log.Logger.Error("Quest {0} has `SourceSpellid` = {1} but spell {1} doesn't exist, quest can't be done.",
+									qinfo.Id,
+									qinfo.SourceSpellID);
 
 					qinfo.SourceSpellID = 0; // quest can't be done for this requirement
 				}
 				else if (!Global.SpellMgr.IsSpellValid(spellInfo))
 				{
-					Log.Logger.Error(
-								"Quest {0} has `SourceSpellid` = {1} but spell {1} is broken, quest can't be done.",
-								qinfo.Id,
-								qinfo.SourceSpellID);
+					Log.Logger.Error("Quest {0} has `SourceSpellid` = {1} but spell {1} is broken, quest can't be done.",
+									qinfo.Id,
+									qinfo.SourceSpellID);
 
 					qinfo.SourceSpellID = 0; // quest can't be done for this requirement
 				}
@@ -7912,21 +7864,19 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (id != 0)
 				{
 					if (GetItemTemplate(id) == null)
-						Log.Logger.Error(
-									"Quest {0} has `RequiredSourceItemId{1}` = {2} but item with entry {2} does not exist, quest can't be done.",
-									qinfo.Id,
-									j + 1,
-									id);
+						Log.Logger.Error("Quest {0} has `RequiredSourceItemId{1}` = {2} but item with entry {2} does not exist, quest can't be done.",
+										qinfo.Id,
+										j + 1,
+										id);
 					// no changes, quest can't be done for this requirement
 				}
 				else
 				{
 					if (qinfo.ItemDropQuantity[j] > 0)
-						Log.Logger.Error(
-									"Quest {0} has `RequiredSourceItemId{1}` = 0 but `RequiredSourceItemCount{1}` = {2}.",
-									qinfo.Id,
-									j + 1,
-									qinfo.ItemDropQuantity[j]);
+						Log.Logger.Error("Quest {0} has `RequiredSourceItemId{1}` = 0 but `RequiredSourceItemCount{1}` = {2}.",
+										qinfo.Id,
+										j + 1,
+										qinfo.ItemDropQuantity[j]);
 					// no changes, quest ignore this data
 				}
 			}
@@ -7980,33 +7930,30 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (GetItemTemplate(id) == null)
 					{
-						Log.Logger.Error(
-									"Quest {0} has `RewardItemId{1}` = {2} but item with entry {3} does not exist, quest will not reward this item.",
-									qinfo.Id,
-									j + 1,
-									id,
-									id);
+						Log.Logger.Error("Quest {0} has `RewardItemId{1}` = {2} but item with entry {3} does not exist, quest will not reward this item.",
+										qinfo.Id,
+										j + 1,
+										id,
+										id);
 
 						qinfo.RewardItemId[j] = 0; // no changes, quest will not reward this item
 					}
 
 					if (qinfo.RewardItemCount[j] == 0)
-						Log.Logger.Error(
-									"Quest {0} has `RewardItemId{1}` = {2} but `RewardItemIdCount{3}` = 0, quest will not reward this item.",
-									qinfo.Id,
-									j + 1,
-									id,
-									j + 1);
+						Log.Logger.Error("Quest {0} has `RewardItemId{1}` = {2} but `RewardItemIdCount{3}` = 0, quest will not reward this item.",
+										qinfo.Id,
+										j + 1,
+										id,
+										j + 1);
 					// no changes
 				}
 				else if (qinfo.RewardItemCount[j] > 0)
 				{
-					Log.Logger.Error(
-								"Quest {0} has `RewardItemId{1}` = 0 but `RewardItemIdCount{2}` = {3}.",
-								qinfo.Id,
-								j + 1,
-								j + 1,
-								qinfo.RewardItemCount[j]);
+					Log.Logger.Error("Quest {0} has `RewardItemId{1}` = 0 but `RewardItemIdCount{2}` = {3}.",
+									qinfo.Id,
+									j + 1,
+									j + 1,
+									qinfo.RewardItemCount[j]);
 					// no changes, quest ignore this data
 				}
 			}
@@ -8019,12 +7966,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (!CliDB.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
 					{
-						Log.Logger.Error(
-									"Quest {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
-									qinfo.Id,
-									j + 1,
-									qinfo.RewardFactionId[j],
-									qinfo.RewardFactionId[j]);
+						Log.Logger.Error("Quest {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
+										qinfo.Id,
+										j + 1,
+										qinfo.RewardFactionId[j],
+										qinfo.RewardFactionId[j]);
 
 						qinfo.RewardFactionId[j] = 0; // quest will not reward this
 					}
@@ -8032,12 +7978,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				else if (qinfo.RewardFactionOverride[j] != 0)
 				{
-					Log.Logger.Error(
-								"Quest {0} has `RewardFactionId{1}` = 0 but `RewardFactionValueIdOverride{2}` = {3}.",
-								qinfo.Id,
-								j + 1,
-								j + 1,
-								qinfo.RewardFactionOverride[j]);
+					Log.Logger.Error("Quest {0} has `RewardFactionId{1}` = 0 but `RewardFactionValueIdOverride{2}` = {3}.",
+									qinfo.Id,
+									j + 1,
+									j + 1,
+									qinfo.RewardFactionOverride[j]);
 					// no changes, quest ignore this data
 				}
 
@@ -8047,22 +7992,20 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (spellInfo == null)
 				{
-					Log.Logger.Error(
-								"Quest {0} has `RewardSpellCast` = {1} but spell {2} does not exist, quest will not have a spell reward.",
-								qinfo.Id,
-								qinfo.RewardSpell,
-								qinfo.RewardSpell);
+					Log.Logger.Error("Quest {0} has `RewardSpellCast` = {1} but spell {2} does not exist, quest will not have a spell reward.",
+									qinfo.Id,
+									qinfo.RewardSpell,
+									qinfo.RewardSpell);
 
 					qinfo.RewardSpell = 0; // no spell will be casted on player
 				}
 
 				else if (!Global.SpellMgr.IsSpellValid(spellInfo))
 				{
-					Log.Logger.Error(
-								"Quest {0} has `RewardSpellCast` = {1} but spell {2} is broken, quest will not have a spell reward.",
-								qinfo.Id,
-								qinfo.RewardSpell,
-								qinfo.RewardSpell);
+					Log.Logger.Error("Quest {0} has `RewardSpellCast` = {1} but spell {2} is broken, quest will not have a spell reward.",
+									qinfo.Id,
+									qinfo.RewardSpell,
+									qinfo.RewardSpell);
 
 					qinfo.RewardSpell = 0; // no spell will be casted on player
 				}
@@ -8072,11 +8015,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				if (!CliDB.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
 				{
-					Log.Logger.Error(
-								"Quest {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
-								qinfo.Id,
-								qinfo.RewardMailTemplateId,
-								qinfo.RewardMailTemplateId);
+					Log.Logger.Error("Quest {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
+									qinfo.Id,
+									qinfo.RewardMailTemplateId,
+									qinfo.RewardMailTemplateId);
 
 					qinfo.RewardMailTemplateId = 0; // no mail will send to player
 					qinfo.RewardMailDelay = 0;      // no mail will send to player
@@ -8086,12 +8028,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					var usedId = usedMailTemplates.LookupByKey(qinfo.RewardMailTemplateId);
 
-					Log.Logger.Error(
-								"Quest {0} has `RewardMailTemplateId` = {1} but mail template  {2} already used for quest {3}, quest will not have a mail reward.",
-								qinfo.Id,
-								qinfo.RewardMailTemplateId,
-								qinfo.RewardMailTemplateId,
-								usedId);
+					Log.Logger.Error("Quest {0} has `RewardMailTemplateId` = {1} but mail template  {2} already used for quest {3}, quest will not have a mail reward.",
+									qinfo.Id,
+									qinfo.RewardMailTemplateId,
+									qinfo.RewardMailTemplateId,
+									usedId);
 
 					qinfo.RewardMailTemplateId = 0; // no mail will send to player
 					qinfo.RewardMailDelay = 0;      // no mail will send to player
@@ -8106,11 +8047,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (qinfo.NextQuestInChain != 0)
 				if (!_questTemplates.ContainsKey(qinfo.NextQuestInChain))
 				{
-					Log.Logger.Error(
-								"Quest {0} has `NextQuestIdChain` = {1} but quest {2} does not exist, quest chain will not work.",
-								qinfo.Id,
-								qinfo.NextQuestInChain,
-								qinfo.NextQuestInChain);
+					Log.Logger.Error("Quest {0} has `NextQuestIdChain` = {1} but quest {2} does not exist, quest chain will not work.",
+									qinfo.Id,
+									qinfo.NextQuestInChain,
+									qinfo.NextQuestInChain);
 
 					qinfo.NextQuestInChain = 0;
 				}
@@ -8119,34 +8059,31 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (qinfo.RewardCurrencyId[j] != 0)
 				{
 					if (qinfo.RewardCurrencyCount[j] == 0)
-						Log.Logger.Error(
-									"Quest {0} has `RewardCurrencyId{1}` = {2} but `RewardCurrencyCount{3}` = 0, quest can't be done.",
-									qinfo.Id,
-									j + 1,
-									qinfo.RewardCurrencyId[j],
-									j + 1);
+						Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = {2} but `RewardCurrencyCount{3}` = 0, quest can't be done.",
+										qinfo.Id,
+										j + 1,
+										qinfo.RewardCurrencyId[j],
+										j + 1);
 
 					// no changes, quest can't be done for this requirement
 					if (!CliDB.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
 					{
-						Log.Logger.Error(
-									"Quest {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
-									qinfo.Id,
-									j + 1,
-									qinfo.RewardCurrencyId[j],
-									qinfo.RewardCurrencyId[j]);
+						Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
+										qinfo.Id,
+										j + 1,
+										qinfo.RewardCurrencyId[j],
+										qinfo.RewardCurrencyId[j]);
 
 						qinfo.RewardCurrencyCount[j] = 0; // prevent incorrect work of quest
 					}
 				}
 				else if (qinfo.RewardCurrencyCount[j] > 0)
 				{
-					Log.Logger.Error(
-								"Quest {0} has `RewardCurrencyId{1}` = 0 but `RewardCurrencyCount{2}` = {3}, quest can't be done.",
-								qinfo.Id,
-								j + 1,
-								j + 1,
-								qinfo.RewardCurrencyCount[j]);
+					Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = 0 but `RewardCurrencyCount{2}` = {3}, quest can't be done.",
+									qinfo.Id,
+									j + 1,
+									j + 1,
+									qinfo.RewardCurrencyCount[j]);
 
 					qinfo.RewardCurrencyCount[j] = 0; // prevent incorrect work of quest
 				}
@@ -8154,11 +8091,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (qinfo.SoundAccept != 0)
 				if (!CliDB.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
 				{
-					Log.Logger.Error(
-								"Quest {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
-								qinfo.Id,
-								qinfo.SoundAccept,
-								qinfo.SoundAccept);
+					Log.Logger.Error("Quest {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
+									qinfo.Id,
+									qinfo.SoundAccept,
+									qinfo.SoundAccept);
 
 					qinfo.SoundAccept = 0; // no sound will be played
 				}
@@ -8166,11 +8102,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (qinfo.SoundTurnIn != 0)
 				if (!CliDB.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
 				{
-					Log.Logger.Error(
-								"Quest {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
-								qinfo.Id,
-								qinfo.SoundTurnIn,
-								qinfo.SoundTurnIn);
+					Log.Logger.Error("Quest {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
+									qinfo.Id,
+									qinfo.SoundTurnIn,
+									qinfo.SoundTurnIn);
 
 					qinfo.SoundTurnIn = 0; // no sound will be played
 				}
@@ -8178,33 +8113,29 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (qinfo.RewardSkillId > 0)
 			{
 				if (!CliDB.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
-					Log.Logger.Error(
-								"Quest {0} has `RewardSkillId` = {1} but this skill does not exist",
-								qinfo.Id,
-								qinfo.RewardSkillId);
+					Log.Logger.Error("Quest {0} has `RewardSkillId` = {1} but this skill does not exist",
+									qinfo.Id,
+									qinfo.RewardSkillId);
 
 				if (qinfo.RewardSkillPoints == 0)
-					Log.Logger.Error(
-								"Quest {0} has `RewardSkillId` = {1} but `RewardSkillPoints` is 0",
-								qinfo.Id,
-								qinfo.RewardSkillId);
+					Log.Logger.Error("Quest {0} has `RewardSkillId` = {1} but `RewardSkillPoints` is 0",
+									qinfo.Id,
+									qinfo.RewardSkillId);
 			}
 
 			if (qinfo.RewardSkillPoints != 0)
 			{
 				if (qinfo.RewardSkillPoints > Global.WorldMgr.ConfigMaxSkillValue)
-					Log.Logger.Error(
-								"Quest {0} has `RewardSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
-								qinfo.Id,
-								qinfo.RewardSkillPoints,
-								Global.WorldMgr.ConfigMaxSkillValue);
+					Log.Logger.Error("Quest {0} has `RewardSkillPoints` = {1} but max possible skill is {2}, quest can't be done.",
+									qinfo.Id,
+									qinfo.RewardSkillPoints,
+									Global.WorldMgr.ConfigMaxSkillValue);
 
 				// no changes, quest can't be done for this requirement
 				if (qinfo.RewardSkillId == 0)
-					Log.Logger.Error(
-								"Quest {0} has `RewardSkillPoints` = {1} but `RewardSkillId` is 0",
-								qinfo.Id,
-								qinfo.RewardSkillPoints);
+					Log.Logger.Error("Quest {0} has `RewardSkillPoints` = {1} but `RewardSkillId` is 0",
+									qinfo.Id,
+									qinfo.RewardSkillPoints);
 			}
 
 			// fill additional data stores
@@ -8306,11 +8237,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
 				{
-					Log.Logger.Error(
-								"Spell (id: {0}) have SPELL_EFFECT_QUEST_COMPLETE for quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. " +
-								"Quest flags must be fixed, quest modified to enable objective.",
-								spellInfo.Id,
-								questId);
+					Log.Logger.Error("Spell (id: {0}) have SPELL_EFFECT_QUEST_COMPLETE for quest {1}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT. " +
+									"Quest flags must be fixed, quest modified to enable objective.",
+									spellInfo.Id,
+									questId);
 
 					// this will prevent quest completing without objective
 					quest.SetSpecialFlag(QuestSpecialFlags.ExplorationOrEvent);
@@ -8327,7 +8257,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				quest.SetSpecialFlag(QuestSpecialFlags.Repeatable);
 		}
 
-		Log.Logger.Information("Loaded {0} quests definitions in {1} ms", _questTemplates.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quests definitions in {1} ms", _questTemplates.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestStartersAndEnders()
@@ -8414,7 +8344,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadQuestPOI()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_questPOIStorage.Clear(); // need for reload case
 
@@ -8508,12 +8438,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			Log.Logger.Error($"Table quest_poi references unknown quest points for quest {questID} POI id {blobIndex}");
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} quest POI definitions in {1} ms", _questPOIStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quest POI definitions in {1} ms", _questPOIStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestAreaTriggers()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_questAreaTriggerStorage.Clear(); // need for reload case
 
@@ -8574,12 +8504,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				_questAreaTriggerStorage.Add((uint)objective.ObjectID, objective.QuestID);
 		}
 
-		Log.Logger.Information("Loaded {0} quest trigger points in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quest trigger points in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestGreetings()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		for (var i = 0; i < 2; ++i)
 			_questGreetingStorage[i] = new Dictionary<uint, QuestGreeting>();
@@ -8772,7 +8702,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadNPCSpellClickSpells()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_spellClickInfoStorage.Clear();
 		//                                           0          1         2            3
@@ -8815,14 +8745,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				Log.Logger.Error("Table npc_spellclick_spells creature: {0} references unknown user type {1}. Skipping entry.", npc_entry, userType);
 
 			var castFlags = result.Read<byte>(2);
-			SpellClickInfo info = new()
-            {
-                spellId = spellid,
-                castFlags = castFlags,
-                userType = userType
-            };
 
-            _spellClickInfoStorage.Add(npc_entry, info);
+			SpellClickInfo info = new()
+			{
+				spellId = spellid,
+				castFlags = castFlags,
+				userType = userType
+			};
+
+			_spellClickInfoStorage.Add(npc_entry, info);
 
 			++count;
 		} while (result.NextRow());
@@ -8838,12 +8769,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				creature.Npcflag &= ~(uint)NPCFlags.SpellClick;
 			}
 
-		Log.Logger.Information("Loaded {0} spellclick definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} spellclick definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadFishingBaseSkillLevel()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_fishingBaseForAreaStorage.Clear(); // for reload case
 
@@ -8876,12 +8807,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} areas for fishing base skill level in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} areas for fishing base skill level in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSkillTiers()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_skillTiers.Clear();
 
@@ -8906,7 +8837,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_skillTiers[id] = tier;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} skill max values in {1} ms", _skillTiers.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} skill max values in {1} ms", _skillTiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public PhaseInfoStruct GetPhaseInfo(uint phaseId)
@@ -8947,7 +8878,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Locales
 	public void LoadCreatureLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_creatureLocaleStorage.Clear(); // need for reload case
 
@@ -8976,12 +8907,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(5), locale, data.TitleAlt);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} creature locale strings in {1} ms", _creatureLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature locale strings in {1} ms", _creatureLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGameObjectLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gameObjectLocaleStorage.Clear(); // need for reload case
 
@@ -9009,12 +8940,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(4), locale, data.Unk1);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} gameobject_template_locale locale strings in {1} ms", _gameObjectLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gameobject_template_locale locale strings in {1} ms", _gameObjectLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestTemplateLocale()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_questObjectivesLocaleStorage.Clear(); // need for reload case
 
@@ -9049,12 +8980,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(10), locale, data.QuestCompletionLog);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Quest Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Tempalate locale strings in {1} ms", _questTemplateLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestObjectivesLocale()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_questObjectivesLocaleStorage.Clear(); // need for reload case
 		//                                        0     1          2
@@ -9079,12 +9010,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.Description);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Quest Objectives locale strings in {1} ms", _questObjectivesLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Objectives locale strings in {1} ms", _questObjectivesLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestGreetingLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		for (var i = 0; i < 2; ++i)
 			_questGreetingLocaleStorage[i] = new Dictionary<uint, QuestGreetingLocale>();
@@ -9146,7 +9077,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadQuestOfferRewardLocale()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_questOfferRewardLocaleStorage.Clear(); // need for reload case
 		//                                               0     1          2
@@ -9171,12 +9102,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.RewardText);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Quest Offer Reward locale strings in {1} ms", _questOfferRewardLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Offer Reward locale strings in {1} ms", _questOfferRewardLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadQuestRequestItemsLocale()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_questRequestItemsLocaleStorage.Clear(); // need for reload case
 		//                                               0     1          2
@@ -9201,12 +9132,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.CompletionText);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Quest Request Items locale strings in {1} ms", _questRequestItemsLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Quest Request Items locale strings in {1} ms", _questRequestItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadGossipMenuItemsLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_gossipMenuItemsLocaleStorage.Clear(); // need for reload case
 
@@ -9234,12 +9165,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_gossipMenuItemsLocaleStorage[Tuple.Create(menuId, optionIndex)] = data;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} gossip_menu_option locale strings in {1} ms", _gossipMenuItemsLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} gossip_menu_option locale strings in {1} ms", _gossipMenuItemsLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPageTextLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_pageTextLocaleStorage.Clear(); // needed for reload case
 
@@ -9265,12 +9196,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.Text);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} PageText locale strings in {1} ms", _pageTextLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} PageText locale strings in {1} ms", _pageTextLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPointOfInterestLocales()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_pointOfInterestLocaleStorage.Clear(); // need for reload case
 
@@ -9296,7 +9227,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			AddLocaleString(result.Read<string>(2), locale, data.Name);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} points_of_interest locale strings in {1} ms", _pointOfInterestLocaleStorage.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} points_of_interest locale strings in {1} ms", _pointOfInterestLocaleStorage.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public CreatureLocale GetCreatureLocale(uint entry)
@@ -9347,7 +9278,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//General
 	public void LoadReputationRewardRate()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_repRewardRateStorage.Clear(); // for reload case
 
@@ -9368,17 +9299,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var factionId = result.Read<uint>(0);
 
 			RepRewardRate repRate = new()
-            {
-                QuestRate = result.Read<float>(1),
-                QuestDailyRate = result.Read<float>(2),
-                QuestWeeklyRate = result.Read<float>(3),
-                QuestMonthlyRate = result.Read<float>(4),
-                QuestRepeatableRate = result.Read<float>(5),
-                CreatureRate = result.Read<float>(6),
-                SpellRate = result.Read<float>(7)
-            };
+			{
+				QuestRate = result.Read<float>(1),
+				QuestDailyRate = result.Read<float>(2),
+				QuestWeeklyRate = result.Read<float>(3),
+				QuestMonthlyRate = result.Read<float>(4),
+				QuestRepeatableRate = result.Read<float>(5),
+				CreatureRate = result.Read<float>(6),
+				SpellRate = result.Read<float>(7)
+			};
 
-            var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+			var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
 
 			if (factionEntry == null)
 			{
@@ -9441,12 +9372,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} reputation_reward_rate in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} reputation_reward_rate in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadReputationOnKill()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// For reload case
 		_repOnKillStorage.Clear();
@@ -9471,19 +9402,19 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var creature_id = result.Read<uint>(0);
 
 			ReputationOnKillEntry repOnKill = new()
-            {
-                RepFaction1 = result.Read<ushort>(1),
-                RepFaction2 = result.Read<ushort>(2),
-                IsTeamAward1 = result.Read<bool>(3),
-                ReputationMaxCap1 = result.Read<byte>(4),
-                RepValue1 = result.Read<int>(5),
-                IsTeamAward2 = result.Read<bool>(6),
-                ReputationMaxCap2 = result.Read<byte>(7),
-                RepValue2 = result.Read<int>(8),
-                TeamDependent = result.Read<bool>(9)
-            };
+			{
+				RepFaction1 = result.Read<ushort>(1),
+				RepFaction2 = result.Read<ushort>(2),
+				IsTeamAward1 = result.Read<bool>(3),
+				ReputationMaxCap1 = result.Read<byte>(4),
+				RepValue1 = result.Read<int>(5),
+				IsTeamAward2 = result.Read<bool>(6),
+				ReputationMaxCap2 = result.Read<byte>(7),
+				RepValue2 = result.Read<int>(8),
+				TeamDependent = result.Read<bool>(9)
+			};
 
-            if (GetCreatureTemplate(creature_id) == null)
+			if (GetCreatureTemplate(creature_id) == null)
 			{
 				Log.Logger.Error("Table `creature_onkill_reputation` have data for not existed creature entry ({0}), skipped", creature_id);
 
@@ -9519,12 +9450,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} creature award reputation definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creature award reputation definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadReputationSpilloverTemplate()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_repSpilloverTemplateStorage.Clear(); // for reload case
 
@@ -9546,34 +9477,34 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var factionId = result.Read<uint>(0);
 
 			RepSpilloverTemplate repTemplate = new()
-            {
-                Faction =
-                {
-                    [0] = result.Read<uint>(1),
-                    [1] = result.Read<uint>(4),
-                    [2] = result.Read<uint>(7),
-                    [3] = result.Read<uint>(10),
-                    [4] = result.Read<uint>(13)
-                },
-                FactionRate =
-                {
-                    [0] = result.Read<float>(2),
-                    [1] = result.Read<float>(5),
-                    [2] = result.Read<float>(8),
-                    [3] = result.Read<float>(11),
-                    [4] = result.Read<float>(14)
-                },
-                FactionRank =
-                {
-                    [0] = result.Read<uint>(3),
-                    [1] = result.Read<uint>(6),
-                    [2] = result.Read<uint>(9),
-                    [3] = result.Read<uint>(12),
-                    [4] = result.Read<uint>(15)
-                }
-            };
+			{
+				Faction =
+				{
+					[0] = result.Read<uint>(1),
+					[1] = result.Read<uint>(4),
+					[2] = result.Read<uint>(7),
+					[3] = result.Read<uint>(10),
+					[4] = result.Read<uint>(13)
+				},
+				FactionRate =
+				{
+					[0] = result.Read<float>(2),
+					[1] = result.Read<float>(5),
+					[2] = result.Read<float>(8),
+					[3] = result.Read<float>(11),
+					[4] = result.Read<float>(14)
+				},
+				FactionRank =
+				{
+					[0] = result.Read<uint>(3),
+					[1] = result.Read<uint>(6),
+					[2] = result.Read<uint>(9),
+					[3] = result.Read<uint>(12),
+					[4] = result.Read<uint>(15)
+				}
+			};
 
-            var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+			var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
 
 			if (factionEntry == null)
 			{
@@ -9606,10 +9537,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (!factionSpillover.CanHaveReputation())
 					{
-						Log.Logger.Error(
-									"Spillover faction (faction.dbc) {0} for faction {1} in `reputation_spillover_template` can not be listed for client, and then useless, skipping",
-									repTemplate.Faction[i],
-									factionId);
+						Log.Logger.Error("Spillover faction (faction.dbc) {0} for faction {1} in `reputation_spillover_template` can not be listed for client, and then useless, skipping",
+										repTemplate.Faction[i],
+										factionId);
 
 						invalidSpilloverFaction = true;
 
@@ -9632,12 +9562,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} reputation_spillover_template in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} reputation_spillover_template in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTavernAreaTriggers()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_tavernAreaTriggerStorage.Clear(); // need for reload case
 
@@ -9670,12 +9600,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_tavernAreaTriggerStorage.Add(Trigger_ID);
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} tavern triggers in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} tavern triggers in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadMailLevelRewards()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_mailLevelRewardStorage.Clear(); // for reload case
 
@@ -9731,12 +9661,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} level dependent mail rewards in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} level dependent mail rewards in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadExplorationBaseXP()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT level, basexp FROM exploration_basexp");
 
@@ -9757,12 +9687,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} BaseXP definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} BaseXP definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadTempSummons()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_tempSummonDataStorage.Clear(); // needed for reload case
 
@@ -9820,18 +9750,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			TempSummonData data = new()
-            {
-                entry = result.Read<uint>(3)
-            };
-
-            if (GetCreatureTemplate(data.entry) == null)
 			{
-				Log.Logger.Error(
-							"Table `creature_summon_groups` has creature in group [Summoner ID: {0}, Summoner Type: {1}, Group ID: {2}] with non existing creature entry {3}, skipped.",
-							summonerId,
-							summonerType,
-							group,
-							data.entry);
+				entry = result.Read<uint>(3)
+			};
+
+			if (GetCreatureTemplate(data.entry) == null)
+			{
+				Log.Logger.Error("Table `creature_summon_groups` has creature in group [Summoner ID: {0}, Summoner Type: {1}, Group ID: {2}] with non existing creature entry {3}, skipped.",
+								summonerId,
+								summonerType,
+								group,
+								data.entry);
 
 				continue;
 			}
@@ -9847,13 +9776,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (data.type > TempSummonType.ManualDespawn)
 			{
-				Log.Logger.Error(
-							"Table `creature_summon_groups` has unhandled temp summon type {0} in group [Summoner ID: {1}, Summoner Type: {2}, Group ID: {3}] for creature entry {4}, skipped.",
-							data.type,
-							summonerId,
-							summonerType,
-							group,
-							data.entry);
+				Log.Logger.Error("Table `creature_summon_groups` has unhandled temp summon type {0} in group [Summoner ID: {1}, Summoner Type: {2}, Group ID: {3}] for creature entry {4}, skipped.",
+								data.type,
+								summonerId,
+								summonerType,
+								group,
+								data.entry);
 
 				continue;
 			}
@@ -9866,12 +9794,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} temp summons in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} temp summons in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPageTexts()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0   1     2           3                 4
 		var result = DB.World.Query("SELECT ID, `text`, NextPageID, PlayerConditionID, Flags FROM page_text");
@@ -9890,14 +9818,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var id = result.Read<uint>(0);
 
 			PageText pageText = new()
-            {
-                Text = result.Read<string>(1),
-                NextPageID = result.Read<uint>(2),
-                PlayerConditionID = result.Read<int>(3),
-                Flags = result.Read<byte>(4)
-            };
+			{
+				Text = result.Read<string>(1),
+				NextPageID = result.Read<uint>(2),
+				PlayerConditionID = result.Read<int>(3),
+				Flags = result.Read<byte>(4)
+			};
 
-            _pageTextStorage[id] = pageText;
+			_pageTextStorage[id] = pageText;
 			++count;
 		} while (result.NextRow());
 
@@ -9906,12 +9834,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (!_pageTextStorage.ContainsKey(pair.Value.NextPageID))
 					Log.Logger.Error("Page text (ID: {0}) has non-existing `NextPageID` ({1})", pair.Key, pair.Value.NextPageID);
 
-		Log.Logger.Information("Loaded {0} page texts in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} page texts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadReservedPlayersNames()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_reservedNamesStorage.Clear(); // need for reload case
 
@@ -9934,16 +9862,16 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} reserved player names in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} reserved player names in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	//not very fast function but it is called only once a day, or on starting-up
 	public void ReturnOrDeleteOldMails(bool serverUp)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var curTime = GameTime.GetGameTime();
-		var lt = global::Time.UnixTimeToDateTime(curTime).ToLocalTime();
+		var lt = Time.UnixTimeToDateTime(curTime).ToLocalTime();
 		Log.Logger.Information("Returning mails current time: hour: {0}, minute: {1}, second: {2} ", lt.Hour, lt.Minute, lt.Second);
 
 		PreparedStatement stmt;
@@ -9996,14 +9924,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				continue;
 
 			Mail m = new()
-            {
-                messageID = result.Read<ulong>(0),
-                messageType = (MailMessageType)result.Read<byte>(1),
-                sender = result.Read<uint>(2),
-                receiver = receiver
-            };
+			{
+				messageID = result.Read<ulong>(0),
+				messageType = (MailMessageType)result.Read<byte>(1),
+				sender = result.Read<uint>(2),
+				receiver = receiver
+			};
 
-            var has_items = result.Read<bool>(4);
+			var has_items = result.Read<bool>(4);
 			m.expire_time = result.Read<long>(5);
 			m.deliver_time = 0;
 			m.COD = result.Read<ulong>(6);
@@ -10038,7 +9966,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_MAIL_RETURNED);
 					stmt.AddValue(0, m.receiver);
 					stmt.AddValue(1, m.sender);
-					stmt.AddValue(2, curTime + 30 * global::Time.Day);
+					stmt.AddValue(2, curTime + 30 * Time.Day);
 					stmt.AddValue(3, curTime);
 					stmt.AddValue(4, (byte)MailCheckMask.Returned);
 					stmt.AddValue(5, m.messageID);
@@ -10070,12 +9998,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++deletedCount;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Processed {0} expired mails: {1} deleted and {2} returned in {3} ms", deletedCount + returnedCount, deletedCount, returnedCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Processed {0} expired mails: {1} deleted and {2} returned in {3} ms", deletedCount + returnedCount, deletedCount, returnedCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadSceneTemplates()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_sceneTemplateStorage.Clear();
 
 		var result = DB.World.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
@@ -10092,24 +10020,25 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		do
 		{
 			var sceneId = result.Read<uint>(0);
-			SceneTemplate sceneTemplate = new()
-            {
-                SceneId = sceneId,
-                PlaybackFlags = (SceneFlags)result.Read<uint>(1),
-                ScenePackageId = result.Read<uint>(2),
-                Encrypted = result.Read<byte>(3) != 0,
-                ScriptId = GetScriptId(result.Read<string>(4))
-            };
 
-            _sceneTemplateStorage[sceneId] = sceneTemplate;
+			SceneTemplate sceneTemplate = new()
+			{
+				SceneId = sceneId,
+				PlaybackFlags = (SceneFlags)result.Read<uint>(1),
+				ScenePackageId = result.Read<uint>(2),
+				Encrypted = result.Read<byte>(3) != 0,
+				ScriptId = GetScriptId(result.Read<string>(4))
+			};
+
+			_sceneTemplateStorage[sceneId] = sceneTemplate;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} scene templates in {1} ms.", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} scene templates in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadPlayerChoices()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_playerChoices.Clear();
 
 		var choiceResult = DB.World.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
@@ -10132,19 +10061,19 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		do
 		{
 			PlayerChoice choice = new()
-            {
-                ChoiceId = choiceResult.Read<int>(0),
-                UiTextureKitId = choiceResult.Read<int>(1),
-                SoundKitId = choiceResult.Read<uint>(2),
-                CloseSoundKitId = choiceResult.Read<uint>(3),
-                Duration = choiceResult.Read<long>(4),
-                Question = choiceResult.Read<string>(5),
-                PendingChoiceText = choiceResult.Read<string>(6),
-                HideWarboardHeader = choiceResult.Read<bool>(7),
-                KeepOpenAfterChoice = choiceResult.Read<bool>(8)
-            };
+			{
+				ChoiceId = choiceResult.Read<int>(0),
+				UiTextureKitId = choiceResult.Read<int>(1),
+				SoundKitId = choiceResult.Read<uint>(2),
+				CloseSoundKitId = choiceResult.Read<uint>(3),
+				Duration = choiceResult.Read<long>(4),
+				Question = choiceResult.Read<string>(5),
+				PendingChoiceText = choiceResult.Read<string>(6),
+				HideWarboardHeader = choiceResult.Read<bool>(7),
+				KeepOpenAfterChoice = choiceResult.Read<bool>(8)
+			};
 
-            _playerChoices[choice.ChoiceId] = choice;
+			_playerChoices[choice.ChoiceId] = choice;
 		} while (choiceResult.NextRow());
 
 		//                                            0         1           2                   3                4      5
@@ -10167,26 +10096,27 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 				var choice = _playerChoices[choiceId];
-				PlayerChoiceResponse response = new()
-                {
-                    ResponseId = responseId,
-                    ResponseIdentifier = responses.Read<ushort>(2),
-                    ChoiceArtFileId = responses.Read<int>(3),
-                    Flags = responses.Read<int>(4),
-                    WidgetSetID = responses.Read<uint>(5),
-                    UiTextureAtlasElementID = responses.Read<uint>(6),
-                    SoundKitID = responses.Read<uint>(7),
-                    GroupID = responses.Read<byte>(8),
-                    UiTextureKitID = responses.Read<int>(9),
-                    Answer = responses.Read<string>(10),
-                    Header = responses.Read<string>(11),
-                    SubHeader = responses.Read<string>(12),
-                    ButtonTooltip = responses.Read<string>(13),
-                    Description = responses.Read<string>(14),
-                    Confirmation = responses.Read<string>(15)
-                };
 
-                if (!responses.IsNull(16))
+				PlayerChoiceResponse response = new()
+				{
+					ResponseId = responseId,
+					ResponseIdentifier = responses.Read<ushort>(2),
+					ChoiceArtFileId = responses.Read<int>(3),
+					Flags = responses.Read<int>(4),
+					WidgetSetID = responses.Read<uint>(5),
+					UiTextureAtlasElementID = responses.Read<uint>(6),
+					SoundKitID = responses.Read<uint>(7),
+					GroupID = responses.Read<byte>(8),
+					UiTextureKitID = responses.Read<int>(9),
+					Answer = responses.Read<string>(10),
+					Header = responses.Read<string>(11),
+					SubHeader = responses.Read<string>(12),
+					ButtonTooltip = responses.Read<string>(13),
+					Description = responses.Read<string>(14),
+					Confirmation = responses.Read<string>(15)
+				};
+
+				if (!responses.IsNull(16))
 					response.RewardQuestID = responses.Read<uint>(16);
 
 				choice.Responses.Add(response);
@@ -10220,18 +10150,18 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 				PlayerChoiceResponseReward reward = new()
-                {
-                    TitleId = rewards.Read<int>(2),
-                    PackageId = rewards.Read<int>(3),
-                    SkillLineId = rewards.Read<int>(4),
-                    SkillPointCount = rewards.Read<uint>(5),
-                    ArenaPointCount = rewards.Read<uint>(6),
-                    HonorPointCount = rewards.Read<uint>(7),
-                    Money = rewards.Read<ulong>(8),
-                    Xp = rewards.Read<uint>(9)
-                };
+				{
+					TitleId = rewards.Read<int>(2),
+					PackageId = rewards.Read<int>(3),
+					SkillLineId = rewards.Read<int>(4),
+					SkillPointCount = rewards.Read<uint>(5),
+					ArenaPointCount = rewards.Read<uint>(6),
+					HonorPointCount = rewards.Read<uint>(7),
+					Money = rewards.Read<ulong>(8),
+					Xp = rewards.Read<uint>(9)
+				};
 
-                if (reward.TitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(reward.TitleId))
+				if (reward.TitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(reward.TitleId))
 				{
 					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing Title {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
 					reward.TitleId = 0;
@@ -10476,11 +10406,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 				PlayerChoiceResponseMawPower mawPower = new()
-                {
-                    TypeArtFileID = mawPowersResult.Read<int>(2)
-                };
+				{
+					TypeArtFileID = mawPowersResult.Read<int>(2)
+				};
 
-                if (!mawPowersResult.IsNull(3))
+				if (!mawPowersResult.IsNull(3))
 					mawPower.Rarity = mawPowersResult.Read<int>(3);
 
 				if (!mawPowersResult.IsNull(4))
@@ -10493,14 +10423,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++mawPowersCount;
 			} while (mawPowersResult.NextRow());
 
-		Log.Logger.Information(
-					$"Loaded {_playerChoices.Count} player choices, {responseCount} responses, {rewardCount} rewards, {itemRewardCount} item rewards, " +
-					$"{currencyRewardCount} currency rewards, {factionRewardCount} faction rewards, {itemChoiceRewardCount} item choice rewards and {mawPowersCount} maw powers in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
+		Log.Logger.Information($"Loaded {_playerChoices.Count} player choices, {responseCount} responses, {rewardCount} rewards, {itemRewardCount} item rewards, " +
+								$"{currencyRewardCount} currency rewards, {factionRewardCount} faction rewards, {itemChoiceRewardCount} item choice rewards and {mawPowersCount} maw powers in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
 	}
 
 	public void LoadPlayerChoicesLocale()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// need for reload case
 		_playerChoiceLocales.Clear();
@@ -10536,7 +10465,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			Log.Logger.Information($"Loaded {_playerChoiceLocales.Count} Player Choice locale strings in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 		}
 
-		oldMSTime = global::Time.MSTime;
+		oldMSTime = Time.MSTime;
 
 		//                               0         1           2       3       4       5          6               7            8
 		result = DB.World.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale");
@@ -10604,7 +10533,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void InitializeQueriesData(QueryDataGroup mask)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// cache disabled
 		if (!WorldConfig.GetBoolValue(WorldCfg.CacheDataQueries))
@@ -10639,7 +10568,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadJumpChargeParams()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// need for reload case
 		_jumpChargeParams.Clear();
@@ -10697,16 +10626,16 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			JumpChargeParams jumpParams = new()
-            {
-                Speed = speed,
-                TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds,
-                JumpGravity = jumpGravity,
-                SpellVisualId = spellVisualId,
-                ProgressCurveId = progressCurveId,
-                ParabolicCurveId = parabolicCurveId
-            };
+			{
+				Speed = speed,
+				TreatSpeedAsMoveTimeSeconds = treatSpeedAsMoveTimeSeconds,
+				JumpGravity = jumpGravity,
+				SpellVisualId = spellVisualId,
+				ProgressCurveId = progressCurveId,
+				ParabolicCurveId = parabolicCurveId
+			};
 
-            _jumpChargeParams[id] = jumpParams;
+			_jumpChargeParams[id] = jumpParams;
 		} while (result.NextRow());
 
 		Log.Logger.Information($"Loaded {_jumpChargeParams.Count} Jump Charge Params in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
@@ -10714,7 +10643,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadPhaseNames()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		_phaseNameStorage.Clear();
 
 		//                                          0     1
@@ -11179,7 +11108,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Vehicles
 	public void LoadVehicleTemplate()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_vehicleTemplateStore.Clear();
 
@@ -11205,11 +11134,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			VehicleTemplate vehicleTemplate = new()
-            {
-                DespawnDelay = TimeSpan.FromMilliseconds(result.Read<int>(1))
-            };
+			{
+				DespawnDelay = TimeSpan.FromMilliseconds(result.Read<int>(1))
+			};
 
-            _vehicleTemplateStore[creatureId] = vehicleTemplate;
+			_vehicleTemplateStore[creatureId] = vehicleTemplate;
 		} while (result.NextRow());
 
 		Log.Logger.Information($"Loaded {_vehicleTemplateStore.Count} Vehicle Template entries in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
@@ -11217,7 +11146,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void LoadVehicleTemplateAccessories()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_vehicleTemplateAccessoryStore.Clear(); // needed for reload case
 
@@ -11268,12 +11197,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Vehicle Template Accessories in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Vehicle Template Accessories in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadVehicleAccessories()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_vehicleAccessoryStore.Clear(); // needed for reload case
 
@@ -11284,7 +11213,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		if (result.IsEmpty())
 		{
-			Log.Logger.Information("Loaded 0 Vehicle Accessories in {0} ms", global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded 0 Vehicle Accessories in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 
 			return;
 		}
@@ -11310,12 +11239,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Vehicle Accessories in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Vehicle Accessories in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadVehicleSeatAddon()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_vehicleSeatAddonStore.Clear(); // needed for reload case
 
@@ -11555,7 +11484,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadScripts(ScriptsType type)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var scripts = GetScriptsMapByType(type);
 
@@ -11590,12 +11519,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		do
 		{
 			ScriptInfo tmp = new()
-            {
-                type = type,
-                id = result.Read<uint>(0)
-            };
+			{
+				type = type,
+				id = result.Read<uint>(0)
+			};
 
-            if (isSpellScriptTable)
+			if (isSpellScriptTable)
 				tmp.id |= result.Read<uint>(10) << 24;
 
 			tmp.delay = result.Read<uint>(1);
@@ -11622,11 +11551,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
-										tableName,
-										tmp.Talk.ChatType,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
+											tableName,
+											tmp.Talk.ChatType,
+											tmp.id);
 
 						continue;
 					}
@@ -11636,11 +11564,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
-										tableName,
-										tmp.Talk.TextID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
+											tableName,
+											tmp.Talk.TextID,
+											tmp.id);
 
 						continue;
 					}
@@ -11655,11 +11582,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
-										tableName,
-										tmp.Emote.EmoteID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
+											tableName,
+											tmp.Emote.EmoteID,
+											tmp.id);
 
 						continue;
 					}
@@ -11674,11 +11600,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
-										tableName,
-										tmp.TeleportTo.MapID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
+											tableName,
+											tmp.TeleportTo.MapID,
+											tmp.id);
 
 						continue;
 					}
@@ -11688,14 +11613,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
-										tableName,
-										tmp.TeleportTo.DestX,
-										tmp.TeleportTo.DestY,
-										tmp.TeleportTo.DestZ,
-										tmp.TeleportTo.Orientation,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
+											tableName,
+											tmp.TeleportTo.DestX,
+											tmp.TeleportTo.DestY,
+											tmp.TeleportTo.DestZ,
+											tmp.TeleportTo.Orientation,
+											tmp.id);
 
 						continue;
 					}
@@ -11712,22 +11636,20 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
-										tableName,
-										tmp.QuestExplored.QuestID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
+											tableName,
+											tmp.QuestExplored.QuestID,
+											tmp.id);
 
 						continue;
 					}
 
 					if (!quest.HasSpecialFlag(QuestSpecialFlags.ExplorationOrEvent))
 					{
-						Log.Logger.Error(
-									"Table `{0}` has quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. Quest modified to require objective.",
-									tableName,
-									tmp.QuestExplored.QuestID,
-									tmp.id);
+						Log.Logger.Error("Table `{0}` has quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, but quest not have flag QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. Quest modified to require objective.",
+										tableName,
+										tmp.QuestExplored.QuestID,
+										tmp.id);
 
 						// this will prevent quest completing without objective
 						quest.SetSpecialFlag(QuestSpecialFlags.ExplorationOrEvent);
@@ -11737,11 +11659,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
 					{
-						Log.Logger.Error(
-									"Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
-									tableName,
-									tmp.QuestExplored.Distance,
-									tmp.id);
+						Log.Logger.Error("Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
+										tableName,
+										tmp.QuestExplored.Distance,
+										tmp.id);
 
 						continue;
 					}
@@ -11751,12 +11672,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
-										tableName,
-										tmp.QuestExplored.Distance,
-										tmp.id,
-										SharedConst.DefaultVisibilityDistance);
+							Log.Logger.Error("Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
+											tableName,
+											tmp.QuestExplored.Distance,
+											tmp.id,
+											SharedConst.DefaultVisibilityDistance);
 
 						continue;
 					}
@@ -11766,12 +11686,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
-										tableName,
-										tmp.QuestExplored.Distance,
-										tmp.id,
-										SharedConst.InteractionDistance);
+							Log.Logger.Error("Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
+											tableName,
+											tmp.QuestExplored.Distance,
+											tmp.id,
+											SharedConst.InteractionDistance);
 
 						continue;
 					}
@@ -11786,11 +11705,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
-										tableName,
-										tmp.KillCredit.CreatureEntry,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
+											tableName,
+											tmp.KillCredit.CreatureEntry,
+											tmp.id);
 
 						continue;
 					}
@@ -11807,11 +11725,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
-										tableName,
-										tmp.RespawnGameObject.GOGuid,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
+											tableName,
+											tmp.RespawnGameObject.GOGuid,
+											tmp.id);
 
 						continue;
 					}
@@ -11823,12 +11740,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
-										tableName,
-										tmp.RespawnGameObject.GOGuid,
-										data.Id,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
+											tableName,
+											tmp.RespawnGameObject.GOGuid,
+											data.Id,
+											tmp.id);
 
 						continue;
 					}
@@ -11842,11 +11758,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
-										tableName,
-										info.entry,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
+											tableName,
+											info.entry,
+											tmp.id);
 
 						continue;
 					}
@@ -11861,14 +11776,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
-										tableName,
-										tmp.TempSummonCreature.PosX,
-										tmp.TempSummonCreature.PosY,
-										tmp.TempSummonCreature.PosZ,
-										tmp.TempSummonCreature.Orientation,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
+											tableName,
+											tmp.TempSummonCreature.PosX,
+											tmp.TempSummonCreature.PosY,
+											tmp.TempSummonCreature.PosZ,
+											tmp.TempSummonCreature.Orientation,
+											tmp.id);
 
 						continue;
 					}
@@ -11878,11 +11792,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
-										tableName,
-										tmp.TempSummonCreature.CreatureEntry,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
+											tableName,
+											tmp.TempSummonCreature.CreatureEntry,
+											tmp.id);
 
 						continue;
 					}
@@ -11900,12 +11813,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
-										tableName,
-										tmp.ToggleDoor.GOGuid,
-										tmp.command,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
+											tableName,
+											tmp.ToggleDoor.GOGuid,
+											tmp.command,
+											tmp.id);
 
 						continue;
 					}
@@ -11917,13 +11829,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
-										tableName,
-										tmp.ToggleDoor.GOGuid,
-										data.Id,
-										tmp.command,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
+											tableName,
+											tmp.ToggleDoor.GOGuid,
+											data.Id,
+											tmp.command,
+											tmp.id);
 
 						continue;
 					}
@@ -11933,12 +11844,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
-										tableName,
-										info.entry,
-										tmp.command,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
+											tableName,
+											info.entry,
+											tmp.command,
+											tmp.id);
 
 						continue;
 					}
@@ -11953,11 +11863,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
-										tableName,
-										tmp.RemoveAura.SpellID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
+											tableName,
+											tmp.RemoveAura.SpellID,
+											tmp.id);
 
 						continue;
 					}
@@ -11967,11 +11876,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
-										tableName,
-										tmp.RemoveAura.Flags,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
+											tableName,
+											tmp.RemoveAura.Flags,
+											tmp.id);
 
 						continue;
 					}
@@ -11986,11 +11894,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-										tableName,
-										tmp.CastSpell.SpellID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
+											tableName,
+											tmp.CastSpell.SpellID,
+											tmp.id);
 
 						continue;
 					}
@@ -12000,11 +11907,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-										tableName,
-										tmp.CastSpell.Flags,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
+											tableName,
+											tmp.CastSpell.Flags,
+											tmp.id);
 
 						continue;
 					}
@@ -12014,11 +11920,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-										tableName,
-										tmp.CastSpell.CreatureEntry,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
+											tableName,
+											tmp.CastSpell.CreatureEntry,
+											tmp.id);
 
 						continue;
 					}
@@ -12027,11 +11932,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
-										tableName,
-										tmp.CastSpell.CreatureEntry,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
+											tableName,
+											tmp.CastSpell.CreatureEntry,
+											tmp.id);
 
 						continue;
 					}
@@ -12046,11 +11950,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
-										tableName,
-										tmp.CreateItem.ItemEntry,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
+											tableName,
+											tmp.CreateItem.ItemEntry,
+											tmp.id);
 
 						continue;
 					}
@@ -12060,11 +11963,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
-										tableName,
-										tmp.CreateItem.Amount,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
+											tableName,
+											tmp.CreateItem.Amount,
+											tmp.id);
 
 						continue;
 					}
@@ -12078,11 +11980,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
-							Log.Logger.Error(
-										"Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
-										tableName,
-										tmp.PlayAnimKit.AnimKitID,
-										tmp.id);
+							Log.Logger.Error("Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
+											tableName,
+											tmp.PlayAnimKit.AnimKitID,
+											tmp.id);
 
 						continue;
 					}
@@ -12112,7 +12013,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} script definitions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} script definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	bool IsScriptDatabaseBound(uint id)
@@ -12127,7 +12028,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadCreatureTemplateResistances()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0           1       2
 		var result = DB.World.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
@@ -12170,7 +12071,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadCreatureTemplateSpells()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0           1       2
 		var result = DB.World.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
@@ -12213,7 +12114,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadCreatureTemplateModels()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		//                                         0           1                  2             3
 		var result = DB.World.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
 
@@ -12271,7 +12172,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadCreatureSummonedData()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0           1                            2                     3
 		var result = DB.World.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
@@ -12387,17 +12288,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			else
 			{
 				VendorItem vItem = new()
-                {
-                    Item = (uint)item_id,
-                    Maxcount = result.Read<uint>(1),
-                    Incrtime = result.Read<uint>(2),
-                    ExtendedCost = result.Read<uint>(3),
-                    Type = (ItemVendorType)result.Read<byte>(4),
-                    PlayerConditionId = result.Read<uint>(6),
-                    IgnoreFiltering = result.Read<bool>(7)
-                };
+				{
+					Item = (uint)item_id,
+					Maxcount = result.Read<uint>(1),
+					Incrtime = result.Read<uint>(2),
+					ExtendedCost = result.Read<uint>(3),
+					Type = (ItemVendorType)result.Read<byte>(4),
+					PlayerConditionId = result.Read<uint>(6),
+					IgnoreFiltering = result.Read<bool>(7)
+				};
 
-                var bonusListIDsTok = new StringArray(result.Read<string>(5), ' ');
+				var bonusListIDsTok = new StringArray(result.Read<string>(5), ' ');
 
 				if (!bonusListIDsTok.IsEmpty())
 					foreach (string token in bonusListIDsTok)
@@ -12536,12 +12437,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (dataN <= 1)
 			return;
 
-		Log.Logger.Error(
-					"Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but expected boolean (0/1) consumable field value.",
-					goInfo.entry,
-					goInfo.type,
-					N,
-					dataN);
+		Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but expected boolean (0/1) consumable field value.",
+						goInfo.entry,
+						goInfo.type,
+						N,
+						dataN);
 	}
 
 	List<Difficulty> ParseSpawnDifficulties(string difficultyString, string table, ulong spawnId, uint mapId, List<Difficulty> mapDifficulties)
@@ -12619,7 +12519,6 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			return;
 		}
-
 	}
 
 	void PlayerCreateInfoAddItemHelper(uint race, uint class_, uint itemId, int count)
@@ -12718,7 +12617,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadQuestRelationsHelper(MultiMap<uint, uint> map, MultiMap<uint, uint> reverseMap, string table)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		map.Clear(); // need for reload case
 
@@ -12753,7 +12652,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} quest relations from {1} in {2} ms", count, table, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} quest relations from {1} in {2} ms", count, table, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)
@@ -12763,7 +12662,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void LoadTerrainWorldMaps()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0               1
 		var result = DB.World.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
@@ -12806,12 +12705,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} terrain world maps in {1} ms.", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} terrain world maps in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	void LoadTerrainSwapDefaults()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
 
@@ -12851,12 +12750,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} terrain swap defaults in {1} ms.", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} terrain swap defaults in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	void LoadAreaPhases()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                         0       1
 		var result = DB.World.Query("SELECT AreaId, PhaseId FROM `phase_area`");
@@ -14050,9 +13949,7 @@ class ScriptNameContainer
 		var result = NameToIndex.TryAdd(scriptName, entry);
 
 		if (result)
-		{
 			IndexToName.Add(entry);
-		}
 
 		return NameToIndex[scriptName].Id;
 	}

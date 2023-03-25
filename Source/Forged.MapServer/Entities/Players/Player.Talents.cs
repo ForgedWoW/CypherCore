@@ -521,7 +521,7 @@ public partial class Player
 		}
 		else
 		{
-			var months = (ulong)(GameTime.GetGameTime() - GetTalentResetTime()) / global::Time.Month;
+			var months = (ulong)(GameTime.GetGameTime() - GetTalentResetTime()) / Time.Month;
 
 			if (months > 0)
 			{
@@ -605,14 +605,14 @@ public partial class Player
 	public void SendTalentsInfoData()
 	{
 		UpdateTalentData packet = new()
-        {
-            Info =
-            {
-                PrimarySpecialization = GetPrimarySpecialization()
-            }
-        };
+		{
+			Info =
+			{
+				PrimarySpecialization = GetPrimarySpecialization()
+			}
+		};
 
-        for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
+		for (byte i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
 			var spec = Global.DB2Mgr.GetChrSpecializationByIndex(Class, i);
 
@@ -623,11 +623,11 @@ public partial class Player
 			var pvpTalents = GetPvpTalentMap(i);
 
 			UpdateTalentData.TalentGroupInfo groupInfoPkt = new()
-            {
-                SpecID = spec.Id
-            };
+			{
+				SpecID = spec.Id
+			};
 
-            foreach (var pair in talents)
+			foreach (var pair in talents)
 			{
 				if (pair.Value == PlayerSpellState.Removed)
 					continue;
@@ -677,12 +677,12 @@ public partial class Player
 				}
 
 				PvPTalent pvpTalent = new()
-                {
-                    PvPTalentID = (ushort)pvpTalents[slot],
-                    Slot = slot
-                };
+				{
+					PvPTalentID = (ushort)pvpTalents[slot],
+					Slot = slot
+				};
 
-                groupInfoPkt.PvPTalents.Add(pvpTalent);
+				groupInfoPkt.PvPTalents.Add(pvpTalent);
 			}
 
 			if (i == GetActiveTalentGroup())
@@ -698,13 +698,13 @@ public partial class Player
 	public void SendRespecWipeConfirm(ObjectGuid guid, uint cost, SpecResetType respecType)
 	{
 		RespecWipeConfirm respecWipeConfirm = new()
-        {
-            RespecMaster = guid,
-            Cost = cost,
-            RespecType = respecType
-        };
+		{
+			RespecMaster = guid,
+			Cost = cost,
+			RespecType = respecType
+		};
 
-        SendPacket(respecWipeConfirm);
+		SendPacket(respecWipeConfirm);
 	}
 
 	public TalentLearnResult LearnPvpTalent(uint talentID, byte slot, ref uint spellOnCooldown)
@@ -1158,14 +1158,14 @@ public partial class Player
 			foreach (var traitEntry in kvp.Values)
 			{
 				TraitEntry newEntry = new()
-                {
-                    TraitNodeID = traitEntry.TraitNodeID,
-                    TraitNodeEntryID = traitEntry.TraitNodeEntryID,
-                    Rank = traitEntry.Rank,
-                    GrantedRanks = traitEntry.GrantedRanks
-                };
+				{
+					TraitNodeID = traitEntry.TraitNodeID,
+					TraitNodeEntryID = traitEntry.TraitNodeEntryID,
+					Rank = traitEntry.Rank,
+					GrantedRanks = traitEntry.GrantedRanks
+				};
 
-                AddDynamicUpdateFieldValue(setter.ModifyValue(setter.Entries), newEntry);
+				AddDynamicUpdateFieldValue(setter.ModifyValue(setter.Entries), newEntry);
 			}
 	}
 
@@ -1215,15 +1215,16 @@ public partial class Player
 						costEntries.Add(newEntry);
 
 					TraitConfig newTraitConfig = Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.TraitConfigs, editedIndex);
-					TraitEntry newUfEntry = new()
-                    {
-                        TraitNodeID = newEntry.TraitNodeID,
-                        TraitNodeEntryID = newEntry.TraitNodeEntryID,
-                        Rank = newEntry.Rank,
-                        GrantedRanks = newEntry.GrantedRanks
-                    };
 
-                    AddDynamicUpdateFieldValue(newTraitConfig.ModifyValue(newTraitConfig.Entries), newUfEntry);
+					TraitEntry newUfEntry = new()
+					{
+						TraitNodeID = newEntry.TraitNodeID,
+						TraitNodeEntryID = newEntry.TraitNodeEntryID,
+						Rank = newEntry.Rank,
+						GrantedRanks = newEntry.GrantedRanks
+					};
+
+					AddDynamicUpdateFieldValue(newTraitConfig.ModifyValue(newTraitConfig.Entries), newUfEntry);
 
 					if (applyTraits)
 						ApplyTraitEntry(newUfEntry.TraitNodeEntryID, newUfEntry.Rank, 0, true);

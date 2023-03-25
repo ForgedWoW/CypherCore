@@ -15,12 +15,12 @@ using Serilog;
 
 namespace Forged.MapServer.Achievements;
 
-public class CriteriaManager 
+public class CriteriaManager
 {
-    private readonly CliDB _cliDB;
-    private readonly WorldDatabase _worldDatabase;
-    private readonly GameObjectManager _gameObjectManager;
-    readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
+	private readonly CliDB _cliDB;
+	private readonly WorldDatabase _worldDatabase;
+	private readonly GameObjectManager _gameObjectManager;
+	readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
 	readonly Dictionary<uint, CriteriaTree> _criteriaTrees = new();
 	readonly Dictionary<uint, Criteria> _criteria = new();
 	readonly Dictionary<uint, ModifierTreeNode> _criteriaModifiers = new();
@@ -36,21 +36,21 @@ public class CriteriaManager
 	readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
 
 	public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
-    {
-        _cliDB = cliDB;
-        _worldDatabase = worldDatabase;
-        _gameObjectManager = gameObjectManager;
+	{
+		_cliDB = cliDB;
+		_worldDatabase = worldDatabase;
+		_gameObjectManager = gameObjectManager;
 
-        for (var i = 0; i < (int)CriteriaType.Count; ++i)
+		for (var i = 0; i < (int)CriteriaType.Count; ++i)
 		{
 			_criteriasByAsset[i] = new MultiMap<uint, Criteria>();
 			_scenarioCriteriasByTypeAndScenarioId[i] = new MultiMap<uint, Criteria>();
 		}
-    }
+	}
 
 	public void LoadCriteriaModifiersTree()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		if (_cliDB.ModifierTreeStorage.Empty())
 		{
@@ -63,11 +63,11 @@ public class CriteriaManager
 		foreach (var tree in _cliDB.ModifierTreeStorage.Values)
 		{
 			ModifierTreeNode node = new()
-            {
-                Entry = tree
-            };
+			{
+				Entry = tree
+			};
 
-            _criteriaModifiers[node.Entry.Id] = node;
+			_criteriaModifiers[node.Entry.Id] = node;
 		}
 
 		// Build tree
@@ -79,12 +79,12 @@ public class CriteriaManager
 				parentNode.Children.Add(treeNode);
 		}
 
-		Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} criteria modifiers in {1} ms", _criteriaModifiers.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadCriteriaList()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		Dictionary<uint /*criteriaTreeID*/, AchievementRecord> achievementCriteriaTreeIds = new();
 
@@ -124,15 +124,15 @@ public class CriteriaManager
 				continue;
 
 			CriteriaTree criteriaTree = new()
-            {
-                Id = tree.Id,
-                Achievement = achievement,
-                ScenarioStep = scenarioStep,
-                QuestObjective = questObjective,
-                Entry = tree
-            };
+			{
+				Id = tree.Id,
+				Achievement = achievement,
+				ScenarioStep = scenarioStep,
+				QuestObjective = questObjective,
+				Entry = tree
+			};
 
-            _criteriaTrees[criteriaTree.Entry.Id] = criteriaTree;
+			_criteriaTrees[criteriaTree.Entry.Id] = criteriaTree;
 		}
 
 		// Build tree
@@ -164,13 +164,13 @@ public class CriteriaManager
 				continue;
 
 			Criteria criteria = new()
-            {
-                Id = criteriaEntry.Id,
-                Entry = criteriaEntry,
-                Modifier = _criteriaModifiers.LookupByKey(criteriaEntry.ModifierTreeId)
-            };
+			{
+				Id = criteriaEntry.Id,
+				Entry = criteriaEntry,
+				Modifier = _criteriaModifiers.LookupByKey(criteriaEntry.ModifierTreeId)
+			};
 
-            _criteria[criteria.Id] = criteria;
+			_criteria[criteria.Id] = criteria;
 
 			List<uint> scenarioIds = new();
 
@@ -266,7 +266,7 @@ public class CriteriaManager
 
 	public void LoadCriteriaData()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_criteriaDataMap.Clear(); // need for reload case
 
@@ -324,7 +324,7 @@ public class CriteriaManager
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} additional criteria data in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} additional criteria data in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public CriteriaTree GetCriteriaTree(uint criteriaTreeId)

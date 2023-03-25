@@ -34,12 +34,12 @@ public partial class WorldSession
 			reason = 2;                               // FIXME - Need the correct value
 
 		LogoutResponse logoutResponse = new()
-        {
-            LogoutResult = reason,
-            Instant = instantLogout
-        };
+		{
+			LogoutResult = reason,
+			Instant = instantLogout
+		};
 
-        SendPacket(logoutResponse);
+		SendPacket(logoutResponse);
 
 		if (reason != 0)
 		{

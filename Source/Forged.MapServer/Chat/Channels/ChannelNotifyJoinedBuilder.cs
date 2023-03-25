@@ -22,18 +22,18 @@ class ChannelNotifyJoinedBuilder : MessageBuilder
 		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChannelNotifyJoined> notify = new()
-        {
-            Data =
-            {
-                //notify.ChannelWelcomeMsg = "";
-                ChatChannelID = (int)_source.GetChannelId(),
-                //notify.InstanceID = 0;
-                ChannelFlags = _source.GetFlags(),
-                Channel = _source.GetName(localeIdx),
-                ChannelGUID = _source.GetGUID()
-            }
-        };
+		{
+			Data =
+			{
+				//notify.ChannelWelcomeMsg = "";
+				ChatChannelID = (int)_source.GetChannelId(),
+				//notify.InstanceID = 0;
+				ChannelFlags = _source.GetFlags(),
+				Channel = _source.GetName(localeIdx),
+				ChannelGUID = _source.GetGUID()
+			}
+		};
 
-        return notify;
+		return notify;
 	}
 }

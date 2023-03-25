@@ -343,16 +343,16 @@ public class PhasingHandler
 	public static void SendToPlayer(Player player, PhaseShift phaseShift)
 	{
 		PhaseShiftChange phaseShiftChange = new()
-        {
-            Client = player.GUID,
-            Phaseshift =
-            {
-                PhaseShiftFlags = (uint)phaseShift.Flags,
-                PersonalGUID = phaseShift.PersonalGuid
-            }
-        };
+		{
+			Client = player.GUID,
+			Phaseshift =
+			{
+				PhaseShiftFlags = (uint)phaseShift.Flags,
+				PersonalGUID = phaseShift.PersonalGuid
+			}
+		};
 
-        foreach (var pair in phaseShift.Phases)
+		foreach (var pair in phaseShift.Phases)
 			phaseShiftChange.Phaseshift.Phases.Add(new PhaseShiftDataPhase((uint)pair.Value.Flags, pair.Key));
 
 		foreach (var visibleMapId in phaseShift.VisibleMapIds)

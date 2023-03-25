@@ -120,9 +120,8 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					}
 					else
 					{
-						Log.Logger.Debug(
-									"IsPlayerMeetToConditionList: Reference template -{0} not found",
-									condition.ReferenceId); //checked at loading, should never happen
+						Log.Logger.Debug("IsPlayerMeetToConditionList: Reference template -{0} not found",
+										condition.ReferenceId); //checked at loading, should never happen
 					}
 				}
 				else //handle normal condition
@@ -380,7 +379,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	public void LoadConditions(bool isReload = false)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		Clean();
 
@@ -690,7 +689,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} conditions in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} conditions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
@@ -1090,8 +1089,8 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 		if (condition.Time[0] != 0)
 		{
-			var from = global::Time.GetUnixTimeFromPackedTime(condition.Time[0]);
-			var to = global::Time.GetUnixTimeFromPackedTime(condition.Time[1]);
+			var from = Time.GetUnixTimeFromPackedTime(condition.Time[0]);
+			var to = Time.GetUnixTimeFromPackedTime(condition.Time[1]);
 
 			if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
 				return false;
@@ -1522,11 +1521,10 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 																	// we have overlapping masks in db
 																	if (conditionEffMask != effectMask)
 																	{
-																		Log.Logger.Debug(
-																					"{0} in `condition` table, has incorrect SourceGroup {1} (spell effectMask) set - " +
-																					"effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.",
-																					cond.ToString(),
-																					cond.SourceGroup);
+																		Log.Logger.Debug("{0} in `condition` table, has incorrect SourceGroup {1} (spell effectMask) set - " +
+																						"effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.",
+																						cond.ToString(),
+																						cond.SourceGroup);
 
 																		return;
 																	}
@@ -3315,7 +3313,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case WorldStateExpressionFunctions.TimeOfDay:
 				var localTime = GameTime.GetDateAndTime();
 
-				return localTime.Hour * global::Time.Minute + localTime.Minute;
+				return localTime.Hour * Time.Minute + localTime.Minute;
 			case WorldStateExpressionFunctions.Region:
 				return Global.WorldMgr.RealmId.Region;
 			case WorldStateExpressionFunctions.ClockHour:
@@ -3341,7 +3339,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				if (region != null)
 					raidOrigin = region.Raidorigin;
 
-				return (int)(now - raidOrigin) / global::Time.Week;
+				return (int)(now - raidOrigin) / Time.Week;
 			case WorldStateExpressionFunctions.DifficultyId:
 				return (int)player.Map.DifficultyID;
 			case WorldStateExpressionFunctions.WarModeActive:

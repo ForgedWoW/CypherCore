@@ -9,29 +9,28 @@ using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
-using Game;
 using Serilog;
 
 namespace Forged.MapServer.Accounts;
 
 public sealed class AccountManager
 {
-    private readonly LoginDatabase _loginDatabase;
-    private readonly CharacterDatabase _characterDatabase;
-    private readonly ObjectAccessor _objectAccessor;
-    private const int MaxAccountLength = 16;
-    private const int MaxEmailLength = 64;
+	private const int MaxAccountLength = 16;
+	private const int MaxEmailLength = 64;
+	private readonly LoginDatabase _loginDatabase;
+	private readonly CharacterDatabase _characterDatabase;
+	private readonly ObjectAccessor _objectAccessor;
 
-    private readonly MultiMap<byte, uint> _defaultPermissions = new();
+	private readonly MultiMap<byte, uint> _defaultPermissions = new();
 
 	public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
 
-    public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
-    {
-        _loginDatabase = loginDatabase;
-        _characterDatabase = characterDatabase;
-        _objectAccessor = objectAccessor;
-    }
+	public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
+	{
+		_loginDatabase = loginDatabase;
+		_characterDatabase = characterDatabase;
+		_objectAccessor = objectAccessor;
+	}
 
 	public AccountOpResult CreateAccount(string username, string password, string email = "", uint bnetAccountId = 0, byte bnetIndex = 0)
 	{
@@ -416,9 +415,9 @@ public sealed class AccountManager
 				continue;
 			}
 
-            permission?.AddLinkedPermission(linkedPermissionId);
+			permission?.AddLinkedPermission(linkedPermissionId);
 
-            ++count2;
+			++count2;
 		} while (result.NextRow());
 
 		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading default permissions");
@@ -431,11 +430,11 @@ public sealed class AccountManager
 			return;
 		}
 
-        do
+		do
 		{
 			var secId = result.Read<uint>(0);
 
-            _defaultPermissions.Add((byte)secId, result.Read<uint>(1));
+			_defaultPermissions.Add((byte)secId, result.Read<uint>(1));
 			++count3;
 		} while (result.NextRow());
 
@@ -498,12 +497,11 @@ public sealed class AccountManager
 		rbac.LoadFromDB();
 		var hasPermission = rbac.HasPermission(permissionId);
 
-		Log.Logger.Debug(
-					"AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
-					accountId,
-					permissionId,
-					realmId,
-					hasPermission);
+		Log.Logger.Debug("AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
+						accountId,
+						permissionId,
+						realmId,
+						hasPermission);
 
 		return hasPermission;
 	}

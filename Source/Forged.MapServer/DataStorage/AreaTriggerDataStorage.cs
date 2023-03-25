@@ -21,7 +21,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 	public void LoadAreaTriggerTemplates()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 		MultiMap<uint, Vector2> verticesByCreateProperties = new();
 		MultiMap<uint, Vector2> verticesTargetByCreateProperties = new();
 		MultiMap<uint, Vector3> splinesByCreateProperties = new();
@@ -107,12 +107,12 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 			do
 			{
 				AreaTriggerTemplate areaTriggerTemplate = new()
-                {
-                    Id = new AreaTriggerId(templates.Read<uint>(0), templates.Read<byte>(1) == 1),
-                    Flags = (AreaTriggerFlags)templates.Read<uint>(2)
-                };
+				{
+					Id = new AreaTriggerId(templates.Read<uint>(0), templates.Read<byte>(1) == 1),
+					Flags = (AreaTriggerFlags)templates.Read<uint>(2)
+				};
 
-                if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
+				if (areaTriggerTemplate.Id.IsServerSide && areaTriggerTemplate.Flags != 0)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM areatrigger_template WHERE Id = {areaTriggerTemplate.Id}");
@@ -136,11 +136,11 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 			do
 			{
 				AreaTriggerCreateProperties createProperties = new()
-                {
-                    Id = areatriggerCreateProperties.Read<uint>(0)
-                };
+				{
+					Id = areatriggerCreateProperties.Read<uint>(0)
+				};
 
-                var areatriggerId = areatriggerCreateProperties.Read<uint>(1);
+				var areatriggerId = areatriggerCreateProperties.Read<uint>(1);
 				createProperties.Template = GetAreaTriggerTemplate(new AreaTriggerId(areatriggerId, false));
 
 				var shape = (AreaTriggerTypes)areatriggerCreateProperties.Read<byte>(11);
@@ -224,12 +224,12 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				}
 
 				AreaTriggerOrbitInfo orbitInfo = new()
-                {
-                    StartDelay = circularMovementInfos.Read<uint>(1),
-                    Radius = circularMovementInfos.Read<float>(2)
-                };
+				{
+					StartDelay = circularMovementInfos.Read<uint>(1),
+					Radius = circularMovementInfos.Read<float>(2)
+				};
 
-                if (!float.IsFinite(orbitInfo.Radius))
+				if (!float.IsFinite(orbitInfo.Radius))
 				{
 					Log.Logger.Error($"Table `areatrigger_create_properties_orbit` has listed areatrigger (AreaTriggerCreatePropertiesId: {areaTriggerCreatePropertiesId}) with invalid Radius ({orbitInfo.Radius}), set to 0!");
 					orbitInfo.Radius = 0.0f;
@@ -272,7 +272,7 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 
 	public void LoadAreaTriggerSpawns()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Load area trigger positions (to put them on the server)
 		//                                            0        1              2             3      4     5     6     7            8              9        10
@@ -310,21 +310,21 @@ public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 				}
 
 				AreaTriggerSpawn spawn = new()
-                {
-                    SpawnId = spawnId,
-                    MapId = location.MapId,
-                    TriggerId = areaTriggerId,
-                    SpawnPoint = new Position(location),
-                    PhaseUseFlags = (PhaseUseFlagsValues)templates.Read<byte>(8),
-                    PhaseId = templates.Read<uint>(9),
-                    PhaseGroup = templates.Read<uint>(10),
-                    Shape =
-                    {
-                        TriggerType = shape
-                    }
-                };
+				{
+					SpawnId = spawnId,
+					MapId = location.MapId,
+					TriggerId = areaTriggerId,
+					SpawnPoint = new Position(location),
+					PhaseUseFlags = (PhaseUseFlagsValues)templates.Read<byte>(8),
+					PhaseId = templates.Read<uint>(9),
+					PhaseGroup = templates.Read<uint>(10),
+					Shape =
+					{
+						TriggerType = shape
+					}
+				};
 
-                unsafe
+				unsafe
 				{
 					for (var i = 0; i < SharedConst.MaxAreatriggerEntityData; ++i)
 						spawn.Shape.DefaultDatas.Data[i] = templates.Read<float>(12 + i);

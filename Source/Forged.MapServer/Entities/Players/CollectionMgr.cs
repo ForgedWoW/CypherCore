@@ -57,7 +57,7 @@ public class CollectionMgr
 
 	public static void LoadMountDefinitions()
 	{
-		var oldMsTime = global::Time.MSTime;
+		var oldMsTime = Time.MSTime;
 
 		var result = DB.World.Query("SELECT spellId, otherFactionSpellId FROM mount_definitions");
 
@@ -90,7 +90,7 @@ public class CollectionMgr
 			FactionSpecificMounts[spellId] = otherFactionSpellId;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, global::Time.GetMSTimeDiffToNow(oldMsTime));
+		Log.Logger.Information("Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public void LoadToys()
@@ -640,12 +640,12 @@ public class CollectionMgr
 		_favoriteAppearances[itemModifiedAppearanceId] = apperanceState;
 
 		AccountTransmogUpdate accountTransmogUpdate = new()
-        {
-            IsFullUpdate = false,
-            IsSetFavorite = apply
-        };
+		{
+			IsFullUpdate = false,
+			IsSetFavorite = apply
+		};
 
-        accountTransmogUpdate.FavoriteAppearances.Add(itemModifiedAppearanceId);
+		accountTransmogUpdate.FavoriteAppearances.Add(itemModifiedAppearanceId);
 
 		_owner.SendPacket(accountTransmogUpdate);
 	}
@@ -653,11 +653,11 @@ public class CollectionMgr
 	public void SendFavoriteAppearances()
 	{
 		AccountTransmogUpdate accountTransmogUpdate = new()
-        {
-            IsFullUpdate = true
-        };
+		{
+			IsFullUpdate = true
+		};
 
-        foreach (var pair in _favoriteAppearances)
+		foreach (var pair in _favoriteAppearances)
 			if (pair.Value != FavoriteAppearanceState.Removed)
 				accountTransmogUpdate.FavoriteAppearances.Add(pair.Key);
 
@@ -829,11 +829,11 @@ public class CollectionMgr
 			return;
 
 		AccountMountUpdate mountUpdate = new()
-        {
-            IsFullUpdate = false
-        };
+		{
+			IsFullUpdate = false
+		};
 
-        mountUpdate.Mounts.Add(spellId, mountStatusFlags);
+		mountUpdate.Mounts.Add(spellId, mountStatusFlags);
 		player.SendPacket(mountUpdate);
 	}
 

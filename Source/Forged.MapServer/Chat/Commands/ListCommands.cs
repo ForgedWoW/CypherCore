@@ -312,7 +312,7 @@ class ListCommands
 					var senderStr = handler.PlayerLink(sender);
 					handler.SendSysMessage(CypherStrings.ListMailInfo1, messageId, subject, gold, silv, copp);
 					handler.SendSysMessage(CypherStrings.ListMailInfo2, senderStr, senderId, receiverStr, receiverId);
-					handler.SendSysMessage(CypherStrings.ListMailInfo3, global::Time.UnixTimeToDateTime(deliverTime).ToLongDateString(), global::Time.UnixTimeToDateTime(expireTime).ToLongDateString());
+					handler.SendSysMessage(CypherStrings.ListMailInfo3, Time.UnixTimeToDateTime(deliverTime).ToLongDateString(), Time.UnixTimeToDateTime(expireTime).ToLongDateString());
 
 					if (hasItem == 1)
 					{
@@ -501,7 +501,7 @@ class ListCommands
 				var gridY = ri.GridId / MapConst.MaxGrids;
 				var gridX = ri.GridId % MapConst.MaxGrids;
 
-				var respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? global::Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
+				var respawnTime = ri.RespawnTime > GameTime.GetGameTime() ? Time.secsToTimeString((ulong)(ri.RespawnTime - GameTime.GetGameTime()), TimeFormat.ShortText) : stringOverdue;
 				handler.SendSysMessage($"{ri.SpawnId} | {ri.Entry} | [{gridX:2},{gridY:2}] | {GetZoneName(respawnZoneId, locale)} ({respawnZoneId}) | {respawnTime}{(map.IsSpawnGroupActive(data.SpawnGroupData.GroupId) ? "" : " (inactive)")}");
 			}
 		}

@@ -577,23 +577,21 @@ public partial class WorldSession
 		{
 			if (Player.GetSpeed(move_type) > packet.Speed) // must be greater - just correct
 			{
-				Log.Logger.Error(
-							"{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
-							move_type,
-							Player.GetName(),
-							Player.GetSpeed(move_type),
-							packet.Speed);
+				Log.Logger.Error("{0}SpeedChange player {1} is NOT correct (must be {2} instead {3}), force set to correct value",
+								move_type,
+								Player.GetName(),
+								Player.GetSpeed(move_type),
+								packet.Speed);
 
 				Player.SetSpeedRate(move_type, Player.GetSpeedRate(move_type));
 			}
 			else // must be lesser - cheating
 			{
-				Log.Logger.Debug(
-							"Player {0} from account id {1} kicked for incorrect speed (must be {2} instead {3})",
-							Player.GetName(),
-							Player.Session.AccountId,
-							Player.GetSpeed(move_type),
-							packet.Speed);
+				Log.Logger.Debug("Player {0} from account id {1} kicked for incorrect speed (must be {2} instead {3})",
+								Player.GetName(),
+								Player.Session.AccountId,
+								Player.GetSpeed(move_type),
+								packet.Speed);
 
 				Player.Session.KickPlayer("WorldSession::HandleForceSpeedChangeAck Incorrect speed");
 			}
@@ -824,7 +822,7 @@ public partial class WorldSession
 		// we are going to make 2 assumptions:
 		// 1) we assume that the request processing time equals 0.
 		// 2) we assume that the packet took as much time to travel from server to client than it took to travel from client to server.
-		var roundTripDuration = global::Time.GetMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
+		var roundTripDuration = Time.GetMSTimeDiff(serverTimeAtSent, timeSyncResponse.GetReceivedTime());
 		var lagDelay = roundTripDuration / 2;
 
 		/*

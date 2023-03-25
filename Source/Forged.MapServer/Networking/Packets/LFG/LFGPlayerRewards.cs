@@ -15,16 +15,12 @@ public struct LFGPlayerRewards
 		RewardCurrency = null;
 
 		if (!isCurrency)
-		{
 			RewardItem = new ItemInstance
-            {
-                ItemID = id
-            };
-        }
+			{
+				ItemID = id
+			};
 		else
-		{
 			RewardCurrency = id;
-		}
 	}
 
 	public void Write(WorldPacket data)

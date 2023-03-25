@@ -485,12 +485,12 @@ public partial class Unit
 	public void SendMeleeAttackStart(Unit victim)
 	{
 		AttackStart packet = new()
-        {
-            Attacker = GUID,
-            Victim = victim.GUID
-        };
+		{
+			Attacker = GUID,
+			Victim = victim.GUID
+		};
 
-        SendMessageToSet(packet, true);
+		SendMessageToSet(packet, true);
 	}
 
 	public void SendMeleeAttackStop(Unit victim = null)
@@ -498,12 +498,11 @@ public partial class Unit
 		SendMessageToSet(new SAttackStop(this, victim), true);
 
 		if (victim)
-			Log.Logger.Information(
-						"{0} {1} stopped attacking {2} {3}",
-						(IsTypeId(TypeId.Player) ? "Player" : "Creature"),
-						GUID.ToString(),
-						(victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
-						victim.GUID.ToString());
+			Log.Logger.Information("{0} {1} stopped attacking {2} {3}",
+									(IsTypeId(TypeId.Player) ? "Player" : "Creature"),
+									GUID.ToString(),
+									(victim.IsTypeId(TypeId.Player) ? "player" : "creature"),
+									victim.GUID.ToString());
 		else
 			Log.Logger.Information("{0} {1} stopped attacking", (IsTypeId(TypeId.Player) ? "Player" : "Creature"), GUID.ToString());
 	}
@@ -691,14 +690,13 @@ public partial class Unit
 				DamageInfo dmgInfo = new(damageInfo);
 				ProcSkillsAndAuras(damageInfo.Attacker, damageInfo.Target, damageInfo.ProcAttacker, damageInfo.ProcVictim, ProcFlagsSpellType.None, ProcFlagsSpellPhase.None, dmgInfo.HitMask, null, dmgInfo, null);
 
-				Log.Logger.Debug(
-							"AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
-							GUID.ToString(),
-							victim.GUID.ToString(),
-							damageInfo.Damage,
-							damageInfo.Absorb,
-							damageInfo.Blocked,
-							damageInfo.Resist);
+				Log.Logger.Debug("AttackerStateUpdate: {0} attacked {1} for {2} dmg, absorbed {3}, blocked {4}, resisted {5}.",
+								GUID.ToString(),
+								victim.GUID.ToString(),
+								damageInfo.Damage,
+								damageInfo.Absorb,
+								damageInfo.Blocked,
+								damageInfo.Resist);
 			}
 			else
 			{
@@ -742,46 +740,46 @@ public partial class Unit
 	public void SendAttackStateUpdate(HitInfo HitInfo, Unit target, SpellSchoolMask damageSchoolMask, double Damage, double AbsorbDamage, double Resist, VictimState TargetState, uint BlockedAmount)
 	{
 		CalcDamageInfo dmgInfo = new()
-        {
-            HitInfo = HitInfo,
-            Attacker = this,
-            Target = target,
-            Damage = Damage - AbsorbDamage - Resist - BlockedAmount,
-            OriginalDamage = Damage,
-            DamageSchoolMask = (uint)damageSchoolMask,
-            Absorb = AbsorbDamage,
-            Resist = Resist,
-            TargetState = TargetState,
-            Blocked = BlockedAmount
-        };
+		{
+			HitInfo = HitInfo,
+			Attacker = this,
+			Target = target,
+			Damage = Damage - AbsorbDamage - Resist - BlockedAmount,
+			OriginalDamage = Damage,
+			DamageSchoolMask = (uint)damageSchoolMask,
+			Absorb = AbsorbDamage,
+			Resist = Resist,
+			TargetState = TargetState,
+			Blocked = BlockedAmount
+		};
 
-        SendAttackStateUpdate(dmgInfo);
+		SendAttackStateUpdate(dmgInfo);
 	}
 
 	public void SendAttackStateUpdate(CalcDamageInfo damageInfo)
 	{
 		AttackerStateUpdate packet = new()
-        {
-            hitInfo = damageInfo.HitInfo,
-            AttackerGUID = damageInfo.Attacker.GUID,
-            VictimGUID = damageInfo.Target.GUID,
-            Damage = (int)damageInfo.Damage,
-            OriginalDamage = (int)damageInfo.OriginalDamage
-        };
+		{
+			hitInfo = damageInfo.HitInfo,
+			AttackerGUID = damageInfo.Attacker.GUID,
+			VictimGUID = damageInfo.Target.GUID,
+			Damage = (int)damageInfo.Damage,
+			OriginalDamage = (int)damageInfo.OriginalDamage
+		};
 
-        var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
+		var overkill = (int)(damageInfo.Damage - damageInfo.Target.Health);
 		packet.OverDamage = (overkill < 0 ? -1 : overkill);
 
 		SubDamage subDmg = new()
-        {
-            SchoolMask = (int)damageInfo.DamageSchoolMask, // School of sub damage
-            FDamage = (float)damageInfo.Damage,            // sub damage
-            Damage = (int)damageInfo.Damage,               // Sub Damage
-            Absorbed = (int)damageInfo.Absorb,
-            Resisted = (int)damageInfo.Resist
-        };
+		{
+			SchoolMask = (int)damageInfo.DamageSchoolMask, // School of sub damage
+			FDamage = (float)damageInfo.Damage,            // sub damage
+			Damage = (int)damageInfo.Damage,               // Sub Damage
+			Absorbed = (int)damageInfo.Absorb,
+			Resisted = (int)damageInfo.Resist
+		};
 
-        packet.SubDmg = subDmg;
+		packet.SubDmg = subDmg;
 
 		packet.VictimState = (byte)damageInfo.TargetState;
 		packet.BlockAmount = (int)damageInfo.Blocked;
@@ -875,12 +873,12 @@ public partial class Unit
 					if (groups.Add(tapperGroup))
 					{
 						PartyKillLog partyKillLog = new()
-                        {
-                            Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID,
-                            Victim = victim.GUID
-                        };
+						{
+							Player = player && tapperGroup.IsMember(player.GUID) ? player.GUID : tapper.GUID,
+							Victim = victim.GUID
+						};
 
-                        partyKillLog.Write();
+						partyKillLog.Write();
 
 						tapperGroup.BroadcastPacket(partyKillLog, tapperGroup.GetMemberGroup(tapper.GUID) != 0);
 
@@ -891,12 +889,12 @@ public partial class Unit
 				else
 				{
 					PartyKillLog partyKillLog = new()
-                    {
-                        Player = tapper.GUID,
-                        Victim = victim.GUID
-                    };
+					{
+						Player = tapper.GUID,
+						Victim = victim.GUID
+					};
 
-                    tapper.SendPacket(partyKillLog);
+					tapper.SendPacket(partyKillLog);
 				}
 			}
 
@@ -1436,25 +1434,25 @@ public partial class Unit
 	void CalculateMeleeDamage(Unit victim, out CalcDamageInfo damageInfo, WeaponAttackType attackType)
 	{
 		damageInfo = new CalcDamageInfo
-        {
-            Attacker = this,
-            Target = victim,
-            DamageSchoolMask = (uint)SpellSchoolMask.Normal,
-            Damage = 0,
-            OriginalDamage = 0,
-            Absorb = 0,
-            Resist = 0,
-            Blocked = 0,
-            HitInfo = 0,
-            TargetState = 0,
-            AttackType = attackType,
-            ProcAttacker = new ProcFlagsInit(),
-            ProcVictim = new ProcFlagsInit(),
-            CleanDamage = 0,
-            HitOutCome = MeleeHitOutcome.Evade
-        };
+		{
+			Attacker = this,
+			Target = victim,
+			DamageSchoolMask = (uint)SpellSchoolMask.Normal,
+			Damage = 0,
+			OriginalDamage = 0,
+			Absorb = 0,
+			Resist = 0,
+			Blocked = 0,
+			HitInfo = 0,
+			TargetState = 0,
+			AttackType = attackType,
+			ProcAttacker = new ProcFlagsInit(),
+			ProcVictim = new ProcFlagsInit(),
+			CleanDamage = 0,
+			HitOutCome = MeleeHitOutcome.Evade
+		};
 
-        if (victim == null)
+		if (victim == null)
 			return;
 
 		if (!IsAlive || !victim.IsAlive)

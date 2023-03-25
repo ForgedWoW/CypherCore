@@ -52,11 +52,11 @@ public class BattlePetMgr
 		for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
 		{
 			BattlePetSlot slot = new()
-            {
-                Index = i
-            };
+			{
+				Index = i
+			};
 
-            _slots.Add(slot);
+			_slots.Add(slot);
 		}
 	}
 
@@ -210,13 +210,13 @@ public class BattlePetMgr
 					if (!ownerGuid.IsEmpty)
 					{
 						BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
-                        {
-                            Guid = ownerGuid,
-                            PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
-                            PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
-                        };
+						{
+							Guid = ownerGuid,
+							PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
+							PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
+						};
 
-                        pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
+						pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
 					}
 
 					pet.SaveInfo = BattlePetSaveInfo.Unchanged;
@@ -388,13 +388,13 @@ public class BattlePetMgr
 		if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotAccountWide))
 		{
 			BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
-            {
-                Guid = player.GUID,
-                PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
-                PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
-            };
+			{
+				Guid = player.GUID,
+				PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
+				PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
+			};
 
-            pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
+			pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
 		}
 
 		pet.SaveInfo = BattlePetSaveInfo.New;
@@ -573,11 +573,11 @@ public class BattlePetMgr
 		RemovePet(guid);
 
 		BattlePetDeleted deletePet = new()
-        {
-            PetGuid = guid
-        };
+		{
+			PetGuid = guid
+		};
 
-        _owner.SendPacket(deletePet);
+		_owner.SendPacket(deletePet);
 
 		// Battle pet despawns if it's summoned
 		var player = _owner.Player;
@@ -829,12 +829,12 @@ public class BattlePetMgr
 			SendJournalLockStatus();
 
 		BattlePetJournal battlePetJournal = new()
-        {
-            Trap = _trapLevel,
-            HasJournalLock = _hasJournalLock
-        };
+		{
+			Trap = _trapLevel,
+			HasJournalLock = _hasJournalLock
+		};
 
-        foreach (var pet in _pets)
+		foreach (var pet in _pets)
 			if (pet.Value != null && pet.Value.SaveInfo != BattlePetSaveInfo.Removed)
 				if (!pet.Value.PacketInfo.OwnerInfo.HasValue || pet.Value.PacketInfo.OwnerInfo.Value.Guid == _owner.Player.GUID)
 					battlePetJournal.Pets.Add(pet.Value.PacketInfo);
@@ -846,12 +846,12 @@ public class BattlePetMgr
 	public void SendError(BattlePetError error, uint creatureId)
 	{
 		BattlePetErrorPacket battlePetError = new()
-        {
-            Result = error,
-            CreatureID = creatureId
-        };
+		{
+			Result = error,
+			CreatureID = creatureId
+		};
 
-        _owner.SendPacket(battlePetError);
+		_owner.SendPacket(battlePetError);
 	}
 
 	public void SendJournalLockStatus()

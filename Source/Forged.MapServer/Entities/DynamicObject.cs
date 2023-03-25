@@ -27,10 +27,7 @@ public class DynamicObject : WorldObject
 
 	public override uint Faction
 	{
-		get
-		{
-			return _caster.Faction;
-		}
+		get { return _caster.Faction; }
 	}
 
 	public override ObjectGuid OwnerGUID => GetCasterGUID();

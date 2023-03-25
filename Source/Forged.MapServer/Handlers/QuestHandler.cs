@@ -246,11 +246,11 @@ public partial class WorldSession
 		else
 		{
 			QueryQuestInfoResponse response = new()
-            {
-                QuestID = packet.QuestID
-            };
+			{
+				QuestID = packet.QuestID
+			};
 
-            SendPacket(response);
+			SendPacket(response);
 		}
 	}
 
@@ -373,11 +373,10 @@ public partial class WorldSession
 		if ((!_player.CanSeeStartQuest(quest) && _player.GetQuestStatus(packet.QuestID) == QuestStatus.None) ||
 			(_player.GetQuestStatus(packet.QuestID) != QuestStatus.Complete && !quest.IsAutoComplete))
 		{
-			Log.Logger.Error<string, string, uint>(
-                                                   "Error in QuestStatus.Complete: player {0} ({1}) tried to complete quest {2}, but is not allowed to do so (possible packet-hacking or high latency)",
-                                                   _player.GetName(),
-                                                   _player.GUID.ToString(),
-                                                   packet.QuestID);
+			Log.Logger.Error<string, string, uint>("Error in QuestStatus.Complete: player {0} ({1}) tried to complete quest {2}, but is not allowed to do so (possible packet-hacking or high latency)",
+													_player.GetName(),
+													_player.GUID.ToString(),
+													packet.QuestID);
 
 			return;
 		}
@@ -546,11 +545,10 @@ public partial class WorldSession
 
 		if (!_player.CanSeeStartQuest(quest) && _player.GetQuestStatus(packet.QuestID) == QuestStatus.None)
 		{
-			Log.Logger.Error<string, string, uint>(
-                                                   "Possible hacking attempt: Player {0} ({1}) tried to complete quest [entry: {2}] without being in possession of the quest!",
-                                                   _player.GetName(),
-                                                   _player.GUID.ToString(),
-                                                   packet.QuestID);
+			Log.Logger.Error<string, string, uint>("Possible hacking attempt: Player {0} ({1}) tried to complete quest [entry: {2}] without being in possession of the quest!",
+													_player.GetName(),
+													_player.GUID.ToString(),
+													packet.QuestID);
 
 			return;
 		}
@@ -884,11 +882,11 @@ public partial class WorldSession
 	void HandleUiMapQuestLinesRequest(UiMapQuestLinesRequest request)
 	{
 		var response = new UiMapQuestLinesResponse
-        {
-            UiMapID = request.UiMapID
-        };
+		{
+			UiMapID = request.UiMapID
+		};
 
-        if (DB2Manager.Instance.QuestPOIBlobEntriesByMapId.TryGetValue(request.UiMapID, out var questPOIBlobEntries))
+		if (DB2Manager.Instance.QuestPOIBlobEntriesByMapId.TryGetValue(request.UiMapID, out var questPOIBlobEntries))
 			foreach (var questPOIBlob in questPOIBlobEntries)
 				if (Player.MeetPlayerCondition(questPOIBlob.PlayerConditionID) && DB2Manager.Instance.QuestLinesByQuest.TryGetValue((uint)questPOIBlob.QuestID, out var lineXQuestRecords))
 					foreach (var lineXRecord in lineXQuestRecords)

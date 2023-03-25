@@ -256,7 +256,7 @@ public class WorldConfig : ConfigMgr
 			Values[WorldCfg.InstancemapLoadGrids] = false;
 		}
 
-		Values[WorldCfg.IntervalSave] = GetDefaultValue("PlayerSaveInterval", 15 * global::Time.Minute * global::Time.InMilliseconds);
+		Values[WorldCfg.IntervalSave] = GetDefaultValue("PlayerSaveInterval", 15 * Time.Minute * Time.InMilliseconds);
 		Values[WorldCfg.IntervalDisconnectTolerance] = GetDefaultValue("DisconnectToleranceInterval", 0);
 		Values[WorldCfg.StatsSaveOnlyOnLogout] = GetDefaultValue("PlayerSave.Stats.SaveOnlyOnLogout", true);
 
@@ -268,7 +268,7 @@ public class WorldConfig : ConfigMgr
 			Values[WorldCfg.MinLevelStatSave] = 0;
 		}
 
-		Values[WorldCfg.IntervalGridclean] = GetDefaultValue("GridCleanUpDelay", 5 * global::Time.Minute * global::Time.InMilliseconds);
+		Values[WorldCfg.IntervalGridclean] = GetDefaultValue("GridCleanUpDelay", 5 * Time.Minute * Time.InMilliseconds);
 
 		if ((int)Values[WorldCfg.IntervalGridclean] < MapConst.MinGridDelay)
 		{
@@ -284,7 +284,7 @@ public class WorldConfig : ConfigMgr
 			Values[WorldCfg.IntervalMapupdate] = MapConst.MinMapUpdateDelay;
 		}
 
-		Values[WorldCfg.IntervalChangeweather] = GetDefaultValue("ChangeWeatherInterval", 10 * global::Time.Minute * global::Time.InMilliseconds);
+		Values[WorldCfg.IntervalChangeweather] = GetDefaultValue("ChangeWeatherInterval", 10 * Time.Minute * Time.InMilliseconds);
 
 		if (reload)
 		{
@@ -481,20 +481,18 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartDeathKnightPlayerLevel] < 1)
 		{
-			Log.Logger.Error(
-						"StartDeathKnightPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.",
-						Values[WorldCfg.StartDeathKnightPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("StartDeathKnightPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.",
+							Values[WorldCfg.StartDeathKnightPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel]);
 
 			Values[WorldCfg.StartDeathKnightPlayerLevel] = 1;
 		}
 		else if ((int)Values[WorldCfg.StartDeathKnightPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.Logger.Error(
-						"StartDeathKnightPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.",
-						Values[WorldCfg.StartDeathKnightPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("StartDeathKnightPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.",
+							Values[WorldCfg.StartDeathKnightPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel]);
 
 			Values[WorldCfg.StartDeathKnightPlayerLevel] = Values[WorldCfg.MaxPlayerLevel];
 		}
@@ -503,20 +501,18 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartDemonHunterPlayerLevel] < 1)
 		{
-			Log.Logger.Error(
-						"StartDemonHunterPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.",
-						Values[WorldCfg.StartDemonHunterPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("StartDemonHunterPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to 1.",
+							Values[WorldCfg.StartDemonHunterPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel]);
 
 			Values[WorldCfg.StartDemonHunterPlayerLevel] = 1;
 		}
 		else if ((int)Values[WorldCfg.StartDemonHunterPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.Logger.Error(
-						"StartDemonHunterPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.",
-						Values[WorldCfg.StartDemonHunterPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel]);
+			Log.Logger.Error("StartDemonHunterPlayerLevel ({0}) must be in range 1..MaxPlayerLevel({1}). Set to {2}.",
+							Values[WorldCfg.StartDemonHunterPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel]);
 
 			Values[WorldCfg.StartDemonHunterPlayerLevel] = Values[WorldCfg.MaxPlayerLevel];
 		}
@@ -556,11 +552,10 @@ public class WorldConfig : ConfigMgr
 		}
 		else if ((int)Values[WorldCfg.StartPlayerMoney] > 0x7FFFFFFF - 1) // TODO: (See MaxMoneyAMOUNT)
 		{
-			Log.Logger.Error(
-						"StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.",
-						Values[WorldCfg.StartPlayerMoney],
-						0x7FFFFFFF - 1,
-						0x7FFFFFFF - 1);
+			Log.Logger.Error("StartPlayerMoney ({0}) must be in range 0..{1}. Set to {2}.",
+							Values[WorldCfg.StartPlayerMoney],
+							0x7FFFFFFF - 1,
+							0x7FFFFFFF - 1);
 
 			Values[WorldCfg.StartPlayerMoney] = 0x7FFFFFFF - 1;
 		}
@@ -590,11 +585,10 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.MaxRecruitAFriendBonusPlayerLevel] > (int)Values[WorldCfg.MaxPlayerLevel])
 		{
-			Log.Logger.Error(
-						"RecruitAFriend.MaxLevel ({0}) must be in the range 0..MaxLevel({1}). Set to {2}.",
-						Values[WorldCfg.MaxRecruitAFriendBonusPlayerLevel],
-						Values[WorldCfg.MaxPlayerLevel],
-						60);
+			Log.Logger.Error("RecruitAFriend.MaxLevel ({0}) must be in the range 0..MaxLevel({1}). Set to {2}.",
+							Values[WorldCfg.MaxRecruitAFriendBonusPlayerLevel],
+							Values[WorldCfg.MaxPlayerLevel],
+							60);
 
 			Values[WorldCfg.MaxRecruitAFriendBonusPlayerLevel] = 60;
 		}
@@ -609,7 +603,7 @@ public class WorldConfig : ConfigMgr
 		Values[WorldCfg.CastUnstuck] = GetDefaultValue("CastUnstuck", true);
 		Values[WorldCfg.ResetScheduleWeekDay] = GetDefaultValue("ResetSchedule.WeekDay", 2);
 		Values[WorldCfg.ResetScheduleHour] = GetDefaultValue("ResetSchedule.Hour", 8);
-		Values[WorldCfg.InstanceUnloadDelay] = GetDefaultValue("Instance.UnloadDelay", 30 * global::Time.Minute * global::Time.InMilliseconds);
+		Values[WorldCfg.InstanceUnloadDelay] = GetDefaultValue("Instance.UnloadDelay", 30 * Time.Minute * Time.InMilliseconds);
 		Values[WorldCfg.DailyQuestResetTimeHour] = GetDefaultValue("Quests.DailyResetTime", 3);
 
 		if ((int)Values[WorldCfg.DailyQuestResetTimeHour] > 23)
@@ -647,12 +641,11 @@ public class WorldConfig : ConfigMgr
 
 		if ((int)Values[WorldCfg.StartGmLevel] < (int)Values[WorldCfg.StartPlayerLevel])
 		{
-			Log.Logger.Error(
-						"GM.StartLevel ({0}) must be in range StartPlayerLevel({1})..{2}. Set to {3}.",
-						Values[WorldCfg.StartGmLevel],
-						Values[WorldCfg.StartPlayerLevel],
-						SharedConst.MaxLevel,
-						Values[WorldCfg.StartPlayerLevel]);
+			Log.Logger.Error("GM.StartLevel ({0}) must be in range StartPlayerLevel({1})..{2}. Set to {3}.",
+							Values[WorldCfg.StartGmLevel],
+							Values[WorldCfg.StartPlayerLevel],
+							SharedConst.MaxLevel,
+							Values[WorldCfg.StartPlayerLevel]);
 
 			Values[WorldCfg.StartGmLevel] = Values[WorldCfg.StartPlayerLevel];
 		}
@@ -668,7 +661,7 @@ public class WorldConfig : ConfigMgr
 
 		Values[WorldCfg.GroupVisibility] = GetDefaultValue("Visibility.GroupMode", 1);
 
-		Values[WorldCfg.MailDeliveryDelay] = GetDefaultValue("MailDeliveryDelay", global::Time.Hour);
+		Values[WorldCfg.MailDeliveryDelay] = GetDefaultValue("MailDeliveryDelay", Time.Hour);
 		Values[WorldCfg.CleanOldMailTime] = GetDefaultValue("CleanOldMailTime", 4);
 
 		if ((int)Values[WorldCfg.CleanOldMailTime] > 23)
@@ -840,12 +833,12 @@ public class WorldConfig : ConfigMgr
 		}
 
 		Values[WorldCfg.BattlegroundInvitationType] = GetDefaultValue("Battleground.InvitationType", 0);
-		Values[WorldCfg.BattlegroundPrematureFinishTimer] = GetDefaultValue("Battleground.PrematureFinishTimer", 5 * global::Time.Minute * global::Time.InMilliseconds);
-		Values[WorldCfg.BattlegroundPremadeGroupWaitForMatch] = GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * global::Time.Minute * global::Time.InMilliseconds);
+		Values[WorldCfg.BattlegroundPrematureFinishTimer] = GetDefaultValue("Battleground.PrematureFinishTimer", 5 * Time.Minute * Time.InMilliseconds);
+		Values[WorldCfg.BattlegroundPremadeGroupWaitForMatch] = GetDefaultValue("Battleground.PremadeGroupWaitForMatch", 30 * Time.Minute * Time.InMilliseconds);
 		Values[WorldCfg.BgXpForKill] = GetDefaultValue("Battleground.GiveXPForKills", false);
 		Values[WorldCfg.ArenaMaxRatingDifference] = GetDefaultValue("Arena.MaxRatingDifference", 150);
-		Values[WorldCfg.ArenaRatingDiscardTimer] = GetDefaultValue("Arena.RatingDiscardTimer", 10 * global::Time.Minute * global::Time.InMilliseconds);
-		Values[WorldCfg.ArenaRatedUpdateTimer] = GetDefaultValue("Arena.RatedUpdateTimer", 5 * global::Time.InMilliseconds);
+		Values[WorldCfg.ArenaRatingDiscardTimer] = GetDefaultValue("Arena.RatingDiscardTimer", 10 * Time.Minute * Time.InMilliseconds);
+		Values[WorldCfg.ArenaRatedUpdateTimer] = GetDefaultValue("Arena.RatedUpdateTimer", 5 * Time.InMilliseconds);
 		Values[WorldCfg.ArenaQueueAnnouncerEnable] = GetDefaultValue("Arena.QueueAnnouncer.Enable", false);
 		Values[WorldCfg.ArenaSeasonId] = GetDefaultValue("Arena.ArenaSeason.ID", 32);
 		Values[WorldCfg.ArenaStartRating] = GetDefaultValue("Arena.ArenaStartRating", 0);
@@ -866,8 +859,8 @@ public class WorldConfig : ConfigMgr
 
 		Values[WorldCfg.OffhandCheckAtSpellUnlearn] = GetDefaultValue("OffhandCheckAtSpellUnlearn", true);
 
-		Values[WorldCfg.CreaturePickpocketRefill] = GetDefaultValue("Creature.PickPocketRefillDelay", 10 * global::Time.Minute);
-		Values[WorldCfg.CreatureStopForPlayer] = GetDefaultValue("Creature.MovingStopTimeForPlayer", 3 * global::Time.Minute * global::Time.InMilliseconds);
+		Values[WorldCfg.CreaturePickpocketRefill] = GetDefaultValue("Creature.PickPocketRefillDelay", 10 * Time.Minute);
+		Values[WorldCfg.CreatureStopForPlayer] = GetDefaultValue("Creature.MovingStopTimeForPlayer", 3 * Time.Minute * Time.InMilliseconds);
 
 		var clientCacheId = GetDefaultValue("ClientCacheVersion", 0);
 

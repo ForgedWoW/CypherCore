@@ -41,23 +41,24 @@ namespace Forged.MapServer.DataStorage;
 
 public class CliDB
 {
-    private readonly HotfixDatabase _hotfixDatabase;
-    private readonly DB2Manager _db2Manager;
+	private readonly HotfixDatabase _hotfixDatabase;
+	private readonly DB2Manager _db2Manager;
 
-    public CliDB(HotfixDatabase hotfixDatabase, DB2Manager db2Manager)
-    {
-        _hotfixDatabase = hotfixDatabase;
-        _db2Manager = db2Manager;
-    }
+	public CliDB(HotfixDatabase hotfixDatabase, DB2Manager db2Manager)
+	{
+		_hotfixDatabase = hotfixDatabase;
+		_db2Manager = db2Manager;
+	}
 
 	public BitSet LoadStores(string dataPath, Locale defaultLocale, ContainerBuilder builder)
 	{
-        ActionBlock<Action> _taskManager = new(a => a(),
-                                               new ExecutionDataflowBlockOptions()
-                                               {
-                                                   MaxDegreeOfParallelism = 20
-                                               });
-        var oldMSTime = global::Time.MSTime;
+		ActionBlock<Action> _taskManager = new(a => a(),
+												new ExecutionDataflowBlockOptions()
+												{
+													MaxDegreeOfParallelism = 20
+												});
+
+		var oldMSTime = Time.MSTime;
 
 		var db2Path = $"{dataPath}/dbc";
 
@@ -82,13 +83,13 @@ public class CliDB
 			storage.LoadData($"{db2Path}/{defaultLocale}/{fileName}", fileName);
 			storage.LoadHotfixData(availableDb2Locales, preparedStatement, preparedStatementLocale);
 
-            _db2Manager.AddDB2(storage.GetTableHash(), storage);
+			_db2Manager.AddDB2(storage.GetTableHash(), storage);
 			loadedFileCount++;
 
 			return storage;
 		}
 
-        _taskManager.Post(() => builder.Register((c, p) => AchievementStorage = ReadDB2<AchievementRecord>("Achievement.db2", HotfixStatements.SEL_ACHIEVEMENT, HotfixStatements.SEL_ACHIEVEMENT_LOCALE)).SingleInstance());
+		_taskManager.Post(() => builder.Register((c, p) => AchievementStorage = ReadDB2<AchievementRecord>("Achievement.db2", HotfixStatements.SEL_ACHIEVEMENT, HotfixStatements.SEL_ACHIEVEMENT_LOCALE)).SingleInstance());
 		_taskManager.Post(() => builder.Register((c, p) => AchievementCategoryStorage = ReadDB2<AchievementCategoryRecord>("Achievement_Category.db2", HotfixStatements.SEL_ACHIEVEMENT_CATEGORY, HotfixStatements.SEL_ACHIEVEMENT_CATEGORY_LOCALE)).SingleInstance());
 		_taskManager.Post(() => builder.Register((c, p) => AdventureJournalStorage = ReadDB2<AdventureJournalRecord>("AdventureJournal.db2", HotfixStatements.SEL_ADVENTURE_JOURNAL, HotfixStatements.SEL_ADVENTURE_JOURNAL_LOCALE)).SingleInstance());
 		_taskManager.Post(() => builder.Register((c, p) => AdventureMapPOIStorage = ReadDB2<AdventureMapPOIRecord>("AdventureMapPOI.db2", HotfixStatements.SEL_ADVENTURE_MAP_POI, HotfixStatements.SEL_ADVENTURE_MAP_POI_LOCALE)).SingleInstance());
@@ -422,7 +423,7 @@ public class CliDB
 		_taskManager.Complete();
 		_taskManager.Completion.Wait();
 
-        _db2Manager.LoadStores(this);
+		_db2Manager.LoadStores(this);
 #if DEBUG
 		Log.Logger.Information($"DB2  TableHash");
 
@@ -474,7 +475,7 @@ public class CliDB
 				AllianceTaxiNodesMask[field] |= submask;
 
 			if (!_db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Adventure, false, out int uiMapId))
-                _db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId);
+				_db2Manager.GetUiMapPosition(node.Pos.X, node.Pos.Y, node.Pos.Z, node.ContinentID, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId);
 
 			if (uiMapId == 985 || uiMapId == 986)
 				OldContinentsNodesMask[field] |= submask;
@@ -493,14 +494,14 @@ public class CliDB
 			Environment.Exit(1);
 		}
 
-        Log.Logger.Information("Initialized {0} DB2 data storages in {1} ms", loadedFileCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Initialized {0} DB2 data storages in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		return availableDb2Locales;
 	}
 
 	public void LoadGameTables(string dataPath)
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		var gtPath = dataPath + "/gt/";
 
@@ -525,7 +526,7 @@ public class CliDB
 		StaminaMultByILvlGameTable = ReadGameTable<GtGenericMultByILvlRecord>("StaminaMultByILvl.txt");
 		XpGameTable = ReadGameTable<GtXpRecord>("xp.txt");
 
-		Log.Logger.Information("Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Initialized {0} DBC GameTables data stores in {1} ms", loadedFileCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	#region Main Collections

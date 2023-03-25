@@ -24,7 +24,6 @@ using Forged.MapServer.Networking.Packets.Spell;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IItem;
 using Forged.MapServer.Server;
-using Forged.MapServer.World;
 using Framework.Constants;
 using Transport = Forged.MapServer.Entities.Transport;
 
@@ -770,11 +769,11 @@ class DebugCommands
 			else
 			{
 				MoveUpdate moveUpdate = new()
-                {
-                    Status = target.MovementInfo
-                };
+				{
+					Status = target.MovementInfo
+				};
 
-                target.SendMessageToSet(moveUpdate, true);
+				target.SendMessageToSet(moveUpdate, true);
 			}
 
 			handler.SendSysMessage(CypherStrings.MoveflagsSet, target.GetUnitMovementFlags(), target.GetUnitMovementFlags2());
@@ -1035,11 +1034,11 @@ class DebugCommands
 	static bool HandleDebugSpawnVehicleCommand(CommandHandler handler, uint entry, uint id)
 	{
 		var pos = new Position
-        {
-            Orientation = handler.Player.Location.Orientation
-        };
+		{
+			Orientation = handler.Player.Location.Orientation
+		};
 
-        handler.Player.GetClosePoint(pos, handler.Player.CombatReach);
+		handler.Player.GetClosePoint(pos, handler.Player.CombatReach);
 
 		if (id == 0)
 			return handler.Player.SummonCreature(entry, pos);
@@ -1505,12 +1504,12 @@ class DebugCommands
 		static bool HandleDebugSendChannelNotifyCommand(CommandHandler handler, ChatNotify type)
 		{
 			ChannelNotify packet = new()
-            {
-                Type = type,
-                Channel = "test"
-            };
+			{
+				Type = type,
+				Channel = "test"
+			};
 
-            handler.Session.SendPacket(packet);
+			handler.Session.SendPacket(packet);
 
 			return true;
 		}
@@ -1610,15 +1609,15 @@ class DebugCommands
 		static bool HandleDebugSendSpellFailCommand(CommandHandler handler, SpellCastResult result, int? failArg1, int? failArg2)
 		{
 			CastFailed castFailed = new()
-            {
-                CastID = ObjectGuid.Empty,
-                SpellID = 133,
-                Reason = result,
-                FailedArg1 = failArg1.GetValueOrDefault(-1),
-                FailedArg2 = failArg2.GetValueOrDefault(-1)
-            };
+			{
+				CastID = ObjectGuid.Empty,
+				SpellID = 133,
+				Reason = result,
+				FailedArg1 = failArg1.GetValueOrDefault(-1),
+				FailedArg2 = failArg2.GetValueOrDefault(-1)
+			};
 
-            handler.Session.SendPacket(castFailed);
+			handler.Session.SendPacket(castFailed);
 
 			return true;
 		}

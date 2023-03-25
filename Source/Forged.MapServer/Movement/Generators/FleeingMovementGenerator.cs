@@ -14,9 +14,9 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 	public const float MIN_QUIET_DISTANCE = 28.0f;
 	public const float MAX_QUIET_DISTANCE = 43.0f;
 	readonly TimeTracker _timer;
+	readonly ObjectGuid _fleeTargetGUID;
 
 	PathGenerator _path;
-	readonly ObjectGuid _fleeTargetGUID;
 
 	public FleeingMovementGenerator(ObjectGuid fright)
 	{

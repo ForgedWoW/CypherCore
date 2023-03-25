@@ -2,7 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System;
-using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Items;
@@ -72,12 +71,12 @@ public partial class Player
 	public void SendProficiency(ItemClass itemClass, uint itemSubclassMask)
 	{
 		SetProficiency packet = new()
-        {
-            ProficiencyMask = itemSubclassMask,
-            ProficiencyClass = (byte)itemClass
-        };
+		{
+			ProficiencyMask = itemSubclassMask,
+			ProficiencyClass = (byte)itemClass
+		};
 
-        SendPacket(packet);
+		SendPacket(packet);
 	}
 
 	public double GetRatingBonusValue(CombatRating cr)
@@ -185,7 +184,7 @@ public partial class Player
 	{
 		base.AtExitCombat();
 		UpdatePotionCooldown();
-		_combatExitTime = global::Time.MSTime;
+		_combatExitTime = Time.MSTime;
 	}
 
 	public override float GetBlockPercent(uint attackerLevel)
@@ -255,11 +254,11 @@ public partial class Player
 		Log.Logger.Debug($"Duel Complete {GetName()} {opponent.GetName()}");
 
 		DuelComplete duelCompleted = new()
-        {
-            Started = type != DuelCompleteType.Interrupted
-        };
+		{
+			Started = type != DuelCompleteType.Interrupted
+		};
 
-        SendPacket(duelCompleted);
+		SendPacket(duelCompleted);
 
 		if (opponent.Session != null)
 			opponent.SendPacket(duelCompleted);
@@ -267,15 +266,15 @@ public partial class Player
 		if (type != DuelCompleteType.Interrupted)
 		{
 			DuelWinner duelWinner = new()
-            {
-                BeatenName = (type == DuelCompleteType.Won ? opponent.GetName() : GetName()),
-                WinnerName = (type == DuelCompleteType.Won ? GetName() : opponent.GetName()),
-                BeatenVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-                WinnerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
-                Fled = type != DuelCompleteType.Won
-            };
+			{
+				BeatenName = (type == DuelCompleteType.Won ? opponent.GetName() : GetName()),
+				WinnerName = (type == DuelCompleteType.Won ? GetName() : opponent.GetName()),
+				BeatenVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+				WinnerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress,
+				Fled = type != DuelCompleteType.Won
+			};
 
-            SendMessageToSet(duelWinner, true);
+			SendMessageToSet(duelWinner, true);
 		}
 
 		opponent.DisablePvpRules();
@@ -752,7 +751,7 @@ public partial class Player
 		if (_bgData.BgAfkReportedTimer <= currTime)
 		{
 			_bgData.BgAfkReportedCount = 0;
-			_bgData.BgAfkReportedTimer = currTime + 5 * global::Time.Minute;
+			_bgData.BgAfkReportedTimer = currTime + 5 * Time.Minute;
 		}
 	}
 

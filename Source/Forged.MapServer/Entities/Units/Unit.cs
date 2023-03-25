@@ -709,12 +709,12 @@ public partial class Unit : WorldObject
 	public void HandleEmoteCommand(Emote emoteId, Player target = null, uint[] spellVisualKitIds = null, int sequenceVariation = 0)
 	{
 		EmoteMessage packet = new()
-        {
-            Guid = GUID,
-            EmoteID = (uint)emoteId
-        };
+		{
+			Guid = GUID,
+			EmoteID = (uint)emoteId
+		};
 
-        var emotesEntry = CliDB.EmotesStorage.LookupByKey(emoteId);
+		var emotesEntry = CliDB.EmotesStorage.LookupByKey(emoteId);
 
 		if (emotesEntry != null && spellVisualKitIds != null)
 			if (emotesEntry.AnimId == (uint)Anim.MountSpecial || emotesEntry.AnimId == (uint)Anim.MountSelfSpecial)
@@ -731,11 +731,11 @@ public partial class Unit : WorldObject
 	public void SendDurabilityLoss(Player receiver, uint percent)
 	{
 		DurabilityDamageDeath packet = new()
-        {
-            Percent = percent
-        };
+		{
+			Percent = percent
+		};
 
-        receiver.SendPacket(packet);
+		receiver.SendPacket(packet);
 	}
 
 	public bool IsDisallowedMountForm(uint spellId, ShapeShiftForm form, uint displayId)
@@ -783,11 +783,11 @@ public partial class Unit : WorldObject
 	public void SendClearTarget()
 	{
 		BreakTarget breakTarget = new()
-        {
-            UnitGUID = GUID
-        };
+		{
+			UnitGUID = GUID
+		};
 
-        SendMessageToSet(breakTarget, false);
+		SendMessageToSet(breakTarget, false);
 	}
 
 	public List<Player> GetSharedVisionList()
@@ -1562,8 +1562,8 @@ public partial class Unit : WorldObject
 			var OldTotem = Map.GetCreature(SummonSlot[i]);
 
 			if (OldTotem is { IsSummon: true })
-                OldTotem.ToTempSummon().UnSummon();
-        }
+				OldTotem.ToTempSummon().UnSummon();
+		}
 	}
 
 	public bool IsOnVehicle(Unit vehicle)
@@ -2018,12 +2018,12 @@ public partial class Unit : WorldObject
 		}
 
 		PlayOneShotAnimKit packet = new()
-        {
-            Unit = GUID,
-            AnimKitID = animKitId
-        };
+		{
+			Unit = GUID,
+			AnimKitID = animKitId
+		};
 
-        SendMessageToSet(packet, true);
+		SendMessageToSet(packet, true);
 	}
 
 	public void SetAIAnimKitId(ushort animKitId)
@@ -2037,12 +2037,12 @@ public partial class Unit : WorldObject
 		_aiAnimKitId = animKitId;
 
 		SetAIAnimKit data = new()
-        {
-            Unit = GUID,
-            AnimKitID = animKitId
-        };
+		{
+			Unit = GUID,
+			AnimKitID = animKitId
+		};
 
-        SendMessageToSet(data, true);
+		SendMessageToSet(data, true);
 	}
 
 	public void SetMovementAnimKitId(ushort animKitId)
@@ -2056,12 +2056,12 @@ public partial class Unit : WorldObject
 		_movementAnimKitId = animKitId;
 
 		SetMovementAnimKit data = new()
-        {
-            Unit = GUID,
-            AnimKitID = animKitId
-        };
+		{
+			Unit = GUID,
+			AnimKitID = animKitId
+		};
 
-        SendMessageToSet(data, true);
+		SendMessageToSet(data, true);
 	}
 
 	public void SetMeleeAnimKitId(ushort animKitId)
@@ -2075,12 +2075,12 @@ public partial class Unit : WorldObject
 		_meleeAnimKitId = animKitId;
 
 		SetMeleeAnimKit data = new()
-        {
-            Unit = GUID,
-            AnimKitID = animKitId
-        };
+		{
+			Unit = GUID,
+			AnimKitID = animKitId
+		};
 
-        SendMessageToSet(data, true);
+		SendMessageToSet(data, true);
 	}
 
 
@@ -2654,12 +2654,12 @@ public partial class Unit : WorldObject
 		if (notifyClient)
 		{
 			SetAnimTier setAnimTier = new()
-            {
-                Unit = GUID,
-                Tier = (int)animTier
-            };
+			{
+				Unit = GUID,
+				Tier = (int)animTier
+			};
 
-            SendMessageToSet(setAnimTier, true);
+			SendMessageToSet(setAnimTier, true);
 		}
 	}
 
@@ -2806,11 +2806,11 @@ public partial class Unit : WorldObject
 			if (bg.IsArena())
 			{
 				DestroyArenaUnit destroyArenaUnit = new()
-                {
-                    Guid = GUID
-                };
+				{
+					Guid = GUID
+				};
 
-                target.SendPacket(destroyArenaUnit);
+				target.SendPacket(destroyArenaUnit);
 			}
 
 		base.DestroyForPlayer(target);
@@ -3106,17 +3106,17 @@ public partial class Unit : WorldObject
 					if (currentAbsorb != 0)
 					{
 						SpellAbsorbLog absorbLog = new()
-                        {
-                            Attacker = attacker != null ? attacker.GUID : ObjectGuid.Empty,
-                            Victim = victim.GUID,
-                            Caster = baseAura.CasterGuid,
-                            AbsorbedSpellID = spellProto != null ? spellProto.Id : 0,
-                            AbsorbSpellID = baseAura.Id,
-                            Absorbed = (int)currentAbsorb,
-                            OriginalDamage = (uint)damageInfo.OriginalDamage
-                        };
+						{
+							Attacker = attacker != null ? attacker.GUID : ObjectGuid.Empty,
+							Victim = victim.GUID,
+							Caster = baseAura.CasterGuid,
+							AbsorbedSpellID = spellProto != null ? spellProto.Id : 0,
+							AbsorbSpellID = baseAura.Id,
+							Absorbed = (int)currentAbsorb,
+							OriginalDamage = (uint)damageInfo.OriginalDamage
+						};
 
-                        absorbLog.LogData.Initialize(victim);
+						absorbLog.LogData.Initialize(victim);
 						victim.SendCombatLogMessage(absorbLog);
 					}
 				}
@@ -3176,43 +3176,43 @@ public partial class Unit : WorldObject
 					var spell = victim.GetCurrentSpell(CurrentSpellTypes.Generic);
 
 					if (spell is { State: SpellState.Preparing })
-                    {
-                        bool isCastInterrupted()
-                        {
-                            if (damageTaken == 0)
-                                return spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
+					{
+						bool isCastInterrupted()
+						{
+							if (damageTaken == 0)
+								return spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.ZeroDamageCancels);
 
-                            if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
-                                return true;
+							if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancelsPlayerOnly))
+								return true;
 
-                            if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
-                                return true;
+							if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamageCancels))
+								return true;
 
-                            return false;
-                        }
+							return false;
+						}
 
-                        ;
+						;
 
-                        bool isCastDelayed()
-                        {
-                            if (damageTaken == 0)
-                                return false;
+						bool isCastDelayed()
+						{
+							if (damageTaken == 0)
+								return false;
 
-                            if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
-                                return true;
+							if (victim.IsPlayer && spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushbackPlayerOnly))
+								return true;
 
-                            if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
-                                return true;
+							if (spell.SpellInfo.InterruptFlags.HasAnyFlag(SpellInterruptFlags.DamagePushback))
+								return true;
 
-                            return false;
-                        }
+							return false;
+						}
 
-                        if (isCastInterrupted())
-                            victim.InterruptNonMeleeSpells(false);
-                        else if (isCastDelayed())
-                            spell.Delayed();
-                    }
-                }
+						if (isCastInterrupted())
+							victim.InterruptNonMeleeSpells(false);
+						else if (isCastDelayed())
+							spell.Delayed();
+					}
+				}
 
 				if (damageTaken != 0 && victim.IsPlayer)
 				{
@@ -3301,12 +3301,12 @@ public partial class Unit : WorldObject
 		if (dVal < 0)
 		{
 			HealthUpdate packet = new()
-            {
-                Guid = GUID,
-                Health = Health
-            };
+			{
+				Guid = GUID,
+				Health = Health
+			};
 
-            var player = CharmerOrOwnerPlayerOrPlayerItself;
+			var player = CharmerOrOwnerPlayerOrPlayerItself;
 
 			if (player)
 				player.SendPacket(packet);
@@ -3683,17 +3683,17 @@ public partial class Unit : WorldObject
 			if (currentAbsorb != 0)
 			{
 				SpellAbsorbLog absorbLog = new()
-                {
-                    Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty,
-                    Victim = damageInfo.Victim.GUID,
-                    Caster = absorbAurEff.Base.CasterGuid,
-                    AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0,
-                    AbsorbSpellID = absorbAurEff.Id,
-                    Absorbed = (int)currentAbsorb,
-                    OriginalDamage = (uint)damageInfo.OriginalDamage
-                };
+				{
+					Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty,
+					Victim = damageInfo.Victim.GUID,
+					Caster = absorbAurEff.Base.CasterGuid,
+					AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0,
+					AbsorbSpellID = absorbAurEff.Id,
+					Absorbed = (int)currentAbsorb,
+					OriginalDamage = (uint)damageInfo.OriginalDamage
+				};
 
-                absorbLog.LogData.Initialize(damageInfo.Victim);
+				absorbLog.LogData.Initialize(damageInfo.Victim);
 				damageInfo.Victim.SendCombatLogMessage(absorbLog);
 			}
 		}
@@ -3772,17 +3772,17 @@ public partial class Unit : WorldObject
 			if (currentAbsorb != 0)
 			{
 				SpellAbsorbLog absorbLog = new()
-                {
-                    Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty,
-                    Victim = damageInfo.Victim.GUID,
-                    Caster = absorbAurEff.Base.CasterGuid,
-                    AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0,
-                    AbsorbSpellID = absorbAurEff.Id,
-                    Absorbed = (int)currentAbsorb,
-                    OriginalDamage = (uint)damageInfo.OriginalDamage
-                };
+				{
+					Attacker = damageInfo.Attacker != null ? damageInfo.Attacker.GUID : ObjectGuid.Empty,
+					Victim = damageInfo.Victim.GUID,
+					Caster = absorbAurEff.Base.CasterGuid,
+					AbsorbedSpellID = damageInfo.SpellInfo != null ? damageInfo.SpellInfo.Id : 0,
+					AbsorbSpellID = absorbAurEff.Id,
+					Absorbed = (int)currentAbsorb,
+					OriginalDamage = (uint)damageInfo.OriginalDamage
+				};
 
-                absorbLog.LogData.Initialize(damageInfo.Victim);
+				absorbLog.LogData.Initialize(damageInfo.Victim);
 				damageInfo.Victim.SendCombatLogMessage(absorbLog);
 			}
 		}
@@ -3913,17 +3913,17 @@ public partial class Unit : WorldObject
 			if (currentAbsorb != 0)
 			{
 				SpellHealAbsorbLog absorbLog = new()
-                {
-                    Healer = healInfo.Healer ? healInfo.Healer.GUID : ObjectGuid.Empty,
-                    Target = healInfo.Target.GUID,
-                    AbsorbCaster = absorbAurEff.Base.CasterGuid,
-                    AbsorbedSpellID = (int)(healInfo.SpellInfo != null ? healInfo.SpellInfo.Id : 0),
-                    AbsorbSpellID = (int)absorbAurEff.Id,
-                    Absorbed = (int)currentAbsorb,
-                    OriginalHeal = (int)healInfo.OriginalHeal
-                };
+				{
+					Healer = healInfo.Healer ? healInfo.Healer.GUID : ObjectGuid.Empty,
+					Target = healInfo.Target.GUID,
+					AbsorbCaster = absorbAurEff.Base.CasterGuid,
+					AbsorbedSpellID = (int)(healInfo.SpellInfo != null ? healInfo.SpellInfo.Id : 0),
+					AbsorbSpellID = (int)absorbAurEff.Id,
+					Absorbed = (int)currentAbsorb,
+					OriginalHeal = (int)healInfo.OriginalHeal
+				};
 
-                healInfo.Target.SendMessageToSet(absorbLog, true);
+				healInfo.Target.SendMessageToSet(absorbLog, true);
 			}
 		}
 
@@ -4556,13 +4556,13 @@ public partial class Unit : WorldObject
 		if (hasMissile)
 		{
 			MissileCancel packet = new()
-            {
-                OwnerGUID = GUID,
-                SpellID = spellId,
-                Reverse = reverseMissile
-            };
+			{
+				OwnerGUID = GUID,
+				SpellID = spellId,
+				Reverse = reverseMissile
+			};
 
-            SendMessageToSet(packet, false);
+			SendMessageToSet(packet, false);
 		}
 	}
 
@@ -4810,18 +4810,18 @@ public partial class Unit : WorldObject
 				DealDamageMods(victim, this, ref damage);
 
 				SpellDamageShield damageShield = new()
-                {
-                    Attacker = victim.GUID,
-                    Defender = GUID,
-                    SpellID = spellInfo.Id,
-                    TotalDamage = (uint)damage,
-                    OriginalDamage = (int)damageInfo.OriginalDamage,
-                    OverKill = (uint)Math.Max(damage - Health, 0),
-                    SchoolMask = (uint)spellInfo.SchoolMask,
-                    LogAbsorbed = (uint)damageInfo1.Absorb
-                };
+				{
+					Attacker = victim.GUID,
+					Defender = GUID,
+					SpellID = spellInfo.Id,
+					TotalDamage = (uint)damage,
+					OriginalDamage = (int)damageInfo.OriginalDamage,
+					OverKill = (uint)Math.Max(damage - Health, 0),
+					SchoolMask = (uint)spellInfo.SchoolMask,
+					LogAbsorbed = (uint)damageInfo1.Absorb
+				};
 
-                DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
+				DealDamage(victim, this, damage, null, DamageEffectType.SpellDirect, spellInfo.GetSchoolMask(), spellInfo, true);
 				damageShield.LogData.Initialize(this);
 
 				victim.SendCombatLogMessage(damageShield);

@@ -355,11 +355,10 @@ public class LFGQueue
 		if (size <= storedSize)
 			return;
 
-		Log.Logger.Debug(
-					"UpdateBestCompatibleInQueue: Changed ({0}) to ({1}) as best compatible group for {2}",
-					queueData.bestCompatible,
-					key,
-					guid);
+		Log.Logger.Debug("UpdateBestCompatibleInQueue: Changed ({0}) to ({1}) as best compatible group for {2}",
+						queueData.bestCompatible,
+						key,
+						guid);
 
 		queueData.bestCompatible = key;
 		queueData.tanks = SharedConst.LFGTanksNeeded;
@@ -572,11 +571,11 @@ public class LFGQueue
 			var itQueue = QueueDataStore.LookupByKey(guid);
 
 			LfgCompatibilityData data = new(LfgCompatibility.WithLessPlayers)
-            {
-                roles = itQueue.roles
-            };
+			{
+				roles = itQueue.roles
+			};
 
-            Global.LFGMgr.CheckGroupRoles(data.roles);
+			Global.LFGMgr.CheckGroupRoles(data.roles);
 
 			UpdateBestCompatibleInQueue(guid, itQueue, strGuids, data.roles);
 			SetCompatibilityData(strGuids, data);
@@ -689,12 +688,13 @@ public class LFGQueue
 		if (numPlayers != MapConst.MaxGroupSize)
 		{
 			Log.Logger.Debug("CheckCompatibility: ({0}) Compatibles but not enough players({1})", strGuids, numPlayers);
-			LfgCompatibilityData data = new(LfgCompatibility.WithLessPlayers)
-            {
-                roles = proposalRoles
-            };
 
-            foreach (var guid in check)
+			LfgCompatibilityData data = new(LfgCompatibility.WithLessPlayers)
+			{
+				roles = proposalRoles
+			};
+
+			foreach (var guid in check)
 			{
 				var queueData = QueueDataStore.LookupByKey(guid);
 				UpdateBestCompatibleInQueue(guid, queueData, strGuids, data.roles);
@@ -742,12 +742,12 @@ public class LFGQueue
 
 			// Assing player data and roles
 			LfgProposalPlayer data = new()
-            {
-                role = rolePair.Value,
-                group = proposalGroups.LookupByKey(rolePair.Key)
-            };
+			{
+				role = rolePair.Value,
+				group = proposalGroups.LookupByKey(rolePair.Key)
+			};
 
-            if (!proposal.isNew && !data.group.IsEmpty && data.group == proposal.group) // Player from existing group, autoaccept
+			if (!proposal.isNew && !data.group.IsEmpty && data.group == proposal.group) // Player from existing group, autoaccept
 				data.accept = LfgAnswer.Agree;
 
 			proposal.players[rolePair.Key] = data;

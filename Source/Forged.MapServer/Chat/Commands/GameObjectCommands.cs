@@ -468,8 +468,8 @@ class GameObjectCommands
 			if (curRespawnDelay < 0)
 				curRespawnDelay = 0;
 
-			var curRespawnDelayStr = global::Time.secsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
-			var defRespawnDelayStr = global::Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
+			var curRespawnDelayStr = Time.secsToTimeString((uint)curRespawnDelay, TimeFormat.ShortText);
+			var defRespawnDelayStr = Time.secsToTimeString(target.RespawnDelay, TimeFormat.ShortText);
 
 			handler.SendSysMessage(CypherStrings.CommandRawpawntimes, defRespawnDelayStr, curRespawnDelayStr);
 		}

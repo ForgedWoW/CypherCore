@@ -62,7 +62,7 @@ public class FormationMgr
 
 	public static void LoadCreatureFormations()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//Get group data
 		var result = DB.World.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
@@ -81,11 +81,11 @@ public class FormationMgr
 		{
 			//Load group member data
 			FormationInfo member = new()
-            {
-                LeaderSpawnId = result.Read<ulong>(0)
-            };
+			{
+				LeaderSpawnId = result.Read<ulong>(0)
+			};
 
-            var memberSpawnId = result.Read<ulong>(1);
+			var memberSpawnId = result.Read<ulong>(1);
 			member.FollowDist = 0f;
 			member.FollowAngle = 0f;
 
@@ -140,7 +140,7 @@ public class FormationMgr
 						CreatureGroupMap.Remove(itr.Key);
 			}
 
-		Log.Logger.Information("Loaded {0} creatures in formations in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} creatures in formations in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public static FormationInfo GetFormationInfo(ulong spawnId)
@@ -151,14 +151,14 @@ public class FormationMgr
 	public static void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
 	{
 		FormationInfo member = new()
-        {
-            LeaderSpawnId = leaderSpawnId,
-            FollowDist = followDist,
-            FollowAngle = followAng,
-            GroupAi = groupAI
-        };
+		{
+			LeaderSpawnId = leaderSpawnId,
+			FollowDist = followDist,
+			FollowAngle = followAng,
+			GroupAi = groupAI
+		};
 
-        for (var i = 0; i < 2; ++i)
+		for (var i = 0; i < 2; ++i)
 			member.LeaderWaypointIDs[i] = 0;
 
 		CreatureGroupMap.Add(spawnId, member);

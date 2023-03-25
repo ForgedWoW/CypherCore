@@ -31,7 +31,7 @@ public abstract class Warden
 	{
 		InputCrypto = new SARC4();
 		OutputCrypto = new SARC4();
-		CheckTimer = 10 * global::Time.InMilliseconds;
+		CheckTimer = 10 * Time.InMilliseconds;
 	}
 
 	public void MakeModuleForClient()
@@ -67,11 +67,11 @@ public abstract class Warden
 			pos += (int)burstSize;
 
 			Warden3DataServer pkt1 = new()
-            {
-                Data = EncryptData(packet)
-            };
+			{
+				Data = EncryptData(packet)
+			};
 
-            Session.SendPacket(pkt1);
+			Session.SendPacket(pkt1);
 		}
 	}
 
@@ -81,19 +81,19 @@ public abstract class Warden
 
 		// Create packet structure
 		WardenModuleUse request = new()
-        {
-            Command = WardenOpcodes.SmsgModuleUse,
-            ModuleId = Module.Id,
-            ModuleKey = Module.Key,
-            Size = Module.CompressedSize
-        };
+		{
+			Command = WardenOpcodes.SmsgModuleUse,
+			ModuleId = Module.Id,
+			ModuleKey = Module.Key,
+			Size = Module.CompressedSize
+		};
 
-        Warden3DataServer packet = new()
-        {
-            Data = EncryptData(request)
-        };
+		Warden3DataServer packet = new()
+		{
+			Data = EncryptData(request)
+		};
 
-        Session.SendPacket(packet);
+		Session.SendPacket(packet);
 	}
 
 	public void Update(uint diff)
@@ -108,14 +108,13 @@ public abstract class Warden
 			if (maxClientResponseDelay > 0)
 			{
 				// Kick player if client response delays more than set in config
-				if (ClientResponseTimer > maxClientResponseDelay * global::Time.InMilliseconds)
+				if (ClientResponseTimer > maxClientResponseDelay * Time.InMilliseconds)
 				{
-					Log.Logger.Warning(
-								"{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
-								Session.GetPlayerInfo(),
-								Session.Latency,
-								Session.RemoteAddress,
-								global::Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
+					Log.Logger.Warning("{0} (latency: {1}, IP: {2}) exceeded Warden module response delay for more than {3} - disconnecting client",
+										Session.GetPlayerInfo(),
+										Session.Latency,
+										Session.RemoteAddress,
+										Time.secsToTimeString(maxClientResponseDelay, TimeFormat.ShortText));
 
 					Session.KickPlayer("Warden::Update Warden module response delay exceeded");
 				}

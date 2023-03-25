@@ -219,14 +219,13 @@ class AccountCommands
 				handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
 
 				if (handler.Session != null)
-					Log.Logger.Information(
-								"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) created Account {4} (Email: '{5}')",
-								handler.Session.AccountId,
-								handler.Session.RemoteAddress,
-								handler.Session.Player.GetName(),
-								handler.Session.Player.GUID.ToString(),
-								accountName,
-								email ?? "");
+					Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) created Account {4} (Email: '{5}')",
+											handler.Session.AccountId,
+											handler.Session.RemoteAddress,
+											handler.Session.Player.GetName(),
+											handler.Session.Player.GUID.ToString(),
+											accountName,
+											email ?? "");
 
 				break;
 			case AccountOpResult.NameTooLong:
@@ -301,14 +300,13 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
-			Log.Logger.Information(
-						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided email [{4}] is not equal to registration email [{5}].",
-						handler.Session.AccountId,
-						handler.Session.RemoteAddress,
-						handler.Session.Player.GetName(),
-						handler.Session.Player.GUID.ToString(),
-						email,
-						oldEmail);
+			Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided email [{4}] is not equal to registration email [{5}].",
+									handler.Session.AccountId,
+									handler.Session.RemoteAddress,
+									handler.Session.Player.GetName(),
+									handler.Session.Player.GUID.ToString(),
+									email,
+									oldEmail);
 
 			return false;
 		}
@@ -317,12 +315,11 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
-			Log.Logger.Information(
-						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
-						handler.Session.AccountId,
-						handler.Session.RemoteAddress,
-						handler.Session.Player.GetName(),
-						handler.Session.Player.GUID.ToString());
+			Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
+									handler.Session.AccountId,
+									handler.Session.RemoteAddress,
+									handler.Session.Player.GetName(),
+									handler.Session.Player.GUID.ToString());
 
 			return false;
 		}
@@ -338,12 +335,11 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.NewEmailsNotMatch);
 
-			Log.Logger.Information(
-						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
-						handler.Session.AccountId,
-						handler.Session.RemoteAddress,
-						handler.Session.Player.GetName(),
-						handler.Session.Player.GUID.ToString());
+			Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change email, but the provided password is wrong.",
+									handler.Session.AccountId,
+									handler.Session.RemoteAddress,
+									handler.Session.Player.GetName(),
+									handler.Session.Player.GUID.ToString());
 
 			return false;
 		}
@@ -356,14 +352,13 @@ class AccountCommands
 			case AccountOpResult.Ok:
 				handler.SendSysMessage(CypherStrings.CommandEmail);
 
-				Log.Logger.Information(
-							"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Email from [{4}] to [{5}].",
-							handler.Session.AccountId,
-							handler.Session.RemoteAddress,
-							handler.Session.Player.GetName(),
-							handler.Session.Player.GUID.ToString(),
-							oldEmail,
-							email);
+				Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Email from [{4}] to [{5}].",
+										handler.Session.AccountId,
+										handler.Session.RemoteAddress,
+										handler.Session.Player.GetName(),
+										handler.Session.Player.GUID.ToString(),
+										oldEmail,
+										email);
 
 				break;
 			case AccountOpResult.EmailTooLong:
@@ -390,12 +385,11 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
-			Log.Logger.Information(
-						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the provided old password is wrong.",
-						handler.Session.AccountId,
-						handler.Session.RemoteAddress,
-						handler.Session.Player.GetName(),
-						handler.Session.Player.GUID.ToString());
+			Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the provided old password is wrong.",
+									handler.Session.AccountId,
+									handler.Session.RemoteAddress,
+									handler.Session.Player.GetName(),
+									handler.Session.Player.GUID.ToString());
 
 			return false;
 		}
@@ -407,13 +401,12 @@ class AccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongemail);
 
-			Log.Logger.Information(
-						"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the entered email [{4}] is wrong.",
-						handler.Session.AccountId,
-						handler.Session.RemoteAddress,
-						handler.Session.Player.GetName(),
-						handler.Session.Player.GUID.ToString(),
-						confirmEmail);
+			Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Tried to change password, but the entered email [{4}] is wrong.",
+									handler.Session.AccountId,
+									handler.Session.RemoteAddress,
+									handler.Session.Player.GetName(),
+									handler.Session.Player.GUID.ToString(),
+									confirmEmail);
 
 			return false;
 		}
@@ -434,12 +427,11 @@ class AccountCommands
 			case AccountOpResult.Ok:
 				handler.SendSysMessage(CypherStrings.CommandPassword);
 
-				Log.Logger.Information(
-							"Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Password.",
-							handler.Session.AccountId,
-							handler.Session.RemoteAddress,
-							handler.Session.Player.GetName(),
-							handler.Session.Player.GUID.ToString());
+				Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] (GUID: {3}) Changed Password.",
+										handler.Session.AccountId,
+										handler.Session.RemoteAddress,
+										handler.Session.Player.GetName(),
+										handler.Session.Player.GUID.ToString());
 
 				break;
 			case AccountOpResult.PassTooLong:

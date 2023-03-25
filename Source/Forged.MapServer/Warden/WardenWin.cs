@@ -62,12 +62,12 @@ class WardenWin : Warden
 	{
 		// data assign
 		module = new ClientWardenModule
-        {
-            CompressedData = WardenModuleWin.Module,
-            CompressedSize = (uint)WardenModuleWin.Module.Length,
-            Key = WardenModuleWin.ModuleKey
-        };
-    }
+		{
+			CompressedData = WardenModuleWin.Module,
+			CompressedSize = (uint)WardenModuleWin.Module.Length,
+			Key = WardenModuleWin.ModuleKey
+		};
+	}
 
 	public override void InitializeModule()
 	{
@@ -75,27 +75,27 @@ class WardenWin : Warden
 
 		// Create packet structure
 		WardenInitModuleRequest Request = new()
-        {
-            Command1 = WardenOpcodes.SmsgModuleInitialize,
-            Size1 = 20,
-            Unk1 = 1,
-            Unk2 = 0,
-            Type = 1,
-            String_library1 = 0,
-            Function1 =
-            {
-                [0] = 0x00024F80, // 0x00400000 + 0x00024F80 SFileOpenFile
-                [1] = 0x000218C0, // 0x00400000 + 0x000218C0 SFileGetFileSize
-                [2] = 0x00022530, // 0x00400000 + 0x00022530 SFileReadFile
-                [3] = 0x00022910  // 0x00400000 + 0x00022910 SFileCloseFile
-            }
-        };
+		{
+			Command1 = WardenOpcodes.SmsgModuleInitialize,
+			Size1 = 20,
+			Unk1 = 1,
+			Unk2 = 0,
+			Type = 1,
+			String_library1 = 0,
+			Function1 =
+			{
+				[0] = 0x00024F80, // 0x00400000 + 0x00024F80 SFileOpenFile
+				[1] = 0x000218C0, // 0x00400000 + 0x000218C0 SFileGetFileSize
+				[2] = 0x00022530, // 0x00400000 + 0x00022530 SFileReadFile
+				[3] = 0x00022910  // 0x00400000 + 0x00022910 SFileCloseFile
+			}
+		};
 
-        Request.CheckSumm1 = BuildChecksum(new byte[]
-                                           {
-                                               Request.Unk1
-                                           },
-                                           20);
+		Request.CheckSumm1 = BuildChecksum(new byte[]
+											{
+												Request.Unk1
+											},
+											20);
 
 		Request.Command2 = WardenOpcodes.SmsgModuleInitialize;
 		Request.Size2 = 8;
@@ -126,11 +126,11 @@ class WardenWin : Warden
 											8);
 
 		Warden3DataServer packet = new()
-        {
-            Data = EncryptData(Request)
-        };
+		{
+			Data = EncryptData(Request)
+		};
 
-        Session.SendPacket(packet);
+		Session.SendPacket(packet);
 	}
 
 	public override void RequestHash()
@@ -139,17 +139,17 @@ class WardenWin : Warden
 
 		// Create packet structure
 		WardenHashRequest Request = new()
-        {
-            Command = WardenOpcodes.SmsgHashRequest,
-            Seed = Seed
-        };
+		{
+			Command = WardenOpcodes.SmsgHashRequest,
+			Seed = Seed
+		};
 
-        Warden3DataServer packet = new()
-        {
-            Data = EncryptData(Request)
-        };
+		Warden3DataServer packet = new()
+		{
+			Data = EncryptData(Request)
+		};
 
-        Session.SendPacket(packet);
+		Session.SendPacket(packet);
 	}
 
 	public override void HandleHashResult(ByteBuffer buff)
@@ -341,11 +341,11 @@ class WardenWin : Warden
 		}
 
 		Warden3DataServer packet = new()
-        {
-            Data = EncryptData(buff.GetData())
-        };
+		{
+			Data = EncryptData(buff.GetData())
+		};
 
-        Session.SendPacket(packet);
+		Session.SendPacket(packet);
 
 		DataSent = true;
 	}
@@ -495,7 +495,7 @@ class WardenWin : Warden
 
 		// Set hold off timer, minimum timer should at least be 1 second
 		var holdOff = WorldConfig.GetUIntValue(WorldCfg.WardenClientCheckHoldoff);
-		CheckTimer = (holdOff < 1 ? 1 : holdOff) * global::Time.InMilliseconds;
+		CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.InMilliseconds;
 	}
 
 	static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch

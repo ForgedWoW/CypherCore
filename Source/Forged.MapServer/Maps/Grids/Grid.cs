@@ -119,11 +119,10 @@ public class Grid
 						VisitAllGrids(worker);
 						SetGridState(GridState.Idle);
 
-						Log.Logger.Debug(
-									"Grid[{0}, {1}] on map {2} moved to IDLE state",
-									GetX(),
-									GetY(),
-									map.Id);
+						Log.Logger.Debug("Grid[{0}, {1}] on map {2} moved to IDLE state",
+										GetX(),
+										GetY(),
+										map.Id);
 					}
 					else
 					{
@@ -136,11 +135,10 @@ public class Grid
 				map.ResetGridExpiry(this);
 				SetGridState(GridState.Removal);
 
-				Log.Logger.Debug(
-							"Grid[{0}, {1}] on map {2} moved to REMOVAL state",
-							GetX(),
-							GetY(),
-							map.Id);
+				Log.Logger.Debug("Grid[{0}, {1}] on map {2} moved to REMOVAL state",
+								GetX(),
+								GetY(),
+								map.Id);
 
 				break;
 			case GridState.Removal:
@@ -151,11 +149,10 @@ public class Grid
 					if (GetGridInfoRef().GetTimeTracker().Passed)
 						if (!map.UnloadGrid(this, false))
 						{
-							Log.Logger.Debug(
-										"Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",
-										GetX(),
-										GetY(),
-										map.Id);
+							Log.Logger.Debug("Grid[{0}, {1}] for map {2} differed unloading due to players or active objects nearby",
+											GetX(),
+											GetY(),
+											map.Id);
 
 							map.ResetGridExpiry(this);
 						}

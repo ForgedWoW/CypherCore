@@ -46,12 +46,12 @@ public class MailAttachedItem
 			if (gemData.ItemId != 0)
 			{
 				ItemGemData gem = new()
-                {
-                    Slot = i,
-                    Item = new ItemInstance(gemData)
-                };
+				{
+					Slot = i,
+					Item = new ItemInstance(gemData)
+				};
 
-                Gems.Add(gem);
+				Gems.Add(gem);
 			}
 
 			++i;

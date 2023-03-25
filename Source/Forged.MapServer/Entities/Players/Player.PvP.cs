@@ -70,11 +70,11 @@ public partial class Player
 	{
 		// called when rewarding honor and at each save
 		var now = GameTime.GetGameTime();
-		var today = (GameTime.GetGameTime() / global::Time.Day) * global::Time.Day;
+		var today = (GameTime.GetGameTime() / Time.Day) * Time.Day;
 
 		if (_lastHonorUpdateTime < today)
 		{
-			var yesterday = today - global::Time.Day;
+			var yesterday = today - Time.Day;
 
 			// update yesterday's contribution
 			if (_lastHonorUpdateTime >= yesterday)
@@ -200,20 +200,21 @@ public partial class Player
 		honorF *= WorldConfig.GetFloatValue(WorldCfg.RateHonor);
 		// Back to int now
 		honor = (int)honorF;
+
 		// honor - for show honor points in log
 		// victim_guid - for show victim name in log
 		// victim_rank [1..4]  HK: <dishonored rank>
 		// victim_rank [5..19] HK: <alliance\horde rank>
 		// victim_rank [0, 20+] HK: <>
 		PvPCredit data = new()
-        {
-            Honor = honor,
-            OriginalHonor = honor,
-            Target = victimGuid,
-            Rank = victim_rank
-        };
+		{
+			Honor = honor,
+			OriginalHonor = honor,
+			Target = victimGuid,
+			Rank = victim_rank
+		};
 
-        SendPacket(data);
+		SendPacket(data);
 
 		AddHonorXp((uint)honor);
 
@@ -558,11 +559,11 @@ public partial class Player
 	public void ReportedAfkBy(Player reporter)
 	{
 		ReportPvPPlayerAFKResult reportAfkResult = new()
-        {
-            Offender = GUID
-        };
+		{
+			Offender = GUID
+		};
 
-        var bg = Battleground;
+		var bg = Battleground;
 
 		// Battleground also must be in progress!
 		if (!bg || bg != reporter.Battleground || EffectiveTeam != reporter.EffectiveTeam || bg.GetStatus() != BattlegroundStatus.InProgress)

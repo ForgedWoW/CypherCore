@@ -122,14 +122,14 @@ public class WmoLiquid
 	public static WmoLiquid ReadFromFile(BinaryReader reader)
 	{
 		WmoLiquid liquid = new()
-        {
-            _tilesX = reader.ReadUInt32(),
-            _tilesY = reader.ReadUInt32(),
-            _corner = reader.Read<Vector3>(),
-            _type = reader.ReadUInt32()
-        };
+		{
+			_tilesX = reader.ReadUInt32(),
+			_tilesY = reader.ReadUInt32(),
+			_corner = reader.Read<Vector3>(),
+			_type = reader.ReadUInt32()
+		};
 
-        if (liquid._tilesX != 0 && liquid._tilesY != 0)
+		if (liquid._tilesX != 0 && liquid._tilesY != 0)
 		{
 			var size = (liquid._tilesX + 1) * (liquid._tilesY + 1);
 			liquid._height = reader.ReadArray<float>(size);

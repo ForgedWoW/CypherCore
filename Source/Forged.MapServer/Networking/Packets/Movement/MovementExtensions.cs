@@ -58,12 +58,12 @@ public static class MovementExtensions
 	public static MovementInfo ReadMovementInfo(WorldPacket data)
 	{
 		var movementInfo = new MovementInfo
-        {
-            Guid = data.ReadPackedGuid(),
-            MovementFlags = (MovementFlag)data.ReadUInt32()
-        };
+		{
+			Guid = data.ReadPackedGuid(),
+			MovementFlags = (MovementFlag)data.ReadUInt32()
+		};
 
-        movementInfo.SetMovementFlags2((MovementFlag2)data.ReadUInt32());
+		movementInfo.SetMovementFlags2((MovementFlag2)data.ReadUInt32());
 		movementInfo.SetExtraMovementFlags2((MovementFlags3)data.ReadUInt32());
 		movementInfo.Time = data.ReadUInt32();
 		var x = data.ReadFloat();
@@ -99,24 +99,24 @@ public static class MovementExtensions
 		if (hasInertia)
 		{
 			MovementInfo.MovementInertia inertia = new()
-            {
-                Id = data.ReadInt32(),
-                Force = data.ReadPosition(),
-                Lifetime = data.ReadUInt32()
-            };
+			{
+				Id = data.ReadInt32(),
+				Force = data.ReadPosition(),
+				Lifetime = data.ReadUInt32()
+			};
 
-            movementInfo.Inertia = inertia;
+			movementInfo.Inertia = inertia;
 		}
 
 		if (hasAdvFlying)
 		{
 			MovementInfo.AdvFlyingMovement advFlying = new()
-            {
-                ForwardVelocity = data.ReadFloat(),
-                UpVelocity = data.ReadFloat()
-            };
+			{
+				ForwardVelocity = data.ReadFloat(),
+				UpVelocity = data.ReadFloat()
+			};
 
-            movementInfo.AdvFlying = advFlying;
+			movementInfo.AdvFlying = advFlying;
 		}
 
 		if (hasFall)

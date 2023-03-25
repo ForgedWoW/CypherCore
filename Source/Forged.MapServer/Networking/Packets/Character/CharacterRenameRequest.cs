@@ -11,9 +11,9 @@ public class CharacterRenameRequest : ClientPacket
 	public override void Read()
 	{
 		RenameInfo = new CharacterRenameInfo
-        {
-            Guid = _worldPacket.ReadPackedGuid(),
-            NewName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6))
-        };
-    }
+		{
+			Guid = _worldPacket.ReadPackedGuid(),
+			NewName = _worldPacket.ReadString(_worldPacket.ReadBits<uint>(6))
+		};
+	}
 }

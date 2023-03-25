@@ -157,12 +157,11 @@ public partial class WorldSession
 		{
 			player.SendEquipError(InventoryResult.ClientLockedOut, item);
 
-			Log.Logger.Error(
-						"Possible hacking attempt: Player {0} [guid: {1}] tried to open item [guid: {2}, entry: {3}] which is not openable!",
-						player.GetName(),
-						player.GUID.ToString(),
-						item.GUID.ToString(),
-						proto.Id);
+			Log.Logger.Error("Possible hacking attempt: Player {0} [guid: {1}] tried to open item [guid: {2}, entry: {3}] which is not openable!",
+							player.GetName(),
+							player.GUID.ToString(),
+							item.GUID.ToString(),
+							proto.Id);
 
 			return;
 		}
@@ -612,7 +611,7 @@ public partial class WorldSession
 
 		// @todo Unit.SetCharmedBy: 28782 is not in world but 0 is trying to charm it! . crash
 
-        unit.HandleSpellClick(Player);
+		unit.HandleSpellClick(Player);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GetMirrorImageData)]
@@ -649,12 +648,12 @@ public partial class WorldSession
 			foreach (var customization in player.PlayerData.Customizations)
 			{
 				var chrCustomizationChoice = new ChrCustomizationChoice
-                {
-                    ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
-                    ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
-                };
+				{
+					ChrCustomizationOptionID = customization.ChrCustomizationOptionID,
+					ChrCustomizationChoiceID = customization.ChrCustomizationChoiceID
+				};
 
-                mirrorImageComponentedData.Customizations.Add(chrCustomizationChoice);
+				mirrorImageComponentedData.Customizations.Add(chrCustomizationChoice);
 			}
 
 			var guild = player.Guild;

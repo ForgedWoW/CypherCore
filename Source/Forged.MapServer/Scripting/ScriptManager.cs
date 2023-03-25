@@ -49,7 +49,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	//Initialization
 	public void Initialize()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		LoadDatabase();
 
@@ -85,15 +85,15 @@ public class ScriptManager : Singleton<ScriptManager>
 	{
 		if (_scriptByType.TryGetValue(typeof(T), out var ifaceImp))
 			foreach (T s in ifaceImp)
-                try
-                {
-                    a.Invoke(s);
-                }
-                catch (Exception ex)
-                {
+				try
+				{
+					a.Invoke(s);
+				}
+				catch (Exception ex)
+				{
 					Log.outException(ex);
-                }
-    }
+				}
+	}
 
 	public void ForEach<T>(PlayerClass playerClass, Action<T> a) where T : IScriptObject, IClassRescriction
 	{
@@ -101,26 +101,26 @@ public class ScriptManager : Singleton<ScriptManager>
 		{
 			if (classKvp.TryGetValue(playerClass, out var ifaceImp))
 				foreach (T s in ifaceImp)
-                    try
-                    {
-                        a.Invoke(s);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.outException(ex);
-                    }
+					try
+					{
+						a.Invoke(s);
+					}
+					catch (Exception ex)
+					{
+						Log.outException(ex);
+					}
 
-            if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
+			if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
 				foreach (T s in ifaceImpNone)
-                    try
-                    {
-                        a.Invoke(s);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.outException(ex);
-                    }
-        }
+					try
+					{
+						a.Invoke(s);
+					}
+					catch (Exception ex)
+					{
+						Log.outException(ex);
+					}
+		}
 	}
 
 	public bool RunScriptRet<T>(Func<T, bool> func, uint id, bool ret = false) where T : IScriptObject
@@ -135,32 +135,32 @@ public class ScriptManager : Singleton<ScriptManager>
 		if (script == null)
 			return ret;
 
-        try
-        {
-            return func.Invoke(script);
-        }
-        catch (Exception e)
-        {
-            Log.outException(e);
-        }
+		try
+		{
+			return func.Invoke(script);
+		}
+		catch (Exception e)
+		{
+			Log.outException(e);
+		}
 
-        return ret;
-    }
+		return ret;
+	}
 
 	public void RunScript<T>(Action<T> a, uint id) where T : IScriptObject
 	{
 		var script = GetScript<T>(id);
 
 		if (script != null)
-            try
-            {
-                a.Invoke(script);
-            }
-            catch (Exception ex)
-            {
-                Log.outException(ex);
-            }
-    }
+			try
+			{
+				a.Invoke(script);
+			}
+			catch (Exception ex)
+			{
+				Log.outException(ex);
+			}
+	}
 
 	public void AddScript<T>(T script) where T : IScriptObject
 	{
@@ -401,7 +401,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 	private void LoadScriptWaypoints()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		// Drop Existing Waypoint list
 		_waypointStore.Clear();
@@ -459,12 +459,12 @@ public class ScriptManager : Singleton<ScriptManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} Script Waypoint nodes in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	private void LoadScriptSplineChains()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_mSplineChainsMap.Clear();
 
@@ -551,7 +551,7 @@ public class ScriptManager : Singleton<ScriptManager>
 				++wpCount;
 			} while (resultWP.NextRow());
 
-			Log.Logger.Information("Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, global::Time.GetMSTimeDiffToNow(oldMSTime));
+			Log.Logger.Information("Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
 	}
 

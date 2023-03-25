@@ -28,7 +28,7 @@ public class Pet : Guardian
 {
 	public new Dictionary<uint, PetSpell> Spells = new();
 	public bool Removed;
-	const int PetFocusRegenInterval = 4 * global::Time.InMilliseconds;
+	const int PetFocusRegenInterval = 4 * Time.InMilliseconds;
 	const int HappinessLevelSize = 333000;
 	const float PetXPFactor = 0.05f;
 	readonly List<uint> _autospells = new();
@@ -277,12 +277,11 @@ public class Pet : Guardian
 
 			if (!Location.IsPositionValid)
 			{
-				Log.Logger.Error(
-							"Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
-							GUID.ToString(),
-							Entry,
-							Location.X,
-							Location.Y);
+				Log.Logger.Error("Pet (guidlow {0}, entry {1}) not loaded. Suggested coordinates isn't valid (X: {2} Y: {3})",
+								GUID.ToString(),
+								Entry,
+								Location.X,
+								Location.Y);
 
 				return false;
 			}
@@ -404,7 +403,7 @@ public class Pet : Guardian
 			castData.CastID = ObjectGuid.Create(HighGuid.Cast, SpellCastSource.Normal, owner.Location.MapId, petInfo.CreatedBySpellId, map.GenerateLowGuid(HighGuid.Cast));
 			castData.SpellID = (int)petInfo.CreatedBySpellId;
 			castData.CastFlags = SpellCastFlags.Unk9;
-			castData.CastTime = global::Time.MSTime;
+			castData.CastTime = Time.MSTime;
 			owner.SendMessageToSet(spellGo, true);
 		}
 
@@ -827,12 +826,11 @@ public class Pet : Guardian
 
 		if (!Location.IsPositionValid)
 		{
-			Log.Logger.Error(
-						"Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
-						GUID.ToString(),
-						Entry,
-						Location.X,
-						Location.Y);
+			Log.Logger.Error("Pet (guidlow {0}, entry {1}) not created base at creature. Suggested coordinates isn't valid (X: {2} Y: {3})",
+							GUID.ToString(),
+							Entry,
+							Location.X,
+							Location.Y);
 
 			return false;
 		}
@@ -1159,11 +1157,11 @@ public class Pet : Guardian
 		OwningPlayer.PetSpellInitialize();
 
 		SetPetSpecialization setPetSpecialization = new()
-        {
-            SpecID = _petSpecialization
-        };
+		{
+			SpecID = _petSpecialization
+		};
 
-        OwningPlayer.SendPacket(setPetSpecialization);
+		OwningPlayer.SendPacket(setPetSpecialization);
 	}
 
 	public override string GetDebugInfo()
@@ -1323,10 +1321,10 @@ public class Pet : Guardian
 				// negative effects should continue counting down after logout
 				if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
 				{
-					if (remainTime / global::Time.InMilliseconds <= timediff)
+					if (remainTime / Time.InMilliseconds <= timediff)
 						continue;
 
-					remainTime -= (int)timediff * global::Time.InMilliseconds;
+					remainTime -= (int)timediff * Time.InMilliseconds;
 				}
 
 				// prevent wrong values of remaincharges
@@ -1466,12 +1464,12 @@ public class Pet : Guardian
 		}
 
 		PetSpell newspell = new()
-        {
-            State = state,
-            Type = type
-        };
+		{
+			State = state,
+			Type = type
+		};
 
-        if (active == ActiveStates.Decide) // active was not used before, so we save it's autocast/passive state here
+		if (active == ActiveStates.Decide) // active was not used before, so we save it's autocast/passive state here
 		{
 			if (spellInfo.IsAutocastable)
 				newspell.Active = ActiveStates.Disabled;

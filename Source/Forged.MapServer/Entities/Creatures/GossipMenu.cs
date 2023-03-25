@@ -48,26 +48,26 @@ public class GossipMenu
 			gossipOptionId = -((int)_menuId * 100 + orderIndex);
 
 		GossipMenuItem menuItem = new()
-        {
-            GossipOptionId = gossipOptionId,
-            OrderIndex = (uint)orderIndex,
-            OptionNpc = optionNpc,
-            OptionText = optionText,
-            Language = language,
-            Flags = flags,
-            GossipNpcOptionId = gossipNpcOptionId,
-            BoxCoded = boxCoded,
-            BoxMoney = boxMoney,
-            BoxText = boxText,
-            SpellId = spellId,
-            OverrideIconId = overrideIconId,
-            ActionMenuId = actionMenuId,
-            ActionPoiId = actionPoiId,
-            Sender = sender,
-            Action = action
-        };
+		{
+			GossipOptionId = gossipOptionId,
+			OrderIndex = (uint)orderIndex,
+			OptionNpc = optionNpc,
+			OptionText = optionText,
+			Language = language,
+			Flags = flags,
+			GossipNpcOptionId = gossipNpcOptionId,
+			BoxCoded = boxCoded,
+			BoxMoney = boxMoney,
+			BoxText = boxText,
+			SpellId = spellId,
+			OverrideIconId = overrideIconId,
+			ActionMenuId = actionMenuId,
+			ActionPoiId = actionPoiId,
+			Sender = sender,
+			Action = action
+		};
 
-        _menuItems.Add((uint)orderIndex, menuItem);
+		_menuItems.Add((uint)orderIndex, menuItem);
 
 		return (uint)orderIndex;
 	}

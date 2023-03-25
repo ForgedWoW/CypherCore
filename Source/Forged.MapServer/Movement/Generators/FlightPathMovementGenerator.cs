@@ -338,8 +338,8 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 
 	class TaxiNodeChangeInfo
 	{
-		public uint PathIndex;
 		public readonly long Cost;
+		public uint PathIndex;
 
 		public TaxiNodeChangeInfo(uint pathIndex, long cost)
 		{

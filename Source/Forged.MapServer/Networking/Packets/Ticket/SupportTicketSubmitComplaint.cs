@@ -53,11 +53,11 @@ public class SupportTicketSubmitComplaint : ClientPacket
 		if (hasClubMessage)
 		{
 			SupportTicketCommunityMessage communityMessage = new()
-            {
-                IsPlayerUsingVoice = _worldPacket.HasBit()
-            };
+			{
+				IsPlayerUsingVoice = _worldPacket.HasBit()
+			};
 
-            CommunityMessage = communityMessage;
+			CommunityMessage = communityMessage;
 			_worldPacket.ResetBitPos();
 		}
 
@@ -180,13 +180,13 @@ public class SupportTicketSubmitComplaint : ClientPacket
 			if (hasRealmAddress)
 			{
 				SenderRealm senderRealm = new()
-                {
-                    VirtualRealmAddress = data.ReadUInt32(),
-                    field_4 = data.ReadUInt16(),
-                    field_6 = data.ReadUInt8()
-                };
+				{
+					VirtualRealmAddress = data.ReadUInt32(),
+					field_4 = data.ReadUInt16(),
+					field_6 = data.ReadUInt8()
+				};
 
-                RealmAddress = senderRealm;
+				RealmAddress = senderRealm;
 			}
 
 			if (hasSlashCmd)

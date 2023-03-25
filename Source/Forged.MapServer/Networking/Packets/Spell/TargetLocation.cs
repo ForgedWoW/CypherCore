@@ -13,13 +13,14 @@ public class TargetLocation
 	public void Read(WorldPacket data)
 	{
 		Transport = data.ReadPackedGuid();
+
 		Location = new Position
-        {
-            X = data.ReadFloat(),
-            Y = data.ReadFloat(),
-            Z = data.ReadFloat()
-        };
-    }
+		{
+			X = data.ReadFloat(),
+			Y = data.ReadFloat(),
+			Z = data.ReadFloat()
+		};
+	}
 
 	public void Write(WorldPacket data)
 	{

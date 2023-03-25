@@ -50,12 +50,11 @@ public class RBACData
 
 		if (perm == null)
 		{
-			Log.Logger.Debug(
-						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission does not exists",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission does not exists",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.IdDoesNotExists;
 		}
@@ -63,12 +62,11 @@ public class RBACData
 		// Check if already added in denied list
 		if (HasDeniedPermission(permissionId))
 		{
-			Log.Logger.Debug(
-						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission in deny list",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission in deny list",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.InDeniedList;
 		}
@@ -76,12 +74,11 @@ public class RBACData
 		// Already added?
 		if (HasGrantedPermission(permissionId))
 		{
-			Log.Logger.Debug(
-						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission already granted",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission already granted",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.CantAddAlreadyAdded;
 		}
@@ -91,24 +88,22 @@ public class RBACData
 		// Do not save to db when loading data from DB (realmId = 0)
 		if (realmId != 0)
 		{
-			Log.Logger.Debug(
-						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			SavePermission(permissionId, true, realmId);
 			CalculateNewPermissions();
 		}
 		else
 		{
-			Log.Logger.Debug(
-						"RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.GrantPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 		}
 
 		return RBACCommandResult.OK;
@@ -121,12 +116,11 @@ public class RBACData
 
 		if (perm == null)
 		{
-			Log.Logger.Debug(
-						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission does not exists",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission does not exists",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.IdDoesNotExists;
 		}
@@ -134,12 +128,11 @@ public class RBACData
 		// Check if already added in granted list
 		if (HasGrantedPermission(permissionId))
 		{
-			Log.Logger.Debug(
-						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission in grant list",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission in grant list",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.InGrantedList;
 		}
@@ -147,12 +140,11 @@ public class RBACData
 		// Already added?
 		if (HasDeniedPermission(permissionId))
 		{
-			Log.Logger.Debug(
-						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission already denied",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Permission already denied",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.CantAddAlreadyAdded;
 		}
@@ -162,24 +154,22 @@ public class RBACData
 		// Do not save to db when loading data from DB (realmId = 0)
 		if (realmId != 0)
 		{
-			Log.Logger.Debug(
-						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			SavePermission(permissionId, false, realmId);
 			CalculateNewPermissions();
 		}
 		else
 		{
-			Log.Logger.Debug(
-						"RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.DenyPermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 		}
 
 		return RBACCommandResult.OK;
@@ -190,12 +180,11 @@ public class RBACData
 		// Check if it's present in any list
 		if (!HasGrantedPermission(permissionId) && !HasDeniedPermission(permissionId))
 		{
-			Log.Logger.Debug(
-						"RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Not granted or revoked",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Not granted or revoked",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			return RBACCommandResult.CantRevokeNotInList;
 		}
@@ -206,12 +195,11 @@ public class RBACData
 		// Do not save to db when loading data from DB (realmId = 0)
 		if (realmId != 0)
 		{
-			Log.Logger.Debug(
-						"RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok and DB updated",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 
 			var stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_RBAC_ACCOUNT_PERMISSION);
 			stmt.AddValue(0, Id);
@@ -223,12 +211,11 @@ public class RBACData
 		}
 		else
 		{
-			Log.Logger.Debug(
-						"RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
-						Id,
-						Name,
-						permissionId,
-						realmId);
+			Log.Logger.Debug("RBACData.RevokePermission [Id: {0} Name: {1}] (Permission {2}, RealmId {3}). Ok",
+							Id,
+							Name,
+							permissionId,
+							realmId);
 		}
 
 		return RBACCommandResult.OK;

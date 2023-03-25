@@ -269,11 +269,11 @@ public class PlayerGroup
 	public void LoadMemberFromDB(ulong guidLow, byte memberFlags, byte subgroup, LfgRoles roles)
 	{
 		MemberSlot member = new()
-        {
-            Guid = ObjectGuid.Create(HighGuid.Player, guidLow)
-        };
+		{
+			Guid = ObjectGuid.Create(HighGuid.Player, guidLow)
+		};
 
-        // skip non-existed member
+		// skip non-existed member
 		var character = Global.CharacterCacheStorage.GetCharacterCacheByGuid(member.Guid);
 
 		if (character == null)
@@ -473,18 +473,18 @@ public class PlayerGroup
 		}
 
 		MemberSlot member = new()
-        {
-            Guid = player.GUID,
-            Name = player.GetName(),
-            Race = player.Race,
-            Class = (byte)player.Class,
-            Group = subGroup,
-            Flags = 0,
-            Roles = 0,
-            ReadyChecked = false
-        };
+		{
+			Guid = player.GUID,
+			Name = player.GetName(),
+			Race = player.Race,
+			Class = (byte)player.Class,
+			Group = subGroup,
+			Flags = 0,
+			Roles = 0,
+			ReadyChecked = false
+		};
 
-        _memberSlots.Add(member);
+		_memberSlots.Add(member);
 
 		SubGroupCounterIncrease(subGroup);
 
@@ -763,12 +763,12 @@ public class PlayerGroup
 		ToggleGroupMemberFlag(slot, GroupMemberFlags.Assistant, false);
 
 		GroupNewLeader groupNewLeader = new()
-        {
-            Name = _leaderName,
-            PartyIndex = partyIndex
-        };
+		{
+			Name = _leaderName,
+			PartyIndex = partyIndex
+		};
 
-        BroadcastPacket(groupNewLeader, true);
+		BroadcastPacket(groupNewLeader, true);
 	}
 
 	public void Disband(bool hideDestroy = false)
@@ -855,14 +855,14 @@ public class PlayerGroup
 		_targetIcons[symbol] = target;
 
 		SendRaidTargetUpdateSingle updateSingle = new()
-        {
-            PartyIndex = partyIndex,
-            Target = target,
-            ChangedBy = changedBy,
-            Symbol = (sbyte)symbol
-        };
+		{
+			PartyIndex = partyIndex,
+			Target = target,
+			ChangedBy = changedBy,
+			Symbol = (sbyte)symbol
+		};
 
-        BroadcastPacket(updateSingle, true);
+		BroadcastPacket(updateSingle, true);
 	}
 
 	public void SendTargetIconList(WorldSession session, sbyte partyIndex)
@@ -871,11 +871,11 @@ public class PlayerGroup
 			return;
 
 		SendRaidTargetUpdateAll updateAll = new()
-        {
-            PartyIndex = partyIndex
-        };
+		{
+			PartyIndex = partyIndex
+		};
 
-        for (byte i = 0; i < MapConst.TargetIconsCount; i++)
+		for (byte i = 0; i < MapConst.TargetIconsCount; i++)
 			updateAll.TargetIcons.Add(i, _targetIcons[i]);
 
 		session.SendPacket(updateAll);
@@ -906,18 +906,18 @@ public class PlayerGroup
 		}
 
 		PartyUpdate partyUpdate = new()
-        {
-            PartyFlags = _groupFlags,
-            PartyIndex = (byte)_groupCategory,
-            PartyType = IsCreated ? GroupType.Normal : GroupType.None,
-            PartyGUID = _guid,
-            LeaderGUID = _leaderGuid,
-            LeaderFactionGroup = _leaderFactionGroup,
-            SequenceNum = player.NextGroupUpdateSequenceNumber(_groupCategory),
-            MyIndex = -1
-        };
+		{
+			PartyFlags = _groupFlags,
+			PartyIndex = (byte)_groupCategory,
+			PartyType = IsCreated ? GroupType.Normal : GroupType.None,
+			PartyGUID = _guid,
+			LeaderGUID = _leaderGuid,
+			LeaderFactionGroup = _leaderFactionGroup,
+			SequenceNum = player.NextGroupUpdateSequenceNumber(_groupCategory),
+			MyIndex = -1
+		};
 
-        byte index = 0;
+		byte index = 0;
 
 		for (var i = 0; i < _memberSlots.Count; ++i, ++index)
 		{
@@ -929,59 +929,59 @@ public class PlayerGroup
 			var memberPlayer = Global.ObjAccessor.FindConnectedPlayer(member.Guid);
 
 			PartyPlayerInfo playerInfos = new()
-            {
-                GUID = member.Guid,
-                Name = member.Name,
-                Class = member.Class,
-                FactionGroup = Player.GetFactionGroupForRace(member.Race),
-                Connected = memberPlayer?.Session != null && !memberPlayer.Session.PlayerLogout,
-                Subgroup = member.Group,           // groupid
-                Flags = (byte)member.Flags,        // See enum GroupMemberFlags
-                RolesAssigned = (byte)member.Roles // Lfg Roles
-            };
+			{
+				GUID = member.Guid,
+				Name = member.Name,
+				Class = member.Class,
+				FactionGroup = Player.GetFactionGroupForRace(member.Race),
+				Connected = memberPlayer?.Session != null && !memberPlayer.Session.PlayerLogout,
+				Subgroup = member.Group,           // groupid
+				Flags = (byte)member.Flags,        // See enum GroupMemberFlags
+				RolesAssigned = (byte)member.Roles // Lfg Roles
+			};
 
-            partyUpdate.PlayerList.Add(playerInfos);
+			partyUpdate.PlayerList.Add(playerInfos);
 		}
 
 		if (MembersCount > 1)
 		{
 			// LootSettings
 			PartyLootSettings lootSettings = new()
-            {
-                Method = (byte)_lootMethod,
-                Threshold = (byte)_lootThreshold,
-                LootMaster = _lootMethod == LootMethod.MasterLoot ? _masterLooterGuid : ObjectGuid.Empty
-            };
+			{
+				Method = (byte)_lootMethod,
+				Threshold = (byte)_lootThreshold,
+				LootMaster = _lootMethod == LootMethod.MasterLoot ? _masterLooterGuid : ObjectGuid.Empty
+			};
 
-            partyUpdate.LootSettings = lootSettings;
+			partyUpdate.LootSettings = lootSettings;
 
 			// Difficulty Settings
 			PartyDifficultySettings difficultySettings = new()
-            {
-                DungeonDifficultyID = (uint)_dungeonDifficulty,
-                RaidDifficultyID = (uint)_raidDifficulty,
-                LegacyRaidDifficultyID = (uint)_legacyRaidDifficulty
-            };
+			{
+				DungeonDifficultyID = (uint)_dungeonDifficulty,
+				RaidDifficultyID = (uint)_raidDifficulty,
+				LegacyRaidDifficultyID = (uint)_legacyRaidDifficulty
+			};
 
-            partyUpdate.DifficultySettings = difficultySettings;
+			partyUpdate.DifficultySettings = difficultySettings;
 		}
 
 		// LfgInfos
 		if (IsLFGGroup)
 		{
 			PartyLFGInfo lfgInfos = new()
-            {
-                Slot = Global.LFGMgr.GetLFGDungeonEntry(Global.LFGMgr.GetDungeon(_guid)),
-                BootCount = 0,
-                Aborted = false,
-                MyFlags = (byte)(Global.LFGMgr.GetState(_guid) == LfgState.FinishedDungeon ? 2 : 0),
-                MyRandomSlot = Global.LFGMgr.GetSelectedRandomDungeon(player.GUID),
-                MyPartialClear = 0,
-                MyGearDiff = 0.0f,
-                MyFirstReward = false
-            };
+			{
+				Slot = Global.LFGMgr.GetLFGDungeonEntry(Global.LFGMgr.GetDungeon(_guid)),
+				BootCount = 0,
+				Aborted = false,
+				MyFlags = (byte)(Global.LFGMgr.GetState(_guid) == LfgState.FinishedDungeon ? 2 : 0),
+				MyRandomSlot = Global.LFGMgr.GetSelectedRandomDungeon(player.GUID),
+				MyPartialClear = 0,
+				MyGearDiff = 0.0f,
+				MyFirstReward = false
+			};
 
-            var reward = Global.LFGMgr.GetRandomDungeonReward(partyUpdate.LfgInfos.Value.MyRandomSlot, player.Level);
+			var reward = Global.LFGMgr.GetRandomDungeonReward(partyUpdate.LfgInfos.Value.MyRandomSlot, player.Level);
 
 			if (reward != null)
 			{
@@ -1554,14 +1554,14 @@ public class PlayerGroup
 		SetMemberReadyChecked(slot);
 
 		ReadyCheckStarted readyCheckStarted = new()
-        {
-            PartyGUID = _guid,
-            PartyIndex = partyIndex,
-            InitiatorGUID = starterGuid,
-            Duration = (uint)duration.TotalMilliseconds
-        };
+		{
+			PartyGUID = _guid,
+			PartyIndex = partyIndex,
+			InitiatorGUID = starterGuid,
+			Duration = (uint)duration.TotalMilliseconds
+		};
 
-        BroadcastPacket(readyCheckStarted, false);
+		BroadcastPacket(readyCheckStarted, false);
 	}
 
 	public void SetMemberReadyCheck(ObjectGuid guid, bool ready)
@@ -1603,12 +1603,12 @@ public class PlayerGroup
 	public void SendRaidMarkersChanged(WorldSession session = null, sbyte partyIndex = 0)
 	{
 		RaidMarkersChanged packet = new()
-        {
-            PartyIndex = partyIndex,
-            ActiveMarkers = _activeMarkers
-        };
+		{
+			PartyIndex = partyIndex,
+			ActiveMarkers = _activeMarkers
+		};
 
-        for (byte i = 0; i < MapConst.RaidMarkersCount; i++)
+		for (byte i = 0; i < MapConst.RaidMarkersCount; i++)
 			if (_markers[i] != null)
 				packet.RaidMarkers.Add(_markers[i]);
 
@@ -1756,7 +1756,7 @@ public class PlayerGroup
 	public void StartLeaderOfflineTimer()
 	{
 		_isLeaderOffline = true;
-		_leaderOfflineTimer.Reset(2 * global::Time.Minute * global::Time.InMilliseconds);
+		_leaderOfflineTimer.Reset(2 * Time.Minute * Time.InMilliseconds);
 	}
 
 	public void StopLeaderOfflineTimer()
@@ -1852,16 +1852,16 @@ public class PlayerGroup
 	void SendUpdateDestroyGroupToPlayer(Player player)
 	{
 		PartyUpdate partyUpdate = new()
-        {
-            PartyFlags = GroupFlags.Destroyed,
-            PartyIndex = (byte)_groupCategory,
-            PartyType = GroupType.None,
-            PartyGUID = _guid,
-            MyIndex = -1,
-            SequenceNum = player.NextGroupUpdateSequenceNumber(_groupCategory)
-        };
+		{
+			PartyFlags = GroupFlags.Destroyed,
+			PartyIndex = (byte)_groupCategory,
+			PartyType = GroupType.None,
+			PartyGUID = _guid,
+			MyIndex = -1,
+			SequenceNum = player.NextGroupUpdateSequenceNumber(_groupCategory)
+		};
 
-        player.SendPacket(partyUpdate);
+		player.SendPacket(partyUpdate);
 	}
 
 	bool _setMembersGroup(ObjectGuid guid, byte group)
@@ -1916,24 +1916,24 @@ public class PlayerGroup
 		ResetMemberReadyChecked();
 
 		ReadyCheckCompleted readyCheckCompleted = new()
-        {
-            PartyIndex = 0,
-            PartyGUID = _guid
-        };
+		{
+			PartyIndex = 0,
+			PartyGUID = _guid
+		};
 
-        BroadcastPacket(readyCheckCompleted, false);
+		BroadcastPacket(readyCheckCompleted, false);
 	}
 
 	void SetMemberReadyCheck(MemberSlot slot, bool ready)
 	{
 		ReadyCheckResponse response = new()
-        {
-            PartyGUID = _guid,
-            Player = slot.Guid,
-            IsReady = ready
-        };
+		{
+			PartyGUID = _guid,
+			Player = slot.Guid,
+			IsReady = ready
+		};
 
-        BroadcastPacket(response, false);
+		BroadcastPacket(response, false);
 
 		SetMemberReadyChecked(slot);
 	}

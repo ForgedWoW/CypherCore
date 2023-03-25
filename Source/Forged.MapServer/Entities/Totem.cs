@@ -55,14 +55,14 @@ public class Totem : Minion
 			if (SummonPropertiesRecord.Slot is >= (int)Framework.Constants.SummonSlot.Totem and < SharedConst.MaxTotemSlot)
 			{
 				TotemCreated packet = new()
-                {
-                    Totem = GUID,
-                    Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem),
-                    Duration = duration,
-                    SpellID = UnitData.CreatedBySpell
-                };
+				{
+					Totem = GUID,
+					Slot = (byte)(SummonPropertiesRecord.Slot - (int)Framework.Constants.SummonSlot.Totem),
+					Duration = duration,
+					SpellID = UnitData.CreatedBySpell
+				};
 
-                owner.AsPlayer.SendPacket(packet);
+				owner.AsPlayer.SendPacket(packet);
 			}
 
 			// set display id depending on caster's race

@@ -39,7 +39,7 @@ public class OutdoorPvPManager : Singleton<OutdoorPvPManager>
 
 	public void InitOutdoorPvP()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		//                                             0       1
 		var result = DB.World.Query("SELECT TypeId, ScriptName FROM outdoorpvp_template");

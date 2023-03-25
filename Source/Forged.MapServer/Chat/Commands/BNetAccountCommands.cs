@@ -30,15 +30,14 @@ class BNetAccountCommands
 					handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
 
 				if (handler.Session != null)
-					Log.Logger.Information(
-								"Account: {0} (IP: {1}) Character:[{2}] ({3}) created Battle.net account {4}{5}{6}",
-								handler.Session.AccountId,
-								handler.Session.RemoteAddress,
-								handler.Session.Player.GetName(),
-								handler.Session.Player.GUID.ToString(),
-								accountName,
-								createGameAccount.Value ? " with game account " : "",
-								createGameAccount.Value ? gameAccountName : "");
+					Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] ({3}) created Battle.net account {4}{5}{6}",
+											handler.Session.AccountId,
+											handler.Session.RemoteAddress,
+											handler.Session.Player.GetName(),
+											handler.Session.Player.GUID.ToString(),
+											accountName,
+											createGameAccount.Value ? " with game account " : "",
+											createGameAccount.Value ? gameAccountName : "");
 
 				break;
 			case AccountOpResult.NameTooLong:
@@ -84,14 +83,13 @@ class BNetAccountCommands
 				handler.SendSysMessage(CypherStrings.AccountCreated, accountName);
 
 				if (handler.Session != null)
-					Log.Logger.Information(
-								"Account: {0} (IP: {1}) Character:[{2}] ({3}) created Account {4} (Email: '{5}')",
-								handler.Session.AccountId,
-								handler.Session.RemoteAddress,
-								handler.Session.Player.GetName(),
-								handler.Session.Player.GUID.ToString(),
-								accountName,
-								bnetAccountName);
+					Log.Logger.Information("Account: {0} (IP: {1}) Character:[{2}] ({3}) created Account {4} (Email: '{5}')",
+											handler.Session.AccountId,
+											handler.Session.RemoteAddress,
+											handler.Session.Player.GetName(),
+											handler.Session.Player.GUID.ToString(),
+											accountName,
+											bnetAccountName);
 
 				break;
 			case AccountOpResult.NameTooLong:
@@ -190,12 +188,11 @@ class BNetAccountCommands
 		{
 			handler.SendSysMessage(CypherStrings.CommandWrongoldpassword);
 
-			Log.Logger.Information(
-						"Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Tried to change password, but the provided old password is wrong.",
-						handler.Session.BattlenetAccountId,
-						handler.Session.RemoteAddress,
-						handler.Session.Player.GetName(),
-						handler.Session.Player.GUID.ToString());
+			Log.Logger.Information("Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Tried to change password, but the provided old password is wrong.",
+									handler.Session.BattlenetAccountId,
+									handler.Session.RemoteAddress,
+									handler.Session.Player.GetName(),
+									handler.Session.Player.GUID.ToString());
 
 			return false;
 		}
@@ -216,12 +213,11 @@ class BNetAccountCommands
 			case AccountOpResult.Ok:
 				handler.SendSysMessage(CypherStrings.CommandPassword);
 
-				Log.Logger.Information(
-							"Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Changed Password.",
-							handler.Session.BattlenetAccountId,
-							handler.Session.RemoteAddress,
-							handler.Session.Player.GetName(),
-							handler.Session.Player.GUID.ToString());
+				Log.Logger.Information("Battle.net account: {0} (IP: {1}) Character:[{2}] ({3}) Changed Password.",
+										handler.Session.BattlenetAccountId,
+										handler.Session.RemoteAddress,
+										handler.Session.Player.GetName(),
+										handler.Session.Player.GUID.ToString());
 
 				break;
 			case AccountOpResult.PassTooLong:

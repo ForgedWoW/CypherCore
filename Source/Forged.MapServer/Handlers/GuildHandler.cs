@@ -8,7 +8,6 @@ namespace Forged.MapServer.Handlers;
 
 public partial class WorldSession
 {
-	
 	[WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
 	void HandleGuildGetRanks(GuildGetRanks packet)
 	{
@@ -37,14 +36,14 @@ public partial class WorldSession
 			guild.SendPermissions(this);
 	}
 
-    [WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
-    void HandleGuildGetRoster(GuildGetRoster packet)
-    {
-        var guild = Player.Guild;
+	[WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
+	void HandleGuildGetRoster(GuildGetRoster packet)
+	{
+		var guild = Player.Guild;
 
-        if (guild)
-            guild.HandleRoster(this);
-        else
-            Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
-    }
+		if (guild)
+			guild.HandleRoster(this);
+		else
+			Guild.SendCommandResult(this, GuildCommandType.GetRoster, GuildCommandError.PlayerNotInGuild);
+	}
 }

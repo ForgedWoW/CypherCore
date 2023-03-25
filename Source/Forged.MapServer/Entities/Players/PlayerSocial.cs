@@ -116,11 +116,11 @@ public class PlayerSocial
 		uint ignoredCount = 0;
 
 		ContactList contactList = new()
-        {
-            Flags = flags
-        };
+		{
+			Flags = flags
+		};
 
-        foreach (var v in PlayerSocialMap)
+		foreach (var v in PlayerSocialMap)
 		{
 			var contactFlags = v.Value.Flags;
 

@@ -70,23 +70,23 @@ public partial class Player
 			do
 			{
 				Mail m = new()
-                {
-                    messageID = mailsResult.Read<ulong>(0),
-                    messageType = (MailMessageType)mailsResult.Read<byte>(1),
-                    sender = mailsResult.Read<uint>(2),
-                    receiver = mailsResult.Read<uint>(3),
-                    subject = mailsResult.Read<string>(4),
-                    body = mailsResult.Read<string>(5),
-                    expire_time = mailsResult.Read<long>(6),
-                    deliver_time = mailsResult.Read<long>(7),
-                    money = mailsResult.Read<ulong>(8),
-                    COD = mailsResult.Read<ulong>(9),
-                    checkMask = (MailCheckMask)mailsResult.Read<byte>(10),
-                    stationery = (MailStationery)mailsResult.Read<byte>(11),
-                    mailTemplateId = mailsResult.Read<ushort>(12)
-                };
+				{
+					messageID = mailsResult.Read<ulong>(0),
+					messageType = (MailMessageType)mailsResult.Read<byte>(1),
+					sender = mailsResult.Read<uint>(2),
+					receiver = mailsResult.Read<uint>(3),
+					subject = mailsResult.Read<string>(4),
+					body = mailsResult.Read<string>(5),
+					expire_time = mailsResult.Read<long>(6),
+					deliver_time = mailsResult.Read<long>(7),
+					money = mailsResult.Read<ulong>(8),
+					COD = mailsResult.Read<ulong>(9),
+					checkMask = (MailCheckMask)mailsResult.Read<byte>(10),
+					stationery = (MailStationery)mailsResult.Read<byte>(11),
+					mailTemplateId = mailsResult.Read<ushort>(12)
+				};
 
-                if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
+				if (m.mailTemplateId != 0 && !CliDB.MailTemplateStorage.ContainsKey(m.mailTemplateId))
 				{
 					Log.Logger.Error($"Player:_LoadMail - Mail ({m.messageID}) have not existed MailTemplateId ({m.mailTemplateId}), remove at load");
 					m.mailTemplateId = 0;
@@ -382,12 +382,12 @@ public partial class Player
 			do
 			{
 				ChrCustomizationChoice choice = new()
-                {
-                    ChrCustomizationOptionID = customizationsResult.Read<uint>(0),
-                    ChrCustomizationChoiceID = customizationsResult.Read<uint>(1)
-                };
+				{
+					ChrCustomizationOptionID = customizationsResult.Read<uint>(0),
+					ChrCustomizationChoiceID = customizationsResult.Read<uint>(1)
+				};
 
-                customizations.Add(choice);
+				customizations.Add(choice);
 			} while (customizationsResult.NextRow());
 
 		SetCustomizations(customizations, false);
@@ -2049,7 +2049,7 @@ public partial class Player
 		Log.Logger.Information("Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
-		stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * global::Time.Day));
+		stmt.AddValue(0, (uint)(GameTime.GetGameTime() - keepDays * Time.Day));
 		var result = DB.Characters.Query(stmt);
 
 		if (!result.IsEmpty())
@@ -2247,14 +2247,13 @@ public partial class Player
 						}
 						else
 						{
-							Log.Logger.Error(
-										"LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which doesnt have a valid bag (Bag GUID: {4}, slot: {5}). Possible cheat?",
-										GUID.ToString(),
-										GetName(),
-										item.GUID.ToString(),
-										item.Entry,
-										bagGuid,
-										slot);
+							Log.Logger.Error("LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which doesnt have a valid bag (Bag GUID: {4}, slot: {5}). Possible cheat?",
+											GUID.ToString(),
+											GetName(),
+											item.GUID.ToString(),
+											item.Entry,
+											bagGuid,
+											slot);
 
 							item.DeleteFromInventoryDB(trans);
 
@@ -2269,16 +2268,15 @@ public partial class Player
 					}
 					else
 					{
-						Log.Logger.Error(
-									"LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which can't be loaded into inventory (Bag GUID: {4}, slot: {5}) by reason {6}. " +
-									"Item will be sent by mail.",
-									GUID.ToString(),
-									GetName(),
-									item.GUID.ToString(),
-									item.Entry,
-									bagGuid,
-									slot,
-									err);
+						Log.Logger.Error("LoadInventory: player (GUID: {0}, name: '{1}') has item (GUID: {2}, entry: {3}) which can't be loaded into inventory (Bag GUID: {4}, slot: {5}) by reason {6}. " +
+										"Item will be sent by mail.",
+										GUID.ToString(),
+										GetName(),
+										item.GUID.ToString(),
+										item.Entry,
+										bagGuid,
+										slot,
+										err);
 
 						item.DeleteFromInventoryDB(trans);
 						problematicItems.Enqueue(item);
@@ -2327,43 +2325,40 @@ public partial class Player
 				// Do not allow to have item limited to another map/zone in alive state
 				if (IsAlive && item.IsLimitedToAnotherMapOrZone(Location.MapId, zoneId))
 				{
-					Log.Logger.Debug(
-								"LoadInventory: player (GUID: {0}, name: '{1}', map: {2}) has item (GUID: {3}, entry: {4}) limited to another map ({5}). Deleting item.",
-								GUID.ToString(),
-								GetName(),
-								Location.MapId,
-								item.GUID.ToString(),
-								item.Entry,
-								zoneId);
+					Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: '{1}', map: {2}) has item (GUID: {3}, entry: {4}) limited to another map ({5}). Deleting item.",
+									GUID.ToString(),
+									GetName(),
+									Location.MapId,
+									item.GUID.ToString(),
+									item.Entry,
+									zoneId);
 
 					remove = true;
 				}
 				// "Conjured items disappear if you are logged out for more than 15 minutes"
-				else if (timeDiff > 15 * global::Time.Minute && proto.HasFlag(ItemFlags.Conjured))
+				else if (timeDiff > 15 * Time.Minute && proto.HasFlag(ItemFlags.Conjured))
 				{
-					Log.Logger.Debug(
-								"LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
-								GUID.ToString(),
-								GetName(),
-								timeDiff,
-								item.GUID.ToString(),
-								item.Entry);
+					Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}, diff: {2}) has conjured item (GUID: {3}, entry: {4}) with expired lifetime (15 minutes). Deleting item.",
+									GUID.ToString(),
+									GetName(),
+									timeDiff,
+									item.GUID.ToString(),
+									item.Entry);
 
 					remove = true;
 				}
 
 				if (item.IsRefundable)
 				{
-					if (item.PlayedTime > (2 * global::Time.Hour))
+					if (item.PlayedTime > (2 * Time.Hour))
 					{
-						Log.Logger.Debug(
-									"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
-									"efundable flag.",
-									GUID.ToString(),
-									GetName(),
-									item.GUID.ToString(),
-									item.Entry,
-									item.PlayedTime);
+						Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with expired refund time ({4}). Deleting refund data and removing " +
+										"efundable flag.",
+										GUID.ToString(),
+										GetName(),
+										item.GUID.ToString(),
+										item.Entry,
+										item.PlayedTime);
 
 						stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_REFUND_INSTANCE);
 						stmt.AddValue(0, item.GUID.ToString());
@@ -2387,12 +2382,11 @@ public partial class Player
 						}
 						else
 						{
-							Log.Logger.Debug(
-										"LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing flag.",
-										GUID.ToString(),
-										GetName(),
-										item.GUID.ToString(),
-										item.Entry);
+							Log.Logger.Debug("LoadInventory: player (GUID: {0}, name: {1}) has item (GUID: {2}, entry: {3}) with refundable flags, but without data in item_refund_instance. Removing flag.",
+											GUID.ToString(),
+											GetName(),
+											item.GUID.ToString(),
+											item.Entry);
 
 							item.RemoveItemFlag(ItemFieldFlags.Refundable);
 						}
@@ -2426,13 +2420,12 @@ public partial class Player
 					}
 					else
 					{
-						Log.Logger.Debug(
-									"LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE flag, " +
-									"but without data in item_soulbound_trade_data. Removing flag.",
-									GUID.ToString(),
-									GetName(),
-									item.GUID.ToString(),
-									item.Entry);
+						Log.Logger.Debug("LoadInventory: player ({0}, name: {1}) has item ({2}, entry: {3}) with ITEM_FLAG_BOP_TRADEABLE flag, " +
+										"but without data in item_soulbound_trade_data. Removing flag.",
+										GUID.ToString(),
+										GetName(),
+										item.GUID.ToString(),
+										item.Entry);
 
 						item.RemoveItemFlag(ItemFieldFlags.BopTradeable);
 					}
@@ -2454,12 +2447,11 @@ public partial class Player
 			}
 			else
 			{
-				Log.Logger.Error(
-							"LoadInventory: player (GUID: {0}, name: {1}) has broken item (GUID: {2}, entry: {3}) in inventory. Deleting item.",
-							GUID.ToString(),
-							GetName(),
-							itemGuid,
-							itemEntry);
+				Log.Logger.Error("LoadInventory: player (GUID: {0}, name: {1}) has broken item (GUID: {2}, entry: {3}) in inventory. Deleting item.",
+								GUID.ToString(),
+								GetName(),
+								itemGuid,
+								itemEntry);
 
 				remove = true;
 			}
@@ -2475,11 +2467,10 @@ public partial class Player
 		}
 		else
 		{
-			Log.Logger.Error(
-						"LoadInventory: player (GUID: {0}, name: {1}) has unknown item (entry: {2}) in inventory. Deleting item.",
-						GUID.ToString(),
-						GetName(),
-						itemEntry);
+			Log.Logger.Error("LoadInventory: player (GUID: {0}, name: {1}) has unknown item (entry: {2}) in inventory. Deleting item.",
+							GUID.ToString(),
+							GetName(),
+							itemEntry);
 
 			Item.DeleteFromInventoryDB(trans, itemGuid);
 			Item.DeleteFromDB(trans, itemGuid);
@@ -2692,10 +2683,10 @@ public partial class Player
 				// negative effects should continue counting down after logout
 				if (remainTime != -1 && (!spellInfo.IsPositive || spellInfo.HasAttribute(SpellAttr4.AuraExpiresOffline)))
 				{
-					if (remainTime / global::Time.InMilliseconds <= timediff)
+					if (remainTime / Time.InMilliseconds <= timediff)
 						continue;
 
-					remainTime -= (int)(timediff * global::Time.InMilliseconds);
+					remainTime -= (int)(timediff * Time.InMilliseconds);
 				}
 
 				// prevent wrong values of remaincharges
@@ -2834,17 +2825,17 @@ public partial class Player
 				continue;
 
 			PlayerCurrency cur = new()
-            {
-                State = PlayerCurrencyState.Unchanged,
-                Quantity = result.Read<uint>(1),
-                WeeklyQuantity = result.Read<uint>(2),
-                TrackedQuantity = result.Read<uint>(3),
-                IncreasedCapQuantity = result.Read<uint>(4),
-                EarnedQuantity = result.Read<uint>(5),
-                Flags = (CurrencyDbFlags)result.Read<byte>(6)
-            };
+			{
+				State = PlayerCurrencyState.Unchanged,
+				Quantity = result.Read<uint>(1),
+				WeeklyQuantity = result.Read<uint>(2),
+				TrackedQuantity = result.Read<uint>(3),
+				IncreasedCapQuantity = result.Read<uint>(4),
+				EarnedQuantity = result.Read<uint>(5),
+				Flags = (CurrencyDbFlags)result.Read<byte>(6)
+			};
 
-            _currencyStorage.Add(currencyID, cur);
+			_currencyStorage.Add(currencyID, cur);
 		} while (result.NextRow());
 	}
 
@@ -2878,10 +2869,10 @@ public partial class Player
 
 					// Will deleted in DB at next save (it can create data until save but marked as deleted)
 					_actionButtons[button] = new ActionButton
-                    {
-                        UState = ActionButtonUpdateState.Deleted
-                    };
-                }
+					{
+						UState = ActionButtonUpdateState.Deleted
+					};
+				}
 			} while (result.NextRow());
 	}
 
@@ -2911,12 +2902,11 @@ public partial class Player
 					{
 						questStatusData.Status = QuestStatus.Incomplete;
 
-						Log.Logger.Error(
-									"Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
-									GetName(),
-									GUID.ToString(),
-									questId,
-									qstatus);
+						Log.Logger.Error("Player {0} (GUID: {1}) has invalid quest {2} status ({3}), replaced by QUEST_STATUS_INCOMPLETE(3).",
+										GetName(),
+										GUID.ToString(),
+										questId,
+										qstatus);
 					}
 
 					questStatusData.Explored = result.Read<byte>(2) > 0;
@@ -2931,7 +2921,7 @@ public partial class Player
 						if (endTime <= GameTime.GetGameTime())
 							questStatusData.Timer = 1;
 						else
-							questStatusData.Timer = (uint)((endTime - GameTime.GetGameTime()) * global::Time.InMilliseconds);
+							questStatusData.Timer = (uint)((endTime - GameTime.GetGameTime()) * Time.InMilliseconds);
 					}
 					else
 					{
@@ -3231,14 +3221,14 @@ public partial class Player
 			do
 			{
 				TraitEntryPacket traitEntry = new()
-                {
-                    TraitNodeID = entriesResult.Read<int>(1),
-                    TraitNodeEntryID = entriesResult.Read<int>(2),
-                    Rank = entriesResult.Read<int>(3),
-                    GrantedRanks = entriesResult.Read<int>(4)
-                };
+				{
+					TraitNodeID = entriesResult.Read<int>(1),
+					TraitNodeEntryID = entriesResult.Read<int>(2),
+					Rank = entriesResult.Read<int>(3),
+					GrantedRanks = entriesResult.Read<int>(4)
+				};
 
-                if (!TraitMgr.IsValidEntry(traitEntry))
+				if (!TraitMgr.IsValidEntry(traitEntry))
 					continue;
 
 				traitEntriesByConfig.Add(entriesResult.Read<int>(0), traitEntry);
@@ -3250,12 +3240,12 @@ public partial class Player
 			do
 			{
 				TraitConfigPacket traitConfig = new()
-                {
-                    ID = configsResult.Read<int>(0),
-                    Type = (TraitConfigType)configsResult.Read<int>(1)
-                };
+				{
+					ID = configsResult.Read<int>(0),
+					Type = (TraitConfigType)configsResult.Read<int>(1)
+				};
 
-                switch (traitConfig.Type)
+				switch (traitConfig.Type)
 				{
 					case TraitConfigType.Combat:
 						traitConfig.ChrSpecializationID = configsResult.Read<int>(2);
@@ -3316,15 +3306,15 @@ public partial class Player
 					continue;
 
 				TraitConfigPacket traitConfig = new()
-                {
-                    Type = TraitConfigType.Combat,
-                    ChrSpecializationID = (int)spec.Id,
-                    CombatConfigFlags = TraitCombatConfigFlags.ActiveForSpec,
-                    LocalIdentifier = findFreeLocalIdentifier((int)spec.Id),
-                    Name = spec.Name[Session.SessionDbcLocale]
-                };
+				{
+					Type = TraitConfigType.Combat,
+					ChrSpecializationID = (int)spec.Id,
+					CombatConfigFlags = TraitCombatConfigFlags.ActiveForSpec,
+					LocalIdentifier = findFreeLocalIdentifier((int)spec.Id),
+					Name = spec.Name[Session.SessionDbcLocale]
+				};
 
-                CreateTraitConfig(traitConfig);
+				CreateTraitConfig(traitConfig);
 			}
 		}
 
@@ -3591,12 +3581,12 @@ public partial class Player
 				}
 
 				StoredAuraTeleportLocation storedLocation = new()
-                {
-                    Loc = location,
-                    CurrentState = StoredAuraTeleportLocation.State.Unchanged
-                };
+				{
+					Loc = location,
+					CurrentState = StoredAuraTeleportLocation.State.Unchanged
+				};
 
-                _storedAuraTeleportLocations[spellId] = storedLocation;
+				_storedAuraTeleportLocations[spellId] = storedLocation;
 			} while (result.NextRow());
 	}
 
@@ -3646,21 +3636,21 @@ public partial class Player
 		do
 		{
 			EquipmentSetInfo eqSet = new()
-            {
-                Data =
-                {
-                    Guid = result.Read<ulong>(0),
-                    Type = EquipmentSetInfo.EquipmentSetType.Equipment,
-                    SetId = result.Read<byte>(1),
-                    SetName = result.Read<string>(2),
-                    SetIcon = result.Read<string>(3),
-                    IgnoreMask = result.Read<uint>(4),
-                    AssignedSpecIndex = result.Read<int>(5)
-                },
-                State = EquipmentSetUpdateState.Unchanged
-            };
+			{
+				Data =
+				{
+					Guid = result.Read<ulong>(0),
+					Type = EquipmentSetInfo.EquipmentSetType.Equipment,
+					SetId = result.Read<byte>(1),
+					SetName = result.Read<string>(2),
+					SetIcon = result.Read<string>(3),
+					IgnoreMask = result.Read<uint>(4),
+					AssignedSpecIndex = result.Read<int>(5)
+				},
+				State = EquipmentSetUpdateState.Unchanged
+			};
 
-            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+			for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
 			{
 				ulong guid = result.Read<uint>(6 + i);
 
@@ -3689,20 +3679,20 @@ public partial class Player
 		do
 		{
 			EquipmentSetInfo eqSet = new()
-            {
-                Data =
-                {
-                    Guid = result.Read<ulong>(0),
-                    Type = EquipmentSetInfo.EquipmentSetType.Transmog,
-                    SetId = result.Read<byte>(1),
-                    SetName = result.Read<string>(2),
-                    SetIcon = result.Read<string>(3),
-                    IgnoreMask = result.Read<uint>(4)
-                },
-                State = EquipmentSetUpdateState.Unchanged
-            };
+			{
+				Data =
+				{
+					Guid = result.Read<ulong>(0),
+					Type = EquipmentSetInfo.EquipmentSetType.Transmog,
+					SetId = result.Read<byte>(1),
+					SetName = result.Read<string>(2),
+					SetIcon = result.Read<string>(3),
+					IgnoreMask = result.Read<uint>(4)
+				},
+				State = EquipmentSetUpdateState.Unchanged
+			};
 
-            for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
+			for (int i = EquipmentSlot.Start; i < EquipmentSlot.End; ++i)
 				eqSet.Data.Appearances[i] = result.Read<int>(5 + i);
 
 			for (var i = 0; i < eqSet.Data.Enchants.Length; ++i)
@@ -3782,16 +3772,16 @@ public partial class Player
 			do
 			{
 				PetStable.PetInfo petInfo = new()
-                {
-                    PetNumber = result.Read<uint>(0),
-                    CreatureId = result.Read<uint>(1),
-                    DisplayId = result.Read<uint>(2),
-                    Level = result.Read<byte>(3),
-                    Experience = result.Read<uint>(4),
-                    ReactState = (ReactStates)result.Read<byte>(5)
-                };
+				{
+					PetNumber = result.Read<uint>(0),
+					CreatureId = result.Read<uint>(1),
+					DisplayId = result.Read<uint>(2),
+					Level = result.Read<byte>(3),
+					Experience = result.Read<uint>(4),
+					ReactState = (ReactStates)result.Read<byte>(5)
+				};
 
-                var slot = (PetSaveMode)result.Read<short>(6);
+				var slot = (PetSaveMode)result.Read<short>(6);
 				petInfo.Name = result.Read<string>(7);
 				petInfo.WasRenamed = result.Read<bool>(8);
 				petInfo.Health = result.Read<uint>(9);
@@ -3898,15 +3888,14 @@ public partial class Player
 					if (test2 != null)
 						bagTestGUID = test2.GUID.Counter;
 
-					Log.Logger.Error(
-								"Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} (state {5}) are incorrect, " +
-								"the player doesn't have an item at that position!",
-								GUID.ToString(),
-								GetName(),
-								item.BagSlot,
-								item.Slot,
-								item.GUID.ToString(),
-								item.State);
+					Log.Logger.Error("Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} (state {5}) are incorrect, " +
+									"the player doesn't have an item at that position!",
+									GUID.ToString(),
+									GetName(),
+									item.BagSlot,
+									item.Slot,
+									item.GUID.ToString(),
+									item.State);
 
 					// according to the test that was just performed nothing should be in this slot, delete
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY_BY_BAG_SLOT);
@@ -3925,15 +3914,14 @@ public partial class Player
 				}
 				else if (test != item)
 				{
-					Log.Logger.Error(
-								"Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} are incorrect, " +
-								"the item with guid {5} is there instead!",
-								GUID.ToString(),
-								GetName(),
-								item.BagSlot,
-								item.Slot,
-								item.GUID.ToString(),
-								test.GUID.ToString());
+					Log.Logger.Error("Player(GUID: {0} Name: {1}).SaveInventory - the bag({2}) and slot({3}) values for the item with guid {4} are incorrect, " +
+									"the item with guid {5} is there instead!",
+									GUID.ToString(),
+									GetName(),
+									item.BagSlot,
+									item.Slot,
+									item.GUID.ToString(),
+									test.GUID.ToString());
 
 					// save all changes to the item...
 					if (item.State != ItemUpdateState.New) // only for existing items, no dupes
