@@ -11,17 +11,9 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Mails;
 using Game.Maps;
+using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
-using Game.Common.DataStorage;
-using Game.Common.DataStorage.Structs.A;
-using Game.Common.DataStorage.Structs.I;
-using Game.Common.Loot;
-using Game.Common.Networking.Packets.Equipment;
-using Game.Common.Networking.Packets.Item;
-using Game.Common.Networking.Packets.Loot;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Server;
 
 namespace Game.Entities;
 
@@ -2162,13 +2154,13 @@ public partial class Player
 		packet.ItemGUID = item.GUID;
 
 		packet.Pushed = pushed;
-		packet.DisplayText = Game.Common.Networking.Packets.Item.DisplayType.Normal;
+		packet.DisplayText = ItemPushResult.DisplayType.Normal;
 		packet.Created = created;
 		//packet.IsBonusRoll;
 
 		if (dungeonEncounterId != 0)
 		{
-			packet.DisplayText = Game.Common.Networking.Packets.Item.DisplayType.EncounterLoot;
+			packet.DisplayText = ItemPushResult.DisplayType.EncounterLoot;
 			packet.DungeonEncounterID = (int)dungeonEncounterId;
 			packet.IsEncounterLoot = true;
 		}

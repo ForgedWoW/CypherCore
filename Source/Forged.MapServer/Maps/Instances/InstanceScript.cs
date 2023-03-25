@@ -8,11 +8,8 @@ using Framework.Constants;
 using Game.AI;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Networking.Packets;
 using Game.Spells;
-using Game.Common.DataStorage.Structs.D;
-using Game.Common.Globals;
-using Game.Common.Networking.Packets.Instance;
-using Game.Common.Server;
 
 namespace Game.Maps;
 

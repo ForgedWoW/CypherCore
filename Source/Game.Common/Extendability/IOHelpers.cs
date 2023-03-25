@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Game.Common.Scripting.Activators;
 
 namespace Game.Common.Extendability;
 
@@ -34,14 +33,14 @@ public static class IOHelpers
 			assemblies.Add(Assembly.LoadFile(dll.FullName));
 
 		if (loadGameAssembly)
-			assemblies.Add(typeof(IScriptActivator).Assembly);
+			assemblies.Add(Assembly.GetExecutingAssembly());
 
 		_loadedAssemblies[path] = assemblies;
 
 		return assemblies;
 	}
 
-	public static IEnumerable<T> GetAllObjectsFromAssemblies<T>(string path, bool loadGameAssembly = true)
+	public static IEnumerable<T> GetAllObjectsFromAssemblies<T>(string path)
 	{
 		var assemblies = GetAllAssembliesInDir(Path.Combine(AppContext.BaseDirectory, "Scripts"));
 

@@ -3,7 +3,7 @@
 
 using System.Numerics;
 using Framework.Constants;
-using Game.Common.Networking;
+using Game.Networking;
 
 namespace Game.Entities;
 

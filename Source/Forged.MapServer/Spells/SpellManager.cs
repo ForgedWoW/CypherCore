@@ -15,8 +15,6 @@ using Game.Extendability;
 using Game.Movement;
 using Game.Scripting.Interfaces.ISpellManager;
 using Game.Spells;
-using Game.Common.DataStorage.Structs.B;
-using Game.Common.DataStorage.Structs.S;
 
 namespace Game.Entities;
 
@@ -127,7 +125,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (_spellEffectsHandlers.Count == 0)
 		{
-			Log.Logger.Fatal("Could'nt find any SpellEffectHandlers. Dev needs to check this out.");
+			Log.outFatal("Could'nt find any SpellEffectHandlers. Dev needs to check this out.");
 			Environment.Exit(1);
 		}
 	}

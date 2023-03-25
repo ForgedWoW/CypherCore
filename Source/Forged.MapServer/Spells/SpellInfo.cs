@@ -8,8 +8,6 @@ using Framework.Constants;
 using Framework.Dynamic;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Common.DataStorage.ClientReader;
-using Game.Common.DataStorage.Structs.S;
 
 namespace Game.Spells;
 

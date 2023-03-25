@@ -4,8 +4,6 @@
 using System.Collections.Generic;
 using Game.DataStorage;
 using Game.Maps;
-using Game.Common.DataStorage.Structs.M;
-using Game.Common.Scripting;
 
 namespace Game.Scripting.BaseScripts;
 

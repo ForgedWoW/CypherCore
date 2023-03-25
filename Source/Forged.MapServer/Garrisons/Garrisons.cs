@@ -10,8 +10,7 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Maps;
-using Game.Common.DataStorage.Structs.G;
-using Game.Common.Networking.Packets.Garrison;
+using Game.Networking.Packets;
 
 namespace Game.Garrisons;
 

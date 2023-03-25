@@ -4,10 +4,9 @@
 using Framework.Constants;
 using Game.Entities;
 using Game.Maps;
+using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IOutdoorPvP;
-using Game.Common.Networking.Packets.WorldState;
-using Game.Common.Scripting;
 
 namespace Game.PvP;
 

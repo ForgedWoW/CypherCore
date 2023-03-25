@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using Framework.Configuration;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Common.DataStorage.Structs.C;
-using Game.Common.DataStorage.Structs.I;
 
 namespace Game.Entities;
 

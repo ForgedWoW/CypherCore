@@ -6,28 +6,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.AI;
+using Game.Chat;
 using Game.Combat;
 using Game.DataStorage;
+using Game.Groups;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
+using Game.Networking;
+using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IUnit;
 using Game.Spells;
-using Game.Common.DoWork;
-using Game.Common.Globals;
-using Game.Common.Groups;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.BattleGround;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Networking.Packets.Combat;
-using Game.Common.Networking.Packets.CombatLog;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Scripting;
-using Game.Common.Server;
-using Game.Common.Text;
 
 namespace Game.Entities;
 
@@ -952,7 +943,7 @@ public partial class Unit : WorldObject
 
 			if (owner != null)
 				if (owner.Controlled.Contains(this))
-					Log.Logger.Fatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
+					Log.outFatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
 
 			base.RemoveFromWorld();
 			_duringRemoveFromWorld = false;
@@ -1275,7 +1266,7 @@ public partial class Unit : WorldObject
 				if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
 					return (Guardian)pet;
 
-			Log.Logger.Fatal("Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
+			Log.outFatal("Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
 			PetGUID = ObjectGuid.Empty;
 		}
 

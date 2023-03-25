@@ -12,9 +12,8 @@ using Framework.Threading;
 using Game.BattleGrounds;
 using Game.DataStorage;
 using Game.Garrisons;
+using Game.Groups;
 using Game.Maps;
-using Game.Common.Groups;
-using Game.Common.Server;
 
 namespace Game.Entities;
 

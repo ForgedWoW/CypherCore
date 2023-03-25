@@ -8,32 +8,7 @@ using System.IO;
 using System.Threading.Tasks.Dataflow;
 using Framework.Constants;
 using Framework.Database;
-using Game.Common.DataStorage.ClientReader;
-using Game.Common.DataStorage.Structs.A;
-using Game.Common.DataStorage.Structs.B;
-using Game.Common.DataStorage.Structs.C;
-using Game.Common.DataStorage.Structs.D;
-using Game.Common.DataStorage.Structs.E;
-using Game.Common.DataStorage.Structs.F;
-using Game.Common.DataStorage.Structs.G;
-using Game.Common.DataStorage.Structs.GameTable;
-using Game.Common.DataStorage.Structs.H;
-using Game.Common.DataStorage.Structs.I;
-using Game.Common.DataStorage.Structs.J;
-using Game.Common.DataStorage.Structs.K;
-using Game.Common.DataStorage.Structs.L;
-using Game.Common.DataStorage.Structs.M;
-using Game.Common.DataStorage.Structs.MetaStructs;
-using Game.Common.DataStorage.Structs.N;
-using Game.Common.DataStorage.Structs.O;
-using Game.Common.DataStorage.Structs.P;
-using Game.Common.DataStorage.Structs.Q;
-using Game.Common.DataStorage.Structs.R;
-using Game.Common.DataStorage.Structs.S;
-using Game.Common.DataStorage.Structs.T;
-using Game.Common.DataStorage.Structs.U;
-using Game.Common.DataStorage.Structs.V;
-using Game.Common.DataStorage.Structs.W;
+using Game.DataStorage.Structs.Q;
 
 namespace Game.DataStorage;
 
@@ -479,7 +454,7 @@ public class CliDB
 			!MapStorage.ContainsKey(2582) ||              // last map added in 10.0.5 (47660)
 			!SpellNameStorage.ContainsKey(401848))        // last spell added in 10.0.5 (47660)
 		{
-			Log.Logger.Fatal("You have _outdated_ DB2 files. Please extract correct versions from current using client.");
+			Log.outFatal("You have _outdated_ DB2 files. Please extract correct versions from current using client.");
 			Environment.Exit(1);
 		}
 

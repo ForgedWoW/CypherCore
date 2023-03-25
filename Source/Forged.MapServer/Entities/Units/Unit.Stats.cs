@@ -3,9 +3,9 @@
 
 using System;
 using Framework.Constants;
+using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
-using Game.Common.Networking.Packets.Combat;
 
 namespace Game.Entities;
 

@@ -8,7 +8,6 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Common.DataStorage.Structs.G;
 
 namespace Game.Garrisons;
 
@@ -173,7 +172,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	{
 		if (_followerDbIdGenerator >= ulong.MaxValue)
 		{
-			Log.Logger.Fatal("Garrison follower db id overflow! Can't continue, shutting down server. ");
+			Log.outFatal("Garrison follower db id overflow! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 

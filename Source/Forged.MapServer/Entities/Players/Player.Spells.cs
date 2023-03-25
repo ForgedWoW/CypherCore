@@ -7,13 +7,9 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Game.DataStorage;
+using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IItem;
 using Game.Spells;
-using Game.Common.DataStorage.Structs.S;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Pet;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Server;
 
 namespace Game.Entities;
 

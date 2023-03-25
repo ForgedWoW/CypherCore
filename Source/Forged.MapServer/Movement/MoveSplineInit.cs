@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
-using Game.Common.Networking.Packets.Movement;
+using Game.Networking.Packets;
 
 namespace Game.Movement;
 

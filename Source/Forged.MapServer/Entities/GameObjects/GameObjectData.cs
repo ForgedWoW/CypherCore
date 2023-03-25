@@ -4,7 +4,6 @@
 using System.Numerics;
 using Framework.Constants;
 using Game.Maps;
-using Game.Common.Entities;
 
 namespace Game.Entities;
 // From `gameobject_template_addon`, `gameobject_overrides`

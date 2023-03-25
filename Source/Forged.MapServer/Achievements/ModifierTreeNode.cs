@@ -3,12 +3,11 @@
 
 using System.Collections.Generic;
 using Game.DataStorage;
-using Game.Common.DataStorage.Structs.M;
 
-namespace Forged.MapServer.Achievements;
+namespace Game.Achievements;
 
 public class ModifierTreeNode
 {
-    public ModifierTreeRecord Entry;
-    public List<ModifierTreeNode> Children = new();
+	public ModifierTreeRecord Entry;
+	public List<ModifierTreeNode> Children = new();
 }

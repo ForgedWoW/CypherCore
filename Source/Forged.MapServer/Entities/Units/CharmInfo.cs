@@ -4,8 +4,8 @@
 using System;
 using Framework.Collections;
 using Framework.Constants;
+using Game.Networking;
 using Game.Spells;
-using Game.Common.Networking;
 
 namespace Game.Entities;
 

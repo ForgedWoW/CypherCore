@@ -4,7 +4,7 @@
 using System;
 using Framework.Constants;
 using Game.Entities;
-using Game.Common.Networking.Packets.Spell;
+using Game.Networking.Packets;
 
 namespace Game.Spells;
 

@@ -12,7 +12,7 @@ using Game.Maps.Grids;
 
 namespace Game.Maps;
 
-public class TerrainManager : Singleton<TerrainManager>
+public class TerrainManager
 {
 	readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
 	readonly HashSet<uint> _keepLoaded = new();

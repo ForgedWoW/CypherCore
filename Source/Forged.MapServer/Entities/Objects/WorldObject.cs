@@ -13,16 +13,10 @@ using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
 using Game.Movement;
+using Game.Networking;
+using Game.Networking.Packets;
 using Game.Scenarios;
 using Game.Spells;
-using Game.Common.DataStorage.Structs.F;
-using Game.Common.Loot;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.CombatLog;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Movement;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Server;
 
 namespace Game.Entities;
 
@@ -481,22 +475,22 @@ public abstract class WorldObject : IDisposable
 		if (IsWorldObject() && _currMap)
 		{
 			if (IsTypeId(TypeId.Corpse))
-				Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+				Log.outFatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
 			else
 				ResetMap();
 		}
 
 		if (IsInWorld)
 		{
-			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+			Log.outFatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
 
 			if (IsTypeMask(TypeMask.Item))
-				Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
+				Log.outFatal("Item slot {0}", ((Item)this).Slot);
 		}
 
 		if (_objectUpdated)
 		{
-			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
+			Log.outFatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
 		}
 	}
 

@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Game.Common.Scripting;
 
 namespace Game.Common
 {
@@ -7,8 +6,7 @@ namespace Game.Common
     {
         public static ContainerBuilder AddCommon(this ContainerBuilder builder)
         {
-            builder.RegisterType<ScriptManager>().SingleInstance(); 
-
+          
             return builder;
         }
 

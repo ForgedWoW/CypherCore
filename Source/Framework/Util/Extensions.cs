@@ -268,7 +268,7 @@ public static class Extensions
 			{
 				// WARNING.  Not unique.  ZA - XA = -atan2(r01,r02)
 				z = -MathF.Atan2(matrix.M12, matrix.M13);
-				y = MathFunctions.PiOver2;
+				y = MathFunctions.PI_OVER2;
 				x = 0.0f;
 			}
 		}
@@ -276,7 +276,7 @@ public static class Extensions
 		{
 			// WARNING.  Not unique.  ZA + XA = atan2(-r01,-r02)
 			z = MathF.Atan2(-matrix.M12, -matrix.M13);
-			y = -MathFunctions.PiOver2;
+			y = -MathFunctions.PI_OVER2;
 			x = 0.0f;
 		}
 	}

@@ -4,7 +4,6 @@
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
-using Game.Common.DataStorage;
 
 namespace Game.Entities;
 

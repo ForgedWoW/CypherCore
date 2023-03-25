@@ -2,10 +2,6 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
-// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
-
-using Game.Common.Server;
 
 namespace Game.Entities;
 
@@ -43,7 +39,7 @@ public class ObjectGuidGenerator
 
 	void HandleCounterOverflow()
 	{
-		Log.Logger.Fatal("{0} guid overflow!! Can't continue, shutting down server. ", _highGuid);
+		Log.outFatal("{0} guid overflow!! Can't continue, shutting down server. ", _highGuid);
 		Global.WorldMgr.StopNow();
 	}
 

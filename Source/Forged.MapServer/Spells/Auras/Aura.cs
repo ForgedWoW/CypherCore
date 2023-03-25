@@ -9,10 +9,10 @@ using Framework.Dynamic;
 using Framework.Models;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Networking.Packets;
 using Game.Scripting;
+using Game.Scripting.Interfaces;
 using Game.Scripting.Interfaces.IAura;
-using Game.Common.DataStorage.Structs.S;
-using Game.Common.Networking.Packets.Spell;
 
 namespace Game.Spells;
 
@@ -400,7 +400,7 @@ public class Aura
 				// owner has to be in world, or effect has to be applied to self
 				if (!_owner.IsSelfOrInSameMap(unit))
 					// @todo There is a crash caused by shadowfiend load addon
-					Log.Logger.Fatal(
+					Log.outFatal(
 								"Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
 								SpellInfo.Id,
 								_owner.GetName(),
@@ -1671,7 +1671,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 	}
 
@@ -2209,7 +2209,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2231,7 +2231,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2251,7 +2251,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2276,7 +2276,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2303,7 +2303,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2325,7 +2325,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2345,7 +2345,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2370,7 +2370,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2392,7 +2392,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2412,7 +2412,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2438,7 +2438,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2458,7 +2458,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2478,7 +2478,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2499,7 +2499,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2519,7 +2519,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2540,7 +2540,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2560,7 +2560,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2580,7 +2580,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2600,7 +2600,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2620,7 +2620,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2640,7 +2640,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2662,7 +2662,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2689,7 +2689,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2714,7 +2714,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2736,7 +2736,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}
@@ -2758,7 +2758,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2785,7 +2785,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 
@@ -2807,7 +2807,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.Logger.Error(ex, "");
+				Log.outException(ex);
 			}
 		}
 	}

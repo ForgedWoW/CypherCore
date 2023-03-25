@@ -1,34 +1,28 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using Forged.MapServer.Achievements;
 using Game;
+using Game.Achievements;
 using Game.AI;
 using Game.Arenas;
 using Game.BattleFields;
 using Game.BattleGrounds;
 using Game.BlackMarket;
+using Game.Cache;
+using Game.Chat;
 using Game.Collision;
 using Game.DataStorage;
 using Game.DungeonFinding;
 using Game.Entities;
 using Game.Garrisons;
+using Game.Groups;
 using Game.Loots;
 using Game.Maps;
 using Game.PvP;
 using Game.Scenarios;
 using Game.Scripting;
+using Game.Services;
 using Game.SupportSystem;
-using Game.Common.Accounts;
-using Game.Common.Cache;
-using Game.Common.Chat;
-using Game.Common.DataStorage;
-using Game.Common.Globals;
-using Game.Common.Groups;
-using Game.Common.Scripting;
-using Game.Common.Services;
-using Game.Common.Text;
-using Game.Common.Warden;
 
 public static class Global
 {

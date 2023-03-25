@@ -7,9 +7,8 @@ using System.Linq;
 using Framework.Constants;
 using Game.AI;
 using Game.Movement;
+using Game.Networking.Packets;
 using Game.Spells;
-using Game.Common.Networking.Packets.Combat;
-using Game.Common.Networking.Packets.Pet;
 
 namespace Game.Entities;
 
@@ -90,14 +89,14 @@ public partial class Unit
 		{
 			if (!minion.OwnerGUID.IsEmpty)
 			{
-				Log.Logger.Fatal("SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
+				Log.outFatal("SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
 
 				return;
 			}
 
 			if (!IsInWorld)
 			{
-				Log.Logger.Fatal($"SetMinion: Minion being added to owner not in world. Minion: {minion.GUID}, Owner: {GetDebugInfo()}");
+				Log.outFatal($"SetMinion: Minion being added to owner not in world. Minion: {minion.GUID}, Owner: {GetDebugInfo()}");
 
 				return;
 			}
@@ -192,7 +191,7 @@ public partial class Unit
 		{
 			if (minion.OwnerGUID != GUID)
 			{
-				Log.Logger.Fatal("SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
+				Log.outFatal("SetMinion: Minion {0} is not the minion of owner {1}", minion.Entry, Entry);
 
 				return;
 			}
@@ -281,14 +280,14 @@ public partial class Unit
 
 		if (this == charmer)
 		{
-			Log.Logger.Fatal("Unit:SetCharmedBy: Unit {0} (GUID {1}) is trying to charm itself!", Entry, GUID.ToString());
+			Log.outFatal("Unit:SetCharmedBy: Unit {0} (GUID {1}) is trying to charm itself!", Entry, GUID.ToString());
 
 			return false;
 		}
 
 		if (IsPlayer && AsPlayer.Transport != null)
 		{
-			Log.Logger.Fatal("Unit:SetCharmedBy: Player on transport is trying to charm {0} (GUID {1})", Entry, GUID.ToString());
+			Log.outFatal("Unit:SetCharmedBy: Player on transport is trying to charm {0} (GUID {1})", Entry, GUID.ToString());
 
 			return false;
 		}
@@ -296,7 +295,7 @@ public partial class Unit
 		// Already charmed
 		if (!CharmerGUID.IsEmpty)
 		{
-			Log.Logger.Fatal("Unit:SetCharmedBy: {0} (GUID {1}) has already been charmed but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
+			Log.outFatal("Unit:SetCharmedBy: {0} (GUID {1}) has already been charmed but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
 
 			return false;
 		}
@@ -323,7 +322,7 @@ public partial class Unit
 		// StopCastingCharm may remove a possessed pet?
 		if (!IsInWorld)
 		{
-			Log.Logger.Fatal("Unit:SetCharmedBy: {0} (GUID {1}) is not in world but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
+			Log.outFatal("Unit:SetCharmedBy: {0} (GUID {1}) is not in world but {2} (GUID {3}) is trying to charm it!", Entry, GUID.ToString(), charmer.Entry, charmer.GUID.ToString());
 
 			return false;
 		}
@@ -697,13 +696,13 @@ public partial class Unit
 		}
 
 		if (!PetGUID.IsEmpty)
-			Log.Logger.Fatal("Unit {0} is not able to release its pet {1}", Entry, PetGUID);
+			Log.outFatal("Unit {0} is not able to release its pet {1}", Entry, PetGUID);
 
 		if (!MinionGUID.IsEmpty)
-			Log.Logger.Fatal("Unit {0} is not able to release its minion {1}", Entry, MinionGUID);
+			Log.outFatal("Unit {0} is not able to release its minion {1}", Entry, MinionGUID);
 
 		if (!CharmedGUID.IsEmpty)
-			Log.Logger.Fatal("Unit {0} is not able to release its charm {1}", Entry, CharmedGUID);
+			Log.outFatal("Unit {0} is not able to release its charm {1}", Entry, CharmedGUID);
 
 		if (!IsPet)                                // pets don't use the flag for this
 			RemoveUnitFlag(UnitFlags.PetInCombat); // m_controlled is now empty, so we know none of our minions are in combat

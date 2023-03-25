@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using Framework.IO;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Update;
+using Game.Networking;
+using Game.Networking.Packets;
 
 namespace Game.Entities;
 

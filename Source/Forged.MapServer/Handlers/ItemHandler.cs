@@ -6,11 +6,12 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Game.BattlePets;
+using Game.Common.DataStorage.Structs.G;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Common.DataStorage.Structs.G;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Item;
+using Game.Networking;
+using Game.Networking.Packets;
+using Serilog;
 
 namespace Game;
 

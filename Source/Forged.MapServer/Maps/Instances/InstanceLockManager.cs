@@ -12,8 +12,6 @@ namespace Game.Maps;
 
 using InstanceLockKey = Tuple<uint, uint>;
 
-using Game.Common.Server;
-
 public class InstanceLockManager : Singleton<InstanceLockManager>
 {
 	readonly object _lockObject = new();

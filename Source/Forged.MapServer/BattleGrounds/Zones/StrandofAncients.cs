@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Game.Entities;
-using Game.Common.Globals;
-using Game.Common.Networking.Packets.BattleGround;
+using Game.Networking.Packets;
 
 namespace Game.BattleGrounds.Zones;
 

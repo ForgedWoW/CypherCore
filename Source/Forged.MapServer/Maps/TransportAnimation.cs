@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Game.DataStorage;
-using Game.Common.DataStorage.Structs.T;
 
 namespace Game.Maps;
 

@@ -7,19 +7,13 @@ using System.Linq;
 using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
+using Game.Chat;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Groups;
 using Game.Maps;
-using Game.Common.DataStorage.Structs.P;
-using Game.Common.DoWork;
-using Game.Common.Globals;
-using Game.Common.Groups;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.BattleGround;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Server;
-using Game.Common.Text;
+using Game.Networking;
+using Game.Networking.Packets;
 
 namespace Game.BattleGrounds;
 
@@ -655,16 +649,16 @@ public class Battleground : ZoneScript, IDisposable
 		{
 			case BattlegroundStatus.None:
 			case BattlegroundStatus.WaitQueue:
-				pvpMatchInitialize.State = Game.Common.Networking.Packets.BattleGround.MatchState.Inactive;
+				pvpMatchInitialize.State = PVPMatchInitialize.MatchState.Inactive;
 
 				break;
 			case BattlegroundStatus.WaitJoin:
 			case BattlegroundStatus.InProgress:
-				pvpMatchInitialize.State = Game.Common.Networking.Packets.BattleGround.MatchState.InProgress;
+				pvpMatchInitialize.State = PVPMatchInitialize.MatchState.InProgress;
 
 				break;
 			case BattlegroundStatus.WaitLeave:
-				pvpMatchInitialize.State = Game.Common.Networking.Packets.BattleGround.MatchState.Complete;
+				pvpMatchInitialize.State = PVPMatchInitialize.MatchState.Complete;
 
 				break;
 			default:

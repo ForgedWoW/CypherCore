@@ -10,7 +10,6 @@ using Framework.Constants;
 using Game.DataStorage;
 using Game.Maps;
 using Game.Scripting.Interfaces.ITransport;
-using Game.Common.DataStorage.Structs.S;
 
 namespace Game.Entities;
 

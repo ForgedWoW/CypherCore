@@ -8,7 +8,6 @@ using System.Text;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Scripting.Interfaces.IVehicle;
-using Game.Common.DataStorage.Structs.V;
 
 namespace Game.Entities;
 
@@ -133,7 +132,7 @@ public class Vehicle : ITransport
 
 	public void AddPassenger(WorldObject passenger)
 	{
-		Log.Logger.Fatal("Vehicle cannot directly gain passengers without auras");
+		Log.outFatal("Vehicle cannot directly gain passengers without auras");
 	}
 
 	public void CalculatePassengerPosition(Position pos)

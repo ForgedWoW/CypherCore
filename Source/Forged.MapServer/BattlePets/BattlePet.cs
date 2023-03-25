@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Common.Networking.Packets.BattlePet;
+using Game.Networking.Packets;
 
 namespace Game.BattlePets;
 

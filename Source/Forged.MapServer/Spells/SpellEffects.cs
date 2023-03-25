@@ -10,23 +10,14 @@ using Framework.Dynamic;
 using Game.BattlePets;
 using Game.DataStorage;
 using Game.Entities;
+using Game.Groups;
 using Game.Loots;
 using Game.Maps;
 using Game.Movement;
+using Game.Networking.Packets;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Scripting.Interfaces.IQuest;
 using Game.Scripting.Interfaces.ISpell;
-using Game.Common.DataStorage.Structs.S;
-using Game.Common.Groups;
-using Game.Common.Loot;
-using Game.Common.Networking.Packets.Combat;
-using Game.Common.Networking.Packets.CombatLog;
-using Game.Common.Networking.Packets.Duel;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Networking.Packets.Talent;
-using Game.Common.Networking.Packets.Trait;
-using Game.Common.Server;
 
 namespace Game.Spells;
 

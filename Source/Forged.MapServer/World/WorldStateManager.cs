@@ -9,7 +9,8 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Maps;
-using Game.Common.Networking.Packets.WorldState;
+using Game.Networking.Packets;
+using Game.Scripting.Interfaces.IWorldState;
 
 namespace Game;
 

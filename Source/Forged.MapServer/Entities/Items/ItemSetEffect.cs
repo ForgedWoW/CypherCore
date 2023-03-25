@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using Game.DataStorage;
-using Game.Common.DataStorage.Structs.I;
 
 namespace Game.Entities;
 

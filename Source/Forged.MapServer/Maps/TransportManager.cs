@@ -10,7 +10,6 @@ using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
 using Game.Movement;
-using Game.Common.DataStorage.Structs.T;
 
 namespace Game.Maps;
 

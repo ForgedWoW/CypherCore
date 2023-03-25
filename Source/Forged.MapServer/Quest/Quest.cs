@@ -9,10 +9,7 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Common.Globals;
-using Game.Common.Networking.Packets.Item;
-using Game.Common.Networking.Packets.Quest;
-using Game.Common.Server;
+using Game.Networking.Packets;
 
 namespace Game;
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Game.Entities;
+using Game.Scripting.Interfaces;
 using Game.Spells;
 
 namespace Game.Scripting;

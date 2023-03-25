@@ -6,12 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Framework.Constants;
+using Game.Chat;
 using Game.Entities;
 using Game.Maps;
-using Game.Common.DoWork;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Text;
+using Game.Networking;
+using Game.Networking.Packets;
 
 namespace Game.PvP;
 

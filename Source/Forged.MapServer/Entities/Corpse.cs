@@ -6,12 +6,11 @@ using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Game.Common.Loot;
 using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
-using Game.Common.Networking;
+using Game.Networking;
 
 namespace Game.Entities;
 

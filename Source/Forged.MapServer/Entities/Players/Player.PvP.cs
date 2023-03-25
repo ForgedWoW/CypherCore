@@ -7,11 +7,8 @@ using Framework.Constants;
 using Framework.Database;
 using Game.BattleGrounds;
 using Game.DataStorage;
+using Game.Networking.Packets;
 using Game.PvP;
-using Game.Common.DataStorage.Structs.R;
-using Game.Common.Networking.Packets.BattleGround;
-using Game.Common.Networking.Packets.Combat;
-using Game.Common.Server;
 
 namespace Game.Entities;
 
@@ -574,7 +571,7 @@ public partial class Player
 				_bgData.BgAfkReporter.Clear();
 				reportAfkResult.NumBlackMarksOnOffender = (byte)_bgData.BgAfkReporter.Count;
 				reportAfkResult.NumPlayersIHaveReported = reporter._bgData.BgAfkReportedCount;
-				reportAfkResult.Result = Game.Common.Networking.Packets.BattleGround.ResultCode.Success;
+				reportAfkResult.Result = ReportPvPPlayerAFKResult.ResultCode.Success;
 			}
 		}
 

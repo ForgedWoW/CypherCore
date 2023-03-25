@@ -597,7 +597,7 @@ public class PetAI : CreatureAI
 				// Pets with ranged attacks should not care about the chase angle at all.
 				var chaseDistance = Me.GetPetChaseDistance();
 				var angle = chaseDistance == 0.0f ? MathF.PI : 0.0f;
-				var tolerance = chaseDistance == 0.0f ? MathFunctions.PiOver4 : (MathF.PI * 2);
+				var tolerance = chaseDistance == 0.0f ? MathFunctions.PI_OVER4 : (MathF.PI * 2);
 				Me.MotionMaster.MoveChase(target, new ChaseRange(0.0f, chaseDistance), new ChaseAngle(angle, tolerance));
 			}
 			else

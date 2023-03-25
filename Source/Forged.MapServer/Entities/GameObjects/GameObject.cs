@@ -15,15 +15,9 @@ using Game.DataStorage;
 using Game.Loots;
 using Game.Maps;
 using Game.Maps.Grids;
+using Game.Networking;
+using Game.Networking.Packets;
 using Game.Spells;
-using Game.Common.DataStorage.Structs.A;
-using Game.Common.Loot;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Artifact;
-using Game.Common.Networking.Packets.BattleGround;
-using Game.Common.Networking.Packets.GameObject;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Server;
 
 namespace Game.Entities
 {
@@ -460,7 +454,7 @@ namespace Game.Entities
 				}
 				catch (Exception ex)
 				{
-					Log.Logger.Error(ex, "");	
+					Log.outException(ex);	
 				}
 			}
 		}
@@ -1578,7 +1572,7 @@ namespace Game.Entities
 			switch (action)
 			{
 				case GameObjectActions.None:
-					Log.Logger.Fatal($"Spell {spellId} has action type NONE in effect {effectIndex}");
+					Log.outFatal($"Spell {spellId} has action type NONE in effect {effectIndex}");
 
 					break;
 				case GameObjectActions.AnimateCustom0:

@@ -9,10 +9,8 @@ using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
 using Game.Maps;
+using Game.Networking.Packets;
 using Game.Spells;
-using Game.Common.Networking.Packets.Pet;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Server;
 
 namespace Game.Entities;
 

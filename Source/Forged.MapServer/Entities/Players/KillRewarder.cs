@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.DataStorage;
-using Game.Common.Groups;
+using Game.Groups;
 
 namespace Game.Entities;
 

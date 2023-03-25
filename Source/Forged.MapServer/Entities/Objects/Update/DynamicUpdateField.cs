@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Game.Common.Networking;
+using Game.Networking;
 
 namespace Game.Entities;
 

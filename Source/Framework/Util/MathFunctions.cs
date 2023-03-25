@@ -10,13 +10,13 @@ using Framework.GameMath;
 public static class MathFunctions
 {
 	public const float E = 2.71828f;
-	public const float Log10E = 0.434294f;
-	public const float Log2E = 1.4427f;
+	public const float LOG10_E = 0.434294f;
+	public const float LOG2_E = 1.4427f;
 	public const float PI = 3.14159f;
-	public const float PiOver2 = 1.5708f;
-	public const float PiOver4 = 0.785398f;
-	public const float TwoPi = 6.28319f;
-	public const float Epsilon = 4.76837158203125E-7f;
+	public const float PI_OVER2 = 1.5708f;
+	public const float PI_OVER4 = 0.785398f;
+	public const float TWO_PI = 6.28319f;
+	public const float EPSILON = 4.76837158203125E-7f;
 
 	public static float wrap(float t, float lo, float hi)
 	{
@@ -30,12 +30,10 @@ public static class MathFunctions
 
 	public static void Swap<T>(ref T lhs, ref T rhs)
 	{
-		var temp = lhs;
-		lhs = rhs;
-		rhs = temp;
-	}
+		(lhs, rhs) = (rhs, lhs);
+    }
 
-	public static float lerp(float a, float b, float f)
+	public static float Lerp(float a, float b, float f)
 	{
 		return a + (b - a) * f;
 	}
@@ -505,10 +503,10 @@ public static class MathFunctions
     ///  Returns the clamped value.
     ///  result = (EpsilonF > Abs(value-calmpedValue)) ? calmpedValue : value;
     /// </returns>
-    /// <remarks> <see cref="MathFunctions.Epsilon" /> is used for tolerance. </remarks>
+    /// <remarks> <see cref="EPSILON" /> is used for tolerance. </remarks>
     public static float Clamp(float value, float calmpedValue)
 	{
-		return (Epsilon > Math.Abs(value - calmpedValue)) ? calmpedValue : value;
+		return (EPSILON > Math.Abs(value - calmpedValue)) ? calmpedValue : value;
 	}
 
 	#endregion

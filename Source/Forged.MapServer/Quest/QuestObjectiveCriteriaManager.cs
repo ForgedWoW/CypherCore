@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using Forged.MapServer.Achievements;
 using Framework.Constants;
 using Framework.Database;
+using Game.Achievements;
 using Game.Entities;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
+using Game.Networking;
+using Game.Networking.Packets;
 
 namespace Game;
 

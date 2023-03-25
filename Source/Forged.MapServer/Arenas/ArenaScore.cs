@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Game.BattleGrounds;
 using Game.Entities;
-using Game.Common.Networking.Packets.BattleGround;
+using Game.Networking.Packets;
 
 namespace Game.Arenas;
 

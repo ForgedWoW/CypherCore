@@ -12,44 +12,19 @@ using Framework.Dynamic;
 using Game.Achievements;
 using Game.AI;
 using Game.BattlePets;
+using Game.Chat;
 using Game.DataStorage;
 using Game.Garrisons;
 using Game.Guilds;
 using Game.Mails;
 using Game.Maps;
 using Game.Maps.Grids;
+using Game.Misc;
+using Game.Networking;
+using Game.Networking.Packets;
 using Game.Scripting;
 using Game.Scripting.Interfaces.IPlayer;
 using Game.Spells;
-using Game.Common.Chat;
-using Game.Common.Chat.Channels;
-using Game.Common.DataStorage.Structs.A;
-using Game.Common.DataStorage.Structs.C;
-using Game.Common.DataStorage.Structs.F;
-using Game.Common.DoWork;
-using Game.Common.Globals;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Character;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Networking.Packets.Combat;
-using Game.Common.Networking.Packets.CombatLog;
-using Game.Common.Networking.Packets.Item;
-using Game.Common.Networking.Packets.Mail;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Movement;
-using Game.Common.Networking.Packets.NPC;
-using Game.Common.Networking.Packets.Party;
-using Game.Common.Networking.Packets.Pet;
-using Game.Common.Networking.Packets.Quest;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Networking.Packets.Talent;
-using Game.Common.Networking.Packets.Toy;
-using Game.Common.Networking.Packets.Vehicle;
-using Game.Common.Networking.Packets.WorldState;
-using Game.Common.Scripting;
-using Game.Common.Scripting.Interfaces.IPlayer;
-using Game.Common.Server;
-using Game.Common.Text;
 
 namespace Game.Entities;
 
@@ -1411,7 +1386,7 @@ public partial class Player : Unit
 				// Temporary for issue https://github.com/TrinityCore/TrinityCore/issues/24876
 				if (!CharmedGUID.IsEmpty && !charm.HasAuraTypeWithCaster(AuraType.ControlVehicle, GUID))
 				{
-					Log.Logger.Fatal($"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
+					Log.outFatal($"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
 
 					// attempt to recover from missing HandleAuraControlVehicle unapply handling
 					// THIS IS A HACK, NEED TO FIND HOW IS IT EVEN POSSBLE TO NOT HAVE THE AURA
@@ -1425,10 +1400,10 @@ public partial class Player : Unit
 
 		if (!CharmedGUID.IsEmpty)
 		{
-			Log.Logger.Fatal("Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
+			Log.outFatal("Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
 
 			if (!charm.CharmerGUID.IsEmpty)
-				Log.Logger.Fatal($"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
+				Log.outFatal($"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
 			else
 				SetCharm(charm, false);
 		}
@@ -4235,7 +4210,7 @@ public partial class Player : Unit
 		for (var i = 0; i < playerChoice.Responses.Count; ++i)
 		{
 			var playerChoiceResponseTemplate = playerChoice.Responses[i];
-			var playerChoiceResponse = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponse();
+			var playerChoiceResponse = new Networking.Packets.PlayerChoiceResponse();
 
 			playerChoiceResponse.ResponseID = playerChoiceResponseTemplate.ResponseId;
 			playerChoiceResponse.ResponseIdentifier = playerChoiceResponseTemplate.ResponseIdentifier;
@@ -4270,7 +4245,7 @@ public partial class Player : Unit
 
 			if (playerChoiceResponseTemplate.Reward != null)
 			{
-				var reward = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseReward();
+				var reward = new Networking.Packets.PlayerChoiceResponseReward();
 				reward.TitleID = playerChoiceResponseTemplate.Reward.TitleId;
 				reward.PackageID = playerChoiceResponseTemplate.Reward.PackageId;
 				reward.SkillLineID = playerChoiceResponseTemplate.Reward.SkillLineId;
@@ -4282,7 +4257,7 @@ public partial class Player : Unit
 
 				foreach (var item in playerChoiceResponseTemplate.Reward.Items)
 				{
-					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = item.Id;
 					rewardEntry.Quantity = item.Quantity;
 
@@ -4297,7 +4272,7 @@ public partial class Player : Unit
 
 				foreach (var currency in playerChoiceResponseTemplate.Reward.Currency)
 				{
-					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = currency.Id;
 					rewardEntry.Quantity = currency.Quantity;
 					reward.Items.Add(rewardEntry);
@@ -4305,7 +4280,7 @@ public partial class Player : Unit
 
 				foreach (var faction in playerChoiceResponseTemplate.Reward.Faction)
 				{
-					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = faction.Id;
 					rewardEntry.Quantity = faction.Quantity;
 					reward.Items.Add(rewardEntry);
@@ -4313,7 +4288,7 @@ public partial class Player : Unit
 
 				foreach (var item in playerChoiceResponseTemplate.Reward.ItemChoices)
 				{
-					var rewardEntry = new Game.Common.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry();
+					var rewardEntry = new Networking.Packets.PlayerChoiceResponseRewardEntry();
 					rewardEntry.Item.ItemID = item.Id;
 					rewardEntry.Quantity = item.Quantity;
 
@@ -6063,7 +6038,7 @@ public partial class Player : Unit
 
 			if (ActivePlayerData.FarsightObject != ObjectGuid.Empty)
 			{
-				Log.Logger.Fatal("Player.CreateViewpoint: Player {0} cannot add new viewpoint!", GetName());
+				Log.outFatal("Player.CreateViewpoint: Player {0} cannot add new viewpoint!", GetName());
 
 				return;
 			}
@@ -6084,7 +6059,7 @@ public partial class Player : Unit
 
 			if (target.GUID != ActivePlayerData.FarsightObject)
 			{
-				Log.Logger.Fatal("Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
+				Log.outFatal("Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
 
 				return;
 			}

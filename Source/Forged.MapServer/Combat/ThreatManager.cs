@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Game.Entities;
+using Game.Networking.Packets;
 using Game.Spells;
-using Game.Common.Networking.Packets.Combat;
 
 namespace Game.Combat;
 

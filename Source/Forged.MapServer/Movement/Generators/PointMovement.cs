@@ -4,7 +4,6 @@
 using System;
 using Framework.Constants;
 using Game.Entities;
-using Game.Common.Server;
 
 namespace Game.Movement;
 

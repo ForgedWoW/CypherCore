@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Networking;
 using Game.Scripting.Interfaces.IDynamicObject;
 using Game.Spells;
-using Game.Common.Networking;
 
 namespace Game.Entities;
 

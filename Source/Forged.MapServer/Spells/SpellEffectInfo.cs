@@ -8,7 +8,6 @@ using Framework.Dynamic;
 using Game.Conditions;
 using Game.DataStorage;
 using Game.Entities;
-using Game.Common.DataStorage.Structs.S;
 
 namespace Game.Spells;
 
