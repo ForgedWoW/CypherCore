@@ -60,7 +60,7 @@ public static class CollectionExtensions
 		return default;
 	}
 
-	public static KeyValuePair<TKey, TValue> Find<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
+    public static KeyValuePair<TKey, TValue> Find<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
 	{
 		if (!dict.TryGetValue(key, out var val))
 			return default;

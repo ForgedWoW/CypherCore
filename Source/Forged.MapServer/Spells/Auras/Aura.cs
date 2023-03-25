@@ -400,7 +400,7 @@ public class Aura
 				// owner has to be in world, or effect has to be applied to self
 				if (!_owner.IsSelfOrInSameMap(unit))
 					// @todo There is a crash caused by shadowfiend load addon
-					Log.outFatal(
+					Log.Logger.Fatal(
 								"Aura {0}: Owner {1} (map {2}) is not in the same map as target {3} (map {4}).",
 								SpellInfo.Id,
 								_owner.GetName(),

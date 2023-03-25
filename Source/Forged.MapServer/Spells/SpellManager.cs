@@ -125,7 +125,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 		if (_spellEffectsHandlers.Count == 0)
 		{
-			Log.outFatal("Could'nt find any SpellEffectHandlers. Dev needs to check this out.");
+			Log.Logger.Fatal("Could'nt find any SpellEffectHandlers. Dev needs to check this out.");
 			Environment.Exit(1);
 		}
 	}

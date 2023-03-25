@@ -10770,7 +10770,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_creatureSpawnId >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outFatal("Creature spawn id overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Fatal("Creature spawn id overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 
@@ -10781,7 +10781,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		if (_gameObjectSpawnId >= 0xFFFFFFFFFFFFFFFE)
 		{
-			Log.outFatal("GameObject spawn id overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Fatal("GameObject spawn id overflow!! Can't continue, shutting down server. ");
 			Global.WorldMgr.StopNow();
 		}
 

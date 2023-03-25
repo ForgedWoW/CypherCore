@@ -132,7 +132,7 @@ public class Vehicle : ITransport
 
 	public void AddPassenger(WorldObject passenger)
 	{
-		Log.outFatal("Vehicle cannot directly gain passengers without auras");
+		Log.Logger.Fatal("Vehicle cannot directly gain passengers without auras");
 	}
 
 	public void CalculatePassengerPosition(Position pos)

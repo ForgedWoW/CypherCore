@@ -1572,7 +1572,7 @@ namespace Game.Entities
 			switch (action)
 			{
 				case GameObjectActions.None:
-					Log.outFatal($"Spell {spellId} has action type NONE in effect {effectIndex}");
+					Log.Logger.Fatal($"Spell {spellId} has action type NONE in effect {effectIndex}");
 
 					break;
 				case GameObjectActions.AnimateCustom0:

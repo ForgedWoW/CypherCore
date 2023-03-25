@@ -1386,7 +1386,7 @@ public partial class Player : Unit
 				// Temporary for issue https://github.com/TrinityCore/TrinityCore/issues/24876
 				if (!CharmedGUID.IsEmpty && !charm.HasAuraTypeWithCaster(AuraType.ControlVehicle, GUID))
 				{
-					Log.outFatal($"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
+					Log.Logger.Fatal($"Player::StopCastingCharm Player '{GetName()}' ({GUID}) is not able to uncharm vehicle ({CharmedGUID}) because of missing SPELL_AURA_CONTROL_VEHICLE");
 
 					// attempt to recover from missing HandleAuraControlVehicle unapply handling
 					// THIS IS A HACK, NEED TO FIND HOW IS IT EVEN POSSBLE TO NOT HAVE THE AURA
@@ -1400,10 +1400,10 @@ public partial class Player : Unit
 
 		if (!CharmedGUID.IsEmpty)
 		{
-			Log.outFatal("Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
+			Log.Logger.Fatal("Player {0} (GUID: {1} is not able to uncharm unit (GUID: {2} Entry: {3}, Type: {4})", GetName(), GUID, CharmedGUID, charm.Entry, charm.TypeId);
 
 			if (!charm.CharmerGUID.IsEmpty)
-				Log.outFatal($"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
+				Log.Logger.Fatal($"Player::StopCastingCharm: Charmed unit has charmer {charm.CharmerGUID}\nPlayer debug info: {GetDebugInfo()}\nCharm debug info: {charm.GetDebugInfo()}");
 			else
 				SetCharm(charm, false);
 		}
@@ -6038,7 +6038,7 @@ public partial class Player : Unit
 
 			if (ActivePlayerData.FarsightObject != ObjectGuid.Empty)
 			{
-				Log.outFatal("Player.CreateViewpoint: Player {0} cannot add new viewpoint!", GetName());
+				Log.Logger.Fatal("Player.CreateViewpoint: Player {0} cannot add new viewpoint!", GetName());
 
 				return;
 			}
@@ -6059,7 +6059,7 @@ public partial class Player : Unit
 
 			if (target.GUID != ActivePlayerData.FarsightObject)
 			{
-				Log.outFatal("Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
+				Log.Logger.Fatal("Player.CreateViewpoint: Player {0} cannot remove current viewpoint!", GetName());
 
 				return;
 			}

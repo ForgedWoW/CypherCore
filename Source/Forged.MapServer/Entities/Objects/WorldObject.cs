@@ -475,22 +475,22 @@ public abstract class WorldObject : IDisposable
 		if (IsWorldObject() && _currMap)
 		{
 			if (IsTypeId(TypeId.Corpse))
-				Log.outFatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
+				Log.Logger.Fatal("WorldObject.Dispose() Corpse Type: {0} ({1}) deleted but still in map!!", AsCorpse.GetCorpseType(), GUID.ToString());
 			else
 				ResetMap();
 		}
 
 		if (IsInWorld)
 		{
-			Log.outFatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
+			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in world!!", GUID.ToString());
 
 			if (IsTypeMask(TypeMask.Item))
-				Log.outFatal("Item slot {0}", ((Item)this).Slot);
+				Log.Logger.Fatal("Item slot {0}", ((Item)this).Slot);
 		}
 
 		if (_objectUpdated)
 		{
-			Log.outFatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
+			Log.Logger.Fatal("WorldObject.Dispose() {0} deleted but still in update list!!", GUID.ToString());
 		}
 	}
 

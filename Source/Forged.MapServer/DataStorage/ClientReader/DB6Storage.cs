@@ -12,17 +12,27 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.Dynamic;
 using Framework.IO;
+using Game.DataStorage;
+using Serilog;
 
-namespace Game.DataStorage;
+namespace Forged.MapServer.DataStorage.ClientReader;
 
 [Serializable]
 public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 {
-	readonly string _tableName = typeof(T).Name;
+    private readonly HotfixDatabase _hotfixDatabase;
+    private readonly Locale _defaultLocale;
+    readonly string _tableName = typeof(T).Name;
 	WDCHeader _header;
-	string _db2name;
+	string _db2Name;
 
-	public bool HasRecord(uint id)
+    public DB6Storage(HotfixDatabase hotfixDatabase, Locale defaultLocale = Locale.enUS)
+    {
+        _hotfixDatabase = hotfixDatabase;
+        _defaultLocale = defaultLocale;
+    }
+
+    public bool HasRecord(uint id)
 	{
 		return ContainsKey(id);
 	}
@@ -147,7 +157,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 
 	public string GetName()
 	{
-		return string.IsNullOrEmpty(_db2name) ? _tableName : _db2name;
+		return string.IsNullOrEmpty(_db2Name) ? _tableName : _db2Name;
 	}
 
 	public void LoadData(string fullFileName, string db2Name)
@@ -159,7 +169,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 			return;
 		}
 
-		_db2name = db2Name;
+		_db2Name = db2Name;
 		DBReader reader = new();
 
 		using (var stream = new FileStream(fullFileName, FileMode.Open))
@@ -209,9 +219,9 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 	void LoadFromDB(bool custom, HotfixStatements preparedStatement)
 	{
 		// Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
-		var stmt = DB.Hotfix.GetPreparedStatement(preparedStatement);
+		var stmt = _hotfixDatabase.GetPreparedStatement(preparedStatement);
 		stmt.AddValue(0, !custom);
-		var result = DB.Hotfix.Query(stmt);
+		var result = _hotfixDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 			return;
@@ -354,7 +364,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 							if (type == typeof(LocalizedString))
 							{
 								LocalizedString locString = new();
-								locString[Global.WorldMgr.DefaultDbcLocale] = result.Read<string>(dbIndex++);
+								locString[_defaultLocale] = result.Read<string>(dbIndex++);
 
 								f.SetValue(obj, locString);
 							}
@@ -393,10 +403,10 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 
 	void LoadStringsFromDB(bool custom, Locale locale, HotfixStatements preparedStatement)
 	{
-		var stmt = DB.Hotfix.GetPreparedStatement(preparedStatement);
+		var stmt = _hotfixDatabase.GetPreparedStatement(preparedStatement);
 		stmt.AddValue(0, !custom);
 		stmt.AddValue(1, locale.ToString());
-		var result = DB.Hotfix.Query(stmt);
+		var result = _hotfixDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 			return;

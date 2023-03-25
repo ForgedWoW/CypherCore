@@ -943,7 +943,7 @@ public partial class Unit : WorldObject
 
 			if (owner != null)
 				if (owner.Controlled.Contains(this))
-					Log.outFatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
+					Log.Logger.Fatal("Unit {0} is in controlled list of {1} when removed from world", Entry, owner.Entry);
 
 			base.RemoveFromWorld();
 			_duringRemoveFromWorld = false;
@@ -1266,7 +1266,7 @@ public partial class Unit : WorldObject
 				if (pet.HasUnitTypeMask(UnitTypeMask.Guardian))
 					return (Guardian)pet;
 
-			Log.outFatal("Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
+			Log.Logger.Fatal("Unit:GetGuardianPet: Guardian {0} not exist.", pet_guid);
 			PetGUID = ObjectGuid.Empty;
 		}
 

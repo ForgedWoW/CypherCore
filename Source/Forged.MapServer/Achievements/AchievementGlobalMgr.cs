@@ -3,15 +3,22 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.DataStorage.ClientReader;
 using Framework.Constants;
 using Framework.Database;
 using Game.DataStorage;
+using Serilog;
 
 namespace Game.Achievements;
 
-public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
+public class AchievementGlobalMgr
 {
-	// store achievements by referenced achievement id to speed up lookup
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ObjectManager _objectManager;
+    private readonly DB6Storage<AchievementRecord> _achievementRecords;
+
+    // store achievements by referenced achievement id to speed up lookup
 	readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
 
 	// store realm first achievements
@@ -20,7 +27,13 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 	readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
 	readonly Dictionary<uint, uint> _achievementScripts = new();
 
-	AchievementGlobalMgr() { }
+    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, ObjectManager objectManager, DB6Storage<AchievementRecord> achievementRecords)
+    {
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+        _objectManager = objectManager;
+        _achievementRecords = achievementRecords;
+    }
 
 	public List<AchievementRecord> GetAchievementByReferencedId(uint id)
 	{
@@ -91,7 +104,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 		}
 
 		// Once Bitten, Twice Shy (10 player) - Icecrown Citadel
-		var achievement1 = CliDB.AchievementStorage.LookupByKey(4539);
+		var achievement1 = _achievementRecords.LookupByKey(4539);
 
 		if (achievement1 != null)
 			achievement1.InstanceID = 631; // Correct map requirement (currently has Ulduar); 6.0.3 note - it STILL has ulduar requirement
@@ -105,7 +118,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 
 		_achievementScripts.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
+		var result = _worldDatabase.Query("SELECT AchievementId, ScriptName FROM achievement_scripts");
 
 		if (result.IsEmpty())
 		{
@@ -128,7 +141,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 				continue;
 			}
 
-			_achievementScripts[achievementId] = Global.ObjectMgr.GetScriptId(scriptName);
+			_achievementScripts[achievementId] = _objectManager.GetScriptId(scriptName);
 		} while (result.NextRow());
 
 		Log.Logger.Information($"Loaded {_achievementScripts.Count} achievement scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
@@ -145,7 +158,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 				_allCompletedAchievements[achievement.Id] = DateTime.MinValue;
 
-		var result = DB.Characters.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+		var result = _characterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
 		if (result.IsEmpty())
 		{
@@ -164,9 +177,9 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 				// Remove non-existing achievements from all characters
 				Log.Logger.Error("Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
 				stmt.AddValue(0, achievementId);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 
 				continue;
 			}
@@ -186,7 +199,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 		_achievementRewards.Clear(); // need for reload case
 
 		//                                         0   1       2       3       4       5        6     7
-		var result = DB.World.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
+		var result = _worldDatabase.Query("SELECT ID, TitleA, TitleH, ItemID, Sender, Subject, Body, MailTemplateID FROM achievement_reward");
 
 		if (result.IsEmpty())
 		{
@@ -252,7 +265,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			//check mail data before item for report including wrong item case
 			if (reward.SenderCreatureId != 0)
 			{
-				if (Global.ObjectMgr.GetCreatureTemplate(reward.SenderCreatureId) == null)
+				if (_objectManager.GetCreatureTemplate(reward.SenderCreatureId) == null)
 				{
 					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid creature ID {reward.SenderCreatureId} as sender, mail reward skipped.");
 					reward.SenderCreatureId = 0;
@@ -287,7 +300,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			}
 
 			if (reward.ItemId != 0)
-				if (Global.ObjectMgr.GetItemTemplate(reward.ItemId) == null)
+				if (_objectManager.GetItemTemplate(reward.ItemId) == null)
 				{
 					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
 					reward.ItemId = 0;
@@ -306,7 +319,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 		_achievementRewardLocales.Clear(); // need for reload case
 
 		//                                         0   1       2        3
-		var result = DB.World.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
+		var result = _worldDatabase.Query("SELECT ID, Locale, Subject, Body FROM achievement_reward_locale");
 
 		if (result.IsEmpty())
 		{
