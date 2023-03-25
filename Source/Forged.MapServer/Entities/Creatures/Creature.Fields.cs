@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Time;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities.Creatures;

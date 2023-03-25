@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Forged.MapServer.Time;
+namespace Forged.MapServer.Chrono;
 
 public class GameTime
 {

@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.Chat;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Server;
-using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Database;
 

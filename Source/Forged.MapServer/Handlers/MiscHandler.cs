@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.U;
@@ -13,7 +14,6 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Scripting.Interfaces.IConversation;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
-using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.IO;
 

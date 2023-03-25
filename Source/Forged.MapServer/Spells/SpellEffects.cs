@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Forged.MapServer.BattlePets;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities;
@@ -37,7 +38,6 @@ using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Spells.Skills;
-using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Dynamic;
 

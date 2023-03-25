@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.P;
 using Forged.MapServer.DataStorage.Structs.U;
@@ -20,7 +21,6 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
-using Forged.MapServer.Time;
 using Forged.MapServer.Weather;
 using Framework.Constants;
 using Framework.IO;

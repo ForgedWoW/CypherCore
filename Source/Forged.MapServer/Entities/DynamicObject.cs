@@ -2,6 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
@@ -11,7 +12,6 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IDynamicObject;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
-using Forged.MapServer.Time;
 using Framework.Constants;
 
 namespace Forged.MapServer.Entities;

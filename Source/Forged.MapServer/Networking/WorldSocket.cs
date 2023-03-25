@@ -3,9 +3,9 @@
 
 using System;
 using System.Net.Sockets;
+using Forged.MapServer.Chrono;
 using Forged.MapServer.Networking.Packets.Authentication;
 using Forged.MapServer.Server;
-using Forged.MapServer.Time;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
