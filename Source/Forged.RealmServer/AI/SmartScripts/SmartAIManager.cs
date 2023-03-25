@@ -9,9 +9,9 @@ using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Movement;
-using Game.Common.Entities.AreaTriggers;
+using Forged.RealmServer.Entities.AreaTriggers;
 
 namespace Forged.RealmServer.AI;
 

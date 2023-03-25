@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
 
 namespace Forged.RealmServer;
 

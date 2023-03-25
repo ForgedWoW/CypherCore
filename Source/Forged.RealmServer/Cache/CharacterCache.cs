@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Arenas;
-using Game.Entities;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking.Packets.Misc;
 
 namespace Forged.RealmServer.Cache;

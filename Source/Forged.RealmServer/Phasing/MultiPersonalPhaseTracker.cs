@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Maps.Grids;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Game.Common.Maps.Grids;
+using Forged.RealmServer.Entities.Objects;
 
 namespace Forged.RealmServer;
 

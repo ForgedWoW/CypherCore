@@ -9,16 +9,16 @@ using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Loots;
-using Forged.RealmServer.Maps;
+using Game.Common.Maps;
 using Forged.RealmServer.Spells;
-using Game.Common.Entities.AreaTriggers;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Objects.Update;
-using Game.Common.Entities.Players;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities.AreaTriggers;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Objects.Update;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Entities.Units;
 
 namespace Forged.RealmServer;
 

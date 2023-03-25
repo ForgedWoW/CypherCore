@@ -4,10 +4,10 @@
 using System;
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Spells;
-using Game.Common.Entities.Players;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

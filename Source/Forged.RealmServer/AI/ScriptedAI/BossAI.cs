@@ -3,10 +3,10 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

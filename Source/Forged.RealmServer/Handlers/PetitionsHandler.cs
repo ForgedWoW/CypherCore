@@ -4,19 +4,27 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
-using Game.Common.Entities.Items;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Items;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Petition;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class PetitionsHandler : IWorldSessionHandler
 {
-	public void SendPetitionQuery(ObjectGuid petitionGuid)
+    private readonly WorldSession _session;
+
+    public PetitionsHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    public void SendPetitionQuery(ObjectGuid petitionGuid)
 	{
 		QueryPetitionResponse responsePacket = new();
 		responsePacket.PetitionID = (uint)petitionGuid.Counter; // PetitionID (in Trinity always same as GUID_LOPART(petition guid))

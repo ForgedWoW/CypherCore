@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Spells;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.GameObjects;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.GameObjects;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Entities.Units;
 
 namespace Forged.RealmServer.AI;
 

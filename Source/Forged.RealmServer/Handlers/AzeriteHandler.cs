@@ -4,24 +4,40 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Game.Common.Entities.Items;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities.Items;
+using Forged.RealmServer.Entities.Objects;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Azerite;
 using Game.Common.Networking.Packets.NPC;
+using Game.Common.Handlers;
+using Forged.RealmServer.Entities.Players;
+using Game.Common.Server;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class AzeriteHandler : IWorldSessionHandler
 {
-	public void SendAzeriteRespecNPC(ObjectGuid npc)
+    private readonly WorldSession _session;
+    private readonly Player _player;
+    private readonly DB6Storage<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowerStorage;
+	private readonly DB6Storage<AzeritePowerRecord> _azeritePowerStorage;
+
+    public AzeriteHandler(WorldSession session, Player player, DB6Storage<AzeriteItemMilestonePowerRecord> azeriteItemMilestonePowerStorage,
+        DB6Storage<AzeritePowerRecord> azeritePowerStorage)
+    {
+        _session = session;
+        _player = player;
+        _azeriteItemMilestonePowerStorage = azeriteItemMilestonePowerStorage;
+        _azeritePowerStorage = azeritePowerStorage;
+    }
+
+    public void SendAzeriteRespecNPC(ObjectGuid npc)
 	{
 		NPCInteractionOpenResult npcInteraction = new();
 		npcInteraction.Npc = npc;
 		npcInteraction.InteractionType = PlayerInteractionType.AzeriteRespec;
 		npcInteraction.Success = true;
-		SendPacket(npcInteraction);
+        _session.SendPacket(npcInteraction);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AzeriteEssenceUnlockMilestone, Processing = PacketProcessing.Inplace)]
@@ -40,7 +56,7 @@ public partial class WorldSession
 		if (!azeriteItem || !azeriteItem.CanUseEssences())
 			return;
 
-		var milestonePower = CliDB.AzeriteItemMilestonePowerStorage.LookupByKey(azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
+		var milestonePower = _azeriteItemMilestonePowerStorage.LookupByKey(azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
 
 		if (milestonePower == null || milestonePower.RequiredLevel > azeriteItem.GetLevel())
 			return;
@@ -72,7 +88,7 @@ public partial class WorldSession
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.NotEquipped;
 			activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -82,7 +98,7 @@ public partial class WorldSession
 		if (azeriteItem == null || !azeriteItem.CanUseEssences())
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.ConditionFailed;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -90,7 +106,7 @@ public partial class WorldSession
 		if (azeriteEssenceActivateEssence.Slot >= SharedConst.MaxAzeriteEssenceSlot || !azeriteItem.HasUnlockedEssenceSlot(azeriteEssenceActivateEssence.Slot))
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.SlotLocked;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -107,7 +123,7 @@ public partial class WorldSession
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.EssenceNotUnlocked;
 			activateEssenceResult.Arg = azeriteEssenceActivateEssence.AzeriteEssenceID;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -116,7 +132,7 @@ public partial class WorldSession
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.AffectingCombat;
 			activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -125,7 +141,7 @@ public partial class WorldSession
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.CantDoThatRightNow;
 			activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -134,7 +150,7 @@ public partial class WorldSession
 		{
 			activateEssenceResult.Reason = AzeriteEssenceActivateResult.NotInRestArea;
 			activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-			SendPacket(activateEssenceResult);
+            _session.SendPacket(activateEssenceResult);
 
 			return;
 		}
@@ -159,7 +175,7 @@ public partial class WorldSession
 						activateEssenceResult.Reason = AzeriteEssenceActivateResult.CantRemoveEssence;
 						activateEssenceResult.Arg = azeriteEssencePower.MajorPowerDescription;
 						activateEssenceResult.Slot = azeriteEssenceActivateEssence.Slot;
-						SendPacket(activateEssenceResult);
+                        _session.SendPacket(activateEssenceResult);
 
 						return;
 					}
@@ -220,7 +236,7 @@ public partial class WorldSession
 		if (item == null)
 			return;
 
-		var azeritePower = CliDB.AzeritePowerStorage.LookupByKey(azeriteEmpoweredItemSelectPower.AzeritePowerID);
+		var azeritePower = _azeritePowerStorage.LookupByKey(azeriteEmpoweredItemSelectPower.AzeritePowerID);
 
 		if (azeritePower == null)
 			return;

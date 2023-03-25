@@ -3,14 +3,22 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Game.Common.Handlers;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Scenario;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class ScenarioHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.QueryScenarioPoi, Processing = PacketProcessing.Inplace)]
+    private readonly WorldSession _session;
+
+    public ScenarioHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.QueryScenarioPoi, Processing = PacketProcessing.Inplace)]
 	void HandleQueryScenarioPOI(QueryScenarioPOI queryScenarioPOI)
 	{
 		ScenarioPOIs response = new();

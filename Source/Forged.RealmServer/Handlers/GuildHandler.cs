@@ -2,18 +2,26 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Achievements;
 using Game.Common.Networking.Packets.Guild;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class GuildHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.GuildInviteByName)]
+    private readonly WorldSession _session;
+
+    public GuildHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.GuildInviteByName)]
 	void HandleGuildInviteByName(GuildInviteByName packet)
 	{
 		if (!ObjectManager.NormalizePlayerName(ref packet.Name))

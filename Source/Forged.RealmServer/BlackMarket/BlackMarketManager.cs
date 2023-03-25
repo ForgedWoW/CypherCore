@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Mails;
-using Game.Common.Entities.Items;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities.Items;
+using Forged.RealmServer.Entities.Objects;
 
 namespace Forged.RealmServer.BlackMarket;
 

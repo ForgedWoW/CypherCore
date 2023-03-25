@@ -6,16 +6,24 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Realm;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Query;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class QueryHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.QueryPlayerNames, Processing = PacketProcessing.Inplace)]
+    private readonly WorldSession _session;
+
+    public QueryHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.QueryPlayerNames, Processing = PacketProcessing.Inplace)]
 	void HandleQueryPlayerNames(QueryPlayerNames queryPlayerName)
 	{
 		QueryPlayerNamesResponse response = new();

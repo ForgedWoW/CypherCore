@@ -8,7 +8,7 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Maps;
+using Game.Common.Maps;
 
 namespace Forged.RealmServer.Scenarios;
 

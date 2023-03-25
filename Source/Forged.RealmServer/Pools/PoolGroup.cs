@@ -4,9 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.Entities;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.GameObjects;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.GameObjects;
 
 namespace Forged.RealmServer;
 

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Forged.RealmServer.Maps.Grids;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps.Grids;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer.Chat;
 

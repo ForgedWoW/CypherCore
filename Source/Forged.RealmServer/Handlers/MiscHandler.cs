@@ -7,8 +7,8 @@ using System.Text;
 using Framework.Constants;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Forged.RealmServer.Maps;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IConversation;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Game.Common.Networking;
@@ -18,12 +18,20 @@ using Game.Common.Networking.Packets.ClientConfig;
 using Game.Common.Networking.Packets.Instance;
 using Game.Common.Networking.Packets.Misc;
 using Game.Common.Networking.Packets.Spell;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class MiscHandler : IWorldSessionHandler
 {
-	public void SendLoadCUFProfiles()
+    private readonly WorldSession _session;
+
+    public MiscHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    public void SendLoadCUFProfiles()
 	{
 		var player = Player;
 

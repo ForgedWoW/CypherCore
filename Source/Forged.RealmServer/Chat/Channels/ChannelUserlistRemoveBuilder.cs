@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Forged.RealmServer.Entities.Objects;
 using Game.Common.Networking.Packets.Channel;
 
 namespace Forged.RealmServer.Chat;

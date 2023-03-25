@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Maps;
+using Game.Common.Maps;
 
 namespace Forged.RealmServer.Scripting.BaseScripts;
 

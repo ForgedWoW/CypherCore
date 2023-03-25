@@ -7,10 +7,10 @@ using System.Linq;
 using Framework.Configuration;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Objects.Update;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Objects.Update;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking;
 
 namespace Forged.RealmServer.Achievements;

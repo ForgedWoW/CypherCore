@@ -7,9 +7,9 @@ using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Forged.RealmServer.Accounts;
-using Game.Entities;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer;
 

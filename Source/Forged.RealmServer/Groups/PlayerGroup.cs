@@ -8,11 +8,11 @@ using Framework.Database;
 using Forged.RealmServer.BattleFields;
 using Forged.RealmServer.BattleGrounds;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IGroup;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Objects.Update;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Objects.Update;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Party;
 

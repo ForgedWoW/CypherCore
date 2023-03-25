@@ -3,9 +3,9 @@
 
 using System;
 using Forged.RealmServer.AI;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IGameObject;
-using Game.Common.Entities.GameObjects;
+using Forged.RealmServer.Entities.GameObjects;
 
 namespace Forged.RealmServer.Scripting.BaseScripts;
 

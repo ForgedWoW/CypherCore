@@ -6,16 +6,24 @@ using System.Linq;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
-using Game.Entities;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.LFG;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class LFGHandler : IWorldSessionHandler
 {
-	public void SendLfgPlayerLockInfo()
+    private readonly WorldSession _session;
+
+    public LFGHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    public void SendLfgPlayerLockInfo()
 	{
 		// Get Random dungeons that can be done at a certain level and expansion
 		var level = Player.Level;

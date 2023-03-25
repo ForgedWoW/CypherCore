@@ -3,9 +3,9 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Chat;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Forged.RealmServer.Entities.Objects;
 using Game.Common.Networking.Packets.Chat;
 
 namespace Forged.RealmServer;

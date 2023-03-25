@@ -3,8 +3,8 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Chat;
-using Game.Entities;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IPlayer;
 

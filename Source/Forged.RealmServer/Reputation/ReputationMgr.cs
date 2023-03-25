@@ -7,9 +7,9 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking.Packets.Character;
 using Game.Common.Networking.Packets.Reputation;
 

@@ -5,9 +5,9 @@ using System;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DungeonFinding;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer.Chat;
 

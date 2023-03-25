@@ -9,13 +9,13 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Loots;
-using Forged.RealmServer.Maps;
+using Game.Common.Maps;
 using Forged.RealmServer.Movement;
-using Game.Common.Entities;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.Objects;
 
 namespace Forged.RealmServer.Chat;
 

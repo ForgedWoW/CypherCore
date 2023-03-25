@@ -3,19 +3,27 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Misc;
 using Game.Common.Networking.Packets.Party;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class GroupHandler : IWorldSessionHandler
 {
-	public void SendPartyResult(PartyOperation operation, string member, PartyResult res, uint val = 0)
+    private readonly WorldSession _session;
+
+    public GroupHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    public void SendPartyResult(PartyOperation operation, string member, PartyResult res, uint val = 0)
 	{
 		PartyCommandResult packet = new();
 

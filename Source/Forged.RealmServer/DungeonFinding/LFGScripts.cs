@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IGroup;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking.Packets.Query;
 
 namespace Forged.RealmServer.DungeonFinding;

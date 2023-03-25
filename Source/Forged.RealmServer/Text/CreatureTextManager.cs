@@ -8,12 +8,12 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Entities.Units;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Misc;
 

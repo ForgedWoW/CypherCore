@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Game.Common.Entities.Creatures;
-using Game.Common.Entities.GameObjects;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Forged.RealmServer.Entities.Creatures;
+using Forged.RealmServer.Entities.GameObjects;
 
 namespace Forged.RealmServer;
 

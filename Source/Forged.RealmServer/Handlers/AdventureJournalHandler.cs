@@ -4,23 +4,39 @@
 using System.Collections.Generic;
 using Forged.RealmServer.DataStorage;
 using Framework.Constants;
+using Forged.RealmServer.Entities.Players;
+using Game.Common.Handlers;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.AdventureJournal;
+using Game.Common.Server;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class AdventureJournalHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.AdventureJournalOpenQuest)]
+    private readonly WorldSession _session;
+    private readonly Player _player;
+    private readonly DB6Storage<AdventureJournalRecord> _adventureJournalStorage;
+	private readonly DB2Manager _dB2Manager;
+
+    public AdventureJournalHandler(WorldSession session, Player player, DB6Storage<AdventureJournalRecord> adventureJournalStorage, DB2Manager dB2Manager)
+    {
+        _session = session;
+        _player = player;
+        _adventureJournalStorage = adventureJournalStorage;
+        _dB2Manager = dB2Manager;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.AdventureJournalOpenQuest)]
 	void HandleAdventureJournalOpenQuest(AdventureJournalOpenQuest openQuest)
 	{
-		var uiDisplay = Global.DB2Mgr.GetUiDisplayForClass(_player.Class);
+		var uiDisplay = _dB2Manager.GetUiDisplayForClass(_player.Class);
 
 		if (uiDisplay != null)
 			if (!_player.MeetPlayerCondition(uiDisplay.AdvGuidePlayerConditionID))
 				return;
 
-		var adventureJournal = CliDB.AdventureJournalStorage.LookupByKey(openQuest.AdventureJournalID);
+		var adventureJournal = _adventureJournalStorage.LookupByKey(openQuest.AdventureJournalID);
 
 		if (adventureJournal == null)
 			return;

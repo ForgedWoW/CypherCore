@@ -1,20 +1,27 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
-using System;
 using Framework.Constants;
-using Google.Protobuf;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Battlenet;
+using Game.Common.Handlers;
+using Game.Common.Server;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class BattlenetHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
+    private readonly WorldSession _session;
+
+    public BattlenetHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ChangeRealmTicket, Status = SessionStatus.Authed)]
 	void HandleBattlenetChangeRealmTicket(ChangeRealmTicket changeRealmTicket)
 	{
-		RealmListSecret = changeRealmTicket.Secret;
+        _session.RealmListSecret = changeRealmTicket.Secret;
 
 		ChangeRealmTicketResponse realmListTicket = new();
 		realmListTicket.Token = changeRealmTicket.Token;
@@ -22,6 +29,6 @@ public partial class WorldSession
 		realmListTicket.Ticket = new Framework.IO.ByteBuffer();
 		realmListTicket.Ticket.WriteCString("WorldserverRealmListTicket");
 
-		SendPacket(realmListTicket);
+		_session.SendPacket(realmListTicket);
 	}
 }

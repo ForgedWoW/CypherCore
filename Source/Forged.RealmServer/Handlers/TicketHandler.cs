@@ -6,12 +6,20 @@ using Framework.Database;
 using Forged.RealmServer.SupportSystem;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Ticket;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class TicketHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.GmTicketGetCaseStatus, Processing = PacketProcessing.Inplace)]
+    private readonly WorldSession _session;
+
+    public TicketHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.GmTicketGetCaseStatus, Processing = PacketProcessing.Inplace)]
 	void HandleGMTicketGetCaseStatus(GMTicketGetCaseStatus packet)
 	{
 		//TODO: Implement GmCase and handle this packet correctly

@@ -3,9 +3,9 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Spells;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities.Units;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IAura;
 

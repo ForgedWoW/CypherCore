@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Objects.Update;
-using Game.Common.Entities.Players;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Objects.Update;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Entities.Units;
 using Game.Common.Networking.Packets.Spell;
 
 namespace Forged.RealmServer.Chat;

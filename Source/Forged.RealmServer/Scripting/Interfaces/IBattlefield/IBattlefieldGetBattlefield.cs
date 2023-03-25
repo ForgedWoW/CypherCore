@@ -2,7 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.RealmServer.BattleFields;
-using Forged.RealmServer.Maps;
+using Game.Common.Maps;
 
 namespace Forged.RealmServer.Scripting.Interfaces.IBattlefield;
 

@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Database;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Mails;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities.Objects;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Calendar;
 

@@ -8,10 +8,10 @@ using Framework.Database;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer.Chat;
 

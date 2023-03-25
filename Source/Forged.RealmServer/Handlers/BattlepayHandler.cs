@@ -2,22 +2,29 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Entities;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Bpay;
+using Game.Common.Handlers;
+using Game.Common.Battlepay;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class BattlepayHandler : IWorldSessionHandler
 {
+	private readonly BattlepayManager _battlePayMgr;
 
-	[WorldPacketHandler(ClientOpcodes.BattlePayDistributionAssignToTarget)]
+    public BattlepayHandler(BattlepayManager battlePayMgr)
+    {
+        _battlePayMgr = battlePayMgr;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.BattlePayDistributionAssignToTarget)]
 	public void HandleBattlePayDistributionAssign(DistributionAssignToTarget packet)
 	{
-		if (!BattlePayMgr.IsAvailable())
+		if (!_battlePayMgr.IsAvailable())
 			return;
 
-		BattlePayMgr.AssignDistributionToCharacter(packet.TargetCharacter, packet.DistributionID, packet.ProductID, packet.SpecializationID, packet.ChoiceID);
+        _battlePayMgr.AssignDistributionToCharacter(packet.TargetCharacter, packet.DistributionID, packet.ProductID, packet.SpecializationID, packet.ChoiceID);
 	}
 
 }

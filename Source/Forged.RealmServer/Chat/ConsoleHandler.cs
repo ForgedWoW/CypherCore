@@ -3,8 +3,8 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Players;
 
 namespace Forged.RealmServer.Chat;
 

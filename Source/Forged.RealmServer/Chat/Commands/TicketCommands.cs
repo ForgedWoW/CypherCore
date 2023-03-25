@@ -3,9 +3,9 @@
 
 using System;
 using Framework.Constants;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.SupportSystem;
-using Game.Common.Entities.Objects;
+using Forged.RealmServer.Entities.Objects;
 
 namespace Forged.RealmServer.Chat.Commands;
 

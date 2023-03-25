@@ -9,12 +9,12 @@ using Framework.Constants;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Maps.Grids;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities;
+using Game.Common.Maps;
+using Game.Common.Maps.Grids;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Entities.Units;
 using Game.Common.Networking.Packets.Misc;
 using Game.Common.Networking.Packets.Party;
 

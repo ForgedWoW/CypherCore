@@ -2,7 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Dynamic;
-using Forged.RealmServer.Maps;
+using Game.Common.Maps;
 
 namespace Forged.RealmServer.Groups;
 

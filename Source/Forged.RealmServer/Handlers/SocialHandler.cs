@@ -6,18 +6,26 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Entities;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 using Game.Common.Networking;
 using Game.Common.Networking.Packets.Social;
 using Game.Common.Networking.Packets.Who;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class SocialHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.Who, Processing = PacketProcessing.ThreadSafe)]
+    private readonly WorldSession _session;
+
+    public SocialHandler(WorldSession session)
+    {
+        _session = session;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.Who, Processing = PacketProcessing.ThreadSafe)]
 	void HandleWho(WhoRequestPkt whoRequest)
 	{
 		var request = whoRequest.Request;

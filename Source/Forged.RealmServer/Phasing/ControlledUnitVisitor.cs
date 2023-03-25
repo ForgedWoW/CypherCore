@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using Game.Entities;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Units;
+using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Units;
 
 namespace Forged.RealmServer;
 
