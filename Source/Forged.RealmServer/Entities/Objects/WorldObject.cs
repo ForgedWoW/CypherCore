@@ -8,8 +8,8 @@ using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps.Grids;
-using Game.Common.Networking;
+using Forged.RealmServer.Maps.Grids;
+using Forged.RealmServer.Networking;
 
 namespace Forged.RealmServer.Entities;
 

@@ -6,7 +6,7 @@ using System.Linq;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class GossipMenu
 {

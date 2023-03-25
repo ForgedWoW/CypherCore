@@ -2,7 +2,7 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
-using Game.Spells;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

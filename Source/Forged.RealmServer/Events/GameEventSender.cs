@@ -3,7 +3,7 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
 

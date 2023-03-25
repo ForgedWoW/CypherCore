@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;

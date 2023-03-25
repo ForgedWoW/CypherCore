@@ -11,7 +11,7 @@ using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Objects.Update;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
+using Forged.RealmServer.Networking;
 
 namespace Forged.RealmServer.Achievements;
 

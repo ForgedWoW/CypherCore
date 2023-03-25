@@ -8,9 +8,9 @@ using Framework.Realm;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Query;
-using Game.Common.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Query;
+using Forged.RealmServer.Handlers;
 
 namespace Forged.RealmServer;
 

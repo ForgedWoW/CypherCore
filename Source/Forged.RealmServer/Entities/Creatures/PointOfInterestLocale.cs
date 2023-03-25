@@ -4,7 +4,7 @@
 using Framework.Collections;
 using Framework.Constants;
 
-namespace Game.Misc;
+namespace Forged.RealmServer.Misc;
 
 public class PointOfInterestLocale
 {

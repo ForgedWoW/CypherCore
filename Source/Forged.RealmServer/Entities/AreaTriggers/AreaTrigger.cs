@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Framework.Constants;
-using Game.Common.Maps;
-using Game.Movement;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces;
-using Game.Scripting.Interfaces.IAreaTrigger;
-using Game.Spells;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Movement;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces;
+using Forged.RealmServer.Scripting.Interfaces.IAreaTrigger;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

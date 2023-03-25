@@ -9,7 +9,7 @@ using Framework.Dynamic;
 using Forged.RealmServer.Combat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Spells;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.AreaTriggers;

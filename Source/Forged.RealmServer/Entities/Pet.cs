@@ -8,9 +8,9 @@ using System.Text;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
-using Game.Common.Networking.Packets;
-using Game.Spells;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

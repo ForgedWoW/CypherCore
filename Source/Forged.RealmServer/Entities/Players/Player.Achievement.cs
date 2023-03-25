@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Achievements;
+using Forged.RealmServer.Achievements;
 using Forged.RealmServer.DataStorage;
 
 namespace Forged.RealmServer.Entities;

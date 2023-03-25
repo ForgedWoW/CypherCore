@@ -7,9 +7,9 @@ using System.Linq;
 using Framework.Constants;
 using Framework.Dynamic;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IItem;
-using Game.Spells;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IItem;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

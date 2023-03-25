@@ -7,7 +7,7 @@ using System.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Entities;
 

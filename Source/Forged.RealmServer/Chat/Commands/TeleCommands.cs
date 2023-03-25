@@ -6,7 +6,7 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps.Grids;
+using Forged.RealmServer.Maps.Grids;
 using Forged.RealmServer.Entities.Creatures;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;

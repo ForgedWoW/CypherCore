@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 
 namespace Forged.RealmServer.Chat;
 

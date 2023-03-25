@@ -2,11 +2,11 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Token;
-using Game.Common.Server;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Token;
+using Forged.RealmServer.Server;
 
-namespace Game.Common.Handlers;
+namespace Forged.RealmServer.Handlers;
 
 public class TokenHandler : IWorldSessionHandler
 {

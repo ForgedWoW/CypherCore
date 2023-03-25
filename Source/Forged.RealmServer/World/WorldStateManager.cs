@@ -8,9 +8,9 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IWorldState;
-using Game.Common.Networking.Packets.WorldState;
+using Forged.RealmServer.Networking.Packets.WorldState;
 
 namespace Forged.RealmServer;
 

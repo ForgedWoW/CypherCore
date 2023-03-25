@@ -10,8 +10,8 @@ using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking.Packets.Character;
-using Game.Common.Networking.Packets.Reputation;
+using Forged.RealmServer.Networking.Packets.Character;
+using Forged.RealmServer.Networking.Packets.Reputation;
 
 namespace Forged.RealmServer;
 

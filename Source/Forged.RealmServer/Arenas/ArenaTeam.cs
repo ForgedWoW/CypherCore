@@ -9,7 +9,7 @@ using Framework.Database;
 using Forged.RealmServer.Cache;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
-using Game.Common.Networking;
+using Forged.RealmServer.Networking;
 
 namespace Forged.RealmServer.Arenas;
 

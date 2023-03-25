@@ -13,8 +13,8 @@ using Forged.RealmServer.Guilds;
 using Forged.RealmServer.Scripting.Interfaces.IAchievement;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Achievements;
 
 namespace Forged.RealmServer.Achievements;
 

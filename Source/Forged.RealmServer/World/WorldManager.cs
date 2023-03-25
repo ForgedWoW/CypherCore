@@ -20,16 +20,16 @@ using Forged.RealmServer.Scripting;
 using Forged.RealmServer.Scripting.Interfaces.IServer;
 using Forged.RealmServer.Scripting.Interfaces.IWorld;
 using Game;
-using Game.Common.Maps;
-using Game.Common.DoWork;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.DoWork;
 using Forged.RealmServer.Entities.Creatures;
 using Forged.RealmServer.Entities.Items;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Entities.Taxis;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Time;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Chat;
+using Forged.RealmServer.Time;
 
 namespace Forged.RealmServer;
 

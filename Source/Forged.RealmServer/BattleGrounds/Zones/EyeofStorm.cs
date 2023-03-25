@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.Entities;
-using Game.Common.Networking.Packets;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.BattleGrounds.Zones;
 

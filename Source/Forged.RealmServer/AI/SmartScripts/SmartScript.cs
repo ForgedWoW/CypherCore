@@ -9,7 +9,7 @@ using Framework.Constants;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Misc;
 using Forged.RealmServer.Movement;
 using Forged.RealmServer.Scripting.Interfaces.IAreaTrigger;

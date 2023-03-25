@@ -3,7 +3,7 @@
 
 using System;
 using System.Numerics;
-using Game.Common.Maps.Grids;
+using Forged.RealmServer.Maps.Grids;
 
 namespace Forged.RealmServer.Entities;
 

@@ -7,10 +7,10 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Handlers;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Calendar;
-using Game.Common.Server;
+using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Calendar;
+using Forged.RealmServer.Server;
 
 namespace Forged.RealmServer;
 

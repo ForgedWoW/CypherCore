@@ -3,7 +3,7 @@
 
 using System.Numerics;
 using Framework.Constants;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 
 namespace Forged.RealmServer.Entities;
 // From `gameobject_template_addon`, `gameobject_overrides`

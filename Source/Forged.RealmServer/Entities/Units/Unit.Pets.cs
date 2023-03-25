@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.AI;
-using Game.Movement;
-using Game.Common.Networking.Packets;
-using Game.Spells;
+using Forged.RealmServer.AI;
+using Forged.RealmServer.Movement;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

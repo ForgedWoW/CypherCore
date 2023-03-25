@@ -9,11 +9,11 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Loots;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets;
-using Game.Scripting.Interfaces.IItem;
-using Game.Spells;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting.Interfaces.IItem;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

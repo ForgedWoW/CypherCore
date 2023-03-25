@@ -7,8 +7,8 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.BattleGrounds;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Networking.Packets;
-using Game.PvP;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.PvP;
 
 namespace Forged.RealmServer.Entities;
 

@@ -4,8 +4,8 @@
 using System;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Networking.Packets;
-using Game.Spells;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

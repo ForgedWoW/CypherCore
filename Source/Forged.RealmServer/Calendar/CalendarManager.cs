@@ -9,8 +9,8 @@ using Framework.Database;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Mails;
 using Forged.RealmServer.Entities.Objects;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Calendar;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Calendar;
 
 namespace Forged.RealmServer;
 

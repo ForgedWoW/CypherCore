@@ -2,13 +2,13 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Character;
-using Game.Common.Scripting;
-using Game.Common.Scripting.Interfaces.IPlayer;
-using Game.Common.Server;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Character;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces.IPlayer;
+using Forged.RealmServer.Server;
 
-namespace Game.Common.Handlers;
+namespace Forged.RealmServer.Handlers;
 
 public class LogoutHandler : IWorldSessionHandler
 {

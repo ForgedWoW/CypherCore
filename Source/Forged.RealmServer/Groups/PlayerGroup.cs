@@ -13,8 +13,8 @@ using Forged.RealmServer.Scripting.Interfaces.IGroup;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Objects.Update;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Party;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Party;
 
 namespace Forged.RealmServer.Groups;
 

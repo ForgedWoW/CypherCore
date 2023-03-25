@@ -9,7 +9,7 @@ using Forged.RealmServer.Arenas;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking.Packets.Misc;
+using Forged.RealmServer.Networking.Packets.Misc;
 
 namespace Forged.RealmServer.Cache;
 

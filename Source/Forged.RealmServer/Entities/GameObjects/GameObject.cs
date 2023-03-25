@@ -8,16 +8,16 @@ using System.Numerics;
 using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
-using Game.AI;
+using Forged.RealmServer.AI;
 using Forged.RealmServer.BattleGrounds;
-using Game.Collision;
+using Forged.RealmServer.Collision;
 using Forged.RealmServer.DataStorage;
-using Game.Loots;
-using Game.Common.Maps;
-using Game.Common.Maps.Grids;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets;
-using Game.Spells;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Maps.Grids;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities
 {

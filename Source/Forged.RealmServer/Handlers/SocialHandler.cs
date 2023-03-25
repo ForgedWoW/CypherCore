@@ -9,10 +9,10 @@ using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Social;
-using Game.Common.Networking.Packets.Who;
-using Game.Common.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Social;
+using Forged.RealmServer.Networking.Packets.Who;
+using Forged.RealmServer.Handlers;
 
 namespace Forged.RealmServer;
 

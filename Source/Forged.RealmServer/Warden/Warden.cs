@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.IO;
-using Game.Common.Networking.Packets.Warden;
+using Forged.RealmServer.Networking.Packets.Warden;
 
 namespace Forged.RealmServer;
 

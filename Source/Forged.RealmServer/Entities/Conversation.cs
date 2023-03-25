@@ -6,10 +6,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Game.Common.Maps;
-using Game.Common.Networking;
-using Game.Scripting.Interfaces.IConversation;
-using Game.Spells;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Scripting.Interfaces.IConversation;
+using Forged.RealmServer.Spells;
 
 namespace Forged.RealmServer.Entities;
 

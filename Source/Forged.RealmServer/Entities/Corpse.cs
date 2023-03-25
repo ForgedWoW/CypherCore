@@ -7,10 +7,10 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
-using Game.Loots;
-using Game.Common.Maps;
-using Game.Common.Maps.Grids;
-using Game.Common.Networking;
+using Forged.RealmServer.Loots;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Maps.Grids;
+using Forged.RealmServer.Networking;
 
 namespace Forged.RealmServer.Entities;
 

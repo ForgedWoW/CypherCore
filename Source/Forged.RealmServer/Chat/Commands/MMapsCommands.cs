@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.IO;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Movement;
 using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Entities.Units;

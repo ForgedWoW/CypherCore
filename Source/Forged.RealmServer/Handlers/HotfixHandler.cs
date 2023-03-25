@@ -3,13 +3,13 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
-using Game.Common.DataStorage;
-using Game.Common.DataStorage.ClientReader;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Hotfix;
-using Game.Common.Server;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.DataStorage.ClientReader;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Hotfix;
+using Forged.RealmServer.Server;
 
-namespace Game.Common.Handlers;
+namespace Forged.RealmServer.Handlers;
 
 public class HotfixHandler : IWorldSessionHandler
 {

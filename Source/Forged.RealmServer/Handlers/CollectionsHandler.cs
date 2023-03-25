@@ -2,9 +2,9 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Framework.Constants;
-using Game.Common.Handlers;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Collection;
+using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Collection;
 
 namespace Forged.RealmServer;
 

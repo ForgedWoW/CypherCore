@@ -8,17 +8,17 @@ using Framework.Constants;
 using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scripting.Interfaces.IConversation;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Achievements;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Networking.Packets.ClientConfig;
-using Game.Common.Networking.Packets.Instance;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Spell;
-using Game.Common.Handlers;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Achievements;
+using Forged.RealmServer.Networking.Packets.Chat;
+using Forged.RealmServer.Networking.Packets.ClientConfig;
+using Forged.RealmServer.Networking.Packets.Instance;
+using Forged.RealmServer.Networking.Packets.Misc;
+using Forged.RealmServer.Networking.Packets.Spell;
+using Forged.RealmServer.Handlers;
 
 namespace Forged.RealmServer;
 

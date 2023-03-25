@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 using Framework.Constants;
 using Framework.Dynamic;
-using Game.Common.Networking.Packets;
-using Game.Scripting;
-using Game.Scripting.Interfaces.ISpell;
-using Game.Scripting.Interfaces.IUnit;
-using Game.Spells;
-using Game.Spells.Auras;
-using Game.Spells.Events;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Scripting.Interfaces.ISpell;
+using Forged.RealmServer.Scripting.Interfaces.IUnit;
+using Forged.RealmServer.Spells;
+using Forged.RealmServer.Spells.Auras;
+using Forged.RealmServer.Spells.Events;
 
 namespace Forged.RealmServer.Entities;
 

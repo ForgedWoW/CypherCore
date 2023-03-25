@@ -11,7 +11,7 @@ using Framework.IO;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Loots;
-using Game.Common.Maps;
+using Forged.RealmServer.Maps;
 using Forged.RealmServer.Movement;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Entities.Creatures;

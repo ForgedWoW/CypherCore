@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
-using Game.Common.Maps;
-using Game.Common.Networking;
+using Forged.RealmServer.Maps;
+using Forged.RealmServer.Networking;
 
 namespace Forged.RealmServer.Entities;
 

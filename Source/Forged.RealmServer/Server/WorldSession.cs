@@ -18,19 +18,19 @@ using Framework.Realm;
 using Forged.RealmServer.Accounts;
 using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Chat;
-using Game.Entities;
+using Forged.RealmServer.Entities;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Game.Common.Battlepay;
-using Game.Common.Entities.Objects;
-using Game.Common.Entities.Players;
-using Game.Common.Networking;
-using Game.Common.Networking.Packets.Authentication;
-using Game.Common.Networking.Packets.Battlenet;
-using Game.Common.Networking.Packets.Character;
-using Game.Common.Networking.Packets.Chat;
-using Game.Common.Networking.Packets.ClientConfig;
-using Game.Common.Networking.Packets.Misc;
-using Game.Common.Networking.Packets.Warden;
+using Forged.RealmServer.Battlepay;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
+using Forged.RealmServer.Networking;
+using Forged.RealmServer.Networking.Packets.Authentication;
+using Forged.RealmServer.Networking.Packets.Battlenet;
+using Forged.RealmServer.Networking.Packets.Character;
+using Forged.RealmServer.Networking.Packets.Chat;
+using Forged.RealmServer.Networking.Packets.ClientConfig;
+using Forged.RealmServer.Networking.Packets.Misc;
+using Forged.RealmServer.Networking.Packets.Warden;
 
 namespace Forged.RealmServer;
 
@@ -193,7 +193,7 @@ public partial class WorldSession : IDisposable
 	public Array<byte> RealmListSecret
 	{
 		get => _realmListSecret;
-		private set => _realmListSecret = value;
+		set => _realmListSecret = value;
 	}
 
 	public Dictionary<uint, byte> RealmCharacterCounts => _realmCharacterCounts;
@@ -615,12 +615,12 @@ public partial class WorldSession : IDisposable
 		if (instanceAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
 		{
 			connectTo.Payload.Where.IPv4 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv4;
+			connectTo.Payload.Where.Type = Forged.RealmServer.Networking.Packets.Authentication.AddressType.IPv4;
 		}
 		else
 		{
 			connectTo.Payload.Where.IPv6 = instanceAddress.Address.GetAddressBytes();
-			connectTo.Payload.Where.Type = Game.Common.Networking.Packets.Authentication.AddressType.IPv6;
+			connectTo.Payload.Where.Type = Forged.RealmServer.Networking.Packets.Authentication.AddressType.IPv6;
 		}
 
 		SendPacket(connectTo);
