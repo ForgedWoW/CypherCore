@@ -1088,7 +1088,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			var from = Time.GetUnixTimeFromPackedTime(condition.Time[0]);
 			var to = Time.GetUnixTimeFromPackedTime(condition.Time[1]);
 
-			if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
+			if (_gameTime.GetGameTime < from || _gameTime.GetGameTime > to)
 				return false;
 		}
 
@@ -1160,7 +1160,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		if (condition.MaxExpansionLevel != -1 && (int)player.Session.Expansion > condition.MaxExpansionLevel)
 			return false;
 
-		if (condition.MinExpansionLevel != -1 && condition.MinExpansionTier != -1 && !player.IsGameMaster && ((condition.MinExpansionLevel == WorldConfig.GetIntValue(WorldCfg.Expansion) && condition.MinExpansionTier > 0) /*TODO: implement tier*/ || condition.MinExpansionLevel > WorldConfig.GetIntValue(WorldCfg.Expansion)))
+		if (condition.MinExpansionLevel != -1 && condition.MinExpansionTier != -1 && !player.IsGameMaster && ((condition.MinExpansionLevel == _worldConfig.GetIntValue(WorldCfg.Expansion) && condition.MinExpansionTier > 0) /*TODO: implement tier*/ || condition.MinExpansionLevel > _worldConfig.GetIntValue(WorldCfg.Expansion)))
 			return false;
 
 		if (condition.PhaseID != 0 || condition.PhaseGroupID != 0 || condition.PhaseUseFlags != 0)
@@ -3304,17 +3304,17 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case WorldStateExpressionFunctions.Random:
 				return (int)RandomHelper.URand(Math.Min(arg1, arg2), Math.Max(arg1, arg2));
 			case WorldStateExpressionFunctions.Month:
-				return GameTime.GetDateAndTime().Month + 1;
+				return GameTime.DateTime.Month + 1;
 			case WorldStateExpressionFunctions.Day:
-				return GameTime.GetDateAndTime().Day + 1;
+				return GameTime.DateTime.Day + 1;
 			case WorldStateExpressionFunctions.TimeOfDay:
-				var localTime = GameTime.GetDateAndTime();
+				var localTime = GameTime.DateTime;
 
 				return localTime.Hour * Time.Minute + localTime.Minute;
 			case WorldStateExpressionFunctions.Region:
 				return Global.WorldMgr.RealmId.Region;
 			case WorldStateExpressionFunctions.ClockHour:
-				var currentHour = GameTime.GetDateAndTime().Hour + 1;
+				var currentHour = GameTime.DateTime.Hour + 1;
 
 				return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
 			case WorldStateExpressionFunctions.OldDifficultyId:
@@ -3327,9 +3327,9 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case WorldStateExpressionFunctions.HolidayActive:
 				return Global.GameEventMgr.IsHolidayActive((HolidayIds)arg1) ? 1 : 0;
 			case WorldStateExpressionFunctions.TimerCurrentTime:
-				return (int)GameTime.GetGameTime();
+				return (int)_gameTime.GetGameTime;
 			case WorldStateExpressionFunctions.WeekNumber:
-				var now = GameTime.GetGameTime();
+				var now = _gameTime.GetGameTime;
 				uint raidOrigin = 1135695600;
 				var region = CliDB.CfgRegionsStorage.LookupByKey(Global.WorldMgr.RealmId.Region);
 

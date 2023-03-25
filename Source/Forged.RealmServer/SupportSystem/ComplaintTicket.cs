@@ -138,7 +138,7 @@ public class ComplaintTicket : Ticket
 
 	public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)
 	{
-		var curTime = (ulong)GameTime.GetGameTime();
+		var curTime = (ulong)_gameTime.GetGameTime;
 
 		StringBuilder ss = new();
 		ss.Append(handler.GetParsedString(CypherStrings.CommandTicketlistguid, IdProtected));

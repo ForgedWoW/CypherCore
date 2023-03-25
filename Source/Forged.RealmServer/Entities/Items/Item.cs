@@ -104,7 +104,7 @@ public class Item : WorldObject
 	{
 		get
 		{
-			var curtime = GameTime.GetGameTime();
+			var curtime = _gameTime.GetGameTime;
 			var elapsed = (uint)(curtime - _lastPlayedTimeUpdate);
 
 			return ItemData.CreatePlayedTime + elapsed;
@@ -225,7 +225,7 @@ public class Item : WorldObject
 
 		_updateState = ItemUpdateState.New;
 		_queuePos = -1;
-		_lastPlayedTimeUpdate = GameTime.GetGameTime();
+		_lastPlayedTimeUpdate = _gameTime.GetGameTime;
 	}
 
 	public virtual bool Create(ulong guidlow, uint itemId, ItemContext context, Player owner)
@@ -1030,7 +1030,7 @@ public class Item : WorldObject
 			dmultiplier = durabilityCost.ArmorSubClassCost[itemTemplate.SubClass];
 
 		var cost = (ulong)Math.Round(lostDurability * dmultiplier * durabilityQualityEntry.Data * RepairCostMultiplier);
-		cost = (ulong)(cost * discount * WorldConfig.GetFloatValue(WorldCfg.RateRepaircost));
+		cost = (ulong)(cost * discount * _worldConfig.GetFloatValue(WorldCfg.RateRepaircost));
 
 		if (cost == 0) // Fix for ITEM_QUALITY_ARTIFACT
 			cost = 1;
@@ -1532,7 +1532,7 @@ public class Item : WorldObject
 		// Get current played time
 		uint current_playtime = ItemData.CreatePlayedTime;
 		// Calculate time elapsed since last played time update
-		var curtime = GameTime.GetGameTime();
+		var curtime = _gameTime.GetGameTime;
 		var elapsed = (uint)(curtime - _lastPlayedTimeUpdate);
 		var new_playtime = current_playtime + elapsed;
 

@@ -151,7 +151,7 @@ public partial class Player
 		if (zone == null)
 			return;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.Weather))
+		if (_worldConfig.GetBoolValue(WorldCfg.Weather))
 			Map.GetOrGenerateZoneDefaultWeather(newZone);
 
 		Map.SendZoneDynamicInfo(newZone, this);
@@ -281,7 +281,7 @@ public partial class Player
 
 	public void SendRaidInfo()
 	{
-		var now = GameTime.GetSystemTime();
+		var now = _gameTime.GetSystemTime;
 
 		var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(GUID);
 
@@ -324,7 +324,7 @@ public partial class Player
 			var targetDifficulty = GetDifficultyId(mapEntry);
 			var mapDiff = Global.DB2Mgr.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
 
-			if (!WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
+			if (!_worldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
 			{
 				var mapDifficultyConditions = Global.DB2Mgr.GetMapDifficultyConditions(mapDiff.Id);
 
@@ -339,7 +339,7 @@ public partial class Player
 
 			if (ar != null)
 			{
-				if (!WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
+				if (!_worldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
 				{
 					if (ar.LevelMin != 0 && Level < ar.LevelMin)
 						levelMin = ar.LevelMin;
@@ -428,7 +428,7 @@ public partial class Player
 		var group = Group;
 
 		// raid instances require the player to be in a raid group to be valid
-		if (map.IsRaid && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.Entry.Expansion() >= (Expansion)WorldConfig.GetIntValue(WorldCfg.Expansion)))
+		if (map.IsRaid && !_worldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.Entry.Expansion() >= (Expansion)_worldConfig.GetIntValue(WorldCfg.Expansion)))
 			if (group == null || group.IsRaidGroup)
 				return false;
 
@@ -450,7 +450,7 @@ public partial class Player
 
 	public bool CheckInstanceCount(uint instanceId)
 	{
-		if (_instanceResetTimes.Count < WorldConfig.GetIntValue(WorldCfg.MaxInstancesPerHour))
+		if (_instanceResetTimes.Count < _worldConfig.GetIntValue(WorldCfg.MaxInstancesPerHour))
 			return true;
 
 		return _instanceResetTimes.ContainsKey(instanceId);

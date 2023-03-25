@@ -1016,9 +1016,9 @@ public partial class Unit
 			plrVictim.SetPvPDeath(player != null);
 
 			// only if not player and not controlled by player pet. And not at BG
-			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
+			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && _worldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
 			{
-				double baseLoss = WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath);
+				double baseLoss = _worldConfig.GetFloatValue(WorldCfg.RateDurabilityLossOnDeath);
 				var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));
 				Log.outDebug(LogFilter.Unit, "We are dead, losing {0} percent durability", loss);
 				// Durability loss is calculated more accurately again for each item in Player.DurabilityLoss

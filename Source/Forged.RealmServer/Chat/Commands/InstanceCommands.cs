@@ -69,7 +69,7 @@ class InstanceCommands
 		if (player == null)
 			player = handler.Session.Player;
 
-		var now = GameTime.GetDateAndTime();
+		var now = GameTime.DateTime;
 		var instanceLocks = Global.InstanceLockMgr.GetInstanceLocksForPlayer(player.GUID);
 
 		foreach (var instanceLock in instanceLocks)
@@ -180,7 +180,7 @@ class InstanceCommands
 
 		Global.InstanceLockMgr.ResetInstanceLocksForPlayer(player.GUID, mapId, difficulty, locksReset, locksNotReset);
 
-		var now = GameTime.GetDateAndTime();
+		var now = GameTime.DateTime;
 
 		foreach (var instanceLock in locksReset)
 		{

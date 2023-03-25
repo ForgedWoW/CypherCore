@@ -23,7 +23,7 @@ public class CreatureMovementData
 		Rooted = false;
 		Chase = CreatureChaseMovementType.Run;
 		Random = CreatureRandomMovementType.Walk;
-		InteractionPauseTimer = WorldConfig.GetUIntValue(WorldCfg.CreatureStopForPlayer);
+		InteractionPauseTimer = _worldConfig.GetUIntValue(WorldCfg.CreatureStopForPlayer);
 	}
 
 	public bool IsGroundAllowed()

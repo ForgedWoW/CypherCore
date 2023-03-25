@@ -138,14 +138,14 @@ public partial class WorldSession
 					case ChatMsg.Raid:
 					case ChatMsg.RaidWarning:
 						// allow two side chat at group channel if two side group allowed
-						if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup))
+						if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup))
 							lang = Language.Universal;
 
 						break;
 					case ChatMsg.Guild:
 					case ChatMsg.Officer:
 						// allow two side chat at guild channel if two side guild allowed
-						if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild))
+						if (_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild))
 							lang = Language.Universal;
 
 						break;
@@ -160,7 +160,7 @@ public partial class WorldSession
 
 		if (!CanSpeak)
 		{
-			var timeStr = Time.secsToTimeString((ulong)(MuteTime - GameTime.GetGameTime()));
+			var timeStr = Time.secsToTimeString((ulong)(MuteTime - _gameTime.GetGameTime));
 			SendNotification(CypherStrings.WaitBeforeSpeaking, timeStr);
 
 			return;
@@ -186,9 +186,9 @@ public partial class WorldSession
 				if (!sender.IsAlive)
 					return;
 
-				if (sender.Level < WorldConfig.GetIntValue(WorldCfg.ChatSayLevelReq))
+				if (sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatSayLevelReq))
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), WorldConfig.GetIntValue(WorldCfg.ChatSayLevelReq));
+					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatSayLevelReq));
 
 					return;
 				}
@@ -201,9 +201,9 @@ public partial class WorldSession
 				if (!sender.IsAlive)
 					return;
 
-				if (sender.Level < WorldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq))
+				if (sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq))
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), WorldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq));
+					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq));
 
 					return;
 				}
@@ -216,9 +216,9 @@ public partial class WorldSession
 				if (!sender.IsAlive)
 					return;
 
-				if (sender.Level < WorldConfig.GetIntValue(WorldCfg.ChatYellLevelReq))
+				if (sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatYellLevelReq))
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), WorldConfig.GetIntValue(WorldCfg.ChatYellLevelReq));
+					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatYellLevelReq));
 
 					return;
 				}
@@ -249,9 +249,9 @@ public partial class WorldSession
 				// Apply checks only if receiver is not already in whitelist and if receiver is not a GM with ".whisper on"
 				if (!receiver.IsInWhisperWhiteList(sender.GUID) && !receiver.IsGameMasterAcceptingWhispers)
 				{
-					if (!sender.IsGameMaster && sender.Level < WorldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq))
+					if (!sender.IsGameMaster && sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq))
 					{
-						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.WhisperReq), WorldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq));
+						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.WhisperReq), _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq));
 
 						return;
 					}
@@ -271,7 +271,7 @@ public partial class WorldSession
 					return;
 				}
 
-				if (receiver.Level < WorldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq) ||
+				if (receiver.Level < _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq) ||
 					(HasPermission(RBACPermissions.CanFilterWhispers) && !sender.IsAcceptWhispers && !sender.IsInWhisperWhiteList(receiver.GUID)))
 					sender.AddWhisperWhiteList(receiver.GUID);
 
@@ -352,7 +352,7 @@ public partial class WorldSession
 			{
 				var group = _player.Group;
 
-				if (!group || !(group.IsRaidGroup || WorldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_player.GUID) || group.IsAssistant(_player.GUID)) || group.IsBGGroup)
+				if (!group || !(group.IsRaidGroup || _worldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_player.GUID) || group.IsAssistant(_player.GUID)) || group.IsBGGroup)
 					return;
 
 				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
@@ -366,9 +366,9 @@ public partial class WorldSession
 				break;
 			case ChatMsg.Channel:
 				if (!HasPermission(RBACPermissions.SkipCheckChatChannelReq))
-					if (_player.Level < WorldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq))
+					if (_player.Level < _worldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq))
 					{
-						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.ChannelReq), WorldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq));
+						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.ChannelReq), _worldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq));
 
 						return;
 					}
@@ -427,7 +427,7 @@ public partial class WorldSession
 			return;
 
 		// Disabled addon channel?
-		if (!WorldConfig.GetBoolValue(WorldCfg.AddonChannel))
+		if (!_worldConfig.GetBoolValue(WorldCfg.AddonChannel))
 			return;
 
 		if (prefix == AddonChannelCommandHandler.PREFIX && new AddonChannelCommandHandler(this).ParseCommands(text))

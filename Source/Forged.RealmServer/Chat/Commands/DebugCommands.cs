@@ -497,8 +497,8 @@ class DebugCommands
 		else
 			Global.MapMgr.DoForAllMaps(map => HandleDebugGuidLimitsMap(handler, map));
 
-		handler.SendSysMessage($"Guid Warn Level: {WorldConfig.GetIntValue(WorldCfg.RespawnGuidWarnLevel)}");
-		handler.SendSysMessage($"Guid Alert Level: {WorldConfig.GetIntValue(WorldCfg.RespawnGuidAlertLevel)}");
+		handler.SendSysMessage($"Guid Warn Level: {_worldConfig.GetIntValue(WorldCfg.RespawnGuidWarnLevel)}");
+		handler.SendSysMessage($"Guid Alert Level: {_worldConfig.GetIntValue(WorldCfg.RespawnGuidAlertLevel)}");
 
 		return true;
 	}
@@ -935,7 +935,7 @@ class DebugCommands
 		else
 			return false;
 
-		var now = GameTime.GetGameTime();
+		var now = _gameTime.GetGameTime;
 
 		if (daily)
 		{

@@ -211,7 +211,7 @@ public class Transport : GameObject, ITransport
 		var cycleId = _pathProgress / GetTransportPeriod();
 
 		if (Template.MoTransport.allowstopping == 0)
-			_pathProgress = GameTime.GetGameTimeMS();
+			_pathProgress = _gameTime.GetGameTimeMS;
 		else if (!_requestStopTimestamp.HasValue || _requestStopTimestamp > _pathProgress + diff)
 			_pathProgress += diff;
 		else

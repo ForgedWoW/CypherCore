@@ -98,7 +98,7 @@ class NPCCommands
 		var nativeid = target.NativeDisplayId;
 		var entry = target.Entry;
 
-		var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - GameTime.GetGameTime() : target.Map.GetCreatureRespawnTime(target.SpawnId) - GameTime.GetGameTime();
+		var curRespawnDelay = target.RespawnCompatibilityMode ? target.RespawnTimeEx - _gameTime.GetGameTime : target.Map.GetCreatureRespawnTime(target.SpawnId) - _gameTime.GetGameTime;
 
 		if (curRespawnDelay < 0)
 			curRespawnDelay = 0;
@@ -1101,7 +1101,7 @@ class NPCCommands
 		[Command("level", RBACPermissions.CommandNpcSetLevel)]
 		static bool HandleNpcSetLevelCommand(CommandHandler handler, byte lvl)
 		{
-			if (lvl < 1 || lvl > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) + 3)
+			if (lvl < 1 || lvl > _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) + 3)
 			{
 				handler.SendSysMessage(CypherStrings.BadValue);
 

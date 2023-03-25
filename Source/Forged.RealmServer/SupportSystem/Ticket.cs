@@ -68,7 +68,7 @@ public class Ticket
 
 	public Ticket(Player player)
 	{
-		CreateTimeProtected = (ulong)GameTime.GetGameTime();
+		CreateTimeProtected = (ulong)_gameTime.GetGameTime;
 		PlayerGuidProtected = player.GUID;
 	}
 

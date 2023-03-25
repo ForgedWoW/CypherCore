@@ -43,7 +43,7 @@ public class Corpse : WorldObject
 
 		CorpseData = new CorpseData();
 
-		_time = GameTime.GetGameTime();
+		_time = _gameTime.GetGameTime;
 	}
 
 	public override void AddToWorld()
@@ -378,7 +378,7 @@ public class Corpse : WorldObject
 
 	public void ResetGhostTime()
 	{
-		_time = GameTime.GetGameTime();
+		_time = _gameTime.GetGameTime;
 	}
 
 	public CorpseType GetCorpseType()

@@ -40,7 +40,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			return;
 		}
 
-		var reqSignatures = WorldConfig.GetUIntValue(WorldCfg.MinPetitionSigns);
+		var reqSignatures = _worldConfig.GetUIntValue(WorldCfg.MinPetitionSigns);
 
 		PetitionInfo petitionInfo = new();
 		petitionInfo.PetitionID = (int)petitionGuid.Counter;
@@ -71,7 +71,7 @@ public class PetitionsHandler : IWorldSessionHandler
 
 		ServerPetitionShowList packet = new();
 		packet.Unit = guid;
-		packet.Price = WorldConfig.GetUIntValue(WorldCfg.CharterCostGuild);
+		packet.Price = _worldConfig.GetUIntValue(WorldCfg.CharterCostGuild);
 		SendPacket(packet);
 	}
 
@@ -93,7 +93,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			Player.RemoveAurasByType(AuraType.FeignDeath);
 
 		var charterItemID = GuildConst.CharterItemId;
-		var cost = WorldConfig.GetIntValue(WorldCfg.CharterCostGuild);
+		var cost = _worldConfig.GetIntValue(WorldCfg.CharterCostGuild);
 
 		// do not let if already in guild.
 		if (Player.GuildId != 0)
@@ -269,7 +269,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			return;
 
 		// not let enemies sign guild charter
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && Player.Team != Global.CharacterCacheStorage.GetCharacterTeamByGuid(ownerGuid))
+		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && Player.Team != Global.CharacterCacheStorage.GetCharacterTeamByGuid(ownerGuid))
 		{
 			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NotAllied);
 
@@ -375,7 +375,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		if (petition == null)
 			return;
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && Player.Team != player.Team)
+		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && Player.Team != player.Team)
 		{
 			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NotAllied);
 
@@ -443,7 +443,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		}
 
 		var signatures = petition.Signatures; // we need a copy, Guild::AddMember invalidates petition
-		var requiredSignatures = WorldConfig.GetUIntValue(WorldCfg.MinPetitionSigns);
+		var requiredSignatures = _worldConfig.GetUIntValue(WorldCfg.MinPetitionSigns);
 
 		// Notify player if signatures are missing
 		if (signatures.Count < requiredSignatures)

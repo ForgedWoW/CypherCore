@@ -17,16 +17,13 @@ public class AzeriteHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly Player _player;
-    private readonly DB6Storage<AzeriteItemMilestonePowerRecord> _azeriteItemMilestonePowerStorage;
-	private readonly DB6Storage<AzeritePowerRecord> _azeritePowerStorage;
+    private readonly CliDB _cliDB;
 
-    public AzeriteHandler(WorldSession session, Player player, DB6Storage<AzeriteItemMilestonePowerRecord> azeriteItemMilestonePowerStorage,
-        DB6Storage<AzeritePowerRecord> azeritePowerStorage)
+    public AzeriteHandler(WorldSession session, Player player, CliDB cliDB)
     {
         _session = session;
         _player = player;
-        _azeriteItemMilestonePowerStorage = azeriteItemMilestonePowerStorage;
-        _azeritePowerStorage = azeritePowerStorage;
+        _cliDB = cliDB;
     }
 
     public void SendAzeriteRespecNPC(ObjectGuid npc)
@@ -54,7 +51,7 @@ public class AzeriteHandler : IWorldSessionHandler
 		if (!azeriteItem || !azeriteItem.CanUseEssences())
 			return;
 
-		var milestonePower = _azeriteItemMilestonePowerStorage.LookupByKey((uint)azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
+		var milestonePower = _cliDB.AzeriteItemMilestonePowerStorage.LookupByKey((uint)azeriteEssenceUnlockMilestone.AzeriteItemMilestonePowerID);
 
 		if (milestonePower == null || milestonePower.RequiredLevel > azeriteItem.GetLevel())
 			return;
@@ -234,7 +231,7 @@ public class AzeriteHandler : IWorldSessionHandler
 		if (item == null)
 			return;
 
-		var azeritePower = _azeritePowerStorage.LookupByKey(azeriteEmpoweredItemSelectPower.AzeritePowerID);
+		var azeritePower = _cliDB.AzeritePowerStorage.LookupByKey((uint)azeriteEmpoweredItemSelectPower.AzeritePowerID);
 
 		if (azeritePower == null)
 			return;

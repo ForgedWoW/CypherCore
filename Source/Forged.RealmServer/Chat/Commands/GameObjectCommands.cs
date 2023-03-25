@@ -462,7 +462,7 @@ class GameObjectCommands
 
 		if (target)
 		{
-			var curRespawnDelay = (int)(target.RespawnTimeEx - GameTime.GetGameTime());
+			var curRespawnDelay = (int)(target.RespawnTimeEx - _gameTime.GetGameTime);
 
 			if (curRespawnDelay < 0)
 				curRespawnDelay = 0;

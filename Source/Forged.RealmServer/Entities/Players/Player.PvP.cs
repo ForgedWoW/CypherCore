@@ -60,8 +60,8 @@ public partial class Player
 	public void UpdateHonorFields()
 	{
 		// called when rewarding honor and at each save
-		var now = GameTime.GetGameTime();
-		var today = (GameTime.GetGameTime() / Time.Day) * Time.Day;
+		var now = _gameTime.GetGameTime;
+		var today = (_gameTime.GetGameTime / Time.Day) * Time.Day;
 
 		if (_lastHonorUpdateTime < today)
 		{
@@ -188,7 +188,7 @@ public partial class Player
 			honorF += (float)_restMgr.GetRestBonusFor(RestTypes.Honor, (uint)honorF);
 		}
 
-		honorF *= WorldConfig.GetFloatValue(WorldCfg.RateHonor);
+		honorF *= _worldConfig.GetFloatValue(WorldCfg.RateHonor);
 		// Back to int now
 		honor = (int)honorF;
 		// honor - for show honor points in log
@@ -214,7 +214,7 @@ public partial class Player
 				bg.UpdatePlayerScore(this, ScoreType.BonusHonor, (uint)honor, false); //false: prevent looping
 		}
 
-		if (WorldConfig.GetBoolValue(WorldCfg.PvpTokenEnable) && pvptoken)
+		if (_worldConfig.GetBoolValue(WorldCfg.PvpTokenEnable) && pvptoken)
 		{
 			if (victim != null && (!victim || victim == this || victim.HasAuraType(AuraType.NoPvpCredit)))
 				return true;
@@ -222,13 +222,13 @@ public partial class Player
 			if (victim != null && victim.IsTypeId(TypeId.Player))
 			{
 				// Check if allowed to receive it in current map
-				var mapType = WorldConfig.GetIntValue(WorldCfg.PvpTokenMapType);
+				var mapType = _worldConfig.GetIntValue(WorldCfg.PvpTokenMapType);
 
 				if ((mapType == 1 && !InBattleground && !IsFFAPvP) || (mapType == 2 && !IsFFAPvP) || (mapType == 3 && !InBattleground))
 					return true;
 
-				var itemId = WorldConfig.GetUIntValue(WorldCfg.PvpTokenId);
-				var count = WorldConfig.GetUIntValue(WorldCfg.PvpTokenCount);
+				var itemId = _worldConfig.GetUIntValue(WorldCfg.PvpTokenId);
+				var count = _worldConfig.GetUIntValue(WorldCfg.PvpTokenCount);
 
 				if (AddItem(itemId, count))
 					SendSysMessage("You have been awarded a token for slaying another player.");
@@ -356,7 +356,7 @@ public partial class Player
 			{
 				_battlegroundQueueIdRecs[i].BgQueueTypeId = val;
 				_battlegroundQueueIdRecs[i].InvitedToInstance = 0;
-				_battlegroundQueueIdRecs[i].JoinTime = (uint)GameTime.GetGameTime();
+				_battlegroundQueueIdRecs[i].JoinTime = (uint)_gameTime.GetGameTime;
 				_battlegroundQueueIdRecs[i].Mercenary = HasAura(BattlegroundConst.SpellMercenaryContractHorde) || HasAura(BattlegroundConst.SpellMercenaryContractAlliance);
 
 				return i;
@@ -502,7 +502,7 @@ public partial class Player
 			bg.RemovePlayerAtLeave(GUID, teleportToEntryPoint, true);
 
 			// call after remove to be sure that player resurrected for correct cast
-			if (bg.IsBattleground() && !IsGameMaster && WorldConfig.GetBoolValue(WorldCfg.BattlegroundCastDeserter))
+			if (bg.IsBattleground() && !IsGameMaster && _worldConfig.GetBoolValue(WorldCfg.BattlegroundCastDeserter))
 				if (bg.GetStatus() == BattlegroundStatus.InProgress || bg.GetStatus() == BattlegroundStatus.WaitJoin)
 				{
 					//lets check if player was teleported from BG and schedule delayed Deserter spell cast
@@ -564,7 +564,7 @@ public partial class Player
 			_bgData.BgAfkReporter.Add(reporter.GUID);
 
 			// by default 3 players have to complain to apply debuff
-			if (_bgData.BgAfkReporter.Count >= WorldConfig.GetIntValue(WorldCfg.BattlegroundReportAfk))
+			if (_bgData.BgAfkReporter.Count >= _worldConfig.GetIntValue(WorldCfg.BattlegroundReportAfk))
 			{
 				// cast 'Idle' spell
 				CastSpell(this, 43680, true);
@@ -606,8 +606,8 @@ public partial class Player
 		// limit check leel to dbc compatible level range
 		var level = Level;
 
-		if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
-			level = WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
+		if (level > _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+			level = _worldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
 
 		if (level < bg.GetMinLevel() || level > bg.GetMaxLevel())
 			return false;

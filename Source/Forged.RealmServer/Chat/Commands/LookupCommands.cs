@@ -765,7 +765,7 @@ class LookupCommands
 
 			var found = false;
 			uint count = 0;
-			var maxResults = WorldConfig.GetUIntValue(WorldCfg.MaxResultsLookupCommands);
+			var maxResults = _worldConfig.GetUIntValue(WorldCfg.MaxResultsLookupCommands);
 
 			// Search in ItemSet.dbc
 			foreach (var (id, set) in CliDB.ItemSetStorage)

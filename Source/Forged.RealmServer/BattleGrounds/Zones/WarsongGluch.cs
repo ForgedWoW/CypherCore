@@ -226,7 +226,7 @@ class BgWarsongGluch : Battleground
 		SpawnBGObject(WSGObjectTypes.DoorH4, BattlegroundConst.RespawnOneDay);
 
 		UpdateWorldState(WSGWorldStates.StateTimerActive, 1);
-		UpdateWorldState(WSGWorldStates.StateTimer, (int)(GameTime.GetGameTime() + 15 * Time.Minute));
+		UpdateWorldState(WSGWorldStates.StateTimer, (int)(_gameTime.GetGameTime + 15 * Time.Minute));
 
 		// players joining later are not eligibles
 		TriggerGameEvent(8563);

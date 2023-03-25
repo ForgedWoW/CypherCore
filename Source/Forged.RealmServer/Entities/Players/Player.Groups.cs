@@ -217,7 +217,7 @@ public partial class Player
 		if (player.Map.IsDungeon)
 			return true;
 
-		return pRewardSource.GetDistance(player) <= WorldConfig.GetFloatValue(WorldCfg.GroupXpDistance);
+		return pRewardSource.GetDistance(player) <= _worldConfig.GetFloatValue(WorldCfg.GroupXpDistance);
 	}
 
 	public void SetGroupUpdateFlag(GroupUpdateFlags flag)
@@ -232,7 +232,7 @@ public partial class Player
 
 	public bool IsGroupVisibleFor(Player p)
 	{
-		switch (WorldConfig.GetIntValue(WorldCfg.GroupVisibility))
+		switch (_worldConfig.GetIntValue(WorldCfg.GroupVisibility))
 		{
 			default:
 				return IsInSameGroupWith(p);

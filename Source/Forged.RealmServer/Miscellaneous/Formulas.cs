@@ -140,10 +140,10 @@ public class Formulas
 			}
 		}
 
-		if (WorldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) != 0 && pl_level != mob_level)
+		if (_worldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) != 0 && pl_level != mob_level)
 		{
 			// Use mob level instead of player level to avoid overscaling on gain in a min is enforced
-			var baseGainMin = BaseGain(pl_level, pl_level) * WorldConfig.GetUIntValue(WorldCfg.MinCreatureScaledXpRatio) / 100;
+			var baseGainMin = BaseGain(pl_level, pl_level) * _worldConfig.GetUIntValue(WorldCfg.MinCreatureScaledXpRatio) / 100;
 			baseGain = Math.Max(baseGainMin, baseGain);
 		}
 
@@ -181,7 +181,7 @@ public class Formulas
 				xpMod *= creature.Template.ModExperience;
 			}
 
-			xpMod *= isBattleGround ? WorldConfig.GetFloatValue(WorldCfg.RateXpBgKill) : WorldConfig.GetFloatValue(WorldCfg.RateXpKill);
+			xpMod *= isBattleGround ? _worldConfig.GetFloatValue(WorldCfg.RateXpBgKill) : _worldConfig.GetFloatValue(WorldCfg.RateXpKill);
 
 			if (creature && creature.PlayerDamageReq != 0) // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
 				xpMod *= 1.0f - 2.0f * creature.PlayerDamageReq / creature.MaxHealth;

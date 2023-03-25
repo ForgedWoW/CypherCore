@@ -289,7 +289,7 @@ class CharacterCommands
 		var charCount = Global.AccountMgr.GetCharactersCount(newAccount.GetID());
 
 		if (charCount != 0)
-			if (charCount >= WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
+			if (charCount >= _worldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
 			{
 				handler.SendSysMessage(CypherStrings.AccountCharacterListFull, newAccount.GetName(), newAccount.GetID());
 
@@ -624,7 +624,7 @@ class CharacterCommands
 		[Command("old", RBACPermissions.CommandCharacterDeletedOld, true)]
 		static bool HandleCharacterDeletedOldCommand(CommandHandler handler, ushort? days)
 		{
-			var keepDays = WorldConfig.GetIntValue(WorldCfg.ChardeleteKeepDays);
+			var keepDays = _worldConfig.GetIntValue(WorldCfg.ChardeleteKeepDays);
 
 			if (days.HasValue)
 				keepDays = days.Value;
@@ -733,7 +733,7 @@ class CharacterCommands
 			// check character count
 			var charcount = Global.AccountMgr.GetCharactersCount(delInfo.accountId);
 
-			if (charcount >= WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
+			if (charcount >= _worldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
 			{
 				handler.SendSysMessage(CypherStrings.CharacterDeletedSkipFull, delInfo.name, delInfo.guid.ToString(), delInfo.accountId);
 

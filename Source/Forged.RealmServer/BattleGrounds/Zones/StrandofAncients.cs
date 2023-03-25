@@ -121,7 +121,7 @@ public class BgStrandOfAncients : Battleground
 		if (Status == SAStatus.Warmup)
 		{
 			EndRoundTimer = SATimers.RoundLength;
-			UpdateWorldState(SAWorldStateIds.Timer, (int)(GameTime.GetGameTime() + EndRoundTimer));
+			UpdateWorldState(SAWorldStateIds.Timer, (int)(_gameTime.GetGameTime + EndRoundTimer));
 
 			if (TotalTime >= SATimers.WarmupLength)
 			{
@@ -149,7 +149,7 @@ public class BgStrandOfAncients : Battleground
 			else
 				EndRoundTimer = SATimers.RoundLength;
 
-			UpdateWorldState(SAWorldStateIds.Timer, (int)(GameTime.GetGameTime() + EndRoundTimer));
+			UpdateWorldState(SAWorldStateIds.Timer, (int)(_gameTime.GetGameTime + EndRoundTimer));
 
 			if (TotalTime >= 60000)
 			{
@@ -1126,11 +1126,11 @@ public class BgStrandOfAncients : Battleground
 						// Demolisher is not in list
 						if (!DemoliserRespawnList.ContainsKey(i))
 						{
-							DemoliserRespawnList[i] = GameTime.GetGameTimeMS() + 30000;
+							DemoliserRespawnList[i] = _gameTime.GetGameTimeMS + 30000;
 						}
 						else
 						{
-							if (DemoliserRespawnList[i] < GameTime.GetGameTimeMS())
+							if (DemoliserRespawnList[i] < _gameTime.GetGameTimeMS)
 							{
 								Demolisher.Location.Relocate(SAMiscConst.NpcSpawnlocs[i]);
 								Demolisher.Respawn();

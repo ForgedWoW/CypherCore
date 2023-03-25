@@ -49,7 +49,7 @@ public class Guild
 		m_info = "";
 		m_motd = "No message set.";
 		m_bankMoney = 0;
-		m_createdDate = GameTime.GetGameTime();
+		m_createdDate = _gameTime.GetGameTime;
 
 		Log.Logger.Debug(
 					"GUILD: creating guild [{0}] for leader {1} ({2})",
@@ -580,7 +580,7 @@ public class Guild
 		if (pInvitee.Social.HasIgnore(player.GUID, player.Session.AccountGUID))
 			return;
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && pInvitee.Team != player.Team)
+		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && pInvitee.Team != player.Team)
 		{
 			SendCommandResult(session, GuildCommandType.InvitePlayer, GuildCommandError.NotAllied, name);
 
@@ -650,7 +650,7 @@ public class Guild
 	{
 		var player = session.Player;
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) &&
+		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) &&
 			player.Team != Global.CharacterCacheStorage.GetCharacterTeamByGuid(GetLeaderGUID()))
 			return;
 
@@ -2843,7 +2843,7 @@ public class Guild
 			m_level = 0;
 			m_class = 0;
 			m_flags = GuildMemberFlags.None;
-			m_logoutTime = (ulong)GameTime.GetGameTime();
+			m_logoutTime = (ulong)_gameTime.GetGameTime;
 			m_accountId = 0;
 			m_rankId = rankId;
 			m_achievementPoints = 0;
@@ -2999,7 +2999,7 @@ public class Guild
 			if (IsOnline())
 				return 0.0f;
 
-			return (float)((GameTime.GetGameTime() - (long)GetLogoutTime()) / (float)Time.Day);
+			return (float)((_gameTime.GetGameTime - (long)GetLogoutTime()) / (float)Time.Day);
 		}
 
 		// Decreases amount of slots left for today.
@@ -3186,7 +3186,7 @@ public class Guild
 
 		public void UpdateLogoutTime()
 		{
-			m_logoutTime = (ulong)GameTime.GetGameTime();
+			m_logoutTime = (ulong)_gameTime.GetGameTime;
 		}
 
 		public bool IsRank(GuildRankId rankId)
@@ -3258,7 +3258,7 @@ public class Guild
 		{
 			m_guildId = guildId;
 			m_guid = guid;
-			m_timestamp = GameTime.GetGameTime();
+			m_timestamp = _gameTime.GetGameTime;
 		}
 
 		public LogEntry(ulong guildId, uint guid, long timestamp)
@@ -3334,7 +3334,7 @@ public class Guild
 			eventEntry.PlayerGUID = playerGUID;
 			eventEntry.OtherGUID = otherGUID;
 			eventEntry.TransactionType = (byte)m_eventType;
-			eventEntry.TransactionDate = (uint)(GameTime.GetGameTime() - m_timestamp);
+			eventEntry.TransactionDate = (uint)(_gameTime.GetGameTime - m_timestamp);
 			eventEntry.RankID = m_newRank;
 			packet.Entry.Add(eventEntry);
 		}
@@ -3419,7 +3419,7 @@ public class Guild
 
 			GuildBankLogEntry bankLogEntry = new();
 			bankLogEntry.PlayerGUID = logGuid;
-			bankLogEntry.TimeOffset = (uint)(GameTime.GetGameTime() - m_timestamp);
+			bankLogEntry.TimeOffset = (uint)(_gameTime.GetGameTime - m_timestamp);
 			bankLogEntry.EntryType = (sbyte)m_eventType;
 
 			if (hasStack)
@@ -3543,7 +3543,7 @@ public class Guild
 
 		public LogHolder()
 		{
-			m_maxRecords = WorldConfig.GetUIntValue(typeof(T) == typeof(BankEventLogEntry) ? WorldCfg.GuildBankEventLogCount : WorldCfg.GuildEventLogCount);
+			m_maxRecords = _worldConfig.GetUIntValue(typeof(T) == typeof(BankEventLogEntry) ? WorldCfg.GuildBankEventLogCount : WorldCfg.GuildEventLogCount);
 			m_nextGUID = GuildConst.EventLogGuidUndefined;
 		}
 

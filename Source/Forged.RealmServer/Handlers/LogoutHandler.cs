@@ -78,7 +78,7 @@ public class LogoutHandler : IWorldSessionHandler
 			_session.Player.SetUnitFlag(UnitFlags.Stunned);
 		}
 
-        _session.SetLogoutStartTime(GameTime.GetGameTime());
+        _session.SetLogoutStartTime(_gameTime.GetGameTime);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LogoutCancel)]

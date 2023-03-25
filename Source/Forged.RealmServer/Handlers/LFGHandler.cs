@@ -359,7 +359,7 @@ public class LFGHandler : IWorldSessionHandler
 		var playerVote = boot.votes.LookupByKey(Player.GUID);
 		byte votesNum = 0;
 		byte agreeNum = 0;
-		var secsleft = (uint)((boot.cancelTime - GameTime.GetGameTime()) / 1000);
+		var secsleft = (uint)((boot.cancelTime - _gameTime.GetGameTime) / 1000);
 
 		foreach (var it in boot.votes)
 			if (it.Value != LfgAnswer.Pending)

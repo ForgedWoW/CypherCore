@@ -2429,7 +2429,7 @@ public partial class Unit
 
 			// Remember time after last aura from group removed
 			if (diminish.Stack == 0)
-				diminish.HitTime = GameTime.GetGameTimeMS();
+				diminish.HitTime = _gameTime.GetGameTimeMS;
 		}
 	}
 
@@ -4333,7 +4333,7 @@ public partial class Unit
 
 	void GetProcAurasTriggeredOnEvent(List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc, List<AuraApplication> procAuras, ProcEventInfo eventInfo)
 	{
-		var now = GameTime.Now();
+		var now = _gameTime.Now;
 
 		void processAuraApplication(AuraApplication aurApp)
 		{

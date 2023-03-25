@@ -40,7 +40,7 @@ public class SocialManager : Singleton<SocialManager>
 		// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
 
 		if (!player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) &&
-			target.Session.Security > (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInWhoList))
+			target.Session.Security > (AccountTypes)_worldConfig.GetIntValue(WorldCfg.GmLevelInWhoList))
 			return;
 
 		// player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
@@ -118,7 +118,7 @@ public class SocialManager : Singleton<SocialManager>
 		if (!player)
 			return;
 
-		var gmSecLevel = (AccountTypes)WorldConfig.GetIntValue(WorldCfg.GmLevelInWhoList);
+		var gmSecLevel = (AccountTypes)_worldConfig.GetIntValue(WorldCfg.GmLevelInWhoList);
 
 		foreach (var pair in _socialMap)
 		{

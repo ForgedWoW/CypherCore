@@ -299,7 +299,7 @@ public partial class Player
 					opponent.CastSpell(Duel.Opponent, 52994, true);
 
 				// Honor points after duel (the winner) - ImpConfig
-				var amount = WorldConfig.GetIntValue(WorldCfg.HonorAfterDuel);
+				var amount = _worldConfig.GetIntValue(WorldCfg.HonorAfterDuel);
 
 				if (amount != 0)
 					opponent.RewardHonor(null, 1, amount);
@@ -423,7 +423,7 @@ public partial class Player
 		}
 		else
 		{
-			PvpInfo.EndTimer = GameTime.GetGameTime();
+			PvpInfo.EndTimer = _gameTime.GetGameTime;
 			SetPvP(state);
 		}
 	}
@@ -461,7 +461,7 @@ public partial class Player
 		else // in friendly area
 		{
 			if (IsPvP && !HasPlayerFlag(PlayerFlags.InPVP) && PvpInfo.EndTimer == 0)
-				PvpInfo.EndTimer = GameTime.GetGameTime(); // start toggle-off
+				PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
 		}
 	}
 

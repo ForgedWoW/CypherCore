@@ -208,7 +208,7 @@ public class EscortAI : ScriptedAI
 					var creatureData = Me.CreatureData;
 
 					if (creatureData != null)
-						isEscort = (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
+						isEscort = (_worldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && creatureData.SpawnGroupData.Flags.HasAnyFlag(SpawnGroupFlags.EscortQuestNpc));
 
 					if (_instantRespawn)
 					{
@@ -325,7 +325,7 @@ public class EscortAI : ScriptedAI
 		var cdata = Me.CreatureData;
 
 		if (cdata != null)
-			if (WorldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
+			if (_worldConfig.GetBoolValue(WorldCfg.RespawnDynamicEscortNpc) && cdata.SpawnGroupData.Flags.HasFlag(SpawnGroupFlags.EscortQuestNpc))
 				Me.SaveRespawnTime(Me.RespawnDelay);
 
 		if (Me.IsEngaged)

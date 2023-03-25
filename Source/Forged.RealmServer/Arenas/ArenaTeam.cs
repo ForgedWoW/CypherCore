@@ -31,7 +31,7 @@ public class ArenaTeam
 
 	public ArenaTeam()
 	{
-		stats.Rating = (ushort)WorldConfig.GetIntValue(WorldCfg.ArenaStartRating);
+		stats.Rating = (ushort)_worldConfig.GetIntValue(WorldCfg.ArenaStartRating);
 	}
 
 	public bool Create(ObjectGuid captainGuid, byte _type, string arenaTeamName, uint backgroundColor, byte emblemStyle, uint emblemColor, byte borderStyle, uint borderColor)
@@ -119,8 +119,8 @@ public class ArenaTeam
 		// Set player's personal rating
 		uint personalRating = 0;
 
-		if (WorldConfig.GetIntValue(WorldCfg.ArenaStartPersonalRating) > 0)
-			personalRating = WorldConfig.GetUIntValue(WorldCfg.ArenaStartPersonalRating);
+		if (_worldConfig.GetIntValue(WorldCfg.ArenaStartPersonalRating) > 0)
+			personalRating = _worldConfig.GetUIntValue(WorldCfg.ArenaStartPersonalRating);
 		else if (GetRating() >= 1000)
 			personalRating = 1000;
 
@@ -135,7 +135,7 @@ public class ArenaTeam
 		if (!result.IsEmpty())
 			matchMakerRating = result.Read<ushort>(0);
 		else
-			matchMakerRating = WorldConfig.GetUIntValue(WorldCfg.ArenaStartMatchmakerRating);
+			matchMakerRating = _worldConfig.GetUIntValue(WorldCfg.ArenaStartMatchmakerRating);
 
 		// Remove all player signatures from other petitions
 		// This will prevent player from joining too many arena teams and corrupt arena team data integrity
@@ -816,7 +816,7 @@ public class ArenaTeam
 		*/
 
 		// Real rating modification
-		mod *= WorldConfig.GetFloatValue(WorldCfg.ArenaMatchmakerRatingModifier);
+		mod *= _worldConfig.GetFloatValue(WorldCfg.ArenaMatchmakerRatingModifier);
 
 		return (int)Math.Ceiling(mod);
 	}
@@ -835,7 +835,7 @@ public class ArenaTeam
 		{
 			if (ownRating < 1300)
 			{
-				var win_rating_modifier1 = WorldConfig.GetFloatValue(WorldCfg.ArenaWinRatingModifier1);
+				var win_rating_modifier1 = _worldConfig.GetFloatValue(WorldCfg.ArenaWinRatingModifier1);
 
 				if (ownRating < 1000)
 					mod = win_rating_modifier1 * (1.0f - chance);
@@ -844,12 +844,12 @@ public class ArenaTeam
 			}
 			else
 			{
-				mod = WorldConfig.GetFloatValue(WorldCfg.ArenaWinRatingModifier2) * (1.0f - chance);
+				mod = _worldConfig.GetFloatValue(WorldCfg.ArenaWinRatingModifier2) * (1.0f - chance);
 			}
 		}
 		else
 		{
-			mod = WorldConfig.GetFloatValue(WorldCfg.ArenaLoseRatingModifier) * (-chance);
+			mod = _worldConfig.GetFloatValue(WorldCfg.ArenaLoseRatingModifier) * (-chance);
 		}
 
 		return (int)Math.Ceiling(mod);

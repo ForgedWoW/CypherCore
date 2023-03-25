@@ -802,17 +802,17 @@ public partial class Unit : WorldObject
 
 	public virtual void Say(string text, Language language, WorldObject target = null)
 	{
-		Talk(text, ChatMsg.MonsterSay, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+		Talk(text, ChatMsg.MonsterSay, language, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
 	}
 
 	public virtual void Yell(string text, Language language = Language.Universal, WorldObject target = null)
 	{
-		Talk(text, ChatMsg.MonsterYell, language, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+		Talk(text, ChatMsg.MonsterYell, language, _worldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
 	}
 
 	public virtual void TextEmote(string text, WorldObject target = null, bool isBossEmote = false)
 	{
-		Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+		Talk(text, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, Language.Universal, _worldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
 	}
 
 	public virtual void Whisper(string text, Player target, bool isBossWhisper = false)
@@ -848,17 +848,17 @@ public partial class Unit : WorldObject
 
 	public virtual void Say(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.MonsterSay, WorldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
+		Talk(textId, ChatMsg.MonsterSay, _worldConfig.GetFloatValue(WorldCfg.ListenRangeSay), target);
 	}
 
 	public virtual void Yell(uint textId, WorldObject target = null)
 	{
-		Talk(textId, ChatMsg.MonsterYell, WorldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
+		Talk(textId, ChatMsg.MonsterYell, _worldConfig.GetFloatValue(WorldCfg.ListenRangeYell), target);
 	}
 
 	public virtual void TextEmote(uint textId, WorldObject target = null, bool isBossEmote = false)
 	{
-		Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, WorldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
+		Talk(textId, isBossEmote ? ChatMsg.RaidBossEmote : ChatMsg.MonsterEmote, _worldConfig.GetFloatValue(WorldCfg.ListenRangeTextemote), target);
 	}
 
 	public virtual void Whisper(uint textId, Player target, bool isBossWhisper = false)
@@ -3100,7 +3100,7 @@ public partial class Unit : WorldObject
 			{
 				// Part of Evade mechanics. DoT's and Thorns / Retribution Aura do not contribute to this
 				if (damagetype != DamageEffectType.DOT && damageTaken > 0 && !victim.OwnerGUID.IsPlayer && (spellProto == null || !spellProto.HasAura(AuraType.DamageShield)))
-					victim.AsCreature.LastDamagedTime = GameTime.GetGameTime() + SharedConst.MaxAggroResetTime;
+					victim.AsCreature.LastDamagedTime = _gameTime.GetGameTime + SharedConst.MaxAggroResetTime;
 
 				if (attacker != null && (spellProto == null || !spellProto.HasAttribute(SpellAttr4.NoHarmfulThreat)))
 					victim.GetThreatManager().AddThreat(attacker, damageTaken, spellProto);
@@ -3108,7 +3108,7 @@ public partial class Unit : WorldObject
 			else // victim is a player
 			{
 				// random durability for items (HIT TAKEN)
-				if (durabilityLoss && WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage) > RandomHelper.randChance())
+				if (durabilityLoss && _worldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage) > RandomHelper.randChance())
 				{
 					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
 					victim.AsPlayer.DurabilityPointLossForEquipSlot(slot);
@@ -3117,7 +3117,7 @@ public partial class Unit : WorldObject
 
 			if (attacker != null && attacker.IsPlayer)
 				// random durability for items (HIT DONE)
-				if (durabilityLoss && RandomHelper.randChance(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
+				if (durabilityLoss && RandomHelper.randChance(_worldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
 				{
 					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
 					attacker.AsPlayer.DurabilityPointLossForEquipSlot(slot);
@@ -3413,7 +3413,7 @@ public partial class Unit : WorldObject
 		// talent who gave more rage on attack
 		MathFunctions.AddPct(ref addRage, GetTotalAuraModifier(AuraType.ModRageFromDamageDealt));
 
-		addRage *= WorldConfig.GetFloatValue(WorldCfg.RatePowerRageIncome);
+		addRage *= _worldConfig.GetFloatValue(WorldCfg.RatePowerRageIncome);
 
 		ModifyPower(PowerType.Rage, (int)(addRage * 10));
 	}
@@ -4179,7 +4179,7 @@ public partial class Unit : WorldObject
 
 	public void SaveDamageHistory(double damage)
 	{
-		var currentTime = GameTime.GetDateAndTime();
+		var currentTime = GameTime.DateTime;
 		var maxPastTime = currentTime - MAX_DAMAGE_HISTORY_DURATION;
 
 		// Remove damages older than maxPastTime, can be increased if required
@@ -4197,7 +4197,7 @@ public partial class Unit : WorldObject
 
 	public double GetDamageOverLastSeconds(uint seconds)
 	{
-		var maxPastTime = GameTime.GetDateAndTime() - TimeSpan.FromSeconds(seconds);
+		var maxPastTime = GameTime.DateTime - TimeSpan.FromSeconds(seconds);
 
 		double damageOverLastSeconds = 0;
 

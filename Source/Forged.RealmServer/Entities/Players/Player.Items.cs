@@ -2625,7 +2625,7 @@ public partial class Player
 			Log.outDebug(LogFilter.Player, "STORAGE: AddItemToBuyBackSlot item = {0}, slot = {1}", pItem.Entry, slot);
 
 			_items[slot] = pItem;
-			var time = GameTime.GetGameTime();
+			var time = _gameTime.GetGameTime;
 			var etime = (uint)(time - _logintime + (30 * 3600));
 			var eslot = slot - InventorySlots.BuyBackStart;
 
@@ -5314,7 +5314,7 @@ public partial class Player
 
 		// It may need a better formula
 		// Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-		bones.Loot.gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * WorldConfig.GetFloatValue(WorldCfg.RateDropMoney));
+		bones.Loot.gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * _worldConfig.GetFloatValue(WorldCfg.RateDropMoney));
 		bones.LootRecipient = looterPlr;
 		looterPlr.SendLoot(bones.Loot);
 	}
@@ -6659,7 +6659,7 @@ public partial class Player
 		if (pItem.Template.HasFlag(ItemFlags.NoEquipCooldown))
 			return;
 
-		var now = GameTime.Now();
+		var now = _gameTime.Now;
 
 		foreach (var effectData in pItem.Effects)
 		{

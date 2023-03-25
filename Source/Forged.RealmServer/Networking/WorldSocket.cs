@@ -9,6 +9,8 @@ using Framework.Database;
 using Framework.IO;
 using Framework.Networking;
 using Forged.RealmServer.Networking.Packets;
+using Serilog;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.RealmServer.Networking;
 
@@ -60,7 +62,14 @@ public class WorldSocket : SocketBase
 	string _ipCountry;
 	readonly object _sendlock = new();
 
-	public WorldSocket(Socket socket) : base(socket)
+    private readonly LoginDatabase _loginDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldConfig _worldConfig;
+    private readonly IConfiguration _configuration;
+    private readonly GameTime _gameTime;
+
+    public WorldSocket(Socket socket, LoginDatabase loginDatabase, CharacterDatabase characterDatabase,
+		WorldConfig worldConfig, IConfiguration configuration, GameTime gameTime) : base(socket)
 	{
 		_connectType = ConnectionType.Realm;
 		_serverChallenge = Array.Empty<byte>().GenerateRandomKey(16);
@@ -70,7 +79,12 @@ public class WorldSocket : SocketBase
 
 		_headerBuffer = new SocketBuffer(HeaderSize);
 		_packetBuffer = new SocketBuffer(0);
-	}
+        _loginDatabase = loginDatabase;
+        _characterDatabase = characterDatabase;
+        _worldConfig = worldConfig;
+        _configuration = configuration;
+        _gameTime = gameTime;
+    }
 
 	public override void Dispose()
 	{
@@ -87,11 +101,11 @@ public class WorldSocket : SocketBase
 	{
 		var ip_address = GetRemoteIpAddress().ToString();
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SelIpInfo);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SelIpInfo);
 		stmt.AddValue(0, ip_address);
 		stmt.AddValue(1, BitConverter.ToUInt32(GetRemoteIpAddress().Address.GetAddressBytes(), 0));
 
-		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(CheckIpCallback));
+		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(CheckIpCallback));
 	}
 
 	public override void ReadHandler(SocketAsyncEventArgs args)
@@ -162,7 +176,7 @@ public class WorldSocket : SocketBase
 			{
 				packet.LogPacket(_worldSession);
 				packet.WritePacketData();
-				Log.outTrace(LogFilter.Network, "Received opcode: {0} ({1})", (ServerOpcodes)packet.GetOpcode(), (uint)packet.GetOpcode());
+                Log.Logger.Information("Received opcode: {0} ({1})", (ServerOpcodes)packet.GetOpcode(), (uint)packet.GetOpcode());
 
 				var data = packet.GetData();
 				var opcode = packet.GetOpcode();
@@ -206,7 +220,7 @@ public class WorldSocket : SocketBase
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 		}
 	}
@@ -238,7 +252,7 @@ public class WorldSocket : SocketBase
 
 		if (z_res != 0)
 		{
-			Log.outError(LogFilter.Network, "Can't compress packet data (zlib: deflate) Error code: {0} msg: {1}", z_res, _compressionStream.msg);
+            Log.Logger.Error("Can't compress packet data (zlib: deflate) Error code: {0} msg: {1}", z_res, _compressionStream.msg);
 
 			return 0;
 		}
@@ -255,7 +269,7 @@ public class WorldSocket : SocketBase
 
 		return true;
 	}
-
+	
 	public override void OnClose()
 	{
 		lock (_worldSessionLock)
@@ -291,7 +305,7 @@ public class WorldSocket : SocketBase
 
 			if (banned)
 			{
-				Log.outError(LogFilter.Network, "WorldSocket.Connect: Sent Auth Response (IP {0} banned).", GetRemoteIpAddress().ToString());
+				Log.Logger.Error("WorldSocket.Connect: Sent Auth Response (IP {0} banned).", GetRemoteIpAddress().ToString());
 				CloseSocket();
 
 				return;
@@ -360,7 +374,7 @@ public class WorldSocket : SocketBase
 				if (z_res1 != 0)
 				{
 					CloseSocket();
-					Log.outError(LogFilter.Network, "Can't initialize packet compression (zlib: deflateInit2_) Error code: {0}", z_res1);
+                    Log.Logger.Error("Can't initialize packet compression (zlib: deflateInit2_) Error code: {0}", z_res1);
 
 					return;
 				}
@@ -391,7 +405,7 @@ public class WorldSocket : SocketBase
 
 		if (!_worldCrypt.Decrypt(_packetBuffer.GetData(), header.Tag))
 		{
-			Log.outError(LogFilter.Network, $"WorldSocket.ReadData(): client {GetRemoteIpAddress()} failed to decrypt packet (size: {header.Size})");
+            Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} failed to decrypt packet (size: {header.Size})");
 
 			return ReadDataHandlerResult.Error;
 		}
@@ -401,8 +415,8 @@ public class WorldSocket : SocketBase
 
 		if (packet.GetOpcode() >= (int)ClientOpcodes.Max)
 		{
-			Log.outError(LogFilter.Network, $"WorldSocket.ReadData(): client {GetRemoteIpAddress()} sent wrong opcode (opcode: {packet.GetOpcode()})");
-			Log.outError(LogFilter.Network, $"Header: {_headerBuffer.GetData().ToHexString()} Data: {_packetBuffer.GetData().ToHexString()}");
+            Log.Logger.Error($"WorldSocket.ReadData(): client {GetRemoteIpAddress()} sent wrong opcode (opcode: {packet.GetOpcode()})");
+            Log.Logger.Error($"Header: {_headerBuffer.GetData().ToHexString()} Data: {_packetBuffer.GetData().ToHexString()}");
 
 			return ReadDataHandlerResult.Error;
 		}
@@ -413,7 +427,7 @@ public class WorldSocket : SocketBase
 
 		if (opcode != ClientOpcodes.HotfixRequest && !header.IsValidSize())
 		{
-			Log.outError(LogFilter.Network, $"WorldSocket.ReadHeaderHandler(): client {GetRemoteIpAddress()} sent malformed packet (size: {header.Size})");
+			Log.Logger.Error($"WorldSocket.ReadHeaderHandler(): client {GetRemoteIpAddress()} sent malformed packet (size: {header.Size})");
 
 			return ReadDataHandlerResult.Error;
 		}
@@ -431,7 +445,7 @@ public class WorldSocket : SocketBase
 			case ClientOpcodes.AuthSession:
 				if (_worldSession != null)
 				{
-					Log.outError(LogFilter.Network, $"WorldSocket.ReadData(): received duplicate CMSG_AUTH_SESSION from {_worldSession.GetPlayerInfo()}");
+					Log.Logger.Error($"WorldSocket.ReadData(): received duplicate CMSG_AUTH_SESSION from {_worldSession.GetPlayerInfo()}");
 
 					return ReadDataHandlerResult.Error;
 				}
@@ -444,7 +458,7 @@ public class WorldSocket : SocketBase
 			case ClientOpcodes.AuthContinuedSession:
 				if (_worldSession != null)
 				{
-					Log.outError(LogFilter.Network, $"WorldSocket.ReadData(): received duplicate CMSG_AUTH_CONTINUED_SESSION from {_worldSession.GetPlayerInfo()}");
+					Log.Logger.Error($"WorldSocket.ReadData(): received duplicate CMSG_AUTH_CONTINUED_SESSION from {_worldSession.GetPlayerInfo()}");
 
 					return ReadDataHandlerResult.Error;
 				}
@@ -462,7 +476,7 @@ public class WorldSocket : SocketBase
 					return ReadDataHandlerResult.Ok;
 				}
 
-				Log.outError(LogFilter.Network, $"WorldSocket::ReadDataHandler: client {GetRemoteIpAddress()} sent CMSG_KEEP_ALIVE without being authenticated");
+				Log.Logger.Information($"WorldSocket::ReadDataHandler: client {GetRemoteIpAddress()} sent CMSG_KEEP_ALIVE without being authenticated");
 
 				return ReadDataHandlerResult.Error;
 			case ClientOpcodes.LogDisconnect:
@@ -486,16 +500,16 @@ public class WorldSocket : SocketBase
 				{
 					if (_worldSession == null)
 					{
-						Log.outError(LogFilter.Network, $"ProcessIncoming: Client not authed opcode = {opcode}");
+                        Log.Logger.Error($"ProcessIncoming: Client not authed opcode = {opcode}");
 
 						return ReadDataHandlerResult.Error;
 					}
 
-					Log.outTrace(LogFilter.Network, "Received opcode: {0} ({1})", (ClientOpcodes)packet.GetOpcode(), packet.GetOpcode());
+                    Log.Logger.Information("Received opcode: {0} ({1})", (ClientOpcodes)packet.GetOpcode(), packet.GetOpcode());
 
 					if (!PacketManager.ContainsHandler(opcode))
 					{
-						Log.outError(LogFilter.Network, $"No defined handler for opcode {opcode} ({packet.GetOpcode()}) sent by {_worldSession.GetPlayerInfo()}");
+                        Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.GetOpcode()}) sent by {_worldSession.GetPlayerInfo()}");
 
 						break;
 					}
@@ -529,11 +543,11 @@ public class WorldSocket : SocketBase
 	void HandleAuthSession(AuthSession authSession)
 	{
 		// Get the account information from the realmd database
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
 		stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
 		stmt.AddValue(1, authSession.RealmJoinTicket);
 
-		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
+		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
 	}
 
 	void HandleAuthSessionCallback(AuthSession authSession, SQLResult result)
@@ -541,7 +555,7 @@ public class WorldSocket : SocketBase
 		// Stop if the account is not found
 		if (result.IsEmpty())
 		{
-			Log.outError(LogFilter.Network, "HandleAuthSession: Sent Auth Response (unknown account).");
+            Log.Logger.Information("HandleAuthSession: Sent Auth Response (unknown account).");
 			CloseSocket();
 
 			return;
@@ -552,7 +566,7 @@ public class WorldSocket : SocketBase
 		if (buildInfo == null)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.BadVersion);
-			Log.outError(LogFilter.Network, $"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {Global.WorldMgr.Realm.Build} ({GetRemoteIpAddress()}).");
+            Log.Logger.Error($"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {Global.WorldMgr.Realm.Build} ({GetRemoteIpAddress()}).");
 			CloseSocket();
 
 			return;
@@ -564,19 +578,19 @@ public class WorldSocket : SocketBase
 		var address = GetRemoteIpAddress();
 
 		Sha256 digestKeyHash = new();
-		digestKeyHash.Process(account.Forged.RealmServer.SessionKey, account.Forged.RealmServer.SessionKey.Length);
+		digestKeyHash.Process(account.game.SessionKey, account.game.SessionKey.Length);
 
-		if (account.Forged.RealmServer.OS == "Wn64")
+		if (account.game.OS == "Wn64")
 		{
 			digestKeyHash.Finish(buildInfo.Win64AuthSeed);
 		}
-		else if (account.Forged.RealmServer.OS == "Mc64")
+		else if (account.game.OS == "Mc64")
 		{
 			digestKeyHash.Finish(buildInfo.Mac64AuthSeed);
 		}
 		else
 		{
-			Log.outError(LogFilter.Network, "WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.Forged.RealmServer.Id, authSession.RealmJoinTicket, address);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
 			CloseSocket();
 
 			return;
@@ -590,14 +604,14 @@ public class WorldSocket : SocketBase
 		// Check that Key and account name are the same on client and server
 		if (!hmac.Digest.Compare(authSession.Digest))
 		{
-			Log.outError(LogFilter.Network, "WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.Forged.RealmServer.Id, authSession.RealmJoinTicket, address);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Authentication failed for account: {0} ('{1}') address: {2}", account.game.Id, authSession.RealmJoinTicket, address);
 			CloseSocket();
 
 			return;
 		}
 
 		Sha256 keyData = new();
-		keyData.Finish(account.Forged.RealmServer.SessionKey);
+		keyData.Finish(account.game.SessionKey);
 
 		HmacSha256 sessionKeyHmac = new(keyData.Digest);
 		sessionKeyHmac.Process(_serverChallenge, 16);
@@ -618,26 +632,26 @@ public class WorldSocket : SocketBase
 
 		PreparedStatement stmt = null;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
+		if (_worldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
 		{
 			// As we don't know if attempted login process by ip works, we update last_attempt_ip right away
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_ATTEMPT_IP);
 			stmt.AddValue(0, address.Address.ToString());
 			stmt.AddValue(1, authSession.RealmJoinTicket);
-			DB.Login.Execute(stmt);
+			_loginDatabase.Execute(stmt);
 			// This also allows to check for possible "hack" attempts on account
 		}
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_INFO_CONTINUED_SESSION);
 		stmt.AddValue(0, _sessionKey);
-		stmt.AddValue(1, account.Forged.RealmServer.Id);
-		DB.Login.Execute(stmt);
+		stmt.AddValue(1, account.game.Id);
+		_loginDatabase.Execute(stmt);
 
 		// First reject the connection if packet contains invalid data or realm state doesn't allow logging in
 		if (Global.WorldMgr.IsClosed)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
-			Log.outError(LogFilter.Network, "WorldSocket.HandleAuthSession: World closed, denying client ({0}).", GetRemoteIpAddress());
+            Log.Logger.Error("WorldSocket.HandleAuthSession: World closed, denying client ({0}).", GetRemoteIpAddress());
 			CloseSocket();
 
 			return;
@@ -647,8 +661,7 @@ public class WorldSocket : SocketBase
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
 
-			Log.outError(LogFilter.Network,
-						"WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
 						GetRemoteIpAddress().ToString(),
 						authSession.RealmID,
 						Global.WorldMgr.Realm.Id.Index);
@@ -659,12 +672,12 @@ public class WorldSocket : SocketBase
 		}
 
 		// Must be done before WorldSession is created
-		var wardenActive = WorldConfig.GetBoolValue(WorldCfg.WardenEnabled);
+		var wardenActive = _worldConfig.GetBoolValue(WorldCfg.WardenEnabled);
 
-		if (wardenActive && account.Forged.RealmServer.OS != "Win" && account.Forged.RealmServer.OS != "Wn64" && account.Forged.RealmServer.OS != "Mc64")
+		if (wardenActive && account.game.OS != "Win" && account.game.OS != "Wn64" && account.game.OS != "Mc64")
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
-			Log.outError(LogFilter.Network, "WorldSocket.HandleAuthSession: Client {0} attempted to log in using invalid client OS ({1}).", address, account.Forged.RealmServer.OS);
+            Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} attempted to log in using invalid client OS ({1}).", address, account.game.OS);
 			CloseSocket();
 
 			return;
@@ -676,7 +689,7 @@ public class WorldSocket : SocketBase
 			if (account.battleNet.LastIP != address.Address.ToString())
 			{
 				SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
-				Log.outDebug(LogFilter.Network, "HandleAuthSession: Sent Auth Response (Account IP differs).");
+                Log.Logger.Debug("HandleAuthSession: Sent Auth Response (Account IP differs).");
 				CloseSocket();
 
 				return;
@@ -687,30 +700,30 @@ public class WorldSocket : SocketBase
 			if (account.battleNet.LockCountry != _ipCountry)
 			{
 				SendAuthResponseError(BattlenetRpcErrorCode.RiskAccountLocked);
-				Log.outDebug(LogFilter.Network, "WorldSocket.HandleAuthSession: Sent Auth Response (Account country differs. Original country: {0}, new country: {1}).", account.battleNet.LockCountry, _ipCountry);
+                Log.Logger.Debug("WorldSocket.HandleAuthSession: Sent Auth Response (Account country differs. Original country: {0}, new country: {1}).", account.battleNet.LockCountry, _ipCountry);
 				CloseSocket();
 
 				return;
 			}
 		}
 
-		var mutetime = account.Forged.RealmServer.MuteTime;
+		var mutetime = account.game.MuteTime;
 
 		//! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
 		if (mutetime < 0)
 		{
-			mutetime = GameTime.GetGameTime() + mutetime;
+			mutetime = _gameTime.GetGameTime + mutetime;
 
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_MUTE_TIME_LOGIN);
 			stmt.AddValue(0, mutetime);
-			stmt.AddValue(1, account.Forged.RealmServer.Id);
-			DB.Login.Execute(stmt);
+			stmt.AddValue(1, account.game.Id);
+			_loginDatabase.Execute(stmt);
 		}
 
 		if (account.IsBanned()) // if account banned
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.GameAccountBanned);
-			Log.outError(LogFilter.Network, "WorldSocket:HandleAuthSession: Sent Auth Response (Account banned).");
+			Log.Logger.Error("WorldSocket:HandleAuthSession: Sent Auth Response (Account banned).");
 			CloseSocket();
 
 			return;
@@ -719,37 +732,42 @@ public class WorldSocket : SocketBase
 		// Check locked state for server
 		var allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
 
-		if (allowedAccountType > AccountTypes.Player && account.Forged.RealmServer.Security < allowedAccountType)
+		if (allowedAccountType > AccountTypes.Player && account.game.Security < allowedAccountType)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.ServerIsPrivate);
-			Log.outInfo(LogFilter.Network, "WorldSocket:HandleAuthSession: User tries to login but his security level is not enough");
+            Log.Logger.Information("WorldSocket:HandleAuthSession: User tries to login but his security level is not enough");
 			CloseSocket();
 
 			return;
 		}
 
-		Log.outDebug(LogFilter.Network, "WorldSocket:HandleAuthSession: Client '{0}' authenticated successfully from {1}.", authSession.RealmJoinTicket, address);
+        Log.Logger.Debug("WorldSocket:HandleAuthSession: Client '{0}' authenticated successfully from {1}.", authSession.RealmJoinTicket, address);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
+		if (_worldConfig.GetBoolValue(WorldCfg.AllowLogginIpAddressesInDatabase))
 		{
 			// Update the last_ip in the database
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LAST_IP);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LAST_IP);
 			stmt.AddValue(0, address.Address.ToString());
 			stmt.AddValue(1, authSession.RealmJoinTicket);
-			DB.Login.Execute(stmt);
+			_loginDatabase.Execute(stmt);
 		}
 
-		_worldSession = new WorldSession(account.Forged.RealmServer.Id,
+		_worldSession = new WorldSession(account.game.Id,
 										authSession.RealmJoinTicket,
 										account.battleNet.Id,
 										this,
-										account.Forged.RealmServer.Security,
-										(Expansion)account.Forged.RealmServer.Expansion,
+										account.game.Security,
+										(Expansion)account.game.Expansion,
 										mutetime,
-										account.Forged.RealmServer.OS,
+										account.game.OS,
 										account.battleNet.Locale,
-										account.Forged.RealmServer.Recruiter,
-										account.Forged.RealmServer.IsRectuiter);
+										account.game.Recruiter,
+										account.game.IsRectuiter,
+										_gameTime,
+										_worldConfig,
+										_configuration,
+										_loginDatabase,
+										_characterDatabase);
 
 		// Initialize Warden system only if it is enabled by config
 		//if (wardenActive)
@@ -792,10 +810,10 @@ public class WorldSocket : SocketBase
 		}
 
 		var accountId = key.AccountId;
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_CONTINUED_SESSION);
 		stmt.AddValue(0, accountId);
 
-		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleAuthContinuedSessionCallback, authSession));
+		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthContinuedSessionCallback, authSession));
 	}
 
 	void HandleAuthContinuedSessionCallback(AuthContinuedSession authSession, SQLResult result)
@@ -823,7 +841,7 @@ public class WorldSocket : SocketBase
 
 		if (!hmac.Digest.Compare(authSession.Digest))
 		{
-			Log.outError(LogFilter.Network, "WorldSocket.HandleAuthContinuedSession: Authentication failed for account: {0} ('{1}') address: {2}", accountId, login, GetRemoteIpAddress());
+            Log.Logger.Error("WorldSocket.HandleAuthContinuedSession: Authentication failed for account: {0} ('{1}') address: {2}", accountId, login, GetRemoteIpAddress());
 			CloseSocket();
 
 			return;
@@ -844,7 +862,7 @@ public class WorldSocket : SocketBase
 	void HandleConnectToFailed(ConnectToFailed connectToFailed)
 	{
 		if (_worldSession != null)
-			if (_worldSession.PlayerLoading)
+			if (_worldSession.PlayerLoading.IsEmpty)
 				switch (connectToFailed.Serial)
 				{
 					case ConnectToSerial.WorldAttempt1:
@@ -865,7 +883,7 @@ public class WorldSocket : SocketBase
 						break;
 					case ConnectToSerial.WorldAttempt5:
 					{
-						Log.outError(LogFilter.Network, "{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
+                        Log.Logger.Error("{0} failed to connect 5 times to world socket, aborting login", _worldSession.GetPlayerInfo());
 						_worldSession.AbortLogin(LoginFailureReason.NoWorld);
 
 						break;
@@ -894,11 +912,11 @@ public class WorldSocket : SocketBase
 	{
 		if (_LastPingTime == 0)
 		{
-			_LastPingTime = GameTime.GetGameTime(); // for 1st ping
+			_LastPingTime = _gameTime.GetGameTime; // for 1st ping
 		}
 		else
 		{
-			var now = GameTime.GetGameTime();
+			var now = _gameTime.GetGameTime;
 			var diff = now - _LastPingTime;
 			_LastPingTime = now;
 
@@ -906,13 +924,13 @@ public class WorldSocket : SocketBase
 			{
 				++_OverSpeedPings;
 
-				var maxAllowed = WorldConfig.GetUIntValue(WorldCfg.MaxOverspeedPings);
+				var maxAllowed = _worldConfig.GetUIntValue(WorldCfg.MaxOverspeedPings);
 
 				if (maxAllowed != 0 && _OverSpeedPings > maxAllowed)
 					lock (_worldSessionLock)
 					{
 						if (_worldSession != null && !_worldSession.HasPermission(RBACPermissions.SkipCheckOverspeedPing))
-							Log.outError(LogFilter.Network, "WorldSocket:HandlePing: {0} kicked for over-speed pings (address: {1})", _worldSession.GetPlayerInfo(), GetRemoteIpAddress());
+                            Log.Logger.Error("WorldSocket:HandlePing: {0} kicked for over-speed pings (address: {1})", _worldSession.GetPlayerInfo(), GetRemoteIpAddress());
 						//return ReadDataHandlerResult.Error;
 					}
 			}
@@ -930,7 +948,7 @@ public class WorldSocket : SocketBase
 			}
 			else
 			{
-				Log.outError(LogFilter.Network, "WorldSocket:HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = {0}", GetRemoteIpAddress());
+                Log.Logger.Error("WorldSocket:HandlePing: peer sent CMSG_PING, but is not authenticated or got recently kicked, address = {0}", GetRemoteIpAddress());
 
 				return false;
 			}

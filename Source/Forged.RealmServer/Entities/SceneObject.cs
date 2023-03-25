@@ -168,7 +168,7 @@ public class SceneObject : WorldObject
 		ObjectScale = 1.0f;
 
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.ScriptPackageID), (int)scriptPackageId);
-		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), GameTime.GetGameTimeMS());
+		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), _gameTime.GetGameTimeMS);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
 

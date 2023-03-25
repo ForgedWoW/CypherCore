@@ -38,7 +38,7 @@ public class GuildAchievementMgr : AchievementManager
 			GuildAchievementDeleted guildAchievementDeleted = new();
 			guildAchievementDeleted.AchievementID = iter.Key;
 			guildAchievementDeleted.GuildGUID = guid;
-			guildAchievementDeleted.TimeDeleted = GameTime.GetGameTime();
+			guildAchievementDeleted.TimeDeleted = _gameTime.GetGameTime;
 			SendPacket(guildAchievementDeleted);
 		}
 
@@ -93,7 +93,7 @@ public class GuildAchievementMgr : AchievementManager
 
 		if (!criteriaResult.IsEmpty())
 		{
-			var now = GameTime.GetGameTime();
+			var now = _gameTime.GetGameTime;
 
 			do
 			{
@@ -296,7 +296,7 @@ public class GuildAchievementMgr : AchievementManager
 
 		SendAchievementEarned(achievement);
 		CompletedAchievementData ca = new();
-		ca.Date = GameTime.GetGameTime();
+		ca.Date = _gameTime.GetGameTime;
 		ca.Changed = true;
 
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.ShowGuildMembers))
@@ -388,7 +388,7 @@ public class GuildAchievementMgr : AchievementManager
 		GuildAchievementEarned guildAchievementEarned = new();
 		guildAchievementEarned.AchievementID = achievement.Id;
 		guildAchievementEarned.GuildGUID = _owner.GetGUID();
-		guildAchievementEarned.TimeEarned = GameTime.GetGameTime();
+		guildAchievementEarned.TimeEarned = _gameTime.GetGameTime;
 		SendPacket(guildAchievementEarned);
 	}
 }

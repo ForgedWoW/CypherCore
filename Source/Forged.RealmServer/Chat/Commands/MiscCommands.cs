@@ -577,7 +577,7 @@ class MiscCommands
 		// Check if duration needs to be retrieved from config
 		if (getDurationFromConfig)
 		{
-			freezeDuration = WorldConfig.GetIntValue(WorldCfg.GmFreezeDuration);
+			freezeDuration = _worldConfig.GetIntValue(WorldCfg.GmFreezeDuration);
 			canApplyFreeze = true;
 		}
 
@@ -892,7 +892,7 @@ class MiscCommands
 		if (kickReason != null)
 			kickReasonStr = kickReason;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.ShowKickInWorld))
+		if (_worldConfig.GetBoolValue(WorldCfg.ShowKickInWorld))
 			Global.WorldMgr.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
 		else
 			handler.SendSysMessage(CypherStrings.CommandKickmessage, playerName);
@@ -1141,7 +1141,7 @@ class MiscCommands
 		if (target)
 		{
 			// Target is online, mute will be in effect right away.
-			var mutedUntil = GameTime.GetGameTime() + muteTime * Time.Minute;
+			var mutedUntil = _gameTime.GetGameTime + muteTime * Time.Minute;
 			target.Session.MuteTime = mutedUntil;
 			stmt.AddValue(0, mutedUntil);
 		}
@@ -1164,7 +1164,7 @@ class MiscCommands
 
 		var nameLink = handler.PlayerLink(player.GetName());
 
-		if (WorldConfig.GetBoolValue(WorldCfg.ShowMuteInWorld))
+		if (_worldConfig.GetBoolValue(WorldCfg.ShowMuteInWorld))
 			Global.WorldMgr.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
 
 		if (target)
@@ -1548,11 +1548,11 @@ class MiscCommands
 
 		// Output III. LANG_PINFO_BANNED if ban exists and is applied
 		if (banTime >= 0)
-			handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.secsToTimeString((ulong)(banTime - GameTime.GetGameTime()), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
+			handler.SendSysMessage(CypherStrings.PinfoBanned, banType, banReason, banTime > 0 ? Time.secsToTimeString((ulong)(banTime - _gameTime.GetGameTime), TimeFormat.ShortText) : handler.GetCypherString(CypherStrings.Permanently), bannedBy);
 
 		// Output IV. LANG_PINFO_MUTED if mute is applied
 		if (muteTime > 0)
-			handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.secsToTimeString((ulong)(muteTime - GameTime.GetGameTime()), TimeFormat.ShortText), muteBy);
+			handler.SendSysMessage(CypherStrings.PinfoMuted, muteReason, Time.secsToTimeString((ulong)(muteTime - _gameTime.GetGameTime), TimeFormat.ShortText), muteBy);
 
 		// Output V. LANG_PINFO_ACC_ACCOUNT
 		handler.SendSysMessage(CypherStrings.PinfoAccAccount, userName, accId, security);
@@ -1570,7 +1570,7 @@ class MiscCommands
 		handler.SendSysMessage(CypherStrings.PinfoAccIp, lastIp, locked != 0 ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No));
 
 		// Output X. LANG_PINFO_CHR_LEVEL
-		if (level != WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+		if (level != _worldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
 			handler.SendSysMessage(CypherStrings.PinfoChrLevelLow, level, xp, xptotal, (xptotal - xp));
 		else
 			handler.SendSysMessage(CypherStrings.PinfoChrLevelHigh, level);
@@ -1687,7 +1687,7 @@ class MiscCommands
 	[CommandNonGroup("pvpstats", RBACPermissions.CommandPvpstats, true)]
 	static bool HandlePvPstatsCommand(CommandHandler handler)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
+		if (_worldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 		{
 			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
 			var result = DB.Characters.Query(stmt);
@@ -1857,7 +1857,7 @@ class MiscCommands
 		}
 
 		// save if the player has last been saved over 20 seconds ago
-		var saveInterval = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+		var saveInterval = _worldConfig.GetUIntValue(WorldCfg.IntervalSave);
 
 		if (saveInterval == 0 || (saveInterval > 20 * Time.InMilliseconds && player.SaveTimer <= saveInterval - 20 * Time.InMilliseconds))
 			player.SaveToDB();
@@ -2256,7 +2256,7 @@ class MiscCommands
 	static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
 	{
 		// Weather is OFF
-		if (!WorldConfig.GetBoolValue(WorldCfg.Weather))
+		if (!_worldConfig.GetBoolValue(WorldCfg.Weather))
 		{
 			handler.SendSysMessage(CypherStrings.WeatherDisabled);
 

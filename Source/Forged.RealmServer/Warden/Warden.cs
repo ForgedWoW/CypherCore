@@ -94,7 +94,7 @@ public abstract class Warden
 
 		if (DataSent)
 		{
-			var maxClientResponseDelay = WorldConfig.GetUIntValue(WorldCfg.WardenClientResponseDelay);
+			var maxClientResponseDelay = _worldConfig.GetUIntValue(WorldCfg.WardenClientResponseDelay);
 
 			if (maxClientResponseDelay > 0)
 			{
@@ -175,7 +175,7 @@ public abstract class Warden
 		if (check != null)
 			action = check.Action;
 		else
-			action = (WardenActions)WorldConfig.GetIntValue(WorldCfg.WardenClientFailAction);
+			action = (WardenActions)_worldConfig.GetIntValue(WorldCfg.WardenClientFailAction);
 
 		switch (action)
 		{
@@ -192,7 +192,7 @@ public abstract class Warden
 				if (check != null)
 					banReason += ": " + check.Comment + " (CheckId: " + check.CheckId + ")";
 
-				Global.WorldMgr.BanAccount(BanMode.Account, accountName, WorldConfig.GetUIntValue(WorldCfg.WardenClientBanDuration), banReason, "Server");
+				Global.WorldMgr.BanAccount(BanMode.Account, accountName, _worldConfig.GetUIntValue(WorldCfg.WardenClientBanDuration), banReason, "Server");
 
 				break;
 			}

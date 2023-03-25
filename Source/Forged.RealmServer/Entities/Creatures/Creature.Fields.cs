@@ -151,7 +151,7 @@ public partial class Creature
 		}
 	}
 
-	public bool CanGeneratePickPocketLoot => _pickpocketLootRestore <= GameTime.GetGameTime();
+	public bool CanGeneratePickPocketLoot => _pickpocketLootRestore <= _gameTime.GetGameTime;
 
 	public bool IsFullyLooted
 	{
@@ -198,7 +198,7 @@ public partial class Creature
 	{
 		get
 		{
-			var now = GameTime.GetGameTime();
+			var now = _gameTime.GetGameTime;
 
 			if (RespawnTime > now)
 				return RespawnTime;

@@ -194,7 +194,7 @@ public class Arena : Battleground
 								winnerChange,
 								loserChange);
 
-					if (WorldConfig.GetBoolValue(WorldCfg.ArenaLogExtendedInfo))
+					if (_worldConfig.GetBoolValue(WorldCfg.ArenaLogExtendedInfo))
 						foreach (var score in PlayerScores)
 						{
 							var player = Global.ObjAccessor.FindPlayer(score.Key);

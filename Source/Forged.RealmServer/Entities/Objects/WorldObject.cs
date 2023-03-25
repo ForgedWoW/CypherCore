@@ -808,7 +808,7 @@ public abstract class WorldObject : IDisposable
 			data.WritePackedGuid(AsUnit.Victim.GUID); // CombatVictim
 
 		if (flags.ServerTime)
-			data.WriteUInt32(GameTime.GetGameTimeMS());
+			data.WriteUInt32(_gameTime.GetGameTimeMS);
 
 		if (flags.Vehicle)
 		{
@@ -3884,7 +3884,7 @@ public abstract class WorldObject : IDisposable
 		pos.Y = y;
 
 		// if detection disabled, return first point
-		if (!WorldConfig.GetBoolValue(WorldCfg.DetectPosCollision))
+		if (!_worldConfig.GetBoolValue(WorldCfg.DetectPosCollision))
 			return floor;
 
 		// return if the point is already in LoS
