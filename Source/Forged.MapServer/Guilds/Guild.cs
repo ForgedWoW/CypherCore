@@ -186,7 +186,7 @@ public class Guild
 
 	public bool SetName(string name)
 	{
-		if (m_name == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !ObjectManager.IsValidCharterName(name))
+		if (m_name == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !GameObjectManager.IsValidCharterName(name))
 			return false;
 
 		m_name = name;

@@ -36,7 +36,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Globals;
 
-public sealed class ObjectManager : Singleton<ObjectManager>
+public sealed class GameObjectManager : Singleton<GameObjectManager>
 {
 	public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts = new();
 	public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts = new();
@@ -262,7 +262,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 	public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos => _playerInfo;
 
-	ObjectManager()
+	GameObjectManager()
 	{
 		for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
 		{

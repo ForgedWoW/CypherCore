@@ -20,7 +20,7 @@ class UnBanCommands
 	[Command("character", RBACPermissions.CommandUnbanCharacter, true)]
 	static bool HandleUnBanCharacterCommand(CommandHandler handler, string name)
 	{
-		if (!ObjectManager.NormalizePlayerName(ref name))
+		if (!GameObjectManager.NormalizePlayerName(ref name))
 		{
 			handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -59,7 +59,7 @@ class UnBanCommands
 		switch (mode)
 		{
 			case BanMode.Character:
-				if (!ObjectManager.NormalizePlayerName(ref nameOrIp))
+				if (!GameObjectManager.NormalizePlayerName(ref nameOrIp))
 				{
 					handler.SendSysMessage(CypherStrings.PlayerNotFound);
 

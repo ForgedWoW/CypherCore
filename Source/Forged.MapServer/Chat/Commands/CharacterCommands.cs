@@ -85,14 +85,14 @@ class CharacterCommands
 
 		if (!newName.IsEmpty())
 		{
-			if (!ObjectManager.NormalizePlayerName(ref newName))
+			if (!GameObjectManager.NormalizePlayerName(ref newName))
 			{
 				handler.SendSysMessage(CypherStrings.BadValue);
 
 				return false;
 			}
 
-			if (ObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
+			if (GameObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
 			{
 				handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -658,7 +658,7 @@ class CharacterCommands
 				// search by name
 				else
 				{
-					if (!ObjectManager.NormalizePlayerName(ref searchString))
+					if (!GameObjectManager.NormalizePlayerName(ref searchString))
 						return false;
 
 					stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_NAME);

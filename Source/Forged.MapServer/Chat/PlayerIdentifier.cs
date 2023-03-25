@@ -103,7 +103,7 @@ class PlayerIdentifier
 		{
 			_name = tempVal;
 
-			if (!ObjectManager.NormalizePlayerName(ref _name))
+			if (!GameObjectManager.NormalizePlayerName(ref _name))
 				return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameInvalid, _name));
 
 			if ((_player = Global.ObjAccessor.FindPlayerByName(_name)) != null)

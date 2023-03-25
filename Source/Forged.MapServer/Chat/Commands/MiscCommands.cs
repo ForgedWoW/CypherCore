@@ -564,7 +564,7 @@ class MiscCommands
 					// case 3 or 4: .freeze player duration | .freeze player
 					// find the player
 					var name = arg1;
-					ObjectManager.NormalizePlayerName(ref name);
+					GameObjectManager.NormalizePlayerName(ref name);
 					player = Global.ObjAccessor.FindPlayerByName(name);
 
 					// Check if we have duration set
@@ -2061,7 +2061,7 @@ class MiscCommands
 		if (!targetNameArg.IsEmpty())
 		{
 			name = targetNameArg;
-			ObjectManager.NormalizePlayerName(ref name);
+			GameObjectManager.NormalizePlayerName(ref name);
 			player = Global.ObjAccessor.FindPlayerByName(name);
 		}
 		else // If no name was entered - use target

@@ -89,7 +89,7 @@ class PdumpCommand
             {
                 name = nameStr;
                 // normalize the name if specified and check if it exists
-                if (!ObjectManager.NormalizePlayerName(name))
+                if (!GameObjectManager.NormalizePlayerName(name))
                 {
                     handler.SendSysMessage(LANG_INVALID_CHARACTER_NAME);
 

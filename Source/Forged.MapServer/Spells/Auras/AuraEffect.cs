@@ -1880,7 +1880,7 @@ public class AuraEffect
 					else
 					{
 						uint model_id = 0;
-						var modelid = ObjectManager.ChooseDisplayId(ci).CreatureDisplayId;
+						var modelid = GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId;
 
 						if (modelid != 0)
 							model_id = modelid; // Will use the default model here
@@ -1923,7 +1923,7 @@ public class AuraEffect
 
 					if (ci != null)
 					{
-						var model = ObjectManager.ChooseDisplayId(ci);
+						var model = GameObjectManager.ChooseDisplayId(ci);
 						Global.ObjectMgr.GetCreatureModelRandomGender(ref model, ci);
 
 						target.MountDisplayId = model.CreatureDisplayId;
@@ -2482,7 +2482,7 @@ public class AuraEffect
 
 					if (displayId == 0)
 					{
-						var model = ObjectManager.ChooseDisplayId(creatureInfo);
+						var model = GameObjectManager.ChooseDisplayId(creatureInfo);
 						Global.ObjectMgr.GetCreatureModelRandomGender(ref model, creatureInfo);
 						displayId = model.CreatureDisplayId;
 					}

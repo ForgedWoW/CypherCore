@@ -119,7 +119,7 @@ public class GossipMenu
 				var gossipMenuLocale = Global.ObjectMgr.GetGossipMenuItemsLocale(menuItem.MenuId, menuItem.OrderIndex);
 
 				if (gossipMenuLocale != null)
-					ObjectManager.GetLocaleString(gossipMenuLocale.OptionText, GetLocale(), ref strOptionText);
+					GameObjectManager.GetLocaleString(gossipMenuLocale.OptionText, GetLocale(), ref strOptionText);
 			}
 		}
 
@@ -138,7 +138,7 @@ public class GossipMenu
 				var gossipMenuLocale = Global.ObjectMgr.GetGossipMenuItemsLocale(menuItem.MenuId, menuItem.OrderIndex);
 
 				if (gossipMenuLocale != null)
-					ObjectManager.GetLocaleString(gossipMenuLocale.BoxText, GetLocale(), ref strBoxText);
+					GameObjectManager.GetLocaleString(gossipMenuLocale.BoxText, GetLocale(), ref strBoxText);
 			}
 		}
 

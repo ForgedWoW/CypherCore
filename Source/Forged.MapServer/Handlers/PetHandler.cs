@@ -586,7 +586,7 @@ public partial class WorldSession
 			petStable.GetCurrentPet().PetNumber != pet.GetCharmInfo().GetPetNumber())
 			return;
 
-		var res = ObjectManager.CheckPetName(name);
+		var res = GameObjectManager.CheckPetName(name);
 
 		if (res != PetNameInvalidReason.Success)
 		{

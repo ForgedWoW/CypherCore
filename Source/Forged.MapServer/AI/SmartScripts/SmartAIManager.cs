@@ -7,32 +7,62 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.AreaTriggers;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Movement;
+using Forged.MapServer.Spells;
+using Forged.MapServer.Text;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.MapServer.AI.SmartScripts;
 
-public class SmartAIManager : Singleton<SmartAIManager>
+public class SmartAIManager
 {
-	readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly GameEventManager _eventManager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
+    private readonly SpellManager _spellManager;
+    private readonly DB2Manager _db2Manager;
+    private readonly ConversationDataStorage _conversationDataStorage;
+    private readonly CreatureTextManager _creatureTextManager;
+    readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
 	readonly Dictionary<uint, WaypointPath> _waypointStore = new();
 
-	SmartAIManager()
-	{
-		for (byte i = 0; i < (int)SmartScriptType.Max; i++)
+	public SmartAIManager(WorldDatabase worldDatabase, CliDB cliDB, IConfiguration configuration, GameEventManager eventManager, 
+                          GameObjectManager gameObjectManager, AreaTriggerDataStorage areaTriggerDataStorage, SpellManager spellManager,
+                          DB2Manager db2Manager, ConversationDataStorage conversationDataStorage, CreatureTextManager creatureTextManager)
+    {
+        _worldDatabase = worldDatabase;
+        _cliDB = cliDB;
+        _configuration = configuration;
+        _eventManager = eventManager;
+        _gameObjectManager = gameObjectManager;
+        _areaTriggerDataStorage = areaTriggerDataStorage;
+        _spellManager = spellManager;
+        _db2Manager = db2Manager;
+        _conversationDataStorage = conversationDataStorage;
+        _creatureTextManager = creatureTextManager;
+
+        for (byte i = 0; i < (int)SmartScriptType.Max; i++)
 			_eventMap[i] = new MultiMap<int, SmartScriptHolder>();
-	}
+    }
 
 	public void LoadFromDB()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		for (byte i = 0; i < (int)SmartScriptType.Max; i++)
 			_eventMap[i].Clear(); //Drop Existing SmartAI List
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_SMART_SCRIPTS);
-		var result = DB.World.Query(stmt);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_SMART_SCRIPTS);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -52,34 +82,34 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
             if (temp.EntryOrGuid == 0)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 				else
 					Log.Logger.Error("SmartAIMgr.LoadFromDB: invalid entryorguid (0), skipped loading.");
 
 				continue;
 			}
 
-			var source_type = (SmartScriptType)result.Read<byte>(1);
+			var sourceType = (SmartScriptType)result.Read<byte>(1);
 
-			if (source_type >= SmartScriptType.Max)
+			if (sourceType >= SmartScriptType.Max)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 				else
-					Log.Logger.Error("SmartAIMgr.LoadSmartAI: invalid source_type ({0}), skipped loading.", source_type);
+					Log.Logger.Error("SmartAIMgr.LoadSmartAI: invalid source_type ({0}), skipped loading.", sourceType);
 
 				continue;
 			}
 
 			if (temp.EntryOrGuid >= 0)
-				switch (source_type)
+				switch (sourceType)
 				{
 					case SmartScriptType.Creature:
-						if (Global.ObjectMgr.GetCreatureTemplate((uint)temp.EntryOrGuid) == null)
+						if (_gameObjectManager.GetCreatureTemplate((uint)temp.EntryOrGuid) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error("SmartAIMgr.LoadSmartAI: Creature entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
@@ -90,10 +120,10 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					case SmartScriptType.GameObject:
 					{
-						if (Global.ObjectMgr.GetGameObjectTemplate((uint)temp.EntryOrGuid) == null)
+						if (_gameObjectManager.GetGameObjectTemplate((uint)temp.EntryOrGuid) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error("SmartAIMgr.LoadSmartAI: GameObject entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
@@ -104,10 +134,10 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 					case SmartScriptType.AreaTrigger:
 					{
-						if (CliDB.AreaTableStorage.LookupByKey((uint)temp.EntryOrGuid) == null)
+						if (_cliDB.AreaTableStorage.LookupByKey((uint)temp.EntryOrGuid) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error("SmartAIMgr.LoadSmartAI: AreaTrigger entry ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
@@ -118,10 +148,10 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 					case SmartScriptType.Scene:
 					{
-						if (Global.ObjectMgr.GetSceneTemplate((uint)temp.EntryOrGuid) == null)
+						if (_gameObjectManager.GetSceneTemplate((uint)temp.EntryOrGuid) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error("SmartAIMgr.LoadFromDB: Scene id ({0}) does not exist, skipped loading.", temp.EntryOrGuid);
 
@@ -132,10 +162,10 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 					case SmartScriptType.Quest:
 					{
-						if (Global.ObjectMgr.GetQuestTemplate((uint)temp.EntryOrGuid) == null)
+						if (_gameObjectManager.GetQuestTemplate((uint)temp.EntryOrGuid) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Quest id ({temp.EntryOrGuid}) does not exist, skipped loading.");
 
@@ -148,10 +178,10 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						break; //nothing to check, really
 					case SmartScriptType.AreaTriggerEntity:
 					{
-						if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)temp.EntryOrGuid, false)) == null)
+						if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)temp.EntryOrGuid, false)) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: AreaTrigger entry ({temp.EntryOrGuid} IsServerSide false) does not exist, skipped loading.");
 
@@ -162,10 +192,10 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 					case SmartScriptType.AreaTriggerEntityServerside:
 					{
-						if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)temp.EntryOrGuid, true)) == null)
+						if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)temp.EntryOrGuid, true)) == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: AreaTrigger entry ({temp.EntryOrGuid} IsServerSide true) does not exist, skipped loading.");
 
@@ -175,36 +205,36 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						break;
 					}
 					default:
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 						else
-							Log.Logger.Error("SmartAIMgr.LoadFromDB: not yet implemented source_type {0}", source_type);
+							Log.Logger.Error("SmartAIMgr.LoadFromDB: not yet implemented source_type {0}", sourceType);
 
 						continue;
 				}
 			else
-				switch (source_type)
+				switch (sourceType)
 				{
 					case SmartScriptType.Creature:
 					{
-						var creature = Global.ObjectMgr.GetCreatureData((ulong)-temp.EntryOrGuid);
+						var creature = _gameObjectManager.GetCreatureData((ulong)-temp.EntryOrGuid);
 
 						if (creature == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Creature guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
 
-						var creatureInfo = Global.ObjectMgr.GetCreatureTemplate(creature.Id);
+						var creatureInfo = _gameObjectManager.GetCreatureTemplate(creature.Id);
 
 						if (creatureInfo == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Creature entry ({creature.Id}) guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
@@ -213,8 +243,8 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 						if (creatureInfo.AIName != "SmartAI")
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: Creature entry ({creature.Id}) guid ({-temp.EntryOrGuid}) is not using SmartAI, skipped loading.");
 
@@ -225,24 +255,24 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 					case SmartScriptType.GameObject:
 					{
-						var gameObject = Global.ObjectMgr.GetGameObjectData((ulong)-temp.EntryOrGuid);
+						var gameObject = _gameObjectManager.GetGameObjectData((ulong)-temp.EntryOrGuid);
 
 						if (gameObject == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: GameObject guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
 							continue;
 						}
 
-						var gameObjectInfo = Global.ObjectMgr.GetGameObjectTemplate(gameObject.Id);
+						var gameObjectInfo = _gameObjectManager.GetGameObjectTemplate(gameObject.Id);
 
 						if (gameObjectInfo == null)
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: GameObject entry ({gameObject.Id}) guid ({-temp.EntryOrGuid}) does not exist, skipped loading.");
 
@@ -251,8 +281,8 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 						if (gameObjectInfo.AIName != "SmartGameObjectAI")
 						{
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 							else
 								Log.Logger.Error($"SmartAIMgr.LoadFromDB: GameObject entry ({gameObject.Id}) guid ({-temp.EntryOrGuid}) is not using SmartGameObjectAI, skipped loading.");
 
@@ -262,15 +292,15 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						break;
 					}
 					default:
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM smart_scripts WHERE entryorguid = {temp.EntryOrGuid}");
 						else
-							Log.Logger.Error($"SmartAIMgr.LoadFromDB: GUID-specific scripting not yet implemented for source_type {source_type}");
+							Log.Logger.Error($"SmartAIMgr.LoadFromDB: GUID-specific scripting not yet implemented for source_type {sourceType}");
 
 						continue;
 				}
 
-			temp.SourceType = source_type;
+			temp.SourceType = sourceType;
 			temp.EventId = result.Read<ushort>(2);
 			temp.Link = result.Read<ushort>(3);
 			temp.Event.type = (SmartEvents)result.Read<byte>(4);
@@ -349,16 +379,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					}
 
 					break;
-				default:
-					break;
 			}
 
 			// creature entry / guid not found in storage, create empty event list for it and increase counters
-			if (!_eventMap[(int)source_type].ContainsKey(temp.EntryOrGuid))
+			if (!_eventMap[(int)sourceType].ContainsKey(temp.EntryOrGuid))
 				++count;
 
 			// store the new event
-			_eventMap[(int)source_type].Add(temp.EntryOrGuid, temp);
+			_eventMap[(int)sourceType].Add(temp.EntryOrGuid, temp);
 		} while (result.NextRow());
 
 		// Post Loading Validation
@@ -393,17 +421,17 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} SmartAI scripts in {1} ms", count, global::Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} SmartAI scripts in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void LoadWaypointFromDB()
 	{
-		var oldMSTime = global::Time.MSTime;
+		var oldMSTime = Time.MSTime;
 
 		_waypointStore.Clear();
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_SMARTAI_WP);
-		var result = DB.World.Query(stmt);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_SMARTAI_WP);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -453,7 +481,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			++total;
 		} while (result.NextRow());
 
-		Log.Logger.Information($"Loaded {count} SmartAI waypoint paths (total {total} waypoints) in {global::Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+		Log.Logger.Information($"Loaded {count} SmartAI waypoint paths (total {total} waypoints) in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
 	public List<SmartScriptHolder> GetScript(int entry, SmartScriptType type)
@@ -672,8 +700,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				return false;
 		}
 	}
-
-	static bool IsTargetValid(SmartScriptHolder e)
+    bool IsTargetValid(SmartScriptHolder e)
 	{
 		if (Math.Abs(e.Target.o) > 2 * MathFunctions.PI)
 			Log.Logger.Error($"SmartAIMgr: {e} has abs(`target.o` = {e.Target.o}) > 2*PI (orientation is expressed in radians)");
@@ -683,7 +710,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartTargets.CreatureDistance:
 			case SmartTargets.CreatureRange:
 			{
-				if (e.Target.unitDistance.creature != 0 && Global.ObjectMgr.GetCreatureTemplate(e.Target.unitDistance.creature) == null)
+				if (e.Target.unitDistance.creature != 0 && _gameObjectManager.GetCreatureTemplate(e.Target.unitDistance.creature) == null)
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Target.unitDistance.creature} as target_param1, skipped.");
 
@@ -695,7 +722,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartTargets.GameobjectDistance:
 			case SmartTargets.GameobjectRange:
 			{
-				if (e.Target.goDistance.entry != 0 && Global.ObjectMgr.GetGameObjectTemplate(e.Target.goDistance.entry) == null)
+				if (e.Target.goDistance.entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Target.goDistance.entry) == null)
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {e.Target.goDistance.entry} as target_param1, skipped.");
 
@@ -710,7 +737,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					return false;
 
 				ulong guid = e.Target.unitGUID.dbGuid;
-				var data = Global.ObjectMgr.GetCreatureData(guid);
+				var data = _gameObjectManager.GetCreatureData(guid);
 
 				if (data == null)
 				{
@@ -733,7 +760,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					return false;
 
 				ulong guid = e.Target.goGUID.dbGuid;
-				var data = Global.ObjectMgr.GetGameObjectData(guid);
+				var data = _gameObjectManager.GetGameObjectData(guid);
 
 				if (data == null)
 				{
@@ -824,10 +851,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
+    bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.SpellVisualKitStorage.ContainsKey(entry))
+		if (!_cliDB.SpellVisualKitStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent SpellVisualKit entry {entry}, skipped.");
 
@@ -1297,7 +1323,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.SpellHitTarget:
 					if (e.Event.spellHit.spell != 0)
 					{
-						var spellInfo = Global.SpellMgr.GetSpellInfo(e.Event.spellHit.spell, Difficulty.None);
+						var spellInfo = _spellManager.GetSpellInfo(e.Event.spellHit.spell);
 
 						if (spellInfo == null)
 						{
@@ -1346,14 +1372,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					break;
 				case SmartEvents.Respawn:
-					if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && CliDB.MapStorage.LookupByKey(e.Event.respawn.map) == null)
+					if (e.Event.respawn.type == (uint)SmartRespawnCondition.Map && _cliDB.MapStorage.LookupByKey(e.Event.respawn.map) == null)
 					{
 						Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Event.respawn.map}, skipped.");
 
 						return false;
 					}
 
-					if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && !CliDB.AreaTableStorage.ContainsKey(e.Event.respawn.area))
+					if (e.Event.respawn.type == (uint)SmartRespawnCondition.Area && !_cliDB.AreaTableStorage.ContainsKey(e.Event.respawn.area))
 					{
 						Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Area entry {e.Event.respawn.area}, skipped.");
 
@@ -1390,7 +1416,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					break;
 				case SmartEvents.VictimCasting:
-					if (e.Event.targetCasting.spellId > 0 && !Global.SpellMgr.HasSpellInfo(e.Event.targetCasting.spellId, Difficulty.None))
+					if (e.Event.targetCasting.spellId > 0 && !_spellManager.HasSpellInfo(e.Event.targetCasting.spellId))
 					{
 						Log.Logger.Error($"SmartAIMgr: Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses non-existent Spell entry {e.Event.spellHit.spell}, skipped.");
 
@@ -1496,7 +1522,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				case SmartEvents.GameEventStart:
 				case SmartEvents.GameEventEnd:
 				{
-					var events = Global.GameEventMgr.GetEventMap();
+					var events = _eventManager.GetEventMap();
 
 					if (e.Event.gameEvent.gameEventId >= events.Length || !events[e.Event.gameEvent.gameEventId].IsValid())
 						return false;
@@ -1551,14 +1577,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						return false;
 					}
 
-					if (e.Event.distance.guid != 0 && Global.ObjectMgr.GetCreatureData(e.Event.distance.guid) == null)
+					if (e.Event.distance.guid != 0 && _gameObjectManager.GetCreatureData(e.Event.distance.guid) == null)
 					{
 						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature guid {0}, skipped.", e.Event.distance.guid);
 
 						return false;
 					}
 
-					if (e.Event.distance.entry != 0 && Global.ObjectMgr.GetCreatureTemplate(e.Event.distance.entry) == null)
+					if (e.Event.distance.entry != 0 && _gameObjectManager.GetCreatureTemplate(e.Event.distance.entry) == null)
 					{
 						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_CREATURE using invalid creature entry {0}, skipped.", e.Event.distance.entry);
 
@@ -1581,14 +1607,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 						return false;
 					}
 
-					if (e.Event.distance.guid != 0 && Global.ObjectMgr.GetGameObjectData(e.Event.distance.guid) == null)
+					if (e.Event.distance.guid != 0 && _gameObjectManager.GetGameObjectData(e.Event.distance.guid) == null)
 					{
 						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject guid {0}, skipped.", e.Event.distance.guid);
 
 						return false;
 					}
 
-					if (e.Event.distance.entry != 0 && Global.ObjectMgr.GetGameObjectTemplate(e.Event.distance.entry) == null)
+					if (e.Event.distance.entry != 0 && _gameObjectManager.GetGameObjectTemplate(e.Event.distance.entry) == null)
 					{
 						Log.Logger.Error("SmartAIMgr: Event SMART_EVENT_DISTANCE_GAMEOBJECT using invalid gameobject entry {0}, skipped.", e.Event.distance.entry);
 
@@ -1630,7 +1656,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					break;
 				case SmartEvents.QuestObjCompletion:
-					if (Global.ObjectMgr.GetQuestObjective(e.Event.questObjective.id) == null)
+					if (_gameObjectManager.GetQuestObjective(e.Event.questObjective.id) == null)
 					{
 						Log.Logger.Error($"SmartAIMgr: Event SMART_EVENT_QUEST_OBJ_COMPLETION using invalid objective id {e.Event.questObjective.id}, skipped.");
 
@@ -1716,7 +1742,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				break;
 			}
 			case SmartActions.SetFaction:
-				if (e.Action.faction.factionId != 0 && CliDB.FactionTemplateStorage.LookupByKey(e.Action.faction.factionId) == null)
+				if (e.Action.faction.factionId != 0 && _cliDB.FactionTemplateStorage.LookupByKey(e.Action.faction.factionId) == null)
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Faction {e.Action.faction.factionId}, skipped.");
 
@@ -1728,7 +1754,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			case SmartActions.MountToEntryOrModel:
 				if (e.Action.morphOrMount.creature != 0 || e.Action.morphOrMount.model != 0)
 				{
-					if (e.Action.morphOrMount.creature > 0 && Global.ObjectMgr.GetCreatureTemplate(e.Action.morphOrMount.creature) == null)
+					if (e.Action.morphOrMount.creature > 0 && _gameObjectManager.GetCreatureTemplate(e.Action.morphOrMount.creature) == null)
 					{
 						Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {e.Action.morphOrMount.creature}, skipped.");
 
@@ -1743,7 +1769,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 							return false;
 						}
-						else if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.morphOrMount.model))
+						else if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(e.Action.morphOrMount.model))
 						{
 							Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Model id {e.Action.morphOrMount.model}, skipped.");
 
@@ -1797,7 +1823,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				break;
 			case SmartActions.ActivateTaxi:
 			{
-				if (!CliDB.TaxiPathStorage.ContainsKey(e.Action.taxi.id))
+				if (!_cliDB.TaxiPathStorage.ContainsKey(e.Action.taxi.id))
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses invalid Taxi path ID {e.Action.taxi.id}, skipped.");
 
@@ -1847,7 +1873,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				if (!IsSpellValid(e, e.Action.cast.spell))
 					return false;
 
-				var spellInfo = Global.SpellMgr.GetSpellInfo(e.Action.cast.spell, Difficulty.None);
+				var spellInfo = _spellManager.GetSpellInfo(e.Action.cast.spell);
 
 				foreach (var spellEffectInfo in spellInfo.Effects)
 					if (spellEffectInfo.IsEffect(SpellEffectName.KillCredit) || spellEffectInfo.IsEffect(SpellEffectName.KillCredit2))
@@ -1875,7 +1901,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 					ulong guid = e.Action.crossCast.targetParam1;
 					var spawnType = targetType == SmartTargets.CreatureGuid ? SpawnObjectType.Creature : SpawnObjectType.GameObject;
-					var data = Global.ObjectMgr.GetSpawnData(spawnType, guid);
+					var data = _gameObjectManager.GetSpawnData(spawnType, guid);
 
 					if (data == null)
 					{
@@ -1912,7 +1938,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				break;
 			case SmartActions.CallAreaexploredoreventhappens:
 			case SmartActions.CallGroupeventhappens:
-				var qid = Global.ObjectMgr.GetQuestTemplate(e.Action.quest.questId);
+				var qid = _gameObjectManager.GetQuestTemplate(e.Action.quest.questId);
 
 				if (qid != null)
 				{
@@ -2068,7 +2094,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 				break;
 			case SmartActions.Teleport:
-				if (!CliDB.MapStorage.ContainsKey(e.Action.teleport.mapID))
+				if (!_cliDB.MapStorage.ContainsKey(e.Action.teleport.mapID))
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Map entry {e.Action.teleport.mapID}, skipped.");
 
@@ -2134,7 +2160,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				var eventId = e.Action.gameEventStop.id;
 
-				var events = Global.GameEventMgr.GetEventMap();
+				var events = _eventManager.GetEventMap();
 
 				if (eventId < 1 || eventId >= events.Length)
 				{
@@ -2158,7 +2184,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			{
 				var eventId = e.Action.gameEventStart.id;
 
-				var events = Global.GameEventMgr.GetEventMap();
+				var events = _eventManager.GetEventMap();
 
 				if (eventId < 1 || eventId >= events.Length)
 				{
@@ -2184,7 +2210,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 				{
 					var equipId = (sbyte)e.Action.equip.entry;
 
-					if (equipId != 0 && Global.ObjectMgr.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
+					if (equipId != 0 && _gameObjectManager.GetEquipmentInfo((uint)e.EntryOrGuid, equipId) == null)
 					{
 						Log.Logger.Error("SmartScript: SMART_ACTION_EQUIP uses non-existent equipment info id {0} for creature {1}, skipped.", equipId, e.EntryOrGuid);
 
@@ -2226,7 +2252,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					return false;
 				}
 
-				if (!CliDB.PhaseStorage.ContainsKey(phaseId))
+				if (!_cliDB.PhaseStorage.ContainsKey(phaseId))
 				{
 					Log.Logger.Error("SmartScript: SMART_ACTION_SET_INGAME_PHASE_ID uses invalid phaseid {0} for creature {1}, skipped", phaseId, e.EntryOrGuid);
 
@@ -2247,7 +2273,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					return false;
 				}
 
-				if (Global.DB2Mgr.GetPhasesForGroup(phaseGroup).Empty())
+				if (_db2Manager.GetPhasesForGroup(phaseGroup).Empty())
 				{
 					Log.Logger.Error("SmartScript: SMART_ACTION_SET_INGAME_PHASE_GROUP uses invalid phase group id {0} for creature {1}, skipped", phaseGroup, e.EntryOrGuid);
 
@@ -2258,7 +2284,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.ScenePlay:
 			{
-				if (Global.ObjectMgr.GetSceneTemplate(e.Action.scene.sceneId) == null)
+				if (_gameObjectManager.GetSceneTemplate(e.Action.scene.sceneId) == null)
 				{
 					Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_PLAY uses sceneId {0} but scene don't exist, skipped", e.Action.scene.sceneId);
 
@@ -2269,7 +2295,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.SceneCancel:
 			{
-				if (Global.ObjectMgr.GetSceneTemplate(e.Action.scene.sceneId) == null)
+				if (_gameObjectManager.GetSceneTemplate(e.Action.scene.sceneId) == null)
 				{
 					Log.Logger.Error("SmartScript: SMART_ACTION_SCENE_CANCEL uses sceneId {0} but scene don't exist, skipped", e.Action.scene.sceneId);
 
@@ -2280,7 +2306,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.RespawnBySpawnId:
 			{
-				if (Global.ObjectMgr.GetSpawnData((SpawnObjectType)e.Action.respawnData.spawnType, e.Action.respawnData.spawnId) == null)
+				if (_gameObjectManager.GetSpawnData((SpawnObjectType)e.Action.respawnData.spawnType, e.Action.respawnData.spawnId) == null)
 				{
 					Log.Logger.Error($"Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} specifies invalid spawn data ({e.Action.respawnData.spawnType},{e.Action.respawnData.spawnId})");
 
@@ -2302,7 +2328,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.PlayCinematic:
 			{
-				if (!CliDB.CinematicSequencesStorage.ContainsKey(e.Action.cinematic.entry))
+				if (!_cliDB.CinematicSequencesStorage.ContainsKey(e.Action.cinematic.entry))
 				{
 					Log.Logger.Error($"SmartAIMgr: SMART_ACTION_PLAY_CINEMATIC {e} uses invalid entry {e.Action.cinematic.entry}, skipped.");
 
@@ -2344,7 +2370,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.OverrideLight:
 			{
-				var areaEntry = CliDB.AreaTableStorage.LookupByKey(e.Action.overrideLight.zoneId);
+				var areaEntry = _cliDB.AreaTableStorage.LookupByKey(e.Action.overrideLight.zoneId);
 
 				if (areaEntry == null)
 				{
@@ -2360,14 +2386,14 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					return false;
 				}
 
-				if (!CliDB.LightStorage.ContainsKey(e.Action.overrideLight.areaLightId))
+				if (!_cliDB.LightStorage.ContainsKey(e.Action.overrideLight.areaLightId))
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent areaLightId {e.Action.overrideLight.areaLightId}, skipped.");
 
 					return false;
 				}
 
-				if (e.Action.overrideLight.overrideLightId != 0 && !CliDB.LightStorage.ContainsKey(e.Action.overrideLight.overrideLightId))
+				if (e.Action.overrideLight.overrideLightId != 0 && !_cliDB.LightStorage.ContainsKey(e.Action.overrideLight.overrideLightId))
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent overrideLightId {e.Action.overrideLight.overrideLightId}, skipped.");
 
@@ -2378,7 +2404,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.OverrideWeather:
 			{
-				var areaEntry = CliDB.AreaTableStorage.LookupByKey(e.Action.overrideWeather.zoneId);
+				var areaEntry = _cliDB.AreaTableStorage.LookupByKey(e.Action.overrideWeather.zoneId);
 
 				if (areaEntry == null)
 				{
@@ -2525,7 +2551,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 			}
 			case SmartActions.CreateConversation:
 			{
-				if (Global.ConversationDataStorage.GetConversationTemplate(e.Action.conversation.id) == null)
+				if (_conversationDataStorage.GetConversationTemplate(e.Action.conversation.id) == null)
 				{
 					Log.Logger.Error($"SmartAIMgr: SMART_ACTION_CREATE_CONVERSATION Entry {e.EntryOrGuid} SourceType {e.GetScriptType()} Event {e.EventId} Action {e.GetActionType()} uses invalid entry {e.Action.conversation.id}, skipped.");
 
@@ -2665,10 +2691,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsAnimKitValid(SmartScriptHolder e, uint entry)
+    bool IsAnimKitValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.AnimKitStorage.ContainsKey(entry))
+		if (!_cliDB.AnimKitStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent AnimKit entry {entry}, skipped.");
 
@@ -2677,8 +2702,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsTextValid(SmartScriptHolder e, uint id)
+    bool IsTextValid(SmartScriptHolder e, uint id)
 	{
 		if (e.GetScriptType() != SmartScriptType.Creature)
 			return true;
@@ -2698,7 +2722,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					if (e.EntryOrGuid < 0)
 					{
 						var guid = (ulong)-e.EntryOrGuid;
-						var data = Global.ObjectMgr.GetCreatureData(guid);
+						var data = _gameObjectManager.GetCreatureData(guid);
 
 						if (data == null)
 						{
@@ -2719,7 +2743,7 @@ public class SmartAIManager : Singleton<SmartAIManager>
 					break;
 			}
 
-		if (entry == 0 || !Global.CreatureTextMgr.TextExist(entry, (byte)id))
+		if (entry == 0 || !_creatureTextManager.TextExist(entry, (byte)id))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} using non-existent Text id {id}, skipped.");
 
@@ -2728,10 +2752,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsCreatureValid(SmartScriptHolder e, uint entry)
+    bool IsCreatureValid(SmartScriptHolder e, uint entry)
 	{
-		if (Global.ObjectMgr.GetCreatureTemplate(entry) == null)
+		if (_gameObjectManager.GetCreatureTemplate(entry) == null)
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Creature entry {entry}, skipped.");
 
@@ -2740,10 +2763,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsGameObjectValid(SmartScriptHolder e, uint entry)
+    bool IsGameObjectValid(SmartScriptHolder e, uint entry)
 	{
-		if (Global.ObjectMgr.GetGameObjectTemplate(entry) == null)
+		if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent GameObject entry {entry}, skipped.");
 
@@ -2752,10 +2774,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsQuestValid(SmartScriptHolder e, uint entry)
+    bool IsQuestValid(SmartScriptHolder e, uint entry)
 	{
-		if (Global.ObjectMgr.GetQuestTemplate(entry) == null)
+		if (_gameObjectManager.GetQuestTemplate(entry) == null)
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Quest entry {entry}, skipped.");
 
@@ -2764,10 +2785,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 
 		return true;
 	}
-
-	static bool IsSpellValid(SmartScriptHolder e, uint entry)
+    bool IsSpellValid(SmartScriptHolder e, uint entry)
 	{
-		if (!Global.SpellMgr.HasSpellInfo(entry, Difficulty.None))
+		if (!_spellManager.HasSpellInfo(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Spell entry {entry}, skipped.");
 
@@ -2801,9 +2821,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		return true;
 	}
 
-	static bool IsEmoteValid(SmartScriptHolder e, uint entry)
+	bool IsEmoteValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.EmotesStorage.ContainsKey(entry))
+		if (!_cliDB.EmotesStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Emote entry {entry}, skipped.");
 
@@ -2813,9 +2833,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		return true;
 	}
 
-	static bool IsItemValid(SmartScriptHolder e, uint entry)
+	bool IsItemValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.ItemSparseStorage.ContainsKey(entry))
+		if (!_cliDB.ItemSparseStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Item entry {entry}, skipped.");
 
@@ -2825,9 +2845,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		return true;
 	}
 
-	static bool IsTextEmoteValid(SmartScriptHolder e, uint entry)
+	bool IsTextEmoteValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.EmotesTextStorage.ContainsKey(entry))
+		if (!_cliDB.EmotesTextStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Text Emote entry {entry}, skipped.");
 
@@ -2837,9 +2857,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		return true;
 	}
 
-	static bool IsAreaTriggerValid(SmartScriptHolder e, uint entry)
+	bool IsAreaTriggerValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.AreaTriggerStorage.ContainsKey(entry))
+		if (!_cliDB.AreaTriggerStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent AreaTrigger entry {entry}, skipped.");
 
@@ -2849,9 +2869,9 @@ public class SmartAIManager : Singleton<SmartAIManager>
 		return true;
 	}
 
-	static bool IsSoundValid(SmartScriptHolder e, uint entry)
+	bool IsSoundValid(SmartScriptHolder e, uint entry)
 	{
-		if (!CliDB.SoundKitStorage.ContainsKey(entry))
+		if (!_cliDB.SoundKitStorage.ContainsKey(entry))
 		{
 			Log.Logger.Error($"SmartAIMgr: {e} uses non-existent Sound entry {entry}, skipped.");
 

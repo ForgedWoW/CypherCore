@@ -178,7 +178,7 @@ public sealed class CreatureTextManager
 				_localeTextMap[key] = new CreatureTextLocale();
 
 			var data = _localeTextMap[key];
-			ObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
+			GameObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
 		} while (result.NextRow());
 
 		Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, global::Time.GetMSTimeDiffToNow(oldMSTime));
@@ -389,7 +389,7 @@ public sealed class CreatureTextManager
 			var creatureTextLocale = _localeTextMap.LookupByKey(new CreatureTextId(entry, textGroup, id));
 
 			if (creatureTextLocale != null)
-				ObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
+				GameObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
 		}
 
 		return baseText;

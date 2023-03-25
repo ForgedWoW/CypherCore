@@ -14,6 +14,7 @@ using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
 using Framework.Constants;
 using Framework.Util;
+using Forged.MapServer.AI.SmartScripts;
 
 var configBuilder = new ConfigurationBuilder()
                     .SetBasePath(Directory.GetCurrentDirectory())
@@ -31,6 +32,7 @@ builder.RegisterType<BNetAccountManager>().SingleInstance();
 builder.RegisterType<AchievementGlobalMgr>().SingleInstance();
 builder.RegisterType<DB2Manager>().SingleInstance();
 builder.RegisterType<CriteriaManager>().SingleInstance();
+builder.RegisterType<SmartAIManager>().SingleInstance();
 
 BitSet localeMask = null;
 builder.Register((c, p) =>

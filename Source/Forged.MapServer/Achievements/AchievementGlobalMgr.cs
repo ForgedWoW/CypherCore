@@ -17,7 +17,7 @@ public class AchievementGlobalMgr
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _gameObjectManager;
     private readonly CliDB _cliDB;
 
     // store achievements by referenced achievement id to speed up lookup
@@ -29,11 +29,11 @@ public class AchievementGlobalMgr
 	readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
 	readonly Dictionary<uint, uint> _achievementScripts = new();
 
-    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, ObjectManager objectManager, CliDB cliDB)
+    public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
     {
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
-        _objectManager = objectManager;
+        _gameObjectManager = gameObjectManager;
         _cliDB = cliDB;
     }
 
@@ -143,7 +143,7 @@ public class AchievementGlobalMgr
 				continue;
 			}
 
-			_achievementScripts[achievementId] = _objectManager.GetScriptId(scriptName);
+			_achievementScripts[achievementId] = _gameObjectManager.GetScriptId(scriptName);
 		} while (result.NextRow());
 
 		Log.Logger.Information($"Loaded {_achievementScripts.Count} achievement scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
@@ -272,7 +272,7 @@ public class AchievementGlobalMgr
 			//check mail data before item for report including wrong item case
 			if (reward.SenderCreatureId != 0)
 			{
-				if (_objectManager.GetCreatureTemplate(reward.SenderCreatureId) == null)
+				if (_gameObjectManager.GetCreatureTemplate(reward.SenderCreatureId) == null)
 				{
 					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid creature ID {reward.SenderCreatureId} as sender, mail reward skipped.");
 					reward.SenderCreatureId = 0;
@@ -307,7 +307,7 @@ public class AchievementGlobalMgr
 			}
 
 			if (reward.ItemId != 0)
-				if (_objectManager.GetItemTemplate(reward.ItemId) == null)
+				if (_gameObjectManager.GetItemTemplate(reward.ItemId) == null)
 				{
 					Log.Logger.Error($"Table `achievement_reward` (ID: {id}) contains an invalid item id {reward.ItemId}, reward mail will not contain the rewarded item.");
 					reward.ItemId = 0;
@@ -353,8 +353,8 @@ public class AchievementGlobalMgr
 			if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
 				continue;
 
-			ObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
-			ObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
+			GameObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
+			GameObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
 
 			_achievementRewardLocales[id] = data;
 		} while (result.NextRow());

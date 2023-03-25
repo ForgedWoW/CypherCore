@@ -19,7 +19,7 @@ public class CriteriaManager
 {
     private readonly CliDB _cliDB;
     private readonly WorldDatabase _worldDatabase;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _gameObjectManager;
     readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
 	readonly Dictionary<uint, CriteriaTree> _criteriaTrees = new();
 	readonly Dictionary<uint, Criteria> _criteria = new();
@@ -35,11 +35,11 @@ public class CriteriaManager
 	readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
 	readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
 
-	public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, ObjectManager objectManager)
+	public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
     {
         _cliDB = cliDB;
         _worldDatabase = worldDatabase;
-        _objectManager = objectManager;
+        _gameObjectManager = gameObjectManager;
 
         for (var i = 0; i < (int)CriteriaType.Count; ++i)
 		{
@@ -100,7 +100,7 @@ public class CriteriaManager
 
 		Dictionary<uint /*criteriaTreeID*/, QuestObjective> questObjectiveCriteriaTreeIds = new();
 
-		foreach (var pair in _objectManager.GetQuestTemplates())
+		foreach (var pair in _gameObjectManager.GetQuestTemplates())
 		{
 			foreach (var objective in pair.Value.Objectives)
 			{
@@ -303,7 +303,7 @@ public class CriteriaManager
 				if (dataType != CriteriaDataType.Script)
 					Log.Logger.Error("Table `criteria_data` contains a ScriptName for non-scripted data type (Entry: {0}, type {1}), useless data.", criteria_id, dataType);
 				else
-					scriptId = _objectManager.GetScriptId(scriptName);
+					scriptId = _gameObjectManager.GetScriptId(scriptName);
 			}
 
 			CriteriaData data = new(dataType, result.Read<uint>(2), result.Read<uint>(3), scriptId);

@@ -429,8 +429,8 @@ public class PlayerAchievementMgr : AchievementManager
 
 					if (loc != null)
 					{
-						ObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
-						ObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
+						GameObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
+						GameObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
 					}
 				}
 

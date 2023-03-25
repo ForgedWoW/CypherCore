@@ -35,7 +35,7 @@ class TicketCommands
 		if (targetName.IsEmpty())
 			return false;
 
-		if (!ObjectManager.NormalizePlayerName(ref targetName))
+		if (!GameObjectManager.NormalizePlayerName(ref targetName))
 			return false;
 
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);

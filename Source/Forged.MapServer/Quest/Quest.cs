@@ -672,7 +672,7 @@ public class Quest
                 ConditionalQuestDescription = ConditionalQuestDescription.Select(text =>
                                                                          {
                                                                              var content = text.Text[(int)Locale.enUS];
-                                                                             ObjectManager.GetLocaleString(text.Text, loc, ref content);
+                                                                             GameObjectManager.GetLocaleString(text.Text, loc, ref content);
 
                                                                              return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
                                                                          })
@@ -680,7 +680,7 @@ public class Quest
                 ConditionalQuestCompletionLog = ConditionalQuestCompletionLog.Select(text =>
                                                                              {
                                                                                  var content = text.Text[(int)Locale.enUS];
-                                                                                 ObjectManager.GetLocaleString(text.Text, loc, ref content);
+                                                                                 GameObjectManager.GetLocaleString(text.Text, loc, ref content);
 
                                                                                  return new ConditionalQuestText(text.PlayerConditionId, text.QuestgiverCreatureId, content);
                                                                              })
@@ -694,15 +694,15 @@ public class Quest
 
 			if (questTemplateLocale != null)
 			{
-				ObjectManager.GetLocaleString(questTemplateLocale.LogTitle, loc, ref response.Info.LogTitle);
-				ObjectManager.GetLocaleString(questTemplateLocale.LogDescription, loc, ref response.Info.LogDescription);
-				ObjectManager.GetLocaleString(questTemplateLocale.QuestDescription, loc, ref response.Info.QuestDescription);
-				ObjectManager.GetLocaleString(questTemplateLocale.AreaDescription, loc, ref response.Info.AreaDescription);
-				ObjectManager.GetLocaleString(questTemplateLocale.QuestCompletionLog, loc, ref response.Info.QuestCompletionLog);
-				ObjectManager.GetLocaleString(questTemplateLocale.PortraitGiverText, loc, ref response.Info.PortraitGiverText);
-				ObjectManager.GetLocaleString(questTemplateLocale.PortraitGiverName, loc, ref response.Info.PortraitGiverName);
-				ObjectManager.GetLocaleString(questTemplateLocale.PortraitTurnInText, loc, ref response.Info.PortraitTurnInText);
-				ObjectManager.GetLocaleString(questTemplateLocale.PortraitTurnInName, loc, ref response.Info.PortraitTurnInName);
+				GameObjectManager.GetLocaleString(questTemplateLocale.LogTitle, loc, ref response.Info.LogTitle);
+				GameObjectManager.GetLocaleString(questTemplateLocale.LogDescription, loc, ref response.Info.LogDescription);
+				GameObjectManager.GetLocaleString(questTemplateLocale.QuestDescription, loc, ref response.Info.QuestDescription);
+				GameObjectManager.GetLocaleString(questTemplateLocale.AreaDescription, loc, ref response.Info.AreaDescription);
+				GameObjectManager.GetLocaleString(questTemplateLocale.QuestCompletionLog, loc, ref response.Info.QuestCompletionLog);
+				GameObjectManager.GetLocaleString(questTemplateLocale.PortraitGiverText, loc, ref response.Info.PortraitGiverText);
+				GameObjectManager.GetLocaleString(questTemplateLocale.PortraitGiverName, loc, ref response.Info.PortraitGiverName);
+				GameObjectManager.GetLocaleString(questTemplateLocale.PortraitTurnInText, loc, ref response.Info.PortraitTurnInText);
+				GameObjectManager.GetLocaleString(questTemplateLocale.PortraitTurnInName, loc, ref response.Info.PortraitTurnInName);
 			}
 		}
 
@@ -800,7 +800,7 @@ public class Quest
 				var questObjectivesLocale = Global.ObjectMgr.GetQuestObjectivesLocale(questObjective.Id);
 
 				if (questObjectivesLocale != null)
-					ObjectManager.GetLocaleString(questObjectivesLocale.Description, loc, ref response.Info.Objectives.Last().Description);
+					GameObjectManager.GetLocaleString(questObjectivesLocale.Description, loc, ref response.Info.Objectives.Last().Description);
 			}
 		}
 
@@ -883,7 +883,7 @@ public class Quest
 
 		text.PlayerConditionId = fields.Read<int>(1);
 		text.QuestgiverCreatureId = fields.Read<int>(2);
-		ObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
+		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 
 	void LoadConditionalConditionalRequestItemsText(SQLFields fields)
@@ -907,7 +907,7 @@ public class Quest
 
 		text.PlayerConditionId = fields.Read<int>(1);
 		text.QuestgiverCreatureId = fields.Read<int>(2);
-		ObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
+		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 
 	void LoadConditionalConditionalOfferRewardText(SQLFields fields)
@@ -931,7 +931,7 @@ public class Quest
 
 		text.PlayerConditionId = fields.Read<int>(1);
 		text.QuestgiverCreatureId = fields.Read<int>(2);
-		ObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
+		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 
 	void LoadConditionalConditionalQuestCompletionLog(SQLFields fields)
@@ -955,6 +955,6 @@ public class Quest
 
 		text.PlayerConditionId = fields.Read<int>(1);
 		text.QuestgiverCreatureId = fields.Read<int>(2);
-		ObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
+		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 }

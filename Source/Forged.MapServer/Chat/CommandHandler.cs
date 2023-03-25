@@ -352,7 +352,7 @@ public class CommandHandler
 			{
 				guidHigh = HighGuid.Player;
 
-				if (!ObjectManager.NormalizePlayerName(ref idS))
+				if (!GameObjectManager.NormalizePlayerName(ref idS))
 					return 0;
 
 				var player = Global.ObjAccessor.FindPlayerByName(idS);
@@ -609,7 +609,7 @@ public class CommandHandler
 
 		if (!name.IsEmpty())
 		{
-			if (!ObjectManager.NormalizePlayerName(ref name))
+			if (!GameObjectManager.NormalizePlayerName(ref name))
 			{
 				SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -658,7 +658,7 @@ public class CommandHandler
 		if (name.IsEmpty())
 			return "";
 
-		if (!ObjectManager.NormalizePlayerName(ref name))
+		if (!GameObjectManager.NormalizePlayerName(ref name))
 			return "";
 
 		return name;

@@ -2901,7 +2901,7 @@ public partial class Player
 			var questLocale = Global.ObjectMgr.GetQuestLocale(quest.Id);
 
 			if (questLocale != null)
-				ObjectManager.GetLocaleString(questLocale.LogTitle, loc_idx, ref packet.QuestTitle);
+				GameObjectManager.GetLocaleString(questLocale.LogTitle, loc_idx, ref packet.QuestTitle);
 		}
 
 		packet.QuestID = quest.Id;
@@ -2930,7 +2930,7 @@ public partial class Player
 					var questTemplateLocale = Global.ObjectMgr.GetQuestLocale(quest.Id);
 
 					if (questTemplateLocale != null)
-						ObjectManager.GetLocaleString(questTemplateLocale.LogTitle, localeConstant, ref response.QuestTitle);
+						GameObjectManager.GetLocaleString(questTemplateLocale.LogTitle, localeConstant, ref response.QuestTitle);
 				}
 			}
 

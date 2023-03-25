@@ -34,7 +34,7 @@ class BanInfoCommands
 	[Command("character", RBACPermissions.CommandBaninfoCharacter, true)]
 	static bool HandleBanInfoCharacterCommand(CommandHandler handler, string name)
 	{
-		if (!ObjectManager.NormalizePlayerName(ref name))
+		if (!GameObjectManager.NormalizePlayerName(ref name))
 		{
 			handler.SendSysMessage(CypherStrings.BaninfoNocharacter);
 

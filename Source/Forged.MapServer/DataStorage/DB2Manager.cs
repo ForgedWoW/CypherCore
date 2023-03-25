@@ -37,7 +37,7 @@ namespace Forged.MapServer.DataStorage;
 public class DB2Manager
 {
     private readonly HotfixDatabase _hotfixDatabase;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _gameObjectManager;
     public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
 	public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
 	readonly Dictionary<uint, IDB2Storage> _storage = new();
@@ -129,10 +129,10 @@ public class DB2Manager
 	internal Dictionary<uint, IDB2Storage> Storage => _storage;
     private CliDB _cliDB;
 
-    public DB2Manager(HotfixDatabase hotfixDatabase, ObjectManager objectManager)
+    public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager)
 	{
         _hotfixDatabase = hotfixDatabase;
-        _objectManager = objectManager;
+        _gameObjectManager = gameObjectManager;
 
         for (uint i = 0; i < (int)PlayerClass.Max; ++i)
 		{
@@ -1206,7 +1206,7 @@ public class DB2Manager
         int getLevelAdjustment(ContentTuningCalcType type) => type switch
 		{
 			ContentTuningCalcType.PlusOne                  => 1,
-			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_objectManager.GetMaxLevelForExpansion((Expansion)WorldConfig.GetUIntValue(WorldCfg.Expansion)),
+			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)WorldConfig.GetUIntValue(WorldCfg.Expansion)),
 			_                                              => 0
 		};
 

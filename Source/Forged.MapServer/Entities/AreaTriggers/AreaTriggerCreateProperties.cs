@@ -77,7 +77,7 @@ public unsafe class AreaTriggerCreateProperties
 		AreaTriggerCreateProperties ret = new()
         {
             Id = areaTriggerId,
-            ScriptIds = ObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId),
+            ScriptIds = GameObjectManager.Instance.GetAreaTriggerScriptIds(areaTriggerId),
             Template = new AreaTriggerTemplate
             {
                 Id = new AreaTriggerId(areaTriggerId, false),

@@ -86,7 +86,7 @@ public partial class WorldSession
 
 		var receiverGuid = ObjectGuid.Empty;
 
-		if (ObjectManager.NormalizePlayerName(ref sendMail.Info.Target))
+		if (GameObjectManager.NormalizePlayerName(ref sendMail.Info.Target))
 			receiverGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(sendMail.Info.Target);
 
 		if (receiverGuid.IsEmpty)

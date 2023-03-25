@@ -30,7 +30,7 @@ class BanCommands
 		if (reason.IsEmpty())
 			return false;
 
-		if (!ObjectManager.NormalizePlayerName(ref playerName))
+		if (!GameObjectManager.NormalizePlayerName(ref playerName))
 		{
 			handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -96,7 +96,7 @@ class BanCommands
 		switch (mode)
 		{
 			case BanMode.Character:
-				if (!ObjectManager.NormalizePlayerName(ref nameOrIP))
+				if (!GameObjectManager.NormalizePlayerName(ref nameOrIP))
 				{
 					handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
