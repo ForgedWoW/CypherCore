@@ -18,6 +18,9 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Warden;
+using Forged.MapServer.Weather;
+using Forged.MapServer.World;
 using Framework;
 using Framework.Constants;
 using Framework.Database;
@@ -73,4 +76,8 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<GameEventManager>().SingleInstance();
     containerBuilder.RegisterType<GarrisonManager>().SingleInstance();
     containerBuilder.RegisterType<GameObjectManager>().SingleInstance();
+    containerBuilder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
+    containerBuilder.RegisterType<WorldManager>().SingleInstance();
+    containerBuilder.RegisterType<WardenCheckManager>().SingleInstance();
+    containerBuilder.RegisterType<WorldStateManager>().SingleInstance();
 }

@@ -33,7 +33,6 @@ using Framework.Database;
 using Framework.Realm;
 using Framework.Threading;
 using Serilog;
-using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.World;
 

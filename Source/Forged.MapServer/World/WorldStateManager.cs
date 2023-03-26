@@ -1,30 +1,50 @@
 ﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.WorldState;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IWorldState;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.World;
 
-public class WorldStateManager : Singleton<WorldStateManager>
+public class WorldStateManager
 {
-	static readonly int AnyMap = -1;
-	readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _objectManager;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ScriptManager _scriptManager;
+    private readonly WorldManager _worldManager;
+    private readonly DB2Manager _db2Manager;
+    private const int AnyMap = -1;
+    readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
 	readonly Dictionary<int, int> _realmWorldStateValues = new();
 	readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
 
-    public WorldStateManager()
+    public WorldStateManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager, 
+                             CharacterDatabase characterDatabase, ScriptManager scriptManager, WorldManager worldManager, DB2Manager db2Manager)
     {
-        SetValue(WorldStates.CurrentPvpSeasonId, GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
-        SetValue(WorldStates.PreviousPvpSeasonId, GetDefaultValue("Arena.ArenaSeason.ID", 32) - (GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
+        _worldDatabase = worldDatabase;
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+        _characterDatabase = characterDatabase;
+        _scriptManager = scriptManager;
+        _worldManager = worldManager;
+        _db2Manager = db2Manager;
+        SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
+        SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) - (configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
     }
 
 	public void LoadFromDB()
@@ -32,7 +52,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0   1             2       3        4
-		var result = DB.World.Query("SELECT ID, DefaultValue, MapIDs, AreaIDs, ScriptName FROM world_state");
+		var result = _worldDatabase.Query("SELECT ID, DefaultValue, MapIDs, AreaIDs, ScriptName FROM world_state");
 
 		if (result.IsEmpty())
 			return;
@@ -59,7 +79,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 						continue;
 					}
 
-					if (mapId != AnyMap && !CliDB.MapStorage.ContainsKey(mapId))
+					if (mapId != AnyMap && !_cliDB.MapStorage.ContainsKey(mapId))
 					{
 						Log.Logger.Error($"Table `world_state` contains a world state {id} with invalid MapID ({mapId}), map ignored");
 
@@ -89,7 +109,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 						continue;
 					}
 
-					var areaTableEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+					var areaTableEntry = _cliDB.AreaTableStorage.LookupByKey(areaId);
 
 					if (areaTableEntry == null)
 					{
@@ -120,7 +140,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 				Log.Logger.Error($"Table `world_state` contains a world state {id} with nonempty AreaIDs ({areaIds}) but is a realm wide world state, area requirement ignored");
 			}
 
-			worldState.ScriptId = Global.ObjectMgr.GetScriptId(result.Read<string>(4));
+			worldState.ScriptId = _objectManager.GetScriptId(result.Read<string>(4));
 
 			if (!worldState.MapIds.Empty())
 				foreach (var mapId in worldState.MapIds)
@@ -140,7 +160,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 		oldMSTime = Time.MSTime;
 
-		result = DB.Characters.Query("SELECT Id, Value FROM world_state_value");
+		result = _characterDatabase.Query("SELECT Id, Value FROM world_state_value");
 		uint savedValueCount = 0;
 
 		if (!result.IsEmpty())
@@ -227,7 +247,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 			_realmWorldStateValues[worldStateId] = value;
 
 			if (worldStateTemplate != null)
-				Global.ScriptMgr.RunScript<IWorldStateOnValueChange>(script => script.OnValueChange(worldStateTemplate.Id, oldValue, value, null), worldStateTemplate.ScriptId);
+                _scriptManager.RunScript<IWorldStateOnValueChange>(script => script.OnValueChange(worldStateTemplate.Id, oldValue, value, null), worldStateTemplate.ScriptId);
 
 			// Broadcast update to all players on the server
 			UpdateWorldState updateWorldState = new()
@@ -237,7 +257,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 				Hidden = hidden
 			};
 
-			Global.WorldMgr.SendGlobalMessage(updateWorldState);
+            _worldManager.SendGlobalMessage(updateWorldState);
 
 			return;
 		}
@@ -253,10 +273,10 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		if (GetWorldStateTemplate(worldStateId) == null)
 			return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
 		stmt.AddValue(0, worldStateId);
 		stmt.AddValue(1, value);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void SetValueAndSaveInDb(WorldStates worldStateId, int value, bool hidden, Map map)
@@ -296,7 +316,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 			if (worldStateTemplate != null && !worldStateTemplate.AreaIds.Empty())
 			{
-				var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => Global.DB2Mgr.IsInArea(playerAreaId, requiredAreaId));
+				var isInAllowedArea = worldStateTemplate.AreaIds.Any(requiredAreaId => _db2Manager.IsInArea(playerAreaId, requiredAreaId));
 
 				if (!isInAllowedArea)
 					continue;

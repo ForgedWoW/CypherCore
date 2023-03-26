@@ -3,33 +3,41 @@
 
 using System;
 using System.Collections.Generic;
-using Forged.MapServer.Server;
-using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Warden;
 
-public class WardenCheckManager : Singleton<WardenCheckManager>
+public class WardenCheckManager 
 {
-	static readonly byte WARDEN_MAX_LUA_CHECK_LENGTH = 170;
-	readonly List<WardenCheck> _checks = new();
-	readonly Dictionary<uint, byte[]> _checkResults = new();
-	readonly List<ushort>[] _pools = new List<ushort>[(int)WardenCheckCategory.Max];
+    private readonly IConfiguration _configuration;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private static readonly byte WardenMaxLuaCheckLength = 170;
+    private readonly List<WardenCheck> _checks = new();
+    private readonly Dictionary<uint, byte[]> _checkResults = new();
+    private readonly List<ushort>[] _pools = new List<ushort>[(int)WardenCheckCategory.Max];
 
 	public ushort MaxValidCheckId => (ushort)_checks.Count;
 
-	WardenCheckManager()
-	{
-		for (var i = 0; i < (int)WardenCheckCategory.Max; ++i)
+	public WardenCheckManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase)
+    {
+        _configuration = configuration;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+
+        for (var i = 0; i < (int)WardenCheckCategory.Max; ++i)
 			_pools[i] = new List<ushort>();
-	}
+    }
 
 	public void LoadWardenChecks()
 	{
 		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
-		if (!GetDefaultValue("Warden.Enabled", false))
+		if (!_configuration.GetDefaultValue("Warden.Enabled", false))
 		{
 			Log.Logger.Information("Warden disabled, loading checks skipped.");
 
@@ -37,7 +45,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		}
 
 		//                                         0   1     2     3       4        5       6    7
-		var result = DB.World.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
+		var result = _worldDatabase.Query("SELECT id, type, data, result, address, length, str, comment FROM warden_checks ORDER BY id ASC");
 
 		if (result.IsEmpty())
 		{
@@ -98,9 +106,9 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 
 			if (checkType == WardenCheckType.LuaEval)
 			{
-				if (wardenCheck.Str.Length > WARDEN_MAX_LUA_CHECK_LENGTH)
+				if (wardenCheck.Str.Length > WardenMaxLuaCheckLength)
 				{
-					Log.Logger.Error($"Found over-long Lua check for Warden check with id {id} in `warden_checks`. Max length is {WARDEN_MAX_LUA_CHECK_LENGTH}. Skipped.");
+					Log.Logger.Error($"Found over-long Lua check for Warden check with id {id} in `warden_checks`. Max length is {WardenMaxLuaCheckLength}. Skipped.");
 
 					continue;
 				}
@@ -110,7 +118,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 			}
 
 			// initialize action with default action from config, this may be overridden later
-			wardenCheck.Action = (WardenActions)GetDefaultValue("Warden.ClientCheckFailAction", 0);
+			wardenCheck.Action = (WardenActions)_configuration.GetDefaultValue("Warden.ClientCheckFailAction", 0);
 
 			_pools[(int)category].Add(id);
 			++count;
@@ -124,7 +132,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		var oldMSTime = Time.MSTime;
 
 		// Check if Warden is enabled by config before loading anything
-		if (!GetDefaultValue("Warden.Enabled", false))
+		if (!_configuration.GetDefaultValue("Warden.Enabled", false))
 		{
 			Log.Logger.Information("Warden disabled, loading check overrides skipped.");
 
@@ -132,7 +140,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		}
 
 		//                                              0         1
-		var result = DB.Characters.Query("SELECT wardenId, action FROM warden_action");
+		var result = _characterDatabase.Query("SELECT wardenId, action FROM warden_action");
 
 		if (result.IsEmpty())
 		{
@@ -168,17 +176,17 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		Log.Logger.Information($"Loaded {count} warden action overrides in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
-	public WardenCheck GetCheckData(ushort Id)
+	public WardenCheck GetCheckData(ushort id)
 	{
-		if (Id < _checks.Count)
-			return _checks[Id];
+		if (id < _checks.Count)
+			return _checks[id];
 
 		return null;
 	}
 
-	public byte[] GetCheckResult(ushort Id)
+	public byte[] GetCheckResult(ushort id)
 	{
-		return _checkResults.LookupByKey(Id);
+		return _checkResults.LookupByKey(id);
 	}
 
 	public List<ushort> GetAvailableChecks(WardenCheckCategory category)
