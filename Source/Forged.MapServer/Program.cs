@@ -35,7 +35,7 @@ var configBuilder = new ConfigurationBuilder()
 var configuration = configBuilder.Build();
 
 var builder = new ContainerBuilder();
-builder.Register((c, s) => configuration).As<IConfiguration>().SingleInstance();
+builder.RegisterInstance(configuration).As<IConfiguration>().SingleInstance();
 
 builder.AddFramework();
 builder.AddCommon();
@@ -44,7 +44,7 @@ BuildServerTypes(builder);
 
 BitSet localeMask = null;
 
-builder.Register((c, p) =>
+builder.Register((c, _) =>
 		{
 			var cli = new CliDB(c.Resolve<HotfixDatabase>(), c.Resolve<DB2Manager>());
 			localeMask = cli.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
