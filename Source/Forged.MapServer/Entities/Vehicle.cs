@@ -11,6 +11,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Scripting.Interfaces.IVehicle;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

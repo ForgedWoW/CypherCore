@@ -6,21 +6,26 @@ using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 
-public class PetitionManager : Singleton<PetitionManager>
+public class PetitionManager
 {
-	readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
+    private readonly CharacterDatabase _characterDatabase;
+    readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
 
-	PetitionManager() { }
+    public PetitionManager(CharacterDatabase characterDatabase)
+    {
+        _characterDatabase = characterDatabase;
+    }
 
 	public void LoadPetitions()
 	{
 		var oldMsTime = Time.MSTime;
 		_petitionStorage.Clear();
 
-		var result = DB.Characters.Query("SELECT petitionguid, ownerguid, name FROM petition");
+		var result = _characterDatabase.Query("SELECT petitionguid, ownerguid, name FROM petition");
 
 		if (result.IsEmpty())
 		{
@@ -44,7 +49,7 @@ public class PetitionManager : Singleton<PetitionManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
+		var result = _characterDatabase.Query("SELECT petitionguid, player_account, playerguid FROM petition_sign");
 
 		if (result.IsEmpty())
 		{
@@ -85,11 +90,11 @@ public class PetitionManager : Singleton<PetitionManager>
 		if (isLoading)
 			return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PETITION);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION);
 		stmt.AddValue(0, ownerGuid.Counter);
 		stmt.AddValue(1, petitionGuid.Counter);
 		stmt.AddValue(2, name);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void RemovePetition(ObjectGuid petitionGuid)
@@ -99,15 +104,15 @@ public class PetitionManager : Singleton<PetitionManager>
 		// Delete From DB
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_GUID);
 		stmt.AddValue(0, petitionGuid.Counter);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_GUID);
 		stmt.AddValue(0, petitionGuid.Counter);
 		trans.Append(stmt);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public Petition GetPetition(ObjectGuid petitionGuid)
@@ -131,14 +136,14 @@ public class PetitionManager : Singleton<PetitionManager>
 			}
 
 		SQLTransaction trans = new();
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_BY_OWNER);
 		stmt.AddValue(0, ownerGuid.Counter);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_PETITION_SIGNATURE_BY_OWNER);
 		stmt.AddValue(0, ownerGuid.Counter);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void RemoveSignaturesBySigner(ObjectGuid signerGuid)
@@ -146,8 +151,8 @@ public class PetitionManager : Singleton<PetitionManager>
 		foreach (var petitionPair in _petitionStorage)
 			petitionPair.Value.RemoveSignatureBySigner(signerGuid);
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_PETITION_SIGNATURES);
 		stmt.AddValue(0, signerGuid.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 }

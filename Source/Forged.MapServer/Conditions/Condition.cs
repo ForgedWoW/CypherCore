@@ -11,6 +11,7 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting.Interfaces.ICondition;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Conditions;
 

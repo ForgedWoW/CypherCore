@@ -13,6 +13,7 @@ using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Reputation;
 

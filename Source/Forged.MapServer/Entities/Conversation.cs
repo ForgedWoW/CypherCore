@@ -15,6 +15,7 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Scripting.Interfaces.IConversation;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

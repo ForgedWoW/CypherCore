@@ -8,6 +8,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking.Packets.Spell;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Spells.Auras;
 

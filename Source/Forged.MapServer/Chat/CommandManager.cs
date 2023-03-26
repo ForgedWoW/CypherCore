@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Chat;
 

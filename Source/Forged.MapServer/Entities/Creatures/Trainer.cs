@@ -7,6 +7,7 @@ using Forged.MapServer.BattlePets;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.NPC;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Creatures;
 

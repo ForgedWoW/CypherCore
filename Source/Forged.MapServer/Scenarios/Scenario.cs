@@ -11,6 +11,7 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Achievements;
 using Forged.MapServer.Networking.Packets.Scenario;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Scenarios;
 

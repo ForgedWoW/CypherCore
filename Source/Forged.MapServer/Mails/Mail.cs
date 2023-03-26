@@ -8,6 +8,7 @@ using Forged.MapServer.Calendar;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Mails;
 

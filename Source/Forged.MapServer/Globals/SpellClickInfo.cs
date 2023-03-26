@@ -1,0 +1,50 @@
+﻿using Forged.MapServer.Entities.Units;
+using Framework.Constants;
+
+namespace Forged.MapServer.Globals;
+
+public class SpellClickInfo
+{
+    public uint SpellId;
+    public byte CastFlags;
+    public SpellClickUserTypes UserType;
+
+    // helpers
+    public bool IsFitToRequirements(Unit clicker, Unit clickee)
+    {
+        var playerClicker = clicker.AsPlayer;
+
+        if (playerClicker == null)
+            return true;
+
+        Unit summoner = null;
+
+        // Check summoners for party
+        if (clickee.IsSummon)
+            summoner = clickee.ToTempSummon().GetSummonerUnit();
+
+        summoner ??= clickee;
+
+        // This only applies to players
+        switch (UserType)
+        {
+            case SpellClickUserTypes.Friend:
+                if (!playerClicker.IsFriendlyTo(summoner))
+                    return false;
+
+                break;
+            case SpellClickUserTypes.Raid:
+                if (!playerClicker.IsInRaidWith(summoner))
+                    return false;
+
+                break;
+            case SpellClickUserTypes.Party:
+                if (!playerClicker.IsInPartyWith(summoner))
+                    return false;
+
+                break;
+        }
+
+        return true;
+    }
+}

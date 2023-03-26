@@ -7,6 +7,7 @@ using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Units;
 

@@ -8,6 +8,7 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Scripting.Interfaces.IVehicle;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

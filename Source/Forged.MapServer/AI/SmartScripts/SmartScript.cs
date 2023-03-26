@@ -27,6 +27,7 @@ using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Text;
 using Forged.MapServer.Weather;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.SmartScripts;
 

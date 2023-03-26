@@ -16,6 +16,7 @@ using Forged.MapServer.Loot;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Spells;
 

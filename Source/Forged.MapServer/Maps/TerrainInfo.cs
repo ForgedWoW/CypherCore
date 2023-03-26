@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Maps;
 

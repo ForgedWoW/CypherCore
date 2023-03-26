@@ -8,6 +8,7 @@ using Forged.MapServer.Networking.Packets.NPC;
 using Forged.MapServer.Networking.Packets.Quest;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Entities.Creatures;

@@ -15,6 +15,7 @@ using Forged.MapServer.Scripting.Interfaces;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Scripting;
 

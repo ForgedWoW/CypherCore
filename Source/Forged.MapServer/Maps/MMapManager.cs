@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Maps;
 

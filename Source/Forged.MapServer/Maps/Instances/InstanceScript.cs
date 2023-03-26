@@ -19,6 +19,7 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Maps.Instances;
 

@@ -9,6 +9,7 @@ using Forged.MapServer.Collision.Maps;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.GameMath;
+using Serilog;
 
 namespace Forged.MapServer.Collision.Models;
 

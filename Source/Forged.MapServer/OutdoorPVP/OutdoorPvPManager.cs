@@ -10,6 +10,7 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Scripting.Interfaces.IOutdoorPvP;
 using Framework.Constants;
 using Framework.Threading;
+using Serilog;
 
 namespace Forged.MapServer.OutdoorPVP;
 

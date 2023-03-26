@@ -3,6 +3,7 @@
 
 using System.Text;
 using Forged.MapServer.Networking.Packets.Chat;
+using Forged.MapServer.Server;
 using Forged.MapServer.Services;
 using Framework.Constants;
 

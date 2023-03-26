@@ -5,27 +5,28 @@ using System.Collections.Generic;
 using System.Linq;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Accounts;
 
 public class RBACData
 {
-	readonly uint _id;                         // Account id
-	readonly string _name;                     // Account name
-	readonly int _realmId;                     // RealmId Affected
-	readonly List<uint> _grantedPerms = new(); // Granted permissions
+    readonly int _realmId; // RealmId Affected
+    private readonly AccountManager _accountManager;
+    private readonly LoginDatabase _loginDatabase;
+    readonly List<uint> _grantedPerms = new(); // Granted permissions
 	readonly List<uint> _deniedPerms = new();  // Denied permissions
 	byte _secLevel;                            // Account SecurityLevel
 	List<uint> _globalPerms = new();           // Calculated permissions
 
 	// Gets the Name of the Object
 
-	public string Name => _name;
-	// Gets the Id of the Object
+	public string Name { get; }
+    // Gets the Id of the Object
 
-	public uint Id => _id;
+	public uint Id { get; }
 
-	// Returns all the granted permissions (after computation)
+    // Returns all the granted permissions (after computation)
 
 	public List<uint> Permissions => _globalPerms;
 	// Returns all the granted permissions
@@ -35,18 +36,20 @@ public class RBACData
 
 	public List<uint> DeniedPermissions => _deniedPerms;
 
-	public RBACData(uint id, string name, int realmId, byte secLevel = 255)
+	public RBACData(uint id, string name, int realmId, AccountManager accountManager, LoginDatabase loginDatabase, byte secLevel = 255)
 	{
-		_id = id;
-		_name = name;
+		Id = id;
+		Name = name;
 		_realmId = realmId;
-		_secLevel = secLevel;
+        _accountManager = accountManager;
+        _loginDatabase = loginDatabase;
+        _secLevel = secLevel;
 	}
 
 	public RBACCommandResult GrantPermission(uint permissionId, int realmId = 0)
 	{
 		// Check if permission Id exists
-		var perm = Global.AccountMgr.GetRBACPermission(permissionId);
+		var perm = _accountManager.GetRBACPermission(permissionId);
 
 		if (perm == null)
 		{
@@ -112,7 +115,7 @@ public class RBACData
 	public RBACCommandResult DenyPermission(uint permissionId, int realmId = 0)
 	{
 		// Check if permission Id exists
-		var perm = Global.AccountMgr.GetRBACPermission(permissionId);
+		var perm = _accountManager.GetRBACPermission(permissionId);
 
 		if (perm == null)
 		{
@@ -201,11 +204,11 @@ public class RBACData
 							permissionId,
 							realmId);
 
-			var stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_RBAC_ACCOUNT_PERMISSION);
+			var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_RBAC_ACCOUNT_PERMISSION);
 			stmt.AddValue(0, Id);
 			stmt.AddValue(1, permissionId);
 			stmt.AddValue(2, realmId);
-			DB.Login.Execute(stmt);
+			_loginDatabase.Execute(stmt);
 
 			CalculateNewPermissions();
 		}
@@ -227,11 +230,11 @@ public class RBACData
 
 		Log.Logger.Debug("RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
 		// Load account permissions (granted and denied) that affect current realm
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, GetRealmId());
 
-		LoadFromDBCallback(DB.Login.Query(stmt));
+		LoadFromDBCallback(_loginDatabase.Query(stmt));
 	}
 
 	public QueryCallback LoadFromDBAsync()
@@ -240,11 +243,11 @@ public class RBACData
 
 		Log.Logger.Debug("RBACData.LoadFromDB [Id: {0} Name: {1}]: Loading permissions", Id, Name);
 		// Load account permissions (granted and denied) that affect current realm
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_RBAC_ACCOUNT_PERMISSIONS);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, GetRealmId());
 
-		return DB.Login.AsyncQuery(stmt);
+		return _loginDatabase.AsyncQuery(stmt);
 	}
 
 	public void LoadFromDBCallback(SQLResult result)
@@ -259,7 +262,7 @@ public class RBACData
 			} while (result.NextRow());
 
 		// Add default permissions
-		var permissions = Global.AccountMgr.GetRBACDefaultPermissions(_secLevel);
+		var permissions = _accountManager.GetRBACDefaultPermissions(_secLevel);
 
 		foreach (var id in permissions)
 			GrantPermission(id);
@@ -269,10 +272,9 @@ public class RBACData
 	}
 
 	public void AddPermissions(List<uint> permsFrom, List<uint> permsTo)
-	{
-		foreach (var id in permsFrom)
-			permsTo.Add(id);
-	}
+    {
+        permsTo.AddRange(permsFrom);
+    }
 
 	public bool HasPermission(RBACPermissions permission)
 	{
@@ -292,12 +294,12 @@ public class RBACData
 
 	void SavePermission(uint permission, bool granted, int realmId)
 	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_RBAC_ACCOUNT_PERMISSION);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_RBAC_ACCOUNT_PERMISSION);
 		stmt.AddValue(0, Id);
 		stmt.AddValue(1, permission);
 		stmt.AddValue(2, granted);
 		stmt.AddValue(3, realmId);
-		DB.Login.Execute(stmt);
+		_loginDatabase.Execute(stmt);
 	}
 
 	void CalculateNewPermissions()
@@ -334,7 +336,7 @@ public class RBACData
 			var permissionId = toCheck.FirstOrDefault();
 			toCheck.RemoveAt(0);
 
-			var permission = Global.AccountMgr.GetRBACPermission(permissionId);
+			var permission = _accountManager.GetRBACPermission(permissionId);
 
 			if (permission == null)
 				continue;

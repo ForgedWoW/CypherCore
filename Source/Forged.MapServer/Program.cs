@@ -14,6 +14,10 @@ using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Events;
+using Forged.MapServer.Garrisons;
+using Forged.MapServer.Globals;
 using Framework;
 using Framework.Constants;
 using Framework.Database;
@@ -64,4 +68,9 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<VMapManager>().SingleInstance();
     containerBuilder.RegisterType<ConditionManager>().SingleInstance();
     containerBuilder.RegisterType<DisableManager>().SingleInstance();
+    containerBuilder.RegisterType<PetitionManager>().SingleInstance();
+    containerBuilder.RegisterType<SocialManager>().SingleInstance();
+    containerBuilder.RegisterType<GameEventManager>().SingleInstance();
+    containerBuilder.RegisterType<GarrisonManager>().SingleInstance();
+    containerBuilder.RegisterType<GameObjectManager>().SingleInstance();
 }

@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Players;
+using Serilog;
 
 namespace Forged.MapServer.Spells.Skills;
 

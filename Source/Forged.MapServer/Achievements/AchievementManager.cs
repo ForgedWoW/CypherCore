@@ -7,6 +7,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Achievements;
 

@@ -7,6 +7,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Spells.Skills;
 

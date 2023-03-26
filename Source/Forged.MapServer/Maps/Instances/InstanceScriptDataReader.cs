@@ -4,6 +4,7 @@
 using System.Text.Json;
 using Forged.MapServer.DataStorage;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Maps.Instances;
 

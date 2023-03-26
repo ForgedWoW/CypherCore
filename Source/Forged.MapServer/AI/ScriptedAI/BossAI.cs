@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps.Instances;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.ScriptedAI;
 

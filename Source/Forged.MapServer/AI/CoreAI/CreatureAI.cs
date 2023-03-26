@@ -18,6 +18,7 @@ using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.AI.CoreAI;
 

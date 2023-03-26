@@ -9,6 +9,7 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Garrisons;
 

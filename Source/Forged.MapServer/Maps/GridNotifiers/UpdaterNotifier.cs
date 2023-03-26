@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 

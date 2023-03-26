@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Forged.MapServer.Scripting.Interfaces;
+using Serilog;
 
 namespace Forged.MapServer.Scripting;
 

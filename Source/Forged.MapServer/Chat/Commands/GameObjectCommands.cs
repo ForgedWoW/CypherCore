@@ -14,6 +14,7 @@ using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 

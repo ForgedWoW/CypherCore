@@ -11,6 +11,7 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Calendar;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Calendar;
 

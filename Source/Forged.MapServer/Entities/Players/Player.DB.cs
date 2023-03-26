@@ -678,11 +678,11 @@ public partial class Player
 		if (check)                   // in case of special event when creating map...
 			if (areaTrigger != null) // ... if we have an areatrigger, then relocate to new map/coordinates.
 			{
-				Location.Relocate(areaTrigger.target_X, areaTrigger.target_Y, areaTrigger.target_Z, Location.Orientation);
+				Location.Relocate(areaTrigger.TargetX, areaTrigger.TargetY, areaTrigger.TargetZ, Location.Orientation);
 
-				if (mapId != areaTrigger.target_mapId)
+				if (mapId != areaTrigger.TargetMapId)
 				{
-					mapId = areaTrigger.target_mapId;
+					mapId = areaTrigger.TargetMapId;
 					map = Global.MapMgr.CreateMap(mapId, this);
 				}
 			}

@@ -4,6 +4,7 @@
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.CoreAI;
 

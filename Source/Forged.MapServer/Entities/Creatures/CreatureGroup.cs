@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Creatures;
 

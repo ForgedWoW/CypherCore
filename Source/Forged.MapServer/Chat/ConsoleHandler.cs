@@ -4,6 +4,7 @@
 using System;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Chat;
 

@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Forged.MapServer.Collision.Models;
 using Framework.GameMath;
+using Serilog;
 
 namespace Forged.MapServer.Collision;
 

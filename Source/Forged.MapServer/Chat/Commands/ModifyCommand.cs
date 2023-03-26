@@ -13,6 +13,7 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Reputation;
 using Framework.Constants;
 using Framework.IO;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 

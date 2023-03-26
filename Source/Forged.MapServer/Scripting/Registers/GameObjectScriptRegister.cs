@@ -3,6 +3,7 @@
 
 using System;
 using Forged.MapServer.Scripting.Interfaces;
+using Serilog;
 
 namespace Forged.MapServer.Scripting.Registers;
 

@@ -7,6 +7,7 @@ using System.IO;
 using System.Numerics;
 using Forged.MapServer.DataStorage.Structs;
 using Forged.MapServer.DataStorage.Structs.C;
+using Serilog;
 
 namespace Forged.MapServer.DataStorage;
 

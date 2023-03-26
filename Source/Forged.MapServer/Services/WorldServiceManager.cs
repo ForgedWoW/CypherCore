@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using Serilog;
 
 namespace Forged.MapServer.Services;
 

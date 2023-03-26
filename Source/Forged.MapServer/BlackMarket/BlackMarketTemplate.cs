@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.Networking.Packets.Item;
 using Framework.Collections;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.BlackMarket;
 

@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Movement.Generators;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Movement;
 

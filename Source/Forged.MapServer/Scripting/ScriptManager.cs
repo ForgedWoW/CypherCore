@@ -27,6 +27,7 @@ using Forged.MapServer.Scripting.Registers;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Scripting;
 

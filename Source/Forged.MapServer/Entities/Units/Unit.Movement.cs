@@ -22,6 +22,7 @@ using Forged.MapServer.Networking.Packets.Vehicle;
 using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Units;
 

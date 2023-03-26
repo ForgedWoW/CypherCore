@@ -35,6 +35,7 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
+using Serilog;
 
 namespace Forged.MapServer.Entities.GameObjects
 {

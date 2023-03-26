@@ -12,6 +12,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 

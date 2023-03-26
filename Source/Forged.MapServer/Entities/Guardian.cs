@@ -4,6 +4,7 @@
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

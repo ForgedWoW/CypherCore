@@ -10,6 +10,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Scripting.Interfaces.IAchievement;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Achievements;
 

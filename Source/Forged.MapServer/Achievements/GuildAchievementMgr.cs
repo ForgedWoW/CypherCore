@@ -16,6 +16,7 @@ using Forged.MapServer.Scripting.Interfaces.IAchievement;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Achievements;
 

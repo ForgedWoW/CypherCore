@@ -16,6 +16,7 @@ using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Loot;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Loot;
 

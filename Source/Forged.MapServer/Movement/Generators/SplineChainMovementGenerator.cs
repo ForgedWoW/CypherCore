@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Movement.Generators;
 

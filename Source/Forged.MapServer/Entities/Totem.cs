@@ -8,6 +8,7 @@ using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Networking.Packets.Totem;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

@@ -6,6 +6,7 @@ using System.Linq;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Grids;
+using Serilog;
 
 namespace Forged.MapServer.Phasing;
 

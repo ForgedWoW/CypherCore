@@ -9,6 +9,7 @@ using Forged.MapServer.Scripting;
 using Forged.MapServer.Scripting.Interfaces.IGroup;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.DungeonFinding;
 

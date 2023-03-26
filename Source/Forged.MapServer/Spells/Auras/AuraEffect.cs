@@ -23,6 +23,7 @@ using Forged.MapServer.Scripting.Interfaces.IUnit;
 using Forged.MapServer.Weather;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Spells.Auras;
 

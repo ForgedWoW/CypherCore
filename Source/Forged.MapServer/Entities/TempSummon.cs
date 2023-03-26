@@ -12,6 +12,7 @@ using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

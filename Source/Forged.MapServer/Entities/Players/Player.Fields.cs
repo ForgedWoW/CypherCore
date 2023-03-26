@@ -15,6 +15,7 @@ using Forged.MapServer.Loot;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
+using Forged.MapServer.Server;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Framework.Constants;

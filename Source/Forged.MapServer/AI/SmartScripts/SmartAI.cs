@@ -13,6 +13,7 @@ using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.SmartScripts;
 

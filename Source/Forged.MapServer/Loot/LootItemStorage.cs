@@ -9,6 +9,7 @@ using Forged.MapServer.Entities.Players;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Loot;
 

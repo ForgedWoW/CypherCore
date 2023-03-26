@@ -15,6 +15,7 @@ using Forged.MapServer.Networking.Packets.Pet;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Units;
 

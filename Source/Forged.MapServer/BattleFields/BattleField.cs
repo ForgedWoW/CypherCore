@@ -19,6 +19,7 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.BattleGround;
 using Forged.MapServer.Networking.Packets.Misc;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.BattleFields;
 

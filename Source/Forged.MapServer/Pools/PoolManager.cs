@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Maps;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Pools;
 

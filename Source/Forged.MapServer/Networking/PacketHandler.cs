@@ -3,6 +3,7 @@
 
 using System;
 using System.Reflection;
+using Forged.MapServer.Server;
 using Forged.MapServer.Services;
 using Framework.Constants;
 

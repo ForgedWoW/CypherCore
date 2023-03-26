@@ -5,12 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.InteropServices;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.D;
-using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
@@ -18,7 +16,6 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Loot;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
@@ -27,18 +24,22 @@ using Forged.MapServer.Movement;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
-using Forged.MapServer.Server;
 using Forged.MapServer.World;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
-using Framework.IO;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.MapServer.Globals;
 
-public sealed class GameObjectManager : Singleton<GameObjectManager>
+public sealed class GameObjectManager
 {
-	public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts = new();
+    private readonly CliDB _cliDB;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly IConfiguration _configuration;
+    public Dictionary<uint, MultiMap<uint, ScriptInfo>> SpellScripts = new();
 	public Dictionary<uint, MultiMap<uint, ScriptInfo>> EventScripts = new();
 	public Dictionary<uint, MultiMap<uint, ScriptInfo>> WaypointScripts = new();
 
@@ -55,12 +56,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	public Dictionary<uint, uint> FactionChangeSpells = new();
 	public Dictionary<uint, uint> FactionChangeTitles = new();
 
-	static readonly float[] qualityMultipliers = new float[]
+	private static readonly float[] qualityMultipliers = new float[]
 	{
 		0.92f, 0.92f, 0.92f, 1.11f, 1.32f, 1.61f, 0.0f, 0.0f
 	};
 
-	static readonly float[] armorMultipliers = new float[]
+    private static readonly float[] armorMultipliers = new float[]
 	{
 		0.00f, // INVTYPE_NON_EQUIP
 		0.60f, // INVTYPE_HEAD
@@ -99,7 +100,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		0.00f, // INVTYPE_EQUIPABLE_SPELL_MOBILITY
 	};
 
-	static readonly float[] weaponMultipliers = new float[]
+    private static readonly float[] weaponMultipliers = new float[]
 	{
 		0.91f, // ITEM_SUBCLASS_WEAPON_AXE
 		1.00f, // ITEM_SUBCLASS_WEAPON_AXE2
@@ -124,152 +125,156 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		0.66f, // ITEM_SUBCLASS_WEAPON_FISHING_POLE
 	};
 
-	//General
-	readonly Dictionary<uint, StringArray> _cypherStringStorage = new();
-	readonly Dictionary<uint, RepRewardRate> _repRewardRateStorage = new();
-	readonly Dictionary<uint, ReputationOnKillEntry> _repOnKillStorage = new();
-	readonly Dictionary<uint, RepSpilloverTemplate> _repSpilloverTemplateStorage = new();
-	readonly MultiMap<byte, MailLevelReward> _mailLevelRewardStorage = new();
-	readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
-	readonly Dictionary<int /*choiceId*/, PlayerChoice> _playerChoices = new();
-	readonly Dictionary<uint, PageText> _pageTextStorage = new();
-	readonly List<string> _reservedNamesStorage = new();
-	readonly Dictionary<uint, SceneTemplate> _sceneTemplateStorage = new();
-	readonly Dictionary<int, JumpChargeParams> _jumpChargeParams = new();
-	readonly Dictionary<uint, string> _phaseNameStorage = new();
-	readonly Dictionary<byte, RaceUnlockRequirement> _raceUnlockRequirementStorage = new();
-	readonly List<RaceClassAvailability> _classExpansionRequirementStorage = new();
-	readonly Dictionary<uint, string> _realmNameStorage = new();
+    //General
+    private readonly Dictionary<uint, StringArray> _cypherStringStorage = new();
+    private readonly Dictionary<uint, RepRewardRate> _repRewardRateStorage = new();
+    private readonly Dictionary<uint, ReputationOnKillEntry> _repOnKillStorage = new();
+    private readonly Dictionary<uint, RepSpilloverTemplate> _repSpilloverTemplateStorage = new();
+    private readonly MultiMap<byte, MailLevelReward> _mailLevelRewardStorage = new();
+    private readonly MultiMap<Tuple<uint, SummonerType, byte>, TempSummonData> _tempSummonDataStorage = new();
+    private readonly Dictionary<int /*choiceId*/, PlayerChoice> _playerChoices = new();
+    private readonly Dictionary<uint, PageText> _pageTextStorage = new();
+    private readonly List<string> _reservedNamesStorage = new();
+    private readonly Dictionary<uint, SceneTemplate> _sceneTemplateStorage = new();
+    private readonly Dictionary<int, JumpChargeParams> _jumpChargeParams = new();
+    private readonly Dictionary<uint, string> _phaseNameStorage = new();
+    private readonly Dictionary<byte, RaceUnlockRequirement> _raceUnlockRequirementStorage = new();
+    private readonly List<RaceClassAvailability> _classExpansionRequirementStorage = new();
+    private readonly Dictionary<uint, string> _realmNameStorage = new();
 
-	//Quest
-	readonly Dictionary<uint, Quest.Quest> _questTemplates = new();
-	readonly List<Quest.Quest> _questTemplatesAutoPush = new();
-	readonly MultiMap<uint, uint> _goQuestRelations = new();
-	readonly MultiMap<uint, uint> _goQuestInvolvedRelations = new();
-	readonly MultiMap<uint, uint> _goQuestInvolvedRelationsReverse = new();
-	readonly MultiMap<uint, uint> _creatureQuestRelations = new();
-	readonly MultiMap<uint, uint> _creatureQuestInvolvedRelations = new();
-	readonly MultiMap<uint, uint> _creatureQuestInvolvedRelationsReverse = new();
-	readonly MultiMap<int, uint> _exclusiveQuestGroups = new();
-	readonly Dictionary<uint, QuestPOIData> _questPOIStorage = new();
-	readonly MultiMap<uint, uint> _questAreaTriggerStorage = new();
-	readonly Dictionary<uint, QuestObjective> _questObjectives = new();
-	readonly Dictionary<uint, QuestGreeting>[] _questGreetingStorage = new Dictionary<uint, QuestGreeting>[2];
-	readonly Dictionary<uint, QuestGreetingLocale>[] _questGreetingLocaleStorage = new Dictionary<uint, QuestGreetingLocale>[2];
+    //Quest
+    private readonly Dictionary<uint, Quest.Quest> _questTemplates = new();
+    private readonly List<Quest.Quest> _questTemplatesAutoPush = new();
+    private readonly MultiMap<uint, uint> _goQuestRelations = new();
+    private readonly MultiMap<uint, uint> _goQuestInvolvedRelations = new();
+    private readonly MultiMap<uint, uint> _goQuestInvolvedRelationsReverse = new();
+    private readonly MultiMap<uint, uint> _creatureQuestRelations = new();
+    private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelations = new();
+    private readonly MultiMap<uint, uint> _creatureQuestInvolvedRelationsReverse = new();
+    private readonly MultiMap<int, uint> _exclusiveQuestGroups = new();
+    private readonly Dictionary<uint, QuestPOIData> _questPOIStorage = new();
+    private readonly MultiMap<uint, uint> _questAreaTriggerStorage = new();
+    private readonly Dictionary<uint, QuestObjective> _questObjectives = new();
+    private readonly Dictionary<uint, QuestGreeting>[] _questGreetingStorage = new Dictionary<uint, QuestGreeting>[2];
+    private readonly Dictionary<uint, QuestGreetingLocale>[] _questGreetingLocaleStorage = new Dictionary<uint, QuestGreetingLocale>[2];
 
-	//Scripts
-	readonly ScriptNameContainer _scriptNamesStorage = new();
-	readonly MultiMap<uint, uint> _spellScriptsStorage = new();
-	readonly MultiMap<uint, uint> _areaTriggerScriptStorage = new();
-	readonly Dictionary<(uint mapId, Difficulty difficulty), Dictionary<uint, CellObjectGuids>> _mapObjectGuidsStore = new();
-	readonly Dictionary<(uint mapId, Difficulty diffuculty, uint phaseId), Dictionary<uint, CellObjectGuids>> _mapPersonalObjectGuidsStore = new();
-	readonly Dictionary<uint, InstanceTemplate> _instanceTemplateStorage = new();
-	readonly List<ushort> _transportMaps = new();
-	readonly Dictionary<uint, SpawnGroupTemplateData> _spawnGroupDataStorage = new();
-	readonly MultiMap<uint, SpawnMetadata> _spawnGroupMapStorage = new();
-	readonly MultiMap<uint, uint> _spawnGroupsByMap = new();
-	readonly MultiMap<ushort, InstanceSpawnGroupInfo> _instanceSpawnGroupStorage = new();
+    //Scripts
+    private readonly ScriptNameContainer _scriptNamesStorage = new();
+    private readonly MultiMap<uint, uint> _spellScriptsStorage = new();
+    private readonly MultiMap<uint, uint> _areaTriggerScriptStorage = new();
+    private readonly Dictionary<(uint mapId, Difficulty difficulty), Dictionary<uint, CellObjectGuids>> _mapObjectGuidsStore = new();
+    private readonly Dictionary<(uint mapId, Difficulty diffuculty, uint phaseId), Dictionary<uint, CellObjectGuids>> _mapPersonalObjectGuidsStore = new();
+    private readonly Dictionary<uint, InstanceTemplate> _instanceTemplateStorage = new();
+    private readonly List<ushort> _transportMaps = new();
+    private readonly Dictionary<uint, SpawnGroupTemplateData> _spawnGroupDataStorage = new();
+    private readonly MultiMap<uint, SpawnMetadata> _spawnGroupMapStorage = new();
+    private readonly MultiMap<uint, uint> _spawnGroupsByMap = new();
+    private readonly MultiMap<ushort, InstanceSpawnGroupInfo> _instanceSpawnGroupStorage = new();
 
-	//Spells /Skills / Phases
-	readonly Dictionary<uint, PhaseInfoStruct> _phaseInfoById = new();
-	readonly Dictionary<uint, TerrainSwapInfo> _terrainSwapInfoById = new();
-	readonly MultiMap<uint, PhaseAreaInfo> _phaseInfoByArea = new();
-	readonly MultiMap<uint, TerrainSwapInfo> _terrainSwapInfoByMap = new();
-	readonly MultiMap<uint, SpellClickInfo> _spellClickInfoStorage = new();
-	readonly Dictionary<uint, int> _fishingBaseForAreaStorage = new();
-	readonly Dictionary<uint, SkillTiersEntry> _skillTiers = new();
+    //Spells /Skills / Phases
+    private readonly Dictionary<uint, PhaseInfoStruct> _phaseInfoById = new();
+    private readonly Dictionary<uint, TerrainSwapInfo> _terrainSwapInfoById = new();
+    private readonly MultiMap<uint, PhaseAreaInfo> _phaseInfoByArea = new();
+    private readonly MultiMap<uint, TerrainSwapInfo> _terrainSwapInfoByMap = new();
+    private readonly MultiMap<uint, SpellClickInfo> _spellClickInfoStorage = new();
+    private readonly Dictionary<uint, int> _fishingBaseForAreaStorage = new();
+    private readonly Dictionary<uint, SkillTiersEntry> _skillTiers = new();
 
-	//Gossip
-	readonly MultiMap<uint, GossipMenus> _gossipMenusStorage = new();
-	readonly MultiMap<uint, GossipMenuItems> _gossipMenuItemsStorage = new();
-	readonly Dictionary<uint, GossipMenuAddon> _gossipMenuAddonStorage = new();
-	readonly Dictionary<uint, PointOfInterest> _pointsOfInterestStorage = new();
+    //Gossip
+    private readonly MultiMap<uint, GossipMenus> _gossipMenusStorage = new();
+    private readonly MultiMap<uint, GossipMenuItems> _gossipMenuItemsStorage = new();
+    private readonly Dictionary<uint, GossipMenuAddon> _gossipMenuAddonStorage = new();
+    private readonly Dictionary<uint, PointOfInterest> _pointsOfInterestStorage = new();
 
-	//Creature
-	readonly Dictionary<uint, CreatureTemplate> _creatureTemplateStorage = new();
-	readonly Dictionary<uint, CreatureModelInfo> _creatureModelStorage = new();
-	readonly Dictionary<uint, CreatureSummonedData> _creatureSummonedDataStorage = new();
-	readonly Dictionary<ulong, CreatureData> _creatureDataStorage = new();
-	readonly Dictionary<ulong, CreatureAddon> _creatureAddonStorage = new();
-	readonly MultiMap<uint, uint> _creatureQuestItemStorage = new();
-	readonly Dictionary<uint, CreatureAddon> _creatureTemplateAddonStorage = new();
-	readonly Dictionary<ulong, CreatureMovementData> _creatureMovementOverrides = new();
-	readonly MultiMap<uint, Tuple<uint, EquipmentInfo>> _equipmentInfoStorage = new();
-	readonly Dictionary<ObjectGuid, ObjectGuid> _linkedRespawnStorage = new();
-	readonly Dictionary<uint, CreatureBaseStats> _creatureBaseStatsStorage = new();
-	readonly Dictionary<uint, VendorItemData> _cacheVendorItemStorage = new();
-	readonly Dictionary<uint, Trainer> _trainers = new();
-	readonly Dictionary<(uint creatureId, uint gossipMenuId, uint gossipOptionIndex), uint> _creatureDefaultTrainers = new();
-	readonly List<uint>[] _difficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties];    // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
-	readonly List<uint>[] _hasDifficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
-	readonly Dictionary<uint, NpcText> _npcTextStorage = new();
+    //Creature
+    private readonly Dictionary<uint, CreatureTemplate> _creatureTemplateStorage = new();
+    private readonly Dictionary<uint, CreatureModelInfo> _creatureModelStorage = new();
+    private readonly Dictionary<uint, CreatureSummonedData> _creatureSummonedDataStorage = new();
+    private readonly Dictionary<ulong, CreatureData> _creatureDataStorage = new();
+    private readonly Dictionary<ulong, CreatureAddon> _creatureAddonStorage = new();
+    private readonly MultiMap<uint, uint> _creatureQuestItemStorage = new();
+    private readonly Dictionary<uint, CreatureAddon> _creatureTemplateAddonStorage = new();
+    private readonly Dictionary<ulong, CreatureMovementData> _creatureMovementOverrides = new();
+    private readonly MultiMap<uint, Tuple<uint, EquipmentInfo>> _equipmentInfoStorage = new();
+    private readonly Dictionary<ObjectGuid, ObjectGuid> _linkedRespawnStorage = new();
+    private readonly Dictionary<uint, CreatureBaseStats> _creatureBaseStatsStorage = new();
+    private readonly Dictionary<uint, VendorItemData> _cacheVendorItemStorage = new();
+    private readonly Dictionary<uint, Trainer> _trainers = new();
+    private readonly Dictionary<(uint creatureId, uint gossipMenuId, uint gossipOptionIndex), uint> _creatureDefaultTrainers = new();
+    private readonly List<uint>[] _difficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties];            // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
+    private readonly List<uint>[] _hasDifficultyEntries = new List<uint>[SharedConst.MaxCreatureDifficulties]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+    private readonly Dictionary<uint, NpcText> _npcTextStorage = new();
 
-	//GameObject
-	readonly Dictionary<uint, GameObjectTemplate> _gameObjectTemplateStorage = new();
-	readonly Dictionary<ulong, GameObjectData> _gameObjectDataStorage = new();
-	readonly Dictionary<ulong, GameObjectTemplateAddon> _gameObjectTemplateAddonStorage = new();
-	readonly Dictionary<ulong, GameObjectOverride> _gameObjectOverrideStorage = new();
-	readonly Dictionary<ulong, GameObjectAddon> _gameObjectAddonStorage = new();
-	readonly MultiMap<uint, uint> _gameObjectQuestItemStorage = new();
-	readonly List<uint> _gameObjectForQuestStorage = new();
+    //GameObject
+    private readonly Dictionary<uint, GameObjectTemplate> _gameObjectTemplateStorage = new();
+    private readonly Dictionary<ulong, GameObjectData> _gameObjectDataStorage = new();
+    private readonly Dictionary<ulong, GameObjectTemplateAddon> _gameObjectTemplateAddonStorage = new();
+    private readonly Dictionary<ulong, GameObjectOverride> _gameObjectOverrideStorage = new();
+    private readonly Dictionary<ulong, GameObjectAddon> _gameObjectAddonStorage = new();
+    private readonly MultiMap<uint, uint> _gameObjectQuestItemStorage = new();
+    private readonly List<uint> _gameObjectForQuestStorage = new();
 
-	//Item
-	readonly Dictionary<uint, ItemTemplate> _itemTemplateStorage = new();
+    //Item
+    private readonly Dictionary<uint, ItemTemplate> _itemTemplateStorage = new();
 
-	//Player
-	readonly Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> _playerInfo = new();
+    //Player
+    private readonly Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> _playerInfo = new();
 
-	//Pets
-	readonly Dictionary<uint, PetLevelInfo[]> _petInfoStore = new();
-	readonly MultiMap<uint, string> _petHalfName0 = new();
-	readonly MultiMap<uint, string> _petHalfName1 = new();
+    //Pets
+    private readonly Dictionary<uint, PetLevelInfo[]> _petInfoStore = new();
+    private readonly MultiMap<uint, string> _petHalfName0 = new();
+    private readonly MultiMap<uint, string> _petHalfName1 = new();
 
-	//Vehicles
-	readonly Dictionary<uint, VehicleTemplate> _vehicleTemplateStore = new();
-	readonly MultiMap<uint, VehicleAccessory> _vehicleTemplateAccessoryStore = new();
-	readonly MultiMap<ulong, VehicleAccessory> _vehicleAccessoryStore = new();
-	readonly Dictionary<uint, VehicleSeatAddon> _vehicleSeatAddonStore = new();
+    //Vehicles
+    private readonly Dictionary<uint, VehicleTemplate> _vehicleTemplateStore = new();
+    private readonly MultiMap<uint, VehicleAccessory> _vehicleTemplateAccessoryStore = new();
+    private readonly MultiMap<ulong, VehicleAccessory> _vehicleAccessoryStore = new();
+    private readonly Dictionary<uint, VehicleSeatAddon> _vehicleSeatAddonStore = new();
 
-	//Locales
-	readonly Dictionary<uint, CreatureLocale> _creatureLocaleStorage = new();
-	readonly Dictionary<uint, GameObjectLocale> _gameObjectLocaleStorage = new();
-	readonly Dictionary<uint, QuestTemplateLocale> _questTemplateLocaleStorage = new();
-	readonly Dictionary<uint, QuestObjectivesLocale> _questObjectivesLocaleStorage = new();
-	readonly Dictionary<uint, QuestOfferRewardLocale> _questOfferRewardLocaleStorage = new();
-	readonly Dictionary<uint, QuestRequestItemsLocale> _questRequestItemsLocaleStorage = new();
-	readonly Dictionary<Tuple<uint, uint>, GossipMenuItemsLocale> _gossipMenuItemsLocaleStorage = new();
-	readonly Dictionary<uint, PageTextLocale> _pageTextLocaleStorage = new();
-	readonly Dictionary<uint, PointOfInterestLocale> _pointOfInterestLocaleStorage = new();
-	readonly Dictionary<int, PlayerChoiceLocale> _playerChoiceLocales = new();
-	readonly List<uint> _tavernAreaTriggerStorage = new();
-	readonly Dictionary<uint, AreaTriggerStruct> _areaTriggerStorage = new();
-	readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
-	readonly MultiMap<ulong, DungeonEncounter> _dungeonEncounterStorage = new();
-	readonly Dictionary<uint, WorldSafeLocsEntry> _worldSafeLocs = new();
-	readonly Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
+    //Locales
+    private readonly Dictionary<uint, CreatureLocale> _creatureLocaleStorage = new();
+    private readonly Dictionary<uint, GameObjectLocale> _gameObjectLocaleStorage = new();
+    private readonly Dictionary<uint, QuestTemplateLocale> _questTemplateLocaleStorage = new();
+    private readonly Dictionary<uint, QuestObjectivesLocale> _questObjectivesLocaleStorage = new();
+    private readonly Dictionary<uint, QuestOfferRewardLocale> _questOfferRewardLocaleStorage = new();
+    private readonly Dictionary<uint, QuestRequestItemsLocale> _questRequestItemsLocaleStorage = new();
+    private readonly Dictionary<Tuple<uint, uint>, GossipMenuItemsLocale> _gossipMenuItemsLocaleStorage = new();
+    private readonly Dictionary<uint, PageTextLocale> _pageTextLocaleStorage = new();
+    private readonly Dictionary<uint, PointOfInterestLocale> _pointOfInterestLocaleStorage = new();
+    private readonly Dictionary<int, PlayerChoiceLocale> _playerChoiceLocales = new();
+    private readonly List<uint> _tavernAreaTriggerStorage = new();
+    private readonly Dictionary<uint, AreaTriggerStruct> _areaTriggerStorage = new();
+    private readonly Dictionary<ulong, AccessRequirement> _accessRequirementStorage = new();
+    private readonly MultiMap<ulong, DungeonEncounter> _dungeonEncounterStorage = new();
+    private readonly Dictionary<uint, WorldSafeLocsEntry> _worldSafeLocs = new();
+    private readonly Dictionary<HighGuid, ObjectGuidGenerator> _guidGenerators = new();
 
-	readonly Dictionary<uint, uint> _baseXPTable = new();
+    private readonly Dictionary<uint, uint> _baseXPTable = new();
 
-	// first free id for selected id type
-	uint _auctionId;
-	ulong _equipmentSetGuid;
-	ulong _mailId;
-	uint _hiPetNumber;
-	ulong _creatureSpawnId;
-	ulong _gameObjectSpawnId;
-	ulong _voidItemId;
-	uint[] _playerXPperLevel;
+    // first free id for selected id type
+    private uint _auctionId;
+    private ulong _equipmentSetGuid;
+    private ulong _mailId;
+    private uint _hiPetNumber;
+    private ulong _creatureSpawnId;
+    private ulong _gameObjectSpawnId;
+    private ulong _voidItemId;
+    private uint[] _playerXPperLevel;
 
 	public Dictionary<Race, Dictionary<PlayerClass, PlayerInfo>> PlayerInfos => _playerInfo;
 
-	GameObjectManager()
-	{
-		for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
+	public GameObjectManager(CliDB cliDB, WorldDatabase worldDatabase, IConfiguration configuration)
+    {
+        _cliDB = cliDB;
+        _worldDatabase = worldDatabase;
+        _configuration = configuration;
+
+        for (var i = 0; i < SharedConst.MaxCreatureDifficulties; ++i)
 		{
 			_difficultyEntries[i] = new List<uint>();
 			_hasDifficultyEntries[i] = new List<uint>();
 		}
-	}
+    }
 
 	//Static Methods
 	public static bool NormalizePlayerName(ref string name)
@@ -339,12 +344,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (name.Length > 12)
 			return ResponseCodes.CharNameTooLong;
 
-		var minName = GetDefaultValue("MinPlayerName", 2);
+		var minName = _configuration.GetDefaultValue("MinPlayerName", 2);
 
 		if (name.Length < minName)
 			return ResponseCodes.CharNameTooShort;
 
-		var strictMask = GetDefaultValue("StrictPlayerNames", 0);
+		var strictMask = _configuration.GetDefaultValue("StrictPlayerNames", 0);
 
 		if (!IsValidString(name, strictMask, false, create))
 			return ResponseCodes.CharNameMixedLanguages;
@@ -363,12 +368,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (name.Length > 12)
 			return PetNameInvalidReason.TooLong;
 
-		var minName = GetDefaultValue("MinPetName", 2);
+		var minName = _configuration.GetDefaultValue("MinPetName", 2);
 
 		if (name.Length < minName)
 			return PetNameInvalidReason.TooShort;
 
-		var strictMask = GetDefaultValue("StrictPetNames", 0);
+		var strictMask = _configuration.GetDefaultValue("StrictPetNames", 0);
 
 		if (!IsValidString(name, strictMask, false))
 			return PetNameInvalidReason.MixedLanguages;
@@ -381,12 +386,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (name.Length > 24)
 			return false;
 
-		var minName = GetDefaultValue("MinCharterName", 2);
+		var minName = _configuration.GetDefaultValue("MinCharterName", 2);
 
 		if (name.Length < minName)
 			return false;
 
-		var strictMask = GetDefaultValue("StrictCharterNames", 0);
+		var strictMask = _configuration.GetDefaultValue("StrictCharterNames", 0);
 
 		return IsValidString(name, strictMask, true);
 	}
@@ -409,7 +414,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var time = Time.MSTime;
 		_cypherStringStorage.Clear();
 
-		var result = DB.World.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
+		var result = _worldDatabase.Query("SELECT entry, content_default, content_loc1, content_loc2, content_loc3, content_loc4, content_loc5, content_loc6, content_loc7, content_loc8 FROM trinity_string");
 
 		if (result.IsEmpty())
 		{
@@ -442,7 +447,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_raceUnlockRequirementStorage.Clear();
 
 		//                                         0       1          2
-		var result = DB.World.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
+		var result = _worldDatabase.Query("SELECT raceID, expansion, achievementId FROM `race_unlock_requirement`");
 
 		if (!result.IsEmpty())
 		{
@@ -454,7 +459,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				var expansion = result.Read<byte>(1);
 				var achievementId = result.Read<uint>(2);
 
-				var raceEntry = CliDB.ChrRacesStorage.LookupByKey(raceID);
+				var raceEntry = _cliDB.ChrRacesStorage.LookupByKey(raceID);
 
 				if (raceEntry == null)
 				{
@@ -470,7 +475,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					continue;
 				}
 
-				if (achievementId != 0 && !CliDB.AchievementStorage.ContainsKey(achievementId))
+				if (achievementId != 0 && !_cliDB.AchievementStorage.ContainsKey(achievementId))
 				{
 					Log.Logger.Error($"Race {raceID} defined in `race_unlock_requirement` has incorrect achievement {achievementId}, skipped.");
 
@@ -499,7 +504,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_classExpansionRequirementStorage.Clear();
 
 		//                               0        1       2                     3
-		result = DB.World.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
+		result = _worldDatabase.Query("SELECT ClassID, RaceID, ActiveExpansionLevel, AccountExpansionLevel FROM `class_expansion_requirement`");
 
 		if (!result.IsEmpty())
 		{
@@ -515,7 +520,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				var activeExpansionLevel = result.Read<byte>(2);
 				var accountExpansionLevel = result.Read<byte>(3);
 
-				var classEntry = CliDB.ChrClassesStorage.LookupByKey(classID);
+				var classEntry = _cliDB.ChrClassesStorage.LookupByKey(classID);
 
 				if (classEntry == null)
 				{
@@ -524,7 +529,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					continue;
 				}
 
-				var raceEntry = CliDB.ChrRacesStorage.LookupByKey(raceID);
+				var raceEntry = _cliDB.ChrRacesStorage.LookupByKey(raceID);
 
 				if (raceEntry == null)
 				{
@@ -701,12 +706,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public PlayerChoice GetPlayerChoice(int choiceId)
 	{
-		return _playerChoices.LookupByKey(choiceId);
+		return _playerChoices.LookupByKey((uint)choiceId);
 	}
 
 	public PlayerChoiceLocale GetPlayerChoiceLocale(int ChoiceID)
 	{
-		return _playerChoiceLocales.LookupByKey(ChoiceID);
+		return _playerChoiceLocales.LookupByKey((uint)ChoiceID);
 	}
 
 	//Gossip
@@ -716,7 +721,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_gossipMenusStorage.Clear();
 
-		var result = DB.World.Query("SELECT MenuId, TextId FROM gossip_menu");
+		var result = _worldDatabase.Query("SELECT MenuId, TextId FROM gossip_menu");
 
 		if (result.IsEmpty())
 		{
@@ -735,8 +740,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (GetNpcText(gMenu.TextId) == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM gossip_menu WHERE MenuID = {gMenu.MenuId}");
 				else
 					Log.Logger.Error("Table gossip_menu: Id {0} is using non-existing TextId {1}", gMenu.MenuId, gMenu.TextId);
 
@@ -756,7 +761,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_gossipMenuItemsStorage.Clear();
 
 		//                                         0       1               2         3          4           5                      6         7      8             9            10
-		var result = DB.World.Query("SELECT MenuID, GossipOptionID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, Flags, ActionMenuID, ActionPoiID, GossipNpcOptionID, " +
+		var result = _worldDatabase.Query("SELECT MenuID, GossipOptionID, OptionID, OptionNpc, OptionText, OptionBroadcastTextID, Language, Flags, ActionMenuID, ActionPoiID, GossipNpcOptionID, " +
 									//11        12        13       14                  15       16
 									"BoxCoded, BoxMoney, BoxText, BoxBroadcastTextID, SpellID, OverrideIconID FROM gossip_menu_option ORDER BY MenuID, OptionID");
 
@@ -769,7 +774,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		Dictionary<int, uint> optionToNpcOption = new();
 
-		foreach (var (_, npcOption) in CliDB.GossipNPCOptionStorage)
+		foreach (var (_, npcOption) in _cliDB.GossipNPCOptionStorage)
 			optionToNpcOption[npcOption.GossipOptionID] = npcOption.Id;
 
 		do
@@ -809,20 +814,20 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (gMenuItem.OptionBroadcastTextId != 0)
-				if (!CliDB.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
+				if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.OptionBroadcastTextId))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible OptionBroadcastTextId {gMenuItem.OptionBroadcastTextId}, ignoring.");
 
 					gMenuItem.OptionBroadcastTextId = 0;
 				}
 
-			if (gMenuItem.Language != 0 && !CliDB.LanguagesStorage.ContainsKey(gMenuItem.Language))
+			if (gMenuItem.Language != 0 && !_cliDB.LanguagesStorage.ContainsKey(gMenuItem.Language))
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"UPDATE gossip_menu_option SET OptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 				else
 					Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Language {gMenuItem.Language}, ignoring");
 
@@ -831,8 +836,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (gMenuItem.ActionMenuId != 0 && gMenuItem.OptionNpc != GossipOptionNpc.None)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionMenuID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 				else
 					Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionMenuID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
 
@@ -843,8 +848,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				if (gMenuItem.OptionNpc != GossipOptionNpc.None)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} can not use ActionPoiID for GossipOptionNpc different from GossipOptionNpc.None, ignoring");
 
@@ -852,8 +857,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 				else if (GetPointOfInterest(gMenuItem.ActionPoiId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET ActionPoiID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing ActionPoiID {gMenuItem.ActionPoiId}, ignoring");
 
@@ -863,10 +868,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (gMenuItem.GossipNpcOptionId.HasValue)
 			{
-				if (!CliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
+				if (!_cliDB.GossipNPCOptionStorage.ContainsKey(gMenuItem.GossipNpcOptionId.Value))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET GossipNpcOptionID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing GossipNPCOption {gMenuItem.GossipNpcOptionId}, ignoring");
 
@@ -882,10 +887,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (gMenuItem.BoxBroadcastTextId != 0)
-				if (!CliDB.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
+				if (!_cliDB.BroadcastTextStorage.ContainsKey(gMenuItem.BoxBroadcastTextId))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET BoxBroadcastTextID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.Logger.Error($"Table `gossip_menu_option` for MenuId {gMenuItem.MenuId}, OptionIndex {gMenuItem.OrderIndex} has non-existing or incompatible BoxBroadcastTextId {gMenuItem.BoxBroadcastTextId}, ignoring.");
 
@@ -895,8 +900,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (gMenuItem.SpellId.HasValue)
 				if (!Global.SpellMgr.HasSpellInfo((uint)gMenuItem.SpellId.Value, Difficulty.None))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE gossip_menu_option SET SpellID = 0 WHERE MenuID = {gMenuItem.MenuId}");
 					else
 						Log.Logger.Error($"Table `gossip_menu_option` for menu {gMenuItem.MenuId}, id {gMenuItem.OrderIndex} use non-existing Spell {gMenuItem.SpellId}, ignoring");
 
@@ -916,7 +921,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_gossipMenuAddonStorage.Clear();
 
 		//                                         0       1
-		var result = DB.World.Query("SELECT MenuID, FriendshipFactionID FROM gossip_menu_addon");
+		var result = _worldDatabase.Query("SELECT MenuID, FriendshipFactionID FROM gossip_menu_addon");
 
 		if (result.IsEmpty())
 		{
@@ -934,11 +939,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				FriendshipFactionId = result.Read<int>(1)
 			};
 
-			var faction = CliDB.FactionStorage.LookupByKey(addon.FriendshipFactionId);
+			var faction = _cliDB.FactionStorage.LookupByKey(addon.FriendshipFactionId);
 
 			if (faction != null)
 			{
-				if (!CliDB.FriendshipReputationStorage.ContainsKey(faction.FriendshipRepID))
+				if (!_cliDB.FriendshipReputationStorage.ContainsKey(faction.FriendshipRepID))
 				{
 					Log.Logger.Error($"Table gossip_menu_addon: ID {menuID} is using FriendshipFactionID {addon.FriendshipFactionId} referencing non-existing FriendshipRepID {faction.FriendshipRepID}");
 					addon.FriendshipFactionId = 0;
@@ -963,7 +968,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_pointsOfInterestStorage.Clear(); // need for reload case
 
 		//                                   0   1          2          3          4     5      6           7     8
-		var result = DB.World.Query("SELECT ID, PositionX, PositionY, PositionZ, Icon, Flags, Importance, Name, WMOGroupID FROM points_of_interest");
+		var result = _worldDatabase.Query("SELECT ID, PositionX, PositionY, PositionZ, Icon, Flags, Importance, Name, WMOGroupID FROM points_of_interest");
 
 		if (result.IsEmpty())
 		{
@@ -1031,7 +1036,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		GraveYardStorage.Clear(); // need for reload case
 
 		//                                         0       1         2
-		var result = DB.World.Query("SELECT ID, GhostZone, faction FROM graveyard_zone");
+		var result = _worldDatabase.Query("SELECT ID, GhostZone, faction FROM graveyard_zone");
 
 		if (result.IsEmpty())
 		{
@@ -1058,7 +1063,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				continue;
 			}
 
-			var areaEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
+			var areaEntry = _cliDB.AreaTableStorage.LookupByKey(zoneId);
 
 			if (areaEntry == null)
 			{
@@ -1086,7 +1091,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0   1      2     3     4     5
-		var result = DB.World.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
+		var result = _worldDatabase.Query("SELECT ID, MapID, LocX, LocY, LocZ, Facing FROM world_safe_locs");
 
 		if (result.IsEmpty())
 		{
@@ -1151,7 +1156,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		//   if mapId != graveyard.mapId (ghost in instance) and search any graveyard associated
 		//     then check faction
 		var range = GraveYardStorage.LookupByKey(zoneId);
-		var mapEntry = CliDB.MapStorage.LookupByKey(MapId);
+		var mapEntry = _cliDB.MapStorage.LookupByKey(MapId);
 
 		ConditionSourceInfo conditionSource = new(conditionObject);
 
@@ -1179,23 +1184,23 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		foreach (var data in range)
 		{
-			var entry = GetWorldSafeLoc(data.safeLocId);
+			var entry = GetWorldSafeLoc(data.SafeLocId);
 
 			if (entry == null)
 			{
-				Log.Logger.Error("Table `game_graveyard_zone` has record for not existing graveyard (WorldSafeLocs.dbc id) {0}, skipped.", data.safeLocId);
+				Log.Logger.Error("Table `game_graveyard_zone` has record for not existing graveyard (WorldSafeLocs.dbc id) {0}, skipped.", data.SafeLocId);
 
 				continue;
 			}
 
 			// skip enemy faction graveyard
 			// team == 0 case can be at call from .neargrave
-			if (data.team != 0 && team != 0 && data.team != (uint)team)
+			if (data.Team != 0 && team != 0 && data.Team != (uint)team)
 				continue;
 
 			if (conditionObject)
 			{
-				if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.safeLocId, conditionSource))
+				if (!Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.Graveyard, data.SafeLocId, conditionSource))
 					continue;
 
 				if (entry.Loc.MapId == mapEntry.ParentMapID && !conditionObject.PhaseShift.HasVisibleMapId(entry.Loc.MapId))
@@ -1268,7 +1273,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var range = GraveYardStorage.LookupByKey(zoneId);
 
 		foreach (var data in range)
-			if (data.safeLocId == id)
+			if (data.SafeLocId == id)
 				return data;
 
 		return null;
@@ -1292,8 +1297,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		// add link to loaded data
 		GraveYardData data = new()
 		{
-			safeLocId = id,
-			team = (uint)team
+			SafeLocId = id,
+			Team = (uint)team
 		};
 
 		GraveYardStorage.Add(zoneId, data);
@@ -1301,13 +1306,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		// add link to DB
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GRAVEYARD_ZONE);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GRAVEYARD_ZONE);
 
 			stmt.AddValue(0, id);
 			stmt.AddValue(1, zoneId);
 			stmt.AddValue(2, (uint)team);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 
 		return true;
@@ -1330,12 +1335,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		foreach (var data in range)
 		{
 			// skip not matching safezone id
-			if (data.safeLocId != id)
+			if (data.SafeLocId != id)
 				continue;
 
 			// skip enemy faction graveyard at same map (normal area, city, or Battleground)
 			// team == 0 case can be at call from .neargrave
-			if (data.team != 0 && team != 0 && data.team != (uint)team)
+			if (data.Team != 0 && team != 0 && data.Team != (uint)team)
 				continue;
 
 			found = true;
@@ -1353,13 +1358,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		// remove link from DB
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GRAVEYARD_ZONE);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GRAVEYARD_ZONE);
 
 			stmt.AddValue(0, id);
 			stmt.AddValue(1, zoneId);
 			stmt.AddValue(2, (uint)team);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 	}
 
@@ -1369,7 +1374,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		_areaTriggerScriptStorage.Clear(); // need for reload case
-		var result = DB.World.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
+		var result = _worldDatabase.Query("SELECT entry, ScriptName FROM areatrigger_scripts");
 
 		if (result.IsEmpty())
 		{
@@ -1385,7 +1390,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var id = result.Read<uint>(0);
 			var scriptName = result.Read<string>(1);
 
-			var atEntry = CliDB.AreaTriggerStorage.LookupByKey(id);
+			var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(id);
 
 			if (atEntry == null)
 			{
@@ -1477,7 +1482,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		// Load all possible script entries from spells
-		foreach (var spellNameEntry in CliDB.SpellNameStorage.Values)
+		foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
 		{
 			var spell = Global.SpellMgr.GetSpellInfo(spellNameEntry.Id, Difficulty.None);
 
@@ -1488,7 +1493,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 							evt_scripts.Add((uint)spellEffectInfo.MiscValue);
 		}
 
-		foreach (var path_idx in CliDB.TaxiPathNodesByPath)
+		foreach (var path_idx in _cliDB.TaxiPathNodesByPath)
 			for (uint node_idx = 0; node_idx < path_idx.Value.Length; ++node_idx)
 			{
 				var node = path_idx.Value[node_idx];
@@ -1522,8 +1527,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		foreach (var script in WaypointScripts)
 			actionSet.Add(script.Key);
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ACTION);
-		var result = DB.World.Query(stmt);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_WAYPOINT_DATA_ACTION);
+		var result = _worldDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -1596,7 +1601,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_spellScriptsStorage.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT spell_id, ScriptName FROM spell_script_names");
+		var result = _worldDatabase.Query("SELECT spell_id, ScriptName FROM spell_script_names");
 
 		if (result.IsEmpty())
 		{
@@ -1765,11 +1770,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var time = Time.MSTime;
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_CREATURE_TEMPLATE);
 		stmt.AddValue(0, 0);
 		stmt.AddValue(1, 1);
 
-		var result = DB.World.Query(stmt);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -1909,7 +1914,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var time = Time.MSTime;
 		//                                         0      1        2      3           4         5         6            7         8      9          10               11            12                      13
-		var result = DB.World.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
+		var result = _worldDatabase.Query("SELECT entry, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_template_addon");
 
 		if (result.IsEmpty())
 		{
@@ -1926,8 +1931,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (GetCreatureTemplate(entry) == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 				else
 					Log.Logger.Error($"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_addon`");
 
@@ -1963,8 +1968,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (AdditionalSpellInfo == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
 						Log.Logger.Error($"Creature (Entry: {entry}) has wrong spell {spellId} defined in `auras` field in `creature_template_addon`.");
 
@@ -1976,8 +1981,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (creatureAddon.Auras.Contains(spellId))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
 						Log.Logger.Error($"Creature (Entry: {entry}) has duplicate aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
 
@@ -1986,8 +1991,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (AdditionalSpellInfo.Duration > 0)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_template_addon WHERE entry = {entry}");
 					else
 						Log.Logger.Error($"Creature (Entry: {entry}) has temporary aura (spell {spellId}) in `auras` field in `creature_template_addon`.");
 
@@ -1998,7 +2003,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (creatureAddon.Mount != 0)
-				if (CliDB.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.Mount) == null)
+				if (_cliDB.CreatureDisplayInfoStorage.LookupByKey(creatureAddon.Mount) == null)
 				{
 					Log.Logger.Debug($"Creature (Entry: {entry}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creature_template_addon`");
 					creatureAddon.Mount = 0;
@@ -2024,25 +2029,25 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			// PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
-			if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
+			if (!_cliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
 			{
 				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
 				creatureAddon.Emote = 0;
 			}
 
-			if (creatureAddon.AiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
+			if (creatureAddon.AiAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
 			{
 				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_template_addon`.");
 				creatureAddon.AiAnimKit = 0;
 			}
 
-			if (creatureAddon.MovementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
+			if (creatureAddon.MovementAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
 			{
 				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_template_addon`.");
 				creatureAddon.MovementAnimKit = 0;
 			}
 
-			if (creatureAddon.MeleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
+			if (creatureAddon.MeleeAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
 			{
 				Log.Logger.Debug($"Creature (Entry: {entry}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_template_addon`.");
 				creatureAddon.MeleeAnimKit = 0;
@@ -2065,7 +2070,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var time = Time.MSTime;
 		//                                         0     1        2      3           4         5         6            7         8      9          10               11            12                      13
-		var result = DB.World.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
+		var result = _worldDatabase.Query("SELECT guid, path_id, mount, StandState, AnimTier, VisFlags, SheathState, PvPFlags, emote, aiAnimKit, movementAnimKit, meleeAnimKit, visibilityDistanceType, auras FROM creature_addon");
 
 		if (result.IsEmpty())
 		{
@@ -2083,8 +2088,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (creData == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_addon WHERE guid = {guid}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_addon WHERE guid = {guid}");
 				else
 					Log.Logger.Error($"Creature (GUID: {guid}) does not exist but has a record in `creatureaddon`");
 
@@ -2153,7 +2158,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (creatureAddon.Mount != 0)
-				if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.Mount))
+				if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(creatureAddon.Mount))
 				{
 					Log.Logger.Error($"Creature (GUID: {guid}) has invalid displayInfoId ({creatureAddon.Mount}) for mount defined in `creatureaddon`");
 					creatureAddon.Mount = 0;
@@ -2179,26 +2184,26 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			// PvPFlags don't need any checking for the time being since they cover the entire range of a byte
 
-			if (!CliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
+			if (!_cliDB.EmotesStorage.ContainsKey(creatureAddon.Emote))
 			{
 				Log.Logger.Error($"Creature (GUID: {guid}) has invalid emote ({creatureAddon.Emote}) defined in `creatureaddon`.");
 				creatureAddon.Emote = 0;
 			}
 
 
-			if (creatureAddon.AiAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
+			if (creatureAddon.AiAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.AiAnimKit))
 			{
 				Log.Logger.Error($"Creature (Guid: {guid}) has invalid aiAnimKit ({creatureAddon.AiAnimKit}) defined in `creature_addon`.");
 				creatureAddon.AiAnimKit = 0;
 			}
 
-			if (creatureAddon.MovementAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
+			if (creatureAddon.MovementAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MovementAnimKit))
 			{
 				Log.Logger.Error($"Creature (Guid: {guid}) has invalid movementAnimKit ({creatureAddon.MovementAnimKit}) defined in `creature_addon`.");
 				creatureAddon.MovementAnimKit = 0;
 			}
 
-			if (creatureAddon.MeleeAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
+			if (creatureAddon.MeleeAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(creatureAddon.MeleeAnimKit))
 			{
 				Log.Logger.Error($"Creature (Guid: {guid}) has invalid meleeAnimKit ({creatureAddon.MeleeAnimKit}) defined in `creature_addon`.");
 				creatureAddon.MeleeAnimKit = 0;
@@ -2222,7 +2227,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                          0              1      2
-		var result = DB.World.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
+		var result = _worldDatabase.Query("SELECT CreatureEntry, ItemId, Idx FROM creature_questitem ORDER BY Idx ASC");
 
 		if (result.IsEmpty())
 		{
@@ -2241,15 +2246,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (!_creatureTemplateStorage.ContainsKey(entry))
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_questitem WHERE CreatureEntry = {entry}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_questitem WHERE CreatureEntry = {entry}");
 				else
 					Log.Logger.Error("Table `creature_questitem` has data for nonexistent creature (entry: {0}, idx: {1}), skipped", entry, idx);
 
 				continue;
 			}
 
-			if (!CliDB.ItemStorage.ContainsKey(item))
+			if (!_cliDB.ItemStorage.ContainsKey(item))
 			{
 				Log.Logger.Error("Table `creature_questitem` has nonexistent item (ID: {0}) in creature (entry: {1}, idx: {2}), skipped", item, entry, idx);
 
@@ -2269,7 +2274,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var time = Time.MSTime;
 
 		//                                                0   1        2                 3            4
-		var result = DB.World.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, " +
+		var result = _worldDatabase.Query("SELECT CreatureID, ID, ItemID1, AppearanceModID1, ItemVisual1, " +
 									//5                 6            7       8                 9           10
 									"ItemID2, AppearanceModID2, ItemVisual2, ItemID3, AppearanceModID3, ItemVisual3 " +
 									"FROM creature_equip_template");
@@ -2289,8 +2294,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (GetCreatureTemplate(entry) == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_equip_template WHERE CreatureID = {entry}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_equip_template WHERE CreatureID = {entry}");
 				else
 					Log.Logger.Error("Creature template (CreatureID: {0}) does not exist but has a record in `creature_equip_template`", entry);
 
@@ -2310,7 +2315,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (equipmentInfo.Items[i].ItemId == 0)
 					continue;
 
-				var dbcItem = CliDB.ItemStorage.LookupByKey(equipmentInfo.Items[i].ItemId);
+				var dbcItem = _cliDB.ItemStorage.LookupByKey(equipmentInfo.Items[i].ItemId);
 
 				if (dbcItem == null)
 				{
@@ -2378,7 +2383,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_creatureMovementOverrides.Clear();
 
 		// Load the data from creature_movement_override and if NULL fallback to creature_template_movement
-		var result = DB.World.Query("SELECT cmo.SpawnId,COALESCE(cmo.Ground, ctm.Ground),COALESCE(cmo.Swim, ctm.Swim),COALESCE(cmo.Flight, ctm.Flight),COALESCE(cmo.Rooted, ctm.Rooted),COALESCE(cmo.Chase, ctm.Chase),COALESCE(cmo.Random, ctm.Random)," +
+		var result = _worldDatabase.Query("SELECT cmo.SpawnId,COALESCE(cmo.Ground, ctm.Ground),COALESCE(cmo.Swim, ctm.Swim),COALESCE(cmo.Flight, ctm.Flight),COALESCE(cmo.Rooted, ctm.Rooted),COALESCE(cmo.Chase, ctm.Chase),COALESCE(cmo.Random, ctm.Random)," +
 									"COALESCE(cmo.InteractionPauseTimer, ctm.InteractionPauseTimer) FROM creature_movement_override AS cmo LEFT JOIN creature AS c ON c.guid = cmo.SpawnId LEFT JOIN creature_template_movement AS ctm ON ctm.CreatureId = c.id");
 
 		if (result.IsEmpty())
@@ -2394,8 +2399,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (GetCreatureData(spawnId) == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_movement_override WHERE SpawnId = {spawnId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_movement_override WHERE SpawnId = {spawnId}");
 				else
 					Log.Logger.Error($"Creature (GUID: {spawnId}) does not exist but has a record in `creature_movement_override`");
 
@@ -2440,7 +2445,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_creatureBaseStatsStorage.Clear();
 
 		//                                         0      1      2         3            4
-		var result = DB.World.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
+		var result = _worldDatabase.Query("SELECT level, class, basemana, attackpower, rangedattackpower FROM creature_classlevelstats");
 
 		if (result.IsEmpty())
 		{
@@ -2482,7 +2487,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	public void LoadCreatureModelInfo()
 	{
 		var time = Time.MSTime;
-		var result = DB.World.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender FROM creature_model_info");
+		var result = _worldDatabase.Query("SELECT DisplayID, BoundingRadius, CombatReach, DisplayID_Other_Gender FROM creature_model_info");
 
 		if (result.IsEmpty())
 		{
@@ -2503,7 +2508,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var displayId = result.Read<uint>(0);
 
-			var creatureDisplay = CliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
+			var creatureDisplay = _cliDB.CreatureDisplayInfoStorage.LookupByKey(displayId);
 
 			if (creatureDisplay == null)
 			{
@@ -2524,7 +2529,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (modelInfo.Gender == (sbyte)Gender.Unknown)
 				modelInfo.Gender = (sbyte)Gender.Male;
 
-			if (modelInfo.DisplayIdOtherGender != 0 && !CliDB.CreatureDisplayInfoStorage.ContainsKey(modelInfo.DisplayIdOtherGender))
+			if (modelInfo.DisplayIdOtherGender != 0 && !_cliDB.CreatureDisplayInfoStorage.ContainsKey(modelInfo.DisplayIdOtherGender))
 			{
 				Log.Logger.Debug("Table `creature_model_info` has a non-existent DisplayID_Other_Gender (ID: {0}) being used by DisplayID (ID: {1}).", modelInfo.DisplayIdOtherGender, displayId);
 				modelInfo.DisplayIdOtherGender = 0;
@@ -2533,7 +2538,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			if (modelInfo.CombatReach < 0.1f)
 				modelInfo.CombatReach = SharedConst.DefaultPlayerCombatReach;
 
-			var modelData = CliDB.CreatureModelDataStorage.LookupByKey(creatureDisplay.ModelID);
+			var modelData = _cliDB.CreatureModelDataStorage.LookupByKey(creatureDisplay.ModelID);
 
 			if (modelData != null)
 				for (uint i = 0; i < 5; ++i)
@@ -2556,7 +2561,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                   0      1             2                     3                     4
-		var result = DB.World.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
+		var result = _worldDatabase.Query("SELECT Entry, DifficultyID, LevelScalingDeltaMin, LevelScalingDeltaMax, ContentTuningID FROM creature_template_scaling ORDER BY Entry");
 
 		if (result.IsEmpty())
 		{
@@ -2576,8 +2581,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (template == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_template_scaling WHERE entry = {entry}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_template_scaling WHERE entry = {entry}");
 				else
 					Log.Logger.Error($"Creature template (Entry: {entry}) does not exist but has a record in `creature_template_scaling`");
 
@@ -2846,7 +2851,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			cInfo.MaxGold = cInfo.MinGold;
 		}
 
-		if (!CliDB.FactionTemplateStorage.ContainsKey(cInfo.Faction))
+		if (!_cliDB.FactionTemplateStorage.ContainsKey(cInfo.Faction))
 		{
 			Log.Logger.Verbose("Creature (Entry: {0}) has non-existing faction template ({1}). This can lead to crashes, set to faction 35", cInfo.Entry, cInfo.Faction);
 			cInfo.Faction = 35;
@@ -2893,13 +2898,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			cInfo.SpeedRun = 1.14286f;
 		}
 
-		if (cInfo.CreatureType != 0 && !CliDB.CreatureTypeStorage.ContainsKey((uint)cInfo.CreatureType))
+		if (cInfo.CreatureType != 0 && !_cliDB.CreatureTypeStorage.ContainsKey((uint)cInfo.CreatureType))
 		{
 			Log.Logger.Verbose("Creature (Entry: {0}) has invalid creature type ({1}) in `type`.", cInfo.Entry, cInfo.CreatureType);
 			cInfo.CreatureType = CreatureType.Humanoid;
 		}
 
-		if (cInfo.Family != 0 && !CliDB.CreatureFamilyStorage.ContainsKey(cInfo.Family))
+		if (cInfo.Family != 0 && !_cliDB.CreatureFamilyStorage.ContainsKey(cInfo.Family))
 		{
 			Log.Logger.Verbose("Creature (Entry: {0}) has invalid creature family ({1}) in `family`.", cInfo.Entry, cInfo.Family);
 			cInfo.Family = CreatureFamily.None;
@@ -2914,7 +2919,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		if (cInfo.VehicleId != 0)
-			if (!CliDB.VehicleStorage.ContainsKey(cInfo.VehicleId))
+			if (!_cliDB.VehicleStorage.ContainsKey(cInfo.VehicleId))
 			{
 				Log.Logger.Verbose("Creature (Entry: {0}) has a non-existing VehicleId ({1}). This *WILL* cause the client to freeze!", cInfo.Entry, cInfo.VehicleId);
 				cInfo.VehicleId = 0;
@@ -3011,7 +3016,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_linkedRespawnStorage.Clear();
 		//                                                 0        1          2
-		var result = DB.World.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
+		var result = _worldDatabase.Query("SELECT guid, linkedGuid, linkType FROM linked_respawn ORDER BY guid ASC");
 
 		if (result.IsEmpty())
 		{
@@ -3038,8 +3043,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (slave == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", guidLow);
 
@@ -3052,8 +3057,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (master == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
 
@@ -3062,12 +3067,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 					}
 
-					var map = CliDB.MapStorage.LookupByKey(master.MapId);
+					var map = _cliDB.MapStorage.LookupByKey(master.MapId);
 
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3079,8 +3084,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					// they must have a possibility to meet (normal/heroic difficulty)
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
@@ -3100,8 +3105,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (slave == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", guidLow);
 
@@ -3114,8 +3119,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (master == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
 
@@ -3124,12 +3129,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 					}
 
-					var map = CliDB.MapStorage.LookupByKey(master.MapId);
+					var map = _cliDB.MapStorage.LookupByKey(master.MapId);
 
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3158,8 +3163,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (slave == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", guidLow);
 
@@ -3172,8 +3177,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (master == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", linkedGuidLow);
 
@@ -3182,12 +3187,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 					}
 
-					var map = CliDB.MapStorage.LookupByKey(master.MapId);
+					var map = _cliDB.MapStorage.LookupByKey(master.MapId);
 
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3199,8 +3204,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					// they must have a possibility to meet (normal/heroic difficulty)
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
@@ -3220,8 +3225,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (slave == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get gameobject data for GUIDLow {0}", guidLow);
 
@@ -3234,8 +3239,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (master == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Couldn't get creature data for GUIDLow {0}", linkedGuidLow);
 
@@ -3244,12 +3249,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 					}
 
-					var map = CliDB.MapStorage.LookupByKey(master.MapId);
+					var map = _cliDB.MapStorage.LookupByKey(master.MapId);
 
 					if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("Creature '{0}' linking to '{1}' on an unpermitted map.", guidLow, linkedGuidLow);
 
@@ -3261,8 +3266,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					// they must have a possibility to meet (normal/heroic difficulty)
 					if (!master.SpawnDifficulties.Intersect(slave.SpawnDifficulties).Any())
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM linked_respawn WHERE guid = {guidLow}");
 						else
 							Log.Logger.Error("LinkedRespawn: Creature '{0}' linking to '{1}' with not corresponding spawnMask", guidLow, linkedGuidLow);
 
@@ -3291,7 +3296,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_npcTextStorage.Clear();
 
-		var result = DB.World.Query("SELECT ID, Probability0, Probability1, Probability2, Probability3, Probability4, Probability5, Probability6, Probability7, " +
+		var result = _worldDatabase.Query("SELECT ID, Probability0, Probability1, Probability2, Probability3, Probability4, Probability5, Probability6, Probability7, " +
 									"BroadcastTextID0, BroadcastTextID1, BroadcastTextID2, BroadcastTextID3, BroadcastTextID4, BroadcastTextID5, BroadcastTextID6, BroadcastTextID7 FROM npc_text");
 
 		if (result.IsEmpty())
@@ -3322,7 +3327,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			for (var i = 0; i < SharedConst.MaxNpcTextOptions; i++)
 				if (npcText.Data[i].BroadcastTextID != 0)
-					if (!CliDB.BroadcastTextStorage.ContainsKey(npcText.Data[i].BroadcastTextID))
+					if (!_cliDB.BroadcastTextStorage.ContainsKey(npcText.Data[i].BroadcastTextID))
 					{
 						Log.Logger.Debug("NPCText (Id: {0}) has a non-existing BroadcastText (ID: {1}, Index: {2})", textID, npcText.Data[i].BroadcastTextID, i);
 						npcText.Data[i].Probability = 0.0f;
@@ -3359,7 +3364,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_trainers.Clear();
 
 		MultiMap<uint, TrainerSpell> spellsByTrainer = new();
-		var trainerSpellsResult = DB.World.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell");
+		var trainerSpellsResult = _worldDatabase.Query("SELECT TrainerId, SpellId, MoneyCost, ReqSkillLine, ReqSkillRank, ReqAbility1, ReqAbility2, ReqAbility3, ReqLevel FROM trainer_spell");
 
 		if (!trainerSpellsResult.IsEmpty())
 			do
@@ -3384,7 +3389,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					continue;
 				}
 
-				if (spell.ReqSkillLine != 0 && !CliDB.SkillLineStorage.ContainsKey(spell.ReqSkillLine))
+				if (spell.ReqSkillLine != 0 && !_cliDB.SkillLineStorage.ContainsKey(spell.ReqSkillLine))
 				{
 					Log.Logger.Error($"Table `trainer_spell` references non-existing skill (ReqSkillLine: {spell.ReqSkillLine}) for TrainerId {trainerId} and SpellId {spell.SpellId}, ignoring");
 
@@ -3410,7 +3415,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				spellsByTrainer.Add(trainerId, spell);
 			} while (trainerSpellsResult.NextRow());
 
-		var trainersResult = DB.World.Query("SELECT Id, Type, Greeting FROM trainer");
+		var trainersResult = _worldDatabase.Query("SELECT Id, Type, Greeting FROM trainer");
 
 		if (!trainersResult.IsEmpty())
 			do
@@ -3433,7 +3438,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		foreach (var unusedSpells in spellsByTrainer.KeyValueList)
 			Log.Logger.Error($"Table `trainer_spell` references non-existing trainer (TrainerId: {unusedSpells.Key}) for SpellId {unusedSpells.Value.SpellId}, ignoring");
 
-		var trainerLocalesResult = DB.World.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale");
+		var trainerLocalesResult = _worldDatabase.Query("SELECT Id, locale, Greeting_lang FROM trainer_locale");
 
 		if (!trainerLocalesResult.IsEmpty())
 			do
@@ -3463,7 +3468,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_creatureDefaultTrainers.Clear();
 
-		var result = DB.World.Query("SELECT CreatureID, TrainerID, MenuID, OptionID FROM creature_trainer");
+		var result = _worldDatabase.Query("SELECT CreatureID, TrainerID, MenuID, OptionID FROM creature_trainer");
 
 		if (!result.IsEmpty())
 			do
@@ -3475,8 +3480,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (GetCreatureTemplate(creatureId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 					else
 						Log.Logger.Error($"Table `creature_trainer` references non-existing creature template (CreatureId: {creatureId}), ignoring");
 
@@ -3485,8 +3490,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (GetTrainer(trainerId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 					else
 						Log.Logger.Error($"Table `creature_trainer` references non-existing trainer (TrainerId: {trainerId}) for CreatureId {creatureId} MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}, ignoring");
 
@@ -3500,8 +3505,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (gossipOptionItr == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM creature_trainer WHERE CreatureID = {creatureId}");
 						else
 							Log.Logger.Error($"Table `creature_trainer` references non-existing gossip menu option (MenuId {gossipMenuId} OptionIndex {gossipOptionIndex}) for CreatureId {creatureId} and TrainerId {trainerId}, ignoring");
 
@@ -3523,7 +3528,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		List<uint> skipvendors = new();
 
-		var result = DB.World.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionID, IgnoreFiltering FROM npc_vendor ORDER BY entry, slot ASC");
+		var result = _worldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionID, IgnoreFiltering FROM npc_vendor ORDER BY entry, slot ASC");
 
 		if (result.IsEmpty())
 		{
@@ -3583,7 +3588,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var time = Time.MSTime;
 
 		//                                         0              1   2    3           4           5           6            7        8             9              10
-		var result = DB.World.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, " +
+		var result = _worldDatabase.Query("SELECT creature.guid, id, map, position_x, position_y, position_z, orientation, modelid, equipment_id, spawntimesecs, wander_distance, " +
 									//11               12         13       14            15                 16          17           18                19                   20                    21
 									"currentwaypoint, curhealth, curmana, MovementType, spawnDifficulties, eventEntry, poolSpawnId, creature.npcflag, creature.unit_flags, creature.unit_flags2, creature.unit_flags3, " +
 									//   22                     23                      24                25                   26                       27                   28
@@ -3624,8 +3629,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (cInfo == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature WHERE id = {entry}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature WHERE id = {entry}");
 				else
 					Log.Logger.Error("Table `creature` has creature (GUID: {0}) with non existing creature entry {1}, skipped.", guid, entry);
 
@@ -3669,7 +3674,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			data.StringId = result.Read<string>(28);
 			data.SpawnGroupData = _spawnGroupDataStorage[IsTransportMap(data.MapId) ? 1 : 0u]; // transport spawns default to compatibility group
 
-			var mapEntry = CliDB.MapStorage.LookupByKey(data.MapId);
+			var mapEntry = _cliDB.MapStorage.LookupByKey(data.MapId);
 
 			if (mapEntry == null)
 			{
@@ -3757,7 +3762,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (data.PhaseId != 0)
-				if (!CliDB.PhaseStorage.ContainsKey(data.PhaseId))
+				if (!_cliDB.PhaseStorage.ContainsKey(data.PhaseId))
 				{
 					Log.Logger.Error("Table `creature` have creature (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
 					data.PhaseId = 0;
@@ -3772,7 +3777,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (data.terrainSwapMap != -1)
 			{
-				var terrainSwapEntry = CliDB.MapStorage.LookupByKey(data.terrainSwapMap);
+				var terrainSwapEntry = _cliDB.MapStorage.LookupByKey(data.terrainSwapMap);
 
 				if (terrainSwapEntry == null)
 				{
@@ -3816,17 +3821,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				cInfo.DynamicFlags = 0;
 			}
 
-			if (GetDefaultValue("Calculate.Creature.Zone.Area.Data", false))
+			if (_configuration.GetDefaultValue("Calculate.Creature.Zone.Area.Data", false))
 			{
 				PhasingHandler.InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
 				Global.TerrainMgr.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
-				var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_CREATURE_ZONE_AREA_DATA);
+				var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_CREATURE_ZONE_AREA_DATA);
 				stmt.AddValue(0, zoneId);
 				stmt.AddValue(1, areaId);
 				stmt.AddValue(2, guid);
 
-				DB.World.Execute(stmt);
+				_worldDatabase.Execute(stmt);
 			}
 
 			// Add to grid if not managed by the game event
@@ -3932,10 +3937,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (linkedGuidLow == 0) // we're removing the linking
 		{
 			_linkedRespawnStorage.Remove(guid);
-			stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
+			stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_LINKED_RESPAWN);
 			stmt.AddValue(0, guidLow);
 			stmt.AddValue(1, (uint)CreatureLinkedRespawnType.CreatureToCreature);
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 
 			return true;
 		}
@@ -3949,7 +3954,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			return false;
 		}
 
-		var map = CliDB.MapStorage.LookupByKey(master.MapId);
+		var map = _cliDB.MapStorage.LookupByKey(master.MapId);
 
 		if (map == null || !map.Instanceable() || (master.MapId != slave.MapId))
 		{
@@ -3969,11 +3974,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var linkedGuid = ObjectGuid.Create(HighGuid.Creature, slave.MapId, slave.Id, linkedGuidLow);
 
 		_linkedRespawnStorage[guid] = linkedGuid;
-		stmt = DB.World.GetPreparedStatement(WorldStatements.REP_LINKED_RESPAWN);
+		stmt = _worldDatabase.GetPreparedStatement(WorldStatements.REP_LINKED_RESPAWN);
 		stmt.AddValue(0, guidLow);
 		stmt.AddValue(1, linkedGuidLow);
 		stmt.AddValue(2, (uint)CreatureLinkedRespawnType.CreatureToCreature);
-		DB.World.Execute(stmt);
+		_worldDatabase.Execute(stmt);
 
 		return true;
 	}
@@ -4065,7 +4070,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var time = Time.MSTime;
 
-		foreach (var db2go in CliDB.GameObjectsStorage.Values)
+		foreach (var db2go in _cliDB.GameObjectsStorage.Values)
 		{
 			GameObjectTemplate go = new()
 			{
@@ -4089,7 +4094,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		//                                          0      1     2          3     4         5               6     7
-		var result = DB.World.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, " +
+		var result = _worldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, size, " +
 									//8      9      10     11     12     13     14     15     16     17     18      19      20
 									"Data0, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9, Data10, Data11, Data12, " +
 									//21      22      23      24      25      26      27      28      29      30      31      32      33      34      35      36
@@ -4173,7 +4178,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 					case GameObjectTypes.SpellFocus: //8
 						if (got.SpellFocus.spellFocusType != 0)
-							if (!CliDB.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
+							if (!_cliDB.SpellFocusObjectStorage.ContainsKey(got.SpellFocus.spellFocusType))
 								Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data0={2} but SpellFocus (Id: {3}) not exist.",
 												entry,
 												got.type,
@@ -4213,7 +4218,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case GameObjectTypes.MapObjTransport: //15
 					{
 						if (got.MoTransport.taxiPathID != 0)
-							if (got.MoTransport.taxiPathID >= CliDB.TaxiPathNodesByPath.Count || CliDB.TaxiPathNodesByPath[got.MoTransport.taxiPathID].Empty())
+							if (got.MoTransport.taxiPathID >= _cliDB.TaxiPathNodesByPath.Count || _cliDB.TaxiPathNodesByPath[got.MoTransport.taxiPathID].Empty())
 								Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data0={2} but TaxiPath (Id: {3}) not exist.",
 												entry,
 												got.type,
@@ -4254,7 +4259,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case GameObjectTypes.BarberChair: //32
 						CheckAndFixGOChairHeightId(got, ref got.BarberChair.chairheight, 0);
 
-						if (got.BarberChair.SitAnimKit != 0 && !CliDB.AnimKitStorage.ContainsKey(got.BarberChair.SitAnimKit))
+						if (got.BarberChair.SitAnimKit != 0 && !_cliDB.AnimKitStorage.ContainsKey(got.BarberChair.SitAnimKit))
 						{
 							Log.Logger.Error("GameObject (Entry: {0} GoType: {1}) have data2 = {2} but AnimKit.dbc (Id: {3}) not exist, set to 0.",
 											entry,
@@ -4297,7 +4302,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0       1       2      3        4        5        6        7        8        9        10             11
-		var result = DB.World.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
+		var result = _worldDatabase.Query("SELECT entry, faction, flags, mingold, maxgold, artkit0, artkit1, artkit2, artkit3, artkit4, WorldEffectID, AIAnimKitID FROM gameobject_template_addon");
 
 		if (result.IsEmpty())
 		{
@@ -4316,8 +4321,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (got == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gameobject_template_addon WHERE entry = {entry}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM gameobject_template_addon WHERE entry = {entry}");
 				else
 					Log.Logger.Error($"GameObject template (Entry: {entry}) does not exist but has a record in `gameobject_template_addon`");
 
@@ -4341,7 +4346,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				if (artKitID == 0)
 					continue;
 
-				if (!CliDB.GameObjectArtKitStorage.ContainsKey(artKitID))
+				if (!_cliDB.GameObjectArtKitStorage.ContainsKey(artKitID))
 				{
 					Log.Logger.Error($"GameObject (Entry: {entry}) has invalid `artkit{i}` ({artKitID}) defined, set to zero instead.");
 
@@ -4352,7 +4357,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			// checks
-			if (gameObjectAddon.Faction != 0 && !CliDB.FactionTemplateStorage.ContainsKey(gameObjectAddon.Faction))
+			if (gameObjectAddon.Faction != 0 && !_cliDB.FactionTemplateStorage.ContainsKey(gameObjectAddon.Faction))
 				Log.Logger.Error($"GameObject (Entry: {entry}) has invalid faction ({gameObjectAddon.Faction}) defined in `gameobject_template_addon`.");
 
 			if (gameObjectAddon.Maxgold > 0)
@@ -4367,13 +4372,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 				}
 
-			if (gameObjectAddon.WorldEffectId != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
+			if (gameObjectAddon.WorldEffectId != 0 && !_cliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectId))
 			{
 				Log.Logger.Error($"GameObject (Entry: {entry}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectId}) defined in `gameobject_template_addon`, set to 0.");
 				gameObjectAddon.WorldEffectId = 0;
 			}
 
-			if (gameObjectAddon.AiAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AiAnimKitId))
+			if (gameObjectAddon.AiAnimKitId != 0 && !_cliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AiAnimKitId))
 			{
 				Log.Logger.Error($"GameObject (Entry: {entry}) has invalid AIAnimKitID ({gameObjectAddon.AiAnimKitId}) defined in `gameobject_template_addon`, set to 0.");
 				gameObjectAddon.AiAnimKitId = 0;
@@ -4391,7 +4396,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                   0        1        2
-		var result = DB.World.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
+		var result = _worldDatabase.Query("SELECT spawnId, faction, flags FROM gameobject_overrides");
 
 		if (result.IsEmpty())
 		{
@@ -4409,8 +4414,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (goData == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gameobject_overrides WHERE spawnId = {spawnId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM gameobject_overrides WHERE spawnId = {spawnId}");
 				else
 					Log.Logger.Error($"GameObject (SpawnId: {spawnId}) does not exist but has a record in `gameobject_overrides`");
 
@@ -4425,7 +4430,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			_gameObjectOverrideStorage[spawnId] = gameObjectOverride;
 
-			if (gameObjectOverride.Faction != 0 && !CliDB.FactionTemplateStorage.ContainsKey(gameObjectOverride.Faction))
+			if (gameObjectOverride.Faction != 0 && !_cliDB.FactionTemplateStorage.ContainsKey(gameObjectOverride.Faction))
 				Log.Logger.Error($"GameObject (SpawnId: {spawnId}) has invalid faction ({gameObjectOverride.Faction}) defined in `gameobject_overrides`.");
 
 			++count;
@@ -4439,7 +4444,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var time = Time.MSTime;
 
 		//                                         0                1   2    3           4           5           6
-		var result = DB.World.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, " +
+		var result = _worldDatabase.Query("SELECT gameobject.guid, id, map, position_x, position_y, position_z, orientation, " +
 									//7          8          9          10         11             12            13     14                 15          16
 									"rotation0, rotation1, rotation2, rotation3, spawntimesecs, animprogress, state, spawnDifficulties, eventEntry, poolSpawnId, " +
 									//17             18       19          20              21
@@ -4498,7 +4503,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						break;
 				}
 
-			if (gInfo.displayId != 0 && !CliDB.GameObjectDisplayInfoStorage.ContainsKey(gInfo.displayId))
+			if (gInfo.displayId != 0 && !_cliDB.GameObjectDisplayInfoStorage.ContainsKey(gInfo.displayId))
 			{
 				Log.Logger.Error("Gameobject (GUID: {0} Entry {1} GoType: {2}) has an invalid displayId ({3}), not loaded.", guid, entry, gInfo.type, gInfo.displayId);
 
@@ -4520,7 +4525,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			data.spawntimesecs = result.Read<int>(11);
 			data.SpawnGroupData = IsTransportMap(data.MapId) ? GetLegacySpawnGroup() : GetDefaultSpawnGroup(); // transport spawns default to compatibility group
 
-			var mapEntry = CliDB.MapStorage.LookupByKey(data.MapId);
+			var mapEntry = _cliDB.MapStorage.LookupByKey(data.MapId);
 
 			if (mapEntry == null)
 			{
@@ -4585,7 +4590,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			if (data.PhaseId != 0)
-				if (!CliDB.PhaseStorage.ContainsKey(data.PhaseId))
+				if (!_cliDB.PhaseStorage.ContainsKey(data.PhaseId))
 				{
 					Log.Logger.Error("Table `gameobject` have gameobject (GUID: {0} Entry: {1}) with `phaseid` {2} does not exist, set to 0", guid, data.Id, data.PhaseId);
 					data.PhaseId = 0;
@@ -4602,7 +4607,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (data.terrainSwapMap != -1)
 			{
-				var terrainSwapEntry = CliDB.MapStorage.LookupByKey(data.terrainSwapMap);
+				var terrainSwapEntry = _cliDB.MapStorage.LookupByKey(data.terrainSwapMap);
 
 				if (terrainSwapEntry == null)
 				{
@@ -4659,16 +4664,16 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				data.Rotation = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(data.SpawnPoint.Orientation, 0f, 0f));
 			}
 
-			if (GetDefaultValue("Calculate.Gameoject.Zone.Area.Data", false))
+			if (_configuration.GetDefaultValue("Calculate.Gameoject.Zone.Area.Data", false))
 			{
 				PhasingHandler.InitDbVisibleMapId(phaseShift, data.terrainSwapMap);
 				Global.TerrainMgr.GetZoneAndAreaId(phaseShift, out var zoneId, out var areaId, data.MapId, data.SpawnPoint);
 
-				var stmt = DB.World.GetPreparedStatement(WorldStatements.UPD_GAMEOBJECT_ZONE_AREA_DATA);
+				var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.UPD_GAMEOBJECT_ZONE_AREA_DATA);
 				stmt.AddValue(0, zoneId);
 				stmt.AddValue(1, areaId);
 				stmt.AddValue(2, guid);
-				DB.World.Execute(stmt);
+				_worldDatabase.Execute(stmt);
 			}
 
 			// if not this is to be managed by GameEvent System
@@ -4689,7 +4694,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_gameObjectAddonStorage.Clear();
 
 		//                                         0     1                 2                 3                 4                 5                 6                  7              8
-		var result = DB.World.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID, AIAnimKitID FROM gameobject_addon");
+		var result = _worldDatabase.Query("SELECT guid, parent_rotation0, parent_rotation1, parent_rotation2, parent_rotation3, invisibilityType, invisibilityValue, WorldEffectID, AIAnimKitID FROM gameobject_addon");
 
 		if (result.IsEmpty())
 		{
@@ -4708,8 +4713,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (goData == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM gameobject_addon WHERE guid = {guid}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM gameobject_addon WHERE guid = {guid}");
 				else
 					Log.Logger.Error($"GameObject (GUID: {guid}) does not exist but has a record in `gameobject_addon`");
 
@@ -4744,13 +4749,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				gameObjectAddon.ParentRotation = Quaternion.Identity;
 			}
 
-			if (gameObjectAddon.WorldEffectID != 0 && !CliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
+			if (gameObjectAddon.WorldEffectID != 0 && !_cliDB.WorldEffectStorage.ContainsKey(gameObjectAddon.WorldEffectID))
 			{
 				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid WorldEffectID ({gameObjectAddon.WorldEffectID}) in `gameobject_addon`, set to 0.");
 				gameObjectAddon.WorldEffectID = 0;
 			}
 
-			if (gameObjectAddon.AIAnimKitID != 0 && !CliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AIAnimKitID))
+			if (gameObjectAddon.AIAnimKitID != 0 && !_cliDB.AnimKitStorage.ContainsKey(gameObjectAddon.AIAnimKitID))
 			{
 				Log.Logger.Error($"GameObject (GUID: {guid}) has invalid AIAnimKitID ({gameObjectAddon.AIAnimKitID}) in `gameobject_addon`, set to 0.");
 				gameObjectAddon.AIAnimKitID = 0;
@@ -4768,7 +4773,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                           0                1
-		var result = DB.World.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
+		var result = _worldDatabase.Query("SELECT GameObjectEntry, ItemId, Idx FROM gameobject_questitem ORDER BY Idx ASC");
 
 		if (result.IsEmpty())
 		{
@@ -4792,7 +4797,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				continue;
 			}
 
-			if (!CliDB.ItemStorage.ContainsKey(item))
+			if (!_cliDB.ItemStorage.ContainsKey(item))
 			{
 				Log.Logger.Error("Table `gameobject_questitem` has nonexistent item (ID: {0}) in gameobject (entry: {1}, idx: {2}), skipped", item, entry, idx);
 
@@ -4954,9 +4959,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 		uint sparseCount = 0;
 
-		foreach (var sparse in CliDB.ItemSparseStorage.Values)
+		foreach (var sparse in _cliDB.ItemSparseStorage.Values)
 		{
-			var db2Data = CliDB.ItemStorage.LookupByKey(sparse.Id);
+			var db2Data = _cliDB.ItemStorage.LookupByKey(sparse.Id);
 
 			if (db2Data == null)
 				continue;
@@ -4972,7 +4977,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				foreach (var itemSpecOverride in itemSpecOverrides)
 				{
-					var specialization = CliDB.ChrSpecializationStorage.LookupByKey(itemSpecOverride.SpecID);
+					var specialization = _cliDB.ChrSpecializationStorage.LookupByKey(itemSpecOverride.SpecID);
 
 					if (specialization != null)
 					{
@@ -4988,7 +4993,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				ItemSpecStats itemSpecStats = new(db2Data, sparse);
 
-				foreach (var itemSpec in CliDB.ItemSpecStorage.Values)
+				foreach (var itemSpec in _cliDB.ItemSpecStorage.Values)
 				{
 					if (itemSpecStats.ItemType != itemSpec.ItemType)
 						continue;
@@ -5008,7 +5013,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					if (!hasPrimary || !hasSecondary)
 						continue;
 
-					var specialization = CliDB.ChrSpecializationStorage.LookupByKey(itemSpec.SpecializationID);
+					var specialization = _cliDB.ChrSpecializationStorage.LookupByKey(itemSpec.SpecializationID);
 
 					if (specialization != null)
 						if (Convert.ToBoolean((1 << (specialization.ClassID - 1)) & sparse.AllowableClass))
@@ -5036,13 +5041,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		// Load item effects (spells)
-		foreach (var effectEntry in CliDB.ItemXItemEffectStorage.Values)
+		foreach (var effectEntry in _cliDB.ItemXItemEffectStorage.Values)
 		{
 			var item = _itemTemplateStorage.LookupByKey(effectEntry.ItemID);
 
 			if (item != null)
 			{
-				var effect = CliDB.ItemEffectStorage.LookupByKey(effectEntry.ItemEffectID);
+				var effect = _cliDB.ItemEffectStorage.LookupByKey(effectEntry.ItemEffectID);
 
 				if (effect != null)
 					item.Effects.Add(effect);
@@ -5057,7 +5062,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var time = Time.MSTime;
 
 		uint count = 0;
-		var result = DB.World.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
+		var result = _worldDatabase.Query("SELECT Id, FlagsCu, FoodType, MinMoneyLoot, MaxMoneyLoot, SpellPPMChance, RandomBonusListTemplateId FROM item_template_addon");
 
 		if (!result.IsEmpty())
 			do
@@ -5100,7 +5105,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 		uint count = 0;
 
-		var result = DB.World.Query("SELECT Id, ScriptName FROM item_script_names");
+		var result = _worldDatabase.Query("SELECT Id, ScriptName FROM item_script_names");
 
 		if (!result.IsEmpty())
 			do
@@ -5143,7 +5148,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_NPC_VENDOR);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_NPC_VENDOR);
 
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, vItem.Item);
@@ -5152,7 +5157,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			stmt.AddValue(4, vItem.ExtendedCost);
 			stmt.AddValue(5, (byte)vItem.Type);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 	}
 
@@ -5168,13 +5173,13 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		if (persist)
 		{
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_NPC_VENDOR);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_NPC_VENDOR);
 
 			stmt.AddValue(0, entry);
 			stmt.AddValue(1, item);
 			stmt.AddValue(2, (byte)type);
 
-			DB.World.Execute(stmt);
+			_worldDatabase.Execute(stmt);
 		}
 
 		return true;
@@ -5188,8 +5193,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			if (player != null)
 				player.SendSysMessage(CypherStrings.CommandVendorselection);
-			else if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-				DB.World.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
+			else if (_configuration.GetDefaultValue("load.autoclean", false))
+				_worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
 			else
 				Log.Logger.Error("Table `(gameevent)npcvendor` have data for not existed creature template (Entry: {0}), ignore", vendorentry);
 
@@ -5202,8 +5207,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				if (player != null)
 					player.SendSysMessage(CypherStrings.CommandVendorselection);
-				else if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
+				else if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM npc_vendor WHERE entry = {vendorentry}");
 				else
 					Log.Logger.Error("Table `(gameevent)npcvendor` have data for not creature template (Entry: {0}) without vendor flag, ignore", vendorentry);
 
@@ -5215,7 +5220,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		if ((vItem.Type == ItemVendorType.Item && GetItemTemplate(vItem.Item) == null) ||
-			(vItem.Type == ItemVendorType.Currency && CliDB.CurrencyTypesStorage.LookupByKey(vItem.Item) == null))
+			(vItem.Type == ItemVendorType.Currency && _cliDB.CurrencyTypesStorage.LookupByKey(vItem.Item) == null))
 		{
 			if (player != null)
 				player.SendSysMessage(CypherStrings.ItemNotFound, vItem.Item, vItem.Type);
@@ -5225,14 +5230,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			return false;
 		}
 
-		if (vItem.PlayerConditionId != 0 && !CliDB.PlayerConditionStorage.ContainsKey(vItem.PlayerConditionId))
+		if (vItem.PlayerConditionId != 0 && !_cliDB.PlayerConditionStorage.ContainsKey(vItem.PlayerConditionId))
 		{
 			Log.Logger.Error("Table `(game_event_)npc_vendor` has Item (Entry: {0}) with invalid PlayerConditionId ({1}) for vendor ({2}), ignore", vItem.Item, vItem.PlayerConditionId, vendorentry);
 
 			return false;
 		}
 
-		if (vItem.ExtendedCost != 0 && !CliDB.ItemExtendedCostStorage.ContainsKey(vItem.ExtendedCost))
+		if (vItem.ExtendedCost != 0 && !_cliDB.ItemExtendedCostStorage.ContainsKey(vItem.ExtendedCost))
 		{
 			if (player != null)
 				player.SendSysMessage(CypherStrings.ExtendedCostNotExist, vItem.ExtendedCost);
@@ -5328,7 +5333,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var time = Time.MSTime;
 
 		//                                          0     1       2
-		var result = DB.World.Query("SELECT map, parent, script FROM instance_template");
+		var result = _worldDatabase.Query("SELECT map, parent, script FROM instance_template");
 
 		if (result.IsEmpty())
 		{
@@ -5371,7 +5376,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		GameTeleStorage.Clear();
 
 		//                                          0       1           2           3           4        5     6
-		var result = DB.World.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
+		var result = _worldDatabase.Query("SELECT id, position_x, position_y, position_z, orientation, map, name FROM game_tele");
 
 		if (result.IsEmpty())
 		{
@@ -5388,19 +5393,19 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			GameTele gt = new()
 			{
-				posX = result.Read<float>(1),
-				posY = result.Read<float>(2),
-				posZ = result.Read<float>(3),
-				orientation = result.Read<float>(4),
-				mapId = result.Read<uint>(5),
-				name = result.Read<string>(6)
+				PosX = result.Read<float>(1),
+				PosY = result.Read<float>(2),
+				PosZ = result.Read<float>(3),
+				Orientation = result.Read<float>(4),
+				MapId = result.Read<uint>(5),
+				Name = result.Read<string>(6)
 			};
 
-			gt.nameLow = gt.name.ToLowerInvariant();
+			gt.NameLow = gt.Name.ToLowerInvariant();
 
-			if (!GridDefines.IsValidMapCoord(gt.mapId, gt.posX, gt.posY, gt.posZ, gt.orientation))
+			if (!GridDefines.IsValidMapCoord(gt.MapId, gt.PosX, gt.PosY, gt.PosZ, gt.Orientation))
 			{
-				Log.Logger.Error("Wrong position for id {0} (name: {1}) in `game_tele` table, ignoring.", id, gt.name);
+				Log.Logger.Error("Wrong position for id {0} (name: {1}) in `game_tele` table, ignoring.", id, gt.Name);
 
 				continue;
 			}
@@ -5419,7 +5424,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_areaTriggerStorage.Clear(); // need for reload case
 
 		//                                         0   1
-		var result = DB.World.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
+		var result = _worldDatabase.Query("SELECT ID, PortLocID FROM areatrigger_teleport");
 
 		if (result.IsEmpty())
 		{
@@ -5448,15 +5453,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			AreaTriggerStruct at = new()
 			{
-				target_mapId = portLoc.Loc.MapId,
-				target_X = portLoc.Loc.X,
-				target_Y = portLoc.Loc.Y,
-				target_Z = portLoc.Loc.Z,
-				target_Orientation = portLoc.Loc.Orientation,
+				TargetMapId = portLoc.Loc.MapId,
+				TargetX = portLoc.Loc.X,
+				TargetY = portLoc.Loc.Y,
+				TargetZ = portLoc.Loc.Z,
+				TargetOrientation = portLoc.Loc.Orientation,
 				PortLocId = portLoc.Id
 			};
 
-			var atEntry = CliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
+			var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
 
 			if (atEntry == null)
 			{
@@ -5478,7 +5483,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_accessRequirementStorage.Clear();
 
 		//                                          0      1           2          3          4           5      6             7             8                      9     
-		var result = DB.World.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
+		var result = _worldDatabase.Query("SELECT mapid, difficulty, level_min, level_max, item, item2, quest_done_A, quest_done_H, completed_achievement, quest_failed_text FROM access_requirement");
 
 		if (result.IsEmpty())
 		{
@@ -5493,7 +5498,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var mapid = result.Read<uint>(0);
 
-			if (!CliDB.MapStorage.ContainsKey(mapid))
+			if (!_cliDB.MapStorage.ContainsKey(mapid))
 			{
 				Log.Logger.Error("Map {0} referenced in `access_requirement` does not exist, skipped.", mapid);
 
@@ -5560,7 +5565,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 			if (ar.Achievement != 0)
-				if (!CliDB.AchievementStorage.ContainsKey(ar.Achievement))
+				if (!_cliDB.AchievementStorage.ContainsKey(ar.Achievement))
 				{
 					Log.Logger.Error("Required Achievement {0} not exist for map {1} difficulty {2}, remove quest done requirement.", ar.Achievement, mapid, difficulty);
 					ar.Achievement = 0;
@@ -5578,7 +5583,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                           0         1            2                3
-		var result = DB.World.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
+		var result = _worldDatabase.Query("SELECT entry, creditType, creditEntry, lastEncounterDungeon FROM instance_encounters");
 
 		if (result.IsEmpty())
 		{
@@ -5596,7 +5601,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var creditType = (EncounterCreditType)result.Read<byte>(1);
 			var creditEntry = result.Read<uint>(2);
 			var lastEncounterDungeon = result.Read<uint>(3);
-			var dungeonEncounter = CliDB.DungeonEncounterStorage.LookupByKey(entry);
+			var dungeonEncounter = _cliDB.DungeonEncounterStorage.LookupByKey(entry);
 
 			if (dungeonEncounter == null)
 			{
@@ -5689,7 +5694,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (dungeonEncounter.DifficultyID == 0)
 			{
-				foreach (var difficulty in CliDB.DifficultyStorage.Values)
+				foreach (var difficulty in _cliDB.DifficultyStorage.Values)
 					if (Global.DB2Mgr.GetMapDifficultyData((uint)dungeonEncounter.MapID, (Difficulty)difficulty.Id) != null)
 						_dungeonEncounterStorage.Add(MathFunctions.MakePair64((uint)dungeonEncounter.MapID, difficulty.Id), new DungeonEncounter(dungeonEncounter, creditType, creditEntry, lastEncounterDungeon));
 			}
@@ -5709,7 +5714,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0        1          2
-		var result = DB.World.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
+		var result = _worldDatabase.Query("SELECT groupId, groupName, groupFlags FROM spawn_group_template");
 
 		if (!result.IsEmpty())
 			do
@@ -5783,7 +5788,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0        1          2
-		var result = DB.World.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
+		var result = _worldDatabase.Query("SELECT groupId, spawnType, spawnId FROM spawn_group");
 
 		if (result.IsEmpty())
 		{
@@ -5802,8 +5807,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (!SpawnMetadata.TypeIsValid(spawnType))
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
 					Log.Logger.Error($"Spawn data with invalid type {spawnType} listed for spawn group {groupId}. Skipped.");
 
@@ -5814,8 +5819,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (data == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
 					Log.Logger.Error($"Spawn data with ID ({spawnType},{spawnId}) not found, but is listed as a member of spawn group {groupId}!");
 
@@ -5823,8 +5828,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 			else if (data.SpawnGroupData.GroupId != 0)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 				else
 					Log.Logger.Error($"Spawn with ID ({spawnType},{spawnId}) is listed as a member of spawn group {groupId}, but is already a member of spawn group {data.SpawnGroupData.GroupId}. Skipping.");
 
@@ -5848,8 +5853,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 				else if (groupTemplate.MapId != data.MapId && !groupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM spawn_group WHERE groupId = {groupId} AND spawnType = {(byte)spawnType} AND spawnId = {spawnId}");
 					else
 						Log.Logger.Error($"Spawn group {groupId} has map ID {groupTemplate.MapId}, but spawn ({spawnType},{spawnId}) has map id {data.MapId} - spawn NOT added to group!");
 
@@ -5873,7 +5878,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0              1            2           3             4
-		var result = DB.World.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
+		var result = _worldDatabase.Query("SELECT instanceMapId, bossStateId, bossStates, spawnGroupId, flags FROM instance_spawn_groups");
 
 		if (result.IsEmpty())
 		{
@@ -5892,8 +5897,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (spawnGroupTemplate == null || spawnGroupTemplate.Flags.HasAnyFlag(SpawnGroupFlags.System))
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
 				else
 					Log.Logger.Error($"Invalid spawn group {spawnGroupId} specified for instance {instanceMapId}. Skipped.");
 
@@ -5902,8 +5907,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (spawnGroupTemplate.MapId != instanceMapId)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM instance_spawn_groups WHERE instanceMapId = {instanceMapId} AND spawnGroupId = {spawnGroupId}");
 				else
 					Log.Logger.Error($"Instance spawn group {spawnGroupId} specified for instance {instanceMapId} has spawns on a different map {spawnGroupTemplate.MapId}. Skipped.");
 
@@ -5978,9 +5983,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		GameTele alt = null;
 
 		foreach (var (_, tele) in GameTeleStorage)
-			if (tele.nameLow == name)
+			if (tele.NameLow == name)
 				return tele;
-			else if (alt == null && tele.nameLow.Contains(name))
+			else if (alt == null && tele.NameLow.Contains(name))
 				alt = tele;
 
 		return alt;
@@ -5991,7 +5996,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		name = name.ToLower();
 
 		foreach (var (_, tele) in GameTeleStorage)
-			if (tele.nameLow == name)
+			if (tele.NameLow == name)
 				return tele;
 
 		return null;
@@ -6011,17 +6016,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		GameTeleStorage[newId] = tele;
 
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.INS_GAME_TELE);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.INS_GAME_TELE);
 
 		stmt.AddValue(0, newId);
-		stmt.AddValue(1, tele.posX);
-		stmt.AddValue(2, tele.posY);
-		stmt.AddValue(3, tele.posZ);
-		stmt.AddValue(4, tele.orientation);
-		stmt.AddValue(5, tele.mapId);
-		stmt.AddValue(6, tele.name);
+		stmt.AddValue(1, tele.PosX);
+		stmt.AddValue(2, tele.PosY);
+		stmt.AddValue(3, tele.PosZ);
+		stmt.AddValue(4, tele.Orientation);
+		stmt.AddValue(5, tele.MapId);
+		stmt.AddValue(6, tele.Name);
 
-		DB.World.Execute(stmt);
+		_worldDatabase.Execute(stmt);
 
 		return true;
 	}
@@ -6031,11 +6036,11 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		name = name.ToLowerInvariant();
 
 		foreach (var pair in GameTeleStorage.ToList())
-			if (pair.Value.nameLow == name)
+			if (pair.Value.NameLow == name)
 			{
-				var stmt = DB.World.GetPreparedStatement(WorldStatements.DEL_GAME_TELE);
-				stmt.AddValue(0, pair.Value.name);
-				DB.World.Execute(stmt);
+				var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.DEL_GAME_TELE);
+				stmt.AddValue(0, pair.Value.Name);
+				_worldDatabase.Execute(stmt);
 
 				GameTeleStorage.Remove(pair.Key);
 
@@ -6132,7 +6137,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		// Load playercreate
 		{
 			//                                         0     1      2    3           4           5           6            7        8               9               10              11               12                  13              14              15
-			var result = DB.World.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid, intro_movie_id, intro_scene_id, npe_intro_scene_id FROM playercreateinfo");
+			var result = _worldDatabase.Query("SELECT race, class, map, position_x, position_y, position_z, orientation, npe_map, npe_position_x, npe_position_y, npe_position_z, npe_orientation, npe_transport_guid, intro_movie_id, intro_scene_id, npe_intro_scene_id FROM playercreateinfo");
 
 			if (result.IsEmpty())
 			{
@@ -6153,14 +6158,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				var positionZ = result.Read<float>(5);
 				var orientation = result.Read<float>(6);
 
-				if (!CliDB.ChrRacesStorage.ContainsKey(currentrace))
+				if (!_cliDB.ChrRacesStorage.ContainsKey(currentrace))
 				{
 					Log.Logger.Error($"Wrong race {currentrace} in `playercreateinfo` table, ignoring.");
 
 					continue;
 				}
 
-				if (!CliDB.ChrClassesStorage.ContainsKey(currentclass))
+				if (!_cliDB.ChrClassesStorage.ContainsKey(currentclass))
 				{
 					Log.Logger.Error($"Wrong class {currentclass} in `playercreateinfo` table, ignoring.");
 
@@ -6175,7 +6180,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					continue;
 				}
 
-				if (CliDB.MapStorage.LookupByKey(mapId).Instanceable())
+				if (_cliDB.MapStorage.LookupByKey(mapId).Instanceable())
 				{
 					Log.Logger.Error($"Home position in instanceable map for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 
@@ -6211,7 +6216,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					info.CreatePositionNpe = createPosition;
 
-					if (!CliDB.MapStorage.ContainsKey(info.CreatePositionNpe.Value.Loc.MapId))
+					if (!_cliDB.MapStorage.ContainsKey(info.CreatePositionNpe.Value.Loc.MapId))
 					{
 						Log.Logger.Error($"Invalid NPE map id {info.CreatePositionNpe.Value.Loc.MapId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
 						info.CreatePositionNpe = null;
@@ -6228,7 +6233,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					var introMovieId = result.Read<uint>(13);
 
-					if (CliDB.MovieStorage.ContainsKey(introMovieId))
+					if (_cliDB.MovieStorage.ContainsKey(introMovieId))
 						info.IntroMovieId = introMovieId;
 					else
 						Log.Logger.Debug($"Invalid intro movie id {introMovieId} for class {currentclass} race {currentrace} pair in `playercreateinfo` table, ignoring.");
@@ -6269,7 +6274,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			MultiMap<uint, ItemTemplate> itemsByCharacterLoadout = new();
 
-			foreach (var characterLoadoutItem in CliDB.CharacterLoadoutItemStorage.Values)
+			foreach (var characterLoadoutItem in _cliDB.CharacterLoadoutItemStorage.Values)
 			{
 				var itemTemplate = GetItemTemplate(characterLoadoutItem.ItemID);
 
@@ -6277,7 +6282,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					itemsByCharacterLoadout.Add(characterLoadoutItem.CharacterLoadoutID, itemTemplate);
 			}
 
-			foreach (var characterLoadout in CliDB.CharacterLoadoutStorage.Values)
+			foreach (var characterLoadout in _cliDB.CharacterLoadoutStorage.Values)
 			{
 				if (!characterLoadout.IsForNewCharacter())
 					continue;
@@ -6332,7 +6337,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		{
 			//                                         0     1      2       3
-			var result = DB.World.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
+			var result = _worldDatabase.Query("SELECT race, class, itemid, amount FROM playercreateinfo_item");
 
 			if (result.IsEmpty())
 			{
@@ -6409,7 +6414,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			foreach (var rcInfo in CliDB.SkillRaceClassInfoStorage.Values)
+			foreach (var rcInfo in _cliDB.SkillRaceClassInfoStorage.Values)
 				if (rcInfo.Availability == 1)
 					for (var raceIndex = Race.Human; raceIndex < Race.Max; ++raceIndex)
 						if (rcInfo.RaceMask == -1 || Convert.ToBoolean(SharedConst.GetMaskForRace(raceIndex) & rcInfo.RaceMask))
@@ -6427,7 +6432,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
+			var result = _worldDatabase.Query("SELECT racemask, classmask, Spell FROM playercreateinfo_spell_custom");
 
 			if (result.IsEmpty())
 			{
@@ -6478,7 +6483,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
+			var result = _worldDatabase.Query("SELECT raceMask, classMask, spell, createMode FROM playercreateinfo_cast_spell");
 
 			if (result.IsEmpty())
 			{
@@ -6537,7 +6542,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		{
 			//                                         0     1      2       3       4
-			var result = DB.World.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
+			var result = _worldDatabase.Query("SELECT race, class, button, action, type FROM playercreateinfo_action");
 
 			if (result.IsEmpty())
 			{
@@ -6588,7 +6593,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				raceStatModifiers[i] = new short[(int)Stats.Max];
 
 			//                                         0     1    2    3    4 
-			var result = DB.World.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
+			var result = _worldDatabase.Query("SELECT race, str, agi, sta, inte FROM player_racestats");
 
 			if (result.IsEmpty())
 			{
@@ -6614,7 +6619,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			} while (result.NextRow());
 
 			//                               0      1      2    3    4    5
-			result = DB.World.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
+			result = _worldDatabase.Query("SELECT class, level, str, agi, sta, inte FROM player_classlevelstats");
 
 			if (result.IsEmpty())
 			{
@@ -6639,7 +6644,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				var currentlevel = result.Read<uint>(1);
 
-				if (currentlevel > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+				if (currentlevel > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 				{
 					if (currentlevel > 255) // hardcoded level maximum
 						Log.Logger.Error($"Wrong (> 255) level {currentlevel} in `player_classlevelstats` table, ignoring.");
@@ -6665,35 +6670,35 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			for (Race race = 0; race < Race.Max; ++race)
 			{
 				// skip non existed races
-				if (!CliDB.ChrRacesStorage.ContainsKey(race))
+				if (!_cliDB.ChrRacesStorage.ContainsKey(race))
 					continue;
 
 				for (PlayerClass _class = 0; _class < PlayerClass.Max; ++_class)
 				{
 					// skip non existed classes
-					if (CliDB.ChrClassesStorage.LookupByKey(_class) == null)
+					if (_cliDB.ChrClassesStorage.LookupByKey(_class) == null)
 						continue;
 
 					if (!_playerInfo.TryGetValue(race, _class, out var playerInfo))
 						continue;
 
-					if (ConfigMgr.GetDefaultValue("character.EnforceRaceAndClassExpations", true))
+					if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpations", true))
 					{
 						// skip expansion races if not playing with expansion
-						if (GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.BurningCrusade && (race == Race.BloodElf || race == Race.Draenei))
+						if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.BurningCrusade && (race == Race.BloodElf || race == Race.Draenei))
 							continue;
 
 						// skip expansion classes if not playing with expansion
-						if (GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.WrathOfTheLichKing && _class == PlayerClass.Deathknight)
+						if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.WrathOfTheLichKing && _class == PlayerClass.Deathknight)
 							continue;
 
-						if (GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.MistsOfPandaria && (race == Race.PandarenNeutral || race == Race.PandarenHorde || race == Race.PandarenAlliance))
+						if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.MistsOfPandaria && (race == Race.PandarenNeutral || race == Race.PandarenHorde || race == Race.PandarenAlliance))
 							continue;
 
-						if (GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.Legion && _class == PlayerClass.DemonHunter)
+						if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.Legion && _class == PlayerClass.DemonHunter)
 							continue;
 
-						if (GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.Dragonflight && _class == PlayerClass.Evoker)
+						if (_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) < (int)Expansion.Dragonflight && _class == PlayerClass.Evoker)
 							continue;
 					}
 
@@ -6707,7 +6712,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					}
 
 					// fill level gaps
-					for (var level = 1; level < GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
+					for (var level = 1; level < _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
 						if (playerInfo.LevelInfo[level].Stats[0] == 0)
 						{
 							Log.Logger.Error("Race {0} Class {1} Level {2} does not have stats data. Using stats data of level {3}.", race, _class, level + 1, level);
@@ -6724,14 +6729,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		Log.Logger.Information("Loading Player Create XP Data...");
 
 		{
-			_playerXPperLevel = new uint[CliDB.XpGameTable.GetTableRowCount() + 1];
+			_playerXPperLevel = new uint[_cliDB.XpGameTable.GetTableRowCount() + 1];
 
 			//                                          0      1
-			var result = DB.World.Query("SELECT Level, Experience FROM player_xp_for_level");
+			var result = _worldDatabase.Query("SELECT Level, Experience FROM player_xp_for_level");
 
 			// load the DBC's levels at first...
-			for (uint level = 1; level < CliDB.XpGameTable.GetTableRowCount(); ++level)
-				_playerXPperLevel[level] = (uint)CliDB.XpGameTable.GetRow(level).Total;
+			for (uint level = 1; level < _cliDB.XpGameTable.GetTableRowCount(); ++level)
+				_playerXPperLevel[level] = (uint)_cliDB.XpGameTable.GetRow(level).Total;
 
 			uint count = 0;
 
@@ -6743,7 +6748,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					uint currentlevel = result.Read<byte>(0);
 					var currentxp = result.Read<uint>(1);
 
-					if (currentlevel >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+					if (currentlevel >= _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 					{
 						if (currentlevel > SharedConst.StrongMaxLevel) // hardcoded level maximum
 						{
@@ -6764,7 +6769,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				} while (result.NextRow());
 
 				// fill level gaps
-				for (var level = 1; level < GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
+				for (var level = 1; level < _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
 					if (_playerXPperLevel[level] == 0)
 					{
 						Log.Logger.Error("Level {0} does not have XP for level data. Using data of level [{1}] + 12000.", level + 1, level);
@@ -6797,10 +6802,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (level < 1 || _class >= PlayerClass.Max)
 			return;
 
-		if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
-			level = (byte)GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
+		if (level > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			level = (byte)_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
-		var mp = CliDB.BaseMPGameTable.GetRow(level);
+		var mp = _cliDB.BaseMPGameTable.GetRow(level);
 
 		if (mp == null)
 		{
@@ -6809,7 +6814,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			return;
 		}
 
-		baseMana = (uint)CliDB.GetGameTableColumnForClass(mp, _class);
+		baseMana = (uint)_cliDB.GetGameTableColumnForClass(mp, _class);
 	}
 
 	public PlayerLevelInfo GetPlayerLevelInfo(Race race, PlayerClass _class, uint level)
@@ -6820,7 +6825,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (!_playerInfo.TryGetValue(race, _class, out var pInfo))
 			return null;
 
-		if (level <= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+		if (level <= _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			return pInfo.LevelInfo[level - 1];
 		else
 			return BuildPlayerLevelInfo(race, _class, level);
@@ -6832,7 +6837,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0               1      2   3     4    5    6    7     8    9
-		var result = DB.World.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
+		var result = _worldDatabase.Query("SELECT creature_entry, level, hp, mana, str, agi, sta, inte, spi, armor FROM pet_levelstats");
 
 		if (result.IsEmpty())
 		{
@@ -6849,8 +6854,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (GetCreatureTemplate(creatureid) == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM pet_levelstats WHERE creature_entry = {creatureid}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM pet_levelstats WHERE creature_entry = {creatureid}");
 				else
 					Log.Logger.Error("Wrong creature id {0} in `pet_levelstats` table, ignoring.", creatureid);
 
@@ -6859,7 +6864,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			var currentlevel = result.Read<uint>(1);
 
-			if (currentlevel > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			if (currentlevel > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			{
 				if (currentlevel > SharedConst.StrongMaxLevel) // hardcoded level maximum
 				{
@@ -6883,17 +6888,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var pInfoMapEntry = _petInfoStore.LookupByKey(creatureid);
 
 			if (pInfoMapEntry == null)
-				pInfoMapEntry = new PetLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
+				pInfoMapEntry = new PetLevelInfo[_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
 
 			PetLevelInfo pLevelInfo = new()
 			{
-				health = result.Read<uint>(2),
-				mana = result.Read<uint>(3),
-				armor = result.Read<uint>(9)
+				Health = result.Read<uint>(2),
+				Mana = result.Read<uint>(3),
+				Armor = result.Read<uint>(9)
 			};
 
 			for (var i = 0; i < (int)Stats.Max; i++)
-				pLevelInfo.stats[i] = result.Read<uint>(i + 4);
+				pLevelInfo.Stats[i] = result.Read<uint>(i + 4);
 
 			pInfoMapEntry[currentlevel - 1] = pLevelInfo;
 
@@ -6906,15 +6911,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var pInfo = map.Value;
 
 			// fatal error if no level 1 data
-			if (pInfo == null || pInfo[0].health == 0)
+			if (pInfo == null || pInfo[0].Health == 0)
 			{
 				Log.Logger.Error("Creature {0} does not have pet stats data for Level 1!", map.Key);
 				Global.WorldMgr.StopNow();
 			}
 
 			// fill level gaps
-			for (byte level = 1; level < GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
-				if (pInfo[level].health == 0)
+			for (byte level = 1; level < _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
+				if (pInfo[level].Health == 0)
 				{
 					Log.Logger.Error("Creature {0} has no data for Level {1} pet stats data, using data of Level {2}.", map.Key, level + 1, level);
 					pInfo[level] = pInfo[level - 1];
@@ -6928,7 +6933,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 		//                                          0     1      2
-		var result = DB.World.Query("SELECT word, entry, half FROM pet_name_generation");
+		var result = _worldDatabase.Query("SELECT word, entry, half FROM pet_name_generation");
 
 		if (result.IsEmpty())
 		{
@@ -6970,8 +6975,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public PetLevelInfo GetPetLevelInfo(uint creatureid, uint level)
 	{
-		if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
-			level = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
+		if (level > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			level = _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 		var petinfo = _petInfoStore.LookupByKey(creatureid);
 
@@ -7020,7 +7025,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_achievement");
 
 		if (result.IsEmpty())
 		{
@@ -7036,9 +7041,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var alliance = result.Read<uint>(0);
 			var horde = result.Read<uint>(1);
 
-			if (!CliDB.AchievementStorage.ContainsKey(alliance))
+			if (!_cliDB.AchievementStorage.ContainsKey(alliance))
 				Log.Logger.Error("Achievement {0} (alliance_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", alliance);
-			else if (!CliDB.AchievementStorage.ContainsKey(horde))
+			else if (!_cliDB.AchievementStorage.ContainsKey(horde))
 				Log.Logger.Error("Achievement {0} (horde_id) referenced in `player_factionchange_achievement` does not exist, pair skipped!", horde);
 			else
 				FactionChangeAchievements[alliance] = horde;
@@ -7076,7 +7081,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_quests");
 
 		if (result.IsEmpty())
 		{
@@ -7109,7 +7114,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_reputations");
 
 		if (result.IsEmpty())
 		{
@@ -7125,9 +7130,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var alliance = result.Read<uint>(0);
 			var horde = result.Read<uint>(1);
 
-			if (!CliDB.FactionStorage.ContainsKey(alliance))
+			if (!_cliDB.FactionStorage.ContainsKey(alliance))
 				Log.Logger.Error("Reputation {0} (alliance_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", alliance);
-			else if (!CliDB.FactionStorage.ContainsKey(horde))
+			else if (!_cliDB.FactionStorage.ContainsKey(horde))
 				Log.Logger.Error("Reputation {0} (horde_id) referenced in `player_factionchange_reputations` does not exist, pair skipped!", horde);
 			else
 				FactionChangeReputation[alliance] = horde;
@@ -7142,7 +7147,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_spells");
 
 		if (result.IsEmpty())
 		{
@@ -7175,7 +7180,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
+		var result = _worldDatabase.Query("SELECT alliance_id, horde_id FROM player_factionchange_titles");
 
 		if (result.IsEmpty())
 		{
@@ -7191,9 +7196,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var alliance = result.Read<uint>(0);
 			var horde = result.Read<uint>(1);
 
-			if (!CliDB.CharTitlesStorage.ContainsKey(alliance))
+			if (!_cliDB.CharTitlesStorage.ContainsKey(alliance))
 				Log.Logger.Error("Title {0} (alliance_id) referenced in `player_factionchange_title` does not exist, pair skipped!", alliance);
-			else if (!CliDB.CharTitlesStorage.ContainsKey(horde))
+			else if (!_cliDB.CharTitlesStorage.ContainsKey(horde))
 				Log.Logger.Error("Title {0} (horde_id) referenced in `player_factionchange_title` does not exist, pair skipped!", horde);
 			else
 				FactionChangeTitles[alliance] = horde;
@@ -7215,7 +7220,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_questObjectives.Clear();
 		_exclusiveQuestGroups.Clear();
 
-		var result = DB.World.Query("SELECT " +
+		var result = _worldDatabase.Query("SELECT " +
 									//0  1          2               3                4            5            6                  7                8                   9
 									"ID, QuestType, QuestPackageID, ContentTuningID, QuestSortID, QuestInfoID, SuggestedGroupNum, RewardNextQuest, RewardXPDifficulty, RewardXPMultiplier, " +
 									//10                    11                     12                13           14           15               16
@@ -7272,7 +7277,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_reward_choice_items`
 		//                               0        1      2      3      4      5      6
-		result = DB.World.Query("SELECT QuestID, Type1, Type2, Type3, Type4, Type5, Type6 FROM quest_reward_choice_items");
+		result = _worldDatabase.Query("SELECT QuestID, Type1, Type2, Type3, Type4, Type5, Type6 FROM quest_reward_choice_items");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest reward choice items. DB table `quest_reward_choice_items` is empty.");
@@ -7292,7 +7297,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_reward_display_spell`
 		//                               0        1        2
-		result = DB.World.Query("SELECT QuestID, SpellID, PlayerConditionID FROM quest_reward_display_spell ORDER BY QuestID ASC, Idx ASC");
+		result = _worldDatabase.Query("SELECT QuestID, SpellID, PlayerConditionID FROM quest_reward_display_spell ORDER BY QuestID ASC, Idx ASC");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest reward display spells. DB table `quest_reward_display_spell` is empty.");
@@ -7312,7 +7317,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_details`
 		//                               0   1       2       3       4       5            6            7            8
-		result = DB.World.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4 FROM quest_details");
+		result = _worldDatabase.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4 FROM quest_details");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest details. DB table `quest_details` is empty.");
@@ -7331,7 +7336,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_request_items`
 		//                               0   1                2                  3                     4                       5
-		result = DB.World.Query("SELECT ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText FROM quest_request_items");
+		result = _worldDatabase.Query("SELECT ID, EmoteOnComplete, EmoteOnIncomplete, EmoteOnCompleteDelay, EmoteOnIncompleteDelay, CompletionText FROM quest_request_items");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest request items. DB table `quest_request_items` is empty.");
@@ -7350,7 +7355,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_offer_reward`
 		//                               0   1       2       3       4       5            6            7            8            9
-		result = DB.World.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText FROM quest_offer_reward");
+		result = _worldDatabase.Query("SELECT ID, Emote1, Emote2, Emote3, Emote4, EmoteDelay1, EmoteDelay2, EmoteDelay3, EmoteDelay4, RewardText FROM quest_offer_reward");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest reward emotes. DB table `quest_offer_reward` is empty.");
@@ -7369,7 +7374,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_template_addon`
 		//                               0   1         2                 3              4            5            6               7                     8                     9
-		result = DB.World.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, BreadcrumbForQuestId, RewardMailTemplateID, RewardMailDelay, " +
+		result = _worldDatabase.Query("SELECT ID, MaxLevel, AllowableClasses, SourceSpellID, PrevQuestID, NextQuestID, ExclusiveGroup, BreadcrumbForQuestId, RewardMailTemplateID, RewardMailDelay, " +
 								//10               11                   12                     13                     14                   15                   16
 								"RequiredSkillID, RequiredSkillPoints, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, ProvidedItemCount, " +
 								//17           18
@@ -7392,7 +7397,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_mail_sender`
 		//                               0        1
-		result = DB.World.Query("SELECT QuestId, RewardMailSenderEntry FROM quest_mail_sender");
+		result = _worldDatabase.Query("SELECT QuestId, RewardMailSenderEntry FROM quest_mail_sender");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest mail senders. DB table `quest_mail_sender` is empty.");
@@ -7411,7 +7416,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_objectives`
 		//                               0        1   2     3             4         5       6      7       8                  9
-		result = DB.World.Query("SELECT QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description FROM quest_objectives ORDER BY `Order` ASC, StorageIndex ASC");
+		result = _worldDatabase.Query("SELECT QuestID, ID, Type, StorageIndex, ObjectID, Amount, Flags, Flags2, ProgressBarWeight, Description FROM quest_objectives ORDER BY `Order` ASC, StorageIndex ASC");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest objectives. DB table `quest_objectives` is empty.");
@@ -7429,7 +7434,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		// Load `quest_visual_effect` join table with quest_objectives because visual effects are based on objective ID (core stores objectives by their index in quest)
 		//                                 0     1     2          3        4
-		result = DB.World.Query("SELECT v.ID, o.ID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
+		result = _worldDatabase.Query("SELECT v.ID, o.ID, o.QuestID, v.Index, v.VisualEffect FROM quest_visual_effect AS v LEFT JOIN quest_objectives AS o ON v.ID = o.ID ORDER BY v.Index DESC");
 
 		if (result.IsEmpty())
 			Log.Logger.Information("Loaded 0 quest visual effects. DB table `quest_visual_effect` is empty.");
@@ -7529,12 +7534,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					// no changes, quest ignore this data
 				}
 
-			if (qinfo.ContentTuningId != 0 && !CliDB.ContentTuningStorage.ContainsKey(qinfo.ContentTuningId))
+			if (qinfo.ContentTuningId != 0 && !_cliDB.ContentTuningStorage.ContainsKey(qinfo.ContentTuningId))
 				Log.Logger.Error($"Quest {qinfo.Id} has `ContentTuningID` = {qinfo.ContentTuningId} but content tuning with this id does not exist.");
 
 			// client quest log visual (area case)
 			if (qinfo.QuestSortID > 0)
-				if (!CliDB.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
+				if (!_cliDB.AreaTableStorage.ContainsKey(qinfo.QuestSortID))
 					Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (zone case) but zone with this id does not exist.",
 									qinfo.Id,
 									qinfo.QuestSortID);
@@ -7543,7 +7548,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			// client quest log visual (sort case)
 			if (qinfo.QuestSortID < 0)
 			{
-				var qSort = CliDB.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
+				var qSort = _cliDB.QuestSortStorage.LookupByKey((uint)-qinfo.QuestSortID);
 
 				if (qSort == null)
 					Log.Logger.Error("Quest {0} has `ZoneOrSort` = {1} (sort case) but quest sort with this id does not exist.",
@@ -7581,7 +7586,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			// RequiredSkillId, can be 0
 			if (qinfo.RequiredSkillId != 0)
-				if (!CliDB.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
+				if (!_cliDB.SkillLineStorage.ContainsKey(qinfo.RequiredSkillId))
 					Log.Logger.Error("Quest {0} has `RequiredSkillId` = {1} but this skill does not exist",
 									qinfo.Id,
 									qinfo.RequiredSkillId);
@@ -7595,14 +7600,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			// no changes, quest can't be done for this requirement
 			// else Skill quests can have 0 skill level, this is ok
 
-			if (qinfo.RequiredMinRepFaction != 0 && !CliDB.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
+			if (qinfo.RequiredMinRepFaction != 0 && !_cliDB.FactionStorage.ContainsKey(qinfo.RequiredMinRepFaction))
 				Log.Logger.Error("Quest {0} has `RequiredMinRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
 								qinfo.Id,
 								qinfo.RequiredMinRepFaction,
 								qinfo.RequiredMinRepFaction);
 
 			// no changes, quest can't be done for this requirement
-			if (qinfo.RequiredMaxRepFaction != 0 && !CliDB.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
+			if (qinfo.RequiredMaxRepFaction != 0 && !_cliDB.FactionStorage.ContainsKey(qinfo.RequiredMaxRepFaction))
 				Log.Logger.Error("Quest {0} has `RequiredMaxRepFaction` = {1} but faction template {2} does not exist, quest can't be done.",
 								qinfo.Id,
 								qinfo.RequiredMaxRepFaction,
@@ -7635,7 +7640,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 								qinfo.RequiredMaxRepValue);
 
 			// warning
-			if (qinfo.RewardTitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
+			if (qinfo.RewardTitleId != 0 && !_cliDB.CharTitlesStorage.ContainsKey(qinfo.RewardTitleId))
 			{
 				Log.Logger.Error("Quest {0} has `RewardTitleId` = {1} but CharTitle Id {1} does not exist, quest can't be rewarded with title.",
 								qinfo.Id,
@@ -7658,8 +7663,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 				else if (qinfo.SourceItemIdCount == 0)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"UPDATE quest_template_addon SET ProvidedItemCount = 1 WHERE ID = {qinfo.Id}");
 					else
 						Log.Logger.Error("Quest {0} has `StartItem` = {1} but `ProvidedItemCount` = 0, set to 1 but need fix in DB.",
 										qinfo.Id,
@@ -7727,32 +7732,32 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					case QuestObjectiveType.Item:
 						if (GetItemTemplate((uint)obj.ObjectID) == null)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing item entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.Monster:
 						if (GetCreatureTemplate((uint)obj.ObjectID) == null)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.GameObject:
 						if (GetGameObjectTemplate((uint)obj.ObjectID) == null)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing gameobject entry {obj.ObjectID}, quest can't be done.");
 
 						break;
 					case QuestObjectiveType.TalkTo:
 						if (GetCreatureTemplate((uint)obj.ObjectID) == null)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error($"Quest {qinfo.Id} objective {obj.Id} has non existing creature entry {obj.ObjectID}, quest can't be done.");
 
@@ -7760,17 +7765,17 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case QuestObjectiveType.MinReputation:
 					case QuestObjectiveType.MaxReputation:
 					case QuestObjectiveType.IncreaseReputation:
-						if (!CliDB.FactionStorage.ContainsKey((uint)obj.ObjectID))
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+						if (!_cliDB.FactionStorage.ContainsKey((uint)obj.ObjectID))
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing faction id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.PlayerKills:
 						if (obj.Amount <= 0)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has invalid player kills count {2}", qinfo.Id, obj.Id, obj.Amount);
 
@@ -7778,55 +7783,55 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case QuestObjectiveType.Currency:
 					case QuestObjectiveType.HaveCurrency:
 					case QuestObjectiveType.ObtainCurrency:
-						if (!CliDB.CurrencyTypesStorage.ContainsKey((uint)obj.ObjectID))
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+						if (!_cliDB.CurrencyTypesStorage.ContainsKey((uint)obj.ObjectID))
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing currency {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						if (obj.Amount <= 0)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has invalid currency amount {2}", qinfo.Id, obj.Id, obj.Amount);
 
 						break;
 					case QuestObjectiveType.LearnSpell:
 						if (!Global.SpellMgr.HasSpellInfo((uint)obj.ObjectID, Difficulty.None))
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing spell id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.WinPetBattleAgainstNpc:
 						if (obj.ObjectID != 0 && GetCreatureTemplate((uint)obj.ObjectID) == null)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing creature entry {2}, quest can't be done.", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.DefeatBattlePet:
-						if (!CliDB.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+						if (!_cliDB.BattlePetSpeciesStorage.ContainsKey((uint)obj.ObjectID))
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing battlepet species id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.CriteriaTree:
-						if (!CliDB.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+						if (!_cliDB.CriteriaTreeStorage.ContainsKey((uint)obj.ObjectID))
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing criteria tree id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
 						break;
 					case QuestObjectiveType.AreaTrigger:
-						if (!CliDB.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+						if (!_cliDB.AreaTriggerStorage.ContainsKey((uint)obj.ObjectID) && obj.ObjectID != -1)
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing AreaTrigger.db2 id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7834,8 +7839,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case QuestObjectiveType.AreaTriggerEnter:
 					case QuestObjectiveType.AreaTriggerExit:
 						if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, false)) == null && Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId((uint)obj.ObjectID, true)) != null)
-							if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-								DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+							if (_configuration.GetDefaultValue("load.autoclean", false))
+								_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 							else
 								Log.Logger.Error("Quest {0} objective {1} has non existing areatrigger id {2}", qinfo.Id, obj.Id, obj.ObjectID);
 
@@ -7845,8 +7850,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					case QuestObjectiveType.ProgressBar:
 						break;
 					default:
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM quest_objectives WHERE QuestID = {obj.QuestID}");
 						else
 							Log.Logger.Error("Quest {0} objective {1} has unhandled type {2}", qinfo.Id, obj.Id, obj.Type);
 
@@ -7898,7 +7903,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 							break;
 						case LootItemType.Currency:
-							if (!CliDB.CurrencyTypesStorage.HasRecord(id))
+							if (!_cliDB.CurrencyTypesStorage.HasRecord(id))
 							{
 								Log.Logger.Error($"Quest {qinfo.Id} has `RewardChoiceItemId{j + 1}` = {id} but currency with id {id} does not exist, quest will not reward this currency.");
 								qinfo.RewardChoiceItemId[j] = 0; // no changes, quest will not reward this
@@ -7964,7 +7969,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					if (Math.Abs(qinfo.RewardFactionValue[j]) > 9)
 						Log.Logger.Error("Quest {0} has RewardFactionValueId{1} = {2}. That is outside the range of valid values (-9 to 9).", qinfo.Id, j + 1, qinfo.RewardFactionValue[j]);
 
-					if (!CliDB.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
+					if (!_cliDB.FactionStorage.ContainsKey(qinfo.RewardFactionId[j]))
 					{
 						Log.Logger.Error("Quest {0} has `RewardFactionId{1}` = {2} but raw faction (faction.dbc) {3} does not exist, quest will not reward reputation for this faction.",
 										qinfo.Id,
@@ -8013,7 +8018,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (qinfo.RewardMailTemplateId != 0)
 			{
-				if (!CliDB.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
+				if (!_cliDB.MailTemplateStorage.ContainsKey(qinfo.RewardMailTemplateId))
 				{
 					Log.Logger.Error("Quest {0} has `RewardMailTemplateId` = {1} but mail template {2} does not exist, quest will not have a mail reward.",
 									qinfo.Id,
@@ -8066,7 +8071,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 										j + 1);
 
 					// no changes, quest can't be done for this requirement
-					if (!CliDB.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
+					if (!_cliDB.CurrencyTypesStorage.ContainsKey(qinfo.RewardCurrencyId[j]))
 					{
 						Log.Logger.Error("Quest {0} has `RewardCurrencyId{1}` = {2} but currency with entry {3} does not exist, quest can't be done.",
 										qinfo.Id,
@@ -8089,7 +8094,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 			if (qinfo.SoundAccept != 0)
-				if (!CliDB.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
+				if (!_cliDB.SoundKitStorage.ContainsKey(qinfo.SoundAccept))
 				{
 					Log.Logger.Error("Quest {0} has `SoundAccept` = {1} but sound {2} does not exist, set to 0.",
 									qinfo.Id,
@@ -8100,7 +8105,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 
 			if (qinfo.SoundTurnIn != 0)
-				if (!CliDB.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
+				if (!_cliDB.SoundKitStorage.ContainsKey(qinfo.SoundTurnIn))
 				{
 					Log.Logger.Error("Quest {0} has `SoundTurnIn` = {1} but sound {2} does not exist, set to 0.",
 									qinfo.Id,
@@ -8112,7 +8117,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (qinfo.RewardSkillId > 0)
 			{
-				if (!CliDB.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
+				if (!_cliDB.SkillLineStorage.ContainsKey(qinfo.RewardSkillId))
 					Log.Logger.Error("Quest {0} has `RewardSkillId` = {1} but this skill does not exist",
 									qinfo.Id,
 									qinfo.RewardSkillId);
@@ -8216,7 +8221,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		// check QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
-		foreach (var spellNameEntry in CliDB.SpellNameStorage.Values)
+		foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
 		{
 			var spellInfo = Global.SpellMgr.GetSpellInfo(spellNameEntry.Id, Difficulty.None);
 
@@ -8249,7 +8254,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		}
 
 		// Make all paragon reward quests repeatable
-		foreach (var paragonReputation in CliDB.ParagonReputationStorage.Values)
+		foreach (var paragonReputation in _cliDB.ParagonReputationStorage.Values)
 		{
 			var quest = GetQuestTemplate((uint)paragonReputation.QuestID);
 
@@ -8349,7 +8354,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_questPOIStorage.Clear(); // need for reload case
 
 		//                                         0        1          2     3               4                 5              6      7        8         9      10             11                 12                           13               14
-		var result = DB.World.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
+		var result = _worldDatabase.Query("SELECT QuestID, BlobIndex, Idx1, ObjectiveIndex, QuestObjectiveID, QuestObjectID, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID, SpawnTrackingID, AlwaysAllowMergingBlobs FROM quest_poi order by QuestID, Idx1");
 
 		if (result.IsEmpty())
 		{
@@ -8361,7 +8366,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		Dictionary<uint, MultiMap<int, QuestPOIBlobPoint>> allPoints = new();
 
 		//                                               0        1    2  3  4
-		var pointsResult = DB.World.Query("SELECT QuestID, Idx1, X, Y, Z FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
+		var pointsResult = _worldDatabase.Query("SELECT QuestID, Idx1, X, Y, Z FROM quest_poi_points ORDER BY QuestID DESC, Idx1, Idx2");
 
 		if (!pointsResult.IsEmpty())
 			do
@@ -8397,8 +8402,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var alwaysAllowMergingBlobs = result.Read<bool>(14);
 
 			if (GetQuestTemplate(questID) == null)
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM quest_poi WHERE QuestID = {questID}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM quest_poi WHERE QuestID = {questID}");
 				else
 					Log.Logger.Error($"`quest_poi` quest id ({questID}) Idx1 ({idx1}) does not exist in `quest_template`");
 
@@ -8447,7 +8452,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_questAreaTriggerStorage.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT id, quest FROM areatrigger_involvedrelation");
+		var result = _worldDatabase.Query("SELECT id, quest FROM areatrigger_involvedrelation");
 
 		if (result.IsEmpty())
 		{
@@ -8465,7 +8470,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var trigger_ID = result.Read<uint>(0);
 			var quest_ID = result.Read<uint>(1);
 
-			var atEntry = CliDB.AreaTriggerStorage.LookupByKey(trigger_ID);
+			var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(trigger_ID);
 
 			if (atEntry == null)
 			{
@@ -8515,7 +8520,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_questGreetingStorage[i] = new Dictionary<uint, QuestGreeting>();
 
 		//                                         0   1          2                3     
-		var result = DB.World.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
+		var result = _worldDatabase.Query("SELECT ID, type, GreetEmoteType, GreetEmoteDelay, Greeting FROM quest_greeting");
 
 		if (result.IsEmpty())
 		{
@@ -8677,10 +8682,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	//Spells /Skills / Phases
 	public void LoadPhases()
 	{
-		foreach (var phase in CliDB.PhaseStorage.Values)
+		foreach (var phase in _cliDB.PhaseStorage.Values)
 			_phaseInfoById.Add(phase.Id, new PhaseInfoStruct(phase.Id));
 
-		foreach (var map in CliDB.MapStorage.Values)
+		foreach (var map in _cliDB.MapStorage.Values)
 			if (map.ParentMapID != -1)
 				_terrainSwapInfoById.Add(map.Id, new TerrainSwapInfo(map.Id));
 
@@ -8706,7 +8711,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_spellClickInfoStorage.Clear();
 		//                                           0          1         2            3
-		var result = DB.World.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
+		var result = _worldDatabase.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
 
 		if (result.IsEmpty())
 		{
@@ -8748,9 +8753,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			SpellClickInfo info = new()
 			{
-				spellId = spellid,
-				castFlags = castFlags,
-				userType = userType
+				SpellId = spellid,
+				CastFlags = castFlags,
+				UserType = userType
 			};
 
 			_spellClickInfoStorage.Add(npc_entry, info);
@@ -8778,7 +8783,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_fishingBaseForAreaStorage.Clear(); // for reload case
 
-		var result = DB.World.Query("SELECT entry, skill FROM skill_fishing_base_level");
+		var result = _worldDatabase.Query("SELECT entry, skill FROM skill_fishing_base_level");
 
 		if (result.IsEmpty())
 		{
@@ -8794,7 +8799,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var entry = result.Read<uint>(0);
 			var skill = result.Read<int>(1);
 
-			var fArea = CliDB.AreaTableStorage.LookupByKey(entry);
+			var fArea = _cliDB.AreaTableStorage.LookupByKey(entry);
 
 			if (fArea == null)
 			{
@@ -8816,7 +8821,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_skillTiers.Clear();
 
-		var result = DB.World.Query("SELECT ID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, " +
+		var result = _worldDatabase.Query("SELECT ID, Value1, Value2, Value3, Value4, Value5, Value6, Value7, Value8, Value9, Value10, " +
 									" Value11, Value12, Value13, Value14, Value15, Value16 FROM skill_tiers");
 
 		if (result.IsEmpty())
@@ -8883,7 +8888,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_creatureLocaleStorage.Clear(); // need for reload case
 
 		//                                         0      1       2     3        4      5
-		var result = DB.World.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
+		var result = _worldDatabase.Query("SELECT entry, locale, Name, NameAlt, Title, TitleAlt FROM creature_template_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -8917,7 +8922,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_gameObjectLocaleStorage.Clear(); // need for reload case
 
 		//                                               0      1       2     3               4
-		var result = DB.World.Query("SELECT entry, locale, name, castBarCaption, unk1 FROM gameobject_template_locale");
+		var result = _worldDatabase.Query("SELECT entry, locale, name, castBarCaption, unk1 FROM gameobject_template_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -8950,7 +8955,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_questObjectivesLocaleStorage.Clear(); // need for reload case
 
 		//                                         0     1     2           3                 4                5                 6                  7                   8                   9                  10
-		var result = DB.World.Query("SELECT Id, locale, LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog" +
+		var result = _worldDatabase.Query("SELECT Id, locale, LogTitle, LogDescription, QuestDescription, AreaDescription, PortraitGiverText, PortraitGiverName, PortraitTurnInText, PortraitTurnInName, QuestCompletionLog" +
 									" FROM quest_template_locale");
 
 		if (result.IsEmpty())
@@ -8989,7 +8994,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_questObjectivesLocaleStorage.Clear(); // need for reload case
 		//                                        0     1          2
-		var result = DB.World.Query("SELECT Id, locale, Description FROM quest_objectives_locale");
+		var result = _worldDatabase.Query("SELECT Id, locale, Description FROM quest_objectives_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9021,7 +9026,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			_questGreetingLocaleStorage[i] = new Dictionary<uint, QuestGreetingLocale>();
 
 		//                                         0   1     2       3
-		var result = DB.World.Query("SELECT Id, type, locale, Greeting FROM quest_greeting_locale");
+		var result = _worldDatabase.Query("SELECT Id, type, locale, Greeting FROM quest_greeting_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9081,7 +9086,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_questOfferRewardLocaleStorage.Clear(); // need for reload case
 		//                                               0     1          2
-		var result = DB.World.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
+		var result = _worldDatabase.Query("SELECT Id, locale, RewardText FROM quest_offer_reward_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9111,7 +9116,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_questRequestItemsLocaleStorage.Clear(); // need for reload case
 		//                                               0     1          2
-		var result = DB.World.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
+		var result = _worldDatabase.Query("SELECT Id, locale, CompletionText FROM quest_request_items_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9142,7 +9147,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_gossipMenuItemsLocaleStorage.Clear(); // need for reload case
 
 		//                                         0       1            2       3           4
-		var result = DB.World.Query("SELECT MenuId, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
+		var result = _worldDatabase.Query("SELECT MenuId, OptionID, Locale, OptionText, BoxText FROM gossip_menu_option_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9175,7 +9180,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_pageTextLocaleStorage.Clear(); // needed for reload case
 
 		//                                               0      1     2
-		var result = DB.World.Query("SELECT ID, locale, `Text` FROM page_text_locale");
+		var result = _worldDatabase.Query("SELECT ID, locale, `Text` FROM page_text_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9206,7 +9211,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_pointOfInterestLocaleStorage.Clear(); // need for reload case
 
 		//                                        0      1      2
-		var result = DB.World.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
+		var result = _worldDatabase.Query("SELECT ID, locale, Name FROM points_of_interest_locale");
 
 		if (result.IsEmpty())
 			return;
@@ -9283,7 +9288,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_repRewardRateStorage.Clear(); // for reload case
 
 		//                                          0          1             2                  3                  4                 5                      6             7
-		var result = DB.World.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
+		var result = _worldDatabase.Query("SELECT faction, quest_rate, quest_daily_rate, quest_weekly_rate, quest_monthly_rate, quest_repeatable_rate, creature_rate, spell_rate FROM reputation_reward_rate");
 
 		if (result.IsEmpty())
 		{
@@ -9309,7 +9314,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				SpellRate = result.Read<float>(7)
 			};
 
-			var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+			var factionEntry = _cliDB.FactionStorage.LookupByKey(factionId);
 
 			if (factionEntry == null)
 			{
@@ -9383,7 +9388,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_repOnKillStorage.Clear();
 
 		//                                                0            1                     2
-		var result = DB.World.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, " +
+		var result = _worldDatabase.Query("SELECT creature_id, RewOnKillRepFaction1, RewOnKillRepFaction2, " +
 									//   3             4             5                   6             7             8                   9
 									"IsTeamAward1, MaxStanding1, RewOnKillRepValue1, IsTeamAward2, MaxStanding2, RewOnKillRepValue2, TeamDependent " +
 									"FROM creature_onkill_reputation");
@@ -9423,7 +9428,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (repOnKill.RepFaction1 != 0)
 			{
-				var factionEntry1 = CliDB.FactionStorage.LookupByKey(repOnKill.RepFaction1);
+				var factionEntry1 = _cliDB.FactionStorage.LookupByKey(repOnKill.RepFaction1);
 
 				if (factionEntry1 == null)
 				{
@@ -9435,7 +9440,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (repOnKill.RepFaction2 != 0)
 			{
-				var factionEntry2 = CliDB.FactionStorage.LookupByKey(repOnKill.RepFaction2);
+				var factionEntry2 = _cliDB.FactionStorage.LookupByKey(repOnKill.RepFaction2);
 
 				if (factionEntry2 == null)
 				{
@@ -9460,7 +9465,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_repSpilloverTemplateStorage.Clear(); // for reload case
 
 		//                                        0        1         2       3       4         5       6       7         8       9       10        11      12      13        14      15
-		var result = DB.World.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4, faction5, rate_5, rank_5 FROM " +
+		var result = _worldDatabase.Query("SELECT faction, faction1, rate_1, rank_1, faction2, rate_2, rank_2, faction3, rate_3, rank_3, faction4, rate_4, rank_4, faction5, rate_5, rank_5 FROM " +
 									"reputation_spillover_template");
 
 		if (result.IsEmpty())
@@ -9504,7 +9509,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 			};
 
-			var factionEntry = CliDB.FactionStorage.LookupByKey(factionId);
+			var factionEntry = _cliDB.FactionStorage.LookupByKey(factionId);
 
 			if (factionEntry == null)
 			{
@@ -9525,7 +9530,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			for (var i = 0; i < 5; ++i)
 				if (repTemplate.Faction[i] != 0)
 				{
-					var factionSpillover = CliDB.FactionStorage.LookupByKey(repTemplate.Faction[i]);
+					var factionSpillover = _cliDB.FactionStorage.LookupByKey(repTemplate.Faction[i]);
 
 					if (factionSpillover.Id == 0)
 					{
@@ -9571,7 +9576,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		_tavernAreaTriggerStorage.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT id FROM areatrigger_tavern");
+		var result = _worldDatabase.Query("SELECT id FROM areatrigger_tavern");
 
 		if (result.IsEmpty())
 		{
@@ -9588,7 +9593,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			var Trigger_ID = result.Read<uint>(0);
 
-			var atEntry = CliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
+			var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(Trigger_ID);
 
 			if (atEntry == null)
 			{
@@ -9610,7 +9615,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_mailLevelRewardStorage.Clear(); // for reload case
 
 		//                                           0        1             2            3
-		var result = DB.World.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
+		var result = _worldDatabase.Query("SELECT level, raceMask, mailTemplateId, senderEntry FROM mail_level_reward");
 
 		if (result.IsEmpty())
 		{
@@ -9628,9 +9633,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var mailTemplateId = result.Read<uint>(2);
 			var senderEntry = result.Read<uint>(3);
 
-			if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			if (level > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			{
-				Log.Logger.Error("Table `mail_level_reward` have data for level {0} that more supported by client ({1}), ignoring.", level, GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel));
+				Log.Logger.Error("Table `mail_level_reward` have data for level {0} that more supported by client ({1}), ignoring.", level, _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel));
 
 				continue;
 			}
@@ -9642,7 +9647,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				continue;
 			}
 
-			if (!CliDB.MailTemplateStorage.ContainsKey(mailTemplateId))
+			if (!_cliDB.MailTemplateStorage.ContainsKey(mailTemplateId))
 			{
 				Log.Logger.Error("Table `mail_level_reward` have invalid mailTemplateId ({0}) for level {1} that invalid not include any player races, ignoring.", mailTemplateId, level);
 
@@ -9668,7 +9673,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT level, basexp FROM exploration_basexp");
+		var result = _worldDatabase.Query("SELECT level, basexp FROM exploration_basexp");
 
 		if (result.IsEmpty())
 		{
@@ -9697,7 +9702,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_tempSummonDataStorage.Clear(); // needed for reload case
 
 		//                                             0           1             2        3      4           5           6           7            8           9
-		var result = DB.World.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
+		var result = _worldDatabase.Query("SELECT summonerId, summonerType, groupId, entry, position_x, position_y, position_z, orientation, summonType, summonTime FROM creature_summon_groups");
 
 		if (result.IsEmpty())
 		{
@@ -9735,7 +9740,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					break;
 				case SummonerType.Map:
-					if (!CliDB.MapStorage.ContainsKey(summonerId))
+					if (!_cliDB.MapStorage.ContainsKey(summonerId))
 					{
 						Log.Logger.Error("Table `creature_summon_groups` has summoner with non existing entry {0} for map summoner type, skipped.", summonerId);
 
@@ -9802,7 +9807,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0   1     2           3                 4
-		var result = DB.World.Query("SELECT ID, `text`, NextPageID, PlayerConditionID, Flags FROM page_text");
+		var result = _worldDatabase.Query("SELECT ID, `text`, NextPageID, PlayerConditionID, Flags FROM page_text");
 
 		if (result.IsEmpty())
 		{
@@ -10006,7 +10011,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 		_sceneTemplateStorage.Clear();
 
-		var result = DB.World.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
+		var result = _worldDatabase.Query("SELECT SceneId, Flags, ScriptPackageID, Encrypted, ScriptName FROM scene_template");
 
 		if (result.IsEmpty())
 		{
@@ -10041,7 +10046,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 		_playerChoices.Clear();
 
-		var choiceResult = DB.World.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
+		var choiceResult = _worldDatabase.Query("SELECT ChoiceId, UiTextureKitId, SoundKitId, CloseSoundKitId, Duration, Question, PendingChoiceText, HideWarboardHeader, KeepOpenAfterChoice FROM playerchoice");
 
 		if (choiceResult.IsEmpty())
 		{
@@ -10077,7 +10082,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		} while (choiceResult.NextRow());
 
 		//                                            0         1           2                   3                4      5
-		var responses = DB.World.Query("SELECT ChoiceId, ResponseId, ResponseIdentifier, ChoiceArtFileId, Flags, WidgetSetID, " +
+		var responses = _worldDatabase.Query("SELECT ChoiceId, ResponseId, ResponseIdentifier, ChoiceArtFileId, Flags, WidgetSetID, " +
 										//6                        7           8        9               10      11      12         13              14           15            16
 										"UiTextureAtlasElementID, SoundKitID, GroupID, UiTextureKitID, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation, RewardQuestID " +
 										"FROM playerchoice_response ORDER BY `Index` ASC");
@@ -10124,7 +10129,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++responseCount;
 			} while (responses.NextRow());
 
-		var rewards = DB.World.Query("SELECT ChoiceId, ResponseId, TitleId, PackageId, SkillLineId, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward");
+		var rewards = _worldDatabase.Query("SELECT ChoiceId, ResponseId, TitleId, PackageId, SkillLineId, SkillPointCount, ArenaPointCount, HonorPointCount, Money, Xp FROM playerchoice_response_reward");
 
 		if (!rewards.IsEmpty())
 			do
@@ -10161,7 +10166,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					Xp = rewards.Read<uint>(9)
 				};
 
-				if (reward.TitleId != 0 && !CliDB.CharTitlesStorage.ContainsKey(reward.TitleId))
+				if (reward.TitleId != 0 && !_cliDB.CharTitlesStorage.ContainsKey(reward.TitleId))
 				{
 					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing Title {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
 					reward.TitleId = 0;
@@ -10173,7 +10178,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					reward.PackageId = 0;
 				}
 
-				if (reward.SkillLineId != 0 && !CliDB.SkillLineStorage.ContainsKey(reward.SkillLineId))
+				if (reward.SkillLineId != 0 && !_cliDB.SkillLineStorage.ContainsKey(reward.SkillLineId))
 				{
 					Log.Logger.Error($"Table `playerchoice_response_reward` references non-existing SkillLine {reward.TitleId} for ChoiceId {choiceId}, ResponseId: {responseId}, set to 0");
 					reward.SkillLineId = 0;
@@ -10184,7 +10189,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				++rewardCount;
 			} while (rewards.NextRow());
 
-		var rewardItem = DB.World.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item ORDER BY `Index` ASC");
+		var rewardItem = _worldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item ORDER BY `Index` ASC");
 
 		if (!rewardItem.IsEmpty())
 			do
@@ -10235,7 +10240,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				itemRewardCount++;
 			} while (rewardItem.NextRow());
 
-		var rewardCurrency = DB.World.Query("SELECT ChoiceId, ResponseId, CurrencyId, Quantity FROM playerchoice_response_reward_currency ORDER BY `Index` ASC");
+		var rewardCurrency = _worldDatabase.Query("SELECT ChoiceId, ResponseId, CurrencyId, Quantity FROM playerchoice_response_reward_currency ORDER BY `Index` ASC");
 
 		if (!rewardCurrency.IsEmpty())
 			do
@@ -10270,7 +10275,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					continue;
 				}
 
-				if (!CliDB.CurrencyTypesStorage.ContainsKey(currencyId))
+				if (!_cliDB.CurrencyTypesStorage.ContainsKey(currencyId))
 				{
 					Log.Logger.Error($"Table `playerchoice_response_reward_currency` references non-existing currency {currencyId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
@@ -10281,7 +10286,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				currencyRewardCount++;
 			} while (rewardCurrency.NextRow());
 
-		var rewardFaction = DB.World.Query("SELECT ChoiceId, ResponseId, FactionId, Quantity FROM playerchoice_response_reward_faction ORDER BY `Index` ASC");
+		var rewardFaction = _worldDatabase.Query("SELECT ChoiceId, ResponseId, FactionId, Quantity FROM playerchoice_response_reward_faction ORDER BY `Index` ASC");
 
 		if (!rewardFaction.IsEmpty())
 			do
@@ -10316,7 +10321,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					continue;
 				}
 
-				if (!CliDB.FactionStorage.ContainsKey(factionId))
+				if (!_cliDB.FactionStorage.ContainsKey(factionId))
 				{
 					Log.Logger.Error($"Table `playerchoice_response_reward_faction` references non-existing faction {factionId} for ChoiceId {choiceId}, ResponseId: {responseId}, skipped");
 
@@ -10327,7 +10332,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				factionRewardCount++;
 			} while (rewardFaction.NextRow());
 
-		var rewardItems = DB.World.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item_choice ORDER BY `Index` ASC");
+		var rewardItems = _worldDatabase.Query("SELECT ChoiceId, ResponseId, ItemId, BonusListIDs, Quantity FROM playerchoice_response_reward_item_choice ORDER BY `Index` ASC");
 
 		if (!rewardItems.IsEmpty())
 			do
@@ -10379,7 +10384,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				itemChoiceRewardCount++;
 			} while (rewards.NextRow());
 
-		var mawPowersResult = DB.World.Query("SELECT ChoiceId, ResponseId, TypeArtFileID, Rarity, RarityColor, SpellID, MaxStacks FROM playerchoice_response_maw_power");
+		var mawPowersResult = _worldDatabase.Query("SELECT ChoiceId, ResponseId, TypeArtFileID, Rarity, RarityColor, SpellID, MaxStacks FROM playerchoice_response_maw_power");
 
 		if (!mawPowersResult.IsEmpty())
 			do
@@ -10435,7 +10440,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_playerChoiceLocales.Clear();
 
 		//                                               0         1       2
-		var result = DB.World.Query("SELECT ChoiceId, locale, Question FROM playerchoice_locale");
+		var result = _worldDatabase.Query("SELECT ChoiceId, locale, Question FROM playerchoice_locale");
 
 		if (!result.IsEmpty())
 		{
@@ -10468,7 +10473,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		oldMSTime = Time.MSTime;
 
 		//                               0         1           2       3       4       5          6               7            8
-		result = DB.World.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale");
+		result = _worldDatabase.Query("SELECT ChoiceID, ResponseID, locale, Answer, Header, SubHeader, ButtonTooltip, Description, Confirmation FROM playerchoice_response_locale");
 
 		if (!result.IsEmpty())
 		{
@@ -10488,8 +10493,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (playerChoiceLocale == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
 						Log.Logger.Error($"Table `playerchoice_locale` references non-existing ChoiceId: {choiceId} for ResponseId {responseId} locale {localeName}, skipped");
 
@@ -10500,8 +10505,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				if (playerChoice.GetResponse(responseId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
 						Log.Logger.Error($"Table `playerchoice_locale` references non-existing ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
 
@@ -10520,8 +10525,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 				else
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM playerchoice_response_locale WHERE ChoiceID = {choiceId} AND ResponseID = {responseId} AND locale = \"{localeName}\"");
 					else
 						Log.Logger.Error($"Table `playerchoice_locale` references non-existing locale for ResponseId: {responseId} for ChoiceId {choiceId} locale {localeName}, skipped");
 				}
@@ -10536,7 +10541,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		// cache disabled
-		if (!GetDefaultValue("CacheDataQueries", true))
+		if (!_configuration.GetDefaultValue("CacheDataQueries", true))
 		{
 			Log.Logger.Information("Query data caching is disabled. Skipped initialization.");
 
@@ -10574,7 +10579,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_jumpChargeParams.Clear();
 
 		//                                         0   1      2                            3            4              5                6
-		var result = DB.World.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
+		var result = _worldDatabase.Query("SELECT id, speed, treatSpeedAsMoveTimeSeconds, jumpGravity, spellVisualId, progressCurveId, parabolicCurveId FROM jump_charge_params");
 
 		if (result.IsEmpty())
 			return;
@@ -10603,7 +10608,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (!result.IsNull(4))
 			{
-				if (CliDB.SpellVisualStorage.ContainsKey(result.Read<uint>(4)))
+				if (_cliDB.SpellVisualStorage.ContainsKey(result.Read<uint>(4)))
 					spellVisualId = result.Read<uint>(4);
 				else
 					Log.Logger.Error($"Table `jump_charge_params` references non-existing SpellVisual: {result.Read<uint>(4)} for id {id}, ignored.");
@@ -10611,7 +10616,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (!result.IsNull(5))
 			{
-				if (CliDB.CurveStorage.ContainsKey(result.Read<uint>(5)))
+				if (_cliDB.CurveStorage.ContainsKey(result.Read<uint>(5)))
 					progressCurveId = result.Read<uint>(5);
 				else
 					Log.Logger.Error($"Table `jump_charge_params` references non-existing progress Curve: {result.Read<uint>(5)} for id {id}, ignored.");
@@ -10619,7 +10624,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (!result.IsNull(6))
 			{
-				if (CliDB.CurveStorage.ContainsKey(result.Read<uint>(6)))
+				if (_cliDB.CurveStorage.ContainsKey(result.Read<uint>(6)))
 					parabolicCurveId = result.Read<uint>(6);
 				else
 					Log.Logger.Error($"Table `jump_charge_params` references non-existing parabolic Curve: {result.Read<uint>(6)} for id {id}, ignored.");
@@ -10647,7 +10652,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_phaseNameStorage.Clear();
 
 		//                                          0     1
-		var result = DB.World.Query("SELECT `ID`, `Name` FROM `phase_name`");
+		var result = _worldDatabase.Query("SELECT `ID`, `Name` FROM `phase_name`");
 
 		if (result.IsEmpty())
 		{
@@ -10679,7 +10684,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			return null;
 
 		foreach (var mailReward in mailList)
-			if (Convert.ToBoolean(mailReward.raceMask & raceMask))
+			if (Convert.ToBoolean(mailReward.RaceMask & raceMask))
 				return mailReward;
 
 		return null;
@@ -10721,7 +10726,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		DB.Characters.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
 
-		result = DB.World.Query("SELECT MAX(guid) FROM transports");
+		result = _worldDatabase.Query("SELECT MAX(guid) FROM transports");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Transport).Set(result.Read<ulong>(0) + 1);
@@ -10756,12 +10761,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (!result.IsEmpty())
 			_voidItemId = result.Read<ulong>(0) + 1;
 
-		result = DB.World.Query("SELECT MAX(guid) FROM creature");
+		result = _worldDatabase.Query("SELECT MAX(guid) FROM creature");
 
 		if (!result.IsEmpty())
 			_creatureSpawnId = result.Read<ulong>(0) + 1;
 
-		result = DB.World.Query("SELECT MAX(guid) FROM gameobject");
+		result = _worldDatabase.Query("SELECT MAX(guid) FROM gameobject");
 
 		if (!result.IsEmpty())
 			_gameObjectSpawnId = result.Read<ulong>(0) + 1;
@@ -10856,25 +10861,25 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		switch (expansion)
 		{
 			case Expansion.Classic:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.Classic", 30);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Classic", 30);
 			case Expansion.BurningCrusade:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.BurningCrusade", 30);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BurningCrusade", 30);
 			case Expansion.WrathOfTheLichKing:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.WrathOfTheLichKing", 30);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WrathOfTheLichKing", 30);
 			case Expansion.Cataclysm:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.Cataclysm", 35);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Cataclysm", 35);
 			case Expansion.MistsOfPandaria:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.MistsOfPandaria", 35);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.MistsOfPandaria", 35);
 			case Expansion.WarlordsOfDraenor:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.WarlordsOfDraenor", 40);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.WarlordsOfDraenor", 40);
 			case Expansion.Legion:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.Legion", 45);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Legion", 45);
 			case Expansion.BattleForAzeroth:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.BattleForAzeroth", 50);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.BattleForAzeroth", 50);
 			case Expansion.ShadowLands:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.ShadowLands", 60);
 			case Expansion.Dragonflight:
-				return ConfigMgr.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70);
+				return _configuration.GetDefaultValue<uint>("Character.MaxLevelFor.Dragonflight", 70);
 			default:
 				break;
 		}
@@ -10912,7 +10917,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		var requireFlag = (team == TeamFaction.Alliance) ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
 
-		foreach (var node in CliDB.TaxiNodesStorage.Values)
+		foreach (var node in _cliDB.TaxiNodesStorage.Values)
 		{
 			var i = node.Id;
 
@@ -10923,7 +10928,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var submask = (byte)(1 << (int)((i - 1) % 8));
 
 			// skip not taxi network nodes
-			if ((CliDB.TaxiNodesMask[field] & submask) == 0)
+			if ((_cliDB.TaxiNodesMask[field] & submask) == 0)
 				continue;
 
 			var dist2 = (node.Pos.X - x) * (node.Pos.X - x) + (node.Pos.Y - y) * (node.Pos.Y - y) + (node.Pos.Z - z) * (node.Pos.Z - z);
@@ -10949,7 +10954,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public void GetTaxiPath(uint source, uint destination, out uint path, out uint cost)
 	{
-		var pathSet = CliDB.TaxiPathSetBySource.LookupByKey(source);
+		var pathSet = _cliDB.TaxiPathSetBySource.LookupByKey(source);
 
 		if (pathSet == null)
 		{
@@ -10979,7 +10984,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		CreatureTemplate mount_info = null;
 
 		// select mount creature id
-		var node = CliDB.TaxiNodesStorage.LookupByKey(id);
+		var node = _cliDB.TaxiNodesStorage.LookupByKey(id);
 
 		if (node != null)
 		{
@@ -11037,7 +11042,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	public AreaTriggerStruct GetGoBackTrigger(uint Map)
 	{
 		uint? parentId = null;
-		var mapEntry = CliDB.MapStorage.LookupByKey(Map);
+		var mapEntry = _cliDB.MapStorage.LookupByKey(Map);
 
 		if (mapEntry == null || mapEntry.CorpseMapID < 0)
 			return null;
@@ -11053,9 +11058,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var entrance_map = parentId.GetValueOrDefault((uint)mapEntry.CorpseMapID);
 
 		foreach (var pair in _areaTriggerStorage)
-			if (pair.Value.target_mapId == entrance_map)
+			if (pair.Value.TargetMapId == entrance_map)
 			{
-				var atEntry = CliDB.AreaTriggerStorage.LookupByKey(pair.Key);
+				var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(pair.Key);
 
 				if (atEntry != null && atEntry.ContinentID == Map)
 					return pair.Value;
@@ -11067,9 +11072,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	public AreaTriggerStruct GetMapEntranceTrigger(uint Map)
 	{
 		foreach (var pair in _areaTriggerStorage)
-			if (pair.Value.target_mapId == Map)
+			if (pair.Value.TargetMapId == Map)
 			{
-				var atEntry = CliDB.AreaTriggerStorage.LookupByKey(pair.Key);
+				var atEntry = _cliDB.AreaTriggerStorage.LookupByKey(pair.Key);
 
 				if (atEntry != null)
 					return pair.Value;
@@ -11113,7 +11118,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_vehicleTemplateStore.Clear();
 
 		//                                         0           1
-		var result = DB.World.Query("SELECT creatureId, despawnDelayMs FROM vehicle_template");
+		var result = _worldDatabase.Query("SELECT creatureId, despawnDelayMs FROM vehicle_template");
 
 		if (result.IsEmpty())
 		{
@@ -11153,7 +11158,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		uint count = 0;
 
 		//                                          0             1              2          3           4             5
-		var result = DB.World.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
+		var result = _worldDatabase.Query("SELECT `entry`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_template_accessory`");
 
 		if (result.IsEmpty())
 		{
@@ -11209,7 +11214,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		uint count = 0;
 
 		//                                          0             1             2          3           4             5
-		var result = DB.World.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
+		var result = _worldDatabase.Query("SELECT `guid`, `accessory_entry`, `seat_id`, `minion`, `summontype`, `summontimer` FROM `vehicle_accessory`");
 
 		if (result.IsEmpty())
 		{
@@ -11249,7 +11254,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		_vehicleSeatAddonStore.Clear(); // needed for reload case
 
 		//                                          0            1                  2             3             4             5             6
-		var result = DB.World.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
+		var result = _worldDatabase.Query("SELECT `SeatEntry`, `SeatOrientation`, `ExitParamX`, `ExitParamY`, `ExitParamZ`, `ExitParamO`, `ExitParamValue` FROM `vehicle_seat_addon`");
 
 		if (result.IsEmpty())
 		{
@@ -11270,7 +11275,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var exitO = result.Read<float>(5);
 			var exitParam = result.Read<byte>(6);
 
-			if (!CliDB.VehicleSeatStorage.ContainsKey(seatID))
+			if (!_cliDB.VehicleSeatStorage.ContainsKey(seatID))
 			{
 				Log.Logger.Error($"Table `vehicle_seat_addon`: SeatID: {seatID} does not exist in VehicleSeat.dbc. Skipping entry.");
 
@@ -11328,7 +11333,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	static LanguageType GetRealmLanguageType(bool create)
 	{
-		switch ((RealmZones)GetDefaultValue("RealmZone", (int)RealmZones.Development))
+		switch ((RealmZones)_configuration.GetDefaultValue("RealmZone", (int)RealmZones.Development))
 		{
 			case RealmZones.Unknown: // any language
 			case RealmZones.Development:
@@ -11505,7 +11510,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		var isSpellScriptTable = (type == ScriptsType.Spell);
 		//                                         0    1       2         3         4          5    6  7  8  9
-		var result = DB.World.Query("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o{0} FROM {1}", isSpellScriptTable ? ", effIndex" : "", tableName);
+		var result = _worldDatabase.Query("SELECT id, delay, command, datalong, datalong2, dataint, x, y, z, o{0} FROM {1}", isSpellScriptTable ? ", effIndex" : "", tableName);
 
 		if (result.IsEmpty())
 		{
@@ -11548,8 +11553,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (tmp.Talk.ChatType > ChatMsg.RaidBossWhisper)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid talk type (datalong = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
 											tableName,
@@ -11559,10 +11564,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						continue;
 					}
 
-					if (!CliDB.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
+					if (!_cliDB.BroadcastTextStorage.ContainsKey((uint)tmp.Talk.TextID))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid talk text id (dataint = {1}) in SCRIPT_COMMAND_TALK for script id {2}",
 											tableName,
@@ -11577,10 +11582,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				case ScriptCommands.Emote:
 				{
-					if (!CliDB.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
+					if (!_cliDB.EmotesStorage.ContainsKey(tmp.Emote.EmoteID))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid emote id (datalong = {1}) in SCRIPT_COMMAND_EMOTE for script id {2}",
 											tableName,
@@ -11595,10 +11600,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				case ScriptCommands.TeleportTo:
 				{
-					if (!CliDB.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
+					if (!_cliDB.MapStorage.ContainsKey(tmp.TeleportTo.MapID))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid map (Id: {1}) in SCRIPT_COMMAND_TELEPORT_TO for script id {2}",
 											tableName,
@@ -11610,8 +11615,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (!GridDefines.IsValidMapCoord(tmp.TeleportTo.DestX, tmp.TeleportTo.DestY, tmp.TeleportTo.DestZ, tmp.TeleportTo.Orientation))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TELEPORT_TO for script id {5}",
 											tableName,
@@ -11633,8 +11638,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (quest == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid quest (ID: {1}) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}",
 											tableName,
@@ -11669,8 +11674,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance > SharedConst.DefaultVisibilityDistance)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has too large distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, max distance is {3} or 0 for disable distance check",
 											tableName,
@@ -11683,8 +11688,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (tmp.QuestExplored.Distance != 0 && tmp.QuestExplored.Distance < SharedConst.InteractionDistance)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has too small distance ({1}) for exploring objective complete in `datalong2` in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id {2}, min distance is {3} or 0 for disable distance check",
 											tableName,
@@ -11702,8 +11707,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (GetCreatureTemplate(tmp.KillCredit.CreatureEntry) == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_KILL_CREDIT for script id {2}",
 											tableName,
@@ -11722,8 +11727,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (data == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
 											tableName,
@@ -11737,8 +11742,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (info == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {3}",
 											tableName,
@@ -11755,8 +11760,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 						info.type == GameObjectTypes.Button ||
 						info.type == GameObjectTypes.Trap)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` have gameobject type ({1}) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id {2}",
 											tableName,
@@ -11773,8 +11778,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (!GridDefines.IsValidMapCoord(tmp.TempSummonCreature.PosX, tmp.TempSummonCreature.PosY, tmp.TempSummonCreature.PosZ, tmp.TempSummonCreature.Orientation))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid coordinates (X: {1} Y: {2} Z: {3} O: {4}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {5}",
 											tableName,
@@ -11789,8 +11794,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (GetCreatureTemplate(tmp.TempSummonCreature.CreatureEntry) == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid creature (Entry: {1}) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id {2}",
 											tableName,
@@ -11810,8 +11815,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (data == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid gameobject (GUID: {1}) in {2} for script id {3}",
 											tableName,
@@ -11826,8 +11831,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (info == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has gameobject with invalid entry (GUID: {1} Entry: {2}) in {3} for script id {4}",
 											tableName,
@@ -11841,8 +11846,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (info.type != GameObjectTypes.Door)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has gameobject type ({1}) non supported by command {2} for script id {3}",
 											tableName,
@@ -11860,8 +11865,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (!Global.SpellMgr.HasSpellInfo(tmp.RemoveAura.SpellID, Difficulty.None))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
 											tableName,
@@ -11873,8 +11878,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (Convert.ToBoolean((int)tmp.RemoveAura.Flags & ~0x1)) // 1 bits (0, 1)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` using unknown flags in datalong2 ({1}) in SCRIPT_COMMAND_REMOVE_AURA for script id {2}",
 											tableName,
@@ -11891,8 +11896,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (!Global.SpellMgr.HasSpellInfo(tmp.CastSpell.SpellID, Difficulty.None))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` using non-existent spell (id: {1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 											tableName,
@@ -11904,8 +11909,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if ((int)tmp.CastSpell.Flags > 4) // targeting type
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` using unknown target in datalong2 ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 											tableName,
@@ -11917,8 +11922,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if ((int)tmp.CastSpell.Flags != 4 && Convert.ToBoolean(tmp.CastSpell.CreatureEntry & ~0x1)) // 1 bit (0, 1)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` using unknown flags in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 											tableName,
@@ -11929,8 +11934,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					}
 					else if ((int)tmp.CastSpell.Flags == 4 && GetCreatureTemplate((uint)tmp.CastSpell.CreatureEntry) == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` using invalid creature entry in dataint ({1}) in SCRIPT_COMMAND_CAST_SPELL for script id {2}",
 											tableName,
@@ -11947,8 +11952,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				{
 					if (GetItemTemplate(tmp.CreateItem.ItemEntry) == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has nonexistent item (entry: {1}) in SCRIPT_COMMAND_CREATE_ITEM for script id {2}",
 											tableName,
@@ -11960,8 +11965,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 					if (tmp.CreateItem.Amount == 0)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` SCRIPT_COMMAND_CREATE_ITEM but amount is {1} for script id {2}",
 											tableName,
@@ -11975,10 +11980,10 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				}
 				case ScriptCommands.PlayAnimkit:
 				{
-					if (!CliDB.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
+					if (!_cliDB.AnimKitStorage.ContainsKey(tmp.PlayAnimKit.AnimKitID))
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 						else
 							Log.Logger.Error("Table `{0}` has invalid AnimKid id (datalong = {1}) in SCRIPT_COMMAND_PLAY_ANIMKIT for script id {2}",
 											tableName,
@@ -11994,8 +11999,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				case ScriptCommands.FlagSetDeprecated:
 				case ScriptCommands.FlagRemoveDeprecated:
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM {tableName} WHERE id = {tmp.id}");
 					else
 						Log.Logger.Error($"Table `{tableName}` uses deprecated direct updatefield modify command {tmp.command} for script id {tmp.id}");
 
@@ -12031,7 +12036,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0           1       2
-		var result = DB.World.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
+		var result = _worldDatabase.Query("SELECT CreatureID, School, Resistance FROM creature_template_resistance");
 
 		if (result.IsEmpty())
 		{
@@ -12074,7 +12079,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0           1       2
-		var result = DB.World.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
+		var result = _worldDatabase.Query("SELECT CreatureID, `Index`, Spell FROM creature_template_spell");
 
 		if (result.IsEmpty())
 		{
@@ -12116,7 +12121,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 		//                                         0           1                  2             3
-		var result = DB.World.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
+		var result = _worldDatabase.Query("SELECT CreatureID, CreatureDisplayID, DisplayScale, Probability FROM creature_template_model ORDER BY Idx ASC");
 
 		if (result.IsEmpty())
 		{
@@ -12138,15 +12143,15 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			if (cInfo == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM creature_template_model WHERE CreatureID = {creatureId}");
+				if (_configuration.GetDefaultValue("load.autoclean", false))
+					_worldDatabase.Execute($"DELETE FROM creature_template_model WHERE CreatureID = {creatureId}");
 				else
 					Log.Logger.Debug($"Creature template (Entry: {creatureId}) does not exist but has a record in `creature_template_model`");
 
 				continue;
 			}
 
-			var displayEntry = CliDB.CreatureDisplayInfoStorage.LookupByKey(creatureDisplayId);
+			var displayEntry = _cliDB.CreatureDisplayInfoStorage.LookupByKey(creatureDisplayId);
 
 			if (displayEntry == null)
 			{
@@ -12175,7 +12180,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0           1                            2                     3
-		var result = DB.World.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
+		var result = _worldDatabase.Query("SELECT CreatureID, CreatureIDVisibleToSummoner, GroundMountDisplayID, FlyingMountDisplayID FROM creature_summoned_data");
 
 		if (result.IsEmpty())
 		{
@@ -12215,7 +12220,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				summonedData.GroundMountDisplayId = result.Read<uint>(2);
 
-				if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayId.Value))
+				if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.GroundMountDisplayId.Value))
 				{
 					Log.Logger.Debug($"Table `creature_summoned_data` references non-existing display id {summonedData.GroundMountDisplayId.Value} in GroundMountDisplayID for creature {creatureId}, set to 0");
 					summonedData.CreatureIdVisibleToSummoner = null;
@@ -12226,7 +12231,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			{
 				summonedData.FlyingMountDisplayId = result.Read<uint>(3);
 
-				if (!CliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayId.Value))
+				if (!_cliDB.CreatureDisplayInfoStorage.ContainsKey(summonedData.FlyingMountDisplayId.Value))
 				{
 					Log.Logger.Debug($"Table `creature_summoned_data` references non-existing display id {summonedData.FlyingMountDisplayId.Value} in FlyingMountDisplayID for creature {creatureId}, set to 0");
 					summonedData.GroundMountDisplayId = null;
@@ -12267,9 +12272,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	uint LoadReferenceVendor(int vendor, int item, List<uint> skip_vendors)
 	{
 		// find all items from the reference vendor
-		var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_NPC_VENDOR_REF);
+		var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_NPC_VENDOR_REF);
 		stmt.AddValue(0, item);
-		var result = DB.World.Query(stmt);
+		var result = _worldDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 			return 0;
@@ -12388,7 +12393,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	void CheckGOLockId(GameObjectTemplate goInfo, uint dataN, uint N)
 	{
-		if (CliDB.LockStorage.ContainsKey(dataN))
+		if (_cliDB.LockStorage.ContainsKey(dataN))
 			return;
 
 		Log.Logger.Debug("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but lock (Id: {4}) not found.", goInfo.entry, goInfo.type, N, goInfo.Door.open, goInfo.Door.open);
@@ -12458,7 +12463,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var difficultyId = (Difficulty)Enum.Parse(typeof(Difficulty), token);
 
-			if (difficultyId != 0 && !CliDB.DifficultyStorage.ContainsKey(difficultyId))
+			if (difficultyId != 0 && !_cliDB.DifficultyStorage.ContainsKey(difficultyId))
 			{
 				Log.Logger.Error($"Table `{table}` has {table} (GUID: {spawnId}) with non invalid difficulty id {difficultyId}, skipped.");
 
@@ -12542,9 +12547,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	PlayerLevelInfo BuildPlayerLevelInfo(Race race, PlayerClass _class, uint level)
 	{
 		// base data (last known level)
-		var info = _playerInfo[race][_class].LevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1];
+		var info = _playerInfo[race][_class].LevelInfo[_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1];
 
-		for (var lvl = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1; lvl < level; ++lvl)
+		for (var lvl = _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1; lvl < level; ++lvl)
 			switch (_class)
 			{
 				case PlayerClass.Warrior:
@@ -12623,7 +12628,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		uint count = 0;
 
-		var result = DB.World.Query($"SELECT id, quest FROM {table}");
+		var result = _worldDatabase.Query($"SELECT id, quest FROM {table}");
 
 		if (result.IsEmpty())
 		{
@@ -12665,7 +12670,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0               1
-		var result = DB.World.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
+		var result = _worldDatabase.Query("SELECT TerrainSwapMap, UiMapPhaseId  FROM `terrain_worldmap`");
 
 		if (result.IsEmpty())
 		{
@@ -12681,7 +12686,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var mapId = result.Read<uint>(0);
 			var uiMapPhaseId = result.Read<uint>(1);
 
-			if (!CliDB.MapStorage.ContainsKey(mapId))
+			if (!_cliDB.MapStorage.ContainsKey(mapId))
 			{
 				Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_worldmap` does not exist, skipped.", mapId);
 
@@ -12712,7 +12717,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
+		var result = _worldDatabase.Query("SELECT MapId, TerrainSwapMap FROM `terrain_swap_defaults`");
 
 		if (result.IsEmpty())
 		{
@@ -12727,7 +12732,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		{
 			var mapId = result.Read<uint>(0);
 
-			if (!CliDB.MapStorage.ContainsKey(mapId))
+			if (!_cliDB.MapStorage.ContainsKey(mapId))
 			{
 				Log.Logger.Error("Map {0} defined in `terrain_swap_defaults` does not exist, skipped.", mapId);
 
@@ -12736,7 +12741,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			var terrainSwap = result.Read<uint>(1);
 
-			if (!CliDB.MapStorage.ContainsKey(terrainSwap))
+			if (!_cliDB.MapStorage.ContainsKey(terrainSwap))
 			{
 				Log.Logger.Error("TerrainSwapMap {0} defined in `terrain_swap_defaults` does not exist, skipped.", terrainSwap);
 
@@ -12758,7 +12763,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                         0       1
-		var result = DB.World.Query("SELECT AreaId, PhaseId FROM `phase_area`");
+		var result = _worldDatabase.Query("SELECT AreaId, PhaseId FROM `phase_area`");
 
 		if (result.IsEmpty())
 		{
@@ -12782,14 +12787,14 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var area = result.Read<uint>(0);
 			var phaseId = result.Read<uint>(1);
 
-			if (!CliDB.AreaTableStorage.ContainsKey(area))
+			if (!_cliDB.AreaTableStorage.ContainsKey(area))
 			{
 				Log.Logger.Error($"Area {area} defined in `phase_area` does not exist, skipped.");
 
 				continue;
 			}
 
-			if (!CliDB.PhaseStorage.ContainsKey(phaseId))
+			if (!_cliDB.PhaseStorage.ContainsKey(phaseId))
 			{
 				Log.Logger.Error($"Phase {phaseId} defined in `phase_area` does not exist, skipped.");
 
@@ -12809,7 +12814,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			do
 			{
-				var area = CliDB.AreaTableStorage.LookupByKey(parentAreaId);
+				var area = _cliDB.AreaTableStorage.LookupByKey(parentAreaId);
 
 				if (area == null)
 					break;
@@ -12856,1151 +12861,4 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 		return cell;
 	}
-}
-
-[StructLayout(LayoutKind.Explicit)]
-public struct ScriptInfo
-{
-	[FieldOffset(0)] public ScriptsType type;
-
-	[FieldOffset(4)] public uint id;
-
-	[FieldOffset(8)] public uint delay;
-
-	[FieldOffset(12)] public ScriptCommands command;
-
-	[FieldOffset(16)] public raw Raw;
-
-	[FieldOffset(16)] public talk Talk;
-
-	[FieldOffset(16)] public emote Emote;
-
-	[FieldOffset(16)] public fieldset FieldSet;
-
-	[FieldOffset(16)] public moveto MoveTo;
-
-	[FieldOffset(16)] public flagtoggle FlagToggle;
-
-	[FieldOffset(16)] public teleportto TeleportTo;
-
-	[FieldOffset(16)] public questexplored QuestExplored;
-
-	[FieldOffset(16)] public killcredit KillCredit;
-
-	[FieldOffset(16)] public respawngameobject RespawnGameObject;
-
-	[FieldOffset(16)] public tempsummoncreature TempSummonCreature;
-
-	[FieldOffset(16)] public toggledoor ToggleDoor;
-
-	[FieldOffset(16)] public removeaura RemoveAura;
-
-	[FieldOffset(16)] public castspell CastSpell;
-
-	[FieldOffset(16)] public playsound PlaySound;
-
-	[FieldOffset(16)] public createitem CreateItem;
-
-	[FieldOffset(16)] public despawnself DespawnSelf;
-
-	[FieldOffset(16)] public loadpath LoadPath;
-
-	[FieldOffset(16)] public callscript CallScript;
-
-	[FieldOffset(16)] public kill Kill;
-
-	[FieldOffset(16)] public orientation Orientation;
-
-	[FieldOffset(16)] public equip Equip;
-
-	[FieldOffset(16)] public model Model;
-
-	[FieldOffset(16)] public playmovie PlayMovie;
-
-	[FieldOffset(16)] public movement Movement;
-
-	[FieldOffset(16)] public playanimkit PlayAnimKit;
-
-	public string GetDebugInfo()
-	{
-		return $"{command} ('{Global.ObjectMgr.GetScriptsTableNameByType(type)}' script id: {id})";
-	}
-
-	#region Structs
-
-	public unsafe struct raw
-	{
-		public fixed uint nData[3];
-		public fixed float fData[4];
-	}
-
-	public struct talk // TALK (0)
-	{
-		public ChatMsg ChatType;   // datalong
-		public eScriptFlags Flags; // datalong2
-		public int TextID;         // dataint
-	}
-
-	public struct emote // EMOTE (1)
-	{
-		public uint EmoteID;       // datalong
-		public eScriptFlags Flags; // datalong2
-	}
-
-	public struct fieldset // FIELDSET (2)
-	{
-		public uint FieldID;    // datalong
-		public uint FieldValue; // datalong2
-	}
-
-	public struct moveto // MOVETO (3)
-	{
-		public uint Unused1;    // datalong
-		public uint TravelTime; // datalong2
-		public int Unused2;     // dataint
-
-		public float DestX;
-		public float DestY;
-		public float DestZ;
-	}
-
-	public struct flagtoggle // FLAGSET (4)
-		// FLAGREMOVE (5)
-	{
-		public uint FieldID;    // datalong
-		public uint FieldValue; // datalong2
-	}
-
-	public struct teleportto // TELEPORTTO (6)
-	{
-		public uint MapID;         // datalong
-		public eScriptFlags Flags; // datalong2
-		public int Unused1;        // dataint
-
-		public float DestX;
-		public float DestY;
-		public float DestZ;
-		public float Orientation;
-	}
-
-	public struct questexplored // QUESTEXPLORED (7)
-	{
-		public uint QuestID;  // datalong
-		public uint Distance; // datalong2
-	}
-
-	public struct killcredit // KILLCREDIT (8)
-	{
-		public uint CreatureEntry; // datalong
-		public eScriptFlags Flags; // datalong2
-	}
-
-	public struct respawngameobject // RESPAWNGAMEOBJECT (9)
-	{
-		public uint GOGuid;       // datalong
-		public uint DespawnDelay; // datalong2
-	}
-
-	public struct tempsummoncreature // TEMPSUMMONCREATURE (10)
-	{
-		public uint CreatureEntry; // datalong
-		public uint DespawnDelay;  // datalong2
-		public int Unused1;        // dataint
-
-		public float PosX;
-		public float PosY;
-		public float PosZ;
-		public float Orientation;
-	}
-
-	public struct toggledoor // CLOSEDOOR (12)
-		// OPENDOOR (11)
-	{
-		public uint GOGuid;     // datalong
-		public uint ResetDelay; // datalong2
-	}
-
-	// ACTIVATEOBJECT (13)
-
-	public struct removeaura // REMOVEAURA (14)
-	{
-		public uint SpellID;       // datalong
-		public eScriptFlags Flags; // datalong2
-	}
-
-	public struct castspell // CASTSPELL (15)
-	{
-		public uint SpellID;       // datalong
-		public eScriptFlags Flags; // datalong2
-		public int CreatureEntry;  // dataint
-
-		public float SearchRadius;
-	}
-
-	public struct playsound // PLAYSOUND (16)
-	{
-		public uint SoundID;       // datalong
-		public eScriptFlags Flags; // datalong2
-	}
-
-	public struct createitem // CREATEITEM (17)
-	{
-		public uint ItemEntry; // datalong
-		public uint Amount;    // datalong2
-	}
-
-	public struct despawnself // DESPAWNSELF (18)
-	{
-		public uint DespawnDelay; // datalong
-	}
-
-	public struct loadpath // LOADPATH (20)
-	{
-		public uint PathID;       // datalong
-		public uint IsRepeatable; // datalong2
-	}
-
-	public struct callscript // CALLSCRIPTTOUNIT (21)
-	{
-		public uint CreatureEntry; // datalong
-		public uint ScriptID;      // datalong2
-		public uint ScriptType;    // dataint
-	}
-
-	public struct kill // KILL (22)
-	{
-		public uint Unused1;     // datalong
-		public uint Unused2;     // datalong2
-		public int RemoveCorpse; // dataint
-	}
-
-	public struct orientation // ORIENTATION (30)
-	{
-		public eScriptFlags Flags; // datalong
-		public uint Unused1;       // datalong2
-		public int Unused2;        // dataint
-
-		public float Unused3;
-		public float Unused4;
-		public float Unused5;
-		public float _Orientation;
-	}
-
-	public struct equip // EQUIP (31)
-	{
-		public uint EquipmentID; // datalong
-	}
-
-	public struct model // MODEL (32)
-	{
-		public uint ModelID; // datalong
-	}
-
-	// CLOSEGOSSIP (33)
-
-	public struct playmovie // PLAYMOVIE (34)
-	{
-		public uint MovieID; // datalong
-	}
-
-	public struct movement // SCRIPT_COMMAND_MOVEMENT (35)
-	{
-		public uint MovementType;     // datalong
-		public uint MovementDistance; // datalong2
-		public int Path;              // dataint
-	}
-
-	public struct playanimkit // SCRIPT_COMMAND_PLAY_ANIMKIT (36)
-	{
-		public uint AnimKitID; // datalong
-	}
-
-	#endregion
-}
-
-public class CellObjectGuids
-{
-	public SortedSet<ulong> creatures = new();
-	public SortedSet<ulong> gameobjects = new();
-
-	public void AddSpawn(SpawnData data)
-	{
-		switch (data.Type)
-		{
-			case SpawnObjectType.Creature:
-				creatures.Add(data.SpawnId);
-
-				break;
-			case SpawnObjectType.GameObject:
-				gameobjects.Add(data.SpawnId);
-
-				break;
-		}
-	}
-
-	public void RemoveSpawn(SpawnData data)
-	{
-		switch (data.Type)
-		{
-			case SpawnObjectType.Creature:
-				creatures.Remove(data.SpawnId);
-
-				break;
-			case SpawnObjectType.GameObject:
-				gameobjects.Remove(data.SpawnId);
-
-				break;
-		}
-	}
-}
-
-public class GameTele
-{
-	public float posX;
-	public float posY;
-	public float posZ;
-	public float orientation;
-	public uint mapId;
-	public string name;
-	public string nameLow;
-}
-
-public class PetLevelInfo
-{
-	public uint[] stats = new uint[(int)Stats.Max];
-	public uint health;
-	public uint mana;
-	public uint armor;
-
-	public PetLevelInfo()
-	{
-		health = 0;
-		mana = 0;
-	}
-}
-
-public struct InstanceSpawnGroupInfo
-{
-	public byte BossStateId;
-	public byte BossStates;
-	public uint SpawnGroupId;
-	public InstanceSpawnGroupFlags Flags;
-}
-
-public class SpellClickInfo
-{
-	public uint spellId;
-	public byte castFlags;
-	public SpellClickUserTypes userType;
-
-	// helpers
-	public bool IsFitToRequirements(Unit clicker, Unit clickee)
-	{
-		var playerClicker = clicker.AsPlayer;
-
-		if (playerClicker == null)
-			return true;
-
-		Unit summoner = null;
-
-		// Check summoners for party
-		if (clickee.IsSummon)
-			summoner = clickee.ToTempSummon().GetSummonerUnit();
-
-		if (summoner == null)
-			summoner = clickee;
-
-		// This only applies to players
-		switch (userType)
-		{
-			case SpellClickUserTypes.Friend:
-				if (!playerClicker.IsFriendlyTo(summoner))
-					return false;
-
-				break;
-			case SpellClickUserTypes.Raid:
-				if (!playerClicker.IsInRaidWith(summoner))
-					return false;
-
-				break;
-			case SpellClickUserTypes.Party:
-				if (!playerClicker.IsInPartyWith(summoner))
-					return false;
-
-				break;
-			default:
-				break;
-		}
-
-		return true;
-	}
-}
-
-public class WorldSafeLocsEntry
-{
-	public uint Id;
-	public WorldLocation Loc;
-}
-
-public class GraveYardData
-{
-	public uint safeLocId;
-	public uint team;
-}
-
-public class QuestPOIBlobData
-{
-	public int BlobIndex;
-	public int ObjectiveIndex;
-	public int QuestObjectiveID;
-	public int QuestObjectID;
-	public int MapID;
-	public int UiMapID;
-	public int Priority;
-	public int Flags;
-	public int WorldEffectID;
-	public int PlayerConditionID;
-	public int NavigationPlayerConditionID;
-	public int SpawnTrackingID;
-	public List<QuestPOIBlobPoint> Points;
-	public bool AlwaysAllowMergingBlobs;
-
-	public QuestPOIBlobData(int blobIndex, int objectiveIndex, int questObjectiveID, int questObjectID, int mapID, int uiMapID, int priority, int flags,
-							int worldEffectID, int playerConditionID, int navigationPlayerConditionID, int spawnTrackingID, List<QuestPOIBlobPoint> points, bool alwaysAllowMergingBlobs)
-	{
-		BlobIndex = blobIndex;
-		ObjectiveIndex = objectiveIndex;
-		QuestObjectiveID = questObjectiveID;
-		QuestObjectID = questObjectID;
-		MapID = mapID;
-		UiMapID = uiMapID;
-		Priority = priority;
-		Flags = flags;
-		WorldEffectID = worldEffectID;
-		PlayerConditionID = playerConditionID;
-		NavigationPlayerConditionID = navigationPlayerConditionID;
-		SpawnTrackingID = spawnTrackingID;
-		Points = points;
-		AlwaysAllowMergingBlobs = alwaysAllowMergingBlobs;
-	}
-}
-
-public class QuestPOIBlobPoint
-{
-	public int X;
-	public int Y;
-	public int Z;
-
-	public QuestPOIBlobPoint(int x, int y, int z)
-	{
-		X = x;
-		Y = y;
-		Z = z;
-	}
-}
-
-public class QuestPOIData
-{
-	public uint QuestID;
-	public List<QuestPOIBlobData> Blobs;
-	public ByteBuffer QueryDataBuffer;
-
-	public QuestPOIData(uint questId)
-	{
-		QuestID = questId;
-		Blobs = new List<QuestPOIBlobData>();
-		QueryDataBuffer = new ByteBuffer();
-	}
-
-	public void InitializeQueryData()
-	{
-		Write(QueryDataBuffer);
-	}
-
-	public void Write(ByteBuffer data)
-	{
-		data.WriteUInt32(QuestID);
-		data.WriteInt32(Blobs.Count);
-
-		foreach (var questPOIBlobData in Blobs)
-		{
-			data.WriteInt32(questPOIBlobData.BlobIndex);
-			data.WriteInt32(questPOIBlobData.ObjectiveIndex);
-			data.WriteInt32(questPOIBlobData.QuestObjectiveID);
-			data.WriteInt32(questPOIBlobData.QuestObjectID);
-			data.WriteInt32(questPOIBlobData.MapID);
-			data.WriteInt32(questPOIBlobData.UiMapID);
-			data.WriteInt32(questPOIBlobData.Priority);
-			data.WriteInt32(questPOIBlobData.Flags);
-			data.WriteInt32(questPOIBlobData.WorldEffectID);
-			data.WriteInt32(questPOIBlobData.PlayerConditionID);
-			data.WriteInt32(questPOIBlobData.NavigationPlayerConditionID);
-			data.WriteInt32(questPOIBlobData.SpawnTrackingID);
-			data.WriteInt32(questPOIBlobData.Points.Count);
-
-			foreach (var questPOIBlobPoint in questPOIBlobData.Points)
-			{
-				data.WriteInt16((short)questPOIBlobPoint.X);
-				data.WriteInt16((short)questPOIBlobPoint.Y);
-				data.WriteInt16((short)questPOIBlobPoint.Z);
-			}
-
-			data.WriteBit(questPOIBlobData.AlwaysAllowMergingBlobs);
-			data.FlushBits();
-		}
-	}
-}
-
-public class AreaTriggerStruct
-{
-	public uint target_mapId;
-	public float target_X;
-	public float target_Y;
-	public float target_Z;
-	public float target_Orientation;
-	public uint PortLocId;
-}
-
-public class DungeonEncounter
-{
-	public DungeonEncounterRecord dbcEntry;
-	public EncounterCreditType creditType;
-	public uint creditEntry;
-	public uint lastEncounterDungeon;
-
-	public DungeonEncounter(DungeonEncounterRecord _dbcEntry, EncounterCreditType _creditType, uint _creditEntry, uint _lastEncounterDungeon)
-	{
-		dbcEntry = _dbcEntry;
-		creditType = _creditType;
-		creditEntry = _creditEntry;
-		lastEncounterDungeon = _lastEncounterDungeon;
-	}
-}
-
-public class MailLevelReward
-{
-	public ulong raceMask;
-	public uint mailTemplateId;
-	public uint senderEntry;
-
-	public MailLevelReward(ulong _raceMask = 0, uint _mailTemplateId = 0, uint _senderEntry = 0)
-	{
-		raceMask = _raceMask;
-		mailTemplateId = _mailTemplateId;
-		senderEntry = _senderEntry;
-	}
-}
-
-public class PageText
-{
-	public string Text;
-	public uint NextPageID;
-	public int PlayerConditionID;
-	public byte Flags;
-}
-
-public struct ExtendedPlayerName
-{
-	public ExtendedPlayerName(string name, string realmName)
-	{
-		Name = name;
-		Realm = realmName;
-	}
-
-	public string Name;
-	public string Realm;
-}
-
-public class LanguageDesc
-{
-	public uint SpellId;
-	public uint SkillId;
-
-	public LanguageDesc() { }
-
-	public LanguageDesc(uint spellId, uint skillId)
-	{
-		SpellId = spellId;
-		SkillId = skillId;
-	}
-
-	public override int GetHashCode()
-	{
-		return SpellId.GetHashCode() ^ SkillId.GetHashCode();
-	}
-
-	public override bool Equals(object obj)
-	{
-		if (obj is LanguageDesc)
-			return (LanguageDesc)obj == this;
-
-		return false;
-	}
-
-	public static bool operator ==(LanguageDesc left, LanguageDesc right)
-	{
-		return left.SpellId == right.SpellId && left.SkillId == right.SkillId;
-	}
-
-	public static bool operator !=(LanguageDesc left, LanguageDesc right)
-	{
-		return !(left == right);
-	}
-}
-
-class ItemSpecStats
-{
-	public uint ItemType;
-	public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
-	public uint ItemSpecStatCount;
-
-	public ItemSpecStats(ItemRecord item, ItemSparseRecord sparse)
-	{
-		if (item.ClassID == ItemClass.Weapon)
-		{
-			ItemType = 5;
-
-			switch ((ItemSubClassWeapon)item.SubclassID)
-			{
-				case ItemSubClassWeapon.Axe:
-					AddStat(ItemSpecStat.OneHandedAxe);
-
-					break;
-				case ItemSubClassWeapon.Axe2:
-					AddStat(ItemSpecStat.TwoHandedAxe);
-
-					break;
-				case ItemSubClassWeapon.Bow:
-					AddStat(ItemSpecStat.Bow);
-
-					break;
-				case ItemSubClassWeapon.Gun:
-					AddStat(ItemSpecStat.Gun);
-
-					break;
-				case ItemSubClassWeapon.Mace:
-					AddStat(ItemSpecStat.OneHandedMace);
-
-					break;
-				case ItemSubClassWeapon.Mace2:
-					AddStat(ItemSpecStat.TwoHandedMace);
-
-					break;
-				case ItemSubClassWeapon.Polearm:
-					AddStat(ItemSpecStat.Polearm);
-
-					break;
-				case ItemSubClassWeapon.Sword:
-					AddStat(ItemSpecStat.OneHandedSword);
-
-					break;
-				case ItemSubClassWeapon.Sword2:
-					AddStat(ItemSpecStat.TwoHandedSword);
-
-					break;
-				case ItemSubClassWeapon.Warglaives:
-					AddStat(ItemSpecStat.Warglaives);
-
-					break;
-				case ItemSubClassWeapon.Staff:
-					AddStat(ItemSpecStat.Staff);
-
-					break;
-				case ItemSubClassWeapon.Fist:
-					AddStat(ItemSpecStat.FistWeapon);
-
-					break;
-				case ItemSubClassWeapon.Dagger:
-					AddStat(ItemSpecStat.Dagger);
-
-					break;
-				case ItemSubClassWeapon.Thrown:
-					AddStat(ItemSpecStat.Thrown);
-
-					break;
-				case ItemSubClassWeapon.Crossbow:
-					AddStat(ItemSpecStat.Crossbow);
-
-					break;
-				case ItemSubClassWeapon.Wand:
-					AddStat(ItemSpecStat.Wand);
-
-					break;
-				default:
-					break;
-			}
-		}
-		else if (item.ClassID == ItemClass.Armor)
-		{
-			switch ((ItemSubClassArmor)item.SubclassID)
-			{
-				case ItemSubClassArmor.Cloth:
-					if (sparse.inventoryType != InventoryType.Cloak)
-					{
-						ItemType = 1;
-
-						break;
-					}
-
-					ItemType = 0;
-					AddStat(ItemSpecStat.Cloak);
-
-					break;
-				case ItemSubClassArmor.Leather:
-					ItemType = 2;
-
-					break;
-				case ItemSubClassArmor.Mail:
-					ItemType = 3;
-
-					break;
-				case ItemSubClassArmor.Plate:
-					ItemType = 4;
-
-					break;
-				default:
-					if (item.SubclassID == (int)ItemSubClassArmor.Shield)
-					{
-						ItemType = 6;
-						AddStat(ItemSpecStat.Shield);
-					}
-					else if (item.SubclassID is > (int)ItemSubClassArmor.Shield and <= (int)ItemSubClassArmor.Relic)
-					{
-						ItemType = 6;
-						AddStat(ItemSpecStat.Relic);
-					}
-					else
-					{
-						ItemType = 0;
-					}
-
-					break;
-			}
-		}
-		else if (item.ClassID == ItemClass.Gem)
-		{
-			ItemType = 7;
-			var gem = CliDB.GemPropertiesStorage.LookupByKey(sparse.GemProperties);
-
-			if (gem != null)
-			{
-				if (gem.Type.HasAnyFlag(SocketColor.RelicIron))
-					AddStat(ItemSpecStat.RelicIron);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicBlood))
-					AddStat(ItemSpecStat.RelicBlood);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicShadow))
-					AddStat(ItemSpecStat.RelicShadow);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicFel))
-					AddStat(ItemSpecStat.RelicFel);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicArcane))
-					AddStat(ItemSpecStat.RelicArcane);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicFrost))
-					AddStat(ItemSpecStat.RelicFrost);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicFire))
-					AddStat(ItemSpecStat.RelicFire);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicWater))
-					AddStat(ItemSpecStat.RelicWater);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicLife))
-					AddStat(ItemSpecStat.RelicLife);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicWind))
-					AddStat(ItemSpecStat.RelicWind);
-
-				if (gem.Type.HasAnyFlag(SocketColor.RelicHoly))
-					AddStat(ItemSpecStat.RelicHoly);
-			}
-		}
-		else
-		{
-			ItemType = 0;
-		}
-
-		for (uint i = 0; i < ItemConst.MaxStats; ++i)
-			if (sparse.StatModifierBonusStat[i] != -1)
-				AddModStat(sparse.StatModifierBonusStat[i]);
-	}
-
-	void AddStat(ItemSpecStat statType)
-	{
-		if (ItemSpecStatCount >= ItemConst.MaxStats)
-			return;
-
-		for (uint i = 0; i < ItemConst.MaxStats; ++i)
-			if (ItemSpecStatTypes[i] == statType)
-				return;
-
-		ItemSpecStatTypes[ItemSpecStatCount++] = statType;
-	}
-
-	void AddModStat(int itemStatType)
-	{
-		switch ((ItemModType)itemStatType)
-		{
-			case ItemModType.Agility:
-				AddStat(ItemSpecStat.Agility);
-
-				break;
-			case ItemModType.Strength:
-				AddStat(ItemSpecStat.Strength);
-
-				break;
-			case ItemModType.Intellect:
-				AddStat(ItemSpecStat.Intellect);
-
-				break;
-			case ItemModType.DodgeRating:
-				AddStat(ItemSpecStat.Dodge);
-
-				break;
-			case ItemModType.ParryRating:
-				AddStat(ItemSpecStat.Parry);
-
-				break;
-			case ItemModType.CritMeleeRating:
-			case ItemModType.CritRangedRating:
-			case ItemModType.CritSpellRating:
-			case ItemModType.CritRating:
-				AddStat(ItemSpecStat.Crit);
-
-				break;
-			case ItemModType.HasteRating:
-				AddStat(ItemSpecStat.Haste);
-
-				break;
-			case ItemModType.HitRating:
-				AddStat(ItemSpecStat.Hit);
-
-				break;
-			case ItemModType.ExtraArmor:
-				AddStat(ItemSpecStat.BonusArmor);
-
-				break;
-			case ItemModType.AgiStrInt:
-				AddStat(ItemSpecStat.Agility);
-				AddStat(ItemSpecStat.Strength);
-				AddStat(ItemSpecStat.Intellect);
-
-				break;
-			case ItemModType.AgiStr:
-				AddStat(ItemSpecStat.Agility);
-				AddStat(ItemSpecStat.Strength);
-
-				break;
-			case ItemModType.AgiInt:
-				AddStat(ItemSpecStat.Agility);
-				AddStat(ItemSpecStat.Intellect);
-
-				break;
-			case ItemModType.StrInt:
-				AddStat(ItemSpecStat.Strength);
-				AddStat(ItemSpecStat.Intellect);
-
-				break;
-		}
-	}
-}
-
-public class SkillTiersEntry
-{
-	public uint Id;
-	public uint[] Value = new uint[SkillConst.MaxSkillStep];
-}
-
-public class TerrainSwapInfo
-{
-	public uint Id;
-	public List<uint> UiMapPhaseIDs = new();
-	public TerrainSwapInfo() { }
-
-	public TerrainSwapInfo(uint id)
-	{
-		Id = id;
-	}
-}
-
-public class PhaseInfoStruct
-{
-	public uint Id;
-	public List<uint> Areas = new();
-
-	public PhaseInfoStruct(uint id)
-	{
-		Id = id;
-	}
-
-	public bool IsAllowedInArea(uint areaId)
-	{
-		return Areas.Any(areaToCheck => Global.DB2Mgr.IsInArea(areaId, areaToCheck));
-	}
-}
-
-public class PhaseAreaInfo
-{
-	public PhaseInfoStruct PhaseInfo;
-	public List<uint> SubAreaExclusions = new();
-	public List<Condition> Conditions = new();
-
-	public PhaseAreaInfo(PhaseInfoStruct phaseInfo)
-	{
-		PhaseInfo = phaseInfo;
-	}
-}
-
-public class SceneTemplate
-{
-	public uint SceneId;
-	public SceneFlags PlaybackFlags;
-	public uint ScenePackageId;
-	public bool Encrypted;
-	public uint ScriptId;
-}
-
-public class DefaultCreatureBaseStats : CreatureBaseStats
-{
-	public DefaultCreatureBaseStats()
-	{
-		BaseMana = 0;
-		AttackPower = 0;
-		RangedAttackPower = 0;
-	}
-}
-
-public class GossipMenuItemsLocale
-{
-	public StringArray OptionText = new((int)Locale.Total);
-	public StringArray BoxText = new((int)Locale.Total);
-}
-
-public class PlayerChoiceLocale
-{
-	public StringArray Question = new((int)Locale.Total);
-	public Dictionary<int /*ResponseId*/, PlayerChoiceResponseLocale> Responses = new();
-}
-
-public class PlayerChoiceResponseLocale
-{
-	public StringArray Answer = new((int)Locale.Total);
-	public StringArray Header = new((int)Locale.Total);
-	public StringArray SubHeader = new((int)Locale.Total);
-	public StringArray ButtonTooltip = new((int)Locale.Total);
-	public StringArray Description = new((int)Locale.Total);
-	public StringArray Confirmation = new((int)Locale.Total);
-}
-
-public class PlayerChoiceResponseRewardItem
-{
-	public uint Id;
-	public List<uint> BonusListIDs = new();
-	public int Quantity;
-	public PlayerChoiceResponseRewardItem() { }
-
-	public PlayerChoiceResponseRewardItem(uint id, List<uint> bonusListIDs, int quantity)
-	{
-		Id = id;
-		BonusListIDs = bonusListIDs;
-		Quantity = quantity;
-	}
-}
-
-public class PlayerChoiceResponseRewardEntry
-{
-	public uint Id;
-	public int Quantity;
-
-	public PlayerChoiceResponseRewardEntry(uint id, int quantity)
-	{
-		Id = id;
-		Quantity = quantity;
-	}
-}
-
-public class PlayerChoiceResponseReward
-{
-	public int TitleId;
-	public int PackageId;
-	public int SkillLineId;
-	public uint SkillPointCount;
-	public uint ArenaPointCount;
-	public uint HonorPointCount;
-	public ulong Money;
-	public uint Xp;
-
-	public List<PlayerChoiceResponseRewardItem> Items = new();
-	public List<PlayerChoiceResponseRewardEntry> Currency = new();
-	public List<PlayerChoiceResponseRewardEntry> Faction = new();
-	public List<PlayerChoiceResponseRewardItem> ItemChoices = new();
-}
-
-public struct PlayerChoiceResponseMawPower
-{
-	public int TypeArtFileID;
-	public int? Rarity;
-	public uint? RarityColor;
-	public int SpellID;
-	public int MaxStacks;
-}
-
-public class PlayerChoiceResponse
-{
-	public int ResponseId;
-	public ushort ResponseIdentifier;
-	public int ChoiceArtFileId;
-	public int Flags;
-	public uint WidgetSetID;
-	public uint UiTextureAtlasElementID;
-	public uint SoundKitID;
-	public byte GroupID;
-	public int UiTextureKitID;
-	public string Answer;
-	public string Header;
-	public string SubHeader;
-	public string ButtonTooltip;
-	public string Description;
-	public string Confirmation;
-	public PlayerChoiceResponseReward Reward;
-	public uint? RewardQuestID;
-	public PlayerChoiceResponseMawPower? MawPower;
-}
-
-public class PlayerChoice
-{
-	public int ChoiceId;
-	public int UiTextureKitId;
-	public uint SoundKitId;
-	public uint CloseSoundKitId;
-	public long Duration;
-	public string Question;
-	public string PendingChoiceText;
-	public List<PlayerChoiceResponse> Responses = new();
-	public bool HideWarboardHeader;
-	public bool KeepOpenAfterChoice;
-
-	public PlayerChoiceResponse GetResponse(int responseId)
-	{
-		return Responses.Find(playerChoiceResponse => playerChoiceResponse.ResponseId == responseId);
-	}
-
-	public PlayerChoiceResponse GetResponseByIdentifier(int responseIdentifier)
-	{
-		return Responses.Find(playerChoiceResponse => playerChoiceResponse.ResponseIdentifier == responseIdentifier);
-	}
-}
-
-public class ClassAvailability
-{
-	public byte ClassID;
-	public byte ActiveExpansionLevel;
-	public byte AccountExpansionLevel;
-	public byte MinActiveExpansionLevel;
-}
-
-public class RaceClassAvailability
-{
-	public byte RaceID;
-	public List<ClassAvailability> Classes = new();
-}
-
-public class RaceUnlockRequirement
-{
-	public byte Expansion;
-	public uint AchievementId;
-}
-
-public class QuestRelationResult : List<uint>
-{
-	readonly bool _onlyActive;
-
-	public QuestRelationResult() { }
-
-	public QuestRelationResult(List<uint> range, bool onlyActive) : base(range)
-	{
-		_onlyActive = onlyActive;
-	}
-
-	public bool HasQuest(uint questId)
-	{
-		return Contains(questId) && (!_onlyActive || Quest.Quest.IsTakingQuestEnabled(questId));
-	}
-}
-
-class ScriptNameContainer
-{
-	readonly Dictionary<string, Entry> NameToIndex = new();
-	readonly List<Entry> IndexToName = new();
-
-	public ScriptNameContainer()
-	{
-		// We insert an empty placeholder here so we can use the
-		// script id 0 as dummy for "no script found".
-		var id = Insert("", false);
-	}
-
-	public uint Insert(string scriptName, bool isScriptNameBound)
-	{
-		Entry entry = new((uint)NameToIndex.Count, isScriptNameBound, scriptName);
-		var result = NameToIndex.TryAdd(scriptName, entry);
-
-		if (result)
-			IndexToName.Add(entry);
-
-		return NameToIndex[scriptName].Id;
-	}
-
-	public int GetSize()
-	{
-		return IndexToName.Count;
-	}
-
-	public Entry Find(uint index)
-	{
-		return index < IndexToName.Count ? IndexToName[(int)index] : null;
-	}
-
-	public Entry Find(string name)
-	{
-		// assume "" is the first element
-		if (name.IsEmpty())
-			return null;
-
-		return NameToIndex.LookupByKey(name);
-	}
-
-	public List<string> GetAllDBScriptNames()
-	{
-		List<string> scriptNames = new();
-
-		foreach (var (name, entry) in NameToIndex)
-			if (entry.IsScriptDatabaseBound)
-				scriptNames.Add(name);
-
-		return scriptNames;
-	}
-
-	public class Entry
-	{
-		public uint Id;
-		public bool IsScriptDatabaseBound;
-		public string Name;
-
-		public Entry(uint id, bool isScriptDatabaseBound, string name)
-		{
-			Id = id;
-			IsScriptDatabaseBound = isScriptDatabaseBound;
-			Name = name;
-		}
-	}
-}
-
-public class InstanceTemplate
-{
-	public uint Parent;
-	public uint ScriptId;
 }

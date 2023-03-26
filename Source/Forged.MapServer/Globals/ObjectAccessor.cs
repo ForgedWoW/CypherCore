@@ -268,26 +268,3 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
 		return u.Map.GetSceneObject(guid);
 	}
 }
-
-class PlayerNameMapHolder
-{
-	static readonly Dictionary<string, Player> _playerNameMap = new();
-
-	public static void Insert(Player p)
-	{
-		_playerNameMap[p.GetName()] = p;
-	}
-
-	public static void Remove(Player p)
-	{
-		_playerNameMap.Remove(p.GetName());
-	}
-
-	public static Player Find(string name)
-	{
-		if (!GameObjectManager.NormalizePlayerName(ref name))
-			return null;
-
-		return _playerNameMap.LookupByKey(name);
-	}
-}

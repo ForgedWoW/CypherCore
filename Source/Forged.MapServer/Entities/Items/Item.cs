@@ -21,6 +21,7 @@ using Forged.MapServer.Spells;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 using ItemMod = Forged.MapServer.Entities.Objects.Update.ItemMod;
 using ItemModList = Forged.MapServer.Entities.Objects.Update.ItemModList;
 

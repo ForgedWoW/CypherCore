@@ -12,6 +12,7 @@ using Forged.MapServer.Groups;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.AI.CoreAI;
 

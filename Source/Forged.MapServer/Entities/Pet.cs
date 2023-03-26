@@ -21,6 +21,7 @@ using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Entities;
 

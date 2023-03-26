@@ -5,6 +5,7 @@ using System;
 using Forged.MapServer.Accounts;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 

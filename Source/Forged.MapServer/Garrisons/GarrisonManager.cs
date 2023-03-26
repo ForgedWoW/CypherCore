@@ -7,14 +7,22 @@ using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.G;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
+using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Garrisons;
 
-public class GarrisonManager : Singleton<GarrisonManager>
+public class GarrisonManager
 {
-	// Counters, Traits
-	readonly uint[,] AbilitiesForQuality =
+    private readonly CliDB _cliDB;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly GameObjectManager _objectManager;
+
+    // Counters, Traits
+    private readonly uint[,] _abilitiesForQuality =
 	{
 		{
 			0, 0
@@ -36,25 +44,32 @@ public class GarrisonManager : Singleton<GarrisonManager>
 		} // Legendary
 	};
 
-	readonly MultiMap<uint, GarrSiteLevelPlotInstRecord> _garrisonPlotInstBySiteLevel = new();
-	readonly Dictionary<uint, Dictionary<uint, GameObjectsRecord>> _garrisonPlots = new();
-	readonly MultiMap<uint, uint> _garrisonBuildingsByPlot = new();
-	readonly Dictionary<ulong, uint> _garrisonBuildingPlotInstances = new();
-	readonly MultiMap<uint, uint> _garrisonBuildingsByType = new();
-	readonly Dictionary<uint, FinalizeGarrisonPlotGOInfo> _finalizePlotGOInfo = new();
-	readonly Dictionary<uint, GarrAbilities>[] _garrisonFollowerAbilities = new Dictionary<uint, GarrAbilities>[2];
-	readonly MultiMap<uint, GarrAbilityRecord> _garrisonFollowerClassSpecAbilities = new();
-	readonly List<GarrAbilityRecord> _garrisonFollowerRandomTraits = new();
+	private readonly MultiMap<uint, GarrSiteLevelPlotInstRecord> _garrisonPlotInstBySiteLevel = new();
+    private readonly Dictionary<uint, Dictionary<uint, GameObjectsRecord>> _garrisonPlots = new();
+    private readonly MultiMap<uint, uint> _garrisonBuildingsByPlot = new();
+    private readonly Dictionary<ulong, uint> _garrisonBuildingPlotInstances = new();
+	private readonly MultiMap<uint, uint> _garrisonBuildingsByType = new();
+	private readonly Dictionary<uint, FinalizeGarrisonPlotGOInfo> _finalizePlotGOInfo = new();
+    private readonly Dictionary<uint, GarrAbilities>[] _garrisonFollowerAbilities = new Dictionary<uint, GarrAbilities>[2];
+    private readonly MultiMap<uint, GarrAbilityRecord> _garrisonFollowerClassSpecAbilities = new();
+    private readonly List<GarrAbilityRecord> _garrisonFollowerRandomTraits = new();
 
 	ulong _followerDbIdGenerator = 1;
-	GarrisonManager() { }
+
+    public GarrisonManager(CliDB cliDB, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager)
+    {
+        _cliDB = cliDB;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+        _objectManager = objectManager;
+    }
 
 	public void Initialize()
 	{
-		foreach (var siteLevelPlotInst in CliDB.GarrSiteLevelPlotInstStorage.Values)
+		foreach (var siteLevelPlotInst in _cliDB.GarrSiteLevelPlotInstStorage.Values)
 			_garrisonPlotInstBySiteLevel.Add(siteLevelPlotInst.GarrSiteLevelID, siteLevelPlotInst);
 
-		foreach (var gameObject in CliDB.GameObjectsStorage.Values)
+		foreach (var gameObject in _cliDB.GameObjectsStorage.Values)
 			if (gameObject.TypeID == GameObjectTypes.GarrisonPlot)
 			{
 				if (!_garrisonPlots.ContainsKey(gameObject.OwnerID))
@@ -63,44 +78,44 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				_garrisonPlots[gameObject.OwnerID][(uint)gameObject.PropValue[0]] = gameObject;
 			}
 
-		foreach (var plotBuilding in CliDB.GarrPlotBuildingStorage.Values)
+		foreach (var plotBuilding in _cliDB.GarrPlotBuildingStorage.Values)
 			_garrisonBuildingsByPlot.Add(plotBuilding.GarrPlotID, plotBuilding.GarrBuildingID);
 
-		foreach (var buildingPlotInst in CliDB.GarrBuildingPlotInstStorage.Values)
+		foreach (var buildingPlotInst in _cliDB.GarrBuildingPlotInstStorage.Values)
 			_garrisonBuildingPlotInstances[MathFunctions.MakePair64(buildingPlotInst.GarrBuildingID, buildingPlotInst.GarrSiteLevelPlotInstID)] = buildingPlotInst.Id;
 
-		foreach (var building in CliDB.GarrBuildingStorage.Values)
+		foreach (var building in _cliDB.GarrBuildingStorage.Values)
 			_garrisonBuildingsByType.Add((byte)building.BuildingType, building.Id);
 
 		for (var i = 0; i < 2; ++i)
 			_garrisonFollowerAbilities[i] = new Dictionary<uint, GarrAbilities>();
 
-		foreach (var followerAbility in CliDB.GarrFollowerXAbilityStorage.Values)
+		foreach (var followerAbility in _cliDB.GarrFollowerXAbilityStorage.Values)
 		{
-			var ability = CliDB.GarrAbilityStorage.LookupByKey(followerAbility.GarrAbilityID);
+			var ability = _cliDB.GarrAbilityStorage.LookupByKey(followerAbility.GarrAbilityID);
 
-			if (ability != null)
-			{
-				if (ability.GarrFollowerTypeID != (uint)GarrisonFollowerType.Garrison)
-					continue;
+            if (ability == null)
+                continue;
 
-				if (!ability.Flags.HasAnyFlag(GarrisonAbilityFlags.CannotRoll) && ability.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
-					_garrisonFollowerRandomTraits.Add(ability);
+            if (ability.GarrFollowerTypeID != (uint)GarrisonFollowerType.Garrison)
+                continue;
 
-				if (followerAbility.FactionIndex < 2)
-				{
-					var dic = _garrisonFollowerAbilities[followerAbility.FactionIndex];
+            if (!ability.Flags.HasAnyFlag(GarrisonAbilityFlags.CannotRoll) && ability.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
+                _garrisonFollowerRandomTraits.Add(ability);
 
-					if (!dic.ContainsKey(followerAbility.GarrFollowerID))
-						dic[followerAbility.GarrFollowerID] = new GarrAbilities();
+            if (followerAbility.FactionIndex >= 2)
+                continue;
 
-					if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
-						dic[followerAbility.GarrFollowerID].Traits.Add(ability);
-					else
-						dic[followerAbility.GarrFollowerID].Counters.Add(ability);
-				}
-			}
-		}
+            var dic = _garrisonFollowerAbilities[followerAbility.FactionIndex];
+
+            if (!dic.ContainsKey(followerAbility.GarrFollowerID))
+                dic[followerAbility.GarrFollowerID] = new GarrAbilities();
+
+            if (ability.Flags.HasAnyFlag(GarrisonAbilityFlags.Trait))
+                dic[followerAbility.GarrFollowerID].Traits.Add(ability);
+            else
+                dic[followerAbility.GarrFollowerID].Counters.Add(ability);
+        }
 
 		InitializeDbIdSequences();
 		LoadPlotFinalizeGOInfo();
@@ -108,13 +123,9 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	}
 
 	public GarrSiteLevelRecord GetGarrSiteLevelEntry(uint garrSiteId, uint level)
-	{
-		foreach (var siteLevel in CliDB.GarrSiteLevelStorage.Values)
-			if (siteLevel.GarrSiteID == garrSiteId && siteLevel.GarrLevel == level)
-				return siteLevel;
-
-		return null;
-	}
+    {
+        return _cliDB.GarrSiteLevelStorage.Values.FirstOrDefault(siteLevel => siteLevel.GarrSiteID == garrSiteId && siteLevel.GarrLevel == level);
+    }
 
 	public List<GarrSiteLevelPlotInstRecord> GetGarrPlotInstForSiteLevel(uint garrSiteLevelId)
 	{
@@ -125,16 +136,10 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	{
 		var pair = _garrisonPlots.LookupByKey(mapId);
 
-		if (pair != null)
-		{
-			var gameobjectsRecord = pair.LookupByKey(garrPlotInstanceId);
+        var gameobjectsRecord = pair?.LookupByKey(garrPlotInstanceId);
 
-			if (gameobjectsRecord != null)
-				return gameobjectsRecord;
-		}
-
-		return null;
-	}
+        return gameobjectsRecord;
+    }
 
 	public bool IsPlotMatchingBuilding(uint garrPlotId, uint garrBuildingId)
 	{
@@ -157,7 +162,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 		if (!list.Empty())
 			foreach (var buildingId in list)
-				if (CliDB.GarrBuildingStorage.LookupByKey(buildingId).UpgradeLevel == currentLevel - 1)
+				if (_cliDB.GarrBuildingStorage.LookupByKey(buildingId).UpgradeLevel == currentLevel - 1)
 					return buildingId;
 
 		return 0;
@@ -170,13 +175,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 	public ulong GenerateFollowerDbId()
 	{
-		if (_followerDbIdGenerator >= ulong.MaxValue)
-		{
-			Log.Logger.Fatal("Garrison follower db id overflow! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
-		}
-
-		return _followerDbIdGenerator++;
+        return _followerDbIdGenerator++;
 	}
 
 	//todo check this method, might be slow.....
@@ -187,7 +186,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 		uint[] slots =
 		{
-			AbilitiesForQuality[quality, 0], AbilitiesForQuality[quality, 1]
+			_abilitiesForQuality[quality, 0], _abilitiesForQuality[quality, 1]
 		};
 
 		GarrAbilities garrAbilities = null;
@@ -284,16 +283,13 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			var genericTraits = genericTraitsTemp.Except(forcedTraits).ToList();
 			genericTraits.AddRange(traitList);
 
-			genericTraits.Sort((GarrAbilityRecord a1, GarrAbilityRecord a2) =>
+			genericTraits.Sort((a1, a2) =>
 			{
 				var e1 = (int)(a1.Flags & GarrisonAbilityFlags.Exclusive);
 				var e2 = (int)(a2.Flags & GarrisonAbilityFlags.Exclusive);
 
-				if (e1 != e2)
-					return e1.CompareTo(e2);
-
-				return a1.Id.CompareTo(a2.Id);
-			});
+				return e1 != e2 ? e1.CompareTo(e2) : a1.Id.CompareTo(a2.Id);
+            });
 
 			genericTraits = genericTraits.Distinct().ToList();
 
@@ -326,7 +322,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 		return result;
 	}
 
-	List<GarrAbilityRecord> GetClassSpecAbilities(GarrFollowerRecord follower, uint faction)
+    private List<GarrAbilityRecord> GetClassSpecAbilities(GarrFollowerRecord follower, uint faction)
 	{
 		List<GarrAbilityRecord> abilities = new();
 		uint classSpecId;
@@ -345,7 +341,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				return abilities;
 		}
 
-		if (!CliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
+		if (!_cliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
 			return abilities;
 
 		var garrAbility = _garrisonFollowerClassSpecAbilities.LookupByKey(classSpecId);
@@ -358,7 +354,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 	void InitializeDbIdSequences()
 	{
-		var result = DB.Characters.Query("SELECT MAX(dbId) FROM character_garrison_followers");
+		var result = _characterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers");
 
 		if (!result.IsEmpty())
 			_followerDbIdGenerator = result.Read<ulong>(0) + 1;
@@ -367,7 +363,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 	void LoadPlotFinalizeGOInfo()
 	{
 		//                                                                0                  1       2       3       4       5               6
-		var result = DB.World.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, " +
+		var result = _worldDatabase.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, " +
 									//                      7          8          9         10         11                 12
 									"allianceGameObjectId, allianceX, allianceY, allianceZ, allianceO, allianceAnimKitId FROM garrison_plot_finalize_info");
 
@@ -388,14 +384,14 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			var hordeAnimKitId = result.Read<ushort>(6);
 			var allianceAnimKitId = result.Read<ushort>(12);
 
-			if (!CliDB.GarrPlotInstanceStorage.ContainsKey(garrPlotInstanceId))
+			if (!_cliDB.GarrPlotInstanceStorage.ContainsKey(garrPlotInstanceId))
 			{
 				Log.Logger.Error("Non-existing GarrPlotInstance.db2 entry {0} was referenced in `garrison_plot_finalize_info`.", garrPlotInstanceId);
 
 				continue;
 			}
 
-			var goTemplate = Global.ObjectMgr.GetGameObjectTemplate(hordeGameObjectId);
+			var goTemplate = _objectManager.GetGameObjectTemplate(hordeGameObjectId);
 
 			if (goTemplate == null)
 			{
@@ -416,7 +412,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				continue;
 			}
 
-			goTemplate = Global.ObjectMgr.GetGameObjectTemplate(allianceGameObjectId);
+			goTemplate = _objectManager.GetGameObjectTemplate(allianceGameObjectId);
 
 			if (goTemplate == null)
 			{
@@ -437,7 +433,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				continue;
 			}
 
-			if (hordeAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(hordeAnimKitId))
+			if (hordeAnimKitId != 0 && !_cliDB.AnimKitStorage.ContainsKey(hordeAnimKitId))
 			{
 				Log.Logger.Error("Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`hordeAnimKitId` for garrPlotInstanceId {1}.",
 								hordeAnimKitId,
@@ -446,7 +442,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 				continue;
 			}
 
-			if (allianceAnimKitId != 0 && !CliDB.AnimKitStorage.ContainsKey(allianceAnimKitId))
+			if (allianceAnimKitId != 0 && !_cliDB.AnimKitStorage.ContainsKey(allianceAnimKitId))
 			{
 				Log.Logger.Error("Non-existing AnimKit.dbc entry {0} was referenced in `garrison_plot_finalize_info`.`allianceAnimKitId` for garrPlotInstanceId {1}.",
 								allianceAnimKitId,
@@ -456,13 +452,13 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			}
 
 			FinalizeGarrisonPlotGOInfo info = new();
-			info.factionInfo[GarrisonFactionIndex.Horde].GameObjectId = hordeGameObjectId;
-			info.factionInfo[GarrisonFactionIndex.Horde].Pos = new Position(result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
-			info.factionInfo[GarrisonFactionIndex.Horde].AnimKitId = hordeAnimKitId;
+			info.FactionInfo[GarrisonFactionIndex.Horde].GameObjectId = hordeGameObjectId;
+			info.FactionInfo[GarrisonFactionIndex.Horde].Pos = new Position(result.Read<float>(2), result.Read<float>(3), result.Read<float>(4), result.Read<float>(5));
+			info.FactionInfo[GarrisonFactionIndex.Horde].AnimKitId = hordeAnimKitId;
 
-			info.factionInfo[GarrisonFactionIndex.Alliance].GameObjectId = allianceGameObjectId;
-			info.factionInfo[GarrisonFactionIndex.Alliance].Pos = new Position(result.Read<float>(8), result.Read<float>(9), result.Read<float>(10), result.Read<float>(11));
-			info.factionInfo[GarrisonFactionIndex.Alliance].AnimKitId = allianceAnimKitId;
+			info.FactionInfo[GarrisonFactionIndex.Alliance].GameObjectId = allianceGameObjectId;
+			info.FactionInfo[GarrisonFactionIndex.Alliance].Pos = new Position(result.Read<float>(8), result.Read<float>(9), result.Read<float>(10), result.Read<float>(11));
+			info.FactionInfo[GarrisonFactionIndex.Alliance].AnimKitId = allianceAnimKitId;
 
 			_finalizePlotGOInfo[garrPlotInstanceId] = info;
 		} while (result.NextRow());
@@ -472,7 +468,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 	void LoadFollowerClassSpecAbilities()
 	{
-		var result = DB.World.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
+		var result = _worldDatabase.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
 
 		if (result.IsEmpty())
 		{
@@ -489,14 +485,14 @@ public class GarrisonManager : Singleton<GarrisonManager>
 			var classSpecId = result.Read<uint>(0);
 			var abilityId = result.Read<uint>(1);
 
-			if (!CliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
+			if (!_cliDB.GarrClassSpecStorage.ContainsKey(classSpecId))
 			{
 				Log.Logger.Error("Non-existing GarrClassSpec.db2 entry {0} was referenced in `garrison_follower_class_spec_abilities` by row ({1}, {2}).", classSpecId, classSpecId, abilityId);
 
 				continue;
 			}
 
-			var ability = CliDB.GarrAbilityStorage.LookupByKey(abilityId);
+			var ability = _cliDB.GarrAbilityStorage.LookupByKey(abilityId);
 
 			if (ability == null)
 			{
@@ -524,9 +520,9 @@ class GarrAbilities
 
 public class FinalizeGarrisonPlotGOInfo
 {
-	public FactionInfo[] factionInfo = new FactionInfo[2];
+	public FactionInfoModel[] FactionInfo = new FactionInfoModel[2];
 
-	public struct FactionInfo
+	public struct FactionInfoModel
 	{
 		public uint GameObjectId;
 		public Position Pos;

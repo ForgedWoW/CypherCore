@@ -6,6 +6,7 @@ using System.Numerics;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
+using Serilog;
 
 namespace Forged.MapServer.Movement;
 

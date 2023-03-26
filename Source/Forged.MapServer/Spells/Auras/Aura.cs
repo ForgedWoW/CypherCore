@@ -18,6 +18,7 @@ using Forged.MapServer.Scripting.Interfaces.IAura;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Models;
+using Serilog;
 
 namespace Forged.MapServer.Spells.Auras;
 

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Maps.Grids;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Movement;
 

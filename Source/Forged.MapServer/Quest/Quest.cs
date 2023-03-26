@@ -14,6 +14,7 @@ using Forged.MapServer.Networking.Packets.Quest;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Quest;
 

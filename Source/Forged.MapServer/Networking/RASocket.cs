@@ -11,6 +11,7 @@ using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
 using Framework.Networking;
+using Serilog;
 
 namespace Forged.MapServer.Networking;
 

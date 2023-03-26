@@ -9,6 +9,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Events;
 using Forged.MapServer.Maps;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.GameObjects;
 

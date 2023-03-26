@@ -9,6 +9,7 @@ using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Globals;
 using Framework.Collections;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Chat;
 

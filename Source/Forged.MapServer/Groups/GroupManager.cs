@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Groups;
 

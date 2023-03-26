@@ -6,6 +6,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.BlackMarket;
 

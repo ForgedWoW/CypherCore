@@ -7,6 +7,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Guilds;
 

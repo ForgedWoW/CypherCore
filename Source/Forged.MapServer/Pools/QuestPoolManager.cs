@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Pools;
 

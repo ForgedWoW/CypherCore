@@ -5,6 +5,7 @@ using System;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.Entities.Players;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 

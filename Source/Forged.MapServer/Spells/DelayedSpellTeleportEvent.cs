@@ -5,6 +5,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Spells;
 

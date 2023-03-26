@@ -8,6 +8,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Misc;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Cache;
 

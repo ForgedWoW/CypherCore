@@ -33,6 +33,7 @@ using Forged.MapServer.Scripting.Interfaces.ISpell;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Spells;
 

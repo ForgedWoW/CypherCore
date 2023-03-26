@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.M;
 using Forged.MapServer.Maps;
+using Serilog;
 
 namespace Forged.MapServer.Scripting.BaseScripts;
 

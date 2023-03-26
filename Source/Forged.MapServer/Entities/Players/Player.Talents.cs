@@ -19,6 +19,7 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 

@@ -4,23 +4,31 @@
 using System;
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Social;
-using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Entities.Players;
 
-public class SocialManager : Singleton<SocialManager>
+public class SocialManager
 {
-	public const int FRIEND_LIMIT_MAX = 50;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly IConfiguration _configuration;
+    public const int FRIEND_LIMIT_MAX = 50;
 	public const int IGNORE_LIMIT = 50;
 	readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
-	SocialManager() { }
+    public SocialManager(ObjectAccessor objectAccessor, IConfiguration configuration)
+    {
+        _objectAccessor = objectAccessor;
+        _configuration = configuration;
+    }
 
-	public static void GetFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo)
+	public void GetFriendInfo(Player player, ObjectGuid friendGuid, FriendInfo friendInfo)
 	{
 		if (!player)
 			return;
@@ -30,7 +38,7 @@ public class SocialManager : Singleton<SocialManager>
 		friendInfo.Level = 0;
 		friendInfo.Class = 0;
 
-		var target = Global.ObjAccessor.FindPlayer(friendGuid);
+		var target = _objectAccessor.FindPlayer(friendGuid);
 
 		if (!target)
 			return;
@@ -44,7 +52,7 @@ public class SocialManager : Singleton<SocialManager>
 		// MODERATOR, GAME MASTER, ADMINISTRATOR can see all
 
 		if (!player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) &&
-			target.Session.Security > (AccountTypes)GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator))
+			target.Session.Security > (AccountTypes)_configuration.GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator))
 			return;
 
 		// player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
@@ -122,7 +130,7 @@ public class SocialManager : Singleton<SocialManager>
 		if (!player)
 			return;
 
-		var gmSecLevel = (AccountTypes)GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator);
+		var gmSecLevel = (AccountTypes)_configuration.GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator);
 
 		foreach (var pair in _socialMap)
 		{
@@ -130,7 +138,7 @@ public class SocialManager : Singleton<SocialManager>
 
 			if (info != null && info.Flags.HasAnyFlag(SocialFlag.Friend))
 			{
-				var target = Global.ObjAccessor.FindPlayer(pair.Key);
+				var target = _objectAccessor.FindPlayer(pair.Key);
 
 				if (!target || !target.IsInWorld)
 					continue;

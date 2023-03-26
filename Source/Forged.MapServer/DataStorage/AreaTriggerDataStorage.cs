@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps.Grids;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.DataStorage;
 

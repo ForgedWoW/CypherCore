@@ -36,9 +36,9 @@ class TeleCommands
 			return false;
 		}
 
-		var map = CliDB.MapStorage.LookupByKey(tele.mapId);
+		var map = CliDB.MapStorage.LookupByKey(tele.MapId);
 
-		if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.mapId || !player.IsGameMaster)))
+		if (map == null || (map.IsBattlegroundOrArena() && (player.Location.MapId != tele.MapId || !player.IsGameMaster)))
 		{
 			handler.SendSysMessage(CypherStrings.CannotTeleToBg);
 
@@ -51,7 +51,7 @@ class TeleCommands
 		else
 			player.SaveRecallPosition(); // save only in non-flight case
 
-		player.TeleportTo(tele.mapId, tele.posX, tele.posY, tele.posZ, tele.orientation);
+		player.TeleportTo(tele.MapId, tele.PosX, tele.PosY, tele.PosZ, tele.Orientation);
 
 		return true;
 	}
@@ -73,13 +73,13 @@ class TeleCommands
 
 		GameTele tele = new()
 		{
-			posX = player.Location.X,
-			posY = player.Location.Y,
-			posZ = player.Location.Z,
-			orientation = player.Location.Orientation,
-			mapId = player.Location.MapId,
-			name = name,
-			nameLow = name.ToLowerInvariant()
+			PosX = player.Location.X,
+			PosY = player.Location.Y,
+			PosZ = player.Location.Z,
+			Orientation = player.Location.Orientation,
+			MapId = player.Location.MapId,
+			Name = name,
+			NameLow = name.ToLowerInvariant()
 		};
 
 		if (Global.ObjectMgr.AddGameTele(tele))
@@ -106,7 +106,7 @@ class TeleCommands
 			return false;
 		}
 
-		Global.ObjectMgr.DeleteGameTele(tele.name);
+		Global.ObjectMgr.DeleteGameTele(tele.Name);
 		handler.SendSysMessage(CypherStrings.CommandTpDeleted);
 
 		return true;
@@ -135,7 +135,7 @@ class TeleCommands
 		if (handler.HasLowerSecurity(target, ObjectGuid.Empty))
 			return false;
 
-		var map = CliDB.MapStorage.LookupByKey(tele.mapId);
+		var map = CliDB.MapStorage.LookupByKey(tele.MapId);
 
 		if (map == null || map.IsBattlegroundOrArena())
 		{
@@ -175,7 +175,7 @@ class TeleCommands
 				continue;
 			}
 
-			handler.SendSysMessage(CypherStrings.TeleportingTo, plNameLink, "", tele.name);
+			handler.SendSysMessage(CypherStrings.TeleportingTo, plNameLink, "", tele.Name);
 
 			if (handler.NeedReportToTarget(player))
 				player.SendSysMessage(CypherStrings.TeleportedToBy, nameLink);
@@ -186,7 +186,7 @@ class TeleCommands
 			else
 				player.SaveRecallPosition(); // save only in non-flight case
 
-			player.TeleportTo(tele.mapId, tele.posX, tele.posY, tele.posZ, tele.orientation);
+			player.TeleportTo(tele.MapId, tele.PosX, tele.PosY, tele.PosZ, tele.Orientation);
 		}
 
 		return true;
@@ -288,7 +288,7 @@ class TeleCommands
 			// id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
 			var tele = where as GameTele;
 
-			return DoNameTeleport(handler, player, tele.mapId, new Position(tele.posX, tele.posY, tele.posZ, tele.orientation), tele.name);
+			return DoNameTeleport(handler, player, tele.MapId, new Position(tele.PosX, tele.PosY, tele.PosZ, tele.Orientation), tele.Name);
 		}
 
 		[CommandGroup("npc")]

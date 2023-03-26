@@ -8,6 +8,7 @@ using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Interfaces;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Maps;
 

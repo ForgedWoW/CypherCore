@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Maps;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Scenarios;
 

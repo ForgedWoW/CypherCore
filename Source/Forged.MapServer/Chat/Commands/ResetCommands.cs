@@ -7,6 +7,7 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 

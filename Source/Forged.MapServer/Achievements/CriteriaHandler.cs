@@ -17,6 +17,7 @@ using Forged.MapServer.Phasing;
 using Forged.MapServer.Server;
 using Forged.MapServer.Weather;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Achievements;
 

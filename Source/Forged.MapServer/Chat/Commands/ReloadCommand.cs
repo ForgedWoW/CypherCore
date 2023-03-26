@@ -7,6 +7,7 @@ using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 

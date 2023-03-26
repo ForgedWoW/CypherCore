@@ -9,6 +9,7 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.SupportSystem;
 

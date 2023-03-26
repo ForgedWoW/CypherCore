@@ -14,6 +14,7 @@ using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Scripting.Interfaces.IPlayer;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 

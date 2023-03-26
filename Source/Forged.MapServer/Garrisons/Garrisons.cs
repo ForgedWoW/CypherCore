@@ -18,6 +18,7 @@ using Forged.MapServer.Networking.Packets.Garrison;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Garrisons;
 

@@ -17,6 +17,7 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Chat;
 using Forged.MapServer.Text;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.OutdoorPVP;
 
