@@ -7,13 +7,19 @@ using System.Numerics;
 using Forged.MapServer.Collision.Maps;
 using Forged.MapServer.Collision.Models;
 using Forged.MapServer.Conditions;
+using Forged.MapServer.DataStorage;
 using Framework.Constants;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.MapServer.Collision.Management;
 
-public class VMapManager : Singleton<VMapManager>
+public class VMapManager
 {
-	public static string VMapPath = Global.WorldMgr.DataPath + "/vmaps/";
+    private readonly DisableManager _disableManager;
+    private readonly DB2Manager _db2Manager;
+    public string VMapPath { get; }
 
 	readonly Dictionary<string, ManagedModel> _loadedModelFiles = new();
 	readonly Dictionary<uint, StaticMapTree> _instanceMapTrees = new();
@@ -27,7 +33,13 @@ public class VMapManager : Singleton<VMapManager>
 	public bool IsHeightCalcEnabled => _enableHeightCalc;
 
 	public bool IsMapLoadingEnabled => _enableLineOfSightCalc || _enableHeightCalc;
-	VMapManager() { }
+
+    public VMapManager(IConfiguration configuration, DisableManager disableManager, DB2Manager db2Manager)
+    {
+        _disableManager = disableManager;
+        _db2Manager = db2Manager;
+        VMapPath = configuration.GetDefaultValue("DataDir", "./") + "/vmaps/";
+    }
 
 	public void Initialize(MultiMap<uint, uint> mapData)
 	{
@@ -87,7 +99,7 @@ public class VMapManager : Singleton<VMapManager>
 
 	public bool IsInLineOfSight(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, ModelIgnoreFlags ignoreFlags)
 	{
-		if (!IsLineOfSightCalcEnabled || Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
+		if (!IsLineOfSightCalcEnabled || _disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
 			return true;
 
 		var instanceTree = _instanceMapTrees.LookupByKey(mapId);
@@ -106,7 +118,7 @@ public class VMapManager : Singleton<VMapManager>
 
 	public bool GetObjectHitPos(uint mapId, float x1, float y1, float z1, float x2, float y2, float z2, out float rx, out float ry, out float rz, float modifyDist)
 	{
-		if (IsLineOfSightCalcEnabled && !Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
+		if (IsLineOfSightCalcEnabled && !_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLOS))
 		{
 			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
@@ -133,7 +145,7 @@ public class VMapManager : Singleton<VMapManager>
 
 	public float GetHeight(uint mapId, float x, float y, float z, float maxSearchDist)
 	{
-		if (IsHeightCalcEnabled && !Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapHeight))
+		if (IsHeightCalcEnabled && !_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapHeight))
 		{
 			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
@@ -159,7 +171,7 @@ public class VMapManager : Singleton<VMapManager>
 		rootId = 0;
 		groupId = 0;
 
-		if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapAreaFlag))
+		if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapAreaFlag))
 		{
 			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
@@ -179,7 +191,7 @@ public class VMapManager : Singleton<VMapManager>
 
 	public bool GetLiquidLevel(uint mapId, float x, float y, float z, uint reqLiquidType, ref float level, ref float floor, ref uint type, ref uint mogpFlags)
 	{
-		if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
+		if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
 		{
 			var instanceTree = _instanceMapTrees.LookupByKey(mapId);
 
@@ -194,7 +206,7 @@ public class VMapManager : Singleton<VMapManager>
 					type = info.HitModel.GetLiquidType(); // entry from LiquidType.dbc
 					mogpFlags = info.HitModel.GetMogpFlags();
 
-					if (reqLiquidType != 0 && !Convert.ToBoolean(Global.DB2Mgr.GetLiquidFlags(type) & reqLiquidType))
+					if (reqLiquidType != 0 && !Convert.ToBoolean(_db2Manager.GetLiquidFlags(type) & reqLiquidType))
 						return false;
 
 					if (info.HitInstance.GetLiquidLevel(pos, info, ref level))
@@ -210,7 +222,7 @@ public class VMapManager : Singleton<VMapManager>
 	{
 		var data = new AreaAndLiquidData();
 
-		if (Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
+		if (_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
 		{
 			data.FloorZ = z;
 
@@ -233,11 +245,11 @@ public class VMapManager : Singleton<VMapManager>
 				var liquidType = info.HitModel.GetLiquidType();
 				float liquidLevel = 0;
 
-				if (reqLiquidType == 0 || Convert.ToBoolean(Global.DB2Mgr.GetLiquidFlags(liquidType) & reqLiquidType))
+				if (reqLiquidType == 0 || Convert.ToBoolean(_db2Manager.GetLiquidFlags(liquidType) & reqLiquidType))
 					if (info.HitInstance.GetLiquidLevel(pos, info, ref liquidLevel))
 						data.LiquidInfo = new AreaAndLiquidData.LiquidInfoModel(liquidType, liquidLevel);
 
-				if (!Global.DisableMgr.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
+				if (!_disableManager.IsVMAPDisabledFor(mapId, (byte)DisableFlags.VmapLiquidStatus))
 					data.AreaInfo = new AreaAndLiquidData.AreaInfoModel(info.HitInstance.AdtId, info.RootId, (int)info.HitModel.GetWmoID(), info.HitModel.GetMogpFlags());
 			}
 		}

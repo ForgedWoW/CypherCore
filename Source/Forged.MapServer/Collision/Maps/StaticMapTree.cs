@@ -9,13 +9,14 @@ using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Collision.Models;
 using Framework.Constants;
 using Framework.GameMath;
+using Serilog;
 
 namespace Forged.MapServer.Collision.Maps;
 
 public class StaticMapTree
 {
 	readonly uint _mapId;
-	readonly BIH _tree = new();
+    readonly BIH _tree = new();
 	readonly ConcurrentDictionary<uint, uint> _spawnIndices = new();
 	readonly ConcurrentDictionary<uint, bool> _loadedTiles = new();
 	readonly ConcurrentDictionary<uint, uint> _loadedSpawns = new();
@@ -23,9 +24,9 @@ public class StaticMapTree
 	uint _nTreeValues;
 
 	public StaticMapTree(uint mapId)
-	{
-		_mapId = mapId;
-	}
+    {
+        _mapId = mapId;
+    }
 
 	public LoadResult InitMap(string fname)
 	{
@@ -34,37 +35,36 @@ public class StaticMapTree
 		if (!File.Exists(fname))
 			return LoadResult.FileNotFound;
 
-		using (BinaryReader reader = new(new FileStream(fname, FileMode.Open, FileAccess.Read)))
-		{
-			var magic = reader.ReadStringFromChars(8);
+        using BinaryReader reader = new(new FileStream(fname, FileMode.Open, FileAccess.Read));
 
-			if (magic != MapConst.VMapMagic)
-				return LoadResult.VersionMismatch;
+        var magic = reader.ReadStringFromChars(8);
 
-			var node = reader.ReadStringFromChars(4);
+        if (magic != MapConst.VMapMagic)
+            return LoadResult.VersionMismatch;
 
-			if (node != "NODE")
-				return LoadResult.ReadFromFileFailed;
+        var node = reader.ReadStringFromChars(4);
 
-			if (!_tree.ReadFromFile(reader))
-				return LoadResult.ReadFromFileFailed;
+        if (node != "NODE")
+            return LoadResult.ReadFromFileFailed;
 
-			_nTreeValues = _tree.PrimCount();
-			_treeValues = new ModelInstance[_nTreeValues];
+        if (!_tree.ReadFromFile(reader))
+            return LoadResult.ReadFromFileFailed;
 
-			if (reader.ReadStringFromChars(4) != "SIDX")
-				return LoadResult.ReadFromFileFailed;
+        _nTreeValues = _tree.PrimCount();
+        _treeValues = new ModelInstance[_nTreeValues];
 
-			var spawnIndicesSize = reader.ReadUInt32();
+        if (reader.ReadStringFromChars(4) != "SIDX")
+            return LoadResult.ReadFromFileFailed;
 
-			for (uint i = 0; i < spawnIndicesSize; ++i)
-			{
-				var spawnId = reader.ReadUInt32();
-				_spawnIndices[spawnId] = i;
-			}
-		}
+        var spawnIndicesSize = reader.ReadUInt32();
 
-		return LoadResult.Success;
+        for (uint i = 0; i < spawnIndicesSize; ++i)
+        {
+            var spawnId = reader.ReadUInt32();
+            _spawnIndices[spawnId] = i;
+        }
+
+        return LoadResult.Success;
 	}
 
 	public void UnloadMap(VMapManager vm)
@@ -97,7 +97,7 @@ public class StaticMapTree
 
 			var result = LoadResult.FileNotFound;
 
-			var fileResult = OpenMapTileFile(VMapManager.VMapPath, _mapId, tileX, tileY, vm);
+			var fileResult = OpenMapTileFile(vm.VMapPath, _mapId, tileX, tileY, vm);
 
 			if (fileResult.File != null)
 			{
@@ -179,45 +179,42 @@ public class StaticMapTree
 
 			if (_loadedTiles[tileID]) // file associated with tile
 			{
-				var fileResult = OpenMapTileFile(VMapManager.VMapPath, _mapId, tileX, tileY, vm);
+				var fileResult = OpenMapTileFile(vm.VMapPath, _mapId, tileX, tileY, vm);
 
 				if (fileResult.File != null)
-				{
-					using BinaryReader reader = new(fileResult.File);
-					var result = true;
+                {
+                    using BinaryReader reader = new(fileResult.File);
+                    var result = reader.ReadStringFromChars(8) == MapConst.VMapMagic;
 
-					if (reader.ReadStringFromChars(8) != MapConst.VMapMagic)
-						result = false;
+                    var numSpawns = reader.ReadUInt32();
 
-					var numSpawns = reader.ReadUInt32();
+                    for (uint i = 0; i < numSpawns && result; ++i)
+                    {
+                        // read model spawns
+                        result = ModelSpawn.ReadFromFile(reader, out var spawn);
 
-					for (uint i = 0; i < numSpawns && result; ++i)
-					{
-						// read model spawns
-						result = ModelSpawn.ReadFromFile(reader, out var spawn);
+                        if (result)
+                        {
+                            // release model instance
+                            vm.ReleaseModelInstance(spawn.Name);
 
-						if (result)
-						{
-							// release model instance
-							vm.ReleaseModelInstance(spawn.Name);
-
-							// update tree
-							if (_spawnIndices.TryGetValue(spawn.Id, out var referencedNode))
-							{
-								if (_loadedSpawns.ContainsKey(referencedNode) && --_loadedSpawns[referencedNode] == 0)
-								{
-									_treeValues[referencedNode].SetUnloaded();
-									_loadedSpawns.TryRemove(referencedNode, out _);
-								}
-							}
-							else if (_mapId == fileResult.UsedMapId) // logic documented in StaticMapTree::LoadMapTile
-							{
-								result = false;
-							}
-						}
-					}
-				}
-			}
+                            // update tree
+                            if (_spawnIndices.TryGetValue(spawn.Id, out var referencedNode))
+                            {
+                                if (_loadedSpawns.ContainsKey(referencedNode) && --_loadedSpawns[referencedNode] == 0)
+                                {
+                                    _treeValues[referencedNode].SetUnloaded();
+                                    _loadedSpawns.TryRemove(referencedNode, out _);
+                                }
+                            }
+                            else if (_mapId == fileResult.UsedMapId) // logic documented in StaticMapTree::LoadMapTile
+                            {
+                                result = false;
+                            }
+                        }
+                    }
+                }
+            }
 
 			_loadedTiles.TryRemove(tileID, out _);
 		}
@@ -349,8 +346,7 @@ public class StaticMapTree
 		var maxDist = (pos2 - pos1).Length();
 
 		// return false if distance is over max float, in case of cheater teleporting to the end of the universe
-		if (maxDist == float.MaxValue ||
-			maxDist == float.PositiveInfinity)
+		if (maxDist is float.MaxValue or float.PositiveInfinity)
 			return false;
 
 		// prevent NaN values which can cause BIH intersection to enter infinite loop
@@ -367,20 +363,16 @@ public class StaticMapTree
 	}
 
 	public int NumLoadedTiles()
-	{
-		return _loadedTiles.Count;
-	}
+    {
+        lock (_loadedTiles)
+            return _loadedTiles.Count;
+    }
 
 	static uint PackTileID(int tileX, int tileY)
 	{
 		return (uint)(tileX << 16 | tileY);
 	}
 
-	static void UnpackTileID(int ID, ref int tileX, ref int tileY)
-	{
-		tileX = ID >> 16;
-		tileY = ID & 0xFF;
-	}
 
 	static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
 	{

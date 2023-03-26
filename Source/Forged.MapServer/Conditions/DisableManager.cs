@@ -3,27 +3,51 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Server;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Spells;
 using Framework.Collections;
 using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.MapServer.Conditions;
 
-public class DisableManager : Singleton<DisableManager>
+public class DisableManager
 {
-	readonly Dictionary<DisableType, Dictionary<uint, DisableData>> m_DisableMap = new();
-	DisableManager() { }
+    private readonly WorldDatabase _worldDatabase;
+    private readonly IConfiguration _configuration;
+    private readonly CliDB _cliDB;
+    private readonly SpellManager _spellManager;
+    private readonly DB2Manager _db2Manager;
+    private readonly CriteriaManager _criteriaManager;
+    private readonly GameObjectManager _objectManager;
+    private readonly Dictionary<DisableType, Dictionary<uint, DisableData>> _disableMap = new();
+
+    public DisableManager(WorldDatabase worldDatabase, IConfiguration configuration, CliDB cliDB, SpellManager spellManager, 
+                          DB2Manager db2Manager, CriteriaManager criteriaManager, GameObjectManager objectManager)
+    {
+        _worldDatabase = worldDatabase;
+        _configuration = configuration;
+        _cliDB = cliDB;
+        _spellManager = spellManager;
+        _db2Manager = db2Manager;
+        _criteriaManager = criteriaManager;
+        _objectManager = objectManager;
+    }
 
 	public void LoadDisables()
 	{
 		var oldMSTime = Time.MSTime;
 
 		// reload case
-		m_DisableMap.Clear();
+		_disableMap.Clear();
 
-		var result = DB.World.Query("SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
+		var result = _worldDatabase.Query("SELECT sourceType, entry, flags, params_0, params_1 FROM disables");
 
 		if (result.IsEmpty())
 		{
@@ -32,7 +56,7 @@ public class DisableManager : Singleton<DisableManager>
 			return;
 		}
 
-		uint total_count = 0;
+		uint totalCount = 0;
 
 		do
 		{
@@ -47,25 +71,25 @@ public class DisableManager : Singleton<DisableManager>
 
 			var entry = result.Read<uint>(1);
 			var flags = (DisableFlags)result.Read<ushort>(2);
-			var params_0 = result.Read<string>(3);
-			var params_1 = result.Read<string>(4);
+			var params0 = result.Read<string>(3);
+			var params1 = result.Read<string>(4);
 
 			DisableData data = new()
 			{
-				flags = (ushort)flags
+				Flags = (ushort)flags
 			};
 
 			switch (type)
 			{
 				case DisableType.Spell:
-					if (!(Global.SpellMgr.HasSpellInfo(entry, Difficulty.None) || flags.HasFlag(DisableFlags.SpellDeprecatedSpell)))
+					if (!(_spellManager.HasSpellInfo(entry) || flags.HasFlag(DisableFlags.SpellDeprecatedSpell)))
 					{
 						Log.Logger.Error("Spell entry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 
 						continue;
 					}
 
-					if (flags == 0 || flags > DisableFlags.MaxSpell)
+					if (flags is 0 or > DisableFlags.MaxSpell)
 					{
 						Log.Logger.Error("Disable flags for spell {0} are invalid, skipped.", entry);
 
@@ -74,20 +98,20 @@ public class DisableManager : Singleton<DisableManager>
 
 					if (flags.HasFlag(DisableFlags.SpellMap))
 					{
-						var array = new StringArray(params_0, ',');
+						var array = new StringArray(params0, ',');
 
 						for (byte i = 0; i < array.Length;)
 							if (uint.TryParse(array[i++], out var id))
-								data.param0.Add(id);
+								data.Param0.Add(id);
 					}
 
 					if (flags.HasFlag(DisableFlags.SpellArea))
 					{
-						var array = new StringArray(params_1, ',');
+						var array = new StringArray(params1, ',');
 
 						for (byte i = 0; i < array.Length;)
 							if (uint.TryParse(array[i++], out var id))
-								data.param1.Add(id);
+								data.Param1.Add(id);
 					}
 
 					break;
@@ -97,7 +121,7 @@ public class DisableManager : Singleton<DisableManager>
 				case DisableType.Map:
 				case DisableType.LFGMap:
 				{
-					var mapEntry = CliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
 
 					if (mapEntry == null)
 					{
@@ -117,13 +141,13 @@ public class DisableManager : Singleton<DisableManager>
 							break;
 						case MapTypes.Instance:
 						case MapTypes.Raid:
-							if (flags.HasFlag(DisableFlags.DungeonStatusHeroic) && Global.DB2Mgr.GetMapDifficultyData(entry, Difficulty.Heroic) == null)
+							if (flags.HasFlag(DisableFlags.DungeonStatusHeroic) && _db2Manager.GetMapDifficultyData(entry, Difficulty.Heroic) == null)
 								flags &= ~DisableFlags.DungeonStatusHeroic;
 
-							if (flags.HasFlag(DisableFlags.DungeonStatusHeroic10Man) && Global.DB2Mgr.GetMapDifficultyData(entry, Difficulty.Raid10HC) == null)
+							if (flags.HasFlag(DisableFlags.DungeonStatusHeroic10Man) && _db2Manager.GetMapDifficultyData(entry, Difficulty.Raid10HC) == null)
 								flags &= ~DisableFlags.DungeonStatusHeroic10Man;
 
-							if (flags.HasFlag(DisableFlags.DungeonStatusHeroic25Man) && Global.DB2Mgr.GetMapDifficultyData(entry, Difficulty.Raid25HC) == null)
+							if (flags.HasFlag(DisableFlags.DungeonStatusHeroic25Man) && _db2Manager.GetMapDifficultyData(entry, Difficulty.Raid25HC) == null)
 								flags &= ~DisableFlags.DungeonStatusHeroic25Man;
 
 							if (flags == 0)
@@ -147,7 +171,7 @@ public class DisableManager : Singleton<DisableManager>
 					break;
 				}
 				case DisableType.Battleground:
-					if (!CliDB.BattlemasterListStorage.ContainsKey(entry))
+					if (!_cliDB.BattlemasterListStorage.ContainsKey(entry))
 					{
 						Log.Logger.Error("Battlegroundentry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 
@@ -171,7 +195,7 @@ public class DisableManager : Singleton<DisableManager>
 
 					break;
 				case DisableType.Criteria:
-					if (Global.CriteriaMgr.GetCriteria(entry) == null)
+					if (_criteriaManager.GetCriteria(entry) == null)
 					{
 						Log.Logger.Error("Criteria entry {0} from `disables` doesn't exist in dbc, skipped.", entry);
 
@@ -184,7 +208,7 @@ public class DisableManager : Singleton<DisableManager>
 					break;
 				case DisableType.VMAP:
 				{
-					var mapEntry = CliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
 
 					if (mapEntry == null)
 					{
@@ -228,15 +252,13 @@ public class DisableManager : Singleton<DisableManager>
 								Log.Logger.Information("LoS disabled for arena map {0}.", entry);
 
 							break;
-						default:
-							break;
 					}
 
 					break;
 				}
 				case DisableType.MMAP:
 				{
-					var mapEntry = CliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
 
 					if (mapEntry == null)
 					{
@@ -264,29 +286,25 @@ public class DisableManager : Singleton<DisableManager>
 							Log.Logger.Information("Pathfinding disabled for arena map {0}.", entry);
 
 							break;
-						default:
-							break;
 					}
 
 					break;
 				}
-				default:
-					break;
 			}
 
-			if (!m_DisableMap.ContainsKey(type))
-				m_DisableMap[type] = new Dictionary<uint, DisableData>();
+			if (!_disableMap.ContainsKey(type))
+				_disableMap[type] = new Dictionary<uint, DisableData>();
 
-			m_DisableMap[type].Add(entry, data);
-			++total_count;
+			_disableMap[type].Add(entry, data);
+			++totalCount;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} disables in {1} ms", total_count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} disables in {1} ms", totalCount, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void CheckQuestDisables()
 	{
-		if (!m_DisableMap.ContainsKey(DisableType.Quest) || m_DisableMap[DisableType.Quest].Count == 0)
+		if (!_disableMap.ContainsKey(DisableType.Quest) || _disableMap[DisableType.Quest].Count == 0)
 		{
 			Log.Logger.Information("Checked 0 quest disables.");
 
@@ -296,31 +314,31 @@ public class DisableManager : Singleton<DisableManager>
 		var oldMSTime = Time.MSTime;
 
 		// check only quests, rest already done at startup
-		foreach (var pair in m_DisableMap[DisableType.Quest])
+		foreach (var pair in _disableMap[DisableType.Quest])
 		{
 			var entry = pair.Key;
 
-			if (Global.ObjectMgr.GetQuestTemplate(entry) == null)
+			if (_objectManager.GetQuestTemplate(entry) == null)
 			{
 				Log.Logger.Error("Quest entry {0} from `disables` doesn't exist, skipped.", entry);
-				m_DisableMap[DisableType.Quest].Remove(entry);
+				_disableMap[DisableType.Quest].Remove(entry);
 
 				continue;
 			}
 
-			if (pair.Value.flags != 0)
+			if (pair.Value.Flags != 0)
 				Log.Logger.Error("Disable flags specified for quest {0}, useless data.", entry);
 		}
 
-		Log.Logger.Information("Checked {0} quest disables in {1} ms", m_DisableMap[DisableType.Quest].Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Checked {0} quest disables in {1} ms", _disableMap[DisableType.Quest].Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public bool IsDisabledFor(DisableType type, uint entry, WorldObject refe, ushort flags = 0)
 	{
-		if (!m_DisableMap.ContainsKey(type) || m_DisableMap[type].Empty())
+		if (!_disableMap.ContainsKey(type) || _disableMap[type].Empty())
 			return false;
 
-		var data = m_DisableMap[type].LookupByKey(entry);
+		var data = _disableMap[type].LookupByKey(entry);
 
 		if (data == null) // not disabled
 			return false;
@@ -329,7 +347,7 @@ public class DisableManager : Singleton<DisableManager>
 		{
 			case DisableType.Spell:
 			{
-				var spellFlags = (DisableFlags)data.flags;
+				var spellFlags = (DisableFlags)data.Flags;
 
 				if (refe != null)
 				{
@@ -353,7 +371,7 @@ public class DisableManager : Singleton<DisableManager>
 
 						if (spellFlags.HasFlag(DisableFlags.SpellMap))
 						{
-							var mapIds = data.param0;
+							var mapIds = data.Param0;
 
 							if (mapIds.Contains(refe.Location.MapId))
 								return true; // Spell is disabled on current map
@@ -366,7 +384,7 @@ public class DisableManager : Singleton<DisableManager>
 
 						if (spellFlags.HasFlag(DisableFlags.SpellArea))
 						{
-							var areaIds = data.param1;
+							var areaIds = data.Param1;
 
 							if (areaIds.Contains(refe.Area))
 								return true; // Spell is disabled in this area
@@ -398,13 +416,13 @@ public class DisableManager : Singleton<DisableManager>
 
 				if (player != null)
 				{
-					var mapEntry = CliDB.MapStorage.LookupByKey(entry);
+					var mapEntry = _cliDB.MapStorage.LookupByKey(entry);
 
 					if (mapEntry.IsDungeon())
 					{
-						var disabledModes = (DisableFlags)data.flags;
+						var disabledModes = (DisableFlags)data.Flags;
 						var targetDifficulty = player.GetDifficultyId(mapEntry);
-						Global.DB2Mgr.GetDownscaledMapDifficultyData(entry, ref targetDifficulty);
+						_db2Manager.GetDownscaledMapDifficultyData(entry, ref targetDifficulty);
 
 						switch (targetDifficulty)
 						{
@@ -435,7 +453,7 @@ public class DisableManager : Singleton<DisableManager>
 			case DisableType.MMAP:
 				return true;
 			case DisableType.VMAP:
-				return flags.HasAnyFlag(data.flags);
+				return flags.HasAnyFlag(data.Flags);
 		}
 
 		return false;
@@ -448,14 +466,14 @@ public class DisableManager : Singleton<DisableManager>
 
 	public bool IsPathfindingEnabled(uint mapId)
 	{
-		return GetDefaultValue("mmap.EnablePathFinding", true) && !Global.DisableMgr.IsDisabledFor(DisableType.MMAP, mapId, null);
+		return _configuration.GetDefaultValue("mmap.EnablePathFinding", true) && !IsDisabledFor(DisableType.MMAP, mapId, null);
 	}
 
 	public class DisableData
 	{
-		public ushort flags;
-		public List<uint> param0 = new();
-		public List<uint> param1 = new();
+		public ushort Flags;
+		public List<uint> Param0 = new();
+		public List<uint> Param1 = new();
 	}
 }
 

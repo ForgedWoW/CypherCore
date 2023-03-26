@@ -11,6 +11,8 @@ using Forged.MapServer.Arenas;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Collision.Management;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Framework;
 using Framework.Constants;
@@ -59,4 +61,7 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<BattleFieldManager>().SingleInstance();
     containerBuilder.RegisterType<BattlegroundManager>().SingleInstance();
     containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<VMapManager>().SingleInstance();
+    containerBuilder.RegisterType<ConditionManager>().SingleInstance();
+    containerBuilder.RegisterType<DisableManager>().SingleInstance();
 }
