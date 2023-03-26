@@ -61,7 +61,7 @@ public class BugTicket : Ticket
 	public override void SaveToDB()
 	{
 		byte idx = 0;
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_GM_BUG);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_GM_BUG);
 		stmt.AddValue(idx, IdProtected);
 		stmt.AddValue(++idx, PlayerGuidProtected.Counter);
 		stmt.AddValue(++idx, _note);
@@ -75,14 +75,14 @@ public class BugTicket : Ticket
 		stmt.AddValue(++idx, AssignedToProtected.Counter);
 		stmt.AddValue(++idx, CommentProtected);
 
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public override void DeleteFromDB()
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_BUG);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GM_BUG);
 		stmt.AddValue(0, IdProtected);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)

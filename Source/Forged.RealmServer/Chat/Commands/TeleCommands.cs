@@ -266,9 +266,9 @@ class TeleCommands
 				}
 				else
 				{
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
 					stmt.AddValue(0, player.GetGUID().Counter);
-					var result = DB.Characters.Query(stmt);
+					var result = _characterDatabase.Query(stmt);
 
 					if (!result.IsEmpty())
 					{

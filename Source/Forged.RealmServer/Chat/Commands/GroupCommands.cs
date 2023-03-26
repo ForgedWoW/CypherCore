@@ -179,9 +179,9 @@ class GroupCommands
 		// If not, we extract it from the SQL.
 		if (!groupTarget)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
 			stmt.AddValue(0, guidTarget.Counter);
-			var resultGroup = DB.Characters.Query(stmt);
+			var resultGroup = _characterDatabase.Query(stmt);
 
 			if (!resultGroup.IsEmpty())
 				groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));

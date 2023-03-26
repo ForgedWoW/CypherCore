@@ -138,7 +138,7 @@ namespace Forged.RealmServer
             // Load databases
             DatabaseLoader loader = new(DatabaseTypeFlags.All);
             loader.AddDatabase(DB.Login, "Login");
-            loader.AddDatabase(DB.Characters, "Character");
+            loader.AddDatabase(_characterDatabase, "Character");
             loader.AddDatabase(DB.World, "World");
             loader.AddDatabase(DB.Hotfix, "Hotfix");
 
@@ -169,10 +169,10 @@ namespace Forged.RealmServer
             DB.Login.DirectExecute("UPDATE account SET online = 0 WHERE online > 0 AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = {0})", Global.WorldMgr.Realm.Id.Index);
 
             // Reset online status for all characters
-            DB.Characters.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
+            _characterDatabase.DirectExecute("UPDATE characters SET online = 0 WHERE online <> 0");
 
             // Battlegroundinstance ids reset at server restart
-            DB.Characters.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
+            _characterDatabase.DirectExecute("UPDATE character_battleground_data SET instanceId = 0");
         }
 
         static void WorldUpdateLoop()

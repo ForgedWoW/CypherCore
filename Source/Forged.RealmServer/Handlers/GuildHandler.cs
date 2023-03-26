@@ -4,11 +4,9 @@
 using Framework.Constants;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
-using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Achievements;
-using Forged.RealmServer.Networking.Packets.Guild;
-using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
@@ -27,59 +25,59 @@ public class GuildHandler : IWorldSessionHandler
 		if (!ObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session._session.Player.Guild;
 
 		if (guild)
-			guild.HandleInviteMember(this, packet.Name);
+			guild.HandleInviteMember(_session, packet.Name);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildOfficerRemoveMember)]
 	void HandleGuildOfficerRemoveMember(GuildOfficerRemoveMember packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleRemoveMember(this, packet.Removee);
+			guild.HandleRemoveMember(_session, packet.Removee);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AcceptGuildInvite)]
 	void HandleGuildAcceptInvite(AcceptGuildInvite packet)
 	{
-		if (Player.GuildId == 0)
+		if (_session.Player.GuildId == 0)
 		{
-			var guild = Global.GuildMgr.GetGuildById(Player.GuildIdInvited);
+			var guild = Global.GuildMgr.GetGuildById(_session.Player.GuildIdInvited);
 
 			if (guild)
-				guild.HandleAcceptMember(this);
+				guild.HandleAcceptMember(_session);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildDeclineInvitation)]
 	void HandleGuildDeclineInvitation(GuildDeclineInvitation packet)
 	{
-		if (Player.GuildId != 0)
+		if (_session.Player.GuildId != 0)
 			return;
 
-		Player.GuildIdInvited = 0;
+		_session.Player.GuildIdInvited = 0;
 		Player.SetInGuild(0);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildPromoteMember)]
 	void HandleGuildPromoteMember(GuildPromoteMember packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleUpdateMemberRank(this, packet.Promotee, false);
+			guild.HandleUpdateMemberRank(_session, packet.Promotee, false);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildDemoteMember)]
 	void HandleGuildDemoteMember(GuildDemoteMember packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleUpdateMemberRank(this, packet.Demotee, true);
+			guild.HandleUpdateMemberRank(_session, packet.Demotee, true);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildAssignMemberRank)]
@@ -87,189 +85,189 @@ public class GuildHandler : IWorldSessionHandler
 	{
 		var setterGuid = Player.GUID;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetMemberRank(this, packet.Member, setterGuid, (GuildRankOrder)packet.RankOrder);
+			guild.HandleSetMemberRank(_session, packet.Member, setterGuid, (GuildRankOrder)packet.RankOrder);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildLeave)]
 	void HandleGuildLeave(GuildLeave packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleLeaveMember(this);
+			guild.HandleLeaveMember(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildDelete)]
 	void HandleGuildDisband(GuildDelete packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleDelete(this);
+			guild.HandleDelete(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildUpdateMotdText)]
 	void HandleGuildUpdateMotdText(GuildUpdateMotdText packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.MotdText))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.MotdText))
 			return;
 
 		if (packet.MotdText.Length > 255)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetMOTD(this, packet.MotdText);
+			guild.HandleSetMOTD(_session, packet.MotdText);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildSetMemberNote)]
 	void HandleGuildSetMemberNote(GuildSetMemberNote packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.Note))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.Note))
 			return;
 
 		if (packet.Note.Length > 31)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetMemberNote(this, packet.Note, packet.NoteeGUID, packet.IsPublic);
+			guild.HandleSetMemberNote(_session, packet.Note, packet.NoteeGUID, packet.IsPublic);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildAddRank)]
 	void HandleGuildAddRank(GuildAddRank packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.Name))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.Name))
 			return;
 
 		if (packet.Name.Length > 15)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleAddNewRank(this, packet.Name);
+			guild.HandleAddNewRank(_session, packet.Name);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildDeleteRank)]
 	void HandleGuildDeleteRank(GuildDeleteRank packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleRemoveRank(this, (GuildRankOrder)packet.RankOrder);
+			guild.HandleRemoveRank(_session, (GuildRankOrder)packet.RankOrder);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildShiftRank)]
 	void HandleGuildShiftRank(GuildShiftRank shiftRank)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleShiftRank(this, (GuildRankOrder)shiftRank.RankOrder, shiftRank.ShiftUp);
+			guild.HandleShiftRank(_session, (GuildRankOrder)shiftRank.RankOrder, shiftRank.ShiftUp);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildUpdateInfoText)]
 	void HandleGuildUpdateInfoText(GuildUpdateInfoText packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.InfoText))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.InfoText))
 			return;
 
 		if (packet.InfoText.Length > 500)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetInfo(this, packet.InfoText);
+			guild.HandleSetInfo(_session, packet.InfoText);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SaveGuildEmblem)]
 	void HandleSaveGuildEmblem(SaveGuildEmblem packet)
 	{
-		Guild.EmblemInfo emblemInfo = new();
+        _session.Player.Guild.EmblemInfo emblemInfo = new();
 		emblemInfo.ReadPacket(packet);
 
-		if (Player.GetNPCIfCanInteractWith(packet.Vendor, NPCFlags.TabardDesigner, NPCFlags2.None))
+		if (_session.Player.GetNPCIfCanInteractWith(packet.Vendor, NPCFlags.TabardDesigner, NPCFlags2.None))
 		{
 			// Remove fake death
-			if (Player.HasUnitState(UnitState.Died))
-				Player.RemoveAurasByType(AuraType.FeignDeath);
+			if (_session.Player.HasUnitState(UnitState.Died))
+                _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
 			if (!emblemInfo.ValidateEmblemColors())
 			{
-				Guild.SendSaveEmblemResult(this, GuildEmblemError.InvalidTabardColors);
+				Guild.SendSaveEmblemResult(_session, GuildEmblemError.InvalidTabardColors);
 
 				return;
 			}
 
-			var guild = Player.Guild;
+			var guild = _session.Player.Guild;
 
 			if (guild)
-				guild.HandleSetEmblem(this, emblemInfo);
+				guild.HandleSetEmblem(_session, emblemInfo);
 			else
-				Guild.SendSaveEmblemResult(this, GuildEmblemError.NoGuild); // "You are not part of a guild!";
+				Guild.SendSaveEmblemResult(_session, GuildEmblemError.NoGuild); // "You are not part of a guild!";
 		}
 		else
 		{
-			Guild.SendSaveEmblemResult(this, GuildEmblemError.InvalidVendor); // "That's not an emblem vendor!"
+			Guild.SendSaveEmblemResult(_session, GuildEmblemError.InvalidVendor); // "That's not an emblem vendor!"
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildEventLogQuery)]
 	void HandleGuildEventLogQuery(GuildEventLogQuery packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.SendEventLog(this);
+			guild.SendEventLog(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankDepositMoney)]
 	void HandleGuildBankDepositMoney(GuildBankDepositMoney packet)
 	{
-		if (Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
-			if (packet.Money != 0 && Player.HasEnoughMoney(packet.Money))
+		if (_session.Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
+			if (packet.Money != 0 && _session.Player.HasEnoughMoney(packet.Money))
 			{
-				var guild = Player.Guild;
+				var guild = _session.Player.Guild;
 
 				if (guild)
-					guild.HandleMemberDepositMoney(this, packet.Money);
+					guild.HandleMemberDepositMoney(_session, packet.Money);
 			}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankWithdrawMoney)]
 	void HandleGuildBankWithdrawMoney(GuildBankWithdrawMoney packet)
 	{
-		if (packet.Money != 0 && Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
+		if (packet.Money != 0 && _session.Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
 		{
-			var guild = Player.Guild;
+			var guild = _session.Player.Guild;
 
 			if (guild)
-				guild.HandleMemberWithdrawMoney(this, packet.Money);
+				guild.HandleMemberWithdrawMoney(_session, packet.Money);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AutoGuildBankItem)]
 	void HandleAutoGuildBankItem(AutoGuildBankItem depositGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(depositGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(depositGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(depositGuildBankItem.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), depositGuildBankItem.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										false,
 										depositGuildBankItem.BankTab,
 										depositGuildBankItem.BankSlot,
@@ -281,18 +279,18 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.StoreGuildBankItem)]
 	void HandleStoreGuildBankItem(StoreGuildBankItem storeGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(storeGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(storeGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(storeGuildBankItem.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), storeGuildBankItem.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										true,
 										storeGuildBankItem.BankTab,
 										storeGuildBankItem.BankSlot,
@@ -304,18 +302,18 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SwapItemWithGuildBankItem)]
 	void HandleSwapItemWithGuildBankItem(SwapItemWithGuildBankItem swapItemWithGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(swapItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(swapItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(swapItemWithGuildBankItem.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), swapItemWithGuildBankItem.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										false,
 										swapItemWithGuildBankItem.BankTab,
 										swapItemWithGuildBankItem.BankSlot,
@@ -327,15 +325,15 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SwapGuildBankItemWithGuildBankItem)]
 	void HandleSwapGuildBankItemWithGuildBankItem(SwapGuildBankItemWithGuildBankItem swapGuildBankItemWithGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(swapGuildBankItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(swapGuildBankItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
-		guild.SwapItems(Player,
+		guild.SwapItems(_session.Player,
 						swapGuildBankItemWithGuildBankItem.BankTab[0],
 						swapGuildBankItemWithGuildBankItem.BankSlot[0],
 						swapGuildBankItemWithGuildBankItem.BankTab[1],
@@ -346,32 +344,32 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.MoveGuildBankItem)]
 	void HandleMoveGuildBankItem(MoveGuildBankItem moveGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(moveGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(moveGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
-		guild.SwapItems(Player, moveGuildBankItem.BankTab, moveGuildBankItem.BankSlot, moveGuildBankItem.BankTab1, moveGuildBankItem.BankSlot1, 0);
+		guild.SwapItems(_session.Player, moveGuildBankItem.BankTab, moveGuildBankItem.BankSlot, moveGuildBankItem.BankTab1, moveGuildBankItem.BankSlot1, 0);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MergeItemWithGuildBankItem)]
 	void HandleMergeItemWithGuildBankItem(MergeItemWithGuildBankItem mergeItemWithGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(mergeItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(mergeItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(mergeItemWithGuildBankItem.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), mergeItemWithGuildBankItem.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										false,
 										mergeItemWithGuildBankItem.BankTab,
 										mergeItemWithGuildBankItem.BankSlot,
@@ -383,18 +381,18 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SplitItemToGuildBank)]
 	void HandleSplitItemToGuildBank(SplitItemToGuildBank splitItemToGuildBank)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(splitItemToGuildBank.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(splitItemToGuildBank.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(splitItemToGuildBank.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), splitItemToGuildBank.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										false,
 										splitItemToGuildBank.BankTab,
 										splitItemToGuildBank.BankSlot,
@@ -406,18 +404,18 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.MergeGuildBankItemWithItem)]
 	void HandleMergeGuildBankItemWithItem(MergeGuildBankItemWithItem mergeGuildBankItemWithItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(mergeGuildBankItemWithItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(mergeGuildBankItemWithItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(mergeGuildBankItemWithItem.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), mergeGuildBankItemWithItem.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										true,
 										mergeGuildBankItemWithItem.BankTab,
 										mergeGuildBankItemWithItem.BankSlot,
@@ -429,18 +427,18 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SplitGuildBankItemToInventory)]
 	void HandleSplitGuildBankItemToInventory(SplitGuildBankItemToInventory splitGuildBankItemToInventory)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(splitGuildBankItemToInventory.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(splitGuildBankItemToInventory.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
 		if (!Player.IsInventoryPos(splitGuildBankItemToInventory.ContainerSlot.GetValueOrDefault(InventorySlots.Bag0), splitGuildBankItemToInventory.ContainerItemSlot))
-			Player.SendEquipError(InventoryResult.InternalBagError, null);
+            _session.Player.SendEquipError(InventoryResult.InternalBagError, null);
 		else
-			guild.SwapItemsWithInventory(Player,
+			guild.SwapItemsWithInventory(_session.Player,
 										true,
 										splitGuildBankItemToInventory.BankTab,
 										splitGuildBankItemToInventory.BankSlot,
@@ -452,29 +450,29 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.AutoStoreGuildBankItem)]
 	void HandleAutoStoreGuildBankItem(AutoStoreGuildBankItem autoStoreGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(autoStoreGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(autoStoreGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
-		guild.SwapItemsWithInventory(Player, true, autoStoreGuildBankItem.BankTab, autoStoreGuildBankItem.BankSlot, InventorySlots.Bag0, ItemConst.NullSlot, 0);
+		guild.SwapItemsWithInventory(_session.Player, true, autoStoreGuildBankItem.BankTab, autoStoreGuildBankItem.BankSlot, InventorySlots.Bag0, ItemConst.NullSlot, 0);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MergeGuildBankItemWithGuildBankItem)]
 	void HandleMergeGuildBankItemWithGuildBankItem(MergeGuildBankItemWithGuildBankItem mergeGuildBankItemWithGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(mergeGuildBankItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(mergeGuildBankItemWithGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
-		guild.SwapItems(Player,
+		guild.SwapItems(_session.Player,
 						mergeGuildBankItemWithGuildBankItem.BankTab,
 						mergeGuildBankItemWithGuildBankItem.BankSlot,
 						mergeGuildBankItemWithGuildBankItem.BankTab1,
@@ -485,15 +483,15 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SplitGuildBankItem)]
 	void HandleSplitGuildBankItem(SplitGuildBankItem splitGuildBankItem)
 	{
-		if (!Player.GetGameObjectIfCanInteractWith(splitGuildBankItem.Banker, GameObjectTypes.GuildBank))
+		if (!_session.Player.GetGameObjectIfCanInteractWith(splitGuildBankItem.Banker, GameObjectTypes.GuildBank))
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
 
-		guild.SwapItems(Player,
+		guild.SwapItems(_session.Player,
 						splitGuildBankItem.BankTab,
 						splitGuildBankItem.BankSlot,
 						splitGuildBankItem.BankTab1,
@@ -504,62 +502,62 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.GuildBankBuyTab)]
 	void HandleGuildBankBuyTab(GuildBankBuyTab packet)
 	{
-		if (packet.Banker.IsEmpty || Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
+		if (packet.Banker.IsEmpty || _session.Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
 		{
-			var guild = Player.Guild;
+			var guild = _session.Player.Guild;
 
 			if (guild)
-				guild.HandleBuyBankTab(this, packet.BankTab);
+				guild.HandleBuyBankTab(_session, packet.BankTab);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankUpdateTab)]
 	void HandleGuildBankUpdateTab(GuildBankUpdateTab packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.Name))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.Name))
 			return;
 
 		if ((packet.Name.Length > 15) || (packet.Icon.Length > 127))
 			return;
 
 		if (!string.IsNullOrEmpty(packet.Name) && !string.IsNullOrEmpty(packet.Icon))
-			if (Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
+			if (_session.Player.GetGameObjectIfCanInteractWith(packet.Banker, GameObjectTypes.GuildBank))
 			{
-				var guild = Player.Guild;
+				var guild = _session.Player.Guild;
 
 				if (guild)
-					guild.HandleSetBankTabInfo(this, packet.BankTab, packet.Name, packet.Icon);
+					guild.HandleSetBankTabInfo(_session, packet.BankTab, packet.Name, packet.Icon);
 			}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankLogQuery)]
 	void HandleGuildBankLogQuery(GuildBankLogQuery packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.SendBankLog(this, (byte)packet.Tab);
+			guild.SendBankLog(_session, (byte)packet.Tab);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankTextQuery)]
 	void HandleGuildBankTextQuery(GuildBankTextQuery packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.SendBankTabText(this, (byte)packet.Tab);
+			guild.SendBankTabText(_session, (byte)packet.Tab);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankSetTabText)]
 	void HandleGuildBankSetTabText(GuildBankSetTabText packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.TabText))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.TabText))
 			return;
 
 		if (packet.TabText.Length > 500)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
 			guild.SetBankTabText((byte)packet.Tab, packet.TabText);
@@ -568,13 +566,13 @@ public class GuildHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.GuildSetRankPermissions)]
 	void HandleGuildSetRankPermissions(GuildSetRankPermissions packet)
 	{
-		if (!DisallowHyperlinksAndMaybeKick(packet.RankName))
+		if (!_session.DisallowHyperlinksAndMaybeKick(packet.RankName))
 			return;
 
 		if (packet.RankName.Length > 15)
 			return;
 
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild == null)
 			return;
@@ -584,79 +582,79 @@ public class GuildHandler : IWorldSessionHandler
 		for (byte tabId = 0; tabId < GuildConst.MaxBankTabs; ++tabId)
 			rightsAndSlots[tabId] = new Guild.GuildBankRightsAndSlots(tabId, (sbyte)packet.TabFlags[tabId], (int)packet.TabWithdrawItemLimit[tabId]);
 
-		guild.HandleSetRankInfo(this, (GuildRankId)packet.RankID, packet.RankName, (GuildRankRights)packet.Flags, packet.WithdrawGoldLimit, rightsAndSlots);
+		guild.HandleSetRankInfo(_session, (GuildRankId)packet.RankID, packet.RankName, (GuildRankRights)packet.Flags, packet.WithdrawGoldLimit, rightsAndSlots);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildChangeNameRequest, Processing = PacketProcessing.Inplace)]
 	void HandleGuildChallengeUpdateRequest(GuildChallengeUpdateRequest packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleGuildRequestChallengeUpdate(this);
+			guild.HandleGuildRequestChallengeUpdate(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DeclineGuildInvites)]
 	void HandleDeclineGuildInvites(DeclineGuildInvites packet)
 	{
 		if (packet.Allow)
-			Player.SetPlayerFlag(PlayerFlags.AutoDeclineGuild);
+            _session.Player.SetPlayerFlag(PlayerFlags.AutoDeclineGuild);
 		else
-			Player.RemovePlayerFlag(PlayerFlags.AutoDeclineGuild);
+            _session.Player.RemovePlayerFlag(PlayerFlags.AutoDeclineGuild);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildQueryNews)]
 	void HandleGuildQueryNews(GuildQueryNews packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
 			if (guild.GetGUID() == packet.GuildGUID)
-				guild.SendNewsUpdate(this);
+				guild.SendNewsUpdate(_session);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildNewsUpdateSticky)]
 	void HandleGuildNewsUpdateSticky(GuildNewsUpdateSticky packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleNewsSetSticky(this, (uint)packet.NewsID, packet.Sticky);
+			guild.HandleNewsSetSticky(_session, (uint)packet.NewsID, packet.Sticky);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildReplaceGuildMaster)]
 	void HandleGuildReplaceGuildMaster(GuildReplaceGuildMaster replaceGuildMaster)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetNewGuildMaster(this, "", true);
+			guild.HandleSetNewGuildMaster(_session, "", true);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildSetGuildMaster)]
 	void HandleGuildSetGuildMaster(GuildSetGuildMaster packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetNewGuildMaster(this, packet.NewMasterName, false);
+			guild.HandleSetNewGuildMaster(_session, packet.NewMasterName, false);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildSetAchievementTracking)]
 	void HandleGuildSetAchievementTracking(GuildSetAchievementTracking packet)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleSetAchievementTracking(this, packet.AchievementIDs);
+			guild.HandleSetAchievementTracking(_session, packet.AchievementIDs);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildGetAchievementMembers)]
 	void HandleGuildGetAchievementMembers(GuildGetAchievementMembers getAchievementMembers)
 	{
-		var guild = Player.Guild;
+		var guild = _session.Player.Guild;
 
 		if (guild)
-			guild.HandleGetAchievementMembers(this, getAchievementMembers.AchievementID);
+			guild.HandleGetAchievementMembers(_session, getAchievementMembers.AchievementID);
 	}
 }

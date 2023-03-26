@@ -1163,7 +1163,7 @@ public partial class Player
 			else
 				new MailDraft(mail_template_id).SendMailTo(trans, this, new MailSender(questGiver), MailCheckMask.HasBody, quest.RewardMailDelay);
 
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
 		if (quest.IsDaily || quest.IsDFQuest)

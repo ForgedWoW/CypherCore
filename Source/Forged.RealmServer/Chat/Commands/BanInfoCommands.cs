@@ -59,9 +59,9 @@ class BanInfoCommands
 			targetGuid = target.GUID;
 		}
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANINFO);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_BANINFO);
 		stmt.AddValue(0, targetGuid.Counter);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{

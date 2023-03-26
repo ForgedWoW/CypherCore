@@ -3248,7 +3248,7 @@ public partial class Player : Unit
 		_homebindAreaId = areaId;
 
 		// update sql homebind
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_PLAYER_HOMEBIND);
 		stmt.AddValue(0, _homebind.MapId);
 		stmt.AddValue(1, _homebindAreaId);
 		stmt.AddValue(2, _homebind.X);
@@ -3256,7 +3256,7 @@ public partial class Player : Unit
 		stmt.AddValue(4, _homebind.Z);
 		stmt.AddValue(5, _homebind.Orientation);
 		stmt.AddValue(6, GUID.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void SetBindPoint(ObjectGuid guid)
@@ -3853,10 +3853,10 @@ public partial class Player : Unit
 	public static void OfflineResurrect(ObjectGuid guid, SQLTransaction trans)
 	{
 		Corpse.DeleteFromDB(guid, trans);
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 		stmt.AddValue(0, (ushort)AtLoginFlags.Resurrect);
 		stmt.AddValue(1, guid.Counter);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 	}
 
 	public void SpawnCorpseBones(bool triggerSave = true)
@@ -4503,11 +4503,11 @@ public partial class Player : Unit
 
 		if (persist)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_REM_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)flags);
 			stmt.AddValue(1, GUID.Counter);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 	}
 
@@ -4630,7 +4630,7 @@ public partial class Player : Unit
 			//- TODO: Poor design of mail system
 			SQLTransaction trans = new();
 			new MailDraft(mailReward.mailTemplateId).SendMailTo(trans, this, new MailSender(MailMessageType.Creature, mailReward.senderEntry));
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
 		UpdateCriteria(CriteriaType.ReachLevel);
@@ -6200,7 +6200,7 @@ public partial class Player : Unit
 			var subject = Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem);
 			new MailDraft(subject, "There were problems with equipping one or several items").AddItem(offItem).SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied);
 
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 	}
 
@@ -6671,7 +6671,7 @@ public partial class Player : Unit
 		// TODO
 		// Save to DB
 		//ObjectGuid guid = GetGUID();
-		//var stmt = DB.Characters.GetPreparedStatement(CHAR_UPD_COVENANT);
+		//var stmt = _characterDatabase.GetPreparedStatement(CHAR_UPD_COVENANT);
 		//stmt.AddValue(0, covenantId);
 		//stmt.AddValue(1, guid.GetCounter());
 		//CharacterDatabase.Execute(stmt);
@@ -8557,7 +8557,7 @@ public partial class Player : Unit
 	//{
 	//    ObjectGuid guid = GetGUID();
 
-	//    var stmt = DB.Characters.GetPreparedStatement(CHAR_SEL_COVENANT);
+	//    var stmt = _characterDatabase.GetPreparedStatement(CHAR_SEL_COVENANT);
 	//    stmt.AddValue(0, guid.GetCounter());
 	//    var covenant = CharacterDatabase.Query(stmt);
 

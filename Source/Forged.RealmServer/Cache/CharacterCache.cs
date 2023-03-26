@@ -25,7 +25,7 @@ public class CharacterCache : Singleton<CharacterCache>
 		_characterCacheStore.Clear();
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
+		var result = _characterDatabase.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
 
 		if (result.IsEmpty())
 		{

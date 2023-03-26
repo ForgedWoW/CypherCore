@@ -51,15 +51,15 @@ public class PlayerAchievementMgr : AchievementManager
 	{
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT);
 		stmt.AddValue(0, guid.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS);
 		stmt.AddValue(0, guid.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void LoadFromDB(SQLResult achievementResult, SQLResult criteriaResult)
@@ -117,9 +117,9 @@ public class PlayerAchievementMgr : AchievementManager
 					// Removing non-existing criteria data for all characters
 					Log.Logger.Error("Non-existing achievement criteria {0} data removed from table `character_achievement_progress`.", id);
 
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
 					stmt.AddValue(0, id);
-					DB.Characters.Execute(stmt);
+					_characterDatabase.Execute(stmt);
 
 					continue;
 				}
@@ -146,12 +146,12 @@ public class PlayerAchievementMgr : AchievementManager
 				if (!pair.Value.Changed)
 					continue;
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_BY_ACHIEVEMENT);
 				stmt.AddValue(0, pair.Key);
 				stmt.AddValue(1, _owner.GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, pair.Key);
 				stmt.AddValue(2, pair.Value.Date);
@@ -166,14 +166,14 @@ public class PlayerAchievementMgr : AchievementManager
 				if (!pair.Value.Changed)
 					continue;
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACHIEVEMENT_PROGRESS_BY_CRITERIA);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, pair.Key);
 				trans.Append(stmt);
 
 				if (pair.Value.Counter != 0)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHAR_ACHIEVEMENT_PROGRESS);
 					stmt.AddValue(0, _owner.GUID.Counter);
 					stmt.AddValue(1, pair.Key);
 					stmt.AddValue(2, pair.Value.Counter);
@@ -421,7 +421,7 @@ public class PlayerAchievementMgr : AchievementManager
 			}
 
 			draft.SendMailTo(trans, _owner, new MailSender(MailMessageType.Creature, reward.SenderCreatureId));
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 	}
 

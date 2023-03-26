@@ -9,10 +9,7 @@ namespace Serilog
     {
         public static void Error(this ILogger logger, Exception ex)
         {
-            logger.Error("{0}{1}{2}", ex.Message, Environment.NewLine, ex.StackTrace);
-
-            if (ex.InnerException != null)
-                logger.Error("Inner Exception: {0}{1}{2}", ex.InnerException.Message, Environment.NewLine, ex.InnerException.StackTrace);
+            logger.Error(ex, string.Empty);
         }
     }
 }

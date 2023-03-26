@@ -59,8 +59,8 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 		// Clear in case we are reloading
 		_auctions.Clear();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_BLACKMARKET_AUCTIONS);
-		var result = DB.Characters.Query(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_BLACKMARKET_AUCTIONS);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -94,7 +94,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			AddAuction(auction);
 		} while (result.NextRow());
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		Log.Logger.Information("Loaded {0} black market auctions in {1} ms.", _auctions.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
@@ -116,7 +116,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 		if (updateTime)
 			_lastUpdate = now;
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void RefreshAuctions()
@@ -133,7 +133,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			_auctions.Remove(pair.Key);
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 		trans = new SQLTransaction();
 
 		List<BlackMarketTemplate> templates = new();
@@ -159,7 +159,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			AddAuction(entry);
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		Update(true);
 	}

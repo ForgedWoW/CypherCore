@@ -1987,17 +1987,17 @@ public class LFGManager : Singleton<LFGManager>
 
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
 		stmt.AddValue(0, db_guid);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_LFG_DATA);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_LFG_DATA);
 		stmt.AddValue(0, db_guid);
 		stmt.AddValue(1, GetDungeon(guid));
 		stmt.AddValue(2, (uint)GetState(guid));
 		trans.Append(stmt);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	LFGDungeonData GetLFGDungeon(uint id)

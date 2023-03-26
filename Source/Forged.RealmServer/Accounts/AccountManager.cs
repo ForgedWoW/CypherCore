@@ -75,9 +75,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 			return AccountOpResult.NameNotExist;
 
 		// Obtain accounts characters
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARS_BY_ACCOUNT_ID);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARS_BY_ACCOUNT_ID);
 		stmt.AddValue(0, accountId);
-		result = DB.Characters.Query(stmt);
+		result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -98,17 +98,17 @@ public sealed class AccountManager : Singleton<AccountManager>
 			} while (result.NextRow());
 
 		// table realm specific but common for all characters of account for realm
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_TUTORIALS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_TUTORIALS);
 		stmt.AddValue(0, accountId);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ACCOUNT_DATA);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ACCOUNT_DATA);
 		stmt.AddValue(0, accountId);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_BAN);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_BAN);
 		stmt.AddValue(0, accountId);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		SQLTransaction trans = new();
 
@@ -317,9 +317,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public uint GetCharactersCount(uint accountId)
 	{
 		// check character count
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_SUM_CHARS);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_SUM_CHARS);
 		stmt.AddValue(0, accountId);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		return result.IsEmpty() ? 0 : (uint)result.Read<ulong>(0);
 	}

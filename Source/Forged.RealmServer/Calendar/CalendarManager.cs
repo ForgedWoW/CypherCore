@@ -38,7 +38,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		_maxInviteId = 0;
 
 		//                                              0        1      2      3            4          5          6     7      8
-		var result = DB.Characters.Query("SELECT EventID, Owner, Title, Description, EventType, TextureID, Date, Flags, LockDate FROM calendar_events");
+		var result = _characterDatabase.Query("SELECT EventID, Owner, Title, Description, EventType, TextureID, Date, Flags, LockDate FROM calendar_events");
 
 		if (!result.IsEmpty())
 			do
@@ -70,7 +70,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		oldMSTime = Time.MSTime;
 
 		//                                    0         1        2        3       4       5             6               7
-		result = DB.Characters.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites");
+		result = _characterDatabase.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites");
 
 		if (!result.IsEmpty())
 			do
@@ -160,10 +160,10 @@ public class CalendarManager : Singleton<CalendarManager>
 			return;
 
 		SQLTransaction trans = new();
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
 		stmt.AddValue(0, calendarInvite.InviteId);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		if (!calendarEvent.IsGuildEvent)
 			SendCalendarEventInviteRemoveAlert(calendarInvite.InviteeGuid, calendarEvent, CalendarInviteStatus.Removed);
@@ -181,7 +181,7 @@ public class CalendarManager : Singleton<CalendarManager>
 	public void UpdateEvent(CalendarEvent calendarEvent)
 	{
 		SQLTransaction trans = new();
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
 		stmt.AddValue(0, calendarEvent.EventId);
 		stmt.AddValue(1, calendarEvent.OwnerGuid.Counter);
 		stmt.AddValue(2, calendarEvent.Title);
@@ -192,12 +192,12 @@ public class CalendarManager : Singleton<CalendarManager>
 		stmt.AddValue(7, (uint)calendarEvent.Flags);
 		stmt.AddValue(8, calendarEvent.LockDate);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void UpdateInvite(CalendarInvite invite, SQLTransaction trans = null)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
 		stmt.AddValue(0, invite.InviteId);
 		stmt.AddValue(1, invite.EventId);
 		stmt.AddValue(2, invite.InviteeGuid.Counter);
@@ -206,7 +206,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		stmt.AddValue(5, invite.ResponseTime);
 		stmt.AddValue(6, (byte)invite.Rank);
 		stmt.AddValue(7, invite.Note);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 	}
 
 	public void RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
@@ -562,7 +562,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		for (var i = 0; i < eventInvites.Count; ++i)
 		{
 			var invite = eventInvites[i];
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
 			stmt.AddValue(0, invite.InviteId);
 			trans.Append(stmt);
 
@@ -574,10 +574,10 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		_invites.Remove(calendarEvent.EventId);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_EVENT);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_EVENT);
 		stmt.AddValue(0, calendarEvent.EventId);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		_events.Remove(calendarEvent);
 	}

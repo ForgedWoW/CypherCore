@@ -138,7 +138,7 @@ public class Garrison
 	{
 		DeleteFromDB(_owner.GUID.Counter, trans);
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON);
 		stmt.AddValue(0, _owner.GUID.Counter);
 		stmt.AddValue(1, (int)_garrisonType);
 		stmt.AddValue(2, _siteLevel.Id);
@@ -147,7 +147,7 @@ public class Garrison
 
 		foreach (var building in _knownBuildings)
 		{
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BLUEPRINTS);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BLUEPRINTS);
 			stmt.AddValue(0, _owner.GUID.Counter);
 			stmt.AddValue(1, (int)_garrisonType);
 			stmt.AddValue(2, building);
@@ -157,7 +157,7 @@ public class Garrison
 		foreach (var plot in _plots.Values)
 			if (plot.BuildingInfo.PacketInfo != null)
 			{
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BUILDINGS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_BUILDINGS);
 				stmt.AddValue(0, _owner.GUID.Counter);
 				stmt.AddValue(1, (int)_garrisonType);
 				stmt.AddValue(2, plot.BuildingInfo.PacketInfo.GarrPlotInstanceID);
@@ -170,7 +170,7 @@ public class Garrison
 		foreach (var follower in _followers.Values)
 		{
 			byte index = 0;
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWERS);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWERS);
 			stmt.AddValue(index++, follower.PacketInfo.DbID);
 			stmt.AddValue(index++, _owner.GUID.Counter);
 			stmt.AddValue(index++, (int)_garrisonType);
@@ -189,7 +189,7 @@ public class Garrison
 
 			foreach (var ability in follower.PacketInfo.AbilityID)
 			{
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_GARRISON_FOLLOWER_ABILITIES);
 				stmt.AddValue(0, follower.PacketInfo.DbID);
 				stmt.AddValue(1, ability.Id);
 				stmt.AddValue(2, slot++);
@@ -200,19 +200,19 @@ public class Garrison
 
 	public static void DeleteFromDB(ulong ownerGuid, SQLTransaction trans)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON);
 		stmt.AddValue(0, ownerGuid);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BLUEPRINTS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BLUEPRINTS);
 		stmt.AddValue(0, ownerGuid);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BUILDINGS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_BUILDINGS);
 		stmt.AddValue(0, ownerGuid);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_FOLLOWERS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHARACTER_GARRISON_FOLLOWERS);
 		stmt.AddValue(0, ownerGuid);
 		trans.Append(stmt);
 	}
@@ -241,7 +241,7 @@ public class Garrison
 	{
 		SQLTransaction trans = new();
 		DeleteFromDB(_owner.GUID.Counter, trans);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		GarrisonDeleteResult garrisonDelete = new();
 		garrisonDelete.Result = GarrisonError.Success;

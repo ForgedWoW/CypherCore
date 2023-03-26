@@ -4,7 +4,8 @@
 using Framework.Constants;
 using Forged.RealmServer.Handlers;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Collection;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer;
 

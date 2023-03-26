@@ -18,12 +18,14 @@ public class AzeriteHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly Player _player;
     private readonly CliDB _cliDB;
+    private readonly DB2Manager _dB2Manager;
 
-    public AzeriteHandler(WorldSession session, Player player, CliDB cliDB)
+    public AzeriteHandler(WorldSession session, Player player, CliDB cliDB, DB2Manager dB2Manager)
     {
         _session = session;
         _player = player;
         _cliDB = cliDB;
+        _dB2Manager = dB2Manager;
     }
 
     public void SendAzeriteRespecNPC(ObjectGuid npc)
@@ -57,7 +59,7 @@ public class AzeriteHandler : IWorldSessionHandler
 			return;
 
 		// check that all previous milestones are unlocked
-		foreach (var previousMilestone in Global.DB2Mgr.GetAzeriteItemMilestonePowers())
+		foreach (var previousMilestone in _dB2Manager.GetAzeriteItemMilestonePowers())
 		{
 			if (previousMilestone == milestonePower)
 				break;
@@ -163,7 +165,7 @@ public class AzeriteHandler : IWorldSessionHandler
 			if (selectedEssences.AzeriteEssenceID[0] != 0 && (azeriteEssenceActivateEssence.Slot == 0 || removeEssenceFromSlot == 0))
 				for (uint essenceRank = 1; essenceRank <= rank; ++essenceRank)
 				{
-					var azeriteEssencePower = Global.DB2Mgr.GetAzeriteEssencePower(selectedEssences.AzeriteEssenceID[0], essenceRank);
+					var azeriteEssencePower = _dB2Manager.GetAzeriteEssencePower(selectedEssences.AzeriteEssenceID[0], essenceRank);
 
 					if (_player.SpellHistory.HasCooldown(azeriteEssencePower.MajorPowerDescription))
 					{
@@ -182,7 +184,7 @@ public class AzeriteHandler : IWorldSessionHandler
 				_player.ApplyAzeriteEssence(azeriteItem,
 											selectedEssences.AzeriteEssenceID[removeEssenceFromSlot],
 											SharedConst.MaxAzeriteEssenceRank,
-											(AzeriteItemMilestoneType)Global.DB2Mgr.GetAzeriteItemMilestonePower(removeEssenceFromSlot).Type == AzeriteItemMilestoneType.MajorEssence,
+											(AzeriteItemMilestoneType)_dB2Manager.GetAzeriteItemMilestonePower(removeEssenceFromSlot).Type == AzeriteItemMilestoneType.MajorEssence,
 											false);
 
 				azeriteItem.SetSelectedAzeriteEssence(removeEssenceFromSlot, 0);
@@ -192,7 +194,7 @@ public class AzeriteHandler : IWorldSessionHandler
 				_player.ApplyAzeriteEssence(azeriteItem,
 											selectedEssences.AzeriteEssenceID[azeriteEssenceActivateEssence.Slot],
 											SharedConst.MaxAzeriteEssenceRank,
-											(AzeriteItemMilestoneType)Global.DB2Mgr.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot).Type == AzeriteItemMilestoneType.MajorEssence,
+											(AzeriteItemMilestoneType)_dB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot).Type == AzeriteItemMilestoneType.MajorEssence,
 											false);
 		}
 		else
@@ -205,7 +207,7 @@ public class AzeriteHandler : IWorldSessionHandler
 		_player.ApplyAzeriteEssence(azeriteItem,
 									azeriteEssenceActivateEssence.AzeriteEssenceID,
 									rank,
-									(AzeriteItemMilestoneType)Global.DB2Mgr.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot).Type == AzeriteItemMilestoneType.MajorEssence,
+									(AzeriteItemMilestoneType)_dB2Manager.GetAzeriteItemMilestonePower(azeriteEssenceActivateEssence.Slot).Type == AzeriteItemMilestoneType.MajorEssence,
 									true);
 
 		azeriteItem.SetState(ItemUpdateState.Changed, _player);

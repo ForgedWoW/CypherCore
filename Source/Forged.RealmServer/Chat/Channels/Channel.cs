@@ -123,23 +123,23 @@ public class Channel
 			foreach (var iter in _bannedStore)
 				banlist += iter.GetRawValue().ToHexString() + ' ';
 
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL);
 			stmt.AddValue(0, _channelName);
 			stmt.AddValue(1, (uint)_channelTeam);
 			stmt.AddValue(2, _announceEnabled);
 			stmt.AddValue(3, _ownershipEnabled);
 			stmt.AddValue(4, _channelPassword);
 			stmt.AddValue(5, banlist);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 		else if (_nextActivityUpdateTime <= now)
 		{
 			if (!_playersStore.Empty())
 			{
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_USAGE);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_USAGE);
 				stmt.AddValue(0, _channelName);
 				stmt.AddValue(1, (uint)_channelTeam);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 			}
 		}
 		else

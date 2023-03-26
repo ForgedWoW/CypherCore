@@ -142,10 +142,10 @@ class ResetCommands
 		}
 		else
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.ResetSpells);
 			stmt.AddValue(1, player.GetGUID().Counter);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 
 			handler.SendSysMessage(CypherStrings.ResetSpellsOffline, player.GetName());
 		}
@@ -205,10 +205,10 @@ class ResetCommands
 		}
 		else if (!player.GetGUID().IsEmpty)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)(AtLoginFlags.None | AtLoginFlags.ResetPetTalents));
 			stmt.AddValue(1, player.GetGUID().Counter);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 
 			var nameLink = handler.PlayerLink(player.GetName());
 			handler.SendSysMessage(CypherStrings.ResetTalentsOffline, nameLink);
@@ -250,9 +250,9 @@ class ResetCommands
 			return false;
 		}
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ALL_AT_LOGIN_FLAGS);
 		stmt.AddValue(0, (ushort)atLogin);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		var plist = Global.ObjAccessor.GetPlayers();
 

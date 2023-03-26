@@ -18,13 +18,16 @@ public class AdventureJournalHandler : IWorldSessionHandler
     private readonly Player _player;
     private readonly DB6Storage<AdventureJournalRecord> _adventureJournalStorage;
 	private readonly DB2Manager _dB2Manager;
+    private readonly ObjectManager _objectManager;
 
-    public AdventureJournalHandler(WorldSession session, Player player, DB6Storage<AdventureJournalRecord> adventureJournalStorage, DB2Manager dB2Manager)
+    public AdventureJournalHandler(WorldSession session, Player player, DB6Storage<AdventureJournalRecord> adventureJournalStorage, 
+		DB2Manager dB2Manager, ObjectManager objectManager)
     {
         _session = session;
         _player = player;
         _adventureJournalStorage = adventureJournalStorage;
         _dB2Manager = dB2Manager;
+        _objectManager = objectManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.AdventureJournalOpenQuest)]
@@ -44,7 +47,7 @@ public class AdventureJournalHandler : IWorldSessionHandler
 		if (!_player.MeetPlayerCondition(adventureJournal.PlayerConditionID))
 			return;
 
-		var quest = Global.ObjectMgr.GetQuestTemplate(adventureJournal.QuestID);
+		var quest = _objectManager.GetQuestTemplate(adventureJournal.QuestID);
 
 		if (quest == null)
 			return;

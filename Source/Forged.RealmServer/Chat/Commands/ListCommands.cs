@@ -110,17 +110,17 @@ class ListCommands
 		// inventory case
 		uint inventoryCount = 0;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_COUNT_ITEM);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_COUNT_ITEM);
 		stmt.AddValue(0, itemId);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			inventoryCount = result.Read<uint>(0);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_ITEM_BY_ENTRY);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_INVENTORY_ITEM_BY_ENTRY);
 		stmt.AddValue(0, itemId);
 		stmt.AddValue(1, count);
-		result = DB.Characters.Query(stmt);
+		result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -153,19 +153,19 @@ class ListCommands
 		// mail case
 		uint mailCount = 0;
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_COUNT_ITEM);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_COUNT_ITEM);
 		stmt.AddValue(0, itemId);
-		result = DB.Characters.Query(stmt);
+		result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			mailCount = result.Read<uint>(0);
 
 		if (count > 0)
 		{
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_ITEMS_BY_ENTRY);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_ITEMS_BY_ENTRY);
 			stmt.AddValue(0, itemId);
 			stmt.AddValue(1, count);
-			result = DB.Characters.Query(stmt);
+			result = _characterDatabase.Query(stmt);
 		}
 		else
 		{
@@ -193,19 +193,19 @@ class ListCommands
 		// auction case
 		uint auctionCount = 0;
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_COUNT_ITEM);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_COUNT_ITEM);
 		stmt.AddValue(0, itemId);
-		result = DB.Characters.Query(stmt);
+		result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			auctionCount = result.Read<uint>(0);
 
 		if (count > 0)
 		{
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_ITEM_BY_ENTRY);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_AUCTIONHOUSE_ITEM_BY_ENTRY);
 			stmt.AddValue(0, itemId);
 			stmt.AddValue(1, count);
-			result = DB.Characters.Query(stmt);
+			result = _characterDatabase.Query(stmt);
 		}
 		else
 		{
@@ -228,17 +228,17 @@ class ListCommands
 		// guild bank case
 		uint guildCount = 0;
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_COUNT_ITEM);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_COUNT_ITEM);
 		stmt.AddValue(0, itemId);
-		result = DB.Characters.Query(stmt);
+		result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			guildCount = result.Read<uint>(0);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEM_BY_ENTRY);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEM_BY_ENTRY);
 		stmt.AddValue(0, itemId);
 		stmt.AddValue(1, count);
-		result = DB.Characters.Query(stmt);
+		result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do
@@ -275,9 +275,9 @@ class ListCommands
 		if (player == null)
 			return false;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_COUNT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_COUNT);
 		stmt.AddValue(0, player.GetGUID().Counter);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 		{
@@ -287,9 +287,9 @@ class ListCommands
 			handler.SendSysMessage(CypherStrings.ListMailHeader, countMail, nameLink, player.GetGUID().ToString());
 			handler.SendSysMessage(CypherStrings.AccountListBar);
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_INFO);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_INFO);
 			stmt.AddValue(0, player.GetGUID().Counter);
-			var result1 = DB.Characters.Query(stmt);
+			var result1 = _characterDatabase.Query(stmt);
 
 			if (!result1.IsEmpty())
 				do
@@ -315,15 +315,15 @@ class ListCommands
 
 					if (hasItem == 1)
 					{
-						var result2 = DB.Characters.Query("SELECT item_guid FROM mail_items WHERE mail_id = '{0}'", messageId);
+						var result2 = _characterDatabase.Query("SELECT item_guid FROM mail_items WHERE mail_id = '{0}'", messageId);
 
 						if (!result2.IsEmpty())
 							do
 							{
 								var item_guid = result2.Read<uint>(0);
-								stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_ITEMS);
+								stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MAIL_LIST_ITEMS);
 								stmt.AddValue(0, item_guid);
-								var result3 = DB.Characters.Query(stmt);
+								var result3 = _characterDatabase.Query(stmt);
 
 								if (!result3.IsEmpty())
 									do

@@ -134,7 +134,7 @@ public partial class Player
 
 		SaveInventoryAndGoldToDB(trans);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void SendRefundInfo(Item item)
@@ -849,10 +849,10 @@ public partial class Player
 				foreach (var guid in allowedLooters)
 					ss.AppendFormat("{0} ", guid);
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_BOP_TRADE);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_BOP_TRADE);
 				stmt.AddValue(0, item.GUID.Counter);
 				stmt.AddValue(1, ss.ToString());
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 			}
 
 			if (addToCollection)
@@ -1447,7 +1447,7 @@ public partial class Player
 		}
 
 		draft.SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied | MailCheckMask.Returned);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void GearUpByLoadout(uint loadout_purpose, in List<uint> bonusListIDs)
@@ -1490,7 +1490,7 @@ public partial class Player
 			}
 
 			draft.SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied | MailCheckMask.Returned);
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
 		var toBeMailedNewItems = new List<uint>();
@@ -1525,7 +1525,7 @@ public partial class Player
 			}
 
 			draft.SendMailTo(trans, this, new MailSender(this, MailStationery.Gm), MailCheckMask.Copied | MailCheckMask.Returned);
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
 		SaveToDB();
@@ -3116,7 +3116,7 @@ public partial class Player
 		}
 
 		draft.SendMailTo(trans, new MailReceiver(this, GUID.Counter), sender);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void SetBuybackPrice(uint slot, uint price)
@@ -4697,9 +4697,9 @@ public partial class Player
 
 			if (pItem.IsWrapped)
 			{
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
 				stmt.AddValue(0, pItem.GUID.Counter);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 			}
 
 			RemoveEnchantmentDurations(pItem);
@@ -5139,7 +5139,7 @@ public partial class Player
 				if (remainder != 0)
 					sendItemsBatch(fullBatches, remainder);
 
-				DB.Characters.CommitTransaction(trans);
+				_characterDatabase.CommitTransaction(trans);
 
 				SendPacket(new InventoryFullOverflow());
 			}

@@ -9,15 +9,39 @@ using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Chat;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Serilog;
+using Forged.RealmServer.Scripting;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession
+public class ChatHandler : IWorldSessionHandler
 {
-	[WorldPacketHandler(ClientOpcodes.ChatMessageGuild)]
+    private readonly WorldSession _session;
+    private readonly WorldConfig _worldConfig;
+    private readonly GameTime _gameTime;
+    private readonly LanguageManager _languageManager;
+    private readonly ObjectManager _objectManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GuildManager _guildManager;
+    private readonly ScriptManager _scriptManager;
+
+    public ChatHandler(WorldSession session, WorldConfig worldConfig, GameTime gameTime, LanguageManager languageManager,
+		ObjectManager objectManager, ObjectAccessor objectAccessor, GuildManager guildManager, ScriptManager scriptManager)
+    {
+        _session = session;
+        _worldConfig = worldConfig;
+        _gameTime = gameTime;
+        _languageManager = languageManager;
+        _objectManager = objectManager;
+        _objectAccessor = objectAccessor;
+        _guildManager = guildManager;
+        _scriptManager = scriptManager;
+    }
+
+    [WorldPacketHandler(ClientOpcodes.ChatMessageGuild)]
 	[WorldPacketHandler(ClientOpcodes.ChatMessageOfficer)]
 	[WorldPacketHandler(ClientOpcodes.ChatMessageParty)]
 	[WorldPacketHandler(ClientOpcodes.ChatMessageRaid)]
@@ -92,22 +116,22 @@ public partial class WorldSession
 
 	void HandleChat(ChatMsg type, Language lang, string msg, string target = "", ObjectGuid channelGuid = default)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (lang == Language.Universal && type != ChatMsg.Emote)
 		{
-			Log.Logger.Error("CMSG_MESSAGECHAT: Possible hacking-attempt: {0} tried to send a message in universal language", GetPlayerInfo());
-			SendNotification(CypherStrings.UnknownLanguage);
+			Log.Logger.Error("CMSG_MESSAGECHAT: Possible hacking-attempt: {0} tried to send a message in universal language", _session.GetPlayerInfo());
+            _session.SendNotification(CypherStrings.UnknownLanguage);
 
 			return;
 		}
 
 		// prevent talking at unknown language (cheating)
-		var languageData = Global.LanguageMgr.GetLanguageDescById(lang);
+		var languageData = _languageManager.GetLanguageDescById(lang);
 
 		if (languageData.Empty())
 		{
-			SendNotification(CypherStrings.UnknownLanguage);
+            _session.SendNotification(CypherStrings.UnknownLanguage);
 
 			return;
 		}
@@ -116,7 +140,7 @@ public partial class WorldSession
 			// also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
 			if (!sender.HasAuraTypeWithMiscvalue(AuraType.ComprehendLanguage, (int)lang))
 			{
-				SendNotification(CypherStrings.NotLearnedLanguage);
+                _session.SendNotification(CypherStrings.NotLearnedLanguage);
 
 				return;
 			}
@@ -129,7 +153,7 @@ public partial class WorldSession
 		else
 		{
 			// send in universal language in two side iteration allowed mode
-			if (HasPermission(RBACPermissions.TwoSideInteractionChat))
+			if (_session.HasPermission(RBACPermissions.TwoSideInteractionChat))
 				lang = Language.Universal;
 			else
 				switch (type)
@@ -158,17 +182,17 @@ public partial class WorldSession
 				lang = (Language)ModLangAuras.FirstOrDefault().MiscValue;
 		}
 
-		if (!CanSpeak)
+		if (!_session.CanSpeak)
 		{
-			var timeStr = Time.secsToTimeString((ulong)(MuteTime - _gameTime.GetGameTime));
-			SendNotification(CypherStrings.WaitBeforeSpeaking, timeStr);
+			var timeStr = Time.secsToTimeString((ulong)(_session.MuteTime - _gameTime.GetGameTime));
+            _session.SendNotification(CypherStrings.WaitBeforeSpeaking, timeStr);
 
 			return;
 		}
 
 		if (sender.HasAura(1852) && type != ChatMsg.Whisper)
 		{
-			SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.GmSilence), sender.GetName());
+            _session.SendNotification(_objectManager.GetCypherString(CypherStrings.GmSilence), sender.GetName());
 
 			return;
 		}
@@ -176,7 +200,7 @@ public partial class WorldSession
 		if (string.IsNullOrEmpty(msg))
 			return;
 
-		if (new CommandHandler(this).ParseCommands(msg))
+		if (new CommandHandler(_session).ParseCommands(msg))
 			return;
 
 		switch (type)
@@ -188,7 +212,7 @@ public partial class WorldSession
 
 				if (sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatSayLevelReq))
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatSayLevelReq));
+                    _session.SendNotification(_objectManager.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatSayLevelReq));
 
 					return;
 				}
@@ -203,7 +227,7 @@ public partial class WorldSession
 
 				if (sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq))
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq));
+                    _session.SendNotification(_objectManager.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatEmoteLevelReq));
 
 					return;
 				}
@@ -218,7 +242,7 @@ public partial class WorldSession
 
 				if (sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatYellLevelReq))
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatYellLevelReq));
+                    _session.SendNotification(_objectManager.GetCypherString(CypherStrings.SayReq), _worldConfig.GetIntValue(WorldCfg.ChatYellLevelReq));
 
 					return;
 				}
@@ -237,7 +261,7 @@ public partial class WorldSession
 					break;
 				}
 
-				var receiver = Global.ObjAccessor.FindPlayerByName(extName.Name);
+				var receiver = _objectAccessor.FindPlayerByName(extName.Name);
 
 				if (!receiver || (lang != Language.Addon && !receiver.IsAcceptWhispers && receiver.Session.HasPermission(RBACPermissions.CanFilterWhispers) && !receiver.IsInWhisperWhiteList(sender.GUID)))
 				{
@@ -251,12 +275,12 @@ public partial class WorldSession
 				{
 					if (!sender.IsGameMaster && sender.Level < _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq))
 					{
-						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.WhisperReq), _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq));
+                        _session.SendNotification(_objectManager.GetCypherString(CypherStrings.WhisperReq), _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq));
 
 						return;
 					}
 
-					if (_player.EffectiveTeam != receiver.EffectiveTeam && !HasPermission(RBACPermissions.TwoSideInteractionChat) && !receiver.IsInWhisperWhiteList(sender.GUID))
+					if (_session.Player.EffectiveTeam != receiver.EffectiveTeam && !_session.HasPermission(RBACPermissions.TwoSideInteractionChat) && !receiver.IsInWhisperWhiteList(sender.GUID))
 					{
 						SendChatPlayerNotfoundNotice(target);
 
@@ -264,98 +288,98 @@ public partial class WorldSession
 					}
 				}
 
-				if (_player.HasAura(1852) && !receiver.IsGameMaster)
+				if (_session.Player.HasAura(1852) && !receiver.IsGameMaster)
 				{
-					SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.GmSilence), _player.GetName());
+                    _session.SendNotification(_objectManager.GetCypherString(CypherStrings.GmSilence), _session.Player.GetName());
 
 					return;
 				}
 
 				if (receiver.Level < _worldConfig.GetIntValue(WorldCfg.ChatWhisperLevelReq) ||
-					(HasPermission(RBACPermissions.CanFilterWhispers) && !sender.IsAcceptWhispers && !sender.IsInWhisperWhiteList(receiver.GUID)))
+					(_session.HasPermission(RBACPermissions.CanFilterWhispers) && !sender.IsAcceptWhispers && !sender.IsInWhisperWhiteList(receiver.GUID)))
 					sender.AddWhisperWhiteList(receiver.GUID);
 
-				_player.Whisper(msg, lang, receiver);
+				_session.Player.Whisper(msg, lang, receiver);
 
 				break;
 			case ChatMsg.Party:
 			{
 				// if player is in Battleground, he cannot say to Battlegroundmembers by /p
-				var group = _player.OriginalGroup;
+				var group = _session.Player.OriginalGroup;
 
 				if (!group)
 				{
-					group = _player.Group;
+					group = _session.Player.Group;
 
 					if (!group || group.IsBGGroup)
 						return;
 				}
 
-				if (group.IsLeader(_player.GUID))
+				if (group.IsLeader(_session.Player.GUID))
 					type = ChatMsg.PartyLeader;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt data = new();
 				data.Initialize(type, lang, sender, null, msg);
-				group.BroadcastPacket(data, false, group.GetMemberGroup(_player.GUID));
+				group.BroadcastPacket(data, false, group.GetMemberGroup(_session.Player.GUID));
 			}
 
 				break;
 			case ChatMsg.Guild:
-				if (_player.GuildId != 0)
+				if (_session.Player.GuildId != 0)
 				{
-					var guild = Global.GuildMgr.GetGuildById(_player.GuildId);
+					var guild = _guildManager.GetGuildById(_session.Player.GuildId);
 
 					if (guild)
 					{
-						Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, guild);
+						_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, guild);
 
-						guild.BroadcastToGuild(this, false, msg, lang == Language.Addon ? Language.Addon : Language.Universal);
+						guild.BroadcastToGuild(_session, false, msg, lang == Language.Addon ? Language.Addon : Language.Universal);
 					}
 				}
 
 				break;
 			case ChatMsg.Officer:
-				if (_player.GuildId != 0)
+				if (_session.Player.GuildId != 0)
 				{
-					var guild = Global.GuildMgr.GetGuildById(_player.GuildId);
+					var guild = _guildManager.GetGuildById(_session.Player.GuildId);
 
 					if (guild)
 					{
-						Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, guild);
+						_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, guild);
 
-						guild.BroadcastToGuild(this, true, msg, lang == Language.Addon ? Language.Addon : Language.Universal);
+						guild.BroadcastToGuild(_session, true, msg, lang == Language.Addon ? Language.Addon : Language.Universal);
 					}
 				}
 
 				break;
 			case ChatMsg.Raid:
 			{
-				var group = _player.Group;
+				var group = _session.Player.Group;
 
 				if (!group || !group.IsRaidGroup || group.IsBGGroup)
 					return;
 
-				if (group.IsLeader(_player.GUID))
+				if (group.IsLeader(_session.Player.GUID))
 					type = ChatMsg.RaidLeader;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt data = new();
 				data.Initialize(type, lang, sender, null, msg);
 				group.BroadcastPacket(data, false);
 			}
-
+				
 				break;
 			case ChatMsg.RaidWarning:
 			{
-				var group = _player.Group;
+				var group = _session.Player.Group;
 
-				if (!group || !(group.IsRaidGroup || _worldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_player.GUID) || group.IsAssistant(_player.GUID)) || group.IsBGGroup)
+				if (!group || !(group.IsRaidGroup || _worldConfig.GetBoolValue(WorldCfg.ChatPartyRaidWarnings)) || !(group.IsLeader(_session.Player.GUID) || group.IsAssistant(_session.Player.GUID)) || group.IsBGGroup)
 					return;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt data = new();
 				//in Battleground, raid warning is sent only to players in Battleground - code is ok
@@ -365,10 +389,10 @@ public partial class WorldSession
 
 				break;
 			case ChatMsg.Channel:
-				if (!HasPermission(RBACPermissions.SkipCheckChatChannelReq))
-					if (_player.Level < _worldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq))
+				if (!_session.HasPermission(RBACPermissions.SkipCheckChatChannelReq))
+					if (_session.Player.Level < _worldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq))
 					{
-						SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.ChannelReq), _worldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq));
+                        _session.SendNotification(_objectManager.GetCypherString(CypherStrings.ChannelReq), _worldConfig.GetIntValue(WorldCfg.ChatChannelLevelReq));
 
 						return;
 					}
@@ -377,22 +401,22 @@ public partial class WorldSession
 
 				if (chn != null)
 				{
-					Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, chn);
-					chn.Say(_player.GUID, msg, lang);
+					_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, chn);
+					chn.Say(_session.Player.GUID, msg, lang);
 				}
 
 				break;
 			case ChatMsg.InstanceChat:
 			{
-				var group = _player.Group;
+				var group = _session.Player.Group;
 
 				if (!group)
 					return;
 
-				if (group.IsLeader(_player.GUID))
+				if (group.IsLeader(_session.Player.GUID))
 					type = ChatMsg.InstanceChatLeader;
 
-				Global.ScriptMgr.OnPlayerChat(_player, type, lang, msg, group);
+				_scriptManager.OnPlayerChat(_session.Player, type, lang, msg, group);
 
 				ChatPkt packet = new();
 				packet.Initialize(type, lang, sender, null, msg);
@@ -421,7 +445,7 @@ public partial class WorldSession
 
 	void HandleChatAddon(ChatMsg type, string prefix, string text, bool isLogged, string target = "", ObjectGuid? channelGuid = null)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (string.IsNullOrEmpty(prefix) || prefix.Length > 16)
 			return;
@@ -430,7 +454,7 @@ public partial class WorldSession
 		if (!_worldConfig.GetBoolValue(WorldCfg.AddonChannel))
 			return;
 
-		if (prefix == AddonChannelCommandHandler.PREFIX && new AddonChannelCommandHandler(this).ParseCommands(text))
+		if (prefix == AddonChannelCommandHandler.PREFIX && new AddonChannelCommandHandler(_session).ParseCommands(text))
 			return;
 
 		switch (type)
@@ -439,10 +463,10 @@ public partial class WorldSession
 			case ChatMsg.Officer:
 				if (sender.GuildId != 0)
 				{
-					var guild = Global.GuildMgr.GetGuildById(sender.GuildId);
+					var guild = _guildManager.GetGuildById(sender.GuildId);
 
 					if (guild)
-						guild.BroadcastAddonToGuild(this, type == ChatMsg.Officer, text, prefix, isLogged);
+						guild.BroadcastAddonToGuild(_session, type == ChatMsg.Officer, text, prefix, isLogged);
 				}
 
 				break;
@@ -453,7 +477,7 @@ public partial class WorldSession
 				if (!ObjectManager.NormalizePlayerName(ref extName.Name))
 					break;
 
-				var receiver = Global.ObjAccessor.FindPlayerByName(extName.Name);
+				var receiver = _objectAccessor.FindPlayerByName(extName.Name);
 
 				if (!receiver)
 					break;
@@ -507,14 +531,14 @@ public partial class WorldSession
 	[WorldPacketHandler(ClientOpcodes.ChatMessageAfk)]
 	void HandleChatMessageAFK(ChatMessageAFK packet)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (sender.IsInCombat)
 			return;
 
 		if (sender.HasAura(1852))
 		{
-			SendNotification(CypherStrings.GmSilence, sender.GetName());
+            _session.SendNotification(CypherStrings.GmSilence, sender.GetName());
 
 			return;
 		}
@@ -528,7 +552,7 @@ public partial class WorldSession
 		}
 		else // New AFK mode
 		{
-			sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? Global.ObjectMgr.GetCypherString(CypherStrings.PlayerAfkDefault) : packet.Text;
+			sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? _objectManager.GetCypherString(CypherStrings.PlayerAfkDefault) : packet.Text;
 
 			if (sender.IsDND)
 				sender.ToggleDND();
@@ -541,20 +565,20 @@ public partial class WorldSession
 		if (guild != null)
 			guild.SendEventAwayChanged(sender.GUID, sender.IsAFK, sender.IsDND);
 
-		Global.ScriptMgr.OnPlayerChat(sender, ChatMsg.Afk, Language.Universal, packet.Text);
+		_scriptManager.OnPlayerChat(sender, ChatMsg.Afk, Language.Universal, packet.Text);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChatMessageDnd)]
 	void HandleChatMessageDND(ChatMessageDND packet)
 	{
-		var sender = Player;
+		var sender = _session.Player;
 
 		if (sender.IsInCombat)
 			return;
 
 		if (sender.HasAura(1852))
 		{
-			SendNotification(CypherStrings.GmSilence, sender.GetName());
+            _session.SendNotification(CypherStrings.GmSilence, sender.GetName());
 
 			return;
 		}
@@ -568,7 +592,7 @@ public partial class WorldSession
 		}
 		else // New DND mode
 		{
-			sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? Global.ObjectMgr.GetCypherString(CypherStrings.PlayerDndDefault) : packet.Text;
+			sender.AutoReplyMsg = string.IsNullOrEmpty(packet.Text) ? _objectManager.GetCypherString(CypherStrings.PlayerDndDefault) : packet.Text;
 
 			if (sender.IsAFK)
 				sender.ToggleAFK();
@@ -581,44 +605,44 @@ public partial class WorldSession
 		if (guild != null)
 			guild.SendEventAwayChanged(sender.GUID, sender.IsAFK, sender.IsDND);
 
-		Global.ScriptMgr.OnPlayerChat(sender, ChatMsg.Dnd, Language.Universal, packet.Text);
+		_scriptManager.OnPlayerChat(sender, ChatMsg.Dnd, Language.Universal, packet.Text);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.Emote, Processing = PacketProcessing.Inplace)]
 	void HandleEmote(EmoteClient packet)
 	{
-		if (!_player.IsAlive || _player.HasUnitState(UnitState.Died))
+		if (!_session.Player.IsAlive || _session.Player.HasUnitState(UnitState.Died))
 			return;
 
-		Global.ScriptMgr.ForEach<IPlayerOnClearEmote>(p => p.OnClearEmote(_player));
-		_player.EmoteState = Emote.OneshotNone;
+		_scriptManager.ForEach<IPlayerOnClearEmote>(p => p.OnClearEmote(_session.Player));
+		_session.Player.EmoteState = Emote.OneshotNone;
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChatReportIgnored)]
 	void HandleChatIgnoredOpcode(ChatReportIgnored packet)
 	{
-		var player = Global.ObjAccessor.FindPlayer(packet.IgnoredGUID);
+		var player = _objectAccessor.FindPlayer(packet.IgnoredGUID);
 
 		if (!player || player.Session == null)
 			return;
 
 		ChatPkt data = new();
-		data.Initialize(ChatMsg.Ignored, Language.Universal, _player, _player, _player.GetName());
+		data.Initialize(ChatMsg.Ignored, Language.Universal, _session.Player, _session.Player, _session.Player.GetName());
 		player.SendPacket(data);
 	}
 
 	void SendChatPlayerNotfoundNotice(string name)
 	{
-		SendPacket(new ChatPlayerNotfound(name));
+        _session.SendPacket(new ChatPlayerNotfound(name));
 	}
 
 	void SendPlayerAmbiguousNotice(string name)
 	{
-		SendPacket(new ChatPlayerAmbiguous(name));
+        _session.SendPacket(new ChatPlayerAmbiguous(name));
 	}
 
 	void SendChatRestricted(ChatRestrictionType restriction)
 	{
-		SendPacket(new ChatRestricted(restriction));
+        _session.SendPacket(new ChatRestricted(restriction));
 	}
 }

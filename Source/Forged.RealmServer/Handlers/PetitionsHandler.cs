@@ -475,7 +475,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		foreach (var signature in signatures)
 			guild.AddMember(trans, signature.PlayerGuid);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		Global.PetitionMgr.RemovePetition(packet.Item);
 

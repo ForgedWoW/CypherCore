@@ -359,7 +359,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 
 	void InitializeDbIdSequences()
 	{
-		var result = DB.Characters.Query("SELECT MAX(dbId) FROM character_garrison_followers");
+		var result = _characterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers");
 
 		if (!result.IsEmpty())
 			_followerDbIdGenerator = result.Read<ulong>(0) + 1;
