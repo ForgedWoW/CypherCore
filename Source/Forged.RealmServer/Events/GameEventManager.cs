@@ -151,15 +151,15 @@ public class GameEventManager : Singleton<GameEventManager>
 					pair.Value.done = 0;
 
 				SQLTransaction trans = new();
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GAME_EVENT_CONDITION_SAVE);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GAME_EVENT_CONDITION_SAVE);
 				stmt.AddValue(0, event_id);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
 				stmt.AddValue(0, event_id);
 				trans.Append(stmt);
 
-				DB.Characters.CommitTransaction(trans);
+				_characterDatabase.CommitTransaction(trans);
 			}
 		}
 	}
@@ -249,7 +249,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                       0       1        2
-			var result = DB.Characters.Query("SELECT eventEntry, state, next_start FROM game_event_save");
+			var result = _characterDatabase.Query("SELECT eventEntry, state, next_start FROM game_event_save");
 
 			if (result.IsEmpty())
 			{
@@ -675,7 +675,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                      0           1         2
-			var result = DB.Characters.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
+			var result = _characterDatabase.Query("SELECT eventEntry, condition_id, done FROM game_event_condition_save");
 
 			if (result.IsEmpty())
 			{
@@ -1169,17 +1169,17 @@ public class GameEventManager : Singleton<GameEventManager>
 					// save the change to db
 					SQLTransaction trans = new();
 
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_CONDITION_SAVE);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_CONDITION_SAVE);
 					stmt.AddValue(0, event_id);
 					stmt.AddValue(1, condition);
 					trans.Append(stmt);
 
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GAME_EVENT_CONDITION_SAVE);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_CONDITION_SAVE);
 					stmt.AddValue(0, event_id);
 					stmt.AddValue(1, condition);
 					stmt.AddValue(2, eventFinishCond.done);
 					trans.Append(stmt);
-					DB.Characters.CommitTransaction(trans);
+					_characterDatabase.CommitTransaction(trans);
 
 					// check if all conditions are met, if so, update the event state
 					if (CheckOneGameEventConditions(event_id))
@@ -1773,16 +1773,16 @@ public class GameEventManager : Singleton<GameEventManager>
 	{
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GAME_EVENT_SAVE);
 		stmt.AddValue(0, event_id);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GAME_EVENT_SAVE);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GAME_EVENT_SAVE);
 		stmt.AddValue(0, event_id);
 		stmt.AddValue(1, (byte)mGameEvent[event_id].state);
 		stmt.AddValue(2, mGameEvent[event_id].nextstart != 0 ? mGameEvent[event_id].nextstart : 0L);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	void SendWorldStateUpdate(Player player, ushort event_id)

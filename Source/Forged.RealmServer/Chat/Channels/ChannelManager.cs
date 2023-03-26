@@ -43,12 +43,12 @@ public class ChannelManager
 
 		if (days != 0)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
 			stmt.AddValue(0, days * Time.Day);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
-		var result = DB.Characters.Query("SELECT name, team, announce, ownership, password, bannedList FROM channels");
+		var result = _characterDatabase.Query("SELECT name, team, announce, ownership, password, bannedList FROM channels");
 
 		if (result.IsEmpty())
 		{
@@ -90,10 +90,10 @@ public class ChannelManager
 
 		foreach (var (name, team) in toDelete)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHANNEL);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHANNEL);
 			stmt.AddValue(0, name);
 			stmt.AddValue(1, (uint)team);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");

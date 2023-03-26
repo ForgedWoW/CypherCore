@@ -6,8 +6,9 @@ using Framework.Constants;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DataStorage.ClientReader;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Hotfix;
-using Forged.RealmServer.Server;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Serilog;
 
 namespace Forged.RealmServer.Handlers;
 
@@ -18,14 +19,17 @@ public class HotfixHandler : IWorldSessionHandler
     private readonly MultiMap<int, HotfixRecord> _hotfixData;
     private readonly MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _optionalData;
     private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlobData;
+    private readonly GameTime _gameTime;
 
-    public HotfixHandler(WorldSession session, Dictionary<uint, IDB2Storage> storage, MultiMap<int, HotfixRecord> hotfixData, MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] optionalData, Dictionary<(uint tableHash, int recordId), byte[]>[] hotfixBlobData)
+    public HotfixHandler(WorldSession session, Dictionary<uint, IDB2Storage> storage, MultiMap<int, HotfixRecord> hotfixData, MultiMap<(uint tableHash, int recordId), 
+		HotfixOptionalData>[] optionalData, Dictionary<(uint tableHash, int recordId), byte[]>[] hotfixBlobData, GameTime gameTime)
     {
         _session = session;
         _storage = storage;
         _hotfixData = hotfixData;
         _optionalData = optionalData;
         _hotfixBlobData = hotfixBlobData;
+        _gameTime = gameTime;
     }
 
 	[WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]

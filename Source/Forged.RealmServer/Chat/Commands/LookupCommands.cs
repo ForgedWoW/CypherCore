@@ -1031,9 +1031,9 @@ class LookupCommands
 				var accountId = result.Read<uint>(0);
 				var accountName = result.Read<string>(1);
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_GUID_NAME_BY_ACC);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_GUID_NAME_BY_ACC);
 				stmt.AddValue(0, accountId);
-				var result2 = DB.Characters.Query(stmt);
+				var result2 = _characterDatabase.Query(stmt);
 
 				if (!result2.IsEmpty())
 				{

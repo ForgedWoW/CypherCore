@@ -92,10 +92,10 @@ public class TicketHandler : IWorldSessionHandler
 		if (!Global.SupportMgr.GetBugSystemStatus())
 			return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_BUG_REPORT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_BUG_REPORT);
 		stmt.AddValue(0, bugReport.Text);
 		stmt.AddValue(1, bugReport.DiagInfo);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.Complaint)]

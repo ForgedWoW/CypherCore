@@ -53,9 +53,9 @@ class LFGCommands
 		}
 		else
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GROUP_MEMBER);
 			stmt.AddValue(0, player.GetGUID().Counter);
-			var resultGroup = DB.Characters.Query(stmt);
+			var resultGroup = _characterDatabase.Query(stmt);
 
 			if (!resultGroup.IsEmpty())
 				groupTarget = Global.GroupMgr.GetGroupByDbStoreId(resultGroup.Read<uint>(0));

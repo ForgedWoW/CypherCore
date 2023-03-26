@@ -6917,7 +6917,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT MAX(id) FROM character_pet");
+		var result = _characterDatabase.Query("SELECT MAX(id) FROM character_pet");
 
 		if (!result.IsEmpty())
 			_hiPetNumber = result.Read<uint>(0) + 1;
@@ -9822,7 +9822,7 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 		_reservedNamesStorage.Clear(); // need for reload case
 
-		var result = DB.Characters.Query("SELECT name FROM reserved_name");
+		var result = _characterDatabase.Query("SELECT name FROM reserved_name");
 
 		if (result.IsEmpty())
 		{
@@ -9858,14 +9858,14 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		// Delete all old mails without item and without body immediately, if starting server
 		if (!serverUp)
 		{
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_EMPTY_EXPIRED_MAIL);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_EMPTY_EXPIRED_MAIL);
 			stmt.AddValue(0, curTime);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL);
 		stmt.AddValue(0, curTime);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -9875,9 +9875,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 		}
 
 		MultiMap<ulong, MailItemInfo> itemsCache = new();
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL_ITEMS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_EXPIRED_MAIL_ITEMS);
 		stmt.AddValue(0, curTime);
-		var items = DB.Characters.Query(stmt);
+		var items = _characterDatabase.Query(stmt);
 
 		if (!items.IsEmpty())
 		{
@@ -9932,34 +9932,34 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 						AzeriteEmpoweredItem.DeleteFromDB(null, itemInfo.item_guid);
 					}
 
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_ITEM_BY_ID);
 					stmt.AddValue(0, m.messageID);
-					DB.Characters.Execute(stmt);
+					_characterDatabase.Execute(stmt);
 				}
 				else
 				{
 					// Mail will be returned
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_MAIL_RETURNED);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL_RETURNED);
 					stmt.AddValue(0, m.receiver);
 					stmt.AddValue(1, m.sender);
 					stmt.AddValue(2, curTime + 30 * Time.Day);
 					stmt.AddValue(3, curTime);
 					stmt.AddValue(4, (byte)MailCheckMask.Returned);
 					stmt.AddValue(5, m.messageID);
-					DB.Characters.Execute(stmt);
+					_characterDatabase.Execute(stmt);
 
 					foreach (var itemInfo in m.items)
 					{
 						// Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
-						stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_MAIL_ITEM_RECEIVER);
+						stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_MAIL_ITEM_RECEIVER);
 						stmt.AddValue(0, m.sender);
 						stmt.AddValue(1, itemInfo.item_guid);
-						DB.Characters.Execute(stmt);
+						_characterDatabase.Execute(stmt);
 
-						stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
+						stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_OWNER);
 						stmt.AddValue(0, m.sender);
 						stmt.AddValue(1, itemInfo.item_guid);
-						DB.Characters.Execute(stmt);
+						_characterDatabase.Execute(stmt);
 					}
 
 					++returnedCount;
@@ -9968,9 +9968,9 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 				}
 			}
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_MAIL_BY_ID);
 			stmt.AddValue(0, m.messageID);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 			++deletedCount;
 		} while (result.NextRow());
 
@@ -10665,56 +10665,56 @@ public sealed class ObjectManager : Singleton<ObjectManager>
 
 	public void SetHighestGuids()
 	{
-		var result = DB.Characters.Query("SELECT MAX(guid) FROM characters");
+		var result = _characterDatabase.Query("SELECT MAX(guid) FROM characters");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Player).Set(result.Read<ulong>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(guid) FROM item_instance");
+		result = _characterDatabase.Query("SELECT MAX(guid) FROM item_instance");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Item).Set(result.Read<ulong>(0) + 1);
 
 		// Cleanup other tables from not existed guids ( >= hiItemGuid)
-		DB.Characters.Execute("DELETE FROM character_inventory WHERE item >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
-		DB.Characters.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed());     // One-time query
+		_characterDatabase.Execute("DELETE FROM character_inventory WHERE item >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
+		_characterDatabase.Execute("DELETE FROM mail_items WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed());     // One-time query
 
-		DB.Characters.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
+		_characterDatabase.Execute("DELETE a, ab, ai FROM auctionhouse a LEFT JOIN auction_bidders ab ON ab.auctionId = a.id LEFT JOIN auction_items ai ON ai.auctionId = a.id WHERE ai.itemGuid >= '{0}'",
 							GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
 
-		DB.Characters.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
+		_characterDatabase.Execute("DELETE FROM guild_bank_item WHERE item_guid >= {0}", GetGuidSequenceGenerator(HighGuid.Item).GetNextAfterMaxUsed()); // One-time query
 
 		result = DB.World.Query("SELECT MAX(guid) FROM transports");
 
 		if (!result.IsEmpty())
 			GetGuidSequenceGenerator(HighGuid.Transport).Set(result.Read<ulong>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(id) FROM auctionhouse");
+		result = _characterDatabase.Query("SELECT MAX(id) FROM auctionhouse");
 
 		if (!result.IsEmpty())
 			_auctionId = result.Read<uint>(0) + 1;
 
-		result = DB.Characters.Query("SELECT MAX(id) FROM mail");
+		result = _characterDatabase.Query("SELECT MAX(id) FROM mail");
 
 		if (!result.IsEmpty())
 			_mailId = result.Read<ulong>(0) + 1;
 
-		result = DB.Characters.Query("SELECT MAX(arenateamid) FROM arena_team");
+		result = _characterDatabase.Query("SELECT MAX(arenateamid) FROM arena_team");
 
 		if (!result.IsEmpty())
 			Global.ArenaTeamMgr.SetNextArenaTeamId(result.Read<uint>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
+		result = _characterDatabase.Query("SELECT MAX(maxguid) FROM ((SELECT MAX(setguid) AS maxguid FROM character_equipmentsets) UNION (SELECT MAX(setguid) AS maxguid FROM character_transmog_outfits)) allsets");
 
 		if (!result.IsEmpty())
 			_equipmentSetGuid = result.Read<ulong>(0) + 1;
 
-		result = DB.Characters.Query("SELECT MAX(guildId) FROM guild");
+		result = _characterDatabase.Query("SELECT MAX(guildId) FROM guild");
 
 		if (!result.IsEmpty())
 			Global.GuildMgr.SetNextGuildId(result.Read<uint>(0) + 1);
 
-		result = DB.Characters.Query("SELECT MAX(itemId) from character_void_storage");
+		result = _characterDatabase.Query("SELECT MAX(itemId) from character_void_storage");
 
 		if (!result.IsEmpty())
 			_voidItemId = result.Read<ulong>(0) + 1;

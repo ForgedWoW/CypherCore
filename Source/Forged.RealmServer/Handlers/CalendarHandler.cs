@@ -17,22 +17,22 @@ public class CalendarHandler : IWorldSessionHandler
     private readonly WorldSession _session;
     private readonly Player _player;
     private readonly CalendarManager _calendarManager;
+    private readonly WorldConfig _worldConfig;
     private readonly CharacterCache _characterCache;
     private readonly GuildManager _guildManager;
     private readonly CharacterDatabase _characterDatabase;
     private readonly GameTime _gameTime;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly InstanceLockManager _instanceLockManager;
     private long _calendarEventCreationCooldown = 0;
 
-    public CalendarHandler(WorldSession session, Player player, CalendarManager calendarManager, InstanceLockManager instanceLockManager,
+    public CalendarHandler(WorldSession session, Player player, CalendarManager calendarManager, WorldConfig worldConfig
         CharacterCache characterCache, GuildManager guildManager, ObjectAccessor objectAccessor, CharacterDatabase characterDatabase,
 		GameTime gameTime)
     {
         _session = session;
         _player = player;
 		_calendarManager = calendarManager;
-        _instanceLockManager = instanceLockManager;
+        _worldConfig = worldConfig;
         _characterCache = characterCache;
         _guildManager = guildManager;
         _objectAccessor = objectAccessor;
@@ -85,17 +85,7 @@ public class CalendarHandler : IWorldSessionHandler
 			packet.Events.Add(eventInfo);
 		}
 
-		foreach (var instanceLock in _instanceLockManager.GetInstanceLocksForPlayer(_player.GUID))
-		{
-			CalendarSendCalendarRaidLockoutInfo lockoutInfo = new();
-
-			lockoutInfo.MapID = (int)instanceLock.GetMapId();
-			lockoutInfo.DifficultyID = (uint)instanceLock.GetDifficultyId();
-			lockoutInfo.ExpireTime = (int)Math.Max((instanceLock.GetEffectiveExpiryTime() - _gameTime.GetSystemTime).TotalSeconds, 0);
-			lockoutInfo.InstanceID = instanceLock.GetInstanceId();
-
-			packet.RaidLockouts.Add(lockoutInfo);
-		}
+        // Send to map server
 
         _session.SendPacket(packet);
 	}
@@ -129,7 +119,7 @@ public class CalendarHandler : IWorldSessionHandler
 
 		// prevent events in the past
 		// To Do: properly handle timezones and remove the "- time_t(86400L)" hack
-		if (calendarAddEvent.EventInfo.Time < (_session._gameTime.GetGameTime - 86400L))
+		if (calendarAddEvent.EventInfo.Time < (_gameTime.GetGameTime - 86400L))
 		{
 			_calendarManager.SendCalendarCommandResult(guid, CalendarError.EventPassed);
 
@@ -626,26 +616,6 @@ public class CalendarHandler : IWorldSessionHandler
 		if (_player.Location.MapId == setSavedInstanceExtend.MapID)
 			return;
 
-		var expiryTimes = _instanceLockManager.UpdateInstanceLockExtensionForPlayer(_player.GUID, new MapDb2Entries((uint)setSavedInstanceExtend.MapID, (Difficulty)setSavedInstanceExtend.DifficultyID), setSavedInstanceExtend.Extend);
-
-		if (expiryTimes.Item1 == DateTime.MinValue)
-			return;
-
-		CalendarRaidLockoutUpdated calendarRaidLockoutUpdated = new();
-		calendarRaidLockoutUpdated.ServerTime = _gameTime.GetGameTime;
-		calendarRaidLockoutUpdated.MapID = setSavedInstanceExtend.MapID;
-		calendarRaidLockoutUpdated.DifficultyID = setSavedInstanceExtend.DifficultyID;
-		calendarRaidLockoutUpdated.OldTimeRemaining = (int)Math.Max((expiryTimes.Item1 - _gameTime.GetSystemTime).TotalSeconds, 0);
-		calendarRaidLockoutUpdated.NewTimeRemaining = (int)Math.Max((expiryTimes.Item2 - _gameTime.GetSystemTime).TotalSeconds, 0);
-        _session.SendPacket(calendarRaidLockoutUpdated);
-	}
-
-	void SendCalendarRaidLockoutRemoved(InstanceLock instanceLock)
-	{
-		CalendarRaidLockoutRemoved calendarRaidLockoutRemoved = new();
-		calendarRaidLockoutRemoved.InstanceID = instanceLock.GetInstanceId();
-		calendarRaidLockoutRemoved.MapID = (int)instanceLock.GetMapId();
-		calendarRaidLockoutRemoved.DifficultyID = instanceLock.GetDifficultyId();
-        _session.SendPacket(calendarRaidLockoutRemoved);
+        // Send to map server
 	}
 }

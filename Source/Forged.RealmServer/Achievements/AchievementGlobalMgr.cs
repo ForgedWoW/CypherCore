@@ -145,7 +145,7 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 				_allCompletedAchievements[achievement.Id] = DateTime.MinValue;
 
-		var result = DB.Characters.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
+		var result = _characterDatabase.Query("SELECT achievement FROM character_achievement GROUP BY achievement");
 
 		if (result.IsEmpty())
 		{
@@ -164,9 +164,9 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 				// Remove non-existing achievements from all characters
 				Log.Logger.Error("Non-existing achievement {0} data has been removed from the table `character_achievement`.", achievementId);
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_INVALID_ACHIEVMENT);
 				stmt.AddValue(0, achievementId);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 
 				continue;
 			}

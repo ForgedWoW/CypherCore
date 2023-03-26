@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Serilog;
 using Forged.RealmServer.Scripting;
 using Framework.Util;
+using Forged.RealmServer.Arenas;
 
 namespace Forged.RealmServer;
 
@@ -31,9 +32,17 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly ScriptManager _scriptManager;
     private readonly GameTime _gameTime;
     private readonly LoginDatabase _loginDatabase;
+    private readonly DB2Manager _dB2Manager;
+    private readonly WorldManager _worldManager;
+    private readonly GuildManager _guildManager;
+    private readonly ObjectManager _objectManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly SocialManager _socialManager;
 
     public CharacterHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr, IConfiguration configuration, WorldConfig worldConfig, 
-		CharacterDatabase characterDatabase, ScriptManager scriptManager, GameTime gameTime, LoginDatabase loginDatabase)
+		CharacterDatabase characterDatabase, ScriptManager scriptManager, GameTime gameTime, LoginDatabase loginDatabase, DB2Manager dB2Manager,
+		WorldManager worldManager, GuildManager guildManager, ObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCacheStorage characterCacheStorage,
+		ArenaTeamManager arenaTeamManager, SocialManager socialManager)
     {
         _session = session;
         _cliDB = cliDB;
@@ -44,6 +53,12 @@ public class CharacterHandler : IWorldSessionHandler
         _scriptManager = scriptManager;
         _gameTime = gameTime;
         _loginDatabase = loginDatabase;
+        _dB2Manager = dB2Manager;
+        _worldManager = worldManager;
+        _guildManager = guildManager;
+        _objectManager = objectManager;
+        _objectAccessor = objectAccessor;
+        _socialManager = socialManager;
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -71,7 +86,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (checkRequiredDependentChoices)
 		{
-			var requiredChoices = Global.DB2Mgr.GetRequiredCustomizationChoices(req.Id);
+			var requiredChoices = _dB2Manager.GetRequiredCustomizationChoices(req.Id);
 
 			if (requiredChoices != null)
 				foreach (var key in requiredChoices.Keys)
@@ -96,7 +111,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 	public bool ValidateAppearance(Race race, PlayerClass playerClass, Gender gender, List<ChrCustomizationChoice> customizations)
 	{
-		var options = Global.DB2Mgr.GetCustomiztionOptions(race, gender);
+		var options = _dB2Manager.GetCustomiztionOptions(race, gender);
 
 		if (options.Empty())
 			return false;
@@ -124,7 +139,7 @@ public class CharacterHandler : IWorldSessionHandler
 				if (!MeetsChrCustomizationReq(req, playerClass, false, customizations))
 					return false;
 
-			var choicesForOption = Global.DB2Mgr.GetCustomiztionChoices(playerChoice.ChrCustomizationOptionID);
+			var choicesForOption = _dB2Manager.GetCustomiztionChoices(playerChoice.ChrCustomizationOptionID);
 
 			if (choicesForOption.Empty())
 				return false;
@@ -177,7 +192,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		pCurrChar.SetVirtualPlayerRealm(Global.WorldMgr.VirtualRealmAddress);
+		pCurrChar.SetVirtualPlayerRealm(_worldManager.VirtualRealmAddress);
 
 		_session.SendAccountDataTimes(ObjectGuid.Empty, AccountDataTypes.GlobalCacheMask);
 		_session.SendTutorialsData();
@@ -198,7 +213,7 @@ public class CharacterHandler : IWorldSessionHandler
 		SendFeatureSystemStatus();
 
 		MOTD motd = new();
-		motd.Text = Global.WorldMgr.Motd;
+		motd.Text = _worldManager.Motd;
 		_session.SendPacket(motd);
 
 		_session.SendSetTimeZoneInformation();
@@ -220,7 +235,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			pCurrChar.SetInGuild(resultGuild.Read<uint>(0));
 			pCurrChar.SetGuildRank(resultGuild.Read<byte>(1));
-			var guild = Global.GuildMgr.GetGuildById(pCurrChar.GuildId);
+			var guild = _guildManager.GetGuildById(pCurrChar.GuildId);
 
 			if (guild)
 				pCurrChar.GuildLevel = guild.GetLevel();
@@ -232,11 +247,12 @@ public class CharacterHandler : IWorldSessionHandler
 			pCurrChar.GuildLevel = 0;
 		}
 
-		// Send stable contents to display icons on Call Pet spells
-		if (pCurrChar.HasSpell(SharedConst.CallPetSpellId))
-            _session.SendStablePet(ObjectGuid.Empty);
+        // Send to map server
+        // Send stable contents to display icons on Call Pet spells
+        //if (pCurrChar.HasSpell(SharedConst.CallPetSpellId))
+        //          _session.SendStablePet(ObjectGuid.Empty);
 
-		pCurrChar.Session.BattlePetMgr.SendJournalLockStatus();
+        pCurrChar.Session.BattlePetMgr.SendJournalLockStatus();
 
 		pCurrChar.SendInitialPacketsBeforeAddToMap();
 
@@ -244,7 +260,7 @@ public class CharacterHandler : IWorldSessionHandler
 		if (pCurrChar.Cinematic == 0)
 		{
 			pCurrChar.Cinematic = 1;
-			var playerInfo = Global.ObjectMgr.GetPlayerInfo(pCurrChar.Race, pCurrChar.Class);
+			var playerInfo = _objectManager.GetPlayerInfo(pCurrChar.Race, pCurrChar.Class);
 
 			if (playerInfo != null)
 				switch (pCurrChar.CreateMode)
@@ -272,7 +288,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		if (!pCurrChar.Map.AddPlayerToMap(pCurrChar))
 		{
-			var at = Global.ObjectMgr.GetGoBackTrigger(pCurrChar.Location.MapId);
+			var at = _objectManager.GetGoBackTrigger(pCurrChar.Location.MapId);
 
 			if (at != null)
 				pCurrChar.TeleportTo(at.target_mapId, at.target_X, at.target_Y, at.target_Z, pCurrChar.Location.Orientation);
@@ -280,11 +296,11 @@ public class CharacterHandler : IWorldSessionHandler
 				pCurrChar.TeleportTo(pCurrChar.Homebind);
 		}
 
-		Global.ObjAccessor.AddObject(pCurrChar);
+		_objectAccessor.AddObject(pCurrChar);
 
 		if (pCurrChar.GuildId != 0)
 		{
-			var guild = Global.GuildMgr.GetGuildById(pCurrChar.GuildId);
+			var guild = _guildManager.GetGuildById(pCurrChar.GuildId);
 
 			if (guild)
 			{
@@ -329,7 +345,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// friend status
-		Global.SocialMgr.SendFriendStatus(pCurrChar, FriendsResult.Online, pCurrChar.GUID, true);
+		_socialManager.SendFriendStatus(pCurrChar, FriendsResult.Online, pCurrChar.GUID, true);
 
 		// Place character in world (and load zone) before some object loading
 		pCurrChar.LoadCorpse(holder.GetResult(PlayerLoginQueryLoad.CorpseLocation));
@@ -367,7 +383,7 @@ public class CharacterHandler : IWorldSessionHandler
 		pCurrChar.ResummonPetTemporaryUnSummonedIfAny();
 
 		// Set FFA PvP for non GM in non-rest mode
-		if (Global.WorldMgr.IsFFAPvPRealm && !pCurrChar.IsGameMaster && !pCurrChar.HasPlayerFlag(PlayerFlags.Resting))
+		if (_worldManager.IsFFAPvPRealm && !pCurrChar.IsGameMaster && !pCurrChar.HasPlayerFlag(PlayerFlags.Resting))
 			pCurrChar.SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 
 		if (pCurrChar.HasPlayerFlag(PlayerFlags.ContestedPVP))
@@ -392,7 +408,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			pCurrChar.RemoveAtLoginFlag(AtLoginFlags.FirstLogin);
 
-			var info = Global.ObjectMgr.GetPlayerInfo(pCurrChar.Race, pCurrChar.Class);
+			var info = _objectManager.GetPlayerInfo(pCurrChar.Race, pCurrChar.Class);
 
 			foreach (var spellId in info.CastSpells[(int)pCurrChar.CreateMode])
 				pCurrChar.CastSpell(pCurrChar, spellId, new CastSpellExtraArgs(true));
@@ -471,8 +487,8 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// show time before shutdown if shutdown planned.
-		if (Global.WorldMgr.IsShuttingDown)
-			Global.WorldMgr.ShutdownMsg(true, pCurrChar);
+		if (_worldManager.IsShuttingDown)
+			_worldManager.ShutdownMsg(true, pCurrChar);
 
 		if (_worldConfig.GetBoolValue(WorldCfg.AllTaxiPaths))
 			pCurrChar.SetTaxiCheater(true);
@@ -640,7 +656,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		charResult.IsAlliedRacesCreationAllowed = _session.CanAccessAlliedRaces();
 
-		foreach (var requirement in Global.ObjectMgr.GetRaceUnlockRequirements())
+		foreach (var requirement in _objectManager.GetRaceUnlockRequirements())
 		{
 			EnumCharactersResult.RaceUnlock raceUnlock = new();
 			raceUnlock.RaceID = requirement.Key;
@@ -753,7 +769,7 @@ public class CharacterHandler : IWorldSessionHandler
 		if (_configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true))
 		{
 			// prevent character creating Expansion race without Expansion account
-			var raceExpansionRequirement = Global.ObjectMgr.GetRaceUnlockRequirement(charCreate.CreateInfo.RaceId);
+			var raceExpansionRequirement = _objectManager.GetRaceUnlockRequirement(charCreate.CreateInfo.RaceId);
 
 			if (raceExpansionRequirement == null)
 			{
@@ -780,7 +796,7 @@ public class CharacterHandler : IWorldSessionHandler
 			//}
 
 			// prevent character creating Expansion race without Expansion account
-			var raceClassExpansionRequirement = Global.ObjectMgr.GetClassExpansionRequirement(charCreate.CreateInfo.RaceId, charCreate.CreateInfo.ClassId);
+			var raceClassExpansionRequirement = _objectManager.GetClassExpansionRequirement(charCreate.CreateInfo.RaceId, charCreate.CreateInfo.ClassId);
 
 			if (raceClassExpansionRequirement != null)
 			{
@@ -797,7 +813,7 @@ public class CharacterHandler : IWorldSessionHandler
 			}
 			else
 			{
-				var classExpansionRequirement = Global.ObjectMgr.GetClassExpansionRequirementFallback((byte)charCreate.CreateInfo.ClassId);
+				var classExpansionRequirement = _objectManager.GetClassExpansionRequirementFallback((byte)charCreate.CreateInfo.ClassId);
 
 				if (classExpansionRequirement != null)
 				{
@@ -870,7 +886,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(charCreate.CreateInfo.Name))
+		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(charCreate.CreateInfo.Name))
 		{
 			SendCharCreate(ResponseCodes.CharNameReserved);
 
@@ -931,7 +947,7 @@ public class CharacterHandler : IWorldSessionHandler
 										var hasDemonHunterReqLevel = demonHunterReqLevel == 0;
 										var evokerReqLevel = _worldConfig.GetUIntValue(WorldCfg.CharacterCreatingMinLevelForEvoker);
 										var hasEvokerReqLevel = (evokerReqLevel == 0);
-										var allowTwoSideAccounts = !Global.WorldMgr.IsPvPRealm || _session.HasPermission(RBACPermissions.TwoSideCharacterCreation);
+										var allowTwoSideAccounts = !_worldManager.IsPvPRealm || _session.HasPermission(RBACPermissions.TwoSideCharacterCreation);
 										var skipCinematics = _worldConfig.GetIntValue(WorldCfg.SkipCinematics);
 										var checkClassLevelReqs = (createInfo.ClassId == PlayerClass.DemonHunter || createInfo.ClassId == PlayerClass.Evoker) && !_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationDemonHunter);
 										var evokerLimit = _worldConfig.GetIntValue(WorldCfg.CharacterCreatingEvokersPerRealm);
@@ -1058,7 +1074,7 @@ public class CharacterHandler : IWorldSessionHandler
 											Player newChar = new(_session);
 											newChar.MotionMaster.Initialize();
 
-											if (!newChar.Create(Global.ObjectMgr.GetGenerator(HighGuid.Player).Generate(), createInfo))
+											if (!newChar.Create(_objectManager.GetGenerator(HighGuid.Player).Generate(), createInfo))
 											{
 												// Player not create (race/class/etc problem?)
 												newChar.CleanupsBeforeDelete();
@@ -1083,7 +1099,7 @@ public class CharacterHandler : IWorldSessionHandler
 											stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_REALM_CHARACTERS);
 											stmt.AddValue(0, createInfo.CharCount);
 											stmt.AddValue(1, _session.AccountId);
-											stmt.AddValue(2, Global.WorldMgr.Realm.Id.Index);
+											stmt.AddValue(2, _worldManager.Realm.Id.Index);
 											loginTransaction.Append(stmt);
 
 											_loginDatabase.CommitTransaction(loginTransaction);
@@ -1130,7 +1146,7 @@ public class CharacterHandler : IWorldSessionHandler
 		var initAccountId = _session.AccountId;
 
 		// can't delete loaded character
-		if (Global.ObjAccessor.FindPlayer(charDelete.Guid))
+		if (_objectAccessor.FindPlayer(charDelete.Guid))
 		{
 			_scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
 
@@ -1138,7 +1154,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// is guild leader
-		if (Global.GuildMgr.GetGuildByLeader(charDelete.Guid))
+		if (_guildManager.GetGuildByLeader(charDelete.Guid))
 		{
 			_scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
 			SendCharDelete(ResponseCodes.CharDeleteFailedGuildLeader);
@@ -1209,7 +1225,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		GenerateRandomCharacterNameResult result = new();
 		result.Success = true;
-		result.Name = Global.DB2Mgr.GetNameGenEntry(packet.Race, packet.Sex);
+		result.Name = _dB2Manager.GetNameGenEntry(packet.Race, packet.Sex);
 
 		_session.SendPacket(result);
 	}
@@ -1346,7 +1362,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// check name limitations
-		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(checkCharacterNameAvailability.Name))
+		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(checkCharacterNameAvailability.Name))
 		{
 			_session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameReserved));
 
@@ -1400,7 +1416,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(request.RenameInfo.NewName))
+		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(request.RenameInfo.NewName))
 		{
 			SendCharRename(ResponseCodes.CharNameReserved, request.RenameInfo);
 
@@ -1655,7 +1671,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// check name limitations
-		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(customizeInfo.CharName))
+		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(customizeInfo.CharName))
 		{
 			SendCharCustomize(ResponseCodes.CharNameReserved, customizeInfo);
 
@@ -1926,7 +1942,7 @@ public class CharacterHandler : IWorldSessionHandler
 		var playerClass = characterInfo.ClassId;
 		var level = characterInfo.Level;
 
-		if (Global.ObjectMgr.GetPlayerInfo(factionChangeInfo.RaceID, playerClass) == null)
+		if (_objectManager.GetPlayerInfo(factionChangeInfo.RaceID, playerClass) == null)
 		{
 			SendCharFactionChange(ResponseCodes.CharCreateError, factionChangeInfo);
 
@@ -1999,7 +2015,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// check name limitations
-		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(factionChangeInfo.Name))
+		if (!_session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _objectManager.IsReservedName(factionChangeInfo.Name))
 		{
 			SendCharFactionChange(ResponseCodes.CharNameReserved, factionChangeInfo);
 
@@ -2182,7 +2198,7 @@ public class CharacterHandler : IWorldSessionHandler
 				if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild))
 				{
 					// Reset guild
-					var guild = Global.GuildMgr.GetGuildById(characterInfo.GuildId);
+					var guild = _guildManager.GetGuildById(characterInfo.GuildId);
 
 					if (guild != null)
 						guild.DeleteMember(trans, factionChangeInfo.Guid, false, false, true);
@@ -2234,7 +2250,7 @@ public class CharacterHandler : IWorldSessionHandler
 				Player.SavePositionInDB(loc, zoneId, factionChangeInfo.Guid, trans);
 
 				// Achievement conversion
-				foreach (var it in Global.ObjectMgr.FactionChangeAchievements)
+				foreach (var it in _objectManager.FactionChangeAchievements)
 				{
 					var achiev_alliance = it.Key;
 					var achiev_horde = it.Value;
@@ -2252,7 +2268,7 @@ public class CharacterHandler : IWorldSessionHandler
 				}
 
 				// Item conversion
-				var itemConversionMap = newTeamId == TeamIds.Alliance ? Global.ObjectMgr.FactionChangeItemsHordeToAlliance : Global.ObjectMgr.FactionChangeItemsAllianceToHorde;
+				var itemConversionMap = newTeamId == TeamIds.Alliance ? _objectManager.FactionChangeItemsHordeToAlliance : _objectManager.FactionChangeItemsAllianceToHorde;
 
 				foreach (var it in itemConversionMap)
 				{
@@ -2272,7 +2288,7 @@ public class CharacterHandler : IWorldSessionHandler
 				trans.Append(stmt);
 
 				// Quest conversion
-				foreach (var it in Global.ObjectMgr.FactionChangeQuests)
+				foreach (var it in _objectManager.FactionChangeQuests)
 				{
 					var quest_alliance = it.Key;
 					var quest_horde = it.Value;
@@ -2296,7 +2312,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 				// Disable all old-faction specific quests
 				{
-					var questTemplates = Global.ObjectMgr.GetQuestTemplates();
+					var questTemplates = _objectManager.GetQuestTemplates();
 
 					foreach (var quest in questTemplates.Values)
 					{
@@ -2313,7 +2329,7 @@ public class CharacterHandler : IWorldSessionHandler
 				}
 
 				// Spell conversion
-				foreach (var it in Global.ObjectMgr.FactionChangeSpells)
+				foreach (var it in _objectManager.FactionChangeSpells)
 				{
 					var spell_alliance = it.Key;
 					var spell_horde = it.Value;
@@ -2331,7 +2347,7 @@ public class CharacterHandler : IWorldSessionHandler
 				}
 
 				// Reputation conversion
-				foreach (var it in Global.ObjectMgr.FactionChangeReputation)
+				foreach (var it in _objectManager.FactionChangeReputation)
 				{
 					var reputation_alliance = it.Key;
 					var reputation_horde = it.Value;
@@ -2385,7 +2401,7 @@ public class CharacterHandler : IWorldSessionHandler
 						if (uint.TryParse(tokens[index], out var id))
 							knownTitles.Add(id);
 
-					foreach (var it in Global.ObjectMgr.FactionChangeTitles)
+					foreach (var it in _objectManager.FactionChangeTitles)
 					{
 						var title_alliance = it.Key;
 						var title_horde = it.Value;
@@ -2652,7 +2668,7 @@ public class CharacterHandler : IWorldSessionHandler
 		var team = (uint)_session.Player.Team;
 
 		List<uint> graveyardIds = new();
-		var range = Global.ObjectMgr.GraveYardStorage.LookupByKey(zoneId);
+		var range = _objectManager.GraveYardStorage.LookupByKey(zoneId);
 
 		for (uint i = 0; i < range.Count && graveyardIds.Count < 16; ++i) // client max
 		{

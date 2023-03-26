@@ -39,13 +39,13 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 	public static void SaveToDB(QuestPool pool, SQLTransaction trans)
 	{
-		var delStmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+		var delStmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 		delStmt.AddValue(0, pool.PoolId);
 		trans.Append(delStmt);
 
 		foreach (var questId in pool.ActiveQuests)
 		{
-			var insStmt = DB.Characters.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
+			var insStmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
 			insStmt.AddValue(0, pool.PoolId);
 			insStmt.AddValue(1, questId);
 			trans.Append(insStmt);
@@ -125,7 +125,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		// load saved spawns from character DB
 		{
-			var result = DB.Characters.Query("SELECT pool_id, quest_id FROM pool_quest_save");
+			var result = _characterDatabase.Query("SELECT pool_id, quest_id FROM pool_quest_save");
 
 			if (!result.IsEmpty())
 			{
@@ -153,12 +153,12 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 				foreach (var poolId in unknownPoolIds)
 				{
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 					stmt.AddValue(0, poolId);
 					trans0.Append(stmt);
 				}
 
-				DB.Characters.CommitTransaction(trans0);
+				_characterDatabase.CommitTransaction(trans0);
 			}
 		}
 
@@ -264,7 +264,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 			}
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
@@ -338,6 +338,6 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 			SaveToDB(pool, trans);
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 }

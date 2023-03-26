@@ -1623,7 +1623,7 @@ public partial class Creature : Unit
 		// delete data from memory ...
 		Global.ObjectMgr.DeleteCreatureData(spawnId);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		// ... and the database
 		trans = new SQLTransaction();

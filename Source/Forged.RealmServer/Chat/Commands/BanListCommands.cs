@@ -46,9 +46,9 @@ class BanListCommands
 		if (filter.IsEmpty())
 			return false;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUID_BY_NAME_FILTER);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GUID_BY_NAME_FILTER);
 		stmt.AddValue(0, filter);
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -64,9 +64,9 @@ class BanListCommands
 		{
 			do
 			{
-				var stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
+				var stmt2 = _characterDatabase.GetPreparedStatement(CharStatements.SEL_BANNED_NAME);
 				stmt2.AddValue(0, result.Read<ulong>(0));
-				var banResult = DB.Characters.Query(stmt2);
+				var banResult = _characterDatabase.Query(stmt2);
 
 				if (!banResult.IsEmpty())
 					handler.SendSysMessage(banResult.Read<string>(0));
@@ -85,9 +85,9 @@ class BanListCommands
 
 				var char_name = result.Read<string>(1);
 
-				var stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_BANINFO_LIST);
+				var stmt2 = _characterDatabase.GetPreparedStatement(CharStatements.SEL_BANINFO_LIST);
 				stmt2.AddValue(0, result.Read<ulong>(0));
-				var banInfo = DB.Characters.Query(stmt2);
+				var banInfo = _characterDatabase.Query(stmt2);
 
 				if (!banInfo.IsEmpty())
 					do

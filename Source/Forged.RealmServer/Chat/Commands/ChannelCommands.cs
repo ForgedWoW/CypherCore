@@ -50,10 +50,10 @@ class ChannelCommands
 				if (channel != null)
 					channel.SetOwnership(true);
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
 				stmt.AddValue(0, 1);
 				stmt.AddValue(1, channelName);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 				handler.SendSysMessage(CypherStrings.ChannelEnableOwnership, channelName);
 			}
 			else
@@ -61,10 +61,10 @@ class ChannelCommands
 				if (channel != null)
 					channel.SetOwnership(false);
 
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHANNEL_OWNERSHIP);
 				stmt.AddValue(0, 0);
 				stmt.AddValue(1, channelName);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 				handler.SendSysMessage(CypherStrings.ChannelDisableOwnership, channelName);
 			}
 

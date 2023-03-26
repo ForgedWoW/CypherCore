@@ -29,23 +29,23 @@ public class Petition
 		if (isLoading)
 			return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PETITION_SIGNATURE);
 		stmt.AddValue(0, OwnerGuid.Counter);
 		stmt.AddValue(1, PetitionGuid.Counter);
 		stmt.AddValue(2, playerGuid.Counter);
 		stmt.AddValue(3, accountId);
 
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void UpdateName(string newName)
 	{
 		PetitionName = newName;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_PETITION_NAME);
 		stmt.AddValue(0, newName);
 		stmt.AddValue(1, PetitionGuid.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void RemoveSignatureBySigner(ObjectGuid playerGuid)

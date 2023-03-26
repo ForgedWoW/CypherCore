@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Forged.RealmServer.Networking.Packets;
 using Framework.Util;
 using Game.Common.Handlers;
+using Forged.RealmServer.DataStorage;
 
 namespace Forged.RealmServer.Handlers;
 
@@ -16,14 +17,19 @@ public class AuthenticationHandler : IWorldSessionHandler
     private readonly IConfiguration _configuration;
     private readonly GameTime _gameTime;
     private readonly WorldConfig _worldConfig;
+    private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
+    private readonly ObjectManager _objectManager;
 
-    public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration, GameTime gameTime, WorldConfig worldConfig)
+    public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration, GameTime gameTime, WorldConfig worldConfig,
+		CharacterTemplateDataStorage characterTemplateDataStorage, ObjectManager objectManager)
     {
         _session = session;
         _realm = realm;
         _configuration = configuration;
         _gameTime = gameTime;
         _worldConfig = worldConfig;
+        _characterTemplateDataStorage = characterTemplateDataStorage;
+        _objectManager = objectManager;
     }
 
 	public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
@@ -46,10 +52,10 @@ public class AuthenticationHandler : IWorldSessionHandler
 			response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(_realm.Id.GetAddress(), true, false, _realm.Name, _realm.NormalizedName));
 
 			if (_session.HasPermission(RBACPermissions.UseCharacterTemplates))
-				foreach (var templ in Global.CharacterTemplateDataStorage.GetCharacterTemplates().Values)
+				foreach (var templ in _characterTemplateDataStorage.GetCharacterTemplates().Values)
 					response.SuccessInfo.Templates.Add(templ);
 
-			response.SuccessInfo.AvailableClasses = Global.ObjectMgr.GetClassExpansionRequirements();
+			response.SuccessInfo.AvailableClasses = _objectManager.GetClassExpansionRequirements();
 		}
 
 		if (queued)

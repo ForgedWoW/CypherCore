@@ -82,7 +82,7 @@ public class ComplaintTicket : Ticket
 		var trans = new SQLTransaction();
 
 		byte idx = 0;
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_GM_COMPLAINT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_GM_COMPLAINT);
 		stmt.AddValue(idx, IdProtected);
 		stmt.AddValue(++idx, PlayerGuidProtected.Counter);
 		stmt.AddValue(++idx, _note);
@@ -112,7 +112,7 @@ public class ComplaintTicket : Ticket
 		foreach (var c in _chatLog.Lines)
 		{
 			idx = 0;
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GM_COMPLAINT_CHATLINE);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GM_COMPLAINT_CHATLINE);
 			stmt.AddValue(idx, IdProtected);
 			stmt.AddValue(++idx, lineIndex);
 			stmt.AddValue(++idx, c.Timestamp);
@@ -122,18 +122,18 @@ public class ComplaintTicket : Ticket
 			++lineIndex;
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public override void DeleteFromDB()
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT);
 		stmt.AddValue(0, IdProtected);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT_CHATLOG);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GM_COMPLAINT_CHATLOG);
 		stmt.AddValue(0, IdProtected);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public override string FormatViewMessageString(CommandHandler handler, bool detailed = false)

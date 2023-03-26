@@ -335,7 +335,7 @@ public class Item : WorldObject
 			case ItemUpdateState.Changed:
 			{
 				byte index = 0;
-				stmt = DB.Characters.GetPreparedStatement(_updateState == ItemUpdateState.New ? CharStatements.REP_ITEM_INSTANCE : CharStatements.UPD_ITEM_INSTANCE);
+				stmt = _characterDatabase.GetPreparedStatement(_updateState == ItemUpdateState.New ? CharStatements.REP_ITEM_INSTANCE : CharStatements.UPD_ITEM_INSTANCE);
 				stmt.AddValue(index, Entry);
 				stmt.AddValue(++index, OwnerGUID.Counter);
 				stmt.AddValue(++index, Creator.Counter);
@@ -382,23 +382,23 @@ public class Item : WorldObject
 				stmt.AddValue(++index, ss.ToString());
 				stmt.AddValue(++index, GUID.Counter);
 
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 
 				if ((_updateState == ItemUpdateState.Changed) && IsWrapped)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GIFT_OWNER);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GIFT_OWNER);
 					stmt.AddValue(0, OwnerGUID.Counter);
 					stmt.AddValue(1, GUID.Counter);
-					DB.Characters.Execute(stmt);
+					_characterDatabase.Execute(stmt);
 				}
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (ItemData.Gems.Size() != 0)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_GEMS);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_GEMS);
 					stmt.AddValue(0, GUID.Counter);
 					var i = 0;
 					var gemFields = 4;
@@ -445,13 +445,13 @@ public class Item : WorldObject
 					ItemModifier.TransmogAppearanceAllSpecs, ItemModifier.TransmogAppearanceSpec1, ItemModifier.TransmogAppearanceSpec2, ItemModifier.TransmogAppearanceSpec3, ItemModifier.TransmogAppearanceSpec4, ItemModifier.TransmogAppearanceSpec5, ItemModifier.EnchantIllusionAllSpecs, ItemModifier.EnchantIllusionSpec1, ItemModifier.EnchantIllusionSpec2, ItemModifier.EnchantIllusionSpec3, ItemModifier.EnchantIllusionSpec4, ItemModifier.EnchantIllusionSpec5, ItemModifier.TransmogSecondaryAppearanceAllSpecs, ItemModifier.TransmogSecondaryAppearanceSpec1, ItemModifier.TransmogSecondaryAppearanceSpec2, ItemModifier.TransmogSecondaryAppearanceSpec3, ItemModifier.TransmogSecondaryAppearanceSpec4, ItemModifier.TransmogSecondaryAppearanceSpec5
 				};
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (transmogMods.Any(modifier => GetModifier(modifier) != 0))
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_TRANSMOG);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_TRANSMOG);
 					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, GetModifier(ItemModifier.TransmogAppearanceAllSpecs));
 					stmt.AddValue(2, GetModifier(ItemModifier.TransmogAppearanceSpec1));
@@ -474,17 +474,17 @@ public class Item : WorldObject
 					trans.Append(stmt);
 				}
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (Template.ArtifactID != 0)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT);
 					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, (ulong)ItemData.ArtifactXP);
 					stmt.AddValue(2, GetModifier(ItemModifier.ArtifactAppearanceId));
@@ -493,7 +493,7 @@ public class Item : WorldObject
 
 					foreach (var artifactPower in ItemData.ArtifactPowers)
 					{
-						stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT_POWERS);
+						stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_ARTIFACT_POWERS);
 						stmt.AddValue(0, GUID.Counter);
 						stmt.AddValue(1, artifactPower.ArtifactPowerId);
 						stmt.AddValue(2, artifactPower.PurchasedRank);
@@ -506,13 +506,13 @@ public class Item : WorldObject
 					ItemModifier.TimewalkerLevel, ItemModifier.ArtifactKnowledgeLevel
 				};
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (modifiersTable.Any(modifier => GetModifier(modifier) != 0))
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_MODIFIERS);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_MODIFIERS);
 					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, GetModifier(ItemModifier.TimewalkerLevel));
 					stmt.AddValue(2, GetModifier(ItemModifier.ArtifactKnowledgeLevel));
@@ -523,33 +523,33 @@ public class Item : WorldObject
 			}
 			case ItemUpdateState.Removed:
 			{
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
 				stmt.AddValue(0, GUID.Counter);
 				trans.Append(stmt);
 
 				if (IsWrapped)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
 					stmt.AddValue(0, GUID.Counter);
 					trans.Append(stmt);
 				}
@@ -730,12 +730,12 @@ public class Item : WorldObject
 		if (need_save) // normal item changed state set not work at loading
 		{
 			byte index = 0;
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_ON_LOAD);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_ON_LOAD);
 			stmt.AddValue(index++, (uint)ItemData.Expiration);
 			stmt.AddValue(index++, (uint)ItemData.DynamicFlags);
 			stmt.AddValue(index++, (uint)ItemData.Durability);
 			stmt.AddValue(index++, guid);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		return true;
@@ -837,33 +837,33 @@ public class Item : WorldObject
 
 	public static void DeleteFromDB(SQLTransaction trans, ulong itemGuid)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_GEMS);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_TRANSMOG);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_ARTIFACT_POWERS);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_MODIFIERS);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GIFT);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GIFT);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 	}
 
 	public virtual void DeleteFromDB(SQLTransaction trans)
@@ -877,7 +877,7 @@ public class Item : WorldObject
 
 	public static void DeleteFromInventoryDB(SQLTransaction trans, ulong itemGuid)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY_BY_ITEM);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_INVENTORY_BY_ITEM);
 		stmt.AddValue(0, itemGuid);
 		trans.Append(stmt);
 	}
@@ -1482,23 +1482,23 @@ public class Item : WorldObject
 	{
 		DeleteRefundDataFromDB();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_REFUND_INSTANCE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_REFUND_INSTANCE);
 		stmt.AddValue(0, GUID.Counter);
 		stmt.AddValue(1, RefundRecipient.Counter);
 		stmt.AddValue(2, PaidMoney);
 		stmt.AddValue(3, (ushort)PaidExtendedCost);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void DeleteRefundDataFromDB(SQLTransaction trans = null)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_REFUND_INSTANCE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_REFUND_INSTANCE);
 		stmt.AddValue(0, GUID.Counter);
 
 		if (trans != null)
 			trans.Append(stmt);
 		else
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 	}
 
 	public void SetNotRefundable(Player owner, bool changestate = true, SQLTransaction trans = null, bool addToCollection = true)
@@ -1571,9 +1571,9 @@ public class Item : WorldObject
 		currentOwner.Session.CollectionMgr.AddItemAppearance(this);
 		_allowedGuiDs.Clear();
 		SetState(ItemUpdateState.Changed, currentOwner);
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_BOP_TRADE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_BOP_TRADE);
 		stmt.AddValue(0, GUID.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public bool CheckSoulboundTradeExpire()

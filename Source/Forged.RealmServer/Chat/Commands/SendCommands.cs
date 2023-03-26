@@ -37,7 +37,7 @@ class SendCommands
 		new MailDraft(subject, text)
 			.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		var nameLink = handler.PlayerLink(playerIdentifier.GetName());
 		handler.SendSysMessage(CypherStrings.MailSent, nameLink);
@@ -126,7 +126,7 @@ class SendCommands
 		}
 
 		draft.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		var nameLink = handler.PlayerLink(playerIdentifier.GetName());
 		handler.SendSysMessage(CypherStrings.MailSent, nameLink);
@@ -159,7 +159,7 @@ class SendCommands
 			.AddMoney((uint)money)
 			.SendMailTo(trans, new MailReceiver(playerIdentifier.GetGUID().Counter), sender);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		var nameLink = handler.PlayerLink(playerIdentifier.GetName());
 		handler.SendSysMessage(CypherStrings.MailSent, nameLink);

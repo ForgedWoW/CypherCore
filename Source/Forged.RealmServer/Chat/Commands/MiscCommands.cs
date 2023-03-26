@@ -950,8 +950,8 @@ class MiscCommands
 	static bool HandleListFreezeCommand(CommandHandler handler)
 	{
 		// Get names from DB
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
-		var result = DB.Characters.Query(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -1419,9 +1419,9 @@ class MiscCommands
 				return false;
 
 			// Query informations from the DB
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_PINFO);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_PINFO);
 			stmt.AddValue(0, lowguid);
-			var result = DB.Characters.Query(stmt);
+			var result = _characterDatabase.Query(stmt);
 
 			if (result.IsEmpty())
 				return false;
@@ -1491,9 +1491,9 @@ class MiscCommands
 		if (result2.IsEmpty())
 		{
 			banType = handler.GetCypherString(CypherStrings.Character);
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_BANS);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_PINFO_BANS);
 			stmt.AddValue(0, lowguid);
-			result2 = DB.Characters.Query(stmt);
+			result2 = _characterDatabase.Query(stmt);
 		}
 		else
 		{
@@ -1509,9 +1509,9 @@ class MiscCommands
 		}
 
 		// Can be used to query data from Characters database
-		stmt2 = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_XP);
+		stmt2 = _characterDatabase.GetPreparedStatement(CharStatements.SEL_PINFO_XP);
 		stmt2.AddValue(0, lowguid);
-		var result4 = DB.Characters.Query(stmt2);
+		var result4 = _characterDatabase.Query(stmt2);
 
 		if (!result4.IsEmpty())
 		{
@@ -1522,9 +1522,9 @@ class MiscCommands
 			if (gguid != 0)
 			{
 				// Guild Data - an own query, because it may not happen.
-				var stmt3 = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER_EXTENDED);
+				var stmt3 = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_MEMBER_EXTENDED);
 				stmt3.AddValue(0, lowguid);
-				var result5 = DB.Characters.Query(stmt3);
+				var result5 = _characterDatabase.Query(stmt3);
 
 				if (!result5.IsEmpty())
 				{
@@ -1637,9 +1637,9 @@ class MiscCommands
 
 		// Mail Data - an own query, because it may or may not be useful.
 		// SQL: "SELECT SUM(CASE WHEN (checked & 1) THEN 1 ELSE 0 END) AS 'readmail', COUNT(*) AS 'totalmail' FROM mail WHERE `receiver` = ?"
-		var stmt4 = DB.Characters.GetPreparedStatement(CharStatements.SEL_PINFO_MAILS);
+		var stmt4 = _characterDatabase.GetPreparedStatement(CharStatements.SEL_PINFO_MAILS);
 		stmt4.AddValue(0, lowguid);
-		var result6 = DB.Characters.Query(stmt4);
+		var result6 = _characterDatabase.Query(stmt4);
 
 		if (!result6.IsEmpty())
 		{
@@ -1689,8 +1689,8 @@ class MiscCommands
 	{
 		if (_worldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
-			var result = DB.Characters.Query(stmt);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_PVPSTATS_FACTIONS_OVERALL);
+			var result = _characterDatabase.Query(stmt);
 
 			if (!result.IsEmpty())
 			{
@@ -2087,9 +2087,9 @@ class MiscCommands
 				}
 
 				// If player found: delete his freeze aura    
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_FROZEN);
 				stmt.AddValue(0, guid.Counter);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 
 				handler.SendSysMessage(CypherStrings.CommandUnfreeze, name);
 
@@ -2202,9 +2202,9 @@ class MiscCommands
 
 		if (!player)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_HOMEBIND);
 			stmt.AddValue(0, targetGUID.Counter);
-			var result = DB.Characters.Query(stmt);
+			var result = _characterDatabase.Query(stmt);
 
 			if (!result.IsEmpty())
 			{

@@ -52,7 +52,7 @@ class CharacterDatabaseCleaner
 
 	static void CheckUnique(string column, string table, CheckFor check)
 	{
-		var result = DB.Characters.Query("SELECT DISTINCT {0} FROM {1}", column, table);
+		var result = _characterDatabase.Query("SELECT DISTINCT {0} FROM {1}", column, table);
 
 		if (result.IsEmpty())
 		{
@@ -87,7 +87,7 @@ class CharacterDatabaseCleaner
 		if (found)
 		{
 			ss.Append(')');
-			DB.Characters.Execute(ss.ToString());
+			_characterDatabase.Execute(ss.ToString());
 		}
 	}
 
@@ -135,13 +135,13 @@ class CharacterDatabaseCleaner
 
 	static void CleanCharacterTalent()
 	{
-		DB.Characters.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
+		_characterDatabase.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
 		CheckUnique("talentId", "character_talent", TalentCheck);
 	}
 
 	static void CleanCharacterQuestStatus()
 	{
-		DB.Characters.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
+		_characterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
 	}
 
 	delegate bool CheckFor(uint id);

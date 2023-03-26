@@ -129,7 +129,7 @@ public class WardenCheckManager : Singleton<WardenCheckManager>
 		}
 
 		//                                              0         1
-		var result = DB.Characters.Query("SELECT wardenId, action FROM warden_action");
+		var result = _characterDatabase.Query("SELECT wardenId, action FROM warden_action");
 
 		if (result.IsEmpty())
 		{

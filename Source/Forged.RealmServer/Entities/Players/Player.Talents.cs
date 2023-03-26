@@ -278,7 +278,7 @@ public partial class Player
 
 		SQLTransaction trans = new();
 		_SaveActions(trans);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		// TO-DO: We need more research to know what happens with warlock's reagent
 		var pet = CurrentPet;
@@ -578,7 +578,7 @@ public partial class Player
 		SQLTransaction trans = new();
 		_SaveTalents(trans);
 		_SaveSpells(trans);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		if (!noCost)
 		{
@@ -869,7 +869,7 @@ public partial class Player
 		{
 			var trans = new SQLTransaction();
 			_SaveActions(trans);
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 
 			StartLoadingActionButtons(finalizeTraitConfigUpdate);
 		}
@@ -950,10 +950,10 @@ public partial class Player
 		{
 			SetUpdateFieldFlagValue(traitConfig.ModifyValue(traitConfig.CombatConfigFlags), (int)TraitCombatConfigFlags.SharedActionBars);
 
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHAR_ACTION_BY_TRAIT_CONFIG);
 			stmt.AddValue(0, GUID.Counter);
 			stmt.AddValue(1, traitConfigId);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 
 			if (isLastSelectedSavedConfig)
 				StartLoadingActionButtons(); // load action buttons that were saved in shared mode
@@ -1021,7 +1021,7 @@ public partial class Player
 		}
 
 		// load them asynchronously
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_ACTIONS_SPEC);
 		stmt.AddValue(0, GUID.Counter);
 		stmt.AddValue(1, GetActiveTalentGroup());
 		stmt.AddValue(2, traitConfigId);
@@ -1031,7 +1031,7 @@ public partial class Player
 		var mySess = Session;
 
 		mySess.QueryProcessor
-			.AddCallback(DB.Characters.AsyncQuery(stmt)
+			.AddCallback(_characterDatabase.AsyncQuery(stmt)
 							.WithCallback(result =>
 							{
 								// safe callback, we can't pass this pointer directly

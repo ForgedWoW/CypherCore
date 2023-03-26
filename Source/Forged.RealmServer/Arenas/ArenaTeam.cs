@@ -59,7 +59,7 @@ public class ArenaTeam
 		var captainLowGuid = captainGuid.Counter;
 
 		// Save arena team to db
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ARENA_TEAM);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ARENA_TEAM);
 		stmt.AddValue(0, teamId);
 		stmt.AddValue(1, TeamName);
 		stmt.AddValue(2, captainLowGuid);
@@ -70,7 +70,7 @@ public class ArenaTeam
 		stmt.AddValue(7, EmblemColor);
 		stmt.AddValue(8, BorderStyle);
 		stmt.AddValue(9, BorderColor);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		// Add captain as member
 		AddMember(CaptainGuid);
@@ -125,10 +125,10 @@ public class ArenaTeam
 			personalRating = 1000;
 
 		// Try to get player's match maker rating from db and fall back to config setting if not found
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_MATCH_MAKER_RATING);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_MATCH_MAKER_RATING);
 		stmt.AddValue(0, playerGuid.Counter);
 		stmt.AddValue(1, GetSlot());
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		uint matchMakerRating;
 
@@ -157,11 +157,11 @@ public class ArenaTeam
 		Global.CharacterCacheStorage.UpdateCharacterArenaTeamId(playerGuid, GetSlot(), GetId());
 
 		// Save player's arena team membership to db
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ARENA_TEAM_MEMBER);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ARENA_TEAM_MEMBER);
 		stmt.AddValue(0, teamId);
 		stmt.AddValue(1, playerGuid.Counter);
 		stmt.AddValue(2, (ushort)personalRating);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		// Inform player if online
 		if (player)
@@ -264,10 +264,10 @@ public class ArenaTeam
 			return false;
 
 		TeamName = name;
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_NAME);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_NAME);
 		stmt.AddValue(0, TeamName);
 		stmt.AddValue(1, GetId());
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		return true;
 	}
@@ -284,10 +284,10 @@ public class ArenaTeam
 		CaptainGuid = guid;
 
 		// Update database
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_CAPTAIN);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_CAPTAIN);
 		stmt.AddValue(0, guid.Counter);
 		stmt.AddValue(1, GetId());
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		// Enable remove/promote buttons
 		var newCaptain = Global.ObjAccessor.FindPlayer(guid);
@@ -336,10 +336,10 @@ public class ArenaTeam
 		// Only used for single member deletion, for arena team disband we use a single query for more efficiency
 		if (cleanDb)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBER);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBER);
 			stmt.AddValue(0, GetId());
 			stmt.AddValue(1, guid.Counter);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 	}
 
@@ -361,15 +361,15 @@ public class ArenaTeam
 		// Update database
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM);
 		stmt.AddValue(0, teamId);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBERS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBERS);
 		stmt.AddValue(0, teamId);
 		trans.Append(stmt);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		// Remove arena team from ArenaTeamMgr
 		Global.ArenaTeamMgr.RemoveArenaTeam(teamId);
@@ -384,15 +384,15 @@ public class ArenaTeam
 		// Update database
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM);
 		stmt.AddValue(0, teamId);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBERS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ARENA_TEAM_MEMBERS);
 		stmt.AddValue(0, teamId);
 		trans.Append(stmt);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		// Remove arena team from ArenaTeamMgr
 		Global.ArenaTeamMgr.RemoveArenaTeam(teamId);
@@ -644,7 +644,7 @@ public class ArenaTeam
 
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_STATS);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_STATS);
 		stmt.AddValue(0, stats.Rating);
 		stmt.AddValue(1, stats.WeekGames);
 		stmt.AddValue(2, stats.WeekWins);
@@ -660,7 +660,7 @@ public class ArenaTeam
 			if (member.WeekGames == 0)
 				continue;
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_MEMBER);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ARENA_TEAM_MEMBER);
 			stmt.AddValue(0, member.PersonalRating);
 			stmt.AddValue(1, member.WeekGames);
 			stmt.AddValue(2, member.WeekWins);
@@ -670,14 +670,14 @@ public class ArenaTeam
 			stmt.AddValue(6, member.Guid.Counter);
 			trans.Append(stmt);
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CHARACTER_ARENA_STATS);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CHARACTER_ARENA_STATS);
 			stmt.AddValue(0, member.Guid.Counter);
 			stmt.AddValue(1, GetSlot());
 			stmt.AddValue(2, member.MatchMakerRating);
 			trans.Append(stmt);
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public bool FinishWeek()

@@ -189,7 +189,7 @@ public class PlayerGroup
 			Global.GroupMgr.RegisterGroupDbStoreId(_dbStoreId, this);
 
 			// Store group in database
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GROUP);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GROUP);
 
 			byte index = 0;
 
@@ -212,7 +212,7 @@ public class PlayerGroup
 			stmt.AddValue(index++, (byte)_legacyRaidDifficulty);
 			stmt.AddValue(index++, _masterLooterGuid.Counter);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 
 			var leaderInstance = leader.Map.ToInstanceMap;
 
@@ -275,9 +275,9 @@ public class PlayerGroup
 
 		if (character == null)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
 			stmt.AddValue(0, guidLow);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 
 			return;
 		}
@@ -305,12 +305,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
 			stmt.AddValue(0, (byte)_groupFlags);
 			stmt.AddValue(1, _dbStoreId);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		SendUpdate();
@@ -324,12 +324,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
 			stmt.AddValue(0, (byte)_groupFlags);
 			stmt.AddValue(1, _dbStoreId);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		SendUpdate();
@@ -355,12 +355,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_TYPE);
 
 			stmt.AddValue(0, (byte)_groupFlags);
 			stmt.AddValue(1, _dbStoreId);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		SendUpdate();
@@ -509,7 +509,7 @@ public class PlayerGroup
 		// insert into the table if we're not a Battlegroundgroup
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_GROUP_MEMBER);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_GROUP_MEMBER);
 
 			stmt.AddValue(0, _dbStoreId);
 			stmt.AddValue(1, member.Guid.Counter);
@@ -517,7 +517,7 @@ public class PlayerGroup
 			stmt.AddValue(3, member.Group);
 			stmt.AddValue(4, (byte)member.Roles);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		SendUpdate();
@@ -657,9 +657,9 @@ public class PlayerGroup
 			// Remove player from group in DB
 			if (!IsBGGroup && !IsBFGroup)
 			{
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER);
 				stmt.AddValue(0, guid.Counter);
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 				DelinkMember(guid);
 			}
 
@@ -735,14 +735,14 @@ public class PlayerGroup
 			SQLTransaction trans = new();
 
 			// Update the group leader
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_LEADER);
 
 			stmt.AddValue(0, newLeader.GUID.Counter);
 			stmt.AddValue(1, _dbStoreId);
 
 			trans.Append(stmt);
 
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 		}
 
 		var oldLeader = Global.ObjAccessor.FindConnectedPlayer(_leaderGuid);
@@ -812,19 +812,19 @@ public class PlayerGroup
 		{
 			SQLTransaction trans = new();
 
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP);
 			stmt.AddValue(0, _dbStoreId);
 			trans.Append(stmt);
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER_ALL);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_GROUP_MEMBER_ALL);
 			stmt.AddValue(0, _dbStoreId);
 			trans.Append(stmt);
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
 			stmt.AddValue(0, _dbStoreId);
 			trans.Append(stmt);
 
-			DB.Characters.CommitTransaction(trans);
+			_characterDatabase.CommitTransaction(trans);
 
 			Global.GroupMgr.FreeGroupDbStoreId(this);
 		}
@@ -1075,12 +1075,12 @@ public class PlayerGroup
 		// Preserve new sub group in database for non-raid groups
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
 
 			stmt.AddValue(0, group);
 			stmt.AddValue(1, guid.Counter);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		// In case the moved player is online, update the player object with the new sub group references
@@ -1127,7 +1127,7 @@ public class PlayerGroup
 			// Preserve new sub group in database for non-raid groups
 			if (!IsBGGroup && !IsBFGroup)
 			{
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
 				stmt.AddValue(0, slots[i].Group);
 				stmt.AddValue(1, slots[i].Guid.Counter);
 
@@ -1145,7 +1145,7 @@ public class PlayerGroup
 			}
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		SendUpdate();
 	}
@@ -1340,12 +1340,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_DIFFICULTY);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_DIFFICULTY);
 
 			stmt.AddValue(0, (byte)_dungeonDifficulty);
 			stmt.AddValue(1, _dbStoreId);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		for (var refe = FirstMember; refe != null; refe = refe.Next())
@@ -1366,12 +1366,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_RAID_DIFFICULTY);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_RAID_DIFFICULTY);
 
 			stmt.AddValue(0, (byte)_raidDifficulty);
 			stmt.AddValue(1, _dbStoreId);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		for (var refe = FirstMember; refe != null; refe = refe.Next())
@@ -1392,12 +1392,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_LEGACY_RAID_DIFFICULTY);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_LEGACY_RAID_DIFFICULTY);
 
 			stmt.AddValue(0, (byte)_legacyRaidDifficulty);
 			stmt.AddValue(1, _dbStoreId);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		for (var refe = FirstMember; refe != null; refe = refe.Next())
@@ -1714,12 +1714,12 @@ public class PlayerGroup
 		ToggleGroupMemberFlag(slot, flag, apply);
 
 		// Preserve the new setting in the db
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_FLAG);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_FLAG);
 
 		stmt.AddValue(0, (byte)slot.Flags);
 		stmt.AddValue(1, guid.Counter);
 
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		// Broadcast the changes to the group
 		SendUpdate();
@@ -1858,12 +1858,12 @@ public class PlayerGroup
 
 		if (!IsBGGroup && !IsBFGroup)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_GROUP_MEMBER_SUBGROUP);
 
 			stmt.AddValue(0, group);
 			stmt.AddValue(1, guid.Counter);
 
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		return true;

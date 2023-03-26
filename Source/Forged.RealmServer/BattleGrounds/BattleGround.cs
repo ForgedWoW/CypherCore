@@ -314,18 +314,18 @@ public class Battleground : ZoneScript, IDisposable
 
 		if (IsBattleground() && _worldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 		{
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_PVPSTATS_MAXID);
-			var result = DB.Characters.Query(stmt);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_PVPSTATS_MAXID);
+			var result = _characterDatabase.Query(stmt);
 
 			if (!result.IsEmpty())
 				battlegroundId = result.Read<ulong>(0) + 1;
 
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PVPSTATS_BATTLEGROUND);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PVPSTATS_BATTLEGROUND);
 			stmt.AddValue(0, battlegroundId);
 			stmt.AddValue(1, (byte)GetWinner());
 			stmt.AddValue(2, GetUniqueBracketId());
 			stmt.AddValue(3, (byte)GetTypeID(true));
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		SetStatus(BattlegroundStatus.WaitLeave);
@@ -371,7 +371,7 @@ public class Battleground : ZoneScript, IDisposable
 
 			if (IsBattleground() && _worldConfig.GetBoolValue(WorldCfg.BattlegroundStoreStatisticsEnable))
 			{
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_PVPSTATS_PLAYER);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_PVPSTATS_PLAYER);
 				var score = PlayerScores.LookupByKey(player.GUID);
 
 				stmt.AddValue(0, battlegroundId);
@@ -389,7 +389,7 @@ public class Battleground : ZoneScript, IDisposable
 				stmt.AddValue(12, score.GetAttr4());
 				stmt.AddValue(13, score.GetAttr5());
 
-				DB.Characters.Execute(stmt);
+				_characterDatabase.Execute(stmt);
 			}
 
 			// Reward winner team

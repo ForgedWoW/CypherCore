@@ -39,15 +39,15 @@ public class AzeriteItem : Item
 
 	public override void SaveToDB(SQLTransaction trans)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
 		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
 		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
 		stmt.AddValue(0, GUID.Counter);
 		trans.Append(stmt);
 
@@ -55,7 +55,7 @@ public class AzeriteItem : Item
 		{
 			case ItemUpdateState.New:
 			case ItemUpdateState.Changed:
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE);
 				stmt.AddValue(0, GUID.Counter);
 				stmt.AddValue(1, AzeriteItemData.Xp);
 				stmt.AddValue(2, AzeriteItemData.Level);
@@ -83,7 +83,7 @@ public class AzeriteItem : Item
 
 				foreach (var azeriteItemMilestonePowerId in AzeriteItemData.UnlockedEssenceMilestones)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
 					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, azeriteItemMilestonePowerId);
 					trans.Append(stmt);
@@ -91,7 +91,7 @@ public class AzeriteItem : Item
 
 				foreach (var azeriteEssence in AzeriteItemData.UnlockedEssences)
 				{
-					stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+					stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
 					stmt.AddValue(0, GUID.Counter);
 					stmt.AddValue(1, azeriteEssence.AzeriteEssenceID);
 					stmt.AddValue(2, azeriteEssence.Rank);
@@ -178,11 +178,11 @@ public class AzeriteItem : Item
 
 		if (needSave)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_ON_LOAD);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ITEM_INSTANCE_AZERITE_ON_LOAD);
 			stmt.AddValue(0, azeriteData.Xp);
 			stmt.AddValue(1, azeriteData.KnowledgeLevel);
 			stmt.AddValue(2, GUID.Counter);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 	}
 
@@ -194,17 +194,17 @@ public class AzeriteItem : Item
 
 	public new static void DeleteFromDB(SQLTransaction trans, ulong itemGuid)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_MILESTONE_POWER);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ITEM_INSTANCE_AZERITE_UNLOCKED_ESSENCE);
 		stmt.AddValue(0, itemGuid);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 	}
 
 	public uint GetLevel()

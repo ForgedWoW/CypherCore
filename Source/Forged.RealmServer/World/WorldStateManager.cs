@@ -133,7 +133,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 
 		oldMSTime = Time.MSTime;
 
-		result = DB.Characters.Query("SELECT Id, Value FROM world_state_value");
+		result = _characterDatabase.Query("SELECT Id, Value FROM world_state_value");
 		uint savedValueCount = 0;
 
 		if (!result.IsEmpty())
@@ -243,10 +243,10 @@ public class WorldStateManager : Singleton<WorldStateManager>
 		if (GetWorldStateTemplate(worldStateId) == null)
 			return;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_STATE);
 		stmt.AddValue(0, worldStateId);
 		stmt.AddValue(1, value);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void SetValueAndSaveInDb(WorldStates worldStateId, int value, bool hidden, Map map)
