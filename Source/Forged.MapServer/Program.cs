@@ -11,6 +11,7 @@ using Forged.MapServer.Arenas;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -80,4 +81,5 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<WorldManager>().SingleInstance();
     containerBuilder.RegisterType<WardenCheckManager>().SingleInstance();
     containerBuilder.RegisterType<WorldStateManager>().SingleInstance();
+    containerBuilder.RegisterType<CharacterCache>().SingleInstance();
 }

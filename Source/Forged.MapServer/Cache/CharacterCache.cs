@@ -7,24 +7,32 @@ using Forged.MapServer.Arenas;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Misc;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Cache;
 
-public class CharacterCache : Singleton<CharacterCache>
+public class CharacterCache 
 {
-	readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
-	readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
+    private readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
 
-	CharacterCache() { }
+    public CharacterCache(CharacterDatabase characterDatabase, WorldManager worldManager)
+    {
+        _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
+    }
 
 	public void LoadCharacterCacheStorage()
 	{
 		_characterCacheStore.Clear();
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
+		var result = _characterDatabase.Query("SELECT guid, name, account, race, gender, class, level, deleteDate FROM characters");
 
 		if (result.IsEmpty())
 		{
@@ -92,7 +100,7 @@ public class CharacterCache : Singleton<CharacterCache>
 			Guid = guid
 		};
 
-		Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
+        _worldManager.SendGlobalMessage(invalidatePlayer);
 
 		// Correct name -> pointer storage
 		_characterCacheByNameStore.Remove(oldName);

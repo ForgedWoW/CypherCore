@@ -65,7 +65,6 @@ using PlayerChoiceResponse = Forged.MapServer.Networking.Packets.Quest.PlayerCho
 using PlayerChoiceResponseMawPower = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseMawPower;
 using PlayerChoiceResponseReward = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseReward;
 using PlayerChoiceResponseRewardEntry = Forged.MapServer.Networking.Packets.Quest.PlayerChoiceResponseRewardEntry;
-using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Entities.Players;
 
