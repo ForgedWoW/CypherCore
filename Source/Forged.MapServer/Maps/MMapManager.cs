@@ -10,21 +10,19 @@ using Serilog;
 
 namespace Forged.MapServer.Maps;
 
-public class MMapManager : Singleton<MMapManager>
+public class MMapManager
 {
-	const string MAP_FILE_NAME_FORMAT = "{0}/mmaps/{1:D4}.mmap";
-	const string TILE_FILE_NAME_FORMAT = "{0}/mmaps/{1:D4}{2:D2}{3:D2}.mmtile";
+    private const string MapFileNameFormat = "{0}/mmaps/{1:D4}.mmap";
+    private const string TileFileNameFormat = "{0}/mmaps/{1:D4}{2:D2}{3:D2}.mmtile";
 
-	readonly Dictionary<uint, MMapData> loadedMMaps = new();
-	readonly Dictionary<uint, uint> parentMapData = new();
-	uint loadedTiles;
+    private readonly Dictionary<uint, MMapData> _loadedMMaps = new();
+    private readonly Dictionary<uint, uint> _parentMapData = new();
+    private uint _loadedTiles;
 
-	MMapManager() { }
-
-	public void Initialize(MultiMap<uint, uint> mapData)
+    public void Initialize(MultiMap<uint, uint> mapData)
 	{
 		foreach (var pair in mapData.KeyValueList)
-			parentMapData[pair.Value] = pair.Key;
+			_parentMapData[pair.Value] = pair.Key;
 	}
 
 	public bool LoadMap(string basePath, uint mapId, int x, int y)
@@ -34,7 +32,7 @@ public class MMapManager : Singleton<MMapManager>
 			return false;
 
 		// get this mmap data
-		var mmap = loadedMMaps[mapId];
+		var mmap = _loadedMMaps[mapId];
 
 		// check if we already have this tile loaded
 		var packedGridPos = PackTileID(x, y);
@@ -43,11 +41,11 @@ public class MMapManager : Singleton<MMapManager>
 			return false;
 
 		// load this tile . mmaps/MMMXXYY.mmtile
-		var fileName = string.Format(TILE_FILE_NAME_FORMAT, basePath, mapId, x, y);
+		var fileName = string.Format(TileFileNameFormat, basePath, mapId, x, y);
 
 		if (!File.Exists(fileName))
-			if (parentMapData.ContainsKey(mapId))
-				fileName = string.Format(TILE_FILE_NAME_FORMAT, basePath, parentMapData[mapId], x, y);
+			if (_parentMapData.ContainsKey(mapId))
+				fileName = string.Format(TileFileNameFormat, basePath, _parentMapData[mapId], x, y);
 
 		if (!File.Exists(fileName))
 		{
@@ -88,7 +86,7 @@ public class MMapManager : Singleton<MMapManager>
 		if (Detour.dtStatusSucceed(mmap.navMesh.addTile(data, 1, 0, ref tileRef)))
 		{
 			mmap.loadedTileRefs.Add(packedGridPos, tileRef);
-			++loadedTiles;
+			++_loadedTiles;
 			Log.Logger.Information("MMAP:loadMap: Loaded mmtile {0:D4}[{1:D2}, {2:D2}]", mapId, x, y);
 
 			return true;
@@ -104,7 +102,7 @@ public class MMapManager : Singleton<MMapManager>
 		if (!LoadMapData(basePath, mapId))
 			return false;
 
-		var mmap = loadedMMaps[mapId];
+		var mmap = _loadedMMaps[mapId];
 
 		if (mmap.navMeshQueries.ContainsKey(instanceId))
 			return true;
@@ -128,7 +126,7 @@ public class MMapManager : Singleton<MMapManager>
 	public bool UnloadMap(uint mapId, int x, int y)
 	{
 		// check if we have this map loaded
-		if (!loadedMMaps.TryGetValue(mapId, out var mmap))
+		if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
 			return false;
 
 		// check if we have this tile loaded
@@ -141,7 +139,7 @@ public class MMapManager : Singleton<MMapManager>
 		if (!Detour.dtStatusFailed(mmap.navMesh.removeTile(tileRef, out _)))
 		{
 			mmap.loadedTileRefs.Remove(packedGridPos);
-			--loadedTiles;
+			--_loadedTiles;
 			Log.Logger.Information("MMAP:unloadMap: Unloaded mmtile {0:D4}[{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
 
 			return true;
@@ -152,7 +150,7 @@ public class MMapManager : Singleton<MMapManager>
 
 	public bool UnloadMap(uint mapId)
 	{
-		if (!loadedMMaps.ContainsKey(mapId))
+		if (!_loadedMMaps.ContainsKey(mapId))
 		{
 			// file may not exist, therefore not loaded
 			Log.Logger.Debug("MMAP:unloadMap: Asked to unload not loaded navmesh map {0:D4}", mapId);
@@ -161,7 +159,7 @@ public class MMapManager : Singleton<MMapManager>
 		}
 
 		// unload all tiles from given map
-		var mmap = loadedMMaps.LookupByKey(mapId);
+		var mmap = _loadedMMaps.LookupByKey(mapId);
 
 		foreach (var i in mmap.loadedTileRefs)
 		{
@@ -174,12 +172,12 @@ public class MMapManager : Singleton<MMapManager>
 			}
 			else
 			{
-				--loadedTiles;
+				--_loadedTiles;
 				Log.Logger.Information("MMAP:unloadMap: Unloaded mmtile {0:D4} [{1:D2}, {2:D2}] from {3:D4}", mapId, x, y, mapId);
 			}
 		}
 
-		loadedMMaps.Remove(mapId);
+		_loadedMMaps.Remove(mapId);
 		Log.Logger.Information("MMAP:unloadMap: Unloaded {0:D4}.mmap", mapId);
 
 		return true;
@@ -188,7 +186,7 @@ public class MMapManager : Singleton<MMapManager>
 	public bool UnloadMapInstance(uint mapId, uint instanceId)
 	{
 		// check if we have this map loaded
-		if (!loadedMMaps.TryGetValue(mapId, out var mmap))
+		if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
 		{
 			// file may not exist, therefore not loaded
 			Log.Logger.Debug("MMAP:unloadMapInstance: Asked to unload not loaded navmesh map {0}", mapId);
@@ -211,7 +209,7 @@ public class MMapManager : Singleton<MMapManager>
 
 	public Detour.dtNavMesh GetNavMesh(uint mapId)
 	{
-		if (!loadedMMaps.TryGetValue(mapId, out var mmap))
+		if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
 			return null;
 
 		return mmap.navMesh;
@@ -219,7 +217,7 @@ public class MMapManager : Singleton<MMapManager>
 
 	public Detour.dtNavMeshQuery GetNavMeshQuery(uint mapId, uint instanceId)
 	{
-		if (!loadedMMaps.TryGetValue(mapId, out var mmap))
+		if (!_loadedMMaps.TryGetValue(mapId, out var mmap))
 			return null;
 
 		return mmap.navMeshQueries.LookupByKey(instanceId);
@@ -227,27 +225,27 @@ public class MMapManager : Singleton<MMapManager>
 
 	public uint GetLoadedTilesCount()
 	{
-		return loadedTiles;
+		return _loadedTiles;
 	}
 
 	public int GetLoadedMapsCount()
 	{
-		return loadedMMaps.Count;
+		return _loadedMMaps.Count;
 	}
 
 	MMapData GetMMapData(uint mapId)
 	{
-		return loadedMMaps.LookupByKey(mapId);
+		return _loadedMMaps.LookupByKey(mapId);
 	}
 
 	bool LoadMapData(string basePath, uint mapId)
 	{
 		// we already have this map loaded?
-		if (loadedMMaps.TryGetValue(mapId, out var mmap) && mmap != null)
+		if (_loadedMMaps.TryGetValue(mapId, out var mmap) && mmap != null)
 			return true;
 
 		// load and init dtNavMesh - read parameters from file
-		var filename = string.Format(MAP_FILE_NAME_FORMAT, basePath, mapId);
+		var filename = string.Format(MapFileNameFormat, basePath, mapId);
 
 		if (!File.Exists(filename))
 		{
@@ -284,7 +282,7 @@ public class MMapManager : Singleton<MMapManager>
 		Log.Logger.Information("MMAP:loadMapData: Loaded {0:D4}.mmap", mapId);
 
 		// store inside our map list
-		loadedMMaps[mapId] = new MMapData(mesh);
+		_loadedMMaps[mapId] = new MMapData(mesh);
 
 		return true;
 	}

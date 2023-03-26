@@ -8,28 +8,40 @@ using System.Numerics;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Movement;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 using Transport = Forged.MapServer.Entities.Transport;
 
 namespace Forged.MapServer.Maps;
 
-public class TransportManager : Singleton<TransportManager>
+public class TransportManager
 {
-	readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
-	readonly MultiMap<uint, TransportSpawn> _transportsByMap = new();
-	readonly Dictionary<uint, TransportAnimation> _transportAnimations = new();
-	readonly Dictionary<ulong, TransportSpawn> _transportSpawns = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _objectManager;
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    private readonly Dictionary<uint, TransportTemplate> _transportTemplates = new();
+    private readonly MultiMap<uint, TransportSpawn> _transportsByMap = new();
+    private readonly Dictionary<uint, TransportAnimation> _transportAnimations = new();
+    private readonly Dictionary<ulong, TransportSpawn> _transportSpawns = new();
 
-	TransportManager() { }
+    public TransportManager(WorldDatabase worldDatabase, GameObjectManager objectManager, CliDB cliDB, DB2Manager db2Manager)
+    {
+        _worldDatabase = worldDatabase;
+        _objectManager = objectManager;
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+    }
 
 	public void LoadTransportTemplates()
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
+		var result = _worldDatabase.Query("SELECT entry FROM gameobject_template WHERE type = 15 ORDER BY entry ASC");
 
 		if (result.IsEmpty())
 		{
@@ -43,7 +55,7 @@ public class TransportManager : Singleton<TransportManager>
 		do
 		{
 			var entry = result.Read<uint>(0);
-			var goInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+			var goInfo = _objectManager.GetGameObjectTemplate(entry);
 
 			if (goInfo == null)
 			{
@@ -52,7 +64,7 @@ public class TransportManager : Singleton<TransportManager>
 				continue;
 			}
 
-			if (!CliDB.TaxiPathNodesByPath.ContainsKey(goInfo.MoTransport.taxiPathID))
+			if (!_cliDB.TaxiPathNodesByPath.ContainsKey(goInfo.MoTransport.taxiPathID))
 			{
 				Log.Logger.Error("Transport {0} (name: {1}) has an invalid path specified in `gameobject_template`.`data0` ({2}) field, skipped.", entry, goInfo.name, goInfo.MoTransport.taxiPathID);
 
@@ -77,10 +89,10 @@ public class TransportManager : Singleton<TransportManager>
 
 	public void LoadTransportAnimationAndRotation()
 	{
-		foreach (var anim in CliDB.TransportAnimationStorage.Values)
+		foreach (var anim in _cliDB.TransportAnimationStorage.Values)
 			AddPathNodeToTransport(anim.TransportID, anim.TimeIndex, anim);
 
-		foreach (var rot in CliDB.TransportRotationStorage.Values)
+		foreach (var rot in _cliDB.TransportRotationStorage.Values)
 			AddPathRotationToTransport(rot.GameObjectsID, rot.TimeIndex, rot);
 	}
 
@@ -91,7 +103,7 @@ public class TransportManager : Singleton<TransportManager>
 
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
+		var result = _worldDatabase.Query("SELECT guid, entry, phaseUseFlags, phaseid, phasegroup FROM transports");
 
 		uint count = 0;
 
@@ -132,14 +144,14 @@ public class TransportManager : Singleton<TransportManager>
 				}
 
 				if (phaseId != 0)
-					if (!CliDB.PhaseStorage.ContainsKey(phaseId))
+					if (!_cliDB.PhaseStorage.ContainsKey(phaseId))
 					{
 						Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseid` {phaseId} does not exist, set to 0");
 						phaseId = 0;
 					}
 
 				if (phaseGroupId != 0)
-					if (Global.DB2Mgr.GetPhasesForGroup(phaseGroupId) == null)
+					if (_db2Manager.GetPhasesForGroup(phaseGroupId) == null)
 					{
 						Log.Logger.Error($"Table `transports` have transport (GUID: {guid} Entry: {entry}) with `phaseGroup` {phaseGroupId} does not exist, set to 0");
 						phaseGroupId = 0;
@@ -305,7 +317,7 @@ public class TransportManager : Singleton<TransportManager>
 		leg.Spline.InitSplineCustom(initer);
 		leg.Spline.InitLengths();
 
-		uint legTimeAccelDecel(double dist)
+		uint LegTimeAccelDecel(double dist)
 		{
 			var speed = (double)goInfo.MoTransport.moveSpeed;
 			var accel = (double)goInfo.MoTransport.accelRate;
@@ -317,7 +329,7 @@ public class TransportManager : Singleton<TransportManager>
 				return (uint)((dist - (accelDist + accelDist)) / speed * 1000.0 + speed / accel * 2000.0);
 		}
 
-		uint legTimeAccel(double dist)
+		uint LegTimeAccel(double dist)
 		{
 			var speed = (double)goInfo.MoTransport.moveSpeed;
 			var accel = (double)goInfo.MoTransport.accelRate;
@@ -328,8 +340,6 @@ public class TransportManager : Singleton<TransportManager>
 			else
 				return (uint)(((dist - accelDist) / speed + speed / accel) * 1000.0);
 		}
-
-		;
 
 		// Init segments
 		var pauseItr = 0;
@@ -353,44 +363,44 @@ public class TransportManager : Singleton<TransportManager>
 						break;
 
 					double eventLength = leg.Spline.Length(eventPointIndex) - splineLengthToPreviousNode;
-					uint eventSplineTime = 0;
+					uint eventSplineTime;
 
 					if (pauseItr != 0)
-						eventSplineTime = legTimeAccelDecel(eventLength);
+						eventSplineTime = LegTimeAccelDecel(eventLength);
 					else
-						eventSplineTime = legTimeAccel(eventLength);
+						eventSplineTime = LegTimeAccel(eventLength);
 
 					if (pathPoints[eventPointIndex].ArrivalEventID != 0)
 					{
-						TransportPathEvent Event = new()
+						TransportPathEvent ev = new()
 						{
 							Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum,
 							EventId = pathPoints[eventPointIndex].ArrivalEventID
 						};
 
-						outEvents.Add(Event);
+						outEvents.Add(ev);
 					}
 
 					if (pathPoints[eventPointIndex].DepartureEventID != 0)
 					{
-						TransportPathEvent Event = new()
+						TransportPathEvent tEvent = new()
 						{
 							Timestamp = totalTime + eventSplineTime + leg.Duration + delaySum + (pausePointIndex == eventPointIndex ? pathPoints[eventPointIndex].Delay * Time.InMilliseconds : 0),
 							EventId = pathPoints[eventPointIndex].DepartureEventID
 						};
 
-						outEvents.Add(Event);
+						outEvents.Add(tEvent);
 					}
 				}
 
 				double splineLengthToCurrentNode = leg.Spline.Length(pausePointIndex);
 				var length1 = splineLengthToCurrentNode - splineLengthToPreviousNode;
-				uint movementTime = 0;
+				uint movementTime;
 
 				if (pauseItr != 0)
-					movementTime = legTimeAccelDecel(length1);
+					movementTime = LegTimeAccelDecel(length1);
 				else
-					movementTime = legTimeAccel(length1);
+					movementTime = LegTimeAccel(length1);
 
 				leg.Duration += movementTime;
 
@@ -415,44 +425,44 @@ public class TransportManager : Singleton<TransportManager>
 				break;
 
 			double eventLength = leg.Spline.Length(eventPointIndex) - splineLengthToPreviousNode;
-			uint eventSplineTime = 0;
+			uint eventSplineTime;
 
 			if (pauseItr != 0)
-				eventSplineTime = legTimeAccel(eventLength);
+				eventSplineTime = LegTimeAccel(eventLength);
 			else
-				eventSplineTime = (uint)(eventLength / (double)goInfo.MoTransport.moveSpeed * 1000.0);
+				eventSplineTime = (uint)(eventLength / goInfo.MoTransport.moveSpeed * 1000.0);
 
 			if (pathPoints[eventPointIndex].ArrivalEventID != 0)
 			{
-				TransportPathEvent Event = new()
+				TransportPathEvent tEvent = new()
 				{
 					Timestamp = totalTime + eventSplineTime + leg.Duration,
 					EventId = pathPoints[eventPointIndex].ArrivalEventID
 				};
 
-				outEvents.Add(Event);
+				outEvents.Add(tEvent);
 			}
 
 			if (pathPoints[eventPointIndex].DepartureEventID != 0)
 			{
-				TransportPathEvent Event = new()
+				TransportPathEvent tEvent = new()
 				{
 					Timestamp = totalTime + eventSplineTime + leg.Duration,
 					EventId = pathPoints[eventPointIndex].DepartureEventID
 				};
 
-				outEvents.Add(Event);
+				outEvents.Add(tEvent);
 			}
 		}
 
 		// Add segment after last pause
 		double length = leg.Spline.Length() - splineLengthToPreviousNode;
-		uint splineTime = 0;
+		uint splineTime;
 
 		if (pauseItr != 0)
-			splineTime = legTimeAccel(length);
+			splineTime = LegTimeAccel(length);
 		else
-			splineTime = (uint)(length / (double)goInfo.MoTransport.moveSpeed * 1000.0);
+			splineTime = (uint)(length / goInfo.MoTransport.moveSpeed * 1000.0);
 
 		leg.StartTimestamp = totalTime;
 		leg.Duration += splineTime + delaySum;
@@ -474,10 +484,10 @@ public class TransportManager : Singleton<TransportManager>
 	void GeneratePath(GameObjectTemplate goInfo, TransportTemplate transport)
 	{
 		var pathId = goInfo.MoTransport.taxiPathID;
-		var path = CliDB.TaxiPathNodesByPath[pathId];
+		var path = _cliDB.TaxiPathNodesByPath[pathId];
 
-		transport.Speed = (double)goInfo.MoTransport.moveSpeed;
-		transport.AccelerationRate = (double)goInfo.MoTransport.accelRate;
+		transport.Speed = goInfo.MoTransport.moveSpeed;
+		transport.AccelerationRate = goInfo.MoTransport.accelRate;
 		transport.AccelerationTime = transport.Speed / transport.AccelerationRate;
 		transport.AccelerationDistance = 0.5 * transport.Speed * transport.Speed / transport.AccelerationRate;
 

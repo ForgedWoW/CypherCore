@@ -472,8 +472,8 @@ public class SmartAIManager
 				_waypointStore[entry] = new WaypointPath();
 
 			var path = _waypointStore[entry];
-			path.id = entry;
-			path.nodes.Add(new WaypointNode(id, x, y, z, o, delay));
+			path.ID = entry;
+			path.Nodes.Add(new WaypointNode(id, x, y, z, o, delay));
 
 			lastEntry = entry;
 			++total;
@@ -2113,7 +2113,7 @@ public class SmartAIManager
 			{
 				var path = GetPath(e.Action.wpStart.pathID);
 
-				if (path == null || path.nodes.Empty())
+				if (path == null || path.Nodes.Empty())
 				{
 					Log.Logger.Error($"SmartAIMgr: {e} uses non-existent WaypointPath id {e.Action.wpStart.pathID}, skipped.");
 

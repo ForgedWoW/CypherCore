@@ -273,12 +273,12 @@ public class EscortAI : ScriptedAI
 		}
 		else if (moveType == MovementGeneratorType.Waypoint)
 		{
-			var waypoint = _path.nodes[(int)Id];
+			var waypoint = _path.Nodes[(int)Id];
 
-			Log.Logger.Debug($"EscortAI::MovementInform: waypoint node {waypoint.id} reached ({Me.GUID})");
+			Log.Logger.Debug($"EscortAI::MovementInform: waypoint node {waypoint.ID} reached ({Me.GUID})");
 
 			// last point
-			if (Id == _path.nodes.Count - 1)
+			if (Id == _path.Nodes.Count - 1)
 			{
 				_started = false;
 				_ended = true;
@@ -294,18 +294,18 @@ public class EscortAI : ScriptedAI
 
 		WaypointNode waypoint = new()
 		{
-			id = id,
-			x = x,
-			y = y,
-			z = z,
-			orientation = orientation,
-			moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk,
-			delay = (uint)waitTime.TotalMilliseconds,
-			eventId = 0,
-			eventChance = 100
+			ID = id,
+			X = x,
+			Y = y,
+			Z = z,
+			Orientation = orientation,
+			MoveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk,
+			Delay = (uint)waitTime.TotalMilliseconds,
+			EventId = 0,
+			EventChance = 100
 		};
 
-		_path.nodes.Add(waypoint);
+		_path.Nodes.Add(waypoint);
 
 		_manualPath = true;
 	}
@@ -315,8 +315,8 @@ public class EscortAI : ScriptedAI
 		if (on == _running)
 			return;
 
-		foreach (var node in _path.nodes)
-			node.moveType = on ? WaypointMoveType.Run : WaypointMoveType.Walk;
+		foreach (var node in _path.Nodes)
+			node.MoveType = on ? WaypointMoveType.Run : WaypointMoveType.Walk;
 
 		Me.SetWalk(!on);
 
@@ -352,7 +352,7 @@ public class EscortAI : ScriptedAI
 		if (!_manualPath && resetWaypoints)
 			FillPointMovementListForCreature();
 
-		if (_path.nodes.Empty())
+		if (_path.Nodes.Empty())
 		{
 			Log.Logger.Error($"EscortAI::Start: (script: {Me.GetScriptName()} starts with 0 waypoints (possible missing entry in script_waypoint. Quest: {(quest != null ? quest.Id : 0)} ({Me.GUID})");
 
@@ -382,7 +382,7 @@ public class EscortAI : ScriptedAI
 			Me.SetImmuneToNPC(false);
 		}
 
-		Log.Logger.Debug($"EscortAI::Start: (script: {Me.GetScriptName()}, started with {_path.nodes.Count} waypoints. ActiveAttacker = {_activeAttacker}, Run = {_running}, Player = {_playerGUID} ({Me.GUID})");
+		Log.Logger.Debug($"EscortAI::Start: (script: {Me.GetScriptName()}, started with {_path.Nodes.Count} waypoints. ActiveAttacker = {_activeAttacker}, Run = {_running}, Player = {_playerGUID} ({Me.GUID})");
 
 		// set initial speed
 		Me.SetWalk(!_running);
@@ -521,7 +521,7 @@ public class EscortAI : ScriptedAI
 			node.y = GridDefines.NormalizeMapCoord(node.y);
 			node.moveType = _running ? WaypointMoveType.Run : WaypointMoveType.Walk;
 
-			_path.nodes.Add(node);
+			_path.Nodes.Add(node);
 		}
 	}
 

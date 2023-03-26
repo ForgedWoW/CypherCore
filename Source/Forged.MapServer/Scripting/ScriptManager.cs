@@ -454,8 +454,8 @@ public class ScriptManager : Singleton<ScriptManager>
 				_waypointStore[entry] = new WaypointPath();
 
 			var path = _waypointStore[entry];
-			path.id = entry;
-			path.nodes.Add(new WaypointNode(id, x, y, z, null, waitTime));
+			path.ID = entry;
+			path.Nodes.Add(new WaypointNode(id, x, y, z, null, waitTime));
 
 			++count;
 		} while (result.NextRow());

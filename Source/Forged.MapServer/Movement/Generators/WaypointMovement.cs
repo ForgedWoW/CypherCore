@@ -82,14 +82,14 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		x = y = z = 0;
 
 		// prevent a crash at empty waypoint path.
-		if (_path == null || _path.nodes.Empty())
+		if (_path == null || _path.Nodes.Empty())
 			return false;
 
-		var waypoint = _path.nodes.ElementAt(_currentNode);
+		var waypoint = _path.Nodes.ElementAt(_currentNode);
 
-		x = waypoint.x;
-		y = waypoint.y;
-		z = waypoint.z;
+		x = waypoint.X;
+		y = waypoint.Y;
+		z = waypoint.Z;
 
 		return true;
 	}
@@ -133,7 +133,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		if (!owner || !owner.IsAlive)
 			return true;
 
-		if (HasFlag(MovementGeneratorFlags.Finalized | MovementGeneratorFlags.Paused) || _path == null || _path.nodes.Empty())
+		if (HasFlag(MovementGeneratorFlags.Finalized | MovementGeneratorFlags.Paused) || _path == null || _path.Nodes.Empty())
 			return true;
 
 		if (owner.HasUnitState(UnitState.NotMove | UnitState.LostControl) || owner.IsMovementPreventedByCasting())
@@ -258,22 +258,22 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
 	void OnArrived(Creature owner)
 	{
-		if (_path == null || _path.nodes.Empty())
+		if (_path == null || _path.Nodes.Empty())
 			return;
 
-		var waypoint = _path.nodes.ElementAt((int)_currentNode);
+		var waypoint = _path.Nodes.ElementAt((int)_currentNode);
 
-		if (waypoint.delay != 0)
+		if (waypoint.Delay != 0)
 		{
 			owner.ClearUnitState(UnitState.RoamingMove);
-			_nextMoveTime.Reset(waypoint.delay);
+			_nextMoveTime.Reset(waypoint.Delay);
 		}
 
-		if (waypoint.eventId != 0 && RandomHelper.URand(0, 99) < waypoint.eventChance)
+		if (waypoint.EventId != 0 && RandomHelper.URand(0, 99) < waypoint.EventChance)
 		{
-			Log.Logger.Debug($"Creature movement start script {waypoint.eventId} at point {_currentNode} for {owner.GUID}.");
+			Log.Logger.Debug($"Creature movement start script {waypoint.EventId} at point {_currentNode} for {owner.GUID}.");
 			owner.ClearUnitState(UnitState.RoamingMove);
-			owner.Map.ScriptsStart(ScriptsType.Waypoint, waypoint.eventId, owner, null);
+			owner.Map.ScriptsStart(ScriptsType.Waypoint, waypoint.EventId, owner, null);
 		}
 
 		// inform AI
@@ -282,16 +282,16 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		if (ai != null)
 		{
 			ai.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
-			ai.WaypointReached(waypoint.id, _path.id);
+			ai.WaypointReached(waypoint.ID, _path.ID);
 		}
 
-		owner.UpdateCurrentWaypointInfo(waypoint.id, _path.id);
+		owner.UpdateCurrentWaypointInfo(waypoint.ID, _path.ID);
 	}
 
 	void StartMove(Creature owner, bool relaunch = false)
 	{
 		// sanity checks
-		if (owner == null || !owner.IsAlive || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
+		if (owner == null || !owner.IsAlive || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.Nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
 			return;
 
 		if (owner.HasUnitState(UnitState.NotMove) || owner.IsMovementPreventedByCasting() || (owner.IsFormationLeader && !owner.IsFormationLeaderMoveAllowed)) // if cannot move OR cannot move because of formation
@@ -311,12 +311,12 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 				var ai = owner.AI;
 
 				if (ai != null)
-					ai.WaypointStarted(_path.nodes[_currentNode].id, _path.id);
+					ai.WaypointStarted(_path.Nodes[_currentNode].ID, _path.ID);
 			}
 			else
 			{
-				var currentWaypoint = _path.nodes[_currentNode];
-				var pos = new Position(currentWaypoint.x, currentWaypoint.y, currentWaypoint.z, owner.Location.Orientation);
+				var currentWaypoint = _path.Nodes[_currentNode];
+				var pos = new Position(currentWaypoint.X, currentWaypoint.Y, currentWaypoint.Z, owner.Location.Orientation);
 
 				if (!transportPath)
 				{
@@ -343,7 +343,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 				var ai = owner.AI;
 
 				if (ai != null)
-					ai.WaypointPathEnded(currentWaypoint.id, _path.id);
+					ai.WaypointPathEnded(currentWaypoint.ID, _path.ID);
 
 				return;
 			}
@@ -356,10 +356,10 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 			var ai = owner.AI;
 
 			if (ai != null)
-				ai.WaypointStarted(_path.nodes[_currentNode].id, _path.id);
+				ai.WaypointStarted(_path.Nodes[_currentNode].ID, _path.ID);
 		}
 
-		var waypoint = _path.nodes[_currentNode];
+		var waypoint = _path.Nodes[_currentNode];
 
 		RemoveFlag(MovementGeneratorFlags.Transitory | MovementGeneratorFlags.InformEnabled | MovementGeneratorFlags.TimedPaused);
 
@@ -373,12 +373,12 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
 		//! Do not use formationDest here, MoveTo requires transport offsets due to DisableTransportPathTransformations() call
 		//! but formationDest contains global coordinates
-		init.MoveTo(waypoint.x, waypoint.y, waypoint.z);
+		init.MoveTo(waypoint.X, waypoint.Y, waypoint.Z);
 
-		if (waypoint.orientation.HasValue && waypoint.delay != 0)
-			init.SetFacing(waypoint.orientation.Value);
+		if (waypoint.Orientation.HasValue && waypoint.Delay != 0)
+			init.SetFacing(waypoint.Orientation.Value);
 
-		switch (waypoint.moveType)
+		switch (waypoint.MoveType)
 		{
 			case WaypointMoveType.Land:
 				init.SetAnimation(AnimTier.Ground);
@@ -406,10 +406,10 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 
 	bool ComputeNextNode()
 	{
-		if ((_currentNode == _path.nodes.Count - 1) && !_repeating)
+		if ((_currentNode == _path.Nodes.Count - 1) && !_repeating)
 			return false;
 
-		_currentNode = (_currentNode + 1) % _path.nodes.Count;
+		_currentNode = (_currentNode + 1) % _path.Nodes.Count;
 
 		return true;
 	}

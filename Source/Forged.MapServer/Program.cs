@@ -21,6 +21,9 @@ using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
+using Forged.MapServer.Movement;
+using Forged.MapServer.OutdoorPVP;
+using Forged.MapServer.Services;
 using Forged.MapServer.Warden;
 using Forged.MapServer.Weather;
 using Forged.MapServer.World;
@@ -58,6 +61,7 @@ builder.Register((c, _) =>
 
 var container = builder.Build();
 container.Resolve<CliDB>();
+container.Resolve<WorldServiceManager>().LoadHandlers(container);
 
 void BuildServerTypes(ContainerBuilder containerBuilder)
 {
@@ -86,4 +90,9 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<CharacterCache>().SingleInstance();
     containerBuilder.RegisterType<InstanceLockManager>().SingleInstance();
     containerBuilder.RegisterType<MapManager>().SingleInstance();
+    containerBuilder.RegisterType<MMapManager>().SingleInstance();
+    containerBuilder.RegisterType<TransportManager>().SingleInstance();
+    containerBuilder.RegisterType<WaypointManager>().SingleInstance();
+    containerBuilder.RegisterType<OutdoorPvPManager>().SingleInstance();
+    containerBuilder.RegisterType<WorldServiceManager>().SingleInstance();
 }

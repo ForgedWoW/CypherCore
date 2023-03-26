@@ -4,52 +4,49 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
+using Autofac;
+using Game.Common.Handlers;
 using Serilog;
 
 namespace Forged.MapServer.Services;
 
-public class WorldServiceManager : Singleton<WorldServiceManager>
+public class WorldServiceManager
 {
 	readonly ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler> _serviceHandlers;
 
-	WorldServiceManager()
-	{
-		_serviceHandlers = new ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler>();
+    public void LoadHandlers(IContainer container)
+    {
+        var impl = container.Resolve<IEnumerable<IWorldSessionHandler>>();
 
-		var currentAsm = Assembly.GetExecutingAssembly();
+        foreach (var handler in impl)
+        {
+            foreach (var methodInfo in handler.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public))
+            {
+                foreach (var serviceAttr in methodInfo.GetCustomAttributes<ServiceAttribute>())
+                {
+                    var key = (serviceAttr.ServiceHash, serviceAttr.MethodId);
 
-		foreach (var type in currentAsm.GetTypes())
-		{
-			foreach (var methodInfo in type.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic))
-			{
-				foreach (var serviceAttr in methodInfo.GetCustomAttributes<ServiceAttribute>())
-				{
-					if (serviceAttr == null)
-						continue;
+                    if (_serviceHandlers.ContainsKey(key))
+                    {
+                        Log.Logger.Error($"Tried to override ServiceHandler: {_serviceHandlers[key]} with {methodInfo.Name} (ServiceHash: {serviceAttr.ServiceHash} MethodId: {serviceAttr.MethodId})");
 
-					var key = (serviceAttr.ServiceHash, serviceAttr.MethodId);
+                        continue;
+                    }
 
-					if (_serviceHandlers.ContainsKey(key))
-					{
-						Log.Logger.Error($"Tried to override ServiceHandler: {_serviceHandlers[key]} with {methodInfo.Name} (ServiceHash: {serviceAttr.ServiceHash} MethodId: {serviceAttr.MethodId})");
+                    var parameters = methodInfo.GetParameters();
 
-						continue;
-					}
+                    if (parameters.Length == 0)
+                    {
+                        Log.Logger.Error($"Method: {methodInfo.Name} needs atleast one paramter");
 
-					var parameters = methodInfo.GetParameters();
-
-					if (parameters.Length == 0)
-					{
-						Log.Logger.Error($"Method: {methodInfo.Name} needs atleast one paramter");
-
-						continue;
-					}
+                        continue;
+                    }
 
 					_serviceHandlers[key] = new WorldServiceHandler(methodInfo, parameters);
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
 	public WorldServiceHandler GetHandler(uint serviceHash, uint methodId)
 	{

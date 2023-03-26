@@ -80,7 +80,7 @@ public class SmartAI : CreatureAI
 			if (!LoadPath(pathId))
 				return;
 
-		if (_path.nodes.Empty())
+		if (_path.Nodes.Empty())
 			return;
 
 		_currentWaypointNode = nodeId;
@@ -194,7 +194,7 @@ public class SmartAI : CreatureAI
 	public void EndPath(bool fail = false)
 	{
 		RemoveEscortState(SmartEscortState.Escorting | SmartEscortState.Paused | SmartEscortState.Returning);
-		_path.nodes.Clear();
+		_path.Nodes.Clear();
 		_waypointPauseTimer = 0;
 
 		if (_escortNPCFlags != 0)
@@ -333,7 +333,7 @@ public class SmartAI : CreatureAI
 		}
 		else if (HasEscortState(SmartEscortState.Escorting) && Me.MotionMaster.GetCurrentMovementGeneratorType() == MovementGeneratorType.Waypoint)
 		{
-			if (_currentWaypointNode == _path.nodes.Count)
+			if (_currentWaypointNode == _path.Nodes.Count)
 				_waypointPathEnded = true;
 			else
 				SetRun(_run);
@@ -711,8 +711,8 @@ public class SmartAI : CreatureAI
 		Me.SetWalk(!run);
 		_run = run;
 
-		foreach (var node in _path.nodes)
-			node.moveType = run ? WaypointMoveType.Run : WaypointMoveType.Walk;
+		foreach (var node in _path.Nodes)
+			node.MoveType = run ? WaypointMoveType.Run : WaypointMoveType.Walk;
 	}
 
 	public void SetDisableGravity(bool disable = true)
@@ -938,14 +938,14 @@ public class SmartAI : CreatureAI
 			return false;
 		}
 
-		_path.id = path.id;
-		_path.nodes.AddRange(path.nodes);
+		_path.ID = path.id;
+		_path.Nodes.AddRange(path.nodes);
 
-		foreach (var waypoint in _path.nodes)
+		foreach (var waypoint in _path.Nodes)
 		{
-			waypoint.x = GridDefines.NormalizeMapCoord(waypoint.x);
-			waypoint.y = GridDefines.NormalizeMapCoord(waypoint.y);
-			waypoint.moveType = _run ? WaypointMoveType.Run : WaypointMoveType.Walk;
+			waypoint.X = GridDefines.NormalizeMapCoord(waypoint.X);
+			waypoint.Y = GridDefines.NormalizeMapCoord(waypoint.Y);
+			waypoint.MoveType = _run ? WaypointMoveType.Run : WaypointMoveType.Walk;
 		}
 
 		GetScript().SetPathId(entry);

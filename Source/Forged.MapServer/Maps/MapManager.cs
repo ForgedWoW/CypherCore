@@ -455,7 +455,7 @@ public class MapManager
 	{
 		foreach (var (_, mapEntry) in _cliDB.MapStorage)
 			if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
-				new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
+				 _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
 	}
 
 	public void IncreaseScheduledScriptsCount()
