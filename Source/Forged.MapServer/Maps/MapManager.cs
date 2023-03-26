@@ -11,44 +11,58 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
-using Forged.MapServer.Server;
+using Forged.MapServer.Scenarios;
 using Framework.Collections;
 using Framework.Constants;
+using Framework.Database;
 using Framework.Threading;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Maps;
 
-public class MapManager : Singleton<MapManager>
+public class MapManager
 {
-	readonly LoopSafeDoubleDictionary<uint, uint, Map> _maps = new();
-	readonly IntervalTimer _timer = new();
-	readonly object _mapsLock = new();
-	readonly BitSet _freeInstanceIds = new(1);
-	uint _gridCleanUpDelay;
-	uint _nextInstanceId;
-	LimitedThreadTaskManager _updater;
-	uint _scheduledScripts;
+    private readonly IConfiguration _configuration;
+    private readonly CliDB _cliDB;
+    private readonly InstanceLockManager _instanceLockManager;
+    private readonly DB2Manager _db2Manager;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly ScenarioManager _scenarioManager;
+    private readonly LoopSafeDoubleDictionary<uint, uint, Map> _maps = new();
+    private readonly IntervalTimer _timer = new();
+    private readonly object _mapsLock = new();
+    private readonly BitSet _freeInstanceIds = new(1);
+    private uint _gridCleanUpDelay;
+    private uint _nextInstanceId;
+    private readonly LimitedThreadTaskManager _updater;
+    private uint _scheduledScripts;
 
-	MapManager()
+	public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager, CharacterDatabase characterDatabase, ScenarioManager scenarioManager)
     {
-        _gridCleanUpDelay = GetDefaultValue("GridCleanUpDelay", 5 * Time.Minute * Time.InMilliseconds);
-        _timer.Interval = GetDefaultValue("MapUpdateInterval", 10);
-	}
+        _configuration = configuration;
+        _cliDB = cliDB;
+        _instanceLockManager = instanceLockManager;
+        _db2Manager = db2Manager;
+        _characterDatabase = characterDatabase;
+        _scenarioManager = scenarioManager;
+        _gridCleanUpDelay = (uint)configuration.GetDefaultValue("GridCleanUpDelay", 5 * Time.Minute * Time.InMilliseconds);
+        _timer.Interval = configuration.GetDefaultValue("MapUpdateInterval", 10);
+        var numThreads = configuration.GetDefaultValue("MapUpdate.Threads", 10);
 
-	public void Initialize()
-	{
-		var numThreads = GetDefaultValue("MapUpdate.Threads", 10);
+        _updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
+    }
 
-		_updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
-	}
-
-	public void InitializeVisibilityDistanceInfo()
-	{
-		foreach (var pair in _maps.Values)
-			foreach (var map in pair.Values)
-				map.InitVisibilityDistance();
-	}
+    public void InitializeVisibilityDistanceInfo()
+    {
+        lock (_mapsLock)
+        {
+            foreach (var pair in _maps.Values)
+                foreach (var map in pair.Values)
+                    map.InitVisibilityDistance();
+        }
+    }
 
 	/// <summary>
 	///  create the instance if it's not created already
@@ -56,21 +70,20 @@ public class MapManager : Singleton<MapManager>
 	/// </summary>
 	/// <param name="mapId"> </param>
 	/// <param name="player"> </param>
-	/// <param name="loginInstanceId"> </param>
 	/// <returns> the right instance for the object, based on its InstanceId </returns>
 	public Map CreateMap(uint mapId, Player player)
 	{
 		if (!player)
 			return null;
 
-		var entry = CliDB.MapStorage.LookupByKey(mapId);
+		var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
 		if (entry == null)
 			return null;
 
 		lock (_mapsLock)
 		{
-			Map map = null;
+			Map map;
 			uint newInstanceId = 0; // instanceId of the resulting map
 
 			if (entry.IsBattlegroundOrArena())
@@ -104,9 +117,9 @@ public class MapManager : Singleton<MapManager>
 			{
 				var group = player.Group;
 				var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
-				MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
+				MapDb2Entries entries = new(entry, _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 				var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
-				var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
+				var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, entries);
 
 				if (instanceLock != null)
 				{
@@ -120,13 +133,13 @@ public class MapManager : Singleton<MapManager>
 				{
 					// Try finding instance id for normal dungeon
 					if (!entries.MapDifficulty.HasResetSchedule())
-						newInstanceId = group ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
+						newInstanceId = group != null ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
 
 					// If not found or instance is not a normal dungeon, generate new one
 					if (newInstanceId == 0)
 						newInstanceId = GenerateInstanceId();
 
-					instanceLock = Global.InstanceLockMgr.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
+					instanceLock = _instanceLockManager.CreateInstanceLockForNewInstance(instanceOwnerGuid, entries, newInstanceId);
 				}
 
 				// it is possible that the save exists but the map doesn't
@@ -144,7 +157,7 @@ public class MapManager : Singleton<MapManager>
 				{
 					map = CreateInstance(mapId, newInstanceId, instanceLock, difficulty, player.TeamId, group);
 
-					if (group)
+					if (group != null)
 						group.SetRecentInstance(mapId, instanceOwnerGuid, newInstanceId);
 					else
 						player.SetRecentInstance(mapId, newInstanceId);
@@ -171,7 +184,7 @@ public class MapManager : Singleton<MapManager>
 					map = CreateWorldMap(mapId, newInstanceId);
 			}
 
-			if (map)
+			if (map != null)
 				_maps.Add(map.Id, map.InstanceId, map);
 
 			return map;
@@ -188,53 +201,52 @@ public class MapManager : Singleton<MapManager>
 
 	public uint FindInstanceIdForPlayer(uint mapId, Player player)
 	{
-		var entry = CliDB.MapStorage.LookupByKey(mapId);
+		var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
 		if (entry == null)
 			return 0;
 
 		if (entry.IsBattlegroundOrArena())
-		{
-			return player.BattlegroundId;
-		}
-		else if (entry.IsDungeon())
-		{
-			var group = player.Group;
-			var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
-			MapDb2Entries entries = new(entry, Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty));
+            return player.BattlegroundId;
 
-			var instanceOwnerGuid = group ? group.GetRecentInstanceOwner(mapId) : player.GUID;
-			var instanceLock = Global.InstanceLockMgr.FindActiveInstanceLock(instanceOwnerGuid, entries);
-			uint newInstanceId = 0;
+        if (entry.IsDungeon())
+        {
+            var group = player.Group;
+            var difficulty = group != null ? group.GetDifficultyID(entry) : player.GetDifficultyId(entry);
+            MapDb2Entries entries = new(entry, _db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty));
 
-			if (instanceLock != null)
-				newInstanceId = instanceLock.GetInstanceId();
-			else if (!entries.MapDifficulty.HasResetSchedule()) // Try finding instance id for normal dungeon
-				newInstanceId = group ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
+            var instanceOwnerGuid = group != null ? group.GetRecentInstanceOwner(mapId) : player.GUID;
+            var instanceLock = _instanceLockManager.FindActiveInstanceLock(instanceOwnerGuid, entries);
+            uint newInstanceId = 0;
 
-			if (newInstanceId == 0)
-				return 0;
+            if (instanceLock != null)
+                newInstanceId = instanceLock.GetInstanceId();
+            else if (!entries.MapDifficulty.HasResetSchedule()) // Try finding instance id for normal dungeon
+                newInstanceId = group != null ? group.GetRecentInstanceId(mapId) : player.GetRecentInstanceId(mapId);
 
-			var map = FindMap(mapId, newInstanceId);
+            if (newInstanceId == 0)
+                return 0;
 
-			// is is possible that instance id is already in use by another group for boss-based locks
-			if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
-				return 0;
+            var map = FindMap(mapId, newInstanceId);
 
-			return newInstanceId;
-		}
-		else if (entry.IsGarrison())
-		{
-			return (uint)player.GUID.Counter;
-		}
-		else
-		{
-			if (entry.IsSplitByFaction())
-				return (uint)player.TeamId;
+            // is is possible that instance id is already in use by another group for boss-based locks
+            if (!entries.IsInstanceIdBound() && instanceLock != null && map != null && map.ToInstanceMap.InstanceLock != instanceLock)
+                return 0;
 
-			return 0;
-		}
-	}
+            return newInstanceId;
+        }
+        else if (entry.IsGarrison())
+        {
+            return (uint)player.GUID.Counter;
+        }
+        else
+        {
+            if (entry.IsSplitByFaction())
+                return (uint)player.TeamId;
+
+            return 0;
+        }
+    }
 
 	public void Update(uint diff)
 	{
@@ -245,53 +257,61 @@ public class MapManager : Singleton<MapManager>
 
 		var time = (uint)_timer.Current;
 
-		foreach (var mapkvp in _maps)
-			foreach (var instanceKvp in mapkvp.Value)
-			{
-				if (instanceKvp.Value.CanUnload(diff))
-				{
-					_updater.Schedule(() =>
-					{
-						if (DestroyMap(instanceKvp.Value))
-							_maps.QueueRemove(mapkvp.Key, instanceKvp.Key);
-					});
+        lock (_mapsLock)
+        {
+            foreach (var mapkvp in _maps)
+                foreach (var instanceKvp in mapkvp.Value)
+                {
+                    if (instanceKvp.Value.CanUnload(diff))
+                    {
+                        _updater.Schedule(() =>
+                        {
+                            if (DestroyMap(instanceKvp.Value))
+                                _maps.QueueRemove(mapkvp.Key, instanceKvp.Key);
+                        });
 
-					continue;
-				}
+                        continue;
+                    }
 
-				_updater.Schedule(() => instanceKvp.Value.Update(time));
-			}
+                    _updater.Schedule(() => instanceKvp.Value.Update(time));
+                }
 
-		_updater.Wait();
-		_maps.ExecuteRemove();
 
-		foreach (var kvp in _maps.Values)
-			foreach (var map in kvp.Values)
-				_updater.Stage(() => map.DelayedUpdate(time));
+            _updater.Wait();
 
-		_updater.Wait();
+            _maps.ExecuteRemove();
+
+            foreach (var kvp in _maps.Values)
+                foreach (var map in kvp.Values)
+                    _updater.Stage(() => map.DelayedUpdate(time));
+        }
+
+        _updater.Wait();
 		_timer.Current = 0;
 	}
 
-	public bool IsValidMAP(uint mapId)
+	public bool IsValidMap(uint mapId)
 	{
-		return CliDB.MapStorage.ContainsKey(mapId);
+		return _cliDB.MapStorage.ContainsKey(mapId);
 	}
 
 	public void UnloadAll()
 	{
 		// first unload maps
-		foreach (var pair in _maps.Values)
-			foreach (var map in pair.Values)
-				map.UnloadAll();
+        lock (_mapsLock)
+        {
+            foreach (var pair in _maps.Values)
+                foreach (var map in pair.Values)
+                    map.UnloadAll();
 
-		foreach (var pair in _maps.Values)
-			foreach (var map in pair.Values)
-				map.Dispose();
+            foreach (var pair in _maps.Values)
+                foreach (var map in pair.Values)
+                    map.Dispose();
 
-		_maps.Clear();
+            _maps.Clear();
+        }
 
-		if (_updater != null)
+        if (_updater != null)
 			_updater.Deactivate();
 	}
 
@@ -316,12 +336,12 @@ public class MapManager : Singleton<MapManager>
 		_nextInstanceId = 1;
 
 		ulong maxExistingInstanceId = 0;
-		var result = DB.Characters.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance");
+		var result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM instance");
 
 		if (!result.IsEmpty())
 			maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
 
-		result = DB.Characters.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock");
+		result = _characterDatabase.Query("SELECT IFNULL(MAX(instanceId), 0) FROM character_instance_lock");
 
 		if (!result.IsEmpty())
 			maxExistingInstanceId = Math.Max(maxExistingInstanceId, result.Read<ulong>(0));
@@ -344,15 +364,10 @@ public class MapManager : Singleton<MapManager>
 
 	public uint GenerateInstanceId()
 	{
-		if (_nextInstanceId == 0xFFFFFFFF)
-		{
-			Log.Logger.Error("Instance ID overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
+		if (_nextInstanceId == uint.MaxValue)
+            _nextInstanceId = 1;
 
-			return _nextInstanceId;
-		}
-
-		var newInstanceId = _nextInstanceId;
+        var newInstanceId = _nextInstanceId;
 		_freeInstanceIds[(int)newInstanceId] = false;
 
 		// Find the lowest available id starting from the current NextInstanceId (which should be the lowest according to the logic in FreeInstanceId()
@@ -427,17 +442,18 @@ public class MapManager : Singleton<MapManager>
 	public void DoForAllMapsWithMapId(uint mapId, Action<Map> worker)
 	{
 		lock (_mapsLock)
-		{
-			if (_maps.TryGetValue(mapId, out var instanceDict))
-				foreach (var kvp in instanceDict)
-					if (kvp.Key >= 0)
-						worker(kvp.Value);
-		}
+        {
+            if (!_maps.TryGetValue(mapId, out var instanceDict))
+                return;
+
+            foreach (var kvp in instanceDict)
+                worker(kvp.Value);
+        }
 	}
 
 	public void AddSC_BuiltInScripts()
 	{
-		foreach (var (_, mapEntry) in CliDB.MapStorage)
+		foreach (var (_, mapEntry) in _cliDB.MapStorage)
 			if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
 				new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
 	}
@@ -473,7 +489,7 @@ public class MapManager : Singleton<MapManager>
 		map.LoadRespawnTimes();
 		map.LoadCorpseData();
 
-		if (GetDefaultValue("BaseMapLoadAllGrids", false))
+		if (_configuration.GetDefaultValue("BaseMapLoadAllGrids", false))
 			map.LoadAllCells();
 
 		return map;
@@ -482,7 +498,7 @@ public class MapManager : Singleton<MapManager>
 	InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, PlayerGroup group)
 	{
 		// make sure we have a valid map id
-		var entry = CliDB.MapStorage.LookupByKey(mapId);
+		var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
 		if (entry == null)
 		{
@@ -493,7 +509,7 @@ public class MapManager : Singleton<MapManager>
 		}
 
 		// some instances only have one difficulty
-		Global.DB2Mgr.GetDownscaledMapDifficultyData(mapId, ref difficulty);
+		_db2Manager.GetDownscaledMapDifficultyData(mapId, ref difficulty);
 
 		Log.Logger.Debug($"MapInstanced::CreateInstance: {(instanceLock?.GetInstanceId() != 0 ? "" : "new ")}map instance {instanceId} for {mapId} created with difficulty {difficulty}");
 
@@ -506,9 +522,9 @@ public class MapManager : Singleton<MapManager>
 			map.TrySetOwningGroup(group);
 
 		map.CreateInstanceData();
-		map.SetInstanceScenario(Global.ScenarioMgr.CreateInstanceScenario(map, team));
+		map.SetInstanceScenario(_scenarioManager.CreateInstanceScenario(map, team));
 
-		if (GetDefaultValue("InstanceMapLoadAllGrids", false))
+		if (_configuration.GetDefaultValue("InstanceMapLoadAllGrids", false))
 			map.LoadAllCells();
 
 		return map;
