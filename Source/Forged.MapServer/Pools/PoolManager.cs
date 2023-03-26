@@ -4,15 +4,20 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Pools;
 
-public class PoolManager : Singleton<PoolManager>
+public class PoolManager
 {
-	public enum QuestTypes
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _objectManager;
+
+    public enum QuestTypes
 	{
 		None = 0,
 		Daily = 1,
@@ -29,7 +34,12 @@ public class PoolManager : Singleton<PoolManager>
     private readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
     private readonly Dictionary<ulong, uint> _poolSearchMap = new();
     private readonly MultiMap<uint, uint> _autoSpawnPoolsPerMap = new();
-    private PoolManager() { }
+
+    public PoolManager(WorldDatabase worldDatabase, GameObjectManager objectManager)
+    {
+        _worldDatabase = worldDatabase;
+        _objectManager = objectManager;
+    }
 
 	public void Initialize()
 	{
@@ -43,7 +53,7 @@ public class PoolManager : Singleton<PoolManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT entry, max_limit FROM pool_template");
+			var result = _worldDatabase.Query("SELECT entry, max_limit FROM pool_template");
 
 			if (result.IsEmpty())
 			{
@@ -57,7 +67,7 @@ public class PoolManager : Singleton<PoolManager>
 
 			do
 			{
-				var pool_id = result.Read<uint>(0);
+				var poolID = result.Read<uint>(0);
 
 				PoolTemplateData pPoolTemplate = new()
 				{
@@ -65,7 +75,7 @@ public class PoolManager : Singleton<PoolManager>
 					MapId = -1
 				};
 
-				_poolTemplate[pool_id] = pPoolTemplate;
+				_poolTemplate[poolID] = pPoolTemplate;
 				++count;
 			} while (result.NextRow());
 
@@ -80,7 +90,7 @@ public class PoolManager : Singleton<PoolManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
-			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
+			var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 0");
 
 			if (result.IsEmpty())
 			{
@@ -93,54 +103,54 @@ public class PoolManager : Singleton<PoolManager>
 				do
 				{
 					var guid = result.Read<ulong>(0);
-					var pool_id = result.Read<uint>(1);
+					var poolID = result.Read<uint>(1);
 					var chance = result.Read<float>(2);
 
-					var data = Global.ObjectMgr.GetCreatureData(guid);
+					var data = _objectManager.GetCreatureData(guid);
 
 					if (data == null)
 					{
-						Log.Logger.Error("`pool_creature` has a non existing creature spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, pool_id);
+						Log.Logger.Error("`pool_creature` has a non existing creature spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, poolID);
 
 						continue;
 					}
 
-					if (!_poolTemplate.ContainsKey(pool_id))
+					if (!_poolTemplate.ContainsKey(poolID))
 					{
-						Log.Logger.Error("`pool_creature` pool id ({0}) is not in `pool_template`, skipped.", pool_id);
+						Log.Logger.Error("`pool_creature` pool id ({0}) is not in `pool_template`, skipped.", poolID);
 
 						continue;
 					}
 
 					if (chance < 0 || chance > 100)
 					{
-						Log.Logger.Error("`pool_creature` has an invalid chance ({0}) for creature guid ({1}) in pool id ({2}), skipped.", chance, guid, pool_id);
+						Log.Logger.Error("`pool_creature` has an invalid chance ({0}) for creature guid ({1}) in pool id ({2}), skipped.", chance, guid, poolID);
 
 						continue;
 					}
 
-					var pPoolTemplate = _poolTemplate[pool_id];
+					var pPoolTemplate = _poolTemplate[poolID];
 
 					if (pPoolTemplate.MapId == -1)
 						pPoolTemplate.MapId = (int)data.MapId;
 
 					if (pPoolTemplate.MapId != data.MapId)
 					{
-						Log.Logger.Error($"`pool_creature` has creature spawns on multiple different maps for creature guid ({guid}) in pool id ({pool_id}), skipped.");
+						Log.Logger.Error($"`pool_creature` has creature spawns on multiple different maps for creature guid ({guid}) in pool id ({poolID}), skipped.");
 
 						continue;
 					}
 
 					PoolObject plObject = new(guid, chance);
 
-					if (!_poolCreatureGroups.ContainsKey(pool_id))
-						_poolCreatureGroups[pool_id] = new PoolGroup<Creature>();
+					if (!_poolCreatureGroups.ContainsKey(poolID))
+						_poolCreatureGroups[poolID] = new PoolGroup<Creature>();
 
-					var cregroup = _poolCreatureGroups[pool_id];
-					cregroup.SetPoolId(pool_id);
+					var cregroup = _poolCreatureGroups[poolID];
+					cregroup.SetPoolId(poolID);
 					cregroup.AddEntry(plObject, pPoolTemplate.MaxLimit);
 
-					_creatureSearchMap.Add(guid, pool_id);
+					_creatureSearchMap.Add(guid, poolID);
 					++count;
 				} while (result.NextRow());
 
@@ -156,7 +166,7 @@ public class PoolManager : Singleton<PoolManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
-			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
+			var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 1");
 
 			if (result.IsEmpty())
 			{
@@ -169,54 +179,54 @@ public class PoolManager : Singleton<PoolManager>
 				do
 				{
 					var guid = result.Read<ulong>(0);
-					var pool_id = result.Read<uint>(1);
+					var poolID = result.Read<uint>(1);
 					var chance = result.Read<float>(2);
 
-					var data = Global.ObjectMgr.GetGameObjectData(guid);
+					var data = _objectManager.GetGameObjectData(guid);
 
 					if (data == null)
 					{
-						Log.Logger.Error("`pool_gameobject` has a non existing gameobject spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, pool_id);
+						Log.Logger.Error("`pool_gameobject` has a non existing gameobject spawn (GUID: {0}) defined for pool id ({1}), skipped.", guid, poolID);
 
 						continue;
 					}
 
-					if (!_poolTemplate.ContainsKey(pool_id))
+					if (!_poolTemplate.ContainsKey(poolID))
 					{
-						Log.Logger.Error("`pool_gameobject` pool id ({0}) is not in `pool_template`, skipped.", pool_id);
+						Log.Logger.Error("`pool_gameobject` pool id ({0}) is not in `pool_template`, skipped.", poolID);
 
 						continue;
 					}
 
 					if (chance < 0 || chance > 100)
 					{
-						Log.Logger.Error("`pool_gameobject` has an invalid chance ({0}) for gameobject guid ({1}) in pool id ({2}), skipped.", chance, guid, pool_id);
+						Log.Logger.Error("`pool_gameobject` has an invalid chance ({0}) for gameobject guid ({1}) in pool id ({2}), skipped.", chance, guid, poolID);
 
 						continue;
 					}
 
-					var pPoolTemplate = _poolTemplate[pool_id];
+					var pPoolTemplate = _poolTemplate[poolID];
 
 					if (pPoolTemplate.MapId == -1)
 						pPoolTemplate.MapId = (int)data.MapId;
 
 					if (pPoolTemplate.MapId != data.MapId)
 					{
-						Log.Logger.Error($"`pool_gameobject` has gameobject spawns on multiple different maps for gameobject guid ({guid}) in pool id ({pool_id}), skipped.");
+						Log.Logger.Error($"`pool_gameobject` has gameobject spawns on multiple different maps for gameobject guid ({guid}) in pool id ({poolID}), skipped.");
 
 						continue;
 					}
 
 					PoolObject plObject = new(guid, chance);
 
-					if (!_poolGameobjectGroups.ContainsKey(pool_id))
-						_poolGameobjectGroups[pool_id] = new PoolGroup<GameObject>();
+					if (!_poolGameobjectGroups.ContainsKey(poolID))
+						_poolGameobjectGroups[poolID] = new PoolGroup<GameObject>();
 
-					var gogroup = _poolGameobjectGroups[pool_id];
-					gogroup.SetPoolId(pool_id);
+					var gogroup = _poolGameobjectGroups[poolID];
+					gogroup.SetPoolId(poolID);
 					gogroup.AddEntry(plObject, pPoolTemplate.MaxLimit);
 
-					_gameobjectSearchMap.Add(guid, pool_id);
+					_gameobjectSearchMap.Add(guid, poolID);
 					++count;
 				} while (result.NextRow());
 
@@ -232,7 +242,7 @@ public class PoolManager : Singleton<PoolManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         1        2            3
-			var result = DB.World.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
+			var result = _worldDatabase.Query("SELECT spawnId, poolSpawnId, chance FROM pool_members WHERE type = 2");
 
 			if (result.IsEmpty())
 			{
@@ -244,49 +254,49 @@ public class PoolManager : Singleton<PoolManager>
 
 				do
 				{
-					var child_pool_id = result.Read<uint>(0);
-					var mother_pool_id = result.Read<uint>(1);
+					var childPoolID = result.Read<uint>(0);
+					var motherPoolID = result.Read<uint>(1);
 					var chance = result.Read<float>(2);
 
-					if (!_poolTemplate.ContainsKey(mother_pool_id))
+					if (!_poolTemplate.ContainsKey(motherPoolID))
 					{
-						Log.Logger.Error("`pool_pool` mother_pool id ({0}) is not in `pool_template`, skipped.", mother_pool_id);
+						Log.Logger.Error("`pool_pool` mother_pool id ({0}) is not in `pool_template`, skipped.", motherPoolID);
 
 						continue;
 					}
 
-					if (!_poolTemplate.ContainsKey(child_pool_id))
+					if (!_poolTemplate.ContainsKey(childPoolID))
 					{
-						Log.Logger.Error("`pool_pool` included pool_id ({0}) is not in `pool_template`, skipped.", child_pool_id);
+						Log.Logger.Error("`pool_pool` included pool_id ({0}) is not in `pool_template`, skipped.", childPoolID);
 
 						continue;
 					}
 
-					if (mother_pool_id == child_pool_id)
+					if (motherPoolID == childPoolID)
 					{
-						Log.Logger.Error("`pool_pool` pool_id ({0}) includes itself, dead-lock detected, skipped.", child_pool_id);
+						Log.Logger.Error("`pool_pool` pool_id ({0}) includes itself, dead-lock detected, skipped.", childPoolID);
 
 						continue;
 					}
 
 					if (chance < 0 || chance > 100)
 					{
-						Log.Logger.Error("`pool_pool` has an invalid chance ({0}) for pool id ({1}) in mother pool id ({2}), skipped.", chance, child_pool_id, mother_pool_id);
+						Log.Logger.Error("`pool_pool` has an invalid chance ({0}) for pool id ({1}) in mother pool id ({2}), skipped.", chance, childPoolID, motherPoolID);
 
 						continue;
 					}
 
-					var pPoolTemplateMother = _poolTemplate[mother_pool_id];
-					PoolObject plObject = new(child_pool_id, chance);
+					var pPoolTemplateMother = _poolTemplate[motherPoolID];
+					PoolObject plObject = new(childPoolID, chance);
 
-					if (!_poolPoolGroups.ContainsKey(mother_pool_id))
-						_poolPoolGroups[mother_pool_id] = new PoolGroup<Pool>();
+					if (!_poolPoolGroups.ContainsKey(motherPoolID))
+						_poolPoolGroups[motherPoolID] = new PoolGroup<Pool>();
 
-					var plgroup = _poolPoolGroups[mother_pool_id];
-					plgroup.SetPoolId(mother_pool_id);
+					var plgroup = _poolPoolGroups[motherPoolID];
+					plgroup.SetPoolId(motherPoolID);
 					plgroup.AddEntry(plObject, pPoolTemplateMother.MaxLimit);
 
-					_poolSearchMap.Add(child_pool_id, mother_pool_id);
+					_poolSearchMap.Add(childPoolID, motherPoolID);
 					++count;
 				} while (result.NextRow());
 
@@ -355,7 +365,7 @@ public class PoolManager : Singleton<PoolManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			var result = DB.World.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template" +
+			var result = _worldDatabase.Query("SELECT DISTINCT pool_template.entry, pool_members.spawnId, pool_members.poolSpawnId FROM pool_template" +
 										" LEFT JOIN game_event_pool ON pool_template.entry=game_event_pool.pool_entry" +
 										" LEFT JOIN pool_members ON pool_members.type = 2 AND pool_template.entry = pool_members.spawnId WHERE game_event_pool.pool_entry IS NULL");
 
@@ -369,28 +379,28 @@ public class PoolManager : Singleton<PoolManager>
 
 				do
 				{
-					var pool_entry = result.Read<uint>(0);
-					var pool_pool_id = result.Read<uint>(1);
+					var poolEntry = result.Read<uint>(0);
+					var poolPoolID = result.Read<uint>(1);
 
-					if (IsEmpty(pool_entry))
+					if (IsEmpty(poolEntry))
 						continue;
 
-					if (!CheckPool(pool_entry))
+					if (!CheckPool(poolEntry))
 					{
-						if (pool_pool_id != 0)
+						if (poolPoolID != 0)
 							// The pool is a child pool in pool_pool table. Ideally we should remove it from the pool handler to ensure it never gets spawned,
 							// however that could recursively invalidate entire chain of mother pools. It can be done in the future but for now we'll do nothing.
-							Log.Logger.Error("Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id {1} and cannot be safely removed.", pool_entry, result.Read<uint>(2));
+							Log.Logger.Error("Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. This broken pool is a child pool of Id {1} and cannot be safely removed.", poolEntry, result.Read<uint>(2));
 						else
-							Log.Logger.Error("Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", pool_entry);
+							Log.Logger.Error("Pool Id {0} has no equal chance pooled entites defined and explicit chance sum is not 100. The pool will not be spawned.", poolEntry);
 
 						continue;
 					}
 
 					// Don't spawn child pools, they are spawned recursively by their parent pools
-					if (pool_pool_id == 0)
+					if (poolPoolID == 0)
 					{
-						_autoSpawnPoolsPerMap.Add((uint)_poolTemplate[pool_entry].MapId, pool_entry);
+						_autoSpawnPoolsPerMap.Add((uint)_poolTemplate[poolEntry].MapId, poolEntry);
 						count++;
 					}
 				} while (result.NextRow());
@@ -400,73 +410,73 @@ public class PoolManager : Singleton<PoolManager>
 		}
 	}
 
-	public void SpawnPool(SpawnedPoolData spawnedPoolData, uint pool_id)
+	public void SpawnPool(SpawnedPoolData spawnedPoolData, uint poolID)
 	{
-		SpawnPool<Pool>(spawnedPoolData, pool_id, 0);
-		SpawnPool<GameObject>(spawnedPoolData, pool_id, 0);
-		SpawnPool<Creature>(spawnedPoolData, pool_id, 0);
+		SpawnPool<Pool>(spawnedPoolData, poolID, 0);
+		SpawnPool<GameObject>(spawnedPoolData, poolID, 0);
+		SpawnPool<Creature>(spawnedPoolData, poolID, 0);
 	}
 
-	public void DespawnPool(SpawnedPoolData spawnedPoolData, uint pool_id, bool alwaysDeleteRespawnTime = false)
+	public void DespawnPool(SpawnedPoolData spawnedPoolData, uint poolID, bool alwaysDeleteRespawnTime = false)
 	{
-		if (_poolCreatureGroups.ContainsKey(pool_id) && !_poolCreatureGroups[pool_id].IsEmpty())
-			_poolCreatureGroups[pool_id].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
+		if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].IsEmpty())
+			_poolCreatureGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
 
-		if (_poolGameobjectGroups.ContainsKey(pool_id) && !_poolGameobjectGroups[pool_id].IsEmpty())
-			_poolGameobjectGroups[pool_id].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
+		if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].IsEmpty())
+			_poolGameobjectGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
 
-		if (_poolPoolGroups.ContainsKey(pool_id) && !_poolPoolGroups[pool_id].IsEmpty())
-			_poolPoolGroups[pool_id].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
+		if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].IsEmpty())
+			_poolPoolGroups[poolID].DespawnObject(spawnedPoolData, 0, alwaysDeleteRespawnTime);
 	}
 
-	public bool IsEmpty(uint pool_id)
+	public bool IsEmpty(uint poolID)
 	{
-		if (_poolGameobjectGroups.TryGetValue(pool_id, out var gameobjectPool) && !gameobjectPool.IsEmptyDeepCheck())
+		if (_poolGameobjectGroups.TryGetValue(poolID, out var gameobjectPool) && !gameobjectPool.IsEmptyDeepCheck())
 			return false;
 
-		if (_poolCreatureGroups.TryGetValue(pool_id, out var creaturePool) && !creaturePool.IsEmptyDeepCheck())
+		if (_poolCreatureGroups.TryGetValue(poolID, out var creaturePool) && !creaturePool.IsEmptyDeepCheck())
 			return false;
 
-		if (_poolPoolGroups.TryGetValue(pool_id, out var pool) && !pool.IsEmptyDeepCheck())
+		if (_poolPoolGroups.TryGetValue(poolID, out var pool) && !pool.IsEmptyDeepCheck())
 			return false;
 
 		return true;
 	}
 
-	public bool CheckPool(uint pool_id)
+	public bool CheckPool(uint poolID)
 	{
-		if (_poolGameobjectGroups.ContainsKey(pool_id) && !_poolGameobjectGroups[pool_id].CheckPool())
+		if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].CheckPool())
 			return false;
 
-		if (_poolCreatureGroups.ContainsKey(pool_id) && !_poolCreatureGroups[pool_id].CheckPool())
+		if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].CheckPool())
 			return false;
 
-		if (_poolPoolGroups.ContainsKey(pool_id) && !_poolPoolGroups[pool_id].CheckPool())
+		if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].CheckPool())
 			return false;
 
 		return true;
 	}
 
-	public void UpdatePool<T>(SpawnedPoolData spawnedPoolData, uint pool_id, ulong db_guid_or_pool_id)
+	public void UpdatePool<T>(SpawnedPoolData spawnedPoolData, uint poolID, ulong dbGuidOrPoolID)
 	{
-		var motherpoolid = IsPartOfAPool<Pool>(pool_id);
+		var motherpoolid = IsPartOfAPool<Pool>(poolID);
 
 		if (motherpoolid != 0)
-			SpawnPool<Pool>(spawnedPoolData, motherpoolid, pool_id);
+			SpawnPool<Pool>(spawnedPoolData, motherpoolid, poolID);
 		else
-			SpawnPool<T>(spawnedPoolData, pool_id, db_guid_or_pool_id);
+			SpawnPool<T>(spawnedPoolData, poolID, dbGuidOrPoolID);
 	}
 
-	public void UpdatePool(SpawnedPoolData spawnedPoolData, uint pool_id, SpawnObjectType type, ulong spawnId)
+	public void UpdatePool(SpawnedPoolData spawnedPoolData, uint poolID, SpawnObjectType type, ulong spawnId)
 	{
 		switch (type)
 		{
 			case SpawnObjectType.Creature:
-				UpdatePool<Creature>(spawnedPoolData, pool_id, spawnId);
+				UpdatePool<Creature>(spawnedPoolData, poolID, spawnId);
 
 				break;
 			case SpawnObjectType.GameObject:
-				UpdatePool<GameObject>(spawnedPoolData, pool_id, spawnId);
+				UpdatePool<GameObject>(spawnedPoolData, poolID, spawnId);
 
 				break;
 		}
@@ -484,21 +494,21 @@ public class PoolManager : Singleton<PoolManager>
 		return spawnedPoolData;
 	}
 
-	public PoolTemplateData GetPoolTemplate(uint pool_id)
+	public PoolTemplateData GetPoolTemplate(uint poolID)
 	{
-		return _poolTemplate.LookupByKey(pool_id);
+		return _poolTemplate.LookupByKey(poolID);
 	}
 
-	public uint IsPartOfAPool<T>(ulong db_guid)
+	public uint IsPartOfAPool<T>(ulong dbGuid)
 	{
 		switch (typeof(T).Name)
 		{
 			case "Creature":
-				return _creatureSearchMap.LookupByKey(db_guid);
+				return _creatureSearchMap.LookupByKey(dbGuid);
 			case "GameObject":
-				return _gameobjectSearchMap.LookupByKey(db_guid);
+				return _gameobjectSearchMap.LookupByKey(dbGuid);
 			case "Pool":
-				return _poolSearchMap.LookupByKey(db_guid);
+				return _poolSearchMap.LookupByKey(dbGuid);
 		}
 
 		return 0;
@@ -520,38 +530,38 @@ public class PoolManager : Singleton<PoolManager>
 		}
 	}
 
-	public bool IsSpawnedObject<T>(ulong db_guid_or_pool_id)
+	public bool IsSpawnedObject<T>(ulong dbGuidOrPoolID)
 	{
 		switch (typeof(T).Name)
 		{
 			case "Creature":
-				return _creatureSearchMap.ContainsKey(db_guid_or_pool_id);
+				return _creatureSearchMap.ContainsKey(dbGuidOrPoolID);
 			case "GameObject":
-				return _gameobjectSearchMap.ContainsKey(db_guid_or_pool_id);
+				return _gameobjectSearchMap.ContainsKey(dbGuidOrPoolID);
 			case "Pool":
-				return _poolSearchMap.ContainsKey(db_guid_or_pool_id);
+				return _poolSearchMap.ContainsKey(dbGuidOrPoolID);
 		}
 
 		return false;
 	}
 
-    private void SpawnPool<T>(SpawnedPoolData spawnedPoolData, uint pool_id, ulong db_guid)
+    private void SpawnPool<T>(SpawnedPoolData spawnedPoolData, uint poolID, ulong dbGuid)
 	{
 		switch (typeof(T).Name)
 		{
 			case "Creature":
-				if (_poolCreatureGroups.ContainsKey(pool_id) && !_poolCreatureGroups[pool_id].IsEmpty())
-					_poolCreatureGroups[pool_id].SpawnObject(spawnedPoolData, _poolTemplate[pool_id].MaxLimit, db_guid);
+				if (_poolCreatureGroups.ContainsKey(poolID) && !_poolCreatureGroups[poolID].IsEmpty())
+					_poolCreatureGroups[poolID].SpawnObject(spawnedPoolData, _poolTemplate[poolID].MaxLimit, dbGuid);
 
 				break;
 			case "GameObject":
-				if (_poolGameobjectGroups.ContainsKey(pool_id) && !_poolGameobjectGroups[pool_id].IsEmpty())
-					_poolGameobjectGroups[pool_id].SpawnObject(spawnedPoolData, _poolTemplate[pool_id].MaxLimit, db_guid);
+				if (_poolGameobjectGroups.ContainsKey(poolID) && !_poolGameobjectGroups[poolID].IsEmpty())
+					_poolGameobjectGroups[poolID].SpawnObject(spawnedPoolData, _poolTemplate[poolID].MaxLimit, dbGuid);
 
 				break;
 			case "Pool":
-				if (_poolPoolGroups.ContainsKey(pool_id) && !_poolPoolGroups[pool_id].IsEmpty())
-					_poolPoolGroups[pool_id].SpawnObject(spawnedPoolData, _poolTemplate[pool_id].MaxLimit, db_guid);
+				if (_poolPoolGroups.ContainsKey(poolID) && !_poolPoolGroups[poolID].IsEmpty())
+					_poolPoolGroups[poolID].SpawnObject(spawnedPoolData, _poolTemplate[poolID].MaxLimit, dbGuid);
 
 				break;
 		}

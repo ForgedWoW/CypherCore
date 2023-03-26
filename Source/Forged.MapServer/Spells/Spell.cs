@@ -3358,7 +3358,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception e)
 			{
-				Log.outException(e);
+				Log.Logger.Error(e);
 			}
 	}
 
@@ -8847,7 +8847,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -8864,7 +8864,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -8881,7 +8881,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -8898,7 +8898,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -8920,7 +8920,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return retVal;
@@ -8937,7 +8937,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return castTime;
@@ -9000,7 +9000,7 @@ public partial class Spell : IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex);
 		}
 
 		return preventDefault;
@@ -9020,7 +9020,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -9039,7 +9039,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -9058,7 +9058,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -9077,7 +9077,7 @@ public partial class Spell : IDisposable
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 

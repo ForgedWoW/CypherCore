@@ -6,15 +6,17 @@ using System.Linq;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.SupportSystem;
 
-public class SupportManager : Singleton<SupportManager>
+public class SupportManager 
 {
+    private readonly CharacterDatabase _characterDatabase;
     private readonly Dictionary<uint, BugTicket> _bugTicketList = new();
     private readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
     private readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
@@ -31,27 +33,32 @@ public class SupportManager : Singleton<SupportManager>
     private uint _openComplaintTicketCount;
     private uint _openSuggestionTicketCount;
     private ulong _lastChange;
-    private SupportManager() { }
+
+    public SupportManager(IConfiguration configuration, CharacterDatabase characterDatabase)
+    {
+        _characterDatabase = characterDatabase;
+        SetSupportSystemStatus(configuration.GetDefaultValue("Support.Enabled", true));
+        SetTicketSystemStatus(configuration.GetDefaultValue("Support.TicketsEnabled", false));
+        SetBugSystemStatus(configuration.GetDefaultValue("Support.BugsEnabled", false));
+        SetComplaintSystemStatus(configuration.GetDefaultValue("Support.ComplaintsEnabled", false));
+        SetSuggestionSystemStatus(configuration.GetDefaultValue("Support.SuggestionsEnabled", false));
+    }
 
 	public void Initialize()
 	{
-		SetSupportSystemStatus(GetDefaultValue("Support.Enabled", true));
-		SetTicketSystemStatus(GetDefaultValue("Support.TicketsEnabled", false));
-		SetBugSystemStatus(GetDefaultValue("Support.BugsEnabled", false));
-		SetComplaintSystemStatus(GetDefaultValue("Support.ComplaintsEnabled", false));
-		SetSuggestionSystemStatus(GetDefaultValue("Support.SuggestionsEnabled", false));
+
 	}
 
-	public T GetTicket<T>(uint Id) where T : Ticket
+	public T GetTicket<T>(uint id) where T : Ticket
 	{
 		switch (typeof(T).Name)
 		{
 			case "BugTicket":
-				return _bugTicketList.LookupByKey(Id) as T;
+				return _bugTicketList.LookupByKey(id) as T;
 			case "ComplaintTicket":
-				return _complaintTicketList.LookupByKey(Id) as T;
+				return _complaintTicketList.LookupByKey(id) as T;
 			case "SuggestionTicket":
-				return _suggestionTicketList.LookupByKey(Id) as T;
+				return _suggestionTicketList.LookupByKey(id) as T;
 		}
 
 		return default;
@@ -80,8 +87,8 @@ public class SupportManager : Singleton<SupportManager>
 		_lastBugId = 0;
 		_openBugTicketCount = 0;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_BUGS);
-		var result = DB.Characters.Query(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GM_BUGS);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -120,8 +127,8 @@ public class SupportManager : Singleton<SupportManager>
 		_lastComplaintId = 0;
 		_openComplaintTicketCount = 0;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINTS);
-		var result = DB.Characters.Query(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINTS);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -147,9 +154,9 @@ public class SupportManager : Singleton<SupportManager>
 			if (_lastComplaintId < id)
 				_lastComplaintId = id;
 
-			chatLogStmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINT_CHATLINES);
+			chatLogStmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GM_COMPLAINT_CHATLINES);
 			chatLogStmt.AddValue(0, id);
-			chatLogResult = DB.Characters.Query(stmt);
+			chatLogResult = _characterDatabase.Query(stmt);
 
 			if (!chatLogResult.IsEmpty())
 				do
@@ -172,8 +179,8 @@ public class SupportManager : Singleton<SupportManager>
 		_lastSuggestionId = 0;
 		_openSuggestionTicketCount = 0;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GM_SUGGESTIONS);
-		var result = DB.Characters.Query(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GM_SUGGESTIONS);
+		var result = _characterDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
@@ -300,8 +307,8 @@ public class SupportManager : Singleton<SupportManager>
 
 				_lastBugId = 0;
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_BUGS);
-				DB.Characters.Execute(stmt);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_BUGS);
+				_characterDatabase.Execute(stmt);
 
 				break;
 			case "ComplaintTicket":
@@ -310,9 +317,9 @@ public class SupportManager : Singleton<SupportManager>
 				_lastComplaintId = 0;
 
 				SQLTransaction trans = new();
-				trans.Append(DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINTS));
-				trans.Append(DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINT_CHATLOGS));
-				DB.Characters.CommitTransaction(trans);
+				trans.Append(_characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINTS));
+				trans.Append(_characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_COMPLAINT_CHATLOGS));
+				_characterDatabase.CommitTransaction(trans);
 
 				break;
 			case "SuggestionTicket":
@@ -320,8 +327,8 @@ public class SupportManager : Singleton<SupportManager>
 
 				_lastSuggestionId = 0;
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_ALL_GM_SUGGESTIONS);
-				DB.Characters.Execute(stmt);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_ALL_GM_SUGGESTIONS);
+				_characterDatabase.Execute(stmt);
 
 				break;
 		}

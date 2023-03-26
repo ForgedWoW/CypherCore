@@ -8,16 +8,30 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Maps;
 using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Scenarios;
 
-public class ScenarioManager : Singleton<ScenarioManager>
+public class ScenarioManager
 {
+    private readonly WorldDatabase _worldDatabase;
+    private readonly IConfiguration _configuration;
+    private readonly CriteriaManager _criteriaManager;
+    private readonly CliDB _cliDB;
     private readonly Dictionary<uint, ScenarioData> _scenarioData = new();
     private readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
     private readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
-    private ScenarioManager() { }
+
+    public ScenarioManager(WorldDatabase worldDatabase, IConfiguration configuration, CriteriaManager criteriaManager, CliDB cliDB)
+    {
+        _worldDatabase = worldDatabase;
+        _configuration = configuration;
+        _criteriaManager = criteriaManager;
+        _cliDB = cliDB;
+    }
 
 	public InstanceScenario CreateInstanceScenario(InstanceMap map, int team)
 	{
@@ -38,8 +52,6 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			case TeamIds.Horde:
 				scenarioID = dbData.Scenario_H;
 
-				break;
-			default:
 				break;
 		}
 
@@ -64,7 +76,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.World.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
+		var result = _worldDatabase.Query("SELECT map, difficulty, scenario_A, scenario_H FROM scenarios");
 
 		if (result.IsEmpty())
 		{
@@ -120,25 +132,23 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		Dictionary<uint, Dictionary<byte, ScenarioStepRecord>> scenarioSteps = new();
 		uint deepestCriteriaTreeSize = 0;
 
-		foreach (var step in CliDB.ScenarioStepStorage.Values)
+		foreach (var step in _cliDB.ScenarioStepStorage.Values)
 		{
 			if (!scenarioSteps.ContainsKey(step.ScenarioID))
 				scenarioSteps[step.ScenarioID] = new Dictionary<byte, ScenarioStepRecord>();
 
 			scenarioSteps[step.ScenarioID][step.OrderIndex] = step;
-			var tree = Global.CriteriaMgr.GetCriteriaTree(step.CriteriaTreeId);
+			var tree = _criteriaManager.GetCriteriaTree(step.CriteriaTreeId);
 
 			if (tree != null)
 			{
 				uint criteriaTreeSize = 0;
-				CriteriaManager.WalkCriteriaTree(tree, treeFunc => { ++criteriaTreeSize; });
+				CriteriaManager.WalkCriteriaTree(tree, _ => { ++criteriaTreeSize; });
 				deepestCriteriaTreeSize = Math.Max(deepestCriteriaTreeSize, criteriaTreeSize);
 			}
 		}
 
-		//ASSERT(deepestCriteriaTreeSize < MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE, "MAX_ALLOWED_SCENARIO_POI_QUERY_SIZE must be at least {0}", deepestCriteriaTreeSize + 1);
-
-		foreach (var scenario in CliDB.ScenarioStorage.Values)
+		foreach (var scenario in _cliDB.ScenarioStorage.Values)
 		{
 			ScenarioData data = new()
 			{
@@ -159,7 +169,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		uint count = 0;
 
 		//                                         0               1          2     3      4        5         6      7              8                  9
-		var result = DB.World.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
+		var result = _worldDatabase.Query("SELECT CriteriaTreeID, BlobIndex, Idx1, MapID, UiMapID, Priority, Flags, WorldEffectID, PlayerConditionID, NavigationPlayerConditionID FROM scenario_poi ORDER BY CriteriaTreeID, Idx1");
 
 		if (result.IsEmpty())
 		{
@@ -171,21 +181,21 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		Dictionary<uint, MultiMap<int, ScenarioPOIPoint>> allPoints = new();
 
 		//                                               0               1    2  3  4
-		var pointsResult = DB.World.Query("SELECT CriteriaTreeID, Idx1, X, Y, Z FROM scenario_poi_points ORDER BY CriteriaTreeID DESC, Idx1, Idx2");
+		var pointsResult = _worldDatabase.Query("SELECT CriteriaTreeID, Idx1, X, Y, Z FROM scenario_poi_points ORDER BY CriteriaTreeID DESC, Idx1, Idx2");
 
 		if (!pointsResult.IsEmpty())
 			do
 			{
-				var CriteriaTreeID = pointsResult.Read<uint>(0);
-				var Idx1 = pointsResult.Read<int>(1);
-				var X = pointsResult.Read<int>(2);
-				var Y = pointsResult.Read<int>(3);
-				var Z = pointsResult.Read<int>(4);
+				var criteriaTreeID = pointsResult.Read<uint>(0);
+				var idx1 = pointsResult.Read<int>(1);
+				var x = pointsResult.Read<int>(2);
+				var y = pointsResult.Read<int>(3);
+				var z = pointsResult.Read<int>(4);
 
-				if (!allPoints.ContainsKey(CriteriaTreeID))
-					allPoints[CriteriaTreeID] = new MultiMap<int, ScenarioPOIPoint>();
+				if (!allPoints.ContainsKey(criteriaTreeID))
+					allPoints[criteriaTreeID] = new MultiMap<int, ScenarioPOIPoint>();
 
-				allPoints[CriteriaTreeID].Add(Idx1, new ScenarioPOIPoint(X, Y, Z));
+				allPoints[criteriaTreeID].Add(idx1, new ScenarioPOIPoint(x, y, z));
 			} while (pointsResult.NextRow());
 
 		do
@@ -201,7 +211,7 @@ public class ScenarioManager : Singleton<ScenarioManager>
 			var playerConditionID = result.Read<int>(8);
 			var navigationPlayerConditionID = result.Read<int>(9);
 
-			if (Global.CriteriaMgr.GetCriteriaTree(criteriaTreeID) == null)
+			if (_criteriaManager.GetCriteriaTree(criteriaTreeID) == null)
 				Log.Logger.Error($"`scenario_poi` CriteriaTreeID ({criteriaTreeID}) Idx1 ({idx1}) does not correspond to a valid criteria tree");
 
 			var blobs = allPoints.LookupByKey(criteriaTreeID);
@@ -219,8 +229,8 @@ public class ScenarioManager : Singleton<ScenarioManager>
 				}
 			}
 
-			if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-				DB.World.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");
+			if (_configuration.GetDefaultValue("load.autoclean", false))
+				_worldDatabase.Execute($"DELETE FROM scenario_poi WHERE criteriaTreeID = {criteriaTreeID}");
 			else
 				Log.Logger.Error($"Table scenario_poi references unknown scenario poi points for criteria tree id {criteriaTreeID} POI id {blobIndex}");
 		} while (result.NextRow());
@@ -228,11 +238,11 @@ public class ScenarioManager : Singleton<ScenarioManager>
 		Log.Logger.Information($"Loaded {count} scenario POI definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
-	public List<ScenarioPOI> GetScenarioPOIs(uint CriteriaTreeID)
+	public List<ScenarioPOI> GetScenarioPoIs(uint criteriaTreeID)
 	{
-		if (!_scenarioPOIStore.ContainsKey(CriteriaTreeID))
+		if (!_scenarioPOIStore.ContainsKey(criteriaTreeID))
 			return null;
 
-		return _scenarioPOIStore[CriteriaTreeID];
+		return _scenarioPOIStore[criteriaTreeID];
 	}
 }

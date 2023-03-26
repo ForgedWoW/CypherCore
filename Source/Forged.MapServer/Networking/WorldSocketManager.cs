@@ -62,7 +62,7 @@ public class WorldSocketManager : SocketManager<WorldSocket>
 		}
 		catch (SocketException ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex);
 
 			return;
 		}

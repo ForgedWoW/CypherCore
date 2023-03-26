@@ -12,6 +12,7 @@ using Forged.MapServer.Garrisons;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
@@ -39,7 +40,8 @@ public class MapManager
     private readonly LimitedThreadTaskManager _updater;
     private uint _scheduledScripts;
 
-	public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager, CharacterDatabase characterDatabase, ScenarioManager scenarioManager)
+	public MapManager(IConfiguration configuration, CliDB cliDB, InstanceLockManager instanceLockManager, DB2Manager db2Manager, 
+                      CharacterDatabase characterDatabase, ScenarioManager scenarioManager)
     {
         _configuration = configuration;
         _cliDB = cliDB;
@@ -52,6 +54,10 @@ public class MapManager
         var numThreads = configuration.GetDefaultValue("MapUpdate.Threads", 10);
 
         _updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
+
+        foreach (var (_, mapEntry) in _cliDB.MapStorage)
+            if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
+                _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
     }
 
     public void InitializeVisibilityDistanceInfo()
@@ -451,14 +457,7 @@ public class MapManager
         }
 	}
 
-	public void AddSC_BuiltInScripts()
-	{
-		foreach (var (_, mapEntry) in _cliDB.MapStorage)
-			if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
-				 _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
-	}
-
-	public void IncreaseScheduledScriptsCount()
+    public void IncreaseScheduledScriptsCount()
 	{
 		++_scheduledScripts;
 	}

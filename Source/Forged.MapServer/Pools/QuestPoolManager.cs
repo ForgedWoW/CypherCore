@@ -3,19 +3,28 @@
 
 using System;
 using System.Collections.Generic;
+using Forged.MapServer.Globals;
 using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Pools;
 
-public class QuestPoolManager : Singleton<QuestPoolManager>
+public class QuestPoolManager
 {
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _objectManager;
     private readonly List<QuestPool> _dailyPools = new();
     private readonly List<QuestPool> _weeklyPools = new();
     private readonly List<QuestPool> _monthlyPools = new();
     private readonly Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
 
-    private QuestPoolManager() { }
+    public QuestPoolManager(CharacterDatabase characterDatabase, WorldDatabase worldDatabase, GameObjectManager objectManager)
+    {
+        _characterDatabase = characterDatabase;
+        _worldDatabase = worldDatabase;
+        _objectManager = objectManager;
+    }
 
 	public static void RegeneratePool(QuestPool pool)
 	{
@@ -28,25 +37,23 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 			if (i != j)
 			{
-				var leftList = pool.Members[i];
-				pool.Members[i] = pool.Members[j];
-				pool.Members[j] = leftList;
-			}
+				(pool.Members[i], pool.Members[j]) = (pool.Members[j], pool.Members[i]);
+            }
 
 			foreach (var quest in pool.Members[i])
 				pool.ActiveQuests.Add(quest);
 		}
 	}
 
-	public static void SaveToDB(QuestPool pool, SQLTransaction trans)
+	public void SaveToDB(QuestPool pool, SQLTransaction trans)
 	{
-		var delStmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+		var delStmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 		delStmt.AddValue(0, pool.PoolId);
 		trans.Append(delStmt);
 
 		foreach (var questId in pool.ActiveQuests)
 		{
-			var insStmt = DB.Characters.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
+			var insStmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_POOL_QUEST_SAVE);
 			insStmt.AddValue(0, pool.PoolId);
 			insStmt.AddValue(1, questId);
 			trans.Append(insStmt);
@@ -65,7 +72,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		// load template data from world DB
 		{
-			var result = DB.World.Query("SELECT qpm.questId, qpm.poolId, qpm.poolIndex, qpt.numActive FROM quest_pool_members qpm LEFT JOIN quest_pool_template qpt ON qpm.poolId = qpt.poolId");
+			var result = _worldDatabase.Query("SELECT qpm.questId, qpm.poolId, qpm.poolIndex, qpt.numActive FROM quest_pool_members qpm LEFT JOIN quest_pool_template qpt ON qpm.poolId = qpt.poolId");
 
 			if (result.IsEmpty())
 			{
@@ -88,18 +95,18 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 				var poolIndex = result.Read<uint>(2);
 				var numActive = result.Read<uint>(3);
 
-				var quest = Global.ObjectMgr.GetQuestTemplate(questId);
+				var quest = _objectManager.GetQuestTemplate(questId);
 
 				if (quest == null)
 				{
-					Log.Logger.Error("Table `quest_pool_members` contains reference to non-existing quest %u. Skipped.", questId);
+					Log.Logger.Error("Table `quest_pool_members` contains reference to non-existing quest {0}. Skipped.", questId);
 
 					continue;
 				}
 
 				if (!quest.IsDailyOrWeekly && !quest.IsMonthly)
 				{
-					Log.Logger.Error("Table `quest_pool_members` contains reference to quest %u, which is neither daily, weekly nor monthly. Skipped.", questId);
+					Log.Logger.Error("Table `quest_pool_members` contains reference to quest {0}, which is neither daily, weekly nor monthly. Skipped.", questId);
 
 					continue;
 				}
@@ -126,7 +133,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 		// load saved spawns from character DB
 		{
-			var result = DB.Characters.Query("SELECT pool_id, quest_id FROM pool_quest_save");
+			var result = _characterDatabase.Query("SELECT pool_id, quest_id FROM pool_quest_save");
 
 			if (!result.IsEmpty())
 			{
@@ -141,7 +148,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 					if (it == null || it.Item1 == null)
 					{
-						Log.Logger.Error("Table `pool_quest_save` contains reference to non-existant quest pool %u. Deleted.", poolId);
+						Log.Logger.Error("Table `pool_quest_save` contains reference to non-existant quest pool {0}. Deleted.", poolId);
 						unknownPoolIds.Add(poolId);
 
 						continue;
@@ -154,12 +161,12 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 
 				foreach (var poolId in unknownPoolIds)
 				{
-					var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
+					var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_POOL_QUEST_SAVE);
 					stmt.AddValue(0, poolId);
 					trans0.Append(stmt);
 				}
 
-				DB.Characters.CommitTransaction(trans0);
+				_characterDatabase.CommitTransaction(trans0);
 			}
 		}
 
@@ -264,7 +271,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 			}
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		Log.Logger.Information($"Loaded {_dailyPools.Count} daily, {_weeklyPools.Count} weekly and {_monthlyPools.Count} monthly quest pools in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
@@ -273,24 +280,24 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 	// we don't use it in practice (only in debug commands), so that's fine
 	public QuestPool FindQuestPool(uint poolId)
 	{
-		bool lambda(QuestPool p)
+		bool Lambda(QuestPool p)
 		{
 			return p.PoolId == poolId;
 		}
 
 		;
 
-		var questPool = _dailyPools.Find(lambda);
+		var questPool = _dailyPools.Find(Lambda);
 
 		if (questPool != null)
 			return questPool;
 
-		questPool = _weeklyPools.Find(lambda);
+		questPool = _weeklyPools.Find(Lambda);
 
 		if (questPool != null)
 			return questPool;
 
-		questPool = _monthlyPools.Find(lambda);
+		questPool = _monthlyPools.Find(Lambda);
 
 		if (questPool != null)
 			return questPool;
@@ -338,6 +345,6 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 			SaveToDB(pool, trans);
 		}
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 }

@@ -23,8 +23,12 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Movement;
 using Forged.MapServer.OutdoorPVP;
+using Forged.MapServer.Pools;
+using Forged.MapServer.Scenarios;
+using Forged.MapServer.Scripting;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
+using Forged.MapServer.SupportSystem;
 using Forged.MapServer.Warden;
 using Forged.MapServer.Weather;
 using Forged.MapServer.World;
@@ -51,18 +55,15 @@ BuildServerTypes(builder);
 
 BitSet localeMask = null;
 
-builder.Register((c, _) =>
-		{
-			var cli = new CliDB(c.Resolve<HotfixDatabase>(), c.Resolve<DB2Manager>());
-			localeMask = cli.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);
-
-			return cli;
-		})
-		.SingleInstance();
+builder.RegisterType<CliDB>().SingleInstance().OnActivated(c => localeMask = c.Instance.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder));
 
 var container = builder.Build();
-container.Resolve<CliDB>();
+
+// we initialize the server by resolving these.
+container.Resolve<CliDB>(); 
+container.Resolve<ScriptManager>();
 container.Resolve<WorldServiceManager>().LoadHandlers(container);
+
 
 void BuildServerTypes(ContainerBuilder containerBuilder)
 {
@@ -97,4 +98,9 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<OutdoorPvPManager>().SingleInstance();
     containerBuilder.RegisterType<WorldServiceManager>().SingleInstance();
     containerBuilder.RegisterType<SpellManager>().SingleInstance();
+    containerBuilder.RegisterType<SupportManager>().SingleInstance();
+    containerBuilder.RegisterType<PoolManager>().SingleInstance();
+    containerBuilder.RegisterType<QuestPoolManager>().SingleInstance();
+    containerBuilder.RegisterType<ScenarioManager>().SingleInstance();
+    containerBuilder.RegisterType<ScriptManager>().SingleInstance();
 }

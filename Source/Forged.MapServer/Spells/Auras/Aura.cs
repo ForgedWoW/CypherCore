@@ -1673,7 +1673,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2209,7 +2209,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return result;
@@ -2228,7 +2228,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2245,7 +2245,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2267,7 +2267,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return preventDefault;
@@ -2291,7 +2291,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return preventDefault;
@@ -2310,7 +2310,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2327,7 +2327,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2349,7 +2349,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return preventDefault;
@@ -2368,7 +2368,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2385,7 +2385,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2408,7 +2408,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2425,7 +2425,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2442,7 +2442,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2460,7 +2460,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2477,7 +2477,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2495,7 +2495,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2512,7 +2512,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2529,7 +2529,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2546,7 +2546,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2563,7 +2563,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2580,7 +2580,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2599,7 +2599,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return result;
@@ -2623,7 +2623,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return prepare;
@@ -2645,7 +2645,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return handled;
@@ -2664,7 +2664,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 
@@ -2683,7 +2683,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return result;
@@ -2707,7 +2707,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 
 		return preventDefault;
@@ -2726,7 +2726,7 @@ public class Aura
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 

@@ -98,7 +98,7 @@ public partial class Creature : Unit
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 

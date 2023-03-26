@@ -212,7 +212,7 @@ public class WorldSocket : SocketBase
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 		}
 	}

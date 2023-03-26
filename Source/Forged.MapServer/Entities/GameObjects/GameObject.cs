@@ -471,7 +471,7 @@ namespace Forged.MapServer.Entities.GameObjects
 				}
 				catch (Exception ex)
 				{
-					Log.outException(ex);
+					Log.Logger.Error(ex);
 				}
 		}
 

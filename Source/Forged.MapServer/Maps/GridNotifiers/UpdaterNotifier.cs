@@ -47,7 +47,7 @@ public class UpdaterNotifier : IGridNotifierWorldObject
 			}
 			catch (Exception ex)
 			{
-				Log.outException(ex);
+				Log.Logger.Error(ex);
 			}
 	}
 }

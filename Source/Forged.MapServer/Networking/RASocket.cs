@@ -154,7 +154,7 @@ public class RASocket : ISocket
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex);
 
 			return "";
 		}

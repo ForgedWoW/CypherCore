@@ -14,6 +14,7 @@ using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Extendability;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Movement;
@@ -27,14 +28,16 @@ using Forged.MapServer.Scripting.Registers;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Scripting;
 
 // Manages registration, loading, and execution of Scripts.
-public class ScriptManager : Singleton<ScriptManager>
+public class ScriptManager
 {
-	private readonly List<IScriptObject> _blankList = new();
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly WorldDatabase _worldDatabase;
 
 	// creature entry + chain ID
 	private readonly MultiMap<Tuple<uint, ushort>, SplineChainLink> _mSplineChainsMap = new(); // spline chains
@@ -45,12 +48,11 @@ public class ScriptManager : Singleton<ScriptManager>
 	private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
 	private uint _scriptCount;
 
-	private ScriptManager() { }
-
-	//Initialization
-	public void Initialize()
-	{
-		var oldMSTime = Time.MSTime;
+    public ScriptManager(GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
+    {
+        _gameObjectManager = gameObjectManager;
+        _worldDatabase = worldDatabase;
+        var oldMSTime = Time.MSTime;
 
 		LoadDatabase();
 
@@ -61,9 +63,6 @@ public class ScriptManager : Singleton<ScriptManager>
 		//Load Scripts.dll
 		LoadScripts();
 
-		// MapScripts
-		Global.MapMgr.AddSC_BuiltInScripts();
-
 		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
@@ -71,10 +70,10 @@ public class ScriptManager : Singleton<ScriptManager>
 	public bool OnAreaTrigger(Player player, AreaTriggerRecord trigger, bool entered)
 	{
 		if (entered)
-			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+			foreach (var script in _gameObjectManager.GetAreaTriggerScriptIds(trigger.Id))
 				return RunScriptRet<IAreaTriggerOnTrigger>(a => a.OnTrigger(player, trigger), script);
 		else
-			foreach (var script in Global.ObjectMgr.GetAreaTriggerScriptIds(trigger.Id))
+			foreach (var script in _gameObjectManager.GetAreaTriggerScriptIds(trigger.Id))
 				return RunScriptRet<IAreaTriggerOnExit>(p => p.OnExit(player, trigger), script);
 
 		return false;
@@ -83,53 +82,55 @@ public class ScriptManager : Singleton<ScriptManager>
 	#region Main Script API
 
 	public void ForEach<T>(Action<T> a) where T : IScriptObject
-	{
-		if (_scriptByType.TryGetValue(typeof(T), out var ifaceImp))
-			foreach (T s in ifaceImp)
-				try
-				{
-					a.Invoke(s);
-				}
-				catch (Exception ex)
-				{
-					Log.outException(ex);
-				}
-	}
+    {
+        if (!_scriptByType.TryGetValue(typeof(T), out var ifaceImp))
+            return;
+
+        foreach (T s in ifaceImp)
+            try
+            {
+                a.Invoke(s);
+            }
+            catch (Exception ex)
+            {
+                Log.Logger.Error(ex);
+            }
+    }
 
 	public void ForEach<T>(PlayerClass playerClass, Action<T> a) where T : IScriptObject, IClassRescriction
-	{
-		if (_scriptClassByType.TryGetValue(typeof(T), out var classKvp))
-		{
-			if (classKvp.TryGetValue(playerClass, out var ifaceImp))
-				foreach (T s in ifaceImp)
-					try
-					{
-						a.Invoke(s);
-					}
-					catch (Exception ex)
-					{
-						Log.outException(ex);
-					}
+    {
+        if (!_scriptClassByType.TryGetValue(typeof(T), out var classKvp))
+            return;
 
-			if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
-				foreach (T s in ifaceImpNone)
-					try
-					{
-						a.Invoke(s);
-					}
-					catch (Exception ex)
-					{
-						Log.outException(ex);
-					}
-		}
-	}
+        if (classKvp.TryGetValue(playerClass, out var ifaceImp))
+            foreach (T s in ifaceImp)
+                try
+                {
+                    a.Invoke(s);
+                }
+                catch (Exception ex)
+                {
+                    Log.Logger.Error(ex);
+                }
+
+        if (classKvp.TryGetValue(PlayerClass.None, out var ifaceImpNone))
+            foreach (T s in ifaceImpNone)
+                try
+                {
+                    a.Invoke(s);
+                }
+                catch (Exception ex)
+                {
+                    Log.Logger.Error(ex);
+                }
+    }
 
 	public bool RunScriptRet<T>(Func<T, bool> func, uint id, bool ret = false) where T : IScriptObject
 	{
 		return RunScriptRet<T, bool>(func, id, ret);
 	}
 
-	public U RunScriptRet<T, U>(Func<T, U> func, uint id, U ret = default) where T : IScriptObject
+	public TU RunScriptRet<T, TU>(Func<T, TU> func, uint id, TU ret = default) where T : IScriptObject
 	{
 		var script = GetScript<T>(id);
 
@@ -142,7 +143,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		}
 		catch (Exception e)
 		{
-			Log.outException(e);
+			Log.Logger.Error(e);
 		}
 
 		return ret;
@@ -152,16 +153,18 @@ public class ScriptManager : Singleton<ScriptManager>
 	{
 		var script = GetScript<T>(id);
 
-		if (script != null)
-			try
-			{
-				a.Invoke(script);
-			}
-			catch (Exception ex)
-			{
-				Log.outException(ex);
-			}
-	}
+        if (script == null)
+            return;
+
+        try
+        {
+            a.Invoke(script);
+        }
+        catch (Exception ex)
+        {
+            Log.Logger.Error(ex);
+        }
+    }
 
 	public void AddScript<T>(T script) where T : IScriptObject
 	{
@@ -213,20 +216,14 @@ public class ScriptManager : Singleton<ScriptManager>
 	}
 
 	public ScriptRegistry GetScriptRegistry<T>()
-	{
-		if (_scriptStorage.TryGetValue(typeof(T), out var scriptReg))
-			return scriptReg;
-
-		return null;
-	}
+    {
+        return _scriptStorage.TryGetValue(typeof(T), out var scriptReg) ? scriptReg : null;
+    }
 
 	public T GetScript<T>(uint id) where T : IScriptObject
-	{
-		if (_scriptStorage.TryGetValue(typeof(T), out var scriptReg))
-			return scriptReg.GetScriptById<T>(id);
-
-		return default;
-	}
+    {
+        return _scriptStorage.TryGetValue(typeof(T), out var scriptReg) ? scriptReg.GetScriptById<T>(id) : default;
+    }
 
 	#endregion
 
@@ -237,12 +234,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		var assemblies = IOHelpers.GetAllAssembliesInDir(Path.Combine(AppContext.BaseDirectory, "Scripts"));
 
 		if (File.Exists(AppContext.BaseDirectory + "Scripts.dll"))
-		{
-			var scrAss = Assembly.LoadFile(AppContext.BaseDirectory + "Scripts.dll");
-
-			if (scrAss != null)
-				assemblies.Add(scrAss);
-		}
+            assemblies.Add(Assembly.LoadFile(AppContext.BaseDirectory + "Scripts.dll"));
 
 		Dictionary<string, IScriptActivator> activators = new();
 		Dictionary<Type, IScriptRegister> registers = new();
@@ -365,7 +357,7 @@ public class ScriptManager : Singleton<ScriptManager>
 							}
 
 						if (activatedObj != null && IOHelpers.DoesTypeSupportInterface(activatedObj.GetType(), typeof(IScriptAutoAdd)))
-							Global.ScriptMgr.AddScript(activatedObj);
+							AddScript(activatedObj);
 
 						if (registers.TryGetValue(attribute.GetType(), out var reg))
 							reg.Register(attribute, activatedObj, name);
@@ -375,24 +367,29 @@ public class ScriptManager : Singleton<ScriptManager>
 	}
 
 	private static void RegisterActivators(Dictionary<string, IScriptActivator> activators, Type type)
-	{
-		if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
-		{
-			var asa = (IScriptActivator)Activator.CreateInstance(type);
+    {
+        if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptActivator)))
+            return;
 
-			foreach (var t in asa.ScriptBaseTypes)
-				activators[t] = asa;
-		}
-	}
+        var asa = (IScriptActivator)Activator.CreateInstance(type);
+
+        if (asa == null)
+            return;
+
+        foreach (var t in asa.ScriptBaseTypes)
+            activators[t] = asa;
+    }
 
 	private static void RegisterRegistors(Dictionary<Type, IScriptRegister> registers, Type type)
-	{
-		if (IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
-		{
-			var newReg = (IScriptRegister)Activator.CreateInstance(type);
-			registers[newReg.AttributeType] = newReg;
-		}
-	}
+    {
+        if (!IOHelpers.DoesTypeSupportInterface(type, typeof(IScriptRegister)))
+            return;
+
+        var newReg = (IScriptRegister)Activator.CreateInstance(type);
+
+        if (newReg != null)
+            registers[newReg.AttributeType] = newReg;
+    }
 
 	public void LoadDatabase()
 	{
@@ -410,7 +407,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		ulong entryCount = 0;
 
 		// Load Waypoints
-		var result = DB.World.Query("SELECT COUNT(entry) FROM script_waypoint GROUP BY entry");
+		var result = _worldDatabase.Query("SELECT COUNT(entry) FROM script_waypoint GROUP BY entry");
 
 		if (!result.IsEmpty())
 			entryCount = result.Read<uint>(0);
@@ -418,7 +415,7 @@ public class ScriptManager : Singleton<ScriptManager>
 		Log.Logger.Information($"Loading Script Waypoints for {entryCount} creature(s)...");
 
 		//                                0       1         2           3           4           5
-		result = DB.World.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
+		result = _worldDatabase.Query("SELECT entry, pointid, location_x, location_y, location_z, waittime FROM script_waypoint ORDER BY pointid");
 
 		if (result.IsEmpty())
 		{
@@ -438,7 +435,7 @@ public class ScriptManager : Singleton<ScriptManager>
 			var z = result.Read<float>(4);
 			var waitTime = result.Read<uint>(5);
 
-			var info = Global.ObjectMgr.GetCreatureTemplate(entry);
+			var info = _gameObjectManager.GetCreatureTemplate(entry);
 
 			if (info == null)
 			{
@@ -470,12 +467,12 @@ public class ScriptManager : Singleton<ScriptManager>
 		_mSplineChainsMap.Clear();
 
 		//                                             0      1        2         3                 4            5
-		var resultMeta = DB.World.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext, velocity FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
+		var resultMeta = _worldDatabase.Query("SELECT entry, chainId, splineId, expectedDuration, msUntilNext, velocity FROM script_spline_chain_meta ORDER BY entry asc, chainId asc, splineId asc");
 		//                                           0      1        2         3    4  5  6
-		var resultWP = DB.World.Query("SELECT entry, chainId, splineId, wpId, x, y, z FROM script_spline_chain_waypoints ORDER BY entry asc, chainId asc, splineId asc, wpId asc");
+		var resultWp = _worldDatabase.Query("SELECT entry, chainId, splineId, wpId, x, y, z FROM script_spline_chain_waypoints ORDER BY entry asc, chainId asc, splineId asc, wpId asc");
 
 		if (resultMeta.IsEmpty() ||
-			resultWP.IsEmpty())
+			resultWp.IsEmpty())
 		{
 			Log.Logger.Information("Loaded spline chain _data for 0 chains, consisting of 0 splines with 0 waypoints. DB tables `script_spline_chain_meta` and `script_spline_chain_waypoints` are empty.");
 		}
@@ -516,13 +513,13 @@ public class ScriptManager : Singleton<ScriptManager>
 
 			do
 			{
-				var entry = resultWP.Read<uint>(0);
-				var chainId = resultWP.Read<ushort>(1);
-				var splineId = resultWP.Read<byte>(2);
-				var wpId = resultWP.Read<byte>(3);
-				var posX = resultWP.Read<float>(4);
-				var posY = resultWP.Read<float>(5);
-				var posZ = resultWP.Read<float>(6);
+				var entry = resultWp.Read<uint>(0);
+				var chainId = resultWp.Read<ushort>(1);
+				var splineId = resultWp.Read<byte>(2);
+				var wpId = resultWp.Read<byte>(3);
+				var posX = resultWp.Read<float>(4);
+				var posY = resultWp.Read<float>(5);
+				var posZ = resultWp.Read<float>(6);
 				var chain = _mSplineChainsMap.LookupByKey(Tuple.Create(entry, chainId));
 
 				if (chain == null)
@@ -550,7 +547,7 @@ public class ScriptManager : Singleton<ScriptManager>
 
 				spline.Points.Add(new Vector3(posX, posY, posZ));
 				++wpCount;
-			} while (resultWP.NextRow());
+			} while (resultWp.NextRow());
 
 			Log.Logger.Information("Loaded spline chain _data for {0} chains, consisting of {1} splines with {2} waypoints in {3} ms", chainCount, splineCount, wpCount, Time.GetMSTimeDiffToNow(oldMSTime));
 		}
@@ -620,7 +617,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public List<SpellScript> CreateSpellScripts(uint spellId, Spell invoker)
 	{
 		var scriptList = new List<SpellScript>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<ISpellScriptLoaderGetSpellScript>();
 
@@ -653,7 +650,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public List<AuraScript> CreateAuraScripts(uint spellId, Aura invoker)
 	{
 		var scriptList = new List<AuraScript>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<IAuraScriptLoaderGetAuraScript>();
 
@@ -686,7 +683,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public Dictionary<ISpellScriptLoaderGetSpellScript, uint> CreateSpellScriptLoaders(uint spellId)
 	{
 		var scriptDic = new Dictionary<ISpellScriptLoaderGetSpellScript, uint>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<ISpellScriptLoaderGetSpellScript>();
 
@@ -709,7 +706,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public Dictionary<IAuraScriptLoaderGetAuraScript, uint> CreateAuraScriptLoaders(uint spellId)
 	{
 		var scriptDic = new Dictionary<IAuraScriptLoaderGetAuraScript, uint>();
-		var bounds = Global.ObjectMgr.GetSpellScriptsBounds(spellId);
+		var bounds = _gameObjectManager.GetSpellScriptsBounds(spellId);
 
 		var reg = GetScriptRegistry<IAuraScriptLoaderGetAuraScript>();
 
@@ -736,7 +733,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public List<AreaTriggerScript> CreateAreaTriggerScripts(uint areaTriggerId, AreaTrigger invoker)
 	{
 		var scriptList = new List<AreaTriggerScript>();
-		var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+		var bounds = _gameObjectManager.GetAreaTriggerScriptIds(areaTriggerId);
 
 		var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
 
@@ -769,7 +766,7 @@ public class ScriptManager : Singleton<ScriptManager>
 	public Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint> CreateAreaTriggerScriptLoaders(uint areaTriggerId)
 	{
 		var scriptDic = new Dictionary<IAreaTriggerScriptLoaderGetTriggerScriptScript, uint>();
-		var bounds = Global.ObjectMgr.GetAreaTriggerScriptIds(areaTriggerId);
+		var bounds = _gameObjectManager.GetAreaTriggerScriptIds(areaTriggerId);
 
 		var reg = GetScriptRegistry<IAreaTriggerScriptLoaderGetTriggerScriptScript>();
 

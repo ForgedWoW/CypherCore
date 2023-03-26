@@ -381,7 +381,7 @@ public class MotionMaster
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex);
 		}
 		finally
 		{

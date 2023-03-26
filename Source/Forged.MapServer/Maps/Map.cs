@@ -224,7 +224,7 @@ public class Map : IDisposable
 		}
 		catch (Exception ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex);
 
 			throw;
 		}

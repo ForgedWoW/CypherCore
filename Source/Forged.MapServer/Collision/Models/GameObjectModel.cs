@@ -246,7 +246,7 @@ public class GameObjectModel : IModel
 		}
 		catch (EndOfStreamException ex)
 		{
-			Log.outException(ex);
+			Log.Logger.Error(ex);
 		}
 
 		Log.Logger.Information("Loaded {0} GameObject models in {1} ms", StaticModelList.Models.Count, Time.GetMSTimeDiffToNow(oldMSTime));
