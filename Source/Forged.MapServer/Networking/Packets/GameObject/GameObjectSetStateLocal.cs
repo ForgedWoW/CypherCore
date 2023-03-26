@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectSetStateLocal : ServerPacket
+internal class GameObjectSetStateLocal : ServerPacket
 {
 	public ObjectGuid ObjectGUID;
 	public byte State;

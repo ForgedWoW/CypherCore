@@ -27,11 +27,11 @@ using Framework.IO;
 
 namespace Forged.MapServer.Chat.Commands;
 
-class MiscCommands
+internal class MiscCommands
 {
 	// Teleport to Player
 	[CommandNonGroup("appear", RBACPermissions.CommandAppear)]
-	static bool HandleAppearCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleAppearCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
 			return false;
@@ -159,7 +159,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("bank", RBACPermissions.CommandBank)]
-	static bool HandleBankCommand(CommandHandler handler)
+    private static bool HandleBankCommand(CommandHandler handler)
 	{
 		handler.Session.SendShowBank(handler.Session.Player.GUID);
 
@@ -167,7 +167,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("bindsight", RBACPermissions.CommandBindsight)]
-	static bool HandleBindSightCommand(CommandHandler handler)
+    private static bool HandleBindSightCommand(CommandHandler handler)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -180,7 +180,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("combatstop", RBACPermissions.CommandCombatstop, true)]
-	static bool HandleCombatStopCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleCombatStopCommand(CommandHandler handler, StringArguments args)
 	{
 		Player target = null;
 
@@ -210,7 +210,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("cometome", RBACPermissions.CommandCometome)]
-	static bool HandleComeToMeCommand(CommandHandler handler)
+    private static bool HandleComeToMeCommand(CommandHandler handler)
 	{
 		var caster = handler.SelectedCreature;
 
@@ -228,7 +228,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("commands", RBACPermissions.CommandCommands, true)]
-	static bool HandleCommandsCommand(CommandHandler handler)
+    private static bool HandleCommandsCommand(CommandHandler handler)
 	{
 		ChatCommandNode.SendCommandHelpFor(handler, "");
 
@@ -236,7 +236,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("damage", RBACPermissions.CommandDamage)]
-	static bool HandleDamageCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleDamageCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -386,7 +386,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("dev", RBACPermissions.CommandDev)]
-	static bool HandleDevCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleDevCommand(CommandHandler handler, bool? enableArg)
 	{
 		var player = handler.Session.Player;
 
@@ -412,7 +412,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("die", RBACPermissions.CommandDie)]
-	static bool HandleDieCommand(CommandHandler handler)
+    private static bool HandleDieCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 
@@ -436,7 +436,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("dismount", RBACPermissions.CommandDismount)]
-	static bool HandleDismountCommand(CommandHandler handler)
+    private static bool HandleDismountCommand(CommandHandler handler)
 	{
 		var player = handler.SelectedPlayerOrSelf;
 
@@ -462,7 +462,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("distance", RBACPermissions.CommandDistance)]
-	static bool HandleGetDistanceCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleGetDistanceCommand(CommandHandler handler, StringArguments args)
 	{
 		WorldObject obj;
 
@@ -528,7 +528,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("freeze", RBACPermissions.CommandFreeze)]
-	static bool HandleFreezeCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleFreezeCommand(CommandHandler handler, StringArguments args)
 	{
 		var player = handler.SelectedPlayer; // Selected player, if any. Might be null.
 		var freezeDuration = 0;              // Freeze Duration (in seconds)
@@ -631,7 +631,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("gps", RBACPermissions.CommandGps)]
-	static bool HandleGPSCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleGPSCommand(CommandHandler handler, StringArguments args)
 	{
 		WorldObject obj;
 
@@ -784,7 +784,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("guid", RBACPermissions.CommandGuid)]
-	static bool HandleGUIDCommand(CommandHandler handler)
+    private static bool HandleGUIDCommand(CommandHandler handler)
 	{
 		var guid = handler.Session.Player.Target;
 
@@ -801,7 +801,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("help", RBACPermissions.CommandHelp, true)]
-	static bool HandleHelpCommand(CommandHandler handler, Tail cmd)
+    private static bool HandleHelpCommand(CommandHandler handler, Tail cmd)
 	{
 		ChatCommandNode.SendCommandHelpFor(handler, cmd);
 
@@ -812,7 +812,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("hidearea", RBACPermissions.CommandHidearea)]
-	static bool HandleHideAreaCommand(CommandHandler handler, uint areaId)
+    private static bool HandleHideAreaCommand(CommandHandler handler, uint areaId)
 	{
 		var playerTarget = handler.SelectedPlayer;
 
@@ -858,7 +858,7 @@ class MiscCommands
 
 	// move item to other slot
 	[CommandNonGroup("itemmove", RBACPermissions.CommandItemmove)]
-	static bool HandleItemMoveCommand(CommandHandler handler, byte srcSlot, byte dstSlot)
+    private static bool HandleItemMoveCommand(CommandHandler handler, byte srcSlot, byte dstSlot)
 	{
 		if (srcSlot == dstSlot)
 			return true;
@@ -879,7 +879,7 @@ class MiscCommands
 
 	// kick player
 	[CommandNonGroup("kick", RBACPermissions.CommandKick, true)]
-	static bool HandleKickPlayerCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleKickPlayerCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target, out _, out var playerName))
 			return false;
@@ -912,7 +912,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("linkgrave", RBACPermissions.CommandLinkgrave)]
-	static bool HandleLinkGraveCommand(CommandHandler handler, uint graveyardId, [OptionalArg] string teamArg)
+    private static bool HandleLinkGraveCommand(CommandHandler handler, uint graveyardId, [OptionalArg] string teamArg)
 	{
 		TeamFaction team;
 
@@ -956,7 +956,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("listfreeze", RBACPermissions.CommandListfreeze)]
-	static bool HandleListFreezeCommand(CommandHandler handler)
+    private static bool HandleListFreezeCommand(CommandHandler handler)
 	{
 		// Get names from DB
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_AURA_FROZEN);
@@ -996,7 +996,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("mailbox", RBACPermissions.CommandMailbox)]
-	static bool HandleMailBoxCommand(CommandHandler handler)
+    private static bool HandleMailBoxCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 
@@ -1006,7 +1006,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("movegens", RBACPermissions.CommandMovegens)]
-	static bool HandleMovegensCommand(CommandHandler handler)
+    private static bool HandleMovegensCommand(CommandHandler handler)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -1105,7 +1105,7 @@ class MiscCommands
 
 	// mute player for the specified duration
 	[CommandNonGroup("mute", RBACPermissions.CommandMute, true)]
-	static bool HandleMuteCommand(CommandHandler handler, PlayerIdentifier player, uint muteTime, Tail muteReason)
+    private static bool HandleMuteCommand(CommandHandler handler, PlayerIdentifier player, uint muteTime, Tail muteReason)
 	{
 		string muteReasonStr = muteReason;
 
@@ -1191,7 +1191,7 @@ class MiscCommands
 
 	// mutehistory command
 	[CommandNonGroup("mutehistory", RBACPermissions.CommandMutehistory, true)]
-	static bool HandleMuteHistoryCommand(CommandHandler handler, string accountName)
+    private static bool HandleMuteHistoryCommand(CommandHandler handler, string accountName)
 	{
 		var accountId = Global.AccountMgr.GetId(accountName);
 
@@ -1231,7 +1231,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("neargrave", RBACPermissions.CommandNeargrave)]
-	static bool HandleNearGraveCommand(CommandHandler handler, [OptionalArg] string teamArg)
+    private static bool HandleNearGraveCommand(CommandHandler handler, [OptionalArg] string teamArg)
 	{
 		TeamFaction team;
 
@@ -1294,7 +1294,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("pinfo", RBACPermissions.CommandPinfo, true)]
-	static bool HandlePInfoCommand(CommandHandler handler, StringArguments args)
+    private static bool HandlePInfoCommand(CommandHandler handler, StringArguments args)
 	{
 		// Define ALL the player variables!
 		Player target;
@@ -1664,7 +1664,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("playall", RBACPermissions.CommandPlayall)]
-	static bool HandlePlayAllCommand(CommandHandler handler, uint soundId, uint? broadcastTextId)
+    private static bool HandlePlayAllCommand(CommandHandler handler, uint soundId, uint? broadcastTextId)
 	{
 		if (!CliDB.SoundKitStorage.ContainsKey(soundId))
 		{
@@ -1681,7 +1681,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("possess", RBACPermissions.CommandPossess)]
-	static bool HandlePossessCommand(CommandHandler handler)
+    private static bool HandlePossessCommand(CommandHandler handler)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -1694,7 +1694,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("pvpstats", RBACPermissions.CommandPvpstats, true)]
-	static bool HandlePvPstatsCommand(CommandHandler handler)
+    private static bool HandlePvPstatsCommand(CommandHandler handler)
 	{
 		if (GetDefaultValue("Battleground.StoreStatistics.Enable", false))
 		{
@@ -1727,7 +1727,7 @@ class MiscCommands
 
 	// Teleport player to last position
 	[CommandNonGroup("recall", RBACPermissions.CommandRecall)]
-	static bool HandleRecallCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleRecallCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target))
 			return false;
@@ -1752,7 +1752,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("repairitems", RBACPermissions.CommandRepairitems, true)]
-	static bool HandleRepairitemsCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleRepairitemsCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target))
 			return false;
@@ -1773,7 +1773,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("respawn", RBACPermissions.CommandRespawn)]
-	static bool HandleRespawnCommand(CommandHandler handler)
+    private static bool HandleRespawnCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 
@@ -1816,7 +1816,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("revive", RBACPermissions.CommandRevive, true)]
-	static bool HandleReviveCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleReviveCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid))
 			return false;
@@ -1837,7 +1837,7 @@ class MiscCommands
 
 	// Save all players in the world
 	[CommandNonGroup("saveall", RBACPermissions.CommandSaveall, true)]
-	static bool HandleSaveAllCommand(CommandHandler handler)
+    private static bool HandleSaveAllCommand(CommandHandler handler)
 	{
 		Global.ObjAccessor.SaveAllPlayers();
 		handler.SendSysMessage(CypherStrings.PlayersSaved);
@@ -1846,7 +1846,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("save", RBACPermissions.CommandSave)]
-	static bool HandleSaveCommand(CommandHandler handler)
+    private static bool HandleSaveCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 
@@ -1875,7 +1875,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("showarea", RBACPermissions.CommandShowarea)]
-	static bool HandleShowAreaCommand(CommandHandler handler, uint areaId)
+    private static bool HandleShowAreaCommand(CommandHandler handler, uint areaId)
 	{
 		var playerTarget = handler.SelectedPlayer;
 
@@ -1921,7 +1921,7 @@ class MiscCommands
 
 	// Summon Player
 	[CommandNonGroup("summon", RBACPermissions.CommandSummon)]
-	static bool HandleSummonCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleSummonCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
 			return false;
@@ -2040,7 +2040,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("unbindsight", RBACPermissions.CommandUnbindsight)]
-	static bool HandleUnbindSightCommand(CommandHandler handler)
+    private static bool HandleUnbindSightCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 
@@ -2053,7 +2053,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("unfreeze", RBACPermissions.CommandUnfreeze)]
-	static bool HandleUnFreezeCommand(CommandHandler handler, [OptionalArg] string targetNameArg)
+    private static bool HandleUnFreezeCommand(CommandHandler handler, [OptionalArg] string targetNameArg)
 	{
 		var name = "";
 		Player player;
@@ -2117,7 +2117,7 @@ class MiscCommands
 
 	// unmute player
 	[CommandNonGroup("unmute", RBACPermissions.CommandUnmute, true)]
-	static bool HandleUnmuteCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleUnmuteCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!handler.ExtractPlayerTarget(args, out var target, out var targetGuid, out var targetName))
 			return false;
@@ -2167,7 +2167,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("unpossess", RBACPermissions.CommandUnpossess)]
-	static bool HandleUnPossessCommand(CommandHandler handler)
+    private static bool HandleUnPossessCommand(CommandHandler handler)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -2180,7 +2180,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("unstuck", RBACPermissions.CommandUnstuck, true)]
-	static bool HandleUnstuckCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleUnstuckCommand(CommandHandler handler, StringArguments args)
 	{
 		uint SPELL_UNSTUCK_ID = 7355;
 		uint SPELL_UNSTUCK_VISUAL = 2683;
@@ -2262,7 +2262,7 @@ class MiscCommands
 	}
 
 	[CommandNonGroup("wchange", RBACPermissions.CommandWchange)]
-	static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
+    private static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
 	{
 		// Weather is OFF
 		if (!GetDefaultValue("ActivateWeather", true))

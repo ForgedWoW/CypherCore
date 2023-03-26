@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Hotfix;
 
-class HotfixRequest : ClientPacket
+internal class HotfixRequest : ClientPacket
 {
 	public uint ClientBuild;
 	public uint DataBuild;

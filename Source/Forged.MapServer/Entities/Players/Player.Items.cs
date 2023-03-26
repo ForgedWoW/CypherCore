@@ -5810,18 +5810,18 @@ public partial class Player
 	}
 
 	//Refund
-	void AddRefundReference(ObjectGuid it)
+    private void AddRefundReference(ObjectGuid it)
 	{
 		_refundableItems.Add(it);
 	}
 
 	//Trade 
-	void AddTradeableItem(Item item)
+    private void AddTradeableItem(Item item)
 	{
 		_itemSoulboundTradeable.Add(item.GUID);
 	}
 
-	void UpdateSoulboundTradeItems()
+    private void UpdateSoulboundTradeItems()
 	{
 		// also checks for garbage data
 		foreach (var guid in _itemSoulboundTradeable.ToList())
@@ -5833,12 +5833,12 @@ public partial class Player
 		}
 	}
 
-	InventoryResult CanStoreItem(byte bag, byte slot, List<ItemPosCount> dest, uint entry, uint count, Item pItem, bool swap)
+    private InventoryResult CanStoreItem(byte bag, byte slot, List<ItemPosCount> dest, uint entry, uint count, Item pItem, bool swap)
 	{
 		return CanStoreItem(bag, slot, dest, entry, count, pItem, swap, out _);
 	}
 
-	InventoryResult CanStoreItem(byte bag, byte slot, List<ItemPosCount> dest, uint entry, uint count, Item pItem, bool swap, out uint no_space_count)
+    private InventoryResult CanStoreItem(byte bag, byte slot, List<ItemPosCount> dest, uint entry, uint count, Item pItem, bool swap, out uint no_space_count)
 	{
 		no_space_count = 0;
 		Log.Logger.Debug("STORAGE: CanStoreItem bag = {0}, slot = {1}, item = {2}, count = {3}", bag, slot, entry, count);
@@ -6234,7 +6234,7 @@ public partial class Player
 		return InventoryResult.InvFull;
 	}
 
-	Item _StoreItem(ushort pos, Item pItem, uint count, bool clone, bool update)
+    private Item _StoreItem(ushort pos, Item pItem, uint count, bool clone, bool update)
 	{
 		if (pItem == null)
 			return null;
@@ -6339,7 +6339,7 @@ public partial class Player
 		}
 	}
 
-	bool StoreNewItemInBestSlots(uint itemId, uint amount, ItemContext context)
+    private bool StoreNewItemInBestSlots(uint itemId, uint amount, ItemContext context)
 	{
 		Log.Logger.Debug("STORAGE: Creating initial item, itemId = {0}, count = {1}", itemId, amount);
 
@@ -6383,28 +6383,28 @@ public partial class Player
 	}
 
 	//Move Item
-	InventoryResult CanTakeMoreSimilarItems(Item pItem)
+    private InventoryResult CanTakeMoreSimilarItems(Item pItem)
 	{
 		uint notused = 0;
 
 		return CanTakeMoreSimilarItems(pItem.Entry, pItem.Count, pItem, ref notused);
 	}
 
-	InventoryResult CanTakeMoreSimilarItems(Item pItem, ref uint offendingItemId)
+    private InventoryResult CanTakeMoreSimilarItems(Item pItem, ref uint offendingItemId)
 	{
 		uint notused = 0;
 
 		return CanTakeMoreSimilarItems(pItem.Entry, pItem.Count, pItem, ref notused, ref offendingItemId);
 	}
 
-	InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint no_space_count)
+    private InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint no_space_count)
 	{
 		uint notused = 0;
 
 		return CanTakeMoreSimilarItems(entry, count, pItem, ref no_space_count, ref notused);
 	}
 
-	InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint no_space_count, ref uint offendingItemId)
+    private InventoryResult CanTakeMoreSimilarItems(uint entry, uint count, Item pItem, ref uint no_space_count, ref uint offendingItemId)
 	{
 		var pProto = Global.ObjectMgr.GetItemTemplate(entry);
 
@@ -6465,7 +6465,7 @@ public partial class Player
 	}
 
 	//Equip/Unequip Item
-	InventoryResult CanUnequipItems(uint item, uint count)
+    private InventoryResult CanUnequipItems(uint item, uint count)
 	{
 		var res = InventoryResult.Ok;
 
@@ -6500,7 +6500,7 @@ public partial class Player
 		return res; // return latest error if any
 	}
 
-	void QuickEquipItem(ushort pos, Item pItem)
+    private void QuickEquipItem(ushort pos, Item pItem)
 	{
 		if (pItem != null)
 		{
@@ -6526,7 +6526,7 @@ public partial class Player
 		}
 	}
 
-	bool _StoreOrEquipNewItem(uint vendorslot, uint item, byte count, byte bag, byte slot, long price, ItemTemplate pProto, Creature pVendor, VendorItem crItem, bool bStore)
+    private bool _StoreOrEquipNewItem(uint vendorslot, uint item, byte count, byte bag, byte slot, long price, ItemTemplate pProto, Creature pVendor, VendorItem crItem, bool bStore)
 	{
 		var stacks = count / pProto.BuyCount;
 		List<ItemPosCount> vDest = new();
@@ -6599,12 +6599,12 @@ public partial class Player
 	}
 
 	//Item Durations
-	void RemoveItemDurations(Item item)
+    private void RemoveItemDurations(Item item)
 	{
 		_itemDuration.Remove(item);
 	}
 
-	void AddItemDurations(Item item)
+    private void AddItemDurations(Item item)
 	{
 		if (item.ItemData.Expiration != 0)
 		{
@@ -6613,7 +6613,7 @@ public partial class Player
 		}
 	}
 
-	void UpdateItemDuration(uint time, bool realtimeonly = false)
+    private void UpdateItemDuration(uint time, bool realtimeonly = false)
 	{
 		if (_itemDuration.Empty())
 			return;
@@ -6625,19 +6625,19 @@ public partial class Player
 				item.UpdateDuration(this, time);
 	}
 
-	void SendEnchantmentDurations()
+    private void SendEnchantmentDurations()
 	{
 		foreach (var enchantDuration in _enchantDurations)
 			Session.SendItemEnchantTimeUpdate(GUID, enchantDuration.Item.GUID, (uint)enchantDuration.Slot, enchantDuration.Leftduration / 1000);
 	}
 
-	void SendItemDurations()
+    private void SendItemDurations()
 	{
 		foreach (var item in _itemDuration)
 			item.SendTimeUpdate(this);
 	}
 
-	uint GetItemCountWithLimitCategory(uint limitCategory, Item skipItem)
+    private uint GetItemCountWithLimitCategory(uint limitCategory, Item skipItem)
 	{
 		uint count = 0;
 
@@ -6659,7 +6659,7 @@ public partial class Player
 		return count;
 	}
 
-	void DestroyZoneLimitedItem(bool update, uint new_zone)
+    private void DestroyZoneLimitedItem(bool update, uint new_zone)
 	{
 		Log.Logger.Debug("STORAGE: DestroyZoneLimitedItem in map {0} and area {1}", Location.MapId, new_zone);
 
@@ -6702,7 +6702,7 @@ public partial class Player
 		}
 	}
 
-	void ApplyItemEquipSpell(Item item, bool apply, bool formChange = false)
+    private void ApplyItemEquipSpell(Item item, bool apply, bool formChange = false)
 	{
 		if (item == null || item.Template.HasFlag(ItemFlags.Legacy))
 			return;
@@ -6726,7 +6726,7 @@ public partial class Player
 		}
 	}
 
-	void ApplyEquipCooldown(Item pItem)
+    private void ApplyEquipCooldown(Item pItem)
 	{
 		if (pItem.Template.HasFlag(ItemFlags.NoEquipCooldown))
 			return;
@@ -6782,7 +6782,7 @@ public partial class Player
 		}
 	}
 
-	void _RemoveAllItemMods()
+    private void _RemoveAllItemMods()
 	{
 		Log.Logger.Debug("_RemoveAllItemMods start.");
 
@@ -6819,7 +6819,7 @@ public partial class Player
 		Log.Logger.Debug("_RemoveAllItemMods complete.");
 	}
 
-	void _ApplyAllItemMods()
+    private void _ApplyAllItemMods()
 	{
 		Log.Logger.Debug("_ApplyAllItemMods start.");
 
@@ -6861,7 +6861,7 @@ public partial class Player
 		Log.Logger.Debug("_ApplyAllItemMods complete.");
 	}
 
-	void ApplyAllAzeriteItemMods(bool apply)
+    private void ApplyAllAzeriteItemMods(bool apply)
 	{
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i])
@@ -6873,7 +6873,7 @@ public partial class Player
 			}
 	}
 
-	void ApplyAllAzeriteEmpoweredItemMods(bool apply)
+    private void ApplyAllAzeriteEmpoweredItemMods(bool apply)
 	{
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i])
@@ -6885,7 +6885,7 @@ public partial class Player
 			}
 	}
 
-	InventoryResult CanStoreItem_InInventorySlots(byte slot_begin, byte slot_end, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool merge, Item pSrcItem, byte skip_bag, byte skip_slot)
+    private InventoryResult CanStoreItem_InInventorySlots(byte slot_begin, byte slot_end, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool merge, Item pSrcItem, byte skip_bag, byte skip_slot)
 	{
 		//this is never called for non-bag slots so we can do this
 		if (pSrcItem != null && pSrcItem.IsNotEmptyBag)
@@ -6939,7 +6939,7 @@ public partial class Player
 		return InventoryResult.Ok;
 	}
 
-	InventoryResult CanStoreItem_InSpecificSlot(byte bag, byte slot, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool swap, Item pSrcItem)
+    private InventoryResult CanStoreItem_InSpecificSlot(byte bag, byte slot, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool swap, Item pSrcItem)
 	{
 		var pItem2 = GetItemByPos(bag, slot);
 
@@ -7023,7 +7023,7 @@ public partial class Player
 		return InventoryResult.Ok;
 	}
 
-	InventoryResult CanStoreItem_InBag(byte bag, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool merge, bool non_specialized, Item pSrcItem, byte skip_bag, byte skip_slot)
+    private InventoryResult CanStoreItem_InBag(byte bag, List<ItemPosCount> dest, ItemTemplate pProto, ref uint count, bool merge, bool non_specialized, Item pSrcItem, byte skip_bag, byte skip_slot)
 	{
 		// skip specific bag already processed in first called CanStoreItem_InBag
 		if (bag == skip_bag)
@@ -7104,7 +7104,7 @@ public partial class Player
 		return InventoryResult.Ok;
 	}
 
-	byte FindEquipSlot(Item item, uint slot, bool swap)
+    private byte FindEquipSlot(Item item, uint slot, bool swap)
 	{
 		var slots = new byte[4];
 		slots[0] = ItemConst.NullSlot;
@@ -7343,7 +7343,7 @@ public partial class Player
 		return ItemConst.NullSlot;
 	}
 
-	InventoryResult CanEquipNewItem(byte slot, out ushort dest, uint item, bool swap)
+    private InventoryResult CanEquipNewItem(byte slot, out ushort dest, uint item, bool swap)
 	{
 		dest = 0;
 		var pItem = Item.CreateItem(item, 1, ItemContext.None, this);
@@ -7359,7 +7359,7 @@ public partial class Player
 	}
 
 	//Artifact
-	void ApplyArtifactPowers(Item item, bool apply)
+    private void ApplyArtifactPowers(Item item, bool apply)
 	{
 		if (item.IsArtifactDisabled())
 			return;
@@ -7389,7 +7389,7 @@ public partial class Player
 				RestoreDisplayId();
 	}
 
-	void ApplyAzeritePowers(Item item, bool apply)
+    private void ApplyAzeritePowers(Item item, bool apply)
 	{
 		var azeriteItem = item.AsAzeriteItem;
 
@@ -7427,7 +7427,7 @@ public partial class Player
 		}
 	}
 
-	void ApplyAzeriteEssencePower(AzeriteItem item, AzeriteEssencePowerRecord azeriteEssencePower, bool major, bool apply)
+    private void ApplyAzeriteEssencePower(AzeriteItem item, AzeriteEssencePowerRecord azeriteEssencePower, bool major, bool apply)
 	{
 		var powerSpell = Global.SpellMgr.GetSpellInfo(azeriteEssencePower.MinorPowerDescription, Difficulty.None);
 
@@ -7463,7 +7463,7 @@ public partial class Player
 		}
 	}
 
-	bool HasItemWithLimitCategoryEquipped(uint limitCategory, uint count, byte except_slot)
+    private bool HasItemWithLimitCategoryEquipped(uint limitCategory, uint count, byte except_slot)
 	{
 		uint tempcount = 0;
 
@@ -7485,7 +7485,7 @@ public partial class Player
 							});
 	}
 
-	bool HasGemWithLimitCategoryEquipped(uint limitCategory, uint count, byte except_slot)
+    private bool HasGemWithLimitCategoryEquipped(uint limitCategory, uint count, byte except_slot)
 	{
 		uint tempcount = 0;
 
@@ -7509,7 +7509,7 @@ public partial class Player
 							});
 	}
 
-	void VisualizeItem(uint slot, Item pItem)
+    private void VisualizeItem(uint slot, Item pItem)
 	{
 		if (pItem == null)
 			return;
@@ -7538,7 +7538,7 @@ public partial class Player
 		pItem.SetState(ItemUpdateState.Changed, this);
 	}
 
-	void AutoStoreLoot(byte bag, byte slot, uint loot_id, LootStore store, ItemContext context = 0, bool broadcast = false, bool createdByPlayer = false)
+    private void AutoStoreLoot(byte bag, byte slot, uint loot_id, LootStore store, ItemContext context = 0, bool broadcast = false, bool createdByPlayer = false)
 	{
 		Loot.Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
 		loot.FillLoot(loot_id, store, this, true, false, LootModes.Default, context);
@@ -7547,7 +7547,7 @@ public partial class Player
 		ProcSkillsAndAuras(this, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
 	}
 
-	void SendEquipmentSetList()
+    private void SendEquipmentSetList()
 	{
 		LoadEquipmentSet data = new();
 
@@ -7563,7 +7563,7 @@ public partial class Player
 	}
 
 	//Misc
-	void UpdateItemLevelAreaBasedScaling()
+    private void UpdateItemLevelAreaBasedScaling()
 	{
 		// @todo Activate pvp item levels during world pvp
 		var map = Map;
@@ -7580,7 +7580,7 @@ public partial class Player
 		// @todo other types of power scaling such as timewalking
 	}
 
-	bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield, bool canTitanGrip, EquipmentSlotDelegate callback)
+    private bool ForEachEquipmentSlot(InventoryType inventoryType, bool canDualWield, bool canTitanGrip, EquipmentSlotDelegate callback)
 	{
 		switch (inventoryType)
 		{
@@ -7670,5 +7670,5 @@ public partial class Player
 		}
 	}
 
-	delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
+    private delegate void EquipmentSlotDelegate(byte equipmentSlot, bool checkDuplicateGuid = false);
 }

@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetAction : ClientPacket
+internal class PetAction : ClientPacket
 {
 	public ObjectGuid PetGUID;
 	public uint Action;

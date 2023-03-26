@@ -15,8 +15,8 @@ namespace Forged.MapServer.Loot;
 
 public class LootItemStorage : Singleton<LootItemStorage>
 {
-	readonly ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
-	LootItemStorage() { }
+    private readonly ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
+    private LootItemStorage() { }
 
 	public void LoadStorageFromDB()
 	{
@@ -234,11 +234,11 @@ public class LootItemStorage : Singleton<LootItemStorage>
 	}
 }
 
-class StoredLootContainer
+internal class StoredLootContainer
 {
-	readonly MultiMap<uint, StoredLootItem> _lootItems = new();
-	readonly ulong _containerId;
-	uint _money;
+    private readonly MultiMap<uint, StoredLootItem> _lootItems = new();
+    private readonly ulong _containerId;
+    private uint _money;
 
 	public StoredLootContainer(ulong containerId)
 	{
@@ -334,13 +334,13 @@ class StoredLootContainer
 		return _lootItems;
 	}
 
-	ulong GetContainer()
+    private ulong GetContainer()
 	{
 		return _containerId;
 	}
 }
 
-class StoredLootItem
+internal class StoredLootItem
 {
 	public uint ItemId;
 	public uint Count;

@@ -9,7 +9,7 @@ namespace Forged.MapServer.Entities.Objects;
 
 internal class CombatLogSender : IDoWork<Player>
 {
-	readonly CombatLogServerPacket _message;
+    private readonly CombatLogServerPacket _message;
 
 	public CombatLogSender(CombatLogServerPacket msg)
 	{

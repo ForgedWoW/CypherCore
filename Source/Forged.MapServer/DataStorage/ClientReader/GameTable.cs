@@ -7,7 +7,7 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class GameTable<T> where T : new()
 {
-	List<T> _data = new();
+    private List<T> _data = new();
 
 	public T GetRow(uint row)
 	{

@@ -13,12 +13,12 @@ namespace Forged.MapServer.DataStorage;
 
 public class AreaTriggerDataStorage : Singleton<AreaTriggerDataStorage>
 {
-	readonly Dictionary<(uint mapId, uint cellId), SortedSet<ulong>> _areaTriggerSpawnsByLocation = new();
-	readonly Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
-	readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
-	readonly Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
+    private readonly Dictionary<(uint mapId, uint cellId), SortedSet<ulong>> _areaTriggerSpawnsByLocation = new();
+    private readonly Dictionary<ulong, AreaTriggerSpawn> _areaTriggerSpawnsBySpawnId = new();
+    private readonly Dictionary<AreaTriggerId, AreaTriggerTemplate> _areaTriggerTemplateStore = new();
+    private readonly Dictionary<uint, AreaTriggerCreateProperties> _areaTriggerCreateProperties = new();
 
-	AreaTriggerDataStorage() { }
+    private AreaTriggerDataStorage() { }
 
 	public void LoadAreaTriggerTemplates()
 	{

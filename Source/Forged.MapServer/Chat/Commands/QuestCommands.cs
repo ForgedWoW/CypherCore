@@ -15,10 +15,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("quest")]
-class QuestCommands
+internal class QuestCommands
 {
 	[Command("add", RBACPermissions.CommandQuestAdd)]
-	static bool HandleQuestAdd(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestAdd(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -58,7 +58,7 @@ class QuestCommands
 	}
 
 	[Command("complete", RBACPermissions.CommandQuestComplete)]
-	static bool HandleQuestComplete(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestComplete(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -86,7 +86,7 @@ class QuestCommands
 	}
 
 	[Command("remove", RBACPermissions.CommandQuestRemove)]
-	static bool HandleQuestRemove(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestRemove(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -140,7 +140,7 @@ class QuestCommands
 	}
 
 	[Command("reward", RBACPermissions.CommandQuestReward)]
-	static bool HandleQuestReward(CommandHandler handler, Quest.Quest quest)
+    private static bool HandleQuestReward(CommandHandler handler, Quest.Quest quest)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -164,7 +164,7 @@ class QuestCommands
 		return true;
 	}
 
-	static void CompleteObjective(Player player, QuestObjective obj)
+    private static void CompleteObjective(Player player, QuestObjective obj)
 	{
 		switch (obj.Type)
 		{
@@ -244,10 +244,10 @@ class QuestCommands
 	}
 
 	[CommandGroup("objective")]
-	class ObjectiveCommands
+    private class ObjectiveCommands
 	{
 		[Command("complete", RBACPermissions.CommandQuestObjectiveComplete)]
-		static bool HandleQuestObjectiveComplete(CommandHandler handler, uint objectiveId)
+        private static bool HandleQuestObjectiveComplete(CommandHandler handler, uint objectiveId)
 		{
 			var player = handler.SelectedPlayerOrSelf;
 

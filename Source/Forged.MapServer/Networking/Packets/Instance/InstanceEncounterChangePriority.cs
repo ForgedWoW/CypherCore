@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceEncounterChangePriority : ServerPacket
+internal class InstanceEncounterChangePriority : ServerPacket
 {
 	public ObjectGuid Unit;
 	public byte TargetFramePriority; // used to update the position of the unit's current frame

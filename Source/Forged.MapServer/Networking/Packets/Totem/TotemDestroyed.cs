@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Totem;
 
-class TotemDestroyed : ClientPacket
+internal class TotemDestroyed : ClientPacket
 {
 	public ObjectGuid TotemGUID;
 	public byte Slot;

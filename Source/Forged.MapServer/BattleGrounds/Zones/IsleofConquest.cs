@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class IsleofConquest { }
+internal class IsleofConquest { }
 
 public struct ICCreatures
 {

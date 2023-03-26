@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SwapSubGroups : ClientPacket
+internal class SwapSubGroups : ClientPacket
 {
 	public ObjectGuid FirstTarget;
 	public ObjectGuid SecondTarget;

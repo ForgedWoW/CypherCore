@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarGetEvent : ClientPacket
+internal class CalendarGetEvent : ClientPacket
 {
 	public ulong EventID;
 	public CalendarGetEvent(WorldPacket packet) : base(packet) { }

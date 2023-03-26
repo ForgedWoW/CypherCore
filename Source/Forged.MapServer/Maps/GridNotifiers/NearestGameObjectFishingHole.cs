@@ -8,10 +8,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestGameObjectFishingHole : ICheck<GameObject>
+internal class NearestGameObjectFishingHole : ICheck<GameObject>
 {
-	readonly WorldObject _obj;
-	float _range;
+    private readonly WorldObject _obj;
+    private float _range;
 
 	public NearestGameObjectFishingHole(WorldObject obj, float range)
 	{

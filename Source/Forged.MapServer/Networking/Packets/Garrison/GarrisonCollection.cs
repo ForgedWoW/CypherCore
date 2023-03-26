@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonCollection
+internal class GarrisonCollection
 {
 	public int Type;
 	public List<GarrisonCollectionEntry> Entries = new();

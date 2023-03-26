@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct JoinedAppend : IChannelAppender
+internal struct JoinedAppend : IChannelAppender
 {
 	public JoinedAppend(ObjectGuid guid)
 	{
@@ -21,5 +21,5 @@ struct JoinedAppend : IChannelAppender
 		data.SenderGuid = _guid;
 	}
 
-	readonly ObjectGuid _guid;
+    private readonly ObjectGuid _guid;
 }

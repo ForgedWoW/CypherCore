@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SetEveryoneIsAssistant : ClientPacket
+internal class SetEveryoneIsAssistant : ClientPacket
 {
 	public byte PartyIndex;
 	public bool EveryoneIsAssistant;

@@ -24,7 +24,7 @@ namespace Forged.MapServer.Chat;
 
 public class CommandHandler
 {
-	static readonly string[] spellKeys =
+    private static readonly string[] spellKeys =
 	{
 		"Hspell",   // normal spell
 		"Htalent",  // talent spell
@@ -33,9 +33,9 @@ public class CommandHandler
 		"Hglyph",   // glyph
 	};
 
-	readonly WorldSession _session;
+    private readonly WorldSession _session;
 
-	bool _sentErrorMessage;
+    private bool _sentErrorMessage;
 
 	public Player SelectedPlayer
 	{
@@ -649,7 +649,7 @@ public class CommandHandler
 		_sentErrorMessage = val;
 	}
 
-	string ExtractPlayerNameFromLink(StringArguments args)
+    private string ExtractPlayerNameFromLink(StringArguments args)
 	{
 		// |color|Hplayer:name|h[name]|h|r
 		var name = ExtractKeyFromLink(args, "Hplayer");
@@ -663,7 +663,7 @@ public class CommandHandler
 		return name;
 	}
 
-	bool HasStringAbbr(string name, string part)
+    private bool HasStringAbbr(string name, string part)
 	{
 		// non "" command
 		if (!name.IsEmpty())

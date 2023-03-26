@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SetPlayHoverAnim : ServerPacket
+internal class SetPlayHoverAnim : ServerPacket
 {
 	public ObjectGuid UnitGUID;
 	public bool PlayHoverAnim;

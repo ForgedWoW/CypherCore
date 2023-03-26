@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonEncounter
+internal class GarrisonEncounter
 {
 	public int GarrEncounterID;
 	public List<int> Mechanics = new();

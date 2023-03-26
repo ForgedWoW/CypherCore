@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionRequestFavoriteList : ClientPacket
+internal class AuctionRequestFavoriteList : ClientPacket
 {
 	public AuctionRequestFavoriteList(WorldPacket packet) : base(packet) { }
 

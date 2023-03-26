@@ -6,7 +6,7 @@ using Forged.MapServer.Networking.Packets.Item;
 
 namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
-class BlackMarketBidOnItem : ClientPacket
+internal class BlackMarketBidOnItem : ClientPacket
 {
 	public ObjectGuid Guid;
 	public uint MarketID;

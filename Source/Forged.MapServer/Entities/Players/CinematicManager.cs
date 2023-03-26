@@ -14,9 +14,9 @@ namespace Forged.MapServer.Entities.Players;
 public class CinematicManager : IDisposable
 {
 	// Remote location information
-	readonly Player _player;
-	readonly Position _remoteSightPosition;
-	TempSummon _cinematicObject;
+    private readonly Player _player;
+    private readonly Position _remoteSightPosition;
+    private TempSummon _cinematicObject;
 	public uint CinematicDiff { get; set; }
 	public uint LastCinematicCheck { get; set; }
 	public CinematicSequencesRecord ActiveCinematic { get; set; }

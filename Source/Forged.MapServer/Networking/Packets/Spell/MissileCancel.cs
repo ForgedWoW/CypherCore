@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class MissileCancel : ServerPacket
+internal class MissileCancel : ServerPacket
 {
 	public ObjectGuid OwnerGUID;
 	public bool Reverse;

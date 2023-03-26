@@ -15,7 +15,7 @@ namespace Forged.MapServer.Handlers;
 public class DuelHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.CanDuel)]
-	void HandleCanDuel(CanDuel packet)
+    private void HandleCanDuel(CanDuel packet)
 	{
 		var player = Global.ObjAccessor.FindPlayer(packet.TargetGUID);
 
@@ -37,7 +37,7 @@ public class DuelHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DuelResponse)]
-	void HandleDuelResponse(DuelResponse duelResponse)
+    private void HandleDuelResponse(DuelResponse duelResponse)
 	{
 		if (duelResponse.Accepted && !duelResponse.Forfeited)
 			HandleDuelAccepted(duelResponse.ArbiterGUID);
@@ -45,7 +45,7 @@ public class DuelHandler : IWorldSessionHandler
 			HandleDuelCancelled();
 	}
 
-	void HandleDuelAccepted(ObjectGuid arbiterGuid)
+    private void HandleDuelAccepted(ObjectGuid arbiterGuid)
 	{
 		var player = Player;
 
@@ -76,7 +76,7 @@ public class DuelHandler : IWorldSessionHandler
 		target.EnablePvpRules();
 	}
 
-	void HandleDuelCancelled()
+    private void HandleDuelCancelled()
 	{
 		var player = Player;
 

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class RequestStabledPets : ClientPacket
+internal class RequestStabledPets : ClientPacket
 {
 	public ObjectGuid StableMaster;
 	public RequestStabledPets(WorldPacket packet) : base(packet) { }

@@ -11,17 +11,17 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 {
-	static readonly uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
-	readonly AbstractFollower _abstractFollower;
-	readonly float _range;
-	readonly uint _point1;
-	readonly uint _point2;
-	readonly TimeTracker _nextMoveTimer = new();
-	float _angle;
-	uint _lastLeaderSplineID;
-	bool _hasPredictedDestination;
+    private static readonly uint FORMATION_MOVEMENT_INTERVAL = 1200; // sniffed (3 batch update cycles)
+    private readonly AbstractFollower _abstractFollower;
+    private readonly float _range;
+    private readonly uint _point1;
+    private readonly uint _point2;
+    private readonly TimeTracker _nextMoveTimer = new();
+    private float _angle;
+    private uint _lastLeaderSplineID;
+    private bool _hasPredictedDestination;
 
-	Position _lastLeaderPosition;
+    private Position _lastLeaderPosition;
 
 	public FormationMovementGenerator(Unit leader, float range, float angle, uint point1, uint point2)
 	{
@@ -175,7 +175,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 		return MovementGeneratorType.Formation;
 	}
 
-	void LaunchMovement(Creature owner, Unit target)
+    private void LaunchMovement(Creature owner, Unit target)
 	{
 		var relativeAngle = 0.0f;
 
@@ -237,7 +237,7 @@ public class FormationMovementGenerator : MovementGeneratorMedium<Creature>
 		RemoveFlag(MovementGeneratorFlags.Interrupted);
 	}
 
-	void MovementInform(Creature owner)
+    private void MovementInform(Creature owner)
 	{
 		if (owner.AI != null)
 			owner.AI.MovementInform(MovementGeneratorType.Formation, 0);

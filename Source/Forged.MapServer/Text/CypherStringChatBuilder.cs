@@ -6,13 +6,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Text;
 
-class CypherStringChatBuilder : MessageBuilder
+internal class CypherStringChatBuilder : MessageBuilder
 {
-	readonly WorldObject _source;
-	readonly ChatMsg _msgType;
-	readonly CypherStrings _textId;
-	readonly WorldObject _target;
-	readonly object[] _args;
+    private readonly WorldObject _source;
+    private readonly ChatMsg _msgType;
+    private readonly CypherStrings _textId;
+    private readonly WorldObject _target;
+    private readonly object[] _args;
 
 	public CypherStringChatBuilder(WorldObject obj, ChatMsg msgType, CypherStrings textId, WorldObject target = null, object[] args = null)
 	{

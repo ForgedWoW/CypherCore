@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class EnchantmentLog : ServerPacket
+internal class EnchantmentLog : ServerPacket
 {
 	public ObjectGuid Owner;
 	public ObjectGuid Caster;

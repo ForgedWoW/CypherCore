@@ -23,13 +23,13 @@ namespace Forged.MapServer.Spells;
 
 public class SpellHistory
 {
-	readonly Unit _owner;
-	readonly LoopSafeDictionary<uint, CooldownEntry> _spellCooldowns = new();
-	readonly LoopSafeDictionary<uint, CooldownEntry> _categoryCooldowns = new();
-	readonly DateTime[] _schoolLockouts = new DateTime[(int)SpellSchools.Max];
-	readonly MultiMap<uint, ChargeEntry> _categoryCharges = new();
-	readonly Dictionary<uint, DateTime> _globalCooldowns = new();
-	Dictionary<uint, CooldownEntry> _spellCooldownsBeforeDuel = new();
+    private readonly Unit _owner;
+    private readonly LoopSafeDictionary<uint, CooldownEntry> _spellCooldowns = new();
+    private readonly LoopSafeDictionary<uint, CooldownEntry> _categoryCooldowns = new();
+    private readonly DateTime[] _schoolLockouts = new DateTime[(int)SpellSchools.Max];
+    private readonly MultiMap<uint, ChargeEntry> _categoryCharges = new();
+    private readonly Dictionary<uint, DateTime> _globalCooldowns = new();
+    private Dictionary<uint, CooldownEntry> _spellCooldownsBeforeDuel = new();
 
 	public HashSet<uint> SpellsOnCooldown
 	{
@@ -1070,7 +1070,7 @@ public class SpellHistory
 		WritePacket(sendSpellCharges);
 	}
 
-	void ModifySpellCooldown(CooldownEntry cooldownEntry, TimeSpan cooldownMod, bool withoutCategoryCooldown)
+    private void ModifySpellCooldown(CooldownEntry cooldownEntry, TimeSpan cooldownMod, bool withoutCategoryCooldown)
 	{
 		var now = GameTime.GetSystemTime();
 
@@ -1111,7 +1111,7 @@ public class SpellHistory
 		}
 	}
 
-	void ModifyChargeRecoveryTime(uint chargeCategoryId, TimeSpan cooldownMod)
+    private void ModifyChargeRecoveryTime(uint chargeCategoryId, TimeSpan cooldownMod)
 	{
 		var chargeCategoryEntry = CliDB.SpellCategoryStorage.LookupByKey(chargeCategoryId);
 
@@ -1138,7 +1138,7 @@ public class SpellHistory
 		SendSetSpellCharges(chargeCategoryId, chargeList);
 	}
 
-	void SendSetSpellCharges(uint chargeCategoryId, List<ChargeEntry> chargeCollection)
+    private void SendSetSpellCharges(uint chargeCategoryId, List<ChargeEntry> chargeCollection)
 	{
 		var player = GetPlayerOwner();
 
@@ -1158,13 +1158,13 @@ public class SpellHistory
 		}
 	}
 
-	void GetCooldownDurations(SpellInfo spellInfo, uint itemId, ref uint categoryId)
+    private void GetCooldownDurations(SpellInfo spellInfo, uint itemId, ref uint categoryId)
 	{
 		var notUsed = TimeSpan.Zero;
 		GetCooldownDurations(spellInfo, itemId, ref notUsed, ref categoryId, ref notUsed);
 	}
 
-	void GetCooldownDurations(SpellInfo spellInfo, uint itemId, ref TimeSpan cooldown, ref uint categoryId, ref TimeSpan categoryCooldown)
+    private void GetCooldownDurations(SpellInfo spellInfo, uint itemId, ref TimeSpan cooldown, ref uint categoryId, ref TimeSpan categoryCooldown)
 	{
 		var tmpCooldown = TimeSpan.MinValue;
 		uint tmpCategoryId = 0;

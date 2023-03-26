@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionGetCommodityQuoteResult : ServerPacket
+internal class AuctionGetCommodityQuoteResult : ServerPacket
 {
 	public ulong? TotalPrice;
 	public uint? Quantity;

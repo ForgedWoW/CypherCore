@@ -7,7 +7,7 @@ using Forged.MapServer.Networking.Packets.Movement;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class UpdateMissileTrajectory : ClientPacket
+internal class UpdateMissileTrajectory : ClientPacket
 {
 	public ObjectGuid Guid;
 	public ObjectGuid CastID;

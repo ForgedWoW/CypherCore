@@ -10,12 +10,12 @@ namespace Forged.MapServer.Text;
 
 public class BroadcastTextBuilder : MessageBuilder
 {
-	readonly WorldObject _source;
-	readonly ChatMsg _msgType;
-	readonly uint _textId;
-	readonly Gender _gender;
-	readonly WorldObject _target;
-	readonly uint _achievementId;
+    private readonly WorldObject _source;
+    private readonly ChatMsg _msgType;
+    private readonly uint _textId;
+    private readonly Gender _gender;
+    private readonly WorldObject _target;
+    private readonly uint _achievementId;
 
 	public BroadcastTextBuilder(WorldObject obj, ChatMsg msgtype, uint textId, Gender gender, WorldObject target = null, uint achievementId = 0)
 	{

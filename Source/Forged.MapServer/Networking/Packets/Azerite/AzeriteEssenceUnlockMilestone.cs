@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class AzeriteEssenceUnlockMilestone : ClientPacket
+internal class AzeriteEssenceUnlockMilestone : ClientPacket
 {
 	public int AzeriteItemMilestonePowerID;
 	public AzeriteEssenceUnlockMilestone(WorldPacket packet) : base(packet) { }

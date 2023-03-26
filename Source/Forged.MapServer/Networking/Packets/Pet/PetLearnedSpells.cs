@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetLearnedSpells : ServerPacket
+internal class PetLearnedSpells : ServerPacket
 {
 	public List<uint> Spells = new();
 	public PetLearnedSpells() : base(ServerOpcodes.PetLearnedSpells, ConnectionType.Instance) { }

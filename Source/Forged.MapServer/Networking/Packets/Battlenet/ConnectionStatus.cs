@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Battlenet;
 
-class ConnectionStatus : ServerPacket
+internal class ConnectionStatus : ServerPacket
 {
 	public byte State;
 	public bool SuppressNotification = true;

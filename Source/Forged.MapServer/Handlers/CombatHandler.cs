@@ -14,7 +14,7 @@ namespace Forged.MapServer.Handlers;
 public class CombatHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.AttackSwing, Processing = PacketProcessing.Inplace)]
-	void HandleAttackSwing(AttackSwing packet)
+    private void HandleAttackSwing(AttackSwing packet)
 	{
 		var enemy = Global.ObjAccessor.GetUnit(Player, packet.Victim);
 
@@ -55,13 +55,13 @@ public class CombatHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AttackStop, Processing = PacketProcessing.Inplace)]
-	void HandleAttackStop(AttackStop packet)
+    private void HandleAttackStop(AttackStop packet)
 	{
 		Player.AttackStop();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetSheathed, Processing = PacketProcessing.Inplace)]
-	void HandleSetSheathed(SetSheathed packet)
+    private void HandleSetSheathed(SetSheathed packet)
 	{
 		if (packet.CurrentSheathState >= (int)SheathState.Max)
 		{
@@ -73,7 +73,7 @@ public class CombatHandler : IWorldSessionHandler
 		Player.Sheath = (SheathState)packet.CurrentSheathState;
 	}
 
-	void SendAttackStop(Unit enemy)
+    private void SendAttackStop(Unit enemy)
 	{
 		SendPacket(new SAttackStop(Player, enemy));
 	}

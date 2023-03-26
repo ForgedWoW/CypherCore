@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class ForcedDespawnDelayEvent : BasicEvent
 {
-	readonly Creature _owner;
-	readonly TimeSpan _respawnTimer;
+    private readonly Creature _owner;
+    private readonly TimeSpan _respawnTimer;
 
 	public ForcedDespawnDelayEvent(Creature owner, TimeSpan respawnTimer = default)
 	{

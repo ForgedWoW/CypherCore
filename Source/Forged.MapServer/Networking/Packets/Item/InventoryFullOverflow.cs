@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class InventoryFullOverflow : ServerPacket
+internal class InventoryFullOverflow : ServerPacket
 {
 	public InventoryFullOverflow() : base(ServerOpcodes.InventoryFullOverflow) { }
 

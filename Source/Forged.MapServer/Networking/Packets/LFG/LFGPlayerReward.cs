@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LFGPlayerReward : ServerPacket
+internal class LFGPlayerReward : ServerPacket
 {
 	public uint QueuedSlot;
 	public uint ActualSlot;

@@ -12,12 +12,12 @@ using Serilog;
 
 namespace Forged.MapServer.AI.ScriptedAI;
 
-class FollowerAI : ScriptedAI
+internal class FollowerAI : ScriptedAI
 {
-	ObjectGuid _leaderGUID;
-	uint _updateFollowTimer;
-	FollowState _followState;
-	uint _questForFollow;
+    private ObjectGuid _leaderGUID;
+    private uint _updateFollowTimer;
+    private FollowState _followState;
+    private uint _questForFollow;
 
 	public FollowerAI(Creature creature) : base(creature)
 	{
@@ -252,7 +252,7 @@ class FollowerAI : ScriptedAI
 		return HasFollowState(FollowState.Inprogress);
 	}
 
-	void UpdateFollowerAI(uint diff)
+    private void UpdateFollowerAI(uint diff)
 	{
 		if (!UpdateVictim())
 			return;
@@ -260,7 +260,7 @@ class FollowerAI : ScriptedAI
 		DoMeleeAttackIfReady();
 	}
 
-	Player GetLeaderForFollower()
+    private Player GetLeaderForFollower()
 	{
 		var player = Global.ObjAccessor.GetPlayer(Me, _leaderGUID);
 
@@ -298,7 +298,7 @@ class FollowerAI : ScriptedAI
 	//This part provides assistance to a player that are attacked by who, even if out of normal aggro range
 	//It will cause me to attack who that are attacking _any_ player (which has been confirmed may happen also on offi)
 	//The flag (type_flag) is unconfirmed, but used here for further research and is a good candidate.
-	bool ShouldAssistPlayerInCombatAgainst(Unit who)
+    private bool ShouldAssistPlayerInCombatAgainst(Unit who)
 	{
 		if (!who || !who.Victim)
 			return false;
@@ -332,17 +332,17 @@ class FollowerAI : ScriptedAI
 		return true;
 	}
 
-	bool HasFollowState(FollowState uiFollowState)
+    private bool HasFollowState(FollowState uiFollowState)
 	{
 		return (_followState & uiFollowState) != 0;
 	}
 
-	void AddFollowState(FollowState uiFollowState)
+    private void AddFollowState(FollowState uiFollowState)
 	{
 		_followState |= uiFollowState;
 	}
 
-	void RemoveFollowState(FollowState uiFollowState)
+    private void RemoveFollowState(FollowState uiFollowState)
 	{
 		_followState &= ~uiFollowState;
 	}

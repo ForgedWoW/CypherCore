@@ -8,14 +8,14 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Movement.Generators;
 
-class GenericMovementGenerator : MovementGenerator
+internal class GenericMovementGenerator : MovementGenerator
 {
-	readonly Action<MoveSplineInit> _splineInit;
-	readonly MovementGeneratorType _type;
-	readonly uint _pointId;
-	readonly TimeTracker _duration;
-	readonly uint _arrivalSpellId;
-	readonly ObjectGuid _arrivalSpellTargetGuid;
+    private readonly Action<MoveSplineInit> _splineInit;
+    private readonly MovementGeneratorType _type;
+    private readonly uint _pointId;
+    private readonly TimeTracker _duration;
+    private readonly uint _arrivalSpellId;
+    private readonly ObjectGuid _arrivalSpellTargetGuid;
 
 	public GenericMovementGenerator(Action<MoveSplineInit> initializer, MovementGeneratorType type, uint id, uint arrivalSpellId = 0, ObjectGuid arrivalSpellTargetGuid = default)
 	{
@@ -92,7 +92,7 @@ class GenericMovementGenerator : MovementGenerator
 		return _type;
 	}
 
-	void MovementInform(Unit owner)
+    private void MovementInform(Unit owner)
 	{
 		if (_arrivalSpellId != 0)
 			owner.CastSpell(Global.ObjAccessor.GetUnit(owner, _arrivalSpellTargetGuid), _arrivalSpellId, true);

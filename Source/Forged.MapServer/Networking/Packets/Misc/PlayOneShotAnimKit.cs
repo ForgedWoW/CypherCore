@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class PlayOneShotAnimKit : ServerPacket
+internal class PlayOneShotAnimKit : ServerPacket
 {
 	public ObjectGuid Unit;
 	public ushort AnimKitID;

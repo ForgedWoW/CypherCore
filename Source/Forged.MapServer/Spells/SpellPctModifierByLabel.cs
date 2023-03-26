@@ -6,7 +6,7 @@ using Forged.MapServer.Spells.Auras;
 
 namespace Forged.MapServer.Spells;
 
-class SpellPctModifierByLabel : SpellModifier
+internal class SpellPctModifierByLabel : SpellModifier
 {
 	public SpellPctModByLabel Value = new();
 

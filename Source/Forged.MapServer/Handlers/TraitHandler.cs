@@ -17,7 +17,7 @@ namespace Forged.MapServer.Handlers;
 public class TraitHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.TraitsCommitConfig)]
-	void HandleTraitsCommitConfig(TraitsCommitConfig traitsCommitConfig)
+    private void HandleTraitsCommitConfig(TraitsCommitConfig traitsCommitConfig)
 	{
 		var configId = traitsCommitConfig.Config.ID;
 		var existingConfig = _player.GetTraitConfig(configId);
@@ -153,7 +153,7 @@ public class TraitHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ClassTalentsRequestNewConfig)]
-	void HandleClassTalentsRequestNewConfig(ClassTalentsRequestNewConfig classTalentsRequestNewConfig)
+    private void HandleClassTalentsRequestNewConfig(ClassTalentsRequestNewConfig classTalentsRequestNewConfig)
 	{
 		if (classTalentsRequestNewConfig.Config.Type != TraitConfigType.Combat)
 			return;
@@ -210,19 +210,19 @@ public class TraitHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ClassTalentsRenameConfig)]
-	void HandleClassTalentsRenameConfig(ClassTalentsRenameConfig classTalentsRenameConfig)
+    private void HandleClassTalentsRenameConfig(ClassTalentsRenameConfig classTalentsRenameConfig)
 	{
 		_player.RenameTraitConfig(classTalentsRenameConfig.ConfigID, classTalentsRenameConfig.Name);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ClassTalentsDeleteConfig)]
-	void HandleClassTalentsDeleteConfig(ClassTalentsDeleteConfig classTalentsDeleteConfig)
+    private void HandleClassTalentsDeleteConfig(ClassTalentsDeleteConfig classTalentsDeleteConfig)
 	{
 		_player.DeleteTraitConfig(classTalentsDeleteConfig.ConfigID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ClassTalentsSetStarterBuildActive)]
-	void HandleClassTalentsSetStarterBuildActive(ClassTalentsSetStarterBuildActive classTalentsSetStarterBuildActive)
+    private void HandleClassTalentsSetStarterBuildActive(ClassTalentsSetStarterBuildActive classTalentsSetStarterBuildActive)
 	{
 		var traitConfig = _player.GetTraitConfig(classTalentsSetStarterBuildActive.ConfigID);
 
@@ -257,7 +257,7 @@ public class TraitHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ClassTalentsSetUsesSharedActionBars)]
-	void HandleClassTalentsSetUsesSharedActionBars(ClassTalentsSetUsesSharedActionBars classTalentsSetUsesSharedActionBars)
+    private void HandleClassTalentsSetUsesSharedActionBars(ClassTalentsSetUsesSharedActionBars classTalentsSetUsesSharedActionBars)
 	{
 		_player.SetTraitConfigUseSharedActionBars(classTalentsSetUsesSharedActionBars.ConfigID,
 												classTalentsSetUsesSharedActionBars.UsesShared,

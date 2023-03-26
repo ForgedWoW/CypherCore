@@ -14,7 +14,7 @@ namespace Forged.MapServer.Handlers;
 public class SkillHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.LearnTalents, Processing = PacketProcessing.Inplace)]
-	void HandleLearnTalents(LearnTalents packet)
+    private void HandleLearnTalents(LearnTalents packet)
 	{
 		LearnTalentFailed learnTalentFailed = new();
 		var anythingLearned = false;
@@ -44,7 +44,7 @@ public class SkillHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LearnPvpTalents, Processing = PacketProcessing.Inplace)]
-	void HandleLearnPvpTalents(LearnPvpTalents packet)
+    private void HandleLearnPvpTalents(LearnPvpTalents packet)
 	{
 		LearnPvpTalentFailed learnPvpTalentFailed = new();
 		var anythingLearned = false;
@@ -74,7 +74,7 @@ public class SkillHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ConfirmRespecWipe)]
-	void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
+    private void HandleConfirmRespecWipe(ConfirmRespecWipe confirmRespecWipe)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(confirmRespecWipe.RespecMaster, NPCFlags.Trainer, NPCFlags2.None);
 
@@ -107,7 +107,7 @@ public class SkillHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UnlearnSkill, Processing = PacketProcessing.Inplace)]
-	void HandleUnlearnSkill(UnlearnSkill packet)
+    private void HandleUnlearnSkill(UnlearnSkill packet)
 	{
 		var rcEntry = Global.DB2Mgr.GetSkillRaceClassInfo(packet.SkillLine, Player.Race, Player.Class);
 
@@ -118,7 +118,7 @@ public class SkillHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TradeSkillSetFavorite, Processing = PacketProcessing.Inplace)]
-	void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
+    private void HandleTradeSkillSetFavorite(TradeSkillSetFavorite tradeSkillSetFavorite)
 	{
 		if (!_player.HasSpell(tradeSkillSetFavorite.RecipeID))
 			return;

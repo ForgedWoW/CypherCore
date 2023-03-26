@@ -7,9 +7,9 @@ using Forged.MapServer.Phasing;
 
 namespace Forged.MapServer.Entities.GameObjects;
 
-class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
+internal class GameObjectModelOwnerImpl : GameObjectModelOwnerBase
 {
-	readonly GameObject _owner;
+    private readonly GameObject _owner;
 
 	public GameObjectModelOwnerImpl(GameObject owner)
 	{

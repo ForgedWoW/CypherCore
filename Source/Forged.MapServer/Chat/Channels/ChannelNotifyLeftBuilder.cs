@@ -8,10 +8,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-class ChannelNotifyLeftBuilder : MessageBuilder
+internal class ChannelNotifyLeftBuilder : MessageBuilder
 {
-	readonly Channel _source;
-	readonly bool _suspended;
+    private readonly Channel _source;
+    private readonly bool _suspended;
 
 	public ChannelNotifyLeftBuilder(Channel source, bool suspend)
 	{

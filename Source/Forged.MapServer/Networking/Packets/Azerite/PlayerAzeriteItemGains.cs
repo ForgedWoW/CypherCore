@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class PlayerAzeriteItemGains : ServerPacket
+internal class PlayerAzeriteItemGains : ServerPacket
 {
 	public ObjectGuid ItemGUID;
 	public ulong XP;

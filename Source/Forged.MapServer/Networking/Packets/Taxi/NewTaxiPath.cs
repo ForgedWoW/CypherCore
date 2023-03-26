@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Taxi;
 
-class NewTaxiPath : ServerPacket
+internal class NewTaxiPath : ServerPacket
 {
 	public NewTaxiPath() : base(ServerOpcodes.NewTaxiPath) { }
 

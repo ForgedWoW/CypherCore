@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-struct CalendarUpdateEventInfo
+internal struct CalendarUpdateEventInfo
 {
 	public void Read(WorldPacket data)
 	{

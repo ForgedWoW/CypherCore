@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.Structs.F;
 
 namespace Forged.MapServer.DataStorage;
 
-class FriendshipRepReactionRecordComparer : IComparer<FriendshipRepReactionRecord>
+internal class FriendshipRepReactionRecordComparer : IComparer<FriendshipRepReactionRecord>
 {
 	public int Compare(FriendshipRepReactionRecord left, FriendshipRepReactionRecord right)
 	{

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class DurabilityDamageDeath : ServerPacket
+internal class DurabilityDamageDeath : ServerPacket
 {
 	public uint Percent;
 	public DurabilityDamageDeath() : base(ServerOpcodes.DurabilityDamageDeath) { }

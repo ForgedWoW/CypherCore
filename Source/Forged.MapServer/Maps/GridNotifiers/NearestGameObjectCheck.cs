@@ -7,10 +7,10 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestGameObjectCheck : ICheck<GameObject>
+internal class NearestGameObjectCheck : ICheck<GameObject>
 {
-	readonly WorldObject _obj;
-	float _range;
+    private readonly WorldObject _obj;
+    private float _range;
 
 	public NearestGameObjectCheck(WorldObject obj)
 	{

@@ -9,7 +9,7 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class ObjectGUIDCheck : ICheck<WorldObject>
 {
-	readonly ObjectGuid _gUID;
+    private readonly ObjectGuid _gUID;
 
 	public ObjectGUIDCheck(ObjectGuid GUID)
 	{

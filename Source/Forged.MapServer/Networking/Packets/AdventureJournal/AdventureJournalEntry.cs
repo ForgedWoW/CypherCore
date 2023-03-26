@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
-struct AdventureJournalEntry
+internal struct AdventureJournalEntry
 {
 	public int AdventureJournalID;
 	public int Priority;

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps;
 
-class SplitByFactionMapScript : WorldMapScript, IMapOnCreate<Map>
+internal class SplitByFactionMapScript : WorldMapScript, IMapOnCreate<Map>
 {
 	public SplitByFactionMapScript(string name, uint mapId) : base(name, mapId) { }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootItemPkt : ClientPacket
+internal class LootItemPkt : ClientPacket
 {
 	public List<LootRequest> Loot = new();
 	public LootItemPkt(WorldPacket packet) : base(packet) { }

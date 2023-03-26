@@ -13,21 +13,21 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-class TraitMgr
+internal class TraitMgr
 {
 	public const uint COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID = 384255u;
 	public const uint MAX_COMBAT_TRAIT_CONFIGS = 10u;
 
-	static readonly Dictionary<int, NodeGroup> TraitGroups = new();
-	static readonly Dictionary<int, Node> TraitNodes = new();
-	static readonly Dictionary<int, Tree> TraitTrees = new();
-	static readonly int[] SkillLinesByClass = new int[(int)PlayerClass.Max];
-	static readonly MultiMap<int, Tree> TraitTreesBySkillLine = new();
-	static readonly MultiMap<int, Tree> TraitTreesByTraitSystem = new();
-	static int _configIdGenerator;
-	static readonly MultiMap<int, TraitCurrencySourceRecord> TraitCurrencySourcesByCurrency = new();
-	static readonly MultiMap<int, TraitDefinitionEffectPointsRecord> TraitDefinitionEffectPointModifiers = new();
-	static readonly MultiMap<int, TraitTreeLoadoutEntryRecord> TraitTreeLoadoutsByChrSpecialization = new();
+    private static readonly Dictionary<int, NodeGroup> TraitGroups = new();
+    private static readonly Dictionary<int, Node> TraitNodes = new();
+    private static readonly Dictionary<int, Tree> TraitTrees = new();
+    private static readonly int[] SkillLinesByClass = new int[(int)PlayerClass.Max];
+    private static readonly MultiMap<int, Tree> TraitTreesBySkillLine = new();
+    private static readonly MultiMap<int, Tree> TraitTreesByTraitSystem = new();
+    private static int _configIdGenerator;
+    private static readonly MultiMap<int, TraitCurrencySourceRecord> TraitCurrencySourcesByCurrency = new();
+    private static readonly MultiMap<int, TraitDefinitionEffectPointsRecord> TraitDefinitionEffectPointModifiers = new();
+    private static readonly MultiMap<int, TraitTreeLoadoutEntryRecord> TraitTreeLoadoutsByChrSpecialization = new();
 
 	public static void Load()
 	{

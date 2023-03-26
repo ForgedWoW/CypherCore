@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellDamageShield : CombatLogServerPacket
+internal class SpellDamageShield : CombatLogServerPacket
 {
 	public ObjectGuid Attacker;
 	public ObjectGuid Defender;

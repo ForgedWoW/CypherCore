@@ -11,9 +11,9 @@ public class MovementInfo
 	public MovementInertia? Inertia;
 	public JumpInfo Jump;
 	public AdvFlyingMovement? AdvFlying;
-	MovementFlag _flags;
-	MovementFlag2 _flags2;
-	MovementFlags3 _flags3;
+    private MovementFlag _flags;
+    private MovementFlag2 _flags2;
+    private MovementFlags3 _flags3;
 
 	public ObjectGuid Guid { get; set; }
 	public Position Pos { get; set; }

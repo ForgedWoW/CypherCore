@@ -5,7 +5,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Warden;
 
-class WardenData : ClientPacket
+internal class WardenData : ClientPacket
 {
 	public ByteBuffer Data;
 	public WardenData(WorldPacket packet) : base(packet) { }

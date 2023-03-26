@@ -7,11 +7,11 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class AllGameObjectsWithEntryInRange : ICheck<GameObject>
+internal class AllGameObjectsWithEntryInRange : ICheck<GameObject>
 {
-	readonly WorldObject _pObject;
-	readonly uint _uiEntry;
-	readonly float _fRange;
+    private readonly WorldObject _pObject;
+    private readonly uint _uiEntry;
+    private readonly float _fRange;
 
 	public AllGameObjectsWithEntryInRange(WorldObject obj, uint entry, float maxRange)
 	{

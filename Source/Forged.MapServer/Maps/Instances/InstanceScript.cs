@@ -25,22 +25,22 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class InstanceScript : ZoneScript
 {
-	readonly Dictionary<uint, BossInfo> _bosses = new();
-	readonly List<PersistentInstanceScriptValueBase> _persistentScriptValues = new();
-	readonly MultiMap<uint, DoorInfo> _doors = new();
-	readonly Dictionary<uint, MinionInfo> _minions = new();
-	readonly Dictionary<uint, uint> _creatureInfo = new();
-	readonly Dictionary<uint, uint> _gameObjectInfo = new();
-	readonly Dictionary<uint, ObjectGuid> _objectGuids = new();
-	readonly List<InstanceSpawnGroupInfo> _instanceSpawnGroups = new();
-	readonly List<uint> _activatedAreaTriggers = new();
-	string _headers;
-	uint _completedEncounters; // DEPRECATED, REMOVE
-	uint _entranceId;
-	uint _temporaryEntranceId;
-	uint _combatResurrectionTimer;
-	byte _combatResurrectionCharges; // the counter for available battle resurrections
-	bool _combatResurrectionTimerStarted;
+    private readonly Dictionary<uint, BossInfo> _bosses = new();
+    private readonly List<PersistentInstanceScriptValueBase> _persistentScriptValues = new();
+    private readonly MultiMap<uint, DoorInfo> _doors = new();
+    private readonly Dictionary<uint, MinionInfo> _minions = new();
+    private readonly Dictionary<uint, uint> _creatureInfo = new();
+    private readonly Dictionary<uint, uint> _gameObjectInfo = new();
+    private readonly Dictionary<uint, ObjectGuid> _objectGuids = new();
+    private readonly List<InstanceSpawnGroupInfo> _instanceSpawnGroups = new();
+    private readonly List<uint> _activatedAreaTriggers = new();
+    private string _headers;
+    private uint _completedEncounters; // DEPRECATED, REMOVE
+    private uint _entranceId;
+    private uint _temporaryEntranceId;
+    private uint _combatResurrectionTimer;
+    private byte _combatResurrectionCharges; // the counter for available battle resurrections
+    private bool _combatResurrectionTimerStarted;
 
 	public InstanceMap Instance { get; set; }
 
@@ -929,20 +929,20 @@ public class InstanceScript : ZoneScript
 	// Override this function to validate all additional data loads
 	public virtual void AfterDataLoad() { }
 
-	void LoadObjectData(ObjectData[] objectData, Dictionary<uint, uint> objectInfo)
+    private void LoadObjectData(ObjectData[] objectData, Dictionary<uint, uint> objectInfo)
 	{
 		foreach (var data in objectData)
 			objectInfo[data.Entry] = data.Type;
 	}
 
-	void LoadDungeonEncounterData(uint bossId, uint[] dungeonEncounterIds)
+    private void LoadDungeonEncounterData(uint bossId, uint[] dungeonEncounterIds)
 	{
 		if (bossId < _bosses.Count)
 			for (var i = 0; i < dungeonEncounterIds.Length && i < MapConst.MaxDungeonEncountersPerBoss; ++i)
 				_bosses[bossId].DungeonEncounters[i] = CliDB.DungeonEncounterStorage.LookupByKey(dungeonEncounterIds[i]);
 	}
 
-	void UpdateMinionState(Creature minion, EncounterState state)
+    private void UpdateMinionState(Creature minion, EncounterState state)
 	{
 		switch (state)
 		{
@@ -965,7 +965,7 @@ public class InstanceScript : ZoneScript
 		}
 	}
 
-	void UpdateSpawnGroups()
+    private void UpdateSpawnGroups()
 	{
 		if (_instanceSpawnGroups.Empty())
 			return;
@@ -1009,19 +1009,19 @@ public class InstanceScript : ZoneScript
 		}
 	}
 
-	void AddObject(Creature obj, bool add)
+    private void AddObject(Creature obj, bool add)
 	{
 		if (_creatureInfo.ContainsKey(obj.Entry))
 			AddObject(obj, _creatureInfo[obj.Entry], add);
 	}
 
-	void AddObject(GameObject obj, bool add)
+    private void AddObject(GameObject obj, bool add)
 	{
 		if (_gameObjectInfo.ContainsKey(obj.Entry))
 			AddObject(obj, _gameObjectInfo[obj.Entry], add);
 	}
 
-	void AddObject(WorldObject obj, uint type, bool add)
+    private void AddObject(WorldObject obj, uint type, bool add)
 	{
 		if (add)
 		{
@@ -1036,7 +1036,7 @@ public class InstanceScript : ZoneScript
 		}
 	}
 
-	void DoCloseDoorOrButton(ObjectGuid guid)
+    private void DoCloseDoorOrButton(ObjectGuid guid)
 	{
 		if (guid.IsEmpty)
 			return;
@@ -1062,12 +1062,12 @@ public class InstanceScript : ZoneScript
 	}
 
 	// Send Notify to all players in instance
-	void DoSendNotifyToInstance(string format, params object[] args)
+    private void DoSendNotifyToInstance(string format, params object[] args)
 	{
 		Instance.DoOnPlayers(player => player.Session?.SendNotification(format, args));
 	}
 
-	void SendEncounterStart(uint inCombatResCount = 0, uint maxInCombatResCount = 0, uint inCombatResChargeRecovery = 0, uint nextCombatResChargeTime = 0)
+    private void SendEncounterStart(uint inCombatResCount = 0, uint maxInCombatResCount = 0, uint inCombatResChargeRecovery = 0, uint nextCombatResChargeTime = 0)
 	{
 		InstanceEncounterStart encounterStartMessage = new()
 		{
@@ -1080,12 +1080,12 @@ public class InstanceScript : ZoneScript
 		Instance.SendToPlayers(encounterStartMessage);
 	}
 
-	void SendEncounterEnd()
+    private void SendEncounterEnd()
 	{
 		Instance.SendToPlayers(new InstanceEncounterEnd());
 	}
 
-	void UpdateEncounterState(EncounterCreditType type, uint creditEntry, Unit source)
+    private void UpdateEncounterState(EncounterCreditType type, uint creditEntry, Unit source)
 	{
 		var encounters = Global.ObjectMgr.GetDungeonEncounterList(Instance.Id, Instance.DifficultyID);
 
@@ -1134,12 +1134,12 @@ public class InstanceScript : ZoneScript
 		}
 	}
 
-	void UpdatePhasing()
+    private void UpdatePhasing()
 	{
 		Instance.DoOnPlayers(player => PhasingHandler.SendToPlayer(player));
 	}
 
-	void InitializeCombatResurrections(byte charges = 1, uint interval = 0)
+    private void InitializeCombatResurrections(byte charges = 1, uint interval = 0)
 	{
 		_combatResurrectionCharges = charges;
 
@@ -1150,7 +1150,7 @@ public class InstanceScript : ZoneScript
 		_combatResurrectionTimerStarted = true;
 	}
 
-	enum InstanceState
+    private enum InstanceState
 	{
 		Block,
 		Spawn,

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonPurchaseBuilding : ClientPacket
+internal class GarrisonPurchaseBuilding : ClientPacket
 {
 	public ObjectGuid NpcGUID;
 	public uint BuildingID;

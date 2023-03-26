@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Entities.GameObjects;
 
-class GameObjectTypeBase
+internal class GameObjectTypeBase
 {
 	protected readonly GameObject Owner;
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Transmogification;
 
-struct TransmogrifyItem
+internal struct TransmogrifyItem
 {
 	public void Read(WorldPacket data)
 	{

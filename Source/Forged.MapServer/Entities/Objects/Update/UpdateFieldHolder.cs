@@ -7,7 +7,7 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateFieldHolder
 {
-	readonly UpdateMask _changesMask = new((int)TypeId.Max);
+    private readonly UpdateMask _changesMask = new((int)TypeId.Max);
 
 	public UpdateFieldHolder(WorldObject owner) { }
 

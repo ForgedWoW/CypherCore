@@ -8,11 +8,11 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
 
-class PlayerIdentifier
+internal class PlayerIdentifier
 {
-	string _name;
-	ObjectGuid _guid;
-	Player _player;
+    private string _name;
+    private ObjectGuid _guid;
+    private Player _player;
 
 	public PlayerIdentifier() { }
 

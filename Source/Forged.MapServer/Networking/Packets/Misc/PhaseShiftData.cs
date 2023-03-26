@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class PhaseShiftData
+internal class PhaseShiftData
 {
 	public uint PhaseShiftFlags;
 	public List<PhaseShiftDataPhase> Phases = new();

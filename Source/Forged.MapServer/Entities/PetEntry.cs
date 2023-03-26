@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Entities;
 
-enum PetEntry
+internal enum PetEntry
 {
 	// Warlock pets
 	Imp = 416,

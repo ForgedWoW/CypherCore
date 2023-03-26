@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct NotMemberAppend : IChannelAppender
+internal struct NotMemberAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.NotMemberNotice;
 

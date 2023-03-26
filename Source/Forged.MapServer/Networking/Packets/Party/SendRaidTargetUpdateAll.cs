@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SendRaidTargetUpdateAll : ServerPacket
+internal class SendRaidTargetUpdateAll : ServerPacket
 {
 	public sbyte PartyIndex;
 	public Dictionary<byte, ObjectGuid> TargetIcons = new();

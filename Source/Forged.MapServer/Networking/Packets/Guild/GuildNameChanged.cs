@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Guild;
 
-class GuildNameChanged : ServerPacket
+internal class GuildNameChanged : ServerPacket
 {
 	public ObjectGuid GuildGUID;
 	public string GuildName;

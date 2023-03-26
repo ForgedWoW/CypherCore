@@ -11,13 +11,13 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class Grid
 {
-	readonly uint _gridX;
-	readonly uint _gridY;
-	readonly GridInfo _gridInfo;
-	readonly GridCell[][] _cells = new GridCell[MapConst.MaxCells][];
-	readonly uint _gridId;
-	GridState _gridState;
-	bool _gridObjectDataLoaded;
+    private readonly uint _gridX;
+    private readonly uint _gridY;
+    private readonly GridInfo _gridInfo;
+    private readonly GridCell[][] _cells = new GridCell[MapConst.MaxCells][];
+    private readonly uint _gridId;
+    private GridState _gridState;
+    private bool _gridObjectDataLoaded;
 
 	public Grid(uint id, uint x, uint y, long expiry, bool unload = true)
 	{

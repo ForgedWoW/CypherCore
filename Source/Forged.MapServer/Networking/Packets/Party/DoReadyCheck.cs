@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class DoReadyCheck : ClientPacket
+internal class DoReadyCheck : ClientPacket
 {
 	public sbyte PartyIndex;
 	public DoReadyCheck(WorldPacket packet) : base(packet) { }

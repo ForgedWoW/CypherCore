@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Transmogification;
 
-class TransmogrifyItems : ClientPacket
+internal class TransmogrifyItems : ClientPacket
 {
 	public ObjectGuid Npc;
 	public Array<TransmogrifyItem> Items = new(13);

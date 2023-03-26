@@ -8,7 +8,7 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 public class EntryCheckPredicate : ICheck<ObjectGuid>
 {
-	readonly uint _entry;
+    private readonly uint _entry;
 
 	public EntryCheckPredicate(uint entry)
 	{

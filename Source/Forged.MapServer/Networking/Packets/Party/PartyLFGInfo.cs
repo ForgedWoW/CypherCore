@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-struct PartyLFGInfo
+internal struct PartyLFGInfo
 {
 	public void Write(WorldPacket data)
 	{

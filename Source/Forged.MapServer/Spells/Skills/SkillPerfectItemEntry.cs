@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Spells.Skills;
 
-class SkillPerfectItemEntry
+internal class SkillPerfectItemEntry
 {
 	// the spell id of the spell required - it's named "specialization" to conform with SkillExtraItemEntry
 	public uint RequiredSpecialization;

@@ -110,7 +110,7 @@ public class TransportTemplate
 		return leg.Segments[segmentIndex].SegmentEndArrivalTimestamp + leg.Segments[segmentIndex].Delay;
 	}
 
-	double CalculateDistanceMoved(double timePassedInSegment, double segmentDuration, bool isFirstSegment, bool isLastSegment)
+    private double CalculateDistanceMoved(double timePassedInSegment, double segmentDuration, bool isFirstSegment, bool isLastSegment)
 	{
 		if (isFirstSegment)
 		{

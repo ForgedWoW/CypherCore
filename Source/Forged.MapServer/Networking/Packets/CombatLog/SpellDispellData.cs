@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-struct SpellDispellData
+internal struct SpellDispellData
 {
 	public uint SpellID;
 	public bool Harmful;

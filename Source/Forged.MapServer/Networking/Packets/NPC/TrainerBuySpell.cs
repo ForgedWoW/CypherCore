@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class TrainerBuySpell : ClientPacket
+internal class TrainerBuySpell : ClientPacket
 {
 	public ObjectGuid TrainerGUID;
 	public uint TrainerID;

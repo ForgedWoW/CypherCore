@@ -8,9 +8,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class HeightDifferenceCheck : ICheck<WorldObject>
 {
-	readonly WorldObject _baseObject;
-	readonly float _difference;
-	readonly bool _reverse;
+    private readonly WorldObject _baseObject;
+    private readonly float _difference;
+    private readonly bool _reverse;
 
 	public HeightDifferenceCheck(WorldObject go, float diff, bool reverse)
 	{

@@ -233,7 +233,7 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 		ChangesMask.ResetAll();
 	}
 
-	uint GetViewerGameObjectFlags(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
+    private uint GetViewerGameObjectFlags(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
 	{
 		uint flags = gameObjectData.Flags;
 
@@ -244,7 +244,7 @@ public class GameObjectFieldData : BaseUpdateData<GameObject>
 		return flags;
 	}
 
-	sbyte GetViewerGameObjectState(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
+    private sbyte GetViewerGameObjectState(GameObjectFieldData gameObjectData, GameObject gameObject, Player receiver)
 	{
 		return (sbyte)gameObject.GetGoStateFor(receiver.GUID);
 	}

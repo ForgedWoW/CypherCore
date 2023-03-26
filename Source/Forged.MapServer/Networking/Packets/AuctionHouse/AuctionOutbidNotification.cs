@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionOutbidNotification : ServerPacket
+internal class AuctionOutbidNotification : ServerPacket
 {
 	public AuctionBidderNotification Info;
 	public ulong BidAmount;

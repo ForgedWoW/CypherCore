@@ -233,12 +233,12 @@ public class MMapManager
 		return _loadedMMaps.Count;
 	}
 
-	MMapData GetMMapData(uint mapId)
+    private MMapData GetMMapData(uint mapId)
 	{
 		return _loadedMMaps.LookupByKey(mapId);
 	}
 
-	bool LoadMapData(string basePath, uint mapId)
+    private bool LoadMapData(string basePath, uint mapId)
 	{
 		// we already have this map loaded?
 		if (_loadedMMaps.TryGetValue(mapId, out var mmap) && mmap != null)
@@ -287,7 +287,7 @@ public class MMapManager
 		return true;
 	}
 
-	uint PackTileID(int x, int y)
+    private uint PackTileID(int x, int y)
 	{
 		return (uint)(x << 16 | y);
 	}

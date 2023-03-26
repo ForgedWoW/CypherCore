@@ -13,7 +13,7 @@ namespace Forged.MapServer.Handlers;
 public class GuildHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.GuildGetRanks)]
-	void HandleGuildGetRanks(GuildGetRanks packet)
+    private void HandleGuildGetRanks(GuildGetRanks packet)
 	{
 		var guild = Global.GuildMgr.GetGuildByGuid(packet.GuildGUID);
 
@@ -23,7 +23,7 @@ public class GuildHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildBankRemainingWithdrawMoneyQuery)]
-	void HandleGuildBankMoneyWithdrawn(GuildBankRemainingWithdrawMoneyQuery packet)
+    private void HandleGuildBankMoneyWithdrawn(GuildBankRemainingWithdrawMoneyQuery packet)
 	{
 		var guild = Player.Guild;
 
@@ -32,7 +32,7 @@ public class GuildHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildPermissionsQuery)]
-	void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
+    private void HandleGuildPermissionsQuery(GuildPermissionsQuery packet)
 	{
 		var guild = Player.Guild;
 
@@ -41,7 +41,7 @@ public class GuildHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildGetRoster)]
-	void HandleGuildGetRoster(GuildGetRoster packet)
+    private void HandleGuildGetRoster(GuildGetRoster packet)
 	{
 		var guild = Player.Guild;
 

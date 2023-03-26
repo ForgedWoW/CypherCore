@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarEventSignUp : ClientPacket
+internal class CalendarEventSignUp : ClientPacket
 {
 	public bool Tentative;
 	public ulong EventID;

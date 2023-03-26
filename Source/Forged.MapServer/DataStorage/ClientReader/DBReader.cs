@@ -10,7 +10,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.DataStorage.ClientReader;
 
-class DBReader
+internal class DBReader
 {
 	public WDCHeader Header;
 	public FieldMetaData[] FieldMeta;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
-class AreaTriggerPkt : ClientPacket
+internal class AreaTriggerPkt : ClientPacket
 {
 	public uint AreaTriggerID;
 	public bool Entered;

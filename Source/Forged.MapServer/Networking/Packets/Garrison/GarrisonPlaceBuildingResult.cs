@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonPlaceBuildingResult : ServerPacket
+internal class GarrisonPlaceBuildingResult : ServerPacket
 {
 	public GarrisonType GarrTypeID;
 	public GarrisonError Result;

@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Battlenet;
 
-class Notification : ServerPacket
+internal class Notification : ServerPacket
 {
 	public MethodCall Method;
 	public ByteBuffer Data = new();

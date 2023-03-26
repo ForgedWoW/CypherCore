@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class SetItemPurchaseData : ServerPacket
+internal class SetItemPurchaseData : ServerPacket
 {
 	public uint PurchaseTime;
 	public uint Flags;

@@ -13,7 +13,7 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class VisibleChangesNotifier : IGridNotifierCreature, IGridNotifierPlayer, IGridNotifierDynamicObject
 {
-	readonly ICollection<WorldObject> _objects;
+    private readonly ICollection<WorldObject> _objects;
 
 	public GridType GridType { get; set; }
 

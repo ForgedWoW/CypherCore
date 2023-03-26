@@ -9,7 +9,7 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 public class WorldBossAI : ScriptedAI
 {
-	readonly SummonList _summons;
+    private readonly SummonList _summons;
 
 	public WorldBossAI(Creature creature) : base(creature)
 	{
@@ -72,7 +72,7 @@ public class WorldBossAI : ScriptedAI
 		_JustDied();
 	}
 
-	void _Reset()
+    private void _Reset()
 	{
 		if (!Me.IsAlive)
 			return;
@@ -81,13 +81,13 @@ public class WorldBossAI : ScriptedAI
 		_summons.DespawnAll();
 	}
 
-	void _JustDied()
+    private void _JustDied()
 	{
 		Events.Reset();
 		_summons.DespawnAll();
 	}
 
-	void _JustEngagedWith()
+    private void _JustEngagedWith()
 	{
 		var target = SelectTarget(SelectTargetMethod.Random, 0, 0.0f, true);
 

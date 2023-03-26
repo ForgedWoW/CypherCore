@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SetPvP : ClientPacket
+internal class SetPvP : ClientPacket
 {
 	public bool EnablePVP;
 	public SetPvP(WorldPacket packet) : base(packet) { }

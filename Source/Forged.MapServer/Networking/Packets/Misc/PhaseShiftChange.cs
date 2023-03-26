@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class PhaseShiftChange : ServerPacket
+internal class PhaseShiftChange : ServerPacket
 {
 	public ObjectGuid Client;
 	public PhaseShiftData Phaseshift = new();

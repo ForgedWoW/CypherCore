@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Scene;
 
-class PlayScene : ServerPacket
+internal class PlayScene : ServerPacket
 {
 	public uint SceneID;
 	public uint PlaybackFlags;

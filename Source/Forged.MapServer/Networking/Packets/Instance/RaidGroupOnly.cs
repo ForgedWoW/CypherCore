@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class RaidGroupOnly : ServerPacket
+internal class RaidGroupOnly : ServerPacket
 {
 	public int Delay;
 	public RaidGroupReason Reason;

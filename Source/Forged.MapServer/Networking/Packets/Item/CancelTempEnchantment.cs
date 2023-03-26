@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class CancelTempEnchantment : ClientPacket
+internal class CancelTempEnchantment : ClientPacket
 {
 	public int Slot;
 	public CancelTempEnchantment(WorldPacket packet) : base(packet) { }

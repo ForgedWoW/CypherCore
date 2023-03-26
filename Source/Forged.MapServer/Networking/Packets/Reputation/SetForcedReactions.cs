@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Reputation;
 
-class SetForcedReactions : ServerPacket
+internal class SetForcedReactions : ServerPacket
 {
 	public List<ForcedReaction> Reactions = new();
 	public SetForcedReactions() : base(ServerOpcodes.SetForcedReactions, ConnectionType.Instance) { }

@@ -9,8 +9,8 @@ namespace Forged.MapServer.DataStorage;
 
 public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStorage>
 {
-	readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
-	CharacterTemplateDataStorage() { }
+    private readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
+    private CharacterTemplateDataStorage() { }
 
 	public void LoadCharacterTemplates()
 	{

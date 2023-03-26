@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class SetFactionInactive : ClientPacket
+internal class SetFactionInactive : ClientPacket
 {
 	public uint Index;
 	public bool State;

@@ -17,8 +17,8 @@ public class MailAttachedItem
 	public uint MaxDurability;
 	public uint Durability;
 	public bool Unlocked;
-	readonly List<ItemEnchantData> Enchants = new();
-	readonly List<ItemGemData> Gems = new();
+    private readonly List<ItemEnchantData> Enchants = new();
+    private readonly List<ItemGemData> Gems = new();
 
 	public MailAttachedItem(Entities.Items.Item item, byte pos)
 	{

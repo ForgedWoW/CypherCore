@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class QueryRealmName : ClientPacket
+internal class QueryRealmName : ClientPacket
 {
 	public uint VirtualRealmAddress;
 	public QueryRealmName(WorldPacket packet) : base(packet) { }

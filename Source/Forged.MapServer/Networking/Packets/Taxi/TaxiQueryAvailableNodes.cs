@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Taxi;
 
-class TaxiQueryAvailableNodes : ClientPacket
+internal class TaxiQueryAvailableNodes : ClientPacket
 {
 	public ObjectGuid Unit;
 	public TaxiQueryAvailableNodes(WorldPacket packet) : base(packet) { }

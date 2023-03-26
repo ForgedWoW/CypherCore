@@ -5,7 +5,7 @@ using System;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class PlayerChoiceResponse
+internal class PlayerChoiceResponse
 {
 	public int ResponseID;
 	public ushort ResponseIdentifier;

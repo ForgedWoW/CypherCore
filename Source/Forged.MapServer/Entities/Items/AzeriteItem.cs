@@ -473,7 +473,7 @@ public class AzeriteItem : Item
 		base.ClearUpdateMask(remove);
 	}
 
-	uint GetCurrentKnowledgeLevel()
+    private uint GetCurrentKnowledgeLevel()
 	{
 		// count weeks from 14.01.2020
 		var now = GameTime.GetDateAndTime();
@@ -489,7 +489,7 @@ public class AzeriteItem : Item
 		return knowledge;
 	}
 
-	ulong CalcTotalXPToNextLevel(uint level, uint knowledgeLevel)
+    private ulong CalcTotalXPToNextLevel(uint level, uint knowledgeLevel)
 	{
 		var levelInfo = CliDB.AzeriteLevelInfoStorage.LookupByKey(level);
 		var totalXp = levelInfo.BaseExperienceToNextLevel * (ulong)CliDB.AzeriteKnowledgeMultiplierStorage.LookupByKey(knowledgeLevel).Multiplier;
@@ -497,7 +497,7 @@ public class AzeriteItem : Item
 		return Math.Max(totalXp, levelInfo.MinimumExperienceToNextLevel);
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteItemMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteItemMask, Player target)
 	{
 		var flags = GetUpdateFieldFlagsFor(target);
 		UpdateMask valuesMask = new((int)TypeId.Max);
@@ -536,7 +536,7 @@ public class AzeriteItem : Item
 		data.AddUpdateBlock(buffer1);
 	}
 
-	void UnlockDefaultMilestones()
+    private void UnlockDefaultMilestones()
 	{
 		var hasPreviousMilestone = true;
 
@@ -563,12 +563,12 @@ public class AzeriteItem : Item
 		}
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly AzeriteItem Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ItemData ItemMask = new();
-		readonly AzeriteItemData AzeriteItemMask = new();
+        private readonly AzeriteItem Owner;
+        private readonly ObjectFieldData ObjectMask = new();
+        private readonly ItemData ItemMask = new();
+        private readonly AzeriteItemData AzeriteItemMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(AzeriteItem owner)
 		{

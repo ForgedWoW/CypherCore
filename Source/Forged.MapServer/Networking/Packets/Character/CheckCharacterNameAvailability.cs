@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class CheckCharacterNameAvailability : ClientPacket
+internal class CheckCharacterNameAvailability : ClientPacket
 {
 	public uint SequenceIndex;
 	public string Name;

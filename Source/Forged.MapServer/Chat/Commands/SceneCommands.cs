@@ -7,10 +7,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("scene")]
-class SceneCommands
+internal class SceneCommands
 {
 	[Command("cancel", RBACPermissions.CommandSceneCancel)]
-	static bool HandleCancelSceneCommand(CommandHandler handler, uint sceneScriptPackageId)
+    private static bool HandleCancelSceneCommand(CommandHandler handler, uint sceneScriptPackageId)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 
@@ -30,7 +30,7 @@ class SceneCommands
 	}
 
 	[Command("debug", RBACPermissions.CommandSceneDebug)]
-	static bool HandleDebugSceneCommand(CommandHandler handler)
+    private static bool HandleDebugSceneCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 
@@ -44,7 +44,7 @@ class SceneCommands
 	}
 
 	[Command("play", RBACPermissions.CommandScenePlay)]
-	static bool HandlePlaySceneCommand(CommandHandler handler, uint sceneId)
+    private static bool HandlePlaySceneCommand(CommandHandler handler, uint sceneId)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 
@@ -64,7 +64,7 @@ class SceneCommands
 	}
 
 	[Command("playpackage", RBACPermissions.CommandScenePlayPackage)]
-	static bool HandlePlayScenePackageCommand(CommandHandler handler, uint sceneScriptPackageId, SceneFlags? flags)
+    private static bool HandlePlayScenePackageCommand(CommandHandler handler, uint sceneScriptPackageId, SceneFlags? flags)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 

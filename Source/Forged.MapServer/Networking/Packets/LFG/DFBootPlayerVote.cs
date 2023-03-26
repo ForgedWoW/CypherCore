@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFBootPlayerVote : ClientPacket
+internal class DFBootPlayerVote : ClientPacket
 {
 	public bool Vote;
 	public DFBootPlayerVote(WorldPacket packet) : base(packet) { }

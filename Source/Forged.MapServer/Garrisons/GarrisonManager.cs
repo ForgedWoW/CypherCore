@@ -54,7 +54,7 @@ public class GarrisonManager
     private readonly MultiMap<uint, GarrAbilityRecord> _garrisonFollowerClassSpecAbilities = new();
     private readonly List<GarrAbilityRecord> _garrisonFollowerRandomTraits = new();
 
-	ulong _followerDbIdGenerator = 1;
+    private ulong _followerDbIdGenerator = 1;
 
     public GarrisonManager(CliDB cliDB, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager)
     {
@@ -352,7 +352,7 @@ public class GarrisonManager
 		return abilities;
 	}
 
-	void InitializeDbIdSequences()
+    private void InitializeDbIdSequences()
 	{
 		var result = _characterDatabase.Query("SELECT MAX(dbId) FROM character_garrison_followers");
 
@@ -360,7 +360,7 @@ public class GarrisonManager
 			_followerDbIdGenerator = result.Read<ulong>(0) + 1;
 	}
 
-	void LoadPlotFinalizeGOInfo()
+    private void LoadPlotFinalizeGOInfo()
 	{
 		//                                                                0                  1       2       3       4       5               6
 		var result = _worldDatabase.Query("SELECT garrPlotInstanceId, hordeGameObjectId, hordeX, hordeY, hordeZ, hordeO, hordeAnimKitId, " +
@@ -466,7 +466,7 @@ public class GarrisonManager
 		Log.Logger.Information("Loaded {0} garrison plot finalize entries in {1}.", _finalizePlotGOInfo.Count, Time.GetMSTimeDiffToNow(msTime));
 	}
 
-	void LoadFollowerClassSpecAbilities()
+    private void LoadFollowerClassSpecAbilities()
 	{
 		var result = _worldDatabase.Query("SELECT classSpecId, abilityId FROM garrison_follower_class_spec_abilities");
 
@@ -512,7 +512,7 @@ public class GarrisonManager
 	}
 }
 
-class GarrAbilities
+internal class GarrAbilities
 {
 	public List<GarrAbilityRecord> Counters = new();
 	public List<GarrAbilityRecord> Traits = new();

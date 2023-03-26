@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-class SpellDiminishInfo
+internal class SpellDiminishInfo
 {
 	public DiminishingGroup DiminishGroup = DiminishingGroup.None;
 	public DiminishingReturnsType DiminishReturnType = DiminishingReturnsType.None;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class VoidTransferResult : ServerPacket
+internal class VoidTransferResult : ServerPacket
 {
 	public VoidTransferError Result;
 

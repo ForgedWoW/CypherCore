@@ -20,13 +20,13 @@ public class AchievementGlobalMgr
 	private readonly CliDB _cliDB;
 
 	// store achievements by referenced achievement id to speed up lookup
-	readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
+    private readonly MultiMap<uint, AchievementRecord> _achievementListByReferencedId = new();
 
 	// store realm first achievements
-	readonly Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
-	readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
-	readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
-	readonly Dictionary<uint, uint> _achievementScripts = new();
+    private readonly Dictionary<uint /*achievementId*/, DateTime /*completionTime*/> _allCompletedAchievements = new();
+    private readonly Dictionary<uint, AchievementReward> _achievementRewards = new();
+    private readonly Dictionary<uint, AchievementRewardLocale> _achievementRewardLocales = new();
+    private readonly Dictionary<uint, uint> _achievementScripts = new();
 
 	public AchievementGlobalMgr(WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager gameObjectManager, CliDB cliDB)
 	{

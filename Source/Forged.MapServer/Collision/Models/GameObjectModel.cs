@@ -15,15 +15,15 @@ namespace Forged.MapServer.Collision.Models;
 
 public class GameObjectModel : IModel
 {
-	bool _collisionEnabled;
-	AxisAlignedBox _iBound;
-	Matrix4x4 _iInvRot;
-	Vector3 _iPos;
-	float _iInvScale;
-	float _iScale;
-	WorldModel _iModel;
-	GameObjectModelOwnerBase _owner;
-	bool _isWmo;
+    private bool _collisionEnabled;
+    private AxisAlignedBox _iBound;
+    private Matrix4x4 _iInvRot;
+    private Vector3 _iPos;
+    private float _iInvScale;
+    private float _iScale;
+    private WorldModel _iModel;
+    private GameObjectModelOwnerBase _owner;
+    private bool _isWmo;
 
 	public static GameObjectModel Create(GameObjectModelOwnerBase modelOwner)
 	{
@@ -254,7 +254,7 @@ public class GameObjectModel : IModel
 		return true;
 	}
 
-	bool Initialize(GameObjectModelOwnerBase modelOwner)
+    private bool Initialize(GameObjectModelOwnerBase modelOwner)
 	{
 		var modelData = StaticModelList.Models.LookupByKey(modelOwner.GetDisplayId());
 
@@ -296,7 +296,7 @@ public class GameObjectModel : IModel
 		return true;
 	}
 
-	bool IsCollisionEnabled()
+    private bool IsCollisionEnabled()
 	{
 		return _collisionEnabled;
 	}

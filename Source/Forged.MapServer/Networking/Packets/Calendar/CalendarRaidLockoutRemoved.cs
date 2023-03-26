@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarRaidLockoutRemoved : ServerPacket
+internal class CalendarRaidLockoutRemoved : ServerPacket
 {
 	public ulong InstanceID;
 	public int MapID;

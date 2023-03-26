@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-class ScenarioCompleted : ServerPacket
+internal class ScenarioCompleted : ServerPacket
 {
 	public uint ScenarioID;
 

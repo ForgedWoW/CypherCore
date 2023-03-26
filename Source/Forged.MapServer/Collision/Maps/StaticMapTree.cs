@@ -15,13 +15,13 @@ namespace Forged.MapServer.Collision.Maps;
 
 public class StaticMapTree
 {
-	readonly uint _mapId;
-    readonly BIH _tree = new();
-	readonly ConcurrentDictionary<uint, uint> _spawnIndices = new();
-	readonly ConcurrentDictionary<uint, bool> _loadedTiles = new();
-	readonly ConcurrentDictionary<uint, uint> _loadedSpawns = new();
-	ModelInstance[] _treeValues;
-	uint _nTreeValues;
+    private readonly uint _mapId;
+    private readonly BIH _tree = new();
+    private readonly ConcurrentDictionary<uint, uint> _spawnIndices = new();
+    private readonly ConcurrentDictionary<uint, bool> _loadedTiles = new();
+    private readonly ConcurrentDictionary<uint, uint> _loadedSpawns = new();
+    private ModelInstance[] _treeValues;
+    private uint _nTreeValues;
 
 	public StaticMapTree(uint mapId)
     {
@@ -368,13 +368,13 @@ public class StaticMapTree
             return _loadedTiles.Count;
     }
 
-	static uint PackTileID(int tileX, int tileY)
+    private static uint PackTileID(int tileX, int tileY)
 	{
 		return (uint)(tileX << 16 | tileY);
 	}
 
 
-	static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
+    private static TileFileOpenResult OpenMapTileFile(string vmapPath, uint mapID, int tileX, int tileY, VMapManager vm)
 	{
 		TileFileOpenResult result = new()
 		{
@@ -409,7 +409,7 @@ public class StaticMapTree
 		return result;
 	}
 
-	bool GetIntersectionTime(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
+    private bool GetIntersectionTime(Ray pRay, ref float pMaxDist, bool pStopAtFirstHit, ModelIgnoreFlags ignoreFlags)
 	{
 		var distance = pMaxDist;
 		MapRayCallback intersectionCallBack = new(_treeValues, ignoreFlags);

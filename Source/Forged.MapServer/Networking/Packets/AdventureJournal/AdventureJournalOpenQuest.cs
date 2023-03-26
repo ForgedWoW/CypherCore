@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
-class AdventureJournalOpenQuest : ClientPacket
+internal class AdventureJournalOpenQuest : ClientPacket
 {
 	public uint AdventureJournalID;
 	public AdventureJournalOpenQuest(WorldPacket packet) : base(packet) { }

@@ -6,7 +6,7 @@ using Forged.MapServer.Networking.Packets.Item;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-struct VoidItem
+internal struct VoidItem
 {
 	public void Write(WorldPacket data)
 	{

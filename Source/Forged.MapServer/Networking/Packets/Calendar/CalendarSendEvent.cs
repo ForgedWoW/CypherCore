@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarSendEvent : ServerPacket
+internal class CalendarSendEvent : ServerPacket
 {
 	public ObjectGuid OwnerGuid;
 	public ObjectGuid EventGuildID;

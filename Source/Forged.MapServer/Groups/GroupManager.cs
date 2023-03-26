@@ -10,12 +10,12 @@ namespace Forged.MapServer.Groups;
 
 public class GroupManager : Singleton<GroupManager>
 {
-	readonly Dictionary<ulong, PlayerGroup> GroupStore = new();
-	readonly Dictionary<uint, PlayerGroup> GroupDbStore = new();
-	ulong NextGroupId;
-	uint NextGroupDbStoreId;
+    private readonly Dictionary<ulong, PlayerGroup> GroupStore = new();
+    private readonly Dictionary<uint, PlayerGroup> GroupDbStore = new();
+    private ulong NextGroupId;
+    private uint NextGroupDbStoreId;
 
-	GroupManager()
+    private GroupManager()
 	{
 		NextGroupDbStoreId = 1;
 		NextGroupId = 1;

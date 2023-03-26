@@ -25,9 +25,9 @@ public class PlayerAI : UnitAI
 	}
 
 	protected new Player Me;
-	readonly uint _selfSpec;
-	readonly bool _isSelfHealer;
-	bool _isSelfRangedAttacker;
+    private readonly uint _selfSpec;
+    private readonly bool _isSelfHealer;
+    private bool _isSelfRangedAttacker;
 
 	public PlayerAI(Player player) : base(player)
 	{
@@ -189,7 +189,7 @@ public class PlayerAI : UnitAI
 		return Me.Charmer ? Me.Charmer.Victim : null;
 	}
 
-	bool IsPlayerHealer(Player who)
+    private bool IsPlayerHealer(Player who)
 	{
 		if (!who)
 			return false;
@@ -205,7 +205,7 @@ public class PlayerAI : UnitAI
 		};
 	}
 
-	bool IsPlayerRangedAttacker(Player who)
+    private bool IsPlayerRangedAttacker(Player who)
 	{
 		if (!who)
 			return false;
@@ -243,7 +243,7 @@ public class PlayerAI : UnitAI
 		}
 	}
 
-	Tuple<Spell, Unit> VerifySpellCast(uint spellId, Unit target)
+    private Tuple<Spell, Unit> VerifySpellCast(uint spellId, Unit target)
 	{
 		// Find highest spell rank that we know
 		uint knownRank, nextRank;
@@ -285,7 +285,7 @@ public class PlayerAI : UnitAI
 		return null;
 	}
 
-	void DoRangedAttackIfReady()
+    private void DoRangedAttackIfReady()
 	{
 		if (Me.HasUnitState(UnitState.Casting))
 			return;

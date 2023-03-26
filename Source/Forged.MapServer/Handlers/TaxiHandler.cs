@@ -137,7 +137,7 @@ public class TaxiHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.EnableTaxiNode, Processing = PacketProcessing.ThreadSafe)]
-	void HandleEnableTaxiNodeOpcode(EnableTaxiNode enableTaxiNode)
+    private void HandleEnableTaxiNodeOpcode(EnableTaxiNode enableTaxiNode)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(enableTaxiNode.Unit, NPCFlags.FlightMaster, NPCFlags2.None);
 
@@ -146,13 +146,13 @@ public class TaxiHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TaxiNodeStatusQuery, Processing = PacketProcessing.ThreadSafe)]
-	void HandleTaxiNodeStatusQuery(TaxiNodeStatusQuery taxiNodeStatusQuery)
+    private void HandleTaxiNodeStatusQuery(TaxiNodeStatusQuery taxiNodeStatusQuery)
 	{
 		SendTaxiStatus(taxiNodeStatusQuery.UnitGUID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TaxiQueryAvailableNodes, Processing = PacketProcessing.ThreadSafe)]
-	void HandleTaxiQueryAvailableNodes(TaxiQueryAvailableNodes taxiQueryAvailableNodes)
+    private void HandleTaxiQueryAvailableNodes(TaxiQueryAvailableNodes taxiQueryAvailableNodes)
 	{
 		// cheating checks
 		var unit = Player.GetNPCIfCanInteractWith(taxiQueryAvailableNodes.Unit, NPCFlags.FlightMaster, NPCFlags2.None);
@@ -177,7 +177,7 @@ public class TaxiHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ActivateTaxi, Processing = PacketProcessing.ThreadSafe)]
-	void HandleActivateTaxi(ActivateTaxi activateTaxi)
+    private void HandleActivateTaxi(ActivateTaxi activateTaxi)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(activateTaxi.Vendor, NPCFlags.FlightMaster, NPCFlags2.None);
 
@@ -240,7 +240,7 @@ public class TaxiHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TaxiRequestEarlyLanding, Processing = PacketProcessing.ThreadSafe)]
-	void HandleTaxiRequestEarlyLanding(TaxiRequestEarlyLanding taxiRequestEarlyLanding)
+    private void HandleTaxiRequestEarlyLanding(TaxiRequestEarlyLanding taxiRequestEarlyLanding)
 	{
 		var flight = Player.MotionMaster.GetCurrentMovementGenerator() as FlightPathMovementGenerator;
 

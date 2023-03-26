@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Combat;
 
 public class AttackSwingError : ServerPacket
 {
-	readonly AttackSwingErr Reason;
+    private readonly AttackSwingErr Reason;
 
 	public AttackSwingError(AttackSwingErr reason = AttackSwingErr.CantAttack) : base(ServerOpcodes.AttackSwingError)
 	{

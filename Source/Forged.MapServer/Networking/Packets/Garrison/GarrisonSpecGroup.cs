@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonSpecGroup
+internal struct GarrisonSpecGroup
 {
 	public int ChrSpecializationID;
 	public int SoulbindID;

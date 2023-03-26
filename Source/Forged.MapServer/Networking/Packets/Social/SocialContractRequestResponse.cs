@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Social;
 
-class SocialContractRequestResponse : ServerPacket
+internal class SocialContractRequestResponse : ServerPacket
 {
 	public bool ShowSocialContract;
 

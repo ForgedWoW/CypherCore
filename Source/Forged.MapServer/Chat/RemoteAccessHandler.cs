@@ -9,7 +9,7 @@ namespace Forged.MapServer.Chat;
 
 public class RemoteAccessHandler : CommandHandler
 {
-	readonly Action<string> _reportToRA;
+    private readonly Action<string> _reportToRA;
 
 	public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
 

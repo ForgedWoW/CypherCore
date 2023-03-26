@@ -85,8 +85,8 @@ public partial class Spell : IDisposable
 	// we can't store original aura link to prevent access to deleted auras
 	// and in same time need aura data and after aura deleting.
 	public SpellInfo TriggeredByAuraSpell;
-	static readonly List<ISpellScript> Dummy = new();
-	static readonly List<(ISpellScript, ISpellEffect)> DummySpellEffects = new();
+    private static readonly List<ISpellScript> Dummy = new();
+    private static readonly List<(ISpellScript, ISpellEffect)> DummySpellEffects = new();
 
 	//Spell data
 	internal SpellSchoolMask SpellSchoolMask; // Spell school (can be overwrite for some spells (wand shoot for example)
@@ -104,60 +104,60 @@ public partial class Spell : IDisposable
 	internal ProcFlagsInit ProcAttacker; // Attacker trigger flags
 	internal ProcFlagsInit ProcVictim;   // Victim   trigger flags
 	internal ProcFlagsHit HitMask;
-	readonly Dictionary<Type, List<ISpellScript>> _spellScriptsByType = new();
-	readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new();
-	readonly Dictionary<byte, SpellEmpowerStageRecord> _empowerStages = new();
+    private readonly Dictionary<Type, List<ISpellScript>> _spellScriptsByType = new();
+    private readonly Dictionary<int, Dictionary<SpellScriptHookType, List<(ISpellScript, ISpellEffect)>>> _effectHandlers = new();
+    private readonly Dictionary<byte, SpellEmpowerStageRecord> _empowerStages = new();
 
 
-	readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
-	readonly WorldObject _caster;
-	readonly bool _canReflect; // can reflect this spell?
-	readonly Dictionary<int, double> _damageMultipliers = new();
+    private readonly Dictionary<SpellEffectName, SpellLogEffect> _executeLogEffects = new();
+    private readonly WorldObject _caster;
+    private readonly bool _canReflect; // can reflect this spell?
+    private readonly Dictionary<int, double> _damageMultipliers = new();
 
-	readonly List<GOTargetInfo> _uniqueGoTargetInfo = new();
-	readonly List<ItemTargetInfo> _uniqueItemInfo = new();
-	readonly List<CorpseTargetInfo> _uniqueCorpseTargetInfo = new();
-	readonly Dictionary<int, SpellDestination> _destTargets = new();
-	readonly List<HitTriggerSpell> _hitTriggerSpells = new();
-	readonly TriggerCastFlags _triggeredCastFlags;
-	readonly HashSet<int> _applyMultiplierMask = new();
-	readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
+    private readonly List<GOTargetInfo> _uniqueGoTargetInfo = new();
+    private readonly List<ItemTargetInfo> _uniqueItemInfo = new();
+    private readonly List<CorpseTargetInfo> _uniqueCorpseTargetInfo = new();
+    private readonly Dictionary<int, SpellDestination> _destTargets = new();
+    private readonly List<HitTriggerSpell> _hitTriggerSpells = new();
+    private readonly TriggerCastFlags _triggeredCastFlags;
+    private readonly HashSet<int> _applyMultiplierMask = new();
+    private readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
 
-	List<SpellScript> _loadedScripts = new();
-	PathGenerator _preGeneratedPath;
-	ObjectGuid _originalCasterGuid;
-	Unit _originalCaster;
+    private List<SpellScript> _loadedScripts = new();
+    private PathGenerator _preGeneratedPath;
+    private ObjectGuid _originalCasterGuid;
+    private Unit _originalCaster;
 
-	List<SpellPowerCost> _powerCosts = new();
-	int _casttime;          // Calculated spell cast time initialized only in Spell.prepare
-	int _channeledDuration; // Calculated channeled spell duration in order to calculate correct pushback.
-	bool _autoRepeat;
-	byte _runesState;
-	byte _delayAtDamageCount;
+    private List<SpellPowerCost> _powerCosts = new();
+    private int _casttime;          // Calculated spell cast time initialized only in Spell.prepare
+    private int _channeledDuration; // Calculated channeled spell duration in order to calculate correct pushback.
+    private bool _autoRepeat;
+    private byte _runesState;
+    private byte _delayAtDamageCount;
 
 	// Delayed spells system
-	ulong _delayStart;      // time of spell delay start, filled by event handler, zero = just started
-	ulong _delayMoment;     // moment of next delay call, used internally
-	bool _launchHandled;    // were launch actions handled
-	bool _immediateHandled; // were immediate actions handled? (used by delayed spells only)
+    private ulong _delayStart;      // time of spell delay start, filled by event handler, zero = just started
+    private ulong _delayMoment;     // moment of next delay call, used internally
+    private bool _launchHandled;    // were launch actions handled
+    private bool _immediateHandled; // were immediate actions handled? (used by delayed spells only)
 
 	// These vars are used in both delayed spell system and modified immediate spell system
-	bool _referencedFromCurrentSpell;
-	bool _executedCurrently;
-	SpellEffectHandleMode _effectHandleMode;
+    private bool _referencedFromCurrentSpell;
+    private bool _executedCurrently;
+    private SpellEffectHandleMode _effectHandleMode;
 
 	// -------------------------------------------
-	GameObject _focusObject;
+    private GameObject _focusObject;
 
-	SpellState _spellState;
-	int _timer;
+    private SpellState _spellState;
+    private int _timer;
 
 	// Empower spell meta
-	EmpowerState _empowerState = EmpowerState.None;
-	byte _empoweredSpellStage;
-	uint _empoweredSpellDelta;
+    private EmpowerState _empowerState = EmpowerState.None;
+    private byte _empoweredSpellStage;
+    private uint _empoweredSpellDelta;
 
-	SpellEvent _spellEvent;
+    private SpellEvent _spellEvent;
 
 	public SpellState State
 	{
@@ -3445,7 +3445,7 @@ public partial class Spell : IDisposable
 		return false;
 	}
 
-	void SelectExplicitTargets()
+    private void SelectExplicitTargets()
 	{
 		// here go all explicit target changes made to explicit targets after spell prepare phase is finished
 		var target = Targets.UnitTarget;
@@ -3477,7 +3477,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	ulong CalculateDelayMomentForDst(float launchDelay)
+    private ulong CalculateDelayMomentForDst(float launchDelay)
 	{
 		if (Targets.HasDst)
 		{
@@ -3506,7 +3506,7 @@ public partial class Spell : IDisposable
 		return 0;
 	}
 
-	void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> processedEffectMask)
+    private void SelectEffectImplicitTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> processedEffectMask)
 	{
 		if (targetType.Target == 0)
 			return;
@@ -3631,7 +3631,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitChannelTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitChannelTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
 			return;
@@ -3713,7 +3713,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    private void SelectImplicitNearbyTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		if (targetType.ReferenceType != SpellTargetReferenceTypes.Caster)
 			return;
@@ -3884,7 +3884,7 @@ public partial class Spell : IDisposable
 		SelectImplicitChainTargets(spellEffectInfo, targetType, target, effMask);
 	}
 
-	void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    private void SelectImplicitConeTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		Position coneSrc = new(_caster.Location);
 		var coneAngle = SpellInfo.ConeAngle;
@@ -3950,7 +3950,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    private void SelectImplicitAreaTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		WorldObject referer = null;
 
@@ -4093,7 +4093,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitCasterDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitCasterDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		SpellDestination dest = new(_caster);
 
@@ -4309,7 +4309,7 @@ public partial class Spell : IDisposable
 		Targets.Dst = dest;
 	}
 
-	void SelectImplicitTargetDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitTargetDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		var target = Targets.ObjectTarget;
 
@@ -4345,7 +4345,7 @@ public partial class Spell : IDisposable
 		Targets.Dst = dest;
 	}
 
-	void SelectImplicitDestDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitDestDestTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		// set destination to caster if no dest provided
 		// can only happen if previous destination target could not be set for some reason
@@ -4390,7 +4390,7 @@ public partial class Spell : IDisposable
 		Targets.ModDst(dest);
 	}
 
-	void SelectImplicitCasterObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitCasterObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		WorldObject target = null;
 		var checkIfValid = true;
@@ -4480,7 +4480,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitTargetObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitTargetObjectTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		var target = Targets.ObjectTarget;
 
@@ -4506,7 +4506,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, int effIndex)
+    private void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, int effIndex)
 	{
 		SelectImplicitChainTargets(spellEffectInfo,
 									targetType,
@@ -4517,7 +4517,7 @@ public partial class Spell : IDisposable
 									});
 	}
 
-	void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, HashSet<int> effMask)
+    private void SelectImplicitChainTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, WorldObject target, HashSet<int> effMask)
 	{
 		var maxTargets = spellEffectInfo.ChainTargets;
 		var modOwner = _caster.SpellModOwner;
@@ -4555,7 +4555,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	float Tangent(float x)
+    private float Tangent(float x)
 	{
 		x = (float)Math.Tan(x);
 
@@ -4566,7 +4566,7 @@ public partial class Spell : IDisposable
 		return 0.0f;
 	}
 
-	void SelectImplicitTrajTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
+    private void SelectImplicitTrajTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType)
 	{
 		if (!Targets.HasTraj)
 			return;
@@ -4662,7 +4662,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectImplicitLineTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
+    private void SelectImplicitLineTargets(SpellEffectInfo spellEffectInfo, SpellImplicitTargetInfo targetType, HashSet<int> effMask)
 	{
 		List<WorldObject> targets = new();
 		var objectType = targetType.ObjectType;
@@ -4726,7 +4726,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SelectEffectTypeImplicitTargets(SpellEffectInfo spellEffectInfo)
+    private void SelectEffectTypeImplicitTargets(SpellEffectInfo spellEffectInfo)
 	{
 		// special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER, queue them on map for later execution
 		switch (spellEffectInfo.Effect)
@@ -4848,7 +4848,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SearchTargets(IGridNotifier notifier, GridMapTypeMask containerMask, WorldObject referer, Position pos, float radius)
+    private void SearchTargets(IGridNotifier notifier, GridMapTypeMask containerMask, WorldObject referer, Position pos, float radius)
 	{
 		if (containerMask == 0)
 			return;
@@ -4871,7 +4871,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	WorldObject SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
+    private WorldObject SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
 	{
 		var containerTypeMask = GetSearcherTypeMask(objectType, condList);
 
@@ -4885,7 +4885,7 @@ public partial class Spell : IDisposable
 		return searcher.GetTarget();
 	}
 
-	void SearchAreaTargets(List<WorldObject> targets, float range, Position position, WorldObject referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
+    private void SearchAreaTargets(List<WorldObject> targets, float range, Position position, WorldObject referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, List<Condition> condList)
 	{
 		var containerTypeMask = GetSearcherTypeMask(objectType, condList);
 
@@ -4898,7 +4898,7 @@ public partial class Spell : IDisposable
 		SearchTargets(searcher, containerTypeMask, _caster, position, range + extraSearchRadius);
 	}
 
-	void SearchChainTargets(List<WorldObject> targets, uint chainTargets, WorldObject target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo spellEffectInfo, bool isChainHeal)
+    private void SearchChainTargets(List<WorldObject> targets, uint chainTargets, WorldObject target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, SpellEffectInfo spellEffectInfo, bool isChainHeal)
 	{
 		// max dist for jump target selection
 		var jumpRadius = 0.0f;
@@ -5005,7 +5005,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	GameObject SearchSpellFocus()
+    private GameObject SearchSpellFocus()
 	{
 		var check = new GameObjectFocusCheck(_caster, SpellInfo.RequiresSpellFocus);
 		var searcher = new GameObjectSearcher(_caster, check, GridType.All);
@@ -5014,7 +5014,7 @@ public partial class Spell : IDisposable
 		return searcher.GetTarget();
 	}
 
-	void PrepareDataForTriggerSystem()
+    private void PrepareDataForTriggerSystem()
 	{
 		//==========================================================================================
 		// Now fill data for trigger system, need know:
@@ -5066,7 +5066,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void AddUnitTarget(Unit target, int effIndex, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
+    private void AddUnitTarget(Unit target, int effIndex, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
 	{
 		AddUnitTarget(target,
 					new HashSet<int>()
@@ -5078,7 +5078,7 @@ public partial class Spell : IDisposable
 					losPosition);
 	}
 
-	void AddUnitTarget(Unit target, HashSet<int> efftMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
+    private void AddUnitTarget(Unit target, HashSet<int> efftMask, bool checkIfValid = true, bool Implicit = true, Position losPosition = null)
 	{
 		var removeEffect = efftMask.ToHashSet();
 
@@ -5199,7 +5199,7 @@ public partial class Spell : IDisposable
 		UniqueTargetInfoOrgi.Add(targetInfo);
 	}
 
-	void AddGOTarget(GameObject go, int effIndex)
+    private void AddGOTarget(GameObject go, int effIndex)
 	{
 		AddGOTarget(go,
 					new HashSet<int>()
@@ -5209,7 +5209,7 @@ public partial class Spell : IDisposable
 	}
 
 
-	void AddGOTarget(GameObject go, HashSet<int> effMask)
+    private void AddGOTarget(GameObject go, HashSet<int> effMask)
 	{
 		var effectMask = effMask.ToHashSet();
 
@@ -5274,7 +5274,7 @@ public partial class Spell : IDisposable
 		_uniqueGoTargetInfo.Add(target);
 	}
 
-	void AddItemTarget(Item item, int effectIndex)
+    private void AddItemTarget(Item item, int effectIndex)
 	{
 		AddItemTarget(item,
 					new HashSet<int>()
@@ -5283,7 +5283,7 @@ public partial class Spell : IDisposable
 					});
 	}
 
-	void AddItemTarget(Item item, HashSet<int> effMask)
+    private void AddItemTarget(Item item, HashSet<int> effMask)
 	{
 		var effectMask = effMask.ToHashSet();
 
@@ -5318,7 +5318,7 @@ public partial class Spell : IDisposable
 		_ iqueItemInfo.Add(target);
 	}
 
-	void AddCorpseTarget(Corpse corpse, int effIndex)
+    private void AddCorpseTarget(Corpse corpse, int effIndex)
 	{
 		AddCorpseTarget(corpse,
 						new HashSet<int>()
@@ -5328,7 +5328,7 @@ public partial class Spell : IDisposable
 	}
 
 
-	void AddCorpseTarget(Corpse corpse, HashSet<int> effMask)
+    private void AddCorpseTarget(Corpse corpse, HashSet<int> effMask)
 	{
 		var effectMask = effMask.ToHashSet();
 
@@ -5393,12 +5393,12 @@ public partial class Spell : IDisposable
 		_uniqueCorpseTargetInfo.Add(target);
 	}
 
-	void AddDestTarget(SpellDestination dest, int effIndex)
+    private void AddDestTarget(SpellDestination dest, int effIndex)
 	{
 		_destTargets[effIndex] = dest;
 	}
 
-	bool UpdateChanneledTargetList()
+    private bool UpdateChanneledTargetList()
 	{
 		// Not need check return true
 		if (_channelTargetEffectMask.Count == 0)
@@ -5481,7 +5481,7 @@ public partial class Spell : IDisposable
 		return channelTargetEffectMask.Count == 0;
 	}
 
-	void _cast(bool skipCheck = false)
+    private void _cast(bool skipCheck = false)
 	{
 		if (!UpdatePointers())
 		{
@@ -5821,7 +5821,7 @@ public partial class Spell : IDisposable
 				caster.AI.OnSpellCast(SpellInfo);
 	}
 
-	void DoProcessTargetContainer<T>(List<T> targetContainer) where T : TargetInfoBase
+    private void DoProcessTargetContainer<T>(List<T> targetContainer) where T : TargetInfoBase
 	{
 		foreach (TargetInfoBase target in targetContainer)
 			target.PreprocessTarget(this);
@@ -5837,7 +5837,7 @@ public partial class Spell : IDisposable
 			target.DoDamageAndTriggers(this);
 	}
 
-	void HandleImmediate()
+    private void HandleImmediate()
 	{
 		// start channeling if applicable
 		if (SpellInfo.IsChanneled)
@@ -5912,7 +5912,7 @@ public partial class Spell : IDisposable
 			Finish(); // successfully finish spell cast (not last in case autorepeat or channel spell)
 	}
 
-	void _handle_immediate_phase()
+    private void _handle_immediate_phase()
 	{
 		// handle some immediate features of the spell here
 		HandleThreatSpells();
@@ -5932,7 +5932,7 @@ public partial class Spell : IDisposable
 		DoProcessTargetContainer(_uniqueItemInfo);
 	}
 
-	void _handle_finish_phase()
+    private void _handle_finish_phase()
 	{
 		var unitCaster = _caster.AsUnit;
 
@@ -5985,7 +5985,7 @@ public partial class Spell : IDisposable
 			Unit.ProcSkillsAndAuras(_originalCaster, null, procAttacker, new ProcFlagsInit(ProcFlags.None), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.Finish, HitMask, this, null, null);
 	}
 
-	void SendSpellCooldown()
+    private void SendSpellCooldown()
 	{
 		if (!_caster.IsUnit)
 			return;
@@ -6060,7 +6060,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	static void FillSpellCastFailedArgs<T>(T packet, ObjectGuid castId, SpellInfo spellInfo, SpellCastResult result, SpellCustomErrors customError, int? param1, int? param2, Player caster) where T : CastFailedBase
+    private static void FillSpellCastFailedArgs<T>(T packet, ObjectGuid castId, SpellInfo spellInfo, SpellCastResult result, SpellCustomErrors customError, int? param1, int? param2, Player caster) where T : CastFailedBase
 	{
 		packet.CastID = castId;
 		packet.SpellID = (int)spellInfo.Id;
@@ -6288,7 +6288,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void SendMountResult(MountResult result)
+    private void SendMountResult(MountResult result)
 	{
 		if (result == MountResult.Ok)
 			return;
@@ -6311,7 +6311,7 @@ public partial class Spell : IDisposable
 		ter.SendPacket(packet);
 	}
 
-	void SendSpellStart()
+    private void SendSpellStart()
 	{
 		if (!IsNeedSendToClient())
 			return;
@@ -6421,7 +6421,7 @@ public partial class Spell : IDisposable
 		_caster.SendMessageToSet(packet, true);
 	}
 
-	void SendSpellGo()
+    private void SendSpellGo()
 	{
 		// not send invisible spell casting
 		if (!IsNeedSendToClient())
@@ -6557,7 +6557,7 @@ public partial class Spell : IDisposable
 	}
 
 	// Writes miss and hit targets for a SMSG_SPELL_GO packet
-	void UpdateSpellCastDataTargets(SpellCastData data)
+    private void UpdateSpellCastDataTargets(SpellCastData data)
 	{
 		// This function also fill data for channeled spells:
 		// m_needAliveTargetMask req for stop channelig if one target die
@@ -6593,7 +6593,7 @@ public partial class Spell : IDisposable
 			_channelTargetEffectMask.Clear();
 	}
 
-	void UpdateSpellCastDataAmmo(SpellAmmo ammo)
+    private void UpdateSpellCastDataAmmo(SpellAmmo ammo)
 	{
 		InventoryType ammoInventoryType = 0;
 		uint ammoDisplayID = 0;
@@ -6681,7 +6681,7 @@ public partial class Spell : IDisposable
 		ammo.InventoryType = (sbyte)ammoInventoryType;
 	}
 
-	void SendSpellExecuteLog()
+    private void SendSpellExecuteLog()
 	{
 		if (_executeLogEffects.Empty())
 			return;
@@ -6699,7 +6699,7 @@ public partial class Spell : IDisposable
 		_caster.SendCombatLogMessage(spellExecuteLog);
 	}
 
-	void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit target, PowerType powerType, uint points, double amplitude)
+    private void ExecuteLogEffectTakeTargetPower(SpellEffectName effect, Unit target, PowerType powerType, uint points, double amplitude)
 	{
 		SpellLogEffectPowerDrainParams spellLogEffectPowerDrainParams;
 
@@ -6711,7 +6711,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).PowerDrainTargets.Add(spellLogEffectPowerDrainParams);
 	}
 
-	void ExecuteLogEffectExtraAttacks(SpellEffectName effect, Unit victim, uint numAttacks)
+    private void ExecuteLogEffectExtraAttacks(SpellEffectName effect, Unit victim, uint numAttacks)
 	{
 		SpellLogEffectExtraAttacksParams spellLogEffectExtraAttacksParams;
 		spellLogEffectExtraAttacksParams.Victim = victim.GUID;
@@ -6720,7 +6720,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).ExtraAttacksTargets.Add(spellLogEffectExtraAttacksParams);
 	}
 
-	void SendSpellInterruptLog(Unit victim, uint spellId)
+    private void SendSpellInterruptLog(Unit victim, uint spellId)
 	{
 		SpellInterruptLog data = new();
 
@@ -6734,7 +6734,7 @@ public partial class Spell : IDisposable
 		_ ster.SendMessageToSet(data, true);
 	}
 
-	void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit victim, int itemId, int amount)
+    private void ExecuteLogEffectDurabilityDamage(SpellEffectName effect, Unit victim, int itemId, int amount)
 	{
 		SpellLogEffectDurabilityDamageParams spellLogEffectDurabilityDamageParams;
 		spellLogEffectDurabilityDamageParams.Victim = victim.GUID;
@@ -6744,7 +6744,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).DurabilityDamageTargets.Add(spellLogEffectDurabilityDamageParams);
 	}
 
-	void ExecuteLogEffectOpenLock(SpellEffectName effect, WorldObject obj)
+    private void ExecuteLogEffectOpenLock(SpellEffectName effect, WorldObject obj)
 	{
 		SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
 		spellLogEffectGenericVictimParams.Victim = obj.GUID;
@@ -6752,7 +6752,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
 	}
 
-	void ExecuteLogEffectCreateItem(SpellEffectName effect, uint entry)
+    private void ExecuteLogEffectCreateItem(SpellEffectName effect, uint entry)
 	{
 		SpellLogEffectTradeSkillItemParams spellLogEffectTradeSkillItemParams;
 		spellLogEffectTradeSkillItemParams.ItemID = (int)entry;
@@ -6760,7 +6760,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).TradeSkillTargets.Add(spellLogEffectTradeSkillItemParams);
 	}
 
-	void ExecuteLogEffectDestroyItem(SpellEffectName effect, uint entry)
+    private void ExecuteLogEffectDestroyItem(SpellEffectName effect, uint entry)
 	{
 		SpellLogEffectFeedPetParams spellLogEffectFeedPetParams;
 		spellLogEffectFeedPetParams.ItemID = (int)entry;
@@ -6768,7 +6768,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).FeedPetTargets.Add(spellLogEffectFeedPetParams);
 	}
 
-	void ExecuteLogEffectSummonObject(SpellEffectName effect, WorldObject obj)
+    private void ExecuteLogEffectSummonObject(SpellEffectName effect, WorldObject obj)
 	{
 		SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
 		spellLogEffectGenericVictimParams.Victim = obj.GUID;
@@ -6776,7 +6776,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
 	}
 
-	void ExecuteLogEffectUnsummonObject(SpellEffectName effect, WorldObject obj)
+    private void ExecuteLogEffectUnsummonObject(SpellEffectName effect, WorldObject obj)
 	{
 		SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
 		spellLogEffectGenericVictimParams.Victim = obj.GUID;
@@ -6784,7 +6784,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
 	}
 
-	void ExecuteLogEffectResurrect(SpellEffectName effect, Unit target)
+    private void ExecuteLogEffectResurrect(SpellEffectName effect, Unit target)
 	{
 		SpellLogEffectGenericVictimParams spellLogEffectGenericVictimParams;
 		spellLogEffectGenericVictimParams.Victim = target.GUID;
@@ -6792,7 +6792,7 @@ public partial class Spell : IDisposable
 		GetExecuteLogEffect(effect).GenericVictimTargets.Add(spellLogEffectGenericVictimParams);
 	}
 
-	void SendInterrupted(byte result)
+    private void SendInterrupted(byte result)
 	{
 		SpellFailure failurePacket = new();
 
@@ -6821,7 +6821,7 @@ public partial class Spell : IDisposable
 		ster.SendMessageToSet(failedPacket, true);
 	}
 
-	void SendChannelStart(uint duration)
+    private void SendChannelStart(uint duration)
 	{
 		// GameObjects don't channel
 		var unitCaster = _caster.AsUnit;
@@ -6913,7 +6913,7 @@ public partial class Spell : IDisposable
 		unitCaster.SetChannelVisual(SpellVisual);
 	}
 
-	void SendResurrectRequest(Player target)
+    private void SendResurrectRequest(Player target)
 	{
 		// get resurrector name for creature resurrections, otherwise packet will be not accepted
 		// for player resurrections the name is looked up by guid
@@ -6947,7 +6947,7 @@ public partial class Spell : IDisposable
 		target.SendPacket(resurrectRequest);
 	}
 
-	void TakeCastItem()
+    private void TakeCastItem()
 	{
 		if (CastItem == null || !_caster.IsTypeId(TypeId.Player))
 			return;
@@ -7017,7 +7017,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	void TakePower()
+    private void TakePower()
 	{
 		// GameObjects don't use power
 		var unitCaster = _caster.AsUnit;
@@ -7088,7 +7088,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	SpellCastResult CheckRuneCost()
+    private SpellCastResult CheckRuneCost()
 	{
 		var runeCost = _powerCosts.Sum(cost => cost.Power == PowerType.Runes ? cost.Amount : 0);
 
@@ -7115,7 +7115,7 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	void TakeRunePower(bool didHit)
+    private void TakeRunePower(bool didHit)
 	{
 		if (!_caster.IsTypeId(TypeId.Player) || _caster.AsPlayer.Class != PlayerClass.Deathknight)
 			return;
@@ -7133,7 +7133,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void TakeReagents()
+    private void TakeReagents()
 	{
 		if (!_caster.IsTypeId(TypeId.Player))
 			return;
@@ -7190,7 +7190,7 @@ public partial class Spell : IDisposable
 			p_caster.RemoveCurrency(reagentsCurrency.CurrencyTypesID, -reagentsCurrency.CurrencyCount, CurrencyDestroyReason.Spell);
 	}
 
-	void HandleThreatSpells()
+    private void HandleThreatSpells()
 	{
 		// wild GameObject spells don't cause threat
 		var unitCaster = (_originalCaster ? _originalCaster : _caster.AsUnit);
@@ -7256,7 +7256,7 @@ public partial class Spell : IDisposable
 		Log.Logger.Debug("Spell {0}, added an additional {1} threat for {2} {3} target(s)", SpellInfo.Id, threat, IsPositive ? "assisting" : "harming", UniqueTargetInfo.Count);
 	}
 
-	SpellCastResult CheckCasterAuras(ref int param1)
+    private SpellCastResult CheckCasterAuras(ref int param1)
 	{
 		var unitCaster = (_originalCaster ? _originalCaster : _caster.AsUnit);
 
@@ -7407,7 +7407,7 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	bool CheckSpellCancelsAuraEffect(AuraType auraType, ref int param1)
+    private bool CheckSpellCancelsAuraEffect(AuraType auraType, ref int param1)
 	{
 		var unitCaster = (_originalCaster ? _originalCaster : _caster.AsUnit);
 
@@ -7436,47 +7436,47 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool CheckSpellCancelsCharm(ref int param1)
+    private bool CheckSpellCancelsCharm(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModCharm, ref param1) ||
 				CheckSpellCancelsAuraEffect(AuraType.AoeCharm, ref param1) ||
 				CheckSpellCancelsAuraEffect(AuraType.ModPossess, ref param1);
 	}
 
-	bool CheckSpellCancelsStun(ref int param1)
+    private bool CheckSpellCancelsStun(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModStun, ref param1) &&
 				CheckSpellCancelsAuraEffect(AuraType.ModStunDisableGravity, ref param1);
 	}
 
-	bool CheckSpellCancelsSilence(ref int param1)
+    private bool CheckSpellCancelsSilence(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModSilence, ref param1) ||
 				CheckSpellCancelsAuraEffect(AuraType.ModPacifySilence, ref param1);
 	}
 
-	bool CheckSpellCancelsPacify(ref int param1)
+    private bool CheckSpellCancelsPacify(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModPacify, ref param1) ||
 				CheckSpellCancelsAuraEffect(AuraType.ModPacifySilence, ref param1);
 	}
 
-	bool CheckSpellCancelsFear(ref int param1)
+    private bool CheckSpellCancelsFear(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModFear, ref param1);
 	}
 
-	bool CheckSpellCancelsConfuse(ref int param1)
+    private bool CheckSpellCancelsConfuse(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModConfuse, ref param1);
 	}
 
-	bool CheckSpellCancelsNoActions(ref int param1)
+    private bool CheckSpellCancelsNoActions(ref int param1)
 	{
 		return CheckSpellCancelsAuraEffect(AuraType.ModNoActions, ref param1);
 	}
 
-	SpellCastResult CheckArenaAndRatedBattlegroundCastRules()
+    private SpellCastResult CheckArenaAndRatedBattlegroundCastRules()
 	{
 		var isRatedBattleground = false; // NYI
 		var isArena = !isRatedBattleground;
@@ -7508,7 +7508,7 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	SpellCastResult CheckRange(bool strict)
+    private SpellCastResult CheckRange(bool strict)
 	{
 		// Don't check for instant cast spells
 		if (!strict && _casttime == 0)
@@ -7557,7 +7557,7 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	(float minRange, float maxRange) GetMinMaxRange(bool strict)
+    private (float minRange, float maxRange) GetMinMaxRange(bool strict)
 	{
 		var rangeMod = 0.0f;
 		var minRange = 0.0f;
@@ -7626,7 +7626,7 @@ public partial class Spell : IDisposable
 		return (minRange, maxRange);
 	}
 
-	SpellCastResult CheckPower()
+    private SpellCastResult CheckPower()
 	{
 		var unitCaster = _caster.AsUnit;
 
@@ -7673,7 +7673,7 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	SpellCastResult CheckItems(ref int param1, ref int param2)
+    private SpellCastResult CheckItems(ref int param1, ref int param2)
 	{
 		var player = _caster.AsPlayer;
 
@@ -8307,7 +8307,7 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	bool UpdatePointers()
+    private bool UpdatePointers()
 	{
 		if (_originalCasterGuid == _caster.GUID)
 		{
@@ -8369,7 +8369,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool CheckEffectTarget(Unit target, SpellEffectInfo spellEffectInfo, Position losPosition)
+    private bool CheckEffectTarget(Unit target, SpellEffectInfo spellEffectInfo, Position losPosition)
 	{
 		if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
 			return false;
@@ -8473,7 +8473,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool CheckEffectTarget(GameObject target, SpellEffectInfo spellEffectInfo)
+    private bool CheckEffectTarget(GameObject target, SpellEffectInfo spellEffectInfo)
 	{
 		if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
 			return false;
@@ -8494,7 +8494,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool CheckEffectTarget(Item target, SpellEffectInfo spellEffectInfo)
+    private bool CheckEffectTarget(Item target, SpellEffectInfo spellEffectInfo)
 	{
 		if (spellEffectInfo == null || !spellEffectInfo.IsEffect())
 			return false;
@@ -8502,7 +8502,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool IsAutoActionResetSpell()
+    private bool IsAutoActionResetSpell()
 	{
 		if (IsTriggered)
 			return false;
@@ -8513,7 +8513,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool IsNeedSendToClient()
+    private bool IsNeedSendToClient()
 	{
 		return SpellVisual.SpellXSpellVisualID != 0 ||
 				SpellVisual.ScriptVisualID != 0 ||
@@ -8523,7 +8523,7 @@ public partial class Spell : IDisposable
 				(TriggeredByAuraSpell == null && !IsTriggered);
 	}
 
-	bool IsValidDeadOrAliveTarget(Unit target)
+    private bool IsValidDeadOrAliveTarget(Unit target)
 	{
 		if (target.IsAlive)
 			return !SpellInfo.IsRequiringDeadTarget;
@@ -8534,7 +8534,7 @@ public partial class Spell : IDisposable
 		return false;
 	}
 
-	void HandleLaunchPhase()
+    private void HandleLaunchPhase()
 	{
 		// handle effects with SPELL_EFFECT_HANDLE_LAUNCH mode
 		foreach (var spellEffectInfo in SpellInfo.Effects)
@@ -8572,7 +8572,7 @@ public partial class Spell : IDisposable
 		FinishTargetProcessing();
 	}
 
-	void PreprocessSpellLaunch(TargetInfo targetInfo)
+    private void PreprocessSpellLaunch(TargetInfo targetInfo)
 	{
 		var targetUnit = _caster.GUID == targetInfo.TargetGuid ? _caster.AsUnit : Global.ObjAccessor.GetUnit(_caster, targetInfo.TargetGuid);
 
@@ -8608,7 +8608,7 @@ public partial class Spell : IDisposable
 		targetInfo.IsCrit = RandomHelper.randChance(critChance);
 	}
 
-	void DoEffectOnLaunchTarget(TargetInfo targetInfo, double multiplier, SpellEffectInfo spellEffectInfo)
+    private void DoEffectOnLaunchTarget(TargetInfo targetInfo, double multiplier, SpellEffectInfo spellEffectInfo)
 	{
 		Unit unit = null;
 
@@ -8654,7 +8654,7 @@ public partial class Spell : IDisposable
 		targetInfo.Healing += HealingInEffects;
 	}
 
-	SpellCastResult CanOpenLock(SpellEffectInfo effect, uint lockId, ref SkillType skillId, ref int reqSkillValue, ref int skillValue)
+    private SpellCastResult CanOpenLock(SpellEffectInfo effect, uint lockId, ref SkillType skillId, ref int reqSkillValue, ref int skillValue)
 	{
 		if (lockId == 0) // possible case for GO and maybe for items.
 			return SpellCastResult.SpellCastOk;
@@ -8732,14 +8732,14 @@ public partial class Spell : IDisposable
 		return SpellCastResult.SpellCastOk;
 	}
 
-	void PrepareTargetProcessing() { }
+    private void PrepareTargetProcessing() { }
 
-	void FinishTargetProcessing()
+    private void FinishTargetProcessing()
 	{
 		SendSpellExecuteLog();
 	}
 
-	void LoadScripts()
+    private void LoadScripts()
 	{
 		_loadedScripts = Global.ScriptMgr.CreateSpellScripts(SpellInfo.Id, this);
 
@@ -8836,7 +8836,7 @@ public partial class Spell : IDisposable
 	}
 
 
-	void CallScriptOnPrecastHandler()
+    private void CallScriptOnPrecastHandler()
 	{
 		foreach (var script in GetSpellScripts<ISpellOnPrecast>())
 			try
@@ -8851,7 +8851,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void CallScriptBeforeCastHandlers()
+    private void CallScriptBeforeCastHandlers()
 	{
 		foreach (var script in GetSpellScripts<ISpellBeforeCast>())
 			try
@@ -8868,7 +8868,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void CallScriptOnCastHandlers()
+    private void CallScriptOnCastHandlers()
 	{
 		foreach (var script in GetSpellScripts<ISpellOnCast>())
 			try
@@ -8885,7 +8885,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void CallScriptAfterCastHandlers()
+    private void CallScriptAfterCastHandlers()
 	{
 		foreach (var script in GetSpellScripts<ISpellAfterCast>())
 			try
@@ -8902,7 +8902,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	SpellCastResult CallScriptCheckCastHandlers()
+    private SpellCastResult CallScriptCheckCastHandlers()
 	{
 		var retVal = SpellCastResult.SpellCastOk;
 
@@ -8926,7 +8926,7 @@ public partial class Spell : IDisposable
 		return retVal;
 	}
 
-	int CallScriptCalcCastTimeHandlers(int castTime)
+    private int CallScriptCalcCastTimeHandlers(int castTime)
 	{
 		foreach (var script in GetSpellScripts<ISpellCalculateCastTime>())
 			try
@@ -8943,7 +8943,7 @@ public partial class Spell : IDisposable
 		return castTime;
 	}
 
-	bool CallScriptEffectHandlers(int effIndex, SpellEffectHandleMode mode)
+    private bool CallScriptEffectHandlers(int effIndex, SpellEffectHandleMode mode)
 	{
 		// execute script effect handler hooks and check if effects was prevented
 		var preventDefault = false;
@@ -9006,7 +9006,7 @@ public partial class Spell : IDisposable
 		return preventDefault;
 	}
 
-	void CallScriptSuccessfulDispel(int effIndex)
+    private void CallScriptSuccessfulDispel(int effIndex)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.EffectSuccessfulDispel, effIndex))
 			try
@@ -9024,7 +9024,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void CallScriptObjectAreaTargetSelectHandlers(List<WorldObject> targets, int effIndex, SpellImplicitTargetInfo targetType)
+    private void CallScriptObjectAreaTargetSelectHandlers(List<WorldObject> targets, int effIndex, SpellImplicitTargetInfo targetType)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectAreaTargetSelect, effIndex))
 			try
@@ -9043,7 +9043,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void CallScriptObjectTargetSelectHandlers(ref WorldObject target, int effIndex, SpellImplicitTargetInfo targetType)
+    private void CallScriptObjectTargetSelectHandlers(ref WorldObject target, int effIndex, SpellImplicitTargetInfo targetType)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.ObjectTargetSelect, effIndex))
 			try
@@ -9062,7 +9062,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	void CallScriptDestinationTargetSelectHandlers(ref SpellDestination target, int effIndex, SpellImplicitTargetInfo targetType)
+    private void CallScriptDestinationTargetSelectHandlers(ref SpellDestination target, int effIndex, SpellImplicitTargetInfo targetType)
 	{
 		foreach (var script in GetEffectScripts(SpellScriptHookType.DestinationTargetSelect, effIndex))
 			try
@@ -9081,7 +9081,7 @@ public partial class Spell : IDisposable
 			}
 	}
 
-	bool CheckScriptEffectImplicitTargets(int effIndex, int effIndexToCheck)
+    private bool CheckScriptEffectImplicitTargets(int effIndex, int effIndexToCheck)
 	{
 		// Skip if there are not any script
 		if (_loadedScripts.Empty())
@@ -9104,7 +9104,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	void PrepareTriggersExecutedOnHit()
+    private void PrepareTriggersExecutedOnHit()
 	{
 		var unitCaster = _caster.AsUnit;
 
@@ -9138,7 +9138,7 @@ public partial class Spell : IDisposable
 		}
 	}
 
-	bool CanHaveGlobalCooldown(WorldObject caster)
+    private bool CanHaveGlobalCooldown(WorldObject caster)
 	{
 		// Only players or controlled units have global cooldown
 		if (!caster.IsPlayer && (!caster.IsCreature || caster.AsCreature.GetCharmInfo() == null))
@@ -9147,7 +9147,7 @@ public partial class Spell : IDisposable
 		return true;
 	}
 
-	bool HasGlobalCooldown()
+    private bool HasGlobalCooldown()
 	{
 		if (!CanHaveGlobalCooldown(_caster))
 			return false;
@@ -9155,7 +9155,7 @@ public partial class Spell : IDisposable
 		return _caster.AsUnit.SpellHistory.HasGlobalCooldown(SpellInfo);
 	}
 
-	void TriggerGlobalCooldown()
+    private void TriggerGlobalCooldown()
 	{
 		if (!CanHaveGlobalCooldown(_caster))
 			return;
@@ -9213,7 +9213,7 @@ public partial class Spell : IDisposable
 		_caster.AsUnit.SpellHistory.AddGlobalCooldown(SpellInfo, gcd);
 	}
 
-	void CancelGlobalCooldown()
+    private void CancelGlobalCooldown()
 	{
 		if (!CanHaveGlobalCooldown(_caster))
 			return;
@@ -9228,7 +9228,7 @@ public partial class Spell : IDisposable
 		_caster.AsUnit.SpellHistory.CancelGlobalCooldown(SpellInfo);
 	}
 
-	string GetDebugInfo()
+    private string GetDebugInfo()
 	{
 		return $"Id: {SpellInfo.Id} Name: '{SpellInfo.SpellName[Global.WorldMgr.DefaultDbcLocale]}' OriginalCaster: {_originalCasterGuid} State: {State}";
 	}
@@ -9251,39 +9251,39 @@ public partial class Spell : IDisposable
 		effects.Add((script, effect));
 	}
 
-	double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target)
+    private double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target)
 	{
 		return CalculateDamage(spellEffectInfo, target, out _);
 	}
 
-	double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target, out double variance)
+    private double CalculateDamage(SpellEffectInfo spellEffectInfo, Unit target, out double variance)
 	{
 		var needRecalculateBasePoints = (SpellValue.CustomBasePointsMask & (1 << spellEffectInfo.EffectIndex)) == 0;
 
 		return _caster.CalculateSpellDamage(out variance, target, spellEffectInfo, needRecalculateBasePoints ? null : SpellValue.EffectBasePoints[spellEffectInfo.EffectIndex], CastItemEntry, CastItemLevel);
 	}
 
-	void CheckSrc()
+    private void CheckSrc()
 	{
 		if (!Targets.HasSrc) Targets.SetSrc(_caster);
 	}
 
-	void CheckDst()
+    private void CheckDst()
 	{
 		if (!Targets.HasDst) Targets.SetDst(_caster);
 	}
 
-	void ReSetTimer()
+    private void ReSetTimer()
 	{
 		_timer = _casttime > 0 ? _casttime : 0;
 	}
 
-	void SetExecutedCurrently(bool yes)
+    private void SetExecutedCurrently(bool yes)
 	{
 		_executedCurrently = yes;
 	}
 
-	bool IsDelayableNoMore()
+    private bool IsDelayableNoMore()
 	{
 		if (_delayAtDamageCount >= 2)
 			return true;

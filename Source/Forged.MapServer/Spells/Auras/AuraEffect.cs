@@ -32,20 +32,20 @@ public class AuraEffect
 	public double BaseAmount;
 
 
-	readonly Aura _auraBase;
-	readonly SpellInfo _spellInfo;
-	readonly SpellEffectInfo _effectInfo;
-	SpellModifier _spellModifier;
-	double _amount;
-	double? _estimatedAmount; // for periodic damage and healing auras this will include damage done bonuses
+    private readonly Aura _auraBase;
+    private readonly SpellInfo _spellInfo;
+    private readonly SpellEffectInfo _effectInfo;
+    private SpellModifier _spellModifier;
+    private double _amount;
+    private double? _estimatedAmount; // for periodic damage and healing auras this will include damage done bonuses
 
 	// periodic stuff
-	int _periodicTimer;
-	int _period;     // time between consecutive ticks
-	uint _ticksDone; // ticks counter
+    private int _periodicTimer;
+    private int _period;     // time between consecutive ticks
+    private uint _ticksDone; // ticks counter
 
-	bool _canBeRecalculated;
-	bool _isPeriodic;
+    private bool _canBeRecalculated;
+    private bool _isPeriodic;
 
 	public Unit Caster => _auraBase.Caster;
 
@@ -987,7 +987,7 @@ public class AuraEffect
 			player.RemoveTemporarySpell(triggeredSpellId);
 	}
 
-	void GetTargetList(out List<Unit> targetList)
+    private void GetTargetList(out List<Unit> targetList)
 	{
 		targetList = new List<Unit>();
 		var targetMap = Base.ApplicationMap;
@@ -998,7 +998,7 @@ public class AuraEffect
 				targetList.Add(app.Target);
 	}
 
-	void GetApplicationList(out List<AuraApplication> applicationList)
+    private void GetApplicationList(out List<AuraApplication> applicationList)
 	{
 		applicationList = new List<AuraApplication>();
 		var targetMap = Base.ApplicationMap;
@@ -1008,7 +1008,7 @@ public class AuraEffect
 				applicationList.Add(app);
 	}
 
-	void ResetPeriodic(bool resetPeriodicTimer = false)
+    private void ResetPeriodic(bool resetPeriodicTimer = false)
 	{
 		_ticksDone = 0;
 
@@ -1022,7 +1022,7 @@ public class AuraEffect
 		}
 	}
 
-	void ApplySpellMod(Unit target, bool apply, AuraEffect triggeredBy = null)
+    private void ApplySpellMod(Unit target, bool apply, AuraEffect triggeredBy = null)
 	{
 		if (_spellModifier == null || !target.IsTypeId(TypeId.Player))
 			return;
@@ -1097,13 +1097,13 @@ public class AuraEffect
 		}
 	}
 
-	void SendTickImmune(Unit target, Unit caster)
+    private void SendTickImmune(Unit target, Unit caster)
 	{
 		if (caster != null)
 			caster.SendSpellDamageImmune(target, _spellInfo.Id, true);
 	}
 
-	void PeriodicTick(AuraApplication aurApp, Unit caster)
+    private void PeriodicTick(AuraApplication aurApp, Unit caster)
 	{
 		var prevented = Base.CallScriptEffectPeriodicHandlers(this, aurApp);
 
@@ -1183,7 +1183,7 @@ public class AuraEffect
 		}
 	}
 
-	bool HasSpellClassMask()
+    private bool HasSpellClassMask()
 	{
 		return GetSpellEffectInfo().SpellClassMask;
 	}
@@ -1195,10 +1195,10 @@ public class AuraEffect
 	/***       VISIBILITY & PHASES      ***/
 	/**************************************/
 	[AuraEffectHandler(AuraType.None)]
-	void HandleUnused(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply) { }
+    private void HandleUnused(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply) { }
 
 	[AuraEffectHandler(AuraType.ModInvisibilityDetect)]
-	void HandleModInvisibilityDetect(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModInvisibilityDetect(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -1225,7 +1225,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModInvisibility)]
-	void HandleModInvisibility(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModInvisibility(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountSendForClientMask))
 			return;
@@ -1295,7 +1295,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStealthDetect)]
-	void HandleModStealthDetect(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModStealthDetect(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -1322,7 +1322,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStealth)]
-	void HandleModStealth(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModStealth(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountSendForClientMask))
 			return;
@@ -1366,7 +1366,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStealthLevel)]
-	void HandleModStealthLevel(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModStealthLevel(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -1385,7 +1385,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.DetectAmore)]
-	void HandleDetectAmore(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleDetectAmore(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -1421,7 +1421,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.SpiritOfRedemption)]
-	void HandleSpiritOfRedemption(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleSpiritOfRedemption(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -1448,7 +1448,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Ghost)]
-	void HandleAuraGhost(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraGhost(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -1476,7 +1476,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Phase)]
-	void HandlePhase(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandlePhase(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -1490,7 +1490,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.PhaseGroup)]
-	void HandlePhaseGroup(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandlePhaseGroup(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -1504,7 +1504,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.PhaseAlwaysVisible)]
-	void HandlePhaseAlwaysVisible(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandlePhaseAlwaysVisible(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -1528,7 +1528,7 @@ public class AuraEffect
 	/***   UNIT MODEL   ***/
 	/**********************/
 	[AuraEffectHandler(AuraType.ModShapeshift)]
-	void HandleAuraModShapeshift(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModShapeshift(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.RealOrReapplyMask))
 			return;
@@ -1686,7 +1686,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Transform)]
-	void HandleAuraTransform(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraTransform(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -1935,7 +1935,7 @@ public class AuraEffect
 
 	[AuraEffectHandler(AuraType.ModScale)]
 	[AuraEffectHandler(AuraType.ModScale2)]
-	void HandleAuraModScale(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModScale(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountSendForClientMask))
 			return;
@@ -1944,7 +1944,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.CloneCaster)]
-	void HandleAuraCloneCaster(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraCloneCaster(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -1974,7 +1974,7 @@ public class AuraEffect
 	/***      FIGHT       ***/
 	/************************/
 	[AuraEffectHandler(AuraType.FeignDeath)]
-	void HandleFeignDeath(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleFeignDeath(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2045,7 +2045,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModUnattackable)]
-	void HandleModUnattackable(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModUnattackable(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2080,7 +2080,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModDisarm)]
-	void HandleAuraModDisarm(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModDisarm(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2164,7 +2164,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModSilence)]
-	void HandleAuraModSilence(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModSilence(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2202,7 +2202,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModPacify)]
-	void HandleAuraModPacify(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModPacify(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2224,7 +2224,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModPacifySilence)]
-	void HandleAuraModPacifyAndSilence(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModPacifyAndSilence(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2251,7 +2251,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModNoActions)]
-	void HandleAuraModNoActions(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModNoActions(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2288,7 +2288,7 @@ public class AuraEffect
 	/***      TRACKING        ***/
 	/****************************/
 	[AuraEffectHandler(AuraType.TrackCreatures)]
-	void HandleAuraTrackCreatures(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraTrackCreatures(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2305,7 +2305,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.TrackStealthed)]
-	void HandleAuraTrackStealthed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraTrackStealthed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2327,7 +2327,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStalked)]
-	void HandleAuraModStalked(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModStalked(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2352,7 +2352,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Untrackable)]
-	void HandleAuraUntrackable(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraUntrackable(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2381,7 +2381,7 @@ public class AuraEffect
 	/****************************/
 	[AuraEffectHandler(AuraType.ModSkill)]
 	[AuraEffectHandler(AuraType.ModSkill2)]
-	void HandleAuraModSkill(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModSkill(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Skill)))
 			return;
@@ -2401,7 +2401,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.AllowTalentSwapping)]
-	void HandleAuraAllowTalentSwapping(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraAllowTalentSwapping(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2421,7 +2421,7 @@ public class AuraEffect
 	/***       MOVEMENT       ***/
 	/****************************/
 	[AuraEffectHandler(AuraType.Mounted)]
-	void HandleAuraMounted(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraMounted(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountSendForClientMask))
 			return;
@@ -2529,7 +2529,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Fly)]
-	void HandleAuraAllowFlight(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraAllowFlight(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2549,7 +2549,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.WaterWalk)]
-	void HandleAuraWaterWalk(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraWaterWalk(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2565,7 +2565,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.FeatherFall)]
-	void HandleAuraFeatherFall(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraFeatherFall(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2585,7 +2585,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Hover)]
-	void HandleAuraHover(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraHover(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2601,7 +2601,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.WaterBreathing)]
-	void HandleWaterBreathing(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleWaterBreathing(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2614,7 +2614,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ForceMoveForward)]
-	void HandleForceMoveForward(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleForceMoveForward(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2636,7 +2636,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.CanTurnWhileFalling)]
-	void HandleAuraCanTurnWhileFalling(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraCanTurnWhileFalling(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2652,7 +2652,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.IgnoreMovementForces)]
-	void HandleIgnoreMovementForces(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleIgnoreMovementForces(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2668,7 +2668,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.DisableInertia)]
-	void HandleDisableInertia(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleDisableInertia(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -2687,7 +2687,7 @@ public class AuraEffect
 	/***        THREAT        ***/
 	/****************************/
 	[AuraEffectHandler(AuraType.ModThreat)]
-	void HandleModThreat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModThreat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -2696,7 +2696,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModTotalThreat)]
-	void HandleAuraModTotalThreat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModTotalThreat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -2713,7 +2713,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModTaunt)]
-	void HandleModTaunt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModTaunt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2727,7 +2727,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModDetaunt)]
-	void HandleModDetaunt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModDetaunt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2745,7 +2745,7 @@ public class AuraEffect
 	/***        CONTROL        ***/
 	/*****************************/
 	[AuraEffectHandler(AuraType.ModConfuse)]
-	void HandleModConfuse(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModConfuse(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2759,7 +2759,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModFear)]
-	void HandleModFear(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModFear(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2770,7 +2770,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStun)]
-	void HandleAuraModStun(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModStun(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2785,7 +2785,7 @@ public class AuraEffect
 
 	[AuraEffectHandler(AuraType.ModRoot)]
 	[AuraEffectHandler(AuraType.ModRoot2)]
-	void HandleAuraModRoot(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModRoot(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2796,7 +2796,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.PreventsFleeing)]
-	void HandlePreventFleeing(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandlePreventFleeing(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2813,7 +2813,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModRootDisableGravity)]
-	void HandleAuraModRootAndDisableGravity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModRootAndDisableGravity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2832,7 +2832,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStunDisableGravity)]
-	void HandleAuraModStunAndDisableGravity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModStunAndDisableGravity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2857,7 +2857,7 @@ public class AuraEffect
 	/***        CHARM        ***/
 	/***************************/
 	[AuraEffectHandler(AuraType.ModPossess)]
-	void HandleModPossess(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModPossess(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2881,7 +2881,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModPossessPet)]
-	void HandleModPossessPet(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModPossessPet(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2927,7 +2927,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModCharm)]
-	void HandleModCharm(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModCharm(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2943,7 +2943,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.AoeCharm)]
-	void HandleCharmConvert(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleCharmConvert(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -2963,7 +2963,7 @@ public class AuraEffect
 	 * This has been verified using spell #49256
 	 */
 	[AuraEffectHandler(AuraType.ControlVehicle)]
-	void HandleAuraControlVehicle(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraControlVehicle(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -3022,7 +3022,7 @@ public class AuraEffect
 	[AuraEffectHandler(AuraType.ModSpeedAlways)]
 	[AuraEffectHandler(AuraType.ModSpeedNotStack)]
 	[AuraEffectHandler(AuraType.ModMinimumSpeed)]
-	void HandleAuraModIncreaseSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -3035,7 +3035,7 @@ public class AuraEffect
 	[AuraEffectHandler(AuraType.ModIncreaseMountedSpeed)]
 	[AuraEffectHandler(AuraType.ModMountedSpeedAlways)]
 	[AuraEffectHandler(AuraType.ModMountedSpeedNotStack)]
-	void HandleAuraModIncreaseMountedSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseMountedSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		HandleAuraModIncreaseSpeed(aurApp, mode, apply);
 	}
@@ -3046,7 +3046,7 @@ public class AuraEffect
 	[AuraEffectHandler(AuraType.ModMountedFlightSpeedAlways)]
 	[AuraEffectHandler(AuraType.ModVehicleSpeedAlways)]
 	[AuraEffectHandler(AuraType.ModFlightSpeedNotStack)]
-	void HandleAuraModIncreaseFlightSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseFlightSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountSendForClientMask))
 			return;
@@ -3084,7 +3084,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModIncreaseSwimSpeed)]
-	void HandleAuraModIncreaseSwimSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseSwimSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -3095,7 +3095,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModDecreaseSpeed)]
-	void HandleAuraModDecreaseSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModDecreaseSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -3111,7 +3111,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.UseNormalMovementSpeed)]
-	void HandleAuraModUseNormalSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModUseNormalSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3124,7 +3124,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModMinimumSpeedRate)]
-	void HandleAuraModMinimumSpeedRate(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModMinimumSpeedRate(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3135,7 +3135,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModMovementForceMagnitude)]
-	void HandleModMovementForceMagnitude(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModMovementForceMagnitude(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -3147,7 +3147,7 @@ public class AuraEffect
 	/***                     IMMUNITY                      ***/
 	/*********************************************************/
 	[AuraEffectHandler(AuraType.MechanicImmunityMask)]
-	void HandleModMechanicImmunityMask(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModMechanicImmunityMask(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3157,7 +3157,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.MechanicImmunity)]
-	void HandleModMechanicImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModMechanicImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3167,7 +3167,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.EffectImmunity)]
-	void HandleAuraModEffectImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModEffectImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3196,7 +3196,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.StateImmunity)]
-	void HandleAuraModStateImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModStateImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3206,7 +3206,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.SchoolImmunity)]
-	void HandleAuraModSchoolImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModSchoolImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3264,7 +3264,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.DamageImmunity)]
-	void HandleAuraModDmgImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModDmgImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3288,7 +3288,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.DispelImmunity)]
-	void HandleAuraModDispelImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModDispelImmunity(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -3305,7 +3305,7 @@ public class AuraEffect
 	/***        RESISTANCE        ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModResistance)]
-	void HandleAuraModResistance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModResistance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3318,7 +3318,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBaseResistancePct)]
-	void HandleAuraModBaseResistancePCT(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModBaseResistancePCT(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3361,7 +3361,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModResistancePct)]
-	void HandleModResistancePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModResistancePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3381,7 +3381,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBaseResistance)]
-	void HandleModBaseResistance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModBaseResistance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3404,7 +3404,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModTargetResistance)]
-	void HandleModTargetResistance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModTargetResistance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3429,7 +3429,7 @@ public class AuraEffect
 	/***           STAT           ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModStat)]
-	void HandleAuraModStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3467,7 +3467,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModPercentStat)]
-	void HandleModPercentStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModPercentStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3509,7 +3509,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellDamageOfStatPercent)]
-	void HandleModSpellDamagePercentFromStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModSpellDamagePercentFromStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3530,7 +3530,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellHealingOfStatPercent)]
-	void HandleModSpellHealingPercentFromStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModSpellHealingPercentFromStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3547,7 +3547,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModHealingDone)]
-	void HandleModHealingDone(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModHealingDone(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3566,7 +3566,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModHealingDonePercent)]
-	void HandleModHealingDonePct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModHealingDonePct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3578,7 +3578,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModTotalStatPercentage)]
-	void HandleModTotalPercentStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModTotalPercentStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3623,7 +3623,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModExpertise)]
-	void HandleAuraModExpertise(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModExpertise(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3639,7 +3639,7 @@ public class AuraEffect
 
 	// Increase armor by <AuraEffect.BasePoints> % of your <primary stat>
 	[AuraEffectHandler(AuraType.ModArmorPctFromStat)]
-	void HandleModArmorPctFromStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModArmorPctFromStat(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3654,7 +3654,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBonusArmor)]
-	void HandleModBonusArmor(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModBonusArmor(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3663,7 +3663,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBonusArmorPct)]
-	void HandleModBonusArmorPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModBonusArmorPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3672,7 +3672,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModStatBonusPct)]
-	void HandleModStatBonusPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModStatBonusPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3699,7 +3699,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.OverrideSpellPowerByApPct)]
-	void HandleOverrideSpellPowerByAttackPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleOverrideSpellPowerByAttackPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3714,7 +3714,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.OverrideAttackPowerBySpPct)]
-	void HandleOverrideAttackPowerBySpellPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleOverrideAttackPowerBySpellPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3730,7 +3730,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModVersatility)]
-	void HandleModVersatilityByPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModVersatilityByPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3746,7 +3746,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModMaxPower)]
-	void HandleAuraModMaxPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModMaxPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3763,7 +3763,7 @@ public class AuraEffect
 	/***      HEAL & ENERGIZE     ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModPowerRegen)]
-	void HandleModPowerRegen(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModPowerRegen(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3782,13 +3782,13 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModPowerRegenPercent)]
-	void HandleModPowerRegenPCT(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModPowerRegenPCT(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		HandleModPowerRegen(aurApp, mode, apply);
 	}
 
 	[AuraEffectHandler(AuraType.ModManaRegenPct)]
-	void HandleModManaRegenPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModManaRegenPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3804,7 +3804,7 @@ public class AuraEffect
 	[AuraEffectHandler(AuraType.ModIncreaseHealth)]
 	[AuraEffectHandler(AuraType.ModIncreaseHealth2)]
 	[AuraEffectHandler(AuraType.ModMaxHealth)]
-	void HandleAuraModIncreaseHealth(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseHealth(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3822,7 +3822,7 @@ public class AuraEffect
 			target.ModifyHealth(amt);
 	}
 
-	void HandleAuraModIncreaseMaxHealth(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseMaxHealth(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3842,7 +3842,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModIncreaseEnergy)]
-	void HandleAuraModIncreaseEnergy(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseEnergy(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3855,7 +3855,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModIncreaseEnergyPercent)]
-	void HandleAuraModIncreaseEnergyPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseEnergyPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3903,7 +3903,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModIncreaseHealthPercent)]
-	void HandleAuraModIncreaseHealthPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseHealthPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3931,7 +3931,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBaseHealthPct)]
-	void HandleAuraIncreaseBaseHealthPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraIncreaseBaseHealthPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -3950,7 +3950,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBaseManaPct)]
-	void HandleAuraModIncreaseBaseManaPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModIncreaseBaseManaPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3969,7 +3969,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModManaCostPct)]
-	void HandleModManaCostPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModManaCostPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -3978,7 +3978,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModPowerDisplay)]
-	void HandleAuraModPowerDisplay(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModPowerDisplay(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.RealOrReapplyMask))
 			return;
@@ -3993,7 +3993,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModOverridePowerDisplay)]
-	void HandleAuraModOverridePowerDisplay(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModOverridePowerDisplay(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -4020,7 +4020,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModMaxPowerPct)]
-	void HandleAuraModMaxPowerPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModMaxPowerPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -4072,7 +4072,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.TriggerSpellOnHealthPct)]
-	void HandleTriggerSpellOnHealthPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleTriggerSpellOnHealthPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasFlag(AuraEffectHandleModes.Real) || !apply)
 			return;
@@ -4104,7 +4104,7 @@ public class AuraEffect
 	/***          FIGHT           ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModParryPercent)]
-	void HandleAuraModParryPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModParryPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4118,7 +4118,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModDodgePercent)]
-	void HandleAuraModDodgePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModDodgePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4132,7 +4132,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModBlockPercent)]
-	void HandleAuraModBlockPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModBlockPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4146,7 +4146,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.InterruptRegen)]
-	void HandleAuraModRegenInterrupt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModRegenInterrupt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -4160,7 +4160,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModWeaponCritPercent)]
-	void HandleAuraModWeaponCritPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModWeaponCritPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4174,7 +4174,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellHitChance)]
-	void HandleModSpellHitChance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModSpellHitChance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4188,7 +4188,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellCritChance)]
-	void HandleModSpellCritChance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModSpellCritChance(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4202,7 +4202,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModCritPct)]
-	void HandleAuraModCritPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModCritPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4229,7 +4229,7 @@ public class AuraEffect
 	/********************************/
 	[AuraEffectHandler(AuraType.HasteSpells)]
 	[AuraEffectHandler(AuraType.ModCastingSpeedNotStack)]
-	void HandleModCastingSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModCastingSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4279,7 +4279,7 @@ public class AuraEffect
 
 	[AuraEffectHandler(AuraType.ModMeleeRangedHaste)]
 	[AuraEffectHandler(AuraType.ModMeleeRangedHaste2)]
-	void HandleModMeleeRangedSpeedPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModMeleeRangedSpeedPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -4294,7 +4294,7 @@ public class AuraEffect
 
 	[AuraEffectHandler(AuraType.MeleeSlow)]
 	[AuraEffectHandler(AuraType.ModSpeedSlowAll)]
-	void HandleModCombatSpeedPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModCombatSpeedPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4320,7 +4320,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModAttackspeed)]
-	void HandleModAttackSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModAttackSpeed(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4334,7 +4334,7 @@ public class AuraEffect
 	[AuraEffectHandler(AuraType.ModMeleeHaste)]
 	[AuraEffectHandler(AuraType.ModMeleeHaste2)]
 	[AuraEffectHandler(AuraType.ModMeleeHaste3)]
-	void HandleModMeleeSpeedPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModMeleeSpeedPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4357,7 +4357,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModRangedHaste)]
-	void HandleAuraModRangedHaste(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModRangedHaste(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4372,7 +4372,7 @@ public class AuraEffect
 	/***       COMBAT RATING      ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModRating)]
-	void HandleModRating(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModRating(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4388,7 +4388,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModRatingPct)]
-	void HandleModRatingPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModRatingPct(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -4408,7 +4408,7 @@ public class AuraEffect
 	/***        ATTACK POWER      ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModAttackPower)]
-	void HandleAuraModAttackPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModAttackPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4419,7 +4419,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModRangedAttackPower)]
-	void HandleAuraModRangedAttackPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModRangedAttackPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4433,7 +4433,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModAttackPowerPct)]
-	void HandleAuraModAttackPowerPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModAttackPowerPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4453,7 +4453,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModRangedAttackPowerPct)]
-	void HandleAuraModRangedAttackPowerPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModRangedAttackPowerPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4479,7 +4479,7 @@ public class AuraEffect
 	/***        DAMAGE BONUS      ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModDamageDone)]
-	void HandleModDamageDone(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModDamageDone(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4512,7 +4512,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModDamagePercentDone)]
-	void HandleModDamagePercentDone(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModDamagePercentDone(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4536,7 +4536,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModOffhandDamagePct)]
-	void HandleModOffhandDamagePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModOffhandDamagePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4547,7 +4547,7 @@ public class AuraEffect
 		target.UpdateDamagePctDoneMods(WeaponAttackType.OffAttack);
 	}
 
-	void HandleShieldBlockValue(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleShieldBlockValue(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat))
 			return;
@@ -4559,7 +4559,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModShieldBlockvaluePct)]
-	void HandleShieldBlockValuePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleShieldBlockValuePercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Stat)))
 			return;
@@ -4584,7 +4584,7 @@ public class AuraEffect
 	/***        POWER COST        ***/
 	/********************************/
 	[AuraEffectHandler(AuraType.ModPowerCostSchool)]
-	void HandleModPowerCost(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModPowerCost(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -4601,7 +4601,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ArenaPreparation)]
-	void HandleArenaPreparation(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleArenaPreparation(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -4625,7 +4625,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.NoReagentUse)]
-	void HandleNoReagentUseAura(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleNoReagentUseAura(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -4653,7 +4653,7 @@ public class AuraEffect
 	/***                    OTHERS                         ***/
 	/*********************************************************/
 	[AuraEffectHandler(AuraType.Dummy)]
-	void HandleAuraDummy(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraDummy(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag((AuraEffectHandleModes.ChangeAmountMask | AuraEffectHandleModes.Reapply)))
 			return;
@@ -4973,7 +4973,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ChannelDeathItem)]
-	void HandleChannelDeathItem(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleChannelDeathItem(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5031,7 +5031,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.BindSight)]
-	void HandleBindSight(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleBindSight(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5047,7 +5047,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ForceReaction)]
-	void HandleForceReaction(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleForceReaction(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -5071,7 +5071,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Empathy)]
-	void HandleAuraEmpathy(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraEmpathy(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5093,7 +5093,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModFaction)]
-	void HandleAuraModFaction(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModFaction(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5117,7 +5117,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.LearnSpell)]
-	void HandleLearnSpell(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleLearnSpell(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5134,7 +5134,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ComprehendLanguage)]
-	void HandleComprehendLanguage(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleComprehendLanguage(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -5155,7 +5155,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModAlternativeDefaultLanguage)]
-	void HandleModAlternativeDefaultLanguage(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModAlternativeDefaultLanguage(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.SendForClientMask))
 			return;
@@ -5176,7 +5176,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Linked)]
-	void HandleAuraLinked(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraLinked(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		var target = aurApp.Target;
 
@@ -5220,7 +5220,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.TriggerSpellOnPowerPct)]
-	void HandleTriggerSpellOnPowerPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleTriggerSpellOnPowerPercent(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real) || !apply)
 			return;
@@ -5251,7 +5251,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.TriggerSpellOnPowerAmount)]
-	void HandleTriggerSpellOnPowerAmount(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleTriggerSpellOnPowerAmount(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real) || !apply)
 			return;
@@ -5282,7 +5282,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.TriggerSpellOnExpire)]
-	void HandleTriggerSpellOnExpire(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleTriggerSpellOnExpire(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasFlag(AuraEffectHandleModes.Real) || apply || aurApp.RemoveMode != AuraRemoveMode.Expire)
 			return;
@@ -5296,7 +5296,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.OpenStable)]
-	void HandleAuraOpenStable(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraOpenStable(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5313,7 +5313,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModFakeInebriate)]
-	void HandleAuraModFakeInebriation(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraModFakeInebriation(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.ChangeAmountMask))
 			return;
@@ -5356,7 +5356,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.OverrideSpells)]
-	void HandleAuraOverrideSpells(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraOverrideSpells(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5399,7 +5399,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.SetVehicleId)]
-	void HandleAuraSetVehicle(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraSetVehicle(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5429,7 +5429,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.PreventResurrection)]
-	void HandlePreventResurrection(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandlePreventResurrection(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5446,7 +5446,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.Mastery)]
-	void HandleMastery(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleMastery(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -5459,7 +5459,7 @@ public class AuraEffect
 		target.UpdateMastery();
 	}
 
-	void HandlePeriodicTriggerSpellAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicTriggerSpellAuraTick(Unit target, Unit caster)
 	{
 		var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
 
@@ -5488,7 +5488,7 @@ public class AuraEffect
 		}
 	}
 
-	void HandlePeriodicTriggerSpellWithValueAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicTriggerSpellWithValueAuraTick(Unit target, Unit caster)
 	{
 		var triggerSpellId = GetSpellEffectInfo().TriggerSpell;
 
@@ -5522,7 +5522,7 @@ public class AuraEffect
 		}
 	}
 
-	void HandlePeriodicDamageAurasTick(Unit target, Unit caster)
+    private void HandlePeriodicDamageAurasTick(Unit target, Unit caster)
 	{
 		if (!target.IsAlive)
 			return;
@@ -5663,7 +5663,7 @@ public class AuraEffect
 		target.SendPeriodicAuraLog(pInfo);
 	}
 
-	void HandlePeriodicHealthLeechAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicHealthLeechAuraTick(Unit target, Unit caster)
 	{
 		if (!target.IsAlive)
 			return;
@@ -5767,7 +5767,7 @@ public class AuraEffect
 		caster.SendSpellNonMeleeDamageLog(log);
 	}
 
-	void HandlePeriodicHealthFunnelAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicHealthFunnelAuraTick(Unit target, Unit caster)
 	{
 		if (caster == null || !caster.IsAlive || !target.IsAlive)
 			return;
@@ -5800,7 +5800,7 @@ public class AuraEffect
 		Unit.ProcSkillsAndAuras(caster, target, new ProcFlagsInit(ProcFlags.DealHarmfulPeriodic), new ProcFlagsInit(ProcFlags.TakeHarmfulPeriodic), ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, ProcFlagsHit.Normal, null, null, healInfo);
 	}
 
-	void HandlePeriodicHealAurasTick(Unit target, Unit caster)
+    private void HandlePeriodicHealAurasTick(Unit target, Unit caster)
 	{
 		if (!target.IsAlive)
 			return;
@@ -5866,7 +5866,7 @@ public class AuraEffect
 			Unit.ProcSkillsAndAuras(caster, target, procAttacker, procVictim, ProcFlagsSpellType.Heal, ProcFlagsSpellPhase.Hit, hitMask, null, null, healInfo);
 	}
 
-	void HandlePeriodicManaLeechAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicManaLeechAuraTick(Unit target, Unit caster)
 	{
 		var powerType = (PowerType)MiscValue;
 
@@ -5926,7 +5926,7 @@ public class AuraEffect
 		target.SendPeriodicAuraLog(pInfo);
 	}
 
-	void HandleObsModPowerAuraTick(Unit target, Unit caster)
+    private void HandleObsModPowerAuraTick(Unit target, Unit caster)
 	{
 		PowerType powerType;
 
@@ -5962,7 +5962,7 @@ public class AuraEffect
 		target.SendPeriodicAuraLog(pInfo);
 	}
 
-	void HandlePeriodicEnergizeAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicEnergizeAuraTick(Unit target, Unit caster)
 	{
 		var powerType = (PowerType)MiscValue;
 
@@ -5992,7 +5992,7 @@ public class AuraEffect
 		target.SendPeriodicAuraLog(pInfo);
 	}
 
-	void HandlePeriodicPowerBurnAuraTick(Unit target, Unit caster)
+    private void HandlePeriodicPowerBurnAuraTick(Unit target, Unit caster)
 	{
 		var powerType = (PowerType)MiscValue;
 
@@ -6046,7 +6046,7 @@ public class AuraEffect
 		caster.SendSpellNonMeleeDamageLog(damageInfo);
 	}
 
-	bool CanPeriodicTickCrit()
+    private bool CanPeriodicTickCrit()
 	{
 		if (SpellInfo.HasAttribute(SpellAttr2.CantCrit))
 			return false;
@@ -6054,7 +6054,7 @@ public class AuraEffect
 		return true;
 	}
 
-	double CalcPeriodicCritChance(Unit caster)
+    private double CalcPeriodicCritChance(Unit caster)
 	{
 		if (!caster || !CanPeriodicTickCrit())
 			return 0.0f;
@@ -6069,7 +6069,7 @@ public class AuraEffect
 		return Math.Max(0.0f, critChance);
 	}
 
-	void HandleBreakableCCAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
+    private void HandleBreakableCCAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var damageLeft = Amount - eventInfo.DamageInfo.Damage;
 
@@ -6079,7 +6079,7 @@ public class AuraEffect
 			ChangeAmount(damageLeft);
 	}
 
-	void HandleProcTriggerSpellAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
+    private void HandleProcTriggerSpellAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var triggerCaster = aurApp.Target;
 		var triggerTarget = eventInfo.ProcTarget;
@@ -6106,7 +6106,7 @@ public class AuraEffect
 		}
 	}
 
-	void HandleProcTriggerSpellWithValueAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
+    private void HandleProcTriggerSpellWithValueAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var triggerCaster = aurApp.Target;
 		var triggerTarget = eventInfo.ProcTarget;
@@ -6136,7 +6136,7 @@ public class AuraEffect
 		}
 	}
 
-	void HandleProcTriggerDamageAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
+    private void HandleProcTriggerDamageAuraProc(AuraApplication aurApp, ProcEventInfo eventInfo)
 	{
 		var target = aurApp.Target;
 		var triggerTarget = eventInfo.ProcTarget;
@@ -6158,7 +6158,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ForceWeather)]
-	void HandleAuraForceWeather(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraForceWeather(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6175,7 +6175,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.EnableAltPower)]
-	void HandleEnableAltPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleEnableAltPower(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6193,7 +6193,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModSpellCategoryCooldown)]
-	void HandleModSpellCategoryCooldown(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModSpellCategoryCooldown(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6206,7 +6206,7 @@ public class AuraEffect
 
 	[AuraEffectHandler(AuraType.ShowConfirmationPrompt)]
 	[AuraEffectHandler(AuraType.ShowConfirmationPromptWithDifficulty)]
-	void HandleShowConfirmationPrompt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleShowConfirmationPrompt(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6223,7 +6223,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.OverridePetSpecs)]
-	void HandleOverridePetSpecs(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleOverridePetSpecs(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6250,7 +6250,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.AllowUsingGameobjectsWhileMounted)]
-	void HandleAllowUsingGameobjectsWhileMounted(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAllowUsingGameobjectsWhileMounted(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6267,7 +6267,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.PlayScene)]
-	void HandlePlayScene(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandlePlayScene(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6284,7 +6284,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.AreaTrigger)]
-	void HandleCreateAreaTrigger(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleCreateAreaTrigger(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6305,7 +6305,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.PvpTalents)]
-	void HandleAuraPvpTalents(AuraApplication auraApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleAuraPvpTalents(AuraApplication auraApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6322,7 +6322,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.LinkedSummon)]
-	void HandleLinkedSummon(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleLinkedSummon(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6387,7 +6387,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.SetFFAPvp)]
-	void HandleSetFFAPvP(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleSetFFAPvP(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6401,7 +6401,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ModOverrideZonePvpType)]
-	void HandleModOverrideZonePVPType(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleModOverrideZonePVPType(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6424,7 +6424,7 @@ public class AuraEffect
 
 	[AuraEffectHandler(AuraType.BattleGroundPlayerPositionFactional)]
 	[AuraEffectHandler(AuraType.BattleGroundPlayerPosition)]
-	void HandleBattlegroundPlayerPosition(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleBattlegroundPlayerPosition(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6469,7 +6469,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.StoreTeleportReturnPoint)]
-	void HandleStoreTeleportReturnPoint(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleStoreTeleportReturnPoint(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6486,7 +6486,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.MountRestrictions)]
-	void HandleMountRestrictions(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleMountRestrictions(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6495,7 +6495,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.CosmeticMounted)]
-	void HandleCosmeticMounted(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleCosmeticMounted(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6514,7 +6514,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.SuppressItemPassiveEffectBySpellLabel)]
-	void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleSuppressItemPassiveEffectBySpellLabel(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;
@@ -6524,7 +6524,7 @@ public class AuraEffect
 	}
 
 	[AuraEffectHandler(AuraType.ForceBeathBar)]
-	void HandleForceBreathBar(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
+    private void HandleForceBreathBar(AuraApplication aurApp, AuraEffectHandleModes mode, bool apply)
 	{
 		if (!mode.HasAnyFlag(AuraEffectHandleModes.Real))
 			return;

@@ -10,7 +10,7 @@ namespace Forged.MapServer.Collision;
 
 public class TriBoundFunc
 {
-	readonly List<Vector3> _vertices;
+    private readonly List<Vector3> _vertices;
 
 	public TriBoundFunc(List<Vector3> vert)
 	{

@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class MissileTrajectoryCollision : ClientPacket
+internal class MissileTrajectoryCollision : ClientPacket
 {
 	public ObjectGuid Target;
 	public uint SpellID;

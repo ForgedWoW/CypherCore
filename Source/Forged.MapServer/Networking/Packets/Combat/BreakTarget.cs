@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Combat;
 
-class BreakTarget : ServerPacket
+internal class BreakTarget : ServerPacket
 {
 	public ObjectGuid UnitGUID;
 	public BreakTarget() : base(ServerOpcodes.BreakTarget) { }

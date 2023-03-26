@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionSetFavoriteItem : ClientPacket
+internal class AuctionSetFavoriteItem : ClientPacket
 {
 	public AuctionFavoriteInfo Item;
 	public bool IsNotFavorite = true;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-interface IChannelAppender
+internal interface IChannelAppender
 {
 	void Append(ChannelNotify data);
 	ChatNotify GetNotificationType();

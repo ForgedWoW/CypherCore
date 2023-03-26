@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-struct BracketInfo
+internal struct BracketInfo
 {
 	public int PersonalRating;
 	public int Ranking;

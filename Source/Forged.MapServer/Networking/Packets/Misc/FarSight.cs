@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class FarSight : ClientPacket
+internal class FarSight : ClientPacket
 {
 	public bool Enable;
 	public FarSight(WorldPacket packet) : base(packet) { }

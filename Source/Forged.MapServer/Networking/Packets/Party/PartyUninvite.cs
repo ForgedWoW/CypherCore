@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyUninvite : ClientPacket
+internal class PartyUninvite : ClientPacket
 {
 	public byte PartyIndex;
 	public ObjectGuid TargetGUID;

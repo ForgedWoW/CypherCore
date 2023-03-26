@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemExpirePurchaseRefund : ServerPacket
+internal class ItemExpirePurchaseRefund : ServerPacket
 {
 	public ObjectGuid ItemGUID;
 	public ItemExpirePurchaseRefund() : base(ServerOpcodes.ItemExpirePurchaseRefund, ConnectionType.Instance) { }

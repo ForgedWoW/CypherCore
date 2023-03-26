@@ -11,8 +11,8 @@ namespace Forged.MapServer.Networking;
 
 public class PacketHandler
 {
-	readonly Action<WorldSession, ClientPacket> methodCaller;
-	readonly Type packetType;
+    private readonly Action<WorldSession, ClientPacket> methodCaller;
+    private readonly Type packetType;
 	public PacketProcessing ProcessingPlace { get; private set; }
 	public SessionStatus sessionStatus { get; private set; }
 
@@ -43,7 +43,7 @@ public class PacketHandler
 		methodCaller(session, clientPacket);
 	}
 
-	static Action<WorldSession, ClientPacket> CreateDelegate<P1>(MethodInfo method) where P1 : ClientPacket
+    private static Action<WorldSession, ClientPacket> CreateDelegate<P1>(MethodInfo method) where P1 : ClientPacket
 	{
 		// create first delegate. It is not fine because its 
 		// signature contains unknown types T and P1

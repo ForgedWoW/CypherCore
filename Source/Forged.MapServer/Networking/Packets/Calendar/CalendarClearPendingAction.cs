@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarClearPendingAction : ServerPacket
+internal class CalendarClearPendingAction : ServerPacket
 {
 	public CalendarClearPendingAction() : base(ServerOpcodes.CalendarClearPendingAction) { }
 

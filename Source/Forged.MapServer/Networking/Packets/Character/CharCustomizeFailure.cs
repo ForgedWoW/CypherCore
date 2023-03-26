@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class CharCustomizeFailure : ServerPacket
+internal class CharCustomizeFailure : ServerPacket
 {
 	public byte Result;
 	public ObjectGuid CharGUID;

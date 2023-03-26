@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Channel;
 
-class UserlistRemove : ServerPacket
+internal class UserlistRemove : ServerPacket
 {
 	public ObjectGuid RemovedUserGUID;
 	public ChannelFlags ChannelFlags;

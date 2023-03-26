@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class InitiateRolePoll : ClientPacket
+internal class InitiateRolePoll : ClientPacket
 {
 	public sbyte PartyIndex;
 	public InitiateRolePoll(WorldPacket packet) : base(packet) { }

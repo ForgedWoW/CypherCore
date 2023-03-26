@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveSkipTime : ServerPacket
+internal class MoveSkipTime : ServerPacket
 {
 	public ObjectGuid MoverGUID;
 	public uint TimeSkipped;

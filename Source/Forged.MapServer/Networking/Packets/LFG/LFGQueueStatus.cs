@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LFGQueueStatus : ServerPacket
+internal class LFGQueueStatus : ServerPacket
 {
 	public RideTicket Ticket;
 	public uint Slot;

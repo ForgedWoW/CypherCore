@@ -2103,7 +2103,7 @@ public partial class Player
 		return true;
 	}
 
-	void _LoadInventory(SQLResult result, SQLResult artifactsResult, SQLResult azeriteResult, SQLResult azeriteItemMilestonePowersResult, SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult, uint timeDiff)
+    private void _LoadInventory(SQLResult result, SQLResult artifactsResult, SQLResult azeriteResult, SQLResult azeriteItemMilestonePowersResult, SQLResult azeriteItemUnlockedEssencesResult, SQLResult azeriteEmpoweredItemResult, uint timeDiff)
 	{
 		Dictionary<ulong, ItemAdditionalLoadInfo> additionalData = new();
 		ItemAdditionalLoadInfo.Init(additionalData, artifactsResult, azeriteResult, azeriteItemMilestonePowersResult, azeriteItemUnlockedEssencesResult, azeriteEmpoweredItemResult);
@@ -2307,7 +2307,7 @@ public partial class Player
 		ApplyAllAzeriteItemMods(true);
 	}
 
-	Item _LoadItem(SQLTransaction trans, uint zoneId, uint timeDiff, SQLFields fields)
+    private Item _LoadItem(SQLTransaction trans, uint zoneId, uint timeDiff, SQLFields fields)
 	{
 		Item item = null;
 		var itemGuid = fields.Read<ulong>(0);
@@ -2482,7 +2482,7 @@ public partial class Player
 		return item;
 	}
 
-	void _LoadSkills(SQLResult result)
+    private void _LoadSkills(SQLResult result)
 	{
 		var race = Race;
 		uint count = 0;
@@ -2607,7 +2607,7 @@ public partial class Player
 			SetSkill(SkillType.FistWeapons, 0, GetSkillValue(SkillType.Unarmed), GetMaxSkillValueForLevel());
 	}
 
-	void _LoadSpells(SQLResult result, SQLResult favoritesResult)
+    private void _LoadSpells(SQLResult result, SQLResult favoritesResult)
 	{
 		if (!result.IsEmpty())
 			do
@@ -2625,7 +2625,7 @@ public partial class Player
 			} while (favoritesResult.NextRow());
 	}
 
-	void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
+    private void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
 	{
 		Log.Logger.Debug("Loading auras for player {0}", GUID.ToString());
 
@@ -2729,7 +2729,7 @@ public partial class Player
 			} while (auraResult.NextRow());
 	}
 
-	bool _LoadHomeBind(SQLResult result)
+    private bool _LoadHomeBind(SQLResult result)
 	{
 		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
 
@@ -2811,7 +2811,7 @@ public partial class Player
 		return true;
 	}
 
-	void _LoadCurrency(SQLResult result)
+    private void _LoadCurrency(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -2840,14 +2840,14 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	void LoadActions(SQLResult result)
+    private void LoadActions(SQLResult result)
 	{
 		_LoadActions(result);
 
 		SendActionButtons(1);
 	}
 
-	void _LoadActions(SQLResult result)
+    private void _LoadActions(SQLResult result)
 	{
 		_actionButtons.Clear();
 
@@ -2877,7 +2877,7 @@ public partial class Player
 			} while (result.NextRow());
 	}
 
-	void _LoadQuestStatus(SQLResult result)
+    private void _LoadQuestStatus(SQLResult result)
 	{
 		ushort slot = 0;
 
@@ -2964,7 +2964,7 @@ public partial class Player
 			SetQuestSlot(i, 0);
 	}
 
-	void _LoadQuestStatusObjectives(SQLResult result)
+    private void _LoadQuestStatusObjectives(SQLResult result)
 	{
 		if (!result.IsEmpty())
 			do
@@ -3002,7 +3002,7 @@ public partial class Player
 			} while (result.NextRow());
 	}
 
-	void _LoadQuestStatusRewarded(SQLResult result)
+    private void _LoadQuestStatusRewarded(SQLResult result)
 	{
 		if (!result.IsEmpty())
 			do
@@ -3059,7 +3059,7 @@ public partial class Player
 			} while (result.NextRow());
 	}
 
-	void _LoadDailyQuestStatus(SQLResult result)
+    private void _LoadDailyQuestStatus(SQLResult result)
 	{
 		_dfQuests.Clear();
 
@@ -3099,7 +3099,7 @@ public partial class Player
 		_dailyQuestChanged = false;
 	}
 
-	void _LoadWeeklyQuestStatus(SQLResult result)
+    private void _LoadWeeklyQuestStatus(SQLResult result)
 	{
 		_weeklyquests.Clear();
 
@@ -3124,7 +3124,7 @@ public partial class Player
 		_weeklyQuestChanged = false;
 	}
 
-	void _LoadSeasonalQuestStatus(SQLResult result)
+    private void _LoadSeasonalQuestStatus(SQLResult result)
 	{
 		_seasonalquests.Clear();
 
@@ -3155,7 +3155,7 @@ public partial class Player
 		_seasonalQuestChanged = false;
 	}
 
-	void _LoadMonthlyQuestStatus()
+    private void _LoadMonthlyQuestStatus()
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_QUESTSTATUS_MONTHLY);
 		stmt.AddValue(0, GUID.Counter);
@@ -3184,7 +3184,7 @@ public partial class Player
 		_monthlyQuestChanged = false;
 	}
 
-	void _LoadTalents(SQLResult result)
+    private void _LoadTalents(SQLResult result)
 	{
 		if (!result.IsEmpty())
 			do
@@ -3196,7 +3196,7 @@ public partial class Player
 			} while (result.NextRow());
 	}
 
-	void _LoadPvpTalents(SQLResult result)
+    private void _LoadPvpTalents(SQLResult result)
 	{
 		// "SELECT talentID0, talentID1, talentID2, talentID3, talentGroup FROM character_pvp_talent WHERE guid = ?"
 		if (!result.IsEmpty())
@@ -3212,7 +3212,7 @@ public partial class Player
 			} while (result.NextRow());
 	}
 
-	void _LoadTraits(SQLResult configsResult, SQLResult entriesResult)
+    private void _LoadTraits(SQLResult configsResult, SQLResult entriesResult)
 	{
 		MultiMap<int, TraitEntryPacket> traitEntriesByConfig = new();
 
@@ -3346,7 +3346,7 @@ public partial class Player
 		}
 	}
 
-	void _LoadGlyphs(SQLResult result)
+    private void _LoadGlyphs(SQLResult result)
 	{
 		// SELECT talentGroup, glyphId from character_glyphs WHERE guid = ?
 		if (result.IsEmpty())
@@ -3368,13 +3368,13 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	void _LoadGlyphAuras()
+    private void _LoadGlyphAuras()
 	{
 		foreach (var glyphId in GetGlyphs(GetActiveTalentGroup()))
 			CastSpell(this, CliDB.GlyphPropertiesStorage.LookupByKey(glyphId).SpellID, true);
 	}
 
-	void _LoadVoidStorage(SQLResult result)
+    private void _LoadVoidStorage(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3425,7 +3425,7 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	static Item _LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
+    private static Item _LoadMailedItem(ObjectGuid playerGuid, Player player, ulong mailId, Mail mail, SQLFields fields, ItemAdditionalLoadInfo addionalData)
 	{
 		var itemGuid = fields.Read<ulong>(0);
 		var itemEntry = fields.Read<uint>(1);
@@ -3504,7 +3504,7 @@ public partial class Player
 		return item;
 	}
 
-	void _LoadDeclinedNames(SQLResult result)
+    private void _LoadDeclinedNames(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3515,7 +3515,7 @@ public partial class Player
 			_declinedname.Name[i] = result.Read<string>(i);
 	}
 
-	void _LoadArenaTeamInfo(SQLResult result)
+    private void _LoadArenaTeamInfo(SQLResult result)
 	{
 		// arenateamid, played_week, played_season, personal_rating
 		ushort[] personalRatingCache =
@@ -3553,7 +3553,7 @@ public partial class Player
 			SetArenaTeamInfoField(slot, ArenaTeamInfoType.PersonalRating, personalRatingCache[slot]);
 	}
 
-	void _LoadStoredAuraTeleportLocations(SQLResult result)
+    private void _LoadStoredAuraTeleportLocations(SQLResult result)
 	{
 		//                                                       0      1      2          3          4          5
 		//QueryResult* result = CharacterDatabase.PQuery("SELECT Spell, MapId, PositionX, PositionY, PositionZ, Orientation FROM character_spell_location WHERE Guid = ?", GetGUIDLow());
@@ -3591,7 +3591,7 @@ public partial class Player
 			} while (result.NextRow());
 	}
 
-	void _LoadGroup(SQLResult result)
+    private void _LoadGroup(SQLResult result)
 	{
 		if (!result.IsEmpty())
 		{
@@ -3618,7 +3618,7 @@ public partial class Player
 			RemovePlayerFlag(PlayerFlags.GroupLeader);
 	}
 
-	void _LoadInstanceTimeRestrictions(SQLResult result)
+    private void _LoadInstanceTimeRestrictions(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3629,7 +3629,7 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	void _LoadEquipmentSets(SQLResult result)
+    private void _LoadEquipmentSets(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3666,7 +3666,7 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	void _LoadTransmogOutfits(SQLResult result)
+    private void _LoadTransmogOutfits(SQLResult result)
 	{
 		//             0         1     2         3            4            5            6            7            8            9
 		//SELECT setguid, setindex, name, iconname, ignore_mask, appearance0, appearance1, appearance2, appearance3, appearance4,
@@ -3706,7 +3706,7 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	void _LoadCUFProfiles(SQLResult result)
+    private void _LoadCUFProfiles(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3738,13 +3738,13 @@ public partial class Player
 		} while (result.NextRow());
 	}
 
-	void _LoadRandomBGStatus(SQLResult result)
+    private void _LoadRandomBGStatus(SQLResult result)
 	{
 		if (!result.IsEmpty())
 			_isBgRandomWinner = true;
 	}
 
-	void _LoadBGData(SQLResult result)
+    private void _LoadBGData(SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3760,7 +3760,7 @@ public partial class Player
 		_bgData.MountSpell = result.Read<uint>(9);
 	}
 
-	void _LoadPetStable(uint summonedPetNumber, SQLResult result)
+    private void _LoadPetStable(uint summonedPetNumber, SQLResult result)
 	{
 		if (result.IsEmpty())
 			return;
@@ -3806,7 +3806,7 @@ public partial class Player
 	}
 
 
-	void _SaveInventory(SQLTransaction trans)
+    private void _SaveInventory(SQLTransaction trans)
 	{
 		PreparedStatement stmt;
 
@@ -3961,7 +3961,7 @@ public partial class Player
 		ItemUpdateQueue.Clear();
 	}
 
-	void _SaveSkills(SQLTransaction trans)
+    private void _SaveSkills(SQLTransaction trans)
 	{
 		PreparedStatement stmt; // = null;
 
@@ -4013,7 +4013,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveSpells(SQLTransaction trans)
+    private void _SaveSpells(SQLTransaction trans)
 	{
 		PreparedStatement stmt;
 
@@ -4066,7 +4066,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveAuras(SQLTransaction trans)
+    private void _SaveAuras(SQLTransaction trans)
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_AURA_EFFECT);
 		stmt.AddValue(0, GUID.Counter);
@@ -4116,7 +4116,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveGlyphs(SQLTransaction trans)
+    private void _SaveGlyphs(SQLTransaction trans)
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_GLYPHS);
 		stmt.AddValue(0, GUID.Counter);
@@ -4136,7 +4136,7 @@ public partial class Player
 			}
 	}
 
-	void _SaveCurrency(SQLTransaction trans)
+    private void _SaveCurrency(SQLTransaction trans)
 	{
 		PreparedStatement stmt;
 
@@ -4183,7 +4183,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveCustomizations(SQLTransaction trans)
+    private void _SaveCustomizations(SQLTransaction trans)
 	{
 		if (!_customizationsChanged)
 			return;
@@ -4193,7 +4193,7 @@ public partial class Player
 		SavePlayerCustomizations(trans, GUID.Counter, PlayerData.Customizations);
 	}
 
-	void _SaveActions(SQLTransaction trans)
+    private void _SaveActions(SQLTransaction trans)
 	{
 		var traitConfigId = 0;
 
@@ -4254,7 +4254,7 @@ public partial class Player
 			}
 	}
 
-	void _SaveQuestStatus(SQLTransaction trans)
+    private void _SaveQuestStatus(SQLTransaction trans)
 	{
 		var isTransaction = trans != null;
 
@@ -4337,7 +4337,7 @@ public partial class Player
 			DB.Characters.CommitTransaction(trans);
 	}
 
-	void _SaveDailyQuestStatus(SQLTransaction trans)
+    private void _SaveDailyQuestStatus(SQLTransaction trans)
 	{
 		if (!_dailyQuestChanged)
 			return;
@@ -4370,7 +4370,7 @@ public partial class Player
 			}
 	}
 
-	void _SaveWeeklyQuestStatus(SQLTransaction trans)
+    private void _SaveWeeklyQuestStatus(SQLTransaction trans)
 	{
 		if (!_weeklyQuestChanged || _weeklyquests.Empty())
 			return;
@@ -4391,7 +4391,7 @@ public partial class Player
 		_weeklyQuestChanged = false;
 	}
 
-	void _SaveSeasonalQuestStatus(SQLTransaction trans)
+    private void _SaveSeasonalQuestStatus(SQLTransaction trans)
 	{
 		if (!_seasonalQuestChanged)
 			return;
@@ -4420,7 +4420,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveMonthlyQuestStatus(SQLTransaction trans)
+    private void _SaveMonthlyQuestStatus(SQLTransaction trans)
 	{
 		if (!_monthlyQuestChanged || _monthlyquests.Empty())
 			return;
@@ -4441,7 +4441,7 @@ public partial class Player
 		_monthlyQuestChanged = false;
 	}
 
-	void _SaveTalents(SQLTransaction trans)
+    private void _SaveTalents(SQLTransaction trans)
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_TALENT);
 		stmt.AddValue(0, GUID.Counter);
@@ -4486,7 +4486,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveTraits(SQLTransaction trans)
+    private void _SaveTraits(SQLTransaction trans)
 	{
 		PreparedStatement stmt = null;
 
@@ -4584,7 +4584,7 @@ public partial class Player
 		_traitConfigStates.Clear();
 	}
 
-	void _SaveStoredAuraTeleportLocations(SQLTransaction trans)
+    private void _SaveStoredAuraTeleportLocations(SQLTransaction trans)
 	{
 		foreach (var pair in _storedAuraTeleportLocations.ToList())
 		{
@@ -4619,7 +4619,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveStats(SQLTransaction trans)
+    private void _SaveStats(SQLTransaction trans)
 	{
 		// check if stat saving is enabled and if char level is high enough
 		if (GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
@@ -4657,7 +4657,7 @@ public partial class Player
 		trans.Append(stmt);
 	}
 
-	void _SaveEquipmentSets(SQLTransaction trans)
+    private void _SaveEquipmentSets(SQLTransaction trans)
 	{
 		foreach (var pair in _equipmentSets)
 		{
@@ -4758,7 +4758,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveVoidStorage(SQLTransaction trans)
+    private void _SaveVoidStorage(SQLTransaction trans)
 	{
 		PreparedStatement stmt;
 
@@ -4798,7 +4798,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveCUFProfiles(SQLTransaction trans)
+    private void _SaveCUFProfiles(SQLTransaction trans)
 	{
 		PreparedStatement stmt;
 		var lowGuid = GUID.Counter;
@@ -4836,7 +4836,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveInstanceTimeRestrictions(SQLTransaction trans)
+    private void _SaveInstanceTimeRestrictions(SQLTransaction trans)
 	{
 		if (_instanceResetTimes.Empty())
 			return;
@@ -4855,7 +4855,7 @@ public partial class Player
 		}
 	}
 
-	void _SaveBGData(SQLTransaction trans)
+    private void _SaveBGData(SQLTransaction trans)
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PLAYER_BGDATA);
 		stmt.AddValue(0, GUID.Counter);
@@ -4876,7 +4876,7 @@ public partial class Player
 		trans.Append(stmt);
 	}
 
-	void DeleteSpellFromAllPlayers(uint spellId)
+    private void DeleteSpellFromAllPlayers(uint spellId)
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_INVALID_SPELL_SPELLS);
 		stmt.AddValue(0, spellId);

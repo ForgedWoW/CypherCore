@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SpellEmpowerMinHold : ClientPacket
+internal class SpellEmpowerMinHold : ClientPacket
 {
 	public float HoldPct;
 	public SpellEmpowerMinHold(WorldPacket packet) : base(packet) { }

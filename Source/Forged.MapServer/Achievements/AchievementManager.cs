@@ -164,7 +164,7 @@ public class AchievementManager : CriteriaHandler
 
 	public virtual void CompletedAchievement(AchievementRecord entry, Player referencePlayer) { }
 
-	bool IsCompletedAchievement(AchievementRecord entry)
+    private bool IsCompletedAchievement(AchievementRecord entry)
 	{
 		// counter can never complete
 		if (entry.Flags.HasAnyFlag(AchievementFlags.Counter))

@@ -16,10 +16,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("list")]
-class ListCommands
+internal class ListCommands
 {
 	[Command("creature", RBACPermissions.CommandListCreature, true)]
-	static bool HandleListCreatureCommand(CommandHandler handler, uint creatureId, uint? countArg)
+    private static bool HandleListCreatureCommand(CommandHandler handler, uint creatureId, uint? countArg)
 	{
 		var cInfo = Global.ObjectMgr.GetCreatureTemplate(creatureId);
 
@@ -101,7 +101,7 @@ class ListCommands
 	}
 
 	[Command("item", RBACPermissions.CommandListItem, true)]
-	static bool HandleListItemCommand(CommandHandler handler, uint itemId, uint? countArg)
+    private static bool HandleListItemCommand(CommandHandler handler, uint itemId, uint? countArg)
 	{
 		var count = countArg.GetValueOrDefault(10);
 
@@ -268,7 +268,7 @@ class ListCommands
 	}
 
 	[Command("mail", RBACPermissions.CommandListMail, true)]
-	static bool HandleListMailCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleListMailCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -367,7 +367,7 @@ class ListCommands
 	}
 
 	[Command("object", RBACPermissions.CommandListObject, true)]
-	static bool HandleListObjectCommand(CommandHandler handler, uint gameObjectId, uint? countArg)
+    private static bool HandleListObjectCommand(CommandHandler handler, uint gameObjectId, uint? countArg)
 	{
 		var gInfo = Global.ObjectMgr.GetGameObjectTemplate(gameObjectId);
 
@@ -450,7 +450,7 @@ class ListCommands
 	}
 
 	[Command("respawns", RBACPermissions.CommandListRespawns)]
-	static bool HandleListRespawnsCommand(CommandHandler handler, uint? range)
+    private static bool HandleListRespawnsCommand(CommandHandler handler, uint? range)
 	{
 		var player = handler.Session.Player;
 		var map = player.Map;
@@ -510,7 +510,7 @@ class ListCommands
 	}
 
 	[Command("scenes", RBACPermissions.CommandListScenes)]
-	static bool HandleListScenesCommand(CommandHandler handler)
+    private static bool HandleListScenesCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -535,7 +535,7 @@ class ListCommands
 	}
 
 	[Command("spawnpoints", RBACPermissions.CommandListSpawnpoints)]
-	static bool HandleListSpawnPointsCommand(CommandHandler handler)
+    private static bool HandleListSpawnPointsCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 		var map = player.Map;
@@ -578,7 +578,7 @@ class ListCommands
 		return true;
 	}
 
-	static string GetZoneName(uint zoneId, Locale locale)
+    private static string GetZoneName(uint zoneId, Locale locale)
 	{
 		var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
 
@@ -586,27 +586,27 @@ class ListCommands
 	}
 
 	[CommandGroup("auras")]
-	class ListAuraCommands
+    private class ListAuraCommands
 	{
 		[Command("", RBACPermissions.CommandListAuras)]
-		static bool HandleListAllAurasCommand(CommandHandler handler)
+        private static bool HandleListAllAurasCommand(CommandHandler handler)
 		{
 			return ListAurasCommand(handler, null, null);
 		}
 
 		[Command("id", RBACPermissions.CommandListAuras)]
-		static bool HandleListAurasByIdCommand(CommandHandler handler, uint spellId)
+        private static bool HandleListAurasByIdCommand(CommandHandler handler, uint spellId)
 		{
 			return ListAurasCommand(handler, spellId, null);
 		}
 
 		[Command("name", RBACPermissions.CommandListAuras)]
-		static bool HandleListAurasByNameCommand(CommandHandler handler, Tail namePart)
+        private static bool HandleListAurasByNameCommand(CommandHandler handler, Tail namePart)
 		{
 			return ListAurasCommand(handler, null, namePart);
 		}
 
-		static bool ListAurasCommand(CommandHandler handler, uint? spellId, string namePart)
+        private static bool ListAurasCommand(CommandHandler handler, uint? spellId, string namePart)
 		{
 			var unit = handler.SelectedUnit;
 
@@ -676,7 +676,7 @@ class ListCommands
 			return true;
 		}
 
-		static bool ShouldListAura(SpellInfo spellInfo, uint? spellId, string namePart, Locale locale)
+        private static bool ShouldListAura(SpellInfo spellInfo, uint? spellId, string namePart, Locale locale)
 		{
 			if (spellId.HasValue)
 				return spellInfo.Id == spellId.Value;

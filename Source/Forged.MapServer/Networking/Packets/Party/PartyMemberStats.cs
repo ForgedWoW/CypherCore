@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyMemberStats
+internal class PartyMemberStats
 {
 	public ushort Level;
 	public GroupMemberOnlineStatus Status;

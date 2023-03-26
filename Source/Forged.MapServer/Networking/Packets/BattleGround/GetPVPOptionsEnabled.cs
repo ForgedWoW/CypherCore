@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class GetPVPOptionsEnabled : ClientPacket
+internal class GetPVPOptionsEnabled : ClientPacket
 {
 	public GetPVPOptionsEnabled(WorldPacket packet) : base(packet) { }
 

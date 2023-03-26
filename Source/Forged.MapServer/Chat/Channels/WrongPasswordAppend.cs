@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct WrongPasswordAppend : IChannelAppender
+internal struct WrongPasswordAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.WrongPasswordNotice;
 

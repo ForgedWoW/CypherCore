@@ -9,7 +9,7 @@ namespace Forged.MapServer.Maps.Workers;
 
 public class PacketSenderRef : IDoWork<Player>
 {
-	readonly ServerPacket _data;
+    private readonly ServerPacket _data;
 
 	public PacketSenderRef(ServerPacket message)
 	{

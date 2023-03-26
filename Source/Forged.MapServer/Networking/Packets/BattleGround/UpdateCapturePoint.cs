@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class UpdateCapturePoint : ServerPacket
+internal class UpdateCapturePoint : ServerPacket
 {
 	public BattlegroundCapturePointInfo CapturePointInfo;
 

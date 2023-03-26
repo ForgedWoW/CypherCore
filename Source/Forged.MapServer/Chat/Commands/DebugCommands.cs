@@ -32,10 +32,10 @@ using Transport = Forged.MapServer.Entities.Transport;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("debug")]
-class DebugCommands
+internal class DebugCommands
 {
 	[Command("anim", RBACPermissions.CommandDebug)]
-	static bool HandleDebugAnimCommand(CommandHandler handler, Emote emote)
+    private static bool HandleDebugAnimCommand(CommandHandler handler, Emote emote)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -48,7 +48,7 @@ class DebugCommands
 	}
 
 	[Command("areatriggers", RBACPermissions.CommandDebug)]
-	static bool HandleDebugAreaTriggersCommand(CommandHandler handler)
+    private static bool HandleDebugAreaTriggersCommand(CommandHandler handler)
 	{
 		var player = handler.Player;
 
@@ -67,7 +67,7 @@ class DebugCommands
 	}
 
 	[Command("arena", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugArenaCommand(CommandHandler handler)
+    private static bool HandleDebugArenaCommand(CommandHandler handler)
 	{
 		Global.BattlegroundMgr.ToggleArenaTesting();
 
@@ -75,7 +75,7 @@ class DebugCommands
 	}
 
 	[Command("bg", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugBattlegroundCommand(CommandHandler handler)
+    private static bool HandleDebugBattlegroundCommand(CommandHandler handler)
 	{
 		Global.BattlegroundMgr.ToggleTesting();
 
@@ -83,7 +83,7 @@ class DebugCommands
 	}
 
 	[Command("boundary", RBACPermissions.CommandDebug)]
-	static bool HandleDebugBoundaryCommand(CommandHandler handler, string fill, uint durationArg)
+    private static bool HandleDebugBoundaryCommand(CommandHandler handler, string fill, uint durationArg)
 	{
 		var player = handler.Player;
 
@@ -109,7 +109,7 @@ class DebugCommands
 	}
 
 	[Command("combat", RBACPermissions.CommandDebug)]
-	static bool HandleDebugCombatListCommand(CommandHandler handler)
+    private static bool HandleDebugCombatListCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 
@@ -134,7 +134,7 @@ class DebugCommands
 	}
 
 	[Command("conversation", RBACPermissions.CommandDebug)]
-	static bool HandleDebugConversationCommand(CommandHandler handler, uint conversationEntry)
+    private static bool HandleDebugConversationCommand(CommandHandler handler, uint conversationEntry)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 
@@ -149,7 +149,7 @@ class DebugCommands
 	}
 
 	[Command("dummy", RBACPermissions.CommandDebug)]
-	static bool HandleDebugDummyCommand(CommandHandler handler)
+    private static bool HandleDebugDummyCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage("This command does nothing right now. Edit your local core (DebugCommands.cs) to make it do whatever you need for testing.");
 
@@ -157,7 +157,7 @@ class DebugCommands
 	}
 
 	[Command("entervehicle", RBACPermissions.CommandDebug)]
-	static bool HandleDebugEnterVehicleCommand(CommandHandler handler, uint entry, sbyte seatId = -1)
+    private static bool HandleDebugEnterVehicleCommand(CommandHandler handler, uint entry, sbyte seatId = -1)
 	{
 		var target = handler.SelectedUnit;
 
@@ -187,7 +187,7 @@ class DebugCommands
 	}
 
 	[Command("getitemstate", RBACPermissions.CommandDebug)]
-	static bool HandleDebugGetItemStateCommand(CommandHandler handler, string itemState)
+    private static bool HandleDebugGetItemStateCommand(CommandHandler handler, string itemState)
 	{
 		var state = ItemUpdateState.Unchanged;
 		var listQueue = false;
@@ -499,7 +499,7 @@ class DebugCommands
 	}
 
 	[Command("guidlimits", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugGuidLimitsCommand(CommandHandler handler, uint mapId)
+    private static bool HandleDebugGuidLimitsCommand(CommandHandler handler, uint mapId)
 	{
 		if (mapId != 0)
 			Global.MapMgr.DoForAllMapsWithMapId(mapId, map => HandleDebugGuidLimitsMap(handler, map));
@@ -513,7 +513,7 @@ class DebugCommands
 	}
 
 	[Command("instancespawn", RBACPermissions.CommandDebug)]
-	static bool HandleDebugInstanceSpawns(CommandHandler handler, [VariantArg(typeof(uint), typeof(string))] object optArg)
+    private static bool HandleDebugInstanceSpawns(CommandHandler handler, [VariantArg(typeof(uint), typeof(string))] object optArg)
 	{
 		var player = handler.Player;
 
@@ -642,7 +642,7 @@ class DebugCommands
 	}
 
 	[Command("itemexpire", RBACPermissions.CommandDebug)]
-	static bool HandleDebugItemExpireCommand(CommandHandler handler, ulong guid)
+    private static bool HandleDebugItemExpireCommand(CommandHandler handler, ulong guid)
 	{
 		var item = handler.Player.GetItemByGuid(ObjectGuid.Create(HighGuid.Item, guid));
 
@@ -657,7 +657,7 @@ class DebugCommands
 	}
 
 	[Command("loadcells", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugLoadCellsCommand(CommandHandler handler, uint? mapId, uint? tileX, uint? tileY)
+    private static bool HandleDebugLoadCellsCommand(CommandHandler handler, uint? mapId, uint? tileX, uint? tileY)
 	{
 		if (mapId.HasValue)
 		{
@@ -675,7 +675,7 @@ class DebugCommands
 		return false;
 	}
 
-	static bool HandleDebugLoadCellsCommandHelper(CommandHandler handler, Map map, uint? tileX, uint? tileY)
+    private static bool HandleDebugLoadCellsCommandHelper(CommandHandler handler, Map map, uint? tileX, uint? tileY)
 	{
 		if (!map)
 			return false;
@@ -705,7 +705,7 @@ class DebugCommands
 	}
 
 	[Command("lootrecipient", RBACPermissions.CommandDebug)]
-	static bool HandleDebugGetLootRecipientCommand(CommandHandler handler)
+    private static bool HandleDebugGetLootRecipientCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedCreature;
 
@@ -724,7 +724,7 @@ class DebugCommands
 	}
 
 	[Command("los", RBACPermissions.CommandDebug)]
-	static bool HandleDebugLoSCommand(CommandHandler handler)
+    private static bool HandleDebugLoSCommand(CommandHandler handler)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -743,7 +743,7 @@ class DebugCommands
 	}
 
 	[Command("moveflags", RBACPermissions.CommandDebug)]
-	static bool HandleDebugMoveflagsCommand(CommandHandler handler, uint? moveFlags, uint? moveFlagsExtra)
+    private static bool HandleDebugMoveflagsCommand(CommandHandler handler, uint? moveFlags, uint? moveFlagsExtra)
 	{
 		var target = handler.SelectedUnit;
 
@@ -785,7 +785,7 @@ class DebugCommands
 	}
 
 	[Command("neargraveyard", RBACPermissions.CommandDebug)]
-	static bool HandleDebugNearGraveyard(CommandHandler handler, string linked)
+    private static bool HandleDebugNearGraveyard(CommandHandler handler, string linked)
 	{
 		var player = handler.Player;
 		WorldSafeLocsEntry nearestLoc = null;
@@ -841,7 +841,7 @@ class DebugCommands
 	}
 
 	[Command("objectcount", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugObjectCountCommand(CommandHandler handler, uint? mapId)
+    private static bool HandleDebugObjectCountCommand(CommandHandler handler, uint? mapId)
 	{
 		void HandleDebugObjectCountMap(Map map)
 		{
@@ -875,7 +875,7 @@ class DebugCommands
 	}
 
 	[Command("phase", RBACPermissions.CommandDebug)]
-	static bool HandleDebugPhaseCommand(CommandHandler handler)
+    private static bool HandleDebugPhaseCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 
@@ -897,7 +897,7 @@ class DebugCommands
 	}
 
 	[Command("pvp warmode", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugWarModeBalanceCommand(CommandHandler handler, string command, int? rewardValue)
+    private static bool HandleDebugWarModeBalanceCommand(CommandHandler handler, string command, int? rewardValue)
 	{
 		// USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
 		// neutral     Sets faction balance off.
@@ -932,7 +932,7 @@ class DebugCommands
 	}
 
 	[Command("questreset", RBACPermissions.CommandDebug)]
-	static bool HandleDebugQuestResetCommand(CommandHandler handler, string arg)
+    private static bool HandleDebugQuestResetCommand(CommandHandler handler, string arg)
 	{
 		bool daily = false, weekly = false, monthly = false;
 
@@ -971,7 +971,7 @@ class DebugCommands
 	}
 
 	[Command("raidreset", RBACPermissions.CommandDebug)]
-	static bool HandleDebugRaidResetCommand(CommandHandler handler, uint mapId, uint difficulty)
+    private static bool HandleDebugRaidResetCommand(CommandHandler handler, uint mapId, uint difficulty)
 	{
 		var mEntry = CliDB.MapStorage.LookupByKey(mapId);
 
@@ -1007,7 +1007,7 @@ class DebugCommands
 	}
 
 	[Command("setaurastate", RBACPermissions.CommandDebug)]
-	static bool HandleDebugSetAuraStateCommand(CommandHandler handler, AuraStateType? state, bool apply)
+    private static bool HandleDebugSetAuraStateCommand(CommandHandler handler, AuraStateType? state, bool apply)
 	{
 		var unit = handler.SelectedUnit;
 
@@ -1033,7 +1033,7 @@ class DebugCommands
 	}
 
 	[Command("spawnvehicle", RBACPermissions.CommandDebug)]
-	static bool HandleDebugSpawnVehicleCommand(CommandHandler handler, uint entry, uint id)
+    private static bool HandleDebugSpawnVehicleCommand(CommandHandler handler, uint entry, uint id)
 	{
 		var pos = new Position
 		{
@@ -1068,7 +1068,7 @@ class DebugCommands
 	}
 
 	[Command("threat", RBACPermissions.CommandDebug)]
-	static bool HandleDebugThreatListCommand(CommandHandler handler)
+    private static bool HandleDebugThreatListCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 
@@ -1146,7 +1146,7 @@ class DebugCommands
 	}
 
 	[Command("threatinfo", RBACPermissions.CommandDebug)]
-	static bool HandleDebugThreatInfoCommand(CommandHandler handler)
+    private static bool HandleDebugThreatInfoCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 
@@ -1233,7 +1233,7 @@ class DebugCommands
 	}
 
 	[Command("transport", RBACPermissions.CommandDebug)]
-	static bool HandleDebugTransportCommand(CommandHandler handler, string operation)
+    private static bool HandleDebugTransportCommand(CommandHandler handler, string operation)
 	{
 		var transport = handler.Player.GetTransport<Transport>();
 
@@ -1266,7 +1266,7 @@ class DebugCommands
 	}
 
 	[Command("warden force", RBACPermissions.CommandDebug, true)]
-	static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
+    private static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
 	{
 		/*if (checkIds.Empty())
 			return false;
@@ -1284,7 +1284,7 @@ class DebugCommands
 	}
 
 	[Command("worldstate", RBACPermissions.CommandDebug)]
-	static bool HandleDebugUpdateWorldStateCommand(CommandHandler handler, uint variable, uint value)
+    private static bool HandleDebugUpdateWorldStateCommand(CommandHandler handler, uint variable, uint value)
 	{
 		handler.Player.SendUpdateWorldState(variable, value);
 
@@ -1292,7 +1292,7 @@ class DebugCommands
 	}
 
 	[CommandNonGroup("wpgps", RBACPermissions.CommandDebug)]
-	static bool HandleWPGPSCommand(CommandHandler handler)
+    private static bool HandleWPGPSCommand(CommandHandler handler)
 	{
 		var player = handler.Player;
 
@@ -1304,7 +1304,7 @@ class DebugCommands
 	}
 
 	[Command("wsexpression", RBACPermissions.CommandDebug)]
-	static bool HandleDebugWSExpressionCommand(CommandHandler handler, uint expressionId)
+    private static bool HandleDebugWSExpressionCommand(CommandHandler handler, uint expressionId)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 
@@ -1328,32 +1328,32 @@ class DebugCommands
 		return true;
 	}
 
-	static void HandleDebugGuidLimitsMap(CommandHandler handler, Map map)
+    private static void HandleDebugGuidLimitsMap(CommandHandler handler, Map map)
 	{
 		handler.SendSysMessage($"Map Id: {map.Id} Name: '{map.MapName}' Instance Id: {map.InstanceId} Highest Guid Creature: {map.GenerateLowGuid(HighGuid.Creature)} GameObject: {map.GetMaxLowGuid(HighGuid.GameObject)}");
 	}
 
 	[CommandGroup("asan")]
-	class DebugAsanCommands
+    private class DebugAsanCommands
 	{
 		[Command("memoryleak", RBACPermissions.CommandDebug, true)]
-		static bool HandleDebugMemoryLeak(CommandHandler handler)
+        private static bool HandleDebugMemoryLeak(CommandHandler handler)
 		{
 			return true;
 		}
 
 		[Command("outofbounds", RBACPermissions.CommandDebug, true)]
-		static bool HandleDebugOutOfBounds(CommandHandler handler)
+        private static bool HandleDebugOutOfBounds(CommandHandler handler)
 		{
 			return true;
 		}
 	}
 
 	[CommandGroup("play")]
-	class DebugPlayCommands
+    private class DebugPlayCommands
 	{
 		[Command("cinematic", RBACPermissions.CommandDebug)]
-		static bool HandleDebugPlayCinematicCommand(CommandHandler handler, uint cinematicId)
+        private static bool HandleDebugPlayCinematicCommand(CommandHandler handler, uint cinematicId)
 		{
 			var cineSeq = CliDB.CinematicSequencesStorage.LookupByKey(cinematicId);
 
@@ -1387,7 +1387,7 @@ class DebugCommands
 		}
 
 		[Command("movie", RBACPermissions.CommandDebug)]
-		static bool HandleDebugPlayMovieCommand(CommandHandler handler, uint movieId)
+        private static bool HandleDebugPlayMovieCommand(CommandHandler handler, uint movieId)
 		{
 			if (!CliDB.MovieStorage.ContainsKey(movieId))
 			{
@@ -1402,7 +1402,7 @@ class DebugCommands
 		}
 
 		[Command("music", RBACPermissions.CommandDebug)]
-		static bool HandleDebugPlayMusicCommand(CommandHandler handler, uint musicId)
+        private static bool HandleDebugPlayMusicCommand(CommandHandler handler, uint musicId)
 		{
 			if (!CliDB.SoundKitStorage.ContainsKey(musicId))
 			{
@@ -1421,7 +1421,7 @@ class DebugCommands
 		}
 
 		[Command("sound", RBACPermissions.CommandDebug)]
-		static bool HandleDebugPlaySoundCommand(CommandHandler handler, uint soundId, uint broadcastTextId)
+        private static bool HandleDebugPlaySoundCommand(CommandHandler handler, uint soundId, uint broadcastTextId)
 		{
 			if (!CliDB.SoundKitStorage.ContainsKey(soundId))
 			{
@@ -1453,10 +1453,10 @@ class DebugCommands
 	}
 
 	[CommandGroup("pvp")]
-	class DebugPvpCommands
+    private class DebugPvpCommands
 	{
 		[Command("warmode", RBACPermissions.CommandDebug)]
-		static bool HandleDebugWarModeFactionBalanceCommand(CommandHandler handler, string command, int rewardValue = 0)
+        private static bool HandleDebugWarModeFactionBalanceCommand(CommandHandler handler, string command, int rewardValue = 0)
 		{
 			// USAGE: .debug pvp fb <alliance|horde|neutral|off> [pct]
 			// neutral     Sets faction balance off.
@@ -1492,10 +1492,10 @@ class DebugCommands
 	}
 
 	[CommandGroup("send")]
-	class DebugSendCommands
+    private class DebugSendCommands
 	{
 		[Command("buyerror", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendBuyErrorCommand(CommandHandler handler, BuyResult error)
+        private static bool HandleDebugSendBuyErrorCommand(CommandHandler handler, BuyResult error)
 		{
 			handler.Player.SendBuyError(error, null, 0);
 
@@ -1503,7 +1503,7 @@ class DebugCommands
 		}
 
 		[Command("channelnotify", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendChannelNotifyCommand(CommandHandler handler, ChatNotify type)
+        private static bool HandleDebugSendChannelNotifyCommand(CommandHandler handler, ChatNotify type)
 		{
 			ChannelNotify packet = new()
 			{
@@ -1517,7 +1517,7 @@ class DebugCommands
 		}
 
 		[Command("chatmessage", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendChatMsgCommand(CommandHandler handler, ChatMsg type)
+        private static bool HandleDebugSendChatMsgCommand(CommandHandler handler, ChatMsg type)
 		{
 			ChatPkt data = new();
 			data.Initialize(type, Language.Universal, handler.Player, handler.Player, "testtest", 0, "chan");
@@ -1527,7 +1527,7 @@ class DebugCommands
 		}
 
 		[Command("equiperror", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendEquipErrorCommand(CommandHandler handler, InventoryResult error)
+        private static bool HandleDebugSendEquipErrorCommand(CommandHandler handler, InventoryResult error)
 		{
 			handler.Player.SendEquipError(error);
 
@@ -1535,7 +1535,7 @@ class DebugCommands
 		}
 
 		[Command("largepacket", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendLargePacketCommand(CommandHandler handler)
+        private static bool HandleDebugSendLargePacketCommand(CommandHandler handler)
 		{
 			StringBuilder ss = new();
 
@@ -1548,7 +1548,7 @@ class DebugCommands
 		}
 
 		[Command("opcode", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendOpcodeCommand(CommandHandler handler)
+        private static bool HandleDebugSendOpcodeCommand(CommandHandler handler)
 		{
 			handler.SendSysMessage(CypherStrings.CmdInvalid);
 
@@ -1556,7 +1556,7 @@ class DebugCommands
 		}
 
 		[Command("playerchoice", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendPlayerChoiceCommand(CommandHandler handler, int choiceId)
+        private static bool HandleDebugSendPlayerChoiceCommand(CommandHandler handler, int choiceId)
 		{
 			var player = handler.Player;
 			player.SendPlayerChoice(player.GUID, choiceId);
@@ -1565,7 +1565,7 @@ class DebugCommands
 		}
 
 		[Command("qpartymsg", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendQuestPartyMsgCommand(CommandHandler handler, QuestPushReason msg)
+        private static bool HandleDebugSendQuestPartyMsgCommand(CommandHandler handler, QuestPushReason msg)
 		{
 			handler.Player.SendPushToPartyResponse(handler.Player, msg);
 
@@ -1573,7 +1573,7 @@ class DebugCommands
 		}
 
 		[Command("qinvalidmsg", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendQuestInvalidMsgCommand(CommandHandler handler, QuestFailedReasons msg)
+        private static bool HandleDebugSendQuestInvalidMsgCommand(CommandHandler handler, QuestFailedReasons msg)
 		{
 			handler.Player.SendCanTakeQuestResponse(msg);
 
@@ -1581,7 +1581,7 @@ class DebugCommands
 		}
 
 		[Command("sellerror", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendSellErrorCommand(CommandHandler handler, SellResult error)
+        private static bool HandleDebugSendSellErrorCommand(CommandHandler handler, SellResult error)
 		{
 			handler.Player.SendSellError(error, null, ObjectGuid.Empty);
 
@@ -1589,7 +1589,7 @@ class DebugCommands
 		}
 
 		[Command("setphaseshift", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendSetPhaseShiftCommand(CommandHandler handler, uint phaseId, uint visibleMapId, uint uiMapPhaseId)
+        private static bool HandleDebugSendSetPhaseShiftCommand(CommandHandler handler, uint phaseId, uint visibleMapId, uint uiMapPhaseId)
 		{
 			PhaseShift phaseShift = new();
 
@@ -1608,7 +1608,7 @@ class DebugCommands
 		}
 
 		[Command("spellfail", RBACPermissions.CommandDebug)]
-		static bool HandleDebugSendSpellFailCommand(CommandHandler handler, SpellCastResult result, int? failArg1, int? failArg2)
+        private static bool HandleDebugSendSpellFailCommand(CommandHandler handler, SpellCastResult result, int? failArg1, int? failArg2)
 		{
 			CastFailed castFailed = new()
 			{
@@ -1626,10 +1626,10 @@ class DebugCommands
 	}
 
 	[CommandGroup("warden")]
-	class DebugWardenCommands
+    private class DebugWardenCommands
 	{
 		[Command("force", RBACPermissions.CommandDebug, true)]
-		static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
+        private static bool HandleDebugWardenForce(CommandHandler handler, ushort[] checkIds)
 		{
 			/*if (checkIds.Empty())
 				return false;

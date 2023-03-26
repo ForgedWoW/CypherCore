@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class SetPlayerDeclinedNamesResult : ServerPacket
+internal class SetPlayerDeclinedNamesResult : ServerPacket
 {
 	public ObjectGuid Player;
 	public DeclinedNameResult ResultCode;

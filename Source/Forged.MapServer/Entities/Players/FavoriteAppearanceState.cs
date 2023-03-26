@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Entities.Players;
 
-enum FavoriteAppearanceState
+internal enum FavoriteAppearanceState
 {
 	New,
 	Removed,

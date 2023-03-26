@@ -11,13 +11,13 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("channel")]
-class ChannelCommands
+internal class ChannelCommands
 {
 	[CommandGroup("set")]
-	class ChannelSetCommands
+    private class ChannelSetCommands
 	{
 		[Command("ownership", RBACPermissions.CommandChannelSetOwnership)]
-		static bool HandleChannelSetOwnership(CommandHandler handler, string channelName, bool grantOwnership)
+        private static bool HandleChannelSetOwnership(CommandHandler handler, string channelName, bool grantOwnership)
 		{
 			uint channelId = 0;
 

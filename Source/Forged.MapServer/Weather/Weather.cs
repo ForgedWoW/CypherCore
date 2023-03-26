@@ -11,11 +11,11 @@ namespace Forged.MapServer.Weather;
 
 public class Weather
 {
-	readonly uint _zone;
-	readonly IntervalTimer _timer = new();
-	readonly WeatherData _weatherChances;
-	WeatherType _type;
-	float _intensity;
+    private readonly uint _zone;
+    private readonly IntervalTimer _timer = new();
+    private readonly WeatherData _weatherChances;
+    private WeatherType _type;
+    private float _intensity;
 
 	public uint Zone => _zone;
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class KeyboundOverride : ClientPacket
+internal class KeyboundOverride : ClientPacket
 {
 	public ushort OverrideID;
 	public KeyboundOverride(WorldPacket packet) : base(packet) { }

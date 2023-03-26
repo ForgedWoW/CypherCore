@@ -33,8 +33,8 @@ public class TargetInfo : TargetInfoBase
 	public bool Positive = true;
 	public UnitAura HitAura;
 
-	Unit _spellHitTarget; // changed for example by reflect
-	bool _enablePVP;      // need to enable PVP at DoDamageAndTriggers?
+    private Unit _spellHitTarget; // changed for example by reflect
+    private bool _enablePVP;      // need to enable PVP at DoDamageAndTriggers?
 
 	public override void PreprocessTarget(Spell spell)
 	{

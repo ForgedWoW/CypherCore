@@ -12,7 +12,7 @@ namespace Forged.MapServer.Phasing;
 
 public class MultiPersonalPhaseTracker
 {
-	readonly Dictionary<ObjectGuid, PlayerPersonalPhasesTracker> _playerData = new();
+    private readonly Dictionary<ObjectGuid, PlayerPersonalPhasesTracker> _playerData = new();
 
 	public void LoadGrid(PhaseShift phaseShift, Grid grid, Map map, Cell cell)
 	{

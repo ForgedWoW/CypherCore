@@ -14,7 +14,7 @@ namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
-	readonly float[] parry_cap =
+    private readonly float[] parry_cap =
 	{
 		65.631440f,  // Warrior
 		65.631440f,  // Paladin
@@ -32,7 +32,7 @@ public partial class Player
 		0.0f,        // Adventurer
 	};
 
-	readonly float[] dodge_cap =
+    private readonly float[] dodge_cap =
 	{
 		65.631440f,  // Warrior            
 		65.631440f,  // Paladin
@@ -873,7 +873,7 @@ public partial class Player
 		return apply;
 	}
 
-	void _ApplyAllStatBonuses()
+    private void _ApplyAllStatBonuses()
 	{
 		SetCanModifyStats(false);
 
@@ -886,7 +886,7 @@ public partial class Player
 		UpdateAllStats();
 	}
 
-	void _RemoveAllStatBonuses()
+    private void _RemoveAllStatBonuses()
 	{
 		SetCanModifyStats(false);
 
@@ -899,13 +899,13 @@ public partial class Player
 		UpdateAllStats();
 	}
 
-	void UpdateAllRatings()
+    private void UpdateAllRatings()
 	{
 		for (CombatRating cr = 0; cr < CombatRating.Max; ++cr)
 			UpdateRating(cr);
 	}
 
-	void UpdateCorruption()
+    private void UpdateCorruption()
 	{
 		var effectiveCorruption = GetRatingBonusValue(CombatRating.Corruption) - GetRatingBonusValue(CombatRating.CorruptionResistance);
 
@@ -935,13 +935,13 @@ public partial class Player
 		}
 	}
 
-	void UpdateArmorPenetration(int amount)
+    private void UpdateArmorPenetration(int amount)
 	{
 		// Store Rating Value
 		SetUpdateFieldValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CombatRatings, (int)CombatRating.ArmorPenetration), (uint)amount);
 	}
 
-	double CalculateDiminishingReturns(float[] capArray, PlayerClass playerClass, double nonDiminishValue, double diminishValue)
+    private double CalculateDiminishingReturns(float[] capArray, PlayerClass playerClass, double nonDiminishValue, double diminishValue)
 	{
 		float[] m_diminishing_k =
 		{
@@ -982,7 +982,7 @@ public partial class Player
 		return result;
 	}
 
-	float GetGameTableColumnForCombatRating(GtCombatRatingsRecord row, CombatRating rating)
+    private float GetGameTableColumnForCombatRating(GtCombatRatingsRecord row, CombatRating rating)
 	{
 		switch (rating)
 		{
@@ -1057,7 +1057,7 @@ public partial class Player
 		return 1.0f;
 	}
 
-	Stats GetPrimaryStat()
+    private Stats GetPrimaryStat()
 	{
 		byte primaryStatPriority;
 		var specialization = CliDB.ChrSpecializationStorage.LookupByKey(GetPrimarySpecialization());
@@ -1077,7 +1077,7 @@ public partial class Player
 		return Stats.Intellect;
 	}
 
-	float GetHealthBonusFromStamina()
+    private float GetHealthBonusFromStamina()
 	{
 		// Taken from PaperDollFrame.lua - 6.0.3.19085
 		var ratio = 10.0f;
@@ -1091,18 +1091,18 @@ public partial class Player
 		return stamina * ratio;
 	}
 
-	void ApplyManaRegenBonus(int amount, bool apply)
+    private void ApplyManaRegenBonus(int amount, bool apply)
 	{
 		_ModifyUInt32(apply, ref _baseManaRegen, ref amount);
 		UpdateManaRegen();
 	}
 
-	void ApplyHealthRegenBonus(int amount, bool apply)
+    private void ApplyHealthRegenBonus(int amount, bool apply)
 	{
 		_ModifyUInt32(apply, ref _baseHealthRegen, ref amount);
 	}
 
-	void ApplySpellPowerBonus(int amount, bool apply)
+    private void ApplySpellPowerBonus(int amount, bool apply)
 	{
 		if (HasAuraType(AuraType.OverrideSpellPowerByApPct))
 			return;

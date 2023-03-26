@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Achievements;
 
-class GuildGetAchievementMembers : ClientPacket
+internal class GuildGetAchievementMembers : ClientPacket
 {
 	public ObjectGuid PlayerGUID;
 	public ObjectGuid GuildGUID;

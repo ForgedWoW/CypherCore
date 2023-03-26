@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFSetRoles : ClientPacket
+internal class DFSetRoles : ClientPacket
 {
 	public LfgRoles RolesDesired;
 	public byte PartyIndex;

@@ -6,7 +6,7 @@ using System.Numerics;
 
 namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
-class AreaTriggerSplineInfo
+internal class AreaTriggerSplineInfo
 {
 	public uint TimeToTarget;
 	public uint ElapsedTimeForMovement;

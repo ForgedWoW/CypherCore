@@ -8,19 +8,19 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Movement.Generators;
 
-class ChaseMovementGenerator : MovementGenerator
+internal class ChaseMovementGenerator : MovementGenerator
 {
-	static readonly uint RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
-	readonly TimeTracker _rangeCheckTimer;
-	readonly bool _movingTowards = true;
-	readonly AbstractFollower _abstractFollower;
+    private static readonly uint RANGE_CHECK_INTERVAL = 100; // time (ms) until we attempt to recalculate
+    private readonly TimeTracker _rangeCheckTimer;
+    private readonly bool _movingTowards = true;
+    private readonly AbstractFollower _abstractFollower;
 
-	readonly ChaseRange? _range;
-	readonly ChaseAngle? _angle;
+    private readonly ChaseRange? _range;
+    private readonly ChaseAngle? _angle;
 
-	PathGenerator _path;
-	Position _lastTargetPosition;
-	bool _mutualChase = true;
+    private PathGenerator _path;
+    private Position _lastTargetPosition;
+    private bool _mutualChase = true;
 
 	public ChaseMovementGenerator(Unit target, ChaseRange? range, ChaseAngle? angle)
 	{
@@ -269,12 +269,12 @@ class ChaseMovementGenerator : MovementGenerator
 		return _abstractFollower.GetTarget();
 	}
 
-	static bool HasLostTarget(Unit owner, Unit target)
+    private static bool HasLostTarget(Unit owner, Unit target)
 	{
 		return owner.Victim != target;
 	}
 
-	static bool IsMutualChase(Unit owner, Unit target)
+    private static bool IsMutualChase(Unit owner, Unit target)
 	{
 		if (target.MotionMaster.GetCurrentMovementGeneratorType() != MovementGeneratorType.Chase)
 			return false;
@@ -287,7 +287,7 @@ class ChaseMovementGenerator : MovementGenerator
 		return false;
 	}
 
-	static bool PositionOkay(Unit owner, Unit target, float? minDistance, float? maxDistance, ChaseAngle? angle)
+    private static bool PositionOkay(Unit owner, Unit target, float? minDistance, float? maxDistance, ChaseAngle? angle)
 	{
 		var distSq = owner.Location.GetExactDistSq(target.Location);
 
@@ -306,7 +306,7 @@ class ChaseMovementGenerator : MovementGenerator
 		return true;
 	}
 
-	static void DoMovementInform(Unit owner, Unit target)
+    private static void DoMovementInform(Unit owner, Unit target)
 	{
 		if (!owner.IsCreature)
 			return;

@@ -1421,18 +1421,18 @@ public partial class Unit
 		_isCombatDisallowed = apply;
 	}
 
-	void _addAttacker(Unit pAttacker)
+    private void _addAttacker(Unit pAttacker)
 	{
 		AttackerList.Add(pAttacker);
 	}
 
-	void _removeAttacker(Unit pAttacker)
+    private void _removeAttacker(Unit pAttacker)
 	{
 		AttackerList.Remove(pAttacker);
 	}
 
 	// TODO for melee need create structure as in
-	void CalculateMeleeDamage(Unit victim, out CalcDamageInfo damageInfo, WeaponAttackType attackType)
+    private void CalculateMeleeDamage(Unit victim, out CalcDamageInfo damageInfo, WeaponAttackType attackType)
 	{
 		damageInfo = new CalcDamageInfo
 		{
@@ -1649,7 +1649,7 @@ public partial class Unit
 		}
 	}
 
-	MeleeHitOutcome RollMeleeOutcomeAgainst(Unit victim, WeaponAttackType attType)
+    private MeleeHitOutcome RollMeleeOutcomeAgainst(Unit victim, WeaponAttackType attType)
 	{
 		if (victim.IsTypeId(TypeId.Unit) && victim.AsCreature.IsEvadingAttacks)
 			return MeleeHitOutcome.Evade;
@@ -1773,7 +1773,7 @@ public partial class Unit
 		return MeleeHitOutcome.Normal;
 	}
 
-	void UpdateAttackTimeField(WeaponAttackType att)
+    private void UpdateAttackTimeField(WeaponAttackType att)
 	{
 		switch (att)
 		{

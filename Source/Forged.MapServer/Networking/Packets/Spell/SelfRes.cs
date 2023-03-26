@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SelfRes : ClientPacket
+internal class SelfRes : ClientPacket
 {
 	public uint SpellId;
 	public SelfRes(WorldPacket packet) : base(packet) { }

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class ActiveGlyphs : ServerPacket
+internal class ActiveGlyphs : ServerPacket
 {
 	public List<GlyphBinding> Glyphs = new();
 	public bool IsFullUpdate;

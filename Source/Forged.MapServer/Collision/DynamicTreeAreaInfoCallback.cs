@@ -10,8 +10,8 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicTreeAreaInfoCallback : WorkerCallback
 {
-	readonly PhaseShift _phaseShift;
-	readonly AreaInfo _areaInfo;
+    private readonly PhaseShift _phaseShift;
+    private readonly AreaInfo _areaInfo;
 
 	public DynamicTreeAreaInfoCallback(PhaseShift phaseShift)
 	{

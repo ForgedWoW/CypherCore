@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class MountSpecial : ClientPacket
+internal class MountSpecial : ClientPacket
 {
 	public int[] SpellVisualKitIDs;
 	public int SequenceVariation;

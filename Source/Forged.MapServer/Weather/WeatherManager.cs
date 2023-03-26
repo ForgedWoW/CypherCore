@@ -12,7 +12,7 @@ public class WeatherManager
 {
     private readonly WorldDatabase _worldDatabase;
     private readonly GameObjectManager _objectManager;
-    readonly Dictionary<uint, WeatherData> _weatherData = new();
+    private readonly Dictionary<uint, WeatherData> _weatherData = new();
 
     public WeatherManager(WorldDatabase worldDatabase, GameObjectManager objectManager)
     {

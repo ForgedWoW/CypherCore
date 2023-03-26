@@ -23,7 +23,7 @@ using Serilog;
 
 namespace Forged.MapServer.Spells;
 
-public sealed class SpellManager : Singleton<SpellManager>
+public sealed class SpellManager
 {
 	public delegate void AuraEffectHandler(AuraEffect effect, AuraApplication aurApp, AuraEffectHandleModes mode, bool apply);
 
@@ -31,43 +31,43 @@ public sealed class SpellManager : Singleton<SpellManager>
 
 	public MultiMap<uint, uint> PetFamilySpellsStorage = new();
 
-	static readonly Dictionary<int, PetAura> DefaultPetAuras = new();
+	private static readonly Dictionary<int, PetAura> DefaultPetAuras = new();
 
-	readonly Dictionary<Difficulty, SpellInfo> _emptyDiffDict = new();
+    private readonly Dictionary<Difficulty, SpellInfo> _emptyDiffDict = new();
 
 
-	readonly Dictionary<uint, SpellChainNode> _spellChainNodes = new();
-	readonly MultiMap<uint, uint> _spellsReqSpell = new();
-	readonly MultiMap<uint, uint> _spellReq = new();
-	readonly Dictionary<uint, SpellLearnSkillNode> _spellLearnSkills = new();
-	readonly MultiMap<uint, SpellLearnSpellNode> _spellLearnSpells = new();
-	readonly Dictionary<KeyValuePair<uint, int>, SpellTargetPosition> _spellTargetPositions = new();
-	readonly MultiMap<uint, SpellGroup> _spellSpellGroup = new();
-	readonly MultiMap<SpellGroup, int> _spellGroupSpell = new();
-	readonly Dictionary<SpellGroup, SpellGroupStackRule> _spellGroupStack = new();
-	readonly MultiMap<SpellGroup, AuraType> _spellSameEffectStack = new();
-	readonly List<ServersideSpellName> _serversideSpellNames = new();
-	readonly Dictionary<uint, Dictionary<Difficulty, SpellProcEntry>> _spellProcMap = new();
-	readonly Dictionary<uint, SpellThreatEntry> _spellThreatMap = new();
-	readonly Dictionary<uint, Dictionary<int, PetAura>> _spellPetAuraMap = new();
-	readonly MultiMap<(SpellLinkedType, uint), int> _spellLinkedMap = new();
-	readonly Dictionary<uint, SpellEnchantProcEntry> _spellEnchantProcEventMap = new();
-	readonly MultiMap<uint, SpellArea> _spellAreaMap = new();
-	readonly MultiMap<uint, SpellArea> _spellAreaForQuestMap = new();
-	readonly MultiMap<uint, SpellArea> _spellAreaForQuestEndMap = new();
-	readonly MultiMap<uint, SpellArea> _spellAreaForAuraMap = new();
-	readonly MultiMap<uint, SpellArea> _spellAreaForAreaMap = new();
-	readonly MultiMap<uint, SkillLineAbilityRecord> _skillLineAbilityMap = new();
-	readonly Dictionary<uint, MultiMap<uint, uint>> _petLevelupSpellMap = new();
-	readonly Dictionary<uint, PetDefaultSpellsEntry> _petDefaultSpellsEntries = new(); // only spells not listed in related mPetLevelupSpellMap entry
-	readonly Dictionary<uint, Dictionary<Difficulty, SpellInfo>> _spellInfoMap = new();
-	readonly Dictionary<Tuple<uint, byte>, uint> _spellTotemModel = new();
+    private readonly Dictionary<uint, SpellChainNode> _spellChainNodes = new();
+    private readonly MultiMap<uint, uint> _spellsReqSpell = new();
+    private readonly MultiMap<uint, uint> _spellReq = new();
+    private readonly Dictionary<uint, SpellLearnSkillNode> _spellLearnSkills = new();
+    private readonly MultiMap<uint, SpellLearnSpellNode> _spellLearnSpells = new();
+    private readonly Dictionary<KeyValuePair<uint, int>, SpellTargetPosition> _spellTargetPositions = new();
+    private readonly MultiMap<uint, SpellGroup> _spellSpellGroup = new();
+    private readonly MultiMap<SpellGroup, int> _spellGroupSpell = new();
+    private readonly Dictionary<SpellGroup, SpellGroupStackRule> _spellGroupStack = new();
+    private readonly MultiMap<SpellGroup, AuraType> _spellSameEffectStack = new();
+    private readonly List<ServersideSpellName> _serversideSpellNames = new();
+    private readonly Dictionary<uint, Dictionary<Difficulty, SpellProcEntry>> _spellProcMap = new();
+    private readonly Dictionary<uint, SpellThreatEntry> _spellThreatMap = new();
+    private readonly Dictionary<uint, Dictionary<int, PetAura>> _spellPetAuraMap = new();
+    private readonly MultiMap<(SpellLinkedType, uint), int> _spellLinkedMap = new();
+    private readonly Dictionary<uint, SpellEnchantProcEntry> _spellEnchantProcEventMap = new();
+    private readonly MultiMap<uint, SpellArea> _spellAreaMap = new();
+    private readonly MultiMap<uint, SpellArea> _spellAreaForQuestMap = new();
+    private readonly MultiMap<uint, SpellArea> _spellAreaForQuestEndMap = new();
+    private readonly MultiMap<uint, SpellArea> _spellAreaForAuraMap = new();
+    private readonly MultiMap<uint, SpellArea> _spellAreaForAreaMap = new();
+    private readonly MultiMap<uint, SkillLineAbilityRecord> _skillLineAbilityMap = new();
+    private readonly Dictionary<uint, MultiMap<uint, uint>> _petLevelupSpellMap = new();
+    private readonly Dictionary<uint, PetDefaultSpellsEntry> _petDefaultSpellsEntries = new(); // only spells not listed in related mPetLevelupSpellMap entry
+    private readonly Dictionary<uint, Dictionary<Difficulty, SpellInfo>> _spellInfoMap = new();
+    private readonly Dictionary<Tuple<uint, byte>, uint> _spellTotemModel = new();
 
-	readonly Dictionary<AuraType, AuraEffectHandler> _effectHandlers = new();
+    private readonly Dictionary<AuraType, AuraEffectHandler> _effectHandlers = new();
 
-	readonly Dictionary<SpellEffectName, SpellEffectHandler> _spellEffectsHandlers = new();
+    private readonly Dictionary<SpellEffectName, SpellEffectHandler> _spellEffectsHandlers = new();
 
-	SpellManager()
+    private SpellManager()
 	{
 		var currentAsm = Assembly.GetExecutingAssembly();
 
@@ -839,17 +839,17 @@ public sealed class SpellManager : Singleton<SpellManager>
 		return _spellTotemModel.LookupByKey(Tuple.Create(spellId, (byte)race));
 	}
 
-	bool IsSpellLearnSpell(uint spell_id)
+    private bool IsSpellLearnSpell(uint spell_id)
 	{
 		return _spellLearnSpells.ContainsKey(spell_id);
 	}
 
-	List<int> GetSpellGroupSpellMapBounds(SpellGroup group_id)
+    private List<int> GetSpellGroupSpellMapBounds(SpellGroup group_id)
 	{
 		return _spellGroupSpell.LookupByKey(group_id);
 	}
 
-	void GetSetOfSpellsInSpellGroup(SpellGroup group_id, out List<int> foundSpells, ref List<SpellGroup> usedGroups)
+    private void GetSetOfSpellsInSpellGroup(SpellGroup group_id, out List<int> foundSpells, ref List<SpellGroup> usedGroups)
 	{
 		foundSpells = new List<int>();
 
@@ -872,7 +872,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 			}
 	}
 
-	Dictionary<Difficulty, SpellInfo> _GetSpellInfo(uint spellId)
+    private Dictionary<Difficulty, SpellInfo> _GetSpellInfo(uint spellId)
 	{
 		if (_spellInfoMap.TryGetValue(spellId, out var diffDict))
 			return diffDict;
@@ -880,7 +880,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		return _emptyDiffDict;
 	}
 
-	void UnloadSpellInfoChains()
+    private void UnloadSpellInfoChains()
 	{
 		foreach (var pair in _spellChainNodes)
 			foreach (var spellInfo in _GetSpellInfo(pair.Key).Values)
@@ -889,7 +889,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		_spellChainNodes.Clear();
 	}
 
-	bool IsTriggerAura(AuraType type)
+    private bool IsTriggerAura(AuraType type)
 	{
 		switch (type)
 		{
@@ -946,7 +946,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		return false;
 	}
 
-	bool IsAlwaysTriggeredAura(AuraType type)
+    private bool IsAlwaysTriggeredAura(AuraType type)
 	{
 		switch (type)
 		{
@@ -967,7 +967,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		return false;
 	}
 
-	ProcFlagsSpellType GetSpellTypeMask(AuraType type)
+    private ProcFlagsSpellType GetSpellTypeMask(AuraType type)
 	{
 		switch (type)
 		{
@@ -986,7 +986,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		}
 	}
 
-	void AddSpellInfo(SpellInfo spellInfo)
+    private void AddSpellInfo(SpellInfo spellInfo)
 	{
 		if (!_spellInfoMap.TryGetValue(spellInfo.Id, out var diffDict))
 		{
@@ -2364,7 +2364,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		Log.Logger.Information("Loaded {0} summonable creature templates in {1} ms", countCreature, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	bool LoadPetDefaultSpells_helper(CreatureTemplate cInfo, PetDefaultSpellsEntry petDefSpells)
+    private bool LoadPetDefaultSpells_helper(CreatureTemplate cInfo, PetDefaultSpellsEntry petDefSpells)
 	{
 		// skip empty list;
 		var have_spell = false;
@@ -3501,7 +3501,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		Log.Logger.Information("Loaded SpellInfo custom attributes in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	void ApplySpellFix(int[] spellIds, Action<SpellInfo> fix)
+    private void ApplySpellFix(int[] spellIds, Action<SpellInfo> fix)
 	{
 		foreach (uint spellId in spellIds)
 		{
@@ -3519,7 +3519,7 @@ public sealed class SpellManager : Singleton<SpellManager>
 		}
 	}
 
-	void ApplySpellEffectFix(SpellInfo spellInfo, int effectIndex, Action<SpellEffectInfo> fix)
+    private void ApplySpellEffectFix(SpellInfo spellInfo, int effectIndex, Action<SpellEffectInfo> fix)
 	{
 		if (spellInfo.Effects.Count <= effectIndex)
 		{

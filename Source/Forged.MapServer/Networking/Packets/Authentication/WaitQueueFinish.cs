@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class WaitQueueFinish : ServerPacket
+internal class WaitQueueFinish : ServerPacket
 {
 	public WaitQueueFinish() : base(ServerOpcodes.WaitQueueFinish) { }
 

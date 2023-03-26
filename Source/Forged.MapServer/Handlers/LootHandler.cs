@@ -167,7 +167,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LootItem)]
-	void HandleAutostoreLootItem(LootItemPkt packet)
+    private void HandleAutostoreLootItem(LootItemPkt packet)
 	{
 		var player = Player;
 		var aeResult = player.GetAELootView().Count > 1 ? new AELootResult() : null;
@@ -237,7 +237,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LootMoney)]
-	void HandleLootMoney(LootMoney lootMoney)
+    private void HandleLootMoney(LootMoney lootMoney)
 	{
 		var player = Player;
 
@@ -312,7 +312,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LootUnit)]
-	void HandleLoot(LootUnit packet)
+    private void HandleLoot(LootUnit packet)
 	{
 		// Check possible cheat
 		if (!Player.IsAlive || !packet.Unit.IsCreatureOrVehicle)
@@ -357,7 +357,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LootRelease)]
-	void HandleLootRelease(LootRelease packet)
+    private void HandleLootRelease(LootRelease packet)
 	{
 		// cheaters can modify lguid to prevent correct apply loot release code and re-loot
 		// use internal stored guid
@@ -368,7 +368,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MasterLootItem)]
-	void HandleLootMasterGive(MasterLootItem masterLootItem)
+    private void HandleLootMasterGive(MasterLootItem masterLootItem)
 	{
 		AELootResult aeResult = new();
 
@@ -460,7 +460,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LootRoll)]
-	void HandleLootRoll(LootRollPacket packet)
+    private void HandleLootRoll(LootRollPacket packet)
 	{
 		var lootRoll = Player.GetLootRoll(packet.LootObj, packet.LootListID);
 
@@ -471,7 +471,7 @@ public class LootHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetLootSpecialization)]
-	void HandleSetLootSpecialization(SetLootSpecialization packet)
+    private void HandleSetLootSpecialization(SetLootSpecialization packet)
 	{
 		if (packet.SpecID != 0)
 		{
@@ -487,12 +487,12 @@ public class LootHandler : IWorldSessionHandler
 		}
 	}
 
-	class AELootCreatureCheck : ICheck<Creature>
+    private class AELootCreatureCheck : ICheck<Creature>
 	{
 		public static readonly float LootDistance = 30.0f;
 
-		readonly Player _looter;
-		readonly ObjectGuid _mainLootTarget;
+        private readonly Player _looter;
+        private readonly ObjectGuid _mainLootTarget;
 
 		public AELootCreatureCheck(Player looter, ObjectGuid mainLootTarget)
 		{
@@ -516,7 +516,7 @@ public class LootHandler : IWorldSessionHandler
 			return _looter.IsAllowedToLoot(creature);
 		}
 
-		bool IsValidAELootTarget(Creature creature)
+        private bool IsValidAELootTarget(Creature creature)
 		{
 			if (creature.GUID == _mainLootTarget)
 				return false;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ReadItemResultOK : ServerPacket
+internal class ReadItemResultOK : ServerPacket
 {
 	public ObjectGuid Item;
 	public ReadItemResultOK() : base(ServerOpcodes.ReadItemResultOk) { }

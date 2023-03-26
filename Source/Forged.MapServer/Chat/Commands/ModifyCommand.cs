@@ -18,10 +18,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("modify")]
-class ModifyCommand
+internal class ModifyCommand
 {
 	[Command("hp", RBACPermissions.CommandModifyHp)]
-	static bool HandleModifyHPCommand(CommandHandler handler, int hp)
+    private static bool HandleModifyHPCommand(CommandHandler handler, int hp)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 		var maxHp = hp;
@@ -39,7 +39,7 @@ class ModifyCommand
 	}
 
 	[Command("mana", RBACPermissions.CommandModifyMana)]
-	static bool HandleModifyManaCommand(CommandHandler handler, int mana)
+    private static bool HandleModifyManaCommand(CommandHandler handler, int mana)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 		var maxMana = mana;
@@ -57,7 +57,7 @@ class ModifyCommand
 	}
 
 	[Command("energy", RBACPermissions.CommandModifyEnergy)]
-	static bool HandleModifyEnergyCommand(CommandHandler handler, int energy)
+    private static bool HandleModifyEnergyCommand(CommandHandler handler, int energy)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 		byte energyMultiplier = 10;
@@ -76,7 +76,7 @@ class ModifyCommand
 	}
 
 	[Command("rage", RBACPermissions.CommandModifyRage)]
-	static bool HandleModifyRageCommand(CommandHandler handler, int rage)
+    private static bool HandleModifyRageCommand(CommandHandler handler, int rage)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 		byte rageMultiplier = 10;
@@ -95,7 +95,7 @@ class ModifyCommand
 	}
 
 	[Command("runicpower", RBACPermissions.CommandModifyRunicpower)]
-	static bool HandleModifyRunicPowerCommand(CommandHandler handler, int rune)
+    private static bool HandleModifyRunicPowerCommand(CommandHandler handler, int rune)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 		byte runeMultiplier = 10;
@@ -114,7 +114,7 @@ class ModifyCommand
 	}
 
 	[Command("faction", RBACPermissions.CommandModifyFaction)]
-	static bool HandleModifyFactionCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyFactionCommand(CommandHandler handler, StringArguments args)
 	{
 		var pfactionid = handler.ExtractKeyFromLink(args, "Hfaction");
 
@@ -166,7 +166,7 @@ class ModifyCommand
 	}
 
 	[Command("spell", RBACPermissions.CommandModifySpell)]
-	static bool HandleModifySpellCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifySpellCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -225,13 +225,13 @@ class ModifyCommand
 	}
 
 	[Command("talentpoints", RBACPermissions.CommandModifyTalentpoints)]
-	static bool HandleModifyTalentCommand(CommandHandler handler)
+    private static bool HandleModifyTalentCommand(CommandHandler handler)
 	{
 		return false;
 	}
 
 	[Command("scale", RBACPermissions.CommandModifyScale)]
-	static bool HandleModifyScaleCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyScaleCommand(CommandHandler handler, StringArguments args)
 	{
 		var target = handler.SelectedUnit;
 
@@ -252,7 +252,7 @@ class ModifyCommand
 	}
 
 	[Command("mount", RBACPermissions.CommandModifyMount)]
-	static bool HandleModifyMountCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyMountCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -292,7 +292,7 @@ class ModifyCommand
 	}
 
 	[Command("money", RBACPermissions.CommandModifyMoney)]
-	static bool HandleModifyMoneyCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyMoneyCommand(CommandHandler handler, StringArguments args)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 
@@ -361,7 +361,7 @@ class ModifyCommand
 	}
 
 	[Command("honor", RBACPermissions.CommandModifyHonor)]
-	static bool HandleModifyHonorCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyHonorCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -389,7 +389,7 @@ class ModifyCommand
 	}
 
 	[Command("drunk", RBACPermissions.CommandModifyDrunk)]
-	static bool HandleModifyDrunkCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyDrunkCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -408,7 +408,7 @@ class ModifyCommand
 	}
 
 	[Command("reputation", RBACPermissions.CommandModifyReputation)]
-	static bool HandleModifyRepCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyRepCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -513,7 +513,7 @@ class ModifyCommand
 	}
 
 	[Command("phase", RBACPermissions.CommandModifyPhase)]
-	static bool HandleModifyPhaseCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyPhaseCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -559,7 +559,7 @@ class ModifyCommand
 	}
 
 	[Command("power", RBACPermissions.CommandModifyPower)]
-	static bool HandleModifyPowerCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyPowerCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -615,7 +615,7 @@ class ModifyCommand
 	}
 
 	[Command("standstate", RBACPermissions.CommandModifyStandstate)]
-	static bool HandleModifyStandStateCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyStandStateCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -627,7 +627,7 @@ class ModifyCommand
 	}
 
 	[Command("gender", RBACPermissions.CommandModifyGender)]
-	static bool HandleModifyGenderCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyGenderCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -731,7 +731,7 @@ class ModifyCommand
 	}
 
 	[Command("currency", RBACPermissions.CommandModifyCurrency)]
-	static bool HandleModifyCurrencyCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyCurrencyCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -761,7 +761,7 @@ class ModifyCommand
 	}
 
 	[Command("xp", RBACPermissions.CommandModifyXp)]
-	static bool HandleModifyXPCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyXPCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -794,7 +794,7 @@ class ModifyCommand
 	}
 
 	[CommandNonGroup("morph", RBACPermissions.CommandMorph)]
-	static bool HandleModifyMorphCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleModifyMorphCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -816,7 +816,7 @@ class ModifyCommand
 	}
 
 	[CommandNonGroup("demorph", RBACPermissions.CommandDemorph)]
-	static bool HandleDeMorphCommand(CommandHandler handler)
+    private static bool HandleDeMorphCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 
@@ -832,7 +832,7 @@ class ModifyCommand
 		return true;
 	}
 
-	static void NotifyModification(CommandHandler handler, Unit target, CypherStrings resourceMessage, CypherStrings resourceReportMessage, params object[] args)
+    private static void NotifyModification(CommandHandler handler, Unit target, CypherStrings resourceMessage, CypherStrings resourceReportMessage, params object[] args)
 	{
 		var player = target.AsPlayer;
 
@@ -853,7 +853,7 @@ class ModifyCommand
 		}
 	}
 
-	static bool CheckModifyResources(CommandHandler handler, Player target, ref int res, ref int resmax, byte multiplier = 1)
+    private static bool CheckModifyResources(CommandHandler handler, Player target, ref int res, ref int resmax, byte multiplier = 1)
 	{
 		res *= multiplier;
 		resmax *= multiplier;
@@ -881,7 +881,7 @@ class ModifyCommand
 		return true;
 	}
 
-	static bool CheckModifySpeed(StringArguments args, CommandHandler handler, Unit target, out float speed, float minimumBound, float maximumBound, bool checkInFlight = true)
+    private static bool CheckModifySpeed(StringArguments args, CommandHandler handler, Unit target, out float speed, float minimumBound, float maximumBound, bool checkInFlight = true)
 	{
 		speed = 0f;
 
@@ -924,16 +924,16 @@ class ModifyCommand
 	}
 
 	[CommandGroup("speed")]
-	class ModifySpeed
+    private class ModifySpeed
 	{
 		[Command("", RBACPermissions.CommandModifySpeed)]
-		static bool HandleModifySpeedCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleModifySpeedCommand(CommandHandler handler, StringArguments args)
 		{
 			return HandleModifyASpeedCommand(handler, args);
 		}
 
 		[Command("all", RBACPermissions.CommandModifySpeedAll)]
-		static bool HandleModifyASpeedCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleModifyASpeedCommand(CommandHandler handler, StringArguments args)
 		{
 			var target = handler.SelectedPlayerOrSelf;
 
@@ -952,7 +952,7 @@ class ModifyCommand
 		}
 
 		[Command("swim", RBACPermissions.CommandModifySpeedSwim)]
-		static bool HandleModifySwimCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleModifySwimCommand(CommandHandler handler, StringArguments args)
 		{
 			var target = handler.SelectedPlayerOrSelf;
 
@@ -968,7 +968,7 @@ class ModifyCommand
 		}
 
 		[Command("backwalk", RBACPermissions.CommandModifySpeedBackwalk)]
-		static bool HandleModifyBWalkCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleModifyBWalkCommand(CommandHandler handler, StringArguments args)
 		{
 			var target = handler.SelectedPlayerOrSelf;
 
@@ -984,7 +984,7 @@ class ModifyCommand
 		}
 
 		[Command("fly", RBACPermissions.CommandModifySpeedFly)]
-		static bool HandleModifyFlyCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleModifyFlyCommand(CommandHandler handler, StringArguments args)
 		{
 			var target = handler.SelectedPlayerOrSelf;
 
@@ -1000,7 +1000,7 @@ class ModifyCommand
 		}
 
 		[Command("walk", RBACPermissions.CommandModifySpeedWalk)]
-		static bool HandleModifyWalkSpeedCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleModifyWalkSpeedCommand(CommandHandler handler, StringArguments args)
 		{
 			var target = handler.SelectedPlayerOrSelf;
 

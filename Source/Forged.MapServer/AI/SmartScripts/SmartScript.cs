@@ -36,38 +36,38 @@ public class SmartScript
 	public ObjectGuid LastInvoker;
 
 	// Max number of nested ProcessEventsFor() calls to avoid infinite loops
-	const uint MaxNestedEvents = 10;
-	readonly Dictionary<uint, uint> _counterList = new();
-	readonly List<SmartScriptHolder> _events = new();
-	readonly List<SmartScriptHolder> _installEvents = new();
-	readonly List<SmartScriptHolder> _storedEvents = new();
-	readonly List<uint> _remIDs = new();
-	readonly Dictionary<uint, ObjectGuidList> _storedTargets = new();
-	List<SmartScriptHolder> _timedActionList = new();
-	ObjectGuid mTimedActionListInvoker;
-	Creature _me;
-	ObjectGuid _meOrigGUID;
-	GameObject _go;
-	ObjectGuid _goOrigGUID;
-	Player _player;
-	AreaTriggerRecord _trigger;
-	AreaTrigger _areaTrigger;
-	SceneTemplate _sceneTemplate;
-	Quest.Quest _quest;
-	SmartScriptType _scriptType;
-	uint _eventPhase;
+    private const uint MaxNestedEvents = 10;
+    private readonly Dictionary<uint, uint> _counterList = new();
+    private readonly List<SmartScriptHolder> _events = new();
+    private readonly List<SmartScriptHolder> _installEvents = new();
+    private readonly List<SmartScriptHolder> _storedEvents = new();
+    private readonly List<uint> _remIDs = new();
+    private readonly Dictionary<uint, ObjectGuidList> _storedTargets = new();
+    private List<SmartScriptHolder> _timedActionList = new();
+    private ObjectGuid mTimedActionListInvoker;
+    private Creature _me;
+    private ObjectGuid _meOrigGUID;
+    private GameObject _go;
+    private ObjectGuid _goOrigGUID;
+    private Player _player;
+    private AreaTriggerRecord _trigger;
+    private AreaTrigger _areaTrigger;
+    private SceneTemplate _sceneTemplate;
+    private Quest.Quest _quest;
+    private SmartScriptType _scriptType;
+    private uint _eventPhase;
 
-	uint _pathId;
+    private uint _pathId;
 
-	uint _textTimer;
-	uint _lastTextID;
-	ObjectGuid _textGUID;
-	uint _talkerEntry;
-	bool _useTextTimer;
-	uint _currentPriority;
-	bool _eventSortingRequired;
-	uint _nestedEventsCounter;
-	SmartEventFlags _allEventFlags;
+    private uint _textTimer;
+    private uint _lastTextID;
+    private ObjectGuid _textGUID;
+    private uint _talkerEntry;
+    private bool _useTextTimer;
+    private uint _currentPriority;
+    private bool _eventSortingRequired;
+    private uint _nestedEventsCounter;
+    private SmartEventFlags _allEventFlags;
 
 	public SmartScript()
 	{
@@ -444,7 +444,7 @@ public class SmartScript
 		return null;
 	}
 
-	void ProcessAction(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
+    private void ProcessAction(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
 	{
 		e.RunOnce = true; //used for repeat check
 
@@ -3153,7 +3153,7 @@ public class SmartScript
 		}
 	}
 
-	void ProcessTimedAction(SmartScriptHolder e, uint min, uint max, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
+    private void ProcessTimedAction(SmartScriptHolder e, uint min, uint max, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
 	{
 		// We may want to execute action rarely and because of this if condition is not fulfilled the action will be rechecked in a long time
 		if (Global.ConditionMgr.IsObjectMeetingSmartEventConditions(e.EntryOrGuid, e.EventId, e.SourceType, unit, GetBaseObject()))
@@ -3167,9 +3167,9 @@ public class SmartScript
 		}
 	}
 
-	SmartScriptHolder CreateSmartEvent(SmartEvents e, SmartEventFlags event_flags, uint event_param1, uint event_param2, uint event_param3, uint event_param4, uint event_param5,
-										SmartActions action, uint action_param1, uint action_param2, uint action_param3, uint action_param4, uint action_param5, uint action_param6, uint action_param7,
-										SmartTargets t, uint target_param1, uint target_param2, uint target_param3, uint target_param4, uint phaseMask)
+    private SmartScriptHolder CreateSmartEvent(SmartEvents e, SmartEventFlags event_flags, uint event_param1, uint event_param2, uint event_param3, uint event_param4, uint event_param5,
+                                               SmartActions action, uint action_param1, uint action_param2, uint action_param3, uint action_param4, uint action_param5, uint action_param6, uint action_param7,
+                                               SmartTargets t, uint target_param1, uint target_param2, uint target_param3, uint target_param4, uint phaseMask)
 	{
 		SmartScriptHolder script = new();
 		script.Event.type = e;
@@ -3203,7 +3203,7 @@ public class SmartScript
 		return script;
 	}
 
-	List<WorldObject> GetTargets(SmartScriptHolder e, WorldObject invoker = null)
+    private List<WorldObject> GetTargets(SmartScriptHolder e, WorldObject invoker = null)
 	{
 		WorldObject scriptTrigger = null;
 
@@ -3735,7 +3735,7 @@ public class SmartScript
 		return targets;
 	}
 
-	List<WorldObject> GetWorldObjectsInDist(float dist)
+    private List<WorldObject> GetWorldObjectsInDist(float dist)
 	{
 		List<WorldObject> targets = new();
 		var obj = GetBaseObject();
@@ -3750,7 +3750,7 @@ public class SmartScript
 		return targets;
 	}
 
-	void ProcessEvent(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
+    private void ProcessEvent(SmartScriptHolder e, Unit unit = null, uint var0 = 0, uint var1 = 0, bool bvar = false, SpellInfo spell = null, GameObject gob = null, string varString = "")
 	{
 		if (!e.Active && e.GetEventType() != SmartEvents.Link)
 			return;
@@ -4428,7 +4428,7 @@ public class SmartScript
 		}
 	}
 
-	void InitTimer(SmartScriptHolder e)
+    private void InitTimer(SmartScriptHolder e)
 	{
 		switch (e.GetEventType())
 		{
@@ -4451,7 +4451,7 @@ public class SmartScript
 		}
 	}
 
-	void RecalcTimer(SmartScriptHolder e, uint min, uint max)
+    private void RecalcTimer(SmartScriptHolder e, uint min, uint max)
 	{
 		if (e.EntryOrGuid == 15294 && e.Timer != 0)
 			Log.Logger.Error("Called RecalcTimer");
@@ -4461,7 +4461,7 @@ public class SmartScript
 		e.Active = e.Timer == 0;
 	}
 
-	void UpdateTimer(SmartScriptHolder e, uint diff)
+    private void UpdateTimer(SmartScriptHolder e, uint diff)
 	{
 		if (e.GetEventType() == SmartEvents.Link)
 			return;
@@ -4562,7 +4562,7 @@ public class SmartScript
 		}
 	}
 
-	void InstallEvents()
+    private void InstallEvents()
 	{
 		if (!_installEvents.Empty())
 		{
@@ -4576,12 +4576,12 @@ public class SmartScript
 		}
 	}
 
-	void SortEvents(List<SmartScriptHolder> events)
+    private void SortEvents(List<SmartScriptHolder> events)
 	{
 		events.Sort();
 	}
 
-	void RaisePriority(SmartScriptHolder e)
+    private void RaisePriority(SmartScriptHolder e)
 	{
 		e.Timer = 1;
 
@@ -4593,7 +4593,7 @@ public class SmartScript
 		}
 	}
 
-	void RetryLater(SmartScriptHolder e, bool ignoreChanceRoll = false)
+    private void RetryLater(SmartScriptHolder e, bool ignoreChanceRoll = false)
 	{
 		RaisePriority(e);
 
@@ -4604,7 +4604,7 @@ public class SmartScript
 		e.RunOnce = false;
 	}
 
-	void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest.Quest quest)
+    private void FillScript(List<SmartScriptHolder> e, WorldObject obj, AreaTriggerRecord at, SceneTemplate scene, Quest.Quest quest)
 	{
 		if (e.Empty())
 		{
@@ -4681,7 +4681,7 @@ public class SmartScript
 		}
 	}
 
-	void GetScript()
+    private void GetScript()
 	{
 		List<SmartScriptHolder> e;
 
@@ -4725,7 +4725,7 @@ public class SmartScript
 		}
 	}
 
-	Unit DoSelectLowestHpFriendly(float range, uint MinHPDiff)
+    private Unit DoSelectLowestHpFriendly(float range, uint MinHPDiff)
 	{
 		if (!_me)
 			return null;
@@ -4737,7 +4737,7 @@ public class SmartScript
 		return searcher.GetTarget();
 	}
 
-	Unit DoSelectLowestHpPercentFriendly(float range, uint minHpPct, uint maxHpPct)
+    private Unit DoSelectLowestHpPercentFriendly(float range, uint minHpPct, uint maxHpPct)
 	{
 		if (_me == null)
 			return null;
@@ -4749,7 +4749,7 @@ public class SmartScript
 		return searcher.GetTarget();
 	}
 
-	void DoFindFriendlyCC(List<Creature> creatures, float range)
+    private void DoFindFriendlyCC(List<Creature> creatures, float range)
 	{
 		if (_me == null)
 			return;
@@ -4759,7 +4759,7 @@ public class SmartScript
 		Cell.VisitGrid(_me, searcher, range);
 	}
 
-	void DoFindFriendlyMissingBuff(List<Creature> creatures, float range, uint spellid)
+    private void DoFindFriendlyMissingBuff(List<Creature> creatures, float range, uint spellid)
 	{
 		if (_me == null)
 			return;
@@ -4769,7 +4769,7 @@ public class SmartScript
 		Cell.VisitGrid(_me, searcher, range);
 	}
 
-	Unit DoFindClosestFriendlyInRange(float range)
+    private Unit DoFindClosestFriendlyInRange(float range)
 	{
 		if (!_me)
 			return null;
@@ -4781,7 +4781,7 @@ public class SmartScript
 		return searcher.GetTarget();
 	}
 
-	Unit GetLastInvoker(Unit invoker = null)
+    private Unit GetLastInvoker(Unit invoker = null)
 	{
 		// Look for invoker only on map of base object... Prevents multithreaded crashes
 		var baseObject = GetBaseObject();
@@ -4795,7 +4795,7 @@ public class SmartScript
 		return null;
 	}
 
-	WorldObject GetBaseObject()
+    private WorldObject GetBaseObject()
 	{
 		WorldObject obj = null;
 
@@ -4811,12 +4811,12 @@ public class SmartScript
 		return obj;
 	}
 
-	WorldObject GetBaseObjectOrUnitInvoker(Unit invoker)
+    private WorldObject GetBaseObjectOrUnitInvoker(Unit invoker)
 	{
 		return GetBaseObject() ?? invoker;
 	}
 
-	bool IsSmart(Creature creature, bool silent = false)
+    private bool IsSmart(Creature creature, bool silent = false)
 	{
 		if (creature == null)
 			return false;
@@ -4832,7 +4832,7 @@ public class SmartScript
 		return smart;
 	}
 
-	bool IsSmart(GameObject gameObject, bool silent = false)
+    private bool IsSmart(GameObject gameObject, bool silent = false)
 	{
 		if (gameObject == null)
 			return false;
@@ -4848,7 +4848,7 @@ public class SmartScript
 		return smart;
 	}
 
-	bool IsSmart(bool silent = false)
+    private bool IsSmart(bool silent = false)
 	{
 		if (_me != null)
 			return IsSmart(_me, silent);
@@ -4859,14 +4859,14 @@ public class SmartScript
 		return false;
 	}
 
-	void StoreTargetList(List<WorldObject> targets, uint id)
+    private void StoreTargetList(List<WorldObject> targets, uint id)
 	{
 		// insert or replace
 		_storedTargets.Remove(id);
 		_storedTargets.Add(id, new ObjectGuidList(targets));
 	}
 
-	void AddToStoredTargetList(List<WorldObject> targets, uint id)
+    private void AddToStoredTargetList(List<WorldObject> targets, uint id)
 	{
 		var inserted = _storedTargets.TryAdd(id, new ObjectGuidList(targets));
 
@@ -4875,7 +4875,7 @@ public class SmartScript
 				_storedTargets[id].AddGuid(obj.GUID);
 	}
 
-	void StoreCounter(uint id, uint value, uint reset)
+    private void StoreCounter(uint id, uint value, uint reset)
 	{
 		if (_counterList.ContainsKey(id))
 		{
@@ -4892,7 +4892,7 @@ public class SmartScript
 		ProcessEventsFor(SmartEvents.CounterSet, null, id);
 	}
 
-	uint GetCounterValue(uint id)
+    private uint GetCounterValue(uint id)
 	{
 		if (_counterList.ContainsKey(id))
 			return _counterList[id];
@@ -4900,7 +4900,7 @@ public class SmartScript
 		return 0;
 	}
 
-	GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
+    private GameObject FindGameObjectNear(WorldObject searchObject, ulong guid)
 	{
 		var bounds = searchObject.Map.GameObjectBySpawnIdStore.LookupByKey(guid);
 
@@ -4910,7 +4910,7 @@ public class SmartScript
 		return bounds[0];
 	}
 
-	Creature FindCreatureNear(WorldObject searchObject, ulong guid)
+    private Creature FindCreatureNear(WorldObject searchObject, ulong guid)
 	{
 		var bounds = searchObject.Map.CreatureBySpawnIdStore.LookupByKey(guid);
 
@@ -4922,7 +4922,7 @@ public class SmartScript
 		return foundCreature ?? bounds[0];
 	}
 
-	void ResetBaseObject()
+    private void ResetBaseObject()
 	{
 		WorldObject lookupRoot = _me;
 
@@ -4960,13 +4960,13 @@ public class SmartScript
 		_meOrigGUID.Clear();
 	}
 
-	void IncPhase(uint p)
+    private void IncPhase(uint p)
 	{
 		// protect phase from overflowing
 		SetPhase(Math.Min((uint)SmartPhase.Phase12, _eventPhase + p));
 	}
 
-	void DecPhase(uint p)
+    private void DecPhase(uint p)
 	{
 		if (p >= _eventPhase)
 			SetPhase(0);
@@ -4974,12 +4974,12 @@ public class SmartScript
 			SetPhase(_eventPhase - p);
 	}
 
-	void SetPhase(uint p)
+    private void SetPhase(uint p)
 	{
 		_eventPhase = p;
 	}
 
-	bool IsInPhase(uint p)
+    private bool IsInPhase(uint p)
 	{
 		if (_eventPhase == 0)
 			return false;
@@ -4987,7 +4987,7 @@ public class SmartScript
 		return ((1 << (int)(_eventPhase - 1)) & p) != 0;
 	}
 
-	void RemoveStoredEvent(uint id)
+    private void RemoveStoredEvent(uint id)
 	{
 		if (!_storedEvents.Empty())
 			foreach (var holder in _storedEvents)

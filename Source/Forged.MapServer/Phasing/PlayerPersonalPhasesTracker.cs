@@ -9,9 +9,9 @@ using Forged.MapServer.Maps;
 
 namespace Forged.MapServer.Phasing;
 
-class PlayerPersonalPhasesTracker
+internal class PlayerPersonalPhasesTracker
 {
-	readonly Dictionary<uint, PersonalPhaseSpawns> _spawns = new();
+    private readonly Dictionary<uint, PersonalPhaseSpawns> _spawns = new();
 
 	public bool IsEmpty => _spawns.Empty();
 
@@ -96,7 +96,7 @@ class PlayerPersonalPhasesTracker
 		}
 	}
 
-	void DespawnPhase(Map map, PersonalPhaseSpawns spawns)
+    private void DespawnPhase(Map map, PersonalPhaseSpawns spawns)
 	{
 		foreach (var obj in spawns.Objects)
 			map.AddObjectToRemoveList(obj);

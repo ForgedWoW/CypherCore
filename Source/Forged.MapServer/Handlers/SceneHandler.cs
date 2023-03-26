@@ -13,7 +13,7 @@ namespace Forged.MapServer.Handlers;
 public class SceneHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.SceneTriggerEvent)]
-	void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)
+    private void HandleSceneTriggerEvent(SceneTriggerEvent sceneTriggerEvent)
 	{
 		Log.Logger.Debug("HandleSceneTriggerEvent: SceneInstanceID: {0} Event: {1}", sceneTriggerEvent.SceneInstanceID, sceneTriggerEvent._Event);
 
@@ -21,7 +21,7 @@ public class SceneHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ScenePlaybackComplete)]
-	void HandleScenePlaybackComplete(ScenePlaybackComplete scenePlaybackComplete)
+    private void HandleScenePlaybackComplete(ScenePlaybackComplete scenePlaybackComplete)
 	{
 		Log.Logger.Debug("HandleScenePlaybackComplete: SceneInstanceID: {0}", scenePlaybackComplete.SceneInstanceID);
 
@@ -29,7 +29,7 @@ public class SceneHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ScenePlaybackCanceled)]
-	void HandleScenePlaybackCanceled(ScenePlaybackCanceled scenePlaybackCanceled)
+    private void HandleScenePlaybackCanceled(ScenePlaybackCanceled scenePlaybackCanceled)
 	{
 		Log.Logger.Debug("HandleScenePlaybackCanceled: SceneInstanceID: {0}", scenePlaybackCanceled.SceneInstanceID);
 

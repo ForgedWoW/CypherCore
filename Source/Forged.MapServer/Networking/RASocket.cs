@@ -17,9 +17,9 @@ namespace Forged.MapServer.Networking;
 
 public class RASocket : ISocket
 {
-	readonly Socket _socket;
-	readonly IPAddress _remoteAddress;
-	readonly byte[] _receiveBuffer;
+    private readonly Socket _socket;
+    private readonly IPAddress _remoteAddress;
+    private readonly byte[] _receiveBuffer;
 
 	public RASocket(Socket socket)
 	{
@@ -126,7 +126,7 @@ public class RASocket : ISocket
 		}
 	}
 
-	void Send(string str)
+    private void Send(string str)
 	{
 		if (!IsOpen())
 			return;
@@ -134,7 +134,7 @@ public class RASocket : ISocket
 		_socket.Send(Encoding.UTF8.GetBytes(str));
 	}
 
-	string ReadString()
+    private string ReadString()
 	{
 		try
 		{
@@ -160,7 +160,7 @@ public class RASocket : ISocket
 		}
 	}
 
-	bool CheckAccessLevelAndPassword(string email, string password)
+    private bool CheckAccessLevelAndPassword(string email, string password)
 	{
 		//"SELECT a.id, a.username FROM account a LEFT JOIN battlenet_accounts ba ON a.battlenet_account = ba.id WHERE ba.email = ?"
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
@@ -220,7 +220,7 @@ public class RASocket : ISocket
 		return false;
 	}
 
-	bool ProcessCommand(string command)
+    private bool ProcessCommand(string command)
 	{
 		if (command.Length == 0)
 			return false;
@@ -241,7 +241,7 @@ public class RASocket : ISocket
 		return true;
 	}
 
-	void CommandPrint(string text)
+    private void CommandPrint(string text)
 	{
 		if (text.IsEmpty())
 			return;

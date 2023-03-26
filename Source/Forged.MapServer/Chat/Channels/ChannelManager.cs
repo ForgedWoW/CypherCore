@@ -17,13 +17,13 @@ namespace Forged.MapServer.Chat.Channels;
 
 public class ChannelManager
 {
-	static readonly ChannelManager allianceChannelMgr = new(TeamFaction.Alliance);
-	static readonly ChannelManager hordeChannelMgr = new(TeamFaction.Horde);
+    private static readonly ChannelManager allianceChannelMgr = new(TeamFaction.Alliance);
+    private static readonly ChannelManager hordeChannelMgr = new(TeamFaction.Horde);
 
-	readonly Dictionary<string, Channel> _customChannels = new();
-	readonly Dictionary<ObjectGuid, Channel> _channels = new();
-	readonly TeamFaction _team;
-	readonly ObjectGuidGenerator _guidGenerator;
+    private readonly Dictionary<string, Channel> _customChannels = new();
+    private readonly Dictionary<ObjectGuid, Channel> _channels = new();
+    private readonly TeamFaction _team;
+    private readonly ObjectGuidGenerator _guidGenerator;
 
 	public ChannelManager(TeamFaction team)
 	{
@@ -228,7 +228,7 @@ public class ChannelManager
 		player.SendPacket(notify);
 	}
 
-	ObjectGuid CreateCustomChannelGuid()
+    private ObjectGuid CreateCustomChannelGuid()
 	{
 		ulong high = 0;
 		high |= (ulong)HighGuid.ChatChannel << 58;
@@ -241,7 +241,7 @@ public class ChannelManager
 		return channelGuid;
 	}
 
-	ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
+    private ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
 	{
 		var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
 		var zoneId = zoneEntry != null ? zoneEntry.Id : 0;

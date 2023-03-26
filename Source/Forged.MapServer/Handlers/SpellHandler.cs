@@ -26,7 +26,7 @@ namespace Forged.MapServer.Handlers;
 public class SpellHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.UseItem, Processing = PacketProcessing.Inplace)]
-	void HandleUseItem(UseItem packet)
+    private void HandleUseItem(UseItem packet)
 	{
 		var user = Player;
 
@@ -126,7 +126,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.OpenItem, Processing = PacketProcessing.Inplace)]
-	void HandleOpenItem(OpenItem packet)
+    private void HandleOpenItem(OpenItem packet)
 	{
 		var player = Player;
 
@@ -233,7 +233,7 @@ public class SpellHandler : IWorldSessionHandler
 		}
 	}
 
-	void HandleOpenWrappedItemCallback(ushort pos, ObjectGuid itemGuid, SQLResult result)
+    private void HandleOpenWrappedItemCallback(ushort pos, ObjectGuid itemGuid, SQLResult result)
 	{
 		if (!Player)
 			return;
@@ -275,7 +275,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GameObjUse, Processing = PacketProcessing.Inplace)]
-	void HandleGameObjectUse(GameObjUse packet)
+    private void HandleGameObjectUse(GameObjUse packet)
 	{
 		var obj = Player.GetGameObjectIfCanInteractWith(packet.Guid);
 
@@ -291,7 +291,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GameObjReportUse, Processing = PacketProcessing.Inplace)]
-	void HandleGameobjectReportUse(GameObjReportUse packet)
+    private void HandleGameobjectReportUse(GameObjReportUse packet)
 	{
 		// ignore for remote control state
 		if (Player.UnitBeingMoved != Player)
@@ -309,7 +309,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CastSpell, Processing = PacketProcessing.ThreadSafe)]
-	void HandleCastSpell(CastSpell cast)
+    private void HandleCastSpell(CastSpell cast)
 	{
 		// ignore for remote control state (for player case)
 		var mover = Player.UnitBeingMoved;
@@ -416,14 +416,14 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelCast, Processing = PacketProcessing.ThreadSafe)]
-	void HandleCancelCast(CancelCast packet)
+    private void HandleCancelCast(CancelCast packet)
 	{
 		if (Player.IsNonMeleeSpellCast(false))
 			Player.InterruptNonMeleeSpells(false, packet.SpellID, false);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelAura, Processing = PacketProcessing.Inplace)]
-	void HandleCancelAura(CancelAura cancelAura)
+    private void HandleCancelAura(CancelAura cancelAura)
 	{
 		var spellInfo = Global.SpellMgr.GetSpellInfo(cancelAura.SpellID, _player.Map.DifficultyID);
 
@@ -456,7 +456,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelGrowthAura, Processing = PacketProcessing.Inplace)]
-	void HandleCancelGrowthAura(CancelGrowthAura cancelGrowthAura)
+    private void HandleCancelGrowthAura(CancelGrowthAura cancelGrowthAura)
 	{
 		Player.RemoveAurasByType(AuraType.ModScale,
 								aurApp =>
@@ -468,7 +468,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelMountAura, Processing = PacketProcessing.Inplace)]
-	void HandleCancelMountAura(CancelMountAura packet)
+    private void HandleCancelMountAura(CancelMountAura packet)
 	{
 		Player.RemoveAurasByType(AuraType.Mounted,
 								aurApp =>
@@ -480,7 +480,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetCancelAura, Processing = PacketProcessing.Inplace)]
-	void HandlePetCancelAura(PetCancelAura packet)
+    private void HandlePetCancelAura(PetCancelAura packet)
 	{
 		if (!Global.SpellMgr.HasSpellInfo(packet.SpellID, Difficulty.None))
 		{
@@ -516,7 +516,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelModSpeedNoControlAuras, Processing = PacketProcessing.Inplace)]
-	void HandleCancelModSpeedNoControlAuras(CancelModSpeedNoControlAuras cancelModSpeedNoControlAuras)
+    private void HandleCancelModSpeedNoControlAuras(CancelModSpeedNoControlAuras cancelModSpeedNoControlAuras)
 	{
 		var mover = _player.UnitBeingMoved;
 
@@ -533,7 +533,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelAutoRepeatSpell, Processing = PacketProcessing.Inplace)]
-	void HandleCancelAutoRepeatSpell(CancelAutoRepeatSpell packet)
+    private void HandleCancelAutoRepeatSpell(CancelAutoRepeatSpell packet)
 	{
 		//may be better send SMSG_CANCEL_AUTO_REPEAT?
 		//cancel and prepare for deleting
@@ -541,7 +541,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelChannelling, Processing = PacketProcessing.Inplace)]
-	void HandleCancelChanneling(CancelChannelling cancelChanneling)
+    private void HandleCancelChanneling(CancelChannelling cancelChanneling)
 	{
 		// ignore for remote control state (for player case)
 		var mover = _player.UnitBeingMoved;
@@ -567,7 +567,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TotemDestroyed, Processing = PacketProcessing.Inplace)]
-	void HandleTotemDestroyed(TotemDestroyed totemDestroyed)
+    private void HandleTotemDestroyed(TotemDestroyed totemDestroyed)
 	{
 		// ignore for remote control state
 		if (Player.UnitBeingMoved != Player)
@@ -589,7 +589,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SelfRes)]
-	void HandleSelfRes(SelfRes selfRes)
+    private void HandleSelfRes(SelfRes selfRes)
 	{
 		List<uint> selfResSpells = _player.ActivePlayerData.SelfResSpells;
 
@@ -609,7 +609,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SpellClick, Processing = PacketProcessing.Inplace)]
-	void HandleSpellClick(SpellClick packet)
+    private void HandleSpellClick(SpellClick packet)
 	{
 		// this will get something not in world. crash
 		var unit = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.SpellClickUnitGuid);
@@ -623,7 +623,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GetMirrorImageData)]
-	void HandleMirrorImageDataRequest(GetMirrorImageData packet)
+    private void HandleMirrorImageDataRequest(GetMirrorImageData packet)
 	{
 		var guid = packet.UnitGUID;
 
@@ -698,7 +698,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MissileTrajectoryCollision)]
-	void HandleMissileTrajectoryCollision(MissileTrajectoryCollision packet)
+    private void HandleMissileTrajectoryCollision(MissileTrajectoryCollision packet)
 	{
 		var caster = Global.ObjAccessor.GetUnit(_player, packet.Target);
 
@@ -725,7 +725,7 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UpdateMissileTrajectory)]
-	void HandleUpdateMissileTrajectory(UpdateMissileTrajectory packet)
+    private void HandleUpdateMissileTrajectory(UpdateMissileTrajectory packet)
 	{
 		var caster = Global.ObjAccessor.GetUnit(Player, packet.Guid);
 		var spell = caster ? caster.GetCurrentSpell(CurrentSpellTypes.Generic) : null;
@@ -753,13 +753,13 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestCategoryCooldowns, Processing = PacketProcessing.Inplace)]
-	void HandleRequestCategoryCooldowns(RequestCategoryCooldowns requestCategoryCooldowns)
+    private void HandleRequestCategoryCooldowns(RequestCategoryCooldowns requestCategoryCooldowns)
 	{
 		Player.SendSpellCategoryCooldowns();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.KeyboundOverride, Processing = PacketProcessing.ThreadSafe)]
-	void HandleKeyboundOverride(KeyboundOverride keyboundOverride)
+    private void HandleKeyboundOverride(KeyboundOverride keyboundOverride)
 	{
 		var player = Player;
 
@@ -775,19 +775,19 @@ public class SpellHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SpellEmpowerRelease)]
-	void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
+    private void HandleSpellEmpowerRelease(SpellEmpowerRelease packet)
 	{
 		Player.UpdateEmpowerState(EmpowerState.Canceled, packet.SpellID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SpellEmpowerRestart)]
-	void HandleSpellEmpowerRelestart(SpellEmpowerRelease packet)
+    private void HandleSpellEmpowerRelestart(SpellEmpowerRelease packet)
 	{
 		Player.UpdateEmpowerState(EmpowerState.Empowering, packet.SpellID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetEmpowerMinHoldStagePercent)]
-	void HandleSpellEmpowerMinHoldPct(SpellEmpowerMinHold packet)
+    private void HandleSpellEmpowerMinHoldPct(SpellEmpowerMinHold packet)
 	{
 		Player.EmpoweredSpellMinHoldPct = packet.HoldPct;
 	}

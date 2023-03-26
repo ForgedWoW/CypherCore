@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class OverrideLight : ServerPacket
+internal class OverrideLight : ServerPacket
 {
 	public uint AreaLightID;
 	public uint TransitionMilliseconds;

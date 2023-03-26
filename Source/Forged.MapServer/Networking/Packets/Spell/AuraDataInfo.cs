@@ -22,8 +22,8 @@ public class AuraDataInfo
 	public int? Remaining;
 	public List<double> Points = new();
 	public List<double> EstimatedPoints = new();
-	readonly ContentTuningParams _contentTuning;
-	readonly float? _timeMod;
+    private readonly ContentTuningParams _contentTuning;
+    private readonly float? _timeMod;
 
 	public void Write(WorldPacket data)
 	{

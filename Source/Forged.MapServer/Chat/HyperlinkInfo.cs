@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Chat;
 
-class HyperlinkInfo
+internal class HyperlinkInfo
 {
 	public string Tail;
 	public HyperlinkColor Color;

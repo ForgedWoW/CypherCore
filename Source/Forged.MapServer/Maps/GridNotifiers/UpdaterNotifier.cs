@@ -13,8 +13,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class UpdaterNotifier : IGridNotifierWorldObject
 {
-	readonly uint _timeDiff;
-	readonly ConcurrentBag<WorldObject> _worldObjects = new();
+    private readonly uint _timeDiff;
+    private readonly ConcurrentBag<WorldObject> _worldObjects = new();
 
 	public GridType GridType { get; set; }
 

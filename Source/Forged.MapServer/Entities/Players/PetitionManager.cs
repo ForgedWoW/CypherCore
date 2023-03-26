@@ -13,7 +13,7 @@ namespace Forged.MapServer.Entities.Players;
 public class PetitionManager
 {
     private readonly CharacterDatabase _characterDatabase;
-    readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
+    private readonly Dictionary<ObjectGuid, Petition> _petitionStorage = new();
 
     public PetitionManager(CharacterDatabase characterDatabase)
     {

@@ -9,10 +9,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("gm")]
-class GMCommands
+internal class GMCommands
 {
 	[Command("chat", RBACPermissions.CommandGmChat)]
-	static bool HandleGMChatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleGMChatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var session = handler.Session;
 
@@ -48,7 +48,7 @@ class GMCommands
 	}
 
 	[Command("fly", RBACPermissions.CommandGmFly)]
-	static bool HandleGMFlyCommand(CommandHandler handler, bool enable)
+    private static bool HandleGMFlyCommand(CommandHandler handler, bool enable)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -72,7 +72,7 @@ class GMCommands
 	}
 
 	[Command("ingame", RBACPermissions.CommandGmIngame, true)]
-	static bool HandleGMListIngameCommand(CommandHandler handler)
+    private static bool HandleGMListIngameCommand(CommandHandler handler)
 	{
 		var first = true;
 		var footer = false;
@@ -119,7 +119,7 @@ class GMCommands
 	}
 
 	[Command("list", RBACPermissions.CommandGmList, true)]
-	static bool HandleGMListFullCommand(CommandHandler handler)
+    private static bool HandleGMListFullCommand(CommandHandler handler)
 	{
 		// Get the accounts with GM Level >0
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_GM_ACCOUNTS);
@@ -162,7 +162,7 @@ class GMCommands
 	}
 
 	[Command("off", RBACPermissions.CommandGm)]
-	static bool HandleGMOffCommand(CommandHandler handler)
+    private static bool HandleGMOffCommand(CommandHandler handler)
 	{
 		handler.Player.SetGameMaster(false);
 		handler.Player.UpdateTriggerVisibility();
@@ -172,7 +172,7 @@ class GMCommands
 	}
 
 	[Command("on", RBACPermissions.CommandGm)]
-	static bool HandleGMOnCommand(CommandHandler handler)
+    private static bool HandleGMOnCommand(CommandHandler handler)
 	{
 		handler.Player.SetGameMaster(true);
 		handler.Player.UpdateTriggerVisibility();
@@ -182,7 +182,7 @@ class GMCommands
 	}
 
 	[Command("visible", RBACPermissions.CommandGmVisible)]
-	static bool HandleGMVisibleCommand(CommandHandler handler, bool? visibleArg)
+    private static bool HandleGMVisibleCommand(CommandHandler handler, bool? visibleArg)
 	{
 		var _player = handler.Session.Player;
 

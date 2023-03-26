@@ -9,9 +9,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class FriendlyMissingBuffInRange : ICheck<Creature>
 {
-	readonly Unit _obj;
-	readonly float _range;
-	readonly uint _spell;
+    private readonly Unit _obj;
+    private readonly float _range;
+    private readonly uint _spell;
 
 	public FriendlyMissingBuffInRange(Unit obj, float range, uint spellid)
 	{

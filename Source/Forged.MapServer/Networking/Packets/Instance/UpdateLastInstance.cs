@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class UpdateLastInstance : ServerPacket
+internal class UpdateLastInstance : ServerPacket
 {
 	public uint MapID;
 	public UpdateLastInstance() : base(ServerOpcodes.UpdateLastInstance) { }

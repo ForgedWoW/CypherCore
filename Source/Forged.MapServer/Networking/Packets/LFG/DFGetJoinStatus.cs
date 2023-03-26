@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFGetJoinStatus : ClientPacket
+internal class DFGetJoinStatus : ClientPacket
 {
 	public DFGetJoinStatus(WorldPacket packet) : base(packet) { }
 

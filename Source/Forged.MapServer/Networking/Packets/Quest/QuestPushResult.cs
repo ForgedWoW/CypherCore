@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestPushResult : ClientPacket
+internal class QuestPushResult : ClientPacket
 {
 	public ObjectGuid SenderGUID;
 	public uint QuestID;

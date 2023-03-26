@@ -69,14 +69,14 @@ public class BattleField : ZoneScript
 	protected Dictionary<int, uint> m_Data32 = new();
 
 	// Map of the objectives belonging to this OutdoorPvP
-	readonly Dictionary<uint, BfCapturePoint> m_capturePoints = new();
+    private readonly Dictionary<uint, BfCapturePoint> m_capturePoints = new();
 
-	readonly List<ObjectGuid>[] m_Groups = new List<ObjectGuid>[2]; // Contain different raid group
+    private readonly List<ObjectGuid>[] m_Groups = new List<ObjectGuid>[2]; // Contain different raid group
 
-	readonly Dictionary<int, ulong> m_Data64 = new();
+    private readonly Dictionary<int, ulong> m_Data64 = new();
 
-	uint m_uiKickAfkPlayersTimer; // Timer for check Afk in war
-	uint m_LastResurectTimer;     // Timer for resurect player every 30 sec
+    private uint m_uiKickAfkPlayersTimer; // Timer for check Afk in war
+    private uint m_LastResurectTimer;     // Timer for resurect player every 30 sec
 
 	public BattleField(Map map)
 	{
@@ -753,7 +753,7 @@ public class BattleField : ZoneScript
 	// use for switch off all worldstate for client
 	public virtual void SendRemoveWorldStates(Player player) { }
 
-	void InvitePlayersInZoneToQueue()
+    private void InvitePlayersInZoneToQueue()
 	{
 		for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
 			foreach (var guid in m_players[team])
@@ -765,7 +765,7 @@ public class BattleField : ZoneScript
 			}
 	}
 
-	void InvitePlayerToQueue(Player player)
+    private void InvitePlayerToQueue(Player player)
 	{
 		if (m_PlayersInQueue[player.TeamId].Contains(player.GUID))
 			return;
@@ -774,7 +774,7 @@ public class BattleField : ZoneScript
 			PlayerAcceptInviteToQueue(player);
 	}
 
-	void InvitePlayersInQueueToWar()
+    private void InvitePlayersInQueueToWar()
 	{
 		for (byte team = 0; team < 2; ++team)
 		{
@@ -799,7 +799,7 @@ public class BattleField : ZoneScript
 		}
 	}
 
-	void InvitePlayersInZoneToWar()
+    private void InvitePlayersInZoneToWar()
 	{
 		for (byte team = 0; team < 2; ++team)
 			foreach (var guid in m_players[team])
@@ -819,7 +819,7 @@ public class BattleField : ZoneScript
 			}
 	}
 
-	void InvitePlayerToWar(Player player)
+    private void InvitePlayerToWar(Player player)
 	{
 		if (!player)
 			return;
@@ -853,7 +853,7 @@ public class BattleField : ZoneScript
 		PlayerAcceptInviteToWar(player);
 	}
 
-	void KickAfkPlayers()
+    private void KickAfkPlayers()
 	{
 		for (byte team = 0; team < 2; ++team)
 			foreach (var guid in m_PlayersInWar[team])
@@ -866,12 +866,12 @@ public class BattleField : ZoneScript
 			}
 	}
 
-	void DoPlaySoundToAll(uint soundID)
+    private void DoPlaySoundToAll(uint soundID)
 	{
 		BroadcastPacketToWar(new PlaySound(ObjectGuid.Empty, soundID, 0));
 	}
 
-	BfCapturePoint GetCapturePoint(uint entry)
+    private BfCapturePoint GetCapturePoint(uint entry)
 	{
 		return m_capturePoints.LookupByKey(entry);
 	}
@@ -879,7 +879,7 @@ public class BattleField : ZoneScript
 	// ****************************************************
 	// ******************* Group System *******************
 	// ****************************************************
-	PlayerGroup GetFreeBfRaid(int teamIndex)
+    private PlayerGroup GetFreeBfRaid(int teamIndex)
 	{
 		foreach (var guid in m_Groups[teamIndex])
 		{
@@ -893,7 +893,7 @@ public class BattleField : ZoneScript
 		return null;
 	}
 
-	PlayerGroup GetGroupPlayer(ObjectGuid plguid, int teamIndex)
+    private PlayerGroup GetGroupPlayer(ObjectGuid plguid, int teamIndex)
 	{
 		foreach (var guid in m_Groups[teamIndex])
 		{
@@ -907,7 +907,7 @@ public class BattleField : ZoneScript
 		return null;
 	}
 
-	bool AddOrSetPlayerToCorrectBfGroup(Player player)
+    private bool AddOrSetPlayerToCorrectBfGroup(Player player)
 	{
 		if (!player.IsInWorld)
 			return false;
@@ -940,17 +940,17 @@ public class BattleField : ZoneScript
 		return true;
 	}
 
-	BattlefieldState GetState()
+    private BattlefieldState GetState()
 	{
 		return m_isActive ? BattlefieldState.InProgress : (m_Timer <= m_StartGroupingTimer ? BattlefieldState.Warnup : BattlefieldState.Inactive);
 	}
 
-	void SetDefenderTeam(uint team)
+    private void SetDefenderTeam(uint team)
 	{
 		m_DefenderTeam = team;
 	}
 
-	List<BfGraveyard> GetGraveyardVector()
+    private List<BfGraveyard> GetGraveyardVector()
 	{
 		return m_GraveyardList;
 	}
@@ -959,11 +959,11 @@ public class BattleField : ZoneScript
 public class BfGraveyard
 {
 	protected BattleField m_Bf;
-	readonly ObjectGuid[] m_SpiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
-	readonly List<ObjectGuid> m_ResurrectQueue = new();
+    private readonly ObjectGuid[] m_SpiritGuide = new ObjectGuid[SharedConst.PvpTeamsCount];
+    private readonly List<ObjectGuid> m_ResurrectQueue = new();
 
-	uint m_ControlTeam;
-	uint m_GraveyardId;
+    private uint m_ControlTeam;
+    private uint m_GraveyardId;
 
 	public BfGraveyard(BattleField battlefield)
 	{
@@ -1100,7 +1100,7 @@ public class BfGraveyard
 		return m_ControlTeam;
 	}
 
-	void RelocateDeadPlayers()
+    private void RelocateDeadPlayers()
 	{
 		WorldSafeLocsEntry closestGrave = null;
 
@@ -1134,30 +1134,30 @@ public class BfCapturePoint
 	protected BattleField m_Bf;
 
 	// active Players in the area of the objective, 0 - alliance, 1 - horde
-	readonly HashSet<ObjectGuid>[] m_activePlayers = new HashSet<ObjectGuid>[SharedConst.PvpTeamsCount];
+    private readonly HashSet<ObjectGuid>[] m_activePlayers = new HashSet<ObjectGuid>[SharedConst.PvpTeamsCount];
 
 	// Total shift needed to capture the objective
-	float m_maxValue;
-	float m_minValue;
+    private float m_maxValue;
+    private float m_minValue;
 
 	// Maximum speed of capture
-	float m_maxSpeed;
+    private float m_maxSpeed;
 
 	// The status of the objective
-	float m_value;
+    private float m_value;
 
 	// Objective states
-	BattleFieldObjectiveStates m_OldState;
-	BattleFieldObjectiveStates m_State;
+    private BattleFieldObjectiveStates m_OldState;
+    private BattleFieldObjectiveStates m_State;
 
 	// Neutral value on capture bar
-	uint m_neutralValuePct;
+    private uint m_neutralValuePct;
 
 	// Capture point entry
-	uint m_capturePointEntry;
+    private uint m_capturePointEntry;
 
 	// Gameobject related to that capture point
-	ObjectGuid m_capturePointGUID;
+    private ObjectGuid m_capturePointGUID;
 
 	public BfCapturePoint(BattleField battlefield)
 	{
@@ -1392,12 +1392,12 @@ public class BfCapturePoint
 		return m_capturePointEntry;
 	}
 
-	GameObject GetCapturePointGo()
+    private GameObject GetCapturePointGo()
 	{
 		return m_Bf.GetGameObject(m_capturePointGUID);
 	}
 
-	bool DelCapturePoint()
+    private bool DelCapturePoint()
 	{
 		if (!m_capturePointGUID.IsEmpty)
 		{
@@ -1416,7 +1416,7 @@ public class BfCapturePoint
 		return true;
 	}
 
-	void SendUpdateWorldState(uint field, uint value)
+    private void SendUpdateWorldState(uint field, uint value)
 	{
 		for (byte team = 0; team < SharedConst.PvpTeamsCount; ++team)
 			foreach (var guid in m_activePlayers[team]) // send to all players present in the area
@@ -1428,7 +1428,7 @@ public class BfCapturePoint
 			}
 	}
 
-	void SendObjectiveComplete(uint id, ObjectGuid guid)
+    private void SendObjectiveComplete(uint id, ObjectGuid guid)
 	{
 		uint team;
 
@@ -1456,12 +1456,12 @@ public class BfCapturePoint
 		}
 	}
 
-	bool IsInsideObjective(Player player)
+    private bool IsInsideObjective(Player player)
 	{
 		return m_activePlayers[player.TeamId].Contains(player.GUID);
 	}
 
-	uint GetTeamId()
+    private uint GetTeamId()
 	{
 		return m_team;
 	}

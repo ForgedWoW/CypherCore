@@ -7,7 +7,7 @@ using Forged.MapServer.Networking.Packets.Item;
 
 namespace Forged.MapServer.Networking.Packets.Crafting;
 
-class CraftingData
+internal class CraftingData
 {
 	public int CraftingQualityID;
 	public float QualityProgress;

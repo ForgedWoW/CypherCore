@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class CloseInteraction : ClientPacket
+internal class CloseInteraction : ClientPacket
 {
 	public ObjectGuid SourceGuid;
 	public CloseInteraction(WorldPacket packet) : base(packet) { }

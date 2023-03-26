@@ -8,9 +8,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-class ChannelNotifyJoinedBuilder : MessageBuilder
+internal class ChannelNotifyJoinedBuilder : MessageBuilder
 {
-	readonly Channel _source;
+    private readonly Channel _source;
 
 	public ChannelNotifyJoinedBuilder(Channel source)
 	{

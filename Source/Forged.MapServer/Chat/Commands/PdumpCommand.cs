@@ -6,10 +6,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("pdump")]
-class PdumpCommand
+internal class PdumpCommand
 {
 	[Command("copy", RBACPermissions.CommandPdumpCopy, true)]
-	static bool HandlePDumpCopyCommand(CommandHandler handler, PlayerIdentifier player, AccountIdentifier account, [OptionalArg] string characterName, ulong? characterGUID)
+    private static bool HandlePDumpCopyCommand(CommandHandler handler, PlayerIdentifier player, AccountIdentifier account, [OptionalArg] string characterName, ulong? characterGUID)
 	{
 		/*
             std::string name;
@@ -55,7 +55,7 @@ class PdumpCommand
 	}
 
 	[Command("load", RBACPermissions.CommandPdumpLoad, true)]
-	static bool HandlePDumpLoadCommand(CommandHandler handler, string fileName, AccountIdentifier account, [OptionalArg] string characterName, ulong? characterGuid)
+    private static bool HandlePDumpLoadCommand(CommandHandler handler, string fileName, AccountIdentifier account, [OptionalArg] string characterName, ulong? characterGuid)
 	{
 		/*
             if (!AccountMgr.normalizeString(accountName))
@@ -153,7 +153,7 @@ class PdumpCommand
 	}
 
 	[Command("write", RBACPermissions.CommandPdumpWrite, true)]
-	static bool HandlePDumpWriteCommand(CommandHandler handler, string fileName, string playerName)
+    private static bool HandlePDumpWriteCommand(CommandHandler handler, string fileName, string playerName)
 	{
 		/*
             switch (PlayerDumpWriter().WriteDump(fileName, player.GetGUID().GetCounter()))

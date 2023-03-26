@@ -6,10 +6,10 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.AI.SmartScripts;
 
-class ObjectGuidList
+internal class ObjectGuidList
 {
-	readonly List<ObjectGuid> _guidList = new();
-	readonly List<WorldObject> _objectList = new();
+    private readonly List<ObjectGuid> _guidList = new();
+    private readonly List<WorldObject> _objectList = new();
 
 	public ObjectGuidList(List<WorldObject> objectList)
 	{
@@ -32,7 +32,7 @@ class ObjectGuidList
 	}
 
 	//sanitize vector using _guidVector
-	void UpdateObjects(WorldObject obj)
+    private void UpdateObjects(WorldObject obj)
 	{
 		_objectList.Clear();
 

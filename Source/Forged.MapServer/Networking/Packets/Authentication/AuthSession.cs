@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class AuthSession : ClientPacket
+internal class AuthSession : ClientPacket
 {
 	public uint RegionID;
 	public uint BattlegroupID;

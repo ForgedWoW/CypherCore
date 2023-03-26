@@ -14,9 +14,9 @@ namespace Forged.MapServer.Services;
 
 public class WorldServiceHandler
 {
-	readonly Delegate _methodCaller;
-	readonly Type _requestType;
-	readonly Type _responseType;
+    private readonly Delegate _methodCaller;
+    private readonly Type _requestType;
+    private readonly Type _responseType;
 
 	public WorldServiceHandler(MethodInfo info, ParameterInfo[] parameters)
 	{

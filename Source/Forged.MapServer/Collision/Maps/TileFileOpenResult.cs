@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Forged.MapServer.Collision.Maps;
 
-class TileFileOpenResult
+internal class TileFileOpenResult
 {
 	public string Name;
 	public FileStream File;

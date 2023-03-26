@@ -10,8 +10,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
 {
-	readonly WorldObject _obj;
-	float _range;
+    private readonly WorldObject _obj;
+    private float _range;
 
 	public NearestAttackableNoTotemUnitInObjectRangeCheck(WorldObject obj, float range)
 	{

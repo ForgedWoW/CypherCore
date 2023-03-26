@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Reputation;
 
-class RequestForcedReactions : ClientPacket
+internal class RequestForcedReactions : ClientPacket
 {
 	public RequestForcedReactions(WorldPacket packet) : base(packet) { }
 

@@ -10,19 +10,19 @@ namespace Forged.MapServer.Entities;
 
 public class Guardian : Minion
 {
-	const int ENTRY_IMP = 416;
-	const int ENTRY_VOIDWALKER = 1860;
-	const int ENTRY_SUCCUBUS = 1863;
-	const int ENTRY_FELHUNTER = 417;
-	const int ENTRY_FELGUARD = 17252;
-	const int ENTRY_WATER_ELEMENTAL = 510;
-	const int ENTRY_TREANT = 1964;
-	const int ENTRY_FIRE_ELEMENTAL = 15438;
-	const int ENTRY_GHOUL = 26125;
-	const int ENTRY_BLOODWORM = 28017;
-	readonly float[] _statFromOwner = new float[(int)Stats.Max];
+    private const int ENTRY_IMP = 416;
+    private const int ENTRY_VOIDWALKER = 1860;
+    private const int ENTRY_SUCCUBUS = 1863;
+    private const int ENTRY_FELHUNTER = 417;
+    private const int ENTRY_FELGUARD = 17252;
+    private const int ENTRY_WATER_ELEMENTAL = 510;
+    private const int ENTRY_TREANT = 1964;
+    private const int ENTRY_FIRE_ELEMENTAL = 15438;
+    private const int ENTRY_GHOUL = 26125;
+    private const int ENTRY_BLOODWORM = 28017;
+    private readonly float[] _statFromOwner = new float[(int)Stats.Max];
 
-	float _bonusSpellDamage;
+    private float _bonusSpellDamage;
 
 	public Guardian(SummonPropertiesRecord propertiesRecord, Unit owner, bool isWorldObject)
 		: base(propertiesRecord, owner, isWorldObject)
@@ -669,7 +669,7 @@ public class Guardian : Minion
 		return _statFromOwner[(int)stat];
 	}
 
-	void SetBonusDamage(float damage)
+    private void SetBonusDamage(float damage)
 	{
 		_bonusSpellDamage = damage;
 		var playerOwner = OwnerUnit.AsPlayer;

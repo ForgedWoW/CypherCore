@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class MinimapPingClient : ClientPacket
+internal class MinimapPingClient : ClientPacket
 {
 	public sbyte PartyIndex;
 	public float PositionX;

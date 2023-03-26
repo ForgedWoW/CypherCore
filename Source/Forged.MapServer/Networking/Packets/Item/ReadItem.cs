@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ReadItem : ClientPacket
+internal class ReadItem : ClientPacket
 {
 	public byte PackSlot;
 	public byte Slot;

@@ -29,19 +29,19 @@ public class Pet : Guardian
 {
 	public new Dictionary<uint, PetSpell> Spells = new();
 	public bool Removed;
-	const int PetFocusRegenInterval = 4 * Time.InMilliseconds;
-	const int HappinessLevelSize = 333000;
-	const float PetXPFactor = 0.05f;
-	readonly List<uint> _autospells = new();
+    private const int PetFocusRegenInterval = 4 * Time.InMilliseconds;
+    private const int HappinessLevelSize = 333000;
+    private const float PetXPFactor = 0.05f;
+    private readonly List<uint> _autospells = new();
 
-	PetType _petType;
-	int _duration; // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
-	bool _loading;
-	uint _focusRegenTimer;
-	GroupUpdatePetFlags _mGroupUpdateMask;
+    private PetType _petType;
+    private int _duration; // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
+    private bool _loading;
+    private uint _focusRegenTimer;
+    private GroupUpdatePetFlags _mGroupUpdateMask;
 
-	DeclinedName _declinedname;
-	ushort _petSpecialization;
+    private DeclinedName _declinedname;
+    private ushort _petSpecialization;
 
 	public override float NativeObjectScale
 	{
@@ -1175,7 +1175,7 @@ public class Pet : Guardian
 		return _declinedname;
 	}
 
-	bool CreateBaseAtTamed(CreatureTemplate cinfo, Map map)
+    private bool CreateBaseAtTamed(CreatureTemplate cinfo, Map map)
 	{
 		Log.Logger.Debug("CreateBaseForTamed");
 
@@ -1200,7 +1200,7 @@ public class Pet : Guardian
 		return true;
 	}
 
-	void _LoadSpells(SQLResult result)
+    private void _LoadSpells(SQLResult result)
 	{
 		if (!result.IsEmpty())
 			do
@@ -1209,7 +1209,7 @@ public class Pet : Guardian
 			} while (result.NextRow());
 	}
 
-	void _SaveSpells(SQLTransaction trans)
+    private void _SaveSpells(SQLTransaction trans)
 	{
 		foreach (var pair in Spells.ToList())
 		{
@@ -1259,7 +1259,7 @@ public class Pet : Guardian
 		}
 	}
 
-	void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
+    private void _LoadAuras(SQLResult auraResult, SQLResult effectResult, uint timediff)
 	{
 		Log.Logger.Debug("Loading auras for {0}", GUID.ToString());
 
@@ -1364,7 +1364,7 @@ public class Pet : Guardian
 			} while (auraResult.NextRow());
 	}
 
-	void _SaveAuras(SQLTransaction trans)
+    private void _SaveAuras(SQLTransaction trans)
 	{
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_PET_AURA_EFFECTS);
 		stmt.AddValue(0, GetCharmInfo().GetPetNumber());
@@ -1414,7 +1414,7 @@ public class Pet : Guardian
 		}
 	}
 
-	bool AddSpell(uint spellId, ActiveStates active = ActiveStates.Decide, PetSpellState state = PetSpellState.New, PetSpellType type = PetSpellType.Normal)
+    private bool AddSpell(uint spellId, ActiveStates active = ActiveStates.Decide, PetSpellState state = PetSpellState.New, PetSpellType type = PetSpellType.Normal)
 	{
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 
@@ -1529,7 +1529,7 @@ public class Pet : Guardian
 		return true;
 	}
 
-	void LearnSpells(List<uint> spellIds)
+    private void LearnSpells(List<uint> spellIds)
 	{
 		PetLearnedSpells packet = new();
 
@@ -1545,7 +1545,7 @@ public class Pet : Guardian
 			OwningPlayer.SendPacket(packet);
 	}
 
-	void InitLevelupSpellsForLevel()
+    private void InitLevelupSpellsForLevel()
 	{
 		var level = Level;
 		var levelupSpells = Template.Family != 0 ? Global.SpellMgr.GetPetLevelupSpellList(Template.Family) : null;
@@ -1580,7 +1580,7 @@ public class Pet : Guardian
 			}
 	}
 
-	bool UnlearnSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
+    private bool UnlearnSpell(uint spellId, bool learnPrev, bool clearActionBar = true)
 	{
 		if (RemoveSpell(spellId, learnPrev, clearActionBar))
 		{
@@ -1597,7 +1597,7 @@ public class Pet : Guardian
 		return false;
 	}
 
-	void UnlearnSpells(List<uint> spellIds, bool learnPrev, bool clearActionBar)
+    private void UnlearnSpells(List<uint> spellIds, bool learnPrev, bool clearActionBar)
 	{
 		PetUnlearnedSpells packet = new();
 
@@ -1613,7 +1613,7 @@ public class Pet : Guardian
 			OwningPlayer.SendPacket(packet);
 	}
 
-	void CleanupActionBar()
+    private void CleanupActionBar()
 	{
 		for (byte i = 0; i < SharedConst.ActionBarIndexMax; ++i)
 		{
@@ -1638,7 +1638,7 @@ public class Pet : Guardian
 	}
 
 	// Get all passive spells in our skill line
-	void LearnPetPassives()
+    private void LearnPetPassives()
 	{
 		var cInfo = Template;
 
@@ -1660,7 +1660,7 @@ public class Pet : Guardian
 				AddSpell(spellId, ActiveStates.Decide, PetSpellState.New, PetSpellType.Family);
 	}
 
-	void CastPetAuras(bool current)
+    private void CastPetAuras(bool current)
 	{
 		var owner = OwningPlayer;
 
@@ -1674,7 +1674,7 @@ public class Pet : Guardian
 				CastPetAura(pa);
 	}
 
-	bool IsPetAura(Aura aura)
+    private bool IsPetAura(Aura aura)
 	{
 		var owner = OwningPlayer;
 
@@ -1686,7 +1686,7 @@ public class Pet : Guardian
 		return false;
 	}
 
-	void LearnSpellHighRank(uint spellid)
+    private void LearnSpellHighRank(uint spellid)
 	{
 		LearnSpell(spellid);
 		var next = Global.SpellMgr.GetNextSpellInChain(spellid);
@@ -1695,7 +1695,7 @@ public class Pet : Guardian
 			LearnSpellHighRank(next);
 	}
 
-	void LearnSpecializationSpells()
+    private void LearnSpecializationSpells()
 	{
 		List<uint> learnedSpells = new();
 
@@ -1715,7 +1715,7 @@ public class Pet : Guardian
 		LearnSpells(learnedSpells);
 	}
 
-	void RemoveSpecializationSpells(bool clearActionBar)
+    private void RemoveSpecializationSpells(bool clearActionBar)
 	{
 		List<uint> unlearnedSpells = new();
 
@@ -1747,7 +1747,7 @@ public class Pet : Guardian
 		UnlearnSpells(unlearnedSpells, true, clearActionBar);
 	}
 
-	string GenerateActionBarData()
+    private string GenerateActionBarData()
 	{
 		StringBuilder ss = new();
 

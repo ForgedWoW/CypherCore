@@ -11,7 +11,7 @@ public class InitWorldStates : ServerPacket
 	public uint AreaID;
 	public uint SubareaID;
 	public uint MapID;
-	readonly List<WorldStateInfo> Worldstates = new();
+    private readonly List<WorldStateInfo> Worldstates = new();
 	public InitWorldStates() : base(ServerOpcodes.InitWorldStates, ConnectionType.Instance) { }
 
 	public override void Write()
@@ -54,7 +54,7 @@ public class InitWorldStates : ServerPacket
 		Worldstates.Add(new WorldStateInfo(variableID, value ? 1 : 0));
 	}
 
-	struct WorldStateInfo
+    private struct WorldStateInfo
 	{
 		public WorldStateInfo(uint variableID, int value)
 		{

@@ -11,9 +11,9 @@ namespace Forged.MapServer.Combat;
 
 public class CombatManager
 {
-	readonly Unit _owner;
-	readonly Dictionary<ObjectGuid, CombatReference> _pveRefs = new();
-	readonly Dictionary<ObjectGuid, PvPCombatReference> _pvpRefs = new();
+    private readonly Unit _owner;
+    private readonly Dictionary<ObjectGuid, CombatReference> _pveRefs = new();
+    private readonly Dictionary<ObjectGuid, PvPCombatReference> _pvpRefs = new();
 
 	public Unit Owner => _owner;
 
@@ -382,7 +382,7 @@ public class CombatManager
 		EndAllPvPCombat();
 	}
 
-	void EndAllPvPCombat()
+    private void EndAllPvPCombat()
 	{
 		lock (_pveRefs)
 		{
@@ -391,7 +391,7 @@ public class CombatManager
 		}
 	}
 
-	void PutReference(ObjectGuid guid, CombatReference refe)
+    private void PutReference(ObjectGuid guid, CombatReference refe)
 	{
 		lock (_pveRefs)
 		{

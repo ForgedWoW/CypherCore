@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Channel;
 
-class UserlistUpdate : ServerPacket
+internal class UserlistUpdate : ServerPacket
 {
 	public ObjectGuid UpdatedUserGUID;
 	public ChannelFlags ChannelFlags;

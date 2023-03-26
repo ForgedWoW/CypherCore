@@ -12,10 +12,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("reset")]
-class ResetCommands
+internal class ResetCommands
 {
 	[Command("achievements", RBACPermissions.CommandResetAchievements, true)]
-	static bool HandleResetAchievementsCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleResetAchievementsCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -32,7 +32,7 @@ class ResetCommands
 	}
 
 	[Command("honor", RBACPermissions.CommandResetHonor, true)]
-	static bool HandleResetHonorCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleResetHonorCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -46,7 +46,7 @@ class ResetCommands
 		return true;
 	}
 
-	static bool HandleResetStatsOrLevelHelper(Player player)
+    private static bool HandleResetStatsOrLevelHelper(Player player)
 	{
 		var classEntry = CliDB.ChrClassesStorage.LookupByKey(player.Class);
 
@@ -81,7 +81,7 @@ class ResetCommands
 	}
 
 	[Command("level", RBACPermissions.CommandResetLevel, true)]
-	static bool HandleResetLevelCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleResetLevelCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -121,7 +121,7 @@ class ResetCommands
 	}
 
 	[Command("spells", RBACPermissions.CommandResetSpells, true)]
-	static bool HandleResetSpellsCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleResetSpellsCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -153,7 +153,7 @@ class ResetCommands
 	}
 
 	[Command("stats", RBACPermissions.CommandResetStats, true)]
-	static bool HandleResetStatsCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleResetStatsCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -175,7 +175,7 @@ class ResetCommands
 	}
 
 	[Command("talents", RBACPermissions.CommandResetTalents, true)]
-	static bool HandleResetTalentsCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleResetTalentsCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -221,7 +221,7 @@ class ResetCommands
 	}
 
 	[Command("all", RBACPermissions.CommandResetAll, true)]
-	static bool HandleResetAllCommand(CommandHandler handler, string subCommand)
+    private static bool HandleResetAllCommand(CommandHandler handler, string subCommand)
 	{
 		AtLoginFlags atLogin;
 

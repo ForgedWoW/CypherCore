@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Token;
 
-class CommerceTokenGetMarketPriceResponse : ServerPacket
+internal class CommerceTokenGetMarketPriceResponse : ServerPacket
 {
 	public ulong CurrentMarketPrice;
 	public uint UnkInt; // send CMSG_REQUEST_WOW_TOKEN_MARKET_PRICE

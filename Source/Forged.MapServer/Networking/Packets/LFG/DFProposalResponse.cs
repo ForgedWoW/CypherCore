@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFProposalResponse : ClientPacket
+internal class DFProposalResponse : ClientPacket
 {
 	public RideTicket Ticket = new();
 	public ulong InstanceID;

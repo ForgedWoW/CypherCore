@@ -13,10 +13,10 @@ using WorldSession = Forged.MapServer.WorldSession;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("server")]
-class ServerCommands
+internal class ServerCommands
 {
 	[Command("corpses", RBACPermissions.CommandServerCorpses, true)]
-	static bool HandleServerCorpsesCommand(CommandHandler handler)
+    private static bool HandleServerCorpsesCommand(CommandHandler handler)
 	{
 		Global.WorldMgr.RemoveOldCorpses();
 
@@ -24,13 +24,13 @@ class ServerCommands
 	}
 
 	[Command("debug", RBACPermissions.CommandServerCorpses, true)]
-	static bool HandleServerDebugCommand(CommandHandler handler)
+    private static bool HandleServerDebugCommand(CommandHandler handler)
 	{
 		return false; //todo fix me
 	}
 
 	[Command("exit", RBACPermissions.CommandServerExit, true)]
-	static bool HandleServerExitCommand(CommandHandler handler)
+    private static bool HandleServerExitCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage(CypherStrings.CommandExit);
 		Global.WorldMgr.StopNow(ShutdownExitCode.Shutdown);
@@ -39,7 +39,7 @@ class ServerCommands
 	}
 
 	[Command("info", RBACPermissions.CommandServerInfo, true)]
-	static bool HandleServerInfoCommand(CommandHandler handler)
+    private static bool HandleServerInfoCommand(CommandHandler handler)
 	{
 		var playersNum = Global.WorldMgr.PlayerCount;
 		var maxPlayersNum = Global.WorldMgr.MaxPlayerCount;
@@ -63,7 +63,7 @@ class ServerCommands
 	}
 
 	[Command("motd", RBACPermissions.CommandServerMotd, true)]
-	static bool HandleServerMotdCommand(CommandHandler handler)
+    private static bool HandleServerMotdCommand(CommandHandler handler)
 	{
 		var motd = "";
 
@@ -76,7 +76,7 @@ class ServerCommands
 	}
 
 	[Command("plimit", RBACPermissions.CommandServerPlimit, true)]
-	static bool HandleServerPLimitCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleServerPLimitCommand(CommandHandler handler, StringArguments args)
 	{
 		if (!args.Empty())
 		{
@@ -154,7 +154,7 @@ class ServerCommands
 		return true;
 	}
 
-	static bool IsOnlyUser(WorldSession mySession)
+    private static bool IsOnlyUser(WorldSession mySession)
 	{
 		// check if there is any session connected from a different address
 		var myAddr = mySession ? mySession.RemoteAddress : "";
@@ -167,7 +167,7 @@ class ServerCommands
 		return true;
 	}
 
-	static bool ParseExitCode(string exitCodeStr, out int exitCode)
+    private static bool ParseExitCode(string exitCodeStr, out int exitCode)
 	{
 		if (!int.TryParse(exitCodeStr, out exitCode))
 			return false;
@@ -185,7 +185,7 @@ class ServerCommands
 		return true;
 	}
 
-	static bool ShutdownServer(StringArguments args, CommandHandler handler, ShutdownMask shutdownMask, ShutdownExitCode defaultExitCode)
+    private static bool ShutdownServer(StringArguments args, CommandHandler handler, ShutdownMask shutdownMask, ShutdownExitCode defaultExitCode)
 	{
 		if (args.Empty())
 			return false;
@@ -245,16 +245,16 @@ class ServerCommands
 	}
 
 	[CommandGroup("idleRestart")]
-	class IdleRestartCommands
+    private class IdleRestartCommands
 	{
 		[Command("", RBACPermissions.CommandServerIdlerestart, true)]
-		static bool HandleServerIdleRestartCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerIdleRestartCommand(CommandHandler handler, StringArguments args)
 		{
 			return ShutdownServer(args, handler, ShutdownMask.Restart | ShutdownMask.Idle, ShutdownExitCode.Restart);
 		}
 
 		[Command("cancel", RBACPermissions.CommandServerIdlerestartCancel, true)]
-		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
+        private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
 			var timer = Global.WorldMgr.ShutdownCancel();
 
@@ -266,16 +266,16 @@ class ServerCommands
 	}
 
 	[CommandGroup("idleshutdown")]
-	class IdleshutdownCommands
+    private class IdleshutdownCommands
 	{
 		[Command("", RBACPermissions.CommandServerIdleshutdown, true)]
-		static bool HandleServerIdleShutDownCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerIdleShutDownCommand(CommandHandler handler, StringArguments args)
 		{
 			return ShutdownServer(args, handler, ShutdownMask.Idle, ShutdownExitCode.Shutdown);
 		}
 
 		[Command("cancel", RBACPermissions.CommandServerIdleshutdownCancel, true)]
-		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
+        private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
 			var timer = Global.WorldMgr.ShutdownCancel();
 
@@ -287,16 +287,16 @@ class ServerCommands
 	}
 
 	[CommandGroup("restart")]
-	class RestartCommands
+    private class RestartCommands
 	{
 		[Command("", RBACPermissions.CommandServerRestart, true)]
-		static bool HandleServerRestartCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerRestartCommand(CommandHandler handler, StringArguments args)
 		{
 			return ShutdownServer(args, handler, ShutdownMask.Restart, ShutdownExitCode.Restart);
 		}
 
 		[Command("cancel", RBACPermissions.CommandServerRestartCancel, true)]
-		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
+        private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
 			var timer = Global.WorldMgr.ShutdownCancel();
 
@@ -307,23 +307,23 @@ class ServerCommands
 		}
 
 		[Command("force", RBACPermissions.CommandServerRestartCancel, true)]
-		static bool HandleServerForceRestartCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerForceRestartCommand(CommandHandler handler, StringArguments args)
 		{
 			return ShutdownServer(args, handler, ShutdownMask.Force | ShutdownMask.Restart, ShutdownExitCode.Restart);
 		}
 	}
 
 	[CommandGroup("shutdown")]
-	class ShutdownCommands
+    private class ShutdownCommands
 	{
 		[Command("", RBACPermissions.CommandServerShutdown, true)]
-		static bool HandleServerShutDownCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerShutDownCommand(CommandHandler handler, StringArguments args)
 		{
 			return ShutdownServer(args, handler, 0, ShutdownExitCode.Shutdown);
 		}
 
 		[Command("cancel", RBACPermissions.CommandServerShutdownCancel, true)]
-		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
+        private static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
 			var timer = Global.WorldMgr.ShutdownCancel();
 
@@ -334,17 +334,17 @@ class ServerCommands
 		}
 
 		[Command("force", RBACPermissions.CommandServerShutdownCancel, true)]
-		static bool HandleServerForceShutDownCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerForceShutDownCommand(CommandHandler handler, StringArguments args)
 		{
 			return ShutdownServer(args, handler, ShutdownMask.Force, ShutdownExitCode.Shutdown);
 		}
 	}
 
 	[CommandGroup("set")]
-	class SetCommands
+    private class SetCommands
 	{
 		[Command("difftime", RBACPermissions.CommandServerSetDifftime, true)]
-		static bool HandleServerSetDiffTimeCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerSetDiffTimeCommand(CommandHandler handler, StringArguments args)
 		{
 			if (args.Empty())
 				return false;
@@ -364,7 +364,7 @@ class ServerCommands
 		}
 
 		[Command("loglevel", RBACPermissions.CommandServerSetLoglevel, true)]
-		static bool HandleServerSetLogLevelCommand(CommandHandler handler, string type, string name, int level)
+        private static bool HandleServerSetLogLevelCommand(CommandHandler handler, string type, string name, int level)
 		{
 			if (name.IsEmpty() || level < 0 || (type != "a" && type != "l"))
 				return false;
@@ -373,7 +373,7 @@ class ServerCommands
 		}
 
 		[Command("motd", RBACPermissions.CommandServerSetMotd, true)]
-		static bool HandleServerSetMotdCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerSetMotdCommand(CommandHandler handler, StringArguments args)
 		{
 			Global.WorldMgr.SetMotd(args.NextString(""));
 			handler.SendSysMessage(CypherStrings.MotdNew, args.GetString());
@@ -382,7 +382,7 @@ class ServerCommands
 		}
 
 		[Command("closed", RBACPermissions.CommandServerSetClosed, true)]
-		static bool HandleServerSetClosedCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleServerSetClosedCommand(CommandHandler handler, StringArguments args)
 		{
 			var arg1 = args.NextString();
 

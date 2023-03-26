@@ -17,10 +17,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("character")]
-class CharacterCommands
+internal class CharacterCommands
 {
 	[Command("titles", RBACPermissions.CommandCharacterTitles, true)]
-	static bool HandleCharacterTitlesCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleCharacterTitlesCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -69,7 +69,7 @@ class CharacterCommands
 
 	//rename characters
 	[Command("rename", RBACPermissions.CommandCharacterRename, true)]
-	static bool HandleCharacterRenameCommand(CommandHandler handler, PlayerIdentifier player, [OptionalArg] string newName)
+    private static bool HandleCharacterRenameCommand(CommandHandler handler, PlayerIdentifier player, [OptionalArg] string newName)
 	{
 		if (player == null && !newName.IsEmpty())
 			return false;
@@ -188,7 +188,7 @@ class CharacterCommands
 	}
 
 	[Command("level", RBACPermissions.CommandCharacterLevel, true)]
-	static bool HandleCharacterLevelCommand(CommandHandler handler, PlayerIdentifier player, short newlevel)
+    private static bool HandleCharacterLevelCommand(CommandHandler handler, PlayerIdentifier player, short newlevel)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -238,7 +238,7 @@ class CharacterCommands
 	}
 
 	[Command("customize", RBACPermissions.CommandCharacterCustomize, true)]
-	static bool HandleCharacterCustomizeCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleCharacterCustomizeCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTarget(handler);
@@ -266,7 +266,7 @@ class CharacterCommands
 	}
 
 	[Command("changeaccount", RBACPermissions.CommandCharacterChangeaccount, true)]
-	static bool HandleCharacterChangeAccountCommand(CommandHandler handler, PlayerIdentifier player, AccountIdentifier newAccount)
+    private static bool HandleCharacterChangeAccountCommand(CommandHandler handler, PlayerIdentifier player, AccountIdentifier newAccount)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTarget(handler);
@@ -335,7 +335,7 @@ class CharacterCommands
 	}
 
 	[Command("changefaction", RBACPermissions.CommandCharacterChangefaction, true)]
-	static bool HandleCharacterChangeFactionCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleCharacterChangeFactionCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTarget(handler);
@@ -363,7 +363,7 @@ class CharacterCommands
 	}
 
 	[Command("changerace", RBACPermissions.CommandCharacterChangerace, true)]
-	static bool HandleCharacterChangeRaceCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleCharacterChangeRaceCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTarget(handler);
@@ -391,7 +391,7 @@ class CharacterCommands
 	}
 
 	[Command("reputation", RBACPermissions.CommandCharacterReputation, true)]
-	static bool HandleCharacterReputationCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleCharacterReputationCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -449,7 +449,7 @@ class CharacterCommands
 	}
 
 	[Command("erase", RBACPermissions.CommandCharacterErase, true)]
-	static bool HandleCharacterEraseCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleCharacterEraseCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		uint accountId;
 
@@ -474,7 +474,7 @@ class CharacterCommands
 	}
 
 	[CommandNonGroup("levelup", RBACPermissions.CommandLevelup)]
-	static bool HandleLevelUpCommand(CommandHandler handler, [OptionalArg] PlayerIdentifier player, short level)
+    private static bool HandleLevelUpCommand(CommandHandler handler, [OptionalArg] PlayerIdentifier player, short level)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -525,10 +525,10 @@ class CharacterCommands
 	}
 
 	[CommandGroup("deleted")]
-	class DeletedCommands
+    private class DeletedCommands
 	{
 		[Command("delete", RBACPermissions.CommandCharacterDeletedDelete, true)]
-		static bool HandleCharacterDeletedDeleteCommand(CommandHandler handler, string needle)
+        private static bool HandleCharacterDeletedDeleteCommand(CommandHandler handler, string needle)
 		{
 			List<DeletedInfo> foundList = new();
 
@@ -553,7 +553,7 @@ class CharacterCommands
 		}
 
 		[Command("list", RBACPermissions.CommandCharacterDeletedList, true)]
-		static bool HandleCharacterDeletedListCommand(CommandHandler handler, [OptionalArg] string needle)
+        private static bool HandleCharacterDeletedListCommand(CommandHandler handler, [OptionalArg] string needle)
 		{
 			List<DeletedInfo> foundList = new();
 
@@ -574,7 +574,7 @@ class CharacterCommands
 		}
 
 		[Command("restore", RBACPermissions.CommandCharacterDeletedRestore, true)]
-		static bool HandleCharacterDeletedRestoreCommand(CommandHandler handler, string needle, [OptionalArg] string newCharName, AccountIdentifier newAccount)
+        private static bool HandleCharacterDeletedRestoreCommand(CommandHandler handler, string needle, [OptionalArg] string newCharName, AccountIdentifier newAccount)
 		{
 			List<DeletedInfo> foundList = new();
 
@@ -625,7 +625,7 @@ class CharacterCommands
 		}
 
 		[Command("old", RBACPermissions.CommandCharacterDeletedOld, true)]
-		static bool HandleCharacterDeletedOldCommand(CommandHandler handler, ushort? days)
+        private static bool HandleCharacterDeletedOldCommand(CommandHandler handler, ushort? days)
 		{
 			var keepDays = GetDefaultValue("CharDelete.KeepDays", 30);
 
@@ -639,7 +639,7 @@ class CharacterCommands
 			return true;
 		}
 
-		static bool GetDeletedCharacterInfoList(List<DeletedInfo> foundList, string searchString)
+        private static bool GetDeletedCharacterInfoList(List<DeletedInfo> foundList, string searchString)
 		{
 			SQLResult result;
 			PreparedStatement stmt;
@@ -691,7 +691,7 @@ class CharacterCommands
 			return true;
 		}
 
-		static void HandleCharacterDeletedListHelper(List<DeletedInfo> foundList, CommandHandler handler)
+        private static void HandleCharacterDeletedListHelper(List<DeletedInfo> foundList, CommandHandler handler)
 		{
 			if (handler.Session == null)
 			{
@@ -724,7 +724,7 @@ class CharacterCommands
 				handler.SendSysMessage(CypherStrings.CharacterDeletedListBar);
 		}
 
-		static void HandleCharacterDeletedRestoreHelper(DeletedInfo delInfo, CommandHandler handler)
+        private static void HandleCharacterDeletedRestoreHelper(DeletedInfo delInfo, CommandHandler handler)
 		{
 			if (delInfo.accountName.IsEmpty()) // account not exist
 			{
@@ -759,7 +759,7 @@ class CharacterCommands
 			Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(delInfo.guid, false, delInfo.name);
 		}
 
-		struct DeletedInfo
+        private struct DeletedInfo
 		{
 			public ObjectGuid guid;    // the GUID from the character
 			public string name;        // the character name

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class ClassTalentsSetUsesSharedActionBars : ClientPacket
+internal class ClassTalentsSetUsesSharedActionBars : ClientPacket
 {
 	public int ConfigID;
 	public bool UsesShared;

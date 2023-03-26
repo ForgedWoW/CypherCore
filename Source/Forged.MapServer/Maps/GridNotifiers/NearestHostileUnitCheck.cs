@@ -10,9 +10,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class NearestHostileUnitCheck : ICheck<Unit>
 {
-	readonly Creature _me;
-	readonly bool _playerOnly;
-	float _range;
+    private readonly Creature _me;
+    private readonly bool _playerOnly;
+    private float _range;
 
 	public NearestHostileUnitCheck(Creature creature, float dist = 0, bool playerOnly = false)
 	{

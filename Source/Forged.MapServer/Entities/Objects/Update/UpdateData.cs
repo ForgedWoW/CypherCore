@@ -10,11 +10,11 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateData
 {
-	readonly List<ObjectGuid> _destroyGUIDs = new();
-	readonly List<ObjectGuid> _outOfRangeGUIDs = new();
-	readonly ByteBuffer _data = new();
-	uint _mapId;
-	uint _blockCount;
+    private readonly List<ObjectGuid> _destroyGUIDs = new();
+    private readonly List<ObjectGuid> _outOfRangeGUIDs = new();
+    private readonly ByteBuffer _data = new();
+    private uint _mapId;
+    private uint _blockCount;
 
 	public UpdateData(uint mapId)
 	{

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LfgOfferContinue : ServerPacket
+internal class LfgOfferContinue : ServerPacket
 {
 	public uint Slot;
 

@@ -5,9 +5,9 @@ using System;
 
 namespace Forged.MapServer.Chat;
 
-struct Tail
+internal struct Tail
 {
-	string _str;
+    private string _str;
 
 	public bool IsEmpty()
 	{

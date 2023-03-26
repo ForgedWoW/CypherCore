@@ -21,9 +21,9 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 {
 	private readonly HotfixDatabase _hotfixDatabase;
 	private readonly Locale _defaultLocale;
-	readonly string _tableName = typeof(T).Name;
-	WDCHeader _header;
-	string _db2Name;
+    private readonly string _tableName = typeof(T).Name;
+    private WDCHeader _header;
+    private string _db2Name;
 
 	public DB6Storage(HotfixDatabase hotfixDatabase, Locale defaultLocale = Locale.enUS)
 	{
@@ -215,7 +215,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 		return Keys.Max() + 1;
 	}
 
-	void LoadFromDB(bool custom, HotfixStatements preparedStatement)
+    private void LoadFromDB(bool custom, HotfixStatements preparedStatement)
 	{
 		// Even though this query is executed only once, prepared statement is used to send data from mysql server in binary format
 		var stmt = _hotfixDatabase.GetPreparedStatement(preparedStatement);
@@ -402,7 +402,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 		} while (result.NextRow());
 	}
 
-	void LoadStringsFromDB(bool custom, Locale locale, HotfixStatements preparedStatement)
+    private void LoadStringsFromDB(bool custom, Locale locale, HotfixStatements preparedStatement)
 	{
 		var stmt = _hotfixDatabase.GetPreparedStatement(preparedStatement);
 		stmt.AddValue(0, !custom);
@@ -431,7 +431,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 		} while (result.NextRow());
 	}
 
-	TValue[] ReadArray<TValue>(SQLResult result, int dbIndex, int arrayLength)
+    private TValue[] ReadArray<TValue>(SQLResult result, int dbIndex, int arrayLength)
 	{
 		var values = new TValue[arrayLength];
 
@@ -441,7 +441,7 @@ public class DB6Storage<T> : Dictionary<uint, T>, IDB2Storage where T : new()
 		return values;
 	}
 
-	void WriteArrayValues(object entry, FieldInfo fieldInfo, ByteBuffer buffer)
+    private void WriteArrayValues(object entry, FieldInfo fieldInfo, ByteBuffer buffer)
 	{
 		var type = fieldInfo.FieldType.GetElementType();
 		var array = (Array)fieldInfo.GetValue(entry);

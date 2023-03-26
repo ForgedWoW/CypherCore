@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class AccountMountUpdate : ServerPacket
+internal class AccountMountUpdate : ServerPacket
 {
 	public bool IsFullUpdate = false;
 	public Dictionary<uint, MountStatusFlags> Mounts = new();

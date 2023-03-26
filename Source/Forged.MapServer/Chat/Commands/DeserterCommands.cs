@@ -6,9 +6,9 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("deserter")]
-class DeserterCommands
+internal class DeserterCommands
 {
-	static bool HandleDeserterAdd(CommandHandler handler, uint time, bool isInstance)
+    private static bool HandleDeserterAdd(CommandHandler handler, uint time, bool isInstance)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -33,7 +33,7 @@ class DeserterCommands
 		return true;
 	}
 
-	static bool HandleDeserterRemove(CommandHandler handler, bool isInstance)
+    private static bool HandleDeserterRemove(CommandHandler handler, bool isInstance)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -50,32 +50,32 @@ class DeserterCommands
 	}
 
 	[CommandGroup("instance")]
-	class DeserterInstanceCommands
+    private class DeserterInstanceCommands
 	{
 		[Command("add", RBACPermissions.CommandDeserterInstanceAdd)]
-		static bool HandleDeserterInstanceAdd(CommandHandler handler, uint time)
+        private static bool HandleDeserterInstanceAdd(CommandHandler handler, uint time)
 		{
 			return HandleDeserterAdd(handler, time, true);
 		}
 
 		[Command("remove", RBACPermissions.CommandDeserterInstanceRemove)]
-		static bool HandleDeserterInstanceRemove(CommandHandler handler)
+        private static bool HandleDeserterInstanceRemove(CommandHandler handler)
 		{
 			return HandleDeserterRemove(handler, true);
 		}
 	}
 
 	[CommandGroup("bg")]
-	class DeserterBGCommands
+    private class DeserterBGCommands
 	{
 		[Command("add", RBACPermissions.CommandDeserterBgAdd)]
-		static bool HandleDeserterBGAdd(CommandHandler handler, uint time)
+        private static bool HandleDeserterBGAdd(CommandHandler handler, uint time)
 		{
 			return HandleDeserterAdd(handler, time, false);
 		}
 
 		[Command("remove", RBACPermissions.CommandDeserterBgRemove)]
-		static bool HandleDeserterBGRemove(CommandHandler handler)
+        private static bool HandleDeserterBGRemove(CommandHandler handler)
 		{
 			return HandleDeserterRemove(handler, false);
 		}

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class RequestWorldQuestUpdate : ClientPacket
+internal class RequestWorldQuestUpdate : ClientPacket
 {
 	public RequestWorldQuestUpdate(WorldPacket packet) : base(packet) { }
 

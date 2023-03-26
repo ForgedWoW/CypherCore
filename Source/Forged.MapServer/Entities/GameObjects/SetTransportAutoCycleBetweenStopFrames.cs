@@ -3,9 +3,9 @@
 
 namespace Forged.MapServer.Entities.GameObjects;
 
-class SetTransportAutoCycleBetweenStopFrames : GameObjectTypeBase.CustomCommand
+internal class SetTransportAutoCycleBetweenStopFrames : GameObjectTypeBase.CustomCommand
 {
-	readonly bool _on;
+    private readonly bool _on;
 
 	public SetTransportAutoCycleBetweenStopFrames(bool on)
 	{

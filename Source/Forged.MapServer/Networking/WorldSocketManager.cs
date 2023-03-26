@@ -11,9 +11,9 @@ namespace Forged.MapServer.Networking;
 
 public class WorldSocketManager : SocketManager<WorldSocket>
 {
-	AsyncAcceptor _instanceAcceptor;
-	int _socketSendBufferSize;
-	bool _tcpNoDelay;
+    private AsyncAcceptor _instanceAcceptor;
+    private int _socketSendBufferSize;
+    private bool _tcpNoDelay;
 
 	public override bool StartNetwork(string bindIp, int port, int threadCount)
 	{

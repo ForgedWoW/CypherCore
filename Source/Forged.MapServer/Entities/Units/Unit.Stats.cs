@@ -1005,7 +1005,7 @@ public partial class Unit
 		ApplyModUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.ManaCostModifier, (int)school), mod, apply);
 	}
 
-	void UpdateUnitMod(UnitMods unitMod)
+    private void UpdateUnitMod(UnitMods unitMod)
 	{
 		if (!CanModifyStats())
 			return;
@@ -1083,12 +1083,12 @@ public partial class Unit
 		}
 	}
 
-	int GetMinPower(PowerType power)
+    private int GetMinPower(PowerType power)
 	{
 		return power == PowerType.LunarPower ? -100 : 0;
 	}
 
-	Stats GetStatByAuraGroup(UnitMods unitMod)
+    private Stats GetStatByAuraGroup(UnitMods unitMod)
 	{
 		var stat = Stats.Strength;
 
@@ -1117,13 +1117,13 @@ public partial class Unit
 		return stat;
 	}
 
-	void UpdateStatBuffModForClient(Stats stat)
+    private void UpdateStatBuffModForClient(Stats stat)
 	{
 		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.StatPosBuff, (int)stat), (int)_floatStatPosBuff[(int)stat]);
 		SetUpdateFieldValue(ref Values.ModifyValue(UnitData).ModifyValue(UnitData.StatNegBuff, (int)stat), (int)_floatStatNegBuff[(int)stat]);
 	}
 
-	void TriggerOnPowerChangeAuras(PowerType power, int oldVal, int newVal)
+    private void TriggerOnPowerChangeAuras(PowerType power, int oldVal, int newVal)
 	{
 		var effects = GetAuraEffectsByType(AuraType.TriggerSpellOnPowerPct);
 		var effectsAmount = GetAuraEffectsByType(AuraType.TriggerSpellOnPowerAmount);
@@ -1166,12 +1166,12 @@ public partial class Unit
 	}
 
 	// player or player's pet resilience (-1%)
-	double GetDamageReduction(double damage)
+    private double GetDamageReduction(double damage)
 	{
 		return GetCombatRatingDamageReduction(CombatRating.ResiliencePlayerDamage, 1.0f, 100.0f, damage);
 	}
 
-	double GetCombatRatingReduction(CombatRating cr)
+    private double GetCombatRatingReduction(CombatRating cr)
 	{
 		var player = AsPlayer;
 
@@ -1191,14 +1191,14 @@ public partial class Unit
 		return 0.0f;
 	}
 
-	double GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, double damage)
+    private double GetCombatRatingDamageReduction(CombatRating cr, float rate, float cap, double damage)
 	{
 		var percent = Math.Min(GetCombatRatingReduction(cr) * rate, cap);
 
 		return MathFunctions.CalculatePct(damage, percent);
 	}
 
-	double GetUnitCriticalChanceDone(WeaponAttackType attackType)
+    private double GetUnitCriticalChanceDone(WeaponAttackType attackType)
 	{
 		double chance = 0.0f;
 		var thisPlayer = AsPlayer;
@@ -1234,7 +1234,7 @@ public partial class Unit
 		return chance;
 	}
 
-	double GetUnitCriticalChanceTaken(Unit attacker, WeaponAttackType attackType, double critDone)
+    private double GetUnitCriticalChanceTaken(Unit attacker, WeaponAttackType attackType, double critDone)
 	{
 		var chance = critDone;
 
@@ -1258,7 +1258,7 @@ public partial class Unit
 		return Math.Max(chance, 0.0f);
 	}
 
-	double GetUnitDodgeChance(WeaponAttackType attType, Unit victim)
+    private double GetUnitDodgeChance(WeaponAttackType attType, Unit victim)
 	{
 		var levelDiff = (int)(victim.GetLevelForTarget(this) - GetLevelForTarget(victim));
 
@@ -1299,7 +1299,7 @@ public partial class Unit
 		return Math.Max(chance, 0.0f);
 	}
 
-	double GetUnitParryChance(WeaponAttackType attType, Unit victim)
+    private double GetUnitParryChance(WeaponAttackType attType, Unit victim)
 	{
 		var levelDiff = (int)(victim.GetLevelForTarget(this) - GetLevelForTarget(victim));
 
@@ -1343,14 +1343,14 @@ public partial class Unit
 		return Math.Max(chance, 0.0f);
 	}
 
-	float GetUnitMissChance()
+    private float GetUnitMissChance()
 	{
 		var miss_chance = 5.0f;
 
 		return miss_chance;
 	}
 
-	double GetUnitBlockChance(WeaponAttackType attType, Unit victim)
+    private double GetUnitBlockChance(WeaponAttackType attType, Unit victim)
 	{
 		var levelDiff = (int)(victim.GetLevelForTarget(this) - GetLevelForTarget(victim));
 

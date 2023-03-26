@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Forged.MapServer.Warden;
 
-class CategoryCheck
+internal class CategoryCheck
 {
 	public List<ushort> Checks = new();
 	public ushort CurrentIndex;

@@ -718,7 +718,7 @@ public partial class Player
 		return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(Map, Zone);
 	}
 
-	void _InitHonorLevelOnLoadFromDB(uint honor, uint honorLevel)
+    private void _InitHonorLevelOnLoadFromDB(uint honor, uint honorLevel)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.HonorLevel), honorLevel);
 		UpdateHonorNextLevel();
@@ -726,12 +726,12 @@ public partial class Player
 		AddHonorXp(honor);
 	}
 
-	void RewardPlayerWithRewardPack(uint rewardPackId)
+    private void RewardPlayerWithRewardPack(uint rewardPackId)
 	{
 		RewardPlayerWithRewardPack(CliDB.RewardPackStorage.LookupByKey(rewardPackId));
 	}
 
-	void RewardPlayerWithRewardPack(RewardPackRecord rewardPackEntry)
+    private void RewardPlayerWithRewardPack(RewardPackRecord rewardPackEntry)
 	{
 		if (rewardPackEntry == null)
 			return;
@@ -754,7 +754,7 @@ public partial class Player
 			AddItem(rewardPackXItem.ItemID, rewardPackXItem.ItemQuantity);
 	}
 
-	void SetHonorLevel(byte level)
+    private void SetHonorLevel(byte level)
 	{
 		var oldHonorLevel = (byte)HonorLevel;
 
@@ -767,7 +767,7 @@ public partial class Player
 		UpdateCriteria(CriteriaType.HonorLevelIncrease);
 	}
 
-	void UpdateHonorNextLevel()
+    private void UpdateHonorNextLevel()
 	{
 		// 5500 at honor level 1
 		// no idea what between here
@@ -775,7 +775,7 @@ public partial class Player
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.HonorNextLevel), 8800u);
 	}
 
-	void DisablePvpRules()
+    private void DisablePvpRules()
 	{
 		// Don't disable pvp rules when in pvp zone.
 		if (IsInAreaThatActivatesPvpTalents())
@@ -795,17 +795,17 @@ public partial class Player
 		}
 	}
 
-	bool HasPvpRulesEnabled()
+    private bool HasPvpRulesEnabled()
 	{
 		return HasAura(PlayerConst.SpellPvpRulesEnabled);
 	}
 
-	bool IsInAreaThatActivatesPvpTalents()
+    private bool IsInAreaThatActivatesPvpTalents()
 	{
 		return IsAreaThatActivatesPvpTalents(Area);
 	}
 
-	bool IsAreaThatActivatesPvpTalents(uint areaId)
+    private bool IsAreaThatActivatesPvpTalents(uint areaId)
 	{
 		if (InBattleground)
 			return true;
@@ -830,14 +830,14 @@ public partial class Player
 		return false;
 	}
 
-	void SetMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, bool mercenary)
+    private void SetMercenaryForBattlegroundQueueType(BattlegroundQueueTypeId bgQueueTypeId, bool mercenary)
 	{
 		for (byte i = 0; i < SharedConst.MaxPlayerBGQueues; ++i)
 			if (_battlegroundQueueIdRecs[i].BgQueueTypeId == bgQueueTypeId)
 				_battlegroundQueueIdRecs[i].Mercenary = mercenary;
 	}
 
-	bool CanReportAfkDueToLimit()
+    private bool CanReportAfkDueToLimit()
 	{
 		// a player can complain about 15 people per 5 minutes
 		if (_bgData.BgAfkReportedCount++ >= 15)

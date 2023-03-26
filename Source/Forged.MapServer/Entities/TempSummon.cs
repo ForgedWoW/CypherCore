@@ -19,13 +19,13 @@ namespace Forged.MapServer.Entities;
 public class TempSummon : Creature
 {
 	public SummonPropertiesRecord SummonPropertiesRecord;
-	TempSummonType _summonType;
-	uint _timer;
-	uint _lifetime;
-	ObjectGuid _summonerGuid;
-	uint? _creatureIdVisibleToSummoner;
-	uint? _displayIdVisibleToSummoner;
-	bool _canFollowOwner;
+    private TempSummonType _summonType;
+    private uint _timer;
+    private uint _lifetime;
+    private ObjectGuid _summonerGuid;
+    private uint? _creatureIdVisibleToSummoner;
+    private uint? _displayIdVisibleToSummoner;
+    private bool _canFollowOwner;
 
 	public TempSummon(SummonPropertiesRecord propertiesRecord, WorldObject owner, bool isWorldObject) : base(isWorldObject)
 	{
@@ -462,7 +462,7 @@ public class TempSummon : Creature
 		_canFollowOwner = can;
 	}
 
-	TempSummonType GetSummonType()
+    private TempSummonType GetSummonType()
 	{
 		return _summonType;
 	}

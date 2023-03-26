@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemPurchaseRefund : ClientPacket
+internal class ItemPurchaseRefund : ClientPacket
 {
 	public ObjectGuid ItemGUID;
 	public ItemPurchaseRefund(WorldPacket packet) : base(packet) { }

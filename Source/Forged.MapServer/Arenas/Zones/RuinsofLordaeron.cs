@@ -9,7 +9,7 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
-class RuinsofLordaeronArena : Arena
+internal class RuinsofLordaeronArena : Arena
 {
 	public RuinsofLordaeronArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate) { }
 
@@ -87,7 +87,7 @@ class RuinsofLordaeronArena : Arena
 	}
 }
 
-struct RuinsofLordaeronObjectTypes
+internal struct RuinsofLordaeronObjectTypes
 {
 	public const int Door1 = 0;
 	public const int Door2 = 1;
@@ -96,7 +96,7 @@ struct RuinsofLordaeronObjectTypes
 	public const int Max = 4;
 }
 
-struct RuinsofLordaeronGameObjects
+internal struct RuinsofLordaeronGameObjects
 {
 	public const uint Door1 = 185918;
 	public const uint Door2 = 185917;

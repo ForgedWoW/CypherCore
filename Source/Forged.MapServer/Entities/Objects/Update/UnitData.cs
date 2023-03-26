@@ -1011,7 +1011,7 @@ public class UnitData : BaseUpdateData<Unit>
 		ChangesMask.ResetAll();
 	}
 
-	uint GetViewerDependentDisplayId(UnitData unitData, Unit unit, Player receiver)
+    private uint GetViewerDependentDisplayId(UnitData unitData, Unit unit, Player receiver)
 	{
 		uint displayId = unitData.DisplayID;
 
@@ -1055,7 +1055,7 @@ public class UnitData : BaseUpdateData<Unit>
 		return displayId;
 	}
 
-	uint GetViewerDependentNpcFlags(UnitData unitData, int i, Unit unit, Player receiver)
+    private uint GetViewerDependentNpcFlags(UnitData unitData, int i, Unit unit, Player receiver)
 	{
 		var npcFlag = unitData.NpcFlags[i];
 
@@ -1065,7 +1065,7 @@ public class UnitData : BaseUpdateData<Unit>
 		return npcFlag;
 	}
 
-	uint GetViewerDependentFactionTemplate(UnitData unitData, Unit unit, Player receiver)
+    private uint GetViewerDependentFactionTemplate(UnitData unitData, Unit unit, Player receiver)
 	{
 		uint factionTemplate = unitData.FactionTemplate;
 
@@ -1082,7 +1082,7 @@ public class UnitData : BaseUpdateData<Unit>
 		return factionTemplate;
 	}
 
-	uint GetViewerDependentFlags(UnitData unitData, Unit unit, Player receiver)
+    private uint GetViewerDependentFlags(UnitData unitData, Unit unit, Player receiver)
 	{
 		uint flags = unitData.Flags;
 
@@ -1093,7 +1093,7 @@ public class UnitData : BaseUpdateData<Unit>
 		return flags;
 	}
 
-	uint GetViewerDependentFlags3(UnitData unitData, Unit unit, Player receiver)
+    private uint GetViewerDependentFlags3(UnitData unitData, Unit unit, Player receiver)
 	{
 		uint flags = unitData.Flags3;
 
@@ -1103,13 +1103,13 @@ public class UnitData : BaseUpdateData<Unit>
 		return flags;
 	}
 
-	uint GetViewerDependentAuraState(UnitData unitData, Unit unit, Player receiver)
+    private uint GetViewerDependentAuraState(UnitData unitData, Unit unit, Player receiver)
 	{
 		// Check per caster aura states to not enable using a spell in client if specified aura is not by target
 		return unit.BuildAuraStateUpdateForTarget(receiver);
 	}
 
-	byte GetViewerDependentPvpFlags(UnitData unitData, Unit unit, Player receiver)
+    private byte GetViewerDependentPvpFlags(UnitData unitData, Unit unit, Player receiver)
 	{
 		byte pvpFlags = unitData.PvpFlags;
 

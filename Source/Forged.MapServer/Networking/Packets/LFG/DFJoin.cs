@@ -6,13 +6,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFJoin : ClientPacket
+internal class DFJoin : ClientPacket
 {
 	public bool QueueAsGroup;
 	public byte PartyIndex;
 	public LfgRoles Roles;
 	public List<uint> Slots = new();
-	bool Unknown; // Always false in 7.2.5
+    private bool Unknown; // Always false in 7.2.5
 	public DFJoin(WorldPacket packet) : base(packet) { }
 
 	public override void Read()

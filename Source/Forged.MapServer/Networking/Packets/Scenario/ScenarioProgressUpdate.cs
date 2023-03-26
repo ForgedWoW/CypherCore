@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-class ScenarioProgressUpdate : ServerPacket
+internal class ScenarioProgressUpdate : ServerPacket
 {
 	public CriteriaProgressPkt CriteriaProgress;
 	public ScenarioProgressUpdate() : base(ServerOpcodes.ScenarioProgressUpdate, ConnectionType.Instance) { }

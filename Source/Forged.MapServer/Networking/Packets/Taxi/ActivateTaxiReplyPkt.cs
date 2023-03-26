@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Taxi;
 
-class ActivateTaxiReplyPkt : ServerPacket
+internal class ActivateTaxiReplyPkt : ServerPacket
 {
 	public ActivateTaxiReply Reply;
 	public ActivateTaxiReplyPkt() : base(ServerOpcodes.ActivateTaxiReply) { }

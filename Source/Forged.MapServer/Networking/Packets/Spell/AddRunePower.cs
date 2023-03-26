@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class AddRunePower : ServerPacket
+internal class AddRunePower : ServerPacket
 {
 	public uint AddedRunesMask;
 	public AddRunePower() : base(ServerOpcodes.AddRunePower, ConnectionType.Instance) { }

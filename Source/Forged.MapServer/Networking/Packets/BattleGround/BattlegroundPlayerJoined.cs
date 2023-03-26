@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlegroundPlayerJoined : ServerPacket
+internal class BattlegroundPlayerJoined : ServerPacket
 {
 	public ObjectGuid Guid;
 	public BattlegroundPlayerJoined() : base(ServerOpcodes.BattlegroundPlayerJoined, ConnectionType.Instance) { }

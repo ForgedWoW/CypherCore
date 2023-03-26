@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class SummonResponse : ClientPacket
+internal class SummonResponse : ClientPacket
 {
 	public bool Accept;
 	public ObjectGuid SummonerGUID;

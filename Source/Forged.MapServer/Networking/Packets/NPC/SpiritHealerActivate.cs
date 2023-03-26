@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class SpiritHealerActivate : ClientPacket
+internal class SpiritHealerActivate : ClientPacket
 {
 	public ObjectGuid Healer;
 	public SpiritHealerActivate(WorldPacket packet) : base(packet) { }

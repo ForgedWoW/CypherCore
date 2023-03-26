@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class WrapItem : ClientPacket
+internal class WrapItem : ClientPacket
 {
 	public InvUpdate Inv;
 	public WrapItem(WorldPacket packet) : base(packet) { }

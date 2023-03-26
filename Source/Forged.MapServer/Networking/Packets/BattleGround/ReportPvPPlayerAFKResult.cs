@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class ReportPvPPlayerAFKResult : ServerPacket
+internal class ReportPvPPlayerAFKResult : ServerPacket
 {
 	public enum ResultCode
 	{

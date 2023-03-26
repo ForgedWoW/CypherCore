@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class UseCritterItem : ClientPacket
+internal class UseCritterItem : ClientPacket
 {
 	public ObjectGuid ItemGuid;
 	public UseCritterItem(WorldPacket packet) : base(packet) { }

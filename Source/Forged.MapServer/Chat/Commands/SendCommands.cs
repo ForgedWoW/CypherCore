@@ -12,10 +12,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("send")]
-class SendCommands
+internal class SendCommands
 {
 	[Command("mail", RBACPermissions.CommandSendMail, true)]
-	static bool HandleSendMailCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text)
+    private static bool HandleSendMailCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text)
 	{
 		// format: name "subject text" "mail text"
 		if (playerIdentifier == null)
@@ -45,7 +45,7 @@ class SendCommands
 	}
 
 	[Command("items", RBACPermissions.CommandSendItems, true)]
-	static bool HandleSendItemsCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, string itemsStr)
+    private static bool HandleSendItemsCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, string itemsStr)
 	{
 		// format: name "subject text" "mail text" item1[:count1] item2[:count2] ... item12[:count12]
 		if (playerIdentifier == null)
@@ -134,7 +134,7 @@ class SendCommands
 	}
 
 	[Command("money", RBACPermissions.CommandSendMoney, true)]
-	static bool HandleSendMoneyCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, long money)
+    private static bool HandleSendMoneyCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString subject, QuotedString text, long money)
 	{
 		// format: name "subject text" "mail text" money
 		if (playerIdentifier == null)
@@ -167,7 +167,7 @@ class SendCommands
 	}
 
 	[Command("message", RBACPermissions.CommandSendMessage, true)]
-	static bool HandleSendMessageCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString msgStr)
+    private static bool HandleSendMessageCommand(CommandHandler handler, PlayerIdentifier playerIdentifier, QuotedString msgStr)
 	{
 		// - Find the player
 		if (playerIdentifier == null)

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class CapturePointRemoved : ServerPacket
+internal class CapturePointRemoved : ServerPacket
 {
 	public ObjectGuid CapturePointGUID;
 

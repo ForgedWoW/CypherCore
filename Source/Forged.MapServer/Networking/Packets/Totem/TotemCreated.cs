@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Totem;
 
-class TotemCreated : ServerPacket
+internal class TotemCreated : ServerPacket
 {
 	public ObjectGuid Totem;
 	public uint SpellID;

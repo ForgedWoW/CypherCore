@@ -28,7 +28,7 @@ public class TransmogrificationHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TransmogrifyItems)]
-	void HandleTransmogrifyItems(TransmogrifyItems transmogrifyItems)
+    private void HandleTransmogrifyItems(TransmogrifyItems transmogrifyItems)
 	{
 		var player = Player;
 

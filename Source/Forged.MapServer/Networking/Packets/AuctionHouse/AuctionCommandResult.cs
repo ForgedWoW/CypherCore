@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionCommandResult : ServerPacket
+internal class AuctionCommandResult : ServerPacket
 {
 	public uint AuctionID;
 

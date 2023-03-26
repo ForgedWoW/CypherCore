@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Channel;
 
-class ChannelPassword : ClientPacket
+internal class ChannelPassword : ClientPacket
 {
 	public string ChannelName;
 	public string Password;

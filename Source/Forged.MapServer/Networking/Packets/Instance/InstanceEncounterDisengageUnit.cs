@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceEncounterDisengageUnit : ServerPacket
+internal class InstanceEncounterDisengageUnit : ServerPacket
 {
 	public ObjectGuid Unit;
 	public InstanceEncounterDisengageUnit() : base(ServerOpcodes.InstanceEncounterDisengageUnit, ConnectionType.Instance) { }

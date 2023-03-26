@@ -9,15 +9,15 @@ namespace Forged.MapServer.Entities.Units;
 
 public class HealInfo
 {
-	readonly Unit _healer;
-	readonly Unit _target;
-	readonly double _originalHeal;
-	readonly SpellInfo _spellInfo;
-	readonly SpellSchoolMask _schoolMask;
-	double _heal;
-	double _effectiveHeal;
-	double _absorb;
-	ProcFlagsHit _hitMask;
+    private readonly Unit _healer;
+    private readonly Unit _target;
+    private readonly double _originalHeal;
+    private readonly SpellInfo _spellInfo;
+    private readonly SpellSchoolMask _schoolMask;
+    private double _heal;
+    private double _effectiveHeal;
+    private double _absorb;
+    private ProcFlagsHit _hitMask;
 
 	public Unit Healer => _healer;
 	public Unit Target => _target;

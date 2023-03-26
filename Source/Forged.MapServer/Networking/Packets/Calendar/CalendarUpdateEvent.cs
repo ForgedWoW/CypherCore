@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarUpdateEvent : ClientPacket
+internal class CalendarUpdateEvent : ClientPacket
 {
 	public uint MaxSize;
 	public CalendarUpdateEventInfo EventInfo;

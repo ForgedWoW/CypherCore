@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionOwnerBidNotification : ServerPacket
+internal class AuctionOwnerBidNotification : ServerPacket
 {
 	public AuctionOwnerNotification Info;
 	public ObjectGuid Bidder;

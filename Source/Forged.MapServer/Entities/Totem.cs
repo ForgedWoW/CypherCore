@@ -14,8 +14,8 @@ namespace Forged.MapServer.Entities;
 
 public class Totem : Minion
 {
-	TotemType _totemType;
-	uint _duration;
+    private TotemType _totemType;
+    private uint _duration;
 
 	public Totem(SummonPropertiesRecord propertiesRecord, Unit owner) : base(propertiesRecord, owner, false)
 	{

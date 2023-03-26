@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class TogglePvP : ClientPacket
+internal class TogglePvP : ClientPacket
 {
 	public TogglePvP(WorldPacket packet) : base(packet) { }
 

@@ -11,10 +11,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("ticket")]
-class TicketCommands
+internal class TicketCommands
 {
 	[Command("togglesystem", RBACPermissions.CommandTicketTogglesystem, true)]
-	static bool HandleToggleGMTicketSystem(CommandHandler handler)
+    private static bool HandleToggleGMTicketSystem(CommandHandler handler)
 	{
 		if (!GetDefaultValue("Support.TicketsEnabled", false))
 		{
@@ -30,7 +30,7 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleTicketAssignToCommand<T>(CommandHandler handler, uint ticketId, string targetName) where T : Ticket
+    private static bool HandleTicketAssignToCommand<T>(CommandHandler handler, uint ticketId, string targetName) where T : Ticket
 	{
 		if (targetName.IsEmpty())
 			return false;
@@ -87,7 +87,7 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleCloseByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    private static bool HandleCloseByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
@@ -124,14 +124,14 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleClosedListCommand<T>(CommandHandler handler) where T : Ticket
+    private static bool HandleClosedListCommand<T>(CommandHandler handler) where T : Ticket
 	{
 		Global.SupportMgr.ShowClosedList<T>(handler);
 
 		return true;
 	}
 
-	static bool HandleCommentCommand<T>(CommandHandler handler, uint ticketId, QuotedString comment) where T : Ticket
+    private static bool HandleCommentCommand<T>(CommandHandler handler, uint ticketId, QuotedString comment) where T : Ticket
 	{
 		if (comment.IsEmpty())
 			return false;
@@ -167,7 +167,7 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleDeleteByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    private static bool HandleDeleteByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
@@ -193,14 +193,14 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleListCommand<T>(CommandHandler handler) where T : Ticket
+    private static bool HandleListCommand<T>(CommandHandler handler) where T : Ticket
 	{
 		Global.SupportMgr.ShowList<T>(handler);
 
 		return true;
 	}
 
-	static bool HandleResetCommand<T>(CommandHandler handler) where T : Ticket
+    private static bool HandleResetCommand<T>(CommandHandler handler) where T : Ticket
 	{
 		if (Global.SupportMgr.GetOpenTicketCount<T>() != 0)
 		{
@@ -217,7 +217,7 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleUnAssignCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    private static bool HandleUnAssignCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
@@ -272,7 +272,7 @@ class TicketCommands
 		return true;
 	}
 
-	static bool HandleGetByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    private static bool HandleGetByIdCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
@@ -289,166 +289,166 @@ class TicketCommands
 	}
 
 	[CommandGroup("bug")]
-	class TicketBugCommands
+    private class TicketBugCommands
 	{
 		[Command("assign", RBACPermissions.CommandTicketBugAssign, true)]
-		static bool HandleTicketBugAssignCommand(CommandHandler handler, uint ticketId, string targetName)
+        private static bool HandleTicketBugAssignCommand(CommandHandler handler, uint ticketId, string targetName)
 		{
 			return HandleTicketAssignToCommand<BugTicket>(handler, ticketId, targetName);
 		}
 
 		[Command("close", RBACPermissions.CommandTicketBugClose, true)]
-		static bool HandleTicketBugCloseCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketBugCloseCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleCloseByIdCommand<BugTicket>(handler, ticketId);
 		}
 
 		[Command("closedlist", RBACPermissions.CommandTicketBugClosedlist, true)]
-		static bool HandleTicketBugClosedListCommand(CommandHandler handler)
+        private static bool HandleTicketBugClosedListCommand(CommandHandler handler)
 		{
 			return HandleClosedListCommand<BugTicket>(handler);
 		}
 
 		[Command("comment", RBACPermissions.CommandTicketBugComment, true)]
-		static bool HandleTicketBugCommentCommand(CommandHandler handler, uint ticketId, QuotedString comment)
+        private static bool HandleTicketBugCommentCommand(CommandHandler handler, uint ticketId, QuotedString comment)
 		{
 			return HandleCommentCommand<BugTicket>(handler, ticketId, comment);
 		}
 
 		[Command("delete", RBACPermissions.CommandTicketBugDelete, true)]
-		static bool HandleTicketBugDeleteCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketBugDeleteCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleDeleteByIdCommand<BugTicket>(handler, ticketId);
 		}
 
 		[Command("list", RBACPermissions.CommandTicketBugList, true)]
-		static bool HandleTicketBugListCommand(CommandHandler handler)
+        private static bool HandleTicketBugListCommand(CommandHandler handler)
 		{
 			return HandleListCommand<BugTicket>(handler);
 		}
 
 		[Command("unassign", RBACPermissions.CommandTicketBugUnassign, true)]
-		static bool HandleTicketBugUnAssignCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketBugUnAssignCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleUnAssignCommand<BugTicket>(handler, ticketId);
 		}
 
 		[Command("view", RBACPermissions.CommandTicketBugView, true)]
-		static bool HandleTicketBugViewCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketBugViewCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleGetByIdCommand<BugTicket>(handler, ticketId);
 		}
 	}
 
 	[CommandGroup("complaint")]
-	class TicketComplaintCommands
+    private class TicketComplaintCommands
 	{
 		[Command("assign", RBACPermissions.CommandTicketComplaintAssign, true)]
-		static bool HandleTicketComplaintAssignCommand(CommandHandler handler, uint ticketId, string targetName)
+        private static bool HandleTicketComplaintAssignCommand(CommandHandler handler, uint ticketId, string targetName)
 		{
 			return HandleTicketAssignToCommand<ComplaintTicket>(handler, ticketId, targetName);
 		}
 
 		[Command("close", RBACPermissions.CommandTicketComplaintClose, true)]
-		static bool HandleTicketComplaintCloseCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketComplaintCloseCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleCloseByIdCommand<ComplaintTicket>(handler, ticketId);
 		}
 
 		[Command("closedlist", RBACPermissions.CommandTicketComplaintClosedlist, true)]
-		static bool HandleTicketComplaintClosedListCommand(CommandHandler handler)
+        private static bool HandleTicketComplaintClosedListCommand(CommandHandler handler)
 		{
 			return HandleClosedListCommand<ComplaintTicket>(handler);
 		}
 
 		[Command("comment", RBACPermissions.CommandTicketComplaintComment, true)]
-		static bool HandleTicketComplaintCommentCommand(CommandHandler handler, uint ticketId, QuotedString comment)
+        private static bool HandleTicketComplaintCommentCommand(CommandHandler handler, uint ticketId, QuotedString comment)
 		{
 			return HandleCommentCommand<ComplaintTicket>(handler, ticketId, comment);
 		}
 
 		[Command("delete", RBACPermissions.CommandTicketComplaintDelete, true)]
-		static bool HandleTicketComplaintDeleteCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketComplaintDeleteCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleDeleteByIdCommand<ComplaintTicket>(handler, ticketId);
 		}
 
 		[Command("list", RBACPermissions.CommandTicketComplaintList, true)]
-		static bool HandleTicketComplaintListCommand(CommandHandler handler)
+        private static bool HandleTicketComplaintListCommand(CommandHandler handler)
 		{
 			return HandleListCommand<ComplaintTicket>(handler);
 		}
 
 		[Command("unassign", RBACPermissions.CommandTicketComplaintUnassign, true)]
-		static bool HandleTicketComplaintUnAssignCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketComplaintUnAssignCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleUnAssignCommand<ComplaintTicket>(handler, ticketId);
 		}
 
 		[Command("view", RBACPermissions.CommandTicketComplaintView, true)]
-		static bool HandleTicketComplaintViewCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketComplaintViewCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleGetByIdCommand<ComplaintTicket>(handler, ticketId);
 		}
 	}
 
 	[CommandGroup("suggestion")]
-	class TicketSuggestionCommands
+    private class TicketSuggestionCommands
 	{
 		[Command("assign", RBACPermissions.CommandTicketSuggestionAssign, true)]
-		static bool HandleTicketSuggestionAssignCommand(CommandHandler handler, uint ticketId, string targetName)
+        private static bool HandleTicketSuggestionAssignCommand(CommandHandler handler, uint ticketId, string targetName)
 		{
 			return HandleTicketAssignToCommand<SuggestionTicket>(handler, ticketId, targetName);
 		}
 
 		[Command("close", RBACPermissions.CommandTicketSuggestionClose, true)]
-		static bool HandleTicketSuggestionCloseCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketSuggestionCloseCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleCloseByIdCommand<SuggestionTicket>(handler, ticketId);
 		}
 
 		[Command("closedlist", RBACPermissions.CommandTicketSuggestionClosedlist, true)]
-		static bool HandleTicketSuggestionClosedListCommand(CommandHandler handler)
+        private static bool HandleTicketSuggestionClosedListCommand(CommandHandler handler)
 		{
 			return HandleClosedListCommand<SuggestionTicket>(handler);
 		}
 
 		[Command("comment", RBACPermissions.CommandTicketSuggestionComment, true)]
-		static bool HandleTicketSuggestionCommentCommand(CommandHandler handler, uint ticketId, QuotedString comment)
+        private static bool HandleTicketSuggestionCommentCommand(CommandHandler handler, uint ticketId, QuotedString comment)
 		{
 			return HandleCommentCommand<SuggestionTicket>(handler, ticketId, comment);
 		}
 
 		[Command("delete", RBACPermissions.CommandTicketSuggestionDelete, true)]
-		static bool HandleTicketSuggestionDeleteCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketSuggestionDeleteCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleDeleteByIdCommand<SuggestionTicket>(handler, ticketId);
 		}
 
 		[Command("list", RBACPermissions.CommandTicketSuggestionList, true)]
-		static bool HandleTicketSuggestionListCommand(CommandHandler handler)
+        private static bool HandleTicketSuggestionListCommand(CommandHandler handler)
 		{
 			return HandleListCommand<SuggestionTicket>(handler);
 		}
 
 		[Command("unassign", RBACPermissions.CommandTicketSuggestionUnassign, true)]
-		static bool HandleTicketSuggestionUnAssignCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketSuggestionUnAssignCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleUnAssignCommand<SuggestionTicket>(handler, ticketId);
 		}
 
 		[Command("view", RBACPermissions.CommandTicketSuggestionView, true)]
-		static bool HandleTicketSuggestionViewCommand(CommandHandler handler, uint ticketId)
+        private static bool HandleTicketSuggestionViewCommand(CommandHandler handler, uint ticketId)
 		{
 			return HandleGetByIdCommand<SuggestionTicket>(handler, ticketId);
 		}
 	}
 
 	[CommandGroup("reset")]
-	class TicketResetCommands
+    private class TicketResetCommands
 	{
 		[Command("all", RBACPermissions.CommandTicketResetAll, true)]
-		static bool HandleTicketResetAllCommand(CommandHandler handler)
+        private static bool HandleTicketResetAllCommand(CommandHandler handler)
 		{
 			if (Global.SupportMgr.GetOpenTicketCount<BugTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<ComplaintTicket>() != 0 || Global.SupportMgr.GetOpenTicketCount<SuggestionTicket>() != 0)
 			{
@@ -468,19 +468,19 @@ class TicketCommands
 		}
 
 		[Command("bug", RBACPermissions.CommandTicketResetBug, true)]
-		static bool HandleTicketResetBugCommand(CommandHandler handler)
+        private static bool HandleTicketResetBugCommand(CommandHandler handler)
 		{
 			return HandleResetCommand<BugTicket>(handler);
 		}
 
 		[Command("complaint", RBACPermissions.CommandTicketResetComplaint, true)]
-		static bool HandleTicketResetComplaintCommand(CommandHandler handler)
+        private static bool HandleTicketResetComplaintCommand(CommandHandler handler)
 		{
 			return HandleResetCommand<ComplaintTicket>(handler);
 		}
 
 		[Command("suggestion", RBACPermissions.CommandTicketResetSuggestion, true)]
-		static bool HandleTicketResetSuggestionCommand(CommandHandler handler)
+        private static bool HandleTicketResetSuggestionCommand(CommandHandler handler)
 		{
 			return HandleResetCommand<SuggestionTicket>(handler);
 		}

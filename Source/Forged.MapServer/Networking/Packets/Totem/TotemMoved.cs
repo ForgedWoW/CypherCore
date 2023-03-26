@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Totem;
 
-class TotemMoved : ServerPacket
+internal class TotemMoved : ServerPacket
 {
 	public ObjectGuid Totem;
 	public byte Slot;

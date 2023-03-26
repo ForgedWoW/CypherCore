@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class SuspendTokenResponse : ClientPacket
+internal class SuspendTokenResponse : ClientPacket
 {
 	public uint SequenceIndex;
 	public SuspendTokenResponse(WorldPacket packet) : base(packet) { }

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SetTaxiBenchmarkMode : ClientPacket
+internal class SetTaxiBenchmarkMode : ClientPacket
 {
 	public bool Enable;
 	public SetTaxiBenchmarkMode(WorldPacket packet) : base(packet) { }

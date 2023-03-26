@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Ticket;
 
-class BugReport : ClientPacket
+internal class BugReport : ClientPacket
 {
 	public uint Type;
 	public string Text;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveApplyMovementForce : ServerPacket
+internal class MoveApplyMovementForce : ServerPacket
 {
 	public ObjectGuid MoverGUID;
 	public int SequenceIndex;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceReset : ServerPacket
+internal class InstanceReset : ServerPacket
 {
 	public uint MapID;
 	public InstanceReset() : base(ServerOpcodes.InstanceReset) { }

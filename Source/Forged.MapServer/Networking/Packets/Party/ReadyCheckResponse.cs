@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class ReadyCheckResponse : ServerPacket
+internal class ReadyCheckResponse : ServerPacket
 {
 	public ObjectGuid PartyGUID;
 	public ObjectGuid Player;

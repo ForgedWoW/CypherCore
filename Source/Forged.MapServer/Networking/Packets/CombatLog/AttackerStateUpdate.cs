@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class AttackerStateUpdate : CombatLogServerPacket
+internal class AttackerStateUpdate : CombatLogServerPacket
 {
 	public HitInfo hitInfo; // Flags
 	public ObjectGuid AttackerGUID;

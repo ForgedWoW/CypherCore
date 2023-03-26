@@ -9,12 +9,12 @@ using Serilog;
 
 namespace Forged.MapServer.Spells;
 
-class DelayedSpellTeleportEvent : BasicEvent
+internal class DelayedSpellTeleportEvent : BasicEvent
 {
-	readonly Unit _target;
-	readonly WorldLocation _targetDest;
-	readonly TeleportToOptions _options;
-	readonly uint _spellId;
+    private readonly Unit _target;
+    private readonly WorldLocation _targetDest;
+    private readonly TeleportToOptions _options;
+    private readonly uint _spellId;
 
 	public DelayedSpellTeleportEvent(Unit target, WorldLocation targetDest, TeleportToOptions options, uint spellId)
 	{

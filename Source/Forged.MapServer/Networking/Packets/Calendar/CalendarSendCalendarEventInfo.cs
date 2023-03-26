@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-struct CalendarSendCalendarEventInfo
+internal struct CalendarSendCalendarEventInfo
 {
 	public void Write(WorldPacket data)
 	{

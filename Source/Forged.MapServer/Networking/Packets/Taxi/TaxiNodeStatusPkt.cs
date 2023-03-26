@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Taxi;
 
-class TaxiNodeStatusPkt : ServerPacket
+internal class TaxiNodeStatusPkt : ServerPacket
 {
 	public TaxiNodeStatus Status; // replace with TaxiStatus enum
 	public ObjectGuid Unit;

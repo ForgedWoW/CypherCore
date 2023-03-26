@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class UpdateRaidTarget : ClientPacket
+internal class UpdateRaidTarget : ClientPacket
 {
 	public sbyte PartyIndex;
 	public ObjectGuid Target;

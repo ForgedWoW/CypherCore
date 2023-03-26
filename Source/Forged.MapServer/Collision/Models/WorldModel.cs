@@ -14,10 +14,10 @@ namespace Forged.MapServer.Collision.Models;
 public class WorldModel : IModel
 {
 	public uint Flags;
-	readonly List<GroupModel> _groupModels = new();
-	readonly BIH _groupTree = new();
+    private readonly List<GroupModel> _groupModels = new();
+    private readonly BIH _groupTree = new();
 
-	uint _rootWmoid;
+    private uint _rootWmoid;
 
 	public override bool IntersectRay(Ray ray, ref float distance, bool stopAtFirstHit, ModelIgnoreFlags ignoreFlags)
 	{

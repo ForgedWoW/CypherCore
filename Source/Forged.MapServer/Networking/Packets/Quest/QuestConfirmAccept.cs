@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestConfirmAccept : ClientPacket
+internal class QuestConfirmAccept : ClientPacket
 {
 	public uint QuestID;
 	public QuestConfirmAccept(WorldPacket packet) : base(packet) { }

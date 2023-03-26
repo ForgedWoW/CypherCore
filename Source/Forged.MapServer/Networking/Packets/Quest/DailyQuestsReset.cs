@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class DailyQuestsReset : ServerPacket
+internal class DailyQuestsReset : ServerPacket
 {
 	public int Count;
 	public DailyQuestsReset() : base(ServerOpcodes.DailyQuestsReset) { }

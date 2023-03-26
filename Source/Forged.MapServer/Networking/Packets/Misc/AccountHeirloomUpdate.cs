@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class AccountHeirloomUpdate : ServerPacket
+internal class AccountHeirloomUpdate : ServerPacket
 {
 	public bool IsFullUpdate;
 	public Dictionary<uint, HeirloomData> Heirlooms = new();

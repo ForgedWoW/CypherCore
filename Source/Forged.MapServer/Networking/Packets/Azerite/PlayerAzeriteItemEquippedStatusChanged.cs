@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class PlayerAzeriteItemEquippedStatusChanged : ServerPacket
+internal class PlayerAzeriteItemEquippedStatusChanged : ServerPacket
 {
 	public bool IsHeartEquipped;
 	public PlayerAzeriteItemEquippedStatusChanged() : base(ServerOpcodes.PlayerAzeriteItemEquippedStatusChanged) { }

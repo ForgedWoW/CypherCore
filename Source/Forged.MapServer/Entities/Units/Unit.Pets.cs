@@ -821,7 +821,7 @@ public partial class Unit
 			RemoveUnitFlag(UnitFlags.PetInCombat);
 	}
 
-	void DeleteCharmInfo()
+    private void DeleteCharmInfo()
 	{
 		if (_charmInfo == null)
 			return;
@@ -830,7 +830,7 @@ public partial class Unit
 		_charmInfo = null;
 	}
 
-	bool InitTamedPet(Pet pet, uint level, uint spell_id)
+    private bool InitTamedPet(Pet pet, uint level, uint spell_id)
 	{
 		var player = AsPlayer;
 		var petStable = player.PetStable;

@@ -8,11 +8,11 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
+internal class NearestGameObjectTypeInObjectRangeCheck : ICheck<GameObject>
 {
-	readonly WorldObject _obj;
-	readonly GameObjectTypes _type;
-	float _range;
+    private readonly WorldObject _obj;
+    private readonly GameObjectTypes _type;
+    private float _range;
 
 	public NearestGameObjectTypeInObjectRangeCheck(WorldObject obj, GameObjectTypes type, float range)
 	{

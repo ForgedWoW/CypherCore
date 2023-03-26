@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Hotfix;
 
-class DBQueryBulk : ClientPacket
+internal class DBQueryBulk : ClientPacket
 {
 	public uint TableHash;
 	public List<DBQueryRecord> Queries = new();

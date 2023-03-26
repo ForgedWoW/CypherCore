@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SetPartyAssignment : ClientPacket
+internal class SetPartyAssignment : ClientPacket
 {
 	public byte Assignment;
 	public byte PartyIndex;

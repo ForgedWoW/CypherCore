@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonCancelConstruction : ClientPacket
+internal class GarrisonCancelConstruction : ClientPacket
 {
 	public ObjectGuid NpcGUID;
 	public uint PlotInstanceID;

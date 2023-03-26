@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectActivateAnimKit : ServerPacket
+internal class GameObjectActivateAnimKit : ServerPacket
 {
 	public ObjectGuid ObjectGUID;
 	public int AnimKitID;

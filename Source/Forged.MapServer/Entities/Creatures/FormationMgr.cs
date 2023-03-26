@@ -9,7 +9,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class FormationMgr
 {
-	static readonly Dictionary<ulong, FormationInfo> CreatureGroupMap = new();
+    private static readonly Dictionary<ulong, FormationInfo> CreatureGroupMap = new();
 
 	public static void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
 	{

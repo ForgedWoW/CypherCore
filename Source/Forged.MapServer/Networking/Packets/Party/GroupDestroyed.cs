@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class GroupDestroyed : ServerPacket
+internal class GroupDestroyed : ServerPacket
 {
 	public GroupDestroyed() : base(ServerOpcodes.GroupDestroyed) { }
 

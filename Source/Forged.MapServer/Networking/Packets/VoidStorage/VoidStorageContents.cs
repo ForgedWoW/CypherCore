@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class VoidStorageContents : ServerPacket
+internal class VoidStorageContents : ServerPacket
 {
 	public List<VoidItem> Items = new();
 	public VoidStorageContents() : base(ServerOpcodes.VoidStorageContents, ConnectionType.Instance) { }

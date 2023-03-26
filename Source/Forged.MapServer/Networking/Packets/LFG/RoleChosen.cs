@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class RoleChosen : ServerPacket
+internal class RoleChosen : ServerPacket
 {
 	public ObjectGuid Player;
 	public LfgRoles RoleMask;

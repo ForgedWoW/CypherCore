@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyMemberAuraStates
+internal class PartyMemberAuraStates
 {
 	public int SpellID;
 	public ushort Flags;

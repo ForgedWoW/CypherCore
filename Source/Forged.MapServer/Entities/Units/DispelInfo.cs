@@ -7,9 +7,9 @@ namespace Forged.MapServer.Entities.Units;
 
 public class DispelInfo
 {
-	readonly WorldObject _dispeller;
-	readonly uint _dispellerSpell;
-	byte _chargesRemoved;
+    private readonly WorldObject _dispeller;
+    private readonly uint _dispellerSpell;
+    private byte _chargesRemoved;
 
 	public DispelInfo(WorldObject dispeller, uint dispellerSpellId, byte chargesRemoved)
 	{
@@ -33,7 +33,7 @@ public class DispelInfo
 		_chargesRemoved = amount;
 	}
 
-	uint GetDispellerSpellId()
+    private uint GetDispellerSpellId()
 	{
 		return _dispellerSpell;
 	}

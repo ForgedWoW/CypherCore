@@ -7,8 +7,8 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class ChargeDropEvent : BasicEvent
 {
-	readonly Aura _base;
-	readonly AuraRemoveMode _mode;
+    private readonly Aura _base;
+    private readonly AuraRemoveMode _mode;
 
 	public ChargeDropEvent(Aura aura, AuraRemoveMode mode)
 	{

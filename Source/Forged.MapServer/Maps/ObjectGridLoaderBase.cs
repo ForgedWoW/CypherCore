@@ -8,7 +8,7 @@ using Forged.MapServer.Phasing;
 
 namespace Forged.MapServer.Maps;
 
-class ObjectGridLoaderBase
+internal class ObjectGridLoaderBase
 {
 	internal Cell i_cell;
 	internal Grid i_grid;
@@ -72,7 +72,7 @@ class ObjectGridLoaderBase
 		}
 	}
 
-	void AddObjectHelper<T>(CellCoord cellCoord, ref uint count, Map map, T obj) where T : WorldObject
+    private void AddObjectHelper<T>(CellCoord cellCoord, ref uint count, Map map, T obj) where T : WorldObject
 	{
 		var cell = new Cell(cellCoord);
 		map.AddToGrid(obj, cell);

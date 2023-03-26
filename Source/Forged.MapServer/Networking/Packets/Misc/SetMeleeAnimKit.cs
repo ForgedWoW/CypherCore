@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SetMeleeAnimKit : ServerPacket
+internal class SetMeleeAnimKit : ServerPacket
 {
 	public ObjectGuid Unit;
 	public ushort AnimKitID;

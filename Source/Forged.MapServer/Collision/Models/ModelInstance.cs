@@ -11,9 +11,9 @@ namespace Forged.MapServer.Collision.Models;
 
 public class ModelInstance : ModelMinimalData
 {
-	readonly Matrix4x4 _iInvRot;
-	readonly float _iInvScale;
-	WorldModel _iModel;
+    private readonly Matrix4x4 _iInvRot;
+    private readonly float _iInvScale;
+    private WorldModel _iModel;
 
 	public ModelInstance()
 	{

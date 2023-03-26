@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestConfirmAcceptResponse : ServerPacket
+internal class QuestConfirmAcceptResponse : ServerPacket
 {
 	public ObjectGuid InitiatedBy;
 	public uint QuestID;

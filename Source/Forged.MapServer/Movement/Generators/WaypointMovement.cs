@@ -13,13 +13,13 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 {
-	readonly TimeTracker _nextMoveTime;
-	readonly bool _repeating;
-	readonly bool _loadedFromDB;
-	uint _pathId;
+    private readonly TimeTracker _nextMoveTime;
+    private readonly bool _repeating;
+    private readonly bool _loadedFromDB;
+    private uint _pathId;
 
-	WaypointPath _path;
-	int _currentNode;
+    private WaypointPath _path;
+    private int _currentNode;
 
 	public WaypointMovementGenerator(uint pathId = 0, bool repeating = true)
 	{
@@ -248,7 +248,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
 	}
 
-	void MovementInform(Creature owner)
+    private void MovementInform(Creature owner)
 	{
 		var ai = owner.AI;
 
@@ -256,7 +256,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 			ai.MovementInform(MovementGeneratorType.Waypoint, (uint)_currentNode);
 	}
 
-	void OnArrived(Creature owner)
+    private void OnArrived(Creature owner)
 	{
 		if (_path == null || _path.Nodes.Empty())
 			return;
@@ -288,7 +288,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		owner.UpdateCurrentWaypointInfo(waypoint.ID, _path.ID);
 	}
 
-	void StartMove(Creature owner, bool relaunch = false)
+    private void StartMove(Creature owner, bool relaunch = false)
 	{
 		// sanity checks
 		if (owner == null || !owner.IsAlive || HasFlag(MovementGeneratorFlags.Finalized) || _path == null || _path.Nodes.Empty() || (relaunch && (HasFlag(MovementGeneratorFlags.InformEnabled) || !HasFlag(MovementGeneratorFlags.Initialized))))
@@ -404,7 +404,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		owner.SignalFormationMovement();
 	}
 
-	bool ComputeNextNode()
+    private bool ComputeNextNode()
 	{
 		if ((_currentNode == _path.Nodes.Count - 1) && !_repeating)
 			return false;
@@ -414,7 +414,7 @@ public class WaypointMovementGenerator : MovementGeneratorMedium<Creature>
 		return true;
 	}
 
-	bool UpdateTimer(uint diff)
+    private bool UpdateTimer(uint diff)
 	{
 		_nextMoveTime.Update(diff);
 

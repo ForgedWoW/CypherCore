@@ -11,9 +11,9 @@ namespace Forged.MapServer.Networking;
 public abstract class ServerPacket
 {
 	protected WorldPacket _worldPacket;
-	readonly ConnectionType connectionType;
+    private readonly ConnectionType connectionType;
 
-	byte[] buffer;
+    private byte[] buffer;
 
 	protected ServerPacket(ServerOpcodes opcode)
 	{

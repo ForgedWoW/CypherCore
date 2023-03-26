@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveApplyMovementForceAck : ClientPacket
+internal class MoveApplyMovementForceAck : ClientPacket
 {
 	public MovementAck Ack = new();
 	public MovementForce Force = new();

@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class BgArathiBasin : Battleground
+internal class BgArathiBasin : Battleground
 {
 	//Const
 	public const uint NotABBGWeekendHonorTicks = 260;
@@ -132,17 +132,17 @@ class BgArathiBasin : Battleground
 	///  3: ally occupied
 	///  4: horde occupied
 	/// </summary>
-	readonly ABNodeStatus[] m_Nodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
+    private readonly ABNodeStatus[] m_Nodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
 
-	readonly ABNodeStatus[] m_prevNodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
-	readonly BannerTimer[] m_BannerTimers = new BannerTimer[ABBattlegroundNodes.DynamicNodesCount];
-	readonly uint[] m_NodeTimers = new uint[ABBattlegroundNodes.DynamicNodesCount];
-	readonly uint[] m_lastTick = new uint[SharedConst.PvpTeamsCount];
-	readonly uint[] m_HonorScoreTics = new uint[SharedConst.PvpTeamsCount];
-	readonly uint[] m_ReputationScoreTics = new uint[SharedConst.PvpTeamsCount];
-	bool m_IsInformedNearVictory;
-	uint m_HonorTics;
-	uint m_ReputationTics;
+    private readonly ABNodeStatus[] m_prevNodes = new ABNodeStatus[ABBattlegroundNodes.DynamicNodesCount];
+    private readonly BannerTimer[] m_BannerTimers = new BannerTimer[ABBattlegroundNodes.DynamicNodesCount];
+    private readonly uint[] m_NodeTimers = new uint[ABBattlegroundNodes.DynamicNodesCount];
+    private readonly uint[] m_lastTick = new uint[SharedConst.PvpTeamsCount];
+    private readonly uint[] m_HonorScoreTics = new uint[SharedConst.PvpTeamsCount];
+    private readonly uint[] m_ReputationScoreTics = new uint[SharedConst.PvpTeamsCount];
+    private bool m_IsInformedNearVictory;
+    private uint m_HonorTics;
+    private uint m_ReputationTics;
 
 	public BgArathiBasin(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
 	{
@@ -712,7 +712,7 @@ class BgArathiBasin : Battleground
 		return true;
 	}
 
-	void _CreateBanner(byte node, ABNodeStatus type, int teamIndex, bool delay)
+    private void _CreateBanner(byte node, ABNodeStatus type, int teamIndex, bool delay)
 	{
 		// Just put it into the queue
 		if (delay)
@@ -736,7 +736,7 @@ class BgArathiBasin : Battleground
 		SpawnBGObject(obj, BattlegroundConst.RespawnImmediately);
 	}
 
-	void _DelBanner(byte node, ABNodeStatus type, byte teamIndex)
+    private void _DelBanner(byte node, ABNodeStatus type, byte teamIndex)
 	{
 		var obj = node * 8 + (byte)type + teamIndex;
 		SpawnBGObject(obj, BattlegroundConst.RespawnOneDay);
@@ -749,7 +749,7 @@ class BgArathiBasin : Battleground
 		SpawnBGObject(obj, BattlegroundConst.RespawnOneDay);
 	}
 
-	void _SendNodeUpdate(byte node)
+    private void _SendNodeUpdate(byte node)
 	{
 		// Send node owner state update to refresh map icons on client
 		int[] idPlusArray =
@@ -818,7 +818,7 @@ class BgArathiBasin : Battleground
 		UpdateWorldState(ABWorldStates.OccupiedBasesHorde, horde);
 	}
 
-	void _NodeOccupied(byte node, TeamFaction team)
+    private void _NodeOccupied(byte node, TeamFaction team)
 	{
 		if (!AddSpiritGuide(node, SpiritGuidePos[node], GetTeamIndexByTeamId(team)))
 			Log.Logger.Error("Failed to spawn spirit guide! point: {0}, team: {1}, ", node, team);
@@ -853,7 +853,7 @@ class BgArathiBasin : Battleground
 		}
 	}
 
-	void _NodeDeOccupied(byte node)
+    private void _NodeDeOccupied(byte node)
 	{
 		//only dynamic nodes, no start points
 		if (node >= ABBattlegroundNodes.DynamicNodesCount)
@@ -870,10 +870,10 @@ class BgArathiBasin : Battleground
 	}
 }
 
-class BattlegroundABScore : BattlegroundScore
+internal class BattlegroundABScore : BattlegroundScore
 {
-	uint BasesAssaulted;
-	uint BasesDefended;
+    private uint BasesAssaulted;
+    private uint BasesDefended;
 
 	public BattlegroundABScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
 	{
@@ -919,7 +919,7 @@ class BattlegroundABScore : BattlegroundScore
 	}
 }
 
-struct BannerTimer
+internal struct BannerTimer
 {
 	public uint timer;
 	public byte type;
@@ -928,7 +928,7 @@ struct BannerTimer
 
 #region Consts
 
-struct ABWorldStates
+internal struct ABWorldStates
 {
 	public const int OccupiedBasesHorde = 1778;
 	public const int OccupiedBasesAlly = 1779;
@@ -985,7 +985,7 @@ struct ABWorldStates
 }
 
 // Note: code uses that these IDs follow each other
-struct NodeObjectId
+internal struct NodeObjectId
 {
 	public const uint Banner0 = 180087; // Stables Banner
 	public const uint Banner1 = 180088; // Blacksmith Banner
@@ -994,7 +994,7 @@ struct NodeObjectId
 	public const uint Banner4 = 180091; // Gold Mine Banner
 }
 
-struct ABObjectTypes
+internal struct ABObjectTypes
 {
 	// for all 5 node points 8*5=40 objects
 	public const int BannerNeutral = 0;
@@ -1032,7 +1032,7 @@ struct ABObjectTypes
 }
 
 // Object id templates from DB
-struct ABObjectIds
+internal struct ABObjectIds
 {
 	public const uint BannerA = 180058;
 	public const uint BannerContA = 180059;
@@ -1047,7 +1047,7 @@ struct ABObjectIds
 	public const uint GateH = 180256;
 }
 
-struct ABBattlegroundNodes
+internal struct ABBattlegroundNodes
 {
 	public const int NodeStables = 0;
 	public const int NodeBlacksmith = 1;
@@ -1063,7 +1063,7 @@ struct ABBattlegroundNodes
 	public const int AllCount = 7; // All Nodes (Dynamic And Static)
 }
 
-struct ABBattlegroundBroadcastTexts
+internal struct ABBattlegroundBroadcastTexts
 {
 	public const uint AllianceNearVictory = 10598;
 	public const uint HordeNearVictory = 10599;
@@ -1074,7 +1074,7 @@ struct ABBattlegroundBroadcastTexts
 	};
 }
 
-struct ABNodeInfo
+internal struct ABNodeInfo
 {
 	public ABNodeInfo(uint nodeId, uint textAllianceAssaulted, uint textHordeAssaulted, uint textAllianceTaken, uint textHordeTaken, uint textAllianceDefended, uint textHordeDefended, uint textAllianceClaims, uint textHordeClaims)
 	{
@@ -1100,7 +1100,7 @@ struct ABNodeInfo
 	public uint TextHordeClaims;
 }
 
-enum ABNodeStatus
+internal enum ABNodeStatus
 {
 	Neutral = 0,
 	Contested = 1,
@@ -1111,7 +1111,7 @@ enum ABNodeStatus
 	HordeOccupied = 4
 }
 
-enum ABObjectives
+internal enum ABObjectives
 {
 	AssaultBase = 122,
 	DefendBase = 123

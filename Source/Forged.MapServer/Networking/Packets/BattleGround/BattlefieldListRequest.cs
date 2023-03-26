@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlefieldListRequest : ClientPacket
+internal class BattlefieldListRequest : ClientPacket
 {
 	public int ListID;
 	public BattlefieldListRequest(WorldPacket packet) : base(packet) { }

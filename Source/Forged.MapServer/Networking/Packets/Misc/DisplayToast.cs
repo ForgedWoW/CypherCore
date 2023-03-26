@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class DisplayToast : ServerPacket
+internal class DisplayToast : ServerPacket
 {
 	public ulong Quantity;
 	public DisplayToastMethod DisplayToastMethod;

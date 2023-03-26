@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class UnlockVoidStorage : ClientPacket
+internal class UnlockVoidStorage : ClientPacket
 {
 	public ObjectGuid Npc;
 	public UnlockVoidStorage(WorldPacket packet) : base(packet) { }

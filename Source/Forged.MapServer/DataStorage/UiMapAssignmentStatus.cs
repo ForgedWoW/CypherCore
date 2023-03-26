@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.Structs.U;
 
 namespace Forged.MapServer.DataStorage;
 
-class UiMapAssignmentStatus
+internal class UiMapAssignmentStatus
 {
 	public UiMapAssignmentRecord UiMapAssignment;
 	public InsideStruct Inside;
@@ -140,7 +140,7 @@ class UiMapAssignmentStatus
 		return true;
 	}
 
-	bool IsInside()
+    private bool IsInside()
 	{
 		return Outside.DistanceToRegionEdgeSquared < float.Epsilon &&
 				Math.Abs(Outside.DistanceToRegionTop) < float.Epsilon &&

@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.Structs.T;
 
 namespace Forged.MapServer.Spells;
 
-class NodeEntry
+internal class NodeEntry
 {
 	public TraitNodeEntryRecord Data;
 	public List<TraitCondRecord> Conditions = new();

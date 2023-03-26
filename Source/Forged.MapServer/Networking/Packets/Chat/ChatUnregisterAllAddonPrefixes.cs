@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatUnregisterAllAddonPrefixes : ClientPacket
+internal class ChatUnregisterAllAddonPrefixes : ClientPacket
 {
 	public ChatUnregisterAllAddonPrefixes(WorldPacket packet) : base(packet) { }
 

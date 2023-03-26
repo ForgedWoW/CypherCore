@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class RequestPVPRewards : ClientPacket
+internal class RequestPVPRewards : ClientPacket
 {
 	public RequestPVPRewards(WorldPacket packet) : base(packet) { }
 

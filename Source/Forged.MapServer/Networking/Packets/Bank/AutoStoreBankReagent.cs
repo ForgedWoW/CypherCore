@@ -5,7 +5,7 @@ using Forged.MapServer.Networking.Packets.Item;
 
 namespace Forged.MapServer.Networking.Packets.Bank;
 
-class AutoStoreBankReagent : ClientPacket
+internal class AutoStoreBankReagent : ClientPacket
 {
 	public InvUpdate Inv;
 	public byte Slot;

@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetStableList : ServerPacket
+internal class PetStableList : ServerPacket
 {
 	public ObjectGuid StableMaster;
 	public List<PetStableInfo> Pets = new();

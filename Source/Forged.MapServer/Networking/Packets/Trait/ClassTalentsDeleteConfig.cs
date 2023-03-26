@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class ClassTalentsDeleteConfig : ClientPacket
+internal class ClassTalentsDeleteConfig : ClientPacket
 {
 	public int ConfigID;
 

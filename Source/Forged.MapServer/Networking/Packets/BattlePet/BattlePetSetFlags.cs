@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetSetFlags : ClientPacket
+internal class BattlePetSetFlags : ClientPacket
 {
 	public ObjectGuid PetGuid;
 	public uint Flags;

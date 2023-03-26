@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemPurchaseContents
+internal class ItemPurchaseContents
 {
 	public ulong Money;
 	public ItemPurchaseRefundItem[] Items = new ItemPurchaseRefundItem[5];

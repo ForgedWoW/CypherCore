@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class CoinRemoved : ServerPacket
+internal class CoinRemoved : ServerPacket
 {
 	public ObjectGuid LootObj;
 	public CoinRemoved() : base(ServerOpcodes.CoinRemoved) { }

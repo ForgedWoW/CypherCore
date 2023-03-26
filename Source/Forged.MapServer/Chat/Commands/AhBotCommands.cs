@@ -8,10 +8,10 @@ namespace Forged.MapServer.Chat.Commands;
 
 //Holder for now.
 [CommandGroup("ahbot")]
-class AhBotCommands
+internal class AhBotCommands
 {
 	[Command("rebuild", RBACPermissions.CommandAhbotRebuild, true)]
-	static bool HandleAHBotRebuildCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleAHBotRebuildCommand(CommandHandler handler, StringArguments args)
 	{
 		/*char* arg = strtok((char*)args, " ");
 
@@ -24,7 +24,7 @@ class AhBotCommands
 	}
 
 	[Command("reload", RBACPermissions.CommandAhbotReload, true)]
-	static bool HandleAHBotReloadCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleAHBotReloadCommand(CommandHandler handler, StringArguments args)
 	{
 		//sAuctionBot->ReloadAllConfig();
 		//handler->SendSysMessage(LANG_AHBOT_RELOAD_OK);
@@ -32,7 +32,7 @@ class AhBotCommands
 	}
 
 	[Command("status", RBACPermissions.CommandAhbotStatus, true)]
-	static bool HandleAHBotStatusCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleAHBotStatusCommand(CommandHandler handler, StringArguments args)
 	{
 		/*   char* arg = strtok((char*)args, " ");
 		if (!arg)
@@ -100,10 +100,10 @@ class AhBotCommands
 	}
 
 	[CommandGroup("items")]
-	class ItemsCommands
+    private class ItemsCommands
 	{
 		[Command("", RBACPermissions.CommandAhbotItems, true)]
-		static bool HandleAHBotItemsAmountCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountCommand(CommandHandler handler, StringArguments args)
 		{
 			/*public uint qVals[MAX_AUCTION_QUALITY];
 			char* arg = strtok((char*)args, " ");
@@ -124,48 +124,48 @@ class AhBotCommands
 		}
 
 		[Command("blue", RBACPermissions.CommandAhbotItemsBlue, true)]
-		static bool HandleAHBotItemsAmountQualityBlue(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityBlue(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("gray", RBACPermissions.CommandAhbotItemsGray, true)]
-		static bool HandleAHBotItemsAmountQualityGray(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityGray(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("green", RBACPermissions.CommandAhbotItemsGreen, true)]
-		static bool HandleAHBotItemsAmountQualityGreen(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityGreen(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("orange", RBACPermissions.CommandAhbotItemsOrange, true)]
-		static bool HandleAHBotItemsAmountQualityOrange(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityOrange(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("purple", RBACPermissions.CommandAhbotItemsPurple, true)]
-		static bool HandleAHBotItemsAmountQualityPurple(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityPurple(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("white", RBACPermissions.CommandAhbotItemsWhite, true)]
-		static bool HandleAHBotItemsAmountQualityWhite(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityWhite(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("yellow", RBACPermissions.CommandAhbotItemsYellow, true)]
-		static bool HandleAHBotItemsAmountQualityYellow(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityYellow(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
-		static bool HandleAHBotItemsAmountQualityCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsAmountQualityCommand(CommandHandler handler, StringArguments args)
 		{
 			/*
 			char* arg = strtok((char*)args, " ");
@@ -182,10 +182,10 @@ class AhBotCommands
 	}
 
 	[CommandGroup("ratio")]
-	class RatioCommands
+    private class RatioCommands
 	{
 		[Command("", RBACPermissions.CommandAhbotRatio, true)]
-		static bool HandleAHBotItemsRatioCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsRatioCommand(CommandHandler handler, StringArguments args)
 		{
 			/*public uint rVal[MAX_AUCTION_QUALITY];
 			char* arg = strtok((char*)args, " ");
@@ -206,24 +206,24 @@ class AhBotCommands
 		}
 
 		[Command("alliance", RBACPermissions.CommandAhbotRatioAlliance, true)]
-		static bool HandleAHBotItemsRatioHouseAlliance(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsRatioHouseAlliance(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("horde", RBACPermissions.CommandAhbotRatioHorde, true)]
-		static bool HandleAHBotItemsRatioHouseHorde(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsRatioHouseHorde(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
 		[Command("neutral", RBACPermissions.CommandAhbotRatioNeutral, true)]
-		static bool HandleAHBotItemsRatioHouseNeutral(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsRatioHouseNeutral(CommandHandler handler, StringArguments args)
 		{
 			return true;
 		}
 
-		static bool HandleAHBotItemsRatioHouseCommand(CommandHandler handler, StringArguments args)
+        private static bool HandleAHBotItemsRatioHouseCommand(CommandHandler handler, StringArguments args)
 		{
 			/*char* arg = strtok((char*)args, " ");
 			if (!arg)

@@ -6,7 +6,7 @@ using Framework.Dynamic;
 
 namespace Forged.MapServer.Groups;
 
-class GroupInstanceRefManager : RefManager<PlayerGroup, InstanceMap>
+internal class GroupInstanceRefManager : RefManager<PlayerGroup, InstanceMap>
 {
 	public new GroupInstanceReference GetFirst()
 	{

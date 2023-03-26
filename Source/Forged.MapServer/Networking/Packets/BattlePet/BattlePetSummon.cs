@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetSummon : ClientPacket
+internal class BattlePetSummon : ClientPacket
 {
 	public ObjectGuid PetGuid;
 	public BattlePetSummon(WorldPacket packet) : base(packet) { }

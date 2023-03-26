@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class HandleCalendarRsvp : ClientPacket
+internal class HandleCalendarRsvp : ClientPacket
 {
 	public ulong InviteID;
 	public ulong EventID;

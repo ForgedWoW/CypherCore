@@ -11,12 +11,12 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
 {
-	readonly WorldObject _obj;
-	readonly Unit _funit;
-	readonly SpellInfo _spellInfo;
-	readonly float _range;
-	readonly bool _incOwnRadius;
-	readonly bool _incTargetRadius;
+    private readonly WorldObject _obj;
+    private readonly Unit _funit;
+    private readonly SpellInfo _spellInfo;
+    private readonly float _range;
+    private readonly bool _incOwnRadius;
+    private readonly bool _incTargetRadius;
 
 	public AnyAoETargetUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, SpellInfo spellInfo = null, bool incOwnRadius = true, bool incTargetRadius = true)
 	{

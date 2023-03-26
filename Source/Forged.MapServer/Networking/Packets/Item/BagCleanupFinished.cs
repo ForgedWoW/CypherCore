@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class BagCleanupFinished : ServerPacket
+internal class BagCleanupFinished : ServerPacket
 {
 	public BagCleanupFinished() : base(ServerOpcodes.BagCleanupFinished, ConnectionType.Instance) { }
 

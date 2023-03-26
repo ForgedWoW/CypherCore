@@ -5,11 +5,11 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class GridInfo
 {
-	readonly PeriodicTimer _visUpdate;
-	readonly TimeTracker _timer;
+    private readonly PeriodicTimer _visUpdate;
+    private readonly TimeTracker _timer;
 
-	ushort _unloadActiveLockCount; // lock from active object spawn points (prevent clone loading)
-	bool _unloadExplicitLock;      // explicit manual lock or config setting
+    private ushort _unloadActiveLockCount; // lock from active object spawn points (prevent clone loading)
+    private bool _unloadExplicitLock;      // explicit manual lock or config setting
 
 	public GridInfo()
 	{

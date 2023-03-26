@@ -83,7 +83,7 @@ public class HomeMovementGenerator<T> : MovementGeneratorMedium<T> where T : Cre
 		return MovementGeneratorType.Home;
 	}
 
-	void SetTargetLocation(T owner)
+    private void SetTargetLocation(T owner)
 	{
 		// if we are ROOT/STUNNED/DISTRACTED even after aura clear, finalize on next update - otherwise we would get stuck in evade
 		if (owner.HasUnitState(UnitState.Root | UnitState.Stunned | UnitState.Distracted))

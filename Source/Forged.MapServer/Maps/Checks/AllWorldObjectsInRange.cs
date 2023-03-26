@@ -8,8 +8,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AllWorldObjectsInRange : ICheck<WorldObject>
 {
-	readonly WorldObject _pObject;
-	readonly float _fRange;
+    private readonly WorldObject _pObject;
+    private readonly float _fRange;
 
 	public AllWorldObjectsInRange(WorldObject obj, float maxRange)
 	{

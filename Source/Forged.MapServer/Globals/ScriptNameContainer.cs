@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Globals;
 
-class ScriptNameContainer
+internal class ScriptNameContainer
 {
     private readonly Dictionary<string, Entry> _nameToIndex = new();
     private readonly List<Entry> _indexToName = new();

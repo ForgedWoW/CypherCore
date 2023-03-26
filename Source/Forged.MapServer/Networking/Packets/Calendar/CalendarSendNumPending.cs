@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarSendNumPending : ServerPacket
+internal class CalendarSendNumPending : ServerPacket
 {
 	public uint NumPending;
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class RequestRaidInfo : ClientPacket
+internal class RequestRaidInfo : ClientPacket
 {
 	public RequestRaidInfo(WorldPacket packet) : base(packet) { }
 

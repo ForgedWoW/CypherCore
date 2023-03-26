@@ -10,9 +10,9 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicTreeIntersectionCallback : WorkerCallback
 {
-	readonly PhaseShift _phaseShift;
+    private readonly PhaseShift _phaseShift;
 
-	bool _didHit;
+    private bool _didHit;
 
 	public DynamicTreeIntersectionCallback(PhaseShift phaseShift)
 	{

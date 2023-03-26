@@ -9,7 +9,7 @@ namespace Forged.MapServer.Networking.Packets.CombatLog;
 public class CombatLogServerPacket : ServerPacket
 {
 	internal SpellCastLogData LogData;
-	bool _includeLogData;
+    private bool _includeLogData;
 
 	public CombatLogServerPacket(ServerOpcodes opcode, ConnectionType connection = ConnectionType.Realm) : base(opcode, connection)
 	{

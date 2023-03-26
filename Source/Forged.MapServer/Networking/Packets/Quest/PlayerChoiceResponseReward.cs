@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class PlayerChoiceResponseReward
+internal class PlayerChoiceResponseReward
 {
 	public int TitleID;
 	public int PackageID;

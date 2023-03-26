@@ -9,10 +9,10 @@ using Framework.IO;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("guild")]
-class GuildCommands
+internal class GuildCommands
 {
 	[Command("create", RBACPermissions.CommandGuildCreate, true)]
-	static bool HandleGuildCreateCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleGuildCreateCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -61,7 +61,7 @@ class GuildCommands
 	}
 
 	[Command("delete", RBACPermissions.CommandGuildDelete, true)]
-	static bool HandleGuildDeleteCommand(CommandHandler handler, QuotedString guildName)
+    private static bool HandleGuildDeleteCommand(CommandHandler handler, QuotedString guildName)
 	{
 		if (guildName.IsEmpty())
 			return false;
@@ -77,7 +77,7 @@ class GuildCommands
 	}
 
 	[Command("invite", RBACPermissions.CommandGuildInvite, true)]
-	static bool HandleGuildInviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
+    private static bool HandleGuildInviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
 	{
 		if (targetIdentifier == null)
 			targetIdentifier = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -99,7 +99,7 @@ class GuildCommands
 	}
 
 	[Command("uninvite", RBACPermissions.CommandGuildUninvite, true)]
-	static bool HandleGuildUninviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
+    private static bool HandleGuildUninviteCommand(CommandHandler handler, PlayerIdentifier targetIdentifier, QuotedString guildName)
 	{
 		if (targetIdentifier == null)
 			targetIdentifier = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -123,7 +123,7 @@ class GuildCommands
 	}
 
 	[Command("rank", RBACPermissions.CommandGuildRank, true)]
-	static bool HandleGuildRankCommand(CommandHandler handler, PlayerIdentifier player, byte rank)
+    private static bool HandleGuildRankCommand(CommandHandler handler, PlayerIdentifier player, byte rank)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -145,7 +145,7 @@ class GuildCommands
 	}
 
 	[Command("rename", RBACPermissions.CommandGuildRename, true)]
-	static bool HandleGuildRenameCommand(CommandHandler handler, QuotedString oldGuildName, QuotedString newGuildName)
+    private static bool HandleGuildRenameCommand(CommandHandler handler, QuotedString oldGuildName, QuotedString newGuildName)
 	{
 		if (oldGuildName.IsEmpty())
 		{
@@ -190,7 +190,7 @@ class GuildCommands
 	}
 
 	[Command("info", RBACPermissions.CommandGuildInfo, true)]
-	static bool HandleGuildInfoCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleGuildInfoCommand(CommandHandler handler, StringArguments args)
 	{
 		Guild guild = null;
 		var target = handler.SelectedPlayerOrSelf;

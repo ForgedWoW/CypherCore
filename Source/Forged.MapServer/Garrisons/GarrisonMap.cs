@@ -13,10 +13,10 @@ using Serilog;
 
 namespace Forged.MapServer.Garrisons;
 
-class GarrisonMap : Map
+internal class GarrisonMap : Map
 {
-	readonly ObjectGuid _owner;
-	Player _loadingPlayer; // @workaround Player is not registered in ObjectAccessor during login
+    private readonly ObjectGuid _owner;
+    private Player _loadingPlayer; // @workaround Player is not registered in ObjectAccessor during login
 
 	public GarrisonMap(uint id, long expiry, uint instanceId, ObjectGuid owner) : base(id, expiry, instanceId, Difficulty.Normal)
 	{
@@ -66,14 +66,14 @@ class GarrisonMap : Map
 	}
 }
 
-class GarrisonGridLoader : IGridNotifierGameObject
+internal class GarrisonGridLoader : IGridNotifierGameObject
 {
-	readonly Cell i_cell;
-	readonly Grid i_grid;
-	readonly GarrisonMap i_map;
-	readonly Garrison i_garrison;
-	readonly uint i_creatures;
-	uint i_gameObjects;
+    private readonly Cell i_cell;
+    private readonly Grid i_grid;
+    private readonly GarrisonMap i_map;
+    private readonly Garrison i_garrison;
+    private readonly uint i_creatures;
+    private uint i_gameObjects;
 	public GridType GridType { get; set; }
 
 	public GarrisonGridLoader(Grid grid, GarrisonMap map, Cell cell, GridType gridType = GridType.Grid)

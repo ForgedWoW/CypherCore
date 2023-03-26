@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestGiverQuestFailed : ServerPacket
+internal class QuestGiverQuestFailed : ServerPacket
 {
 	public uint QuestID;
 	public InventoryResult Reason;

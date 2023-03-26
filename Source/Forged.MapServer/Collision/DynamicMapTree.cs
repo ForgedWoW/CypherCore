@@ -11,7 +11,7 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicMapTree
 {
-	readonly DynTreeImpl impl;
+    private readonly DynTreeImpl impl;
 
 	public DynamicMapTree()
 	{

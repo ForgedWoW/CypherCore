@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class RaidInstanceMessage : ServerPacket
+internal class RaidInstanceMessage : ServerPacket
 {
 	public InstanceResetWarningType Type;
 	public uint MapID;

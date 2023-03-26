@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct VoiceOnAppend : IChannelAppender
+internal struct VoiceOnAppend : IChannelAppender
 {
 	public VoiceOnAppend(ObjectGuid guid)
 	{
@@ -21,5 +21,5 @@ struct VoiceOnAppend : IChannelAppender
 		data.SenderGuid = _guid;
 	}
 
-	readonly ObjectGuid _guid;
+    private readonly ObjectGuid _guid;
 }

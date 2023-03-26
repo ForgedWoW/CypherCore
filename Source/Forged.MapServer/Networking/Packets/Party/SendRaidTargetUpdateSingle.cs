@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SendRaidTargetUpdateSingle : ServerPacket
+internal class SendRaidTargetUpdateSingle : ServerPacket
 {
 	public sbyte PartyIndex;
 	public ObjectGuid Target;

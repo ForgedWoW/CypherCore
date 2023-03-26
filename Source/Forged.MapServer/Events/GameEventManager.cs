@@ -1297,7 +1297,7 @@ public class GameEventManager
 		}
 	}
 
-	void UnApplyEvent(ushort eventID)
+    private void UnApplyEvent(ushort eventID)
 	{
 		Log.Logger.Information("GameEvent {0} \"{1}\" removed.", eventID, _gameEvent[eventID].Description);
 		//! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
@@ -1320,7 +1320,7 @@ public class GameEventManager
 		UpdateBattlegroundSettings();
 	}
 
-	void ApplyNewEvent(ushort eventID)
+    private void ApplyNewEvent(ushort eventID)
 	{
 		var announce = _gameEvent[eventID].Announce;
 
@@ -1353,7 +1353,7 @@ public class GameEventManager
 		_worldManager.ResetEventSeasonalQuests(eventID, GetLastStartTime(eventID));
 	}
 
-	void UpdateEventNPCFlags(ushort eventID)
+    private void UpdateEventNPCFlags(ushort eventID)
 	{
 		MultiMap<uint, ulong> creaturesByMap = new();
 
@@ -1392,7 +1392,7 @@ public class GameEventManager
 												});
 	}
 
-	void UpdateBattlegroundSettings()
+    private void UpdateBattlegroundSettings()
 	{
 		_battlegroundManager.ResetHolidays();
 
@@ -1400,7 +1400,7 @@ public class GameEventManager
 			_battlegroundManager.SetHolidayActive(_gameEventBattlegroundHolidays[activeEventId]);
 	}
 
-	void UpdateEventNPCVendor(ushort eventId, bool activate)
+    private void UpdateEventNPCVendor(ushort eventId, bool activate)
 	{
 		foreach (var npcEventVendor in _gameEventVendors[eventId])
 			if (activate)
@@ -1409,7 +1409,7 @@ public class GameEventManager
 				_objectManager.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
 	}
 
-	void GameEventSpawn(short eventID)
+    private void GameEventSpawn(short eventID)
 	{
 		var internalEventID = _gameEvent.Length + eventID - 1;
 
@@ -1507,7 +1507,7 @@ public class GameEventManager
 		}
 	}
 
-	void GameEventUnspawn(short eventID)
+    private void GameEventUnspawn(short eventID)
 	{
 		var internalEventID = _gameEvent.Length + eventID - 1;
 
@@ -1595,7 +1595,7 @@ public class GameEventManager
 		}
 	}
 
-	void ChangeEquipOrModel(short eventID, bool activate)
+    private void ChangeEquipOrModel(short eventID, bool activate)
 	{
 		foreach (var tuple in _gameEventModelEquip[eventID])
 		{
@@ -1658,7 +1658,7 @@ public class GameEventManager
 		}
 	}
 
-	bool HasCreatureQuestActiveEventExcept(uint questId, ushort eventId)
+    private bool HasCreatureQuestActiveEventExcept(uint questId, ushort eventId)
 	{
 		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
@@ -1669,7 +1669,7 @@ public class GameEventManager
 		return false;
 	}
 
-	bool HasGameObjectQuestActiveEventExcept(uint questId, ushort eventId)
+    private bool HasGameObjectQuestActiveEventExcept(uint questId, ushort eventId)
 	{
 		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
@@ -1680,7 +1680,7 @@ public class GameEventManager
 		return false;
 	}
 
-	bool HasCreatureActiveEventExcept(ulong creatureId, ushort eventId)
+    private bool HasCreatureActiveEventExcept(ulong creatureId, ushort eventId)
 	{
 		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
@@ -1695,7 +1695,7 @@ public class GameEventManager
 		return false;
 	}
 
-	bool HasGameObjectActiveEventExcept(ulong goId, ushort eventId)
+    private bool HasGameObjectActiveEventExcept(ulong goId, ushort eventId)
 	{
 		foreach (var activeEventId in _activeEvents)
 			if (activeEventId != eventId)
@@ -1710,7 +1710,7 @@ public class GameEventManager
 		return false;
 	}
 
-	void UpdateEventQuests(ushort eventId, bool activate)
+    private void UpdateEventQuests(ushort eventId, bool activate)
 	{
 		foreach (var pair in _gameEventCreatureQuests[eventId])
 		{
@@ -1745,7 +1745,7 @@ public class GameEventManager
 		}
 	}
 
-	void UpdateWorldStates(ushort eventID, bool activate)
+    private void UpdateWorldStates(ushort eventID, bool activate)
 	{
 		var ev = _gameEvent[eventID];
 
@@ -1764,7 +1764,7 @@ public class GameEventManager
 		}
 	}
 
-	bool CheckOneGameEventConditions(ushort eventID)
+    private bool CheckOneGameEventConditions(ushort eventID)
 	{
 		foreach (var pair in _gameEvent[eventID].Conditions)
 			if (pair.Value.Done < pair.Value.ReqNum)
@@ -1784,7 +1784,7 @@ public class GameEventManager
 		return true;
 	}
 
-	void SaveWorldEventStateToDB(ushort eventID)
+    private void SaveWorldEventStateToDB(ushort eventID)
 	{
 		SQLTransaction trans = new();
 
@@ -1800,7 +1800,7 @@ public class GameEventManager
 		_characterDatabase.CommitTransaction(trans);
 	}
 
-	void RunSmartAIScripts(ushort eventID, bool activate)
+    private void RunSmartAIScripts(ushort eventID, bool activate)
 	{
 		//! Iterate over every supported source type (creature and gameobject)
 		//! Not entirely sure how this will affect units in non-loaded grids.
@@ -1812,7 +1812,7 @@ public class GameEventManager
 		});
 	}
 
-	void SetHolidayEventTime(GameEventData gameEvent)
+    private void SetHolidayEventTime(GameEventData gameEvent)
 	{
 		if (gameEvent.HolidayStage == 0) // Ignore holiday
 			return;
@@ -1898,7 +1898,7 @@ public class GameEventManager
 		}
 	}
 
-	long GetLastStartTime(ushort eventID)
+    private long GetLastStartTime(ushort eventID)
 	{
 		if (eventID >= _gameEvent.Length)
 			return 0;
@@ -1914,12 +1914,12 @@ public class GameEventManager
 		return Time.DateTimeToUnixTime(now - durationSinceLastStart);
 	}
 
-	void AddActiveEvent(ushort eventID)
+    private void AddActiveEvent(ushort eventID)
 	{
 		_activeEvents.Add(eventID);
 	}
 
-	void RemoveActiveEvent(ushort eventID)
+    private void RemoveActiveEvent(ushort eventID)
 	{
 		_activeEvents.Remove(eventID);
 	}
@@ -1974,10 +1974,10 @@ public class ModelEquip
 	public byte EquipementIDPrev;
 }
 
-class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierWorldObject
+internal class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierWorldObject
 {
-	readonly ushort _eventId;
-	readonly bool _activate;
+    private readonly ushort _eventId;
+    private readonly bool _activate;
 	public GridType GridType { get; set; }
 
 	public GameEventAIHookWorker(ushort eventId, bool activate, GridType gridType = GridType.All)

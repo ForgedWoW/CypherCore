@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Social;
 
-class SocialContractRequest : ClientPacket
+internal class SocialContractRequest : ClientPacket
 {
 	public SocialContractRequest(WorldPacket packet) : base(packet) { }
 

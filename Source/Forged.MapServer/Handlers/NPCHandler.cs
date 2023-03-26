@@ -246,7 +246,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TabardVendorActivate, Processing = PacketProcessing.Inplace)]
-	void HandleTabardVendorActivate(Hello packet)
+    private void HandleTabardVendorActivate(Hello packet)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.TabardDesigner, NPCFlags2.None);
 
@@ -265,7 +265,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TrainerList, Processing = PacketProcessing.Inplace)]
-	void HandleTrainerList(Hello packet)
+    private void HandleTrainerList(Hello packet)
 	{
 		var npc = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Trainer, NPCFlags2.None);
 
@@ -285,7 +285,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TrainerBuySpell, Processing = PacketProcessing.Inplace)]
-	void HandleTrainerBuySpell(TrainerBuySpell packet)
+    private void HandleTrainerBuySpell(TrainerBuySpell packet)
 	{
 		var npc = _player.GetNPCIfCanInteractWith(packet.TrainerGUID, NPCFlags.Trainer, NPCFlags2.None);
 
@@ -315,7 +315,7 @@ public class NPCHandler : IWorldSessionHandler
 		trainer.TeachSpell(npc, _player, packet.SpellID);
 	}
 
-	void SendTrainerBuyFailed(ObjectGuid trainerGUID, uint spellID, TrainerFailReason trainerFailedReason)
+    private void SendTrainerBuyFailed(ObjectGuid trainerGUID, uint spellID, TrainerFailReason trainerFailedReason)
 	{
 		TrainerBuyFailed trainerBuyFailed = new();
 		trainerBuyFailed.TrainerGUID = trainerGUID;
@@ -325,7 +325,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TalkToGossip, Processing = PacketProcessing.Inplace)]
-	void HandleGossipHello(Hello packet)
+    private void HandleGossipHello(Hello packet)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Gossip, NPCFlags2.None);
 
@@ -376,7 +376,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GossipSelectOption)]
-	void HandleGossipSelectOption(GossipSelectOption packet)
+    private void HandleGossipSelectOption(GossipSelectOption packet)
 	{
 		var gossipMenuItem = _player.PlayerTalkClass.GetGossipMenu().GetItem(packet.GossipOptionID);
 
@@ -467,7 +467,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SpiritHealerActivate)]
-	void HandleSpiritHealerActivate(SpiritHealerActivate packet)
+    private void HandleSpiritHealerActivate(SpiritHealerActivate packet)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(packet.Healer, NPCFlags.SpiritHealer, NPCFlags2.None);
 
@@ -485,7 +485,7 @@ public class NPCHandler : IWorldSessionHandler
 		SendSpiritResurrect();
 	}
 
-	void SendSpiritResurrect()
+    private void SendSpiritResurrect()
 	{
 		Player.ResurrectPlayer(0.5f, true);
 
@@ -512,7 +512,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BinderActivate, Processing = PacketProcessing.Inplace)]
-	void HandleBinderActivate(Hello packet)
+    private void HandleBinderActivate(Hello packet)
 	{
 		if (!Player.IsInWorld || !Player.IsAlive)
 			return;
@@ -533,7 +533,7 @@ public class NPCHandler : IWorldSessionHandler
 		SendBindPoint(unit);
 	}
 
-	void SendBindPoint(Creature npc)
+    private void SendBindPoint(Creature npc)
 	{
 		// prevent set homebind to instances in any case
 		if (Player.Map.Instanceable)
@@ -548,7 +548,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestStabledPets, Processing = PacketProcessing.Inplace)]
-	void HandleRequestStabledPets(RequestStabledPets packet)
+    private void HandleRequestStabledPets(RequestStabledPets packet)
 	{
 		if (!CheckStableMaster(packet.StableMaster))
 			return;
@@ -564,7 +564,7 @@ public class NPCHandler : IWorldSessionHandler
 		SendStablePet(packet.StableMaster);
 	}
 
-	void SendPetStableResult(StableResult result)
+    private void SendPetStableResult(StableResult result)
 	{
 		PetStableResult petStableResult = new();
 		petStableResult.Result = result;
@@ -572,7 +572,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetPetSlot)]
-	void HandleSetPetSlot(SetPetSlot setPetSlot)
+    private void HandleSetPetSlot(SetPetSlot setPetSlot)
 	{
 		if (!CheckStableMaster(setPetSlot.StableMaster) || setPetSlot.DestSlot >= (byte)PetSaveMode.LastStableSlot)
 		{
@@ -735,7 +735,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RepairItem, Processing = PacketProcessing.Inplace)]
-	void HandleRepairItem(RepairItem packet)
+    private void HandleRepairItem(RepairItem packet)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(packet.NpcGUID, NPCFlags.Repair, NPCFlags2.None);
 
@@ -770,7 +770,7 @@ public class NPCHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ListInventory, Processing = PacketProcessing.Inplace)]
-	void HandleListInventory(Hello packet)
+    private void HandleListInventory(Hello packet)
 	{
 		if (!Player.IsAlive)
 			return;

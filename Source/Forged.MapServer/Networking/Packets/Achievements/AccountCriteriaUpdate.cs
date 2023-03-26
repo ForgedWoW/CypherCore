@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Achievements;
 
-class AccountCriteriaUpdate : ServerPacket
+internal class AccountCriteriaUpdate : ServerPacket
 {
 	public CriteriaProgressPkt Progress;
 	public AccountCriteriaUpdate() : base(ServerOpcodes.AccountCriteriaUpdate) { }

@@ -24,51 +24,51 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class Aura
 {
-	const int UPDATE_TARGET_MAP_INTERVAL = 500;
+    private const int UPDATE_TARGET_MAP_INTERVAL = 500;
 
-	static readonly List<IAuraScript> Dummy = new();
-	static readonly HashSet<int> DummyHashset = new();
-	static readonly List<(IAuraScript, IAuraEffectHandler)> DummyAuraEffects = new();
-	static readonly Dictionary<Unit, HashSet<int>> DummyAuraFill = new();
-	readonly Dictionary<Type, List<IAuraScript>> _auraScriptsByType = new();
-	readonly Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>> _effectHandlers = new();
-	readonly SpellInfo _spellInfo;
-	readonly Difficulty _castDifficulty;
-	readonly long _applyTime;
-	readonly WorldObject _owner;
-	readonly List<SpellPowerRecord> _periodicCosts = new(); // Periodic costs
+    private static readonly List<IAuraScript> Dummy = new();
+    private static readonly HashSet<int> DummyHashset = new();
+    private static readonly List<(IAuraScript, IAuraEffectHandler)> DummyAuraEffects = new();
+    private static readonly Dictionary<Unit, HashSet<int>> DummyAuraFill = new();
+    private readonly Dictionary<Type, List<IAuraScript>> _auraScriptsByType = new();
+    private readonly Dictionary<int, Dictionary<AuraScriptHookType, List<(IAuraScript, IAuraEffectHandler)>>> _effectHandlers = new();
+    private readonly SpellInfo _spellInfo;
+    private readonly Difficulty _castDifficulty;
+    private readonly long _applyTime;
+    private readonly WorldObject _owner;
+    private readonly List<SpellPowerRecord> _periodicCosts = new(); // Periodic costs
 
-	readonly uint _casterLevel; // Aura level (store caster level for correct show level dep amount)
-	readonly Dictionary<ObjectGuid, AuraApplication> _auraApplications = new();
-	readonly List<AuraApplication> _removedApplications = new();
-	readonly ObjectGuid _castId;
-	readonly ObjectGuid _casterGuid;
-	readonly SpellCastVisual _spellCastVisual;
+    private readonly uint _casterLevel; // Aura level (store caster level for correct show level dep amount)
+    private readonly Dictionary<ObjectGuid, AuraApplication> _auraApplications = new();
+    private readonly List<AuraApplication> _removedApplications = new();
+    private readonly ObjectGuid _castId;
+    private readonly ObjectGuid _casterGuid;
+    private readonly SpellCastVisual _spellCastVisual;
 
-	List<AuraScript> _loadedScripts = new();
-	ObjectGuid _castItemGuid;
-	uint _castItemId;
-	int _castItemLevel;
+    private List<AuraScript> _loadedScripts = new();
+    private ObjectGuid _castItemGuid;
+    private uint _castItemId;
+    private int _castItemLevel;
 
-	int _maxDuration;             // Max aura duration
-	int _duration;                // Current time
-	int _timeCla;                 // Timer for power per sec calcultion
-	int _updateTargetMapInterval; // Timer for UpdateTargetMapOfEffect
-	byte _procCharges;            // Aura charges (0 for infinite)
-	byte _stackAmount;            // Aura stack amount
+    private int _maxDuration;             // Max aura duration
+    private int _duration;                // Current time
+    private int _timeCla;                 // Timer for power per sec calcultion
+    private int _updateTargetMapInterval; // Timer for UpdateTargetMapOfEffect
+    private byte _procCharges;            // Aura charges (0 for infinite)
+    private byte _stackAmount;            // Aura stack amount
 
 	//might need to be arrays still
-	Dictionary<int, AuraEffect> _effects;
+    private Dictionary<int, AuraEffect> _effects;
 
-	bool _isRemoved;
-	bool _isSingleTarget; // true if it's a single target spell and registered at caster - can change at spell steal for example
-	bool _isUsingCharges;
+    private bool _isRemoved;
+    private bool _isSingleTarget; // true if it's a single target spell and registered at caster - can change at spell steal for example
+    private bool _isUsingCharges;
 
-	ChargeDropEvent _chargeDropEvent;
+    private ChargeDropEvent _chargeDropEvent;
 
-	DateTime _procCooldown;
-	DateTime _lastProcAttemptTime;
-	DateTime _lastProcSuccessTime;
+    private DateTime _procCooldown;
+    private DateTime _lastProcAttemptTime;
+    private DateTime _lastProcSuccessTime;
 	public Guid Guid { get; } = Guid.NewGuid();
 	public byte? EmpoweredStage { get; set; }
 
@@ -1949,7 +1949,7 @@ public class Aura
 		return aura;
 	}
 
-	WorldObject GetWorldObjectCaster()
+    private WorldObject GetWorldObjectCaster()
 	{
 		if (CasterGuid.IsUnit)
 			return Caster;
@@ -1957,7 +1957,7 @@ public class Aura
 		return Global.ObjAccessor.GetWorldObject(Owner, CasterGuid);
 	}
 
-	void Update(uint diff, Unit caster)
+    private void Update(uint diff, Unit caster)
 	{
 		ForEachAuraScript<IAuraOnUpdate>(u => u.AuraOnUpdate(diff));
 
@@ -2014,7 +2014,7 @@ public class Aura
 		}
 	}
 
-	void RefreshTimers(bool resetPeriodicTimer)
+    private void RefreshTimers(bool resetPeriodicTimer)
 	{
 		_maxDuration = CalcMaxDuration();
 
@@ -2045,7 +2045,7 @@ public class Aura
 			aurEff.Value.CalculatePeriodic(caster, resetPeriodicTimer, false);
 	}
 
-	bool CanBeAppliedOn(Unit target)
+    private bool CanBeAppliedOn(Unit target)
 	{
 		foreach (var label in SpellInfo.Labels)
 			if (target.HasAuraTypeWithMiscvalue(AuraType.SuppressItemPassiveEffectBySpellLabel, (int)label))
@@ -2070,12 +2070,12 @@ public class Aura
 		}
 	}
 
-	bool CheckAreaTarget(Unit target)
+    private bool CheckAreaTarget(Unit target)
 	{
 		return CallScriptCheckAreaTargetHandlers(target);
 	}
 
-	double CalcProcChance(SpellProcEntry procEntry, ProcEventInfo eventInfo)
+    private double CalcProcChance(SpellProcEntry procEntry, ProcEventInfo eventInfo)
 	{
 		double chance = procEntry.Chance;
 		// calculate chances depending on unit with caster's data
@@ -2108,7 +2108,7 @@ public class Aura
 		return chance;
 	}
 
-	void _DeleteRemovedApplications()
+    private void _DeleteRemovedApplications()
 	{
 		_removedApplications.Clear();
 	}
@@ -2173,7 +2173,7 @@ public class Aura
 		effects.Add((script, effect));
 	}
 
-	byte CalcMaxCharges(Unit caster)
+    private byte CalcMaxCharges(Unit caster)
 	{
 		var maxProcCharges = _spellInfo.ProcCharges;
 		var procEntry = Global.SpellMgr.GetSpellProcEntry(SpellInfo);
@@ -2194,7 +2194,7 @@ public class Aura
 
 	#region CallScripts
 
-	bool CallScriptCheckAreaTargetHandlers(Unit target)
+    private bool CallScriptCheckAreaTargetHandlers(Unit target)
 	{
 		var result = true;
 

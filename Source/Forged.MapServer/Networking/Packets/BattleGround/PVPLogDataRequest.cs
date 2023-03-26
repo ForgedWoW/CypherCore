@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class PVPLogDataRequest : ClientPacket
+internal class PVPLogDataRequest : ClientPacket
 {
 	public PVPLogDataRequest(WorldPacket packet) : base(packet) { }
 

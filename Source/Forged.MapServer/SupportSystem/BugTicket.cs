@@ -14,8 +14,8 @@ namespace Forged.MapServer.SupportSystem;
 
 public class BugTicket : Ticket
 {
-	float _facing;
-	string _note;
+    private float _facing;
+    private string _note;
 
 	public BugTicket()
 	{
@@ -118,7 +118,7 @@ public class BugTicket : Ticket
 		_note = note;
 	}
 
-	string GetNote()
+    private string GetNote()
 	{
 		return _note;
 	}

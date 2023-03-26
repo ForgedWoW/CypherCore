@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonRemoteInfo : ServerPacket
+internal class GarrisonRemoteInfo : ServerPacket
 {
 	public List<GarrisonRemoteSiteInfo> Sites = new();
 	public GarrisonRemoteInfo() : base(ServerOpcodes.GarrisonRemoteInfo, ConnectionType.Instance) { }

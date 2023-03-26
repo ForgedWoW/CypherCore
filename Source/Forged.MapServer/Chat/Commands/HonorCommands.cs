@@ -7,10 +7,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("honor")]
-class HonorCommands
+internal class HonorCommands
 {
 	[Command("update", RBACPermissions.CommandHonorUpdate)]
-	static bool HandleHonorUpdateCommand(CommandHandler handler)
+    private static bool HandleHonorUpdateCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -31,10 +31,10 @@ class HonorCommands
 	}
 
 	[CommandGroup("add")]
-	class HonorAddCommands
+    private class HonorAddCommands
 	{
 		[Command("", RBACPermissions.CommandHonorAdd)]
-		static bool HandleHonorAddCommand(CommandHandler handler, int amount)
+        private static bool HandleHonorAddCommand(CommandHandler handler, int amount)
 		{
 			var target = handler.SelectedPlayer;
 
@@ -55,7 +55,7 @@ class HonorCommands
 		}
 
 		[Command("kill", RBACPermissions.CommandHonorAddKill)]
-		static bool HandleHonorAddKillCommand(CommandHandler handler)
+        private static bool HandleHonorAddKillCommand(CommandHandler handler)
 		{
 			var target = handler.SelectedUnit;
 

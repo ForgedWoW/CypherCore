@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct BannedAppend : IChannelAppender
+internal struct BannedAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.BannedNotice;
 

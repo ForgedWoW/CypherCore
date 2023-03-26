@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetActionSound : ServerPacket
+internal class PetActionSound : ServerPacket
 {
 	public ObjectGuid UnitGUID;
 	public PetTalk Action;

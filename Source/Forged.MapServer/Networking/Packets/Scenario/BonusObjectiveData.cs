@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-struct BonusObjectiveData
+internal struct BonusObjectiveData
 {
 	public void Write(WorldPacket data)
 	{

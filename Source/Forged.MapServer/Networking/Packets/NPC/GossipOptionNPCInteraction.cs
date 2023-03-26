@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class GossipOptionNPCInteraction : ServerPacket
+internal class GossipOptionNPCInteraction : ServerPacket
 {
 	public ObjectGuid GossipGUID;
 	public int GossipNpcOptionID;

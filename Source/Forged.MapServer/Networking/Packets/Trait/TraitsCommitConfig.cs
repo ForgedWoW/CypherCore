@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class TraitsCommitConfig : ClientPacket
+internal class TraitsCommitConfig : ClientPacket
 {
 	public TraitConfigPacket Config = new();
 	public int SavedConfigID;

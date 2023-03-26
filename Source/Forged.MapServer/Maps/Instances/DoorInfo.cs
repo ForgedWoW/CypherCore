@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps.Instances;
 
-class DoorInfo
+internal class DoorInfo
 {
 	public BossInfo BossInfo { get; set; }
 	public DoorType Type { get; set; }

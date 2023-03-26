@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Reputation;
 
-struct ForcedReaction
+internal struct ForcedReaction
 {
 	public void Write(WorldPacket data)
 	{

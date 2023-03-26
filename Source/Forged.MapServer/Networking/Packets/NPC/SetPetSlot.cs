@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class SetPetSlot : ClientPacket
+internal class SetPetSlot : ClientPacket
 {
 	public ObjectGuid StableMaster;
 	public uint PetNumber;

@@ -8,7 +8,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Hotfix;
 
-class HotfixConnect : ServerPacket
+internal class HotfixConnect : ServerPacket
 {
 	public List<HotfixData> Hotfixes = new();
 	public ByteBuffer HotfixContent = new();

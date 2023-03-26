@@ -23,15 +23,15 @@ namespace Forged.MapServer.Entities.Players;
 
 public class CollectionMgr
 {
-	static readonly Dictionary<uint, uint> FactionSpecificMounts = new();
-	readonly WorldSession _owner;
-	readonly Dictionary<uint, ToyFlags> _toys = new();
-	readonly Dictionary<uint, HeirloomData> _heirlooms = new();
-	readonly Dictionary<uint, MountStatusFlags> _mounts = new();
-	readonly MultiMap<uint, ObjectGuid> _temporaryAppearances = new();
-	readonly Dictionary<uint, FavoriteAppearanceState> _favoriteAppearances = new();
+    private static readonly Dictionary<uint, uint> FactionSpecificMounts = new();
+    private readonly WorldSession _owner;
+    private readonly Dictionary<uint, ToyFlags> _toys = new();
+    private readonly Dictionary<uint, HeirloomData> _heirlooms = new();
+    private readonly Dictionary<uint, MountStatusFlags> _mounts = new();
+    private readonly MultiMap<uint, ObjectGuid> _temporaryAppearances = new();
+    private readonly Dictionary<uint, FavoriteAppearanceState> _favoriteAppearances = new();
 
-	readonly uint[] _playerClassByArmorSubclass =
+    private readonly uint[] _playerClassByArmorSubclass =
 	{
 		(int)PlayerClass.ClassMaskAllPlayable,                                                                                                                          //ITEM_SUBCLASS_ARMOR_MISCELLANEOUS
 		(1 << ((int)PlayerClass.Priest - 1)) | (1 << ((int)PlayerClass.Mage - 1)) | (1 << ((int)PlayerClass.Warlock - 1)),                                              //ITEM_SUBCLASS_ARMOR_CLOTH
@@ -47,8 +47,8 @@ public class CollectionMgr
 		(1 << ((int)PlayerClass.Paladin - 1)) | (1 << ((int)PlayerClass.Deathknight - 1)) | (1 << ((int)PlayerClass.Shaman - 1)) | (1 << ((int)PlayerClass.Druid - 1)), //ITEM_SUBCLASS_ARMOR_RELIC
 	};
 
-	BitSet _appearances;
-	BitSet _transmogIllusions;
+    private BitSet _appearances;
+    private BitSet _transmogIllusions;
 
 	public CollectionMgr(WorldSession owner)
 	{
@@ -790,7 +790,7 @@ public class CollectionMgr
 		return _mounts;
 	}
 
-	bool UpdateAccountToys(uint itemId, bool isFavourite, bool hasFanfare)
+    private bool UpdateAccountToys(uint itemId, bool isFavourite, bool hasFanfare)
 	{
 		if (_toys.ContainsKey(itemId))
 			return false;
@@ -800,7 +800,7 @@ public class CollectionMgr
 		return true;
 	}
 
-	ToyFlags GetToyFlags(bool isFavourite, bool hasFanfare)
+    private ToyFlags GetToyFlags(bool isFavourite, bool hasFanfare)
 	{
 		var flags = ToyFlags.None;
 
@@ -813,7 +813,7 @@ public class CollectionMgr
 		return flags;
 	}
 
-	bool UpdateAccountHeirlooms(uint itemId, HeirloomPlayerFlags flags)
+    private bool UpdateAccountHeirlooms(uint itemId, HeirloomPlayerFlags flags)
 	{
 		if (_heirlooms.ContainsKey(itemId))
 			return false;
@@ -823,7 +823,7 @@ public class CollectionMgr
 		return true;
 	}
 
-	void SendSingleMountUpdate(uint spellId, MountStatusFlags mountStatusFlags)
+    private void SendSingleMountUpdate(uint spellId, MountStatusFlags mountStatusFlags)
 	{
 		var player = _owner.Player;
 
@@ -839,7 +839,7 @@ public class CollectionMgr
 		player.SendPacket(mountUpdate);
 	}
 
-	bool CanAddAppearance(ItemModifiedAppearanceRecord itemModifiedAppearance)
+    private bool CanAddAppearance(ItemModifiedAppearanceRecord itemModifiedAppearance)
 	{
 		if (itemModifiedAppearance == null)
 			return false;
@@ -929,7 +929,7 @@ public class CollectionMgr
 	}
 
 	//todo  check this
-	void AddItemAppearance(ItemModifiedAppearanceRecord itemModifiedAppearance)
+    private void AddItemAppearance(ItemModifiedAppearanceRecord itemModifiedAppearance)
 	{
 		var owner = _owner.Player;
 
@@ -972,7 +972,7 @@ public class CollectionMgr
 				_owner.Player.UpdateCriteria(CriteriaType.CollectTransmogSetFromGroup, set.TransmogSetGroupID);
 	}
 
-	void AddTemporaryAppearance(ObjectGuid itemGuid, ItemModifiedAppearanceRecord itemModifiedAppearance)
+    private void AddTemporaryAppearance(ObjectGuid itemGuid, ItemModifiedAppearanceRecord itemModifiedAppearance)
 	{
 		var itemsWithAppearance = _temporaryAppearances[itemModifiedAppearance.Id];
 
@@ -982,7 +982,7 @@ public class CollectionMgr
 		itemsWithAppearance.Add(itemGuid);
 	}
 
-	bool IsSetCompleted(uint transmogSetId)
+    private bool IsSetCompleted(uint transmogSetId)
 	{
 		var transmogSetItems = Global.DB2Mgr.GetTransmogSetItems(transmogSetId);
 

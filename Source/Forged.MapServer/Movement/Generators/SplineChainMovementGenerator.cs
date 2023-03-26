@@ -12,13 +12,13 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class SplineChainMovementGenerator : MovementGenerator
 {
-	readonly uint _id;
-	readonly List<SplineChainLink> _chain = new();
-	readonly byte _chainSize;
-	readonly bool _walk;
-	byte _nextIndex;
-	byte _nextFirstWP; // only used for resuming
-	uint _msToNext;
+    private readonly uint _id;
+    private readonly List<SplineChainLink> _chain = new();
+    private readonly byte _chainSize;
+    private readonly bool _walk;
+    private byte _nextIndex;
+    private byte _nextFirstWP; // only used for resuming
+    private uint _msToNext;
 
 	public SplineChainMovementGenerator(uint id, List<SplineChainLink> chain, bool walk = false)
 	{
@@ -195,7 +195,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 		return _id;
 	}
 
-	uint SendPathSpline(Unit owner, float velocity, Span<Vector3> path)
+    private uint SendPathSpline(Unit owner, float velocity, Span<Vector3> path)
 	{
 		var nodeCount = path.Length;
 
@@ -214,7 +214,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 		return (uint)init.Launch();
 	}
 
-	void SendSplineFor(Unit owner, int index, ref uint duration)
+    private void SendSplineFor(Unit owner, int index, ref uint duration)
 	{
 		Log.Logger.Debug($"SplineChainMovementGenerator::SendSplineFor: sending spline on index: {index}. ({owner.GUID})");
 
@@ -232,7 +232,7 @@ public class SplineChainMovementGenerator : MovementGenerator
 		}
 	}
 
-	SplineChainResumeInfo GetResumeInfo(Unit owner)
+    private SplineChainResumeInfo GetResumeInfo(Unit owner)
 	{
 		if (_nextIndex == 0)
 			return new SplineChainResumeInfo(_id, _chain, _walk, 0, 0, _msToNext);

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class VoidStorageTransferChanges : ServerPacket
+internal class VoidStorageTransferChanges : ServerPacket
 {
 	public List<ObjectGuid> RemovedItems = new();
 	public List<VoidItem> AddedItems = new();

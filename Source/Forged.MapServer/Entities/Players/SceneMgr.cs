@@ -14,13 +14,13 @@ namespace Forged.MapServer.Entities.Players;
 
 public class SceneMgr
 {
-	readonly Player _player;
-	readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
-	readonly List<ServerPacket> _delayedScenes = new();
-	uint _standaloneSceneInstanceId;
-	bool _isDebuggingScenes;
+    private readonly Player _player;
+    private readonly Dictionary<uint, SceneTemplate> _scenesByInstance = new();
+    private readonly List<ServerPacket> _delayedScenes = new();
+    private uint _standaloneSceneInstanceId;
+    private bool _isDebuggingScenes;
 
-	Player Player => _player;
+    private Player Player => _player;
 
 	public SceneMgr(Player player)
 	{
@@ -211,7 +211,7 @@ public class SceneMgr
 		return _isDebuggingScenes;
 	}
 
-	void CancelScene(uint sceneInstanceId, bool removeFromMap = true)
+    private void CancelScene(uint sceneInstanceId, bool removeFromMap = true)
 	{
 		if (removeFromMap)
 			RemoveSceneInstanceId(sceneInstanceId);
@@ -224,7 +224,7 @@ public class SceneMgr
 		Player.SendPacket(cancelScene);
 	}
 
-	bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)
+    private bool HasScene(uint sceneInstanceId, uint sceneScriptPackageId = 0)
 	{
 		var sceneTempalte = _scenesByInstance.LookupByKey(sceneInstanceId);
 
@@ -234,17 +234,17 @@ public class SceneMgr
 		return false;
 	}
 
-	void AddInstanceIdToSceneMap(uint sceneInstanceId, SceneTemplate sceneTemplate)
+    private void AddInstanceIdToSceneMap(uint sceneInstanceId, SceneTemplate sceneTemplate)
 	{
 		_scenesByInstance[sceneInstanceId] = sceneTemplate;
 	}
 
-	void RemoveSceneInstanceId(uint sceneInstanceId)
+    private void RemoveSceneInstanceId(uint sceneInstanceId)
 	{
 		_scenesByInstance.Remove(sceneInstanceId);
 	}
 
-	void RemoveAurasDueToSceneId(uint sceneId)
+    private void RemoveAurasDueToSceneId(uint sceneId)
 	{
 		var scenePlayAuras = Player.GetAuraEffectsByType(AuraType.PlayScene);
 
@@ -257,18 +257,18 @@ public class SceneMgr
 			}
 	}
 
-	SceneTemplate GetSceneTemplateFromInstanceId(uint sceneInstanceId)
+    private SceneTemplate GetSceneTemplateFromInstanceId(uint sceneInstanceId)
 	{
 		return _scenesByInstance.LookupByKey(sceneInstanceId);
 	}
 
-	void RecreateScene(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
+    private void RecreateScene(uint sceneScriptPackageId, SceneFlags playbackflags, Position position = null)
 	{
 		CancelSceneByPackageId(sceneScriptPackageId);
 		PlaySceneByPackageId(sceneScriptPackageId, playbackflags, position);
 	}
 
-	uint GetNewStandaloneSceneInstanceId()
+    private uint GetNewStandaloneSceneInstanceId()
 	{
 		return ++_standaloneSceneInstanceId;
 	}

@@ -10,9 +10,9 @@ namespace Forged.MapServer.Collision;
 
 public class DynamicTreeLocationInfoCallback : WorkerCallback
 {
-	readonly PhaseShift _phaseShift;
-	readonly LocationInfo _locationInfo = new();
-	GameObjectModel _hitModel = new();
+    private readonly PhaseShift _phaseShift;
+    private readonly LocationInfo _locationInfo = new();
+    private GameObjectModel _hitModel = new();
 
 	public DynamicTreeLocationInfoCallback(PhaseShift phaseShift)
 	{

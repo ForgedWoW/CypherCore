@@ -16,9 +16,9 @@ namespace Forged.MapServer.Networking;
 
 public class PacketLog
 {
-	static readonly string FullPath;
-	static readonly ConcurrentQueue<(byte[], uint, IPEndPoint, ConnectionType, bool)> PacketQueue = new();
-	static readonly AutoResetEvent QueueSemaphore = new(false);
+    private static readonly string FullPath;
+    private static readonly ConcurrentQueue<(byte[], uint, IPEndPoint, ConnectionType, bool)> PacketQueue = new();
+    private static readonly AutoResetEvent QueueSemaphore = new(false);
 
 	static PacketLog()
 	{

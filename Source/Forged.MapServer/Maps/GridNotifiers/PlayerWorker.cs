@@ -13,8 +13,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class PlayerWorker : IGridNotifierPlayer
 {
-	readonly PhaseShift _phaseShift;
-	readonly Action<Player> _action;
+    private readonly PhaseShift _phaseShift;
+    private readonly Action<Player> _action;
 
 	public GridType GridType { get; set; }
 

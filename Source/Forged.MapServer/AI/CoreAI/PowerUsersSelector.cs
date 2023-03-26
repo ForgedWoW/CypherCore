@@ -7,12 +7,12 @@ using Framework.Constants;
 
 namespace Forged.MapServer.AI.CoreAI;
 
-class PowerUsersSelector : ICheck<Unit>
+internal class PowerUsersSelector : ICheck<Unit>
 {
-	readonly Unit _me;
-	readonly PowerType _power;
-	readonly float _dist;
-	readonly bool _playerOnly;
+    private readonly Unit _me;
+    private readonly PowerType _power;
+    private readonly float _dist;
+    private readonly bool _playerOnly;
 
 	public PowerUsersSelector(Unit unit, PowerType power, float dist, bool playerOnly)
 	{

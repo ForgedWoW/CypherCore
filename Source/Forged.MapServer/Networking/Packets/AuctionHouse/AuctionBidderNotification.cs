@@ -7,7 +7,7 @@ using Forged.MapServer.Networking.Packets.Item;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-struct AuctionBidderNotification
+internal struct AuctionBidderNotification
 {
 	public uint AuctionID;
 	public ObjectGuid Bidder;

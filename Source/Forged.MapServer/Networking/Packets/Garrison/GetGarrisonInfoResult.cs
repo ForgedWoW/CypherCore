@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GetGarrisonInfoResult : ServerPacket
+internal class GetGarrisonInfoResult : ServerPacket
 {
 	public uint FactionIndex;
 	public List<GarrisonInfo> Garrisons = new();

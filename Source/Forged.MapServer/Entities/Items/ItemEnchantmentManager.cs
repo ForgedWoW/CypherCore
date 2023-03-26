@@ -10,7 +10,7 @@ namespace Forged.MapServer.Entities.Items;
 
 public class ItemEnchantmentManager
 {
-	static readonly Dictionary<uint, RandomBonusListIds> _storage = new();
+    private static readonly Dictionary<uint, RandomBonusListIds> _storage = new();
 
 	public static void LoadItemRandomBonusListTemplates()
 	{

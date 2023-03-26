@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionHelloRequest : ClientPacket
+internal class AuctionHelloRequest : ClientPacket
 {
 	public ObjectGuid Guid;
 

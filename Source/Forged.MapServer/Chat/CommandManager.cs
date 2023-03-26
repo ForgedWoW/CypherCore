@@ -12,7 +12,7 @@ namespace Forged.MapServer.Chat;
 
 public class CommandManager
 {
-	static readonly SortedDictionary<string, ChatCommandNode> _commands = new();
+    private static readonly SortedDictionary<string, ChatCommandNode> _commands = new();
 
 	public static SortedDictionary<string, ChatCommandNode> Commands => _commands;
 
@@ -106,7 +106,7 @@ public class CommandManager
 		}
 	}
 
-	static void BuildSubCommandsForCommand(ChatCommandNode command, Type type)
+    private static void BuildSubCommandsForCommand(ChatCommandNode command, Type type)
 	{
 		foreach (var nestedType in type.GetNestedTypes(BindingFlags.NonPublic))
 		{

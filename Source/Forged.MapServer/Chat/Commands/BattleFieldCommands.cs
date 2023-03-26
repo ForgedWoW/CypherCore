@@ -6,10 +6,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("bf")]
-class BattleFieldCommands
+internal class BattleFieldCommands
 {
 	[Command("enable", RBACPermissions.CommandBfEnable)]
-	static bool HandleBattlefieldEnable(CommandHandler handler, uint battleId)
+    private static bool HandleBattlefieldEnable(CommandHandler handler, uint battleId)
 	{
 		var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Map, battleId);
 
@@ -35,7 +35,7 @@ class BattleFieldCommands
 	}
 
 	[Command("start", RBACPermissions.CommandBfStart)]
-	static bool HandleBattlefieldStart(CommandHandler handler, uint battleId)
+    private static bool HandleBattlefieldStart(CommandHandler handler, uint battleId)
 	{
 		var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Map, battleId);
 
@@ -51,7 +51,7 @@ class BattleFieldCommands
 	}
 
 	[Command("stop", RBACPermissions.CommandBfStop)]
-	static bool HandleBattlefieldEnd(CommandHandler handler, uint battleId)
+    private static bool HandleBattlefieldEnd(CommandHandler handler, uint battleId)
 	{
 		var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Map, battleId);
 
@@ -67,7 +67,7 @@ class BattleFieldCommands
 	}
 
 	[Command("switch", RBACPermissions.CommandBfSwitch)]
-	static bool HandleBattlefieldSwitch(CommandHandler handler, uint battleId)
+    private static bool HandleBattlefieldSwitch(CommandHandler handler, uint battleId)
 	{
 		var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Map, battleId);
 
@@ -83,7 +83,7 @@ class BattleFieldCommands
 	}
 
 	[Command("timer", RBACPermissions.CommandBfTimer)]
-	static bool HandleBattlefieldTimer(CommandHandler handler, uint battleId, uint time)
+    private static bool HandleBattlefieldTimer(CommandHandler handler, uint battleId, uint time)
 	{
 		var bf = Global.BattleFieldMgr.GetBattlefieldByBattleId(handler.Player.Map, battleId);
 

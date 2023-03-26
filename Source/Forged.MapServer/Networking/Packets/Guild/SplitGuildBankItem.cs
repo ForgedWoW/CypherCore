@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Guild;
 
-class SplitGuildBankItem : ClientPacket
+internal class SplitGuildBankItem : ClientPacket
 {
 	public ObjectGuid Banker;
 	public byte BankTab;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetNameInvalid : ServerPacket
+internal class PetNameInvalid : ServerPacket
 {
 	public PetRenameData RenameData;
 	public PetNameInvalidReason Result;

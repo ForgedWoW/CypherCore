@@ -9,7 +9,7 @@ namespace Forged.MapServer.Entities.Units;
 
 public class HealthPctOrderPred : IComparer<WorldObject>
 {
-	readonly bool _ascending;
+    private readonly bool _ascending;
 
 	public HealthPctOrderPred(bool ascending = true)
 	{

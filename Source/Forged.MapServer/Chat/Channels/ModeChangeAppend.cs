@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct ModeChangeAppend : IChannelAppender
+internal struct ModeChangeAppend : IChannelAppender
 {
 	public ModeChangeAppend(ObjectGuid guid, ChannelMemberFlags oldFlags, ChannelMemberFlags newFlags)
 	{
@@ -25,7 +25,7 @@ struct ModeChangeAppend : IChannelAppender
 		data.NewFlags = _newFlags;
 	}
 
-	readonly ObjectGuid _guid;
-	readonly ChannelMemberFlags _oldFlags;
-	readonly ChannelMemberFlags _newFlags;
+    private readonly ObjectGuid _guid;
+    private readonly ChannelMemberFlags _oldFlags;
+    private readonly ChannelMemberFlags _newFlags;
 }

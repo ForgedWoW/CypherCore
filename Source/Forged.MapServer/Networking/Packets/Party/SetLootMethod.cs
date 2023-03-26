@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SetLootMethod : ClientPacket
+internal class SetLootMethod : ClientPacket
 {
 	public sbyte PartyIndex;
 	public ObjectGuid LootMasterGUID;

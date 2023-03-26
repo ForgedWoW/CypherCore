@@ -88,7 +88,7 @@ public class MoveSplineInitArgs
 		return true;
 	}
 
-	bool _checkPathLengths()
+    private bool _checkPathLengths()
 	{
 		if (path.Count > 2 || facing.type == Framework.Constants.MonsterMoveType.Normal)
 			for (var i = 0; i < path.Count - 1; ++i)

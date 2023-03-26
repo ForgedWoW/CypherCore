@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SpecialMountAnim : ServerPacket
+internal class SpecialMountAnim : ServerPacket
 {
 	public ObjectGuid UnitGUID;
 	public List<int> SpellVisualKitIDs = new();

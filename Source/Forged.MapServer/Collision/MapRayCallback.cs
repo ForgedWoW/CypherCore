@@ -9,9 +9,9 @@ namespace Forged.MapServer.Collision;
 
 public class MapRayCallback : WorkerCallback
 {
-	readonly ModelInstance[] _prims;
-	readonly ModelIgnoreFlags _flags;
-	bool _hit;
+    private readonly ModelInstance[] _prims;
+    private readonly ModelIgnoreFlags _flags;
+    private bool _hit;
 
 	public MapRayCallback(ModelInstance[] val, ModelIgnoreFlags ignoreFlags)
 	{

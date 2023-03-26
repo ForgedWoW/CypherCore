@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonAddFollowerResult : ServerPacket
+internal class GarrisonAddFollowerResult : ServerPacket
 {
 	public GarrisonType GarrTypeID;
 	public GarrisonFollower Follower;

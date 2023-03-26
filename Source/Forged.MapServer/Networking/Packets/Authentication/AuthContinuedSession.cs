@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class AuthContinuedSession : ClientPacket
+internal class AuthContinuedSession : ClientPacket
 {
 	public ulong DosResponse;
 	public ulong Key;

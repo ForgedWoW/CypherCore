@@ -356,11 +356,11 @@ public partial class Player : Unit
 	public bool CanTameExoticPets => IsGameMaster || HasAuraType(AuraType.AllowTamePetType);
 
 	//Movement
-	bool IsCanDelayTeleport => _canDelayTeleport;
+    private bool IsCanDelayTeleport => _canDelayTeleport;
 
-	bool IsHasDelayedTeleport => _hasDelayedTeleport;
+    private bool IsHasDelayedTeleport => _hasDelayedTeleport;
 
-	bool IsTotalImmune
+    private bool IsTotalImmune
 	{
 		get
 		{
@@ -380,7 +380,7 @@ public partial class Player : Unit
 		}
 	}
 
-	bool IsInFriendlyArea
+    private bool IsInFriendlyArea
 	{
 		get
 		{
@@ -393,9 +393,9 @@ public partial class Player : Unit
 		}
 	}
 
-	bool IsWarModeDesired => HasPlayerFlag(PlayerFlags.WarModeDesired);
+    private bool IsWarModeDesired => HasPlayerFlag(PlayerFlags.WarModeDesired);
 
-	bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
+    private bool IsWarModeActive => HasPlayerFlag(PlayerFlags.WarModeActive);
 
 	//Pet - Summons - Vehicles
 	public PetStable PetStable1 => _petStable;
@@ -6990,13 +6990,13 @@ public partial class Player : Unit
 		}
 	}
 
-	void ScheduleDelayedOperation(PlayerDelayedOperations operation)
+    private void ScheduleDelayedOperation(PlayerDelayedOperations operation)
 	{
 		if (operation < PlayerDelayedOperations.End)
 			_delayedOperations |= operation;
 	}
 
-	void DeleteGarrison()
+    private void DeleteGarrison()
 	{
 		if (_garrison != null)
 		{
@@ -7006,12 +7006,12 @@ public partial class Player : Unit
 	}
 
 	//Currency
-	void SetCreateCurrency(CurrencyTypes id, uint amount)
+    private void SetCreateCurrency(CurrencyTypes id, uint amount)
 	{
 		SetCreateCurrency((uint)id, amount);
 	}
 
-	void SetCreateCurrency(uint id, uint amount)
+    private void SetCreateCurrency(uint id, uint amount)
 	{
 		if (!_currencyStorage.ContainsKey(id))
 		{
@@ -7026,7 +7026,7 @@ public partial class Player : Unit
 		}
 	}
 
-	uint GetCurrencyIncreasedCapQuantity(uint id)
+    private uint GetCurrencyIncreasedCapQuantity(uint id)
 	{
 		var playerCurrency = _currencyStorage.LookupByKey(id);
 
@@ -7036,7 +7036,7 @@ public partial class Player : Unit
 		return playerCurrency.IncreasedCapQuantity;
 	}
 
-	uint GetCurrencyWeeklyCap(uint id)
+    private uint GetCurrencyWeeklyCap(uint id)
 	{
 		var currency = CliDB.CurrencyTypesStorage.LookupByKey(id);
 
@@ -7046,13 +7046,13 @@ public partial class Player : Unit
 		return GetCurrencyWeeklyCap(currency);
 	}
 
-	uint GetCurrencyWeeklyCap(CurrencyTypesRecord currency)
+    private uint GetCurrencyWeeklyCap(CurrencyTypesRecord currency)
 	{
 		// TODO: CurrencyTypeFlags::ComputedWeeklyMaximum
 		return currency.MaxEarnablePerWeek;
 	}
 
-	bool IsActionButtonDataValid(byte button, ulong action, uint type)
+    private bool IsActionButtonDataValid(byte button, ulong action, uint type)
 	{
 		if (button >= PlayerConst.MaxActionButtons)
 		{
@@ -7131,12 +7131,12 @@ public partial class Player : Unit
 		return true;
 	}
 
-	void SendInitialActionButtons()
+    private void SendInitialActionButtons()
 	{
 		SendActionButtons(0);
 	}
 
-	void SendActionButtons(uint state)
+    private void SendActionButtons(uint state)
 	{
 		UpdateActionButtons packet = new();
 
@@ -7149,7 +7149,7 @@ public partial class Player : Unit
 	}
 
 	// Calculate how many reputation points player gain with the quest
-	void RewardReputation(Quest.Quest quest)
+    private void RewardReputation(Quest.Quest quest)
 	{
 		for (byte i = 0; i < SharedConst.QuestRewardReputationsCount; ++i)
 		{
@@ -7203,17 +7203,17 @@ public partial class Player : Unit
 		}
 	}
 
-	void SetCanDelayTeleport(bool setting)
+    private void SetCanDelayTeleport(bool setting)
 	{
 		_canDelayTeleport = setting;
 	}
 
-	void SetDelayedTeleportFlag(bool setting)
+    private void SetDelayedTeleportFlag(bool setting)
 	{
 		_hasDelayedTeleport = setting;
 	}
 
-	void UpdateLocalChannels(uint newZone)
+    private void UpdateLocalChannels(uint newZone)
 	{
 		if (Session.PlayerLoading && !IsBeingTeleportedFar)
 			return; // The client handles it automatically after loading, but not after teleporting
@@ -7292,12 +7292,12 @@ public partial class Player : Unit
 		}
 	}
 
-	void SendNewMail()
+    private void SendNewMail()
 	{
 		SendPacket(new NotifyReceivedMail());
 	}
 
-	void UpdateHomebindTime(uint time)
+    private void UpdateHomebindTime(uint time)
 	{
 		// GMs never get homebind timer online
 		if (InstanceValid || IsGameMaster)
@@ -7326,7 +7326,7 @@ public partial class Player : Unit
 		}
 	}
 
-	void SendInitWorldStates(uint zoneId, uint areaId)
+    private void SendInitWorldStates(uint zoneId, uint areaId)
 	{
 		// data depends on zoneid/mapid...
 		var mapid = Location.MapId;
@@ -7344,12 +7344,12 @@ public partial class Player : Unit
 		SendPacket(packet);
 	}
 
-	uint GetChampioningFaction()
+    private uint GetChampioningFaction()
 	{
 		return _championingFaction;
 	}
 
-	void ResurrectUsingRequestDataImpl()
+    private void ResurrectUsingRequestDataImpl()
 	{
 		// save health and mana before resurrecting, _resurrectionData can be erased
 		var resurrectHealth = _resurrectionData.Health;
@@ -7373,7 +7373,7 @@ public partial class Player : Unit
 		SpawnCorpseBones();
 	}
 
-	void RegenerateAll()
+    private void RegenerateAll()
 	{
 		_regenTimerCount += RegenTimer;
 		_foodEmoteTimerCount += RegenTimer;
@@ -7446,7 +7446,7 @@ public partial class Player : Unit
 		}
 	}
 
-	void Regenerate(PowerType power)
+    private void Regenerate(PowerType power)
 	{
 		// Skip regeneration for power type we cannot have
 		var powerIndex = GetPowerIndex(power);
@@ -7589,7 +7589,7 @@ public partial class Player : Unit
 			});
 	}
 
-	void RegenerateHealth()
+    private void RegenerateHealth()
 	{
 		var curValue = Health;
 		var maxValue = MaxHealth;
@@ -7639,7 +7639,7 @@ public partial class Player : Unit
 		ModifyHealth(addValue);
 	}
 
-	void LeaveLFGChannel()
+    private void LeaveLFGChannel()
 	{
 		foreach (var i in _channels)
 			if (i.IsLFG())
@@ -7650,7 +7650,7 @@ public partial class Player : Unit
 			}
 	}
 
-	bool IsImmuneToEnvironmentalDamage()
+    private bool IsImmuneToEnvironmentalDamage()
 	{
 		// check for GM and death state included in isAttackableByAOE
 		return (!IsTargetableForAttack(false));
@@ -7670,7 +7670,7 @@ public partial class Player : Unit
 		}
 	}
 
-	void HandleDrowning(uint time_diff)
+    private void HandleDrowning(uint time_diff)
 	{
 		if (_mirrorTimerFlags == 0)
 			return;
@@ -7810,7 +7810,7 @@ public partial class Player : Unit
 		_mirrorTimerFlagsLast = _mirrorTimerFlags;
 	}
 
-	void HandleSobering()
+    private void HandleSobering()
 	{
 		_drunkTimer = 0;
 
@@ -7819,7 +7819,7 @@ public partial class Player : Unit
 		SetDrunkValue(drunk);
 	}
 
-	void SendMirrorTimer(MirrorTimerType Type, int MaxValue, int CurrentValue, int Regen)
+    private void SendMirrorTimer(MirrorTimerType Type, int MaxValue, int CurrentValue, int Regen)
 	{
 		if (MaxValue == -1)
 		{
@@ -7832,13 +7832,13 @@ public partial class Player : Unit
 		SendPacket(new StartMirrorTimer(Type, CurrentValue, MaxValue, Regen, 0, false));
 	}
 
-	void StopMirrorTimer(MirrorTimerType Type)
+    private void StopMirrorTimer(MirrorTimerType Type)
 	{
 		_mirrorTimer[(int)Type] = -1;
 		SendPacket(new StopMirrorTimer(Type));
 	}
 
-	int GetMaxTimer(MirrorTimerType timer)
+    private int GetMaxTimer(MirrorTimerType timer)
 	{
 		switch (timer)
 		{
@@ -7866,7 +7866,7 @@ public partial class Player : Unit
 		}
 	}
 
-	Corpse CreateCorpse()
+    private Corpse CreateCorpse()
 	{
 		// prevent existence 2 corpse for player
 		SpawnCorpseBones();
@@ -7926,7 +7926,7 @@ public partial class Player : Unit
 		return corpse;
 	}
 
-	void UpdateCorpseReclaimDelay()
+    private void UpdateCorpseReclaimDelay()
 	{
 		var pvp = _extraFlags.HasAnyFlag(PlayerExtraFlags.PVPDeath);
 
@@ -7952,7 +7952,7 @@ public partial class Player : Unit
 		}
 	}
 
-	int CalculateCorpseReclaimDelay(bool load = false)
+    private int CalculateCorpseReclaimDelay(bool load = false)
 	{
 		var corpse = GetCorpse();
 
@@ -7995,7 +7995,7 @@ public partial class Player : Unit
 		return (int)(delay * Time.InMilliseconds);
 	}
 
-	void SendCorpseReclaimDelay(int delay)
+    private void SendCorpseReclaimDelay(int delay)
     {
         CorpseReclaimDelay packet = new()
         {
@@ -8005,7 +8005,7 @@ public partial class Player : Unit
 		SendPacket(packet);
 	}
 
-	bool IsFriendlyArea(AreaTableRecord areaEntry)
+    private bool IsFriendlyArea(AreaTableRecord areaEntry)
 	{
 		var factionTemplate = GetFactionTemplateEntry();
 
@@ -8018,7 +8018,7 @@ public partial class Player : Unit
 		return true;
 	}
 
-	void SetWarModeLocal(bool enabled)
+    private void SetWarModeLocal(bool enabled)
 	{
 		if (enabled)
 			SetPlayerLocalFlag(PlayerLocalFlags.WarMode);
@@ -8026,7 +8026,7 @@ public partial class Player : Unit
 			RemovePlayerLocalFlag(PlayerLocalFlags.WarMode);
 	}
 
-	void UpdateWarModeAuras()
+    private void UpdateWarModeAuras()
 	{
 		uint auraInside = 282559;
 		var auraOutside = PlayerConst.WarmodeEnlistedSpellOutside;
@@ -8059,12 +8059,12 @@ public partial class Player : Unit
 		}
 	}
 
-	void SetWeaponChangeTimer(uint time)
+    private void SetWeaponChangeTimer(uint time)
 	{
 		_weaponChangeTimer = time;
 	}
 
-	void SendAurasForTarget(Unit target)
+    private void SendAurasForTarget(Unit target)
 	{
 		if (target == null || target.VisibleAuras.Empty()) // speedup things
 			return;
@@ -8088,7 +8088,7 @@ public partial class Player : Unit
 		SendPacket(update);
 	}
 
-	void UpdateBaseModGroup(BaseModGroup modGroup)
+    private void UpdateBaseModGroup(BaseModGroup modGroup)
 	{
 		if (!CanModifyStats())
 			return;
@@ -8112,7 +8112,7 @@ public partial class Player : Unit
 		}
 	}
 
-	double GetBaseModValue(BaseModGroup modGroup, BaseModType modType)
+    private double GetBaseModValue(BaseModGroup modGroup, BaseModType modType)
 	{
 		if (modGroup >= BaseModGroup.End || modType >= BaseModType.End)
 		{
@@ -8124,7 +8124,7 @@ public partial class Player : Unit
 		return (modType == BaseModType.FlatMod ? _auraBaseFlatMod[(int)modGroup] : _auraBasePctMod[(int)modGroup]);
 	}
 
-	double GetTotalBaseModValue(BaseModGroup modGroup)
+    private double GetTotalBaseModValue(BaseModGroup modGroup)
 	{
 		if (modGroup >= BaseModGroup.End)
 		{
@@ -8136,7 +8136,7 @@ public partial class Player : Unit
 		return _auraBaseFlatMod[(int)modGroup] * _auraBasePctMod[(int)modGroup];
 	}
 
-	bool IsAtRecruitAFriendDistance(WorldObject pOther)
+    private bool IsAtRecruitAFriendDistance(WorldObject pOther)
 	{
 		if (!pOther || !IsInMap(pOther))
 			return false;
@@ -8150,37 +8150,37 @@ public partial class Player : Unit
 	}
 
 
-	void SetActiveCombatTraitConfigID(int traitConfigId)
+    private void SetActiveCombatTraitConfigID(int traitConfigId)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ActiveCombatTraitConfigID), (uint)traitConfigId);
 	}
 
-	void InitPrimaryProfessions()
+    private void InitPrimaryProfessions()
 	{
 		SetFreePrimaryProfessions(GetDefaultValue("MaxPrimaryTradeSkill", 2));
 	}
 
-	void SetFreePrimaryProfessions(ushort profs)
+    private void SetFreePrimaryProfessions(ushort profs)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.CharacterPoints), profs);
 	}
 
-	void SendAttackSwingCantAttack()
+    private void SendAttackSwingCantAttack()
 	{
 		SendPacket(new AttackSwingError(AttackSwingErr.CantAttack));
 	}
 
-	void SendAttackSwingDeadTarget()
+    private void SendAttackSwingDeadTarget()
 	{
 		SendPacket(new AttackSwingError(AttackSwingErr.DeadTarget));
 	}
 
-	void SendAttackSwingBadFacingAttack()
+    private void SendAttackSwingBadFacingAttack()
 	{
 		SendPacket(new AttackSwingError(AttackSwingErr.BadFacing));
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedUnitMask, UpdateMask requestedPlayerMask, UpdateMask requestedActivePlayerMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedUnitMask, UpdateMask requestedPlayerMask, UpdateMask requestedActivePlayerMask, Player target)
 	{
 		var flags = GetUpdateFieldFlagsFor(target);
 		UpdateMask valuesMask = new((int)TypeId.Max);
@@ -8227,7 +8227,7 @@ public partial class Player : Unit
 
 	#region Sends / Updates
 
-	void BeforeVisibilityDestroy(WorldObject obj, Player p)
+    private void BeforeVisibilityDestroy(WorldObject obj, Player p)
 	{
 		if (!obj.IsTypeId(TypeId.Unit))
 			return;
@@ -8363,7 +8363,7 @@ public partial class Player : Unit
 		}
 	}
 
-	void UpdateVisibilityOf_helper<T>(List<ObjectGuid> s64, T target, List<Unit> v) where T : WorldObject
+    private void UpdateVisibilityOf_helper<T>(List<ObjectGuid> s64, T target, List<Unit> v) where T : WorldObject
 	{
 		s64.Add(target.GUID);
 
@@ -8429,7 +8429,7 @@ public partial class Player : Unit
 		Cell.VisitGrid(this, notifier, dist);
 	}
 
-	void SendMessageToSetInRange(ServerPacket data, float dist, bool self, bool own_team_only, bool required3dDist = false)
+    private void SendMessageToSetInRange(ServerPacket data, float dist, bool self, bool own_team_only, bool required3dDist = false)
 	{
 		if (self)
 			SendPacket(data);
@@ -8478,7 +8478,7 @@ public partial class Player : Unit
 		return true;
 	}
 
-	void SendCurrencies()
+    private void SendCurrencies()
 	{
 		SetupCurrency packet = new();
 
@@ -8568,7 +8568,7 @@ public partial class Player : Unit
 		RemoveUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.ExploredZones, (int)pos), mask);
 	}
 
-	void CheckAreaExploreAndOutdoor()
+    private void CheckAreaExploreAndOutdoor()
 	{
 		if (!IsAlive)
 			return;
@@ -8670,7 +8670,7 @@ public partial class Player : Unit
 		}
 	}
 
-	void SendExplorationExperience(uint Area, uint Experience)
+    private void SendExplorationExperience(uint Area, uint Experience)
 	{
 		SendPacket(new ExplorationExperience(Experience, Area));
 	}
@@ -8735,7 +8735,7 @@ public partial class Player : Unit
 		SendChatMessageToSetInRange(ChatMsg.Say, language, text, GetDefaultValue("ListenRange.Say", 25.0f));
 	}
 
-	void SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, string text, float range)
+    private void SendChatMessageToSetInRange(ChatMsg chatMsg, Language language, string text, float range)
 	{
 		CustomChatTextBuilder builder = new(this, chatMsg, text, language, this);
 		LocalizedDo localizer = new(builder);

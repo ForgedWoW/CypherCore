@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class QueryItemTextResponse : ServerPacket
+internal class QueryItemTextResponse : ServerPacket
 {
 	public ObjectGuid Id;
 	public bool Valid;

@@ -13,9 +13,9 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class UnitAura : Aura
 {
-	readonly Dictionary<ObjectGuid, HashSet<int>> _staticApplications = new(); // non-area auras
+    private readonly Dictionary<ObjectGuid, HashSet<int>> _staticApplications = new(); // non-area auras
 
-	DiminishingGroup _mAuraDrGroup; // Diminishing
+    private DiminishingGroup _mAuraDrGroup; // Diminishing
 
 	public UnitAura(AuraCreateInfo createInfo) : base(createInfo)
 	{

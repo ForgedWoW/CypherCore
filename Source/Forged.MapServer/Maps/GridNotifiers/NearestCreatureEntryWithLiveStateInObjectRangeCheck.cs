@@ -8,12 +8,12 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Creature>
+internal class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Creature>
 {
-	readonly WorldObject _obj;
-	readonly uint _entry;
-	readonly bool _alive;
-	float _range;
+    private readonly WorldObject _obj;
+    private readonly uint _entry;
+    private readonly bool _alive;
+    private float _range;
 
 	public NearestCreatureEntryWithLiveStateInObjectRangeCheck(WorldObject obj, uint entry, bool alive, float range)
 	{

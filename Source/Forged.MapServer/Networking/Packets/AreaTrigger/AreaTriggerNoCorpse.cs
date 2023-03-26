@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
-class AreaTriggerNoCorpse : ServerPacket
+internal class AreaTriggerNoCorpse : ServerPacket
 {
 	public AreaTriggerNoCorpse() : base(ServerOpcodes.AreaTriggerNoCorpse) { }
 

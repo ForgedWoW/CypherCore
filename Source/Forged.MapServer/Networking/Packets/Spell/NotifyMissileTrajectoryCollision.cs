@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class NotifyMissileTrajectoryCollision : ServerPacket
+internal class NotifyMissileTrajectoryCollision : ServerPacket
 {
 	public ObjectGuid Caster;
 	public ObjectGuid CastID;

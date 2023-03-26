@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceEncounterEnd : ServerPacket
+internal class InstanceEncounterEnd : ServerPacket
 {
 	public InstanceEncounterEnd() : base(ServerOpcodes.InstanceEncounterEnd, ConnectionType.Instance) { }
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonCollectionEntry
+internal struct GarrisonCollectionEntry
 {
 	public int EntryID;
 	public int Rank;

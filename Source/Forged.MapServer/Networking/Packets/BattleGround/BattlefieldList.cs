@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlefieldList : ServerPacket
+internal class BattlefieldList : ServerPacket
 {
 	public ObjectGuid BattlemasterGuid;
 	public int BattlemasterListID;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class SocketGems : ClientPacket
+internal class SocketGems : ClientPacket
 {
 	public ObjectGuid ItemGuid;
 	public ObjectGuid[] GemItem = new ObjectGuid[ItemConst.MaxGemSockets];

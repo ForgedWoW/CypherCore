@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
 
-class Hyperlink
+internal class Hyperlink
 {
 	public static ChatCommandResult TryParse(out dynamic value, Type type, CommandHandler handler, string arg)
 	{
@@ -182,7 +182,7 @@ class Hyperlink
 		return new HyperlinkInfo(currentString.Substring(pos), color, currentString.Substring(tagStart, tagLength), currentString.Substring(dataStart, dataLength), currentString.Substring(textStart, textLength));
 	}
 
-	static byte toHex(char c)
+    private static byte toHex(char c)
 	{
 		return (byte)(c is >= '0' and <= '9' ? c - '0' + 0x10 : c is >= 'a' and <= 'f' ? c - 'a' + 0x1a : 0x00);
 	}

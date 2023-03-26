@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class MountSetFavorite : ClientPacket
+internal class MountSetFavorite : ClientPacket
 {
 	public uint MountSpellID;
 	public bool IsFavorite;

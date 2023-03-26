@@ -19,12 +19,12 @@ namespace Forged.MapServer.Entities;
 
 public class DynamicObject : WorldObject
 {
-	readonly DynamicObjectData _dynamicObjectData;
-	Aura _aura;
-	Aura _removedAura;
-	Unit _caster;
-	int _duration; // for non-aura dynobjects
-	bool _isViewpoint;
+    private readonly DynamicObjectData _dynamicObjectData;
+    private Aura _aura;
+    private Aura _removedAura;
+    private Unit _caster;
+    private int _duration; // for non-aura dynobjects
+    private bool _isViewpoint;
 
 	public override uint Faction
 	{
@@ -266,7 +266,7 @@ public class DynamicObject : WorldObject
 		return _dynamicObjectData.Radius;
 	}
 
-	int GetDuration()
+    private int GetDuration()
 	{
 		if (_aura == null)
 			return _duration;
@@ -274,7 +274,7 @@ public class DynamicObject : WorldObject
 			return _aura.Duration;
 	}
 
-	void RemoveAura()
+    private void RemoveAura()
 	{
 		_removedAura = _aura;
 		_aura = null;
@@ -283,7 +283,7 @@ public class DynamicObject : WorldObject
 			_removedAura._Remove(AuraRemoveMode.Default);
 	}
 
-	void RemoveCasterViewpoint()
+    private void RemoveCasterViewpoint()
 	{
 		var caster = _caster.AsPlayer;
 
@@ -294,19 +294,19 @@ public class DynamicObject : WorldObject
 		}
 	}
 
-	void BindToCaster()
+    private void BindToCaster()
 	{
 		_caster = Global.ObjAccessor.GetUnit(this, GetCasterGUID());
 		_caster._RegisterDynObject(this);
 	}
 
-	void UnbindFromCaster()
+    private void UnbindFromCaster()
 	{
 		_caster._UnregisterDynObject(this);
 		_caster = null;
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedDynamicObjectMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedDynamicObjectMask, Player target)
 	{
 		UpdateMask valuesMask = new((int)TypeId.Max);
 
@@ -334,11 +334,11 @@ public class DynamicObject : WorldObject
 		data.AddUpdateBlock(buffer1);
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly DynamicObject _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly DynamicObjectData _dynamicObjectData = new();
+        private readonly DynamicObject _owner;
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly DynamicObjectData _dynamicObjectData = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(DynamicObject owner)
 		{

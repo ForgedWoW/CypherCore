@@ -560,7 +560,7 @@ public class PhasingHandler
 		return false;
 	}
 
-	static void AddPhase(WorldObject obj, uint phaseId, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
+    private static void AddPhase(WorldObject obj, uint phaseId, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
 	{
 		var changed = obj.PhaseShift.AddPhase(phaseId, GetPhaseFlags(phaseId), null);
 
@@ -579,7 +579,7 @@ public class PhasingHandler
 		UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
 	}
 
-	static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility, ControlledUnitVisitor visitor)
+    private static void RemovePhase(WorldObject obj, uint phaseId, bool updateVisibility, ControlledUnitVisitor visitor)
 	{
 		var changed = obj.PhaseShift.RemovePhase(phaseId);
 
@@ -595,7 +595,7 @@ public class PhasingHandler
 		UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
 	}
 
-	static void AddPhaseGroup(WorldObject obj, List<uint> phasesInGroup, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
+    private static void AddPhaseGroup(WorldObject obj, List<uint> phasesInGroup, ObjectGuid personalGuid, bool updateVisibility, ControlledUnitVisitor visitor)
 	{
 		var changed = false;
 
@@ -617,7 +617,7 @@ public class PhasingHandler
 		UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
 	}
 
-	static void RemovePhaseGroup(WorldObject obj, List<uint> phasesInGroup, bool updateVisibility, ControlledUnitVisitor visitor)
+    private static void RemovePhaseGroup(WorldObject obj, List<uint> phasesInGroup, bool updateVisibility, ControlledUnitVisitor visitor)
 	{
 		var changed = false;
 
@@ -636,7 +636,7 @@ public class PhasingHandler
 		UpdateVisibilityIfNeeded(obj, updateVisibility, changed);
 	}
 
-	static void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
+    private static void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
 	{
 		var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
 		var changed = obj.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
@@ -652,7 +652,7 @@ public class PhasingHandler
 		UpdateVisibilityIfNeeded(obj, false, changed);
 	}
 
-	static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
+    private static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
 	{
 		var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
 		var changed = obj.PhaseShift.RemoveVisibleMapId(visibleMapId);
@@ -668,7 +668,7 @@ public class PhasingHandler
 		UpdateVisibilityIfNeeded(obj, false, changed);
 	}
 
-	static void UpdateVisibilityIfNeeded(WorldObject obj, bool updateVisibility, bool changed)
+    private static void UpdateVisibilityIfNeeded(WorldObject obj, bool updateVisibility, bool changed)
 	{
 		if (changed && obj.IsInWorld)
 		{

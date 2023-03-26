@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class CompleteCinematic : ClientPacket
+internal class CompleteCinematic : ClientPacket
 {
 	public CompleteCinematic(WorldPacket packet) : base(packet) { }
 

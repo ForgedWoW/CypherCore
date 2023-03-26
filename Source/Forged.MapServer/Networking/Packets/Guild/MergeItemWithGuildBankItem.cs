@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Guild;
 
-class MergeItemWithGuildBankItem : ClientPacket
+internal class MergeItemWithGuildBankItem : ClientPacket
 {
 	public ObjectGuid Banker;
 	public byte BankTab;

@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellPeriodicAuraLog : CombatLogServerPacket
+internal class SpellPeriodicAuraLog : CombatLogServerPacket
 {
 	public ObjectGuid TargetGUID;
 	public ObjectGuid CasterGUID;

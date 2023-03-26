@@ -29,9 +29,9 @@ public class WorldStateManager
     private readonly WorldManager _worldManager;
     private readonly DB2Manager _db2Manager;
     private const int AnyMap = -1;
-    readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
-	readonly Dictionary<int, int> _realmWorldStateValues = new();
-	readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
+    private readonly Dictionary<int, WorldStateTemplate> _worldStateTemplates = new();
+    private readonly Dictionary<int, int> _realmWorldStateValues = new();
+    private readonly Dictionary<int, Dictionary<int, int>> _worldStatesByMap = new();
 
     public WorldStateManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB, GameObjectManager objectManager, 
                              CharacterDatabase characterDatabase, ScriptManager scriptManager, WorldManager worldManager, DB2Manager db2Manager)

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class AzeriteEmpoweredItemSelectPower : ClientPacket
+internal class AzeriteEmpoweredItemSelectPower : ClientPacket
 {
 	public int Tier;
 	public int AzeritePowerID;

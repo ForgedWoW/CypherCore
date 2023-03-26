@@ -44,33 +44,33 @@ public abstract class WorldObject : IDisposable
 	public uint LastUsedScriptID;
 	protected CreateObjectBits _updateFlag;
 	protected bool m_isActive;
-	readonly bool _isWorldObject;
-	ObjectGuid _guid;
-	bool _isNewObject;
-	bool _isDestroyedObject;
+    private readonly bool _isWorldObject;
+    private ObjectGuid _guid;
+    private bool _isNewObject;
+    private bool _isDestroyedObject;
 
-	bool _objectUpdated;
+    private bool _objectUpdated;
 
-	uint _zoneId;
-	uint _areaId;
-	float _staticFloorZ;
-	bool _outdoors;
-	ZLiquidStatus _liquidStatus;
-	string _name;
-	bool _isFarVisible;
-	float? _visibilityDistanceOverride;
+    private uint _zoneId;
+    private uint _areaId;
+    private float _staticFloorZ;
+    private bool _outdoors;
+    private ZLiquidStatus _liquidStatus;
+    private string _name;
+    private bool _isFarVisible;
+    private float? _visibilityDistanceOverride;
 
-	ITransport _transport;
-	Map _currMap;
-	PhaseShift _phaseShift = new();
-	PhaseShift _suppressedPhaseShift = new(); // contains phases for current area but not applied due to conditions
-	int _dbPhase;
+    private ITransport _transport;
+    private Map _currMap;
+    private PhaseShift _phaseShift = new();
+    private PhaseShift _suppressedPhaseShift = new(); // contains phases for current area but not applied due to conditions
+    private int _dbPhase;
 
-	NotifyFlags _notifyflags;
+    private NotifyFlags _notifyflags;
 
-	ObjectGuid _privateObjectOwner;
+    private ObjectGuid _privateObjectOwner;
 
-	SmoothPhasing _smoothPhasing;
+    private SmoothPhasing _smoothPhasing;
 
 	public VariableStore VariableStorage { get; } = new();
 
@@ -240,9 +240,9 @@ public abstract class WorldObject : IDisposable
 
 	public virtual uint Faction { get; set; }
 
-	NotifyFlags NotifyFlags => _notifyflags;
+    private NotifyFlags NotifyFlags => _notifyflags;
 
-	Position TransOffset => MovementInfo.Transport.Pos;
+    private Position TransOffset => MovementInfo.Transport.Pos;
 
 	public virtual Unit CharmerOrOwner
 	{
@@ -462,9 +462,9 @@ public abstract class WorldObject : IDisposable
 		}
 	}
 
-	bool IsFarVisible => _isFarVisible;
+    private bool IsFarVisible => _isFarVisible;
 
-	bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
+    private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
 
 	public WorldObject(bool isWorldObject)
 	{
@@ -4197,7 +4197,7 @@ public abstract class WorldObject : IDisposable
 		return obj != null;
 	}
 
-	bool CanDetect(WorldObject obj, bool ignoreStealth, bool checkAlert = false)
+    private bool CanDetect(WorldObject obj, bool ignoreStealth, bool checkAlert = false)
 	{
 		var seer = this;
 
@@ -4235,7 +4235,7 @@ public abstract class WorldObject : IDisposable
 		return true;
 	}
 
-	bool CanDetectInvisibilityOf(WorldObject obj)
+    private bool CanDetectInvisibilityOf(WorldObject obj)
 	{
 		var mask = obj.Invisibility.GetFlags() & InvisibilityDetect.GetFlags();
 
@@ -4259,7 +4259,7 @@ public abstract class WorldObject : IDisposable
 		return true;
 	}
 
-	bool CanDetectStealthOf(WorldObject obj, bool checkAlert = false)
+    private bool CanDetectStealthOf(WorldObject obj, bool checkAlert = false)
 	{
 		// Combat reach is the minimal distance (both in front and behind),
 		//   and it is also used in the range calculation.
@@ -4344,7 +4344,7 @@ public abstract class WorldObject : IDisposable
 		return true;
 	}
 
-	SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
+    private SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
 	{
 		// Can`t miss on dead target (on skinning for example)
 		if (!victim.IsAlive && !victim.IsPlayer)
@@ -4445,7 +4445,7 @@ public abstract class WorldObject : IDisposable
 		return SpellMissInfo.None;
 	}
 
-	void SendCancelSpellVisual(uint id)
+    private void SendCancelSpellVisual(uint id)
 	{
 		CancelSpellVisual cancelSpellVisual = new()
 		{
@@ -4456,7 +4456,7 @@ public abstract class WorldObject : IDisposable
 		SendMessageToSet(cancelSpellVisual, true);
 	}
 
-	void SendPlayOrphanSpellVisual(ObjectGuid target, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
+    private void SendPlayOrphanSpellVisual(ObjectGuid target, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
 	{
 		PlayOrphanSpellVisual playOrphanSpellVisual = new()
 		{
@@ -4487,7 +4487,7 @@ public abstract class WorldObject : IDisposable
 		SendMessageToSet(playOrphanSpellVisual, true);
 	}
 
-	void SendPlayOrphanSpellVisual(Position targetLocation, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
+    private void SendPlayOrphanSpellVisual(Position targetLocation, uint spellVisualId, float travelSpeed, bool speedAsTime = false, bool withSourceOrientation = false)
 	{
 		PlayOrphanSpellVisual playOrphanSpellVisual = new()
 		{
@@ -4518,7 +4518,7 @@ public abstract class WorldObject : IDisposable
 		SendMessageToSet(playOrphanSpellVisual, true);
 	}
 
-	void SendCancelOrphanSpellVisual(uint id)
+    private void SendCancelOrphanSpellVisual(uint id)
 	{
 		CancelOrphanSpellVisual cancelOrphanSpellVisual = new()
 		{
@@ -4528,7 +4528,7 @@ public abstract class WorldObject : IDisposable
 		SendMessageToSet(cancelOrphanSpellVisual, true);
 	}
 
-	void SendCancelSpellVisualKit(uint id)
+    private void SendCancelSpellVisualKit(uint id)
 	{
 		CancelSpellVisualKit cancelSpellVisualKit = new()
 		{
@@ -4539,7 +4539,7 @@ public abstract class WorldObject : IDisposable
 		SendMessageToSet(cancelSpellVisualKit, true);
 	}
 
-	bool IsInBetween(Position pos1, Position pos2, float size)
+    private bool IsInBetween(Position pos1, Position pos2, float size)
 	{
 		var dist = Location.GetExactDist2d(pos1);
 

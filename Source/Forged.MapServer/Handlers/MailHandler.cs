@@ -34,7 +34,7 @@ public class MailHandler : IWorldSessionHandler
 		SendPacket(npcInteraction);
 	}
 
-	bool CanOpenMailBox(ObjectGuid guid)
+    private bool CanOpenMailBox(ObjectGuid guid)
 	{
 		if (guid == Player.GUID)
 		{
@@ -64,7 +64,7 @@ public class MailHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SendMail)]
-	void HandleSendMail(SendMail sendMail)
+    private void HandleSendMail(SendMail sendMail)
 	{
 		if (sendMail.Info.Attachments.Count > SharedConst.MaxClientMailItems) // client limit
 		{
@@ -383,7 +383,7 @@ public class MailHandler : IWorldSessionHandler
 
 	//called when mail is read
 	[WorldPacketHandler(ClientOpcodes.MailMarkAsRead)]
-	void HandleMailMarkAsRead(MailMarkAsRead markAsRead)
+    private void HandleMailMarkAsRead(MailMarkAsRead markAsRead)
 	{
 		if (!CanOpenMailBox(markAsRead.Mailbox))
 			return;
@@ -404,7 +404,7 @@ public class MailHandler : IWorldSessionHandler
 
 	//called when client deletes mail
 	[WorldPacketHandler(ClientOpcodes.MailDelete)]
-	void HandleMailDelete(MailDelete mailDelete)
+    private void HandleMailDelete(MailDelete mailDelete)
 	{
 		var m = Player.GetMail(mailDelete.MailID);
 		var player = Player;
@@ -427,7 +427,7 @@ public class MailHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MailReturnToSender)]
-	void HandleMailReturnToSender(MailReturnToSender returnToSender)
+    private void HandleMailReturnToSender(MailReturnToSender returnToSender)
 	{
 		if (!CanOpenMailBox(_player.PlayerTalkClass.GetInteractionData().SourceGuid))
 			return;
@@ -484,7 +484,7 @@ public class MailHandler : IWorldSessionHandler
 
 	//called when player takes item attached in mail
 	[WorldPacketHandler(ClientOpcodes.MailTakeItem)]
-	void HandleMailTakeItem(MailTakeItem takeItem)
+    private void HandleMailTakeItem(MailTakeItem takeItem)
 	{
 		var AttachID = takeItem.AttachID;
 
@@ -601,7 +601,7 @@ public class MailHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MailTakeMoney)]
-	void HandleMailTakeMoney(MailTakeMoney takeMoney)
+    private void HandleMailTakeMoney(MailTakeMoney takeMoney)
 	{
 		if (!CanOpenMailBox(takeMoney.Mailbox))
 			return;
@@ -640,7 +640,7 @@ public class MailHandler : IWorldSessionHandler
 
 	//called when player lists his received mails
 	[WorldPacketHandler(ClientOpcodes.MailGetList)]
-	void HandleGetMailList(MailGetList getList)
+    private void HandleGetMailList(MailGetList getList)
 	{
 		if (!CanOpenMailBox(getList.Mailbox))
 			return;
@@ -673,7 +673,7 @@ public class MailHandler : IWorldSessionHandler
 
 	//used when player copies mail body to his inventory
 	[WorldPacketHandler(ClientOpcodes.MailCreateTextItem)]
-	void HandleMailCreateTextItem(MailCreateTextItem createTextItem)
+    private void HandleMailCreateTextItem(MailCreateTextItem createTextItem)
 	{
 		if (!CanOpenMailBox(createTextItem.Mailbox))
 			return;
@@ -739,7 +739,7 @@ public class MailHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryNextMailTime)]
-	void HandleQueryNextMailTime(MailQueryNextMailTime queryNextMailTime)
+    private void HandleQueryNextMailTime(MailQueryNextMailTime queryNextMailTime)
 	{
 		MailQueryNextTimeResult result = new();
 

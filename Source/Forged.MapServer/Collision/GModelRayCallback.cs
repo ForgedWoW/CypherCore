@@ -13,8 +13,8 @@ public class GModelRayCallback : WorkerCallback
 {
 	public bool Hit;
 
-	readonly List<Vector3> _vertices;
-	readonly List<MeshTriangle> _triangles;
+    private readonly List<Vector3> _vertices;
+    private readonly List<MeshTriangle> _triangles;
 
 	public GModelRayCallback(List<MeshTriangle> tris, List<Vector3> vert)
 	{
@@ -30,7 +30,7 @@ public class GModelRayCallback : WorkerCallback
 		return Hit;
 	}
 
-	bool IntersectTriangle(MeshTriangle tri, List<Vector3> points, Ray ray, ref float distance)
+    private bool IntersectTriangle(MeshTriangle tri, List<Vector3> points, Ray ray, ref float distance)
 	{
 		const float eps = 1e-5f;
 

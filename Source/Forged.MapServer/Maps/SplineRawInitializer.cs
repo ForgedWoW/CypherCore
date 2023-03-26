@@ -9,7 +9,7 @@ namespace Forged.MapServer.Maps;
 
 public class SplineRawInitializer
 {
-	readonly List<Vector3> _points;
+    private readonly List<Vector3> _points;
 
 	public SplineRawInitializer(List<Vector3> points)
 	{

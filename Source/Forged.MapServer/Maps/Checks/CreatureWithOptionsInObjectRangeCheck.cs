@@ -10,9 +10,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class CreatureWithOptionsInObjectRangeCheck<T> : ICheck<Creature> where T : NoopCheckCustomizer
 {
-	readonly WorldObject _obj;
-	readonly T _customizer;
-	readonly FindCreatureOptions _args;
+    private readonly WorldObject _obj;
+    private readonly T _customizer;
+    private readonly FindCreatureOptions _args;
 
 	public CreatureWithOptionsInObjectRangeCheck(WorldObject obj, T customizer, FindCreatureOptions args)
 	{

@@ -14,18 +14,18 @@ using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class BgWarsongGluch : Battleground
+internal class BgWarsongGluch : Battleground
 {
-	const uint ExploitTeleportLocationAlliance = 3784;
-	const uint ExploitTeleportLocationHorde = 3785;
+    private const uint ExploitTeleportLocationAlliance = 3784;
+    private const uint ExploitTeleportLocationHorde = 3785;
 
-	readonly ObjectGuid[] m_FlagKeepers = new ObjectGuid[2]; // 0 - alliance, 1 - horde
-	readonly ObjectGuid[] m_DroppedFlagGUID = new ObjectGuid[2];
-	readonly WSGFlagState[] _flagState = new WSGFlagState[2]; // for checking flag state
-	readonly int[] _flagsTimer = new int[2];
-	readonly int[] _flagsDropTimer = new int[2];
+    private readonly ObjectGuid[] m_FlagKeepers = new ObjectGuid[2]; // 0 - alliance, 1 - horde
+    private readonly ObjectGuid[] m_DroppedFlagGUID = new ObjectGuid[2];
+    private readonly WSGFlagState[] _flagState = new WSGFlagState[2]; // for checking flag state
+    private readonly int[] _flagsTimer = new int[2];
+    private readonly int[] _flagsDropTimer = new int[2];
 
-	readonly uint[][] Honor =
+    private readonly uint[][] Honor =
 	{
 		new uint[]
 		{
@@ -37,14 +37,14 @@ class BgWarsongGluch : Battleground
 		} // holiday
 	};
 
-	uint _lastFlagCaptureTeam; // Winner is based on this if score is equal
+    private uint _lastFlagCaptureTeam; // Winner is based on this if score is equal
 
-	uint m_ReputationCapture;
-	uint m_HonorWinKills;
-	uint m_HonorEndKills;
-	int _flagSpellForceTimer;
-	bool _bothFlagsKept;
-	byte _flagDebuffState; // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
+    private uint m_ReputationCapture;
+    private uint m_HonorWinKills;
+    private uint m_HonorEndKills;
+    private int _flagSpellForceTimer;
+    private bool _bothFlagsKept;
+    private byte _flagDebuffState; // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
 
 	public BgWarsongGluch(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
 	{
@@ -754,7 +754,7 @@ class BgWarsongGluch : Battleground
 			m_DroppedFlagGUID[team] = guid;
 	}
 
-	void RespawnFlag(TeamFaction Team, bool captured)
+    private void RespawnFlag(TeamFaction Team, bool captured)
 	{
 		if (Team == TeamFaction.Alliance)
 		{
@@ -779,7 +779,7 @@ class BgWarsongGluch : Battleground
 		_bothFlagsKept = false;
 	}
 
-	void RespawnFlagAfterDrop(TeamFaction team)
+    private void RespawnFlagAfterDrop(TeamFaction team)
 	{
 		if (GetStatus() != BattlegroundStatus.InProgress)
 			return;
@@ -807,7 +807,7 @@ class BgWarsongGluch : Battleground
 		HandleFlagRoomCapturePoint(team == TeamFaction.Alliance ? TeamIds.Horde : TeamIds.Alliance);
 	}
 
-	void EventPlayerCapturedFlag(Player player)
+    private void EventPlayerCapturedFlag(Player player)
 	{
 		if (GetStatus() != BattlegroundStatus.InProgress)
 			return;
@@ -902,7 +902,7 @@ class BgWarsongGluch : Battleground
 		}
 	}
 
-	void HandleFlagRoomCapturePoint(int team)
+    private void HandleFlagRoomCapturePoint(int team)
 	{
 		var flagCarrier = Global.ObjAccessor.GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
 		var areaTrigger = team == TeamIds.Alliance ? 3647 : 3646u;
@@ -911,7 +911,7 @@ class BgWarsongGluch : Battleground
 			EventPlayerCapturedFlag(flagCarrier);
 	}
 
-	void UpdateFlagState(TeamFaction team, WSGFlagState value)
+    private void UpdateFlagState(TeamFaction team, WSGFlagState value)
 	{
 		int transformValueToOtherTeamControlWorldState(WSGFlagState value)
 		{
@@ -942,7 +942,7 @@ class BgWarsongGluch : Battleground
 		}
 	}
 
-	void UpdateTeamScore(int team)
+    private void UpdateTeamScore(int team)
 	{
 		if (team == TeamIds.Alliance)
 			UpdateWorldState(WSGWorldStates.FlagCapturesAlliance, (int)GetTeamScore(team));
@@ -950,51 +950,51 @@ class BgWarsongGluch : Battleground
 			UpdateWorldState(WSGWorldStates.FlagCapturesHorde, (int)GetTeamScore(team));
 	}
 
-	void SetAllianceFlagPicker(ObjectGuid guid)
+    private void SetAllianceFlagPicker(ObjectGuid guid)
 	{
 		m_FlagKeepers[TeamIds.Alliance] = guid;
 	}
 
-	void SetHordeFlagPicker(ObjectGuid guid)
+    private void SetHordeFlagPicker(ObjectGuid guid)
 	{
 		m_FlagKeepers[TeamIds.Horde] = guid;
 	}
 
-	bool IsAllianceFlagPickedup()
+    private bool IsAllianceFlagPickedup()
 	{
 		return !m_FlagKeepers[TeamIds.Alliance].IsEmpty;
 	}
 
-	bool IsHordeFlagPickedup()
+    private bool IsHordeFlagPickedup()
 	{
 		return !m_FlagKeepers[TeamIds.Horde].IsEmpty;
 	}
 
-	WSGFlagState GetFlagState(TeamFaction team)
+    private WSGFlagState GetFlagState(TeamFaction team)
 	{
 		return _flagState[GetTeamIndexByTeamId(team)];
 	}
 
-	void SetLastFlagCapture(TeamFaction team)
+    private void SetLastFlagCapture(TeamFaction team)
 	{
 		_lastFlagCaptureTeam = (uint)team;
 	}
 
-	ObjectGuid GetDroppedFlagGUID(TeamFaction team)
+    private ObjectGuid GetDroppedFlagGUID(TeamFaction team)
 	{
 		return m_DroppedFlagGUID[GetTeamIndexByTeamId(team)];
 	}
 
-	void AddPoint(TeamFaction team, uint Points = 1)
+    private void AddPoint(TeamFaction team, uint Points = 1)
 	{
 		m_TeamScores[GetTeamIndexByTeamId(team)] += Points;
 	}
 }
 
-class BattlegroundWGScore : BattlegroundScore
+internal class BattlegroundWGScore : BattlegroundScore
 {
-	uint FlagCaptures;
-	uint FlagReturns;
+    private uint FlagCaptures;
+    private uint FlagReturns;
 	public BattlegroundWGScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
 	public override void UpdateScore(ScoreType type, uint value)
@@ -1037,7 +1037,7 @@ class BattlegroundWGScore : BattlegroundScore
 
 #region Constants
 
-enum WSGRewards
+internal enum WSGRewards
 {
 	Win = 0,
 	FlapCap,
@@ -1045,7 +1045,7 @@ enum WSGRewards
 	RewardNum
 }
 
-enum WSGFlagState
+internal enum WSGFlagState
 {
 	OnBase = 1,
 	OnPlayer = 2,
@@ -1053,7 +1053,7 @@ enum WSGFlagState
 	WaitRespawn = 4
 }
 
-struct WSGObjectTypes
+internal struct WSGObjectTypes
 {
 	public const int DoorA1 = 0;
 	public const int DoorA2 = 1;
@@ -1094,7 +1094,7 @@ public sealed class WSGObjectEntry
 	public const uint HFlagGround = 179786;
 }
 
-struct WSGCreatureTypes
+internal struct WSGCreatureTypes
 {
 	public const int SpiritMainAlliance = 0;
 	public const int SpiritMainHorde = 1;
@@ -1102,7 +1102,7 @@ struct WSGCreatureTypes
 	public const int Max = 2;
 }
 
-struct WSGWorldStates
+internal struct WSGWorldStates
 {
 	public const uint FlagStateAlliance = 1545;
 	public const uint FlagStateHorde = 1546;
@@ -1119,7 +1119,7 @@ struct WSGWorldStates
 	public const uint StateTimerActive = 4247;
 }
 
-struct WSGSpellId
+internal struct WSGSpellId
 {
 	public const uint WarsongFlag = 23333;
 	public const uint WarsongFlagDropped = 23334;
@@ -1131,7 +1131,7 @@ struct WSGSpellId
 	public const uint BrutalAssault = 46393;
 }
 
-struct WSGTimerOrScore
+internal struct WSGTimerOrScore
 {
 	public const uint MaxTeamScore = 3;
 	public const int FlagRespawnTime = 23000;
@@ -1140,7 +1140,7 @@ struct WSGTimerOrScore
 	public const uint SpellBrutalTime = 900000;
 }
 
-struct WSGGraveyards
+internal struct WSGGraveyards
 {
 	public const uint FlagRoomAlliance = 769;
 	public const uint FlagRoomHorde = 770;
@@ -1148,7 +1148,7 @@ struct WSGGraveyards
 	public const uint MainHorde = 772;
 }
 
-struct WSGSound
+internal struct WSGSound
 {
 	public const uint FlagCapturedAlliance = 8173;
 	public const uint FlagCapturedHorde = 8213;
@@ -1159,7 +1159,7 @@ struct WSGSound
 	public const uint FlagsRespawned = 8232;
 }
 
-struct WSGBroadcastTexts
+internal struct WSGBroadcastTexts
 {
 	public const uint StartOneMinute = 10015;
 	public const uint StartHalfMinute = 10016;
@@ -1176,7 +1176,7 @@ struct WSGBroadcastTexts
 	public const uint HordeFlagReturned = 9809;
 }
 
-struct WSObjectives
+internal struct WSObjectives
 {
 	public const int CaptureFlag = 42;
 	public const int ReturnFlag = 44;

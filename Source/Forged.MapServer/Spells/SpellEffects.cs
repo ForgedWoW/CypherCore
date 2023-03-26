@@ -299,9 +299,9 @@ public partial class Spell
 	[SpellEffectHandler(SpellEffectName.Effect122)]
 	[SpellEffectHandler(SpellEffectName.Effect175)]
 	[SpellEffectHandler(SpellEffectName.Effect178)]
-	void EffectUnused() { }
+    private void EffectUnused() { }
 
-	void EffectResurrectNew()
+    private void EffectResurrectNew()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -328,7 +328,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Instakill)]
-	void EffectInstaKill()
+    private void EffectInstaKill()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -356,7 +356,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnvironmentalDamage)]
-	void EffectEnvironmentalDMG()
+    private void EffectEnvironmentalDMG()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -389,7 +389,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SchoolDamage)]
-	void EffectSchoolDmg()
+    private void EffectSchoolDmg()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -420,7 +420,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Dummy)]
-	void EffectDummy()
+    private void EffectDummy()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -448,7 +448,7 @@ public partial class Spell
 
 	[SpellEffectHandler(SpellEffectName.TriggerSpell)]
 	[SpellEffectHandler(SpellEffectName.TriggerSpellWithValue)]
-	void EffectTriggerSpell()
+    private void EffectTriggerSpell()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget && _effectHandleMode != SpellEffectHandleMode.Launch)
 			return;
@@ -606,7 +606,7 @@ public partial class Spell
 
 	[SpellEffectHandler(SpellEffectName.TriggerMissile)]
 	[SpellEffectHandler(SpellEffectName.TriggerMissileSpellWithValue)]
-	void EffectTriggerMissileSpell()
+    private void EffectTriggerMissileSpell()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget && _effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -678,7 +678,7 @@ public partial class Spell
 	[SpellEffectHandler(SpellEffectName.ForceCast)]
 	[SpellEffectHandler(SpellEffectName.ForceCastWithValue)]
 	[SpellEffectHandler(SpellEffectName.ForceCast2)]
-	void EffectForceCast()
+    private void EffectForceCast()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -750,7 +750,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TriggerSpell2)]
-	void EffectTriggerRitualOfSummoning()
+    private void EffectTriggerRitualOfSummoning()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -778,7 +778,7 @@ public partial class Spell
 		_caster.CastSpell((Unit)null, spellInfo.Id, new CastSpellExtraArgs().SetTriggeringSpell(this));
 	}
 
-	void CalculateJumpSpeeds(SpellEffectInfo effInfo, float dist, out float speedXY, out float speedZ)
+    private void CalculateJumpSpeeds(SpellEffectInfo effInfo, float dist, out float speedXY, out float speedZ)
 	{
 		var unitCaster = UnitCasterForEffectHandlers;
 		var runSpeed = unitCaster.IsControlledByPlayer ? SharedConst.playerBaseMoveSpeed[(int)UnitMoveType.Run] : SharedConst.baseMoveSpeed[(int)UnitMoveType.Run];
@@ -811,7 +811,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Jump)]
-	void EffectJump()
+    private void EffectJump()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -839,7 +839,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.JumpDest)]
-	void EffectJumpDest()
+    private void EffectJumpDest()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Launch)
 			return;
@@ -866,7 +866,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportUnits)]
-	void EffectTeleportUnits()
+    private void EffectTeleportUnits()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -919,7 +919,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportWithSpellVisualKitLoadingScreen)]
-	void EffectTeleportUnitsWithVisualLoadingScreen()
+    private void EffectTeleportUnitsWithVisualLoadingScreen()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -957,7 +957,7 @@ public partial class Spell
 
 	[SpellEffectHandler(SpellEffectName.ApplyAura)]
 	[SpellEffectHandler(SpellEffectName.ApplyAuraOnPet)]
-	void EffectApplyAura()
+    private void EffectApplyAura()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -989,7 +989,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UnlearnSpecialization)]
-	void EffectUnlearnSpecialization()
+    private void EffectUnlearnSpecialization()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1006,7 +1006,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PowerDrain)]
-	void EffectPowerDrain()
+    private void EffectPowerDrain()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1046,7 +1046,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SendEvent)]
-	void EffectSendEvent()
+    private void EffectSendEvent()
 	{
 		// we do not handle a flag dropping or clicking on flag in Battlegroundby sendevent system
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget && _effectHandleMode != SpellEffectHandleMode.Hit)
@@ -1085,7 +1085,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PowerBurn)]
-	void EffectPowerBurn()
+    private void EffectPowerBurn()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1112,7 +1112,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Heal)]
-	void EffectHeal()
+    private void EffectHeal()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -1165,7 +1165,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealPct)]
-	void EffectHealPct()
+    private void EffectHealPct()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1186,7 +1186,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealMechanical)]
-	void EffectHealMechanical()
+    private void EffectHealMechanical()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1209,7 +1209,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealthLeech)]
-	void EffectHealthLeech()
+    private void EffectHealthLeech()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1253,7 +1253,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateItem)]
-	void EffectCreateItem()
+    private void EffectCreateItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1263,7 +1263,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateLoot)]
-	void EffectCreateItem2()
+    private void EffectCreateItem2()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1293,7 +1293,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateRandomItem)]
-	void EffectCreateRandomItem()
+    private void EffectCreateRandomItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1309,7 +1309,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PersistentAreaAura)]
-	void EffectPersistentAA()
+    private void EffectPersistentAA()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -1360,7 +1360,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Energize)]
-	void EffectEnergize()
+    private void EffectEnergize()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1387,7 +1387,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnergizePct)]
-	void EffectEnergizePct()
+    private void EffectEnergizePct()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1414,7 +1414,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.OpenLock)]
-	void EffectOpenLock()
+    private void EffectOpenLock()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1559,7 +1559,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonChangeItem)]
-	void EffectSummonChangeItem()
+    private void EffectSummonChangeItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -1678,7 +1678,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Proficiency)]
-	void EffectProficiency()
+    private void EffectProficiency()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -1704,7 +1704,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Summon)]
-	void EffectSummonType()
+    private void EffectSummonType()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -1939,7 +1939,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnSpell)]
-	void EffectLearnSpell()
+    private void EffectLearnSpell()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -1986,7 +1986,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Dispel)]
-	void EffectDispel()
+    private void EffectDispel()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2089,7 +2089,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DualWield)]
-	void EffectDualWield()
+    private void EffectDualWield()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2101,7 +2101,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Distract)]
-	void EffectDistract()
+    private void EffectDistract()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2118,7 +2118,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Pickpocket)]
-	void EffectPickPocket()
+    private void EffectPickPocket()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2160,7 +2160,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.AddFarsight)]
-	void EffectAddFarsight()
+    private void EffectAddFarsight()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -2187,7 +2187,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UntrainTalents)]
-	void EffectUntrainTalents()
+    private void EffectUntrainTalents()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2202,7 +2202,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportUnitsFaceCaster)]
-	void EffectTeleUnitsFaceCaster()
+    private void EffectTeleUnitsFaceCaster()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2218,7 +2218,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SkillStep)]
-	void EffectLearnSkill()
+    private void EffectLearnSkill()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2245,7 +2245,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlayMovie)]
-	void EffectPlayMovie()
+    private void EffectPlayMovie()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2262,7 +2262,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TradeSkill)]
-	void EffectTradeSkill()
+    private void EffectTradeSkill()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -2275,7 +2275,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnchantItem)]
-	void EffectEnchantItemPerm()
+    private void EffectEnchantItemPerm()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2347,7 +2347,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnchantItemPrismatic)]
-	void EffectEnchantItemPrismatic()
+    private void EffectEnchantItemPrismatic()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2422,7 +2422,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnchantItemTemporary)]
-	void EffectEnchantItemTmp()
+    private void EffectEnchantItemTmp()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2482,7 +2482,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Tamecreature)]
-	void EffectTameCreature()
+    private void EffectTameCreature()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2541,7 +2541,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonPet)]
-	void EffectSummonPet()
+    private void EffectSummonPet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -2635,7 +2635,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnPetSpell)]
-	void EffectLearnPetSpell()
+    private void EffectLearnPetSpell()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2666,7 +2666,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.AttackMe)]
-	void EffectTaunt()
+    private void EffectTaunt()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2715,7 +2715,7 @@ public partial class Spell
 	[SpellEffectHandler(SpellEffectName.WeaponPercentDamage)]
 	[SpellEffectHandler(SpellEffectName.WeaponDamage)]
 	[SpellEffectHandler(SpellEffectName.NormalizedWeaponDmg)]
-	void EffectWeaponDmg()
+    private void EffectWeaponDmg()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -2853,7 +2853,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Threat)]
-	void EffectThreat()
+    private void EffectThreat()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2870,7 +2870,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealMaxHealth)]
-	void EffectHealMaxHealth()
+    private void EffectHealMaxHealth()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -2895,7 +2895,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.InterruptCast)]
-	void EffectInterruptCast()
+    private void EffectInterruptCast()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -2932,7 +2932,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonObjectWild)]
-	void EffectSummonObjectWild()
+    private void EffectSummonObjectWild()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3000,7 +3000,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ScriptEffect)]
-	void EffectScriptEffect()
+    private void EffectScriptEffect()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3206,7 +3206,7 @@ public partial class Spell
 
 	[SpellEffectHandler(SpellEffectName.Sanctuary)]
 	[SpellEffectHandler(SpellEffectName.Sanctuary2)]
-	void EffectSanctuary()
+    private void EffectSanctuary()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3227,7 +3227,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Duel)]
-	void EffectDuel()
+    private void EffectDuel()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3316,7 +3316,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Stuck)]
-	void EffectStuck()
+    private void EffectStuck()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3365,7 +3365,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonPlayer)]
-	void EffectSummonPlayer()
+    private void EffectSummonPlayer()
 	{
 		// workaround - this effect should not use target map
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
@@ -3383,7 +3383,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ActivateObject)]
-	void EffectActivateObject()
+    private void EffectActivateObject()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3395,7 +3395,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ApplyGlyph)]
-	void EffectApplyGlyph()
+    private void EffectApplyGlyph()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3449,7 +3449,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnchantHeldItem)]
-	void EffectEnchantHeldItem()
+    private void EffectEnchantHeldItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3499,7 +3499,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Disenchant)]
-	void EffectDisEnchant()
+    private void EffectDisEnchant()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3518,7 +3518,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Inebriate)]
-	void EffectInebriate()
+    private void EffectInebriate()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3546,7 +3546,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.FeedPet)]
-	void EffectFeedPet()
+    private void EffectFeedPet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3591,7 +3591,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DismissPet)]
-	void EffectDismissPet()
+    private void EffectDismissPet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3606,7 +3606,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonObjectSlot1)]
-	void EffectSummonObject()
+    private void EffectSummonObject()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3673,7 +3673,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Resurrect)]
-	void EffectResurrect()
+    private void EffectResurrect()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3704,7 +3704,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.AddExtraAttacks)]
-	void EffectAddExtraAttacks()
+    private void EffectAddExtraAttacks()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3718,7 +3718,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Parry)]
-	void EffectParry()
+    private void EffectParry()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3728,7 +3728,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Block)]
-	void EffectBlock()
+    private void EffectBlock()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3738,7 +3738,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Leap)]
-	void EffectLeap()
+    private void EffectLeap()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3753,7 +3753,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Reputation)]
-	void EffectReputation()
+    private void EffectReputation()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3778,7 +3778,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.QuestComplete)]
-	void EffectQuestComplete()
+    private void EffectQuestComplete()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3807,7 +3807,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ForceDeselect)]
-	void EffectForceDeselect()
+    private void EffectForceDeselect()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3858,7 +3858,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SelfResurrect)]
-	void EffectSelfResurrect()
+    private void EffectSelfResurrect()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -3898,7 +3898,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Skinning)]
-	void EffectSkinning()
+    private void EffectSkinning()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -3961,7 +3961,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Charge)]
-	void EffectCharge()
+    private void EffectCharge()
 	{
 		if (UnitTarget == null)
 			return;
@@ -4025,7 +4025,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ChargeDest)]
-	void EffectChargeDest()
+    private void EffectChargeDest()
 	{
 		if (DestTarget == null)
 			return;
@@ -4061,7 +4061,7 @@ public partial class Spell
 
 	[SpellEffectHandler(SpellEffectName.KnockBack)]
 	[SpellEffectHandler(SpellEffectName.KnockBackDest)]
-	void EffectKnockBack()
+    private void EffectKnockBack()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4113,7 +4113,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LeapBack)]
-	void EffectLeapBack()
+    private void EffectLeapBack()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -4132,7 +4132,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ClearQuest)]
-	void EffectQuestClear()
+    private void EffectQuestClear()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4183,7 +4183,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SendTaxi)]
-	void EffectSendTaxi()
+    private void EffectSendTaxi()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4195,7 +4195,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PullTowards)]
-	void EffectPullTowards()
+    private void EffectPullTowards()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4227,7 +4227,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PullTowardsDest)]
-	void EffectPullTowardsDest()
+    private void EffectPullTowardsDest()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4266,7 +4266,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ChangeRaidMarker)]
-	void EffectChangeRaidMarker()
+    private void EffectChangeRaidMarker()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -4285,7 +4285,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DispelMechanic)]
-	void EffectDispelMechanic()
+    private void EffectDispelMechanic()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4315,7 +4315,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ResurrectPet)]
-	void EffectResurrectPet()
+    private void EffectResurrectPet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -4386,7 +4386,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DestroyAllTotems)]
-	void EffectDestroyAllTotems()
+    private void EffectDestroyAllTotems()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -4435,7 +4435,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DurabilityDamage)]
-	void EffectDurabilityDamage()
+    private void EffectDurabilityDamage()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4468,7 +4468,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DurabilityDamagePct)]
-	void EffectDurabilityDamagePCT()
+    private void EffectDurabilityDamagePCT()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4501,7 +4501,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyThreatPercent)]
-	void EffectModifyThreatPercent()
+    private void EffectModifyThreatPercent()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4515,7 +4515,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TransDoor)]
-	void EffectTransmitted()
+    private void EffectTransmitted()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -4665,7 +4665,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Prospecting)]
-	void EffectProspecting()
+    private void EffectProspecting()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4694,7 +4694,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Milling)]
-	void EffectMilling()
+    private void EffectMilling()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4723,7 +4723,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Skill)]
-	void EffectSkill()
+    private void EffectSkill()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -4735,7 +4735,7 @@ public partial class Spell
 		If we would handle the resurrection here, the spiritguide would instantly disappear as the
 		player revives, and so we wouldn't see the spirit heal visual effect on the npc.
 		This is why we use a half sec delay between the visual effect and the resurrection itself */
-	void EffectSpiritHeal()
+    private void EffectSpiritHeal()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4743,7 +4743,7 @@ public partial class Spell
 
 	// remove insignia spell effect
 	[SpellEffectHandler(SpellEffectName.SkinPlayerCorpse)]
-	void EffectSkinPlayerCorpse()
+    private void EffectSkinPlayerCorpse()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4765,7 +4765,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.StealBeneficialBuff)]
-	void EffectStealBeneficialBuff()
+    private void EffectStealBeneficialBuff()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4886,7 +4886,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.KillCredit)]
-	void EffectKillCreditPersonal()
+    private void EffectKillCreditPersonal()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4898,7 +4898,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.KillCredit2)]
-	void EffectKillCredit()
+    private void EffectKillCredit()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4913,7 +4913,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.QuestFail)]
-	void EffectQuestFail()
+    private void EffectQuestFail()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4925,7 +4925,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.QuestStart)]
-	void EffectQuestStart()
+    private void EffectQuestStart()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4958,7 +4958,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateTamedPet)]
-	void EffectCreateTamedPet()
+    private void EffectCreateTamedPet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -4994,7 +4994,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DiscoverTaxi)]
-	void EffectDiscoverTaxi()
+    private void EffectDiscoverTaxi()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5009,7 +5009,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TitanGrip)]
-	void EffectTitanGrip()
+    private void EffectTitanGrip()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5019,7 +5019,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.RedirectThreat)]
-	void EffectRedirectThreat()
+    private void EffectRedirectThreat()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5034,7 +5034,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GameObjectDamage)]
-	void EffectGameObjectDamage()
+    private void EffectGameObjectDamage()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5051,7 +5051,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GameobjectRepair)]
-	void EffectGameObjectRepair()
+    private void EffectGameObjectRepair()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5063,7 +5063,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GameobjectSetDestructionState)]
-	void EffectGameObjectSetDestructionState()
+    private void EffectGameObjectSetDestructionState()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5074,7 +5074,7 @@ public partial class Spell
 		GameObjTarget.SetDestructibleState((GameObjectDestructibleState)EffectInfo.MiscValue, _caster, true);
 	}
 
-	void SummonGuardian(SpellEffectInfo effect, uint entry, SummonPropertiesRecord properties, uint numGuardians, ObjectGuid privateObjectOwner)
+    private void SummonGuardian(SpellEffectInfo effect, uint entry, SummonPropertiesRecord properties, uint numGuardians, ObjectGuid privateObjectOwner)
 	{
 		var unitCaster = UnitCasterForEffectHandlers;
 
@@ -5153,7 +5153,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.AllowRenamePet)]
-	void EffectRenamePet()
+    private void EffectRenamePet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5168,7 +5168,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlayMusic)]
-	void EffectPlayMusic()
+    private void EffectPlayMusic()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5189,7 +5189,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TalentSpecSelect)]
-	void EffectActivateSpec()
+    private void EffectActivateSpec()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5209,7 +5209,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlaySound)]
-	void EffectPlaySound()
+    private void EffectPlaySound()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5246,7 +5246,7 @@ public partial class Spell
 
 	[SpellEffectHandler(SpellEffectName.RemoveAura)]
 	[SpellEffectHandler(SpellEffectName.RemoveAura2)]
-	void EffectRemoveAura()
+    private void EffectRemoveAura()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5259,7 +5259,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DamageFromMaxHealthPCT)]
-	void EffectDamageFromMaxHealthPCT()
+    private void EffectDamageFromMaxHealthPCT()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5271,7 +5271,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveCurrency)]
-	void EffectGiveCurrency()
+    private void EffectGiveCurrency()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5286,7 +5286,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CastButton)]
-	void EffectCastButtons()
+    private void EffectCastButtons()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5335,7 +5335,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.RechargeItem)]
-	void EffectRechargeItem()
+    private void EffectRechargeItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5361,7 +5361,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.Bind)]
-	void EffectBind()
+    private void EffectBind()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5397,7 +5397,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.TeleportToReturnPoint)]
-	void EffectTeleportToReturnPoint()
+    private void EffectTeleportToReturnPoint()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5414,7 +5414,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.IncreseCurrencyCap)]
-	void EffectIncreaseCurrencyCap()
+    private void EffectIncreaseCurrencyCap()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5426,7 +5426,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonRafFriend)]
-	void EffectSummonRaFFriend()
+    private void EffectSummonRaFFriend()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5438,7 +5438,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UnlockGuildVaultTab)]
-	void EffectUnlockGuildVaultTab()
+    private void EffectUnlockGuildVaultTab()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5452,7 +5452,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SummonPersonalGameobject)]
-	void EffectSummonPersonalGameObject()
+    private void EffectSummonPersonalGameObject()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5511,7 +5511,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ResurrectWithAura)]
-	void EffectResurrectWithAura()
+    private void EffectResurrectWithAura()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5546,7 +5546,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateAreaTrigger)]
-	void EffectCreateAreaTrigger()
+    private void EffectCreateAreaTrigger()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5561,7 +5561,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.RemoveTalent)]
-	void EffectRemoveTalent()
+    private void EffectRemoveTalent()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5581,7 +5581,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.DestroyItem)]
-	void EffectDestroyItem()
+    private void EffectDestroyItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5597,7 +5597,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnGarrisonBuilding)]
-	void EffectLearnGarrisonBuilding()
+    private void EffectLearnGarrisonBuilding()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5612,7 +5612,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.RemoveAuraBySApellLabel)]
-	void EffectRemoveAuraBySpellLabel()
+    private void EffectRemoveAuraBySpellLabel()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5624,7 +5624,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateGarrison)]
-	void EffectCreateGarrison()
+    private void EffectCreateGarrison()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5636,7 +5636,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateConversation)]
-	void EffectCreateConversation()
+    private void EffectCreateConversation()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5650,7 +5650,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CancelConversation)]
-	void EffectCancelConversation()
+    private void EffectCancelConversation()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5673,7 +5673,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.AddGarrisonFollower)]
-	void EffectAddGarrisonFollower()
+    private void EffectAddGarrisonFollower()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5688,7 +5688,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateHeirloomItem)]
-	void EffectCreateHeirloomItem()
+    private void EffectCreateHeirloomItem()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5711,7 +5711,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ActivateGarrisonBuilding)]
-	void EffectActivateGarrisonBuilding()
+    private void EffectActivateGarrisonBuilding()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5726,7 +5726,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GrantBattlepetLevel)]
-	void EffectGrantBattlePetLevel()
+    private void EffectGrantBattlePetLevel()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5743,7 +5743,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveExperience)]
-	void EffectGiveExperience()
+    private void EffectGiveExperience()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5758,7 +5758,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveRestedEcperienceBonus)]
-	void EffectGiveRestedExperience()
+    private void EffectGiveRestedExperience()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5775,7 +5775,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.HealBattlepetPct)]
-	void EffectHealBattlePetPct()
+    private void EffectHealBattlePetPct()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5790,7 +5790,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.EnableBattlePets)]
-	void EffectEnableBattlePets()
+    private void EffectEnableBattlePets()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5804,7 +5804,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ChangeBattlepetQuality)]
-	void EffectChangeBattlePetQuality()
+    private void EffectChangeBattlePetQuality()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5828,7 +5828,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LaunchQuestChoice)]
-	void EffectLaunchQuestChoice()
+    private void EffectLaunchQuestChoice()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5840,7 +5840,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UncageBattlepet)]
-	void EffectUncageBattlePet()
+    private void EffectUncageBattlePet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5890,7 +5890,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UpgradeHeirloom)]
-	void EffectUpgradeHeirloom()
+    private void EffectUpgradeHeirloom()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -5907,7 +5907,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ApplyEnchantIllusion)]
-	void EffectApplyEnchantIllusion()
+    private void EffectApplyEnchantIllusion()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5931,7 +5931,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UpdatePlayerPhase)]
-	void EffectUpdatePlayerPhase()
+    private void EffectUpdatePlayerPhase()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5943,7 +5943,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.UpdateZoneAurasPhases)]
-	void EffectUpdateZoneAurasAndPhases()
+    private void EffectUpdateZoneAurasAndPhases()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -5955,7 +5955,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveArtifactPower)]
-	void EffectGiveArtifactPower()
+    private void EffectGiveArtifactPower()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -5977,7 +5977,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveArtifactPowerNoBonus)]
-	void EffectGiveArtifactPowerNoBonus()
+    private void EffectGiveArtifactPowerNoBonus()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.LaunchTarget)
 			return;
@@ -5997,7 +5997,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlaySceneScriptPackage)]
-	void EffectPlaySceneScriptPackage()
+    private void EffectPlaySceneScriptPackage()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -6008,7 +6008,7 @@ public partial class Spell
 		_caster.AsPlayer.SceneMgr.PlaySceneByPackageId((uint)EffectInfo.MiscValue, SceneFlags.PlayerNonInteractablePhased, DestTarget);
 	}
 
-	bool IsUnitTargetSceneObjectAura(Spell spell, TargetInfo target)
+    private bool IsUnitTargetSceneObjectAura(Spell spell, TargetInfo target)
 	{
 		if (target.TargetGuid != spell.Caster.GUID)
 			return false;
@@ -6021,7 +6021,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateSceneObject)]
-	void EffectCreateSceneObject()
+    private void EffectCreateSceneObject()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -6043,7 +6043,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreatePersonalSceneObject)]
-	void EffectCreatePrivateSceneObject()
+    private void EffectCreatePrivateSceneObject()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -6065,7 +6065,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.PlayScene)]
-	void EffectPlayScene()
+    private void EffectPlayScene()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -6077,7 +6077,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GiveHonor)]
-	void EffectGiveHonor()
+    private void EffectGiveHonor()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6097,7 +6097,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.JumpCharge)]
-	void EffectJumpCharge()
+    private void EffectJumpCharge()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Launch)
 			return;
@@ -6148,7 +6148,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnTransmogSet)]
-	void EffectLearnTransmogSet()
+    private void EffectLearnTransmogSet()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6160,7 +6160,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnAzeriteEssencePower)]
-	void EffectLearnAzeriteEssencePower()
+    private void EffectLearnAzeriteEssencePower()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6202,7 +6202,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreatePrivateConversation)]
-	void EffectCreatePrivateConversation()
+    private void EffectCreatePrivateConversation()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
@@ -6216,7 +6216,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.SendChatMessage)]
-	void EffectSendChatMessage()
+    private void EffectSendChatMessage()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6236,7 +6236,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.GrantBattlepetExperience)]
-	void EffectGrantBattlePetExperience()
+    private void EffectGrantBattlePetExperience()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6253,7 +6253,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.LearnTransmogIllusion)]
-	void EffectLearnTransmogIllusion()
+    private void EffectLearnTransmogIllusion()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6272,7 +6272,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyAuraStacks)]
-	void EffectModifyAuraStacks()
+    private void EffectModifyAuraStacks()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6298,7 +6298,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyCooldown)]
-	void EffectModifyCooldown()
+    private void EffectModifyCooldown()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6307,7 +6307,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyCooldowns)]
-	void EffectModifyCooldowns()
+    private void EffectModifyCooldowns()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6336,7 +6336,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyCooldownsByCategory)]
-	void EffectModifyCooldownsByCategory()
+    private void EffectModifyCooldownsByCategory()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6345,7 +6345,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ModifyCharges)]
-	void EffectModifySpellCharges()
+    private void EffectModifySpellCharges()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6355,7 +6355,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.CreateTraitTreeConfig)]
-	void EffectCreateTraitTreeConfig()
+    private void EffectCreateTraitTreeConfig()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;
@@ -6378,7 +6378,7 @@ public partial class Spell
 	}
 
 	[SpellEffectHandler(SpellEffectName.ChangeActiveCombatTraitConfig)]
-	void EffectChangeActiveCombatTraitConfig()
+    private void EffectChangeActiveCombatTraitConfig()
 	{
 		if (_effectHandleMode != SpellEffectHandleMode.HitTarget)
 			return;

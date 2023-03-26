@@ -7,12 +7,12 @@ using Framework.Constants;
 
 namespace Forged.MapServer.AI.CoreAI;
 
-class FarthestTargetSelector : ICheck<Unit>
+internal class FarthestTargetSelector : ICheck<Unit>
 {
-	readonly Unit _me;
-	readonly float _dist;
-	readonly bool _playerOnly;
-	readonly bool _inLos;
+    private readonly Unit _me;
+    private readonly float _dist;
+    private readonly bool _playerOnly;
+    private readonly bool _inLos;
 
 	public FarthestTargetSelector(Unit unit, float dist, bool playerOnly, bool inLos)
 	{

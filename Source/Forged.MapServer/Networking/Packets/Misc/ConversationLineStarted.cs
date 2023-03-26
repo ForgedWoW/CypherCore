@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class ConversationLineStarted : ClientPacket
+internal class ConversationLineStarted : ClientPacket
 {
 	public ObjectGuid ConversationGUID;
 	public uint LineID;

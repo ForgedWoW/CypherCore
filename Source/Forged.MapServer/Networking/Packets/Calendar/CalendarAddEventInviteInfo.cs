@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-struct CalendarAddEventInviteInfo
+internal struct CalendarAddEventInviteInfo
 {
 	public void Read(WorldPacket data)
 	{

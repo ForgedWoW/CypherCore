@@ -10,7 +10,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class ConnectTo : ServerPacket
+internal class ConnectTo : ServerPacket
 {
 	public enum AddressType
 	{

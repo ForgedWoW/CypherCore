@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct PlayerKickedAppend : IChannelAppender
+internal struct PlayerKickedAppend : IChannelAppender
 {
 	public PlayerKickedAppend(ObjectGuid kicker, ObjectGuid kickee)
 	{
@@ -23,6 +23,6 @@ struct PlayerKickedAppend : IChannelAppender
 		data.TargetGuid = _kickee;
 	}
 
-	readonly ObjectGuid _kicker;
-	readonly ObjectGuid _kickee;
+    private readonly ObjectGuid _kicker;
+    private readonly ObjectGuid _kickee;
 }

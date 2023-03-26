@@ -9,9 +9,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyUnitInObjectRangeCheck : ICheck<Unit>
 {
-	readonly WorldObject _obj;
-	readonly float _range;
-	readonly bool _check3D;
+    private readonly WorldObject _obj;
+    private readonly float _range;
+    private readonly bool _check3D;
 
 	public AnyUnitInObjectRangeCheck(WorldObject obj, float range, bool check3D = true)
 	{

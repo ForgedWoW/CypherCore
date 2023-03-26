@@ -6,11 +6,11 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Token;
 
-class CommerceTokenGetLogResponse : ServerPacket
+internal class CommerceTokenGetLogResponse : ServerPacket
 {
 	public uint UnkInt; // send CMSG_UPDATE_WOW_TOKEN_AUCTIONABLE_LIST
 	public TokenResult Result;
-	readonly List<AuctionableTokenInfo> AuctionableTokenAuctionableList = new();
+    private readonly List<AuctionableTokenInfo> AuctionableTokenAuctionableList = new();
 	public CommerceTokenGetLogResponse() : base(ServerOpcodes.CommerceTokenGetLogResponse, ConnectionType.Instance) { }
 
 	public override void Write()
@@ -29,7 +29,7 @@ class CommerceTokenGetLogResponse : ServerPacket
 		}
 	}
 
-	struct AuctionableTokenInfo
+    private struct AuctionableTokenInfo
 	{
 		public ulong UnkInt1;
 		public long UnkInt2;

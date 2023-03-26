@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class DefenseMessage : ServerPacket
+internal class DefenseMessage : ServerPacket
 {
 	public uint ZoneID;
 	public string MessageText = "";

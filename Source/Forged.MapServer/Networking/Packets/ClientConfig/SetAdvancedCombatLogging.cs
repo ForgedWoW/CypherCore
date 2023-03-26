@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.ClientConfig;
 
-class SetAdvancedCombatLogging : ClientPacket
+internal class SetAdvancedCombatLogging : ClientPacket
 {
 	public bool Enable;
 	public SetAdvancedCombatLogging(WorldPacket packet) : base(packet) { }

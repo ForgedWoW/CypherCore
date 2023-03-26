@@ -16,9 +16,9 @@ namespace Forged.MapServer.Entities.Taxis;
 
 public class TaxiPathGraph
 {
-	static EdgeWeightedDigraph _graph;
-	static readonly List<TaxiNodesRecord> NodesByVertex = new();
-	static readonly Dictionary<uint, uint> VerticesByNode = new();
+    private static EdgeWeightedDigraph _graph;
+    private static readonly List<TaxiNodesRecord> NodesByVertex = new();
+    private static readonly Dictionary<uint, uint> VerticesByNode = new();
 
 	public static void Initialize()
 	{
@@ -108,13 +108,13 @@ public class TaxiPathGraph
 										});
 	}
 
-	static void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
+    private static void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
 	{
 		if (!Global.DB2Mgr.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId, out uiMapPosition))
 			Global.DB2Mgr.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId, out uiMapPosition);
 	}
 
-	static uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
+    private static uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
 	{
 		if (!VerticesByNode.ContainsKey(node.Id))
 		{
@@ -125,7 +125,7 @@ public class TaxiPathGraph
 		return VerticesByNode[node.Id];
 	}
 
-	static void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
+    private static void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
 	{
 		if (from.Id != to.Id)
 		{
@@ -175,12 +175,12 @@ public class TaxiPathGraph
 		}
 	}
 
-	static uint GetVertexIDFromNodeID(TaxiNodesRecord node)
+    private static uint GetVertexIDFromNodeID(TaxiNodesRecord node)
 	{
 		return VerticesByNode.ContainsKey(node.Id) ? VerticesByNode[node.Id] : uint.MaxValue;
 	}
 
-	static uint GetNodeIDFromVertexID(uint vertexID)
+    private static uint GetNodeIDFromVertexID(uint vertexID)
 	{
 		if (vertexID < NodesByVertex.Count)
 			return NodesByVertex[(int)vertexID].Id;

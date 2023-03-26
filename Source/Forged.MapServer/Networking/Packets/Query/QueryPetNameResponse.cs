@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class QueryPetNameResponse : ServerPacket
+internal class QueryPetNameResponse : ServerPacket
 {
 	public ObjectGuid UnitGUID;
 	public bool Allow;

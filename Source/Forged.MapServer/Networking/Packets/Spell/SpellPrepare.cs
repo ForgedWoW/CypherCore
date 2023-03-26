@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SpellPrepare : ServerPacket
+internal class SpellPrepare : ServerPacket
 {
 	public ObjectGuid ClientCastID;
 	public ObjectGuid ServerCastID;

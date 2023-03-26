@@ -5,7 +5,7 @@ using Forged.MapServer.Quest;
 
 namespace Forged.MapServer.Entities.Players;
 
-struct QuestObjectiveStatusData
+internal struct QuestObjectiveStatusData
 {
 	public (uint QuestID, QuestStatusData Status) QuestStatusPair;
 	public QuestObjective Objective;

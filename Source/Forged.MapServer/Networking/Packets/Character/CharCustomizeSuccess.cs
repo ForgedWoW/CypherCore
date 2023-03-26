@@ -9,13 +9,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class CharCustomizeSuccess : ServerPacket
+internal class CharCustomizeSuccess : ServerPacket
 {
-	readonly string CharName = "";
-	readonly byte SexID;
-	readonly Array<ChrCustomizationChoice> Customizations = new(72);
+    private readonly string CharName = "";
+    private readonly byte SexID;
+    private readonly Array<ChrCustomizationChoice> Customizations = new(72);
 
-	readonly ObjectGuid CharGUID;
+    private readonly ObjectGuid CharGUID;
 
 	public CharCustomizeSuccess(CharCustomizeInfo customizeInfo) : base(ServerOpcodes.CharCustomizeSuccess)
 	{

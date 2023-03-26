@@ -13,23 +13,23 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class PathGenerator
 {
-	readonly ulong[] _pathPolyRefs = new ulong[74];
-	readonly WorldObject _source;
-	readonly Detour.dtQueryFilter _filter = new();
-	readonly Detour.dtNavMeshQuery _navMeshQuery;
-	readonly Detour.dtNavMesh _navMesh;
+    private readonly ulong[] _pathPolyRefs = new ulong[74];
+    private readonly WorldObject _source;
+    private readonly Detour.dtQueryFilter _filter = new();
+    private readonly Detour.dtNavMeshQuery _navMeshQuery;
+    private readonly Detour.dtNavMesh _navMesh;
 
-	uint _polyLength;
-	uint _pointPathLimit;
-	bool _useRaycast; // use raycast if true for a straight line path
-	bool _forceDestination;
-	bool _useStraightPath;
-	Vector3[] _pathPoints;
+    private uint _polyLength;
+    private uint _pointPathLimit;
+    private bool _useRaycast; // use raycast if true for a straight line path
+    private bool _forceDestination;
+    private bool _useStraightPath;
+    private Vector3[] _pathPoints;
 
-	Vector3 _actualEndPosition;
-	Vector3 _startPosition;
-	Vector3 _endPosition;
-	PathType pathType;
+    private Vector3 _actualEndPosition;
+    private Vector3 _startPosition;
+    private Vector3 _endPosition;
+    private PathType pathType;
 
 	public PathGenerator(WorldObject owner)
 	{
@@ -202,7 +202,7 @@ public class PathGenerator
 		_useRaycast = useRaycast;
 	}
 
-	ulong GetPathPolyByPosition(ulong[] polyPath, uint polyPathSize, float[] point, ref float distance)
+    private ulong GetPathPolyByPosition(ulong[] polyPath, uint polyPathSize, float[] point, ref float distance)
 	{
 		if (polyPath == null || polyPathSize == 0)
 			return 0;
@@ -235,7 +235,7 @@ public class PathGenerator
 		return (minDist < 3.0f) ? nearestPoly : 0u;
 	}
 
-	ulong GetPolyByLocation(float[] point, ref float distance)
+    private ulong GetPolyByLocation(float[] point, ref float distance)
 	{
 		// first we check the current path
 		// if the current path doesn't contain the current poly,
@@ -282,7 +282,7 @@ public class PathGenerator
 		return 0;
 	}
 
-	void BuildPolyPath(Vector3 startPos, Vector3 endPos)
+    private void BuildPolyPath(Vector3 startPos, Vector3 endPos)
 	{
 		// *** getting start/end poly logic ***
 
@@ -690,7 +690,7 @@ public class PathGenerator
 		BuildPointPath(startPoint, endPoint);
 	}
 
-	void BuildPointPath(float[] startPoint, float[] endPoint)
+    private void BuildPointPath(float[] startPoint, float[] endPoint)
 	{
 		var pathPoints = new float[74 * 3];
 		var pointCount = 0;
@@ -787,7 +787,7 @@ public class PathGenerator
 		Log.Logger.Debug("PathGenerator.BuildPointPath path type {0} size {1} poly-size {2}\n", pathType, pointCount, _polyLength);
 	}
 
-	uint FixupCorridor(ulong[] path, uint npath, uint maxPath, ulong[] visited, int nvisited)
+    private uint FixupCorridor(ulong[] path, uint npath, uint maxPath, ulong[] visited, int nvisited)
 	{
 		var furthestPath = -1;
 		var furthestVisited = -1;
@@ -833,7 +833,7 @@ public class PathGenerator
 		return req + size;
 	}
 
-	bool GetSteerTarget(float[] startPos, float[] endPos, float minTargetDist, ulong[] path, uint pathSize, out float[] steerPos, out Detour.dtStraightPathFlags steerPosFlag, out ulong steerPosRef)
+    private bool GetSteerTarget(float[] startPos, float[] endPos, float minTargetDist, ulong[] path, uint pathSize, out float[] steerPos, out Detour.dtStraightPathFlags steerPosFlag, out ulong steerPosRef)
 	{
 		steerPosRef = 0;
 		steerPos = new float[3];
@@ -876,7 +876,7 @@ public class PathGenerator
 		return true;
 	}
 
-	uint FindSmoothPath(float[] startPos, float[] endPos, ulong[] polyPath, uint polyPathSize, out float[] smoothPath, out int smoothPathSize, uint maxSmoothPathSize)
+    private uint FindSmoothPath(float[] startPos, float[] endPos, ulong[] polyPath, uint polyPathSize, out float[] smoothPath, out int smoothPathSize, uint maxSmoothPathSize)
 	{
 		smoothPathSize = 0;
 		var nsmoothPath = 0;
@@ -1020,7 +1020,7 @@ public class PathGenerator
 		return nsmoothPath < 74 ? Detour.DT_SUCCESS : Detour.DT_FAILURE;
 	}
 
-	void NormalizePath()
+    private void NormalizePath()
 	{
 		for (uint i = 0; i < _pathPoints.Length; ++i)
 		{
@@ -1029,7 +1029,7 @@ public class PathGenerator
 		}
 	}
 
-	void BuildShortcut()
+    private void BuildShortcut()
 	{
 		Log.Logger.Debug("BuildShortcut : making shortcut\n");
 
@@ -1047,7 +1047,7 @@ public class PathGenerator
 		pathType = PathType.Shortcut;
 	}
 
-	void CreateFilter()
+    private void CreateFilter()
 	{
 		NavTerrainFlag includeFlags = 0;
 		NavTerrainFlag excludeFlags = 0;
@@ -1074,7 +1074,7 @@ public class PathGenerator
 		UpdateFilter();
 	}
 
-	void UpdateFilter()
+    private void UpdateFilter()
 	{
 		// allow creatures to cheat and use different movement types if they are moved
 		// forcefully into terrain they can't normally move in
@@ -1098,7 +1098,7 @@ public class PathGenerator
 		}
 	}
 
-	NavTerrainFlag GetNavTerrain(float x, float y, float z)
+    private NavTerrainFlag GetNavTerrain(float x, float y, float z)
 	{
 		var liquidStatus = _source.Map.GetLiquidStatus(_source.PhaseShift, x, y, z, LiquidHeaderTypeFlags.AllLiquids, out var data, _source.CollisionHeight);
 
@@ -1120,19 +1120,19 @@ public class PathGenerator
 		}
 	}
 
-	bool InRange(Vector3 p1, Vector3 p2, float r, float h)
+    private bool InRange(Vector3 p1, Vector3 p2, float r, float h)
 	{
 		var d = p1 - p2;
 
 		return (d.X * d.X + d.Y * d.Y) < r * r && Math.Abs(d.Z) < h;
 	}
 
-	float Dist3DSqr(Vector3 p1, Vector3 p2)
+    private float Dist3DSqr(Vector3 p1, Vector3 p2)
 	{
 		return (p1 - p2).LengthSquared();
 	}
 
-	void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
+    private void AddFarFromPolyFlags(bool startFarFromPoly, bool endFarFromPoly)
 	{
 		if (startFarFromPoly)
 			pathType |= PathType.FarFromPolyStart;
@@ -1141,13 +1141,13 @@ public class PathGenerator
 			pathType |= PathType.FarFromPolyEnd;
 	}
 
-	void Clear()
+    private void Clear()
 	{
 		_polyLength = 0;
 		_pathPoints = null;
 	}
 
-	bool HaveTile(Vector3 p)
+    private bool HaveTile(Vector3 p)
 	{
 		int tx = -1, ty = -1;
 
@@ -1167,7 +1167,7 @@ public class PathGenerator
 		return (_navMesh.getTileAt(tx, ty, 0) != null);
 	}
 
-	bool InRangeYZX(float[] v1, float[] v2, float r, float h)
+    private bool InRangeYZX(float[] v1, float[] v2, float r, float h)
 	{
 		var dx = v2[0] - v1[0];
 		var dy = v2[1] - v1[1]; // elevation
@@ -1176,18 +1176,18 @@ public class PathGenerator
 		return (dx * dx + dz * dz) < r * r && Math.Abs(dy) < h;
 	}
 
-	void SetStartPosition(Vector3 point)
+    private void SetStartPosition(Vector3 point)
 	{
 		_startPosition = point;
 	}
 
-	void SetEndPosition(Vector3 point)
+    private void SetEndPosition(Vector3 point)
 	{
 		_actualEndPosition = point;
 		_endPosition = point;
 	}
 
-	void SetActualEndPosition(Vector3 point)
+    private void SetActualEndPosition(Vector3 point)
 	{
 		_actualEndPosition = point;
 	}

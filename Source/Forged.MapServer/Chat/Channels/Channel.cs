@@ -22,23 +22,23 @@ namespace Forged.MapServer.Chat.Channels;
 
 public class Channel
 {
-	readonly ChannelFlags _channelFlags;
-	readonly uint _channelId;
-	readonly TeamFaction _channelTeam;
-	readonly string _channelName;
-	readonly Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
-	readonly List<ObjectGuid> _bannedStore = new();
-	readonly AreaTableRecord _zoneEntry;
-	readonly ObjectGuid _channelGuid;
+    private readonly ChannelFlags _channelFlags;
+    private readonly uint _channelId;
+    private readonly TeamFaction _channelTeam;
+    private readonly string _channelName;
+    private readonly Dictionary<ObjectGuid, PlayerInfo> _playersStore = new();
+    private readonly List<ObjectGuid> _bannedStore = new();
+    private readonly AreaTableRecord _zoneEntry;
+    private readonly ObjectGuid _channelGuid;
 
-	bool _isDirty; // whether the channel needs to be saved to DB
-	long _nextActivityUpdateTime;
+    private bool _isDirty; // whether the channel needs to be saved to DB
+    private long _nextActivityUpdateTime;
 
-	bool _announceEnabled;
-	bool _ownershipEnabled;
-	bool _isOwnerInvisible;
-	ObjectGuid _ownerGuid;
-	string _channelPassword;
+    private bool _announceEnabled;
+    private bool _ownershipEnabled;
+    private bool _isOwnerInvisible;
+    private ObjectGuid _ownerGuid;
+    private string _channelPassword;
 
 	public Channel(ObjectGuid guid, uint channelId, TeamFaction team = 0, AreaTableRecord zoneEntry = null)
 	{
@@ -784,7 +784,7 @@ public class Channel
 		return info != null ? info.GetFlags() : 0;
 	}
 
-	void KickOrBan(Player player, string badname, bool ban)
+    private void KickOrBan(Player player, string badname, bool ban)
 	{
 		var good = player.GUID;
 
@@ -854,7 +854,7 @@ public class Channel
 		}
 	}
 
-	void SetMode(Player player, string p2n, bool mod, bool set)
+    private void SetMode(Player player, string p2n, bool mod, bool set)
 	{
 		var guid = player.GUID;
 
@@ -909,7 +909,7 @@ public class Channel
 			SetMute(newp.GUID, set);
 	}
 
-	void JoinNotify(Player player)
+    private void JoinNotify(Player player)
 	{
 		var guid = player.GUID;
 
@@ -919,7 +919,7 @@ public class Channel
 			SendToAll(new ChannelUserlistUpdateBuilder(this, guid));
 	}
 
-	void LeaveNotify(Player player)
+    private void LeaveNotify(Player player)
 	{
 		var guid = player.GUID;
 
@@ -931,7 +931,7 @@ public class Channel
 			SendToAll(builder);
 	}
 
-	void SetModerator(ObjectGuid guid, bool set)
+    private void SetModerator(ObjectGuid guid, bool set)
 	{
 		if (!IsOn(guid))
 			return;
@@ -948,7 +948,7 @@ public class Channel
 		}
 	}
 
-	void SetMute(ObjectGuid guid, bool set)
+    private void SetMute(ObjectGuid guid, bool set)
 	{
 		if (!IsOn(guid))
 			return;
@@ -965,7 +965,7 @@ public class Channel
 		}
 	}
 
-	void SendToAll(MessageBuilder builder, ObjectGuid guid = default, ObjectGuid accountGuid = default)
+    private void SendToAll(MessageBuilder builder, ObjectGuid guid = default, ObjectGuid accountGuid = default)
 	{
 		LocalizedDo localizer = new(builder);
 
@@ -979,7 +979,7 @@ public class Channel
 		}
 	}
 
-	void SendToAllButOne(MessageBuilder builder, ObjectGuid who)
+    private void SendToAllButOne(MessageBuilder builder, ObjectGuid who)
 	{
 		LocalizedDo localizer = new(builder);
 
@@ -993,7 +993,7 @@ public class Channel
 			}
 	}
 
-	void SendToOne(MessageBuilder builder, ObjectGuid who)
+    private void SendToOne(MessageBuilder builder, ObjectGuid who)
 	{
 		LocalizedDo localizer = new(builder);
 
@@ -1003,7 +1003,7 @@ public class Channel
 			localizer.Invoke(player);
 	}
 
-	void SendToAllWithAddon(MessageBuilder builder, string addonPrefix, ObjectGuid guid = default, ObjectGuid accountGuid = default)
+    private void SendToAllWithAddon(MessageBuilder builder, string addonPrefix, ObjectGuid guid = default, ObjectGuid accountGuid = default)
 	{
 		LocalizedDo localizer = new(builder);
 
@@ -1017,30 +1017,30 @@ public class Channel
 		}
 	}
 
-	bool IsAnnounce()
+    private bool IsAnnounce()
 	{
 		return _announceEnabled;
 	}
 
-	bool HasFlag(ChannelFlags flag)
+    private bool HasFlag(ChannelFlags flag)
 	{
 		return _channelFlags.HasAnyFlag(flag);
 	}
 
-	bool IsOn(ObjectGuid who)
+    private bool IsOn(ObjectGuid who)
 	{
 		return _playersStore.ContainsKey(who);
 	}
 
-	bool IsBanned(ObjectGuid guid)
+    private bool IsBanned(ObjectGuid guid)
 	{
 		return _bannedStore.Contains(guid);
 	}
 
 	public class PlayerInfo
 	{
-		ChannelMemberFlags flags;
-		bool _invisible;
+        private ChannelMemberFlags flags;
+        private bool _invisible;
 
 		public ChannelMemberFlags GetFlags()
 		{

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Battlenet;
 
-class BattlenetRequest : ClientPacket
+internal class BattlenetRequest : ClientPacket
 {
 	public MethodCall Method;
 	public byte[] Data;

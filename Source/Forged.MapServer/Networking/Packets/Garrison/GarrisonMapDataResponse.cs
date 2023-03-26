@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonMapDataResponse : ServerPacket
+internal class GarrisonMapDataResponse : ServerPacket
 {
 	public List<GarrisonBuildingMapData> Buildings = new();
 	public GarrisonMapDataResponse() : base(ServerOpcodes.GarrisonMapDataResponse, ConnectionType.Instance) { }

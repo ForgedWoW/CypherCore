@@ -15,15 +15,15 @@ namespace Forged.MapServer.Chat;
 
 public class LanguageManager : Singleton<LanguageManager>
 {
-	static readonly uint[] SHashtable =
+    private static readonly uint[] SHashtable =
 	{
 		0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB, 0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49, 0xD6057177, 0x904ECE93, 0x1C38024F, 0x98FD323B, 0xE3061AE7, 0xA39B0FA1, 0x9797F25F, 0xE4444563,
 	};
 
-	readonly MultiMap<uint, LanguageDesc> _langsMap = new();
-	readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
+    private readonly MultiMap<uint, LanguageDesc> _langsMap = new();
+    private readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
 
-	LanguageManager() { }
+    private LanguageManager() { }
 
 	public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
 	{
@@ -170,12 +170,12 @@ public class LanguageManager : Singleton<LanguageManager>
 		return true;
 	}
 
-	List<string> FindWordGroup(uint language, uint wordLen)
+    private List<string> FindWordGroup(uint language, uint wordLen)
 	{
 		return _wordsMap.LookupByKey(Tuple.Create(language, (byte)wordLen));
 	}
 
-	void StripHyperlinks(string source, ref string dest)
+    private void StripHyperlinks(string source, ref string dest)
 	{
 		var destChar = new char[source.Length];
 
@@ -240,7 +240,7 @@ public class LanguageManager : Singleton<LanguageManager>
 		dest = new string(destChar, 0, destSize);
 	}
 
-	void ReplaceUntranslatableCharactersWithSpace(ref string text)
+    private void ReplaceUntranslatableCharactersWithSpace(ref string text)
 	{
 		var chars = text.ToCharArray();
 
@@ -255,12 +255,12 @@ public class LanguageManager : Singleton<LanguageManager>
 		text = new string(chars);
 	}
 
-	static char upper_backslash(char c)
+    private static char upper_backslash(char c)
 	{
 		return c == '/' ? '\\' : char.ToUpper(c);
 	}
 
-	uint SStrHash(string str, bool caseInsensitive, uint seed = 0x7FED7FED)
+    private uint SStrHash(string str, bool caseInsensitive, uint seed = 0x7FED7FED)
 	{
 		var shift = 0xEEEEEEEE;
 

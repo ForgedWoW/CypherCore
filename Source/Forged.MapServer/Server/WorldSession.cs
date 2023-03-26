@@ -39,82 +39,82 @@ public class WorldSession : IDisposable
 {
 	public long MuteTime;
 
-	readonly List<ObjectGuid> _legitCharacters = new();
-	readonly WorldSocket[] _socket = new WorldSocket[(int)ConnectionType.Max];
-	readonly string _address;
-	readonly uint _accountId;
-	readonly string _accountName;
-	readonly uint _battlenetAccountId;
-	readonly Expansion _accountExpansion;
-	readonly Expansion _expansion;
-	readonly Expansion _configuredExpansion;
-	readonly string _os;
+    private readonly List<ObjectGuid> _legitCharacters = new();
+    private readonly WorldSocket[] _socket = new WorldSocket[(int)ConnectionType.Max];
+    private readonly string _address;
+    private readonly uint _accountId;
+    private readonly string _accountName;
+    private readonly uint _battlenetAccountId;
+    private readonly Expansion _accountExpansion;
+    private readonly Expansion _expansion;
+    private readonly Expansion _configuredExpansion;
+    private readonly string _os;
 
-	readonly DosProtection _antiDos;
-	readonly Locale _sessionDbcLocale;
-	readonly Locale _sessionDbLocaleIndex;
-	readonly AccountData[] _accountData = new AccountData[(int)AccountDataTypes.Max];
-	readonly uint[] _tutorials = new uint[SharedConst.MaxAccountTutorialValues];
-	readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
-	readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
+    private readonly DosProtection _antiDos;
+    private readonly Locale _sessionDbcLocale;
+    private readonly Locale _sessionDbLocaleIndex;
+    private readonly AccountData[] _accountData = new AccountData[(int)AccountDataTypes.Max];
+    private readonly uint[] _tutorials = new uint[SharedConst.MaxAccountTutorialValues];
+    private readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
+    private readonly Dictionary<uint, Action<Google.Protobuf.CodedInputStream>> _battlenetResponseCallbacks = new();
 
-	readonly List<string> _registeredAddonPrefixes = new();
-	readonly uint _recruiterId;
-	readonly bool _isRecruiter;
+    private readonly List<string> _registeredAddonPrefixes = new();
+    private readonly uint _recruiterId;
+    private readonly bool _isRecruiter;
 
 	private readonly ActionBlock<WorldPacket> _recvQueue;
 
-	readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
-	readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
-	readonly ConcurrentQueue<WorldPacket> _threadSafeQueue = new();
+    private readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
+    private readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
+    private readonly ConcurrentQueue<WorldPacket> _threadSafeQueue = new();
 
-	readonly CircularBuffer<Tuple<long, uint>> _timeSyncClockDeltaQueue = new(6); // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
+    private readonly CircularBuffer<Tuple<long, uint>> _timeSyncClockDeltaQueue = new(6); // first member: clockDelta. Second member: latency of the packet exchange that was used to compute that clockDelta.
 
-	readonly Dictionary<uint, uint> _pendingTimeSyncRequests = new(); // key: counter. value: server time when packet with that counter was sent.
+    private readonly Dictionary<uint, uint> _pendingTimeSyncRequests = new(); // key: counter. value: server time when packet with that counter was sent.
 
-	readonly CollectionMgr _collectionMgr;
+    private readonly CollectionMgr _collectionMgr;
 
-	readonly BattlePetMgr _battlePetMgr;
+    private readonly BattlePetMgr _battlePetMgr;
 	private readonly BattlepayManager _battlePayMgr;
 
-	readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-	readonly AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks = new();
-	readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
+    private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+    private readonly AsyncCallbackProcessor<TransactionCallback> _transactionCallbacks = new();
+    private readonly AsyncCallbackProcessor<ISqlCallback> _queryHolderProcessor = new();
 
-	readonly CancellationTokenSource _cancellationToken = new();
-	readonly AutoResetEvent _asyncMessageQueueSemaphore = new(false);
-	ulong _guidLow;
-	Player _player;
+    private readonly CancellationTokenSource _cancellationToken = new();
+    private readonly AutoResetEvent _asyncMessageQueueSemaphore = new(false);
+    private ulong _guidLow;
+    private Player _player;
 
-	AccountTypes _security;
+    private AccountTypes _security;
 
-	uint _expireTime;
-	bool _forceExit;
-	Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
+    private uint _expireTime;
+    private bool _forceExit;
+    private Warden.Warden _warden; // Remains NULL if Warden system is not enabled by config
 
-	long _logoutTime;
-	bool _inQueue;
-	ObjectGuid _playerLoading; // code processed in LoginPlayer
-	bool _playerLogout;        // code processed in LogoutPlayer
-	bool _playerRecentlyLogout;
-	bool _playerSave;
-	uint _latency;
-	TutorialsFlag _tutorialsChanged;
+    private long _logoutTime;
+    private bool _inQueue;
+    private ObjectGuid _playerLoading; // code processed in LoginPlayer
+    private bool _playerLogout;        // code processed in LogoutPlayer
+    private bool _playerRecentlyLogout;
+    private bool _playerSave;
+    private uint _latency;
+    private TutorialsFlag _tutorialsChanged;
 
-	Array<byte> _realmListSecret = new(32);
-	uint _battlenetRequestToken;
-	bool _filterAddonMessages;
-	long _timeOutTime;
+    private Array<byte> _realmListSecret = new(32);
+    private uint _battlenetRequestToken;
+    private bool _filterAddonMessages;
+    private long _timeOutTime;
 
-	RBACData _rbacData;
-	long _timeSyncClockDelta;
-	uint _timeSyncNextCounter;
-	uint _timeSyncTimer;
+    private RBACData _rbacData;
+    private long _timeSyncClockDelta;
+    private uint _timeSyncNextCounter;
+    private uint _timeSyncTimer;
 
-	ConnectToKey _instanceConnectKey;
+    private ConnectToKey _instanceConnectKey;
 
 	// Packets cooldown
-	long _calendarEventCreationCooldown;
+    private long _calendarEventCreationCooldown;
 
 	public bool CanSpeak => MuteTime <= GameTime.GetGameTime();
 
@@ -174,7 +174,7 @@ public class WorldSession : IDisposable
 		set => _latency = value;
 	}
 
-	bool IsConnectionIdle => _timeOutTime < GameTime.GetGameTime() && !_inQueue;
+    private bool IsConnectionIdle => _timeOutTime < GameTime.GetGameTime() && !_inQueue;
 
 	public uint RecruiterId => _recruiterId;
 
@@ -824,7 +824,7 @@ public class WorldSession : IDisposable
 		return session != null;
 	}
 
-	void ProcessQueue(WorldPacket packet)
+    private void ProcessQueue(WorldPacket packet)
 	{
 		var handler = PacketManager.GetHandler((ClientOpcodes)packet.GetOpcode());
 
@@ -846,7 +846,7 @@ public class WorldSession : IDisposable
 		}
 	}
 
-	void ProcessInPlace()
+    private void ProcessInPlace()
 	{
 		while (!_cancellationToken.IsCancellationRequested)
 		{
@@ -955,12 +955,12 @@ public class WorldSession : IDisposable
 		return currentTime;
 	}
 
-	void LogUnexpectedOpcode(WorldPacket packet, SessionStatus status, string reason)
+    private void LogUnexpectedOpcode(WorldPacket packet, SessionStatus status, string reason)
 	{
 		Log.Logger.Error("Received unexpected opcode {0} Status: {1} Reason: {2} from {3}", (ClientOpcodes)packet.GetOpcode(), status, reason, GetPlayerInfo());
 	}
 
-	void LoadAccountData(SQLResult result, AccountDataTypes mask)
+    private void LoadAccountData(SQLResult result, AccountDataTypes mask)
 	{
 		for (var i = 0; i < (int)AccountDataTypes.Max; ++i)
 			if (Convert.ToBoolean((int)mask & (1 << i)))
@@ -998,7 +998,7 @@ public class WorldSession : IDisposable
 		} while (result.NextRow());
 	}
 
-	void SetAccountData(AccountDataTypes type, long time, string data)
+    private void SetAccountData(AccountDataTypes type, long time, string data)
 	{
 		if (Convert.ToBoolean((1 << (int)type) & (int)AccountDataTypes.GlobalCacheMask))
 		{
@@ -1027,7 +1027,7 @@ public class WorldSession : IDisposable
 		_accountData[(int)type].Data = data;
 	}
 
-	bool ValidateHyperlinksAndMaybeKick(string str)
+    private bool ValidateHyperlinksAndMaybeKick(string str)
 	{
 		if (Hyperlink.CheckAllLinks(str))
 			return true;
@@ -1040,7 +1040,7 @@ public class WorldSession : IDisposable
 		return false;
 	}
 
-	void HandleWardenData(WardenData packet)
+    private void HandleWardenData(WardenData packet)
 	{
 		if (_warden == null || packet.Data.GetSize() == 0)
 			return;
@@ -1048,29 +1048,29 @@ public class WorldSession : IDisposable
 		_warden.HandleData(packet.Data);
 	}
 
-	void SetLogoutStartTime(long requestTime)
+    private void SetLogoutStartTime(long requestTime)
 	{
 		_logoutTime = requestTime;
 	}
 
-	bool ShouldLogOut(long currTime)
+    private bool ShouldLogOut(long currTime)
 	{
 		return (_logoutTime > 0 && currTime >= _logoutTime + 20);
 	}
 
-	void ProcessQueryCallbacks()
+    private void ProcessQueryCallbacks()
 	{
 		_queryProcessor.ProcessReadyCallbacks();
 		_transactionCallbacks.ProcessReadyCallbacks();
 		_queryHolderProcessor.ProcessReadyCallbacks();
 	}
 
-	TransactionCallback AddTransactionCallback(TransactionCallback callback)
+    private TransactionCallback AddTransactionCallback(TransactionCallback callback)
 	{
 		return _transactionCallbacks.AddCallback(callback);
 	}
 
-	void InitWarden(BigInteger k)
+    private void InitWarden(BigInteger k)
 	{
 		if (_os == "Win")
 		{
@@ -1087,7 +1087,7 @@ public class WorldSession : IDisposable
 		}
 	}
 
-	void InitializeSessionCallback(SQLQueryHolder<AccountInfoQueryLoad> holder, SQLQueryHolder<AccountInfoQueryLoad> realmHolder)
+    private void InitializeSessionCallback(SQLQueryHolder<AccountInfoQueryLoad> holder, SQLQueryHolder<AccountInfoQueryLoad> realmHolder)
 	{
 		LoadAccountData(realmHolder.GetResult(AccountInfoQueryLoad.GlobalAccountDataIndexPerRealm), AccountDataTypes.GlobalCacheMask);
 		LoadTutorialsData(realmHolder.GetResult(AccountInfoQueryLoad.TutorialsIndexPerRealm));
@@ -1130,17 +1130,17 @@ public class WorldSession : IDisposable
 		_battlePetMgr.LoadFromDB(holder.GetResult(AccountInfoQueryLoad.BattlePets), holder.GetResult(AccountInfoQueryLoad.BattlePetSlot));
 	}
 
-	AccountData GetAccountData(AccountDataTypes type)
+    private AccountData GetAccountData(AccountDataTypes type)
 	{
 		return _accountData[(int)type];
 	}
 
-	uint GetTutorialInt(byte index)
+    private uint GetTutorialInt(byte index)
 	{
 		return _tutorials[index];
 	}
 
-	void SetTutorialInt(byte index, uint value)
+    private void SetTutorialInt(byte index, uint value)
 	{
 		if (_tutorials[index] != value)
 		{
@@ -1149,7 +1149,7 @@ public class WorldSession : IDisposable
 		}
 	}
 
-	uint AdjustClientMovementTime(uint time)
+    private uint AdjustClientMovementTime(uint time)
 	{
 		var movementTime = (long)time + _timeSyncClockDelta;
 

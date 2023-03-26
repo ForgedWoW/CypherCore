@@ -11,10 +11,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("lfg")]
-class LFGCommands
+internal class LFGCommands
 {
 	[Command("player", RBACPermissions.CommandLfgPlayer, true)]
-	static bool HandleLfgPlayerInfoCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleLfgPlayerInfoCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -35,7 +35,7 @@ class LFGCommands
 	}
 
 	[Command("group", RBACPermissions.CommandLfgGroup, true)]
-	static bool HandleLfgGroupInfoCommand(CommandHandler handler, PlayerIdentifier player)
+    private static bool HandleLfgGroupInfoCommand(CommandHandler handler, PlayerIdentifier player)
 	{
 		if (player == null)
 			player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -84,7 +84,7 @@ class LFGCommands
 	}
 
 	[Command("options", RBACPermissions.CommandLfgOptions, true)]
-	static bool HandleLfgOptionsCommand(CommandHandler handler, uint? optionsArg)
+    private static bool HandleLfgOptionsCommand(CommandHandler handler, uint? optionsArg)
 	{
 		if (optionsArg.HasValue)
 		{
@@ -98,7 +98,7 @@ class LFGCommands
 	}
 
 	[Command("queue", RBACPermissions.CommandLfgQueue, true)]
-	static bool HandleLfgQueueInfoCommand(CommandHandler handler, string full)
+    private static bool HandleLfgQueueInfoCommand(CommandHandler handler, string full)
 	{
 		handler.SendSysMessage(Global.LFGMgr.DumpQueueInfo(!full.IsEmpty()));
 
@@ -106,7 +106,7 @@ class LFGCommands
 	}
 
 	[Command("clean", RBACPermissions.CommandLfgClean, true)]
-	static bool HandleLfgCleanCommand(CommandHandler handler)
+    private static bool HandleLfgCleanCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage(CypherStrings.LfgClean);
 		Global.LFGMgr.Clean();
@@ -114,7 +114,7 @@ class LFGCommands
 		return true;
 	}
 
-	static void PrintPlayerInfo(CommandHandler handler, Player player)
+    private static void PrintPlayerInfo(CommandHandler handler, Player player)
 	{
 		if (!player)
 			return;

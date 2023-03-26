@@ -10,10 +10,10 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyUnfriendlyUnitInObjectRangeCheck : ICheck<Unit>
 {
-	readonly WorldObject _obj;
-	readonly Unit _funit;
-	readonly float _range;
-	readonly Func<Unit, bool> _additionalCheck;
+    private readonly WorldObject _obj;
+    private readonly Unit _funit;
+    private readonly float _range;
+    private readonly Func<Unit, bool> _additionalCheck;
 
 	public AnyUnfriendlyUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range, Func<Unit, bool> additionalCheck = null)
 	{

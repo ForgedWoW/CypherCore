@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetErrorPacket : ServerPacket
+internal class BattlePetErrorPacket : ServerPacket
 {
 	public BattlePetError Result;
 	public uint CreatureID;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
-class AreaTriggerDenied : ServerPacket
+internal class AreaTriggerDenied : ServerPacket
 {
 	public int AreaTriggerID;
 	public bool Entered;

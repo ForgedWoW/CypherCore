@@ -9,13 +9,13 @@ namespace Forged.MapServer.Maps.Instances;
 
 public class InstanceLock
 {
-	readonly uint _mapId;
-	readonly Difficulty _difficultyId;
-	readonly InstanceLockData _data = new();
-	uint _instanceId;
-	DateTime _expiryTime;
-	bool _extended;
-	bool _isInUse;
+    private readonly uint _mapId;
+    private readonly Difficulty _difficultyId;
+    private readonly InstanceLockData _data = new();
+    private uint _instanceId;
+    private DateTime _expiryTime;
+    private bool _extended;
+    private bool _isInUse;
 
 	public InstanceLock(uint mapId, Difficulty difficultyId, DateTime expiryTime, uint instanceId)
 	{

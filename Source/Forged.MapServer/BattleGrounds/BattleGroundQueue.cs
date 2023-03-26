@@ -18,7 +18,7 @@ namespace Forged.MapServer.BattleGrounds;
 
 public class BattlegroundQueue
 {
-	readonly Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
+    private readonly Dictionary<ObjectGuid, PlayerQueueInfo> m_QueuedPlayers = new();
 
 	/// <summary>
 	///  This two dimensional array is used to store All queued groups
@@ -29,17 +29,17 @@ public class BattlegroundQueue
 	///  BattlegroundConst.BgQueueNormalAlliance   is used for normal (or small) alliance groups or non-rated arena matches
 	///  BattlegroundConst.BgQueueNormalHorde      is used for normal (or small) horde groups or non-rated arena matches
 	/// </summary>
-	readonly List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
+    private readonly List<GroupQueueInfo>[][] m_QueuedGroups = new List<GroupQueueInfo>[(int)BattlegroundBracketId.Max][];
 
-	readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
-	readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
-	readonly uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
+    private readonly uint[][][] m_WaitTimes = new uint[SharedConst.PvpTeamsCount][][];
+    private readonly uint[][] m_WaitTimeLastPlayer = new uint[SharedConst.PvpTeamsCount][];
+    private readonly uint[][] m_SumOfWaitTimes = new uint[SharedConst.PvpTeamsCount][];
 
 	// Event handler
-	readonly EventSystem m_events = new();
-	readonly SelectionPool[] m_SelectionPools = new SelectionPool[SharedConst.PvpTeamsCount];
+    private readonly EventSystem m_events = new();
+    private readonly SelectionPool[] m_SelectionPools = new SelectionPool[SharedConst.PvpTeamsCount];
 
-	readonly BattlegroundQueueTypeId m_queueId;
+    private readonly BattlegroundQueueTypeId m_queueId;
 
 	public BattlegroundQueue(BattlegroundQueueTypeId queueId)
 	{
@@ -641,7 +641,7 @@ public class BattlegroundQueue
 		return m_queueId;
 	}
 
-	void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
+    private void PlayerInvitedToBGUpdateAverageWaitTime(GroupQueueInfo ginfo, BattlegroundBracketId bracket_id)
 	{
 		var timeInQueue = Time.GetMSTimeDiff(ginfo.JoinTime, GameTime.GetGameTimeMS());
 		uint team_index = TeamIds.Alliance; //default set to TeamIndex.Alliance - or non rated arenas!
@@ -670,12 +670,12 @@ public class BattlegroundQueue
 		m_WaitTimeLastPlayer[team_index][(int)bracket_id] = lastPlayerAddedPointer % SharedConst.CountOfPlayersToAverageWaitTime;
 	}
 
-	uint GetPlayersInQueue(uint id)
+    private uint GetPlayersInQueue(uint id)
 	{
 		return m_SelectionPools[id].GetPlayerCount();
 	}
 
-	bool InviteGroupToBG(GroupQueueInfo ginfo, Battleground bg, TeamFaction side)
+    private bool InviteGroupToBG(GroupQueueInfo ginfo, Battleground bg, TeamFaction side)
 	{
 		// set side if needed
 		if (side != 0)
@@ -745,7 +745,7 @@ public class BattlegroundQueue
 	Invitation type is based on config file
 	large groups are disadvantageous, because they will be kicked first if invitation type = 1
 	*/
-	void FillPlayersToBG(Battleground bg, BattlegroundBracketId bracket_id)
+    private void FillPlayersToBG(Battleground bg, BattlegroundBracketId bracket_id)
 	{
 		var hordeFree = bg.GetFreeSlotsForTeam(TeamFaction.Horde);
 		var aliFree = bg.GetFreeSlotsForTeam(TeamFaction.Alliance);
@@ -856,7 +856,7 @@ public class BattlegroundQueue
 	// this method checks if premade versus premade Battleground is possible
 	// then after 30 mins (default) in queue it moves premade group to normal queue
 	// it tries to invite as much players as it can - to MaxPlayersPerTeam, because premade groups have more than MinPlayersPerTeam players
-	bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint MinPlayersPerTeam, uint MaxPlayersPerTeam)
+    private bool CheckPremadeMatch(BattlegroundBracketId bracket_id, uint MinPlayersPerTeam, uint MaxPlayersPerTeam)
 	{
 		//check match
 		if (!m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeAlliance].Empty() && !m_QueuedGroups[(int)bracket_id][BattlegroundConst.BgQueuePremadeHorde].Empty())
@@ -924,7 +924,7 @@ public class BattlegroundQueue
 	}
 
 	// this method tries to create Battleground or arena with MinPlayersPerTeam against MinPlayersPerTeam
-	bool CheckNormalMatch(Battleground bg_template, BattlegroundBracketId bracket_id, uint minPlayers, uint maxPlayers)
+    private bool CheckNormalMatch(Battleground bg_template, BattlegroundBracketId bracket_id, uint minPlayers, uint maxPlayers)
 	{
 		var teamIndex = new int[SharedConst.PvpTeamsCount];
 
@@ -980,7 +980,7 @@ public class BattlegroundQueue
 	}
 
 	// this method will check if we can invite players to same faction skirmish match
-	bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint minPlayersPerTeam)
+    private bool CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint minPlayersPerTeam)
 	{
 		if (m_SelectionPools[TeamIds.Alliance].GetPlayerCount() < minPlayersPerTeam && m_SelectionPools[TeamIds.Horde].GetPlayerCount() < minPlayersPerTeam)
 			return false;
@@ -1054,11 +1054,11 @@ public class BattlegroundQueue
 	}
 
 	// class to select and invite groups to bg
-	class SelectionPool
+    private class SelectionPool
 	{
 		public readonly List<GroupQueueInfo> SelectedGroups = new();
 
-		uint PlayerCount;
+        private uint PlayerCount;
 
 		public void Init()
 		{
@@ -1233,14 +1233,14 @@ public class GroupQueueInfo
 ///  This class is used to invite player to BG again, when minute lasts from his first invitation
 ///  it is capable to solve all possibilities
 /// </summary>
-class BGQueueInviteEvent : BasicEvent
+internal class BGQueueInviteEvent : BasicEvent
 {
-	readonly uint m_BgInstanceGUID;
-	readonly BattlegroundTypeId m_BgTypeId;
-	readonly ArenaTypes m_ArenaType;
-	readonly uint m_RemoveTime;
+    private readonly uint m_BgInstanceGUID;
+    private readonly BattlegroundTypeId m_BgTypeId;
+    private readonly ArenaTypes m_ArenaType;
+    private readonly uint m_RemoveTime;
 
-	readonly ObjectGuid m_PlayerGuid;
+    private readonly ObjectGuid m_PlayerGuid;
 
 	public BGQueueInviteEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundTypeId bgTypeId, ArenaTypes arenaType, uint removeTime)
 	{
@@ -1291,13 +1291,13 @@ class BGQueueInviteEvent : BasicEvent
 ///  We must store removeInvite time in case player left queue and joined and is invited again
 ///  We must store bgQueueTypeId, because Battleground can be deleted already, when player entered it
 /// </summary>
-class BGQueueRemoveEvent : BasicEvent
+internal class BGQueueRemoveEvent : BasicEvent
 {
-	readonly uint m_BgInstanceGUID;
-	readonly uint m_RemoveTime;
+    private readonly uint m_BgInstanceGUID;
+    private readonly uint m_RemoveTime;
 
-	readonly ObjectGuid m_PlayerGuid;
-	readonly BattlegroundQueueTypeId m_BgQueueTypeId;
+    private readonly ObjectGuid m_PlayerGuid;
+    private readonly BattlegroundQueueTypeId m_BgQueueTypeId;
 
 	public BGQueueRemoveEvent(ObjectGuid plGuid, uint bgInstanceGUID, BattlegroundQueueTypeId bgQueueTypeId, uint removeTime)
 	{

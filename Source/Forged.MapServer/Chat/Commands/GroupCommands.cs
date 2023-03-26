@@ -16,10 +16,10 @@ using Framework.IO;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("group")]
-class GroupCommands
+internal class GroupCommands
 {
 	[Command("disband", RBACPermissions.CommandGroupDisband)]
-	static bool HandleGroupDisbandCommand(CommandHandler handler, string name)
+    private static bool HandleGroupDisbandCommand(CommandHandler handler, string name)
 	{
 		if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out _))
 			return false;
@@ -37,7 +37,7 @@ class GroupCommands
 	}
 
 	[Command("join", RBACPermissions.CommandGroupJoin)]
-	static bool HandleGroupJoinCommand(CommandHandler handler, string playerNameGroup, string playerName)
+    private static bool HandleGroupJoinCommand(CommandHandler handler, string playerNameGroup, string playerName)
 	{
 		if (!handler.GetPlayerGroupAndGUIDByName(playerNameGroup, out var playerSource, out var groupSource, out _, true))
 			return false;
@@ -74,7 +74,7 @@ class GroupCommands
 	}
 
 	[Command("leader", RBACPermissions.CommandGroupLeader)]
-	static bool HandleGroupLeaderCommand(CommandHandler handler, string name)
+    private static bool HandleGroupLeaderCommand(CommandHandler handler, string name)
 	{
 		if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
 			return false;
@@ -96,7 +96,7 @@ class GroupCommands
 	}
 
 	[Command("level", RBACPermissions.CommandCharacterLevel, true)]
-	static bool HandleGroupLevelCommand(CommandHandler handler, PlayerIdentifier player, short level)
+    private static bool HandleGroupLevelCommand(CommandHandler handler, PlayerIdentifier player, short level)
 	{
 		if (level < 1)
 			return false;
@@ -146,7 +146,7 @@ class GroupCommands
 	}
 
 	[Command("list", RBACPermissions.CommandGroupList)]
-	static bool HandleGroupListCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleGroupListCommand(CommandHandler handler, StringArguments args)
 	{
 		// Get ALL the variables!
 		Player playerTarget;
@@ -273,7 +273,7 @@ class GroupCommands
 	}
 
 	[Command("remove", RBACPermissions.CommandGroupRemove)]
-	static bool HandleGroupRemoveCommand(CommandHandler handler, string name)
+    private static bool HandleGroupRemoveCommand(CommandHandler handler, string name)
 	{
 		if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
 			return false;
@@ -291,7 +291,7 @@ class GroupCommands
 	}
 
 	[Command("repair", RBACPermissions.CommandRepairitems, true)]
-	static bool HandleGroupRepairCommand(CommandHandler handler, PlayerIdentifier playerTarget)
+    private static bool HandleGroupRepairCommand(CommandHandler handler, PlayerIdentifier playerTarget)
 	{
 		if (playerTarget == null)
 			playerTarget = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -316,7 +316,7 @@ class GroupCommands
 	}
 
 	[Command("revive", RBACPermissions.CommandRevive, true)]
-	static bool HandleGroupReviveCommand(CommandHandler handler, PlayerIdentifier playerTarget)
+    private static bool HandleGroupReviveCommand(CommandHandler handler, PlayerIdentifier playerTarget)
 	{
 		if (playerTarget == null)
 			playerTarget = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -345,7 +345,7 @@ class GroupCommands
 	}
 
 	[Command("summon", RBACPermissions.CommandGroupSummon)]
-	static bool HandleGroupSummonCommand(CommandHandler handler, PlayerIdentifier playerTarget)
+    private static bool HandleGroupSummonCommand(CommandHandler handler, PlayerIdentifier playerTarget)
 	{
 		if (playerTarget == null)
 			playerTarget = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -445,33 +445,33 @@ class GroupCommands
 	}
 
 	[CommandGroup("set")]
-	class GroupSetCommands
+    private class GroupSetCommands
 	{
 		[Command("assistant", RBACPermissions.CommandGroupAssistant)]
-		static bool HandleGroupSetAssistantCommand(CommandHandler handler, string name)
+        private static bool HandleGroupSetAssistantCommand(CommandHandler handler, string name)
 		{
 			return GroupFlagCommand(name, handler, GroupMemberFlags.Assistant);
 		}
 
 		[Command("leader", RBACPermissions.CommandGroupLeader)]
-		static bool HandleGroupSetLeaderCommand(CommandHandler handler, string name)
+        private static bool HandleGroupSetLeaderCommand(CommandHandler handler, string name)
 		{
 			return HandleGroupLeaderCommand(handler, name);
 		}
 
 		[Command("mainassist", RBACPermissions.CommandGroupMainassist)]
-		static bool HandleGroupSetMainAssistCommand(CommandHandler handler, string name)
+        private static bool HandleGroupSetMainAssistCommand(CommandHandler handler, string name)
 		{
 			return GroupFlagCommand(name, handler, GroupMemberFlags.MainAssist);
 		}
 
 		[Command("maintank", RBACPermissions.CommandGroupMaintank)]
-		static bool HandleGroupSetMainTankCommand(CommandHandler handler, string name)
+        private static bool HandleGroupSetMainTankCommand(CommandHandler handler, string name)
 		{
 			return GroupFlagCommand(name, handler, GroupMemberFlags.MainTank);
 		}
 
-		static bool GroupFlagCommand(string name, CommandHandler handler, GroupMemberFlags flag)
+        private static bool GroupFlagCommand(string name, CommandHandler handler, GroupMemberFlags flag)
 		{
 			if (!handler.GetPlayerGroupAndGUIDByName(name, out var player, out var group, out var guid))
 				return false;

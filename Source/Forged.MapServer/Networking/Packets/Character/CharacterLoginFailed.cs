@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Character;
 
 public class CharacterLoginFailed : ServerPacket
 {
-	readonly LoginFailureReason Code;
+    private readonly LoginFailureReason Code;
 
 	public CharacterLoginFailed(LoginFailureReason code) : base(ServerOpcodes.CharacterLoginFailed)
 	{

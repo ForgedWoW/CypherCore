@@ -7,10 +7,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("cheat")]
-class CheatCommands
+internal class CheatCommands
 {
 	[Command("casttime", RBACPermissions.CommandCheatCasttime)]
-	static bool HandleCasttimeCheatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleCasttimeCheatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var enable = !handler.Session.Player.GetCommandStatus(PlayerCommandStates.Casttime);
 
@@ -32,7 +32,7 @@ class CheatCommands
 	}
 
 	[Command("cooldown", RBACPermissions.CommandCheatCooldown)]
-	static bool HandleCoolDownCheatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleCoolDownCheatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var enable = !handler.Session.Player.GetCommandStatus(PlayerCommandStates.Cooldown);
 
@@ -54,7 +54,7 @@ class CheatCommands
 	}
 
 	[Command("explore", RBACPermissions.CommandCheatExplore)]
-	static bool HandleExploreCheatCommand(CommandHandler handler, bool reveal)
+    private static bool HandleExploreCheatCommand(CommandHandler handler, bool reveal)
 	{
 		var chr = handler.SelectedPlayer;
 
@@ -90,7 +90,7 @@ class CheatCommands
 	}
 
 	[Command("god", RBACPermissions.CommandCheatGod)]
-	static bool HandleGodModeCheatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleGodModeCheatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var enable = !handler.Session.Player.GetCommandStatus(PlayerCommandStates.God);
 
@@ -112,7 +112,7 @@ class CheatCommands
 	}
 
 	[Command("power", RBACPermissions.CommandCheatPower)]
-	static bool HandlePowerCheatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandlePowerCheatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var enable = !handler.Session.Player.GetCommandStatus(PlayerCommandStates.Power);
 
@@ -140,7 +140,7 @@ class CheatCommands
 	}
 
 	[Command("status", RBACPermissions.CommandCheatStatus)]
-	static bool HandleCheatStatusCommand(CommandHandler handler)
+    private static bool HandleCheatStatusCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 
@@ -159,7 +159,7 @@ class CheatCommands
 	}
 
 	[Command("taxi", RBACPermissions.CommandCheatTaxi)]
-	static bool HandleTaxiCheatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleTaxiCheatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var chr = handler.SelectedPlayer;
 
@@ -194,7 +194,7 @@ class CheatCommands
 	}
 
 	[Command("waterwalk", RBACPermissions.CommandCheatWaterwalk)]
-	static bool HandleWaterWalkCheatCommand(CommandHandler handler, bool? enableArg)
+    private static bool HandleWaterWalkCheatCommand(CommandHandler handler, bool? enableArg)
 	{
 		var enable = !handler.Session.Player.GetCommandStatus(PlayerCommandStates.Waterwalk);
 

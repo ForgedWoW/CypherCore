@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class QuestCompletionNPC
+internal class QuestCompletionNPC
 {
 	public uint QuestID;
 	public List<uint> NPCs = new();

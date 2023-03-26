@@ -29,10 +29,10 @@ public class CreatureAI : UnitAI
 	protected EventMap Events = new();
 	protected TaskScheduler SchedulerProtected = new();
 	protected InstanceScript Script;
-	bool _isEngaged;
-	bool _moveInLosLocked;
-	List<AreaBoundary> _boundary = new();
-	bool _negateBoundary;
+    private bool _isEngaged;
+    private bool _moveInLosLocked;
+    private List<AreaBoundary> _boundary = new();
+    private bool _negateBoundary;
 
 	public TaskScheduler Scheduler
 	{
@@ -629,7 +629,7 @@ public class CreatureAI : UnitAI
 		return null;
 	}
 
-	void OnOwnerCombatInteraction(Unit target)
+    private void OnOwnerCombatInteraction(Unit target)
 	{
 		if (target == null || !Me.IsAlive)
 			return;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class AELootTargetsAck : ServerPacket
+internal class AELootTargetsAck : ServerPacket
 {
 	public AELootTargetsAck() : base(ServerOpcodes.AeLootTargetAck, ConnectionType.Instance) { }
 

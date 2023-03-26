@@ -12,7 +12,7 @@ public class PetStable
 	public PetInfo[] ActivePets = new PetInfo[SharedConst.MaxActivePets];  // PET_SAVE_FIRST_ACTIVE_SLOT - PET_SAVE_LAST_ACTIVE_SLOT
 	public PetInfo[] StabledPets = new PetInfo[SharedConst.MaxPetStables]; // PET_SAVE_FIRST_STABLE_SLOT - PET_SAVE_LAST_STABLE_SLOT
 	public List<PetInfo> UnslottedPets = new();                            // PET_SAVE_NOT_IN_SLOT
-	static readonly uint UnslottedPetIndexMask = 0x80000000;
+    private static readonly uint UnslottedPetIndexMask = 0x80000000;
 
 	public PetInfo GetCurrentPet()
 	{
@@ -47,7 +47,7 @@ public class PetStable
 		CurrentPetIndex = index | UnslottedPetIndexMask;
 	}
 
-	uint? GetCurrentUnslottedPetIndex()
+    private uint? GetCurrentUnslottedPetIndex()
 	{
 		return CurrentPetIndex.HasValue && ((CurrentPetIndex & UnslottedPetIndexMask) != 0) ? (CurrentPetIndex & ~UnslottedPetIndexMask) : null;
 	}

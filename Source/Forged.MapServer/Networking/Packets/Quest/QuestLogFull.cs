@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestLogFull : ServerPacket
+internal class QuestLogFull : ServerPacket
 {
 	public QuestLogFull() : base(ServerOpcodes.QuestLogFull) { }
 

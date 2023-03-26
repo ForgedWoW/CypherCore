@@ -21,9 +21,9 @@ namespace Forged.MapServer.Text;
 
 public sealed class CreatureTextManager
 {
-	readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
-	readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
-	CreatureTextManager() { }
+    private readonly Dictionary<uint, MultiMap<byte, CreatureTextEntry>> _textMap = new();
+    private readonly Dictionary<CreatureTextId, CreatureTextLocale> _localeTextMap = new();
+    private CreatureTextManager() { }
 
 	public void LoadCreatureTexts()
 	{
@@ -489,7 +489,7 @@ public sealed class CreatureTextManager
 		Cell.VisitGrid(source, worker, dist);
 	}
 
-	void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
+    private void SendNonChatPacket(WorldObject source, ServerPacket data, ChatMsg msgType, WorldObject whisperTarget, CreatureTextRange range, TeamFaction team, bool gmOnly)
 	{
 		var dist = GetRangeForChatType(msgType);
 
@@ -593,7 +593,7 @@ public sealed class CreatureTextManager
 		source.SendMessageToSetInRange(data, dist, true);
 	}
 
-	void SendEmote(Unit source, Emote emote)
+    private void SendEmote(Unit source, Emote emote)
 	{
 		if (!source)
 			return;

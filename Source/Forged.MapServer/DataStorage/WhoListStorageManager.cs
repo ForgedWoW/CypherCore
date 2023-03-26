@@ -8,9 +8,9 @@ namespace Forged.MapServer.DataStorage;
 
 public class WhoListStorageManager : Singleton<WhoListStorageManager>
 {
-	readonly List<WhoListPlayerInfo> _whoListStorage;
+    private readonly List<WhoListPlayerInfo> _whoListStorage;
 
-	WhoListStorageManager()
+    private WhoListStorageManager()
 	{
 		_whoListStorage = new List<WhoListPlayerInfo>();
 	}

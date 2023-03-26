@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Battlenet;
 
-class Response : ServerPacket
+internal class Response : ServerPacket
 {
 	public BattlenetRpcErrorCode BnetStatus = BattlenetRpcErrorCode.Ok;
 	public MethodCall Method;

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class DismissCritter : ClientPacket
+internal class DismissCritter : ClientPacket
 {
 	public ObjectGuid CritterGUID;
 	public DismissCritter(WorldPacket packet) : base(packet) { }

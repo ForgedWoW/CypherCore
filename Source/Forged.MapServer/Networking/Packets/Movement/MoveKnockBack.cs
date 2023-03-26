@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveKnockBack : ServerPacket
+internal class MoveKnockBack : ServerPacket
 {
 	public ObjectGuid MoverGUID;
 	public Vector2 Direction;

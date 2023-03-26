@@ -18,19 +18,19 @@ namespace Forged.MapServer.Maps;
 
 public class TerrainInfo
 {
-	static readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(1);
-	readonly uint _mapId;
-	readonly bool _keepLoaded = false;
-	readonly List<TerrainInfo> _childTerrain = new();
-	readonly object _loadLock = new();
-	readonly GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
-	readonly ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
-	readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
-	readonly BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids); // cache what grids are available for this map (not including parent/child maps)
+    private static readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(1);
+    private readonly uint _mapId;
+    private readonly bool _keepLoaded = false;
+    private readonly List<TerrainInfo> _childTerrain = new();
+    private readonly object _loadLock = new();
+    private readonly GridMap[][] _gridMap = new GridMap[MapConst.MaxGrids][];
+    private readonly ushort[][] _referenceCountFromMap = new ushort[MapConst.MaxGrids][];
+    private readonly BitSet _loadedGrids = new(MapConst.MaxGrids * MapConst.MaxGrids);
+    private readonly BitSet _gridFileExists = new(MapConst.MaxGrids * MapConst.MaxGrids); // cache what grids are available for this map (not including parent/child maps)
 
 	// global garbage collection timer
-	readonly TimeTracker _cleanupTimer;
-	TerrainInfo _parentTerrain;
+    private readonly TimeTracker _cleanupTimer;
+    private TerrainInfo _parentTerrain;
 
 	public TerrainInfo(uint mapId, bool keeLoaded)
 	{
@@ -860,7 +860,7 @@ public class TerrainInfo
 		return _mapId;
 	}
 
-	static int GetBitsetIndex(int gx, int gy)
+    private static int GetBitsetIndex(int gx, int gy)
 	{
 		return gx * MapConst.MaxGrids + gy;
 	}

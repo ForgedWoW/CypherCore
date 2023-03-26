@@ -15,10 +15,10 @@ using Serilog;
 
 namespace Forged.MapServer.Quest;
 
-class QuestObjectiveCriteriaManager : CriteriaHandler
+internal class QuestObjectiveCriteriaManager : CriteriaHandler
 {
-	readonly Player _owner;
-	readonly List<uint> _completedObjectives = new();
+    private readonly Player _owner;
+    private readonly List<uint> _completedObjectives = new();
 
 	public QuestObjectiveCriteriaManager(Player owner)
 	{
@@ -325,7 +325,7 @@ class QuestObjectiveCriteriaManager : CriteriaHandler
 		return Global.CriteriaMgr.GetQuestObjectiveCriteriaByType(type);
 	}
 
-	void CompletedObjective(QuestObjective questObjective, Player referencePlayer)
+    private void CompletedObjective(QuestObjective questObjective, Player referencePlayer)
 	{
 		if (HasCompletedObjective(questObjective))
 			return;

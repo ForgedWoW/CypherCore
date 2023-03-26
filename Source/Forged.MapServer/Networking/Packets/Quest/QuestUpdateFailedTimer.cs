@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestUpdateFailedTimer : ServerPacket
+internal class QuestUpdateFailedTimer : ServerPacket
 {
 	public uint QuestID;
 	public QuestUpdateFailedTimer() : base(ServerOpcodes.QuestUpdateFailedTimer) { }

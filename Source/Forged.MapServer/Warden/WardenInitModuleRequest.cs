@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Warden;
 
-class WardenInitModuleRequest
+internal class WardenInitModuleRequest
 {
 	public WardenOpcodes Command1;
 	public ushort Size1;

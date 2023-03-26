@@ -11,7 +11,7 @@ public class WModelRayCallBack : WorkerCallback
 {
 	public bool Hit;
 
-	readonly List<GroupModel> _models;
+    private readonly List<GroupModel> _models;
 
 	public WModelRayCallBack(List<GroupModel> mod)
 	{

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class ReportPvPPlayerAFK : ClientPacket
+internal class ReportPvPPlayerAFK : ClientPacket
 {
 	public ObjectGuid Offender;
 	public ReportPvPPlayerAFK(WorldPacket packet) : base(packet) { }

@@ -8,16 +8,16 @@ namespace Forged.MapServer.Entities.Units;
 
 public class ProcEventInfo
 {
-	readonly Unit _actor;
-	readonly Unit _actionTarget;
-	readonly Unit _procTarget;
-	readonly ProcFlagsInit _typeMask;
-	readonly ProcFlagsSpellType _spellTypeMask;
-	readonly ProcFlagsSpellPhase _spellPhaseMask;
-	readonly ProcFlagsHit _hitMask;
-	readonly Spell _spell;
-	readonly DamageInfo _damageInfo;
-	readonly HealInfo _healInfo;
+    private readonly Unit _actor;
+    private readonly Unit _actionTarget;
+    private readonly Unit _procTarget;
+    private readonly ProcFlagsInit _typeMask;
+    private readonly ProcFlagsSpellType _spellTypeMask;
+    private readonly ProcFlagsSpellPhase _spellPhaseMask;
+    private readonly ProcFlagsHit _hitMask;
+    private readonly Spell _spell;
+    private readonly DamageInfo _damageInfo;
+    private readonly HealInfo _healInfo;
 
 	public Unit Actor => _actor;
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class LeaveGroup : ClientPacket
+internal class LeaveGroup : ClientPacket
 {
 	public sbyte PartyIndex;
 	public LeaveGroup(WorldPacket packet) : base(packet) { }

@@ -9,10 +9,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-class ChannelUserlistRemoveBuilder : MessageBuilder
+internal class ChannelUserlistRemoveBuilder : MessageBuilder
 {
-	readonly Channel _source;
-	readonly ObjectGuid _guid;
+    private readonly Channel _source;
+    private readonly ObjectGuid _guid;
 
 	public ChannelUserlistRemoveBuilder(Channel source, ObjectGuid guid)
 	{

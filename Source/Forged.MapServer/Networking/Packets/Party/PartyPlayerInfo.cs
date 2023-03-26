@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-struct PartyPlayerInfo
+internal struct PartyPlayerInfo
 {
 	public void Write(WorldPacket data)
 	{

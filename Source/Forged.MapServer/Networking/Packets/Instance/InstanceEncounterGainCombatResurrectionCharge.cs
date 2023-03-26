@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceEncounterGainCombatResurrectionCharge : ServerPacket
+internal class InstanceEncounterGainCombatResurrectionCharge : ServerPacket
 {
 	public int InCombatResCount;
 	public uint CombatResChargeRecovery;

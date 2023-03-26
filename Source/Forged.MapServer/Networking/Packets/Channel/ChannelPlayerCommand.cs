@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Channel;
 
-class ChannelPlayerCommand : ClientPacket
+internal class ChannelPlayerCommand : ClientPacket
 {
 	public string ChannelName;
 	public string Name;

@@ -11,7 +11,7 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class CreatureRelocationNotifier : IGridNotifierCreature, IGridNotifierPlayer
 {
-	readonly Creature _creature;
+    private readonly Creature _creature;
 
 	public GridType GridType { get; set; }
 

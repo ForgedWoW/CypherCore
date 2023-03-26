@@ -10,12 +10,12 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 {
-	readonly TimeTracker _timer;
+    private readonly TimeTracker _timer;
 
-	PathGenerator _path;
-	Position _reference;
-	float _wanderDistance;
-	uint _wanderSteps;
+    private PathGenerator _path;
+    private Position _reference;
+    private float _wanderDistance;
+    private uint _wanderSteps;
 
 	public RandomMovementGenerator(float spawnDist = 0.0f, TimeSpan duration = default)
 	{
@@ -152,7 +152,7 @@ public class RandomMovementGenerator : MovementGeneratorMedium<Creature>
 		return MovementGeneratorType.Random;
 	}
 
-	void SetRandomLocation(Creature owner)
+    private void SetRandomLocation(Creature owner)
 	{
 		if (owner == null)
 			return;

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootMoneyNotify : ServerPacket
+internal class LootMoneyNotify : ServerPacket
 {
 	public ulong Money;
 	public ulong MoneyMod;

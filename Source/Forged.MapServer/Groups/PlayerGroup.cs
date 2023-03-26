@@ -23,39 +23,39 @@ namespace Forged.MapServer.Groups;
 
 public class PlayerGroup
 {
-	readonly List<MemberSlot> _memberSlots = new();
-	readonly GroupRefManager _memberMgr = new();
-	readonly List<Player> _invitees = new();
-	readonly ObjectGuid[] _targetIcons = new ObjectGuid[MapConst.TargetIconsCount];
-	readonly Dictionary<uint, Tuple<ObjectGuid, uint>> _recentInstances = new();
-	readonly GroupInstanceRefManager _instanceRefManager = new();
-	readonly TimeTracker _leaderOfflineTimer = new();
+    private readonly List<MemberSlot> _memberSlots = new();
+    private readonly GroupRefManager _memberMgr = new();
+    private readonly List<Player> _invitees = new();
+    private readonly ObjectGuid[] _targetIcons = new ObjectGuid[MapConst.TargetIconsCount];
+    private readonly Dictionary<uint, Tuple<ObjectGuid, uint>> _recentInstances = new();
+    private readonly GroupInstanceRefManager _instanceRefManager = new();
+    private readonly TimeTracker _leaderOfflineTimer = new();
 
 	// Raid markers
-	readonly RaidMarker[] _markers = new RaidMarker[MapConst.RaidMarkersCount];
-	ObjectGuid _leaderGuid;
-	byte _leaderFactionGroup;
-	string _leaderName;
-	GroupFlags _groupFlags;
-	GroupCategory _groupCategory;
-	Difficulty _dungeonDifficulty;
-	Difficulty _raidDifficulty;
-	Difficulty _legacyRaidDifficulty;
-	Battleground _bgGroup;
-	BattleField _bfGroup;
-	LootMethod _lootMethod;
-	ItemQuality _lootThreshold;
-	ObjectGuid _looterGuid;
-	ObjectGuid _masterLooterGuid;
-	byte[] _subGroupsCounts;
-	ObjectGuid _guid;
-	uint _dbStoreId;
-	bool _isLeaderOffline;
+    private readonly RaidMarker[] _markers = new RaidMarker[MapConst.RaidMarkersCount];
+    private ObjectGuid _leaderGuid;
+    private byte _leaderFactionGroup;
+    private string _leaderName;
+    private GroupFlags _groupFlags;
+    private GroupCategory _groupCategory;
+    private Difficulty _dungeonDifficulty;
+    private Difficulty _raidDifficulty;
+    private Difficulty _legacyRaidDifficulty;
+    private Battleground _bgGroup;
+    private BattleField _bfGroup;
+    private LootMethod _lootMethod;
+    private ItemQuality _lootThreshold;
+    private ObjectGuid _looterGuid;
+    private ObjectGuid _masterLooterGuid;
+    private byte[] _subGroupsCounts;
+    private ObjectGuid _guid;
+    private uint _dbStoreId;
+    private bool _isLeaderOffline;
 
 	// Ready Check
-	bool _readyCheckStarted;
-	TimeSpan _readyCheckTimer;
-	uint _activeMarkers;
+    private bool _readyCheckStarted;
+    private TimeSpan _readyCheckTimer;
+    private uint _activeMarkers;
 
 	public Difficulty DungeonDifficultyID => _dungeonDifficulty;
 
@@ -1811,7 +1811,7 @@ public class PlayerGroup
 		return group != null;
 	}
 
-	void SelectNewPartyOrRaidLeader()
+    private void SelectNewPartyOrRaidLeader()
 	{
 		Player newLeader = null;
 
@@ -1851,7 +1851,7 @@ public class PlayerGroup
 		}
 	}
 
-	void SendUpdateDestroyGroupToPlayer(Player player)
+    private void SendUpdateDestroyGroupToPlayer(Player player)
 	{
 		PartyUpdate partyUpdate = new()
 		{
@@ -1866,7 +1866,7 @@ public class PlayerGroup
 		player.SendPacket(partyUpdate);
 	}
 
-	bool _setMembersGroup(ObjectGuid guid, byte group)
+    private bool _setMembersGroup(ObjectGuid guid, byte group)
 	{
 		var slot = _getMemberSlot(guid);
 
@@ -1890,13 +1890,13 @@ public class PlayerGroup
 		return true;
 	}
 
-	void _homebindIfInstance(Player player)
+    private void _homebindIfInstance(Player player)
 	{
 		if (player && !player.IsGameMaster && CliDB.MapStorage.LookupByKey(player.Location.MapId).IsDungeon())
 			player.InstanceValid = false;
 	}
 
-	void UpdateReadyCheck(uint diff)
+    private void UpdateReadyCheck(uint diff)
 	{
 		if (!_readyCheckStarted)
 			return;
@@ -1907,7 +1907,7 @@ public class PlayerGroup
 			EndReadyCheck();
 	}
 
-	void EndReadyCheck()
+    private void EndReadyCheck()
 	{
 		if (!_readyCheckStarted)
 			return;
@@ -1926,7 +1926,7 @@ public class PlayerGroup
 		BroadcastPacket(readyCheckCompleted, false);
 	}
 
-	void SetMemberReadyCheck(MemberSlot slot, bool ready)
+    private void SetMemberReadyCheck(MemberSlot slot, bool ready)
 	{
 		ReadyCheckResponse response = new()
 		{
@@ -1940,7 +1940,7 @@ public class PlayerGroup
 		SetMemberReadyChecked(slot);
 	}
 
-	void SetOfflineMembersReadyChecked()
+    private void SetOfflineMembersReadyChecked()
 	{
 		foreach (var member in _memberSlots)
 		{
@@ -1951,7 +1951,7 @@ public class PlayerGroup
 		}
 	}
 
-	void SetMemberReadyChecked(MemberSlot slot)
+    private void SetMemberReadyChecked(MemberSlot slot)
 	{
 		slot.ReadyChecked = true;
 
@@ -1959,13 +1959,13 @@ public class PlayerGroup
 			EndReadyCheck();
 	}
 
-	void ResetMemberReadyChecked()
+    private void ResetMemberReadyChecked()
 	{
 		foreach (var member in _memberSlots)
 			member.ReadyChecked = false;
 	}
 
-	void DelinkMember(ObjectGuid guid)
+    private void DelinkMember(ObjectGuid guid)
 	{
 		var refe = _memberMgr.GetFirst();
 
@@ -1984,7 +1984,7 @@ public class PlayerGroup
 		}
 	}
 
-	void _initRaidSubGroupsCounter()
+    private void _initRaidSubGroupsCounter()
 	{
 		// Sub group counters initialization
 		if (_subGroupsCounts == null)
@@ -1994,7 +1994,7 @@ public class PlayerGroup
 			++_subGroupsCounts[memberSlot.Group];
 	}
 
-	MemberSlot _getMemberSlot(ObjectGuid guid)
+    private MemberSlot _getMemberSlot(ObjectGuid guid)
 	{
 		foreach (var member in _memberSlots)
 			if (member.Guid == guid)
@@ -2003,19 +2003,19 @@ public class PlayerGroup
 		return null;
 	}
 
-	void SubGroupCounterIncrease(byte subgroup)
+    private void SubGroupCounterIncrease(byte subgroup)
 	{
 		if (_subGroupsCounts != null)
 			++_subGroupsCounts[subgroup];
 	}
 
-	void SubGroupCounterDecrease(byte subgroup)
+    private void SubGroupCounterDecrease(byte subgroup)
 	{
 		if (_subGroupsCounts != null)
 			--_subGroupsCounts[subgroup];
 	}
 
-	void ToggleGroupMemberFlag(MemberSlot slot, GroupMemberFlags flag, bool apply)
+    private void ToggleGroupMemberFlag(MemberSlot slot, GroupMemberFlags flag, bool apply)
 	{
 		if (apply)
 			slot.Flags |= flag;

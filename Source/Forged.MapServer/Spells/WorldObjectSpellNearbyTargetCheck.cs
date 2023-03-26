@@ -10,8 +10,8 @@ namespace Forged.MapServer.Spells;
 
 public class WorldObjectSpellNearbyTargetCheck : WorldObjectSpellTargetCheck
 {
-	readonly Position _position;
-	float _range;
+    private readonly Position _position;
+    private float _range;
 
 	public WorldObjectSpellNearbyTargetCheck(float range, WorldObject caster, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
 		: base(caster, caster, spellInfo, selectionType, condList, objectType)

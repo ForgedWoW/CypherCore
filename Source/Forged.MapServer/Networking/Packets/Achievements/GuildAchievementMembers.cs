@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Achievements;
 
-class GuildAchievementMembers : ServerPacket
+internal class GuildAchievementMembers : ServerPacket
 {
 	public ObjectGuid GuildGUID;
 	public uint AchievementID;

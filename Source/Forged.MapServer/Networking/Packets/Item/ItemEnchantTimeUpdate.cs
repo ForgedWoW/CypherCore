@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemEnchantTimeUpdate : ServerPacket
+internal class ItemEnchantTimeUpdate : ServerPacket
 {
 	public ObjectGuid OwnerGuid;
 	public ObjectGuid ItemGuid;

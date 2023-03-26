@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonRemoveFollowerResult : ServerPacket
+internal class GarrisonRemoveFollowerResult : ServerPacket
 {
 	public ulong FollowerDBID;
 	public int GarrTypeID;

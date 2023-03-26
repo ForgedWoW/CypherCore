@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-struct SpellLogMissDebug
+internal struct SpellLogMissDebug
 {
 	public void Write(WorldPacket data)
 	{

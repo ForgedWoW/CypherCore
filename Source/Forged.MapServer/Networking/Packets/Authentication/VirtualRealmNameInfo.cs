@@ -5,7 +5,7 @@ using System;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-struct VirtualRealmNameInfo
+internal struct VirtualRealmNameInfo
 {
 	public VirtualRealmNameInfo(bool isHomeRealm, bool isInternalRealm, string realmNameActual, string realmNameNormalized)
 	{

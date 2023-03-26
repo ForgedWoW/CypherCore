@@ -9,7 +9,7 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class GridCoord : ICoord
 {
-	const int Limit = MapConst.MaxGrids;
+    private const int Limit = MapConst.MaxGrids;
 
 
 	public uint X_Coord { get; set; }

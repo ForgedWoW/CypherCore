@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Equipment;
 
-class UseEquipmentSetResult : ServerPacket
+internal class UseEquipmentSetResult : ServerPacket
 {
 	public ulong GUID; //Set Identifier
 	public byte Reason;

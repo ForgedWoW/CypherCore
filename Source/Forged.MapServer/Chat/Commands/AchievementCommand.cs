@@ -7,10 +7,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("achievement")]
-class AchievementCommand
+internal class AchievementCommand
 {
 	[Command("add", CypherStrings.CommandAchievementAddHelp, RBACPermissions.CommandAchievementAdd)]
-	static bool HandleAchievementAddCommand(CommandHandler handler, AchievementRecord achievementEntry)
+    private static bool HandleAchievementAddCommand(CommandHandler handler, AchievementRecord achievementEntry)
 	{
 		var target = handler.SelectedPlayer;
 

@@ -3,4 +3,4 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class TempleofKotmogu { }
+internal class TempleofKotmogu { }

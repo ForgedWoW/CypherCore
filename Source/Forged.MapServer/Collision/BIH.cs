@@ -15,9 +15,9 @@ namespace Forged.MapServer.Collision;
 
 public class BIH
 {
-	AxisAlignedBox _bounds;
-	uint[] _tree;
-	int[] _objects;
+    private AxisAlignedBox _bounds;
+    private uint[] _tree;
+    private int[] _objects;
 
 	public BIH()
 	{
@@ -338,7 +338,7 @@ public class BIH
 		}
 	}
 
-	void InitEmpty()
+    private void InitEmpty()
 	{
 		_tree = new uint[3];
 		_objects = Array.Empty<int>();
@@ -346,7 +346,7 @@ public class BIH
 		_tree[0] = (3u << 30); // dummy leaf
 	}
 
-	void BuildHierarchy(List<uint> tempTree, buildData dat, BuildStats stats)
+    private void BuildHierarchy(List<uint> tempTree, buildData dat, BuildStats stats)
 	{
 		// create space for the first node
 		tempTree.Add(3u << 30); // dummy leaf
@@ -365,7 +365,7 @@ public class BIH
 		Subdivide(0, (int)(dat.numPrims - 1), tempTree, dat, gridBox, nodeBox, 0, 1, stats);
 	}
 
-	void Subdivide(int left, int right, List<uint> tempTree, buildData dat, AABound gridBox, AABound nodeBox, int nodeIndex, int depth, BuildStats stats)
+    private void Subdivide(int left, int right, List<uint> tempTree, buildData dat, AABound gridBox, AABound nodeBox, int nodeIndex, int depth, BuildStats stats)
 	{
 		if ((right - left + 1) <= dat.maxPrims || depth >= 64)
 		{
@@ -612,14 +612,14 @@ public class BIH
 			stats.UpdateLeaf(depth + 1, 0);
 	}
 
-	void CreateNode(List<uint> tempTree, int nodeIndex, int left, int right)
+    private void CreateNode(List<uint> tempTree, int nodeIndex, int left, int right)
 	{
 		// write leaf node
 		tempTree[nodeIndex + 0] = (uint)((3 << 30) | left);
 		tempTree[nodeIndex + 1] = (uint)(right - left + 1);
 	}
 
-	uint FloatToRawIntBits(float f)
+    private uint FloatToRawIntBits(float f)
 	{
 		FloatToIntConverter converter = new()
 		{
@@ -629,7 +629,7 @@ public class BIH
 		return converter.IntValue;
 	}
 
-	float IntBitsToFloat(uint i)
+    private float IntBitsToFloat(uint i)
 	{
 		FloatToIntConverter converter = new()
 		{
@@ -639,7 +639,7 @@ public class BIH
 		return converter.FloatValue;
 	}
 
-	struct buildData
+    private struct buildData
 	{
 		public int[] indices;
 		public AxisAlignedBox[] primBound;
@@ -647,7 +647,7 @@ public class BIH
 		public int maxPrims;
 	}
 
-	struct StackNode
+    private struct StackNode
 	{
 		public uint node;
 		public float tnear;
@@ -664,8 +664,8 @@ public class BIH
 		public int sumDepth;
 		public int minDepth;
 		public int maxDepth;
-		readonly int[] numLeavesN = new int[6];
-		int numBVH2;
+        private readonly int[] numLeavesN = new int[6];
+        private int numBVH2;
 
 		public BuildStats()
 		{

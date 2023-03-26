@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemPushResult : ServerPacket
+internal class ItemPushResult : ServerPacket
 {
 	public enum DisplayType
 	{

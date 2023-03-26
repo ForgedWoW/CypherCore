@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps;
 
-class ObjectGridStoper : IGridNotifierCreature
+internal class ObjectGridStoper : IGridNotifierCreature
 {
 	public GridType GridType { get; set; }
 

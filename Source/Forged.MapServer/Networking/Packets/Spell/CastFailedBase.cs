@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CastFailedBase : ServerPacket
+internal class CastFailedBase : ServerPacket
 {
 	public ObjectGuid CastID;
 	public int SpellID;

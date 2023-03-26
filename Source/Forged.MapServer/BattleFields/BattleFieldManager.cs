@@ -24,33 +24,33 @@ public class BattleFieldManager
     private readonly GameObjectManager _objectManager;
     private readonly ScriptManager _scriptManager;
 
-    static readonly uint[] BattlefieldIdToMapId =
+    private static readonly uint[] BattlefieldIdToMapId =
 	{
 		0, 571, 732
 	};
 
-	static readonly uint[] BattlefieldIdToZoneId =
+    private static readonly uint[] BattlefieldIdToZoneId =
 	{
 		0, 4197, 5095
 	}; // imitate World_PVP_Area.db2
 
-	static readonly uint[] BattlefieldIdToScriptId =
+    private static readonly uint[] BattlefieldIdToScriptId =
 	{
 		0, 0, 0
 	};
 
 	// contains all initiated battlefield events
 	// used when initing / cleaning up
-	readonly MultiMap<Map, BattleField> _battlefieldsByMap = new();
+    private readonly MultiMap<Map, BattleField> _battlefieldsByMap = new();
 
 	// maps the zone ids to an battlefield event
 	// used in player event handling
-	readonly Dictionary<(Map map, uint zoneId), BattleField> _battlefieldsByZone = new();
+    private readonly Dictionary<(Map map, uint zoneId), BattleField> _battlefieldsByZone = new();
 
-	readonly LimitedThreadTaskManager _threadTaskManager;
+    private readonly LimitedThreadTaskManager _threadTaskManager;
 
 	// update interval
-	uint _updateTimer;
+    private uint _updateTimer;
 
     public BattleFieldManager(IConfiguration configuration, WorldDatabase worldDatabase, GameObjectManager objectManager, ScriptManager scriptManager)
     {

@@ -21,13 +21,13 @@ namespace Forged.MapServer.Entities;
 
 public class Conversation : WorldObject
 {
-	readonly ConversationData m_conversationData;
-	readonly Position _stationaryPosition = new();
-	readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
-	readonly TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
-	ObjectGuid _creatorGuid;
-	TimeSpan _duration;
-	uint _textureKitId;
+    private readonly ConversationData m_conversationData;
+    private readonly Position _stationaryPosition = new();
+    private readonly Dictionary<(Locale locale, uint lineId), TimeSpan> _lineStartTimes = new();
+    private readonly TimeSpan[] _lastLineEndTimes = new TimeSpan[(int)Locale.Total];
+    private ObjectGuid _creatorGuid;
+    private TimeSpan _duration;
+    private uint _textureKitId;
 
 	public override ObjectGuid OwnerGUID => GetCreatorGuid();
 
@@ -202,7 +202,7 @@ public class Conversation : WorldObject
 		return _creatorGuid;
 	}
 
-	void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
+    private void Create(ulong lowGuid, uint conversationEntry, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner, SpellInfo spellInfo = null)
 	{
 		var conversationTemplate = Global.ConversationDataStorage.GetConversationTemplate(conversationEntry);
 		//ASSERT(conversationTemplate);
@@ -278,7 +278,7 @@ public class Conversation : WorldObject
 		Global.ScriptMgr.RunScript<IConversationOnConversationCreate>(script => script.OnConversationCreate(this, creator), GetScriptId());
 	}
 
-	bool Start()
+    private bool Start()
 	{
 		foreach (var line in m_conversationData.Lines.GetValue())
 		{
@@ -298,7 +298,7 @@ public class Conversation : WorldObject
 		return true;
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedConversationMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedConversationMask, Player target)
 	{
 		UpdateMask valuesMask = new((int)TypeId.Max);
 
@@ -326,21 +326,21 @@ public class Conversation : WorldObject
 		data.AddUpdateBlock(buffer1);
 	}
 
-	TimeSpan GetDuration()
+    private TimeSpan GetDuration()
 	{
 		return _duration;
 	}
 
-	void RelocateStationaryPosition(Position pos)
+    private void RelocateStationaryPosition(Position pos)
 	{
 		_stationaryPosition.Relocate(pos);
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly Conversation Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ConversationData ConversationMask = new();
+        private readonly Conversation Owner;
+        private readonly ObjectFieldData ObjectMask = new();
+        private readonly ConversationData ConversationMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(Conversation owner)
 		{

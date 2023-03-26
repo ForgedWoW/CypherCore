@@ -11,10 +11,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("account")]
-class AccountCommands
+internal class AccountCommands
 {
 	[Command("", CypherStrings.CommandAccountHelp, RBACPermissions.CommandAccount)]
-	static bool HandleAccountCommand(CommandHandler handler)
+    private static bool HandleAccountCommand(CommandHandler handler)
 	{
 		if (handler.Session == null)
 			return false;
@@ -59,7 +59,7 @@ class AccountCommands
 	}
 
 	[Command("2fa remove", CypherStrings.CommandAcc2faRemoveHelp, RBACPermissions.CommandAccount2FaRemove)]
-	static bool HandleAccount2FARemoveCommand(CommandHandler handler, uint? token)
+    private static bool HandleAccount2FARemoveCommand(CommandHandler handler, uint? token)
 	{
 		/*var masterKey = Global.SecretMgr.GetSecret(Secrets.TOTPMasterKey);
 		if (!masterKey.IsAvailable())
@@ -122,7 +122,7 @@ class AccountCommands
 	}
 
 	[Command("2fa setup", CypherStrings.CommandAcc2faSetupHelp, RBACPermissions.CommandAccount2FaSetup)]
-	static bool HandleAccount2FASetupCommand(CommandHandler handler, uint? token)
+    private static bool HandleAccount2FASetupCommand(CommandHandler handler, uint? token)
 	{
 		/*var masterKey = Global.SecretMgr.GetSecret(Secrets.TOTPMasterKey);
 		if (!masterKey.IsAvailable())
@@ -183,7 +183,7 @@ class AccountCommands
 	}
 
 	[Command("addon", CypherStrings.CommandAccAddonHelp, RBACPermissions.CommandAccountAddon)]
-	static bool HandleAccountAddonCommand(CommandHandler handler, byte expansion)
+    private static bool HandleAccountAddonCommand(CommandHandler handler, byte expansion)
 	{
 		if (expansion > GetDefaultValue("Expansion", (int)Expansion.Dragonflight))
 		{
@@ -203,7 +203,7 @@ class AccountCommands
 	}
 
 	[Command("create", CypherStrings.CommandAccCreateHelp, RBACPermissions.CommandAccountCreate, true)]
-	static bool HandleAccountCreateCommand(CommandHandler handler, string accountName, string password, [OptionalArg] string email)
+    private static bool HandleAccountCreateCommand(CommandHandler handler, string accountName, string password, [OptionalArg] string email)
 	{
 		if (accountName.Contains("@"))
 		{
@@ -255,7 +255,7 @@ class AccountCommands
 	}
 
 	[Command("delete", CypherStrings.CommandAccDeleteHelp, RBACPermissions.CommandAccountDelete, true)]
-	static bool HandleAccountDeleteCommand(CommandHandler handler, string accountName)
+    private static bool HandleAccountDeleteCommand(CommandHandler handler, string accountName)
 	{
 		var accountId = Global.AccountMgr.GetId(accountName);
 
@@ -295,7 +295,7 @@ class AccountCommands
 	}
 
 	[Command("email", CypherStrings.CommandAccEmailHelp, RBACPermissions.CommandAccountEmail)]
-	static bool HandleAccountEmailCommand(CommandHandler handler, string oldEmail, string password, string email, string emailConfirm)
+    private static bool HandleAccountEmailCommand(CommandHandler handler, string oldEmail, string password, string email, string emailConfirm)
 	{
 		if (!Global.AccountMgr.CheckEmail(handler.Session.AccountId, oldEmail))
 		{
@@ -376,7 +376,7 @@ class AccountCommands
 	}
 
 	[Command("password", CypherStrings.CommandAccPasswordHelp, RBACPermissions.CommandAccountPassword)]
-	static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string confirmPassword, [OptionalArg] string confirmEmail)
+    private static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string confirmPassword, [OptionalArg] string confirmEmail)
 	{
 		// First, we check config. What security type (sec type) is it ? Depending on it, the command branches out
 		var pwConfig = GetDefaultValue("Account.PasswordChangeSecurity", 0); // 0 - PW_NONE, 1 - PW_EMAIL, 2 - PW_RBAC
@@ -449,10 +449,10 @@ class AccountCommands
 	}
 
 	[CommandGroup("lock")]
-	class AccountLockCommands
+    private class AccountLockCommands
 	{
 		[Command("country", CypherStrings.CommandAccLockCountryHelp, RBACPermissions.CommandAccountLockCountry)]
-		static bool HandleAccountLockCountryCommand(CommandHandler handler, bool state)
+        private static bool HandleAccountLockCountryCommand(CommandHandler handler, bool state)
 		{
 			if (state)
 			{
@@ -491,7 +491,7 @@ class AccountCommands
 		}
 
 		[Command("ip", CypherStrings.CommandAccLockIpHelp, RBACPermissions.CommandAccountLockIp)]
-		static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
+        private static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
 		{
 			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_ACCOUNT_LOCK);
 
@@ -515,39 +515,39 @@ class AccountCommands
 	}
 
 	[CommandGroup("onlinelist")]
-	class AccountOnlineListCommands
+    private class AccountOnlineListCommands
 	{
 		[Command("", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-		static bool HandleAccountOnlineListCommand(CommandHandler handler)
+        private static bool HandleAccountOnlineListCommand(CommandHandler handler)
 		{
 			return HandleAccountOnlineListCommandWithParameters(handler, null, null, null, null);
 		}
 
 		[Command("ip", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-		static bool HandleAccountOnlineListWithIpFilterCommand(CommandHandler handler, string ipAddress)
+        private static bool HandleAccountOnlineListWithIpFilterCommand(CommandHandler handler, string ipAddress)
 		{
 			return HandleAccountOnlineListCommandWithParameters(handler, ipAddress, null, null, null);
 		}
 
 		[Command("limit", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-		static bool HandleAccountOnlineListWithLimitCommand(CommandHandler handler, uint limit)
+        private static bool HandleAccountOnlineListWithLimitCommand(CommandHandler handler, uint limit)
 		{
 			return HandleAccountOnlineListCommandWithParameters(handler, null, limit, null, null);
 		}
 
 		[Command("map", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-		static bool HandleAccountOnlineListWithMapFilterCommand(CommandHandler handler, uint mapId)
+        private static bool HandleAccountOnlineListWithMapFilterCommand(CommandHandler handler, uint mapId)
 		{
 			return HandleAccountOnlineListCommandWithParameters(handler, null, null, mapId, null);
 		}
 
 		[Command("zone", CypherStrings.CommandAccOnlinelistHelp, RBACPermissions.CommandAccountOnlineList, true)]
-		static bool HandleAccountOnlineListWithZoneFilterCommand(CommandHandler handler, uint zoneId)
+        private static bool HandleAccountOnlineListWithZoneFilterCommand(CommandHandler handler, uint zoneId)
 		{
 			return HandleAccountOnlineListCommandWithParameters(handler, null, null, null, zoneId);
 		}
 
-		static bool HandleAccountOnlineListCommandWithParameters(CommandHandler handler, string ipAddress, uint? limit, uint? mapId, uint? zoneId)
+        private static bool HandleAccountOnlineListCommandWithParameters(CommandHandler handler, string ipAddress, uint? limit, uint? mapId, uint? zoneId)
 		{
 			var sessionsMatchCount = 0;
 
@@ -613,10 +613,10 @@ class AccountCommands
 	}
 
 	[CommandGroup("set")]
-	class AccountSetCommands
+    private class AccountSetCommands
 	{
 		[Command("2fa", CypherStrings.CommandAccSet2faHelp, RBACPermissions.CommandAccountSet2Fa, true)]
-		static bool HandleAccountSet2FACommand(CommandHandler handler, string accountName, string secret)
+        private static bool HandleAccountSet2FACommand(CommandHandler handler, string accountName, string secret)
 		{
 			/*uint targetAccountId = Global.AccountMgr.GetId(accountName);
 			if (targetAccountId == 0)
@@ -670,7 +670,7 @@ class AccountCommands
 		}
 
 		[Command("addon", CypherStrings.CommandAccSetAddonHelp, RBACPermissions.CommandAccountSetAddon, true)]
-		static bool HandleAccountSetAddonCommand(CommandHandler handler, [OptionalArg] string accountName, byte expansion)
+        private static bool HandleAccountSetAddonCommand(CommandHandler handler, [OptionalArg] string accountName, byte expansion)
 		{
 			uint accountId;
 
@@ -722,7 +722,7 @@ class AccountCommands
 		}
 
 		[Command("password", CypherStrings.CommandAccSetPasswordHelp, RBACPermissions.CommandAccountSetPassword, true)]
-		static bool HandleAccountSetPasswordCommand(CommandHandler handler, string accountName, string password, string confirmPassword)
+        private static bool HandleAccountSetPasswordCommand(CommandHandler handler, string accountName, string password, string confirmPassword)
 		{
 			var targetAccountId = Global.AccountMgr.GetId(accountName);
 
@@ -772,7 +772,7 @@ class AccountCommands
 
 		[Command("seclevel", CypherStrings.CommandAccSetSeclevelHelp, RBACPermissions.CommandAccountSetSecLevel, true)]
 		[Command("gmlevel", CypherStrings.CommandAccSetSeclevelHelp, RBACPermissions.CommandAccountSetSecLevel, true)]
-		static bool HandleAccountSetSecLevelCommand(CommandHandler handler, [OptionalArg] string accountName, byte securityLevel, int? realmId)
+        private static bool HandleAccountSetSecLevelCommand(CommandHandler handler, [OptionalArg] string accountName, byte securityLevel, int? realmId)
 		{
 			uint accountId;
 
@@ -863,10 +863,10 @@ class AccountCommands
 		}
 
 		[CommandGroup("sec")]
-		class SetSecCommands
+        private class SetSecCommands
 		{
 			[Command("email", CypherStrings.CommandAccSetSecEmailHelp, RBACPermissions.CommandAccountSetSecEmail, true)]
-			static bool HandleAccountSetEmailCommand(CommandHandler handler, string accountName, string email, string confirmEmail)
+            private static bool HandleAccountSetEmailCommand(CommandHandler handler, string accountName, string email, string confirmEmail)
 			{
 				var targetAccountId = Global.AccountMgr.GetId(accountName);
 
@@ -916,7 +916,7 @@ class AccountCommands
 			}
 
 			[Command("regmail", CypherStrings.CommandAccSetSecRegmailHelp, RBACPermissions.CommandAccountSetSecRegmail, true)]
-			static bool HandleAccountSetRegEmailCommand(CommandHandler handler, string accountName, string email, string confirmEmail)
+            private static bool HandleAccountSetRegEmailCommand(CommandHandler handler, string accountName, string email, string confirmEmail)
 			{
 				var targetAccountId = Global.AccountMgr.GetId(accountName);
 

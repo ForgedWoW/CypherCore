@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-struct WorldQuestUpdateInfo
+internal struct WorldQuestUpdateInfo
 {
 	public WorldQuestUpdateInfo(long lastUpdate, uint questID, uint timer, int variableID, int value)
 	{

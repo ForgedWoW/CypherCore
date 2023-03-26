@@ -10,7 +10,7 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartAreaTriggerAI : AreaTriggerAI
 {
-	readonly SmartScript _script = new();
+    private readonly SmartScript _script = new();
 
 	public SmartAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
 

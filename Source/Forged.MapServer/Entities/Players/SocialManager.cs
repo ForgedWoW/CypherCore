@@ -20,7 +20,7 @@ public class SocialManager
     private readonly IConfiguration _configuration;
     public const int FRIEND_LIMIT_MAX = 50;
 	public const int IGNORE_LIMIT = 50;
-	readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
+    private readonly Dictionary<ObjectGuid, PlayerSocial> _socialMap = new();
 
     public SocialManager(ObjectAccessor objectAccessor, IConfiguration configuration)
     {
@@ -125,7 +125,7 @@ public class SocialManager
 		_socialMap.Remove(guid);
 	}
 
-	void BroadcastToFriendListers(Player player, ServerPacket packet)
+    private void BroadcastToFriendListers(Player player, ServerPacket packet)
 	{
 		if (!player)
 			return;

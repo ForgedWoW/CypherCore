@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SpellVisualLoadScreen : ServerPacket
+internal class SpellVisualLoadScreen : ServerPacket
 {
 	public int SpellVisualKitID;
 	public int Delay;

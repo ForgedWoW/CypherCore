@@ -24,7 +24,7 @@ namespace Forged.MapServer.Achievements;
 public class CriteriaHandler
 {
 	protected Dictionary<uint, CriteriaProgress> _criteriaProgress = new();
-	readonly Dictionary<uint, uint /*ms time left*/> _timeCriteriaTrees = new();
+    private readonly Dictionary<uint, uint /*ms time left*/> _timeCriteriaTrees = new();
 
 	public virtual void Reset()
 	{
@@ -868,7 +868,7 @@ public class CriteriaHandler
 		return null;
 	}
 
-	bool IsCompletedCriteria(Criteria criteria, ulong requiredAmount)
+    private bool IsCompletedCriteria(Criteria criteria, ulong requiredAmount)
 	{
 		var progress = GetCriteriaProgress(criteria);
 
@@ -968,7 +968,7 @@ public class CriteriaHandler
 		return false;
 	}
 
-	bool CanUpdateCriteria(Criteria criteria, List<CriteriaTree> trees, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
+    private bool CanUpdateCriteria(Criteria criteria, List<CriteriaTree> trees, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
 	{
 		if (Global.DisableMgr.IsDisabledFor(DisableType.Criteria, criteria.Id, null))
 		{
@@ -1020,7 +1020,7 @@ public class CriteriaHandler
 		return true;
 	}
 
-	bool ConditionsSatisfied(Criteria criteria, Player referencePlayer)
+    private bool ConditionsSatisfied(Criteria criteria, Player referencePlayer)
 	{
 		if (criteria.Entry.FailEvent == 0)
 			return true;
@@ -1044,7 +1044,7 @@ public class CriteriaHandler
 		return true;
 	}
 
-	bool RequirementsSatisfied(Criteria criteria, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
+    private bool RequirementsSatisfied(Criteria criteria, ulong miscValue1, ulong miscValue2, ulong miscValue3, WorldObject refe, Player referencePlayer)
 	{
 		switch (criteria.Entry.Type)
 		{
@@ -1397,7 +1397,7 @@ public class CriteriaHandler
 		return true;
 	}
 
-	bool ModifierSatisfied(ModifierTreeRecord modifier, ulong miscValue1, ulong miscValue2, WorldObject refe, Player referencePlayer)
+    private bool ModifierSatisfied(ModifierTreeRecord modifier, ulong miscValue1, ulong miscValue2, WorldObject refe, Player referencePlayer)
 	{
 		var reqValue = modifier.Asset;
 		var secondaryAsset = modifier.SecondaryAsset;

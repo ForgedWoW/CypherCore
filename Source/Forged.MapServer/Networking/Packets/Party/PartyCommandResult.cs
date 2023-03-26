@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyCommandResult : ServerPacket
+internal class PartyCommandResult : ServerPacket
 {
 	public string Name;
 	public byte Command;

@@ -6,10 +6,10 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class AllAttackableUnitsInRange : ICheck<Unit>
+internal class AllAttackableUnitsInRange : ICheck<Unit>
 {
-	readonly Unit _unit;
-	readonly float _range;
+    private readonly Unit _unit;
+    private readonly float _range;
 
 	public AllAttackableUnitsInRange(Unit obj, float range)
 	{

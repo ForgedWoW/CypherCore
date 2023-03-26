@@ -9,9 +9,9 @@ namespace Forged.MapServer.Text;
 
 public class CreatureTextLocalizer : IDoWork<Player>
 {
-	readonly Dictionary<Locale, ChatPacketSender> _packetCache = new();
-	readonly MessageBuilder _builder;
-	readonly ChatMsg _msgType;
+    private readonly Dictionary<Locale, ChatPacketSender> _packetCache = new();
+    private readonly MessageBuilder _builder;
+    private readonly ChatMsg _msgType;
 
 	public CreatureTextLocalizer(MessageBuilder builder, ChatMsg msgType)
 	{

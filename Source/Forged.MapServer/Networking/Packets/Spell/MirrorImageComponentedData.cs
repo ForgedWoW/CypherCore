@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class MirrorImageComponentedData : ServerPacket
+internal class MirrorImageComponentedData : ServerPacket
 {
 	public ObjectGuid UnitGUID;
 	public int DisplayID;

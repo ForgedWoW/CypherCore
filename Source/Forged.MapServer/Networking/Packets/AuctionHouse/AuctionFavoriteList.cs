@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionFavoriteList : ServerPacket
+internal class AuctionFavoriteList : ServerPacket
 {
 	public uint DesiredDelay;
 	public List<AuctionFavoriteInfo> Items = new();

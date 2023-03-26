@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class SetWatchedFaction : ClientPacket
+internal class SetWatchedFaction : ClientPacket
 {
 	public uint FactionIndex;
 	public SetWatchedFaction(WorldPacket packet) : base(packet) { }

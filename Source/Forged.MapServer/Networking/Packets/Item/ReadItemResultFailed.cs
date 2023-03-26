@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ReadItemResultFailed : ServerPacket
+internal class ReadItemResultFailed : ServerPacket
 {
 	public ObjectGuid Item;
 	public byte Subcode;

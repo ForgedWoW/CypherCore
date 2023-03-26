@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class DispelFailed : ServerPacket
+internal class DispelFailed : ServerPacket
 {
 	public ObjectGuid CasterGUID;
 	public ObjectGuid VictimGUID;

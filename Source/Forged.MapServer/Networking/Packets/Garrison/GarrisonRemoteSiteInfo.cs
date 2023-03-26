@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonRemoteSiteInfo
+internal class GarrisonRemoteSiteInfo
 {
 	public uint GarrSiteLevelID;
 	public List<GarrisonRemoteBuildingInfo> Buildings = new();

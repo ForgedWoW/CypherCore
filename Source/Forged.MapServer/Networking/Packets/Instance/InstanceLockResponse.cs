@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceLockResponse : ClientPacket
+internal class InstanceLockResponse : ClientPacket
 {
 	public bool AcceptLock;
 	public InstanceLockResponse(WorldPacket packet) : base(packet) { }

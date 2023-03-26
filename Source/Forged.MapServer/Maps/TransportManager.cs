@@ -303,12 +303,12 @@ public class TransportManager
 		return _transportSpawns.LookupByKey(spawnId);
 	}
 
-	void Unload()
+    private void Unload()
 	{
 		_transportTemplates.Clear();
 	}
 
-	static void InitializeLeg(TransportPathLeg leg, List<TransportPathEvent> outEvents, List<TaxiPathNodeRecord> pathPoints, List<TaxiPathNodeRecord> pauses, List<TaxiPathNodeRecord> events, GameObjectTemplate goInfo, ref uint totalTime)
+    private static void InitializeLeg(TransportPathLeg leg, List<TransportPathEvent> outEvents, List<TaxiPathNodeRecord> pathPoints, List<TaxiPathNodeRecord> pauses, List<TaxiPathNodeRecord> events, GameObjectTemplate goInfo, ref uint totalTime)
 	{
 		List<Vector3> splinePath = new(pathPoints.Select(node => new Vector3(node.Loc.X, node.Loc.Y, node.Loc.Z)));
 		SplineRawInitializer initer = new(splinePath);
@@ -481,7 +481,7 @@ public class TransportManager
 			leg.Segments[i].SegmentEndArrivalTimestamp += leg.StartTimestamp;
 	}
 
-	void GeneratePath(GameObjectTemplate goInfo, TransportTemplate transport)
+    private void GeneratePath(GameObjectTemplate goInfo, TransportTemplate transport)
 	{
 		var pathId = goInfo.MoTransport.taxiPathID;
 		var path = _cliDB.TaxiPathNodesByPath[pathId];

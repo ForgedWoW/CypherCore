@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-struct PetStableInfo
+internal struct PetStableInfo
 {
 	public uint PetSlot;
 	public uint PetNumber;

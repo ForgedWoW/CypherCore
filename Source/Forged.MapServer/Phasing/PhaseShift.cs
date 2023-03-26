@@ -20,9 +20,9 @@ public class PhaseShift
 	public int PersonalReferences;
 	public bool IsDbPhaseShift;
 
-	int _nonCosmeticReferences;
-	int _cosmeticReferences;
-	int _defaultReferences;
+    private int _nonCosmeticReferences;
+    private int _cosmeticReferences;
+    private int _defaultReferences;
 
 	public bool HasPersonalPhase
 	{
@@ -280,7 +280,7 @@ public class PhaseShift
 		return UiMapPhaseIds.ContainsKey(uiWorldMapAreaId);
 	}
 
-	void UpdatePersonalGuid()
+    private void UpdatePersonalGuid()
 	{
 		if (PersonalReferences == 0)
 			PersonalGuid.Clear();

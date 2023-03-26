@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceResetFailed : ServerPacket
+internal class InstanceResetFailed : ServerPacket
 {
 	public uint MapID;
 	public ResetFailedReason ResetFailedReason;

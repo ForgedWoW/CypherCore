@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class UnlearnSkill : ClientPacket
+internal class UnlearnSkill : ClientPacket
 {
 	public uint SkillLine;
 	public UnlearnSkill(WorldPacket packet) : base(packet) { }

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class ResyncRunes : ServerPacket
+internal class ResyncRunes : ServerPacket
 {
 	public RuneData Runes = new();
 	public ResyncRunes() : base(ServerOpcodes.ResyncRunes) { }

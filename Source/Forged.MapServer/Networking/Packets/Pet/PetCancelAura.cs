@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetCancelAura : ClientPacket
+internal class PetCancelAura : ClientPacket
 {
 	public ObjectGuid PetGUID;
 	public uint SpellID;

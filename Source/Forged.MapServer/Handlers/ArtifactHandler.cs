@@ -15,7 +15,7 @@ namespace Forged.MapServer.Handlers;
 public class ArtifactHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.ArtifactAddPower, Processing = PacketProcessing.Inplace)]
-	void HandleArtifactAddPower(ArtifactAddPower artifactAddPower)
+    private void HandleArtifactAddPower(ArtifactAddPower artifactAddPower)
 	{
 		if (!_player.GetGameObjectIfCanInteractWith(artifactAddPower.ForgeGUID, GameObjectTypes.ItemForge))
 			return;
@@ -161,7 +161,7 @@ public class ArtifactHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ArtifactSetAppearance, Processing = PacketProcessing.Inplace)]
-	void HandleArtifactSetAppearance(ArtifactSetAppearance artifactSetAppearance)
+    private void HandleArtifactSetAppearance(ArtifactSetAppearance artifactSetAppearance)
 	{
 		if (!_player.GetGameObjectIfCanInteractWith(artifactSetAppearance.ForgeGUID, GameObjectTypes.ItemForge))
 			return;
@@ -213,7 +213,7 @@ public class ArtifactHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ConfirmArtifactRespec)]
-	void HandleConfirmArtifactRespec(ConfirmArtifactRespec confirmArtifactRespec)
+    private void HandleConfirmArtifactRespec(ConfirmArtifactRespec confirmArtifactRespec)
 	{
 		if (!_player.GetNPCIfCanInteractWith(confirmArtifactRespec.NpcGUID, NPCFlags.ArtifactPowerRespec, NPCFlags2.None))
 			return;

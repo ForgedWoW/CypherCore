@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class CrossedInebriationThreshold : ServerPacket
+internal class CrossedInebriationThreshold : ServerPacket
 {
 	public ObjectGuid Guid;
 	public uint ItemID;

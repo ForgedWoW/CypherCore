@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetSpellAutocast : ClientPacket
+internal class PetSpellAutocast : ClientPacket
 {
 	public ObjectGuid PetGUID;
 	public uint SpellID;

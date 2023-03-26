@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Crafting;
 
-struct SpellReducedReagent
+internal struct SpellReducedReagent
 {
 	public int ItemID;
 	public int Quantity;

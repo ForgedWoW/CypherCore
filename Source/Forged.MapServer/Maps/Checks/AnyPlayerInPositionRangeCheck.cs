@@ -7,11 +7,11 @@ using Forged.MapServer.Entities.Players;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class AnyPlayerInPositionRangeCheck : ICheck<Player>
+internal class AnyPlayerInPositionRangeCheck : ICheck<Player>
 {
-	readonly Position _pos;
-	readonly float _range;
-	readonly bool _reqAlive;
+    private readonly Position _pos;
+    private readonly float _range;
+    private readonly bool _reqAlive;
 
 	public AnyPlayerInPositionRangeCheck(Position pos, float range, bool reqAlive = true)
 	{

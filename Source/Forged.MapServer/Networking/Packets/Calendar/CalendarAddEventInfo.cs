@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarAddEventInfo
+internal class CalendarAddEventInfo
 {
 	public ulong ClubId;
 	public string Title;

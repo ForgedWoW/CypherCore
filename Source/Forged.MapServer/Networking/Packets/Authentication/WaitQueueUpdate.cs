@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class WaitQueueUpdate : ServerPacket
+internal class WaitQueueUpdate : ServerPacket
 {
 	public AuthWaitInfo WaitInfo;
 	public WaitQueueUpdate() : base(ServerOpcodes.WaitQueueUpdate) { }

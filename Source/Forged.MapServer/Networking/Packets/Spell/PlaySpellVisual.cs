@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class PlaySpellVisual : ServerPacket
+internal class PlaySpellVisual : ServerPacket
 {
 	public ObjectGuid Source;
 	public ObjectGuid Target;

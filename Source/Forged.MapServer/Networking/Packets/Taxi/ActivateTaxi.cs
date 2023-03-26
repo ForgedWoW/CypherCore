@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Taxi;
 
-class ActivateTaxi : ClientPacket
+internal class ActivateTaxi : ClientPacket
 {
 	public ObjectGuid Vendor;
 	public uint Node;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlegroundPlayerPositions : ServerPacket
+internal class BattlegroundPlayerPositions : ServerPacket
 {
 	public List<BattlegroundPlayerPosition> FlagCarriers = new();
 	public BattlegroundPlayerPositions() : base(ServerOpcodes.BattlegroundPlayerPositions, ConnectionType.Instance) { }

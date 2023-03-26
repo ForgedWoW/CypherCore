@@ -44,7 +44,7 @@ namespace Forged.MapServer.Entities.Units;
 public partial class Unit : WorldObject
 {
 	public object SendLock = new();
-	static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan _despawnTime = TimeSpan.FromSeconds(2);
 	private readonly object _healthLock = new();
 
 	public bool IsInDisallowedMountForm => IsDisallowedMountForm(TransformSpell, ShapeshiftForm, DisplayId);
@@ -4436,7 +4436,7 @@ public partial class Unit : WorldObject
 		return Math.Max(sp, 0); //avoid negative spell power
 	}
 
-	void _UpdateSpells(uint diff)
+    private void _UpdateSpells(uint diff)
 	{
 		_spellHistory.Update();
 
@@ -4497,7 +4497,7 @@ public partial class Unit : WorldObject
 			}
 	}
 
-	Unit GetVehicleRoot()
+    private Unit GetVehicleRoot()
 	{
 		var vehicleRoot = VehicleBase;
 
@@ -4513,7 +4513,7 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	List<DynamicObject> GetDynObjects(uint spellId)
+    private List<DynamicObject> GetDynObjects(uint spellId)
 	{
 		List<DynamicObject> dynamicobjects = new();
 
@@ -4524,7 +4524,7 @@ public partial class Unit : WorldObject
 		return dynamicobjects;
 	}
 
-	List<GameObject> GetGameObjects(uint spellId)
+    private List<GameObject> GetGameObjects(uint spellId)
 	{
 		List<GameObject> gameobjects = new();
 
@@ -4535,7 +4535,7 @@ public partial class Unit : WorldObject
 		return gameobjects;
 	}
 
-	void CancelSpellMissiles(uint spellId, bool reverseMissile = false)
+    private void CancelSpellMissiles(uint spellId, bool reverseMissile = false)
 	{
 		var hasMissile = false;
 
@@ -4567,7 +4567,7 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	void RestoreDisabledAI()
+    private void RestoreDisabledAI()
 	{
 		// Keep popping the stack until we either reach the bottom or find a valid AI
 		while (PopAI())
@@ -4575,7 +4575,7 @@ public partial class Unit : WorldObject
 				return;
 	}
 
-	UnitAI GetScheduledChangeAI()
+    private UnitAI GetScheduledChangeAI()
 	{
 		var creature = AsCreature;
 
@@ -4585,7 +4585,7 @@ public partial class Unit : WorldObject
 			return null;
 	}
 
-	bool HasScheduledAIChange()
+    private bool HasScheduledAIChange()
 	{
 		var ai = AI;
 
@@ -4595,23 +4595,23 @@ public partial class Unit : WorldObject
 			return true;
 	}
 
-	void RemoveAllFollowers()
+    private void RemoveAllFollowers()
 	{
 		while (!_followingMe.Empty())
 			_followingMe[0].SetTarget(null);
 	}
 
-	bool HasInterruptFlag(SpellAuraInterruptFlags flags)
+    private bool HasInterruptFlag(SpellAuraInterruptFlags flags)
 	{
 		return _interruptMask.HasAnyFlag(flags);
 	}
 
-	bool HasInterruptFlag(SpellAuraInterruptFlags2 flags)
+    private bool HasInterruptFlag(SpellAuraInterruptFlags2 flags)
 	{
 		return _interruptMask2.HasAnyFlag(flags);
 	}
 
-	void _UpdateAutoRepeatSpell()
+    private void _UpdateAutoRepeatSpell()
 	{
 		var autoRepeatSpellInfo = CurrentSpells[CurrentSpellTypes.AutoRepeat].SpellInfo;
 
@@ -4653,12 +4653,12 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	uint GetCosmeticMountDisplayId()
+    private uint GetCosmeticMountDisplayId()
 	{
 		return UnitData.CosmeticMountDisplayID;
 	}
 
-	Player GetControllingPlayer()
+    private Player GetControllingPlayer()
 	{
 		var guid = CharmerOrOwnerGUID;
 
@@ -4677,12 +4677,12 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	void StartReactiveTimer(ReactiveType reactive)
+    private void StartReactiveTimer(ReactiveType reactive)
 	{
 		_reactiveTimer[reactive] = 4000;
 	}
 
-	void DealMeleeDamage(CalcDamageInfo damageInfo, bool durabilityLoss)
+    private void DealMeleeDamage(CalcDamageInfo damageInfo, bool durabilityLoss)
 	{
 		var victim = damageInfo.Target;
 
@@ -4830,7 +4830,7 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	void TriggerOnHealthChangeAuras(long oldVal, long newVal)
+    private void TriggerOnHealthChangeAuras(long oldVal, long newVal)
 	{
 		foreach (var effect in GetAuraEffectsByType(AuraType.TriggerSpellOnHealthPct))
 		{
@@ -4858,7 +4858,7 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	void UpdateReactives(uint p_time)
+    private void UpdateReactives(uint p_time)
 	{
 		for (ReactiveType reactive = 0; reactive < ReactiveType.Max; ++reactive)
 		{
@@ -4890,7 +4890,7 @@ public partial class Unit : WorldObject
 		}
 	}
 
-	void GainSpellComboPoints(sbyte count)
+    private void GainSpellComboPoints(sbyte count)
 	{
 		if (count == 0)
 			return;
@@ -4905,7 +4905,7 @@ public partial class Unit : WorldObject
 		SetPower(PowerType.ComboPoints, cp);
 	}
 
-	static double CalcSpellResistedDamage(Unit attacker, Unit victim, double damage, SpellSchoolMask schoolMask, SpellInfo spellInfo)
+    private static double CalcSpellResistedDamage(Unit attacker, Unit victim, double damage, SpellSchoolMask schoolMask, SpellInfo spellInfo)
 	{
 		// Magic damage, check for resists
 		if (!Convert.ToBoolean(schoolMask & SpellSchoolMask.Magic))
@@ -4968,7 +4968,7 @@ public partial class Unit : WorldObject
 		return damageResisted;
 	}
 
-	static double CalculateAverageResistReduction(WorldObject caster, SpellSchoolMask schoolMask, Unit victim, SpellInfo spellInfo = null)
+    private static double CalculateAverageResistReduction(WorldObject caster, SpellSchoolMask schoolMask, Unit victim, SpellInfo spellInfo = null)
 	{
 		double victimResistance = victim.GetResistance(schoolMask);
 
@@ -5019,7 +5019,7 @@ public partial class Unit : WorldObject
 		return victimResistance / (victimResistance + resistanceConstant);
 	}
 
-	bool IsBlockCritical()
+    private bool IsBlockCritical()
 	{
 		if (RandomHelper.randChance(GetTotalAuraModifier(AuraType.ModBlockCritChance)))
 			return true;

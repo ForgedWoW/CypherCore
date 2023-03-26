@@ -13,10 +13,10 @@ public class ThreatReference : IComparable<ThreatReference>
 	public ThreatManager _mgr;
 	public OnlineState Online;
 	public int TempModifier; // Temporary effects (auras with SPELL_AURA_MOD_TOTAL_THREAT) - set from victim's threatmanager in ThreatManager::UpdateMyTempModifiers
-	readonly Creature _owner;
-	readonly Unit _victim;
-	double _baseAmount;
-	TauntState _taunted;
+    private readonly Creature _owner;
+    private readonly Unit _victim;
+    private double _baseAmount;
+    private TauntState _taunted;
 
 	public bool ShouldBeOffline
 	{

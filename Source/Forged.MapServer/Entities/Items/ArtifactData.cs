@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Entities.Items;
 
-class ArtifactData
+internal class ArtifactData
 {
 	public ulong Xp;
 	public uint ArtifactAppearanceId;

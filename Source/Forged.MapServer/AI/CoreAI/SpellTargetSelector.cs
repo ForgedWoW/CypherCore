@@ -11,8 +11,8 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class SpellTargetSelector : ICheck<Unit>
 {
-	readonly Unit _caster;
-	readonly SpellInfo _spellInfo;
+    private readonly Unit _caster;
+    private readonly SpellInfo _spellInfo;
 
 	public SpellTargetSelector(Unit caster, uint spellId)
 	{

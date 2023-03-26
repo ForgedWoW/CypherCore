@@ -13,10 +13,10 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class Trainer
 {
-	readonly uint _id;
-	readonly TrainerType _type;
-	readonly List<TrainerSpell> _spells;
-	readonly string[] _greeting = new string[(int)Locale.Total];
+    private readonly uint _id;
+    private readonly TrainerType _type;
+    private readonly List<TrainerSpell> _spells;
+    private readonly string[] _greeting = new string[(int)Locale.Total];
 
 	public Trainer(uint id, TrainerType type, string greeting, List<TrainerSpell> spells)
 	{
@@ -135,12 +135,12 @@ public class Trainer
 		_greeting[(int)locale] = greeting;
 	}
 
-	TrainerSpell GetSpell(uint spellId)
+    private TrainerSpell GetSpell(uint spellId)
 	{
 		return _spells.Find(trainerSpell => trainerSpell.SpellId == spellId);
 	}
 
-	bool CanTeachSpell(Player player, TrainerSpell trainerSpell)
+    private bool CanTeachSpell(Player player, TrainerSpell trainerSpell)
 	{
 		var state = GetSpellState(player, trainerSpell);
 
@@ -166,7 +166,7 @@ public class Trainer
 		return true;
 	}
 
-	TrainerSpellState GetSpellState(Player player, TrainerSpell trainerSpell)
+    private TrainerSpellState GetSpellState(Player player, TrainerSpell trainerSpell)
 	{
 		if (player.HasSpell(trainerSpell.SpellId))
 			return TrainerSpellState.Known;
@@ -208,7 +208,7 @@ public class Trainer
 		return TrainerSpellState.Available;
 	}
 
-	void SendTeachFailure(Creature npc, Player player, uint spellId, TrainerFailReason reason)
+    private void SendTeachFailure(Creature npc, Player player, uint spellId, TrainerFailReason reason)
 	{
 		TrainerBuyFailed trainerBuyFailed = new()
 		{
@@ -220,7 +220,7 @@ public class Trainer
 		player.SendPacket(trainerBuyFailed);
 	}
 
-	string GetGreeting(Locale locale)
+    private string GetGreeting(Locale locale)
 	{
 		if (_greeting[(int)locale].IsEmpty())
 			return _greeting[(int)Locale.enUS];

@@ -9,7 +9,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Globals;
 
-class ItemSpecStats
+internal class ItemSpecStats
 {
     public uint ItemType;
     public ItemSpecStat[] ItemSpecStatTypes = new ItemSpecStat[ItemConst.MaxStats];
@@ -189,7 +189,7 @@ class ItemSpecStats
                 AddModStat(sparse.StatModifierBonusStat[i]);
     }
 
-    void AddStat(ItemSpecStat statType)
+    private void AddStat(ItemSpecStat statType)
     {
         if (ItemSpecStatCount >= ItemConst.MaxStats)
             return;
@@ -201,7 +201,7 @@ class ItemSpecStats
         ItemSpecStatTypes[ItemSpecStatCount++] = statType;
     }
 
-    void AddModStat(int itemStatType)
+    private void AddModStat(int itemStatType)
     {
         switch ((ItemModType)itemStatType)
         {

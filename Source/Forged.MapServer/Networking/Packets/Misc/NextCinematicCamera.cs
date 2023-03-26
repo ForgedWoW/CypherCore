@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class NextCinematicCamera : ClientPacket
+internal class NextCinematicCamera : ClientPacket
 {
 	public NextCinematicCamera(WorldPacket packet) : base(packet) { }
 

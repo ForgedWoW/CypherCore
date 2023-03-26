@@ -8,7 +8,7 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SendUnlearnSpells : ServerPacket
 {
-	readonly List<uint> Spells = new();
+    private readonly List<uint> Spells = new();
 
 	public SendUnlearnSpells() : base(ServerOpcodes.SendUnlearnSpells, ConnectionType.Instance) { }
 

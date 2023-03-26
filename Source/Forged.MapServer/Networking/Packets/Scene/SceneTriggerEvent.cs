@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Scene;
 
-class SceneTriggerEvent : ClientPacket
+internal class SceneTriggerEvent : ClientPacket
 {
 	public uint SceneInstanceID;
 	public string _Event;

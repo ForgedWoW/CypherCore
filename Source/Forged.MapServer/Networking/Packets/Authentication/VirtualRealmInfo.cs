@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-struct VirtualRealmInfo
+internal struct VirtualRealmInfo
 {
 	public VirtualRealmInfo(uint realmAddress, bool isHomeRealm, bool isInternalRealm, string realmNameActual, string realmNameNormalized)
 	{

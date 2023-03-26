@@ -6,9 +6,9 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class AllFriendlyUnitsInGrid : ICheck<Unit>
+internal class AllFriendlyUnitsInGrid : ICheck<Unit>
 {
-	readonly Unit _unit;
+    private readonly Unit _unit;
 
 	public AllFriendlyUnitsInGrid(Unit obj)
 	{

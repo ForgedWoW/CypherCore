@@ -9,13 +9,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-class ChannelSayBuilder : MessageBuilder
+internal class ChannelSayBuilder : MessageBuilder
 {
-	readonly Channel _source;
-	readonly Language _lang;
-	readonly string _what;
-	readonly ObjectGuid _guid;
-	readonly ObjectGuid _channelGuid;
+    private readonly Channel _source;
+    private readonly Language _lang;
+    private readonly string _what;
+    private readonly ObjectGuid _guid;
+    private readonly ObjectGuid _channelGuid;
 
 	public ChannelSayBuilder(Channel source, Language lang, string what, ObjectGuid guid, ObjectGuid channelGuid)
 	{

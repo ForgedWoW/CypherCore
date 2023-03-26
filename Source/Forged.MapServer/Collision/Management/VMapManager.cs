@@ -21,12 +21,12 @@ public class VMapManager
     private readonly DB2Manager _db2Manager;
     public string VMapPath { get; }
 
-	readonly Dictionary<string, ManagedModel> _loadedModelFiles = new();
-	readonly Dictionary<uint, StaticMapTree> _instanceMapTrees = new();
-	readonly Dictionary<uint, uint> _parentMapData = new();
-	readonly object _loadedModelFilesLock = new();
-	bool _enableLineOfSightCalc;
-	bool _enableHeightCalc;
+    private readonly Dictionary<string, ManagedModel> _loadedModelFiles = new();
+    private readonly Dictionary<uint, StaticMapTree> _instanceMapTrees = new();
+    private readonly Dictionary<uint, uint> _parentMapData = new();
+    private readonly object _loadedModelFilesLock = new();
+    private bool _enableLineOfSightCalc;
+    private bool _enableHeightCalc;
 
 	public bool IsLineOfSightCalcEnabled => _enableLineOfSightCalc;
 
@@ -337,7 +337,7 @@ public class VMapManager
 		_enableHeightCalc = pVal;
 	}
 
-	Vector3 ConvertPositionToInternalRep(float x, float y, float z)
+    private Vector3 ConvertPositionToInternalRep(float x, float y, float z)
 	{
 		Vector3 pos = new();
 		var mid = 0.5f * 64.0f * 533.33333333f;

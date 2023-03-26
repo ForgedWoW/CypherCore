@@ -7,11 +7,11 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
+internal class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
 {
-	readonly Creature _me;
-	readonly bool _force;
-	float _range;
+    private readonly Creature _me;
+    private readonly bool _force;
+    private float _range;
 
 	public NearestHostileUnitInAttackDistanceCheck(Creature creature, float dist = 0)
 	{

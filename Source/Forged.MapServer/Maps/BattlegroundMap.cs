@@ -10,7 +10,7 @@ namespace Forged.MapServer.Maps;
 
 public class BattlegroundMap : Map
 {
-	Battleground _bg;
+    private Battleground _bg;
 
 	public BattlegroundMap(uint id, uint expiry, uint InstanceId, Difficulty spawnMode)
 		: base(id, expiry, InstanceId, spawnMode)

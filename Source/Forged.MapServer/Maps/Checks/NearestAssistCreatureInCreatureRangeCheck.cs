@@ -7,11 +7,11 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class NearestAssistCreatureInCreatureRangeCheck : ICheck<Creature>
+internal class NearestAssistCreatureInCreatureRangeCheck : ICheck<Creature>
 {
-	readonly Creature _obj;
-	readonly Unit _enemy;
-	float _range;
+    private readonly Creature _obj;
+    private readonly Unit _enemy;
+    private float _range;
 
 	public NearestAssistCreatureInCreatureRangeCheck(Creature obj, Unit enemy, float range)
 	{

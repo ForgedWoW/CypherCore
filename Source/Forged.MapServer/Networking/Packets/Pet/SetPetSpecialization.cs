@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class SetPetSpecialization : ServerPacket
+internal class SetPetSpecialization : ServerPacket
 {
 	public ushort SpecID;
 	public SetPetSpecialization() : base(ServerOpcodes.SetPetSpecialization) { }

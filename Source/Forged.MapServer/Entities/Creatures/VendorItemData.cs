@@ -8,7 +8,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class VendorItemData
 {
-	readonly List<VendorItem> _items = new();
+    private readonly List<VendorItem> _items = new();
 
 	public VendorItem GetItem(uint slot)
 	{

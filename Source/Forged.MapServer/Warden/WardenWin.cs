@@ -17,16 +17,16 @@ using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Warden;
 
-class WardenWin : Warden
+internal class WardenWin : Warden
 {
 	// GUILD is the shortest string that has no client validation (RAID only sends if in a raid group)
-	static readonly string _luaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
-	static readonly string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
-	static readonly string _luaEvalPostfix = ",'GUILD')end";
-	readonly CategoryCheck[] _checks = new CategoryCheck[(int)WardenCheckCategory.Max];
+    private static readonly string _luaEvalPrefix = "local S,T,R=SendAddonMessage,function()";
+    private static readonly string _luaEvalMidfix = " end R=S and T()if R then S('_TW',";
+    private static readonly string _luaEvalPostfix = ",'GUILD')end";
+    private readonly CategoryCheck[] _checks = new CategoryCheck[(int)WardenCheckCategory.Max];
 
-	uint _serverTicks;
-	List<ushort> _currentChecks = new();
+    private uint _serverTicks;
+    private List<ushort> _currentChecks = new();
 
 	public WardenWin()
 	{
@@ -499,7 +499,7 @@ class WardenWin : Warden
 		CheckTimer = (holdOff < 1 ? 1 : holdOff) * Time.InMilliseconds;
 	}
 
-	static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch
+    private static byte GetCheckPacketBaseSize(WardenCheckType type) => type switch
 	{
 		WardenCheckType.Driver  => 1,
 		WardenCheckType.LuaEval => (byte)(1 + _luaEvalPrefix.Length - 1 + _luaEvalMidfix.Length - 1 + 4 + _luaEvalPostfix.Length - 1),
@@ -511,7 +511,7 @@ class WardenWin : Warden
 		_                       => 0,
 	};
 
-	static ushort GetCheckPacketSize(WardenCheck check)
+    private static ushort GetCheckPacketSize(WardenCheck check)
 	{
 		var size = 1 + GetCheckPacketBaseSize(check.Type); // 1 byte check type
 

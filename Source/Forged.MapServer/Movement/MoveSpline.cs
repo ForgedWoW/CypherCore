@@ -317,7 +317,7 @@ public class MoveSpline
 		return anim_tier != null ? (AnimTier)anim_tier.AnimTier : null;
 	}
 
-	void InitSpline(MoveSplineInitArgs args)
+    private void InitSpline(MoveSplineInitArgs args)
 	{
 		var modes = new EvaluationMode[2]
 		{
@@ -360,19 +360,19 @@ public class MoveSpline
 		point_Idx = spline.First();
 	}
 
-	void _Finalize()
+    private void _Finalize()
 	{
 		splineflags.SetUnsetFlag(SplineFlag.Done);
 		point_Idx = spline.Last() - 1;
 		time_passed = Duration();
 	}
 
-	float MSToSec(uint ms)
+    private float MSToSec(uint ms)
 	{
 		return ms / 1000.0f;
 	}
 
-	UpdateResult UpdateState(ref int ms_time_diff)
+    private UpdateResult UpdateState(ref int ms_time_diff)
 	{
 		lock (spline)
 		{
@@ -453,12 +453,12 @@ public class MoveSpline
 		}
 	}
 
-	int NextTimestamp()
+    private int NextTimestamp()
 	{
 		return spline.Length(point_Idx + 1);
 	}
 
-	int SegmentTimeElapsed()
+    private int SegmentTimeElapsed()
 	{
 		return NextTimestamp() - time_passed;
 	}
@@ -484,7 +484,7 @@ public class MoveSpline
 
 	public class FallInitializer : IInitializer<int>
 	{
-		readonly float startElevation;
+        private readonly float startElevation;
 
 		public FallInitializer(float startelevation)
 		{
@@ -496,7 +496,7 @@ public class MoveSpline
 			return (int)(ComputeFallTime(startElevation - s.GetPoint(i + 1).Z, false) * 1000.0f);
 		}
 
-		float ComputeFallTime(float path_length, bool isSafeFall)
+        private float ComputeFallTime(float path_length, bool isSafeFall)
 		{
 			if (path_length < 0.0f)
 				return 0.0f;

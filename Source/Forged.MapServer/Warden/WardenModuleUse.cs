@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Warden;
 
-class WardenModuleUse
+internal class WardenModuleUse
 {
 	public WardenOpcodes Command;
 	public byte[] ModuleId = new byte[16];

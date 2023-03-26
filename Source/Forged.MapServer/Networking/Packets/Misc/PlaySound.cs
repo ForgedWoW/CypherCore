@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class PlaySound : ServerPacket
+internal class PlaySound : ServerPacket
 {
 	public ObjectGuid SourceObjectGuid;
 	public uint SoundKitID;

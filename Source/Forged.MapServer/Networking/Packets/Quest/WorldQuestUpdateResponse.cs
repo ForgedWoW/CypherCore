@@ -6,9 +6,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class WorldQuestUpdateResponse : ServerPacket
+internal class WorldQuestUpdateResponse : ServerPacket
 {
-	readonly List<WorldQuestUpdateInfo> WorldQuestUpdates = new();
+    private readonly List<WorldQuestUpdateInfo> WorldQuestUpdates = new();
 	public WorldQuestUpdateResponse() : base(ServerOpcodes.WorldQuestUpdateResponse, ConnectionType.Instance) { }
 
 	public override void Write()

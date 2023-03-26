@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Combat;
 
-class PvPCredit : ServerPacket
+internal class PvPCredit : ServerPacket
 {
 	public int OriginalHonor;
 	public int Honor;

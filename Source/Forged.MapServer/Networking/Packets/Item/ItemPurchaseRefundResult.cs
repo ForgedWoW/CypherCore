@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemPurchaseRefundResult : ServerPacket
+internal class ItemPurchaseRefundResult : ServerPacket
 {
 	public byte Result;
 	public ObjectGuid ItemGUID;

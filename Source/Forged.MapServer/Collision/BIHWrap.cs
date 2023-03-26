@@ -10,11 +10,11 @@ namespace Forged.MapServer.Collision;
 
 public class BIHWrap<T> where T : IModel
 {
-	readonly BIH _tree = new();
-	readonly List<T> _objects = new();
-	readonly Dictionary<T, int> _obj2Idx = new();
-	readonly HashSet<T> _objectsToPush = new();
-	int _unbalancedTimes;
+    private readonly BIH _tree = new();
+    private readonly List<T> _objects = new();
+    private readonly Dictionary<T, int> _obj2Idx = new();
+    private readonly HashSet<T> _objectsToPush = new();
+    private int _unbalancedTimes;
 
 	public void Insert(T obj)
 	{
@@ -77,9 +77,9 @@ public class BIHWrap<T> where T : IModel
 
 	public class MDLCallback : WorkerCallback
 	{
-		readonly T[] objects;
-		readonly WorkerCallback _callback;
-		readonly int objects_size;
+        private readonly T[] objects;
+        private readonly WorkerCallback _callback;
+        private readonly int objects_size;
 
 		public MDLCallback(WorkerCallback callback, T[] objects_array, int size)
 		{

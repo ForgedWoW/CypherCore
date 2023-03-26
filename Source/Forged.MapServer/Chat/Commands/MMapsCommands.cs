@@ -16,10 +16,10 @@ using Framework.IO;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("mmap")]
-class MMapsCommands
+internal class MMapsCommands
 {
 	[Command("path", RBACPermissions.CommandMmapPath)]
-	static bool HandleMmapPathCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleMmapPathCommand(CommandHandler handler, StringArguments args)
 	{
 		if (Global.MMapMgr.GetNavMesh(handler.Player.Location.MapId) == null)
 		{
@@ -85,7 +85,7 @@ class MMapsCommands
 	}
 
 	[Command("loc", RBACPermissions.CommandMmapLoc)]
-	static bool HandleMmapLocCommand(CommandHandler handler)
+    private static bool HandleMmapLocCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage("mmap tileloc:");
 
@@ -164,7 +164,7 @@ class MMapsCommands
 	}
 
 	[Command("loadedtiles", RBACPermissions.CommandMmapLoadedtiles)]
-	static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
+    private static bool HandleMmapLoadedTilesCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 		var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
@@ -194,7 +194,7 @@ class MMapsCommands
 	}
 
 	[Command("stats", RBACPermissions.CommandMmapStats)]
-	static bool HandleMmapStatsCommand(CommandHandler handler)
+    private static bool HandleMmapStatsCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 		var terrainMapId = PhasingHandler.GetTerrainMapId(player.PhaseShift, player.Location.MapId, player.Map.Terrain, player.Location.X, player.Location.Y);
@@ -243,7 +243,7 @@ class MMapsCommands
 	}
 
 	[Command("testarea", RBACPermissions.CommandMmapTestarea)]
-	static bool HandleMmapTestArea(CommandHandler handler)
+    private static bool HandleMmapTestArea(CommandHandler handler)
 	{
 		var radius = 40.0f;
 		WorldObject obj = handler.Player;

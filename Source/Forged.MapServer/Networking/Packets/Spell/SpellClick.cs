@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SpellClick : ClientPacket
+internal class SpellClick : ClientPacket
 {
 	public ObjectGuid SpellClickUnitGuid;
 	public bool TryAutoDismount;

@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class MasterLootItem : ClientPacket
+internal class MasterLootItem : ClientPacket
 {
 	public Array<LootRequest> Loot = new(1000);
 	public ObjectGuid Target;

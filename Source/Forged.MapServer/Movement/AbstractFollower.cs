@@ -7,7 +7,7 @@ namespace Forged.MapServer.Movement;
 
 public class AbstractFollower
 {
-	Unit _target;
+    private Unit _target;
 
 	public AbstractFollower(Unit target = null)
 	{

@@ -1843,12 +1843,12 @@ public partial class Unit
 		broadcastSource.SendMessageToSet(moveUpdateTeleport, false);
 	}
 
-	void PropagateSpeedChange()
+    private void PropagateSpeedChange()
 	{
 		MotionMaster.PropagateSpeedChange();
 	}
 
-	void SendMoveKnockBack(Player player, float speedXY, float speedZ, float vcos, float vsin)
+    private void SendMoveKnockBack(Player player, float speedXY, float speedZ, float vcos, float vsin)
 	{
 		MoveKnockBack moveKnockBack = new()
 		{
@@ -1862,7 +1862,7 @@ public partial class Unit
 		player.SendPacket(moveKnockBack);
 	}
 
-	bool SetCollision(bool disable)
+    private bool SetCollision(bool disable)
 	{
 		if (disable == HasUnitMovementFlag(MovementFlag.DisableCollision))
 			return false;
@@ -1904,7 +1904,7 @@ public partial class Unit
 		return true;
 	}
 
-	void UpdateOrientation(float orientation)
+    private void UpdateOrientation(float orientation)
 	{
 		Location.Orientation = orientation;
 
@@ -1913,7 +1913,7 @@ public partial class Unit
 	}
 
 	//! Only server-side height update, does not broadcast to client
-	void UpdateHeight(float newZ)
+    private void UpdateHeight(float newZ)
 	{
 		Location.Relocate(Location.X, Location.Y, newZ);
 
@@ -1921,7 +1921,7 @@ public partial class Unit
 			VehicleKit1.RelocatePassengers();
 	}
 
-	void ApplyControlStatesIfNeeded()
+    private void ApplyControlStatesIfNeeded()
 	{
 		// Unit States might have been already cleared but auras still present. I need to check with HasAuraType
 		if (HasUnitState(UnitState.Stunned) || HasAuraType(AuraType.ModStun) || HasAuraType(AuraType.ModStunDisableGravity))
@@ -1937,7 +1937,7 @@ public partial class Unit
 			SetFeared(true);
 	}
 
-	void SetStunned(bool apply)
+    private void SetStunned(bool apply)
 	{
 		if (apply)
 		{
@@ -1969,7 +1969,7 @@ public partial class Unit
 		}
 	}
 
-	void SetFeared(bool apply)
+    private void SetFeared(bool apply)
 	{
 		if (apply)
 		{
@@ -2006,7 +2006,7 @@ public partial class Unit
 				PlayerMovingMe.SetClientControl(this, !apply);
 	}
 
-	void SetConfused(bool apply)
+    private void SetConfused(bool apply)
 	{
 		if (apply)
 		{
@@ -2030,7 +2030,7 @@ public partial class Unit
 				PlayerMovingMe.SetClientControl(this, !apply);
 	}
 
-	void SendSetVehicleRecId(uint vehicleId)
+    private void SendSetVehicleRecId(uint vehicleId)
 	{
 		var player = AsPlayer;
 
@@ -2055,7 +2055,7 @@ public partial class Unit
 		SendMessageToSet(setVehicleRec, true);
 	}
 
-	void ApplyMovementForce(ObjectGuid id, Vector3 origin, float magnitude, MovementForceType type, Vector3 direction, ObjectGuid transportGuid = default)
+    private void ApplyMovementForce(ObjectGuid id, Vector3 origin, float magnitude, MovementForceType type, Vector3 direction, ObjectGuid transportGuid = default)
 	{
 		if (_movementForces == null)
 			_movementForces = new MovementForces();
@@ -2101,7 +2101,7 @@ public partial class Unit
 		}
 	}
 
-	void RemoveMovementForce(ObjectGuid id)
+    private void RemoveMovementForce(ObjectGuid id)
 	{
 		if (_movementForces == null)
 			return;
@@ -2137,7 +2137,7 @@ public partial class Unit
 			_movementForces = new MovementForces();
 	}
 
-	void SetPlayHoverAnim(bool enable)
+    private void SetPlayHoverAnim(bool enable)
 	{
 		_playHoverAnim = enable;
 
@@ -2150,7 +2150,7 @@ public partial class Unit
 		SendMessageToSet(data, true);
 	}
 
-	Player GetPlayerBeingMoved()
+    private Player GetPlayerBeingMoved()
 	{
 		var mover = UnitBeingMoved;
 
@@ -2160,12 +2160,12 @@ public partial class Unit
 		return null;
 	}
 
-	void RemoveUnitMovementFlag2(MovementFlag2 f)
+    private void RemoveUnitMovementFlag2(MovementFlag2 f)
 	{
 		MovementInfo.RemoveMovementFlag2(f);
 	}
 
-	void UpdateSplineMovement(uint diff)
+    private void UpdateSplineMovement(uint diff)
 	{
 		if (MoveSpline.Finalized())
 			return;
@@ -2204,7 +2204,7 @@ public partial class Unit
 		UpdateSplinePosition();
 	}
 
-	void UpdateSplinePosition()
+    private void UpdateSplinePosition()
 	{
 		var loc = new Position(MoveSpline.ComputePosition());
 
@@ -2226,7 +2226,7 @@ public partial class Unit
 		UpdatePosition(loc);
 	}
 
-	void InterruptMovementBasedAuras()
+    private void InterruptMovementBasedAuras()
 	{
 		// TODO: Check if orientation transport offset changed instead of only global orientation
 		if (_positionUpdateInfo.Turned)

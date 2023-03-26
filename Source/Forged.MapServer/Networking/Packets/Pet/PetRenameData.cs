@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-struct PetRenameData
+internal struct PetRenameData
 {
 	public ObjectGuid PetGUID;
 	public int PetNumber;

@@ -10,9 +10,9 @@ namespace Forged.MapServer.Server;
 
 public class DosProtection
 {
-	readonly Policy _policy;
-	readonly WorldSession Session;
-	readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
+    private readonly Policy _policy;
+    private readonly WorldSession Session;
+    private readonly Dictionary<uint, PacketCounter> _PacketThrottlingMap = new();
 
 	public DosProtection(WorldSession s)
 	{
@@ -87,7 +87,7 @@ public class DosProtection
 		return true;
 	}
 
-	enum Policy
+    private enum Policy
 	{
 		Log,
 		Kick,

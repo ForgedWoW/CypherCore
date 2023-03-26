@@ -1385,7 +1385,7 @@ public sealed class ConditionManager
 		return !condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr);
 	}
 
-	bool AddToLootTemplate(Condition cond, LootTemplate loot)
+    private bool AddToLootTemplate(Condition cond, LootTemplate loot)
 	{
 		if (loot == null)
 		{
@@ -1402,7 +1402,7 @@ public sealed class ConditionManager
 		return false;
 	}
 
-	bool AddToGossipMenus(Condition cond)
+    private bool AddToGossipMenus(Condition cond)
 	{
 		var pMenuBounds = _objectManager.GetGossipMenusMapBounds(cond.SourceGroup);
 
@@ -1419,7 +1419,7 @@ public sealed class ConditionManager
 		return false;
 	}
 
-	bool AddToGossipMenuItems(Condition cond)
+    private bool AddToGossipMenuItems(Condition cond)
 	{
 		var pMenuItemBounds = _objectManager.GetGossipMenuItemsMapBounds(cond.SourceGroup);
 
@@ -1436,7 +1436,7 @@ public sealed class ConditionManager
 		return false;
 	}
 
-	bool AddToSpellImplicitTargetConditions(Condition cond)
+    private bool AddToSpellImplicitTargetConditions(Condition cond)
 	{
 		_spellManager.ForEachSpellInfoDifficulty((uint)cond.SourceEntry,
 													spellInfo =>
@@ -1556,7 +1556,7 @@ public sealed class ConditionManager
 		return true;
 	}
 
-	bool AddToPhases(Condition cond)
+    private bool AddToPhases(Condition cond)
 	{
 		if (cond.SourceEntry == 0)
 		{
@@ -1601,7 +1601,7 @@ public sealed class ConditionManager
 		return false;
 	}
 
-	bool IsSourceTypeValid(Condition cond)
+    private bool IsSourceTypeValid(Condition cond)
 	{
 		switch (cond.SourceType)
 		{
@@ -2164,7 +2164,7 @@ public sealed class ConditionManager
 		return true;
 	}
 
-	bool IsConditionTypeValid(Condition cond)
+    private bool IsConditionTypeValid(Condition cond)
 	{
 		switch (cond.ConditionType)
 		{
@@ -2863,12 +2863,12 @@ public sealed class ConditionManager
 		return true;
 	}
 
-	void LogUselessConditionValue(Condition cond, byte index, uint value)
+    private void LogUselessConditionValue(Condition cond, byte index, uint value)
 	{
 		Log.Logger.Debug("{0} has useless data in ConditionValue{1} ({2})!", cond.ToString(true), index, value);
 	}
 
-	void Clean()
+    private void Clean()
 	{
 		_conditionReferenceStorage.Clear();
 
@@ -2893,7 +2893,7 @@ public sealed class ConditionManager
 		_objectVisibilityConditionStorage.Clear();
 	}
 
-	bool PlayerConditionCompare(int comparisonType, int value1, int value2)
+    private bool PlayerConditionCompare(int comparisonType, int value1, int value2)
 	{
 		switch (comparisonType)
 		{
@@ -2914,7 +2914,7 @@ public sealed class ConditionManager
 		return false;
 	}
 
-	bool PlayerConditionLogic(uint logic, bool[] results)
+    private bool PlayerConditionLogic(uint logic, bool[] results)
 	{
 		for (var i = 0; i < results.Length; ++i)
 			if (Convert.ToBoolean((logic >> (16 + i)) & 1))
@@ -2938,7 +2938,7 @@ public sealed class ConditionManager
 		return result;
 	}
 
-	int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
+    private int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
 	{
 		switch (variable)
 		{
@@ -3247,7 +3247,7 @@ public sealed class ConditionManager
 		return 0;
 	}
 
-	int EvalSingleValue(ByteBuffer buffer, Player player)
+    private int EvalSingleValue(ByteBuffer buffer, Player player)
 	{
 		var valueType = (WorldStateExpressionValueType)buffer.ReadUInt8();
 		var value = 0;
@@ -3285,7 +3285,7 @@ public sealed class ConditionManager
 		return value;
 	}
 
-	int WorldStateExpressionFunction(WorldStateExpressionFunctions functionType, Player player, int arg1, int arg2)
+    private int WorldStateExpressionFunction(WorldStateExpressionFunctions functionType, Player player, int arg1, int arg2)
 	{
 		switch (functionType)
 		{
@@ -3375,7 +3375,7 @@ public sealed class ConditionManager
 		}
 	}
 
-	int EvalValue(ByteBuffer buffer, Player player)
+    private int EvalValue(ByteBuffer buffer, Player player)
 	{
 		var leftValue = EvalSingleValue(buffer, player);
 
@@ -3403,7 +3403,7 @@ public sealed class ConditionManager
 		return leftValue;
 	}
 
-	bool EvalRelOp(ByteBuffer buffer, Player player)
+    private bool EvalRelOp(ByteBuffer buffer, Player player)
 	{
 		var leftValue = EvalValue(buffer, player);
 

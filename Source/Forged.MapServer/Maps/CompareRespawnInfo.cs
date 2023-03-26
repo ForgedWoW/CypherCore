@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Maps;
 
-struct CompareRespawnInfo : IComparer<RespawnInfo>
+internal struct CompareRespawnInfo : IComparer<RespawnInfo>
 {
 	public int Compare(RespawnInfo a, RespawnInfo b)
 	{

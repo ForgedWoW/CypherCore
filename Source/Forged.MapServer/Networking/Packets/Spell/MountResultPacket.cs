@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class MountResultPacket : ServerPacket
+internal class MountResultPacket : ServerPacket
 {
 	public uint Result;
 	public MountResultPacket() : base(ServerOpcodes.MountResult, ConnectionType.Instance) { }

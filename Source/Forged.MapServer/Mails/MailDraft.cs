@@ -15,14 +15,14 @@ namespace Forged.MapServer.Mails;
 
 public class MailDraft
 {
-	readonly uint m_mailTemplateId;
-	readonly string m_subject;
-	readonly string m_body;
-	readonly Dictionary<ulong, Item> m_items = new();
-	bool m_mailTemplateItemsNeed;
+    private readonly uint m_mailTemplateId;
+    private readonly string m_subject;
+    private readonly string m_body;
+    private readonly Dictionary<ulong, Item> m_items = new();
+    private bool m_mailTemplateItemsNeed;
 
-	ulong m_money;
-	ulong m_COD;
+    private ulong m_money;
+    private ulong m_COD;
 
 	public MailDraft(uint mailTemplateId, bool need_items = true)
 	{
@@ -206,7 +206,7 @@ public class MailDraft
 		return this;
 	}
 
-	void PrepareItems(Player receiver, SQLTransaction trans)
+    private void PrepareItems(Player receiver, SQLTransaction trans)
 	{
 		if (m_mailTemplateId == 0 || !m_mailTemplateItemsNeed)
 			return;
@@ -239,7 +239,7 @@ public class MailDraft
 		}
 	}
 
-	void DeleteIncludedItems(SQLTransaction trans, bool inDB = false)
+    private void DeleteIncludedItems(SQLTransaction trans, bool inDB = false)
 	{
 		foreach (var item in m_items.Values)
 			if (inDB)
@@ -248,27 +248,27 @@ public class MailDraft
 		m_items.Clear();
 	}
 
-	uint GetMailTemplateId()
+    private uint GetMailTemplateId()
 	{
 		return m_mailTemplateId;
 	}
 
-	string GetSubject()
+    private string GetSubject()
 	{
 		return m_subject;
 	}
 
-	ulong GetMoney()
+    private ulong GetMoney()
 	{
 		return m_money;
 	}
 
-	ulong GetCOD()
+    private ulong GetCOD()
 	{
 		return m_COD;
 	}
 
-	string GetBody()
+    private string GetBody()
 	{
 		return m_body;
 	}

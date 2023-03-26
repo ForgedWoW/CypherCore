@@ -13,13 +13,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.OutdoorPVP.Zones;
 
-class HellfirePeninsulaPvP : OutdoorPvP
+internal class HellfirePeninsulaPvP : OutdoorPvP
 {
-	readonly ulong[] m_towerFlagSpawnIds = new ulong[(int)OutdoorPvPHPTowerType.Num];
+    private readonly ulong[] m_towerFlagSpawnIds = new ulong[(int)OutdoorPvPHPTowerType.Num];
 
 	// how many towers are controlled
-	uint m_AllianceTowersControlled;
-	uint m_HordeTowersControlled;
+    private uint m_AllianceTowersControlled;
+    private uint m_HordeTowersControlled;
 
 	public HellfirePeninsulaPvP(Map map) : base(map)
 	{
@@ -186,10 +186,10 @@ class HellfirePeninsulaPvP : OutdoorPvP
 	}
 }
 
-class HellfirePeninsulaCapturePoint : OPvPCapturePoint
+internal class HellfirePeninsulaCapturePoint : OPvPCapturePoint
 {
-	readonly uint m_TowerType;
-	readonly ulong m_flagSpawnId;
+    private readonly uint m_TowerType;
+    private readonly ulong m_flagSpawnId;
 
 	public HellfirePeninsulaCapturePoint(OutdoorPvP pvp, OutdoorPvPHPTowerType type, GameObject go, ulong flagSpawnId) : base(pvp)
 	{
@@ -333,7 +333,7 @@ class HellfirePeninsulaCapturePoint : OPvPCapturePoint
 }
 
 [Script]
-class OutdoorPvP_hellfire_peninsula : ScriptObjectAutoAddDBBound, IOutdoorPvPGetOutdoorPvP
+internal class OutdoorPvP_hellfire_peninsula : ScriptObjectAutoAddDBBound, IOutdoorPvPGetOutdoorPvP
 {
 	public OutdoorPvP_hellfire_peninsula() : base("outdoorpvp_hp") { }
 
@@ -343,7 +343,7 @@ class OutdoorPvP_hellfire_peninsula : ScriptObjectAutoAddDBBound, IOutdoorPvPGet
 	}
 }
 
-struct HPConst
+internal struct HPConst
 {
 	public static uint[] LangCapture_A =
 	{
@@ -407,7 +407,7 @@ struct HPConst
 	};
 }
 
-struct DefenseMessages
+internal struct DefenseMessages
 {
 	public const uint OverlookTakenAlliance = 14841;   // '|cffffff00The Overlook has been taken by the Alliance!|r'
 	public const uint OverlookTakenHorde = 14842;      // '|cffffff00The Overlook has been taken by the Horde!|r'
@@ -417,7 +417,7 @@ struct DefenseMessages
 	public const uint BrokenHillTakenHorde = 14846;    // '|cffffff00Broken Hill has been taken by the Horde!|r'
 }
 
-struct OutdoorPvPHPSpells
+internal struct OutdoorPvPHPSpells
 {
 	public const uint AlliancePlayerKillReward = 32155;
 	public const uint HordePlayerKillReward = 32158;
@@ -425,7 +425,7 @@ struct OutdoorPvPHPSpells
 	public const uint HordeBuff = 32049;
 }
 
-enum OutdoorPvPHPTowerType
+internal enum OutdoorPvPHPTowerType
 {
 	BrokenHill = 0,
 	Overlook = 1,
@@ -433,7 +433,7 @@ enum OutdoorPvPHPTowerType
 	Num = 3
 }
 
-struct OutdoorPvPHPWorldStates
+internal struct OutdoorPvPHPWorldStates
 {
 	public const int Display_A = 0x9ba;
 	public const int Display_H = 0x9b9;

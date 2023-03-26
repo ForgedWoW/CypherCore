@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveUpdateApplyMovementForce : ServerPacket
+internal class MoveUpdateApplyMovementForce : ServerPacket
 {
 	public MovementInfo Status = new();
 	public MovementForce Force = new();

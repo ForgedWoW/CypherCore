@@ -145,9 +145,9 @@ public class AuctionPosting
 
 	public class Sorter : IComparer<AuctionPosting>
 	{
-		readonly Locale _locale;
-		readonly AuctionSortDef[] _sorts;
-		readonly int _sortCount;
+        private readonly Locale _locale;
+        private readonly AuctionSortDef[] _sorts;
+        private readonly int _sortCount;
 
 		public Sorter(Locale locale, AuctionSortDef[] sorts, int sortCount)
 		{
@@ -173,7 +173,7 @@ public class AuctionPosting
 			return left.Id.CompareTo(right.Id);
 		}
 
-		long CompareColumns(AuctionHouseSortOrder column, AuctionPosting left, AuctionPosting right)
+        private long CompareColumns(AuctionHouseSortOrder column, AuctionPosting left, AuctionPosting right)
 		{
 			switch (column)
 			{

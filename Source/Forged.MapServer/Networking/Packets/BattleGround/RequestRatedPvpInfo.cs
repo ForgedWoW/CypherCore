@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class RequestRatedPvpInfo : ClientPacket
+internal class RequestRatedPvpInfo : ClientPacket
 {
 	public RequestRatedPvpInfo(WorldPacket packet) : base(packet) { }
 

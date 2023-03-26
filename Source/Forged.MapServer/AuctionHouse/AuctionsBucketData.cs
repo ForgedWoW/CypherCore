@@ -72,9 +72,9 @@ public class AuctionsBucketData
 
 	public class Sorter : IComparer<AuctionsBucketData>
 	{
-		readonly Locale _locale;
-		readonly AuctionSortDef[] _sorts;
-		readonly int _sortCount;
+        private readonly Locale _locale;
+        private readonly AuctionSortDef[] _sorts;
+        private readonly int _sortCount;
 
 		public Sorter(Locale locale, AuctionSortDef[] sorts, int sortCount)
 		{
@@ -96,7 +96,7 @@ public class AuctionsBucketData
 			return left.Key != right.Key ? 1 : 0;
 		}
 
-		long CompareColumns(AuctionHouseSortOrder column, AuctionsBucketData left, AuctionsBucketData right)
+        private long CompareColumns(AuctionHouseSortOrder column, AuctionsBucketData left, AuctionsBucketData right)
 		{
 			switch (column)
 			{

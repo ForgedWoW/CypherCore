@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarEventInitialInviteInfo
+internal class CalendarEventInitialInviteInfo
 {
 	public ObjectGuid InviteGuid;
 	public byte Level = 100;

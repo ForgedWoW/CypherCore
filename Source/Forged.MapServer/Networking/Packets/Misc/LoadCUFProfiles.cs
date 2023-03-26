@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class LoadCUFProfiles : ServerPacket
+internal class LoadCUFProfiles : ServerPacket
 {
 	public List<CufProfile> CUFProfiles = new();
 	public LoadCUFProfiles() : base(ServerOpcodes.LoadCufProfiles, ConnectionType.Instance) { }

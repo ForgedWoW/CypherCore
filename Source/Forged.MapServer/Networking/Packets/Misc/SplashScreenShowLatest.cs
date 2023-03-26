@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SplashScreenShowLatest : ServerPacket
+internal class SplashScreenShowLatest : ServerPacket
 {
 	public uint UISplashScreenID;
 	public SplashScreenShowLatest() : base(ServerOpcodes.SplashScreenShowLatest, ConnectionType.Instance) { }

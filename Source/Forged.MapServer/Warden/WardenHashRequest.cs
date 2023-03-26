@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Warden;
 
-class WardenHashRequest
+internal class WardenHashRequest
 {
 	public WardenOpcodes Command;
 	public byte[] Seed = new byte[16];

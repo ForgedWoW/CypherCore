@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetJournalLockAcquired : ServerPacket
+internal class BattlePetJournalLockAcquired : ServerPacket
 {
 	public BattlePetJournalLockAcquired() : base(ServerOpcodes.BattlePetJournalLockAcquired) { }
 

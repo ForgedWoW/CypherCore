@@ -14,10 +14,10 @@ namespace Forged.MapServer.Scenarios;
 
 public class ScenarioManager : Singleton<ScenarioManager>
 {
-	readonly Dictionary<uint, ScenarioData> _scenarioData = new();
-	readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
-	readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
-	ScenarioManager() { }
+    private readonly Dictionary<uint, ScenarioData> _scenarioData = new();
+    private readonly MultiMap<uint, ScenarioPOI> _scenarioPOIStore = new();
+    private readonly Dictionary<Tuple<uint, byte>, ScenarioDBData> _scenarioDBData = new();
+    private ScenarioManager() { }
 
 	public InstanceScenario CreateInstanceScenario(InstanceMap map, int team)
 	{

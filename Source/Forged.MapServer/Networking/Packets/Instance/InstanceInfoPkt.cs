@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceInfoPkt : ServerPacket
+internal class InstanceInfoPkt : ServerPacket
 {
 	public List<InstanceLockPkt> LockList = new();
 	public InstanceInfoPkt() : base(ServerOpcodes.InstanceInfo) { }

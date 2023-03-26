@@ -13,8 +13,8 @@ namespace Forged.MapServer.World;
 
 public class WorldWorldTextBuilder : MessageBuilder
 {
-	readonly uint _iTextId;
-	readonly object[] _iArgs;
+    private readonly uint _iTextId;
+    private readonly object[] _iArgs;
 
 	public WorldWorldTextBuilder(uint textId, params object[] args)
 	{

@@ -12,7 +12,7 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 public class SummonList : List<ObjectGuid>
 {
-	readonly Creature _me;
+    private readonly Creature _me;
 
 	public SummonList(Creature creature)
 	{
@@ -116,7 +116,7 @@ public class SummonList : List<ObjectGuid>
 		return false;
 	}
 
-	void DoActionImpl(int action, List<ObjectGuid> summons)
+    private void DoActionImpl(int action, List<ObjectGuid> summons)
 	{
 		foreach (var guid in summons)
 		{

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class GroupNewLeader : ServerPacket
+internal class GroupNewLeader : ServerPacket
 {
 	public sbyte PartyIndex;
 	public string Name;

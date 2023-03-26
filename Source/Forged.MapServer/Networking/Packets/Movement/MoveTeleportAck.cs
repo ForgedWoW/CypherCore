@@ -5,11 +5,11 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveTeleportAck : ClientPacket
+internal class MoveTeleportAck : ClientPacket
 {
 	public ObjectGuid MoverGUID;
-	int AckIndex;
-	int MoveTime;
+    private int AckIndex;
+    private int MoveTime;
 	public MoveTeleportAck(WorldPacket packet) : base(packet) { }
 
 	public override void Read()

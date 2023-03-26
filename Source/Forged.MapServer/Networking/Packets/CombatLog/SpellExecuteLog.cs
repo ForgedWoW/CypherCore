@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellExecuteLog : CombatLogServerPacket
+internal class SpellExecuteLog : CombatLogServerPacket
 {
 	public ObjectGuid Caster;
 	public uint SpellID;

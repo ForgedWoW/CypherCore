@@ -5,9 +5,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class AELootTargets : ServerPacket
+internal class AELootTargets : ServerPacket
 {
-	readonly uint Count;
+    private readonly uint Count;
 
 	public AELootTargets(uint count) : base(ServerOpcodes.AeLootTargets, ConnectionType.Instance)
 	{

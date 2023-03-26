@@ -7,11 +7,11 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
 
-class AccountIdentifier
+internal class AccountIdentifier
 {
-	uint _id;
-	string _name;
-	WorldSession _session;
+    private uint _id;
+    private string _name;
+    private WorldSession _session;
 
 	public AccountIdentifier() { }
 

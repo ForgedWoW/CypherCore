@@ -4307,7 +4307,7 @@ public partial class Unit
 		_visibleAurasToUpdate.Add(aurApp);
 	}
 
-	uint GetDoTsByCaster(ObjectGuid casterGUID)
+    private uint GetDoTsByCaster(ObjectGuid casterGUID)
 	{
 		AuraType[] diseaseAuraTypes =
 		{
@@ -4332,7 +4332,7 @@ public partial class Unit
 		return dots;
 	}
 
-	void ProcSkillsAndReactives(bool isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
+    private void ProcSkillsAndReactives(bool isVictim, Unit procTarget, ProcFlagsInit typeMask, ProcFlagsHit hitMask, WeaponAttackType attType)
 	{
 		// Player is loaded now - do not allow passive spell casts to proc
 		if (IsPlayer && AsPlayer.Session.PlayerLoading)
@@ -4370,7 +4370,7 @@ public partial class Unit
 				}
 	}
 
-	void GetProcAurasTriggeredOnEvent(List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc, List<AuraApplication> procAuras, ProcEventInfo eventInfo)
+    private void GetProcAurasTriggeredOnEvent(List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc, List<AuraApplication> procAuras, ProcEventInfo eventInfo)
 	{
 		var now = GameTime.Now();
 
@@ -4416,7 +4416,7 @@ public partial class Unit
 				processAuraApplication(aura);
 	}
 
-	void TriggerAurasProcOnEvent(List<AuraApplication> myProcAuras, List<AuraApplication> targetProcAuras, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
+    private void TriggerAurasProcOnEvent(List<AuraApplication> myProcAuras, List<AuraApplication> targetProcAuras, Unit actionTarget, ProcFlagsInit typeMaskActor, ProcFlagsInit typeMaskActionTarget, ProcFlagsSpellType spellTypeMask, ProcFlagsSpellPhase spellPhaseMask, ProcFlagsHit hitMask, Spell spell, DamageInfo damageInfo, HealInfo healInfo)
 	{
 		// prepare data for self trigger
 		ProcEventInfo myProcEventInfo = new(this, actionTarget, actionTarget, typeMaskActor, spellTypeMask, spellPhaseMask, hitMask, spell, damageInfo, healInfo);
@@ -4455,7 +4455,7 @@ public partial class Unit
 			actionTarget.TriggerAurasProcOnEvent(targetProcEventInfo, targetAurasTriggeringProc);
 	}
 
-	void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc)
+    private void TriggerAurasProcOnEvent(ProcEventInfo eventInfo, List<Tuple<HashSet<int>, AuraApplication>> aurasTriggeringProc)
 	{
 		var triggeringSpell = eventInfo.ProcSpell;
 		var disableProcs = triggeringSpell && triggeringSpell.IsProcDisabled;
@@ -4475,7 +4475,7 @@ public partial class Unit
 			SetCantProc(false);
 	}
 
-	void SetCantProc(bool apply)
+    private void SetCantProc(bool apply)
 	{
 		if (apply)
 			++ProcDeep;
@@ -4483,7 +4483,7 @@ public partial class Unit
 			--ProcDeep;
 	}
 
-	void SendHealSpellLog(HealInfo healInfo, bool critical = false)
+    private void SendHealSpellLog(HealInfo healInfo, bool critical = false)
 	{
 		SpellHealLog spellHealLog = new()
 		{
@@ -4501,7 +4501,7 @@ public partial class Unit
 		SendCombatLogMessage(spellHealLog);
 	}
 
-	void SendSpellDamageResist(Unit target, uint spellId)
+    private void SendSpellDamageResist(Unit target, uint spellId)
 	{
 		ProcResist procResist = new()
 		{
@@ -4513,13 +4513,13 @@ public partial class Unit
 		SendMessageToSet(procResist, true);
 	}
 
-	void ClearDiminishings()
+    private void ClearDiminishings()
 	{
 		for (var i = 0; i < (int)DiminishingGroup.Max; ++i)
 			_diminishing[i].Clear();
 	}
 
-	AuraApplication GetAuraApplicationOfRankedSpell(uint spellId)
+    private AuraApplication GetAuraApplicationOfRankedSpell(uint spellId)
 	{
 		var rankSpell = Global.SpellMgr.GetFirstSpellInChain(spellId);
 
@@ -4536,7 +4536,7 @@ public partial class Unit
 		return null;
 	}
 
-	bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit unit, SpellInfo auraSpellInfo, SpellInfo interruptSource)
+    private bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags flag, Unit unit, SpellInfo auraSpellInfo, SpellInfo interruptSource)
 	{
 		switch (flag)
 		{
@@ -4561,12 +4561,12 @@ public partial class Unit
 		return false;
 	}
 
-	bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags2 flag, Unit unit, SpellInfo auraSpellInfo, SpellInfo interruptSource)
+    private bool IsInterruptFlagIgnoredForSpell(SpellAuraInterruptFlags2 flag, Unit unit, SpellInfo auraSpellInfo, SpellInfo interruptSource)
 	{
 		return false;
 	}
 
-	void RemoveAreaAurasDueToLeaveWorld()
+    private void RemoveAreaAurasDueToLeaveWorld()
 	{
 		// make sure that all area auras not applied on self are removed
 		foreach (var pair in _ownedAuras.Auras)
@@ -4589,7 +4589,7 @@ public partial class Unit
 		_appliedAuras.AuraApplications.CallOnMatch((pair) => pair.Base.Owner != this, (pair) => RemoveAura(pair));
 	}
 
-	SpellSchools GetSpellSchoolByAuraGroup(UnitMods unitMod)
+    private SpellSchools GetSpellSchoolByAuraGroup(UnitMods unitMod)
 	{
 		var school = SpellSchools.Normal;
 
@@ -4624,7 +4624,7 @@ public partial class Unit
 		return school;
 	}
 
-	void _RemoveNoStackAurasDueToAura(Aura aura)
+    private void _RemoveNoStackAurasDueToAura(Aura aura)
 	{
 		var spellProto = aura.SpellInfo;
 
@@ -4642,7 +4642,7 @@ public partial class Unit
 		_appliedAuras.AuraApplications.CallOnMatch((app) => !aura.CanStackWith(app.Base), (app) => RemoveAura(app, AuraRemoveMode.Default));
 	}
 
-	double GetMaxPositiveAuraModifierByMiscValue(AuraType auraType, int miscValue)
+    private double GetMaxPositiveAuraModifierByMiscValue(AuraType auraType, int miscValue)
 	{
 		return GetMaxPositiveAuraModifier(auraType,
 										aurEff =>
@@ -4654,7 +4654,7 @@ public partial class Unit
 										});
 	}
 
-	void UpdateAuraForGroup()
+    private void UpdateAuraForGroup()
 	{
 		var player = AsPlayer;
 

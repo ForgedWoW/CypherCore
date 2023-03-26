@@ -13,7 +13,7 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillDiscovery
 {
-	static readonly MultiMap<int, SkillDiscoveryEntry> SkillDiscoveryStorage = new();
+    private static readonly MultiMap<int, SkillDiscoveryEntry> SkillDiscoveryStorage = new();
 
 	public static void LoadSkillDiscoveryTable()
 	{

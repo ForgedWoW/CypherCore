@@ -22,7 +22,7 @@ namespace Forged.MapServer.Achievements;
 
 public class GuildAchievementMgr : AchievementManager
 {
-	readonly Guild _owner;
+    private readonly Guild _owner;
 
 	public GuildAchievementMgr(Guild owner)
 	{
@@ -396,7 +396,7 @@ public class GuildAchievementMgr : AchievementManager
 		return $"Guild ID {_owner.GetId()} {_owner.GetName()}";
 	}
 
-	void SendAchievementEarned(AchievementRecord achievement)
+    private void SendAchievementEarned(AchievementRecord achievement)
 	{
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.RealmFirstReach | AchievementFlags.RealmFirstKill))
 		{

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LFGUpdateStatus : ServerPacket
+internal class LFGUpdateStatus : ServerPacket
 {
 	public RideTicket Ticket = new();
 	public byte SubType;

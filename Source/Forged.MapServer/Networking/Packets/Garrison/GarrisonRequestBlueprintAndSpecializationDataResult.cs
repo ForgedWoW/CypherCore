@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonRequestBlueprintAndSpecializationDataResult : ServerPacket
+internal class GarrisonRequestBlueprintAndSpecializationDataResult : ServerPacket
 {
 	public GarrisonType GarrTypeID;
 	public List<uint> SpecializationsKnown = null;

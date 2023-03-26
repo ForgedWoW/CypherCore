@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarRemoveInvite : ClientPacket
+internal class CalendarRemoveInvite : ClientPacket
 {
 	public ObjectGuid Guid;
 	public ulong EventID;

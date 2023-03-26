@@ -3213,7 +3213,7 @@ public partial class Creature : Unit
 		PlayerDamageReq = (uint)(Health / 2);
 	}
 
-	void RegenerateHealth()
+    private void RegenerateHealth()
 	{
 		if (!CanRegenerateHealth)
 			return;
@@ -3244,7 +3244,7 @@ public partial class Creature : Unit
 		ModifyHealth(addvalue);
 	}
 
-	bool DestoryAI()
+    private bool DestoryAI()
 	{
 		PopAI();
 		RefreshAI();
@@ -3252,7 +3252,7 @@ public partial class Creature : Unit
 		return true;
 	}
 
-	void InitializeMovementAI()
+    private void InitializeMovementAI()
 	{
 		if (Formation != null)
 		{
@@ -3271,7 +3271,7 @@ public partial class Creature : Unit
 		MotionMaster.Initialize();
 	}
 
-	void SelectWildBattlePetLevel()
+    private void SelectWildBattlePetLevel()
 	{
 		if (IsWildBattlePet)
 		{
@@ -3286,7 +3286,7 @@ public partial class Creature : Unit
 		}
 	}
 
-	bool CreateFromProto(ulong guidlow, uint entry, CreatureData data = null, uint vehId = 0)
+    private bool CreateFromProto(ulong guidlow, uint entry, CreatureData data = null, uint vehId = 0)
 	{
 		SetZoneScript();
 
@@ -3337,19 +3337,19 @@ public partial class Creature : Unit
 		return true;
 	}
 
-	void LoadTemplateRoot()
+    private void LoadTemplateRoot()
 	{
 		if (MovementTemplate.IsRooted())
 			SetControlled(true, UnitState.Root);
 	}
 
-	void InitializeMovementFlags()
+    private void InitializeMovementFlags()
 	{
 		// It does the same, for now
 		UpdateMovementFlags();
 	}
 
-	ulong GetMaxHealthByLevel(uint level)
+    private ulong GetMaxHealthByLevel(uint level)
 	{
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
@@ -3358,7 +3358,7 @@ public partial class Creature : Unit
 		return (ulong)(baseHealth * cInfo.ModHealth * cInfo.ModHealthExtra);
 	}
 
-	float GetBaseArmorForLevel(uint level)
+    private float GetBaseArmorForLevel(uint level)
 	{
 		var cInfo = Template;
 		var scaling = cInfo.GetLevelScaling(Map.DifficultyID);
@@ -3367,7 +3367,7 @@ public partial class Creature : Unit
 		return baseArmor * cInfo.ModArmor;
 	}
 
-	void SetScriptStringId(string id)
+    private void SetScriptStringId(string id)
 	{
 		if (!id.IsEmpty())
 		{
@@ -3381,7 +3381,7 @@ public partial class Creature : Unit
 		}
 	}
 
-	void ReacquireSpellFocusTarget()
+    private void ReacquireSpellFocusTarget()
 	{
 		if (!HasSpellFocus())
 		{
@@ -3410,7 +3410,7 @@ public partial class Creature : Unit
 		_spellFocusInfo.Delay = 0;
 	}
 
-	void SetDisableReputationGain(bool disable)
+    private void SetDisableReputationGain(bool disable)
 	{
 		IsReputationGainDisabled = disable;
 	}

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootRollWon : ServerPacket
+internal class LootRollWon : ServerPacket
 {
 	public ObjectGuid LootObj;
 	public ObjectGuid Winner;

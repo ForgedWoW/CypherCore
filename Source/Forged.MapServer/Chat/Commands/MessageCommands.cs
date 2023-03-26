@@ -7,10 +7,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Commands;
 
-class MessageCommands
+internal class MessageCommands
 {
 	[CommandNonGroup("nameannounce", RBACPermissions.CommandNameannounce, true)]
-	static bool HandleNameAnnounceCommand(CommandHandler handler, Tail message)
+    private static bool HandleNameAnnounceCommand(CommandHandler handler, Tail message)
 	{
 		if (message.IsEmpty())
 			return false;
@@ -27,7 +27,7 @@ class MessageCommands
 	}
 
 	[CommandNonGroup("gmnameannounce", RBACPermissions.CommandGmnameannounce, true)]
-	static bool HandleGMNameAnnounceCommand(CommandHandler handler, Tail message)
+    private static bool HandleGMNameAnnounceCommand(CommandHandler handler, Tail message)
 	{
 		if (message.IsEmpty())
 			return false;
@@ -44,7 +44,7 @@ class MessageCommands
 	}
 
 	[CommandNonGroup("announce", RBACPermissions.CommandAnnounce, true)]
-	static bool HandleAnnounceCommand(CommandHandler handler, Tail message)
+    private static bool HandleAnnounceCommand(CommandHandler handler, Tail message)
 	{
 		if (message.IsEmpty())
 			return false;
@@ -55,7 +55,7 @@ class MessageCommands
 	}
 
 	[CommandNonGroup("gmannounce", RBACPermissions.CommandGmannounce, true)]
-	static bool HandleGMAnnounceCommand(CommandHandler handler, Tail message)
+    private static bool HandleGMAnnounceCommand(CommandHandler handler, Tail message)
 	{
 		if (message.IsEmpty())
 			return false;
@@ -66,7 +66,7 @@ class MessageCommands
 	}
 
 	[CommandNonGroup("notify", RBACPermissions.CommandNotify, true)]
-	static bool HandleNotifyCommand(CommandHandler handler, Tail message)
+    private static bool HandleNotifyCommand(CommandHandler handler, Tail message)
 	{
 		if (message.IsEmpty())
 			return false;
@@ -80,7 +80,7 @@ class MessageCommands
 	}
 
 	[CommandNonGroup("gmnotify", RBACPermissions.CommandGmnotify, true)]
-	static bool HandleGMNotifyCommand(CommandHandler handler, Tail message)
+    private static bool HandleGMNotifyCommand(CommandHandler handler, Tail message)
 	{
 		if (message.IsEmpty())
 			return false;
@@ -94,7 +94,7 @@ class MessageCommands
 	}
 
 	[CommandNonGroup("whispers", RBACPermissions.CommandWhispers)]
-	static bool HandleWhispersCommand(CommandHandler handler, bool? operationArg, [OptionalArg] string playerNameArg)
+    private static bool HandleWhispersCommand(CommandHandler handler, bool? operationArg, [OptionalArg] string playerNameArg)
 	{
 		if (!operationArg.HasValue)
 		{

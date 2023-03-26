@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CancelSpellVisualKit : ServerPacket
+internal class CancelSpellVisualKit : ServerPacket
 {
 	public ObjectGuid Source;
 	public uint SpellVisualKitID;

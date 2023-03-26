@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveInitActiveMoverComplete : ClientPacket
+internal class MoveInitActiveMoverComplete : ClientPacket
 {
 	public uint Ticks;
 

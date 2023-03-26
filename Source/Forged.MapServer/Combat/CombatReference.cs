@@ -11,8 +11,8 @@ public class CombatReference
 	public Unit Second;
 	public bool IsPvP;
 
-	bool _suppressFirst;
-	bool _suppressSecond;
+    private bool _suppressFirst;
+    private bool _suppressSecond;
 
 	public CombatReference(Unit a, Unit b, bool pvp = false)
 	{

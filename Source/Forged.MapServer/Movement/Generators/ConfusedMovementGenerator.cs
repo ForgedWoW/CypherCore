@@ -10,10 +10,10 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class ConfusedMovementGenerator<T> : MovementGeneratorMedium<T> where T : Unit
 {
-	readonly TimeTracker _timer;
+    private readonly TimeTracker _timer;
 
-	PathGenerator _path;
-	Position _reference;
+    private PathGenerator _path;
+    private Position _reference;
 
 	public ConfusedMovementGenerator()
 	{

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonUnlearnBlueprintResult : ServerPacket
+internal class GarrisonUnlearnBlueprintResult : ServerPacket
 {
 	public GarrisonType GarrTypeID;
 	public uint BuildingID;

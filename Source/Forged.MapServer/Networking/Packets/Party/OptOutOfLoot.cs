@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class OptOutOfLoot : ClientPacket
+internal class OptOutOfLoot : ClientPacket
 {
 	public bool PassOnLoot;
 	public OptOutOfLoot(WorldPacket packet) : base(packet) { }

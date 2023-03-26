@@ -11,21 +11,21 @@ namespace Forged.MapServer.DungeonFinding;
 public class LFGPlayerData
 {
 	// General
-	RideTicket m_Ticket;
-	LfgState m_State;
+    private RideTicket m_Ticket;
+    private LfgState m_State;
 
-	LfgState m_OldState;
+    private LfgState m_OldState;
 
 	// Player
-	TeamFaction m_Team;
-	ObjectGuid m_Group;
+    private TeamFaction m_Team;
+    private ObjectGuid m_Group;
 
 	// Queue
-	LfgRoles m_Roles;
-	List<uint> m_SelectedDungeons = new();
+    private LfgRoles m_Roles;
+    private List<uint> m_SelectedDungeons = new();
 
 	// Achievement-related
-	byte m_NumberOfPartyMembersAtJoin;
+    private byte m_NumberOfPartyMembersAtJoin;
 
 	public LFGPlayerData()
 	{

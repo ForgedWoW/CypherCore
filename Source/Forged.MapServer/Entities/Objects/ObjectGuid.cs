@@ -12,8 +12,8 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 	public static ObjectGuid FromStringFailed = Create(HighGuid.Uniq, 4);
 	public static ObjectGuid TradeItem = Create(HighGuid.Uniq, 10);
 
-	ulong _low;
-	ulong _high;
+    private ulong _low;
+    private ulong _high;
 
 	public ObjectGuid(ulong high, ulong low)
 	{
@@ -278,7 +278,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 
 	public TypeId TypeId => GetTypeId(High);
 
-	bool HasEntry()
+    private bool HasEntry()
 	{
 		return HasEntry(High);
 	}
@@ -350,7 +350,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 	}
 
 	//Static Methods 
-	static TypeId GetTypeId(HighGuid high)
+    private static TypeId GetTypeId(HighGuid high)
 	{
 		switch (high)
 		{
@@ -380,7 +380,7 @@ public struct ObjectGuid : IEquatable<ObjectGuid>
 		}
 	}
 
-	static bool HasEntry(HighGuid high)
+    private static bool HasEntry(HighGuid high)
 	{
 		switch (high)
 		{

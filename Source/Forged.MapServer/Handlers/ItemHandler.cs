@@ -50,7 +50,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SplitItem, Processing = PacketProcessing.Inplace)]
-	void HandleSplitItem(SplitItem splitItem)
+    private void HandleSplitItem(SplitItem splitItem)
 	{
 		if (splitItem.Inv.Items.Count != 0)
 		{
@@ -86,7 +86,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SwapInvItem, Processing = PacketProcessing.Inplace)]
-	void HandleSwapInvenotryItem(SwapInvItem swapInvItem)
+    private void HandleSwapInvenotryItem(SwapInvItem swapInvItem)
 	{
 		if (swapInvItem.Inv.Items.Count != 2)
 		{
@@ -134,7 +134,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AutoEquipItemSlot, Processing = PacketProcessing.Inplace)]
-	void HandleAutoEquipItemSlot(AutoEquipItemSlot packet)
+    private void HandleAutoEquipItemSlot(AutoEquipItemSlot packet)
 	{
 		// cheating attempt, client should never send opcode in that case
 		if (packet.Inv.Items.Count != 1 || !Player.IsEquipmentPos(InventorySlots.Bag0, packet.ItemDstSlot))
@@ -151,7 +151,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SwapItem, Processing = PacketProcessing.Inplace)]
-	void HandleSwapItem(SwapItem swapItem)
+    private void HandleSwapItem(SwapItem swapItem)
 	{
 		if (swapItem.Inv.Items.Count != 2)
 		{
@@ -202,7 +202,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AutoEquipItem, Processing = PacketProcessing.Inplace)]
-	void HandleAutoEquipItem(AutoEquipItem autoEquipItem)
+    private void HandleAutoEquipItem(AutoEquipItem autoEquipItem)
 	{
 		if (autoEquipItem.Inv.Items.Count != 1)
 		{
@@ -356,7 +356,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DestroyItem, Processing = PacketProcessing.Inplace)]
-	void HandleDestroyItem(DestroyItem destroyItem)
+    private void HandleDestroyItem(DestroyItem destroyItem)
 	{
 		var pos = (ushort)((destroyItem.ContainerId << 8) | destroyItem.SlotNum);
 
@@ -401,7 +401,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ReadItem, Processing = PacketProcessing.Inplace)]
-	void HandleReadItem(ReadItem readItem)
+    private void HandleReadItem(ReadItem readItem)
 	{
 		var item = _player.GetItemByPos(readItem.PackSlot, readItem.Slot);
 
@@ -438,7 +438,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SellItem, Processing = PacketProcessing.Inplace)]
-	void HandleSellItem(SellItem packet)
+    private void HandleSellItem(SellItem packet)
 	{
 		if (packet.ItemGUID.IsEmpty)
 			return;
@@ -582,7 +582,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BuyBackItem, Processing = PacketProcessing.Inplace)]
-	void HandleBuybackItem(BuyBackItem packet)
+    private void HandleBuybackItem(BuyBackItem packet)
 	{
 		var creature = _player.GetNPCIfCanInteractWith(packet.VendorGUID, NPCFlags.Vendor, NPCFlags2.None);
 
@@ -635,7 +635,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BuyItem, Processing = PacketProcessing.Inplace)]
-	void HandleBuyItem(BuyItem packet)
+    private void HandleBuyItem(BuyItem packet)
 	{
 		// client expects count starting at 1, and we send vendorslot+1 to client already
 		if (packet.Muid > 0)
@@ -670,7 +670,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AutoStoreBagItem, Processing = PacketProcessing.Inplace)]
-	void HandleAutoStoreBagItem(AutoStoreBagItem packet)
+    private void HandleAutoStoreBagItem(AutoStoreBagItem packet)
 	{
 		if (!packet.Inv.Items.Empty())
 		{
@@ -731,7 +731,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.WrapItem)]
-	void HandleWrapItem(WrapItem packet)
+    private void HandleWrapItem(WrapItem packet)
 	{
 		if (packet.Inv.Items.Count != 2)
 		{
@@ -879,7 +879,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SocketGems, Processing = PacketProcessing.Inplace)]
-	void HandleSocketGems(SocketGems socketGems)
+    private void HandleSocketGems(SocketGems socketGems)
 	{
 		if (socketGems.ItemGuid.IsEmpty)
 			return;
@@ -1104,7 +1104,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CancelTempEnchantment, Processing = PacketProcessing.Inplace)]
-	void HandleCancelTempEnchantment(CancelTempEnchantment packet)
+    private void HandleCancelTempEnchantment(CancelTempEnchantment packet)
 	{
 		// apply only to equipped item
 		if (!Player.IsEquipmentPos(InventorySlots.Bag0, (byte)packet.Slot))
@@ -1123,7 +1123,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GetItemPurchaseData, Processing = PacketProcessing.Inplace)]
-	void HandleGetItemPurchaseData(GetItemPurchaseData packet)
+    private void HandleGetItemPurchaseData(GetItemPurchaseData packet)
 	{
 		var item = Player.GetItemByGuid(packet.ItemGUID);
 
@@ -1138,7 +1138,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ItemPurchaseRefund, Processing = PacketProcessing.Inplace)]
-	void HandleItemRefund(ItemPurchaseRefund packet)
+    private void HandleItemRefund(ItemPurchaseRefund packet)
 	{
 		var item = Player.GetItemByGuid(packet.ItemGUID);
 
@@ -1156,7 +1156,7 @@ public class ItemHandler : IWorldSessionHandler
 		Player.RefundItem(item);
 	}
 
-	bool CanUseBank(ObjectGuid bankerGUID = default)
+    private bool CanUseBank(ObjectGuid bankerGUID = default)
 	{
 		// bankerGUID parameter is optional, set to 0 by default.
 		if (bankerGUID.IsEmpty)
@@ -1176,7 +1176,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UseCritterItem)]
-	void HandleUseCritterItem(UseCritterItem useCritterItem)
+    private void HandleUseCritterItem(UseCritterItem useCritterItem)
 	{
 		var item = Player.GetItemByGuid(useCritterItem.ItemGuid);
 
@@ -1198,7 +1198,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SortBags, Processing = PacketProcessing.Inplace)]
-	void HandleSortBags(SortBags sortBags)
+    private void HandleSortBags(SortBags sortBags)
 	{
 		// TODO: Implement sorting
 		// Placeholder to prevent completely locking out bags clientside
@@ -1206,7 +1206,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SortBankBags, Processing = PacketProcessing.Inplace)]
-	void HandleSortBankBags(SortBankBags sortBankBags)
+    private void HandleSortBankBags(SortBankBags sortBankBags)
 	{
 		// TODO: Implement sorting
 		// Placeholder to prevent completely locking out bags clientside
@@ -1214,7 +1214,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SortReagentBankBags, Processing = PacketProcessing.Inplace)]
-	void HandleSortReagentBankBags(SortReagentBankBags sortReagentBankBags)
+    private void HandleSortReagentBankBags(SortReagentBankBags sortReagentBankBags)
 	{
 		// TODO: Implement sorting
 		// Placeholder to prevent completely locking out bags clientside
@@ -1222,7 +1222,7 @@ public class ItemHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RemoveNewItem, Processing = PacketProcessing.Inplace)]
-	void HandleRemoveNewItem(RemoveNewItem removeNewItem)
+    private void HandleRemoveNewItem(RemoveNewItem removeNewItem)
 	{
 		var item = _player.GetItemByGuid(removeNewItem.ItemGuid);
 

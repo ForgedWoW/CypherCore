@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Reputation;
 
-class SetFactionStanding : ServerPacket
+internal class SetFactionStanding : ServerPacket
 {
 	public float BonusFromAchievementSystem;
 	public List<FactionStandingData> Faction = new();

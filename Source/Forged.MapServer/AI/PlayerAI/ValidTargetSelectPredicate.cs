@@ -7,9 +7,9 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.AI.PlayerAI;
 
-struct ValidTargetSelectPredicate : ICheck<Unit>
+internal struct ValidTargetSelectPredicate : ICheck<Unit>
 {
-	readonly IUnitAI _ai;
+    private readonly IUnitAI _ai;
 
 	public ValidTargetSelectPredicate(IUnitAI ai)
 	{

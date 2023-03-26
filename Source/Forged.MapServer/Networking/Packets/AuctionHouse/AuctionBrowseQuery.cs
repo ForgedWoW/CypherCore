@@ -9,7 +9,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionBrowseQuery : ClientPacket
+internal class AuctionBrowseQuery : ClientPacket
 {
 	public ObjectGuid Auctioneer;
 	public uint Offset;

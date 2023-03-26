@@ -13,15 +13,15 @@ namespace Forged.MapServer.Maps;
 
 public class TerrainManager
 {
-	readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
-	readonly HashSet<uint> _keepLoaded = new();
+    private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
+    private readonly HashSet<uint> _keepLoaded = new();
 
-	readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+    private readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
 
 	// parent map links
-	MultiMap<uint, uint> _parentMapData = new();
+    private MultiMap<uint, uint> _parentMapData = new();
 
-	TerrainManager() { }
+    private TerrainManager() { }
 
 	public void InitializeParentMapData(MultiMap<uint, uint> mapData)
 	{
@@ -154,7 +154,7 @@ public class TerrainManager
 		return _keepLoaded.Contains(mapid);
 	}
 
-	TerrainInfo LoadTerrainImpl(uint mapId)
+    private TerrainInfo LoadTerrainImpl(uint mapId)
 	{
 		var rootTerrain = new TerrainInfo(mapId, _keepLoaded.Contains(mapId));
 

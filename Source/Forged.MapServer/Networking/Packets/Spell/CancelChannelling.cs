@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CancelChannelling : ClientPacket
+internal class CancelChannelling : ClientPacket
 {
 	public int ChannelSpell;
 	public int Reason; // 40 = /run SpellStopCasting(), 16 = movement/AURA_INTERRUPT_FLAG_MOVE, 41 = turning/AURA_INTERRUPT_FLAG_TURNING

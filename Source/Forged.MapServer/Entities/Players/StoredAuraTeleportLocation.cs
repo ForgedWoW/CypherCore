@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Entities.Players;
 
-class StoredAuraTeleportLocation
+internal class StoredAuraTeleportLocation
 {
 	public enum State
 	{

@@ -7,7 +7,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyMemberPetStats
+internal class PartyMemberPetStats
 {
 	public ObjectGuid GUID;
 	public string Name;

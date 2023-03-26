@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Events;
 
-class GameEvents
+internal class GameEvents
 {
 	public static void Trigger(uint gameEventId, WorldObject source, WorldObject target)
 	{

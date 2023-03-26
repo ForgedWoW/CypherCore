@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestGiverInvalidQuest : ServerPacket
+internal class QuestGiverInvalidQuest : ServerPacket
 {
 	public QuestFailedReasons Reason;
 	public int ContributionRewardID;

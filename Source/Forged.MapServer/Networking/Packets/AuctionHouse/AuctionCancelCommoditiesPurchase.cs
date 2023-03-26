@@ -6,7 +6,7 @@ using Forged.MapServer.Networking.Packets.Addon;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionCancelCommoditiesPurchase : ClientPacket
+internal class AuctionCancelCommoditiesPurchase : ClientPacket
 {
 	public ObjectGuid Auctioneer;
 	public AddOnInfo? TaintedBy;

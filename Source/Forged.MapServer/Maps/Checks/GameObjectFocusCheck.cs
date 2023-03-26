@@ -7,10 +7,10 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class GameObjectFocusCheck : ICheck<GameObject>
+internal class GameObjectFocusCheck : ICheck<GameObject>
 {
-	readonly WorldObject _caster;
-	readonly uint _focusId;
+    private readonly WorldObject _caster;
+    private readonly uint _focusId;
 
 	public GameObjectFocusCheck(WorldObject caster, uint focusId)
 	{

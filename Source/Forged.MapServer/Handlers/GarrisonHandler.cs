@@ -11,7 +11,7 @@ namespace Forged.MapServer.Handlers;
 public class GarrisonHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.GetGarrisonInfo)]
-	void HandleGetGarrisonInfo(GetGarrisonInfo getGarrisonInfo)
+    private void HandleGetGarrisonInfo(GetGarrisonInfo getGarrisonInfo)
 	{
 		var garrison = _player.Garrison;
 
@@ -20,7 +20,7 @@ public class GarrisonHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GarrisonPurchaseBuilding)]
-	void HandleGarrisonPurchaseBuilding(GarrisonPurchaseBuilding garrisonPurchaseBuilding)
+    private void HandleGarrisonPurchaseBuilding(GarrisonPurchaseBuilding garrisonPurchaseBuilding)
 	{
 		if (!_player.GetNPCIfCanInteractWith(garrisonPurchaseBuilding.NpcGUID, NPCFlags.None, NPCFlags2.GarrisonArchitect))
 			return;
@@ -32,7 +32,7 @@ public class GarrisonHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GarrisonCancelConstruction)]
-	void HandleGarrisonCancelConstruction(GarrisonCancelConstruction garrisonCancelConstruction)
+    private void HandleGarrisonCancelConstruction(GarrisonCancelConstruction garrisonCancelConstruction)
 	{
 		if (!_player.GetNPCIfCanInteractWith(garrisonCancelConstruction.NpcGUID, NPCFlags.None, NPCFlags2.GarrisonArchitect))
 			return;
@@ -44,7 +44,7 @@ public class GarrisonHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GarrisonRequestBlueprintAndSpecializationData)]
-	void HandleGarrisonRequestBlueprintAndSpecializationData(GarrisonRequestBlueprintAndSpecializationData garrisonRequestBlueprintAndSpecializationData)
+    private void HandleGarrisonRequestBlueprintAndSpecializationData(GarrisonRequestBlueprintAndSpecializationData garrisonRequestBlueprintAndSpecializationData)
 	{
 		var garrison = _player.Garrison;
 
@@ -53,7 +53,7 @@ public class GarrisonHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GarrisonGetMapData)]
-	void HandleGarrisonGetMapData(GarrisonGetMapData garrisonGetMapData)
+    private void HandleGarrisonGetMapData(GarrisonGetMapData garrisonGetMapData)
 	{
 		var garrison = _player.Garrison;
 

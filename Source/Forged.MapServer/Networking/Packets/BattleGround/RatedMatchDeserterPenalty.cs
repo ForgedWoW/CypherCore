@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class RatedMatchDeserterPenalty
+internal class RatedMatchDeserterPenalty
 {
 	public int PersonalRatingChange;
 	public int QueuePenaltySpellID;

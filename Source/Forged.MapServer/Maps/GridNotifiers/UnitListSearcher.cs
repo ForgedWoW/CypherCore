@@ -14,9 +14,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class UnitListSearcher : IGridNotifierCreature, IGridNotifierPlayer
 {
-	readonly PhaseShift _phaseShift;
-	readonly List<Unit> _objects;
-	readonly ICheck<Unit> _check;
+    private readonly PhaseShift _phaseShift;
+    private readonly List<Unit> _objects;
+    private readonly ICheck<Unit> _check;
 
 	public GridType GridType { get; set; }
 

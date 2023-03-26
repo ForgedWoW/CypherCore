@@ -14,9 +14,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierDynamicObject
 {
-	readonly Dictionary<Player, UpdateData> _updateData;
-	readonly WorldObject _worldObject;
-	readonly List<ObjectGuid> _plrList = new();
+    private readonly Dictionary<Player, UpdateData> _updateData;
+    private readonly WorldObject _worldObject;
+    private readonly List<ObjectGuid> _plrList = new();
 
 	public GridType GridType { get; set; }
 
@@ -72,7 +72,7 @@ public class WorldObjectChangeAccumulator : IGridNotifierPlayer, IGridNotifierCr
 		}
 	}
 
-	void BuildPacket(Player player)
+    private void BuildPacket(Player player)
 	{
 		// Only send update once to a player
 		if (!_plrList.Contains(player.GUID) && player.HaveAtClient(_worldObject))

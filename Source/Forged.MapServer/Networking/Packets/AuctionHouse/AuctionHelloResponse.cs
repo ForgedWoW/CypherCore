@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionHelloResponse : ServerPacket
+internal class AuctionHelloResponse : ServerPacket
 {
 	public ObjectGuid Guid;
 	public uint DeliveryDelay;

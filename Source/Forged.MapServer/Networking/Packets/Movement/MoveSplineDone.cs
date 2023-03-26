@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveSplineDone : ClientPacket
+internal class MoveSplineDone : ClientPacket
 {
 	public MovementInfo Status;
 	public int SplineID;

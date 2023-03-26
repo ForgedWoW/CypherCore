@@ -7,7 +7,7 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class QuestMenu
 {
-	readonly List<QuestMenuItem> _questMenuItems = new();
+    private readonly List<QuestMenuItem> _questMenuItems = new();
 
 	public void AddMenuItem(uint QuestId, byte Icon)
 	{
@@ -43,7 +43,7 @@ public class QuestMenu
 		return _questMenuItems.LookupByIndex(index);
 	}
 
-	bool HasItem(uint questId)
+    private bool HasItem(uint questId)
 	{
 		foreach (var item in _questMenuItems)
 			if (item.QuestId == questId)

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct ThrottledAppend : IChannelAppender
+internal struct ThrottledAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.ThrottledNotice;
 

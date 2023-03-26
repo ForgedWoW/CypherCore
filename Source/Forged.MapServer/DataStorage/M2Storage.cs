@@ -13,7 +13,7 @@ namespace Forged.MapServer.DataStorage;
 
 public class M2Storage
 {
-	static readonly MultiMap<uint, FlyByCamera> FlyByCameraStorage = new();
+    private static readonly MultiMap<uint, FlyByCamera> FlyByCameraStorage = new();
 
 	public static void LoadM2Cameras(string dataPath)
 	{
@@ -69,7 +69,7 @@ public class M2Storage
 	}
 
 	// Convert the geomoetry from a spline value, to an actual WoW XYZ
-	static Vector3 TranslateLocation(Vector4 dbcLocation, Vector3 basePosition, Vector3 splineVector)
+    private static Vector3 TranslateLocation(Vector4 dbcLocation, Vector3 basePosition, Vector3 splineVector)
 	{
 		Vector3 work = new();
 		var x = basePosition.X + splineVector.X;
@@ -89,7 +89,7 @@ public class M2Storage
 	}
 
 	// Number of cameras not used. Multiple cameras never used in 7.1.5
-	static void ReadCamera(M2Camera cam, BinaryReader reader, CinematicCameraRecord dbcentry)
+    private static void ReadCamera(M2Camera cam, BinaryReader reader, CinematicCameraRecord dbcentry)
 	{
 		List<FlyByCamera> cameras = new();
 		List<FlyByCamera> targetcam = new();

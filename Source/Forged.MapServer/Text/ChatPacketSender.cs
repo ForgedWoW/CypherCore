@@ -14,13 +14,13 @@ public class ChatPacketSender : IDoWork<Player>
 	// caches
 	public ChatPkt UntranslatedPacket;
 	public ChatPkt TranslatedPacket;
-	readonly ChatMsg _type;
-	readonly Language _language;
-	readonly WorldObject _sender;
-	readonly WorldObject _receiver;
-	readonly string _text;
-	readonly uint _achievementId;
-	readonly Locale _locale;
+    private readonly ChatMsg _type;
+    private readonly Language _language;
+    private readonly WorldObject _sender;
+    private readonly WorldObject _receiver;
+    private readonly string _text;
+    private readonly uint _achievementId;
+    private readonly Locale _locale;
 
 	public ChatPacketSender(ChatMsg chatType, Language language, WorldObject sender, WorldObject receiver, string message, uint achievementId = 0, Locale locale = Locale.enUS)
 	{

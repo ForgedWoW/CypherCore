@@ -12,9 +12,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class PlayerSearcher : IGridNotifierPlayer
 {
-	readonly PhaseShift _phaseShift;
-	readonly ICheck<Player> _check;
-	Player _object;
+    private readonly PhaseShift _phaseShift;
+    private readonly ICheck<Player> _check;
+    private Player _object;
 
 	public GridType GridType { get; set; }
 

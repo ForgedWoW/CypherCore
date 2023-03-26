@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LfgBootPlayer : ServerPacket
+internal class LfgBootPlayer : ServerPacket
 {
 	public LfgBootInfo Info = new();
 	public LfgBootPlayer() : base(ServerOpcodes.LfgBootPlayer, ConnectionType.Instance) { }

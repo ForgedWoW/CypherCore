@@ -11,8 +11,8 @@ public class LocationInfoCallback : WorkerCallback
 {
 	public bool Result;
 
-	readonly ModelInstance[] _prims;
-	readonly LocationInfo _locInfo;
+    private readonly ModelInstance[] _prims;
+    private readonly LocationInfo _locInfo;
 
 	public LocationInfoCallback(ModelInstance[] val, LocationInfo info)
 	{

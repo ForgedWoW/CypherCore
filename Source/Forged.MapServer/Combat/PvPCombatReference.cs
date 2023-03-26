@@ -9,7 +9,7 @@ public class PvPCombatReference : CombatReference
 {
 	public static uint PVP_COMBAT_TIMEOUT = 5 * Time.InMilliseconds;
 
-	uint _combatTimer = PVP_COMBAT_TIMEOUT;
+    private uint _combatTimer = PVP_COMBAT_TIMEOUT;
 
 
 	public PvPCombatReference(Unit first, Unit second) : base(first, second, true) { }

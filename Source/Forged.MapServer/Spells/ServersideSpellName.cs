@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-struct ServersideSpellName
+internal struct ServersideSpellName
 {
 	public SpellNameRecord Name;
 

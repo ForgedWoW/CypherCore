@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class ItemCooldown : ServerPacket
+internal class ItemCooldown : ServerPacket
 {
 	public ObjectGuid ItemGuid;
 	public uint SpellID;

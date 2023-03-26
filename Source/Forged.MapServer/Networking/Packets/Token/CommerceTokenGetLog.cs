@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Token;
 
-class CommerceTokenGetLog : ClientPacket
+internal class CommerceTokenGetLog : ClientPacket
 {
 	public uint UnkInt;
 	public CommerceTokenGetLog(WorldPacket packet) : base(packet) { }

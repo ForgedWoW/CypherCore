@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootReleaseAll : ServerPacket
+internal class LootReleaseAll : ServerPacket
 {
 	public LootReleaseAll() : base(ServerOpcodes.LootReleaseAll, ConnectionType.Instance) { }
 

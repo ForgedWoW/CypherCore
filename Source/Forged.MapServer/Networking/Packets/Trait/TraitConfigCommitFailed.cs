@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class TraitConfigCommitFailed : ServerPacket
+internal class TraitConfigCommitFailed : ServerPacket
 {
 	public int ConfigID;
 	public uint SpellID;

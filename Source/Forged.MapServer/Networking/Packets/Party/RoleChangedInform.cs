@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class RoleChangedInform : ServerPacket
+internal class RoleChangedInform : ServerPacket
 {
 	public sbyte PartyIndex;
 	public ObjectGuid From;

@@ -11,11 +11,11 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class CreatureGroup
 {
-	readonly Dictionary<Creature, FormationInfo> _members = new();
-	readonly ulong _leaderSpawnId;
-	readonly bool _formed;
-	Creature _leader;
-	bool _engaging;
+    private readonly Dictionary<Creature, FormationInfo> _members = new();
+    private readonly ulong _leaderSpawnId;
+    private readonly bool _formed;
+    private Creature _leader;
+    private bool _engaging;
 
 
 	public Creature Leader => _leader;

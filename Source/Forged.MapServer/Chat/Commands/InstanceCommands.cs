@@ -10,10 +10,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("instance")]
-class InstanceCommands
+internal class InstanceCommands
 {
 	[Command("getbossstate", RBACPermissions.CommandInstanceGetBossState)]
-	static bool HandleInstanceGetBossStateCommand(CommandHandler handler, uint encounterId, PlayerIdentifier player)
+    private static bool HandleInstanceGetBossStateCommand(CommandHandler handler, uint encounterId, PlayerIdentifier player)
 	{
 		// Character name must be provided when using this from console.
 		if (player == null || handler.Session == null)
@@ -63,7 +63,7 @@ class InstanceCommands
 	}
 
 	[Command("listbinds", RBACPermissions.CommandInstanceListbinds)]
-	static bool HandleInstanceListBindsCommand(CommandHandler handler)
+    private static bool HandleInstanceListBindsCommand(CommandHandler handler)
 	{
 		var player = handler.SelectedPlayer;
 
@@ -95,7 +95,7 @@ class InstanceCommands
 	}
 
 	[Command("setbossstate", RBACPermissions.CommandInstanceSetBossState)]
-	static bool HandleInstanceSetBossStateCommand(CommandHandler handler, uint encounterId, EncounterState state, PlayerIdentifier player)
+    private static bool HandleInstanceSetBossStateCommand(CommandHandler handler, uint encounterId, EncounterState state, PlayerIdentifier player)
 	{
 		// Character name must be provided when using this from console.
 		if (player == null || handler.Session == null)
@@ -146,7 +146,7 @@ class InstanceCommands
 	}
 
 	[Command("stats", RBACPermissions.CommandInstanceStats, true)]
-	static bool HandleInstanceStatsCommand(CommandHandler handler)
+    private static bool HandleInstanceStatsCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage("instances loaded: {0}", Global.MapMgr.GetNumInstances());
 		handler.SendSysMessage("players in instances: {0}", Global.MapMgr.GetNumPlayersInInstances());
@@ -160,7 +160,7 @@ class InstanceCommands
 	}
 
 	[Command("unbind", RBACPermissions.CommandInstanceUnbind)]
-	static bool HandleInstanceUnbindCommand(CommandHandler handler, [VariantArg(typeof(uint), typeof(string))] object mapArg, uint? difficultyArg)
+    private static bool HandleInstanceUnbindCommand(CommandHandler handler, [VariantArg(typeof(uint), typeof(string))] object mapArg, uint? difficultyArg)
 	{
 		var player = handler.SelectedPlayer;
 

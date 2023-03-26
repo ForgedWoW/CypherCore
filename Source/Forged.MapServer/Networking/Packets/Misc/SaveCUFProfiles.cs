@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SaveCUFProfiles : ClientPacket
+internal class SaveCUFProfiles : ClientPacket
 {
 	public List<CufProfile> CUFProfiles = new();
 	public SaveCUFProfiles(WorldPacket packet) : base(packet) { }

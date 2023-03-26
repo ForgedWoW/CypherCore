@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class AuthChallenge : ServerPacket
+internal class AuthChallenge : ServerPacket
 {
 	public byte[] Challenge = new byte[16];
 	public byte[] DosChallenge = new byte[32]; // Encryption seeds

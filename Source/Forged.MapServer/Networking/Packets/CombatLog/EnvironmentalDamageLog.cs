@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class EnvironmentalDamageLog : CombatLogServerPacket
+internal class EnvironmentalDamageLog : CombatLogServerPacket
 {
 	public ObjectGuid Victim;
 	public EnviromentalDamage Type;

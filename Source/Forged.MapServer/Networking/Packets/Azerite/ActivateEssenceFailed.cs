@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class ActivateEssenceFailed : ServerPacket
+internal class ActivateEssenceFailed : ServerPacket
 {
 	public AzeriteEssenceActivateResult Reason;
 	public uint Arg;

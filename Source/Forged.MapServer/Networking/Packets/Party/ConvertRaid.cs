@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class ConvertRaid : ClientPacket
+internal class ConvertRaid : ClientPacket
 {
 	public bool Raid;
 	public ConvertRaid(WorldPacket packet) : base(packet) { }

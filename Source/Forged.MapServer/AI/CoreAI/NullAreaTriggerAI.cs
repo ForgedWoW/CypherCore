@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.AreaTriggers;
 
 namespace Forged.MapServer.AI.CoreAI;
 
-class NullAreaTriggerAI : AreaTriggerAI
+internal class NullAreaTriggerAI : AreaTriggerAI
 {
 	public NullAreaTriggerAI(AreaTrigger areaTrigger) : base(areaTrigger) { }
 }

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LFGRoleCheckUpdate : ServerPacket
+internal class LFGRoleCheckUpdate : ServerPacket
 {
 	public byte PartyIndex;
 	public byte RoleCheckStatus;

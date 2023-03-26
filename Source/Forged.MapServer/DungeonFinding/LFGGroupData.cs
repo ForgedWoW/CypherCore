@@ -9,20 +9,20 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LFGGroupData
 {
-	readonly List<ObjectGuid> m_Players = new();
+    private readonly List<ObjectGuid> m_Players = new();
 
 	// General
-	LfgState m_State;
-	LfgState m_OldState;
+    private LfgState m_State;
+    private LfgState m_OldState;
 
-	ObjectGuid m_Leader;
+    private ObjectGuid m_Leader;
 
 	// Dungeon
-	uint m_Dungeon;
+    private uint m_Dungeon;
 
 	// Vote Kick
-	byte m_KicksLeft;
-	bool m_VoteKickActive;
+    private byte m_KicksLeft;
+    private bool m_VoteKickActive;
 
 	public LFGGroupData()
 	{

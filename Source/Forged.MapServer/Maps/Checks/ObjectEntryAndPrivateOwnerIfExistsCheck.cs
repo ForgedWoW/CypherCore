@@ -6,10 +6,10 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class ObjectEntryAndPrivateOwnerIfExistsCheck : ICheck<WorldObject>
+internal class ObjectEntryAndPrivateOwnerIfExistsCheck : ICheck<WorldObject>
 {
-	readonly uint _entry;
-	readonly ObjectGuid _ownerGUID;
+    private readonly uint _entry;
+    private readonly ObjectGuid _ownerGUID;
 
 	public ObjectEntryAndPrivateOwnerIfExistsCheck(ObjectGuid ownerGUID, uint entry)
 	{

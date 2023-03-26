@@ -2866,7 +2866,7 @@ public partial class Player
 		SetUpdateFieldValue(ref skillInfo.ModifyValue(skillInfo.SkillPermBonus, (int)pos), bonus);
 	}
 
-	ushort GetMaxSkillValue(SkillType skill)
+    private ushort GetMaxSkillValue(SkillType skill)
 	{
 		if (skill == 0)
 			return 0;
@@ -2885,7 +2885,7 @@ public partial class Player
 		return (ushort)(result < 0 ? 0 : result);
 	}
 
-	void InitializeSelfResurrectionSpells()
+    private void InitializeSelfResurrectionSpells()
 	{
 		ClearSelfResSpell();
 
@@ -2910,7 +2910,7 @@ public partial class Player
 				AddSelfResSpell(selfResSpell);
 	}
 
-	void RemoveSpecializationSpells()
+    private void RemoveSpecializationSpells()
 	{
 		for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
@@ -2941,7 +2941,7 @@ public partial class Player
 		}
 	}
 
-	void InitializeSkillFields()
+    private void InitializeSkillFields()
 	{
 		uint i = 0;
 
@@ -2961,7 +2961,7 @@ public partial class Player
 		}
 	}
 
-	void UpdateSkillEnchantments(uint skill_id, ushort curr_value, ushort new_value)
+    private void UpdateSkillEnchantments(uint skill_id, ushort curr_value, ushort new_value)
 	{
 		for (byte i = 0; i < InventorySlots.BagEnd; ++i)
 			if (_items[i] != null)
@@ -3003,7 +3003,7 @@ public partial class Player
 				}
 	}
 
-	void UpdateEnchantTime(uint time)
+    private void UpdateEnchantTime(uint time)
 	{
 		for (var i = 0; i < _enchantDurations.Count; ++i)
 		{
@@ -3026,13 +3026,13 @@ public partial class Player
 		}
 	}
 
-	void ApplyEnchantment(Item item, bool apply)
+    private void ApplyEnchantment(Item item, bool apply)
 	{
 		for (EnchantmentSlot slot = 0; slot < EnchantmentSlot.Max; ++slot)
 			ApplyEnchantment(item, slot, apply);
 	}
 
-	void AddEnchantmentDurations(Item item)
+    private void AddEnchantmentDurations(Item item)
 	{
 		for (EnchantmentSlot x = 0; x < EnchantmentSlot.Max; ++x)
 		{
@@ -3046,7 +3046,7 @@ public partial class Player
 		}
 	}
 
-	void AddEnchantmentDuration(Item item, EnchantmentSlot slot, uint duration)
+    private void AddEnchantmentDuration(Item item, EnchantmentSlot slot, uint duration)
 	{
 		if (item == null)
 			return;
@@ -3074,7 +3074,7 @@ public partial class Player
 		}
 	}
 
-	void RemoveEnchantmentDurations(Item item)
+    private void RemoveEnchantmentDurations(Item item)
 	{
 		for (var i = 0; i < _enchantDurations.Count; ++i)
 		{
@@ -3089,7 +3089,7 @@ public partial class Player
 		}
 	}
 
-	void RemoveEnchantmentDurationsReferences(Item item)
+    private void RemoveEnchantmentDurationsReferences(Item item)
 	{
 		for (var i = 0; i < _enchantDurations.Count; ++i)
 		{
@@ -3100,7 +3100,7 @@ public partial class Player
 		}
 	}
 
-	byte GetFishingStepsNeededToLevelUp(uint SkillValue)
+    private byte GetFishingStepsNeededToLevelUp(uint SkillValue)
 	{
 		// These formulas are guessed to be as close as possible to how the skill difficulty curve for fishing was on Retail.
 		if (SkillValue < 75)
@@ -3112,7 +3112,7 @@ public partial class Player
 		return (byte)(SkillValue / 31);
 	}
 
-	int SkillGainChance(uint SkillValue, uint GrayLevel, uint GreenLevel, uint YellowLevel)
+    private int SkillGainChance(uint SkillValue, uint GrayLevel, uint GreenLevel, uint YellowLevel)
 	{
 		if (SkillValue >= GrayLevel)
 			return GetDefaultValue("SkillChance.Grey", 0) * 10;
@@ -3126,7 +3126,7 @@ public partial class Player
 		return GetDefaultValue("SkillChance.Orange", 100) * 10;
 	}
 
-	bool EnchantmentFitsRequirements(uint enchantmentcondition, sbyte slot)
+    private bool EnchantmentFitsRequirements(uint enchantmentcondition, sbyte slot)
 	{
 		if (enchantmentcondition == 0)
 			return true;
@@ -3204,7 +3204,7 @@ public partial class Player
 		return activate;
 	}
 
-	void CorrectMetaGemEnchants(byte exceptslot, bool apply)
+    private void CorrectMetaGemEnchants(byte exceptslot, bool apply)
 	{
 		//cycle all equipped items
 		for (var slot = EquipmentSlot.Start; slot < EquipmentSlot.End; ++slot)
@@ -3247,7 +3247,7 @@ public partial class Player
 		}
 	}
 
-	int FindEmptyProfessionSlotFor(uint skillId)
+    private int FindEmptyProfessionSlotFor(uint skillId)
 	{
 		var skillEntry = CliDB.SkillLineStorage.LookupByKey(skillId);
 
@@ -3271,7 +3271,7 @@ public partial class Player
 		return -1;
 	}
 
-	void RemoveItemDependentAurasAndCasts(Item pItem)
+    private void RemoveItemDependentAurasAndCasts(Item pItem)
 	{
 		OwnedAurasList
 			.CallOnMatch((aura) =>
@@ -3302,7 +3302,7 @@ public partial class Player
 		}
 	}
 
-	void CastAllObtainSpells()
+    private void CastAllObtainSpells()
 	{
 		var inventoryEnd = InventorySlots.ItemStart + GetInventorySlotCount();
 
@@ -3331,7 +3331,7 @@ public partial class Player
 		}
 	}
 
-	void ApplyItemObtainSpells(Item item, bool apply)
+    private void ApplyItemObtainSpells(Item item, bool apply)
 	{
 		if (item.Template.HasFlag(ItemFlags.Legacy))
 			return;
@@ -3360,7 +3360,7 @@ public partial class Player
 
 	// this one rechecks weapon auras and stores them in BaseModGroup container
 	// needed for things like axe specialization applying only to axe weapons in case of dual-wield
-	void UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
+    private void UpdateWeaponDependentCritAuras(WeaponAttackType attackType)
 	{
 		BaseModGroup modGroup;
 
@@ -3391,7 +3391,7 @@ public partial class Player
 		SetBaseModFlatValue(modGroup, amount);
 	}
 
-	void SendKnownSpells()
+    private void SendKnownSpells()
 	{
 		SendKnownSpells knownSpells = new()
 		{
@@ -3415,12 +3415,12 @@ public partial class Player
 		SendPacket(knownSpells);
 	}
 
-	void SendUnlearnSpells()
+    private void SendUnlearnSpells()
 	{
 		SendPacket(new SendUnlearnSpells());
 	}
 
-	bool HandlePassiveSpellLearn(SpellInfo spellInfo)
+    private bool HandlePassiveSpellLearn(SpellInfo spellInfo)
 	{
 		// note: form passives activated with shapeshift spells be implemented by HandleShapeshiftBoosts instead of spell_learn_spell
 		// talent dependent passives activated at form apply have proper stance data
@@ -3446,7 +3446,7 @@ public partial class Player
 		return need_cast && (spellInfo.CasterAuraState == 0 || HasAuraState(spellInfo.CasterAuraState));
 	}
 
-	bool AddSpell(uint spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint fromSkill = 0, bool favorite = false, int? traitDefinitionId = null)
+    private bool AddSpell(uint spellId, bool active, bool learning, bool dependent, bool disabled, bool loading = false, uint fromSkill = 0, bool favorite = false, int? traitDefinitionId = null)
 	{
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 
@@ -3853,7 +3853,7 @@ public partial class Player
 		return active && !disabled && !superceded_old;
 	}
 
-	bool IsAffectedBySpellmod(SpellInfo spellInfo, SpellModifier mod, Spell spell)
+    private bool IsAffectedBySpellmod(SpellInfo spellInfo, SpellModifier mod, Spell spell)
 	{
 		if (mod == null || spellInfo == null)
 			return false;
@@ -3907,7 +3907,7 @@ public partial class Player
 		return spellInfo.IsAffectedBySpellMod(mod);
 	}
 
-	void SendSpellModifiers()
+    private void SendSpellModifiers()
 	{
 		SetSpellModifier flatMods = new(ServerOpcodes.SetFlatSpellModifier);
 		SetSpellModifier pctMods = new(ServerOpcodes.SetPctSpellModifier);
@@ -3960,7 +3960,7 @@ public partial class Player
 			SendPacket(pctMods);
 	}
 
-	void SendSupercededSpell(uint oldSpell, uint newSpell)
+    private void SendSupercededSpell(uint oldSpell, uint newSpell)
 	{
 		SupercededSpells supercededSpells = new();
 
@@ -3974,7 +3974,7 @@ public partial class Player
 		SendPacket(supercededSpells);
 	}
 
-	void UpdateItemSetAuras(bool formChange = false)
+    private void UpdateItemSetAuras(bool formChange = false)
 	{
 		// item set bonuses not dependent from item broken state
 		for (var setindex = 0; setindex < ItemSetEff.Count; ++setindex)
@@ -4001,7 +4001,7 @@ public partial class Player
 		}
 	}
 
-	float GetWeaponProcChance()
+    private float GetWeaponProcChance()
 	{
 		// normalized proc chance for weapon attack speed
 		// (odd formula...)

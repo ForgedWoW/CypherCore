@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatReportIgnored : ClientPacket
+internal class ChatReportIgnored : ClientPacket
 {
 	public ObjectGuid IgnoredGUID;
 	public byte Reason;

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class AutoEquipItemSlot : ClientPacket
+internal class AutoEquipItemSlot : ClientPacket
 {
 	public ObjectGuid Item;
 	public byte ItemDstSlot;

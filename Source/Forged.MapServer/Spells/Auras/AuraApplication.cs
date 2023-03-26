@@ -14,13 +14,13 @@ namespace Forged.MapServer.Spells.Auras;
 
 public class AuraApplication
 {
-	readonly Unit _target;
-	readonly Aura _base;
-	readonly byte _slot; // Aura slot on unit
-	readonly HashSet<int> _effectMask = new();
-	AuraFlags _flags;                     // Aura info flag
-	HashSet<int> _effectsToApply = new(); // Used only at spell hit to determine which effect should be applied
-	bool _needClientUpdate;
+    private readonly Unit _target;
+    private readonly Aura _base;
+    private readonly byte _slot; // Aura slot on unit
+    private readonly HashSet<int> _effectMask = new();
+    private AuraFlags _flags;                     // Aura info flag
+    private HashSet<int> _effectsToApply = new(); // Used only at spell hit to determine which effect should be applied
+    private bool _needClientUpdate;
 
 	public Guid Guid { get; } = Guid.NewGuid();
 
@@ -265,7 +265,7 @@ public class AuraApplication
 		return _effectMask.Contains(effect);
 	}
 
-	void _InitFlags(Unit caster, HashSet<int> effMask)
+    private void _InitFlags(Unit caster, HashSet<int> effMask)
 	{
 		// mark as selfcasted if needed
 		_flags |= (Base.CasterGuid == Target.GUID) ? AuraFlags.NoCaster : AuraFlags.None;

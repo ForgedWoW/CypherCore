@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarGetNumPending : ClientPacket
+internal class CalendarGetNumPending : ClientPacket
 {
 	public CalendarGetNumPending(WorldPacket packet) : base(packet) { }
 

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class VoidStorageFailed : ServerPacket
+internal class VoidStorageFailed : ServerPacket
 {
 	public byte Reason = 0;
 	public VoidStorageFailed() : base(ServerOpcodes.VoidStorageFailed, ConnectionType.Instance) { }

@@ -5,9 +5,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatRestricted : ServerPacket
+internal class ChatRestricted : ServerPacket
 {
-	readonly ChatRestrictionType Reason;
+    private readonly ChatRestrictionType Reason;
 
 	public ChatRestricted(ChatRestrictionType reason) : base(ServerOpcodes.ChatRestricted)
 	{

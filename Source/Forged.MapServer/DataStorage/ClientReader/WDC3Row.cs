@@ -10,7 +10,7 @@ using Framework.Dynamic;
 
 namespace Forged.MapServer.DataStorage.ClientReader;
 
-class WDC3Row
+internal class WDC3Row
 {
 	private readonly BitReader _data;
 	private readonly int _dataOffset;
@@ -272,7 +272,7 @@ class WDC3Row
 		return (WDC3Row)MemberwiseClone();
 	}
 
-	T GetFieldValue<T>(int fieldIndex) where T : unmanaged
+    private T GetFieldValue<T>(int fieldIndex) where T : unmanaged
 	{
 		var columnMeta = _columnMeta[fieldIndex];
 
@@ -304,7 +304,7 @@ class WDC3Row
 		throw new Exception(string.Format("Unexpected compression type {0}", _columnMeta[fieldIndex].CompressionType));
 	}
 
-	T[] GetFieldValueArray<T>(int fieldIndex, int arraySize) where T : unmanaged
+    private T[] GetFieldValueArray<T>(int fieldIndex, int arraySize) where T : unmanaged
 	{
 		var columnMeta = _columnMeta[fieldIndex];
 

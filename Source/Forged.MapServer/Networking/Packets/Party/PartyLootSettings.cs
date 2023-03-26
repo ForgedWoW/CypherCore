@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-struct PartyLootSettings
+internal struct PartyLootSettings
 {
 	public void Write(WorldPacket data)
 	{

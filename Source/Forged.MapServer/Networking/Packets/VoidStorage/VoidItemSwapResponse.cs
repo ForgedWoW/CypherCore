@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class VoidItemSwapResponse : ServerPacket
+internal class VoidItemSwapResponse : ServerPacket
 {
 	public ObjectGuid VoidItemA;
 	public ObjectGuid VoidItemB;

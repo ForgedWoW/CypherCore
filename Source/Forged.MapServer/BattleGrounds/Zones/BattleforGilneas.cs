@@ -3,4 +3,4 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class BattleforGilneas { }
+internal class BattleforGilneas { }

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Maps.Instances;
 
-class SharedInstanceLockData : InstanceLockData
+internal class SharedInstanceLockData : InstanceLockData
 {
 	public uint InstanceId;
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage;
 
-class UiMapBounds
+internal class UiMapBounds
 {
 	// these coords are mixed when calculated and used... its a mess
 	public float[] Bounds = new float[4];

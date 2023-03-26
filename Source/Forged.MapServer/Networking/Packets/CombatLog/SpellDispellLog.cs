@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellDispellLog : ServerPacket
+internal class SpellDispellLog : ServerPacket
 {
 	public List<SpellDispellData> DispellData = new();
 	public ObjectGuid CasterGUID;

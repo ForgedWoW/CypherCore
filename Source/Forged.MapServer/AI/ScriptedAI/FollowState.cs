@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.AI.ScriptedAI;
 
-enum FollowState
+internal enum FollowState
 {
 	None = 0x00,
 	Inprogress = 0x01, //must always have this state for any follow

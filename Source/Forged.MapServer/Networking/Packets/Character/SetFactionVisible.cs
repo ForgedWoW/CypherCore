@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class SetFactionVisible : ServerPacket
+internal class SetFactionVisible : ServerPacket
 {
 	public uint FactionIndex;
 	public SetFactionVisible(bool visible) : base(visible ? ServerOpcodes.SetFactionVisible : ServerOpcodes.SetFactionNotVisible, ConnectionType.Instance) { }

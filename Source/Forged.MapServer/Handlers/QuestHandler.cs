@@ -19,7 +19,7 @@ namespace Forged.MapServer.Handlers;
 public class QuestHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.QuestGiverStatusQuery, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverStatusQuery(QuestGiverStatusQuery packet)
+    private void HandleQuestgiverStatusQuery(QuestGiverStatusQuery packet)
 	{
 		var questStatus = QuestGiverStatus.None;
 
@@ -54,7 +54,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverHello, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverHello(QuestGiverHello packet)
+    private void HandleQuestgiverHello(QuestGiverHello packet)
 	{
 		var creature = _player.GetNPCIfCanInteractWith(packet.QuestGiverGUID, NPCFlags.QuestGiver, NPCFlags2.None);
 
@@ -87,7 +87,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverAcceptQuest, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverAcceptQuest(QuestGiverAcceptQuest packet)
+    private void HandleQuestgiverAcceptQuest(QuestGiverAcceptQuest packet)
 	{
 		WorldObject obj;
 
@@ -207,7 +207,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverQueryQuest, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverQueryQuest(QuestGiverQueryQuest packet)
+    private void HandleQuestgiverQueryQuest(QuestGiverQueryQuest packet)
 	{
 		// Verify that the guid is valid and is a questgiver or involved in the requested quest
 		var obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, (TypeMask.Unit | TypeMask.GameObject | TypeMask.Item));
@@ -237,7 +237,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryQuestInfo, Processing = PacketProcessing.Inplace)]
-	void HandleQuestQuery(QueryQuestInfo packet)
+    private void HandleQuestQuery(QueryQuestInfo packet)
 	{
 		var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
@@ -257,7 +257,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverChooseReward, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverChooseReward(QuestGiverChooseReward packet)
+    private void HandleQuestgiverChooseReward(QuestGiverChooseReward packet)
 	{
 		var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
@@ -402,7 +402,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverRequestReward, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverRequestReward(QuestGiverRequestReward packet)
+    private void HandleQuestgiverRequestReward(QuestGiverRequestReward packet)
 	{
 		var obj = Global.ObjAccessor.GetObjectByTypeMask(_player, packet.QuestGiverGUID, TypeMask.Unit | TypeMask.GameObject);
 
@@ -426,7 +426,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestLogRemoveQuest, Processing = PacketProcessing.Inplace)]
-	void HandleQuestLogRemoveQuest(QuestLogRemoveQuest packet)
+    private void HandleQuestLogRemoveQuest(QuestLogRemoveQuest packet)
 	{
 		if (packet.Entry < SharedConst.MaxQuestLogSize)
 		{
@@ -471,7 +471,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestConfirmAccept)]
-	void HandleQuestConfirmAccept(QuestConfirmAccept packet)
+    private void HandleQuestConfirmAccept(QuestConfirmAccept packet)
 	{
 		var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
@@ -507,7 +507,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverCompleteQuest, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverCompleteQuest(QuestGiverCompleteQuest packet)
+    private void HandleQuestgiverCompleteQuest(QuestGiverCompleteQuest packet)
 	{
 		var autoCompleteMode = packet.FromScript; // 0 - standart complete quest mode with npc, 1 - auto-complete mode
 
@@ -572,7 +572,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverCloseQuest, Processing = PacketProcessing.Inplace)]
-	void HandleQuestgiverCloseQuest(QuestGiverCloseQuest questGiverCloseQuest)
+    private void HandleQuestgiverCloseQuest(QuestGiverCloseQuest questGiverCloseQuest)
 	{
 		if (_player.FindQuestSlot(questGiverCloseQuest.QuestID) >= SharedConst.MaxQuestLogSize)
 			return;
@@ -586,7 +586,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PushQuestToParty)]
-	void HandlePushQuestToParty(PushQuestToParty packet)
+    private void HandlePushQuestToParty(PushQuestToParty packet)
 	{
 		var quest = Global.ObjectMgr.GetQuestTemplate(packet.QuestID);
 
@@ -764,7 +764,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestPushResult)]
-	void HandleQuestPushResult(QuestPushResult packet)
+    private void HandleQuestPushResult(QuestPushResult packet)
 	{
 		if (!_player.GetPlayerSharingQuest().IsEmpty)
 		{
@@ -781,19 +781,19 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverStatusMultipleQuery)]
-	void HandleQuestgiverStatusMultipleQuery(QuestGiverStatusMultipleQuery packet)
+    private void HandleQuestgiverStatusMultipleQuery(QuestGiverStatusMultipleQuery packet)
 	{
 		_player.SendQuestGiverStatusMultiple();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QuestGiverStatusTrackedQuery)]
-	void HandleQuestgiverStatusTrackedQueryOpcode(QuestGiverStatusTrackedQuery questGiverStatusTrackedQuery)
+    private void HandleQuestgiverStatusTrackedQueryOpcode(QuestGiverStatusTrackedQuery questGiverStatusTrackedQuery)
 	{
 		_player.SendQuestGiverStatusMultiple(questGiverStatusTrackedQuery.QuestGiverGUIDs);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestWorldQuestUpdate)]
-	void HandleRequestWorldQuestUpdate(RequestWorldQuestUpdate packet)
+    private void HandleRequestWorldQuestUpdate(RequestWorldQuestUpdate packet)
 	{
 		WorldQuestUpdateResponse response = new();
 
@@ -804,7 +804,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChoiceResponse)]
-	void HandlePlayerChoiceResponse(ChoiceResponse choiceResponse)
+    private void HandlePlayerChoiceResponse(ChoiceResponse choiceResponse)
 	{
 		if (_player.PlayerTalkClass.GetInteractionData().PlayerChoiceId != choiceResponse.ChoiceID)
 		{
@@ -871,7 +871,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryQuestItemUsability)]
-	void HandleQueryQuestItemUsability(QueryQuestItemUsability request)
+    private void HandleQueryQuestItemUsability(QueryQuestItemUsability request)
 	{
 		//foreach (var itemGuid in request.ItemGUIDs)
 		//{
@@ -881,7 +881,7 @@ public class QuestHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UiMapQuestLinesRequest, Processing = PacketProcessing.Inplace)]
-	void HandleUiMapQuestLinesRequest(UiMapQuestLinesRequest request)
+    private void HandleUiMapQuestLinesRequest(UiMapQuestLinesRequest request)
 	{
 		var response = new UiMapQuestLinesResponse
 		{

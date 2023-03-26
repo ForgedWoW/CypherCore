@@ -8,7 +8,7 @@ using Serilog;
 
 namespace Forged.MapServer.Maps.Instances;
 
-class InstanceScriptDataReader
+internal class InstanceScriptDataReader
 {
 	public enum Result
 	{
@@ -27,8 +27,8 @@ class InstanceScriptDataReader
 		AdditionalDataUnexpectedValueType
 	}
 
-	readonly InstanceScript _instance;
-	JsonDocument _doc;
+    private readonly InstanceScript _instance;
+    private JsonDocument _doc;
 
 	public InstanceScriptDataReader(InstanceScript instance)
 	{
@@ -86,7 +86,7 @@ class InstanceScriptDataReader
 		return Result.Ok;
 	}
 
-	Result ParseHeader()
+    private Result ParseHeader()
 	{
 		if (!_doc.RootElement.TryGetProperty("Header", out var header))
 		{
@@ -105,7 +105,7 @@ class InstanceScriptDataReader
 		return Result.Ok;
 	}
 
-	Result ParseBossStates()
+    private Result ParseBossStates()
 	{
 		if (!_doc.RootElement.TryGetProperty("BossStates", out var bossStates))
 		{
@@ -151,7 +151,7 @@ class InstanceScriptDataReader
 		return Result.Ok;
 	}
 
-	Result ParseAdditionalData()
+    private Result ParseAdditionalData()
 	{
 		if (!_doc.RootElement.TryGetProperty("AdditionalData", out var moreData))
 			return Result.Ok;
@@ -182,27 +182,27 @@ class InstanceScriptDataReader
 		return Result.Ok;
 	}
 
-	uint GetInstanceId()
+    private uint GetInstanceId()
 	{
 		return _instance.Instance.InstanceId;
 	}
 
-	uint GetMapId()
+    private uint GetMapId()
 	{
 		return _instance.Instance.Id;
 	}
 
-	string GetMapName()
+    private string GetMapName()
 	{
 		return _instance.Instance.MapName;
 	}
 
-	uint GetDifficultyId()
+    private uint GetDifficultyId()
 	{
 		return (uint)_instance.Instance.DifficultyID;
 	}
 
-	string GetDifficultyName()
+    private string GetDifficultyName()
 	{
 		return CliDB.DifficultyStorage.LookupByKey(_instance.Instance.DifficultyID).Name;
 	}

@@ -6,9 +6,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatPlayerNotfound : ServerPacket
+internal class ChatPlayerNotfound : ServerPacket
 {
-	readonly string Name;
+    private readonly string Name;
 
 	public ChatPlayerNotfound(string name) : base(ServerOpcodes.ChatPlayerNotfound)
 	{

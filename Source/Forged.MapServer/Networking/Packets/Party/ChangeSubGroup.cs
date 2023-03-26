@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class ChangeSubGroup : ClientPacket
+internal class ChangeSubGroup : ClientPacket
 {
 	public ObjectGuid TargetGUID;
 	public sbyte PartyIndex;

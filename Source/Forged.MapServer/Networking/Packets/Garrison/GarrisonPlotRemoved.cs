@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonPlotRemoved : ServerPacket
+internal class GarrisonPlotRemoved : ServerPacket
 {
 	public uint GarrPlotInstanceID;
 	public GarrisonPlotRemoved() : base(ServerOpcodes.GarrisonPlotRemoved, ConnectionType.Instance) { }

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class QueryBattlePetName : ClientPacket
+internal class QueryBattlePetName : ClientPacket
 {
 	public ObjectGuid BattlePetID;
 	public ObjectGuid UnitGUID;

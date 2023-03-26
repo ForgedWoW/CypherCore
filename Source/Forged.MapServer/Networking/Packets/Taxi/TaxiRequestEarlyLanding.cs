@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Taxi;
 
-class TaxiRequestEarlyLanding : ClientPacket
+internal class TaxiRequestEarlyLanding : ClientPacket
 {
 	public TaxiRequestEarlyLanding(WorldPacket packet) : base(packet) { }
 

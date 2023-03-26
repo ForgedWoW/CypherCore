@@ -7,15 +7,15 @@ namespace Forged.MapServer.Chrono;
 
 public class GameTime
 {
-	static readonly long StartTime = Time.UnixTime;
+    private static readonly long StartTime = Time.UnixTime;
 
-	static long _gameTime = Time.UnixTime;
-	static uint _gameMSTime = 0;
+    private static long _gameTime = Time.UnixTime;
+    private static uint _gameMSTime = 0;
 
-	static DateTime _gameTimeSystemPoint = DateTime.MinValue;
-	static DateTime _gameTimeSteadyPoint = DateTime.MinValue;
+    private static DateTime _gameTimeSystemPoint = DateTime.MinValue;
+    private static DateTime _gameTimeSteadyPoint = DateTime.MinValue;
 
-	static DateTime _dateTime;
+    private static DateTime _dateTime;
 
 	public static long GetStartTime()
 	{

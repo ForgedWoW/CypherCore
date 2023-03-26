@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LFGProposalUpdate : ServerPacket
+internal class LFGProposalUpdate : ServerPacket
 {
 	public RideTicket Ticket;
 	public ulong InstanceID;

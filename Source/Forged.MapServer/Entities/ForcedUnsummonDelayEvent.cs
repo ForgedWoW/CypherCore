@@ -7,7 +7,7 @@ namespace Forged.MapServer.Entities;
 
 public class ForcedUnsummonDelayEvent : BasicEvent
 {
-	readonly TempSummon _owner;
+    private readonly TempSummon _owner;
 
 	public ForcedUnsummonDelayEvent(TempSummon owner)
 	{

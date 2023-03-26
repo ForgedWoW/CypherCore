@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatServerMessage : ServerPacket
+internal class ChatServerMessage : ServerPacket
 {
 	public int MessageID;
 	public string StringParam = "";

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class PlayOrphanSpellVisual : ServerPacket
+internal class PlayOrphanSpellVisual : ServerPacket
 {
 	public ObjectGuid Target; // Exclusive with TargetLocation
 	public Position SourceLocation;

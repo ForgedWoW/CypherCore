@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonTalent
+internal struct GarrisonTalent
 {
 	public void Write(WorldPacket data)
 	{

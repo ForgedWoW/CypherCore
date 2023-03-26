@@ -5,10 +5,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class ConnectToFailed : ClientPacket
+internal class ConnectToFailed : ClientPacket
 {
 	public ConnectToSerial Serial;
-	byte Con;
+    private byte Con;
 	public ConnectToFailed(WorldPacket packet) : base(packet) { }
 
 	public override void Read()

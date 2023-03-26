@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class SetPlayerDeclinedNames : ClientPacket
+internal class SetPlayerDeclinedNames : ClientPacket
 {
 	public ObjectGuid Player;
 	public DeclinedName DeclinedNames;

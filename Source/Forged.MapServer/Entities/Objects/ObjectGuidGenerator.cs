@@ -9,8 +9,8 @@ namespace Forged.MapServer.Entities.Objects;
 
 public class ObjectGuidGenerator
 {
-	readonly HighGuid _highGuid;
-	ulong _nextGuid;
+    private readonly HighGuid _highGuid;
+    private ulong _nextGuid;
 
 	public ObjectGuidGenerator(HighGuid highGuid, ulong start = 1)
 	{
@@ -39,13 +39,13 @@ public class ObjectGuidGenerator
 		return _nextGuid;
 	}
 
-	void HandleCounterOverflow()
+    private void HandleCounterOverflow()
 	{
 		Log.Logger.Fatal("{0} guid overflow!! Can't continue, shutting down server. ", _highGuid);
 		Global.WorldMgr.StopNow();
 	}
 
-	void CheckGuidTrigger(ulong guidlow)
+    private void CheckGuidTrigger(ulong guidlow)
 	{
 		if (!Global.WorldMgr.IsGuidAlert && guidlow > GetDefaultValue("Respawn.GuidAlertLevel", 16000000))
 			Global.WorldMgr.TriggerGuidAlert();

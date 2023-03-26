@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Toy;
 
-class ToyClearFanfare : ClientPacket
+internal class ToyClearFanfare : ClientPacket
 {
 	public uint ItemID;
 	public ToyClearFanfare(WorldPacket packet) : base(packet) { }

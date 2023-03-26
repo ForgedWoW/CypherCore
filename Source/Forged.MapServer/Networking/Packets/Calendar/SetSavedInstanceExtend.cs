@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class SetSavedInstanceExtend : ClientPacket
+internal class SetSavedInstanceExtend : ClientPacket
 {
 	public int MapID;
 	public bool Extend;

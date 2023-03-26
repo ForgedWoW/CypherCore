@@ -8,8 +8,8 @@ namespace Forged.MapServer.Entities.Units;
 
 public class ObjectDistanceOrderPred : IComparer<WorldObject>
 {
-	readonly WorldObject _refObj;
-	readonly bool _ascending;
+    private readonly WorldObject _refObj;
+    private readonly bool _ascending;
 
 	public ObjectDistanceOrderPred(WorldObject pRefObj, bool ascending = true)
 	{

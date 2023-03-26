@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Maps.Instances;
 
-class MinionInfo
+internal class MinionInfo
 {
 	public BossInfo BossInfo { get; set; }
 

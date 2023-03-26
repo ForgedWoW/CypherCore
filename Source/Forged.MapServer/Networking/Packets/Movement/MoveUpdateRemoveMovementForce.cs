@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveUpdateRemoveMovementForce : ServerPacket
+internal class MoveUpdateRemoveMovementForce : ServerPacket
 {
 	public MovementInfo Status = new();
 	public ObjectGuid TriggerGUID;

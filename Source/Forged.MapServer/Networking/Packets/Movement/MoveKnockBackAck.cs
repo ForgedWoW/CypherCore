@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveKnockBackAck : ClientPacket
+internal class MoveKnockBackAck : ClientPacket
 {
 	public MovementAck Ack;
 	public MoveKnockBackSpeeds? Speeds;

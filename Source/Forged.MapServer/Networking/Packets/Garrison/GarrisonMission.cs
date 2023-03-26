@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonMission
+internal class GarrisonMission
 {
 	public ulong DbID;
 	public int MissionRecID;

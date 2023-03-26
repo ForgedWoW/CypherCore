@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CastFailed : CastFailedBase
+internal class CastFailed : CastFailedBase
 {
 	public SpellCastVisual Visual;
 

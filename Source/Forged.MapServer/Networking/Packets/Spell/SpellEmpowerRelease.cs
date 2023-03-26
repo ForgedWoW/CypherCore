@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SpellEmpowerRelease : ClientPacket
+internal class SpellEmpowerRelease : ClientPacket
 {
 	public uint SpellID;
 	public SpellEmpowerRelease(WorldPacket packet) : base(packet) { }

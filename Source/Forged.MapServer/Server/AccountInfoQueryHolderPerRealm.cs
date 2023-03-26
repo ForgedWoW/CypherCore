@@ -5,7 +5,7 @@ using Framework.Database;
 
 namespace Forged.MapServer.Server;
 
-class AccountInfoQueryHolderPerRealm : SQLQueryHolder<AccountInfoQueryLoad>
+internal class AccountInfoQueryHolderPerRealm : SQLQueryHolder<AccountInfoQueryLoad>
 {
 	public void Initialize(uint accountId, uint battlenetAccountId)
 	{

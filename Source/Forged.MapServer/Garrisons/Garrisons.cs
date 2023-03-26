@@ -24,14 +24,14 @@ namespace Forged.MapServer.Garrisons;
 
 public class Garrison
 {
-	readonly Player _owner;
-	readonly GarrisonType _garrisonType;
-	readonly Dictionary<uint, Plot> _plots = new();
-	readonly List<uint> _knownBuildings = new();
-	readonly Dictionary<ulong, Follower> _followers = new();
-	readonly List<uint> _followerIds = new();
-	GarrSiteLevelRecord _siteLevel;
-	uint _followerActivationsRemainingToday;
+    private readonly Player _owner;
+    private readonly GarrisonType _garrisonType;
+    private readonly Dictionary<uint, Plot> _plots = new();
+    private readonly List<uint> _knownBuildings = new();
+    private readonly Dictionary<ulong, Follower> _followers = new();
+    private readonly List<uint> _followerIds = new();
+    private GarrSiteLevelRecord _siteLevel;
+    private uint _followerActivationsRemainingToday;
 
 	public Garrison(Player owner)
 	{
@@ -617,7 +617,7 @@ public class Garrison
 		_followerActivationsRemainingToday = 1;
 	}
 
-	void InitializePlots()
+    private void InitializePlots()
 	{
 		var plots = Global.GarrisonMgr.GetGarrPlotInstForSiteLevel(_siteLevel.Id);
 
@@ -645,16 +645,16 @@ public class Garrison
 		}
 	}
 
-	void Upgrade() { }
+    private void Upgrade() { }
 
-	void Enter()
+    private void Enter()
 	{
 		WorldLocation loc = new(_siteLevel.MapID);
 		loc.Relocate(_owner.Location);
 		_owner.TeleportTo(loc, TeleportToOptions.Seamless);
 	}
 
-	void Leave()
+    private void Leave()
 	{
 		var map = CliDB.MapStorage.LookupByKey(_siteLevel.MapID);
 
@@ -666,7 +666,7 @@ public class Garrison
 		}
 	}
 
-	void UnlearnBlueprint(uint garrBuildingId)
+    private void UnlearnBlueprint(uint garrBuildingId)
 	{
 		GarrisonUnlearnBlueprintResult unlearnBlueprintResult = new()
 		{
@@ -685,12 +685,12 @@ public class Garrison
 		_owner.SendPacket(unlearnBlueprintResult);
 	}
 
-	Map FindMap()
+    private Map FindMap()
 	{
 		return Global.MapMgr.FindMap(_siteLevel.MapID, (uint)_owner.GUID.Counter);
 	}
 
-	GarrisonError CheckBuildingPlacement(uint garrPlotInstanceId, uint garrBuildingId)
+    private GarrisonError CheckBuildingPlacement(uint garrPlotInstanceId, uint garrBuildingId)
 	{
 		var plotInstance = CliDB.GarrPlotInstanceStorage.LookupByKey(garrPlotInstanceId);
 		var plot = GetPlot(garrPlotInstanceId);
@@ -746,7 +746,7 @@ public class Garrison
 		return GarrisonError.Success;
 	}
 
-	GarrisonError CheckBuildingRemoval(uint garrPlotInstanceId)
+    private GarrisonError CheckBuildingRemoval(uint garrPlotInstanceId)
 	{
 		var plot = GetPlot(garrPlotInstanceId);
 
@@ -935,7 +935,7 @@ public class Garrison
 			BuildingInfo.PacketInfo = buildingInfo;
 		}
 
-		T BuildingSpawnHelper<T>(GameObject building, ulong spawnId, Map map) where T : WorldObject, new()
+        private T BuildingSpawnHelper<T>(GameObject building, ulong spawnId, Map map) where T : WorldObject, new()
 		{
 			T spawn = new();
 

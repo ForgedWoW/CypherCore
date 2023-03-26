@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class BroadcastSummonResponse : ServerPacket
+internal class BroadcastSummonResponse : ServerPacket
 {
 	public ObjectGuid Target;
 	public bool Accepted;

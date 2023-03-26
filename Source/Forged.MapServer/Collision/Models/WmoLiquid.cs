@@ -10,12 +10,12 @@ namespace Forged.MapServer.Collision.Models;
 
 public class WmoLiquid
 {
-	uint _tilesX;
-	uint _tilesY;
-	Vector3 _corner;
-	uint _type;
-	float[] _height;
-	byte[] _flags;
+    private uint _tilesX;
+    private uint _tilesY;
+    private Vector3 _corner;
+    private uint _type;
+    private float[] _height;
+    private byte[] _flags;
 
 	public WmoLiquid() { }
 

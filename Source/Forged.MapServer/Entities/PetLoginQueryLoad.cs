@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Entities;
 
-enum PetLoginQueryLoad
+internal enum PetLoginQueryLoad
 {
 	DeclinedNames,
 	Auras,

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class RolePollInform : ServerPacket
+internal class RolePollInform : ServerPacket
 {
 	public sbyte PartyIndex;
 	public ObjectGuid From;

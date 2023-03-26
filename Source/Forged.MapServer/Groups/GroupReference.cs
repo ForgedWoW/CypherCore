@@ -8,7 +8,7 @@ namespace Forged.MapServer.Groups;
 
 public class GroupReference : Reference<PlayerGroup, Player>
 {
-	byte _iSubGroup;
+    private byte _iSubGroup;
 
 	public byte SubGroup
 	{

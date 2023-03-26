@@ -12,27 +12,27 @@ using Serilog;
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class BgEyeofStorm : Battleground
+internal class BgEyeofStorm : Battleground
 {
-	readonly uint[] m_HonorScoreTics = new uint[2];
-	readonly uint[] m_TeamPointsCount = new uint[2];
-	readonly uint[] m_Points_Trigger = new uint[EotSPoints.PointsMax];
-	readonly TeamFaction[] m_PointOwnedByTeam = new TeamFaction[EotSPoints.PointsMax];
-	readonly EotSPointState[] m_PointState = new EotSPointState[EotSPoints.PointsMax];
-	readonly EotSProgressBarConsts[] m_PointBarStatus = new EotSProgressBarConsts[EotSPoints.PointsMax];
-	readonly BattlegroundPointCaptureStatus[] m_LastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.PointsMax];
-	readonly List<ObjectGuid>[] m_PlayersNearPoint = new List<ObjectGuid>[EotSPoints.PointsMax + 1];
-	readonly byte[] m_CurrentPointPlayersCount = new byte[2 * EotSPoints.PointsMax];
+    private readonly uint[] m_HonorScoreTics = new uint[2];
+    private readonly uint[] m_TeamPointsCount = new uint[2];
+    private readonly uint[] m_Points_Trigger = new uint[EotSPoints.PointsMax];
+    private readonly TeamFaction[] m_PointOwnedByTeam = new TeamFaction[EotSPoints.PointsMax];
+    private readonly EotSPointState[] m_PointState = new EotSPointState[EotSPoints.PointsMax];
+    private readonly EotSProgressBarConsts[] m_PointBarStatus = new EotSProgressBarConsts[EotSPoints.PointsMax];
+    private readonly BattlegroundPointCaptureStatus[] m_LastPointCaptureStatus = new BattlegroundPointCaptureStatus[EotSPoints.PointsMax];
+    private readonly List<ObjectGuid>[] m_PlayersNearPoint = new List<ObjectGuid>[EotSPoints.PointsMax + 1];
+    private readonly byte[] m_CurrentPointPlayersCount = new byte[2 * EotSPoints.PointsMax];
 
-	ObjectGuid m_FlagKeeper; // keepers guid
-	ObjectGuid m_DroppedFlagGUID;
-	uint m_FlagCapturedBgObjectType; // type that should be despawned when flag is captured
-	EotSFlagState m_FlagState;       // for checking flag state
-	int m_FlagsTimer;
-	int m_TowerCapCheckTimer;
+    private ObjectGuid m_FlagKeeper; // keepers guid
+    private ObjectGuid m_DroppedFlagGUID;
+    private uint m_FlagCapturedBgObjectType; // type that should be despawned when flag is captured
+    private EotSFlagState m_FlagState;       // for checking flag state
+    private int m_FlagsTimer;
+    private int m_TowerCapCheckTimer;
 
-	int m_PointAddingTimer;
-	uint m_HonorTics;
+    private int m_PointAddingTimer;
+    private uint m_HonorTics;
 
 	public BgEyeofStorm(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
 	{
@@ -568,7 +568,7 @@ class BgEyeofStorm : Battleground
 		m_DroppedFlagGUID = guid;
 	}
 
-	void AddPoints(TeamFaction Team, uint Points)
+    private void AddPoints(TeamFaction Team, uint Points)
 	{
 		var team_index = GetTeamIndexByTeamId(Team);
 		m_TeamScores[team_index] += Points;
@@ -583,7 +583,7 @@ class BgEyeofStorm : Battleground
 		UpdateTeamScore(team_index);
 	}
 
-	BattlegroundPointCaptureStatus GetPointCaptureStatus(uint point)
+    private BattlegroundPointCaptureStatus GetPointCaptureStatus(uint point)
 	{
 		if (m_PointBarStatus[point] >= EotSProgressBarConsts.ProgressBarAliControlled)
 			return BattlegroundPointCaptureStatus.AllianceControlled;
@@ -599,7 +599,7 @@ class BgEyeofStorm : Battleground
 					: BattlegroundPointCaptureStatus.HordeCapturing;
 	}
 
-	void CheckSomeoneJoinedPoint()
+    private void CheckSomeoneJoinedPoint()
 	{
 		GameObject obj;
 
@@ -644,7 +644,7 @@ class BgEyeofStorm : Battleground
 		}
 	}
 
-	void CheckSomeoneLeftPo()
+    private void CheckSomeoneLeftPo()
 	{
 		//reset current point counts
 		for (byte i = 0; i < 2 * EotSPoints.PointsMax; ++i)
@@ -692,7 +692,7 @@ class BgEyeofStorm : Battleground
 		}
 	}
 
-	void UpdatePointStatuses()
+    private void UpdatePointStatuses()
 	{
 		for (byte point = 0; point < EotSPoints.PointsMax; ++point)
 		{
@@ -762,7 +762,7 @@ class BgEyeofStorm : Battleground
 		}
 	}
 
-	void UpdateTeamScore(int team)
+    private void UpdateTeamScore(int team)
 	{
 		var score = GetTeamScore(team);
 
@@ -782,7 +782,7 @@ class BgEyeofStorm : Battleground
 			UpdateWorldState(EotSWorldStateIds.HordeResources, (int)score);
 	}
 
-	void UpdatePointsCount(TeamFaction team)
+    private void UpdatePointsCount(TeamFaction team)
 	{
 		if (team == TeamFaction.Alliance)
 			UpdateWorldState(EotSWorldStateIds.AllianceBase, (int)m_TeamPointsCount[TeamIds.Alliance]);
@@ -790,7 +790,7 @@ class BgEyeofStorm : Battleground
 			UpdateWorldState(EotSWorldStateIds.HordeBase, (int)m_TeamPointsCount[TeamIds.Horde]);
 	}
 
-	void UpdatePointsIcons(TeamFaction team, int Point)
+    private void UpdatePointsIcons(TeamFaction team, int Point)
 	{
 		//we MUST firstly send 0, after that we can send 1!!!
 		if (m_PointState[Point] == EotSPointState.UnderControl)
@@ -813,7 +813,7 @@ class BgEyeofStorm : Battleground
 		}
 	}
 
-	void RespawnFlag(bool send_message)
+    private void RespawnFlag(bool send_message)
 	{
 		if (m_FlagCapturedBgObjectType > 0)
 			SpawnBGObject((int)m_FlagCapturedBgObjectType, BattlegroundConst.RespawnOneDay);
@@ -831,7 +831,7 @@ class BgEyeofStorm : Battleground
 		UpdateWorldState(EotSWorldStateIds.NetherstormFlag, 1);
 	}
 
-	void RespawnFlagAfterDrop()
+    private void RespawnFlagAfterDrop()
 	{
 		RespawnFlag(true);
 
@@ -845,7 +845,7 @@ class BgEyeofStorm : Battleground
 		SetDroppedFlagGUID(ObjectGuid.Empty);
 	}
 
-	void EventTeamLostPoint(Player player, int Point)
+    private void EventTeamLostPoint(Player player, int Point)
 	{
 		if (GetStatus() != BattlegroundStatus.InProgress)
 			return;
@@ -893,7 +893,7 @@ class BgEyeofStorm : Battleground
 			DelCreature(Point + 6); //null checks are in DelCreature! 0-5 spirit guides
 	}
 
-	void EventTeamCapturedPoint(Player player, int Point)
+    private void EventTeamCapturedPoint(Player player, int Point)
 	{
 		if (GetStatus() != BattlegroundStatus.InProgress)
 			return;
@@ -963,7 +963,7 @@ class BgEyeofStorm : Battleground
 		}
 	}
 
-	void EventPlayerCapturedFlag(Player player, uint BgObjectType)
+    private void EventPlayerCapturedFlag(Player player, uint BgObjectType)
 	{
 		if (GetStatus() != BattlegroundStatus.InProgress || GetFlagPickerGUID() != player.GUID)
 			return;
@@ -1003,25 +1003,25 @@ class BgEyeofStorm : Battleground
 		UpdatePlayerScore(player, ScoreType.FlagCaptures, 1);
 	}
 
-	void SetFlagPicker(ObjectGuid guid)
+    private void SetFlagPicker(ObjectGuid guid)
 	{
 		m_FlagKeeper = guid;
 	}
 
-	bool IsFlagPickedup()
+    private bool IsFlagPickedup()
 	{
 		return !m_FlagKeeper.IsEmpty;
 	}
 
-	ObjectGuid GetDroppedFlagGUID()
+    private ObjectGuid GetDroppedFlagGUID()
 	{
 		return m_DroppedFlagGUID;
 	}
 }
 
-class BgEyeOfStormScore : BattlegroundScore
+internal class BgEyeOfStormScore : BattlegroundScore
 {
-	uint FlagCaptures;
+    private uint FlagCaptures;
 	public BgEyeOfStormScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
 	public override void UpdateScore(ScoreType type, uint value)
@@ -1052,7 +1052,7 @@ class BgEyeOfStormScore : BattlegroundScore
 	}
 }
 
-struct BattlegroundEYPointIconsStruct
+internal struct BattlegroundEYPointIconsStruct
 {
 	public BattlegroundEYPointIconsStruct(uint worldStateControlIndex, uint worldStateAllianceControlledIndex, uint worldStateHordeControlledIndex, uint worldStateAllianceStatusBarIcon, uint worldStateHordeStatusBarIcon)
 	{
@@ -1070,7 +1070,7 @@ struct BattlegroundEYPointIconsStruct
 	public uint WorldStateHordeStatusBarIcon;
 }
 
-struct BattlegroundEYLosingPointStruct
+internal struct BattlegroundEYLosingPointStruct
 {
 	public BattlegroundEYLosingPointStruct(int _SpawnNeutralObjectType, int _DespawnObjectTypeAlliance, uint _MessageIdAlliance, int _DespawnObjectTypeHorde, uint _MessageIdHorde)
 	{
@@ -1088,7 +1088,7 @@ struct BattlegroundEYLosingPointStruct
 	public uint MessageIdHorde;
 }
 
-struct BattlegroundEYCapturingPointStruct
+internal struct BattlegroundEYCapturingPointStruct
 {
 	public BattlegroundEYCapturingPointStruct(int _DespawnNeutralObjectType, int _SpawnObjectTypeAlliance, uint _MessageIdAlliance, int _SpawnObjectTypeHorde, uint _MessageIdHorde, uint _GraveYardId)
 	{
@@ -1108,7 +1108,7 @@ struct BattlegroundEYCapturingPointStruct
 	public uint GraveYardId;
 }
 
-struct EotSMisc
+internal struct EotSMisc
 {
 	public const uint EventStartBattle = 13180; // Achievement: Flurry
 	public const int FlagRespawnTime = (8 * Time.InMilliseconds);
@@ -1159,7 +1159,7 @@ struct EotSMisc
 	};
 }
 
-struct EotSBroadcastTexts
+internal struct EotSBroadcastTexts
 {
 	public const uint AllianceTakenFelReaverRuins = 17828;
 	public const uint HordeTakenFelReaverRuins = 17829;
@@ -1188,7 +1188,7 @@ struct EotSBroadcastTexts
 	public const uint HordeCapturedFlag = 18384;
 }
 
-struct EotSWorldStateIds
+internal struct EotSWorldStateIds
 {
 	public const uint AllianceResources = 1776;
 	public const uint HordeResources = 1777;
@@ -1227,7 +1227,7 @@ struct EotSWorldStateIds
 	public const uint BloodElfAllianceControlState = 17365;
 }
 
-enum EotSProgressBarConsts
+internal enum EotSProgressBarConsts
 {
 	PointMaxCapturersCount = 5,
 	PointRadius = 70,
@@ -1241,7 +1241,7 @@ enum EotSProgressBarConsts
 	ProgressBarAliControlled = 100
 }
 
-struct EotSSoundIds
+internal struct EotSSoundIds
 {
 	//strange ids, but sure about them
 	public const uint FlagPickedUpAlliance = 8212;
@@ -1251,7 +1251,7 @@ struct EotSSoundIds
 	public const uint FlagReset = 8192;
 }
 
-struct EotSObjectIds
+internal struct EotSObjectIds
 {
 	public const uint ADoorEyEntry = 184719;      //Alliance Door
 	public const uint HDoorEyEntry = 184720;      //Horde Door
@@ -1278,7 +1278,7 @@ struct EotSObjectIds
 	public const uint BerserkBuffMageTowerEyEntry = 184975;
 }
 
-struct EotSPointsTrigger
+internal struct EotSPointsTrigger
 {
 	public const uint BloodElfPoint = 4476;
 	public const uint FelReaverPoint = 4514;
@@ -1290,7 +1290,7 @@ struct EotSPointsTrigger
 	public const uint DraeneiRuinsBuff = 4571;
 }
 
-struct EotSGaveyardIds
+internal struct EotSGaveyardIds
 {
 	public const int MainAlliance = 1103;
 	public const uint MainHorde = 1104;
@@ -1300,7 +1300,7 @@ struct EotSGaveyardIds
 	public const uint MageTower = 1108;
 }
 
-struct EotSPoints
+internal struct EotSPoints
 {
 	public const int FelReaver = 0;
 	public const int BloodElf = 1;
@@ -1311,7 +1311,7 @@ struct EotSPoints
 	public const int PointsMax = 4;
 }
 
-struct EotSCreaturesTypes
+internal struct EotSCreaturesTypes
 {
 	public const uint SpiritFelReaver = 0;
 	public const uint SpiritBloodElf = 1;
@@ -1328,7 +1328,7 @@ struct EotSCreaturesTypes
 	public const uint Max = 10;
 }
 
-struct EotSObjectTypes
+internal struct EotSObjectTypes
 {
 	public const int DoorA = 0;
 	public const int DoorH = 1;
@@ -1395,13 +1395,13 @@ struct EotSObjectTypes
 	public const int Max = 59;
 }
 
-struct EotSScoreIds
+internal struct EotSScoreIds
 {
 	public const uint WarningNearVictoryScore = 1400;
 	public const uint MaxTeamScore = 1500;
 }
 
-enum EotSFlagState
+internal enum EotSFlagState
 {
 	OnBase = 0,
 	WaitRespawn = 1,
@@ -1409,7 +1409,7 @@ enum EotSFlagState
 	OnGround = 3
 }
 
-enum EotSPointState
+internal enum EotSPointState
 {
 	NoOwner = 0,
 	Uncontrolled = 0,

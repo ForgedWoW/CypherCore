@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class ReadyCheckResponseClient : ClientPacket
+internal class ReadyCheckResponseClient : ClientPacket
 {
 	public byte PartyIndex;
 	public bool IsReady;

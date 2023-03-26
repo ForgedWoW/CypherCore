@@ -7,10 +7,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("pet")]
-class PetCommands
+internal class PetCommands
 {
 	[Command("create", RBACPermissions.CommandPetCreate)]
-	static bool HandlePetCreateCommand(CommandHandler handler)
+    private static bool HandlePetCreateCommand(CommandHandler handler)
 	{
 		var player = handler.Session.Player;
 		var creatureTarget = handler.SelectedCreature;
@@ -66,7 +66,7 @@ class PetCommands
 	}
 
 	[Command("learn", RBACPermissions.CommandPetLearn)]
-	static bool HandlePetLearnCommand(CommandHandler handler, uint spellId)
+    private static bool HandlePetLearnCommand(CommandHandler handler, uint spellId)
 	{
 		var pet = GetSelectedPlayerPetOrOwn(handler);
 
@@ -106,7 +106,7 @@ class PetCommands
 	}
 
 	[Command("unlearn", RBACPermissions.CommandPetUnlearn)]
-	static bool HandlePetUnlearnCommand(CommandHandler handler, uint spellId)
+    private static bool HandlePetUnlearnCommand(CommandHandler handler, uint spellId)
 	{
 		var pet = GetSelectedPlayerPetOrOwn(handler);
 
@@ -126,7 +126,7 @@ class PetCommands
 	}
 
 	[Command("level", RBACPermissions.CommandPetLevel)]
-	static bool HandlePetLevelCommand(CommandHandler handler, int level)
+    private static bool HandlePetLevelCommand(CommandHandler handler, int level)
 	{
 		var pet = GetSelectedPlayerPetOrOwn(handler);
 		var owner = pet ? pet.OwningPlayer : null;
@@ -160,7 +160,7 @@ class PetCommands
 		return true;
 	}
 
-	static Pet GetSelectedPlayerPetOrOwn(CommandHandler handler)
+    private static Pet GetSelectedPlayerPetOrOwn(CommandHandler handler)
 	{
 		var target = handler.SelectedUnit;
 

@@ -13,12 +13,12 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("lookup")]
-class LookupCommands
+internal class LookupCommands
 {
-	static readonly int maxResults = 50;
+    private static readonly int maxResults = 50;
 
 	[Command("area", RBACPermissions.CommandLookupArea, true)]
-	static bool HandleLookupAreaCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupAreaCommand(CommandHandler handler, string namePart)
 	{
 		namePart = namePart.ToLower();
 
@@ -84,7 +84,7 @@ class LookupCommands
 	}
 
 	[Command("creature", RBACPermissions.CommandLookupCreature, true)]
-	static bool HandleLookupCreatureCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupCreatureCommand(CommandHandler handler, string namePart)
 	{
 		namePart = namePart.ToLower();
 
@@ -156,7 +156,7 @@ class LookupCommands
 	}
 
 	[Command("event", RBACPermissions.CommandLookupEvent, true)]
-	static bool HandleLookupEventCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupEventCommand(CommandHandler handler, string namePart)
 	{
 		namePart = namePart.ToLower();
 
@@ -203,7 +203,7 @@ class LookupCommands
 	}
 
 	[Command("faction", RBACPermissions.CommandLookupFaction, true)]
-	static bool HandleLookupFactionCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupFactionCommand(CommandHandler handler, string namePart)
 	{
 		// Can be NULL at console call
 		var target = handler.SelectedPlayer;
@@ -305,7 +305,7 @@ class LookupCommands
 	}
 
 	[Command("itemset", RBACPermissions.CommandLookupItemset, true)]
-	static bool HandleLookupItemSetCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupItemSetCommand(CommandHandler handler, string namePart)
 	{
 		namePart = namePart.ToLower();
 
@@ -367,7 +367,7 @@ class LookupCommands
 	}
 
 	[Command("object", RBACPermissions.CommandLookupObject, true)]
-	static bool HandleLookupObjectCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupObjectCommand(CommandHandler handler, string namePart)
 	{
 		var found = false;
 		uint count = 0;
@@ -437,7 +437,7 @@ class LookupCommands
 	}
 
 	[Command("skill", RBACPermissions.CommandLookupSkill, true)]
-	static bool HandleLookupSkillCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupSkillCommand(CommandHandler handler, string namePart)
 	{
 		// can be NULL in console call
 		var target = handler.SelectedPlayer;
@@ -515,7 +515,7 @@ class LookupCommands
 	}
 
 	[Command("taxinode", RBACPermissions.CommandLookupTaxinode, true)]
-	static bool HandleLookupTaxiNodeCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupTaxiNodeCommand(CommandHandler handler, string namePart)
 	{
 		var found = false;
 		uint count = 0;
@@ -571,7 +571,7 @@ class LookupCommands
 	}
 
 	[Command("tele", RBACPermissions.CommandLookupTele, true)]
-	static bool HandleLookupTeleCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupTeleCommand(CommandHandler handler, string namePart)
 	{
 		namePart = namePart.ToLower();
 
@@ -609,7 +609,7 @@ class LookupCommands
 	}
 
 	[Command("title", RBACPermissions.CommandLookupTitle, true)]
-	static bool HandleLookupTitleCommand(CommandHandler handler, string namePart)
+    private static bool HandleLookupTitleCommand(CommandHandler handler, string namePart)
 	{
 		// can be NULL in console call
 		var target = handler.SelectedPlayer;
@@ -685,10 +685,10 @@ class LookupCommands
 	}
 
 	[CommandGroup("item")]
-	class LookupItemCommands
+    private class LookupItemCommands
 	{
 		[Command("", RBACPermissions.CommandLookupItem, true)]
-		static bool HandleLookupItemCommand(CommandHandler handler, string namePart)
+        private static bool HandleLookupItemCommand(CommandHandler handler, string namePart)
 		{
 			var found = false;
 			uint count = 0;
@@ -729,7 +729,7 @@ class LookupCommands
 		}
 
 		[Command("id", RBACPermissions.CommandLookupItemId, true)]
-		static bool HandleLookupItemIdCommand(CommandHandler handler, uint id)
+        private static bool HandleLookupItemIdCommand(CommandHandler handler, uint id)
 		{
 			var itemTemplate = Global.ObjectMgr.GetItemTemplate(id);
 
@@ -758,7 +758,7 @@ class LookupCommands
 		}
 
 		[Command("set", RBACPermissions.CommandLookupItemset, true)]
-		static bool HandleLookupItemSetCommand(CommandHandler handler, string namePart)
+        private static bool HandleLookupItemSetCommand(CommandHandler handler, string namePart)
 		{
 			if (namePart.IsEmpty())
 				return false;
@@ -823,10 +823,10 @@ class LookupCommands
 	}
 
 	[CommandGroup("map")]
-	class LookupMapCommands
+    private class LookupMapCommands
 	{
 		[Command("map", RBACPermissions.CommandLookupMap, true)]
-		static bool HandleLookupMapCommand(CommandHandler handler, string namePart)
+        private static bool HandleLookupMapCommand(CommandHandler handler, string namePart)
 		{
 			if (namePart.IsEmpty())
 				return false;
@@ -909,7 +909,7 @@ class LookupCommands
 		}
 
 		[Command("id", RBACPermissions.CommandLookupMapId, true)]
-		static bool HandleLookupMapIdCommand(CommandHandler handler, uint id)
+        private static bool HandleLookupMapIdCommand(CommandHandler handler, uint id)
 		{
 			var mapInfo = CliDB.MapStorage.LookupByKey(id);
 
@@ -967,10 +967,10 @@ class LookupCommands
 	}
 
 	[CommandGroup("player")]
-	class LookupPlayerCommands
+    private class LookupPlayerCommands
 	{
 		[Command("ip", RBACPermissions.CommandLookupPlayerIp)]
-		static bool HandleLookupPlayerIpCommand(CommandHandler handler, string ip, int limit = -1)
+        private static bool HandleLookupPlayerIpCommand(CommandHandler handler, string ip, int limit = -1)
 		{
 			var target = handler.SelectedPlayer;
 
@@ -990,7 +990,7 @@ class LookupCommands
 		}
 
 		[Command("account", RBACPermissions.CommandLookupPlayerAccount)]
-		static bool HandleLookupPlayerAccountCommand(CommandHandler handler, string account, int limit = -1)
+        private static bool HandleLookupPlayerAccountCommand(CommandHandler handler, string account, int limit = -1)
 		{
 			var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_NAME);
 			stmt.AddValue(0, account);
@@ -999,7 +999,7 @@ class LookupCommands
 		}
 
 		[Command("email", RBACPermissions.CommandLookupPlayerEmail)]
-		static bool HandleLookupPlayerEmailCommand(CommandHandler handler, string email, int limit = -1)
+        private static bool HandleLookupPlayerEmailCommand(CommandHandler handler, string email, int limit = -1)
 		{
 			var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_LIST_BY_EMAIL);
 			stmt.AddValue(0, email);
@@ -1007,7 +1007,7 @@ class LookupCommands
 			return LookupPlayerSearchCommand(DB.Login.Query(stmt), limit, handler);
 		}
 
-		static bool LookupPlayerSearchCommand(SQLResult result, int limit, CommandHandler handler)
+        private static bool LookupPlayerSearchCommand(SQLResult result, int limit, CommandHandler handler)
 		{
 			if (result.IsEmpty())
 			{
@@ -1063,10 +1063,10 @@ class LookupCommands
 	}
 
 	[CommandGroup("quest")]
-	class LookupQuestCommands
+    private class LookupQuestCommands
 	{
 		[Command("", RBACPermissions.CommandLookupQuest, true)]
-		static bool HandleLookupQuestCommand(CommandHandler handler, string namePart)
+        private static bool HandleLookupQuestCommand(CommandHandler handler, string namePart)
 		{
 			// can be NULL at console call
 			var target = handler.SelectedPlayer;
@@ -1234,7 +1234,7 @@ class LookupCommands
 		}
 
 		[Command("id", RBACPermissions.CommandLookupQuestId, true)]
-		static bool HandleLookupQuestIdCommand(CommandHandler handler, uint id)
+        private static bool HandleLookupQuestIdCommand(CommandHandler handler, uint id)
 		{
 			// can be NULL at console call
 			var target = handler.SelectedPlayerOrSelf;
@@ -1312,10 +1312,10 @@ class LookupCommands
 	}
 
 	[CommandGroup("spell")]
-	class LookupSpellCommands
+    private class LookupSpellCommands
 	{
 		[Command("", RBACPermissions.CommandLookupSpell)]
-		static bool HandleLookupSpellCommand(CommandHandler handler, string namePart)
+        private static bool HandleLookupSpellCommand(CommandHandler handler, string namePart)
 		{
 			// can be NULL at console call
 			var target = handler.SelectedPlayer;
@@ -1422,7 +1422,7 @@ class LookupCommands
 		}
 
 		[Command("id", RBACPermissions.CommandLookupSpellId)]
-		static bool HandleLookupSpellIdCommand(CommandHandler handler, uint id)
+        private static bool HandleLookupSpellIdCommand(CommandHandler handler, uint id)
 		{
 			// can be NULL at console call
 			var target = handler.SelectedPlayer;

@@ -393,7 +393,7 @@ public class PlayerData : BaseUpdateData<Player>
 		ChangesMask.ResetAll();
 	}
 
-	bool IsQuestLogChangesMaskSkipped()
+    private bool IsQuestLogChangesMaskSkipped()
 	{
 		return false;
 	} // bandwidth savings aren't worth the cpu time

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectInteraction : ServerPacket
+internal class GameObjectInteraction : ServerPacket
 {
 	public ObjectGuid ObjectGUID;
 	public PlayerInteractionType InteractionType;

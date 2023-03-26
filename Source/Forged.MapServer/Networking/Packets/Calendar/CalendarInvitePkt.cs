@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarInvitePkt : ClientPacket
+internal class CalendarInvitePkt : ClientPacket
 {
 	public ulong ModeratorID;
 	public bool IsSignUp;

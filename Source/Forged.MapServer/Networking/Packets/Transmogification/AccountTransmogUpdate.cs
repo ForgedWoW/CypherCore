@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Transmogification;
 
-class AccountTransmogUpdate : ServerPacket
+internal class AccountTransmogUpdate : ServerPacket
 {
 	public bool IsFullUpdate;
 	public bool IsSetFavorite;

@@ -9,13 +9,13 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class VehicleAI : CreatureAI
 {
-	const int VEHICLE_CONDITION_CHECK_TIME = 1000;
-	const int VEHICLE_DISMISS_TIME = 5000;
+    private const int VEHICLE_CONDITION_CHECK_TIME = 1000;
+    private const int VEHICLE_DISMISS_TIME = 5000;
 
-	bool _hasConditions;
-	uint _conditionsTimer;
-	bool _doDismiss;
-	uint _dismissTimer;
+    private bool _hasConditions;
+    private uint _conditionsTimer;
+    private bool _doDismiss;
+    private uint _dismissTimer;
 
 	public VehicleAI(Creature creature) : base(creature)
 	{
@@ -59,12 +59,12 @@ public class VehicleAI : CreatureAI
 		_dismissTimer = VEHICLE_DISMISS_TIME; //reset timer
 	}
 
-	void LoadConditions()
+    private void LoadConditions()
 	{
 		_hasConditions = Global.ConditionMgr.HasConditionsForNotGroupedEntry(ConditionSourceType.CreatureTemplateVehicle, Me.Entry);
 	}
 
-	void CheckConditions(uint diff)
+    private void CheckConditions(uint diff)
 	{
 		if (!_hasConditions)
 			return;

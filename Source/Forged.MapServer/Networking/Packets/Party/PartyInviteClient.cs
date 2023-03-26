@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyInviteClient : ClientPacket
+internal class PartyInviteClient : ClientPacket
 {
 	public byte PartyIndex;
 	public uint ProposedRoles;

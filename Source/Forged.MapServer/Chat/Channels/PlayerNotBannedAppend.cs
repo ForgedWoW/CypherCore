@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct PlayerNotBannedAppend : IChannelAppender
+internal struct PlayerNotBannedAppend : IChannelAppender
 {
 	public PlayerNotBannedAppend(string playerName)
 	{
@@ -20,5 +20,5 @@ struct PlayerNotBannedAppend : IChannelAppender
 		data.Sender = _playerName;
 	}
 
-	readonly string _playerName;
+    private readonly string _playerName;
 }

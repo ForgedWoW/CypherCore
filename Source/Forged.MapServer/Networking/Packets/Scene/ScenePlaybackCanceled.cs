@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Scene;
 
-class ScenePlaybackCanceled : ClientPacket
+internal class ScenePlaybackCanceled : ClientPacket
 {
 	public uint SceneInstanceID;
 	public ScenePlaybackCanceled(WorldPacket packet) : base(packet) { }

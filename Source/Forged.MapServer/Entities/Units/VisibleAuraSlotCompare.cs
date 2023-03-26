@@ -6,7 +6,7 @@ using Forged.MapServer.Spells.Auras;
 
 namespace Forged.MapServer.Entities.Units;
 
-class VisibleAuraSlotCompare : IComparer<AuraApplication>
+internal class VisibleAuraSlotCompare : IComparer<AuraApplication>
 {
 	public int Compare(AuraApplication x, AuraApplication y)
 	{

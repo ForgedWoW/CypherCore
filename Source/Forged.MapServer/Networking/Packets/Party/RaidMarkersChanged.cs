@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class RaidMarkersChanged : ServerPacket
+internal class RaidMarkersChanged : ServerPacket
 {
 	public sbyte PartyIndex;
 	public uint ActiveMarkers;

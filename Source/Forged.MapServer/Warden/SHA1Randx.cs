@@ -6,14 +6,14 @@ using System.Security.Cryptography;
 
 namespace Forged.MapServer.Warden;
 
-class SHA1Randx
+internal class SHA1Randx
 {
-	readonly byte[] _o1 = new byte[20];
-	readonly byte[] _o2 = new byte[20];
+    private readonly byte[] _o1 = new byte[20];
+    private readonly byte[] _o2 = new byte[20];
 
-	SHA1 _sh;
-	uint _taken;
-	byte[] _o0 = new byte[20];
+    private SHA1 _sh;
+    private uint _taken;
+    private byte[] _o0 = new byte[20];
 
 	public SHA1Randx(byte[] buff)
 	{
@@ -42,7 +42,7 @@ class SHA1Randx
 	}
 
 
-	void FillUp()
+    private void FillUp()
 	{
 		_sh = SHA1.Create();
 		_sh.ComputeHash(_o1, 0, 20);

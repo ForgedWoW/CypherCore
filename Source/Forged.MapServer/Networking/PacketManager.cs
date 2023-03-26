@@ -11,7 +11,7 @@ namespace Forged.MapServer.Networking;
 
 public static class PacketManager
 {
-	static readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
+    private static readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
 
 	public static void Initialize()
 	{

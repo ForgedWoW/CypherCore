@@ -9,12 +9,12 @@ namespace Forged.MapServer.Networking.Packets.Spell;
 
 public class SpellCastLogData
 {
-	readonly List<SpellLogPowerData> PowerData = new();
+    private readonly List<SpellLogPowerData> PowerData = new();
 
-	long Health;
-	double AttackPower;
-	double SpellPower;
-	uint Armor;
+    private long Health;
+    private double AttackPower;
+    private double SpellPower;
+    private uint Armor;
 
 	public void Initialize(Unit unit)
 	{

@@ -27,13 +27,13 @@ public class Vehicle : ITransport
 	public Dictionary<sbyte, VehicleSeat> Seats = new();
 	public uint UsableSeatNum; //< Number of seats that match VehicleSeatEntry.UsableByPlayer, used for proper display flags
 
-	readonly Unit _me;
-	readonly VehicleRecord _vehicleInfo; //< DBC data for vehicle
+    private readonly Unit _me;
+    private readonly VehicleRecord _vehicleInfo; //< DBC data for vehicle
 
-	readonly uint _creatureEntry; //< Can be different than the entry of _me in case of players
+    private readonly uint _creatureEntry; //< Can be different than the entry of _me in case of players
 
-	readonly List<VehicleJoinEvent> _pendingJoinEvents = new();
-	Status _status; //< Internal variable for sanity checks
+    private readonly List<VehicleJoinEvent> _pendingJoinEvents = new();
+    private Status _status; //< Internal variable for sanity checks
 
 	public Vehicle(Unit unit, VehicleRecord vehInfo, uint creatureEntry)
 	{
@@ -542,7 +542,7 @@ public class Vehicle : ITransport
 		return vehicle != null;
 	}
 
-	void ApplyAllImmunities()
+    private void ApplyAllImmunities()
 	{
 		// This couldn't be done in DB, because some spells have MECHANIC_NONE
 
@@ -600,7 +600,7 @@ public class Vehicle : ITransport
 		}
 	}
 
-	void InstallAccessory(uint entry, sbyte seatId, bool minion, byte type, uint summonTime)
+    private void InstallAccessory(uint entry, sbyte seatId, bool minion, byte type, uint summonTime)
 	{
 		// @Prevent adding accessories when vehicle is uninstalling. (Bad script in OnUninstall/OnRemovePassenger/PassengerBoarded hook.)
 
@@ -629,7 +629,7 @@ public class Vehicle : ITransport
 		// @VehicleJoinEvent.Abort
 	}
 
-	void InitMovementInfoForBase()
+    private void InitMovementInfoForBase()
 	{
 		var vehicleFlags = (VehicleFlags)GetVehicleInfo().Flags;
 
@@ -649,7 +649,7 @@ public class Vehicle : ITransport
 			_me.AddUnitMovementFlag2(MovementFlag2.FullSpeedPitching);
 	}
 
-	KeyValuePair<sbyte, VehicleSeat> GetSeatKeyValuePairForPassenger(Unit passenger)
+    private KeyValuePair<sbyte, VehicleSeat> GetSeatKeyValuePairForPassenger(Unit passenger)
 	{
 		foreach (var pair in Seats)
 			if (pair.Value.Passenger.Guid == passenger.GUID)
@@ -658,7 +658,7 @@ public class Vehicle : ITransport
 		return Seats.Last();
 	}
 
-	bool HasPendingEventForSeat(sbyte seatId)
+    private bool HasPendingEventForSeat(sbyte seatId)
 	{
 		for (var i = 0; i < _pendingJoinEvents.Count; ++i)
 		{

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarCommunityInviteRequest : ClientPacket
+internal class CalendarCommunityInviteRequest : ClientPacket
 {
 	public ulong ClubId;
 	public byte MinLevel = 1;

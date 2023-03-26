@@ -14,10 +14,10 @@ namespace Forged.MapServer.AI.SmartScripts;
 
 public class SmartGameObjectAI : GameObjectAI
 {
-	readonly SmartScript _script = new();
+    private readonly SmartScript _script = new();
 
 	// Gossip
-	bool _gossipReturn;
+    private bool _gossipReturn;
 
 	public SmartGameObjectAI(GameObject go) : base(go) { }
 

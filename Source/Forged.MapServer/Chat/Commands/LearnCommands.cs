@@ -9,10 +9,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("learn")]
-class LearnCommands
+internal class LearnCommands
 {
 	[Command("", CypherStrings.CommandLearnHelp, RBACPermissions.CommandLearn)]
-	static bool HandleLearnCommand(CommandHandler handler, uint spellId, string allRanksStr)
+    private static bool HandleLearnCommand(CommandHandler handler, uint spellId, string allRanksStr)
 	{
 		var targetPlayer = handler.SelectedPlayerOrSelf;
 
@@ -52,7 +52,7 @@ class LearnCommands
 	}
 
 	[CommandNonGroup("unlearn", CypherStrings.CommandUnlearnHelp, RBACPermissions.CommandUnlearn)]
-	static bool HandleUnLearnCommand(CommandHandler handler, uint spellId, string allRanksStr)
+    private static bool HandleUnLearnCommand(CommandHandler handler, uint spellId, string allRanksStr)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -77,10 +77,10 @@ class LearnCommands
 	}
 
 	[CommandGroup("all")]
-	class LearnAllCommands
+    private class LearnAllCommands
 	{
 		[Command("blizzard", CypherStrings.CommandLearnAllBlizzardHelp, RBACPermissions.CommandLearnAllGm)]
-		static bool HandleLearnAllGMCommand(CommandHandler handler)
+        private static bool HandleLearnAllGMCommand(CommandHandler handler)
 		{
 			foreach (var skillSpell in Global.SpellMgr.GetSkillLineAbilityMapBounds((uint)SkillType.Internal))
 			{
@@ -98,7 +98,7 @@ class LearnCommands
 		}
 
 		[Command("debug", CypherStrings.CommandLearnAllDebugHelp, RBACPermissions.CommandLearn)]
-		static bool HandleLearnDebugSpellsCommand(CommandHandler handler)
+        private static bool HandleLearnDebugSpellsCommand(CommandHandler handler)
 		{
 			var player = handler.Player;
 			player.LearnSpell(63364, false); /* 63364 - Saronite Barrier (reduces damage taken by 99%) */
@@ -113,7 +113,7 @@ class LearnCommands
 		}
 
 		[Command("crafts", CypherStrings.CommandLearnAllCraftsHelp, RBACPermissions.CommandLearnAllCrafts)]
-		static bool HandleLearnAllCraftsCommand(CommandHandler handler, PlayerIdentifier player)
+        private static bool HandleLearnAllCraftsCommand(CommandHandler handler, PlayerIdentifier player)
 		{
 			if (player == null)
 				player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -133,7 +133,7 @@ class LearnCommands
 		}
 
 		[Command("default", CypherStrings.CommandLearnAllDefaultHelp, RBACPermissions.CommandLearnAllDefault)]
-		static bool HandleLearnAllDefaultCommand(CommandHandler handler, PlayerIdentifier player)
+        private static bool HandleLearnAllDefaultCommand(CommandHandler handler, PlayerIdentifier player)
 		{
 			if (player == null)
 				player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -152,7 +152,7 @@ class LearnCommands
 		}
 
 		[Command("languages", CypherStrings.CommandLearnAllLanguagesHelp, RBACPermissions.CommandLearnAllLang)]
-		static bool HandleLearnAllLangCommand(CommandHandler handler)
+        private static bool HandleLearnAllLangCommand(CommandHandler handler)
 		{
 			Global.LanguageMgr.ForEachLanguage((_, languageDesc) =>
 			{
@@ -168,7 +168,7 @@ class LearnCommands
 		}
 
 		[Command("recipes", CypherStrings.CommandLearnAllRecipesHelp, RBACPermissions.CommandLearnAllRecipes)]
-		static bool HandleLearnAllRecipesCommand(CommandHandler handler, Tail namePart)
+        private static bool HandleLearnAllRecipesCommand(CommandHandler handler, Tail namePart)
 		{
 			//  Learns all recipes of specified profession and sets skill to max
 			//  Example: .learn all_recipes enchanting
@@ -238,7 +238,7 @@ class LearnCommands
 		}
 
 		[Command("talents", CypherStrings.CommandLearnAllTalentsHelp, RBACPermissions.CommandLearnAllTalents)]
-		static bool HandleLearnAllTalentsCommand(CommandHandler handler)
+        private static bool HandleLearnAllTalentsCommand(CommandHandler handler)
 		{
 			var player = handler.Session.Player;
 			var playerClass = (uint)player.Class;
@@ -269,12 +269,12 @@ class LearnCommands
 		}
 
 		[Command("pettalents", CypherStrings.CommandLearnAllPettalentHelp, RBACPermissions.CommandLearnMyPetTalents)]
-		static bool HandleLearnAllPetTalentsCommand(CommandHandler handler)
+        private static bool HandleLearnAllPetTalentsCommand(CommandHandler handler)
 		{
 			return true;
 		}
 
-		static void HandleLearnSkillRecipesHelper(Player player, uint skillId)
+        private static void HandleLearnSkillRecipesHelper(Player player, uint skillId)
 		{
 			var classmask = player.ClassMask;
 
@@ -308,10 +308,10 @@ class LearnCommands
 	}
 
 	[CommandGroup("my")]
-	class LearnAllMyCommands
+    private class LearnAllMyCommands
 	{
 		[Command("quests", CypherStrings.CommandLearnMyQuestsHelp, RBACPermissions.CommandLearnAllMySpells)]
-		static bool HandleLearnMyQuestsCommand(CommandHandler handler)
+        private static bool HandleLearnMyQuestsCommand(CommandHandler handler)
 		{
 			var player = handler.Player;
 
@@ -323,7 +323,7 @@ class LearnCommands
 		}
 
 		[Command("trainer", CypherStrings.CommandLearnMyTrainerHelp, RBACPermissions.CommandLearnAllMySpells)]
-		static bool HandleLearnMySpellsCommand(CommandHandler handler)
+        private static bool HandleLearnMySpellsCommand(CommandHandler handler)
 		{
 			var classEntry = CliDB.ChrClassesStorage.LookupByKey(handler.Player.Class);
 

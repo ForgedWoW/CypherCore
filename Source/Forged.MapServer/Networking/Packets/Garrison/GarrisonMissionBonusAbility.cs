@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonMissionBonusAbility
+internal struct GarrisonMissionBonusAbility
 {
 	public void Write(WorldPacket data)
 	{

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class CompleteMovie : ClientPacket
+internal class CompleteMovie : ClientPacket
 {
 	public CompleteMovie(WorldPacket packet) : base(packet) { }
 

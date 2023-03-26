@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
-class BlackMarketWon : ServerPacket
+internal class BlackMarketWon : ServerPacket
 {
 	public uint MarketID;
 	public ItemInstance Item;

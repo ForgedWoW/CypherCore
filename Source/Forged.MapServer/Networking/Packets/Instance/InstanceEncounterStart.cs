@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceEncounterStart : ServerPacket
+internal class InstanceEncounterStart : ServerPacket
 {
 	public uint InCombatResCount; // amount of usable battle ressurections
 	public uint MaxInCombatResCount;

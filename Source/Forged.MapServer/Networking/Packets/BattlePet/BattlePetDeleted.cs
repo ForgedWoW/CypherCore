@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetDeleted : ServerPacket
+internal class BattlePetDeleted : ServerPacket
 {
 	public ObjectGuid PetGuid;
 	public BattlePetDeleted() : base(ServerOpcodes.BattlePetDeleted) { }

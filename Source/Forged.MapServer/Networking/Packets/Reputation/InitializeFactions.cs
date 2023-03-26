@@ -10,7 +10,7 @@ public class InitializeFactions : ServerPacket
 	public int[] FactionStandings = new int[FactionCount];
 	public bool[] FactionHasBonus = new bool[FactionCount]; //@todo: implement faction bonus
 	public ReputationFlags[] FactionFlags = new ReputationFlags[FactionCount];
-	const ushort FactionCount = 443;
+    private const ushort FactionCount = 443;
 
 	public InitializeFactions() : base(ServerOpcodes.InitializeFactions, ConnectionType.Instance) { }
 

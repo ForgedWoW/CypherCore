@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class GossipPOI : ServerPacket
+internal class GossipPOI : ServerPacket
 {
 	public uint Id;
 	public uint Flags;

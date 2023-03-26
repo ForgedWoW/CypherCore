@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Scenarios;
 
-enum ScenarioType
+internal enum ScenarioType
 {
 	Scenario = 0,
 	ChallengeMode = 1,

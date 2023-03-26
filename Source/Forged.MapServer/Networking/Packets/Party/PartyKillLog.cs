@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyKillLog : ServerPacket
+internal class PartyKillLog : ServerPacket
 {
 	public ObjectGuid Player;
 	public ObjectGuid Victim;

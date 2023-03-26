@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class UpdateTalentData : ServerPacket
+internal class UpdateTalentData : ServerPacket
 {
 	public TalentInfoUpdate Info = new();
 	public UpdateTalentData() : base(ServerOpcodes.UpdateTalentData, ConnectionType.Instance) { }

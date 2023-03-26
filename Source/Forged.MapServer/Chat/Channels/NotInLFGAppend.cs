@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct NotInLFGAppend : IChannelAppender
+internal struct NotInLFGAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.NotInLfgNotice;
 

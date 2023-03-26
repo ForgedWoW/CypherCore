@@ -12,11 +12,11 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
 {
 	internal WorldObject Caster;
 	internal SpellInfo SpellInfo;
-	readonly WorldObject _referer;
-	readonly SpellTargetCheckTypes _targetSelectionType;
-	readonly ConditionSourceInfo _condSrcInfo;
-	readonly List<Condition> _condList;
-	readonly SpellTargetObjectTypes _objectType;
+    private readonly WorldObject _referer;
+    private readonly SpellTargetCheckTypes _targetSelectionType;
+    private readonly ConditionSourceInfo _condSrcInfo;
+    private readonly List<Condition> _condList;
+    private readonly SpellTargetObjectTypes _objectType;
 
 	public WorldObjectSpellTargetCheck(WorldObject caster, WorldObject referer, SpellInfo spellInfo, SpellTargetCheckTypes selectionType, List<Condition> condList, SpellTargetObjectTypes objectType)
 	{

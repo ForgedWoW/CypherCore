@@ -11,8 +11,8 @@ namespace Forged.MapServer.Maps.Workers;
 
 public class LocalizedDo : IDoWork<Player>
 {
-	readonly MessageBuilder _localizer;
-	IDoWork<Player>[] _localizedCache = new IDoWork<Player>[(int)Locale.Total]; // 0 = default, i => i-1 locale index
+    private readonly MessageBuilder _localizer;
+    private IDoWork<Player>[] _localizedCache = new IDoWork<Player>[(int)Locale.Total]; // 0 = default, i => i-1 locale index
 
 	public LocalizedDo(MessageBuilder localizer)
 	{

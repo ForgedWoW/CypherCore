@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class AzeriteEssenceActivateEssence : ClientPacket
+internal class AzeriteEssenceActivateEssence : ClientPacket
 {
 	public uint AzeriteEssenceID;
 	public byte Slot;

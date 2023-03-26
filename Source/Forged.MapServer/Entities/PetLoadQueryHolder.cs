@@ -5,7 +5,7 @@ using Framework.Database;
 
 namespace Forged.MapServer.Entities;
 
-class PetLoadQueryHolder : SQLQueryHolder<PetLoginQueryLoad>
+internal class PetLoadQueryHolder : SQLQueryHolder<PetLoginQueryLoad>
 {
 	public PetLoadQueryHolder(ulong ownerGuid, uint petNumber)
 	{

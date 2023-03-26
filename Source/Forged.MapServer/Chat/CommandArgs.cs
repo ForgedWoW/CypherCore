@@ -14,7 +14,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
 
-class CommandArgs
+internal class CommandArgs
 {
 	public static ChatCommandResult ConsumeFromOffset(dynamic[] tuple, int offset, ParameterInfo[] parameterInfos, CommandHandler handler, string args)
 	{
@@ -282,7 +282,7 @@ class CommandArgs
 		return result;
 	}
 
-	static ChatCommandResult TryConsumeTo(dynamic[] tuple, int offset, ParameterInfo[] parameterInfos, CommandHandler handler, string args)
+    private static ChatCommandResult TryConsumeTo(dynamic[] tuple, int offset, ParameterInfo[] parameterInfos, CommandHandler handler, string args)
 	{
 		var optionalArgAttribute = parameterInfos[offset].GetCustomAttribute<OptionalArgAttribute>(true);
 
@@ -329,7 +329,7 @@ class CommandArgs
 		}
 	}
 
-	static ChatCommandResult TryAtIndex(out dynamic val, Type[] types, int index, CommandHandler handler, string args)
+    private static ChatCommandResult TryAtIndex(out dynamic val, Type[] types, int index, CommandHandler handler, string args)
 	{
 		val = default;
 

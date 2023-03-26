@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class InstanceSaveCreated : ServerPacket
+internal class InstanceSaveCreated : ServerPacket
 {
 	public bool Gm;
 	public InstanceSaveCreated() : base(ServerOpcodes.InstanceSaveCreated) { }

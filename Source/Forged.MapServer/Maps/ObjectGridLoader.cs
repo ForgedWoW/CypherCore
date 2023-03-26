@@ -12,7 +12,7 @@ using Serilog;
 
 namespace Forged.MapServer.Maps;
 
-class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierAreaTrigger
+internal class ObjectGridLoader : ObjectGridLoaderBase, IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierAreaTrigger
 {
 	public GridType GridType { get; set; }
 

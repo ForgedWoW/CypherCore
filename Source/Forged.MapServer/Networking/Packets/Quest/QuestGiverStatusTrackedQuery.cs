@@ -6,7 +6,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestGiverStatusTrackedQuery : ClientPacket
+internal class QuestGiverStatusTrackedQuery : ClientPacket
 {
 	public List<ObjectGuid> QuestGiverGUIDs = new();
 

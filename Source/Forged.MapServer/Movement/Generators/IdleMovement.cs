@@ -47,10 +47,10 @@ public class IdleMovementGenerator : MovementGenerator
 
 public class RotateMovementGenerator : MovementGenerator
 {
-	readonly uint _id;
-	readonly uint _maxDuration;
-	readonly RotateDirection _direction;
-	uint _duration;
+    private readonly uint _id;
+    private readonly uint _maxDuration;
+    private readonly RotateDirection _direction;
+    private uint _duration;
 
 	public RotateMovementGenerator(uint id, uint time, RotateDirection direction)
 	{
@@ -141,9 +141,9 @@ public class RotateMovementGenerator : MovementGenerator
 
 public class DistractMovementGenerator : MovementGenerator
 {
-	readonly float _orientation;
+    private readonly float _orientation;
 
-	uint _timer;
+    private uint _timer;
 
 	public DistractMovementGenerator(uint timer, float orientation)
 	{

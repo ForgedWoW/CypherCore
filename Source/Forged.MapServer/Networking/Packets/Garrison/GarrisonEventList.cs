@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonEventList
+internal class GarrisonEventList
 {
 	public int Type;
 	public List<GarrisonEventEntry> Events = new();

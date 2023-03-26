@@ -10,16 +10,16 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("ban")]
-class BanCommands
+internal class BanCommands
 {
 	[Command("account", RBACPermissions.CommandBanAccount, true)]
-	static bool HandleBanAccountCommand(CommandHandler handler, string playerName, uint duration, string reason)
+    private static bool HandleBanAccountCommand(CommandHandler handler, string playerName, uint duration, string reason)
 	{
 		return HandleBanHelper(BanMode.Account, playerName, duration, reason, handler);
 	}
 
 	[Command("character", RBACPermissions.CommandBanCharacter, true)]
-	static bool HandleBanCharacterCommand(CommandHandler handler, string playerName, uint duration, string reason)
+    private static bool HandleBanCharacterCommand(CommandHandler handler, string playerName, uint duration, string reason)
 	{
 		if (playerName.IsEmpty())
 			return false;
@@ -74,18 +74,18 @@ class BanCommands
 	}
 
 	[Command("playeraccount", RBACPermissions.CommandBanPlayeraccount, true)]
-	static bool HandleBanAccountByCharCommand(CommandHandler handler, string playerName, uint duration, string reason)
+    private static bool HandleBanAccountByCharCommand(CommandHandler handler, string playerName, uint duration, string reason)
 	{
 		return HandleBanHelper(BanMode.Character, playerName, duration, reason, handler);
 	}
 
 	[Command("ip", RBACPermissions.CommandBanIp, true)]
-	static bool HandleBanIPCommand(CommandHandler handler, string ipAddress, uint duration, string reason)
+    private static bool HandleBanIPCommand(CommandHandler handler, string ipAddress, uint duration, string reason)
 	{
 		return HandleBanHelper(BanMode.IP, ipAddress, duration, reason, handler);
 	}
 
-	static bool HandleBanHelper(BanMode mode, string nameOrIP, uint duration, string reason, CommandHandler handler)
+    private static bool HandleBanHelper(BanMode mode, string nameOrIP, uint duration, string reason, CommandHandler handler)
 	{
 		if (nameOrIP.IsEmpty())
 			return false;

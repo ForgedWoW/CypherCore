@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class ObjectUpdateFailed : ClientPacket
+internal class ObjectUpdateFailed : ClientPacket
 {
 	public ObjectGuid ObjectGUID;
 	public ObjectUpdateFailed(WorldPacket packet) : base(packet) { }

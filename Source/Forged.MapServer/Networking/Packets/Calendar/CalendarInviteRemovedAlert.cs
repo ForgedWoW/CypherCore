@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarInviteRemovedAlert : ServerPacket
+internal class CalendarInviteRemovedAlert : ServerPacket
 {
 	public ulong EventID;
 	public long Date;

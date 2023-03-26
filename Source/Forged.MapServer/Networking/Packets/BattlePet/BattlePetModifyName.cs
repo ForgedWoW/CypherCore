@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetModifyName : ClientPacket
+internal class BattlePetModifyName : ClientPacket
 {
 	public ObjectGuid PetGuid;
 	public string Name;

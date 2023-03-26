@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Bank;
 
-class ReagentBank : ClientPacket
+internal class ReagentBank : ClientPacket
 {
 	public ObjectGuid Banker;
 	public ReagentBank(WorldPacket packet) : base(packet) { }

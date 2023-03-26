@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyInviteResponse : ClientPacket
+internal class PartyInviteResponse : ClientPacket
 {
 	public byte PartyIndex;
 	public bool Accept;

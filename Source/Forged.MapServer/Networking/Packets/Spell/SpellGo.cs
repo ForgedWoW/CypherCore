@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class SpellGo : CombatLogServerPacket
+internal class SpellGo : CombatLogServerPacket
 {
 	public SpellCastData Cast = new();
 	public SpellGo() : base(ServerOpcodes.SpellGo, ConnectionType.Instance) { }

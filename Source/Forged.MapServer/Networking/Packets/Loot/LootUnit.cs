@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootUnit : ClientPacket
+internal class LootUnit : ClientPacket
 {
 	public ObjectGuid Unit;
 	public bool IsSoftInteract;

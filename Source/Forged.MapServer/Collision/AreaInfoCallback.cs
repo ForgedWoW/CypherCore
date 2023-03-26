@@ -11,7 +11,7 @@ public class AreaInfoCallback : WorkerCallback
 {
 	public readonly AreaInfo AInfo = new();
 
-	readonly ModelInstance[] _prims;
+    private readonly ModelInstance[] _prims;
 
 	public AreaInfoCallback(ModelInstance[] val)
 	{

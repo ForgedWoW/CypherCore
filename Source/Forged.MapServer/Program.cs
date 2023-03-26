@@ -24,6 +24,7 @@ using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Movement;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Services;
+using Forged.MapServer.Spells;
 using Forged.MapServer.Warden;
 using Forged.MapServer.Weather;
 using Forged.MapServer.World;
@@ -95,4 +96,5 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<WaypointManager>().SingleInstance();
     containerBuilder.RegisterType<OutdoorPvPManager>().SingleInstance();
     containerBuilder.RegisterType<WorldServiceManager>().SingleInstance();
+    containerBuilder.RegisterType<SpellManager>().SingleInstance();
 }

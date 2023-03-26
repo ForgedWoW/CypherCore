@@ -8,10 +8,10 @@ using Framework.Dynamic;
 
 namespace Forged.MapServer.Spells;
 
-class ProcReflectDelayed : BasicEvent
+internal class ProcReflectDelayed : BasicEvent
 {
-	readonly Unit _victim;
-	readonly ObjectGuid _casterGuid;
+    private readonly Unit _victim;
+    private readonly ObjectGuid _casterGuid;
 
 	public ProcReflectDelayed(Unit owner, ObjectGuid casterGuid)
 	{

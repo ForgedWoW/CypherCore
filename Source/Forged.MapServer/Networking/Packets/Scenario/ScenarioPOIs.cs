@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-class ScenarioPOIs : ServerPacket
+internal class ScenarioPOIs : ServerPacket
 {
 	public List<ScenarioPOIData> ScenarioPOIDataStats = new();
 	public ScenarioPOIs() : base(ServerOpcodes.ScenarioPois) { }

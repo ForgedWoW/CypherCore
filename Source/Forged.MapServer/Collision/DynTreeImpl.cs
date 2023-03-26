@@ -7,8 +7,8 @@ namespace Forged.MapServer.Collision;
 
 public class DynTreeImpl : RegularGrid2D<GameObjectModel, BIHWrap<GameObjectModel>>
 {
-	readonly TimeTracker _rebalanceTimer;
-	int _unbalancedTimes;
+    private readonly TimeTracker _rebalanceTimer;
+    private int _unbalancedTimes;
 
 	public DynTreeImpl()
 	{

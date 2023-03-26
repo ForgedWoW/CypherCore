@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectDespawn : ServerPacket
+internal class GameObjectDespawn : ServerPacket
 {
 	public ObjectGuid ObjectGUID;
 	public GameObjectDespawn() : base(ServerOpcodes.GameObjectDespawn) { }

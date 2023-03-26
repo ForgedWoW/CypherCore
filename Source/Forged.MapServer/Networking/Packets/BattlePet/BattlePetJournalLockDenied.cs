@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetJournalLockDenied : ServerPacket
+internal class BattlePetJournalLockDenied : ServerPacket
 {
 	public BattlePetJournalLockDenied() : base(ServerOpcodes.BattlePetJournalLockDenied) { }
 

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetStableResult : ServerPacket
+internal class PetStableResult : ServerPacket
 {
 	public StableResult Result;
 	public PetStableResult() : base(ServerOpcodes.PetStableResult, ConnectionType.Instance) { }

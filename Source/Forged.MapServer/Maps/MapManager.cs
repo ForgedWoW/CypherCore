@@ -478,12 +478,12 @@ public class MapManager
 		return _scheduledScripts > 0;
 	}
 
-	Map FindMap_i(uint mapId, uint instanceId)
+    private Map FindMap_i(uint mapId, uint instanceId)
 	{
 		return _maps.TryGetValue(mapId, instanceId, out var map) ? map : null;
 	}
 
-	Map CreateWorldMap(uint mapId, uint instanceId)
+    private Map CreateWorldMap(uint mapId, uint instanceId)
 	{
 		var map = new Map(mapId, _gridCleanUpDelay, instanceId, Difficulty.None);
 		map.LoadRespawnTimes();
@@ -495,7 +495,7 @@ public class MapManager
 		return map;
 	}
 
-	InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, PlayerGroup group)
+    private InstanceMap CreateInstance(uint mapId, uint instanceId, InstanceLock instanceLock, Difficulty difficulty, int team, PlayerGroup group)
 	{
 		// make sure we have a valid map id
 		var entry = _cliDB.MapStorage.LookupByKey(mapId);
@@ -530,7 +530,7 @@ public class MapManager
 		return map;
 	}
 
-	BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
+    private BattlegroundMap CreateBattleground(uint mapId, uint instanceId, Battleground bg)
 	{
 		Log.Logger.Debug($"MapInstanced::CreateBattleground: map bg {instanceId} for {mapId} created.");
 
@@ -541,14 +541,14 @@ public class MapManager
 		return map;
 	}
 
-	GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
+    private GarrisonMap CreateGarrison(uint mapId, uint instanceId, Player owner)
 	{
 		var map = new GarrisonMap(mapId, _gridCleanUpDelay, instanceId, owner.GUID);
 
 		return map;
 	}
 
-	bool DestroyMap(Map map)
+    private bool DestroyMap(Map map)
 	{
 		map.RemoveAllPlayers();
 

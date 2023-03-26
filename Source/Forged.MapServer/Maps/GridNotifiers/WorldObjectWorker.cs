@@ -17,8 +17,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectWorker : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierCorpse, IGridNotifierGameObject, IGridNotifierDynamicObject, IGridNotifierAreaTrigger, IGridNotifierSceneObject, IGridNotifierConversation
 {
-	readonly PhaseShift _phaseShift;
-	readonly IDoWork<WorldObject> _doWork;
+    private readonly PhaseShift _phaseShift;
+    private readonly IDoWork<WorldObject> _doWork;
 
 	public GridType GridType { get; set; }
 

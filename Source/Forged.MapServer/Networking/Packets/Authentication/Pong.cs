@@ -5,9 +5,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class Pong : ServerPacket
+internal class Pong : ServerPacket
 {
-	readonly uint Serial;
+    private readonly uint Serial;
 
 	public Pong(uint serial) : base(ServerOpcodes.Pong)
 	{

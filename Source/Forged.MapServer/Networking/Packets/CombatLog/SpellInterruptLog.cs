@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellInterruptLog : ServerPacket
+internal class SpellInterruptLog : ServerPacket
 {
 	public ObjectGuid Caster;
 	public ObjectGuid Victim;

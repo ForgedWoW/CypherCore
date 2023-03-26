@@ -10,16 +10,16 @@ namespace Forged.MapServer.Entities.Players;
 
 public class TradeData
 {
-	readonly Player _player;
-	readonly Player _trader;
-	readonly ObjectGuid[] _items = new ObjectGuid[(int)TradeSlots.Count];
-	bool _accepted;
-	bool _acceptProccess;
-	ulong _money;
-	uint _spell;
-	ObjectGuid _spellCastItem;
-	uint _clientStateIndex;
-	uint _serverStateIndex;
+    private readonly Player _player;
+    private readonly Player _trader;
+    private readonly ObjectGuid[] _items = new ObjectGuid[(int)TradeSlots.Count];
+    private bool _accepted;
+    private bool _acceptProccess;
+    private ulong _money;
+    private uint _spell;
+    private ObjectGuid _spellCastItem;
+    private uint _clientStateIndex;
+    private uint _serverStateIndex;
 
 	public TradeData(Player player, Player trader)
 	{
@@ -206,7 +206,7 @@ public class TradeData
 		_serverStateIndex = RandomHelper.Rand32();
 	}
 
-	void Update(bool forTarget = true)
+    private void Update(bool forTarget = true)
 	{
 		if (forTarget)
 			_trader.Session.SendUpdateTrade(true); // player state for trader

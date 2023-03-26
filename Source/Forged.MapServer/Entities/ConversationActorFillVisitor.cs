@@ -10,12 +10,12 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Entities;
 
-class ConversationActorFillVisitor
+internal class ConversationActorFillVisitor
 {
-	readonly Conversation _conversation;
-	readonly Unit _creator;
-	readonly Map _map;
-	readonly ConversationActorTemplate _actor;
+    private readonly Conversation _conversation;
+    private readonly Unit _creator;
+    private readonly Map _map;
+    private readonly ConversationActorTemplate _actor;
 
 	public ConversationActorFillVisitor(Conversation conversation, Unit creator, Map map, ConversationActorTemplate actor)
 	{

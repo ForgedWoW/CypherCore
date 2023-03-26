@@ -48,71 +48,71 @@ public class WorldManager : Singleton<WorldManager>
 	public const string NextOldCalendarEventDeletionTimeVarId = "NextOldCalendarEventDeletionTime";
 	public const string NextGuildWeeklyResetTimeVarId = "NextGuildWeeklyResetTime";
 	public bool IsStopped;
-	readonly Dictionary<byte, Autobroadcast> _autobroadcasts = new();
-	readonly Dictionary<WorldTimers, IntervalTimer> _timers = new();
-	readonly ConcurrentDictionary<uint, WorldSession> _sessions = new();
-	readonly MultiMap<ObjectGuid, WorldSession> _sessionsByBnetGuid = new();
-	readonly Dictionary<uint, long> _disconnects = new();
-	readonly Dictionary<string, int> _worldVariables = new();
-	readonly List<string> _motd = new();
-	readonly List<WorldSession> _queuedPlayer = new();
-	readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
-	readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
-	readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-	readonly Realm _realm;
-	readonly WorldUpdateTime _worldUpdateTime;
-	readonly object _guidAlertLock = new();
-	readonly LimitedThreadTaskManager _taskManager = new(10);
+    private readonly Dictionary<byte, Autobroadcast> _autobroadcasts = new();
+    private readonly Dictionary<WorldTimers, IntervalTimer> _timers = new();
+    private readonly ConcurrentDictionary<uint, WorldSession> _sessions = new();
+    private readonly MultiMap<ObjectGuid, WorldSession> _sessionsByBnetGuid = new();
+    private readonly Dictionary<uint, long> _disconnects = new();
+    private readonly Dictionary<string, int> _worldVariables = new();
+    private readonly List<string> _motd = new();
+    private readonly List<WorldSession> _queuedPlayer = new();
+    private readonly ConcurrentQueue<WorldSession> _addSessQueue = new();
+    private readonly ConcurrentQueue<Tuple<WorldSocket, ulong>> _linkSocketQueue = new();
+    private readonly AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+    private readonly Realm _realm;
+    private readonly WorldUpdateTime _worldUpdateTime;
+    private readonly object _guidAlertLock = new();
+    private readonly LimitedThreadTaskManager _taskManager = new(10);
 
-	uint _shutdownTimer;
-	ShutdownMask _shutdownMask;
-	ShutdownExitCode _exitCode;
+    private uint _shutdownTimer;
+    private ShutdownMask _shutdownMask;
+    private ShutdownExitCode _exitCode;
 
-	CleaningFlags _cleaningFlags;
+    private CleaningFlags _cleaningFlags;
 
-	float _maxVisibleDistanceOnContinents = SharedConst.DefaultVisibilityDistance;
-	float _maxVisibleDistanceInInstances = SharedConst.DefaultVisibilityInstance;
-	float _maxVisibleDistanceInBg = SharedConst.DefaultVisibilityBGAreans;
-	float _maxVisibleDistanceInArenas = SharedConst.DefaultVisibilityBGAreans;
+    private float _maxVisibleDistanceOnContinents = SharedConst.DefaultVisibilityDistance;
+    private float _maxVisibleDistanceInInstances = SharedConst.DefaultVisibilityInstance;
+    private float _maxVisibleDistanceInBg = SharedConst.DefaultVisibilityBGAreans;
+    private float _maxVisibleDistanceInArenas = SharedConst.DefaultVisibilityBGAreans;
 
-	int _visibilityNotifyPeriodOnContinents = SharedConst.DefaultVisibilityNotifyPeriod;
-	int _visibilityNotifyPeriodInInstances = SharedConst.DefaultVisibilityNotifyPeriod;
-	int _visibilityNotifyPeriodInBg = SharedConst.DefaultVisibilityNotifyPeriod;
-	int _visibilityNotifyPeriodInArenas = SharedConst.DefaultVisibilityNotifyPeriod;
+    private int _visibilityNotifyPeriodOnContinents = SharedConst.DefaultVisibilityNotifyPeriod;
+    private int _visibilityNotifyPeriodInInstances = SharedConst.DefaultVisibilityNotifyPeriod;
+    private int _visibilityNotifyPeriodInBg = SharedConst.DefaultVisibilityNotifyPeriod;
+    private int _visibilityNotifyPeriodInArenas = SharedConst.DefaultVisibilityNotifyPeriod;
 
-	bool _isClosed;
-	long _mailTimer;
-	long _timerExpires;
-	long _blackmarketTimer;
-	uint _maxActiveSessionCount;
-	uint _maxQueuedSessionCount;
-	uint _playerCount;
-	uint _maxPlayerCount;
-	uint _playerLimit;
-	AccountTypes _allowedSecurityLevel;
-	Locale _defaultDbcLocale;       // from config for one from loaded DBC locales
-	BitSet _availableDbcLocaleMask; // by loaded DBC
+    private bool _isClosed;
+    private long _mailTimer;
+    private long _timerExpires;
+    private long _blackmarketTimer;
+    private uint _maxActiveSessionCount;
+    private uint _maxQueuedSessionCount;
+    private uint _playerCount;
+    private uint _maxPlayerCount;
+    private uint _playerLimit;
+    private AccountTypes _allowedSecurityLevel;
+    private Locale _defaultDbcLocale;       // from config for one from loaded DBC locales
+    private BitSet _availableDbcLocaleMask; // by loaded DBC
 
 	// scheduled reset times
-	long _nextDailyQuestReset;
-	long _nextWeeklyQuestReset;
-	long _nextMonthlyQuestReset;
-	long _nextRandomBgReset;
-	long _nextCalendarOldEventsDeletionTime;
-	long _nextGuildReset;
-	long _nextCurrencyReset;
+    private long _nextDailyQuestReset;
+    private long _nextWeeklyQuestReset;
+    private long _nextMonthlyQuestReset;
+    private long _nextRandomBgReset;
+    private long _nextCalendarOldEventsDeletionTime;
+    private long _nextGuildReset;
+    private long _nextCurrencyReset;
 
-	string _dataPath;
+    private string _dataPath;
 
-	string _guidWarningMsg;
-	string _alertRestartReason;
+    private string _guidWarningMsg;
+    private string _alertRestartReason;
 
-	bool _guidWarn;
-	bool _guidAlert;
-	uint _warnDiff;
-	long _warnShutdownTime;
+    private bool _guidWarn;
+    private bool _guidAlert;
+    private uint _warnDiff;
+    private long _warnShutdownTime;
 
-	uint _maxSkill = 0;
+    private uint _maxSkill = 0;
 
 	public bool IsClosed => _isClosed;
 
@@ -249,7 +249,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
 
-	WorldManager()
+    private WorldManager()
 	{
 		foreach (WorldTimers timer in Enum.GetValues(typeof(WorldTimers)))
 			_timers[timer] = new IntervalTimer();
@@ -2132,7 +2132,7 @@ public class WorldManager : Singleton<WorldManager>
 			return _defaultDbcLocale;
 	}
 
-	void DoGuidWarningRestart()
+    private void DoGuidWarningRestart()
 	{
 		if (_shutdownTimer != 0)
 			return;
@@ -2141,7 +2141,7 @@ public class WorldManager : Singleton<WorldManager>
 		_warnShutdownTime += Time.Hour;
 	}
 
-	void DoGuidAlertRestart()
+    private void DoGuidAlertRestart()
 	{
 		if (_shutdownTimer != 0)
 			return;
@@ -2149,7 +2149,7 @@ public class WorldManager : Singleton<WorldManager>
 		ShutdownServ(300, ShutdownMask.Restart, ShutdownExitCode.Restart, _alertRestartReason);
 	}
 
-	void SendGuidWarning()
+    private void SendGuidWarning()
 	{
 		if (_shutdownTimer == 0 && _guidWarn && GetDefaultValue("Respawn.WarningFrequency", 1800) > 0)
 			SendServerMessage(ServerMessageType.String, _guidWarningMsg);
@@ -2157,7 +2157,7 @@ public class WorldManager : Singleton<WorldManager>
 		_warnDiff = 0;
 	}
 
-	bool RemoveSession(uint id)
+    private bool RemoveSession(uint id)
 	{
 		// Find the session, kick the user, but we can't delete session at this moment to prevent iterator invalidation
 		var session = _sessions.LookupByKey(id);
@@ -2173,7 +2173,7 @@ public class WorldManager : Singleton<WorldManager>
 		return true;
 	}
 
-	void AddSession_(WorldSession s)
+    private void AddSession_(WorldSession s)
 	{
 		//NOTE - Still there is race condition in WorldSession* being used in the Sockets
 
@@ -2240,7 +2240,7 @@ public class WorldManager : Singleton<WorldManager>
 		}
 	}
 
-	void ProcessLinkInstanceSocket(Tuple<WorldSocket, ulong> linkInfo)
+    private void ProcessLinkInstanceSocket(Tuple<WorldSocket, ulong> linkInfo)
 	{
 		if (!linkInfo.Item1.IsOpen())
 			return;
@@ -2265,7 +2265,7 @@ public class WorldManager : Singleton<WorldManager>
 		session.HandleContinuePlayerLogin();
 	}
 
-	bool HasRecentlyDisconnected(WorldSession session)
+    private bool HasRecentlyDisconnected(WorldSession session)
 	{
 		if (session == null)
 			return false;
@@ -2287,7 +2287,7 @@ public class WorldManager : Singleton<WorldManager>
 		return false;
 	}
 
-	uint GetQueuePos(WorldSession sess)
+    private uint GetQueuePos(WorldSession sess)
 	{
 		uint position = 1;
 
@@ -2300,7 +2300,7 @@ public class WorldManager : Singleton<WorldManager>
 		return 0;
 	}
 
-	void AddQueuedPlayer(WorldSession sess)
+    private void AddQueuedPlayer(WorldSession sess)
 	{
 		sess.SetInQueue(true);
 		_queuedPlayer.Add(sess);
@@ -2309,7 +2309,7 @@ public class WorldManager : Singleton<WorldManager>
 		sess.SendAuthResponse(BattlenetRpcErrorCode.Ok, true, GetQueuePos(sess));
 	}
 
-	bool RemoveQueuedPlayer(WorldSession sess)
+    private bool RemoveQueuedPlayer(WorldSession sess)
 	{
 		// sessions count including queued to remove (if removed_session set)
 		var sessions = ActiveSessionCount;
@@ -2361,7 +2361,7 @@ public class WorldManager : Singleton<WorldManager>
 		return found;
 	}
 
-	void KickAllLess(AccountTypes sec)
+    private void KickAllLess(AccountTypes sec)
 	{
 		// session not removed at kick and will removed in next update tick
 		foreach (var session in _sessions.Values)
@@ -2369,7 +2369,7 @@ public class WorldManager : Singleton<WorldManager>
 				session.KickPlayer("World::KickAllLess");
 	}
 
-	void UpdateGameTime()
+    private void UpdateGameTime()
 	{
 		// update the time
 		var lastGameTime = GameTime.GetGameTime();
@@ -2398,7 +2398,7 @@ public class WorldManager : Singleton<WorldManager>
 		}
 	}
 
-	void SendAutoBroadcast()
+    private void SendAutoBroadcast()
 	{
 		if (_autobroadcasts.Empty())
 			return;
@@ -2424,7 +2424,7 @@ public class WorldManager : Singleton<WorldManager>
 		Log.Logger.Debug("AutoBroadcast: '{0}'", pair.Value.Message);
 	}
 
-	void UpdateRealmCharCount(SQLResult result)
+    private void UpdateRealmCharCount(SQLResult result)
 	{
 		if (!result.IsEmpty())
 		{
@@ -2439,19 +2439,19 @@ public class WorldManager : Singleton<WorldManager>
 		}
 	}
 
-	void InitQuestResetTimes()
+    private void InitQuestResetTimes()
 	{
 		_nextDailyQuestReset = GetPersistentWorldVariable(NextDailyQuestResetTimeVarId);
 		_nextWeeklyQuestReset = GetPersistentWorldVariable(NextWeeklyQuestResetTimeVarId);
 		_nextMonthlyQuestReset = GetPersistentWorldVariable(NextMonthlyQuestResetTimeVarId);
 	}
 
-	static long GetNextDailyResetTime(long t)
+    private static long GetNextDailyResetTime(long t)
 	{
 		return Time.GetLocalHourTimestamp(t, GetDefaultValue("Quests.DailyResetTime", 3), true);
 	}
 
-	static long GetNextWeeklyResetTime(long t)
+    private static long GetNextWeeklyResetTime(long t)
 	{
 		t = GetNextDailyResetTime(t);
 		var time = Time.UnixTimeToDateTime(t);
@@ -2466,7 +2466,7 @@ public class WorldManager : Singleton<WorldManager>
 		return t;
 	}
 
-	static long GetNextMonthlyResetTime(long t)
+    private static long GetNextMonthlyResetTime(long t)
 	{
 		t = GetNextDailyResetTime(t);
 		var time = Time.UnixTimeToDateTime(t);
@@ -2479,7 +2479,7 @@ public class WorldManager : Singleton<WorldManager>
 		return Time.DateTimeToUnixTime(newDate);
 	}
 
-	void CheckScheduledResetTimes()
+    private void CheckScheduledResetTimes()
 	{
 		var now = GameTime.GetGameTime();
 
@@ -2493,7 +2493,7 @@ public class WorldManager : Singleton<WorldManager>
 			_taskManager.Schedule(ResetMonthlyQuests);
 	}
 
-	void InitRandomBGResetTime()
+    private void InitRandomBGResetTime()
 	{
 		long bgtime = GetPersistentWorldVariable(NextBGRandomDailyResetTimeVarId);
 
@@ -2517,7 +2517,7 @@ public class WorldManager : Singleton<WorldManager>
 			SetPersistentWorldVariable(NextBGRandomDailyResetTimeVarId, (int)_nextRandomBgReset);
 	}
 
-	void InitCalendarOldEventsDeletionTime()
+    private void InitCalendarOldEventsDeletionTime()
 	{
 		var now = GameTime.GetGameTime();
 		var nextDeletionTime = Time.GetLocalHourTimestamp(now, GetDefaultValue("Calendar.DeleteOldEventsHour", 6));
@@ -2534,7 +2534,7 @@ public class WorldManager : Singleton<WorldManager>
 			SetPersistentWorldVariable(NextOldCalendarEventDeletionTimeVarId, (int)_nextCalendarOldEventsDeletionTime);
 	}
 
-	void InitGuildResetTime()
+    private void InitGuildResetTime()
 	{
 		long gtime = GetPersistentWorldVariable(NextGuildDailyResetTimeVarId);
 
@@ -2554,7 +2554,7 @@ public class WorldManager : Singleton<WorldManager>
 			SetPersistentWorldVariable(NextGuildDailyResetTimeVarId, (int)_nextGuildReset);
 	}
 
-	void InitCurrencyResetTime()
+    private void InitCurrencyResetTime()
 	{
 		long currencytime = GetPersistentWorldVariable(NextCurrencyResetTimeVarId);
 
@@ -2577,7 +2577,7 @@ public class WorldManager : Singleton<WorldManager>
 			SetPersistentWorldVariable(NextCurrencyResetTimeVarId, (int)_nextCurrencyReset);
 	}
 
-	void ResetCurrencyWeekCap()
+    private void ResetCurrencyWeekCap()
 	{
 		DB.Characters.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
 
@@ -2589,7 +2589,7 @@ public class WorldManager : Singleton<WorldManager>
 		SetPersistentWorldVariable(NextCurrencyResetTimeVarId, (int)_nextCurrencyReset);
 	}
 
-	void ResetRandomBG()
+    private void ResetRandomBG()
 	{
 		Log.Logger.Information("Random BG status reset for all characters.");
 
@@ -2604,7 +2604,7 @@ public class WorldManager : Singleton<WorldManager>
 		SetPersistentWorldVariable(NextBGRandomDailyResetTimeVarId, (int)_nextRandomBgReset);
 	}
 
-	void CalendarDeleteOldEvents()
+    private void CalendarDeleteOldEvents()
 	{
 		Log.Logger.Information("Calendar deletion of old events.");
 
@@ -2613,7 +2613,7 @@ public class WorldManager : Singleton<WorldManager>
 		Global.CalendarMgr.DeleteOldEvents();
 	}
 
-	void ResetGuildCap()
+    private void ResetGuildCap()
 	{
 		_nextGuildReset += Time.Day;
 		SetPersistentWorldVariable(NextGuildDailyResetTimeVarId, (int)_nextGuildReset);
@@ -2625,13 +2625,13 @@ public class WorldManager : Singleton<WorldManager>
 		Global.GuildMgr.ResetTimes(week == 1);
 	}
 
-	void UpdateMaxSessionCounters()
+    private void UpdateMaxSessionCounters()
 	{
 		_maxActiveSessionCount = Math.Max(_maxActiveSessionCount, (uint)(_sessions.Count - _queuedPlayer.Count));
 		_maxQueuedSessionCount = Math.Max(_maxQueuedSessionCount, (uint)_queuedPlayer.Count);
 	}
 
-	void UpdateAreaDependentAuras()
+    private void UpdateAreaDependentAuras()
 	{
 		foreach (var session in _sessions.Values)
 			if (session.Player != null && session.Player.IsInWorld)
@@ -2641,7 +2641,7 @@ public class WorldManager : Singleton<WorldManager>
 			}
 	}
 
-	void LoadPersistentWorldVariables()
+    private void LoadPersistentWorldVariables()
 	{
 		var oldMSTime = Time.MSTime;
 
@@ -2656,17 +2656,17 @@ public class WorldManager : Singleton<WorldManager>
 		Log.Logger.Information($"Loaded {_worldVariables.Count} world variables in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
-	void ProcessQueryCallbacks()
+    private void ProcessQueryCallbacks()
 	{
 		_queryProcessor.ProcessReadyCallbacks();
 	}
 
-	long GetNextRandomBGResetTime()
+    private long GetNextRandomBGResetTime()
 	{
 		return _nextRandomBgReset;
 	}
 
-	void UpdateWarModeRewardValues()
+    private void UpdateWarModeRewardValues()
 	{
 		var warModeEnabledFaction = new long[2];
 

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LfgDisabled : ServerPacket
+internal class LfgDisabled : ServerPacket
 {
 	public LfgDisabled() : base(ServerOpcodes.LfgDisabled, ConnectionType.Instance) { }
 

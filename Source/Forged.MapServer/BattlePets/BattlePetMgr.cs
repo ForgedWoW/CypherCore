@@ -24,16 +24,16 @@ public class BattlePetMgr
 {
 	public static Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetBreedStates = new();
 	public static Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetSpeciesStates = new();
-	static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesByCreature = new();
-	static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesBySpell = new();
-	static readonly MultiMap<uint, byte> _availableBreedsPerSpecies = new();
-	static readonly Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
+    private static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesByCreature = new();
+    private static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesBySpell = new();
+    private static readonly MultiMap<uint, byte> _availableBreedsPerSpecies = new();
+    private static readonly Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
 
-	readonly WorldSession _owner;
-	readonly ushort _trapLevel;
-	readonly Dictionary<ulong, BattlePet> _pets = new();
-	readonly List<BattlePetSlot> _slots = new();
-	bool _hasJournalLock;
+    private readonly WorldSession _owner;
+    private readonly ushort _trapLevel;
+    private readonly Dictionary<ulong, BattlePet> _pets = new();
+    private readonly List<BattlePetSlot> _slots = new();
+    private bool _hasJournalLock;
 
 	public bool IsJournalLockAcquired => Global.WorldMgr.IsBattlePetJournalLockAcquired(_owner.BattlenetAccountGUID);
 
@@ -877,7 +877,7 @@ public class BattlePetMgr
 		_hasJournalLock = on;
 	}
 
-	static void LoadAvailablePetBreeds()
+    private static void LoadAvailablePetBreeds()
 	{
 		var result = DB.World.Query("SELECT speciesId, breedId FROM battle_pet_breeds");
 
@@ -911,7 +911,7 @@ public class BattlePetMgr
 		Log.Logger.Information("Loaded {0} battle pet breeds.", count);
 	}
 
-	static void LoadDefaultPetQualities()
+    private static void LoadDefaultPetQualities()
 	{
 		var result = DB.World.Query("SELECT speciesId, quality FROM battle_pet_quality");
 
@@ -956,7 +956,7 @@ public class BattlePetMgr
 		Log.Logger.Information("Loaded {0} battle pet qualities.", _defaultQualityPerSpecies.Count);
 	}
 
-	bool IsPetInSlot(ObjectGuid guid)
+    private bool IsPetInSlot(ObjectGuid guid)
 	{
 		foreach (var slot in _slots)
 			if (slot.Pet.Guid == guid)
@@ -965,7 +965,7 @@ public class BattlePetMgr
 		return false;
 	}
 
-	void SendUpdates(List<BattlePet> pets, bool petAdded)
+    private void SendUpdates(List<BattlePet> pets, bool petAdded)
 	{
 		BattlePetUpdates updates = new();
 

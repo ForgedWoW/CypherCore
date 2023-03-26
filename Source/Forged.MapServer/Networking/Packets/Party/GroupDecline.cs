@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class GroupDecline : ServerPacket
+internal class GroupDecline : ServerPacket
 {
 	public string Name;
 

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.VoidStorage;
 
-class SwapVoidItem : ClientPacket
+internal class SwapVoidItem : ClientPacket
 {
 	public ObjectGuid Npc;
 	public ObjectGuid VoidItemGuid;

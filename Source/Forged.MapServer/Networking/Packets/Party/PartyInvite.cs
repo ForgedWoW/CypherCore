@@ -10,7 +10,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyInvite : ServerPacket
+internal class PartyInvite : ServerPacket
 {
 	public bool MightCRZYou;
 	public bool MustBeBNetFriend;

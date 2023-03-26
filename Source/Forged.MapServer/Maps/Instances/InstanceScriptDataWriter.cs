@@ -10,10 +10,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps.Instances;
 
-class InstanceScriptDataWriter
+internal class InstanceScriptDataWriter
 {
-	readonly InstanceScript _instance;
-	JsonObject _doc = new();
+    private readonly InstanceScript _instance;
+    private JsonObject _doc = new();
 
 	public InstanceScriptDataWriter(InstanceScript instance)
 	{

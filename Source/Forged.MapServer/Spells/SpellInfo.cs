@@ -34,15 +34,15 @@ public class SpellInfo
 	// SpellScalingEntry
 	public ScalingInfo Scaling;
 
-	readonly List<SpellProcsPerMinuteModRecord> _procPpmMods = new();
+    private readonly List<SpellProcsPerMinuteModRecord> _procPpmMods = new();
 
-	readonly List<SpellEffectInfo> _effects = new();
-	readonly List<SpellXSpellVisualRecord> _visuals = new();
-	SpellSpecificType _spellSpecific;
-	AuraStateType _auraState;
+    private readonly List<SpellEffectInfo> _effects = new();
+    private readonly List<SpellXSpellVisualRecord> _visuals = new();
+    private SpellSpecificType _spellSpecific;
+    private AuraStateType _auraState;
 
-	SpellDiminishInfo _diminishInfo;
-	ulong _allowedMechanicMask;
+    private SpellDiminishInfo _diminishInfo;
+    private ulong _allowedMechanicMask;
 
 	public uint Category => CategoryId;
 
@@ -3187,7 +3187,7 @@ public class SpellInfo
 		return ChannelInterruptFlags2.HasAnyFlag(flag);
 	}
 
-	DiminishingGroup DiminishingGroupCompute()
+    private DiminishingGroup DiminishingGroupCompute()
 	{
 		if (IsPositive)
 			return DiminishingGroup.None;
@@ -3600,7 +3600,7 @@ public class SpellInfo
 		return DiminishingGroup.None;
 	}
 
-	DiminishingReturnsType DiminishingTypeCompute(DiminishingGroup group)
+    private DiminishingReturnsType DiminishingTypeCompute(DiminishingGroup group)
 	{
 		switch (group)
 		{
@@ -3615,7 +3615,7 @@ public class SpellInfo
 		}
 	}
 
-	DiminishingLevels DiminishingMaxLevelCompute(DiminishingGroup group)
+    private DiminishingLevels DiminishingMaxLevelCompute(DiminishingGroup group)
 	{
 		switch (group)
 		{
@@ -3628,7 +3628,7 @@ public class SpellInfo
 		}
 	}
 
-	int DiminishingLimitDurationCompute()
+    private int DiminishingLimitDurationCompute()
 	{
 		// Explicit diminishing duration
 		switch (SpellFamilyName)
@@ -3679,7 +3679,7 @@ public class SpellInfo
 		return 8 * Time.InMilliseconds;
 	}
 
-	bool CanSpellProvideImmunityAgainstAura(SpellInfo auraSpellInfo)
+    private bool CanSpellProvideImmunityAgainstAura(SpellInfo auraSpellInfo)
 	{
 		if (auraSpellInfo == null)
 			return false;
@@ -3773,7 +3773,7 @@ public class SpellInfo
 		return false;
 	}
 
-	double CalcPPMHasteMod(SpellProcsPerMinuteModRecord mod, Unit caster)
+    private double CalcPPMHasteMod(SpellProcsPerMinuteModRecord mod, Unit caster)
 	{
 		double haste = caster.UnitData.ModHaste;
 		double rangedHaste = caster.UnitData.ModRangedHaste;
@@ -3799,7 +3799,7 @@ public class SpellInfo
 		return 0.0f;
 	}
 
-	double CalcPPMCritMod(SpellProcsPerMinuteModRecord mod, Unit caster)
+    private double CalcPPMCritMod(SpellProcsPerMinuteModRecord mod, Unit caster)
 	{
 		var player = caster.AsPlayer;
 
@@ -3827,7 +3827,7 @@ public class SpellInfo
 		return 0.0f;
 	}
 
-	double CalcPPMItemLevelMod(SpellProcsPerMinuteModRecord mod, int itemLevel)
+    private double CalcPPMItemLevelMod(SpellProcsPerMinuteModRecord mod, int itemLevel)
 	{
 		if (itemLevel == mod.Param)
 			return 0.0f;
@@ -3841,7 +3841,7 @@ public class SpellInfo
 		return ((itemLevelPoints / basePoints) - 1.0f) * mod.Coeff;
 	}
 
-	SpellInfo GetLastRankSpell()
+    private SpellInfo GetLastRankSpell()
 	{
 		if (ChainEntry == null)
 			return null;
@@ -3849,7 +3849,7 @@ public class SpellInfo
 		return ChainEntry.Last;
 	}
 
-	SpellInfo GetPrevRankSpell()
+    private SpellInfo GetPrevRankSpell()
 	{
 		if (ChainEntry == null)
 			return null;
@@ -3857,7 +3857,7 @@ public class SpellInfo
 		return ChainEntry.Prev;
 	}
 
-	bool IsPositiveEffectImpl(SpellInfo spellInfo, SpellEffectInfo effect, List<Tuple<SpellInfo, int>> visited)
+    private bool IsPositiveEffectImpl(SpellInfo spellInfo, SpellEffectInfo effect, List<Tuple<SpellInfo, int>> visited)
 	{
 		if (!effect.IsEffect())
 			return true;

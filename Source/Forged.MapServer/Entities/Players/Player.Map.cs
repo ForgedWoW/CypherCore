@@ -621,7 +621,7 @@ public partial class Player
 		_recentInstances[mapId] = instanceId;
 	}
 
-	void UpdateArea(uint newArea)
+    private void UpdateArea(uint newArea)
 	{
 		// FFA_PVP flags are area and not zone id dependent
 		// so apply them accordingly
@@ -674,7 +674,7 @@ public partial class Player
 		UpdateMountCapability();
 	}
 
-	bool IsInstanceLoginGameMasterException()
+    private bool IsInstanceLoginGameMasterException()
 	{
 		if (!CanBeGameMaster)
 			return false;

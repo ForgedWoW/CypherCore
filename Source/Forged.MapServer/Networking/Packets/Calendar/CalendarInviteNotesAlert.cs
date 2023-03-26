@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarInviteNotesAlert : ServerPacket
+internal class CalendarInviteNotesAlert : ServerPacket
 {
 	public ulong EventID;
 	public string Notes;

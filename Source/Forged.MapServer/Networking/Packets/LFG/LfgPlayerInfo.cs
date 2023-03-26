@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LfgPlayerInfo : ServerPacket
+internal class LfgPlayerInfo : ServerPacket
 {
 	public LFGBlackList BlackList = new();
 	public List<LfgPlayerDungeonInfo> Dungeons = new();

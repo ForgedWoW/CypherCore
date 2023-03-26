@@ -5,7 +5,7 @@ namespace Forged.MapServer.Networking.Packets.Ticket;
 
 public class GMTicketAcknowledgeSurvey : ClientPacket
 {
-	int CaseID;
+    private int CaseID;
 	public GMTicketAcknowledgeSurvey(WorldPacket packet) : base(packet) { }
 
 	public override void Read()

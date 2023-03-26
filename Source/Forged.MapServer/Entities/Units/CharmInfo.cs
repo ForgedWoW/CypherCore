@@ -12,21 +12,21 @@ namespace Forged.MapServer.Entities.Units;
 
 public class CharmInfo
 {
-	readonly Unit _unit;
-	readonly UnitActionBarEntry[] PetActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
-	readonly UnitActionBarEntry[] _charmspells = new UnitActionBarEntry[4];
-	readonly ReactStates _oldReactState;
-	CommandStates _CommandState;
-	uint _petnumber;
+    private readonly Unit _unit;
+    private readonly UnitActionBarEntry[] PetActionBar = new UnitActionBarEntry[SharedConst.ActionBarIndexMax];
+    private readonly UnitActionBarEntry[] _charmspells = new UnitActionBarEntry[4];
+    private readonly ReactStates _oldReactState;
+    private CommandStates _CommandState;
+    private uint _petnumber;
 
-	bool _isCommandAttack;
-	bool _isCommandFollow;
-	bool _isAtStay;
-	bool _isFollowing;
-	bool _isReturning;
-	float _stayX;
-	float _stayY;
-	float _stayZ;
+    private bool _isCommandAttack;
+    private bool _isCommandFollow;
+    private bool _isAtStay;
+    private bool _isFollowing;
+    private bool _isReturning;
+    private float _stayX;
+    private float _stayY;
+    private float _stayZ;
 
 	public CharmInfo(Unit unit)
 	{

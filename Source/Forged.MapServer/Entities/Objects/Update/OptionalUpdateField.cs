@@ -5,7 +5,7 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class OptionalUpdateField<T> : IUpdateField<T> where T : new()
 {
-	bool _hasValue;
+    private bool _hasValue;
 	public T Value { get; set; }
 	public int BlockBit { get; set; }
 	public int Bit { get; set; }

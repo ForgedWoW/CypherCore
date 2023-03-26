@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Entities.Objects;
 
-class ObjectGuidFactory
+internal class ObjectGuidFactory
 {
 	public static ObjectGuid CreateNull()
 	{
@@ -97,7 +97,7 @@ class ObjectGuidFactory
 		return new ObjectGuid((ulong)(((ulong)HighGuid.WorldLayer << 58) | ((ulong)(arg1 & 0xFFFFFFFF) << 10) | (ulong)(arg2 & 0x1FFu)), (ulong)(((ulong)(arg3 & 0xFF) << 24) | (ulong)(arg4 & 0x7FFFFF)));
 	}
 
-	static uint GetRealmIdForObjectGuid(uint realmId)
+    private static uint GetRealmIdForObjectGuid(uint realmId)
 	{
 		if (realmId != 0)
 			return realmId;

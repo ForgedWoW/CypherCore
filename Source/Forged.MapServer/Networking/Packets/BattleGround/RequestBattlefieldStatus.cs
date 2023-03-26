@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class RequestBattlefieldStatus : ClientPacket
+internal class RequestBattlefieldStatus : ClientPacket
 {
 	public RequestBattlefieldStatus(WorldPacket packet) : base(packet) { }
 

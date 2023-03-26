@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectCloseInteraction : ServerPacket
+internal class GameObjectCloseInteraction : ServerPacket
 {
 	public PlayerInteractionType InteractionType;
 

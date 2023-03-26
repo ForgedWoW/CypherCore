@@ -92,7 +92,7 @@ public class BladesEdgeArena : Arena
 	}
 }
 
-struct BladeEdgeObjectTypes
+internal struct BladeEdgeObjectTypes
 {
 	public const int Door1 = 0;
 	public const int Door2 = 1;
@@ -103,7 +103,7 @@ struct BladeEdgeObjectTypes
 	public const int Max = 6;
 }
 
-struct BladeEfgeGameObjects
+internal struct BladeEfgeGameObjects
 {
 	public const uint Door1 = 183971;
 	public const uint Door2 = 183973;

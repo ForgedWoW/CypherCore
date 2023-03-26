@@ -18,10 +18,10 @@ namespace Forged.MapServer.Globals;
 
 public class ObjectAccessor : Singleton<ObjectAccessor>
 {
-    readonly object _lockObject = new();
-    readonly Dictionary<ObjectGuid, Player> _players = new();
+    private readonly object _lockObject = new();
+    private readonly Dictionary<ObjectGuid, Player> _players = new();
 
-    ObjectAccessor() { }
+    private ObjectAccessor() { }
 
     public WorldObject GetWorldObject(WorldObject p, ObjectGuid guid)
     {
@@ -253,17 +253,17 @@ public class ObjectAccessor : Singleton<ObjectAccessor>
         }
     }
 
-    static DynamicObject GetDynamicObject(WorldObject u, ObjectGuid guid)
+    private static DynamicObject GetDynamicObject(WorldObject u, ObjectGuid guid)
     {
         return u.Map.GetDynamicObject(guid);
     }
 
-    static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
+    private static AreaTrigger GetAreaTrigger(WorldObject u, ObjectGuid guid)
     {
         return u.Map.GetAreaTrigger(guid);
     }
 
-    static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
+    private static SceneObject GetSceneObject(WorldObject u, ObjectGuid guid)
     {
         return u.Map.GetSceneObject(guid);
     }

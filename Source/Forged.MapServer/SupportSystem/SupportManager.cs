@@ -15,23 +15,23 @@ namespace Forged.MapServer.SupportSystem;
 
 public class SupportManager : Singleton<SupportManager>
 {
-	readonly Dictionary<uint, BugTicket> _bugTicketList = new();
-	readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
-	readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
+    private readonly Dictionary<uint, BugTicket> _bugTicketList = new();
+    private readonly Dictionary<uint, ComplaintTicket> _complaintTicketList = new();
+    private readonly Dictionary<uint, SuggestionTicket> _suggestionTicketList = new();
 
-	bool _supportSystemStatus;
-	bool _ticketSystemStatus;
-	bool _bugSystemStatus;
-	bool _complaintSystemStatus;
-	bool _suggestionSystemStatus;
-	uint _lastBugId;
-	uint _lastComplaintId;
-	uint _lastSuggestionId;
-	uint _openBugTicketCount;
-	uint _openComplaintTicketCount;
-	uint _openSuggestionTicketCount;
-	ulong _lastChange;
-	SupportManager() { }
+    private bool _supportSystemStatus;
+    private bool _ticketSystemStatus;
+    private bool _bugSystemStatus;
+    private bool _complaintSystemStatus;
+    private bool _suggestionSystemStatus;
+    private uint _lastBugId;
+    private uint _lastComplaintId;
+    private uint _lastSuggestionId;
+    private uint _openBugTicketCount;
+    private uint _openComplaintTicketCount;
+    private uint _openSuggestionTicketCount;
+    private ulong _lastChange;
+    private SupportManager() { }
 
 	public void Initialize()
 	{
@@ -456,12 +456,12 @@ public class SupportManager : Singleton<SupportManager>
 		return ++_lastSuggestionId;
 	}
 
-	long GetAge(ulong t)
+    private long GetAge(ulong t)
 	{
 		return (GameTime.GetGameTime() - (long)t) / Time.Day;
 	}
 
-	IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)
+    private IEnumerable<KeyValuePair<uint, ComplaintTicket>> GetComplaintsByPlayerGuid(ObjectGuid playerGuid)
 	{
 		return _complaintTicketList.Where(ticket => ticket.Value.PlayerGuid == playerGuid);
 	}

@@ -7,7 +7,7 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class ContentTuningParams
+internal class ContentTuningParams
 {
 	public enum ContentTuningType
 	{
@@ -90,12 +90,12 @@ class ContentTuningParams
 		data.FlushBits();
 	}
 
-	bool GenerateDataPlayerToPlayer(Player attacker, Player target)
+    private bool GenerateDataPlayerToPlayer(Player attacker, Player target)
 	{
 		return false;
 	}
 
-	bool GenerateDataCreatureToPlayer(Creature attacker, Player target)
+    private bool GenerateDataCreatureToPlayer(Creature attacker, Player target)
 	{
 		var creatureTemplate = attacker.Template;
 		var creatureScaling = creatureTemplate.GetLevelScaling(attacker.Map.DifficultyID);
@@ -112,7 +112,7 @@ class ContentTuningParams
 		return true;
 	}
 
-	bool GenerateDataPlayerToCreature(Player attacker, Creature target)
+    private bool GenerateDataPlayerToCreature(Player attacker, Creature target)
 	{
 		var creatureTemplate = target.Template;
 		var creatureScaling = creatureTemplate.GetLevelScaling(target.Map.DifficultyID);
@@ -129,7 +129,7 @@ class ContentTuningParams
 		return true;
 	}
 
-	bool GenerateDataCreatureToCreature(Creature attacker, Creature target)
+    private bool GenerateDataCreatureToCreature(Creature attacker, Creature target)
 	{
 		var accessor = target.HasScalableLevels ? target : attacker;
 		var creatureTemplate = accessor.Template;

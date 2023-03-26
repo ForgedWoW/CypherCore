@@ -3122,22 +3122,22 @@ public partial class Player
 		return ActivePlayerData.DailyQuestsCompleted.FindIndex(quest_id) >= 0;
 	}
 
-	uint GetInGameTime()
+    private uint GetInGameTime()
 	{
 		return _ingametime;
 	}
 
-	void AddTimedQuest(uint questId)
+    private void AddTimedQuest(uint questId)
 	{
 		_timedquests.Add(questId);
 	}
 
-	Dictionary<uint, QuestStatusData> GetQuestStatusMap()
+    private Dictionary<uint, QuestStatusData> GetQuestStatusMap()
 	{
 		return _mQuestStatus;
 	}
 
-	int GetQuestMinLevel(uint contentTuningId)
+    private int GetQuestMinLevel(uint contentTuningId)
 	{
 		var questLevels = Global.DB2Mgr.GetContentTuningData(contentTuningId, PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
@@ -3156,12 +3156,12 @@ public partial class Player
 		return 0;
 	}
 
-	bool SatisfyQuestLevel(Quest.Quest qInfo, bool msg)
+    private bool SatisfyQuestLevel(Quest.Quest qInfo, bool msg)
 	{
 		return SatisfyQuestMinLevel(qInfo, msg) && SatisfyQuestMaxLevel(qInfo, msg);
 	}
 
-	bool SatisfyQuestDependentPreviousQuests(Quest.Quest qInfo, bool msg)
+    private bool SatisfyQuestDependentPreviousQuests(Quest.Quest qInfo, bool msg)
 	{
 		// No previous quest (might be first quest in a series)
 		if (qInfo.DependentPreviousQuests.Empty())
@@ -3216,7 +3216,7 @@ public partial class Player
 		return false;
 	}
 
-	bool SatisfyQuestBreadcrumbQuest(Quest.Quest qInfo, bool msg)
+    private bool SatisfyQuestBreadcrumbQuest(Quest.Quest qInfo, bool msg)
 	{
 		var breadcrumbTargetQuestId = (uint)Math.Abs(qInfo.BreadcrumbForQuestId);
 
@@ -3239,7 +3239,7 @@ public partial class Player
 		return true;
 	}
 
-	bool SatisfyQuestDependentBreadcrumbQuests(Quest.Quest qInfo, bool msg)
+    private bool SatisfyQuestDependentBreadcrumbQuests(Quest.Quest qInfo, bool msg)
 	{
 		foreach (var breadcrumbQuestId in qInfo.DependentBreadcrumbQuests)
 		{
@@ -3261,7 +3261,7 @@ public partial class Player
 		return true;
 	}
 
-	bool SendQuestUpdate(uint questId, bool updateVisiblity = true)
+    private bool SendQuestUpdate(uint questId, bool updateVisiblity = true)
 	{
 		var saBounds = Global.SpellMgr.GetSpellAreaForQuestMapBounds(questId);
 
@@ -3311,7 +3311,7 @@ public partial class Player
 		return PhasingHandler.OnConditionChange(this, updateVisiblity);
 	}
 
-	bool GetQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
+    private bool GetQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
 	{
 		if (objectiveIndex < SharedConst.MaxQuestCounts)
 			return ((PlayerData.QuestLog[slot].ObjectiveFlags) & (1 << objectiveIndex)) != 0;
@@ -3319,19 +3319,19 @@ public partial class Player
 		return false;
 	}
 
-	void SetQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
+    private void SetQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
 	{
 		var questLog = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.QuestLog, slot);
 		SetUpdateFieldFlagValue(questLog.ModifyValue(questLog.ObjectiveFlags), 1u << objectiveIndex);
 	}
 
-	void RemoveQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
+    private void RemoveQuestSlotObjectiveFlag(ushort slot, sbyte objectiveIndex)
 	{
 		var questLog = Values.ModifyValue(PlayerData).ModifyValue(PlayerData.QuestLog, slot);
 		RemoveUpdateFieldFlagValue(questLog.ModifyValue(questLog.ObjectiveFlags), 1u << objectiveIndex);
 	}
 
-	void SetQuestCompletedBit(uint questBit, bool completed)
+    private void SetQuestCompletedBit(uint questBit, bool completed)
 	{
 		if (questBit == 0)
 			return;
@@ -3349,14 +3349,14 @@ public partial class Player
 			RemoveUpdateFieldFlagValue(ref Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.QuestCompleted, (int)fieldOffset), flag);
 	}
 
-	void CurrencyChanged(uint currencyId, int change)
+    private void CurrencyChanged(uint currencyId, int change)
 	{
 		UpdateQuestObjectiveProgress(QuestObjectiveType.Currency, (int)currencyId, change);
 		UpdateQuestObjectiveProgress(QuestObjectiveType.HaveCurrency, (int)currencyId, change);
 		UpdateQuestObjectiveProgress(QuestObjectiveType.ObtainCurrency, (int)currencyId, change);
 	}
 
-	void SendQuestUpdateAddCredit(Quest.Quest quest, ObjectGuid guid, QuestObjective obj, uint count)
+    private void SendQuestUpdateAddCredit(Quest.Quest quest, ObjectGuid guid, QuestObjective obj, uint count)
 	{
 		QuestUpdateAddCredit packet = new()
 		{
@@ -3371,7 +3371,7 @@ public partial class Player
 		SendPacket(packet);
 	}
 
-	void SetDailyQuestStatus(uint quest_id)
+    private void SetDailyQuestStatus(uint quest_id)
 	{
 		var qQuest = Global.ObjectMgr.GetQuestTemplate(quest_id);
 
@@ -3392,13 +3392,13 @@ public partial class Player
 		}
 	}
 
-	void SetWeeklyQuestStatus(uint quest_id)
+    private void SetWeeklyQuestStatus(uint quest_id)
 	{
 		_weeklyquests.Add(quest_id);
 		_weeklyQuestChanged = true;
 	}
 
-	void SetSeasonalQuestStatus(uint quest_id)
+    private void SetSeasonalQuestStatus(uint quest_id)
 	{
 		var quest = Global.ObjectMgr.GetQuestTemplate(quest_id);
 
@@ -3412,13 +3412,13 @@ public partial class Player
 		_seasonalQuestChanged = true;
 	}
 
-	void SetMonthlyQuestStatus(uint quest_id)
+    private void SetMonthlyQuestStatus(uint quest_id)
 	{
 		_monthlyquests.Add(quest_id);
 		_monthlyQuestChanged = true;
 	}
 
-	void PushQuests()
+    private void PushQuests()
 	{
 		foreach (var quest in Global.ObjectMgr.GetQuestTemplatesAutoPush())
 		{
@@ -3430,7 +3430,7 @@ public partial class Player
 		}
 	}
 
-	void SendDisplayToast(uint entry, DisplayToastType type, bool isBonusRoll, uint quantity, DisplayToastMethod method, uint questId, Item item = null)
+    private void SendDisplayToast(uint entry, DisplayToastType type, bool isBonusRoll, uint quantity, DisplayToastMethod method, uint questId, Item item = null)
 	{
 		DisplayToast displayToast = new()
 		{

@@ -11,9 +11,9 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class GossipMenu
 {
-	readonly SortedDictionary<uint, GossipMenuItem> _menuItems = new();
-	uint _menuId;
-	Locale _locale;
+    private readonly SortedDictionary<uint, GossipMenuItem> _menuItems = new();
+    private uint _menuId;
+    private Locale _locale;
 
 	public uint AddMenuItem(int gossipOptionId, int orderIndex, GossipOptionNpc optionNpc, string optionText, uint language,
 							GossipOptionFlags flags, int? gossipNpcOptionId, uint actionMenuId, uint actionPoiId, bool boxCoded, uint boxMoney,
@@ -230,12 +230,12 @@ public class GossipMenu
 		return _menuItems;
 	}
 
-	GossipMenuItem GetItemByIndex(uint orderIndex)
+    private GossipMenuItem GetItemByIndex(uint orderIndex)
 	{
 		return _menuItems.LookupByKey(orderIndex);
 	}
 
-	Locale GetLocale()
+    private Locale GetLocale()
 	{
 		return _locale;
 	}

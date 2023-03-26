@@ -10,8 +10,8 @@ namespace Forged.MapServer.Networking;
 
 public class WorldPacket : ByteBuffer
 {
-	readonly uint opcode;
-	DateTime m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
+    private readonly uint opcode;
+    private DateTime m_receivedTime; // only set for a specific set of opcodes, for performance reasons.
 
 	public WorldPacket(ServerOpcodes opcode = ServerOpcodes.None)
 	{
@@ -123,7 +123,7 @@ public class WorldPacket : ByteBuffer
 		return guid;
 	}
 
-	uint PackUInt64(ulong value, out byte mask, out byte[] result)
+    private uint PackUInt64(ulong value, out byte mask, out byte[] result)
 	{
 		uint resultSize = 0;
 		mask = 0;

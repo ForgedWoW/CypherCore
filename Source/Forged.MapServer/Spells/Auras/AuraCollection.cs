@@ -152,8 +152,8 @@ public class AuraCollection
 
 	public class AuraQuery
 	{
-		readonly AuraCollection _collection;
-		bool _hasLoaded;
+        private readonly AuraCollection _collection;
+        private bool _hasLoaded;
 
 		public HashSet<Guid> Results { get; private set; } = new();
 

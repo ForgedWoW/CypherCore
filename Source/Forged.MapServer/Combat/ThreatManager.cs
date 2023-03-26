@@ -25,14 +25,14 @@ public class ThreatManager
 
 	public List<Tuple<ObjectGuid, uint>> _redirectInfo = new();                      // current redirection targets and percentages (updated from registry in ThreatManager::UpdateRedirectInfo)
 	public Dictionary<uint, Dictionary<ObjectGuid, uint>> _redirectRegistry = new(); // spellid . (victim . pct); all redirection effects on us (removal individually managed by spell scripts because blizzard is dumb)
-	readonly List<ThreatReference> _sortedThreatList = new();
-	readonly Dictionary<ObjectGuid, ThreatReference> _myThreatListEntries = new();
-	readonly List<ThreatReference> _needsAIUpdate = new();
-	readonly Dictionary<ObjectGuid, ThreatReference> _threatenedByMe = new(); // these refs are entries for myself on other units' threat lists
-	bool _ownerCanHaveThreatList;
-	uint _updateTimer;
-	ThreatReference _currentVictimRef;
-	ThreatReference _fixateRef;
+    private readonly List<ThreatReference> _sortedThreatList = new();
+    private readonly Dictionary<ObjectGuid, ThreatReference> _myThreatListEntries = new();
+    private readonly List<ThreatReference> _needsAIUpdate = new();
+    private readonly Dictionary<ObjectGuid, ThreatReference> _threatenedByMe = new(); // these refs are entries for myself on other units' threat lists
+    private bool _ownerCanHaveThreatList;
+    private uint _updateTimer;
+    private ThreatReference _currentVictimRef;
+    private ThreatReference _fixateRef;
 
 	public Unit CurrentVictim
 	{
@@ -690,7 +690,7 @@ public class ThreatManager
 		_needsAIUpdate.Add(refe);
 	}
 
-	void ScaleThreat(Unit target, double factor)
+    private void ScaleThreat(Unit target, double factor)
 	{
 		var refe = _myThreatListEntries.LookupByKey(target.GUID);
 
@@ -698,7 +698,7 @@ public class ThreatManager
 			refe.ScaleThreat(Math.Max(factor, 0.0f));
 	}
 
-	void UpdateVictim()
+    private void UpdateVictim()
 	{
 		var newVictim = ReselectVictim();
 		var newHighest = newVictim != null && (newVictim != _currentVictimRef);
@@ -714,7 +714,7 @@ public class ThreatManager
 		ProcessAIUpdates();
 	}
 
-	ThreatReference ReselectVictim()
+    private ThreatReference ReselectVictim()
 	{
 		if (_sortedThreatList.Empty())
 			return null;
@@ -776,7 +776,7 @@ public class ThreatManager
 		return null;
 	}
 
-	void ProcessAIUpdates()
+    private void ProcessAIUpdates()
 	{
 		var ai = _owner.AsCreature.AI;
 		List<ThreatReference> v = new(_needsAIUpdate); // _needClientUpdate is now empty in case this triggers a recursive call
@@ -788,7 +788,7 @@ public class ThreatManager
 			ai.JustStartedThreateningMe(refe.Victim);
 	}
 
-	void UnregisterRedirectThreat(uint spellId, ObjectGuid victim)
+    private void UnregisterRedirectThreat(uint spellId, ObjectGuid victim)
 	{
 		var victimMap = _redirectRegistry.LookupByKey(spellId);
 
@@ -799,7 +799,7 @@ public class ThreatManager
 			UpdateRedirectInfo();
 	}
 
-	void SendClearAllThreatToClients()
+    private void SendClearAllThreatToClients()
 	{
 		ThreatClear threatClear = new()
 		{
@@ -809,7 +809,7 @@ public class ThreatManager
 		_owner.SendMessageToSet(threatClear, false);
 	}
 
-	void SendThreatListToClients(bool newHighest)
+    private void SendThreatListToClients(bool newHighest)
 	{
 		void fillSharedPacketDataAndSend(dynamic packet)
 		{
@@ -848,7 +848,7 @@ public class ThreatManager
 		}
 	}
 
-	void PutThreatListRef(ObjectGuid guid, ThreatReference refe)
+    private void PutThreatListRef(ObjectGuid guid, ThreatReference refe)
 	{
 		NeedClientUpdate = true;
 		_myThreatListEntries[guid] = refe;
@@ -856,12 +856,12 @@ public class ThreatManager
 		_sortedThreatList.Sort();
 	}
 
-	void PutThreatenedByMeRef(ObjectGuid guid, ThreatReference refe)
+    private void PutThreatenedByMeRef(ObjectGuid guid, ThreatReference refe)
 	{
 		_threatenedByMe[guid] = refe;
 	}
 
-	void UpdateRedirectInfo()
+    private void UpdateRedirectInfo()
 	{
 		_redirectInfo.Clear();
 		uint totalPct = 0;

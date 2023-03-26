@@ -6,10 +6,10 @@ using Framework.IO;
 
 namespace Forged.MapServer.Chat;
 
-class HyperlinkDataTokenizer
+internal class HyperlinkDataTokenizer
 {
-	readonly StringArguments _arg;
-	readonly bool _allowEmptyTokens;
+    private readonly StringArguments _arg;
+    private readonly bool _allowEmptyTokens;
 
 	public bool IsEmpty => _arg.Empty();
 

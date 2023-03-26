@@ -6,13 +6,13 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class MostHPPercentMissingInRange : ICheck<Unit>
+internal class MostHPPercentMissingInRange : ICheck<Unit>
 {
-	readonly Unit _obj;
-	readonly float _range;
-	readonly float _minHpPct;
-	readonly float _maxHpPct;
-	float _hpPct;
+    private readonly Unit _obj;
+    private readonly float _range;
+    private readonly float _minHpPct;
+    private readonly float _maxHpPct;
+    private float _hpPct;
 
 	public MostHPPercentMissingInRange(Unit obj, float range, uint minHpPct, uint maxHpPct)
 	{

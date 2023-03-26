@@ -10,10 +10,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("titles")]
-class TitleCommands
+internal class TitleCommands
 {
 	[Command("current", RBACPermissions.CommandTitlesCurrent)]
-	static bool HandleTitlesCurrentCommand(CommandHandler handler, uint titleId)
+    private static bool HandleTitlesCurrentCommand(CommandHandler handler, uint titleId)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -49,7 +49,7 @@ class TitleCommands
 	}
 
 	[Command("add", RBACPermissions.CommandTitlesAdd)]
-	static bool HandleTitlesAddCommand(CommandHandler handler, uint titleId)
+    private static bool HandleTitlesAddCommand(CommandHandler handler, uint titleId)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -84,7 +84,7 @@ class TitleCommands
 	}
 
 	[Command("remove", RBACPermissions.CommandTitlesRemove)]
-	static bool HandleTitlesRemoveCommand(CommandHandler handler, uint titleId)
+    private static bool HandleTitlesRemoveCommand(CommandHandler handler, uint titleId)
 	{
 		var target = handler.SelectedPlayer;
 
@@ -125,11 +125,11 @@ class TitleCommands
 	}
 
 	[CommandGroup("set")]
-	class TitleSetCommands
+    private class TitleSetCommands
 	{
 		//Edit Player KnownTitles
 		[Command("mask", RBACPermissions.CommandTitlesSetMask)]
-		static bool HandleTitlesSetMaskCommand(CommandHandler handler, ulong mask)
+        private static bool HandleTitlesSetMaskCommand(CommandHandler handler, ulong mask)
 		{
 			var target = handler.SelectedPlayer;
 

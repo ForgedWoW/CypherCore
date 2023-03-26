@@ -7,10 +7,10 @@ using Forged.MapServer.Entities.Units;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class PlayerAtMinimumRangeAway : ICheck<Player>
+internal class PlayerAtMinimumRangeAway : ICheck<Player>
 {
-	readonly Unit _unit;
-	readonly float _fRange;
+    private readonly Unit _unit;
+    private readonly float _fRange;
 
 	public PlayerAtMinimumRangeAway(Unit unit, float fMinRange)
 	{

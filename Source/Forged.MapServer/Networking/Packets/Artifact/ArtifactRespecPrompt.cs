@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Artifact;
 
-class ArtifactRespecPrompt : ServerPacket
+internal class ArtifactRespecPrompt : ServerPacket
 {
 	public ObjectGuid ArtifactGUID;
 	public ObjectGuid NpcGUID;

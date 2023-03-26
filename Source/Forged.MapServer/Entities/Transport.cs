@@ -25,19 +25,19 @@ namespace Forged.MapServer.Entities;
 
 public class Transport : GameObject, ITransport
 {
-	readonly TimeTracker _positionChangeTimer = new();
-	readonly HashSet<WorldObject> _passengers = new();
-	readonly HashSet<WorldObject> _staticPassengers = new();
+    private readonly TimeTracker _positionChangeTimer = new();
+    private readonly HashSet<WorldObject> _passengers = new();
+    private readonly HashSet<WorldObject> _staticPassengers = new();
 
-	TransportTemplate _transportInfo;
+    private TransportTemplate _transportInfo;
 
-	TransportMovementState _movementState;
-	BitArray _eventsToTrigger;
-	int _currentPathLeg;
-	uint? _requestStopTimestamp;
-	uint _pathProgress;
+    private TransportMovementState _movementState;
+    private BitArray _eventsToTrigger;
+    private int _currentPathLeg;
+    private uint? _requestStopTimestamp;
+    private uint _pathProgress;
 
-	bool _delayedAddModel;
+    private bool _delayedAddModel;
 
 	public Transport()
 	{
@@ -597,7 +597,7 @@ public class Transport : GameObject, ITransport
 		return _pathProgress;
 	}
 
-	GameObject CreateGOPassenger(ulong guid, GameObjectData data)
+    private GameObject CreateGOPassenger(ulong guid, GameObjectData data)
 	{
 		var map = Map;
 
@@ -640,7 +640,7 @@ public class Transport : GameObject, ITransport
 		return go;
 	}
 
-	void LoadStaticPassengers()
+    private void LoadStaticPassengers()
 	{
 		var mapId = (uint)Template.MoTransport.SpawnMap;
 		var cells = Global.ObjectMgr.GetMapObjectGuids(mapId, Map.DifficultyID);
@@ -660,7 +660,7 @@ public class Transport : GameObject, ITransport
 		}
 	}
 
-	void UnloadStaticPassengers()
+    private void UnloadStaticPassengers()
 	{
 		lock (_staticPassengers)
 		{
@@ -672,7 +672,7 @@ public class Transport : GameObject, ITransport
 		}
 	}
 
-	bool TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)
+    private bool TeleportTransport(uint oldMapId, uint newMapId, float x, float y, float z, float o)
 	{
 		if (oldMapId != newMapId)
 		{
@@ -706,7 +706,7 @@ public class Transport : GameObject, ITransport
 		}
 	}
 
-	void TeleportPassengersAndHideTransport(uint newMapid, float x, float y, float z, float o)
+    private void TeleportPassengersAndHideTransport(uint newMapid, float x, float y, float z, float o)
 	{
 		if (newMapid == Location.MapId)
 		{
@@ -766,7 +766,7 @@ public class Transport : GameObject, ITransport
 		}
 	}
 
-	void UpdatePassengerPositions(HashSet<WorldObject> passengers)
+    private void UpdatePassengerPositions(HashSet<WorldObject> passengers)
 	{
 		foreach (var passenger in passengers)
 		{

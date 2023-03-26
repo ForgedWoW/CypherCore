@@ -14,7 +14,7 @@ public class BossAI : ScriptedAI
 {
 	public InstanceScript Instance;
 	public SummonList Summons;
-	readonly uint _bossId;
+    private readonly uint _bossId;
 
 	public BossAI(Creature creature, uint bossId) : base(creature)
 	{
@@ -191,7 +191,7 @@ public class BossAI : ScriptedAI
 		return _bossId;
 	}
 
-	void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
+    private void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool reset = true)
 	{
 		Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
 

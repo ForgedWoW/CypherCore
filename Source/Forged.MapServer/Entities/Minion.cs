@@ -10,7 +10,7 @@ namespace Forged.MapServer.Entities;
 public class Minion : TempSummon
 {
 	protected Unit Owner;
-	float _followAngle;
+    private float _followAngle;
 
 	public bool IsGuardianPet => IsPet || SummonPropertiesRecord is { Control: SummonCategory.Pet };
 

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class PetCastFailed : CastFailedBase
+internal class PetCastFailed : CastFailedBase
 {
 	public PetCastFailed() : base(ServerOpcodes.PetCastFailed, ConnectionType.Instance) { }
 

@@ -5,7 +5,7 @@ using Forged.MapServer.Networking.Packets.Item;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonMissionReward
+internal struct GarrisonMissionReward
 {
 	public void Write(WorldPacket data)
 	{

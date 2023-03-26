@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Warden.Modules;
 
-struct WardenModuleWin
+internal struct WardenModuleWin
 {
 	public static byte[] Module =
 	{

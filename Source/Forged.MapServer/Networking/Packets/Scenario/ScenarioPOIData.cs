@@ -6,7 +6,7 @@ using Forged.MapServer.Scenarios;
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-struct ScenarioPOIData
+internal struct ScenarioPOIData
 {
 	public int CriteriaTreeID;
 	public List<ScenarioPOI> ScenarioPOIs;

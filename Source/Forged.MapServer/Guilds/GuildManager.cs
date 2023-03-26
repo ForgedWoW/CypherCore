@@ -13,11 +13,11 @@ namespace Forged.MapServer.Guilds;
 
 public sealed class GuildManager : Singleton<GuildManager>
 {
-	readonly Dictionary<ulong, Guild> GuildStore = new();
-	readonly List<GuildReward> guildRewards = new();
+    private readonly Dictionary<ulong, Guild> GuildStore = new();
+    private readonly List<GuildReward> guildRewards = new();
 
-	uint NextGuildId;
-	GuildManager() { }
+    private uint NextGuildId;
+    private GuildManager() { }
 
 	public void AddGuild(Guild guild)
 	{

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarSendCalendar : ServerPacket
+internal class CalendarSendCalendar : ServerPacket
 {
 	public long ServerTime;
 	public List<CalendarSendCalendarInviteInfo> Invites = new();

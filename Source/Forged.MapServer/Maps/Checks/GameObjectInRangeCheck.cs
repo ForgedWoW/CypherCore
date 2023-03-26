@@ -6,10 +6,10 @@ using Forged.MapServer.Entities.GameObjects;
 
 namespace Forged.MapServer.Maps.Checks;
 
-class GameObjectInRangeCheck : ICheck<GameObject>
+internal class GameObjectInRangeCheck : ICheck<GameObject>
 {
-	readonly float _x, _y, _z, _range;
-	readonly uint _entry;
+    private readonly float _x, _y, _z, _range;
+    private readonly uint _entry;
 
 	public GameObjectInRangeCheck(float x, float y, float z, float range, uint entry = 0)
 	{

@@ -9,7 +9,7 @@ public class SpellLogMissEntry
 {
 	public ObjectGuid Victim;
 	public byte MissReason;
-	SpellLogMissDebug? Debug;
+    private SpellLogMissDebug? Debug;
 
 	public SpellLogMissEntry(ObjectGuid victim, byte missReason)
 	{

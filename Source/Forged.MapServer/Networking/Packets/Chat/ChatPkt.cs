@@ -111,7 +111,7 @@ public class ChatPkt : ServerPacket
 			_worldPacket.WritePackedGuid(ChannelGUID.Value);
 	}
 
-	void SetSender(WorldObject sender, Locale locale)
+    private void SetSender(WorldObject sender, Locale locale)
 	{
 		SenderGUID = sender.GUID;
 

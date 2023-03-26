@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class QuestCompletionNPCResponse : ServerPacket
+internal class QuestCompletionNPCResponse : ServerPacket
 {
 	public List<QuestCompletionNPC> QuestCompletionNPCs = new();
 	public QuestCompletionNPCResponse() : base(ServerOpcodes.QuestCompletionNpcResponse, ConnectionType.Instance) { }

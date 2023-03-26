@@ -9,7 +9,7 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyDeadUnitSpellTargetInRangeCheck<T> : AnyDeadUnitObjectInRangeCheck<T> where T : WorldObject
 {
-	readonly WorldObjectSpellTargetCheck _check;
+    private readonly WorldObjectSpellTargetCheck _check;
 
 	public AnyDeadUnitSpellTargetInRangeCheck(WorldObject searchObj, float range, SpellInfo spellInfo, SpellTargetCheckTypes check, SpellTargetObjectTypes objectType) : base(searchObj, range)
 	{

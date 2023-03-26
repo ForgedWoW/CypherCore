@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct ChannelOwnerAppend : IChannelAppender
+internal struct ChannelOwnerAppend : IChannelAppender
 {
 	public ChannelOwnerAppend(Channel channel, ObjectGuid ownerGuid)
 	{
@@ -28,7 +28,7 @@ struct ChannelOwnerAppend : IChannelAppender
 		data.Sender = ((_channel.IsConstant() || _ownerGuid.IsEmpty) ? "Nobody" : _ownerName);
 	}
 
-	readonly Channel _channel;
-	ObjectGuid _ownerGuid;
-	readonly string _ownerName;
+    private readonly Channel _channel;
+    private ObjectGuid _ownerGuid;
+    private readonly string _ownerName;
 }

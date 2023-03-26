@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class LogXPGain : ServerPacket
+internal class LogXPGain : ServerPacket
 {
 	public ObjectGuid Victim;
 	public int Original;

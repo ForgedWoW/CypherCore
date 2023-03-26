@@ -12,10 +12,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("wp")]
-class WPCommands
+internal class WPCommands
 {
 	[Command("add", RBACPermissions.CommandWpAdd)]
-	static bool HandleWpAddCommand(CommandHandler handler, uint? optionalPathId)
+    private static bool HandleWpAddCommand(CommandHandler handler, uint? optionalPathId)
 	{
 		uint point = 0;
 		var target = handler.SelectedCreature;
@@ -79,7 +79,7 @@ class WPCommands
 	}
 
 	[Command("event", RBACPermissions.CommandWpEvent)]
-	static bool HandleWpEventCommand(CommandHandler handler, string subCommand, uint id, [OptionalArg] string arg, [OptionalArg] string arg2)
+    private static bool HandleWpEventCommand(CommandHandler handler, string subCommand, uint id, [OptionalArg] string arg, [OptionalArg] string arg2)
 	{
 		PreparedStatement stmt;
 
@@ -345,7 +345,7 @@ class WPCommands
 	}
 
 	[Command("load", RBACPermissions.CommandWpLoad)]
-	static bool HandleWpLoadCommand(CommandHandler handler, uint? optionalPathId)
+    private static bool HandleWpLoadCommand(CommandHandler handler, uint? optionalPathId)
 	{
 		var target = handler.SelectedCreature;
 
@@ -412,7 +412,7 @@ class WPCommands
 	}
 
 	[Command("modify", RBACPermissions.CommandWpModify)]
-	static bool HandleWpModifyCommand(CommandHandler handler, string subCommand, [OptionalArg] string arg)
+    private static bool HandleWpModifyCommand(CommandHandler handler, string subCommand, [OptionalArg] string arg)
 	{
 		// first arg: add del text emote spell waittime move
 		if (subCommand.IsEmpty())
@@ -593,7 +593,7 @@ class WPCommands
 	}
 
 	[Command("reload", RBACPermissions.CommandWpReload)]
-	static bool HandleWpReloadCommand(CommandHandler handler, uint pathId)
+    private static bool HandleWpReloadCommand(CommandHandler handler, uint pathId)
 	{
 		if (pathId == 0)
 			return false;
@@ -605,7 +605,7 @@ class WPCommands
 	}
 
 	[Command("show", RBACPermissions.CommandWpShow)]
-	static bool HandleWpShowCommand(CommandHandler handler, string subCommand, uint? optionalPathId)
+    private static bool HandleWpShowCommand(CommandHandler handler, string subCommand, uint? optionalPathId)
 	{
 		// first arg: on, off, first, last
 		if (subCommand.IsEmpty())
@@ -972,7 +972,7 @@ class WPCommands
 	}
 
 	[Command("unload", RBACPermissions.CommandWpUnload)]
-	static bool HandleWpUnLoadCommand(CommandHandler handler)
+    private static bool HandleWpUnLoadCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedCreature;
 

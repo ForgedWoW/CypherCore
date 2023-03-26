@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class DestroyArenaUnit : ServerPacket
+internal class DestroyArenaUnit : ServerPacket
 {
 	public ObjectGuid Guid;
 	public DestroyArenaUnit() : base(ServerOpcodes.DestroyArenaUnit) { }

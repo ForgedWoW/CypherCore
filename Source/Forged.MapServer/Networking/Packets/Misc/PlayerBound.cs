@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class PlayerBound : ServerPacket
 {
-	readonly uint AreaID;
+    private readonly uint AreaID;
 
-	readonly ObjectGuid BinderID;
+    private readonly ObjectGuid BinderID;
 
 	public PlayerBound(ObjectGuid binderId, uint areaId) : base(ServerOpcodes.PlayerBound)
 	{

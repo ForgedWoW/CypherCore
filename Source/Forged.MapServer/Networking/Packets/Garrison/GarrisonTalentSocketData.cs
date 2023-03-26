@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonTalentSocketData
+internal struct GarrisonTalentSocketData
 {
 	public int SoulbindConduitID;
 	public int SoulbindConduitRank;

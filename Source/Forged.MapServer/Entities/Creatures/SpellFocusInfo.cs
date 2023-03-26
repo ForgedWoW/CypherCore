@@ -6,7 +6,7 @@ using Forged.MapServer.Spells;
 
 namespace Forged.MapServer.Entities.Creatures;
 
-struct SpellFocusInfo
+internal struct SpellFocusInfo
 {
 	public Spell Spell;
 	public uint Delay;        // ms until the creature's target should snap back (0 = no snapback scheduled)

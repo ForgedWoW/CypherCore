@@ -13,7 +13,7 @@ namespace Forged.MapServer.Handlers;
 public class VehicleHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.MoveDismissVehicle, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveDismissVehicle(MoveDismissVehicle packet)
+    private void HandleMoveDismissVehicle(MoveDismissVehicle packet)
 	{
 		var vehicleGUID = Player.CharmedGUID;
 
@@ -27,7 +27,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestVehiclePrevSeat, Processing = PacketProcessing.Inplace)]
-	void HandleRequestVehiclePrevSeat(RequestVehiclePrevSeat packet)
+    private void HandleRequestVehiclePrevSeat(RequestVehiclePrevSeat packet)
 	{
 		var vehicle_base = Player.VehicleBase;
 
@@ -49,7 +49,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestVehicleNextSeat, Processing = PacketProcessing.Inplace)]
-	void HandleRequestVehicleNextSeat(RequestVehicleNextSeat packet)
+    private void HandleRequestVehicleNextSeat(RequestVehicleNextSeat packet)
 	{
 		var vehicle_base = Player.VehicleBase;
 
@@ -71,7 +71,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveChangeVehicleSeats, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveChangeVehicleSeats(MoveChangeVehicleSeats packet)
+    private void HandleMoveChangeVehicleSeats(MoveChangeVehicleSeats packet)
 	{
 		var vehicle_base = Player.VehicleBase;
 
@@ -116,7 +116,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestVehicleSwitchSeat, Processing = PacketProcessing.Inplace)]
-	void HandleRequestVehicleSwitchSeat(RequestVehicleSwitchSeat packet)
+    private void HandleRequestVehicleSwitchSeat(RequestVehicleSwitchSeat packet)
 	{
 		var vehicle_base = Player.VehicleBase;
 
@@ -154,7 +154,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RideVehicleInteract)]
-	void HandleRideVehicleInteract(RideVehicleInteract packet)
+    private void HandleRideVehicleInteract(RideVehicleInteract packet)
 	{
 		var player = Global.ObjAccessor.GetPlayer(_player, packet.Vehicle);
 
@@ -178,7 +178,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.EjectPassenger)]
-	void HandleEjectPassenger(EjectPassenger packet)
+    private void HandleEjectPassenger(EjectPassenger packet)
 	{
 		var vehicle = Player.VehicleKit1;
 
@@ -222,7 +222,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestVehicleExit, Processing = PacketProcessing.Inplace)]
-	void HandleRequestVehicleExit(RequestVehicleExit packet)
+    private void HandleRequestVehicleExit(RequestVehicleExit packet)
 	{
 		var vehicle = Player.Vehicle1;
 
@@ -244,7 +244,7 @@ public class VehicleHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveSetVehicleRecIdAck)]
-	void HandleMoveSetVehicleRecAck(MoveSetVehicleRecIdAck setVehicleRecIdAck)
+    private void HandleMoveSetVehicleRecAck(MoveSetVehicleRecIdAck setVehicleRecIdAck)
 	{
 		Player.ValidateMovementInfo(setVehicleRecIdAck.Data.Status);
 	}

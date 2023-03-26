@@ -15,7 +15,7 @@ public sealed class FactionTemplateRecord
 	public byte EnemyGroup;
 	public ushort[] Enemies = new ushort[MAX_FACTION_RELATIONS];
 	public ushort[] Friend = new ushort[MAX_FACTION_RELATIONS];
-	static readonly int MAX_FACTION_RELATIONS = 8;
+    private static readonly int MAX_FACTION_RELATIONS = 8;
 
 	// helpers
 	public bool IsFriendlyTo(FactionTemplateRecord entry)

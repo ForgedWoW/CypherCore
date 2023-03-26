@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Scene;
 
-class CancelScene : ServerPacket
+internal class CancelScene : ServerPacket
 {
 	public uint SceneInstanceID;
 	public CancelScene() : base(ServerOpcodes.CancelScene, ConnectionType.Instance) { }

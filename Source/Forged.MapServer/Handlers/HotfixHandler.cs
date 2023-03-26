@@ -14,7 +14,7 @@ namespace Forged.MapServer.Handlers;
 public class HotfixHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
-	void HandleDBQueryBulk(DBQueryBulk dbQuery)
+    private void HandleDBQueryBulk(DBQueryBulk dbQuery)
 	{
 		var store = Global.DB2Mgr.GetStorage(dbQuery.TableHash);
 
@@ -50,13 +50,13 @@ public class HotfixHandler : IWorldSessionHandler
 		}
 	}
 
-	void SendAvailableHotfixes()
+    private void SendAvailableHotfixes()
 	{
 		SendPacket(new AvailableHotfixes(Global.WorldMgr.RealmId.GetAddress(), Global.DB2Mgr.GetHotfixData()));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.HotfixRequest, Status = SessionStatus.Authed)]
-	void HandleHotfixRequest(HotfixRequest hotfixQuery)
+    private void HandleHotfixRequest(HotfixRequest hotfixQuery)
 	{
 		var hotfixes = Global.DB2Mgr.GetHotfixData();
 

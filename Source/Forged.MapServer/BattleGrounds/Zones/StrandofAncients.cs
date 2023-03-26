@@ -19,44 +19,44 @@ namespace Forged.MapServer.BattleGrounds.Zones;
 public class BgStrandOfAncients : Battleground
 {
 	// Status of each gate (Destroy/Damage/Intact)
-	readonly SAGateState[] GateStatus = new SAGateState[SAMiscConst.Gates.Length];
+    private readonly SAGateState[] GateStatus = new SAGateState[SAMiscConst.Gates.Length];
 
 	// Team witch conntrol each graveyard
-	readonly int[] GraveyardStatus = new int[SAGraveyards.Max];
+    private readonly int[] GraveyardStatus = new int[SAGraveyards.Max];
 
 	// Score of each round
-	readonly SARoundScore[] RoundScores = new SARoundScore[2];
-	readonly Dictionary<uint /*id*/, uint /*timer*/> DemoliserRespawnList = new();
+    private readonly SARoundScore[] RoundScores = new SARoundScore[2];
+    private readonly Dictionary<uint /*id*/, uint /*timer*/> DemoliserRespawnList = new();
 
 	/// Id of attacker team
-	int Attackers;
+    private int Attackers;
 
 	// Totale elapsed time of current round
-	uint TotalTime;
+    private uint TotalTime;
 
 	// Max time of round
-	uint EndRoundTimer;
+    private uint EndRoundTimer;
 
 	// For know if boats has start moving or not yet
-	bool ShipsStarted;
+    private bool ShipsStarted;
 
 	// Statu of battle (Start or not, and what round)
-	SAStatus Status;
+    private SAStatus Status;
 
 	// used for know we are in timer phase or not (used for worldstate update)
-	bool TimerEnabled;
+    private bool TimerEnabled;
 
 	// 5secs before starting the 1min countdown for second round
-	uint UpdateWaitTimer;
+    private uint UpdateWaitTimer;
 
 	// for know if warning about second round start has been sent
-	bool SignaledRoundTwo;
+    private bool SignaledRoundTwo;
 
 	// for know if warning about second round start has been sent
-	bool SignaledRoundTwoHalfMin;
+    private bool SignaledRoundTwoHalfMin;
 
 	// for know if second round has been init
-	bool InitSecondRound;
+    private bool InitSecondRound;
 
 	public BgStrandOfAncients(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
 	{
@@ -502,7 +502,7 @@ public class BgStrandOfAncients : Battleground
 		return true;
 	}
 
-	bool ResetObjs()
+    private bool ResetObjs()
 	{
 		foreach (var pair in GetPlayers())
 		{
@@ -731,7 +731,7 @@ public class BgStrandOfAncients : Battleground
 		return true;
 	}
 
-	void StartShips()
+    private void StartShips()
 	{
 		if (ShipsStarted)
 			return;
@@ -757,7 +757,7 @@ public class BgStrandOfAncients : Battleground
 		ShipsStarted = true;
 	}
 
-	void TeleportPlayers()
+    private void TeleportPlayers()
 	{
 		foreach (var pair in GetPlayers())
 		{
@@ -785,7 +785,7 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	void TeleportToEntrancePosition(Player player)
+    private void TeleportToEntrancePosition(Player player)
 	{
 		if (GetTeamIndexByTeamId(GetPlayerTeam(player.GUID)) == Attackers)
 		{
@@ -813,7 +813,7 @@ public class BgStrandOfAncients : Battleground
 	You may ask what the fuck does it do?
 	Prevents owner overwriting guns faction with own.
 	*/
-	void OverrideGunFaction()
+    private void OverrideGunFaction()
 	{
 		if (BgCreatures[0].IsEmpty)
 			return;
@@ -835,7 +835,7 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	void DemolisherStartState(bool start)
+    private void DemolisherStartState(bool start)
 	{
 		if (BgCreatures[0].IsEmpty)
 			return;
@@ -855,7 +855,7 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	bool CanInteractWithObject(uint objectId)
+    private bool CanInteractWithObject(uint objectId)
 	{
 		switch (objectId)
 		{
@@ -883,7 +883,7 @@ public class BgStrandOfAncients : Battleground
 		return true;
 	}
 
-	void UpdateObjectInteractionFlags(uint objectId)
+    private void UpdateObjectInteractionFlags(uint objectId)
 	{
 		var go = GetBGObject((int)objectId);
 
@@ -896,7 +896,7 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	void UpdateObjectInteractionFlags()
+    private void UpdateObjectInteractionFlags()
 	{
 		for (byte i = SAObjectTypes.CentralFlag; i <= SAObjectTypes.LeftFlag; ++i)
 			UpdateObjectInteractionFlags(i);
@@ -904,7 +904,7 @@ public class BgStrandOfAncients : Battleground
 		UpdateObjectInteractionFlags(SAObjectTypes.TitanRelic);
 	}
 
-	void CaptureGraveyard(int i, Player source)
+    private void CaptureGraveyard(int i, Player source)
 	{
 		if (GraveyardStatus[i] == Attackers)
 			return;
@@ -1037,7 +1037,7 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	void TitanRelicActivated(Player clicker)
+    private void TitanRelicActivated(Player clicker)
 	{
 		if (!clicker)
 			return;
@@ -1114,13 +1114,13 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	void ToggleTimer()
+    private void ToggleTimer()
 	{
 		TimerEnabled = !TimerEnabled;
 		UpdateWorldState(SAWorldStateIds.EnableTimer, TimerEnabled ? 1 : 0);
 	}
 
-	void UpdateDemolisherSpawns()
+    private void UpdateDemolisherSpawns()
 	{
 		for (byte i = SACreatureTypes.Demolisher1; i <= SACreatureTypes.Demolisher8; i++)
 			if (!BgCreatures[i].IsEmpty)
@@ -1148,7 +1148,7 @@ public class BgStrandOfAncients : Battleground
 			}
 	}
 
-	void SendTransportInit(Player player)
+    private void SendTransportInit(Player player)
 	{
 		if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty)
 		{
@@ -1165,7 +1165,7 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	void SendTransportsRemove(Player player)
+    private void SendTransportsRemove(Player player)
 	{
 		if (!BgObjects[SAObjectTypes.BoatOne].IsEmpty || !BgObjects[SAObjectTypes.BoatTwo].IsEmpty)
 		{
@@ -1182,12 +1182,12 @@ public class BgStrandOfAncients : Battleground
 		}
 	}
 
-	bool IsGateDestroyed(uint gateId)
+    private bool IsGateDestroyed(uint gateId)
 	{
 		return GateStatus[gateId] == SAGateState.AllianceGateDestroyed || GateStatus[gateId] == SAGateState.HordeGateDestroyed;
 	}
 
-	SAGateInfo GetGate(uint entry)
+    private SAGateInfo GetGate(uint entry)
 	{
 		foreach (var gate in SAMiscConst.Gates)
 			if (gate.GameObjectId == entry)
@@ -1197,10 +1197,10 @@ public class BgStrandOfAncients : Battleground
 	}
 }
 
-class BattlegroundSAScore : BattlegroundScore
+internal class BattlegroundSAScore : BattlegroundScore
 {
-	uint DemolishersDestroyed;
-	uint GatesDestroyed;
+    private uint DemolishersDestroyed;
+    private uint GatesDestroyed;
 	public BattlegroundSAScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team) { }
 
 	public override void UpdateScore(ScoreType type, uint value)
@@ -1241,13 +1241,13 @@ class BattlegroundSAScore : BattlegroundScore
 	}
 }
 
-struct SARoundScore
+internal struct SARoundScore
 {
 	public uint winner;
 	public uint time;
 }
 
-class SAGateInfo
+internal class SAGateInfo
 {
 	public uint GateId;
 	public uint GameObjectId;
@@ -1267,7 +1267,7 @@ class SAGateInfo
 
 #region Consts
 
-struct SAMiscConst
+internal struct SAMiscConst
 {
 	public static uint[] NpcEntries =
 	{
@@ -1347,7 +1347,7 @@ struct SAMiscConst
 	};
 }
 
-struct SABroadcastTexts
+internal struct SABroadcastTexts
 {
 	public const uint AllianceCapturedTitanPortal = 28944;
 	public const uint HordeCapturedTitanPortal = 28945;
@@ -1356,7 +1356,7 @@ struct SABroadcastTexts
 	public const uint RoundTwoStartHalfMinute = 29449;
 }
 
-enum SAStatus
+internal enum SAStatus
 {
 	NotStarted = 0,
 	Warmup,
@@ -1366,7 +1366,7 @@ enum SAStatus
 	BonusRound
 }
 
-enum SAGateState
+internal enum SAGateState
 {
 	// alliance is defender
 	AllianceGateOk = 1,
@@ -1379,7 +1379,7 @@ enum SAGateState
 	HordeGateDestroyed = 6,
 }
 
-enum SAEventIds
+internal enum SAEventIds
 {
 	BG_SA_EVENT_BLUE_GATE_DAMAGED = 19040,
 	BG_SA_EVENT_BLUE_GATE_DESTROYED = 19045,
@@ -1402,7 +1402,7 @@ enum SAEventIds
 	BG_SA_EVENT_TITAN_RELIC_ACTIVATED = 22097
 }
 
-struct SASpellIds
+internal struct SASpellIds
 {
 	public const uint TeleportDefender = 52364;
 	public const uint TeleportAttackers = 60178;
@@ -1412,7 +1412,7 @@ struct SASpellIds
 	public const uint HordeControlPhaseShift = 60028;
 }
 
-struct SACreatureIds
+internal struct SACreatureIds
 {
 	public const uint Kanrethad = 29;
 	public const uint InvisibleStalker = 15214;
@@ -1425,7 +1425,7 @@ struct SACreatureIds
 	public const uint GorgrilRigspark = 29262;
 }
 
-struct SAGameObjectIds
+internal struct SAGameObjectIds
 {
 	public const uint GateOfTheGreenEmerald = 190722;
 	public const uint GateOfThePurpleAmethyst = 190723;
@@ -1440,14 +1440,14 @@ struct SAGameObjectIds
 	public const uint BoatTwoH = 208001;
 }
 
-struct SATimers
+internal struct SATimers
 {
 	public const uint BoatStart = 60 * Time.InMilliseconds;
 	public const uint WarmupLength = 120 * Time.InMilliseconds;
 	public const uint RoundLength = 600 * Time.InMilliseconds;
 }
 
-struct SASoundIds
+internal struct SASoundIds
 {
 	public const uint GraveyardTakenHorde = 8174;
 	public const uint GraveyardTakenAlliance = 8212;
@@ -1461,7 +1461,7 @@ struct SASoundIds
 	public const uint WallAttackedAlliance = 15912;
 }
 
-struct SATextIds
+internal struct SATextIds
 {
 	// Kanrethad
 	public const byte RoundStarted = 1;
@@ -1491,7 +1491,7 @@ struct SATextIds
 	public const byte AncientGateDestroyed = 18;
 }
 
-struct SAWorldStateIds
+internal struct SAWorldStateIds
 {
 	public const uint Timer = 3557;
 	public const uint AllyAttacks = 4352;
@@ -1521,7 +1521,7 @@ struct SAWorldStateIds
 	public const uint DestroyedHordeVehicles = 3956;
 }
 
-struct SACreatureTypes
+internal struct SACreatureTypes
 {
 	public const int Gun1 = 0;
 	public const int Gun2 = 1;
@@ -1547,7 +1547,7 @@ struct SACreatureTypes
 	public const int Max = 21;
 }
 
-struct SAObjectTypes
+internal struct SAObjectTypes
 {
 	public const int GreenGate = 0;
 	public const int YellowGate = 1;
@@ -1578,7 +1578,7 @@ struct SAObjectTypes
 	public const int MaxObj = Bomb + 68;
 }
 
-struct SAGraveyards
+internal struct SAGraveyards
 {
 	public const int BeachGy = 0;
 	public const int DefenderLastGy = 1;
@@ -1588,7 +1588,7 @@ struct SAGraveyards
 	public const int Max = 5;
 }
 
-enum SAObjectives
+internal enum SAObjectives
 {
 	GatesDestroyed = 231,
 	DemolishersDestroyed = 232

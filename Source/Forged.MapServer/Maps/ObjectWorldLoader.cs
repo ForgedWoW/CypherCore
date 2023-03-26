@@ -9,13 +9,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps;
 
-class ObjectWorldLoader : IGridNotifierCorpse
+internal class ObjectWorldLoader : IGridNotifierCorpse
 {
 	public uint i_corpses;
 
-	readonly Cell i_cell;
-	readonly Map i_map;
-	readonly Grid i_grid;
+    private readonly Cell i_cell;
+    private readonly Map i_map;
+    private readonly Grid i_grid;
 
 	public GridType GridType { get; set; }
 

@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonCreateResult : ServerPacket
+internal class GarrisonCreateResult : ServerPacket
 {
 	public uint GarrSiteLevelID;
 	public uint Result;

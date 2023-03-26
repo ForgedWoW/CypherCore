@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class SetFactionNotAtWar : ClientPacket
+internal class SetFactionNotAtWar : ClientPacket
 {
 	public byte FactionIndex;
 	public SetFactionNotAtWar(WorldPacket packet) : base(packet) { }

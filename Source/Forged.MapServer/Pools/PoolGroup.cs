@@ -11,10 +11,10 @@ namespace Forged.MapServer.Pools;
 
 public class PoolGroup<T>
 {
-	readonly List<PoolObject> _explicitlyChanced = new();
-	readonly List<PoolObject> _equalChanced = new();
+    private readonly List<PoolObject> _explicitlyChanced = new();
+    private readonly List<PoolObject> _equalChanced = new();
 
-	uint _poolId;
+    private uint _poolId;
 
 	public PoolGroup()
 	{
@@ -191,7 +191,7 @@ public class PoolGroup<T>
 		return _poolId;
 	}
 
-	void Despawn1Object(SpawnedPoolData spawns, ulong guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true)
+    private void Despawn1Object(SpawnedPoolData spawns, ulong guid, bool alwaysDeleteRespawnTime = false, bool saveRespawnTime = true)
 	{
 		switch (typeof(T).Name)
 		{
@@ -241,7 +241,7 @@ public class PoolGroup<T>
 		}
 	}
 
-	void Spawn1Object(SpawnedPoolData spawns, PoolObject obj)
+    private void Spawn1Object(SpawnedPoolData spawns, PoolObject obj)
 	{
 		switch (typeof(T).Name)
 		{
@@ -282,7 +282,7 @@ public class PoolGroup<T>
 		}
 	}
 
-	void ReSpawn1Object(SpawnedPoolData spawns, PoolObject obj)
+    private void ReSpawn1Object(SpawnedPoolData spawns, PoolObject obj)
 	{
 		switch (typeof(T).Name)
 		{
@@ -295,7 +295,7 @@ public class PoolGroup<T>
 		}
 	}
 
-	void RemoveRespawnTimeFromDB(SpawnedPoolData spawns, ulong guid)
+    private void RemoveRespawnTimeFromDB(SpawnedPoolData spawns, ulong guid)
 	{
 		switch (typeof(T).Name)
 		{

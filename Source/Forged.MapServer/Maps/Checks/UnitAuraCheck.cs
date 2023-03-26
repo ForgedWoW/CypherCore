@@ -9,9 +9,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class UnitAuraCheck<T> : ICheck<T> where T : WorldObject
 {
-	readonly bool _present;
-	readonly uint _spellId;
-	readonly ObjectGuid _casterGUID;
+    private readonly bool _present;
+    private readonly uint _spellId;
+    private readonly ObjectGuid _casterGUID;
 
 	public UnitAuraCheck(bool present, uint spellId, ObjectGuid casterGUID = default)
 	{

@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Forged.MapServer.Arenas.Zones;
 
-class DalaranSewersArena : Arena
+internal class DalaranSewersArena : Arena
 {
 	public DalaranSewersArena(BattlegroundTemplate battlegroundTemplate) : base(battlegroundTemplate)
 	{
@@ -172,7 +172,7 @@ class DalaranSewersArena : Arena
 	}
 }
 
-struct DalaranSewersEvents
+internal struct DalaranSewersEvents
 {
 	public const int WaterfallWarning = 1; // Water starting to fall, but no LoS Blocking nor movement blocking
 	public const uint WaterfallOn = 2;     // LoS and Movement blocking active
@@ -182,7 +182,7 @@ struct DalaranSewersEvents
 	public const uint PipeKnockback = 5;
 }
 
-struct DalaranSewersObjectTypes
+internal struct DalaranSewersObjectTypes
 {
 	public const int Door1 = 0;
 	public const int Door2 = 1;
@@ -193,7 +193,7 @@ struct DalaranSewersObjectTypes
 	public const int Max = 6;
 }
 
-struct DalaranSewersGameObjects
+internal struct DalaranSewersGameObjects
 {
 	public const uint Door1 = 192642;
 	public const uint Door2 = 192643;
@@ -203,7 +203,7 @@ struct DalaranSewersGameObjects
 	public const uint Buff2 = 184664;
 }
 
-struct DalaranSewersCreatureTypes
+internal struct DalaranSewersCreatureTypes
 {
 	public const int WaterfallKnockback = 0;
 	public const int PipeKnockback1 = 1;
@@ -211,7 +211,7 @@ struct DalaranSewersCreatureTypes
 	public const int Max = 3;
 }
 
-struct DalaranSewersData
+internal struct DalaranSewersData
 {
 	// These values are NOT blizzlike... need the correct data!
 	public static TimeSpan WaterfallTimerMin = TimeSpan.FromSeconds(30);
@@ -227,7 +227,7 @@ struct DalaranSewersData
 	public const uint NpcWaterSpout = 28567;
 }
 
-struct DalaranSewersSpells
+internal struct DalaranSewersSpells
 {
 	public const uint Flush = 57405;          // Visual And Target Selector For The Starting Knockback From The Pipe
 	public const uint FlushKnockback = 61698; // Knockback Effect For Previous Spell (Triggered, Not Needed To Be Cast)

@@ -5,11 +5,11 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarComplain : ClientPacket
+internal class CalendarComplain : ClientPacket
 {
-	ObjectGuid InvitedByGUID;
-	ulong InviteID;
-	ulong EventID;
+    private ObjectGuid InvitedByGUID;
+    private ulong InviteID;
+    private ulong EventID;
 	public CalendarComplain(WorldPacket packet) : base(packet) { }
 
 	public override void Read()

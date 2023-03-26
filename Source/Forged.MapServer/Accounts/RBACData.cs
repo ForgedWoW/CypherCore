@@ -11,13 +11,13 @@ namespace Forged.MapServer.Accounts;
 
 public class RBACData
 {
-    readonly int _realmId; // RealmId Affected
+    private readonly int _realmId; // RealmId Affected
     private readonly AccountManager _accountManager;
     private readonly LoginDatabase _loginDatabase;
-    readonly List<uint> _grantedPerms = new(); // Granted permissions
-	readonly List<uint> _deniedPerms = new();  // Denied permissions
-	byte _secLevel;                            // Account SecurityLevel
-	List<uint> _globalPerms = new();           // Calculated permissions
+    private readonly List<uint> _grantedPerms = new(); // Granted permissions
+    private readonly List<uint> _deniedPerms = new();  // Denied permissions
+    private byte _secLevel;                            // Account SecurityLevel
+    private List<uint> _globalPerms = new();           // Calculated permissions
 
 	// Gets the Name of the Object
 
@@ -292,7 +292,7 @@ public class RBACData
 		return _secLevel;
 	}
 
-	void SavePermission(uint permission, bool granted, int realmId)
+    private void SavePermission(uint permission, bool granted, int realmId)
 	{
 		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_RBAC_ACCOUNT_PERMISSION);
 		stmt.AddValue(0, Id);
@@ -302,7 +302,7 @@ public class RBACData
 		_loginDatabase.Execute(stmt);
 	}
 
-	void CalculateNewPermissions()
+    private void CalculateNewPermissions()
 	{
 		Log.Logger.Debug("RBACData.CalculateNewPermissions [Id: {0} Name: {1}]", Id, Name);
 
@@ -319,13 +319,13 @@ public class RBACData
 	/// </summary>
 	/// <param name="permsFrom"> </param>
 	/// <param name="permsToRemove"> </param>
-	void RemovePermissions(List<uint> permsFrom, List<uint> permsToRemove)
+    private void RemovePermissions(List<uint> permsFrom, List<uint> permsToRemove)
 	{
 		foreach (var id in permsToRemove)
 			permsFrom.Remove(id);
 	}
 
-	void ExpandPermissions(List<uint> permissions)
+    private void ExpandPermissions(List<uint> permissions)
 	{
 		List<uint> toCheck = new(permissions);
 		permissions.Clear();
@@ -355,50 +355,50 @@ public class RBACData
 		//Log.Logger.Debug("RBACData:ExpandPermissions: Expanded: {0}", GetDebugPermissionString(permissions));
 	}
 
-	void ClearData()
+    private void ClearData()
 	{
 		_grantedPerms.Clear();
 		_deniedPerms.Clear();
 		_globalPerms.Clear();
 	}
 
-	int GetRealmId()
+    private int GetRealmId()
 	{
 		return _realmId;
 	}
 
 	// Checks if a permission is granted
-	bool HasGrantedPermission(uint permissionId)
+    private bool HasGrantedPermission(uint permissionId)
 	{
 		return _grantedPerms.Contains(permissionId);
 	}
 
 	// Checks if a permission is denied
-	bool HasDeniedPermission(uint permissionId)
+    private bool HasDeniedPermission(uint permissionId)
 	{
 		return _deniedPerms.Contains(permissionId);
 	}
 
 	// Adds a new granted permission
-	void AddGrantedPermission(uint permissionId)
+    private void AddGrantedPermission(uint permissionId)
 	{
 		_grantedPerms.Add(permissionId);
 	}
 
 	// Removes a granted permission
-	void RemoveGrantedPermission(uint permissionId)
+    private void RemoveGrantedPermission(uint permissionId)
 	{
 		_grantedPerms.Remove(permissionId);
 	}
 
 	// Adds a new denied permission
-	void AddDeniedPermission(uint permissionId)
+    private void AddDeniedPermission(uint permissionId)
 	{
 		_deniedPerms.Add(permissionId);
 	}
 
 	// Removes a denied permission
-	void RemoveDeniedPermission(uint permissionId)
+    private void RemoveDeniedPermission(uint permissionId)
 	{
 		_deniedPerms.Remove(permissionId);
 	}

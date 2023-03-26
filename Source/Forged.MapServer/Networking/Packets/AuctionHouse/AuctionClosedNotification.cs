@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionClosedNotification : ServerPacket
+internal class AuctionClosedNotification : ServerPacket
 {
 	public AuctionOwnerNotification Info;
 	public float ProceedsMailDelay;

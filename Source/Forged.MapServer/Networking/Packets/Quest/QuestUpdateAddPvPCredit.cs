@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestUpdateAddPvPCredit : ServerPacket
+internal class QuestUpdateAddPvPCredit : ServerPacket
 {
 	public uint QuestID;
 	public ushort Count;

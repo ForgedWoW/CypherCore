@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class PVPMatchComplete : ServerPacket
+internal class PVPMatchComplete : ServerPacket
 {
 	public byte Winner;
 	public int Duration;

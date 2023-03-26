@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-struct PartyDifficultySettings
+internal struct PartyDifficultySettings
 {
 	public void Write(WorldPacket data)
 	{

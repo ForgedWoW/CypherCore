@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class SummonRequest : ServerPacket
+internal class SummonRequest : ServerPacket
 {
 	public enum SummonReason
 	{

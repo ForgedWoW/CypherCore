@@ -13,7 +13,7 @@ public struct WMOAreaTableTripple
 	}
 
 	// ordered by entropy; that way memcmp will have a minimal medium runtime
-	readonly int groupId;
-	readonly int rootId;
-	readonly int adtId;
+    private readonly int groupId;
+    private readonly int rootId;
+    private readonly int adtId;
 }

@@ -32,8 +32,8 @@ public class SmartAIManager
 	private readonly DB2Manager _db2Manager;
 	private readonly ConversationDataStorage _conversationDataStorage;
 	private readonly CreatureTextManager _creatureTextManager;
-	readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
-	readonly Dictionary<uint, WaypointPath> _waypointStore = new();
+    private readonly MultiMap<int, SmartScriptHolder>[] _eventMap = new MultiMap<int, SmartScriptHolder>[(int)SmartScriptType.Max];
+    private readonly Dictionary<uint, WaypointPath> _waypointStore = new();
 
 	public SmartAIManager(WorldDatabase worldDatabase, CliDB cliDB, IConfiguration configuration, GameEventManager eventManager,
 						GameObjectManager gameObjectManager, AreaTriggerDataStorage areaTriggerDataStorage, SpellManager spellManager,
@@ -643,7 +643,7 @@ public class SmartAIManager
 			Log.Logger.Error($"SmartAIMgr: {e} uses param {valueName} of type Boolean with value {value}, valid values are 0 or 1, skipped.");
 	}
 
-	static bool EventHasInvoker(SmartEvents smartEvent)
+    private static bool EventHasInvoker(SmartEvents smartEvent)
 	{
 		switch (smartEvent)
 		{
@@ -699,7 +699,7 @@ public class SmartAIManager
 		}
 	}
 
-	bool IsTargetValid(SmartScriptHolder e)
+    private bool IsTargetValid(SmartScriptHolder e)
 	{
 		if (Math.Abs(e.Target.o) > 2 * MathFunctions.PI)
 			Log.Logger.Error($"SmartAIMgr: {e} has abs(`target.o` = {e.Target.o}) > 2*PI (orientation is expressed in radians)");
@@ -851,7 +851,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
+    private bool IsSpellVisualKitValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.SpellVisualKitStorage.ContainsKey(entry))
 		{
@@ -863,7 +863,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	static bool CheckUnusedEventParams(SmartScriptHolder e)
+    private static bool CheckUnusedEventParams(SmartScriptHolder e)
 	{
 		var paramsStructSize = e.Event.type switch
 		{
@@ -988,7 +988,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	static bool CheckUnusedActionParams(SmartScriptHolder e)
+    private static bool CheckUnusedActionParams(SmartScriptHolder e)
 	{
 		var paramsStructSize = e.Action.type switch
 		{
@@ -1172,7 +1172,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	static bool CheckUnusedTargetParams(SmartScriptHolder e)
+    private static bool CheckUnusedTargetParams(SmartScriptHolder e)
 	{
 		var paramsStructSize = e.Target.type switch
 		{
@@ -1244,7 +1244,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsEventValid(SmartScriptHolder e)
+    private bool IsEventValid(SmartScriptHolder e)
 	{
 		if (e.Event.type >= SmartEvents.End)
 		{
@@ -2689,7 +2689,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsAnimKitValid(SmartScriptHolder e, uint entry)
+    private bool IsAnimKitValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.AnimKitStorage.ContainsKey(entry))
 		{
@@ -2701,7 +2701,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsTextValid(SmartScriptHolder e, uint id)
+    private bool IsTextValid(SmartScriptHolder e, uint id)
 	{
 		if (e.GetScriptType() != SmartScriptType.Creature)
 			return true;
@@ -2752,7 +2752,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsCreatureValid(SmartScriptHolder e, uint entry)
+    private bool IsCreatureValid(SmartScriptHolder e, uint entry)
 	{
 		if (_gameObjectManager.GetCreatureTemplate(entry) == null)
 		{
@@ -2764,7 +2764,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsGameObjectValid(SmartScriptHolder e, uint entry)
+    private bool IsGameObjectValid(SmartScriptHolder e, uint entry)
 	{
 		if (_gameObjectManager.GetGameObjectTemplate(entry) == null)
 		{
@@ -2776,7 +2776,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsQuestValid(SmartScriptHolder e, uint entry)
+    private bool IsQuestValid(SmartScriptHolder e, uint entry)
 	{
 		if (_gameObjectManager.GetQuestTemplate(entry) == null)
 		{
@@ -2788,7 +2788,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsSpellValid(SmartScriptHolder e, uint entry)
+    private bool IsSpellValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_spellManager.HasSpellInfo(entry))
 		{
@@ -2800,7 +2800,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	static bool IsMinMaxValid(SmartScriptHolder e, uint min, uint max)
+    private static bool IsMinMaxValid(SmartScriptHolder e, uint min, uint max)
 	{
 		if (max < min)
 		{
@@ -2812,7 +2812,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	static bool NotNULL(SmartScriptHolder e, uint data)
+    private static bool NotNULL(SmartScriptHolder e, uint data)
 	{
 		if (data == 0)
 		{
@@ -2824,7 +2824,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsEmoteValid(SmartScriptHolder e, uint entry)
+    private bool IsEmoteValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.EmotesStorage.ContainsKey(entry))
 		{
@@ -2836,7 +2836,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsItemValid(SmartScriptHolder e, uint entry)
+    private bool IsItemValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.ItemSparseStorage.ContainsKey(entry))
 		{
@@ -2848,7 +2848,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsTextEmoteValid(SmartScriptHolder e, uint entry)
+    private bool IsTextEmoteValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.EmotesTextStorage.ContainsKey(entry))
 		{
@@ -2860,7 +2860,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsAreaTriggerValid(SmartScriptHolder e, uint entry)
+    private bool IsAreaTriggerValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.AreaTriggerStorage.ContainsKey(entry))
 		{
@@ -2872,7 +2872,7 @@ public class SmartAIManager
 		return true;
 	}
 
-	bool IsSoundValid(SmartScriptHolder e, uint entry)
+    private bool IsSoundValid(SmartScriptHolder e, uint entry)
 	{
 		if (!_cliDB.SoundKitStorage.ContainsKey(entry))
 		{

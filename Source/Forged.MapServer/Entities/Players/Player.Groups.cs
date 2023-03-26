@@ -294,7 +294,7 @@ public partial class Player
 		group.RemoveMember(guid, method, kicker, reason);
 	}
 
-	Player GetNextRandomRaidMember(float radius)
+    private Player GetNextRandomRaidMember(float radius)
 	{
 		var group = Group;
 
@@ -324,7 +324,7 @@ public partial class Player
 		return nearMembers[randTarget];
 	}
 
-	void SendUpdateToOutOfRangeGroupMembers()
+    private void SendUpdateToOutOfRangeGroupMembers()
 	{
 		if (_groupUpdateFlags == GroupUpdateFlags.None)
 			return;

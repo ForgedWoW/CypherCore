@@ -237,15 +237,15 @@ public class PlayerRollVote
 
 public class LootRoll
 {
-	static readonly TimeSpan LOOT_ROLL_TIMEOUT = TimeSpan.FromMinutes(1);
-	readonly Dictionary<ObjectGuid, PlayerRollVote> m_rollVoteMap = new();
+    private static readonly TimeSpan LOOT_ROLL_TIMEOUT = TimeSpan.FromMinutes(1);
+    private readonly Dictionary<ObjectGuid, PlayerRollVote> m_rollVoteMap = new();
 
-	Map m_map;
-	bool m_isStarted;
-	LootItem m_lootItem;
-	Loot m_loot;
-	RollMask m_voteMask;
-	DateTime m_endTime = DateTime.MinValue;
+    private Map m_map;
+    private bool m_isStarted;
+    private LootItem m_lootItem;
+    private Loot m_loot;
+    private RollMask m_voteMask;
+    private DateTime m_endTime = DateTime.MinValue;
 
 	// Try to start the group roll for the specified item (it may fail for quest item or any condition
 	// If this method return false the roll have to be removed from the container to avoid any problem
@@ -386,7 +386,7 @@ public class LootRoll
 	}
 
 	// Send the roll for the whole group
-	void SendStartRoll()
+    private void SendStartRoll()
 	{
 		var itemTemplate = Global.ObjectMgr.GetItemTemplate(m_lootItem.itemid);
 
@@ -430,7 +430,7 @@ public class LootRoll
 	}
 
 	// Send all passed message
-	void SendAllPassed()
+    private void SendAllPassed()
 	{
 		LootAllPassed lootAllPassed = new()
 		{
@@ -456,7 +456,7 @@ public class LootRoll
 	}
 
 	// Send roll of targetGuid to the whole group (included targuetGuid)
-	void SendRoll(ObjectGuid targetGuid, int rollNumber, RollVote rollType, ObjectGuid? rollWinner)
+    private void SendRoll(ObjectGuid targetGuid, int rollNumber, RollVote rollType, ObjectGuid? rollWinner)
 	{
 		LootRollBroadcast lootRoll = new()
 		{
@@ -501,7 +501,7 @@ public class LootRoll
 	}
 
 	// Send roll 'value' of the whole group and the winner to the whole group
-	void SendLootRollWon(ObjectGuid targetGuid, int rollNumber, RollVote rollType)
+    private void SendLootRollWon(ObjectGuid targetGuid, int rollNumber, RollVote rollType)
 	{
 		// Send roll values
 		foreach (var (playerGuid, roll) in m_rollVoteMap)
@@ -559,7 +559,7 @@ public class LootRoll
 		}
 	}
 
-	void FillPacket(LootItemData lootItem)
+    private void FillPacket(LootItemData lootItem)
 	{
 		lootItem.Quantity = m_lootItem.count;
 		lootItem.LootListID = (byte)m_lootItem.LootListId;
@@ -572,7 +572,7 @@ public class LootRoll
 	 * \param winnerItr > will be different than m_rollCoteMap.end() if winner exist. (Someone voted greed or need)
 	 * \returns true if all players voted
 	 */
-	bool AllPlayerVoted(ref KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
+    private bool AllPlayerVoted(ref KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
 	{
 		uint notVoted = 0;
 		var isSomeoneNeed = false;
@@ -611,7 +611,7 @@ public class LootRoll
 		return notVoted == 0;
 	}
 
-	ItemDisenchantLootRecord GetItemDisenchantLoot()
+    private ItemDisenchantLootRecord GetItemDisenchantLoot()
 	{
 		ItemInstance itemInstance = new(m_lootItem);
 
@@ -627,7 +627,7 @@ public class LootRoll
 	}
 
 	// terminate the roll
-	void Finish(KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
+    private void Finish(KeyValuePair<ObjectGuid, PlayerRollVote> winnerPair)
 	{
 		m_lootItem.is_blocked = false;
 
@@ -707,19 +707,19 @@ public class Loot
 	public ObjectGuid roundRobinPlayer; // GUID of the player having the Round-Robin ownership for the loot. If 0, round robin owner has released.
 	public LootType loot_type;          // required for achievement system
 
-	readonly List<ObjectGuid> PlayersLooting = new();
-	readonly MultiMap<ObjectGuid, NotNormalLootItem> PlayerFFAItems = new();
-	readonly LootMethod _lootMethod;
-	readonly Dictionary<uint, LootRoll> _rolls = new(); // used if an item is under rolling
-	readonly List<ObjectGuid> _allowedLooters = new();
+    private readonly List<ObjectGuid> PlayersLooting = new();
+    private readonly MultiMap<ObjectGuid, NotNormalLootItem> PlayerFFAItems = new();
+    private readonly LootMethod _lootMethod;
+    private readonly Dictionary<uint, LootRoll> _rolls = new(); // used if an item is under rolling
+    private readonly List<ObjectGuid> _allowedLooters = new();
 
 	// Loot GUID
-	readonly ObjectGuid _guid;
-	readonly ObjectGuid _owner; // The WorldObject that holds this loot
-	readonly ObjectGuid _lootMaster;
-	ItemContext _itemContext;
-	bool _wasOpened; // true if at least one player received the loot content
-	uint _dungeonEncounterId;
+    private readonly ObjectGuid _guid;
+    private readonly ObjectGuid _owner; // The WorldObject that holds this loot
+    private readonly ObjectGuid _lootMaster;
+    private ItemContext _itemContext;
+    private bool _wasOpened; // true if at least one player received the loot content
+    private uint _dungeonEncounterId;
 
 	public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group)
 	{
@@ -1236,8 +1236,8 @@ public class Loot
 
 public class AELootResult
 {
-	readonly List<ResultValue> _byOrder = new();
-	readonly Dictionary<Item, int> _byItem = new();
+    private readonly List<ResultValue> _byOrder = new();
+    private readonly Dictionary<Item, int> _byItem = new();
 
 	public void Add(Item item, byte count, LootType lootType, uint dungeonEncounterId)
 	{

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct InvalidNameAppend : IChannelAppender
+internal struct InvalidNameAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.InvalidNameNotice;
 

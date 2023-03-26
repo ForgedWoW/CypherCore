@@ -7,8 +7,8 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class StandStateUpdate : ServerPacket
 {
-	readonly uint AnimKitID;
-	readonly UnitStandStateType State;
+    private readonly uint AnimKitID;
+    private readonly UnitStandStateType State;
 
 	public StandStateUpdate(UnitStandStateType state, uint animKitId) : base(ServerOpcodes.StandStateUpdate)
 	{

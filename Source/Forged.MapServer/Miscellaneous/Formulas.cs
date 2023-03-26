@@ -247,7 +247,7 @@ public class Formulas
 		return (uint)((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
 	}
 
-	static Expansion GetExpansionForLevel(uint level)
+    private static Expansion GetExpansionForLevel(uint level)
 	{
 		if (level < 60)
 			return Expansion.Classic;

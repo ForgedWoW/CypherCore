@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class SuspendToken : ServerPacket
+internal class SuspendToken : ServerPacket
 {
 	public uint SequenceIndex = 1;
 	public uint Reason = 1;

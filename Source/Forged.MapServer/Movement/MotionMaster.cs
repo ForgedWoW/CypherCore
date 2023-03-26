@@ -18,7 +18,7 @@ using Serilog;
 
 namespace Forged.MapServer.Movement;
 
-class MovementGeneratorComparator : IComparer<MovementGenerator>
+internal class MovementGeneratorComparator : IComparer<MovementGenerator>
 {
 	public int Compare(MovementGenerator a, MovementGenerator b)
 	{
@@ -55,11 +55,11 @@ public struct MovementGeneratorInformation
 	}
 }
 
-class DelayedAction
+internal class DelayedAction
 {
-	readonly Action Action;
-	readonly Func<bool> Validator;
-	readonly MotionMasterDelayedActionType Type;
+    private readonly Action Action;
+    private readonly Func<bool> Validator;
+    private readonly MotionMasterDelayedActionType Type;
 
 	public DelayedAction(Action action, Func<bool> validator, MotionMasterDelayedActionType type)
 	{
@@ -86,16 +86,16 @@ public class MotionMaster
 {
 	public const double gravity = 19.29110527038574;
 	public const float SPEED_CHARGE = 42.0f;
-	static readonly IdleMovementGenerator staticIdleMovement = new();
-	static uint splineId;
+    private static readonly IdleMovementGenerator staticIdleMovement = new();
+    private static uint splineId;
 
-	Unit _owner { get; }
-	MovementGenerator _defaultGenerator { get; set; }
-	SortedSet<MovementGenerator> _generators { get; } = new(new MovementGeneratorComparator());
+    private Unit _owner { get; }
+    private MovementGenerator _defaultGenerator { get; set; }
+    private SortedSet<MovementGenerator> _generators { get; } = new(new MovementGeneratorComparator());
 
-	MultiMap<uint, MovementGenerator> _baseUnitStatesMap { get; } = new();
-	ConcurrentQueue<DelayedAction> _delayedActions { get; } = new();
-	MotionMasterFlags _flags { get; set; }
+    private MultiMap<uint, MovementGenerator> _baseUnitStatesMap { get; } = new();
+    private ConcurrentQueue<DelayedAction> _delayedActions { get; } = new();
+    private MotionMasterFlags _flags { get; set; }
 
 	public static uint SplineId
 	{
@@ -1181,7 +1181,7 @@ public class MotionMaster
 		return slot >= MovementSlot.Max;
 	}
 
-	void Add(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)
+    private void Add(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)
 	{
 		if (movement == null)
 			return;
@@ -1196,12 +1196,12 @@ public class MotionMaster
 			DirectAdd(movement, slot);
 	}
 
-	void MoveAlongSplineChain(uint pointId, List<SplineChainLink> chain, bool walk)
+    private void MoveAlongSplineChain(uint pointId, List<SplineChainLink> chain, bool walk)
 	{
 		Add(new SplineChainMovementGenerator(pointId, chain, walk));
 	}
 
-	void ResumeSplineChain(SplineChainResumeInfo info)
+    private void ResumeSplineChain(SplineChainResumeInfo info)
 	{
 		if (info.Empty())
 		{
@@ -1213,26 +1213,26 @@ public class MotionMaster
 		Add(new SplineChainMovementGenerator(info));
 	}
 
-	void ResolveDelayedActions()
+    private void ResolveDelayedActions()
 	{
 		while (_delayedActions.Count != 0)
 			if (_delayedActions.TryDequeue(out var action) && action != null)
 				action.Resolve();
 	}
 
-	void Remove(MovementGenerator movement, bool active, bool movementInform)
+    private void Remove(MovementGenerator movement, bool active, bool movementInform)
 	{
 		_generators.Remove(movement);
 		Delete(movement, active, movementInform);
 	}
 
-	void Pop(bool active, bool movementInform)
+    private void Pop(bool active, bool movementInform)
 	{
 		if (!_generators.Empty())
 			Remove(_generators.FirstOrDefault(), active, movementInform);
 	}
 
-	void DirectInitialize()
+    private void DirectInitialize()
 	{
 		// Clear ALL movement generators (including default)
 		DirectClearDefault();
@@ -1240,7 +1240,7 @@ public class MotionMaster
 		InitializeDefault();
 	}
 
-	void DirectClear()
+    private void DirectClear()
 	{
 		lock (_generators)
 		{
@@ -1257,13 +1257,13 @@ public class MotionMaster
 		ClearBaseUnitStates();
 	}
 
-	void DirectClearDefault()
+    private void DirectClearDefault()
 	{
 		if (_defaultGenerator != null)
 			DeleteDefault(_generators.Empty(), false);
 	}
 
-	void DirectClear(Func<MovementGenerator, bool> filter)
+    private void DirectClear(Func<MovementGenerator, bool> filter)
 	{
 		if (_generators.Empty())
 			return;
@@ -1278,7 +1278,7 @@ public class MotionMaster
 			}
 	}
 
-	void DirectAdd(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)
+    private void DirectAdd(MovementGenerator movement, MovementSlot slot = MovementSlot.Active)
 	{
 		/*
 		IMovementGenerator curr = _slot[(int)slot];
@@ -1360,20 +1360,20 @@ public class MotionMaster
 		}
 	}
 
-	void Delete(MovementGenerator movement, bool active, bool movementInform)
+    private void Delete(MovementGenerator movement, bool active, bool movementInform)
 	{
 		movement.Finalize(_owner, active, movementInform);
 		ClearBaseUnitState(movement);
 	}
 
-	void DeleteDefault(bool active, bool movementInform)
+    private void DeleteDefault(bool active, bool movementInform)
 	{
 		_defaultGenerator.Finalize(_owner, active, movementInform);
 		_defaultGenerator = GetIdleMovementGenerator();
 		AddFlag(MotionMasterFlags.StaticInitializationPending);
 	}
 
-	void AddBaseUnitState(MovementGenerator movement)
+    private void AddBaseUnitState(MovementGenerator movement)
 	{
 		if (movement == null || movement.BaseUnitState == 0)
 			return;
@@ -1386,7 +1386,7 @@ public class MotionMaster
 		_owner.AddUnitState(movement.BaseUnitState);
 	}
 
-	void ClearBaseUnitState(MovementGenerator movement)
+    private void ClearBaseUnitState(MovementGenerator movement)
 	{
 		if (movement == null || movement.BaseUnitState == 0)
 			return;
@@ -1400,7 +1400,7 @@ public class MotionMaster
 			_owner.ClearUnitState(movement.BaseUnitState);
 	}
 
-	void ClearBaseUnitStates()
+    private void ClearBaseUnitStates()
 	{
 		uint unitState = 0;
 
@@ -1414,17 +1414,17 @@ public class MotionMaster
 		}
 	}
 
-	void AddFlag(MotionMasterFlags flag)
+    private void AddFlag(MotionMasterFlags flag)
 	{
 		_flags |= flag;
 	}
 
-	bool HasFlag(MotionMasterFlags flag)
+    private bool HasFlag(MotionMasterFlags flag)
 	{
 		return (_flags & flag) != 0;
 	}
 
-	void RemoveFlag(MotionMasterFlags flag)
+    private void RemoveFlag(MotionMasterFlags flag)
 	{
 		_flags &= ~flag;
 	}

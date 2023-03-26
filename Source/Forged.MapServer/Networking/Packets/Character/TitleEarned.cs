@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class TitleEarned : ServerPacket
+internal class TitleEarned : ServerPacket
 {
 	public uint Index;
 	public TitleEarned(ServerOpcodes opcode) : base(opcode) { }

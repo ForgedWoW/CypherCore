@@ -19,9 +19,9 @@ public class Scenario : CriteriaHandler
 {
 	protected ScenarioData _data;
 
-	readonly List<ObjectGuid> _players = new();
-	readonly Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
-	ScenarioStepRecord _currentstep;
+    private readonly List<ObjectGuid> _players = new();
+    private readonly Dictionary<ScenarioStepRecord, ScenarioStepState> _stepStates = new();
+    private ScenarioStepRecord _currentstep;
 
 	public Scenario(ScenarioData scenarioData)
 	{
@@ -236,7 +236,7 @@ public class Scenario : CriteriaHandler
 	public override void AfterCriteriaTreeUpdate(CriteriaTree tree, Player referencePlayer) { }
 	public override void SendAllData(Player receiver) { }
 
-	void SetStep(ScenarioStepRecord step)
+    private void SetStep(ScenarioStepRecord step)
 	{
 		_currentstep = step;
 
@@ -248,7 +248,7 @@ public class Scenario : CriteriaHandler
 		SendPacket(scenarioState);
 	}
 
-	bool IsComplete()
+    private bool IsComplete()
 	{
 		foreach (var scenarioStep in _data.Steps.Values)
 		{
@@ -262,7 +262,7 @@ public class Scenario : CriteriaHandler
 		return true;
 	}
 
-	ScenarioStepState GetStepState(ScenarioStepRecord step)
+    private ScenarioStepState GetStepState(ScenarioStepRecord step)
 	{
 		if (!_stepStates.ContainsKey(step))
 			return ScenarioStepState.Invalid;
@@ -270,7 +270,7 @@ public class Scenario : CriteriaHandler
 		return _stepStates[step];
 	}
 
-	bool IsCompletedStep(ScenarioStepRecord step)
+    private bool IsCompletedStep(ScenarioStepRecord step)
 	{
 		var tree = Global.CriteriaMgr.GetCriteriaTree(step.CriteriaTreeId);
 
@@ -280,7 +280,7 @@ public class Scenario : CriteriaHandler
 		return IsCompletedCriteriaTree(tree);
 	}
 
-	void BuildScenarioState(ScenarioState scenarioState)
+    private void BuildScenarioState(ScenarioState scenarioState)
 	{
 		scenarioState.ScenarioID = (int)_data.Entry.Id;
 		var step = GetStep();
@@ -313,7 +313,7 @@ public class Scenario : CriteriaHandler
 		scenarioState.ScenarioComplete = IsComplete();
 	}
 
-	ScenarioStepRecord GetFirstStep()
+    private ScenarioStepRecord GetFirstStep()
 	{
 		// Do it like this because we don't know what order they're in inside the container.
 		ScenarioStepRecord firstStep = null;
@@ -330,7 +330,7 @@ public class Scenario : CriteriaHandler
 		return firstStep;
 	}
 
-	List<BonusObjectiveData> GetBonusObjectivesData()
+    private List<BonusObjectiveData> GetBonusObjectivesData()
 	{
 		List<BonusObjectiveData> bonusObjectivesData = new();
 
@@ -351,7 +351,7 @@ public class Scenario : CriteriaHandler
 		return bonusObjectivesData;
 	}
 
-	List<CriteriaProgressPkt> GetCriteriasProgress()
+    private List<CriteriaProgressPkt> GetCriteriasProgress()
 	{
 		List<CriteriaProgressPkt> criteriasProgress = new();
 
@@ -372,7 +372,7 @@ public class Scenario : CriteriaHandler
 		return criteriasProgress;
 	}
 
-	void SendBootPlayer(Player player)
+    private void SendBootPlayer(Player player)
 	{
 		ScenarioVacate scenarioBoot = new()
 		{

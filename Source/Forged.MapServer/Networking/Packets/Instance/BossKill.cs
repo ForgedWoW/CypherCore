@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class BossKill : ServerPacket
+internal class BossKill : ServerPacket
 {
 	public uint DungeonEncounterID;
 	public BossKill() : base(ServerOpcodes.BossKill, ConnectionType.Instance) { }

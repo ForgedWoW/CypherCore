@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class LearnTalentFailed : ServerPacket
+internal class LearnTalentFailed : ServerPacket
 {
 	public uint Reason;
 	public int SpellID;

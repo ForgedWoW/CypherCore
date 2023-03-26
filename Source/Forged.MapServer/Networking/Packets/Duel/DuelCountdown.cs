@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Duel;
 
 public class DuelCountdown : ServerPacket
 {
-	readonly uint Countdown;
+    private readonly uint Countdown;
 
 	public DuelCountdown(uint countdown) : base(ServerOpcodes.DuelCountdown)
 	{

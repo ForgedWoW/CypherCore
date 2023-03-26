@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Entities.Units;
 
-struct PositionUpdateInfo
+internal struct PositionUpdateInfo
 {
 	public bool Relocated;
 	public bool Turned;

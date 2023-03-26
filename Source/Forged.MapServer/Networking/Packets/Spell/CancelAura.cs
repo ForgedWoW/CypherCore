@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CancelAura : ClientPacket
+internal class CancelAura : ClientPacket
 {
 	public ObjectGuid CasterGUID;
 	public uint SpellID;

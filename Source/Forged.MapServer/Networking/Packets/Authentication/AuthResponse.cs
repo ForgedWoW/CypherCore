@@ -9,7 +9,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class AuthResponse : ServerPacket
+internal class AuthResponse : ServerPacket
 {
 	public AuthSuccessInfo SuccessInfo;  // contains the packet data in case that it has account information (It is never set when WaitInfo is set), otherwise its contents are undefined.
 	public AuthWaitInfo? WaitInfo;       // contains the queue wait information in case the account is in the login queue.

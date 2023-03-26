@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
-class AdventureJournalDataResponse : ServerPacket
+internal class AdventureJournalDataResponse : ServerPacket
 {
 	public bool OnLevelUp;
 	public List<AdventureJournalEntry> AdventureJournalDatas = new();

@@ -51,7 +51,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestAccountData, Status = SessionStatus.Authed)]
-	void HandleRequestAccountData(RequestAccountData request)
+    private void HandleRequestAccountData(RequestAccountData request)
 	{
 		if (request.DataType > AccountDataTypes.Max)
 			return;
@@ -73,13 +73,13 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetSelection)]
-	void HandleSetSelection(SetSelection packet)
+    private void HandleSetSelection(SetSelection packet)
 	{
 		Player.SetSelection(packet.Selection);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
-	void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
+    private void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
 	{
 		Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
@@ -96,7 +96,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
-	void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
+    private void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
 	{
 		Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
 
@@ -110,7 +110,7 @@ public class MiscHandler : IWorldSessionHandler
 
 
 	[WorldPacketHandler(ClientOpcodes.SetActionBarToggles)]
-	void HandleSetActionBarToggles(SetActionBarToggles packet)
+    private void HandleSetActionBarToggles(SetActionBarToggles packet)
 	{
 		if (!Player) // ignore until not logged (check needed because STATUS_AUTHED)
 		{
@@ -124,7 +124,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CompleteCinematic)]
-	void HandleCompleteCinematic(CompleteCinematic packet)
+    private void HandleCompleteCinematic(CompleteCinematic packet)
 	{
 		// If player has sight bound to visual waypoint NPC we should remove it
 		Player. // If player has sight bound to visual waypoint NPC we should remove it
@@ -132,7 +132,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.NextCinematicCamera)]
-	void HandleNextCinematicCamera(NextCinematicCamera packet)
+    private void HandleNextCinematicCamera(NextCinematicCamera packet)
 	{
 		// Sent by client when cinematic actually begun. So we begin the server side process
 		Player. // Sent by client when cinematic actually begun. So we begin the server side process
@@ -140,7 +140,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CompleteMovie)]
-	void HandleCompleteMovie(CompleteMovie packet)
+    private void HandleCompleteMovie(CompleteMovie packet)
 	{
 		var movie = _player.Movie;
 
@@ -152,13 +152,13 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ViolenceLevel, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
-	void HandleViolenceLevel(ViolenceLevel violenceLevel)
+    private void HandleViolenceLevel(ViolenceLevel violenceLevel)
 	{
 		// do something?
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AreaTrigger, Processing = PacketProcessing.Inplace)]
-	void HandleAreaTrigger(AreaTriggerPkt packet)
+    private void HandleAreaTrigger(AreaTriggerPkt packet)
 	{
 		var player = Player;
 
@@ -426,7 +426,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
-	void HandleSaveCUFProfiles(SaveCUFProfiles packet)
+    private void HandleSaveCUFProfiles(SaveCUFProfiles packet)
 	{
 		if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
 		{
@@ -443,13 +443,13 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
-	void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
+    private void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
 	{
 		Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MountSpecialAnim)]
-	void HandleMountSpecialAnim(MountSpecial mountSpecial)
+    private void HandleMountSpecialAnim(MountSpecial mountSpecial)
 	{
 		SpecialMountAnim specialMountAnim = new();
 		specialMountAnim.UnitGUID = _player.GUID;
@@ -459,14 +459,14 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CloseInteraction)]
-	void HandleCloseInteraction(CloseInteraction closeInteraction)
+    private void HandleCloseInteraction(CloseInteraction closeInteraction)
 	{
 		if (_player.PlayerTalkClass.GetInteractionData().SourceGuid == closeInteraction.SourceGuid)
 			_player.PlayerTalkClass.GetInteractionData().Reset();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ConversationLineStarted)]
-	void HandleConversationLineStarted(ConversationLineStarted conversationLineStarted)
+    private void HandleConversationLineStarted(ConversationLineStarted conversationLineStarted)
 	{
 		var convo = ObjectAccessor.GetConversation(_player, conversationLineStarted.ConversationGUID);
 
@@ -475,7 +475,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestLatestSplashScreen)]
-	void HandleRequestLatestSplashScreen(RequestLatestSplashScreen requestLatestSplashScreen)
+    private void HandleRequestLatestSplashScreen(RequestLatestSplashScreen requestLatestSplashScreen)
 	{
 		UISplashScreenRecord splashScreen = null;
 
@@ -496,13 +496,13 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ChatUnregisterAllAddonPrefixes)]
-	void HandleUnregisterAllAddonPrefixes(ChatUnregisterAllAddonPrefixes packet)
+    private void HandleUnregisterAllAddonPrefixes(ChatUnregisterAllAddonPrefixes packet)
 	{
 		_registeredAddonPrefixes.Clear();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TogglePvp)]
-	void HandleTogglePvP(TogglePvP packet)
+    private void HandleTogglePvP(TogglePvP packet)
 	{
 		if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
 		{
@@ -523,7 +523,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetPvp)]
-	void HandleSetPvP(SetPvP packet)
+    private void HandleSetPvP(SetPvP packet)
 	{
 		if (packet.EnablePVP)
 		{
@@ -544,13 +544,13 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetWarMode)]
-	void HandleSetWarMode(SetWarMode packet)
+    private void HandleSetWarMode(SetWarMode packet)
 	{
 		_player.SetWarModeDesired(packet.Enable);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.FarSight)]
-	void HandleFarSight(FarSight farSight)
+    private void HandleFarSight(FarSight farSight)
 	{
 		if (farSight.Enable)
 		{
@@ -572,7 +572,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetTitle, Processing = PacketProcessing.Inplace)]
-	void HandleSetTitle(SetTitle packet)
+    private void HandleSetTitle(SetTitle packet)
 	{
 		// -1 at none
 		if (packet.TitleID > 0)
@@ -589,7 +589,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ResetInstances)]
-	void HandleResetInstances(ResetInstances packet)
+    private void HandleResetInstances(ResetInstances packet)
 	{
 		var map = _player.Map;
 
@@ -615,7 +615,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetTaxiBenchmarkMode, Processing = PacketProcessing.Inplace)]
-	void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
+    private void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
 	{
 		if (packet.Enable)
 			_player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
@@ -624,7 +624,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildSetFocusedAchievement)]
-	void HandleGuildSetFocusedAchievement(GuildSetFocusedAchievement setFocusedAchievement)
+    private void HandleGuildSetFocusedAchievement(GuildSetFocusedAchievement setFocusedAchievement)
 	{
 		var guild = Global.GuildMgr.GetGuildById(Player.GuildId);
 
@@ -633,7 +633,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.InstanceLockResponse)]
-	void HandleInstanceLockResponse(InstanceLockResponse packet)
+    private void HandleInstanceLockResponse(InstanceLockResponse packet)
 	{
 		if (!Player.HasPendingBind)
 		{
@@ -653,7 +653,7 @@ public class MiscHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.Warden3Data)]
-	void HandleWarden3Data(WardenData packet)
+    private void HandleWarden3Data(WardenData packet)
 	{
 		if (_warden == null || packet.Data.GetSize() == 0)
 			return;

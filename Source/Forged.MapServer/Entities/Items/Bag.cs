@@ -14,8 +14,8 @@ namespace Forged.MapServer.Entities.Items;
 
 public class Bag : Item
 {
-	readonly ContainerData m_containerData;
-	Item[] m_bagslot = new Item[36];
+    private readonly ContainerData m_containerData;
+    private Item[] m_bagslot = new Item[36];
 
 	public Bag()
 	{
@@ -240,7 +240,7 @@ public class Bag : Item
 		return m_containerData.NumSlots;
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedContainerMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedContainerMask, Player target)
 	{
 		var flags = GetUpdateFieldFlagsFor(target);
 		UpdateMask valuesMask = new((int)TypeId.Max);
@@ -277,7 +277,7 @@ public class Bag : Item
 		data.AddUpdateBlock(buffer1);
 	}
 
-	byte GetSlotByItemGUID(ObjectGuid guid)
+    private byte GetSlotByItemGUID(ObjectGuid guid)
 	{
 		for (byte i = 0; i < GetBagSize(); ++i)
 			if (m_bagslot[i] != null)
@@ -287,22 +287,22 @@ public class Bag : Item
 		return ItemConst.NullSlot;
 	}
 
-	void SetBagSize(uint numSlots)
+    private void SetBagSize(uint numSlots)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(m_containerData).ModifyValue(m_containerData.NumSlots), numSlots);
 	}
 
-	void SetSlot(int slot, ObjectGuid guid)
+    private void SetSlot(int slot, ObjectGuid guid)
 	{
 		SetUpdateFieldValue(ref Values.ModifyValue(m_containerData).ModifyValue(m_containerData.Slots, slot), guid);
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly Bag Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ItemData ItemMask = new();
-		readonly ContainerData ContainerMask = new();
+        private readonly Bag Owner;
+        private readonly ObjectFieldData ObjectMask = new();
+        private readonly ItemData ItemMask = new();
+        private readonly ContainerData ContainerMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(Bag owner)
 		{

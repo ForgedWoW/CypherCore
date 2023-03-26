@@ -17,15 +17,15 @@ namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketManager : Singleton<BlackMarketManager>
 {
-	readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
-	readonly Dictionary<uint, BlackMarketTemplate> _templates = new();
-	long _lastUpdate;
+    private readonly Dictionary<uint, BlackMarketEntry> _auctions = new();
+    private readonly Dictionary<uint, BlackMarketTemplate> _templates = new();
+    private long _lastUpdate;
 
 
 	public bool IsEnabled => GetDefaultValue("BlackMarket.Enabled", true);
 	public long LastUpdate => _lastUpdate;
 
-	BlackMarketManager() { }
+    private BlackMarketManager() { }
 
 	public void LoadTemplates()
 	{

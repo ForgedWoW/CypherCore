@@ -10,10 +10,10 @@ namespace Forged.MapServer.Pools;
 
 public class SpawnedPoolData
 {
-	readonly Map _owner;
-	readonly List<ulong> _spawnedCreatures = new();
-	readonly List<ulong> _spawnedGameobjects = new();
-	readonly Dictionary<ulong, uint> _spawnedPools = new();
+    private readonly Map _owner;
+    private readonly List<ulong> _spawnedCreatures = new();
+    private readonly List<ulong> _spawnedGameobjects = new();
+    private readonly Dictionary<ulong, uint> _spawnedPools = new();
 
 	public Map Map => _owner;
 

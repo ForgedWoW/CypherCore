@@ -44,46 +44,46 @@ namespace Forged.MapServer.Entities.GameObjects
 		protected GameObjectValue GoValueProtected; // TODO: replace with m_goTypeImpl
 		protected GameObjectTemplate GoInfoProtected;
 		protected GameObjectTemplateAddon GoTemplateAddonProtected;
-		readonly List<ObjectGuid> _uniqueUsers = new();
+        private readonly List<ObjectGuid> _uniqueUsers = new();
 
-		readonly Dictionary<uint, ObjectGuid> _chairListSlots = new();
-		readonly List<ObjectGuid> _skillupList = new();
-		GameObjectTypeBase _goTypeImpl;
-		GameObjectData _goData;
-		ulong _spawnId;
-		uint _spellId;
-		long _respawnTime;      // (secs) time of next respawn (or despawn if GO have owner()),
-		uint _respawnDelayTime; // (secs) if 0 then current GO state no dependent from timer
-		uint _despawnDelay;
-		TimeSpan _despawnRespawnTime; // override respawn time after delayed despawn
-		LootState _lootState;
-		ObjectGuid _lootStateUnitGuid; // GUID of the unit passed with SetLootState(LootState, Unit*)
-		bool _spawnedByDefault;
-		long _restockTime;
+        private readonly Dictionary<uint, ObjectGuid> _chairListSlots = new();
+        private readonly List<ObjectGuid> _skillupList = new();
+        private GameObjectTypeBase _goTypeImpl;
+        private GameObjectData _goData;
+        private ulong _spawnId;
+        private uint _spellId;
+        private long _respawnTime;      // (secs) time of next respawn (or despawn if GO have owner()),
+        private uint _respawnDelayTime; // (secs) if 0 then current GO state no dependent from timer
+        private uint _despawnDelay;
+        private TimeSpan _despawnRespawnTime; // override respawn time after delayed despawn
+        private LootState _lootState;
+        private ObjectGuid _lootStateUnitGuid; // GUID of the unit passed with SetLootState(LootState, Unit*)
+        private bool _spawnedByDefault;
+        private long _restockTime;
 
-		long _cooldownTime; // used as internal reaction delay time store (not state change reaction).
+        private long _cooldownTime; // used as internal reaction delay time store (not state change reaction).
 		// For traps this: spell casting cooldown, for doors/buttons: reset time.
 
-		Player _ritualOwner; // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
-		uint _usetimes;
+        private Player _ritualOwner; // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
+        private uint _usetimes;
 
-		List<ObjectGuid> _tapList = new();
-		LootModes _lootMode; // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
-		long _packedRotation;
-		Quaternion _localRotation;
+        private List<ObjectGuid> _tapList = new();
+        private LootModes _lootMode; // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
+        private long _packedRotation;
+        private Quaternion _localRotation;
 
-		GameObjectAI _ai;
-		bool _respawnCompatibilityMode;
-		ushort _animKitId;
-		uint _worldEffectId;
-		uint? _gossipMenuId;
+        private GameObjectAI _ai;
+        private bool _respawnCompatibilityMode;
+        private ushort _animKitId;
+        private uint _worldEffectId;
+        private uint? _gossipMenuId;
 
-		Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
+        private Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
 
-		GameObjectState _prevGoState; // What state to set whenever resetting
-		Dictionary<ObjectGuid, Loot.Loot> _personalLoot = new();
+        private GameObjectState _prevGoState; // What state to set whenever resetting
+        private Dictionary<ObjectGuid, Loot.Loot> _personalLoot = new();
 
-		ObjectGuid _linkedTrap;
+        private ObjectGuid _linkedTrap;
 
 
 		public GameObjectFieldData GameObjectFieldData { get; set; }
@@ -340,17 +340,17 @@ namespace Forged.MapServer.Entities.GameObjects
 			}
 		}
 
-		byte GoAnimProgress => GameObjectFieldData.PercentHealth;
+        private byte GoAnimProgress => GameObjectFieldData.PercentHealth;
 
-		List<ObjectGuid> TapList
+        private List<ObjectGuid> TapList
 		{
 			get => _tapList;
 			set => _tapList = value;
 		}
 
-		bool HasLootRecipient => !_tapList.Empty();
+        private bool HasLootRecipient => !_tapList.Empty();
 
-		GameObjectDestructibleState DestructibleState
+        private GameObjectDestructibleState DestructibleState
 		{
 			get
 			{
@@ -3799,7 +3799,7 @@ namespace Forged.MapServer.Entities.GameObjects
 				SetFlag(GameObjectFlags.MapObject);
 		}
 
-		void RemoveFromOwner()
+        private void RemoveFromOwner()
 		{
 			var ownerGUID = OwnerGUID;
 
@@ -3826,7 +3826,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			SetOwnerGUID(ObjectGuid.Empty);
 		}
 
-		bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
+        private bool Create(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit, bool dynamic, ulong spawnid)
 		{
 			Map = map;
 
@@ -4065,7 +4065,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			return true;
 		}
 
-		void DespawnForPlayer(Player seer, TimeSpan respawnTime)
+        private void DespawnForPlayer(Player seer, TimeSpan respawnTime)
 		{
 			var perPlayerState = GetOrCreatePerPlayerStates(seer.GUID);
 			perPlayerState.ValidUntil = GameTime.GetSystemTime() + respawnTime;
@@ -4073,7 +4073,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			seer.UpdateVisibilityOf(this);
 		}
 
-		GameObject LookupFishingHoleAround(float range)
+        private GameObject LookupFishingHoleAround(float range)
 		{
 			var u_check = new NearestGameObjectFishingHole(this, range);
 			var checker = new GameObjectSearcher(this, u_check, GridType.Grid);
@@ -4083,7 +4083,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			return checker.GetTarget();
 		}
 
-		void SwitchDoorOrButton(bool activate, bool alternative = false)
+        private void SwitchDoorOrButton(bool activate, bool alternative = false)
 		{
 			if (activate)
 				SetFlag(GameObjectFlags.InUse);
@@ -4096,7 +4096,7 @@ namespace Forged.MapServer.Entities.GameObjects
 				SetGoState(GameObjectState.Ready);
 		}
 
-		bool IsAtInteractDistance(Position pos, float radius)
+        private bool IsAtInteractDistance(Position pos, float radius)
 		{
 			var displayInfo = CliDB.GameObjectDisplayInfoStorage.LookupByKey(Template.displayId);
 
@@ -4122,7 +4122,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			return Location.GetExactDist(pos) <= radius;
 		}
 
-		void ClearLoot()
+        private void ClearLoot()
 		{
 			// Unlink loot objects from this GameObject before destroying to avoid accessing freed memory from Loot destructor
 			Loot = null;
@@ -4131,7 +4131,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			_usetimes = 0;
 		}
 
-		void SetGoStateFor(GameObjectState state, Player viewer)
+        private void SetGoStateFor(GameObjectState state, Player viewer)
 		{
 			var perPlayerState = GetOrCreatePerPlayerStates(viewer.GUID);
 			perPlayerState.ValidUntil = GameTime.GetSystemTime() + TimeSpan.FromSeconds(_respawnDelayTime);
@@ -4146,7 +4146,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			viewer.SendPacket(setStateLocal);
 		}
 
-		void EnableCollision(bool enable)
+        private void EnableCollision(bool enable)
 		{
 			if (Model == null)
 				return;
@@ -4154,7 +4154,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			Model.EnableCollision(enable);
 		}
 
-		void UpdateModel()
+        private void UpdateModel()
 		{
 			if (!IsInWorld)
 				return;
@@ -4171,7 +4171,7 @@ namespace Forged.MapServer.Entities.GameObjects
 				Map.InsertGameObjectModel(Model);
 		}
 
-		void UpdateCapturePoint()
+        private void UpdateCapturePoint()
 		{
 			if (GoType != GameObjectTypes.CapturePoint)
 				return;
@@ -4249,7 +4249,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			Map.UpdateSpawnGroupConditions();
 		}
 
-		PerPlayerState GetOrCreatePerPlayerStates(ObjectGuid guid)
+        private PerPlayerState GetOrCreatePerPlayerStates(ObjectGuid guid)
 		{
 			if (_perPlayerState == null)
 				_perPlayerState = new Dictionary<ObjectGuid, PerPlayerState>();
@@ -4260,49 +4260,49 @@ namespace Forged.MapServer.Entities.GameObjects
 			return _perPlayerState[guid];
 		}
 
-		bool HasLootMode(LootModes lootMode)
+        private bool HasLootMode(LootModes lootMode)
 		{
 			return Convert.ToBoolean(_lootMode & lootMode);
 		}
 
-		void AddLootMode(LootModes lootMode)
+        private void AddLootMode(LootModes lootMode)
 		{
 			_lootMode |= lootMode;
 		}
 
-		void RemoveLootMode(LootModes lootMode)
+        private void RemoveLootMode(LootModes lootMode)
 		{
 			_lootMode &= ~lootMode;
 		}
 
-		void ResetLootMode()
+        private void ResetLootMode()
 		{
 			_lootMode = LootModes.Default;
 		}
 
-		void ClearSkillupList()
+        private void ClearSkillupList()
 		{
 			_skillupList.Clear();
 		}
 
-		uint GetUniqueUseCount()
+        private uint GetUniqueUseCount()
 		{
 			return (uint)_uniqueUsers.Count;
 		}
 
-		void UpdateDynamicFlagsForNearbyPlayers()
+        private void UpdateDynamicFlagsForNearbyPlayers()
 		{
 			Values.ModifyValue(ObjectData).ModifyValue(ObjectData.DynamicFlags);
 			AddToObjectUpdateIfNeeded();
 		}
 
-		void HandleCustomTypeCommand(GameObjectTypeBase.CustomCommand command)
+        private void HandleCustomTypeCommand(GameObjectTypeBase.CustomCommand command)
 		{
 			if (_goTypeImpl != null)
 				command.Execute(_goTypeImpl);
 		}
 
-		class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+        private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 		{
 			public readonly GameObject Owner;
 			public readonly ObjectFieldData ObjectMask = new();

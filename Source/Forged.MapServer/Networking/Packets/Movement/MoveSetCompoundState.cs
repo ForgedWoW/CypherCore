@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveSetCompoundState : ServerPacket
+internal class MoveSetCompoundState : ServerPacket
 {
 	public ObjectGuid MoverGUID;
 	public List<MoveStateChange> StateChanges = new();

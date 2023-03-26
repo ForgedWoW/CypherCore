@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFGetSystemInfo : ClientPacket
+internal class DFGetSystemInfo : ClientPacket
 {
 	public byte PartyIndex;
 	public bool Player;

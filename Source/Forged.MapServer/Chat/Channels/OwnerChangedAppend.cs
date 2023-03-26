@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct OwnerChangedAppend : IChannelAppender
+internal struct OwnerChangedAppend : IChannelAppender
 {
 	public OwnerChangedAppend(ObjectGuid guid)
 	{
@@ -21,5 +21,5 @@ struct OwnerChangedAppend : IChannelAppender
 		data.SenderGuid = _guid;
 	}
 
-	readonly ObjectGuid _guid;
+    private readonly ObjectGuid _guid;
 }

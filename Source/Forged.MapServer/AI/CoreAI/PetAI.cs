@@ -18,8 +18,8 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class PetAI : CreatureAI
 {
-	readonly List<ObjectGuid> _allySet = new();
-	uint _updateAlliesTimer;
+    private readonly List<ObjectGuid> _allySet = new();
+    private uint _updateAlliesTimer;
 
 	public PetAI(Creature creature) : base(creature)
 	{
@@ -473,7 +473,7 @@ public class PetAI : CreatureAI
 	public override void JustAppeared() { } // we will control following manually
 	public override void EnterEvadeMode(EvadeReason why) { }
 
-	Unit SelectNextTarget(bool allowAutoSelect)
+    private Unit SelectNextTarget(bool allowAutoSelect)
 	{
 		// Provides next target selection after current target death.
 		// This function should only be called internally by the AI
@@ -525,7 +525,7 @@ public class PetAI : CreatureAI
 		return null;
 	}
 
-	void HandleReturnMovement()
+    private void HandleReturnMovement()
 	{
 		// Handles moving the pet back to stay or owner
 
@@ -574,7 +574,7 @@ public class PetAI : CreatureAI
 		Me.RemoveUnitFlag(UnitFlags.PetInCombat); // on player pets, this flag indicates that we're actively going after a target - we're returning, so remove it
 	}
 
-	void DoAttack(Unit target, bool chase)
+    private void DoAttack(Unit target, bool chase)
 	{
 		// Handles attack with or without chase and also resets flags
 		// for next update / creature kill
@@ -615,7 +615,7 @@ public class PetAI : CreatureAI
 		}
 	}
 
-	bool NeedToStop()
+    private bool NeedToStop()
 	{
 		// This is needed for charmed creatures, as once their target was reset other effects can trigger threat
 		if (Me.IsCharmed && Me.Victim == Me.Charmer)
@@ -631,7 +631,7 @@ public class PetAI : CreatureAI
 		return !Me.IsValidAttackTarget(Me.Victim);
 	}
 
-	void StopAttack()
+    private void StopAttack()
 	{
 		if (!Me.IsAlive)
 		{
@@ -649,7 +649,7 @@ public class PetAI : CreatureAI
 		HandleReturnMovement();
 	}
 
-	void UpdateAllies()
+    private void UpdateAllies()
 	{
 		_updateAlliesTimer = 10 * Time.InMilliseconds; // update friendly targets every 10 seconds, lesser checks increase performance
 
@@ -695,7 +695,7 @@ public class PetAI : CreatureAI
 	/// <summary>
 	///  Quick access to set all flags to FALSE
 	/// </summary>
-	void ClearCharmInfoFlags()
+    private void ClearCharmInfoFlags()
 	{
 		var ci = Me.GetCharmInfo();
 

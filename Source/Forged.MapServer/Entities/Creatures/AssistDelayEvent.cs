@@ -10,13 +10,13 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class AssistDelayEvent : BasicEvent
 {
-	readonly List<ObjectGuid> m_assistants = new();
-	readonly Unit m_owner;
+    private readonly List<ObjectGuid> m_assistants = new();
+    private readonly Unit m_owner;
 
 
-	readonly ObjectGuid m_victim;
+    private readonly ObjectGuid m_victim;
 
-	AssistDelayEvent() { }
+    private AssistDelayEvent() { }
 
 	public AssistDelayEvent(ObjectGuid victim, Unit owner)
 	{

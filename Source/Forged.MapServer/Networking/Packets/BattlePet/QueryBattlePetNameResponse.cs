@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class QueryBattlePetNameResponse : ServerPacket
+internal class QueryBattlePetNameResponse : ServerPacket
 {
 	public ObjectGuid BattlePetID;
 	public uint CreatureID;

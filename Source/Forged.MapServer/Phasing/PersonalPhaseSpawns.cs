@@ -7,7 +7,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Phasing;
 
-class PersonalPhaseSpawns
+internal class PersonalPhaseSpawns
 {
 	public static TimeSpan DELETE_TIME_DEFAULT = TimeSpan.FromMinutes(1);
 

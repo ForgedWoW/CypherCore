@@ -9,7 +9,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class TurretAI : CreatureAI
 {
-	readonly float _minRange;
+    private readonly float _minRange;
 
 	public TurretAI(Creature creature) : base(creature)
 	{

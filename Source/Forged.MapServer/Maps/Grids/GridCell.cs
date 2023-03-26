@@ -12,12 +12,12 @@ public class GridCell
 	/// <summary>
 	///  Holds all World objects - Player, Pets, Corpse(resurrectable), DynamicObject(farsight)
 	/// </summary>
-	readonly WorldObjectTypedList _objects;
+    private readonly WorldObjectTypedList _objects;
 
 	/// <summary>
 	///  Holds all Grid objects - GameObjects, Creatures(except pets), DynamicObject, Corpse(Bones), AreaTrigger, Conversation, SceneObject
 	/// </summary>
-	readonly WorldObjectTypedList _container;
+    private readonly WorldObjectTypedList _container;
 
 	public GridCell()
 	{

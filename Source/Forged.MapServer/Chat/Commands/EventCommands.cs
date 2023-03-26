@@ -7,10 +7,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("event")]
-class EventCommands
+internal class EventCommands
 {
 	[Command("info", RBACPermissions.CommandEventInfo, true)]
-	static bool HandleEventInfoCommand(CommandHandler handler, ushort eventId)
+    private static bool HandleEventInfoCommand(CommandHandler handler, ushort eventId)
 	{
 		var events = Global.GameEventMgr.GetEventMap();
 
@@ -58,7 +58,7 @@ class EventCommands
 	}
 
 	[Command("activelist", RBACPermissions.CommandEventActivelist, true)]
-	static bool HandleEventActiveListCommand(CommandHandler handler)
+    private static bool HandleEventActiveListCommand(CommandHandler handler)
 	{
 		uint counter = 0;
 
@@ -86,7 +86,7 @@ class EventCommands
 	}
 
 	[Command("start", RBACPermissions.CommandEventStart, true)]
-	static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
+    private static bool HandleEventStartCommand(CommandHandler handler, ushort eventId)
 	{
 		var events = Global.GameEventMgr.GetEventMap();
 
@@ -121,7 +121,7 @@ class EventCommands
 	}
 
 	[Command("stop", RBACPermissions.CommandEventStop, true)]
-	static bool HandleEventStopCommand(CommandHandler handler, ushort eventId)
+    private static bool HandleEventStopCommand(CommandHandler handler, ushort eventId)
 	{
 		var events = Global.GameEventMgr.GetEventMap();
 

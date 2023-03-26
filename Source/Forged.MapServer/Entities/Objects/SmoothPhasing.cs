@@ -7,8 +7,8 @@ namespace Forged.MapServer.Entities.Objects;
 
 public class SmoothPhasing
 {
-	readonly Dictionary<ObjectGuid, SmoothPhasingInfo> _smoothPhasingInfoViewerDependent = new();
-	SmoothPhasingInfo _smoothPhasingInfoSingle;
+    private readonly Dictionary<ObjectGuid, SmoothPhasingInfo> _smoothPhasingInfoViewerDependent = new();
+    private SmoothPhasingInfo _smoothPhasingInfoSingle;
 
 	public void SetViewerDependentInfo(ObjectGuid seer, SmoothPhasingInfo info)
 	{

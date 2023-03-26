@@ -9,18 +9,18 @@ namespace Forged.MapServer.Entities.Units;
 
 public class DamageInfo
 {
-	readonly Unit _attacker;
-	readonly Unit _victim;
-	readonly double _originalDamage;
-	readonly SpellInfo _spellInfo;
-	readonly SpellSchoolMask _schoolMask;
-	readonly DamageEffectType _damageType;
-	readonly WeaponAttackType _attackType;
-	double _damage;
-	double _absorb;
-	double _resist;
-	double _block;
-	ProcFlagsHit _hitMask;
+    private readonly Unit _attacker;
+    private readonly Unit _victim;
+    private readonly double _originalDamage;
+    private readonly SpellInfo _spellInfo;
+    private readonly SpellSchoolMask _schoolMask;
+    private readonly DamageEffectType _damageType;
+    private readonly WeaponAttackType _attackType;
+    private double _damage;
+    private double _absorb;
+    private double _resist;
+    private double _block;
+    private ProcFlagsHit _hitMask;
 
 	public Unit Attacker => _attacker;
 	public Unit Victim => _victim;
@@ -221,7 +221,7 @@ public class DamageInfo
 		}
 	}
 
-	void BlockDamage(double amount)
+    private void BlockDamage(double amount)
 	{
 		amount = Math.Min(amount, Damage);
 		_block += amount;

@@ -11,7 +11,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class CasterAI : CombatAI
 {
-	float _attackDistance;
+    private float _attackDistance;
 
 	public CasterAI(Creature creature) : base(creature)
 	{

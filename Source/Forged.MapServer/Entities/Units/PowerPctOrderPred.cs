@@ -10,8 +10,8 @@ namespace Forged.MapServer.Entities.Units;
 
 public class PowerPctOrderPred : IComparer<WorldObject>
 {
-	readonly PowerType _power;
-	readonly bool _ascending;
+    private readonly PowerType _power;
+    private readonly bool _ascending;
 
 	public PowerPctOrderPred(PowerType power, bool ascending = true)
 	{

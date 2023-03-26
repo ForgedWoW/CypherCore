@@ -9,8 +9,8 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class NonTankTargetSelector : ICheck<Unit>
 {
-	readonly Unit _source;
-	readonly bool _playerOnly;
+    private readonly Unit _source;
+    private readonly bool _playerOnly;
 
 	public NonTankTargetSelector(Unit source, bool playerOnly = true)
 	{

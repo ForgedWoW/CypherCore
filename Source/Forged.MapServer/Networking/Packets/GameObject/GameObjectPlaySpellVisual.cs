@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectPlaySpellVisual : ServerPacket
+internal class GameObjectPlaySpellVisual : ServerPacket
 {
 	public ObjectGuid ObjectGUID;
 	public ObjectGuid ActivatorGUID;

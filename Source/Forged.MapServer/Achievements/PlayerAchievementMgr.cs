@@ -27,7 +27,7 @@ namespace Forged.MapServer.Achievements;
 
 public class PlayerAchievementMgr : AchievementManager
 {
-	readonly Player _owner;
+    private readonly Player _owner;
 
 	public PlayerAchievementMgr(Player owner)
 	{
@@ -530,7 +530,7 @@ public class PlayerAchievementMgr : AchievementManager
 		return $"{_owner.GUID} {_owner.GetName()}";
 	}
 
-	void SendAchievementEarned(AchievementRecord achievement)
+    private void SendAchievementEarned(AchievementRecord achievement)
 	{
 		// Don't send for achievements with ACHIEVEMENT_FLAG_HIDDEN
 		if (achievement.Flags.HasAnyFlag(AchievementFlags.Hidden))

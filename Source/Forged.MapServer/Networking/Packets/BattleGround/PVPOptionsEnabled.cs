@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class PVPOptionsEnabled : ServerPacket
+internal class PVPOptionsEnabled : ServerPacket
 {
 	public bool WargameArenas;
 	public bool RatedArenas;

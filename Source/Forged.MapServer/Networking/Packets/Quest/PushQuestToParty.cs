@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class PushQuestToParty : ClientPacket
+internal class PushQuestToParty : ClientPacket
 {
 	public uint QuestID;
 	public PushQuestToParty(WorldPacket packet) : base(packet) { }

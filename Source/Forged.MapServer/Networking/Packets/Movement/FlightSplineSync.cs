@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class FlightSplineSync : ServerPacket
+internal class FlightSplineSync : ServerPacket
 {
 	public ObjectGuid Guid;
 	public float SplineDist;

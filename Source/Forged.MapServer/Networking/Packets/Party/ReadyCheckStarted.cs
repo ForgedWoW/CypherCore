@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class ReadyCheckStarted : ServerPacket
+internal class ReadyCheckStarted : ServerPacket
 {
 	public sbyte PartyIndex;
 	public ObjectGuid PartyGUID;

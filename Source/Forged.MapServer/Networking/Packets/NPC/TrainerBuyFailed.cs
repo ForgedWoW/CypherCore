@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.NPC;
 
-class TrainerBuyFailed : ServerPacket
+internal class TrainerBuyFailed : ServerPacket
 {
 	public ObjectGuid TrainerGUID;
 	public uint SpellID;

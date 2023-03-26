@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class FishNotHooked : ServerPacket
+internal class FishNotHooked : ServerPacket
 {
 	public FishNotHooked() : base(ServerOpcodes.FishNotHooked) { }
 

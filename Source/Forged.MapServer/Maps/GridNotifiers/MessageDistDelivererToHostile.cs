@@ -14,10 +14,10 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifierDynamicObject, IGridNotifierCreature where T : IDoWork<Player>
 {
-	readonly Unit _source;
-	readonly T _packetSender;
-	readonly PhaseShift _phaseShift;
-	readonly float _distSq;
+    private readonly Unit _source;
+    private readonly T _packetSender;
+    private readonly PhaseShift _phaseShift;
+    private readonly float _distSq;
 
 	public GridType GridType { get; set; }
 
@@ -98,7 +98,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
 		}
 	}
 
-	void SendPacket(Player player)
+    private void SendPacket(Player player)
 	{
 		// never send packet to self
 		if (player == _source || !player.HaveAtClient(_source) || player.IsFriendlyTo(_source))

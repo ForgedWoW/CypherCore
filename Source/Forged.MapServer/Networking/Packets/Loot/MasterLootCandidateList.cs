@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class MasterLootCandidateList : ServerPacket
+internal class MasterLootCandidateList : ServerPacket
 {
 	public List<ObjectGuid> Players = new();
 	public ObjectGuid LootObj;

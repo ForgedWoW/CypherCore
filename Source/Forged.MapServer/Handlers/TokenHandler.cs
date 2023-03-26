@@ -11,7 +11,7 @@ namespace Forged.MapServer.Handlers;
 public class TokenHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetLog)]
-	void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
+    private void HandleCommerceTokenGetLog(CommerceTokenGetLog commerceTokenGetLog)
 	{
 		CommerceTokenGetLogResponse response = new()
 		{
@@ -24,7 +24,7 @@ public class TokenHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CommerceTokenGetMarketPrice)]
-	void HandleCommerceTokenGetMarketPrice(CommerceTokenGetMarketPrice commerceTokenGetMarketPrice)
+    private void HandleCommerceTokenGetMarketPrice(CommerceTokenGetMarketPrice commerceTokenGetMarketPrice)
 	{
 		CommerceTokenGetMarketPriceResponse response = new()
 		{

@@ -13,7 +13,7 @@ namespace Forged.MapServer.Handlers;
 public class LogoutHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.LogoutRequest)]
-	void HandleLogoutRequest(LogoutRequest packet)
+    private void HandleLogoutRequest(LogoutRequest packet)
 	{
 		var pl = Player;
 
@@ -72,7 +72,7 @@ public class LogoutHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.LogoutCancel)]
-	void HandleLogoutCancel(LogoutCancel packet)
+    private void HandleLogoutCancel(LogoutCancel packet)
 	{
 		// Player have already logged out serverside, too late to cancel
 		if (!Player)

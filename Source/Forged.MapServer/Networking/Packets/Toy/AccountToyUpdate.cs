@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Toy;
 
-class AccountToyUpdate : ServerPacket
+internal class AccountToyUpdate : ServerPacket
 {
 	public bool IsFullUpdate = false;
 	public Dictionary<uint, ToyFlags> Toys = new();

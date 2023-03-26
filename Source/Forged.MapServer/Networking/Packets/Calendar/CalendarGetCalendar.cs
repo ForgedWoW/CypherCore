@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarGetCalendar : ClientPacket
+internal class CalendarGetCalendar : ClientPacket
 {
 	public CalendarGetCalendar(WorldPacket packet) : base(packet) { }
 

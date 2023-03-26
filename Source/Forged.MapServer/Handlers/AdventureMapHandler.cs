@@ -13,7 +13,7 @@ namespace Forged.MapServer.Handlers;
 public class AdventureMapHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.AdventureMapStartQuest)]
-	void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
+    private void HandleAdventureMapStartQuest(AdventureMapStartQuest startQuest)
 	{
 		var quest = Global.ObjectMgr.GetQuestTemplate(startQuest.QuestID);
 

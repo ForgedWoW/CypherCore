@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonRemoteBuildingInfo
+internal struct GarrisonRemoteBuildingInfo
 {
 	public GarrisonRemoteBuildingInfo(uint plotInstanceId, uint buildingId)
 	{

@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps;
 
-class ObjectGridCleaner : IGridNotifierWorldObject
+internal class ObjectGridCleaner : IGridNotifierWorldObject
 {
 	public GridType GridType { get; set; }
 

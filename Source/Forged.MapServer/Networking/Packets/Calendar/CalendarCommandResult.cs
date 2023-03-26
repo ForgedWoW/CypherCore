@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarCommandResult : ServerPacket
+internal class CalendarCommandResult : ServerPacket
 {
 	public byte Command;
 	public CalendarError Result;

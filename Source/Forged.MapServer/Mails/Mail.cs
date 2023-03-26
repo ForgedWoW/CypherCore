@@ -69,8 +69,8 @@ public class MailItemInfo
 
 public class MailReceiver
 {
-	readonly Player m_receiver;
-	readonly ulong m_receiver_lowguid;
+    private readonly Player m_receiver;
+    private readonly ulong m_receiver_lowguid;
 
 	public MailReceiver(ulong receiver_lowguid)
 	{
@@ -109,9 +109,9 @@ public class MailReceiver
 
 public class MailSender
 {
-	readonly MailMessageType m_messageType;
-	readonly ulong m_senderId; // player low guid or other object entry
-	readonly MailStationery m_stationery;
+    private readonly MailMessageType m_messageType;
+    private readonly ulong m_senderId; // player low guid or other object entry
+    private readonly MailStationery m_stationery;
 
 	public MailSender(MailMessageType messageType, ulong sender_guidlow_or_entry, MailStationery stationery = MailStationery.Default)
 	{

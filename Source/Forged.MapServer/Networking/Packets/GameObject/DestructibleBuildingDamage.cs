@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class DestructibleBuildingDamage : ServerPacket
+internal class DestructibleBuildingDamage : ServerPacket
 {
 	public ObjectGuid Target;
 	public ObjectGuid Caster;

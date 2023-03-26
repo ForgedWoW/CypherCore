@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetJournal : ServerPacket
+internal class BattlePetJournal : ServerPacket
 {
 	public ushort Trap;
 	public bool HasJournalLock = false;

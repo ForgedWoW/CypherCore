@@ -41,7 +41,7 @@ public class BlackMarketHandlers : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BlackMarketOpen)]
-	void HandleBlackMarketOpen(BlackMarketOpen blackMarketOpen)
+    private void HandleBlackMarketOpen(BlackMarketOpen blackMarketOpen)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(blackMarketOpen.Guid, NPCFlags.BlackMarket, NPCFlags2.BlackMarketView);
 
@@ -59,7 +59,7 @@ public class BlackMarketHandlers : IWorldSessionHandler
 		SendBlackMarketOpenResult(blackMarketOpen.Guid, unit);
 	}
 
-	void SendBlackMarketOpenResult(ObjectGuid guid, Creature auctioneer)
+    private void SendBlackMarketOpenResult(ObjectGuid guid, Creature auctioneer)
 	{
 		NPCInteractionOpenResult npcInteraction = new();
 		npcInteraction.Npc = guid;
@@ -69,7 +69,7 @@ public class BlackMarketHandlers : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BlackMarketRequestItems)]
-	void HandleBlackMarketRequestItems(BlackMarketRequestItems blackMarketRequestItems)
+    private void HandleBlackMarketRequestItems(BlackMarketRequestItems blackMarketRequestItems)
 	{
 		if (!Global.BlackMarketMgr.IsEnabled)
 			return;
@@ -89,7 +89,7 @@ public class BlackMarketHandlers : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BlackMarketBidOnItem)]
-	void HandleBlackMarketBidOnItem(BlackMarketBidOnItem blackMarketBidOnItem)
+    private void HandleBlackMarketBidOnItem(BlackMarketBidOnItem blackMarketBidOnItem)
 	{
 		if (!Global.BlackMarketMgr.IsEnabled)
 			return;
@@ -156,7 +156,7 @@ public class BlackMarketHandlers : IWorldSessionHandler
 		SendBlackMarketBidOnItemResult(BlackMarketError.Ok, blackMarketBidOnItem.MarketID, blackMarketBidOnItem.Item);
 	}
 
-	void SendBlackMarketBidOnItemResult(BlackMarketError result, uint marketId, ItemInstance item)
+    private void SendBlackMarketBidOnItemResult(BlackMarketError result, uint marketId, ItemInstance item)
 	{
 		BlackMarketBidOnItemResult packet = new();
 

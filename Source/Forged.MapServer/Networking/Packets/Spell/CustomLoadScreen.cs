@@ -5,10 +5,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CustomLoadScreen : ServerPacket
+internal class CustomLoadScreen : ServerPacket
 {
-	readonly uint TeleportSpellID;
-	readonly uint LoadingScreenID;
+    private readonly uint TeleportSpellID;
+    private readonly uint LoadingScreenID;
 
 	public CustomLoadScreen(uint teleportSpellId, uint loadingScreenId) : base(ServerOpcodes.CustomLoadScreen)
 	{

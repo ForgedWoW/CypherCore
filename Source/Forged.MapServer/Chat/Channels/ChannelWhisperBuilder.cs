@@ -9,13 +9,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-class ChannelWhisperBuilder : MessageBuilder
+internal class ChannelWhisperBuilder : MessageBuilder
 {
-	readonly Channel _source;
-	readonly Language _lang;
-	readonly string _what;
-	readonly string _prefix;
-	readonly ObjectGuid _guid;
+    private readonly Channel _source;
+    private readonly Language _lang;
+    private readonly string _what;
+    private readonly string _prefix;
+    private readonly ObjectGuid _guid;
 
 	public ChannelWhisperBuilder(Channel source, Language lang, string what, string prefix, ObjectGuid guid)
 	{

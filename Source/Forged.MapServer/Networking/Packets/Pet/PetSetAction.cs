@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetSetAction : ClientPacket
+internal class PetSetAction : ClientPacket
 {
 	public ObjectGuid PetGUID;
 	public uint Index;

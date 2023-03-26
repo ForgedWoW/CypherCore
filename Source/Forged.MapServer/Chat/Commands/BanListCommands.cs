@@ -8,10 +8,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("banlist")]
-class BanListCommands
+internal class BanListCommands
 {
 	[Command("account", RBACPermissions.CommandBanlistAccount, true)]
-	static bool HandleBanListAccountCommand(CommandHandler handler, [OptionalArg] string filter)
+    private static bool HandleBanListAccountCommand(CommandHandler handler, [OptionalArg] string filter)
 	{
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
 		DB.Login.Execute(stmt);
@@ -41,7 +41,7 @@ class BanListCommands
 	}
 
 	[Command("character", RBACPermissions.CommandBanlistCharacter, true)]
-	static bool HandleBanListCharacterCommand(CommandHandler handler, string filter)
+    private static bool HandleBanListCharacterCommand(CommandHandler handler, string filter)
 	{
 		if (filter.IsEmpty())
 			return false;
@@ -139,7 +139,7 @@ class BanListCommands
 	}
 
 	[Command("ip", RBACPermissions.CommandBanlistIp, true)]
-	static bool HandleBanListIPCommand(CommandHandler handler, [OptionalArg] string filter)
+    private static bool HandleBanListIPCommand(CommandHandler handler, [OptionalArg] string filter)
 	{
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.DelExpiredIpBans);
 		DB.Login.Execute(stmt);
@@ -232,7 +232,7 @@ class BanListCommands
 		return true;
 	}
 
-	static bool HandleBanListHelper(SQLResult result, CommandHandler handler)
+    private static bool HandleBanListHelper(SQLResult result, CommandHandler handler)
 	{
 		handler.SendSysMessage(CypherStrings.BanlistMatchingaccount);
 

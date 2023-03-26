@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class PageTextPkt : ServerPacket
+internal class PageTextPkt : ServerPacket
 {
 	public ObjectGuid GameObjectGUID;
 	public PageTextPkt() : base(ServerOpcodes.PageText) { }

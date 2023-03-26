@@ -11,10 +11,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps;
 
-class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCreature, IGridNotifierGameObject
+internal class PersonalPhaseGridLoader : ObjectGridLoaderBase, IGridNotifierCreature, IGridNotifierGameObject
 {
-	readonly ObjectGuid _phaseOwner;
-	uint _phaseId;
+    private readonly ObjectGuid _phaseOwner;
+    private uint _phaseId;
 
 	public GridType GridType { get; set; }
 

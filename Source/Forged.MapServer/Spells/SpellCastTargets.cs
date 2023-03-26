@@ -15,19 +15,19 @@ namespace Forged.MapServer.Spells;
 
 public class SpellCastTargets
 {
-	readonly string _strTarget;
+    private readonly string _strTarget;
 
 	// objects (can be used at spell creating and after Update at casting)
-	WorldObject _objectTarget;
-	Item _itemTarget;
+    private WorldObject _objectTarget;
+    private Item _itemTarget;
 
 	// object GUID/etc, can be used always
-	ObjectGuid _objectTargetGuid;
-	ObjectGuid _itemTargetGuid;
-	uint _itemTargetEntry;
+    private ObjectGuid _objectTargetGuid;
+    private ObjectGuid _itemTargetGuid;
+    private uint _itemTargetEntry;
 
-	SpellDestination _src;
-	SpellDestination _dst;
+    private SpellDestination _src;
+    private SpellDestination _dst;
 
 
 	public SpellCastTargetFlags TargetMask { get; set; }
@@ -161,7 +161,7 @@ public class SpellCastTargets
 
 	public WorldLocation DstPos => _dst.Position;
 
-	ObjectGuid GOTargetGUID
+    private ObjectGuid GOTargetGUID
 	{
 		get
 		{
@@ -406,13 +406,13 @@ public class SpellCastTargets
 		TargetMask |= flag;
 	}
 
-	void SetSrc(float x, float y, float z)
+    private void SetSrc(float x, float y, float z)
 	{
 		_src = new SpellDestination(x, y, z);
 		TargetMask |= SpellCastTargetFlags.SourceLocation;
 	}
 
-	void SetSrc(Position pos)
+    private void SetSrc(Position pos)
 	{
 		_src = new SpellDestination(pos);
 		TargetMask |= SpellCastTargetFlags.SourceLocation;

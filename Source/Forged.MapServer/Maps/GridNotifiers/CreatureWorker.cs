@@ -12,8 +12,8 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class CreatureWorker : IGridNotifierCreature
 {
-	readonly PhaseShift _phaseShift;
-	readonly IDoWork<Creature> _doWork;
+    private readonly PhaseShift _phaseShift;
+    private readonly IDoWork<Creature> _doWork;
 
 	public GridType GridType { get; set; }
 

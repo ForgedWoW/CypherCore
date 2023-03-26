@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Toy;
 
-class AddToy : ClientPacket
+internal class AddToy : ClientPacket
 {
 	public ObjectGuid Guid;
 	public AddToy(WorldPacket packet) : base(packet) { }

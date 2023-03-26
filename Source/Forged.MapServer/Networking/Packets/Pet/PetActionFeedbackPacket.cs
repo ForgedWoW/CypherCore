@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetActionFeedbackPacket : ServerPacket
+internal class PetActionFeedbackPacket : ServerPacket
 {
 	public uint SpellID;
 	public PetActionFeedback Response;

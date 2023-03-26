@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Hotfix;
 
-class AvailableHotfixes : ServerPacket
+internal class AvailableHotfixes : ServerPacket
 {
 	public uint VirtualRealmAddress;
 	public MultiMap<int, HotfixRecord> Hotfixes;

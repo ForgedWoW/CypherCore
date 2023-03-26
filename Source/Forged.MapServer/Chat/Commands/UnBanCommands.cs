@@ -9,16 +9,16 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("unban")]
-class UnBanCommands
+internal class UnBanCommands
 {
 	[Command("account", RBACPermissions.CommandUnbanAccount, true)]
-	static bool HandleUnBanAccountCommand(CommandHandler handler, string name)
+    private static bool HandleUnBanAccountCommand(CommandHandler handler, string name)
 	{
 		return HandleUnBanHelper(BanMode.Account, name, handler);
 	}
 
 	[Command("character", RBACPermissions.CommandUnbanCharacter, true)]
-	static bool HandleUnBanCharacterCommand(CommandHandler handler, string name)
+    private static bool HandleUnBanCharacterCommand(CommandHandler handler, string name)
 	{
 		if (!GameObjectManager.NormalizePlayerName(ref name))
 		{
@@ -40,18 +40,18 @@ class UnBanCommands
 	}
 
 	[Command("playeraccount", RBACPermissions.CommandUnbanPlayeraccount, true)]
-	static bool HandleUnBanAccountByCharCommand(CommandHandler handler, string name)
+    private static bool HandleUnBanAccountByCharCommand(CommandHandler handler, string name)
 	{
 		return HandleUnBanHelper(BanMode.Character, name, handler);
 	}
 
 	[Command("ip", RBACPermissions.CommandUnbanIp, true)]
-	static bool HandleUnBanIPCommand(CommandHandler handler, string ip)
+    private static bool HandleUnBanIPCommand(CommandHandler handler, string ip)
 	{
 		return HandleUnBanHelper(BanMode.IP, ip, handler);
 	}
 
-	static bool HandleUnBanHelper(BanMode mode, string nameOrIp, CommandHandler handler)
+    private static bool HandleUnBanHelper(BanMode mode, string nameOrIp, CommandHandler handler)
 	{
 		if (nameOrIp.IsEmpty())
 			return false;

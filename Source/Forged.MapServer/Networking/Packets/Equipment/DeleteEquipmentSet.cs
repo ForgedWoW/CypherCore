@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Equipment;
 
-class DeleteEquipmentSet : ClientPacket
+internal class DeleteEquipmentSet : ClientPacket
 {
 	public ulong ID;
 	public DeleteEquipmentSet(WorldPacket packet) : base(packet) { }

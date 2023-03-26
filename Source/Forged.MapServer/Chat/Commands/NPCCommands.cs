@@ -22,10 +22,10 @@ using Framework.IO;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("npc")]
-class NPCCommands
+internal class NPCCommands
 {
 	[Command("despawngroup", RBACPermissions.CommandNpcDespawngroup)]
-	static bool HandleNpcDespawnGroup(CommandHandler handler, string[] opts)
+    private static bool HandleNpcDespawnGroup(CommandHandler handler, string[] opts)
 	{
 		if (opts.Empty())
 			return false;
@@ -53,7 +53,7 @@ class NPCCommands
 	}
 
 	[Command("evade", RBACPermissions.CommandNpcEvade)]
-	static bool HandleNpcEvadeCommand(CommandHandler handler, EvadeReason? why, string force)
+    private static bool HandleNpcEvadeCommand(CommandHandler handler, EvadeReason? why, string force)
 	{
 		var creatureTarget = handler.SelectedCreature;
 
@@ -80,7 +80,7 @@ class NPCCommands
 	}
 
 	[Command("info", RBACPermissions.CommandNpcInfo)]
-	static bool HandleNpcInfoCommand(CommandHandler handler)
+    private static bool HandleNpcInfoCommand(CommandHandler handler)
 	{
 		var target = handler.SelectedCreature;
 
@@ -184,7 +184,7 @@ class NPCCommands
 	}
 
 	[Command("move", RBACPermissions.CommandNpcMove)]
-	static bool HandleNpcMoveCommand(CommandHandler handler, ulong? spawnId)
+    private static bool HandleNpcMoveCommand(CommandHandler handler, ulong? spawnId)
 	{
 		var creature = handler.SelectedCreature;
 		var player = handler.Session.Player;
@@ -238,7 +238,7 @@ class NPCCommands
 	}
 
 	[Command("near", RBACPermissions.CommandNpcNear)]
-	static bool HandleNpcNearCommand(CommandHandler handler, float? dist)
+    private static bool HandleNpcNearCommand(CommandHandler handler, float? dist)
 	{
 		var distance = dist.GetValueOrDefault(10.0f);
 		uint count = 0;
@@ -282,7 +282,7 @@ class NPCCommands
 	}
 
 	[Command("playemote", RBACPermissions.CommandNpcPlayemote)]
-	static bool HandleNpcPlayEmoteCommand(CommandHandler handler, uint emote)
+    private static bool HandleNpcPlayEmoteCommand(CommandHandler handler, uint emote)
 	{
 		var target = handler.SelectedCreature;
 
@@ -299,7 +299,7 @@ class NPCCommands
 	}
 
 	[Command("say", RBACPermissions.CommandNpcSay)]
-	static bool HandleNpcSayCommand(CommandHandler handler, Tail text)
+    private static bool HandleNpcSayCommand(CommandHandler handler, Tail text)
 	{
 		if (text.IsEmpty())
 			return false;
@@ -336,7 +336,7 @@ class NPCCommands
 	}
 
 	[Command("showloot", RBACPermissions.CommandNpcShowloot)]
-	static bool HandleNpcShowLootCommand(CommandHandler handler, string all)
+    private static bool HandleNpcShowLootCommand(CommandHandler handler, string all)
 	{
 		var creatureTarget = handler.SelectedCreature;
 
@@ -386,7 +386,7 @@ class NPCCommands
 	}
 
 	[Command("spawngroup", RBACPermissions.CommandNpcSpawngroup)]
-	static bool HandleNpcSpawnGroup(CommandHandler handler, string[] opts)
+    private static bool HandleNpcSpawnGroup(CommandHandler handler, string[] opts)
 	{
 		if (opts.Empty())
 			return false;
@@ -430,7 +430,7 @@ class NPCCommands
 	}
 
 	[Command("tame", RBACPermissions.CommandNpcTame)]
-	static bool HandleNpcTameCommand(CommandHandler handler)
+    private static bool HandleNpcTameCommand(CommandHandler handler)
 	{
 		var creatureTarget = handler.SelectedCreature;
 
@@ -504,7 +504,7 @@ class NPCCommands
 	}
 
 	[Command("textemote", RBACPermissions.CommandNpcTextemote)]
-	static bool HandleNpcTextEmoteCommand(CommandHandler handler, Tail text)
+    private static bool HandleNpcTextEmoteCommand(CommandHandler handler, Tail text)
 	{
 		var creature = handler.SelectedCreature;
 
@@ -521,7 +521,7 @@ class NPCCommands
 	}
 
 	[Command("whisper", RBACPermissions.CommandNpcWhisper)]
-	static bool HandleNpcWhisperCommand(CommandHandler handler, string recv, Tail text)
+    private static bool HandleNpcWhisperCommand(CommandHandler handler, string recv, Tail text)
 	{
 		if (text.IsEmpty())
 		{
@@ -551,7 +551,7 @@ class NPCCommands
 	}
 
 	[Command("yell", RBACPermissions.CommandNpcYell)]
-	static bool HandleNpcYellCommand(CommandHandler handler, Tail text)
+    private static bool HandleNpcYellCommand(CommandHandler handler, Tail text)
 	{
 		if (text.IsEmpty())
 			return false;
@@ -573,7 +573,7 @@ class NPCCommands
 		return true;
 	}
 
-	static void _ShowLootEntry(CommandHandler handler, uint itemId, byte itemCount, bool alternateString = false)
+    private static void _ShowLootEntry(CommandHandler handler, uint itemId, byte itemCount, bool alternateString = false)
 	{
 		var name = "Unknown item";
 
@@ -590,7 +590,7 @@ class NPCCommands
 								itemId);
 	}
 
-	static void _IterateNotNormalLootMap(CommandHandler handler, MultiMap<ObjectGuid, NotNormalLootItem> map, List<LootItem> items)
+    private static void _IterateNotNormalLootMap(CommandHandler handler, MultiMap<ObjectGuid, NotNormalLootItem> map, List<LootItem> items)
 	{
 		foreach (var key in map.Keys)
 		{
@@ -613,10 +613,10 @@ class NPCCommands
 	}
 
 	[CommandGroup("add")]
-	class AddCommands
+    private class AddCommands
 	{
 		[Command("", RBACPermissions.CommandNpcAdd)]
-		static bool HandleNpcAddCommand(CommandHandler handler, uint id)
+        private static bool HandleNpcAddCommand(CommandHandler handler, uint id)
 		{
 			if (Global.ObjectMgr.GetCreatureTemplate(id) == null)
 				return false;
@@ -681,7 +681,7 @@ class NPCCommands
 		}
 
 		[Command("item", RBACPermissions.CommandNpcAddItem)]
-		static bool HandleNpcAddVendorItemCommand(CommandHandler handler, uint itemId, uint? mc, uint? it, uint? ec, [OptionalArg] string bonusListIds)
+        private static bool HandleNpcAddVendorItemCommand(CommandHandler handler, uint itemId, uint? mc, uint? it, uint? ec, [OptionalArg] string bonusListIds)
 		{
 			if (itemId == 0)
 			{
@@ -736,7 +736,7 @@ class NPCCommands
 		}
 
 		[Command("move", RBACPermissions.CommandNpcAddMove)]
-		static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
+        private static bool HandleNpcAddMoveCommand(CommandHandler handler, ulong lowGuid)
 		{
 			// attempt check creature existence by DB data
 			var data = Global.ObjectMgr.GetCreatureData(lowGuid);
@@ -760,7 +760,7 @@ class NPCCommands
 		}
 
 		[Command("formation", RBACPermissions.CommandNpcAddFormation)]
-		static bool HandleNpcAddFormationCommand(CommandHandler handler, ulong leaderGUID)
+        private static bool HandleNpcAddFormationCommand(CommandHandler handler, ulong leaderGUID)
 		{
 			var creature = handler.SelectedCreature;
 
@@ -805,7 +805,7 @@ class NPCCommands
 		}
 
 		[Command("temp", RBACPermissions.CommandNpcAddTemp)]
-		static bool HandleNpcAddTempSpawnCommand(CommandHandler handler, [OptionalArg] string lootStr, uint id)
+        private static bool HandleNpcAddTempSpawnCommand(CommandHandler handler, [OptionalArg] string lootStr, uint id)
 		{
 			var loot = false;
 
@@ -830,10 +830,10 @@ class NPCCommands
 	}
 
 	[CommandGroup("delete")]
-	class DeleteCommands
+    private class DeleteCommands
 	{
 		[Command("", RBACPermissions.CommandNpcDelete)]
-		static bool HandleNpcDeleteCommand(CommandHandler handler, ulong? spawnIdArg)
+        private static bool HandleNpcDeleteCommand(CommandHandler handler, ulong? spawnIdArg)
 		{
 			ulong spawnId;
 
@@ -878,7 +878,7 @@ class NPCCommands
 		}
 
 		[Command("item", RBACPermissions.CommandNpcDeleteItem)]
-		static bool HandleNpcDeleteVendorItemCommand(CommandHandler handler, uint itemId)
+        private static bool HandleNpcDeleteVendorItemCommand(CommandHandler handler, uint itemId)
 		{
 			var vendor = handler.SelectedCreature;
 
@@ -907,10 +907,10 @@ class NPCCommands
 	}
 
 	[CommandGroup("follow")]
-	class FollowCommands
+    private class FollowCommands
 	{
 		[Command("", RBACPermissions.CommandNpcFollow)]
-		static bool HandleNpcFollowCommand(CommandHandler handler)
+        private static bool HandleNpcFollowCommand(CommandHandler handler)
 		{
 			var player = handler.Session.Player;
 			var creature = handler.SelectedCreature;
@@ -933,7 +933,7 @@ class NPCCommands
 		}
 
 		[Command("stop", RBACPermissions.CommandNpcFollowStop)]
-		static bool HandleNpcUnFollowCommand(CommandHandler handler)
+        private static bool HandleNpcUnFollowCommand(CommandHandler handler)
 		{
 			var player = handler.Player;
 			var creature = handler.SelectedCreature;
@@ -972,10 +972,10 @@ class NPCCommands
 	}
 
 	[CommandGroup("set")]
-	class SetCommands
+    private class SetCommands
 	{
 		[Command("allowmove", RBACPermissions.CommandNpcSetAllowmove)]
-		static bool HandleNpcSetAllowMovementCommand(CommandHandler handler)
+        private static bool HandleNpcSetAllowMovementCommand(CommandHandler handler)
 		{
 			/*
 			if (Global.WorldMgr.getAllowMovement())
@@ -993,7 +993,7 @@ class NPCCommands
 		}
 
 		[Command("data", RBACPermissions.CommandNpcSetData)]
-		static bool HandleNpcSetDataCommand(CommandHandler handler, uint data_1, uint data_2)
+        private static bool HandleNpcSetDataCommand(CommandHandler handler, uint data_1, uint data_2)
 		{
 			var creature = handler.SelectedCreature;
 
@@ -1012,7 +1012,7 @@ class NPCCommands
 		}
 
 		[Command("entry", RBACPermissions.CommandNpcSetEntry)]
-		static bool HandleNpcSetEntryCommand(CommandHandler handler, uint newEntryNum)
+        private static bool HandleNpcSetEntryCommand(CommandHandler handler, uint newEntryNum)
 		{
 			if (newEntryNum == 0)
 				return false;
@@ -1037,7 +1037,7 @@ class NPCCommands
 		}
 
 		[Command("factionid", RBACPermissions.CommandNpcSetFactionid)]
-		static bool HandleNpcSetFactionIdCommand(CommandHandler handler, uint factionId)
+        private static bool HandleNpcSetFactionIdCommand(CommandHandler handler, uint factionId)
 		{
 			if (!CliDB.FactionTemplateStorage.ContainsKey(factionId))
 			{
@@ -1078,7 +1078,7 @@ class NPCCommands
 		}
 
 		[Command("flag", RBACPermissions.CommandNpcSetFlag)]
-		static bool HandleNpcSetFlagCommand(CommandHandler handler, NPCFlags npcFlags, NPCFlags2 npcFlags2)
+        private static bool HandleNpcSetFlagCommand(CommandHandler handler, NPCFlags npcFlags, NPCFlags2 npcFlags2)
 		{
 			var creature = handler.SelectedCreature;
 
@@ -1103,7 +1103,7 @@ class NPCCommands
 		}
 
 		[Command("level", RBACPermissions.CommandNpcSetLevel)]
-		static bool HandleNpcSetLevelCommand(CommandHandler handler, byte lvl)
+        private static bool HandleNpcSetLevelCommand(CommandHandler handler, byte lvl)
 		{
 			if (lvl < 1 || lvl > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) + 3)
 			{
@@ -1130,7 +1130,7 @@ class NPCCommands
 		}
 
 		[Command("link", RBACPermissions.CommandNpcSetLink)]
-		static bool HandleNpcSetLinkCommand(CommandHandler handler, ulong linkguid)
+        private static bool HandleNpcSetLinkCommand(CommandHandler handler, ulong linkguid)
 		{
 			var creature = handler.SelectedCreature;
 
@@ -1161,7 +1161,7 @@ class NPCCommands
 		}
 
 		[Command("model", RBACPermissions.CommandNpcSetModel)]
-		static bool HandleNpcSetModelCommand(CommandHandler handler, uint displayId)
+        private static bool HandleNpcSetModelCommand(CommandHandler handler, uint displayId)
 		{
 			var creature = handler.SelectedCreature;
 
@@ -1188,7 +1188,7 @@ class NPCCommands
 		}
 
 		[Command("movetype", RBACPermissions.CommandNpcSetMovetype)]
-		static bool HandleNpcSetMoveTypeCommand(CommandHandler handler, ulong? lowGuid, string type, string nodel)
+        private static bool HandleNpcSetMoveTypeCommand(CommandHandler handler, ulong? lowGuid, string type, string nodel)
 		{
 			// 3 arguments:
 			// GUID (optional - you can also select the creature)
@@ -1286,7 +1286,7 @@ class NPCCommands
 		}
 
 		[Command("phase", RBACPermissions.CommandNpcSetPhase)]
-		static bool HandleNpcSetPhaseCommand(CommandHandler handler, uint phaseId)
+        private static bool HandleNpcSetPhaseCommand(CommandHandler handler, uint phaseId)
 		{
 			if (phaseId == 0)
 			{
@@ -1314,7 +1314,7 @@ class NPCCommands
 		}
 
 		[Command("phasegroup", RBACPermissions.CommandNpcSetPhase)]
-		static bool HandleNpcSetPhaseGroup(CommandHandler handler, StringArguments args)
+        private static bool HandleNpcSetPhaseGroup(CommandHandler handler, StringArguments args)
 		{
 			if (args.Empty())
 				return false;
@@ -1340,7 +1340,7 @@ class NPCCommands
 		}
 
 		[Command("wanderdistance", RBACPermissions.CommandNpcSetSpawndist)]
-		static bool HandleNpcSetWanderDistanceCommand(CommandHandler handler, float option)
+        private static bool HandleNpcSetWanderDistanceCommand(CommandHandler handler, float option)
 		{
 			if (option < 0.0f)
 			{
@@ -1385,7 +1385,7 @@ class NPCCommands
 		}
 
 		[Command("spawntime", RBACPermissions.CommandNpcSetSpawntime)]
-		static bool HandleNpcSetSpawnTimeCommand(CommandHandler handler, uint spawnTime)
+        private static bool HandleNpcSetSpawnTimeCommand(CommandHandler handler, uint spawnTime)
 		{
 			var creature = handler.SelectedCreature;
 

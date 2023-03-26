@@ -9,7 +9,7 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillExtraItems
 {
-	static readonly Dictionary<uint, SkillExtraItemEntry> SkillExtraItemStorage = new();
+    private static readonly Dictionary<uint, SkillExtraItemEntry> SkillExtraItemStorage = new();
 
 	// loads the extra item creation info from DB
 	public static void LoadSkillExtraItemTable()

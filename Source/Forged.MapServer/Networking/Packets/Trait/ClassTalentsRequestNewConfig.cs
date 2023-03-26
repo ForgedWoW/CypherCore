@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class ClassTalentsRequestNewConfig : ClientPacket
+internal class ClassTalentsRequestNewConfig : ClientPacket
 {
 	public TraitConfigPacket Config = new();
 

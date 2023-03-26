@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class PendingRaidLock : ServerPacket
+internal class PendingRaidLock : ServerPacket
 {
 	public int TimeUntilLock;
 	public uint CompletedMask;

@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Warden;
 
-class Warden3DataServer : ServerPacket
+internal class Warden3DataServer : ServerPacket
 {
 	public ByteBuffer Data;
 	public Warden3DataServer() : base(ServerOpcodes.Warden3Data) { }

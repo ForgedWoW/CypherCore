@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class DisplayPlayerChoice : ServerPacket
+internal class DisplayPlayerChoice : ServerPacket
 {
 	public ObjectGuid SenderGUID;
 	public int ChoiceID;

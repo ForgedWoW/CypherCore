@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Networking.Packets.Battlenet;
 
-class ChangeRealmTicketResponse : ServerPacket
+internal class ChangeRealmTicketResponse : ServerPacket
 {
 	public uint Token;
 	public bool Allow = true;

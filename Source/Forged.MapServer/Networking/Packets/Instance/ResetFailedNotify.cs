@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class ResetFailedNotify : ServerPacket
+internal class ResetFailedNotify : ServerPacket
 {
 	public ResetFailedNotify() : base(ServerOpcodes.ResetFailedNotify) { }
 

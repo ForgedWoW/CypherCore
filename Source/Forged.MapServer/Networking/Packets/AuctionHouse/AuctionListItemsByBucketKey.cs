@@ -7,7 +7,7 @@ using Forged.MapServer.Networking.Packets.Addon;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionListItemsByBucketKey : ClientPacket
+internal class AuctionListItemsByBucketKey : ClientPacket
 {
 	public ObjectGuid Auctioneer;
 	public uint Offset;

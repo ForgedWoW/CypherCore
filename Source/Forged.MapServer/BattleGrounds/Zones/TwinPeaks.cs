@@ -3,4 +3,4 @@
 
 namespace Forged.MapServer.BattleGrounds.Zones;
 
-class TwinPeaks { }
+internal class TwinPeaks { }

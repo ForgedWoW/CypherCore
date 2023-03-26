@@ -994,42 +994,42 @@ public partial class Player
 		_traitConfigStates[traitConfigId] = PlayerSpellState.Changed;
 	}
 
-	bool HasTalent(uint talentId, byte group)
+    private bool HasTalent(uint talentId, byte group)
 	{
 		return GetTalentMap(group).ContainsKey(talentId) && GetTalentMap(group)[talentId] != PlayerSpellState.Removed;
 	}
 
-	uint GetTalentResetCost()
+    private uint GetTalentResetCost()
 	{
 		return _specializationInfo.ResetTalentsCost;
 	}
 
-	void SetTalentResetCost(uint cost)
+    private void SetTalentResetCost(uint cost)
 	{
 		_specializationInfo.ResetTalentsCost = cost;
 	}
 
-	long GetTalentResetTime()
+    private long GetTalentResetTime()
 	{
 		return _specializationInfo.ResetTalentsTime;
 	}
 
-	void SetTalentResetTime(long time_)
+    private void SetTalentResetTime(long time_)
 	{
 		_specializationInfo.ResetTalentsTime = time_;
 	}
 
-	void SetPrimarySpecialization(uint spec)
+    private void SetPrimarySpecialization(uint spec)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.CurrentSpecID), spec);
 	}
 
-	void SetActiveTalentGroup(byte group)
+    private void SetActiveTalentGroup(byte group)
 	{
 		_specializationInfo.ActiveGroup = group;
 	}
 
-	void StartLoadingActionButtons(Action callback = null)
+    private void StartLoadingActionButtons(Action callback = null)
 	{
 		uint traitConfigId = 0;
 
@@ -1070,7 +1070,7 @@ public partial class Player
 	}
 
 	//Pvp
-	void ResetPvpTalents()
+    private void ResetPvpTalents()
 	{
 		for (byte spec = 0; spec < PlayerConst.MaxSpecializations; ++spec)
 			foreach (var talentId in GetPvpTalentMap(spec))
@@ -1082,7 +1082,7 @@ public partial class Player
 			}
 	}
 
-	bool AddPvpTalent(PvpTalentRecord talent, byte activeTalentGroup, byte slot)
+    private bool AddPvpTalent(PvpTalentRecord talent, byte activeTalentGroup, byte slot)
 	{
 		//ASSERT(talent);
 		var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
@@ -1115,7 +1115,7 @@ public partial class Player
 		return true;
 	}
 
-	void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
+    private void RemovePvpTalent(PvpTalentRecord talent, byte activeTalentGroup)
 	{
 		var spellInfo = Global.SpellMgr.GetSpellInfo(talent.SpellID, Difficulty.None);
 
@@ -1136,12 +1136,12 @@ public partial class Player
 				talents[i] = 0;
 	}
 
-	bool HasPvpTalent(uint talentID, byte activeTalentGroup)
+    private bool HasPvpTalent(uint talentID, byte activeTalentGroup)
 	{
 		return GetPvpTalentMap(activeTalentGroup).Contains(talentID);
 	}
 
-	void AddTraitConfig(TraitConfigPacket traitConfig)
+    private void AddTraitConfig(TraitConfigPacket traitConfig)
 	{
 		var setter = new TraitConfig();
 		setter.ModifyValue(setter.ID).SetValue(traitConfig.ID);
@@ -1170,7 +1170,7 @@ public partial class Player
 			}
 	}
 
-	void ApplyTraitEntryChanges(int editedConfigId, TraitConfigPacket newConfig, bool applyTraits, bool consumeCurrencies)
+    private void ApplyTraitEntryChanges(int editedConfigId, TraitConfigPacket newConfig, bool applyTraits, bool consumeCurrencies)
 	{
 		var editedIndex = ActivePlayerData.TraitConfigs.FindIndexIf(config => config.ID == editedConfigId);
 
@@ -1283,7 +1283,7 @@ public partial class Player
 		_traitConfigStates[(int)editedConfigId] = PlayerSpellState.Changed;
 	}
 
-	void ApplyTraitConfig(int configId, bool apply)
+    private void ApplyTraitConfig(int configId, bool apply)
 	{
 		var traitConfig = GetTraitConfig(configId);
 
@@ -1294,7 +1294,7 @@ public partial class Player
 			ApplyTraitEntry(traitEntry.TraitNodeEntryID, traitEntry.Rank, traitEntry.GrantedRanks, apply);
 	}
 
-	void ApplyTraitEntry(int traitNodeEntryId, int rank, int grantedRanks, bool apply)
+    private void ApplyTraitEntry(int traitNodeEntryId, int rank, int grantedRanks, bool apply)
 	{
 		var traitNodeEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeEntryId);
 

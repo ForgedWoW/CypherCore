@@ -9,7 +9,7 @@ namespace Forged.MapServer.Spells;
 
 public class SpellEvent : BasicEvent
 {
-	readonly Spell _spell;
+    private readonly Spell _spell;
 
 	public override bool IsDeletable => _spell.IsDeletable;
 

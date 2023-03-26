@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class ItemTextQuery : ClientPacket
+internal class ItemTextQuery : ClientPacket
 {
 	public ObjectGuid Id;
 	public ItemTextQuery(WorldPacket packet) : base(packet) { }

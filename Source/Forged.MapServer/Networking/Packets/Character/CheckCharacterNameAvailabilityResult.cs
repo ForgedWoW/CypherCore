@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Character;
 
-class CheckCharacterNameAvailabilityResult : ServerPacket
+internal class CheckCharacterNameAvailabilityResult : ServerPacket
 {
 	public uint SequenceIndex;
 	public ResponseCodes Result;

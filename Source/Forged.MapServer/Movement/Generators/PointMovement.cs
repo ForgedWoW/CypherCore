@@ -11,17 +11,17 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class PointMovementGenerator : MovementGeneratorMedium<Unit>
 {
-	readonly uint _movementId;
-	readonly Position _destination;
-	readonly float? _speed;
-	readonly bool _generatePath;
+    private readonly uint _movementId;
+    private readonly Position _destination;
+    private readonly float? _speed;
+    private readonly bool _generatePath;
 
 	//! if set then unit will turn to specified _orient in provided _pos
-	readonly float? _finalOrient;
-	readonly Unit _faceTarget;
-	readonly SpellEffectExtraData _spellEffectExtra;
-	readonly MovementWalkRunSpeedSelectionMode _speedSelectionMode;
-	readonly float? _closeEnoughDistance;
+    private readonly float? _finalOrient;
+    private readonly Unit _faceTarget;
+    private readonly SpellEffectExtraData _spellEffectExtra;
+    private readonly MovementWalkRunSpeedSelectionMode _speedSelectionMode;
+    private readonly float? _closeEnoughDistance;
 
 
 	public PointMovementGenerator(uint id, float x, float y, float z, bool generatePath, float speed = 0.0f, float? finalOrient = null, Unit faceTarget = null, SpellEffectExtraData spellEffectExtraData = null, MovementWalkRunSpeedSelectionMode speedSelectionMode = MovementWalkRunSpeedSelectionMode.Default, float closeEnoughDistance = 0)

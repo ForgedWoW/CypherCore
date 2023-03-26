@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class ProcResist : ServerPacket
+internal class ProcResist : ServerPacket
 {
 	public ObjectGuid Caster;
 	public ObjectGuid Target;

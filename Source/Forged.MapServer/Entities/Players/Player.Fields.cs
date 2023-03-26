@@ -25,198 +25,198 @@ namespace Forged.MapServer.Entities.Players;
 public partial class Player
 {
 	public PvPInfo PvpInfo;
-	readonly List<Channel> _channels = new();
-	readonly List<ObjectGuid> _whisperList = new();
+    private readonly List<Channel> _channels = new();
+    private readonly List<ObjectGuid> _whisperList = new();
 
 	//Inventory
-	readonly Dictionary<ulong, EquipmentSetInfo> _equipmentSets = new();
-	readonly List<EnchantDuration> _enchantDurations = new();
-	readonly List<Item> _itemDuration = new();
-	readonly List<ObjectGuid> _itemSoulboundTradeable = new();
-	readonly List<ObjectGuid> _refundableItems = new();
-	readonly VoidStorageItem[] _voidStorageItems = new VoidStorageItem[SharedConst.VoidStorageMaxSlot];
-	readonly Item[] _items = new Item[(int)PlayerSlots.Count];
+    private readonly Dictionary<ulong, EquipmentSetInfo> _equipmentSets = new();
+    private readonly List<EnchantDuration> _enchantDurations = new();
+    private readonly List<Item> _itemDuration = new();
+    private readonly List<ObjectGuid> _itemSoulboundTradeable = new();
+    private readonly List<ObjectGuid> _refundableItems = new();
+    private readonly VoidStorageItem[] _voidStorageItems = new VoidStorageItem[SharedConst.VoidStorageMaxSlot];
+    private readonly Item[] _items = new Item[(int)PlayerSlots.Count];
 
 	//PVP
-	readonly BgBattlegroundQueueIdRec[] _battlegroundQueueIdRecs = new BgBattlegroundQueueIdRec[SharedConst.MaxPlayerBGQueues];
-	readonly BgData _bgData;
+    private readonly BgBattlegroundQueueIdRec[] _battlegroundQueueIdRecs = new BgBattlegroundQueueIdRec[SharedConst.MaxPlayerBGQueues];
+    private readonly BgData _bgData;
 
 	//Groups/Raids
-	readonly GroupReference _group = new();
-	readonly GroupReference _originalGroup = new();
-	readonly GroupUpdateCounter[] _groupUpdateSequences = new GroupUpdateCounter[2];
-	readonly Dictionary<uint, uint> _recentInstances = new();
-	readonly Dictionary<uint, long> _instanceResetTimes = new();
+    private readonly GroupReference _group = new();
+    private readonly GroupReference _originalGroup = new();
+    private readonly GroupUpdateCounter[] _groupUpdateSequences = new GroupUpdateCounter[2];
+    private readonly Dictionary<uint, uint> _recentInstances = new();
+    private readonly Dictionary<uint, long> _instanceResetTimes = new();
 
 	//Spell
-	readonly Dictionary<uint, PlayerSpell> _spells = new();
-	readonly Dictionary<uint, SkillStatusData> _skillStatus = new();
-	readonly Dictionary<uint, PlayerCurrency> _currencyStorage = new();
-	readonly List<SpellModifier>[][] _spellModifiers = new List<SpellModifier>[(int)SpellModOp.Max][];
-	readonly MultiMap<uint, uint> _overrideSpells = new();
-	readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
+    private readonly Dictionary<uint, PlayerSpell> _spells = new();
+    private readonly Dictionary<uint, SkillStatusData> _skillStatus = new();
+    private readonly Dictionary<uint, PlayerCurrency> _currencyStorage = new();
+    private readonly List<SpellModifier>[][] _spellModifiers = new List<SpellModifier>[(int)SpellModOp.Max][];
+    private readonly MultiMap<uint, uint> _overrideSpells = new();
+    private readonly Dictionary<uint, StoredAuraTeleportLocation> _storedAuraTeleportLocations = new();
 
 	//Mail
-	readonly List<Mail> _mail = new();
-	readonly Dictionary<ulong, Item> _mailItems = new();
-	readonly RestMgr _restMgr;
+    private readonly List<Mail> _mail = new();
+    private readonly Dictionary<ulong, Item> _mailItems = new();
+    private readonly RestMgr _restMgr;
 
 	//Combat
-	readonly int[] _baseRatingValue = new int[(int)CombatRating.Max];
-	readonly double[] _auraBaseFlatMod = new double[(int)BaseModGroup.End];
-	readonly double[] _auraBasePctMod = new double[(int)BaseModGroup.End];
+    private readonly int[] _baseRatingValue = new int[(int)CombatRating.Max];
+    private readonly double[] _auraBaseFlatMod = new double[(int)BaseModGroup.End];
+    private readonly double[] _auraBasePctMod = new double[(int)BaseModGroup.End];
 
 	//Quest
-	readonly List<uint> _timedquests = new();
-	readonly List<uint> _weeklyquests = new();
-	readonly List<uint> _monthlyquests = new();
-	readonly Dictionary<uint, Dictionary<uint, long>> _seasonalquests = new();
-	readonly Dictionary<uint, QuestStatusData> _mQuestStatus = new();
-	readonly MultiMap<(QuestObjectiveType Type, int ObjectID), QuestObjectiveStatusData> _questObjectiveStatus = new();
-	readonly Dictionary<uint, QuestSaveType> _questStatusSave = new();
-	readonly List<uint> _dfQuests = new();
-	readonly List<uint> _rewardedQuests = new();
-	readonly Dictionary<uint, QuestSaveType> _rewardedQuestsSave = new();
-	readonly CinematicManager _cinematicMgr;
+    private readonly List<uint> _timedquests = new();
+    private readonly List<uint> _weeklyquests = new();
+    private readonly List<uint> _monthlyquests = new();
+    private readonly Dictionary<uint, Dictionary<uint, long>> _seasonalquests = new();
+    private readonly Dictionary<uint, QuestStatusData> _mQuestStatus = new();
+    private readonly MultiMap<(QuestObjectiveType Type, int ObjectID), QuestObjectiveStatusData> _questObjectiveStatus = new();
+    private readonly Dictionary<uint, QuestSaveType> _questStatusSave = new();
+    private readonly List<uint> _dfQuests = new();
+    private readonly List<uint> _rewardedQuests = new();
+    private readonly Dictionary<uint, QuestSaveType> _rewardedQuestsSave = new();
+    private readonly CinematicManager _cinematicMgr;
 
 	//Core
-	readonly WorldSession _session;
-	readonly QuestObjectiveCriteriaManager _questObjectiveCriteriaManager;
-	readonly WorldLocation _homebind = new();
-	readonly SceneMgr _sceneMgr;
-	readonly Dictionary<ObjectGuid, Loot.Loot> _aeLootView = new();
-	readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
+    private readonly WorldSession _session;
+    private readonly QuestObjectiveCriteriaManager _questObjectiveCriteriaManager;
+    private readonly WorldLocation _homebind = new();
+    private readonly SceneMgr _sceneMgr;
+    private readonly Dictionary<ObjectGuid, Loot.Loot> _aeLootView = new();
+    private readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
 
-	readonly CufProfile[] _cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];
-	readonly double[] _powerFraction = new double[(int)PowerType.MaxPerClass];
-	readonly int[] _mirrorTimer = new int[3];
-	readonly TimeTracker _groupUpdateTimer;
-	readonly long _logintime;
-	readonly Dictionary<int, PlayerSpellState> _traitConfigStates = new();
-	readonly Dictionary<byte, ActionButton> _actionButtons = new();
-	PlayerSocial _social;
-	uint _weaponProficiency;
-	uint _armorProficiency;
-	uint _currentBuybackSlot;
-	TradeData _trade;
-	bool _isBgRandomWinner;
-	uint _arenaTeamIdInvited;
-	long _lastHonorUpdateTime;
-	uint _contestedPvPTimer;
-	bool _usePvpItemLevels;
-	PlayerGroup _groupInvite;
-	GroupUpdateFlags _groupUpdateFlags;
-	bool _bPassOnGroupLoot;
-	uint _pendingBindId;
-	uint _pendingBindTimer;
+    private readonly CufProfile[] _cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];
+    private readonly double[] _powerFraction = new double[(int)PowerType.MaxPerClass];
+    private readonly int[] _mirrorTimer = new int[3];
+    private readonly TimeTracker _groupUpdateTimer;
+    private readonly long _logintime;
+    private readonly Dictionary<int, PlayerSpellState> _traitConfigStates = new();
+    private readonly Dictionary<byte, ActionButton> _actionButtons = new();
+    private PlayerSocial _social;
+    private uint _weaponProficiency;
+    private uint _armorProficiency;
+    private uint _currentBuybackSlot;
+    private TradeData _trade;
+    private bool _isBgRandomWinner;
+    private uint _arenaTeamIdInvited;
+    private long _lastHonorUpdateTime;
+    private uint _contestedPvPTimer;
+    private bool _usePvpItemLevels;
+    private PlayerGroup _groupInvite;
+    private GroupUpdateFlags _groupUpdateFlags;
+    private bool _bPassOnGroupLoot;
+    private uint _pendingBindId;
+    private uint _pendingBindTimer;
 
-	Difficulty _dungeonDifficulty;
-	Difficulty _raidDifficulty;
-	Difficulty _legacyRaidDifficulty;
-	uint _lastFallTime;
-	float _lastFallZ;
-	WorldLocation _teleportDest;
-	uint? _teleportInstanceId;
-	TeleportToOptions _teleportOptions;
-	bool _semaphoreTeleportNear;
-	bool _semaphoreTeleportFar;
-	PlayerDelayedOperations _delayedOperations;
-	bool _canDelayTeleport;
-	bool _hasDelayedTeleport;
+    private Difficulty _dungeonDifficulty;
+    private Difficulty _raidDifficulty;
+    private Difficulty _legacyRaidDifficulty;
+    private uint _lastFallTime;
+    private float _lastFallZ;
+    private WorldLocation _teleportDest;
+    private uint? _teleportInstanceId;
+    private TeleportToOptions _teleportOptions;
+    private bool _semaphoreTeleportNear;
+    private bool _semaphoreTeleportFar;
+    private PlayerDelayedOperations _delayedOperations;
+    private bool _canDelayTeleport;
+    private bool _hasDelayedTeleport;
 
-	PlayerUnderwaterState _mirrorTimerFlags;
-	PlayerUnderwaterState _mirrorTimerFlagsLast;
+    private PlayerUnderwaterState _mirrorTimerFlags;
+    private PlayerUnderwaterState _mirrorTimerFlagsLast;
 
 	//Stats
-	uint _baseSpellPower;
-	uint _baseManaRegen;
-	uint _baseHealthRegen;
-	int _spellPenetrationItemMod;
-	uint _lastPotionId;
-	uint _oldpetspell;
-	long _nextMailDelivereTime;
+    private uint _baseSpellPower;
+    private uint _baseManaRegen;
+    private uint _baseHealthRegen;
+    private int _spellPenetrationItemMod;
+    private uint _lastPotionId;
+    private uint _oldpetspell;
+    private long _nextMailDelivereTime;
 
 	//Pets
-	PetStable _petStable;
-	uint _temporaryUnsummonedPetNumber;
-	uint _lastpetnumber;
+    private PetStable _petStable;
+    private uint _temporaryUnsummonedPetNumber;
+    private uint _lastpetnumber;
 
 	// Player summoning
-	long _summonExpire;
-	WorldLocation _summonLocation;
-	uint _summonInstanceId;
-	bool _canParry;
-	bool _canBlock;
-	bool _canTitanGrip;
-	uint _titanGripPenaltySpellId;
-	uint _deathTimer;
-	long _deathExpireTime;
-	byte _swingErrorMsg;
-	uint _combatExitTime;
-	uint _regenTimerCount;
-	uint _foodEmoteTimerCount;
-	uint _weaponChangeTimer;
+    private long _summonExpire;
+    private WorldLocation _summonLocation;
+    private uint _summonInstanceId;
+    private bool _canParry;
+    private bool _canBlock;
+    private bool _canTitanGrip;
+    private uint _titanGripPenaltySpellId;
+    private uint _deathTimer;
+    private long _deathExpireTime;
+    private byte _swingErrorMsg;
+    private uint _combatExitTime;
+    private uint _regenTimerCount;
+    private uint _foodEmoteTimerCount;
+    private uint _weaponChangeTimer;
 
-	bool _dailyQuestChanged;
-	bool _weeklyQuestChanged;
-	bool _monthlyQuestChanged;
-	bool _seasonalQuestChanged;
-	long _lastDailyQuestTime;
+    private bool _dailyQuestChanged;
+    private bool _weeklyQuestChanged;
+    private bool _monthlyQuestChanged;
+    private bool _seasonalQuestChanged;
+    private long _lastDailyQuestTime;
 
-	Garrison _garrison;
+    private Garrison _garrison;
 
 	// variables to save health and mana before duel and restore them after duel
-	ulong _healthBeforeDuel;
-	uint _manaBeforeDuel;
+    private ulong _healthBeforeDuel;
+    private uint _manaBeforeDuel;
 
-	bool _advancedCombatLoggingEnabled;
+    private bool _advancedCombatLoggingEnabled;
 
-	WorldLocation _corpseLocation;
+    private WorldLocation _corpseLocation;
 
-	long _createTime;
-	PlayerCreateMode _createMode;
+    private long _createTime;
+    private PlayerCreateMode _createMode;
 
-	uint _nextSave;
-	byte _cinematic;
+    private uint _nextSave;
+    private byte _cinematic;
 
-	uint _movie;
-	bool _customizationsChanged;
+    private uint _movie;
+    private bool _customizationsChanged;
 
-	SpecializationInfo _specializationInfo;
-	TeamFaction _team;
-	ReputationMgr _reputationMgr;
+    private SpecializationInfo _specializationInfo;
+    private TeamFaction _team;
+    private ReputationMgr _reputationMgr;
 
-	PlayerExtraFlags _extraFlags;
-	uint _zoneUpdateId;
-	uint _areaUpdateId;
-	uint _zoneUpdateTimer;
+    private PlayerExtraFlags _extraFlags;
+    private uint _zoneUpdateId;
+    private uint _areaUpdateId;
+    private uint _zoneUpdateTimer;
 
-	uint _championingFaction;
-	byte _fishingSteps;
+    private uint _championingFaction;
+    private byte _fishingSteps;
 
 	// Recall position
-	WorldLocation _recallLocation;
-	uint _recallInstanceId;
-	uint _homebindAreaId;
-	uint _homebindTimer;
+    private WorldLocation _recallLocation;
+    private uint _recallInstanceId;
+    private uint _homebindAreaId;
+    private uint _homebindTimer;
 
-	ResurrectionData _resurrectionData;
+    private ResurrectionData _resurrectionData;
 
-	PlayerAchievementMgr _AchievementSys;
+    private PlayerAchievementMgr _AchievementSys;
 
-	ulong _guildIdInvited;
-	DeclinedName _declinedname;
-	Runes _runes = new();
-	uint _hostileReferenceCheckTimer;
-	uint _drunkTimer;
-	long _lastTick;
-	uint _playedTimeTotal;
-	uint _playedTimeLevel;
-	ObjectGuid _playerSharingQuest;
-	uint _sharedQuestId;
-	uint _ingametime;
+    private ulong _guildIdInvited;
+    private DeclinedName _declinedname;
+    private Runes _runes = new();
+    private uint _hostileReferenceCheckTimer;
+    private uint _drunkTimer;
+    private long _lastTick;
+    private uint _playedTimeTotal;
+    private uint _playedTimeLevel;
+    private ObjectGuid _playerSharingQuest;
+    private uint _sharedQuestId;
+    private uint _ingametime;
 
-	PlayerCommandStates _activeCheats;
+    private PlayerCommandStates _activeCheats;
 	public bool AutoAcceptQuickJoin { get; set; }
 	public bool OverrideScreenFlash { get; set; }
 
@@ -252,13 +252,13 @@ public partial class Player
 
 	public PlayerSocial Social => _social;
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly Player _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly UnitData _unitMask = new();
-		readonly PlayerData _playerMask = new();
-		readonly ActivePlayerData _activePlayerMask = new();
+        private readonly Player _owner;
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly UnitData _unitMask = new();
+        private readonly PlayerData _playerMask = new();
+        private readonly ActivePlayerData _activePlayerMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(Player owner)
 		{

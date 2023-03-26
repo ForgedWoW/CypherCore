@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
-class BlackMarketRequestItems : ClientPacket
+internal class BlackMarketRequestItems : ClientPacket
 {
 	public ObjectGuid Guid;
 	public long LastUpdateID;

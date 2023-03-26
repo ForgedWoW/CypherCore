@@ -10,14 +10,14 @@ using Framework.Constants;
 
 namespace Forged.MapServer.AI.PlayerAI;
 
-class SimpleCharmedPlayerAI : PlayerAI
+internal class SimpleCharmedPlayerAI : PlayerAI
 {
-	const float CASTER_CHASE_DISTANCE = 28.0f;
+    private const float CASTER_CHASE_DISTANCE = 28.0f;
 
-	uint _castCheckTimer;
-	bool _chaseCloser;
-	bool _forceFacing;
-	bool _isFollowing;
+    private uint _castCheckTimer;
+    private bool _chaseCloser;
+    private bool _forceFacing;
+    private bool _isFollowing;
 
 	public SimpleCharmedPlayerAI(Player player) : base(player)
 	{
@@ -205,7 +205,7 @@ class SimpleCharmedPlayerAI : PlayerAI
 		base.OnCharmed(isNew);
 	}
 
-	Tuple<Spell, Unit> SelectAppropriateCastForSpec()
+    private Tuple<Spell, Unit> SelectAppropriateCastForSpec()
 	{
 		List<Tuple<Tuple<Spell, Unit>, uint>> spells = new();
 

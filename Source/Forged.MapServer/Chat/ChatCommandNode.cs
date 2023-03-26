@@ -22,8 +22,8 @@ public class ChatCommandNode
 	public string HelpText;
 	public CypherStrings HelpString;
 
-	MethodInfo _methodInfo;
-	ParameterInfo[] _parameters;
+    private MethodInfo _methodInfo;
+    private ParameterInfo[] _parameters;
 
 	public ChatCommandNode(CommandAttribute attribute)
 	{
@@ -281,7 +281,7 @@ public class ChatCommandNode
 		}
 	}
 
-	bool IsInvokerVisible(CommandHandler who)
+    private bool IsInvokerVisible(CommandHandler who)
 	{
 		if (_methodInfo == null)
 			return false;
@@ -292,7 +292,7 @@ public class ChatCommandNode
 		return who.HasPermission(Permission.RequiredPermission);
 	}
 
-	bool HasVisibleSubCommands(CommandHandler who)
+    private bool HasVisibleSubCommands(CommandHandler who)
 	{
 		foreach (var (_, command) in SubCommands)
 			if (command.IsVisible(who))
@@ -301,7 +301,7 @@ public class ChatCommandNode
 		return false;
 	}
 
-	static void LogCommandUsage(WorldSession session, uint permission, string cmdStr)
+    private static void LogCommandUsage(WorldSession session, uint permission, string cmdStr)
 	{
 		if (Global.AccountMgr.IsPlayerAccount(session.Security))
 			return;
@@ -333,7 +333,7 @@ public class ChatCommandNode
 						$"Area: {areaId} ({areaName}) Zone: {zoneName} Selected: {(player.SelectedUnit ? player.SelectedUnit.GetName() : "")} ({targetGuid})]");
 	}
 
-	bool IsVisible(CommandHandler who)
+    private bool IsVisible(CommandHandler who)
 	{
 		return IsInvokerVisible(who) || HasVisibleSubCommands(who);
 	}

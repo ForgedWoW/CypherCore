@@ -12,12 +12,12 @@ namespace Forged.MapServer.BlackMarket;
 
 public class BlackMarketEntry
 {
-	uint _marketId;
-	ulong _currentBid;
-	uint _numBids;
-	ulong _bidder;
-	uint _secondsRemaining;
-	bool _mailSent;
+    private uint _marketId;
+    private ulong _currentBid;
+    private uint _numBids;
+    private ulong _bidder;
+    private uint _secondsRemaining;
+    private bool _mailSent;
 
 
 	public uint MarketId => _marketId;
@@ -177,7 +177,7 @@ public class BlackMarketEntry
 		_mailSent = true;
 	} // Set when mail has been sent
 
-	long GetExpirationTime()
+    private long GetExpirationTime()
 	{
 		return GameTime.GetGameTime() + GetSecondsRemaining();
 	}

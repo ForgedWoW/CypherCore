@@ -5,7 +5,7 @@ using Forged.MapServer.Networking.Packets.Spell;
 
 namespace Forged.MapServer.Networking.Packets.Toy;
 
-class UseToy : ClientPacket
+internal class UseToy : ClientPacket
 {
 	public SpellCastRequest Cast = new();
 	public UseToy(WorldPacket packet) : base(packet) { }

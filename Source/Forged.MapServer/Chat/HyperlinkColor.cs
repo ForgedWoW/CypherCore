@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Chat;
 
-struct HyperlinkColor
+internal struct HyperlinkColor
 {
 	public byte R;
 	public byte G;

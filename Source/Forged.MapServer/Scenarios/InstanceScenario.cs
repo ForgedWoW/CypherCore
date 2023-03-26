@@ -11,7 +11,7 @@ namespace Forged.MapServer.Scenarios;
 
 public class InstanceScenario : Scenario
 {
-	readonly InstanceMap _map;
+    private readonly InstanceMap _map;
 
 	public InstanceScenario(InstanceMap map, ScenarioData scenarioData) : base(scenarioData)
 	{
@@ -40,7 +40,7 @@ public class InstanceScenario : Scenario
 		_map.SendToPlayers(data);
 	}
 
-	void LoadInstanceData()
+    private void LoadInstanceData()
 	{
 		var instanceScript = _map.InstanceScript;
 

@@ -5,7 +5,7 @@ using Forged.MapServer.Networking.Packets.LFG;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlefieldPort : ClientPacket
+internal class BattlefieldPort : ClientPacket
 {
 	public RideTicket Ticket = new();
 	public bool AcceptedInvite;

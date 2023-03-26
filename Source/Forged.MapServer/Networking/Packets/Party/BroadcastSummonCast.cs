@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class BroadcastSummonCast : ServerPacket
+internal class BroadcastSummonCast : ServerPacket
 {
 	public ObjectGuid Target;
 

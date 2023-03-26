@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveTimeSkipped : ClientPacket
+internal class MoveTimeSkipped : ClientPacket
 {
 	public ObjectGuid MoverGUID;
 	public uint TimeSkipped;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Collection;
 
-class CollectionItemSetFavorite : ClientPacket
+internal class CollectionItemSetFavorite : ClientPacket
 {
 	public CollectionType Type;
 	public uint Id;

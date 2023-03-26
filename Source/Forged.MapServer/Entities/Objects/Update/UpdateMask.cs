@@ -8,10 +8,10 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class UpdateMask
 {
-	readonly int _blockCount;
-	readonly int _blocksMaskCount;
-	readonly uint[] _blocks;
-	readonly uint[] _blocksMask;
+    private readonly int _blockCount;
+    private readonly int _blocksMaskCount;
+    private readonly uint[] _blocks;
+    private readonly uint[] _blocksMask;
 
 	public bool this[int index]
 	{

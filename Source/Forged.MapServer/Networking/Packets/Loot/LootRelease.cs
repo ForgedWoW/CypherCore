@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootRelease : ClientPacket
+internal class LootRelease : ClientPacket
 {
 	public ObjectGuid Unit;
 	public LootRelease(WorldPacket packet) : base(packet) { }

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.World;
 
-struct Autobroadcast
+internal struct Autobroadcast
 {
 	public Autobroadcast(string message, byte weight)
 	{

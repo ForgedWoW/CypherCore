@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Artifact;
 
-class ArtifactSetAppearance : ClientPacket
+internal class ArtifactSetAppearance : ClientPacket
 {
 	public ObjectGuid ArtifactGUID;
 	public ObjectGuid ForgeGUID;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonEventEntry
+internal struct GarrisonEventEntry
 {
 	public int EntryID;
 	public long EventValue;

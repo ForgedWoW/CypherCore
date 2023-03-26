@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class StartLootRoll : ServerPacket
+internal class StartLootRoll : ServerPacket
 {
 	public ObjectGuid LootObj;
 	public int MapID;

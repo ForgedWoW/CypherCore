@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFLeave : ClientPacket
+internal class DFLeave : ClientPacket
 {
 	public RideTicket Ticket = new();
 	public DFLeave(WorldPacket packet) : base(packet) { }

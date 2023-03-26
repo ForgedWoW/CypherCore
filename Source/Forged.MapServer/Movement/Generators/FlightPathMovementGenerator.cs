@@ -17,14 +17,14 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 {
-	readonly List<TaxiPathNodeRecord> _path = new();
-	readonly List<TaxiNodeChangeInfo> _pointsForPathSwitch = new(); //! node indexes and costs where TaxiPath changes
+    private readonly List<TaxiPathNodeRecord> _path = new();
+    private readonly List<TaxiNodeChangeInfo> _pointsForPathSwitch = new(); //! node indexes and costs where TaxiPath changes
 
-	float _endGridX;         //! X coord of last node location
-	float _endGridY;         //! Y coord of last node location
-	uint _endMapId;          //! map Id of last node location
-	uint _preloadTargetNode; //! node index where preloading starts
-	int _currentNode;
+    private float _endGridX;         //! X coord of last node location
+    private float _endGridY;         //! Y coord of last node location
+    private uint _endMapId;          //! map Id of last node location
+    private uint _preloadTargetNode; //! node index where preloading starts
+    private int _currentNode;
 
 	public FlightPathMovementGenerator()
 	{
@@ -260,7 +260,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		return (uint)_currentNode;
 	}
 
-	uint GetPathAtMapEnd()
+    private uint GetPathAtMapEnd()
 	{
 		if (_currentNode >= _path.Count)
 			return (uint)_path.Count;
@@ -274,12 +274,12 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		return (uint)_path.Count;
 	}
 
-	bool IsNodeIncludedInShortenedPath(TaxiPathNodeRecord p1, TaxiPathNodeRecord p2)
+    private bool IsNodeIncludedInShortenedPath(TaxiPathNodeRecord p1, TaxiPathNodeRecord p2)
 	{
 		return p1.ContinentID != p2.ContinentID || Math.Pow(p1.Loc.X - p2.Loc.X, 2) + Math.Pow(p1.Loc.Y - p2.Loc.Y, 2) > (40.0f * 40.0f);
 	}
 
-	void DoEventIfAny(Player owner, TaxiPathNodeRecord node, bool departure)
+    private void DoEventIfAny(Player owner, TaxiPathNodeRecord node, bool departure)
 	{
 		var eventid = departure ? node.DepartureEventID : node.ArrivalEventID;
 
@@ -290,7 +290,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		}
 	}
 
-	void InitEndGridInfo()
+    private void InitEndGridInfo()
 	{
 		var nodeCount = _path.Count;                  //! Number of nodes in path.
 		_endMapId = _path[nodeCount - 1].ContinentID; //! MapId of last node
@@ -307,7 +307,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		_endGridY = _path[nodeCount - 1].Loc.Y;
 	}
 
-	void PreloadEndGrid(Player owner)
+    private void PreloadEndGrid(Player owner)
 	{
 		// Used to preload the final grid where the flightmaster is
 		var endMap = owner.Map;
@@ -324,7 +324,7 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		}
 	}
 
-	uint GetPathId(int index)
+    private uint GetPathId(int index)
 	{
 		if (index >= _path.Count)
 			return 0;
@@ -332,12 +332,12 @@ public class FlightPathMovementGenerator : MovementGeneratorMedium<Player>
 		return _path[index].PathID;
 	}
 
-	bool HasArrived()
+    private bool HasArrived()
 	{
 		return _currentNode >= _path.Count;
 	}
 
-	class TaxiNodeChangeInfo
+    private class TaxiNodeChangeInfo
 	{
 		public readonly long Cost;
 		public uint PathIndex;

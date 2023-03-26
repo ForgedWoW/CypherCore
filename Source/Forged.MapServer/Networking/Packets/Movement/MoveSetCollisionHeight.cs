@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Movement;
 
-class MoveSetCollisionHeight : ServerPacket
+internal class MoveSetCollisionHeight : ServerPacket
 {
 	public float Scale = 1.0f;
 	public ObjectGuid MoverGUID;

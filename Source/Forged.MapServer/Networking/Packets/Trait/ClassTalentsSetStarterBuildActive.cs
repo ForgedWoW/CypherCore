@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class ClassTalentsSetStarterBuildActive : ClientPacket
+internal class ClassTalentsSetStarterBuildActive : ClientPacket
 {
 	public int ConfigID;
 	public bool Active;

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class SetLootSpecialization : ClientPacket
+internal class SetLootSpecialization : ClientPacket
 {
 	public uint SpecID;
 	public SetLootSpecialization(WorldPacket packet) : base(packet) { }

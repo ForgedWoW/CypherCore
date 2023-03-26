@@ -15,13 +15,13 @@ namespace Forged.MapServer.SupportSystem;
 
 public class ComplaintTicket : Ticket
 {
-	float _facing;
-	ObjectGuid _targetCharacterGuid;
-	ReportType _reportType;
-	ReportMajorCategory _majorCategory;
-	ReportMinorCategory _minorCategoryFlags = ReportMinorCategory.TextChat;
-	SupportTicketSubmitComplaint.SupportTicketChatLog _chatLog;
-	string _note;
+    private float _facing;
+    private ObjectGuid _targetCharacterGuid;
+    private ReportType _reportType;
+    private ReportMajorCategory _majorCategory;
+    private ReportMinorCategory _minorCategoryFlags = ReportMinorCategory.TextChat;
+    private SupportTicketSubmitComplaint.SupportTicketChatLog _chatLog;
+    private string _note;
 
 	public ComplaintTicket()
 	{
@@ -194,27 +194,27 @@ public class ComplaintTicket : Ticket
 		_note = note;
 	}
 
-	ObjectGuid GetTargetCharacterGuid()
+    private ObjectGuid GetTargetCharacterGuid()
 	{
 		return _targetCharacterGuid;
 	}
 
-	ReportType GetReportType()
+    private ReportType GetReportType()
 	{
 		return _reportType;
 	}
 
-	ReportMajorCategory GetMajorCategory()
+    private ReportMajorCategory GetMajorCategory()
 	{
 		return _majorCategory;
 	}
 
-	ReportMinorCategory GetMinorCategoryFlags()
+    private ReportMinorCategory GetMinorCategoryFlags()
 	{
 		return _minorCategoryFlags;
 	}
 
-	string GetNote()
+    private string GetNote()
 	{
 		return _note;
 	}

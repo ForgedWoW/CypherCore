@@ -13,10 +13,10 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 {
 	public const float MIN_QUIET_DISTANCE = 28.0f;
 	public const float MAX_QUIET_DISTANCE = 43.0f;
-	readonly TimeTracker _timer;
-	readonly ObjectGuid _fleeTargetGUID;
+    private readonly TimeTracker _timer;
+    private readonly ObjectGuid _fleeTargetGUID;
 
-	PathGenerator _path;
+    private PathGenerator _path;
 
 	public FleeingMovementGenerator(ObjectGuid fright)
 	{
@@ -117,7 +117,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 		AddFlag(MovementGeneratorFlags.SpeedUpdatePending);
 	}
 
-	void SetTargetLocation(T owner)
+    private void SetTargetLocation(T owner)
 	{
 		if (owner == null || !owner.IsAlive)
 			return;
@@ -166,7 +166,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 		_timer.Reset(traveltime + RandomHelper.URand(800, 1500));
 	}
 
-	void GetPoint(T owner, Position position)
+    private void GetPoint(T owner, Position position)
 	{
 		float casterDistance, casterAngle;
 		var fleeTarget = Global.ObjAccessor.GetUnit(owner, _fleeTargetGUID);
@@ -210,7 +210,7 @@ public class FleeingMovementGenerator<T> : MovementGeneratorMedium<T> where T : 
 
 public class TimedFleeingMovementGenerator : FleeingMovementGenerator<Creature>
 {
-	readonly TimeTracker _totalFleeTime;
+    private readonly TimeTracker _totalFleeTime;
 
 	public TimedFleeingMovementGenerator(ObjectGuid fright, uint time) : base(fright)
 	{

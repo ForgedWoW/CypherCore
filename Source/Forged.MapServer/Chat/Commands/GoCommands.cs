@@ -16,10 +16,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("go")]
-class GoCommands
+internal class GoCommands
 {
 	[Command("areatrigger", RBACPermissions.CommandGo)]
-	static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
+    private static bool HandleGoAreaTriggerCommand(CommandHandler handler, uint areaTriggerId)
 	{
 		var at = CliDB.AreaTriggerStorage.LookupByKey(areaTriggerId);
 
@@ -34,7 +34,7 @@ class GoCommands
 	}
 
 	[Command("boss", RBACPermissions.CommandGo)]
-	static bool HandleGoBossCommand(CommandHandler handler, string[] needles)
+    private static bool HandleGoBossCommand(CommandHandler handler, string[] needles)
 	{
 		if (needles.Empty())
 			return false;
@@ -145,19 +145,19 @@ class GoCommands
 	}
 
 	[Command("bugticket", RBACPermissions.CommandGo)]
-	static bool HandleGoBugTicketCommand(CommandHandler handler, uint ticketId)
+    private static bool HandleGoBugTicketCommand(CommandHandler handler, uint ticketId)
 	{
 		return HandleGoTicketCommand<BugTicket>(handler, ticketId);
 	}
 
 	[Command("complaintticket", RBACPermissions.CommandGo)]
-	static bool HandleGoComplaintTicketCommand(CommandHandler handler, uint ticketId)
+    private static bool HandleGoComplaintTicketCommand(CommandHandler handler, uint ticketId)
 	{
 		return HandleGoTicketCommand<ComplaintTicket>(handler, ticketId);
 	}
 
 	[Command("graveyard", RBACPermissions.CommandGo)]
-	static bool HandleGoGraveyardCommand(CommandHandler handler, uint graveyardId)
+    private static bool HandleGoGraveyardCommand(CommandHandler handler, uint graveyardId)
 	{
 		var gy = Global.ObjectMgr.GetWorldSafeLoc(graveyardId);
 
@@ -189,7 +189,7 @@ class GoCommands
 	}
 
 	[Command("grid", RBACPermissions.CommandGo)]
-	static bool HandleGoGridCommand(CommandHandler handler, float gridX, float gridY, uint? mapIdArg)
+    private static bool HandleGoGridCommand(CommandHandler handler, float gridX, float gridY, uint? mapIdArg)
 	{
 		var player = handler.Session.Player;
 		var mapId = mapIdArg.GetValueOrDefault(player.Location.MapId);
@@ -220,7 +220,7 @@ class GoCommands
 	}
 
 	[Command("instance", RBACPermissions.CommandGo)]
-	static bool HandleGoInstanceCommand(CommandHandler handler, string[] labels)
+    private static bool HandleGoInstanceCommand(CommandHandler handler, string[] labels)
 	{
 		if (labels.Empty())
 			return false;
@@ -325,7 +325,7 @@ class GoCommands
 	}
 
 	[Command("offset", RBACPermissions.CommandGo)]
-	static bool HandleGoOffsetCommand(CommandHandler handler, float dX, float? dY, float? dZ, float? dO)
+    private static bool HandleGoOffsetCommand(CommandHandler handler, float dX, float? dY, float? dZ, float? dO)
 	{
 		Position loc = handler.Session.Player.Location;
 		loc.RelocateOffset(new Position(dX, dY.GetValueOrDefault(0f), dZ.GetValueOrDefault(0f), dO.GetValueOrDefault(0f)));
@@ -334,7 +334,7 @@ class GoCommands
 	}
 
 	[Command("quest", RBACPermissions.CommandGo)]
-	static bool HandleGoQuestCommand(CommandHandler handler, uint questId)
+    private static bool HandleGoQuestCommand(CommandHandler handler, uint questId)
 	{
 		var player = handler.Session.Player;
 
@@ -388,13 +388,13 @@ class GoCommands
 	}
 
 	[Command("suggestionticket", RBACPermissions.CommandGo)]
-	static bool HandleGoSuggestionTicketCommand(CommandHandler handler, uint ticketId)
+    private static bool HandleGoSuggestionTicketCommand(CommandHandler handler, uint ticketId)
 	{
 		return HandleGoTicketCommand<SuggestionTicket>(handler, ticketId);
 	}
 
 	[Command("taxinode", RBACPermissions.CommandGo)]
-	static bool HandleGoTaxinodeCommand(CommandHandler handler, uint nodeId)
+    private static bool HandleGoTaxinodeCommand(CommandHandler handler, uint nodeId)
 	{
 		var node = CliDB.TaxiNodesStorage.LookupByKey(nodeId);
 
@@ -410,7 +410,7 @@ class GoCommands
 
 	//teleport at coordinates, including Z and orientation
 	[Command("xyz", RBACPermissions.CommandGo)]
-	static bool HandleGoXYZCommand(CommandHandler handler, float x, float y, float? z, uint? id, float? o)
+    private static bool HandleGoXYZCommand(CommandHandler handler, float x, float y, float? z, uint? id, float? o)
 	{
 		var player = handler.Session.Player;
 		var mapId = id.GetValueOrDefault(player.Location.MapId);
@@ -442,7 +442,7 @@ class GoCommands
 
 	//teleport at coordinates
 	[Command("zonexy", RBACPermissions.CommandGo)]
-	static bool HandleGoZoneXYCommand(CommandHandler handler, float x, float y, uint? areaIdArg)
+    private static bool HandleGoZoneXYCommand(CommandHandler handler, float x, float y, uint? areaIdArg)
 	{
 		var player = handler.Session.Player;
 
@@ -492,7 +492,7 @@ class GoCommands
 		return true;
 	}
 
-	static bool HandleGoTicketCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
+    private static bool HandleGoTicketCommand<T>(CommandHandler handler, uint ticketId) where T : Ticket
 	{
 		var ticket = Global.SupportMgr.GetTicket<T>(ticketId);
 
@@ -516,7 +516,7 @@ class GoCommands
 		return true;
 	}
 
-	static bool DoTeleport(CommandHandler handler, Position pos, uint mapId = 0xFFFFFFFF)
+    private static bool DoTeleport(CommandHandler handler, Position pos, uint mapId = 0xFFFFFFFF)
 	{
 		var player = handler.Session.Player;
 
@@ -542,10 +542,10 @@ class GoCommands
 	}
 
 	[CommandGroup("creature")]
-	class GoCommandCreature
+    private class GoCommandCreature
 	{
 		[Command("", RBACPermissions.CommandGo)]
-		static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
+        private static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
 		{
 			var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
 
@@ -560,7 +560,7 @@ class GoCommands
 		}
 
 		[Command("id", RBACPermissions.CommandGo)]
-		static bool HandleGoCreatureCIdCommand(CommandHandler handler, uint id)
+        private static bool HandleGoCreatureCIdCommand(CommandHandler handler, uint id)
 		{
 			CreatureData spawnpoint = null;
 
@@ -593,10 +593,10 @@ class GoCommands
 	}
 
 	[CommandGroup("gameobject")]
-	class GoCommandGameobject
+    private class GoCommandGameobject
 	{
 		[Command("", RBACPermissions.CommandGo)]
-		static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
+        private static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
 		{
 			var spawnpoint = Global.ObjectMgr.GetGameObjectData(spawnId);
 
@@ -611,7 +611,7 @@ class GoCommands
 		}
 
 		[Command("id", RBACPermissions.CommandGo)]
-		static bool HandleGoGameObjectGOIdCommand(CommandHandler handler, uint goId)
+        private static bool HandleGoGameObjectGOIdCommand(CommandHandler handler, uint goId)
 		{
 			GameObjectData spawnpoint = null;
 

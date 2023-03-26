@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-class ScenarioState : ServerPacket
+internal class ScenarioState : ServerPacket
 {
 	public int ScenarioID;
 	public int CurrentStep = -1;

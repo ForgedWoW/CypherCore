@@ -7,14 +7,14 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class StaticCreatureFlags
 {
-	CreatureStaticFlags _flags;
-	CreatureStaticFlags2 _flags2;
-	CreatureStaticFlags3 _flags3;
-	CreatureStaticFlags4 _flags4;
-	CreatureStaticFlags5 _flags5;
-	CreatureStaticFlags6 _flags6;
-	CreatureStaticFlags7 _flags7;
-	CreatureStaticFlags8 _flags8;
+    private CreatureStaticFlags _flags;
+    private CreatureStaticFlags2 _flags2;
+    private CreatureStaticFlags3 _flags3;
+    private CreatureStaticFlags4 _flags4;
+    private CreatureStaticFlags5 _flags5;
+    private CreatureStaticFlags6 _flags6;
+    private CreatureStaticFlags7 _flags7;
+    private CreatureStaticFlags8 _flags8;
 
 	public bool HasFlag(CreatureStaticFlags flag) => _flags.HasFlag(flag);
 	public bool HasFlag(CreatureStaticFlags2 flag) => _flags2.HasFlag(flag);

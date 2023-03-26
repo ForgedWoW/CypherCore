@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetTameFailure : ServerPacket
+internal class PetTameFailure : ServerPacket
 {
 	public byte Result;
 	public PetTameFailure() : base(ServerOpcodes.PetTameFailure) { }

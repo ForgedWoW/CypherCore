@@ -11,7 +11,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyMemberFullState : ServerPacket
+internal class PartyMemberFullState : ServerPacket
 {
 	public bool ForEnemy;
 	public ObjectGuid MemberGuid;

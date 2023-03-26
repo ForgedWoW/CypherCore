@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Guild;
 
-class GuildReplaceGuildMaster : ClientPacket
+internal class GuildReplaceGuildMaster : ClientPacket
 {
 	public GuildReplaceGuildMaster(WorldPacket packet) : base(packet) { }
 

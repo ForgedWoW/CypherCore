@@ -10,11 +10,11 @@ namespace Forged.MapServer.Entities.Players;
 
 public class RestMgr
 {
-	readonly Player _player;
-	readonly double[] _restBonus = new double[(int)RestTypes.Max];
-	long _restTime;
-	uint _innAreaTriggerId;
-	RestFlag _restFlagMask;
+    private readonly Player _player;
+    private readonly double[] _restBonus = new double[(int)RestTypes.Max];
+    private long _restTime;
+    private uint _innAreaTriggerId;
+    private RestFlag _restFlagMask;
 
 	public RestMgr(Player player)
 	{

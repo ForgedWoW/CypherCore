@@ -7,7 +7,7 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class PlayMusic : ServerPacket
 {
-	readonly uint SoundKitID;
+    private readonly uint SoundKitID;
 
 	public PlayMusic(uint soundKitID) : base(ServerOpcodes.PlayMusic)
 	{

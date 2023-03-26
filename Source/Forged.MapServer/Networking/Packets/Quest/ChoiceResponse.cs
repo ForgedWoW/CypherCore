@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class ChoiceResponse : ClientPacket
+internal class ChoiceResponse : ClientPacket
 {
 	public int ChoiceID;
 	public int ResponseIdentifier;

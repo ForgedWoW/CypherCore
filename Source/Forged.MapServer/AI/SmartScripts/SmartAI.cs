@@ -20,45 +20,45 @@ namespace Forged.MapServer.AI.SmartScripts;
 public class SmartAI : CreatureAI
 {
 	public uint EscortQuestID;
-	const int SMART_ESCORT_MAX_PLAYER_DIST = 60;
-	const int SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2;
-	readonly SmartScript _script = new();
-	readonly WaypointPath _path = new();
+    private const int SMART_ESCORT_MAX_PLAYER_DIST = 60;
+    private const int SMART_MAX_AID_DIST = SMART_ESCORT_MAX_PLAYER_DIST / 2;
+    private readonly SmartScript _script = new();
+    private readonly WaypointPath _path = new();
 
 	// Vehicle conditions
-	readonly bool _hasConditions;
+    private readonly bool _hasConditions;
 
-	bool _isCharmed;
-	uint _followCreditType;
-	uint _followArrivedTimer;
-	uint _followCredit;
-	uint _followArrivedEntry;
-	ObjectGuid _followGuid;
-	float _followDist;
-	float _followAngle;
+    private bool _isCharmed;
+    private uint _followCreditType;
+    private uint _followArrivedTimer;
+    private uint _followCredit;
+    private uint _followArrivedEntry;
+    private ObjectGuid _followGuid;
+    private float _followDist;
+    private float _followAngle;
 
-	SmartEscortState _escortState;
-	uint _escortNPCFlags;
-	uint _escortInvokerCheckTimer;
-	uint _currentWaypointNode;
-	bool _waypointReached;
-	uint _waypointPauseTimer;
-	bool _waypointPauseForced;
-	bool _repeatWaypointPath;
-	bool _OOCReached;
-	bool _waypointPathEnded;
+    private SmartEscortState _escortState;
+    private uint _escortNPCFlags;
+    private uint _escortInvokerCheckTimer;
+    private uint _currentWaypointNode;
+    private bool _waypointReached;
+    private uint _waypointPauseTimer;
+    private bool _waypointPauseForced;
+    private bool _repeatWaypointPath;
+    private bool _OOCReached;
+    private bool _waypointPathEnded;
 
-	bool _run;
-	bool _evadeDisabled;
-	bool _canCombatMove;
-	uint _invincibilityHpLevel;
+    private bool _run;
+    private bool _evadeDisabled;
+    private bool _canCombatMove;
+    private uint _invincibilityHpLevel;
 
-	uint _despawnTime;
-	uint _despawnState;
-	uint _conditionsTimer;
+    private uint _despawnTime;
+    private uint _despawnState;
+    private uint _conditionsTimer;
 
 	// Gossip
-	bool _gossipReturn;
+    private bool _gossipReturn;
 
 	public SmartAI(Creature creature) : base(creature)
 	{
@@ -919,12 +919,12 @@ public class SmartAI : CreatureAI
 		_gossipReturn = val;
 	}
 
-	bool IsAIControlled()
+    private bool IsAIControlled()
 	{
 		return !_isCharmed;
 	}
 
-	bool LoadPath(uint entry)
+    private bool LoadPath(uint entry)
 	{
 		if (HasEscortState(SmartEscortState.Escorting))
 			return false;
@@ -953,7 +953,7 @@ public class SmartAI : CreatureAI
 		return true;
 	}
 
-	void ReturnToLastOOCPos()
+    private void ReturnToLastOOCPos()
 	{
 		if (!IsAIControlled())
 			return;
@@ -962,7 +962,7 @@ public class SmartAI : CreatureAI
 		Me.MotionMaster.MovePoint(EventId.SmartEscortLastOCCPoint, Me.HomePosition);
 	}
 
-	bool IsEscortInvokerInRange()
+    private bool IsEscortInvokerInRange()
 	{
 		var targets = GetScript().GetStoredTargetList(SharedConst.SmartEscortTargets, Me);
 
@@ -1004,7 +1004,7 @@ public class SmartAI : CreatureAI
 		return true;
 	}
 
-	bool AssistPlayerInCombatAgainst(Unit who)
+    private bool AssistPlayerInCombatAgainst(Unit who)
 	{
 		if (Me.HasReactState(ReactStates.Passive) || !IsAIControlled())
 			return false;
@@ -1048,7 +1048,7 @@ public class SmartAI : CreatureAI
 		return false;
 	}
 
-	void CheckConditions(uint diff)
+    private void CheckConditions(uint diff)
 	{
 		if (!_hasConditions)
 			return;
@@ -1084,7 +1084,7 @@ public class SmartAI : CreatureAI
 		}
 	}
 
-	void UpdatePath(uint diff)
+    private void UpdatePath(uint diff)
 	{
 		if (!HasEscortState(SmartEscortState.Escorting))
 			return;
@@ -1140,7 +1140,7 @@ public class SmartAI : CreatureAI
 			}
 	}
 
-	void UpdateFollow(uint diff)
+    private void UpdateFollow(uint diff)
 	{
 		if (_followGuid.IsEmpty)
 		{
@@ -1162,7 +1162,7 @@ public class SmartAI : CreatureAI
 		}
 	}
 
-	void UpdateDespawn(uint diff)
+    private void UpdateDespawn(uint diff)
 	{
 		if (_despawnState <= 1 || _despawnState > 3)
 			return;

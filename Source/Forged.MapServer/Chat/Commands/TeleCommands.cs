@@ -15,10 +15,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("tele")]
-class TeleCommands
+internal class TeleCommands
 {
 	[Command("", RBACPermissions.CommandTele)]
-	static bool HandleTeleCommand(CommandHandler handler, GameTele tele)
+    private static bool HandleTeleCommand(CommandHandler handler, GameTele tele)
 	{
 		if (tele == null)
 		{
@@ -57,7 +57,7 @@ class TeleCommands
 	}
 
 	[Command("add", RBACPermissions.CommandTeleAdd)]
-	static bool HandleTeleAddCommand(CommandHandler handler, string name)
+    private static bool HandleTeleAddCommand(CommandHandler handler, string name)
 	{
 		var player = handler.Player;
 
@@ -97,7 +97,7 @@ class TeleCommands
 	}
 
 	[Command("del", RBACPermissions.CommandTeleDel, true)]
-	static bool HandleTeleDelCommand(CommandHandler handler, GameTele tele)
+    private static bool HandleTeleDelCommand(CommandHandler handler, GameTele tele)
 	{
 		if (tele == null)
 		{
@@ -113,7 +113,7 @@ class TeleCommands
 	}
 
 	[Command("group", RBACPermissions.CommandTeleGroup)]
-	static bool HandleTeleGroupCommand(CommandHandler handler, GameTele tele)
+    private static bool HandleTeleGroupCommand(CommandHandler handler, GameTele tele)
 	{
 		if (tele == null)
 		{
@@ -192,7 +192,7 @@ class TeleCommands
 		return true;
 	}
 
-	static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
+    private static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
 	{
 		if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
 		{
@@ -248,10 +248,10 @@ class TeleCommands
 	}
 
 	[CommandGroup("name")]
-	class TeleNameCommands
+    private class TeleNameCommands
 	{
 		[Command("", RBACPermissions.CommandTeleName, true)]
-		static bool HandleTeleNameCommand(CommandHandler handler, [OptionalArg] PlayerIdentifier player, [VariantArg(typeof(GameTele), typeof(string))] object where)
+        private static bool HandleTeleNameCommand(CommandHandler handler, [OptionalArg] PlayerIdentifier player, [VariantArg(typeof(GameTele), typeof(string))] object where)
 		{
 			if (player == null)
 				player = PlayerIdentifier.FromTargetOrSelf(handler);
@@ -292,10 +292,10 @@ class TeleCommands
 		}
 
 		[CommandGroup("npc")]
-		class TeleNameNpcCommands
+        private class TeleNameNpcCommands
 		{
 			[Command("guid", RBACPermissions.CommandTeleName, true)]
-			static bool HandleTeleNameNpcSpawnIdCommand(CommandHandler handler, PlayerIdentifier player, ulong spawnId)
+            private static bool HandleTeleNameNpcSpawnIdCommand(CommandHandler handler, PlayerIdentifier player, ulong spawnId)
 			{
 				if (player == null)
 					return false;
@@ -315,7 +315,7 @@ class TeleCommands
 			}
 
 			[Command("id", RBACPermissions.CommandTeleName, true)]
-			static bool HandleTeleNameNpcIdCommand(CommandHandler handler, PlayerIdentifier player, uint creatureId)
+            private static bool HandleTeleNameNpcIdCommand(CommandHandler handler, PlayerIdentifier player, uint creatureId)
 			{
 				if (player == null)
 					return false;
@@ -352,7 +352,7 @@ class TeleCommands
 			}
 
 			[Command("name", RBACPermissions.CommandTeleName, true)]
-			static bool HandleTeleNameNpcNameCommand(CommandHandler handler, PlayerIdentifier player, Tail name)
+            private static bool HandleTeleNameNpcNameCommand(CommandHandler handler, PlayerIdentifier player, Tail name)
 			{
 				string normalizedName = name;
 

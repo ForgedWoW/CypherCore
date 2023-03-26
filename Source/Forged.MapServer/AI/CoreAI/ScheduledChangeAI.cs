@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.AI.CoreAI;
 
-class ScheduledChangeAI : CreatureAI
+internal class ScheduledChangeAI : CreatureAI
 {
 	public ScheduledChangeAI(Creature creature) : base(creature) { }
 

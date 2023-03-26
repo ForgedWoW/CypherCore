@@ -5,9 +5,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class RatedPvpInfo : ServerPacket
+internal class RatedPvpInfo : ServerPacket
 {
-	readonly BracketInfo[] Bracket = new BracketInfo[6];
+    private readonly BracketInfo[] Bracket = new BracketInfo[6];
 	public RatedPvpInfo() : base(ServerOpcodes.RatedPvpInfo) { }
 
 	public override void Write()

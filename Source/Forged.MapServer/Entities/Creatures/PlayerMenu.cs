@@ -15,10 +15,10 @@ namespace Forged.MapServer.Entities.Creatures;
 
 public class PlayerMenu
 {
-	readonly GossipMenu _gossipMenu = new();
-	readonly QuestMenu _questMenu = new();
-	readonly WorldSession _session;
-	readonly InteractionData _interactionData = new();
+    private readonly GossipMenu _gossipMenu = new();
+    private readonly QuestMenu _questMenu = new();
+    private readonly WorldSession _session;
+    private readonly InteractionData _interactionData = new();
 
 	public PlayerMenu(WorldSession session)
 	{
@@ -546,7 +546,7 @@ public class PlayerMenu
 		return _gossipMenu.IsMenuItemCoded(selection);
 	}
 
-	bool IsEmpty()
+    private bool IsEmpty()
 	{
 		return _gossipMenu.IsEmpty() && _questMenu.IsEmpty();
 	}

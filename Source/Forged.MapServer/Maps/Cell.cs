@@ -231,7 +231,7 @@ public class Cell
 		return new CellArea(centerX, centerY);
 	}
 
-	void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
+    private void VisitCircle(IGridNotifier visitor, Map map, ICoord begin_cell, ICoord end_cell)
 	{
 		//here is an algorithm for 'filling' circum-squared octagon
 		var x_shift = (uint)Math.Ceiling((end_cell.X_Coord - begin_cell.X_Coord) * 0.3f - 0.5f);

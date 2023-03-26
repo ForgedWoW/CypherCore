@@ -8,7 +8,7 @@ namespace Forged.MapServer.Maps.Grids;
 
 public class CellCoord : ICoord
 {
-	const int Limit = MapConst.TotalCellsPerMap;
+    private const int Limit = MapConst.TotalCellsPerMap;
 
 	public uint X_Coord { get; set; }
 	public uint Y_Coord { get; set; }

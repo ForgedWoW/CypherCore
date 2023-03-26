@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlemasterJoinArena : ClientPacket
+internal class BattlemasterJoinArena : ClientPacket
 {
 	public byte TeamSizeIndex;
 	public byte Roles;

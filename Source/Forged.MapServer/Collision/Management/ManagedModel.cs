@@ -7,8 +7,8 @@ namespace Forged.MapServer.Collision.Management;
 
 public class ManagedModel
 {
-	WorldModel _model;
-	int _count;
+    private WorldModel _model;
+    private int _count;
 
 	public ManagedModel()
 	{

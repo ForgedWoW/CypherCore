@@ -12,8 +12,8 @@ public class WModelAreaCallback : WorkerCallback
 	public GroupModel Hit;
 	public float ZDist;
 
-	readonly List<GroupModel> _prims;
-	readonly Vector3 _zVec;
+    private readonly List<GroupModel> _prims;
+    private readonly Vector3 _zVec;
 
 	public WModelAreaCallback(List<GroupModel> vals, Vector3 down)
 	{

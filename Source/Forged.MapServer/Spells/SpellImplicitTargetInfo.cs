@@ -7,7 +7,7 @@ namespace Forged.MapServer.Spells;
 
 public class SpellImplicitTargetInfo
 {
-	static readonly StaticData[] _data = new StaticData[(int)Targets.TotalSpellTargets]
+    private static readonly StaticData[] _data = new StaticData[(int)Targets.TotalSpellTargets]
 	{
 		new(SpellTargetObjectTypes.None, SpellTargetReferenceTypes.None, SpellTargetSelectionCategories.Nyi, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),             // 0
 		new(SpellTargetObjectTypes.Unit, SpellTargetReferenceTypes.Caster, SpellTargetSelectionCategories.Default, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),       // 1 TARGET_UNIT_CASTER
@@ -164,7 +164,7 @@ public class SpellImplicitTargetInfo
 		new(SpellTargetObjectTypes.None, SpellTargetReferenceTypes.None, SpellTargetSelectionCategories.Nyi, SpellTargetCheckTypes.Default, SpellTargetDirectionTypes.None),             // 152
 	};
 
-	readonly Targets _target;
+    private readonly Targets _target;
 
 	public bool IsArea => SelectionCategory == SpellTargetSelectionCategories.Area || SelectionCategory == SpellTargetSelectionCategories.Cone;
 

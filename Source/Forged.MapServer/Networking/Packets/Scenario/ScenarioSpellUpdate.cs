@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-class ScenarioSpellUpdate
+internal class ScenarioSpellUpdate
 {
 	public uint SpellID;
 	public bool Usable = true;

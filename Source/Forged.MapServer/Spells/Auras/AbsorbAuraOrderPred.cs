@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Spells.Auras;
 
-class AbsorbAuraOrderPred : Comparer<AuraEffect>
+internal class AbsorbAuraOrderPred : Comparer<AuraEffect>
 {
 	public override int Compare(AuraEffect aurEffA, AuraEffect aurEffB)
 	{

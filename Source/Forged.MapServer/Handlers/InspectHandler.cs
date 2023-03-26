@@ -15,7 +15,7 @@ namespace Forged.MapServer.Handlers;
 public class InspectHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.Inspect, Processing = PacketProcessing.Inplace)]
-	void HandleInspect(Inspect inspect)
+    private void HandleInspect(Inspect inspect)
 	{
 		var player = Global.ObjAccessor.GetPlayer(_player, inspect.Target);
 
@@ -88,7 +88,7 @@ public class InspectHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryInspectAchievements, Processing = PacketProcessing.Inplace)]
-	void HandleQueryInspectAchievements(QueryInspectAchievements inspect)
+    private void HandleQueryInspectAchievements(QueryInspectAchievements inspect)
 	{
 		var player = Global.ObjAccessor.GetPlayer(_player, inspect.Guid);
 

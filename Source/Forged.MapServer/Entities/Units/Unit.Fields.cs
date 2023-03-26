@@ -24,63 +24,63 @@ public partial class Unit
 	public static TimeSpan MAX_DAMAGE_HISTORY_DURATION = TimeSpan.FromSeconds(20);
 	public bool CanDualWield;
 	protected float[] CreateStats = new float[(int)Stats.Max];
-	readonly List<AbstractFollower> _followingMe = new();
+    private readonly List<AbstractFollower> _followingMe = new();
 
-	readonly MotionMaster _motionMaster;
-	readonly TimeTracker _splineSyncTimer;
-	readonly Dictionary<ReactiveType, uint> _reactiveTimer = new();
-	readonly uint[] _baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
+    private readonly MotionMaster _motionMaster;
+    private readonly TimeTracker _splineSyncTimer;
+    private readonly Dictionary<ReactiveType, uint> _reactiveTimer = new();
+    private readonly uint[] _baseAttackSpeed = new uint[(int)WeaponAttackType.Max];
 
 	// Threat+combat management
-	readonly CombatManager _combatManager;
-	readonly ThreatManager _threatManager;
-	readonly Dictionary<ObjectGuid, uint> _extraAttacksTargets = new();
-	readonly List<Player> _sharedVision = new();
-	readonly MultiMap<uint, uint>[] _spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
+    private readonly CombatManager _combatManager;
+    private readonly ThreatManager _threatManager;
+    private readonly Dictionary<ObjectGuid, uint> _extraAttacksTargets = new();
+    private readonly List<Player> _sharedVision = new();
+    private readonly MultiMap<uint, uint>[] _spellImmune = new MultiMap<uint, uint>[(int)SpellImmunity.Max];
 
 	//Auras
-	readonly ConcurrentMultiMap<AuraType, AuraEffect> _modAuras = new();
-	readonly List<Aura> _removedAuras = new();
-	readonly List<AuraApplication> _interruptableAuras = new();                // auras which have interrupt mask applied on unit
-	readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new(); // Used for improve performance of aura state checks on aura apply/remove
-	readonly SortedSet<AuraApplication> _visibleAuras = new(new VisibleAuraSlotCompare());
-	readonly SortedSet<AuraApplication> _visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
-	readonly AuraApplicationCollection _appliedAuras = new();
-	readonly AuraCollection _ownedAuras = new();
-	readonly List<Aura> _scAuras = new();
-	readonly DiminishingReturn[] _diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
-	readonly List<AreaTrigger> _areaTrigger = new();
-	readonly double[] _floatStatPosBuff = new double[(int)Stats.Max];
-	readonly double[] _floatStatNegBuff = new double[(int)Stats.Max];
-	MovementForces _movementForces;
-	PositionUpdateInfo _positionUpdateInfo;
-	bool _isCombatDisallowed;
+    private readonly ConcurrentMultiMap<AuraType, AuraEffect> _modAuras = new();
+    private readonly List<Aura> _removedAuras = new();
+    private readonly List<AuraApplication> _interruptableAuras = new();                // auras which have interrupt mask applied on unit
+    private readonly MultiMap<AuraStateType, AuraApplication> _auraStateAuras = new(); // Used for improve performance of aura state checks on aura apply/remove
+    private readonly SortedSet<AuraApplication> _visibleAuras = new(new VisibleAuraSlotCompare());
+    private readonly SortedSet<AuraApplication> _visibleAurasToUpdate = new(new VisibleAuraSlotCompare());
+    private readonly AuraApplicationCollection _appliedAuras = new();
+    private readonly AuraCollection _ownedAuras = new();
+    private readonly List<Aura> _scAuras = new();
+    private readonly DiminishingReturn[] _diminishing = new DiminishingReturn[(int)DiminishingGroup.Max];
+    private readonly List<AreaTrigger> _areaTrigger = new();
+    private readonly double[] _floatStatPosBuff = new double[(int)Stats.Max];
+    private readonly double[] _floatStatNegBuff = new double[(int)Stats.Max];
+    private MovementForces _movementForces;
+    private PositionUpdateInfo _positionUpdateInfo;
+    private bool _isCombatDisallowed;
 
-	uint _lastExtraAttackSpell;
-	ObjectGuid _lastDamagedTargetGuid;
-	Unit _charmer; // Unit that is charming ME
-	Unit _charmed; // Unit that is being charmed BY ME
-	CharmInfo _charmInfo;
+    private uint _lastExtraAttackSpell;
+    private ObjectGuid _lastDamagedTargetGuid;
+    private Unit _charmer; // Unit that is charming ME
+    private Unit _charmed; // Unit that is being charmed BY ME
+    private CharmInfo _charmInfo;
 
-	uint _oldFactionId;         // faction before charm
-	bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
-	SpellAuraInterruptFlags _interruptMask;
-	SpellAuraInterruptFlags2 _interruptMask2;
-	SpellHistory _spellHistory;
-	uint _removedAurasCount;
-	UnitState _state;
-	bool _canModifyStats;
-	uint _transformSpell;
-	bool _cleanupDone;           // lock made to not add stuff after cleanup before delete
-	bool _duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
-	bool _instantCast;
+    private uint _oldFactionId;         // faction before charm
+    private bool _isWalkingBeforeCharm; // Are we walking before we were charmed?
+    private SpellAuraInterruptFlags _interruptMask;
+    private SpellAuraInterruptFlags2 _interruptMask2;
+    private SpellHistory _spellHistory;
+    private uint _removedAurasCount;
+    private UnitState _state;
+    private bool _canModifyStats;
+    private uint _transformSpell;
+    private bool _cleanupDone;           // lock made to not add stuff after cleanup before delete
+    private bool _duringRemoveFromWorld; // lock made to not add stuff after begining removing from world
+    private bool _instantCast;
 
-	bool _playHoverAnim;
+    private bool _playHoverAnim;
 
-	ushort _aiAnimKitId;
-	ushort _movementAnimKitId;
+    private ushort _aiAnimKitId;
+    private ushort _movementAnimKitId;
 
-	ushort _meleeAnimKitId;
+    private ushort _meleeAnimKitId;
 
 	//AI
 	protected Stack<IUnitAI> UnitAis { get; set; } = new();
@@ -132,11 +132,11 @@ public partial class Unit
 	public uint LastSanctuaryTime { get; set; }
 	public LoopSafeSortedDictionary<DateTime, double> DamageTakenHistory { get; set; } = new();
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly Unit _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly UnitData _unitMask = new();
+        private readonly Unit _owner;
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly UnitData _unitMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(Unit owner)
 		{

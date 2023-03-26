@@ -24,27 +24,27 @@ namespace Forged.MapServer.DungeonFinding;
 
 public class LFGManager : Singleton<LFGManager>
 {
-	readonly Dictionary<byte, LFGQueue> QueuesStore = new(); //< Queues
+    private readonly Dictionary<byte, LFGQueue> QueuesStore = new(); //< Queues
 
-	readonly MultiMap<byte, uint> CachedDungeonMapStore = new(); //< Stores all dungeons by groupType
+    private readonly MultiMap<byte, uint> CachedDungeonMapStore = new(); //< Stores all dungeons by groupType
 	// Reward System
 
-	readonly MultiMap<uint, LfgReward> RewardMapStore = new(); //< Stores rewards for random dungeons
-	readonly Dictionary<uint, LFGDungeonData> LfgDungeonStore = new();
+    private readonly MultiMap<uint, LfgReward> RewardMapStore = new(); //< Stores rewards for random dungeons
+    private readonly Dictionary<uint, LFGDungeonData> LfgDungeonStore = new();
 
 	// Rolecheck - Proposal - Vote Kicks
-	readonly Dictionary<ObjectGuid, LfgRoleCheck> RoleChecksStore = new(); //< Current Role checks
-	readonly Dictionary<uint, LfgProposal> ProposalsStore = new();         //< Current Proposals
-	readonly Dictionary<ObjectGuid, LfgPlayerBoot> BootsStore = new();     //< Current player kicks
-	readonly Dictionary<ObjectGuid, LFGPlayerData> PlayersStore = new();   //< Player data
-	readonly Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();     //< Group data
+    private readonly Dictionary<ObjectGuid, LfgRoleCheck> RoleChecksStore = new(); //< Current Role checks
+    private readonly Dictionary<uint, LfgProposal> ProposalsStore = new();         //< Current Proposals
+    private readonly Dictionary<ObjectGuid, LfgPlayerBoot> BootsStore = new();     //< Current player kicks
+    private readonly Dictionary<ObjectGuid, LFGPlayerData> PlayersStore = new();   //< Player data
+    private readonly Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();     //< Group data
 
 	// General variables
-	uint m_QueueTimer;    //< used to check interval of update
-	uint m_lfgProposalId; //< used as internal counter for proposals
-	LfgOptions m_options; //< Stores config options
+    private uint m_QueueTimer;    //< used to check interval of update
+    private uint m_lfgProposalId; //< used as internal counter for proposals
+    private LfgOptions m_options; //< Stores config options
 
-	LFGManager()
+    private LFGManager()
 	{
 		m_lfgProposalId = 1;
 		m_options = (LfgOptions)ConfigMgr.GetDefaultValue("DungeonFinder.OptionsMask", 1);
@@ -1991,7 +1991,7 @@ public class LFGManager : Singleton<LFGManager>
 		return randomDungeons;
 	}
 
-	void _SaveToDB(ObjectGuid guid, uint db_guid)
+    private void _SaveToDB(ObjectGuid guid, uint db_guid)
 	{
 		if (!guid.IsParty)
 			return;
@@ -2011,12 +2011,12 @@ public class LFGManager : Singleton<LFGManager>
 		DB.Characters.CommitTransaction(trans);
 	}
 
-	LFGDungeonData GetLFGDungeon(uint id)
+    private LFGDungeonData GetLFGDungeon(uint id)
 	{
 		return LfgDungeonStore.LookupByKey(id);
 	}
 
-	void GetCompatibleDungeons(List<uint> dungeons, List<ObjectGuid> players, Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> lockMap, List<string> playersMissingRequirement, bool isContinue)
+    private void GetCompatibleDungeons(List<uint> dungeons, List<ObjectGuid> players, Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> lockMap, List<string> playersMissingRequirement, bool isContinue)
 	{
 		lockMap.Clear();
 		Dictionary<uint, uint> lockedDungeons = new();
@@ -2078,7 +2078,7 @@ public class LFGManager : Singleton<LFGManager>
 			lockMap.Clear();
 	}
 
-	void MakeNewGroup(LfgProposal proposal)
+    private void MakeNewGroup(LfgProposal proposal)
 	{
 		List<ObjectGuid> players = new();
 		List<ObjectGuid> tankPlayers = new();
@@ -2183,7 +2183,7 @@ public class LFGManager : Singleton<LFGManager>
 		grp.SendUpdate();
 	}
 
-	void RemoveProposal(KeyValuePair<uint, LfgProposal> itProposal, LfgUpdateType type)
+    private void RemoveProposal(KeyValuePair<uint, LfgProposal> itProposal, LfgUpdateType type)
 	{
 		var proposal = itProposal.Value;
 		proposal.state = LfgProposalState.Failed;
@@ -2282,7 +2282,7 @@ public class LFGManager : Singleton<LFGManager>
 		ProposalsStore.Remove(itProposal.Key);
 	}
 
-	List<uint> GetDungeonsByRandom(uint randomdungeon)
+    private List<uint> GetDungeonsByRandom(uint randomdungeon)
 	{
 		var dungeon = GetLFGDungeon(randomdungeon);
 		var group = (byte)(dungeon != null ? dungeon.group : 0);
@@ -2290,7 +2290,7 @@ public class LFGManager : Singleton<LFGManager>
 		return CachedDungeonMapStore.LookupByKey(group);
 	}
 
-	void RestoreState(ObjectGuid guid, string debugMsg)
+    private void RestoreState(ObjectGuid guid, string debugMsg)
 	{
 		if (guid.IsParty)
 		{
@@ -2304,7 +2304,7 @@ public class LFGManager : Singleton<LFGManager>
 		}
 	}
 
-	void SetVoteKick(ObjectGuid gguid, bool active)
+    private void SetVoteKick(ObjectGuid gguid, bool active)
 	{
 		var data = GroupsStore[gguid];
 		Log.Logger.Information("Group: {0}, New state: {1}, Previous: {2}", gguid.ToString(), active, data.IsVoteKickActive());
@@ -2312,27 +2312,27 @@ public class LFGManager : Singleton<LFGManager>
 		data.SetVoteKick(active);
 	}
 
-	void SetDungeon(ObjectGuid guid, uint dungeon)
+    private void SetDungeon(ObjectGuid guid, uint dungeon)
 	{
 		AddPlayerData(guid);
 		Log.Logger.Debug("SetDungeon: [{0}] dungeon {1}", guid, dungeon);
 		GroupsStore[guid].SetDungeon(dungeon);
 	}
 
-	void SetRoles(ObjectGuid guid, LfgRoles roles)
+    private void SetRoles(ObjectGuid guid, LfgRoles roles)
 	{
 		AddPlayerData(guid);
 		Log.Logger.Debug("SetRoles: [{0}] roles: {1}", guid, roles);
 		PlayersStore[guid].SetRoles(roles);
 	}
 
-	void DecreaseKicksLeft(ObjectGuid guid)
+    private void DecreaseKicksLeft(ObjectGuid guid)
 	{
 		Log.Logger.Debug("DecreaseKicksLeft: [{0}]", guid);
 		GroupsStore[guid].DecreaseKicksLeft();
 	}
 
-	void AddPlayerData(ObjectGuid guid)
+    private void AddPlayerData(ObjectGuid guid)
 	{
 		if (PlayersStore.ContainsKey(guid))
 			return;
@@ -2340,23 +2340,23 @@ public class LFGManager : Singleton<LFGManager>
 		PlayersStore[guid] = new LFGPlayerData();
 	}
 
-	void SetTicket(ObjectGuid guid, RideTicket ticket)
+    private void SetTicket(ObjectGuid guid, RideTicket ticket)
 	{
 		PlayersStore[guid].SetTicket(ticket);
 	}
 
-	void RemovePlayerData(ObjectGuid guid)
+    private void RemovePlayerData(ObjectGuid guid)
 	{
 		Log.Logger.Debug("RemovePlayerData: [{0}]", guid);
 		PlayersStore.Remove(guid);
 	}
 
-	TeamFaction GetTeam(ObjectGuid guid)
+    private TeamFaction GetTeam(ObjectGuid guid)
 	{
 		return PlayersStore[guid].GetTeam();
 	}
 
-	LfgRoles FilterClassRoles(Player player, LfgRoles roles)
+    private LfgRoles FilterClassRoles(Player player, LfgRoles roles)
 	{
 		var allowedRoles = (uint)LfgRoles.Leader;
 
@@ -2371,12 +2371,12 @@ public class LFGManager : Singleton<LFGManager>
 		return roles & (LfgRoles)allowedRoles;
 	}
 
-	List<ObjectGuid> GetPlayers(ObjectGuid guid)
+    private List<ObjectGuid> GetPlayers(ObjectGuid guid)
 	{
 		return GroupsStore[guid].GetPlayers();
 	}
 
-	bool IsSeasonActive(uint dungeonId)
+    private bool IsSeasonActive(uint dungeonId)
 	{
 		switch (dungeonId)
 		{

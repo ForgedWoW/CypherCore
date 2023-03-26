@@ -25,17 +25,17 @@ public class AuctionManager
     private readonly CliDB _cliDB;
     private readonly GameObjectManager _objectManager;
     private readonly CharacterCache _characterCache;
-    const int MIN_AUCTION_TIME = 12 * Time.Hour;
-	readonly AuctionHouseObject _hordeAuctions;
-	readonly AuctionHouseObject _allianceAuctions;
-	readonly AuctionHouseObject _neutralAuctions;
-	readonly AuctionHouseObject _goblinAuctions;
-	readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
-	readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
-	readonly Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
+    private const int MIN_AUCTION_TIME = 12 * Time.Hour;
+    private readonly AuctionHouseObject _hordeAuctions;
+    private readonly AuctionHouseObject _allianceAuctions;
+    private readonly AuctionHouseObject _neutralAuctions;
+    private readonly AuctionHouseObject _goblinAuctions;
+    private readonly Dictionary<ObjectGuid, PlayerPendingAuctions> _pendingAuctionsByPlayer = new();
+    private readonly Dictionary<ObjectGuid, Item> _itemsByGuid = new();
+    private readonly Dictionary<ObjectGuid, PlayerThrottleObject> _playerThrottleObjects = new();
 
-	uint _replicateIdGenerator;
-	DateTime _playerThrottleObjectsCleanupTime;
+    private uint _replicateIdGenerator;
+    private DateTime _playerThrottleObjectsCleanupTime;
 
 	public uint GenerateReplicationId => ++_replicateIdGenerator;
 
@@ -524,7 +524,7 @@ public class AuctionManager
 		return _cliDB.AuctionHouseStorage.LookupByKey(houseid);
 	}
 
-	class PendingAuctionInfo
+    private class PendingAuctionInfo
 	{
 		public readonly uint AuctionId;
 		public readonly uint AuctionHouseId;
@@ -538,13 +538,13 @@ public class AuctionManager
 		}
 	}
 
-	class PlayerPendingAuctions
+    private class PlayerPendingAuctions
 	{
 		public readonly List<PendingAuctionInfo> Auctions = new();
 		public int LastAuctionsSize;
 	}
 
-	class PlayerThrottleObject
+    private class PlayerThrottleObject
 	{
 		public DateTime PeriodEnd;
 		public byte QueriesRemaining = 100;

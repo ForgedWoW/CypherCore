@@ -14,7 +14,7 @@ namespace Forged.MapServer.Handlers;
 public class ToyHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.AddToy)]
-	void HandleAddToy(AddToy packet)
+    private void HandleAddToy(AddToy packet)
 	{
 		if (packet.Guid.IsEmpty)
 			return;
@@ -45,7 +45,7 @@ public class ToyHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UseToy, Processing = PacketProcessing.Inplace)]
-	void HandleUseToy(UseToy packet)
+    private void HandleUseToy(UseToy packet)
 	{
 		var itemId = packet.Cast.Misc[0];
 		var item = Global.ObjectMgr.GetItemTemplate(itemId);
@@ -91,7 +91,7 @@ public class ToyHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ToyClearFanfare)]
-	void HandleToyClearFanfare(ToyClearFanfare toyClearFanfare)
+    private void HandleToyClearFanfare(ToyClearFanfare toyClearFanfare)
 	{
 		_collectionMgr.ToyClearFanfare(toyClearFanfare.ItemID);
 	}

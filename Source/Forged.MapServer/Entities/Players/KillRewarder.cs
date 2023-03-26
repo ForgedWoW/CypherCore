@@ -13,17 +13,17 @@ namespace Forged.MapServer.Entities.Players;
 
 public class KillRewarder
 {
-	readonly Player[] _killers;
-	readonly Unit _victim;
-	readonly bool _isBattleground;
-	readonly bool _isPvP;
-	float _groupRate;
-	Player _maxNotGrayMember;
-	uint _count;
-	uint _sumLevel;
-	uint _xp;
-	bool _isFullXp;
-	byte _maxLevel;
+    private readonly Player[] _killers;
+    private readonly Unit _victim;
+    private readonly bool _isBattleground;
+    private readonly bool _isPvP;
+    private float _groupRate;
+    private Player _maxNotGrayMember;
+    private uint _count;
+    private uint _sumLevel;
+    private uint _xp;
+    private bool _isFullXp;
+    private byte _maxLevel;
 
 	public KillRewarder(Player[] killers, Unit victim, bool isBattleground)
 	{
@@ -112,7 +112,7 @@ public class KillRewarder
 		}
 	}
 
-	void _InitGroupData(Player killer)
+    private void _InitGroupData(Player killer)
 	{
 		var group = killer.Group;
 
@@ -155,7 +155,7 @@ public class KillRewarder
 		}
 	}
 
-	void _InitXP(Player player, Player killer)
+    private void _InitXP(Player player, Player killer)
 	{
 		// Get initial value of XP for kill.
 		// XP is given:
@@ -166,14 +166,14 @@ public class KillRewarder
 			_xp = Formulas.XPGain(player, _victim, _isBattleground);
 	}
 
-	void _RewardHonor(Player player)
+    private void _RewardHonor(Player player)
 	{
 		// Rewarded player must be alive.
 		if (player.IsAlive)
 			player.RewardHonor(_victim, _count, -1, true);
 	}
 
-	void _RewardXP(Player player, float rate)
+    private void _RewardXP(Player player, float rate)
 	{
 		var xp = _xp;
 
@@ -209,14 +209,14 @@ public class KillRewarder
 		}
 	}
 
-	void _RewardReputation(Player player, float rate)
+    private void _RewardReputation(Player player, float rate)
 	{
 		// 4.3. Give reputation (player must not be on BG).
 		// Even dead players and corpses are rewarded.
 		player.RewardReputation(_victim, rate);
 	}
 
-	void _RewardKillCredit(Player player)
+    private void _RewardKillCredit(Player player)
 	{
 		// 4.4. Give kill credit (player must not be in group, or he must be alive or without corpse).
 		if (player.Group == null || player.IsAlive || player.GetCorpse() == null)
@@ -231,7 +231,7 @@ public class KillRewarder
 		}
 	}
 
-	void _RewardPlayer(Player player, bool isDungeon)
+    private void _RewardPlayer(Player player, bool isDungeon)
 	{
 		// 4. Reward player.
 		if (!_isBattleground)
@@ -263,7 +263,7 @@ public class KillRewarder
 		}
 	}
 
-	void _RewardGroup(PlayerGroup group, Player killer)
+    private void _RewardGroup(PlayerGroup group, Player killer)
 	{
 		if (_maxLevel != 0)
 		{

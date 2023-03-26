@@ -8,12 +8,12 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Arenas;
 
-class ArenaScore : BattlegroundScore
+internal class ArenaScore : BattlegroundScore
 {
-	readonly uint PreMatchRating;
-	readonly uint PreMatchMMR;
-	readonly uint PostMatchRating;
-	readonly uint PostMatchMMR;
+    private readonly uint PreMatchRating;
+    private readonly uint PreMatchMMR;
+    private readonly uint PostMatchRating;
+    private readonly uint PostMatchMMR;
 
 	public ArenaScore(ObjectGuid playerGuid, TeamFaction team) : base(playerGuid, team)
 	{

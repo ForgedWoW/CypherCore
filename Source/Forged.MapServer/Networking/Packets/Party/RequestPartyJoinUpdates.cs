@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class RequestPartyJoinUpdates : ClientPacket
+internal class RequestPartyJoinUpdates : ClientPacket
 {
 	public sbyte PartyIndex;
 	public RequestPartyJoinUpdates(WorldPacket packet) : base(packet) { }

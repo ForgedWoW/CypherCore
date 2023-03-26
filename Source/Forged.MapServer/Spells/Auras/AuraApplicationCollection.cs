@@ -237,8 +237,8 @@ public class AuraApplicationCollection
 
 	public class AuraApplicationQuery
 	{
-		readonly AuraApplicationCollection _collection;
-		bool _hasLoaded;
+        private readonly AuraApplicationCollection _collection;
+        private bool _hasLoaded;
 
 		public HashSet<Guid> Results { get; private set; } = new();
 

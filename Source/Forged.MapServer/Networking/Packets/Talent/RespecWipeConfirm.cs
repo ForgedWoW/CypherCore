@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class RespecWipeConfirm : ServerPacket
+internal class RespecWipeConfirm : ServerPacket
 {
 	public ObjectGuid RespecMaster;
 	public uint Cost;

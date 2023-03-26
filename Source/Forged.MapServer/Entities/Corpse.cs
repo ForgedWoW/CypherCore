@@ -21,9 +21,9 @@ namespace Forged.MapServer.Entities;
 
 public class Corpse : WorldObject
 {
-	readonly CorpseType _type;
-	long _time;
-	CellCoord _cellCoord; // gride for corpse position for fast search
+    private readonly CorpseType _type;
+    private long _time;
+    private CellCoord _cellCoord; // gride for corpse position for fast search
 
 	public CorpseData CorpseData { get; set; }
 
@@ -407,7 +407,7 @@ public class Corpse : WorldObject
 		return Loot;
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedCorpseMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedCorpseMask, Player target)
 	{
 		UpdateMask valuesMask = new((int)TypeId.Max);
 
@@ -435,11 +435,11 @@ public class Corpse : WorldObject
 		data.AddUpdateBlock(buffer1);
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly Corpse _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly CorpseData _corpseData = new();
+        private readonly Corpse _owner;
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly CorpseData _corpseData = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(Corpse owner)
 		{

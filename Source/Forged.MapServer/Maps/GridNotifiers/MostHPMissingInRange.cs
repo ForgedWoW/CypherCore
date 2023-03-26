@@ -8,9 +8,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class MostHPMissingInRange<T> : ICheck<T> where T : Unit
 {
-	readonly Unit _obj;
-	readonly float _range;
-	long _hp;
+    private readonly Unit _obj;
+    private readonly float _range;
+    private long _hp;
 
 	public MostHPMissingInRange(Unit obj, float range, uint hp)
 	{

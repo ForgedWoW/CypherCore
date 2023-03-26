@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking;
 
-enum ReadDataHandlerResult
+internal enum ReadDataHandlerResult
 {
 	Ok = 0,
 	Error = 1,

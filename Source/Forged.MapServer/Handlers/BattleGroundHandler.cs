@@ -23,7 +23,7 @@ namespace Forged.MapServer.Handlers;
 public class BattleGroundHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.BattlemasterHello)]
-	void HandleBattlemasterHello(Hello hello)
+    private void HandleBattlemasterHello(Hello hello)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(hello.Unit, NPCFlags.BattleMaster, NPCFlags2.None);
 
@@ -52,7 +52,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlemasterJoin)]
-	void HandleBattlemasterJoin(BattlemasterJoin battlemasterJoin)
+    private void HandleBattlemasterJoin(BattlemasterJoin battlemasterJoin)
 	{
 		var isPremade = false;
 
@@ -246,7 +246,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PvpLogData)]
-	void HandlePVPLogData(PVPLogDataRequest packet)
+    private void HandlePVPLogData(PVPLogDataRequest packet)
 	{
 		var bg = Player.Battleground;
 
@@ -263,7 +263,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlefieldList)]
-	void HandleBattlefieldList(BattlefieldListRequest battlefieldList)
+    private void HandleBattlefieldList(BattlefieldListRequest battlefieldList)
 	{
 		var bl = CliDB.BattlemasterListStorage.LookupByKey(battlefieldList.ListID);
 
@@ -278,7 +278,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlefieldPort)]
-	void HandleBattleFieldPort(BattlefieldPort battlefieldPort)
+    private void HandleBattleFieldPort(BattlefieldPort battlefieldPort)
 	{
 		if (!Player.InBattlegroundQueue())
 		{
@@ -473,7 +473,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlefieldLeave)]
-	void HandleBattlefieldLeave(BattlefieldLeave packet)
+    private void HandleBattlefieldLeave(BattlefieldLeave packet)
 	{
 		// not allow leave Battlegroundin combat
 		if (Player.IsInCombat)
@@ -489,7 +489,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestBattlefieldStatus)]
-	void HandleRequestBattlefieldStatus(RequestBattlefieldStatus packet)
+    private void HandleRequestBattlefieldStatus(RequestBattlefieldStatus packet)
 	{
 		// we must update all queues here
 		Battleground bg = null;
@@ -553,7 +553,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlemasterJoinArena)]
-	void HandleBattlemasterJoinArena(BattlemasterJoinArena packet)
+    private void HandleBattlemasterJoinArena(BattlemasterJoinArena packet)
 	{
 		// ignore if we already in BG or BG queue
 		if (Player.InBattleground)
@@ -660,7 +660,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ReportPvpPlayerAfk)]
-	void HandleReportPvPAFK(ReportPvPPlayerAFK reportPvPPlayerAFK)
+    private void HandleReportPvPAFK(ReportPvPPlayerAFK reportPvPPlayerAFK)
 	{
 		var reportedPlayer = Global.ObjAccessor.FindPlayer(reportPvPPlayerAFK.Offender);
 
@@ -677,13 +677,13 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestPvpRewards, Processing = PacketProcessing.Inplace)]
-	void HandleRequestPvpReward(RequestPVPRewards packet)
+    private void HandleRequestPvpReward(RequestPVPRewards packet)
 	{
 		Player.SendPvpRewards();
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AreaSpiritHealerQuery)]
-	void HandleAreaSpiritHealerQuery(AreaSpiritHealerQuery areaSpiritHealerQuery)
+    private void HandleAreaSpiritHealerQuery(AreaSpiritHealerQuery areaSpiritHealerQuery)
 	{
 		var unit = ObjectAccessor.GetCreature(Player, areaSpiritHealerQuery.HealerGuid);
 
@@ -705,7 +705,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AreaSpiritHealerQueue)]
-	void HandleAreaSpiritHealerQueue(AreaSpiritHealerQueue areaSpiritHealerQueue)
+    private void HandleAreaSpiritHealerQueue(AreaSpiritHealerQueue areaSpiritHealerQueue)
 	{
 		var unit = ObjectAccessor.GetCreature(Player, areaSpiritHealerQueue.HealerGuid);
 
@@ -727,7 +727,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.HearthAndResurrect)]
-	void HandleHearthAndResurrect(HearthAndResurrect packet)
+    private void HandleHearthAndResurrect(HearthAndResurrect packet)
 	{
 		if (Player.IsInFlight)
 			return;
@@ -752,7 +752,7 @@ public class BattleGroundHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BattlemasterJoinSkirmish)]
-	void HandleJoinSkirmish(JoinSkirmish packet)
+    private void HandleJoinSkirmish(JoinSkirmish packet)
 	{
 		var player = Player;
 

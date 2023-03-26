@@ -12,7 +12,7 @@ namespace Forged.MapServer.Services;
 
 public class WorldServiceManager
 {
-	readonly ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler> _serviceHandlers;
+    private readonly ConcurrentDictionary<(uint ServiceHash, uint MethodId), WorldServiceHandler> _serviceHandlers;
 
     public void LoadHandlers(IContainer container)
     {

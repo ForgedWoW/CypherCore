@@ -6,9 +6,9 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatPlayerAmbiguous : ServerPacket
+internal class ChatPlayerAmbiguous : ServerPacket
 {
-	readonly string Name;
+    private readonly string Name;
 
 	public ChatPlayerAmbiguous(string name) : base(ServerOpcodes.ChatPlayerAmbiguous)
 	{

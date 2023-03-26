@@ -10,7 +10,7 @@ namespace Forged.MapServer.Miscellaneous;
 /// Only returns true for the given attacker's current victim, if any
 public class IsVictimOf : ICheck<WorldObject>
 {
-	readonly WorldObject _victim;
+    private readonly WorldObject _victim;
 
 	public IsVictimOf(Unit attacker)
 	{

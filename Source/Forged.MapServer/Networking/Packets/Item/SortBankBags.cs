@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class SortBankBags : ClientPacket
+internal class SortBankBags : ClientPacket
 {
 	public SortBankBags(WorldPacket packet) : base(packet) { }
 

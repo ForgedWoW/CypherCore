@@ -16,9 +16,9 @@ namespace Forged.MapServer.Entities;
 
 public class SceneObject : WorldObject
 {
-	readonly SceneObjectData _sceneObjectData;
-	readonly Position _stationaryPosition = new();
-	ObjectGuid _createdBySpellCast;
+    private readonly SceneObjectData _sceneObjectData;
+    private readonly Position _stationaryPosition = new();
+    private ObjectGuid _createdBySpellCast;
 
 	public override ObjectGuid OwnerGUID => _sceneObjectData.CreatedBy;
 
@@ -132,13 +132,13 @@ public class SceneObject : WorldObject
 		_createdBySpellCast = castId;
 	}
 
-	void Remove()
+    private void Remove()
 	{
 		if (IsInWorld)
 			AddObjectToRemoveList();
 	}
 
-	bool ShouldBeRemoved()
+    private bool ShouldBeRemoved()
 	{
 		var creator = Global.ObjAccessor.GetUnit(this, OwnerGUID);
 
@@ -158,7 +158,7 @@ public class SceneObject : WorldObject
 		return false;
 	}
 
-	bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
+    private bool Create(ulong lowGuid, SceneType type, uint sceneId, uint scriptPackageId, Map map, Unit creator, Position pos, ObjectGuid privateObjectOwner)
 	{
 		Map = map;
 		Location.Relocate(pos);
@@ -183,7 +183,7 @@ public class SceneObject : WorldObject
 		return true;
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedSceneObjectMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedSceneObjectMask, Player target)
 	{
 		UpdateMask valuesMask = new((int)TypeId.Max);
 
@@ -211,16 +211,16 @@ public class SceneObject : WorldObject
 		data.AddUpdateBlock(buffer1);
 	}
 
-	void RelocateStationaryPosition(Position pos)
+    private void RelocateStationaryPosition(Position pos)
 	{
 		_stationaryPosition.Relocate(pos);
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly SceneObject _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly SceneObjectData _sceneObjectData = new();
+        private readonly SceneObject _owner;
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly SceneObjectData _sceneObjectData = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(SceneObject owner)
 		{

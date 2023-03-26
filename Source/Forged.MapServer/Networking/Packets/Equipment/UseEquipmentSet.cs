@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Equipment;
 
-class UseEquipmentSet : ClientPacket
+internal class UseEquipmentSet : ClientPacket
 {
 	public InvUpdate Inv;
 	public EquipmentSetItem[] Items = new EquipmentSetItem[EquipmentSlot.End];

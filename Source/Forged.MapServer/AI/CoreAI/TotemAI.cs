@@ -14,7 +14,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class TotemAI : NullCreatureAI
 {
-	ObjectGuid _victimGuid;
+    private ObjectGuid _victimGuid;
 
 	public TotemAI(Creature creature) : base(creature)
 	{

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class QueryQuestCompletionNPCs : ClientPacket
+internal class QueryQuestCompletionNPCs : ClientPacket
 {
 	public uint[] QuestCompletionNPCs;
 	public QueryQuestCompletionNPCs(WorldPacket packet) : base(packet) { }

@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.Structs.M;
 
 namespace Forged.MapServer.DataStorage;
 
-class MountTypeXCapabilityRecordComparer : IComparer<MountTypeXCapabilityRecord>
+internal class MountTypeXCapabilityRecordComparer : IComparer<MountTypeXCapabilityRecord>
 {
 	public int Compare(MountTypeXCapabilityRecord left, MountTypeXCapabilityRecord right)
 	{

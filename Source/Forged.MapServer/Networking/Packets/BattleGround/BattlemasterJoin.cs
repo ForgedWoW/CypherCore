@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlemasterJoin : ClientPacket
+internal class BattlemasterJoin : ClientPacket
 {
 	public Array<ulong> QueueIDs = new(1);
 	public byte Roles;

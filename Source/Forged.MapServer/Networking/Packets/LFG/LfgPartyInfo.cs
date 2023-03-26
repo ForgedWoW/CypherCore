@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LfgPartyInfo : ServerPacket
+internal class LfgPartyInfo : ServerPacket
 {
 	public List<LFGBlackList> Player = new();
 	public LfgPartyInfo() : base(ServerOpcodes.LfgPartyInfo, ConnectionType.Instance) { }

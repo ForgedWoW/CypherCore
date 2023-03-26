@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class DFTeleport : ClientPacket
+internal class DFTeleport : ClientPacket
 {
 	public bool TeleportOut;
 	public DFTeleport(WorldPacket packet) : base(packet) { }

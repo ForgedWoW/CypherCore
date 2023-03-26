@@ -303,7 +303,7 @@ public class EnumCharactersResult : ServerPacket
 
 	public struct RaceLimitDisableInfo
 	{
-		enum blah
+        private enum blah
 		{
 			Server,
 			Level

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellMissLog : ServerPacket
+internal class SpellMissLog : ServerPacket
 {
 	public uint SpellID;
 	public ObjectGuid Caster;

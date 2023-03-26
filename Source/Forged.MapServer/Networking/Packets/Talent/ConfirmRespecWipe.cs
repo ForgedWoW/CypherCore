@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class ConfirmRespecWipe : ClientPacket
+internal class ConfirmRespecWipe : ClientPacket
 {
 	public ObjectGuid RespecMaster;
 	public SpecResetType RespecType;

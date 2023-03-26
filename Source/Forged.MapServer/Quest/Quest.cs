@@ -115,10 +115,10 @@ public class Quest
 	public List<uint> DependentPreviousQuests = new();
 	public List<uint> DependentBreadcrumbQuests = new();
 	public QueryQuestInfoResponse[] response = new QueryQuestInfoResponse[(int)Locale.Total];
-	readonly uint _rewChoiceItemsCount;
-	readonly uint _rewItemsCount;
-	readonly uint _rewCurrencyCount;
-	ushort _eventIdForQuest;
+    private readonly uint _rewChoiceItemsCount;
+    private readonly uint _rewItemsCount;
+    private readonly uint _rewCurrencyCount;
+    private ushort _eventIdForQuest;
 
 	public uint MaxMoneyValue
 	{
@@ -865,7 +865,7 @@ public class Quest
 		return _usedQuestObjectiveTypes[(int)type];
 	}
 
-	void LoadConditionalConditionalQuestDescription(SQLFields fields)
+    private void LoadConditionalConditionalQuestDescription(SQLFields fields)
 	{
 		var locale = fields.Read<string>(4).ToEnum<Locale>();
 
@@ -889,7 +889,7 @@ public class Quest
 		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 
-	void LoadConditionalConditionalRequestItemsText(SQLFields fields)
+    private void LoadConditionalConditionalRequestItemsText(SQLFields fields)
 	{
 		var locale = fields.Read<string>(4).ToEnum<Locale>();
 
@@ -913,7 +913,7 @@ public class Quest
 		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 
-	void LoadConditionalConditionalOfferRewardText(SQLFields fields)
+    private void LoadConditionalConditionalOfferRewardText(SQLFields fields)
 	{
 		var locale = fields.Read<string>(4).ToEnum<Locale>();
 
@@ -937,7 +937,7 @@ public class Quest
 		GameObjectManager.AddLocaleString(fields.Read<string>(3), locale, text.Text);
 	}
 
-	void LoadConditionalConditionalQuestCompletionLog(SQLFields fields)
+    private void LoadConditionalConditionalQuestCompletionLog(SQLFields fields)
 	{
 		var locale = fields.Read<string>(4).ToEnum<Locale>();
 

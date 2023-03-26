@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class LearnTalents : ClientPacket
+internal class LearnTalents : ClientPacket
 {
 	public Array<ushort> Talents = new(PlayerConst.MaxTalentTiers);
 	public LearnTalents(WorldPacket packet) : base(packet) { }

@@ -9,10 +9,10 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Commands;
 
-class SpellCommands
+internal class SpellCommands
 {
 	[CommandNonGroup("cooldown", RBACPermissions.CommandCooldown)]
-	static bool HandleCooldownCommand(CommandHandler handler, uint? spellIdArg)
+    private static bool HandleCooldownCommand(CommandHandler handler, uint? spellIdArg)
 	{
 		var target = handler.SelectedUnit;
 
@@ -59,7 +59,7 @@ class SpellCommands
 	}
 
 	[CommandNonGroup("aura", RBACPermissions.CommandAura)]
-	static bool HandleAuraCommand(CommandHandler handler, uint spellId)
+    private static bool HandleAuraCommand(CommandHandler handler, uint spellId)
 	{
 		var target = handler.SelectedUnit;
 
@@ -85,7 +85,7 @@ class SpellCommands
 	}
 
 	[CommandNonGroup("unaura", RBACPermissions.CommandUnaura)]
-	static bool HandleUnAuraCommand(CommandHandler handler, uint spellId = 0)
+    private static bool HandleUnAuraCommand(CommandHandler handler, uint spellId = 0)
 	{
 		var target = handler.SelectedUnit;
 
@@ -116,7 +116,7 @@ class SpellCommands
 	}
 
 	[CommandNonGroup("setskill", RBACPermissions.CommandSetskill)]
-	static bool HandleSetSkillCommand(CommandHandler handler, uint skillId, uint level, uint? maxSkillArg)
+    private static bool HandleSetSkillCommand(CommandHandler handler, uint skillId, uint level, uint? maxSkillArg)
 	{
 		var target = handler.SelectedPlayerOrSelf;
 

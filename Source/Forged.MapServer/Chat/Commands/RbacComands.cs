@@ -8,10 +8,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("rbac")]
-class RbacComands
+internal class RbacComands
 {
 	[Command("list", RBACPermissions.CommandRbacList, true)]
-	static bool HandleRBACListPermissionsCommand(CommandHandler handler, uint? permId)
+    private static bool HandleRBACListPermissionsCommand(CommandHandler handler, uint? permId)
 	{
 		if (!permId.HasValue)
 		{
@@ -48,7 +48,7 @@ class RbacComands
 		return true;
 	}
 
-	static RBACCommandData GetRBACData(AccountIdentifier account)
+    private static RBACCommandData GetRBACData(AccountIdentifier account)
 	{
 		if (account.IsConnected())
 			return new RBACCommandData()
@@ -68,10 +68,10 @@ class RbacComands
 	}
 
 	[CommandGroup("account")]
-	class RbacAccountCommands
+    private class RbacAccountCommands
 	{
 		[Command("deny", RBACPermissions.CommandRbacAccPermDeny, true)]
-		static bool HandleRBACPermDenyCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
+        private static bool HandleRBACPermDenyCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
 		{
 			if (account == null)
 				account = AccountIdentifier.FromTarget(handler);
@@ -131,7 +131,7 @@ class RbacComands
 		}
 
 		[Command("grant", RBACPermissions.CommandRbacAccPermGrant, true)]
-		static bool HandleRBACPermGrantCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
+        private static bool HandleRBACPermGrantCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
 		{
 			if (account == null)
 				account = AccountIdentifier.FromTarget(handler);
@@ -191,7 +191,7 @@ class RbacComands
 		}
 
 		[Command("list", RBACPermissions.CommandRbacAccPermList, true)]
-		static bool HandleRBACPermListCommand(CommandHandler handler, AccountIdentifier account)
+        private static bool HandleRBACPermListCommand(CommandHandler handler, AccountIdentifier account)
 		{
 			if (account == null)
 				account = AccountIdentifier.FromTarget(handler);
@@ -241,7 +241,7 @@ class RbacComands
 		}
 
 		[Command("revoke", RBACPermissions.CommandRbacAccPermRevoke, true)]
-		static bool HandleRBACPermRevokeCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
+        private static bool HandleRBACPermRevokeCommand(CommandHandler handler, AccountIdentifier account, uint permId, int? realmId)
 		{
 			if (account == null)
 				account = AccountIdentifier.FromTarget(handler);
@@ -292,7 +292,7 @@ class RbacComands
 		}
 	}
 
-	class RBACCommandData
+    private class RBACCommandData
 	{
 		public RBACData rbac;
 		public bool needDelete;

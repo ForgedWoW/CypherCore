@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class CancelAutoRepeatSpell : ClientPacket
+internal class CancelAutoRepeatSpell : ClientPacket
 {
 	public CancelAutoRepeatSpell(WorldPacket packet) : base(packet) { }
 

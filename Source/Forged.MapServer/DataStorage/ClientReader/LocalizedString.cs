@@ -8,7 +8,7 @@ namespace Forged.MapServer.DataStorage.ClientReader;
 
 public class LocalizedString
 {
-	readonly StringArray stringStorage = new((int)Locale.Total);
+    private readonly StringArray stringStorage = new((int)Locale.Total);
 
 	public string this[Locale locale]
 	{

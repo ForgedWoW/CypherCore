@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Artifact;
 
-class ArtifactXpGain : ServerPacket
+internal class ArtifactXpGain : ServerPacket
 {
 	public ObjectGuid ArtifactGUID;
 	public ulong Amount;

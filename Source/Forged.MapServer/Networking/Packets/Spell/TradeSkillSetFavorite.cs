@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class TradeSkillSetFavorite : ClientPacket
+internal class TradeSkillSetFavorite : ClientPacket
 {
 	public uint RecipeID;
 	public bool IsFavorite;

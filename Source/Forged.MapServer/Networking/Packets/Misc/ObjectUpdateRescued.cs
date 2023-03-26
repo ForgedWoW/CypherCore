@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class ObjectUpdateRescued : ClientPacket
+internal class ObjectUpdateRescued : ClientPacket
 {
 	public ObjectGuid ObjectGUID;
 	public ObjectUpdateRescued(WorldPacket packet) : base(packet) { }

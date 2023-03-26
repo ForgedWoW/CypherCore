@@ -17,19 +17,19 @@ public class Spline<T>
 
 	private static readonly Matrix4x4 s_Bezier3Coeffs = new(-1.0f, 3.0f, -3.0f, 1.0f, 3.0f, -6.0f, 3.0f, 0.0f, -3.0f, 3.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 
-	T[] lengths = Array.Empty<T>();
-	Vector3[] points = Array.Empty<Vector3>();
-	bool _cyclic;
-	float initialOrientation;
+    private T[] lengths = Array.Empty<T>();
+    private Vector3[] points = Array.Empty<Vector3>();
+    private bool _cyclic;
+    private float initialOrientation;
 
 	// could be modified, affects segment length evaluation precision
 	// lesser value saves more performance in cost of lover precision
 	// minimal value is 1
 	// client's value is 20, blizzs use 2-3 steps to compute length
-	int stepsPerSegment = 3;
+    private int stepsPerSegment = 3;
 
-	int index_lo;
-	int index_hi;
+    private int index_lo;
+    private int index_hi;
 
 	public int GetPointCount()
 	{
@@ -141,7 +141,7 @@ public class Spline<T>
 		return index_lo == index_hi;
 	}
 
-	int ComputeIndexInBounds(T length_)
+    private int ComputeIndexInBounds(T length_)
 	{
 		// Temporary disabled: causes infinite loop with t = 1.f
 		/*
@@ -169,7 +169,7 @@ public class Spline<T>
 		return i;
 	}
 
-	void C_Evaluate(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
+    private void C_Evaluate(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
 	{
 		Vector4 tvec = new(t * t * t, t * t, t, 1.0f);
 		var weights = Vector4.Transform(tvec, matr);
@@ -177,7 +177,7 @@ public class Spline<T>
 		result = vertice[0] * weights.X + vertice[1] * weights.Y + vertice[2] * weights.Z + vertice[3] * weights.W;
 	}
 
-	void C_Evaluate_Derivative(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
+    private void C_Evaluate_Derivative(Span<Vector3> vertice, float t, Matrix4x4 matr, out Vector3 result)
 	{
 		Vector4 tvec = new(3.0f * t * t, 2.0f * t, 1.0f, 0.0f);
 		var weights = Vector4.Transform(tvec, matr);
@@ -210,18 +210,18 @@ public class Spline<T>
 		}
 	}
 
-	void EvaluateLinear(int index, float u, out Vector3 result)
+    private void EvaluateLinear(int index, float u, out Vector3 result)
 	{
 		result = points[index] + (points[index + 1] - points[index]) * u;
 	}
 
-	void EvaluateCatmullRom(int index, float t, out Vector3 result)
+    private void EvaluateCatmullRom(int index, float t, out Vector3 result)
 	{
 		Span<Vector3> span = points;
 		C_Evaluate(span[(index - 1)..], t, s_catmullRomCoeffs, out result);
 	}
 
-	void EvaluateBezier3(int index, float t, out Vector3 result)
+    private void EvaluateBezier3(int index, float t, out Vector3 result)
 	{
 		index *= (int)3u;
 		Span<Vector3> span = points;
@@ -267,7 +267,7 @@ public class Spline<T>
 		}
 	}
 
-	void InitLinear(Vector3[] controls, int count, bool cyclic, int cyclic_point)
+    private void InitLinear(Vector3[] controls, int count, bool cyclic, int cyclic_point)
 	{
 		var real_size = count + 1;
 
@@ -285,7 +285,7 @@ public class Spline<T>
 		index_hi = cyclic ? count : (count - 1);
 	}
 
-	void InitCatmullRom(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
+    private void InitCatmullRom(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
 	{
 		var real_size = count + (cyclic ? (1 + 2) : (1 + 1));
 
@@ -318,7 +318,7 @@ public class Spline<T>
 		index_hi = high_index + (cyclic ? 1 : 0);
 	}
 
-	void InitBezier3(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
+    private void InitBezier3(Span<Vector3> controls, int count, bool cyclic, int cyclic_point)
 	{
 		var c = (int)(count / 3u * 3u);
 		var t = (int)(c / 3u);
@@ -357,18 +357,18 @@ public class Spline<T>
 		}
 	}
 
-	void EvaluateDerivativeLinear(int index, float t, out Vector3 result)
+    private void EvaluateDerivativeLinear(int index, float t, out Vector3 result)
 	{
 		result = points[index + 1] - points[index];
 	}
 
-	void EvaluateDerivativeCatmullRom(int index, float t, out Vector3 result)
+    private void EvaluateDerivativeCatmullRom(int index, float t, out Vector3 result)
 	{
 		Span<Vector3> span = points;
 		C_Evaluate_Derivative(span[(index - 1)..], t, s_catmullRomCoeffs, out result);
 	}
 
-	void EvaluateDerivativeBezier3(int index, float t, out Vector3 result)
+    private void EvaluateDerivativeBezier3(int index, float t, out Vector3 result)
 	{
 		index *= (int)3u;
 		Span<Vector3> span = points;
@@ -394,12 +394,12 @@ public class Spline<T>
 		}
 	}
 
-	float SegLengthLinear(int index)
+    private float SegLengthLinear(int index)
 	{
 		return (points[index] - points[index + 1]).Length();
 	}
 
-	float SegLengthCatmullRom(int index)
+    private float SegLengthCatmullRom(int index)
 	{
 		var p = points.AsSpan(index - 1);
 		var curPos = p[1];
@@ -418,7 +418,7 @@ public class Spline<T>
 		return (float)length;
 	}
 
-	float SegLengthBezier3(int index)
+    private float SegLengthBezier3(int index)
 	{
 		index *= (int)3u;
 

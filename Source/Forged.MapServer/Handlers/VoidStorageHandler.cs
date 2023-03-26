@@ -22,7 +22,7 @@ public class VoidStorageHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UnlockVoidStorage, Processing = PacketProcessing.Inplace)]
-	void HandleVoidStorageUnlock(UnlockVoidStorage unlockVoidStorage)
+    private void HandleVoidStorageUnlock(UnlockVoidStorage unlockVoidStorage)
 	{
 		var unit = Player.GetNPCIfCanInteractWith(unlockVoidStorage.Npc, NPCFlags.VaultKeeper, NPCFlags2.None);
 
@@ -45,7 +45,7 @@ public class VoidStorageHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryVoidStorage, Processing = PacketProcessing.Inplace)]
-	void HandleVoidStorageQuery(QueryVoidStorage queryVoidStorage)
+    private void HandleVoidStorageQuery(QueryVoidStorage queryVoidStorage)
 	{
 		var player = Player;
 
@@ -89,7 +89,7 @@ public class VoidStorageHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.VoidStorageTransfer)]
-	void HandleVoidStorageTransfer(VoidStorageTransfer voidStorageTransfer)
+    private void HandleVoidStorageTransfer(VoidStorageTransfer voidStorageTransfer)
 	{
 		var player = Player;
 
@@ -227,7 +227,7 @@ public class VoidStorageHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SwapVoidItem, Processing = PacketProcessing.Inplace)]
-	void HandleVoidSwapItem(SwapVoidItem swapVoidItem)
+    private void HandleVoidSwapItem(SwapVoidItem swapVoidItem)
 	{
 		var player = Player;
 

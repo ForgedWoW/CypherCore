@@ -9,7 +9,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Maps;
 
-class ObjectGridEvacuator : IGridNotifierCreature, IGridNotifierGameObject
+internal class ObjectGridEvacuator : IGridNotifierCreature, IGridNotifierGameObject
 {
 	public GridType GridType { get; set; }
 

@@ -14,7 +14,7 @@ namespace Forged.MapServer.AI.CoreAI;
 
 public class UnitAI : IUnitAI
 {
-	static readonly Dictionary<(uint id, Difficulty difficulty), AISpellInfoType> _aiSpellInfo = new();
+    private static readonly Dictionary<(uint id, Difficulty difficulty), AISpellInfoType> _aiSpellInfo = new();
 
 	protected Unit Me { get; private set; }
 
@@ -619,7 +619,7 @@ public class UnitAI : IUnitAI
 		return _aiSpellInfo.LookupByKey((spellId, difficulty));
 	}
 
-	void SortByDistance(List<Unit> targets, bool ascending)
+    private void SortByDistance(List<Unit> targets, bool ascending)
 	{
 		targets.Sort(new ObjectDistanceOrderPred(Me, ascending));
 	}

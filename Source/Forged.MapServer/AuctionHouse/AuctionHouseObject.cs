@@ -26,16 +26,16 @@ namespace Forged.MapServer.AuctionHouse;
 
 public class AuctionHouseObject
 {
-	readonly AuctionHouseRecord _auctionHouse;
-	readonly SortedList<uint, AuctionPosting> _itemsByAuctionId = new();               // ordered for replicate
-	readonly SortedDictionary<AuctionsBucketKey, AuctionsBucketData> _buckets = new(); // ordered for search by itemid only
-	readonly Dictionary<ObjectGuid, CommodityQuote> _commodityQuotes = new();
-	readonly MultiMap<ObjectGuid, uint> _playerOwnedAuctions = new();
-	readonly MultiMap<ObjectGuid, uint> _playerBidderAuctions = new();
+    private readonly AuctionHouseRecord _auctionHouse;
+    private readonly SortedList<uint, AuctionPosting> _itemsByAuctionId = new();               // ordered for replicate
+    private readonly SortedDictionary<AuctionsBucketKey, AuctionsBucketData> _buckets = new(); // ordered for search by itemid only
+    private readonly Dictionary<ObjectGuid, CommodityQuote> _commodityQuotes = new();
+    private readonly MultiMap<ObjectGuid, uint> _playerOwnedAuctions = new();
+    private readonly MultiMap<ObjectGuid, uint> _playerBidderAuctions = new();
 
 	// Map of throttled players for GetAll, and throttle expiry time
 	// Stored here, rather than player object to maintain persistence after logout
-	readonly Dictionary<ObjectGuid, PlayerReplicateThrottleData> _replicateThrottleMap = new();
+    private readonly Dictionary<ObjectGuid, PlayerReplicateThrottleData> _replicateThrottleMap = new();
 
 	public AuctionHouseObject(uint auctionHouseId)
 	{
@@ -1173,7 +1173,7 @@ public class AuctionHouseObject
 		}
 	}
 
-	class PlayerReplicateThrottleData
+    private class PlayerReplicateThrottleData
 	{
 		public uint Global;
 		public uint Cursor;
@@ -1186,7 +1186,7 @@ public class AuctionHouseObject
 		}
 	}
 
-	class MailedItemsBatch
+    private class MailedItemsBatch
 	{
 		public readonly Item[] Items = new Item[SharedConst.MaxMailItems];
 		public ulong TotalPrice;

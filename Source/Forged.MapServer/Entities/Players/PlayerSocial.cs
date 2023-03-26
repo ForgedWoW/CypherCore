@@ -14,7 +14,7 @@ public class PlayerSocial
 {
 	public Dictionary<ObjectGuid, FriendInfo> PlayerSocialMap = new();
 	public List<ObjectGuid> IgnoredAccounts = new();
-	ObjectGuid m_playerGUID;
+    private ObjectGuid m_playerGUID;
 
 	public bool AddToSocialList(ObjectGuid friendGuid, ObjectGuid accountGuid, SocialFlag flag)
 	{
@@ -160,7 +160,7 @@ public class PlayerSocial
 		m_playerGUID = guid;
 	}
 
-	uint GetNumberOfSocialsWithFlag(SocialFlag flag)
+    private uint GetNumberOfSocialsWithFlag(SocialFlag flag)
 	{
 		uint counter = 0;
 
@@ -171,7 +171,7 @@ public class PlayerSocial
 		return counter;
 	}
 
-	bool _HasContact(ObjectGuid guid, SocialFlag flags)
+    private bool _HasContact(ObjectGuid guid, SocialFlag flags)
 	{
 		var friendInfo = PlayerSocialMap.LookupByKey(guid);
 
@@ -181,7 +181,7 @@ public class PlayerSocial
 		return false;
 	}
 
-	ObjectGuid GetPlayerGUID()
+    private ObjectGuid GetPlayerGUID()
 	{
 		return m_playerGUID;
 	}

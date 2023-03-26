@@ -55,7 +55,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 		ChangesMask.ResetAll();
 	}
 
-	uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
+    private uint GetViewerDependentEntryId(ObjectFieldData objectData, WorldObject obj, Player receiver)
 	{
 		uint entryId = objectData.EntryId;
 		var unit = obj.AsUnit;
@@ -72,7 +72,7 @@ public class ObjectFieldData : BaseUpdateData<WorldObject>
 		return entryId;
 	}
 
-	uint GetViewerDependentDynamicFlags(ObjectFieldData objectData, WorldObject obj, Player receiver)
+    private uint GetViewerDependentDynamicFlags(ObjectFieldData objectData, WorldObject obj, Player receiver)
 	{
 		uint unitDynFlags = objectData.DynamicFlags;
 

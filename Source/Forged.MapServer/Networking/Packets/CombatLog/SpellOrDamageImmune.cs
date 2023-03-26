@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellOrDamageImmune : ServerPacket
+internal class SpellOrDamageImmune : ServerPacket
 {
 	public ObjectGuid CasterGUID;
 	public ObjectGuid VictimGUID;

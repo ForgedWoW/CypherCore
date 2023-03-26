@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Trait;
 
-class ClassTalentsRenameConfig : ClientPacket
+internal class ClassTalentsRenameConfig : ClientPacket
 {
 	public int ConfigID;
 	public string Name;

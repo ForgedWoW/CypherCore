@@ -25,7 +25,7 @@ namespace Forged.MapServer.Handlers;
 public class PetHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.DismissCritter)]
-	void HandleDismissCritter(DismissCritter packet)
+    private void HandleDismissCritter(DismissCritter packet)
 	{
 		Unit pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.CritterGUID);
 
@@ -51,7 +51,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetAction)]
-	void HandlePetAction(PetAction packet)
+    private void HandlePetAction(PetAction packet)
 	{
 		var guid1 = packet.PetGUID;    //pet guid
 		var guid2 = packet.TargetGUID; //tag guid
@@ -110,7 +110,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetStopAttack, Processing = PacketProcessing.Inplace)]
-	void HandlePetStopAttack(PetStopAttack packet)
+    private void HandlePetStopAttack(PetStopAttack packet)
 	{
 		Unit pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.PetGUID);
 
@@ -134,7 +134,7 @@ public class PetHandler : IWorldSessionHandler
 		pet.AttackStop();
 	}
 
-	void HandlePetActionHelper(Unit pet, ObjectGuid guid1, uint spellid, ActiveStates flag, ObjectGuid guid2, float x, float y, float z)
+    private void HandlePetActionHelper(Unit pet, ObjectGuid guid1, uint spellid, ActiveStates flag, ObjectGuid guid2, float x, float y, float z)
 	{
 		var charmInfo = pet.GetCharmInfo();
 
@@ -439,12 +439,12 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryPetName, Processing = PacketProcessing.Inplace)]
-	void HandleQueryPetName(QueryPetName packet)
+    private void HandleQueryPetName(QueryPetName packet)
 	{
 		SendQueryPetNameResponse(packet.UnitGUID);
 	}
 
-	void SendQueryPetNameResponse(ObjectGuid guid)
+    private void SendQueryPetNameResponse(ObjectGuid guid)
 	{
 		QueryPetNameResponse response = new();
 		response.UnitGUID = guid;
@@ -474,7 +474,7 @@ public class PetHandler : IWorldSessionHandler
 		Player.SendPacket(response);
 	}
 
-	bool CheckStableMaster(ObjectGuid guid)
+    private bool CheckStableMaster(ObjectGuid guid)
 	{
 		// spell case or GM
 		if (guid == Player.GUID)
@@ -501,7 +501,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetSetAction)]
-	void HandlePetSetAction(PetSetAction packet)
+    private void HandlePetSetAction(PetSetAction packet)
 	{
 		var petguid = packet.PetGUID;
 		var pet = Global.ObjAccessor.GetUnit(Player, petguid);
@@ -571,7 +571,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetRename)]
-	void HandlePetRename(PetRename packet)
+    private void HandlePetRename(PetRename packet)
 	{
 		var petguid = packet.RenameData.PetGUID;
 		var isdeclined = packet.RenameData.HasDeclinedNames;
@@ -646,7 +646,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetAbandon)]
-	void HandlePetAbandon(PetAbandon packet)
+    private void HandlePetAbandon(PetAbandon packet)
 	{
 		if (!Player.IsInWorld)
 			return;
@@ -659,7 +659,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetSpellAutocast, Processing = PacketProcessing.Inplace)]
-	void HandlePetSpellAutocast(PetSpellAutocast packet)
+    private void HandlePetSpellAutocast(PetSpellAutocast packet)
 	{
 		var pet = ObjectAccessor.GetCreatureOrPetOrVehicle(Player, packet.PetGUID);
 
@@ -720,7 +720,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetCastSpell, Processing = PacketProcessing.Inplace)]
-	void HandlePetCastSpell(PetCastSpell petCastSpell)
+    private void HandlePetCastSpell(PetCastSpell petCastSpell)
 	{
 		var caster = Global.ObjAccessor.GetUnit(Player, petCastSpell.PetGUID);
 
@@ -817,7 +817,7 @@ public class PetHandler : IWorldSessionHandler
 		}
 	}
 
-	void SendPetNameInvalid(PetNameInvalidReason error, string name, DeclinedName declinedName)
+    private void SendPetNameInvalid(PetNameInvalidReason error, string name, DeclinedName declinedName)
 	{
 		PetNameInvalid petNameInvalid = new();
 		petNameInvalid.Result = error;
@@ -830,7 +830,7 @@ public class PetHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.RequestPetInfo)]
-	void HandleRequestPetInfo(RequestPetInfo requestPetInfo)
+    private void HandleRequestPetInfo(RequestPetInfo requestPetInfo)
 	{
 		// Handle the packet CMSG_REQUEST_PET_INFO - sent when player does ingame /reload command
 

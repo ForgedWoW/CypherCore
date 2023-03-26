@@ -7,11 +7,11 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestUnspawnedGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
+internal class NearestUnspawnedGameObjectEntryInObjectRangeCheck : ICheck<GameObject>
 {
-	readonly WorldObject _obj;
-	readonly uint _entry;
-	float _range;
+    private readonly WorldObject _obj;
+    private readonly uint _entry;
+    private float _range;
 
 	public NearestUnspawnedGameObjectEntryInObjectRangeCheck(WorldObject obj, uint entry, float range)
 	{

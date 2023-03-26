@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Artifact;
 
-class OpenArtifactForge : ServerPacket
+internal class OpenArtifactForge : ServerPacket
 {
 	public ObjectGuid ArtifactGUID;
 	public ObjectGuid ForgeGUID;

@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Spells;
 
-class Node
+internal class Node
 {
 	public TraitNodeRecord Data;
 	public List<NodeEntry> Entries = new();

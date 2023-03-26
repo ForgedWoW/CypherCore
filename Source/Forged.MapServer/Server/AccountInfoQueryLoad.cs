@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Server;
 
-enum AccountInfoQueryLoad
+internal enum AccountInfoQueryLoad
 {
 	GlobalAccountToys,
 	BattlePets,

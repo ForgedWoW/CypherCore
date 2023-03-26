@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Guild;
 
-class GuildSetAchievementTracking : ClientPacket
+internal class GuildSetAchievementTracking : ClientPacket
 {
 	public List<uint> AchievementIDs = new();
 	public GuildSetAchievementTracking(WorldPacket packet) : base(packet) { }

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetUpdates : ServerPacket
+internal class BattlePetUpdates : ServerPacket
 {
 	public List<BattlePetStruct> Pets = new();
 	public bool PetAdded;

@@ -15,7 +15,7 @@ namespace Forged.MapServer.Movement;
 public class MoveSplineInit
 {
 	public MoveSplineInitArgs args = new();
-	readonly Unit unit;
+    private readonly Unit unit;
 
 	public MoveSplineInit(Unit m)
 	{
@@ -373,7 +373,7 @@ public class MoveSplineInit
 		return args.path;
 	}
 
-	UnitMoveType SelectSpeedType(MovementFlag moveFlags)
+    private UnitMoveType SelectSpeedType(MovementFlag moveFlags)
 	{
 		if (moveFlags.HasAnyFlag(MovementFlag.Flying))
 		{
@@ -403,7 +403,7 @@ public class MoveSplineInit
 		return UnitMoveType.Run;
 	}
 
-	void SetBackward()
+    private void SetBackward()
 	{
 		args.flags.SetUnsetFlag(SplineFlag.Backward);
 	}
@@ -412,8 +412,8 @@ public class MoveSplineInit
 // Transforms coordinates from global to transport offsets
 public class TransportPathTransform
 {
-	readonly Unit _owner;
-	readonly bool _transformForTransport;
+    private readonly Unit _owner;
+    private readonly bool _transformForTransport;
 
 	public TransportPathTransform(Unit owner, bool transformForTransport)
 	{

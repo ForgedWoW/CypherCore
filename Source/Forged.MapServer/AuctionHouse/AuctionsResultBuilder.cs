@@ -7,13 +7,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.AuctionHouse;
 
-class AuctionsResultBuilder<T>
+internal class AuctionsResultBuilder<T>
 {
-	readonly uint _offset;
-	readonly IComparer<T> _sorter;
-	readonly AuctionHouseResultLimits _maxResults;
-	readonly List<T> _items = new();
-	bool _hasMoreResults;
+    private readonly uint _offset;
+    private readonly IComparer<T> _sorter;
+    private readonly AuctionHouseResultLimits _maxResults;
+    private readonly List<T> _items = new();
+    private bool _hasMoreResults;
 
 	public AuctionsResultBuilder(uint offset, IComparer<T> sorter, AuctionHouseResultLimits maxResults)
 	{

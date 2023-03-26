@@ -13,17 +13,17 @@ using Serilog;
 
 namespace Forged.MapServer.Entities.GameObjects;
 
-class Transport : GameObjectTypeBase, ITransport
+internal class Transport : GameObjectTypeBase, ITransport
 {
-	static readonly TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50);
-	readonly TransportAnimation _animationInfo;
-	readonly List<uint> _stopFrames = new();
-	readonly TimeTracker _positionUpdateTimer = new();
-	readonly List<WorldObject> _passengers = new();
-	uint _pathProgress;
-	uint _stateChangeTime;
-	uint _stateChangeProgress;
-	bool _autoCycleBetweenStopFrames;
+    private static readonly TimeSpan PositionUpdateInterval = TimeSpan.FromMilliseconds(50);
+    private readonly TransportAnimation _animationInfo;
+    private readonly List<uint> _stopFrames = new();
+    private readonly TimeTracker _positionUpdateTimer = new();
+    private readonly List<WorldObject> _passengers = new();
+    private uint _pathProgress;
+    private uint _stateChangeTime;
+    private uint _stateChangeProgress;
+    private bool _autoCycleBetweenStopFrames;
 
 	public Transport(GameObject owner) : base(owner)
 	{

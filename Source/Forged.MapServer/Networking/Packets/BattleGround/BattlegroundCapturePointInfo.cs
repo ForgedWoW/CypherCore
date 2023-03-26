@@ -8,7 +8,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlegroundCapturePointInfo
+internal class BattlegroundCapturePointInfo
 {
 	public ObjectGuid Guid;
 	public Vector2 Pos;

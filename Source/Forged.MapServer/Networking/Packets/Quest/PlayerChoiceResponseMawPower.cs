@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-struct PlayerChoiceResponseMawPower
+internal struct PlayerChoiceResponseMawPower
 {
 	public int Unused901_1;
 	public int TypeArtFileID;

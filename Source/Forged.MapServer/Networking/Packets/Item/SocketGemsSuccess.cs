@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class SocketGemsSuccess : ServerPacket
+internal class SocketGemsSuccess : ServerPacket
 {
 	public ObjectGuid Item;
 	public SocketGemsSuccess() : base(ServerOpcodes.SocketGemsSuccess, ConnectionType.Instance) { }

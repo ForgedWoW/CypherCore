@@ -6,7 +6,7 @@ using Forged.MapServer.DataStorage.Structs.C;
 
 namespace Forged.MapServer.DataStorage;
 
-class ChrClassesXPowerTypesRecordComparer : IComparer<ChrClassesXPowerTypesRecord>
+internal class ChrClassesXPowerTypesRecordComparer : IComparer<ChrClassesXPowerTypesRecord>
 {
 	public int Compare(ChrClassesXPowerTypesRecord left, ChrClassesXPowerTypesRecord right)
 	{

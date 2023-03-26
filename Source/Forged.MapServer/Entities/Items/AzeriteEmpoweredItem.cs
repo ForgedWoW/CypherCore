@@ -15,9 +15,9 @@ namespace Forged.MapServer.Entities.Items;
 
 public class AzeriteEmpoweredItem : Item
 {
-	readonly AzeriteEmpoweredItemData _azeriteEmpoweredItemData;
-	List<AzeritePowerSetMemberRecord> _azeritePowers;
-	int _maxTier;
+    private readonly AzeriteEmpoweredItemData _azeriteEmpoweredItemData;
+    private List<AzeritePowerSetMemberRecord> _azeritePowers;
+    private int _maxTier;
 
 	public AzeriteEmpoweredItem()
 	{
@@ -190,7 +190,7 @@ public class AzeriteEmpoweredItem : Item
 		return (uint)_azeriteEmpoweredItemData.Selections[tier];
 	}
 
-	void ClearSelectedAzeritePowers()
+    private void ClearSelectedAzeritePowers()
 	{
 		for (var i = 0; i < SharedConst.MaxAzeriteEmpoweredTier; ++i)
 			SetUpdateFieldValue(ref Values.ModifyValue(_azeriteEmpoweredItemData).ModifyValue(_azeriteEmpoweredItemData.Selections, i), 0);
@@ -201,7 +201,7 @@ public class AzeriteEmpoweredItem : Item
 			BonusData.AddBonusList(bonusListID);
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteEmpoweredItemMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, UpdateMask requestedAzeriteEmpoweredItemMask, Player target)
 	{
 		var flags = GetUpdateFieldFlagsFor(target);
 		UpdateMask valuesMask = new((int)TypeId.Max);
@@ -238,7 +238,7 @@ public class AzeriteEmpoweredItem : Item
 		data.AddUpdateBlock(buffer1);
 	}
 
-	void InitAzeritePowerData()
+    private void InitAzeritePowerData()
 	{
 		_azeritePowers = Global.DB2Mgr.GetAzeritePowers(Entry);
 
@@ -246,12 +246,12 @@ public class AzeriteEmpoweredItem : Item
 			_maxTier = _azeritePowers.Aggregate((a1, a2) => a1.Tier < a2.Tier ? a2 : a1).Tier;
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly AzeriteEmpoweredItem Owner;
-		readonly ObjectFieldData ObjectMask = new();
-		readonly ItemData ItemMask = new();
-		readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
+        private readonly AzeriteEmpoweredItem Owner;
+        private readonly ObjectFieldData ObjectMask = new();
+        private readonly ItemData ItemMask = new();
+        private readonly AzeriteEmpoweredItemData AzeriteEmpoweredItemMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(AzeriteEmpoweredItem owner)
 		{

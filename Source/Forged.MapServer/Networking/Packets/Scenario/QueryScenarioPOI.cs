@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Scenario;
 
-class QueryScenarioPOI : ClientPacket
+internal class QueryScenarioPOI : ClientPacket
 {
 	public Array<int> MissingScenarioPOIs = new(50);
 	public QueryScenarioPOI(WorldPacket packet) : base(packet) { }

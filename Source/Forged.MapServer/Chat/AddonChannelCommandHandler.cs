@@ -9,13 +9,13 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat;
 
-class AddonChannelCommandHandler : CommandHandler
+internal class AddonChannelCommandHandler : CommandHandler
 {
 	public static string PREFIX = "ForgedCore";
 
-	string _echo;
-	bool _hadAck;
-	bool _humanReadable;
+    private string _echo;
+    private bool _hadAck;
+    private bool _humanReadable;
 
 	public AddonChannelCommandHandler(WorldSession session) : base(session) { }
 
@@ -93,25 +93,25 @@ class AddonChannelCommandHandler : CommandHandler
 		return _humanReadable;
 	}
 
-	void Send(string msg)
+    private void Send(string msg)
 	{
 		ChatPkt chat = new();
 		chat.Initialize(ChatMsg.Whisper, Language.Addon, Session.Player, Session.Player, msg, 0, "", Locale.enUS, PREFIX);
 		Session.SendPacket(chat);
 	}
 
-	void SendAck() // a Command acknowledged, no body
+    private void SendAck() // a Command acknowledged, no body
 	{
 		Send($"a{_echo:4}\0");
 		_hadAck = true;
 	}
 
-	void SendOK() // o Command OK, no body
+    private void SendOK() // o Command OK, no body
 	{
 		Send($"o{_echo:4}\0");
 	}
 
-	void SendFailed() // f Command failed, no body
+    private void SendFailed() // f Command failed, no body
 	{
 		Send($"f{_echo:4}\0");
 	}

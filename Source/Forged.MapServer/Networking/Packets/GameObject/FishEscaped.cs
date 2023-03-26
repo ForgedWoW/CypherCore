@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class FishEscaped : ServerPacket
+internal class FishEscaped : ServerPacket
 {
 	public FishEscaped() : base(ServerOpcodes.FishEscaped) { }
 

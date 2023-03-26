@@ -9,10 +9,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Channels;
 
 // initial packet data (notify type and channel name)
-class ChannelNameBuilder : MessageBuilder
+internal class ChannelNameBuilder : MessageBuilder
 {
-	readonly Channel _source;
-	readonly IChannelAppender _modifier;
+    private readonly Channel _source;
+    private readonly IChannelAppender _modifier;
 
 	public ChannelNameBuilder(Channel source, IChannelAppender modifier)
 	{

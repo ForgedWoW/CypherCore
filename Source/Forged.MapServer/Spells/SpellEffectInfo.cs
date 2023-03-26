@@ -44,7 +44,7 @@ public class SpellEffectInfo
 	public SpellEffectAttributes EffectAttributes;
 	public ScalingInfo Scaling;
 
-	static readonly StaticData[] _data = new StaticData[(int)SpellEffectName.TotalSpellEffects]
+    private static readonly StaticData[] _data = new StaticData[(int)SpellEffectName.TotalSpellEffects]
 	{
 		// implicit target type           used target object type
 		new(SpellEffectImplicitTargetTypes.None, SpellTargetObjectTypes.None),            // 0
@@ -355,8 +355,8 @@ public class SpellEffectInfo
 	};
 
 
-	readonly SpellInfo _spellInfo;
-	readonly ImmunityInfo _immunityInfo;
+    private readonly SpellInfo _spellInfo;
+    private readonly ImmunityInfo _immunityInfo;
 
 	public bool IsTargetingArea => TargetA.IsArea || TargetB.IsArea;
 
@@ -733,7 +733,7 @@ public class SpellEffectInfo
 		return effImplicitTargetMask;
 	}
 
-	ExpectedStatType GetScalingExpectedStat()
+    private ExpectedStatType GetScalingExpectedStat()
 	{
 		switch (Effect)
 		{

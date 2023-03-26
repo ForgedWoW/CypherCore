@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-struct PhaseShiftDataPhase
+internal struct PhaseShiftDataPhase
 {
 	public PhaseShiftDataPhase(uint phaseFlags, uint id)
 	{

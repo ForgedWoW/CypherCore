@@ -9,10 +9,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("cast")]
-class CastCommands
+internal class CastCommands
 {
 	[Command("", RBACPermissions.CommandCast)]
-	static bool HandleCastCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
+    private static bool HandleCastCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
 	{
 		var target = handler.SelectedUnit;
 
@@ -37,7 +37,7 @@ class CastCommands
 	}
 
 	[Command("back", RBACPermissions.CommandCastBack)]
-	static bool HandleCastBackCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
+    private static bool HandleCastBackCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
 	{
 		var caster = handler.SelectedCreature;
 
@@ -62,7 +62,7 @@ class CastCommands
 	}
 
 	[Command("dist", RBACPermissions.CommandCastDist)]
-	static bool HandleCastDistCommand(CommandHandler handler, uint spellId, float dist, [OptionalArg] string triggeredStr)
+    private static bool HandleCastDistCommand(CommandHandler handler, uint spellId, float dist, [OptionalArg] string triggeredStr)
 	{
 		if (CheckSpellExistsAndIsValid(handler, spellId))
 			return false;
@@ -81,7 +81,7 @@ class CastCommands
 	}
 
 	[Command("self", RBACPermissions.CommandCastSelf)]
-	static bool HandleCastSelfCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
+    private static bool HandleCastSelfCommand(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
 	{
 		var target = handler.SelectedUnit;
 
@@ -106,7 +106,7 @@ class CastCommands
 	}
 
 	[Command("target", RBACPermissions.CommandCastTarget)]
-	static bool HandleCastTargetCommad(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
+    private static bool HandleCastTargetCommad(CommandHandler handler, uint spellId, [OptionalArg] string triggeredStr)
 	{
 		var caster = handler.SelectedCreature;
 
@@ -138,7 +138,7 @@ class CastCommands
 	}
 
 	[Command("dest", RBACPermissions.CommandCastDest)]
-	static bool HandleCastDestCommand(CommandHandler handler, uint spellId, float x, float y, float z, [OptionalArg] string triggeredStr)
+    private static bool HandleCastDestCommand(CommandHandler handler, uint spellId, float x, float y, float z, [OptionalArg] string triggeredStr)
 	{
 		var caster = handler.SelectedUnit;
 
@@ -162,7 +162,7 @@ class CastCommands
 		return true;
 	}
 
-	static TriggerCastFlags? GetTriggerFlags(string triggeredStr)
+    private static TriggerCastFlags? GetTriggerFlags(string triggeredStr)
 	{
 		if (!triggeredStr.IsEmpty())
 		{
@@ -175,7 +175,7 @@ class CastCommands
 		return TriggerCastFlags.None;
 	}
 
-	static bool CheckSpellExistsAndIsValid(CommandHandler handler, uint spellId)
+    private static bool CheckSpellExistsAndIsValid(CommandHandler handler, uint spellId)
 	{
 		var spellInfo = Global.SpellMgr.GetSpellInfo(spellId, Difficulty.None);
 

@@ -19,10 +19,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("gobject")]
-class GameObjectCommands
+internal class GameObjectCommands
 {
 	[Command("activate", RBACPermissions.CommandGobjectActivate)]
-	static bool HandleGameObjectActivateCommand(CommandHandler handler, ulong guidLow)
+    private static bool HandleGameObjectActivateCommand(CommandHandler handler, ulong guidLow)
 	{
 		var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
@@ -45,7 +45,7 @@ class GameObjectCommands
 	}
 
 	[Command("delete", RBACPermissions.CommandGobjectDelete)]
-	static bool HandleGameObjectDeleteCommand(CommandHandler handler, ulong spawnId)
+    private static bool HandleGameObjectDeleteCommand(CommandHandler handler, ulong spawnId)
 	{
 		var obj = handler.GetObjectFromPlayerMapByDbGuid(spawnId);
 
@@ -82,7 +82,7 @@ class GameObjectCommands
 	}
 
 	[Command("despawngroup", RBACPermissions.CommandGobjectDespawngroup)]
-	static bool HandleGameObjectDespawnGroup(CommandHandler handler, string[] opts)
+    private static bool HandleGameObjectDespawnGroup(CommandHandler handler, string[] opts)
 	{
 		if (opts == null || opts.Empty())
 			return false;
@@ -112,7 +112,7 @@ class GameObjectCommands
 	}
 
 	[Command("info", RBACPermissions.CommandGobjectInfo)]
-	static bool HandleGameObjectInfoCommand(CommandHandler handler, [OptionalArg] string isGuid, ulong data)
+    private static bool HandleGameObjectInfoCommand(CommandHandler handler, [OptionalArg] string isGuid, ulong data)
 	{
 		GameObject thisGO = null;
 		GameObjectData spawnData = null;
@@ -207,7 +207,7 @@ class GameObjectCommands
 	}
 
 	[Command("move", RBACPermissions.CommandGobjectMove)]
-	static bool HandleGameObjectMoveCommand(CommandHandler handler, ulong guidLow, float[] xyz)
+    private static bool HandleGameObjectMoveCommand(CommandHandler handler, ulong guidLow, float[] xyz)
 	{
 		var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
@@ -263,7 +263,7 @@ class GameObjectCommands
 	}
 
 	[Command("near", RBACPermissions.CommandGobjectNear)]
-	static bool HandleGameObjectNearCommand(CommandHandler handler, float? dist)
+    private static bool HandleGameObjectNearCommand(CommandHandler handler, float? dist)
 	{
 		var distance = dist.GetValueOrDefault(10f);
 		uint count = 0;
@@ -307,7 +307,7 @@ class GameObjectCommands
 	}
 
 	[Command("spawngroup", RBACPermissions.CommandGobjectSpawngroup)]
-	static bool HandleGameObjectSpawnGroup(CommandHandler handler, StringArguments args)
+    private static bool HandleGameObjectSpawnGroup(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -355,7 +355,7 @@ class GameObjectCommands
 	}
 
 	[Command("target", RBACPermissions.CommandGobjectTarget)]
-	static bool HandleGameObjectTargetCommand(CommandHandler handler, string objectIdStr)
+    private static bool HandleGameObjectTargetCommand(CommandHandler handler, string objectIdStr)
 	{
 		var player = handler.Session.Player;
 		SQLResult result;
@@ -479,7 +479,7 @@ class GameObjectCommands
 	}
 
 	[Command("turn", RBACPermissions.CommandGobjectTurn)]
-	static bool HandleGameObjectTurnCommand(CommandHandler handler, ulong guidLow, float? oz, float? oy, float? ox)
+    private static bool HandleGameObjectTurnCommand(CommandHandler handler, ulong guidLow, float? oz, float? oy, float? ox)
 	{
 		var obj = handler.GetObjectFromPlayerMapByDbGuid(guidLow);
 
@@ -516,10 +516,10 @@ class GameObjectCommands
 	}
 
 	[CommandGroup("add")]
-	class AddCommands
+    private class AddCommands
 	{
 		[Command("", RBACPermissions.CommandGobjectAdd)]
-		static bool HandleGameObjectAddCommand(CommandHandler handler, uint objectId, int? spawnTimeSecs)
+        private static bool HandleGameObjectAddCommand(CommandHandler handler, uint objectId, int? spawnTimeSecs)
 		{
 			if (objectId == 0)
 				return false;
@@ -578,7 +578,7 @@ class GameObjectCommands
 		}
 
 		[Command("temp", RBACPermissions.CommandGobjectAddTemp)]
-		static bool HandleGameObjectAddTempCommand(CommandHandler handler, uint objectId, ulong? spawntime)
+        private static bool HandleGameObjectAddTempCommand(CommandHandler handler, uint objectId, ulong? spawntime)
 		{
 			var player = handler.Player;
 			var spawntm = TimeSpan.FromSeconds(spawntime.GetValueOrDefault(300));
@@ -599,10 +599,10 @@ class GameObjectCommands
 	}
 
 	[CommandGroup("set")]
-	class SetCommands
+    private class SetCommands
 	{
 		[Command("phase", RBACPermissions.CommandGobjectSetPhase)]
-		static bool HandleGameObjectSetPhaseCommand(CommandHandler handler, ulong guidLow, uint phaseId)
+        private static bool HandleGameObjectSetPhaseCommand(CommandHandler handler, ulong guidLow, uint phaseId)
 		{
 			if (guidLow == 0)
 				return false;
@@ -630,7 +630,7 @@ class GameObjectCommands
 		}
 
 		[Command("state", RBACPermissions.CommandGobjectSetState)]
-		static bool HandleGameObjectSetStateCommand(CommandHandler handler, ulong guidLow, int objectType, uint? objectState)
+        private static bool HandleGameObjectSetStateCommand(CommandHandler handler, ulong guidLow, int objectType, uint? objectState)
 		{
 			if (guidLow == 0)
 				return false;

@@ -20,20 +20,20 @@ public class CriteriaManager
 	private readonly CliDB _cliDB;
 	private readonly WorldDatabase _worldDatabase;
 	private readonly GameObjectManager _gameObjectManager;
-	readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
-	readonly Dictionary<uint, CriteriaTree> _criteriaTrees = new();
-	readonly Dictionary<uint, Criteria> _criteria = new();
-	readonly Dictionary<uint, ModifierTreeNode> _criteriaModifiers = new();
-	readonly MultiMap<uint, CriteriaTree> _criteriaTreeByCriteria = new();
+    private readonly Dictionary<uint, CriteriaDataSet> _criteriaDataMap = new();
+    private readonly Dictionary<uint, CriteriaTree> _criteriaTrees = new();
+    private readonly Dictionary<uint, Criteria> _criteria = new();
+    private readonly Dictionary<uint, ModifierTreeNode> _criteriaModifiers = new();
+    private readonly MultiMap<uint, CriteriaTree> _criteriaTreeByCriteria = new();
 
 	// store criterias by type to speed up lookup
-	readonly MultiMap<CriteriaType, Criteria> _criteriasByType = new();
-	readonly MultiMap<uint, Criteria>[] _criteriasByAsset = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
-	readonly MultiMap<CriteriaType, Criteria> _guildCriteriasByType = new();
-	readonly MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
-	readonly MultiMap<CriteriaType, Criteria> _questObjectiveCriteriasByType = new();
-	readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
-	readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
+    private readonly MultiMap<CriteriaType, Criteria> _criteriasByType = new();
+    private readonly MultiMap<uint, Criteria>[] _criteriasByAsset = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
+    private readonly MultiMap<CriteriaType, Criteria> _guildCriteriasByType = new();
+    private readonly MultiMap<uint, Criteria>[] _scenarioCriteriasByTypeAndScenarioId = new MultiMap<uint, Criteria>[(int)CriteriaType.Count];
+    private readonly MultiMap<CriteriaType, Criteria> _questObjectiveCriteriasByType = new();
+    private readonly MultiMap<CriteriaStartEvent, Criteria> _criteriasByTimedType = new();
+    private readonly MultiMap<int, Criteria>[] _criteriasByFailEvent = new MultiMap<int, Criteria>[(int)CriteriaFailEvent.Max];
 
 	public CriteriaManager(CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
 	{
@@ -416,7 +416,7 @@ public class CriteriaManager
 		func(tree);
 	}
 
-	T GetEntry<T>(Dictionary<uint, T> map, CriteriaTreeRecord tree) where T : new()
+    private T GetEntry<T>(Dictionary<uint, T> map, CriteriaTreeRecord tree) where T : new()
 	{
 		var cur = tree;
 		var obj = map.LookupByKey(tree.Id);
@@ -440,7 +440,7 @@ public class CriteriaManager
 		return obj;
 	}
 
-	bool IsCriteriaTypeStoredByAsset(CriteriaType type)
+    private bool IsCriteriaTypeStoredByAsset(CriteriaType type)
 	{
 		switch (type)
 		{

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonInfo
+internal class GarrisonInfo
 {
 	public GarrisonType GarrTypeID;
 	public uint GarrSiteID;

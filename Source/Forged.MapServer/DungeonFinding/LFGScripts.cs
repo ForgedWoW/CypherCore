@@ -13,7 +13,7 @@ using Serilog;
 
 namespace Forged.MapServer.DungeonFinding;
 
-class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IPlayerOnMapChanged
+internal class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IPlayerOnMapChanged
 {
 	public PlayerClass PlayerClass { get; } = PlayerClass.None;
 	public LFGPlayerScript() : base("LFGPlayerScript") { }
@@ -113,7 +113,7 @@ class LFGPlayerScript : ScriptObjectAutoAdd, IPlayerOnLogout, IPlayerOnLogin, IP
 	}
 }
 
-class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMember, IGroupOnDisband, IGroupOnChangeLeader, IGroupOnInviteMember
+internal class LFGGroupScript : ScriptObjectAutoAdd, IGroupOnAddMember, IGroupOnRemoveMember, IGroupOnDisband, IGroupOnChangeLeader, IGroupOnInviteMember
 {
 	public LFGGroupScript() : base("LFGGroupScript") { }
 

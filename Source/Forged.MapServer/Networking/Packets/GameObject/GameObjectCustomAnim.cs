@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.GameObject;
 
-class GameObjectCustomAnim : ServerPacket
+internal class GameObjectCustomAnim : ServerPacket
 {
 	public ObjectGuid ObjectGUID;
 	public uint CustomAnim;

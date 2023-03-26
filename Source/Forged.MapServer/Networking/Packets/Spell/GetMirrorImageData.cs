@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class GetMirrorImageData : ClientPacket
+internal class GetMirrorImageData : ClientPacket
 {
 	public ObjectGuid UnitGUID;
 	public GetMirrorImageData(WorldPacket packet) : base(packet) { }

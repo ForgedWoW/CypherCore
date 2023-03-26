@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct GarrisonBuildingMapData
+internal struct GarrisonBuildingMapData
 {
 	public GarrisonBuildingMapData(uint buildingPlotInstId, Position pos)
 	{

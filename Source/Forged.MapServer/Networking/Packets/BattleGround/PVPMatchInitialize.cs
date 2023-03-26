@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class PVPMatchInitialize : ServerPacket
+internal class PVPMatchInitialize : ServerPacket
 {
 	public enum MatchState
 	{

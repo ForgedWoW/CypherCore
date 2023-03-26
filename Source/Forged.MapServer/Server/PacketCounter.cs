@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Server;
 
-struct PacketCounter
+internal struct PacketCounter
 {
 	public long LastReceiveTime;
 	public uint AmountCounter;

@@ -11,13 +11,13 @@ namespace Forged.MapServer.Collision.Models;
 
 public class GroupModel : IModel
 {
-	readonly List<Vector3> _vertices = new();
-	readonly List<MeshTriangle> _triangles = new();
-	readonly BIH _meshTree = new();
-	AxisAlignedBox _iBound;
-	uint _iMogpFlags;
-	uint _iGroupWmoid;
-	WmoLiquid _iLiquid;
+    private readonly List<Vector3> _vertices = new();
+    private readonly List<MeshTriangle> _triangles = new();
+    private readonly BIH _meshTree = new();
+    private AxisAlignedBox _iBound;
+    private uint _iMogpFlags;
+    private uint _iGroupWmoid;
+    private WmoLiquid _iLiquid;
 
 	public GroupModel()
 	{

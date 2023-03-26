@@ -7,7 +7,7 @@ using Forged.MapServer.Networking.Packets.Addon;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionSellCommodity : ClientPacket
+internal class AuctionSellCommodity : ClientPacket
 {
 	public ObjectGuid Auctioneer;
 	public ulong UnitPrice;

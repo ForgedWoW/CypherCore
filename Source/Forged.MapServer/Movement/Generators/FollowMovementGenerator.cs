@@ -9,14 +9,14 @@ namespace Forged.MapServer.Movement.Generators;
 
 public class FollowMovementGenerator : MovementGenerator
 {
-	static readonly uint CHECK_INTERVAL = 100;
-	static readonly float FOLLOW_RANGE_TOLERANCE = 1.0f;
-	readonly float _range;
-	readonly TimeTracker _checkTimer;
-	readonly AbstractFollower _abstractFollower;
-	ChaseAngle _angle;
-	PathGenerator _path;
-	Position _lastTargetPosition;
+    private static readonly uint CHECK_INTERVAL = 100;
+    private static readonly float FOLLOW_RANGE_TOLERANCE = 1.0f;
+    private readonly float _range;
+    private readonly TimeTracker _checkTimer;
+    private readonly AbstractFollower _abstractFollower;
+    private ChaseAngle _angle;
+    private PathGenerator _path;
+    private Position _lastTargetPosition;
 
 	public FollowMovementGenerator(Unit target, float range, ChaseAngle angle)
 	{
@@ -196,7 +196,7 @@ public class FollowMovementGenerator : MovementGenerator
 		_lastTargetPosition = null;
 	}
 
-	void UpdatePetSpeed(Unit owner)
+    private void UpdatePetSpeed(Unit owner)
 	{
 		var oPet = owner.AsPet;
 
@@ -209,7 +209,7 @@ public class FollowMovementGenerator : MovementGenerator
 			}
 	}
 
-	static bool PositionOkay(Unit owner, Unit target, float range, ChaseAngle? angle = null)
+    private static bool PositionOkay(Unit owner, Unit target, float range, ChaseAngle? angle = null)
 	{
 		if (owner.Location.GetExactDistSq(target.Location) > (owner.CombatReach + target.CombatReach + range) * (owner.CombatReach + target.CombatReach + range))
 			return false;
@@ -217,7 +217,7 @@ public class FollowMovementGenerator : MovementGenerator
 		return !angle.HasValue || angle.Value.IsAngleOkay(target.Location.GetRelativeAngle(owner.Location));
 	}
 
-	static void DoMovementInform(Unit owner, Unit target)
+    private static void DoMovementInform(Unit owner, Unit target)
 	{
 		if (!owner.IsCreature)
 			return;

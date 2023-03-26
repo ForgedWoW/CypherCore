@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestUpdateComplete : ServerPacket
+internal class QuestUpdateComplete : ServerPacket
 {
 	public uint QuestID;
 	public QuestUpdateComplete() : base(ServerOpcodes.QuestUpdateComplete) { }

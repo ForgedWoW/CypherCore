@@ -15,8 +15,8 @@ namespace Forged.MapServer.Entities.Players;
 public class PlayerTaxi
 {
 	public byte[] Taximask;
-	readonly List<uint> _taxiDestinations = new();
-	uint _flightMasterFactionId;
+    private readonly List<uint> _taxiDestinations = new();
+    private uint _flightMasterFactionId;
 	public object TaxiLock { get; } = new();
 
 	public void InitTaxiNodesForLevel(Race race, PlayerClass chrClass, uint level)
@@ -297,7 +297,7 @@ public class PlayerTaxi
 		return _taxiDestinations.Empty();
 	}
 
-	void SetTaxiDestination(List<uint> nodes)
+    private void SetTaxiDestination(List<uint> nodes)
 	{
 		_taxiDestinations.Clear();
 		_taxiDestinations.AddRange(nodes);

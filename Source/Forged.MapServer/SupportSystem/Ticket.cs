@@ -143,7 +143,7 @@ public class Ticket
 	public virtual void SaveToDB() { }
 	public virtual void DeleteFromDB() { }
 
-	bool IsFromPlayer(ObjectGuid guid)
+    private bool IsFromPlayer(ObjectGuid guid)
 	{
 		return guid == PlayerGuidProtected;
 	}

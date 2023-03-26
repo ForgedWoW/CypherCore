@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattleGround;
 
-class BattlefieldLeave : ClientPacket
+internal class BattlefieldLeave : ClientPacket
 {
 	public BattlefieldLeave(WorldPacket packet) : base(packet) { }
 

@@ -14,8 +14,8 @@ namespace Forged.MapServer.SupportSystem;
 
 public class SuggestionTicket : Ticket
 {
-	float _facing;
-	string _note;
+    private float _facing;
+    private string _note;
 
 	public SuggestionTicket()
 	{
@@ -118,7 +118,7 @@ public class SuggestionTicket : Ticket
 		_facing = facing;
 	}
 
-	string GetNote()
+    private string GetNote()
 	{
 		return _note;
 	}

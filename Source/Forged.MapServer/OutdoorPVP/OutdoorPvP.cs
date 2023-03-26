@@ -27,8 +27,8 @@ public class OutdoorPvP : ZoneScript
 	// the map of the objectives belonging to this outdoorpvp
 	public Dictionary<ulong, OPvPCapturePoint> m_capturePoints = new();
 	public OutdoorPvPTypes m_TypeId;
-	readonly List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];
-	readonly Map m_map;
+    private readonly List<ObjectGuid>[] m_players = new List<ObjectGuid>[2];
+    private readonly Map m_map;
 
 	public OutdoorPvP(Map map)
 	{
@@ -235,7 +235,7 @@ public class OutdoorPvP : ZoneScript
 		return m_map;
 	}
 
-	bool IsInsideObjective(Player player)
+    private bool IsInsideObjective(Player player)
 	{
 		foreach (var pair in m_capturePoints)
 			if (pair.Value.IsInsideObjective(player))
@@ -244,7 +244,7 @@ public class OutdoorPvP : ZoneScript
 		return false;
 	}
 
-	void BroadcastPacket(ServerPacket packet)
+    private void BroadcastPacket(ServerPacket packet)
 	{
 		// This is faster than sWorld.SendZoneMessage
 		for (var team = 0; team < 2; ++team)
@@ -257,7 +257,7 @@ public class OutdoorPvP : ZoneScript
 			}
 	}
 
-	void BroadcastWorker(IDoWork<Player> _worker, uint zoneId)
+    private void BroadcastWorker(IDoWork<Player> _worker, uint zoneId)
 	{
 		for (uint i = 0; i < SharedConst.PvpTeamsCount; ++i)
 			foreach (var guid in m_players[i])
@@ -270,7 +270,7 @@ public class OutdoorPvP : ZoneScript
 			}
 	}
 
-	OPvPCapturePoint GetCapturePoint(ulong lowguid)
+    private OPvPCapturePoint GetCapturePoint(ulong lowguid)
 	{
 		return m_capturePoints.LookupByKey(lowguid);
 	}
@@ -294,12 +294,12 @@ public class OPvPCapturePoint
 	// neutral value on capture bar
 	public uint m_neutralValuePct;
 
-	float m_minValue;
+    private float m_minValue;
 
 	// maximum speed of capture
-	float m_maxSpeed;
+    private float m_maxSpeed;
 
-	uint m_team;
+    private uint m_team;
 
 	// objective states
 	public ObjectiveStates OldState { get; set; }
@@ -567,10 +567,10 @@ public class OPvPCapturePoint
 	public virtual void ChangeTeam(uint oldTeam) { }
 }
 
-class DefenseMessageBuilder : MessageBuilder
+internal class DefenseMessageBuilder : MessageBuilder
 {
-	readonly uint _zoneId; // ZoneId
-	readonly uint _id;     // BroadcastTextId
+    private readonly uint _zoneId; // ZoneId
+    private readonly uint _id;     // BroadcastTextId
 
 	public DefenseMessageBuilder(uint zoneId, uint id)
 	{
@@ -611,11 +611,11 @@ public class go_type
 	}
 }
 
-class creature_type
+internal class creature_type
 {
 	public uint entry;
 	public uint map;
-	readonly Position pos;
+    private readonly Position pos;
 
 	public creature_type(uint _entry, uint _map, float _x, float _y, float _z, float _o)
 	{

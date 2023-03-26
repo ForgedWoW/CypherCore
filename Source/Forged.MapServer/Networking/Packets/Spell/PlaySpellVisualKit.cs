@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class PlaySpellVisualKit : ServerPacket
+internal class PlaySpellVisualKit : ServerPacket
 {
 	public ObjectGuid Unit;
 	public uint KitRecID;

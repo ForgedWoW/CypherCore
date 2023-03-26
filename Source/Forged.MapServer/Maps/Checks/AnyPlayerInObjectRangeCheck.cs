@@ -9,9 +9,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class AnyPlayerInObjectRangeCheck : ICheck<Player>
 {
-	readonly WorldObject _obj;
-	readonly float _range;
-	readonly bool _reqAlive;
+    private readonly WorldObject _obj;
+    private readonly float _range;
+    private readonly bool _reqAlive;
 
 	public AnyPlayerInObjectRangeCheck(WorldObject obj, float range, bool reqAlive = true)
 	{

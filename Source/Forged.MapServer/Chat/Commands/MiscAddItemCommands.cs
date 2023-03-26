@@ -14,10 +14,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("additem")]
-class MiscAddItemCommands
+internal class MiscAddItemCommands
 {
 	[Command("", RBACPermissions.CommandAdditem)]
-	static bool HandleAddItemCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleAddItemCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;
@@ -181,7 +181,7 @@ class MiscAddItemCommands
 	}
 
 	[Command("set", RBACPermissions.CommandAdditemset)]
-	static bool HandleAddItemSetCommand(CommandHandler handler, uint itemSetId, [OptionalArg] string bonuses, byte? context)
+    private static bool HandleAddItemSetCommand(CommandHandler handler, uint itemSetId, [OptionalArg] string bonuses, byte? context)
 	{
 		// prevent generation all items with itemset field value '0'
 		if (itemSetId == 0)
@@ -267,7 +267,7 @@ class MiscAddItemCommands
 	}
 
 	[Command("to", RBACPermissions.CommandAdditemset)]
-	static bool HandleAddItemToCommand(CommandHandler handler, StringArguments args)
+    private static bool HandleAddItemToCommand(CommandHandler handler, StringArguments args)
 	{
 		if (args.Empty())
 			return false;

@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct InviteWrongFactionAppend : IChannelAppender
+internal struct InviteWrongFactionAppend : IChannelAppender
 {
 	public ChatNotify GetNotificationType() => ChatNotify.InviteWrongFactionNotice;
 

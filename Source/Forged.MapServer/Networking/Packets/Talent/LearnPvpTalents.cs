@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Talent;
 
-class LearnPvpTalents : ClientPacket
+internal class LearnPvpTalents : ClientPacket
 {
 	public Array<PvPTalent> Talents = new(4);
 	public LearnPvpTalents(WorldPacket packet) : base(packet) { }

@@ -8,9 +8,9 @@ namespace Forged.MapServer.Networking.Packets.Misc;
 
 public class WeatherPkt : ServerPacket
 {
-	readonly bool Abrupt;
-	readonly float Intensity;
-	readonly WeatherState WeatherID;
+    private readonly bool Abrupt;
+    private readonly float Intensity;
+    private readonly WeatherState WeatherID;
 
 	public WeatherPkt(WeatherState weatherID = 0, float intensity = 0.0f, bool abrupt = false) : base(ServerOpcodes.Weather, ConnectionType.Instance)
 	{

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.DataStorage;
 
-enum CurveInterpolationMode
+internal enum CurveInterpolationMode
 {
 	Linear = 0,
 	Cosine = 1,

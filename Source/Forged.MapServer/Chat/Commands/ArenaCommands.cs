@@ -8,10 +8,10 @@ using Framework.Constants;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("arena")]
-class ArenaCommands
+internal class ArenaCommands
 {
 	[Command("create", RBACPermissions.CommandArenaCreate, true)]
-	static bool HandleArenaCreateCommand(CommandHandler handler, PlayerIdentifier captain, string name, ArenaTypes type)
+    private static bool HandleArenaCreateCommand(CommandHandler handler, PlayerIdentifier captain, string name, ArenaTypes type)
 	{
 		if (Global.ArenaTeamMgr.GetArenaTeamByName(name) != null)
 		{
@@ -49,7 +49,7 @@ class ArenaCommands
 	}
 
 	[Command("disband", RBACPermissions.CommandArenaDisband, true)]
-	static bool HandleArenaDisbandCommand(CommandHandler handler, uint teamId)
+    private static bool HandleArenaDisbandCommand(CommandHandler handler, uint teamId)
 	{
 		var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
 
@@ -76,7 +76,7 @@ class ArenaCommands
 	}
 
 	[Command("rename", RBACPermissions.CommandArenaRename, true)]
-	static bool HandleArenaRenameCommand(CommandHandler handler, string oldName, string newName)
+    private static bool HandleArenaRenameCommand(CommandHandler handler, string oldName, string newName)
 	{
 		var arena = Global.ArenaTeamMgr.GetArenaTeamByName(oldName);
 
@@ -114,7 +114,7 @@ class ArenaCommands
 	}
 
 	[Command("captain", RBACPermissions.CommandArenaCaptain)]
-	static bool HandleArenaCaptainCommand(CommandHandler handler, uint teamId, PlayerIdentifier target)
+    private static bool HandleArenaCaptainCommand(CommandHandler handler, uint teamId, PlayerIdentifier target)
 	{
 		var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
 
@@ -162,7 +162,7 @@ class ArenaCommands
 	}
 
 	[Command("info", RBACPermissions.CommandArenaInfo, true)]
-	static bool HandleArenaInfoCommand(CommandHandler handler, uint teamId)
+    private static bool HandleArenaInfoCommand(CommandHandler handler, uint teamId)
 	{
 		var arena = Global.ArenaTeamMgr.GetArenaTeamById(teamId);
 
@@ -182,7 +182,7 @@ class ArenaCommands
 	}
 
 	[Command("lookup", RBACPermissions.CommandArenaLookup)]
-	static bool HandleArenaLookupCommand(CommandHandler handler, string needle)
+    private static bool HandleArenaLookupCommand(CommandHandler handler, string needle)
 	{
 		if (needle.IsEmpty())
 			return false;

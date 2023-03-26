@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetRequestJournalLock : ClientPacket
+internal class BattlePetRequestJournalLock : ClientPacket
 {
 	public BattlePetRequestJournalLock(WorldPacket packet) : base(packet) { }
 

@@ -55,12 +55,12 @@ public class MovementHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.MoveStopSwim, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveStopTurn, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveUpdateFallSpeed, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMovement(ClientPlayerMovement packet)
+    private void HandleMovement(ClientPlayerMovement packet)
 	{
 		HandleMovementOpcode(packet.GetOpcode(), packet.Status);
 	}
 
-	void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
+    private void HandleMovementOpcode(ClientOpcodes opcode, MovementInfo movementInfo)
 	{
 		var mover = Player.UnitBeingMoved;
 		var plrMover = mover.AsPlayer;
@@ -223,12 +223,12 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.WorldPortResponse, Status = SessionStatus.Transfer)]
-	void HandleMoveWorldportAck(WorldPortResponse packet)
+    private void HandleMoveWorldportAck(WorldPortResponse packet)
 	{
 		HandleMoveWorldportAck();
 	}
 
-	void HandleMoveWorldportAck()
+    private void HandleMoveWorldportAck()
 	{
 		var player = Player;
 
@@ -436,7 +436,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SuspendTokenResponse, Status = SessionStatus.Transfer)]
-	void HandleSuspendTokenResponse(SuspendTokenResponse suspendTokenResponse)
+    private void HandleSuspendTokenResponse(SuspendTokenResponse suspendTokenResponse)
 	{
 		if (!_player.IsBeingTeleportedFar)
 			return;
@@ -461,7 +461,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveTeleportAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveTeleportAck(MoveTeleportAck packet)
+    private void HandleMoveTeleportAck(MoveTeleportAck packet)
 	{
 		var plMover = Player.UnitBeingMoved.AsPlayer;
 
@@ -511,7 +511,7 @@ public class MovementHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.MoveForceSwimSpeedChangeAck, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveForceTurnRateChangeAck, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveForceWalkSpeedChangeAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleForceSpeedChangeAck(MovementSpeedAck packet)
+    private void HandleForceSpeedChangeAck(MovementSpeedAck packet)
 	{
 		Player.ValidateMovementInfo(packet.Ack.Status);
 
@@ -606,7 +606,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetActiveMover)]
-	void HandleSetActiveMover(SetActiveMover packet)
+    private void HandleSetActiveMover(SetActiveMover packet)
 	{
 		if (Player.IsInWorld)
 			if (_player.UnitBeingMoved.GUID != packet.ActiveMover)
@@ -614,7 +614,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveKnockBackAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveKnockBackAck(MoveKnockBackAck movementAck)
+    private void HandleMoveKnockBackAck(MoveKnockBackAck movementAck)
 	{
 		Player.ValidateMovementInfo(movementAck.Ack.Status);
 
@@ -641,19 +641,19 @@ public class MovementHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.MoveSetCanTurnWhileFallingAck, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveSetIgnoreMovementForcesAck, Processing = PacketProcessing.ThreadSafe)]
 	[WorldPacketHandler(ClientOpcodes.MoveWaterWalkAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMovementAckMessage(MovementAckMessage movementAck)
+    private void HandleMovementAckMessage(MovementAckMessage movementAck)
 	{
 		Player.ValidateMovementInfo(movementAck.Ack.Status);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveSetCollisionHeightAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleSetCollisionHeightAck(MoveSetCollisionHeightAck packet)
+    private void HandleSetCollisionHeightAck(MoveSetCollisionHeightAck packet)
 	{
 		Player.ValidateMovementInfo(packet.Data.Status);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveApplyMovementForceAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveApplyMovementForceAck(MoveApplyMovementForceAck moveApplyMovementForceAck)
+    private void HandleMoveApplyMovementForceAck(MoveApplyMovementForceAck moveApplyMovementForceAck)
 	{
 		var mover = _player.UnitBeingMoved;
 		_player.ValidateMovementInfo(moveApplyMovementForceAck.Ack.Status);
@@ -675,7 +675,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveRemoveMovementForceAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveRemoveMovementForceAck(MoveRemoveMovementForceAck moveRemoveMovementForceAck)
+    private void HandleMoveRemoveMovementForceAck(MoveRemoveMovementForceAck moveRemoveMovementForceAck)
 	{
 		var mover = _player.UnitBeingMoved;
 		_player.ValidateMovementInfo(moveRemoveMovementForceAck.Ack.Status);
@@ -697,7 +697,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveSetModMovementForceMagnitudeAck, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveSetModMovementForceMagnitudeAck(MovementSpeedAck setModMovementForceMagnitudeAck)
+    private void HandleMoveSetModMovementForceMagnitudeAck(MovementSpeedAck setModMovementForceMagnitudeAck)
 	{
 		var mover = _player.UnitBeingMoved;
 		_player.ValidateMovementInfo(setModMovementForceMagnitudeAck.Ack.Status);
@@ -742,7 +742,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveTimeSkipped, Processing = PacketProcessing.Inplace)]
-	void HandleMoveTimeSkipped(MoveTimeSkipped moveTimeSkipped)
+    private void HandleMoveTimeSkipped(MoveTimeSkipped moveTimeSkipped)
 	{
 		var mover = Player.UnitBeingMoved;
 
@@ -770,7 +770,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveSplineDone, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveSplineDoneOpcode(MoveSplineDone moveSplineDone)
+    private void HandleMoveSplineDoneOpcode(MoveSplineDone moveSplineDone)
 	{
 		var movementInfo = moveSplineDone.Status;
 		_player.ValidateMovementInfo(movementInfo);
@@ -817,7 +817,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TimeSyncResponse, Processing = PacketProcessing.ThreadSafe)]
-	void HandleTimeSyncResponse(TimeSyncResponse timeSyncResponse)
+    private void HandleTimeSyncResponse(TimeSyncResponse timeSyncResponse)
 	{
 		if (!_pendingTimeSyncRequests.ContainsKey(timeSyncResponse.SequenceIndex))
 			return;
@@ -847,7 +847,7 @@ public class MovementHandler : IWorldSessionHandler
 		ComputeNewClockDelta();
 	}
 
-	void ComputeNewClockDelta()
+    private void ComputeNewClockDelta()
 	{
 		// implementation of the technique described here: https://web.archive.org/web/20180430214420/http://www.mine-control.com/zack/timesync/timesync.html
 		// to reduce the skew induced by dropped TCP packets that get resent.
@@ -887,7 +887,7 @@ public class MovementHandler : IWorldSessionHandler
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MoveInitActiveMoverComplete, Processing = PacketProcessing.ThreadSafe)]
-	void HandleMoveInitActiveMoverComplete(MoveInitActiveMoverComplete moveInitActiveMoverComplete)
+    private void HandleMoveInitActiveMoverComplete(MoveInitActiveMoverComplete moveInitActiveMoverComplete)
 	{
 		_player.SetPlayerLocalFlag(PlayerLocalFlags.OverrideTransportServerTime);
 		_player.SetTransportServerTime((int)(GameTime.GetGameTimeMS() - moveInitActiveMoverComplete.Ticks));

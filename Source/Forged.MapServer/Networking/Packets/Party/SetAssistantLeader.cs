@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class SetAssistantLeader : ClientPacket
+internal class SetAssistantLeader : ClientPacket
 {
 	public ObjectGuid Target;
 	public byte PartyIndex;

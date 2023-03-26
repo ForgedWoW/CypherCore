@@ -268,7 +268,7 @@ public abstract class Warden
 
 	public abstract void RequestChecks();
 
-	bool ProcessLuaCheckResponse(string msg)
+    private bool ProcessLuaCheckResponse(string msg)
 	{
 		var WARDEN_TOKEN = "_TW\t";
 

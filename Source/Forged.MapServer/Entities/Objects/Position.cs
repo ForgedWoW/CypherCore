@@ -342,7 +342,7 @@ public class Position
 		return new Vector3(position.X, position.Y, position.Z);
 	}
 
-	float ToRelativeAngle(float absAngle)
+    private float ToRelativeAngle(float absAngle)
 	{
 		return NormalizeOrientation(absAngle - Orientation);
 	}

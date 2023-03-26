@@ -18,12 +18,12 @@ namespace Forged.MapServer.Maps;
 
 public class InstanceMap : Map
 {
-	readonly InstanceLock _instanceLock;
-	readonly GroupInstanceReference _owningGroupRef = new();
-	InstanceScript _data;
-	uint _scriptId;
-	InstanceScenario _scenario;
-	DateTime? _instanceExpireEvent;
+    private readonly InstanceLock _instanceLock;
+    private readonly GroupInstanceReference _owningGroupRef = new();
+    private InstanceScript _data;
+    private uint _scriptId;
+    private InstanceScenario _scenario;
+    private DateTime? _instanceExpireEvent;
 
 	public uint MaxPlayers
 	{

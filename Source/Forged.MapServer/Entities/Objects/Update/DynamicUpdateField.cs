@@ -179,7 +179,7 @@ public class DynamicUpdateField<T> where T : new()
 			yield return obj;
 	}
 
-	void MarkAllUpdateMaskFields(T value)
+    private void MarkAllUpdateMaskFields(T value)
 	{
 		if (value is IHasChangesMask)
 			((IHasChangesMask)value).GetUpdateMask().SetAll();

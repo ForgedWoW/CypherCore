@@ -10,10 +10,10 @@ using Serilog;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("bnetaccount")]
-class BNetAccountCommands
+internal class BNetAccountCommands
 {
 	[Command("create", RBACPermissions.CommandBnetAccountCreate, true)]
-	static bool HandleAccountCreateCommand(CommandHandler handler, string accountName, string password, bool? createGameAccount)
+    private static bool HandleAccountCreateCommand(CommandHandler handler, string accountName, string password, bool? createGameAccount)
 	{
 		if (accountName.IsEmpty() || !accountName.Contains('@'))
 		{
@@ -61,7 +61,7 @@ class BNetAccountCommands
 	}
 
 	[Command("gameaccountcreate", RBACPermissions.CommandBnetAccountCreateGame, true)]
-	static bool HandleGameAccountCreateCommand(CommandHandler handler, string bnetAccountName)
+    private static bool HandleGameAccountCreateCommand(CommandHandler handler, string bnetAccountName)
 	{
 		var accountId = Global.BNetAccountMgr.GetId(bnetAccountName);
 
@@ -119,7 +119,7 @@ class BNetAccountCommands
 	}
 
 	[Command("link", RBACPermissions.CommandBnetAccountLink, true)]
-	static bool HandleAccountLinkCommand(CommandHandler handler, string bnetAccountName, string gameAccountName)
+    private static bool HandleAccountLinkCommand(CommandHandler handler, string bnetAccountName, string gameAccountName)
 	{
 		switch (Global.BNetAccountMgr.LinkWithGameAccount(bnetAccountName, gameAccountName))
 		{
@@ -143,7 +143,7 @@ class BNetAccountCommands
 	}
 
 	[Command("listgameaccounts", RBACPermissions.CommandBnetAccountListGameAccounts, true)]
-	static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
+    private static bool HandleListGameAccountsCommand(CommandHandler handler, string battlenetAccountName)
 	{
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_BNET_GAME_ACCOUNT_LIST);
 		stmt.AddValue(0, battlenetAccountName);
@@ -182,7 +182,7 @@ class BNetAccountCommands
 	}
 
 	[Command("password", RBACPermissions.CommandBnetAccountPassword, true)]
-	static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string passwordConfirmation)
+    private static bool HandleAccountPasswordCommand(CommandHandler handler, string oldPassword, string newPassword, string passwordConfirmation)
 	{
 		// We compare the old, saved password to the entered old password - no chance for the unauthorized.
 		if (!Global.BNetAccountMgr.CheckPassword(handler.Session.BattlenetAccountId, oldPassword))
@@ -235,7 +235,7 @@ class BNetAccountCommands
 	}
 
 	[Command("unlink", RBACPermissions.CommandBnetAccountUnlink, true)]
-	static bool HandleAccountUnlinkCommand(CommandHandler handler, string gameAccountName)
+    private static bool HandleAccountUnlinkCommand(CommandHandler handler, string gameAccountName)
 	{
 		switch (Global.BNetAccountMgr.UnlinkGameAccount(gameAccountName))
 		{
@@ -259,10 +259,10 @@ class BNetAccountCommands
 	}
 
 	[CommandGroup("lock")]
-	class AccountLockCommands
+    private class AccountLockCommands
 	{
 		[Command("country", RBACPermissions.CommandBnetAccountLockCountry, true)]
-		static bool HandleAccountLockCountryCommand(CommandHandler handler, bool state)
+        private static bool HandleAccountLockCountryCommand(CommandHandler handler, bool state)
 		{
 			/*if (state)
 			{
@@ -293,7 +293,7 @@ class BNetAccountCommands
 		}
 
 		[Command("ip", RBACPermissions.CommandBnetAccountLockIp, true)]
-		static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
+        private static bool HandleAccountLockIpCommand(CommandHandler handler, bool state)
 		{
 			var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BNET_ACCOUNT_LOCK);
 
@@ -317,10 +317,10 @@ class BNetAccountCommands
 	}
 
 	[CommandGroup("set")]
-	class AccountSetCommands
+    private class AccountSetCommands
 	{
 		[Command("password", RBACPermissions.CommandBnetAccountSetPassword, true)]
-		static bool HandleAccountSetPasswordCommand(CommandHandler handler, string accountName, string password, string passwordConfirmation)
+        private static bool HandleAccountSetPasswordCommand(CommandHandler handler, string accountName, string password, string passwordConfirmation)
 		{
 			var targetAccountId = Global.BNetAccountMgr.GetId(accountName);
 

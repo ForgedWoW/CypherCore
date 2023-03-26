@@ -464,7 +464,7 @@ public class LootManager : LootStorage
 		Log.Logger.Information("Loaded reference loot templates in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	static void Initialize()
+    private static void Initialize()
 	{
 		Creature = new LootStore("creature_loot_template", "creature entry");
 		Disenchant = new LootStore("disenchant_loot_template", "item disenchant id");
@@ -600,10 +600,10 @@ public class LootStoreItem
 
 public class LootStore
 {
-	readonly LootTemplateMap m_LootTemplates = new();
-	readonly string m_name;
-	readonly string m_entryName;
-	readonly bool m_ratesAllowed;
+    private readonly LootTemplateMap m_LootTemplates = new();
+    private readonly string m_name;
+    private readonly string m_entryName;
+    private readonly bool m_ratesAllowed;
 
 	public LootStore(string name, string entryName, bool ratesAllowed = true)
 	{
@@ -710,18 +710,18 @@ public class LootStore
 		return m_ratesAllowed;
 	}
 
-	void Verify()
+    private void Verify()
 	{
 		foreach (var i in m_LootTemplates)
 			i.Value.Verify(this, i.Key);
 	}
 
-	string GetEntryName()
+    private string GetEntryName()
 	{
 		return m_entryName;
 	}
 
-	uint LoadLootTable()
+    private uint LoadLootTable()
 	{
 		// Clearing store (for reloading case)
 		Clear();
@@ -773,7 +773,7 @@ public class LootStore
 		return count;
 	}
 
-	void Clear()
+    private void Clear()
 	{
 		m_LootTemplates.Clear();
 	}
@@ -781,8 +781,8 @@ public class LootStore
 
 public class LootTemplate
 {
-	readonly LootStoreItemList Entries = new();         // not grouped only
-	readonly Dictionary<int, LootGroup> Groups = new(); // groups have own (optimised) processing, grouped entries go there
+    private readonly LootStoreItemList Entries = new();         // not grouped only
+    private readonly Dictionary<int, LootGroup> Groups = new(); // groups have own (optimised) processing, grouped entries go there
 
 	public void AddEntry(LootStoreItem item)
 	{
@@ -1130,7 +1130,7 @@ public class LootTemplate
 	}
 
 	// True if template includes at least 1 drop for the player
-	bool HasDropForPlayer(Player player, byte groupId, bool strictUsabilityCheck)
+    private bool HasDropForPlayer(Player player, byte groupId, bool strictUsabilityCheck)
 	{
 		if (groupId != 0) // Group reference
 		{
@@ -1176,8 +1176,8 @@ public class LootTemplate
 
 	public class LootGroup // A set of loot definitions for items (refs are not allowed)
 	{
-		readonly LootStoreItemList ExplicitlyChanced = new(); // Entries with chances defined in DB
-		readonly LootStoreItemList EqualChanced = new();      // Zero chances - every entry takes the same chance
+        private readonly LootStoreItemList ExplicitlyChanced = new(); // Entries with chances defined in DB
+        private readonly LootStoreItemList EqualChanced = new();      // Zero chances - every entry takes the same chance
 
 		public void AddEntry(LootStoreItem item)
 		{
@@ -1297,7 +1297,7 @@ public class LootTemplate
 			return false;
 		}
 
-		float RawTotalChance()
+        private float RawTotalChance()
 		{
 			float result = 0;
 
@@ -1308,7 +1308,7 @@ public class LootTemplate
 			return result;
 		}
 
-		float TotalChance()
+        private float TotalChance()
 		{
 			var result = RawTotalChance();
 
@@ -1318,7 +1318,7 @@ public class LootTemplate
 			return result;
 		}
 
-		LootStoreItem Roll(ushort lootMode, Player personalLooter = null)
+        private LootStoreItem Roll(ushort lootMode, Player personalLooter = null)
 		{
 			var possibleLoot = ExplicitlyChanced;
 			possibleLoot.RemoveAll(new LootGroupInvalidSelector(lootMode, personalLooter).Check);
@@ -1376,6 +1376,6 @@ public struct LootGroupInvalidSelector
 		return false;
 	}
 
-	readonly ushort _lootMode;
-	readonly Player _personalLooter;
+    private readonly ushort _lootMode;
+    private readonly Player _personalLooter;
 }

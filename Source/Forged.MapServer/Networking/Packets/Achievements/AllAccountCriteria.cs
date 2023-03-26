@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Achievements;
 
-class AllAccountCriteria : ServerPacket
+internal class AllAccountCriteria : ServerPacket
 {
 	public List<CriteriaProgressPkt> Progress = new();
 	public AllAccountCriteria() : base(ServerOpcodes.AllAccountCriteria, ConnectionType.Instance) { }

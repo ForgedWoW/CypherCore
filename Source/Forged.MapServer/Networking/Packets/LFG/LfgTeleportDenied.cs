@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.LFG;
 
-class LfgTeleportDenied : ServerPacket
+internal class LfgTeleportDenied : ServerPacket
 {
 	public LfgTeleportResult Reason;
 

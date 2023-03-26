@@ -37,7 +37,7 @@ public class BonusData
 	public bool CanDisenchant;
 	public bool CanScrap;
 	public bool HasFixedLevel;
-	State _state;
+    private State _state;
 
 	public BonusData(ItemTemplate proto)
 	{
@@ -249,7 +249,7 @@ public class BonusData
 		}
 	}
 
-	struct State
+    private struct State
 	{
 		public int SuffixPriority;
 		public int AppearanceModPriority;

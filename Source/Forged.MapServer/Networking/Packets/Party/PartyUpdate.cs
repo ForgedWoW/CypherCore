@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class PartyUpdate : ServerPacket
+internal class PartyUpdate : ServerPacket
 {
 	public GroupFlags PartyFlags;
 	public byte PartyIndex;

@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Spell;
 
-class ResurrectRequest : ServerPacket
+internal class ResurrectRequest : ServerPacket
 {
 	public ObjectGuid ResurrectOffererGUID;
 	public uint ResurrectOffererVirtualRealmAddress;

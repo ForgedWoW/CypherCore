@@ -9,7 +9,7 @@ namespace Forged.MapServer.Spells.Skills;
 
 public class SkillPerfectItems
 {
-	static readonly Dictionary<uint, SkillPerfectItemEntry> SkillPerfectItemStorage = new();
+    private static readonly Dictionary<uint, SkillPerfectItemEntry> SkillPerfectItemStorage = new();
 
 	// loads the perfection proc info from DB
 	public static void LoadSkillPerfectItemTable()

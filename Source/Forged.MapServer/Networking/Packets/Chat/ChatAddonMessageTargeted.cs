@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Chat;
 
-class ChatAddonMessageTargeted : ClientPacket
+internal class ChatAddonMessageTargeted : ClientPacket
 {
 	public string Target;
 	public ChatAddonMessageParams Params = new();

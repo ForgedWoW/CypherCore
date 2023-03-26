@@ -9,9 +9,9 @@ using Forged.MapServer.Globals;
 
 namespace Forged.MapServer.Phasing;
 
-class ControlledUnitVisitor
+internal class ControlledUnitVisitor
 {
-	readonly HashSet<WorldObject> _visited = new();
+    private readonly HashSet<WorldObject> _visited = new();
 
 	public ControlledUnitVisitor(WorldObject owner)
 	{

@@ -488,7 +488,7 @@ public partial class Player
 			unit.SetPvP(state);
 	}
 
-	void SetRegularAttackTime()
+    private void SetRegularAttackTime()
 	{
 		for (WeaponAttackType weaponAttackType = 0; weaponAttackType < WeaponAttackType.Max; ++weaponAttackType)
 		{
@@ -508,12 +508,12 @@ public partial class Player
 		}
 	}
 
-	bool CanTitanGrip()
+    private bool CanTitanGrip()
 	{
 		return _canTitanGrip;
 	}
 
-	float GetRatingMultiplier(CombatRating cr)
+    private float GetRatingMultiplier(CombatRating cr)
 	{
 		var rating = CliDB.CombatRatingsGameTable.GetRow(Level);
 
@@ -528,7 +528,7 @@ public partial class Player
 		return 1.0f / value;
 	}
 
-	void GetDodgeFromAgility(double diminishing, double nondiminishing)
+    private void GetDodgeFromAgility(double diminishing, double nondiminishing)
 	{
 		/*// Table for base dodge values
 		float[] dodge_base =
@@ -582,7 +582,7 @@ public partial class Player
 		*/
 	}
 
-	double ApplyRatingDiminishing(CombatRating cr, double bonusValue)
+    private double ApplyRatingDiminishing(CombatRating cr, double bonusValue)
 	{
 		uint diminishingCurveId = 0;
 
@@ -645,7 +645,7 @@ public partial class Player
 		return bonusValue;
 	}
 
-	void CheckTitanGripPenalty()
+    private void CheckTitanGripPenalty()
 	{
 		if (!CanTitanGrip())
 			return;
@@ -663,7 +663,7 @@ public partial class Player
 		}
 	}
 
-	bool IsTwoHandUsed()
+    private bool IsTwoHandUsed()
 	{
 		var mainItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.MainHand);
 
@@ -677,7 +677,7 @@ public partial class Player
 				(itemTemplate.InventoryType == InventoryType.RangedRight && itemTemplate.Class == ItemClass.Weapon && (ItemSubClassWeapon)itemTemplate.SubClass != ItemSubClassWeapon.Wand);
 	}
 
-	bool IsUsingTwoHandedWeaponInOneHand()
+    private bool IsUsingTwoHandedWeaponInOneHand()
 	{
 		var offItem = GetItemByPos(InventorySlots.Bag0, EquipmentSlot.OffHand);
 
@@ -695,7 +695,7 @@ public partial class Player
 		return true;
 	}
 
-	void UpdateDuelFlag(long currTime)
+    private void UpdateDuelFlag(long currTime)
 	{
 		if (Duel is { State: DuelState.Countdown } && Duel.StartTime <= currTime)
 		{
@@ -709,7 +709,7 @@ public partial class Player
 		}
 	}
 
-	void CheckDuelDistance(long currTime)
+    private void CheckDuelDistance(long currTime)
 	{
 		if (Duel == null)
 			return;
@@ -742,12 +742,12 @@ public partial class Player
 		}
 	}
 
-	void SetDuelTeam(uint duelTeam)
+    private void SetDuelTeam(uint duelTeam)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.DuelTeam), duelTeam);
 	}
 
-	void UpdateAfkReport(long currTime)
+    private void UpdateAfkReport(long currTime)
 	{
 		if (_bgData.BgAfkReportedTimer <= currTime)
 		{
@@ -756,7 +756,7 @@ public partial class Player
 		}
 	}
 
-	void InitPvP()
+    private void InitPvP()
 	{
 		// pvp flag should stay after relog
 		if (HasPlayerFlag(PlayerFlags.InPVP))

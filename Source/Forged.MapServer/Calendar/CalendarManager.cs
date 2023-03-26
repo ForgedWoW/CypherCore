@@ -17,14 +17,14 @@ namespace Forged.MapServer.Calendar;
 
 public class CalendarManager : Singleton<CalendarManager>
 {
-	readonly List<CalendarEvent> _events;
-	readonly MultiMap<ulong, CalendarInvite> _invites;
-	readonly List<ulong> _freeEventIds = new();
-	readonly List<ulong> _freeInviteIds = new();
-	ulong _maxEventId;
-	ulong _maxInviteId;
+    private readonly List<CalendarEvent> _events;
+    private readonly MultiMap<ulong, CalendarInvite> _invites;
+    private readonly List<ulong> _freeEventIds = new();
+    private readonly List<ulong> _freeInviteIds = new();
+    private ulong _maxEventId;
+    private ulong _maxInviteId;
 
-	CalendarManager()
+    private CalendarManager()
 	{
 		_events = new List<CalendarEvent>();
 		_invites = new MultiMap<ulong, CalendarInvite>();
@@ -557,7 +557,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		}
 	}
 
-	void RemoveEvent(CalendarEvent calendarEvent, ObjectGuid remover)
+    private void RemoveEvent(CalendarEvent calendarEvent, ObjectGuid remover)
 	{
 		if (calendarEvent == null)
 		{
@@ -597,7 +597,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		_events.Remove(calendarEvent);
 	}
 
-	void FreeEventId(ulong id)
+    private void FreeEventId(ulong id)
 	{
 		if (id == _maxEventId)
 			--_maxEventId;
@@ -605,7 +605,7 @@ public class CalendarManager : Singleton<CalendarManager>
 			_freeEventIds.Add(id);
 	}
 
-	void SendCalendarEventRemovedAlert(CalendarEvent calendarEvent)
+    private void SendCalendarEventRemovedAlert(CalendarEvent calendarEvent)
 	{
 		CalendarEventRemovedAlert packet = new()
 		{
@@ -617,7 +617,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
-	void SendCalendarEventInviteRemove(CalendarEvent calendarEvent, CalendarInvite invite, uint flags)
+    private void SendCalendarEventInviteRemove(CalendarEvent calendarEvent, CalendarInvite invite, uint flags)
 	{
 		CalendarInviteRemoved packet = new()
 		{
@@ -630,7 +630,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		SendPacketToAllEventRelatives(packet, calendarEvent);
 	}
 
-	void SendCalendarEventInviteAlert(CalendarEvent calendarEvent, CalendarInvite invite)
+    private void SendCalendarEventInviteAlert(CalendarEvent calendarEvent, CalendarInvite invite)
 	{
 		CalendarInviteAlert packet = new()
 		{
@@ -666,7 +666,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		}
 	}
 
-	void SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent calendarEvent, CalendarInviteStatus status)
+    private void SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent calendarEvent, CalendarInviteStatus status)
 	{
 		var player = Global.ObjAccessor.FindPlayer(guid);
 
@@ -684,7 +684,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		}
 	}
 
-	void SendPacketToAllEventRelatives(ServerPacket packet, CalendarEvent calendarEvent)
+    private void SendPacketToAllEventRelatives(ServerPacket packet, CalendarEvent calendarEvent)
 	{
 		// Send packet to all guild members
 		if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)

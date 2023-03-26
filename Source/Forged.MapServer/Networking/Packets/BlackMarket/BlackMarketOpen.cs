@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.BlackMarket;
 
-class BlackMarketOpen : ClientPacket
+internal class BlackMarketOpen : ClientPacket
 {
 	public ObjectGuid Guid;
 	public BlackMarketOpen(WorldPacket packet) : base(packet) { }

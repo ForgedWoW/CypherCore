@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-class RemoveNewItem : ClientPacket
+internal class RemoveNewItem : ClientPacket
 {
 	public ObjectGuid ItemGuid { get; set; }
 	public RemoveNewItem(WorldPacket packet) : base(packet) { }

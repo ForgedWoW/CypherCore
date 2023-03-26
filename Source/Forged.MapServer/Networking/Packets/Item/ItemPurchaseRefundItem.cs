@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
-struct ItemPurchaseRefundItem
+internal struct ItemPurchaseRefundItem
 {
 	public void Write(WorldPacket data)
 	{

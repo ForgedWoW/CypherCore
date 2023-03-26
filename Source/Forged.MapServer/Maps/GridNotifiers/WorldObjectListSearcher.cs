@@ -17,9 +17,9 @@ namespace Forged.MapServer.Maps.GridNotifiers;
 
 public class WorldObjectListSearcher : IGridNotifierPlayer, IGridNotifierCreature, IGridNotifierCorpse, IGridNotifierGameObject, IGridNotifierDynamicObject, IGridNotifierAreaTrigger, IGridNotifierSceneObject, IGridNotifierConversation
 {
-	readonly List<WorldObject> _objects;
-	readonly PhaseShift _phaseShift;
-	readonly ICheck<WorldObject> _check;
+    private readonly List<WorldObject> _objects;
+    private readonly PhaseShift _phaseShift;
+    private readonly ICheck<WorldObject> _check;
 
 	public GridType GridType { get; set; }
 

@@ -7,8 +7,8 @@ namespace Forged.MapServer.Entities.Objects;
 
 public class MovementForces
 {
-	readonly List<MovementForce> _forces = new();
-	float _modMagnitude = 1.0f;
+    private readonly List<MovementForce> _forces = new();
+    private float _modMagnitude = 1.0f;
 
 	public float ModMagnitude
 	{
@@ -51,7 +51,7 @@ public class MovementForces
 		return false;
 	}
 
-	MovementForce FindMovementForce(ObjectGuid id)
+    private MovementForce FindMovementForce(ObjectGuid id)
 	{
 		return _forces.Find(force => force.ID == id);
 	}

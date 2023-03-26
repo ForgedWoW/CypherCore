@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class RequestLatestSplashScreen : ClientPacket
+internal class RequestLatestSplashScreen : ClientPacket
 {
 	public RequestLatestSplashScreen(WorldPacket packet) : base(packet) { }
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AdventureJournal;
 
-class AdventureJournalUpdateSuggestions : ClientPacket
+internal class AdventureJournalUpdateSuggestions : ClientPacket
 {
 	public bool OnLevelUp;
 	public AdventureJournalUpdateSuggestions(WorldPacket packet) : base(packet) { }

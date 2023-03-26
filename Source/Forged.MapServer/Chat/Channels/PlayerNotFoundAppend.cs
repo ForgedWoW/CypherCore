@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct PlayerNotFoundAppend : IChannelAppender
+internal struct PlayerNotFoundAppend : IChannelAppender
 {
 	public PlayerNotFoundAppend(string playerName)
 	{
@@ -20,5 +20,5 @@ struct PlayerNotFoundAppend : IChannelAppender
 		data.Sender = _playerName;
 	}
 
-	readonly string _playerName;
+    private readonly string _playerName;
 }

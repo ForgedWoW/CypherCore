@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonPlotPlaced : ServerPacket
+internal class GarrisonPlotPlaced : ServerPacket
 {
 	public GarrisonType GarrTypeID;
 	public GarrisonPlotInfo PlotInfo;

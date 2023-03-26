@@ -6,7 +6,7 @@ using Framework.IO;
 
 namespace Forged.MapServer.Warden;
 
-class WardenModuleTransfer
+internal class WardenModuleTransfer
 {
 	public WardenOpcodes Command;
 	public ushort DataSize;

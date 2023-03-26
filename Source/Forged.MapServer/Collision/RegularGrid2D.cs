@@ -15,8 +15,8 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 	public const float HGRID_MAP_SIZE = (533.33333f * 64.0f); // shouldn't be changed
 	public const float CELL_SIZE = HGRID_MAP_SIZE / CELL_NUMBER;
 
-	readonly MultiMap<T, Node> _memberTable = new();
-	readonly Node[][] _nodes = new Node[CELL_NUMBER][];
+    private readonly MultiMap<T, Node> _memberTable = new();
+    private readonly Node[][] _nodes = new Node[CELL_NUMBER][];
 
 	public RegularGrid2D()
 	{
@@ -194,7 +194,7 @@ public class RegularGrid2D<T, Node> where T : IModel where Node : BIHWrap<T>, ne
 			node.IntersectRay(ray, intersectCallback, ref max_dist);
 	}
 
-	Node GetGrid(int x, int y)
+    private Node GetGrid(int x, int y)
 	{
 		if (_nodes[x][y] == null)
 			_nodes[x][y] = new Node();

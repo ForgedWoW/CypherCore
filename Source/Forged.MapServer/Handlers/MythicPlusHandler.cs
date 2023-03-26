@@ -11,7 +11,7 @@ namespace Forged.MapServer.Handlers;
 public class MythicPlusHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.RequestMythicPlusSeasonData)]
-	void RequestMythicPlusSeasonData(ClientPacket packet)
+    private void RequestMythicPlusSeasonData(ClientPacket packet)
 	{
 		SendPacket(new MythicPlusSeasonData());
 	}

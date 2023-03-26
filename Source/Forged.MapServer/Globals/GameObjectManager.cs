@@ -11332,7 +11332,7 @@ public sealed class GameObjectManager
         return _vehicleSeatAddonStore.LookupByKey(seatId);
     }
 
-    static LanguageType GetRealmLanguageType(bool create)
+    private static LanguageType GetRealmLanguageType(bool create)
     {
         switch ((RealmZones)_configuration.GetDefaultValue("RealmZone", (int)RealmZones.Development))
         {
@@ -11360,7 +11360,7 @@ public sealed class GameObjectManager
         }
     }
 
-    static bool IsValidString(string str, uint strictMask, bool numericOrSpace, bool create = false)
+    private static bool IsValidString(string str, uint strictMask, bool numericOrSpace, bool create = false)
     {
         if (strictMask == 0) // any language, ignore realm
         {
@@ -11408,7 +11408,7 @@ public sealed class GameObjectManager
         return false;
     }
 
-    static bool IsCultureString(LanguageType culture, string str, bool numericOrSpace)
+    private static bool IsCultureString(LanguageType culture, string str, bool numericOrSpace)
     {
         foreach (var wchar in str)
         {
@@ -11488,7 +11488,7 @@ public sealed class GameObjectManager
         return false;
     }
 
-    void LoadScripts(ScriptsType type)
+    private void LoadScripts(ScriptsType type)
     {
         var oldMSTime = Time.MSTime;
 
@@ -12022,7 +12022,7 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} script definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    bool IsScriptDatabaseBound(uint id)
+    private bool IsScriptDatabaseBound(uint id)
     {
         var entry = _scriptNamesStorage.Find(id);
 
@@ -12032,7 +12032,7 @@ public sealed class GameObjectManager
         return false;
     }
 
-    void LoadCreatureTemplateResistances()
+    private void LoadCreatureTemplateResistances()
     {
         var oldMSTime = Time.MSTime;
 
@@ -12075,7 +12075,7 @@ public sealed class GameObjectManager
         Log.Logger.Information($"Loaded {count} creature template resistances in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    void LoadCreatureTemplateSpells()
+    private void LoadCreatureTemplateSpells()
     {
         var oldMSTime = Time.MSTime;
 
@@ -12118,7 +12118,7 @@ public sealed class GameObjectManager
         Log.Logger.Information($"Loaded {count} creature template spells in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    void LoadCreatureTemplateModels()
+    private void LoadCreatureTemplateModels()
     {
         var oldMSTime = Time.MSTime;
         //                                         0           1                  2             3
@@ -12176,7 +12176,7 @@ public sealed class GameObjectManager
         Log.Logger.Information($"Loaded {count} creature template models in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    void LoadCreatureSummonedData()
+    private void LoadCreatureSummonedData()
     {
         var oldMSTime = Time.MSTime;
 
@@ -12243,7 +12243,7 @@ public sealed class GameObjectManager
         Log.Logger.Information($"Loaded {_creatureSummonedDataStorage.Count} creature summoned data definitions in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
     }
 
-    void CheckCreatureMovement(string table, ulong id, CreatureMovementData creatureMovement)
+    private void CheckCreatureMovement(string table, ulong id, CreatureMovementData creatureMovement)
     {
         if (creatureMovement.Ground >= CreatureGroundMovementType.Max)
         {
@@ -12270,7 +12270,7 @@ public sealed class GameObjectManager
         }
     }
 
-    uint LoadReferenceVendor(int vendor, int item, List<uint> skip_vendors)
+    private uint LoadReferenceVendor(int vendor, int item, List<uint> skip_vendors)
     {
         // find all items from the reference vendor
         var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_NPC_VENDOR_REF);
@@ -12327,7 +12327,7 @@ public sealed class GameObjectManager
         return count;
     }
 
-    void AddSpawnDataToGrid(SpawnData data)
+    private void AddSpawnDataToGrid(SpawnData data)
     {
         var cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
         var isPersonalPhase = PhasingHandler.IsPersonalPhase(data.PhaseId);
@@ -12360,7 +12360,7 @@ public sealed class GameObjectManager
             }
     }
 
-    void RemoveSpawnDataFromGrid(SpawnData data)
+    private void RemoveSpawnDataFromGrid(SpawnData data)
     {
         var cellId = GridDefines.ComputeCellCoord(data.SpawnPoint.X, data.SpawnPoint.Y).GetId();
         var isPersonalPhase = PhasingHandler.IsPersonalPhase(data.PhaseId);
@@ -12387,12 +12387,12 @@ public sealed class GameObjectManager
             }
     }
 
-    MultiMap<uint, uint> GetGameObjectQuestItemMap()
+    private MultiMap<uint, uint> GetGameObjectQuestItemMap()
     {
         return _gameObjectQuestItemStorage;
     }
 
-    void CheckGOLockId(GameObjectTemplate goInfo, uint dataN, uint N)
+    private void CheckGOLockId(GameObjectTemplate goInfo, uint dataN, uint N)
     {
         if (_cliDB.LockStorage.ContainsKey(dataN))
             return;
@@ -12400,7 +12400,7 @@ public sealed class GameObjectManager
         Log.Logger.Debug("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but lock (Id: {4}) not found.", goInfo.entry, goInfo.type, N, goInfo.Door.open, goInfo.Door.open);
     }
 
-    void CheckGOLinkedTrapId(GameObjectTemplate goInfo, uint dataN, uint N)
+    private void CheckGOLinkedTrapId(GameObjectTemplate goInfo, uint dataN, uint N)
     {
         var trapInfo = GetGameObjectTemplate(dataN);
 
@@ -12409,7 +12409,7 @@ public sealed class GameObjectManager
                 Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but GO (Entry {4}) have not GAMEOBJECT_TYPE_TRAP type.", goInfo.entry, goInfo.type, N, dataN, dataN);
     }
 
-    void CheckGOSpellId(GameObjectTemplate goInfo, uint dataN, uint N)
+    private void CheckGOSpellId(GameObjectTemplate goInfo, uint dataN, uint N)
     {
         if (Global.SpellMgr.HasSpellInfo(dataN, Difficulty.None))
             return;
@@ -12417,7 +12417,7 @@ public sealed class GameObjectManager
         Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but Spell (Entry {4}) not exist.", goInfo.entry, goInfo.type, N, dataN, dataN);
     }
 
-    void CheckAndFixGOChairHeightId(GameObjectTemplate goInfo, ref uint dataN, uint N)
+    private void CheckAndFixGOChairHeightId(GameObjectTemplate goInfo, ref uint dataN, uint N)
     {
         if (dataN <= (UnitStandStateType.SitHighChair - UnitStandStateType.SitLowChair))
             return;
@@ -12428,7 +12428,7 @@ public sealed class GameObjectManager
         dataN = 0;
     }
 
-    void CheckGONoDamageImmuneId(GameObjectTemplate goTemplate, uint dataN, uint N)
+    private void CheckGONoDamageImmuneId(GameObjectTemplate goTemplate, uint dataN, uint N)
     {
         // 0/1 correct values
         if (dataN <= 1)
@@ -12437,7 +12437,7 @@ public sealed class GameObjectManager
         Log.Logger.Error("Gameobject (Entry: {0} GoType: {1}) have data{2}={3} but expected boolean (0/1) noDamageImmune field value.", goTemplate.entry, goTemplate.type, N, dataN);
     }
 
-    void CheckGOConsumable(GameObjectTemplate goInfo, uint dataN, uint N)
+    private void CheckGOConsumable(GameObjectTemplate goInfo, uint dataN, uint N)
     {
         // 0/1 correct values
         if (dataN <= 1)
@@ -12450,7 +12450,7 @@ public sealed class GameObjectManager
                          dataN);
     }
 
-    List<Difficulty> ParseSpawnDifficulties(string difficultyString, string table, ulong spawnId, uint mapId, List<Difficulty> mapDifficulties)
+    private List<Difficulty> ParseSpawnDifficulties(string difficultyString, string table, ulong spawnId, uint mapId, List<Difficulty> mapDifficulties)
     {
         List<Difficulty> difficulties = new();
         StringArray tokens = new(difficultyString, ',');
@@ -12486,7 +12486,7 @@ public sealed class GameObjectManager
         return difficulties;
     }
 
-    uint FillMaxDurability(ItemClass itemClass, uint itemSubClass, InventoryType inventoryType, ItemQuality quality, uint itemLevel)
+    private uint FillMaxDurability(ItemClass itemClass, uint itemSubClass, InventoryType inventoryType, ItemQuality quality, uint itemLevel)
     {
         if (itemClass != ItemClass.Armor && itemClass != ItemClass.Weapon)
             return 0;
@@ -12507,7 +12507,7 @@ public sealed class GameObjectManager
         return 5 * (uint)(Math.Round(18.0f * qualityMultipliers[(int)quality] * weaponMultipliers[itemSubClass] * levelPenalty));
     }
 
-    void OnDeleteSpawnData(SpawnData data)
+    private void OnDeleteSpawnData(SpawnData data)
     {
         var templateIt = _spawnGroupDataStorage.LookupByKey(data.SpawnGroupData.GroupId);
 
@@ -12527,7 +12527,7 @@ public sealed class GameObjectManager
         }
     }
 
-    void PlayerCreateInfoAddItemHelper(uint race, uint class_, uint itemId, int count)
+    private void PlayerCreateInfoAddItemHelper(uint race, uint class_, uint itemId, int count)
     {
         if (!_playerInfo.TryGetValue((Race)race, (PlayerClass)class_, out var playerInfo))
             return;
@@ -12545,7 +12545,7 @@ public sealed class GameObjectManager
         }
     }
 
-    PlayerLevelInfo BuildPlayerLevelInfo(Race race, PlayerClass _class, uint level)
+    private PlayerLevelInfo BuildPlayerLevelInfo(Race race, PlayerClass _class, uint level)
     {
         // base data (last known level)
         var info = _playerInfo[race][_class].LevelInfo[_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1];
@@ -12621,7 +12621,7 @@ public sealed class GameObjectManager
         return info;
     }
 
-    void LoadQuestRelationsHelper(MultiMap<uint, uint> map, MultiMap<uint, uint> reverseMap, string table)
+    private void LoadQuestRelationsHelper(MultiMap<uint, uint> map, MultiMap<uint, uint> reverseMap, string table)
     {
         var oldMSTime = Time.MSTime;
 
@@ -12661,12 +12661,12 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} quest relations from {1} in {2} ms", count, table, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)
+    private QuestRelationResult GetQuestRelationsFrom(MultiMap<uint, uint> map, uint key, bool onlyActive)
     {
         return new QuestRelationResult(map.LookupByKey(key), onlyActive);
     }
 
-    void LoadTerrainWorldMaps()
+    private void LoadTerrainWorldMaps()
     {
         var oldMSTime = Time.MSTime;
 
@@ -12714,7 +12714,7 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} terrain world maps in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    void LoadTerrainSwapDefaults()
+    private void LoadTerrainSwapDefaults()
     {
         var oldMSTime = Time.MSTime;
 
@@ -12759,7 +12759,7 @@ public sealed class GameObjectManager
         Log.Logger.Information("Loaded {0} terrain swap defaults in {1} ms.", count, Time.GetMSTimeDiffToNow(oldMSTime));
     }
 
-    void LoadAreaPhases()
+    private void LoadAreaPhases()
     {
         var oldMSTime = Time.MSTime;
 
@@ -12836,7 +12836,7 @@ public sealed class GameObjectManager
         Log.Logger.Information($"Loaded {count} phase areas in {Time.GetMSTimeDiffToNow(oldMSTime)} ms.");
     }
 
-    ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)
+    private ObjectGuidGenerator GetGuidSequenceGenerator(HighGuid high)
     {
         if (!_guidGenerators.ContainsKey(high))
             _guidGenerators[high] = new ObjectGuidGenerator(high);
@@ -12844,7 +12844,7 @@ public sealed class GameObjectManager
         return _guidGenerators[high];
     }
 
-    CellObjectGuids CreateCellObjectGuids(uint mapid, Difficulty difficulty, uint cellid)
+    private CellObjectGuids CreateCellObjectGuids(uint mapid, Difficulty difficulty, uint cellid)
     {
         var key = (mapid, difficulty);
 

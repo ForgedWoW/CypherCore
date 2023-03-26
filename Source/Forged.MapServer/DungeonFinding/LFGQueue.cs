@@ -15,14 +15,14 @@ namespace Forged.MapServer.DungeonFinding;
 public class LFGQueue
 {
 	// Queue
-	readonly Dictionary<ObjectGuid, LfgQueueData> QueueDataStore = new();
-	readonly Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
-	readonly Dictionary<uint, LfgWaitTime> waitTimesAvgStore = new();
-	readonly Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
-	readonly Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
-	readonly Dictionary<uint, LfgWaitTime> waitTimesDpsStore = new();
-	readonly List<ObjectGuid> currentQueueStore = new();
-	readonly List<ObjectGuid> newToQueueStore = new();
+    private readonly Dictionary<ObjectGuid, LfgQueueData> QueueDataStore = new();
+    private readonly Dictionary<string, LfgCompatibilityData> CompatibleMapStore = new();
+    private readonly Dictionary<uint, LfgWaitTime> waitTimesAvgStore = new();
+    private readonly Dictionary<uint, LfgWaitTime> waitTimesTankStore = new();
+    private readonly Dictionary<uint, LfgWaitTime> waitTimesHealerStore = new();
+    private readonly Dictionary<uint, LfgWaitTime> waitTimesDpsStore = new();
+    private readonly List<ObjectGuid> currentQueueStore = new();
+    private readonly List<ObjectGuid> newToQueueStore = new();
 
 	public static string ConcatenateGuids(List<ObjectGuid> guids)
 	{
@@ -379,7 +379,7 @@ public class LFGQueue
 		}
 	}
 
-	string GetCompatibleString(LfgCompatibility compatibles)
+    private string GetCompatibleString(LfgCompatibility compatibles)
 	{
 		switch (compatibles)
 		{
@@ -408,12 +408,12 @@ public class LFGQueue
 		}
 	}
 
-	void AddToFrontCurrentQueue(ObjectGuid guid)
+    private void AddToFrontCurrentQueue(ObjectGuid guid)
 	{
 		currentQueueStore.Insert(0, guid);
 	}
 
-	void RemoveFromCompatibles(ObjectGuid guid)
+    private void RemoveFromCompatibles(ObjectGuid guid)
 	{
 		var strGuid = guid.ToString();
 
@@ -424,7 +424,7 @@ public class LFGQueue
 				CompatibleMapStore.Remove(itNext.Key);
 	}
 
-	void SetCompatibles(string key, LfgCompatibility compatibles)
+    private void SetCompatibles(string key, LfgCompatibility compatibles)
 	{
 		if (!CompatibleMapStore.ContainsKey(key))
 			CompatibleMapStore[key] = new LfgCompatibilityData();
@@ -432,12 +432,12 @@ public class LFGQueue
 		CompatibleMapStore[key].compatibility = compatibles;
 	}
 
-	void SetCompatibilityData(string key, LfgCompatibilityData data)
+    private void SetCompatibilityData(string key, LfgCompatibilityData data)
 	{
 		CompatibleMapStore[key] = data;
 	}
 
-	LfgCompatibility GetCompatibles(string key)
+    private LfgCompatibility GetCompatibles(string key)
 	{
 		var compatibilityData = CompatibleMapStore.LookupByKey(key);
 
@@ -447,7 +447,7 @@ public class LFGQueue
 		return LfgCompatibility.Pending;
 	}
 
-	LfgCompatibilityData GetCompatibilityData(string key)
+    private LfgCompatibilityData GetCompatibilityData(string key)
 	{
 		var compatibilityData = CompatibleMapStore.LookupByKey(key);
 
@@ -457,7 +457,7 @@ public class LFGQueue
 		return null;
 	}
 
-	LfgCompatibility FindNewGroups(List<ObjectGuid> check, List<ObjectGuid> all)
+    private LfgCompatibility FindNewGroups(List<ObjectGuid> check, List<ObjectGuid> all)
 	{
 		var strGuids = ConcatenateGuids(check);
 		var compatibles = GetCompatibles(strGuids);
@@ -494,7 +494,7 @@ public class LFGQueue
 		return compatibles;
 	}
 
-	LfgCompatibility CheckCompatibility(List<ObjectGuid> check)
+    private LfgCompatibility CheckCompatibility(List<ObjectGuid> check)
 	{
 		var strGuids = ConcatenateGuids(check);
 		LfgProposal proposal = new();
@@ -769,7 +769,7 @@ public class LFGQueue
 		return LfgCompatibility.Match;
 	}
 
-	void FindBestCompatibleInQueue(ObjectGuid guid, LfgQueueData data)
+    private void FindBestCompatibleInQueue(ObjectGuid guid, LfgQueueData data)
 	{
 		Log.Logger.Debug("FindBestCompatibleInQueue: {0}", guid);
 

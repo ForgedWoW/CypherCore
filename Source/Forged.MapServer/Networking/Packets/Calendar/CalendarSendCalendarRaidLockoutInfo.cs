@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-struct CalendarSendCalendarRaidLockoutInfo
+internal struct CalendarSendCalendarRaidLockoutInfo
 {
 	public void Write(WorldPacket data)
 	{

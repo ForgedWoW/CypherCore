@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class RequestPetInfo : ClientPacket
+internal class RequestPetInfo : ClientPacket
 {
 	public RequestPetInfo(WorldPacket packet) : base(packet) { }
 

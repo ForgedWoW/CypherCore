@@ -12,7 +12,7 @@ namespace Forged.MapServer.Handlers;
 public class TimeHandler : IWorldSessionHandler
 {
 	[WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]
-	void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
+    private void HandleServerTimeOffsetRequest(ServerTimeOffsetRequest packet)
 	{
 		ServerTimeOffset response = new()
 		{

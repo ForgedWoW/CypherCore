@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class MinimapPing : ServerPacket
+internal class MinimapPing : ServerPacket
 {
 	public ObjectGuid Sender;
 	public float PositionX;

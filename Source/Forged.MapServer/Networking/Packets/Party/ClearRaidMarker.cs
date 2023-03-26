@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class ClearRaidMarker : ClientPacket
+internal class ClearRaidMarker : ClientPacket
 {
 	public byte MarkerId;
 	public ClearRaidMarker(WorldPacket packet) : base(packet) { }

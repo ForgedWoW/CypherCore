@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Query;
 
-class RealmQueryResponse : ServerPacket
+internal class RealmQueryResponse : ServerPacket
 {
 	public uint VirtualRealmAddress;
 	public byte LookupState;

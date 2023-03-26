@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Forged.MapServer.Networking.Packets.Battlenet;
 
-class ChangeRealmTicket : ClientPacket
+internal class ChangeRealmTicket : ClientPacket
 {
 	public uint Token;
 	public Array<byte> Secret = new(32);

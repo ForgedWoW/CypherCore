@@ -7,9 +7,9 @@ namespace Forged.MapServer.Spells;
 
 public class PetAura
 {
-	readonly Dictionary<uint, uint> _auras = new();
-	readonly bool _removeOnChangePet;
-	readonly double _damage;
+    private readonly Dictionary<uint, uint> _auras = new();
+    private readonly bool _removeOnChangePet;
+    private readonly double _damage;
 
 	public PetAura()
 	{

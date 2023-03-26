@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Spells.Skills;
 
-class SkillExtraItemEntry
+internal class SkillExtraItemEntry
 {
 	// the spell id of the specialization required to create extra items
 	public uint RequiredSpecialization;

@@ -22,9 +22,9 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 public class ScriptedAI : CreatureAI
 {
-	readonly Difficulty _difficulty;
-	readonly bool _isHeroic;
-	bool _isCombatMovementAllowed;
+    private readonly Difficulty _difficulty;
+    private readonly bool _isHeroic;
+    private bool _isCombatMovementAllowed;
 
 	public ScriptedAI(Creature creature) : base(creature)
 	{
@@ -472,7 +472,7 @@ public class ScriptedAI : CreatureAI
 	/// </summary>
 	/// <param name="who"> </param>
 	/// <param name="reset"> </param>
-	void ForceCombatStop(Creature who, bool reset = true)
+    private void ForceCombatStop(Creature who, bool reset = true)
 	{
 		if (who == null || !who.IsInCombat)
 			return;
@@ -498,7 +498,7 @@ public class ScriptedAI : CreatureAI
 	/// <param name="maxSearchRange"> </param>
 	/// <param name="samePhase"> </param>
 	/// <param name="reset"> </param>
-	void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
+    private void ForceCombatStopForCreatureEntry(uint entry, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
 	{
 		Log.Logger.Debug($"BossAI::ForceStopCombatForCreature: called on {Me.GUID}. Debug info: {Me.GetDebugInfo()}");
 
@@ -525,7 +525,7 @@ public class ScriptedAI : CreatureAI
 	/// <param name="maxSearchRange"> </param>
 	/// <param name="samePhase"> </param>
 	/// <param name="reset"> </param>
-	void ForceCombatStopForCreatureEntry(List<uint> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
+    private void ForceCombatStopForCreatureEntry(List<uint> creatureEntries, float maxSearchRange = 250.0f, bool samePhase = true, bool reset = true)
 	{
 		foreach (var entry in creatureEntries)
 			ForceCombatStopForCreatureEntry(entry, maxSearchRange, samePhase, reset);

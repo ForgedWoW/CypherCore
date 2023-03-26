@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class PetBattleSlotUpdates : ServerPacket
+internal class PetBattleSlotUpdates : ServerPacket
 {
 	public List<BattlePetSlot> Slots = new();
 	public bool AutoSlotted;

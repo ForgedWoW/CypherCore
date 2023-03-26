@@ -17,51 +17,51 @@ namespace Forged.MapServer.Networking;
 
 public class WorldSocket : SocketBase
 {
-	static readonly string ClientConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER - V2";
-	static readonly string ServerConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2";
+    private static readonly string ClientConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER - V2";
+    private static readonly string ServerConnectionInitialize = "WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT - V2";
 
-	static readonly byte[] AuthCheckSeed =
+    private static readonly byte[] AuthCheckSeed =
 	{
 		0xC5, 0xC6, 0x98, 0x95, 0x76, 0x3F, 0x1D, 0xCD, 0xB6, 0xA1, 0x37, 0x28, 0xB3, 0x12, 0xFF, 0x8A
 	};
 
-	static readonly byte[] SessionKeySeed =
+    private static readonly byte[] SessionKeySeed =
 	{
 		0x58, 0xCB, 0xCF, 0x40, 0xFE, 0x2E, 0xCE, 0xA6, 0x5A, 0x90, 0xB8, 0x01, 0x68, 0x6C, 0x28, 0x0B
 	};
 
-	static readonly byte[] ContinuedSessionSeed =
+    private static readonly byte[] ContinuedSessionSeed =
 	{
 		0x16, 0xAD, 0x0C, 0xD4, 0x46, 0xF9, 0x4F, 0xB2, 0xEF, 0x7D, 0xEA, 0x2A, 0x17, 0x66, 0x4D, 0x2F
 	};
 
-	static readonly byte[] EncryptionKeySeed =
+    private static readonly byte[] EncryptionKeySeed =
 	{
 		0xE9, 0x75, 0x3C, 0x50, 0x90, 0x93, 0x61, 0xDA, 0x3B, 0x07, 0xEE, 0xFA, 0xFF, 0x9D, 0x41, 0xB8
 	};
 
-	static readonly int HeaderSize = 16;
-	readonly SocketBuffer _headerBuffer;
-	readonly SocketBuffer _packetBuffer;
-	readonly WorldCrypt _worldCrypt;
-	readonly byte[] _encryptKey;
-	readonly object _worldSessionLock = new();
-	readonly object _sendlock = new();
+    private static readonly int HeaderSize = 16;
+    private readonly SocketBuffer _headerBuffer;
+    private readonly SocketBuffer _packetBuffer;
+    private readonly WorldCrypt _worldCrypt;
+    private readonly byte[] _encryptKey;
+    private readonly object _worldSessionLock = new();
+    private readonly object _sendlock = new();
 
-	ConnectionType _connectType;
-	ulong _key;
+    private ConnectionType _connectType;
+    private ulong _key;
 
-	byte[] _serverChallenge;
-	byte[] _sessionKey;
+    private byte[] _serverChallenge;
+    private byte[] _sessionKey;
 
-	long _LastPingTime;
-	uint _OverSpeedPings;
-	WorldSession _worldSession;
+    private long _LastPingTime;
+    private uint _OverSpeedPings;
+    private WorldSession _worldSession;
 
-	ZLib.z_stream _compressionStream;
+    private ZLib.z_stream _compressionStream;
 
-	AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
-	string _ipCountry;
+    private AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
+    private string _ipCountry;
 
 	public WorldSocket(Socket socket) : base(socket)
 	{
@@ -284,7 +284,7 @@ public class WorldSocket : SocketBase
 		SendPacket(response);
 	}
 
-	void CheckIpCallback(SQLResult result)
+    private void CheckIpCallback(SQLResult result)
 	{
 		if (!result.IsEmpty())
 		{
@@ -317,7 +317,7 @@ public class WorldSocket : SocketBase
 		AsyncWrite(packet.GetData());
 	}
 
-	void InitializeHandler(SocketAsyncEventArgs args)
+    private void InitializeHandler(SocketAsyncEventArgs args)
 	{
 		if (args.SocketError != SocketError.Success)
 		{
@@ -383,7 +383,7 @@ public class WorldSocket : SocketBase
 			}
 	}
 
-	bool ReadHeader()
+    private bool ReadHeader()
 	{
 		PacketHeader header = new();
 		header.Read(_headerBuffer.GetData());
@@ -393,7 +393,7 @@ public class WorldSocket : SocketBase
 		return true;
 	}
 
-	ReadDataHandlerResult ReadData()
+    private ReadDataHandlerResult ReadData()
 	{
 		PacketHeader header = new();
 		header.Read(_headerBuffer.GetData());
@@ -525,7 +525,7 @@ public class WorldSocket : SocketBase
 		return ReadDataHandlerResult.Ok;
 	}
 
-	void HandleSendAuthSession()
+    private void HandleSendAuthSession()
 	{
 		AuthChallenge challenge = new()
 		{
@@ -537,7 +537,7 @@ public class WorldSocket : SocketBase
 		SendPacket(challenge);
 	}
 
-	void HandleAuthSession(AuthSession authSession)
+    private void HandleAuthSession(AuthSession authSession)
 	{
 		// Get the account information from the realmd database
 		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
@@ -547,7 +547,7 @@ public class WorldSocket : SocketBase
 		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
 	}
 
-	void HandleAuthSessionCallback(AuthSession authSession, SQLResult result)
+    private void HandleAuthSessionCallback(AuthSession authSession, SQLResult result)
 	{
 		// Stop if the account is not found
 		if (result.IsEmpty())
@@ -769,7 +769,7 @@ public class WorldSocket : SocketBase
 		AsyncRead();
 	}
 
-	void LoadSessionPermissionsCallback(SQLResult result)
+    private void LoadSessionPermissionsCallback(SQLResult result)
 	{
 		// RBAC must be loaded before adding session to check for skip queue permission
 		// RBAC must be loaded before adding session to check for skip queue permission
@@ -786,7 +786,7 @@ public class WorldSocket : SocketBase
 		SendPacket(new EnterEncryptedMode(_encryptKey, true));
 	}
 
-	void HandleAuthContinuedSession(AuthContinuedSession authSession)
+    private void HandleAuthContinuedSession(AuthContinuedSession authSession)
 	{
 		ConnectToKey key = new();
 		_key = key.Raw = authSession.Key;
@@ -808,7 +808,7 @@ public class WorldSocket : SocketBase
 		_queryProcessor.AddCallback(DB.Login.AsyncQuery(stmt).WithCallback(HandleAuthContinuedSessionCallback, authSession));
 	}
 
-	void HandleAuthContinuedSessionCallback(AuthContinuedSession authSession, SQLResult result)
+    private void HandleAuthContinuedSessionCallback(AuthContinuedSession authSession, SQLResult result)
 	{
 		if (result.IsEmpty())
 		{
@@ -851,7 +851,7 @@ public class WorldSocket : SocketBase
 		AsyncRead();
 	}
 
-	void HandleConnectToFailed(ConnectToFailed connectToFailed)
+    private void HandleConnectToFailed(ConnectToFailed connectToFailed)
 	{
 		if (_worldSession != null)
 			if (_worldSession.PlayerLoading)
@@ -890,7 +890,7 @@ public class WorldSocket : SocketBase
 		//}
 	}
 
-	void HandleEnterEncryptedModeAck()
+    private void HandleEnterEncryptedModeAck()
 	{
 		_worldCrypt.Initialize(_encryptKey);
 
@@ -900,7 +900,7 @@ public class WorldSocket : SocketBase
 			Global.WorldMgr.AddInstanceSocket(this, _key);
 	}
 
-	bool HandlePing(Ping ping)
+    private bool HandlePing(Ping ping)
 	{
 		if (_LastPingTime == 0)
 		{

@@ -68,22 +68,22 @@ public class Item : WorldObject
 		-1                       // INVTYPE_EQUIPABLE_SPELL_MOBILITY
 	};
 
-	readonly Dictionary<uint, ushort> _artifactPowerIdToIndex = new();
-	readonly Array<uint> _gemScalingLevels = new(ItemConst.MaxGemSockets);
+    private readonly Dictionary<uint, ushort> _artifactPowerIdToIndex = new();
+    private readonly Array<uint> _gemScalingLevels = new(ItemConst.MaxGemSockets);
 
-	ItemUpdateState _updateState;
-	uint _paidExtendedCost;
-	ulong _paidMoney;
-	ObjectGuid _refundRecipient;
-	byte _slot;
-	Bag _container;
-	int _queuePos;
-	string _text;
-	bool _mbInTrade;
-	long _lastPlayedTimeUpdate;
-	List<ObjectGuid> _allowedGuiDs = new();
-	uint _randomBonusListId; // store separately to easily find which bonus list is the one randomly given for stat rerolling
-	ObjectGuid _childItem;
+    private ItemUpdateState _updateState;
+    private uint _paidExtendedCost;
+    private ulong _paidMoney;
+    private ObjectGuid _refundRecipient;
+    private byte _slot;
+    private Bag _container;
+    private int _queuePos;
+    private string _text;
+    private bool _mbInTrade;
+    private long _lastPlayedTimeUpdate;
+    private List<ObjectGuid> _allowedGuiDs = new();
+    private uint _randomBonusListId; // store separately to easily find which bonus list is the one randomly given for stat rerolling
+    private ObjectGuid _childItem;
 
 	public ItemData ItemData { get; set; }
 
@@ -2672,7 +2672,7 @@ public class Item : WorldObject
 		return 0;
 	}
 
-	static void AddItemToUpdateQueueOf(Item item, Player player)
+    private static void AddItemToUpdateQueueOf(Item item, Player player)
 	{
 		if (item.IsInUpdateQueue)
 			return;
@@ -2691,7 +2691,7 @@ public class Item : WorldObject
 		item._queuePos = player.ItemUpdateQueue.Count - 1;
 	}
 
-	bool HasEnchantRequiredSkill(Player player)
+    private bool HasEnchantRequiredSkill(Player player)
 	{
 		// Check all enchants for required skill
 		for (var enchant_slot = EnchantmentSlot.Perm; enchant_slot < EnchantmentSlot.Max; ++enchant_slot)
@@ -2711,7 +2711,7 @@ public class Item : WorldObject
 		return true;
 	}
 
-	uint GetEnchantRequiredLevel()
+    private uint GetEnchantRequiredLevel()
 	{
 		uint level = 0;
 
@@ -2733,7 +2733,7 @@ public class Item : WorldObject
 		return level;
 	}
 
-	bool IsBoundByEnchant()
+    private bool IsBoundByEnchant()
 	{
 		// Check all enchants for soulbound
 		for (var enchant_slot = EnchantmentSlot.Perm; enchant_slot < EnchantmentSlot.Max; ++enchant_slot)
@@ -2753,7 +2753,7 @@ public class Item : WorldObject
 		return false;
 	}
 
-	void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, Player target)
+    private void BuildValuesUpdateForPlayerWithMask(UpdateData data, UpdateMask requestedObjectMask, UpdateMask requestedItemMask, Player target)
 	{
 		var flags = GetUpdateFieldFlagsFor(target);
 		UpdateMask valuesMask = new((int)TypeId.Max);
@@ -2784,7 +2784,7 @@ public class Item : WorldObject
 		data.AddUpdateBlock(buffer1);
 	}
 
-	bool IsValidTransmogrificationTarget()
+    private bool IsValidTransmogrificationTarget()
 	{
 		var proto = Template;
 
@@ -2807,7 +2807,7 @@ public class Item : WorldObject
 		return true;
 	}
 
-	bool HasStats()
+    private bool HasStats()
 	{
 		var proto = Template;
 		var owner = OwnerUnit;
@@ -2819,7 +2819,7 @@ public class Item : WorldObject
 		return false;
 	}
 
-	static bool HasStats(ItemInstance itemInstance, BonusData bonus)
+    private static bool HasStats(ItemInstance itemInstance, BonusData bonus)
 	{
 		for (byte i = 0; i < ItemConst.MaxStats; ++i)
 			if (bonus.StatPercentEditor[i] != 0)
@@ -2828,7 +2828,7 @@ public class Item : WorldObject
 		return false;
 	}
 
-	static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate proto)
+    private static ItemTransmogrificationWeaponCategory GetTransmogrificationWeaponCategory(ItemTemplate proto)
 	{
 		if (proto.Class == ItemClass.Weapon)
 			switch ((ItemSubClassWeapon)proto.SubClass)
@@ -2859,12 +2859,12 @@ public class Item : WorldObject
 		return ItemTransmogrificationWeaponCategory.Invalid;
 	}
 
-	uint GetBuyPrice(Player owner, out bool standardPrice)
+    private uint GetBuyPrice(Player owner, out bool standardPrice)
 	{
 		return GetBuyPrice(Template, (uint)Quality, GetItemLevel(owner), out standardPrice);
 	}
 
-	static uint GetBuyPrice(ItemTemplate proto, uint quality, uint itemLevel, out bool standardPrice)
+    private static uint GetBuyPrice(ItemTemplate proto, uint quality, uint itemLevel, out bool standardPrice)
 	{
 		standardPrice = true;
 
@@ -3010,7 +3010,7 @@ public class Item : WorldObject
 		return (uint)(proto.PriceVariance * typeFactor * baseFactor * qualityFactor * proto.PriceRandomValue);
 	}
 
-	void AddArtifactPower(ArtifactPowerData artifactPower)
+    private void AddArtifactPower(ArtifactPowerData artifactPower)
 	{
 		var index = _artifactPowerIdToIndex.Count;
 		_artifactPowerIdToIndex[artifactPower.ArtifactPowerId] = (ushort)index;
@@ -3025,7 +3025,7 @@ public class Item : WorldObject
 		AddDynamicUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.ArtifactPowers), powerField);
 	}
 
-	void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint enchantId, bool apply, Player owner)
+    private void ApplyArtifactPowerEnchantmentBonuses(EnchantmentSlot slot, uint enchantId, bool apply, Player owner)
 	{
 		var enchant = CliDB.SpellItemEnchantmentStorage.LookupByKey(enchantId);
 
@@ -3134,16 +3134,16 @@ public class Item : WorldObject
 				}
 	}
 
-	void SetExpiration(uint expiration)
+    private void SetExpiration(uint expiration)
 	{
 		SetUpdateFieldValue(Values.ModifyValue(ItemData).ModifyValue(ItemData.Expiration), expiration);
 	}
 
-	class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
+    private class ValuesUpdateForPlayerWithMaskSender : IDoWork<Player>
 	{
-		readonly Item _owner;
-		readonly ObjectFieldData _objectMask = new();
-		readonly ItemData _itemMask = new();
+        private readonly Item _owner;
+        private readonly ObjectFieldData _objectMask = new();
+        private readonly ItemData _itemMask = new();
 
 		public ValuesUpdateForPlayerWithMaskSender(Item owner)
 		{

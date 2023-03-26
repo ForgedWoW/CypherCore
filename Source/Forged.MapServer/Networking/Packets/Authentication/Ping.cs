@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class Ping : ClientPacket
+internal class Ping : ClientPacket
 {
 	public uint Serial;
 	public uint Latency;

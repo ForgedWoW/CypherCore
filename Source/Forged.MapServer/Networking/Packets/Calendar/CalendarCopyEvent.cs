@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Calendar;
 
-class CalendarCopyEvent : ClientPacket
+internal class CalendarCopyEvent : ClientPacket
 {
 	public ulong ModeratorID;
 	public ulong EventID;

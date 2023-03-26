@@ -10,12 +10,12 @@ namespace Forged.MapServer.Pools;
 
 public class QuestPoolManager : Singleton<QuestPoolManager>
 {
-	readonly List<QuestPool> _dailyPools = new();
-	readonly List<QuestPool> _weeklyPools = new();
-	readonly List<QuestPool> _monthlyPools = new();
-	readonly Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
+    private readonly List<QuestPool> _dailyPools = new();
+    private readonly List<QuestPool> _weeklyPools = new();
+    private readonly List<QuestPool> _monthlyPools = new();
+    private readonly Dictionary<uint, QuestPool> _poolLookup = new(); // questId -> pool
 
-	QuestPoolManager() { }
+    private QuestPoolManager() { }
 
 	public static void RegeneratePool(QuestPool pool)
 	{
@@ -328,7 +328,7 @@ public class QuestPoolManager : Singleton<QuestPoolManager>
 		return _poolLookup.ContainsKey(questId);
 	}
 
-	void Regenerate(List<QuestPool> pools)
+    private void Regenerate(List<QuestPool> pools)
 	{
 		var trans = new SQLTransaction();
 

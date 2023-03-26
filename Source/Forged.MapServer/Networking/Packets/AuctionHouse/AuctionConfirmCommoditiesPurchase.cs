@@ -6,7 +6,7 @@ using Forged.MapServer.Networking.Packets.Addon;
 
 namespace Forged.MapServer.Networking.Packets.AuctionHouse;
 
-class AuctionConfirmCommoditiesPurchase : ClientPacket
+internal class AuctionConfirmCommoditiesPurchase : ClientPacket
 {
 	public ObjectGuid Auctioneer;
 	public int ItemID;

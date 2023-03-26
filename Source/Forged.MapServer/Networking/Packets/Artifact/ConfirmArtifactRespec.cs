@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Artifact;
 
-class ConfirmArtifactRespec : ClientPacket
+internal class ConfirmArtifactRespec : ClientPacket
 {
 	public ObjectGuid ArtifactGUID;
 	public ObjectGuid NpcGUID;

@@ -7,9 +7,9 @@ namespace Forged.MapServer.Chat;
 
 public struct ChatCommandResult
 {
-	bool _result;
-	readonly dynamic _value;
-	string _errorMessage;
+    private bool _result;
+    private readonly dynamic _value;
+    private string _errorMessage;
 
 	public ChatCommandResult(string _value = "")
 	{

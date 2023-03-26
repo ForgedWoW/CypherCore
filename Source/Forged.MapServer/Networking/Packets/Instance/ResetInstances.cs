@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Instance;
 
-class ResetInstances : ClientPacket
+internal class ResetInstances : ClientPacket
 {
 	public ResetInstances(WorldPacket packet) : base(packet) { }
 

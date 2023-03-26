@@ -11,9 +11,9 @@ namespace Forged.MapServer.Arenas;
 public class ArenaTeamManager
 {
     private readonly CharacterDatabase _characterDatabase;
-    readonly Dictionary<uint, ArenaTeam> _arenaTeamStorage = new();
+    private readonly Dictionary<uint, ArenaTeam> _arenaTeamStorage = new();
 
-	uint _nextArenaTeamId;
+    private uint _nextArenaTeamId;
 
 	public ArenaTeamManager(CharacterDatabase characterDatabase)
     {

@@ -21,15 +21,15 @@ public class PoolManager : Singleton<PoolManager>
 
 	public MultiMap<uint, uint> QuestCreatureRelation = new();
 	public MultiMap<uint, uint> QuestGORelation = new();
-	readonly Dictionary<uint, PoolTemplateData> _poolTemplate = new();
-	readonly Dictionary<uint, PoolGroup<Creature>> _poolCreatureGroups = new();
-	readonly Dictionary<uint, PoolGroup<GameObject>> _poolGameobjectGroups = new();
-	readonly Dictionary<uint, PoolGroup<Pool>> _poolPoolGroups = new();
-	readonly Dictionary<ulong, uint> _creatureSearchMap = new();
-	readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
-	readonly Dictionary<ulong, uint> _poolSearchMap = new();
-	readonly MultiMap<uint, uint> _autoSpawnPoolsPerMap = new();
-	PoolManager() { }
+    private readonly Dictionary<uint, PoolTemplateData> _poolTemplate = new();
+    private readonly Dictionary<uint, PoolGroup<Creature>> _poolCreatureGroups = new();
+    private readonly Dictionary<uint, PoolGroup<GameObject>> _poolGameobjectGroups = new();
+    private readonly Dictionary<uint, PoolGroup<Pool>> _poolPoolGroups = new();
+    private readonly Dictionary<ulong, uint> _creatureSearchMap = new();
+    private readonly Dictionary<ulong, uint> _gameobjectSearchMap = new();
+    private readonly Dictionary<ulong, uint> _poolSearchMap = new();
+    private readonly MultiMap<uint, uint> _autoSpawnPoolsPerMap = new();
+    private PoolManager() { }
 
 	public void Initialize()
 	{
@@ -535,7 +535,7 @@ public class PoolManager : Singleton<PoolManager>
 		return false;
 	}
 
-	void SpawnPool<T>(SpawnedPoolData spawnedPoolData, uint pool_id, ulong db_guid)
+    private void SpawnPool<T>(SpawnedPoolData spawnedPoolData, uint pool_id, ulong db_guid)
 	{
 		switch (typeof(T).Name)
 		{

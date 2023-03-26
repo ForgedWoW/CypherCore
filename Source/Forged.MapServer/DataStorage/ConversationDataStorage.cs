@@ -9,9 +9,9 @@ namespace Forged.MapServer.DataStorage;
 
 public class ConversationDataStorage : Singleton<ConversationDataStorage>
 {
-	readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
-	readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
-	ConversationDataStorage() { }
+    private readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
+    private readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
+    private ConversationDataStorage() { }
 
 	public void LoadConversationTemplates()
 	{
@@ -188,7 +188,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 		return _conversationLineTemplateStorage.LookupByKey(conversationLineId);
 	}
 
-	struct ConversationActorDbRow
+    private struct ConversationActorDbRow
 	{
 		public uint ConversationId;
 		public uint ActorIndex;

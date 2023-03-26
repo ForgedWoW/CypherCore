@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Authentication;
 
-class ResumeComms : ServerPacket
+internal class ResumeComms : ServerPacket
 {
 	public ResumeComms(ConnectionType connection) : base(ServerOpcodes.ResumeComms, connection) { }
 

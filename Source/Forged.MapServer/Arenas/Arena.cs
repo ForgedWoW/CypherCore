@@ -306,14 +306,14 @@ public class Arena : Battleground
 		base.EndBattleground(winner);
 	}
 
-	void UpdateArenaWorldState()
+    private void UpdateArenaWorldState()
 	{
 		UpdateWorldState(ArenaWorldStates.AlivePlayersGreen, (int)GetAlivePlayersCountByTeam(TeamFaction.Horde));
 		UpdateWorldState(ArenaWorldStates.AlivePlayersGold, (int)GetAlivePlayersCountByTeam(TeamFaction.Alliance));
 	}
 }
 
-struct ArenaWorldStates
+internal struct ArenaWorldStates
 {
 	public const int AlivePlayersGreen = 3600;
 	public const int AlivePlayersGold = 3601;

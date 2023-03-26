@@ -7,9 +7,9 @@ namespace Forged.MapServer.Spells;
 
 public class DispelableAura
 {
-	readonly Aura _aura;
-	readonly int _chance;
-	byte _charges;
+    private readonly Aura _aura;
+    private readonly int _chance;
+    private byte _charges;
 
 	public DispelableAura(Aura aura, int dispelChance, byte dispelCharges)
 	{

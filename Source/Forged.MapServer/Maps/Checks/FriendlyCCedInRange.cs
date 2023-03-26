@@ -10,8 +10,8 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class FriendlyCCedInRange : ICheck<Creature>
 {
-	readonly Unit _obj;
-	readonly float _range;
+    private readonly Unit _obj;
+    private readonly float _range;
 
 	public FriendlyCCedInRange(Unit obj, float range)
 	{

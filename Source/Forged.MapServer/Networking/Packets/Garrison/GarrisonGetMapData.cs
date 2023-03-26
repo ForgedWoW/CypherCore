@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-class GarrisonGetMapData : ClientPacket
+internal class GarrisonGetMapData : ClientPacket
 {
 	public GarrisonGetMapData(WorldPacket packet) : base(packet) { }
 

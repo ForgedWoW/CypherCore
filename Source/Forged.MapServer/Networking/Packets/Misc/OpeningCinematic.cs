@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class OpeningCinematic : ClientPacket
+internal class OpeningCinematic : ClientPacket
 {
 	public OpeningCinematic(WorldPacket packet) : base(packet) { }
 

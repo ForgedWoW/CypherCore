@@ -7,10 +7,10 @@ using Forged.MapServer.Entities.Players;
 
 namespace Forged.MapServer.Maps.GridNotifiers;
 
-class NearestPlayerInObjectRangeCheck : ICheck<Player>
+internal class NearestPlayerInObjectRangeCheck : ICheck<Player>
 {
-	readonly WorldObject _obj;
-	float _range;
+    private readonly WorldObject _obj;
+    private float _range;
 
 	public NearestPlayerInObjectRangeCheck(WorldObject obj, float range)
 	{

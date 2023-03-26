@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.BattlePet;
 
-class BattlePetUpdateNotify : ClientPacket
+internal class BattlePetUpdateNotify : ClientPacket
 {
 	public ObjectGuid PetGuid;
 

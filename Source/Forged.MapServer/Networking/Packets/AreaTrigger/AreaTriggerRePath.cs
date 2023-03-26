@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.AreaTrigger;
 
-class AreaTriggerRePath : ServerPacket
+internal class AreaTriggerRePath : ServerPacket
 {
 	public AreaTriggerSplineInfo AreaTriggerSpline;
 	public AreaTriggerOrbitInfo AreaTriggerOrbit;

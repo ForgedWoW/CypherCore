@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Azerite;
 
-class AzeriteEmpoweredItemViewed : ClientPacket
+internal class AzeriteEmpoweredItemViewed : ClientPacket
 {
 	public ObjectGuid ItemGUID;
 	public AzeriteEmpoweredItemViewed(WorldPacket packet) : base(packet) { }

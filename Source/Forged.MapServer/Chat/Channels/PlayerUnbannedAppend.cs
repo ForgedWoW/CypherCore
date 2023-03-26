@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Chat.Channels;
 
-struct PlayerUnbannedAppend : IChannelAppender
+internal struct PlayerUnbannedAppend : IChannelAppender
 {
 	public PlayerUnbannedAppend(ObjectGuid moderator, ObjectGuid unbanned)
 	{
@@ -23,6 +23,6 @@ struct PlayerUnbannedAppend : IChannelAppender
 		data.TargetGuid = _unbanned;
 	}
 
-	readonly ObjectGuid _moderator;
-	readonly ObjectGuid _unbanned;
+    private readonly ObjectGuid _moderator;
+    private readonly ObjectGuid _unbanned;
 }

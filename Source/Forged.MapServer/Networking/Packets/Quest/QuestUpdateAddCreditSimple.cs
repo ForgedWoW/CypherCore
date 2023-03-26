@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Quest;
 
-class QuestUpdateAddCreditSimple : ServerPacket
+internal class QuestUpdateAddCreditSimple : ServerPacket
 {
 	public uint QuestID;
 	public int ObjectID;

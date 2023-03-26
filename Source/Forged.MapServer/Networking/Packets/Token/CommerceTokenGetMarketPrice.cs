@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Token;
 
-class CommerceTokenGetMarketPrice : ClientPacket
+internal class CommerceTokenGetMarketPrice : ClientPacket
 {
 	public uint UnkInt;
 	public CommerceTokenGetMarketPrice(WorldPacket packet) : base(packet) { }

@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Entities.Players;
 
-struct GroupUpdateCounter
+internal struct GroupUpdateCounter
 {
 	public ObjectGuid GroupGuid;
 	public int UpdateSequenceNumber;

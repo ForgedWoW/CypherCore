@@ -5,7 +5,7 @@ using Forged.MapServer.Entities.Objects;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class CancelModSpeedNoControlAuras : ClientPacket
+internal class CancelModSpeedNoControlAuras : ClientPacket
 {
 	public ObjectGuid TargetGUID;
 

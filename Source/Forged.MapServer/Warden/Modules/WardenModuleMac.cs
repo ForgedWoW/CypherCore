@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Warden.Modules;
 
-struct WardenModuleMac
+internal struct WardenModuleMac
 {
 	public static byte[] Module_0DBBF209A27B1E279A9FEC5C168A15F7_Data =
 	{

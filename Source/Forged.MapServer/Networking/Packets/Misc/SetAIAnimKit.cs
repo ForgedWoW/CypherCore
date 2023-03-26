@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SetAIAnimKit : ServerPacket
+internal class SetAIAnimKit : ServerPacket
 {
 	public ObjectGuid Unit;
 	public ushort AnimKitID;

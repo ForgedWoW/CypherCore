@@ -9,9 +9,9 @@ namespace Forged.MapServer.Maps.Checks;
 
 public class NearestAttackableUnitInObjectRangeCheck : ICheck<Unit>
 {
-	readonly WorldObject _obj;
-	readonly Unit _funit;
-	float _range;
+    private readonly WorldObject _obj;
+    private readonly Unit _funit;
+    private float _range;
 
 	public NearestAttackableUnitInObjectRangeCheck(WorldObject obj, Unit funit, float range)
 	{

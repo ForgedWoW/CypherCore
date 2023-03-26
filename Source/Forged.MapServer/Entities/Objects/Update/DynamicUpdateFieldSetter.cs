@@ -5,8 +5,8 @@ namespace Forged.MapServer.Entities.Objects.Update;
 
 public class DynamicUpdateFieldSetter<T> : IUpdateField<T> where T : new()
 {
-	readonly DynamicUpdateField<T> _dynamicUpdateField;
-	readonly int _index;
+    private readonly DynamicUpdateField<T> _dynamicUpdateField;
+    private readonly int _index;
 
 	public DynamicUpdateFieldSetter(DynamicUpdateField<T> dynamicUpdateField, int index)
 	{

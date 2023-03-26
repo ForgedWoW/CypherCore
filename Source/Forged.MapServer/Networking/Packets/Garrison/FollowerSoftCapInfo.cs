@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Garrison;
 
-struct FollowerSoftCapInfo
+internal struct FollowerSoftCapInfo
 {
 	public void Write(WorldPacket data)
 	{

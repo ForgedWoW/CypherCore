@@ -7,7 +7,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.CombatLog;
 
-class SpellHealLog : CombatLogServerPacket
+internal class SpellHealLog : CombatLogServerPacket
 {
 	public ObjectGuid CasterGUID;
 	public ObjectGuid TargetGUID;

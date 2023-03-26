@@ -10,7 +10,7 @@ namespace Forged.MapServer.Entities.Objects;
 
 public class WorldLocation : Position
 {
-	Cell _currentCell;
+    private Cell _currentCell;
 
 	public ObjectCellMoveState MoveState { get; set; }
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Scenarios;
 
-class ScenarioDBData
+internal class ScenarioDBData
 {
 	public uint MapID;
 	public byte DifficultyID;

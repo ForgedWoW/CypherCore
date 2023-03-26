@@ -17,27 +17,27 @@ namespace Forged.MapServer.AI.ScriptedAI;
 
 public class EscortAI : ScriptedAI
 {
-	readonly WaypointPath _path;
+    private readonly WaypointPath _path;
 
-	ObjectGuid _playerGUID;
-	TimeSpan _pauseTimer;
-	uint _playerCheckTimer;
-	EscortState _escortState;
-	float _maxPlayerDistance;
+    private ObjectGuid _playerGUID;
+    private TimeSpan _pauseTimer;
+    private uint _playerCheckTimer;
+    private EscortState _escortState;
+    private float _maxPlayerDistance;
 
-	Quest.Quest _escortQuest; //generally passed in Start() when regular escort script.
+    private Quest.Quest _escortQuest; //generally passed in Start() when regular escort script.
 
-	bool _activeAttacker; // obsolete, determined by faction.
-	bool _running;        // all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
-	bool _instantRespawn; // if creature should respawn instantly after escort over (if not, database respawntime are used)
-	bool _returnToStart;  // if creature can walk same path (loop) without despawn. Not for regular escort quests.
-	bool _despawnAtEnd;
-	bool _despawnAtFar;
-	bool _manualPath;
-	bool _hasImmuneToNPCFlags;
-	bool _started;
-	bool _ended;
-	bool _resume;
+    private bool _activeAttacker; // obsolete, determined by faction.
+    private bool _running;        // all creatures are walking by default (has flag MOVEMENTFLAG_WALK)
+    private bool _instantRespawn; // if creature should respawn instantly after escort over (if not, database respawntime are used)
+    private bool _returnToStart;  // if creature can walk same path (loop) without despawn. Not for regular escort quests.
+    private bool _despawnAtEnd;
+    private bool _despawnAtFar;
+    private bool _manualPath;
+    private bool _hasImmuneToNPCFlags;
+    private bool _started;
+    private bool _ended;
+    private bool _resume;
 
 	public EscortAI(Creature creature) : base(creature)
 	{
@@ -447,7 +447,7 @@ public class EscortAI : ScriptedAI
 	}
 
 	//see followerAI
-	bool AssistPlayerInCombatAgainst(Unit who)
+    private bool AssistPlayerInCombatAgainst(Unit who)
 	{
 		if (!who || !who.Victim)
 			return false;
@@ -478,12 +478,12 @@ public class EscortAI : ScriptedAI
 		return false;
 	}
 
-	void ReturnToLastPoint()
+    private void ReturnToLastPoint()
 	{
 		Me.MotionMaster.MovePoint(0xFFFFFF, Me.HomePosition);
 	}
 
-	bool IsPlayerOrGroupInRange()
+    private bool IsPlayerOrGroupInRange()
 	{
 		var player = GetPlayerForEscort();
 
@@ -507,7 +507,7 @@ public class EscortAI : ScriptedAI
 		return false;
 	}
 
-	void FillPointMovementListForCreature()
+    private void FillPointMovementListForCreature()
 	{
 		var path = Global.WaypointMgr.GetPath(Me.Entry);
 
@@ -525,27 +525,27 @@ public class EscortAI : ScriptedAI
 		}
 	}
 
-	void SetMaxPlayerDistance(float newMax)
+    private void SetMaxPlayerDistance(float newMax)
 	{
 		_maxPlayerDistance = newMax;
 	}
 
-	float GetMaxPlayerDistance()
+    private float GetMaxPlayerDistance()
 	{
 		return _maxPlayerDistance;
 	}
 
-	ObjectGuid GetEventStarterGUID()
+    private ObjectGuid GetEventStarterGUID()
 	{
 		return _playerGUID;
 	}
 
-	void AddEscortState(EscortState escortState)
+    private void AddEscortState(EscortState escortState)
 	{
 		_escortState |= escortState;
 	}
 
-	void RemoveEscortState(EscortState escortState)
+    private void RemoveEscortState(EscortState escortState)
 	{
 		_escortState &= ~escortState;
 	}

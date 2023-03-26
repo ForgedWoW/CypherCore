@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Pet;
 
-class PetRename : ClientPacket
+internal class PetRename : ClientPacket
 {
 	public PetRenameData RenameData;
 	public PetRename(WorldPacket packet) : base(packet) { }

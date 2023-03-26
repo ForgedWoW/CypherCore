@@ -5,7 +5,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Party;
 
-class GroupUninvite : ServerPacket
+internal class GroupUninvite : ServerPacket
 {
 	public GroupUninvite() : base(ServerOpcodes.GroupUninvite) { }
 

@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Loot;
 
-class LootMoney : ClientPacket
+internal class LootMoney : ClientPacket
 {
 	public LootMoney(WorldPacket packet) : base(packet) { }
 

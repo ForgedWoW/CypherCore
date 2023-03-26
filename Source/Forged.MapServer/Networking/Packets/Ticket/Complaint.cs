@@ -6,7 +6,7 @@ using Framework.Constants;
 
 namespace Forged.MapServer.Networking.Packets.Ticket;
 
-class Complaint : ClientPacket
+internal class Complaint : ClientPacket
 {
 	public SupportSpamType ComplaintType;
 	public ComplaintOffender Offender;

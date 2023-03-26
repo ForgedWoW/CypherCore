@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.Misc;
 
-class SetWarMode : ClientPacket
+internal class SetWarMode : ClientPacket
 {
 	public bool Enable;
 	public SetWarMode(WorldPacket packet) : base(packet) { }

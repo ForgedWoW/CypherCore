@@ -3,7 +3,7 @@
 
 namespace Forged.MapServer.Networking.Packets.AdventureMap;
 
-class AdventureMapStartQuest : ClientPacket
+internal class AdventureMapStartQuest : ClientPacket
 {
 	public uint QuestID;
 	public AdventureMapStartQuest(WorldPacket packet) : base(packet) { }

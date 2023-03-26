@@ -6,7 +6,7 @@ using Framework.Database;
 
 namespace Forged.MapServer.Networking;
 
-class AccountInfo
+internal class AccountInfo
 {
 	public BattleNet battleNet;
 	public Game game;

@@ -11,10 +11,10 @@ using Framework.Database;
 namespace Forged.MapServer.Chat.Commands;
 
 [CommandGroup("baninfo")]
-class BanInfoCommands
+internal class BanInfoCommands
 {
 	[Command("account", RBACPermissions.CommandBaninfoAccount, true)]
-	static bool HandleBanInfoAccountCommand(CommandHandler handler, string accountName)
+    private static bool HandleBanInfoAccountCommand(CommandHandler handler, string accountName)
 	{
 		if (accountName.IsEmpty())
 			return false;
@@ -32,7 +32,7 @@ class BanInfoCommands
 	}
 
 	[Command("character", RBACPermissions.CommandBaninfoCharacter, true)]
-	static bool HandleBanInfoCharacterCommand(CommandHandler handler, string name)
+    private static bool HandleBanInfoCharacterCommand(CommandHandler handler, string name)
 	{
 		if (!GameObjectManager.NormalizePlayerName(ref name))
 		{
@@ -96,7 +96,7 @@ class BanInfoCommands
 	}
 
 	[Command("ip", RBACPermissions.CommandBaninfoIp, true)]
-	static bool HandleBanInfoIPCommand(CommandHandler handler, string ip)
+    private static bool HandleBanInfoIPCommand(CommandHandler handler, string ip)
 	{
 		if (ip.IsEmpty())
 			return false;
@@ -123,7 +123,7 @@ class BanInfoCommands
 		return true;
 	}
 
-	static bool HandleBanInfoHelper(uint accountId, string accountName, CommandHandler handler)
+    private static bool HandleBanInfoHelper(uint accountId, string accountName, CommandHandler handler)
 	{
 		var result = DB.Login.Query("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '{0}' ORDER BY bandate ASC", accountId);
 
