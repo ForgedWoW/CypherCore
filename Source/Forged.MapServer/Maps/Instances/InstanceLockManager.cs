@@ -451,7 +451,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 	public DateTime GetNextResetTime(MapDb2Entries entries)
 	{
 		var dateTime = GameTime.GetDateAndTime();
-		var resetHour = WorldConfig.GetIntValue(WorldCfg.ResetScheduleHour);
+		var resetHour = GetDefaultValue("ResetSchedule.Hour", 8);
 
 		var hour = 0;
 		var day = 0;
@@ -469,7 +469,7 @@ public class InstanceLockManager : Singleton<InstanceLockManager>
 			}
 			case MapDifficultyResetInterval.Weekly:
 			{
-				var resetDay = WorldConfig.GetIntValue(WorldCfg.ResetScheduleWeekDay);
+				var resetDay = GetDefaultValue("ResetSchedule.WeekDay", 2);
 				var daysAdjust = resetDay - dateTime.Day;
 
 				if (dateTime.Day > resetDay || (dateTime.Day == resetDay && dateTime.Hour >= resetHour))

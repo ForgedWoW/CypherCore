@@ -25,7 +25,7 @@ public class PlayerInfo
 	public uint? IntroSceneId { get; set; }
 	public uint? IntroSceneIdNpe { get; set; }
 
-	public PlayerLevelInfo[] LevelInfo { get; set; } = new PlayerLevelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel)];
+	public PlayerLevelInfo[] LevelInfo { get; set; } = new PlayerLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
 
 	public PlayerInfo()
 	{

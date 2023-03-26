@@ -30,7 +30,7 @@ public class RestMgr
 		{
 			case RestTypes.XP:
 				// Reset restBonus (XP only) for max level players
-				if (_player.Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+				if (_player.Level >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 					restBonus = 0;
 
 				nextLevelXp = _player.ActivePlayerData.NextLevelXP;
@@ -79,7 +79,7 @@ public class RestMgr
 	public void AddRestBonus(RestTypes restType, double restBonus)
 	{
 		// Don't add extra rest bonus to max level players. Note: Might need different condition in next expansion for honor XP (PLAYER_LEVEL_MIN_HONOR perhaps).
-		if (_player.Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+		if (_player.Level >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			restBonus = 0;
 
 		var totalRestBonus = GetRestBonus(restType) + restBonus;

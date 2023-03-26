@@ -813,7 +813,7 @@ public class InstanceScript : ZoneScript
 	// Return wether server allow two side groups or not
 	public bool ServerAllowsTwoSideGroups()
 	{
-		return WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup);
+		return GetDefaultValue("AllowTwoSide.Interaction.Group", false);
 	}
 
 	public EncounterState GetBossState(uint id)

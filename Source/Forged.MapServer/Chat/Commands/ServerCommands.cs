@@ -232,9 +232,9 @@ class ServerCommands
 				return false;
 
 		// Override parameter "delay" with the configuration value if there are still players connected and "force" parameter was not specified
-		if (delay < WorldConfig.GetIntValue(WorldCfg.ForceShutdownThreshold) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
+		if (delay < GetDefaultValue("GM.ForceShutdownThreshold", 30) && !shutdownMask.HasAnyFlag(ShutdownMask.Force) && !IsOnlyUser(handler.Session))
 		{
-			delay = WorldConfig.GetIntValue(WorldCfg.ForceShutdownThreshold);
+			delay = GetDefaultValue("GM.ForceShutdownThreshold", 30);
 			handler.SendSysMessage(CypherStrings.ShutdownDelayed, delay);
 		}
 

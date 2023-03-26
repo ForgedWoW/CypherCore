@@ -659,9 +659,9 @@ public class TradeHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (Player.Level < WorldConfig.GetIntValue(WorldCfg.TradeLevelReq))
+		if (Player.Level < GetDefaultValue("LevelReq.Trade", 1))
 		{
-			SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.TradeReq), WorldConfig.GetIntValue(WorldCfg.TradeLevelReq));
+			SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.TradeReq), GetDefaultValue("LevelReq.Trade", 1));
 			info.Status = TradeStatus.Failed;
 			SendTradeStatus(info);
 
@@ -730,7 +730,7 @@ public class TradeHandler : IWorldSessionHandler
 		if ((pOther.Team != Player.Team ||
 			pOther.HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode) ||
 			Player.HasPlayerFlagEx(PlayerFlagsEx.MercenaryMode)) &&
-			(!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideTrade) &&
+			(!GetDefaultValue("AllowTwoSide.Trade", false) &&
 			!HasPermission(RBACPermissions.AllowTwoSideTrade)))
 		{
 			info.Status = TradeStatus.WrongFaction;
@@ -747,9 +747,9 @@ public class TradeHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (pOther.Level < WorldConfig.GetIntValue(WorldCfg.TradeLevelReq))
+		if (pOther.Level < GetDefaultValue("LevelReq.Trade", 1))
 		{
-			SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.TradeOtherReq), WorldConfig.GetIntValue(WorldCfg.TradeLevelReq));
+			SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.TradeOtherReq), GetDefaultValue("LevelReq.Trade", 1));
 			info.Status = TradeStatus.Failed;
 			SendTradeStatus(info);
 

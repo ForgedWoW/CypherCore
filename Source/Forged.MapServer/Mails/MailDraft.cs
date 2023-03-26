@@ -87,7 +87,7 @@ public class MailDraft
 		}
 
 		// If theres is an item, there is a one hour delivery delay.
-		var deliver_delay = needItemDelay ? WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay) : 0;
+		var deliver_delay = needItemDelay ? GetDefaultValue("MailDeliveryDelay", Time.Hour) : 0;
 
 		// will delete item or place to receiver mail list
 		SendMailTo(trans, new MailReceiver(receiver, receiver_guid), new MailSender(MailMessageType.Normal, senderGuid), MailCheckMask.Returned, deliver_delay);
@@ -115,7 +115,7 @@ public class MailDraft
 
 		// auction mail without any items and money
 		if (sender.GetMailMessageType() == MailMessageType.Auction && m_items.Empty() && m_money == 0)
-			expire_delay = WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay);
+			expire_delay = GetDefaultValue("MailDeliveryDelay", Time.Hour);
 		// default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
 		else if (m_COD != 0)
 			expire_delay = 3 * Time.Day;

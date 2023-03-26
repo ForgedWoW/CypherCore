@@ -16,7 +16,7 @@ public class ReorderCharacters : ClientPacket
 	{
 		var count = _worldPacket.ReadBits<uint>(9);
 
-		for (var i = 0; i < count && i < WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm); ++i)
+		for (var i = 0; i < count && i < GetDefaultValue("CharactersPerRealm", 60); ++i)
 		{
 			ReorderInfo reorderInfo;
 			reorderInfo.PlayerGUID = _worldPacket.ReadPackedGuid();

@@ -40,6 +40,7 @@ using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Spells;
 
@@ -3320,7 +3321,7 @@ public partial class Spell
 		if (_effectHandleMode != SpellEffectHandleMode.Hit)
 			return;
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.CastUnstuck))
+		if (!GetDefaultValue("CastUnstuck", true))
 			return;
 
 		var player = _caster.AsPlayer;
@@ -4680,7 +4681,7 @@ public partial class Spell
 		if (ItemTarget.Count < 5)
 			return;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.SkillProspecting))
+		if (GetDefaultValue("SkillChance.Prospecting", false))
 		{
 			uint SkillValue = player.GetPureSkillValue(SkillType.Jewelcrafting);
 			var reqSkillValue = ItemTarget.Template.RequiredSkillRank;
@@ -4709,7 +4710,7 @@ public partial class Spell
 		if (ItemTarget.Count < 5)
 			return;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.SkillMilling))
+		if (GetDefaultValue("SkillChance.Milling", false))
 		{
 			uint SkillValue = player.GetPureSkillValue(SkillType.Inscription);
 			var reqSkillValue = ItemTarget.Template.RequiredSkillRank;

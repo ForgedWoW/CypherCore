@@ -84,9 +84,9 @@ public class MailHandler : IWorldSessionHandler
 
 		var player = Player;
 
-		if (player.Level < WorldConfig.GetIntValue(WorldCfg.MailLevelReq))
+		if (player.Level < GetDefaultValue("LevelReq.Mail", 1))
 		{
-			SendNotification(CypherStrings.MailSenderReq, WorldConfig.GetIntValue(WorldCfg.MailLevelReq));
+			SendNotification(CypherStrings.MailSenderReq, GetDefaultValue("LevelReq.Mail", 1));
 
 			return;
 		}
@@ -218,9 +218,9 @@ public class MailHandler : IWorldSessionHandler
 				return;
 			}
 
-			if (receiverLevel < WorldConfig.GetIntValue(WorldCfg.MailLevelReq))
+			if (receiverLevel < GetDefaultValue("LevelReq.Mail", 1))
 			{
-				SendNotification(CypherStrings.MailReceiverReq, WorldConfig.GetIntValue(WorldCfg.MailLevelReq));
+				SendNotification(CypherStrings.MailReceiverReq, GetDefaultValue("LevelReq.Mail", 1));
 
 				return;
 			}
@@ -329,7 +329,7 @@ public class MailHandler : IWorldSessionHandler
 			}
 
 			// If theres is an item, there is a one hour delivery delay if sent to another account's character.
-			var deliver_delay = needItemDelay ? WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay) : 0;
+			var deliver_delay = needItemDelay ? GetDefaultValue("MailDeliveryDelay", Time.Hour) : 0;
 
 			// Mail sent between guild members arrives instantly
 			var guild = Global.GuildMgr.GetGuildById(player.GuildId);

@@ -12,6 +12,7 @@ using Forged.MapServer.Scripting.Interfaces.IMap;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Maps;
 
@@ -70,7 +71,7 @@ public class InstanceMap : Map
 
 		// the timer is started by default, and stopped when the first player joins
 		// this make sure it gets unloaded if for some reason no player joins
-		UnloadTimer = (uint)Math.Max(WorldConfig.GetIntValue(WorldCfg.InstanceUnloadDelay), 1);
+		UnloadTimer = (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.Minute * Time.InMilliseconds), 1);
 
 		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceAlliance, instanceTeam == TeamIds.Alliance ? 1 : 0, false, this);
 		Global.WorldStateMgr.SetValue(WorldStates.TeamInInstanceHorde, instanceTeam == TeamIds.Horde ? 1 : 0, false, this);
@@ -208,7 +209,7 @@ public class InstanceMap : Map
 
 		// if last player set unload timer
 		if (UnloadTimer == 0 && Players.Count == 1)
-			UnloadTimer = (_instanceLock != null && _instanceLock.IsExpired()) ? 1 : (uint)Math.Max(WorldConfig.GetIntValue(WorldCfg.InstanceUnloadDelay), 1);
+			UnloadTimer = (_instanceLock != null && _instanceLock.IsExpired()) ? 1 : (uint)Math.Max(GetDefaultValue("Instance.UnloadDelay", 30 * Time.Minute * Time.InMilliseconds), 1);
 
 		if (_scenario != null)
 			_scenario.OnPlayerExit(player);

@@ -921,7 +921,7 @@ public partial class Player
 		// GM state
 		if (Session.HasPermission(RBACPermissions.RestoreSavedGmState))
 		{
-			switch (WorldConfig.GetIntValue(WorldCfg.GmLoginState))
+			switch (GetDefaultValue("GM.LoginState", 2))
 			{
 				default:
 				case 0:
@@ -937,7 +937,7 @@ public partial class Player
 					break;
 			}
 
-			switch (WorldConfig.GetIntValue(WorldCfg.GmVisibleState))
+			switch (GetDefaultValue("GM.Visible", 2))
 			{
 				default:
 				case 0:
@@ -953,7 +953,7 @@ public partial class Player
 					break;
 			}
 
-			switch (WorldConfig.GetIntValue(WorldCfg.GmChat))
+			switch (GetDefaultValue("GM.Chat", 2))
 			{
 				default:
 				case 0:
@@ -969,7 +969,7 @@ public partial class Player
 					break;
 			}
 
-			switch (WorldConfig.GetIntValue(WorldCfg.GmWhisperingTo))
+			switch (GetDefaultValue("GM.WhisperingTo", 2))
 			{
 				default:
 				case 0:
@@ -1069,7 +1069,7 @@ public partial class Player
 	public void SaveToDB(SQLTransaction loginTransaction, SQLTransaction characterTransaction, bool create = false)
 	{
 		// delay auto save at any saves (manual, in code, or autosave)
-		_nextSave = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+		_nextSave = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
 
 		//lets allow only players in world to be saved
 		if (IsBeingTeleportedFar)
@@ -1458,7 +1458,7 @@ public partial class Player
 
 		// check if stats should only be saved on logout
 		// save stats can be out of transaction
-		if (Session.IsLogingOut || !WorldConfig.GetBoolValue(WorldCfg.StatsSaveOnlyOnLogout))
+		if (Session.IsLogingOut || !GetDefaultValue("PlayerSave.Stats.SaveOnlyOnLogout", true))
 			_SaveStats(characterTransaction);
 
 		// TODO: Move this out
@@ -4622,7 +4622,7 @@ public partial class Player
 	void _SaveStats(SQLTransaction trans)
 	{
 		// check if stat saving is enabled and if char level is high enough
-		if (WorldConfig.GetIntValue(WorldCfg.MinLevelStatSave) == 0 || Level < WorldConfig.GetIntValue(WorldCfg.MinLevelStatSave))
+		if (GetDefaultValue("PlayerSave.Stats.MinLevel", 0) == 0 || Level < GetDefaultValue("PlayerSave.Stats.MinLevel", 0))
 			return;
 
 		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHAR_STATS);

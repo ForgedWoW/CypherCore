@@ -1436,7 +1436,7 @@ public class Map : IDisposable
 		var group = player.Group;
 
 		if (entry.IsRaid() && (int)entry.Expansion() >= GetDefaultValue("Expansion", (int)Expansion.Dragonflight)) // can only enter in a raid group but raids from old expansion don't need a group
-			if ((!group || !group.IsRaidGroup) && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid))
+			if ((!group || !group.IsRaidGroup) && !GetDefaultValue("Instance.IgnoreRaid", false))
 				return new TransferAbortParams(TransferAbortReason.NeedGroup);
 
 		if (entry.Instanceable())
@@ -3028,7 +3028,7 @@ public class Map : IDisposable
 			{
 				Log.Logger.Debug("Creating grid[{0}, {1}] for map {2} instance {3}", p.X_Coord, p.Y_Coord, Id, InstanceIdInternal);
 
-				var grid = new Grid(p.X_Coord * MapConst.MaxGrids + p.Y_Coord, p.X_Coord, p.Y_Coord, _gridExpiry, WorldConfig.GetBoolValue(WorldCfg.GridUnload));
+				var grid = new Grid(p.X_Coord * MapConst.MaxGrids + p.Y_Coord, p.X_Coord, p.Y_Coord, _gridExpiry, GetDefaultValue("GridUnload", true));
 				grid.SetGridState(GridState.Idle);
 				SetGrid(grid, p.X_Coord, p.Y_Coord);
 

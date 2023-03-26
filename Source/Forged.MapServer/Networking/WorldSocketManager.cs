@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Networking;
+using Serilog;
 
 namespace Forged.MapServer.Networking;
 
@@ -28,7 +29,7 @@ public class WorldSocketManager : SocketManager<WorldSocket>
 
 		_instanceAcceptor = new AsyncAcceptor();
 
-		if (!_instanceAcceptor.Start(bindIp, WorldConfig.GetIntValue(WorldCfg.PortInstance)))
+		if (!_instanceAcceptor.Start(bindIp, GetDefaultValue("InstanceServerPort", 8086)))
 		{
 			Log.Logger.Error("StartNetwork failed to start instance AsyncAcceptor");
 

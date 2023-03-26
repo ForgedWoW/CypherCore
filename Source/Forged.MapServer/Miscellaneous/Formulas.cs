@@ -139,10 +139,10 @@ public class Formulas
 			}
 		}
 
-		if (WorldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) != 0 && pl_level != mob_level)
+		if (GetDefaultValue("MinCreatureScaledXPRatio", 0) != 0 && pl_level != mob_level)
 		{
 			// Use mob level instead of player level to avoid overscaling on gain in a min is enforced
-			var baseGainMin = BaseGain(pl_level, pl_level) * WorldConfig.GetUIntValue(WorldCfg.MinCreatureScaledXpRatio) / 100;
+			var baseGainMin = BaseGain(pl_level, pl_level) * GetDefaultValue("MinCreatureScaledXPRatio", 0) / 100;
 			baseGain = Math.Max(baseGainMin, baseGain);
 		}
 

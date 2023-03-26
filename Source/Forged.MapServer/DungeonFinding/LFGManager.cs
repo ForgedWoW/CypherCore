@@ -18,6 +18,7 @@ using Forged.MapServer.Networking.Packets.LFG;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.DungeonFinding;
 
@@ -128,10 +129,10 @@ public class LFGManager : Singleton<LFGManager>
 				continue;
 			}
 
-			if (maxLevel == 0 || maxLevel > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+			if (maxLevel == 0 || maxLevel > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			{
 				Log.Logger.Error("Level {0} specified for dungeon {1} in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
-				maxLevel = WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
+				maxLevel = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 			}
 
 			if (firstQuestId == 0 || Global.ObjectMgr.GetQuestTemplate(firstQuestId) == null)
@@ -1708,7 +1709,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SetTeam(ObjectGuid guid, TeamFaction team)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGroup))
+		if (GetDefaultValue("AllowTwoSide.Interaction.Group", false))
 			team = 0;
 
 		PlayersStore[guid].SetTeam(team);

@@ -20,6 +20,7 @@ using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Serilog;
 
 namespace Forged.MapServer.AuctionHouse;
 
@@ -658,7 +659,7 @@ public class AuctionHouseObject
 		{
 			throttleData = new PlayerReplicateThrottleData
 			{
-				NextAllowedReplication = curTime + TimeSpan.FromSeconds(WorldConfig.GetIntValue(WorldCfg.AuctionReplicateDelay)),
+				NextAllowedReplication = curTime + TimeSpan.FromSeconds(GetDefaultValue("Auction.ReplicateItemsCooldown", 900)),
 				Global = Global.AuctionHouseMgr.GenerateReplicationId
 			};
 		}
@@ -906,13 +907,13 @@ public class AuctionHouseObject
 			{
 				owner.UpdateCriteria(CriteriaType.MoneyEarnedFromAuctions, profit);
 				owner.UpdateCriteria(CriteriaType.HighestAuctionSale, profit);
-				owner.Session.SendAuctionClosedNotification(auction, (float)WorldConfig.GetIntValue(WorldCfg.MailDeliveryDelay), true);
+				owner.Session.SendAuctionClosedNotification(auction, (float)GetDefaultValue("MailDeliveryDelay", Time.Hour), true);
 			}
 
 			new MailDraft(Global.AuctionHouseMgr.BuildCommodityAuctionMailSubject(AuctionMailType.Sold, itemId, boughtFromAuction),
 						Global.AuctionHouseMgr.BuildAuctionSoldMailBody(player.GUID, auction.BuyoutOrUnitPrice * boughtFromAuction, boughtFromAuction, (uint)depositPart, auctionHouseCut))
 				.AddMoney(profit)
-				.SendMailTo(trans, new MailReceiver(Global.ObjAccessor.FindConnectedPlayer(auction.Owner), auction.Owner), new MailSender(this), MailCheckMask.Copied, WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay));
+				.SendMailTo(trans, new MailReceiver(Global.ObjAccessor.FindConnectedPlayer(auction.Owner), auction.Owner), new MailSender(this), MailCheckMask.Copied, GetDefaultValue("MailDeliveryDelay", Time.Hour));
 		}
 
 		player.ModifyMoney(-(long)totalPrice);
@@ -1081,13 +1082,13 @@ public class AuctionHouseObject
 
 				//send auction owner notification, bidder must be current!
 				owner. //send auction owner notification, bidder must be current!
-					Session.SendAuctionClosedNotification(auction, (float)WorldConfig.GetIntValue(WorldCfg.MailDeliveryDelay), true);
+					Session.SendAuctionClosedNotification(auction, (float)GetDefaultValue("MailDeliveryDelay", Time.Hour), true);
 			}
 
 			new MailDraft(Global.AuctionHouseMgr.BuildItemAuctionMailSubject(AuctionMailType.Sold, auction),
 						Global.AuctionHouseMgr.BuildAuctionSoldMailBody(auction.Bidder, auction.BidAmount, auction.BuyoutOrUnitPrice, (uint)auction.Deposit, auctionHouseCut))
 				.AddMoney(profit)
-				.SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay));
+				.SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied, GetDefaultValue("MailDeliveryDelay", Time.Hour));
 		}
 	}
 
@@ -1157,7 +1158,7 @@ public class AuctionHouseObject
 		if ((owner || Global.CharacterCacheStorage.HasCharacterCacheEntry(auction.Owner))) // && !sAuctionBotConfig.IsBotChar(auction.Owner))
 		{
 			ByteBuffer tempBuffer = new();
-			tempBuffer.WritePackedTime(GameTime.GetGameTime() + WorldConfig.GetIntValue(WorldCfg.MailDeliveryDelay));
+			tempBuffer.WritePackedTime(GameTime.GetGameTime() + GetDefaultValue("MailDeliveryDelay", Time.Hour));
 			var eta = tempBuffer.ReadUInt32();
 
 			new MailDraft(Global.AuctionHouseMgr.BuildItemAuctionMailSubject(AuctionMailType.Invoice, auction),
@@ -1166,7 +1167,7 @@ public class AuctionHouseObject
 																			auction.BuyoutOrUnitPrice,
 																			(uint)auction.Deposit,
 																			CalculateAuctionHouseCut(auction.BidAmount),
-																			WorldConfig.GetUIntValue(WorldCfg.MailDeliveryDelay),
+																			GetDefaultValue("MailDeliveryDelay", Time.Hour),
 																			eta))
 				.SendMailTo(trans, new MailReceiver(owner, auction.Owner), new MailSender(this), MailCheckMask.Copied);
 		}

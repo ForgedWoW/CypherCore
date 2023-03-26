@@ -236,7 +236,7 @@ public partial class Player : Unit
 		get
 		{
 			if (ConfigMgr.GetDefaultValue("character.MaxLevelDeterminedByConfig", false))
-				return Level >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+				return Level >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 			return Level >= ActivePlayerData.MaxLevel;
 		}
@@ -486,7 +486,7 @@ public partial class Player : Unit
 			SetAcceptWhispers(true);
 
 		_zoneUpdateId = 0xffffffff;
-		_nextSave = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+		_nextSave = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
 		_customizationsChanged = false;
 
 		GroupInvite = null;
@@ -678,7 +678,7 @@ public partial class Player : Unit
 		SetPowerType(powertype, false);
 		InitDisplayIds();
 
-		if ((RealmType)WorldConfig.GetIntValue(WorldCfg.GameType) == RealmType.PVP || (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType) == RealmType.RPPVP)
+		if ((RealmType)GetDefaultValue("GameType", 0) == RealmType.PVP || (RealmType)GetDefaultValue("GameType", 0) == RealmType.RPPVP)
 		{
 			SetPvpFlag(UnitPVPStateFlags.PvP);
 			SetUnitFlag(UnitFlags.PlayerControlled);
@@ -700,7 +700,7 @@ public partial class Player : Unit
 
 		InitRunes();
 
-		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), (ulong)WorldConfig.GetIntValue(WorldCfg.StartPlayerMoney));
+		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.Coinage), (ulong)GetDefaultValue("StartPlayerMoney", 0));
 
 		// Played time
 		_lastTick = GameTime.GetGameTime();
@@ -2387,25 +2387,25 @@ public partial class Player : Unit
 
 	public uint GetStartLevel(Race race, PlayerClass playerClass, uint? characterTemplateId = null)
 	{
-		var startLevel = WorldConfig.GetUIntValue(WorldCfg.StartPlayerLevel);
+		var startLevel = GetDefaultValue("StartPlayerLevel", 1);
 
 		if (CliDB.ChrRacesStorage.LookupByKey(race).GetFlags().HasAnyFlag(ChrRacesFlag.IsAlliedRace))
-			startLevel = WorldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel);
+			startLevel = GetDefaultValue("StartAlliedRacePlayerLevel", 10);
 
 		if (playerClass == PlayerClass.Deathknight)
 		{
 			if (race == Race.PandarenAlliance || race == Race.PandarenHorde)
-				startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartAlliedRaceLevel), startLevel);
+				startLevel = Math.Max(GetDefaultValue("StartAlliedRacePlayerLevel", 10), startLevel);
 			else
-				startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartDeathKnightPlayerLevel), startLevel);
+				startLevel = Math.Max(GetDefaultValue("StartDeathKnightPlayerLevel", 8), startLevel);
 		}
 		else if (playerClass == PlayerClass.DemonHunter)
 		{
-			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartDemonHunterPlayerLevel), startLevel);
+			startLevel = Math.Max(GetDefaultValue("StartDemonHunterPlayerLevel", 8), startLevel);
 		}
 		else if (playerClass == PlayerClass.Evoker)
 		{
-			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartEvokerPlayerLevel), startLevel);
+			startLevel = Math.Max(GetDefaultValue("StartEvokerPlayerLevel", 58), startLevel);
 		}
 
 		if (characterTemplateId.HasValue)
@@ -2424,7 +2424,7 @@ public partial class Player : Unit
 		}
 
 		if (Session.HasPermission(RBACPermissions.UseStartGmLevel))
-			startLevel = Math.Max(WorldConfig.GetUIntValue(WorldCfg.StartGmLevel), startLevel);
+			startLevel = Math.Max(GetDefaultValue("GM.StartLevel", 1), startLevel);
 
 		return startLevel;
 	}
@@ -4587,7 +4587,7 @@ public partial class Player : Unit
 				var k_grey = Formulas.GetGrayLevel(Level);
 
 				// Victim level less gray level
-				if (v_level < k_grey && WorldConfig.GetIntValue(WorldCfg.MinCreatureScaledXpRatio) == 0)
+				if (v_level < k_grey && GetDefaultValue("MinCreatureScaledXPRatio", 0) == 0)
 					return false;
 
 				var creature = victim.AsCreature;
@@ -5268,13 +5268,13 @@ public partial class Player : Unit
 
 		var info = Global.ObjectMgr.GetPlayerLevelInfo(Race, Class, Level);
 
-		var exp_max_lvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(Session.Expansion);
-		var conf_max_lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+		var expMaxLvl = (int)Global.ObjectMgr.GetMaxLevelForExpansion(Session.Expansion);
+		var confMaxLvl = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
-		if (exp_max_lvl == SharedConst.DefaultMaxLevel || exp_max_lvl >= conf_max_lvl)
-			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), conf_max_lvl);
+		if (expMaxLvl == SharedConst.DefaultMaxLevel || expMaxLvl >= confMaxLvl)
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), confMaxLvl);
 		else
-			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), exp_max_lvl);
+			SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.MaxLevel), expMaxLvl);
 
 		SetUpdateFieldValue(Values.ModifyValue(ActivePlayerData).ModifyValue(ActivePlayerData.NextLevelXP), Global.ObjectMgr.GetXPForLevel(Level));
 
@@ -5971,7 +5971,7 @@ public partial class Player : Unit
 		//Checks and preparations done, DO FLIGHT
 		UpdateCriteria(CriteriaType.BuyTaxi, 1);
 
-		if (WorldConfig.GetBoolValue(WorldCfg.InstantTaxi))
+		if (GetDefaultValue("InstantFlightPaths", false))
 		{
 			var lastPathNode = CliDB.TaxiNodesStorage.LookupByKey(nodes[^1]);
 			Taxi.ClearTaxiDestinations();
@@ -6080,7 +6080,7 @@ public partial class Player : Unit
 	{
 		var recruitAFriend = false;
 
-		if (Level <= WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel) || !forXP)
+		if (Level <= GetDefaultValue("RecruitAFriend.MaxLevel", 60) || !forXP)
 		{
 			var group = Group;
 
@@ -6098,12 +6098,12 @@ public partial class Player : Unit
 					if (forXP)
 					{
 						// level must be allowed to get RaF bonus
-						if (player.Level > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevel))
+						if (player.Level > GetDefaultValue("RecruitAFriend.MaxLevel", 60))
 							continue;
 
 						// level difference must be small enough to get RaF bonus, UNLESS we are lower level
 						if (player.Level < Level)
-							if (Level - player.Level > WorldConfig.GetIntValue(WorldCfg.MaxRecruitAFriendBonusPlayerLevelDifference))
+							if (Level - player.Level > GetDefaultValue("RecruitAFriend.MaxDifference", 4))
 								continue;
 					}
 
@@ -7847,7 +7847,7 @@ public partial class Player : Unit
 				return Time.Minute * Time.InMilliseconds;
 			case MirrorTimerType.Breath:
 			{
-				if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)WorldConfig.GetIntValue(WorldCfg.DisableBreathing))
+				if (!IsAlive || HasAuraType(AuraType.WaterBreathing) || Session.Security >= (AccountTypes)GetDefaultValue("DisableWaterBreath", (int)AccountTypes.Console))
 					return -1;
 
 				var UnderWaterTime = 3 * Time.Minute * Time.InMilliseconds;
@@ -8147,7 +8147,7 @@ public partial class Player : Unit
 		if (!player || IsAlive)
 			player = this;
 
-		return pOther.GetDistance(player) <= WorldConfig.GetFloatValue(WorldCfg.MaxRecruitAFriendDistance);
+		return pOther.GetDistance(player) <= GetDefaultValue("MaxRecruitAFriendBonusDistance", 100.0f);
 	}
 
 
@@ -8158,7 +8158,7 @@ public partial class Player : Unit
 
 	void InitPrimaryProfessions()
 	{
-		SetFreePrimaryProfessions(WorldConfig.GetUIntValue(WorldCfg.MaxPrimaryTradeSkill));
+		SetFreePrimaryProfessions(GetDefaultValue("MaxPrimaryTradeSkill", 2));
 	}
 
 	void SetFreePrimaryProfessions(ushort profs)
@@ -8656,9 +8656,9 @@ public partial class Player : Unit
 						XP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f));
 					}
 
-					if (WorldConfig.GetIntValue(WorldCfg.MinDiscoveredScaledXpRatio) != 0)
+					if (GetDefaultValue("MinDiscoveredScaledXPRatio", 0) != 0)
 					{
-						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f)) * WorldConfig.GetUIntValue(WorldCfg.MinDiscoveredScaledXpRatio) / 100;
+						var minScaledXP = (uint)(Global.ObjectMgr.GetBaseXP(areaLevel) * GetDefaultValue("Rate.XP.Explore", 1.0f)) * GetDefaultValue("MinDiscoveredScaledXPRatio", 0) / 100;
 						XP = Math.Max(minScaledXP, XP);
 					}
 

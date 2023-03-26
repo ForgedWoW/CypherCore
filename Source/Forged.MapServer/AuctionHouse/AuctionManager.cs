@@ -55,7 +55,7 @@ public class AuctionManager
 
 	public AuctionHouseObject GetAuctionsMap(uint factionTemplateId)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionAuction))
+		if (GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
 			return _neutralAuctions;
 
 		// teams have linked auction houses
@@ -469,8 +469,9 @@ public class AuctionManager
 		if ((--throttleObject.QueriesRemaining) == 0)
 			return new AuctionThrottleResult(throttleObject.PeriodEnd - now, false);
 		else
-			return new AuctionThrottleResult(TimeSpan.FromMilliseconds(WorldConfig.GetIntValue(addonTainted ? WorldCfg.AuctionTaintedSearchDelay : WorldCfg.AuctionSearchDelay)), false);
-	}
+			return new AuctionThrottleResult(TimeSpan.FromMilliseconds(GetDefaultValue(addonTainted ? "Auction.TaintedSearchDelay" : "Auction.SearchDelay")), false);
+
+    }
 
 	public AuctionHouseRecord GetAuctionHouseEntry(uint factionTemplateId)
 	{
@@ -483,7 +484,7 @@ public class AuctionManager
 	{
 		uint houseid = 1; // Auction House
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionAuction))
+		if (!GetDefaultValue("AllowTwoSide.Interaction.Auction", true))
 			// FIXME: found way for proper auctionhouse selection by another way
 			// AuctionHouse.dbc have faction field with _player_ factions associated with auction house races.
 			// but no easy way convert creature faction to player race faction for specific city

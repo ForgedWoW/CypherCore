@@ -187,7 +187,7 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			if (_maxSkill == 0)
 			{
-				var lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+				var lvl = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 				_maxSkill = (uint)(lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5);
 			}
@@ -206,13 +206,13 @@ public class WorldManager : Singleton<WorldManager>
 	{
 		get
 		{
-			var realmtype = (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
+			var realmtype = (RealmType)GetDefaultValue("GameType", 0);
 
 			return (realmtype == RealmType.PVP || realmtype == RealmType.RPPVP || realmtype == RealmType.FFAPVP);
 		}
 	}
 
-	public bool IsFFAPvPRealm => WorldConfig.GetIntValue(WorldCfg.GameType) == (int)RealmType.FFAPVP;
+	public bool IsFFAPvPRealm => GetDefaultValue("GameType", 0) == (int)RealmType.FFAPVP;
 
 	public Locale DefaultDbcLocale => _defaultDbcLocale;
 
@@ -361,7 +361,7 @@ public class WorldManager : Singleton<WorldManager>
 
 		Global.ObjectMgr.SetHighestGuids();
 
-		if (!TerrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) || !TerrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) || !TerrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) || !TerrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) || !TerrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) || !TerrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) || (WorldConfig.GetIntValue(WorldCfg.Expansion) != 0 && (!TerrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) || !TerrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
+		if (!TerrainManager.ExistMapAndVMap(0, -6240.32f, 331.033f) || !TerrainManager.ExistMapAndVMap(0, -8949.95f, -132.493f) || !TerrainManager.ExistMapAndVMap(1, -618.518f, -4251.67f) || !TerrainManager.ExistMapAndVMap(0, 1676.35f, 1677.45f) || !TerrainManager.ExistMapAndVMap(1, 10311.3f, 832.463f) || !TerrainManager.ExistMapAndVMap(1, -2917.58f, -257.98f) || (GetDefaultValue("Expansion", (int)Expansion.Dragonflight) != 0 && (!TerrainManager.ExistMapAndVMap(530, 10349.6f, -6357.29f) || !TerrainManager.ExistMapAndVMap(530, -3961.64f, -13931.2f))))
 		{
 			Log.Logger.Error("Unable to load map and vmap data for starting zones - server shutting down!");
 			Environment.Exit(1);
@@ -379,10 +379,10 @@ public class WorldManager : Singleton<WorldManager>
 			Environment.Exit(1);
 
 		// not send custom type REALM_FFA_PVP to realm list
-		var server_type = IsFFAPvPRealm ? RealmType.PVP : (RealmType)WorldConfig.GetIntValue(WorldCfg.GameType);
-		var realm_zone = WorldConfig.GetUIntValue(WorldCfg.RealmZone);
+		var server_type = IsFFAPvPRealm ? RealmType.PVP : (RealmType)GetDefaultValue("GameType", 0);
+		var realmZone = GetDefaultValue("RealmZone", (int)RealmZones.Development);
 
-		DB.Login.Execute("UPDATE realmlist SET icon = {0}, timezone = {1} WHERE id = '{2}'", (byte)server_type, realm_zone, _realm.Id.Index); // One-time query
+		DB.Login.Execute("UPDATE realmlist SET icon = {0}, timezone = {1} WHERE id = '{2}'", (byte)server_type, realmZone, _realm.Id.Index); // One-time query
 
 		Log.Logger.Information("Initialize DataStorage...");
 		// Load DB2s
@@ -983,7 +983,7 @@ public class WorldManager : Singleton<WorldManager>
 			. //erase corpses every 20 minutes
 			Interval = 20 * Time.Minute * Time.InMilliseconds;
 
-		_timers[WorldTimers.CleanDB].Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.CleanDB].Interval = GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
 		_timers[WorldTimers.AutoBroadcast].Interval = GetDefaultValue("AutoBroadcast.Timer", 60000);
 
 		// check for chars to delete every day
@@ -1004,14 +1004,14 @@ public class WorldManager : Singleton<WorldManager>
 
 		_timers[WorldTimers.WhoList].Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
 
-		_timers[WorldTimers.ChannelSave].Interval = WorldConfig.GetIntValue(WorldCfg.PreserveCustomChannelInterval) * Time.Minute * Time.InMilliseconds;
+		_timers[WorldTimers.ChannelSave].Interval = GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.Minute * Time.InMilliseconds;
 
 		//to set mailtimer to return mails every day between 4 and 5 am
 		//mailtimer is increased when updating auctions
 		//one second is 1000 -(tested on win system)
 		// @todo Get rid of magic numbers
 		var localTime = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
-		var CleanOldMailsTime = WorldConfig.GetIntValue(WorldCfg.CleanOldMailTime);
+		var CleanOldMailsTime = GetDefaultValue("CleanOldMailTime", 4u);
 		_mailTimer = ((((localTime.Hour + (24 - CleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
 		//1440
 		_timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
@@ -1104,8 +1104,6 @@ public class WorldManager : Singleton<WorldManager>
 
 	public void LoadConfigSettings(bool reload = false)
 	{
-		WorldConfig.Load(reload);
-
 		_defaultDbcLocale = (Locale)ConfigMgr.GetDefaultValue("DBC.Locale", 0);
 
 		if (_defaultDbcLocale >= Locale.Total || _defaultDbcLocale == Locale.None)
@@ -1130,13 +1128,13 @@ public class WorldManager : Singleton<WorldManager>
 			Global.SupportMgr.SetComplaintSystemStatus(GetDefaultValue("Support.ComplaintsEnabled", false));
 			Global.SupportMgr.SetSuggestionSystemStatus(GetDefaultValue("Support.SuggestionsEnabled", false));
 
-			Global.MapMgr.SetMapUpdateInterval(WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate));
-			Global.MapMgr.SetGridCleanUpDelay(WorldConfig.GetUIntValue(WorldCfg.IntervalGridclean));
+			Global.MapMgr.SetMapUpdateInterval(GetDefaultValue("MapUpdateInterval", 10));
+			Global.MapMgr.SetGridCleanUpDelay(GetDefaultValue("GridCleanUpDelay", 5 * Time.Minute * Time.InMilliseconds));
 
-			_timers[WorldTimers.UpTime].Interval = WorldConfig.GetIntValue(WorldCfg.UptimeUpdate) * Time.Minute * Time.InMilliseconds;
+			_timers[WorldTimers.UpTime].Interval = GetDefaultValue("UpdateUptimeInterval", 10) * Time.Minute * Time.InMilliseconds;
 			_timers[WorldTimers.UpTime].Reset();
 
-			_timers[WorldTimers.CleanDB].Interval = WorldConfig.GetIntValue(WorldCfg.LogdbClearinterval) * Time.Minute * Time.InMilliseconds;
+			_timers[WorldTimers.CleanDB].Interval = GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
 			_timers[WorldTimers.CleanDB].Reset();
 
 
@@ -1310,7 +1308,7 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			_timers[WorldTimers.ChannelSave].Reset();
 
-			if (WorldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
+			if (GetDefaultValue("PreserveCustomChannels", false))
 				_taskManager.Schedule(() =>
 				{
 					var mgr1 = ChannelManager.ForTeam(TeamFaction.Alliance);
@@ -1405,7 +1403,7 @@ public class WorldManager : Singleton<WorldManager>
 		}
 
 		// <li> Clean logs table
-		if (WorldConfig.GetIntValue(WorldCfg.LogdbCleartime) > 0) // if not enabled, ignore the timer
+		if (GetDefaultValue("LogDB.Opt.ClearTime", 1209600) > 0) // if not enabled, ignore the timer
 			if (_timers[WorldTimers.CleanDB].Passed)
 			{
 				_timers[WorldTimers.CleanDB].Reset();
@@ -1413,7 +1411,7 @@ public class WorldManager : Singleton<WorldManager>
 				_taskManager.Schedule(() =>
 				{
 					var stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_OLD_LOGS);
-					stmt.AddValue(0, WorldConfig.GetIntValue(WorldCfg.LogdbCleartime));
+					stmt.AddValue(0, GetDefaultValue("LogDB.Opt.ClearTime", 1209600));
 					stmt.AddValue(1, 0);
 					stmt.AddValue(2, Realm.Id.Index);
 
@@ -1913,7 +1911,7 @@ public class WorldManager : Singleton<WorldManager>
 
 			if (!session.UpdateWorld(diff)) // As interval = 0
 			{
-				if (!RemoveQueuedPlayer(session) && session != null && WorldConfig.GetIntValue(WorldCfg.IntervalDisconnectTolerance) != 0)
+				if (!RemoveQueuedPlayer(session) && session != null && GetDefaultValue("DisconnectToleranceInterval", 0) != 0)
 					_disconnects[session.AccountId] = GameTime.GetGameTime();
 
 				RemoveQueuedPlayer(session);
@@ -2041,8 +2039,8 @@ public class WorldManager : Singleton<WorldManager>
 		if (!result.IsEmpty())
 		{
 			DBVersion = result.Read<string>(0);
-			// will be overwrite by config values if different and non-0
-			WorldConfig.SetValue(WorldCfg.ClientCacheVersion, result.Read<uint>(1));
+			// will be overwrite by config values if different and non-0 TODO  
+			//WorldConfig.SetValue(WorldCfg.ClientCacheVersion, result.Read<uint>(1));
 		}
 
 		return DBVersion;
@@ -2451,7 +2449,7 @@ public class WorldManager : Singleton<WorldManager>
 
 	static long GetNextDailyResetTime(long t)
 	{
-		return Time.GetLocalHourTimestamp(t, WorldConfig.GetUIntValue(WorldCfg.DailyQuestResetTimeHour), true);
+		return Time.GetLocalHourTimestamp(t, GetDefaultValue("Quests.DailyResetTime", 3), true);
 	}
 
 	static long GetNextWeeklyResetTime(long t)
@@ -2459,7 +2457,7 @@ public class WorldManager : Singleton<WorldManager>
 		t = GetNextDailyResetTime(t);
 		var time = Time.UnixTimeToDateTime(t);
 		var wday = (int)time.DayOfWeek;
-		var target = WorldConfig.GetIntValue(WorldCfg.WeeklyQuestResetTimeWDay);
+		var target = GetDefaultValue("Quests.WeeklyResetWDay", 3);
 
 		if (target < wday)
 			wday -= 7;
@@ -2567,14 +2565,14 @@ public class WorldManager : Singleton<WorldManager>
 		// generate time by config
 		var curTime = GameTime.GetGameTime();
 
-		var nextWeekResetTime = Time.GetNextResetUnixTime(WorldConfig.GetIntValue(WorldCfg.CurrencyResetDay), WorldConfig.GetIntValue(WorldCfg.CurrencyResetHour));
+		var nextWeekResetTime = Time.GetNextResetUnixTime(GetDefaultValue("Currency.ResetDay", 3), GetDefaultValue("Currency.ResetHour", 3));
 
 		// next reset time before current moment
 		if (curTime >= nextWeekResetTime)
-			nextWeekResetTime += WorldConfig.GetIntValue(WorldCfg.CurrencyResetInterval) * Time.Day;
+			nextWeekResetTime += GetDefaultValue("Currency.ResetInterval", 7) * Time.Day;
 
 		// normalize reset time
-		_nextCurrencyReset = currencytime < curTime ? nextWeekResetTime - WorldConfig.GetIntValue(WorldCfg.CurrencyResetInterval) * Time.Day : nextWeekResetTime;
+		_nextCurrencyReset = currencytime < curTime ? nextWeekResetTime - GetDefaultValue("Currency.ResetInterval", 7) * Time.Day : nextWeekResetTime;
 
 		if (currencytime == 0)
 			SetPersistentWorldVariable(NextCurrencyResetTimeVarId, (int)_nextCurrencyReset);
@@ -2588,7 +2586,7 @@ public class WorldManager : Singleton<WorldManager>
 			if (session.Player != null)
 				session.Player.ResetCurrencyWeekCap();
 
-		_nextCurrencyReset += Time.Day * WorldConfig.GetIntValue(WorldCfg.CurrencyResetInterval);
+		_nextCurrencyReset += Time.Day * GetDefaultValue("Currency.ResetInterval", 7);
 		SetPersistentWorldVariable(NextCurrencyResetTimeVarId, (int)_nextCurrencyReset);
 	}
 

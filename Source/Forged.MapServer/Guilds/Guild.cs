@@ -20,6 +20,7 @@ using Forged.MapServer.Scripting.Interfaces.IGuild;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 using WorldSession = Forged.MapServer.WorldSession;
 
 namespace Forged.MapServer.Guilds;
@@ -595,7 +596,7 @@ public class Guild
 		if (pInvitee.Social.HasIgnore(player.GUID, player.Session.AccountGUID))
 			return;
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && pInvitee.Team != player.Team)
+		if (!GetDefaultValue("AllowTwoSide.Interaction.Guild", false) && pInvitee.Team != player.Team)
 		{
 			SendCommandResult(session, GuildCommandType.InvitePlayer, GuildCommandError.NotAllied, name);
 
@@ -664,7 +665,7 @@ public class Guild
 	{
 		var player = session.Player;
 
-		if (!WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) &&
+		if (!GetDefaultValue("AllowTwoSide.Interaction.Guild", false) &&
 			player.Team != Global.CharacterCacheStorage.GetCharacterTeamByGuid(GetLeaderGUID()))
 			return;
 

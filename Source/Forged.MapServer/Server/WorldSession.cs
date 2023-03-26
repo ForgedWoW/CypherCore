@@ -618,8 +618,8 @@ public class WorldSession : IDisposable
 			Serial = serial,
 			Payload =
 			{
-				Port = (ushort)WorldConfig.GetIntValue(WorldCfg.PortInstance)
-			},
+				Port = (ushort)GetDefaultValue("InstanceServerPort", 8086)
+            },
 			Con = (byte)ConnectionType.Instance
 		};
 
@@ -814,9 +814,9 @@ public class WorldSession : IDisposable
 	public void ResetTimeOutTime(bool onlyActive)
 	{
 		if (Player)
-			_timeOutTime = GameTime.GetGameTime() + WorldConfig.GetIntValue(WorldCfg.SocketTimeoutTimeActive);
+			_timeOutTime = GameTime.GetGameTime() + GetDefaultValue("SocketTimeOutTimeActive", 60);
 		else if (!onlyActive)
-			_timeOutTime = GameTime.GetGameTime() + WorldConfig.GetIntValue(WorldCfg.SocketTimeoutTime);
+			_timeOutTime = GameTime.GetGameTime() + GetDefaultValue("SocketTimeOutTime", 900);
 	}
 
 	public static implicit operator bool(WorldSession session)

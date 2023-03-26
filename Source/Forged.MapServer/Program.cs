@@ -10,6 +10,7 @@ using Forged.MapServer.AI.SmartScripts;
 using Forged.MapServer.Arenas;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
+using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.DataStorage;
 using Framework;
 using Framework.Constants;
@@ -56,14 +57,6 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<SmartAIManager>().SingleInstance();
     containerBuilder.RegisterType<ArenaTeamManager>().SingleInstance();
     containerBuilder.RegisterType<BattleFieldManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
-    containerBuilder.RegisterType<AuctionManager>().SingleInstance();
+    containerBuilder.RegisterType<BattlegroundManager>().SingleInstance();
     containerBuilder.RegisterType<AuctionManager>().SingleInstance();
 }

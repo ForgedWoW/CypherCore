@@ -11,6 +11,7 @@ using Forged.MapServer.Networking.Packets.Channel;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Channels;
 
@@ -32,7 +33,7 @@ public class ChannelManager
 
 	public static void LoadFromDB()
 	{
-		if (!WorldConfig.GetBoolValue(WorldCfg.PreserveCustomChannels))
+		if (!GetDefaultValue("PreserveCustomChannels", false))
 		{
 			Log.Logger.Information("Loaded 0 custom chat channels. Custom channel saving is disabled.");
 
@@ -40,7 +41,7 @@ public class ChannelManager
 		}
 
 		var oldMSTime = Time.MSTime;
-		var days = WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelDuration);
+		var days = GetDefaultValue("PreserveCustomChannelDuration", 14);
 
 		if (days != 0)
 		{
@@ -102,7 +103,7 @@ public class ChannelManager
 
 	public static ChannelManager ForTeam(TeamFaction team)
 	{
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
+		if (GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
 			return allianceChannelMgr; // cross-faction
 
 		if (team == TeamFaction.Alliance)

@@ -623,7 +623,7 @@ public partial class Creature : Unit
 						{
 							// regenerate health if cannot reach the target and the setting is set to do so.
 							// this allows to disable the health regen of raid bosses if pathfinding has issues for whatever reason
-							if (WorldConfig.GetBoolValue(WorldCfg.RegenHpCannotReachTargetInRaid) || !Map.IsRaid)
+							if (GetDefaultValue("Creature.RegenHPCannotReachTargetInRaid", true) || !Map.IsRaid)
 							{
 								RegenerateHealth();
 								Log.Logger.Debug($"RegenerateHealth() enabled because Creature cannot reach the target. Detail: {GetDebugInfo()}");
@@ -1757,7 +1757,7 @@ public partial class Creature : Unit
 		double aggroRadius = baseAggroDistance + levelDifference;
 
 		// detect range auras
-		if ((creatureLevel + 5) <= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+		if ((creatureLevel + 5) <= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 		{
 			aggroRadius += GetTotalAuraModifier(AuraType.ModDetectRange);
 			aggroRadius += player.GetTotalAuraModifier(AuraType.ModDetectedRange);
@@ -2505,7 +2505,7 @@ public partial class Creature : Unit
 		else if (ConfigMgr.GetDefaultValue("CreatureScaling.DefaultMaxLevel", false))
 		{
 			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMin), 1);
-			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMax), WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel));
+			SetUpdateFieldValue(Values.ModifyValue(UnitData).ModifyValue(UnitData.ScalingLevelMax), GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel));
 		}
 
 		int mindelta = Math.Min(scaling.DeltaLevelMax, scaling.DeltaLevelMin);

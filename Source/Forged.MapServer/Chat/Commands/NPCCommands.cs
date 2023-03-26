@@ -1105,7 +1105,7 @@ class NPCCommands
 		[Command("level", RBACPermissions.CommandNpcSetLevel)]
 		static bool HandleNpcSetLevelCommand(CommandHandler handler, byte lvl)
 		{
-			if (lvl < 1 || lvl > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) + 3)
+			if (lvl < 1 || lvl > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) + 3)
 			{
 				handler.SendSysMessage(CypherStrings.BadValue);
 

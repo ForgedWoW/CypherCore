@@ -105,7 +105,7 @@ public class AuthenticationHandler : IWorldSessionHandler
 			BpayStoreDisabledByParentalControls = false,
 			CharUndeleteEnabled = GetDefaultValue("FeatureSystem.CharacterUndelete.Enabled", false),
 			BpayStoreEnabled = GetDefaultValue("FeatureSystem.BpayStore.Enabled", false),
-			MaxCharactersPerRealm = WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm),
+			MaxCharactersPerRealm = GetDefaultValue("CharactersPerRealm", 60),
 			MinimumExpansionLevel = (int)Expansion.Classic,
 			MaximumExpansionLevel = GetDefaultValue("Expansion", (int)Expansion.Dragonflight)
         };

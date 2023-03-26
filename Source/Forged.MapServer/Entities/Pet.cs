@@ -775,7 +775,7 @@ public class Pet : Guardian
 		if (!IsAlive)
 			return;
 
-		var maxlevel = Math.Min(WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel), OwningPlayer.Level);
+		var maxlevel = Math.Min(GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel), OwningPlayer.Level);
 		var petlevel = Level;
 
 		// If pet is detected to be at, or above(?) the players level, don't hand out XP

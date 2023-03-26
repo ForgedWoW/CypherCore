@@ -12,6 +12,7 @@ using Forged.MapServer.Reputation;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -291,7 +292,7 @@ class CharacterCommands
 		var charCount = Global.AccountMgr.GetCharactersCount(newAccount.GetID());
 
 		if (charCount != 0)
-			if (charCount >= WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
+			if (charCount >= GetDefaultValue("CharactersPerRealm", 60))
 			{
 				handler.SendSysMessage(CypherStrings.AccountCharacterListFull, newAccount.GetName(), newAccount.GetID());
 
@@ -735,7 +736,7 @@ class CharacterCommands
 			// check character count
 			var charcount = Global.AccountMgr.GetCharactersCount(delInfo.accountId);
 
-			if (charcount >= WorldConfig.GetIntValue(WorldCfg.CharactersPerRealm))
+			if (charcount >= GetDefaultValue("CharactersPerRealm", 60))
 			{
 				handler.SendSysMessage(CypherStrings.CharacterDeletedSkipFull, delInfo.name, delInfo.guid.ToString(), delInfo.accountId);
 

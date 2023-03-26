@@ -153,7 +153,7 @@ public partial class Player
 		if (zone == null)
 			return;
 
-		if (WorldConfig.GetBoolValue(WorldCfg.Weather))
+		if (GetDefaultValue("ActivateWeather", true))
 			Map.GetOrGenerateZoneDefaultWeather(newZone);
 
 		Map.SendZoneDynamicInfo(newZone, this);
@@ -327,7 +327,7 @@ public partial class Player
 			var targetDifficulty = GetDifficultyId(mapEntry);
 			var mapDiff = Global.DB2Mgr.GetDownscaledMapDifficultyData(targetMap, ref targetDifficulty);
 
-			if (!WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
+			if (!GetDefaultValue("Instance.IgnoreLevel", false))
 			{
 				var mapDifficultyConditions = Global.DB2Mgr.GetMapDifficultyConditions(mapDiff.Id);
 
@@ -342,7 +342,7 @@ public partial class Player
 
 			if (ar != null)
 			{
-				if (!WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreLevel))
+				if (!GetDefaultValue("Instance.IgnoreLevel", false))
 				{
 					if (ar.LevelMin != 0 && Level < ar.LevelMin)
 						levelMin = ar.LevelMin;
@@ -431,7 +431,7 @@ public partial class Player
 		var group = Group;
 
 		// raid instances require the player to be in a raid group to be valid
-		if (map.IsRaid && !WorldConfig.GetBoolValue(WorldCfg.InstanceIgnoreRaid) && (map.Entry.Expansion() >= (Expansion)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
+		if (map.IsRaid && !GetDefaultValue("Instance.IgnoreRaid", false) && (map.Entry.Expansion() >= (Expansion)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
 			if (group == null || group.IsRaidGroup)
 				return false;
 

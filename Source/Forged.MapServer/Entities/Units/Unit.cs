@@ -3155,7 +3155,7 @@ public partial class Unit : WorldObject
 			else // victim is a player
 			{
 				// random durability for items (HIT TAKEN)
-				if (durabilityLoss && WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage) > RandomHelper.randChance())
+				if (durabilityLoss && GetDefaultValue("DurabilityLossChance.Damage", 0.5f) > RandomHelper.randChance())
 				{
 					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
 					victim.AsPlayer.DurabilityPointLossForEquipSlot(slot);
@@ -3164,7 +3164,7 @@ public partial class Unit : WorldObject
 
 			if (attacker is { IsPlayer: true })
 				// random durability for items (HIT DONE)
-				if (durabilityLoss && RandomHelper.randChance(WorldConfig.GetFloatValue(WorldCfg.RateDurabilityLossDamage)))
+				if (durabilityLoss && RandomHelper.randChance(GetDefaultValue("DurabilityLossChance.Damage", 0.5f)))
 				{
 					var slot = (byte)RandomHelper.IRand(0, EquipmentSlot.End - 1);
 					attacker.AsPlayer.DurabilityPointLossForEquipSlot(slot);

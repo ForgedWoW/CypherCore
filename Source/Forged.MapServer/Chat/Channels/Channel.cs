@@ -16,6 +16,7 @@ using Forged.MapServer.Text;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
+using Serilog;
 
 namespace Forged.MapServer.Chat.Channels;
 
@@ -151,7 +152,7 @@ public class Channel
 		}
 
 		_isDirty = false;
-		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, WorldConfig.GetUIntValue(WorldCfg.PreserveCustomChannelInterval));
+		_nextActivityUpdateTime = now + RandomHelper.URand(1 * Time.Minute, 6 * Time.Minute) * Math.Max(1u, GetDefaultValue("PreserveCustomChannelInterval", 5));
 	}
 
 	public void JoinChannel(Player player, string pass = "")
@@ -464,7 +465,7 @@ public class Channel
 			ChannelFlags = GetFlags()
 		};
 
-		var gmLevelInWhoList = WorldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
+		var gmLevelInWhoList = GetDefaultValue("GM.InWhoList.Level", (int)AccountTypes.Administrator);
 
 		foreach (var pair in _playersStore)
 		{
@@ -526,7 +527,7 @@ public class Channel
 			return;
 
 		// TODO: Add proper RBAC check
-		if (WorldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionChannel))
+		if (GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
 			lang = Language.Universal;
 
 		if (!IsOn(guid))

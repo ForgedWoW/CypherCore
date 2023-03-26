@@ -1040,7 +1040,7 @@ public partial class Unit
 			plrVictim.SetPvPDeath(player != null);
 
 			// only if not player and not controlled by player pet. And not at BG
-			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && WorldConfig.GetBoolValue(WorldCfg.DurabilityLossInPvp)))
+			if ((durabilityLoss && player == null && !victim.AsPlayer.InBattleground) || (player != null && GetDefaultValue("DurabilityLoss.InPvP", false)))
 			{
 				double baseLoss = GetDefaultValue("DurabilityLoss.OnDeath", 10.0f) / 100;
 				var loss = (uint)(baseLoss - (baseLoss * plrVictim.GetTotalAuraMultiplier(AuraType.ModDurabilityLoss)));

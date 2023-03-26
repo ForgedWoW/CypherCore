@@ -21,6 +21,7 @@ using Forged.MapServer.Spells.Auras;
 using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Dynamic;
+using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -1173,7 +1174,7 @@ public partial class Player
 						LearnSpell(discoveredSpell, false);
 				}
 
-				var craft_skill_gain = _spell_idx.NumSkillUps * WorldConfig.GetUIntValue(WorldCfg.SkillGainCrafting);
+				var craft_skill_gain = _spell_idx.NumSkillUps * GetDefaultValue("SkillGain.Crafting", 1);
 
 				return UpdateSkillPro(_spell_idx.SkillupSkillLineID,
 									SkillGainChance(SkillValue,
@@ -1195,7 +1196,7 @@ public partial class Player
 	{
 		Log.Logger.Debug("UpdateGatherSkill(SkillId {0} SkillLevel {1} RedLevel {2})", SkillId, SkillValue, RedLevel);
 
-		var gathering_skill_gain = WorldConfig.GetUIntValue(WorldCfg.SkillGainGathering);
+		var gatheringSkillGain = GetDefaultValue("SkillGain.Gathering", 1);
 
 		var grayLevel = RedLevel + 100;
 		var greenLevel = RedLevel + 50;
@@ -1231,7 +1232,7 @@ public partial class Player
 			case SkillType.DragonIslesHerbalism:
 			case SkillType.DragonIslesInscription:
 			case SkillType.DragonIslesJewelcrafting:
-				return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gathering_skill_gain);
+				return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gatheringSkillGain);
 			case SkillType.Skinning:
 			case SkillType.ClassicSkinning:
 			case SkillType.OutlandSkinning:
@@ -1242,10 +1243,10 @@ public partial class Player
 			case SkillType.LegionSkinning:
 			case SkillType.KulTiranSkinning:
 			case SkillType.DragonIslesSkinning:
-				if (WorldConfig.GetIntValue(WorldCfg.SkillChanceSkinningSteps) == 0)
-					return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gathering_skill_gain);
+				if (GetDefaultValue("SkillChance.SkinningSteps", 75) == 0)
+					return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gatheringSkillGain);
 				else
-					return UpdateSkillPro(SkillId, (int)(SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator) >> (int)(SkillValue / WorldConfig.GetIntValue(WorldCfg.SkillChanceSkinningSteps)), gathering_skill_gain);
+					return UpdateSkillPro(SkillId, (int)(SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator) >> (int)(SkillValue / GetDefaultValue("SkillChance.SkinningSteps", 75)), gatheringSkillGain);
 			case SkillType.Mining:
 			case SkillType.ClassicMining:
 			case SkillType.OutlandMining:
@@ -1256,10 +1257,10 @@ public partial class Player
 			case SkillType.LegionMining:
 			case SkillType.KulTiranMining:
 			case SkillType.DragonIslesMining:
-				if (WorldConfig.GetIntValue(WorldCfg.SkillChanceMiningSteps) == 0)
-					return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gathering_skill_gain);
+				if (GetDefaultValue("SkillChance.MiningSteps", 75) == 0)
+					return UpdateSkillPro(SkillId, SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * (int)Multiplicator, gatheringSkillGain);
 				else
-					return UpdateSkillPro(SkillId, (int)(SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator) >> (int)(SkillValue / WorldConfig.GetIntValue(WorldCfg.SkillChanceMiningSteps)), gathering_skill_gain);
+					return UpdateSkillPro(SkillId, (int)(SkillGainChance(SkillValue, grayLevel, greenLevel, yellowLevel) * Multiplicator) >> (int)(SkillValue / GetDefaultValue("SkillChance.MiningSteps", 75)), gatheringSkillGain);
 		}
 
 		return false;
@@ -1281,9 +1282,9 @@ public partial class Player
 		{
 			_fishingSteps = 0;
 
-			var gathering_skill_gain = WorldConfig.GetUIntValue(WorldCfg.SkillGainGathering);
+			var gatheringSkillGain = GetDefaultValue("SkillGain.Gathering", 1);
 
-			return UpdateSkillPro(SkillType.ClassicFishing, 100 * 10, gathering_skill_gain);
+			return UpdateSkillPro(SkillType.ClassicFishing, 100 * 10, gatheringSkillGain);
 		}
 
 		return false;
@@ -1902,7 +1903,7 @@ public partial class Player
 		{
 			var freeProfs = FreePrimaryProfessionPoints + 1;
 
-			if (freeProfs <= WorldConfig.GetIntValue(WorldCfg.MaxPrimaryTradeSkill))
+			if (freeProfs <= GetDefaultValue("MaxPrimaryTradeSkill", 2))
 				SetFreePrimaryProfessions(freeProfs);
 		}
 
@@ -3114,15 +3115,15 @@ public partial class Player
 	int SkillGainChance(uint SkillValue, uint GrayLevel, uint GreenLevel, uint YellowLevel)
 	{
 		if (SkillValue >= GrayLevel)
-			return WorldConfig.GetIntValue(WorldCfg.SkillChanceGrey) * 10;
+			return GetDefaultValue("SkillChance.Grey", 0) * 10;
 
 		if (SkillValue >= GreenLevel)
-			return WorldConfig.GetIntValue(WorldCfg.SkillChanceGreen) * 10;
+			return GetDefaultValue("SkillChance.Green", 25) * 10;
 
 		if (SkillValue >= YellowLevel)
-			return WorldConfig.GetIntValue(WorldCfg.SkillChanceYellow) * 10;
+			return GetDefaultValue("SkillChance.Yellow", 75) * 10;
 
-		return WorldConfig.GetIntValue(WorldCfg.SkillChanceOrange) * 10;
+		return GetDefaultValue("SkillChance.Orange", 100) * 10;
 	}
 
 	bool EnchantmentFitsRequirements(uint enchantmentcondition, sbyte slot)

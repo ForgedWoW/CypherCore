@@ -586,7 +586,7 @@ class MiscCommands
 		// Check if duration needs to be retrieved from config
 		if (getDurationFromConfig)
 		{
-			freezeDuration = WorldConfig.GetIntValue(WorldCfg.GmFreezeDuration);
+			freezeDuration = GetDefaultValue("GM.FreezeAuraDuration", 0);
 			canApplyFreeze = true;
 		}
 
@@ -1579,7 +1579,7 @@ class MiscCommands
 		handler.SendSysMessage(CypherStrings.PinfoAccIp, lastIp, locked != 0 ? handler.GetCypherString(CypherStrings.Yes) : handler.GetCypherString(CypherStrings.No));
 
 		// Output X. LANG_PINFO_CHR_LEVEL
-		if (level != WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+		if (level != GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			handler.SendSysMessage(CypherStrings.PinfoChrLevelLow, level, xp, xptotal, (xptotal - xp));
 		else
 			handler.SendSysMessage(CypherStrings.PinfoChrLevelHigh, level);
@@ -1866,7 +1866,7 @@ class MiscCommands
 		}
 
 		// save if the player has last been saved over 20 seconds ago
-		var saveInterval = WorldConfig.GetUIntValue(WorldCfg.IntervalSave);
+		var saveInterval = GetDefaultValue("PlayerSaveInterval", 15u * Time.Minute * Time.InMilliseconds);
 
 		if (saveInterval == 0 || (saveInterval > 20 * Time.InMilliseconds && player.SaveTimer <= saveInterval - 20 * Time.InMilliseconds))
 			player.SaveToDB();
@@ -2265,7 +2265,7 @@ class MiscCommands
 	static bool HandleChangeWeather(CommandHandler handler, uint type, float intensity)
 	{
 		// Weather is OFF
-		if (!WorldConfig.GetBoolValue(WorldCfg.Weather))
+		if (!GetDefaultValue("ActivateWeather", true))
 		{
 			handler.SendSysMessage(CypherStrings.WeatherDisabled);
 

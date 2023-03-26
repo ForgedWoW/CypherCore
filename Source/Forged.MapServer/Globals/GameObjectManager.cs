@@ -339,12 +339,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (name.Length > 12)
 			return ResponseCodes.CharNameTooLong;
 
-		var minName = WorldConfig.GetUIntValue(WorldCfg.MinPlayerName);
+		var minName = GetDefaultValue("MinPlayerName", 2);
 
 		if (name.Length < minName)
 			return ResponseCodes.CharNameTooShort;
 
-		var strictMask = WorldConfig.GetUIntValue(WorldCfg.StrictPlayerNames);
+		var strictMask = GetDefaultValue("StrictPlayerNames", 0);
 
 		if (!IsValidString(name, strictMask, false, create))
 			return ResponseCodes.CharNameMixedLanguages;
@@ -363,12 +363,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (name.Length > 12)
 			return PetNameInvalidReason.TooLong;
 
-		var minName = WorldConfig.GetUIntValue(WorldCfg.MinPetName);
+		var minName = GetDefaultValue("MinPetName", 2);
 
 		if (name.Length < minName)
 			return PetNameInvalidReason.TooShort;
 
-		var strictMask = WorldConfig.GetUIntValue(WorldCfg.StrictPetNames);
+		var strictMask = GetDefaultValue("StrictPetNames", 0);
 
 		if (!IsValidString(name, strictMask, false))
 			return PetNameInvalidReason.MixedLanguages;
@@ -381,12 +381,12 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (name.Length > 24)
 			return false;
 
-		var minName = WorldConfig.GetUIntValue(WorldCfg.MinCharterName);
+		var minName = GetDefaultValue("MinCharterName", 2);
 
 		if (name.Length < minName)
 			return false;
 
-		var strictMask = WorldConfig.GetUIntValue(WorldCfg.StrictCharterNames);
+		var strictMask = GetDefaultValue("StrictCharterNames", 0);
 
 		return IsValidString(name, strictMask, true);
 	}
@@ -6639,7 +6639,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 				var currentlevel = result.Read<uint>(1);
 
-				if (currentlevel > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+				if (currentlevel > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 				{
 					if (currentlevel > 255) // hardcoded level maximum
 						Log.Logger.Error($"Wrong (> 255) level {currentlevel} in `player_classlevelstats` table, ignoring.");
@@ -6707,7 +6707,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					}
 
 					// fill level gaps
-					for (var level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
+					for (var level = 1; level < GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
 						if (playerInfo.LevelInfo[level].Stats[0] == 0)
 						{
 							Log.Logger.Error("Race {0} Class {1} Level {2} does not have stats data. Using stats data of level {3}.", race, _class, level + 1, level);
@@ -6743,7 +6743,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 					uint currentlevel = result.Read<byte>(0);
 					var currentxp = result.Read<uint>(1);
 
-					if (currentlevel >= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+					if (currentlevel >= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 					{
 						if (currentlevel > SharedConst.StrongMaxLevel) // hardcoded level maximum
 						{
@@ -6764,7 +6764,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 				} while (result.NextRow());
 
 				// fill level gaps
-				for (var level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
+				for (var level = 1; level < GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
 					if (_playerXPperLevel[level] == 0)
 					{
 						Log.Logger.Error("Level {0} does not have XP for level data. Using data of level [{1}] + 12000.", level + 1, level);
@@ -6797,8 +6797,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (level < 1 || _class >= PlayerClass.Max)
 			return;
 
-		if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
-			level = (byte)WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel);
+		if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			level = (byte)GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 		var mp = CliDB.BaseMPGameTable.GetRow(level);
 
@@ -6820,7 +6820,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 		if (!_playerInfo.TryGetValue(race, _class, out var pInfo))
 			return null;
 
-		if (level <= WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+		if (level <= GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			return pInfo.LevelInfo[level - 1];
 		else
 			return BuildPlayerLevelInfo(race, _class, level);
@@ -6859,7 +6859,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 			var currentlevel = result.Read<uint>(1);
 
-			if (currentlevel > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+			if (currentlevel > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			{
 				if (currentlevel > SharedConst.StrongMaxLevel) // hardcoded level maximum
 				{
@@ -6883,7 +6883,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var pInfoMapEntry = _petInfoStore.LookupByKey(creatureid);
 
 			if (pInfoMapEntry == null)
-				pInfoMapEntry = new PetLevelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel)];
+				pInfoMapEntry = new PetLevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel)];
 
 			PetLevelInfo pLevelInfo = new()
 			{
@@ -6913,7 +6913,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			}
 
 			// fill level gaps
-			for (byte level = 1; level < WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel); ++level)
+			for (byte level = 1; level < GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel); ++level)
 				if (pInfo[level].health == 0)
 				{
 					Log.Logger.Error("Creature {0} has no data for Level {1} pet stats data, using data of Level {2}.", map.Key, level + 1, level);
@@ -6970,8 +6970,8 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	public PetLevelInfo GetPetLevelInfo(uint creatureid, uint level)
 	{
-		if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
-			level = WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
+		if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			level = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 		var petinfo = _petInfoStore.LookupByKey(creatureid);
 
@@ -9628,9 +9628,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 			var mailTemplateId = result.Read<uint>(2);
 			var senderEntry = result.Read<uint>(3);
 
-			if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
+			if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			{
-				Log.Logger.Error("Table `mail_level_reward` have data for level {0} that more supported by client ({1}), ignoring.", level, WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel));
+				Log.Logger.Error("Table `mail_level_reward` have data for level {0} that more supported by client ({1}), ignoring.", level, GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel));
 
 				continue;
 			}
@@ -11328,7 +11328,7 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 
 	static LanguageType GetRealmLanguageType(bool create)
 	{
-		switch ((RealmZones)WorldConfig.GetIntValue(WorldCfg.RealmZone))
+		switch ((RealmZones)GetDefaultValue("RealmZone", (int)RealmZones.Development))
 		{
 			case RealmZones.Unknown: // any language
 			case RealmZones.Development:
@@ -12542,9 +12542,9 @@ public sealed class GameObjectManager : Singleton<GameObjectManager>
 	PlayerLevelInfo BuildPlayerLevelInfo(Race race, PlayerClass _class, uint level)
 	{
 		// base data (last known level)
-		var info = _playerInfo[race][_class].LevelInfo[WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1];
+		var info = _playerInfo[race][_class].LevelInfo[GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1];
 
-		for (var lvl = WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel) - 1; lvl < level; ++lvl)
+		for (var lvl = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel) - 1; lvl < level; ++lvl)
 			switch (_class)
 			{
 				case PlayerClass.Warrior:

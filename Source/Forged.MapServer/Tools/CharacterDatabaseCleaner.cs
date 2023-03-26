@@ -8,6 +8,7 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Server;
 using Forged.MapServer.World;
 using Framework.Constants;
+using Serilog;
 
 namespace Forged.MapServer.Tools;
 
@@ -16,7 +17,7 @@ class CharacterDatabaseCleaner
 	public static void CleanDatabase()
 	{
 		// config to disable
-		if (!WorldConfig.GetBoolValue(WorldCfg.CleanCharacterDb))
+		if (!GetDefaultValue("CleanCharacterDB", false))
 			return;
 
 		Log.Logger.Information("Cleaning character database...");
@@ -43,7 +44,7 @@ class CharacterDatabaseCleaner
 
 		// NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
 		// you need to define them at least once in worldstates.
-		flags &= (CleaningFlags)WorldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
+		flags &= (CleaningFlags)GetDefaultValue("PersistentCharacterCleanFlags", 0);
 		Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
 
 		Global.WorldMgr.CleaningFlags = flags;

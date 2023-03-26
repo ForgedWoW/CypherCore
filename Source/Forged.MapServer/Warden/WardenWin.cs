@@ -206,7 +206,7 @@ class WardenWin : Warden
 
 			var checks = _checks[(int)category];
 
-			for (uint i = 0, n = WorldConfig.GetUIntValue(WardenCheckManager.GetWardenCategoryCountConfig(category)); i < n; ++i)
+			for (uint i = 0, n = GetDefaultValue(WardenCheckManager.GetWardenCategoryCountConfig(category)); i < n; ++i)
 			{
 				if (checks.IsAtEnd()) // all checks were already sent, list will be re-filled on next Update() run
 					break;

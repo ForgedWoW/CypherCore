@@ -506,9 +506,9 @@ public class Quest
 
 			xp = RoundXPValue(xp);
 
-			if (WorldConfig.GetUIntValue(WorldCfg.MinQuestScaledXpRatio) != 0)
+			if (GetDefaultValue("MinQuestScaledXPRatio", 0) != 0)
 			{
-				var minScaledXP = RoundXPValue((uint)(questXp.Difficulty[xpDifficulty] * xpMultiplier)) * WorldConfig.GetUIntValue(WorldCfg.MinQuestScaledXpRatio) / 100;
+				var minScaledXP = RoundXPValue((uint)(questXp.Difficulty[xpDifficulty] * xpMultiplier)) * GetDefaultValue("MinQuestScaledXPRatio", 0) / 100;
 				xp = Math.Max(minScaledXP, xp);
 			}
 

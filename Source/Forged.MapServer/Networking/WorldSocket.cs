@@ -916,7 +916,7 @@ public class WorldSocket : SocketBase
 			{
 				++_OverSpeedPings;
 
-				var maxAllowed = WorldConfig.GetUIntValue(WorldCfg.MaxOverspeedPings);
+				var maxAllowed = GetDefaultValue("MaxOverspeedPings", 2);
 
 				if (maxAllowed != 0 && _OverSpeedPings > maxAllowed)
 					lock (_worldSessionLock)

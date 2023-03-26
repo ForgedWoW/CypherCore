@@ -622,8 +622,8 @@ public partial class Player
 		// limit check leel to dbc compatible level range
 		var level = Level;
 
-		if (level > WorldConfig.GetIntValue(WorldCfg.MaxPlayerLevel))
-			level = WorldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
+		if (level > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			level = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 
 		if (level < bg.GetMinLevel() || level > bg.GetMaxLevel())
 			return false;

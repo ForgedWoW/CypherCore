@@ -15,6 +15,7 @@ using Forged.MapServer.Server;
 using Framework.Collections;
 using Framework.Constants;
 using Framework.Threading;
+using Serilog;
 
 namespace Forged.MapServer.Maps;
 
@@ -30,9 +31,9 @@ public class MapManager : Singleton<MapManager>
 	uint _scheduledScripts;
 
 	MapManager()
-	{
-		_gridCleanUpDelay = WorldConfig.GetUIntValue(WorldCfg.IntervalGridclean);
-		_timer.Interval = WorldConfig.GetIntValue(WorldCfg.IntervalMapupdate);
+    {
+        _gridCleanUpDelay = GetDefaultValue("GridCleanUpDelay", 5 * Time.Minute * Time.InMilliseconds);
+        _timer.Interval = GetDefaultValue("MapUpdateInterval", 10);
 	}
 
 	public void Initialize()
@@ -472,7 +473,7 @@ public class MapManager : Singleton<MapManager>
 		map.LoadRespawnTimes();
 		map.LoadCorpseData();
 
-		if (WorldConfig.GetBoolValue(WorldCfg.BasemapLoadGrids))
+		if (GetDefaultValue("BaseMapLoadAllGrids", false))
 			map.LoadAllCells();
 
 		return map;
@@ -507,7 +508,7 @@ public class MapManager : Singleton<MapManager>
 		map.CreateInstanceData();
 		map.SetInstanceScenario(Global.ScenarioMgr.CreateInstanceScenario(map, team));
 
-		if (WorldConfig.GetBoolValue(WorldCfg.InstancemapLoadGrids))
+		if (GetDefaultValue("InstanceMapLoadAllGrids", false))
 			map.LoadAllCells();
 
 		return map;
