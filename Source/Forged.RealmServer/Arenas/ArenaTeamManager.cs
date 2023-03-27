@@ -58,7 +58,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 		if (NextArenaTeamId >= 0xFFFFFFFE)
 		{
 			Log.outError(LogFilter.Battleground, "Arena team ids overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
+			_worldManager.StopNow();
 		}
 
 		return NextArenaTeamId++;

@@ -5,17 +5,21 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Forged.RealmServer.Handlers;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Scenario;
+using Forged.RealmServer.Networking.Packets;
+using Game.Common.Handlers;
+using Forged.RealmServer.Scenarios;
 
 namespace Forged.RealmServer;
 
 public class ScenarioHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly ScenarioManager _scenarioManager;
 
-    public ScenarioHandler(WorldSession session)
+    public ScenarioHandler(WorldSession session, ScenarioManager scenarioManager)
     {
         _session = session;
+        _scenarioManager = scenarioManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.QueryScenarioPoi, Processing = PacketProcessing.Inplace)]
@@ -31,7 +35,7 @@ public class ScenarioHandler : IWorldSessionHandler
 
 		foreach (var criteriaTreeId in criteriaTreeIds)
 		{
-			var poiVector = Global.ScenarioMgr.GetScenarioPOIs((uint)criteriaTreeId);
+			var poiVector = _scenarioManager.GetScenarioPOIs((uint)criteriaTreeId);
 
 			if (poiVector != null)
 			{
@@ -42,6 +46,6 @@ public class ScenarioHandler : IWorldSessionHandler
 			}
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 }

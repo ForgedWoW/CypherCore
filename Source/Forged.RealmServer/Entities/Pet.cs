@@ -842,7 +842,7 @@ public class Pet : Guardian
 		if (cFamily != null)
 			SetName(cFamily.Name[OwningPlayer.Session.SessionDbcLocale]);
 		else
-			SetName(creature.GetName(Global.WorldMgr.DefaultDbcLocale));
+			SetName(creature.GetName(_worldManager.DefaultDbcLocale));
 
 		return true;
 	}

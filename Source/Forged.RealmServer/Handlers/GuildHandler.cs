@@ -22,7 +22,7 @@ public class GuildHandler : IWorldSessionHandler
     [WorldPacketHandler(ClientOpcodes.GuildInviteByName)]
 	void HandleGuildInviteByName(GuildInviteByName packet)
 	{
-		if (!ObjectManager.NormalizePlayerName(ref packet.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
 		var guild = _session._session.Player.Guild;

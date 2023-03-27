@@ -28,7 +28,7 @@ class ChannelSayBuilder : MessageBuilder
 
 	public override PacketSenderOwning<ChatPkt> Invoke(Locale locale = Locale.enUS)
 	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChatPkt> packet = new();
 		var player = Global.ObjAccessor.FindConnectedPlayer(_guid);

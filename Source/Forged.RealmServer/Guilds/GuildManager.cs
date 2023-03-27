@@ -41,7 +41,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		if (NextGuildId >= 0xFFFFFFFE)
 		{
 			Log.Logger.Error("Guild ids overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
+			_worldManager.StopNow();
 		}
 
 		return NextGuildId++;

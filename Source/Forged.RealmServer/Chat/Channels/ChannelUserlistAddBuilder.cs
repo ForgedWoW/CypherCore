@@ -22,7 +22,7 @@ class ChannelUserlistAddBuilder : MessageBuilder
 
 	public override PacketSenderOwning<UserlistAdd> Invoke(Locale locale = Locale.enUS)
 	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<UserlistAdd> userlistAdd = new();
 		userlistAdd.Data.AddedUserGUID = _guid;

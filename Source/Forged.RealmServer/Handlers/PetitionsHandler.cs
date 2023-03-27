@@ -6,22 +6,38 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
-using Forged.RealmServer.Entities.Items;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Petition;
-using Forged.RealmServer.Handlers;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Serilog;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Cache;
 
 namespace Forged.RealmServer;
 
 public class PetitionsHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly WorldConfig _worldConfig;
+    private readonly PetitionManager _petitionManager;
+    private readonly GuildManager _guildManager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CharacterCache _characterCache;
 
-    public PetitionsHandler(WorldSession session)
+    public PetitionsHandler(WorldSession session, WorldConfig worldConfig, PetitionManager petitionManager,
+		GuildManager guildManager, GameObjectManager gameObjectManager, ObjectAccessor objectAccessor,
+		CharacterDatabase characterDatabase, CharacterCache characterCache)
     {
         _session = session;
+        _worldConfig = worldConfig;
+        _petitionManager = petitionManager;
+        _guildManager = guildManager;
+        _gameObjectManager = gameObjectManager;
+        _objectAccessor = objectAccessor;
+        _characterDatabase = characterDatabase;
+        _characterCache = characterCache;
     }
 
     public void SendPetitionQuery(ObjectGuid petitionGuid)
@@ -29,12 +45,12 @@ public class PetitionsHandler : IWorldSessionHandler
 		QueryPetitionResponse responsePacket = new();
 		responsePacket.PetitionID = (uint)petitionGuid.Counter; // PetitionID (in Trinity always same as GUID_LOPART(petition guid))
 
-		var petition = Global.PetitionMgr.GetPetition(petitionGuid);
+		var petition = _petitionManager.GetPetition(petitionGuid);
 
 		if (petition == null)
 		{
 			responsePacket.Allow = false;
-			SendPacket(responsePacket);
+			_session.SendPacket(responsePacket);
 			Log.Logger.Debug($"CMSG_PETITION_Select failed for petition ({petitionGuid})");
 
 			return;
@@ -52,12 +68,12 @@ public class PetitionsHandler : IWorldSessionHandler
 		responsePacket.Allow = true;
 		responsePacket.Info = petitionInfo;
 
-		SendPacket(responsePacket);
+		_session.SendPacket(responsePacket);
 	}
 
 	public void SendPetitionShowList(ObjectGuid guid)
 	{
-		var creature = Player.GetNPCIfCanInteractWith(guid, NPCFlags.Petitioner, NPCFlags2.None);
+		var creature = _session.Player.GetNPCIfCanInteractWith(guid, NPCFlags.Petitioner, NPCFlags2.None);
 
 		if (!creature)
 		{
@@ -72,14 +88,14 @@ public class PetitionsHandler : IWorldSessionHandler
 		ServerPetitionShowList packet = new();
 		packet.Unit = guid;
 		packet.Price = _worldConfig.GetUIntValue(WorldCfg.CharterCostGuild);
-		SendPacket(packet);
+		_session.SendPacket(packet);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetitionBuy)]
 	void HandlePetitionBuy(PetitionBuy packet)
 	{
 		// prevent cheating
-		var creature = Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Petitioner, NPCFlags2.None);
+		var creature = _session.Player.GetNPCIfCanInteractWith(packet.Unit, NPCFlags.Petitioner, NPCFlags2.None);
 
 		if (!creature)
 		{
@@ -89,100 +105,100 @@ public class PetitionsHandler : IWorldSessionHandler
 		}
 
 		// remove fake death
-		if (Player.HasUnitState(UnitState.Died))
-			Player.RemoveAurasByType(AuraType.FeignDeath);
+		if (_session.Player.HasUnitState(UnitState.Died))
+            _session.Player.RemoveAurasByType(AuraType.FeignDeath);
 
 		var charterItemID = GuildConst.CharterItemId;
 		var cost = _worldConfig.GetIntValue(WorldCfg.CharterCostGuild);
 
 		// do not let if already in guild.
-		if (Player.GuildId != 0)
+		if (_session.Player.GuildId != 0)
 			return;
 
-		if (Global.GuildMgr.GetGuildByName(packet.Title))
+		if (_guildManager.GetGuildByName(packet.Title))
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NameExists_S, packet.Title);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NameExists_S, packet.Title);
 
 			return;
 		}
 
-		if (Global.ObjectMgr.IsReservedName(packet.Title) || !ObjectManager.IsValidCharterName(packet.Title))
+		if (_gameObjectManager.IsReservedName(packet.Title) || !GameObjectManager.IsValidCharterName(packet.Title))
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NameInvalid, packet.Title);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NameInvalid, packet.Title);
 
 			return;
 		}
 
-		var pProto = Global.ObjectMgr.GetItemTemplate(charterItemID);
+		var pProto = _gameObjectManager.GetItemTemplate(charterItemID);
 
 		if (pProto == null)
 		{
-			Player.SendBuyError(BuyResult.CantFindItem, null, charterItemID);
+            _session.Player.SendBuyError(BuyResult.CantFindItem, null, charterItemID);
 
 			return;
 		}
 
-		if (!Player.HasEnoughMoney(cost))
+		if (!_session.Player.HasEnoughMoney(cost))
 		{
-			//player hasn't got enough money
-			Player.SendBuyError(BuyResult.NotEnoughtMoney, creature, charterItemID);
+            //player hasn't got enough money
+            _session.Player.SendBuyError(BuyResult.NotEnoughtMoney, creature, charterItemID);
 
 			return;
 		}
 
 		List<ItemPosCount> dest = new();
-		var msg = Player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, charterItemID, pProto.BuyCount);
+		var msg = _session.Player.CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, charterItemID, pProto.BuyCount);
 
 		if (msg != InventoryResult.Ok)
 		{
-			Player.SendEquipError(msg, null, null, charterItemID);
+            _session.Player.SendEquipError(msg, null, null, charterItemID);
 
 			return;
 		}
 
-		Player.ModifyMoney(-cost);
-		var charter = Player.StoreNewItem(dest, charterItemID, true);
+        _session.Player.ModifyMoney(-cost);
+		var charter = _session.Player.StoreNewItem(dest, charterItemID, true);
 
 		if (!charter)
 			return;
 
 		charter.SetPetitionId((uint)charter.GUID.Counter);
-		charter.SetState(ItemUpdateState.Changed, Player);
-		Player.SendNewItem(charter, 1, true, false);
+		charter.SetState(ItemUpdateState.Changed, _session.Player);
+        _session.Player.SendNewItem(charter, 1, true, false);
 
 		// a petition is invalid, if both the owner and the type matches
 		// we checked above, if this player is in an arenateam, so this must be
 		// datacorruption
-		var petition = Global.PetitionMgr.GetPetitionByOwner(_player.GUID);
+		var petition = _petitionManager.GetPetitionByOwner(_session.Player.GUID);
 
 		if (petition != null)
 		{
 			// clear from petition store
-			Global.PetitionMgr.RemovePetition(petition.PetitionGuid);
+			_petitionManager.RemovePetition(petition.PetitionGuid);
 			Log.Logger.Debug($"Invalid petition GUID: {petition.PetitionGuid.Counter}");
 		}
 
 		// fill petition store
-		Global.PetitionMgr.AddPetition(charter.GUID, _player.GUID, packet.Title, false);
+		_petitionManager.AddPetition(charter.GUID, _session.Player.GUID, packet.Title, false);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetitionShowSignatures)]
 	void HandlePetitionShowSignatures(PetitionShowSignatures packet)
 	{
-		var petition = Global.PetitionMgr.GetPetition(packet.Item);
+		var petition = _petitionManager.GetPetition(packet.Item);
 
 		if (petition == null)
 		{
-			Log.Logger.Debug($"Petition {packet.Item} is not found for player {Player.GUID.Counter} {Player.GetName()}");
+			Log.Logger.Debug($"Petition {packet.Item} is not found for player {_session.Player.GUID.Counter} {_session.Player.GetName()}");
 
 			return;
 		}
 
 		// if has guild => error, return;
-		if (_player.GuildId != 0)
+		if (_session.Player.GuildId != 0)
 			return;
 
-		SendPetitionSigns(petition, _player);
+		SendPetitionSigns(petition, _session.Player);
 	}
 
 	void SendPetitionSigns(Petition petition, Player sendTo)
@@ -190,7 +206,7 @@ public class PetitionsHandler : IWorldSessionHandler
 		ServerPetitionShowSignatures signaturesPacket = new();
 		signaturesPacket.Item = petition.PetitionGuid;
 		signaturesPacket.Owner = petition.OwnerGuid;
-		signaturesPacket.OwnerAccountID = ObjectGuid.Create(HighGuid.WowAccount, Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(petition.OwnerGuid));
+		signaturesPacket.OwnerAccountID = ObjectGuid.Create(HighGuid.WowAccount, _characterCache.GetCharacterAccountIdByGuid(petition.OwnerGuid));
 		signaturesPacket.PetitionID = (int)petition.PetitionGuid.Counter;
 
 		foreach (var signature in petition.Signatures)
@@ -201,7 +217,7 @@ public class PetitionsHandler : IWorldSessionHandler
 			signaturesPacket.Signatures.Add(signaturePkt);
 		}
 
-		SendPacket(signaturesPacket);
+		_session.SendPacket(signaturesPacket);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryPetition)]
@@ -213,12 +229,12 @@ public class PetitionsHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.PetitionRenameGuild)]
 	void HandlePetitionRenameGuild(PetitionRenameGuild packet)
 	{
-		var item = Player.GetItemByGuid(packet.PetitionGuid);
+		var item = _session.Player.GetItemByGuid(packet.PetitionGuid);
 
 		if (!item)
 			return;
 
-		var petition = Global.PetitionMgr.GetPetition(packet.PetitionGuid);
+		var petition = _petitionManager.GetPetition(packet.PetitionGuid);
 
 		if (petition == null)
 		{
@@ -227,16 +243,16 @@ public class PetitionsHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (Global.GuildMgr.GetGuildByName(packet.NewGuildName))
+		if (_guildManager.GetGuildByName(packet.NewGuildName))
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NameExists_S, packet.NewGuildName);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NameExists_S, packet.NewGuildName);
 
 			return;
 		}
 
-		if (Global.ObjectMgr.IsReservedName(packet.NewGuildName) || !ObjectManager.IsValidCharterName(packet.NewGuildName))
+		if (_gameObjectManager.IsReservedName(packet.NewGuildName) || !GameObjectManager.IsValidCharterName(packet.NewGuildName))
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NameInvalid, packet.NewGuildName);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NameInvalid, packet.NewGuildName);
 
 			return;
 		}
@@ -247,17 +263,17 @@ public class PetitionsHandler : IWorldSessionHandler
 		PetitionRenameGuildResponse renameResponse = new();
 		renameResponse.PetitionGuid = packet.PetitionGuid;
 		renameResponse.NewGuildName = packet.NewGuildName;
-		SendPacket(renameResponse);
+		_session.SendPacket(renameResponse);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SignPetition)]
 	void HandleSignPetition(SignPetition packet)
 	{
-		var petition = Global.PetitionMgr.GetPetition(packet.PetitionGUID);
+		var petition = _petitionManager.GetPetition(packet.PetitionGUID);
 
 		if (petition == null)
 		{
-			Log.Logger.Error($"Petition {packet.PetitionGUID} is not found for player {Player.GUID} {Player.GetName()}");
+			Log.Logger.Error($"Petition {packet.PetitionGUID} is not found for player {_session.Player.GUID} {_session.Player.GetName()}");
 
 			return;
 		}
@@ -265,27 +281,27 @@ public class PetitionsHandler : IWorldSessionHandler
 		var ownerGuid = petition.OwnerGuid;
 		var signs = petition.Signatures.Count;
 
-		if (ownerGuid == Player.GUID)
+		if (ownerGuid == _session.Player.GUID)
 			return;
 
 		// not let enemies sign guild charter
-		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && Player.Team != Global.CharacterCacheStorage.GetCharacterTeamByGuid(ownerGuid))
+		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && _session.Player.Team != _characterCache.GetCharacterTeamByGuid(ownerGuid))
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NotAllied);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NotAllied);
 
 			return;
 		}
 
-		if (Player.GuildId != 0)
+		if (_session.Player.GuildId != 0)
 		{
-			Guild.SendCommandResult(this, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInGuild_S, Player.GetName());
+			Guild.SendCommandResult(_session, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInGuild_S, _session.Player.GetName());
 
 			return;
 		}
 
-		if (Player.GuildIdInvited != 0)
+		if (_session.Player.GuildIdInvited != 0)
 		{
-			Guild.SendCommandResult(this, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInvitedToGuild_S, Player.GetName());
+			Guild.SendCommandResult(_session, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInvitedToGuild_S, _session.Player.GetName());
 
 			return;
 		}
@@ -297,20 +313,20 @@ public class PetitionsHandler : IWorldSessionHandler
 		// not allow sign another player from already sign player account
 
 		PetitionSignResults signResult = new();
-		signResult.Player = Player.GUID;
+		signResult.Player = _session.Player.GUID;
 		signResult.Item = packet.PetitionGUID;
 
-		var isSigned = petition.IsPetitionSignedByAccount(AccountId);
+		var isSigned = petition.IsPetitionSignedByAccount(_session.AccountId);
 
 		if (isSigned)
 		{
 			signResult.Error = PetitionSigns.AlreadySigned;
 
 			// close at signer side
-			SendPacket(signResult);
+			_session.SendPacket(signResult);
 
 			// update for owner if online
-			var owner = Global.ObjAccessor.FindConnectedPlayer(ownerGuid);
+			var owner = _objectAccessor.FindConnectedPlayer(ownerGuid);
 
 			if (owner != null)
 				owner.Session.SendPacket(signResult);
@@ -319,24 +335,24 @@ public class PetitionsHandler : IWorldSessionHandler
 		}
 
 		// fill petition store
-		petition.AddSignature(AccountId, _player.GUID, false);
+		petition.AddSignature(_session.AccountId, _session.Player.GUID, false);
 
-		Log.Logger.Debug("PETITION SIGN: {0} by player: {1} ({2} Account: {3})", packet.PetitionGUID.ToString(), Player.GetName(), Player.GUID.ToString(), AccountId);
+		Log.Logger.Debug("PETITION SIGN: {0} by player: {1} ({2} Account: {3})", packet.PetitionGUID.ToString(), _session.Player.GetName(), _session.Player.GUID.ToString(), _session.AccountId);
 
 		signResult.Error = PetitionSigns.Ok;
-		SendPacket(signResult);
+		_session.SendPacket(signResult);
 
 		// update signs count on charter
-		var item = _player.GetItemByGuid(packet.PetitionGUID);
+		var item = _session.Player.GetItemByGuid(packet.PetitionGUID);
 
 		if (item != null)
 		{
 			item.SetPetitionNumSignatures((uint)signs);
-			item.SetState(ItemUpdateState.Changed, _player);
+			item.SetState(ItemUpdateState.Changed, _session.Player);
 		}
 
 		// update for owner if online
-		var owner1 = Global.ObjAccessor.FindPlayer(ownerGuid);
+		var owner1 = _objectAccessor.FindPlayer(ownerGuid);
 
 		if (owner1)
 			owner1.SendPacket(signResult);
@@ -345,53 +361,53 @@ public class PetitionsHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.DeclinePetition)]
 	void HandleDeclinePetition(DeclinePetition packet)
 	{
-		// Disabled because packet isn't handled by the client in any way
-		/*
+        // Disabled because packet isn't handled by the client in any way
+        /*
 		Petition petition = sPetitionMgr.GetPetition(packet.PetitionGUID);
 		if (petition == null)
 			return;
 
 		// petition owner online
-		Player owner = Global.ObjAccessor.FindConnectedPlayer(petition.ownerGuid);
+		Player owner = _objectAccessor.FindConnectedPlayer(petition.ownerGuid);
 		if (owner != null)                                               // petition owner online
 		{
 			PetitionDeclined packet = new PetitionDeclined();
-			packet.Decliner = _player.GetGUID();
-			owner.GetSession().SendPacket(packet);
+			packet.Decliner = _session.Player.GetGUID();
+			owner.GetSession()._session.SendPacket(packet);
 		}
 		*/
-	}
+    }
 
-	[WorldPacketHandler(ClientOpcodes.OfferPetition)]
+    [WorldPacketHandler(ClientOpcodes.OfferPetition)]
 	void HandleOfferPetition(OfferPetition packet)
 	{
-		var player = Global.ObjAccessor.FindConnectedPlayer(packet.TargetPlayer);
+		var player = _objectAccessor.FindConnectedPlayer(packet.TargetPlayer);
 
 		if (!player)
 			return;
 
-		var petition = Global.PetitionMgr.GetPetition(packet.ItemGUID);
+		var petition = _petitionManager.GetPetition(packet.ItemGUID);
 
 		if (petition == null)
 			return;
 
-		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && Player.Team != player.Team)
+		if (!_worldConfig.GetBoolValue(WorldCfg.AllowTwoSideInteractionGuild) && _session.Player.Team != player.Team)
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NotAllied);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NotAllied);
 
 			return;
 		}
 
 		if (player.GuildId != 0)
 		{
-			Guild.SendCommandResult(this, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInGuild_S, Player.GetName());
+			Guild.SendCommandResult(_session, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInGuild_S, _session.Player.GetName());
 
 			return;
 		}
 
 		if (player.GuildIdInvited != 0)
 		{
-			Guild.SendCommandResult(this, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInvitedToGuild_S, Player.GetName());
+			Guild.SendCommandResult(_session, GuildCommandType.InvitePlayer, GuildCommandError.AlreadyInvitedToGuild_S, _session.Player.GetName());
 
 			return;
 		}
@@ -403,16 +419,16 @@ public class PetitionsHandler : IWorldSessionHandler
 	void HandleTurnInPetition(TurnInPetition packet)
 	{
 		// Check if player really has the required petition charter
-		var item = Player.GetItemByGuid(packet.Item);
+		var item = _session.Player.GetItemByGuid(packet.Item);
 
 		if (!item)
 			return;
 
-		var petition = Global.PetitionMgr.GetPetition(packet.Item);
+		var petition = _petitionManager.GetPetition(packet.Item);
 
 		if (petition == null)
 		{
-			Log.Logger.Error("Player {0} ({1}) tried to turn in petition ({2}) that is not present in the database", Player.GetName(), Player.GUID.ToString(), packet.Item.ToString());
+			Log.Logger.Error("Player {0} ({1}) tried to turn in petition ({2}) that is not present in the database", _session.Player.GetName(), _session.Player.GUID.ToString(), packet.Item.ToString());
 
 			return;
 		}
@@ -420,24 +436,24 @@ public class PetitionsHandler : IWorldSessionHandler
 		var name = petition.PetitionName; // we need a copy, Guild::AddMember invalidates petition
 
 		// Only the petition owner can turn in the petition
-		if (Player.GUID != petition.OwnerGuid)
+		if (_session.Player.GUID != petition.OwnerGuid)
 			return;
 
 		TurnInPetitionResult resultPacket = new();
 
 		// Check if player is already in a guild
-		if (Player.GuildId != 0)
+		if (_session.Player.GuildId != 0)
 		{
 			resultPacket.Result = PetitionTurns.AlreadyInGuild;
-			SendPacket(resultPacket);
+			_session.SendPacket(resultPacket);
 
 			return;
 		}
 
 		// Check if guild name is already taken
-		if (Global.GuildMgr.GetGuildByName(name))
+		if (_guildManager.GetGuildByName(name))
 		{
-			Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.NameExists_S, name);
+			Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.NameExists_S, name);
 
 			return;
 		}
@@ -449,25 +465,25 @@ public class PetitionsHandler : IWorldSessionHandler
 		if (signatures.Count < requiredSignatures)
 		{
 			resultPacket.Result = PetitionTurns.NeedMoreSignatures;
-			SendPacket(resultPacket);
+			_session.SendPacket(resultPacket);
 
 			return;
 		}
-		// Proceed with guild/arena team creation
+        // Proceed with guild/arena team creation
 
-		// Delete charter item
-		Player.DestroyItem(item.BagSlot, item.Slot, true);
+        // Delete charter item
+        _session.Player.DestroyItem(item.BagSlot, item.Slot, true);
 
 		// Create guild
 		Guild guild = new();
 
-		if (!guild.Create(Player, name))
+		if (!guild.Create(_session.Player, name))
 			return;
 
 		// Register guild and add guild master
-		Global.GuildMgr.AddGuild(guild);
+		_guildManager.AddGuild(guild);
 
-		Guild.SendCommandResult(this, GuildCommandType.CreateGuild, GuildCommandError.Success, name);
+		Guild.SendCommandResult(_session, GuildCommandType.CreateGuild, GuildCommandError.Success, name);
 
 		SQLTransaction trans = new();
 
@@ -477,13 +493,13 @@ public class PetitionsHandler : IWorldSessionHandler
 
 		_characterDatabase.CommitTransaction(trans);
 
-		Global.PetitionMgr.RemovePetition(packet.Item);
+		_petitionManager.RemovePetition(packet.Item);
 
 		// created
-		Log.Logger.Debug($"Player {Player.GetName()} ({Player.GUID}) turning in petition {packet.Item}");
+		Log.Logger.Debug($"Player {_session.Player.GetName()} ({_session.Player.GUID}) turning in petition {packet.Item}");
 
 		resultPacket.Result = PetitionTurns.Ok;
-		SendPacket(resultPacket);
+		_session.SendPacket(resultPacket);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.PetitionShowList)]

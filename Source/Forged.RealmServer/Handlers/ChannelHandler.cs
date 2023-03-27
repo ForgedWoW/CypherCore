@@ -10,6 +10,7 @@ using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
 using Game.Common.Handlers;
 using Serilog;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 
@@ -180,7 +181,7 @@ public class ChannelHandler : IWorldSessionHandler
 			return;
 		}
 
-		if (!ObjectManager.NormalizePlayerName(ref packet.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
 		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);

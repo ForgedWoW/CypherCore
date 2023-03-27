@@ -7,9 +7,7 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Networking.Packets.Ticket;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.SupportSystem;
 
@@ -22,17 +20,26 @@ public class ComplaintTicket : Ticket
 	ReportMinorCategory _minorCategoryFlags = ReportMinorCategory.TextChat;
 	SupportTicketSubmitComplaint.SupportTicketChatLog _chatLog;
 	string _note;
+    private readonly GameTime _gameTime;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly SupportManager _supportManager;
 
-	public ComplaintTicket()
+    public ComplaintTicket(GameTime gameTime, CharacterDatabase characterDatabase, SupportManager supportManager)
 	{
 		_note = "";
-	}
+        _gameTime = gameTime;
+        _characterDatabase = characterDatabase;
+        _supportManager = supportManager;
+    }
 
-	public ComplaintTicket(Player player) : base(player)
+	public ComplaintTicket(Player player, GameTime gameTime, CharacterDatabase characterDatabase, SupportManager supportManager) : base(player)
 	{
 		_note = "";
-		IdProtected = Global.SupportMgr.GenerateComplaintId();
-	}
+		IdProtected = _supportManager.GenerateComplaintId();
+        _gameTime = gameTime;
+        _characterDatabase = characterDatabase;
+        _supportManager = supportManager;
+    }
 
 	public override void LoadFromDB(SQLFields fields)
 	{

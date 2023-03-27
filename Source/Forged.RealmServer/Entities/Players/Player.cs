@@ -491,7 +491,7 @@ public partial class Player : Unit
 		m_isActive = true;
 		ControlledByPlayer = true;
 
-		Global.WorldMgr.IncreasePlayerCount();
+		_worldManager.IncreasePlayerCount();
 
 		_cinematicMgr = new CinematicManager(this);
 
@@ -543,7 +543,7 @@ public partial class Player : Unit
 
 		ClearResurrectRequestData();
 
-		Global.WorldMgr.DecreasePlayerCount();
+		_worldManager.DecreasePlayerCount();
 
 		base.Dispose();
 	}
@@ -2520,7 +2520,7 @@ public partial class Player : Unit
 
 		SummonRequest summonRequest = new();
 		summonRequest.SummonerGUID = summoner.GUID;
-		summonRequest.SummonerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+		summonRequest.SummonerVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		summonRequest.AreaID = (int)summoner.Zone;
 		SendPacket(summonRequest);
 
@@ -2676,7 +2676,7 @@ public partial class Player : Unit
 				pet.Faction = Faction;
 
 			// restore FFA PvP Server state
-			if (Global.WorldMgr.IsFFAPvPRealm)
+			if (_worldManager.IsFFAPvPRealm)
 				SetPvpFlag(UnitPVPStateFlags.FFAPvp);
 
 			// restore FFA PvP area state, remove not allowed for GM mounts
@@ -4201,7 +4201,7 @@ public partial class Player : Unit
 		displayPlayerChoice.Question = playerChoice.Question;
 
 		if (playerChoiceLocale != null)
-			ObjectManager.GetLocaleString(playerChoiceLocale.Question, locale, ref displayPlayerChoice.Question);
+			GameObjectManager.GetLocaleString(playerChoiceLocale.Question, locale, ref displayPlayerChoice.Question);
 
 		displayPlayerChoice.CloseChoiceFrame = false;
 		displayPlayerChoice.HideWarboardHeader = playerChoice.HideWarboardHeader;
@@ -4234,12 +4234,12 @@ public partial class Player : Unit
 
 				if (playerChoiceResponseLocale != null)
 				{
-					ObjectManager.GetLocaleString(playerChoiceResponseLocale.Answer, locale, ref playerChoiceResponse.Answer);
-					ObjectManager.GetLocaleString(playerChoiceResponseLocale.Header, locale, ref playerChoiceResponse.Header);
-					ObjectManager.GetLocaleString(playerChoiceResponseLocale.SubHeader, locale, ref playerChoiceResponse.SubHeader);
-					ObjectManager.GetLocaleString(playerChoiceResponseLocale.ButtonTooltip, locale, ref playerChoiceResponse.ButtonTooltip);
-					ObjectManager.GetLocaleString(playerChoiceResponseLocale.Description, locale, ref playerChoiceResponse.Description);
-					ObjectManager.GetLocaleString(playerChoiceResponseLocale.Confirmation, locale, ref playerChoiceResponse.Confirmation);
+					GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Answer, locale, ref playerChoiceResponse.Answer);
+					GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Header, locale, ref playerChoiceResponse.Header);
+					GameObjectManager.GetLocaleString(playerChoiceResponseLocale.SubHeader, locale, ref playerChoiceResponse.SubHeader);
+					GameObjectManager.GetLocaleString(playerChoiceResponseLocale.ButtonTooltip, locale, ref playerChoiceResponse.ButtonTooltip);
+					GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Description, locale, ref playerChoiceResponse.Description);
+					GameObjectManager.GetLocaleString(playerChoiceResponseLocale.Confirmation, locale, ref playerChoiceResponse.Confirmation);
 				}
 			}
 

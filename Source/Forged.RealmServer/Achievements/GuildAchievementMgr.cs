@@ -382,7 +382,7 @@ public class GuildAchievementMgr : AchievementManager
 			serverFirstAchievement.PlayerGUID = _owner.GetGUID();
 			serverFirstAchievement.AchievementID = achievement.Id;
 			serverFirstAchievement.GuildAchievement = true;
-			Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
+			_worldManager.SendGlobalMessage(serverFirstAchievement);
 		}
 
 		GuildAchievementEarned guildAchievementEarned = new();

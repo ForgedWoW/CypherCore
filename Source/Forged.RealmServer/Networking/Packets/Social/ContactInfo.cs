@@ -26,8 +26,8 @@ public class ContactInfo
 	{
 		Guid = guid;
 		WowAccountGuid = friendInfo.WowAccountGuid;
-		VirtualRealmAddr = Global.WorldMgr.VirtualRealmAddress;
-		NativeRealmAddr = Global.WorldMgr.VirtualRealmAddress;
+		VirtualRealmAddr = _worldManager.VirtualRealmAddress;
+		NativeRealmAddr = _worldManager.VirtualRealmAddress;
 		TypeFlags = friendInfo.Flags;
 		Notes = friendInfo.Note;
 		Status = friendInfo.Status;

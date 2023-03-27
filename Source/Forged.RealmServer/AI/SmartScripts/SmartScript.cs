@@ -620,7 +620,7 @@ public class SmartScript
 
 							if (ci != null)
 							{
-								var model = ObjectManager.ChooseDisplayId(ci);
+								var model = GameObjectManager.ChooseDisplayId(ci);
 								target.AsCreature.SetDisplayId(model.CreatureDisplayId, model.DisplayScale);
 
 								Log.Logger.Debug(
@@ -1496,7 +1496,7 @@ public class SmartScript
 							var cInfo = Global.ObjectMgr.GetCreatureTemplate(e.Action.morphOrMount.creature);
 
 							if (cInfo != null)
-								target.AsUnit.Mount(ObjectManager.ChooseDisplayId(cInfo).CreatureDisplayId);
+								target.AsUnit.Mount(GameObjectManager.ChooseDisplayId(cInfo).CreatureDisplayId);
 						}
 						else
 						{

@@ -88,7 +88,7 @@ public class CharacterCache : Singleton<CharacterCache>
 
 		InvalidatePlayer invalidatePlayer = new();
 		invalidatePlayer.Guid = guid;
-		Global.WorldMgr.SendGlobalMessage(invalidatePlayer);
+		_worldManager.SendGlobalMessage(invalidatePlayer);
 
 		// Correct name -> pointer storage
 		_characterCacheByNameStore.Remove(oldName);

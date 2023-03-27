@@ -7,9 +7,9 @@ namespace Forged.RealmServer.Accounts;
 
 public class RBACPermission
 {
-	readonly uint _id;                  // id of the object
-	readonly string _name;              // name of the object
-	readonly List<uint> _perms = new(); // Set of permissions
+    private readonly uint _id;                  // id of the object
+    private readonly string _name;              // name of the object
+    private readonly List<uint> _perms = new(); // Set of permissions
 
 	// Gets the Name of the Object
 

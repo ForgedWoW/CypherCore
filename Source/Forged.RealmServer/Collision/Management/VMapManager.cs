@@ -10,7 +10,7 @@ namespace Forged.RealmServer.Collision;
 
 public class VMapManager : Singleton<VMapManager>
 {
-	public static string VMapPath = Global.WorldMgr.DataPath + "/vmaps/";
+	public static string VMapPath = _worldManager.DataPath + "/vmaps/";
 
 	readonly Dictionary<string, ManagedModel> _loadedModelFiles = new();
 	readonly Dictionary<uint, StaticMapTree> _instanceMapTrees = new();

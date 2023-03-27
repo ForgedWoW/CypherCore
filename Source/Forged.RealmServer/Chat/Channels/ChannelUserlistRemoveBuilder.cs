@@ -22,7 +22,7 @@ class ChannelUserlistRemoveBuilder : MessageBuilder
 
 	public override PacketSenderOwning<UserlistRemove> Invoke(Locale locale = Locale.enUS)
 	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<UserlistRemove> userlistRemove = new();
 		userlistRemove.Data.RemovedUserGUID = _guid;

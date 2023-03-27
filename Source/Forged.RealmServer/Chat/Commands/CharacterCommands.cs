@@ -42,7 +42,7 @@ class CharacterCommands
 				var name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[loc];
 
 				if (name.IsEmpty())
-					name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[Global.WorldMgr.DefaultDbcLocale];
+					name = (target.NativeGender == Gender.Male ? titleInfo.Name : titleInfo.Name1)[_worldManager.DefaultDbcLocale];
 
 				if (name.IsEmpty())
 					continue;
@@ -83,14 +83,14 @@ class CharacterCommands
 
 		if (!newName.IsEmpty())
 		{
-			if (!ObjectManager.NormalizePlayerName(ref newName))
+			if (!GameObjectManager.NormalizePlayerName(ref newName))
 			{
 				handler.SendSysMessage(CypherStrings.BadValue);
 
 				return false;
 			}
 
-			if (ObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
+			if (GameObjectManager.CheckPlayerName(newName, player.IsConnected() ? player.GetConnectedPlayer().Session.SessionDbcLocale : _worldManager.DefaultDbcLocale, true) != ResponseCodes.CharNameSuccess)
 			{
 				handler.SendSysMessage(CypherStrings.BadValue);
 
@@ -306,8 +306,8 @@ class CharacterCommands
 		stmt.AddValue(1, player.GetGUID().Counter);
 		_characterDatabase.DirectExecute(stmt);
 
-		Global.WorldMgr.UpdateRealmCharCount(oldAccountId);
-		Global.WorldMgr.UpdateRealmCharCount(newAccount.GetID());
+		_worldManager.UpdateRealmCharCount(oldAccountId);
+		_worldManager.UpdateRealmCharCount(newAccount.GetID());
 
 		Global.CharacterCacheStorage.UpdateCharacterAccountId(player.GetGUID(), newAccount.GetID());
 
@@ -656,7 +656,7 @@ class CharacterCommands
 				// search by name
 				else
 				{
-					if (!ObjectManager.NormalizePlayerName(ref searchString))
+					if (!GameObjectManager.NormalizePlayerName(ref searchString))
 						return false;
 
 					stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_DEL_INFO_BY_NAME);

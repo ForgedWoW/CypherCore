@@ -174,7 +174,7 @@ public class GarrisonManager : Singleton<GarrisonManager>
 		if (_followerDbIdGenerator >= ulong.MaxValue)
 		{
 			Log.Logger.Fatal("Garrison follower db id overflow! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
+			_worldManager.StopNow();
 		}
 
 		return _followerDbIdGenerator++;

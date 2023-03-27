@@ -6,34 +6,35 @@ using System.Collections.Generic;
 using System.Text;
 using Framework.Constants;
 using Framework.IO;
-using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Scripting.Interfaces.IConversation;
-using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Achievements;
-using Forged.RealmServer.Networking.Packets.Chat;
-using Forged.RealmServer.Networking.Packets.ClientConfig;
-using Forged.RealmServer.Networking.Packets.Instance;
-using Forged.RealmServer.Networking.Packets.Misc;
-using Forged.RealmServer.Networking.Packets.Spell;
-using Forged.RealmServer.Handlers;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Serilog;
 
 namespace Forged.RealmServer;
 
 public class MiscHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly CliDB _cliDB;
+    private readonly CollectionMgr _collectionMgr;
+    private readonly GuildManager _guildManager;
+    private readonly GameTime _gameTime;
 
-    public MiscHandler(WorldSession session)
+    public MiscHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr,
+		GuildManager guildManager, GameTime gameTime)
     {
         _session = session;
+        _cliDB = cliDB;
+        _collectionMgr = collectionMgr;
+        _guildManager = guildManager;
+        _gameTime = gameTime;
     }
 
     public void SendLoadCUFProfiles()
 	{
-		var player = Player;
+		var player = _session.Player;
 
 		LoadCUFProfiles loadCUFProfiles = new();
 
@@ -45,7 +46,7 @@ public class MiscHandler : IWorldSessionHandler
 				loadCUFProfiles.CUFProfiles.Add(cufProfile);
 		}
 
-		SendPacket(loadCUFProfiles);
+        _session.SendPacket(loadCUFProfiles);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.UpdateAccountData, Status = SessionStatus.Authed)]
@@ -56,7 +57,7 @@ public class MiscHandler : IWorldSessionHandler
 
 		if (packet.Size == 0)
 		{
-			SetAccountData(packet.DataType, 0, "");
+            _session.SetAccountData(packet.DataType, 0, "");
 
 			return;
 		}
@@ -69,36 +70,36 @@ public class MiscHandler : IWorldSessionHandler
 		}
 
 		var data = ZLib.Decompress(packet.CompressedData.GetData(), packet.Size);
-		SetAccountData(packet.DataType, packet.Time, Encoding.Default.GetString(data));
+        _session.SetAccountData(packet.DataType, packet.Time, Encoding.Default.GetString(data));
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateFailed, Processing = PacketProcessing.Inplace)]
 	void HandleObjectUpdateFailed(ObjectUpdateFailed objectUpdateFailed)
 	{
-		Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+		Log.Logger.Error("Object update failed for {0} for player {1} ({2})", objectUpdateFailed.ObjectGUID.ToString(), _session.PlayerName, _session.Player.GUID.ToString());
 
 		// If create object failed for current player then client will be stuck on loading screen
-		if (Player.GUID == objectUpdateFailed.ObjectGUID)
+		if (_session.Player.GUID == objectUpdateFailed.ObjectGUID)
 		{
-			LogoutPlayer(true);
+            _session.LogoutPlayer(true);
 
 			return;
 		}
 
-		// Pretend we've never seen this object
-		Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
+        // Pretend we've never seen this object
+        _session.Player.ClientGuiDs.Remove(objectUpdateFailed.ObjectGUID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ObjectUpdateRescued, Processing = PacketProcessing.Inplace)]
 	void HandleObjectUpdateRescued(ObjectUpdateRescued objectUpdateRescued)
 	{
-		Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), PlayerName, Player.GUID.ToString());
+		Log.Logger.Error("Object update rescued for {0} for player {1} ({2})", objectUpdateRescued.ObjectGUID.ToString(), _session.PlayerName, _session.Player.GUID.ToString());
 
 		// Client received values update after destroying object
 		// re-register object in m_clientGUIDs to send DestroyObject on next visibility update
-		lock (Player.ClientGuiDs)
+		lock (_session.Player.ClientGuiDs)
 		{
-			Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
+            _session.Player.ClientGuiDs.Add(objectUpdateRescued.ObjectGUID);
 		}
 	}
 
@@ -109,9 +110,9 @@ public class MiscHandler : IWorldSessionHandler
 		var type = packet.GetButtonType();
 
 		if (packet.Action == 0)
-			Player.RemoveActionButton(packet.Index);
+            _session.Player.RemoveActionButton(packet.Index);
 		else
-			Player.AddActionButton(packet.Index, action, type);
+            _session.Player.AddActionButton(packet.Index, action, type);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SaveCufProfiles, Processing = PacketProcessing.Inplace)]
@@ -119,22 +120,22 @@ public class MiscHandler : IWorldSessionHandler
 	{
 		if (packet.CUFProfiles.Count > PlayerConst.MaxCUFProfiles)
 		{
-			Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", PlayerName, PlayerConst.MaxCUFProfiles);
+			Log.Logger.Error("HandleSaveCUFProfiles - {0} tried to save more than {1} CUF profiles. Hacking attempt?", _session.PlayerName, PlayerConst.MaxCUFProfiles);
 
 			return;
 		}
 
 		for (byte i = 0; i < packet.CUFProfiles.Count; ++i)
-			Player.SaveCUFProfile(i, packet.CUFProfiles[i]);
+            _session.Player.SaveCUFProfile(i, packet.CUFProfiles[i]);
 
 		for (var i = (byte)packet.CUFProfiles.Count; i < PlayerConst.MaxCUFProfiles; ++i)
-			Player.SaveCUFProfile(i, null);
+            _session.Player.SaveCUFProfile(i, null);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetAdvancedCombatLogging, Processing = PacketProcessing.Inplace)]
 	void HandleSetAdvancedCombatLogging(SetAdvancedCombatLogging setAdvancedCombatLogging)
 	{
-		Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
+        _session.Player.SetAdvancedCombatLogging(setAdvancedCombatLogging.Enable);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.MountSetFavorite)]
@@ -146,36 +147,36 @@ public class MiscHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ChatRegisterAddonPrefixes)]
 	void HandleAddonRegisteredPrefixes(ChatRegisterAddonPrefixes packet)
 	{
-		_registeredAddonPrefixes.AddRange(packet.Prefixes);
+        _session.RegisteredAddonPrefixes.AddRange(packet.Prefixes);
 
-		if (_registeredAddonPrefixes.Count > 64) // shouldn't happen
+		if (_session.RegisteredAddonPrefixes.Count > 64) // shouldn't happen
 		{
-			_filterAddonMessages = false;
+            _session.FilterAddonMessages = false;
 
 			return;
 		}
 
-		_filterAddonMessages = true;
+        _session.FilterAddonMessages = true;
 	}
 
 	[WorldPacketHandler(ClientOpcodes.TogglePvp)]
 	void HandleTogglePvP(TogglePvP packet)
 	{
-		if (!Player.HasPlayerFlag(PlayerFlags.InPVP))
+		if (!_session.Player.HasPlayerFlag(PlayerFlags.InPVP))
 		{
-			Player.SetPlayerFlag(PlayerFlags.InPVP);
-			Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+            _session.Player.SetPlayerFlag(PlayerFlags.InPVP);
+            _session.Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
-				Player.UpdatePvP(true, true);
+			if (!_session.Player.IsPvP || _session.Player.PvpInfo.EndTimer != 0)
+                _session.Player.UpdatePvP(true, true);
 		}
-		else if (!Player.IsWarModeLocalActive)
+		else if (!_session.Player.IsWarModeLocalActive)
 		{
-			Player.RemovePlayerFlag(PlayerFlags.InPVP);
-			Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+            _session.Player.RemovePlayerFlag(PlayerFlags.InPVP);
+            _session.Player.SetPlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-				Player.PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
+			if (!_session.Player.PvpInfo.IsHostile && _session.Player.IsPvP)
+                _session.Player.PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
 		}
 	}
 
@@ -184,64 +185,64 @@ public class MiscHandler : IWorldSessionHandler
 	{
 		if (packet.EnablePVP)
 		{
-			Player.SetPlayerFlag(PlayerFlags.InPVP);
-			Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
+            _session.Player.SetPlayerFlag(PlayerFlags.InPVP);
+            _session.Player.RemovePlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.IsPvP || Player.PvpInfo.EndTimer != 0)
-				Player.UpdatePvP(true, true);
+			if (!_session.Player.IsPvP || _session.Player.PvpInfo.EndTimer != 0)
+                _session.Player.UpdatePvP(true, true);
 		}
-		else if (!Player.IsWarModeLocalActive)
+		else if (!_session.Player.IsWarModeLocalActive)
 		{
-			Player.RemovePlayerFlag(PlayerFlags.InPVP);
-			Player.SetPlayerFlag(PlayerFlags.PVPTimer);
+            _session.Player.RemovePlayerFlag(PlayerFlags.InPVP);
+            _session.Player.SetPlayerFlag(PlayerFlags.PVPTimer);
 
-			if (!Player.PvpInfo.IsHostile && Player.IsPvP)
-				Player.PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
+			if (!_session.Player.PvpInfo.IsHostile && _session.Player.IsPvP)
+                _session.Player.PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetWarMode)]
 	void HandleSetWarMode(SetWarMode packet)
 	{
-		_player.SetWarModeDesired(packet.Enable);
+		_session.Player.SetWarModeDesired(packet.Enable);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ResetInstances)]
 	void HandleResetInstances(ResetInstances packet)
 	{
-		var map = _player.Map;
+		var map = _session.Player.Map;
 
 		if (map != null && map.Instanceable)
 			return;
 
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (group)
 		{
-			if (!group.IsLeader(Player.GUID))
+			if (!group.IsLeader(_session.Player.GUID))
 				return;
 
 			if (group.IsLFGGroup)
 				return;
 
-			group.ResetInstances(InstanceResetMethod.Manual, _player);
+			group.ResetInstances(InstanceResetMethod.Manual, _session.Player);
 		}
 		else
 		{
-			Player.ResetInstances(InstanceResetMethod.Manual);
+            _session.Player.ResetInstances(InstanceResetMethod.Manual);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetDungeonDifficulty)]
 	void HandleSetDungeonDifficulty(SetDungeonDifficulty setDungeonDifficulty)
 	{
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(setDungeonDifficulty.DifficultyID);
+		var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey(setDungeonDifficulty.DifficultyID);
 
 		if (difficultyEntry == null)
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an invalid instance mode {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						setDungeonDifficulty.DifficultyID);
 
 			return;
@@ -251,7 +252,7 @@ public class MiscHandler : IWorldSessionHandler
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an non-dungeon instance mode {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						difficultyEntry.Id);
 
 			return;
@@ -261,7 +262,7 @@ public class MiscHandler : IWorldSessionHandler
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent unselectable instance mode {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						difficultyEntry.Id);
 
 			return;
@@ -269,54 +270,54 @@ public class MiscHandler : IWorldSessionHandler
 
 		var difficultyID = (Difficulty)difficultyEntry.Id;
 
-		if (difficultyID == Player.DungeonDifficultyId)
+		if (difficultyID == _session.Player.DungeonDifficultyId)
 			return;
 
 		// cannot reset while in an instance
-		var map = Player.Map;
+		var map = _session.Player.Map;
 
 		if (map && map.Instanceable)
 		{
 			Log.Logger.Debug(
 						"WorldSession:HandleSetDungeonDifficulty: player (Name: {0}, {1}) tried to reset the instance while player is inside!",
-						Player.GetName(),
-						Player.GUID.ToString());
+                        _session.Player.GetName(),
+                        _session.Player.GUID.ToString());
 
 			return;
 		}
 
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (group)
 		{
-			if (!group.IsLeader(_player.GUID))
+			if (!group.IsLeader(_session.Player.GUID))
 				return;
 
 			if (group.IsLFGGroup)
 				return;
 
 			// the difficulty is set even if the instances can't be reset
-			group.ResetInstances(InstanceResetMethod.OnChangeDifficulty, _player);
+			group.ResetInstances(InstanceResetMethod.OnChangeDifficulty, _session.Player);
 			group.SetDungeonDifficultyID(difficultyID);
 		}
 		else
 		{
-			Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
-			Player.DungeonDifficultyId = difficultyID;
-			Player.SendDungeonDifficulty();
+            _session.Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
+            _session.Player.DungeonDifficultyId = difficultyID;
+            _session.Player.SendDungeonDifficulty();
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetRaidDifficulty)]
 	void HandleSetRaidDifficulty(SetRaidDifficulty setRaidDifficulty)
 	{
-		var difficultyEntry = CliDB.DifficultyStorage.LookupByKey(setRaidDifficulty.DifficultyID);
+		var difficultyEntry = _cliDB.DifficultyStorage.LookupByKey((uint)setRaidDifficulty.DifficultyID);
 
 		if (difficultyEntry == null)
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an invalid instance mode {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						setRaidDifficulty.DifficultyID);
 
 			return;
@@ -326,7 +327,7 @@ public class MiscHandler : IWorldSessionHandler
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent an non-dungeon instance mode {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						difficultyEntry.Id);
 
 			return;
@@ -336,7 +337,7 @@ public class MiscHandler : IWorldSessionHandler
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent unselectable instance mode {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						difficultyEntry.Id);
 
 			return;
@@ -346,7 +347,7 @@ public class MiscHandler : IWorldSessionHandler
 		{
 			Log.Logger.Debug(
 						"WorldSession.HandleSetDungeonDifficulty: {0} sent not matching legacy difficulty {1}!",
-						Player.GUID.ToString(),
+                        _session.Player.GUID.ToString(),
 						difficultyEntry.Id);
 
 			return;
@@ -354,34 +355,34 @@ public class MiscHandler : IWorldSessionHandler
 
 		var difficultyID = (Difficulty)difficultyEntry.Id;
 
-		if (difficultyID == (setRaidDifficulty.Legacy != 0 ? Player.LegacyRaidDifficultyId : Player.RaidDifficultyId))
+		if (difficultyID == (setRaidDifficulty.Legacy != 0 ? _session.Player.LegacyRaidDifficultyId : _session.Player.RaidDifficultyId))
 			return;
 
 		// cannot reset while in an instance
-		var map = Player.Map;
+		var map = _session.Player.Map;
 
 		if (map && map.Instanceable)
 		{
 			Log.Logger.Debug(
 						"WorldSession:HandleSetRaidDifficulty: player (Name: {0}, {1} tried to reset the instance while inside!",
-						Player.GetName(),
-						Player.GUID.ToString());
+                        _session.Player.GetName(),
+                        _session.Player.GUID.ToString());
 
 			return;
 		}
 
-		var group = Player.Group;
+		var group = _session.Player.Group;
 
 		if (group)
 		{
-			if (!group.IsLeader(_player.GUID))
+			if (!group.IsLeader(_session.Player.GUID))
 				return;
 
 			if (group.IsLFGGroup)
 				return;
 
 			// the difficulty is set even if the instances can't be reset
-			group.ResetInstances(InstanceResetMethod.OnChangeDifficulty, _player);
+			group.ResetInstances(InstanceResetMethod.OnChangeDifficulty, _session.Player);
 
 			if (setRaidDifficulty.Legacy != 0)
 				group.SetLegacyRaidDifficultyID(difficultyID);
@@ -390,14 +391,14 @@ public class MiscHandler : IWorldSessionHandler
 		}
 		else
 		{
-			Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
+            _session.Player.ResetInstances(InstanceResetMethod.OnChangeDifficulty);
 
 			if (setRaidDifficulty.Legacy != 0)
-				Player.LegacyRaidDifficultyId = difficultyID;
+                _session.Player.LegacyRaidDifficultyId = difficultyID;
 			else
-				Player.RaidDifficultyId = difficultyID;
+                _session.Player.RaidDifficultyId = difficultyID;
 
-			Player.SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
+            _session.Player.SendRaidDifficulty(setRaidDifficulty.Legacy != 0);
 		}
 	}
 
@@ -405,38 +406,38 @@ public class MiscHandler : IWorldSessionHandler
 	void HandleSetTaxiBenchmark(SetTaxiBenchmarkMode packet)
 	{
 		if (packet.Enable)
-			_player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
+			_session.Player.SetPlayerFlag(PlayerFlags.TaxiBenchmark);
 		else
-			_player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
+			_session.Player.RemovePlayerFlag(PlayerFlags.TaxiBenchmark);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GuildSetFocusedAchievement)]
 	void HandleGuildSetFocusedAchievement(GuildSetFocusedAchievement setFocusedAchievement)
 	{
-		var guild = Global.GuildMgr.GetGuildById(Player.GuildId);
+		var guild = _guildManager.GetGuildById(_session.Player.GuildId);
 
 		if (guild)
-			guild.GetAchievementMgr().SendAchievementInfo(Player, setFocusedAchievement.AchievementID);
+			guild.GetAchievementMgr().SendAchievementInfo(_session.Player, setFocusedAchievement.AchievementID);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.InstanceLockResponse)]
 	void HandleInstanceLockResponse(InstanceLockResponse packet)
 	{
-		if (!Player.HasPendingBind)
+		if (!_session.Player.HasPendingBind)
 		{
 			Log.Logger.Information(
 						"InstanceLockResponse: Player {0} (guid {1}) tried to bind himself/teleport to graveyard without a pending bind!",
-						Player.GetName(),
-						Player.GUID.ToString());
+                        _session.Player.GetName(),
+                        _session.Player.GUID.ToString());
 
 			return;
 		}
 
 		if (packet.AcceptLock)
-			Player.ConfirmPendingBind();
+            _session.Player.ConfirmPendingBind();
 		else
-			Player.RepopAtGraveyard();
+            _session.Player.RepopAtGraveyard();
 
-		Player.SetPendingBind(0, 0);
+        _session.Player.SetPendingBind(0, 0);
 	}
 }

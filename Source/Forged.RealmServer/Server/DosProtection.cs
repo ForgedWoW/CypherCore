@@ -78,7 +78,7 @@ public class DosProtection
 						break;
 				}
 
-				Global.WorldMgr.BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
+				_worldManager.BanAccount(bm, nameOrIp, duration, "DOS (Packet Flooding/Spoofing", "Server: AutoDOS");
 				Log.Logger.Information("AntiDOS: Player automatically banned for {0} seconds.", duration);
 
 				return false;

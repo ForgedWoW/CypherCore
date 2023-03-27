@@ -895,19 +895,19 @@ class DebugCommands
 		switch (command)
 		{
 			case "alliance":
-				Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
+				_worldManager.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue.GetValueOrDefault(0));
 
 				break;
 			case "horde":
-				Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
+				_worldManager.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue.GetValueOrDefault(0));
 
 				break;
 			case "neutral":
-				Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
+				_worldManager.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
 
 				break;
 			case "off":
-				Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
+				_worldManager.DisableForcedWarModeFactionBalanceState();
 
 				break;
 			default:
@@ -939,20 +939,20 @@ class DebugCommands
 
 		if (daily)
 		{
-			Global.WorldMgr.DailyReset();
-			handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextDailyQuestResetTimeVarId)).ToShortTimeString()}");
+			_worldManager.DailyReset();
+			handler.SendSysMessage($"Daily quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(_worldManager.GetPersistentWorldVariable(WorldManager.NextDailyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		if (weekly)
 		{
-			Global.WorldMgr.ResetWeeklyQuests();
-			handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextWeeklyQuestResetTimeVarId)).ToShortTimeString()}");
+			_worldManager.ResetWeeklyQuests();
+			handler.SendSysMessage($"Weekly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(_worldManager.GetPersistentWorldVariable(WorldManager.NextWeeklyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		if (monthly)
 		{
-			Global.WorldMgr.ResetMonthlyQuests();
-			handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(Global.WorldMgr.GetPersistentWorldVariable(WorldManager.NextMonthlyQuestResetTimeVarId)).ToShortTimeString()}");
+			_worldManager.ResetMonthlyQuests();
+			handler.SendSysMessage($"Monthly quests have been reset. Next scheduled reset: {Time.UnixTimeToDateTime(_worldManager.GetPersistentWorldVariable(WorldManager.NextMonthlyQuestResetTimeVarId)).ToShortTimeString()}");
 		}
 
 		return true;
@@ -1203,7 +1203,7 @@ class DebugCommands
 				foreach (var outerPair in redirectRegistry) // (spellId, (guid, pct))
 				{
 					var spell = Global.SpellMgr.GetSpellInfo(outerPair.Key, Difficulty.None);
-					handler.SendSysMessage($" |-- #{outerPair.Key} {(spell != null ? spell.SpellName[Global.WorldMgr.DefaultDbcLocale] : "<unknown>")} ({outerPair.Value.Count} entries):");
+					handler.SendSysMessage($" |-- #{outerPair.Key} {(spell != null ? spell.SpellName[_worldManager.DefaultDbcLocale] : "<unknown>")} ({outerPair.Value.Count} entries):");
 
 					foreach (var innerPair in outerPair.Value) // (guid, pct)
 					{
@@ -1455,19 +1455,19 @@ class DebugCommands
 
 					return false;
 				case "alliance":
-					Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue);
+					_worldManager.SetForcedWarModeFactionBalanceState(TeamIds.Alliance, rewardValue);
 
 					break;
 				case "horde":
-					Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue);
+					_worldManager.SetForcedWarModeFactionBalanceState(TeamIds.Horde, rewardValue);
 
 					break;
 				case "neutral":
-					Global.WorldMgr.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
+					_worldManager.SetForcedWarModeFactionBalanceState(TeamIds.Neutral);
 
 					break;
 				case "off":
-					Global.WorldMgr.DisableForcedWarModeFactionBalanceState();
+					_worldManager.DisableForcedWarModeFactionBalanceState();
 
 					break;
 			}

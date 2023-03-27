@@ -79,7 +79,7 @@ public class WorldLocation : Position
 	{
 		var mapEntry = CliDB.MapStorage.LookupByKey(MapId);
 
-		return $"MapID: {MapId} Map name: '{(mapEntry != null ? mapEntry.MapName[Global.WorldMgr.DefaultDbcLocale] : "<not found>")}' {base.ToString()}";
+		return $"MapID: {MapId} Map name: '{(mapEntry != null ? mapEntry.MapName[_worldManager.DefaultDbcLocale] : "<not found>")}' {base.ToString()}";
 	}
 
 	public override string ToString()

@@ -14,7 +14,7 @@ class ServerCommands
 	[Command("corpses", RBACPermissions.CommandServerCorpses, true)]
 	static bool HandleServerCorpsesCommand(CommandHandler handler)
 	{
-		Global.WorldMgr.RemoveOldCorpses();
+		_worldManager.RemoveOldCorpses();
 
 		return true;
 	}
@@ -29,7 +29,7 @@ class ServerCommands
 	static bool HandleServerExitCommand(CommandHandler handler)
 	{
 		handler.SendSysMessage(CypherStrings.CommandExit);
-		Global.WorldMgr.StopNow(ShutdownExitCode.Shutdown);
+		_worldManager.StopNow(ShutdownExitCode.Shutdown);
 
 		return true;
 	}
@@ -37,23 +37,23 @@ class ServerCommands
 	[Command("info", RBACPermissions.CommandServerInfo, true)]
 	static bool HandleServerInfoCommand(CommandHandler handler)
 	{
-		var playersNum = Global.WorldMgr.PlayerCount;
-		var maxPlayersNum = Global.WorldMgr.MaxPlayerCount;
-		var activeClientsNum = Global.WorldMgr.ActiveSessionCount;
-		var queuedClientsNum = Global.WorldMgr.QueuedSessionCount;
-		var maxActiveClientsNum = Global.WorldMgr.MaxActiveSessionCount;
-		var maxQueuedClientsNum = Global.WorldMgr.MaxQueuedSessionCount;
+		var playersNum = _worldManager.PlayerCount;
+		var maxPlayersNum = _worldManager.MaxPlayerCount;
+		var activeClientsNum = _worldManager.ActiveSessionCount;
+		var queuedClientsNum = _worldManager.QueuedSessionCount;
+		var maxActiveClientsNum = _worldManager.MaxActiveSessionCount;
+		var maxQueuedClientsNum = _worldManager.MaxQueuedSessionCount;
 		var uptime = Time.secsToTimeString(_gameTime.DateTime);
-		var updateTime = Global.WorldMgr.WorldUpdateTime.GetLastUpdateTime();
+		var updateTime = _worldManager.WorldUpdateTime.GetLastUpdateTime();
 
 		handler.SendSysMessage(CypherStrings.ConnectedPlayers, playersNum, maxPlayersNum);
 		handler.SendSysMessage(CypherStrings.ConnectedUsers, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
 		handler.SendSysMessage(CypherStrings.Uptime, uptime);
 		handler.SendSysMessage(CypherStrings.UpdateDiff, updateTime);
 
-		// Can't use Global.WorldMgr.ShutdownMsg here in case of console command
-		if (Global.WorldMgr.IsShuttingDown)
-			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(Global.WorldMgr.ShutDownTimeLeft));
+		// Can't use _worldManager.ShutdownMsg here in case of console command
+		if (_worldManager.IsShuttingDown)
+			handler.SendSysMessage(CypherStrings.ShutdownTimeleft, Time.secsToTimeString(_worldManager.ShutDownTimeLeft));
 
 		return true;
 	}
@@ -63,7 +63,7 @@ class ServerCommands
 	{
 		var motd = "";
 
-		foreach (var line in Global.WorldMgr.Motd)
+		foreach (var line in _worldManager.Motd)
 			motd += line;
 
 		handler.SendSysMessage(CypherStrings.MotdCurrent, motd);
@@ -84,24 +84,24 @@ class ServerCommands
 			switch (paramStr.ToLower())
 			{
 				case "player":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Player;
+					_worldManager.PlayerSecurityLimit = AccountTypes.Player;
 
 					break;
 				case "moderator":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Moderator;
+					_worldManager.PlayerSecurityLimit = AccountTypes.Moderator;
 
 					break;
 				case "gamemaster":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.GameMaster;
+					_worldManager.PlayerSecurityLimit = AccountTypes.GameMaster;
 
 					break;
 				case "administrator":
-					Global.WorldMgr.PlayerSecurityLimit = AccountTypes.Administrator;
+					_worldManager.PlayerSecurityLimit = AccountTypes.Administrator;
 
 					break;
 				case "reset":
-					Global.WorldMgr.PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
-					Global.WorldMgr.LoadDBAllowedSecurityLevel();
+					_worldManager.PlayerAmountLimit = ConfigMgr.GetDefaultValue<uint>("PlayerLimit", 100);
+					_worldManager.LoadDBAllowedSecurityLevel();
 
 					break;
 				default:
@@ -109,16 +109,16 @@ class ServerCommands
 						return false;
 
 					if (value < 0)
-						Global.WorldMgr.PlayerSecurityLimit = (AccountTypes)(-value);
+						_worldManager.PlayerSecurityLimit = (AccountTypes)(-value);
 					else
-						Global.WorldMgr.PlayerAmountLimit = (uint)value;
+						_worldManager.PlayerAmountLimit = (uint)value;
 
 					break;
 			}
 		}
 
-		var playerAmountLimit = Global.WorldMgr.PlayerAmountLimit;
-		var allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
+		var playerAmountLimit = _worldManager.PlayerAmountLimit;
+		var allowedAccountType = _worldManager.PlayerSecurityLimit;
 		string secName;
 
 		switch (allowedAccountType)
@@ -154,7 +154,7 @@ class ServerCommands
 	{
 		// check if there is any session connected from a different address
 		var myAddr = mySession ? mySession.RemoteAddress : "";
-		var sessions = Global.WorldMgr.AllSessions;
+		var sessions = _worldManager.AllSessions;
 
 		foreach (var session in sessions)
 			if (session && myAddr != session.RemoteAddress)
@@ -235,7 +235,7 @@ class ServerCommands
 			handler.SendSysMessage(CypherStrings.ShutdownDelayed, delay);
 		}
 
-		Global.WorldMgr.ShutdownServ((uint)delay, shutdownMask, (ShutdownExitCode)exitCode, reason);
+		_worldManager.ShutdownServ((uint)delay, shutdownMask, (ShutdownExitCode)exitCode, reason);
 
 		return true;
 	}
@@ -252,7 +252,7 @@ class ServerCommands
 		[Command("cancel", RBACPermissions.CommandServerIdlerestartCancel, true)]
 		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+			var timer = _worldManager.ShutdownCancel();
 
 			if (timer != 0)
 				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
@@ -273,7 +273,7 @@ class ServerCommands
 		[Command("cancel", RBACPermissions.CommandServerIdleshutdownCancel, true)]
 		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+			var timer = _worldManager.ShutdownCancel();
 
 			if (timer != 0)
 				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
@@ -294,7 +294,7 @@ class ServerCommands
 		[Command("cancel", RBACPermissions.CommandServerRestartCancel, true)]
 		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+			var timer = _worldManager.ShutdownCancel();
 
 			if (timer != 0)
 				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
@@ -321,7 +321,7 @@ class ServerCommands
 		[Command("cancel", RBACPermissions.CommandServerShutdownCancel, true)]
 		static bool HandleServerShutDownCancelCommand(CommandHandler handler)
 		{
-			var timer = Global.WorldMgr.ShutdownCancel();
+			var timer = _worldManager.ShutdownCancel();
 
 			if (timer != 0)
 				handler.SendSysMessage(CypherStrings.ShutdownCancelled, timer);
@@ -353,7 +353,7 @@ class ServerCommands
 			if (!int.TryParse(newTimeStr, out var newTime) || newTime < 0)
 				return false;
 
-			//Global.WorldMgr.SetRecordDiffInterval(newTime);
+			//_worldManager.SetRecordDiffInterval(newTime);
 			//printf("Record diff every %i ms\n", newTime);
 
 			return true;
@@ -371,7 +371,7 @@ class ServerCommands
 		[Command("motd", RBACPermissions.CommandServerSetMotd, true)]
 		static bool HandleServerSetMotdCommand(CommandHandler handler, StringArguments args)
 		{
-			Global.WorldMgr.SetMotd(args.NextString(""));
+			_worldManager.SetMotd(args.NextString(""));
 			handler.SendSysMessage(CypherStrings.MotdNew, args.GetString());
 
 			return true;
@@ -385,14 +385,14 @@ class ServerCommands
 			if (arg1.Equals("on", StringComparison.OrdinalIgnoreCase))
 			{
 				handler.SendSysMessage(CypherStrings.WorldClosed);
-				Global.WorldMgr.SetClosed(true);
+				_worldManager.SetClosed(true);
 
 				return true;
 			}
 			else if (arg1.Equals("off", StringComparison.OrdinalIgnoreCase))
 			{
 				handler.SendSysMessage(CypherStrings.WorldOpened);
-				Global.WorldMgr.SetClosed(false);
+				_worldManager.SetClosed(false);
 
 				return true;
 			}

@@ -18,7 +18,7 @@ class ChannelNotifyJoinedBuilder : MessageBuilder
 
 	public override PacketSenderOwning<ChannelNotifyJoined> Invoke(Locale locale = Locale.enUS)
 	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChannelNotifyJoined> notify = new();
 		//notify.ChannelWelcomeMsg = "";

@@ -5,24 +5,45 @@ using System;
 using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Database;
-using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Social;
-using Forged.RealmServer.Networking.Packets.Who;
-using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Game.Common.Handlers;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Accounts;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Cache;
+using Serilog;
 
 namespace Forged.RealmServer;
 
 public class SocialHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly WorldConfig _worldConfig;
+    private readonly WhoListStorageManager _whoListStorageManager;
+    private readonly AccountManager _accountManager;
+    private readonly CliDB _cliDB;
+    private readonly LoginDatabase _loginDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly CharacterCache _characterCache;
+    private readonly SocialManager _socialManager;
 
-    public SocialHandler(WorldSession session)
+    public SocialHandler(WorldSession session, WorldConfig worldConfig, WhoListStorageManager whoListStorageManager,
+		AccountManager accountManager, CliDB cliDB, LoginDatabase loginDatabase, WorldManager worldManager, ObjectAccessor objectAccessor,
+		CharacterCache characterCache, SocialManager socialManager)
     {
         _session = session;
+        _worldConfig = worldConfig;
+        _whoListStorageManager = whoListStorageManager;
+        _accountManager = accountManager;
+        _cliDB = cliDB;
+        _loginDatabase = loginDatabase;
+        _worldManager = worldManager;
+        _objectAccessor = objectAccessor;
+        _characterCache = characterCache;
+        _socialManager = socialManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.Who, Processing = PacketProcessing.ThreadSafe)]
@@ -57,28 +78,28 @@ public class SocialHandler : IWorldSessionHandler
 		if (whoRequest.Request.MaxLevel >= 100)
 			whoRequest.Request.MaxLevel = 255;
 
-		var team = Player.Team;
+		var team = _session.Player.Team;
 
 		var gmLevelInWhoList = _worldConfig.GetUIntValue(WorldCfg.GmLevelInWhoList);
 
 		WhoResponsePkt response = new();
 		response.RequestID = whoRequest.RequestID;
 
-		var whoList = Global.WhoListStorageMgr.GetWhoList();
+		var whoList = _whoListStorageManager.GetWhoList();
 
 		foreach (var target in whoList)
 		{
 			// player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
-			if (target.Team != team && !HasPermission(RBACPermissions.TwoSideWhoList))
+			if (target.Team != team && !_session.HasPermission(RBACPermissions.TwoSideWhoList))
 				continue;
 
 			// player can see MODERATOR, GAME MASTER, ADMINISTRATOR only if CONFIG_GM_IN_WHO_LIST
-			if (target.Security > (AccountTypes)gmLevelInWhoList && !HasPermission(RBACPermissions.WhoSeeAllSecLevels))
+			if (target.Security > (AccountTypes)gmLevelInWhoList && !_session.HasPermission(RBACPermissions.WhoSeeAllSecLevels))
 				continue;
 
 			// check if target is globally visible for player
-			if (_player.GUID != target.Guid && !target.IsVisible)
-				if (Global.AccountMgr.IsPlayerAccount(_player.Session.Security) || target.Security > _player.Session.Security)
+			if (_session.Player.GUID != target.Guid && !target.IsVisible)
+				if (_accountManager.IsPlayerAccount(_session.Player.Session.Security) || target.Security > _session.Player.Session.Security)
 					continue;
 
 			// check if target's level is in level range
@@ -112,10 +133,10 @@ public class SocialHandler : IWorldSessionHandler
 			if (!request.Words.Empty())
 			{
 				var aname = "";
-				var areaEntry = CliDB.AreaTableStorage.LookupByKey(target.ZoneId);
+				var areaEntry = _cliDB.AreaTableStorage.LookupByKey(target.ZoneId);
 
 				if (areaEntry != null)
-					aname = areaEntry.AreaName[SessionDbcLocale].ToLower();
+					aname = areaEntry.AreaName[_session.SessionDbcLocale].ToLower();
 
 				var show = false;
 
@@ -142,7 +163,7 @@ public class SocialHandler : IWorldSessionHandler
 			if (!target.GuildGuid.IsEmpty)
 			{
 				whoEntry.GuildGUID = target.GuildGuid;
-				whoEntry.GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+				whoEntry.GuildVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 				whoEntry.GuildName = target.GuildName;
 			}
 
@@ -156,43 +177,43 @@ public class SocialHandler : IWorldSessionHandler
 				break;
 		}
 
-		SendPacket(response);
+        _session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.WhoIs)]
 	void HandleWhoIs(WhoIsRequest packet)
 	{
-		if (!HasPermission(RBACPermissions.OpcodeWhois))
+		if (!_session.HasPermission(RBACPermissions.OpcodeWhois))
 		{
-			SendNotification(CypherStrings.YouNotHavePermission);
+			_session.SendNotification(CypherStrings.YouNotHavePermission);
 
 			return;
 		}
 
-		if (!ObjectManager.NormalizePlayerName(ref packet.CharName))
+		if (!GameObjectManager.NormalizePlayerName(ref packet.CharName))
 		{
-			SendNotification(CypherStrings.NeedCharacterName);
+            _session.SendNotification(CypherStrings.NeedCharacterName);
 
 			return;
 		}
 
-		var player = Global.ObjAccessor.FindPlayerByName(packet.CharName);
+		var player = _objectAccessor.FindPlayerByName(packet.CharName);
 
 		if (!player)
 		{
-			SendNotification(CypherStrings.PlayerNotExistOrOffline, packet.CharName);
+            _session.SendNotification(CypherStrings.PlayerNotExistOrOffline, packet.CharName);
 
 			return;
 		}
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_WHOIS);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_WHOIS);
 		stmt.AddValue(0, player.Session.AccountId);
 
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 		{
-			SendNotification(CypherStrings.AccountForPlayerNotFound, packet.CharName);
+            _session.SendNotification(CypherStrings.AccountForPlayerNotFound, packet.CharName);
 
 			return;
 		}
@@ -214,74 +235,74 @@ public class SocialHandler : IWorldSessionHandler
 
 		WhoIsResponse response = new();
 		response.AccountName = packet.CharName + "'s " + "account is " + acc + ", e-mail: " + email + ", last ip: " + lastip;
-		SendPacket(response);
+        _session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SendContactList)]
 	void HandleContactList(SendContactList packet)
 	{
-		Player.Social.SendSocialList(Player, packet.Flags);
+        _session.Player.Social.SendSocialList(_session.Player, packet.Flags);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AddFriend)]
 	void HandleAddFriend(AddFriend packet)
 	{
-		if (!ObjectManager.NormalizePlayerName(ref packet.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
-		var friendCharacterInfo = Global.CharacterCacheStorage.GetCharacterCacheByName(packet.Name);
+		var friendCharacterInfo = _characterCache.GetCharacterCacheByName(packet.Name);
 
 		if (friendCharacterInfo == null)
 		{
-			Global.SocialMgr.SendFriendStatus(Player, FriendsResult.NotFound, ObjectGuid.Empty);
+			_socialManager.SendFriendStatus(_session.Player, FriendsResult.NotFound, ObjectGuid.Empty);
 
 			return;
 		}
 
 		void processFriendRequest()
 		{
-			var playerGuid = _player.GUID;
+			var playerGuid = _session.Player.GUID;
 			var friendGuid = friendCharacterInfo.Guid;
 			var friendAccountGuid = ObjectGuid.Create(HighGuid.WowAccount, friendCharacterInfo.AccountId);
 			var team = Player.TeamForRace(friendCharacterInfo.RaceId);
 			var friendNote = packet.Notes;
 
-			if (playerGuid.Counter != _guidLow)
+			if (playerGuid.Counter != _session.Player.GUID.Counter)
 				return; // not the player initiating request, do nothing
 
 			var friendResult = FriendsResult.NotFound;
 
-			if (friendGuid == Player.GUID)
+			if (friendGuid == _session.Player.GUID)
 			{
 				friendResult = FriendsResult.Self;
 			}
-			else if (Player.Team != team && !HasPermission(RBACPermissions.TwoSideAddFriend))
+			else if (_session.Player.Team != team && !_session.HasPermission(RBACPermissions.TwoSideAddFriend))
 			{
 				friendResult = FriendsResult.Enemy;
 			}
-			else if (Player.Social.HasFriend(friendGuid))
+			else if (_session.Player.Social.HasFriend(friendGuid))
 			{
 				friendResult = FriendsResult.Already;
 			}
 			else
 			{
-				var pFriend = Global.ObjAccessor.FindPlayer(friendGuid);
+				var pFriend = _objectAccessor.FindPlayer(friendGuid);
 
-				if (pFriend != null && pFriend.IsVisibleGloballyFor(Player))
+				if (pFriend != null && pFriend.IsVisibleGloballyFor(_session.Player))
 					friendResult = FriendsResult.Online;
 				else
 					friendResult = FriendsResult.AddedOnline;
 
-				if (Player.Social.AddToSocialList(friendGuid, friendAccountGuid, SocialFlag.Friend))
-					Player.Social.SetFriendNote(friendGuid, friendNote);
+				if (_session.Player.Social.AddToSocialList(friendGuid, friendAccountGuid, SocialFlag.Friend))
+                    _session.Player.Social.SetFriendNote(friendGuid, friendNote);
 				else
 					friendResult = FriendsResult.ListFull;
 			}
 
-			Global.SocialMgr.SendFriendStatus(Player, friendResult, friendGuid);
+			_socialManager.SendFriendStatus(_session.Player, friendResult, friendGuid);
 		}
 
-		if (HasPermission(RBACPermissions.AllowGmFriend))
+		if (_session.HasPermission(RBACPermissions.AllowGmFriend))
 		{
 			processFriendRequest();
 
@@ -289,13 +310,13 @@ public class SocialHandler : IWorldSessionHandler
 		}
 
 		// First try looking up friend candidate security from online object
-		var friendPlayer = Global.ObjAccessor.FindPlayer(friendCharacterInfo.Guid);
+		var friendPlayer = _objectAccessor.FindPlayer(friendCharacterInfo.Guid);
 
 		if (friendPlayer != null)
 		{
-			if (!Global.AccountMgr.IsPlayerAccount(friendPlayer.Session.Security))
+			if (!_accountManager.IsPlayerAccount(friendPlayer.Session.Security))
 			{
-				Global.SocialMgr.SendFriendStatus(Player, FriendsResult.NotFound, ObjectGuid.Empty);
+				_socialManager.SendFriendStatus(_session.Player, FriendsResult.NotFound, ObjectGuid.Empty);
 
 				return;
 			}
@@ -306,13 +327,13 @@ public class SocialHandler : IWorldSessionHandler
 		}
 
 		// When not found, consult database
-		QueryProcessor.AddCallback(Global.AccountMgr.GetSecurityAsync(friendCharacterInfo.AccountId,
-																	(int)Global.WorldMgr.RealmId.Index,
+		_session.QueryProcessor.AddCallback(_accountManager.GetSecurityAsync(friendCharacterInfo.AccountId,
+																	(int)_worldManager.RealmId.Index,
 																	friendSecurity =>
 																	{
-																		if (!Global.AccountMgr.IsPlayerAccount((AccountTypes)friendSecurity))
+																		if (!_accountManager.IsPlayerAccount((AccountTypes)friendSecurity))
 																		{
-																			Global.SocialMgr.SendFriendStatus(Player, FriendsResult.NotFound, ObjectGuid.Empty);
+																			_socialManager.SendFriendStatus(_session.Player, FriendsResult.NotFound, ObjectGuid.Empty);
 
 																			return;
 																		}
@@ -324,34 +345,33 @@ public class SocialHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.DelFriend)]
 	void HandleDelFriend(DelFriend packet)
 	{
-		// @todo: handle VirtualRealmAddress
-		Player. // @todo: handle VirtualRealmAddress
-			Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Friend);
+        // @todo: handle VirtualRealmAddress
+        _session.Player.Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Friend);
 
-		Global.SocialMgr.SendFriendStatus(Player, FriendsResult.Removed, packet.Player.Guid);
+		_socialManager.SendFriendStatus(_session.Player, FriendsResult.Removed, packet.Player.Guid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.AddIgnore)]
 	void HandleAddIgnore(AddIgnore packet)
 	{
-		if (!ObjectManager.NormalizePlayerName(ref packet.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
 		var ignoreGuid = ObjectGuid.Empty;
 		var ignoreResult = FriendsResult.IgnoreNotFound;
 
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByName(packet.Name);
+		var characterInfo = _characterCache.GetCharacterCacheByName(packet.Name);
 
 		if (characterInfo != null)
 		{
 			ignoreGuid = characterInfo.Guid;
 			var ignoreAccountGuid = ObjectGuid.Create(HighGuid.WowAccount, characterInfo.AccountId);
 
-			if (ignoreGuid == Player.GUID) //not add yourself
+			if (ignoreGuid == _session.Player.GUID) //not add yourself
 			{
 				ignoreResult = FriendsResult.IgnoreSelf;
 			}
-			else if (Player.Social.HasIgnore(ignoreGuid, ignoreAccountGuid))
+			else if (_session.Player.Social.HasIgnore(ignoreGuid, ignoreAccountGuid))
 			{
 				ignoreResult = FriendsResult.IgnoreAlready;
 			}
@@ -360,12 +380,12 @@ public class SocialHandler : IWorldSessionHandler
 				ignoreResult = FriendsResult.IgnoreAdded;
 
 				// ignore list full
-				if (!Player.Social.AddToSocialList(ignoreGuid, ignoreAccountGuid, SocialFlag.Ignored))
+				if (!_session.Player.Social.AddToSocialList(ignoreGuid, ignoreAccountGuid, SocialFlag.Ignored))
 					ignoreResult = FriendsResult.IgnoreFull;
 			}
 		}
 
-		Global.SocialMgr.SendFriendStatus(Player, ignoreResult, ignoreGuid);
+		_socialManager.SendFriendStatus(_session.Player, ignoreResult, ignoreGuid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.DelIgnore)]
@@ -374,9 +394,9 @@ public class SocialHandler : IWorldSessionHandler
 		// @todo: handle VirtualRealmAddress
 		Log.Logger.Debug("WorldSession.HandleDelIgnoreOpcode: {0}", packet.Player.Guid.ToString());
 
-		Player.Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Ignored);
+        _session.Player.Social.RemoveFromSocialList(packet.Player.Guid, SocialFlag.Ignored);
 
-		Global.SocialMgr.SendFriendStatus(Player, FriendsResult.IgnoreRemoved, packet.Player.Guid);
+		_socialManager.SendFriendStatus(_session.Player, FriendsResult.IgnoreRemoved, packet.Player.Guid);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetContactNotes)]
@@ -384,6 +404,6 @@ public class SocialHandler : IWorldSessionHandler
 	{
 		// @todo: handle VirtualRealmAddress
 		Log.Logger.Debug("WorldSession.HandleSetContactNotesOpcode: Contact: {0}, Notes: {1}", packet.Player.Guid.ToString(), packet.Notes);
-		Player.Social.SetFriendNote(packet.Player.Guid, packet.Notes);
+        _session.Player.Social.SetFriendNote(packet.Player.Guid, packet.Notes);
 	}
 }

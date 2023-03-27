@@ -122,7 +122,7 @@ public partial class Player
 
 			if (plrVictim)
 			{
-				if (EffectiveTeam == plrVictim.EffectiveTeam && !Global.WorldMgr.IsFFAPvPRealm)
+				if (EffectiveTeam == plrVictim.EffectiveTeam && !_worldManager.IsFFAPvPRealm)
 					return false;
 
 				var kLevel = (byte)Level;

@@ -4,27 +4,37 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.RealmServer.Chat;
+using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.DungeonFinding;
+using Forged.RealmServer.Globals;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
-using Forged.RealmServer.Conditions;
-using Forged.RealmServer.DataStorage;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Loots;
-using Forged.RealmServer.Maps;
-using Forged.RealmServer.Spells;
-using Forged.RealmServer.Entities.AreaTriggers;
-using Forged.RealmServer.Entities.Creatures;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Objects.Update;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Entities.Units;
 
-namespace Forged.RealmServer;
+namespace Forged.RealmServer.Conditions;
 
-public sealed class ConditionManager : Singleton<ConditionManager>
+public sealed class ConditionManager
 {
-	public string[] StaticSourceTypeData =
+    private readonly GameObjectManager _objectManager;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly LFGManager _lfgManager;
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    private readonly LanguageManager _languageManager;
+    private readonly IConfiguration _configuration;
+    private readonly AreaTriggerDataStorage _areaTriggerDataStorage;
+    private readonly ConversationDataStorage _conversationDataStorage;
+    private readonly GameEventManager _gameEventManager;
+    private readonly WorldManager _worldManager;
+    private readonly WorldStateManager _worldStateManager;
+    private readonly ObjectAccessor _objectAccessor;
+
+    public string[] StaticSourceTypeData =
 	{
 		"None", "Creature Loot", "Disenchant Loot", "Fishing Loot", "GameObject Loot", "Item Loot", "Mail Loot", "Milling Loot", "Pickpocketing Loot", "Prospecting Loot", "Reference Loot", "Skinning Loot", "Spell Loot", "Spell Impl. Target", "Gossip Menu", "Gossip Menu Option", "Creature Vehicle", "Spell Expl. Target", "Spell Click Event", "Quest Accept", "Quest Show Mark", "Vehicle Spell", "SmartScript", "Npc Vendor", "Spell Proc", "Terrain Swap", "Phase", "Graveyard", "AreaTrigger", "ConversationLine", "AreaTrigger Client Triggered", "Trainer Spell", "Object Visibility (by ID)", "Spawn Group"
 	};
@@ -34,17 +44,37 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		new("None", false, false, false), new("Aura", true, true, true), new("Item Stored", true, true, true), new("Item Equipped", true, false, false), new("Zone", true, false, false), new("Reputation", true, true, false), new("Team", true, false, false), new("Skill", true, true, false), new("Quest Rewarded", true, false, false), new("Quest Taken", true, false, false), new("Drunken", true, false, false), new("WorldState", true, true, false), new("Active Event", true, false, false), new("Instance Info", true, true, true), new("Quest None", true, false, false), new("Class", true, false, false), new("Race", true, false, false), new("Achievement", true, false, false), new("Title", true, false, false), new("SpawnMask", true, false, false), new("Gender", true, false, false), new("Unit State", true, false, false), new("Map", true, false, false), new("Area", true, false, false), new("CreatureType", true, false, false), new("Spell Known", true, false, false), new("Phase", true, false, false), new("Level", true, true, false), new("Quest Completed", true, false, false), new("Near Creature", true, true, true), new("Near GameObject", true, true, false), new("Object Entry or Guid", true, true, true), new("Object TypeMask", true, false, false), new("Relation", true, true, false), new("Reaction", true, true, false), new("Distance", true, true, true), new("Alive", false, false, false), new("Health Value", true, true, false), new("Health Pct", true, true, false), new("Realm Achievement", true, false, false), new("In Water", false, false, false), new("Terrain Swap", true, false, false), new("Sit/stand state", true, true, false), new("Daily Quest Completed", true, false, false), new("Charmed", false, false, false), new("Pet type", true, false, false), new("On Taxi", false, false, false), new("Quest state mask", true, true, false), new("Quest objective progress", true, false, true), new("Map Difficulty", true, false, false), new("Is Gamemaster", true, false, false), new("Object Entry or Guid", true, true, true), new("Object TypeMask", true, false, false), new("BattlePet Species Learned", true, true, true), new("On Scenario Step", true, false, false), new("Scene In Progress", true, false, false), new("Player Condition", true, false, false)
 	};
 
-	readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> conditionStorage = new();
-	readonly MultiMap<uint, Condition> conditionReferenceStorage = new();
-	readonly Dictionary<uint, MultiMap<uint, Condition>> vehicleSpellConditionStorage = new();
-	readonly Dictionary<uint, MultiMap<uint, Condition>> spellClickEventConditionStorage = new();
-	readonly List<uint> spellsUsedInSpellClickConditions = new();
-	readonly Dictionary<uint, MultiMap<uint, Condition>> npcVendorConditionContainerStorage = new();
-	readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> smartEventConditionStorage = new();
-	readonly MultiMap<Tuple<uint, bool>, Condition> areaTriggerConditionContainerStorage = new();
-	readonly Dictionary<uint, MultiMap<uint, Condition>> trainerSpellConditionContainerStorage = new();
-	readonly MultiMap<(uint objectType, uint objectId), Condition> objectVisibilityConditionStorage = new();
-	ConditionManager() { }
+    private readonly Dictionary<ConditionSourceType, MultiMap<uint, Condition>> _conditionStorage = new();
+    private readonly MultiMap<uint, Condition> _conditionReferenceStorage = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _vehicleSpellConditionStorage = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _spellClickEventConditionStorage = new();
+    private readonly List<uint> _spellsUsedInSpellClickConditions = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _npcVendorConditionContainerStorage = new();
+    private readonly Dictionary<Tuple<int, uint>, MultiMap<uint, Condition>> _smartEventConditionStorage = new();
+    private readonly MultiMap<Tuple<uint, bool>, Condition> _areaTriggerConditionContainerStorage = new();
+    private readonly Dictionary<uint, MultiMap<uint, Condition>> _trainerSpellConditionContainerStorage = new();
+    private readonly MultiMap<(uint objectType, uint objectId), Condition> _objectVisibilityConditionStorage = new();
+
+    public ConditionManager(GameObjectManager objectManager, WorldDatabase worldDatabase, 
+                            LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager, 
+                            IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
+                            GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
+                            ObjectAccessor objectAccessor)
+    {
+        _objectManager = objectManager;
+        _worldDatabase = worldDatabase;
+        _lfgManager = lfgManager;
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+        _languageManager = languageManager;
+        _configuration = configuration;
+        _areaTriggerDataStorage = areaTriggerDataStorage;
+        _conversationDataStorage = conversationDataStorage;
+        _gameEventManager = gameEventManager;
+        _worldManager = worldManager;
+        _worldStateManager = worldStateManager;
+        _objectAccessor = objectAccessor;
+    }
 
 	public GridMapTypeMask GetSearcherTypeMaskForConditionList(List<Condition> conditions)
 	{
@@ -65,7 +95,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 			if (i.ReferenceId != 0) // handle reference
 			{
-				var refe = conditionReferenceStorage.LookupByKey(i.ReferenceId);
+				var refe = _conditionReferenceStorage.LookupByKey(i.ReferenceId);
 				elseGroupSearcherTypeMasks[i.ElseGroup] &= GetSearcherTypeMaskForConditionList(refe);
 			}
 			else // handle normal condition
@@ -106,7 +136,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				if (condition.ReferenceId != 0) //handle reference
 				{
-					var refe = conditionReferenceStorage.LookupByKey(condition.ReferenceId);
+					var refe = _conditionReferenceStorage.LookupByKey(condition.ReferenceId);
 
 					if (!refe.Empty())
 					{
@@ -115,9 +145,8 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					}
 					else
 					{
-						Log.Logger.Debug(
-									"IsPlayerMeetToConditionList: Reference template -{0} not found",
-									condition.ReferenceId); //checked at loading, should never happen
+						Log.Logger.Debug("IsPlayerMeetToConditionList: Reference template -{0} not found",
+										condition.ReferenceId); //checked at loading, should never happen
 					}
 				}
 				else //handle normal condition
@@ -128,12 +157,8 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 		}
 
-		foreach (var i in elseGroupStore)
-			if (i.Value)
-				return true;
-
-		return false;
-	}
+        return elseGroupStore.Any(i => i.Value);
+    }
 
 	public bool IsObjectMeetToConditions(WorldObject obj, List<Condition> conditions)
 	{
@@ -193,9 +218,9 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	public bool IsObjectMeetingNotGroupedConditions(ConditionSourceType sourceType, uint entry, ConditionSourceInfo sourceInfo)
 	{
-		if (sourceType > ConditionSourceType.None && sourceType < ConditionSourceType.Max)
+		if (sourceType is > ConditionSourceType.None and < ConditionSourceType.Max)
 		{
-			var conditions = conditionStorage[sourceType].LookupByKey(entry);
+			var conditions = _conditionStorage[sourceType].LookupByKey(entry);
 
 			if (!conditions.Empty())
 			{
@@ -223,126 +248,117 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 	}
 
 	public bool HasConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint entry)
-	{
-		if (sourceType > ConditionSourceType.None && sourceType < ConditionSourceType.Max)
-			if (conditionStorage[sourceType].ContainsKey(entry))
-				return true;
-
-		return false;
-	}
+    {
+        return sourceType is > ConditionSourceType.None and < ConditionSourceType.Max && _conditionStorage[sourceType].ContainsKey(entry);
+    }
 
 	public bool IsObjectMeetingSpellClickConditions(uint creatureId, uint spellId, WorldObject clicker, WorldObject target)
 	{
-		var multiMap = spellClickEventConditionStorage.LookupByKey(creatureId);
+		var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
 
-		if (multiMap != null)
-		{
-			var conditions = multiMap.LookupByKey(spellId);
+        if (multiMap == null)
+            return true;
 
-			if (!conditions.Empty())
-			{
-				Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
-				ConditionSourceInfo sourceInfo = new(clicker, target);
+        var conditions = multiMap.LookupByKey(spellId);
 
-				return IsObjectMeetToConditions(sourceInfo, conditions);
-			}
-		}
+        if (conditions.Empty())
+            return true;
 
-		return true;
-	}
+        Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
+        ConditionSourceInfo sourceInfo = new(clicker, target);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+
+    }
 
 	public List<Condition> GetConditionsForSpellClickEvent(uint creatureId, uint spellId)
 	{
-		var multiMap = spellClickEventConditionStorage.LookupByKey(creatureId);
+		var multiMap = _spellClickEventConditionStorage.LookupByKey(creatureId);
 
-		if (multiMap != null)
-		{
-			var conditions = multiMap.LookupByKey(spellId);
+        if (multiMap == null)
+            return null;
 
-			if (!conditions.Empty())
-			{
-				Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
+        var conditions = multiMap.LookupByKey(spellId);
 
-				return conditions;
-			}
-		}
+        if (conditions.Empty())
+            return null;
 
-		return null;
-	}
+        Log.Logger.Debug("GetConditionsForSpellClickEvent: found conditions for SpellClickEvent entry {0} spell {1}", creatureId, spellId);
+
+        return conditions;
+
+    }
 
 	public bool IsObjectMeetingVehicleSpellConditions(uint creatureId, uint spellId, Player player, Unit vehicle)
 	{
-		var multiMap = vehicleSpellConditionStorage.LookupByKey(creatureId);
+		var multiMap = _vehicleSpellConditionStorage.LookupByKey(creatureId);
 
-		if (multiMap != null)
-		{
-			var conditions = multiMap.LookupByKey(spellId);
+        if (multiMap == null)
+            return true;
 
-			if (!conditions.Empty())
-			{
-				Log.Logger.Debug("GetConditionsForVehicleSpell: found conditions for Vehicle entry {0} spell {1}", creatureId, spellId);
-				ConditionSourceInfo sourceInfo = new(player, vehicle);
+        var conditions = multiMap.LookupByKey(spellId);
 
-				return IsObjectMeetToConditions(sourceInfo, conditions);
-			}
-		}
+        if (conditions.Empty())
+            return true;
 
-		return true;
-	}
+        Log.Logger.Debug("GetConditionsForVehicleSpell: found conditions for Vehicle entry {0} spell {1}", creatureId, spellId);
+        ConditionSourceInfo sourceInfo = new(player, vehicle);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+
+    }
 
 	public bool IsObjectMeetingSmartEventConditions(long entryOrGuid, uint eventId, SmartScriptType sourceType, Unit unit, WorldObject baseObject)
 	{
-		var multiMap = smartEventConditionStorage.LookupByKey(Tuple.Create((int)entryOrGuid, (uint)sourceType));
+		var multiMap = _smartEventConditionStorage.LookupByKey(Tuple.Create((int)entryOrGuid, (uint)sourceType));
 
-		if (multiMap != null)
-		{
-			var conditions = multiMap.LookupByKey(eventId + 1);
+        if (multiMap == null)
+            return true;
 
-			if (!conditions.Empty())
-			{
-				Log.Logger.Debug("GetConditionsForSmartEvent: found conditions for Smart Event entry or guid {0} eventId {1}", entryOrGuid, eventId);
-				ConditionSourceInfo sourceInfo = new(unit, baseObject);
+        var conditions = multiMap.LookupByKey(eventId + 1);
 
-				return IsObjectMeetToConditions(sourceInfo, conditions);
-			}
-		}
+        if (conditions.Empty())
+            return true;
 
-		return true;
-	}
+        Log.Logger.Debug("GetConditionsForSmartEvent: found conditions for Smart Event entry or guid {0} eventId {1}", entryOrGuid, eventId);
+        ConditionSourceInfo sourceInfo = new(unit, baseObject);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+
+    }
 
 	public bool IsObjectMeetingVendorItemConditions(uint creatureId, uint itemId, Player player, Creature vendor)
 	{
-		var multiMap = npcVendorConditionContainerStorage.LookupByKey(creatureId);
+		var multiMap = _npcVendorConditionContainerStorage.LookupByKey(creatureId);
 
-		if (multiMap != null)
-		{
-			var conditions = multiMap.LookupByKey(itemId);
+        if (multiMap == null)
+            return true;
 
-			if (!conditions.Empty())
-			{
-				Log.Logger.Debug("GetConditionsForNpcVendor: found conditions for creature entry {0} item {1}", creatureId, itemId);
-				ConditionSourceInfo sourceInfo = new(player, vendor);
+        var conditions = multiMap.LookupByKey(itemId);
 
-				return IsObjectMeetToConditions(sourceInfo, conditions);
-			}
-		}
+        if (conditions.Empty())
+            return true;
 
-		return true;
-	}
+        Log.Logger.Debug("GetConditionsForNpcVendor: found conditions for creature entry {0} item {1}", creatureId, itemId);
+        ConditionSourceInfo sourceInfo = new(player, vendor);
+
+        return IsObjectMeetToConditions(sourceInfo, conditions);
+
+    }
 
 	public bool IsSpellUsedInSpellClickConditions(uint spellId)
 	{
-		return spellsUsedInSpellClickConditions.Contains(spellId);
+		return _spellsUsedInSpellClickConditions.Contains(spellId);
 	}
 
 	public List<Condition> GetConditionsForAreaTrigger(uint areaTriggerId, bool isServerSide)
 	{
-		return areaTriggerConditionContainerStorage.LookupByKey(Tuple.Create(areaTriggerId, isServerSide));
+		return _areaTriggerConditionContainerStorage.LookupByKey(Tuple.Create(areaTriggerId, isServerSide));
 	}
 
 	public bool IsObjectMeetingTrainerSpellConditions(uint trainerId, uint spellId, Player player)
 	{
-		var multiMap = trainerSpellConditionContainerStorage.LookupByKey(trainerId);
+		var multiMap = _trainerSpellConditionContainerStorage.LookupByKey(trainerId);
 
 		if (multiMap != null)
 		{
@@ -361,7 +377,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 	public bool IsObjectMeetingVisibilityByObjectIdConditions(uint objectType, uint entry, WorldObject seer)
 	{
-		var conditions = objectVisibilityConditionStorage.LookupByKey((objectType, entry));
+		var conditions = _objectVisibilityConditionStorage.LookupByKey((objectType, entry));
 
 		if (conditions != null)
 		{
@@ -397,16 +413,16 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			LootStorage.Spell.ResetConditions();
 
 			Log.Logger.Information("Re-Loading `gossip_menu` Table for Conditions!");
-			Global.ObjectMgr.LoadGossipMenu();
+			_objectManager.LoadGossipMenu();
 
 			Log.Logger.Information("Re-Loading `gossip_menu_option` Table for Conditions!");
-			Global.ObjectMgr.LoadGossipMenuItems();
-			Global.SpellMgr.UnloadSpellInfoImplicitTargetConditionLists();
+			_objectManager.LoadGossipMenuItems();
+			_spellManager.UnloadSpellInfoImplicitTargetConditionLists();
 
-			Global.ObjectMgr.UnloadPhaseConditions();
+			_objectManager.UnloadPhaseConditions();
 		}
 
-		var result = DB.World.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, " +
+		var result = _worldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, " +
 									" ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorType, ErrorTextId, ScriptName FROM conditions");
 
 		if (result.IsEmpty())
@@ -434,7 +450,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			cond.NegativeCondition = result.Read<byte>(10) != 0;
 			cond.ErrorType = result.Read<uint>(11);
 			cond.ErrorTextId = result.Read<uint>(12);
-			cond.ScriptId = Global.ObjectMgr.GetScriptId(result.Read<string>(13));
+			cond.ScriptId = _objectManager.GetScriptId(result.Read<string>(13));
 
 			if (iConditionTypeOrReference >= 0)
 				cond.ConditionType = (ConditionTypes)iConditionTypeOrReference;
@@ -446,7 +462,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			{
 				if (iConditionTypeOrReference == iSourceTypeOrReferenceId) //self referencing, skip
 				{
-					Log.Logger.Debug("Condition reference {1} is referencing self, skipped", iSourceTypeOrReferenceId);
+					Log.Logger.Debug("Condition reference {0} is referencing self, skipped", iSourceTypeOrReferenceId);
 
 					continue;
 				}
@@ -487,7 +503,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 			if (iSourceTypeOrReferenceId < 0) //it is a reference template
 			{
-				conditionReferenceStorage.Add((uint)Math.Abs(iSourceTypeOrReferenceId), cond); //add to reference storage
+				_conditionReferenceStorage.Add((uint)Math.Abs(iSourceTypeOrReferenceId), cond); //add to reference storage
 				count++;
 
 				continue;
@@ -589,13 +605,13 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						break;
 					case ConditionSourceType.SpellClickEvent:
 					{
-						if (!spellClickEventConditionStorage.ContainsKey(cond.SourceGroup))
-							spellClickEventConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+						if (!_spellClickEventConditionStorage.ContainsKey(cond.SourceGroup))
+							_spellClickEventConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
 
-						spellClickEventConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+						_spellClickEventConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
 
 						if (cond.ConditionType == ConditionTypes.Aura)
-							spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
+							_spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
 
 						++count;
 
@@ -607,10 +623,10 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						break;
 					case ConditionSourceType.VehicleSpell:
 					{
-						if (!vehicleSpellConditionStorage.ContainsKey(cond.SourceGroup))
-							vehicleSpellConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+						if (!_vehicleSpellConditionStorage.ContainsKey(cond.SourceGroup))
+							_vehicleSpellConditionStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
 
-						vehicleSpellConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+						_vehicleSpellConditionStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
 						++count;
 
 						continue; // do not add to m_AllocatedMemory to avoid double deleting
@@ -620,20 +636,20 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						//! TODO: PAIR_32 ?
 						var key = Tuple.Create(cond.SourceEntry, cond.SourceId);
 
-						if (!smartEventConditionStorage.ContainsKey(key))
-							smartEventConditionStorage[key] = new MultiMap<uint, Condition>();
+						if (!_smartEventConditionStorage.ContainsKey(key))
+							_smartEventConditionStorage[key] = new MultiMap<uint, Condition>();
 
-						smartEventConditionStorage[key].Add(cond.SourceGroup, cond);
+						_smartEventConditionStorage[key].Add(cond.SourceGroup, cond);
 						++count;
 
 						continue;
 					}
 					case ConditionSourceType.NpcVendor:
 					{
-						if (!npcVendorConditionContainerStorage.ContainsKey(cond.SourceGroup))
-							npcVendorConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+						if (!_npcVendorConditionContainerStorage.ContainsKey(cond.SourceGroup))
+							_npcVendorConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
 
-						npcVendorConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+						_npcVendorConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
 						++count;
 
 						continue;
@@ -643,30 +659,27 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 						break;
 					case ConditionSourceType.AreaTrigger:
-						areaTriggerConditionContainerStorage.Add(Tuple.Create(cond.SourceGroup, cond.SourceEntry != 0), cond);
+						_areaTriggerConditionContainerStorage.Add(Tuple.Create(cond.SourceGroup, cond.SourceEntry != 0), cond);
 						++count;
 
 						continue;
 					case ConditionSourceType.TrainerSpell:
 					{
-						if (!trainerSpellConditionContainerStorage.ContainsKey(cond.SourceGroup))
-							trainerSpellConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
+						if (!_trainerSpellConditionContainerStorage.ContainsKey(cond.SourceGroup))
+							_trainerSpellConditionContainerStorage[cond.SourceGroup] = new MultiMap<uint, Condition>();
 
-						trainerSpellConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
+						_trainerSpellConditionContainerStorage[cond.SourceGroup].Add((uint)cond.SourceEntry, cond);
 						++count;
 
 						continue;
 					}
 					case ConditionSourceType.ObjectIdVisibility:
 					{
-						objectVisibilityConditionStorage.Add((cond.SourceGroup, (uint)cond.SourceEntry), cond);
-						valid = true;
-						++count;
+						_objectVisibilityConditionStorage.Add((cond.SourceGroup, (uint)cond.SourceEntry), cond);
+                        ++count;
 
 						continue;
 					}
-					default:
-						break;
 				}
 
 				if (!valid)
@@ -679,16 +692,16 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 			//add new Condition to storage based on Type/Entry
 			if (cond.SourceType == ConditionSourceType.SpellClickEvent && cond.ConditionType == ConditionTypes.Aura)
-				spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
+				_spellsUsedInSpellClickConditions.Add(cond.ConditionValue1);
 
-			conditionStorage[cond.SourceType].Add((uint)cond.SourceEntry, cond);
+			_conditionStorage[cond.SourceType].Add((uint)cond.SourceEntry, cond);
 			++count;
 		} while (result.NextRow());
 
 		Log.Logger.Information("Loaded {0} conditions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public static uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
+	public uint GetPlayerConditionLfgValue(Player player, PlayerConditionLfgStatus status)
 	{
 		if (player.Group == null)
 			return 0;
@@ -696,27 +709,27 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		switch (status)
 		{
 			case PlayerConditionLfgStatus.InLFGDungeon:
-				return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) ? 1 : 0u;
+				return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) ? 1 : 0u;
 			case PlayerConditionLfgStatus.InLFGRandomDungeon:
-				return Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) &&
-						Global.LFGMgr.SelectedRandomLfgDungeon(player.GUID)
+				return _lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID) &&
+						_lfgManager.SelectedRandomLfgDungeon(player.GUID)
 							? 1
 							: 0u;
 			case PlayerConditionLfgStatus.InLFGFirstRandomDungeon:
 			{
-				if (!Global.LFGMgr.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID))
+				if (!_lfgManager.InLfgDungeonMap(player.GUID, player.Location.MapId, player.Map.DifficultyID))
 					return 0;
 
-				var selectedRandomDungeon = Global.LFGMgr.GetSelectedRandomDungeon(player.GUID);
+				var selectedRandomDungeon = _lfgManager.GetSelectedRandomDungeon(player.GUID);
 
 				if (selectedRandomDungeon == 0)
 					return 0;
 
-				var reward = Global.LFGMgr.GetRandomDungeonReward(selectedRandomDungeon, player.Level);
+				var reward = _lfgManager.GetRandomDungeonReward(selectedRandomDungeon, player.Level);
 
 				if (reward != null)
 				{
-					var quest = Global.ObjectMgr.GetQuestTemplate(reward.firstQuest);
+					var quest = _objectManager.GetQuestTemplate(reward.firstQuest);
 
 					if (quest != null)
 						if (player.CanRewardQuest(quest, false))
@@ -735,16 +748,14 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			case PlayerConditionLfgStatus.GearDiff:
 				break;
-			default:
-				break;
 		}
 
 		return 0;
 	}
 
-	public static bool IsPlayerMeetingCondition(Player player, PlayerConditionRecord condition)
+	public bool IsPlayerMeetingCondition(Player player, PlayerConditionRecord condition)
 	{
-		var levels = Global.DB2Mgr.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+		var levels = _db2Manager.GetContentTuningData(condition.ContentTuningID, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 		if (levels.HasValue)
 		{
@@ -794,7 +805,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 		if (condition.ChrSpecializationIndex >= 0 || condition.ChrSpecializationRole >= 0)
 		{
-			var spec = CliDB.ChrSpecializationStorage.LookupByKey(player.GetPrimarySpecialization());
+			var spec = _cliDB.ChrSpecializationStorage.LookupByKey(player.GetPrimarySpecialization());
 
 			if (spec != null)
 			{
@@ -833,7 +844,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			if (player.HasAuraTypeWithMiscvalue(AuraType.ComprehendLanguage, condition.LanguageID))
 				languageSkill = 300;
 			else
-				foreach (var languageDesc in Global.LanguageMgr.GetLanguageDescById((Language)condition.LanguageID))
+				foreach (var languageDesc in _languageManager.GetLanguageDescById((Language)condition.LanguageID))
 					languageSkill = Math.Max(languageSkill, player.GetSkillValue((SkillType)languageDesc.SkillId));
 
 			if (condition.MinLanguage != 0 && languageSkill < condition.MinLanguage)
@@ -854,7 +865,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					if ((uint)forcedRank > condition.MaxReputation)
 						return false;
 				}
-				else if (CliDB.FactionStorage.HasRecord(condition.MaxReputation) && (uint)player.GetReputationRank(condition.MaxFactionID) > condition.MaxReputation)
+				else if (_cliDB.FactionStorage.HasRecord(condition.MaxReputation) && (uint)player.GetReputationRank(condition.MaxFactionID) > condition.MaxReputation)
 				{
 					return false;
 				}
@@ -867,7 +878,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					results[i] = true;
 
 				for (var i = 0; i < condition.MinFactionID.Length; ++i)
-					if (CliDB.FactionStorage.HasRecord(condition.MinFactionID[i]))
+					if (_cliDB.FactionStorage.HasRecord(condition.MinFactionID[i]))
 					{
 						var forcedRank = player.ReputationMgr.GetForcedRankIfAny(condition.MinFactionID[i]);
 
@@ -881,7 +892,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				if (forcedRank1 != 0)
 					results[3] = (uint)forcedRank1 <= condition.MaxReputation;
-				else if (CliDB.FactionStorage.HasRecord(condition.MaxReputation))
+				else if (_cliDB.FactionStorage.HasRecord(condition.MaxReputation))
 					results[3] = (uint)player.GetReputationRank(condition.MaxFactionID) <= condition.MaxReputation;
 
 				if (!PlayerConditionLogic(condition.ReputationLogic, results))
@@ -953,8 +964,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						return false;
 
 					break;
-				default:
-					break;
 			}
 		}
 
@@ -967,7 +976,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 			for (var i = 0; i < condition.PrevQuestID.Length; ++i)
 			{
-				var questBit = Global.DB2Mgr.GetQuestUniqueBitFlag(condition.PrevQuestID[i]);
+				var questBit = _db2Manager.GetQuestUniqueBitFlag(condition.PrevQuestID[i]);
 
 				if (questBit != 0)
 					results[i] = (player.ActivePlayerData.QuestCompleted[((int)questBit - 1) >> 6] & (1ul << (((int)questBit - 1) & 63))) != 0;
@@ -1054,14 +1063,16 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		}
 
 		if (condition.Explored[0] != 0 || condition.Explored[1] != 0)
-			for (var i = 0; i < condition.Explored.Length; ++i)
-			{
-				var area = CliDB.AreaTableStorage.LookupByKey(condition.Explored[i]);
+			foreach (var explortedArea in condition.Explored)
+            {
+                var area = _cliDB.AreaTableStorage.LookupByKey(explortedArea);
 
-				if (area != null)
-					if (area.AreaBit != -1 && !Convert.ToBoolean(player.ActivePlayerData.ExploredZones[area.AreaBit / ActivePlayerData.ExploredZonesBits] & (1ul << ((int)area.AreaBit % ActivePlayerData.ExploredZonesBits))))
-						return false;
-			}
+                if (area == null)
+                    continue;
+
+                if (area.AreaBit != -1 && !Convert.ToBoolean(player.ActivePlayerData.ExploredZones[area.AreaBit / ActivePlayerData.ExploredZonesBits] & (1ul << (area.AreaBit % ActivePlayerData.ExploredZonesBits))))
+                    return false;
+            }
 
 		if (condition.AuraSpellID[0] != 0)
 		{
@@ -1088,13 +1099,13 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			var from = Time.GetUnixTimeFromPackedTime(condition.Time[0]);
 			var to = Time.GetUnixTimeFromPackedTime(condition.Time[1]);
 
-			if (_gameTime.GetGameTime < from || _gameTime.GetGameTime > to)
+			if (GameTime.GetGameTime() < from || GameTime.GetGameTime() > to)
 				return false;
 		}
 
 		if (condition.WorldStateExpressionID != 0)
 		{
-			var worldStateExpression = CliDB.WorldStateExpressionStorage.LookupByKey(condition.WorldStateExpressionID);
+			var worldStateExpression = _cliDB.WorldStateExpressionStorage.LookupByKey(condition.WorldStateExpressionID);
 
 			if (worldStateExpression == null)
 				return false;
@@ -1160,7 +1171,12 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		if (condition.MaxExpansionLevel != -1 && (int)player.Session.Expansion > condition.MaxExpansionLevel)
 			return false;
 
-		if (condition.MinExpansionLevel != -1 && condition.MinExpansionTier != -1 && !player.IsGameMaster && ((condition.MinExpansionLevel == _worldConfig.GetIntValue(WorldCfg.Expansion) && condition.MinExpansionTier > 0) /*TODO: implement tier*/ || condition.MinExpansionLevel > _worldConfig.GetIntValue(WorldCfg.Expansion)))
+		if (condition.MinExpansionLevel != -1 && 
+            condition.MinExpansionTier != -1 && 
+            !player.IsGameMaster && 
+            ((condition.MinExpansionLevel == _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight) 
+              && condition.MinExpansionTier > 0) /*TODO: implement tier*/ || 
+             condition.MinExpansionLevel > _configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)))
 			return false;
 
 		if (condition.PhaseID != 0 || condition.PhaseGroupID != 0 || condition.PhaseUseFlags != 0)
@@ -1169,7 +1185,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 		if (condition.QuestKillID != 0)
 		{
-			var quest = Global.ObjectMgr.GetQuestTemplate(condition.QuestKillID);
+			var quest = _objectManager.GetQuestTemplate(condition.QuestKillID);
 			var questSlot = player.FindQuestSlot(condition.QuestKillID);
 
 			if (quest != null && player.GetQuestStatus(condition.QuestKillID) != QuestStatus.Complete && questSlot < SharedConst.MaxQuestLogSize)
@@ -1213,31 +1229,31 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 		if (condition.TraitNodeEntryID.Any(traitNodeEntryId => traitNodeEntryId != 0))
 		{
-			var getTraitNodeEntryRank = ushort?(int traitNodeEntryId) =>
-			{
-				foreach (var traitConfig in player.ActivePlayerData.TraitConfigs)
-				{
-					if ((TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat)
-						if (player.ActivePlayerData.ActiveCombatTraitConfigID != traitConfig.ID || !((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
-							continue;
+            ushort? GetTraitNodeEntryRank(int traitNodeEntryId)
+            {
+                foreach (var traitConfig in player.ActivePlayerData.TraitConfigs)
+                {
+                    if ((TraitConfigType)(int)traitConfig.Type == TraitConfigType.Combat)
+                        if (player.ActivePlayerData.ActiveCombatTraitConfigID != traitConfig.ID || !((TraitCombatConfigFlags)(int)traitConfig.CombatConfigFlags).HasFlag(TraitCombatConfigFlags.ActiveForSpec))
+                            continue;
 
-					foreach (var traitEntry in traitConfig.Entries)
-						if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
-							return (ushort)traitEntry.Rank;
-				}
+                    foreach (var traitEntry in traitConfig.Entries)
+                        if (traitEntry.TraitNodeEntryID == traitNodeEntryId)
+                            return (ushort)traitEntry.Rank;
+                }
 
-				return null;
-			};
+                return null;
+            }
 
-			results = new bool[condition.TraitNodeEntryID.Length];
+            results = new bool[condition.TraitNodeEntryID.Length];
 			Array.Fill(results, true);
 
-			for (var i = 0; i < condition.TraitNodeEntryID.Count(); ++i)
+			for (var i = 0; i < condition.TraitNodeEntryID.Length; ++i)
 			{
 				if (condition.TraitNodeEntryID[i] == 0)
 					continue;
 
-				var rank = getTraitNodeEntryRank(condition.TraitNodeEntryID[i]);
+				var rank = GetTraitNodeEntryRank(condition.TraitNodeEntryID[i]);
 
 				if (!rank.HasValue)
 					results[i] = false;
@@ -1254,7 +1270,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return true;
 	}
 
-	public static bool IsPlayerMeetingExpression(Player player, WorldStateExpressionRecord expression)
+	public bool IsPlayerMeetingExpression(Player player, WorldStateExpressionRecord expression)
 	{
 		ByteBuffer buffer = new(expression.Expression.ToByteArray());
 
@@ -1287,8 +1303,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					finalResult = finalResult != secondResult;
 
 					break;
-				default:
-					break;
 			}
 
 			if (buffer.GetCurrentStream().Position < buffer.GetSize())
@@ -1300,7 +1314,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return finalResult;
 	}
 
-	public static bool IsUnitMeetingCondition(Unit unit, Unit otherUnit, UnitConditionRecord condition)
+	public bool IsUnitMeetingCondition(Unit unit, Unit otherUnit, UnitConditionRecord condition)
 	{
 		for (var i = 0; i < condition.Variable.Length; ++i)
 		{
@@ -1336,8 +1350,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					meets = unitValue >= condition.Value[i];
 
 					break;
-				default:
-					break;
 			}
 
 			if (condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr))
@@ -1354,33 +1366,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return !condition.GetFlags().HasFlag(UnitConditionFlags.LogicOr);
 	}
 
-	bool CanHaveConditionType(ConditionSourceType sourceType, ConditionTypes conditionType)
-	{
-		switch (sourceType)
-		{
-			case ConditionSourceType.SpawnGroup:
-				switch (conditionType)
-				{
-					case ConditionTypes.None:
-					case ConditionTypes.ActiveEvent:
-					case ConditionTypes.InstanceInfo:
-					case ConditionTypes.Mapid:
-					case ConditionTypes.WorldState:
-					case ConditionTypes.RealmAchievement:
-					case ConditionTypes.DifficultyId:
-					case ConditionTypes.ScenarioStep:
-						return true;
-					default:
-						return false;
-				}
-			default:
-				break;
-		}
-
-		return true;
-	}
-
-	bool AddToLootTemplate(Condition cond, LootTemplate loot)
+    private bool AddToLootTemplate(Condition cond, LootTemplate loot)
 	{
 		if (loot == null)
 		{
@@ -1397,9 +1383,9 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return false;
 	}
 
-	bool AddToGossipMenus(Condition cond)
+    private bool AddToGossipMenus(Condition cond)
 	{
-		var pMenuBounds = Global.ObjectMgr.GetGossipMenusMapBounds(cond.SourceGroup);
+		var pMenuBounds = _objectManager.GetGossipMenusMapBounds(cond.SourceGroup);
 
 		foreach (var menu in pMenuBounds)
 			if (menu.MenuId == cond.SourceGroup && menu.TextId == cond.SourceEntry)
@@ -1414,9 +1400,9 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return false;
 	}
 
-	bool AddToGossipMenuItems(Condition cond)
+    private bool AddToGossipMenuItems(Condition cond)
 	{
-		var pMenuItemBounds = Global.ObjectMgr.GetGossipMenuItemsMapBounds(cond.SourceGroup);
+		var pMenuItemBounds = _objectManager.GetGossipMenuItemsMapBounds(cond.SourceGroup);
 
 		foreach (var gossipMenuItem in pMenuItemBounds)
 			if (gossipMenuItem.MenuId == cond.SourceGroup && gossipMenuItem.OrderIndex == cond.SourceEntry)
@@ -1431,9 +1417,9 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return false;
 	}
 
-	bool AddToSpellImplicitTargetConditions(Condition cond)
+    private bool AddToSpellImplicitTargetConditions(Condition cond)
 	{
-		Global.SpellMgr.ForEachSpellInfoDifficulty((uint)cond.SourceEntry,
+		_spellManager.ForEachSpellInfoDifficulty((uint)cond.SourceEntry,
 													spellInfo =>
 													{
 														var conditionEffMask = cond.SourceGroup;
@@ -1472,12 +1458,10 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 																		break;
 																	}
-																	default:
-																		break;
 																}
 
 															// check if effect is already a part of some shared mask
-															if (sharedMasks.Any(mask => !!Convert.ToBoolean(mask & (1 << spellEffectInfo.EffectIndex))))
+															if (sharedMasks.Any(mask => Convert.ToBoolean((int)(mask & (1 << spellEffectInfo.EffectIndex)))))
 																continue;
 
 															// build new shared mask with found effect
@@ -1517,11 +1501,10 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 																	// we have overlapping masks in db
 																	if (conditionEffMask != effectMask)
 																	{
-																		Log.Logger.Debug(
-																					"{0} in `condition` table, has incorrect SourceGroup {1} (spell effectMask) set - " +
-																					"effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.",
-																					cond.ToString(),
-																					cond.SourceGroup);
+																		Log.Logger.Debug("{0} in `condition` table, has incorrect SourceGroup {1} (spell effectMask) set - " +
+																						"effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.",
+																						cond.ToString(),
+																						cond.SourceGroup);
 
 																		return;
 																	}
@@ -1554,11 +1537,11 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return true;
 	}
 
-	bool AddToPhases(Condition cond)
+    private bool AddToPhases(Condition cond)
 	{
 		if (cond.SourceEntry == 0)
 		{
-			var phaseInfo = Global.ObjectMgr.GetPhaseInfo(cond.SourceGroup);
+			var phaseInfo = _objectManager.GetPhaseInfo(cond.SourceGroup);
 
 			if (phaseInfo != null)
 			{
@@ -1566,7 +1549,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				foreach (var areaId in phaseInfo.Areas)
 				{
-					var phases = Global.ObjectMgr.GetPhasesForArea(areaId);
+					var phases = _objectManager.GetPhasesForArea(areaId);
 
 					if (phases != null)
 						foreach (var phase in phases)
@@ -1583,7 +1566,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		}
 		else
 		{
-			var phases = Global.ObjectMgr.GetPhasesForArea((uint)cond.SourceEntry);
+			var phases = _objectManager.GetPhasesForArea((uint)cond.SourceEntry);
 
 			foreach (var phase in phases)
 				if (phase.PhaseInfo.Id == cond.SourceGroup)
@@ -1599,7 +1582,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return false;
 	}
 
-	bool IsSourceTypeValid(Condition cond)
+    private bool IsSourceTypeValid(Condition cond)
 	{
 		switch (cond.SourceType)
 		{
@@ -1613,7 +1596,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Creature.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1634,7 +1617,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1655,7 +1638,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1676,7 +1659,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1697,7 +1680,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Items.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1718,7 +1701,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Mail.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1739,7 +1722,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Milling.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1760,7 +1743,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1781,7 +1764,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1802,7 +1785,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Reference.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1823,7 +1806,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1844,7 +1827,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 
 				var loot = LootStorage.Spell.GetLootForConditionFill(cond.SourceGroup);
-				var pItemProto = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
 				{
@@ -1857,7 +1840,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionSourceType.SpellImplicitTarget:
 			{
-				var spellInfo = Global.SpellMgr.GetSpellInfo((uint)cond.SourceEntry, Difficulty.None);
+				var spellInfo = _spellManager.GetSpellInfo((uint)cond.SourceEntry);
 
 				if (spellInfo == null)
 				{
@@ -1866,7 +1849,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					return false;
 				}
 
-				if ((cond.SourceGroup > SpellConst.MAX_EFFECT_MASK) || cond.SourceGroup == 0)
+				if (cond.SourceGroup is > SpellConst.MAX_EFFECT_MASK or 0)
 				{
 					Log.Logger.Debug("{0} in `condition` table, has incorrect SourceGroup (spell effectMask) set, ignoring.", cond.ToString());
 
@@ -1891,8 +1874,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						case SpellTargetSelectionCategories.Traj:
 						case SpellTargetSelectionCategories.Line:
 							continue;
-						default:
-							break;
 					}
 
 					switch (spellEffectInfo.TargetB.SelectionCategory)
@@ -1903,8 +1884,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						case SpellTargetSelectionCategories.Traj:
 						case SpellTargetSelectionCategories.Line:
 							continue;
-						default:
-							break;
 					}
 
 					switch (spellEffectInfo.Effect)
@@ -1920,8 +1899,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 						case SpellEffectName.ApplyAreaAuraSummons:
 						case SpellEffectName.ApplyAreaAuraPartyNonrandom:
 							continue;
-						default:
-							break;
 					}
 
 					Log.Logger.Debug("SourceEntry {0} SourceGroup {1} in `condition` table - spell {2} does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_, _CHAIN_ for effect {3}, SourceGroup needs correction, ignoring.", cond.SourceEntry, origGroup, cond.SourceEntry, spellEffectInfo.EffectIndex);
@@ -1936,7 +1913,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionSourceType.CreatureTemplateVehicle:
 			{
-				if (Global.ObjectMgr.GetCreatureTemplate((uint)cond.SourceEntry) == null)
+				if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
@@ -1948,7 +1925,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case ConditionSourceType.Spell:
 			case ConditionSourceType.SpellProc:
 			{
-				var spellProto = Global.SpellMgr.GetSpellInfo((uint)cond.SourceEntry, Difficulty.None);
+				var spellProto = _spellManager.GetSpellInfo((uint)cond.SourceEntry);
 
 				if (spellProto == null)
 				{
@@ -1960,7 +1937,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			}
 			case ConditionSourceType.QuestAvailable:
-				if (Global.ObjectMgr.GetQuestTemplate((uint)cond.SourceEntry) == null)
+				if (_objectManager.GetQuestTemplate((uint)cond.SourceEntry) == null)
 				{
 					Log.Logger.Debug("{0} SourceEntry specifies non-existing quest, skipped.", cond.ToString());
 
@@ -1969,14 +1946,14 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			case ConditionSourceType.VehicleSpell:
-				if (Global.ObjectMgr.GetCreatureTemplate(cond.SourceGroup) == null)
+				if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				if (!Global.SpellMgr.HasSpellInfo((uint)cond.SourceEntry, Difficulty.None))
+				if (!_spellManager.HasSpellInfo((uint)cond.SourceEntry))
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
 
@@ -1985,14 +1962,14 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			case ConditionSourceType.SpellClickEvent:
-				if (Global.ObjectMgr.GetCreatureTemplate(cond.SourceGroup) == null)
+				if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				if (!Global.SpellMgr.HasSpellInfo((uint)cond.SourceEntry, Difficulty.None))
+				if (!_spellManager.HasSpellInfo((uint)cond.SourceEntry))
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in `spell.db2`, ignoring.", cond.ToString());
 
@@ -2002,14 +1979,14 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			case ConditionSourceType.NpcVendor:
 			{
-				if (Global.ObjectMgr.GetCreatureTemplate(cond.SourceGroup) == null)
+				if (_objectManager.GetCreatureTemplate(cond.SourceGroup) == null)
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table does not exist in `creature_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var itemTemplate = Global.ObjectMgr.GetItemTemplate((uint)cond.SourceEntry);
+				var itemTemplate = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (itemTemplate == null)
 				{
@@ -2021,7 +1998,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			}
 			case ConditionSourceType.TerrainSwap:
-				if (!CliDB.MapStorage.ContainsKey((uint)cond.SourceEntry))
+				if (!_cliDB.MapStorage.ContainsKey((uint)cond.SourceEntry))
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in Map.db2, ignoring.", cond.ToString());
 
@@ -2030,7 +2007,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			case ConditionSourceType.Phase:
-				if (cond.SourceEntry != 0 && !CliDB.AreaTableStorage.ContainsKey(cond.SourceEntry))
+				if (cond.SourceEntry != 0 && !_cliDB.AreaTableStorage.ContainsKey(cond.SourceEntry))
 				{
 					Log.Logger.Debug("{0} SourceEntry in `condition` table does not exist in AreaTable.db2, ignoring.", cond.ToString());
 
@@ -2043,7 +2020,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case ConditionSourceType.SmartEvent:
 				break;
 			case ConditionSourceType.Graveyard:
-				if (Global.ObjectMgr.GetWorldSafeLoc((uint)cond.SourceEntry) == null)
+				if (_objectManager.GetWorldSafeLoc((uint)cond.SourceEntry) == null)
 				{
 					Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in WorldSafeLocs.db2, ignoring.");
 
@@ -2059,7 +2036,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					return false;
 				}
 
-				if (Global.AreaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId(cond.SourceGroup, cond.SourceEntry != 0)) == null)
+				if (_areaTriggerDataStorage.GetAreaTriggerTemplate(new AreaTriggerId(cond.SourceGroup, cond.SourceEntry != 0)) == null)
 				{
 					Log.Logger.Debug($"{cond.ToString()} in `condition` table, does not exist in `areatrigger_template`, ignoring.");
 
@@ -2068,7 +2045,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			case ConditionSourceType.ConversationLine:
-				if (Global.ConversationDataStorage.GetConversationLineTemplate((uint)cond.SourceEntry) == null)
+				if (_conversationDataStorage.GetConversationLineTemplate((uint)cond.SourceEntry) == null)
 				{
 					Log.Logger.Debug($"{cond} does not exist in `conversation_line_template`, ignoring.");
 
@@ -2077,7 +2054,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			case ConditionSourceType.AreatriggerClientTriggered:
-				if (!CliDB.AreaTriggerStorage.ContainsKey(cond.SourceEntry))
+				if (!_cliDB.AreaTriggerStorage.ContainsKey(cond.SourceEntry))
 				{
 					Log.Logger.Debug($"{cond} SourceEntry in `condition` table, does not exists in AreaTrigger.db2, ignoring.");
 
@@ -2087,14 +2064,14 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			case ConditionSourceType.TrainerSpell:
 			{
-				if (Global.ObjectMgr.GetTrainer(cond.SourceGroup) == null)
+				if (_objectManager.GetTrainer(cond.SourceGroup) == null)
 				{
 					Log.Logger.Debug($"{cond.ToString()} SourceGroup in `condition` table, does not exist in `trainer`, ignoring.");
 
 					return false;
 				}
 
-				if (Global.SpellMgr.GetSpellInfo((uint)cond.SourceEntry, Difficulty.None) == null)
+				if (_spellManager.GetSpellInfo((uint)cond.SourceEntry) == null)
 				{
 					Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table does not exist in `Spell.db2`, ignoring.");
 
@@ -2114,7 +2091,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				if (cond.SourceGroup == (uint)TypeId.Unit)
 				{
-					if (Global.ObjectMgr.GetCreatureTemplate((uint)cond.SourceEntry) == null)
+					if (_objectManager.GetCreatureTemplate((uint)cond.SourceEntry) == null)
 					{
 						Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `creature_template`, ignoring.");
 
@@ -2123,7 +2100,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				}
 				else if (cond.SourceGroup == (uint)TypeId.GameObject)
 				{
-					if (Global.ObjectMgr.GetGameObjectTemplate((uint)cond.SourceEntry) == null)
+					if (_objectManager.GetGameObjectTemplate((uint)cond.SourceEntry) == null)
 					{
 						Log.Logger.Debug($"{cond.ToString()} SourceEntry in `condition` table, does not exist in `gameobject_template`, ignoring.");
 
@@ -2141,7 +2118,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionSourceType.SpawnGroup:
 			{
-				var spawnGroup = Global.ObjectMgr.GetSpawnGroupData((uint)cond.SourceEntry);
+				var spawnGroup = _objectManager.GetSpawnGroupData((uint)cond.SourceEntry);
 
 				if (spawnGroup == null)
 				{
@@ -2168,13 +2145,13 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return true;
 	}
 
-	bool IsConditionTypeValid(Condition cond)
+    private bool IsConditionTypeValid(Condition cond)
 	{
 		switch (cond.ConditionType)
 		{
 			case ConditionTypes.Aura:
 			{
-				if (!Global.SpellMgr.HasSpellInfo(cond.ConditionValue1, Difficulty.None))
+				if (!_spellManager.HasSpellInfo(cond.ConditionValue1))
 				{
 					Log.Logger.Debug("{0} has non existing spell (Id: {1}), skipped", cond.ToString(), cond.ConditionValue1);
 
@@ -2185,7 +2162,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Item:
 			{
-				var proto = Global.ObjectMgr.GetItemTemplate(cond.ConditionValue1);
+				var proto = _objectManager.GetItemTemplate(cond.ConditionValue1);
 
 				if (proto == null)
 				{
@@ -2205,7 +2182,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.ItemEquipped:
 			{
-				var proto = Global.ObjectMgr.GetItemTemplate(cond.ConditionValue1);
+				var proto = _objectManager.GetItemTemplate(cond.ConditionValue1);
 
 				if (proto == null)
 				{
@@ -2218,7 +2195,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Zoneid:
 			{
-				var areaEntry = CliDB.AreaTableStorage.LookupByKey(cond.ConditionValue1);
+				var areaEntry = _cliDB.AreaTableStorage.LookupByKey(cond.ConditionValue1);
 
 				if (areaEntry == null)
 				{
@@ -2238,7 +2215,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.ReputationRank:
 			{
-				if (!CliDB.FactionStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.FactionStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug("{0} has non existing faction ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2260,7 +2237,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Skill:
 			{
-				var pSkill = CliDB.SkillLineStorage.LookupByKey(cond.ConditionValue1);
+				var pSkill = _cliDB.SkillLineStorage.LookupByKey(cond.ConditionValue1);
 
 				if (pSkill == null)
 				{
@@ -2269,9 +2246,9 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					return false;
 				}
 
-				if (cond.ConditionValue2 < 1 || cond.ConditionValue2 > Global.WorldMgr.ConfigMaxSkillValue)
+				if (cond.ConditionValue2 < 1 || cond.ConditionValue2 > _worldManager.ConfigMaxSkillValue)
 				{
-					Log.Logger.Debug("{0} specifies skill ({1}) with invalid value ({1}), skipped.", cond.ToString(true), cond.ConditionValue1, cond.ConditionValue2);
+					Log.Logger.Debug("{0} specifies skill ({1}) with invalid value ({2}), skipped.", cond.ToString(true), cond.ConditionValue1, cond.ConditionValue2);
 
 					return false;
 				}
@@ -2286,7 +2263,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					return false;
 				}
 
-				if (Global.ObjectMgr.GetQuestTemplate(cond.ConditionValue1) == null)
+				if (_objectManager.GetQuestTemplate(cond.ConditionValue1) == null)
 				{
 					Log.Logger.Debug("{0} points to non-existing quest ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2300,7 +2277,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case ConditionTypes.QuestComplete:
 			case ConditionTypes.DailyQuestDone:
 			{
-				if (Global.ObjectMgr.GetQuestTemplate(cond.ConditionValue1) == null)
+				if (_objectManager.GetQuestTemplate(cond.ConditionValue1) == null)
 				{
 					Log.Logger.Debug("{0} points to non-existing quest ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2311,7 +2288,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.ActiveEvent:
 			{
-				var events = Global.GameEventMgr.GetEventMap();
+				var events = _gameEventManager.GetEventMap();
 
 				if (cond.ConditionValue1 >= events.Length || !events[cond.ConditionValue1].IsValid())
 				{
@@ -2324,7 +2301,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Achievement:
 			{
-				var achievement = CliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
+				var achievement = _cliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
 
 				if (achievement == null)
 				{
@@ -2370,7 +2347,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Mapid:
 			{
-				var me = CliDB.MapStorage.LookupByKey(cond.ConditionValue1);
+				var me = _cliDB.MapStorage.LookupByKey(cond.ConditionValue1);
 
 				if (me == null)
 				{
@@ -2383,7 +2360,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Spell:
 			{
-				if (!Global.SpellMgr.HasSpellInfo(cond.ConditionValue1, Difficulty.None))
+				if (!_spellManager.HasSpellInfo(cond.ConditionValue1))
 				{
 					Log.Logger.Debug("{0} has non existing spell (Id: {1}), skipped", cond.ToString(true), cond.ConditionValue1);
 
@@ -2416,7 +2393,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.NearCreature:
 			{
-				if (Global.ObjectMgr.GetCreatureTemplate(cond.ConditionValue1) == null)
+				if (_objectManager.GetCreatureTemplate(cond.ConditionValue1) == null)
 				{
 					Log.Logger.Debug("{0} has non existing creature template entry ({1}), skipped", cond.ToString(true), cond.ConditionValue1);
 
@@ -2427,7 +2404,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.NearGameobject:
 			{
-				if (Global.ObjectMgr.GetGameObjectTemplate(cond.ConditionValue1) == null)
+				if (_objectManager.GetGameObjectTemplate(cond.ConditionValue1) == null)
 				{
 					Log.Logger.Debug("{0} has non existing gameobject template entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2441,7 +2418,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				switch ((TypeId)cond.ConditionValue1)
 				{
 					case TypeId.Unit:
-						if (cond.ConditionValue2 != 0 && Global.ObjectMgr.GetCreatureTemplate(cond.ConditionValue2) == null)
+						if (cond.ConditionValue2 != 0 && _objectManager.GetCreatureTemplate(cond.ConditionValue2) == null)
 						{
 							Log.Logger.Debug("{0} has non existing creature template entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue2);
 
@@ -2450,13 +2427,13 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 						if (cond.ConditionValue3 != 0)
 						{
-							var creatureData = Global.ObjectMgr.GetCreatureData(cond.ConditionValue3);
+							var creatureData = _objectManager.GetCreatureData(cond.ConditionValue3);
 
 							if (creatureData != null)
 							{
 								if (cond.ConditionValue2 != 0 && creatureData.Id != cond.ConditionValue2)
 								{
-									Log.Logger.Debug("{0} has guid {1} set but does not match creature entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue3, cond.ConditionValue2);
+									Log.Logger.Debug("{0} has guid {1} set but does not match creature entry ({2}), skipped.", cond.ToString(true), cond.ConditionValue3, cond.ConditionValue2);
 
 									return false;
 								}
@@ -2471,7 +2448,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 						break;
 					case TypeId.GameObject:
-						if (cond.ConditionValue2 != 0 && Global.ObjectMgr.GetGameObjectTemplate(cond.ConditionValue2) == null)
+						if (cond.ConditionValue2 != 0 && _objectManager.GetGameObjectTemplate(cond.ConditionValue2) == null)
 						{
 							Log.Logger.Debug("{0} has non existing gameobject template entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue2);
 
@@ -2480,13 +2457,13 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 						if (cond.ConditionValue3 != 0)
 						{
-							var goData = Global.ObjectMgr.GetGameObjectData(cond.ConditionValue3);
+							var goData = _objectManager.GetGameObjectData(cond.ConditionValue3);
 
 							if (goData != null)
 							{
 								if (cond.ConditionValue2 != 0 && goData.Id != cond.ConditionValue2)
 								{
-									Log.Logger.Debug("{0} has guid {1} set but does not match gameobject entry ({1}), skipped.", cond.ToString(true), cond.ConditionValue3, cond.ConditionValue2);
+									Log.Logger.Debug("{0} has guid {1} set but does not match gameobject entry ({2}), skipped.", cond.ToString(true), cond.ConditionValue3, cond.ConditionValue2);
 
 									return false;
 								}
@@ -2634,7 +2611,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.WorldState:
 			{
-				if (Global.WorldStateMgr.GetWorldStateTemplate((int)cond.ConditionValue1) == null)
+				if (_worldStateManager.GetWorldStateTemplate((int)cond.ConditionValue1) == null)
 				{
 					Log.Logger.Debug("{0} has non existing world state in value1 ({1}), skipped.", cond.ToString(true), cond.ConditionValue1);
 
@@ -2645,7 +2622,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.PhaseId:
 			{
-				if (!CliDB.PhaseStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.PhaseStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug("{0} has nonexistent phaseid in value1 ({1}), skipped", cond.ToString(true), cond.ConditionValue1);
 
@@ -2656,7 +2633,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.Title:
 			{
-				var titleEntry = CliDB.CharTitlesStorage.LookupByKey(cond.ConditionValue1);
+				var titleEntry = _cliDB.CharTitlesStorage.LookupByKey(cond.ConditionValue1);
 
 				if (titleEntry == null)
 				{
@@ -2697,7 +2674,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.RealmAchievement:
 			{
-				var achievement = CliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
+				var achievement = _cliDB.AchievementStorage.LookupByKey(cond.ConditionValue1);
 
 				if (achievement == null)
 				{
@@ -2739,7 +2716,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.ObjectiveProgress:
 			{
-				var obj = Global.ObjectMgr.GetQuestObjective(cond.ConditionValue1);
+				var obj = _objectManager.GetQuestObjective(cond.ConditionValue1);
 
 				if (obj == null)
 				{
@@ -2778,7 +2755,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case ConditionTypes.Gamemaster:
 				break;
 			case ConditionTypes.DifficultyId:
-				if (!CliDB.DifficultyStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.DifficultyStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing difficulty in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2787,7 +2764,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			case ConditionTypes.BattlePetCount:
-				if (!CliDB.BattlePetSpeciesStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.BattlePetSpeciesStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing BattlePet SpeciesId in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2811,7 +2788,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				break;
 			case ConditionTypes.ScenarioStep:
 			{
-				if (!CliDB.ScenarioStepStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.ScenarioStepStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing ScenarioStep in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2822,7 +2799,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.SceneInProgress:
 			{
-				if (!CliDB.SceneScriptPackageStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.SceneScriptPackageStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing SceneScriptPackageId in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2833,7 +2810,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case ConditionTypes.PlayerCondition:
 			{
-				if (!CliDB.PlayerConditionStorage.ContainsKey(cond.ConditionValue1))
+				if (!_cliDB.PlayerConditionStorage.ContainsKey(cond.ConditionValue1))
 				{
 					Log.Logger.Debug($"{cond.ToString(true)} has non existing PlayerConditionId in value1 ({cond.ConditionValue1}), skipped.");
 
@@ -2867,37 +2844,37 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		return true;
 	}
 
-	void LogUselessConditionValue(Condition cond, byte index, uint value)
+    private void LogUselessConditionValue(Condition cond, byte index, uint value)
 	{
 		Log.Logger.Debug("{0} has useless data in ConditionValue{1} ({2})!", cond.ToString(true), index, value);
 	}
 
-	void Clean()
+    private void Clean()
 	{
-		conditionReferenceStorage.Clear();
+		_conditionReferenceStorage.Clear();
 
-		conditionStorage.Clear();
+		_conditionStorage.Clear();
 
 		for (ConditionSourceType i = 0; i < ConditionSourceType.Max; ++i)
-			conditionStorage[i] = new MultiMap<uint, Condition>(); //add new empty list for SourceType
+			_conditionStorage[i] = new MultiMap<uint, Condition>(); //add new empty list for SourceType
 
-		vehicleSpellConditionStorage.Clear();
+		_vehicleSpellConditionStorage.Clear();
 
-		smartEventConditionStorage.Clear();
+		_smartEventConditionStorage.Clear();
 
-		spellClickEventConditionStorage.Clear();
-		spellsUsedInSpellClickConditions.Clear();
+		_spellClickEventConditionStorage.Clear();
+		_spellsUsedInSpellClickConditions.Clear();
 
-		npcVendorConditionContainerStorage.Clear();
+		_npcVendorConditionContainerStorage.Clear();
 
-		areaTriggerConditionContainerStorage.Clear();
+		_areaTriggerConditionContainerStorage.Clear();
 
-		trainerSpellConditionContainerStorage.Clear();
+		_trainerSpellConditionContainerStorage.Clear();
 
-		objectVisibilityConditionStorage.Clear();
+		_objectVisibilityConditionStorage.Clear();
 	}
 
-	static bool PlayerConditionCompare(int comparisonType, int value1, int value2)
+    private bool PlayerConditionCompare(int comparisonType, int value1, int value2)
 	{
 		switch (comparisonType)
 		{
@@ -2913,14 +2890,12 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return value1 < value2;
 			case 6:
 				return value1 <= value2;
-			default:
-				break;
 		}
 
 		return false;
 	}
 
-	static bool PlayerConditionLogic(uint logic, bool[] results)
+    private bool PlayerConditionLogic(uint logic, bool[] results)
 	{
 		for (var i = 0; i < results.Length; ++i)
 			if (Convert.ToBoolean((logic >> (16 + i)) & 1))
@@ -2939,14 +2914,12 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 					result = result || results[i];
 
 					break;
-				default:
-					break;
 			}
 
 		return result;
 	}
 
-	static int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
+    private int GetUnitConditionVariable(Unit unit, Unit otherUnit, UnitConditionVariable variable, int value)
 	{
 		switch (variable)
 		{
@@ -3135,7 +3108,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return (int)unit.CreatureType;
 			case UnitConditionVariable.IsMeleeAttacking:
 			{
-				var target = Global.ObjAccessor.GetUnit(unit, unit.Target);
+				var target = _objectAccessor.GetUnit(unit, unit.Target);
 
 				if (target != null)
 				{
@@ -3151,7 +3124,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			}
 			case UnitConditionVariable.IsRangedAttacking:
 			{
-				var target = Global.ObjAccessor.GetUnit(unit, unit.Target);
+				var target = _objectAccessor.GetUnit(unit, unit.Target);
 
 				if (target != null)
 				{
@@ -3170,7 +3143,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case UnitConditionVariable.SpellKnown:
 				return unit.HasSpell((uint)value) ? value : 0;
 			case UnitConditionVariable.HasHarmfulAuraEffect:
-				return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+				return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
 			case UnitConditionVariable.IsImmuneToAreaOfEffect:
 				break;
 			case UnitConditionVariable.IsPlayer:
@@ -3204,13 +3177,13 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case UnitConditionVariable.IsEnemy:
 				return (otherUnit && unit.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
 			case UnitConditionVariable.IsSpecMelee:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && CliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
 			case UnitConditionVariable.IsSpecTank:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && CliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 0) ? 1 : 0;
 			case UnitConditionVariable.IsSpecRanged:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && CliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Ranged)) ? 1 : 0;
 			case UnitConditionVariable.IsSpecHealer:
-				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && CliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
+				return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Role == 1) ? 1 : 0;
 			case UnitConditionVariable.IsPlayerControlledNPC:
 				return unit.IsCreature && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? 1 : 0;
 			case UnitConditionVariable.IsDying:
@@ -3230,7 +3203,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case UnitConditionVariable.Sex:
 				return (int)unit.Gender;
 			case UnitConditionVariable.LevelWithinContentTuning:
-				var levelRange = Global.DB2Mgr.GetContentTuningData((uint)value, 0);
+				var levelRange = _db2Manager.GetContentTuningData((uint)value, 0);
 
 				if (levelRange.HasValue)
 					return unit.Level >= levelRange.Value.MinLevel && unit.Level <= levelRange.Value.MaxLevel ? value : 0;
@@ -3241,7 +3214,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case UnitConditionVariable.IsHovering:
 				return unit.IsHovering ? 1 : 0;
 			case UnitConditionVariable.HasHelpfulAuraEffect:
-				return (value >= 0 && value < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
+				return (value is >= 0 and < (int)AuraType.Total && unit.GetAuraEffectsByType((AuraType)value).Any(aurEff => !aurEff.Base.GetApplicationOfTarget(unit.GUID).Flags.HasFlag(AuraFlags.Negative))) ? 1 : 0;
 			case UnitConditionVariable.HasHelpfulAuraSchool:
 				return unit.GetAppliedAurasQuery()
 							.HasNegitiveFlag()
@@ -3250,14 +3223,12 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 							.Any()
 							? 1
 							: 0;
-			default:
-				break;
-		}
+        }
 
 		return 0;
 	}
 
-	static int EvalSingleValue(ByteBuffer buffer, Player player)
+    private int EvalSingleValue(ByteBuffer buffer, Player player)
 	{
 		var valueType = (WorldStateExpressionValueType)buffer.ReadUInt8();
 		var value = 0;
@@ -3273,7 +3244,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case WorldStateExpressionValueType.WorldState:
 			{
 				var worldStateId = buffer.ReadUInt32();
-				value = Global.WorldStateMgr.GetValue((int)worldStateId, player.Map);
+				value = _worldStateManager.GetValue((int)worldStateId, player.Map);
 
 				break;
 			}
@@ -3290,48 +3261,46 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 
 				break;
 			}
-			default:
-				break;
 		}
 
 		return value;
 	}
 
-	static int WorldStateExpressionFunction(WorldStateExpressionFunctions functionType, Player player, int arg1, int arg2)
+    private int WorldStateExpressionFunction(WorldStateExpressionFunctions functionType, Player player, int arg1, int arg2)
 	{
 		switch (functionType)
 		{
 			case WorldStateExpressionFunctions.Random:
 				return (int)RandomHelper.URand(Math.Min(arg1, arg2), Math.Max(arg1, arg2));
 			case WorldStateExpressionFunctions.Month:
-				return GameTime.DateTime.Month + 1;
+				return GameTime.GetDateAndTime().Month + 1;
 			case WorldStateExpressionFunctions.Day:
-				return GameTime.DateTime.Day + 1;
+				return GameTime.GetDateAndTime().Day + 1;
 			case WorldStateExpressionFunctions.TimeOfDay:
-				var localTime = GameTime.DateTime;
+				var localTime = GameTime.GetDateAndTime();
 
 				return localTime.Hour * Time.Minute + localTime.Minute;
 			case WorldStateExpressionFunctions.Region:
-				return Global.WorldMgr.RealmId.Region;
+				return _worldManager.RealmId.Region;
 			case WorldStateExpressionFunctions.ClockHour:
-				var currentHour = GameTime.DateTime.Hour + 1;
+				var currentHour = GameTime.GetDateAndTime().Hour + 1;
 
 				return currentHour <= 12 ? (currentHour != 0 ? currentHour : 12) : currentHour - 12;
 			case WorldStateExpressionFunctions.OldDifficultyId:
-				var difficulty = CliDB.DifficultyStorage.LookupByKey(player.Map.DifficultyID);
+				var difficulty = _cliDB.DifficultyStorage.LookupByKey((uint)player.Map.DifficultyID);
 
 				if (difficulty != null)
 					return difficulty.OldEnumValue;
 
 				return -1;
 			case WorldStateExpressionFunctions.HolidayActive:
-				return Global.GameEventMgr.IsHolidayActive((HolidayIds)arg1) ? 1 : 0;
+				return _gameEventManager.IsHolidayActive((HolidayIds)arg1) ? 1 : 0;
 			case WorldStateExpressionFunctions.TimerCurrentTime:
-				return (int)_gameTime.GetGameTime;
+				return (int)GameTime.GetGameTime();
 			case WorldStateExpressionFunctions.WeekNumber:
-				var now = _gameTime.GetGameTime;
+				var now = GameTime.GetGameTime();
 				uint raidOrigin = 1135695600;
-				var region = CliDB.CfgRegionsStorage.LookupByKey(Global.WorldMgr.RealmId.Region);
+				var region = _cliDB.CfgRegionsStorage.LookupByKey(_worldManager.RealmId.Region);
 
 				if (region != null)
 					raidOrigin = region.Raidorigin;
@@ -3342,7 +3311,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 			case WorldStateExpressionFunctions.WarModeActive:
 				return player.HasPlayerFlag(PlayerFlags.WarModeActive) ? 1 : 0;
 			case WorldStateExpressionFunctions.WorldStateExpression:
-				var worldStateExpression = CliDB.WorldStateExpressionStorage.LookupByKey(arg1);
+				var worldStateExpression = _cliDB.WorldStateExpressionStorage.LookupByKey((uint)arg1);
 
 				if (worldStateExpression != null)
 					return IsPlayerMeetingExpression(player, worldStateExpression) ? 1 : 0;
@@ -3387,7 +3356,7 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 		}
 	}
 
-	static int EvalValue(ByteBuffer buffer, Player player)
+    private int EvalValue(ByteBuffer buffer, Player player)
 	{
 		var leftValue = EvalSingleValue(buffer, player);
 
@@ -3410,14 +3379,12 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return rightValue == 0 ? 0 : leftValue / rightValue;
 			case WorldStateExpressionOperatorType.Remainder:
 				return rightValue == 0 ? 0 : leftValue % rightValue;
-			default:
-				break;
-		}
+        }
 
 		return leftValue;
 	}
 
-	static bool EvalRelOp(ByteBuffer buffer, Player player)
+    private bool EvalRelOp(ByteBuffer buffer, Player player)
 	{
 		var leftValue = EvalValue(buffer, player);
 
@@ -3442,8 +3409,6 @@ public sealed class ConditionManager : Singleton<ConditionManager>
 				return leftValue > rightValue;
 			case WorldStateExpressionComparisonType.GreaterOrEqual:
 				return leftValue >= rightValue;
-			default:
-				break;
 		}
 
 		return false;

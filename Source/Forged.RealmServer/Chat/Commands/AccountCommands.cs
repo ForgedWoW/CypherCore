@@ -556,7 +556,7 @@ class AccountCommands
 		{
 			var sessionsMatchCount = 0;
 
-			foreach (var session in Global.WorldMgr.AllSessions)
+			foreach (var session in _worldManager.AllSessions)
 			{
 				var player = session.Player;
 

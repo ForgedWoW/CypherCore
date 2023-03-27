@@ -57,7 +57,7 @@ class RbacComands
 				needDelete = false
 			};
 
-		RBACData rbac = new(account.GetID(), account.GetName(), (int)Global.WorldMgr.RealmId.Index, (byte)Global.AccountMgr.GetSecurity(account.GetID(), (int)Global.WorldMgr.RealmId.Index));
+		RBACData rbac = new(account.GetID(), account.GetName(), (int)_worldManager.RealmId.Index, (byte)Global.AccountMgr.GetSecurity(account.GetID(), (int)_worldManager.RealmId.Index));
 		rbac.LoadFromDB();
 
 		return new RBACCommandData()

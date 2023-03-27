@@ -5,18 +5,25 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.SupportSystem;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Ticket;
 using Forged.RealmServer.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer;
 
 public class TicketHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly SupportManager _supportManager;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly GameTime _gameTime;
 
-    public TicketHandler(WorldSession session)
+    public TicketHandler(WorldSession session, SupportManager supportManager, CharacterDatabase characterDatabase, GameTime gameTime)
     {
         _session = session;
+        _supportManager = supportManager;
+        _characterDatabase = characterDatabase;
+        _gameTime = gameTime;
     }
 
     [WorldPacketHandler(ClientOpcodes.GmTicketGetCaseStatus, Processing = PacketProcessing.Inplace)]
@@ -24,7 +31,7 @@ public class TicketHandler : IWorldSessionHandler
 	{
 		//TODO: Implement GmCase and handle this packet correctly
 		GMTicketCaseStatus status = new();
-		SendPacket(status);
+        _session.SendPacket(status);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.GmTicketGetSystemStatus, Processing = PacketProcessing.Inplace)]
@@ -33,8 +40,8 @@ public class TicketHandler : IWorldSessionHandler
 		// Note: This only disables the ticket UI at client side and is not fully reliable
 		// Note: This disables the whole customer support UI after trying to send a ticket in disabled state (MessageBox: "GM Help Tickets are currently unavaiable."). UI remains disabled until the character relogs.
 		GMTicketSystemStatusPkt response = new();
-		response.Status = Global.SupportMgr.GetSupportSystemStatus() ? 1 : 0;
-		SendPacket(response);
+		response.Status = _supportManager.GetSupportSystemStatus() ? 1 : 0;
+        _session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SubmitUserFeedback)]
@@ -42,37 +49,37 @@ public class TicketHandler : IWorldSessionHandler
 	{
 		if (userFeedback.IsSuggestion)
 		{
-			if (!Global.SupportMgr.GetSuggestionSystemStatus())
+			if (!_supportManager.GetSuggestionSystemStatus())
 				return;
 
-			SuggestionTicket ticket = new(Player);
+			SuggestionTicket ticket = new(_session.Player);
 			ticket.SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
 			ticket.SetFacing(userFeedback.Header.Facing);
 			ticket.SetNote(userFeedback.Note);
 
-			Global.SupportMgr.AddTicket(ticket);
+			_supportManager.AddTicket(ticket);
 		}
 		else
 		{
-			if (!Global.SupportMgr.GetBugSystemStatus())
+			if (!_supportManager.GetBugSystemStatus())
 				return;
 
-			BugTicket ticket = new(Player);
+			BugTicket ticket = new(_session.Player);
 			ticket.SetPosition(userFeedback.Header.MapID, userFeedback.Header.Position);
 			ticket.SetFacing(userFeedback.Header.Facing);
 			ticket.SetNote(userFeedback.Note);
 
-			Global.SupportMgr.AddTicket(ticket);
+			_supportManager.AddTicket(ticket);
 		}
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SupportTicketSubmitComplaint)]
 	void HandleSupportTicketSubmitComplaint(SupportTicketSubmitComplaint packet)
 	{
-		if (!Global.SupportMgr.GetComplaintSystemStatus())
+		if (!_supportManager.GetComplaintSystemStatus())
 			return;
 
-		ComplaintTicket comp = new(Player);
+		ComplaintTicket comp = new(_session.Player, _gameTime, _characterDatabase, _supportManager);
 		comp.SetPosition(packet.Header.MapID, packet.Header.Position);
 		comp.SetFacing(packet.Header.Facing);
 		comp.SetChatLog(packet.ChatLog);
@@ -82,14 +89,14 @@ public class TicketHandler : IWorldSessionHandler
 		comp.SetMinorCategoryFlags((ReportMinorCategory)packet.MinorCategoryFlags);
 		comp.SetNote(packet.Note);
 
-		Global.SupportMgr.AddTicket(comp);
+		_supportManager.AddTicket(comp);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.BugReport)]
 	void HandleBugReport(BugReport bugReport)
 	{
 		// Note: There is no way to trigger this with standard UI except /script ReportBug("text")
-		if (!Global.SupportMgr.GetBugSystemStatus())
+		if (!_supportManager.GetBugSystemStatus())
 			return;
 
 		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_BUG_REPORT);
@@ -107,6 +114,6 @@ public class TicketHandler : IWorldSessionHandler
 		ComplaintResult result = new();
 		result.ComplaintType = packet.ComplaintType;
 		result.Result = 0;
-		SendPacket(result);
+        _session.SendPacket(result);
 	}
 }

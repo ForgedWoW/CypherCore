@@ -18,7 +18,7 @@ namespace Forged.RealmServer.DataStorage;
 public class DB2Manager
 {
     private readonly HotfixDatabase _hotfixDatabase;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _objectManager;
     public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
     public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
     readonly Dictionary<uint, IDB2Storage> _storage = new();
@@ -110,7 +110,7 @@ public class DB2Manager
     internal Dictionary<uint, IDB2Storage> Storage => _storage;
     private CliDB _cliDB;
 
-    public DB2Manager(HotfixDatabase hotfixDatabase, ObjectManager objectManager)
+    public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager objectManager)
     {
         _hotfixDatabase = hotfixDatabase;
         _objectManager = objectManager;
@@ -2665,7 +2665,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Forged.MapServer.DataStorage.ClientReader;
+using Forged.RealmServer.DataStorage.ClientReader;
 using Framework.Constants;
 using Framework.Database;
 using Game;
@@ -2673,12 +2673,12 @@ using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DataStorage.Structs.Q;
 using Serilog;
 
-namespace Forged.MapServer.DataStorage;
+namespace Forged.RealmServer.DataStorage;
 
 public class DB2Manager
 {
     private readonly HotfixDatabase _hotfixDatabase;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _objectManager;
     public readonly MultiMap<int, QuestPOIBlobEntry> QuestPOIBlobEntriesByMapId = new();
     public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
     readonly Dictionary<uint, IDB2Storage> _storage = new();
@@ -2770,7 +2770,7 @@ public class DB2Manager
     internal Dictionary<uint, IDB2Storage> Storage => _storage;
     private CliDB _cliDB;
 
-    public DB2Manager(HotfixDatabase hotfixDatabase, ObjectManager objectManager)
+    public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager objectManager)
     {
         _hotfixDatabase = hotfixDatabase;
         _objectManager = objectManager;

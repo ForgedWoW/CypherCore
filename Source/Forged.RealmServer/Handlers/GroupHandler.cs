@@ -17,11 +17,15 @@ public class GroupHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly WorldConfig _worldConfig;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GroupManager _groupManager;
 
-    public GroupHandler(WorldSession session, WorldConfig worldConfig)
+    public GroupHandler(WorldSession session, WorldConfig worldConfig, ObjectAccessor objectAccessor, GroupManager groupManager)
     {
         _session = session;
         _worldConfig = worldConfig;
+        _objectAccessor = objectAccessor;
+        _groupManager = groupManager;
     }
 
     public void SendPartyResult(PartyOperation operation, string member, PartyResult res, uint val = 0)
@@ -41,7 +45,7 @@ public class GroupHandler : IWorldSessionHandler
 	void HandlePartyInvite(PartyInviteClient packet)
 	{
 		var invitingPlayer = _session.Player;
-		var invitedPlayer = Global.ObjAccessor.FindPlayerByName(packet.TargetName);
+		var invitedPlayer = _objectAccessor.FindPlayerByName(packet.TargetName);
 
 		// no player
 		if (invitedPlayer == null)
@@ -215,7 +219,7 @@ public class GroupHandler : IWorldSessionHandler
 				return;
 			}
 
-			var leader = Global.ObjAccessor.FindPlayer(group.LeaderGUID);
+			var leader = _objectAccessor.FindPlayer(group.LeaderGUID);
 
 			// Forming a new group, create it
 			if (!group.IsCreated)
@@ -231,7 +235,7 @@ public class GroupHandler : IWorldSessionHandler
 				// If we're about to create a group there really should be a leader present
 				group.RemoveInvite(leader);
 				group.Create(leader);
-				Global.GroupMgr.AddGroup(group);
+                _groupManager.AddGroup(group);
 			}
 
 			// Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
@@ -243,7 +247,7 @@ public class GroupHandler : IWorldSessionHandler
 		else
 		{
 			// Remember leader if online (group will be invalid if group gets disbanded)
-			var leader = Global.ObjAccessor.FindPlayer(group.LeaderGUID);
+			var leader = _objectAccessor.FindPlayer(group.LeaderGUID);
 
             // uninvite, group can be deleted
             _session.Player.UninviteFromGroup();
@@ -305,7 +309,7 @@ public class GroupHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.SetPartyLeader, Processing = PacketProcessing.Inplace)]
 	void HandleSetPartyLeader(SetPartyLeader packet)
 	{
-		var player = Global.ObjAccessor.FindConnectedPlayer(packet.TargetGUID);
+		var player = _objectAccessor.FindConnectedPlayer(packet.TargetGUID);
 		var group = _session.Player.Group;
 
 		if (!group || !player)
@@ -460,7 +464,7 @@ public class GroupHandler : IWorldSessionHandler
 
 			if (packet.Target.IsPlayer)
 			{
-				var target = Global.ObjAccessor.FindConnectedPlayer(packet.Target);
+				var target = _objectAccessor.FindConnectedPlayer(packet.Target);
 
 				if (!target || target.IsHostileTo(_session.Player))
 					return;
@@ -623,7 +627,7 @@ public class GroupHandler : IWorldSessionHandler
 	{
 		PartyMemberFullState partyMemberStats = new();
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(packet.TargetGUID);
+		var player = _objectAccessor.FindConnectedPlayer(packet.TargetGUID);
 
 		if (!player)
 		{

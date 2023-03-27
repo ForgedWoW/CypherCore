@@ -3,10 +3,10 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Character;
 using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Networking.Packets;
+using Game.Common.Handlers;
 using Forged.RealmServer.Scripting.Interfaces.IPlayer;
-using Forged.RealmServer.Server;
 
 namespace Forged.RealmServer.Handlers;
 
@@ -14,11 +14,13 @@ public class LogoutHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly ScriptManager _scriptManager;
+    private readonly GameTime _gameTime;
 
-    public LogoutHandler(WorldSession session, ScriptManager scriptManager)
+    public LogoutHandler(WorldSession session, ScriptManager scriptManager, GameTime gameTime)
     {
         _session = session;
         _scriptManager = scriptManager;
+        _gameTime = gameTime;
     }
 
     [WorldPacketHandler(ClientOpcodes.LogoutRequest)]
@@ -46,7 +48,6 @@ public class LogoutHandler : IWorldSessionHandler
             if (!script.CanLogout(_session.Player))
                 reason = 2;
         });
-
 
         LogoutResponse logoutResponse = new();
 		logoutResponse.LogoutResult = reason;

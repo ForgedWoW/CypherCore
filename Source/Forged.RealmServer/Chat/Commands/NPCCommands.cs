@@ -974,14 +974,14 @@ class NPCCommands
 		static bool HandleNpcSetAllowMovementCommand(CommandHandler handler)
 		{
 			/*
-			if (Global.WorldMgr.getAllowMovement())
+			if (_worldManager.getAllowMovement())
 			{
-				Global.WorldMgr.SetAllowMovement(false);
+				_worldManager.SetAllowMovement(false);
 				handler.SendSysMessage(LANG_CREATURE_MOVE_DISABLED);
 			}
 			else
 			{
-				Global.WorldMgr.SetAllowMovement(true);
+				_worldManager.SetAllowMovement(true);
 				handler.SendSysMessage(LANG_CREATURE_MOVE_ENABLED);
 			}
 			*/

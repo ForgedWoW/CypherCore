@@ -227,7 +227,7 @@ public class WorldStateManager : Singleton<WorldStateManager>
 			updateWorldState.VariableID = (uint)worldStateId;
 			updateWorldState.Value = value;
 			updateWorldState.Hidden = hidden;
-			Global.WorldMgr.SendGlobalMessage(updateWorldState);
+			_worldManager.SendGlobalMessage(updateWorldState);
 
 			return;
 		}

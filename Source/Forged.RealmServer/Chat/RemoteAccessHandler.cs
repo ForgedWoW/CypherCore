@@ -14,9 +14,9 @@ public class RemoteAccessHandler : CommandHandler
 
 	public override string NameLink => GetCypherString(CypherStrings.ConsoleCommand);
 
-	public override Locale SessionDbcLocale => Global.WorldMgr.DefaultDbcLocale;
+	public override Locale SessionDbcLocale => _worldManager.DefaultDbcLocale;
 
-	public override byte SessionDbLocaleIndex => (byte)Global.WorldMgr.DefaultDbcLocale;
+	public override byte SessionDbLocaleIndex => (byte)_worldManager.DefaultDbcLocale;
 
 	public RemoteAccessHandler(Action<string> reportToRA) : base()
 	{

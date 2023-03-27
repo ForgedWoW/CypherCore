@@ -349,7 +349,7 @@ public class CommandHandler
 			{
 				guidHigh = HighGuid.Player;
 
-				if (!ObjectManager.NormalizePlayerName(ref idS))
+				if (!GameObjectManager.NormalizePlayerName(ref idS))
 					return 0;
 
 				var player = Global.ObjAccessor.FindPlayerByName(idS);
@@ -524,7 +524,7 @@ public class CommandHandler
 		if (target != null)
 			target_ac_sec = target.Security;
 		else if (target_account != 0)
-			target_ac_sec = Global.AccountMgr.GetSecurity(target_account, (int)Global.WorldMgr.RealmId.Index);
+			target_ac_sec = Global.AccountMgr.GetSecurity(target_account, (int)_worldManager.RealmId.Index);
 		else
 			return true; // caller must report error for (target == NULL && target_account == 0)
 
@@ -587,7 +587,7 @@ public class CommandHandler
 		// Chat output
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
-		Global.WorldMgr.SendGlobalMessage(data);
+		_worldManager.SendGlobalMessage(data);
 	}
 
 	public void SendGlobalGMSysMessage(string str)
@@ -595,7 +595,7 @@ public class CommandHandler
 		// Chat output
 		ChatPkt data = new();
 		data.Initialize(ChatMsg.System, Language.Universal, null, null, str);
-		Global.WorldMgr.SendGlobalGMMessage(data);
+		_worldManager.SendGlobalGMMessage(data);
 	}
 
 	public bool GetPlayerGroupAndGUIDByName(string name, out Player player, out PlayerGroup group, out ObjectGuid guid, bool offline = false)
@@ -606,7 +606,7 @@ public class CommandHandler
 
 		if (!name.IsEmpty())
 		{
-			if (!ObjectManager.NormalizePlayerName(ref name))
+			if (!GameObjectManager.NormalizePlayerName(ref name))
 			{
 				SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -655,7 +655,7 @@ public class CommandHandler
 		if (name.IsEmpty())
 			return "";
 
-		if (!ObjectManager.NormalizePlayerName(ref name))
+		if (!GameObjectManager.NormalizePlayerName(ref name))
 			return "";
 
 		return name;

@@ -38,7 +38,7 @@ class GuildCommands
 			return false;
 		}
 
-		if (Global.ObjectMgr.IsReservedName(guildName) || !ObjectManager.IsValidCharterName(guildName))
+		if (Global.ObjectMgr.IsReservedName(guildName) || !GameObjectManager.IsValidCharterName(guildName))
 		{
 			handler.SendSysMessage(CypherStrings.BadValue);
 

@@ -256,8 +256,8 @@ public partial class Player
 			DuelWinner duelWinner = new();
 			duelWinner.BeatenName = (type == DuelCompleteType.Won ? opponent.GetName() : GetName());
 			duelWinner.WinnerName = (type == DuelCompleteType.Won ? GetName() : opponent.GetName());
-			duelWinner.BeatenVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-			duelWinner.WinnerVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			duelWinner.BeatenVirtualRealmAddress = _worldManager.VirtualRealmAddress;
+			duelWinner.WinnerVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 			duelWinner.Fled = type != DuelCompleteType.Won;
 
 			SendMessageToSet(duelWinner, true);
@@ -432,7 +432,7 @@ public partial class Player
 	{
 		// @todo should we always synchronize UNIT_FIELD_BYTES_2, 1 of controller and controlled?
 		// no, we shouldn't, those are checked for affecting player by client
-		if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || Global.WorldMgr.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
+		if (!PvpInfo.IsInNoPvPArea && !IsGameMaster && (PvpInfo.IsInFfaPvPArea || _worldManager.IsFFAPvPRealm || HasAuraType(AuraType.SetFFAPvp)))
 		{
 			if (!IsFFAPvP)
 			{

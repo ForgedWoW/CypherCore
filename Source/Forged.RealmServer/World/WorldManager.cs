@@ -1366,7 +1366,7 @@ public class WorldManager : Singleton<WorldManager>
 		{
 			_timers[WorldTimers.Blackmarket].Reset();
 
-            DB.Login.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, Global.WorldMgr.Realm.Id.Index);
+            DB.Login.DirectExecute("UPDATE realmlist SET population = {0} WHERE id = '{1}'", ActiveSessionCount, _worldManager.Realm.Id.Index);
 
             //- Update blackmarket, refresh auctions if necessary
             if ((_blackmarketTimer * _timers[WorldTimers.Blackmarket].Interval >= _worldConfig.GetIntValue(WorldCfg.BlackmarketUpdatePeriod) * Time.Hour * Time.InMilliseconds) || _blackmarketTimer == 0)

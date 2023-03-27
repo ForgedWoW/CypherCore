@@ -555,7 +555,7 @@ class MiscCommands
 					// case 3 or 4: .freeze player duration | .freeze player
 					// find the player
 					var name = arg1;
-					ObjectManager.NormalizePlayerName(ref name);
+					GameObjectManager.NormalizePlayerName(ref name);
 					player = Global.ObjAccessor.FindPlayerByName(name);
 
 					// Check if we have duration set
@@ -893,7 +893,7 @@ class MiscCommands
 			kickReasonStr = kickReason;
 
 		if (_worldConfig.GetBoolValue(WorldCfg.ShowKickInWorld))
-			Global.WorldMgr.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
+			_worldManager.SendWorldText(CypherStrings.CommandKickmessageWorld, (handler.Session != null ? handler.Session.PlayerName : "Server"), playerName, kickReasonStr);
 		else
 			handler.SendSysMessage(CypherStrings.CommandKickmessage, playerName);
 
@@ -1119,7 +1119,7 @@ class MiscCommands
 		// find only player from same account if any
 		if (!target)
 		{
-			var session = Global.WorldMgr.FindSession(accountId);
+			var session = _worldManager.FindSession(accountId);
 
 			if (session != null)
 				target = session.Player;
@@ -1165,7 +1165,7 @@ class MiscCommands
 		var nameLink = handler.PlayerLink(player.GetName());
 
 		if (_worldConfig.GetBoolValue(WorldCfg.ShowMuteInWorld))
-			Global.WorldMgr.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
+			_worldManager.SendWorldText(CypherStrings.CommandMutemessageWorld, muteBy, nameLink, muteTime, muteReasonStr);
 
 		if (target)
 		{
@@ -1446,7 +1446,7 @@ class MiscCommands
 
 		// Query the prepared statement for login data
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_PINFO);
-		stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
+		stmt.AddValue(0, _worldManager.Realm.Id.Index);
 		stmt.AddValue(1, accId);
 		var result0 = DB.Login.Query(stmt);
 
@@ -1664,7 +1664,7 @@ class MiscCommands
 			return false;
 		}
 
-		Global.WorldMgr.SendGlobalMessage(new PlaySound(handler.Session.Player.GUID, soundId, broadcastTextId.GetValueOrDefault(0)));
+		_worldManager.SendGlobalMessage(new PlaySound(handler.Session.Player.GUID, soundId, broadcastTextId.GetValueOrDefault(0)));
 
 		handler.SendSysMessage(CypherStrings.CommandPlayedToAll, soundId);
 
@@ -2052,7 +2052,7 @@ class MiscCommands
 		if (!targetNameArg.IsEmpty())
 		{
 			name = targetNameArg;
-			ObjectManager.NormalizePlayerName(ref name);
+			GameObjectManager.NormalizePlayerName(ref name);
 			player = Global.ObjAccessor.FindPlayerByName(name);
 		}
 		else // If no name was entered - use target
@@ -2118,7 +2118,7 @@ class MiscCommands
 		// find only player from same account if any
 		if (!target)
 		{
-			var session = Global.WorldMgr.FindSession(accountId);
+			var session = _worldManager.FindSession(accountId);
 
 			if (session != null)
 				target = session.Player;

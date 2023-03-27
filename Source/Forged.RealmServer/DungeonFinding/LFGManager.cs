@@ -2570,7 +2570,7 @@ public class LFGDungeonData
 	public LFGDungeonData(LFGDungeonsRecord dbc)
 	{
 		id = dbc.Id;
-		name = dbc.Name[Global.WorldMgr.DefaultDbcLocale];
+		name = dbc.Name[_worldManager.DefaultDbcLocale];
 		map = (uint)dbc.MapID;
 		type = dbc.TypeID;
 		expansion = dbc.ExpansionLevel;

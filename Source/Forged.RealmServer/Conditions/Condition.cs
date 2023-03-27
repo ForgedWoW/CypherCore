@@ -4,14 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Framework.Constants;
 using Forged.RealmServer.DataStorage;
-using Forged.RealmServer.Entities;
+using Forged.RealmServer.Entities.Objects;
+using Forged.RealmServer.Entities.Players;
 using Forged.RealmServer.Maps;
 using Forged.RealmServer.Scenarios;
 using Forged.RealmServer.Scripting.Interfaces.ICondition;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
+using Framework.Constants;
+using Serilog;
 
 namespace Forged.RealmServer.Conditions;
 
@@ -505,7 +505,7 @@ public class Condition
 			case ConditionTypes.BattlePetCount:
 			{
 				if (player != null)
-					condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
+					condMeets = MathFunctions.CompareValues((ComparisionType)ConditionValue3, (uint)player.Session.BattlePetMgr.GetPetCount(CliDB.BattlePetSpeciesStorage.LookupByKey(ConditionValue1), player.GUID), ConditionValue2);
 
 				break;
 			}

@@ -40,14 +40,14 @@ public class ObjectGuidGenerator
 	void HandleCounterOverflow()
 	{
 		Log.outFatal(LogFilter.Server, "{0} guid overflow!! Can't continue, shutting down server. ", _highGuid);
-		Global.WorldMgr.StopNow();
+		_worldManager.StopNow();
 	}
 
 	void CheckGuidTrigger(ulong guidlow)
 	{
-		if (!Global.WorldMgr.IsGuidAlert && guidlow > _worldConfig.GetUInt64Value(WorldCfg.RespawnGuidAlertLevel))
-			Global.WorldMgr.TriggerGuidAlert();
-		else if (!Global.WorldMgr.IsGuidWarning && guidlow > _worldConfig.GetUInt64Value(WorldCfg.RespawnGuidWarnLevel))
-			Global.WorldMgr.TriggerGuidWarning();
+		if (!_worldManager.IsGuidAlert && guidlow > _worldConfig.GetUInt64Value(WorldCfg.RespawnGuidAlertLevel))
+			_worldManager.TriggerGuidAlert();
+		else if (!_worldManager.IsGuidWarning && guidlow > _worldConfig.GetUInt64Value(WorldCfg.RespawnGuidWarnLevel))
+			_worldManager.TriggerGuidWarning();
 	}
 }

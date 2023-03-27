@@ -2179,7 +2179,7 @@ public partial class Unit : WorldObject
 							var ci = Global.ObjectMgr.GetCreatureTemplate((uint)eff.MiscValue);
 
 							if (ci != null)
-								if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, ObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
+								if (!IsDisallowedMountForm(eff.Id, ShapeShiftForm.None, GameObjectManager.ChooseDisplayId(ci).CreatureDisplayId))
 									handledAura = eff;
 						}
 					}
