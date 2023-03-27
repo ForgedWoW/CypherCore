@@ -130,8 +130,8 @@ public class M2Storage
 				// Add to vector
 				FlyByCamera thisCam = new()
 				{
-					timeStamp = targTimestamps[i],
-					locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0.0f)
+					TimeStamp = targTimestamps[i],
+					Locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0.0f)
 				};
 
 				targetcam.Add(thisCam);
@@ -166,8 +166,8 @@ public class M2Storage
 				// Add to vector
 				FlyByCamera thisCam = new()
 				{
-					timeStamp = posTimestamps[i],
-					locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0)
+					TimeStamp = posTimestamps[i],
+					Locations = new Vector4(newPos.X, newPos.Y, newPos.Z, 0)
 				};
 
 				if (targetcam.Count > 0)
@@ -181,35 +181,35 @@ public class M2Storage
 					{
 						nextTarget = targetcam[j];
 
-						if (targetcam[j].timeStamp > posTimestamps[i])
+						if (targetcam[j].TimeStamp > posTimestamps[i])
 							break;
 
 						lastTarget = targetcam[j];
 					}
 
-					var x = lastTarget.locations.X;
-					var y = lastTarget.locations.Y;
-					var z = lastTarget.locations.Z;
+					var x = lastTarget.Locations.X;
+					var y = lastTarget.Locations.Y;
+					var z = lastTarget.Locations.Z;
 
 					// Now, the timestamps for target cam and position can be different. So, if they differ we interpolate
-					if (lastTarget.timeStamp != posTimestamps[i])
+					if (lastTarget.TimeStamp != posTimestamps[i])
 					{
-						var timeDiffTarget = nextTarget.timeStamp - lastTarget.timeStamp;
-						var timeDiffThis = posTimestamps[i] - lastTarget.timeStamp;
-						var xDiff = nextTarget.locations.X - lastTarget.locations.X;
-						var yDiff = nextTarget.locations.Y - lastTarget.locations.Y;
-						var zDiff = nextTarget.locations.Z - lastTarget.locations.Z;
-						x = lastTarget.locations.X + (xDiff * ((float)timeDiffThis / timeDiffTarget));
-						y = lastTarget.locations.Y + (yDiff * ((float)timeDiffThis / timeDiffTarget));
-						z = lastTarget.locations.Z + (zDiff * ((float)timeDiffThis / timeDiffTarget));
+						var timeDiffTarget = nextTarget.TimeStamp - lastTarget.TimeStamp;
+						var timeDiffThis = posTimestamps[i] - lastTarget.TimeStamp;
+						var xDiff = nextTarget.Locations.X - lastTarget.Locations.X;
+						var yDiff = nextTarget.Locations.Y - lastTarget.Locations.Y;
+						var zDiff = nextTarget.Locations.Z - lastTarget.Locations.Z;
+						x = lastTarget.Locations.X + (xDiff * ((float)timeDiffThis / timeDiffTarget));
+						y = lastTarget.Locations.Y + (yDiff * ((float)timeDiffThis / timeDiffTarget));
+						z = lastTarget.Locations.Z + (zDiff * ((float)timeDiffThis / timeDiffTarget));
 					}
 
-					var xDiff1 = x - thisCam.locations.X;
-					var yDiff1 = y - thisCam.locations.Y;
-					thisCam.locations.W = (float)Math.Atan2(yDiff1, xDiff1);
+					var xDiff1 = x - thisCam.Locations.X;
+					var yDiff1 = y - thisCam.Locations.Y;
+					thisCam.Locations.W = (float)Math.Atan2(yDiff1, xDiff1);
 
-					if (thisCam.locations.W < 0)
-						thisCam.locations.W += 2 * MathFunctions.PI;
+					if (thisCam.Locations.W < 0)
+						thisCam.Locations.W += 2 * MathFunctions.PI;
 				}
 
 				cameras.Add(thisCam);

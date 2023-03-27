@@ -39,6 +39,7 @@ public class WorldManager
 {
     private readonly IConfiguration _configuration;
     private readonly LoginDatabase _loginDatabase;
+    private readonly ScriptManager _scriptManager;
     public const string NEXT_CURRENCY_RESET_TIME_VAR_ID = "NextCurrencyResetTime";
 	public const string NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID = "NextWeeklyQuestResetTime";
 	public const string NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID = "NextBGRandomDailyResetTime";
@@ -250,10 +251,11 @@ public class WorldManager
 
 	public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
 
-    public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase)
+    public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager)
 	{
         _configuration = configuration;
         _loginDatabase = loginDatabase;
+        _scriptManager = scriptManager;
 
         foreach (WorldTimers timer in Enum.GetValues(typeof(WorldTimers)))
 			_timers[timer] = new IntervalTimer();
@@ -313,7 +315,7 @@ public class WorldManager
 	public void SetClosed(bool val)
 	{
 		_isClosed = val;
-		Global.ScriptMgr.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
+		_scriptManager.ForEach<IWorldOnOpenStateChange>(p => p.OnOpenStateChange(!val));
 	}
 
 	public void LoadDBAllowedSecurityLevel()
@@ -328,7 +330,7 @@ public class WorldManager
 
 	public void SetMotd(string motd)
 	{
-		Global.ScriptMgr.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
+		_scriptManager.ForEach<IWorldOnMotdChange>(p => p.OnMotdChange(motd));
 
 		_motd.Clear();
 		_motd.AddRange(motd.Split('@'));
@@ -382,38 +384,6 @@ public class WorldManager
 
 	public void SetInitialWorldSettings()
 	{
-		Log.Logger.Information("Loading AreaTrigger Templates...");
-		Global.AreaTriggerDataStorage.LoadAreaTriggerTemplates();
-
-		Log.Logger.Information("Loading AreaTrigger Spawns...");
-		Global.AreaTriggerDataStorage.LoadAreaTriggerSpawns();
-
-		Log.Logger.Information("Loading Conversation Templates...");
-		Global.ConversationDataStorage.LoadConversationTemplates();
-
-		Log.Logger.Information("Loading Player Choices...");
-		Global.ObjectMgr.LoadPlayerChoices();
-
-		Log.Logger.Information("Loading Player Choices Locales...");
-		Global.ObjectMgr.LoadPlayerChoicesLocale();
-
-		Log.Logger.Information("Loading Jump Charge Params...");
-		Global.ObjectMgr.LoadJumpChargeParams();
-
-		CharacterDatabaseCleaner.CleanDatabase();
-
-		Log.Logger.Information("Loading the max pet number...");
-		Global.ObjectMgr.LoadPetNumber();
-
-		Log.Logger.Information("Loading pet level stats...");
-		Global.ObjectMgr.LoadPetLevelInfo();
-
-		Log.Logger.Information("Loading Player level dependent mail rewards...");
-		Global.ObjectMgr.LoadMailLevelRewards();
-
-		// Loot tables
-		LootManager.LoadLootTables();
-
 		Log.Logger.Information("Loading Skill Discovery Table...");
 		SkillDiscovery.LoadSkillDiscoveryTable();
 
@@ -440,7 +410,7 @@ public class WorldManager
 		Log.Logger.Information("Loading Achievements Scripts...");
 		Global.AchievementMgr.LoadAchievementScripts();
 		Log.Logger.Information("Loading Achievement Rewards...");
-		Global.AchievementMgr.LoadRewards();
+		Global.AchievementMgr.LoadRewards(); 
 		Log.Logger.Information("Loading Achievement Reward Locales...");
 		Global.AchievementMgr.LoadRewardLocales();
 		Log.Logger.Information("Loading Completed Achievements...");
@@ -587,7 +557,7 @@ public class WorldManager
 		Global.CreatureTextMgr.LoadCreatureTextLocales();
 
 		Log.Logger.Information("Initializing Scripts...");
-		Global.ScriptMgr.Initialize();
+		_scriptManager.Initialize();
 
 		Log.Logger.Information("Validating spell scripts...");
 		Global.ObjectMgr.ValidateSpellScripts();
@@ -1150,7 +1120,7 @@ public class WorldManager
 				SendGuidWarning();
 		}
 
-		Global.ScriptMgr.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
+		_scriptManager.ForEach<IWorldOnUpdate>(p => p.OnUpdate(diff));
 		_taskManager.Wait(); // wait for all blocks to complete.
 	}
 
@@ -1487,7 +1457,7 @@ public class WorldManager
 			ShutdownMsg(true, null, reason);
 		}
 
-		Global.ScriptMgr.ForEach<IWorldOnShutdownInitiate>(p => p.OnShutdownInitiate(exitcode, options));
+		_scriptManager.ForEach<IWorldOnShutdownInitiate>(p => p.OnShutdownInitiate(exitcode, options));
 	}
 
 	public void ShutdownMsg(bool show = false, Player player = null, string reason = "")
@@ -1532,7 +1502,7 @@ public class WorldManager
 
 		Log.Logger.Debug("Server {0} cancelled.", (_shutdownMask.HasAnyFlag(ShutdownMask.Restart) ? "restart" : "shutdown"));
 
-		Global.ScriptMgr.ForEach<IWorldOnShutdownCancel>(p => p.OnShutdownCancel());
+		_scriptManager.ForEach<IWorldOnShutdownCancel>(p => p.OnShutdownCancel());
 
 		return oldTimer;
 	}

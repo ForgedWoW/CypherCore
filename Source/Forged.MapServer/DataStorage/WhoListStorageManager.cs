@@ -3,24 +3,30 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
 
 namespace Forged.MapServer.DataStorage;
 
-public class WhoListStorageManager : Singleton<WhoListStorageManager>
+public class WhoListStorageManager
 {
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GuildManager _guildManager;
     private readonly List<WhoListPlayerInfo> _whoListStorage;
 
-    private WhoListStorageManager()
-	{
-		_whoListStorage = new List<WhoListPlayerInfo>();
-	}
+    public WhoListStorageManager(ObjectAccessor objectAccessor, GuildManager guildManager)
+    {
+        _objectAccessor = objectAccessor;
+        _guildManager = guildManager;
+        _whoListStorage = new List<WhoListPlayerInfo>();
+    }
 
 	public void Update()
 	{
 		// clear current list
 		_whoListStorage.Clear();
 
-		var players = Global.ObjAccessor.GetPlayers();
+		var players = _objectAccessor.GetPlayers();
 
 		foreach (var player in players)
 		{
@@ -28,7 +34,7 @@ public class WhoListStorageManager : Singleton<WhoListStorageManager>
 				continue;
 
 			var playerName = player.GetName();
-			var guildName = Global.GuildMgr.GetGuildNameById((uint)player.GuildId);
+			var guildName = _guildManager.GetGuildNameById((uint)player.GuildId);
 
 			var guild = player.Guild;
 			var guildGuid = ObjectGuid.Empty;

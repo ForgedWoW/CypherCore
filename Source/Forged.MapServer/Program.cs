@@ -39,6 +39,7 @@ using Forged.MapServer.Scripting;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Forged.MapServer.SupportSystem;
+using Forged.MapServer.Tools;
 using Forged.MapServer.Warden;
 using Forged.MapServer.Weather;
 using Forged.MapServer.World;
@@ -208,6 +209,12 @@ void RegisterManagers()
         o.Instance.LoadPlayerInfo();
         o.Instance.LoadExplorationBaseXP();
         o.Instance.LoadPetNames();
+        o.Instance.LoadPlayerChoices();
+        o.Instance.LoadPlayerChoicesLocale();
+        o.Instance.LoadJumpChargeParams();
+        o.Instance.LoadPetNumber();
+        o.Instance.LoadPetLevelInfo();
+        o.Instance.LoadMailLevelRewards();
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
@@ -267,6 +274,7 @@ void RegisterManagers()
     builder.RegisterType<GuildManager>().SingleInstance();
     builder.RegisterType<LootItemStorage>().SingleInstance();
     builder.RegisterType<LootStorage>().SingleInstance();
+    builder.RegisterType<LootManager>().SingleInstance().OnActivated(l => l.Instance.LoadLootTables());
     builder.RegisterType<TraitMgr>().SingleInstance().OnActivated(t => t.Instance.Load());
     builder.RegisterType<LanguageManager>().SingleInstance().OnActivated(l =>
     {
@@ -275,6 +283,16 @@ void RegisterManagers()
     });
     builder.RegisterType<ItemEnchantmentManager>().SingleInstance().OnActivated(i => i.Instance.LoadItemRandomBonusListTemplates());
     builder.RegisterType<LFGManager>().SingleInstance().OnActivated(l => l.Instance.LoadRewards());
+    builder.RegisterType<AreaTriggerDataStorage>().SingleInstance().OnActivated(a =>
+    {
+        a.Instance.LoadAreaTriggerTemplates();
+        a.Instance.LoadAreaTriggerSpawns();
+
+    });
+    builder.RegisterType<ConversationDataStorage>().SingleInstance().OnActivated(a => a.Instance.LoadConversationTemplates());
+    builder.RegisterType<CharacterTemplateDataStorage>().SingleInstance().OnActivated(a => a.Instance.LoadCharacterTemplates());
+    builder.RegisterType<WhoListStorageManager>().SingleInstance();
+    builder.RegisterType<CharacterDatabaseCleaner>().SingleInstance().OnActivated(c => c.Instance.CleanDatabase());
 }
 
 void RegisterFactories()

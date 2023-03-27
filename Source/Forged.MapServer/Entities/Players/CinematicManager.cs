@@ -66,7 +66,7 @@ public class CinematicManager : IDisposable
 			if (!CinematicCamera.Empty())
 			{
 				var firstCamera = CinematicCamera.FirstOrDefault();
-				Position pos = new(firstCamera.locations.X, firstCamera.locations.Y, firstCamera.locations.Z, firstCamera.locations.W);
+				Position pos = new(firstCamera.Locations.X, firstCamera.Locations.Y, firstCamera.Locations.Z, firstCamera.Locations.W);
 
 				if (!pos.IsPositionValid)
 					return;
@@ -81,7 +81,7 @@ public class CinematicManager : IDisposable
 				}
 
 				// Get cinematic length
-				CinematicLength = CinematicCamera.LastOrDefault().timeStamp;
+				CinematicLength = CinematicCamera.LastOrDefault().TimeStamp;
 			}
 		}
 	}
@@ -121,16 +121,16 @@ public class CinematicManager : IDisposable
 		// Obtain direction of travel
 		foreach (var cam in CinematicCamera)
 		{
-			if (cam.timeStamp > CinematicDiff)
+			if (cam.TimeStamp > CinematicDiff)
 			{
-				nextPosition = new Position(cam.locations.X, cam.locations.Y, cam.locations.Z, cam.locations.W);
-				nextTimestamp = cam.timeStamp;
+				nextPosition = new Position(cam.Locations.X, cam.Locations.Y, cam.Locations.Z, cam.Locations.W);
+				nextTimestamp = cam.TimeStamp;
 
 				break;
 			}
 
-			lastPosition = new Position(cam.locations.X, cam.locations.Y, cam.locations.Z, cam.locations.W);
-			lastTimestamp = cam.timeStamp;
+			lastPosition = new Position(cam.Locations.X, cam.Locations.Y, cam.Locations.Z, cam.Locations.W);
+			lastTimestamp = cam.TimeStamp;
 		}
 
 		var angle = lastPosition.GetAbsoluteAngle(nextPosition);
@@ -148,8 +148,8 @@ public class CinematicManager : IDisposable
 		// Get an iterator to the last entry in the cameras, to make sure we don't go beyond the end
 		var endItr = CinematicCamera.LastOrDefault();
 
-		if (endItr != null && workDiff > endItr.timeStamp)
-			workDiff = (int)endItr.timeStamp;
+		if (endItr != null && workDiff > endItr.TimeStamp)
+			workDiff = (int)endItr.TimeStamp;
 
 		// Never try to go back in time before the start of cinematic!
 		if (workDiff < 0)
@@ -158,16 +158,16 @@ public class CinematicManager : IDisposable
 		// Obtain the previous and next waypoint based on timestamp
 		foreach (var cam in CinematicCamera)
 		{
-			if (cam.timeStamp >= workDiff)
+			if (cam.TimeStamp >= workDiff)
 			{
-				nextPosition = new Position(cam.locations.X, cam.locations.Y, cam.locations.Z, cam.locations.W);
-				nextTimestamp = cam.timeStamp;
+				nextPosition = new Position(cam.Locations.X, cam.Locations.Y, cam.Locations.Z, cam.Locations.W);
+				nextTimestamp = cam.TimeStamp;
 
 				break;
 			}
 
-			lastPosition = new Position(cam.locations.X, cam.locations.Y, cam.locations.Z, cam.locations.W);
-			lastTimestamp = cam.timeStamp;
+			lastPosition = new Position(cam.Locations.X, cam.Locations.Y, cam.Locations.Z, cam.Locations.W);
+			lastTimestamp = cam.TimeStamp;
 		}
 
 		// Never try to go beyond the end of the cinematic

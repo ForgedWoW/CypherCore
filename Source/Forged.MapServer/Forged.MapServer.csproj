@@ -6,6 +6,7 @@
         <TargetFramework>net7.0</TargetFramework>
         <Configurations>Debug;Release;DebugMetric</Configurations>
         <PublishAot>true</PublishAot>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|win-x64'">
         <NoWarn>1701;1702;CS0649;IL3050</NoWarn>

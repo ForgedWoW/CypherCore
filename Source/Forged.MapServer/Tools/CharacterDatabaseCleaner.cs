@@ -4,27 +4,48 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Forged.MapServer.Achievements;
 using Forged.MapServer.DataStorage;
-using Forged.MapServer.Server;
+using Forged.MapServer.Spells;
 using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Tools;
 
 internal class CharacterDatabaseCleaner
 {
-	public static void CleanDatabase()
+    private readonly IConfiguration _configuration;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CriteriaManager _criteriaManager;
+    private readonly CliDB _cliDB;
+    private readonly SpellManager _spellManager;
+    private readonly WorldManager _worldManager;
+
+    public CharacterDatabaseCleaner(IConfiguration configuration, CharacterDatabase characterDatabase, CriteriaManager criteriaManager, CliDB cliDB, SpellManager spellManager, WorldManager worldManager)
+    {
+        _configuration = configuration;
+        _characterDatabase = characterDatabase;
+        _criteriaManager = criteriaManager;
+        _cliDB = cliDB;
+        _spellManager = spellManager;
+        _worldManager = worldManager;
+    }
+
+	public void CleanDatabase()
 	{
 		// config to disable
-		if (!GetDefaultValue("CleanCharacterDB", false))
+		if (!_configuration.GetDefaultValue("CleanCharacterDB", false))
 			return;
 
 		Log.Logger.Information("Cleaning character database...");
 
 		var oldMSTime = Time.MSTime;
 
-		var flags = (CleaningFlags)Global.WorldMgr.GetPersistentWorldVariable(WorldManager.CHARACTER_DATABASE_CLEANING_FLAGS_VAR_ID);
+		var flags = (CleaningFlags)_worldManager.GetPersistentWorldVariable(WorldManager.CHARACTER_DATABASE_CLEANING_FLAGS_VAR_ID);
 
 		// clean up
 		if (flags.HasAnyFlag(CleaningFlags.AchievementProgress))
@@ -44,17 +65,17 @@ internal class CharacterDatabaseCleaner
 
 		// NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
 		// you need to define them at least once in worldstates.
-		flags &= (CleaningFlags)GetDefaultValue("PersistentCharacterCleanFlags", 0);
-		Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CHARACTER_DATABASE_CLEANING_FLAGS_VAR_ID, (int)flags);
+		flags &= (CleaningFlags)_configuration.GetDefaultValue("PersistentCharacterCleanFlags", 0);
+		_worldManager.SetPersistentWorldVariable(WorldManager.CHARACTER_DATABASE_CLEANING_FLAGS_VAR_ID, (int)flags);
 
-		Global.WorldMgr.CleaningFlags = flags;
+		_worldManager.CleaningFlags = flags;
 
 		Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-    private static void CheckUnique(string column, string table, CheckFor check)
+    private void CheckUnique(string column, string table, CheckFor check)
 	{
-		var result = DB.Characters.Query("SELECT DISTINCT {0} FROM {1}", column, table);
+		var result = _characterDatabase.Query("SELECT DISTINCT {0} FROM {1}", column, table);
 
 		if (result.IsEmpty())
 		{
@@ -89,61 +110,61 @@ internal class CharacterDatabaseCleaner
 		if (found)
 		{
 			ss.Append(')');
-			DB.Characters.Execute(ss.ToString());
+			_characterDatabase.Execute(ss.ToString());
 		}
 	}
 
-    private static bool AchievementProgressCheck(uint criteria)
+    private bool AchievementProgressCheck(uint criteria)
 	{
-		return Global.CriteriaMgr.GetCriteria(criteria) != null;
+		return _criteriaManager.GetCriteria(criteria) != null;
 	}
 
-    private static void CleanCharacterAchievementProgress()
+    private void CleanCharacterAchievementProgress()
 	{
 		CheckUnique("criteria", "character_achievement_progress", AchievementProgressCheck);
 	}
 
-    private static bool SkillCheck(uint skill)
+    private bool SkillCheck(uint skill)
 	{
-		return CliDB.SkillLineStorage.ContainsKey(skill);
+		return _cliDB.SkillLineStorage.ContainsKey(skill);
 	}
 
-    private static void CleanCharacterSkills()
+    private void CleanCharacterSkills()
 	{
 		CheckUnique("skill", "character_skills", SkillCheck);
 	}
 
-    private static bool SpellCheck(uint spell_id)
+    private bool SpellCheck(uint spellID)
 	{
-		var spellInfo = Global.SpellMgr.GetSpellInfo(spell_id, Difficulty.None);
+		var spellInfo = _spellManager.GetSpellInfo(spellID, Difficulty.None);
 
 		return spellInfo != null && !spellInfo.HasAttribute(SpellCustomAttributes.IsTalent);
 	}
 
-    private static void CleanCharacterSpell()
+    private void CleanCharacterSpell()
 	{
 		CheckUnique("spell", "character_spell", SpellCheck);
 	}
 
-    private static bool TalentCheck(uint talent_id)
+    private bool TalentCheck(uint talentID)
 	{
-		var talentInfo = CliDB.TalentStorage.LookupByKey(talent_id);
+		var talentInfo = _cliDB.TalentStorage.LookupByKey(talentID);
 
 		if (talentInfo == null)
 			return false;
 
-		return CliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
+		return _cliDB.ChrSpecializationStorage.ContainsKey(talentInfo.SpecID);
 	}
 
-    private static void CleanCharacterTalent()
+    private void CleanCharacterTalent()
 	{
-		DB.Characters.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
+		_characterDatabase.DirectExecute("DELETE FROM character_talent WHERE talentGroup > {0}", PlayerConst.MaxSpecializations);
 		CheckUnique("talentId", "character_talent", TalentCheck);
 	}
 
-    private static void CleanCharacterQuestStatus()
+    private void CleanCharacterQuestStatus()
 	{
-		DB.Characters.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
+		_characterDatabase.DirectExecute("DELETE FROM character_queststatus WHERE status = 0");
 	}
 
     private delegate bool CheckFor(uint id);

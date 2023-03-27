@@ -3,14 +3,22 @@
 
 using System.Collections.Generic;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.DataStorage;
 
-public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStorage>
+public class CharacterTemplateDataStorage
 {
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CliDB _cliDB;
     private readonly Dictionary<uint, CharacterTemplate> _characterTemplateStore = new();
-    private CharacterTemplateDataStorage() { }
+
+    public CharacterTemplateDataStorage(WorldDatabase worldDatabase, CliDB cliDB)
+    {
+        _worldDatabase = worldDatabase;
+        _cliDB = cliDB;
+    }
 
 	public void LoadCharacterTemplates()
 	{
@@ -18,7 +26,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 		_characterTemplateStore.Clear();
 
 		MultiMap<uint, CharacterTemplateClass> characterTemplateClasses = new();
-		var classesResult = DB.World.Query("SELECT TemplateId, FactionGroup, Class FROM character_template_class");
+		var classesResult = _worldDatabase.Query("SELECT TemplateId, FactionGroup, Class FROM character_template_class");
 
 		if (!classesResult.IsEmpty())
 			do
@@ -35,7 +43,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 					continue;
 				}
 
-				if (!CliDB.ChrClassesStorage.ContainsKey(classID))
+				if (!_cliDB.ChrClassesStorage.ContainsKey(classID))
 				{
 					Log.Logger.Error("Class {0} defined for character template {1} in `character_template_class` does not exists, skipped.", classID, templateId);
 
@@ -47,7 +55,7 @@ public class CharacterTemplateDataStorage : Singleton<CharacterTemplateDataStora
 		else
 			Log.Logger.Information("Loaded 0 character template classes. DB table `character_template_class` is empty.");
 
-		var templates = DB.World.Query("SELECT Id, Name, Description, Level FROM character_template");
+		var templates = _worldDatabase.Query("SELECT Id, Name, Description, Level FROM character_template");
 
 		if (templates.IsEmpty())
 		{
