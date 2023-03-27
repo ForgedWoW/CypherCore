@@ -4,6 +4,7 @@
 using System.Collections;
 using System.IO;
 using Autofac;
+using Forged.MapServer;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Achievements;
 using Forged.MapServer.AI.SmartScripts;
@@ -21,6 +22,7 @@ using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Guilds;
+using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Movement;
@@ -36,11 +38,9 @@ using Forged.MapServer.Weather;
 using Forged.MapServer.World;
 using Framework;
 using Framework.Constants;
-using Framework.Database;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
-using Forged.MapServer.LootManagement;
 
 var configBuilder = new ConfigurationBuilder()
 					.SetBasePath(Directory.GetCurrentDirectory())
@@ -55,12 +55,12 @@ builder.AddFramework();
 builder.AddCommon();
 BuildServerTypes(builder);
 
-
+IContainer container = null;
 BitSet localeMask = null;
 
 builder.RegisterType<CliDB>().SingleInstance().OnActivated(c => localeMask = c.Instance.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder));
-
-var container = builder.Build();
+builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));
+container = builder.Build();
 
 // we initialize the server by resolving these.
 container.Resolve<CliDB>(); 
@@ -70,6 +70,16 @@ container.Resolve<WorldServiceManager>().LoadHandlers(container);
 
 void BuildServerTypes(ContainerBuilder containerBuilder)
 {
+    RegisterManagers(containerBuilder);
+    RegisterFactories(containerBuilder);
+
+
+    // Handlers
+}
+
+void RegisterManagers(ContainerBuilder containerBuilder)
+{
+    // Managers
     containerBuilder.RegisterType<AccountManager>().SingleInstance();
     containerBuilder.RegisterType<BNetAccountManager>().SingleInstance();
     containerBuilder.RegisterType<AchievementGlobalMgr>().SingleInstance();
@@ -110,6 +120,17 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<GuildManager>().SingleInstance();
     containerBuilder.RegisterType<LootItemStorage>().SingleInstance();
     containerBuilder.RegisterType<LootStorage>().SingleInstance();
+}
+
+void RegisterFactories(ContainerBuilder containerBuilder)
+{
+    // Factories
     containerBuilder.RegisterType<LootFactory>().SingleInstance();
     containerBuilder.RegisterType<SpellFactory>().SingleInstance();
+}
+
+void RegisterInstanced(ContainerBuilder containerBuilder)
+{
+    containerBuilder.RegisterType<Loot>();
+    containerBuilder.RegisterType<Spell>();
 }
