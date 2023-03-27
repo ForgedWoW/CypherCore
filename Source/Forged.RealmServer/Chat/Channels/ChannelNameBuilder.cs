@@ -22,7 +22,7 @@ class ChannelNameBuilder : MessageBuilder
 	public override PacketSenderOwning<ChannelNotify> Invoke(Locale locale = Locale.enUS)
 	{
 		// LocalizedPacketDo sends client DBC locale, we need to get available to server locale
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChannelNotify> sender = new();
 		sender.Data.Type = _modifier.GetNotificationType();

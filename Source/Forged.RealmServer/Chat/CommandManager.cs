@@ -98,7 +98,7 @@ public class CommandManager
 
 		var handler = new ConsoleHandler();
 
-		while (!Global.WorldMgr.IsStopped)
+		while (!_worldManager.IsStopped)
 		{
 			handler.ParseCommands(Console.ReadLine());
 			Console.ForegroundColor = ConsoleColor.Green;

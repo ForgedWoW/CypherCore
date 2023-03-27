@@ -20,7 +20,7 @@ class ChannelNotifyLeftBuilder : MessageBuilder
 
 	public override PacketSenderOwning<ChannelNotifyLeft> Invoke(Locale locale = Locale.enUS)
 	{
-		var localeIdx = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		var localeIdx = _worldManager.GetAvailableDbcLocale(locale);
 
 		PacketSenderOwning<ChannelNotifyLeft> notify = new();
 		notify.Data.Channel = _source.GetName(localeIdx);

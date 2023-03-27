@@ -177,7 +177,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 				_localeTextMap[key] = new CreatureTextLocale();
 
 			var data = _localeTextMap[key];
-			ObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
+			GameObjectManager.AddLocaleString(result.Read<string>(4), locale, data.Text);
 		} while (result.NextRow());
 
 		Log.Logger.Information("Loaded {0} creature localized texts in {1} ms", _localeTextMap.Count, Time.GetMSTimeDiffToNow(oldMSTime));
@@ -385,7 +385,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			var creatureTextLocale = _localeTextMap.LookupByKey(new CreatureTextId(entry, textGroup, id));
 
 			if (creatureTextLocale != null)
-				ObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
+				GameObjectManager.GetLocaleString(creatureTextLocale.Text, locale, ref baseText);
 		}
 
 		return baseText;
@@ -455,7 +455,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			}
 			case CreatureTextRange.World:
 			{
-				var smap = Global.WorldMgr.AllSessions;
+				var smap = _worldManager.AllSessions;
 
 				foreach (var session in smap)
 				{
@@ -561,7 +561,7 @@ public sealed class CreatureTextManager : Singleton<CreatureTextManager>
 			}
 			case CreatureTextRange.World:
 			{
-				var smap = Global.WorldMgr.AllSessions;
+				var smap = _worldManager.AllSessions;
 
 				foreach (var session in smap)
 				{

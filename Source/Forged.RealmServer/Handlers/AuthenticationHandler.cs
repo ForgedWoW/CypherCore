@@ -18,10 +18,10 @@ public class AuthenticationHandler : IWorldSessionHandler
     private readonly GameTime _gameTime;
     private readonly WorldConfig _worldConfig;
     private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _objectManager;
 
     public AuthenticationHandler(WorldSession session, Realm realm, IConfiguration configuration, GameTime gameTime, WorldConfig worldConfig,
-		CharacterTemplateDataStorage characterTemplateDataStorage, ObjectManager objectManager)
+		CharacterTemplateDataStorage characterTemplateDataStorage, GameObjectManager objectManager)
     {
         _session = session;
         _realm = realm;
@@ -89,17 +89,6 @@ public class AuthenticationHandler : IWorldSessionHandler
 		ClientCacheVersion cache = new();
 		cache.CacheVersion = version;
         _session.SendPacket(cache); //enabled it
-	}
-
-	public void SendSetTimeZoneInformation()
-	{
-		// @todo: replace dummy values
-		SetTimeZoneInformation packet = new();
-		packet.ServerTimeTZ = "Europe/Paris";
-		packet.GameTimeTZ = "Europe/Paris";
-		packet.ServerRegionalTZ = "Europe/Paris";
-
-        _session.SendPacket(packet); //enabled it
 	}
 
 	public void SendFeatureSystemStatusGlueScreen()

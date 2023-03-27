@@ -203,7 +203,7 @@ public class GameObjectModel : IModel
 	public static bool LoadGameObjectModelList()
 	{
 		var oldMSTime = Time.MSTime;
-		var filename = Global.WorldMgr.DataPath + "/vmaps/GameObjectModels.dtree";
+		var filename = _worldManager.DataPath + "/vmaps/GameObjectModels.dtree";
 
 		if (!File.Exists(filename))
 		{

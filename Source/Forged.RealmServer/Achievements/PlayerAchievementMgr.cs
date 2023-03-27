@@ -236,7 +236,7 @@ public class PlayerAchievementMgr : AchievementManager
 			if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
 			{
 				earned.Owner = _owner.GUID;
-				earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+				earned.VirtualRealmAddress = earned.NativeRealmAddress = _worldManager.VirtualRealmAddress;
 			}
 
 			achievementData.Data.Earned.Add(earned);
@@ -295,7 +295,7 @@ public class PlayerAchievementMgr : AchievementManager
 			if (!achievement.Flags.HasAnyFlag(AchievementFlags.Account))
 			{
 				earned.Owner = _owner.GUID;
-				earned.VirtualRealmAddress = earned.NativeRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+				earned.VirtualRealmAddress = earned.NativeRealmAddress = _worldManager.VirtualRealmAddress;
 			}
 
 			inspectedAchievements.Data.Earned.Add(earned);
@@ -399,8 +399,8 @@ public class PlayerAchievementMgr : AchievementManager
 
 					if (loc != null)
 					{
-						ObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
-						ObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
+						GameObjectManager.GetLocaleString(loc.Subject, localeConstant, ref subject);
+						GameObjectManager.GetLocaleString(loc.Body, localeConstant, ref text);
 					}
 				}
 
@@ -521,7 +521,7 @@ public class PlayerAchievementMgr : AchievementManager
 				serverFirstAchievement.Name = _owner.GetName();
 				serverFirstAchievement.PlayerGUID = _owner.GUID;
 				serverFirstAchievement.AchievementID = achievement.Id;
-				Global.WorldMgr.SendGlobalMessage(serverFirstAchievement);
+				_worldManager.SendGlobalMessage(serverFirstAchievement);
 			}
 			// if player is in world he can tell his friends about new achievement
 			else if (_owner.IsInWorld)
@@ -536,7 +536,7 @@ public class PlayerAchievementMgr : AchievementManager
 		AchievementEarned achievementEarned = new();
 		achievementEarned.Sender = _owner.GUID;
 		achievementEarned.Earner = _owner.GUID;
-		achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
+		achievementEarned.EarnerNativeRealm = achievementEarned.EarnerVirtualRealm = _worldManager.VirtualRealmAddress;
 		achievementEarned.AchievementID = achievement.Id;
 		achievementEarned.Time = _gameTime.GetGameTime;
 

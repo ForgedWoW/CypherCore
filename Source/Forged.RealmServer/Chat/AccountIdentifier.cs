@@ -50,7 +50,7 @@ class AccountIdentifier
 		// first try parsing as account name
 		_name = text;
 		_id = Global.AccountMgr.GetId(_name);
-		_session = Global.WorldMgr.FindSession(_id);
+		_session = _worldManager.FindSession(_id);
 
 		if (_id != 0) // account with name exists, we are done
 			return next;
@@ -60,7 +60,7 @@ class AccountIdentifier
 			return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserAccountNameNoExist, _name));
 
 		_id = id;
-		_session = Global.WorldMgr.FindSession(_id);
+		_session = _worldManager.FindSession(_id);
 
 		if (Global.AccountMgr.GetName(_id, out _name))
 			return next;

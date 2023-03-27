@@ -251,7 +251,7 @@ public partial class Creature : Unit
 			return false;
 		}
 
-		var model = ObjectManager.ChooseDisplayId(cInfo, data);
+		var model = GameObjectManager.ChooseDisplayId(cInfo, data);
 		var minfo = Global.ObjectMgr.GetCreatureModelRandomGender(ref model, cInfo);
 
 		if (minfo == null) // Cancel load if no model defined
@@ -328,7 +328,7 @@ public partial class Creature : Unit
 
 		Faction = cInfo.Faction;
 
-		ObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
+		GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, data);
 
 		if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
 			npcFlags |= Global.GameEventMgr.GetNPCFlag(this);
@@ -1845,7 +1845,7 @@ public partial class Creature : Unit
 				var creatureData = CreatureData;
 				var cInfo = Template;
 
-				ObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
+				GameObjectManager.ChooseCreatureFlags(cInfo, out var npcFlags, out var unitFlags, out var unitFlags2, out var unitFlags3, out var dynamicFlags, creatureData);
 
 				if (cInfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.Worldevent))
 					npcFlags |= Global.GameEventMgr.GetNPCFlag(this);
@@ -2368,7 +2368,7 @@ public partial class Creature : Unit
 
 		ZoneUnderAttack packet = new();
 		packet.AreaID = (int)Area;
-		Global.WorldMgr.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
+		_worldManager.SendGlobalMessage(packet, null, (enemy_team == TeamFaction.Alliance ? TeamFaction.Horde : TeamFaction.Alliance));
 	}
 
 	public override bool HasSpell(uint spellId)

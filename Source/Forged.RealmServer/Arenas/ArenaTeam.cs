@@ -260,7 +260,7 @@ public class ArenaTeam
 
 	public bool SetName(string name)
 	{
-		if (TeamName == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !ObjectManager.IsValidCharterName(name))
+		if (TeamName == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !GameObjectManager.IsValidCharterName(name))
 			return false;
 
 		TeamName = name;

@@ -20,9 +20,10 @@ public class HotfixHandler : IWorldSessionHandler
     private readonly MultiMap<(uint tableHash, int recordId), HotfixOptionalData>[] _optionalData;
     private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlobData;
     private readonly GameTime _gameTime;
+    private readonly DB2Manager _dB2Manager;
 
     public HotfixHandler(WorldSession session, Dictionary<uint, IDB2Storage> storage, MultiMap<int, HotfixRecord> hotfixData, MultiMap<(uint tableHash, int recordId), 
-		HotfixOptionalData>[] optionalData, Dictionary<(uint tableHash, int recordId), byte[]>[] hotfixBlobData, GameTime gameTime)
+		HotfixOptionalData>[] optionalData, Dictionary<(uint tableHash, int recordId), byte[]>[] hotfixBlobData, GameTime gameTime, DB2Manager dB2Manager)
     {
         _session = session;
         _storage = storage;
@@ -30,6 +31,7 @@ public class HotfixHandler : IWorldSessionHandler
         _optionalData = optionalData;
         _hotfixBlobData = hotfixBlobData;
         _gameTime = gameTime;
+        _dB2Manager = dB2Manager;
     }
 
 	[WorldPacketHandler(ClientOpcodes.DbQueryBulk, Processing = PacketProcessing.Inplace, Status = SessionStatus.Authed)]
@@ -83,7 +85,7 @@ public class HotfixHandler : IWorldSessionHandler
 
 					if (hotfixRecord.HotfixStatus == HotfixRecord.Status.Valid)
 					{
-						var storage = Global.DB2Mgr.GetStorage(hotfixRecord.TableHash);
+						var storage = _dB2Manager.GetStorage(hotfixRecord.TableHash);
 
 						if (storage != null && storage.HasRecord((uint)hotfixRecord.RecordID))
 						{

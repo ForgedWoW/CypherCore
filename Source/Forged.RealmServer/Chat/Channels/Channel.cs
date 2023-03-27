@@ -471,7 +471,7 @@ public class Channel
 				(player.Session.HasPermission(RBACPermissions.WhoSeeAllSecLevels) ||
 				member.Session.Security <= (AccountTypes)gmLevelInWhoList) &&
 				member.IsVisibleGloballyFor(player))
-				list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, Global.WorldMgr.VirtualRealmAddress, pair.Value.GetFlags()));
+				list.Members.Add(new ChannelListResponse.ChannelPlayer(pair.Key, _worldManager.VirtualRealmAddress, pair.Value.GetFlags()));
 		}
 
 		player.SendPacket(list);

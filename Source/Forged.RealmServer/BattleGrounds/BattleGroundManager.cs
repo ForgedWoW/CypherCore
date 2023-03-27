@@ -415,13 +415,13 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 	public void ToggleTesting()
 	{
 		m_Testing = !m_Testing;
-		Global.WorldMgr.SendWorldText(m_Testing ? CypherStrings.DebugBgOn : CypherStrings.DebugBgOff);
+		_worldManager.SendWorldText(m_Testing ? CypherStrings.DebugBgOn : CypherStrings.DebugBgOff);
 	}
 
 	public void ToggleArenaTesting()
 	{
 		m_ArenaTesting = !m_ArenaTesting;
-		Global.WorldMgr.SendWorldText(m_ArenaTesting ? CypherStrings.DebugArenaOn : CypherStrings.DebugArenaOff);
+		_worldManager.SendWorldText(m_ArenaTesting ? CypherStrings.DebugArenaOn : CypherStrings.DebugArenaOff);
 	}
 
 	public void ResetHolidays()

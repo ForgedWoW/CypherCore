@@ -333,8 +333,8 @@ public class AchievementGlobalMgr : Singleton<AchievementGlobalMgr>
 			if (!SharedConst.IsValidLocale(locale) || locale == Locale.enUS)
 				continue;
 
-			ObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
-			ObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
+			GameObjectManager.AddLocaleString(result.Read<string>(2), locale, data.Subject);
+			GameObjectManager.AddLocaleString(result.Read<string>(3), locale, data.Body);
 
 			_achievementRewardLocales[id] = data;
 		} while (result.NextRow());

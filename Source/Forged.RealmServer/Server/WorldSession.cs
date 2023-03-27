@@ -18,18 +18,24 @@ using Forged.RealmServer.Accounts;
 using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Chat;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Scripting.Interfaces.IPlayer;
 using Forged.RealmServer.Battlepay;
 using Forged.RealmServer.Networking;
 using Serilog;
 using Microsoft.Extensions.Configuration;
 using Framework.Util;
 using Forged.RealmServer.Networking.Packets;
+using Bgs.Protocol.GameUtilities.V1;
+using Framework.Serialization;
+using Framework.Web;
+using Google.Protobuf;
+using Forged.RealmServer.Services;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.DataStorage;
 using static Forged.RealmServer.Networking.Packets.ConnectTo;
 
 namespace Forged.RealmServer;
 
-public partial class WorldSession : IDisposable
+public class WorldSession : IDisposable
 {
 	public long MuteTime;
 
@@ -51,7 +57,6 @@ public partial class WorldSession : IDisposable
 	readonly uint[] _tutorials = new uint[SharedConst.MaxAccountTutorialValues];
 	readonly Dictionary<uint /*realmAddress*/, byte> _realmCharacterCounts = new();
 
-    readonly List<string> _registeredAddonPrefixes = new();
 	readonly uint _recruiterId;
 	readonly bool _isRecruiter;
     private readonly GameTime _gameTime;
@@ -59,6 +64,13 @@ public partial class WorldSession : IDisposable
     private readonly IConfiguration _configuration;
     private readonly LoginDatabase _loginDatabase;
     private readonly CharacterDatabase _characterDatabase;
+    private readonly RealmManager _realmManager;
+    private readonly WorldManager _worldManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly AccountManager _accountManager;
+    private readonly DB2Manager _dB2Manager;
+    private readonly CharacterTemplateDataStorage _characterTemplateDataStorage;
     private readonly ActionBlock<WorldPacket> _recvQueue;
 
 	readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
@@ -99,7 +111,6 @@ public partial class WorldSession : IDisposable
 	TutorialsFlag _tutorialsChanged;
 
 	Array<byte> _realmListSecret = new(32);
-	bool _filterAddonMessages;
 	long _timeOutTime;
 
 	RBACData _rbacData;
@@ -112,7 +123,7 @@ public partial class WorldSession : IDisposable
 	// Packets cooldown
 	long _calendarEventCreationCooldown;
 
-	public bool CanSpeak => MuteTime <= _gameTime.GetGameTime;
+    public bool CanSpeak => MuteTime <= _gameTime.GetGameTime;
 
 	public string PlayerName => _player != null ? _player.GetName() : "Unknown";
 
@@ -208,11 +219,14 @@ public partial class WorldSession : IDisposable
 
 	public BattlepayManager BattlePayMgr => _battlePayMgr;
 
+    public List<string> RegisteredAddonPrefixes { get; } = new();
+	public bool FilterAddonMessages { get; set; } = false;
 
-
-	public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, 
+    public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, 
 		long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter, GameTime gameTime, WorldConfig worldConfig,
-		IConfiguration configuration, LoginDatabase loginDatabase, CharacterDatabase characterDatabase)
+		IConfiguration configuration, LoginDatabase loginDatabase, CharacterDatabase characterDatabase, RealmManager realmManager,
+		WorldManager worldManager, ObjectAccessor objectAccessor, GameObjectManager gameObjectManager, AccountManager accountManager,
+		DB2Manager dB2Manager, CharacterTemplateDataStorage characterTemplateDataStorage)
 	{
 		MuteTime = mute_time;
 		_antiDos = new DosProtection(this);
@@ -226,12 +240,19 @@ public partial class WorldSession : IDisposable
         _configuration = configuration;
         _loginDatabase = loginDatabase;
         _characterDatabase = characterDatabase;
+        _realmManager = realmManager;
+        _worldManager = worldManager;
+        _objectAccessor = objectAccessor;
+        _gameObjectManager = gameObjectManager;
+        _accountManager = accountManager;
+        _dB2Manager = dB2Manager;
+        _characterTemplateDataStorage = characterTemplateDataStorage;
 
         _configuredExpansion = _configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1) == -1 ? Expansion.LevelCurrent : (Expansion)_configuration.GetDefaultValue<int>("Player.OverrideExpansion", -1);
 		_accountExpansion = Expansion.LevelCurrent == _configuredExpansion ? expansion : _configuredExpansion;
 		_expansion = (Expansion)Math.Min((byte)expansion, _worldConfig.GetIntValue(WorldCfg.Expansion));
 		_os = os;
-		_sessionDbcLocale = Global.WorldMgr.GetAvailableDbcLocale(locale);
+		_sessionDbcLocale = _worldManager.GetAvailableDbcLocale(locale);
 		_sessionDbLocaleIndex = locale;
 		_recruiterId = recruiter;
 		_isRecruiter = isARecruiter;
@@ -403,13 +424,13 @@ public partial class WorldSession : IDisposable
 
 	public bool IsAddonRegistered(string prefix)
 	{
-		if (!_filterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
+		if (!FilterAddonMessages) // if we have hit the softcap (64) nothing should be filtered
 			return true;
 
-		if (_registeredAddonPrefixes.Empty())
+		if (RegisteredAddonPrefixes.Empty())
 			return false;
 
-		return _registeredAddonPrefixes.Contains(prefix);
+		return RegisteredAddonPrefixes.Contains(prefix);
 	}
 
 	public void SendAccountDataTimes(ObjectGuid playerGuid, AccountDataTypes mask)
@@ -461,7 +482,7 @@ public partial class WorldSession : IDisposable
 
 	public void SendConnectToInstance(ConnectToSerial serial)
 	{
-		var instanceAddress = Global.WorldMgr.Realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
+		var instanceAddress = _worldManager.Realm.GetAddressForClient(System.Net.IPAddress.Parse(RemoteAddress));
 
 		_instanceConnectKey.AccountId = AccountId;
 		_instanceConnectKey.connectionType = ConnectionType.Instance;
@@ -509,7 +530,7 @@ public partial class WorldSession : IDisposable
 
 	public void SendNotification(CypherStrings str, params object[] args)
 	{
-		SendNotification(Global.ObjectMgr.GetCypherString(str), args);
+		SendNotification(_gameObjectManager.GetCypherString(str), args);
 	}
 
 	public void SendNotification(string str, params object[] args)
@@ -562,10 +583,10 @@ public partial class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.Realm.Id.Index,
+					_worldManager.Realm.Id.Index,
 					secLevel);
 
-		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
+		_rbacData = new RBACData(id, _accountName, (int)_worldManager.Realm.Id.Index, _accountManager, _loginDatabase, (byte)secLevel);
 		_rbacData.LoadFromDB();
 	}
 
@@ -578,10 +599,10 @@ public partial class WorldSession : IDisposable
 					"WorldSession.LoadPermissions [AccountId: {0}, Name: {1}, realmId: {2}, secLevel: {3}]",
 					id,
 					_accountName,
-					Global.WorldMgr.Realm.Id.Index,
+					_worldManager.Realm.Id.Index,
 					secLevel);
 
-		_rbacData = new RBACData(id, _accountName, (int)Global.WorldMgr.Realm.Id.Index, (byte)secLevel);
+		_rbacData = new RBACData(id, _accountName, (int)_worldManager.Realm.Id.Index, _accountManager, _loginDatabase, (byte)secLevel);
 
 		return _rbacData.LoadFromDBAsync();
 	}
@@ -627,7 +648,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession:HasPermission [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
-					Global.WorldMgr.Realm.Id.Index);
+                    _worldManager.Realm.Id.Index);
 
 		return hasPermission;
 	}
@@ -638,7 +659,7 @@ public partial class WorldSession : IDisposable
 					"WorldSession:Invalidaterbac:RBACData [AccountId: {0}, Name: {1}, realmId: {2}]",
 					_rbacData.Id,
 					_rbacData.Name,
-					Global.WorldMgr.Realm.Id.Index);
+					_worldManager.Realm.Id.Index);
 
 		_rbacData = null;
 	}
@@ -853,7 +874,7 @@ public partial class WorldSession : IDisposable
 		} while (result.NextRow());
 	}
 
-	void SetAccountData(AccountDataTypes type, long time, string data)
+	internal void SetAccountData(AccountDataTypes type, long time, string data)
 	{
 		if (Convert.ToBoolean((1 << (int)type) & (int)AccountDataTypes.GlobalCacheMask))
 		{
@@ -1015,5 +1036,239 @@ public partial class WorldSession : IDisposable
 		{
 			return (uint)movementTime;
 		}
-	}
+    }
+
+    public void SendSetTimeZoneInformation()
+    {
+        // @todo: replace dummy values
+        SetTimeZoneInformation packet = new();
+        packet.ServerTimeTZ = "Europe/Paris";
+        packet.GameTimeTZ = "Europe/Paris";
+        packet.ServerRegionalTZ = "Europe/Paris";
+
+        SendPacket(packet); //enabled it
+    }
+
+    [Service(OriginalHash.GameUtilitiesService, 1)]
+    BattlenetRpcErrorCode HandleProcessClientRequest(ClientRequest request, ClientResponse response)
+    {
+        Bgs.Protocol.Attribute command = null;
+        Dictionary<string, Bgs.Protocol.Variant> Params = new();
+
+        string removeSuffix(string str)
+        {
+            var pos = str.IndexOf('_');
+
+            if (pos != -1)
+                return str.Substring(0, pos);
+
+            return str;
+        }
+
+        for (var i = 0; i < request.Attribute.Count; ++i)
+        {
+            var attr = request.Attribute[i];
+
+            if (attr.Name.Contains("Command_"))
+            {
+                command = attr;
+                Params[removeSuffix(attr.Name)] = attr.Value;
+            }
+            else
+            {
+                Params[attr.Name] = attr.Value;
+            }
+        }
+
+        if (command == null)
+        {
+            Log.Logger.Error("{0} sent ClientRequest with no command.", GetPlayerInfo());
+
+            return BattlenetRpcErrorCode.RpcMalformedRequest;
+        }
+
+        return removeSuffix(command.Name) switch
+        {
+            "Command_RealmListRequest_v1" => HandleRealmListRequest(Params, response),
+            "Command_RealmJoinRequest_v1" => HandleRealmJoinRequest(Params, response),
+            _ => BattlenetRpcErrorCode.RpcNotImplemented
+        };
+    }
+
+    [Service(OriginalHash.GameUtilitiesService, 10)]
+    BattlenetRpcErrorCode HandleGetAllValuesForAttribute(GetAllValuesForAttributeRequest request, GetAllValuesForAttributeResponse response)
+    {
+        if (!request.AttributeKey.Contains("Command_RealmListRequest_v1"))
+        {
+            _realmManager.WriteSubRegions(response);
+
+            return BattlenetRpcErrorCode.Ok;
+        }
+
+        return BattlenetRpcErrorCode.RpcNotImplemented;
+    }
+
+    BattlenetRpcErrorCode HandleRealmListRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
+    {
+        var subRegionId = "";
+        var subRegion = Params.LookupByKey("Command_RealmListRequest_v1");
+
+        if (subRegion != null)
+            subRegionId = subRegion.StringValue;
+
+        var compressed = _realmManager.GetRealmList(_worldManager.Realm.Build, subRegionId);
+
+        if (compressed.Empty())
+            return BattlenetRpcErrorCode.UtilServerFailedToSerializeResponse;
+
+        Bgs.Protocol.Attribute attribute = new();
+        attribute.Name = "Param_RealmList";
+        attribute.Value = new Bgs.Protocol.Variant();
+        attribute.Value.BlobValue = ByteString.CopyFrom(compressed);
+        response.Attribute.Add(attribute);
+
+        var realmCharacterCounts = new RealmCharacterCountList();
+
+        foreach (var characterCount in RealmCharacterCounts)
+        {
+            RealmCharacterCountEntry countEntry = new();
+            countEntry.WowRealmAddress = (int)characterCount.Key;
+            countEntry.Count = characterCount.Value;
+            realmCharacterCounts.Counts.Add(countEntry);
+        }
+
+        compressed = Json.Deflate("JSONRealmCharacterCountList", realmCharacterCounts);
+
+        attribute = new Bgs.Protocol.Attribute();
+        attribute.Name = "Param_CharacterCountList";
+        attribute.Value = new Bgs.Protocol.Variant();
+        attribute.Value.BlobValue = ByteString.CopyFrom(compressed);
+        response.Attribute.Add(attribute);
+
+        return BattlenetRpcErrorCode.Ok;
+    }
+
+    BattlenetRpcErrorCode HandleRealmJoinRequest(Dictionary<string, Bgs.Protocol.Variant> Params, ClientResponse response)
+    {
+        var realmAddress = Params.LookupByKey("Param_RealmAddress");
+
+        if (realmAddress != null)
+            return _realmManager.JoinRealm((uint)realmAddress.UintValue,
+                                            _worldManager.Realm.Build,
+                                            System.Net.IPAddress.Parse(RemoteAddress),
+                                            RealmListSecret,
+                                            SessionDbcLocale,
+                                            OS,
+                                            AccountName,
+                                            response);
+
+        return BattlenetRpcErrorCode.Ok;
+    }
+
+    public void BuildNameQueryData(ObjectGuid guid, out NameCacheLookupResult lookupData)
+    {
+        lookupData = new NameCacheLookupResult();
+
+        var player = _objectAccessor.FindPlayer(guid);
+
+        lookupData.Player = guid;
+
+        lookupData.Data = new PlayerGuidLookupData();
+
+        if (lookupData.Data.Initialize(guid, player))
+            lookupData.Result = (byte)ResponseCodes.Success;
+        else
+            lookupData.Result = (byte)ResponseCodes.Failure; // name unknown
+    }
+    public void SendAuthResponse(BattlenetRpcErrorCode code, bool queued, uint queuePos = 0)
+    {
+        AuthResponse response = new();
+        response.Result = code;
+
+        if (code == BattlenetRpcErrorCode.Ok)
+        {
+            response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
+            var forceRaceAndClass = _configuration.GetDefaultValue("character.EnforceRaceAndClassExpansions", true);
+
+            response.SuccessInfo = new AuthResponse.AuthSuccessInfo();
+            response.SuccessInfo.ActiveExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)Expansion;
+            response.SuccessInfo.AccountExpansionLevel = !forceRaceAndClass ? (byte)Expansion.Dragonflight : (byte)AccountExpansion;
+            response.SuccessInfo.VirtualRealmAddress = _worldManager.VirtualRealmAddress;
+            response.SuccessInfo.Time = (uint)_gameTime.GetGameTime;
+
+            var realm = _worldManager.Realm;
+
+            // Send current home realm. Also there is no need to send it later in realm queries.
+            response.SuccessInfo.VirtualRealms.Add(new VirtualRealmInfo(realm.Id.GetAddress(), true, false, realm.Name, realm.NormalizedName));
+
+            if (HasPermission(RBACPermissions.UseCharacterTemplates))
+                foreach (var templ in _characterTemplateDataStorage.GetCharacterTemplates().Values)
+                    response.SuccessInfo.Templates.Add(templ);
+
+            response.SuccessInfo.AvailableClasses = _gameObjectManager.GetClassExpansionRequirements();
+        }
+
+        if (queued)
+        {
+            AuthWaitInfo waitInfo = new();
+            waitInfo.WaitCount = queuePos;
+            response.WaitInfo = waitInfo;
+        }
+
+        SendPacket(response);
+    }
+
+    public void SendAuthWaitQueue(uint position)
+    {
+        if (position != 0)
+        {
+            WaitQueueUpdate waitQueueUpdate = new();
+            waitQueueUpdate.WaitInfo.WaitCount = position;
+            waitQueueUpdate.WaitInfo.WaitTime = 0;
+            waitQueueUpdate.WaitInfo.HasFCM = false;
+            SendPacket(waitQueueUpdate);
+        }
+        else
+        {
+            SendPacket(new WaitQueueFinish());
+        }
+    }
+
+    public void SendFeatureSystemStatusGlueScreen()
+    {
+        FeatureSystemStatusGlueScreen features = new();
+        features.BpayStoreAvailable = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+        features.BpayStoreDisabledByParentalControls = false;
+        features.CharUndeleteEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemCharacterUndeleteEnabled);
+        features.BpayStoreEnabled = _worldConfig.GetBoolValue(WorldCfg.FeatureSystemBpayStoreEnabled);
+        features.MaxCharactersPerRealm = _worldConfig.GetIntValue(WorldCfg.CharactersPerRealm);
+        features.MinimumExpansionLevel = (int)Expansion.Classic;
+        features.MaximumExpansionLevel = _worldConfig.GetIntValue(WorldCfg.Expansion);
+
+        var europaTicketConfig = new EuropaTicketConfig();
+        europaTicketConfig.ThrottleState.MaxTries = 10;
+        europaTicketConfig.ThrottleState.PerMilliseconds = 60000;
+        europaTicketConfig.ThrottleState.TryCount = 1;
+        europaTicketConfig.ThrottleState.LastResetTimeBeforeNow = 111111;
+        europaTicketConfig.TicketsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportTicketsEnabled);
+        europaTicketConfig.BugsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportBugsEnabled);
+        europaTicketConfig.ComplaintsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportComplaintsEnabled);
+        europaTicketConfig.SuggestionsEnabled = _worldConfig.GetBoolValue(WorldCfg.SupportSuggestionsEnabled);
+
+        features.EuropaTicketSystemStatus = europaTicketConfig;
+
+        SendPacket(features);
+    }
+
+    public void SendClientCacheVersion(uint version)
+    {
+        ClientCacheVersion cache = new();
+        cache.CacheVersion = version;
+        SendPacket(cache); //enabled it
+    }
+
+    private void SendAvailableHotfixes()
+    {
+        SendPacket(new AvailableHotfixes(_worldManager.RealmId.GetAddress(), _dB2Manager.GetHotfixData()));
+    }
 }

@@ -5,22 +5,31 @@ using System.Collections.Generic;
 using System.Numerics;
 using Framework.Constants;
 using Framework.Realm;
-using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Query;
-using Forged.RealmServer.Handlers;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
+using Serilog;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 
 public class QueryHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly GameObjectManager _objectManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly CliDB _cliDB;
+    private readonly WorldManager _worldManager;
 
-    public QueryHandler(WorldSession session)
+    public QueryHandler(WorldSession session, GameObjectManager objectManager, ObjectAccessor objectAccessor,
+		CliDB cliDB, WorldManager worldManager)
     {
         _session = session;
+        _objectManager = objectManager;
+        _objectAccessor = objectAccessor;
+        _cliDB = cliDB;
+        _worldManager = worldManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.QueryPlayerNames, Processing = PacketProcessing.Inplace)]
@@ -30,17 +39,17 @@ public class QueryHandler : IWorldSessionHandler
 
 		foreach (var guid in queryPlayerName.Players)
 		{
-			BuildNameQueryData(guid, out var nameCacheLookupResult);
+			_session.BuildNameQueryData(guid, out var nameCacheLookupResult);
 			response.Players.Add(nameCacheLookupResult);
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
-
+	
 	[WorldPacketHandler(ClientOpcodes.QueryNpcText, Processing = PacketProcessing.Inplace)]
 	void HandleNpcTextQuery(QueryNPCText packet)
 	{
-		var npcText = Global.ObjectMgr.GetNpcText(packet.TextID);
+		var npcText = _objectManager.GetNpcText(packet.TextID);
 
 		QueryNPCTextResponse response = new();
 		response.TextID = packet.TextID;
@@ -58,82 +67,35 @@ public class QueryHandler : IWorldSessionHandler
 		if (!response.Allow)
 			Log.Logger.Error("HandleNpcTextQuery: no BroadcastTextID found for text {0} in `npc_text table`", packet.TextID);
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryCorpseLocationFromClient)]
 	void HandleQueryCorpseLocation(QueryCorpseLocationFromClient queryCorpseLocation)
-	{
-		CorpseLocation packet = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseLocation.Player);
+    {
+        // Send to map server
+    }
 
-		if (!player || !player.HasCorpse || !_player.IsInSameRaidWith(player))
-		{
-			packet.Valid = false; // corpse not found
-			packet.Player = queryCorpseLocation.Player;
-			SendPacket(packet);
-
-			return;
-		}
-
-		var corpseLocation = player.CorpseLocation;
-		var corpseMapID = corpseLocation.MapId;
-		var mapID = corpseLocation.MapId;
-		var x = corpseLocation.X;
-		var y = corpseLocation.Y;
-		var z = corpseLocation.Z;
-
-		// if corpse at different map
-		if (mapID != player.Location.MapId)
-		{
-			// search entrance map for proper show entrance
-			var corpseMapEntry = CliDB.MapStorage.LookupByKey(mapID);
-
-			if (corpseMapEntry != null)
-				if (corpseMapEntry.IsDungeon() && corpseMapEntry.CorpseMapID >= 0)
-				{
-					// if corpse map have entrance
-					var entranceTerrain = Global.TerrainMgr.LoadTerrain((uint)corpseMapEntry.CorpseMapID);
-
-					if (entranceTerrain != null)
-					{
-						mapID = (uint)corpseMapEntry.CorpseMapID;
-						x = corpseMapEntry.Corpse.X;
-						y = corpseMapEntry.Corpse.Y;
-						z = entranceTerrain.GetStaticHeight(player.PhaseShift, mapID, x, y, MapConst.MaxHeight);
-					}
-				}
-		}
-
-		packet.Valid = true;
-		packet.Player = queryCorpseLocation.Player;
-		packet.MapID = (int)corpseMapID;
-		packet.ActualMapID = (int)mapID;
-		packet.Position = new Vector3(x, y, z);
-		packet.Transport = ObjectGuid.Empty;
-		SendPacket(packet);
-	}
-
-	[WorldPacketHandler(ClientOpcodes.QueryCorpseTransport)]
+    [WorldPacketHandler(ClientOpcodes.QueryCorpseTransport)]
 	void HandleQueryCorpseTransport(QueryCorpseTransport queryCorpseTransport)
 	{
 		CorpseTransportQuery response = new();
 		response.Player = queryCorpseTransport.Player;
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(queryCorpseTransport.Player);
+		var player = _objectAccessor.FindConnectedPlayer(queryCorpseTransport.Player);
 
 		if (player)
 		{
 			var corpse = player.GetCorpse();
 
-			if (_player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
+			if (_session.Player.IsInSameRaidWith(player) && corpse && !corpse.GetTransGUID().IsEmpty && corpse.GetTransGUID() == queryCorpseTransport.Transport)
 			{
 				response.Position = new Vector3(corpse.TransOffsetX, corpse.TransOffsetY, corpse.TransOffsetZ);
 				response.Facing = corpse.TransOffsetO;
 			}
 		}
 
-		SendPacket(response);
+		_session.SendPacket(response);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.ItemTextQuery, Processing = PacketProcessing.Inplace)]
@@ -142,7 +104,7 @@ public class QueryHandler : IWorldSessionHandler
 		QueryItemTextResponse queryItemTextResponse = new();
 		queryItemTextResponse.Id = packet.Id;
 
-		var item = Player.GetItemByGuid(packet.Id);
+		var item = _session.Player.GetItemByGuid(packet.Id);
 
 		if (item)
 		{
@@ -150,7 +112,7 @@ public class QueryHandler : IWorldSessionHandler
 			queryItemTextResponse.Text = item.Text;
 		}
 
-		SendPacket(queryItemTextResponse);
+		_session.SendPacket(queryItemTextResponse);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.QueryRealmName, Processing = PacketProcessing.Inplace)]
@@ -161,11 +123,11 @@ public class QueryHandler : IWorldSessionHandler
 
 		RealmId realmHandle = new(queryRealmName.VirtualRealmAddress);
 
-		if (Global.ObjectMgr.GetRealmName(realmHandle.Index, ref realmQueryResponse.NameInfo.RealmNameActual, ref realmQueryResponse.NameInfo.RealmNameNormalized))
+		if (_objectManager.GetRealmName(realmHandle.Index, ref realmQueryResponse.NameInfo.RealmNameActual, ref realmQueryResponse.NameInfo.RealmNameNormalized))
 		{
 			realmQueryResponse.LookupState = (byte)ResponseCodes.Success;
 			realmQueryResponse.NameInfo.IsInternalRealm = false;
-			realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == Global.WorldMgr.Realm.Id.GetAddress();
+			realmQueryResponse.NameInfo.IsLocal = queryRealmName.VirtualRealmAddress == _worldManager.Realm.Id.GetAddress();
 		}
 		else
 		{

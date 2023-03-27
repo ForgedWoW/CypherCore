@@ -3,18 +3,20 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Misc;
-using Forged.RealmServer.Server;
+using Game.Common.Handlers;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Handlers;
 
 public class TimeHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
+    private readonly GameTime _gameTime;
 
-    public TimeHandler(WorldSession session)
+    public TimeHandler(WorldSession session, GameTime gameTime)
     {
         _session = session;
+        _gameTime = gameTime;
     }
 
     [WorldPacketHandler(ClientOpcodes.ServerTimeOffsetRequest, Status = SessionStatus.Authed, Processing = PacketProcessing.Inplace)]

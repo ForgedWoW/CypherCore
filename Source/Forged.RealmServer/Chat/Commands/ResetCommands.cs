@@ -230,7 +230,7 @@ class ResetCommands
 		if (subCommand == "spells")
 		{
 			atLogin = AtLoginFlags.ResetSpells;
-			Global.WorldMgr.SendWorldText(CypherStrings.ResetallSpells);
+			_worldManager.SendWorldText(CypherStrings.ResetallSpells);
 
 			if (handler.Session == null)
 				handler.SendSysMessage(CypherStrings.ResetallSpells);
@@ -238,7 +238,7 @@ class ResetCommands
 		else if (subCommand == "talents")
 		{
 			atLogin = AtLoginFlags.ResetTalents | AtLoginFlags.ResetPetTalents;
-			Global.WorldMgr.SendWorldText(CypherStrings.ResetallTalents);
+			_worldManager.SendWorldText(CypherStrings.ResetallTalents);
 
 			if (handler.Session == null)
 				handler.SendSysMessage(CypherStrings.ResetallTalents);

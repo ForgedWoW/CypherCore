@@ -37,7 +37,7 @@ public class GroupManager : Singleton<GroupManager>
 		if (newStorageId == NextGroupDbStoreId)
 		{
 			Log.Logger.Error("Group storage ID overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
+			_worldManager.StopNow();
 		}
 
 		return newStorageId;
@@ -68,7 +68,7 @@ public class GroupManager : Singleton<GroupManager>
 		if (NextGroupId >= 0xFFFFFFFE)
 		{
 			Log.Logger.Error("Group guid overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
+			_worldManager.StopNow();
 		}
 
 		return NextGroupId++;

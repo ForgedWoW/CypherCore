@@ -79,7 +79,7 @@ class InstanceCommands
 
 			handler.SendSysMessage(CypherStrings.CommandListBindInfo,
 									entries.Map.Id,
-									entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+									entries.Map.MapName[_worldManager.DefaultDbcLocale],
 									entries.MapDifficulty.DifficultyID,
 									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
 									instanceLock.GetInstanceId(),
@@ -189,7 +189,7 @@ class InstanceCommands
 
 			handler.SendSysMessage(CypherStrings.CommandInstUnbindUnbinding,
 									entries.Map.Id,
-									entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+									entries.Map.MapName[_worldManager.DefaultDbcLocale],
 									entries.MapDifficulty.DifficultyID,
 									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
 									instanceLock.GetInstanceId(),
@@ -207,7 +207,7 @@ class InstanceCommands
 
 			handler.SendSysMessage(CypherStrings.CommandInstUnbindFailed,
 									entries.Map.Id,
-									entries.Map.MapName[Global.WorldMgr.DefaultDbcLocale],
+									entries.Map.MapName[_worldManager.DefaultDbcLocale],
 									entries.MapDifficulty.DifficultyID,
 									CliDB.DifficultyStorage.LookupByKey(entries.MapDifficulty.DifficultyID).Name,
 									instanceLock.GetInstanceId(),

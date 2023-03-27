@@ -48,8 +48,8 @@ class GarrisonMap : Map
 	public override void InitVisibilityDistance()
 	{
 		//init visibility distance for instances
-		VisibleDistance = Global.WorldMgr.MaxVisibleDistanceInInstances;
-		VisibilityNotifyPeriod = Global.WorldMgr.VisibilityNotifyPeriodInInstances;
+		VisibleDistance = _worldManager.MaxVisibleDistanceInInstances;
+		VisibilityNotifyPeriod = _worldManager.VisibilityNotifyPeriodInInstances;
 	}
 
 	public override bool AddPlayerToMap(Player player, bool initPlayer = true)

@@ -266,7 +266,7 @@ class PlayerNameMapHolder
 
 	public static Player Find(string name)
 	{
-		if (!ObjectManager.NormalizePlayerName(ref name))
+		if (!GameObjectManager.NormalizePlayerName(ref name))
 			return null;
 
 		return _playerNameMap.LookupByKey(name);

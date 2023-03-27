@@ -300,7 +300,7 @@ public partial class Player
 		SetName(name);
 
 		// check name limitations
-		if (ObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
+		if (GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
 			(!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(GetName())))
 		{
 			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
@@ -1220,7 +1220,7 @@ public partial class Player
 			stmt.AddValue(index++, ss.ToString());
 
 			stmt.AddValue(index++, ActivePlayerData.MultiActionBars);
-			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build));
+			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(_worldManager.Realm.Build));
 		}
 		else
 		{
@@ -1386,7 +1386,7 @@ public partial class Player
 			stmt.AddValue(index++, HonorLevel);
 			stmt.AddValue(index++, ActivePlayerData.RestInfo[(int)RestTypes.Honor].StateID);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.Honor)));
-			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build));
+			stmt.AddValue(index++, Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(_worldManager.Realm.Build));
 
 			// Index
 			stmt.AddValue(index, GUID.Counter);
@@ -1454,15 +1454,15 @@ public partial class Player
 
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BNET_LAST_PLAYER_CHARACTERS);
 		stmt.AddValue(0, Session.AccountId);
-		stmt.AddValue(1, Global.WorldMgr.RealmId.Region);
-		stmt.AddValue(2, Global.WorldMgr.RealmId.Site);
+		stmt.AddValue(1, _worldManager.RealmId.Region);
+		stmt.AddValue(2, _worldManager.RealmId.Site);
 		loginTransaction.Append(stmt);
 
 		stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_LAST_PLAYER_CHARACTERS);
 		stmt.AddValue(0, Session.AccountId);
-		stmt.AddValue(1, Global.WorldMgr.RealmId.Region);
-		stmt.AddValue(2, Global.WorldMgr.RealmId.Site);
-		stmt.AddValue(3, Global.WorldMgr.RealmId.Index);
+		stmt.AddValue(1, _worldManager.RealmId.Region);
+		stmt.AddValue(2, _worldManager.RealmId.Site);
+		stmt.AddValue(3, _worldManager.RealmId.Index);
 		stmt.AddValue(4, GetName());
 		stmt.AddValue(5, GUID.Counter);
 		stmt.AddValue(6, _gameTime.GetGameTime);
@@ -1964,12 +1964,12 @@ public partial class Player
 
 				stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME_BY_OWNER);
 				stmt.AddValue(0, guid);
-				stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
+				stmt.AddValue(1, _worldManager.RealmId.Index);
 				loginTransaction.Append(stmt);
 
 				stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS_BY_OWNER);
 				stmt.AddValue(0, guid);
-				stmt.AddValue(1, Global.WorldMgr.RealmId.Index);
+				stmt.AddValue(1, _worldManager.RealmId.Index);
 				loginTransaction.Append(stmt);
 
 				Corpse.DeleteFromDB(playerGuid, trans);
@@ -2012,7 +2012,7 @@ public partial class Player
 		_characterDatabase.CommitTransaction(trans);
 
 		if (updateRealmChars)
-			Global.WorldMgr.UpdateRealmCharCount(accountId);
+			_worldManager.UpdateRealmCharCount(accountId);
 	}
 
 	public static void DeleteOldCharacters()
@@ -4230,7 +4230,7 @@ public partial class Player
 			trans = new SQLTransaction();
 
 		PreparedStatement stmt;
-		var keepAbandoned = !Global.WorldMgr.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
+		var keepAbandoned = !_worldManager.CleaningFlags.HasAnyFlag(CleaningFlags.Queststatus);
 
 		foreach (var save in _questStatusSave)
 			if (save.Value == QuestSaveType.Default)

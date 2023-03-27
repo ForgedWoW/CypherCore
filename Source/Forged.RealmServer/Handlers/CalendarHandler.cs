@@ -3,6 +3,7 @@
 
 using Forged.RealmServer.Cache;
 using Forged.RealmServer.Entities;
+using Forged.RealmServer.Globals;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets;
 using Framework.Constants;
@@ -25,7 +26,7 @@ public class CalendarHandler : IWorldSessionHandler
     private readonly ObjectAccessor _objectAccessor;
     private long _calendarEventCreationCooldown = 0;
 
-    public CalendarHandler(WorldSession session, Player player, CalendarManager calendarManager, WorldConfig worldConfig
+    public CalendarHandler(WorldSession session, Player player, CalendarManager calendarManager, WorldConfig worldConfig,
         CharacterCache characterCache, GuildManager guildManager, ObjectAccessor objectAccessor, CharacterDatabase characterDatabase,
 		GameTime gameTime)
     {
@@ -356,7 +357,7 @@ public class CalendarHandler : IWorldSessionHandler
 		TeamFaction inviteeTeam = 0;
 		ulong inviteeGuildId = 0;
 
-		if (!ObjectManager.NormalizePlayerName(ref calendarInvite.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref calendarInvite.Name))
 			return;
 
 		var player = _objectAccessor.FindPlayerByName(calendarInvite.Name);

@@ -117,7 +117,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			// this update is needed to possibly start events dependent on the started one
 			// or to scedule another update where the next event will be started
 			if (overwrite && conditions_met)
-				Global.WorldMgr.ForceGameEventUpdate();
+				_worldManager.ForceGameEventUpdate();
 
 			return conditions_met;
 		}
@@ -1187,7 +1187,7 @@ public class GameEventManager : Singleton<GameEventManager>
 						// changed, save to DB the gameevent state
 						SaveWorldEventStateToDB(event_id);
 						// force update events to set timer
-						Global.WorldMgr.ForceGameEventUpdate();
+						_worldManager.ForceGameEventUpdate();
 					}
 				}
 		}
@@ -1309,7 +1309,7 @@ public class GameEventManager : Singleton<GameEventManager>
 		var announce = mGameEvent[event_id].announce;
 
 		if (announce == 1) // || (announce == 2 && WorldConfigEventAnnounce))
-			Global.WorldMgr.SendWorldText(CypherStrings.Eventmessage, mGameEvent[event_id].description);
+			_worldManager.SendWorldText(CypherStrings.Eventmessage, mGameEvent[event_id].description);
 
 		Log.Logger.Information("GameEvent {0} \"{1}\" started.", event_id, mGameEvent[event_id].description);
 
@@ -1334,7 +1334,7 @@ public class GameEventManager : Singleton<GameEventManager>
 		RunSmartAIScripts(event_id, true);
 
 		// check for seasonal quest reset.
-		Global.WorldMgr.ResetEventSeasonalQuests(event_id, GetLastStartTime(event_id));
+		_worldManager.ResetEventSeasonalQuests(event_id, GetLastStartTime(event_id));
 	}
 
 	void UpdateEventNPCFlags(ushort event_id)

@@ -544,7 +544,7 @@ public class WorldSocket : SocketBase
 	{
 		// Get the account information from the realmd database
 		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_INFO_BY_NAME);
-		stmt.AddValue(0, Global.WorldMgr.Realm.Id.Index);
+		stmt.AddValue(0, _worldManager.Realm.Id.Index);
 		stmt.AddValue(1, authSession.RealmJoinTicket);
 
 		_queryProcessor.AddCallback(_loginDatabase.AsyncQuery(stmt).WithCallback(HandleAuthSessionCallback, authSession));
@@ -561,12 +561,12 @@ public class WorldSocket : SocketBase
 			return;
 		}
 
-		var buildInfo = Global.RealmMgr.GetBuildInfo(Global.WorldMgr.Realm.Build);
+		var buildInfo = Global.RealmMgr.GetBuildInfo(_worldManager.Realm.Build);
 
 		if (buildInfo == null)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.BadVersion);
-            Log.Logger.Error($"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {Global.WorldMgr.Realm.Build} ({GetRemoteIpAddress()}).");
+            Log.Logger.Error($"WorldSocket.HandleAuthSessionCallback: Missing auth seed for realm build {_worldManager.Realm.Build} ({GetRemoteIpAddress()}).");
 			CloseSocket();
 
 			return;
@@ -648,7 +648,7 @@ public class WorldSocket : SocketBase
 		_loginDatabase.Execute(stmt);
 
 		// First reject the connection if packet contains invalid data or realm state doesn't allow logging in
-		if (Global.WorldMgr.IsClosed)
+		if (_worldManager.IsClosed)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
             Log.Logger.Error("WorldSocket.HandleAuthSession: World closed, denying client ({0}).", GetRemoteIpAddress());
@@ -657,14 +657,14 @@ public class WorldSocket : SocketBase
 			return;
 		}
 
-		if (authSession.RealmID != Global.WorldMgr.Realm.Id.Index)
+		if (authSession.RealmID != _worldManager.Realm.Id.Index)
 		{
 			SendAuthResponseError(BattlenetRpcErrorCode.Denied);
 
             Log.Logger.Error("WorldSocket.HandleAuthSession: Client {0} requested connecting with realm id {1} but this realm has id {2} set in config.",
 						GetRemoteIpAddress().ToString(),
 						authSession.RealmID,
-						Global.WorldMgr.Realm.Id.Index);
+						_worldManager.Realm.Id.Index);
 
 			CloseSocket();
 
@@ -730,7 +730,7 @@ public class WorldSocket : SocketBase
 		}
 
 		// Check locked state for server
-		var allowedAccountType = Global.WorldMgr.PlayerSecurityLimit;
+		var allowedAccountType = _worldManager.PlayerSecurityLimit;
 
 		if (allowedAccountType > AccountTypes.Player && account.game.Security < allowedAccountType)
 		{
@@ -903,9 +903,9 @@ public class WorldSocket : SocketBase
 		_worldCrypt.Initialize(_encryptKey);
 
 		if (_connectType == ConnectionType.Realm)
-			Global.WorldMgr.AddSession(_worldSession);
+			_worldManager.AddSession(_worldSession);
 		else
-			Global.WorldMgr.AddInstanceSocket(this, _key);
+			_worldManager.AddInstanceSocket(this, _key);
 	}
 
 	bool HandlePing(Ping ping)

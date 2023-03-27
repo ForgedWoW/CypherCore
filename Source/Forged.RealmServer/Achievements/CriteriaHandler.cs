@@ -204,7 +204,7 @@ public class CriteriaHandler
 					break;
 				case CriteriaType.CompleteAnyDailyQuestPerDay:
 				{
-					var nextDailyResetTime = Global.WorldMgr.NextDailyQuestsResetTime;
+					var nextDailyResetTime = _worldManager.NextDailyQuestsResetTime;
 					var progress = GetCriteriaProgress(criteria);
 
 					if (miscValue1 == 0) // Login case.
@@ -1615,7 +1615,7 @@ public class CriteriaHandler
 
 				break;
 			case ModifierTreeType.ClientVersionEqualOrLessThan: // 33
-				if (reqValue < Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(Global.WorldMgr.Realm.Build))
+				if (reqValue < Global.RealmMgr.GetMinorMajorBugfixVersionForBuild(_worldManager.Realm.Build))
 					return false;
 
 				break;

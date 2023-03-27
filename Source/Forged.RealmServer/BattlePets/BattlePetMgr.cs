@@ -31,7 +31,7 @@ public class BattlePetMgr
 	readonly List<BattlePetSlot> _slots = new();
 	bool _hasJournalLock;
 
-	public bool IsJournalLockAcquired => Global.WorldMgr.IsBattlePetJournalLockAcquired(_owner.BattlenetAccountGUID);
+	public bool IsJournalLockAcquired => _worldManager.IsBattlePetJournalLockAcquired(_owner.BattlenetAccountGUID);
 
 	public WorldSession Owner => _owner;
 
@@ -206,8 +206,8 @@ public class BattlePetMgr
 					{
 						BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new();
 						battlePetOwnerInfo.Guid = ownerGuid;
-						battlePetOwnerInfo.PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
-						battlePetOwnerInfo.PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress;
+						battlePetOwnerInfo.PlayerVirtualRealm = _worldManager.VirtualRealmAddress;
+						battlePetOwnerInfo.PlayerNativeRealm = _worldManager.VirtualRealmAddress;
 						pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
 					}
 
@@ -261,7 +261,7 @@ public class BattlePetMgr
 						if (pair.Value.PacketInfo.OwnerInfo.HasValue)
 						{
 							stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
-							stmt.AddValue(13, Global.WorldMgr.RealmId.Index);
+							stmt.AddValue(13, _worldManager.RealmId.Index);
 						}
 						else
 						{
@@ -381,8 +381,8 @@ public class BattlePetMgr
 		{
 			BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new();
 			battlePetOwnerInfo.Guid = player.GUID;
-			battlePetOwnerInfo.PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
-			battlePetOwnerInfo.PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress;
+			battlePetOwnerInfo.PlayerVirtualRealm = _worldManager.VirtualRealmAddress;
+			battlePetOwnerInfo.PlayerNativeRealm = _worldManager.VirtualRealmAddress;
 			pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
 		}
 

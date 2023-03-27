@@ -10,6 +10,9 @@ using Forged.RealmServer.Networking;
 using Game.Common.Handlers;
 using Forged.RealmServer.Networking.Packets;
 using Serilog;
+using System.Runtime.Serialization;
+using Forged.RealmServer.Cache;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 
@@ -19,13 +22,17 @@ public class LFGHandler : IWorldSessionHandler
     private readonly GameTime _gameTime;
     private readonly LFGManager _lFGManager;
     private readonly CliDB _cliDB;
+    private readonly GameObjectManager _objectManager;
+    private readonly CharacterCache _characterCache;
 
-    public LFGHandler(WorldSession session, GameTime gameTime, LFGManager lFGManager, CliDB cliDB)
+    public LFGHandler(WorldSession session, GameTime gameTime, LFGManager lFGManager, CliDB cliDB, GameObjectManager objectManager, CharacterCache characterCache)
     {
         _session = session;
         _gameTime = gameTime;
         _lFGManager = lFGManager;
         _cliDB = cliDB;
+        _objectManager = objectManager;
+        _characterCache = characterCache;
     }
 
     public void SendLfgPlayerLockInfo()
@@ -64,14 +71,14 @@ public class LFGHandler : IWorldSessionHandler
 
 			if (reward != null)
 			{
-				var quest = Global.ObjectMgr.GetQuestTemplate(reward.firstQuest);
+				var quest = _objectManager.GetQuestTemplate(reward.firstQuest);
 
 				if (quest != null)
 				{
 					playerDungeonInfo.FirstReward = !_session.Player.CanRewardQuest(quest, false);
 
 					if (!playerDungeonInfo.FirstReward)
-						quest = Global.ObjectMgr.GetQuestTemplate(reward.otherQuest);
+						quest = _objectManager.GetQuestTemplate(reward.otherQuest);
 
 					if (quest != null)
 					{
@@ -228,7 +235,7 @@ public class LFGHandler : IWorldSessionHandler
 		{
 			// Leader info MUST be sent 1st :S
 			var roles = (byte)roleCheck.roles.Find(roleCheck.leader).Value;
-			lfgRoleCheckUpdate.Members.Add(new LFGRoleCheckUpdateMember(roleCheck.leader, roles, Global.CharacterCacheStorage.GetCharacterCacheByGuid(roleCheck.leader).Level, roles > 0));
+			lfgRoleCheckUpdate.Members.Add(new LFGRoleCheckUpdateMember(roleCheck.leader, roles, _characterCache.GetCharacterCacheByGuid(roleCheck.leader).Level, roles > 0));
 
 			foreach (var it in roleCheck.roles)
 			{
@@ -236,7 +243,7 @@ public class LFGHandler : IWorldSessionHandler
 					continue;
 
 				roles = (byte)it.Value;
-				lfgRoleCheckUpdate.Members.Add(new LFGRoleCheckUpdateMember(it.Key, roles, Global.CharacterCacheStorage.GetCharacterCacheByGuid(it.Key).Level, roles > 0));
+				lfgRoleCheckUpdate.Members.Add(new LFGRoleCheckUpdateMember(it.Key, roles, _characterCache.GetCharacterCacheByGuid(it.Key).Level, roles > 0));
 			}
 		}
 

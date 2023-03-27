@@ -14,6 +14,7 @@ using Game.Common.Handlers;
 using Forged.RealmServer.Networking.Packets;
 using Serilog;
 using Forged.RealmServer.Scripting;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 
@@ -23,13 +24,13 @@ public class ChatHandler : IWorldSessionHandler
     private readonly WorldConfig _worldConfig;
     private readonly GameTime _gameTime;
     private readonly LanguageManager _languageManager;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _objectManager;
     private readonly ObjectAccessor _objectAccessor;
     private readonly GuildManager _guildManager;
     private readonly ScriptManager _scriptManager;
 
     public ChatHandler(WorldSession session, WorldConfig worldConfig, GameTime gameTime, LanguageManager languageManager,
-		ObjectManager objectManager, ObjectAccessor objectAccessor, GuildManager guildManager, ScriptManager scriptManager)
+		GameObjectManager objectManager, ObjectAccessor objectAccessor, GuildManager guildManager, ScriptManager scriptManager)
     {
         _session = session;
         _worldConfig = worldConfig;
@@ -252,9 +253,9 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			case ChatMsg.Whisper:
 				// @todo implement cross realm whispers (someday)
-				var extName = ObjectManager.ExtractExtendedPlayerName(target);
+				var extName = GameObjectManager.ExtractExtendedPlayerName(target);
 
-				if (!ObjectManager.NormalizePlayerName(ref extName.Name))
+				if (!GameObjectManager.NormalizePlayerName(ref extName.Name))
 				{
 					SendChatPlayerNotfoundNotice(target);
 
@@ -472,9 +473,9 @@ public class ChatHandler : IWorldSessionHandler
 				break;
 			case ChatMsg.Whisper:
 				// @todo implement cross realm whispers (someday)
-				var extName = ObjectManager.ExtractExtendedPlayerName(target);
+				var extName = GameObjectManager.ExtractExtendedPlayerName(target);
 
-				if (!ObjectManager.NormalizePlayerName(ref extName.Name))
+				if (!GameObjectManager.NormalizePlayerName(ref extName.Name))
 					break;
 
 				var receiver = _objectAccessor.FindPlayerByName(extName.Name);

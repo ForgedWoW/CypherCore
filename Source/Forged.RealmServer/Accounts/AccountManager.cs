@@ -6,24 +6,28 @@ using System.Collections.Generic;
 using Framework.Constants;
 using Framework.Cryptography;
 using Framework.Database;
-using Forged.RealmServer.Accounts;
-using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
+using Serilog;
 
-namespace Forged.RealmServer;
+namespace Forged.RealmServer.Accounts;
 
-public sealed class AccountManager : Singleton<AccountManager>
+public sealed class AccountManager
 {
-	const int MaxAccountLength = 16;
-	const int MaxEmailLength = 64;
+	private const int MaxAccountLength = 16;
+	private const int MaxEmailLength = 64;
+	private readonly LoginDatabase _loginDatabase;
+	private readonly CharacterDatabase _characterDatabase;
+	private readonly ObjectAccessor _objectAccessor;
 
-	readonly Dictionary<uint, RBACPermission> _permissions = new();
-	readonly MultiMap<byte, uint> _defaultPermissions = new();
+	private readonly MultiMap<byte, uint> _defaultPermissions = new();
 
-	public Dictionary<uint, RBACPermission> RBACPermissionList => _permissions;
+	public Dictionary<uint, RBACPermission> RBACPermissionList { get; } = new();
 
-	AccountManager() { }
+	public AccountManager(LoginDatabase loginDatabase, CharacterDatabase characterDatabase, ObjectAccessor objectAccessor)
+	{
+		_loginDatabase = loginDatabase;
+		_characterDatabase = characterDatabase;
+		_objectAccessor = objectAccessor;
+	}
 
 	public AccountOpResult CreateAccount(string username, string password, string email = "", uint bnetAccountId = 0, byte bnetIndex = 0)
 	{
@@ -38,7 +42,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 		var (salt, verifier) = SRP6.MakeRegistrationData(username, password);
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT);
 		stmt.AddValue(0, username);
 		stmt.AddValue(1, salt);
 		stmt.AddValue(2, verifier);
@@ -56,10 +60,10 @@ public sealed class AccountManager : Singleton<AccountManager>
 			stmt.AddNull(6);
 		}
 
-		DB.Login.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
+		_loginDatabase.DirectExecute(stmt); // Enforce saving, otherwise AddGroup can fail
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_REALM_CHARACTERS_INIT);
-		DB.Login.Execute(stmt);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_REALM_CHARACTERS_INIT);
+		_loginDatabase.Execute(stmt);
 
 		return AccountOpResult.Ok;
 	}
@@ -67,9 +71,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public AccountOpResult DeleteAccount(uint accountId)
 	{
 		// Check if accounts exists
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
 		stmt.AddValue(0, accountId);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 			return AccountOpResult.NameNotExist;
@@ -85,7 +89,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 				var guid = ObjectGuid.Create(HighGuid.Player, result.Read<ulong>(0));
 
 				// Kick if player is online
-				var p = Global.ObjAccessor.FindPlayer(guid);
+				var p = _objectAccessor.FindPlayer(guid);
 
 				if (p)
 				{
@@ -112,27 +116,27 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 		SQLTransaction trans = new();
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_REALM_CHARACTERS);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_REALM_CHARACTERS);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_BANNED);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_BANNED);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_MUTED);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_MUTED);
 		stmt.AddValue(0, accountId);
 		trans.Append(stmt);
 
-		DB.Login.CommitTransaction(trans);
+		_loginDatabase.CommitTransaction(trans);
 
 		return AccountOpResult.Ok;
 	}
@@ -140,9 +144,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public AccountOpResult ChangeUsername(uint accountId, string newUsername, string newPassword)
 	{
 		// Check if accounts exists
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BY_ID);
 		stmt.AddValue(0, accountId);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		if (result.IsEmpty())
 			return AccountOpResult.NameNotExist;
@@ -153,17 +157,17 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newPassword.Length > MaxAccountLength)
 			return AccountOpResult.PassTooLong;
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_USERNAME);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_USERNAME);
 		stmt.AddValue(0, newUsername);
 		stmt.AddValue(1, accountId);
-		DB.Login.Execute(stmt);
+		_loginDatabase.Execute(stmt);
 
 		var (salt, verifier) = SRP6.MakeRegistrationData(newUsername, newPassword);
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LOGON);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
 		stmt.AddValue(0, salt);
 		stmt.AddValue(1, verifier);
 		stmt.AddValue(2, accountId);
-		DB.Login.Execute(stmt);
+		_loginDatabase.Execute(stmt);
 
 		return AccountOpResult.Ok;
 	}
@@ -178,11 +182,11 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 		var (salt, verifier) = SRP6.MakeRegistrationData(username, newPassword);
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_LOGON);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_LOGON);
 		stmt.AddValue(0, salt);
 		stmt.AddValue(1, verifier);
 		stmt.AddValue(2, accountId);
-		DB.Login.Execute(stmt);
+		_loginDatabase.Execute(stmt);
 
 		return AccountOpResult.Ok;
 	}
@@ -195,10 +199,10 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newEmail.Length > MaxEmailLength)
 			return AccountOpResult.EmailTooLong;
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_EMAIL);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_EMAIL);
 		stmt.AddValue(0, newEmail);
 		stmt.AddValue(1, accountId);
-		DB.Login.Execute(stmt);
+		_loginDatabase.Execute(stmt);
 
 		return AccountOpResult.Ok;
 	}
@@ -211,48 +215,48 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (newEmail.Length > MaxEmailLength)
 			return AccountOpResult.EmailTooLong;
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_REG_EMAIL);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_REG_EMAIL);
 		stmt.AddValue(0, newEmail);
 		stmt.AddValue(1, accountId);
-		DB.Login.Execute(stmt);
+		_loginDatabase.Execute(stmt);
 
 		return AccountOpResult.Ok;
 	}
 
 	public uint GetId(string username)
 	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_ACCOUNT_ID_BY_USERNAME);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_ACCOUNT_ID_BY_USERNAME);
 		stmt.AddValue(0, username);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		return !result.IsEmpty() ? result.Read<uint>(0) : 0;
 	}
 
 	public AccountTypes GetSecurity(uint accountId, int realmId)
 	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
 		stmt.AddValue(0, accountId);
 		stmt.AddValue(1, realmId);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		return !result.IsEmpty() ? (AccountTypes)result.Read<uint>(0) : AccountTypes.Player;
 	}
 
 	public QueryCallback GetSecurityAsync(uint accountId, int realmId, Action<uint> callback)
 	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_GMLEVEL_BY_REALMID);
 		stmt.AddValue(0, accountId);
 		stmt.AddValue(1, realmId);
 
-		return DB.Login.AsyncQuery(stmt).WithCallback(result => { callback(!result.IsEmpty() ? result.Read<byte>(0) : (uint)AccountTypes.Player); });
+		return _loginDatabase.AsyncQuery(stmt).WithCallback(result => { callback(!result.IsEmpty() ? result.Read<byte>(0) : (uint)AccountTypes.Player); });
 	}
 
 	public bool GetName(uint accountId, out string name)
 	{
 		name = "";
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_USERNAME_BY_ID);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_USERNAME_BY_ID);
 		stmt.AddValue(0, accountId);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 		{
@@ -267,9 +271,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 	public bool GetEmail(uint accountId, out string email)
 	{
 		email = "";
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.GET_EMAIL_BY_ID);
 		stmt.AddValue(0, accountId);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 		{
@@ -286,9 +290,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 		if (!GetName(accountId, out var username))
 			return false;
 
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_CHECK_PASSWORD);
 		stmt.AddValue(0, accountId);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 		{
@@ -326,9 +330,9 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public bool IsBannedAccount(string name)
 	{
-		var stmt = DB.Login.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_USERNAME);
+		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.SEL_ACCOUNT_BANNED_BY_USERNAME);
 		stmt.AddValue(0, name);
-		var result = DB.Login.Query(stmt);
+		var result = _loginDatabase.Query(stmt);
 
 		return !result.IsEmpty();
 	}
@@ -340,7 +344,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public bool IsAdminAccount(AccountTypes gmlevel)
 	{
-		return gmlevel >= AccountTypes.Administrator && gmlevel <= AccountTypes.Console;
+		return gmlevel is >= AccountTypes.Administrator and <= AccountTypes.Console;
 	}
 
 	public bool IsConsoleAccount(AccountTypes gmlevel)
@@ -350,17 +354,17 @@ public sealed class AccountManager : Singleton<AccountManager>
 
 	public void LoadRBAC()
 	{
-		_permissions.Clear();
+		RBACPermissionList.Clear();
 		_defaultPermissions.Clear();
 
 		Log.Logger.Debug("AccountMgr:LoadRBAC");
-		var oldMSTime = Time.MSTime;
+		var oldMsTime = Time.MSTime;
 		uint count1 = 0;
 		uint count2 = 0;
 		uint count3 = 0;
 
 		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading permissions");
-		var result = DB.Login.Query("SELECT id, name FROM rbac_permissions");
+		var result = _loginDatabase.Query("SELECT id, name FROM rbac_permissions");
 
 		if (result.IsEmpty())
 		{
@@ -372,12 +376,12 @@ public sealed class AccountManager : Singleton<AccountManager>
 		do
 		{
 			var id = result.Read<uint>(0);
-			_permissions[id] = new RBACPermission(id, result.Read<string>(1));
+			RBACPermissionList[id] = new RBACPermission(id, result.Read<string>(1));
 			++count1;
 		} while (result.NextRow());
 
 		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading linked permissions");
-		result = DB.Login.Query("SELECT id, linkedId FROM rbac_linked_permissions ORDER BY id ASC");
+		result = _loginDatabase.Query("SELECT id, linkedId FROM rbac_linked_permissions ORDER BY id ASC");
 
 		if (result.IsEmpty())
 		{
@@ -396,7 +400,7 @@ public sealed class AccountManager : Singleton<AccountManager>
 			if (permissionId != newId)
 			{
 				permissionId = newId;
-				permission = _permissions[newId];
+				permission = RBACPermissionList[newId];
 			}
 
 			var linkedPermissionId = result.Read<uint>(1);
@@ -408,12 +412,13 @@ public sealed class AccountManager : Singleton<AccountManager>
 				continue;
 			}
 
-			permission.AddLinkedPermission(linkedPermissionId);
+			permission?.AddLinkedPermission(linkedPermissionId);
+
 			++count2;
 		} while (result.NextRow());
 
 		Log.Logger.Debug("AccountMgr:LoadRBAC: Loading default permissions");
-		result = DB.Login.Query("SELECT secId, permissionId FROM rbac_default_permissions ORDER BY secId ASC");
+		result = _loginDatabase.Query("SELECT secId, permissionId FROM rbac_default_permissions ORDER BY secId ASC");
 
 		if (result.IsEmpty())
 		{
@@ -422,20 +427,15 @@ public sealed class AccountManager : Singleton<AccountManager>
 			return;
 		}
 
-		uint secId = 255;
-
 		do
 		{
-			var newId = result.Read<uint>(0);
-
-			if (secId != newId)
-				secId = newId;
+			var secId = result.Read<uint>(0);
 
 			_defaultPermissions.Add((byte)secId, result.Read<uint>(1));
 			++count3;
 		} while (result.NextRow());
 
-		Log.Logger.Information("Loaded {0} permission definitions, {1} linked permissions and {2} default permissions in {3} ms", count1, count2, count3, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} permission definitions, {1} linked permissions and {2} default permissions in {3} ms", count1, count2, count3, Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
 	public void UpdateAccountAccess(RBACData rbac, uint accountId, byte securityLevel, int realmId)
@@ -449,13 +449,13 @@ public sealed class AccountManager : Singleton<AccountManager>
 		// Delete old security level from DB
 		if (realmId == -1)
 		{
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS);
 			stmt.AddValue(0, accountId);
 			trans.Append(stmt);
 		}
 		else
 		{
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS_BY_REALM);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_ACCOUNT_ACCESS_BY_REALM);
 			stmt.AddValue(0, accountId);
 			stmt.AddValue(1, realmId);
 			trans.Append(stmt);
@@ -464,21 +464,21 @@ public sealed class AccountManager : Singleton<AccountManager>
 		// Add new security level
 		if (securityLevel != 0)
 		{
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_ACCOUNT_ACCESS);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_ACCOUNT_ACCESS);
 			stmt.AddValue(0, accountId);
 			stmt.AddValue(1, securityLevel);
 			stmt.AddValue(2, realmId);
 			trans.Append(stmt);
 		}
 
-		DB.Login.CommitTransaction(trans);
+		_loginDatabase.CommitTransaction(trans);
 	}
 
 	public RBACPermission GetRBACPermission(uint permissionId)
 	{
 		Log.Logger.Debug("AccountMgr:GetRBACPermission: {0}", permissionId);
 
-		return _permissions.LookupByKey(permissionId);
+		return RBACPermissionList.LookupByKey(permissionId);
 	}
 
 	public bool HasPermission(uint accountId, RBACPermissions permissionId, uint realmId)
@@ -494,12 +494,11 @@ public sealed class AccountManager : Singleton<AccountManager>
 		rbac.LoadFromDB();
 		var hasPermission = rbac.HasPermission(permissionId);
 
-		Log.Logger.Debug(
-					"AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
-					accountId,
-					permissionId,
-					realmId,
-					hasPermission);
+		Log.Logger.Debug("AccountMgr:HasPermission [AccountId: {0}, PermissionId: {1}, realmId: {2}]: {3}",
+						accountId,
+						permissionId,
+						realmId,
+						hasPermission);
 
 		return hasPermission;
 	}

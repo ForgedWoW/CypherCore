@@ -18,6 +18,9 @@ using Serilog;
 using Forged.RealmServer.Scripting;
 using Framework.Util;
 using Forged.RealmServer.Arenas;
+using Forged.RealmServer.Globals;
+using Forged.RealmServer.Cache;
+using Forged.RealmServer.Conditions;
 
 namespace Forged.RealmServer;
 
@@ -35,14 +38,18 @@ public class CharacterHandler : IWorldSessionHandler
     private readonly DB2Manager _dB2Manager;
     private readonly WorldManager _worldManager;
     private readonly GuildManager _guildManager;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _objectManager;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly CharacterCache _characterCache;
+    private readonly ArenaTeamManager _arenaTeamManager;
     private readonly SocialManager _socialManager;
+    private readonly CalendarManager _calendarManager;
+    private readonly ConditionManager _conditionManager;
 
     public CharacterHandler(WorldSession session, CliDB cliDB, CollectionMgr collectionMgr, IConfiguration configuration, WorldConfig worldConfig, 
 		CharacterDatabase characterDatabase, ScriptManager scriptManager, GameTime gameTime, LoginDatabase loginDatabase, DB2Manager dB2Manager,
-		WorldManager worldManager, GuildManager guildManager, ObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCacheStorage characterCacheStorage,
-		ArenaTeamManager arenaTeamManager, SocialManager socialManager)
+		WorldManager worldManager, GuildManager guildManager, GameObjectManager objectManager, ObjectAccessor objectAccessor, CharacterCache characterCache,
+		ArenaTeamManager arenaTeamManager, SocialManager socialManager, CalendarManager calendarManager, ConditionManager conditionManager)
     {
         _session = session;
         _cliDB = cliDB;
@@ -58,7 +65,11 @@ public class CharacterHandler : IWorldSessionHandler
         _guildManager = guildManager;
         _objectManager = objectManager;
         _objectAccessor = objectAccessor;
+        _characterCache = characterCache;
+        _arenaTeamManager = arenaTeamManager;
         _socialManager = socialManager;
+        _calendarManager = calendarManager;
+        _conditionManager = conditionManager;
     }
 
     public bool MeetsChrCustomizationReq(ChrCustomizationReqRecord req, PlayerClass playerClass, bool checkRequiredDependentChoices, List<ChrCustomizationChoice> selectedChoices)
@@ -350,18 +361,19 @@ public class CharacterHandler : IWorldSessionHandler
 		// Place character in world (and load zone) before some object loading
 		pCurrChar.LoadCorpse(holder.GetResult(PlayerLoginQueryLoad.CorpseLocation));
 
-		// setting Ghost+speed if dead
-		if (pCurrChar.DeathState == DeathState.Dead)
-		{
-			// not blizz like, we must correctly save and load player instead...
-			if (pCurrChar.Race == Race.NightElf && !pCurrChar.HasAura(20584))
-				pCurrChar.CastSpell(pCurrChar, 20584, new CastSpellExtraArgs(true)); // auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
+        // Send to map server. a lot of this method has to be cleaned a split between map and realm
+        // setting Ghost+speed if dead
+  //      if (pCurrChar.DeathState == DeathState.Dead)
+		//{
+		//	// not blizz like, we must correctly save and load player instead...
+		//	if (pCurrChar.Race == Race.NightElf && !pCurrChar.HasAura(20584))
+		//		pCurrChar.CastSpell(pCurrChar, 20584, new CastSpellExtraArgs(true)); // auras SPELL_AURA_INCREASE_SPEED(+speed in wisp form), SPELL_AURA_INCREASE_SWIM_SPEED(+swim speed in wisp form), SPELL_AURA_TRANSFORM (to wisp form)
 
-			if (!pCurrChar.HasAura(8326))
-				pCurrChar.CastSpell(pCurrChar, 8326, new CastSpellExtraArgs(true)); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
+		//	if (!pCurrChar.HasAura(8326))
+		//		pCurrChar.CastSpell(pCurrChar, 8326, new CastSpellExtraArgs(true)); // auras SPELL_AURA_GHOST, SPELL_AURA_INCREASE_SPEED(why?), SPELL_AURA_INCREASE_SWIM_SPEED(why?)
 
-			pCurrChar.SetWaterWalking(true);
-		}
+		//	pCurrChar.SetWaterWalking(true);
+		//}
 
 		pCurrChar.ContinueTaxiFlight();
 
@@ -646,8 +658,8 @@ public class CharacterHandler : IWorldSessionHandler
                         _session.LegitCharacters.Add(charInfo.Guid);
 				}
 
-				if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-					Global.CharacterCacheStorage.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, false);
+				if (!_characterCache.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+                    _characterCache.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, false);
 
 				charResult.MaxCharacterLevel = Math.Max(charResult.MaxCharacterLevel, charInfo.ExperienceLevel);
 
@@ -699,8 +711,8 @@ public class CharacterHandler : IWorldSessionHandler
 
 				Log.Logger.Information("Loading undeleted char guid {0} from account {1}.", charInfo.Guid.ToString(), _session.AccountId);
 
-				if (!Global.CharacterCacheStorage.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
-					Global.CharacterCacheStorage.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, true);
+				if (!_characterCache.HasCharacterCacheEntry(charInfo.Guid)) // This can happen if characters are inserted into the database manually. Core hasn't loaded name data yet.
+					_characterCache.AddCharacterCacheEntry(charInfo.Guid, _session.AccountId, charInfo.Name, charInfo.SexId, charInfo.RaceId, (byte)charInfo.ClassId, charInfo.ExperienceLevel, true);
 
 				charEnum.Characters.Add(charInfo);
 			} while (result.NextRow());
@@ -868,7 +880,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// prevent character creating with invalid name
-		if (!ObjectManager.NormalizePlayerName(ref charCreate.CreateInfo.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref charCreate.CreateInfo.Name))
 		{
 			Log.Logger.Error("Account:[{0}] but tried to Create character with empty [name] ", _session.AccountId);
 			SendCharCreate(ResponseCodes.CharNameNoName);
@@ -877,7 +889,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// check name limitations
-		var res = ObjectManager.CheckPlayerName(charCreate.CreateInfo.Name, _session.SessionDbcLocale, true);
+		var res = GameObjectManager.CheckPlayerName(charCreate.CreateInfo.Name, _session.SessionDbcLocale, true);
 
 		if (res != ResponseCodes.CharNameSuccess)
 		{
@@ -1064,7 +1076,7 @@ public class CharacterHandler : IWorldSessionHandler
 											}
 
 											// Check name uniqueness in the same step as saving to database
-											if (Global.CharacterCacheStorage.GetCharacterCacheByName(createInfo.Name) != null)
+											if (_characterCache.GetCharacterCacheByName(createInfo.Name) != null)
 											{
 												SendCharCreate(ResponseCodes.CharCreateDracthyrDuplicate);
 
@@ -1111,7 +1123,7 @@ public class CharacterHandler : IWorldSessionHandler
 													{
 														Log.Logger.Information("Account: {0} (IP: {1}) Create Character: {2} {3}", _session.AccountId, _session.RemoteAddress, createInfo.Name, newChar.GUID.ToString());
 														_scriptManager.ForEach<IPlayerOnCreate>(newChar.Class, p => p.OnCreate(newChar));
-														Global.CharacterCacheStorage.AddCharacterCacheEntry(newChar.GUID, _session.AccountId, newChar.GetName(), (byte)newChar.NativeGender, (byte)newChar.Race, (byte)newChar.Class, (byte)newChar.Level, false);
+														_characterCache.AddCharacterCacheEntry(newChar.GUID, _session.AccountId, newChar.GetName(), (byte)newChar.NativeGender, (byte)newChar.Race, (byte)newChar.Class, (byte)newChar.Level, false);
 
 														SendCharCreate(ResponseCodes.CharCreateSuccess, newChar.GUID);
 													}
@@ -1163,7 +1175,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// is arena team captain
-		if (Global.ArenaTeamMgr.GetArenaTeamByCaptain(charDelete.Guid) != null)
+		if (_arenaTeamManager.GetArenaTeamByCaptain(charDelete.Guid) != null)
 		{
 			_scriptManager.ForEach<IPlayerOnFailedDelete>(p => p.OnFailedDelete(charDelete.Guid, initAccountId));
 			SendCharDelete(ResponseCodes.CharDeleteFailedArenaCaptain);
@@ -1171,7 +1183,7 @@ public class CharacterHandler : IWorldSessionHandler
 			return;
 		}
 
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(charDelete.Guid);
+		var characterInfo = _characterCache.GetCharacterCacheByGuid(charDelete.Guid);
 
 		if (characterInfo == null)
 		{
@@ -1200,7 +1212,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		// Shouldn't interfere with character deletion though
 
-		Global.CalendarMgr.RemoveAllPlayerEventsAndInvites(charDelete.Guid);
+		_calendarManager.RemoveAllPlayerEventsAndInvites(charDelete.Guid);
 		Player.DeleteFromDB(charDelete.Guid, accountId);
 
 		SendCharDelete(ResponseCodes.CharDeleteSuccess);
@@ -1345,14 +1357,14 @@ public class CharacterHandler : IWorldSessionHandler
 	void HandleCheckCharacterNameAvailability(CheckCharacterNameAvailability checkCharacterNameAvailability)
 	{
 		// prevent character rename to invalid name
-		if (!ObjectManager.NormalizePlayerName(ref checkCharacterNameAvailability.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref checkCharacterNameAvailability.Name))
 		{
 			_session.SendPacket(new CheckCharacterNameAvailabilityResult(checkCharacterNameAvailability.SequenceIndex, ResponseCodes.CharNameNoName));
 
 			return;
 		}
 
-		var res = ObjectManager.CheckPlayerName(checkCharacterNameAvailability.Name, _session.SessionDbcLocale, true);
+		var res = GameObjectManager.CheckPlayerName(checkCharacterNameAvailability.Name, _session.SessionDbcLocale, true);
 
 		if (res != ResponseCodes.CharNameSuccess)
 		{
@@ -1400,14 +1412,14 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// prevent character rename to invalid name
-		if (!ObjectManager.NormalizePlayerName(ref request.RenameInfo.NewName))
+		if (!GameObjectManager.NormalizePlayerName(ref request.RenameInfo.NewName))
 		{
 			SendCharRename(ResponseCodes.CharNameNoName, request.RenameInfo);
 
 			return;
 		}
 
-		var res = ObjectManager.CheckPlayerName(request.RenameInfo.NewName, _session.SessionDbcLocale, true);
+		var res = GameObjectManager.CheckPlayerName(request.RenameInfo.NewName, _session.SessionDbcLocale, true);
 
 		if (res != ResponseCodes.CharNameSuccess)
 		{
@@ -1479,14 +1491,14 @@ public class CharacterHandler : IWorldSessionHandler
 
 		SendCharRename(ResponseCodes.Success, renameInfo);
 
-		Global.CharacterCacheStorage.UpdateCharacterData(renameInfo.Guid, renameInfo.NewName);
+		_characterCache.UpdateCharacterData(renameInfo.Guid, renameInfo.NewName);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.SetPlayerDeclinedNames, Status = SessionStatus.Authed)]
 	void HandleSetPlayerDeclinedNames(SetPlayerDeclinedNames packet)
 	{
 		// not accept declined names for unsupported languages
-		if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(packet.Player, out var name))
+		if (!_characterCache.GetCharacterNameByGuid(packet.Player, out var name))
 		{
 			SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
 
@@ -1504,7 +1516,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			var declinedName = packet.DeclinedNames.Name[i];
 
-			if (!ObjectManager.NormalizePlayerName(ref declinedName))
+			if (!GameObjectManager.NormalizePlayerName(ref declinedName))
 			{
 				SendSetPlayerDeclinedNamesResult(DeclinedNameResult.Error, packet.Player);
 
@@ -1589,7 +1601,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		_session.Player.SetStandState(UnitStandStateType.Stand);
 
-		Global.CharacterCacheStorage.UpdateCharacterGender(_session.Player.GUID, packet.NewSex);
+		_characterCache.UpdateCharacterGender(_session.Player.GUID, packet.NewSex);
 	}
 
 	[WorldPacketHandler(ClientOpcodes.CharCustomize, Status = SessionStatus.Authed)]
@@ -1654,14 +1666,14 @@ public class CharacterHandler : IWorldSessionHandler
 		atLoginFlags &= ~AtLoginFlags.Customize;
 
 		// prevent character rename to invalid name
-		if (!ObjectManager.NormalizePlayerName(ref customizeInfo.CharName))
+		if (!GameObjectManager.NormalizePlayerName(ref customizeInfo.CharName))
 		{
 			SendCharCustomize(ResponseCodes.CharNameNoName, customizeInfo);
 
 			return;
 		}
 
-		var res = ObjectManager.CheckPlayerName(customizeInfo.CharName, _session.SessionDbcLocale, true);
+		var res = GameObjectManager.CheckPlayerName(customizeInfo.CharName, _session.SessionDbcLocale, true);
 
 		if (res != ResponseCodes.CharNameSuccess)
 		{
@@ -1680,7 +1692,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		// character with this name already exist
 		// @todo: make async
-		var newGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(customizeInfo.CharName);
+		var newGuid = _characterCache.GetCharacterGuidByName(customizeInfo.CharName);
 
 		if (!newGuid.IsEmpty)
 			if (newGuid != customizeInfo.CharGUID)
@@ -1713,7 +1725,7 @@ public class CharacterHandler : IWorldSessionHandler
 
 		_characterDatabase.CommitTransaction(trans);
 
-		Global.CharacterCacheStorage.UpdateCharacterData(customizeInfo.CharGUID, customizeInfo.CharName, (byte)customizeInfo.SexID);
+		_characterCache.UpdateCharacterData(customizeInfo.CharGUID, customizeInfo.CharName, (byte)customizeInfo.SexID);
 
 		SendCharCustomize(ResponseCodes.Success, customizeInfo);
 
@@ -1809,7 +1821,7 @@ public class CharacterHandler : IWorldSessionHandler
 				var condition = _cliDB.PlayerConditionStorage.LookupByKey(illusion.TransmogUseConditionID);
 
 				if (condition != null)
-					if (!ConditionManager.IsPlayerMeetingCondition(_session.Player, condition))
+					if (!_conditionManager.IsPlayerMeetingCondition(_session.Player, condition))
 						return false;
 
 				if (illusion.ScalingClassRestricted > 0 && illusion.ScalingClassRestricted != (byte)_session.Player.Class)
@@ -1928,7 +1940,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// get the players old (at this moment current) race
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(factionChangeInfo.Guid);
+		var characterInfo = _characterCache.GetCharacterCacheByGuid(factionChangeInfo.Guid);
 
 		if (characterInfo == null)
 		{
@@ -1998,14 +2010,14 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// prevent character rename to invalid name
-		if (!ObjectManager.NormalizePlayerName(ref factionChangeInfo.Name))
+		if (!GameObjectManager.NormalizePlayerName(ref factionChangeInfo.Name))
 		{
 			SendCharFactionChange(ResponseCodes.CharNameNoName, factionChangeInfo);
 
 			return;
 		}
 
-		var res = ObjectManager.CheckPlayerName(factionChangeInfo.Name, _session.SessionDbcLocale, true);
+		var res = GameObjectManager.CheckPlayerName(factionChangeInfo.Name, _session.SessionDbcLocale, true);
 
 		if (res != ResponseCodes.CharNameSuccess)
 		{
@@ -2023,7 +2035,7 @@ public class CharacterHandler : IWorldSessionHandler
 		}
 
 		// character with this name already exist
-		var newGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(factionChangeInfo.Name);
+		var newGuid = _characterCache.GetCharacterGuidByName(factionChangeInfo.Name);
 
 		if (!newGuid.IsEmpty)
 			if (newGuid != factionChangeInfo.Guid)
@@ -2033,7 +2045,7 @@ public class CharacterHandler : IWorldSessionHandler
 				return;
 			}
 
-		if (Global.ArenaTeamMgr.GetArenaTeamByCaptain(factionChangeInfo.Guid) != null)
+		if (_arenaTeamManager.GetArenaTeamByCaptain(factionChangeInfo.Guid) != null)
 		{
 			SendCharFactionChange(ResponseCodes.CharCreateCharacterArenaLeader, factionChangeInfo);
 
@@ -2077,7 +2089,7 @@ public class CharacterHandler : IWorldSessionHandler
 			trans.Append(stmt);
 		}
 
-		Global.CharacterCacheStorage.UpdateCharacterData(factionChangeInfo.Guid, factionChangeInfo.Name, (byte)factionChangeInfo.SexID, (byte)factionChangeInfo.RaceID);
+		_characterCache.UpdateCharacterData(factionChangeInfo.Guid, factionChangeInfo.Name, (byte)factionChangeInfo.SexID, (byte)factionChangeInfo.RaceID);
 
 		if (oldRace != factionChangeInfo.RaceID)
 		{
@@ -2616,7 +2628,7 @@ public class CharacterHandler : IWorldSessionHandler
 										stmt.AddValue(0, _session.BattlenetAccountId);
 										_loginDatabase.Execute(stmt);
 
-										Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(undeleteInfo.CharacterGuid, false, undeleteInfo.Name);
+										_characterCache.UpdateCharacterInfoDeleted(undeleteInfo.CharacterGuid, false, undeleteInfo.Name);
 
 										SendUndeleteCharacterResponse(CharacterUndeleteResult.Ok, undeleteInfo);
 									}));
@@ -2674,7 +2686,7 @@ public class CharacterHandler : IWorldSessionHandler
 		{
 			var gYard = range[(int)i];
 
-			if (gYard.team == 0 || gYard.team == team)
+			if (gYard.Team == 0 || gYard.Team == team)
 				graveyardIds.Add(i);
 		}
 

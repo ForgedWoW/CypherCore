@@ -18,10 +18,10 @@ public class AdventureJournalHandler : IWorldSessionHandler
     private readonly Player _player;
     private readonly DB6Storage<AdventureJournalRecord> _adventureJournalStorage;
 	private readonly DB2Manager _dB2Manager;
-    private readonly ObjectManager _objectManager;
+    private readonly GameObjectManager _objectManager;
 
     public AdventureJournalHandler(WorldSession session, Player player, DB6Storage<AdventureJournalRecord> adventureJournalStorage, 
-		DB2Manager dB2Manager, ObjectManager objectManager)
+		DB2Manager dB2Manager, GameObjectManager objectManager)
     {
         _session = session;
         _player = player;

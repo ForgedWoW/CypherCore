@@ -237,7 +237,7 @@ public partial class Player
 					else if (factionTemplate.EnemyGroup.HasAnyFlag(area.FactionGroupMask))
 						PvpInfo.IsInHostileArea = true;
 					else
-						PvpInfo.IsInHostileArea = Global.WorldMgr.IsPvPRealm;
+						PvpInfo.IsInHostileArea = _worldManager.IsPvPRealm;
 				}
 			}
 		}
@@ -386,7 +386,7 @@ public partial class Player
 					{
 						SendSysMessage("{0}", ar.QuestFailedText);
 					}
-					else if (!mapDiff.Message[Global.WorldMgr.DefaultDbcLocale].IsEmpty() && mapDiff.Message[Global.WorldMgr.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
+					else if (!mapDiff.Message[_worldManager.DefaultDbcLocale].IsEmpty() && mapDiff.Message[_worldManager.DefaultDbcLocale][0] != '\0' || failedMapDifficultyXCondition != 0) // if (missingAchievement) covered by this case
 					{
 						if (abortParams != null)
 						{

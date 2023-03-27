@@ -22,7 +22,7 @@ class CharacterDatabaseCleaner
 
 		var oldMSTime = Time.MSTime;
 
-		var flags = (CleaningFlags)Global.WorldMgr.GetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId);
+		var flags = (CleaningFlags)_worldManager.GetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId);
 
 		// clean up
 		if (flags.HasAnyFlag(CleaningFlags.AchievementProgress))
@@ -43,9 +43,9 @@ class CharacterDatabaseCleaner
 		// NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
 		// you need to define them at least once in worldstates.
 		flags &= (CleaningFlags)_worldConfig.GetIntValue(WorldCfg.PersistentCharacterCleanFlags);
-		Global.WorldMgr.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
+		_worldManager.SetPersistentWorldVariable(WorldManager.CharacterDatabaseCleaningFlagsVarId, (int)flags);
 
-		Global.WorldMgr.CleaningFlags = flags;
+		_worldManager.CleaningFlags = flags;
 
 		Log.Logger.Information("Cleaned character database in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 	}

@@ -28,7 +28,7 @@ class BanCommands
 		if (reason.IsEmpty())
 			return false;
 
-		if (!ObjectManager.NormalizePlayerName(ref playerName))
+		if (!GameObjectManager.NormalizePlayerName(ref playerName))
 		{
 			handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -37,21 +37,21 @@ class BanCommands
 
 		var author = handler.Session != null ? handler.Session.PlayerName : "Server";
 
-		switch (Global.WorldMgr.BanCharacter(playerName, duration, reason, author))
+		switch (_worldManager.BanCharacter(playerName, duration, reason, author))
 		{
 			case BanReturn.Success:
 			{
 				if (duration > 0)
 				{
 					if (_worldConfig.GetBoolValue(WorldCfg.ShowBanInWorld))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
+						_worldManager.SendWorldText(CypherStrings.BanCharacterYoubannedmessageWorld, author, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
 					else
 						handler.SendSysMessage(CypherStrings.BanYoubanned, playerName, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
 				}
 				else
 				{
 					if (_worldConfig.GetBoolValue(WorldCfg.ShowBanInWorld))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
+						_worldManager.SendWorldText(CypherStrings.BanCharacterYoupermbannedmessageWorld, author, playerName, reason);
 					else
 						handler.SendSysMessage(CypherStrings.BanYoupermbanned, playerName, reason);
 				}
@@ -94,7 +94,7 @@ class BanCommands
 		switch (mode)
 		{
 			case BanMode.Character:
-				if (!ObjectManager.NormalizePlayerName(ref nameOrIP))
+				if (!GameObjectManager.NormalizePlayerName(ref nameOrIP))
 				{
 					handler.SendSysMessage(CypherStrings.PlayerNotFound);
 
@@ -111,20 +111,20 @@ class BanCommands
 
 		var author = handler.Session ? handler.Session.PlayerName : "Server";
 
-		switch (Global.WorldMgr.BanAccount(mode, nameOrIP, duration, reason, author))
+		switch (_worldManager.BanAccount(mode, nameOrIP, duration, reason, author))
 		{
 			case BanReturn.Success:
 				if (duration > 0)
 				{
 					if (_worldConfig.GetBoolValue(WorldCfg.ShowBanInWorld))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.secsToTimeString(duration), reason);
+						_worldManager.SendWorldText(CypherStrings.BanAccountYoubannedmessageWorld, author, nameOrIP, Time.secsToTimeString(duration), reason);
 					else
 						handler.SendSysMessage(CypherStrings.BanYoubanned, nameOrIP, Time.secsToTimeString(duration, TimeFormat.ShortText), reason);
 				}
 				else
 				{
 					if (_worldConfig.GetBoolValue(WorldCfg.ShowBanInWorld))
-						Global.WorldMgr.SendWorldText(CypherStrings.BanAccountYoupermbannedmessageWorld, author, nameOrIP, reason);
+						_worldManager.SendWorldText(CypherStrings.BanAccountYoupermbannedmessageWorld, author, nameOrIP, reason);
 					else
 						handler.SendSysMessage(CypherStrings.BanYoupermbanned, nameOrIP, reason);
 				}

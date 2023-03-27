@@ -915,7 +915,7 @@ class LookupCommands
 
 			if (mapInfo != null)
 			{
-				var locale = handler.Session ? handler.Session.SessionDbcLocale : Global.WorldMgr.DefaultDbcLocale;
+				var locale = handler.Session ? handler.Session.SessionDbcLocale : _worldManager.DefaultDbcLocale;
 				var name = mapInfo.MapName[locale];
 
 				if (name.IsEmpty())

@@ -192,7 +192,7 @@ public abstract class Warden
 				if (check != null)
 					banReason += ": " + check.Comment + " (CheckId: " + check.CheckId + ")";
 
-				Global.WorldMgr.BanAccount(BanMode.Account, accountName, _worldConfig.GetUIntValue(WorldCfg.WardenClientBanDuration), banReason, "Server");
+				_worldManager.BanAccount(BanMode.Account, accountName, _worldConfig.GetUIntValue(WorldCfg.WardenClientBanDuration), banReason, "Server");
 
 				break;
 			}

@@ -1530,7 +1530,7 @@ public class Battleground : ZoneScript, IDisposable
 
 	public string GetName()
 	{
-		return _battlegroundTemplate.BattlemasterEntry.Name[Global.WorldMgr.DefaultDbcLocale];
+		return _battlegroundTemplate.BattlemasterEntry.Name[_worldManager.DefaultDbcLocale];
 	}
 
 	public BattlegroundTypeId GetTypeID(bool getRandom = false)
@@ -2151,7 +2151,7 @@ public class Battleground : ZoneScript, IDisposable
 
 				// Announce BG starting
 				if (_worldConfig.GetBoolValue(WorldCfg.BattlegroundQueueAnnouncerEnable))
-					Global.WorldMgr.SendWorldText(CypherStrings.BgStartedAnnounceWorld, GetName(), GetMinLevel(), GetMaxLevel());
+					_worldManager.SendWorldText(CypherStrings.BgStartedAnnounceWorld, GetName(), GetMinLevel(), GetMaxLevel());
 			}
 		}
 

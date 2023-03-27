@@ -4,7 +4,7 @@
 using Framework.Constants;
 using Forged.RealmServer.Networking;
 using Forged.RealmServer.Networking.Packets.MythicPlus;
-using Forged.RealmServer.Server;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer.Handlers;
 

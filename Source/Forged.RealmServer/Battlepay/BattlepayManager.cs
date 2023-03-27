@@ -163,7 +163,7 @@ public class BattlepayManager
 		var displayInfo = _battlePayDataStoreMgr.GetDisplayInfo(productInfo.Entry);
 		var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.LOGIN_INS_PURCHASE);
 		stmt.AddValue(0, _session.AccountId);
-		stmt.AddValue(1, Global.WorldMgr.VirtualRealmAddress);
+		stmt.AddValue(1, _worldManager.VirtualRealmAddress);
 		stmt.AddValue(2, _session.Player ? _session.Player.GUID.Counter : 0);
 		stmt.AddValue(3, purchase.ProductID);
 		stmt.AddValue(4, displayInfo.Name1);
@@ -1298,8 +1298,8 @@ public class BattlepayManager
 		if (!targetGuid.IsEmpty)
 		{
 			distributionBattlePay.DistributionObject.TargetPlayer = targetGuid;
-			distributionBattlePay.DistributionObject.TargetVirtualRealm = Global.WorldMgr.VirtualRealmAddress;
-			distributionBattlePay.DistributionObject.TargetNativeRealm = Global.WorldMgr.VirtualRealmAddress;
+			distributionBattlePay.DistributionObject.TargetVirtualRealm = _worldManager.VirtualRealmAddress;
+			distributionBattlePay.DistributionObject.TargetNativeRealm = _worldManager.VirtualRealmAddress;
 		}
 
 		var productData = new BpayProduct();

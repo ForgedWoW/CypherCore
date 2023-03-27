@@ -200,7 +200,7 @@ public class BlackMarketManager : Singleton<BlackMarketManager>
 			if (bidderAccId == 0) // Account exists
 				return;
 
-			logGmTrade = Global.AccountMgr.HasPermission(bidderAccId, RBACPermissions.LogGmTrade, Global.WorldMgr.RealmId.Index);
+			logGmTrade = Global.AccountMgr.HasPermission(bidderAccId, RBACPermissions.LogGmTrade, _worldManager.RealmId.Index);
 
 			if (logGmTrade && !Global.CharacterCacheStorage.GetCharacterNameByGuid(bidderGuid, out bidderName))
 				bidderName = Global.ObjectMgr.GetCypherString(CypherStrings.Unknown);

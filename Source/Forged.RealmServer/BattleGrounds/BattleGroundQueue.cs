@@ -102,7 +102,7 @@ public class BattlegroundQueue
 			var arenaTeam = Global.ArenaTeamMgr.GetArenaTeamById(arenateamid);
 
 			if (arenaTeam != null)
-				Global.WorldMgr.SendWorldText(CypherStrings.ArenaQueueAnnounceWorldJoin, arenaTeam.GetName(), m_queueId.TeamSize, m_queueId.TeamSize, ginfo.ArenaTeamRating);
+				_worldManager.SendWorldText(CypherStrings.ArenaQueueAnnounceWorldJoin, arenaTeam.GetName(), m_queueId.TeamSize, m_queueId.TeamSize, ginfo.ArenaTeamRating);
 		}
 
 		//add players from group to ginfo
@@ -173,7 +173,7 @@ public class BattlegroundQueue
 											(MinPlayers > qHorde) ? MinPlayers - qHorde : 0);
 					// System message
 					else
-						Global.WorldMgr.SendWorldText(CypherStrings.BgQueueAnnounceWorld,
+						_worldManager.SendWorldText(CypherStrings.BgQueueAnnounceWorld,
 													bgName,
 													q_min_level,
 													q_max_level,
@@ -294,7 +294,7 @@ public class BattlegroundQueue
 			var team = Global.ArenaTeamMgr.GetArenaTeamById(group.ArenaTeamId);
 
 			if (team != null)
-				Global.WorldMgr.SendWorldText(CypherStrings.ArenaQueueAnnounceWorldExit, team.GetName(), m_queueId.TeamSize, m_queueId.TeamSize, group.ArenaTeamRating);
+				_worldManager.SendWorldText(CypherStrings.ArenaQueueAnnounceWorldExit, team.GetName(), m_queueId.TeamSize, m_queueId.TeamSize, group.ArenaTeamRating);
 		}
 
 		// if player leaves queue and he is invited to rated arena match, then he have to lose

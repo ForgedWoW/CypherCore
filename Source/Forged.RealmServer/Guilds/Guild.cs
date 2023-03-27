@@ -184,7 +184,7 @@ public class Guild
 
 	public bool SetName(string name)
 	{
-		if (m_name == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !ObjectManager.IsValidCharterName(name))
+		if (m_name == name || string.IsNullOrEmpty(name) || name.Length > 24 || Global.ObjectMgr.IsReservedName(name) || !GameObjectManager.IsValidCharterName(name))
 			return false;
 
 		m_name = name;
@@ -223,7 +223,7 @@ public class Guild
 
 			//GuildRosterProfessionData
 
-			memberData.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			memberData.VirtualRealmAddress = _worldManager.VirtualRealmAddress;
 			memberData.Status = (byte)member.GetFlags();
 			memberData.Level = member.GetLevel();
 			memberData.ClassID = (byte)member.GetClass();
@@ -256,7 +256,7 @@ public class Guild
 		response.HasGuildInfo = true;
 
 		response.Info.GuildGuid = GetGUID();
-		response.Info.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+		response.Info.VirtualRealmAddress = _worldManager.VirtualRealmAddress;
 
 		response.Info.EmblemStyle = m_emblemInfo.GetStyle();
 		response.Info.EmblemColor = m_emblemInfo.GetColor();
@@ -620,8 +620,8 @@ public class Guild
 
 		GuildInvite invite = new();
 
-		invite.InviterVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
-		invite.GuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+		invite.InviterVirtualRealmAddress = _worldManager.VirtualRealmAddress;
+		invite.GuildVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		invite.GuildGUID = GetGUID();
 
 		invite.EmblemStyle = m_emblemInfo.GetStyle();
@@ -640,7 +640,7 @@ public class Guild
 		{
 			invite.OldGuildGUID = oldGuild.GetGUID();
 			invite.OldGuildName = oldGuild.GetName();
-			invite.OldGuildVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			invite.OldGuildVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		}
 
 		pInvitee.SendPacket(invite);
@@ -1708,7 +1708,7 @@ public class Guild
 		GuildEventPlayerJoined joinNotificationPacket = new();
 		joinNotificationPacket.Guid = guid;
 		joinNotificationPacket.Name = name;
-		joinNotificationPacket.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+		joinNotificationPacket.VirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		BroadcastPacket(joinNotificationPacket);
 
 		// Call scripts if member was succesfully added (and stored to database)
@@ -2125,14 +2125,14 @@ public class Guild
 		{
 			eventPacket.NewLeaderGUID = newLeader.GetGUID();
 			eventPacket.NewLeaderName = newLeader.GetName();
-			eventPacket.NewLeaderVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			eventPacket.NewLeaderVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		}
 
 		if (oldLeader != null)
 		{
 			eventPacket.OldLeaderGUID = oldLeader.GetGUID();
 			eventPacket.OldLeaderName = oldLeader.GetName();
-			eventPacket.OldLeaderVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			eventPacket.OldLeaderVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		}
 
 		BroadcastPacket(eventPacket);
@@ -2144,13 +2144,13 @@ public class Guild
 		eventPacket.Removed = isRemoved;
 		eventPacket.LeaverGUID = leaver.GUID;
 		eventPacket.LeaverName = leaver.GetName();
-		eventPacket.LeaverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+		eventPacket.LeaverVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 
 		if (isRemoved && remover)
 		{
 			eventPacket.RemoverGUID = remover.GUID;
 			eventPacket.RemoverName = remover.GetName();
-			eventPacket.RemoverVirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+			eventPacket.RemoverVirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		}
 
 		BroadcastPacket(eventPacket);
@@ -2163,7 +2163,7 @@ public class Guild
 		GuildEventPresenceChange eventPacket = new();
 		eventPacket.Guid = player.GUID;
 		eventPacket.Name = player.GetName();
-		eventPacket.VirtualRealmAddress = Global.WorldMgr.VirtualRealmAddress;
+		eventPacket.VirtualRealmAddress = _worldManager.VirtualRealmAddress;
 		eventPacket.LoggedOn = loggedOn;
 		eventPacket.Mobile = false;
 

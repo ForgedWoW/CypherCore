@@ -89,7 +89,7 @@ class ReloadCommand
 	static bool HandleReloadAutobroadcastCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading Autobroadcasts...");
-		Global.WorldMgr.LoadAutobroadcasts();
+		_worldManager.LoadAutobroadcasts();
 		handler.SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
 
 		return true;
@@ -129,7 +129,7 @@ class ReloadCommand
 	static bool HandleReloadConfigCommand(CommandHandler handler)
 	{
 		Log.Logger.Information("Re-Loading config settings...");
-		Global.WorldMgr.LoadConfigSettings(true);
+		_worldManager.LoadConfigSettings(true);
 		Global.MapMgr.InitializeVisibilityDistanceInfo();
 		handler.SendGlobalGMSysMessage("World config settings reloaded.");
 
@@ -686,7 +686,7 @@ class ReloadCommand
 	{
 		Log.Logger.Information("Reloading RBAC tables...");
 		Global.AccountMgr.LoadRBAC();
-		Global.WorldMgr.ReloadRBAC();
+		_worldManager.ReloadRBAC();
 		handler.SendGlobalGMSysMessage("RBAC data reloaded.");
 
 		return true;

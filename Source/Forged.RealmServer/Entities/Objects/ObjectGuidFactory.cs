@@ -102,6 +102,6 @@ class ObjectGuidFactory
 		if (realmId != 0)
 			return realmId;
 
-		return Global.WorldMgr.RealmId.Index;
+		return _worldManager.RealmId.Index;
 	}
 }
