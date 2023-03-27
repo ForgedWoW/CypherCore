@@ -13,7 +13,6 @@ using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Equipment;
@@ -26,6 +25,7 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Entities.Players;
 
@@ -3653,9 +3653,9 @@ public partial class Player
 			}
 	}
 
-	public Loot.Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
+	public Forged.MapServer.LootManagement.Loot GetLootByWorldObjectGUID(ObjectGuid lootWorldObjectGuid)
 	{
-		return _aeLootView.FirstOrDefault(pair => pair.Value.GetOwnerGUID() == lootWorldObjectGuid).Value;
+		return _aeLootView.FirstOrDefault(pair => pair.Value.GetOwnerGuid() == lootWorldObjectGuid).Value;
 	}
 
 	public LootRoll GetLootRoll(ObjectGuid lootObjectGuid, byte lootListId)
@@ -5209,11 +5209,11 @@ public partial class Player
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LootTargetGUID), guid);
 	}
 
-	public void StoreLootItem(ObjectGuid lootWorldObjectGuid, byte lootSlot, Loot.Loot loot, AELootResult aeResult = null)
+	public void StoreLootItem(ObjectGuid lootWorldObjectGuid, byte lootSlot, Forged.MapServer.LootManagement.Loot loot, AELootResult aeResult = null)
 	{
 		var item = loot.LootItemInSlot(lootSlot, this, out var ffaItem);
 
-		if (item == null || item.is_looted)
+		if (item == null || item.IsLooted)
 		{
 			SendEquipError(InventoryResult.LootGone);
 
@@ -5227,7 +5227,7 @@ public partial class Player
 			return;
 		}
 
-		if (item.is_blocked)
+		if (item.IsBlocked)
 		{
 			SendLootReleaseAll();
 
@@ -5235,7 +5235,7 @@ public partial class Player
 		}
 
 		// dont allow protected item to be looted by someone else
-		if (!item.rollWinnerGUID.IsEmpty && item.rollWinnerGUID != GUID)
+		if (!item.RollWinnerGuid.IsEmpty && item.RollWinnerGuid != GUID)
 		{
 			SendLootReleaseAll();
 
@@ -5243,17 +5243,17 @@ public partial class Player
 		}
 
 		List<ItemPosCount> dest = new();
-		var msg = CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.itemid, item.count);
+		var msg = CanStoreNewItem(ItemConst.NullBag, ItemConst.NullSlot, dest, item.Itemid, item.Count);
 
 		if (msg == InventoryResult.Ok)
 		{
-			var newitem = StoreNewItem(dest, item.itemid, true, item.randomBonusListId, item.GetAllowedLooters(), item.context, item.BonusListIDs);
+			var newitem = StoreNewItem(dest, item.Itemid, true, item.RandomBonusListId, item.GetAllowedLooters(), item.Context, item.BonusListIDs);
 
 			if (ffaItem != null)
 			{
 				//freeforall case, notify only one player of the removal
-				ffaItem.is_looted = true;
-				SendNotifyLootItemRemoved(loot.GetGUID(), loot.GetOwnerGUID(), lootSlot);
+				ffaItem.IsLooted = true;
+				SendNotifyLootItemRemoved(loot.GetGuid(), loot.GetOwnerGuid(), lootSlot);
 			}
 			else //not freeforall, notify everyone
 			{
@@ -5261,46 +5261,46 @@ public partial class Player
 			}
 
 			//if only one person is supposed to loot the item, then set it to looted
-			if (!item.freeforall)
-				item.is_looted = true;
+			if (!item.Freeforall)
+				item.IsLooted = true;
 
-			--loot.unlootedCount;
+			--loot.UnlootedCount;
 
-			if (Global.ObjectMgr.GetItemTemplate(item.itemid) != null)
+			if (Global.ObjectMgr.GetItemTemplate(item.Itemid) != null)
 				if (newitem.Quality > ItemQuality.Epic || (newitem.Quality == ItemQuality.Epic && newitem.GetItemLevel(this) >= GuildConst.MinNewsItemLevel))
 				{
 					var guild = Guild;
 
 					if (guild)
-						guild.AddGuildNews(GuildNews.ItemLooted, GUID, 0, item.itemid);
+						guild.AddGuildNews(GuildNews.ItemLooted, GUID, 0, item.Itemid);
 				}
 
 			// if aeLooting then we must delay sending out item so that it appears properly stacked in chat
 			if (aeResult == null)
 			{
-				SendNewItem(newitem, item.count, false, false, true, loot.GetDungeonEncounterId());
-				UpdateCriteria(CriteriaType.LootItem, item.itemid, item.count);
-				UpdateCriteria(CriteriaType.GetLootByType, item.itemid, item.count, (uint)SharedConst.GetLootTypeForClient(loot.loot_type));
-				UpdateCriteria(CriteriaType.LootAnyItem, item.itemid, item.count);
+				SendNewItem(newitem, item.Count, false, false, true, loot.GetDungeonEncounterId());
+				UpdateCriteria(CriteriaType.LootItem, item.Itemid, item.Count);
+				UpdateCriteria(CriteriaType.GetLootByType, item.Itemid, item.Count, (uint)SharedConst.GetLootTypeForClient(loot.LootType));
+				UpdateCriteria(CriteriaType.LootAnyItem, item.Itemid, item.Count);
 			}
 			else
 			{
-				aeResult.Add(newitem, item.count, SharedConst.GetLootTypeForClient(loot.loot_type), loot.GetDungeonEncounterId());
+				aeResult.Add(newitem, item.Count, SharedConst.GetLootTypeForClient(loot.LootType), loot.GetDungeonEncounterId());
 			}
 
 			// LootItem is being removed (looted) from the container, delete it from the DB.
-			if (loot.loot_type == LootType.Item)
-				Global.LootItemStorage.RemoveStoredLootItemForContainer(lootWorldObjectGuid.Counter, item.itemid, item.count, item.LootListId);
+			if (loot.LootType == LootType.Item)
+				Global.LootItemStorage.RemoveStoredLootItemForContainer(lootWorldObjectGuid.Counter, item.Itemid, item.Count, item.LootListId);
 
 			ApplyItemLootedSpell(newitem, true);
 		}
 		else
 		{
-			SendEquipError(msg, null, null, item.itemid);
+			SendEquipError(msg, null, null, item.Itemid);
 		}
 	}
 
-	public Dictionary<ObjectGuid, Loot.Loot> GetAELootView()
+	public Dictionary<ObjectGuid, Forged.MapServer.LootManagement.Loot> GetAELootView()
 	{
 		return _aeLootView;
 	}
@@ -5336,7 +5336,7 @@ public partial class Player
 		// Now we must make bones lootable, and send player loot
 		bones.SetCorpseDynamicFlag(CorpseDynFlags.Lootable);
 
-		bones.Loot = new Loot.Loot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
+		bones.Loot = _lootFactory.GenerateLoot(Map, bones.GUID, LootType.Insignia, looterPlr.Group);
 
 		// For AV Achievement
 		var bg = Battleground;
@@ -5354,7 +5354,7 @@ public partial class Player
 
 		// It may need a better formula
 		// Now it works like this: lvl10: ~6copper, lvl70: ~9silver
-		bones.Loot.gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * GetDefaultValue("Rate.Drop.Money", 1.0f));
+		bones.Loot.Gold = (uint)(RandomHelper.URand(50, 150) * 0.016f * Math.Pow((float)Level / 5.76f, 2.5f) * GetDefaultValue("Rate.Drop.Money", 1.0f));
 		bones.LootRecipient = looterPlr;
 		looterPlr.SendLoot(bones.Loot);
 	}
@@ -5376,23 +5376,23 @@ public partial class Player
 		SendPacket(new LootReleaseAll());
 	}
 
-	public void SendLoot(Loot.Loot loot, bool aeLooting = false)
+	public void SendLoot(Forged.MapServer.LootManagement.Loot loot, bool aeLooting = false)
 	{
 		if (!GetLootGUID().IsEmpty && !aeLooting)
 			_session.DoLootReleaseAll();
 
-		Log.Logger.Debug($"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.GetOwnerGUID()}");
+		Log.Logger.Debug($"Player::SendLoot: Player: '{GetName()}' ({GUID}), Loot: {loot.GetOwnerGuid()}");
 
-		if (!loot.GetOwnerGUID().IsItem && !aeLooting)
-			SetLootGUID(loot.GetOwnerGUID());
+		if (!loot.GetOwnerGuid().IsItem && !aeLooting)
+			SetLootGUID(loot.GetOwnerGuid());
 
 		LootResponse packet = new();
 
 		{
-			Owner = loot.GetOwnerGUID(),
-			LootObj = loot.GetGUID(),
+			Owner = loot.GetOwnerGuid(),
+			LootObj = loot.GetGuid(),
 			LootMethod = loot.GetLootMethod(),
-			AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.loot_type),
+			AcquireReason = (byte)SharedConst.GetLootTypeForClient(loot.LootType),
 			Acquired = true, // false == No Loot (this too^^)
 			AELooting = aeLooting
 		}
@@ -5403,9 +5403,9 @@ public partial class Player
 
 		// add 'this' player as one of the players that are looting 'loot'
 		loot.OnLootOpened(Map, GUID);
-		_aeLootView[loot.GetGUID()] = loot;
+		_aeLootView[loot.GetGuid()] = loot;
 
-		if (loot.loot_type == LootType.Corpse && !loot.GetOwnerGUID().IsItem)
+		if (loot.LootType == LootType.Corpse && !loot.GetOwnerGuid().IsItem)
 			SetUnitFlag(UnitFlags.Looting);
 	}
 
@@ -7540,7 +7540,7 @@ public partial class Player
 
     private void AutoStoreLoot(byte bag, byte slot, uint loot_id, LootStore store, ItemContext context = 0, bool broadcast = false, bool createdByPlayer = false)
 	{
-		Loot.Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
+		Forged.MapServer.LootManagement.Loot loot = new(null, ObjectGuid.Empty, LootType.None, null);
 		loot.FillLoot(loot_id, store, this, true, false, LootModes.Default, context);
 
 		loot.AutoStore(this, bag, slot, broadcast, createdByPlayer);

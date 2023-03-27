@@ -16,7 +16,6 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Workers;
 using Forged.MapServer.Networking;
@@ -33,6 +32,7 @@ using Framework.Database;
 using Framework.Realm;
 using Framework.Threading;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.World;
 

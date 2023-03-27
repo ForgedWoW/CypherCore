@@ -1215,7 +1215,7 @@ public partial class Creature : Unit
 		return TapList.Contains(player.GUID);
 	}
 
-	public override Loot.Loot GetLootForPlayer(Player player)
+	public override Forged.MapServer.LootManagement.Loot GetLootForPlayer(Player player)
 	{
 		if (PersonalLoot.Empty())
 			return Loot;
@@ -1233,7 +1233,7 @@ public partial class Creature : Unit
 		var loot = GetLootForPlayer(player);
 
 		if (loot != null)
-			return loot.loot_type == LootType.Skinning;
+			return loot.LootType == LootType.Skinning;
 
 		return false;
 	}
@@ -2474,11 +2474,11 @@ public partial class Creature : Unit
 		// corpse skinnable, but without skinning flag, and then skinned, corpse will despawn next update
 		bool isFullySkinned()
 		{
-			if (Loot is { loot_type: LootType.Skinning } && Loot.IsLooted())
+			if (Loot is { LootType: LootType.Skinning } && Loot.IsLooted())
 				return true;
 
 			foreach (var (_, loot) in PersonalLoot)
-				if (loot != null && loot.loot_type != LootType.Skinning || !loot.IsLooted())
+				if (loot != null && loot.LootType != LootType.Skinning || !loot.IsLooted())
 					return false;
 
 			return true;

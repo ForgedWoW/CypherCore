@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Loot;
 using Framework.Constants;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Networking.Packets.Item;
 
@@ -35,18 +35,18 @@ public class ItemInstance
 
 	public ItemInstance(LootItem lootItem)
 	{
-		ItemID = lootItem.itemid;
+		ItemID = lootItem.Itemid;
 
-		if (!lootItem.BonusListIDs.Empty() || lootItem.randomBonusListId != 0)
+		if (!lootItem.BonusListIDs.Empty() || lootItem.RandomBonusListId != 0)
 		{
 			ItemBonus = new ItemBonuses
 			{
 				BonusListIDs = lootItem.BonusListIDs,
-				Context = lootItem.context
+				Context = lootItem.Context
 			};
 
-			if (lootItem.randomBonusListId != 0)
-				ItemBonus.BonusListIDs.Add(lootItem.randomBonusListId);
+			if (lootItem.RandomBonusListId != 0)
+				ItemBonus.BonusListIDs.Add(lootItem.RandomBonusListId);
 		}
 	}
 

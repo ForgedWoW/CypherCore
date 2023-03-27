@@ -88,7 +88,7 @@ public class Item : WorldObject
 	public ItemData ItemData { get; set; }
 
 	public bool LootGenerated { get; set; }
-	public Loot.Loot Loot { get; set; }
+	public Forged.MapServer.LootManagement.Loot Loot { get; set; }
 	public BonusData BonusData { get; set; }
 
 	public override ObjectGuid OwnerGUID => ItemData.Owner;
@@ -2566,7 +2566,7 @@ public class Item : WorldObject
 		_childItem = childItem;
 	}
 
-	public override Loot.Loot GetLootForPlayer(Player player)
+	public override Forged.MapServer.LootManagement.Loot GetLootForPlayer(Player player)
 	{
 		return Loot;
 	}

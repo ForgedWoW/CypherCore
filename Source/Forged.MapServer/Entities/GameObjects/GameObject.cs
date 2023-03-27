@@ -19,7 +19,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -36,12 +35,14 @@ using Framework.Constants;
 using Framework.Database;
 using Framework.GameMath;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Entities.GameObjects
 {
 	public class GameObject : WorldObject
 	{
-		protected GameObjectValue GoValueProtected; // TODO: replace with m_goTypeImpl
+        private readonly LootFactory _lootFactory;
+        protected GameObjectValue GoValueProtected; // TODO: replace with m_goTypeImpl
 		protected GameObjectTemplate GoInfoProtected;
 		protected GameObjectTemplateAddon GoTemplateAddonProtected;
         private readonly List<ObjectGuid> _uniqueUsers = new();
@@ -81,7 +82,7 @@ namespace Forged.MapServer.Entities.GameObjects
         private Dictionary<ObjectGuid, PerPlayerState> _perPlayerState;
 
         private GameObjectState _prevGoState; // What state to set whenever resetting
-        private Dictionary<ObjectGuid, Loot.Loot> _personalLoot = new();
+        private Dictionary<ObjectGuid, Forged.MapServer.LootManagement.Loot> _personalLoot = new();
 
         private ObjectGuid _linkedTrap;
 
@@ -89,7 +90,7 @@ namespace Forged.MapServer.Entities.GameObjects
 		public GameObjectFieldData GameObjectFieldData { get; set; }
 		public Position StationaryPosition { get; set; }
 
-		public Loot.Loot Loot { get; set; }
+		public Forged.MapServer.LootManagement.Loot Loot { get; set; }
 
 		public GameObjectModel Model { get; set; }
 
@@ -364,9 +365,10 @@ namespace Forged.MapServer.Entities.GameObjects
 			}
 		}
 
-		public GameObject() : base(false)
+		public GameObject(LootFactory lootFactory) : base(false)
 		{
-			ObjectTypeMask |= TypeMask.GameObject;
+            _lootFactory = lootFactory;
+            ObjectTypeMask |= TypeMask.GameObject;
 			ObjectTypeId = TypeId.GameObject;
 
 			_updateFlag.Stationary = true;
@@ -1113,11 +1115,11 @@ namespace Forged.MapServer.Entities.GameObjects
 			SendMessageToSet(packet, true);
 		}
 
-		public Loot.Loot GetFishLoot(Player lootOwner)
+		public Forged.MapServer.LootManagement.Loot GetFishLoot(Player lootOwner)
 		{
 			uint defaultzone = 1;
 
-			Loot.Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
+			Forged.MapServer.LootManagement.Loot fishLoot = new(Map, GUID, LootType.Fishing, null);
 
 			var areaId = Area;
 			AreaTableRecord areaEntry;
@@ -1138,11 +1140,11 @@ namespace Forged.MapServer.Entities.GameObjects
 			return fishLoot;
 		}
 
-		public Loot.Loot GetFishLootJunk(Player lootOwner)
+		public Forged.MapServer.LootManagement.Loot GetFishLootJunk(Player lootOwner)
 		{
 			uint defaultzone = 1;
 
-			Loot.Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
+			Forged.MapServer.LootManagement.Loot fishLoot = new(Map, GUID, LootType.FishingJunk, null);
 
 			var areaId = Area;
 			AreaTableRecord areaEntry;
@@ -1847,11 +1849,9 @@ namespace Forged.MapServer.Entities.GameObjects
 							var group = player.Group;
 							var groupRules = group != null && info.Chest.usegrouplootrules != 0;
 
-							Loot = new Loot.Loot(Map, GUID, LootType.Chest, groupRules ? group : null);
-							Loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
-							Loot.FillLoot(info.GetLootId(), LootStorage.Gameobject, player, !groupRules, false, LootMode, Map.GetDifficultyLootItemContext());
+							Loot = _lootFactory.GenerateLoot(Map, GUID, LootType.Chest, groupRules ? group : null, info.Chest.DungeonEncounter, info.GetLootId(), LootStorageType.Gameobject, player, !groupRules, false, LootMode, Map.GetDifficultyLootItemContext());
 
-							if (LootMode > 0)
+                            if (LootMode > 0)
 							{
 								var addon = TemplateAddon;
 
@@ -1904,7 +1904,7 @@ namespace Forged.MapServer.Entities.GameObjects
 							}
 							else
 							{
-								Loot.Loot loot = new(Map, GUID, LootType.Chest, null);
+								Forged.MapServer.LootManagement.Loot loot = new(Map, GUID, LootType.Chest, null);
 								_personalLoot[player.GUID] = loot;
 
 								loot.SetDungeonEncounterId(info.Chest.DungeonEncounter);
@@ -1920,7 +1920,7 @@ namespace Forged.MapServer.Entities.GameObjects
 					{
 						if (info.Chest.chestPushLoot != 0)
 						{
-							Loot.Loot pushLoot = new(Map, GUID, LootType.Chest, null);
+							Forged.MapServer.LootManagement.Loot pushLoot = new(Map, GUID, LootType.Chest, null);
 							pushLoot.FillLoot(info.Chest.chestPushLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
 							pushLoot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot);
 						}
@@ -2469,8 +2469,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
 					var player = user.AsPlayer;
 
-					var loot = new Loot.Loot(Map, GUID, LootType.Fishinghole, null);
-					loot.FillLoot(Template.GetLootId(), LootStorage.Gameobject, player, true);
+					var loot = _lootFactory.GenerateLoot(Map, GUID, LootType.Fishinghole, Template.GetLootId(), LootStorageType.Gameobject, player, true);
+
 					_personalLoot[player.GUID] = loot;
 
 					player.SendLoot(loot);
@@ -2685,7 +2685,7 @@ namespace Forged.MapServer.Entities.GameObjects
 					{
 						if (info.GatheringNode.chestLoot != 0)
 						{
-							Loot.Loot newLoot = new(Map, GUID, LootType.Chest, null);
+							Forged.MapServer.LootManagement.Loot newLoot = new(Map, GUID, LootType.Chest, null);
 							_personalLoot[player.GUID] = newLoot;
 
 							newLoot.FillLoot(info.GatheringNode.chestLoot, LootStorage.Gameobject, player, true, false, LootMode, Map.GetDifficultyLootItemContext());
@@ -3293,7 +3293,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			return true;
 		}
 
-		public override Loot.Loot GetLootForPlayer(Player player)
+		public override Forged.MapServer.LootManagement.Loot GetLootForPlayer(Player player)
 		{
 			if (_personalLoot.Empty())
 				return Loot;

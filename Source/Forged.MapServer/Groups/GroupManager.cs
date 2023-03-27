@@ -3,95 +3,87 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.World;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Groups;
 
-public class GroupManager : Singleton<GroupManager>
+public class GroupManager
 {
-    private readonly Dictionary<ulong, PlayerGroup> GroupStore = new();
-    private readonly Dictionary<uint, PlayerGroup> GroupDbStore = new();
-    private ulong NextGroupId;
-    private uint NextGroupDbStoreId;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly Dictionary<ulong, PlayerGroup> _groupStore = new();
+    private readonly Dictionary<uint, PlayerGroup> _groupDbStore = new();
+    private ulong _nextGroupId;
+    private uint _nextGroupDbStoreId;
 
-    private GroupManager()
+    public GroupManager(CharacterDatabase characterDatabase)
 	{
-		NextGroupDbStoreId = 1;
-		NextGroupId = 1;
+        _characterDatabase = characterDatabase;
+        _nextGroupDbStoreId = 1;
+		_nextGroupId = 1;
 	}
 
 	public uint GenerateNewGroupDbStoreId()
 	{
-		var newStorageId = NextGroupDbStoreId;
+		var newStorageId = _nextGroupDbStoreId;
 
-		for (var i = ++NextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
-			if ((i < GroupDbStore.Count && GroupDbStore[i] == null) || i >= GroupDbStore.Count)
+		for (var i = ++_nextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
+			if ((i < _groupDbStore.Count && _groupDbStore[i] == null) || i >= _groupDbStore.Count)
 			{
-				NextGroupDbStoreId = i;
+				_nextGroupDbStoreId = i;
 
 				break;
 			}
-
-		if (newStorageId == NextGroupDbStoreId)
-		{
-			Log.Logger.Error("Group storage ID overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
-		}
 
 		return newStorageId;
 	}
 
 	public void RegisterGroupDbStoreId(uint storageId, PlayerGroup group)
 	{
-		GroupDbStore[storageId] = group;
+		_groupDbStore[storageId] = group;
 	}
 
 	public void FreeGroupDbStoreId(PlayerGroup group)
 	{
 		var storageId = group.DbStoreId;
 
-		if (storageId < NextGroupDbStoreId)
-			NextGroupDbStoreId = storageId;
+		if (storageId < _nextGroupDbStoreId)
+			_nextGroupDbStoreId = storageId;
 
-		GroupDbStore[storageId - 1] = null;
+		_groupDbStore[storageId - 1] = null;
 	}
 
 	public PlayerGroup GetGroupByDbStoreId(uint storageId)
 	{
-		return GroupDbStore.LookupByKey(storageId);
+		return _groupDbStore.LookupByKey(storageId);
 	}
 
 	public ulong GenerateGroupId()
 	{
-		if (NextGroupId >= 0xFFFFFFFE)
-		{
-			Log.Logger.Error("Group guid overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
-		}
-
-		return NextGroupId++;
+		return _nextGroupId++;
 	}
 
-	public PlayerGroup GetGroupByGUID(ObjectGuid groupId)
+	public PlayerGroup GetGroupByGuid(ObjectGuid groupId)
 	{
-		return GroupStore.LookupByKey(groupId.Counter);
+		return _groupStore.LookupByKey(groupId.Counter);
 	}
 
 	public void Update(uint diff)
 	{
-		foreach (var group in GroupStore.Values)
+		foreach (var group in _groupStore.Values)
 			group.Update(diff);
 	}
 
 	public void AddGroup(PlayerGroup group)
 	{
-		GroupStore[group.GUID.Counter] = group;
+		_groupStore[group.GUID.Counter] = group;
 	}
 
 	public void RemoveGroup(PlayerGroup group)
 	{
-		GroupStore.Remove(group.GUID.Counter);
+		_groupStore.Remove(group.GUID.Counter);
 	}
 
 	public void LoadGroups()
@@ -100,16 +92,16 @@ public class GroupManager : Singleton<GroupManager>
 			var oldMSTime = Time.MSTime;
 
 			// Delete all members that does not exist
-			DB.Characters.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
+			_characterDatabase.DirectExecute("DELETE FROM group_member WHERE memberGuid NOT IN (SELECT guid FROM characters)");
 			// Delete all groups whose leader does not exist
-			DB.Characters.DirectExecute("DELETE FROM `groups` WHERE leaderGuid NOT IN (SELECT guid FROM characters)");
+			_characterDatabase.DirectExecute("DELETE FROM `groups` WHERE leaderGuid NOT IN (SELECT guid FROM characters)");
 			// Delete all groups with less than 2 members
-			DB.Characters.DirectExecute("DELETE FROM `groups` WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
+			_characterDatabase.DirectExecute("DELETE FROM `groups` WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
 			// Delete all rows from group_member with no group
-			DB.Characters.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM `groups`)");
+			_characterDatabase.DirectExecute("DELETE FROM group_member WHERE guid NOT IN (SELECT guid FROM `groups`)");
 
 			//                                                    0              1           2             3                 4      5          6      7         8       9
-			var result = DB.Characters.Query("SELECT g.leaderGuid, g.lootMethod, g.looterGuid, g.lootThreshold, g.icon1, g.icon2, g.icon3, g.icon4, g.icon5, g.icon6" +
+			var result = _characterDatabase.Query("SELECT g.leaderGuid, g.lootMethod, g.looterGuid, g.lootThreshold, g.icon1, g.icon2, g.icon3, g.icon4, g.icon5, g.icon6" +
 											//  10         11          12         13              14                  15                     16             17          18         19
 											", g.icon7, g.icon8, g.groupType, g.difficulty, g.raiddifficulty, g.legacyRaidDifficulty, g.masterLooterGuid, g.guid, lfg.dungeon, lfg.state FROM `groups` g LEFT JOIN lfg_data lfg ON lfg.guid = g.guid ORDER BY g.guid ASC");
 
@@ -134,8 +126,8 @@ public class GroupManager : Singleton<GroupManager>
 				RegisterGroupDbStoreId(storageId, group);
 
 				// Increase the next available storage ID
-				if (storageId == NextGroupDbStoreId)
-					NextGroupDbStoreId++;
+				if (storageId == _nextGroupDbStoreId)
+					_nextGroupDbStoreId++;
 
 				++count;
 			} while (result.NextRow());
@@ -149,7 +141,7 @@ public class GroupManager : Singleton<GroupManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                0        1           2            3       4
-			var result = DB.Characters.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
+			var result = _characterDatabase.Query("SELECT guid, memberGuid, memberFlags, subgroup, roles FROM group_member ORDER BY guid");
 
 			if (result.IsEmpty())
 			{

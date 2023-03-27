@@ -6,10 +6,10 @@ using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Mails;
 
@@ -217,18 +217,18 @@ public class MailDraft
 		if (m_mailTemplateId == 123)
 			m_money = 1000000;
 
-		Loot.Loot mailLoot = new(null, ObjectGuid.Empty, LootType.None, null);
+		Forged.MapServer.LootManagement.Loot mailLoot = new(null, ObjectGuid.Empty, LootType.None, null);
 
 		// can be empty
 		mailLoot.FillLoot(m_mailTemplateId, LootStorage.Mail, receiver, true, true, LootModes.Default, ItemContext.None);
 
-		for (uint i = 0; m_items.Count < SharedConst.MaxMailItems && i < mailLoot.items.Count; ++i)
+		for (uint i = 0; m_items.Count < SharedConst.MaxMailItems && i < mailLoot.Items.Count; ++i)
 		{
 			var lootitem = mailLoot.LootItemInSlot(i, receiver);
 
 			if (lootitem != null)
 			{
-				var item = Item.CreateItem(lootitem.itemid, lootitem.count, lootitem.context, receiver);
+				var item = Item.CreateItem(lootitem.Itemid, lootitem.Count, lootitem.Context, receiver);
 
 				if (item != null)
 				{

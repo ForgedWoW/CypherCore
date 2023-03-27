@@ -18,7 +18,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Groups;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -41,6 +40,7 @@ using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Dynamic;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Spells;
 
@@ -2137,21 +2137,21 @@ public partial class Spell
 		{
 			creature.StartPickPocketRefillTimer();
 
-			creature.Loot = new Loot.Loot(creature.Map, creature.GUID, LootType.Pickpocketing, null);
+			creature.Loot = _lootFactory.GenerateLoot(creature.Map, creature.GUID, LootType.Pickpocketing, null);
 			var lootid = creature.Template.PickPocketId;
 
 			if (lootid != 0)
-				creature.Loot.FillLoot(lootid, LootStorage.Pickpocketing, player, true);
+				creature.Loot.FillLoot(lootid, LootStorageType.Pickpocketing, player, true);
 
 			// Generate extra money for pick pocket loot
 			var a = RandomHelper.URand(0, creature.Level / 2);
 			var b = RandomHelper.URand(0, player.Level / 2);
-			creature.Loot.gold = (uint)(10 * (a + b) * GetDefaultValue("Rate.Drop.Money", 1.0f));
+			creature.Loot.Gold = (uint)(10 * (a + b) * GetDefaultValue("Rate.Drop.Money", 1.0f));
 		}
 		else if (creature.Loot != null)
 		{
-			if (creature.Loot.loot_type == LootType.Pickpocketing && creature.Loot.IsLooted())
-				player.SendLootError(creature.Loot.GetGUID(), creature.GUID, LootError.AlreadPickPocketed);
+			if (creature.Loot.LootType == LootType.Pickpocketing && creature.Loot.IsLooted())
+				player.SendLootError(creature.Loot.GetGuid(), creature.GUID, LootError.AlreadPickPocketed);
 
 			return;
 		}
@@ -3509,8 +3509,7 @@ public partial class Spell
 		if (caster != null)
 		{
 			caster.UpdateCraftSkill(SpellInfo);
-			ItemTarget.Loot = new Loot.Loot(caster.Map, ItemTarget.GUID, LootType.Disenchanting, null);
-			ItemTarget.Loot.FillLoot(ItemTarget.GetDisenchantLoot(caster).Id, LootStorage.Disenchant, caster, true);
+			ItemTarget.Loot = _lootFactory.GenerateLoot(caster.Map, ItemTarget.GUID, LootType.Disenchanting, ItemTarget.GetDisenchantLoot(caster).Id, LootStorageType.Disenchant, caster, true);
 			caster.SendLoot(ItemTarget.Loot);
 		}
 
@@ -3918,7 +3917,7 @@ public partial class Spell
 
 		creature.SetUnitFlag3(UnitFlags3.AlreadySkinned);
 		creature.SetDynamicFlag(UnitDynFlags.Lootable);
-		Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Skinning, null);
+		Forged.MapServer.LootManagement.Loot loot = new(creature.Map, creature.GUID, LootType.Skinning, null);
 
 		if (loot != null)
 			creature.PersonalLoot[player.GUID] = loot;
@@ -4688,8 +4687,8 @@ public partial class Spell
 			player.UpdateGatherSkill(SkillType.Jewelcrafting, SkillValue, reqSkillValue);
 		}
 
-		ItemTarget.Loot = new Loot.Loot(player.Map, ItemTarget.GUID, LootType.Prospecting, null);
-		ItemTarget.Loot.FillLoot(ItemTarget.Entry, LootStorage.Prospecting, player, true);
+		ItemTarget.Loot = _lootFactory.GenerateLoot(player.Map, ItemTarget.GUID, LootType.Prospecting, ItemTarget.Entry, LootStorageType.Prospecting, player, true);
+
 		player.SendLoot(ItemTarget.Loot);
 	}
 
@@ -4717,8 +4716,8 @@ public partial class Spell
 			player.UpdateGatherSkill(SkillType.Inscription, SkillValue, reqSkillValue);
 		}
 
-		ItemTarget.Loot = new Loot.Loot(player.Map, ItemTarget.GUID, LootType.Milling, null);
-		ItemTarget.Loot.FillLoot(ItemTarget.Entry, LootStorage.Milling, player, true);
+		ItemTarget.Loot = _lootFactory.GenerateLoot(player.Map, ItemTarget.GUID, LootType.Milling, ItemTarget.Entry, LootStorageType.Milling, player, true);
+
 		player.SendLoot(ItemTarget.Loot);
 	}
 

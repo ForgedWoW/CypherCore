@@ -58,14 +58,14 @@ public partial class Creature
 		set { _lootid = value; }
 	}
 
-	internal Dictionary<ObjectGuid, Loot.Loot> PersonalLoot { get; set; } = new();
+	internal Dictionary<ObjectGuid, Forged.MapServer.LootManagement.Loot> PersonalLoot { get; set; } = new();
 	public MovementGeneratorType DefaultMovementType { get; set; }
 	public ulong SpawnId { get; set; }
 
 	public StaticCreatureFlags StaticFlags { get; set; } = new();
 	public uint[] Spells { get; set; } = new uint[SharedConst.MaxCreatureSpells];
 	public long CorpseRemoveTime { get; set; } // (msecs)timer for death or corpse disappearance
-	public Loot.Loot Loot { get; set; }
+	public Forged.MapServer.LootManagement.Loot Loot { get; set; }
 
 	public bool CanHaveLoot
 	{

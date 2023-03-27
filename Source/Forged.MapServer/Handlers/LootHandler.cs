@@ -9,7 +9,6 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.GridNotifiers;
 using Forged.MapServer.Networking;
@@ -18,14 +17,15 @@ using Forged.MapServer.Spells;
 using Framework.Constants;
 using Game.Common.Handlers;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Handlers;
 
 public class LootHandler : IWorldSessionHandler
 {
-	public void DoLootRelease(Loot.Loot loot)
+	public void DoLootRelease(Forged.MapServer.LootManagement.Loot loot)
 	{
-		var lguid = loot.GetOwnerGUID();
+		var lguid = loot.GetOwnerGuid();
 		var player = Player;
 
 		if (player.GetLootGUID() == lguid)
@@ -34,7 +34,7 @@ public class LootHandler : IWorldSessionHandler
 		//Player is not looking at loot list, he doesn't need to see updates on the loot list
 		loot.RemoveLooter(player.GUID);
 		player.SendLootRelease(lguid);
-		player.GetAELootView().Remove(loot.GetGUID());
+		player.GetAELootView().Remove(loot.GetGuid());
 
 		if (player.GetAELootView().Empty())
 			player.RemoveUnitFlag(UnitFlags.Looting);
@@ -102,7 +102,7 @@ public class LootHandler : IWorldSessionHandler
 			var proto = pItem.Template;
 
 			// destroy only 5 items from stack in case prospecting and milling
-			if (loot.loot_type == LootType.Prospecting || loot.loot_type == LootType.Milling)
+			if (loot.LootType == LootType.Prospecting || loot.LootType == LootType.Milling)
 			{
 				pItem.LootGenerated = false;
 				pItem.Loot = null;
@@ -145,9 +145,9 @@ public class LootHandler : IWorldSessionHandler
 			else
 			{
 				// if the round robin player release, reset it.
-				if (player.GUID == loot.roundRobinPlayer)
+				if (player.GUID == loot.RoundRobinPlayer)
 				{
-					loot.roundRobinPlayer.Clear();
+					loot.RoundRobinPlayer.Clear();
 					loot.NotifyLootList(creature.Map);
 				}
 			}
@@ -227,10 +227,10 @@ public class LootHandler : IWorldSessionHandler
 		if (aeResult != null)
 			foreach (var resultValue in aeResult.GetByOrder())
 			{
-				player.SendNewItem(resultValue.item, resultValue.count, false, false, true, resultValue.dungeonEncounterId);
-				player.UpdateCriteria(CriteriaType.LootItem, resultValue.item.Entry, resultValue.count);
-				player.UpdateCriteria(CriteriaType.GetLootByType, resultValue.item.Entry, resultValue.count, (ulong)resultValue.lootType);
-				player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.item.Entry, resultValue.count);
+				player.SendNewItem(resultValue.Item, resultValue.Count, false, false, true, resultValue.DungeonEncounterId);
+				player.UpdateCriteria(CriteriaType.LootItem, resultValue.Item.Entry, resultValue.Count);
+				player.UpdateCriteria(CriteriaType.GetLootByType, resultValue.Item.Entry, resultValue.Count, (ulong)resultValue.LootType);
+				player.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.Item.Entry, resultValue.Count);
 			}
 
 		Unit.ProcSkillsAndAuras(player, null, new ProcFlagsInit(ProcFlags.Looted), new ProcFlagsInit(), ProcFlagsSpellType.MaskAll, ProcFlagsSpellPhase.None, ProcFlagsHit.None, null, null, null);
@@ -452,10 +452,10 @@ public class LootHandler : IWorldSessionHandler
 
 		foreach (var resultValue in aeResult.GetByOrder())
 		{
-			target.SendNewItem(resultValue.item, resultValue.count, false, false, true);
-			target.UpdateCriteria(CriteriaType.LootItem, resultValue.item.Entry, resultValue.count);
-			target.UpdateCriteria(CriteriaType.GetLootByType, resultValue.item.Entry, resultValue.count, (ulong)resultValue.lootType);
-			target.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.item.Entry, resultValue.count);
+			target.SendNewItem(resultValue.Item, resultValue.Count, false, false, true);
+			target.UpdateCriteria(CriteriaType.LootItem, resultValue.Item.Entry, resultValue.Count);
+			target.UpdateCriteria(CriteriaType.GetLootByType, resultValue.Item.Entry, resultValue.Count, (ulong)resultValue.LootType);
+			target.UpdateCriteria(CriteriaType.LootAnyItem, resultValue.Item.Entry, resultValue.Count);
 		}
 	}
 

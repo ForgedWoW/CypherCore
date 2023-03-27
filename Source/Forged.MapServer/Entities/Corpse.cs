@@ -27,7 +27,7 @@ public class Corpse : WorldObject
 
 	public CorpseData CorpseData { get; set; }
 
-	public Loot.Loot Loot { get; set; }
+	public Forged.MapServer.LootManagement.Loot Loot { get; set; }
 	public Player LootRecipient { get; set; }
 
 	public override ObjectGuid OwnerGUID => CorpseData.Owner;
@@ -402,7 +402,7 @@ public class Corpse : WorldObject
 		_cellCoord = cellCoord;
 	}
 
-	public override Loot.Loot GetLootForPlayer(Player player)
+	public override Forged.MapServer.LootManagement.Loot GetLootForPlayer(Player player)
 	{
 		return Loot;
 	}

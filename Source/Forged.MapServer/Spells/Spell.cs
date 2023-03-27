@@ -15,7 +15,6 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -34,6 +33,7 @@ using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Spells;
 
@@ -120,6 +120,7 @@ public partial class Spell : IDisposable
     private readonly Dictionary<int, SpellDestination> _destTargets = new();
     private readonly List<HitTriggerSpell> _hitTriggerSpells = new();
     private readonly TriggerCastFlags _triggeredCastFlags;
+    private readonly LootFactory _lootFactory;
     private readonly HashSet<int> _applyMultiplierMask = new();
     private readonly HashSet<int> _channelTargetEffectMask = new(); // Mask req. alive targets
 
@@ -233,7 +234,7 @@ public partial class Spell : IDisposable
 	public bool TriggeredAllowProc => _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc);
 
 
-	public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
+	public Spell(WorldObject caster, SpellInfo info, TriggerCastFlags triggerFlags, LootFactory lootFactory, ObjectGuid originalCasterGuid = default, ObjectGuid originalCastId = default, byte? empoweredStage = null)
 	{
 		SpellInfo = info;
 
@@ -292,8 +293,9 @@ public partial class Spell : IDisposable
 		}
 
 		_triggeredCastFlags = triggerFlags;
+        _lootFactory = lootFactory;
 
-		if (info.HasAttribute(SpellAttr2.DoNotReportSpellFailure) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
+        if (info.HasAttribute(SpellAttr2.DoNotReportSpellFailure) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
 			_triggeredCastFlags = _triggeredCastFlags | TriggerCastFlags.DontReportCastError;
 
 		if (SpellInfo.HasAttribute(SpellAttr4.AllowCastWhileCasting) || _triggeredCastFlags.HasFlag(TriggerCastFlags.TriggeredAllowProc))
@@ -2264,7 +2266,7 @@ public partial class Spell : IDisposable
 					var creature = Targets.UnitTarget.AsCreature;
 					var loot = creature.GetLootForPlayer(_caster.AsPlayer);
 
-					if (loot != null && (!loot.IsLooted() || loot.loot_type == LootType.Skinning))
+					if (loot != null && (!loot.IsLooted() || loot.LootType == LootType.Skinning))
 						return SpellCastResult.TargetNotLooted;
 
 					var skill = creature.Template.GetRequiredLootSkill();

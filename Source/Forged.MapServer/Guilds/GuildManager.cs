@@ -5,50 +5,55 @@ using System.Collections.Generic;
 using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Guilds;
 
-public sealed class GuildManager : Singleton<GuildManager>
+public sealed class GuildManager
 {
-    private readonly Dictionary<ulong, Guild> GuildStore = new();
-    private readonly List<GuildReward> guildRewards = new();
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _objectManager;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly Dictionary<ulong, Guild> _guildStore = new();
+    private readonly List<GuildReward> _guildRewards = new();
 
-    private uint NextGuildId;
-    private GuildManager() { }
+    private uint _nextGuildId;
+    public GuildManager(CliDB cliDB, GameObjectManager objectManager, CharacterDatabase characterDatabase, WorldDatabase worldDatabase)
+    {
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+        _characterDatabase = characterDatabase;
+        _worldDatabase = worldDatabase;
+    }
 
 	public void AddGuild(Guild guild)
 	{
-		GuildStore[guild.GetId()] = guild;
+		_guildStore[guild.GetId()] = guild;
 	}
 
 	public void RemoveGuild(ulong guildId)
 	{
-		GuildStore.Remove(guildId);
+		_guildStore.Remove(guildId);
 	}
 
 	public void SaveGuilds()
 	{
-		foreach (var guild in GuildStore.Values)
+		foreach (var guild in _guildStore.Values)
 			guild.SaveToDB();
 	}
 
 	public uint GenerateGuildId()
 	{
-		if (NextGuildId >= 0xFFFFFFFE)
-		{
-			Log.Logger.Error("Guild ids overflow!! Can't continue, shutting down server. ");
-			Global.WorldMgr.StopNow();
-		}
-
-		return NextGuildId++;
+        return _nextGuildId++;
 	}
 
 	public Guild GetGuildById(ulong guildId)
 	{
-		return GuildStore.LookupByKey(guildId);
+		return _guildStore.LookupByKey(guildId);
 	}
 
 	public Guild GetGuildByGuid(ObjectGuid guid)
@@ -68,7 +73,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 	public Guild GetGuildByName(string guildName)
 	{
-		foreach (var guild in GuildStore.Values)
+		foreach (var guild in _guildStore.Values)
 			if (guildName == guild.GetName())
 				return guild;
 
@@ -87,7 +92,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 	public Guild GetGuildByLeader(ObjectGuid guid)
 	{
-		foreach (var guild in GuildStore.Values)
+		foreach (var guild in _guildStore.Values)
 			if (guild.GetLeaderGUID() == guid)
 				return guild;
 
@@ -102,7 +107,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			//          0          1       2             3              4              5              6
-			var result = DB.Characters.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, " +
+			var result = _characterDatabase.Query("SELECT g.guildid, g.name, g.leaderguid, g.EmblemStyle, g.EmblemColor, g.BorderStyle, g.BorderColor, " +
 											//   7                  8       9       10            11          12
 											"g.BackgroundColor, g.info, g.motd, g.createdate, g.BankMoney, COUNT(gbt.guildid) " +
 											"FROM guild g LEFT JOIN guild_bank_tab gbt ON g.guildid = gbt.guildid GROUP BY g.guildid ORDER BY g.guildid ASC");
@@ -136,10 +141,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			// Delete orphaned guild rank entries before loading the valid ones
-			DB.Characters.DirectExecute("DELETE gr FROM guild_rank gr LEFT JOIN guild g ON gr.guildId = g.guildId WHERE g.guildId IS NULL");
+			_characterDatabase.DirectExecute("DELETE gr FROM guild_rank gr LEFT JOIN guild g ON gr.guildId = g.guildId WHERE g.guildId IS NULL");
 
 			//                                                   0    1      2       3      4       5
-			var result = DB.Characters.Query("SELECT guildid, rid, RankOrder, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
+			var result = _characterDatabase.Query("SELECT guildid, rid, RankOrder, rname, rights, BankMoneyPerDay FROM guild_rank ORDER BY guildid ASC, rid ASC");
 
 			if (result.IsEmpty())
 			{
@@ -171,11 +176,11 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			// Delete orphaned guild member entries before loading the valid ones
-			DB.Characters.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
-			DB.Characters.DirectExecute("DELETE gm FROM guild_member_withdraw gm LEFT JOIN guild_member g ON gm.guid = g.guid WHERE g.guid IS NULL");
+			_characterDatabase.DirectExecute("DELETE gm FROM guild_member gm LEFT JOIN guild g ON gm.guildId = g.guildId WHERE g.guildId IS NULL");
+			_characterDatabase.DirectExecute("DELETE gm FROM guild_member_withdraw gm LEFT JOIN guild_member g ON gm.guid = g.guid WHERE g.guid IS NULL");
 
 			//           0           1        2     3      4        5       6       7       8       9       10
-			var result = DB.Characters.Query("SELECT gm.guildid, gm.guid, `rank`, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, " +
+			var result = _characterDatabase.Query("SELECT gm.guildid, gm.guid, `rank`, pnote, offnote, w.tab0, w.tab1, w.tab2, w.tab3, w.tab4, w.tab5, " +
 											//  11      12      13       14      15       16      17       18        19      20         21
 											"w.tab6, w.tab7, w.money, c.name, c.level, c.race, c.class, c.gender, c.zone, c.account, c.logout_time " +
 											"FROM guild_member gm LEFT JOIN guild_member_withdraw w ON gm.guid = w.guid " +
@@ -211,10 +216,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			// Delete orphaned guild bank right entries before loading the valid ones
-			DB.Characters.DirectExecute("DELETE gbr FROM guild_bank_right gbr LEFT JOIN guild g ON gbr.guildId = g.guildId WHERE g.guildId IS NULL");
+			_characterDatabase.DirectExecute("DELETE gbr FROM guild_bank_right gbr LEFT JOIN guild g ON gbr.guildId = g.guildId WHERE g.guildId IS NULL");
 
 			//      0        1      2    3        4
-			var result = DB.Characters.Query("SELECT guildid, TabId, rid, gbright, SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
+			var result = _characterDatabase.Query("SELECT guildid, TabId, rid, gbright, SlotPerDay FROM guild_bank_right ORDER BY guildid ASC, TabId ASC");
 
 			if (result.IsEmpty())
 			{
@@ -245,10 +250,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			DB.Characters.DirectExecute("DELETE FROM guild_eventlog WHERE LogGuid > {0}", GuildConst.EventLogMaxRecords);
+			_characterDatabase.DirectExecute("DELETE FROM guild_eventlog WHERE LogGuid > {0}", GuildConst.EventLogMaxRecords);
 
 			//          0        1        2          3            4            5        6
-			var result = DB.Characters.Query("SELECT guildid, LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
+			var result = _characterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid1, PlayerGuid2, NewRank, TimeStamp FROM guild_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
 			if (result.IsEmpty())
 			{
@@ -280,10 +285,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			// Remove log entries that exceed the number of allowed entries per guild
-			DB.Characters.DirectExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > {0}", GuildConst.BankLogMaxRecords);
+			_characterDatabase.DirectExecute("DELETE FROM guild_bank_eventlog WHERE LogGuid > {0}", GuildConst.BankLogMaxRecords);
 
 			//          0        1      2        3          4           5            6               7          8
-			var result = DB.Characters.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
+			var result = _characterDatabase.Query("SELECT guildid, TabId, LogGuid, EventType, PlayerGuid, ItemOrMoney, ItemStackCount, DestTabId, TimeStamp FROM guild_bank_eventlog ORDER BY TimeStamp DESC, LogGuid DESC");
 
 			if (result.IsEmpty())
 			{
@@ -314,10 +319,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			DB.Characters.DirectExecute("DELETE FROM guild_newslog WHERE LogGuid > {0}", GuildConst.NewsLogMaxRecords);
+			_characterDatabase.DirectExecute("DELETE FROM guild_newslog WHERE LogGuid > {0}", GuildConst.NewsLogMaxRecords);
 
 			//      0        1        2          3           4      5      6
-			var result = DB.Characters.Query("SELECT guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp FROM guild_newslog ORDER BY TimeStamp DESC, LogGuid DESC");
+			var result = _characterDatabase.Query("SELECT guildid, LogGuid, EventType, PlayerGuid, Flags, Value, Timestamp FROM guild_newslog ORDER BY TimeStamp DESC, LogGuid DESC");
 
 			if (result.IsEmpty())
 			{
@@ -349,10 +354,10 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			// Delete orphaned guild bank tab entries before loading the valid ones
-			DB.Characters.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
+			_characterDatabase.DirectExecute("DELETE gbt FROM guild_bank_tab gbt LEFT JOIN guild g ON gbt.guildId = g.guildId WHERE g.guildId IS NULL");
 
 			//                                              0        1      2        3        4
-			var result = DB.Characters.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
+			var result = _characterDatabase.Query("SELECT guildid, TabId, TabName, TabIcon, TabText FROM guild_bank_tab ORDER BY guildid ASC, TabId ASC");
 
 			if (result.IsEmpty())
 			{
@@ -384,9 +389,9 @@ public sealed class GuildManager : Singleton<GuildManager>
 			var oldMSTime = Time.MSTime;
 
 			// Delete orphan guild bank items
-			DB.Characters.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
+			_characterDatabase.DirectExecute("DELETE gbi FROM guild_bank_item gbi LEFT JOIN guild g ON gbi.guildId = g.guildId WHERE g.guildId IS NULL");
 
-			var result = DB.Characters.Query(DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEMS));
+			var result = _characterDatabase.Query(_characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_BANK_ITEMS));
 
 			if (result.IsEmpty())
 			{
@@ -417,15 +422,15 @@ public sealed class GuildManager : Singleton<GuildManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			foreach (var pair in GuildStore)
+			foreach (var pair in _guildStore)
 			{
-				var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_ACHIEVEMENT);
+				var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_ACHIEVEMENT);
 				stmt.AddValue(0, pair.Key);
-				var achievementResult = DB.Characters.Query(stmt);
+				var achievementResult = _characterDatabase.Query(stmt);
 
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_GUILD_ACHIEVEMENT_CRITERIA);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_GUILD_ACHIEVEMENT_CRITERIA);
 				stmt.AddValue(0, pair.Key);
-				var criteriaResult = DB.Characters.Query(stmt);
+				var criteriaResult = _characterDatabase.Query(stmt);
 
 				pair.Value.GetAchievementMgr().LoadFromDB(achievementResult, criteriaResult);
 			}
@@ -439,9 +444,9 @@ public sealed class GuildManager : Singleton<GuildManager>
 		{
 			var oldMSTime = Time.MSTime;
 
-			foreach (var guild in GuildStore.ToList())
+			foreach (var guild in _guildStore.ToList())
 				if (!guild.Value.Validate())
-					GuildStore.Remove(guild.Key);
+					_guildStore.Remove(guild.Key);
 
 			Log.Logger.Information("Validated data of loaded guilds in {0} ms", Time.GetMSTimeDiffToNow(oldMSTime));
 		}
@@ -452,7 +457,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 		var oldMSTime = Time.MSTime;
 
 		//                                            0      1            2         3
-		var result = DB.World.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
+		var result = _worldDatabase.Query("SELECT ItemID, MinGuildRep, RaceMask, Cost FROM guild_rewards");
 
 		if (result.IsEmpty())
 		{
@@ -473,7 +478,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 				Cost = result.Read<ulong>(3)
 			};
 
-			if (Global.ObjectMgr.GetItemTemplate(reward.ItemID) == null)
+			if (_objectManager.GetItemTemplate(reward.ItemID) == null)
 			{
 				Log.Logger.Error("Guild rewards constains not existing item entry {0}", reward.ItemID);
 
@@ -487,16 +492,16 @@ public sealed class GuildManager : Singleton<GuildManager>
 				continue;
 			}
 
-			var stmt = DB.World.GetPreparedStatement(WorldStatements.SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
+			var stmt = _worldDatabase.GetPreparedStatement(WorldStatements.SEL_GUILD_REWARDS_REQ_ACHIEVEMENTS);
 			stmt.AddValue(0, reward.ItemID);
-			var reqAchievementResult = DB.World.Query(stmt);
+			var reqAchievementResult = _worldDatabase.Query(stmt);
 
 			if (!reqAchievementResult.IsEmpty())
 				do
 				{
 					var requiredAchievementId = reqAchievementResult.Read<uint>(0);
 
-					if (!CliDB.AchievementStorage.ContainsKey(requiredAchievementId))
+					if (!_cliDB.AchievementStorage.ContainsKey(requiredAchievementId))
 					{
 						Log.Logger.Error("Guild rewards constains not existing achievement entry {0}", requiredAchievementId);
 
@@ -506,7 +511,7 @@ public sealed class GuildManager : Singleton<GuildManager>
 					reward.AchievementsRequired.Add(requiredAchievementId);
 				} while (reqAchievementResult.NextRow());
 
-			guildRewards.Add(reward);
+			_guildRewards.Add(reward);
 			++count;
 		} while (result.NextRow());
 
@@ -515,20 +520,20 @@ public sealed class GuildManager : Singleton<GuildManager>
 
 	public void ResetTimes(bool week)
 	{
-		DB.Characters.Execute(DB.Characters.GetPreparedStatement(CharStatements.DEL_GUILD_MEMBER_WITHDRAW));
+		_characterDatabase.Execute(_characterDatabase.GetPreparedStatement(CharStatements.DEL_GUILD_MEMBER_WITHDRAW));
 
-		foreach (var guild in GuildStore.Values)
+		foreach (var guild in _guildStore.Values)
 			guild.ResetTimes(week);
 	}
 
-	public void SetNextGuildId(uint Id)
+	public void SetNextGuildId(uint id)
 	{
-		NextGuildId = Id;
+		_nextGuildId = id;
 	}
 
 	public List<GuildReward> GetGuildRewards()
 	{
-		return guildRewards;
+		return _guildRewards;
 	}
 }
 

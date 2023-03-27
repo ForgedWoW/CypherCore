@@ -3575,7 +3575,7 @@ public partial class Player : Unit
 			case LootMethod.RoundRobin:
 				// may only loot if the player is the loot roundrobin player
 				// or if there are free/quest/conditional item for the player
-				if (loot.roundRobinPlayer.IsEmpty || loot.roundRobinPlayer == GUID)
+				if (loot.RoundRobinPlayer.IsEmpty || loot.RoundRobinPlayer == GUID)
 					return true;
 
 				return loot.HasItemFor(this);
@@ -3585,7 +3585,7 @@ public partial class Player : Unit
 				// may only loot if the player is the loot roundrobin player
 				// or item over threshold (so roll(s) can be launched or to preview master looted items)
 				// or if there are free/quest/conditional item for the player
-				if (loot.roundRobinPlayer.IsEmpty || loot.roundRobinPlayer == GUID)
+				if (loot.RoundRobinPlayer.IsEmpty || loot.RoundRobinPlayer == GUID)
 					return true;
 
 				if (loot.HasOverThresholdItem())

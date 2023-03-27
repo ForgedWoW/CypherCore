@@ -19,7 +19,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Spells;
@@ -32,6 +31,7 @@ using Framework.IO;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Conditions;
 

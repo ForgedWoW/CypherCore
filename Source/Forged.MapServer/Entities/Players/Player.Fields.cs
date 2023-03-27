@@ -11,7 +11,6 @@ using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Units;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Groups;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Quest;
 using Forged.MapServer.Reputation;
@@ -19,12 +18,14 @@ using Forged.MapServer.Server;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Framework.Constants;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Entities.Players;
 
 public partial class Player
 {
 	public PvPInfo PvpInfo;
+    private readonly LootFactory _lootFactory;
     private readonly List<Channel> _channels = new();
     private readonly List<ObjectGuid> _whisperList = new();
 
@@ -84,7 +85,7 @@ public partial class Player
     private readonly QuestObjectiveCriteriaManager _questObjectiveCriteriaManager;
     private readonly WorldLocation _homebind = new();
     private readonly SceneMgr _sceneMgr;
-    private readonly Dictionary<ObjectGuid, Loot.Loot> _aeLootView = new();
+    private readonly Dictionary<ObjectGuid, Forged.MapServer.LootManagement.Loot> _aeLootView = new();
     private readonly List<LootRoll> _lootRolls = new(); // loot rolls waiting for answer
 
     private readonly CufProfile[] _cufProfiles = new CufProfile[PlayerConst.MaxCUFProfiles];

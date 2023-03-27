@@ -1249,7 +1249,7 @@ public abstract class WorldObject : IDisposable
 		return $"{Location.GetDebugInfo()}\n{GUID} Entry: {Entry}\nName: {GetName()}";
 	}
 
-	public virtual Loot.Loot GetLootForPlayer(Player player)
+	public virtual Forged.MapServer.LootManagement.Loot GetLootForPlayer(Player player)
 	{
 		return null;
 	}

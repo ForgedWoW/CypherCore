@@ -2,12 +2,12 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using Forged.MapServer.Entities.Items;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Spells.Skills;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Chat.Commands;
 

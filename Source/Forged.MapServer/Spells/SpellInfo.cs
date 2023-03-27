@@ -12,11 +12,11 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Spells;
 

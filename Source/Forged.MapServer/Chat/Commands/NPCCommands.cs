@@ -9,7 +9,6 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Objects;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Movement.Generators;
 using Forged.MapServer.Phasing;
@@ -18,6 +17,7 @@ using Framework.Collections;
 using Framework.Constants;
 using Framework.Database;
 using Framework.IO;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Chat.Commands;
 
@@ -357,28 +357,28 @@ internal class NPCCommands
 		}
 
 		handler.SendSysMessage(CypherStrings.CommandNpcShowlootHeader, creatureTarget.GetName(), creatureTarget.Entry);
-		handler.SendSysMessage(CypherStrings.CommandNpcShowlootMoney, loot.gold / MoneyConstants.Gold, (loot.gold % MoneyConstants.Gold) / MoneyConstants.Silver, loot.gold % MoneyConstants.Silver);
+		handler.SendSysMessage(CypherStrings.CommandNpcShowlootMoney, loot.Gold / MoneyConstants.Gold, (loot.Gold % MoneyConstants.Gold) / MoneyConstants.Silver, loot.Gold % MoneyConstants.Silver);
 
 		if (all.Equals("all", StringComparison.OrdinalIgnoreCase)) // nonzero from strcmp <. not equal
 		{
-			handler.SendSysMessage(CypherStrings.CommandNpcShowlootLabel, "Standard items", loot.items.Count);
+			handler.SendSysMessage(CypherStrings.CommandNpcShowlootLabel, "Standard items", loot.Items.Count);
 
-			foreach (var item in loot.items)
-				if (!item.is_looted)
-					_ShowLootEntry(handler, item.itemid, item.count);
+			foreach (var item in loot.Items)
+				if (!item.IsLooted)
+					_ShowLootEntry(handler, item.Itemid, item.Count);
 		}
 		else
 		{
-			handler.SendSysMessage(CypherStrings.CommandNpcShowlootLabel, "Standard items", loot.items.Count);
+			handler.SendSysMessage(CypherStrings.CommandNpcShowlootLabel, "Standard items", loot.Items.Count);
 
-			foreach (var item in loot.items)
-				if (!item.is_looted && !item.freeforall && item.conditions.Empty())
-					_ShowLootEntry(handler, item.itemid, item.count);
+			foreach (var item in loot.Items)
+				if (!item.IsLooted && !item.Freeforall && item.Conditions.Empty())
+					_ShowLootEntry(handler, item.Itemid, item.Count);
 
 			if (!loot.GetPlayerFFAItems().Empty())
 			{
 				handler.SendSysMessage(CypherStrings.CommandNpcShowlootLabel2, "FFA items per allowed player");
-				_IterateNotNormalLootMap(handler, loot.GetPlayerFFAItems(), loot.items);
+				_IterateNotNormalLootMap(handler, loot.GetPlayerFFAItems(), loot.Items);
 			}
 		}
 
@@ -606,8 +606,8 @@ internal class NPCCommands
 			{
 				var item = items[it.LootListId];
 
-				if (!it.is_looted && !item.is_looted)
-					_ShowLootEntry(handler, item.itemid, item.count, true);
+				if (!it.IsLooted && !item.IsLooted)
+					_ShowLootEntry(handler, item.Itemid, item.Count, true);
 			}
 		}
 	}

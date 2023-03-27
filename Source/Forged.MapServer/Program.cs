@@ -19,6 +19,8 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Events;
 using Forged.MapServer.Garrisons;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Groups;
+using Forged.MapServer.Guilds;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Movement;
@@ -38,6 +40,7 @@ using Framework.Database;
 using Framework.Util;
 using Game.Common;
 using Microsoft.Extensions.Configuration;
+using Forged.MapServer.LootManagement;
 
 var configBuilder = new ConfigurationBuilder()
 					.SetBasePath(Directory.GetCurrentDirectory())
@@ -103,4 +106,10 @@ void BuildServerTypes(ContainerBuilder containerBuilder)
     containerBuilder.RegisterType<QuestPoolManager>().SingleInstance();
     containerBuilder.RegisterType<ScenarioManager>().SingleInstance();
     containerBuilder.RegisterType<ScriptManager>().SingleInstance();
+    containerBuilder.RegisterType<GroupManager>().SingleInstance();
+    containerBuilder.RegisterType<GuildManager>().SingleInstance();
+    containerBuilder.RegisterType<LootItemStorage>().SingleInstance();
+    containerBuilder.RegisterType<LootStorage>().SingleInstance();
+    containerBuilder.RegisterType<LootFactory>().SingleInstance();
+    containerBuilder.RegisterType<SpellFactory>().SingleInstance();
 }

@@ -573,11 +573,6 @@ public class ScriptManager
 		return _mSplineChainsMap.LookupByKey(Tuple.Create(entry, chainId));
 	}
 
-	public string ScriptsVersion()
-	{
-		return "Integrated Cypher Scripts";
-	}
-
 	public void IncrementScriptCount()
 	{
 		++_scriptCount;

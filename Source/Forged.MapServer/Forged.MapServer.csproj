@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="..\..\default.props"/>
+    <Import Project="..\..\default.props" />
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -36,16 +36,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Remove="Forged Icon.ico"/>
+        <None Remove="Forged Icon.ico" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="Forged Icon.ico"/>
+        <Content Include="Forged Icon.ico" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Framework\Framework.csproj"/>
-        <ProjectReference Include="..\Game.Common\Game.Common.csproj"/>
+        <ProjectReference Include="..\Framework\Framework.csproj" />
+        <ProjectReference Include="..\Game.Common\Game.Common.csproj" />
     </ItemGroup>
 
 </Project>

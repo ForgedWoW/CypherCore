@@ -9,7 +9,6 @@ using Forged.MapServer.DataStorage.Structs.D;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Groups;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Networking.Packets.Combat;
 using Forged.MapServer.Networking.Packets.CombatLog;
 using Forged.MapServer.Networking.Packets.Party;
@@ -21,6 +20,7 @@ using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Entities.Units;
 
@@ -928,7 +928,7 @@ public partial class Unit
 						var group = !groups.Empty() ? groups.First() : null;
 						var looter = group ? Global.ObjAccessor.GetPlayer(creature, group.LooterGuid) : tappers[0];
 
-						Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
+						Forged.MapServer.LootManagement.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, dungeonEncounter != null ? group : null);
 
 						var lootid = creature.LootId;
 
@@ -954,7 +954,7 @@ public partial class Unit
 				{
 					foreach (var tapper in tappers)
 					{
-						Loot.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
+						Forged.MapServer.LootManagement.Loot loot = new(creature.Map, creature.GUID, LootType.Corpse, null);
 
 						if (dungeonEncounter != null)
 							loot.SetDungeonEncounterId(dungeonEncounter.Id);

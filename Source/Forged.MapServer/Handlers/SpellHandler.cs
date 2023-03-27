@@ -7,7 +7,6 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Loot;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.GameObject;
 using Forged.MapServer.Networking.Packets.Pet;
@@ -20,6 +19,7 @@ using Framework.Constants;
 using Framework.Database;
 using Game.Common.Handlers;
 using Serilog;
+using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.Handlers;
 
@@ -215,14 +215,14 @@ public class SpellHandler : IWorldSessionHandler
 			// fails then this is first time opening, generate loot
 			if (!item.LootGenerated && !Global.LootItemStorage.LoadStoredLoot(item, player))
 			{
-				Loot.Loot loot = new(player.Map, item.GUID, LootType.Item, null);
+				Forged.MapServer.LootManagement.Loot loot = new(player.Map, item.GUID, LootType.Item, null);
 				item.Loot = loot;
 				loot.GenerateMoneyLoot(item.Template.MinMoneyLoot, item.Template.MaxMoneyLoot);
-				loot.FillLoot(item.Entry, LootStorage.Items, player, true, loot.gold != 0);
+				loot.FillLoot(item.Entry, LootStorage.Items, player, true, loot.Gold != 0);
 
 				// Force save the loot and money items that were just rolled
 				//  Also saves the container item ID in Loot struct (not to DB)
-				if (loot.gold > 0 || loot.unlootedCount > 0)
+				if (loot.Gold > 0 || loot.UnlootedCount > 0)
 					Global.LootItemStorage.AddNewStoredLoot(item.GUID.Counter, loot, player);
 			}
 
