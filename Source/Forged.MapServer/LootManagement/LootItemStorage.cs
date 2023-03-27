@@ -18,13 +18,17 @@ public class LootItemStorage
     private readonly CharacterDatabase _characterDatabase;
     private readonly GameObjectManager _objectManager;
     private readonly ConditionManager _conditionManager;
+    private readonly LootFactory _lootFactory;
+    private readonly LootStorage _lootStorage;
     private readonly ConcurrentDictionary<ulong, StoredLootContainer> _lootItemStorage = new();
 
-    public LootItemStorage(CharacterDatabase characterDatabase, GameObjectManager objectManager, ConditionManager conditionManager)
+    public LootItemStorage(CharacterDatabase characterDatabase, GameObjectManager objectManager, ConditionManager conditionManager, LootFactory lootFactory, LootStorage lootStorage)
     {
         _characterDatabase = characterDatabase;
         _objectManager = objectManager;
         _conditionManager = conditionManager;
+        _lootFactory = lootFactory;
+        _lootStorage = lootStorage;
     }
 
     public void LoadStorageFromDB()
@@ -115,12 +119,10 @@ public class LootItemStorage
 
         var container = _lootItemStorage[item.GUID.Counter];
 
-        Loot loot = new(player.Map, item.GUID, LootType.Item, null)
-        {
-            Gold = container.GetMoney()
-        };
+        var loot = _lootFactory.GenerateLoot(player.Map, item.GUID, LootType.Item);
+        loot.Gold = container.GetMoney();
 
-        var lt = LootStorage.Items.GetLootFor(item.Entry);
+        var lt = _lootStorage.Items.GetLootFor(item.Entry);
 
         if (lt != null)
             foreach (var (id, storedItem) in container.GetLootItems().KeyValueList)

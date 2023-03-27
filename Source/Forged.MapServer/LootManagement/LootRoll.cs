@@ -21,7 +21,7 @@ public class LootRoll
     private static readonly TimeSpan LootRollTimeout = TimeSpan.FromMinutes(1);
     private readonly GameObjectManager _objectManager;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly LootStorage _lootStorage;
+    private readonly LootFactory _lootFactory;
     private readonly Dictionary<ObjectGuid, PlayerRollVote> _rollVoteMap = new();
 
     private Map _map;
@@ -31,11 +31,11 @@ public class LootRoll
     private RollMask _voteMask;
     private DateTime _endTime = DateTime.MinValue;
 
-    public LootRoll(GameObjectManager objectManager, ObjectAccessor objectAccessor, LootStorage lootStorage)
+    public LootRoll(GameObjectManager objectManager, ObjectAccessor objectAccessor, LootFactory lootFactory)
     {
         _objectManager = objectManager;
         _objectAccessor = objectAccessor;
-        _lootStorage = lootStorage;
+        _lootFactory = lootFactory;
     }
 
     // Try to start the group roll for the specified item (it may fail for quest item or any condition
@@ -448,8 +448,7 @@ public class LootRoll
                 if (winnerPair.Value.Vote == RollVote.Disenchant)
                 {
                     var disenchant = GetItemDisenchantLoot();
-                    Loot loot = new(_map, _loot.GetOwnerGuid(), LootType.Disenchanting, null);
-                    loot.FillLoot(disenchant.Id, _lootStorage.Disenchant, player, true);
+                    var loot = _lootFactory.GenerateLoot(_map, _loot.GetOwnerGuid(), LootType.Disenchanting, disenchant.Id, LootStorageType.Disenchant, player, true);
 
                     if (!loot.AutoStore(player, ItemConst.NullBag, ItemConst.NullSlot, true))
                         for (uint i = 0; i < loot.Items.Count; ++i)

@@ -489,17 +489,17 @@ public class LootManager : LootStorage
 
     private void Initialize()
     {
-        Creature = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "creature_loot_template", "creature entry");
-        Disenchant = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "disenchant_loot_template", "item disenchant id");
-        Fishing = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "fishing_loot_template", "area id");
-        Gameobject = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "gameobject_loot_template", "gameobject entry");
-        Items = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "item_loot_template", "item entry");
-        Mail = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "mail_loot_template", "mail template id");
-        Milling = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "milling_loot_template", "item entry (herb)");
-        Pickpocketing = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "pickpocketing_loot_template", "creature pickpocket lootid");
-        Prospecting = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "prospecting_loot_template", "item entry (ore)");
-        Reference = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "reference_loot_template", "reference id");
-        Skinning = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "skinning_loot_template", "creature skinning id");
-        Spell = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, "spell_loot_template", "spell id (random item creating)");
+        Creature = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "creature_loot_template", "creature entry");
+        Disenchant = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "disenchant_loot_template", "item disenchant id");
+        Fishing = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "fishing_loot_template", "area id");
+        Gameobject = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "gameobject_loot_template", "gameobject entry");
+        Items = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "item_loot_template", "item entry");
+        Mail = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "mail_loot_template", "mail template id");
+        Milling = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "milling_loot_template", "item entry (herb)");
+        Pickpocketing = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "pickpocketing_loot_template", "creature pickpocket lootid");
+        Prospecting = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "prospecting_loot_template", "item entry (ore)");
+        Reference = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "reference_loot_template", "reference id");
+        Skinning = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "skinning_loot_template", "creature skinning id");
+        Spell = new LootStore(_configuration, _worldDatabase, _conditionManager, _objectManager, _lootStorage, "spell_loot_template", "spell id (random item creating)");
     }
 }

@@ -35,7 +35,7 @@ public class LootFactory
 
     public Loot GenerateLoot(Map map, ObjectGuid owner, LootType type, uint lootId, LootStorageType store, Player lootOwner, bool personal, bool noEmptyError = false, LootModes lootMode = LootModes.Default, ItemContext context = 0)
     {
-        var loot = new Loot(map, owner, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
+        var loot = new Loot(map, owner, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, this);
         loot.FillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, context);
 
         return loot;
@@ -43,7 +43,7 @@ public class LootFactory
 
     public Loot GenerateLoot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, uint dugeonEncounterId, uint lootId, LootStorageType store, Player lootOwner, bool personal, bool noEmptyError = false, LootModes lootMode = LootModes.Default, ItemContext context = 0)
     {
-        var loot = new Loot(map, owner, type, group, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
+        var loot = new Loot(map, owner, type, group, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, this);
         loot.SetDungeonEncounterId(dugeonEncounterId);
         loot.FillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, context);
 
@@ -52,7 +52,7 @@ public class LootFactory
 
     public Loot GenerateLoot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, uint lootId, LootStorageType store, Player lootOwner, bool personal, bool noEmptyError = false, LootModes lootMode = LootModes.Default, ItemContext context = 0)
     {
-        var loot = new Loot(map, owner, type, group, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
+        var loot = new Loot(map, owner, type, group, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, this);
         loot.FillLoot(lootId, store, lootOwner, personal, noEmptyError, lootMode, context);
 
         return loot;
@@ -60,6 +60,6 @@ public class LootFactory
 
     public Loot GenerateLoot(Map map, ObjectGuid owner, LootType type, PlayerGroup group = null)
     {
-        return new Loot(map, owner, type, group, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
+        return new Loot(map, owner, type, group, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration, this);
     }
 }

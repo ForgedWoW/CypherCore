@@ -34,6 +34,7 @@ public class Loot
     private readonly ObjectAccessor _objectAccessor;
     private readonly LootStorage _lootStorage;
     private readonly IConfiguration _configuration;
+    private readonly LootFactory _lootFactory;
 
     private readonly List<ObjectGuid> _playersLooting = new();
     private readonly MultiMap<ObjectGuid, NotNormalLootItem> _playerFFAItems = new();
@@ -50,7 +51,7 @@ public class Loot
     private uint _dungeonEncounterId;
 
     public Loot(Map map, ObjectGuid owner, LootType type, PlayerGroup group, ConditionManager conditionManager, GameObjectManager objectManager,
-                DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStorage lootStorage, IConfiguration configuration)
+                DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStorage lootStorage, IConfiguration configuration, LootFactory lootFactory)
     {
         LootType = type;
         _conditionManager = conditionManager;
@@ -59,6 +60,7 @@ public class Loot
         _objectAccessor = objectAccessor;
         _lootStorage = lootStorage;
         _configuration = configuration;
+        _lootFactory = lootFactory;
         _guid = map ? ObjectGuid.Create(HighGuid.LootObject, map.Id, 0, map.GenerateLowGuid(HighGuid.LootObject)) : ObjectGuid.Empty;
         _owner = owner;
         _itemContext = ItemContext.None;
@@ -332,7 +334,7 @@ public class Loot
                     if (!item.IsBlocked)
                         continue;
 
-                    LootRoll lootRoll = new(_objectManager, _objectAccessor, _lootStorage);
+                    LootRoll lootRoll = new(_objectManager, _objectAccessor, _lootFactory);
 
                     _rolls.TryAdd(lootListId, lootRoll);
 

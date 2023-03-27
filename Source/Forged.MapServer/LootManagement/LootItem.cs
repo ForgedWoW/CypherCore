@@ -191,8 +191,6 @@ public class LootItem
                 return null;
             case LootMethod.PersonalLoot:
                 return LootSlotType.Owner;
-            default:
-                break;
         }
 
         return null;

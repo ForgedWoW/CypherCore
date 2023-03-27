@@ -19,16 +19,18 @@ public class LootStore
     private readonly WorldDatabase _worldDatabase;
     private readonly ConditionManager _conditionManager;
     private readonly GameObjectManager _objectManager;
+    private readonly LootStorage _storage;
     private readonly string _name;
     private readonly string _entryName;
     private readonly bool _ratesAllowed;
 
-    public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, string name, string entryName, bool ratesAllowed = true)
+    public LootStore(IConfiguration configuration, WorldDatabase worldDatabase, ConditionManager conditionManager, GameObjectManager objectManager, LootStorage storage, string name, string entryName, bool ratesAllowed = true)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
         _conditionManager = conditionManager;
         _objectManager = objectManager;
+        _storage = storage;
         _name = name;
         _entryName = entryName;
         _ratesAllowed = ratesAllowed;
@@ -175,7 +177,7 @@ public class LootStore
                 return 0;
             }
 
-            LootStoreItem storeitem = new(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount);
+            LootStoreItem storeitem = new(item, reference, chance, needsquest, lootmode, groupid, mincount, maxcount, _objectManager, _configuration, _worldDatabase);
 
             if (!storeitem.IsValid(this, entry)) // Validity checks
                 continue;
@@ -183,7 +185,7 @@ public class LootStore
             // Looking for the template of the entry
             // often entries are put together
             if (_lootTemplates.Empty() || !_lootTemplates.ContainsKey(entry))
-                _lootTemplates.Add(entry, new LootTemplate(_configuration, _objectManager, _conditionManager));
+                _lootTemplates.Add(entry, new LootTemplate(_configuration, _objectManager, _conditionManager, _storage));
 
             // Adds current row to the template
             _lootTemplates[entry].AddEntry(storeitem);
