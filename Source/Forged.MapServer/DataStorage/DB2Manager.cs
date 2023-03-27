@@ -26,9 +26,10 @@ using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.DataStorage.Structs.U;
 using Forged.MapServer.DataStorage.Structs.W;
 using Forged.MapServer.Globals;
-using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.DataStorage;
@@ -39,6 +40,7 @@ public class DB2Manager
 	public readonly MultiMap<uint, QuestLineXQuestRecord> QuestLinesByQuest = new();
 	private readonly HotfixDatabase _hotfixDatabase;
 	private readonly GameObjectManager _gameObjectManager;
+    private readonly IConfiguration _configuration;
     private readonly Dictionary<uint, IDB2Storage> _storage = new();
     private readonly MultiMap<int, HotfixRecord> _hotfixData = new();
     private readonly Dictionary<(uint tableHash, int recordId), byte[]>[] _hotfixBlob = new Dictionary<(uint tableHash, int recordId), byte[]>[(int)Locale.Total];
@@ -128,12 +130,13 @@ public class DB2Manager
 	private CliDB _cliDB;
 	internal Dictionary<uint, IDB2Storage> Storage => _storage;
 
-	public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager)
+	public DB2Manager(HotfixDatabase hotfixDatabase, GameObjectManager gameObjectManager, IConfiguration configuration)
 	{
 		_hotfixDatabase = hotfixDatabase;
 		_gameObjectManager = gameObjectManager;
+        _configuration = configuration;
 
-		for (uint i = 0; i < (int)PlayerClass.Max; ++i)
+        for (uint i = 0; i < (int)PlayerClass.Max; ++i)
 		{
 			_powersByClass[i] = new uint[(int)PowerType.Max];
 
@@ -593,7 +596,7 @@ public class DB2Manager
 
 		foreach (var entry in _cliDB.SkillRaceClassInfoStorage.Values)
 			if (_cliDB.SkillLineStorage.ContainsKey(entry.SkillID))
-				_skillRaceClassInfoBySkill.Add((uint)entry.SkillID, entry);
+				_skillRaceClassInfoBySkill.Add(entry.SkillID, entry);
 
 		foreach (var soulbindConduitRank in _cliDB.SoulbindConduitRankStorage.Values)
 			_soulbindConduitRanks[Tuple.Create((int)soulbindConduitRank.SoulbindConduitID, soulbindConduitRank.RankIndex)] = soulbindConduitRank;
@@ -602,7 +605,7 @@ public class DB2Manager
 			_specializationSpellsBySpec.Add(specSpells.SpecID, specSpells);
 
 		foreach (var specSetMember in _cliDB.SpecSetMemberStorage.Values)
-			_specsBySpecSet.Add(Tuple.Create((int)specSetMember.SpecSetID, (uint)specSetMember.ChrSpecializationID));
+			_specsBySpecSet.Add(Tuple.Create((int)specSetMember.SpecSetID, specSetMember.ChrSpecializationID));
 
 		foreach (var classOption in _cliDB.SpellClassOptionsStorage.Values)
 			_spellFamilyNames.Add(classOption.SpellClassSet);
@@ -727,14 +730,14 @@ public class DB2Manager
 
 				var parentXsize = parentUiMapAssignment.Region[1].X - parentUiMapAssignment.Region[0].X;
 				var parentYsize = parentUiMapAssignment.Region[1].Y - parentUiMapAssignment.Region[0].Y;
-				var bound0scale = (uiMapAssignment.Region[1].X - parentUiMapAssignment.Region[0].X) / parentXsize;
-				var bound0 = ((1.0f - bound0scale) * parentUiMapAssignment.UiMax.Y) + (bound0scale * parentUiMapAssignment.UiMin.Y);
-				var bound2scale = (uiMapAssignment.Region[0].X - parentUiMapAssignment.Region[0].X) / parentXsize;
-				var bound2 = ((1.0f - bound2scale) * parentUiMapAssignment.UiMax.Y) + (bound2scale * parentUiMapAssignment.UiMin.Y);
-				var bound1scale = (uiMapAssignment.Region[1].Y - parentUiMapAssignment.Region[0].Y) / parentYsize;
-				var bound1 = ((1.0f - bound1scale) * parentUiMapAssignment.UiMax.X) + (bound1scale * parentUiMapAssignment.UiMin.X);
-				var bound3scale = (uiMapAssignment.Region[0].Y - parentUiMapAssignment.Region[0].Y) / parentYsize;
-				var bound3 = ((1.0f - bound3scale) * parentUiMapAssignment.UiMax.X) + (bound3scale * parentUiMapAssignment.UiMin.X);
+				var bound0Scale = (uiMapAssignment.Region[1].X - parentUiMapAssignment.Region[0].X) / parentXsize;
+				var bound0 = ((1.0f - bound0Scale) * parentUiMapAssignment.UiMax.Y) + (bound0Scale * parentUiMapAssignment.UiMin.Y);
+				var bound2Scale = (uiMapAssignment.Region[0].X - parentUiMapAssignment.Region[0].X) / parentXsize;
+				var bound2 = ((1.0f - bound2Scale) * parentUiMapAssignment.UiMax.Y) + (bound2Scale * parentUiMapAssignment.UiMin.Y);
+				var bound1Scale = (uiMapAssignment.Region[1].Y - parentUiMapAssignment.Region[0].Y) / parentYsize;
+				var bound1 = ((1.0f - bound1Scale) * parentUiMapAssignment.UiMax.X) + (bound1Scale * parentUiMapAssignment.UiMin.X);
+				var bound3Scale = (uiMapAssignment.Region[0].Y - parentUiMapAssignment.Region[0].Y) / parentYsize;
+				var bound3 = ((1.0f - bound3Scale) * parentUiMapAssignment.UiMax.X) + (bound3Scale * parentUiMapAssignment.UiMin.X);
 
 				if ((bound3 - bound1) > 0.0f || (bound2 - bound0) > 0.0f)
 				{
@@ -915,9 +918,9 @@ public class DB2Manager
 			}
 
 			var recordId = result.Read<uint>(1);
-			var db2storage = _storage.LookupByKey(tableHash);
+			var db2Storage = _storage.LookupByKey(tableHash);
 
-			if (db2storage == null)
+			if (db2Storage == null)
 			{
 				Log.Logger.Error($"Table `hotfix_optional_data` references unknown DB2 store by hash 0x{tableHash:X} with RecordID: {recordId}");
 
@@ -1099,7 +1102,7 @@ public class DB2Manager
 
 	public string GetBroadcastTextValue(BroadcastTextRecord broadcastText, Locale locale = Locale.enUS, Gender gender = Gender.Male, bool forceGender = false)
 	{
-		if ((gender == Gender.Female || gender == Gender.None) && (forceGender || broadcastText.Text1.HasString(SharedConst.DefaultLocale)))
+		if ((gender == Gender.Female || gender == Gender.None) && (forceGender || broadcastText.Text1.HasString()))
 		{
 			if (broadcastText.Text1.HasString(locale))
 				return broadcastText.Text1[locale];
@@ -1123,9 +1126,9 @@ public class DB2Manager
 		return _uiDisplayByClass[(int)unitClass];
 	}
 
-	public string GetClassName(PlayerClass class_, Locale locale = Locale.enUS)
+	public string GetClassName(PlayerClass playerClass, Locale locale = Locale.enUS)
 	{
-		var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)class_);
+		var classEntry = _cliDB.ChrClassesStorage.LookupByKey((uint)playerClass);
 
 		if (classEntry == null)
 			return "";
@@ -1174,14 +1177,14 @@ public class DB2Manager
 		return raceEntry.Name[Locale.enUS];
 	}
 
-	public ChrSpecializationRecord GetChrSpecializationByIndex(PlayerClass class_, uint index)
+	public ChrSpecializationRecord GetChrSpecializationByIndex(PlayerClass playerClass, uint index)
 	{
-		return _chrSpecializationsByIndex[(int)class_][index];
+		return _chrSpecializationsByIndex[(int)playerClass][index];
 	}
 
-	public ChrSpecializationRecord GetDefaultChrSpecializationForClass(PlayerClass class_)
+	public ChrSpecializationRecord GetDefaultChrSpecializationForClass(PlayerClass playerClass)
 	{
-		return GetChrSpecializationByIndex(class_, PlayerConst.InitialSpecializationIndex);
+		return GetChrSpecializationByIndex(playerClass, PlayerConst.InitialSpecializationIndex);
 	}
 
 	public ContentTuningLevels? GetContentTuningData(uint contentTuningId, uint replacementConditionMask, bool forItem = false)
@@ -1194,17 +1197,17 @@ public class DB2Manager
 		if (forItem && contentTuning.GetFlags().HasFlag(ContentTuningFlag.DisabledForItem))
 			return null;
 
-		int getLevelAdjustment(ContentTuningCalcType type) => type switch
+		int GetLevelAdjustment(ContentTuningCalcType type) => type switch
 		{
 			ContentTuningCalcType.PlusOne                  => 1,
-			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)GetDefaultValue("Expansion", (int)Expansion.Dragonflight)),
+			ContentTuningCalcType.PlusMaxLevelForExpansion => (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)_configuration.GetDefaultValue("Expansion", (int)Expansion.Dragonflight)),
 			_                                              => 0
 		};
 
 		ContentTuningLevels levels = new()
 		{
-			MinLevel = (short)(contentTuning.MinLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
-			MaxLevel = (short)(contentTuning.MaxLevel + getLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
+			MinLevel = (short)(contentTuning.MinLevel + GetLevelAdjustment((ContentTuningCalcType)contentTuning.MinLevelType)),
+			MaxLevel = (short)(contentTuning.MaxLevel + GetLevelAdjustment((ContentTuningCalcType)contentTuning.MaxLevelType))
 		};
 
 		levels.MinLevelWithDelta = (short)Math.Clamp(levels.MinLevel + contentTuning.TargetLevelDelta, 1, SharedConst.MaxLevel);
@@ -1388,16 +1391,14 @@ public class DB2Manager
 			}
 			case CurveInterpolationMode.Constant:
 				return points[0].Pos.Y;
-			default:
-				break;
 		}
 
 		return 0.0f;
 	}
 
-	public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, PlayerClass class_)
+	public EmotesTextSoundRecord GetTextSoundEmoteFor(uint emote, Race race, Gender gender, PlayerClass playerClass)
 	{
-		var emoteTextSound = _emoteTextSounds.LookupByKey(Tuple.Create(emote, (byte)race, (byte)gender, (byte)class_));
+		var emoteTextSound = _emoteTextSounds.LookupByKey(Tuple.Create(emote, (byte)race, (byte)gender, (byte)playerClass));
 
 		if (emoteTextSound != null)
 			return emoteTextSound;
@@ -1437,8 +1438,6 @@ public class DB2Manager
 			case PlayerClass.Mage:
 				classMod = _cliDB.ExpectedStatModStorage.LookupByKey(1u);
 
-				break;
-			default:
 				break;
 		}
 
@@ -1538,8 +1537,6 @@ public class DB2Manager
 				if (classMod != null)
 					value *= classMod.CreatureSpellDamageMod;
 
-				break;
-			default:
 				break;
 		}
 
@@ -1816,9 +1813,9 @@ public class DB2Manager
 
 	public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId)
 	{
-		var NotUsed = Difficulty.None;
+		var notUsed = Difficulty.None;
 
-		return GetDefaultMapDifficulty(mapId, ref NotUsed);
+		return GetDefaultMapDifficulty(mapId, ref notUsed);
 	}
 
 	public MapDifficultyRecord GetDefaultMapDifficulty(uint mapId, ref Difficulty difficulty)
@@ -1999,19 +1996,17 @@ public class DB2Manager
 		return null;
 	}
 
-	public uint GetRequiredLevelForPvpTalentSlot(byte slot, PlayerClass class_)
+	public uint GetRequiredLevelForPvpTalentSlot(byte slot, PlayerClass playerClass)
 	{
 		if (_pvpTalentSlotUnlock[slot] != null)
 		{
-			switch (class_)
+			switch (playerClass)
 			{
 				case PlayerClass.Deathknight:
 					return _pvpTalentSlotUnlock[slot].DeathKnightLevelRequired;
 				case PlayerClass.DemonHunter:
 					return _pvpTalentSlotUnlock[slot].DemonHunterLevelRequired;
-				default:
-					break;
-			}
+            }
 
 			return _pvpTalentSlotUnlock[slot].LevelRequired;
 		}
@@ -2019,12 +2014,12 @@ public class DB2Manager
 		return 0;
 	}
 
-	public int GetPvpTalentNumSlotsAtLevel(uint level, PlayerClass class_)
+	public int GetPvpTalentNumSlotsAtLevel(uint level, PlayerClass playerClass)
 	{
 		var slots = 0;
 
 		for (byte slot = 0; slot < PlayerConst.MaxPvpTalentSlots; ++slot)
-			if (level >= GetRequiredLevelForPvpTalentSlot(slot, class_))
+			if (level >= GetRequiredLevelForPvpTalentSlot(slot, playerClass))
 				++slots;
 
 		return slots;
@@ -2124,7 +2119,7 @@ public class DB2Manager
 		return _skillLineAbilitiesBySkillupSkill.LookupByKey(skillId);
 	}
 
-	public SkillRaceClassInfoRecord GetSkillRaceClassInfo(uint skill, Race race, PlayerClass class_)
+	public SkillRaceClassInfoRecord GetSkillRaceClassInfo(uint skill, Race race, PlayerClass playerClass)
 	{
 		var bounds = _skillRaceClassInfoBySkill.LookupByKey(skill);
 
@@ -2133,7 +2128,7 @@ public class DB2Manager
 			if (skllRaceClassInfo.RaceMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.RaceMask & SharedConst.GetMaskForRace(race)))
 				continue;
 
-			if (skllRaceClassInfo.ClassMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.ClassMask & (1 << ((byte)class_ - 1))))
+			if (skllRaceClassInfo.ClassMask != 0 && !Convert.ToBoolean(skllRaceClassInfo.ClassMask & (1 << ((byte)playerClass - 1))))
 				continue;
 
 			return skllRaceClassInfo;
@@ -2177,9 +2172,9 @@ public class DB2Manager
 		return _spellVisualMissilesBySet.LookupByKey(spellVisualMissileSetId);
 	}
 
-	public List<TalentRecord> GetTalentsByPosition(PlayerClass class_, uint tier, uint column)
+	public List<TalentRecord> GetTalentsByPosition(PlayerClass playerClass, uint tier, uint column)
 	{
-		return _talentsByPosition[(int)class_][tier][column];
+		return _talentsByPosition[(int)playerClass][tier][column];
 	}
 
 	public bool IsTotemCategoryCompatibleWith(uint itemTotemCategoryId, uint requiredTotemCategoryId)
@@ -2305,15 +2300,10 @@ public class DB2Manager
 		return _uiMapPhases.Contains(phaseId);
 	}
 
-	public WMOAreaTableRecord GetWMOAreaTable(int rootId, int adtId, int groupId)
+	public WMOAreaTableRecord GetWmoAreaTable(int rootId, int adtId, int groupId)
 	{
-		var wmoAreaTable = _wmoAreaTableLookup.LookupByKey(Tuple.Create((short)rootId, (sbyte)adtId, groupId));
-
-		if (wmoAreaTable != null)
-			return wmoAreaTable;
-
-		return null;
-	}
+        return _wmoAreaTableLookup.LookupByKey(Tuple.Create((short)rootId, (sbyte)adtId, groupId));
+    }
 
 	public bool HasItemCurrencyCost(uint itemId)
 	{
@@ -2351,16 +2341,12 @@ public class DB2Manager
 						return CurveInterpolationMode.Bezier3;
 					case 4:
 						return CurveInterpolationMode.Bezier4;
-					default:
-						break;
 				}
 
 				return CurveInterpolationMode.Bezier;
 			}
 			case 3:
 				return CurveInterpolationMode.Cosine;
-			default:
-				break;
 		}
 
 		return points.Count != 1 ? CurveInterpolationMode.Linear : CurveInterpolationMode.Constant;
@@ -2537,23 +2523,20 @@ public class DB2Manager
 		{
 			sbyte areaPriority = 0;
 
-			if (areaId != 0)
-				while (areaId != uiMapAssignment.AreaID)
-				{
-					var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
+			while (areaId != uiMapAssignment.AreaID)
+            {
+                var areaEntry = _cliDB.AreaTableStorage.LookupByKey((uint)areaId);
 
-					if (areaEntry != null)
-					{
-						areaId = areaEntry.ParentAreaID;
-						++areaPriority;
-					}
-					else
-					{
-						return false;
-					}
-				}
-			else
-				return false;
+                if (areaEntry != null)
+                {
+                    areaId = areaEntry.ParentAreaID;
+                    ++areaPriority;
+                }
+                else
+                {
+                    return false;
+                }
+            }
 
 			status.AreaPriority = areaPriority;
 		}
