@@ -15,29 +15,37 @@ namespace Forged.MapServer.Spells;
 
 internal class TraitMgr
 {
-	public const uint COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID = 384255u;
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    public const uint COMMIT_COMBAT_TRAIT_CONFIG_CHANGES_SPELL_ID = 384255u;
 	public const uint MAX_COMBAT_TRAIT_CONFIGS = 10u;
 
-    private static readonly Dictionary<int, NodeGroup> TraitGroups = new();
-    private static readonly Dictionary<int, Node> TraitNodes = new();
-    private static readonly Dictionary<int, Tree> TraitTrees = new();
-    private static readonly int[] SkillLinesByClass = new int[(int)PlayerClass.Max];
-    private static readonly MultiMap<int, Tree> TraitTreesBySkillLine = new();
-    private static readonly MultiMap<int, Tree> TraitTreesByTraitSystem = new();
-    private static int _configIdGenerator;
-    private static readonly MultiMap<int, TraitCurrencySourceRecord> TraitCurrencySourcesByCurrency = new();
-    private static readonly MultiMap<int, TraitDefinitionEffectPointsRecord> TraitDefinitionEffectPointModifiers = new();
-    private static readonly MultiMap<int, TraitTreeLoadoutEntryRecord> TraitTreeLoadoutsByChrSpecialization = new();
+    private readonly Dictionary<int, NodeGroup> _traitGroups = new();
+    private readonly Dictionary<int, Node> _traitNodes = new();
+    private readonly Dictionary<int, Tree> _traitTrees = new();
+    private readonly int[] _skillLinesByClass = new int[(int)PlayerClass.Max];
+    private readonly MultiMap<int, Tree> _traitTreesBySkillLine = new();
+    private readonly MultiMap<int, Tree> _traitTreesByTraitSystem = new();
+    private int _configIdGenerator;
+    private readonly MultiMap<int, TraitCurrencySourceRecord> _traitCurrencySourcesByCurrency = new();
+    private readonly MultiMap<int, TraitDefinitionEffectPointsRecord> _traitDefinitionEffectPointModifiers = new();
+    private readonly MultiMap<int, TraitTreeLoadoutEntryRecord> _traitTreeLoadoutsByChrSpecialization = new();
 
-	public static void Load()
+    public TraitMgr(CliDB cliDB, DB2Manager db2Manager)
+    {
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+    }
+
+    public void Load()
 	{
 		_configIdGenerator = int.MaxValue;
 
 		MultiMap<int, TraitCondRecord> nodeEntryConditions = new();
 
-		foreach (var traitNodeEntryXTraitCondEntry in CliDB.TraitNodeEntryXTraitCondStorage.Values)
+		foreach (var traitNodeEntryXTraitCondEntry in _cliDB.TraitNodeEntryXTraitCondStorage.Values)
 		{
-			var traitCondEntry = CliDB.TraitCondStorage.LookupByKey(traitNodeEntryXTraitCondEntry.TraitCondID);
+			var traitCondEntry = _cliDB.TraitCondStorage.LookupByKey((uint)traitNodeEntryXTraitCondEntry.TraitCondID);
 
 			if (traitCondEntry != null)
 				nodeEntryConditions.Add((int)traitNodeEntryXTraitCondEntry.TraitNodeEntryID, traitCondEntry);
@@ -45,9 +53,9 @@ internal class TraitMgr
 
 		MultiMap<int, TraitCostRecord> nodeEntryCosts = new();
 
-		foreach (var traitNodeEntryXTraitCostEntry in CliDB.TraitNodeEntryXTraitCostStorage.Values)
+		foreach (var traitNodeEntryXTraitCostEntry in _cliDB.TraitNodeEntryXTraitCostStorage.Values)
 		{
-			var traitCostEntry = CliDB.TraitCostStorage.LookupByKey(traitNodeEntryXTraitCostEntry.TraitCostID);
+			var traitCostEntry = _cliDB.TraitCostStorage.LookupByKey((uint)traitNodeEntryXTraitCostEntry.TraitCostID);
 
 			if (traitCostEntry != null)
 				nodeEntryCosts.Add(traitNodeEntryXTraitCostEntry.TraitNodeEntryID, traitCostEntry);
@@ -55,9 +63,9 @@ internal class TraitMgr
 
 		MultiMap<int, TraitCondRecord> nodeGroupConditions = new();
 
-		foreach (var traitNodeGroupXTraitCondEntry in CliDB.TraitNodeGroupXTraitCondStorage.Values)
+		foreach (var traitNodeGroupXTraitCondEntry in _cliDB.TraitNodeGroupXTraitCondStorage.Values)
 		{
-			var traitCondEntry = CliDB.TraitCondStorage.LookupByKey(traitNodeGroupXTraitCondEntry.TraitCondID);
+			var traitCondEntry = _cliDB.TraitCondStorage.LookupByKey((uint)traitNodeGroupXTraitCondEntry.TraitCondID);
 
 			if (traitCondEntry != null)
 				nodeGroupConditions.Add(traitNodeGroupXTraitCondEntry.TraitNodeGroupID, traitCondEntry);
@@ -65,9 +73,9 @@ internal class TraitMgr
 
 		MultiMap<int, TraitCostRecord> nodeGroupCosts = new();
 
-		foreach (var traitNodeGroupXTraitCostEntry in CliDB.TraitNodeGroupXTraitCostStorage.Values)
+		foreach (var traitNodeGroupXTraitCostEntry in _cliDB.TraitNodeGroupXTraitCostStorage.Values)
 		{
-			var traitCondEntry = CliDB.TraitCostStorage.LookupByKey(traitNodeGroupXTraitCostEntry.TraitCostID);
+			var traitCondEntry = _cliDB.TraitCostStorage.LookupByKey((uint)traitNodeGroupXTraitCostEntry.TraitCostID);
 
 			if (traitCondEntry != null)
 				nodeGroupCosts.Add(traitNodeGroupXTraitCostEntry.TraitNodeGroupID, traitCondEntry);
@@ -75,14 +83,14 @@ internal class TraitMgr
 
 		MultiMap<int, int> nodeGroups = new();
 
-		foreach (var traitNodeGroupXTraitNodeEntry in CliDB.TraitNodeGroupXTraitNodeStorage.Values)
+		foreach (var traitNodeGroupXTraitNodeEntry in _cliDB.TraitNodeGroupXTraitNodeStorage.Values)
 			nodeGroups.Add(traitNodeGroupXTraitNodeEntry.TraitNodeID, traitNodeGroupXTraitNodeEntry.TraitNodeGroupID);
 
 		MultiMap<int, TraitCondRecord> nodeConditions = new();
 
-		foreach (var traitNodeXTraitCondEntry in CliDB.TraitNodeXTraitCondStorage.Values)
+		foreach (var traitNodeXTraitCondEntry in _cliDB.TraitNodeXTraitCondStorage.Values)
 		{
-			var traitCondEntry = CliDB.TraitCondStorage.LookupByKey(traitNodeXTraitCondEntry.TraitCondID);
+			var traitCondEntry = _cliDB.TraitCondStorage.LookupByKey((uint)traitNodeXTraitCondEntry.TraitCondID);
 
 			if (traitCondEntry != null)
 				nodeConditions.Add(traitNodeXTraitCondEntry.TraitNodeID, traitCondEntry);
@@ -90,9 +98,9 @@ internal class TraitMgr
 
 		MultiMap<uint, TraitCostRecord> nodeCosts = new();
 
-		foreach (var traitNodeXTraitCostEntry in CliDB.TraitNodeXTraitCostStorage.Values)
+		foreach (var traitNodeXTraitCostEntry in _cliDB.TraitNodeXTraitCostStorage.Values)
 		{
-			var traitCostEntry = CliDB.TraitCostStorage.LookupByKey(traitNodeXTraitCostEntry.TraitCostID);
+			var traitCostEntry = _cliDB.TraitCostStorage.LookupByKey((uint)traitNodeXTraitCostEntry.TraitCostID);
 
 			if (traitCostEntry != null)
 				nodeCosts.Add(traitNodeXTraitCostEntry.TraitNodeID, traitCostEntry);
@@ -100,9 +108,9 @@ internal class TraitMgr
 
 		MultiMap<int, TraitNodeEntryRecord> nodeEntries = new();
 
-		foreach (var traitNodeXTraitNodeEntryEntry in CliDB.TraitNodeXTraitNodeEntryStorage.Values)
+		foreach (var traitNodeXTraitNodeEntryEntry in _cliDB.TraitNodeXTraitNodeEntryStorage.Values)
 		{
-			var traitNodeEntryEntry = CliDB.TraitNodeEntryStorage.LookupByKey(traitNodeXTraitNodeEntryEntry.TraitNodeEntryID);
+			var traitNodeEntryEntry = _cliDB.TraitNodeEntryStorage.LookupByKey((uint)traitNodeXTraitNodeEntryEntry.TraitNodeEntryID);
 
 			if (traitNodeEntryEntry != null)
 				nodeEntries.Add(traitNodeXTraitNodeEntryEntry.TraitNodeID, traitNodeEntryEntry);
@@ -110,9 +118,9 @@ internal class TraitMgr
 
 		MultiMap<uint, TraitCostRecord> treeCosts = new();
 
-		foreach (var traitTreeXTraitCostEntry in CliDB.TraitTreeXTraitCostStorage.Values)
+		foreach (var traitTreeXTraitCostEntry in _cliDB.TraitTreeXTraitCostStorage.Values)
 		{
-			var traitCostEntry = CliDB.TraitCostStorage.LookupByKey(traitTreeXTraitCostEntry.TraitCostID);
+			var traitCostEntry = _cliDB.TraitCostStorage.LookupByKey((uint)traitTreeXTraitCostEntry.TraitCostID);
 
 			if (traitCostEntry != null)
 				treeCosts.Add(traitTreeXTraitCostEntry.TraitTreeID, traitCostEntry);
@@ -120,9 +128,9 @@ internal class TraitMgr
 
 		MultiMap<int, TraitCurrencyRecord> treeCurrencies = new();
 
-		foreach (var traitTreeXTraitCurrencyEntry in CliDB.TraitTreeXTraitCurrencyStorage.Values)
+		foreach (var traitTreeXTraitCurrencyEntry in _cliDB.TraitTreeXTraitCurrencyStorage.Values)
 		{
-			var traitCurrencyEntry = CliDB.TraitCurrencyStorage.LookupByKey(traitTreeXTraitCurrencyEntry.TraitCurrencyID);
+			var traitCurrencyEntry = _cliDB.TraitCurrencyStorage.LookupByKey((uint)traitTreeXTraitCurrencyEntry.TraitCurrencyID);
 
 			if (traitCurrencyEntry != null)
 				treeCurrencies.Add(traitTreeXTraitCurrencyEntry.TraitTreeID, traitCurrencyEntry);
@@ -130,7 +138,7 @@ internal class TraitMgr
 
 		MultiMap<int, int> traitTreesIdsByTraitSystem = new();
 
-		foreach (var traitTree in CliDB.TraitTreeStorage.Values)
+		foreach (var traitTree in _cliDB.TraitTreeStorage.Values)
 		{
 			Tree tree = new()
 			{
@@ -153,10 +161,10 @@ internal class TraitMgr
 				tree.ConfigType = TraitConfigType.Generic;
 			}
 
-			TraitTrees[(int)traitTree.Id] = tree;
+			_traitTrees[(int)traitTree.Id] = tree;
 		}
 
-		foreach (var traitNodeGroup in CliDB.TraitNodeGroupStorage.Values)
+		foreach (var traitNodeGroup in _cliDB.TraitNodeGroupStorage.Values)
 		{
 			NodeGroup nodeGroup = new()
 			{
@@ -173,17 +181,17 @@ internal class TraitMgr
 			if (costs != null)
 				nodeGroup.Costs = costs;
 
-			TraitGroups[(int)traitNodeGroup.Id] = nodeGroup;
+			_traitGroups[(int)traitNodeGroup.Id] = nodeGroup;
 		}
 
-		foreach (var traitNode in CliDB.TraitNodeStorage.Values)
+		foreach (var traitNode in _cliDB.TraitNodeStorage.Values)
 		{
 			Node node = new()
 			{
 				Data = traitNode
 			};
 
-			var tree = TraitTrees.LookupByKey(traitNode.TraitTreeID);
+			var tree = _traitTrees.LookupByKey(traitNode.TraitTreeID);
 
 			if (tree != null)
 				tree.Nodes.Add(node);
@@ -210,7 +218,7 @@ internal class TraitMgr
 
 			foreach (var nodeGroupId in nodeGroups.LookupByKey(traitNode.Id))
 			{
-				var nodeGroup = TraitGroups.LookupByKey(nodeGroupId);
+				var nodeGroup = _traitGroups.LookupByKey(nodeGroupId);
 
 				if (nodeGroup == null)
 					continue;
@@ -229,13 +237,13 @@ internal class TraitMgr
 			if (costs1 != null)
 				node.Costs = costs1;
 
-			TraitNodes[(int)traitNode.Id] = node;
+			_traitNodes[(int)traitNode.Id] = node;
 		}
 
-		foreach (var traitEdgeEntry in CliDB.TraitEdgeStorage.Values)
+		foreach (var traitEdgeEntry in _cliDB.TraitEdgeStorage.Values)
 		{
-			var left = TraitNodes.LookupByKey(traitEdgeEntry.LeftTraitNodeID);
-			var right = TraitNodes.LookupByKey(traitEdgeEntry.RightTraitNodeID);
+			var left = _traitNodes.LookupByKey(traitEdgeEntry.LeftTraitNodeID);
+			var right = _traitNodes.LookupByKey(traitEdgeEntry.RightTraitNodeID);
 
 			if (left == null || right == null)
 				continue;
@@ -243,26 +251,26 @@ internal class TraitMgr
 			right.ParentNodes.Add(Tuple.Create(left, (TraitEdgeType)traitEdgeEntry.Type));
 		}
 
-		foreach (var skillLineXTraitTreeEntry in CliDB.SkillLineXTraitTreeStorage.Values)
+		foreach (var skillLineXTraitTreeEntry in _cliDB.SkillLineXTraitTreeStorage.Values)
 		{
-			var tree = TraitTrees.LookupByKey(skillLineXTraitTreeEntry.TraitTreeID);
+			var tree = _traitTrees.LookupByKey(skillLineXTraitTreeEntry.TraitTreeID);
 
 			if (tree == null)
 				continue;
 
-			var skillLineEntry = CliDB.SkillLineStorage.LookupByKey(skillLineXTraitTreeEntry.SkillLineID);
+			var skillLineEntry = _cliDB.SkillLineStorage.LookupByKey((uint)skillLineXTraitTreeEntry.SkillLineID);
 
 			if (skillLineEntry == null)
 				continue;
 
-			TraitTreesBySkillLine.Add(skillLineXTraitTreeEntry.SkillLineID, tree);
+			_traitTreesBySkillLine.Add(skillLineXTraitTreeEntry.SkillLineID, tree);
 
 			if (skillLineEntry.CategoryID == SkillCategory.Class)
 			{
-				foreach (var skillRaceClassInfo in Global.DB2Mgr.GetSkillRaceClassInfo(skillLineEntry.Id))
+				foreach (var skillRaceClassInfo in _db2Manager.GetSkillRaceClassInfo(skillLineEntry.Id))
 					for (var i = 1; i < (int)PlayerClass.Max; ++i)
 						if ((skillRaceClassInfo.ClassMask & (1 << (i - 1))) != 0)
-							SkillLinesByClass[i] = skillLineXTraitTreeEntry.SkillLineID;
+							_skillLinesByClass[i] = skillLineXTraitTreeEntry.SkillLineID;
 
 				tree.ConfigType = TraitConfigType.Combat;
 			}
@@ -274,24 +282,24 @@ internal class TraitMgr
 
 		foreach (var (traitSystemId, traitTreeId) in traitTreesIdsByTraitSystem.KeyValueList)
 		{
-			var tree = TraitTrees.LookupByKey(traitTreeId);
+			var tree = _traitTrees.LookupByKey(traitTreeId);
 
 			if (tree != null)
-				TraitTreesByTraitSystem.Add(traitSystemId, tree);
+				_traitTreesByTraitSystem.Add(traitSystemId, tree);
 		}
 
-		foreach (var traitCurrencySource in CliDB.TraitCurrencySourceStorage.Values)
-			TraitCurrencySourcesByCurrency.Add(traitCurrencySource.TraitCurrencyID, traitCurrencySource);
+		foreach (var traitCurrencySource in _cliDB.TraitCurrencySourceStorage.Values)
+			_traitCurrencySourcesByCurrency.Add(traitCurrencySource.TraitCurrencyID, traitCurrencySource);
 
-		foreach (var traitDefinitionEffectPoints in CliDB.TraitDefinitionEffectPointsStorage.Values)
-			TraitDefinitionEffectPointModifiers.Add(traitDefinitionEffectPoints.TraitDefinitionID, traitDefinitionEffectPoints);
+		foreach (var traitDefinitionEffectPoints in _cliDB.TraitDefinitionEffectPointsStorage.Values)
+			_traitDefinitionEffectPointModifiers.Add(traitDefinitionEffectPoints.TraitDefinitionID, traitDefinitionEffectPoints);
 
 		MultiMap<int, TraitTreeLoadoutEntryRecord> traitTreeLoadoutEntries = new();
 
-		foreach (var traitTreeLoadoutEntry in CliDB.TraitTreeLoadoutEntryStorage.Values)
+		foreach (var traitTreeLoadoutEntry in _cliDB.TraitTreeLoadoutEntryStorage.Values)
 			traitTreeLoadoutEntries[traitTreeLoadoutEntry.TraitTreeLoadoutID].Add(traitTreeLoadoutEntry);
 
-		foreach (var traitTreeLoadout in CliDB.TraitTreeLoadoutStorage.Values)
+		foreach (var traitTreeLoadout in _cliDB.TraitTreeLoadoutStorage.Values)
 		{
 			var entries = traitTreeLoadoutEntries.LookupByKey(traitTreeLoadout.Id);
 
@@ -299,7 +307,7 @@ internal class TraitMgr
 			{
 				entries.Sort((left, right) => { return left.OrderIndex.CompareTo(right.OrderIndex); });
 				// there should be only one loadout per spec, we take last one encountered
-				TraitTreeLoadoutsByChrSpecialization[traitTreeLoadout.ChrSpecializationID] = entries;
+				_traitTreeLoadoutsByChrSpecialization[traitTreeLoadout.ChrSpecializationID] = entries;
 			}
 		}
 	}
@@ -308,7 +316,7 @@ internal class TraitMgr
 	 * Generates new TraitConfig identifier.
 	 * Because this only needs to be unique for each character we let it overflow
 	 */
-	public static int GenerateNewTraitConfigId()
+	public int GenerateNewTraitConfigId()
 	{
 		if (_configIdGenerator == int.MaxValue)
 			_configIdGenerator = 0;
@@ -316,9 +324,9 @@ internal class TraitMgr
 		return ++_configIdGenerator;
 	}
 
-	public static TraitConfigType GetConfigTypeForTree(int traitTreeId)
+	public TraitConfigType GetConfigTypeForTree(int traitTreeId)
 	{
-		var tree = TraitTrees.LookupByKey(traitTreeId);
+		var tree = _traitTrees.LookupByKey(traitTreeId);
 
 		if (tree == null)
 			return TraitConfigType.Invalid;
@@ -331,36 +339,34 @@ internal class TraitMgr
 	 * @param traitConfig config data
 	 * @return Trait tree data
 	 */
-	public static List<Tree> GetTreesForConfig(TraitConfigPacket traitConfig)
+	public List<Tree> GetTreesForConfig(TraitConfigPacket traitConfig)
 	{
 		switch (traitConfig.Type)
 		{
 			case TraitConfigType.Combat:
-				var chrSpecializationEntry = CliDB.ChrSpecializationStorage.LookupByKey(traitConfig.ChrSpecializationID);
+				var chrSpecializationEntry = _cliDB.ChrSpecializationStorage.LookupByKey((uint)traitConfig.ChrSpecializationID);
 
 				if (chrSpecializationEntry != null)
-					return TraitTreesBySkillLine.LookupByKey(SkillLinesByClass[chrSpecializationEntry.ClassID]);
+					return _traitTreesBySkillLine.LookupByKey(_skillLinesByClass[chrSpecializationEntry.ClassID]);
 
 				break;
 			case TraitConfigType.Profession:
-				return TraitTreesBySkillLine.LookupByKey(traitConfig.SkillLineID);
+				return _traitTreesBySkillLine.LookupByKey(traitConfig.SkillLineID);
 			case TraitConfigType.Generic:
-				return TraitTreesByTraitSystem.LookupByKey(traitConfig.TraitSystemID);
-			default:
-				break;
-		}
+				return _traitTreesByTraitSystem.LookupByKey(traitConfig.TraitSystemID);
+        }
 
 		return null;
 	}
 
-	public static bool HasEnoughCurrency(TraitEntryPacket entry, Dictionary<int, int> currencies)
+	public bool HasEnoughCurrency(TraitEntryPacket entry, Dictionary<int, int> currencies)
 	{
 		int GetCurrencyCount(int currencyId)
 		{
 			return currencies.LookupByKey(currencyId);
 		}
 
-		var node = TraitNodes.LookupByKey(entry.TraitNodeID);
+		var node = _traitNodes.LookupByKey(entry.TraitNodeID);
 
 		foreach (var group in node.Groups)
 			foreach (var cost in group.Costs)
@@ -378,7 +384,7 @@ internal class TraitMgr
 			if (GetCurrencyCount(cost.TraitCurrencyID) < cost.Amount * entry.Rank)
 				return false;
 
-		var tree = TraitTrees.LookupByKey(node.Data.TraitTreeID);
+		var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
 
 		if (tree != null)
 			foreach (var cost in tree.Costs)
@@ -388,9 +394,9 @@ internal class TraitMgr
 		return true;
 	}
 
-	public static void TakeCurrencyCost(TraitEntryPacket entry, Dictionary<int, int> currencies)
+	public void TakeCurrencyCost(TraitEntryPacket entry, Dictionary<int, int> currencies)
 	{
-		var node = TraitNodes.LookupByKey(entry.TraitNodeID);
+		var node = _traitNodes.LookupByKey(entry.TraitNodeID);
 
 		foreach (var group in node.Groups)
 			foreach (var cost in group.Costs)
@@ -405,14 +411,14 @@ internal class TraitMgr
 		foreach (var cost in node.Costs)
 			currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
 
-		var tree = TraitTrees.LookupByKey(node.Data.TraitTreeID);
+		var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
 
 		if (tree != null)
 			foreach (var cost in tree.Costs)
 				currencies[cost.TraitCurrencyID] -= cost.Amount * entry.Rank;
 	}
 
-	public static void FillOwnedCurrenciesMap(TraitConfigPacket traitConfig, Player player, Dictionary<int, int> currencies)
+	public void FillOwnedCurrenciesMap(TraitConfigPacket traitConfig, Player player, Dictionary<int, int> currencies)
 	{
 		var trees = GetTreesForConfig(traitConfig);
 
@@ -434,12 +440,13 @@ internal class TraitMgr
 						if (!currencies.ContainsKey((int)currency.Id))
 							currencies[(int)currency.Id] = 0;
 
-						var amount = currencies[(int)currency.Id];
+						// TODO amount is never used.
+						//var amount = currencies[(int)currency.Id];
 
-						if (player.Money > (ulong)(int.MaxValue - amount))
-							amount = int.MaxValue;
-						else
-							amount += (int)player.Money;
+						//if (player.Money > (ulong)(int.MaxValue - amount))
+						//	amount = int.MaxValue;
+						//else
+						//	amount += (int)player.Money;
 
 						break;
 					}
@@ -451,7 +458,7 @@ internal class TraitMgr
 
 						break;
 					case TraitCurrencyType.TraitSourced:
-						var currencySources = TraitCurrencySourcesByCurrency.LookupByKey(currency.Id);
+						var currencySources = _traitCurrencySourcesByCurrency.LookupByKey(currency.Id);
 
 						if (currencySources != null)
 							foreach (var currencySource in currencySources)
@@ -475,15 +482,13 @@ internal class TraitMgr
 							}
 
 						break;
-					default:
-						break;
 				}
 		}
 	}
 
-	public static void FillSpentCurrenciesMap(TraitEntryPacket entry, Dictionary<int, int> cachedCurrencies)
+	public void FillSpentCurrenciesMap(TraitEntryPacket entry, Dictionary<int, int> cachedCurrencies)
 	{
-		var node = TraitNodes.LookupByKey(entry.TraitNodeID);
+		var node = _traitNodes.LookupByKey(entry.TraitNodeID);
 
 		foreach (var group in node.Groups)
 		{
@@ -515,7 +520,7 @@ internal class TraitMgr
 			cachedCurrencies[cost.TraitCurrencyID] += cost.Amount * entry.Rank;
 		}
 
-		var tree = TraitTrees.LookupByKey(node.Data.TraitTreeID);
+		var tree = _traitTrees.LookupByKey(node.Data.TraitTreeID);
 
 		if (tree != null)
 			foreach (var cost in tree.Costs)
@@ -527,14 +532,14 @@ internal class TraitMgr
 			}
 	}
 
-	public static void FillSpentCurrenciesMap(TraitConfigPacket traitConfig, Dictionary<int, int> cachedCurrencies)
+	public void FillSpentCurrenciesMap(TraitConfigPacket traitConfig, Dictionary<int, int> cachedCurrencies)
 	{
 		foreach (var kvp in traitConfig.Entries.Values)
 			foreach (var entry in kvp.Values)
 				FillSpentCurrenciesMap(entry, cachedCurrencies);
 	}
 
-	public static bool MeetsTraitCondition(TraitConfigPacket traitConfig, Player player, TraitCondRecord condition, Node node)
+	public bool MeetsTraitCondition(TraitConfigPacket traitConfig, Player player, TraitCondRecord condition, Node node)
 	{
 		if (condition.QuestID != 0 && !player.IsQuestRewarded(condition.QuestID))
 			return false;
@@ -549,7 +554,7 @@ internal class TraitMgr
 			if (traitConfig.Type == TraitConfigType.Combat)
 				chrSpecializationId = (uint)traitConfig.ChrSpecializationID;
 
-			if (!Global.DB2Mgr.IsSpecSetMember(condition.SpecSetID, chrSpecializationId))
+			if (!_db2Manager.IsSpecSetMember(condition.SpecSetID, chrSpecializationId))
 				return false;
 		}
 
@@ -572,7 +577,7 @@ internal class TraitMgr
 		return true;
 	}
 
-	public static List<TraitEntry> GetGrantedTraitEntriesForConfig(TraitConfigPacket traitConfig, Player player)
+	public List<TraitEntry> GetGrantedTraitEntriesForConfig(TraitConfigPacket traitConfig, Player player)
 	{
 		List<TraitEntry> entries = new();
 		var trees = GetTreesForConfig(traitConfig);
@@ -625,9 +630,9 @@ internal class TraitMgr
 		return entries;
 	}
 
-	public static bool IsValidEntry(TraitEntryPacket traitEntry)
+	public bool IsValidEntry(TraitEntryPacket traitEntry)
 	{
-		var node = TraitNodes.LookupByKey(traitEntry.TraitNodeID);
+		var node = _traitNodes.LookupByKey(traitEntry.TraitNodeID);
 
 		if (node == null)
 			return false;
@@ -643,10 +648,8 @@ internal class TraitMgr
 		return true;
 	}
 
-	public static TalentLearnResult ValidateConfig(TraitConfigPacket traitConfig, Player player, bool requireSpendingAllCurrencies = false)
+	public TalentLearnResult ValidateConfig(TraitConfigPacket traitConfig, Player player, bool requireSpendingAllCurrencies = false)
 	{
-		var pTraits = player.GetTraitConfig(traitConfig.ID);
-
 		int GetNodeEntryCount(int traitNodeId)
 		{
 			return traitConfig.Entries.Count(traitEntry => traitEntry.Key == traitNodeId);
@@ -654,7 +657,7 @@ internal class TraitMgr
 
 		TraitEntryPacket GetNodeEntry(uint traitNodeId, uint traitNodeEntryId)
 		{
-			return traitConfig.Entries.LookupByKey(traitNodeId)?.LookupByKey(traitNodeEntryId);
+			return traitConfig.Entries.LookupByKey((int)traitNodeId)?.LookupByKey((int)traitNodeEntryId);
 		}
 
 		bool IsNodeFullyFilled(Node node)
@@ -674,9 +677,7 @@ internal class TraitMgr
 				return traitEntry != null && (traitEntry.Rank + traitEntry.GrantedRanks) == nodeEntry.Data.MaxRanks;
 			});
 		}
-
-		;
-
+		
 		Dictionary<int, int> spentCurrencies = new();
 		FillSpentCurrenciesMap(traitConfig, spentCurrencies);
 
@@ -702,7 +703,7 @@ internal class TraitMgr
 				if (!IsValidEntry(traitEntry))
 					return TalentLearnResult.FailedUnknown;
 
-				var node = TraitNodes.LookupByKey(traitEntry.TraitNodeID);
+				var node = _traitNodes.LookupByKey(traitEntry.TraitNodeID);
 
 				if (node.Data.GetNodeType() == TraitNodeType.Selection)
 					if (GetNodeEntryCount(traitEntry.TraitNodeID) != 1)
@@ -746,7 +747,7 @@ internal class TraitMgr
 
 		foreach (var (traitCurrencyId, spentAmount) in spentCurrencies)
 		{
-			if (CliDB.TraitCurrencyStorage.LookupByKey(traitCurrencyId).GetCurrencyType() != TraitCurrencyType.TraitSourced)
+			if (_cliDB.TraitCurrencyStorage.LookupByKey((uint)traitCurrencyId).GetCurrencyType() != TraitCurrencyType.TraitSourced)
 				continue;
 
 			if (spentAmount == 0)
@@ -773,12 +774,12 @@ internal class TraitMgr
 		return TalentLearnResult.LearnOk;
 	}
 
-	public static List<TraitDefinitionEffectPointsRecord> GetTraitDefinitionEffectPointModifiers(int traitDefinitionId)
+	public List<TraitDefinitionEffectPointsRecord> GetTraitDefinitionEffectPointModifiers(int traitDefinitionId)
 	{
-		return TraitDefinitionEffectPointModifiers.LookupByKey(traitDefinitionId);
+		return _traitDefinitionEffectPointModifiers.LookupByKey(traitDefinitionId);
 	}
 
-	public static void InitializeStarterBuildTraitConfig(TraitConfigPacket traitConfig, Player player)
+	public void InitializeStarterBuildTraitConfig(TraitConfigPacket traitConfig, Player player)
 	{
 		traitConfig.Entries.Clear();
 		var trees = GetTreesForConfig(traitConfig);
@@ -801,7 +802,7 @@ internal class TraitMgr
 		Dictionary<int, int> currencies = new();
 		FillOwnedCurrenciesMap(traitConfig, player, currencies);
 
-		var loadoutEntries = TraitTreeLoadoutsByChrSpecialization.LookupByKey(traitConfig.ChrSpecializationID);
+		var loadoutEntries = _traitTreeLoadoutsByChrSpecialization.LookupByKey(traitConfig.ChrSpecializationID);
 
 		if (loadoutEntries != null)
 		{
@@ -813,7 +814,7 @@ internal class TraitMgr
 			foreach (var loadoutEntry in loadoutEntries)
 			{
 				var addedRanks = loadoutEntry.NumPoints;
-				var node = TraitNodes.LookupByKey(loadoutEntry.SelectedTraitNodeID);
+				var node = _traitNodes.LookupByKey(loadoutEntry.SelectedTraitNodeID);
 
 				TraitEntryPacket newEntry = new()
 				{

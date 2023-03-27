@@ -7,14 +7,18 @@ using System.Linq;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.S;
 using Forged.MapServer.Globals;
+using Forged.MapServer.Spells;
 using Framework.Collections;
 using Framework.Constants;
 using Serilog;
 
 namespace Forged.MapServer.Chat;
 
-public class LanguageManager : Singleton<LanguageManager>
+public class LanguageManager
 {
+    private readonly CliDB _cliDB;
+    private readonly SpellManager _spellManager;
+
     private static readonly uint[] SHashtable =
 	{
 		0x486E26EE, 0xDCAA16B3, 0xE1918EEF, 0x202DAFDB, 0x341C7DC7, 0x1C365303, 0x40EF2D37, 0x65FD5E49, 0xD6057177, 0x904ECE93, 0x1C38024F, 0x98FD323B, 0xE3061AE7, 0xA39B0FA1, 0x9797F25F, 0xE4444563,
@@ -23,7 +27,11 @@ public class LanguageManager : Singleton<LanguageManager>
     private readonly MultiMap<uint, LanguageDesc> _langsMap = new();
     private readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
 
-    private LanguageManager() { }
+    public LanguageManager(CliDB cliDB, SpellManager spellManager)
+    {
+        _cliDB = cliDB;
+        _spellManager = spellManager;
+    }
 
 	public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
 	{
@@ -36,7 +44,7 @@ public class LanguageManager : Singleton<LanguageManager>
 		var oldMSTime = Time.MSTime;
 
 		// Load languages from Languages.db2. Just the id, we don't need the name
-		foreach (var langEntry in CliDB.LanguagesStorage.Values)
+		foreach (var langEntry in _cliDB.LanguagesStorage.Values)
 		{
 			var spellsRange = _langsMap.LookupByKey(langEntry.Id);
 
@@ -49,8 +57,8 @@ public class LanguageManager : Singleton<LanguageManager>
 				List<LanguageDesc> langsWithSkill = new();
 
 				foreach (var spellItr in spellsRange)
-					foreach (var skillPair in Global.SpellMgr.GetSkillLineAbilityMapBounds(spellItr.SpellId))
-						langsWithSkill.Add(new LanguageDesc(spellItr.SpellId, (uint)skillPair.SkillLine));
+					foreach (var skillPair in _spellManager.GetSkillLineAbilityMapBounds(spellItr.SpellId))
+						langsWithSkill.Add(new LanguageDesc(spellItr.SpellId, skillPair.SkillLine));
 
 				foreach (var langDesc in langsWithSkill)
 				{
@@ -76,7 +84,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 		uint wordsNum = 0;
 
-		foreach (var wordEntry in CliDB.LanguageWordsStorage.Values)
+		foreach (var wordEntry in _cliDB.LanguageWordsStorage.Values)
 		{
 			var length = (byte)Math.Min(18, wordEntry.Word.Length);
 
@@ -92,8 +100,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public string Translate(string msg, uint language, Locale locale)
 	{
-		var textToTranslate = "";
-		StripHyperlinks(msg, ref textToTranslate);
+		var textToTranslate = StripHyperlinks(msg);
 		ReplaceUntranslatableCharactersWithSpace(ref textToTranslate);
 
 		var result = "";
@@ -153,7 +160,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public bool IsLanguageExist(Language languageId)
 	{
-		return CliDB.LanguagesStorage.HasRecord((uint)languageId);
+		return _cliDB.LanguagesStorage.HasRecord((uint)languageId);
 	}
 
 	public List<LanguageDesc> GetLanguageDescById(Language languageId)
@@ -175,7 +182,7 @@ public class LanguageManager : Singleton<LanguageManager>
 		return _wordsMap.LookupByKey(Tuple.Create(language, (byte)wordLen));
 	}
 
-    private void StripHyperlinks(string source, ref string dest)
+    private string StripHyperlinks(string source)
 	{
 		var destChar = new char[source.Length];
 
@@ -211,7 +218,7 @@ public class LanguageManager : Singleton<LanguageManager>
 					break;
 				case 'H':
 					// skip just past first |h
-					i = source.IndexOf("|h", i);
+					i = source.IndexOf("|h", i, StringComparison.Ordinal);
 
 					if (i != -1)
 						i += 2;
@@ -226,18 +233,16 @@ public class LanguageManager : Singleton<LanguageManager>
 					break;
 				case 'T':
 					// skip just past closing |t
-					i = source.IndexOf("|t", i);
+					i = source.IndexOf("|t", i, StringComparison.Ordinal);
 
 					if (i != -1)
 						i += 2;
 
 					break;
-				default:
-					break;
 			}
 		}
 
-		dest = new string(destChar, 0, destSize);
+		return new string(destChar, 0, destSize);
 	}
 
     private void ReplaceUntranslatableCharactersWithSpace(ref string text)

@@ -13,42 +13,48 @@ namespace Forged.MapServer.DataStorage;
 
 public class M2Storage
 {
-    private static readonly MultiMap<uint, FlyByCamera> FlyByCameraStorage = new();
+    private readonly CliDB _cliDB;
+    private readonly MultiMap<uint, FlyByCamera> _flyByCameraStorage = new();
 
-	public static void LoadM2Cameras(string dataPath)
+    public M2Storage(CliDB cliDB)
+    {
+        _cliDB = cliDB;
+    }
+
+    public void LoadM2Cameras(string dataPath)
 	{
-		FlyByCameraStorage.Clear();
+		_flyByCameraStorage.Clear();
 		Log.Logger.Information("Loading Cinematic Camera files");
 
 		var oldMSTime = Time.MSTime;
 
-		foreach (var cameraEntry in CliDB.CinematicCameraStorage.Values)
+		foreach (var cameraEntry in _cliDB.CinematicCameraStorage.Values)
 		{
 			var filename = dataPath + "/cameras/" + $"FILE{cameraEntry.FileDataID:X8}.xxx";
 
 			try
 			{
-				using BinaryReader m2file = new(new FileStream(filename, FileMode.Open, FileAccess.Read));
+				using BinaryReader m2File = new(new FileStream(filename, FileMode.Open, FileAccess.Read));
 
 				// Check file has correct magic (MD21)
-				if (m2file.ReadUInt32() != 0x3132444D) //"MD21"
+				if (m2File.ReadUInt32() != 0x3132444D) //"MD21"
 				{
 					Log.Logger.Error("Camera file {0} is damaged. File identifier not found.", filename);
 
 					continue;
 				}
 
-				m2file.ReadUInt32(); //unknown size
+				m2File.ReadUInt32(); //unknown size
 
 				// Read header
-				var header = m2file.Read<M2Header>();
+				var header = m2File.Read<M2Header>();
 
 				// Get camera(s) - Main header, then dump them.
-				m2file.BaseStream.Position = 8 + header.ofsCameras;
-				var cam = m2file.Read<M2Camera>();
+				m2File.BaseStream.Position = 8 + header.ofsCameras;
+				var cam = m2File.Read<M2Camera>();
 
-				m2file.BaseStream.Position = 8;
-				ReadCamera(cam, new BinaryReader(new MemoryStream(m2file.ReadBytes((int)m2file.BaseStream.Length - 8))), cameraEntry);
+				m2File.BaseStream.Position = 8;
+				ReadCamera(cam, new BinaryReader(new MemoryStream(m2File.ReadBytes((int)m2File.BaseStream.Length - 8))), cameraEntry);
 			}
 			catch (EndOfStreamException)
 			{
@@ -60,16 +66,16 @@ public class M2Storage
 			}
 		}
 
-		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", FlyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
+		Log.Logger.Information("Loaded {0} cinematic waypoint sets in {1} ms", _flyByCameraStorage.Keys.Count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public static List<FlyByCamera> GetFlyByCameras(uint cameraId)
+	public List<FlyByCamera> GetFlyByCameras(uint cameraId)
 	{
-		return FlyByCameraStorage.LookupByKey(cameraId);
+		return _flyByCameraStorage.LookupByKey(cameraId);
 	}
 
 	// Convert the geomoetry from a spline value, to an actual WoW XYZ
-    private static Vector3 TranslateLocation(Vector4 dbcLocation, Vector3 basePosition, Vector3 splineVector)
+    private Vector3 TranslateLocation(Vector4 dbcLocation, Vector3 basePosition, Vector3 splineVector)
 	{
 		Vector3 work = new();
 		var x = basePosition.X + splineVector.X;
@@ -89,7 +95,7 @@ public class M2Storage
 	}
 
 	// Number of cameras not used. Multiple cameras never used in 7.1.5
-    private static void ReadCamera(M2Camera cam, BinaryReader reader, CinematicCameraRecord dbcentry)
+    private void ReadCamera(M2Camera cam, BinaryReader reader, CinematicCameraRecord dbcentry)
 	{
 		List<FlyByCamera> cameras = new();
 		List<FlyByCamera> targetcam = new();
@@ -210,6 +216,6 @@ public class M2Storage
 			}
 		}
 
-		FlyByCameraStorage[dbcentry.Id] = cameras;
+		_flyByCameraStorage[dbcentry.Id] = cameras;
 	}
 }

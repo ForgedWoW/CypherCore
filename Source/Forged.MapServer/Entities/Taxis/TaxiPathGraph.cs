@@ -8,6 +8,7 @@ using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.T;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
 using Framework.Algorithms;
 using Framework.Collections;
 using Framework.Constants;
@@ -16,11 +17,23 @@ namespace Forged.MapServer.Entities.Taxis;
 
 public class TaxiPathGraph
 {
-    private static EdgeWeightedDigraph _graph;
-    private static readonly List<TaxiNodesRecord> NodesByVertex = new();
-    private static readonly Dictionary<uint, uint> VerticesByNode = new();
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    private readonly ConditionManager _conditionManager;
+    private readonly GameObjectManager _objectManager;
+    private EdgeWeightedDigraph _graph;
+    private readonly List<TaxiNodesRecord> _nodesByVertex = new();
+    private readonly Dictionary<uint, uint> _verticesByNode = new();
 
-	public static void Initialize()
+    public TaxiPathGraph(CliDB cliDB, DB2Manager db2Manager, ConditionManager conditionManager, GameObjectManager objectManager)
+    {
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+        _conditionManager = conditionManager;
+        _objectManager = objectManager;
+    }
+
+    public void Initialize()
 	{
 		if (_graph != null)
 			return;
@@ -28,23 +41,23 @@ public class TaxiPathGraph
 		List<Tuple<Tuple<uint, uint>, uint>> edges = new();
 
 		// Initialize here
-		foreach (var path in CliDB.TaxiPathStorage.Values)
+		foreach (var path in _cliDB.TaxiPathStorage.Values)
 		{
-			var from = CliDB.TaxiNodesStorage.LookupByKey(path.FromTaxiNode);
-			var to = CliDB.TaxiNodesStorage.LookupByKey(path.ToTaxiNode);
+			var from = _cliDB.TaxiNodesStorage.LookupByKey(path.FromTaxiNode);
+			var to = _cliDB.TaxiNodesStorage.LookupByKey(path.ToTaxiNode);
 
 			if (from != null && to != null && from.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde) && to.Flags.HasAnyFlag(TaxiNodeFlags.Alliance | TaxiNodeFlags.Horde))
 				AddVerticeAndEdgeFromNodeInfo(from, to, path.Id, edges);
 		}
 
 		// create graph
-		_graph = new EdgeWeightedDigraph(NodesByVertex.Count);
+		_graph = new EdgeWeightedDigraph(_nodesByVertex.Count);
 
 		for (var j = 0; j < edges.Count; ++j)
 			_graph.AddEdge(new DirectedEdge(edges[j].Item1.Item1, edges[j].Item1.Item2, edges[j].Item2));
 	}
 
-	public static int GetCompleteNodeRoute(TaxiNodesRecord from, TaxiNodesRecord to, Player player, List<uint> shortestPath)
+	public int GetCompleteNodeRoute(TaxiNodesRecord from, TaxiNodesRecord to, Player player, List<uint> shortestPath)
 	{
 		/*
 		    Information about node algorithm from client
@@ -56,7 +69,7 @@ public class TaxiPathGraph
 		*/
 
 		// Find if we have a direct path
-		Global.ObjectMgr.GetTaxiPath(from.Id, to.Id, out var pathId, out _);
+		_objectManager.GetTaxiPath(from.Id, to.Id, out var pathId, out _);
 
 		if (pathId != 0)
 		{
@@ -75,16 +88,16 @@ public class TaxiPathGraph
 			foreach (var edge in path)
 			{
 				//todo  test me No clue about this....
-				var To = NodesByVertex[(int)edge.To];
+				var dest = _nodesByVertex[(int)edge.To];
 				var requireFlag = (player.Team == TeamFaction.Alliance) ? TaxiNodeFlags.Alliance : TaxiNodeFlags.Horde;
 
-				if (!To.Flags.HasAnyFlag(requireFlag))
+				if (!dest.Flags.HasAnyFlag(requireFlag))
 					continue;
 
-				var condition = CliDB.PlayerConditionStorage.LookupByKey(To.ConditionID);
+				var condition = _cliDB.PlayerConditionStorage.LookupByKey(dest.ConditionID);
 
 				if (condition != null)
-					if (!ConditionManager.IsPlayerMeetingCondition(player, condition))
+					if (!_conditionManager.IsPlayerMeetingCondition(player, condition))
 						continue;
 
 				shortestPath.Add(GetNodeIDFromVertexID(edge.To));
@@ -95,37 +108,37 @@ public class TaxiPathGraph
 	}
 
 	//todo test me
-	public static void GetReachableNodesMask(TaxiNodesRecord from, byte[] mask)
+	public void GetReachableNodesMask(TaxiNodesRecord from, byte[] mask)
 	{
-		DepthFirstSearch depthFirst = new(_graph,
-										GetVertexIDFromNodeID(from),
-										vertex =>
-										{
-											var taxiNode = CliDB.TaxiNodesStorage.LookupByKey(GetNodeIDFromVertexID(vertex));
+		_ = new DepthFirstSearch(_graph,
+                               GetVertexIDFromNodeID(from),
+                               vertex =>
+                               {
+                                   var taxiNode = _cliDB.TaxiNodesStorage.LookupByKey(GetNodeIDFromVertexID(vertex));
 
-											if (taxiNode != null)
-												mask[(taxiNode.Id - 1) / 8] |= (byte)(1 << (int)((taxiNode.Id - 1) % 8));
-										});
+                                   if (taxiNode != null)
+                                       mask[(taxiNode.Id - 1) / 8] |= (byte)(1 << (int)((taxiNode.Id - 1) % 8));
+                               });
 	}
 
-    private static void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
+    private void GetTaxiMapPosition(Vector3 position, int mapId, out Vector2 uiMapPosition, out int uiMapId)
 	{
-		if (!Global.DB2Mgr.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId, out uiMapPosition))
-			Global.DB2Mgr.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId, out uiMapPosition);
+		if (!_db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Adventure, false, out uiMapId, out uiMapPosition))
+            _db2Manager.GetUiMapPosition(position.X, position.Y, position.Z, mapId, 0, 0, 0, UiMapSystem.Taxi, false, out uiMapId, out uiMapPosition);
 	}
 
-    private static uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
+    private uint CreateVertexFromFromNodeInfoIfNeeded(TaxiNodesRecord node)
 	{
-		if (!VerticesByNode.ContainsKey(node.Id))
+		if (!_verticesByNode.ContainsKey(node.Id))
 		{
-			VerticesByNode.Add(node.Id, (uint)NodesByVertex.Count);
-			NodesByVertex.Add(node);
+			_verticesByNode.Add(node.Id, (uint)_nodesByVertex.Count);
+			_nodesByVertex.Add(node);
 		}
 
-		return VerticesByNode[node.Id];
+		return _verticesByNode[node.Id];
 	}
 
-    private static void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
+    private void AddVerticeAndEdgeFromNodeInfo(TaxiNodesRecord from, TaxiNodesRecord to, uint pathId, List<Tuple<Tuple<uint, uint>, uint>> edges)
 	{
 		if (from.Id != to.Id)
 		{
@@ -133,7 +146,7 @@ public class TaxiPathGraph
 			var toVertexId = CreateVertexFromFromNodeInfoIfNeeded(to);
 
 			var totalDist = 0.0f;
-			var nodes = CliDB.TaxiPathNodesByPath[pathId];
+			var nodes = _cliDB.TaxiPathNodesByPath[pathId];
 
 			if (nodes.Length < 2)
 			{
@@ -175,15 +188,15 @@ public class TaxiPathGraph
 		}
 	}
 
-    private static uint GetVertexIDFromNodeID(TaxiNodesRecord node)
+    private uint GetVertexIDFromNodeID(TaxiNodesRecord node)
 	{
-		return VerticesByNode.ContainsKey(node.Id) ? VerticesByNode[node.Id] : uint.MaxValue;
+		return _verticesByNode.ContainsKey(node.Id) ? _verticesByNode[node.Id] : uint.MaxValue;
 	}
 
-    private static uint GetNodeIDFromVertexID(uint vertexID)
+    private uint GetNodeIDFromVertexID(uint vertexID)
 	{
-		if (vertexID < NodesByVertex.Count)
-			return NodesByVertex[(int)vertexID].Id;
+		if (vertexID < _nodesByVertex.Count)
+			return _nodesByVertex[(int)vertexID].Id;
 
 		return uint.MaxValue;
 	}
