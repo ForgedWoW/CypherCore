@@ -24,8 +24,12 @@ public class LootManager : LootStorage
     private readonly ConditionManager _conditionManager;
     private readonly IConfiguration _configuration;
     private readonly WorldDatabase _worldDatabase;
+    private readonly DB2Manager _db2Manager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly LootStorage _lootStorage;
 
-    public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase)
+    public LootManager(GameObjectManager objectManager, SpellManager spellManager, CliDB cliDB, ConditionManager conditionManager, IConfiguration configuration, WorldDatabase worldDatabase,
+                       DB2Manager db2Manager, ObjectAccessor objectAccessor, LootStorage lootStorage)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -33,6 +37,9 @@ public class LootManager : LootStorage
         _conditionManager = conditionManager;
         _configuration = configuration;
         _worldDatabase = worldDatabase;
+        _db2Manager = db2Manager;
+        _objectAccessor = objectAccessor;
+        _lootStorage = lootStorage;
     }
 
 	public void LoadLootTables()
@@ -63,7 +70,7 @@ public class LootManager : LootStorage
 			if (tapper.IsLockedToDungeonEncounter(dungeonEncounterId))
 				continue;
 
-			Loot loot = new(lootOwner.Map, lootOwner.GUID, type, null);
+			Loot loot = new(lootOwner.Map, lootOwner.GUID, type, null, _conditionManager, _objectManager, _db2Manager, _objectAccessor, _lootStorage, _configuration);
 			loot.SetItemContext(context);
 			loot.SetDungeonEncounterId(dungeonEncounterId);
 			loot.GenerateMoneyLoot(minMoney, maxMoney);
