@@ -5,28 +5,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Framework.Collections;
-using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Maps.Interfaces;
-using Forged.RealmServer.Entities.Creatures;
-using Forged.RealmServer.Entities.GameObjects;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
+using Serilog;
+using Forged.RealmServer.Globals;
+using Microsoft.Extensions.Configuration;
+using Framework.Util;
+using Forged.RealmServer.BattleGrounds;
 
 namespace Forged.RealmServer;
 
-public class GameEventManager : Singleton<GameEventManager>
+public class GameEventManager
 {
 	public List<ulong>[] mGameEventCreatureGuids;
 	public List<ulong>[] mGameEventGameobjectGuids;
 	readonly Dictionary<uint, GameEventQuestToEventConditionNum> mQuestToEventConditions = new();
 	readonly List<ushort> m_ActiveEvents = new();
-
-	List<Tuple<uint, uint>>[] mGameEventCreatureQuests;
+    private readonly GameTime _gameTime;
+    private readonly WorldManager _worldManager;
+    private readonly CliDB _cliDB;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly IConfiguration _configuration;
+    private readonly WorldConfig _worldConfig;
+    private readonly PoolManager _poolManager;
+    private readonly BattlegroundManager _battlegroundManager;
+    private readonly WorldStateManager _worldStateManager;
+    List<Tuple<uint, uint>>[] mGameEventCreatureQuests;
 	List<Tuple<uint, uint>>[] mGameEventGameObjectQuests;
 	Dictionary<uint, VendorItem>[] mGameEventVendors;
 	List<Tuple<ulong, ModelEquip>>[] mGameEventModelEquip;
@@ -35,9 +44,25 @@ public class GameEventManager : Singleton<GameEventManager>
 	uint[] mGameEventBattlegroundHolidays;
 	List<(ulong guid, ulong npcflag)>[] mGameEventNPCFlags;
 	bool isSystemInit;
-	GameEventManager() { }
 
-	public uint NextCheck(ushort entry)
+	GameEventManager(GameTime gameTime, WorldManager worldManager, CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase,
+		GameObjectManager gameObjectManager, IConfiguration configuration, WorldConfig worldConfig, PoolManager poolManager, BattlegroundManager battlegroundManager,
+		WorldStateManager worldStateManager)
+    {
+        _gameTime = gameTime;
+        _worldManager = worldManager;
+        _cliDB = cliDB;
+        _characterDatabase = characterDatabase;
+        _worldDatabase = worldDatabase;
+        _gameObjectManager = gameObjectManager;
+        _configuration = configuration;
+        _worldConfig = worldConfig;
+        _poolManager = poolManager;
+        _battlegroundManager = battlegroundManager;
+        _worldStateManager = worldStateManager;
+    }
+
+    public uint NextCheck(ushort entry)
 	{
 		var currenttime = _gameTime.GetGameTime;
 
@@ -169,7 +194,7 @@ public class GameEventManager : Singleton<GameEventManager>
 		{
 			var oldMSTime = Time.MSTime;
 			//                                         0           1                           2                         3          4       5        6            7            8             9
-			var result = DB.World.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
+			var result = _worldDatabase.Query("SELECT eventEntry, UNIX_TIMESTAMP(start_time), UNIX_TIMESTAMP(end_time), occurence, length, holiday, holidayStage, description, world_event, announce FROM game_event");
 
 			if (result.IsEmpty())
 			{
@@ -218,7 +243,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 				if (pGameEvent.holiday_id != HolidayIds.None)
 				{
-					if (!CliDB.HolidaysStorage.ContainsKey((uint)pGameEvent.holiday_id))
+					if (!_cliDB.HolidaysStorage.ContainsKey((uint)pGameEvent.holiday_id))
 					{
 						Log.Logger.Error($"`game_event` game event id ({event_id}) contains nonexisting holiday id {pGameEvent.holiday_id}.");
 						pGameEvent.holiday_id = HolidayIds.None;
@@ -295,7 +320,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                   0             1
-			var result = DB.World.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
+			var result = _worldDatabase.Query("SELECT eventEntry, prerequisite_event FROM game_event_prerequisite");
 
 			if (result.IsEmpty())
 			{
@@ -349,7 +374,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                 0        1
-			var result = DB.World.Query("SELECT guid, eventEntry FROM game_event_creature");
+			var result = _worldDatabase.Query("SELECT guid, eventEntry FROM game_event_creature");
 
 			if (result.IsEmpty())
 			{
@@ -365,12 +390,12 @@ public class GameEventManager : Singleton<GameEventManager>
 					short event_id = result.Read<sbyte>(1);
 					var internal_event_id = mGameEvent.Length + event_id - 1;
 
-					var data = Global.ObjectMgr.GetCreatureData(guid);
+					var data = _gameObjectManager.GetCreatureData(guid);
 
 					if (data == null)
 					{
-						if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-							DB.World.Execute($"DELETE FROM game_event_creature WHERE guid = {guid}");
+						if (_configuration.GetDefaultValue("load.autoclean", false))
+							_worldDatabase.Execute($"DELETE FROM game_event_creature WHERE guid = {guid}");
 						else
 							Log.Logger.Error("`game_event_creature` contains creature (GUID: {0}) not found in `creature` table.", guid);
 
@@ -403,7 +428,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                0         1
-			var result = DB.World.Query("SELECT guid, eventEntry FROM game_event_gameobject");
+			var result = _worldDatabase.Query("SELECT guid, eventEntry FROM game_event_gameobject");
 
 			if (result.IsEmpty())
 			{
@@ -419,7 +444,7 @@ public class GameEventManager : Singleton<GameEventManager>
 					short event_id = result.Read<byte>(1);
 					var internal_event_id = mGameEvent.Length + event_id - 1;
 
-					var data = Global.ObjectMgr.GetGameObjectData(guid);
+					var data = _gameObjectManager.GetGameObjectData(guid);
 
 					if (data == null)
 					{
@@ -454,7 +479,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                       0           1                       2                                 3                                     4
-			var result = DB.World.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id " +
+			var result = _worldDatabase.Query("SELECT creature.guid, creature.id, game_event_model_equip.eventEntry, game_event_model_equip.modelid, game_event_model_equip.equipment_id " +
 										"FROM creature JOIN game_event_model_equip ON creature.guid=game_event_model_equip.guid");
 
 			if (result.IsEmpty())
@@ -488,7 +513,7 @@ public class GameEventManager : Singleton<GameEventManager>
 					{
 						var equipId = (sbyte)newModelEquipSet.equipment_id;
 
-						if (Global.ObjectMgr.GetEquipmentInfo(entry, equipId) == null)
+						if (_gameObjectManager.GetEquipmentInfo(entry, equipId) == null)
 						{
 							Log.Logger.Error(
 										"Table `game_event_model_equip` have creature (Guid: {0}, entry: {1}) with equipment_id {2} not found in table `creature_equip_template`, set to no equipment.",
@@ -515,7 +540,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                               0     1      2
-			var result = DB.World.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
+			var result = _worldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_creature_quest");
 
 			if (result.IsEmpty())
 			{
@@ -553,7 +578,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                               0     1      2
-			var result = DB.World.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
+			var result = _worldDatabase.Query("SELECT id, quest, eventEntry FROM game_event_gameobject_quest");
 
 			if (result.IsEmpty())
 			{
@@ -591,7 +616,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                 0       1         2             3
-			var result = DB.World.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
+			var result = _worldDatabase.Query("SELECT quest, eventEntry, condition_id, num FROM game_event_quest_condition");
 
 			if (result.IsEmpty())
 			{
@@ -635,7 +660,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                  0          1            2             3                      4
-			var result = DB.World.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
+			var result = _worldDatabase.Query("SELECT eventEntry, condition_id, req_num, max_world_state_field, done_world_state_field FROM game_event_condition");
 
 			if (result.IsEmpty())
 			{
@@ -721,7 +746,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                0       1        2
-			var result = DB.World.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
+			var result = _worldDatabase.Query("SELECT guid, eventEntry, npcflag FROM game_event_npcflag");
 
 			if (result.IsEmpty())
 			{
@@ -759,7 +784,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                  0          1
-			var result = DB.World.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
+			var result = _worldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
 
 			if (result.IsEmpty())
 			{
@@ -774,7 +799,7 @@ public class GameEventManager : Singleton<GameEventManager>
 					var questId = result.Read<uint>(0);
 					ushort eventEntry = result.Read<byte>(1); // @todo Change to byte
 
-					var questTemplate = Global.ObjectMgr.GetQuestTemplate(questId);
+					var questTemplate = _gameObjectManager.GetQuestTemplate(questId);
 
 					if (questTemplate == null)
 					{
@@ -804,7 +829,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                               0           1     2     3         4         5             6     7             8                  9
-			var result = DB.World.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionId, IgnoreFiltering FROM game_event_npc_vendor ORDER BY guid, slot ASC");
+			var result = _worldDatabase.Query("SELECT eventEntry, guid, item, maxcount, incrtime, ExtendedCost, type, BonusListIDs, PlayerConditionId, IgnoreFiltering FROM game_event_npc_vendor ORDER BY guid, slot ASC");
 
 			if (result.IsEmpty())
 			{
@@ -840,7 +865,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 					// get creature entry
 					uint entry = 0;
-					var data = Global.ObjectMgr.GetCreatureData(guid);
+					var data = _gameObjectManager.GetCreatureData(guid);
 
 					if (data != null)
 						entry = data.Id;
@@ -861,7 +886,7 @@ public class GameEventManager : Singleton<GameEventManager>
 							vItem.BonusListIDs.Add(token);
 
 					// check validity with event's npcflag
-					if (!Global.ObjectMgr.IsVendorItemValid(entry, vItem, null, null, event_npc_flag))
+					if (!_gameObjectManager.IsVendorItemValid(entry, vItem, null, null, event_npc_flag))
 						continue;
 
 					mGameEventVendors[event_id].Add(entry, vItem);
@@ -879,7 +904,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                         0           1
-			var result = DB.World.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
+			var result = _worldDatabase.Query("SELECT EventEntry, BattlegroundID FROM game_event_battleground_holiday");
 
 			if (result.IsEmpty())
 			{
@@ -915,7 +940,7 @@ public class GameEventManager : Singleton<GameEventManager>
 			var oldMSTime = Time.MSTime;
 
 			//                                                               0                         1
-			var result = DB.World.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template" +
+			var result = _worldDatabase.Query("SELECT pool_template.entry, game_event_pool.eventEntry FROM pool_template" +
 										" JOIN game_event_pool ON pool_template.entry = game_event_pool.pool_entry");
 
 			if (result.IsEmpty())
@@ -939,7 +964,7 @@ public class GameEventManager : Singleton<GameEventManager>
 						continue;
 					}
 
-					if (!Global.PoolMgr.CheckPool(entry))
+					if (!_poolManager.CheckPool(entry))
 					{
 						Log.Logger.Error("Pool Id ({0}) has all creatures or gameobjects with explicit chance sum <>100 and no equal chance defined. The pool system cannot pick one to spawn.", entry);
 
@@ -974,7 +999,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 	public void Initialize()
 	{
-		var result = DB.World.Query("SELECT MAX(eventEntry) FROM game_event");
+		var result = _worldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
 
 		if (!result.IsEmpty())
 		{
@@ -1026,7 +1051,7 @@ public class GameEventManager : Singleton<GameEventManager>
 	public void StartArenaSeason()
 	{
 		var season = _worldConfig.GetIntValue(WorldCfg.ArenaSeasonId);
-		var result = DB.World.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{0}'", season);
+		var result = _worldDatabase.Query("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '{0}'", season);
 
 		if (result.IsEmpty())
 		{
@@ -1323,8 +1348,6 @@ public class GameEventManager : Singleton<GameEventManager>
 		// Add quests that are events only to non event npc
 		UpdateEventQuests(event_id, true);
 		UpdateWorldStates(event_id, true);
-		// update npcflags in this event
-		UpdateEventNPCFlags(event_id);
 		// add vendor items
 		UpdateEventNPCVendor(event_id, true);
 		// update bg holiday
@@ -1338,312 +1361,43 @@ public class GameEventManager : Singleton<GameEventManager>
 	}
 
 	void UpdateEventNPCFlags(ushort event_id)
+    {
+        // Send to map server
+    }
+
+    void UpdateBattlegroundSettings()
 	{
-		MultiMap<uint, ulong> creaturesByMap = new();
-
-		// go through the creatures whose npcflags are changed in the event
-		foreach (var (guid, npcflag) in mGameEventNPCFlags[event_id])
-		{
-			// get the creature data from the low guid to get the entry, to be able to find out the whole guid
-			var data = Global.ObjectMgr.GetCreatureData(guid);
-
-			if (data != null)
-				creaturesByMap.Add(data.MapId, guid);
-		}
-
-		foreach (var key in creaturesByMap.Keys)
-			Global.MapMgr.DoForAllMapsWithMapId(key,
-												(Map map) =>
-												{
-													foreach (var spawnId in creaturesByMap[key])
-													{
-														var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(spawnId);
-
-														foreach (var creature in creatureBounds)
-														{
-															var npcflag = GetNPCFlag(creature);
-															var creatureTemplate = creature.Template;
-
-															if (creatureTemplate != null)
-																npcflag |= (ulong)creatureTemplate.Npcflag;
-
-															creature.ReplaceAllNpcFlags((NPCFlags)(npcflag & 0xFFFFFFFF));
-															creature.ReplaceAllNpcFlags2((NPCFlags2)(npcflag >> 32));
-															// reset gossip options, since the flag change might have added / removed some
-															//cr.ResetGossipOptions();
-														}
-													}
-												});
-	}
-
-	void UpdateBattlegroundSettings()
-	{
-		Global.BattlegroundMgr.ResetHolidays();
+        _battlegroundManager.ResetHolidays();
 
 		foreach (var activeEventId in m_ActiveEvents)
-			Global.BattlegroundMgr.SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
+            _battlegroundManager.SetHolidayActive(mGameEventBattlegroundHolidays[activeEventId]);
 	}
 
 	void UpdateEventNPCVendor(ushort eventId, bool activate)
 	{
 		foreach (var npcEventVendor in mGameEventVendors[eventId])
 			if (activate)
-				Global.ObjectMgr.AddVendorItem(npcEventVendor.Key, npcEventVendor.Value, false);
+				_gameObjectManager.AddVendorItem(npcEventVendor.Key, npcEventVendor.Value, false);
 			else
-				Global.ObjectMgr.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
+				_gameObjectManager.RemoveVendorItem(npcEventVendor.Key, npcEventVendor.Value.Item, npcEventVendor.Value.Type, false);
 	}
 
 	void GameEventSpawn(short event_id)
-	{
-		var internal_event_id = mGameEvent.Length + event_id - 1;
+    {
+        // Send to map server
+    }
 
-		if (internal_event_id < 0 || internal_event_id >= mGameEventCreatureGuids.Length)
-		{
-			Log.Logger.Error(
-						"GameEventMgr.GameEventSpawn attempt access to out of range mGameEventCreatureGuids element {0} (size: {1})",
-						internal_event_id,
-						mGameEventCreatureGuids.Length);
+    void GameEventUnspawn(short event_id)
+    {
+        // Send to map server
+    }
 
-			return;
-		}
+    void ChangeEquipOrModel(short event_id, bool activate)
+    {
+        // Send to map server
+    }
 
-		foreach (var guid in mGameEventCreatureGuids[internal_event_id])
-		{
-			// Add to correct cell
-			var data = Global.ObjectMgr.GetCreatureData(guid);
-
-			if (data != null)
-			{
-				Global.ObjectMgr.AddCreatureToGrid(data);
-
-				// Spawn if necessary (loaded grids only)
-				Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-													map =>
-													{
-														map.RemoveRespawnTime(SpawnObjectType.Creature, guid);
-
-														// We use spawn coords to spawn
-														if (map.IsGridLoaded(data.SpawnPoint))
-															Creature.CreateCreatureFromDB(guid, map);
-													});
-			}
-		}
-
-		if (internal_event_id < 0 || internal_event_id >= mGameEventGameobjectGuids.Length)
-		{
-			Log.Logger.Error(
-						"GameEventMgr.GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element {0} (size: {1})",
-						internal_event_id,
-						mGameEventGameobjectGuids.Length);
-
-			return;
-		}
-
-		foreach (var guid in mGameEventGameobjectGuids[internal_event_id])
-		{
-			// Add to correct cell
-			var data = Global.ObjectMgr.GetGameObjectData(guid);
-
-			if (data != null)
-			{
-				Global.ObjectMgr.AddGameObjectToGrid(data);
-
-				// Spawn if necessary (loaded grids only)
-				// this base map checked as non-instanced and then only existed
-				Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-													map =>
-													{
-														map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
-
-														// We use current coords to unspawn, not spawn coords since creature can have changed grid
-														if (map.IsGridLoaded(data.SpawnPoint))
-														{
-															var go = GameObject.CreateGameObjectFromDb(guid, map, false);
-
-															// @todo find out when it is add to map
-															if (go)
-																// @todo find out when it is add to map
-																if (go.IsSpawnedByDefault)
-																	if (!map.AddToMap(go))
-																		go.Dispose();
-														}
-													});
-			}
-		}
-
-		if (internal_event_id < 0 || internal_event_id >= mGameEventPoolIds.Length)
-		{
-			Log.Logger.Error(
-						"GameEventMgr.GameEventSpawn attempt access to out of range mGameEventPoolIds element {0} (size: {1})",
-						internal_event_id,
-						mGameEventPoolIds.Length);
-
-			return;
-		}
-
-		foreach (var id in mGameEventPoolIds[internal_event_id])
-		{
-			var poolTemplate = Global.PoolMgr.GetPoolTemplate(id);
-
-			if (poolTemplate != null)
-				Global.MapMgr.DoForAllMapsWithMapId((uint)poolTemplate.MapId, map => { Global.PoolMgr.SpawnPool(map.PoolData, id); });
-		}
-	}
-
-	void GameEventUnspawn(short event_id)
-	{
-		var internal_event_id = mGameEvent.Length + event_id - 1;
-
-		if (internal_event_id < 0 || internal_event_id >= mGameEventCreatureGuids.Length)
-		{
-			Log.Logger.Error(
-						"GameEventMgr.GameEventUnspawn attempt access to out of range mGameEventCreatureGuids element {0} (size: {1})",
-						internal_event_id,
-						mGameEventCreatureGuids.Length);
-
-			return;
-		}
-
-		foreach (var guid in mGameEventCreatureGuids[internal_event_id])
-		{
-			// check if it's needed by another event, if so, don't remove
-			if (event_id > 0 && HasCreatureActiveEventExcept(guid, (ushort)event_id))
-				continue;
-
-			// Remove the creature from grid
-			var data = Global.ObjectMgr.GetCreatureData(guid);
-
-			if (data != null)
-			{
-				Global.ObjectMgr.RemoveCreatureFromGrid(data);
-
-				Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-													map =>
-													{
-														map.RemoveRespawnTime(SpawnObjectType.Creature, guid);
-														var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(guid);
-
-														foreach (var creature in creatureBounds)
-															creature.AddObjectToRemoveList();
-													});
-			}
-		}
-
-		if (internal_event_id < 0 || internal_event_id >= mGameEventGameobjectGuids.Length)
-		{
-			Log.Logger.Error(
-						"GameEventMgr.GameEventUnspawn attempt access to out of range mGameEventGameobjectGuids element {0} (size: {1})",
-						internal_event_id,
-						mGameEventGameobjectGuids.Length);
-
-			return;
-		}
-
-		foreach (var guid in mGameEventGameobjectGuids[internal_event_id])
-		{
-			// check if it's needed by another event, if so, don't remove
-			if (event_id > 0 && HasGameObjectActiveEventExcept(guid, (ushort)event_id))
-				continue;
-
-			// Remove the gameobject from grid
-			var data = Global.ObjectMgr.GetGameObjectData(guid);
-
-			if (data != null)
-			{
-				Global.ObjectMgr.RemoveGameObjectFromGrid(data);
-
-				Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-													map =>
-													{
-														map.RemoveRespawnTime(SpawnObjectType.GameObject, guid);
-														var gameobjectBounds = map.GameObjectBySpawnIdStore.LookupByKey(guid);
-
-														foreach (var go in gameobjectBounds)
-															go.AddObjectToRemoveList();
-													});
-			}
-		}
-
-		if (internal_event_id < 0 || internal_event_id >= mGameEventPoolIds.Length)
-		{
-			Log.Logger.Error("GameEventMgr.GameEventUnspawn attempt access to out of range mGameEventPoolIds element {0} (size: {1})", internal_event_id, mGameEventPoolIds.Length);
-
-			return;
-		}
-
-		foreach (var poolId in mGameEventPoolIds[internal_event_id])
-		{
-			var poolTemplate = Global.PoolMgr.GetPoolTemplate(poolId);
-
-			if (poolTemplate != null)
-				Global.MapMgr.DoForAllMapsWithMapId((uint)poolTemplate.MapId, map => { Global.PoolMgr.DespawnPool(map.PoolData, poolId, true); });
-		}
-	}
-
-	void ChangeEquipOrModel(short event_id, bool activate)
-	{
-		foreach (var tuple in mGameEventModelEquip[event_id])
-		{
-			// Remove the creature from grid
-			var data = Global.ObjectMgr.GetCreatureData(tuple.Item1);
-
-			if (data == null)
-				continue;
-
-			// Update if spawned
-			Global.MapMgr.DoForAllMapsWithMapId(data.MapId,
-												map =>
-												{
-													var creatureBounds = map.CreatureBySpawnIdStore.LookupByKey(tuple.Item1);
-
-													foreach (var creature in creatureBounds)
-														if (activate)
-														{
-															tuple.Item2.equipement_id_prev = creature.CurrentEquipmentId;
-															tuple.Item2.modelid_prev = creature.DisplayId;
-															creature.LoadEquipment(tuple.Item2.equipment_id, true);
-
-															if (tuple.Item2.modelid > 0 &&
-																tuple.Item2.modelid_prev != tuple.Item2.modelid &&
-																Global.ObjectMgr.GetCreatureModelInfo(tuple.Item2.modelid) != null)
-															{
-																creature.SetDisplayId(tuple.Item2.modelid);
-																creature.SetNativeDisplayId(tuple.Item2.modelid);
-															}
-														}
-														else
-														{
-															creature.LoadEquipment(tuple.Item2.equipement_id_prev, true);
-
-															if (tuple.Item2.modelid_prev > 0 &&
-																tuple.Item2.modelid_prev != tuple.Item2.modelid &&
-																Global.ObjectMgr.GetCreatureModelInfo(tuple.Item2.modelid_prev) != null)
-															{
-																creature.SetDisplayId(tuple.Item2.modelid_prev);
-																creature.SetNativeDisplayId(tuple.Item2.modelid_prev);
-															}
-														}
-												});
-
-			// now last step: put in data
-			var data2 = Global.ObjectMgr.NewOrExistCreatureData(tuple.Item1);
-
-			if (activate)
-			{
-				tuple.Item2.modelid_prev = data2.Displayid;
-				tuple.Item2.equipement_id_prev = (byte)data2.EquipmentId;
-				data2.Displayid = tuple.Item2.modelid;
-				data2.EquipmentId = (sbyte)tuple.Item2.equipment_id;
-			}
-			else
-			{
-				data2.Displayid = tuple.Item2.modelid_prev;
-				data2.EquipmentId = (sbyte)tuple.Item2.equipement_id_prev;
-			}
-		}
-	}
-
-	bool HasCreatureQuestActiveEventExcept(uint questId, ushort eventId)
+    bool HasCreatureQuestActiveEventExcept(uint questId, ushort eventId)
 	{
 		foreach (var activeEventId in m_ActiveEvents)
 			if (activeEventId != eventId)
@@ -1699,7 +1453,7 @@ public class GameEventManager : Singleton<GameEventManager>
 	{
 		foreach (var pair in mGameEventCreatureQuests[eventId])
 		{
-			var CreatureQuestMap = Global.ObjectMgr.GetCreatureQuestRelationMapHACK();
+			var CreatureQuestMap = _gameObjectManager.GetCreatureQuestRelationMapHACK();
 
 			if (activate) // Add the pair(id, quest) to the multimap
 			{
@@ -1715,7 +1469,7 @@ public class GameEventManager : Singleton<GameEventManager>
 
 		foreach (var pair in mGameEventGameObjectQuests[eventId])
 		{
-			var GameObjectQuestMap = Global.ObjectMgr.GetGOQuestRelationMapHACK();
+			var GameObjectQuestMap = _gameObjectManager.GetGOQuestRelationMapHACK();
 
 			if (activate) // Add the pair(id, quest) to the multimap
 			{
@@ -1736,15 +1490,15 @@ public class GameEventManager : Singleton<GameEventManager>
 
 		if (Event.holiday_id != HolidayIds.None)
 		{
-			var bgTypeId = Global.BattlegroundMgr.WeekendHolidayIdToBGType(Event.holiday_id);
+			var bgTypeId = _battlegroundManager.WeekendHolidayIdToBGType(Event.holiday_id);
 
 			if (bgTypeId != BattlegroundTypeId.None)
 			{
-				var bl = CliDB.BattlemasterListStorage.LookupByKey(Global.BattlegroundMgr.WeekendHolidayIdToBGType(Event.holiday_id));
+				var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)_battlegroundManager.WeekendHolidayIdToBGType(Event.holiday_id));
 
 				if (bl != null)
 					if (bl.HolidayWorldState != 0)
-						Global.WorldStateMgr.SetValue(bl.HolidayWorldState, Activate ? 1 : 0, false, null);
+						_worldStateManager.SetValue(bl.HolidayWorldState, Activate ? 1 : 0, false, null);
 			}
 		}
 	}
@@ -1798,23 +1552,16 @@ public class GameEventManager : Singleton<GameEventManager>
 	}
 
 	void RunSmartAIScripts(ushort event_id, bool activate)
-	{
-		//! Iterate over every supported source type (creature and gameobject)
-		//! Not entirely sure how this will affect units in non-loaded grids.
-		Global.MapMgr.DoForAllMaps(map =>
-		{
-			GameEventAIHookWorker worker = new(event_id, activate);
+    {
+        // Send to map server
+    }
 
-			worker.Visit(map.ObjectsStore.Values.ToList());
-		});
-	}
-
-	void SetHolidayEventTime(GameEventData gameEvent)
+    void SetHolidayEventTime(GameEventData gameEvent)
 	{
 		if (gameEvent.holidayStage == 0) // Ignore holiday
 			return;
 
-		var holiday = CliDB.HolidaysStorage.LookupByKey(gameEvent.holiday_id);
+		var holiday = _cliDB.HolidaysStorage.LookupByKey((uint)gameEvent.holiday_id);
 
 		if (holiday.Date[0] == 0 || holiday.Duration[0] == 0) // Invalid definitions
 		{
@@ -1969,68 +1716,6 @@ public class ModelEquip
 	public uint modelid_prev;
 	public byte equipment_id;
 	public byte equipement_id_prev;
-}
-
-class GameEventAIHookWorker : IGridNotifierGameObject, IGridNotifierCreature, IGridNotifierWorldObject
-{
-	readonly ushort _eventId;
-	readonly bool _activate;
-	public GridType GridType { get; set; }
-
-	public GameEventAIHookWorker(ushort eventId, bool activate, GridType gridType = GridType.All)
-	{
-		_eventId = eventId;
-		_activate = activate;
-		GridType = gridType;
-	}
-
-	public void Visit(IList<Creature> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var creature = objs[i];
-
-			if (creature.IsInWorld && creature.IsAIEnabled)
-			{
-				var ai = creature.AI;
-
-				if (ai != null)
-					ai.OnGameEvent(_activate, _eventId);
-			}
-		}
-	}
-
-	public void Visit(IList<GameObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var gameObject = objs[i];
-
-			if (gameObject.IsInWorld)
-			{
-				var ai = gameObject.AI;
-
-				if (ai != null)
-					ai.OnGameEvent(_activate, _eventId);
-			}
-		}
-	}
-
-	public void Visit(IList<WorldObject> objs)
-	{
-		for (var i = 0; i < objs.Count; ++i)
-		{
-			var gameObject = objs[i] as GameObject;
-
-			if (gameObject != null && gameObject.IsInWorld)
-			{
-				var ai = gameObject.AI;
-
-				if (ai != null)
-					ai.OnGameEvent(_activate, _eventId);
-			}
-		}
-	}
 }
 
 public enum GameEventState

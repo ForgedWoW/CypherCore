@@ -4,19 +4,23 @@
 using System.Collections.Generic;
 using Framework.Database;
 using Forged.RealmServer.Entities;
+using Serilog;
 
 namespace Forged.RealmServer.Arenas;
 
-public class ArenaTeamManager : Singleton<ArenaTeamManager>
+public class ArenaTeamManager
 {
 	readonly Dictionary<uint, ArenaTeam> ArenaTeamStorage = new();
+    private readonly WorldManager _worldManager;
+    private readonly CharacterDatabase _characterDatabase;
+    uint NextArenaTeamId;
 
-	uint NextArenaTeamId;
-
-	ArenaTeamManager()
+	ArenaTeamManager(WorldManager worldManager, CharacterDatabase characterDatabase)
 	{
 		NextArenaTeamId = 1;
-	}
+        _worldManager = worldManager;
+        _characterDatabase = characterDatabase;
+    }
 
 	public ArenaTeam GetArenaTeamById(uint arenaTeamId)
 	{
@@ -57,7 +61,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 	{
 		if (NextArenaTeamId >= 0xFFFFFFFE)
 		{
-			Log.outError(LogFilter.Battleground, "Arena team ids overflow!! Can't continue, shutting down server. ");
+			Log.Logger.Error("Arena team ids overflow!! Can't continue, shutting down server. ");
 			_worldManager.StopNow();
 		}
 
@@ -78,7 +82,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 arena teams. DB table `arena_team` is empty!");
+            Log.Logger.Information("Loaded 0 arena teams. DB table `arena_team` is empty!");
 
 			return;
 		}
@@ -108,7 +112,7 @@ public class ArenaTeamManager : Singleton<ArenaTeamManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} arena teams in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SetNextArenaTeamId(uint Id)

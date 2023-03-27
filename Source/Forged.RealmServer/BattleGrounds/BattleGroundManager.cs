@@ -11,129 +11,50 @@ using Forged.RealmServer.BattleGrounds.Zones;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Networking.Packets;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using Framework.Util;
+using Forged.RealmServer.Conditions;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer.BattleGrounds;
 
-public class BattlegroundManager : Singleton<BattlegroundManager>
+public class BattlegroundManager
 {
-	readonly Dictionary<BattlegroundTypeId, BattlegroundData> bgDataStore = new();
 	readonly Dictionary<BattlegroundQueueTypeId, BattlegroundQueue> m_BattlegroundQueues = new();
 	readonly MultiMap<BattlegroundQueueTypeId, Battleground> m_BGFreeSlotQueue = new();
 	readonly Dictionary<uint, BattlegroundTypeId> mBattleMastersMap = new();
 	readonly Dictionary<BattlegroundTypeId, BattlegroundTemplate> _battlegroundTemplates = new();
 	readonly Dictionary<uint, BattlegroundTemplate> _battlegroundMapTemplates = new();
-	readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
-	List<ScheduledQueueUpdate> m_QueueUpdateScheduler = new();
-	uint m_NextRatedArenaUpdate;
-	uint m_UpdateTimer;
-	bool m_ArenaTesting;
-	bool m_Testing;
+	readonly LimitedThreadTaskManager _threadTaskManager;
+    private readonly IConfiguration _configuration;
+    private readonly WorldConfig _worldConfig;
+    private readonly CliDB _cliDB;
+    private readonly DisableManager _disableManager;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly WorldManager _worldManager;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameEventManager _gameEventManager;
+    List<ScheduledQueueUpdate> _queueUpdateScheduler = new();
+	uint _nextRatedArenaUpdate;
+	uint _updateTimer;
+	bool _arenaTesting;
+	bool _testing;
 
-	BattlegroundManager()
+	BattlegroundManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDB, DisableManager disableManager,
+		GameObjectManager gameObjectManager, WorldManager worldManager, WorldDatabase worldDatabase, GameEventManager gameEventManager)
 	{
-		m_NextRatedArenaUpdate = _worldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
-	}
-
-	public void DeleteAllBattlegrounds()
-	{
-		foreach (var data in bgDataStore.Values.ToList())
-			while (!data.m_Battlegrounds.Empty())
-				data.m_Battlegrounds.First().Value.Dispose();
-
-		bgDataStore.Clear();
-
-		foreach (var bg in m_BGFreeSlotQueue.Values.ToList())
-			bg.Dispose();
-
-		m_BGFreeSlotQueue.Clear();
-	}
-
-	public void Update(uint diff)
-	{
-		m_UpdateTimer += diff;
-
-		if (m_UpdateTimer > 1000)
-		{
-			foreach (var data in bgDataStore.Values)
-			{
-				var bgs = data.m_Battlegrounds;
-
-				// first one is template and should not be deleted
-				foreach (var pair in bgs.ToList())
-				{
-					var bg = pair.Value;
-
-					_threadTaskManager.Schedule(() =>
-					{
-						bg.Update(m_UpdateTimer);
-
-						if (bg.ToBeDeleted())
-						{
-							bgs.Remove(pair.Key);
-							var clients = data.m_ClientBattlegroundIds[(int)bg.GetBracketId()];
-
-							if (!clients.Empty())
-								clients.Remove(bg.GetClientInstanceID());
-
-							bg.Dispose();
-						}
-					});
-				}
-			}
-
-			_threadTaskManager.Wait();
-			m_UpdateTimer = 0;
-		}
-
-		// update events timer
-		foreach (var pair in m_BattlegroundQueues)
-			_threadTaskManager.Schedule(() => pair.Value.UpdateEvents(diff));
-
-		_threadTaskManager.Wait();
-
-		// update scheduled queues
-		if (!m_QueueUpdateScheduler.Empty())
-		{
-			List<ScheduledQueueUpdate> scheduled = new();
-			Extensions.Swap(ref scheduled, ref m_QueueUpdateScheduler);
-
-			for (byte i = 0; i < scheduled.Count; i++)
-			{
-				var arenaMMRating = scheduled[i].ArenaMatchmakerRating;
-				var bgQueueTypeId = scheduled[i].QueueId;
-				var bracket_id = scheduled[i].BracketId;
-				GetBattlegroundQueue(bgQueueTypeId).BattlegroundQueueUpdate(diff, bracket_id, arenaMMRating);
-			}
-		}
-
-		// if rating difference counts, maybe force-update queues
-		if (_worldConfig.GetIntValue(WorldCfg.ArenaMaxRatingDifference) != 0 && _worldConfig.GetIntValue(WorldCfg.ArenaRatedUpdateTimer) != 0)
-		{
-			// it's time to force update
-			if (m_NextRatedArenaUpdate < diff)
-			{
-				// forced update for rated arenas (scan all, but skipped non rated)
-				Log.outDebug(LogFilter.Arena, "BattlegroundMgr: UPDATING ARENA QUEUES");
-
-				foreach (var teamSize in new[]
-						{
-							ArenaTypes.Team2v2, ArenaTypes.Team3v3, ArenaTypes.Team5v5
-						})
-				{
-					var ratedArenaQueueId = BGQueueTypeId((ushort)BattlegroundTypeId.AA, BattlegroundQueueIdType.Arena, true, teamSize);
-
-					for (var bracket = BattlegroundBracketId.First; bracket < BattlegroundBracketId.Max; ++bracket)
-						GetBattlegroundQueue(ratedArenaQueueId).BattlegroundQueueUpdate(diff, bracket, 0);
-				}
-
-				m_NextRatedArenaUpdate = _worldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
-			}
-			else
-			{
-				m_NextRatedArenaUpdate -= diff;
-			}
-		}
-	}
+        _configuration = configuration;
+        _worldConfig = worldConfig;
+        _cliDB = cliDB;
+        _disableManager = disableManager;
+        _gameObjectManager = gameObjectManager;
+        _worldManager = worldManager;
+        _worldDatabase = worldDatabase;
+        _gameEventManager = gameEventManager;
+        _nextRatedArenaUpdate = _worldConfig.GetUIntValue(WorldCfg.ArenaRatedUpdateTimer);
+        _threadTaskManager = new(_configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+    }
 
 	public void BuildBattlegroundStatusNone(out BattlefieldStatusNone battlefieldStatus, Player player, uint ticketId, uint joinTime)
 	{
@@ -189,85 +110,16 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			battlefieldStatus.ClientID = errorGuid;
 	}
 
-	public Battleground GetBattleground(uint instanceId, BattlegroundTypeId bgTypeId)
-	{
-		if (instanceId == 0)
-			return null;
-
-		if (bgTypeId != BattlegroundTypeId.None || bgTypeId == BattlegroundTypeId.RB || bgTypeId == BattlegroundTypeId.RandomEpic)
-		{
-			var data = bgDataStore.LookupByKey(bgTypeId);
-
-			return data.m_Battlegrounds.LookupByKey(instanceId);
-		}
-
-		foreach (var it in bgDataStore)
-		{
-			var bgs = it.Value.m_Battlegrounds;
-			var bg = bgs.LookupByKey(instanceId);
-
-			if (bg)
-				return bg;
-		}
-
-		return null;
-	}
-
-	public Battleground GetBattlegroundTemplate(BattlegroundTypeId bgTypeId)
-	{
-		if (bgDataStore.ContainsKey(bgTypeId))
-			return bgDataStore[bgTypeId].Template;
-
-		return null;
-	}
-
-	// create a new Battleground that will really be used to play
-	public Battleground CreateNewBattleground(BattlegroundQueueTypeId queueId, PvpDifficultyRecord bracketEntry)
-	{
-		var bgTypeId = GetRandomBG((BattlegroundTypeId)queueId.BattlemasterListId);
-
-		// get the template BG
-		var bg_template = GetBattlegroundTemplate(bgTypeId);
-
-		if (bg_template == null)
-		{
-			Log.outError(LogFilter.Battleground, "Battleground: CreateNewBattleground - bg template not found for {0}", bgTypeId);
-
-			return null;
-		}
-
-		if (bgTypeId == BattlegroundTypeId.RB || bgTypeId == BattlegroundTypeId.AA || bgTypeId == BattlegroundTypeId.RandomEpic)
-			return null;
-
-		// create a copy of the BG template
-		var bg = bg_template.GetCopy();
-
-		var isRandom = bgTypeId != (BattlegroundTypeId)queueId.BattlemasterListId && !bg.IsArena();
-
-		bg.SetQueueId(queueId);
-		bg.SetBracket(bracketEntry);
-		bg.SetInstanceID(Global.MapMgr.GenerateInstanceId());
-		bg.SetClientInstanceID(CreateClientVisibleInstanceId((BattlegroundTypeId)queueId.BattlemasterListId, bracketEntry.GetBracketId()));
-		bg.Reset();                                // reset the new bg (set status to status_wait_queue from status_none)
-		bg.SetStatus(BattlegroundStatus.WaitJoin); // start the joining of the bg
-		bg.SetArenaType((ArenaTypes)queueId.TeamSize);
-		bg.SetRandomTypeID(bgTypeId);
-		bg.SetRated(queueId.Rated);
-		bg.SetRandom(isRandom);
-
-		return bg;
-	}
-
 	public void LoadBattlegroundTemplates()
 	{
 		var oldMSTime = Time.MSTime;
 
 		//                                         0   1                 2              3             4       5
-		var result = DB.World.Query("SELECT ID, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
+		var result = _worldDatabase.Query("SELECT ID, AllianceStartLoc, HordeStartLoc, StartMaxDist, Weight, ScriptName FROM battleground_template");
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 Battlegrounds. DB table `Battleground_template` is empty.");
+            Log.Logger.Information("Loaded 0 Battlegrounds. DB table `Battleground_template` is empty.");
 
 			return;
 		}
@@ -278,15 +130,15 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		{
 			var bgTypeId = (BattlegroundTypeId)result.Read<uint>(0);
 
-			if (Global.DisableMgr.IsDisabledFor(DisableType.Battleground, (uint)bgTypeId, null))
+			if (_disableManager.IsDisabledFor(DisableType.Battleground, (uint)bgTypeId, null))
 				continue;
 
 			// can be overwrite by values from DB
-			var bl = CliDB.BattlemasterListStorage.LookupByKey(bgTypeId);
+			var bl = _cliDB.BattlemasterListStorage.LookupByKey((uint)bgTypeId);
 
 			if (bl == null)
 			{
-				Log.outError(LogFilter.Battleground, "Battleground ID {0} not found in BattlemasterList.dbc. Battleground not created.", bgTypeId);
+                Log.Logger.Error("Battleground ID {0} not found in BattlemasterList.dbc. Battleground not created.", bgTypeId);
 
 				continue;
 			}
@@ -297,54 +149,8 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			bgTemplate.MaxStartDistSq = dist * dist;
 			bgTemplate.Weight = result.Read<byte>(4);
 
-			bgTemplate.ScriptId = Global.ObjectMgr.GetScriptId(result.Read<string>(5));
+			bgTemplate.ScriptId = _gameObjectManager.GetScriptId(result.Read<string>(5));
 			bgTemplate.BattlemasterEntry = bl;
-
-			if (bgTemplate.Id != BattlegroundTypeId.AA && bgTemplate.Id != BattlegroundTypeId.RB && bgTemplate.Id != BattlegroundTypeId.RandomEpic)
-			{
-				var startId = result.Read<uint>(1);
-				var start = Global.ObjectMgr.GetWorldSafeLoc(startId);
-
-				if (start != null)
-				{
-					bgTemplate.StartLocation[TeamIds.Alliance] = start;
-				}
-				else if (bgTemplate.StartLocation[TeamIds.Alliance] != null) // reload case
-				{
-					Log.outError(LogFilter.Sql, $"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. Ignoring.");
-				}
-				else
-				{
-					Log.outError(LogFilter.Sql, $"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `AllianceStartLoc`. BG not created.");
-
-					continue;
-				}
-
-				startId = result.Read<uint>(2);
-				start = Global.ObjectMgr.GetWorldSafeLoc(startId);
-
-				if (start != null)
-				{
-					bgTemplate.StartLocation[TeamIds.Horde] = start;
-				}
-				else if (bgTemplate.StartLocation[TeamIds.Horde] != null) // reload case
-				{
-					Log.outError(LogFilter.Sql, $"Table `battleground_template` for id {bgTemplate.Id} contains a non-existing WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. Ignoring.");
-				}
-				else
-				{
-					Log.outError(LogFilter.Sql, $"Table `Battleground_template` for Id {bgTemplate.Id} has a non-existed WorldSafeLocs.dbc id {startId} in field `HordeStartLoc`. BG not created.");
-
-					continue;
-				}
-			}
-
-			if (!CreateBattleground(bgTemplate))
-			{
-				Log.outError(LogFilter.Battleground, $"Could not create battleground template class ({bgTemplate.Id})!");
-
-				continue;
-			}
 
 			_battlegroundTemplates[bgTypeId] = bgTemplate;
 
@@ -354,7 +160,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			++count;
 		} while (result.NextRow());
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} Battlegrounds in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} Battlegrounds in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public void SendBattlegroundList(Player player, ObjectGuid guid, BattlegroundTypeId bgTypeId)
@@ -372,25 +178,6 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		battlefieldList.PvpAnywhere = guid.IsEmpty;
 		battlefieldList.HasRandomWinToday = player.GetRandomWinner();
 		player.SendPacket(battlefieldList);
-	}
-
-	public void SendToBattleground(Player player, uint instanceId, BattlegroundTypeId bgTypeId)
-	{
-		var bg = GetBattleground(instanceId, bgTypeId);
-
-		if (bg)
-		{
-			var mapid = bg.GetMapId();
-			var team = player.GetBgTeam();
-
-			var pos = bg.GetTeamStartPosition(Battleground.GetTeamIndexByTeamId(team));
-			Log.outDebug(LogFilter.Battleground, $"BattlegroundMgr.SendToBattleground: Sending {player.GetName()} to map {mapid}, {pos.Loc} (bgType {bgTypeId})");
-			player.TeleportTo(pos.Loc);
-		}
-		else
-		{
-			Log.outError(LogFilter.Battleground, $"BattlegroundMgr.SendToBattleground: Instance {instanceId} (bgType {bgTypeId}) not found while trying to teleport player {player.GetName()}");
-		}
 	}
 
 	public void SendAreaSpiritHealerQuery(Player player, Battleground bg, ObjectGuid guid)
@@ -414,38 +201,19 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public void ToggleTesting()
 	{
-		m_Testing = !m_Testing;
-		_worldManager.SendWorldText(m_Testing ? CypherStrings.DebugBgOn : CypherStrings.DebugBgOff);
+		_testing = !_testing;
+		_worldManager.SendWorldText(_testing ? CypherStrings.DebugBgOn : CypherStrings.DebugBgOff);
 	}
 
 	public void ToggleArenaTesting()
 	{
-		m_ArenaTesting = !m_ArenaTesting;
-		_worldManager.SendWorldText(m_ArenaTesting ? CypherStrings.DebugArenaOn : CypherStrings.DebugArenaOff);
-	}
-
-	public void ResetHolidays()
-	{
-		for (var i = BattlegroundTypeId.AV; i < BattlegroundTypeId.Max; i++)
-		{
-			var bg = GetBattlegroundTemplate(i);
-
-			if (bg != null)
-				bg.SetHoliday(false);
-		}
-	}
-
-	public void SetHolidayActive(uint battlegroundId)
-	{
-		var bg = GetBattlegroundTemplate((BattlegroundTypeId)battlegroundId);
-
-		if (bg != null)
-			bg.SetHoliday(true);
+		_arenaTesting = !_arenaTesting;
+		_worldManager.SendWorldText(_arenaTesting ? CypherStrings.DebugArenaOn : CypherStrings.DebugArenaOff);
 	}
 
 	public bool IsValidQueueId(BattlegroundQueueTypeId bgQueueTypeId)
 	{
-		var battlemasterList = CliDB.BattlemasterListStorage.LookupByKey(bgQueueTypeId.BattlemasterListId);
+		var battlemasterList = _cliDB.BattlemasterListStorage.LookupByKey(bgQueueTypeId.BattlemasterListId);
 
 		if (battlemasterList == null)
 			return false;
@@ -499,8 +267,8 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		//we will use only 1 number created of bgTypeId and bracket_id
 		ScheduledQueueUpdate scheduleId = new(arenaMatchmakerRating, bgQueueTypeId, bracket_id);
 
-		if (!m_QueueUpdateScheduler.Contains(scheduleId))
-			m_QueueUpdateScheduler.Add(scheduleId);
+		if (!_queueUpdateScheduler.Contains(scheduleId))
+			_queueUpdateScheduler.Add(scheduleId);
 	}
 
 	public uint GetMaxRatingDifference()
@@ -530,11 +298,11 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		mBattleMastersMap.Clear(); // need for reload case
 
-		var result = DB.World.Query("SELECT entry, bg_template FROM battlemaster_entry");
+		var result = _worldDatabase.Query("SELECT entry, bg_template FROM battlemaster_entry");
 
 		if (result.IsEmpty())
 		{
-			Log.outInfo(LogFilter.ServerLoading, "Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
+            Log.Logger.Information("Loaded 0 battlemaster entries. DB table `battlemaster_entry` is empty!");
 
 			return;
 		}
@@ -544,25 +312,25 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		do
 		{
 			var entry = result.Read<uint>(0);
-			var cInfo = Global.ObjectMgr.GetCreatureTemplate(entry);
+			var cInfo = _gameObjectManager.GetCreatureTemplate(entry);
 
 			if (cInfo != null)
 			{
 				if (!cInfo.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster))
-					Log.outError(LogFilter.Sql, "Creature (Entry: {0}) listed in `battlemaster_entry` is not a battlemaster.", entry);
+					Log.Logger.Error("Creature (Entry: {0}) listed in `battlemaster_entry` is not a battlemaster.", entry);
 			}
 			else
 			{
-				Log.outError(LogFilter.Sql, "Creature (Entry: {0}) listed in `battlemaster_entry` does not exist.", entry);
+				Log.Logger.Error("Creature (Entry: {0}) listed in `battlemaster_entry` does not exist.", entry);
 
 				continue;
 			}
 
 			var bgTypeId = result.Read<uint>(1);
 
-			if (!CliDB.BattlemasterListStorage.ContainsKey(bgTypeId))
+			if (!_cliDB.BattlemasterListStorage.ContainsKey(bgTypeId))
 			{
-				Log.outError(LogFilter.Sql, "Table `battlemaster_entry` contain entry {0} for not existed Battleground type {1}, ignored.", entry, bgTypeId);
+				Log.Logger.Error("Table `battlemaster_entry` contain entry {0} for not existed Battleground type {1}, ignored.", entry, bgTypeId);
 
 				continue;
 			}
@@ -573,7 +341,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 		CheckBattleMasters();
 
-		Log.outInfo(LogFilter.ServerLoading, "Loaded {0} battlemaster entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
+        Log.Logger.Information("Loaded {0} battlemaster entries in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
 	public BattlegroundTypeId WeekendHolidayIdToBGType(HolidayIds holiday)
@@ -603,7 +371,7 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public bool IsBGWeekend(BattlegroundTypeId bgTypeId)
 	{
-		return Global.GameEventMgr.IsHolidayActive(BGTypeToWeekendHolidayId(bgTypeId));
+		return _gameEventManager.IsHolidayActive(BGTypeToWeekendHolidayId(bgTypeId));
 	}
 
 	public List<Battleground> GetBGFreeSlotQueueStore(BattlegroundQueueTypeId bgTypeId)
@@ -629,17 +397,6 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 			}
 	}
 
-	public void AddBattleground(Battleground bg)
-	{
-		if (bg)
-			bgDataStore[bg.GetTypeID()].m_Battlegrounds[bg.GetInstanceID()] = bg;
-	}
-
-	public void RemoveBattleground(BattlegroundTypeId bgTypeId, uint instanceId)
-	{
-		bgDataStore[bgTypeId].m_Battlegrounds.Remove(instanceId);
-	}
-
 	public BattlegroundQueue GetBattlegroundQueue(BattlegroundQueueTypeId bgQueueTypeId)
 	{
 		if (!m_BattlegroundQueues.ContainsKey(bgQueueTypeId))
@@ -650,12 +407,12 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	public bool IsArenaTesting()
 	{
-		return m_ArenaTesting;
+		return _arenaTesting;
 	}
 
 	public bool IsTesting()
 	{
-		return m_Testing;
+		return _testing;
 	}
 
 	public BattlegroundTypeId GetBattleMasterBG(uint entry)
@@ -679,120 +436,6 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 		header.TournamentRules = false;
 	}
 
-	uint CreateClientVisibleInstanceId(BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id)
-	{
-		if (IsArenaType(bgTypeId))
-			return 0; //arenas don't have client-instanceids
-
-		// we create here an instanceid, which is just for
-		// displaying this to the client and without any other use..
-		// the client-instanceIds are unique for each Battleground-type
-		// the instance-id just needs to be as low as possible, beginning with 1
-		// the following works, because std.set is default ordered with "<"
-		// the optimalization would be to use as bitmask std.vector<uint32> - but that would only make code unreadable
-
-		var clientIds = bgDataStore[bgTypeId].m_ClientBattlegroundIds[(int)bracket_id];
-		uint lastId = 0;
-
-		foreach (var id in clientIds)
-		{
-			if (++lastId != id) //if there is a gap between the ids, we will break..
-				break;
-
-			lastId = id;
-		}
-
-		clientIds.Add(++lastId);
-
-		return lastId;
-	}
-
-	// used to create the BG templates
-	bool CreateBattleground(BattlegroundTemplate bgTemplate)
-	{
-		var bg = GetBattlegroundTemplate(bgTemplate.Id);
-
-		if (!bg)
-			// Create the BG
-			switch (bgTemplate.Id)
-			{
-				//case BattlegroundTypeId.AV:
-				// bg = new BattlegroundAV(bgTemplate);
-				//break;
-				case BattlegroundTypeId.WS:
-					bg = new BgWarsongGluch(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.AB:
-				case BattlegroundTypeId.DomAb:
-					bg = new BgArathiBasin(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.NA:
-					bg = new NagrandArena(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.BE:
-					bg = new BladesEdgeArena(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.EY:
-					bg = new BgEyeofStorm(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.RL:
-					bg = new RuinsofLordaeronArena(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.SA:
-					bg = new BgStrandOfAncients(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.DS:
-					bg = new DalaranSewersArena(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.RV:
-					bg = new RingofValorArena(bgTemplate);
-
-					break;
-				//case BattlegroundTypeId.IC:
-				//bg = new BattlegroundIC(bgTemplate);
-				//break;
-				case BattlegroundTypeId.AA:
-					bg = new Battleground(bgTemplate);
-
-					break;
-				case BattlegroundTypeId.RB:
-					bg = new Battleground(bgTemplate);
-					bg.SetRandom(true);
-
-					break;
-				/*
-			case BattlegroundTypeId.TP:
-				bg = new BattlegroundTP(bgTemplate);
-				break;
-			case BattlegroundTypeId.BFG:
-				bg = new BattlegroundBFG(bgTemplate);
-				break;
-				*/
-				case BattlegroundTypeId.RandomEpic:
-					bg = new Battleground(bgTemplate);
-					bg.SetRandom(true);
-
-					break;
-				default:
-					return false;
-			}
-
-		if (!bgDataStore.ContainsKey(bg.GetTypeID()))
-			bgDataStore[bg.GetTypeID()] = new BattlegroundData();
-
-		bgDataStore[bg.GetTypeID()].Template = bg;
-
-		return true;
-	}
-
 	bool IsArenaType(BattlegroundTypeId bgTypeId)
 	{
 		return bgTypeId == BattlegroundTypeId.AA || bgTypeId == BattlegroundTypeId.BE || bgTypeId == BattlegroundTypeId.NA || bgTypeId == BattlegroundTypeId.DS || bgTypeId == BattlegroundTypeId.RV || bgTypeId == BattlegroundTypeId.RL;
@@ -800,12 +443,12 @@ public class BattlegroundManager : Singleton<BattlegroundManager>
 
 	void CheckBattleMasters()
 	{
-		var templates = Global.ObjectMgr.GetCreatureTemplates();
+		var templates = _gameObjectManager.GetCreatureTemplates();
 
 		foreach (var creature in templates)
 			if (creature.Value.Npcflag.HasAnyFlag((uint)NPCFlags.BattleMaster) && !mBattleMastersMap.ContainsKey(creature.Value.Entry))
 			{
-				Log.outError(LogFilter.Sql, "CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", creature.Value.Entry);
+				Log.Logger.Error("CreatureTemplate (Entry: {0}) has UNIT_NPC_FLAG_BATTLEMASTER but no data in `battlemaster_entry` table. Removing flag!", creature.Value.Entry);
 				templates[creature.Key].Npcflag &= ~(uint)NPCFlags.BattleMaster;
 			}
 	}
@@ -921,7 +564,6 @@ public class BattlegroundData
 public class BattlegroundTemplate
 {
 	public BattlegroundTypeId Id;
-	public WorldSafeLocsEntry[] StartLocation = new WorldSafeLocsEntry[SharedConst.PvpTeamsCount];
 	public float MaxStartDistSq;
 	public byte Weight;
 	public uint ScriptId;

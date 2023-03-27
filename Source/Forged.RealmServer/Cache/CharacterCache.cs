@@ -7,20 +7,25 @@ using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.Arenas;
 using Forged.RealmServer.Entities;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Networking.Packets.Misc;
+using Serilog;
+using Forged.RealmServer.Networking.Packets;
 
 namespace Forged.RealmServer.Cache;
 
-public class CharacterCache : Singleton<CharacterCache>
+public class CharacterCache
 {
 	readonly Dictionary<ObjectGuid, CharacterCacheEntry> _characterCacheStore = new();
 	readonly Dictionary<string, CharacterCacheEntry> _characterCacheByNameStore = new();
+    private readonly WorldManager _worldManager;
+    private readonly CharacterDatabase _characterDatabase;
 
-	CharacterCache() { }
+    CharacterCache(WorldManager worldManager, CharacterDatabase characterDatabase)
+    {
+        _worldManager = worldManager;
+        _characterDatabase = characterDatabase;
+    }
 
-	public void LoadCharacterCacheStorage()
+    public void LoadCharacterCacheStorage()
 	{
 		_characterCacheStore.Clear();
 		var oldMSTime = Time.MSTime;

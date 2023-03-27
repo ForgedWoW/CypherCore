@@ -3,24 +3,39 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.RealmServer.Globals;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace Forged.RealmServer.DataStorage;
 
-public class ConversationDataStorage : Singleton<ConversationDataStorage>
+public class ConversationDataStorage
 {
 	readonly Dictionary<uint, ConversationTemplate> _conversationTemplateStorage = new();
 	readonly Dictionary<uint, ConversationLineTemplate> _conversationLineTemplateStorage = new();
-	ConversationDataStorage() { }
+    private readonly IConfiguration _configuration;
+    private readonly CliDB _cliDB;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _gameObjectManager;
 
-	public void LoadConversationTemplates()
+    ConversationDataStorage(IConfiguration configuration, CliDB cliDB, WorldDatabase worldDatabase, GameObjectManager gameObjectManager)
+    {
+        _configuration = configuration;
+        _cliDB = cliDB;
+        _worldDatabase = worldDatabase;
+        _gameObjectManager = gameObjectManager;
+    }
+
+    public void LoadConversationTemplates()
 	{
 		_conversationLineTemplateStorage.Clear();
 		_conversationTemplateStorage.Clear();
 
 		Dictionary<uint, List<ConversationActorTemplate>> actorsByConversation = new();
 
-		var lineTemplates = DB.World.Query("SELECT Id, UiCameraID, ActorIdx, Flags FROM conversation_line_template");
+		var lineTemplates = _worldDatabase.Query("SELECT Id, UiCameraID, ActorIdx, Flags FROM conversation_line_template");
 
 		if (!lineTemplates.IsEmpty())
 		{
@@ -30,7 +45,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 			{
 				var id = lineTemplates.Read<uint>(0);
 
-				if (!CliDB.ConversationLineStorage.ContainsKey(id))
+				if (!_cliDB.ConversationLineStorage.ContainsKey(id))
 				{
 					Log.Logger.Error("Table `conversation_line_template` has template for non existing ConversationLine (ID: {0}), skipped", id);
 
@@ -53,7 +68,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 			Log.Logger.Information("Loaded 0 Conversation line templates. DB table `conversation_line_template` is empty.");
 		}
 
-		var actorResult = DB.World.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId, NoActorObject, ActivePlayerObject FROM conversation_actors");
+		var actorResult = _worldDatabase.Query("SELECT ConversationId, ConversationActorId, ConversationActorGuid, Idx, CreatureId, CreatureDisplayInfoId, NoActorObject, ActivePlayerObject FROM conversation_actors");
 
 		if (!actorResult.IsEmpty())
 		{
@@ -83,7 +98,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 				else
 					actor.TalkingHeadTemplate = new ConversationActorTalkingHeadTemplate();
 
-				var valid = data.Invoke(actor);
+				var valid = data.Invoke(actor, _configuration, _cliDB, _gameObjectManager, _worldDatabase);
 
 				if (!valid)
 					continue;
@@ -105,7 +120,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 		// Validate FirstLineId
 		Dictionary<uint, uint> prevConversationLineIds = new();
 
-		foreach (var conversationLine in CliDB.ConversationLineStorage.Values)
+		foreach (var conversationLine in _cliDB.ConversationLineStorage.Values)
 			if (conversationLine.NextConversationLineID != 0)
 				prevConversationLineIds[conversationLine.NextConversationLineID] = conversationLine.Id;
 
@@ -119,7 +134,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 			return lineId;
 		}
 
-		var templateResult = DB.World.Query("SELECT Id, FirstLineId, TextureKitId, ScriptName FROM conversation_template");
+		var templateResult = _worldDatabase.Query("SELECT Id, FirstLineId, TextureKitId, ScriptName FROM conversation_template");
 
 		if (!templateResult.IsEmpty())
 		{
@@ -131,7 +146,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 				conversationTemplate.Id = templateResult.Read<uint>(0);
 				conversationTemplate.FirstLineId = templateResult.Read<uint>(1);
 				conversationTemplate.TextureKitId = templateResult.Read<uint>(2);
-				conversationTemplate.ScriptId = Global.ObjectMgr.GetScriptId(templateResult.Read<string>(3));
+				conversationTemplate.ScriptId = _gameObjectManager.GetScriptId(templateResult.Read<string>(3));
 
 				conversationTemplate.Actors = actorsByConversation.TryGetValue(conversationTemplate.Id, out var actors) ? actors.ToList() : new List<ConversationActorTemplate>();
 
@@ -143,7 +158,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 					conversationTemplate.FirstLineId = correctedFirstLineId;
 				}
 
-				var currentConversationLine = CliDB.ConversationLineStorage.LookupByKey(conversationTemplate.FirstLineId);
+				var currentConversationLine = _cliDB.ConversationLineStorage.LookupByKey(conversationTemplate.FirstLineId);
 
 				if (currentConversationLine == null)
 					Log.Logger.Error("Table `conversation_template` references an invalid line (ID: {0}) for Conversation {1}, skipped", conversationTemplate.FirstLineId, conversationTemplate.Id);
@@ -160,7 +175,7 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 					if (currentConversationLine.NextConversationLineID == 0)
 						break;
 
-					currentConversationLine = CliDB.ConversationLineStorage.LookupByKey(currentConversationLine.NextConversationLineID);
+					currentConversationLine = _cliDB.ConversationLineStorage.LookupByKey(currentConversationLine.NextConversationLineID);
 				}
 
 				_conversationTemplateStorage[conversationTemplate.Id] = conversationTemplate;
@@ -193,26 +208,26 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 		public uint CreatureId;
 		public uint CreatureDisplayInfoId;
 
-		public bool Invoke(ConversationActorTemplate template)
+		public bool Invoke(ConversationActorTemplate template, IConfiguration configuration, CliDB cliDB, GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
 		{
 			if (template.WorldObjectTemplate != null)
-				return Invoke(template.WorldObjectTemplate);
+				return Invoke(template.WorldObjectTemplate, configuration, gameObjectManager, worldDatabase);
 
 			if (template.NoObjectTemplate != null)
-				return Invoke(template.NoObjectTemplate);
+				return Invoke(template.NoObjectTemplate, cliDB, gameObjectManager);
 
 			if (template.ActivePlayerTemplate != null)
 				return Invoke(template.ActivePlayerTemplate);
 
 			if (template.TalkingHeadTemplate != null)
-				return Invoke(template.TalkingHeadTemplate);
+				return Invoke(template.TalkingHeadTemplate, cliDB, gameObjectManager);
 
 			return false;
 		}
 
-		public bool Invoke(ConversationActorWorldObjectTemplate worldObject)
+		public bool Invoke(ConversationActorWorldObjectTemplate worldObject, IConfiguration configuration, GameObjectManager gameObjectManager, WorldDatabase worldDatabase)
 		{
-			if (Global.ObjectMgr.GetCreatureData(SpawnId) == null)
+			if (gameObjectManager.GetCreatureData(SpawnId) == null)
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature guid (GUID: {SpawnId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
@@ -227,8 +242,8 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 
 			if (worldObject == null)
 			{
-				if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-					DB.World.Execute($"DELETE FROM conversation_actors WHERE ConversationId = {ConversationId}");
+				if (configuration.GetDefaultValue("load.autoclean", false))
+                    worldDatabase.Execute($"DELETE FROM conversation_actors WHERE ConversationId = {ConversationId}");
 				else
 					Log.Logger.Error($"Table `conversation_actors` references null world object (GUID: {SpawnId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
@@ -240,16 +255,16 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 			return true;
 		}
 
-		public bool Invoke(ConversationActorNoObjectTemplate noObject)
+		public bool Invoke(ConversationActorNoObjectTemplate noObject, CliDB cliDB, GameObjectManager gameObjectManager)
 		{
-			if (Global.ObjectMgr.GetCreatureTemplate(CreatureId) == null)
+			if (gameObjectManager.GetCreatureTemplate(CreatureId) == null)
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature id ({CreatureId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
 				return false;
 			}
 
-			if (CreatureDisplayInfoId != 0 && !CliDB.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
+			if (CreatureDisplayInfoId != 0 && !cliDB.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature display id ({CreatureDisplayInfoId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
@@ -279,16 +294,16 @@ public class ConversationDataStorage : Singleton<ConversationDataStorage>
 			return true;
 		}
 
-		public bool Invoke(ConversationActorTalkingHeadTemplate talkingHead)
+		public bool Invoke(ConversationActorTalkingHeadTemplate talkingHead, CliDB cliDB, GameObjectManager gameObjectManager)
 		{
-			if (Global.ObjectMgr.GetCreatureTemplate(CreatureId) == null)
+			if (gameObjectManager.GetCreatureTemplate(CreatureId) == null)
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature id ({CreatureId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
 				return false;
 			}
 
-			if (CreatureDisplayInfoId != 0 && !CliDB.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
+			if (CreatureDisplayInfoId != 0 && !cliDB.CreatureDisplayInfoStorage.ContainsKey(CreatureDisplayInfoId))
 			{
 				Log.Logger.Error($"Table `conversation_actors` references an invalid creature display id ({CreatureDisplayInfoId}) for Conversation {ConversationId} and Idx {ActorIndex}, skipped.");
 
