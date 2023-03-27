@@ -113,8 +113,6 @@ void RegisterManagers()
     });
     builder.RegisterType<M2Storage>().SingleInstance().OnActivated(a => a.Instance.LoadM2Cameras(dataPath));
     builder.RegisterType<TaxiPathGraph>().SingleInstance().OnActivated(a => a.Instance.Initialize());
-    // We are doing this to inject the container into the class factory. The container is not yet built at this point, so we need to do this after the container is built.
-    // ReSharper disable once AccessToModifiedClosure
     builder.RegisterType<AccountManager>().SingleInstance().OnActivated(d => d.Instance.LoadRBAC());
     builder.RegisterType<BNetAccountManager>().SingleInstance();
     builder.RegisterType<AchievementGlobalMgr>().SingleInstance();
@@ -284,6 +282,8 @@ void RegisterFactories()
     // Factories
     builder.RegisterType<LootFactory>().SingleInstance();
     builder.RegisterType<SpellFactory>().SingleInstance();
+    // We are doing this to inject the container into the class factory. The container is not yet built at this point, so we need to do this after the container is built.
+    // ReSharper disable once AccessToModifiedClosure
     builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));
 }
 
