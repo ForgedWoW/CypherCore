@@ -385,15 +385,6 @@ public class WorldManager
 
 	public void SetInitialWorldSettings()
 	{
-		Log.Logger.Information("Loading languages...");
-		Global.LanguageMgr.LoadLanguages();
-
-		Log.Logger.Information("Loading languages words...");
-		Global.LanguageMgr.LoadLanguagesWords();
-
-		Log.Logger.Information("Loading Instance Template...");
-		Global.ObjectMgr.LoadInstanceTemplate();
-
 		// Must be called before `respawn` data
 		Log.Logger.Information("Loading instances...");
 
