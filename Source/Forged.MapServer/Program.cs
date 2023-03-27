@@ -19,6 +19,8 @@ using Forged.MapServer.Chat;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.DungeonFinding;
+using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
 using Forged.MapServer.Events;
@@ -74,6 +76,7 @@ void InitializeServer()
     var cliDB = container.Resolve<CliDB>();
     container.Resolve<ScriptManager>();
     container.Resolve<WorldServiceManager>().LoadHandlers(container);
+    container.Resolve<GameObjectManager>();
     var worldManager = container.Resolve<WorldManager>();
     worldManager.SetDBCMask(localeMask);
 
@@ -88,6 +91,9 @@ void InitializeServer()
     container.Resolve<TerrainManager>().InitializeParentMapData(mapData);
     container.Resolve<VMapManager>().Initialize(mapData);
     container.Resolve<MMapManager>().Initialize(mapData);
+    container.Resolve<DisableManager>().CheckQuestDisables();
+    container.Resolve<SpellManager>().LoadSpellAreas();
+    container.Resolve<LFGManager>().LoadLFGDungeons();
 }
 
 void BuildServerTypes()
@@ -110,7 +116,7 @@ void RegisterManagers()
     // We are doing this to inject the container into the class factory. The container is not yet built at this point, so we need to do this after the container is built.
     // ReSharper disable once AccessToModifiedClosure
     builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));
-    builder.RegisterType<AccountManager>().SingleInstance();
+    builder.RegisterType<AccountManager>().SingleInstance().OnActivated(d => d.Instance.LoadRBAC());
     builder.RegisterType<BNetAccountManager>().SingleInstance();
     builder.RegisterType<AchievementGlobalMgr>().SingleInstance();
     builder.RegisterType<DB2Manager>().SingleInstance().OnActivated(p =>
@@ -127,30 +133,99 @@ void RegisterManagers()
     builder.RegisterType<AuctionManager>().SingleInstance();
     builder.RegisterType<VMapManager>().SingleInstance();
     builder.RegisterType<ConditionManager>().SingleInstance();
-    builder.RegisterType<DisableManager>().SingleInstance();
+    builder.RegisterType<DisableManager>().SingleInstance().OnActivated(d => d.Instance.LoadDisables());
     builder.RegisterType<PetitionManager>().SingleInstance();
     builder.RegisterType<SocialManager>().SingleInstance();
-    builder.RegisterType<GameEventManager>().SingleInstance().OnActivated(p => p.Instance.Initialize());
-    builder.RegisterType<GarrisonManager>().SingleInstance();
-    builder.RegisterType<GameObjectManager>().SingleInstance().OnActivated(a =>
+    builder.RegisterType<GameEventManager>().SingleInstance().OnActivated(p =>
     {
-        a.Instance.SetHighestGuids();
+        p.Instance.Initialize();
+        p.Instance.LoadFromDB();
+    });
+    builder.RegisterType<GarrisonManager>().SingleInstance();
+    builder.RegisterType<GameObjectManager>().SingleInstance().OnActivated(o =>
+    {
+        o.Instance.SetHighestGuids();
 
-        if (!a.Instance.LoadCypherStrings())
+        if (!o.Instance.LoadCypherStrings())
             Environment.Exit(1);
 
-        a.Instance.LoadInstanceTemplate();
-
+        o.Instance.LoadInstanceTemplate();
+        o.Instance.LoadCreatureLocales();
+        o.Instance.LoadGameObjectLocales();
+        o.Instance.LoadQuestTemplateLocale();
+        o.Instance.LoadQuestOfferRewardLocale();
+        o.Instance.LoadQuestRequestItemsLocale();
+        o.Instance.LoadQuestObjectivesLocale();
+        o.Instance.LoadPageTextLocales();
+        o.Instance.LoadGossipMenuItemsLocales();
+        o.Instance.LoadPointOfInterestLocales();
+        o.Instance.LoadPageTexts();
+        o.Instance.LoadGameObjectTemplate();
+        o.Instance.LoadGameObjectTemplateAddons();
+        o.Instance.LoadNPCText();
+        o.Instance.LoadItemTemplates(); // must be after LoadRandomEnchantmentsTable and LoadPageTexts
+        o.Instance.LoadItemTemplateAddon(); // must be after LoadItemPrototypes
+        o.Instance.LoadItemScriptNames(); // must be after LoadItemPrototypes
+        o.Instance.LoadCreatureModelInfo();
+        o.Instance.LoadCreatureTemplates();
+        o.Instance.LoadEquipmentTemplates();
+        o.Instance.LoadCreatureTemplateAddons();
+        o.Instance.LoadCreatureScalingData();
+        o.Instance.LoadReputationRewardRate();
+        o.Instance.LoadReputationOnKill();
+        o.Instance.LoadReputationSpilloverTemplate();
+        o.Instance.LoadPointsOfInterest();
+        o.Instance.LoadCreatureClassLevelStats();
+        o.Instance.LoadSpawnGroupTemplates();
+        o.Instance.LoadCreatures();
+        o.Instance.LoadTempSummons(); // must be after LoadCreatureTemplates() and LoadGameObjectTemplates()
+        o.Instance.LoadCreatureAddons();
+        o.Instance.LoadCreatureMovementOverrides(); // must be after LoadCreatures()
+        o.Instance.LoadGameObjects();
+        o.Instance.LoadSpawnGroups();
+        o.Instance.LoadInstanceSpawnGroups();
+        o.Instance.LoadGameObjectAddons(); // must be after LoadGameObjects()
+        o.Instance.LoadGameObjectOverrides(); // must be after LoadGameObjects()
+        o.Instance.LoadGameObjectQuestItems();
+        o.Instance.LoadCreatureQuestItems();
+        o.Instance.LoadLinkedRespawn(); // must be after LoadCreatures(), LoadGameObjects()
+        o.Instance.LoadQuests();
+        o.Instance.LoadQuestPOI();
+        o.Instance.LoadQuestStartersAndEnders(); // must be after quest load
+        o.Instance.LoadQuestGreetings();
+        o.Instance.LoadQuestGreetingLocales();
+        o.Instance.LoadNPCSpellClickSpells();
+        o.Instance.LoadVehicleTemplate(); // must be after LoadCreatureTemplates()
+        o.Instance.LoadVehicleTemplateAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+        o.Instance.LoadVehicleAccessories(); // must be after LoadCreatureTemplates() and LoadNPCSpellClickSpells()
+        o.Instance.LoadVehicleSeatAddon(); // must be after loading DBC
+        o.Instance.LoadWorldSafeLocs(); // must be before LoadAreaTriggerTeleports and LoadGraveyardZones
+        o.Instance.LoadAreaTriggerTeleports();
+        o.Instance.LoadAccessRequirements(); // must be after item template load
+        o.Instance.LoadQuestAreaTriggers(); // must be after LoadQuests
+        o.Instance.LoadTavernAreaTriggers();
+        o.Instance.LoadAreaTriggerScripts();
+        o.Instance.LoadInstanceEncounters();
+        o.Instance.LoadGraveyardZones();
+        o.Instance.LoadSceneTemplates(); // must be before LoadPlayerInfo
+        o.Instance.LoadPlayerInfo();
+        o.Instance.LoadExplorationBaseXP();
+        o.Instance.LoadPetNames();
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
     builder.RegisterType<WardenCheckManager>().SingleInstance();
     builder.RegisterType<WorldStateManager>().SingleInstance();
     builder.RegisterType<CharacterCache>().SingleInstance();
-    builder.RegisterType<InstanceLockManager>().SingleInstance();
-    builder.RegisterType<MapManager>().SingleInstance();
+    builder.RegisterType<InstanceLockManager>().SingleInstance().OnActivated(i => i.Instance.Load());
+    builder.RegisterType<MapManager>().SingleInstance().OnActivated(m => m.Instance.InitInstanceIds());
     builder.RegisterType<MMapManager>().SingleInstance();
-    builder.RegisterType<TransportManager>().SingleInstance();
+    builder.RegisterType<TransportManager>().SingleInstance().OnActivated(t =>
+    {
+        t.Instance.LoadTransportTemplates();
+        t.Instance.LoadTransportAnimationAndRotation();
+        t.Instance.LoadTransportSpawns();
+    });
     builder.RegisterType<WaypointManager>().SingleInstance();
     builder.RegisterType<OutdoorPvPManager>().SingleInstance();
     builder.RegisterType<WorldServiceManager>().SingleInstance();
@@ -166,10 +241,29 @@ void RegisterManagers()
         s.Instance.LoadPetFamilySpellsStore();
         s.Instance.LoadSpellTotemModel();
         s.Instance.LoadSpellInfosLateFix();
+        s.Instance.LoadSpellRanks();
+        s.Instance.LoadSpellRequired();
+        s.Instance.LoadSpellGroups();
+        s.Instance.LoadSpellLearnSkills();
+        s.Instance.LoadSpellInfoSpellSpecificAndAuraState();
+        s.Instance.LoadSpellLearnSpells();
+        s.Instance.LoadSpellProcs();
+        s.Instance.LoadSpellThreats();
+        s.Instance.LoadSpellGroupStackRules();
+        s.Instance.LoadSpellEnchantProcData();
+        s.Instance.LoadPetLevelupSpellMap();
+        s.Instance.LoadPetDefaultSpells();
+        s.Instance.LoadSpellPetAuras();
+        s.Instance.LoadSpellTargetPositions();
+        s.Instance.LoadSpellLinked();
     });
     builder.RegisterType<SupportManager>().SingleInstance();
-    builder.RegisterType<PoolManager>().SingleInstance().OnActivated(p => p.Instance.Initialize());
-    builder.RegisterType<QuestPoolManager>().SingleInstance();
+    builder.RegisterType<PoolManager>().SingleInstance().OnActivated(p =>
+    {
+        p.Instance.Initialize();
+        p.Instance.LoadFromDB();
+    });
+    builder.RegisterType<QuestPoolManager>().SingleInstance().OnActivated(q => q.Instance.LoadFromDB());
     builder.RegisterType<ScenarioManager>().SingleInstance();
     builder.RegisterType<ScriptManager>().SingleInstance();
     builder.RegisterType<GroupManager>().SingleInstance();
@@ -182,6 +276,8 @@ void RegisterManagers()
         l.Instance.LoadLanguages();
         l.Instance.LoadLanguagesWords();
     });
+    builder.RegisterType<ItemEnchantmentManager>().SingleInstance().OnActivated(i => i.Instance.LoadItemRandomBonusListTemplates());
+    builder.RegisterType<LFGManager>().SingleInstance().OnActivated(l => l.Instance.LoadRewards());
 }
 
 void RegisterFactories()

@@ -11,46 +11,73 @@ using Forged.MapServer.DataStorage;
 using Forged.MapServer.DataStorage.Structs.L;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Events;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Groups;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Networking.Packets.LFG;
-using Forged.MapServer.Server;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.DungeonFinding;
 
-public class LFGManager : Singleton<LFGManager>
+public class LFGManager
 {
-    private readonly Dictionary<byte, LFGQueue> QueuesStore = new(); //< Queues
+    private readonly IConfiguration _configuration;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly GameObjectManager _objectManager;
+    private readonly CliDB _cliDB;
+    private readonly DB2Manager _db2Manager;
+    private readonly GroupManager _groupManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly DisableManager _disableManager;
+    private readonly InstanceLockManager _instanceLockManager;
+    private readonly GameEventManager _gameEventManager;
+    private readonly Dictionary<byte, LFGQueue> _queuesStore = new(); //< Queues
 
-    private readonly MultiMap<byte, uint> CachedDungeonMapStore = new(); //< Stores all dungeons by groupType
+    private readonly MultiMap<byte, uint> _cachedDungeonMapStore = new(); //< Stores all dungeons by groupType
 	// Reward System
 
-    private readonly MultiMap<uint, LfgReward> RewardMapStore = new(); //< Stores rewards for random dungeons
-    private readonly Dictionary<uint, LFGDungeonData> LfgDungeonStore = new();
+    private readonly MultiMap<uint, LfgReward> _rewardMapStore = new(); //< Stores rewards for random dungeons
+    private readonly Dictionary<uint, LFGDungeonData> _lfgDungeonStore = new();
 
 	// Rolecheck - Proposal - Vote Kicks
-    private readonly Dictionary<ObjectGuid, LfgRoleCheck> RoleChecksStore = new(); //< Current Role checks
-    private readonly Dictionary<uint, LfgProposal> ProposalsStore = new();         //< Current Proposals
-    private readonly Dictionary<ObjectGuid, LfgPlayerBoot> BootsStore = new();     //< Current player kicks
-    private readonly Dictionary<ObjectGuid, LFGPlayerData> PlayersStore = new();   //< Player data
-    private readonly Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();     //< Group data
+    private readonly Dictionary<ObjectGuid, LfgRoleCheck> _roleChecksStore = new(); //< Current Role checks
+    private readonly Dictionary<uint, LfgProposal> _proposalsStore = new();         //< Current Proposals
+    private readonly Dictionary<ObjectGuid, LfgPlayerBoot> _bootsStore = new();     //< Current player kicks
+    private readonly Dictionary<ObjectGuid, LFGPlayerData> _playersStore = new();   //< Player data
+    private readonly Dictionary<ObjectGuid, LFGGroupData> _groupsStore = new();     //< Group data
 
 	// General variables
-    private uint m_QueueTimer;    //< used to check interval of update
-    private uint m_lfgProposalId; //< used as internal counter for proposals
-    private LfgOptions m_options; //< Stores config options
+    private uint _queueTimer;    //< used to check interval of update
+    private uint _lfgProposalId; //< used as internal counter for proposals
+    private LfgOptions _options; //< Stores config options
 
-    private LFGManager()
+    public LFGManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameObjectManager objectManager, CliDB cliDB,
+                      DB2Manager db2Manager, GroupManager groupManager, ObjectAccessor objectAccessor, DisableManager disableManager,
+                      InstanceLockManager instanceLockManager, GameEventManager gameEventManager)
 	{
-		m_lfgProposalId = 1;
-		m_options = (LfgOptions)ConfigMgr.GetDefaultValue("DungeonFinder.OptionsMask", 1);
+        _configuration = configuration;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+        _objectManager = objectManager;
+        _cliDB = cliDB;
+        _db2Manager = db2Manager;
+        _groupManager = groupManager;
+        _objectAccessor = objectAccessor;
+        _disableManager = disableManager;
+        _instanceLockManager = instanceLockManager;
+        _gameEventManager = gameEventManager;
+        _lfgProposalId = 1;
+		_options = (LfgOptions)configuration.GetDefaultValue("DungeonFinder.OptionsMask", 1);
 
-		new LFGPlayerScript();
-		new LFGGroupScript();
+		_ = new LFGPlayerScript();
+		_ = new LFGGroupScript();
 	}
 
 	public string ConcatenateDungeons(List<uint> dungeons)
@@ -101,10 +128,10 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		RewardMapStore.Clear();
+		_rewardMapStore.Clear();
 
 		// ORDER BY is very important for GetRandomDungeonReward!
-		var result = DB.World.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+		var result = _worldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
 		if (result.IsEmpty())
 		{
@@ -129,26 +156,26 @@ public class LFGManager : Singleton<LFGManager>
 				continue;
 			}
 
-			if (maxLevel == 0 || maxLevel > GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
+			if (maxLevel == 0 || maxLevel > _configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel))
 			{
 				Log.Logger.Error("Level {0} specified for dungeon {1} in table `lfg_dungeon_rewards` can never be reached!", maxLevel, dungeonId);
-				maxLevel = GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
+				maxLevel = (uint)_configuration.GetDefaultValue("MaxPlayerLevel", SharedConst.DefaultMaxLevel);
 			}
 
-			if (firstQuestId == 0 || Global.ObjectMgr.GetQuestTemplate(firstQuestId) == null)
+			if (firstQuestId == 0 || _objectManager.GetQuestTemplate(firstQuestId) == null)
 			{
 				Log.Logger.Error("First quest {0} specified for dungeon {1} in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
 
 				continue;
 			}
 
-			if (otherQuestId != 0 && Global.ObjectMgr.GetQuestTemplate(otherQuestId) == null)
+			if (otherQuestId != 0 && _objectManager.GetQuestTemplate(otherQuestId) == null)
 			{
 				Log.Logger.Error("Other quest {0} specified for dungeon {1} in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
 				otherQuestId = 0;
 			}
 
-			RewardMapStore.Add(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId));
+			_rewardMapStore.Add(dungeonId, new LfgReward(maxLevel, firstQuestId, otherQuestId));
 			++count;
 		} while (result.NextRow());
 
@@ -159,12 +186,12 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		var oldMSTime = Time.MSTime;
 
-		LfgDungeonStore.Clear();
+		_lfgDungeonStore.Clear();
 
 		// Initialize Dungeon map with data from dbcs
-		foreach (var dungeon in CliDB.LFGDungeonsStorage.Values)
+		foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
 		{
-			if (Global.DB2Mgr.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
+			if (_db2Manager.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
 				continue;
 
 			switch (dungeon.TypeID)
@@ -173,14 +200,14 @@ public class LFGManager : Singleton<LFGManager>
 				case LfgType.Raid:
 				case LfgType.Random:
 				case LfgType.Zone:
-					LfgDungeonStore[dungeon.Id] = new LFGDungeonData(dungeon);
+					_lfgDungeonStore[dungeon.Id] = new LFGDungeonData(dungeon);
 
 					break;
 			}
 		}
 
 		// Fill teleport locations from DB
-		var result = DB.World.Query("SELECT dungeonId, position_x, position_y, position_z, orientation, requiredItemLevel FROM lfg_dungeon_template");
+		var result = _worldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation, requiredItemLevel FROM lfg_dungeon_template");
 
 		if (result.IsEmpty())
 		{
@@ -195,19 +222,19 @@ public class LFGManager : Singleton<LFGManager>
 		{
 			var dungeonId = result.Read<uint>(0);
 
-			if (!LfgDungeonStore.ContainsKey(dungeonId))
+			if (!_lfgDungeonStore.ContainsKey(dungeonId))
 			{
 				Log.Logger.Error("table `lfg_entrances` contains coordinates for wrong dungeon {0}", dungeonId);
 
 				continue;
 			}
 
-			var data = LfgDungeonStore[dungeonId];
-			data.x = result.Read<float>(1);
-			data.y = result.Read<float>(2);
-			data.z = result.Read<float>(3);
-			data.o = result.Read<float>(4);
-			data.requiredItemLevel = result.Read<ushort>(5);
+			var data = _lfgDungeonStore[dungeonId];
+			data.X = result.Read<float>(1);
+			data.Y = result.Read<float>(2);
+			data.Z = result.Read<float>(3);
+			data.O = result.Read<float>(4);
+			data.RequiredItemLevel = result.Read<ushort>(5);
 
 			++count;
 		} while (result.NextRow());
@@ -215,37 +242,37 @@ public class LFGManager : Singleton<LFGManager>
 		Log.Logger.Information("Loaded {0} lfg dungeon templates in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 
 		// Fill all other teleport coords from areatriggers
-		foreach (var pair in LfgDungeonStore)
+		foreach (var pair in _lfgDungeonStore)
 		{
 			var dungeon = pair.Value;
 
 			// No teleport coords in database, load from areatriggers
-			if (dungeon.type != LfgType.Random && dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
+			if (dungeon.Type != LfgType.Random && dungeon.X == 0.0f && dungeon.Y == 0.0f && dungeon.Z == 0.0f)
 			{
-				var at = Global.ObjectMgr.GetMapEntranceTrigger(dungeon.map);
+				var at = _objectManager.GetMapEntranceTrigger(dungeon.Map);
 
 				if (at == null)
 				{
-					Log.Logger.Error("LoadLFGDungeons: Failed to load dungeon {0} (Id: {1}), cant find areatrigger for map {2}", dungeon.name, dungeon.id, dungeon.map);
+					Log.Logger.Error("LoadLFGDungeons: Failed to load dungeon {0} (Id: {1}), cant find areatrigger for map {2}", dungeon.Name, dungeon.ID, dungeon.Map);
 
 					continue;
 				}
 
-				dungeon.map = at.target_mapId;
-				dungeon.x = at.target_X;
-				dungeon.y = at.target_Y;
-				dungeon.z = at.target_Z;
-				dungeon.o = at.target_Orientation;
+				dungeon.Map = at.TargetMapId;
+				dungeon.X = at.TargetX;
+				dungeon.Y = at.TargetY;
+				dungeon.Z = at.TargetZ;
+				dungeon.O = at.TargetOrientation;
 			}
 
-			if (dungeon.type != LfgType.Random)
-				CachedDungeonMapStore.Add((byte)dungeon.group, dungeon.id);
+			if (dungeon.Type != LfgType.Random)
+				_cachedDungeonMapStore.Add((byte)dungeon.Group, dungeon.ID);
 
-			CachedDungeonMapStore.Add(0, dungeon.id);
+			_cachedDungeonMapStore.Add(0, dungeon.ID);
 		}
 
 		if (reload)
-			CachedDungeonMapStore.Clear();
+			_cachedDungeonMapStore.Clear();
 	}
 
 	public void Update(uint diff)
@@ -256,60 +283,60 @@ public class LFGManager : Singleton<LFGManager>
 		var currTime = GameTime.GetGameTime();
 
 		// Remove obsolete role checks
-		foreach (var pairCheck in RoleChecksStore)
+		foreach (var pairCheck in _roleChecksStore)
 		{
 			var roleCheck = pairCheck.Value;
 
-			if (currTime < roleCheck.cancelTime)
+			if (currTime < roleCheck.CancelTime)
 				continue;
 
-			roleCheck.state = LfgRoleCheckState.MissingRole;
+			roleCheck.State = LfgRoleCheckState.MissingRole;
 
-			foreach (var pairRole in roleCheck.roles)
+			foreach (var pairRole in roleCheck.Roles)
 			{
 				var guid = pairRole.Key;
 				RestoreState(guid, "Remove Obsolete RoleCheck");
 				SendLfgRoleCheckUpdate(guid, roleCheck);
 
-				if (guid == roleCheck.leader)
+				if (guid == roleCheck.Leader)
 					SendLfgJoinResult(guid, new LfgJoinResultData(LfgJoinResult.RoleCheckFailed, LfgRoleCheckState.MissingRole));
 			}
 
 			RestoreState(pairCheck.Key, "Remove Obsolete RoleCheck");
-			RoleChecksStore.Remove(pairCheck.Key);
+			_roleChecksStore.Remove(pairCheck.Key);
 		}
 
 		// Remove obsolete proposals
-		foreach (var removePair in ProposalsStore.ToList())
-			if (removePair.Value.cancelTime < currTime)
+		foreach (var removePair in _proposalsStore.ToList())
+			if (removePair.Value.CancelTime < currTime)
 				RemoveProposal(removePair, LfgUpdateType.ProposalFailed);
 
 		// Remove obsolete kicks
-		foreach (var itBoot in BootsStore)
+		foreach (var itBoot in _bootsStore)
 		{
 			var boot = itBoot.Value;
 
-			if (boot.cancelTime < currTime)
+			if (boot.CancelTime < currTime)
 			{
-				boot.inProgress = false;
+				boot.InProgress = false;
 
-				foreach (var itVotes in boot.votes)
+				foreach (var itVotes in boot.Votes)
 				{
 					var pguid = itVotes.Key;
 
-					if (pguid != boot.victim)
+					if (pguid != boot.Victim)
 						SendLfgBootProposalUpdate(pguid, boot);
 				}
 
 				SetVoteKick(itBoot.Key, false);
-				BootsStore.Remove(itBoot.Key);
+				_bootsStore.Remove(itBoot.Key);
 			}
 		}
 
-		var lastProposalId = m_lfgProposalId;
+		var lastProposalId = _lfgProposalId;
 
 		// Check if a proposal can be formed with the new groups being added
-		foreach (var it in QueuesStore)
+		foreach (var it in _queuesStore)
 		{
 			var newProposals = it.Value.FindGroups();
 
@@ -317,16 +344,16 @@ public class LFGManager : Singleton<LFGManager>
 				Log.Logger.Debug("Update: Found {0} new groups in queue {1}", newProposals, it.Key);
 		}
 
-		if (lastProposalId != m_lfgProposalId)
+		if (lastProposalId != _lfgProposalId)
 			// FIXME lastProposalId ? lastProposalId +1 ?
-			foreach (var itProposal in ProposalsStore.SkipWhile(p => p.Key == m_lfgProposalId))
+			foreach (var itProposal in _proposalsStore.SkipWhile(p => p.Key == _lfgProposalId))
 			{
 				var proposalId = itProposal.Key;
-				var proposal = ProposalsStore[proposalId];
+				var proposal = _proposalsStore[proposalId];
 
 				var guid = ObjectGuid.Empty;
 
-				foreach (var itPlayers in proposal.players)
+				foreach (var itPlayers in proposal.Players)
 				{
 					guid = itPlayers.Key;
 					SetState(guid, LfgState.Proposal);
@@ -345,21 +372,21 @@ public class LFGManager : Singleton<LFGManager>
 					SendLfgUpdateProposal(guid, proposal);
 				}
 
-				if (proposal.state == LfgProposalState.Success)
+				if (proposal.State == LfgProposalState.Success)
 					UpdateProposal(proposalId, guid, true);
 			}
 
 		// Update all players status queue info
-		if (m_QueueTimer > SharedConst.LFGQueueUpdateInterval)
+		if (_queueTimer > SharedConst.LFGQueueUpdateInterval)
 		{
-			m_QueueTimer = 0;
+			_queueTimer = 0;
 
-			foreach (var it in QueuesStore)
+			foreach (var it in _queuesStore)
 				it.Value.UpdateQueueTimers(it.Key, currTime);
 		}
 		else
 		{
-			m_QueueTimer += diff;
+			_queueTimer += diff;
 		}
 	}
 
@@ -403,63 +430,63 @@ public class LFGManager : Singleton<LFGManager>
 		// Check player or group member restrictions
 		if (!player.Session.HasPermission(RBACPermissions.JoinDungeonFinder))
 		{
-			joinData.result = LfgJoinResult.NoSlots;
+			joinData.Result = LfgJoinResult.NoSlots;
 		}
 		else if (player.InBattleground || player.InArena || player.InBattlegroundQueue())
 		{
-			joinData.result = LfgJoinResult.CantUseDungeons;
+			joinData.Result = LfgJoinResult.CantUseDungeons;
 		}
 		else if (player.HasAura(SharedConst.LFGSpellDungeonDeserter))
 		{
-			joinData.result = LfgJoinResult.DeserterPlayer;
+			joinData.Result = LfgJoinResult.DeserterPlayer;
 		}
 		else if (!isContinue && player.HasAura(SharedConst.LFGSpellDungeonCooldown))
 		{
-			joinData.result = LfgJoinResult.RandomCooldownPlayer;
+			joinData.Result = LfgJoinResult.RandomCooldownPlayer;
 		}
 		else if (dungeons.Empty())
 		{
-			joinData.result = LfgJoinResult.NoSlots;
+			joinData.Result = LfgJoinResult.NoSlots;
 		}
 		else if (player.HasAura(9454)) // check Freeze debuff
 		{
-			joinData.result = LfgJoinResult.NoSlots;
+			joinData.Result = LfgJoinResult.NoSlots;
 		}
 		else if (grp)
 		{
 			if (grp.MembersCount > MapConst.MaxGroupSize)
 			{
-				joinData.result = LfgJoinResult.TooManyMembers;
+				joinData.Result = LfgJoinResult.TooManyMembers;
 			}
 			else
 			{
 				byte memberCount = 0;
 
-				for (var refe = grp.FirstMember; refe != null && joinData.result == LfgJoinResult.Ok; refe = refe.Next())
+				for (var refe = grp.FirstMember; refe != null && joinData.Result == LfgJoinResult.Ok; refe = refe.Next())
 				{
 					var plrg = refe.Source;
 
 					if (plrg)
 					{
 						if (!plrg.Session.HasPermission(RBACPermissions.JoinDungeonFinder))
-							joinData.result = LfgJoinResult.NoLfgObject;
+							joinData.Result = LfgJoinResult.NoLfgObject;
 
 						if (plrg.HasAura(SharedConst.LFGSpellDungeonDeserter))
 						{
-							joinData.result = LfgJoinResult.DeserterParty;
+							joinData.Result = LfgJoinResult.DeserterParty;
 						}
 						else if (!isContinue && plrg.HasAura(SharedConst.LFGSpellDungeonCooldown))
 						{
-							joinData.result = LfgJoinResult.RandomCooldownParty;
+							joinData.Result = LfgJoinResult.RandomCooldownParty;
 						}
 						else if (plrg.InBattleground || plrg.InArena || plrg.InBattlegroundQueue())
 						{
-							joinData.result = LfgJoinResult.CantUseDungeons;
+							joinData.Result = LfgJoinResult.CantUseDungeons;
 						}
 						else if (plrg.HasAura(9454)) // check Freeze debuff
 						{
-							joinData.result = LfgJoinResult.NoSlots;
-							joinData.playersMissingRequirement.Add(plrg.GetName());
+							joinData.Result = LfgJoinResult.NoSlots;
+							joinData.PlayersMissingRequirement.Add(plrg.GetName());
 						}
 
 						++memberCount;
@@ -467,8 +494,8 @@ public class LFGManager : Singleton<LFGManager>
 					}
 				}
 
-				if (joinData.result == LfgJoinResult.Ok && memberCount != grp.MembersCount)
-					joinData.result = LfgJoinResult.MembersNotPresent;
+				if (joinData.Result == LfgJoinResult.Ok && memberCount != grp.MembersCount)
+					joinData.Result = LfgJoinResult.MembersNotPresent;
 			}
 		}
 		else
@@ -479,13 +506,13 @@ public class LFGManager : Singleton<LFGManager>
 		// Check if all dungeons are valid
 		var isRaid = false;
 
-		if (joinData.result == LfgJoinResult.Ok)
+		if (joinData.Result == LfgJoinResult.Ok)
 		{
 			var isDungeon = false;
 
 			foreach (var it in dungeons)
 			{
-				if (joinData.result != LfgJoinResult.Ok)
+				if (joinData.Result != LfgJoinResult.Ok)
 					break;
 
 				var type = GetDungeonType(it);
@@ -494,55 +521,55 @@ public class LFGManager : Singleton<LFGManager>
 				{
 					case LfgType.Random:
 						if (dungeons.Count > 1) // Only allow 1 random dungeon
-							joinData.result = LfgJoinResult.InvalidSlot;
+							joinData.Result = LfgJoinResult.InvalidSlot;
 						else
 							rDungeonId = dungeons.First();
 
 						goto case LfgType.Dungeon;
 					case LfgType.Dungeon:
 						if (isRaid)
-							joinData.result = LfgJoinResult.MismatchedSlots;
+							joinData.Result = LfgJoinResult.MismatchedSlots;
 
 						isDungeon = true;
 
 						break;
 					case LfgType.Raid:
 						if (isDungeon)
-							joinData.result = LfgJoinResult.MismatchedSlots;
+							joinData.Result = LfgJoinResult.MismatchedSlots;
 
 						isRaid = true;
 
 						break;
 					default:
 						Log.Logger.Error("Wrong dungeon type {0} for dungeon {1}", type, it);
-						joinData.result = LfgJoinResult.InvalidSlot;
+						joinData.Result = LfgJoinResult.InvalidSlot;
 
 						break;
 				}
 			}
 
 			// it could be changed
-			if (joinData.result == LfgJoinResult.Ok)
+			if (joinData.Result == LfgJoinResult.Ok)
 			{
 				// Expand random dungeons and check restrictions
 				if (rDungeonId != 0)
 					dungeons = GetDungeonsByRandom(rDungeonId);
 
 				// if we have lockmap then there are no compatible dungeons
-				GetCompatibleDungeons(dungeons, players, joinData.lockmap, joinData.playersMissingRequirement, isContinue);
+				GetCompatibleDungeons(dungeons, players, joinData.Lockmap, joinData.PlayersMissingRequirement, isContinue);
 
 				if (dungeons.Empty())
-					joinData.result = LfgJoinResult.NoSlots;
+					joinData.Result = LfgJoinResult.NoSlots;
 			}
 		}
 
 		// Can't join. Send result
-		if (joinData.result != LfgJoinResult.Ok)
+		if (joinData.Result != LfgJoinResult.Ok)
 		{
-			Log.Logger.Debug("Join: [{0}] joining with {1} members. result: {2}", guid, grp ? grp.MembersCount : 1, joinData.result);
+			Log.Logger.Debug("Join: [{0}] joining with {1} members. result: {2}", guid, grp ? grp.MembersCount : 1, joinData.Result);
 
 			if (!dungeons.Empty()) // Only should show lockmap when have no dungeons available
-				joinData.lockmap.Clear();
+				joinData.Lockmap.Clear();
 
 			player.Session.SendLfgJoinResult(joinData);
 
@@ -571,14 +598,14 @@ public class LFGManager : Singleton<LFGManager>
 			// Create new rolecheck
 			LfgRoleCheck roleCheck = new()
 			{
-				cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeRolecheck,
-				state = LfgRoleCheckState.Initialiting,
-				leader = guid,
-				dungeons = dungeons,
-				rDungeonId = rDungeonId
+				CancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeRolecheck,
+				State = LfgRoleCheckState.Initialiting,
+				Leader = guid,
+				Dungeons = dungeons,
+				RDungeonId = rDungeonId
 			};
 
-			RoleChecksStore[gguid] = roleCheck;
+			_roleChecksStore[gguid] = roleCheck;
 
 			if (rDungeonId != 0)
 			{
@@ -604,7 +631,7 @@ public class LFGManager : Singleton<LFGManager>
 					if (!isContinue)
 						SetSelectedDungeons(pguid, dungeons);
 
-					roleCheck.roles[pguid] = 0;
+					roleCheck.Roles[pguid] = 0;
 
 					if (!string.IsNullOrEmpty(debugNames))
 						debugNames += ", ";
@@ -669,7 +696,7 @@ public class LFGManager : Singleton<LFGManager>
 
 					// Set the new state to LFG_STATE_DUNGEON/LFG_STATE_FINISHED_DUNGEON if the group is already in a dungeon
 					// This is required in case a LFG group vote-kicks a player in a dungeon, queues, then leaves the queue (maybe to queue later again)
-					var group = Global.GroupMgr.GetGroupByGUID(gguid);
+					var group = _groupManager.GetGroupByGuid(gguid);
 
 					if (group != null)
 						if (group.IsLFGGroup && GetDungeon(gguid) != 0 && (oldState == LfgState.Dungeon || oldState == LfgState.FinishedDungeon))
@@ -706,15 +733,15 @@ public class LFGManager : Singleton<LFGManager>
 				KeyValuePair<uint, LfgProposal> it = new();
 				var pguid = gguid == guid ? GetLeader(gguid) : guid;
 
-				foreach (var test in ProposalsStore)
+				foreach (var test in _proposalsStore)
 				{
 					it = test;
-					var itPlayer = it.Value.players.LookupByKey(pguid);
+					var itPlayer = it.Value.Players.LookupByKey(pguid);
 
 					if (itPlayer != null)
 					{
 						// Mark the player/leader of group who left as didn't accept the proposal
-						itPlayer.accept = LfgAnswer.Deny;
+						itPlayer.Accept = LfgAnswer.Deny;
 
 						break;
 					}
@@ -740,7 +767,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public RideTicket GetTicket(ObjectGuid guid)
 	{
-		var palyerData = PlayersStore.LookupByKey(guid);
+		var palyerData = _playersStore.LookupByKey(guid);
 
 		if (palyerData != null)
 			return palyerData.GetTicket();
@@ -753,8 +780,8 @@ public class LFGManager : Singleton<LFGManager>
 		if (gguid.IsEmpty)
 			return;
 
-		Dictionary<ObjectGuid, LfgRoles> check_roles;
-		var roleCheck = RoleChecksStore.LookupByKey(gguid);
+		Dictionary<ObjectGuid, LfgRoles> checkRoles;
+		var roleCheck = _roleChecksStore.LookupByKey(gguid);
 
 		if (roleCheck == null)
 			return;
@@ -764,7 +791,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (!guid.IsEmpty)
 		{
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player != null)
 				roles = FilterClassRoles(player, roles);
@@ -772,24 +799,24 @@ public class LFGManager : Singleton<LFGManager>
 				return;
 		}
 
-		var sendRoleChosen = roleCheck.state != LfgRoleCheckState.Default && !guid.IsEmpty;
+		var sendRoleChosen = roleCheck.State != LfgRoleCheckState.Default && !guid.IsEmpty;
 
 		if (guid.IsEmpty)
 		{
-			roleCheck.state = LfgRoleCheckState.Aborted;
+			roleCheck.State = LfgRoleCheckState.Aborted;
 		}
 		else if (roles < LfgRoles.Tank) // Player selected no role.
 		{
-			roleCheck.state = LfgRoleCheckState.NoRole;
+			roleCheck.State = LfgRoleCheckState.NoRole;
 		}
 		else
 		{
-			roleCheck.roles[guid] = roles;
+			roleCheck.Roles[guid] = roles;
 
 			// Check if all players have selected a role
 			var done = false;
 
-			foreach (var rolePair in roleCheck.roles)
+			foreach (var rolePair in roleCheck.Roles)
 			{
 				if (rolePair.Value != LfgRoles.None)
 					continue;
@@ -800,21 +827,21 @@ public class LFGManager : Singleton<LFGManager>
 			if (done)
 			{
 				// use temporal var to check roles, CheckGroupRoles modifies the roles
-				check_roles = roleCheck.roles;
-				roleCheck.state = CheckGroupRoles(check_roles) ? LfgRoleCheckState.Finished : LfgRoleCheckState.WrongRoles;
+				checkRoles = roleCheck.Roles;
+				roleCheck.State = CheckGroupRoles(checkRoles) ? LfgRoleCheckState.Finished : LfgRoleCheckState.WrongRoles;
 			}
 		}
 
 		List<uint> dungeons = new();
 
-		if (roleCheck.rDungeonId != 0)
-			dungeons.Add(roleCheck.rDungeonId);
+		if (roleCheck.RDungeonId != 0)
+			dungeons.Add(roleCheck.RDungeonId);
 		else
-			dungeons = roleCheck.dungeons;
+			dungeons = roleCheck.Dungeons;
 
-		LfgJoinResultData joinData = new(LfgJoinResult.RoleCheckFailed, roleCheck.state);
+		LfgJoinResultData joinData = new(LfgJoinResult.RoleCheckFailed, roleCheck.State);
 
-		foreach (var it in roleCheck.roles)
+		foreach (var it in roleCheck.Roles)
 		{
 			var pguid = it.Key;
 
@@ -823,7 +850,7 @@ public class LFGManager : Singleton<LFGManager>
 
 			SendLfgRoleCheckUpdate(pguid, roleCheck);
 
-			switch (roleCheck.state)
+			switch (roleCheck.State)
 			{
 				case LfgRoleCheckState.Initialiting:
 					continue;
@@ -834,7 +861,7 @@ public class LFGManager : Singleton<LFGManager>
 
 					break;
 				default:
-					if (roleCheck.leader == pguid)
+					if (roleCheck.Leader == pguid)
 						SendLfgJoinResult(pguid, joinData);
 
 					SendLfgUpdateStatus(pguid, new LfgUpdateData(LfgUpdateType.RolecheckFailed), true);
@@ -844,17 +871,17 @@ public class LFGManager : Singleton<LFGManager>
 			}
 		}
 
-		if (roleCheck.state == LfgRoleCheckState.Finished)
+		if (roleCheck.State == LfgRoleCheckState.Finished)
 		{
 			SetState(gguid, LfgState.Queued);
 			var queue = GetQueue(gguid);
-			queue.AddQueueData(gguid, GameTime.GetGameTime(), roleCheck.dungeons, roleCheck.roles);
-			RoleChecksStore.Remove(gguid);
+			queue.AddQueueData(gguid, GameTime.GetGameTime(), roleCheck.Dungeons, roleCheck.Roles);
+			_roleChecksStore.Remove(gguid);
 		}
-		else if (roleCheck.state != LfgRoleCheckState.Initialiting)
+		else if (roleCheck.State != LfgRoleCheckState.Initialiting)
 		{
 			RestoreState(gguid, "Rolecheck Failed");
-			RoleChecksStore.Remove(gguid);
+			_roleChecksStore.Remove(gguid);
 		}
 	}
 
@@ -945,27 +972,27 @@ public class LFGManager : Singleton<LFGManager>
 
 	public uint AddProposal(LfgProposal proposal)
 	{
-		proposal.id = ++m_lfgProposalId;
-		ProposalsStore[m_lfgProposalId] = proposal;
+		proposal.ID = ++_lfgProposalId;
+		_proposalsStore[_lfgProposalId] = proposal;
 
-		return m_lfgProposalId;
+		return _lfgProposalId;
 	}
 
 	public void UpdateProposal(uint proposalId, ObjectGuid guid, bool accept)
 	{
 		// Check if the proposal exists
-		var proposal = ProposalsStore.LookupByKey(proposalId);
+		var proposal = _proposalsStore.LookupByKey(proposalId);
 
 		if (proposal == null)
 			return;
 
 		// Check if proposal have the current player
-		var player = proposal.players.LookupByKey(guid);
+		var player = proposal.Players.LookupByKey(guid);
 
 		if (player == null)
 			return;
 
-		player.accept = (LfgAnswer)Convert.ToInt32(accept);
+		player.Accept = (LfgAnswer)Convert.ToInt32(accept);
 
 		Log.Logger.Debug("UpdateProposal: Player [{0}] of proposal {1} selected: {2}", guid, proposalId, accept);
 
@@ -979,29 +1006,29 @@ public class LFGManager : Singleton<LFGManager>
 		// check if all have answered and reorder players (leader first)
 		var allAnswered = true;
 
-		foreach (var itPlayers in proposal.players)
-			if (itPlayers.Value.accept != LfgAnswer.Agree) // No answer (-1) or not accepted (0)
+		foreach (var itPlayers in proposal.Players)
+			if (itPlayers.Value.Accept != LfgAnswer.Agree) // No answer (-1) or not accepted (0)
 				allAnswered = false;
 
 		if (!allAnswered)
 		{
-			foreach (var it in proposal.players)
+			foreach (var it in proposal.Players)
 				SendLfgUpdateProposal(it.Key, proposal);
 
 			return;
 		}
 
-		var sendUpdate = proposal.state != LfgProposalState.Success;
-		proposal.state = LfgProposalState.Success;
+		var sendUpdate = proposal.State != LfgProposalState.Success;
+		proposal.State = LfgProposalState.Success;
 		var joinTime = GameTime.GetGameTime();
 
 		var queue = GetQueue(guid);
 		LfgUpdateData updateData = new(LfgUpdateType.GroupFound);
 
-		foreach (var it in proposal.players)
+		foreach (var it in proposal.Players)
 		{
 			var pguid = it.Key;
-			var gguid = it.Value.group;
+			var gguid = it.Value.Group;
 			var dungeonId = GetSelectedDungeons(pguid).First();
 			int waitTime;
 
@@ -1019,7 +1046,7 @@ public class LFGManager : Singleton<LFGManager>
 				SendLfgUpdateStatus(pguid, updateData, false);
 			}
 
-			updateData.updateType = LfgUpdateType.RemovedFromQueue;
+			updateData.UpdateType = LfgUpdateType.RemovedFromQueue;
 			SendLfgUpdateStatus(pguid, updateData, true);
 			SendLfgUpdateStatus(pguid, updateData, false);
 
@@ -1048,45 +1075,45 @@ public class LFGManager : Singleton<LFGManager>
 			}
 
 			// Store the number of players that were present in group when joining RFD, used for achievement purposes
-			var _player = Global.ObjAccessor.FindConnectedPlayer(pguid);
+			var player = _objectAccessor.FindConnectedPlayer(pguid);
 
-			if (_player != null)
+			if (player != null)
 			{
-				var group = _player.Group;
+				var group = player.Group;
 
 				if (group != null)
-					PlayersStore[pguid].SetNumberOfPartyMembersAtJoin((byte)group.MembersCount);
+					_playersStore[pguid].SetNumberOfPartyMembersAtJoin((byte)group.MembersCount);
 			}
 
 			SetState(pguid, LfgState.Dungeon);
 		}
 
 		// Remove players/groups from Queue
-		foreach (var it in proposal.queues)
+		foreach (var it in proposal.Queues)
 			queue.RemoveFromQueue(it);
 
 		MakeNewGroup(proposal);
-		ProposalsStore.Remove(proposalId);
+		_proposalsStore.Remove(proposalId);
 	}
 
 	public void InitBoot(ObjectGuid gguid, ObjectGuid kicker, ObjectGuid victim, string reason)
 	{
 		SetVoteKick(gguid, true);
 
-		var boot = BootsStore[gguid];
-		boot.inProgress = true;
-		boot.cancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeBoot;
-		boot.reason = reason;
-		boot.victim = victim;
+		var boot = _bootsStore[gguid];
+		boot.InProgress = true;
+		boot.CancelTime = GameTime.GetGameTime() + SharedConst.LFGTimeBoot;
+		boot.Reason = reason;
+		boot.Victim = victim;
 
 		var players = GetPlayers(gguid);
 
 		// Set votes
 		foreach (var guid in players)
-			boot.votes[guid] = LfgAnswer.Pending;
+			boot.Votes[guid] = LfgAnswer.Pending;
 
-		boot.votes[victim] = LfgAnswer.Deny;  // Victim auto vote NO
-		boot.votes[kicker] = LfgAnswer.Agree; // Kicker auto vote YES
+		boot.Votes[victim] = LfgAnswer.Deny;  // Victim auto vote NO
+		boot.Votes[kicker] = LfgAnswer.Agree; // Kicker auto vote YES
 
 		// Notify players
 		foreach (var it in players)
@@ -1100,20 +1127,20 @@ public class LFGManager : Singleton<LFGManager>
 		if (gguid.IsEmpty)
 			return;
 
-		var boot = BootsStore.LookupByKey(gguid);
+		var boot = _bootsStore.LookupByKey(gguid);
 
 		if (boot == null)
 			return;
 
-		if (boot.votes[guid] != LfgAnswer.Pending) // Cheat check: Player can't vote twice
+		if (boot.Votes[guid] != LfgAnswer.Pending) // Cheat check: Player can't vote twice
 			return;
 
-		boot.votes[guid] = (LfgAnswer)Convert.ToInt32(accept);
+		boot.Votes[guid] = (LfgAnswer)Convert.ToInt32(accept);
 
 		byte agreeNum = 0;
 		byte denyNum = 0;
 
-		foreach (var (_, answer) in boot.votes)
+		foreach (var (_, answer) in boot.Votes)
 			switch (answer)
 			{
 				case LfgAnswer.Pending:
@@ -1129,17 +1156,17 @@ public class LFGManager : Singleton<LFGManager>
 			}
 
 		// if we don't have enough votes (agree or deny) do nothing
-		if (agreeNum < SharedConst.LFGKickVotesNeeded && (boot.votes.Count - denyNum) >= SharedConst.LFGKickVotesNeeded)
+		if (agreeNum < SharedConst.LFGKickVotesNeeded && (boot.Votes.Count - denyNum) >= SharedConst.LFGKickVotesNeeded)
 			return;
 
 		// Send update info to all players
-		boot.inProgress = false;
+		boot.InProgress = false;
 
-		foreach (var itVotes in boot.votes)
+		foreach (var itVotes in boot.Votes)
 		{
 			var pguid = itVotes.Key;
 
-			if (pguid != boot.victim)
+			if (pguid != boot.Victim)
 				SendLfgBootProposalUpdate(pguid, boot);
 		}
 
@@ -1147,15 +1174,15 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (agreeNum == SharedConst.LFGKickVotesNeeded) // Vote passed - Kick player
 		{
-			var group = Global.GroupMgr.GetGroupByGUID(gguid);
+			var group = _groupManager.GetGroupByGuid(gguid);
 
 			if (group)
-				Player.RemoveFromGroup(group, boot.victim, RemoveMethod.KickLFG);
+				Player.RemoveFromGroup(group, boot.Victim, RemoveMethod.KickLFG);
 
 			DecreaseKicksLeft(gguid);
 		}
 
-		BootsStore.Remove(gguid);
+		_bootsStore.Remove(gguid);
 	}
 
 	public void TeleportPlayer(Player player, bool outt, bool fromOpcode = false)
@@ -1176,9 +1203,9 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (outt)
 		{
-			Log.Logger.Debug("TeleportPlayer: Player {0} is being teleported out. Current Map {1} - Expected Map {2}", player.GetName(), player.Location.MapId, dungeon.map);
+			Log.Logger.Debug("TeleportPlayer: Player {0} is being teleported out. Current Map {1} - Expected Map {2}", player.GetName(), player.Location.MapId, dungeon.Map);
 
-			if (player.Location.MapId == dungeon.map)
+			if (player.Location.MapId == dungeon.Map)
 				player.TeleportToBGEntryPoint();
 
 			return;
@@ -1210,13 +1237,13 @@ public class LFGManager : Singleton<LFGManager>
 		{
 			error = LfgTeleportResult.NoReturnLocation;
 		}
-		else if (player.Location.MapId != dungeon.map) // Do not teleport players in dungeon to the entrance
+		else if (player.Location.MapId != dungeon.Map) // Do not teleport players in dungeon to the entrance
 		{
-			var mapid = dungeon.map;
-			var x = dungeon.x;
-			var y = dungeon.y;
-			var z = dungeon.z;
-			var orientation = dungeon.o;
+			var mapid = dungeon.Map;
+			var x = dungeon.X;
+			var y = dungeon.Y;
+			var z = dungeon.Z;
+			var orientation = dungeon.O;
 
 			if (!fromOpcode)
 				// Select a player inside to be teleported to
@@ -1224,7 +1251,7 @@ public class LFGManager : Singleton<LFGManager>
 				{
 					var plrg = refe.Source;
 
-					if (plrg && plrg != player && plrg.Location.MapId == dungeon.map)
+					if (plrg && plrg != player && plrg.Location.MapId == dungeon.Map)
 					{
 						mapid = plrg.Location.MapId;
 						x = plrg.Location.X;
@@ -1252,7 +1279,7 @@ public class LFGManager : Singleton<LFGManager>
 		if (error != LfgTeleportResult.None)
 			player.Session.SendLfgTeleportError(error);
 
-		Log.Logger.Debug("TeleportPlayer: Player {0} is being teleported in to map {1} (x: {2}, y: {3}, z: {4}) Result: {5}", player.GetName(), dungeon.map, dungeon.x, dungeon.y, dungeon.z, error);
+		Log.Logger.Debug("TeleportPlayer: Player {0} is being teleported in to map {1} (x: {2}, y: {3}, z: {4}) Result: {5}", player.GetName(), dungeon.Map, dungeon.X, dungeon.Y, dungeon.Z, error);
 	}
 
 	public void FinishDungeon(ObjectGuid gguid, uint dungeonId, Map currMap)
@@ -1297,14 +1324,14 @@ public class LFGManager : Singleton<LFGManager>
 			// Give rewards only if its a random dungeon
 			var dungeon = GetLFGDungeon(rDungeonId);
 
-			if (dungeon == null || (dungeon.type != LfgType.Random && !dungeon.seasonal))
+			if (dungeon == null || (dungeon.Type != LfgType.Random && !dungeon.Seasonal))
 			{
 				Log.Logger.Debug($"Group: {gguid}, Player: {guid} dungeon {rDungeonId} is not random or seasonal");
 
 				continue;
 			}
 
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player == null)
 			{
@@ -1323,7 +1350,7 @@ public class LFGManager : Singleton<LFGManager>
 			player.RemoveAura(SharedConst.LFGSpellDungeonCooldown);
 
 			var dungeonDone = GetLFGDungeon(dungeonId);
-			var mapId = dungeonDone != null ? dungeonDone.map : 0;
+			var mapId = dungeonDone != null ? dungeonDone.Map : 0;
 
 			if (player.Location.MapId != mapId)
 			{
@@ -1333,10 +1360,10 @@ public class LFGManager : Singleton<LFGManager>
 			}
 
 			// Update achievements
-			if (dungeon.difficulty == Difficulty.Heroic)
+			if (dungeon.Difficulty == Difficulty.Heroic)
 			{
 				byte lfdRandomPlayers = 0;
-				var numParty = PlayersStore[guid].GetNumberOfPartyMembersAtJoin();
+				var numParty = _playersStore[guid].GetNumberOfPartyMembersAtJoin();
 
 				if (numParty != 0)
 					lfdRandomPlayers = (byte)(5 - numParty);
@@ -1352,7 +1379,7 @@ public class LFGManager : Singleton<LFGManager>
 				continue;
 
 			var done = false;
-			var quest = Global.ObjectMgr.GetQuestTemplate(reward.firstQuest);
+			var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
 
 			if (quest == null)
 				continue;
@@ -1365,7 +1392,7 @@ public class LFGManager : Singleton<LFGManager>
 			else
 			{
 				done = true;
-				quest = Global.ObjectMgr.GetQuestTemplate(reward.otherQuest);
+				quest = _objectManager.GetQuestTemplate(reward.OtherQuest);
 
 				if (quest == null)
 					continue;
@@ -1385,14 +1412,14 @@ public class LFGManager : Singleton<LFGManager>
 	public LfgReward GetRandomDungeonReward(uint dungeon, uint level)
 	{
 		LfgReward reward = null;
-		var bounds = RewardMapStore.LookupByKey(dungeon & 0x00FFFFFF);
+		var bounds = _rewardMapStore.LookupByKey(dungeon & 0x00FFFFFF);
 
 		foreach (var rew in bounds)
 		{
 			reward = rew;
 
 			// ordered properly at loading
-			if (rew.maxLevel >= level)
+			if (rew.MaxLevel >= level)
 				break;
 		}
 
@@ -1406,7 +1433,7 @@ public class LFGManager : Singleton<LFGManager>
 		if (dungeon == null)
 			return LfgType.None;
 
-		return dungeon.type;
+		return dungeon.Type;
 	}
 
 	public LfgState GetState(ObjectGuid guid)
@@ -1415,15 +1442,15 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (guid.IsParty)
 		{
-			if (!GroupsStore.ContainsKey(guid))
+			if (!_groupsStore.ContainsKey(guid))
 				return LfgState.None;
 
-			state = GroupsStore[guid].GetState();
+			state = _groupsStore[guid].GetState();
 		}
 		else
 		{
 			AddPlayerData(guid);
-			state = PlayersStore[guid].GetState();
+			state = _playersStore[guid].GetState();
 		}
 
 		Log.Logger.Debug("GetState: [{0}] = {1}", guid, state);
@@ -1437,12 +1464,12 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (guid.IsParty)
 		{
-			state = GroupsStore[guid].GetOldState();
+			state = _groupsStore[guid].GetOldState();
 		}
 		else
 		{
 			AddPlayerData(guid);
-			state = PlayersStore[guid].GetOldState();
+			state = _playersStore[guid].GetOldState();
 		}
 
 		Log.Logger.Debug("GetOldState: [{0}] = {1}", guid, state);
@@ -1452,7 +1479,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public bool IsVoteKickActive(ObjectGuid gguid)
 	{
-		var active = GroupsStore[gguid].IsVoteKickActive();
+		var active = _groupsStore[gguid].IsVoteKickActive();
 		Log.Logger.Information("Group: {0}, Active: {1}", gguid.ToString(), active);
 
 		return active;
@@ -1460,10 +1487,10 @@ public class LFGManager : Singleton<LFGManager>
 
 	public uint GetDungeon(ObjectGuid guid, bool asId = true)
 	{
-		if (!GroupsStore.ContainsKey(guid))
+		if (!_groupsStore.ContainsKey(guid))
 			return 0;
 
-		var dungeon = GroupsStore[guid].GetDungeon(asId);
+		var dungeon = _groupsStore[guid].GetDungeon(asId);
 		Log.Logger.Debug("GetDungeon: [{0}] asId: {1} = {2}", guid, asId, dungeon);
 
 		return dungeon;
@@ -1471,10 +1498,10 @@ public class LFGManager : Singleton<LFGManager>
 
 	public uint GetDungeonMapId(ObjectGuid guid)
 	{
-		if (!GroupsStore.ContainsKey(guid))
+		if (!_groupsStore.ContainsKey(guid))
 			return 0;
 
-		var dungeonId = GroupsStore[guid].GetDungeon(true);
+		var dungeonId = _groupsStore[guid].GetDungeon(true);
 		uint mapId = 0;
 
 		if (dungeonId != 0)
@@ -1482,7 +1509,7 @@ public class LFGManager : Singleton<LFGManager>
 			var dungeon = GetLFGDungeon(dungeonId);
 
 			if (dungeon != null)
-				mapId = dungeon.map;
+				mapId = dungeon.Map;
 		}
 
 		Log.Logger.Error("GetDungeonMapId: [{0}] = {1} (DungeonId = {2})", guid, mapId, dungeonId);
@@ -1492,7 +1519,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public LfgRoles GetRoles(ObjectGuid guid)
 	{
-		var roles = PlayersStore[guid].GetRoles();
+		var roles = _playersStore[guid].GetRoles();
 		Log.Logger.Debug("GetRoles: [{0}] = {1}", guid, roles);
 
 		return roles;
@@ -1502,7 +1529,7 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		Log.Logger.Debug("GetSelectedDungeons: [{0}]", guid);
 
-		return PlayersStore[guid].GetSelectedDungeons();
+		return _playersStore[guid].GetSelectedDungeons();
 	}
 
 	public uint GetSelectedRandomDungeon(ObjectGuid guid)
@@ -1515,7 +1542,7 @@ public class LFGManager : Singleton<LFGManager>
 			{
 				var dungeon = GetLFGDungeon(dungeons.First());
 
-				if (dungeon is { type: LfgType.Raid })
+				if (dungeon is { Type: LfgType.Raid })
 					return dungeons.First();
 			}
 		}
@@ -1526,7 +1553,7 @@ public class LFGManager : Singleton<LFGManager>
 	public Dictionary<uint, LfgLockInfoData> GetLockedDungeons(ObjectGuid guid)
 	{
 		Dictionary<uint, LfgLockInfoData> lockDic = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+		var player = _objectAccessor.FindConnectedPlayer(guid);
 
 		if (!player)
 		{
@@ -1554,31 +1581,31 @@ public class LFGManager : Singleton<LFGManager>
 			{
 				lockStatus = LfgLockStatusType.RaidLocked;
 			}
-			else if (dungeon.expansion > (uint)expansion)
+			else if (dungeon.Expansion > (uint)expansion)
 			{
 				lockStatus = LfgLockStatusType.InsufficientExpansion;
 			}
-			else if (Global.DisableMgr.IsDisabledFor(DisableType.Map, dungeon.map, player))
+			else if (_disableManager.IsDisabledFor(DisableType.Map, dungeon.Map, player))
 			{
 				lockStatus = LfgLockStatusType.NotInSeason;
 			}
-			else if (Global.DisableMgr.IsDisabledFor(DisableType.LFGMap, dungeon.map, player))
+			else if (_disableManager.IsDisabledFor(DisableType.LFGMap, dungeon.Map, player))
 			{
 				lockStatus = LfgLockStatusType.RaidLocked;
 			}
-			else if (dungeon.difficulty > Difficulty.Normal && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(dungeon.map, dungeon.difficulty)) != null)
+			else if (dungeon.Difficulty > Difficulty.Normal && _instanceLockManager.FindActiveInstanceLock(guid, new MapDb2Entries(dungeon.Map, dungeon.Difficulty)) != null)
 			{
 				lockStatus = LfgLockStatusType.RaidLocked;
 			}
-			else if (dungeon.seasonal && !IsSeasonActive(dungeon.id))
+			else if (dungeon.Seasonal && !IsSeasonActive(dungeon.ID))
 			{
 				lockStatus = LfgLockStatusType.NotInSeason;
 			}
-			else if (dungeon.requiredItemLevel > player.GetAverageItemLevel())
+			else if (dungeon.RequiredItemLevel > player.GetAverageItemLevel())
 			{
 				lockStatus = LfgLockStatusType.TooLowGearScore;
 			}
-			else if ((ar = Global.ObjectMgr.GetAccessRequirement(dungeon.map, dungeon.difficulty)) != null)
+			else if ((ar = _objectManager.GetAccessRequirement(dungeon.Map, dungeon.Difficulty)) != null)
 			{
 				if (ar.Achievement != 0 && !player.HasAchieved(ar.Achievement))
 				{
@@ -1604,7 +1631,7 @@ public class LFGManager : Singleton<LFGManager>
 			}
 			else
 			{
-				var levels = Global.DB2Mgr.GetContentTuningData(dungeon.contentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
+				var levels = _db2Manager.GetContentTuningData(dungeon.ContentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
 
 				if (levels.HasValue)
 				{
@@ -1622,7 +1649,7 @@ public class LFGManager : Singleton<LFGManager>
 			lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
 			*/
 			if (lockStatus != 0)
-				lockDic[dungeon.Entry()] = new LfgLockInfoData(lockStatus, dungeon.requiredItemLevel, player.GetAverageItemLevel());
+				lockDic[dungeon.Entry()] = new LfgLockInfoData(lockStatus, dungeon.RequiredItemLevel, player.GetAverageItemLevel());
 		}
 
 		return lockDic;
@@ -1630,7 +1657,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public byte GetKicksLeft(ObjectGuid guid)
 	{
-		var kicks = GroupsStore[guid].GetKicksLeft();
+		var kicks = _groupsStore[guid].GetKicksLeft();
 		Log.Logger.Debug("GetKicksLeft: [{0}] = {1}", guid, kicks);
 
 		return kicks;
@@ -1640,15 +1667,15 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		if (guid.IsParty)
 		{
-			if (!GroupsStore.ContainsKey(guid))
-				GroupsStore[guid] = new LFGGroupData();
+			if (!_groupsStore.ContainsKey(guid))
+				_groupsStore[guid] = new LFGGroupData();
 
-			var data = GroupsStore[guid];
+			var data = _groupsStore[guid];
 			data.SetState(state);
 		}
 		else
 		{
-			var data = PlayersStore[guid];
+			var data = _playersStore[guid];
 			data.SetState(state);
 		}
 	}
@@ -1657,13 +1684,13 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		AddPlayerData(guid);
 		Log.Logger.Debug("SetSelectedDungeons: [{0}] Dungeons: {1}", guid, ConcatenateDungeons(dungeons));
-		PlayersStore[guid].SetSelectedDungeons(dungeons);
+		_playersStore[guid].SetSelectedDungeons(dungeons);
 	}
 
 	public void RemoveGroupData(ObjectGuid guid)
 	{
 		Log.Logger.Debug("RemoveGroupData: [{0}]", guid);
-		var it = GroupsStore.LookupByKey(guid);
+		var it = _groupsStore.LookupByKey(guid);
 
 		if (it == null)
 			return;
@@ -1672,39 +1699,39 @@ public class LFGManager : Singleton<LFGManager>
 		// If group is being formed after proposal success do nothing more
 		var players = it.GetPlayers();
 
-		foreach (var _guid in players)
+		foreach (var guid in players)
 		{
-			SetGroup(_guid, ObjectGuid.Empty);
+			SetGroup(guid, ObjectGuid.Empty);
 
 			if (state != LfgState.Proposal)
 			{
-				SetState(_guid, LfgState.None);
-				SendLfgUpdateStatus(_guid, new LfgUpdateData(LfgUpdateType.RemovedFromQueue), true);
+				SetState(guid, LfgState.None);
+				SendLfgUpdateStatus(guid, new LfgUpdateData(LfgUpdateType.RemovedFromQueue), true);
 			}
 		}
 
-		GroupsStore.Remove(guid);
+		_groupsStore.Remove(guid);
 	}
 
 	public byte RemovePlayerFromGroup(ObjectGuid gguid, ObjectGuid guid)
 	{
-		return GroupsStore[gguid].RemovePlayer(guid);
+		return _groupsStore[gguid].RemovePlayer(guid);
 	}
 
 	public void AddPlayerToGroup(ObjectGuid gguid, ObjectGuid guid)
 	{
-		if (!GroupsStore.ContainsKey(gguid))
-			GroupsStore[gguid] = new LFGGroupData();
+		if (!_groupsStore.ContainsKey(gguid))
+			_groupsStore[gguid] = new LFGGroupData();
 
-		GroupsStore[gguid].AddPlayer(guid);
+		_groupsStore[gguid].AddPlayer(guid);
 	}
 
 	public void SetLeader(ObjectGuid gguid, ObjectGuid leader)
 	{
-		if (!GroupsStore.ContainsKey(gguid))
-			GroupsStore[gguid] = new LFGGroupData();
+		if (!_groupsStore.ContainsKey(gguid))
+			_groupsStore[gguid] = new LFGGroupData();
 
-		GroupsStore[gguid].SetLeader(leader);
+		_groupsStore[gguid].SetLeader(leader);
 	}
 
 	public void SetTeam(ObjectGuid guid, TeamFaction team)
@@ -1712,43 +1739,43 @@ public class LFGManager : Singleton<LFGManager>
 		if (GetDefaultValue("AllowTwoSide.Interaction.Group", false))
 			team = 0;
 
-		PlayersStore[guid].SetTeam(team);
+		_playersStore[guid].SetTeam(team);
 	}
 
 	public ObjectGuid GetGroup(ObjectGuid guid)
 	{
 		AddPlayerData(guid);
 
-		return PlayersStore[guid].GetGroup();
+		return _playersStore[guid].GetGroup();
 	}
 
 	public void SetGroup(ObjectGuid guid, ObjectGuid group)
 	{
 		AddPlayerData(guid);
-		PlayersStore[guid].SetGroup(group);
+		_playersStore[guid].SetGroup(group);
 	}
 
 	public byte GetPlayerCount(ObjectGuid guid)
 	{
-		return GroupsStore[guid].GetPlayerCount();
+		return _groupsStore[guid].GetPlayerCount();
 	}
 
 	public ObjectGuid GetLeader(ObjectGuid guid)
 	{
-		return GroupsStore[guid].GetLeader();
+		return _groupsStore[guid].GetLeader();
 	}
 
 	public bool HasIgnore(ObjectGuid guid1, ObjectGuid guid2)
 	{
-		var plr1 = Global.ObjAccessor.FindPlayer(guid1);
-		var plr2 = Global.ObjAccessor.FindPlayer(guid2);
+		var plr1 = _objectAccessor.FindPlayer(guid1);
+		var plr2 = _objectAccessor.FindPlayer(guid2);
 
 		return plr1 != null && plr2 != null && (plr1.Social.HasIgnore(guid2, plr2.Session.AccountGUID) || plr2.Social.HasIgnore(guid1, plr1.Session.AccountGUID));
 	}
 
 	public void SendLfgRoleChosen(ObjectGuid guid, ObjectGuid pguid, LfgRoles roles)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgRoleChosen(pguid, roles);
@@ -1756,7 +1783,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgRoleCheckUpdate(ObjectGuid guid, LfgRoleCheck roleCheck)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgRoleCheckUpdate(roleCheck);
@@ -1764,7 +1791,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgUpdateStatus(ObjectGuid guid, LfgUpdateData data, bool party)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgUpdateStatus(data, party);
@@ -1772,7 +1799,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData data)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgJoinResult(data);
@@ -1780,7 +1807,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot boot)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgBootProposalUpdate(boot);
@@ -1788,7 +1815,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgUpdateProposal(ObjectGuid guid, LfgProposal proposal)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgProposalUpdate(proposal);
@@ -1796,7 +1823,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData data)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgQueueStatus(data);
@@ -1804,7 +1831,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public bool IsLfgGroup(ObjectGuid guid)
 	{
-		return guid is { IsEmpty: false, IsParty: true } && GroupsStore[guid].IsLfgGroup();
+		return guid is { IsEmpty: false, IsParty: true } && _groupsStore[guid].IsLfgGroup();
 	}
 
 	public byte GetQueueId(ObjectGuid guid)
@@ -1825,10 +1852,10 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		var queueId = GetQueueId(guid);
 
-		if (!QueuesStore.ContainsKey(queueId))
-			QueuesStore[queueId] = new LFGQueue();
+		if (!_queuesStore.ContainsKey(queueId))
+			_queuesStore[queueId] = new LFGQueue();
 
-		return QueuesStore[queueId];
+		return _queuesStore[queueId];
 	}
 
 	public bool AllQueued(List<ObjectGuid> check)
@@ -1855,7 +1882,7 @@ public class LFGManager : Singleton<LFGManager>
 	public long GetQueueJoinTime(ObjectGuid guid)
 	{
 		var queueId = GetQueueId(guid);
-		var lfgQueue = QueuesStore.LookupByKey(queueId);
+		var lfgQueue = _queuesStore.LookupByKey(queueId);
 
 		if (lfgQueue != null)
 			return lfgQueue.GetJoinTime(guid);
@@ -1866,38 +1893,38 @@ public class LFGManager : Singleton<LFGManager>
 	// Only for debugging purposes
 	public void Clean()
 	{
-		QueuesStore.Clear();
+		_queuesStore.Clear();
 	}
 
 	public bool IsOptionEnabled(LfgOptions option)
 	{
-		return m_options.HasAnyFlag(option);
+		return _options.HasAnyFlag(option);
 	}
 
 	public LfgOptions GetOptions()
 	{
-		return m_options;
+		return _options;
 	}
 
 	public void SetOptions(LfgOptions options)
 	{
-		m_options = options;
+		_options = options;
 	}
 
 	public LfgUpdateData GetLfgStatus(ObjectGuid guid)
 	{
-		var playerData = PlayersStore[guid];
+		var playerData = _playersStore[guid];
 
 		return new LfgUpdateData(LfgUpdateType.UpdateStatus, playerData.GetState(), playerData.GetSelectedDungeons());
 	}
 
 	public string DumpQueueInfo(bool full)
 	{
-		var size = (uint)QueuesStore.Count;
+		var size = (uint)_queuesStore.Count;
 
 		var str = "Number of Queues: " + size + "\n";
 
-		foreach (var pair in QueuesStore)
+		foreach (var pair in _queuesStore)
 		{
 			var queued = pair.Value.DumpQueueInfo();
 			var compatibles = pair.Value.DumpCompatibleInfo(full);
@@ -1927,7 +1954,7 @@ public class LFGManager : Singleton<LFGManager>
 			{
 				var dungeon = GetLFGDungeon(dungeons.First());
 
-				if (dungeon != null && (dungeon.type == LfgType.Random || dungeon.seasonal))
+				if (dungeon != null && (dungeon.Type == LfgType.Random || dungeon.Seasonal))
 					return true;
 			}
 		}
@@ -1947,7 +1974,7 @@ public class LFGManager : Singleton<LFGManager>
 			var dungeon = GetLFGDungeon(dungeonId);
 
 			if (dungeon != null)
-				if (dungeon.map == map && dungeon.difficulty == difficulty)
+				if (dungeon.Map == map && dungeon.Difficulty == difficulty)
 					return true;
 		}
 
@@ -1971,15 +1998,15 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		List<uint> randomDungeons = new();
 
-		foreach (var dungeon in LfgDungeonStore.Values)
+		foreach (var dungeon in _lfgDungeonStore.Values)
 		{
-			if (!(dungeon.type == LfgType.Random || (dungeon.seasonal && Global.LFGMgr.IsSeasonActive(dungeon.id))))
+			if (!(dungeon.Type == LfgType.Random || (dungeon.Seasonal && IsSeasonActive(dungeon.ID))))
 				continue;
 
-			if (dungeon.expansion > expansion)
+			if (dungeon.Expansion > expansion)
 				continue;
 
-			var levels = Global.DB2Mgr.GetContentTuningData(dungeon.contentTuningId, contentTuningReplacementConditionMask);
+			var levels = _db2Manager.GetContentTuningData(dungeon.ContentTuningId, contentTuningReplacementConditionMask);
 
 			if (levels.HasValue)
 				if (levels.Value.MinLevel > level || level > levels.Value.MaxLevel)
@@ -1991,29 +2018,29 @@ public class LFGManager : Singleton<LFGManager>
 		return randomDungeons;
 	}
 
-    private void _SaveToDB(ObjectGuid guid, uint db_guid)
+    private void _SaveToDB(ObjectGuid guid, uint dbGuid)
 	{
 		if (!guid.IsParty)
 			return;
 
 		SQLTransaction trans = new();
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
-		stmt.AddValue(0, db_guid);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_LFG_DATA);
+		stmt.AddValue(0, dbGuid);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_LFG_DATA);
-		stmt.AddValue(0, db_guid);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_LFG_DATA);
+		stmt.AddValue(0, dbGuid);
 		stmt.AddValue(1, GetDungeon(guid));
 		stmt.AddValue(2, (uint)GetState(guid));
 		trans.Append(stmt);
 
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
     private LFGDungeonData GetLFGDungeon(uint id)
 	{
-		return LfgDungeonStore.LookupByKey(id);
+		return _lfgDungeonStore.LookupByKey(id);
 	}
 
     private void GetCompatibleDungeons(List<uint> dungeons, List<ObjectGuid> players, Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> lockMap, List<string> playersMissingRequirement, bool isContinue)
@@ -2028,7 +2055,7 @@ public class LFGManager : Singleton<LFGManager>
 				break;
 
 			var cachedLockMap = GetLockedDungeons(guid);
-			var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+			var player = _objectAccessor.FindConnectedPlayer(guid);
 
 			foreach (var it2 in cachedLockMap)
 			{
@@ -2042,11 +2069,11 @@ public class LFGManager : Singleton<LFGManager>
 					var eraseDungeon = true;
 
 					// Don't remove the dungeon if team members are trying to continue a locked instance
-					if (it2.Value.lockStatus == LfgLockStatusType.RaidLocked && isContinue)
+					if (it2.Value.LockStatus == LfgLockStatusType.RaidLocked && isContinue)
 					{
 						var dungeon = GetLFGDungeon(dungeonId);
-						MapDb2Entries entries = new(dungeon.map, dungeon.difficulty);
-						var playerBind = Global.InstanceLockMgr.FindActiveInstanceLock(guid, entries);
+						MapDb2Entries entries = new(dungeon.Map, dungeon.Difficulty);
+						var playerBind = _instanceLockManager.FindActiveInstanceLock(guid, entries);
 
 						if (playerBind != null)
 						{
@@ -2086,14 +2113,14 @@ public class LFGManager : Singleton<LFGManager>
 		List<ObjectGuid> dpsPlayers = new();
 		List<ObjectGuid> playersToTeleport = new();
 
-		foreach (var it in proposal.players)
+		foreach (var it in proposal.Players)
 		{
 			var guid = it.Key;
 
-			if (guid == proposal.leader)
+			if (guid == proposal.Leader)
 				players.Add(guid);
 			else
-				switch (it.Value.role & ~LfgRoles.Leader)
+				switch (it.Value.Role & ~LfgRoles.Leader)
 				{
 					case LfgRoles.Tank:
 						tankPlayers.Add(guid);
@@ -2109,7 +2136,7 @@ public class LFGManager : Singleton<LFGManager>
 						break;
 				}
 
-			if (proposal.isNew || GetGroup(guid) != proposal.group)
+			if (proposal.IsNew || GetGroup(guid) != proposal.Group)
 				playersToTeleport.Add(guid);
 		}
 
@@ -2118,13 +2145,13 @@ public class LFGManager : Singleton<LFGManager>
 		players.AddRange(dpsPlayers);
 
 		// Set the dungeon difficulty
-		var dungeon = GetLFGDungeon(proposal.dungeonId);
+		var dungeon = GetLFGDungeon(proposal.DungeonId);
 
-		var grp = !proposal.group.IsEmpty ? Global.GroupMgr.GetGroupByGUID(proposal.group) : null;
+		var grp = !proposal.Group.IsEmpty ? _groupManager.GetGroupByGUID(proposal.Group) : null;
 
 		foreach (var pguid in players)
 		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(pguid);
+			var player = _objectAccessor.FindConnectedPlayer(pguid);
 
 			if (!player)
 				continue;
@@ -2141,14 +2168,14 @@ public class LFGManager : Singleton<LFGManager>
 				grp.Create(player);
 				var gguid = grp.GUID;
 				SetState(gguid, LfgState.Proposal);
-				Global.GroupMgr.AddGroup(grp);
+				_groupManager.AddGroup(grp);
 			}
 			else if (group != grp)
 			{
 				grp.AddMember(player);
 			}
 
-			grp.SetLfgRoles(pguid, proposal.players.LookupByKey(pguid).role);
+			grp.SetLfgRoles(pguid, proposal.Players.LookupByKey(pguid).Role);
 
 			// Add the cooldown spell if queued for a random dungeon
 			var dungeons = GetSelectedDungeons(player.GUID);
@@ -2158,22 +2185,22 @@ public class LFGManager : Singleton<LFGManager>
 				var rDungeonId = dungeons[0];
 				var rDungeon = GetLFGDungeon(rDungeonId);
 
-				if (rDungeon is { type: LfgType.Random })
+				if (rDungeon is { Type: LfgType.Random })
 					player.CastSpell(player, SharedConst.LFGSpellDungeonCooldown, false);
 			}
 		}
 
-		grp.SetDungeonDifficultyID(dungeon.difficulty);
-		var _guid = grp.GUID;
-		SetDungeon(_guid, dungeon.Entry());
-		SetState(_guid, LfgState.Dungeon);
+		grp.SetDungeonDifficultyID(dungeon.Difficulty);
+		var guid = grp.GUID;
+		SetDungeon(guid, dungeon.Entry());
+		SetState(guid, LfgState.Dungeon);
 
-		_SaveToDB(_guid, grp.DbStoreId);
+		_SaveToDB(guid, grp.DbStoreId);
 
 		// Teleport Player
 		foreach (var it in playersToTeleport)
 		{
-			var player = Global.ObjAccessor.FindPlayer(it);
+			var player = _objectAccessor.FindPlayer(it);
 
 			if (player)
 				TeleportPlayer(player, false);
@@ -2186,39 +2213,39 @@ public class LFGManager : Singleton<LFGManager>
     private void RemoveProposal(KeyValuePair<uint, LfgProposal> itProposal, LfgUpdateType type)
 	{
 		var proposal = itProposal.Value;
-		proposal.state = LfgProposalState.Failed;
+		proposal.State = LfgProposalState.Failed;
 
 		Log.Logger.Debug("RemoveProposal: Proposal {0}, state FAILED, UpdateType {1}", itProposal.Key, type);
 
 		// Mark all people that didn't answered as no accept
 		if (type == LfgUpdateType.ProposalFailed)
-			foreach (var it in proposal.players)
-				if (it.Value.accept == LfgAnswer.Pending)
-					it.Value.accept = LfgAnswer.Deny;
+			foreach (var it in proposal.Players)
+				if (it.Value.Accept == LfgAnswer.Pending)
+					it.Value.Accept = LfgAnswer.Deny;
 
 		// Mark players/groups to be removed
 		List<ObjectGuid> toRemove = new();
 
-		foreach (var it in proposal.players)
+		foreach (var it in proposal.Players)
 		{
-			if (it.Value.accept == LfgAnswer.Agree)
+			if (it.Value.Accept == LfgAnswer.Agree)
 				continue;
 
-			var guid = !it.Value.group.IsEmpty ? it.Value.group : it.Key;
+			var guid = !it.Value.Group.IsEmpty ? it.Value.Group : it.Key;
 
 			// Player didn't accept or still pending when no secs left
-			if (it.Value.accept == LfgAnswer.Deny || type == LfgUpdateType.ProposalFailed)
+			if (it.Value.Accept == LfgAnswer.Deny || type == LfgUpdateType.ProposalFailed)
 			{
-				it.Value.accept = LfgAnswer.Deny;
+				it.Value.Accept = LfgAnswer.Deny;
 				toRemove.Add(guid);
 			}
 		}
 
 		// Notify players
-		foreach (var it in proposal.players)
+		foreach (var it in proposal.Players)
 		{
 			var guid = it.Key;
-			var gguid = !it.Value.group.IsEmpty ? it.Value.group : guid;
+			var gguid = !it.Value.Group.IsEmpty ? it.Value.Group : guid;
 
 			SendLfgUpdateProposal(guid, proposal);
 
@@ -2226,14 +2253,14 @@ public class LFGManager : Singleton<LFGManager>
 			{
 				LfgUpdateData updateData = new();
 
-				if (it.Value.accept == LfgAnswer.Deny)
+				if (it.Value.Accept == LfgAnswer.Deny)
 				{
-					updateData.updateType = type;
+					updateData.UpdateType = type;
 					Log.Logger.Debug("RemoveProposal: [{0}] didn't accept. Removing from queue and compatible cache", guid);
 				}
 				else
 				{
-					updateData.updateType = LfgUpdateType.RemovedFromQueue;
+					updateData.UpdateType = LfgUpdateType.RemovedFromQueue;
 					Log.Logger.Debug("RemoveProposal: [{0}] in same group that someone that didn't accept. Removing from queue and compatible cache", guid);
 				}
 
@@ -2241,7 +2268,7 @@ public class LFGManager : Singleton<LFGManager>
 
 				if (gguid != guid)
 				{
-					RestoreState(it.Value.group, "Proposal Fail (someone in group didn't accepted)");
+					RestoreState(it.Value.Group, "Proposal Fail (someone in group didn't accepted)");
 					SendLfgUpdateStatus(guid, updateData, true);
 				}
 				else
@@ -2266,47 +2293,47 @@ public class LFGManager : Singleton<LFGManager>
 			}
 		}
 
-		var queue = GetQueue(proposal.players.First().Key);
+		var queue = GetQueue(proposal.Players.First().Key);
 
 		// Remove players/groups from queue
 		foreach (var guid in toRemove)
 		{
 			queue.RemoveFromQueue(guid);
-			proposal.queues.Remove(guid);
+			proposal.Queues.Remove(guid);
 		}
 
 		// Readd to queue
-		foreach (var guid in proposal.queues)
+		foreach (var guid in proposal.Queues)
 			queue.AddToQueue(guid, true);
 
-		ProposalsStore.Remove(itProposal.Key);
+		_proposalsStore.Remove(itProposal.Key);
 	}
 
     private List<uint> GetDungeonsByRandom(uint randomdungeon)
 	{
 		var dungeon = GetLFGDungeon(randomdungeon);
-		var group = (byte)(dungeon != null ? dungeon.group : 0);
+		var group = (byte)(dungeon != null ? dungeon.Group : 0);
 
-		return CachedDungeonMapStore.LookupByKey(group);
+		return _cachedDungeonMapStore.LookupByKey(group);
 	}
 
     private void RestoreState(ObjectGuid guid, string debugMsg)
 	{
 		if (guid.IsParty)
 		{
-			var data = GroupsStore[guid];
+			var data = _groupsStore[guid];
 			data.RestoreState();
 		}
 		else
 		{
-			var data = PlayersStore[guid];
+			var data = _playersStore[guid];
 			data.RestoreState();
 		}
 	}
 
     private void SetVoteKick(ObjectGuid gguid, bool active)
 	{
-		var data = GroupsStore[gguid];
+		var data = _groupsStore[gguid];
 		Log.Logger.Information("Group: {0}, New state: {1}, Previous: {2}", gguid.ToString(), active, data.IsVoteKickActive());
 
 		data.SetVoteKick(active);
@@ -2316,44 +2343,38 @@ public class LFGManager : Singleton<LFGManager>
 	{
 		AddPlayerData(guid);
 		Log.Logger.Debug("SetDungeon: [{0}] dungeon {1}", guid, dungeon);
-		GroupsStore[guid].SetDungeon(dungeon);
+		_groupsStore[guid].SetDungeon(dungeon);
 	}
 
     private void SetRoles(ObjectGuid guid, LfgRoles roles)
 	{
 		AddPlayerData(guid);
 		Log.Logger.Debug("SetRoles: [{0}] roles: {1}", guid, roles);
-		PlayersStore[guid].SetRoles(roles);
+		_playersStore[guid].SetRoles(roles);
 	}
 
     private void DecreaseKicksLeft(ObjectGuid guid)
 	{
 		Log.Logger.Debug("DecreaseKicksLeft: [{0}]", guid);
-		GroupsStore[guid].DecreaseKicksLeft();
+		_groupsStore[guid].DecreaseKicksLeft();
 	}
 
     private void AddPlayerData(ObjectGuid guid)
 	{
-		if (PlayersStore.ContainsKey(guid))
+		if (_playersStore.ContainsKey(guid))
 			return;
 
-		PlayersStore[guid] = new LFGPlayerData();
+		_playersStore[guid] = new LFGPlayerData();
 	}
 
     private void SetTicket(ObjectGuid guid, RideTicket ticket)
 	{
-		PlayersStore[guid].SetTicket(ticket);
-	}
-
-    private void RemovePlayerData(ObjectGuid guid)
-	{
-		Log.Logger.Debug("RemovePlayerData: [{0}]", guid);
-		PlayersStore.Remove(guid);
+		_playersStore[guid].SetTicket(ticket);
 	}
 
     private TeamFaction GetTeam(ObjectGuid guid)
 	{
-		return PlayersStore[guid].GetTeam();
+		return _playersStore[guid].GetTeam();
 	}
 
     private LfgRoles FilterClassRoles(Player player, LfgRoles roles)
@@ -2362,7 +2383,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var specialization = Global.DB2Mgr.GetChrSpecializationByIndex(player.Class, i);
+			var specialization = _db2Manager.GetChrSpecializationByIndex(player.Class, i);
 
 			if (specialization != null)
 				allowedRoles |= (1u << (specialization.Role + 1));
@@ -2373,7 +2394,7 @@ public class LFGManager : Singleton<LFGManager>
 
     private List<ObjectGuid> GetPlayers(ObjectGuid guid)
 	{
-		return GroupsStore[guid].GetPlayers();
+		return _groupsStore[guid].GetPlayers();
 	}
 
     private bool IsSeasonActive(uint dungeonId)
@@ -2381,21 +2402,21 @@ public class LFGManager : Singleton<LFGManager>
 		switch (dungeonId)
 		{
 			case 285: // The Headless Horseman
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.HallowsEnd);
+				return _gameEventManager.IsHolidayActive(HolidayIds.HallowsEnd);
 			case 286: // The Frost Lord Ahune
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.MidsummerFireFestival);
+				return _gameEventManager.IsHolidayActive(HolidayIds.MidsummerFireFestival);
 			case 287: // Coren Direbrew
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.Brewfest);
+				return _gameEventManager.IsHolidayActive(HolidayIds.Brewfest);
 			case 288: // The Crown Chemical Co.
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.LoveIsInTheAir);
+				return _gameEventManager.IsHolidayActive(HolidayIds.LoveIsInTheAir);
 			case 744: // Random Timewalking Dungeon (Burning Crusade)
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventBcDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventBcDefault);
 			case 995: // Random Timewalking Dungeon (Wrath of the Lich King)
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventLkDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventLkDefault);
 			case 1146: // Random Timewalking Dungeon (Cataclysm)
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventCataDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventCataDefault);
 			case 1453: // Timewalker MoP
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventMopDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventMopDefault);
 		}
 
 		return false;
@@ -2404,210 +2425,210 @@ public class LFGManager : Singleton<LFGManager>
 
 public class LfgJoinResultData
 {
-	public LfgJoinResult result;
-	public LfgRoleCheckState state;
-	public Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> lockmap = new();
-	public List<string> playersMissingRequirement = new();
+	public LfgJoinResult Result;
+	public LfgRoleCheckState State;
+	public Dictionary<ObjectGuid, Dictionary<uint, LfgLockInfoData>> Lockmap = new();
+	public List<string> PlayersMissingRequirement = new();
 
-	public LfgJoinResultData(LfgJoinResult _result = LfgJoinResult.Ok, LfgRoleCheckState _state = LfgRoleCheckState.Default)
+	public LfgJoinResultData(LfgJoinResult result = LfgJoinResult.Ok, LfgRoleCheckState state = LfgRoleCheckState.Default)
 	{
-		result = _result;
-		state = _state;
+		Result = result;
+		State = state;
 	}
 }
 
 public class LfgUpdateData
 {
-	public LfgUpdateType updateType;
-	public LfgState state;
-	public List<uint> dungeons = new();
+	public LfgUpdateType UpdateType;
+	public LfgState State;
+	public List<uint> Dungeons = new();
 
-	public LfgUpdateData(LfgUpdateType _type = LfgUpdateType.Default)
+	public LfgUpdateData(LfgUpdateType type = LfgUpdateType.Default)
 	{
-		updateType = _type;
-		state = LfgState.None;
+		UpdateType = type;
+		State = LfgState.None;
 	}
 
-	public LfgUpdateData(LfgUpdateType _type, List<uint> _dungeons)
+	public LfgUpdateData(LfgUpdateType type, List<uint> dungeons)
 	{
-		updateType = _type;
-		state = LfgState.None;
-		dungeons = _dungeons;
+		UpdateType = type;
+		State = LfgState.None;
+		Dungeons = dungeons;
 	}
 
-	public LfgUpdateData(LfgUpdateType _type, LfgState _state, List<uint> _dungeons)
+	public LfgUpdateData(LfgUpdateType type, LfgState state, List<uint> dungeons)
 	{
-		updateType = _type;
-		state = _state;
-		dungeons = _dungeons;
+		UpdateType = type;
+		State = state;
+		Dungeons = dungeons;
 	}
 }
 
 public class LfgQueueStatusData
 {
-	public byte queueId;
-	public uint dungeonId;
-	public int waitTime;
-	public int waitTimeAvg;
-	public int waitTimeTank;
-	public int waitTimeHealer;
-	public int waitTimeDps;
-	public uint queuedTime;
-	public byte tanks;
-	public byte healers;
-	public byte dps;
+	public byte QueueId;
+	public uint DungeonId;
+	public int WaitTime;
+	public int WaitTimeAvg;
+	public int WaitTimeTank;
+	public int WaitTimeHealer;
+	public int WaitTimeDps;
+	public uint QueuedTime;
+	public byte Tanks;
+	public byte Healers;
+	public byte Dps;
 
-	public LfgQueueStatusData(byte _queueId = 0, uint _dungeonId = 0, int _waitTime = -1, int _waitTimeAvg = -1, int _waitTimeTank = -1, int _waitTimeHealer = -1,
-							int _waitTimeDps = -1, uint _queuedTime = 0, byte _tanks = 0, byte _healers = 0, byte _dps = 0)
+	public LfgQueueStatusData(byte queueId = 0, uint dungeonId = 0, int waitTime = -1, int waitTimeAvg = -1, int waitTimeTank = -1, int waitTimeHealer = -1,
+							int waitTimeDps = -1, uint queuedTime = 0, byte tanks = 0, byte healers = 0, byte dps = 0)
 	{
-		queueId = _queueId;
-		dungeonId = _dungeonId;
-		waitTime = _waitTime;
-		waitTimeAvg = _waitTimeAvg;
-		waitTimeTank = _waitTimeTank;
-		waitTimeHealer = _waitTimeHealer;
-		waitTimeDps = _waitTimeDps;
-		queuedTime = _queuedTime;
-		tanks = _tanks;
-		healers = _healers;
-		dps = _dps;
+		QueueId = queueId;
+		DungeonId = dungeonId;
+		WaitTime = waitTime;
+		WaitTimeAvg = waitTimeAvg;
+		WaitTimeTank = waitTimeTank;
+		WaitTimeHealer = waitTimeHealer;
+		WaitTimeDps = waitTimeDps;
+		QueuedTime = queuedTime;
+		Tanks = tanks;
+		Healers = healers;
+		Dps = dps;
 	}
 }
 
 public class LfgPlayerRewardData
 {
-	public uint rdungeonEntry;
-	public uint sdungeonEntry;
-	public bool done;
-	public Quest.Quest quest;
+	public uint RdungeonEntry;
+	public uint SdungeonEntry;
+	public bool Done;
+	public Quest.Quest Quest;
 
-	public LfgPlayerRewardData(uint random, uint current, bool _done, Quest.Quest _quest)
+	public LfgPlayerRewardData(uint random, uint current, bool done, Quest.Quest quest)
 	{
-		rdungeonEntry = random;
-		sdungeonEntry = current;
-		done = _done;
-		quest = _quest;
+		RdungeonEntry = random;
+		SdungeonEntry = current;
+		Done = done;
+		Quest = quest;
 	}
 }
 
 public class LfgReward
 {
-	public uint maxLevel;
-	public uint firstQuest;
-	public uint otherQuest;
+	public uint MaxLevel;
+	public uint FirstQuest;
+	public uint OtherQuest;
 
-	public LfgReward(uint _maxLevel = 0, uint _firstQuest = 0, uint _otherQuest = 0)
+	public LfgReward(uint maxLevel = 0, uint firstQuest = 0, uint otherQuest = 0)
 	{
-		maxLevel = _maxLevel;
-		firstQuest = _firstQuest;
-		otherQuest = _otherQuest;
+		MaxLevel = maxLevel;
+		FirstQuest = firstQuest;
+		OtherQuest = otherQuest;
 	}
 }
 
 public class LfgProposalPlayer
 {
-	public LfgRoles role;
-	public LfgAnswer accept;
-	public ObjectGuid group;
+	public LfgRoles Role;
+	public LfgAnswer Accept;
+	public ObjectGuid Group;
 
 	public LfgProposalPlayer()
 	{
-		role = 0;
-		accept = LfgAnswer.Pending;
-		group = ObjectGuid.Empty;
+		Role = 0;
+		Accept = LfgAnswer.Pending;
+		Group = ObjectGuid.Empty;
 	}
 }
 
 public class LfgProposal
 {
-	public uint id;
-	public uint dungeonId;
-	public LfgProposalState state;
-	public ObjectGuid group;
-	public ObjectGuid leader;
-	public long cancelTime;
-	public uint encounters;
-	public bool isNew;
-	public List<ObjectGuid> queues = new();
-	public List<ulong> showorder = new();
-	public Dictionary<ObjectGuid, LfgProposalPlayer> players = new(); // Players data
+	public uint ID;
+	public uint DungeonId;
+	public LfgProposalState State;
+	public ObjectGuid Group;
+	public ObjectGuid Leader;
+	public long CancelTime;
+	public uint Encounters;
+	public bool IsNew;
+	public List<ObjectGuid> Queues = new();
+	public List<ulong> Showorder = new();
+	public Dictionary<ObjectGuid, LfgProposalPlayer> Players = new(); // Players data
 
 	public LfgProposal(uint dungeon = 0)
 	{
-		id = 0;
-		dungeonId = dungeon;
-		state = LfgProposalState.Initiating;
-		group = ObjectGuid.Empty;
-		leader = ObjectGuid.Empty;
-		cancelTime = 0;
-		encounters = 0;
-		isNew = true;
+		ID = 0;
+		DungeonId = dungeon;
+		State = LfgProposalState.Initiating;
+		Group = ObjectGuid.Empty;
+		Leader = ObjectGuid.Empty;
+		CancelTime = 0;
+		Encounters = 0;
+		IsNew = true;
 	}
 }
 
 public class LfgRoleCheck
 {
-	public long cancelTime;
-	public Dictionary<ObjectGuid, LfgRoles> roles = new();
-	public LfgRoleCheckState state;
-	public List<uint> dungeons = new();
-	public uint rDungeonId;
-	public ObjectGuid leader;
+	public long CancelTime;
+	public Dictionary<ObjectGuid, LfgRoles> Roles = new();
+	public LfgRoleCheckState State;
+	public List<uint> Dungeons = new();
+	public uint RDungeonId;
+	public ObjectGuid Leader;
 }
 
 public class LfgPlayerBoot
 {
-	public long cancelTime;
-	public bool inProgress;
-	public Dictionary<ObjectGuid, LfgAnswer> votes = new();
-	public ObjectGuid victim;
-	public string reason;
+	public long CancelTime;
+	public bool InProgress;
+	public Dictionary<ObjectGuid, LfgAnswer> Votes = new();
+	public ObjectGuid Victim;
+	public string Reason;
 }
 
 public class LFGDungeonData
 {
-	public uint id;
-	public string name;
-	public uint map;
-	public LfgType type;
-	public uint expansion;
-	public uint group;
-	public uint contentTuningId;
-	public Difficulty difficulty;
-	public bool seasonal;
-	public float x, y, z, o;
-	public ushort requiredItemLevel;
+	public uint ID;
+	public string Name;
+	public uint Map;
+	public LfgType Type;
+	public uint Expansion;
+	public uint Group;
+	public uint ContentTuningId;
+	public Difficulty Difficulty;
+	public bool Seasonal;
+	public float X, Y, Z, O;
+	public ushort RequiredItemLevel;
 
 	public LFGDungeonData(LFGDungeonsRecord dbc)
 	{
-		id = dbc.Id;
-		name = dbc.Name[Global.WorldMgr.DefaultDbcLocale];
-		map = (uint)dbc.MapID;
-		type = dbc.TypeID;
-		expansion = dbc.ExpansionLevel;
-		group = dbc.GroupID;
-		contentTuningId = dbc.ContentTuningID;
-		difficulty = dbc.DifficultyID;
-		seasonal = dbc.Flags[0].HasAnyFlag(LfgFlags.Seasonal);
+		ID = dbc.Id;
+		Name = dbc.Name[Global.WorldMgr.DefaultDbcLocale];
+		Map = (uint)dbc.MapID;
+		Type = dbc.TypeID;
+		Expansion = dbc.ExpansionLevel;
+		Group = dbc.GroupID;
+		ContentTuningId = dbc.ContentTuningID;
+		Difficulty = dbc.DifficultyID;
+		Seasonal = dbc.Flags[0].HasAnyFlag(LfgFlags.Seasonal);
 	}
 
 	// Helpers
 	public uint Entry()
 	{
-		return (uint)(id + ((int)type << 24));
+		return (uint)(ID + ((int)Type << 24));
 	}
 }
 
 public class LfgLockInfoData
 {
-	public LfgLockStatusType lockStatus;
-	public ushort requiredItemLevel;
-	public float currentItemLevel;
+	public LfgLockStatusType LockStatus;
+	public ushort RequiredItemLevel;
+	public float CurrentItemLevel;
 
-	public LfgLockInfoData(LfgLockStatusType _lockStatus = 0, ushort _requiredItemLevel = 0, float _currentItemLevel = 0)
+	public LfgLockInfoData(LfgLockStatusType lockStatus = 0, ushort requiredItemLevel = 0, float currentItemLevel = 0)
 	{
-		lockStatus = _lockStatus;
-		requiredItemLevel = _requiredItemLevel;
-		currentItemLevel = _currentItemLevel;
+		LockStatus = lockStatus;
+		RequiredItemLevel = requiredItemLevel;
+		CurrentItemLevel = currentItemLevel;
 	}
 }

@@ -748,7 +748,7 @@ public sealed class ConditionManager
 
 				if (reward != null)
 				{
-					var quest = _objectManager.GetQuestTemplate(reward.firstQuest);
+					var quest = _objectManager.GetQuestTemplate(reward.FirstQuest);
 
 					if (quest != null)
 						if (player.CanRewardQuest(quest, false))

@@ -203,10 +203,10 @@ public class GameObjectModel : IModel
 		return _owner.GetNameSetId();
 	}
 
-	public static bool LoadGameObjectModelList()
+	public static bool LoadGameObjectModelList(string dataPath)
 	{
 		var oldMSTime = Time.MSTime;
-		var filename = Global.WorldMgr.DataPath + "/vmaps/GameObjectModels.dtree";
+		var filename = dataPath + "/vmaps/GameObjectModels.dtree";
 
 		if (!File.Exists(filename))
 		{

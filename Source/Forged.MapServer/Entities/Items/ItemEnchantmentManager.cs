@@ -3,23 +3,37 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.DataStorage;
+using Forged.MapServer.Globals;
 using Framework.Constants;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Items;
 
 public class ItemEnchantmentManager
 {
-    private static readonly Dictionary<uint, RandomBonusListIds> _storage = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly DB2Manager _db2Manager;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _objectManager;
+    private readonly Dictionary<uint, RandomBonusListIds> _storage = new();
 
-	public static void LoadItemRandomBonusListTemplates()
+    public ItemEnchantmentManager(WorldDatabase worldDatabase, DB2Manager db2Manager, CliDB cliDB, GameObjectManager objectManager)
+    {
+        _worldDatabase = worldDatabase;
+        _db2Manager = db2Manager;
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+    }
+
+    public void LoadItemRandomBonusListTemplates()
 	{
 		var oldMsTime = Time.MSTime;
 
 		_storage.Clear();
 
 		//                                         0   1            2
-		var result = DB.World.Query("SELECT Id, BonusListID, Chance FROM item_random_bonus_list_template");
+		var result = _worldDatabase.Query("SELECT Id, BonusListID, Chance FROM item_random_bonus_list_template");
 
 		if (result.IsEmpty())
 		{
@@ -36,7 +50,7 @@ public class ItemEnchantmentManager
 			var bonusListId = result.Read<uint>(1);
 			var chance = result.Read<float>(2);
 
-			if (Global.DB2Mgr.GetItemBonusList(bonusListId) == null)
+			if (_db2Manager.GetItemBonusList(bonusListId) == null)
 			{
 				Log.Logger.Error($"Bonus list {bonusListId} used in `item_random_bonus_list_template` by id {id} doesn't have exist in ItemBonus.db2");
 
@@ -63,9 +77,9 @@ public class ItemEnchantmentManager
 		Log.Logger.Information($"Loaded {count} Random item bonus list definitions in {Time.GetMSTimeDiffToNow(oldMsTime)} ms");
 	}
 
-	public static uint GenerateItemRandomBonusListId(uint item_id)
+	public uint GenerateItemRandomBonusListId(uint itemID)
 	{
-		var itemProto = Global.ObjectMgr.GetItemTemplate(item_id);
+		var itemProto = _objectManager.GetItemTemplate(itemID);
 
 		if (itemProto == null)
 			return 0;
@@ -87,7 +101,7 @@ public class ItemEnchantmentManager
 		return tab.BonusListIDs.SelectRandomElementByWeight(x => (float)tab.Chances[tab.BonusListIDs.IndexOf(x)]);
 	}
 
-	public static float GetRandomPropertyPoints(uint itemLevel, ItemQuality quality, InventoryType inventoryType, uint subClass)
+	public float GetRandomPropertyPoints(uint itemLevel, ItemQuality quality, InventoryType inventoryType, uint subClass)
 	{
 		uint propIndex;
 
@@ -142,7 +156,7 @@ public class ItemEnchantmentManager
 				return 0;
 		}
 
-		var randPropPointsEntry = CliDB.RandPropPointsStorage.LookupByKey(itemLevel);
+		var randPropPointsEntry = _cliDB.RandPropPointsStorage.LookupByKey(itemLevel);
 
 		if (randPropPointsEntry == null)
 			return 0;

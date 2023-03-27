@@ -7,27 +7,37 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
+using Framework.Database;
 using Framework.Threading;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 
 namespace Forged.MapServer.Maps;
 
 public class TerrainManager
 {
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CliDB _cliDB;
     private readonly Dictionary<uint, TerrainInfo> _terrainMaps = new();
     private readonly HashSet<uint> _keepLoaded = new();
 
-    private readonly LimitedThreadTaskManager _threadTaskManager = new(ConfigMgr.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+    private readonly LimitedThreadTaskManager _threadTaskManager;
 
 	// parent map links
     private MultiMap<uint, uint> _parentMapData = new();
 
-    private TerrainManager() { }
+    public TerrainManager(IConfiguration configuration, WorldDatabase worldDatabase, CliDB cliDB)
+    {
+        _worldDatabase = worldDatabase;
+        _cliDB = cliDB;
+        _threadTaskManager = new(configuration.GetDefaultValue("Map.ParellelUpdateTasks", 20));
+    }
 
 	public void InitializeParentMapData(MultiMap<uint, uint> mapData)
 	{
 		_parentMapData = mapData;
 
-		var result = DB.World.Query("SELECT mapid FROM map_keeploaded");
+		var result = _worldDatabase.Query("SELECT mapid FROM map_keeploaded");
 
 		if (!result.IsEmpty())
 			do
@@ -38,7 +48,7 @@ public class TerrainManager
 
 	public TerrainInfo LoadTerrain(uint mapId)
 	{
-		var entry = CliDB.MapStorage.LookupByKey(mapId);
+		var entry = _cliDB.MapStorage.LookupByKey(mapId);
 
 		if (entry == null)
 			return null;
@@ -46,7 +56,7 @@ public class TerrainManager
 		while (entry.ParentMapID != -1 || entry.CosmeticParentMapID != -1)
 		{
 			var parentMapId = (uint)(entry.ParentMapID != -1 ? entry.ParentMapID : entry.CosmeticParentMapID);
-			entry = CliDB.MapStorage.LookupByKey(parentMapId);
+			entry = _cliDB.MapStorage.LookupByKey(parentMapId);
 
 			if (entry == null)
 				break;
@@ -73,7 +83,7 @@ public class TerrainManager
 	public void Update(uint diff)
 	{
 		// global garbage collection
-		foreach (var (mapId, terrain) in _terrainMaps)
+		foreach (var (_, terrain) in _terrainMaps)
 			_threadTaskManager.Schedule(() => terrain?.CleanUpGrids(diff));
 
 		_threadTaskManager.Wait();
