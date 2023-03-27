@@ -12,6 +12,7 @@ using Framework.Database;
 using Forged.RealmServer;
 using Forged.RealmServer.DataStorage.Structs.Q;
 using Serilog;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer.DataStorage;
 

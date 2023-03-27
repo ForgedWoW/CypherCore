@@ -5,7 +5,7 @@ using System;
 
 public class GameTime
 {
-	readonly long StartTime = Time.UnixTime;
+	readonly long _startTime = Time.UnixTime;
 
 	long _gameTime = Time.UnixTime;
 	uint _gameMSTime = 0;
@@ -15,12 +15,9 @@ public class GameTime
 
 	DateTime _dateTime;
 
-	public long GetStartTime()
-	{
-		return StartTime;
-	}
+	public long StartTime => _startTime;
 
-	public long GetGameTime => _gameTime;
+    public long GetGameTime => _gameTime;
 
 	public uint GetGameTimeMS => _gameMSTime;
 
@@ -28,8 +25,7 @@ public class GameTime
 
 	public DateTime Now => _gameTimeSteadyPoint;
 
-
-    public uint GetUptime => (uint)(_gameTime - StartTime);
+    public uint GetUptime => (uint)(_gameTime - _startTime);
 
 	public DateTime DateTime => _dateTime;
 

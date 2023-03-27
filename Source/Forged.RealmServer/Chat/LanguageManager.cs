@@ -7,10 +7,12 @@ using System.Linq;
 using Framework.Collections;
 using Framework.Constants;
 using Forged.RealmServer.DataStorage;
+using Forged.RealmServer.Globals;
+using Serilog;
 
 namespace Forged.RealmServer.Chat;
 
-public class LanguageManager : Singleton<LanguageManager>
+public class LanguageManager
 {
 	static readonly uint[] SHashtable =
 	{
@@ -19,10 +21,14 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	readonly MultiMap<uint, LanguageDesc> _langsMap = new();
 	readonly MultiMap<Tuple<uint, byte>, string> _wordsMap = new();
+    private readonly CliDB _cliDB;
 
-	LanguageManager() { }
+    LanguageManager(CliDB cliDB)
+    {
+        _cliDB = cliDB;
+    }
 
-	public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
+    public void LoadSpellEffectLanguage(SpellEffectRecord spellEffect)
 	{
 		var languageId = (uint)spellEffect.EffectMiscValue[0];
 		_langsMap.Add(languageId, new LanguageDesc(spellEffect.SpellID, 0)); // register without a skill id for now
@@ -33,28 +39,13 @@ public class LanguageManager : Singleton<LanguageManager>
 		var oldMSTime = Time.MSTime;
 
 		// Load languages from Languages.db2. Just the id, we don't need the name
-		foreach (var langEntry in CliDB.LanguagesStorage.Values)
+		foreach (var langEntry in _cliDB.LanguagesStorage.Values)
 		{
 			var spellsRange = _langsMap.LookupByKey(langEntry.Id);
 
 			if (spellsRange.Empty())
 			{
 				_langsMap.Add(langEntry.Id, new LanguageDesc());
-			}
-			else
-			{
-				List<LanguageDesc> langsWithSkill = new();
-
-				foreach (var spellItr in spellsRange)
-					foreach (var skillPair in Global.SpellMgr.GetSkillLineAbilityMapBounds(spellItr.SpellId))
-						langsWithSkill.Add(new LanguageDesc(spellItr.SpellId, (uint)skillPair.SkillLine));
-
-				foreach (var langDesc in langsWithSkill)
-				{
-					// erase temporary assignment that lacked skill
-					_langsMap.Remove(langEntry.Id, new LanguageDesc(langDesc.SpellId, 0));
-					_langsMap.Add(langEntry.Id, langDesc);
-				}
 			}
 		}
 
@@ -73,7 +64,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 		uint wordsNum = 0;
 
-		foreach (var wordEntry in CliDB.LanguageWordsStorage.Values)
+		foreach (var wordEntry in _cliDB.LanguageWordsStorage.Values)
 		{
 			var length = (byte)Math.Min(18, wordEntry.Word.Length);
 
@@ -150,7 +141,7 @@ public class LanguageManager : Singleton<LanguageManager>
 
 	public bool IsLanguageExist(Language languageId)
 	{
-		return CliDB.LanguagesStorage.HasRecord((uint)languageId);
+		return _cliDB.LanguagesStorage.HasRecord((uint)languageId);
 	}
 
 	public List<LanguageDesc> GetLanguageDescById(Language languageId)

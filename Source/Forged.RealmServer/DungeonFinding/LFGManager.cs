@@ -5,20 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Framework.Configuration;
 using Framework.Constants;
 using Framework.Database;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.Entities;
 using Forged.RealmServer.Groups;
 using Forged.RealmServer.Maps;
-using Forged.RealmServer.Entities.Objects;
-using Forged.RealmServer.Entities.Players;
-using Forged.RealmServer.Networking.Packets.LFG;
+using Microsoft.Extensions.Configuration;
+using Serilog;
+using Forged.RealmServer.Globals;
+using Framework.Util;
+using Forged.RealmServer.Networking.Packets;
+using Forged.RealmServer.Conditions;
 
 namespace Forged.RealmServer.DungeonFinding;
 
-public class LFGManager : Singleton<LFGManager>
+public class LFGManager
 {
 	readonly Dictionary<byte, LFGQueue> QueuesStore = new(); //< Queues
 
@@ -34,20 +36,48 @@ public class LFGManager : Singleton<LFGManager>
 	readonly Dictionary<ObjectGuid, LfgPlayerBoot> BootsStore = new();     //< Current player kicks
 	readonly Dictionary<ObjectGuid, LFGPlayerData> PlayersStore = new();   //< Player data
 	readonly Dictionary<ObjectGuid, LFGGroupData> GroupsStore = new();     //< Group data
+    private readonly IConfiguration _configuration;
+    private readonly WorldConfig _worldConfig;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _gameObjectManager;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly DB2Manager _dB2Manager;
+    private readonly GroupManager _groupManager;
+    private readonly GameEventManager _gameEventManager;
+    private readonly WorldManager _worldManager;
+    private readonly LFGManager _lFGManager;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly GameTime _gameTime;
 
-	// General variables
-	uint m_QueueTimer;    //< used to check interval of update
+    // General variables
+    uint m_QueueTimer;    //< used to check interval of update
 	uint m_lfgProposalId; //< used as internal counter for proposals
 	LfgOptions m_options; //< Stores config options
 
-	LFGManager()
-	{
-		m_lfgProposalId = 1;
-		m_options = (LfgOptions)ConfigMgr.GetDefaultValue("DungeonFinder.OptionsMask", 1);
+	public LFGManager(IConfiguration configuration, WorldConfig worldConfig, CliDB cliDB, GameObjectManager gameObjectManager,
+		ObjectAccessor objectAccessor, DB2Manager dB2Manager, GroupManager groupManager, GameEventManager gameEventManager, WorldManager worldManager,
+		LFGManager lFGManager, WorldDatabase worldDatabase, CharacterDatabase characterDatabase, GameTime gameTime)
+    {
+        _configuration = configuration;
+        _worldConfig = worldConfig;
+        _cliDB = cliDB;
+        _gameObjectManager = gameObjectManager;
+        _objectAccessor = objectAccessor;
+        _dB2Manager = dB2Manager;
+        _groupManager = groupManager;
+        _gameEventManager = gameEventManager;
+        _worldManager = worldManager;
+        _lFGManager = lFGManager;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
+        _gameTime = gameTime;
+        m_lfgProposalId = 1;
+		m_options = (LfgOptions)_configuration.GetDefaultValue("DungeonFinder.OptionsMask", 1);
 
 		new LFGPlayerScript();
 		new LFGGroupScript();
-	}
+    }
 
 	public string ConcatenateDungeons(List<uint> dungeons)
 	{
@@ -100,7 +130,7 @@ public class LFGManager : Singleton<LFGManager>
 		RewardMapStore.Clear();
 
 		// ORDER BY is very important for GetRandomDungeonReward!
-		var result = DB.World.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
+		var result = _worldDatabase.Query("SELECT dungeonId, maxLevel, firstQuestId, otherQuestId FROM lfg_dungeon_rewards ORDER BY dungeonId, maxLevel ASC");
 
 		if (result.IsEmpty())
 		{
@@ -131,14 +161,14 @@ public class LFGManager : Singleton<LFGManager>
 				maxLevel = _worldConfig.GetUIntValue(WorldCfg.MaxPlayerLevel);
 			}
 
-			if (firstQuestId == 0 || Global.ObjectMgr.GetQuestTemplate(firstQuestId) == null)
+			if (firstQuestId == 0 || _gameObjectManager.GetQuestTemplate(firstQuestId) == null)
 			{
 				Log.Logger.Error("First quest {0} specified for dungeon {1} in table `lfg_dungeon_rewards` does not exist!", firstQuestId, dungeonId);
 
 				continue;
 			}
 
-			if (otherQuestId != 0 && Global.ObjectMgr.GetQuestTemplate(otherQuestId) == null)
+			if (otherQuestId != 0 && _gameObjectManager.GetQuestTemplate(otherQuestId) == null)
 			{
 				Log.Logger.Error("Other quest {0} specified for dungeon {1} in table `lfg_dungeon_rewards` does not exist!", otherQuestId, dungeonId);
 				otherQuestId = 0;
@@ -150,7 +180,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		Log.Logger.Information("Loaded {0} lfg dungeon rewards in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
-
+	
 	public void LoadLFGDungeons(bool reload = false)
 	{
 		var oldMSTime = Time.MSTime;
@@ -158,9 +188,9 @@ public class LFGManager : Singleton<LFGManager>
 		LfgDungeonStore.Clear();
 
 		// Initialize Dungeon map with data from dbcs
-		foreach (var dungeon in CliDB.LFGDungeonsStorage.Values)
+		foreach (var dungeon in _cliDB.LFGDungeonsStorage.Values)
 		{
-			if (Global.DB2Mgr.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
+			if (_dB2Manager.GetMapDifficultyData((uint)dungeon.MapID, dungeon.DifficultyID) == null)
 				continue;
 
 			switch (dungeon.TypeID)
@@ -169,14 +199,14 @@ public class LFGManager : Singleton<LFGManager>
 				case LfgType.Raid:
 				case LfgType.Random:
 				case LfgType.Zone:
-					LfgDungeonStore[dungeon.Id] = new LFGDungeonData(dungeon);
+					LfgDungeonStore[dungeon.Id] = new LFGDungeonData(dungeon, _worldManager);
 
 					break;
 			}
 		}
 
 		// Fill teleport locations from DB
-		var result = DB.World.Query("SELECT dungeonId, position_x, position_y, position_z, orientation, requiredItemLevel FROM lfg_dungeon_template");
+		var result = _worldDatabase.Query("SELECT dungeonId, position_x, position_y, position_z, orientation, requiredItemLevel FROM lfg_dungeon_template");
 
 		if (result.IsEmpty())
 		{
@@ -218,7 +248,7 @@ public class LFGManager : Singleton<LFGManager>
 			// No teleport coords in database, load from areatriggers
 			if (dungeon.type != LfgType.Random && dungeon.x == 0.0f && dungeon.y == 0.0f && dungeon.z == 0.0f)
 			{
-				var at = Global.ObjectMgr.GetMapEntranceTrigger(dungeon.map);
+				var at = _gameObjectManager.GetMapEntranceTrigger(dungeon.map);
 
 				if (at == null)
 				{
@@ -658,7 +688,7 @@ public class LFGManager : Singleton<LFGManager>
 
 					// Set the new state to LFG_STATE_DUNGEON/LFG_STATE_FINISHED_DUNGEON if the group is already in a dungeon
 					// This is required in case a LFG group vote-kicks a player in a dungeon, queues, then leaves the queue (maybe to queue later again)
-					var group = Global.GroupMgr.GetGroupByGUID(gguid);
+					var group = _groupManager.GetGroupByGUID(gguid);
 
 					if (group != null)
 						if (group.IsLFGGroup && GetDungeon(gguid) != 0 && (oldState == LfgState.Dungeon || oldState == LfgState.FinishedDungeon))
@@ -753,7 +783,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (!guid.IsEmpty)
 		{
-			var player = Global.ObjAccessor.FindPlayer(guid);
+			var player = _objectAccessor.FindPlayer(guid);
 
 			if (player != null)
 				roles = FilterClassRoles(player, roles);
@@ -1037,7 +1067,7 @@ public class LFGManager : Singleton<LFGManager>
 			}
 
 			// Store the number of players that were present in group when joining RFD, used for achievement purposes
-			var _player = Global.ObjAccessor.FindConnectedPlayer(pguid);
+			var _player = _objectAccessor.FindConnectedPlayer(pguid);
 
 			if (_player != null)
 			{
@@ -1136,7 +1166,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		if (agreeNum == SharedConst.LFGKickVotesNeeded) // Vote passed - Kick player
 		{
-			var group = Global.GroupMgr.GetGroupByGUID(gguid);
+			var group = _groupManager.GetGroupByGUID(gguid);
 
 			if (group)
 				Player.RemoveFromGroup(group, boot.victim, RemoveMethod.KickLFG);
@@ -1242,133 +1272,6 @@ public class LFGManager : Singleton<LFGManager>
 			player.Session.SendLfgTeleportError(error);
 
 		Log.Logger.Debug("TeleportPlayer: Player {0} is being teleported in to map {1} (x: {2}, y: {3}, z: {4}) Result: {5}", player.GetName(), dungeon.map, dungeon.x, dungeon.y, dungeon.z, error);
-	}
-
-	public void FinishDungeon(ObjectGuid gguid, uint dungeonId, Map currMap)
-	{
-		var gDungeonId = GetDungeon(gguid);
-
-		if (gDungeonId != dungeonId)
-		{
-			Log.Logger.Debug($"Group {gguid} finished dungeon {dungeonId} but queued for {gDungeonId}. Ignoring");
-
-			return;
-		}
-
-		if (GetState(gguid) == LfgState.FinishedDungeon) // Shouldn't happen. Do not reward multiple times
-		{
-			Log.Logger.Debug($"Group {gguid} already rewarded");
-
-			return;
-		}
-
-		SetState(gguid, LfgState.FinishedDungeon);
-
-		var players = GetPlayers(gguid);
-
-		foreach (var guid in players)
-		{
-			if (GetState(guid) == LfgState.FinishedDungeon)
-			{
-				Log.Logger.Debug($"Group: {gguid}, Player: {guid} already rewarded");
-
-				continue;
-			}
-
-			uint rDungeonId = 0;
-			var dungeons = GetSelectedDungeons(guid);
-
-			if (!dungeons.Empty())
-				rDungeonId = dungeons.First();
-
-			SetState(guid, LfgState.FinishedDungeon);
-
-			// Give rewards only if its a random dungeon
-			var dungeon = GetLFGDungeon(rDungeonId);
-
-			if (dungeon == null || (dungeon.type != LfgType.Random && !dungeon.seasonal))
-			{
-				Log.Logger.Debug($"Group: {gguid}, Player: {guid} dungeon {rDungeonId} is not random or seasonal");
-
-				continue;
-			}
-
-			var player = Global.ObjAccessor.FindPlayer(guid);
-
-			if (player == null)
-			{
-				Log.Logger.Debug($"Group: {gguid}, Player: {guid} not found in world");
-
-				continue;
-			}
-
-			if (player.Map != currMap)
-			{
-				Log.Logger.Debug($"Group: {gguid}, Player: {guid} is in a different map");
-
-				continue;
-			}
-
-			player.RemoveAura(SharedConst.LFGSpellDungeonCooldown);
-
-			var dungeonDone = GetLFGDungeon(dungeonId);
-			var mapId = dungeonDone != null ? dungeonDone.map : 0;
-
-			if (player.Location.MapId != mapId)
-			{
-				Log.Logger.Debug($"Group: {gguid}, Player: {guid} is in map {player.Location.MapId} and should be in {mapId} to get reward");
-
-				continue;
-			}
-
-			// Update achievements
-			if (dungeon.difficulty == Difficulty.Heroic)
-			{
-				byte lfdRandomPlayers = 0;
-				var numParty = PlayersStore[guid].GetNumberOfPartyMembersAtJoin();
-
-				if (numParty != 0)
-					lfdRandomPlayers = (byte)(5 - numParty);
-				else
-					lfdRandomPlayers = 4;
-
-				player.UpdateCriteria(CriteriaType.CompletedLFGDungeonWithStrangers, lfdRandomPlayers);
-			}
-
-			var reward = GetRandomDungeonReward(rDungeonId, player.Level);
-
-			if (reward == null)
-				continue;
-
-			var done = false;
-			var quest = Global.ObjectMgr.GetQuestTemplate(reward.firstQuest);
-
-			if (quest == null)
-				continue;
-
-			// if we can take the quest, means that we haven't done this kind of "run", IE: First Heroic Random of Day.
-			if (player.CanRewardQuest(quest, false))
-			{
-				player.RewardQuest(quest, LootItemType.Item, 0, null, false);
-			}
-			else
-			{
-				done = true;
-				quest = Global.ObjectMgr.GetQuestTemplate(reward.otherQuest);
-
-				if (quest == null)
-					continue;
-
-				// we give reward without informing client (retail does this)
-				player.RewardQuest(quest, LootItemType.Item, 0, null, false);
-			}
-
-			// Give rewards
-			var doneString = done ? "" : "not";
-			Log.Logger.Debug($"Group: {gguid}, Player: {guid} done dungeon {GetDungeon(gguid)}, {doneString} previously done.");
-			LfgPlayerRewardData data = new(dungeon.Entry(), GetDungeon(gguid, false), done, quest);
-			player.Session.SendLfgPlayerReward(data);
-		}
 	}
 
 	public LfgReward GetRandomDungeonReward(uint dungeon, uint level)
@@ -1515,106 +1418,10 @@ public class LFGManager : Singleton<LFGManager>
 	public Dictionary<uint, LfgLockInfoData> GetLockedDungeons(ObjectGuid guid)
 	{
 		Dictionary<uint, LfgLockInfoData> lockDic = new();
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
 
-		if (!player)
-		{
-			Log.Logger.Warning("{0} not ingame while retrieving his LockedDungeons.", guid.ToString());
+        // Send to map server
 
-			return lockDic;
-		}
-
-		var level = player.Level;
-		var expansion = player.Session.Expansion;
-		var dungeons = GetDungeonsByRandom(0);
-		var denyJoin = !player.Session.HasPermission(RBACPermissions.JoinDungeonFinder);
-
-		foreach (var it in dungeons)
-		{
-			var dungeon = GetLFGDungeon(it);
-
-			if (dungeon == null) // should never happen - We provide a list from sLFGDungeonStore
-				continue;
-
-			LfgLockStatusType lockStatus = 0;
-			AccessRequirement ar;
-
-			if (denyJoin)
-			{
-				lockStatus = LfgLockStatusType.RaidLocked;
-			}
-			else if (dungeon.expansion > (uint)expansion)
-			{
-				lockStatus = LfgLockStatusType.InsufficientExpansion;
-			}
-			else if (Global.DisableMgr.IsDisabledFor(DisableType.Map, dungeon.map, player))
-			{
-				lockStatus = LfgLockStatusType.NotInSeason;
-			}
-			else if (Global.DisableMgr.IsDisabledFor(DisableType.LFGMap, dungeon.map, player))
-			{
-				lockStatus = LfgLockStatusType.RaidLocked;
-			}
-			else if (dungeon.difficulty > Difficulty.Normal && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(dungeon.map, dungeon.difficulty)) != null)
-			{
-				lockStatus = LfgLockStatusType.RaidLocked;
-			}
-			else if (dungeon.seasonal && !IsSeasonActive(dungeon.id))
-			{
-				lockStatus = LfgLockStatusType.NotInSeason;
-			}
-			else if (dungeon.requiredItemLevel > player.GetAverageItemLevel())
-			{
-				lockStatus = LfgLockStatusType.TooLowGearScore;
-			}
-			else if ((ar = Global.ObjectMgr.GetAccessRequirement(dungeon.map, dungeon.difficulty)) != null)
-			{
-				if (ar.Achievement != 0 && !player.HasAchieved(ar.Achievement))
-				{
-					lockStatus = LfgLockStatusType.MissingAchievement;
-				}
-				else if (player.Team == TeamFaction.Alliance && ar.QuestA != 0 && !player.GetQuestRewardStatus(ar.QuestA))
-				{
-					lockStatus = LfgLockStatusType.QuestNotCompleted;
-				}
-				else if (player.Team == TeamFaction.Horde && ar.QuestH != 0 && !player.GetQuestRewardStatus(ar.QuestH))
-				{
-					lockStatus = LfgLockStatusType.QuestNotCompleted;
-				}
-				else if (ar.Item != 0)
-				{
-					if (!player.HasItemCount(ar.Item) && (ar.Item2 == 0 || !player.HasItemCount(ar.Item2)))
-						lockStatus = LfgLockStatusType.MissingItem;
-				}
-				else if (ar.Item2 != 0 && !player.HasItemCount(ar.Item2))
-				{
-					lockStatus = LfgLockStatusType.MissingItem;
-				}
-			}
-			else
-			{
-				var levels = Global.DB2Mgr.GetContentTuningData(dungeon.contentTuningId, player.PlayerData.CtrOptions.GetValue().ContentTuningConditionMask);
-
-				if (levels.HasValue)
-				{
-					if (levels.Value.MinLevel > level)
-						lockStatus = LfgLockStatusType.TooLowLevel;
-
-					if (levels.Value.MaxLevel < level)
-						lockStatus = LfgLockStatusType.TooHighLevel;
-				}
-			}
-
-			/* @todo VoA closed if WG is not under team control (LFG_LOCKSTATUS_RAID_LOCKED)
-			lockData = LFG_LOCKSTATUS_TOO_HIGH_GEAR_SCORE;
-			lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_LOW_LEVEL;
-			lockData = LFG_LOCKSTATUS_ATTUNEMENT_TOO_HIGH_LEVEL;
-			*/
-			if (lockStatus != 0)
-				lockDic[dungeon.Entry()] = new LfgLockInfoData(lockStatus, dungeon.requiredItemLevel, player.GetAverageItemLevel());
-		}
-
-		return lockDic;
+        return lockDic;
 	}
 
 	public byte GetKicksLeft(ObjectGuid guid)
@@ -1729,15 +1536,15 @@ public class LFGManager : Singleton<LFGManager>
 
 	public bool HasIgnore(ObjectGuid guid1, ObjectGuid guid2)
 	{
-		var plr1 = Global.ObjAccessor.FindPlayer(guid1);
-		var plr2 = Global.ObjAccessor.FindPlayer(guid2);
+		var plr1 = _objectAccessor.FindPlayer(guid1);
+		var plr2 = _objectAccessor.FindPlayer(guid2);
 
 		return plr1 != null && plr2 != null && (plr1.Social.HasIgnore(guid2, plr2.Session.AccountGUID) || plr2.Social.HasIgnore(guid1, plr1.Session.AccountGUID));
 	}
 
 	public void SendLfgRoleChosen(ObjectGuid guid, ObjectGuid pguid, LfgRoles roles)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgRoleChosen(pguid, roles);
@@ -1745,7 +1552,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgRoleCheckUpdate(ObjectGuid guid, LfgRoleCheck roleCheck)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgRoleCheckUpdate(roleCheck);
@@ -1753,7 +1560,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgUpdateStatus(ObjectGuid guid, LfgUpdateData data, bool party)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgUpdateStatus(data, party);
@@ -1761,7 +1568,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgJoinResult(ObjectGuid guid, LfgJoinResultData data)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgJoinResult(data);
@@ -1769,7 +1576,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgBootProposalUpdate(ObjectGuid guid, LfgPlayerBoot boot)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgBootProposalUpdate(boot);
@@ -1777,7 +1584,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgUpdateProposal(ObjectGuid guid, LfgProposal proposal)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgProposalUpdate(proposal);
@@ -1785,7 +1592,7 @@ public class LFGManager : Singleton<LFGManager>
 
 	public void SendLfgQueueStatus(ObjectGuid guid, LfgQueueStatusData data)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.Session.SendLfgQueueStatus(data);
@@ -1962,13 +1769,13 @@ public class LFGManager : Singleton<LFGManager>
 
 		foreach (var dungeon in LfgDungeonStore.Values)
 		{
-			if (!(dungeon.type == LfgType.Random || (dungeon.seasonal && Global.LFGMgr.IsSeasonActive(dungeon.id))))
+			if (!(dungeon.type == LfgType.Random || (dungeon.seasonal && _lFGManager.IsSeasonActive(dungeon.id))))
 				continue;
 
 			if (dungeon.expansion > expansion)
 				continue;
 
-			var levels = Global.DB2Mgr.GetContentTuningData(dungeon.contentTuningId, contentTuningReplacementConditionMask);
+			var levels = _dB2Manager.GetContentTuningData(dungeon.contentTuningId, contentTuningReplacementConditionMask);
 
 			if (levels.HasValue)
 				if (levels.Value.MinLevel > level || level > levels.Value.MaxLevel)
@@ -2017,7 +1824,7 @@ public class LFGManager : Singleton<LFGManager>
 				break;
 
 			var cachedLockMap = GetLockedDungeons(guid);
-			var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+			var player = _objectAccessor.FindConnectedPlayer(guid);
 
 			foreach (var it2 in cachedLockMap)
 			{
@@ -2030,23 +1837,24 @@ public class LFGManager : Singleton<LFGManager>
 				{
 					var eraseDungeon = true;
 
-					// Don't remove the dungeon if team members are trying to continue a locked instance
-					if (it2.Value.lockStatus == LfgLockStatusType.RaidLocked && isContinue)
-					{
-						var dungeon = GetLFGDungeon(dungeonId);
-						MapDb2Entries entries = new(dungeon.map, dungeon.difficulty);
-						var playerBind = Global.InstanceLockMgr.FindActiveInstanceLock(guid, entries);
+                    // Don't remove the dungeon if team members are trying to continue a locked instance
+                    // Send to map server. need to get the info back to continue.
+     //               if (it2.Value.lockStatus == LfgLockStatusType.RaidLocked && isContinue)
+					//{
+					//	var dungeon = GetLFGDungeon(dungeonId);
+					//	MapDb2Entries entries = new(dungeon.map, dungeon.difficulty);
+					//	var playerBind = Global.InstanceLockMgr.FindActiveInstanceLock(guid, entries);
 
-						if (playerBind != null)
-						{
-							var dungeonInstanceId = playerBind.GetInstanceId();
+					//	if (playerBind != null)
+					//	{
+					//		var dungeonInstanceId = playerBind.GetInstanceId();
 
-							if (!lockedDungeons.TryGetValue(dungeonId, out var lockedDungeon) || lockedDungeon == dungeonInstanceId)
-								eraseDungeon = false;
+					//		if (!lockedDungeons.TryGetValue(dungeonId, out var lockedDungeon) || lockedDungeon == dungeonInstanceId)
+					//			eraseDungeon = false;
 
-							lockedDungeons[dungeonId] = dungeonInstanceId;
-						}
-					}
+					//		lockedDungeons[dungeonId] = dungeonInstanceId;
+					//	}
+					//}
 
 					if (eraseDungeon)
 						dungeonsToRemove.Add(dungeonId);
@@ -2109,11 +1917,11 @@ public class LFGManager : Singleton<LFGManager>
 		// Set the dungeon difficulty
 		var dungeon = GetLFGDungeon(proposal.dungeonId);
 
-		var grp = !proposal.group.IsEmpty ? Global.GroupMgr.GetGroupByGUID(proposal.group) : null;
+		var grp = !proposal.group.IsEmpty ? _groupManager.GetGroupByGUID(proposal.group) : null;
 
 		foreach (var pguid in players)
 		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(pguid);
+			var player = _objectAccessor.FindConnectedPlayer(pguid);
 
 			if (!player)
 				continue;
@@ -2130,7 +1938,7 @@ public class LFGManager : Singleton<LFGManager>
 				grp.Create(player);
 				var gguid = grp.GUID;
 				SetState(gguid, LfgState.Proposal);
-				Global.GroupMgr.AddGroup(grp);
+				_groupManager.AddGroup(grp);
 			}
 			else if (group != grp)
 			{
@@ -2162,7 +1970,7 @@ public class LFGManager : Singleton<LFGManager>
 		// Teleport Player
 		foreach (var it in playersToTeleport)
 		{
-			var player = Global.ObjAccessor.FindPlayer(it);
+			var player = _objectAccessor.FindPlayer(it);
 
 			if (player)
 				TeleportPlayer(player, false);
@@ -2351,7 +2159,7 @@ public class LFGManager : Singleton<LFGManager>
 
 		for (uint i = 0; i < PlayerConst.MaxSpecializations; ++i)
 		{
-			var specialization = Global.DB2Mgr.GetChrSpecializationByIndex(player.Class, i);
+			var specialization = _dB2Manager.GetChrSpecializationByIndex(player.Class, i);
 
 			if (specialization != null)
 				allowedRoles |= (1u << (specialization.Role + 1));
@@ -2370,21 +2178,21 @@ public class LFGManager : Singleton<LFGManager>
 		switch (dungeonId)
 		{
 			case 285: // The Headless Horseman
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.HallowsEnd);
+				return _gameEventManager.IsHolidayActive(HolidayIds.HallowsEnd);
 			case 286: // The Frost Lord Ahune
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.MidsummerFireFestival);
+				return _gameEventManager.IsHolidayActive(HolidayIds.MidsummerFireFestival);
 			case 287: // Coren Direbrew
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.Brewfest);
+				return _gameEventManager.IsHolidayActive(HolidayIds.Brewfest);
 			case 288: // The Crown Chemical Co.
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.LoveIsInTheAir);
+				return _gameEventManager.IsHolidayActive(HolidayIds.LoveIsInTheAir);
 			case 744: // Random Timewalking Dungeon (Burning Crusade)
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventBcDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventBcDefault);
 			case 995: // Random Timewalking Dungeon (Wrath of the Lich King)
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventLkDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventLkDefault);
 			case 1146: // Random Timewalking Dungeon (Cataclysm)
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventCataDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventCataDefault);
 			case 1453: // Timewalker MoP
-				return Global.GameEventMgr.IsHolidayActive(HolidayIds.TimewalkingDungeonEventMopDefault);
+				return _gameEventManager.IsHolidayActive(HolidayIds.TimewalkingDungeonEventMopDefault);
 		}
 
 		return false;
@@ -2468,9 +2276,9 @@ public class LfgPlayerRewardData
 	public uint rdungeonEntry;
 	public uint sdungeonEntry;
 	public bool done;
-	public Quest quest;
+	public Quest.Quest quest;
 
-	public LfgPlayerRewardData(uint random, uint current, bool _done, Quest _quest)
+	public LfgPlayerRewardData(uint random, uint current, bool _done, Quest.Quest _quest)
 	{
 		rdungeonEntry = random;
 		sdungeonEntry = current;
@@ -2567,10 +2375,10 @@ public class LFGDungeonData
 	public float x, y, z, o;
 	public ushort requiredItemLevel;
 
-	public LFGDungeonData(LFGDungeonsRecord dbc)
+	public LFGDungeonData(LFGDungeonsRecord dbc, WorldManager worldManager)
 	{
 		id = dbc.Id;
-		name = dbc.Name[_worldManager.DefaultDbcLocale];
+		name = dbc.Name[worldManager.DefaultDbcLocale];
 		map = (uint)dbc.MapID;
 		type = dbc.TypeID;
 		expansion = dbc.ExpansionLevel;
