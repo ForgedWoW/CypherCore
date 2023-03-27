@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
@@ -7,7 +10,6 @@ using Framework.Constants;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.LootManagement;
 
@@ -17,7 +19,7 @@ public class LootTemplate
     private readonly GameObjectManager _objectManager;
     private readonly ConditionManager _conditionManager;
     private readonly LootStorage _lootStorage;
-    private readonly List<LootStoreItem> _entries = new();         // not grouped only
+    private readonly List<LootStoreItem> _entries = new();       // not grouped only
     private readonly Dictionary<int, LootGroup> _groups = new(); // groups have own (optimised) processing, grouped entries go there
 
     public LootTemplate(IConfiguration configuration, GameObjectManager objectManager, ConditionManager conditionManager, LootStorage lootStorage)
@@ -90,7 +92,9 @@ public class LootTemplate
                                               item.NeedsQuest,
                                               !item.NeedsQuest || _objectManager.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                               true,
-                                              item.Conditions, _objectManager, _conditionManager))
+                                              item.Conditions,
+                                              _objectManager,
+                                              _conditionManager))
                     loot.AddItem(item);
             }
         }
@@ -167,7 +171,9 @@ public class LootTemplate
                                                      item.NeedsQuest,
                                                      !item.NeedsQuest || _objectManager.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                                      true,
-                                                     item.Conditions, _objectManager, _conditionManager);
+                                                     item.Conditions,
+                                                     _objectManager,
+                                                     _conditionManager);
                 });
 
                 if (!lootersForItem.Empty())
@@ -405,7 +411,9 @@ public class LootTemplate
                                                lootStoreItem.NeedsQuest,
                                                !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                                strictUsabilityCheck,
-                                               lootStoreItem.Conditions, _objectManager, _conditionManager))
+                                               lootStoreItem.Conditions,
+                                               _objectManager,
+                                               _conditionManager))
             {
                 return true; // active quest drop found
             }
@@ -420,7 +428,6 @@ public class LootTemplate
 
     public class LootGroup // A set of loot definitions for items (refs are not allowed)
     {
-
         private readonly GameObjectManager _objectManager;
         private readonly ConditionManager _conditionManager;
         private readonly LootStorage _lootStorage;
@@ -536,7 +543,9 @@ public class LootTemplate
                                               lootStoreItem.NeedsQuest,
                                               !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                               strictUsabilityCheck,
-                                              lootStoreItem.Conditions, _objectManager, _conditionManager))
+                                              lootStoreItem.Conditions,
+                                              _objectManager,
+                                              _conditionManager))
                     return true;
 
             foreach (var lootStoreItem in _equalChanced)
@@ -546,7 +555,9 @@ public class LootTemplate
                                               lootStoreItem.NeedsQuest,
                                               !lootStoreItem.NeedsQuest || _objectManager.GetItemTemplate(lootStoreItem.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                               strictUsabilityCheck,
-                                              lootStoreItem.Conditions, _objectManager, _conditionManager))
+                                              lootStoreItem.Conditions,
+                                              _objectManager,
+                                              _conditionManager))
                     return true;
 
             return false;

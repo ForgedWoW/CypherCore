@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.DataStorage.Structs.I;
@@ -10,16 +13,15 @@ using Forged.MapServer.Maps;
 using Forged.MapServer.Networking.Packets.Item;
 using Forged.MapServer.Networking.Packets.Loot;
 using Framework.Constants;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.LootManagement;
 
 public class LootRoll
 {
+    private static readonly TimeSpan LootRollTimeout = TimeSpan.FromMinutes(1);
     private readonly GameObjectManager _objectManager;
     private readonly ObjectAccessor _objectAccessor;
     private readonly LootStorage _lootStorage;
-    private static readonly TimeSpan LootRollTimeout = TimeSpan.FromMinutes(1);
     private readonly Dictionary<ObjectGuid, PlayerRollVote> _rollVoteMap = new();
 
     private Map _map;
@@ -371,7 +373,7 @@ public class LootRoll
     {
         uint notVoted = 0;
         var isSomeoneNeed = false;
-        
+
         foreach (var pair in _rollVoteMap)
             switch (pair.Value.Vote)
             {

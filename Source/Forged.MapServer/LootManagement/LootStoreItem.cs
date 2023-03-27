@@ -1,17 +1,20 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Globals;
 using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.LootManagement;
 
 public class LootStoreItem
 {
-    public static string[] QualityToRate = {
+    public static string[] QualityToRate =
+    {
         "Rate.Drop.Item.Poor",      // ITEM_QUALITY_POOR
         "Rate.Drop.Item.Normal",    // ITEM_QUALITY_NORMAL
         "Rate.Drop.Item.Uncommon",  // ITEM_QUALITY_UNCOMMON
@@ -29,10 +32,10 @@ public class LootStoreItem
     public byte Groupid;
     public byte Mincount;              // mincount for drop items
     public byte Maxcount;              // max drop count for the item mincount or Ref multiplicator
+    public List<Condition> Conditions; // additional loot condition
     private readonly GameObjectManager _objectManager;
     private readonly IConfiguration _configuration;
     private readonly WorldDatabase _worldDatabase;
-    public List<Condition> Conditions; // additional loot condition
 
     public LootStoreItem(uint itemid, uint reference, float chance, bool needsQuest, ushort lootmode, byte groupid, byte mincount, byte maxcount, GameObjectManager objectManager, IConfiguration configuration, WorldDatabase worldDatabase)
     {

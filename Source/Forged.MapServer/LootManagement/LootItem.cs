@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System;
 using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Items;
@@ -6,14 +9,11 @@ using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Framework.Constants;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.LootManagement;
 
 public class LootItem
 {
-    private readonly GameObjectManager _objectManager;
-    private readonly ConditionManager _conditionManager;
     public uint Itemid;
     public uint LootListId;
     public uint RandomBonusListId;
@@ -30,6 +30,8 @@ public class LootItem
     public bool IsCounted;
     public bool NeedsQuest; // quest drop
     public bool FollowLootRules;
+    private readonly GameObjectManager _objectManager;
+    private readonly ConditionManager _conditionManager;
 
     public LootItem(GameObjectManager objectManager, ConditionManager conditionManager)
     {
@@ -52,7 +54,7 @@ public class LootItem
     }
 
     /// <summary>
-    ///  Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
+    ///     Basic checks for player/item compatibility - if false no chance to see the item in the loot - used only for loot generation
     /// </summary>
     /// <param name="player"> </param>
     /// <param name="loot"> </param>

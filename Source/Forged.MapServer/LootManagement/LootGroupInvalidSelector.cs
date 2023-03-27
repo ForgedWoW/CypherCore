@@ -1,8 +1,10 @@
-﻿using Forged.MapServer.Conditions;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Framework.Constants;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.LootManagement;
 
@@ -28,7 +30,9 @@ public struct LootGroupInvalidSelector
                                        item.NeedsQuest,
                                        !item.NeedsQuest || _objectManager.GetItemTemplate(item.Itemid).HasFlag(ItemFlagsCustom.FollowLootRules),
                                        true,
-                                       item.Conditions, _objectManager, _conditionManager))
+                                       item.Conditions,
+                                       _objectManager,
+                                       _conditionManager))
             return true;
 
         return false;

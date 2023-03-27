@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) Forged WoW LLC <https://github.com/ForgedWoW/ForgedCore>
+// Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
+
+using System.Collections.Generic;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
@@ -6,7 +9,6 @@ using Framework.Database;
 using Framework.Util;
 using Microsoft.Extensions.Configuration;
 using Serilog;
-using Forged.MapServer.LootManagement;
 
 namespace Forged.MapServer.LootManagement;
 
