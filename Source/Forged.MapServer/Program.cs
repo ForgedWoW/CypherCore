@@ -115,6 +115,9 @@ void InitializeServer()
     worldManager.SetEventInterval(eventManager.StartSystem());
     Player.DeleteOldCharacters();
     eventManager.StartArenaSeason();
+    worldManager.Initialize(container.Resolve<AccountManager>(), container.Resolve<CharacterCache>(), container.Resolve<ObjectAccessor>(),
+                            container.Resolve<QuestPoolManager>(), container.Resolve<CalendarManager>(), container.Resolve<GuildManager>(),
+                            container.Resolve<WorldStateManager>());
 
     sm.ForEach<IServerLoadComplete>(s => s.LoadComplete());
 }

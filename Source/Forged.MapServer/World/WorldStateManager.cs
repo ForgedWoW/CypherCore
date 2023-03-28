@@ -325,4 +325,10 @@ public class WorldStateManager
 			initWorldStates.AddState(worldStateId, value);
 		}
 	}
+
+    public void SetForcedWarModeFactionBalanceState(int team, int reward = 0)
+    {
+        SetValueAndSaveInDb(WorldStates.WarModeHordeBuffValue, 10 + (team == TeamIds.Alliance ? reward : 0), false, null);
+        SetValueAndSaveInDb(WorldStates.WarModeAllianceBuffValue, 10 + (team == TeamIds.Horde ? reward : 0), false, null);
+    }
 }
