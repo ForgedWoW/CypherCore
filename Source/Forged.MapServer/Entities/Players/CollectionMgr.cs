@@ -11,20 +11,24 @@ using Forged.MapServer.DataStorage.Structs.H;
 using Forged.MapServer.DataStorage.Structs.I;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Transmogification;
 using Forged.MapServer.Server;
-using Forged.MapServer.Services;
 using Framework.Constants;
 using Framework.Database;
-using Serilog;
 
 namespace Forged.MapServer.Entities.Players;
 
 public class CollectionMgr
 {
-    private static readonly Dictionary<uint, uint> FactionSpecificMounts = new();
     private readonly WorldSession _owner;
+    private readonly MountCache _mountCache;
+    private readonly DB2Manager _db2Manager;
+    private readonly LoginDatabase _loginDatabase;
+    private readonly ConditionManager _conditionManager;
+    private readonly CliDB _cliDB;
+    private readonly GameObjectManager _objectManager;
     private readonly Dictionary<uint, ToyFlags> _toys = new();
     private readonly Dictionary<uint, HeirloomData> _heirlooms = new();
     private readonly Dictionary<uint, MountStatusFlags> _mounts = new();
@@ -50,52 +54,21 @@ public class CollectionMgr
     private BitSet _appearances;
     private BitSet _transmogIllusions;
 
-	public CollectionMgr(WorldSession owner)
+	public CollectionMgr(WorldSession owner, MountCache mountCache, DB2Manager db2Manager, LoginDatabase loginDatabase,
+                         ConditionManager conditionManager, CliDB cliDB, GameObjectManager objectManager)
 	{
 		_owner = owner;
-		_appearances = new BitSet(0);
+        _mountCache = mountCache;
+        _db2Manager = db2Manager;
+        _loginDatabase = loginDatabase;
+        _conditionManager = conditionManager;
+        _cliDB = cliDB;
+        _objectManager = objectManager;
+        _appearances = new BitSet(0);
 		_transmogIllusions = new BitSet(0);
 	}
 
-	public static void LoadMountDefinitions()
-	{
-		var oldMsTime = Time.MSTime;
-
-		var result = DB.World.Query("SELECT spellId, otherFactionSpellId FROM mount_definitions");
-
-		if (result.IsEmpty())
-		{
-			Log.Logger.Information("Loaded 0 mount definitions. DB table `mount_definitions` is empty.");
-
-			return;
-		}
-
-		do
-		{
-			var spellId = result.Read<uint>(0);
-			var otherFactionSpellId = result.Read<uint>(1);
-
-			if (Global.DB2Mgr.GetMount(spellId) == null)
-			{
-				Log.Logger.Error("Mount spell {0} defined in `mount_definitions` does not exist in Mount.db2, skipped", spellId);
-
-				continue;
-			}
-
-			if (otherFactionSpellId != 0 && Global.DB2Mgr.GetMount(otherFactionSpellId) == null)
-			{
-				Log.Logger.Error("otherFactionSpellId {0} defined in `mount_definitions` for spell {1} does not exist in Mount.db2, skipped", otherFactionSpellId, spellId);
-
-				continue;
-			}
-
-			FactionSpecificMounts[spellId] = otherFactionSpellId;
-		} while (result.NextRow());
-
-		Log.Logger.Information("Loaded {0} mount definitions in {1} ms", FactionSpecificMounts.Count, Time.GetMSTimeDiffToNow(oldMsTime));
-	}
-
-	public void LoadToys()
+    public void LoadToys()
 	{
 		foreach (var pair in _toys)
 			_owner.Player.AddToy(pair.Key, (uint)pair.Value);
@@ -103,15 +76,14 @@ public class CollectionMgr
 
 	public bool AddToy(uint itemId, bool isFavourite, bool hasFanfare)
 	{
-		if (UpdateAccountToys(itemId, isFavourite, hasFanfare))
-		{
-			_owner.Player?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
+        if (!UpdateAccountToys(itemId, isFavourite, hasFanfare))
+            return false;
 
-			return true;
-		}
+        _owner.Player?.AddToy(itemId, (uint)GetToyFlags(isFavourite, hasFanfare));
 
-		return false;
-	}
+        return true;
+
+    }
 
 	public void LoadAccountToys(SQLResult result)
 	{
@@ -127,12 +99,10 @@ public class CollectionMgr
 
 	public void SaveAccountToys(SQLTransaction trans)
 	{
-		PreparedStatement stmt;
-
-		foreach (var pair in _toys)
+        foreach (var pair in _toys)
 		{
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
-			stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+			var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_TOYS);
+			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, pair.Key);
 			stmt.AddValue(2, pair.Value.HasAnyFlag(ToyFlags.Favorite));
 			stmt.AddValue(3, pair.Value.HasAnyFlag(ToyFlags.HasFanfare));
@@ -161,7 +131,7 @@ public class CollectionMgr
 
 	public void OnItemAdded(Item item)
 	{
-		if (Global.DB2Mgr.GetHeirloomByItemId(item.Entry) != null)
+		if (_db2Manager.GetHeirloomByItemId(item.Entry) != null)
 			AddHeirloom(item.Entry, 0);
 
 		AddItemAppearance(item);
@@ -177,7 +147,7 @@ public class CollectionMgr
 			var itemId = result.Read<uint>(0);
 			var flags = (HeirloomPlayerFlags)result.Read<uint>(1);
 
-			var heirloom = Global.DB2Mgr.GetHeirloomByItemId(itemId);
+			var heirloom = _db2Manager.GetHeirloomByItemId(itemId);
 
 			if (heirloom == null)
 				continue;
@@ -198,12 +168,10 @@ public class CollectionMgr
 
 	public void SaveAccountHeirlooms(SQLTransaction trans)
 	{
-		PreparedStatement stmt;
-
-		foreach (var heirloom in _heirlooms)
+        foreach (var heirloom in _heirlooms)
 		{
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
-			stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+			var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_HEIRLOOMS);
+			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, heirloom.Key);
 			stmt.AddValue(2, (uint)heirloom.Value.Flags);
 			trans.Append(stmt);
@@ -239,7 +207,7 @@ public class CollectionMgr
 		if (!player)
 			return;
 
-		var heirloom = Global.DB2Mgr.GetHeirloomByItemId(itemId);
+		var heirloom = _db2Manager.GetHeirloomByItemId(itemId);
 
 		if (heirloom == null)
 			return;
@@ -279,7 +247,7 @@ public class CollectionMgr
 			return;
 
 		// Check already owned heirloom for upgrade kits
-		var heirloom = Global.DB2Mgr.GetHeirloomByItemId(item.Entry);
+		var heirloom = _db2Manager.GetHeirloomByItemId(item.Entry);
 
 		if (heirloom != null)
 		{
@@ -293,12 +261,12 @@ public class CollectionMgr
 			uint newItemId = 0;
 			HeirloomRecord heirloomDiff;
 
-			while ((heirloomDiff = Global.DB2Mgr.GetHeirloomByItemId(heirloomItemId)) != null)
+			while ((heirloomDiff = _db2Manager.GetHeirloomByItemId(heirloomItemId)) != null)
 			{
 				if (player.GetItemByEntry(heirloomDiff.ItemID))
 					newItemId = heirloomDiff.ItemID;
 
-				var heirloomSub = Global.DB2Mgr.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);
+				var heirloomSub = _db2Manager.GetHeirloomByItemId(heirloomDiff.StaticUpgradedItemID);
 
 				if (heirloomSub != null)
 				{
@@ -355,7 +323,7 @@ public class CollectionMgr
 			var mountSpellId = result.Read<uint>(0);
 			var flags = (MountStatusFlags)result.Read<byte>(1);
 
-			if (Global.DB2Mgr.GetMount(mountSpellId) == null)
+			if (_db2Manager.GetMount(mountSpellId) == null)
 				continue;
 
 			_mounts[mountSpellId] = flags;
@@ -366,7 +334,7 @@ public class CollectionMgr
 	{
 		foreach (var mount in _mounts)
 		{
-			var stmt = DB.Login.GetPreparedStatement(LoginStatements.REP_ACCOUNT_MOUNTS);
+			var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.REP_ACCOUNT_MOUNTS);
 			stmt.AddValue(0, _owner.BattlenetAccountId);
 			stmt.AddValue(1, mount.Key);
 			stmt.AddValue(2, (byte)mount.Value);
@@ -381,12 +349,12 @@ public class CollectionMgr
 		if (!player)
 			return false;
 
-		var mount = Global.DB2Mgr.GetMount(spellId);
+		var mount = _db2Manager.GetMount(spellId);
 
 		if (mount == null)
 			return false;
 
-		var value = FactionSpecificMounts.LookupByKey(spellId);
+		var value = _mountCache.FactionSpecificMounts.LookupByKey(spellId);
 
 		if (value != 0 && !factionMount)
 			AddMount(value, flags, true, learned);
@@ -396,9 +364,9 @@ public class CollectionMgr
 		// Mount condition only applies to using it, should still learn it.
 		if (mount.PlayerConditionID != 0)
 		{
-			var playerCondition = CliDB.PlayerConditionStorage.LookupByKey(mount.PlayerConditionID);
+			var playerCondition = _cliDB.PlayerConditionStorage.LookupByKey(mount.PlayerConditionID);
 
-			if (playerCondition != null && !ConditionManager.IsPlayerMeetingCondition(player, playerCondition))
+			if (playerCondition != null && !_conditionManager.IsPlayerMeetingCondition(player, playerCondition))
 				return false;
 		}
 
@@ -480,7 +448,7 @@ public class CollectionMgr
 
 		foreach (var hiddenItem in hiddenAppearanceItems)
 		{
-			var hiddenAppearance = Global.DB2Mgr.GetItemModifiedAppearance(hiddenItem, 0);
+			var hiddenAppearance = _db2Manager.GetItemModifiedAppearance(hiddenItem, 0);
 
 			//ASSERT(hiddenAppearance);
 			if (_appearances.Length <= hiddenAppearance.Id)
@@ -499,8 +467,8 @@ public class CollectionMgr
 		{
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
-				stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_APPEARANCES);
-				stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+				stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_APPEARANCES);
+				stmt.AddValue(0, _owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);
 				trans.Append(stmt);
@@ -516,16 +484,16 @@ public class CollectionMgr
 			switch (appearanceState)
 			{
 				case FavoriteAppearanceState.New:
-					stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_FAVORITE_APPEARANCE);
-					stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+					stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_ITEM_FAVORITE_APPEARANCE);
+					stmt.AddValue(0, _owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
 					_favoriteAppearances[key] = FavoriteAppearanceState.Unchanged;
 
 					break;
 				case FavoriteAppearanceState.Removed:
-					stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
-					stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+					stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BNET_ITEM_FAVORITE_APPEARANCE);
+					stmt.AddValue(0, _owner.BattlenetAccountId);
 					stmt.AddValue(1, key);
 					trans.Append(stmt);
 					_favoriteAppearances.Remove(key);
@@ -559,7 +527,7 @@ public class CollectionMgr
 
 	public void AddItemAppearance(uint itemId, uint appearanceModId = 0)
 	{
-		var itemModifiedAppearance = Global.DB2Mgr.GetItemModifiedAppearance(itemId, appearanceModId);
+		var itemModifiedAppearance = _db2Manager.GetItemModifiedAppearance(itemId, appearanceModId);
 
 		if (!CanAddAppearance(itemModifiedAppearance))
 			return;
@@ -609,7 +577,7 @@ public class CollectionMgr
 		List<uint> appearances = new();
 
 		foreach (int id in _appearances)
-			appearances.Add((uint)CliDB.ItemModifiedAppearanceStorage.LookupByKey(id).ItemAppearanceID);
+			appearances.Add((uint)_cliDB.ItemModifiedAppearanceStorage.LookupByKey((uint)id).ItemAppearanceID);
 
 		return appearances;
 	}
@@ -668,14 +636,14 @@ public class CollectionMgr
 
 	public void AddTransmogSet(uint transmogSetId)
 	{
-		var items = Global.DB2Mgr.GetTransmogSetItems(transmogSetId);
+		var items = _db2Manager.GetTransmogSetItems(transmogSetId);
 
 		if (items.Empty())
 			return;
 
 		foreach (var item in items)
 		{
-			var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(item.ItemModifiedAppearanceID);
+			var itemModifiedAppearance = _cliDB.ItemModifiedAppearanceStorage.LookupByKey(item.ItemModifiedAppearanceID);
 
 			if (itemModifiedAppearance == null)
 				continue;
@@ -733,7 +701,7 @@ public class CollectionMgr
 		{
 			if (blockValue != 0) // this table is only appended/bits are set (never cleared) so don't save empty blocks
 			{
-				var stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BNET_TRANSMOG_ILLUSIONS);
+				var stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BNET_TRANSMOG_ILLUSIONS);
 				stmt.AddValue(0, _owner.BattlenetAccountId);
 				stmt.AddValue(1, blockIndex);
 				stmt.AddValue(2, blockValue);
@@ -847,10 +815,10 @@ public class CollectionMgr
 		if (itemModifiedAppearance.TransmogSourceTypeEnum == 6 || itemModifiedAppearance.TransmogSourceTypeEnum == 9)
 			return false;
 
-		if (!CliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
+		if (!_cliDB.ItemSearchNameStorage.ContainsKey(itemModifiedAppearance.ItemID))
 			return false;
 
-		var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemModifiedAppearance.ItemID);
+		var itemTemplate = _objectManager.GetItemTemplate(itemModifiedAppearance.ItemID);
 
 		if (itemTemplate == null)
 			return false;
@@ -868,15 +836,15 @@ public class CollectionMgr
 		{
 			case ItemClass.Weapon:
 			{
-				if (!Convert.ToBoolean((long)(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.SubClass))))
+				if (!Convert.ToBoolean(_owner.Player.GetWeaponProficiency() & (1 << (int)itemTemplate.SubClass)))
 					return false;
 
-				if (itemTemplate.SubClass == (int)ItemSubClassWeapon.Exotic ||
-					itemTemplate.SubClass == (int)ItemSubClassWeapon.Exotic2 ||
-					itemTemplate.SubClass == (int)ItemSubClassWeapon.Miscellaneous ||
-					itemTemplate.SubClass == (int)ItemSubClassWeapon.Thrown ||
-					itemTemplate.SubClass == (int)ItemSubClassWeapon.Spear ||
-					itemTemplate.SubClass == (int)ItemSubClassWeapon.FishingPole)
+				if ((ItemSubClassWeapon)itemTemplate.SubClass is ItemSubClassWeapon.Exotic or 
+                                                                 ItemSubClassWeapon.Exotic2 or 
+                                                                 ItemSubClassWeapon.Miscellaneous or 
+                                                                 ItemSubClassWeapon.Thrown or 
+                                                                 ItemSubClassWeapon.Spear or 
+                                                                 ItemSubClassWeapon.FishingPole)
 					return false;
 
 				break;
@@ -955,7 +923,7 @@ public class CollectionMgr
 			_temporaryAppearances.Remove(itemModifiedAppearance.Id);
 		}
 
-		var item = CliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
+		var item = _cliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
 
 		if (item != null)
 		{
@@ -965,7 +933,7 @@ public class CollectionMgr
 				_owner.Player.UpdateCriteria(CriteriaType.LearnAnyTransmogInSlot, (ulong)transmogSlot, itemModifiedAppearance.Id);
 		}
 
-		var sets = Global.DB2Mgr.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance.Id);
+		var sets = _db2Manager.GetTransmogSetsForItemModifiedAppearance(itemModifiedAppearance.Id);
 
 		foreach (var set in sets)
 			if (IsSetCompleted(set.Id))
@@ -984,7 +952,7 @@ public class CollectionMgr
 
     private bool IsSetCompleted(uint transmogSetId)
 	{
-		var transmogSetItems = Global.DB2Mgr.GetTransmogSetItems(transmogSetId);
+		var transmogSetItems = _db2Manager.GetTransmogSetItems(transmogSetId);
 
 		if (transmogSetItems.Empty())
 			return false;
@@ -996,12 +964,12 @@ public class CollectionMgr
 
 		foreach (var transmogSetItem in transmogSetItems)
 		{
-			var itemModifiedAppearance = CliDB.ItemModifiedAppearanceStorage.LookupByKey(transmogSetItem.ItemModifiedAppearanceID);
+			var itemModifiedAppearance = _cliDB.ItemModifiedAppearanceStorage.LookupByKey(transmogSetItem.ItemModifiedAppearanceID);
 
 			if (itemModifiedAppearance == null)
 				continue;
 
-			var item = CliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
+			var item = _cliDB.ItemStorage.LookupByKey(itemModifiedAppearance.ItemID);
 
 			if (item == null)
 				continue;

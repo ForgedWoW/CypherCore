@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using Autofac;
 using Forged.MapServer.Accounts;
 using Forged.MapServer.Battlepay;
 using Forged.MapServer.BattlePets;
@@ -61,8 +62,9 @@ public class WorldSession : IDisposable
     private readonly List<string> _registeredAddonPrefixes = new();
     private readonly uint _recruiterId;
     private readonly bool _isRecruiter;
+    private readonly ClassFactory _classFactory;
 
-	private readonly ActionBlock<WorldPacket> _recvQueue;
+    private readonly ActionBlock<WorldPacket> _recvQueue;
 
     private readonly ConcurrentQueue<WorldPacket> _threadUnsafe = new();
     private readonly ConcurrentQueue<WorldPacket> _inPlaceQueue = new();
@@ -205,7 +207,7 @@ public class WorldSession : IDisposable
 
 	public BattlepayManager BattlePayMgr => _battlePayMgr;
 
-	public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter)
+	public WorldSession(uint id, string name, uint battlenetAccountId, WorldSocket sock, AccountTypes sec, Expansion expansion, long mute_time, string os, Locale locale, uint recruiter, bool isARecruiter, ClassFactory classFactory)
 	{
 		MuteTime = mute_time;
 		_antiDos = new DosProtection(this);
@@ -222,9 +224,10 @@ public class WorldSession : IDisposable
 		_sessionDbLocaleIndex = locale;
 		_recruiterId = recruiter;
 		_isRecruiter = isARecruiter;
-		_expireTime = 60000; // 1 min after socket loss, session is deleted
+        _classFactory = classFactory;
+        _expireTime = 60000; // 1 min after socket loss, session is deleted
 		_battlePetMgr = new BattlePetMgr(this);
-		_collectionMgr = new CollectionMgr(this);
+		_collectionMgr = _classFactory.Resolve<CollectionMgr>(new PositionalParameter(0, this));
 		_battlePayMgr = new BattlepayManager(this);
 		CommandHandler = new CommandHandler(this);
 

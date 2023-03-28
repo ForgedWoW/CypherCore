@@ -78,9 +78,9 @@ void InitializeServer()
 {
     // we initialize the server by resolving these.
     var cliDB = container.Resolve<CliDB>();
-    container.Resolve<ScriptManager>();
+    var sm = container.Resolve<ScriptManager>();
     container.Resolve<WorldServiceManager>().LoadHandlers(container);
-    container.Resolve<GameObjectManager>();
+    var gom = container.Resolve<GameObjectManager>();
     var worldManager = container.Resolve<WorldManager>();
     worldManager.SetDBCMask(localeMask);
 
@@ -98,6 +98,11 @@ void InitializeServer()
     container.Resolve<DisableManager>().CheckQuestDisables();
     container.Resolve<SpellManager>().LoadSpellAreas();
     container.Resolve<LFGManager>().LoadLFGDungeons();
+    gom.LoadSpellScripts(); // must be after load Creature/Gameobject(Template/Data)
+    gom.LoadEventScripts(); // must be after load Creature/Gameobject(Template/Data)
+    gom.LoadWaypointScripts();
+    gom.LoadSpellScriptNames();
+    sm.Initialize();
 }
 
 void BuildServerTypes()
@@ -154,7 +159,7 @@ void RegisterManagers()
         p.Instance.Initialize();
         p.Instance.LoadFromDB();
     });
-    builder.RegisterType<GarrisonManager>().SingleInstance();
+    builder.RegisterType<GarrisonManager>().SingleInstance().OnActivated(g => g.Instance.Initialize());
     builder.RegisterType<GameObjectManager>().SingleInstance().OnActivated(o =>
     {
         o.Instance.SetHighestGuids();
@@ -248,6 +253,8 @@ void RegisterManagers()
         o.Instance.LoadFactionChangeQuests();
         o.Instance.LoadFactionChangeReputations();
         o.Instance.LoadFactionChangeTitles();
+        o.Instance.ReturnOrDeleteOldMails(false);
+        
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
@@ -299,7 +306,12 @@ void RegisterManagers()
         s.Instance.LoadSpellTargetPositions();
         s.Instance.LoadSpellLinked();
     });
-    builder.RegisterType<SupportManager>().SingleInstance();
+    builder.RegisterType<SupportManager>().SingleInstance().OnActivated(s =>
+    {
+        s.Instance.LoadBugTickets();
+        s.Instance.LoadComplaintTickets();
+        s.Instance.LoadSuggestionTickets();
+    });
     builder.RegisterType<PoolManager>().SingleInstance().OnActivated(p =>
     {
         p.Instance.Initialize();
@@ -347,6 +359,8 @@ void RegisterManagers()
         b.Instance.LoadAuctions();
     });
     builder.RegisterType<FormationMgr>().SingleInstance().OnActivated(f => f.Instance.LoadCreatureFormations());
+    builder.RegisterType<MountCache>().SingleInstance().OnActivated(m => m.Instance.LoadMountDefinitions());
+    builder.RegisterType<MountCache>().SingleInstance().OnActivated(m => m.Instance.LoadMountDefinitions());
 }
 
 void RegisterFactories()
@@ -363,4 +377,5 @@ void RegisterInstanced()
 {
     builder.RegisterType<Loot>();
     builder.RegisterType<Spell>();
+    builder.RegisterType<CollectionMgr>();
 }

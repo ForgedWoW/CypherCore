@@ -52,21 +52,25 @@ public class ScriptManager
     {
         _gameObjectManager = gameObjectManager;
         _worldDatabase = worldDatabase;
+    }
+
+    public void Initialize()
+    {
         var oldMSTime = Time.MSTime;
 
-		LoadDatabase();
+        LoadDatabase();
 
-		Log.Logger.Information("Loading C# scripts");
+        Log.Logger.Information("Loading C# scripts");
 
-		FillSpellSummary();
+        FillSpellSummary();
 
-		//Load Scripts.dll
-		LoadScripts();
+        //Load Scripts.dll
+        LoadScripts();
 
-		Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
-	}
+        Log.Logger.Information($"Loaded {GetScriptCount()} C# scripts in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
+    }
 
-	//AreaTriggerScript
+    //AreaTriggerScript
 	public bool OnAreaTrigger(Player player, AreaTriggerRecord trigger, bool entered)
 	{
 		if (entered)

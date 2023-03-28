@@ -298,7 +298,8 @@ public class WorldManager
             Environment.Exit(1);
         }
 
-        LoadPersistentWorldVariables();
+        LoadPersistentWorldVariables(); 
+        LoadAutobroadcasts();
     }
 
     public Player FindPlayerInZone(uint zone)
@@ -390,47 +391,12 @@ public class WorldManager
 
 	public void SetInitialWorldSettings()
 	{
-		Log.Logger.Information("Loading mount definitions...");
-		CollectionMgr.LoadMountDefinitions();
-
-		Log.Logger.Information("Loading GM bugs...");
-		Global.SupportMgr.LoadBugTickets();
-
-		Log.Logger.Information("Loading GM complaints...");
-		Global.SupportMgr.LoadComplaintTickets();
-
-		Log.Logger.Information("Loading GM suggestions...");
-		Global.SupportMgr.LoadSuggestionTickets();
-
-		//Log.Logger.Information("Loading GM surveys...");
-		//Global.SupportMgr.LoadSurveys();
-
-		Log.Logger.Information("Loading garrison info...");
-		Global.GarrisonMgr.Initialize();
-
-		// Handle outdated emails (delete/return)
-		Log.Logger.Information("Returning old mails...");
-		Global.ObjectMgr.ReturnOrDeleteOldMails(false);
-
-		Log.Logger.Information("Loading Autobroadcasts...");
-		LoadAutobroadcasts();
-
-		// Load and initialize scripts
-		Global.ObjectMgr.LoadSpellScripts(); // must be after load Creature/Gameobject(Template/Data)
-		Global.ObjectMgr.LoadEventScripts(); // must be after load Creature/Gameobject(Template/Data)
-		Global.ObjectMgr.LoadWaypointScripts();
-
-		Log.Logger.Information("Loading spell script names...");
-		Global.ObjectMgr.LoadSpellScriptNames();
-
 		Log.Logger.Information("Loading Creature Texts...");
 		Global.CreatureTextMgr.LoadCreatureTexts();
 
 		Log.Logger.Information("Loading Creature Text Locales...");
 		Global.CreatureTextMgr.LoadCreatureTextLocales();
 
-		Log.Logger.Information("Initializing Scripts...");
-		_scriptManager.Initialize();
 
 		Log.Logger.Information("Validating spell scripts...");
 		Global.ObjectMgr.ValidateSpellScripts();
