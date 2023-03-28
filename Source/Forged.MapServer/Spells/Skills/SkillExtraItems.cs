@@ -3,23 +3,32 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Players;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Spells.Skills;
 
 public class SkillExtraItems
 {
-    private static readonly Dictionary<uint, SkillExtraItemEntry> SkillExtraItemStorage = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly SpellManager _spellManager;
+    private readonly Dictionary<uint, SkillExtraItemEntry> _skillExtraItemStorage = new();
 
-	// loads the extra item creation info from DB
-	public static void LoadSkillExtraItemTable()
+    public SkillExtraItems(WorldDatabase worldDatabase, SpellManager spellManager)
+    {
+        _worldDatabase = worldDatabase;
+        _spellManager = spellManager;
+    }
+
+    // loads the extra item creation info from DB
+    public void LoadSkillExtraItemTable()
 	{
 		var oldMSTime = Time.MSTime;
 
-		SkillExtraItemStorage.Clear(); // need for reload
+		_skillExtraItemStorage.Clear(); // need for reload
 
 		//                                             0               1                       2                    3
-		var result = DB.World.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
+		var result = _worldDatabase.Query("SELECT spellId, requiredSpecialization, additionalCreateChance, additionalMaxNum FROM skill_extra_item_template");
 
 		if (result.IsEmpty())
 		{
@@ -34,7 +43,7 @@ public class SkillExtraItems
 		{
 			var spellId = result.Read<uint>(0);
 
-			if (!Global.SpellMgr.HasSpellInfo(spellId, Framework.Constants.Difficulty.None))
+			if (!_spellManager.HasSpellInfo(spellId))
 			{
 				Log.Logger.Error("Skill specialization {0} has non-existent spell id in `skill_extra_item_template`!", spellId);
 
@@ -43,7 +52,7 @@ public class SkillExtraItems
 
 			var requiredSpecialization = result.Read<uint>(1);
 
-			if (!Global.SpellMgr.HasSpellInfo(requiredSpecialization, Framework.Constants.Difficulty.None))
+			if (!_spellManager.HasSpellInfo(requiredSpecialization))
 			{
 				Log.Logger.Error("Skill specialization {0} have not existed required specialization spell id {1} in `skill_extra_item_template`!", spellId, requiredSpecialization);
 
@@ -75,17 +84,17 @@ public class SkillExtraItems
 				AdditionalMaxNum = additionalMaxNum
 			};
 
-			SkillExtraItemStorage[spellId] = skillExtraItemEntry;
+			_skillExtraItemStorage[spellId] = skillExtraItemEntry;
 			++count;
 		} while (result.NextRow());
 
 		Log.Logger.Information("Loaded {0} spell specialization definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public static bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
+	public bool CanCreateExtraItems(Player player, uint spellId, ref double additionalChance, ref byte additionalMax)
 	{
 		// get the info for the specified spell
-		var specEntry = SkillExtraItemStorage.LookupByKey(spellId);
+		var specEntry = _skillExtraItemStorage.LookupByKey(spellId);
 
 		if (specEntry == null)
 			return false;

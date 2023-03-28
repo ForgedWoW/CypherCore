@@ -2,27 +2,43 @@
 // Licensed under GPL-3.0 license. See <https://github.com/ForgedWoW/ForgedCore/blob/master/LICENSE> for full information.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Server;
 using Framework.Constants;
+using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Spells.Skills;
 
 public class SkillDiscovery
 {
-    private static readonly MultiMap<int, SkillDiscoveryEntry> SkillDiscoveryStorage = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly SpellManager _spellManager;
+    private readonly CliDB _cliDB;
+    private readonly IConfiguration _configuration;
+    private readonly MultiMap<int, SkillDiscoveryEntry> _skillDiscoveryStorage = new();
 
-	public static void LoadSkillDiscoveryTable()
+    public SkillDiscovery(WorldDatabase worldDatabase, SpellManager spellManager, CliDB cliDB, IConfiguration configuration)
+    {
+        _worldDatabase = worldDatabase;
+        _spellManager = spellManager;
+        _cliDB = cliDB;
+        _configuration = configuration;
+    }
+
+    public void LoadSkillDiscoveryTable()
 	{
 		var oldMsTime = Time.MSTime;
 
-		SkillDiscoveryStorage.Clear(); // need for reload
+		_skillDiscoveryStorage.Clear(); // need for reload
 
 		//                                                0        1         2              3
-		var result = DB.World.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
+		var result = _worldDatabase.Query("SELECT spellId, reqSpell, reqSkillValue, chance FROM skill_discovery_template");
 
 		if (result.IsEmpty())
 		{
@@ -53,7 +69,7 @@ public class SkillDiscovery
 			if (reqSkillOrSpell > 0) // spell case
 			{
 				var absReqSkillOrSpell = (uint)reqSkillOrSpell;
-				var reqSpellInfo = Global.SpellMgr.GetSpellInfo(absReqSkillOrSpell, Difficulty.None);
+				var reqSpellInfo = _spellManager.GetSpellInfo(absReqSkillOrSpell);
 
 				if (reqSpellInfo == null)
 				{
@@ -84,11 +100,11 @@ public class SkillDiscovery
 					continue;
 				}
 
-				SkillDiscoveryStorage.Add(reqSkillOrSpell, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
+				_skillDiscoveryStorage.Add(reqSkillOrSpell, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
 			}
 			else if (reqSkillOrSpell == 0) // skill case
 			{
-				var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellId);
+				var bounds = _spellManager.GetSkillLineAbilityMapBounds(spellId);
 
 				if (bounds.Empty())
 				{
@@ -97,8 +113,8 @@ public class SkillDiscovery
 					continue;
 				}
 
-				foreach (var _spell_idx in bounds)
-					SkillDiscoveryStorage.Add(-(int)_spell_idx.SkillLine, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
+				foreach (var spellIdx in bounds)
+					_skillDiscoveryStorage.Add(-spellIdx.SkillLine, new SkillDiscoveryEntry(spellId, reqSkillValue, chance));
 			}
 			else
 			{
@@ -114,9 +130,9 @@ public class SkillDiscovery
 			Log.Logger.Error("Some items can't be successfully discovered: have in chance field value < 0.000001 in `skill_discovery_template` DB table . List:\n{0}", ssNonDiscoverableEntries.ToString());
 
 		// report about empty data for explicit discovery spells
-		foreach (var spellNameEntry in CliDB.SpellNameStorage.Values)
+		foreach (var spellNameEntry in _cliDB.SpellNameStorage.Values)
 		{
-			var spellEntry = Global.SpellMgr.GetSpellInfo(spellNameEntry.Id, Difficulty.None);
+			var spellEntry = _spellManager.GetSpellInfo(spellNameEntry.Id);
 
 			if (spellEntry == null)
 				continue;
@@ -125,94 +141,98 @@ public class SkillDiscovery
 			if (!spellEntry.IsExplicitDiscovery)
 				continue;
 
-			if (!SkillDiscoveryStorage.ContainsKey((int)spellEntry.Id))
+			if (!_skillDiscoveryStorage.ContainsKey((int)spellEntry.Id))
 				Log.Logger.Error("Spell (ID: {0}) is 100% chance random discovery ability but not have data in `skill_discovery_template` table", spellEntry.Id);
 		}
 
 		Log.Logger.Information("Loaded {0} skill discovery definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMsTime));
 	}
 
-	public static uint GetExplicitDiscoverySpell(uint spellId, Player player)
+	public uint GetExplicitDiscoverySpell(uint spellId, Player player)
 	{
 		// explicit discovery spell chances (always success if case exist)
 		// in this case we have both skill and spell
-		var tab = SkillDiscoveryStorage.LookupByKey((int)spellId);
+		var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
 
 		if (tab.Empty())
 			return 0;
 
-		var bounds = Global.SpellMgr.GetSkillLineAbilityMapBounds(spellId);
-		var skillvalue = !bounds.Empty() ? (uint)player.GetSkillValue((SkillType)bounds.FirstOrDefault().SkillLine) : 0;
+		var bounds = _spellManager.GetSkillLineAbilityMapBounds(spellId);
 
-		double full_chance = 0;
+        if (bounds == null)
+            return 0;
 
-		foreach (var item_iter in tab)
-			if (item_iter.ReqSkillValue <= skillvalue)
-				if (!player.HasSpell(item_iter.SpellId))
-					full_chance += item_iter.Chance;
+        var skillvalue = !bounds.Empty() ? (uint)player.GetSkillValue((SkillType)bounds.FirstOrDefault()!.SkillLine) : 0;
 
-		var rate = full_chance / 100.0f;
-		var roll = (double)RandomHelper.randChance() * rate; // roll now in range 0..full_chance
+        double fullChance = 0;
 
-		foreach (var item_iter in tab)
-		{
-			if (item_iter.ReqSkillValue > skillvalue)
-				continue;
+        foreach (var itemIter in tab)
+            if (itemIter.ReqSkillValue <= skillvalue)
+                if (!player.HasSpell(itemIter.SpellId))
+                    fullChance += itemIter.Chance;
 
-			if (player.HasSpell(item_iter.SpellId))
-				continue;
+        var rate = fullChance / 100.0f;
+        var roll = RandomHelper.randChance() * rate; // roll now in range 0..full_chance
 
-			if (item_iter.Chance > roll)
-				return item_iter.SpellId;
+        foreach (var itemIter in tab)
+        {
+            if (itemIter.ReqSkillValue > skillvalue)
+                continue;
 
-			roll -= item_iter.Chance;
-		}
+            if (player.HasSpell(itemIter.SpellId))
+                continue;
 
-		return 0;
+            if (itemIter.Chance > roll)
+                return itemIter.SpellId;
+
+            roll -= itemIter.Chance;
+        }
+
+        return 0;
 	}
 
-	public static bool HasDiscoveredAllSpells(uint spellId, Player player)
+	public bool HasDiscoveredAllSpells(uint spellId, Player player)
 	{
-		var tab = SkillDiscoveryStorage.LookupByKey((int)spellId);
+		var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
 
 		if (tab.Empty())
 			return true;
 
-		foreach (var item_iter in tab)
-			if (!player.HasSpell(item_iter.SpellId))
+		foreach (var itemIter in tab)
+			if (!player.HasSpell(itemIter.SpellId))
 				return false;
 
 		return true;
 	}
 
-	public static bool HasDiscoveredAnySpell(uint spellId, Player player)
+	public bool HasDiscoveredAnySpell(uint spellId, Player player)
 	{
-		var tab = SkillDiscoveryStorage.LookupByKey((int)spellId);
+		var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
 
 		if (tab.Empty())
 			return false;
 
-		foreach (var item_iter in tab)
-			if (player.HasSpell(item_iter.SpellId))
+		foreach (var itemIter in tab)
+			if (player.HasSpell(itemIter.SpellId))
 				return true;
 
 		return false;
 	}
 
-	public static uint GetSkillDiscoverySpell(uint skillId, uint spellId, Player player)
+	public uint GetSkillDiscoverySpell(uint skillId, uint spellId, Player player)
 	{
 		var skillvalue = skillId != 0 ? (uint)player.GetSkillValue((SkillType)skillId) : 0;
 
 		// check spell case
-		var tab = SkillDiscoveryStorage.LookupByKey((int)spellId);
+		var tab = _skillDiscoveryStorage.LookupByKey((int)spellId);
 
 		if (!tab.Empty())
 		{
-			foreach (var item_iter in tab)
-				if (RandomHelper.randChance(item_iter.Chance * GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
-					item_iter.ReqSkillValue <= skillvalue &&
-					!player.HasSpell(item_iter.SpellId))
-					return item_iter.SpellId;
+			foreach (var itemIter in tab)
+				if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
+					itemIter.ReqSkillValue <= skillvalue &&
+					!player.HasSpell(itemIter.SpellId))
+					return itemIter.SpellId;
 
 			return 0;
 		}
@@ -221,15 +241,15 @@ public class SkillDiscovery
 			return 0;
 
 		// check skill line case
-		tab = SkillDiscoveryStorage.LookupByKey(-(int)skillId);
+		tab = _skillDiscoveryStorage.LookupByKey(-(int)skillId);
 
 		if (!tab.Empty())
 		{
-			foreach (var item_iter in tab)
-				if (RandomHelper.randChance(item_iter.Chance * GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
-					item_iter.ReqSkillValue <= skillvalue &&
-					!player.HasSpell(item_iter.SpellId))
-					return item_iter.SpellId;
+			foreach (var itemIter in tab)
+				if (RandomHelper.randChance(itemIter.Chance * _configuration.GetDefaultValue("Rate.Skill.Discovery", 1.0f)) &&
+					itemIter.ReqSkillValue <= skillvalue &&
+					!player.HasSpell(itemIter.SpellId))
+					return itemIter.SpellId;
 
 			return 0;
 		}

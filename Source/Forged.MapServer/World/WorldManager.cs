@@ -384,38 +384,6 @@ public class WorldManager
 
 	public void SetInitialWorldSettings()
 	{
-		Log.Logger.Information("Loading Skill Discovery Table...");
-		SkillDiscovery.LoadSkillDiscoveryTable();
-
-		Log.Logger.Information("Loading Skill Extra Item Table...");
-		SkillExtraItems.LoadSkillExtraItemTable();
-
-		Log.Logger.Information("Loading Skill Perfection Data Table...");
-		SkillPerfectItems.LoadSkillPerfectItemTable();
-
-		Log.Logger.Information("Loading Skill Fishing base level requirements...");
-		Global.ObjectMgr.LoadFishingBaseSkillLevel();
-
-		Log.Logger.Information("Loading skill tier info...");
-		Global.ObjectMgr.LoadSkillTiers();
-
-		Log.Logger.Information("Loading Criteria Modifier trees...");
-		Global.CriteriaMgr.LoadCriteriaModifiersTree();
-		Log.Logger.Information("Loading Criteria Lists...");
-		Global.CriteriaMgr.LoadCriteriaList();
-		Log.Logger.Information("Loading Criteria Data...");
-		Global.CriteriaMgr.LoadCriteriaData();
-		Log.Logger.Information("Loading Achievements...");
-		Global.AchievementMgr.LoadAchievementReferenceList();
-		Log.Logger.Information("Loading Achievements Scripts...");
-		Global.AchievementMgr.LoadAchievementScripts();
-		Log.Logger.Information("Loading Achievement Rewards...");
-		Global.AchievementMgr.LoadRewards(); 
-		Log.Logger.Information("Loading Achievement Reward Locales...");
-		Global.AchievementMgr.LoadRewardLocales();
-		Log.Logger.Information("Loading Completed Achievements...");
-		Global.AchievementMgr.LoadCompletedAchievements();
-
 		// Load before guilds and arena teams
 		Log.Logger.Information("Loading character cache store...");
 		Global.CharacterCacheStorage.LoadCharacterCacheStorage();

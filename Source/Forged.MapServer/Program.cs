@@ -38,6 +38,7 @@ using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
+using Forged.MapServer.Spells.Skills;
 using Forged.MapServer.SupportSystem;
 using Forged.MapServer.Tools;
 using Forged.MapServer.Warden;
@@ -116,14 +117,26 @@ void RegisterManagers()
     builder.RegisterType<TaxiPathGraph>().SingleInstance().OnActivated(a => a.Instance.Initialize());
     builder.RegisterType<AccountManager>().SingleInstance().OnActivated(d => d.Instance.LoadRBAC());
     builder.RegisterType<BNetAccountManager>().SingleInstance();
-    builder.RegisterType<AchievementGlobalMgr>().SingleInstance();
+    builder.RegisterType<AchievementGlobalMgr>().SingleInstance().OnActivated(a =>
+    {
+        a.Instance.LoadAchievementReferenceList();
+        a.Instance.LoadAchievementScripts();
+        a.Instance.LoadRewards();
+        a.Instance.LoadRewardLocales();
+        a.Instance.LoadCompletedAchievements();
+    });
     builder.RegisterType<DB2Manager>().SingleInstance().OnActivated(p =>
     {
         p.Instance.LoadHotfixBlob(localeMask);
         p.Instance.LoadHotfixData();
         p.Instance.LoadHotfixOptionalData(localeMask);
     });
-    builder.RegisterType<CriteriaManager>().SingleInstance();
+    builder.RegisterType<CriteriaManager>().SingleInstance().OnActivated(c =>
+    {
+        c.Instance.LoadCriteriaModifiersTree();
+        c.Instance.LoadCriteriaList();
+        c.Instance.LoadCriteriaData();
+    });
     builder.RegisterType<SmartAIManager>().SingleInstance();
     builder.RegisterType<ArenaTeamManager>().SingleInstance();
     builder.RegisterType<BattleFieldManager>().SingleInstance();
@@ -215,6 +228,8 @@ void RegisterManagers()
         o.Instance.LoadPetNumber();
         o.Instance.LoadPetLevelInfo();
         o.Instance.LoadMailLevelRewards();
+        o.Instance.LoadFishingBaseSkillLevel();
+        o.Instance.LoadSkillTiers();
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
@@ -293,6 +308,9 @@ void RegisterManagers()
     builder.RegisterType<CharacterTemplateDataStorage>().SingleInstance().OnActivated(a => a.Instance.LoadCharacterTemplates());
     builder.RegisterType<WhoListStorageManager>().SingleInstance();
     builder.RegisterType<CharacterDatabaseCleaner>().SingleInstance().OnActivated(c => c.Instance.CleanDatabase());
+    builder.RegisterType<SkillDiscovery>().SingleInstance().OnActivated(a => a.Instance.LoadSkillDiscoveryTable());
+    builder.RegisterType<SkillExtraItems>().SingleInstance().OnActivated(a => a.Instance.LoadSkillExtraItemTable());
+    builder.RegisterType<SkillPerfectItems>().SingleInstance().OnActivated(a => a.Instance.LoadSkillPerfectItemTable());
 }
 
 void RegisterFactories()

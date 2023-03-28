@@ -3,23 +3,35 @@
 
 using System.Collections.Generic;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Globals;
+using Framework.Database;
 using Serilog;
 
 namespace Forged.MapServer.Spells.Skills;
 
 public class SkillPerfectItems
 {
-    private static readonly Dictionary<uint, SkillPerfectItemEntry> SkillPerfectItemStorage = new();
+    private readonly WorldDatabase _worldDatabase;
+    private readonly SpellManager _spellManager;
+    private readonly GameObjectManager _objectManager;
+    private readonly Dictionary<uint, SkillPerfectItemEntry> _skillPerfectItemStorage = new();
 
-	// loads the perfection proc info from DB
-	public static void LoadSkillPerfectItemTable()
+    public SkillPerfectItems(WorldDatabase worldDatabase, SpellManager spellManager, GameObjectManager objectManager)
+    {
+        _worldDatabase = worldDatabase;
+        _spellManager = spellManager;
+        _objectManager = objectManager;
+    }
+
+    // loads the perfection proc info from DB
+    public void LoadSkillPerfectItemTable()
 	{
 		var oldMSTime = Time.MSTime;
 
-		SkillPerfectItemStorage.Clear(); // reload capability
+		_skillPerfectItemStorage.Clear(); // reload capability
 
 		//                                                  0               1                      2                  3
-		var result = DB.World.Query("SELECT spellId, requiredSpecialization, perfectCreateChance, perfectItemType FROM skill_perfect_item_template");
+		var result = _worldDatabase.Query("SELECT spellId, requiredSpecialization, perfectCreateChance, perfectItemType FROM skill_perfect_item_template");
 
 		if (result.IsEmpty())
 		{
@@ -34,7 +46,7 @@ public class SkillPerfectItems
 		{
 			var spellId = result.Read<uint>(0);
 
-			if (!Global.SpellMgr.HasSpellInfo(spellId, Framework.Constants.Difficulty.None))
+			if (!_spellManager.HasSpellInfo(spellId))
 			{
 				Log.Logger.Error("Skill perfection data for spell {0} has non-existent spell id in `skill_perfect_item_template`!", spellId);
 
@@ -43,7 +55,7 @@ public class SkillPerfectItems
 
 			var requiredSpecialization = result.Read<uint>(1);
 
-			if (!Global.SpellMgr.HasSpellInfo(requiredSpecialization, Framework.Constants.Difficulty.None))
+			if (!_spellManager.HasSpellInfo(requiredSpecialization))
 			{
 				Log.Logger.Error("Skill perfection data for spell {0} has non-existent required specialization spell id {1} in `skill_perfect_item_template`!", spellId, requiredSpecialization);
 
@@ -61,14 +73,14 @@ public class SkillPerfectItems
 
 			var perfectItemType = result.Read<uint>(3);
 
-			if (Global.ObjectMgr.GetItemTemplate(perfectItemType) == null)
+			if (_objectManager.GetItemTemplate(perfectItemType) == null)
 			{
 				Log.Logger.Error("Skill perfection data for spell {0} references non-existent perfect item id {1} in `skill_perfect_item_template`!", spellId, perfectItemType);
 
 				continue;
 			}
 
-			SkillPerfectItemStorage[spellId] = new SkillPerfectItemEntry(requiredSpecialization, perfectCreateChance, perfectItemType);
+			_skillPerfectItemStorage[spellId] = new SkillPerfectItemEntry(requiredSpecialization, perfectCreateChance, perfectItemType);
 
 			++count;
 		} while (result.NextRow());
@@ -76,9 +88,9 @@ public class SkillPerfectItems
 		Log.Logger.Information("Loaded {0} spell perfection definitions in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public static bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)
+	public bool CanCreatePerfectItem(Player player, uint spellId, ref double perfectCreateChance, ref uint perfectItemType)
 	{
-		var entry = SkillPerfectItemStorage.LookupByKey(spellId);
+		var entry = _skillPerfectItemStorage.LookupByKey(spellId);
 
 		// no entry in DB means no perfection proc possible
 		if (entry == null)
