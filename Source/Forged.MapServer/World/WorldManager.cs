@@ -300,6 +300,59 @@ public class WorldManager
 
         LoadPersistentWorldVariables(); 
         LoadAutobroadcasts();
+        GameTime.UpdateGameTimers(); // TODO get from Realm
+
+
+        _loginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", _realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
+
+        _timers[WorldTimers.Auctions].Interval = Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.AuctionsPending].Interval = 250;
+
+        //Update "uptime" table based on configuration entry in minutes.
+        _timers[WorldTimers.UpTime]
+            .
+            //Update "uptime" table based on configuration entry in minutes.
+            Interval = 10 * Time.Minute * Time.InMilliseconds;
+
+        //erase corpses every 20 minutes
+        _timers[WorldTimers.Corpses]
+            . //erase corpses every 20 minutes
+            Interval = 20 * Time.Minute * Time.InMilliseconds;
+
+        _timers[WorldTimers.CleanDB].Interval = configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.AutoBroadcast].Interval = configuration.GetDefaultValue("AutoBroadcast.Timer", 60000);
+
+        // check for chars to delete every day
+        _timers[WorldTimers.DeleteChars]
+            . // check for chars to delete every day
+            Interval = Time.Day * Time.InMilliseconds;
+
+        // for AhBot
+        _timers[WorldTimers.AhBot]
+            .                                                                                        // for AhBot
+            Interval = configuration.GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.InMilliseconds; // every 20 sec
+
+        _timers[WorldTimers.GuildSave].Interval = configuration.GetDefaultValue("Guild.SaveInterval", 15) * Time.Minute * Time.InMilliseconds;
+
+        _timers[WorldTimers.Blackmarket].Interval = 10 * Time.InMilliseconds;
+
+        _blackmarketTimer = 0;
+
+        _timers[WorldTimers.WhoList].Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
+
+        _timers[WorldTimers.ChannelSave].Interval = configuration.GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.Minute * Time.InMilliseconds;
+
+        //to set mailtimer to return mails every day between 4 and 5 am
+        //mailtimer is increased when updating auctions
+        //one second is 1000 -(tested on win system)
+        // @todo Get rid of magic numbers
+        var localTime = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
+        var cleanOldMailsTime = configuration.GetDefaultValue("CleanOldMailTime", 4u);
+        _mailTimer = ((((localTime.Hour + (24 - cleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
+        //1440
+        _timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
+        Log.Logger.Information("Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
+
     }
 
     public Player FindPlayerInZone(uint zone)
@@ -391,118 +444,6 @@ public class WorldManager
 
 	public void SetInitialWorldSettings()
 	{
-		Log.Logger.Information("Loading Creature Texts...");
-		Global.CreatureTextMgr.LoadCreatureTexts();
-
-		Log.Logger.Information("Loading Creature Text Locales...");
-		Global.CreatureTextMgr.LoadCreatureTextLocales();
-
-
-		Log.Logger.Information("Validating spell scripts...");
-		Global.ObjectMgr.ValidateSpellScripts();
-
-		Log.Logger.Information("Loading SmartAI scripts...");
-		Global.SmartAIMgr.LoadFromDB();
-
-		Log.Logger.Information("Loading Calendar data...");
-		Global.CalendarMgr.LoadFromDB();
-
-		Log.Logger.Information("Loading Petitions...");
-		Global.PetitionMgr.LoadPetitions();
-
-		Log.Logger.Information("Loading Signatures...");
-		Global.PetitionMgr.LoadSignatures();
-
-		Log.Logger.Information("Loading Item loot...");
-		Global.LootItemStorage.LoadStorageFromDB();
-
-		Log.Logger.Information("Initialize query data...");
-		Global.ObjectMgr.InitializeQueriesData(QueryDataGroup.All);
-
-		// Initialize game time and timers
-		Log.Logger.Information("Initialize game time and timers");
-		GameTime.UpdateGameTimers();
-
-		_loginDatabase.Execute("INSERT INTO uptime (realmid, starttime, uptime, revision) VALUES({0}, {1}, 0, '{2}')", _realm.Id.Index, GameTime.GetStartTime(), ""); // One-time query
-
-		_timers[WorldTimers.Auctions].Interval = Time.Minute * Time.InMilliseconds;
-		_timers[WorldTimers.AuctionsPending].Interval = 250;
-
-		//Update "uptime" table based on configuration entry in minutes.
-		_timers[WorldTimers.UpTime]
-			.
-			//Update "uptime" table based on configuration entry in minutes.
-			Interval = 10 * Time.Minute * Time.InMilliseconds;
-
-		//erase corpses every 20 minutes
-		_timers[WorldTimers.Corpses]
-			. //erase corpses every 20 minutes
-			Interval = 20 * Time.Minute * Time.InMilliseconds;
-
-		_timers[WorldTimers.CleanDB].Interval = GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
-		_timers[WorldTimers.AutoBroadcast].Interval = GetDefaultValue("AutoBroadcast.Timer", 60000);
-
-		// check for chars to delete every day
-		_timers[WorldTimers.DeleteChars]
-			. // check for chars to delete every day
-			Interval = Time.Day * Time.InMilliseconds;
-
-		// for AhBot
-		_timers[WorldTimers.AhBot]
-			.                                                                                        // for AhBot
-			Interval = GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.InMilliseconds; // every 20 sec
-
-		_timers[WorldTimers.GuildSave].Interval = GetDefaultValue("Guild.SaveInterval", 15) * Time.Minute * Time.InMilliseconds;
-
-		_timers[WorldTimers.Blackmarket].Interval = 10 * Time.InMilliseconds;
-
-		_blackmarketTimer = 0;
-
-		_timers[WorldTimers.WhoList].Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
-
-		_timers[WorldTimers.ChannelSave].Interval = GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.Minute * Time.InMilliseconds;
-
-		//to set mailtimer to return mails every day between 4 and 5 am
-		//mailtimer is increased when updating auctions
-		//one second is 1000 -(tested on win system)
-		// @todo Get rid of magic numbers
-		var localTime = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
-		var cleanOldMailsTime = GetDefaultValue("CleanOldMailTime", 4u);
-		_mailTimer = ((((localTime.Hour + (24 - cleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
-		//1440
-		_timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
-		Log.Logger.Information("Mail timer set to: {0}, mail return is called every {1} minutes", _mailTimer, _timerExpires);
-
-		//- Initialize MapManager
-		Log.Logger.Information("Starting Map System");
-		Global.MapMgr.Initialize();
-
-		Log.Logger.Information("Starting Game Event system...");
-		var nextGameEvent = Global.GameEventMgr.StartSystem();
-		_timers[WorldTimers.Events].Interval = nextGameEvent; //depend on next event
-
-		// Delete all characters which have been deleted X days before
-		Player.DeleteOldCharacters();
-
-		Log.Logger.Information("Initializing chat channels...");
-		ChannelManager.LoadFromDB();
-
-		Log.Logger.Information("Initializing Opcodes...");
-		PacketManager.Initialize();
-
-		Log.Logger.Information("Starting Arena Season...");
-		Global.GameEventMgr.StartArenaSeason();
-
-		Global.SupportMgr.Initialize();
-
-		// Initialize Battlegrounds
-		Log.Logger.Information("Starting BattlegroundSystem");
-		Global.BattlegroundMgr.LoadBattlegroundTemplates();
-
-		// Initialize outdoor pvp
-		Log.Logger.Information("Starting Outdoor PvP System");
-		Global.OutdoorPvPMgr.InitOutdoorPvP();
-
 		// Initialize Battlefield
 		Log.Logger.Information("Starting Battlefield System");
 		Global.BattleFieldMgr.InitBattlefield();
@@ -555,8 +496,13 @@ public class WorldManager
 		Log.Logger.Information("Loading phase names...");
 		Global.ObjectMgr.LoadPhaseNames();
 
-		ScriptManager.Instance.ForEach<IServerLoadComplete>(s => s.LoadComplete());
+		_scriptManager.ForEach<IServerLoadComplete>(s => s.LoadComplete());
 	}
+
+    public void SetEventInterval(object nextGameEvent)
+    {
+        _timers[WorldTimers.Events].Interval = nextGameEvent; //depend on next event
+    }
 
     public void SetDBCMask(BitSet mask)
     {
@@ -747,7 +693,7 @@ public class WorldManager
 
 	public void Update(uint diff)
 	{
-		///- Update the game time and check for shutdown time
+		//- Update the game time and check for shutdown time
 		UpdateGameTime();
 		var currentGameTime = GameTime.GetGameTime();
 

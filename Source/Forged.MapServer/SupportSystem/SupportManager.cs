@@ -44,12 +44,7 @@ public class SupportManager
         SetSuggestionSystemStatus(configuration.GetDefaultValue("Support.SuggestionsEnabled", false));
     }
 
-	public void Initialize()
-	{
-
-	}
-
-	public T GetTicket<T>(uint id) where T : Ticket
+    public T GetTicket<T>(uint id) where T : Ticket
 	{
 		switch (typeof(T).Name)
 		{

@@ -4,8 +4,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Cache;
 using Forged.MapServer.Chrono;
 using Forged.MapServer.Entities.Objects;
+using Forged.MapServer.Globals;
+using Forged.MapServer.Guilds;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.Calendar;
@@ -15,8 +18,12 @@ using Serilog;
 
 namespace Forged.MapServer.Calendar;
 
-public class CalendarManager : Singleton<CalendarManager>
+public class CalendarManager
 {
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly CharacterCache _characterCache;
+    private readonly ObjectAccessor _objectAccessor;
+    private readonly GuildManager _guildManager;
     private readonly List<CalendarEvent> _events;
     private readonly MultiMap<ulong, CalendarInvite> _invites;
     private readonly List<ulong> _freeEventIds = new();
@@ -24,9 +31,13 @@ public class CalendarManager : Singleton<CalendarManager>
     private ulong _maxEventId;
     private ulong _maxInviteId;
 
-    private CalendarManager()
+    public CalendarManager(CharacterDatabase characterDatabase, CharacterCache characterCache, ObjectAccessor objectAccessor, GuildManager guildManager)
 	{
-		_events = new List<CalendarEvent>();
+        _characterDatabase = characterDatabase;
+        _characterCache = characterCache;
+        _objectAccessor = objectAccessor;
+        _guildManager = guildManager;
+        _events = new List<CalendarEvent>();
 		_invites = new MultiMap<ulong, CalendarInvite>();
 	}
 
@@ -39,7 +50,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		_maxInviteId = 0;
 
 		//                                              0        1      2      3            4          5          6     7      8
-		var result = DB.Characters.Query("SELECT EventID, Owner, Title, Description, EventType, TextureID, Date, Flags, LockDate FROM calendar_events");
+		var result = _characterDatabase.Query("SELECT EventID, Owner, Title, Description, EventType, TextureID, Date, Flags, LockDate FROM calendar_events");
 
 		if (!result.IsEmpty())
 			do
@@ -56,7 +67,7 @@ public class CalendarManager : Singleton<CalendarManager>
 				ulong guildID = 0;
 
 				if (flags.HasAnyFlag(CalendarFlags.GuildEvent) || flags.HasAnyFlag(CalendarFlags.WithoutInvites))
-					guildID = Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(ownerGUID);
+					guildID = _characterCache.GetCharacterGuildIdByGuid(ownerGUID);
 
 				CalendarEvent calendarEvent = new(eventID, ownerGUID, guildID, type, textureID, date, flags, title, description, lockDate);
 				_events.Add(calendarEvent);
@@ -71,7 +82,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		oldMSTime = Time.MSTime;
 
 		//                                    0         1        2        3       4       5             6               7
-		result = DB.Characters.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites");
+		result = _characterDatabase.Query("SELECT InviteID, EventID, Invitee, Sender, Status, ResponseTime, ModerationRank, Note FROM calendar_invites");
 
 		if (!result.IsEmpty())
 			do
@@ -161,10 +172,10 @@ public class CalendarManager : Singleton<CalendarManager>
 			return;
 
 		SQLTransaction trans = new();
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
 		stmt.AddValue(0, calendarInvite.InviteId);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		if (!calendarEvent.IsGuildEvent)
 			SendCalendarEventInviteRemoveAlert(calendarInvite.InviteeGuid, calendarEvent, CalendarInviteStatus.Removed);
@@ -182,7 +193,7 @@ public class CalendarManager : Singleton<CalendarManager>
 	public void UpdateEvent(CalendarEvent calendarEvent)
 	{
 		SQLTransaction trans = new();
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_EVENT);
 		stmt.AddValue(0, calendarEvent.EventId);
 		stmt.AddValue(1, calendarEvent.OwnerGuid.Counter);
 		stmt.AddValue(2, calendarEvent.Title);
@@ -193,12 +204,12 @@ public class CalendarManager : Singleton<CalendarManager>
 		stmt.AddValue(7, (uint)calendarEvent.Flags);
 		stmt.AddValue(8, calendarEvent.LockDate);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 	}
 
 	public void UpdateInvite(CalendarInvite invite, SQLTransaction trans = null)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_CALENDAR_INVITE);
 		stmt.AddValue(0, invite.InviteId);
 		stmt.AddValue(1, invite.EventId);
 		stmt.AddValue(2, invite.InviteeGuid.Counter);
@@ -207,7 +218,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		stmt.AddValue(5, invite.ResponseTime);
 		stmt.AddValue(6, (byte)invite.Rank);
 		stmt.AddValue(7, invite.Note);
-		DB.Characters.ExecuteOrAppend(trans, stmt);
+		_characterDatabase.ExecuteOrAppend(trans, stmt);
 	}
 
 	public void RemoveAllPlayerEventsAndInvites(ObjectGuid guid)
@@ -334,17 +345,17 @@ public class CalendarManager : Singleton<CalendarManager>
 		foreach (var pair in _invites.KeyValueList)
 			if (pair.Value.InviteeGuid == guid)
 			{
-				var Event = GetEvent(pair.Key);
+				var evnt = GetEvent(pair.Key);
 
-				if (Event != null) // null check added as attempt to fix #11512
-					events.Add(Event);
+				if (evnt != null) // null check added as attempt to fix #11512
+					events.Add(evnt);
 			}
 
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player?.GuildId != 0)
 			foreach (var calendarEvent in _events)
-				if (calendarEvent.GuildId == player.GuildId)
+				if (player != null && calendarEvent.GuildId == player.GuildId)
 					events.Add(calendarEvent);
 
 		return events;
@@ -381,8 +392,6 @@ public class CalendarManager : Singleton<CalendarManager>
 					++pendingNum;
 
 					break;
-				default:
-					break;
 			}
 
 		return pendingNum;
@@ -393,9 +402,9 @@ public class CalendarManager : Singleton<CalendarManager>
 		var calendarEvent = GetEvent(invite.EventId);
 
 		var invitee = invite.InviteeGuid;
-		var player = Global.ObjAccessor.FindPlayer(invitee);
+		var player = _objectAccessor.FindPlayer(invitee);
 
-		var level = player ? player.Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(invitee);
+		var level = player ? player.Level : _characterCache.GetCharacterLevelByGuid(invitee);
 
 		CalendarInviteAdded packet = new()
 		{
@@ -411,7 +420,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		if (calendarEvent == null) // Pre-invite
 		{
-			player = Global.ObjAccessor.FindPlayer(invite.SenderGuid);
+			player = _objectAccessor.FindPlayer(invite.SenderGuid);
 
 			if (player)
 				player.SendPacket(packet);
@@ -473,7 +482,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void SendCalendarEvent(ObjectGuid guid, CalendarEvent calendarEvent, CalendarSendEventType sendType)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (!player)
 			return;
@@ -494,16 +503,16 @@ public class CalendarManager : Singleton<CalendarManager>
 			TextureID = calendarEvent.TextureId
 		};
 
-		var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
+		var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
 		packet.EventGuildID = (guild ? guild.GetGUID() : ObjectGuid.Empty);
 
 		foreach (var calendarInvite in eventInviteeList)
 		{
 			var inviteeGuid = calendarInvite.InviteeGuid;
-			var invitee = Global.ObjAccessor.FindPlayer(inviteeGuid);
+			var invitee = _objectAccessor.FindPlayer(inviteeGuid);
 
-			var inviteeLevel = invitee ? invitee.Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(inviteeGuid);
-			var inviteeGuildId = invitee ? invitee.GuildId : Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(inviteeGuid);
+			var inviteeLevel = invitee ? invitee.Level : _characterCache.GetCharacterLevelByGuid(inviteeGuid);
+			var inviteeGuildId = invitee ? invitee.GuildId : _characterCache.GetCharacterGuildIdByGuid(inviteeGuid);
 
 			CalendarEventInviteInfo inviteInfo = new()
 			{
@@ -525,7 +534,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void SendCalendarClearPendingAction(ObjectGuid guid)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 			player.SendPacket(new CalendarClearPendingAction());
@@ -533,7 +542,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 	public void SendCalendarCommandResult(ObjectGuid guid, CalendarError err, string param = null)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 		{
@@ -577,7 +586,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		for (var i = 0; i < eventInvites.Count; ++i)
 		{
 			var invite = eventInvites[i];
-			stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
+			stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_INVITE);
 			stmt.AddValue(0, invite.InviteId);
 			trans.Append(stmt);
 
@@ -589,20 +598,12 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		_invites.Remove(calendarEvent.EventId);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CALENDAR_EVENT);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CALENDAR_EVENT);
 		stmt.AddValue(0, calendarEvent.EventId);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		_events.Remove(calendarEvent);
-	}
-
-    private void FreeEventId(ulong id)
-	{
-		if (id == _maxEventId)
-			--_maxEventId;
-		else
-			_freeEventIds.Add(id);
 	}
 
     private void SendCalendarEventRemovedAlert(CalendarEvent calendarEvent)
@@ -647,19 +648,19 @@ public class CalendarManager : Singleton<CalendarManager>
 			TextureID = calendarEvent.TextureId
 		};
 
-		var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
+		var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
 		packet.EventGuildID = guild ? guild.GetGUID() : ObjectGuid.Empty;
 
 		if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
 		{
-			guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
+			guild = _guildManager.GetGuildById(calendarEvent.GuildId);
 
 			if (guild)
 				guild.BroadcastPacket(packet);
 		}
 		else
 		{
-			var player = Global.ObjAccessor.FindPlayer(invite.InviteeGuid);
+			var player = _objectAccessor.FindPlayer(invite.InviteeGuid);
 
 			if (player)
 				player.SendPacket(packet);
@@ -668,7 +669,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
     private void SendCalendarEventInviteRemoveAlert(ObjectGuid guid, CalendarEvent calendarEvent, CalendarInviteStatus status)
 	{
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 		{
@@ -689,7 +690,7 @@ public class CalendarManager : Singleton<CalendarManager>
 		// Send packet to all guild members
 		if (calendarEvent.IsGuildEvent || calendarEvent.IsGuildAnnouncement)
 		{
-			var guild = Global.GuildMgr.GetGuildById(calendarEvent.GuildId);
+			var guild = _guildManager.GetGuildById(calendarEvent.GuildId);
 
 			if (guild)
 				guild.BroadcastPacket(packet);
@@ -700,7 +701,7 @@ public class CalendarManager : Singleton<CalendarManager>
 
 		foreach (var playerCalendarEvent in invites)
 		{
-			var player = Global.ObjAccessor.FindPlayer(playerCalendarEvent.InviteeGuid);
+			var player = _objectAccessor.FindPlayer(playerCalendarEvent.InviteeGuid);
 
 			if (player)
 				if (!calendarEvent.IsGuildEvent || player.GuildId != calendarEvent.GuildId)

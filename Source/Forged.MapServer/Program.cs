@@ -16,7 +16,9 @@ using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
 using Forged.MapServer.BlackMarket;
 using Forged.MapServer.Cache;
+using Forged.MapServer.Calendar;
 using Forged.MapServer.Chat;
+using Forged.MapServer.Chat.Channels;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
@@ -34,6 +36,7 @@ using Forged.MapServer.LootManagement;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Movement;
+using Forged.MapServer.Networking;
 using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Scenarios;
@@ -42,6 +45,7 @@ using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Skills;
 using Forged.MapServer.SupportSystem;
+using Forged.MapServer.Text;
 using Forged.MapServer.Tools;
 using Forged.MapServer.Warden;
 using Forged.MapServer.Weather;
@@ -103,6 +107,14 @@ void InitializeServer()
     gom.LoadWaypointScripts();
     gom.LoadSpellScriptNames();
     sm.Initialize();
+    gom.ValidateSpellScripts();
+    container.Resolve<MapManager>().Initialize();
+    var eventManager = container.Resolve<GameEventManager>();
+    worldManager.SetEventInterval(eventManager.StartSystem());
+    Player.DeleteOldCharacters();
+    ChannelManager.LoadFromDB();
+    PacketManager.Initialize();
+    eventManager.StartArenaSeason();
 }
 
 void BuildServerTypes()
@@ -144,15 +156,27 @@ void RegisterManagers()
         c.Instance.LoadCriteriaList();
         c.Instance.LoadCriteriaData();
     });
-    builder.RegisterType<SmartAIManager>().SingleInstance().OnActivated(s => s.Instance.LoadWaypointFromDB());
+    builder.RegisterType<SmartAIManager>().SingleInstance().OnActivated(s =>
+    {
+        s.Instance.LoadWaypointFromDB();
+        s.Instance.LoadFromDB();
+    });
     builder.RegisterType<ArenaTeamManager>().SingleInstance().OnActivated(a => a.Instance.LoadArenaTeams());
     builder.RegisterType<BattleFieldManager>().SingleInstance();
-    builder.RegisterType<BattlegroundManager>().SingleInstance().OnActivated(b => b.Instance.LoadBattleMastersEntry());
+    builder.RegisterType<BattlegroundManager>().SingleInstance().OnActivated(b =>
+    {
+        b.Instance.LoadBattleMastersEntry();
+        b.Instance.LoadBattlegroundTemplates();
+    });
     builder.RegisterType<AuctionManager>().SingleInstance().OnActivated(a => a.Instance.LoadAuctions());
     builder.RegisterType<VMapManager>().SingleInstance();
     builder.RegisterType<ConditionManager>().SingleInstance().OnActivated(c => c.Instance.LoadConditions());
     builder.RegisterType<DisableManager>().SingleInstance().OnActivated(d => d.Instance.LoadDisables());
-    builder.RegisterType<PetitionManager>().SingleInstance();
+    builder.RegisterType<PetitionManager>().SingleInstance().OnActivated(p =>
+    {
+        p.Instance.LoadPetitions();
+        p.Instance.LoadSignatures();
+    });
     builder.RegisterType<SocialManager>().SingleInstance();
     builder.RegisterType<GameEventManager>().SingleInstance().OnActivated(p =>
     {
@@ -254,7 +278,7 @@ void RegisterManagers()
         o.Instance.LoadFactionChangeReputations();
         o.Instance.LoadFactionChangeTitles();
         o.Instance.ReturnOrDeleteOldMails(false);
-        
+        o.Instance.InitializeQueriesData(QueryDataGroup.All);
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
@@ -276,7 +300,7 @@ void RegisterManagers()
         t.Instance.LoadTransportSpawns();
     });
     builder.RegisterType<WaypointManager>().SingleInstance().OnActivated(w => w.Instance.Load());
-    builder.RegisterType<OutdoorPvPManager>().SingleInstance();
+    builder.RegisterType<OutdoorPvPManager>().SingleInstance().OnActivated(o => o.Instance.InitOutdoorPvP());
     builder.RegisterType<WorldServiceManager>().SingleInstance();
     builder.RegisterType<SpellManager>().SingleInstance().OnActivated(s =>
     {
@@ -326,7 +350,8 @@ void RegisterManagers()
         g.Instance.LoadGuildRewards();
         g.Instance.LoadGuilds();
     });
-    builder.RegisterType<LootItemStorage>().SingleInstance();
+
+    builder.RegisterType<LootItemStorage>().SingleInstance().OnActivated(l => l.Instance.LoadStorageFromDB()); 
     builder.RegisterType<LootStorage>().SingleInstance();
     builder.RegisterType<LootManager>().SingleInstance().OnActivated(l => l.Instance.LoadLootTables());
     builder.RegisterType<TraitMgr>().SingleInstance().OnActivated(t => t.Instance.Load());
@@ -361,6 +386,13 @@ void RegisterManagers()
     builder.RegisterType<FormationMgr>().SingleInstance().OnActivated(f => f.Instance.LoadCreatureFormations());
     builder.RegisterType<MountCache>().SingleInstance().OnActivated(m => m.Instance.LoadMountDefinitions());
     builder.RegisterType<MountCache>().SingleInstance().OnActivated(m => m.Instance.LoadMountDefinitions());
+    builder.RegisterType<CreatureTextManager>().SingleInstance().OnActivated(c =>
+    {
+        c.Instance.LoadCreatureTexts();
+        c.Instance.LoadCreatureTextLocales();
+    });
+
+    builder.RegisterType<CalendarManager>().SingleInstance().OnActivated(c => c.Instance.LoadFromDB());
 }
 
 void RegisterFactories()

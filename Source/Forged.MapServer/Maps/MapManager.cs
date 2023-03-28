@@ -54,7 +54,10 @@ public class MapManager
         var numThreads = configuration.GetDefaultValue("MapUpdate.Threads", 10);
 
         _updater = new LimitedThreadTaskManager(numThreads > 0 ? numThreads : 1);
+    }
 
+    public void Initialize()
+    {
         foreach (var (_, mapEntry) in _cliDB.MapStorage)
             if (mapEntry.IsWorldMap() && mapEntry.IsSplitByFaction())
                 _ = new SplitByFactionMapScript($"world_map_set_faction_worldstates_{mapEntry.Id}", mapEntry.Id);
