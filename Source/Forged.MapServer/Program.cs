@@ -117,7 +117,7 @@ void InitializeServer()
     eventManager.StartArenaSeason();
     worldManager.Initialize(container.Resolve<AccountManager>(), container.Resolve<CharacterCache>(), container.Resolve<ObjectAccessor>(),
                             container.Resolve<QuestPoolManager>(), container.Resolve<CalendarManager>(), container.Resolve<GuildManager>(),
-                            container.Resolve<WorldStateManager>());
+                            container.Resolve<WorldStateManager>(), eventManager);
 
     sm.ForEach<IServerLoadComplete>(s => s.LoadComplete());
 }
@@ -132,6 +132,7 @@ void RegisterServerTypes()
 void RegisterManagers()
 {
     // Managers
+    builder.RegisterType<Realm>().SingleInstance();
     builder.RegisterType<CliDB>().SingleInstance().OnActivated(c =>
     {
         localeMask = c.Instance.LoadStores(configuration.GetDefaultValue("DataDir", "./"), Locale.enUS, builder);

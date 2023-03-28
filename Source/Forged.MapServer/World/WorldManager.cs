@@ -16,6 +16,7 @@ using Forged.MapServer.Collision.Models;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
+using Forged.MapServer.Events;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Guilds;
 using Forged.MapServer.Maps;
@@ -46,7 +47,6 @@ public class WorldManager
     private readonly WorldDatabase _worldDatabase;
     private readonly CharacterDatabase _characterDatabase;
     private readonly SupportManager _supportManager;
-    private readonly MMapManager _mMapManager;
     private readonly VMapManager _vMapManager;
     private readonly MapManager _mapManager;
     private readonly CliDB _cliDB;
@@ -57,6 +57,7 @@ public class WorldManager
     private CalendarManager _calendarManager;
     private GuildManager _guildManager;
     private WorldStateManager _worldStateManager;
+    private GameEventManager _eventManager;
     public const string NEXT_CURRENCY_RESET_TIME_VAR_ID = "NextCurrencyResetTime";
 	public const string NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID = "NextWeeklyQuestResetTime";
 	public const string NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID = "NextBGRandomDailyResetTime";
@@ -270,7 +271,7 @@ public class WorldManager
 
     public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager, 
                         WorldDatabase worldDatabase, CharacterDatabase characterDatabase, SupportManager supportManager,
-                        MMapManager mMapManager, VMapManager vMapManager, MapManager mapManager, CliDB cliDB)
+                        VMapManager vMapManager, MapManager mapManager, CliDB cliDB, Realm realm)
 	{
         _configuration = configuration;
         _loginDatabase = loginDatabase;
@@ -278,20 +279,19 @@ public class WorldManager
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _supportManager = supportManager;
-        _mMapManager = mMapManager;
         _vMapManager = vMapManager;
         _mapManager = mapManager;
         _cliDB = cliDB;
+        _realm = realm;
+
 
         foreach (WorldTimers timer in Enum.GetValues(typeof(WorldTimers)))
-			_timers[timer] = new IntervalTimer();
+            _timers[timer] = new IntervalTimer();
 
-		_allowedSecurityLevel = AccountTypes.Player;
+        _allowedSecurityLevel = AccountTypes.Player;
 
-		_realm = new Realm();
-
-		_worldUpdateTime = new WorldUpdateTime();
-		_warnShutdownTime = GameTime.GetGameTime();
+        _worldUpdateTime = new WorldUpdateTime();
+        _warnShutdownTime = GameTime.GetGameTime();
 
         LoadRealmInfo();
 
@@ -305,6 +305,20 @@ public class WorldManager
             Log.Logger.Error("Unable to load map and vmap data for starting zones - server shutting down!");
             Environment.Exit(1);
         }
+    }
+
+    public void Initialize(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
+                           QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
+                           WorldStateManager worldStateManager, GameEventManager eventManager)
+    {
+        _accountManager = accountManager;
+        _characterCache = characterCache;
+        _objectAccessor = objectAccessor;
+        _questPoolManager = questPoolManager;
+        _calendarManager = calendarManager;
+        _guildManager = guildManager;
+        _worldStateManager = worldStateManager;
+        _eventManager = eventManager;
 
         // not send custom type REALM_FFA_PVP to realm list
         var serverType = IsFFAPvPRealm ? RealmType.PVP : (RealmType)_configuration.GetDefaultValue("GameType", 0);
@@ -320,7 +334,7 @@ public class WorldManager
             Environment.Exit(1);
         }
 
-        LoadPersistentWorldVariables(); 
+        LoadPersistentWorldVariables();
         LoadAutobroadcasts();
         GameTime.UpdateGameTimers(); // TODO get from Realm
 
@@ -341,8 +355,8 @@ public class WorldManager
             . //erase corpses every 20 minutes
             Interval = 20 * Time.Minute * Time.InMilliseconds;
 
-        _timers[WorldTimers.CleanDB].Interval = configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
-        _timers[WorldTimers.AutoBroadcast].Interval = configuration.GetDefaultValue("AutoBroadcast.Timer", 60000);
+        _timers[WorldTimers.CleanDB].Interval = _configuration.GetDefaultValue("LogDB.Opt.ClearInterval", 10) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.AutoBroadcast].Interval = _configuration.GetDefaultValue("AutoBroadcast.Timer", 60000);
 
         // check for chars to delete every day
         _timers[WorldTimers.DeleteChars]
@@ -351,10 +365,10 @@ public class WorldManager
 
         // for AhBot
         _timers[WorldTimers.AhBot]
-            .                                                                                        // for AhBot
-            Interval = configuration.GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.InMilliseconds; // every 20 sec
+            .                                                                                                       // for AhBot
+            Interval = _configuration.GetDefaultValue("AuctionHouseBot.Update.Interval", 20) * Time.InMilliseconds; // every 20 sec
 
-        _timers[WorldTimers.GuildSave].Interval = configuration.GetDefaultValue("Guild.SaveInterval", 15) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.GuildSave].Interval = _configuration.GetDefaultValue("Guild.SaveInterval", 15) * Time.Minute * Time.InMilliseconds;
 
         _timers[WorldTimers.Blackmarket].Interval = 10 * Time.InMilliseconds;
 
@@ -362,14 +376,14 @@ public class WorldManager
 
         _timers[WorldTimers.WhoList].Interval = 5 * Time.InMilliseconds; // update who list cache every 5 seconds
 
-        _timers[WorldTimers.ChannelSave].Interval = configuration.GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.Minute * Time.InMilliseconds;
+        _timers[WorldTimers.ChannelSave].Interval = _configuration.GetDefaultValue("PreserveCustomChannelInterval", 5) * Time.Minute * Time.InMilliseconds;
 
         //to set mailtimer to return mails every day between 4 and 5 am
         //mailtimer is increased when updating auctions
         //one second is 1000 -(tested on win system)
         // @todo Get rid of magic numbers
         var localTime = Time.UnixTimeToDateTime(GameTime.GetGameTime()).ToLocalTime();
-        var cleanOldMailsTime = configuration.GetDefaultValue("CleanOldMailTime", 4u);
+        var cleanOldMailsTime = _configuration.GetDefaultValue("CleanOldMailTime", 4u);
         _mailTimer = ((((localTime.Hour + (24 - cleanOldMailsTime)) % 24) * Time.Hour * Time.InMilliseconds) / _timers[WorldTimers.Auctions].Interval);
         //1440
         _timerExpires = ((Time.Day * Time.InMilliseconds) / (_timers[(int)WorldTimers.Auctions].Interval));
@@ -384,19 +398,6 @@ public class WorldManager
         InitCalendarOldEventsDeletionTime();
         InitGuildResetTime();
         InitCurrencyResetTime();
-    }
-
-    public void Initialize(AccountManager accountManager, CharacterCache characterCache, ObjectAccessor objectAccessor,
-                           QuestPoolManager questPoolManager, CalendarManager calendarManager, GuildManager guildManager,
-                           WorldStateManager worldStateManager)
-    {
-        _accountManager = accountManager;
-        _characterCache = characterCache;
-        _objectAccessor = objectAccessor;
-        _questPoolManager = questPoolManager;
-        _calendarManager = calendarManager;
-        _guildManager = guildManager;
-        _worldStateManager = worldStateManager;
     }
 
     public Player FindPlayerInZone(uint zone)
@@ -895,7 +896,7 @@ public class WorldManager
 	public void ForceGameEventUpdate()
 	{
 		_timers[WorldTimers.Events].Reset(); // to give time for Update() to be processed
-		var nextGameEvent = Global.GameEventMgr.Update();
+		var nextGameEvent = _eventManager.Update();
 		_timers[WorldTimers.Events].Interval = nextGameEvent;
 		_timers[WorldTimers.Events].Reset();
 	}
@@ -1618,7 +1619,7 @@ public class WorldManager
 		{
 			AddQueuedPlayer(s);
 			UpdateMaxSessionCounters();
-			Log.Logger.Information<uint, int>("PlayerQueue: Account id {0} is in Queue Position ({1}).", s.AccountId, ++queueSize);
+			Log.Logger.Information("PlayerQueue: Account id {0} is in Queue Position ({1}).", s.AccountId, ++queueSize);
 
 			return;
 		}
@@ -1667,7 +1668,7 @@ public class WorldManager
 		if (session == null)
 			return false;
 
-		uint tolerance = 0;
+		uint tolerance = 0; // TODO WHY
 
 		if (tolerance != 0)
 			foreach (var disconnect in _disconnects)
@@ -2031,7 +2032,7 @@ public class WorldManager
     private void UpdateAreaDependentAuras()
 	{
 		foreach (var session in _sessions.Values)
-			if (session.Player != null && session.Player.IsInWorld)
+			if (session.Player is { IsInWorld: true })
 			{
 				session.Player.UpdateAreaDependentAuras(session.Player.Area);
 				session.Player.UpdateZoneDependentAuras(session.Player.Zone);
