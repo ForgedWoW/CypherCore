@@ -14,12 +14,14 @@ using Forged.MapServer.Arenas;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.BlackMarket;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Chat;
 using Forged.MapServer.Collision.Management;
 using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
 using Forged.MapServer.DungeonFinding;
+using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Taxis;
@@ -137,13 +139,13 @@ void RegisterManagers()
         c.Instance.LoadCriteriaList();
         c.Instance.LoadCriteriaData();
     });
-    builder.RegisterType<SmartAIManager>().SingleInstance();
-    builder.RegisterType<ArenaTeamManager>().SingleInstance();
+    builder.RegisterType<SmartAIManager>().SingleInstance().OnActivated(s => s.Instance.LoadWaypointFromDB());
+    builder.RegisterType<ArenaTeamManager>().SingleInstance().OnActivated(a => a.Instance.LoadArenaTeams());
     builder.RegisterType<BattleFieldManager>().SingleInstance();
-    builder.RegisterType<BattlegroundManager>().SingleInstance();
-    builder.RegisterType<AuctionManager>().SingleInstance();
+    builder.RegisterType<BattlegroundManager>().SingleInstance().OnActivated(b => b.Instance.LoadBattleMastersEntry());
+    builder.RegisterType<AuctionManager>().SingleInstance().OnActivated(a => a.Instance.LoadAuctions());
     builder.RegisterType<VMapManager>().SingleInstance();
-    builder.RegisterType<ConditionManager>().SingleInstance();
+    builder.RegisterType<ConditionManager>().SingleInstance().OnActivated(c => c.Instance.LoadConditions());
     builder.RegisterType<DisableManager>().SingleInstance().OnActivated(d => d.Instance.LoadDisables());
     builder.RegisterType<PetitionManager>().SingleInstance();
     builder.RegisterType<SocialManager>().SingleInstance();
@@ -230,12 +232,33 @@ void RegisterManagers()
         o.Instance.LoadMailLevelRewards();
         o.Instance.LoadFishingBaseSkillLevel();
         o.Instance.LoadSkillTiers();
+        o.Instance.LoadReservedPlayersNames();
+        o.Instance.LoadGameObjectForQuests();
+        o.Instance.LoadGameTele();
+        o.Instance.LoadTrainers(); // must be after load CreatureTemplate
+        o.Instance.LoadGossipMenu();
+        o.Instance.LoadGossipMenuItems();
+        o.Instance.LoadGossipMenuAddon();
+        o.Instance.LoadCreatureTrainers(); // must be after LoadGossipMenuItems
+        o.Instance.LoadVendors();          // must be after load CreatureTemplate and ItemTemplate
+        o.Instance.LoadPhases();
+        o.Instance.LoadFactionChangeAchievements();
+        o.Instance.LoadFactionChangeSpells();
+        o.Instance.LoadFactionChangeItems();
+        o.Instance.LoadFactionChangeQuests();
+        o.Instance.LoadFactionChangeReputations();
+        o.Instance.LoadFactionChangeTitles();
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
     builder.RegisterType<WardenCheckManager>().SingleInstance();
-    builder.RegisterType<WorldStateManager>().SingleInstance();
-    builder.RegisterType<CharacterCache>().SingleInstance();
+    builder.RegisterType<WorldStateManager>().SingleInstance().OnActivated(w =>
+    {
+        w.Instance.LoadFromDB();
+        w.Instance.SetValue(WorldStates.CurrentPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
+        w.Instance.SetValue(WorldStates.PreviousPvpSeasonId, configuration.GetDefaultValue("Arena.ArenaSeason.ID", 32) - (configuration.GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
+    });
+    builder.RegisterType<CharacterCache>().SingleInstance().OnActivated(c => c.Instance.LoadCharacterCacheStorage());
     builder.RegisterType<InstanceLockManager>().SingleInstance().OnActivated(i => i.Instance.Load());
     builder.RegisterType<MapManager>().SingleInstance().OnActivated(m => m.Instance.InitInstanceIds());
     builder.RegisterType<MMapManager>().SingleInstance();
@@ -245,7 +268,7 @@ void RegisterManagers()
         t.Instance.LoadTransportAnimationAndRotation();
         t.Instance.LoadTransportSpawns();
     });
-    builder.RegisterType<WaypointManager>().SingleInstance();
+    builder.RegisterType<WaypointManager>().SingleInstance().OnActivated(w => w.Instance.Load());
     builder.RegisterType<OutdoorPvPManager>().SingleInstance();
     builder.RegisterType<WorldServiceManager>().SingleInstance();
     builder.RegisterType<SpellManager>().SingleInstance().OnActivated(s =>
@@ -285,8 +308,12 @@ void RegisterManagers()
     builder.RegisterType<QuestPoolManager>().SingleInstance().OnActivated(q => q.Instance.LoadFromDB());
     builder.RegisterType<ScenarioManager>().SingleInstance();
     builder.RegisterType<ScriptManager>().SingleInstance();
-    builder.RegisterType<GroupManager>().SingleInstance();
-    builder.RegisterType<GuildManager>().SingleInstance();
+    builder.RegisterType<GroupManager>().SingleInstance().OnActivated(g => g.Instance.LoadGroups());
+    builder.RegisterType<GuildManager>().SingleInstance().OnActivated(g =>
+    {
+        g.Instance.LoadGuildRewards();
+        g.Instance.LoadGuilds();
+    });
     builder.RegisterType<LootItemStorage>().SingleInstance();
     builder.RegisterType<LootStorage>().SingleInstance();
     builder.RegisterType<LootManager>().SingleInstance().OnActivated(l => l.Instance.LoadLootTables());
@@ -311,6 +338,15 @@ void RegisterManagers()
     builder.RegisterType<SkillDiscovery>().SingleInstance().OnActivated(a => a.Instance.LoadSkillDiscoveryTable());
     builder.RegisterType<SkillExtraItems>().SingleInstance().OnActivated(a => a.Instance.LoadSkillExtraItemTable());
     builder.RegisterType<SkillPerfectItems>().SingleInstance().OnActivated(a => a.Instance.LoadSkillPerfectItemTable());
+    builder.RegisterType<BlackMarketManager>().SingleInstance().OnActivated(b =>
+    {
+        if (!configuration.GetDefaultValue("BlackMarket.Enabled", true))
+            return;
+
+        b.Instance.LoadTemplates();
+        b.Instance.LoadAuctions();
+    });
+    builder.RegisterType<FormationMgr>().SingleInstance().OnActivated(f => f.Instance.LoadCreatureFormations());
 }
 
 void RegisterFactories()

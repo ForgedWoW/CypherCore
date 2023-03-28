@@ -40,6 +40,8 @@ public class WorldManager
     private readonly IConfiguration _configuration;
     private readonly LoginDatabase _loginDatabase;
     private readonly ScriptManager _scriptManager;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly CharacterDatabase _characterDatabase;
     public const string NEXT_CURRENCY_RESET_TIME_VAR_ID = "NextCurrencyResetTime";
 	public const string NEXT_WEEKLY_QUEST_RESET_TIME_VAR_ID = "NextWeeklyQuestResetTime";
 	public const string NEXT_BG_RANDOM_DAILY_RESET_TIME_VAR_ID = "NextBGRandomDailyResetTime";
@@ -251,11 +253,13 @@ public class WorldManager
 
 	public WorldUpdateTime WorldUpdateTime => _worldUpdateTime;
 
-    public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager)
+    public WorldManager(IConfiguration configuration, LoginDatabase loginDatabase, ScriptManager scriptManager, WorldDatabase worldDatabase, CharacterDatabase characterDatabase)
 	{
         _configuration = configuration;
         _loginDatabase = loginDatabase;
         _scriptManager = scriptManager;
+        _worldDatabase = worldDatabase;
+        _characterDatabase = characterDatabase;
 
         foreach (WorldTimers timer in Enum.GetValues(typeof(WorldTimers)))
 			_timers[timer] = new IntervalTimer();
@@ -293,6 +297,8 @@ public class WorldManager
             Log.Logger.Fatal("Unable to load gameobject models (part of vmaps), objects using WMO models will crash the client - server shutting down!");
             Environment.Exit(1);
         }
+
+        LoadPersistentWorldVariables();
     }
 
     public Player FindPlayerInZone(uint zone)
@@ -384,107 +390,6 @@ public class WorldManager
 
 	public void SetInitialWorldSettings()
 	{
-		// Load before guilds and arena teams
-		Log.Logger.Information("Loading character cache store...");
-		Global.CharacterCacheStorage.LoadCharacterCacheStorage();
-
-		// Load dynamic data tables from the database
-		Log.Logger.Information("Loading Auctions...");
-		Global.AuctionHouseMgr.LoadAuctions();
-
-		if (GetDefaultValue("BlackMarket.Enabled", true))
-		{
-			Log.Logger.Information("Loading Black Market Templates...");
-			Global.BlackMarketMgr.LoadTemplates();
-
-			Log.Logger.Information("Loading Black Market Auctions...");
-			Global.BlackMarketMgr.LoadAuctions();
-		}
-
-		Log.Logger.Information("Loading Guild rewards...");
-		Global.GuildMgr.LoadGuildRewards();
-
-		Log.Logger.Information("Loading Guilds...");
-		Global.GuildMgr.LoadGuilds();
-
-
-		Log.Logger.Information("Loading ArenaTeams...");
-		Global.ArenaTeamMgr.LoadArenaTeams();
-
-		Log.Logger.Information("Loading Groups...");
-		Global.GroupMgr.LoadGroups();
-
-		Log.Logger.Information("Loading ReservedNames...");
-		Global.ObjectMgr.LoadReservedPlayersNames();
-
-		Log.Logger.Information("Loading GameObjects for quests...");
-		Global.ObjectMgr.LoadGameObjectForQuests();
-
-		Log.Logger.Information("Loading BattleMasters...");
-		Global.BattlegroundMgr.LoadBattleMastersEntry();
-
-		Log.Logger.Information("Loading GameTeleports...");
-		Global.ObjectMgr.LoadGameTele();
-
-		Log.Logger.Information("Loading Trainers...");
-		Global.ObjectMgr.LoadTrainers(); // must be after load CreatureTemplate
-
-		Log.Logger.Information("Loading Gossip menu...");
-		Global.ObjectMgr.LoadGossipMenu();
-
-		Log.Logger.Information("Loading Gossip menu options...");
-		Global.ObjectMgr.LoadGossipMenuItems();
-
-		Log.Logger.Information("Loading Gossip menu addon...");
-		Global.ObjectMgr.LoadGossipMenuAddon();
-
-		Log.Logger.Information("Loading Creature trainers...");
-		Global.ObjectMgr.LoadCreatureTrainers(); // must be after LoadGossipMenuItems
-
-		Log.Logger.Information("Loading Vendors...");
-		Global.ObjectMgr.LoadVendors(); // must be after load CreatureTemplate and ItemTemplate
-
-		Log.Logger.Information("Loading Waypoints...");
-		Global.WaypointMgr.Load();
-
-		Log.Logger.Information("Loading SmartAI Waypoints...");
-		Global.SmartAIMgr.LoadWaypointFromDB();
-
-		Log.Logger.Information("Loading Creature Formations...");
-		FormationMgr.LoadCreatureFormations();
-
-		Log.Logger.Information("Loading World State templates...");
-		Global.WorldStateMgr.LoadFromDB(); // must be loaded before battleground, outdoor PvP and conditions
-
-		Log.Logger.Information("Loading Persistend World Variables..."); // must be loaded before Battleground, outdoor PvP and conditions
-		LoadPersistentWorldVariables();
-
-		Global.WorldStateMgr.SetValue(WorldStates.CurrentPvpSeasonId, GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? GetDefaultValue("Arena.ArenaSeason.ID", 32) : 0, false, null);
-		Global.WorldStateMgr.SetValue(WorldStates.PreviousPvpSeasonId, GetDefaultValue("Arena.ArenaSeason.ID", 32) - (GetDefaultValue("Arena.ArenaSeason.InProgress", false) ? 1 : 0), false, null);
-
-		Global.ObjectMgr.LoadPhases();
-
-		Log.Logger.Information("Loading Conditions...");
-		Global.ConditionMgr.LoadConditions();
-
-		Log.Logger.Information("Loading faction change achievement pairs...");
-		Global.ObjectMgr.LoadFactionChangeAchievements();
-
-		Log.Logger.Information("Loading faction change spell pairs...");
-		Global.ObjectMgr.LoadFactionChangeSpells();
-
-		Log.Logger.Information("Loading faction change item pairs...");
-		Global.ObjectMgr.LoadFactionChangeItems();
-
-		Log.Logger.Information("Loading faction change quest pairs...");
-		Global.ObjectMgr.LoadFactionChangeQuests();
-
-		Log.Logger.Information("Loading faction change reputation pairs...");
-		Global.ObjectMgr.LoadFactionChangeReputations();
-
-		Log.Logger.Information("Loading faction change title pairs...");
-		Global.ObjectMgr.LoadFactionChangeTitles();
-
 		Log.Logger.Information("Loading mount definitions...");
 		CollectionMgr.LoadMountDefinitions();
 
@@ -1247,9 +1152,9 @@ public class WorldManager
 				break;
 			case BanMode.Character:
 				// No SQL injection with prepared statements
-				stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_ACCOUNT_BY_NAME);
+				stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_ACCOUNT_BY_NAME);
 				stmt.AddValue(0, nameOrIP);
-				resultAccounts = DB.Characters.Query(stmt);
+				resultAccounts = _characterDatabase.Query(stmt);
 
 				break;
 			default:
@@ -1360,17 +1265,17 @@ public class WorldManager
 		SQLTransaction trans = new();
 
 		// make sure there is only one active ban
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
 		stmt.AddValue(0, guid.Counter);
 		trans.Append(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.INS_CHARACTER_BAN);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.INS_CHARACTER_BAN);
 		stmt.AddValue(0, guid.Counter);
 		stmt.AddValue(1, (long)durationSecs);
 		stmt.AddValue(2, author);
 		stmt.AddValue(3, reason);
 		trans.Append(stmt);
-		DB.Characters.CommitTransaction(trans);
+		_characterDatabase.CommitTransaction(trans);
 
 		if (pBanned)
 			pBanned.Session.KickPlayer("World::BanCharacter Banning character");
@@ -1397,9 +1302,9 @@ public class WorldManager
 			guid = pBanned.GUID;
 		}
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_BAN);
 		stmt.AddValue(0, guid.Counter);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		return true;
 	}
@@ -1520,20 +1425,20 @@ public class WorldManager
 
 	public void UpdateRealmCharCount(uint accountId)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHARACTER_COUNT);
 		stmt.AddValue(0, accountId);
-		_queryProcessor.AddCallback(DB.Characters.AsyncQuery(stmt).WithCallback(UpdateRealmCharCount));
+		_queryProcessor.AddCallback(_characterDatabase.AsyncQuery(stmt).WithCallback(UpdateRealmCharCount));
 	}
 
 	public void DailyReset()
 	{
 		// reset all saved quest status
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
-		DB.Characters.Execute(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_DAILY);
+		_characterDatabase.Execute(stmt);
 
-		stmt = DB.Characters.GetPreparedStatement(CharStatements.UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
+		stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_CHARACTER_GARRISON_FOLLOWER_ACTIVATIONS);
 		stmt.AddValue(0, 1);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		// reset all quest status in memory
 		foreach (var itr in _sessions)
@@ -1563,8 +1468,8 @@ public class WorldManager
 	public void ResetWeeklyQuests()
 	{
 		// reset all saved quest status
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
-		DB.Characters.Execute(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_WEEKLY);
+		_characterDatabase.Execute(stmt);
 
 		// reset all quest status in memory
 		foreach (var itr in _sessions)
@@ -1591,8 +1496,8 @@ public class WorldManager
 	public void ResetMonthlyQuests()
 	{
 		// reset all saved quest status
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
-		DB.Characters.Execute(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_MONTHLY);
+		_characterDatabase.Execute(stmt);
 
 		// reset all quest status in memory
 		foreach (var itr in _sessions)
@@ -1617,10 +1522,10 @@ public class WorldManager
 
 	public void ResetEventSeasonalQuests(ushort eventID, long eventStartTime)
 	{
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_RESET_CHARACTER_QUESTSTATUS_SEASONAL_BY_EVENT);
 		stmt.AddValue(0, eventID);
 		stmt.AddValue(1, eventStartTime);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 
 		foreach (var session in _sessions.Values)
 			session.Player?.ResetSeasonalQuestStatus(eventID, eventStartTime);
@@ -1660,10 +1565,10 @@ public class WorldManager
 	{
 		_worldVariables[var] = value;
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.REP_WORLD_VARIABLE);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.REP_WORLD_VARIABLE);
 		stmt.AddValue(0, var);
 		stmt.AddValue(1, value);
-		DB.Characters.Execute(stmt);
+		_characterDatabase.Execute(stmt);
 	}
 
 	public void ReloadRBAC()
@@ -2176,7 +2081,7 @@ public class WorldManager
 
     private void ResetCurrencyWeekCap()
 	{
-		DB.Characters.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
+		_characterDatabase.Execute("UPDATE `character_currency` SET `WeeklyQuantity` = 0");
 
 		foreach (var session in _sessions.Values)
 			if (session.Player != null)
@@ -2190,8 +2095,8 @@ public class WorldManager
 	{
 		Log.Logger.Information("Random BG status reset for all characters.");
 
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
-		DB.Characters.Execute(stmt);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_BATTLEGROUND_RANDOM_ALL);
+		_characterDatabase.Execute(stmt);
 
 		foreach (var session in _sessions.Values)
 			if (session.Player)
@@ -2242,7 +2147,7 @@ public class WorldManager
 	{
 		var oldMSTime = Time.MSTime;
 
-		var result = DB.Characters.Query("SELECT ID, Value FROM world_variable");
+		var result = _characterDatabase.Query("SELECT ID, Value FROM world_variable");
 
 		if (!result.IsEmpty())
 			do
@@ -2268,11 +2173,11 @@ public class WorldManager
 		var warModeEnabledFaction = new long[2];
 
 		// Search for characters that have war mode enabled and played during the last week
-		var stmt = DB.Characters.GetPreparedStatement(CharStatements.SEL_WAR_MODE_TUNING);
+		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_WAR_MODE_TUNING);
 		stmt.AddValue(0, (uint)PlayerFlags.WarModeDesired);
 		stmt.AddValue(1, (uint)PlayerFlags.WarModeDesired);
 
-		var result = DB.Characters.Query(stmt);
+		var result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
 			do

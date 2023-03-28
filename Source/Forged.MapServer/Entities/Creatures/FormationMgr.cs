@@ -3,15 +3,29 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Forged.MapServer.Globals;
+using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Creatures;
 
 public class FormationMgr
 {
-    private static readonly Dictionary<ulong, FormationInfo> CreatureGroupMap = new();
+    private readonly IConfiguration _configuration;
+    private readonly WorldDatabase _worldDatabase;
+    private readonly GameObjectManager _objectManager;
+    private readonly Dictionary<ulong, FormationInfo> _creatureGroupMap = new();
 
-	public static void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
+    public FormationMgr(IConfiguration configuration, WorldDatabase worldDatabase, GameObjectManager objectManager)
+    {
+        _configuration = configuration;
+        _worldDatabase = worldDatabase;
+        _objectManager = objectManager;
+    }
+
+    public void AddCreatureToGroup(ulong leaderSpawnId, Creature creature)
 	{
 		var map = creature.Map;
 
@@ -47,7 +61,7 @@ public class FormationMgr
 		}
 	}
 
-	public static void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
+	public void RemoveCreatureFromGroup(CreatureGroup group, Creature member)
 	{
 		Log.Logger.Debug("Deleting member GUID: {0} from group {1}", group.LeaderSpawnId, member.SpawnId);
 		group.RemoveMember(member);
@@ -61,12 +75,12 @@ public class FormationMgr
 		}
 	}
 
-	public static void LoadCreatureFormations()
+	public void LoadCreatureFormations()
 	{
 		var oldMSTime = Time.MSTime;
 
 		//Get group data
-		var result = DB.World.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
+		var result = _worldDatabase.Query("SELECT leaderGUID, memberGUID, dist, angle, groupAI, point_1, point_2 FROM creature_formations ORDER BY leaderGUID");
 
 		if (result.IsEmpty())
 		{
@@ -104,20 +118,20 @@ public class FormationMgr
 
 			// check data correctness
 			{
-				if (Global.ObjectMgr.GetCreatureData(member.LeaderSpawnId) == null)
+				if (_objectManager.GetCreatureData(member.LeaderSpawnId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
 					else
 						Log.Logger.Error($"creature_formations table leader guid {member.LeaderSpawnId} incorrect (not exist)");
 
 					continue;
 				}
 
-				if (Global.ObjectMgr.GetCreatureData(memberSpawnId) == null)
+				if (_objectManager.GetCreatureData(memberSpawnId) == null)
 				{
-					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
-						DB.World.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");
+					if (_configuration.GetDefaultValue("load.autoclean", false))
+						_worldDatabase.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");
 					else
 						Log.Logger.Error($"creature_formations table member guid {memberSpawnId} incorrect (not exist)");
 
@@ -127,29 +141,29 @@ public class FormationMgr
 				leaderSpawnIds.Add(member.LeaderSpawnId);
 			}
 
-			CreatureGroupMap.Add(memberSpawnId, member);
+			_creatureGroupMap.Add(memberSpawnId, member);
 			++count;
 		} while (result.NextRow());
 
 		foreach (var leaderSpawnId in leaderSpawnIds)
-			if (!CreatureGroupMap.ContainsKey(leaderSpawnId))
+			if (!_creatureGroupMap.ContainsKey(leaderSpawnId))
 			{
 				Log.Logger.Error($"creature_formation contains leader spawn {leaderSpawnId} which is not included on its formation, removing");
 
-				foreach (var itr in CreatureGroupMap.ToList())
+				foreach (var itr in _creatureGroupMap.ToList())
 					if (itr.Value.LeaderSpawnId == leaderSpawnId)
-						CreatureGroupMap.Remove(itr.Key);
+						_creatureGroupMap.Remove(itr.Key);
 			}
 
 		Log.Logger.Information("Loaded {0} creatures in formations in {1} ms", count, Time.GetMSTimeDiffToNow(oldMSTime));
 	}
 
-	public static FormationInfo GetFormationInfo(ulong spawnId)
+	public FormationInfo GetFormationInfo(ulong spawnId)
 	{
-		return CreatureGroupMap.LookupByKey(spawnId);
+		return _creatureGroupMap.LookupByKey(spawnId);
 	}
 
-	public static void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
+	public void AddFormationMember(ulong spawnId, float followAng, float followDist, ulong leaderSpawnId, uint groupAI)
 	{
 		FormationInfo member = new()
 		{
@@ -162,6 +176,6 @@ public class FormationMgr
 		for (var i = 0; i < 2; ++i)
 			member.LeaderWaypointIDs[i] = 0;
 
-		CreatureGroupMap.Add(spawnId, member);
+		_creatureGroupMap.Add(spawnId, member);
 	}
 }

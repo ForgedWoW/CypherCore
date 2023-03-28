@@ -51,6 +51,7 @@ public sealed class ConditionManager
     private readonly WorldManager _worldManager;
     private readonly WorldStateManager _worldStateManager;
     private readonly ObjectAccessor _objectAccessor;
+    private readonly LootStorage _lootStorage;
 
     public string[] StaticSourceTypeData =
 	{
@@ -77,7 +78,7 @@ public sealed class ConditionManager
                             LFGManager lfgManager, CliDB cliDB, DB2Manager db2Manager, LanguageManager languageManager, 
                             IConfiguration configuration, AreaTriggerDataStorage areaTriggerDataStorage, ConversationDataStorage conversationDataStorage,
                             GameEventManager gameEventManager, WorldManager worldManager, WorldStateManager worldStateManager,
-                            ObjectAccessor objectAccessor)
+                            ObjectAccessor objectAccessor, LootStorage lootStorage)
     {
         _objectManager = objectManager;
         _spellManager = spellManager;
@@ -93,6 +94,7 @@ public sealed class ConditionManager
         _worldManager = worldManager;
         _worldStateManager = worldStateManager;
         _objectAccessor = objectAccessor;
+        _lootStorage = lootStorage;
     }
 
 	public GridMapTypeMask GetSearcherTypeMaskForConditionList(List<Condition> conditions)
@@ -418,18 +420,18 @@ public sealed class ConditionManager
 		if (isReload)
 		{
 			Log.Logger.Information("Reseting Loot Conditions...");
-			LootStorage.Creature.ResetConditions();
-			LootStorage.Fishing.ResetConditions();
-			LootStorage.Gameobject.ResetConditions();
-			LootStorage.Items.ResetConditions();
-			LootStorage.Mail.ResetConditions();
-			LootStorage.Milling.ResetConditions();
-			LootStorage.Pickpocketing.ResetConditions();
-			LootStorage.Reference.ResetConditions();
-			LootStorage.Skinning.ResetConditions();
-			LootStorage.Disenchant.ResetConditions();
-			LootStorage.Prospecting.ResetConditions();
-			LootStorage.Spell.ResetConditions();
+			_lootStorage.Creature.ResetConditions();
+			_lootStorage.Fishing.ResetConditions();
+			_lootStorage.Gameobject.ResetConditions();
+			_lootStorage.Items.ResetConditions();
+			_lootStorage.Mail.ResetConditions();
+			_lootStorage.Milling.ResetConditions();
+			_lootStorage.Pickpocketing.ResetConditions();
+			_lootStorage.Reference.ResetConditions();
+			_lootStorage.Skinning.ResetConditions();
+			_lootStorage.Disenchant.ResetConditions();
+			_lootStorage.Prospecting.ResetConditions();
+			_lootStorage.Spell.ResetConditions();
 
 			Log.Logger.Information("Re-Loading `gossip_menu` Table for Conditions!");
 			_objectManager.LoadGossipMenu();
@@ -567,51 +569,51 @@ public sealed class ConditionManager
 				switch (cond.SourceType)
 				{
 					case ConditionSourceType.CreatureLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Creature.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.DisenchantLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.FishingLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.GameobjectLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.ItemLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Items.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.MailLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Mail.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.MillingLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Milling.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.PickpocketingLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.ProspectingLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.ReferenceLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Reference.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.SkinningLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.SpellLootTemplate:
-						valid = AddToLootTemplate(cond, LootStorage.Spell.GetLootForConditionFill(cond.SourceGroup));
+						valid = AddToLootTemplate(cond, _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup));
 
 						break;
 					case ConditionSourceType.GossipMenu:
@@ -1607,14 +1609,14 @@ public sealed class ConditionManager
 		{
 			case ConditionSourceType.CreatureLootTemplate:
 			{
-				if (!LootStorage.Creature.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Creature.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `creature_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Creature.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Creature.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1628,14 +1630,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.DisenchantLootTemplate:
 			{
-				if (!LootStorage.Disenchant.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Disenchant.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `disenchant_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Disenchant.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1649,14 +1651,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.FishingLootTemplate:
 			{
-				if (!LootStorage.Fishing.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Fishing.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `fishing_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Fishing.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1670,14 +1672,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.GameobjectLootTemplate:
 			{
-				if (!LootStorage.Gameobject.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Gameobject.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `gameobject_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Gameobject.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1691,14 +1693,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.ItemLootTemplate:
 			{
-				if (!LootStorage.Items.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Items.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `item_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Items.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Items.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1712,14 +1714,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.MailLootTemplate:
 			{
-				if (!LootStorage.Mail.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Mail.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `mail_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Mail.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Mail.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1733,14 +1735,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.MillingLootTemplate:
 			{
-				if (!LootStorage.Milling.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Milling.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `milling_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Milling.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Milling.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1754,14 +1756,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.PickpocketingLootTemplate:
 			{
-				if (!LootStorage.Pickpocketing.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Pickpocketing.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `pickpocketing_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Pickpocketing.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1775,14 +1777,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.ProspectingLootTemplate:
 			{
-				if (!LootStorage.Prospecting.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Prospecting.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `prospecting_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Prospecting.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1796,14 +1798,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.ReferenceLootTemplate:
 			{
-				if (!LootStorage.Reference.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Reference.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `reference_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Reference.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Reference.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1817,14 +1819,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.SkinningLootTemplate:
 			{
-				if (!LootStorage.Skinning.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Skinning.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `skinning_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Skinning.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
@@ -1838,14 +1840,14 @@ public sealed class ConditionManager
 			}
 			case ConditionSourceType.SpellLootTemplate:
 			{
-				if (!LootStorage.Spell.HaveLootFor(cond.SourceGroup))
+				if (!_lootStorage.Spell.HaveLootFor(cond.SourceGroup))
 				{
 					Log.Logger.Debug("{0} SourceGroup in `condition` table, does not exist in `spell_loot_template`, ignoring.", cond.ToString());
 
 					return false;
 				}
 
-				var loot = LootStorage.Spell.GetLootForConditionFill(cond.SourceGroup);
+				var loot = _lootStorage.Spell.GetLootForConditionFill(cond.SourceGroup);
 				var pItemProto = _objectManager.GetItemTemplate((uint)cond.SourceEntry);
 
 				if (pItemProto == null && !loot.IsReference((uint)cond.SourceEntry))
