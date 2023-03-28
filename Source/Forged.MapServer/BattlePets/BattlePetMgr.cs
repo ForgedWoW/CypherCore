@@ -10,10 +10,11 @@ using Forged.MapServer.DataStorage.Structs.B;
 using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Networking.Packets.BattlePet;
 using Forged.MapServer.Server;
-using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Serilog;
@@ -22,20 +23,17 @@ namespace Forged.MapServer.BattlePets;
 
 public class BattlePetMgr
 {
-	public static Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetBreedStates = new();
-	public static Dictionary<uint, Dictionary<BattlePetState, int>> BattlePetSpeciesStates = new();
-    private static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesByCreature = new();
-    private static readonly Dictionary<uint, BattlePetSpeciesRecord> _battlePetSpeciesBySpell = new();
-    private static readonly MultiMap<uint, byte> _availableBreedsPerSpecies = new();
-    private static readonly Dictionary<uint, BattlePetBreedQuality> _defaultQualityPerSpecies = new();
-
     private readonly WorldSession _owner;
+    private readonly CliDB _cliDB;
+    private readonly WorldManager _worldManager;
+    private readonly LoginDatabase _loginDatabase;
+    private readonly GameObjectManager _objectManager;
     private readonly ushort _trapLevel;
     private readonly Dictionary<ulong, BattlePet> _pets = new();
     private readonly List<BattlePetSlot> _slots = new();
     private bool _hasJournalLock;
 
-	public bool IsJournalLockAcquired => Global.WorldMgr.IsBattlePetJournalLockAcquired(_owner.BattlenetAccountGUID);
+	public bool IsJournalLockAcquired => _worldManager.IsBattlePetJournalLockAcquired(_owner.BattlenetAccountGUID);
 
 	public WorldSession Owner => _owner;
 
@@ -47,11 +45,15 @@ public class BattlePetMgr
 
 	public bool IsBattlePetSystemEnabled => GetSlot(BattlePetSlots.Slot0).Locked != true;
 
-	public BattlePetMgr(WorldSession owner)
+	public BattlePetMgr(WorldSession owner, CliDB cliDB, WorldManager worldManager, LoginDatabase loginDatabase, GameObjectManager objectManager)
 	{
 		_owner = owner;
+        _cliDB = cliDB;
+        _worldManager = worldManager;
+        _loginDatabase = loginDatabase;
+        _objectManager = objectManager;
 
-		for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
+        for (byte i = 0; i < (int)BattlePetSlots.Count; ++i)
 		{
 			BattlePetSlot slot = new()
 			{
@@ -62,89 +64,6 @@ public class BattlePetMgr
 		}
 	}
 
-	public static void Initialize()
-	{
-		var result = DB.Login.Query("SELECT MAX(guid) FROM battle_pets");
-
-		if (!result.IsEmpty())
-			Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Set(result.Read<ulong>(0) + 1);
-
-		foreach (var battlePetSpecies in CliDB.BattlePetSpeciesStorage.Values)
-		{
-			var creatureId = battlePetSpecies.CreatureID;
-
-			if (creatureId != 0)
-				_battlePetSpeciesByCreature[creatureId] = battlePetSpecies;
-		}
-
-		foreach (var battlePetBreedState in CliDB.BattlePetBreedStateStorage.Values)
-		{
-			if (!BattlePetBreedStates.ContainsKey(battlePetBreedState.BattlePetBreedID))
-				BattlePetBreedStates[battlePetBreedState.BattlePetBreedID] = new Dictionary<BattlePetState, int>();
-
-			BattlePetBreedStates[battlePetBreedState.BattlePetBreedID][(BattlePetState)battlePetBreedState.BattlePetStateID] = battlePetBreedState.Value;
-		}
-
-		foreach (var battlePetSpeciesState in CliDB.BattlePetSpeciesStateStorage.Values)
-		{
-			if (!BattlePetSpeciesStates.ContainsKey(battlePetSpeciesState.BattlePetSpeciesID))
-				BattlePetSpeciesStates[battlePetSpeciesState.BattlePetSpeciesID] = new Dictionary<BattlePetState, int>();
-
-			BattlePetSpeciesStates[battlePetSpeciesState.BattlePetSpeciesID][(BattlePetState)battlePetSpeciesState.BattlePetStateID] = battlePetSpeciesState.Value;
-		}
-
-		LoadAvailablePetBreeds();
-		LoadDefaultPetQualities();
-	}
-
-	public static void AddBattlePetSpeciesBySpell(uint spellId, BattlePetSpeciesRecord speciesEntry)
-	{
-		_battlePetSpeciesBySpell[spellId] = speciesEntry;
-	}
-
-	public static BattlePetSpeciesRecord GetBattlePetSpeciesByCreature(uint creatureId)
-	{
-		return _battlePetSpeciesByCreature.LookupByKey(creatureId);
-	}
-
-	public static BattlePetSpeciesRecord GetBattlePetSpeciesBySpell(uint spellId)
-	{
-		return _battlePetSpeciesBySpell.LookupByKey(spellId);
-	}
-
-	public static ushort RollPetBreed(uint species)
-	{
-		var list = _availableBreedsPerSpecies.LookupByKey(species);
-
-		if (list.Empty())
-			return 3; // default B/B
-
-		return list.SelectRandom();
-	}
-
-	public static BattlePetBreedQuality GetDefaultPetQuality(uint species)
-	{
-		if (!_defaultQualityPerSpecies.ContainsKey(species))
-			return BattlePetBreedQuality.Poor; // Default
-
-		return _defaultQualityPerSpecies[species];
-	}
-
-	public static uint SelectPetDisplay(BattlePetSpeciesRecord speciesEntry)
-	{
-		var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(speciesEntry.CreatureID);
-
-		if (creatureTemplate != null)
-			if (!speciesEntry.GetFlags().HasFlag(BattlePetSpeciesFlags.RandomDisplay))
-			{
-				var creatureModel = creatureTemplate.GetRandomValidModel();
-
-				if (creatureModel != null)
-					return creatureModel.CreatureDisplayId;
-			}
-
-		return 0;
-	}
 
 	public void LoadFromDB(SQLResult petsResult, SQLResult slotsResult)
 	{
@@ -154,7 +73,7 @@ public class BattlePetMgr
 				var species = petsResult.Read<uint>(1);
 				var ownerGuid = !petsResult.IsNull(11) ? ObjectGuid.Create(HighGuid.Player, petsResult.Read<ulong>(11)) : ObjectGuid.Empty;
 
-				var speciesEntry = CliDB.BattlePetSpeciesStorage.LookupByKey(species);
+				var speciesEntry = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
 
 				if (speciesEntry != null)
 				{
@@ -214,8 +133,8 @@ public class BattlePetMgr
 						BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
 						{
 							Guid = ownerGuid,
-							PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
-							PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
+							PlayerVirtualRealm = _worldManager.VirtualRealmAddress,
+							PlayerNativeRealm = _worldManager.VirtualRealmAddress
 						};
 
 						pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
@@ -254,9 +173,9 @@ public class BattlePetMgr
 				switch (pair.Value.SaveInfo)
 				{
 					case BattlePetSaveInfo.New:
-						stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
+						stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PETS);
 						stmt.AddValue(0, pair.Key);
-						stmt.AddValue((int)1, (uint)_owner.BattlenetAccountId);
+						stmt.AddValue(1, _owner.BattlenetAccountId);
 						stmt.AddValue(2, pair.Value.PacketInfo.Species);
 						stmt.AddValue(3, pair.Value.PacketInfo.Breed);
 						stmt.AddValue(4, pair.Value.PacketInfo.DisplayID);
@@ -271,7 +190,7 @@ public class BattlePetMgr
 						if (pair.Value.PacketInfo.OwnerInfo.HasValue)
 						{
 							stmt.AddValue(12, pair.Value.PacketInfo.OwnerInfo.Value.Guid.Counter);
-							stmt.AddValue(13, Global.WorldMgr.RealmId.Index);
+							stmt.AddValue(13, _worldManager.RealmId.Index);
 						}
 						else
 						{
@@ -283,7 +202,7 @@ public class BattlePetMgr
 
 						if (pair.Value.DeclinedName != null)
 						{
-							stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+							stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
 							stmt.AddValue(0, pair.Key);
 
 							for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
@@ -297,7 +216,7 @@ public class BattlePetMgr
 
 						break;
 					case BattlePetSaveInfo.Changed:
-						stmt = DB.Login.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
+						stmt = _loginDatabase.GetPreparedStatement(LoginStatements.UPD_BATTLE_PETS);
 						stmt.AddValue(0, pair.Value.PacketInfo.Level);
 						stmt.AddValue(1, pair.Value.PacketInfo.Exp);
 						stmt.AddValue(2, pair.Value.PacketInfo.Health);
@@ -305,17 +224,17 @@ public class BattlePetMgr
 						stmt.AddValue(4, pair.Value.PacketInfo.Flags);
 						stmt.AddValue(5, pair.Value.PacketInfo.Name);
 						stmt.AddValue(6, pair.Value.NameTimestamp);
-						stmt.AddValue((int)7, (uint)_owner.BattlenetAccountId);
+						stmt.AddValue(7, _owner.BattlenetAccountId);
 						stmt.AddValue(8, pair.Key);
 						trans.Append(stmt);
 
-						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+						stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
 						stmt.AddValue(0, pair.Key);
 						trans.Append(stmt);
 
 						if (pair.Value.DeclinedName != null)
 						{
-							stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
+							stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_DECLINED_NAME);
 							stmt.AddValue(0, pair.Key);
 
 							for (byte i = 0; i < SharedConst.MaxDeclinedNameCases; i++)
@@ -328,12 +247,12 @@ public class BattlePetMgr
 
 						break;
 					case BattlePetSaveInfo.Removed:
-						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
+						stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_DECLINED_NAME);
 						stmt.AddValue(0, pair.Key);
 						trans.Append(stmt);
 
-						stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
-						stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+						stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PETS);
+						stmt.AddValue(0, _owner.BattlenetAccountId);
 						stmt.AddValue(1, pair.Key);
 						trans.Append(stmt);
 						_pets.Remove(pair.Key);
@@ -341,15 +260,15 @@ public class BattlePetMgr
 						break;
 				}
 
-		stmt = DB.Login.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
-		stmt.AddValue((int)0, (uint)_owner.BattlenetAccountId);
+		stmt = _loginDatabase.GetPreparedStatement(LoginStatements.DEL_BATTLE_PET_SLOTS);
+		stmt.AddValue(0, _owner.BattlenetAccountId);
 		trans.Append(stmt);
 
 		foreach (var slot in _slots)
 		{
-			stmt = DB.Login.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
+			stmt = _loginDatabase.GetPreparedStatement(LoginStatements.INS_BATTLE_PET_SLOTS);
 			stmt.AddValue(0, slot.Index);
-			stmt.AddValue((int)1, (uint)_owner.BattlenetAccountId);
+			stmt.AddValue(1, _owner.BattlenetAccountId);
 			stmt.AddValue(2, slot.Pet.Guid.Counter);
 			stmt.AddValue(3, slot.Locked);
 			trans.Append(stmt);
@@ -363,7 +282,7 @@ public class BattlePetMgr
 
 	public void AddPet(uint species, uint display, ushort breed, BattlePetBreedQuality quality, ushort level = 1)
 	{
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(species);
+		var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(species);
 
 		if (battlePetSpecies == null) // should never happen
 			return;
@@ -372,7 +291,7 @@ public class BattlePetMgr
 			return;
 
 		BattlePet pet = new();
-		pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate());
+		pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, _objectManager.GetGenerator(HighGuid.BattlePet).Generate());
 		pet.PacketInfo.Species = species;
 		pet.PacketInfo.CreatureID = battlePetSpecies.CreatureID;
 		pet.PacketInfo.DisplayID = display;
@@ -392,8 +311,8 @@ public class BattlePetMgr
 			BattlePetStruct.BattlePetOwnerInfo battlePetOwnerInfo = new()
 			{
 				Guid = player.GUID,
-				PlayerVirtualRealm = Global.WorldMgr.VirtualRealmAddress,
-				PlayerNativeRealm = Global.WorldMgr.VirtualRealmAddress
+				PlayerVirtualRealm = _worldManager.VirtualRealmAddress,
+				PlayerNativeRealm = _worldManager.VirtualRealmAddress
 			};
 
 			pet.PacketInfo.OwnerInfo = battlePetOwnerInfo;
@@ -543,7 +462,7 @@ public class BattlePetMgr
 		if (pet == null)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.NotTradable))
@@ -589,7 +508,7 @@ public class BattlePetMgr
 			if (summonedBattlePet.BattlePetCompanionGUID == guid)
 			{
 				summonedBattlePet.DespawnOrUnsummon();
-				player.SetBattlePetData(null);
+				player.SetBattlePetData();
 			}
 	}
 
@@ -606,7 +525,7 @@ public class BattlePetMgr
 		if (quality > BattlePetBreedQuality.Rare)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
@@ -645,7 +564,7 @@ public class BattlePetMgr
 		if (xp <= 0 || xpSource >= BattlePetXpSource.Count)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
@@ -656,7 +575,7 @@ public class BattlePetMgr
 		if (level >= SharedConst.MaxBattlePetLevel)
 			return;
 
-		var xpEntry = CliDB.BattlePetXPGameTable.GetRow(level);
+		var xpEntry = _cliDB.BattlePetXPGameTable.GetRow(level);
 
 		if (xpEntry == null)
 			return;
@@ -673,7 +592,7 @@ public class BattlePetMgr
 		{
 			xp -= nextLevelXp;
 
-			xpEntry = CliDB.BattlePetXPGameTable.GetRow(++level);
+			xpEntry = _cliDB.BattlePetXPGameTable.GetRow(++level);
 
 			if (xpEntry == null)
 				return;
@@ -709,7 +628,7 @@ public class BattlePetMgr
 		if (pet == null)
 			return;
 
-		var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var battlePetSpecies = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (battlePetSpecies != null)
 			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.CantBattle))
@@ -793,7 +712,7 @@ public class BattlePetMgr
 		if (pet == null)
 			return;
 
-		var speciesEntry = CliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
+		var speciesEntry = _cliDB.BattlePetSpeciesStorage.LookupByKey(pet.PacketInfo.Species);
 
 		if (speciesEntry == null)
 			return;
@@ -877,84 +796,6 @@ public class BattlePetMgr
 		_hasJournalLock = on;
 	}
 
-    private static void LoadAvailablePetBreeds()
-	{
-		var result = DB.World.Query("SELECT speciesId, breedId FROM battle_pet_breeds");
-
-		if (result.IsEmpty())
-		{
-			Log.Logger.Information("Loaded 0 battle pet breeds. DB table `battle_pet_breeds` is empty.");
-
-			return;
-		}
-
-		uint count = 0;
-
-		do
-		{
-			var speciesId = result.Read<uint>(0);
-			var breedId = result.Read<ushort>(1);
-
-			if (!CliDB.BattlePetSpeciesStorage.ContainsKey(speciesId))
-			{
-				Log.Logger.Error("Non-existing BattlePetSpecies.db2 entry {0} was referenced in `battle_pet_breeds` by row ({1}, {2}).", speciesId, speciesId, breedId);
-
-				continue;
-			}
-
-			// TODO: verify breed id (3 - 12 (male) or 3 - 22 (male and female)) if needed
-
-			_availableBreedsPerSpecies.Add(speciesId, (byte)breedId);
-			++count;
-		} while (result.NextRow());
-
-		Log.Logger.Information("Loaded {0} battle pet breeds.", count);
-	}
-
-    private static void LoadDefaultPetQualities()
-	{
-		var result = DB.World.Query("SELECT speciesId, quality FROM battle_pet_quality");
-
-		if (result.IsEmpty())
-		{
-			Log.Logger.Information("Loaded 0 battle pet qualities. DB table `battle_pet_quality` is empty.");
-
-			return;
-		}
-
-		do
-		{
-			var speciesId = result.Read<uint>(0);
-			var quality = (BattlePetBreedQuality)result.Read<byte>(1);
-
-			var battlePetSpecies = CliDB.BattlePetSpeciesStorage.LookupByKey(speciesId);
-
-			if (battlePetSpecies == null)
-			{
-				Log.Logger.Error($"Non-existing BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` by row ({speciesId}, {quality}).");
-
-				continue;
-			}
-
-			if (quality >= BattlePetBreedQuality.Max)
-			{
-				Log.Logger.Error($"BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` with non-existing quality {quality}).");
-
-				continue;
-			}
-
-			if (battlePetSpecies.GetFlags().HasFlag(BattlePetSpeciesFlags.WellKnown) && quality > BattlePetBreedQuality.Rare)
-			{
-				Log.Logger.Error($"Learnable BattlePetSpecies.db2 entry {speciesId} was referenced in `battle_pet_quality` with invalid quality {quality}. Maximum allowed quality is BattlePetBreedQuality::Rare.");
-
-				continue;
-			}
-
-			_defaultQualityPerSpecies[speciesId] = quality;
-		} while (result.NextRow());
-
-		Log.Logger.Information("Loaded {0} battle pet qualities.", _defaultQualityPerSpecies.Count);
-	}
 
     private bool IsPetInSlot(ObjectGuid guid)
 	{

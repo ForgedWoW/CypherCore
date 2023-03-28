@@ -14,6 +14,7 @@ using Forged.MapServer.Arenas;
 using Forged.MapServer.AuctionHouse;
 using Forged.MapServer.BattleFields;
 using Forged.MapServer.BattleGrounds;
+using Forged.MapServer.BattlePets;
 using Forged.MapServer.BlackMarket;
 using Forged.MapServer.Cache;
 using Forged.MapServer.Calendar;
@@ -41,6 +42,7 @@ using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Pools;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Scripting;
+using Forged.MapServer.Scripting.Interfaces.IServer;
 using Forged.MapServer.Services;
 using Forged.MapServer.Spells;
 using Forged.MapServer.Spells.Skills;
@@ -71,7 +73,7 @@ builder.RegisterInstance(configuration).As<IConfiguration>().SingleInstance();
 
 builder.AddFramework();
 builder.AddCommon();
-BuildServerTypes();
+RegisterServerTypes();
 
 container = builder.Build();
 
@@ -112,12 +114,12 @@ void InitializeServer()
     var eventManager = container.Resolve<GameEventManager>();
     worldManager.SetEventInterval(eventManager.StartSystem());
     Player.DeleteOldCharacters();
-    ChannelManager.LoadFromDB();
-    PacketManager.Initialize();
     eventManager.StartArenaSeason();
+
+    sm.ForEach<IServerLoadComplete>(s => s.LoadComplete());
 }
 
-void BuildServerTypes()
+void RegisterServerTypes()
 {
     RegisterManagers();
     RegisterFactories();
@@ -162,7 +164,7 @@ void RegisterManagers()
         s.Instance.LoadFromDB();
     });
     builder.RegisterType<ArenaTeamManager>().SingleInstance().OnActivated(a => a.Instance.LoadArenaTeams());
-    builder.RegisterType<BattleFieldManager>().SingleInstance();
+    builder.RegisterType<BattleFieldManager>().SingleInstance().OnActivated(b => b.Instance.InitBattlefield());
     builder.RegisterType<BattlegroundManager>().SingleInstance().OnActivated(b =>
     {
         b.Instance.LoadBattleMastersEntry();
@@ -279,10 +281,17 @@ void RegisterManagers()
         o.Instance.LoadFactionChangeTitles();
         o.Instance.ReturnOrDeleteOldMails(false);
         o.Instance.InitializeQueriesData(QueryDataGroup.All);
+        o.Instance.LoadRaceAndClassExpansionRequirements();
+        o.Instance.LoadRealmNames();
+        o.Instance.LoadPhaseNames();
     });
     builder.RegisterType<WeatherManager>().SingleInstance().OnActivated(m => m.Instance.LoadWeatherData());
     builder.RegisterType<WorldManager>().SingleInstance();
-    builder.RegisterType<WardenCheckManager>().SingleInstance();
+    builder.RegisterType<WardenCheckManager>().SingleInstance().OnActivated(w =>
+    {
+        w.Instance.LoadWardenChecks();
+        w.Instance.LoadWardenOverrides();
+    });
     builder.RegisterType<WorldStateManager>().SingleInstance().OnActivated(w =>
     {
         w.Instance.LoadFromDB();
@@ -342,7 +351,12 @@ void RegisterManagers()
         p.Instance.LoadFromDB();
     });
     builder.RegisterType<QuestPoolManager>().SingleInstance().OnActivated(q => q.Instance.LoadFromDB());
-    builder.RegisterType<ScenarioManager>().SingleInstance();
+    builder.RegisterType<ScenarioManager>().SingleInstance().OnActivated(s =>
+    {
+        s.Instance.LoadDB2Data();
+        s.Instance.LoadDBData();
+        s.Instance.LoadScenarioPOI();
+    });
     builder.RegisterType<ScriptManager>().SingleInstance();
     builder.RegisterType<GroupManager>().SingleInstance().OnActivated(g => g.Instance.LoadGroups());
     builder.RegisterType<GuildManager>().SingleInstance().OnActivated(g =>
@@ -393,6 +407,9 @@ void RegisterManagers()
     });
 
     builder.RegisterType<CalendarManager>().SingleInstance().OnActivated(c => c.Instance.LoadFromDB());
+    builder.RegisterType<PacketManager>().SingleInstance().OnActivated(c => c.Instance.Initialize());
+    builder.RegisterType<BattlePetMgr>().SingleInstance();
+    builder.RegisterType<BattlePetMgrData>().SingleInstance();
 }
 
 void RegisterFactories()
@@ -400,6 +417,7 @@ void RegisterFactories()
     // Factories
     builder.RegisterType<LootFactory>().SingleInstance();
     builder.RegisterType<SpellFactory>().SingleInstance();
+    builder.RegisterType<ChannelManagerFactory>().SingleInstance();
     // We are doing this to inject the container into the class factory. The container is not yet built at this point, so we need to do this after the container is built.
     // ReSharper disable once AccessToModifiedClosure
     builder.RegisterType<ClassFactory>().SingleInstance().OnActivated(c => c.Instance.Initialize(container));

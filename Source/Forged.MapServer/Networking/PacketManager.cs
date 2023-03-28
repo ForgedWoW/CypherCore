@@ -9,11 +9,11 @@ using Serilog;
 
 namespace Forged.MapServer.Networking;
 
-public static class PacketManager
+public class PacketManager
 {
-    private static readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
+    private readonly ConcurrentDictionary<ClientOpcodes, PacketHandler> _clientPacketTable = new();
 
-	public static void Initialize()
+	public void Initialize()
 	{
 		var currentAsm = Assembly.GetExecutingAssembly();
 
@@ -23,10 +23,7 @@ public static class PacketManager
 			{
 				foreach (var msgAttr in methodInfo.GetCustomAttributes<WorldPacketHandlerAttribute>())
 				{
-					if (msgAttr == null)
-						continue;
-
-					if (msgAttr.Opcode == ClientOpcodes.Unknown)
+                    if (msgAttr.Opcode == ClientOpcodes.Unknown)
 					{
 						Log.Logger.Error("Opcode {0} does not have a value", msgAttr.Opcode);
 
@@ -62,17 +59,17 @@ public static class PacketManager
 		}
 	}
 
-	public static PacketHandler GetHandler(ClientOpcodes opcode)
+	public PacketHandler GetHandler(ClientOpcodes opcode)
 	{
 		return _clientPacketTable.LookupByKey(opcode);
 	}
 
-	public static bool ContainsHandler(ClientOpcodes opcode)
+	public bool ContainsHandler(ClientOpcodes opcode)
 	{
 		return _clientPacketTable.ContainsKey(opcode);
 	}
 
-	public static bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
+	public bool IsInstanceOnlyOpcode(ServerOpcodes opcode)
 	{
 		switch (opcode)
 		{

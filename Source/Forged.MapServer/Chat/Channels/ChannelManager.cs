@@ -8,32 +8,39 @@ using Forged.MapServer.DataStorage.Structs.A;
 using Forged.MapServer.Entities.Objects;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Networking.Packets.Channel;
-using Forged.MapServer.Server;
+using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
+using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Chat.Channels;
 
 public class ChannelManager
 {
-    private static readonly ChannelManager allianceChannelMgr = new(TeamFaction.Alliance);
-    private static readonly ChannelManager hordeChannelMgr = new(TeamFaction.Horde);
-
     private readonly Dictionary<string, Channel> _customChannels = new();
     private readonly Dictionary<ObjectGuid, Channel> _channels = new();
     private readonly TeamFaction _team;
+    private readonly IConfiguration _configuration;
+    private readonly CharacterDatabase _characterDatabase;
+    private readonly WorldManager _worldManager;
+    private readonly CliDB _cliDB;
     private readonly ObjectGuidGenerator _guidGenerator;
 
-	public ChannelManager(TeamFaction team)
+	public ChannelManager(TeamFaction team, IConfiguration configuration, CharacterDatabase characterDatabase, WorldManager worldManager, CliDB cliDB)
 	{
 		_team = team;
-		_guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
+        _configuration = configuration;
+        _characterDatabase = characterDatabase;
+        _worldManager = worldManager;
+        _cliDB = cliDB;
+        _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
 	}
 
-	public static void LoadFromDB()
+	public void LoadFromDB()
 	{
-		if (!GetDefaultValue("PreserveCustomChannels", false))
+		if (!_configuration.GetDefaultValue("PreserveCustomChannels", false))
 		{
 			Log.Logger.Information("Loaded 0 custom chat channels. Custom channel saving is disabled.");
 
@@ -41,16 +48,16 @@ public class ChannelManager
 		}
 
 		var oldMSTime = Time.MSTime;
-		var days = GetDefaultValue("PreserveCustomChannelDuration", 14);
+		var days = _configuration.GetDefaultValue("PreserveCustomChannelDuration", 14);
 
 		if (days != 0)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_OLD_CHANNELS);
 			stmt.AddValue(0, days * Time.Day);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
-		var result = DB.Characters.Query("SELECT name, team, announce, ownership, password, bannedList FROM channels");
+		var result = _characterDatabase.Query("SELECT name, team, announce, ownership, password, bannedList FROM channels");
 
 		if (result.IsEmpty())
 		{
@@ -71,51 +78,28 @@ public class ChannelManager
 			var dbPass = result.Read<string>(4);
 			var dbBanned = result.Read<string>(5);
 
-			var mgr = ForTeam(team);
 
-			if (mgr == null)
-			{
-				Log.Logger.Error($"Failed to load custom chat channel '{dbName}' from database - invalid team {team}. Deleted.");
-				toDelete.Add((dbName, team));
-
-				continue;
-			}
-
-			var channel = new Channel(mgr.CreateCustomChannelGuid(), dbName, team, dbBanned);
+			var channel = new Channel(CreateCustomChannelGuid(), dbName, team, dbBanned);
 			channel.SetAnnounce(dbAnnounce);
 			channel.SetOwnership(dbOwnership);
 			channel.SetPassword(dbPass);
-			mgr._customChannels.Add(dbName, channel);
+			_customChannels.Add(dbName, channel);
 
 			++count;
 		} while (result.NextRow());
 
 		foreach (var (name, team) in toDelete)
 		{
-			var stmt = DB.Characters.GetPreparedStatement(CharStatements.DEL_CHANNEL);
+			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.DEL_CHANNEL);
 			stmt.AddValue(0, name);
 			stmt.AddValue(1, (uint)team);
-			DB.Characters.Execute(stmt);
+			_characterDatabase.Execute(stmt);
 		}
 
 		Log.Logger.Information($"Loaded {count} custom chat channels in {Time.GetMSTimeDiffToNow(oldMSTime)} ms");
 	}
 
-	public static ChannelManager ForTeam(TeamFaction team)
-	{
-		if (GetDefaultValue("AllowTwoSide.Interaction.Channel", false))
-			return allianceChannelMgr; // cross-faction
-
-		if (team == TeamFaction.Alliance)
-			return allianceChannelMgr;
-
-		if (team == TeamFaction.Horde)
-			return hordeChannelMgr;
-
-		return null;
-	}
-
-	public static Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
+    public Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
 	{
 		foreach (var channel in playerSearcher.JoinedChannels)
 		{
@@ -134,7 +118,7 @@ public class ChannelManager
 			pair.Value.UpdateChannelInDB();
 	}
 
-	public static Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
+	public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
 	{
 		foreach (var channel in playerSearcher.JoinedChannels)
 			if (channel.GetGUID() == channelGuid)
@@ -217,7 +201,7 @@ public class ChannelManager
 			_channels.Remove(guid);
 	}
 
-	public static void SendNotOnChannelNotify(Player player, string name)
+	public void SendNotOnChannelNotify(Player player, string name)
 	{
 		ChannelNotify notify = new()
 		{
@@ -232,7 +216,7 @@ public class ChannelManager
 	{
 		ulong high = 0;
 		high |= (ulong)HighGuid.ChatChannel << 58;
-		high |= (ulong)Global.WorldMgr.RealmId.Index << 42;
+		high |= (ulong)_worldManager.RealmId.Index << 42;
 		high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
 
 		ObjectGuid channelGuid = new();
@@ -243,7 +227,7 @@ public class ChannelManager
 
     private ObjectGuid CreateBuiltinChannelGuid(uint channelId, AreaTableRecord zoneEntry = null)
 	{
-		var channelEntry = CliDB.ChatChannelsStorage.LookupByKey(channelId);
+		var channelEntry = _cliDB.ChatChannelsStorage.LookupByKey(channelId);
 		var zoneId = zoneEntry != null ? zoneEntry.Id : 0;
 
 		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.Global | ChannelDBCFlags.CityOnly))
@@ -251,7 +235,7 @@ public class ChannelManager
 
 		ulong high = 0;
 		high |= (ulong)HighGuid.ChatChannel << 58;
-		high |= (ulong)Global.WorldMgr.RealmId.Index << 42;
+		high |= (ulong)_worldManager.RealmId.Index << 42;
 		high |= 1ul << 25; // built-in
 
 		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2))

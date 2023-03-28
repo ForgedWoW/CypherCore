@@ -900,9 +900,9 @@ public class CliDB
 
 	#region Helper Methods
 
-	public static float GetGameTableColumnForClass(dynamic row, PlayerClass class_)
+	public static float GetGameTableColumnForClass(dynamic row, PlayerClass playerClass)
 	{
-		switch (class_)
+		switch (playerClass)
 		{
 			case PlayerClass.Warrior:
 				return row.Warrior;
@@ -939,9 +939,9 @@ public class CliDB
 		return 0.0f;
 	}
 
-	public static float GetSpellScalingColumnForClass(GtSpellScalingRecord row, int class_)
+	public static float GetSpellScalingColumnForClass(GtSpellScalingRecord row, int playerClass)
 	{
-		switch (class_)
+		switch (playerClass)
 		{
 			case (int)PlayerClass.Warrior:
 				return row.Warrior;
@@ -990,8 +990,6 @@ public class CliDB
 				return row.DamageSecondary;
 			case -10:
 				return row.ManaConsumable;
-			default:
-				break;
 		}
 
 		return 0.0f;
