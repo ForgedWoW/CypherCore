@@ -24,16 +24,16 @@ public class ChannelManager
     private readonly TeamFaction _team;
     private readonly IConfiguration _configuration;
     private readonly CharacterDatabase _characterDatabase;
-    private readonly WorldManager _worldManager;
+    private readonly Realm _realm;
     private readonly CliDB _cliDB;
     private readonly ObjectGuidGenerator _guidGenerator;
 
-	public ChannelManager(TeamFaction team, IConfiguration configuration, CharacterDatabase characterDatabase, WorldManager worldManager, CliDB cliDB)
+	public ChannelManager(TeamFaction team, IConfiguration configuration, CharacterDatabase characterDatabase, Realm realm, CliDB cliDB)
 	{
 		_team = team;
         _configuration = configuration;
         _characterDatabase = characterDatabase;
-        _worldManager = worldManager;
+        _realm = realm;
         _cliDB = cliDB;
         _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
 	}
@@ -216,7 +216,7 @@ public class ChannelManager
 	{
 		ulong high = 0;
 		high |= (ulong)HighGuid.ChatChannel << 58;
-		high |= (ulong)_worldManager.RealmId.Index << 42;
+		high |= (ulong)_realm.Id.Index << 42;
 		high |= (ulong)(_team == TeamFaction.Alliance ? 3 : 5) << 4;
 
 		ObjectGuid channelGuid = new();
@@ -235,7 +235,7 @@ public class ChannelManager
 
 		ulong high = 0;
 		high |= (ulong)HighGuid.ChatChannel << 58;
-		high |= (ulong)_worldManager.RealmId.Index << 42;
+		high |= (ulong)_realm.Id.Index << 42;
 		high |= 1ul << 25; // built-in
 
 		if (channelEntry.Flags.HasAnyFlag(ChannelDBCFlags.CityOnly2))

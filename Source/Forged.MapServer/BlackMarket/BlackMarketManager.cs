@@ -12,7 +12,6 @@ using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Globals;
 using Forged.MapServer.Mails;
 using Forged.MapServer.Networking.Packets.BlackMarket;
-using Forged.MapServer.World;
 using Framework.Constants;
 using Framework.Database;
 using Framework.Util;
@@ -27,7 +26,7 @@ public class BlackMarketManager
     private readonly WorldDatabase _worldDatabase;
     private readonly CharacterDatabase _characterDatabase;
     private readonly ObjectAccessor _objectAccessor;
-    private readonly WorldManager _worldManager;
+    private readonly Realm _realm;
     private readonly GameObjectManager _objectManager;
     private readonly CharacterCache _characterCache;
     private readonly AccountManager _accountManager;
@@ -40,14 +39,14 @@ public class BlackMarketManager
 	public long LastUpdate => _lastUpdate;
 
     public BlackMarketManager(IConfiguration configuration, WorldDatabase worldDatabase, CharacterDatabase characterDatabase,
-                              ObjectAccessor objectAccessor, WorldManager worldManager, GameObjectManager objectManager,
+                              ObjectAccessor objectAccessor, Realm realm, GameObjectManager objectManager,
                               CharacterCache characterCache, AccountManager accountManager)
     {
         _configuration = configuration;
         _worldDatabase = worldDatabase;
         _characterDatabase = characterDatabase;
         _objectAccessor = objectAccessor;
-        _worldManager = worldManager;
+        _realm = realm;
         _objectManager = objectManager;
         _characterCache = characterCache;
         _accountManager = accountManager;
@@ -268,7 +267,7 @@ public class BlackMarketManager
 			if (bidderAccId == 0) // Account exists
 				return;
 
-			logGmTrade = _accountManager.HasPermission(bidderAccId, RBACPermissions.LogGmTrade, _worldManager.RealmId.Index);
+			logGmTrade = _accountManager.HasPermission(bidderAccId, RBACPermissions.LogGmTrade, _realm.Id.Index);
 
 			if (logGmTrade && !_characterCache.GetCharacterNameByGuid(bidderGuid, out bidderName))
 				bidderName = _objectManager.GetCypherString(CypherStrings.Unknown);
