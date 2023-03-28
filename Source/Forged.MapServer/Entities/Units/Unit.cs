@@ -533,7 +533,7 @@ public partial class Unit : WorldObject
 
 		ObjectTypeId = TypeId.Unit;
 		ObjectTypeMask |= TypeMask.Unit;
-		_updateFlag.MovementUpdate = true;
+		UpdateFlag.MovementUpdate = true;
 
 		ModAttackSpeedPct = new double[]
 		{

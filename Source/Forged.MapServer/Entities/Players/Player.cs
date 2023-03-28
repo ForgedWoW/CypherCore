@@ -528,7 +528,7 @@ public partial class Player : Unit
 		PlayerMovingMe = this;
 		SeerView = this;
 
-		m_isActive = true;
+		IsActive = true;
 		ControlledByPlayer = true;
 
 		Global.WorldMgr.IncreasePlayerCount();

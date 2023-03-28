@@ -44,7 +44,7 @@ public class Corpse : WorldObject
 		ObjectTypeId = TypeId.Corpse;
 		ObjectTypeMask |= TypeMask.Corpse;
 
-		_updateFlag.Stationary = true;
+		UpdateFlag.Stationary = true;
 
 		CorpseData = new CorpseData();
 

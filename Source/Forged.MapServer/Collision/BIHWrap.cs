@@ -32,8 +32,8 @@ public class BIHWrap<T> where T : IModel
 
 		lock (_objects)
 		{
-			if (_obj2Idx.TryGetValue(obj, out var Idx))
-				_objects[Idx] = null;
+			if (_obj2Idx.TryGetValue(obj, out var idx))
+				_objects[idx] = null;
 			else
 				_objectsToPush.Remove(obj);
 		}
@@ -60,8 +60,8 @@ public class BIHWrap<T> where T : IModel
 		lock (_objects)
 		{
 			Balance();
-			MDLCallback temp_cb = new(intersectCallback, _objects.ToArray(), _objects.Count);
-			_tree.IntersectRay(ray, temp_cb, ref maxDist, true);
+			MDLCallback tempCb = new(intersectCallback, _objects.ToArray(), _objects.Count);
+			_tree.IntersectRay(ray, tempCb, ref maxDist, true);
 		}
 	}
 
@@ -77,24 +77,24 @@ public class BIHWrap<T> where T : IModel
 
 	public class MDLCallback : WorkerCallback
 	{
-        private readonly T[] objects;
+        private readonly T[] _objects;
         private readonly WorkerCallback _callback;
-        private readonly int objects_size;
+        private readonly int _objectsSize;
 
-		public MDLCallback(WorkerCallback callback, T[] objects_array, int size)
+		public MDLCallback(WorkerCallback callback, T[] objectsArray, int size)
 		{
-			objects = objects_array;
+			_objects = objectsArray;
 			_callback = callback;
-			objects_size = size;
+			_objectsSize = size;
 		}
 
 		/// Intersect ray
 		public override bool Invoke(Ray ray, int idx, ref float maxDist, bool stopAtFirst)
 		{
-			if (idx >= objects_size)
+			if (idx >= _objectsSize)
 				return false;
 
-			var obj = objects[idx];
+			var obj = _objects[idx];
 
 			if (obj != null)
 				return _callback.Invoke(ray, obj, ref maxDist);
@@ -105,10 +105,10 @@ public class BIHWrap<T> where T : IModel
 		/// Intersect point
 		public override void Invoke(Vector3 p, int idx)
 		{
-			if (idx >= objects_size)
+			if (idx >= _objectsSize)
 				return;
 
-			var obj = objects[idx];
+			var obj = _objects[idx];
 
 			if (obj != null)
 				_callback.Invoke(p, obj as GameObjectModel);

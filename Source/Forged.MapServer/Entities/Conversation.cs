@@ -46,8 +46,8 @@ public class Conversation : WorldObject
 		ObjectTypeMask |= TypeMask.Conversation;
 		ObjectTypeId = TypeId.Conversation;
 
-		_updateFlag.Stationary = true;
-		_updateFlag.Conversation = true;
+		UpdateFlag.Stationary = true;
+		UpdateFlag.Conversation = true;
 
 		m_conversationData = new ConversationData();
 	}

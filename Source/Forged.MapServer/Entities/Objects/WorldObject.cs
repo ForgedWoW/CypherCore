@@ -42,8 +42,8 @@ namespace Forged.MapServer.Entities.Objects;
 public abstract class WorldObject : IDisposable
 {
 	public uint LastUsedScriptID;
-	protected CreateObjectBits _updateFlag;
-	protected bool m_isActive;
+	protected CreateObjectBits UpdateFlag;
+	protected bool IsActive;
     private readonly bool _isWorldObject;
     private ObjectGuid _guid;
     private bool _isNewObject;
@@ -204,7 +204,7 @@ public abstract class WorldObject : IDisposable
 
 	public ZoneScript ZoneScript1 => ZoneScript;
 
-	public bool IsActiveObject => m_isActive;
+	public bool IsActiveObject => IsActive;
 
 	public bool IsPermanentWorldObject => _isWorldObject;
 
@@ -480,7 +480,7 @@ public abstract class WorldObject : IDisposable
 		Values = new UpdateFieldHolder(this);
 
 		MovementInfo = new MovementInfo();
-		_updateFlag.Clear();
+		UpdateFlag.Clear();
 
 		ObjectData = new ObjectFieldData();
 
@@ -570,7 +570,7 @@ public abstract class WorldObject : IDisposable
 
 		var updateType = _isNewObject ? UpdateType.CreateObject2 : UpdateType.CreateObject;
 		var tempObjectType = ObjectTypeId;
-		var flags = _updateFlag;
+		var flags = UpdateFlag;
 
 		if (target == this)
 		{
@@ -1422,13 +1422,13 @@ public abstract class WorldObject : IDisposable
 
 	public void SetActive(bool on)
 	{
-		if (m_isActive == on)
+		if (IsActive == on)
 			return;
 
 		if (IsTypeId(TypeId.Player))
 			return;
 
-		m_isActive = on;
+		IsActive = on;
 
 		if (on && !IsInWorld)
 			return;
@@ -2626,161 +2626,6 @@ public abstract class WorldObject : IDisposable
 		return my_faction.IsNeutralToAll();
 	}
 
-	public SpellCastResult CastSpell(uint spellId, bool triggered = false, byte? empowerStage = null)
-	{
-		return CastSpell(null, spellId, triggered, empowerStage);
-	}
-
-	public SpellCastResult CastSpell<T>(WorldObject target, T spellId, bool triggered = false) where T : struct, Enum
-	{
-		return CastSpell(target, Convert.ToUInt32(spellId), triggered);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, Spell triggeringSpell)
-	{
-		CastSpellExtraArgs args = new(true)
-		{
-			TriggeringSpell = triggeringSpell
-		};
-
-		return CastSpell(target, spellId, args);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, AuraEffect triggeringAura)
-	{
-		CastSpellExtraArgs args = new(true)
-		{
-			TriggeringAura = triggeringAura
-		};
-
-		return CastSpell(target, spellId, args);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, bool triggered = false, byte? empowerStage = null)
-	{
-		CastSpellExtraArgs args = new(triggered)
-		{
-			EmpowerStage = empowerStage
-		};
-
-		return CastSpell(target, spellId, args);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, TriggerCastFlags triggerCastFlags, bool triggered = false)
-	{
-		CastSpellExtraArgs args = new(triggered)
-		{
-			TriggerFlags = triggerCastFlags
-		};
-
-		return CastSpell(target, spellId, args);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, double bp0Val, bool triggered = false)
-	{
-		CastSpellExtraArgs args = new(triggered)
-		{
-			SpellValueOverrides =
-			{
-				[SpellValueMod.BasePoint0] = bp0Val
-			}
-		};
-
-		return CastSpell(target, spellId, args);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, SpellValueMod spellValueMod, double bp0Val, bool triggered = false)
-	{
-		CastSpellExtraArgs args = new(triggered)
-		{
-			SpellValueOverrides =
-			{
-				[spellValueMod] = bp0Val
-			}
-		};
-
-		return CastSpell(target, spellId, args);
-	}
-
-	public SpellCastResult CastSpell(SpellCastTargets targets, uint spellId, CastSpellExtraArgs args)
-	{
-		return CastSpell(new CastSpellTargetArg(targets), spellId, args);
-	}
-
-	public SpellCastResult CastSpell(WorldObject target, uint spellId, CastSpellExtraArgs args)
-	{
-		return CastSpell(new CastSpellTargetArg(target), spellId, args);
-	}
-
-	public SpellCastResult CastSpell(float x, float y, float z, uint spellId, bool triggered = false)
-	{
-		return CastSpell(new Position(x, y, z), spellId, triggered);
-	}
-
-	public SpellCastResult CastSpell(float x, float y, float z, uint spellId, CastSpellExtraArgs args)
-	{
-		return CastSpell(new Position(x, y, z), spellId, args);
-	}
-
-	public SpellCastResult CastSpell(Position dest, uint spellId, bool triggered = false)
-	{
-		CastSpellExtraArgs args = new(triggered);
-
-		return CastSpell(new CastSpellTargetArg(dest), spellId, args);
-	}
-
-	public SpellCastResult CastSpell(Position dest, uint spellId, CastSpellExtraArgs args)
-	{
-		return CastSpell(new CastSpellTargetArg(dest), spellId, args);
-	}
-
-	public SpellCastResult CastSpell(CastSpellTargetArg targets, uint spellId, CastSpellExtraArgs args)
-	{
-		var info = Global.SpellMgr.GetSpellInfo(spellId, args.CastDifficulty != Difficulty.None ? args.CastDifficulty : Map.DifficultyID);
-
-		if (info == null)
-		{
-			Log.Logger.Error($"CastSpell: unknown spell {spellId} by caster {GUID}");
-
-			return SpellCastResult.SpellUnavailable;
-		}
-
-		if (targets.Targets == null)
-		{
-			Log.Logger.Error($"CastSpell: Invalid target passed to spell cast {spellId} by {GUID}");
-
-			return SpellCastResult.BadTargets;
-		}
-
-		Spell spell = new(this, info, args.TriggerFlags, args.OriginalCaster, args.OriginalCastId, args.EmpowerStage);
-
-		foreach (var pair in args.SpellValueOverrides)
-			spell.SetSpellValue(pair.Key, (float)pair.Value);
-
-		spell.CastItem = args.CastItem;
-
-		if (args.OriginalCastItemLevel.HasValue)
-			spell.CastItemLevel = args.OriginalCastItemLevel.Value;
-
-		if (spell.CastItem == null && info.HasAttribute(SpellAttr2.RetainItemCast))
-		{
-			if (args.TriggeringSpell)
-			{
-				spell.CastItem = args.TriggeringSpell.CastItem;
-			}
-			else if (args.TriggeringAura != null && !args.TriggeringAura.Base.CastItemGuid.IsEmpty)
-			{
-				var triggeringAuraCaster = args.TriggeringAura.Caster?.AsPlayer;
-
-				if (triggeringAuraCaster != null)
-					spell.CastItem = triggeringAuraCaster.GetItemByGuid(args.TriggeringAura.Base.CastItemGuid);
-			}
-		}
-
-		spell.CustomArg = args.CustomArg;
-
-		return spell.Prepare(targets.Targets, args.TriggeringAura);
-	}
 
 	public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
 	{

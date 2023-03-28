@@ -371,8 +371,8 @@ namespace Forged.MapServer.Entities.GameObjects
             ObjectTypeMask |= TypeMask.GameObject;
 			ObjectTypeId = TypeId.GameObject;
 
-			_updateFlag.Stationary = true;
-			_updateFlag.Rotation = true;
+			UpdateFlag.Stationary = true;
+			UpdateFlag.Rotation = true;
 
 			_respawnDelayTime = 300;
 			_despawnDelay = 0;
@@ -3881,7 +3881,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			else
 			{
 				guid = ObjectGuid.Create(HighGuid.Transport, map.GenerateLowGuid(HighGuid.Transport));
-				_updateFlag.ServerTime = true;
+				UpdateFlag.ServerTime = true;
 			}
 
 			Create(guid);
@@ -3921,7 +3921,7 @@ namespace Forged.MapServer.Entities.GameObjects
 			{
 				if (GoTemplateAddonProtected.WorldEffectId != 0)
 				{
-					_updateFlag.GameObject = true;
+					UpdateFlag.GameObject = true;
 					WorldEffectID = GoTemplateAddonProtected.WorldEffectId;
 				}
 
@@ -4021,7 +4021,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
 				if (gameObjectAddon.WorldEffectID != 0)
 				{
-					_updateFlag.GameObject = true;
+					UpdateFlag.GameObject = true;
 					WorldEffectID = gameObjectAddon.WorldEffectID;
 				}
 

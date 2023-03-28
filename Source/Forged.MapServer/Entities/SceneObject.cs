@@ -37,8 +37,8 @@ public class SceneObject : WorldObject
 		ObjectTypeMask |= TypeMask.SceneObject;
 		ObjectTypeId = TypeId.SceneObject;
 
-		_updateFlag.Stationary = true;
-		_updateFlag.SceneObject = true;
+		UpdateFlag.Stationary = true;
+		UpdateFlag.SceneObject = true;
 
 		_sceneObjectData = new SceneObjectData();
 		_stationaryPosition = new Position();

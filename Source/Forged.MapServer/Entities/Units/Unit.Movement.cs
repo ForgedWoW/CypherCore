@@ -1586,7 +1586,7 @@ public partial class Unit
 			return false;
 
 		VehicleKit = new Vehicle(this, vehInfo, creatureEntry);
-		_updateFlag.Vehicle = true;
+		UpdateFlag.Vehicle = true;
 		UnitTypeMask |= UnitTypeMask.Vehicle;
 
 		if (!loading)
@@ -1607,7 +1607,7 @@ public partial class Unit
 
 		VehicleKit = null;
 
-		_updateFlag.Vehicle = false;
+		UpdateFlag.Vehicle = false;
 		UnitTypeMask &= ~UnitTypeMask.Vehicle;
 		RemoveNpcFlag(NPCFlags.SpellClick | NPCFlags.PlayerVehicle);
 	}

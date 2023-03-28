@@ -41,9 +41,9 @@ public class Transport : GameObject, ITransport
 
 	public Transport()
 	{
-		_updateFlag.ServerTime = true;
-		_updateFlag.Stationary = true;
-		_updateFlag.Rotation = true;
+		UpdateFlag.ServerTime = true;
+		UpdateFlag.Stationary = true;
+		UpdateFlag.Rotation = true;
 	}
 
 	public void AddPassenger(WorldObject passenger)

@@ -38,7 +38,7 @@ public class DynamicObject : WorldObject
 		ObjectTypeMask |= TypeMask.DynamicObject;
 		ObjectTypeId = TypeId.DynamicObject;
 
-		_updateFlag.Stationary = true;
+		UpdateFlag.Stationary = true;
 
 		_dynamicObjectData = new DynamicObjectData();
 	}

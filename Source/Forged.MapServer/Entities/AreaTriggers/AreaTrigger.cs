@@ -135,8 +135,8 @@ public class AreaTrigger : WorldObject
 		ObjectTypeMask |= TypeMask.AreaTrigger;
 		ObjectTypeId = TypeId.AreaTrigger;
 
-		_updateFlag.Stationary = true;
-		_updateFlag.AreaTrigger = true;
+		UpdateFlag.Stationary = true;
+		UpdateFlag.AreaTrigger = true;
 
 		_areaTriggerData = new AreaTriggerFieldData();
 
