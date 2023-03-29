@@ -25,7 +25,7 @@ public class WorldWorldTextBuilder : MessageBuilder
 
 	public override MultiplePacketSender Invoke(Locale locale)
 	{
-		var text = Global.ObjectMgr.GetCypherString(_iTextId, locale);
+		var text = _gameObjectManager.GetCypherString(_iTextId, locale);
 
 		if (_iArgs != null)
 			text = string.Format(text, _iArgs);

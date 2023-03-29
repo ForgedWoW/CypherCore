@@ -60,8 +60,8 @@ public partial class Player
 	public void UpdateHonorFields()
 	{
 		// called when rewarding honor and at each save
-		var now = _gameTime.GetGameTime;
-		var today = (_gameTime.GetGameTime / Time.Day) * Time.Day;
+		var now = _gameTime.CurrentGameTime;
+		var today = (_gameTime.CurrentGameTime / Time.Day) * Time.Day;
 
 		if (_lastHonorUpdateTime < today)
 		{
@@ -356,7 +356,7 @@ public partial class Player
 			{
 				_battlegroundQueueIdRecs[i].BgQueueTypeId = val;
 				_battlegroundQueueIdRecs[i].InvitedToInstance = 0;
-				_battlegroundQueueIdRecs[i].JoinTime = (uint)_gameTime.GetGameTime;
+				_battlegroundQueueIdRecs[i].JoinTime = (uint)_gameTime.CurrentGameTime;
 				_battlegroundQueueIdRecs[i].Mercenary = HasAura(BattlegroundConst.SpellMercenaryContractHorde) || HasAura(BattlegroundConst.SpellMercenaryContractAlliance);
 
 				return i;
@@ -464,7 +464,7 @@ public partial class Player
 			// If map is dungeon find linked graveyard
 			if (Map.IsDungeon)
 			{
-				var entry = Global.ObjectMgr.GetClosestGraveYard(Location, Team, this);
+				var entry = _gameObjectManager.GetClosestGraveYard(Location, Team, this);
 
 				if (entry != null)
 					_bgData.JoinPos = entry.Loc;
@@ -632,7 +632,7 @@ public partial class Player
 
 	public static void LeaveAllArenaTeams(ObjectGuid guid)
 	{
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(guid);
+		var characterInfo = _characterCache.GetCharacterCacheByGuid(guid);
 
 		if (characterInfo == null)
 			return;

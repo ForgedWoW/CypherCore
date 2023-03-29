@@ -421,7 +421,7 @@ public class Quest
 		RequiredMaxRepValue = fields.Read<int>(15);
 		SourceItemIdCount = fields.Read<byte>(16);
 		SpecialFlags = (QuestSpecialFlags)fields.Read<byte>(17);
-		ScriptId = Global.ObjectMgr.GetScriptId(fields.Read<string>(18));
+		ScriptId = _gameObjectManager.GetScriptId(fields.Read<string>(18));
 
 		if (SpecialFlags.HasAnyFlag(QuestSpecialFlags.AutoAccept))
 			Flags |= QuestFlags.AutoAccept;
@@ -497,7 +497,7 @@ public class Quest
 
 			var xp = (uint)(diffFactor * questXp.Difficulty[xpDifficulty] * xpMultiplier / 10);
 
-			if (player.Level >= Global.ObjectMgr.GetMaxLevelForExpansion((Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) && 
+			if (player.Level >= _gameObjectManager.GetMaxLevelForExpansion((Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) - 1) && 
                 player.Session.Expansion == (Expansion)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight) && expansion >= 0 && 
                 expansion < (int)GetDefaultValue("Expansion", (int)Framework.Constants.Expansion.Dragonflight))
 				xp = (uint)(xp / 9.0f);
@@ -690,7 +690,7 @@ public class Quest
 
 		if (loc != Locale.enUS)
 		{
-			var questTemplateLocale = Global.ObjectMgr.GetQuestLocale(Id);
+			var questTemplateLocale = _gameObjectManager.GetQuestLocale(Id);
 
 			if (questTemplateLocale != null)
 			{
@@ -797,7 +797,7 @@ public class Quest
 
 			if (loc != Locale.enUS)
 			{
-				var questObjectivesLocale = Global.ObjectMgr.GetQuestObjectivesLocale(questObjective.Id);
+				var questObjectivesLocale = _gameObjectManager.GetQuestObjectivesLocale(questObjective.Id);
 
 				if (questObjectivesLocale != null)
 					GameObjectManager.GetLocaleString(questObjectivesLocale.Description, loc, ref response.Info.Objectives.Last().Description);

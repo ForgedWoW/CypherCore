@@ -101,7 +101,7 @@ public class FormationMgr
 
 			// check data correctness
 			{
-				if (Global.ObjectMgr.GetCreatureData(member.LeaderSpawnId) == null)
+				if (_gameObjectManager.GetCreatureData(member.LeaderSpawnId) == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_formations WHERE leaderGUID = {member.LeaderSpawnId}");
@@ -111,7 +111,7 @@ public class FormationMgr
 					continue;
 				}
 
-				if (Global.ObjectMgr.GetCreatureData(memberSpawnId) == null)
+				if (_gameObjectManager.GetCreatureData(memberSpawnId) == null)
 				{
 					if (ConfigMgr.GetDefaultValue("load.autoclean", false))
 						DB.World.Execute($"DELETE FROM creature_formations WHERE memberGUID = {memberSpawnId}");

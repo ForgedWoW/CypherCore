@@ -43,7 +43,7 @@ class GoCommands
 		Dictionary<uint, List<CreatureData>> spawnLookup = new();
 
 		// find all boss flagged mobs that match our needles
-		foreach (var pair in Global.ObjectMgr.GetCreatureTemplates())
+		foreach (var pair in _gameObjectManager.GetCreatureTemplates())
 		{
 			var data = pair.Value;
 
@@ -51,7 +51,7 @@ class GoCommands
 				continue;
 
 			uint count = 0;
-			var scriptName = Global.ObjectMgr.GetScriptName(data.ScriptID);
+			var scriptName = _gameObjectManager.GetScriptName(data.ScriptID);
 
 			foreach (var label in needles)
 				if (scriptName.Contains(label) || data.Name.Contains(label))
@@ -67,7 +67,7 @@ class GoCommands
 		if (!matches.Empty())
 		{
 			// find the spawn points of any matches
-			foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
+			foreach (var pair in _gameObjectManager.GetAllCreatureData())
 			{
 				var data = pair.Value;
 
@@ -99,7 +99,7 @@ class GoCommands
 
 				do
 				{
-					handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, Global.ObjectMgr.GetScriptName(keyValueList[i].Value.ScriptID));
+					handler.SendSysMessage(CypherStrings.CommandMultipleBossesEntry, keyValueList[i].Value.Entry, keyValueList[i].Value.Name, _gameObjectManager.GetScriptName(keyValueList[i].Value.ScriptID));
 				} while (((++i) != 0) && (keyValueList[i].Key == maxCount));
 
 				return false;
@@ -159,7 +159,7 @@ class GoCommands
 	[Command("graveyard", RBACPermissions.CommandGo)]
 	static bool HandleGoGraveyardCommand(CommandHandler handler, uint graveyardId)
 	{
-		var gy = Global.ObjectMgr.GetWorldSafeLoc(graveyardId);
+		var gy = _gameObjectManager.GetWorldSafeLoc(graveyardId);
 
 		if (gy == null)
 		{
@@ -227,10 +227,10 @@ class GoCommands
 
 		MultiMap<uint, Tuple<uint, string, string>> matches = new();
 
-		foreach (var pair in Global.ObjectMgr.GetInstanceTemplates())
+		foreach (var pair in _gameObjectManager.GetInstanceTemplates())
 		{
 			uint count = 0;
-			var scriptName = Global.ObjectMgr.GetScriptName(pair.Value.ScriptId);
+			var scriptName = _gameObjectManager.GetScriptName(pair.Value.ScriptId);
 			var mapName1 = CliDB.MapStorage.LookupByKey(pair.Key).MapName[handler.SessionDbcLocale];
 
 			foreach (var label in labels)
@@ -278,7 +278,7 @@ class GoCommands
 			player.SaveRecallPosition();
 
 		// try going to entrance
-		var exit = Global.ObjectMgr.GetGoBackTrigger(mapId);
+		var exit = _gameObjectManager.GetGoBackTrigger(mapId);
 
 		if (exit != null)
 		{
@@ -301,7 +301,7 @@ class GoCommands
 		}
 
 		// try going to start
-		var entrance = Global.ObjectMgr.GetMapEntranceTrigger(mapId);
+		var entrance = _gameObjectManager.GetMapEntranceTrigger(mapId);
 
 		if (entrance != null)
 		{
@@ -338,7 +338,7 @@ class GoCommands
 	{
 		var player = handler.Session.Player;
 
-		if (Global.ObjectMgr.GetQuestTemplate(questId) == null)
+		if (_gameObjectManager.GetQuestTemplate(questId) == null)
 		{
 			handler.SendSysMessage(CypherStrings.CommandQuestNotfound, questId);
 
@@ -348,7 +348,7 @@ class GoCommands
 		float x, y, z;
 		uint mapId;
 
-		var poiData = Global.ObjectMgr.GetQuestPOIData(questId);
+		var poiData = _gameObjectManager.GetQuestPOIData(questId);
 
 		if (poiData != null)
 		{
@@ -366,7 +366,7 @@ class GoCommands
 			return false;
 		}
 
-		if (!GridDefines.IsValidMapCoord(mapId, x, y) || Global.ObjectMgr.IsTransportMap(mapId))
+		if (!GridDefines.IsValidMapCoord(mapId, x, y) || _gameObjectManager.IsTransportMap(mapId))
 		{
 			handler.SendSysMessage(CypherStrings.InvalidTargetCoord, x, y, mapId);
 
@@ -523,7 +523,7 @@ class GoCommands
 		if (mapId == 0xFFFFFFFF)
 			mapId = player.Location.MapId;
 
-		if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
+		if (!GridDefines.IsValidMapCoord(mapId, pos) || _gameObjectManager.IsTransportMap(mapId))
 		{
 			handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -547,7 +547,7 @@ class GoCommands
 		[Command("", RBACPermissions.CommandGo)]
 		static bool HandleGoCreatureSpawnIdCommand(CommandHandler handler, ulong spawnId)
 		{
-			var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
+			var spawnpoint = _gameObjectManager.GetCreatureData(spawnId);
 
 			if (spawnpoint == null)
 			{
@@ -564,7 +564,7 @@ class GoCommands
 		{
 			CreatureData spawnpoint = null;
 
-			foreach (var pair in Global.ObjectMgr.GetAllCreatureData())
+			foreach (var pair in _gameObjectManager.GetAllCreatureData())
 			{
 				if (pair.Value.Id != id)
 					continue;
@@ -598,7 +598,7 @@ class GoCommands
 		[Command("", RBACPermissions.CommandGo)]
 		static bool HandleGoGameObjectSpawnIdCommand(CommandHandler handler, ulong spawnId)
 		{
-			var spawnpoint = Global.ObjectMgr.GetGameObjectData(spawnId);
+			var spawnpoint = _gameObjectManager.GetGameObjectData(spawnId);
 
 			if (spawnpoint == null)
 			{
@@ -615,7 +615,7 @@ class GoCommands
 		{
 			GameObjectData spawnpoint = null;
 
-			foreach (var pair in Global.ObjectMgr.GetAllGameObjectData())
+			foreach (var pair in _gameObjectManager.GetAllGameObjectData())
 			{
 				if (pair.Value.Id != goId)
 					continue;

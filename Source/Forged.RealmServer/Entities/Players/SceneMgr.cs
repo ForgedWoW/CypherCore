@@ -29,7 +29,7 @@ public class SceneMgr
 
 	public uint PlayScene(uint sceneId, Position position = null)
 	{
-		var sceneTemplate = Global.ObjectMgr.GetSceneTemplate(sceneId);
+		var sceneTemplate = _gameObjectManager.GetSceneTemplate(sceneId);
 
 		return PlaySceneByTemplate(sceneTemplate, position);
 	}

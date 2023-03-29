@@ -18,11 +18,13 @@ public class ChannelHandler : IWorldSessionHandler
 {
     private readonly WorldSession _session;
     private readonly CliDB _cliDB;
+    private readonly ChannelManager _channelManager;
 
-    public ChannelHandler(WorldSession session, CliDB cliDB)
+    public ChannelHandler(WorldSession session, CliDB cliDB, ChannelManager channelManager)
     {
         _session = session;
 		_cliDB = cliDB;
+        _channelManager = channelManager;
     }
 
     [WorldPacketHandler(ClientOpcodes.ChatJoinChannel)]
@@ -41,7 +43,7 @@ public class ChannelHandler : IWorldSessionHandler
 				return;
 		}
 
-		var cMgr = ChannelManager.ForTeam(_session.Player.Team);
+		var cMgr = _channelManager.ForTeam(_session.Player.Team);
 
 		if (cMgr == null)
 			return;
@@ -115,7 +117,7 @@ public class ChannelHandler : IWorldSessionHandler
 				return;
 		}
 
-		var cMgr = ChannelManager.ForTeam(_session.Player.Team);
+		var cMgr = _channelManager.ForTeam(_session.Player.Team);
 
 		if (cMgr != null)
 		{
@@ -136,7 +138,7 @@ public class ChannelHandler : IWorldSessionHandler
 	[WorldPacketHandler(ClientOpcodes.ChatChannelOwner)]
 	void HandleChannelCommand(ChannelCommand packet)
 	{
-		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
+		var channel = _channelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
 
 		if (channel == null)
 			return;
@@ -184,7 +186,7 @@ public class ChannelHandler : IWorldSessionHandler
 		if (!GameObjectManager.NormalizePlayerName(ref packet.Name))
 			return;
 
-		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
+		var channel = _channelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
 
 		if (channel == null)
 			return;
@@ -247,7 +249,7 @@ public class ChannelHandler : IWorldSessionHandler
 
 		Log.Logger.Debug("{0} {1} ChannelName: {2}, Password: {3}", packet.GetOpcode(), _session.GetPlayerInfo(), packet.ChannelName, packet.Password);
 
-		var channel = ChannelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
+		var channel = _channelManager.GetChannelForPlayerByNamePart(packet.ChannelName, _session.Player);
 
 		if (channel != null)
 			channel.Password(_session.Player, packet.Password);

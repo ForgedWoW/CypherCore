@@ -91,13 +91,13 @@ class LookupCommands
 		var found = false;
 		uint count = 0;
 
-		var ctc = Global.ObjectMgr.GetCreatureTemplates();
+		var ctc = _gameObjectManager.GetCreatureTemplates();
 
 		foreach (var template in ctc)
 		{
 			var id = template.Value.Entry;
 			var localeIndex = handler.SessionDbLocaleIndex;
-			var creatureLocale = Global.ObjectMgr.GetCreatureLocale(id);
+			var creatureLocale = _gameObjectManager.GetCreatureLocale(id);
 
 			if (creatureLocale != null)
 				if (creatureLocale.Name.Length > localeIndex && !string.IsNullOrEmpty(creatureLocale.Name[localeIndex]))
@@ -372,13 +372,13 @@ class LookupCommands
 		var found = false;
 		uint count = 0;
 
-		var gotc = Global.ObjectMgr.GetGameObjectTemplates();
+		var gotc = _gameObjectManager.GetGameObjectTemplates();
 
 		foreach (var template in gotc.Values)
 		{
 			var localeIndex = handler.SessionDbLocaleIndex;
 
-			var objectLocalte = Global.ObjectMgr.GetGameObjectLocale(template.entry);
+			var objectLocalte = _gameObjectManager.GetGameObjectLocale(template.entry);
 
 			if (objectLocalte != null)
 				if (objectLocalte.Name.Length > localeIndex && !string.IsNullOrEmpty(objectLocalte.Name[localeIndex]))
@@ -579,7 +579,7 @@ class LookupCommands
 		uint count = 0;
 		var limitReached = false;
 
-		foreach (var tele in Global.ObjectMgr.GameTeleStorage)
+		foreach (var tele in _gameObjectManager.GameTeleStorage)
 		{
 			if (!tele.Value.name.Like(namePart))
 				continue;
@@ -694,7 +694,7 @@ class LookupCommands
 			uint count = 0;
 
 			// Search in ItemSparse
-			var its = Global.ObjectMgr.GetItemTemplates();
+			var its = _gameObjectManager.GetItemTemplates();
 
 			foreach (var template in its.Values)
 			{
@@ -731,7 +731,7 @@ class LookupCommands
 		[Command("id", RBACPermissions.CommandLookupItemId, true)]
 		static bool HandleLookupItemIdCommand(CommandHandler handler, uint id)
 		{
-			var itemTemplate = Global.ObjectMgr.GetItemTemplate(id);
+			var itemTemplate = _gameObjectManager.GetItemTemplate(id);
 
 			if (itemTemplate != null)
 			{
@@ -1076,12 +1076,12 @@ class LookupCommands
 			var found = false;
 			uint count = 0;
 
-			var qTemplates = Global.ObjectMgr.GetQuestTemplates();
+			var qTemplates = _gameObjectManager.GetQuestTemplates();
 
 			foreach (var qInfo in qTemplates.Values)
 			{
 				int localeIndex = handler.SessionDbLocaleIndex;
-				var questLocale = Global.ObjectMgr.GetQuestLocale(qInfo.Id);
+				var questLocale = _gameObjectManager.GetQuestLocale(qInfo.Id);
 
 				if (questLocale != null)
 					if (questLocale.LogTitle.Length > localeIndex && !questLocale.LogTitle[localeIndex].IsEmpty())
@@ -1239,7 +1239,7 @@ class LookupCommands
 			// can be NULL at console call
 			var target = handler.SelectedPlayerOrSelf;
 
-			var quest = Global.ObjectMgr.GetQuestTemplate(id);
+			var quest = _gameObjectManager.GetQuestTemplate(id);
 
 			if (quest != null)
 			{

@@ -267,7 +267,7 @@ public class BattlePayDataStoreMgr
 
 			productItem.ItemID = fields.Read<uint>(2);
 
-			if (Global.ObjectMgr.GetItemTemplate(productItem.ItemID) != null)
+			if (_gameObjectManager.GetItemTemplate(productItem.ItemID) != null)
 				continue;
 
 			productItem.Entry = fields.Read<uint>(0);

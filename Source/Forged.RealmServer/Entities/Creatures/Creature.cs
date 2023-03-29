@@ -132,7 +132,7 @@ public partial class Creature : Unit
 
 		if (RespawnCompatibilityMode)
 		{
-			CorpseRemoveTime = _gameTime.GetGameTime;
+			CorpseRemoveTime = _gameTime.CurrentGameTime;
 			SetDeathState(DeathState.Dead);
 			RemoveAllAuras();
 			//DestroyForNearbyPlayers(); // old UpdateObjectVisibility()
@@ -148,7 +148,7 @@ public partial class Creature : Unit
 
 			// Should get removed later, just keep "compatibility" with scripts
 			if (setSpawnTime)
-				RespawnTime = Math.Max(_gameTime.GetGameTime + respawnDelay, RespawnTime);
+				RespawnTime = Math.Max(_gameTime.CurrentGameTime + respawnDelay, RespawnTime);
 
 			// if corpse was removed during falling, the falling will continue and override relocation to respawn position
 			if (IsFalling)
@@ -184,7 +184,7 @@ public partial class Creature : Unit
 			if (setSpawnTime)
 			{
 				var respawnDelay = RespawnDelay;
-				RespawnTime = Math.Max(_gameTime.GetGameTime + respawnDelay, RespawnTime);
+				RespawnTime = Math.Max(_gameTime.CurrentGameTime + respawnDelay, RespawnTime);
 
 				SaveRespawnTime();
 			}
@@ -200,7 +200,7 @@ public partial class Creature : Unit
 
 	public bool InitEntry(uint entry, CreatureData data = null)
 	{
-		var normalInfo = Global.ObjectMgr.GetCreatureTemplate(entry);
+		var normalInfo = _gameObjectManager.GetCreatureTemplate(entry);
 
 		if (normalInfo == null)
 		{
@@ -222,7 +222,7 @@ public partial class Creature : Unit
 
 			if (normalInfo.DifficultyEntry[idx] != 0)
 			{
-				cInfo = Global.ObjectMgr.GetCreatureTemplate(normalInfo.DifficultyEntry[idx]);
+				cInfo = _gameObjectManager.GetCreatureTemplate(normalInfo.DifficultyEntry[idx]);
 
 				break;
 			}
@@ -252,7 +252,7 @@ public partial class Creature : Unit
 		}
 
 		var model = GameObjectManager.ChooseDisplayId(cInfo, data);
-		var minfo = Global.ObjectMgr.GetCreatureModelRandomGender(ref model, cInfo);
+		var minfo = _gameObjectManager.GetCreatureModelRandomGender(ref model, cInfo);
 
 		if (minfo == null) // Cancel load if no model defined
 		{
@@ -461,7 +461,7 @@ public partial class Creature : Unit
 					break;
 				}
 
-				var now = _gameTime.GetGameTime;
+				var now = _gameTime.CurrentGameTime;
 
 				if (RespawnTime <= now)
 				{
@@ -482,7 +482,7 @@ public partial class Creature : Unit
 					}
 					else // the master is dead
 					{
-						var targetGuid = Global.ObjectMgr.GetLinkedRespawnGuid(dbtableHighGuid);
+						var targetGuid = _gameObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
 
 						if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
 						{
@@ -523,7 +523,7 @@ public partial class Creature : Unit
 					if (loot != null)
 						loot.Update();
 
-				if (CorpseRemoveTime <= _gameTime.GetGameTime)
+				if (CorpseRemoveTime <= _gameTime.CurrentGameTime)
 				{
 					RemoveCorpse(false);
 					Log.outDebug(LogFilter.Unit, "Removing corpse... {0} ", Entry);
@@ -750,7 +750,7 @@ public partial class Creature : Unit
 
 	public static Creature CreateCreature(uint entry, Map map, Position pos, uint vehId = 0)
 	{
-		var cInfo = Global.ObjectMgr.GetCreatureTemplate(entry);
+		var cInfo = _gameObjectManager.GetCreatureTemplate(entry);
 
 		if (cInfo == null)
 			return null;
@@ -794,7 +794,7 @@ public partial class Creature : Unit
 		if (!dynamic)
 			RespawnCompatibilityMode = true;
 
-		var cinfo = Global.ObjectMgr.GetCreatureTemplate(entry);
+		var cinfo = _gameObjectManager.GetCreatureTemplate(entry);
 
 		if (cinfo == null)
 		{
@@ -1077,7 +1077,7 @@ public partial class Creature : Unit
 			if (vehicle != null)
 				foreach (var (_, seat) in vehicle.Seats)
 				{
-					var passenger = Global.ObjAccessor.GetUnit(this, seat.Passenger.Guid);
+					var passenger = _objectAccessor.GetUnit(this, seat.Passenger.Guid);
 
 					if (passenger != null)
 					{
@@ -1152,7 +1152,7 @@ public partial class Creature : Unit
 
 	public void StartPickPocketRefillTimer()
 	{
-		_pickpocketLootRestore = _gameTime.GetGameTime + _worldConfig.GetIntValue(WorldCfg.CreaturePickpocketRefill);
+		_pickpocketLootRestore = _gameTime.CurrentGameTime + _worldConfig.GetIntValue(WorldCfg.CreaturePickpocketRefill);
 	}
 
 	public void ResetPickPocketRefillTimer()
@@ -1238,7 +1238,7 @@ public partial class Creature : Unit
 	{
 		// this should only be used when the creature has already been loaded
 		// preferably after adding to map, because mapid may not be valid otherwise
-		var data = Global.ObjectMgr.GetCreatureData(SpawnId);
+		var data = _gameObjectManager.GetCreatureData(SpawnId);
 
 		if (data == null)
 		{
@@ -1261,9 +1261,9 @@ public partial class Creature : Unit
 	{
 		// update in loaded data
 		if (SpawnId == 0)
-			SpawnId = Global.ObjectMgr.GenerateCreatureSpawnId();
+			SpawnId = _gameObjectManager.GenerateCreatureSpawnId();
 
-		var data = Global.ObjectMgr.NewOrExistCreatureData(SpawnId);
+		var data = _gameObjectManager.NewOrExistCreatureData(SpawnId);
 
 		var displayId = NativeDisplayId;
 		var npcflag = ((ulong)UnitData.NpcFlags[1] << 32) | UnitData.NpcFlags[0];
@@ -1335,7 +1335,7 @@ public partial class Creature : Unit
 		data.Dynamicflags = (uint)dynamicflags;
 
 		if (data.SpawnGroupData == null)
-			data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+			data.SpawnGroupData = _gameObjectManager.GetDefaultSpawnGroup();
 
 		data.PhaseId = DBPhase > 0 ? (uint)DBPhase : data.PhaseId;
 		data.PhaseGroup = DBPhase < 0 ? (uint)-DBPhase : data.PhaseGroup;
@@ -1399,7 +1399,7 @@ public partial class Creature : Unit
 		var cInfo = Template;
 		var rank = IsPet ? 0 : cInfo.Rank;
 		var level = Level;
-		var stats = Global.ObjectMgr.GetCreatureBaseStats(level, cInfo.UnitClass);
+		var stats = _gameObjectManager.GetCreatureBaseStats(level, cInfo.UnitClass);
 
 		// health
 		var healthmod = GetHealthMod(rank);
@@ -1545,7 +1545,7 @@ public partial class Creature : Unit
 			return;
 		}
 
-		var einfo = Global.ObjectMgr.GetEquipmentInfo(Entry, id);
+		var einfo = _gameObjectManager.GetEquipmentInfo(Entry, id);
 
 		if (einfo == null)
 			return;
@@ -1588,17 +1588,17 @@ public partial class Creature : Unit
 
 	public override bool HasQuest(uint questId)
 	{
-		return Global.ObjectMgr.GetCreatureQuestRelations(Entry).HasQuest(questId);
+		return _gameObjectManager.GetCreatureQuestRelations(Entry).HasQuest(questId);
 	}
 
 	public override bool HasInvolvedQuest(uint questId)
 	{
-		return Global.ObjectMgr.GetCreatureQuestInvolvedRelations(Entry).HasQuest(questId);
+		return _gameObjectManager.GetCreatureQuestInvolvedRelations(Entry).HasQuest(questId);
 	}
 
 	public static bool DeleteFromDB(ulong spawnId)
 	{
-		var data = Global.ObjectMgr.GetCreatureData(spawnId);
+		var data = _gameObjectManager.GetCreatureData(spawnId);
 
 		if (data == null)
 			return false;
@@ -1621,7 +1621,7 @@ public partial class Creature : Unit
 											});
 
 		// delete data from memory ...
-		Global.ObjectMgr.DeleteCreatureData(spawnId);
+		_gameObjectManager.DeleteCreatureData(spawnId);
 
 		_characterDatabase.CommitTransaction(trans);
 
@@ -1679,7 +1679,7 @@ public partial class Creature : Unit
 		if (base.IsInvisibleDueToDespawn(seer))
 			return true;
 
-		if (IsAlive || CorpseRemoveTime > _gameTime.GetGameTime)
+		if (IsAlive || CorpseRemoveTime > _gameTime.CurrentGameTime)
 			return false;
 
 		return true;
@@ -1735,7 +1735,7 @@ public partial class Creature : Unit
 		var maxRadius = 45.0f * aggroRate;
 		var minRadius = 5.0f * aggroRate;
 
-		var expansionMaxLevel = (int)Global.ObjectMgr.GetMaxLevelForExpansion((Expansion)Template.RequiredExpansion);
+		var expansionMaxLevel = (int)_gameObjectManager.GetMaxLevelForExpansion((Expansion)Template.RequiredExpansion);
 		var playerLevel = (int)player.GetLevelForTarget(this);
 		var creatureLevel = (int)GetLevelForTarget(player);
 		var levelDifference = creatureLevel - playerLevel;
@@ -1775,7 +1775,7 @@ public partial class Creature : Unit
 
 		if (s == DeathState.JustDied)
 		{
-			CorpseRemoveTime = _gameTime.GetGameTime + CorpseDelay;
+			CorpseRemoveTime = _gameTime.CurrentGameTime + CorpseDelay;
 			var respawnDelay = RespawnDelay;
 			var scalingMode = _worldConfig.GetUIntValue(WorldCfg.RespawnDynamicMode);
 
@@ -1788,14 +1788,14 @@ public partial class Creature : Unit
 				if (IsDungeonBoss && RespawnDelay == 0)
 					RespawnTime = long.MaxValue; // never respawn in this instance
 				else
-					RespawnTime = _gameTime.GetGameTime + respawnDelay + CorpseDelay;
+					RespawnTime = _gameTime.CurrentGameTime + respawnDelay + CorpseDelay;
 			}
 			else
 			{
 				if (IsDungeonBoss && RespawnDelay == 0)
 					RespawnTime = long.MaxValue; // never respawn in this instance
 				else
-					RespawnTime = _gameTime.GetGameTime + respawnDelay;
+					RespawnTime = _gameTime.CurrentGameTime + respawnDelay;
 			}
 
 			SaveRespawnTime();
@@ -1900,7 +1900,7 @@ public partial class Creature : Unit
 
 				CreatureModel display = new(NativeDisplayId, NativeDisplayScale, 1.0f);
 
-				if (Global.ObjectMgr.GetCreatureModelRandomGender(ref display, Template) != null)
+				if (_gameObjectManager.GetCreatureModelRandomGender(ref display, Template) != null)
 				{
 					SetDisplayId(display.CreatureDisplayId, display.DisplayScale);
 					SetNativeDisplayId(display.CreatureDisplayId, display.DisplayScale);
@@ -1986,7 +1986,7 @@ public partial class Creature : Unit
 				if (scalingMode != 0)
 					Map.ApplyDynamicModeRespawnScaling(this, SpawnId, ref respawnDelay, scalingMode);
 
-				RespawnTime = _gameTime.GetGameTime + respawnDelay;
+				RespawnTime = _gameTime.CurrentGameTime + respawnDelay;
 				SaveRespawnTime();
 			}
 
@@ -2233,7 +2233,7 @@ public partial class Creature : Unit
 			return;
 		}
 
-		var thisRespawnTime = forceDelay != 0 ? _gameTime.GetGameTime + forceDelay : RespawnTime;
+		var thisRespawnTime = forceDelay != 0 ? _gameTime.CurrentGameTime + forceDelay : RespawnTime;
 		Map.SaveRespawnTime(SpawnObjectType.Creature, SpawnId, Entry, thisRespawnTime, GridDefines.ComputeGridCoord(HomePosition.X, HomePosition.Y).GetId());
 	}
 
@@ -2268,7 +2268,7 @@ public partial class Creature : Unit
 				return true;
 
 			// don't check distance to home position if recently damaged, this should include taunt auras
-			if (!IsWorldBoss && (LastDamagedTime > _gameTime.GetGameTime || HasAuraType(AuraType.ModTaunt)))
+			if (!IsWorldBoss && (LastDamagedTime > _gameTime.CurrentGameTime || HasAuraType(AuraType.ModTaunt)))
 				return true;
 		}
 
@@ -2446,7 +2446,7 @@ public partial class Creature : Unit
 
 	public void AllLootRemovedFromCorpse()
 	{
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 
 		// Do not reset corpse remove time if corpse is already removed
 		if (CorpseRemoveTime <= now)
@@ -2592,12 +2592,12 @@ public partial class Creature : Unit
 
 	public string GetAIName()
 	{
-		return Global.ObjectMgr.GetCreatureTemplate(Entry).AIName;
+		return _gameObjectManager.GetCreatureTemplate(Entry).AIName;
 	}
 
 	public string GetScriptName()
 	{
-		return Global.ObjectMgr.GetScriptName(GetScriptId());
+		return _gameObjectManager.GetScriptName(GetScriptId());
 	}
 
 	public uint GetScriptId()
@@ -2615,7 +2615,7 @@ public partial class Creature : Unit
 		if (Template.ScriptID != 0)
 			return Template.ScriptID;
 
-		return Global.ObjectMgr.GetCreatureTemplate(Entry) != null ? Global.ObjectMgr.GetCreatureTemplate(Entry).ScriptID : 0;
+		return _gameObjectManager.GetCreatureTemplate(Entry) != null ? _gameObjectManager.GetCreatureTemplate(Entry).ScriptID : 0;
 	}
 
 	public bool HasStringId(string id)
@@ -2641,11 +2641,11 @@ public partial class Creature : Unit
 		if (vCount == null)
 			return vItem.Maxcount;
 
-		var ptime = _gameTime.GetGameTime;
+		var ptime = _gameTime.CurrentGameTime;
 
 		if (vCount.LastIncrementTime + vItem.Incrtime <= ptime)
 		{
-			var pProto = Global.ObjectMgr.GetItemTemplate(vItem.Item);
+			var pProto = _gameObjectManager.GetItemTemplate(vItem.Item);
 
 			var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
@@ -2686,11 +2686,11 @@ public partial class Creature : Unit
 			return new_count;
 		}
 
-		var ptime = _gameTime.GetGameTime;
+		var ptime = _gameTime.CurrentGameTime;
 
 		if (vCount.LastIncrementTime + vItem.Incrtime <= ptime)
 		{
-			var pProto = Global.ObjectMgr.GetItemTemplate(vItem.Item);
+			var pProto = _gameObjectManager.GetItemTemplate(vItem.Item);
 
 			var diff = (uint)((ptime - vCount.LastIncrementTime) / vItem.Incrtime);
 
@@ -2710,7 +2710,7 @@ public partial class Creature : Unit
 	{
 		if (locale != Locale.enUS)
 		{
-			var cl = Global.ObjectMgr.GetCreatureLocale(Entry);
+			var cl = _gameObjectManager.GetCreatureLocale(Entry);
 
 			if (cl != null)
 				if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
@@ -2825,7 +2825,7 @@ public partial class Creature : Unit
 	{
 		base.SetDisplayId(modelId, displayScale);
 
-		var minfo = Global.ObjectMgr.GetCreatureModelInfo(modelId);
+		var minfo = _gameObjectManager.GetCreatureModelInfo(modelId);
 
 		if (minfo != null)
 		{
@@ -3024,7 +3024,7 @@ public partial class Creature : Unit
 				despawnCreature.AddObjectToRemoveList();
 		}
 
-		var data = Global.ObjectMgr.GetCreatureData(spawnId);
+		var data = _gameObjectManager.GetCreatureData(spawnId);
 
 		if (data == null)
 		{
@@ -3060,7 +3060,7 @@ public partial class Creature : Unit
 					return false;
 				}
 
-			RespawnTime = _gameTime.GetGameTime + RandomHelper.URand(4, 7);
+			RespawnTime = _gameTime.CurrentGameTime + RandomHelper.URand(4, 7);
 		}
 
 		if (RespawnTime != 0)
@@ -3157,7 +3157,7 @@ public partial class Creature : Unit
 
 	public void SetRespawnTime(uint respawn)
 	{
-		RespawnTime = respawn != 0 ? _gameTime.GetGameTime + respawn : 0;
+		RespawnTime = respawn != 0 ? _gameTime.CurrentGameTime + respawn : 0;
 	}
 
 	public void DoImmediateBoundaryCheck() => _boundaryCheckTime = 0;
@@ -3283,7 +3283,7 @@ public partial class Creature : Unit
 				return false;
 		}
 
-		var cinfo = Global.ObjectMgr.GetCreatureTemplate(entry);
+		var cinfo = _gameObjectManager.GetCreatureTemplate(entry);
 
 		if (cinfo == null)
 		{
@@ -3381,7 +3381,7 @@ public partial class Creature : Unit
 		{
 			if (!_spellFocusInfo.Target.IsEmpty)
 			{
-				var objTarget = Global.ObjAccessor.GetWorldObject(this, _spellFocusInfo.Target);
+				var objTarget = _objectAccessor.GetWorldObject(this, _spellFocusInfo.Target);
 
 				if (objTarget)
 					SetFacingToObject(objTarget, false);

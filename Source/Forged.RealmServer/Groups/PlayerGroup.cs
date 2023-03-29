@@ -236,7 +236,7 @@ public class PlayerGroup
 		_leaderGuid = ObjectGuid.Create(HighGuid.Player, field.Read<ulong>(0));
 
 		// group leader not exist
-		var leader = Global.CharacterCacheStorage.GetCharacterCacheByGuid(_leaderGuid);
+		var leader = _characterCache.GetCharacterCacheByGuid(_leaderGuid);
 
 		if (leader == null)
 			return;
@@ -271,7 +271,7 @@ public class PlayerGroup
 		member.Guid = ObjectGuid.Create(HighGuid.Player, guidLow);
 
 		// skip non-existed member
-		var character = Global.CharacterCacheStorage.GetCharacterCacheByGuid(member.Guid);
+		var character = _characterCache.GetCharacterCacheByGuid(member.Guid);
 
 		if (character == null)
 		{
@@ -337,7 +337,7 @@ public class PlayerGroup
 		// update quest related GO states (quest activity dependent from raid membership)
 		foreach (var member in _memberSlots)
 		{
-			var player = Global.ObjAccessor.FindPlayer(member.Guid);
+			var player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player != null)
 				player.UpdateVisibleGameobjectsOrSpellClicks();
@@ -368,7 +368,7 @@ public class PlayerGroup
 		// update quest related GO states (quest activity dependent from raid membership)
 		foreach (var member in _memberSlots)
 		{
-			var player = Global.ObjAccessor.FindPlayer(member.Guid);
+			var player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player != null)
 				player.UpdateVisibleGameobjectsOrSpellClicks();
@@ -603,7 +603,7 @@ public class PlayerGroup
 
 		Global.ScriptMgr.ForEach<IGroupOnRemoveMember>(p => p.OnRemoveMember(this, guid, method, kicker, reason));
 
-		var player = Global.ObjAccessor.FindConnectedPlayer(guid);
+		var player = _objectAccessor.FindConnectedPlayer(guid);
 
 		if (player)
 			for (var refe = FirstMember; refe != null; refe = refe.Next())
@@ -675,7 +675,7 @@ public class PlayerGroup
 			// Pick new leader if necessary
 			if (_leaderGuid == guid)
 				foreach (var member in _memberSlots)
-					if (Global.ObjAccessor.FindPlayer(member.Guid) != null)
+					if (_objectAccessor.FindPlayer(member.Guid) != null)
 					{
 						ChangeLeader(member.Guid);
 
@@ -686,7 +686,7 @@ public class PlayerGroup
 
 			if (IsLFGGroup && MembersCount == 1)
 			{
-				var leader = Global.ObjAccessor.FindPlayer(LeaderGUID);
+				var leader = _objectAccessor.FindPlayer(LeaderGUID);
 				var mapId = _lFGManager.GetDungeonMapId(GUID);
 
 				if (mapId == 0 || leader == null || (leader.IsAlive && leader.Location.MapId != mapId))
@@ -721,7 +721,7 @@ public class PlayerGroup
 		if (slot == null)
 			return;
 
-		var newLeader = Global.ObjAccessor.FindPlayer(slot.Guid);
+		var newLeader = _objectAccessor.FindPlayer(slot.Guid);
 
 		// Don't allow switching leader to offline players
 		if (newLeader == null)
@@ -745,7 +745,7 @@ public class PlayerGroup
 			_characterDatabase.CommitTransaction(trans);
 		}
 
-		var oldLeader = Global.ObjAccessor.FindConnectedPlayer(_leaderGuid);
+		var oldLeader = _objectAccessor.FindConnectedPlayer(_leaderGuid);
 
 		if (oldLeader)
 			oldLeader.RemovePlayerFlag(PlayerFlags.GroupLeader);
@@ -770,7 +770,7 @@ public class PlayerGroup
 
 		foreach (var member in _memberSlots)
 		{
-			player = Global.ObjAccessor.FindPlayer(member.Guid);
+			player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player == null)
 				continue;
@@ -875,7 +875,7 @@ public class PlayerGroup
 
 	public void SendUpdateToPlayer(ObjectGuid playerGUID, MemberSlot memberSlot = null)
 	{
-		var player = Global.ObjAccessor.FindPlayer(playerGUID);
+		var player = _objectAccessor.FindPlayer(playerGUID);
 
 		if (player == null || player.Session == null || player.Group != this)
 			return;
@@ -913,7 +913,7 @@ public class PlayerGroup
 			if (memberSlot.Guid == member.Guid)
 				partyUpdate.MyIndex = index;
 
-			var memberPlayer = Global.ObjAccessor.FindConnectedPlayer(member.Guid);
+			var memberPlayer = _objectAccessor.FindConnectedPlayer(member.Guid);
 
 			PartyPlayerInfo playerInfos = new();
 
@@ -973,7 +973,7 @@ public class PlayerGroup
 
 			if (reward != null)
 			{
-				var quest = Global.ObjectMgr.GetQuestTemplate(reward.firstQuest);
+				var quest = _gameObjectManager.GetQuestTemplate(reward.firstQuest);
 
 				if (quest != null)
 					lfgInfos.MyFirstReward = player.CanRewardQuest(quest, false);
@@ -1084,7 +1084,7 @@ public class PlayerGroup
 		}
 
 		// In case the moved player is online, update the player object with the new sub group references
-		var player = Global.ObjAccessor.FindPlayer(guid);
+		var player = _objectAccessor.FindPlayer(guid);
 
 		if (player)
 		{
@@ -1134,7 +1134,7 @@ public class PlayerGroup
 				trans.Append(stmt);
 			}
 
-			var player = Global.ObjAccessor.FindConnectedPlayer(slots[i].Guid);
+			var player = _objectAccessor.FindConnectedPlayer(slots[i].Guid);
 
 			if (player)
 			{
@@ -1170,7 +1170,7 @@ public class PlayerGroup
 			if (ifneed)
 			{
 				// not update if only update if need and ok
-				var looter = Global.ObjAccessor.FindPlayer(memberSlot.Guid);
+				var looter = _objectAccessor.FindPlayer(memberSlot.Guid);
 
 				if (looter && looter.IsAtGroupRewardDistance(pLootedObject))
 					return;
@@ -1184,7 +1184,7 @@ public class PlayerGroup
 			if (member == memberSlot)
 				continue;
 
-			var player = Global.ObjAccessor.FindPlayer(member.Guid);
+			var player = _objectAccessor.FindPlayer(member.Guid);
 
 			if (player)
 				if (player.IsAtGroupRewardDistance(pLootedObject))
@@ -1199,7 +1199,7 @@ public class PlayerGroup
 			// search from start
 			foreach (var member in _memberSlots)
 			{
-				var player = Global.ObjAccessor.FindPlayer(member.Guid);
+				var player = _objectAccessor.FindPlayer(member.Guid);
 
 				if (player)
 					if (player.IsAtGroupRewardDistance(pLootedObject))
@@ -1471,7 +1471,7 @@ public class PlayerGroup
 		// -- not very efficient but safe
 		foreach (var member in _memberSlots)
 		{
-			var pp = Global.ObjAccessor.FindPlayer(member.Guid);
+			var pp = _objectAccessor.FindPlayer(member.Guid);
 
 			if (pp && pp.IsInWorld)
 			{
@@ -1802,7 +1802,7 @@ public class PlayerGroup
 			foreach (var memberSlot in _memberSlots)
 				if (memberSlot.Flags.HasFlag(GroupMemberFlags.Assistant))
 				{
-					var player = Global.ObjAccessor.FindPlayer(memberSlot.Guid);
+					var player = _objectAccessor.FindPlayer(memberSlot.Guid);
 
 					if (player != null)
 					{
@@ -1816,7 +1816,7 @@ public class PlayerGroup
 		if (!newLeader)
 			foreach (var memberSlot in _memberSlots)
 			{
-				var player = Global.ObjAccessor.FindPlayer(memberSlot.Guid);
+				var player = _objectAccessor.FindPlayer(memberSlot.Guid);
 
 				if (player != null)
 				{
@@ -1917,7 +1917,7 @@ public class PlayerGroup
 	{
 		foreach (var member in _memberSlots)
 		{
-			var player = Global.ObjAccessor.FindConnectedPlayer(member.Guid);
+			var player = _objectAccessor.FindConnectedPlayer(member.Guid);
 
 			if (!player || !player.Session)
 				SetMemberReadyCheck(member, false);

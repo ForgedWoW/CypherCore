@@ -158,9 +158,9 @@ class GroupCommands
 		var parseGUID = ObjectGuid.Create(HighGuid.Player, args.NextUInt64());
 
 		// ... and try to extract a player out of it.
-		if (Global.CharacterCacheStorage.GetCharacterNameByGuid(parseGUID, out var nameTarget))
+		if (_characterCache.GetCharacterNameByGuid(parseGUID, out var nameTarget))
 		{
-			playerTarget = Global.ObjAccessor.FindPlayer(parseGUID);
+			playerTarget = _objectAccessor.FindPlayer(parseGUID);
 			guidTarget = parseGUID;
 		}
 		// If not, we return false and end right away.
@@ -231,7 +231,7 @@ class GroupCommands
 				flags = "None";
 
 			// Check if iterator is online. If is...
-			var p = Global.ObjAccessor.FindPlayer(slot.Guid);
+			var p = _objectAccessor.FindPlayer(slot.Guid);
 			var phases = "";
 
 			if (p && p.IsInWorld)
@@ -380,7 +380,7 @@ class GroupCommands
 		// :close enough:
 		if (toInstance)
 		{
-			var groupLeader = Global.ObjAccessor.GetPlayer(gmMap, group.LeaderGUID);
+			var groupLeader = _objectAccessor.GetPlayer(gmMap, group.LeaderGUID);
 
 			if (!groupLeader || (groupLeader.Location.MapId != gmMap.Id) || (groupLeader.InstanceId != gmMap.InstanceId))
 			{

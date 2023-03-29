@@ -14,6 +14,6 @@ public class AreaTriggerScriptRegister : IScriptRegister
 	{
 		if (attribute is AreaTriggerScriptAttribute atScript && atScript.AreaTriggerIds != null)
 			foreach (var id in atScript.AreaTriggerIds)
-				Global.ObjectMgr.RegisterAreaTriggerScript(id, scriptName);
+				_gameObjectManager.RegisterAreaTriggerScript(id, scriptName);
 	}
 }

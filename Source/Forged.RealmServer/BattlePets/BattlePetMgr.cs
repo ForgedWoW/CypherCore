@@ -60,7 +60,7 @@ public class BattlePetMgr
 		var result = DB.Login.Query("SELECT MAX(guid) FROM battle_pets");
 
 		if (!result.IsEmpty())
-			Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Set(result.Read<ulong>(0) + 1);
+			_gameObjectManager.GetGenerator(HighGuid.BattlePet).Set(result.Read<ulong>(0) + 1);
 
 		foreach (var battlePetSpecies in CliDB.BattlePetSpeciesStorage.Values)
 		{
@@ -125,7 +125,7 @@ public class BattlePetMgr
 
 	public static uint SelectPetDisplay(BattlePetSpeciesRecord speciesEntry)
 	{
-		var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(speciesEntry.CreatureID);
+		var creatureTemplate = _gameObjectManager.GetCreatureTemplate(speciesEntry.CreatureID);
 
 		if (creatureTemplate != null)
 			if (!speciesEntry.GetFlags().HasFlag(BattlePetSpeciesFlags.RandomDisplay))
@@ -362,7 +362,7 @@ public class BattlePetMgr
 			return;
 
 		BattlePet pet = new();
-		pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate());
+		pet.PacketInfo.Guid = ObjectGuid.Create(HighGuid.BattlePet, _gameObjectManager.GetGenerator(HighGuid.BattlePet).Generate());
 		pet.PacketInfo.Species = species;
 		pet.PacketInfo.CreatureID = battlePetSpecies.CreatureID;
 		pet.PacketInfo.DisplayID = display;
@@ -435,7 +435,7 @@ public class BattlePetMgr
 			return;
 
 		pet.PacketInfo.Name = name;
-		pet.NameTimestamp = _gameTime.GetGameTime;
+		pet.NameTimestamp = _gameTime.CurrentGameTime;
 
 		pet.DeclinedName = new DeclinedName();
 

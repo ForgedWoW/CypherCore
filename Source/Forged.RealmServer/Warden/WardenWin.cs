@@ -172,7 +172,7 @@ class WardenWin : Warden
 			}
 		}
 
-		_serverTicks = _gameTime.GetGameTimeMS;
+		_serverTicks = _gameTime.CurrentGameTimeMS;
 		_currentChecks.Clear();
 
 		// Build check request
@@ -361,7 +361,7 @@ class WardenWin : Warden
 
 			var newClientTicks = buff.ReadUInt32();
 
-			var ticksNow = _gameTime.GetGameTimeMS;
+			var ticksNow = _gameTime.CurrentGameTimeMS;
 			var ourTicks = newClientTicks + (ticksNow - _serverTicks);
 
 			Log.Logger.Debug("ServerTicks {0}", ticksNow);      // Now

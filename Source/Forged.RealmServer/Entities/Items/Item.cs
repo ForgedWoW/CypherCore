@@ -83,9 +83,9 @@ public class Item : WorldObject
 
 	public override ObjectGuid OwnerGUID => ItemData.Owner;
 
-	public override Player OwnerUnit => Global.ObjAccessor.FindPlayer(OwnerGUID);
+	public override Player OwnerUnit => _objectAccessor.FindPlayer(OwnerGUID);
 
-	public ItemTemplate Template => Global.ObjectMgr.GetItemTemplate(Entry);
+	public ItemTemplate Template => _gameObjectManager.GetItemTemplate(Entry);
 	public byte BagSlot => _container != null ? _container.Slot : InventorySlots.Bag0;
 
 	public bool IsEquipped => !IsInBag && (_slot < EquipmentSlot.End || (_slot >= ProfessionSlots.Start && _slot < ProfessionSlots.End));
@@ -104,7 +104,7 @@ public class Item : WorldObject
 	{
 		get
 		{
-			var curtime = _gameTime.GetGameTime;
+			var curtime = _gameTime.CurrentGameTime;
 			var elapsed = (uint)(curtime - _lastPlayedTimeUpdate);
 
 			return ItemData.CreatePlayedTime + elapsed;
@@ -225,7 +225,7 @@ public class Item : WorldObject
 
 		_updateState = ItemUpdateState.New;
 		_queuePos = -1;
-		_lastPlayedTimeUpdate = _gameTime.GetGameTime;
+		_lastPlayedTimeUpdate = _gameTime.CurrentGameTime;
 	}
 
 	public virtual bool Create(ulong guidlow, uint itemId, ItemContext context, Player owner)
@@ -241,7 +241,7 @@ public class Item : WorldObject
 			SetContainedIn(owner.GUID);
 		}
 
-		var itemProto = Global.ObjectMgr.GetItemTemplate(itemId);
+		var itemProto = _gameObjectManager.GetItemTemplate(itemId);
 
 		if (itemProto == null)
 			return false;
@@ -1164,7 +1164,7 @@ public class Item : WorldObject
 		//ASSERT(slot < MAX_GEM_SOCKETS);
 		_gemScalingLevels[slot] = gemScalingLevel;
 		BonusData.GemItemLevelBonus[slot] = 0;
-		var gemTemplate = Global.ObjectMgr.GetItemTemplate(gem.ItemId);
+		var gemTemplate = _gameObjectManager.GetItemTemplate(gem.ItemId);
 
 		if (gemTemplate != null)
 		{
@@ -1252,7 +1252,7 @@ public class Item : WorldObject
 
 			SocketColor GemColor = 0;
 
-			var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+			var gemProto = _gameObjectManager.GetItemTemplate(gemData.ItemId);
 
 			if (gemProto != null)
 			{
@@ -1282,7 +1282,7 @@ public class Item : WorldObject
 
 		return (byte)list.Count(gemData =>
 		{
-			var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+			var gemProto = _gameObjectManager.GetItemTemplate(gemData.ItemId);
 
 			if (gemProto == null)
 				return false;
@@ -1326,7 +1326,7 @@ public class Item : WorldObject
 		if (count < 1)
 			return null; //don't create item at zero count
 
-		var pProto = Global.ObjectMgr.GetItemTemplate(item);
+		var pProto = _gameObjectManager.GetItemTemplate(item);
 
 		if (pProto != null)
 		{
@@ -1335,7 +1335,7 @@ public class Item : WorldObject
 
 			var pItem = NewItemOrBag(pProto);
 
-			if (pItem.Create(Global.ObjectMgr.GetGenerator(HighGuid.Item).Generate(), item, context, player))
+			if (pItem.Create(_gameObjectManager.GetGenerator(HighGuid.Item).Generate(), item, context, player))
 			{
 				pItem.SetCount(count);
 
@@ -1532,7 +1532,7 @@ public class Item : WorldObject
 		// Get current played time
 		uint current_playtime = ItemData.CreatePlayedTime;
 		// Calculate time elapsed since last played time update
-		var curtime = _gameTime.GetGameTime;
+		var curtime = _gameTime.CurrentGameTime;
 		var elapsed = (uint)(curtime - _lastPlayedTimeUpdate);
 		var new_playtime = current_playtime + elapsed;
 
@@ -1591,7 +1591,7 @@ public class Item : WorldObject
 
 	public static bool CanTransmogrifyItemWithItem(Item item, ItemModifiedAppearanceRecord itemModifiedAppearance)
 	{
-		var source = Global.ObjectMgr.GetItemTemplate(itemModifiedAppearance.ItemID); // source
+		var source = _gameObjectManager.GetItemTemplate(itemModifiedAppearance.ItemID); // source
 		var target = item.Template;                                                   // dest
 
 		if (source == null || target == null)

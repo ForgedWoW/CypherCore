@@ -657,7 +657,7 @@ class BgArathiBasin : Battleground
 
 			for (byte i = 0; i < nodes.Count; ++i)
 			{
-				var entry = Global.ObjectMgr.GetWorldSafeLoc(GraveyardIds[nodes[i]]);
+				var entry = _gameObjectManager.GetWorldSafeLoc(GraveyardIds[nodes[i]]);
 
 				if (entry == null)
 					continue;
@@ -676,14 +676,14 @@ class BgArathiBasin : Battleground
 
 		// If not, place ghost on starting location
 		if (good_entry == null)
-			good_entry = Global.ObjectMgr.GetWorldSafeLoc(GraveyardIds[teamIndex + 5]);
+			good_entry = _gameObjectManager.GetWorldSafeLoc(GraveyardIds[teamIndex + 5]);
 
 		return good_entry;
 	}
 
 	public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
 	{
-		return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
+		return _gameObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
 	}
 
 	public override bool UpdatePlayerScore(Player player, ScoreType type, uint value, bool doAddHonor = true)

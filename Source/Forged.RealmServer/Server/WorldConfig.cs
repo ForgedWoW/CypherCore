@@ -23,7 +23,6 @@ public class WorldConfig
 	{
         _configuration = configuration;
         _scriptManager = scriptManager;
-		Load();
     }
 
     public void Load(bool reload = false)
@@ -868,12 +867,6 @@ public class WorldConfig
 		Values[WorldCfg.ArenaWinRatingModifier2] = _configuration.GetDefaultValue("Arena.ArenaWinRatingModifier2", 24.0f);
 		Values[WorldCfg.ArenaLoseRatingModifier] = _configuration.GetDefaultValue("Arena.ArenaLoseRatingModifier", 24.0f);
 		Values[WorldCfg.ArenaMatchmakerRatingModifier] = _configuration.GetDefaultValue("Arena.ArenaMatchmakerRatingModifier", 24.0f);
-
-		if (reload)
-		{
-			Global.WorldStateMgr.SetValue(WorldStates.CurrentPvpSeasonId, GetBoolValue(WorldCfg.ArenaSeasonInProgress) ? GetIntValue(WorldCfg.ArenaSeasonId) : 0, false, null);
-			Global.WorldStateMgr.SetValue(WorldStates.PreviousPvpSeasonId, GetIntValue(WorldCfg.ArenaSeasonId) - (GetBoolValue(WorldCfg.ArenaSeasonInProgress) ? 1 : 0), false, null);
-		}
 
 		Values[WorldCfg.OffhandCheckAtSpellUnlearn] = _configuration.GetDefaultValue("OffhandCheckAtSpellUnlearn", true);
 

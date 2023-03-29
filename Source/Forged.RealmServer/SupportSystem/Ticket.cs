@@ -31,7 +31,7 @@ public class Ticket
 
 	public ObjectGuid PlayerGuid => PlayerGuidProtected;
 
-	public Player Player => Global.ObjAccessor.FindConnectedPlayer(PlayerGuidProtected);
+	public Player Player => _objectAccessor.FindConnectedPlayer(PlayerGuidProtected);
 
 	public string PlayerName
 	{
@@ -40,13 +40,13 @@ public class Ticket
 			var name = "";
 
 			if (!PlayerGuidProtected.IsEmpty)
-				Global.CharacterCacheStorage.GetCharacterNameByGuid(PlayerGuidProtected, out name);
+				_characterCache.GetCharacterNameByGuid(PlayerGuidProtected, out name);
 
 			return name;
 		}
 	}
 
-	public Player AssignedPlayer => Global.ObjAccessor.FindConnectedPlayer(AssignedToProtected);
+	public Player AssignedPlayer => _objectAccessor.FindConnectedPlayer(AssignedToProtected);
 
 	public ObjectGuid AssignedToGUID => AssignedToProtected;
 
@@ -55,7 +55,7 @@ public class Ticket
 		get
 		{
 			if (!AssignedToProtected.IsEmpty)
-				if (Global.CharacterCacheStorage.GetCharacterNameByGuid(AssignedToProtected, out var name))
+				if (_characterCache.GetCharacterNameByGuid(AssignedToProtected, out var name))
 					return name;
 
 			return "";
@@ -68,7 +68,7 @@ public class Ticket
 
 	public Ticket(Player player)
 	{
-		CreateTimeProtected = (ulong)_gameTime.GetGameTime;
+		CreateTimeProtected = (ulong)_gameTime.CurrentGameTime;
 		PlayerGuidProtected = player.GUID;
 	}
 

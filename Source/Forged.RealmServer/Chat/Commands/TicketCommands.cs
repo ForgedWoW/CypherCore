@@ -46,8 +46,8 @@ class TicketCommands
 			return true;
 		}
 
-		var targetGuid = Global.CharacterCacheStorage.GetCharacterGuidByName(targetName);
-		var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(targetGuid);
+		var targetGuid = _characterCache.GetCharacterGuidByName(targetName);
+		var accountId = _characterCache.GetCharacterAccountIdByGuid(targetGuid);
 
 		// Target must exist and have administrative rights
 		if (!Global.AccountMgr.HasPermission(accountId, RBACPermissions.CommandsBeAssignedTicket, _worldManager.Realm.Id.Index))
@@ -246,7 +246,7 @@ class TicketCommands
 		else
 		{
 			var guid = ticket.AssignedToGUID;
-			var accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(guid);
+			var accountId = _characterCache.GetCharacterAccountIdByGuid(guid);
 			security = Global.AccountMgr.GetSecurity(accountId, (int)_worldManager.Realm.Id.Index);
 		}
 

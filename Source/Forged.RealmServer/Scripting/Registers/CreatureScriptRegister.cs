@@ -15,7 +15,7 @@ public class CreatureScriptRegister : IScriptRegister
 		if (attribute is CreatureScriptAttribute creatureScript && creatureScript.CreatureIds != null)
 			foreach (var id in creatureScript.CreatureIds)
 			{
-				var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(id);
+				var creatureTemplate = _gameObjectManager.GetCreatureTemplate(id);
 
 				if (creatureTemplate == null)
 				{
@@ -25,7 +25,7 @@ public class CreatureScriptRegister : IScriptRegister
 				}
 
 				if (creatureTemplate.ScriptID == 0) // dont override database
-					creatureTemplate.ScriptID = Global.ObjectMgr.GetScriptId(scriptName);
+					creatureTemplate.ScriptID = _gameObjectManager.GetScriptId(scriptName);
 			}
 	}
 }

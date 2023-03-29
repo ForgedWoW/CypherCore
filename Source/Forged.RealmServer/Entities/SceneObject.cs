@@ -67,7 +67,7 @@ public class SceneObject : WorldObject
 
 	public static SceneObject CreateSceneObject(uint sceneId, Unit creator, Position pos, ObjectGuid privateObjectOwner)
 	{
-		var sceneTemplate = Global.ObjectMgr.GetSceneTemplate(sceneId);
+		var sceneTemplate = _gameObjectManager.GetSceneTemplate(sceneId);
 
 		if (sceneTemplate == null)
 			return null;
@@ -135,7 +135,7 @@ public class SceneObject : WorldObject
 
 	bool ShouldBeRemoved()
 	{
-		var creator = Global.ObjAccessor.GetUnit(this, OwnerGUID);
+		var creator = _objectAccessor.GetUnit(this, OwnerGUID);
 
 		if (creator == null)
 			return true;
@@ -168,7 +168,7 @@ public class SceneObject : WorldObject
 		ObjectScale = 1.0f;
 
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.ScriptPackageID), (int)scriptPackageId);
-		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), _gameTime.GetGameTimeMS);
+		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.RndSeedVal), _gameTime.CurrentGameTimeMS);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.CreatedBy), creator.GUID);
 		SetUpdateFieldValue(Values.ModifyValue(_sceneObjectData).ModifyValue(_sceneObjectData.SceneType), (uint)type);
 

@@ -48,7 +48,7 @@ public class Vehicle : ITransport
 
 				if (veSeat != null)
 				{
-					var addon = Global.ObjectMgr.GetVehicleSeatAddon(seatId);
+					var addon = _gameObjectManager.GetVehicleSeatAddon(seatId);
 					Seats.Add((sbyte)i, new VehicleSeat(veSeat, addon));
 
 					if (veSeat.CanEnterOrExit())
@@ -171,7 +171,7 @@ public class Vehicle : ITransport
 		if (GetBase().IsTypeId(TypeId.Player) || !evading)
 			RemoveAllPassengers(); // We might have aura's saved in the DB with now invalid casters - remove
 
-		var accessories = Global.ObjectMgr.GetVehicleAccessoryList(this);
+		var accessories = _gameObjectManager.GetVehicleAccessoryList(this);
 
 		if (accessories == null)
 			return;
@@ -260,7 +260,7 @@ public class Vehicle : ITransport
 		if (seat == null)
 			return null;
 
-		return Global.ObjAccessor.GetUnit(GetBase(), seat.Passenger.Guid);
+		return _objectAccessor.GetUnit(GetBase(), seat.Passenger.Guid);
 	}
 
 	public VehicleSeat GetNextEmptySeat(sbyte seatId, bool next)
@@ -381,7 +381,7 @@ public class Vehicle : ITransport
 
 			if (!seat.Value.IsEmpty())
 			{
-				var passenger = Global.ObjAccessor.GetUnit(GetBase(), seat.Value.Passenger.Guid);
+				var passenger = _objectAccessor.GetUnit(GetBase(), seat.Value.Passenger.Guid);
 				passenger.ExitVehicle();
 			}
 		}
@@ -396,7 +396,7 @@ public class Vehicle : ITransport
 		// not sure that absolute position calculation is correct, it must depend on vehicle pitch angle
 		foreach (var pair in Seats)
 		{
-			var passenger = Global.ObjAccessor.GetUnit(GetBase(), pair.Value.Passenger.Guid);
+			var passenger = _objectAccessor.GetUnit(GetBase(), pair.Value.Passenger.Guid);
 
 			if (passenger != null)
 			{
@@ -490,7 +490,7 @@ public class Vehicle : ITransport
 
 	public TimeSpan GetDespawnDelay()
 	{
-		var vehicleTemplate = Global.ObjectMgr.GetVehicleTemplate(this);
+		var vehicleTemplate = _gameObjectManager.GetVehicleTemplate(this);
 
 		if (vehicleTemplate != null)
 			return vehicleTemplate.DespawnDelay;

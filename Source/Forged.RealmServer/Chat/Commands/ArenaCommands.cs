@@ -26,7 +26,7 @@ class ArenaCommands
 		if (captain == null)
 			return false;
 
-		if (Global.CharacterCacheStorage.GetCharacterArenaTeamIdByGuid(captain.GetGUID(), (byte)type) != 0)
+		if (_characterCache.GetCharacterArenaTeamIdByGuid(captain.GetGUID(), (byte)type) != 0)
 		{
 			handler.SendSysMessage(CypherStrings.ArenaErrorSize, captain.GetName());
 
@@ -152,7 +152,7 @@ class ArenaCommands
 			return false;
 		}
 
-		if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(arena.GetCaptain(), out var oldCaptainName))
+		if (!_characterCache.GetCharacterNameByGuid(arena.GetCaptain(), out var oldCaptainName))
 			return false;
 
 		arena.SetCaptain(target.GetGUID());

@@ -248,7 +248,7 @@ public class PoolGroup<T>
 		{
 			case "Creature":
 			{
-				var data = Global.ObjectMgr.GetCreatureData(obj.Guid);
+				var data = _gameObjectManager.GetCreatureData(obj.Guid);
 
 				if (data != null)
 					// Spawn if necessary (loaded grids only)
@@ -260,7 +260,7 @@ public class PoolGroup<T>
 				break;
 			case "GameObject":
 			{
-				var data = Global.ObjectMgr.GetGameObjectData(obj.Guid);
+				var data = _gameObjectManager.GetGameObjectData(obj.Guid);
 
 				if (data != null)
 					// Spawn if necessary (loaded grids only)

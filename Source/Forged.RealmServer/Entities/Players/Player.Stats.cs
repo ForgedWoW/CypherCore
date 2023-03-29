@@ -271,7 +271,7 @@ public partial class Player
 			return;
 
 		// Get base of Mana Pool in sBaseMPGameTable
-		Global.ObjectMgr.GetPlayerClassLevelInfo(Class, Level, out var basemana);
+		_gameObjectManager.GetPlayerClassLevelInfo(Class, Level, out var basemana);
 		double base_regen = basemana / 100.0f;
 
 		base_regen += GetTotalAuraModifierByMiscValue(AuraType.ModPowerRegen, (int)PowerType.Mana);

@@ -130,7 +130,7 @@ public class CriteriaData
 			case CriteriaDataType.InstanceScript:
 				return true;
 			case CriteriaDataType.TCreature:
-				if (Creature.Id == 0 || Global.ObjectMgr.GetCreatureTemplate(Creature.Id) == null)
+				if (Creature.Id == 0 || _gameObjectManager.GetCreatureTemplate(Creature.Id) == null)
 				{
 					Log.Logger.Error(
 								"Table `criteria_data` (Entry: {0} Type: {1}) for data type CRITERIA_DATA_TYPE_CREATURE ({2}) has non-existing creature id in value1 ({3}), ignored.",
@@ -616,7 +616,7 @@ public class CriteriaData
 				var entry = Global.CriteriaMgr.GetCriteria(criteriaId);
 
 				var itemId = entry.Entry.Type == CriteriaType.EquipItemInSlot ? miscValue2 : miscValue1;
-				var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+				var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 
 				if (itemTemplate == null)
 					return false;
@@ -636,7 +636,7 @@ public class CriteriaData
 			}
 			case CriteriaDataType.SItemQuality:
 			{
-				var pProto = Global.ObjectMgr.GetItemTemplate(miscValue1);
+				var pProto = _gameObjectManager.GetItemTemplate(miscValue1);
 
 				if (pProto == null)
 					return false;

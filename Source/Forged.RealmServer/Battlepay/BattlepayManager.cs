@@ -141,7 +141,7 @@ public class BattlepayManager
 
 		if (player)
 		{
-			var itemTemplate = Global.ObjectMgr.GetItemTemplate(itemId);
+			var itemTemplate = _gameObjectManager.GetItemTemplate(itemId);
 
 			if (itemTemplate == null)
 				return true;
@@ -185,7 +185,7 @@ public class BattlepayManager
 		foreach (var productId in productInfo.ProductIds)
 		{
 			var product = _battlePayDataStoreMgr.GetProduct(productId);
-			var item = Global.ObjectMgr.GetItemTemplate(product.Flags);
+			var item = _gameObjectManager.GetItemTemplate(product.Flags);
 			var itemsToSendIfInventoryFull = new List<uint>();
 
 			switch ((ProductType)product.Type)
@@ -210,7 +210,7 @@ public class BattlepayManager
 					}
 
 					foreach (var _item in _battlePayDataStoreMgr.GetItemsOfProduct(product.ProductId))
-						if (Global.ObjectMgr.GetItemTemplate(_item.ItemID) != null)
+						if (_gameObjectManager.GetItemTemplate(_item.ItemID) != null)
 						{
 							if (player.GetFreeInventorySpace() > _item.Quantity)
 								player.AddItemWithToast(_item.ItemID, (ushort)_item.Quantity, 0);
@@ -377,7 +377,7 @@ public class BattlepayManager
 				/// Customs:
 				case ProductType.ItemSet:
 				{
-					var its = Global.ObjectMgr.GetItemTemplates();
+					var its = _gameObjectManager.GetItemTemplates();
 
 					//C++ TO C# CONVERTER NOTE: 'auto' variable declarations are not supported in C#:
 					//ORIGINAL LINE: for (auto const& itemTemplatePair : its)
@@ -915,9 +915,9 @@ public class BattlepayManager
 
 					if (player.Class == PlayerClass.Deathknight)
 					{
-						var quest = Global.ObjectMgr.GetQuestTemplate(12801);
+						var quest = _gameObjectManager.GetQuestTemplate(12801);
 
-						if (Global.ObjectMgr.GetQuestTemplate(12801) != null)
+						if (_gameObjectManager.GetQuestTemplate(12801) != null)
 						{
 							player.AddQuest(quest, null);
 							player.CompleteQuest(quest.Id);
@@ -1447,7 +1447,7 @@ public class BattlepayManager
 			_session.BattlePetMgr.AddPet(speciesEntry.Id, BattlePets.BattlePetMgr.SelectPetDisplay(speciesEntry), BattlePets.BattlePetMgr.RollPetBreed(speciesEntry.Id), BattlePets.BattlePetMgr.GetDefaultPetQuality(speciesEntry.Id));
 
 			//it gives back false information need to get the pet guid from the add pet method somehow
-			SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, Global.ObjectMgr.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
+			SendBattlePayBattlePetDelivered(ObjectGuid.Create(HighGuid.BattlePet, _gameObjectManager.GetGenerator(HighGuid.BattlePet).Generate()), speciesEntry.CreatureID);
 		}
 	}
 }

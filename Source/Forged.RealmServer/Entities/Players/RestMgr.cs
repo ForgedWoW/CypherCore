@@ -90,7 +90,7 @@ public class RestMgr
 
 		if (oldRestMask == 0 && _restFlagMask != 0) // only set flag/time on the first rest state
 		{
-			_restTime = _gameTime.GetGameTime;
+			_restTime = _gameTime.CurrentGameTime;
 			_player.SetPlayerFlag(PlayerFlags.Resting);
 		}
 

@@ -151,7 +151,7 @@ public partial class Creature
 		}
 	}
 
-	public bool CanGeneratePickPocketLoot => _pickpocketLootRestore <= _gameTime.GetGameTime;
+	public bool CanGeneratePickPocketLoot => _pickpocketLootRestore <= _gameTime.CurrentGameTime;
 
 	public bool IsFullyLooted
 	{
@@ -198,7 +198,7 @@ public partial class Creature
 	{
 		get
 		{
-			var now = _gameTime.GetGameTime;
+			var now = _gameTime.CurrentGameTime;
 
 			if (RespawnTime > now)
 				return RespawnTime;
@@ -213,7 +213,7 @@ public partial class Creature
 	{
 		get
 		{
-			if (Global.ObjectMgr.TryGetGetCreatureMovementOverride(SpawnId, out var movementOverride))
+			if (_gameObjectManager.TryGetGetCreatureMovementOverride(SpawnId, out var movementOverride))
 				return movementOverride;
 
 			return Template.Movement;
@@ -251,7 +251,7 @@ public partial class Creature
 
 	public string[] StringIds { get; } = new string[3];
 
-	public VendorItemData VendorItems => Global.ObjectMgr.GetNpcVendorItemList(Entry);
+	public VendorItemData VendorItems => _gameObjectManager.GetNpcVendorItemList(Entry);
 
 	public virtual byte PetAutoSpellSize => 4;
 
@@ -297,14 +297,14 @@ public partial class Creature
 		{
 			if (SpawnId != 0)
 			{
-				var addon = Global.ObjectMgr.GetCreatureAddon(SpawnId);
+				var addon = _gameObjectManager.GetCreatureAddon(SpawnId);
 
 				if (addon != null)
 					return addon;
 			}
 
 			// dependent from difficulty mode entry
-			return Global.ObjectMgr.GetCreatureTemplateAddon(Template.Entry);
+			return _gameObjectManager.GetCreatureTemplateAddon(Template.Entry);
 		}
 	}
 

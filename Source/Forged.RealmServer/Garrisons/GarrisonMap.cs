@@ -37,7 +37,7 @@ class GarrisonMap : Map
 		if (_loadingPlayer)
 			return _loadingPlayer.Garrison;
 
-		var owner = Global.ObjAccessor.FindConnectedPlayer(_owner);
+		var owner = _objectAccessor.FindConnectedPlayer(_owner);
 
 		if (owner)
 			return owner.Garrison;

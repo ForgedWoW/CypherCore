@@ -10,7 +10,7 @@ using Framework.IO;
 using Framework.Networking;
 using Forged.RealmServer.Networking.Packets;
 using Serilog;
-using Microsoft.Extensions.Configuration;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer.Networking;
 
@@ -61,15 +61,15 @@ public class WorldSocket : SocketBase
 	AsyncCallbackProcessor<QueryCallback> _queryProcessor = new();
 	string _ipCountry;
 	readonly object _sendlock = new();
-
     private readonly LoginDatabase _loginDatabase;
-    private readonly CharacterDatabase _characterDatabase;
     private readonly WorldConfig _worldConfig;
-    private readonly IConfiguration _configuration;
     private readonly GameTime _gameTime;
+    private readonly RealmManager _realmManager;
+    private readonly WorldManager _worldManager;
+    private readonly PacketManager _packetManager;
+    private readonly ClassFactory _classFactory;
 
-    public WorldSocket(Socket socket, LoginDatabase loginDatabase, CharacterDatabase characterDatabase,
-		WorldConfig worldConfig, IConfiguration configuration, GameTime gameTime) : base(socket)
+    public WorldSocket(Socket socket, ClassFactory classFactory) : base(socket)
 	{
 		_connectType = ConnectionType.Realm;
 		_serverChallenge = Array.Empty<byte>().GenerateRandomKey(16);
@@ -79,11 +79,14 @@ public class WorldSocket : SocketBase
 
 		_headerBuffer = new SocketBuffer(HeaderSize);
 		_packetBuffer = new SocketBuffer(0);
-        _loginDatabase = loginDatabase;
-        _characterDatabase = characterDatabase;
-        _worldConfig = worldConfig;
-        _configuration = configuration;
-        _gameTime = gameTime;
+
+        _classFactory = classFactory;
+        _worldConfig = _classFactory.Resolve<WorldConfig>();
+        _loginDatabase = _classFactory.Resolve<LoginDatabase>();
+        _gameTime = _classFactory.Resolve<GameTime>();
+        _realmManager = _classFactory.Resolve<RealmManager>();
+        _worldManager = _classFactory.Resolve<WorldManager>();
+        _packetManager = _classFactory.Resolve<PacketManager>();
     }
 
 	public override void Dispose()
@@ -507,7 +510,7 @@ public class WorldSocket : SocketBase
 
                     Log.Logger.Information("Received opcode: {0} ({1})", (ClientOpcodes)packet.GetOpcode(), packet.GetOpcode());
 
-					if (!PacketManager.ContainsHandler(opcode))
+					if (!_packetManager.ContainsHandler(opcode))
 					{
                         Log.Logger.Error($"No defined handler for opcode {opcode} ({packet.GetOpcode()}) sent by {_worldSession.GetPlayerInfo()}");
 
@@ -561,7 +564,7 @@ public class WorldSocket : SocketBase
 			return;
 		}
 
-		var buildInfo = Global.RealmMgr.GetBuildInfo(_worldManager.Realm.Build);
+		var buildInfo = _realmManager.GetBuildInfo(_worldManager.Realm.Build);
 
 		if (buildInfo == null)
 		{
@@ -753,21 +756,17 @@ public class WorldSocket : SocketBase
 		}
 
 		_worldSession = new WorldSession(account.game.Id,
-										authSession.RealmJoinTicket,
-										account.battleNet.Id,
-										this,
-										account.game.Security,
-										(Expansion)account.game.Expansion,
-										mutetime,
-										account.game.OS,
-										account.battleNet.Locale,
-										account.game.Recruiter,
-										account.game.IsRectuiter,
-										_gameTime,
-										_worldConfig,
-										_configuration,
-										_loginDatabase,
-										_characterDatabase);
+								   authSession.RealmJoinTicket,
+								   account.battleNet.Id,
+								   this,
+								   account.game.Security,
+								   (Expansion)account.game.Expansion,
+								   mutetime,
+								   account.game.OS,
+								   account.battleNet.Locale,
+								   account.game.Recruiter,
+								   account.game.IsRectuiter,
+                                   _classFactory);
 
 		// Initialize Warden system only if it is enabled by config
 		//if (wardenActive)

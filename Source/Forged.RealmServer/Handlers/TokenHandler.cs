@@ -3,8 +3,8 @@
 
 using Framework.Constants;
 using Forged.RealmServer.Networking;
-using Forged.RealmServer.Networking.Packets.Token;
-using Forged.RealmServer.Server;
+using Forged.RealmServer.Networking.Packets;
+using Game.Common.Handlers;
 
 namespace Forged.RealmServer.Handlers;
 

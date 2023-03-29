@@ -135,12 +135,12 @@ class BgWarsongGluch : Battleground
 				if (_flagDebuffState == 0 && _flagSpellForceTimer >= 10 * Time.Minute * Time.InMilliseconds) //10 minutes
 				{
 					// Apply Stage 1 (Focused Assault)
-					var player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[0]);
+					var player = _objectAccessor.FindPlayer(m_FlagKeepers[0]);
 
 					if (player)
 						player.CastSpell(player, WSGSpellId.FocusedAssault, true);
 
-					player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[1]);
+					player = _objectAccessor.FindPlayer(m_FlagKeepers[1]);
 
 					if (player)
 						player.CastSpell(player, WSGSpellId.FocusedAssault, true);
@@ -150,7 +150,7 @@ class BgWarsongGluch : Battleground
 				else if (_flagDebuffState == 1 && _flagSpellForceTimer >= 900000) //15 minutes
 				{
 					// Apply Stage 2 (Brutal Assault)
-					var player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[0]);
+					var player = _objectAccessor.FindPlayer(m_FlagKeepers[0]);
 
 					if (player)
 					{
@@ -158,7 +158,7 @@ class BgWarsongGluch : Battleground
 						player.CastSpell(player, WSGSpellId.BrutalAssault, true);
 					}
 
-					player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[1]);
+					player = _objectAccessor.FindPlayer(m_FlagKeepers[1]);
 
 					if (player)
 					{
@@ -175,7 +175,7 @@ class BgWarsongGluch : Battleground
 				// Both flags are in base or awaiting respawn.
 				// Remove assault debuffs, reset timers
 
-				var player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[0]);
+				var player = _objectAccessor.FindPlayer(m_FlagKeepers[0]);
 
 				if (player)
 				{
@@ -183,7 +183,7 @@ class BgWarsongGluch : Battleground
 					player.RemoveAura(WSGSpellId.BrutalAssault);
 				}
 
-				player = Global.ObjAccessor.FindPlayer(m_FlagKeepers[1]);
+				player = _objectAccessor.FindPlayer(m_FlagKeepers[1]);
 
 				if (player)
 				{
@@ -226,7 +226,7 @@ class BgWarsongGluch : Battleground
 		SpawnBGObject(WSGObjectTypes.DoorH4, BattlegroundConst.RespawnOneDay);
 
 		UpdateWorldState(WSGWorldStates.StateTimerActive, 1);
-		UpdateWorldState(WSGWorldStates.StateTimer, (int)(_gameTime.GetGameTime + 15 * Time.Minute));
+		UpdateWorldState(WSGWorldStates.StateTimer, (int)(_gameTime.CurrentGameTime + 15 * Time.Minute));
 
 		// players joining later are not eligibles
 		TriggerGameEvent(8563);
@@ -591,7 +591,7 @@ class BgWarsongGluch : Battleground
 			return false;
 		}
 
-		var sg = Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
+		var sg = _gameObjectManager.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
 
 		if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainAlliance, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.124139f, TeamIds.Alliance))
 		{
@@ -600,7 +600,7 @@ class BgWarsongGluch : Battleground
 			return false;
 		}
 
-		sg = Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainHorde);
+		sg = _gameObjectManager.GetWorldSafeLoc(WSGGraveyards.MainHorde);
 
 		if (sg == null || !AddSpiritGuide(WSGCreatureTypes.SpiritMainHorde, sg.Loc.X, sg.Loc.Y, sg.Loc.Z, 3.193953f, TeamIds.Horde))
 		{
@@ -707,22 +707,22 @@ class BgWarsongGluch : Battleground
 		if (GetPlayerTeam(player.GUID) == TeamFaction.Alliance)
 		{
 			if (GetStatus() == BattlegroundStatus.InProgress)
-				return Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
+				return _gameObjectManager.GetWorldSafeLoc(WSGGraveyards.MainAlliance);
 			else
-				return Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.FlagRoomAlliance);
+				return _gameObjectManager.GetWorldSafeLoc(WSGGraveyards.FlagRoomAlliance);
 		}
 		else
 		{
 			if (GetStatus() == BattlegroundStatus.InProgress)
-				return Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.MainHorde);
+				return _gameObjectManager.GetWorldSafeLoc(WSGGraveyards.MainHorde);
 			else
-				return Global.ObjectMgr.GetWorldSafeLoc(WSGGraveyards.FlagRoomHorde);
+				return _gameObjectManager.GetWorldSafeLoc(WSGGraveyards.FlagRoomHorde);
 		}
 	}
 
 	public override WorldSafeLocsEntry GetExploitTeleportLocation(TeamFaction team)
 	{
-		return Global.ObjectMgr.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
+		return _gameObjectManager.GetWorldSafeLoc(team == TeamFaction.Alliance ? ExploitTeleportLocationAlliance : ExploitTeleportLocationHorde);
 	}
 
 	public override TeamFaction GetPrematureWinner()
@@ -899,7 +899,7 @@ class BgWarsongGluch : Battleground
 
 	void HandleFlagRoomCapturePoint(int team)
 	{
-		var flagCarrier = Global.ObjAccessor.GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
+		var flagCarrier = _objectAccessor.GetPlayer(GetBgMap(), GetFlagPickerGUID(team));
 		var areaTrigger = team == TeamIds.Alliance ? 3647 : 3646u;
 
 		if (flagCarrier != null && flagCarrier.IsInAreaTriggerRadius(CliDB.AreaTriggerStorage.LookupByKey(areaTrigger)))

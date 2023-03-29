@@ -368,7 +368,7 @@ public partial class Player
 				var leaderGuid = Group != null ? Group.LeaderGUID : GUID;
 
 				if (leaderGuid != GUID)
-					leader = Global.ObjAccessor.FindPlayer(leaderGuid);
+					leader = _objectAccessor.FindPlayer(leaderGuid);
 
 				if (ar.Achievement != 0)
 					if (leader == null || !leader.HasAchieved(ar.Achievement))
@@ -397,11 +397,11 @@ public partial class Player
 					}
 					else if (missingItem != 0)
 					{
-						Session.SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, Global.ObjectMgr.GetItemTemplate(missingItem).GetName());
+						Session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.LevelMinrequiredAndItem), levelMin, _gameObjectManager.GetItemTemplate(missingItem).GetName());
 					}
 					else if (levelMin != 0)
 					{
-						Session.SendNotification(Global.ObjectMgr.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
+						Session.SendNotification(_gameObjectManager.GetCypherString(CypherStrings.LevelMinrequired), levelMin);
 					}
 				}
 

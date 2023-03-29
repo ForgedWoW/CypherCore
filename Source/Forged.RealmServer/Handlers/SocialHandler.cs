@@ -14,6 +14,7 @@ using Forged.RealmServer.Accounts;
 using Forged.RealmServer.Globals;
 using Forged.RealmServer.Cache;
 using Serilog;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer;
 

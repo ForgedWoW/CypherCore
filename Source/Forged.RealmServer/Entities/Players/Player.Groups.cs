@@ -77,7 +77,7 @@ public partial class Player
 			if (state == LfgState.FinishedDungeon)
 				return PartyResult.PartyLfgBootDungeonComplete;
 
-			var player = Global.ObjAccessor.FindConnectedPlayer(guidMember);
+			var player = _objectAccessor.FindConnectedPlayer(guidMember);
 
 			if (!player._lootRolls.Empty())
 				return PartyResult.PartyLfgBootLootRolls;

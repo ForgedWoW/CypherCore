@@ -63,7 +63,7 @@ class TeleCommands
 		if (player == null)
 			return false;
 
-		if (Global.ObjectMgr.GetGameTeleExactName(name) != null)
+		if (_gameObjectManager.GetGameTeleExactName(name) != null)
 		{
 			handler.SendSysMessage(CypherStrings.CommandTpAlreadyexist);
 
@@ -79,7 +79,7 @@ class TeleCommands
 		tele.name = name;
 		tele.nameLow = name.ToLowerInvariant();
 
-		if (Global.ObjectMgr.AddGameTele(tele))
+		if (_gameObjectManager.AddGameTele(tele))
 		{
 			handler.SendSysMessage(CypherStrings.CommandTpAdded);
 		}
@@ -103,7 +103,7 @@ class TeleCommands
 			return false;
 		}
 
-		Global.ObjectMgr.DeleteGameTele(tele.name);
+		_gameObjectManager.DeleteGameTele(tele.name);
 		handler.SendSysMessage(CypherStrings.CommandTpDeleted);
 
 		return true;
@@ -191,7 +191,7 @@ class TeleCommands
 
 	static bool DoNameTeleport(CommandHandler handler, PlayerIdentifier player, uint mapId, Position pos, string locationName)
 	{
-		if (!GridDefines.IsValidMapCoord(mapId, pos) || Global.ObjectMgr.IsTransportMap(mapId))
+		if (!GridDefines.IsValidMapCoord(mapId, pos) || _gameObjectManager.IsTransportMap(mapId))
 		{
 			handler.SendSysMessage(CypherStrings.InvalidTargetCoord, pos.X, pos.Y, mapId);
 
@@ -297,7 +297,7 @@ class TeleCommands
 				if (player == null)
 					return false;
 
-				var spawnpoint = Global.ObjectMgr.GetCreatureData(spawnId);
+				var spawnpoint = _gameObjectManager.GetCreatureData(spawnId);
 
 				if (spawnpoint == null)
 				{
@@ -306,7 +306,7 @@ class TeleCommands
 					return false;
 				}
 
-				var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(spawnpoint.Id);
+				var creatureTemplate = _gameObjectManager.GetCreatureTemplate(spawnpoint.Id);
 
 				return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
 			}
@@ -319,7 +319,7 @@ class TeleCommands
 
 				CreatureData spawnpoint = null;
 
-				foreach (var (id, creatureData) in Global.ObjectMgr.GetAllCreatureData())
+				foreach (var (id, creatureData) in _gameObjectManager.GetAllCreatureData())
 				{
 					if (id != creatureId)
 						continue;
@@ -343,7 +343,7 @@ class TeleCommands
 					return false;
 				}
 
-				var creatureTemplate = Global.ObjectMgr.GetCreatureTemplate(creatureId);
+				var creatureTemplate = _gameObjectManager.GetCreatureTemplate(creatureId);
 
 				return DoNameTeleport(handler, player, spawnpoint.MapId, spawnpoint.SpawnPoint, creatureTemplate.Name);
 			}

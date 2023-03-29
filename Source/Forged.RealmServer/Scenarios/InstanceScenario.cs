@@ -53,7 +53,7 @@ public class InstanceScenario : Scenario
 
 		if (!killCreatureCriteria.Empty())
 		{
-			var spawnGroups = Global.ObjectMgr.GetInstanceSpawnGroupsForMap(_map.Id);
+			var spawnGroups = _gameObjectManager.GetInstanceSpawnGroupsForMap(_map.Id);
 
 			if (spawnGroups != null)
 			{
@@ -67,7 +67,7 @@ public class InstanceScenario : Scenario
 					var isDespawned = ((1 << (int)EncounterState.Done) & spawnGroup.BossStates) == 0 || spawnGroup.Flags.HasFlag(InstanceSpawnGroupFlags.BlockSpawn);
 
 					if (isDespawned)
-						foreach (var spawn in Global.ObjectMgr.GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId))
+						foreach (var spawn in _gameObjectManager.GetSpawnMetadataForGroup(spawnGroup.SpawnGroupId))
 						{
 							var spawnData = spawn.ToSpawnData();
 

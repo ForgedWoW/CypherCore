@@ -198,7 +198,7 @@ public partial class Player
 
 		if (result.IsEmpty())
 		{
-			Global.CharacterCacheStorage.GetCharacterNameByGuid(guid, out var cacheName);
+			_characterCache.GetCharacterNameByGuid(guid, out var cacheName);
 			Log.outError(LogFilter.Player, "Player {0} {1} not found in table `characters`, can't load. ", cacheName, guid.ToString());
 
 			return false;
@@ -301,7 +301,7 @@ public partial class Player
 
 		// check name limitations
 		if (GameObjectManager.CheckPlayerName(GetName(), Session.SessionDbcLocale) != ResponseCodes.CharNameSuccess ||
-			(!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(GetName())))
+			(!Session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _gameObjectManager.IsReservedName(GetName())))
 		{
 			var stmt = _characterDatabase.GetPreparedStatement(CharStatements.UPD_ADD_AT_LOGIN_FLAG);
 			stmt.AddValue(0, (ushort)AtLoginFlags.Rename);
@@ -327,7 +327,7 @@ public partial class Player
 		Gender = gender;
 
 		// check if race/class combination is valid
-		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+		var info = _gameObjectManager.GetPlayerInfo(Race, Class);
 
 		if (info == null)
 		{
@@ -635,7 +635,7 @@ public partial class Player
 
 		if (!map)
 		{
-			areaTrigger = Global.ObjectMgr.GetGoBackTrigger(mapId);
+			areaTrigger = _gameObjectManager.GetGoBackTrigger(mapId);
 			check = true;
 		}
 		else if (map.IsDungeon) // if map is dungeon...
@@ -645,12 +645,12 @@ public partial class Player
 			if (denyReason != null)
 			{
 				SendTransferAborted(map.Id, denyReason.Reason, denyReason.Arg, denyReason.MapDifficultyXConditionId);
-				areaTrigger = Global.ObjectMgr.GetGoBackTrigger(mapId);
+				areaTrigger = _gameObjectManager.GetGoBackTrigger(mapId);
 				check = true;
 			}
 			else if (instance_id != 0 && Global.InstanceLockMgr.FindActiveInstanceLock(guid, new MapDb2Entries(mapId, map.DifficultyID)) != null) // ... and instance is reseted then look for entrance.
 			{
-				areaTrigger = Global.ObjectMgr.GetMapEntranceTrigger(mapId);
+				areaTrigger = _gameObjectManager.GetMapEntranceTrigger(mapId);
 				check = true;
 			}
 		}
@@ -696,7 +696,7 @@ public partial class Player
 
 		SaveRecallPosition();
 
-		var now = _gameTime.GetGameTime;
+		var now = _gameTime.CurrentGameTime;
 		var logoutTime = logout_time;
 
 		SetUpdateFieldValue(Values.ModifyValue(PlayerData).ModifyValue(PlayerData.LogoutTime), logoutTime);
@@ -1136,7 +1136,7 @@ public partial class Player
 			stmt.AddValue(index++, _playedTimeTotal);
 			stmt.AddValue(index++, _playedTimeLevel);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.XP)));
-			stmt.AddValue(index++, _gameTime.GetGameTime);
+			stmt.AddValue(index++, _gameTime.CurrentGameTime);
 			stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
 			//save, far from tavern/city
 			//save, but in tavern/city
@@ -1289,7 +1289,7 @@ public partial class Player
 			stmt.AddValue(index++, _playedTimeTotal);
 			stmt.AddValue(index++, _playedTimeLevel);
 			stmt.AddValue(index++, finiteAlways((float)_restMgr.GetRestBonus(RestTypes.XP)));
-			stmt.AddValue(index++, _gameTime.GetGameTime);
+			stmt.AddValue(index++, _gameTime.CurrentGameTime);
 			stmt.AddValue(index++, (HasPlayerFlag(PlayerFlags.Resting) ? 1 : 0));
 			//save, far from tavern/city
 			//save, but in tavern/city
@@ -1465,7 +1465,7 @@ public partial class Player
 		stmt.AddValue(3, _worldManager.RealmId.Index);
 		stmt.AddValue(4, GetName());
 		stmt.AddValue(5, GUID.Counter);
-		stmt.AddValue(6, _gameTime.GetGameTime);
+		stmt.AddValue(6, _gameTime.CurrentGameTime);
 		loginTransaction.Append(stmt);
 
 		// save pet (hunter pet level and experience and all type pets health/mana).
@@ -1536,7 +1536,7 @@ public partial class Player
 		// Convert guid to low GUID for CharacterNameData, but also other methods on success
 		var guid = playerGuid.Counter;
 		var charDelete_method = (CharDeleteMethod)_worldConfig.GetIntValue(WorldCfg.ChardeleteMethod);
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(playerGuid);
+		var characterInfo = _characterCache.GetCharacterCacheByGuid(playerGuid);
 		var name = "<Unknown>";
 
 		if (characterInfo != null)
@@ -1567,11 +1567,11 @@ public partial class Player
 		SQLTransaction trans = new();
 		SQLTransaction loginTransaction = new();
 
-		var guildId = Global.CharacterCacheStorage.GetCharacterGuildIdByGuid(playerGuid);
+		var guildId = _characterCache.GetCharacterGuildIdByGuid(playerGuid);
 
 		if (guildId != 0)
 		{
-			var guild = Global.GuildMgr.GetGuildById(guildId);
+			var guild = _guildManager.GetGuildById(guildId);
 
 			if (guild)
 				guild.DeleteMember(trans, playerGuid, false, false, true);
@@ -1697,7 +1697,7 @@ public partial class Player
 						stmt.AddValue(0, mail_id);
 						trans.Append(stmt);
 
-						var pl_account = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(ObjectGuid.Create(HighGuid.Player, guid));
+						var pl_account = _characterCache.GetCharacterAccountIdByGuid(ObjectGuid.Create(HighGuid.Player, guid));
 
 						draft.AddMoney(money).SendReturnToSender(pl_account, guid, sender, trans);
 					} while (resultMail.NextRow());
@@ -1728,7 +1728,7 @@ public partial class Player
 				if (!resultFriends.IsEmpty())
 					do
 					{
-						var playerFriend = Global.ObjAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, resultFriends.Read<ulong>(0)));
+						var playerFriend = _objectAccessor.FindPlayer(ObjectGuid.Create(HighGuid.Player, resultFriends.Read<ulong>(0)));
 
 						if (playerFriend)
 						{
@@ -1984,7 +1984,7 @@ public partial class Player
 				stmt.AddValue(0, guid);
 				trans.Append(stmt);
 
-				Global.CharacterCacheStorage.DeleteCharacterCacheEntry(playerGuid, name);
+				_characterCache.DeleteCharacterCacheEntry(playerGuid, name);
 
 				break;
 			}
@@ -1995,7 +1995,7 @@ public partial class Player
 				stmt.AddValue(0, guid);
 				trans.Append(stmt);
 
-				Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(playerGuid, true);
+				_characterCache.UpdateCharacterInfoDeleted(playerGuid, true);
 
 				break;
 			}
@@ -2030,7 +2030,7 @@ public partial class Player
 		Log.outInfo(LogFilter.Player, "Player:DeleteOldChars: Deleting all characters which have been deleted {0} days before...", keepDays);
 
 		var stmt = _characterDatabase.GetPreparedStatement(CharStatements.SEL_CHAR_OLD_CHARS);
-		stmt.AddValue(0, (uint)(_gameTime.GetGameTime - keepDays * Time.Day));
+		stmt.AddValue(0, (uint)(_gameTime.CurrentGameTime - keepDays * Time.Day));
 		var result = _characterDatabase.Query(stmt);
 
 		if (!result.IsEmpty())
@@ -2272,7 +2272,7 @@ public partial class Player
 			// Send problematic items by mail
 			while (problematicItems.Count != 0)
 			{
-				var subject = Global.ObjectMgr.GetCypherString(CypherStrings.NotEquippedItem);
+				var subject = _gameObjectManager.GetCypherString(CypherStrings.NotEquippedItem);
 				MailDraft draft = new(subject, "There were problems with equipping item(s).");
 
 				for (var i = 0; problematicItems.Count != 0 && i < SharedConst.MaxMailItems; ++i)
@@ -2294,7 +2294,7 @@ public partial class Player
 		Item item = null;
 		var itemGuid = fields.Read<ulong>(0);
 		var itemEntry = fields.Read<uint>(1);
-		var proto = Global.ObjectMgr.GetItemTemplate(itemEntry);
+		var proto = _gameObjectManager.GetItemTemplate(itemEntry);
 
 		if (proto != null)
 		{
@@ -2720,7 +2720,7 @@ public partial class Player
 
 	bool _LoadHomeBind(SQLResult result)
 	{
-		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+		var info = _gameObjectManager.GetPlayerInfo(Race, Class);
 
 		if (info == null)
 		{
@@ -2784,10 +2784,10 @@ public partial class Player
 
 		if (!ok)
 		{
-			var loc = Global.ObjectMgr.GetDefaultGraveYard(Team);
+			var loc = _gameObjectManager.GetDefaultGraveYard(Team);
 
 			if (loc == null && Race == Race.PandarenNeutral)
-				loc = Global.ObjectMgr.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
+				loc = _gameObjectManager.GetWorldSafeLoc(3295); // The Wandering Isle, Starting Area GY
 
 			_homebind.WorldRelocate(loc.Loc);
 			_homebindAreaId = Global.TerrainMgr.GetAreaId(PhasingHandler.EmptyPhaseShift, loc.Loc);
@@ -2871,7 +2871,7 @@ public partial class Player
 			{
 				var questId = result.Read<uint>(0);
 				// used to be new, no delete?
-				var quest = Global.ObjectMgr.GetQuestTemplate(questId);
+				var quest = _gameObjectManager.GetQuestTemplate(questId);
 
 				if (quest != null)
 				{
@@ -2905,10 +2905,10 @@ public partial class Player
 					{
 						AddTimedQuest(questId);
 
-						if (endTime <= _gameTime.GetGameTime)
+						if (endTime <= _gameTime.CurrentGameTime)
 							questStatusData.Timer = 1;
 						else
-							questStatusData.Timer = (uint)((endTime - _gameTime.GetGameTime) * Time.InMilliseconds);
+							questStatusData.Timer = (uint)((endTime - _gameTime.CurrentGameTime) * Time.InMilliseconds);
 					}
 					else
 					{
@@ -2957,7 +2957,7 @@ public partial class Player
 			{
 				var questID = result.Read<uint>(0);
 
-				var quest = Global.ObjectMgr.GetQuestTemplate(questID);
+				var quest = _gameObjectManager.GetQuestTemplate(questID);
 
 				var questStatusData = _mQuestStatus.LookupByKey(questID);
 
@@ -2995,7 +2995,7 @@ public partial class Player
 			{
 				var quest_id = result.Read<uint>(0);
 				// used to be new, no delete?
-				var quest = Global.ObjectMgr.GetQuestTemplate(quest_id);
+				var quest = _gameObjectManager.GetQuestTemplate(quest_id);
 
 				if (quest != null)
 				{
@@ -3032,7 +3032,7 @@ public partial class Player
 					if (questPackageItems != null)
 						foreach (var questPackageItem in questPackageItems)
 						{
-							var rewardProto = Global.ObjectMgr.GetItemTemplate(questPackageItem.ItemID);
+							var rewardProto = _gameObjectManager.GetItemTemplate(questPackageItem.ItemID);
 
 							if (rewardProto != null)
 								if (rewardProto.ItemSpecClassMask.HasAnyFlag(ClassMask))
@@ -3054,7 +3054,7 @@ public partial class Player
 			do
 			{
 				var quest_id = result.Read<uint>(0);
-				var qQuest = Global.ObjectMgr.GetQuestTemplate(quest_id);
+				var qQuest = _gameObjectManager.GetQuestTemplate(quest_id);
 
 				if (qQuest != null)
 					if (qQuest.IsDFQuest)
@@ -3068,7 +3068,7 @@ public partial class Player
 				// save _any_ from daily quest times (it must be after last reset anyway)
 				_lastDailyQuestTime = result.Read<long>(1);
 
-				var quest = Global.ObjectMgr.GetQuestTemplate(quest_id);
+				var quest = _gameObjectManager.GetQuestTemplate(quest_id);
 
 				if (quest == null)
 					continue;
@@ -3093,7 +3093,7 @@ public partial class Player
 			do
 			{
 				var quest_id = result.Read<uint>(0);
-				var quest = Global.ObjectMgr.GetQuestTemplate(quest_id);
+				var quest = _gameObjectManager.GetQuestTemplate(quest_id);
 
 				if (quest == null)
 					continue;
@@ -3120,7 +3120,7 @@ public partial class Player
 				var quest_id = result.Read<uint>(0);
 				var event_id = result.Read<uint>(1);
 				var completedTime = result.Read<long>(2);
-				var quest = Global.ObjectMgr.GetQuestTemplate(quest_id);
+				var quest = _gameObjectManager.GetQuestTemplate(quest_id);
 
 				if (quest == null)
 					continue;
@@ -3153,7 +3153,7 @@ public partial class Player
 			do
 			{
 				var quest_id = result.Read<uint>(0);
-				var quest = Global.ObjectMgr.GetQuestTemplate(quest_id);
+				var quest = _gameObjectManager.GetQuestTemplate(quest_id);
 
 				if (quest == null)
 					continue;
@@ -3384,7 +3384,7 @@ public partial class Player
 				continue;
 			}
 
-			if (Global.ObjectMgr.GetItemTemplate(itemEntry) == null)
+			if (_gameObjectManager.GetItemTemplate(itemEntry) == null)
 			{
 				Log.outError(LogFilter.Player, "Player:_LoadVoidStorage - Player (GUID: {0}, name: {1}) has an item with an invalid entry (item id: item id: {2}, entry: {3}).", GUID.ToString(), GetName(), itemId, itemEntry);
 
@@ -3410,7 +3410,7 @@ public partial class Player
 		var itemGuid = fields.Read<ulong>(0);
 		var itemEntry = fields.Read<uint>(1);
 
-		var proto = Global.ObjectMgr.GetItemTemplate(itemEntry);
+		var proto = _gameObjectManager.GetItemTemplate(itemEntry);
 
 		if (proto == null)
 		{
@@ -4254,7 +4254,7 @@ public partial class Player
 					stmt.AddValue(1, save.Key);
 					trans.Append(stmt);
 
-					var quest = Global.ObjectMgr.GetQuestTemplate(save.Key);
+					var quest = _gameObjectManager.GetQuestTemplate(save.Key);
 
 					foreach (var obj in quest.Objectives)
 					{

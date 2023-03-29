@@ -37,28 +37,6 @@ public class FactionChannel
         _guidGenerator = new ObjectGuidGenerator(HighGuid.ChatChannel);
 	}
 
-	public Channel GetChannelForPlayerByNamePart(string namePart, Player playerSearcher)
-	{
-		foreach (var channel in playerSearcher.JoinedChannels)
-		{
-			var chanName = channel.GetName(playerSearcher.Session.SessionDbcLocale);
-
-			if (chanName.ToLower().Equals(namePart.ToLower()))
-				return channel;
-		}
-
-		return null;
-	}
-
-	public Channel GetChannelForPlayerByGuid(ObjectGuid channelGuid, Player playerSearcher)
-	{
-		foreach (var channel in playerSearcher.JoinedChannels)
-			if (channel.GetGUID() == channelGuid)
-				return channel;
-
-		return null;
-	}
-
 	public Channel GetSystemChannel(uint channelId, AreaTableRecord zoneEntry = null)
 	{
 		var channelGuid = CreateBuiltinChannelGuid(channelId, zoneEntry);

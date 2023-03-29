@@ -16,7 +16,7 @@ struct ChannelOwnerAppend : IChannelAppender
 		_ownerGuid = ownerGuid;
 		_ownerName = "";
 
-		var characterCacheEntry = Global.CharacterCacheStorage.GetCharacterCacheByGuid(_ownerGuid);
+		var characterCacheEntry = _characterCache.GetCharacterCacheByGuid(_ownerGuid);
 
 		if (characterCacheEntry != null)
 			_ownerName = characterCacheEntry.Name;

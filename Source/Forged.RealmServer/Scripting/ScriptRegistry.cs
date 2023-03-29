@@ -28,7 +28,7 @@ public class ScriptRegistry
 
 		// Get an ID for the script. An ID only exists if it's a script that is assigned in the database
 		// through a script Name (or similar).
-		var id = Global.ObjectMgr.GetScriptId(script.GetName());
+		var id = _gameObjectManager.GetScriptId(script.GetName());
 
 		if (id != 0)
 		{

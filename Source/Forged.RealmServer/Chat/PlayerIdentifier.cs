@@ -92,9 +92,9 @@ class PlayerIdentifier
 		{
 			_guid = ObjectGuid.Create(HighGuid.Player, tempVal);
 
-			if ((_player = Global.ObjAccessor.FindPlayerByLowGUID(_guid.Counter)) != null)
+			if ((_player = _objectAccessor.FindPlayerByLowGUID(_guid.Counter)) != null)
 				_name = _player.GetName();
-			else if (!Global.CharacterCacheStorage.GetCharacterNameByGuid(_guid, out _name))
+			else if (!_characterCache.GetCharacterNameByGuid(_guid, out _name))
 				return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharGuidNoExist, _guid.ToString()));
 
 			return next;
@@ -106,9 +106,9 @@ class PlayerIdentifier
 			if (!GameObjectManager.NormalizePlayerName(ref _name))
 				return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameInvalid, _name));
 
-			if ((_player = Global.ObjAccessor.FindPlayerByName(_name)) != null)
+			if ((_player = _objectAccessor.FindPlayerByName(_name)) != null)
 				_guid = _player.GUID;
-			else if ((_guid = Global.CharacterCacheStorage.GetCharacterGuidByName(_name)).IsEmpty)
+			else if ((_guid = _characterCache.GetCharacterGuidByName(_name)).IsEmpty)
 				return ChatCommandResult.FromErrorMessage(handler.GetParsedString(CypherStrings.CmdparserCharNameNoExist, _name));
 
 			return next;

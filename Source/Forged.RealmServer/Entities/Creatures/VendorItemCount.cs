@@ -13,6 +13,6 @@ public class VendorItemCount
 	{
 		ItemId = item;
 		Count = count;
-		LastIncrementTime = _gameTime.GetGameTime;
+		LastIncrementTime = _gameTime.CurrentGameTime;
 	}
 }

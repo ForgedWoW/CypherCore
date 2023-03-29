@@ -71,7 +71,7 @@ public class PhasingHandler
 		if (vehicle != null)
 			foreach (var seat in vehicle.Seats)
 			{
-				var passenger = Global.ObjAccessor.GetUnit(unit, seat.Value.Passenger.Guid);
+				var passenger = _objectAccessor.GetUnit(unit, seat.Value.Passenger.Guid);
 
 				if (passenger != null)
 					func(passenger);
@@ -146,7 +146,7 @@ public class PhasingHandler
 		obj.PhaseShift.UiMapPhaseIds.Clear();
 		obj.SuppressedPhaseShift.VisibleMapIds.Clear();
 
-		foreach (var (mapId, visibleMapInfo) in Global.ObjectMgr.GetTerrainSwaps().KeyValueList)
+		foreach (var (mapId, visibleMapInfo) in _gameObjectManager.GetTerrainSwaps().KeyValueList)
 			if (Global.ConditionMgr.IsObjectMeetingNotGroupedConditions(ConditionSourceType.TerrainSwap, visibleMapInfo.Id, srcInfo))
 			{
 				if (mapId == obj.Location.MapId)
@@ -179,7 +179,7 @@ public class PhasingHandler
 
 		while (areaEntry != null)
 		{
-			var newAreaPhases = Global.ObjectMgr.GetPhasesForArea(areaEntry.Id);
+			var newAreaPhases = _gameObjectManager.GetPhasesForArea(areaEntry.Id);
 
 			if (!newAreaPhases.Empty())
 				foreach (var phaseArea in newAreaPhases)
@@ -425,7 +425,7 @@ public class PhasingHandler
 		phaseShift.VisibleMapIds.Clear();
 
 		if (visibleMapId != -1)
-			phaseShift.AddVisibleMapId((uint)visibleMapId, Global.ObjectMgr.GetTerrainSwapInfo((uint)visibleMapId));
+			phaseShift.AddVisibleMapId((uint)visibleMapId, _gameObjectManager.GetTerrainSwapInfo((uint)visibleMapId));
 	}
 
 	public static bool InDbPhaseShift(WorldObject obj, PhaseUseFlagsValues phaseUseFlags, ushort phaseId, uint phaseGroupId)
@@ -485,7 +485,7 @@ public class PhasingHandler
 
 		if (phaseShift.HasPersonalPhase)
 		{
-			var personalGuid = Global.ObjAccessor.GetWorldObject(target, phaseShift.PersonalGuid);
+			var personalGuid = _objectAccessor.GetWorldObject(target, phaseShift.PersonalGuid);
 
 			if (personalGuid != null)
 				phaseOwnerName = personalGuid.GetName();
@@ -496,14 +496,14 @@ public class PhasingHandler
 		if (!phaseShift.Phases.Empty())
 		{
 			StringBuilder phases = new();
-			var cosmetic = Global.ObjectMgr.GetCypherString(CypherStrings.PhaseFlagCosmetic, chat.SessionDbcLocale);
-			var personal = Global.ObjectMgr.GetCypherString(CypherStrings.PhaseFlagPersonal, chat.SessionDbcLocale);
+			var cosmetic = _gameObjectManager.GetCypherString(CypherStrings.PhaseFlagCosmetic, chat.SessionDbcLocale);
+			var personal = _gameObjectManager.GetCypherString(CypherStrings.PhaseFlagPersonal, chat.SessionDbcLocale);
 
 			foreach (var pair in phaseShift.Phases)
 			{
 				phases.Append("\r\n");
 				phases.Append("   ");
-				phases.Append($"{pair.Key} ({Global.ObjectMgr.GetPhaseName(pair.Key)})'");
+				phases.Append($"{pair.Key} ({_gameObjectManager.GetPhaseName(pair.Key)})'");
 
 				if (pair.Value.Flags.HasFlag(PhaseFlags.Cosmetic))
 					phases.Append($" ({cosmetic})");
@@ -634,7 +634,7 @@ public class PhasingHandler
 
 	static void AddVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
 	{
-		var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
+		var terrainSwapInfo = _gameObjectManager.GetTerrainSwapInfo(visibleMapId);
 		var changed = obj.PhaseShift.AddVisibleMapId(visibleMapId, terrainSwapInfo);
 
 		foreach (var uiMapPhaseId in terrainSwapInfo.UiMapPhaseIDs)
@@ -650,7 +650,7 @@ public class PhasingHandler
 
 	static void RemoveVisibleMapId(WorldObject obj, uint visibleMapId, ControlledUnitVisitor visitor)
 	{
-		var terrainSwapInfo = Global.ObjectMgr.GetTerrainSwapInfo(visibleMapId);
+		var terrainSwapInfo = _gameObjectManager.GetTerrainSwapInfo(visibleMapId);
 		var changed = obj.PhaseShift.RemoveVisibleMapId(visibleMapId);
 
 		foreach (var uiWorldMapAreaIDSwap in terrainSwapInfo.UiMapPhaseIDs)

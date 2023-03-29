@@ -24,8 +24,8 @@ class Transport : GameObjectTypeBase, ITransport
 	public Transport(GameObject owner) : base(owner)
 	{
 		_animationInfo = Global.TransportMgr.GetTransportAnimInfo(owner.Template.entry);
-		_pathProgress = _gameTime.GetGameTimeMS % GetTransportPeriod();
-		_stateChangeTime = _gameTime.GetGameTimeMS;
+		_pathProgress = _gameTime.CurrentGameTimeMS % GetTransportPeriod();
+		_stateChangeTime = _gameTime.CurrentGameTimeMS;
 		_stateChangeProgress = _pathProgress;
 
 		var goInfo = Owner.Template;
@@ -150,7 +150,7 @@ class Transport : GameObjectTypeBase, ITransport
 
 		_positionUpdateTimer.Reset(PositionUpdateInterval);
 
-		var now = _gameTime.GetGameTimeMS;
+		var now = _gameTime.CurrentGameTimeMS;
 		var period = GetTransportPeriod();
 		uint newProgress = 0;
 
@@ -361,10 +361,10 @@ class Transport : GameObjectTypeBase, ITransport
 			stopPathProgress = _stopFrames[stopFrame];
 		}
 
-		_stateChangeTime = _gameTime.GetGameTimeMS;
+		_stateChangeTime = _gameTime.CurrentGameTimeMS;
 		_stateChangeProgress = _pathProgress;
 		var timeToStop = (uint)Math.Abs(_pathProgress - stopPathProgress);
-		Owner.SetLevel(_gameTime.GetGameTimeMS + timeToStop);
+		Owner.SetLevel(_gameTime.CurrentGameTimeMS + timeToStop);
 		Owner.SetPathProgressForClient((float)_pathProgress / (float)GetTransportPeriod());
 
 		if (oldState == GameObjectState.Active || oldState == newState)

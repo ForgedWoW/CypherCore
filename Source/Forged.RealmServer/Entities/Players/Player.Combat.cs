@@ -423,7 +423,7 @@ public partial class Player
 		}
 		else
 		{
-			PvpInfo.EndTimer = _gameTime.GetGameTime;
+			PvpInfo.EndTimer = _gameTime.CurrentGameTime;
 			SetPvP(state);
 		}
 	}
@@ -461,7 +461,7 @@ public partial class Player
 		else // in friendly area
 		{
 			if (IsPvP && !HasPlayerFlag(PlayerFlags.InPVP) && PvpInfo.EndTimer == 0)
-				PvpInfo.EndTimer = _gameTime.GetGameTime; // start toggle-off
+				PvpInfo.EndTimer = _gameTime.CurrentGameTime; // start toggle-off
 		}
 	}
 

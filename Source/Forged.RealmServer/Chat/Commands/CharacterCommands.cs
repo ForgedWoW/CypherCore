@@ -100,7 +100,7 @@ class CharacterCommands
 			var session = handler.Session;
 
 			if (session != null)
-				if (!session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && Global.ObjectMgr.IsReservedName(newName))
+				if (!session.HasPermission(RBACPermissions.SkipCheckCharacterCreationReservedname) && _gameObjectManager.IsReservedName(newName))
 				{
 					handler.SendSysMessage(CypherStrings.ReservedName);
 
@@ -141,7 +141,7 @@ class CharacterCommands
 				_characterDatabase.Execute(stmt);
 			}
 
-			Global.CharacterCacheStorage.UpdateCharacterData(player.GetGUID(), newName);
+			_characterCache.UpdateCharacterData(player.GetGUID(), newName);
 
 			handler.SendSysMessage(CypherStrings.RenamePlayerWithNewName, player.GetName(), newName);
 
@@ -150,7 +150,7 @@ class CharacterCommands
 				var sessionPlayer = session.Player;
 
 				if (sessionPlayer)
-					Log.outCommand(session.AccountId, "GM {0} (Account: {1}) forced rename {2} to player {3} (Account: {4})", sessionPlayer.GetName(), session.AccountId, newName, sessionPlayer.GetName(), Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(sessionPlayer.GUID));
+					Log.outCommand(session.AccountId, "GM {0} (Account: {1}) forced rename {2} to player {3} (Account: {4})", sessionPlayer.GetName(), session.AccountId, newName, sessionPlayer.GetName(), _characterCache.GetCharacterAccountIdByGuid(sessionPlayer.GUID));
 			}
 			else
 			{
@@ -193,7 +193,7 @@ class CharacterCommands
 		if (player == null)
 			return false;
 
-		var oldlevel = player.IsConnected() ? player.GetConnectedPlayer().Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(player.GetGUID());
+		var oldlevel = player.IsConnected() ? player.GetConnectedPlayer().Level : _characterCache.GetCharacterLevelByGuid(player.GetGUID());
 
 		if (newlevel < 1)
 			newlevel = 1;
@@ -271,7 +271,7 @@ class CharacterCommands
 		if (player == null)
 			return false;
 
-		var characterInfo = Global.CharacterCacheStorage.GetCharacterCacheByGuid(player.GetGUID());
+		var characterInfo = _characterCache.GetCharacterCacheByGuid(player.GetGUID());
 
 		if (characterInfo == null)
 		{
@@ -309,7 +309,7 @@ class CharacterCommands
 		_worldManager.UpdateRealmCharCount(oldAccountId);
 		_worldManager.UpdateRealmCharCount(newAccount.GetID());
 
-		Global.CharacterCacheStorage.UpdateCharacterAccountId(player.GetGUID(), newAccount.GetID());
+		_characterCache.UpdateCharacterAccountId(player.GetGUID(), newAccount.GetID());
 
 		handler.SendSysMessage(CypherStrings.ChangeAccountSuccess, player.GetName(), newAccount.GetName());
 
@@ -459,7 +459,7 @@ class CharacterCommands
 		}
 		else
 		{
-			accountId = Global.CharacterCacheStorage.GetCharacterAccountIdByGuid(player.GetGUID());
+			accountId = _characterCache.GetCharacterAccountIdByGuid(player.GetGUID());
 		}
 
 		Global.AccountMgr.GetName(accountId, out var accountName);
@@ -479,7 +479,7 @@ class CharacterCommands
 		if (player == null)
 			return false;
 
-		var oldlevel = (int)(player.IsConnected() ? player.GetConnectedPlayer().Level : Global.CharacterCacheStorage.GetCharacterLevelByGuid(player.GetGUID()));
+		var oldlevel = (int)(player.IsConnected() ? player.GetConnectedPlayer().Level : _characterCache.GetCharacterLevelByGuid(player.GetGUID()));
 		var newlevel = oldlevel + level;
 
 		if (newlevel < 1)
@@ -740,7 +740,7 @@ class CharacterCommands
 				return;
 			}
 
-			if (!Global.CharacterCacheStorage.GetCharacterGuidByName(delInfo.name).IsEmpty)
+			if (!_characterCache.GetCharacterGuidByName(delInfo.name).IsEmpty)
 			{
 				handler.SendSysMessage(CypherStrings.CharacterDeletedSkipName, delInfo.name, delInfo.guid.ToString(), delInfo.accountId);
 
@@ -753,7 +753,7 @@ class CharacterCommands
 			stmt.AddValue(2, delInfo.guid.Counter);
 			_characterDatabase.Execute(stmt);
 
-			Global.CharacterCacheStorage.UpdateCharacterInfoDeleted(delInfo.guid, false, delInfo.name);
+			_characterCache.UpdateCharacterInfoDeleted(delInfo.guid, false, delInfo.name);
 		}
 
 		struct DeletedInfo

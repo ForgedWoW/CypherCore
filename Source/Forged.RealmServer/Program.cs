@@ -12,7 +12,6 @@ using Forged.RealmServer.BattleGrounds;
 using Forged.RealmServer.BattlePets;
 using Forged.RealmServer.Cache;
 using Forged.RealmServer.Chat;
-using Forged.RealmServer.Collision;
 using Forged.RealmServer.Conditions;
 using Forged.RealmServer.DataStorage;
 using Forged.RealmServer.DungeonFinding;
@@ -46,6 +45,7 @@ internal class Program
 
         var builder = new ContainerBuilder();
         builder.RegisterInstance(configuration).As<IConfiguration>().SingleInstance();
+        builder.RegisterType<WorldConfig>().SingleInstance().OnActivated(a => a.Instance.Load());
 
         builder.AddFramework();
         builder.AddCommon();
@@ -78,10 +78,7 @@ internal class Program
         worldManager.SetEventInterval(eventManager.StartSystem());
         Player.DeleteOldCharacters();
         eventManager.StartArenaSeason();
-        worldManager.Initialize(container.Resolve<AccountManager>(), container.Resolve<CharacterCache>(), container.Resolve<ObjectAccessor>(),
-                                container.Resolve<QuestPoolManager>(), container.Resolve<CalendarManager>(), container.Resolve<GuildManager>(),
-                                container.Resolve<WorldStateManager>(), eventManager, container.Resolve<WhoListStorageManager>(),
-                                container.Resolve<ChannelManager>());
+        worldManager.Initialize(container.Resolve<ClassFactory>());
 
         void RegisterManagers(ContainerBuilder builder)
         {

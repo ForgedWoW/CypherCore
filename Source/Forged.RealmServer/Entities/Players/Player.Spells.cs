@@ -206,7 +206,7 @@ public partial class Player
 		if (!creature.HasNpcFlag(NPCFlags.SpellClick))
 			return false;
 
-		var clickBounds = Global.ObjectMgr.GetSpellClickInfoMapBounds(creature.Entry);
+		var clickBounds = _gameObjectManager.GetSpellClickInfoMapBounds(creature.Entry);
 
 		if (clickBounds.Empty())
 			return true;
@@ -411,7 +411,7 @@ public partial class Player
 
 			if (gem != null)
 			{
-				var gemTemplate = Global.ObjectMgr.GetItemTemplate(gem.ItemId);
+				var gemTemplate = _gameObjectManager.GetItemTemplate(gem.ItemId);
 
 				if (gemTemplate != null)
 					if (gemTemplate.RequiredSkill != 0 && GetSkillValue((SkillType)gemTemplate.RequiredSkill) < gemTemplate.RequiredSkillRank)
@@ -849,7 +849,7 @@ public partial class Player
 		if (!spell)
 		{
 			// spell/item pair let set proper cooldown (except not existed charged spell cooldown spellmods for potions)
-			var proto = Global.ObjectMgr.GetItemTemplate(_lastPotionId);
+			var proto = _gameObjectManager.GetItemTemplate(_lastPotionId);
 
 			if (proto != null)
 				for (byte idx = 0; idx < proto.Effects.Count; ++idx)
@@ -1083,7 +1083,7 @@ public partial class Player
 
 					if (rcEntry != null)
 					{
-						var tier = Global.ObjectMgr.GetSkillTier(rcEntry.SkillTierID);
+						var tier = _gameObjectManager.GetSkillTier(rcEntry.SkillTierID);
 
 						if (tier != null)
 						{
@@ -1675,7 +1675,7 @@ public partial class Player
 		//    return;
 
 		// learn default race/class spells
-		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+		var info = _gameObjectManager.GetPlayerInfo(Race, Class);
 
 		foreach (var tspell in info.CustomSpells)
 		{
@@ -1691,7 +1691,7 @@ public partial class Player
 	public void LearnDefaultSkills()
 	{
 		// learn default race/class skills
-		var info = Global.ObjectMgr.GetPlayerInfo(Race, Class);
+		var info = _gameObjectManager.GetPlayerInfo(Race, Class);
 
 		foreach (var rcInfo in info.Skills)
 		{
@@ -1735,7 +1735,7 @@ public partial class Player
 				break;
 			case SkillRangeType.Rank:
 			{
-				var tier = Global.ObjectMgr.GetSkillTier(rcInfo.SkillTierID);
+				var tier = _gameObjectManager.GetSkillTier(rcInfo.SkillTierID);
 				var maxValue = (ushort)tier.Value[0];
 				ushort skillValue = 1;
 
@@ -3115,7 +3115,7 @@ public partial class Player
 			if (pItem2 != null && !pItem2.IsBroken)
 				foreach (var gemData in pItem2.ItemData.Gems)
 				{
-					var gemProto = Global.ObjectMgr.GetItemTemplate(gemData.ItemId);
+					var gemProto = _gameObjectManager.GetItemTemplate(gemData.ItemId);
 
 					if (gemProto == null)
 						continue;

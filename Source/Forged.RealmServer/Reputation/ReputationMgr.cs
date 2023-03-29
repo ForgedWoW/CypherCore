@@ -256,7 +256,7 @@ public class ReputationMgr
 		if (!noSpillover)
 		{
 			// if spillover definition exists in DB, override DBC
-			var repTemplate = Global.ObjectMgr.GetRepSpillover(factionEntry.Id);
+			var repTemplate = _gameObjectManager.GetRepSpillover(factionEntry.Id);
 
 			if (repTemplate != null)
 			{
@@ -442,7 +442,7 @@ public class ReputationMgr
 
 				if (oldParagonLevel != newParagonLevel)
 				{
-					var paragonRewardQuest = Global.ObjectMgr.GetQuestTemplate((uint)paragonReputation.QuestID);
+					var paragonRewardQuest = _gameObjectManager.GetQuestTemplate((uint)paragonReputation.QuestID);
 
 					if (paragonRewardQuest != null)
 						_player.AddQuestAndCheckCompletion(paragonRewardQuest, null);
@@ -944,7 +944,7 @@ public class ReputationMgr
 		if (paragonReputation == null)
 			return false;
 
-		var quest = Global.ObjectMgr.GetQuestTemplate((uint)paragonReputation.QuestID);
+		var quest = _gameObjectManager.GetQuestTemplate((uint)paragonReputation.QuestID);
 
 		if (quest == null)
 			return false;

@@ -71,7 +71,7 @@ class SendCommands
 			if (!uint.TryParse(itemIdAndCountStr[0], out var itemId) || itemId == 0)
 				return false;
 
-			var itemProto = Global.ObjectMgr.GetItemTemplate(itemId);
+			var itemProto = _gameObjectManager.GetItemTemplate(itemId);
 
 			if (itemProto == null)
 			{

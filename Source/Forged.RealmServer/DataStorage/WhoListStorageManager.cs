@@ -20,7 +20,7 @@ public class WhoListStorageManager : Singleton<WhoListStorageManager>
 		// clear current list
 		_whoListStorage.Clear();
 
-		var players = Global.ObjAccessor.GetPlayers();
+		var players = _objectAccessor.GetPlayers();
 
 		foreach (var player in players)
 		{
@@ -28,7 +28,7 @@ public class WhoListStorageManager : Singleton<WhoListStorageManager>
 				continue;
 
 			var playerName = player.GetName();
-			var guildName = Global.GuildMgr.GetGuildNameById((uint)player.GuildId);
+			var guildName = _guildManager.GetGuildNameById((uint)player.GuildId);
 
 			var guild = player.Guild;
 			var guildGuid = ObjectGuid.Empty;

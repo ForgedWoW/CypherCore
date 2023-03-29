@@ -24,7 +24,7 @@ public class AssistDelayEvent : BasicEvent
 
 	public override bool Execute(ulong etime, uint pTime)
 	{
-		var victim = Global.ObjAccessor.GetUnit(m_owner, m_victim);
+		var victim = _objectAccessor.GetUnit(m_owner, m_victim);
 
 		if (victim != null)
 			while (!m_assistants.Empty())

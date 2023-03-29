@@ -55,6 +55,6 @@ public class CalendarInvite
 	~CalendarInvite()
 	{
 		if (InviteId != 0 && EventId != 0)
-			Global.CalendarMgr.FreeInviteId(InviteId);
+			_calendarManager.FreeInviteId(InviteId);
 	}
 }

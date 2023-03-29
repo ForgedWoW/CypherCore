@@ -260,7 +260,7 @@ public abstract class WorldObject : IDisposable
 
 	public SceneObject AsSceneObject => this as SceneObject;
 
-	public virtual Unit OwnerUnit => Global.ObjAccessor.GetUnit(this, OwnerGUID);
+	public virtual Unit OwnerUnit => _objectAccessor.GetUnit(this, OwnerGUID);
 
 	public Unit CharmerOrOwnerOrSelf
 	{
@@ -282,7 +282,7 @@ public abstract class WorldObject : IDisposable
 			var guid = CharmerOrOwnerGUID;
 
 			if (guid.IsPlayer)
-				return Global.ObjAccessor.GetPlayer(this, guid);
+				return _objectAccessor.GetPlayer(this, guid);
 
 			return AsPlayer;
 		}
@@ -808,7 +808,7 @@ public abstract class WorldObject : IDisposable
 			data.WritePackedGuid(AsUnit.Victim.GUID); // CombatVictim
 
 		if (flags.ServerTime)
-			data.WriteUInt32(_gameTime.GetGameTimeMS);
+			data.WriteUInt32(_gameTime.CurrentGameTimeMS);
 
 		if (flags.Vehicle)
 		{
@@ -1834,7 +1834,7 @@ public abstract class WorldObject : IDisposable
 		if (!IsInWorld)
 			return null;
 
-		var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+		var goinfo = _gameObjectManager.GetGameObjectTemplate(entry);
 
 		if (goinfo == null)
 		{
@@ -1891,7 +1891,7 @@ public abstract class WorldObject : IDisposable
 	public void SummonCreatureGroup(byte group, out List<TempSummon> list)
 	{
 		list = new List<TempSummon>();
-		var data = Global.ObjectMgr.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
+		var data = _gameObjectManager.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
 
 		if (data.Empty())
 		{

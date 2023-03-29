@@ -67,7 +67,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 			{
 				var objectiveId = objectiveResult.Read<uint>(0);
 
-				var objective = Global.ObjectMgr.GetQuestObjective(objectiveId);
+				var objective = _gameObjectManager.GetQuestObjective(objectiveId);
 
 				if (objective == null)
 					continue;
@@ -269,7 +269,7 @@ internal class QuestObjectiveCriteriaManager : CriteriaHandler
 			return false;
 		}
 
-		var quest = Global.ObjectMgr.GetQuestTemplate(objective.QuestID);
+		var quest = _gameObjectManager.GetQuestTemplate(objective.QuestID);
 
 		if (_owner.Group && _owner.Group.IsRaidGroup && !quest.IsAllowedInRaid(referencePlayer.Map.DifficultyID))
 		{

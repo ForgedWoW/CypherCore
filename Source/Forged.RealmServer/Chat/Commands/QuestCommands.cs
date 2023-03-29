@@ -37,7 +37,7 @@ class QuestCommands
 		}
 
 		// check item starting quest (it can work incorrectly if added without item in inventory)
-		var itc = Global.ObjectMgr.GetItemTemplates();
+		var itc = _gameObjectManager.GetItemTemplates();
 		var result = itc.Values.FirstOrDefault(p => p.StartQuest == quest.Id);
 
 		if (result != null)
@@ -184,7 +184,7 @@ class QuestCommands
 			}
 			case QuestObjectiveType.Monster:
 			{
-				var creatureInfo = Global.ObjectMgr.GetCreatureTemplate((uint)obj.ObjectID);
+				var creatureInfo = _gameObjectManager.GetCreatureTemplate((uint)obj.ObjectID);
 
 				if (creatureInfo != null)
 					for (var z = 0; z < obj.Amount; ++z)
@@ -258,7 +258,7 @@ class QuestCommands
 				return false;
 			}
 
-			var obj = Global.ObjectMgr.GetQuestObjective(objectiveId);
+			var obj = _gameObjectManager.GetQuestObjective(objectiveId);
 
 			if (obj == null)
 			{

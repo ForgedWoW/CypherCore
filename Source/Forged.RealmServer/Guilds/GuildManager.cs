@@ -10,6 +10,7 @@ using Forged.RealmServer.Entities;
 using Forged.RealmServer.Guilds;
 using Serilog;
 using Forged.RealmServer.Globals;
+using Forged.RealmServer.World;
 
 namespace Forged.RealmServer;
 
@@ -17,19 +18,22 @@ public sealed class GuildManager
 {
 	readonly Dictionary<ulong, Guild> GuildStore = new();
 	readonly List<GuildReward> guildRewards = new();
+    private readonly ClassFactory _classFactory;
     private readonly CliDB _cliDB;
     private readonly CharacterDatabase _characterDatabase;
     private readonly WorldDatabase _worldDatabase;
     private readonly WorldManager _worldManager;
     private readonly GameObjectManager _gameObjectManager;
     uint NextGuildId;
-	GuildManager(CliDB cliDB, CharacterDatabase characterDatabase, WorldDatabase worldDatabase, WorldManager worldManager, GameObjectManager gameObjectManager)
+
+	GuildManager(ClassFactory classFactory)
     {
-        _cliDB = cliDB;
-        _characterDatabase = characterDatabase;
-        _worldDatabase = worldDatabase;
-        _worldManager = worldManager;
-        _gameObjectManager = gameObjectManager;
+        _classFactory = classFactory;
+        _cliDB = _classFactory.Resolve<CliDB>();
+        _characterDatabase = _classFactory.Resolve<CharacterDatabase>();
+        _worldDatabase = _classFactory.Resolve<WorldDatabase>();
+        _worldManager = _classFactory.Resolve<WorldManager>();
+        _gameObjectManager = _classFactory.Resolve<GameObjectManager>();
 
 		LoadGuilds();
 		LoadGuildRewards();
@@ -134,7 +138,7 @@ public sealed class GuildManager
 
 			do
 			{
-				Guild guild = new();
+				Guild guild = new(_classFactory);
 
 				if (!guild.LoadFromDB(result.GetFields()))
 					continue;

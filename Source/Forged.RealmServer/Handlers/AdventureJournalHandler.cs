@@ -9,6 +9,7 @@ using Forged.RealmServer.Entities;
 using Forged.RealmServer.Networking.Packets;
 using Game.Common.Handlers;
 using Forged.RealmServer.DataStorage.ClientReader;
+using Forged.RealmServer.Globals;
 
 namespace Forged.RealmServer;
 

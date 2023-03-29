@@ -65,7 +65,7 @@ public partial class Player
 		if (scenario != null)
 			scenario.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);
 
-		var guild = Global.GuildMgr.GetGuildById(GuildId);
+		var guild = _guildManager.GetGuildById(GuildId);
 
 		if (guild)
 			guild.UpdateCriteria(type, miscValue1, miscValue2, miscValue3, refe, this);

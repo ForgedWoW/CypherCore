@@ -41,7 +41,7 @@ class ControlledUnitVisitor
 		if (vehicle != null)
 			foreach (var seatPair in vehicle.Seats)
 			{
-				var passenger = Global.ObjAccessor.GetUnit(unit, seatPair.Value.Passenger.Guid);
+				var passenger = _objectAccessor.GetUnit(unit, seatPair.Value.Passenger.Guid);
 
 				if (passenger != null && passenger != unit)
 					if (_visited.Add(passenger))

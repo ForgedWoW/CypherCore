@@ -71,7 +71,7 @@ public class Bag : Item
 
 	public override bool Create(ulong guidlow, uint itemid, ItemContext context, Player owner)
 	{
-		var itemProto = Global.ObjectMgr.GetItemTemplate(itemid);
+		var itemProto = _gameObjectManager.GetItemTemplate(itemid);
 
 		if (itemProto == null || itemProto.ContainerSlots > ItemConst.MaxBagSize)
 			return false;
