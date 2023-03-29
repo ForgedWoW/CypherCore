@@ -273,9 +273,7 @@ public abstract class WorldObject : IDisposable
             return null;
         }
     }
-
-    public ZLiquidStatus LiquidStatus { get; private set; }
-
+    
     public bool IsInWorldPvpZone
     {
         get
