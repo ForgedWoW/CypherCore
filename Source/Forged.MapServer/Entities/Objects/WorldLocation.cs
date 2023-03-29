@@ -282,8 +282,8 @@ namespace Forged.MapServer.Entities.Objects
 
         public void GetEnemiesWithinRange(List<Unit> unitList, float maxSearchRange)
         {
-            var u_check = new AnyUnfriendlyUnitInObjectRangeCheck(_worldObject, _worldObject.AsUnit, maxSearchRange);
-            var searcher = new UnitListSearcher(_worldObject, unitList, u_check, GridType.All);
+            var uCheck = new AnyUnfriendlyUnitInObjectRangeCheck(_worldObject, _worldObject.AsUnit, maxSearchRange);
+            var searcher = new UnitListSearcher(_worldObject, unitList, uCheck, GridType.All);
             Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
         }
 
@@ -363,7 +363,7 @@ namespace Forged.MapServer.Entities.Objects
             var check = new AllGameObjectsWithEntryInRange(_worldObject, entry, maxSearchRange);
             var searcher = new GameObjectListSearcher(_worldObject, gameobjectList, check, GridType.Grid);
 
-            Cell.VisitGrid(_worldObject, searcher, maxSearchRange, true);
+            Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
 
             return gameobjectList;
         }
@@ -374,7 +374,7 @@ namespace Forged.MapServer.Entities.Objects
             var check = new AllCreaturesOfEntryInRange(_worldObject, entry, maxSearchRange);
             var searcher = new CreatureListSearcher(_worldObject, creatureList, check, GridType.Grid);
 
-            Cell.VisitGrid(_worldObject, searcher, maxSearchRange, true);
+            Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
 
             return creatureList;
         }
@@ -385,7 +385,7 @@ namespace Forged.MapServer.Entities.Objects
             var check = new AllCreaturesOfEntriesInRange(_worldObject, entry, maxSearchRange);
             var searcher = new CreatureListSearcher(_worldObject, creatureList, check, GridType.Grid);
 
-            Cell.VisitGrid(_worldObject, searcher, maxSearchRange, true);
+            Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
 
             return creatureList;
         }
@@ -400,7 +400,7 @@ namespace Forged.MapServer.Entities.Objects
             if (options.IgnorePhases)
                 searcher._phaseShift = PhasingHandler.GetAlwaysVisiblePhaseShift();
 
-            Cell.VisitGrid(_worldObject, searcher, maxSearchRange, true);
+            Cell.VisitGrid(_worldObject, searcher, maxSearchRange);
 
             return creatureList;
         }
@@ -423,17 +423,17 @@ namespace Forged.MapServer.Entities.Objects
 
         public bool InSamePhase(WorldObject obj)
         {
-            return PhaseShift.CanSee(obj.PhaseShift);
+            return PhaseShift.CanSee(obj.Location.PhaseShift);
         }
 
         public static bool InSamePhase(WorldObject a, WorldObject b)
         {
-            return a != null && b != null && a.InSamePhase(b);
+            return a != null && b != null && a.Location.InSamePhase(b);
         }
 
         public float GetDistanceZ(WorldObject obj)
         {
-            var dz = Math.Abs(Z - obj.Z);
+            var dz = Math.Abs(Z - obj.Location.Z);
             var sizefactor = _worldObject.CombatReach + obj.CombatReach;
             var dist = dz - sizefactor;
 
@@ -511,14 +511,14 @@ namespace Forged.MapServer.Entities.Objects
             return IsInDist2d(pos, dist + _worldObject.CombatReach);
         }
 
-        public bool IsWithinDist(WorldObject obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
+        public bool IsWithinDist(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
         {
-            return obj != null && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
+            return obj != null && _IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
         }
 
-        public bool IsWithinDistInMap(WorldObject obj, float dist2compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
+        public bool IsWithinDistInMap(WorldObject obj, float dist2Compare, bool is3D = true, bool incOwnRadius = true, bool incTargetRadius = true)
         {
-            return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2compare, is3D, incOwnRadius, incTargetRadius);
+            return obj && IsInMap(obj) && InSamePhase(obj) && _IsWithinDist(obj, dist2Compare, is3D, incOwnRadius, incTargetRadius);
         }
 
         public bool IsWithinLOS(Position pos, LineOfSightChecks checks = LineOfSightChecks.All, ModelIgnoreFlags ignoreFlags = ModelIgnoreFlags.Nothing)
@@ -666,29 +666,29 @@ namespace Forged.MapServer.Entities.Objects
             return !HasInArc(2 * MathFunctions.PI - arc, target.Location);
         }
 
-        public void GetRandomPoint(Position pos, float distance, out float rand_x, out float rand_y, out float rand_z)
+        public void GetRandomPoint(Position pos, float distance, out float randX, out float randY, out float randZ)
         {
             if (distance == 0)
             {
-                rand_x = pos.X;
-                rand_y = pos.Y;
-                rand_z = pos.Z;
+                randX = pos.X;
+                randY = pos.Y;
+                randZ = pos.Z;
 
                 return;
             }
 
             // angle to face `obj` to `this`
             var angle = (float)RandomHelper.NextDouble() * (2 * MathFunctions.PI);
-            var new_dist = (float)RandomHelper.NextDouble() + (float)RandomHelper.NextDouble();
-            new_dist = distance * (new_dist > 1 ? new_dist - 2 : new_dist);
+            var newDist = (float)RandomHelper.NextDouble() + (float)RandomHelper.NextDouble();
+            newDist = distance * (newDist > 1 ? newDist - 2 : newDist);
 
-            rand_x = (float)(pos.X + new_dist * Math.Cos(angle));
-            rand_y = (float)(pos.Y + new_dist * Math.Sin(angle));
-            rand_z = pos.Z;
+            randX = (float)(pos.X + newDist * Math.Cos(angle));
+            randY = (float)(pos.Y + newDist * Math.Sin(angle));
+            randZ = pos.Z;
 
-            rand_x = GridDefines.NormalizeMapCoord(rand_x);
-            rand_y = GridDefines.NormalizeMapCoord(rand_y);
-            rand_z = UpdateGroundPositionZ(rand_x, rand_y, rand_z); // update to LOS height if available
+            randX = GridDefines.NormalizeMapCoord(randX);
+            randY = GridDefines.NormalizeMapCoord(randY);
+            randZ = UpdateGroundPositionZ(randX, randY, randZ); // update to LOS height if available
         }
 
         public Position GetRandomPoint(Position srcPos, float distance)
@@ -742,47 +742,47 @@ namespace Forged.MapServer.Entities.Objects
                 if (!unit.CanFly)
                 {
                     var canSwim = unit.CanSwim;
-                    var ground_z = z;
-                    float max_z;
+                    var getMapHeight = z;
+                    float maxZ;
 
                     if (canSwim)
-                        max_z = GetMapWaterOrGroundLevel(x, y, z, ref ground_z);
+                        maxZ = GetMapWaterOrGroundLevel(x, y, z, ref getMapHeight);
                     else
-                        max_z = ground_z = GetMapHeight(x, y, z);
+                        maxZ = getMapHeight = GetMapHeight(x, y, z);
 
-                    if (max_z > MapConst.InvalidHeight)
+                    if (maxZ > MapConst.InvalidHeight)
                     {
                         // hovering units cannot go below their hover height
                         var hoverOffset = unit.HoverOffset;
-                        max_z += hoverOffset;
-                        ground_z += hoverOffset;
+                        maxZ += hoverOffset;
+                        getMapHeight += hoverOffset;
 
-                        if (z > max_z)
-                            z = max_z;
-                        else if (z < ground_z)
-                            z = ground_z;
+                        if (z > maxZ)
+                            z = maxZ;
+                        else if (z < getMapHeight)
+                            z = getMapHeight;
                     }
 
-                    groundZ = ground_z;
+                    groundZ = getMapHeight;
                 }
                 else
                 {
-                    var ground_z = GetMapHeight(x, y, z) + unit.HoverOffset;
+                    var mapHeight = GetMapHeight(x, y, z) + unit.HoverOffset;
 
-                    if (z < ground_z)
-                        z = ground_z;
+                    if (z < mapHeight)
+                        z = mapHeight;
 
-                    groundZ = ground_z;
+                    groundZ = mapHeight;
                 }
             }
             else
             {
-                var ground_z = GetMapHeight(x, y, z);
+                var mapHeight = GetMapHeight(x, y, z);
 
-                if (ground_z > MapConst.InvalidHeight)
-                    z = ground_z;
+                if (mapHeight > MapConst.InvalidHeight)
+                    z = mapHeight;
 
-                groundZ = ground_z;
+                groundZ = mapHeight;
             }
 
             return z;
@@ -827,10 +827,8 @@ namespace Forged.MapServer.Entities.Objects
 
         public float GetNearPoint(WorldObject searcher, Position pos, float distance2d, float absAngle)
         {
-            var x = pos.X;
-            var y = pos.Y;
             float floor = 0;
-            GetNearPoint2D(searcher, out x, out y, distance2d, absAngle);
+            GetNearPoint2D(searcher, out var x, out var y, distance2d, absAngle);
             pos.Z = Z;
             pos.Z = (searcher ?? _worldObject).Location.UpdateAllowedPositionZ(x, y, pos.Z, ref floor);
             pos.X = x;
@@ -845,8 +843,8 @@ namespace Forged.MapServer.Entities.Objects
                 return floor;
 
             // remember first point
-            var first_x = pos.X;
-            var first_y = pos.Y;
+            var firstX = pos.X;
+            var firstY = pos.Y;
 
             // loop in a circle to look for a point in LoS using small steps
             for (var angle = MathFunctions.PI / 8; angle < Math.PI * 2; angle += MathFunctions.PI / 8)
@@ -862,8 +860,8 @@ namespace Forged.MapServer.Entities.Objects
             }
 
             // still not in LoS, give up and return first position found
-            pos.X = first_x;
-            pos.Y = first_y;
+            pos.X = firstX;
+            pos.Y = firstY;
 
             return floor;
         }
@@ -960,9 +958,9 @@ namespace Forged.MapServer.Entities.Objects
             return Map.GetHeight(PhaseShift, x, y, z, vmap, distanceToSearch);
         }
 
-        public void SetLocationInstanceId(uint _instanceId)
+        public void SetLocationInstanceId(uint instanceId)
         {
-            _worldObject.InstanceId = _instanceId;
+            _worldObject.InstanceId = instanceId;
         }
 
         private bool IsInBetween(Position pos1, Position pos2, float size)
