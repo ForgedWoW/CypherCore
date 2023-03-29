@@ -138,7 +138,7 @@ public class CreatureAI : UnitAI
             return;
 
         // Only alert for hostiles!
-        if (Me.IsCivilian || Me.HasReactState(ReactStates.Passive) || !Me.IsHostileTo(who) || !Me._IsTargetAcceptable(who))
+        if (Me.IsCivilian || Me.HasReactState(ReactStates.Passive) || !Me.WorldObjectCombat.IsHostileTo(who) || !Me._IsTargetAcceptable(who))
             return;
 
         // Send alert sound (if any) for this creature

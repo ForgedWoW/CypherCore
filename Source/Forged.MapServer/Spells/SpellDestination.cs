@@ -41,7 +41,7 @@ public class SpellDestination
     public SpellDestination(WorldObject wObj) : this()
     {
         TransportGuid = wObj.GetTransGUID();
-        TransportOffset.Relocate(wObj.TransOffsetX, wObj.TransOffsetY, wObj.TransOffsetZ, wObj.TransOffsetO);
+        TransportOffset.Relocate(wObj.MovementInfo.Transport.Pos.X, wObj.MovementInfo.Transport.Pos.Y, wObj.MovementInfo.Transport.Pos.Z, wObj.MovementInfo.Transport.Pos.Orientation);
         Position.Relocate(wObj.Location);
     }
 

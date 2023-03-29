@@ -43,7 +43,7 @@ public class TotemAI : NullCreatureAI
         var victim = !_victimGuid.IsEmpty ? Global.ObjAccessor.GetUnit(Me, _victimGuid) : null;
 
         // Search victim if no, not attackable, or out of range, or friendly (possible in case duel end)
-        if (victim == null || !victim.IsTargetableForAttack() || !Me.Location.IsWithinDistInMap(victim, max_range) || Me.IsFriendlyTo(victim) || !Me.CanSeeOrDetect(victim))
+        if (victim == null || !victim.IsTargetableForAttack() || !Me.Location.IsWithinDistInMap(victim, max_range) || Me.WorldObjectCombat.IsFriendlyTo(victim) || !Me.Visibility.CanSeeOrDetect(victim))
         {
             var extraSearchRadius = max_range > 0.0f ? SharedConst.ExtraCellSearchRadius : 0.0f;
             var u_check = new NearestAttackableUnitInObjectRangeCheck(Me, Me.CharmerOrOwnerOrSelf, max_range);

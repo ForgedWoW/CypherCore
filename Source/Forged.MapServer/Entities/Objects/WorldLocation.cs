@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using Forged.MapServer.DataStorage;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
 using Forged.MapServer.Entities.Players;
@@ -16,6 +15,7 @@ using Forged.MapServer.Maps.Grids;
 using Forged.MapServer.Maps.Instances;
 using Forged.MapServer.Phasing;
 using Framework.Constants;
+using Framework.Util;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Objects
@@ -227,12 +227,12 @@ namespace Forged.MapServer.Entities.Objects
 
                 if (!map.IsBattlegroundOrArena)
                 {
-                    var bf = Global.BattleFieldMgr.GetBattlefieldToZoneId(map, Zone);
+                    var bf = _worldObject.BattleFieldManager.GetBattlefieldToZoneId(map, Zone);
 
                     if (bf != null)
                         return bf;
 
-                    return Global.OutdoorPvPMgr.GetOutdoorPvPToZoneId(map, Zone);
+                    return _worldObject.OutdoorPvPManager.GetOutdoorPvPToZoneId(map, Zone);
                 }
             }
 
@@ -833,7 +833,7 @@ namespace Forged.MapServer.Entities.Objects
             pos.Y = y;
 
             // if detection disabled, return first point
-            if (!GetDefaultValue("DetectPosCollision", true))
+            if (!_worldObject.Configuration.GetDefaultValue("DetectPosCollision", true))
                 return floor;
 
             // return if the point is already in LoS
@@ -895,7 +895,7 @@ namespace Forged.MapServer.Entities.Objects
 
         public Player FindNearestPlayer(float range, bool alive = true)
         {
-            var check = new AnyPlayerInObjectRangeCheck(_worldObject, _worldObject.VisibilityRange);
+            var check = new AnyPlayerInObjectRangeCheck(_worldObject, _worldObject.GameObjectVisibility.VisibilityRange);
             var searcher = new PlayerSearcher(_worldObject, check, GridType.Grid);
             Cell.VisitGrid(_worldObject, searcher, range);
 
@@ -926,7 +926,7 @@ namespace Forged.MapServer.Entities.Objects
         {
             Zone = Area = data.AreaId;
 
-            var area = CliDB.AreaTableStorage.LookupByKey(Area);
+            var area = _worldObject.CliDB.AreaTableStorage.LookupByKey(Area);
 
             if (area != null)
                 if (area.ParentAreaID != 0)
@@ -940,7 +940,7 @@ namespace Forged.MapServer.Entities.Objects
 
         public float GetMapWaterOrGroundLevel(float x, float y, float z, ref float ground)
         {
-            return Map.GetWaterOrGroundLevel(PhaseShift, x, y, z, ref ground, _worldObject.IsTypeMask(TypeMask.Unit) ? !_worldObject.AsUnit.HasAuraType(AuraType.WaterWalk) : false, CollisionHeight);
+            return Map.GetWaterOrGroundLevel(PhaseShift, x, y, z, ref ground, _worldObject.IsTypeMask(TypeMask.Unit) && !_worldObject.AsUnit.HasAuraType(AuraType.WaterWalk), CollisionHeight);
         }
 
         public float GetMapHeight(Position pos, bool vmap = true, float distanceToSearch = MapConst.DefaultHeightSearch)

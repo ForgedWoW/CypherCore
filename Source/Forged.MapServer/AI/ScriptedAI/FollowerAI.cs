@@ -321,7 +321,7 @@ internal class FollowerAI : ScriptedAI
             return false;
 
         //never attack friendly
-        if (Me.IsFriendlyTo(who))
+        if (Me.WorldObjectCombat.IsFriendlyTo(who))
             return false;
 
         //too far away and no free sight?

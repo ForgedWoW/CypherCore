@@ -196,6 +196,11 @@ public class Aura
         // m_casterLevel = cast item level/caster level, caster level should be saved to db, confirmed with sniffs
     }
 
+    public int CalcMaxDuration(Unit caster)
+    {
+        return CalcMaxDuration(SpellInfo, caster);
+    }
+
     public T GetScript<T>() where T : AuraScript
     {
         return (T)GetScriptByType(typeof(T));
@@ -503,11 +508,6 @@ public class Aura
         _DeleteRemovedApplications();
     }
 
-    public int CalcMaxDuration(Unit caster)
-    {
-        return CalcMaxDuration(SpellInfo, caster);
-    }
-
     public static int CalcMaxDuration(SpellInfo spellInfo, WorldObject caster)
     {
         Player modOwner = null;
@@ -516,7 +516,7 @@ public class Aura
         if (caster != null)
         {
             modOwner = caster.SpellModOwner;
-            maxDuration = caster.CalcSpellDuration(spellInfo);
+            maxDuration = CalcSpellDuration(spellInfo, caster);
         }
         else
         {
@@ -531,6 +531,31 @@ public class Aura
             modOwner.ApplySpellMod(spellInfo, SpellModOp.Duration, ref maxDuration);
 
         return maxDuration;
+    }
+    
+    public static int CalcSpellDuration(SpellInfo spellInfo, WorldObject caster)
+    {
+        var comboPoints = 0;
+        var maxComboPoints = 5;
+        var unit = caster.AsUnit;
+
+        if (unit != null)
+        {
+            comboPoints = unit.GetPower(PowerType.ComboPoints);
+            maxComboPoints = unit.GetMaxPower(PowerType.ComboPoints);
+        }
+
+        var minduration = spellInfo.Duration;
+        var maxduration = spellInfo.MaxDuration;
+
+        int duration;
+
+        if (comboPoints != 0 && minduration != -1 && minduration != maxduration)
+            duration = minduration + ((maxduration - minduration) * comboPoints / maxComboPoints);
+        else
+            duration = minduration;
+
+        return duration;
     }
 
     public void SetDuration(double duration, bool withMods = false, bool updateMaxDuration = false)
@@ -968,11 +993,9 @@ public class Aura
 
         if (saBounds != null)
         {
-            target.GetZoneAndAreaId(out var zone, out var area);
-
             foreach (var spellArea in saBounds)
                 // some auras remove at aura remove
-                if (spellArea.Flags.HasAnyFlag(SpellAreaFlag.AutoRemove) && !spellArea.IsFitToRequirements((Player)target, zone, area))
+                if (spellArea.Flags.HasAnyFlag(SpellAreaFlag.AutoRemove) && !spellArea.IsFitToRequirements((Player)target, target.Location.Zone, target.Location.Area))
                     target.RemoveAura(spellArea.SpellId);
                 // some auras applied at aura apply
                 else if (spellArea.Flags.HasAnyFlag(SpellAreaFlag.AutoCast))

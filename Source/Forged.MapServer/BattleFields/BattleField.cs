@@ -559,7 +559,7 @@ public class BattleField : ZoneScript
         // Set creature in world
         m_Map.AddToMap(creature);
         creature.SetActive(true);
-        creature.SetFarVisible(true);
+        creature.Visibility.SetFarVisible(true);
 
         return creature;
     }
@@ -587,7 +587,7 @@ public class BattleField : ZoneScript
         // Add to world
         m_Map.AddToMap(go);
         go.SetActive(true);
-        go.SetFarVisible(true);
+        go.Visibility.SetFarVisible(true);
 
         return go;
     }

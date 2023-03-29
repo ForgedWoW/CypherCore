@@ -576,7 +576,7 @@ public partial class Unit : WorldObject
         for (byte i = 0; i < (int)UnitMoveType.Max; ++i)
             SpeedRate[i] = 1.0f;
 
-        ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+        Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
 
         _splineSyncTimer = new TimeTracker();
 
@@ -918,7 +918,7 @@ public partial class Unit : WorldObject
             base.UpdateObjectVisibility(true);
             // call MoveInLineOfSight for nearby creatures
             AIRelocationNotifier notifier = new(this, GridType.All);
-            Cell.VisitGrid(this, notifier, VisibilityRange);
+            Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
         }
     }
 
@@ -1250,7 +1250,7 @@ public partial class Unit : WorldObject
 
     public bool IsContestedGuard()
     {
-        var entry = GetFactionTemplateEntry();
+        var entry = WorldObjectCombat.GetFactionTemplateEntry();
 
         if (entry != null)
             return entry.IsContestedGuardFaction();
@@ -1378,7 +1378,7 @@ public partial class Unit : WorldObject
                 Log.Logger.Debug("EnterVehicle: {0} exit {1} and enter {2}.", Entry, Vehicle.GetBase().Entry, vehicle.GetBase().Entry);
                 ExitVehicle();
             }
-            else if (seatId >= 0 && seatId == TransSeat)
+            else if (seatId >= 0 && seatId == MovementInfo.Transport.Seat)
             {
                 return;
             }
@@ -1422,10 +1422,10 @@ public partial class Unit : WorldObject
             return;
 
         // Don't change if current and new seat are identical
-        if (seatId == TransSeat)
+        if (seatId == MovementInfo.Transport.Seat)
             return;
 
-        var seat = (seatId < 0 ? Vehicle.GetNextEmptySeat(TransSeat, next) : Vehicle.Seats.LookupByKey(seatId));
+        var seat = (seatId < 0 ? Vehicle.GetNextEmptySeat(MovementInfo.Transport.Seat, next) : Vehicle.Seats.LookupByKey(seatId));
 
         // The second part of the check will only return true if seatId >= 0. @Vehicle.GetNextEmptySeat makes sure of that.
         if (seat == null || !seat.IsEmpty())
@@ -1442,7 +1442,7 @@ public partial class Unit : WorldObject
             rideVehicleEffect = eff;
         }
 
-        rideVehicleEffect.ChangeAmount((seatId < 0 ? TransSeat : seatId) + 1);
+        rideVehicleEffect.ChangeAmount((seatId < 0 ? MovementInfo.Transport.Seat : seatId) + 1);
     }
 
     public virtual void ExitVehicle(Position exitPosition = null)
@@ -1868,14 +1868,14 @@ public partial class Unit : WorldObject
         }
     }
 
-    public bool IsVisible() => ServerSideVisibility.GetValue(ServerSideVisibilityType.GM) <= (uint)AccountTypes.Player;
+    public bool IsVisible() => Visibility.ServerSideVisibility.GetValue(ServerSideVisibilityType.GM) <= (uint)AccountTypes.Player;
 
     public void SetVisible(bool val)
     {
         if (!val)
-            ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.GameMaster);
+            Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.GameMaster);
         else
-            ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
+            Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
 
         UpdateObjectVisibility();
     }
@@ -2592,7 +2592,7 @@ public partial class Unit : WorldObject
                 var target = refe.Source;
 
                 // IsHostileTo check duel and controlled by enemy
-                if (target != null && target.Location.IsInMap(owner) && target.SubGroup == subgroup && !IsHostileTo(target))
+                if (target != null && target.Location.IsInMap(owner) && target.SubGroup == subgroup && !WorldObjectCombat.IsHostileTo(target))
                 {
                     if (target.IsAlive)
                         TagUnitMap.Add(target);
@@ -3525,14 +3525,14 @@ public partial class Unit : WorldObject
             if (target)
             {
                 // IsHostileTo check duel and controlled by enemy
-                if (target != this && Location.IsWithinDistInMap(target, radius) && target.IsAlive && !IsHostileTo(target))
+                if (target != this && Location.IsWithinDistInMap(target, radius) && target.IsAlive && !WorldObjectCombat.IsHostileTo(target))
                     nearMembers.Add(target);
 
                 // Push player's pet to vector
                 Unit pet = target.GetGuardianPet();
 
                 if (pet)
-                    if (pet != this && Location.IsWithinDistInMap(pet, radius) && pet.IsAlive && !IsHostileTo(pet))
+                    if (pet != this && Location.IsWithinDistInMap(pet, radius) && pet.IsAlive && !WorldObjectCombat.IsHostileTo(pet))
                         nearMembers.Add(pet);
             }
         }
@@ -3827,7 +3827,7 @@ public partial class Unit : WorldObject
                 // check if caster is immune to damage
                 if (caster.IsImmunedToDamage(damageInfo.SchoolMask))
                 {
-                    damageInfo.Victim.SendSpellMiss(caster, itr.SpellInfo.Id, SpellMissInfo.Immune);
+                    damageInfo.Victim.WorldObjectCombat.SendSpellMiss(caster, itr.SpellInfo.Id, SpellMissInfo.Immune);
 
                     continue;
                 }
@@ -4777,11 +4777,11 @@ public partial class Unit : WorldObject
                 var spellInfo = dmgShield.SpellInfo;
 
                 // Damage shield can be resisted...
-                var missInfo = victim.SpellHitResult(this, spellInfo, false);
+                var missInfo = victim.WorldObjectCombat.SpellHitResult(this, spellInfo, false);
 
                 if (missInfo != SpellMissInfo.None)
                 {
-                    victim.SendSpellMiss(this, spellInfo.Id, missInfo);
+                    victim.WorldObjectCombat.SendSpellMiss(this, spellInfo.Id, missInfo);
 
                     continue;
                 }

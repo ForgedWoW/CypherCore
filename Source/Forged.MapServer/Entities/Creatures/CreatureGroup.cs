@@ -91,7 +91,7 @@ public class CreatureGroup
             if (!other.IsAlive)
                 continue;
 
-            if (((other != _leader && groupAI.HasFlag(GroupAIFlags.MembersAssistLeader)) || (other == _leader && groupAI.HasFlag(GroupAIFlags.LeaderAssistsMember))) && other.IsValidAttackTarget(target))
+            if (((other != _leader && groupAI.HasFlag(GroupAIFlags.MembersAssistLeader)) || (other == _leader && groupAI.HasFlag(GroupAIFlags.LeaderAssistsMember))) && other.WorldObjectCombat.IsValidAttackTarget(target))
                 other.EngageWithTarget(target);
         }
 

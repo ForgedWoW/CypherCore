@@ -26,7 +26,7 @@ public class TaxiHandler : IWorldSessionHandler
         var player = Player;
         var unit = ObjectAccessor.GetCreature(player, guid);
 
-        if (!unit || unit.IsHostileTo(player) || !unit.HasNpcFlag(NPCFlags.FlightMaster))
+        if (!unit || unit.WorldObjectCombat.IsHostileTo(player) || !unit.HasNpcFlag(NPCFlags.FlightMaster))
         {
             Log.Logger.Debug("WorldSession.SendTaxiStatus - {0} not found.", guid.ToString());
 
@@ -41,7 +41,7 @@ public class TaxiHandler : IWorldSessionHandler
 
         if (nearest == 0)
             data.Status = TaxiNodeStatus.None;
-        else if (unit.GetReactionTo(player) >= ReputationRank.Neutral)
+        else if (unit.WorldObjectCombat.GetReactionTo(player) >= ReputationRank.Neutral)
             data.Status = player.Taxi.IsTaximaskNodeKnown(nearest) ? TaxiNodeStatus.Learned : TaxiNodeStatus.Unlearned;
         else
             data.Status = TaxiNodeStatus.NotEligible;

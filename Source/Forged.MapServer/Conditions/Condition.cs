@@ -344,7 +344,7 @@ public class Condition
                     var toUnit = toObject.AsUnit;
 
                     if (toUnit != null && unit != null)
-                        condMeets = Convert.ToBoolean((1 << (int)unit.GetReactionTo(toUnit)) & ConditionValue2);
+                        condMeets = Convert.ToBoolean((1 << (int)unit.WorldObjectCombat.GetReactionTo(toUnit)) & ConditionValue2);
                 }
 
                 break;

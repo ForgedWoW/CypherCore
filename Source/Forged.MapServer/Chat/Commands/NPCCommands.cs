@@ -617,7 +617,7 @@ internal class NPCCommands
         [Command("", RBACPermissions.CommandNpcAdd)]
         private static bool HandleNpcAddCommand(CommandHandler handler, uint id)
         {
-            if (Global.ObjectMgr.GetCreatureTemplate(id) == null)
+            if (handler.Session.Player.ObjectManager.GetCreatureTemplate(id) == null)
                 return false;
 
             var chr = handler.Session.Player;
@@ -627,12 +627,12 @@ internal class NPCCommands
 
             if (trans)
             {
-                var guid = Global.ObjectMgr.GenerateCreatureSpawnId();
-                var data = Global.ObjectMgr.NewOrExistCreatureData(guid);
+                var guid = handler.Session.Player.ObjectManager.GenerateCreatureSpawnId();
+                var data = handler.Session.Player.ObjectManager.NewOrExistCreatureData(guid);
                 data.SpawnId = guid;
-                data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+                data.SpawnGroupData = handler.Session.Player.ObjectManager.GetDefaultSpawnGroup();
                 data.Id = id;
-                data.SpawnPoint.Relocate(chr.TransOffsetX, chr.TransOffsetY, chr.TransOffsetZ, chr.TransOffsetO);
+                data.SpawnPoint.Relocate(chr.MovementInfo.Transport.Pos.X, chr.MovementInfo.Transport.Pos.Y, chr.MovementInfo.Transport.Pos.Z, chr.MovementInfo.Transport.Pos.Orientation);
                 data.SpawnGroupData = new SpawnGroupTemplateData();
 
                 var creaturePassenger = trans.CreateNPCPassenger(guid, data);
@@ -645,7 +645,7 @@ internal class NPCCommands
                                                    map.DifficultyID
                                                });
 
-                    Global.ObjectMgr.AddCreatureToGrid(data);
+                    handler.Session.Player.ObjectManager.AddCreatureToGrid(data);
                 }
 
                 return true;
@@ -674,7 +674,7 @@ internal class NPCCommands
             if (!creature)
                 return false;
 
-            Global.ObjectMgr.AddCreatureToGrid(Global.ObjectMgr.GetCreatureData(db_guid));
+            handler.Session.Player.ObjectManager.AddCreatureToGrid(handler.Session.Player.ObjectManager.GetCreatureData(db_guid));
 
             return true;
         }

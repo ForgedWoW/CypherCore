@@ -1013,7 +1013,7 @@ public class PlayerGroup
         {
             var member = refe.Source;
 
-            if (member && member != player && (!member.Location.IsInMap(player) || !member.Location.IsWithinDist(player, member.GetSightRange(), false)))
+            if (member && member != player && (!member.Location.IsInMap(player) || !member.Location.IsWithinDist(player, member.Visibility.GetSightRange(), false)))
                 member.SendPacket(packet);
         }
     }

@@ -28,13 +28,13 @@ internal class SimpleCharmedPlayerAI : PlayerAI
 
     public override bool CanAIAttack(Unit who)
     {
-        if (!Me.IsValidAttackTarget(who) || who.HasBreakableByDamageCrowdControlAura())
+        if (!Me.WorldObjectCombat.IsValidAttackTarget(who) || who.HasBreakableByDamageCrowdControlAura())
             return false;
 
         var charmer = Me.Charmer;
 
         if (charmer != null)
-            if (!charmer.IsValidAttackTarget(who))
+            if (!charmer.WorldObjectCombat.IsValidAttackTarget(who))
                 return false;
 
         return base.CanAIAttack(who);

@@ -25,7 +25,7 @@ internal class AllFriendlyUnitsInRange : ICheck<Unit>
         if (!u.IsVisible())
             return false;
 
-        if (!u.IsFriendlyTo(_unit))
+        if (!u.WorldObjectCombat.IsFriendlyTo(_unit))
             return false;
 
         if (_range != 0f)

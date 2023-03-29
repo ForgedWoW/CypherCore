@@ -53,7 +53,7 @@ public class CreatureWithOptionsInObjectRangeCheck<T> : ICheck<Creature> where T
         if (_args.IgnorePrivateObjects && u.IsPrivateObject)
             return false;
 
-        if (_args.IgnoreNotOwnedPrivateObjects && !u.CheckPrivateObjectOwnerVisibility(_obj))
+        if (_args.IgnoreNotOwnedPrivateObjects && !u.Visibility.CheckPrivateObjectOwnerVisibility(_obj))
             return false;
 
         if (_args.AuraSpellId.HasValue && !u.HasAura((uint)_args.AuraSpellId))

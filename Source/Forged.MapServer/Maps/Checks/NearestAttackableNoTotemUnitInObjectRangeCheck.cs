@@ -33,7 +33,7 @@ public class NearestAttackableNoTotemUnitInObjectRangeCheck : ICheck<Unit>
         if (!u.IsTargetableForAttack(false))
             return false;
 
-        if (!_obj.Location.IsWithinDist(u, _range) || _obj.IsValidAttackTarget(u))
+        if (!_obj.Location.IsWithinDist(u, _range) || _obj.WorldObjectCombat.IsValidAttackTarget(u))
             return false;
 
         _range = _obj.Location.GetDistance(u);

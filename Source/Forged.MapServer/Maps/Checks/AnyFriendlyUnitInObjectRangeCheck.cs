@@ -43,7 +43,7 @@ public class AnyFriendlyUnitInObjectRangeCheck : ICheck<Unit>
         if (!u.Location.IsInMap(_obj) || !u.Location.InSamePhase(_obj) || !u.Location.IsWithinDoubleVerticalCylinder(_obj.Location, searchRadius, searchRadius))
             return false;
 
-        if (!_funit.IsFriendlyTo(u))
+        if (!_funit.WorldObjectCombat.IsFriendlyTo(u))
             return false;
 
         return !_playerOnly || u.TypeId == TypeId.Player;

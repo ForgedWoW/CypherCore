@@ -253,7 +253,7 @@ public class AuraEffect
             {
                 // Haste modifies periodic time of channeled spells
                 if (_spellInfo.IsChanneled)
-                    caster.ModSpellDurationTime(_spellInfo, ref _period);
+                    caster.WorldObjectCombat.ModSpellDurationTime(_spellInfo, ref _period);
                 else if (_spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
                     _period = (int)(_period * caster.UnitData.ModCastingSpeed);
             }
@@ -1208,15 +1208,15 @@ public class AuraEffect
 
         if (apply)
         {
-            target.InvisibilityDetect.AddFlag(type);
-            target.InvisibilityDetect.AddValue(type, Amount);
+            target.Visibility.InvisibilityDetect.AddFlag(type);
+            target.Visibility.InvisibilityDetect.AddValue(type, Amount);
         }
         else
         {
             if (!target.HasAuraType(AuraType.ModInvisibilityDetect))
-                target.InvisibilityDetect.DelFlag(type);
+                target.Visibility.InvisibilityDetect.DelFlag(type);
 
-            target.InvisibilityDetect.AddValue(type, -Amount);
+            target.Visibility.InvisibilityDetect.AddValue(type, -Amount);
         }
 
         // call functions which may have additional effects after changing state of unit
@@ -1240,8 +1240,8 @@ public class AuraEffect
             if (playerTarget != null && type == InvisibilityType.General)
                 playerTarget.AddAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
-            target.Invisibility.AddFlag(type);
-            target.Invisibility.AddValue(type, Amount);
+            target.Visibility.Invisibility.AddFlag(type);
+            target.Visibility.Invisibility.AddValue(type, Amount);
 
             target.SetVisFlag(UnitVisFlags.Invisible);
         }
@@ -1254,7 +1254,7 @@ public class AuraEffect
                 if (playerTarget != null)
                     playerTarget.RemoveAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
-                target.Invisibility.DelFlag(type);
+                target.Visibility.Invisibility.DelFlag(type);
             }
             else
             {
@@ -1276,13 +1276,13 @@ public class AuraEffect
                     if (playerTarget != null && type == InvisibilityType.General)
                         playerTarget.RemoveAuraVision(PlayerFieldByte2Flags.InvisibilityGlow);
 
-                    target.Invisibility.DelFlag(type);
+                    target.Visibility.Invisibility.DelFlag(type);
 
                     target.RemoveVisFlag(UnitVisFlags.Invisible);
                 }
             }
 
-            target.Invisibility.AddValue(type, -Amount);
+            target.Visibility.Invisibility.AddValue(type, -Amount);
         }
 
         // call functions which may have additional effects after changing state of unit
@@ -1305,15 +1305,15 @@ public class AuraEffect
 
         if (apply)
         {
-            target.StealthDetect.AddFlag(type);
-            target.StealthDetect.AddValue(type, Amount);
+            target.Visibility.StealthDetect.AddFlag(type);
+            target.Visibility.StealthDetect.AddValue(type, Amount);
         }
         else
         {
             if (!target.HasAuraType(AuraType.ModStealthDetect))
-                target.StealthDetect.DelFlag(type);
+                target.Visibility.StealthDetect.DelFlag(type);
 
-            target.StealthDetect.AddValue(type, -Amount);
+            target.Visibility.StealthDetect.AddValue(type, -Amount);
         }
 
         // call functions which may have additional effects after changing state of unit
@@ -1332,8 +1332,8 @@ public class AuraEffect
 
         if (apply)
         {
-            target.Stealth.AddFlag(type);
-            target.Stealth.AddValue(type, Amount);
+            target.Visibility.Stealth.AddFlag(type);
+            target.Visibility.Stealth.AddValue(type, Amount);
             target.SetVisFlag(UnitVisFlags.Stealthed);
             var playerTarget = target.AsPlayer;
 
@@ -1342,11 +1342,11 @@ public class AuraEffect
         }
         else
         {
-            target.Stealth.AddValue(type, -Amount);
+            target.Visibility.Stealth.AddValue(type, -Amount);
 
             if (!target.HasAuraType(AuraType.ModStealth)) // if last SPELL_AURA_MOD_STEALTH
             {
-                target.Stealth.DelFlag(type);
+                target.Visibility.Stealth.DelFlag(type);
 
                 target.RemoveVisFlag(UnitVisFlags.Stealthed);
                 var playerTarget = target.AsPlayer;
@@ -1375,9 +1375,9 @@ public class AuraEffect
         var type = (StealthType)MiscValue;
 
         if (apply)
-            target.Stealth.AddValue(type, Amount);
+            target.Visibility.Stealth.AddValue(type, Amount);
         else
-            target.Stealth.AddValue(type, -Amount);
+            target.Visibility.Stealth.AddValue(type, -Amount);
 
         // call functions which may have additional effects after changing state of unit
         if (target.Location.IsInWorld)
@@ -1461,8 +1461,8 @@ public class AuraEffect
         if (apply)
         {
             target.SetPlayerFlag(PlayerFlags.Ghost);
-            target.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
-            target.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
+            target.Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
+            target.Visibility.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
         }
         else
         {
@@ -1470,8 +1470,8 @@ public class AuraEffect
                 return;
 
             target.RemovePlayerFlag(PlayerFlags.Ghost);
-            target.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
-            target.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+            target.Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+            target.Visibility.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
         }
     }
 
@@ -5322,8 +5322,8 @@ public class AuraEffect
 
         if (apply)
         {
-            target.InvisibilityDetect.AddFlag(InvisibilityType.Drunk);
-            target.InvisibilityDetect.AddValue(InvisibilityType.Drunk, AmountAsInt);
+            target.Visibility.InvisibilityDetect.AddFlag(InvisibilityType.Drunk);
+            target.Visibility.InvisibilityDetect.AddValue(InvisibilityType.Drunk, AmountAsInt);
 
             var playerTarget = target.AsPlayer;
 
@@ -5334,7 +5334,7 @@ public class AuraEffect
         {
             var removeDetect = !target.HasAuraType(AuraType.ModFakeInebriate);
 
-            target.InvisibilityDetect.AddValue(InvisibilityType.Drunk, -AmountAsInt);
+            target.Visibility.InvisibilityDetect.AddValue(InvisibilityType.Drunk, -AmountAsInt);
 
             var playerTarget = target.AsPlayer;
 
@@ -5347,7 +5347,7 @@ public class AuraEffect
             }
 
             if (removeDetect)
-                target.InvisibilityDetect.DelFlag(InvisibilityType.Drunk);
+                target.Visibility.InvisibilityDetect.DelFlag(InvisibilityType.Drunk);
         }
 
         // call functions which may have additional effects after changing state of unit
@@ -5537,7 +5537,7 @@ public class AuraEffect
         // Consecrate ticks can miss and will not show up in the combat log
         // dynobj auras must always have a caster
         if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
-            caster.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
+            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
             return;
 
         CleanDamage cleanDamage = new(0, 0, WeaponAttackType.BaseAttack, MeleeHitOutcome.Normal);
@@ -5677,7 +5677,7 @@ public class AuraEffect
 
         // dynobj auras must always have a caster
         if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
-            caster.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
+            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
             return;
 
         CleanDamage cleanDamage = new(0, 0, SpellInfo.GetAttackType(), MeleeHitOutcome.Normal);
@@ -5881,7 +5881,7 @@ public class AuraEffect
         }
 
         if (GetSpellEffectInfo().IsEffect(SpellEffectName.PersistentAreaAura) &&
-            caster.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
+            caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, false) != SpellMissInfo.None)
             return;
 
         // ignore negative values (can be result apply spellmods to aura damage

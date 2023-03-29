@@ -50,7 +50,7 @@ public class AnyAoETargetUnitInObjectRangeCheck : ICheck<Unit>
             }
         }
 
-        if (!_funit.IsValidAttackTarget(u, _spellInfo))
+        if (!_funit.WorldObjectCombat.IsValidAttackTarget(u, _spellInfo))
             return false;
 
         var searchRadius = _range;

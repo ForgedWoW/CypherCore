@@ -25,7 +25,7 @@ internal class NearestCreatureEntryWithLiveStateInObjectRangeCheck : ICheck<Crea
 
     public bool Invoke(Creature u)
     {
-        if (u.DeathState != DeathState.Dead && u.Entry == _entry && u.IsAlive == _alive && u.GUID != _obj.GUID && _obj.Location.IsWithinDist(u, _range) && u.CheckPrivateObjectOwnerVisibility(_obj))
+        if (u.DeathState != DeathState.Dead && u.Entry == _entry && u.IsAlive == _alive && u.GUID != _obj.GUID && _obj.Location.IsWithinDist(u, _range) && u.Visibility.CheckPrivateObjectOwnerVisibility(_obj))
         {
             _range = _obj.Location.GetDistance(u); // use found unit range as new range limit for next check
 

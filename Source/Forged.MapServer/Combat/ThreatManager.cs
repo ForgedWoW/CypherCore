@@ -251,7 +251,7 @@ public class ThreatManager
         }
 
         // If victim is personal spawn, redirect all aggro to summoner
-        if (target.IsPrivateObject && (!Owner.IsPrivateObject || !Owner.CheckPrivateObjectOwnerVisibility(target)))
+        if (target.IsPrivateObject && (!Owner.IsPrivateObject || !Owner.Visibility.CheckPrivateObjectOwnerVisibility(target)))
         {
             var privateObjectOwner = Global.ObjAccessor.GetUnit(Owner, target.PrivateObjectOwner);
 

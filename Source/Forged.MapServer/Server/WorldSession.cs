@@ -107,7 +107,7 @@ public class WorldSession : IDisposable
 
     private ConnectToKey _instanceConnectKey;
 
-    public WorldSocket Socket { get; }
+    public WorldSocket Socket { get; set; }
 
     // Packets cooldown
 
@@ -1487,8 +1487,7 @@ public class WorldSession : IDisposable
         }
 
         // update zone immediately, otherwise leave channel will cause crash in mtmap
-        player.GetZoneAndAreaId(out var newzone, out var newarea);
-        player.UpdateZone(newzone, newarea);
+        player.UpdateZone(player.Location.Zone, player.Location.Area);
 
         // honorless target
         if (player.PvpInfo.IsHostile)

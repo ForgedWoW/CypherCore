@@ -25,12 +25,12 @@ internal class NearestHostileUnitInAttackDistanceCheck : ICheck<Unit>
         if (!_me.Location.IsWithinDist(u, _range))
             return false;
 
-        if (!_me.CanSeeOrDetect(u))
+        if (!_me.Visibility.CanSeeOrDetect(u))
             return false;
 
         if (_force)
         {
-            if (!_me.IsValidAttackTarget(u))
+            if (!_me.WorldObjectCombat.IsValidAttackTarget(u))
                 return false;
         }
         else if (!_me.CanStartAttack(u, false))

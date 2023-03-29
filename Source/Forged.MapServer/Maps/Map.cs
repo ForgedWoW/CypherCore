@@ -2902,7 +2902,7 @@ public class Map : IDisposable
                 }
             }
 
-            summon.GetOrCreateSmoothPhasing().SetSingleInfo(smoothPhasingInfo);
+            summon.Visibility.GetOrCreateSmoothPhasing().SetSingleInfo(smoothPhasingInfo);
         }
 
         if (!AddToMap(summon.AsCreature))

@@ -588,7 +588,7 @@ public partial class Creature : Unit
                             if (player.IsGameMaster)
                                 continue;
 
-                            if (player.IsAlive && IsHostileTo(player))
+                            if (player.IsAlive && WorldObjectCombat.IsHostileTo(player))
                                 EngageWithTarget(player);
                         }
 
@@ -834,7 +834,7 @@ public partial class Creature : Unit
 
         // Allow players to see those units while dead, do it here (mayby altered by addon auras)
         if (cinfo.TypeFlags.HasAnyFlag(CreatureTypeFlags.VisibleToGhosts))
-            ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
+            Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
 
         if (!CreateFromProto(guidlow, entry, data, vehId))
             return false;
@@ -877,8 +877,8 @@ public partial class Creature : Unit
 
         if (IsSpiritHealer || IsSpiritGuide || Template.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.GhostVisibility))
         {
-            ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
-            ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
+            Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
+            Visibility.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Ghost);
         }
 
         if (cinfo.FlagsExtra.HasAnyFlag(CreatureFlagsExtra.IgnorePathfinding))
@@ -1321,7 +1321,7 @@ public partial class Creature : Unit
         else
         {
             data.MapId = mapid;
-            data.SpawnPoint.Relocate(TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO);
+            data.SpawnPoint.Relocate(MovementInfo.Transport.Pos.X, MovementInfo.Transport.Pos.Y, MovementInfo.Transport.Pos.Z, MovementInfo.Transport.Pos.Orientation);
         }
 
         data.spawntimesecs = (int)RespawnDelay;
@@ -1725,7 +1725,7 @@ public partial class Creature : Unit
             if (!_IsTargetAcceptable(who))
                 return false;
 
-            if (IsNeutralToAll() || !Location.IsWithinDistInMap(who, (float)GetAttackDistance(who) + CombatDistance))
+            if (WorldObjectCombat.IsNeutralToAll() || !Location.IsWithinDistInMap(who, (float)GetAttackDistance(who) + CombatDistance))
                 return false;
         }
 
@@ -2195,12 +2195,12 @@ public partial class Creature : Unit
         }
         else
         {
-            if (!IsFriendlyTo(u))
+            if (!WorldObjectCombat.IsFriendlyTo(u))
                 return false;
         }
 
         // skip non hostile to caster enemy creatures
-        if (!IsHostileTo(enemy))
+        if (!WorldObjectCombat.IsHostileTo(enemy))
             return false;
 
         return true;
@@ -2209,7 +2209,7 @@ public partial class Creature : Unit
     public bool _IsTargetAcceptable(Unit target)
     {
         // if the target cannot be attacked, the target is not acceptable
-        if (IsFriendlyTo(target) || !target.IsTargetableForAttack(false) || (Vehicle != null && (IsOnVehicle(target) || Vehicle.GetBase().IsOnVehicle(target))))
+        if (WorldObjectCombat.IsFriendlyTo(target) || !target.IsTargetableForAttack(false) || (Vehicle != null && (IsOnVehicle(target) || Vehicle.GetBase().IsOnVehicle(target))))
             return false;
 
         if (target.HasUnitState(UnitState.Died))
@@ -2222,7 +2222,7 @@ public partial class Creature : Unit
         }
 
         // if I'm already fighting target, or I'm hostile towards the target, the target is acceptable
-        if (IsEngagedBy(target) || IsHostileTo(target))
+        if (IsEngagedBy(target) || WorldObjectCombat.IsHostileTo(target))
             return true;
 
         // if the target's victim is not friendly, or the target is friendly, the target is not acceptable
@@ -2257,7 +2257,7 @@ public partial class Creature : Unit
         if (!victim.Location.IsInMap(this))
             return false;
 
-        if (!IsValidAttackTarget(victim))
+        if (!WorldObjectCombat.IsValidAttackTarget(victim))
             return false;
 
         if (!victim.IsInAccessiblePlaceFor(this))
@@ -2347,7 +2347,7 @@ public partial class Creature : Unit
 
         // Check if visibility distance different
         if (creatureAddon.VisibilityDistanceType != VisibilityDistanceType.Normal)
-            SetVisibilityDistanceOverride(creatureAddon.VisibilityDistanceType);
+            Visibility.SetVisibilityDistanceOverride(creatureAddon.VisibilityDistanceType);
 
         //Load Path
         if (creatureAddon.PathId != 0)

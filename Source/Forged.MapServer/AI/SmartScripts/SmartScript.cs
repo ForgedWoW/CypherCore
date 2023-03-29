@@ -2925,9 +2925,9 @@ public class SmartScript
                 foreach (var target in targets)
                     if (IsUnit(target))
                     {
-                        target.AsUnit.SendPlaySpellVisualKit(e.Action.spellVisualKit.spellVisualKitId,
-                                                             e.Action.spellVisualKit.kitType,
-                                                             e.Action.spellVisualKit.duration);
+                        target.AsUnit.WorldObjectCombat.SendPlaySpellVisualKit(e.Action.spellVisualKit.spellVisualKitId,
+                                                                               e.Action.spellVisualKit.kitType,
+                                                                               e.Action.spellVisualKit.duration);
 
                         Log.Logger.Debug($"SmartScript::ProcessAction:: SMART_ACTION_PLAY_SPELL_VISUAL_KIT: target: {target.GetName()} ({target.GUID}), SpellVisualKit: {e.Action.spellVisualKit.spellVisualKitId}");
                     }
@@ -4044,7 +4044,7 @@ public class SmartScript
                     var hostilityMode = (LOSHostilityMode)e.Event.los.hostilityMode;
 
                     //if friendly event&&who is not hostile OR hostile event&&who is hostile
-                    if ((hostilityMode == LOSHostilityMode.Any) || (hostilityMode == LOSHostilityMode.NotHostile && !_me.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.IsHostileTo(unit)))
+                    if ((hostilityMode == LOSHostilityMode.Any) || (hostilityMode == LOSHostilityMode.NotHostile && !_me.WorldObjectCombat.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.WorldObjectCombat.IsHostileTo(unit)))
                     {
                         if (e.Event.los.playerOnly != 0 && !unit.IsTypeId(TypeId.Player))
                             return;
@@ -4070,7 +4070,7 @@ public class SmartScript
                     var hostilityMode = (LOSHostilityMode)e.Event.los.hostilityMode;
 
                     //if friendly event&&who is not hostile OR hostile event&&who is hostile
-                    if ((hostilityMode == LOSHostilityMode.Any) || (hostilityMode == LOSHostilityMode.NotHostile && !_me.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.IsHostileTo(unit)))
+                    if ((hostilityMode == LOSHostilityMode.Any) || (hostilityMode == LOSHostilityMode.NotHostile && !_me.WorldObjectCombat.IsHostileTo(unit)) || (hostilityMode == LOSHostilityMode.Hostile && _me.WorldObjectCombat.IsHostileTo(unit)))
                     {
                         if (e.Event.los.playerOnly != 0 && !unit.IsTypeId(TypeId.Player))
                             return;
@@ -4308,7 +4308,7 @@ public class SmartScript
                         var targets = GetTargets(e);
 
                         foreach (var target in targets)
-                            if (IsUnit(target) && _me.IsFriendlyTo(target.AsUnit) && target.AsUnit.IsAlive && target.AsUnit.IsInCombat)
+                            if (IsUnit(target) && _me.WorldObjectCombat.IsFriendlyTo(target.AsUnit) && target.AsUnit.IsAlive && target.AsUnit.IsInCombat)
                             {
                                 var healthPct = (uint)target.AsUnit.HealthPct;
 

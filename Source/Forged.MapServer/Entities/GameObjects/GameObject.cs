@@ -106,7 +106,7 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             get
             {
-                var got = Global.ObjectMgr.GetGameObjectTemplate(Entry);
+                var got = ObjectManager.GetGameObjectTemplate(Entry);
 
                 if (got != null)
                     return got.AIName;
@@ -121,7 +121,7 @@ namespace Forged.MapServer.Entities.GameObjects
             {
                 if (_spawnId != 0)
                 {
-                    var goOverride = Global.ObjectMgr.GetGameObjectOverride(_spawnId);
+                    var goOverride = ObjectManager.GetGameObjectOverride(_spawnId);
 
                     if (goOverride != null)
                         return goOverride;
@@ -322,7 +322,7 @@ namespace Forged.MapServer.Entities.GameObjects
             set
             {
                 SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ArtKit), value);
-                var data = Global.ObjectMgr.GetGameObjectData(_spawnId);
+                var data = ObjectManager.GetGameObjectData(_spawnId);
 
                 if (data != null)
                     data.ArtKit = value;
@@ -461,7 +461,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public static GameObject CreateGameObject(uint entry, Map map, Position pos, Quaternion rotation, uint animProgress, GameObjectState goState, uint artKit = 0)
         {
-            var goInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+            var goInfo = ObjectManager.GetGameObjectTemplate(entry);
 
             if (goInfo == null)
                 return null;
@@ -614,7 +614,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                                 if (linkedRespawntime != 0) // Can't respawn, the master is dead
                                 {
-                                    var targetGuid = Global.ObjectMgr.GetLinkedRespawnGuid(dbtableHighGuid);
+                                    var targetGuid = ObjectManager.GetLinkedRespawnGuid(dbtableHighGuid);
 
                                     if (targetGuid == dbtableHighGuid) // if linking self, never respawn (check delayed to next day)
                                         SetRespawnTime(Time.Week);
@@ -1151,7 +1151,7 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             // this should only be used when the gameobject has already been loaded
             // preferably after adding to map, because mapid may not be valid otherwise
-            var data = Global.ObjectMgr.GetGameObjectData(_spawnId);
+            var data = ObjectManager.GetGameObjectData(_spawnId);
 
             if (data == null)
             {
@@ -1178,10 +1178,10 @@ namespace Forged.MapServer.Entities.GameObjects
                 return;
 
             if (_spawnId == 0)
-                _spawnId = Global.ObjectMgr.GenerateGameObjectSpawnId();
+                _spawnId = ObjectManager.GenerateGameObjectSpawnId();
 
             // update in loaded data (changing data only in this place)
-            var data = Global.ObjectMgr.NewOrExistGameObjectData(_spawnId);
+            var data = ObjectManager.NewOrExistGameObjectData(_spawnId);
 
             if (data.SpawnId == 0)
                 data.SpawnId = _spawnId;
@@ -1197,7 +1197,7 @@ namespace Forged.MapServer.Entities.GameObjects
             data.ArtKit = (byte)GoArtKit;
 
             if (data.SpawnGroupData == null)
-                data.SpawnGroupData = Global.ObjectMgr.GetDefaultSpawnGroup();
+                data.SpawnGroupData = ObjectManager.GetDefaultSpawnGroup();
 
             data.PhaseId = Location.DBPhase > 0 ? (uint)Location.DBPhase : data.PhaseId;
             data.PhaseGroup = Location.DBPhase < 0 ? (uint)-Location.DBPhase : data.PhaseGroup;
@@ -1231,7 +1231,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public override bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool unused = true)
         {
-            var data = Global.ObjectMgr.GetGameObjectData(spawnId);
+            var data = ObjectManager.GetGameObjectData(spawnId);
 
             if (data == null)
             {
@@ -1243,13 +1243,13 @@ namespace Forged.MapServer.Entities.GameObjects
             var entry = data.Id;
 
             var animprogress = data.Animprogress;
-            var go_state = data.GoState;
+            var goState = data.GoState;
             var artKit = data.ArtKit;
 
             _spawnId = spawnId;
             _respawnCompatibilityMode = ((data.SpawnGroupData.Flags & SpawnGroupFlags.CompatibilityMode) != 0);
 
-            if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, go_state, artKit, !_respawnCompatibilityMode, spawnId))
+            if (!Create(entry, map, data.SpawnPoint, data.Rotation, animprogress, goState, artKit, !_respawnCompatibilityMode, spawnId))
                 return false;
 
             PhasingHandler.InitDbPhaseShift(Location.PhaseShift, data.PhaseUseFlags, data.PhaseId, data.PhaseGroup);
@@ -1301,7 +1301,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public static bool DeleteFromDB(ulong spawnId)
         {
-            var data = Global.ObjectMgr.GetGameObjectData(spawnId);
+            var data = ObjectManager.GetGameObjectData(spawnId);
 
             if (data == null)
                 return false;
@@ -1324,7 +1324,7 @@ namespace Forged.MapServer.Entities.GameObjects
                                                 });
 
             // delete data from memory
-            Global.ObjectMgr.DeleteGameObjectData(spawnId);
+            ObjectManager.DeleteGameObjectData(spawnId);
 
             trans = new SQLTransaction();
 
@@ -1368,12 +1368,12 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public override bool HasQuest(uint questId)
         {
-            return Global.ObjectMgr.GetGOQuestRelations(Entry).HasQuest(questId);
+            return ObjectManager.GetGOQuestRelations(Entry).HasQuest(questId);
         }
 
         public override bool HasInvolvedQuest(uint questId)
         {
-            return Global.ObjectMgr.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
+            return ObjectManager.GetGOQuestInvolvedRelations(Entry).HasQuest(questId);
         }
 
         public void SaveRespawnTime(uint forceDelay = 0)
@@ -1434,7 +1434,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                 var owner = OwnerUnit;
 
-                if (owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.IsFriendlyTo(seer.AsUnit))
+                if (owner != null && seer.IsTypeMask(TypeMask.Unit) && owner.WorldObjectCombat.IsFriendlyTo(seer.AsUnit))
                     return true;
             }
 
@@ -1475,7 +1475,7 @@ namespace Forged.MapServer.Entities.GameObjects
             if (target.HasQuestForGO((int)Entry))
                 return true;
 
-            if (!Global.ObjectMgr.IsGameObjectForQuests(Entry))
+            if (!ObjectManager.IsGameObjectForQuests(Entry))
                 return false;
 
             switch (GoType)
@@ -1529,7 +1529,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void TriggeringLinkedGameObject(uint trapEntry, Unit target)
         {
-            var trapInfo = Global.ObjectMgr.GetGameObjectTemplate(trapEntry);
+            var trapInfo = ObjectManager.GetGameObjectTemplate(trapEntry);
 
             if (trapInfo == null || trapInfo.type != GameObjectTypes.Trap)
                 return;
@@ -1557,18 +1557,18 @@ namespace Forged.MapServer.Entities.GameObjects
             _cooldownTime = 0;
         }
 
-        public void UseDoorOrButton(uint time_to_restore = 0, bool alternative = false, Unit user = null)
+        public void UseDoorOrButton(uint timeToRestore = 0, bool alternative = false, Unit user = null)
         {
             if (_lootState != LootState.Ready)
                 return;
 
-            if (time_to_restore == 0)
-                time_to_restore = Template.GetAutoCloseTime();
+            if (timeToRestore == 0)
+                timeToRestore = Template.GetAutoCloseTime();
 
             SwitchDoorOrButton(true, alternative);
             SetLootState(LootState.Activated, user);
 
-            _cooldownTime = time_to_restore != 0 ? GameTime.GetGameTimeMS() + time_to_restore : 0;
+            _cooldownTime = timeToRestore != 0 ? GameTime.GetGameTimeMS() + timeToRestore : 0;
         }
 
         public void ActivateObject(GameObjectActions action, int param, WorldObject spellCaster = null, uint spellId = 0, int effectIndex = -1)
@@ -1749,7 +1749,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
             else if (lowguid != 0)
             {
-                data = Global.ObjectMgr.GetGameObjectData(lowguid);
+                data = ObjectManager.GetGameObjectData(lowguid);
             }
 
             if (data != null)
@@ -1961,23 +1961,23 @@ namespace Forged.MapServer.Entities.GameObjects
                     // a chair may have n slots. we have to calculate their positions and teleport the player to the nearest one
                     var lowestDist = SharedConst.DefaultVisibilityDistance;
 
-                    uint nearest_slot = 0;
-                    var x_lowest = Location.X;
-                    var y_lowest = Location.Y;
+                    uint nearestSlot = 0;
+                    var xLowest = Location.X;
+                    var yLowest = Location.Y;
 
                     // the object orientation + 1/2 pi
                     // every slot will be on that straight line
                     var orthogonalOrientation = Location.Orientation + MathFunctions.PI * 0.5f;
                     // find nearest slot
-                    var found_free_slot = false;
+                    var foundFreeSlot = false;
 
                     foreach (var (slot, sittingUnit) in _chairListSlots.ToList())
                     {
                         // the distance between this slot and the center of the go - imagine a 1D space
                         var relativeDistance = (info.size * slot) - (info.size * (info.Chair.chairslots - 1) / 2.0f);
 
-                        var x_i = (float)(Location.X + relativeDistance * Math.Cos(orthogonalOrientation));
-                        var y_i = (float)(Location.Y + relativeDistance * Math.Sin(orthogonalOrientation));
+                        var xI = (float)(Location.X + relativeDistance * Math.Cos(orthogonalOrientation));
+                        var yI = (float)(Location.Y + relativeDistance * Math.Sin(orthogonalOrientation));
 
                         if (!sittingUnit.IsEmpty)
                         {
@@ -1985,7 +1985,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                             if (chairUser != null)
                             {
-                                if (chairUser.IsSitState && chairUser.StandState != UnitStandStateType.Sit && chairUser.Location.GetExactDist2d(x_i, y_i) < 0.1f)
+                                if (chairUser.IsSitState && chairUser.StandState != UnitStandStateType.Sit && chairUser.Location.GetExactDist2d(xI, yI) < 0.1f)
                                     continue; // This seat is already occupied by ChairUser. NOTE: Not sure if the ChairUser.getStandState() != UNIT_STAND_STATE_SIT check is required.
 
                                 _chairListSlots[slot].Clear(); // This seat is unoccupied.
@@ -1996,28 +1996,28 @@ namespace Forged.MapServer.Entities.GameObjects
                             }
                         }
 
-                        found_free_slot = true;
+                        foundFreeSlot = true;
 
                         // calculate the distance between the player and this slot
-                        var thisDistance = user.Location.GetDistance2d(x_i, y_i);
+                        var thisDistance = user.Location.GetDistance2d(xI, yI);
 
                         if (thisDistance <= lowestDist)
                         {
-                            nearest_slot = slot;
+                            nearestSlot = slot;
                             lowestDist = thisDistance;
-                            x_lowest = x_i;
-                            y_lowest = y_i;
+                            xLowest = xI;
+                            yLowest = yI;
                         }
                     }
 
-                    if (found_free_slot)
+                    if (foundFreeSlot)
                     {
-                        var guid = _chairListSlots.LookupByKey(nearest_slot);
+                        var guid = _chairListSlots.LookupByKey(nearestSlot);
 
                         if (guid.IsEmpty)
                         {
-                            _chairListSlots[nearest_slot] = user.GUID; //this slot in now used by player
-                            user.NearTeleportTo(x_lowest, y_lowest, Location.Z, Location.Orientation);
+                            _chairListSlots[nearestSlot] = user.GUID; //this slot in now used by player
+                            user.NearTeleportTo(xLowest, yLowest, Location.Z, Location.Orientation);
                             user.SetStandState(UnitStandStateType.SitLowChair + (byte)info.Chair.chairheight);
 
                             if (info.Chair.triggeredEvent != 0)
@@ -2069,7 +2069,7 @@ namespace Forged.MapServer.Entities.GameObjects
                         }
 
                         // possible quest objective for active quests
-                        if (info.Goober.questID != 0 && Global.ObjectMgr.GetQuestTemplate(info.Goober.questID) != null)
+                        if (info.Goober.questID != 0 && ObjectManager.GetQuestTemplate(info.Goober.questID) != null)
                             //Quest require to be active for GO using
                             if (player.GetQuestStatus(info.Goober.questID) != QuestStatus.Incomplete)
                                 break;
@@ -2164,25 +2164,22 @@ namespace Forged.MapServer.Entities.GameObjects
                             ReplaceAllFlags(GameObjectFlags.InMultiUse);
 
                             SendUpdateToPlayer(player);
+                            var zoneSkill = ObjectManager.GetFishingBaseSkillLevel(Location.Area);
 
-                            GetZoneAndAreaId(out var zone, out var subzone);
-
-                            var zone_skill = Global.ObjectMgr.GetFishingBaseSkillLevel(subzone);
-
-                            if (zone_skill == 0)
-                                zone_skill = Global.ObjectMgr.GetFishingBaseSkillLevel(zone);
+                            if (zoneSkill == 0)
+                                zoneSkill = ObjectManager.GetFishingBaseSkillLevel(Location.Zone);
 
                             //provide error, no fishable zone or area should be 0
-                            if (zone_skill == 0)
-                                Log.Logger.Error("Fishable areaId {0} are not properly defined in `skill_fishing_base_level`.", subzone);
+                            if (zoneSkill == 0)
+                                Log.Logger.Error("Fishable areaId {0} are not properly defined in `skill_fishing_base_level`.", Location.Area);
 
                             int skill = player.GetSkillValue(SkillType.ClassicFishing);
 
                             int chance;
 
-                            if (skill < zone_skill)
+                            if (skill < zoneSkill)
                             {
-                                chance = (int)(Math.Pow((double)skill / zone_skill, 2) * 100);
+                                chance = (int)(Math.Pow((double)skill / zoneSkill, 2) * 100);
 
                                 if (chance < 1)
                                     chance = 1;
@@ -2194,7 +2191,7 @@ namespace Forged.MapServer.Entities.GameObjects
 
                             var roll = RandomHelper.IRand(1, 100);
 
-                            Log.Logger.Debug("Fishing check (skill: {0} zone min skill: {1} chance {2} roll: {3}", skill, zone_skill, chance, roll);
+                            Log.Logger.Debug("Fishing check (skill: {0} zone min skill: {1} chance {2} roll: {3}", skill, zoneSkill, chance, roll);
 
                             player.UpdateFishingSkill();
 
@@ -2623,7 +2620,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     if (!player)
                         return;
 
-                    GameObjectInteraction gameObjectUILink = new()
+                    GameObjectInteraction gameObjectUiLink = new()
                     {
                         ObjectGUID = GUID
                     };
@@ -2631,26 +2628,26 @@ namespace Forged.MapServer.Entities.GameObjects
                     switch (Template.UILink.UILinkType)
                     {
                         case 0:
-                            gameObjectUILink.InteractionType = PlayerInteractionType.AdventureJournal;
+                            gameObjectUiLink.InteractionType = PlayerInteractionType.AdventureJournal;
 
                             break;
                         case 1:
-                            gameObjectUILink.InteractionType = PlayerInteractionType.ObliterumForge;
+                            gameObjectUiLink.InteractionType = PlayerInteractionType.ObliterumForge;
 
                             break;
                         case 2:
-                            gameObjectUILink.InteractionType = PlayerInteractionType.ScrappingMachine;
+                            gameObjectUiLink.InteractionType = PlayerInteractionType.ScrappingMachine;
 
                             break;
                         case 3:
-                            gameObjectUILink.InteractionType = PlayerInteractionType.ItemInteraction;
+                            gameObjectUiLink.InteractionType = PlayerInteractionType.ItemInteraction;
 
                             break;
                         default:
                             break;
                     }
 
-                    player.SendPacket(gameObjectUILink);
+                    player.SendPacket(gameObjectUiLink);
 
                     return;
                 }
@@ -2800,7 +2797,7 @@ namespace Forged.MapServer.Entities.GameObjects
         {
             if (locale != Locale.enUS)
             {
-                var cl = Global.ObjectMgr.GetGameObjectLocale(Entry);
+                var cl = ObjectManager.GetGameObjectLocale(Entry);
 
                 if (cl != null)
                     if (cl.Name.Length > (int)locale && !cl.Name[(int)locale].IsEmpty())
@@ -2812,16 +2809,16 @@ namespace Forged.MapServer.Entities.GameObjects
 
         public void UpdatePackedRotation()
         {
-            const int PACK_YZ = 1 << 20;
-            const int PACK_X = PACK_YZ << 1;
+            const int packYz = 1 << 20;
+            const int packX = packYz << 1;
 
-            const int PACK_YZ_MASK = (PACK_YZ << 1) - 1;
-            const int PACK_X_MASK = (PACK_X << 1) - 1;
+            const int packYzMask = (packYz << 1) - 1;
+            const int packXMask = (packX << 1) - 1;
 
-            var w_sign = (sbyte)(_localRotation.W >= 0.0f ? 1 : -1);
-            long x = (int)(_localRotation.X * PACK_X) * w_sign & PACK_X_MASK;
-            long y = (int)(_localRotation.Y * PACK_YZ) * w_sign & PACK_YZ_MASK;
-            long z = (int)(_localRotation.Z * PACK_YZ) * w_sign & PACK_YZ_MASK;
+            var wSign = (sbyte)(_localRotation.W >= 0.0f ? 1 : -1);
+            long x = (int)(_localRotation.X * packX) * wSign & packXMask;
+            long y = (int)(_localRotation.Y * packYz) * wSign & packYzMask;
+            long z = (int)(_localRotation.Z * packYz) * wSign & packYzMask;
             _packedRotation = z | (y << 21) | (x << 42);
         }
 
@@ -2842,9 +2839,9 @@ namespace Forged.MapServer.Entities.GameObjects
             SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.ParentRotation), rotation);
         }
 
-        public void SetLocalRotationAngles(float z_rot, float y_rot, float x_rot)
+        public void SetLocalRotationAngles(float zRot, float yRot, float xRot)
         {
-            var quat = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(z_rot, y_rot, x_rot));
+            var quat = Quaternion.CreateFromRotationMatrix(Extensions.fromEulerAnglesZYX(zRot, yRot, xRot));
             SetLocalRotation(quat.X, quat.Y, quat.Z, quat.W);
         }
 
@@ -3709,15 +3706,15 @@ namespace Forged.MapServer.Entities.GameObjects
             SetUpdateFieldValue(Values.ModifyValue(GameObjectFieldData).ModifyValue(GameObjectFieldData.PercentHealth), (byte)animprogress);
         }
 
-        public void AddToSkillupList(ObjectGuid PlayerGuid)
+        public void AddToSkillupList(ObjectGuid playerGuid)
         {
-            _skillupList.Add(PlayerGuid);
+            _skillupList.Add(playerGuid);
         }
 
-        public bool IsInSkillupList(ObjectGuid PlayerGuid)
+        public bool IsInSkillupList(ObjectGuid playerGuid)
         {
             foreach (var i in _skillupList)
-                if (i == PlayerGuid)
+                if (i == playerGuid)
                     return true;
 
             return false;
@@ -3767,10 +3764,10 @@ namespace Forged.MapServer.Entities.GameObjects
         }
 
         //! Object distance/size - overridden from Object._IsWithinDist. Needs to take in account proper GO size.
-        public override bool _IsWithinDist(WorldObject obj, float dist2compare, bool is3D, bool incOwnRadius, bool incTargetRadius)
+        public override bool _IsWithinDist(WorldObject obj, float dist2Compare, bool is3D, bool incOwnRadius, bool incTargetRadius)
         {
             //! Following check does check 3d distance
-            return IsInRange(obj.Location.X, obj.Location.Y, obj.Location.Z, dist2compare);
+            return IsInRange(obj.Location.X, obj.Location.Y, obj.Location.Z, dist2Compare);
         }
 
         public void CreateModel()
@@ -3837,7 +3834,7 @@ namespace Forged.MapServer.Entities.GameObjects
                     return false;
             }
 
-            var goInfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+            var goInfo = ObjectManager.GetGameObjectTemplate(entry);
 
             if (goInfo == null)
             {
@@ -3868,7 +3865,7 @@ namespace Forged.MapServer.Entities.GameObjects
             Create(guid);
 
             GoInfoProtected = goInfo;
-            GoTemplateAddonProtected = Global.ObjectMgr.GetGameObjectTemplateAddon(entry);
+            GoTemplateAddonProtected = ObjectManager.GetGameObjectTemplateAddon(entry);
 
             if (goInfo.type >= GameObjectTypes.Max)
             {
@@ -3878,7 +3875,7 @@ namespace Forged.MapServer.Entities.GameObjects
             }
 
             SetLocalRotation(rotation.X, rotation.Y, rotation.Z, rotation.W);
-            var gameObjectAddon = Global.ObjectMgr.GetGameObjectAddon(SpawnId);
+            var gameObjectAddon = ObjectManager.GetGameObjectAddon(SpawnId);
 
             // For most of gameobjects is (0, 0, 0, 1) quaternion, there are only some transports with not standard rotation
             var parentRotation = Quaternion.Identity;
@@ -3962,14 +3959,14 @@ namespace Forged.MapServer.Entities.GameObjects
                 case GameObjectTypes.Trap:
                     if (goInfo.Trap.stealthed != 0)
                     {
-                        Stealth.AddFlag(StealthType.Trap);
-                        Stealth.AddValue(StealthType.Trap, 70);
+                        Visibility.Stealth.AddFlag(StealthType.Trap);
+                        Visibility.Stealth.AddValue(StealthType.Trap, 70);
                     }
 
                     if (goInfo.Trap.stealthAffected != 0)
                     {
-                        Invisibility.AddFlag(InvisibilityType.Trap);
-                        Invisibility.AddValue(InvisibilityType.Trap, 300);
+                        Visibility.Invisibility.AddFlag(InvisibilityType.Trap);
+                        Visibility.Invisibility.AddValue(InvisibilityType.Trap, 300);
                     }
 
                     break;
@@ -3996,8 +3993,8 @@ namespace Forged.MapServer.Entities.GameObjects
             {
                 if (gameObjectAddon.invisibilityValue != 0)
                 {
-                    Invisibility.AddFlag(gameObjectAddon.invisibilityType);
-                    Invisibility.AddValue(gameObjectAddon.invisibilityType, gameObjectAddon.invisibilityValue);
+                    Visibility.Invisibility.AddFlag(gameObjectAddon.invisibilityType);
+                    Visibility.Invisibility.AddValue(gameObjectAddon.invisibilityType, gameObjectAddon.invisibilityValue);
                 }
 
                 if (gameObjectAddon.WorldEffectID != 0)
@@ -4033,15 +4030,15 @@ namespace Forged.MapServer.Entities.GameObjects
 
             // Check if GameObject is Infinite
             if (goInfo.IsInfiniteGameObject())
-                SetVisibilityDistanceOverride(VisibilityDistanceType.Infinite);
+                Visibility.SetVisibilityDistanceOverride(VisibilityDistanceType.Infinite);
 
             // Check if GameObject is Gigantic
             if (goInfo.IsGiganticGameObject())
-                SetVisibilityDistanceOverride(VisibilityDistanceType.Gigantic);
+                Visibility.SetVisibilityDistanceOverride(VisibilityDistanceType.Gigantic);
 
             // Check if GameObject is Large
             if (goInfo.IsLargeGameObject())
-                SetVisibilityDistanceOverride(VisibilityDistanceType.Large);
+                Visibility.SetVisibilityDistanceOverride(VisibilityDistanceType.Large);
 
             return true;
         }
@@ -4056,8 +4053,8 @@ namespace Forged.MapServer.Entities.GameObjects
 
         private GameObject LookupFishingHoleAround(float range)
         {
-            var u_check = new NearestGameObjectFishingHole(this, range);
-            var checker = new GameObjectSearcher(this, u_check, GridType.Grid);
+            var uCheck = new NearestGameObjectFishingHole(this, range);
+            var checker = new GameObjectSearcher(this, uCheck, GridType.Grid);
 
             Cell.VisitGrid(this, checker, range);
 

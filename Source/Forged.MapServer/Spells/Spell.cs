@@ -632,14 +632,14 @@ public partial class Spell : IDisposable
             if (SpellInfo.HasHitDelay && unit.HasUnitFlag(UnitFlags.NonAttackable) && unit.CharmerOrOwnerGUID != _caster.GUID)
                 return SpellMissInfo.Evade;
 
-            if (_caster.IsValidAttackTarget(unit, SpellInfo))
+            if (_caster.WorldObjectCombat.IsValidAttackTarget(unit, SpellInfo))
             {
                 unit.RemoveAurasWithInterruptFlags(SpellAuraInterruptFlags.HostileActionReceived);
             }
-            else if (_caster.IsFriendlyTo(unit))
+            else if (_caster.WorldObjectCombat.IsFriendlyTo(unit))
             {
                 // for delayed spells ignore negative spells (after duel end) for friendly targets
-                if (SpellInfo.HasHitDelay && unit.IsPlayer && !IsPositive && !_caster.IsValidAssistTarget(unit, SpellInfo))
+                if (SpellInfo.HasHitDelay && unit.IsPlayer && !IsPositive && !_caster.WorldObjectCombat.IsValidAssistTarget(unit, SpellInfo))
                     return SpellMissInfo.Evade;
 
                 // assisting case, healing and resurrection
@@ -695,7 +695,7 @@ public partial class Spell : IDisposable
             // check whatever effects we're going to apply, diminishing returns only apply to negative aura effects
             hitInfo.Positive = true;
 
-            if (origCaster == unit || !origCaster.IsFriendlyTo(unit))
+            if (origCaster == unit || !origCaster.WorldObjectCombat.IsFriendlyTo(unit))
                 foreach (var spellEffectInfo in SpellInfo.Effects)
                     // mod duration only for effects applying aura!
                     if (hitInfo.Effects.Contains(spellEffectInfo.EffectIndex) &&
@@ -768,7 +768,7 @@ public partial class Spell : IDisposable
 
                         if (!SpellValue.Duration.HasValue)
                         {
-                            hitInfo.AuraDuration = caster.ModSpellDuration(SpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura.AuraEffects.Keys.ToHashSet());
+                            hitInfo.AuraDuration = ModSpellDuration(SpellInfo, unit, hitInfo.AuraDuration, hitInfo.Positive, hitInfo.HitAura.AuraEffects.Keys.ToHashSet());
 
                             if (hitInfo.AuraDuration > 0)
                             {
@@ -777,7 +777,7 @@ public partial class Spell : IDisposable
                                 // Haste modifies duration of channeled spells
                                 if (SpellInfo.IsChanneled)
                                 {
-                                    caster.ModSpellDurationTime(SpellInfo, ref hitInfo.AuraDuration, this);
+                                    caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref hitInfo.AuraDuration, this);
                                 }
                                 else if (SpellInfo.HasAttribute(SpellAttr8.HasteAffectsDuration))
                                 {
@@ -823,6 +823,89 @@ public partial class Spell : IDisposable
         SpellAura = hitInfo.HitAura;
         HandleEffects(unit, null, null, null, spellEffectInfo, SpellEffectHandleMode.HitTarget);
         SpellAura = null;
+    }
+
+
+    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
+    {
+        return ModSpellDuration(spellInfo,
+                                target,
+                                duration,
+                                positive,
+                                new HashSet<int>()
+                                {
+                                    effIndex
+                                });
+    }
+
+    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
+    {
+        // don't mod permanent auras duration
+        if (duration < 0)
+            return duration;
+
+        // some auras are not affected by duration modifiers
+        if (spellInfo.HasAttribute(SpellAttr7.IgnoreDurationMods))
+            return duration;
+
+        // cut duration only of negative effects
+        var unitTarget = target.AsUnit;
+
+        if (!unitTarget)
+            return duration;
+
+        if (!positive)
+        {
+            var mechanicMask = spellInfo.GetSpellMechanicMaskByEffectMask(effectMask);
+
+            bool MechanicCheck(AuraEffect aurEff)
+            {
+                if ((mechanicMask & (1ul << aurEff.MiscValue)) != 0)
+                    return true;
+
+                return false;
+            }
+
+            // Find total mod value (negative bonus)
+            var durationModAlways = unitTarget.GetTotalAuraModifier(AuraType.MechanicDurationMod, MechanicCheck);
+            // Find max mod (negative bonus)
+            var durationModNotStack = unitTarget.GetMaxNegativeAuraModifier(AuraType.MechanicDurationModNotStack, MechanicCheck);
+
+            // Select strongest negative mod
+            var durationMod = Math.Min(durationModAlways, durationModNotStack);
+
+            if (durationMod != 0)
+                MathFunctions.AddPct(ref duration, durationMod);
+
+            // there are only negative mods currently
+            durationModAlways = unitTarget.GetTotalAuraModifierByMiscValue(AuraType.ModAuraDurationByDispel, (int)spellInfo.Dispel);
+            durationModNotStack = unitTarget.GetMaxNegativeAuraModifierByMiscValue(AuraType.ModAuraDurationByDispelNotStack, (int)spellInfo.Dispel);
+
+            durationMod = Math.Min(durationModAlways, durationModNotStack);
+
+            if (durationMod != 0)
+                MathFunctions.AddPct(ref duration, durationMod);
+        }
+        else
+        {
+            // else positive mods here, there are no currently
+            // when there will be, change GetTotalAuraModifierByMiscValue to GetMaxPositiveAuraModifierByMiscValue
+
+            // Mixology - duration boost
+            if (unitTarget.IsPlayer)
+                if (spellInfo.SpellFamilyName == SpellFamilyNames.Potion &&
+                    (
+                        SpellManager.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
+                        SpellManager.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirGuardian)))
+                {
+                    var effect = spellInfo.GetEffect(0);
+
+                    if (unitTarget.HasAura(53042) && effect != null && unitTarget.HasSpell(effect.TriggerSpell))
+                        duration *= 2;
+                }
+        }
+
+        return Math.Max(duration, 0);
     }
 
     public void DoTriggersOnSpellHit(Unit unit)
@@ -989,7 +1072,7 @@ public partial class Spell : IDisposable
         foreach (var stage in _empowerStages)
         {
             var ct = (int)stage.Value.DurationMs;
-            Caster.ModSpellCastTime(SpellInfo, ref ct);
+            Caster.WorldObjectCombat.ModSpellCastTime(SpellInfo, ref ct);
             stage.Value.DurationMs = (uint)CallScriptCalcCastTimeHandlers(ct);
         }
 
@@ -1881,11 +1964,11 @@ public partial class Spell : IDisposable
                 if (unitCaster1 != null)
                 {
                     foreach (var auraEffect in unitCaster1.GetAuraEffectsByType(AuraType.InterfereTargetting))
-                        if (!unitCaster1.IsFriendlyTo(auraEffect.Caster) && !unitTarget.HasAura(auraEffect.Id, auraEffect.CasterGuid))
+                        if (!unitCaster1.WorldObjectCombat.IsFriendlyTo(auraEffect.Caster) && !unitTarget.HasAura(auraEffect.Id, auraEffect.CasterGuid))
                             return SpellCastResult.VisionObscured;
 
                     foreach (var auraEffect in unitTarget.GetAuraEffectsByType(AuraType.InterfereTargetting))
-                        if (!unitCaster1.IsFriendlyTo(auraEffect.Caster) && (!unitTarget.HasAura(auraEffect.Id, auraEffect.CasterGuid) || !unitCaster1.HasAura(auraEffect.Id, auraEffect.CasterGuid)))
+                        if (!unitCaster1.WorldObjectCombat.IsFriendlyTo(auraEffect.Caster) && (!unitTarget.HasAura(auraEffect.Id, auraEffect.CasterGuid) || !unitCaster1.HasAura(auraEffect.Id, auraEffect.CasterGuid)))
                             return SpellCastResult.VisionObscured;
                 }
             }
@@ -1966,9 +2049,7 @@ public partial class Spell : IDisposable
         // zone check
         if (!_caster.IsPlayer || !_caster.AsPlayer.IsGameMaster)
         {
-            _caster.GetZoneAndAreaId(out var zone, out var area);
-
-            var locRes = SpellInfo.CheckLocation(_caster.Location.MapId, zone, area, _caster.AsPlayer);
+            var locRes = SpellInfo.CheckLocation(_caster.Location.MapId, _caster.Location.Zone, _caster.Location.Area, _caster.AsPlayer);
 
             if (locRes != SpellCastResult.SpellCastOk)
                 return locRes;
@@ -2056,7 +2137,7 @@ public partial class Spell : IDisposable
 
                         var target = Targets.UnitTarget;
 
-                        if (target == null || !target.IsFriendlyTo(_caster) || target.Attackers.Empty())
+                        if (target == null || !target.WorldObjectCombat.IsFriendlyTo(_caster) || target.Attackers.Empty())
                             return SpellCastResult.BadTargets;
                     }
 
@@ -2848,7 +2929,7 @@ public partial class Spell : IDisposable
                         return SpellCastResult.BadImplicitTargets;
 
                     // can be casted at non-friendly unit or own pet/charm
-                    if (_caster.IsFriendlyTo(Targets.UnitTarget))
+                    if (_caster.WorldObjectCombat.IsFriendlyTo(Targets.UnitTarget))
                         return SpellCastResult.TargetFriendly;
 
                     break;
@@ -3454,14 +3535,14 @@ public partial class Spell : IDisposable
 
         if (target != null)
             // check for explicit target redirection, for Grounding Totem for example
-            if (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.Unit) && !_caster.IsFriendlyTo(target)))
+            if (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.UnitEnemy) || (SpellInfo.GetExplicitTargetMask().HasAnyFlag(SpellCastTargetFlags.Unit) && !_caster.WorldObjectCombat.IsFriendlyTo(target)))
             {
                 Unit redirect = null;
 
                 switch (SpellInfo.DmgClass)
                 {
                     case SpellDmgClass.Magic:
-                        redirect = _caster.GetMagicHitRedirectTarget(target, SpellInfo);
+                        redirect = _caster.WorldObjectCombat.GetMagicHitRedirectTarget(target, SpellInfo);
 
                         break;
                     case SpellDmgClass.Melee:
@@ -5011,7 +5092,7 @@ public partial class Spell : IDisposable
     {
         var check = new GameObjectFocusCheck(_caster, SpellInfo.RequiresSpellFocus);
         var searcher = new GameObjectSearcher(_caster, check, GridType.All);
-        SearchTargets(searcher, GridMapTypeMask.GameObject, _caster, _caster.Location, _caster.VisibilityRange);
+        SearchTargets(searcher, GridMapTypeMask.GameObject, _caster, _caster.Location, _caster.Visibility.VisibilityRange);
 
         return searcher.GetTarget();
     }
@@ -5128,7 +5209,7 @@ public partial class Spell : IDisposable
 
         / Calculate hit result
         var caster = _originalCaster ? _originalCaster : _caster;
-        targetInfo.MissCondition = caster.SpellHitResult(target, SpellInfo, _canReflect && !(IsPositive && _caster.IsFriendlyTo(target)));
+        targetInfo.MissCondition = caster.WorldObjectCombat.SpellHitResult(target, SpellInfo, _canReflect && !(IsPositive && _caster.WorldObjectCombat.IsFriendlyTo(target)));
 
         // Spell have speed - need calculate incoming time
         // Incoming time is zero for self casts. At least I think so.
@@ -5179,7 +5260,7 @@ public partial class Spell : IDisposable
         {
             // Calculate reflected spell result on caster (shouldn't be able to reflect gameobject spells)
             var unitCaster = _caster.AsUnit;
-            targetInfo.ReflectResult = unitCaster.SpellHitResult(unitCaster, SpellInfo, false); // can't reflect twice
+            targetInfo.ReflectResult = unitCaster.WorldObjectCombat.SpellHitResult(unitCaster, SpellInfo, false); // can't reflect twice
 
             // Proc spell reflect aura when missile hits the original target
             target.Events.AddEvent(new ProcReflectDelayed(target, _originalCasterGuid), target.Events.CalculateTime(TimeSpan.FromMilliseconds(targetInfo.TimeDelay)));
@@ -5861,7 +5942,7 @@ public partial class Spell : IDisposable
                     duration = (int)(duration * SpellValue.DurationMul);
 
                     // Apply haste mods
-                    _caster.ModSpellDurationTime(SpellInfo, ref duration, this);
+                    _caster.WorldObjectCombat.ModSpellDurationTime(SpellInfo, ref duration, this);
                 }
                 else
                 {
@@ -7589,8 +7670,8 @@ public partial class Spell : IDisposable
                     if (unitCaster != null)
                         meleeRange = unitCaster.GetMeleeRange(target ? target : unitCaster);
 
-                minRange = _caster.GetSpellMinRangeForTarget(target, SpellInfo) + meleeRange;
-                maxRange = _caster.GetSpellMaxRangeForTarget(target, SpellInfo);
+                minRange = _caster.WorldObjectCombat.GetSpellMinRangeForTarget(target, SpellInfo) + meleeRange;
+                maxRange = _caster.WorldObjectCombat.GetSpellMaxRangeForTarget(target, SpellInfo);
 
                 if (target || Targets.CorpseTarget)
                 {
@@ -8582,7 +8663,7 @@ public partial class Spell : IDisposable
             return;
 
         // This will only cause combat - the target will engage once the projectile hits (in Spell::TargetInfo::PreprocessTarget)
-        if (_originalCaster && targetInfo.MissCondition != SpellMissInfo.Evade && !_originalCaster.IsFriendlyTo(targetUnit) && (!SpellInfo.IsPositive || SpellInfo.HasEffect(SpellEffectName.Dispel)) && (SpellInfo.HasInitialAggro || targetUnit.IsEngaged))
+        if (_originalCaster && targetInfo.MissCondition != SpellMissInfo.Evade && !_originalCaster.WorldObjectCombat.IsFriendlyTo(targetUnit) && (!SpellInfo.IsPositive || SpellInfo.HasEffect(SpellEffectName.Dispel)) && (SpellInfo.HasInitialAggro || targetUnit.IsEngaged))
             _originalCaster.SetInCombatWith(targetUnit, true);
 
         Unit unit = null;

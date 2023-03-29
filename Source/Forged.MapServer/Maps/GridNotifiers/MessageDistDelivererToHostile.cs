@@ -101,7 +101,7 @@ public class MessageDistDelivererToHostile<T> : IGridNotifierPlayer, IGridNotifi
     private void SendPacket(Player player)
     {
         // never send packet to self
-        if (player == _source || !player.HaveAtClient(_source) || player.IsFriendlyTo(_source))
+        if (player == _source || !player.HaveAtClient(_source) || player.WorldObjectCombat.IsFriendlyTo(_source))
             return;
 
         _packetSender.Invoke(player);

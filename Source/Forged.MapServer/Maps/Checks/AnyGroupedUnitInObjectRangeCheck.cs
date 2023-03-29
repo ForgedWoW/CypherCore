@@ -43,7 +43,7 @@ public class AnyGroupedUnitInObjectRangeCheck : ICheck<Unit>
             return false;
         }
 
-        if (_refUnit.IsHostileTo(u))
+        if (_refUnit.WorldObjectCombat.IsHostileTo(u))
             return false;
 
         if (!u.IsAlive)

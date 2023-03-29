@@ -311,7 +311,7 @@ public partial class Player
                 target != this &&
                 Location.IsWithinDistInMap(target, radius) &&
                 !target.HasInvisibilityAura &&
-                !IsHostileTo(target))
+                !WorldObjectCombat.IsHostileTo(target))
                 nearMembers.Add(target);
         }
 

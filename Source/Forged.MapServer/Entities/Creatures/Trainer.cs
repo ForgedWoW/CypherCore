@@ -105,8 +105,8 @@ public class Trainer
 
         if (sendSpellVisual)
         {
-            npc.SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
-            player.SendPlaySpellVisualKit(362, 1, 0); // 113 EmoteSalute
+            npc.WorldObjectCombat.SendPlaySpellVisualKit(179, 0, 0);    // 53 SpellCastDirected
+            player.WorldObjectCombat.SendPlaySpellVisualKit(362, 1, 0); // 113 EmoteSalute
         }
 
         // learn explicitly or cast explicitly

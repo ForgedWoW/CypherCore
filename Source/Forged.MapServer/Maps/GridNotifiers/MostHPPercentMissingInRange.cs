@@ -25,7 +25,7 @@ internal class MostHPPercentMissingInRange : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (u.IsAlive && u.IsInCombat && !_obj.IsHostileTo(u) && _obj.Location.IsWithinDist(u, _range) && _minHpPct <= u.HealthPct && u.HealthPct <= _maxHpPct && u.HealthPct < _hpPct)
+        if (u.IsAlive && u.IsInCombat && !_obj.WorldObjectCombat.IsHostileTo(u) && _obj.Location.IsWithinDist(u, _range) && _minHpPct <= u.HealthPct && u.HealthPct <= _maxHpPct && u.HealthPct < _hpPct)
         {
             _hpPct = u.HealthPct;
 

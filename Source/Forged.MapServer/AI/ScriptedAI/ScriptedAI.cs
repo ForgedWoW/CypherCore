@@ -253,14 +253,14 @@ public class ScriptedAI : CreatureAI
                 continue;
 
             //Check if the spell meets our range requirements
-            if (rangeMin != 0 && Me.GetSpellMinRangeForTarget(target, tempSpell) < rangeMin)
+            if (rangeMin != 0 && Me.WorldObjectCombat.GetSpellMinRangeForTarget(target, tempSpell) < rangeMin)
                 continue;
 
-            if (rangeMax != 0 && Me.GetSpellMaxRangeForTarget(target, tempSpell) > rangeMax)
+            if (rangeMax != 0 && Me.WorldObjectCombat.GetSpellMaxRangeForTarget(target, tempSpell) > rangeMax)
                 continue;
 
             //Check if our target is in range
-            if (Me.Location.IsWithinDistInMap(target, Me.GetSpellMinRangeForTarget(target, tempSpell)) || !Me.Location.IsWithinDistInMap(target, Me.GetSpellMaxRangeForTarget(target, tempSpell)))
+            if (Me.Location.IsWithinDistInMap(target, Me.WorldObjectCombat.GetSpellMinRangeForTarget(target, tempSpell)) || !Me.Location.IsWithinDistInMap(target, Me.WorldObjectCombat.GetSpellMaxRangeForTarget(target, tempSpell)))
                 continue;
 
             //All good so lets add it to the spell list

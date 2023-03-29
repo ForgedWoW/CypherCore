@@ -26,7 +26,7 @@ public class CombatHandler : IWorldSessionHandler
             return;
         }
 
-        if (!Player.IsValidAttackTarget(enemy))
+        if (!Player.WorldObjectCombat.IsValidAttackTarget(enemy))
         {
             // stop attack state at client
             SendAttackStop(enemy);

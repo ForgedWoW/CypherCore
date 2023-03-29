@@ -22,13 +22,13 @@ internal class NearestHostileUnitInAggroRangeCheck : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (!u.IsHostileTo(_me))
+        if (!u.WorldObjectCombat.IsHostileTo(_me))
             return false;
 
         if (!u.Location.IsWithinDist(_me, _me.GetAggroRange(u)))
             return false;
 
-        if (!_me.IsValidAttackTarget(u))
+        if (!_me.WorldObjectCombat.IsValidAttackTarget(u))
             return false;
 
         if (_useLOS && !u.Location.IsWithinLOSInMap(_me))

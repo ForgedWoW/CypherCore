@@ -419,8 +419,7 @@ public class MovementHandler : IWorldSessionHandler
         }
 
         // update zone immediately, otherwise leave channel will cause crash in mtmap
-        player.GetZoneAndAreaId(out var newzone, out var newarea);
-        player.UpdateZone(newzone, newarea);
+        player.UpdateZone(player.Location.Zone, player.Location.Area);
 
         // honorless target
         if (player.PvpInfo.IsHostile)
@@ -482,15 +481,14 @@ public class MovementHandler : IWorldSessionHandler
         plMover.UpdatePosition(dest, true);
         plMover.SetFallInformation(0, Player.Location.Z);
 
-        plMover.GetZoneAndAreaId(out var newzone, out var newarea);
-        plMover.UpdateZone(newzone, newarea);
+        plMover.UpdateZone(plMover.Location.Zone, plMover.Location.Area);
 
         // new zone
-        if (old_zone != newzone)
+        if (old_zone != plMover.Location.Zone)
         {
             // honorless target
             if (plMover.PvpInfo.IsHostile)
-                plMover.CastSpell(plMover, 2479, true);
+                plMover.SpellFactory.CastSpell(plMover, 2479, true);
 
             // in friendly area
             else if (plMover.IsPvP && !plMover.HasPlayerFlag(PlayerFlags.InPVP))

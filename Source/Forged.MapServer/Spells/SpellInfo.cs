@@ -1200,7 +1200,7 @@ public class SpellInfo
             return SpellCastResult.BadTargets;
 
         // check visibility - ignore stealth for implicit (area) targets
-        if (!HasAttribute(SpellAttr6.IgnorePhaseShift) && !caster.CanSeeOrDetect(target, Implicit))
+        if (!HasAttribute(SpellAttr6.IgnorePhaseShift) && !caster.Visibility.CanSeeOrDetect(target, Implicit))
             return SpellCastResult.BadTargets;
 
         var unitTarget = target.AsUnit;
@@ -1401,11 +1401,11 @@ public class SpellInfo
                 var unitCaster = caster.AsUnit;
 
                 if (neededTargets.HasFlag(SpellCastTargetFlags.UnitEnemy))
-                    if (caster.IsValidAttackTarget(unitTarget, this))
+                    if (caster.WorldObjectCombat.IsValidAttackTarget(unitTarget, this))
                         return SpellCastResult.SpellCastOk;
 
                 if (neededTargets.HasFlag(SpellCastTargetFlags.UnitAlly) || (neededTargets.HasFlag(SpellCastTargetFlags.UnitParty) && unitCaster != null && unitCaster.IsInPartyWith(unitTarget)) || (neededTargets.HasFlag(SpellCastTargetFlags.UnitRaid) && unitCaster != null && unitCaster.IsInRaidWith(unitTarget)))
-                    if (caster.IsValidAssistTarget(unitTarget, this))
+                    if (caster.WorldObjectCombat.IsValidAssistTarget(unitTarget, this))
                         return SpellCastResult.SpellCastOk;
 
                 if (neededTargets.HasFlag(SpellCastTargetFlags.UnitMinipet) && unitCaster != null)
@@ -2420,7 +2420,7 @@ public class SpellInfo
             return 0;
 
         if (spell != null)
-            spell.Caster.ModSpellCastTime(this, ref castTime, spell);
+            spell.Caster.WorldObjectCombat.ModSpellCastTime(this, ref castTime, spell);
 
         if (HasAttribute(SpellAttr0.UsesRangedSlot) && (!IsAutoRepeatRangedSpell) && !HasAttribute(SpellAttr9.AimedShot))
             castTime += 500;

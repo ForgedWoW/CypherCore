@@ -2917,7 +2917,7 @@ public partial class Spell
                 if ((spell.State == SpellState.Casting || (spell.State == SpellState.Preparing && spell.CastTime > 0.0f)) && curSpellInfo.CanBeInterrupted(_caster, UnitTarget))
                 {
                     var duration = SpellInfo.Duration;
-                    duration = UnitTarget.ModSpellDuration(SpellInfo, UnitTarget, duration, false, EffectInfo.EffectIndex);
+                    duration = ModSpellDuration(SpellInfo, UnitTarget, duration, false, EffectInfo.EffectIndex);
                     UnitTarget.SpellHistory.LockSpellSchool(curSpellInfo.GetSchoolMask(), TimeSpan.FromMilliseconds(duration));
                     HitMask |= ProcFlagsHit.Interrupt;
                     SendSpellInterruptLog(UnitTarget, curSpellInfo.Id);
@@ -3815,7 +3815,7 @@ public partial class Spell
         if (unitCaster == null)
             return;
 
-        var dist = _caster.VisibilityRange;
+        var dist = _caster.Visibility.VisibilityRange;
 
         // clear focus
         PacketSenderOwning<BreakTarget> breakTarget = new()
@@ -4300,7 +4300,7 @@ public partial class Spell
             if (aura.GetApplicationOfTarget(UnitTarget.GUID) == null)
                 continue;
 
-            if (RandomHelper.randChance(aura.CalcDispelChance(UnitTarget, !UnitTarget.IsFriendlyTo(_caster))))
+            if (RandomHelper.randChance(aura.CalcDispelChance(UnitTarget, !UnitTarget.WorldObjectCombat.IsFriendlyTo(_caster))))
                 if ((aura.SpellInfo.GetAllEffectsMechanicMask() & (1ul << mechanic)) != 0)
                     dispel_list.Add(new KeyValuePair<uint, ObjectGuid>(aura.Id, aura.CasterGuid));
         }
@@ -4792,7 +4792,7 @@ public partial class Spell
                     continue;
 
                 // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
-                var chance = aura.CalcDispelChance(UnitTarget, !UnitTarget.IsFriendlyTo(_caster));
+                var chance = aura.CalcDispelChance(UnitTarget, !UnitTarget.WorldObjectCombat.IsFriendlyTo(_caster));
 
                 if (chance == 0)
                     continue;
@@ -5040,7 +5040,7 @@ public partial class Spell
         if (GameObjTarget == null)
             return;
 
-        var casterFaction = _caster.GetFactionTemplateEntry();
+        var casterFaction = _caster.WorldObjectCombat.GetFactionTemplateEntry();
         var targetFaction = CliDB.FactionTemplateStorage.LookupByKey(GameObjTarget.Faction);
 
         // Do not allow to damage GO's of friendly factions (ie: Wintergrasp Walls/Ulduar Storm Beacons)
@@ -5881,7 +5881,7 @@ public partial class Spell
 
         battlePetMgr.AddPet(speciesId, displayId, breed, quality, level);
 
-        player.SendPlaySpellVisual(player, SharedConst.SpellVisualUncagePet, 0, 0, 0.0f, false);
+        player.WorldObjectCombat.SendPlaySpellVisual(player, SharedConst.SpellVisualUncagePet, 0, 0, 0.0f, false);
 
         player.DestroyItem(CastItem.BagSlot, CastItem.Slot, true);
         CastItem = null;

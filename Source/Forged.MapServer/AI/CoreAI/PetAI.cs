@@ -625,10 +625,10 @@ public class PetAI : CreatureAI
         var owner = Me.CharmerOrOwner;
 
         if (owner)
-            if (owner.Location.GetExactDist(Me.Location) >= (owner.VisibilityRange - 10.0f))
+            if (owner.Location.GetExactDist(Me.Location) >= (owner.Visibility.VisibilityRange - 10.0f))
                 return true;
 
-        return !Me.IsValidAttackTarget(Me.Victim);
+        return !Me.WorldObjectCombat.IsValidAttackTarget(Me.Victim);
     }
 
     private void StopAttack()

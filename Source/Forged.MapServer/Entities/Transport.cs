@@ -55,7 +55,7 @@ public class Transport : GameObject, ITransport
         {
             if (_passengers.Add(passenger))
             {
-                passenger.SetTransport(this);
+                passenger.Transport = this;
                 passenger.MovementInfo.Transport.Guid = GUID;
 
                 var player = passenger.AsPlayer;
@@ -72,7 +72,7 @@ public class Transport : GameObject, ITransport
         {
             if (_passengers.Remove(passenger) || _staticPassengers.Remove(passenger)) // static passenger can remove itself in case of grid unload
             {
-                passenger.SetTransport(null);
+                passenger.Transport = null;
                 passenger.MovementInfo.Transport.Reset();
                 Log.Logger.Debug("Object {0} removed from transport {1}.", passenger.GetName(), GetName());
 
@@ -337,7 +337,7 @@ public class Transport : GameObject, ITransport
 
         var spawn = data.SpawnPoint.Copy();
 
-        creature.SetTransport(this);
+        creature.Transport = this;
         creature.MovementInfo.Transport.Guid = GUID;
         creature.MovementInfo.Transport.Pos.Relocate(spawn);
         creature.MovementInfo.Transport.Seat = -1;
@@ -478,7 +478,7 @@ public class Transport : GameObject, ITransport
 
         summon.SetCreatedBySpell(spellId);
 
-        summon.SetTransport(this);
+        summon.Transport = this;
         summon.MovementInfo.Transport.Guid = GUID;
         summon.MovementInfo.Transport.Pos.Relocate(pos);
         summon.Location.Relocate(newPos);
@@ -611,7 +611,7 @@ public class Transport : GameObject, ITransport
 
         var spawn = data.SpawnPoint.Copy();
 
-        go.SetTransport(this);
+        go.Transport = this;
         go.MovementInfo.Transport.Guid = GUID;
         go.MovementInfo.Transport.Pos.Relocate(spawn);
         go.MovementInfo.Transport.Seat = -1;

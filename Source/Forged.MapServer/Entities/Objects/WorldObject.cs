@@ -3,11 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using Autofac;
 using Forged.MapServer.AI.CoreAI;
+using Forged.MapServer.BattleFields;
 using Forged.MapServer.Chrono;
+using Forged.MapServer.Collision.Management;
+using Forged.MapServer.Conditions;
 using Forged.MapServer.DataStorage;
-using Forged.MapServer.DataStorage.Structs.F;
 using Forged.MapServer.Entities.AreaTriggers;
 using Forged.MapServer.Entities.Creatures;
 using Forged.MapServer.Entities.GameObjects;
@@ -15,6 +19,7 @@ using Forged.MapServer.Entities.Items;
 using Forged.MapServer.Entities.Objects.Update;
 using Forged.MapServer.Entities.Players;
 using Forged.MapServer.Entities.Units;
+using Forged.MapServer.Globals;
 using Forged.MapServer.Maps;
 using Forged.MapServer.Maps.Checks;
 using Forged.MapServer.Maps.GridNotifiers;
@@ -25,169 +30,42 @@ using Forged.MapServer.Networking;
 using Forged.MapServer.Networking.Packets.CombatLog;
 using Forged.MapServer.Networking.Packets.Misc;
 using Forged.MapServer.Networking.Packets.Movement;
-using Forged.MapServer.Networking.Packets.Spell;
+using Forged.MapServer.OutdoorPVP;
 using Forged.MapServer.Phasing;
 using Forged.MapServer.Scenarios;
 using Forged.MapServer.Spells;
-using Forged.MapServer.Spells.Auras;
 using Framework.Constants;
 using Framework.Dynamic;
 using Framework.Util;
+using Microsoft.Extensions.Configuration;
 using Serilog;
 
 namespace Forged.MapServer.Entities.Objects;
 
 public abstract class WorldObject : IDisposable
 {
-    public uint LastUsedScriptID;
     protected CreateObjectBits UpdateFlag;
-    protected bool IsActive;
-    private bool _isNewObject;
-
-    private bool _objectUpdated;
-
-    
-    private string _name;
-    private float? _visibilityDistanceOverride;
-
-    private ObjectGuid _privateObjectOwner;
-
-    private SmoothPhasing _smoothPhasing;
-    public SpellFactory SpellFactory { get; }
-
-    public VariableStore VariableStorage { get; } = new();
-
-    public TypeMask ObjectTypeMask { get; set; }
     protected TypeId ObjectTypeId { get; set; }
 
-    public UpdateFieldHolder Values { get; set; }
-    public ObjectFieldData ObjectData { get; set; }
-
-    // Event handler
-    public EventSystem Events { get; set; } = new();
-
-    public MovementInfo MovementInfo { get; set; }
-    public ZoneScript ZoneScript { get; set; }
-    public uint InstanceId { get; set; }
-
-    public FlaggedArray32<StealthType> Stealth { get; set; } = new(2);
-    public FlaggedArray32<StealthType> StealthDetect { get; set; } = new(2);
-
-    public FlaggedArray64<InvisibilityType> Invisibility { get; set; } = new((int)InvisibilityType.Max);
-    public FlaggedArray64<InvisibilityType> InvisibilityDetect { get; set; } = new((int)InvisibilityType.Max);
-
-    public FlaggedArray32<ServerSideVisibilityType> ServerSideVisibility { get; set; } = new(2);
-    public FlaggedArray32<ServerSideVisibilityType> ServerSideVisibilityDetect { get; set; } = new(2);
-
-    public WorldLocation Location { get; set; }
-
-    public Scenario Scenario
-    {
-        get
-        {
-            if (Location.IsInWorld)
-            {
-                var instanceMap = Location.Map.ToInstanceMap;
-
-                if (instanceMap != null)
-                    return instanceMap.InstanceScenario;
-            }
-
-            return null;
-        }
-    }
-
-    public ObjectGuid CharmerOrOwnerOrOwnGUID
-    {
-        get
-        {
-            var guid = CharmerOrOwnerGUID;
-
-            if (!guid.IsEmpty)
-                return guid;
-
-            return GUID;
-        }
-    }
-
-    // if negative it is used as PhaseGroupId
-
-    public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
-
-    public virtual ushort AIAnimKitId => 0;
-
-    public virtual ushort MovementAnimKitId => 0;
-
-    public virtual ushort MeleeAnimKitId => 0;
-
-    // Watcher
-    public bool IsPrivateObject => !_privateObjectOwner.IsEmpty;
-
-    public ObjectGuid PrivateObjectOwner
-    {
-        get => _privateObjectOwner;
-        set => _privateObjectOwner = value;
-    }
-
-    public ObjectGuid GUID { get; private set; }
-
-    public uint Entry
-    {
-        get => ObjectData.EntryId;
-        set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
-    }
+    private bool _isNewObject;
+    private bool _objectUpdated;
+    private string _name;
+    private ObjectGuid _privateObjectOwner;
+    private NotifyFlags _notifyFlags;
 
     public virtual float ObjectScale
     {
         get => ObjectData.Scale;
         set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.Scale), value);
     }
-
-    public TypeId TypeId => ObjectTypeId;
-
-    public bool IsDestroyedObject { get; private set; }
-
-    public bool IsCreature => ObjectTypeId == TypeId.Unit;
-
-    public bool IsPlayer => ObjectTypeId == TypeId.Player;
-
-    public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
-
-    public bool IsItem => ObjectTypeId == TypeId.Item;
-
-    public bool IsUnit => IsTypeMask(TypeMask.Unit);
-
-    public bool IsCorpse => ObjectTypeId == TypeId.Corpse;
-
-    public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
-
-    public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
-
-
-    public bool IsPermanentWorldObject { get; }
-
-    public ITransport Transport { get; private set; }
-
-    public float TransOffsetX => MovementInfo.Transport.Pos.X;
-
-    public float TransOffsetY => MovementInfo.Transport.Pos.Y;
-
-    public float TransOffsetZ => MovementInfo.Transport.Pos.Z;
-
-    public float TransOffsetO => MovementInfo.Transport.Pos.Orientation;
-
-    public uint TransTime => MovementInfo.Transport.Time;
-
-    public sbyte TransSeat => MovementInfo.Transport.Seat;
-
+    public virtual float CombatReach => SharedConst.DefaultPlayerCombatReach;
+    public virtual ushort AIAnimKitId => 0;
+    public virtual ushort MovementAnimKitId => 0;
+    public virtual ushort MeleeAnimKitId => 0;
     public virtual ObjectGuid OwnerGUID => default;
-
     public virtual ObjectGuid CharmerOrOwnerGUID => OwnerGUID;
-
     public virtual uint Faction { get; set; }
-
-    private NotifyFlags NotifyFlags { get; set; }
-
+    public virtual Unit OwnerUnit => ObjectAccessor.GetUnit(this, OwnerGUID);
     public virtual Unit CharmerOrOwner
     {
         get
@@ -195,9 +73,7 @@ public abstract class WorldObject : IDisposable
             var unit = AsUnit;
 
             if (unit != null)
-            {
                 return unit.CharmerOrOwner;
-            }
 
             var go = AsGameObject;
 
@@ -208,70 +84,59 @@ public abstract class WorldObject : IDisposable
         }
     }
 
+    public ObjectGuid GUID { get; private set; }
+    public uint LastUsedScriptID { get; set; }
+    public bool IsActive { get; private set; }
+    public SpellFactory SpellFactory { get; }
+    public VariableStore VariableStorage { get; } = new();
+    public TypeMask ObjectTypeMask { get; set; }
+    public UpdateFieldHolder Values { get; set; }
+    public ObjectFieldData ObjectData { get; set; }
+    public EventSystem Events { get; set; } = new();
+    public MovementInfo MovementInfo { get; set; }
+    public ZoneScript ZoneScript { get; set; }
+    public uint InstanceId { get; set; }
+    public WorldLocation Location { get; set; }
+    public bool IsDestroyedObject { get; private set; }
+    public bool IsPrivateObject => !_privateObjectOwner.IsEmpty;
+    public Scenario Scenario => !Location.IsInWorld ? null : Location.Map.ToInstanceMap?.InstanceScenario;
+    public TypeId TypeId => ObjectTypeId;
+    public bool IsCreature => ObjectTypeId == TypeId.Unit;
+    public bool IsPlayer => ObjectTypeId == TypeId.Player;
+    public bool IsGameObject => ObjectTypeId == TypeId.GameObject;
+    public bool IsItem => ObjectTypeId == TypeId.Item;
+    public bool IsUnit => IsTypeMask(TypeMask.Unit);
+    public bool IsCorpse => ObjectTypeId == TypeId.Corpse;
+    public bool IsDynObject => ObjectTypeId == TypeId.DynamicObject;
+    public bool IsAreaTrigger => ObjectTypeId == TypeId.AreaTrigger;
+    public bool IsPermanentWorldObject { get; }
+    public ClassFactory ClassFactory { get; }
+    public VMapManager VMapManager { get; }
+    public SpellManager SpellManager { get; }
+    public GameObjectManager ObjectManager { get; }
+    public ConditionManager ConditionManager { get; }
+    public ObjectAccessor ObjectAccessor { get; }
+    public IConfiguration Configuration { get; }
+    public CliDB CliDB { get; }
+    public OutdoorPvPManager OutdoorPvPManager { get; }
+    public BattleFieldManager BattleFieldManager { get; }
+    public WorldObjectCombat WorldObjectCombat { get; }
+    public WorldObjectVisibility Visibility { get; }
+    public ITransport Transport { get; set; }
     public Creature AsCreature => this as Creature;
-
     public Player AsPlayer => this as Player;
-
     public GameObject AsGameObject => this as GameObject;
-
     public Item AsItem => this as Item;
-
     public Unit AsUnit => this as Unit;
-
     public Corpse AsCorpse => this as Corpse;
-
     public DynamicObject AsDynamicObject => this as DynamicObject;
-
     public AreaTrigger AsAreaTrigger => this as AreaTrigger;
-
     public Conversation AsConversation => this as Conversation;
-
     public SceneObject AsSceneObject => this as SceneObject;
+    public Unit CharmerOrOwnerOrSelf => CharmerOrOwner ?? AsUnit;
+    public Player CharmerOrOwnerPlayerOrPlayerItself => CharmerOrOwnerGUID.IsPlayer ? ObjectAccessor.GetPlayer(this, CharmerOrOwnerGUID) : AsPlayer;
+    public Player AffectingPlayer => CharmerOrOwnerGUID.IsEmpty ? AsPlayer : CharmerOrOwner?.CharmerOrOwnerPlayerOrPlayerItself;
 
-    public virtual Unit OwnerUnit => Global.ObjAccessor.GetUnit(this, OwnerGUID);
-
-    public Unit CharmerOrOwnerOrSelf
-    {
-        get
-        {
-            var u = CharmerOrOwner;
-
-            if (u != null)
-                return u;
-
-            return AsUnit;
-        }
-    }
-
-    public Player CharmerOrOwnerPlayerOrPlayerItself
-    {
-        get
-        {
-            var guid = CharmerOrOwnerGUID;
-
-            if (guid.IsPlayer)
-                return Global.ObjAccessor.GetPlayer(this, guid);
-
-            return AsPlayer;
-        }
-    }
-
-    public Player AffectingPlayer
-    {
-        get
-        {
-            if (CharmerOrOwnerGUID.IsEmpty)
-                return AsPlayer;
-
-            var owner = CharmerOrOwner;
-
-            if (owner != null)
-                return owner.CharmerOrOwnerPlayerOrPlayerItself;
-
-            return null;
-        }
-    }
-    
     public bool IsInWorldPvpZone
     {
         get
@@ -292,37 +157,13 @@ public abstract class WorldObject : IDisposable
     {
         get
         {
-            if (IsActive)
-            {
-                if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
-                    return Math.Max(SharedConst.DefaultVisibilityInstance, Location.Map.VisibilityRange);
+            if (!IsActive)
+                return AsCreature?.SightDistance ?? 0.0f;
 
-                return Location.Map.VisibilityRange;
-            }
+            if (TypeId == TypeId.Player && AsPlayer.CinematicMgr.IsOnCinematic())
+                return Math.Max(SharedConst.DefaultVisibilityInstance, Location.Map.VisibilityRange);
 
-            var thisCreature = AsCreature;
-
-            if (thisCreature != null)
-                return thisCreature.SightDistance;
-
-            return 0.0f;
-        }
-    }
-
-    public float VisibilityRange
-    {
-        get
-        {
-            if (IsVisibilityOverridden && !IsPlayer && _visibilityDistanceOverride != null)
-                return _visibilityDistanceOverride.Value;
-
-            if (IsFarVisible && !IsPlayer)
-                return SharedConst.MaxVisibilityDistance;
-
-            if (Location.Map != null)
-                return Location.Map.VisibilityRange;
-
-            return SharedConst.MaxVisibilityDistance;
+            return Location.Map.VisibilityRange;
         }
     }
 
@@ -339,39 +180,61 @@ public abstract class WorldObject : IDisposable
             {
                 var creature = AsCreature;
 
-                if (creature.IsPet || creature.IsTotem)
-                {
-                    var owner = creature.OwnerUnit;
+                if (!creature.IsPet && !creature.IsTotem)
+                    return null;
 
-                    if (owner != null)
-                        return owner.AsPlayer;
-                }
-            }
-            else if (IsGameObject)
-            {
-                var go = AsGameObject;
-                var owner = go.OwnerUnit;
+                var owner = creature.OwnerUnit;
 
                 if (owner != null)
                     return owner.AsPlayer;
+            }
+            else if (IsGameObject)
+            {
+                return AsPlayer;
             }
 
             return null;
         }
     }
 
-    private bool IsFarVisible { get; set; }
-
-    private bool IsVisibilityOverridden => _visibilityDistanceOverride.HasValue;
-
-    public WorldObject(bool isWorldObject, SpellFactory spellFactory)
+    public ObjectGuid CharmerOrOwnerOrOwnGUID
     {
-        SpellFactory = spellFactory;
+        get
+        {
+            var guid = CharmerOrOwnerGUID;
+
+            return !guid.IsEmpty ? guid : GUID;
+        }
+    }
+
+    public ObjectGuid PrivateObjectOwner
+    {
+        get => _privateObjectOwner;
+        set => _privateObjectOwner = value;
+    }
+
+    public uint Entry
+    {
+        get => ObjectData.EntryId;
+        set => SetUpdateFieldValue(Values.ModifyValue(ObjectData).ModifyValue(ObjectData.EntryId), value);
+    }
+
+    public WorldObject(bool isWorldObject, ClassFactory classFactory)
+    {
+        SpellFactory = classFactory.Resolve<SpellFactory>(new PositionalParameter(0, this));
+
         _name = "";
         IsPermanentWorldObject = isWorldObject;
-
-        ServerSideVisibility.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive | GhostVisibilityType.Ghost);
-        ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.Ghost, GhostVisibilityType.Alive);
+        ClassFactory = classFactory;
+        VMapManager = classFactory.Resolve<VMapManager>();
+        SpellManager = classFactory.Resolve<SpellManager>();
+        ObjectManager = classFactory.Resolve<GameObjectManager>();
+        ConditionManager = classFactory.Resolve<ConditionManager>();
+        ObjectAccessor = classFactory.Resolve<ObjectAccessor>();
+        Configuration = classFactory.Resolve<IConfiguration>();
+        CliDB = classFactory.Resolve<CliDB>();
+        OutdoorPvPManager = classFactory.Resolve<OutdoorPvPManager>();
+        BattleFieldManager = classFactory.Resolve<BattleFieldManager>();
 
         ObjectTypeId = TypeId.Object;
         ObjectTypeMask = TypeMask.Object;
@@ -383,6 +246,8 @@ public abstract class WorldObject : IDisposable
 
         ObjectData = new ObjectFieldData();
         Location = new WorldLocation(this);
+        WorldObjectCombat = new WorldObjectCombat(this);
+        Visibility = new WorldObjectVisibility(this);
     }
 
     public virtual void Dispose()
@@ -448,7 +313,7 @@ public abstract class WorldObject : IDisposable
         ClearUpdateMask(true);
     }
 
-  
+
     public virtual void BuildCreateUpdateBlockForPlayer(UpdateData data, Player target)
     {
         if (!target)
@@ -471,7 +336,7 @@ public abstract class WorldObject : IDisposable
         if (AIAnimKitId != 0 || MovementAnimKitId != 0 || MeleeAnimKitId != 0)
             flags.AnimKit = true;
 
-        if (GetSmoothPhasing()?.GetInfoForSeer(target.GUID) != null)
+        if (Visibility.GetSmoothPhasing()?.GetInfoForSeer(target.GUID) != null)
             flags.SmoothPhasing = true;
 
         var unit = AsUnit;
@@ -703,7 +568,7 @@ public abstract class WorldObject : IDisposable
                 MovementExtensions.WriteCreateObjectSplineDataBlock(unit.MoveSpline, data);
         }
 
-        data.WriteInt32(pauseTimes != null ? pauseTimes.Count : 0);
+        data.WriteInt32(pauseTimes?.Count ?? 0);
 
         if (flags.Stationary)
         {
@@ -915,7 +780,7 @@ public abstract class WorldObject : IDisposable
 
         if (flags.SmoothPhasing)
         {
-            var smoothPhasingInfo = GetSmoothPhasing().GetInfoForSeer(target.GUID);
+            var smoothPhasingInfo = Visibility.GetSmoothPhasing().GetInfoForSeer(target.GUID);
 
             data.WriteBit(smoothPhasingInfo.ReplaceActive);
             data.WriteBit(smoothPhasingInfo.StopAnimKits);
@@ -1227,45 +1092,6 @@ public abstract class WorldObject : IDisposable
             map.RemoveFromActive(this);
     }
 
-    public void SetFarVisible(bool on)
-    {
-        if (IsPlayer)
-            return;
-
-        IsFarVisible = on;
-    }
-
-    public void SetVisibilityDistanceOverride(VisibilityDistanceType type)
-    {
-        if (TypeId == TypeId.Player)
-            return;
-
-        var creature = AsCreature;
-
-        if (creature != null)
-        {
-            creature.RemoveUnitFlag2(UnitFlags2.LargeAoi | UnitFlags2.GiganticAoi | UnitFlags2.InfiniteAoi);
-
-            switch (type)
-            {
-                case VisibilityDistanceType.Large:
-                    creature.SetUnitFlag2(UnitFlags2.LargeAoi);
-
-                    break;
-                case VisibilityDistanceType.Gigantic:
-                    creature.SetUnitFlag2(UnitFlags2.GiganticAoi);
-
-                    break;
-                case VisibilityDistanceType.Infinite:
-                    creature.SetUnitFlag2(UnitFlags2.InfiniteAoi);
-
-                    break;
-            }
-        }
-
-        _visibilityDistanceOverride = SharedConst.VisibilityDistances[(int)type];
-    }
-
     public virtual void CleanupsBeforeDelete(bool finalCleanup = true)
     {
         if (Location.IsInWorld)
@@ -1279,202 +1105,20 @@ public abstract class WorldObject : IDisposable
         Events.KillAllEvents(false); // non-delatable (currently cast spells) will not deleted now but it will deleted at call in Map::RemoveAllObjectsInRemoveList
     }
 
-    public void GetZoneAndAreaId(out uint zoneid, out uint areaid)
-    {
-        zoneid = Location.Zone;
-        areaid = Location.Area;
-    }
-
-    public float GetSightRange(WorldObject target = null)
-    {
-        if (IsPlayer || IsCreature)
-        {
-            if (IsPlayer)
-            {
-                if (target is { IsVisibilityOverridden: true, IsPlayer: false, _visibilityDistanceOverride: { } })
-                    return target._visibilityDistanceOverride.Value;
-
-                if (target is { IsFarVisible: true, IsPlayer: false })
-                    return SharedConst.MaxVisibilityDistance;
-
-                return AsPlayer.CinematicMgr.IsOnCinematic() ? SharedConst.DefaultVisibilityInstance : Location.Map.VisibilityRange;
-            }
-
-            return IsCreature ? AsCreature.SightDistance : SharedConst.SightRangeUnit;
-        }
-
-        if (IsDynObject && IsActive)
-            return Location.Map.VisibilityRange;
-
-        return 0.0f;
-    }
-
-    public bool CheckPrivateObjectOwnerVisibility(WorldObject seer)
-    {
-        if (!IsPrivateObject)
-            return true;
-
-        // Owner of this private object
-        if (_privateObjectOwner == seer.GUID)
-            return true;
-
-        // Another private object of the same owner
-        if (_privateObjectOwner == seer.PrivateObjectOwner)
-            return true;
-
-        var playerSeer = seer.AsPlayer;
-
-        if (playerSeer != null)
-            if (playerSeer.IsInGroup(_privateObjectOwner))
-                return true;
-
-        return false;
-    }
-
-    public SmoothPhasing GetOrCreateSmoothPhasing()
-    {
-        return _smoothPhasing ??= new SmoothPhasing();
-    }
-
-    public SmoothPhasing GetSmoothPhasing()
-    {
-        return _smoothPhasing;
-    }
-
-    public bool CanSeeOrDetect(WorldObject obj, bool ignoreStealth = false, bool distanceCheck = false, bool checkAlert = false)
-    {
-        if (this == obj)
-            return true;
-
-        if (obj.IsNeverVisibleFor(this) || CanNeverSee(obj))
-            return false;
-
-        if (obj.IsAlwaysVisibleFor(this) || CanAlwaysSee(obj))
-            return true;
-
-        if (!obj.CheckPrivateObjectOwnerVisibility(this))
-            return false;
-
-        var smoothPhasing = obj.GetSmoothPhasing();
-
-        if (smoothPhasing != null && smoothPhasing.IsBeingReplacedForSeer(GUID))
-            return false;
-
-        if (!obj.IsPrivateObject && !Global.ConditionMgr.IsObjectMeetingVisibilityByObjectIdConditions((uint)obj.TypeId, obj.Entry, this))
-            return false;
-
-        var corpseVisibility = false;
-
-        if (distanceCheck)
-        {
-            var corpseCheck = false;
-            var thisPlayer = AsPlayer;
-
-            if (thisPlayer != null)
-            {
-                if (thisPlayer.IsDead &&
-                    thisPlayer.Health > 0 && // Cheap way to check for ghost state
-                    !Convert.ToBoolean(obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & (uint)GhostVisibilityType.Ghost))
-                {
-                    var corpse = thisPlayer.GetCorpse();
-
-                    if (corpse != null)
-                    {
-                        corpseCheck = true;
-
-                        if (corpse.Location.IsWithinDist(thisPlayer, GetSightRange(obj), false))
-                            if (corpse.Location.IsWithinDist(obj, GetSightRange(obj), false))
-                                corpseVisibility = true;
-                    }
-                }
-
-                var target = obj.AsUnit;
-
-                if (target)
-                {
-                    // Don't allow to detect vehicle accessories if you can't see vehicle
-                    var vehicle = target.VehicleBase;
-
-                    if (vehicle)
-                        if (!thisPlayer.HaveAtClient(vehicle))
-                            return false;
-                }
-            }
-
-            var viewpoint = this;
-            var player = AsPlayer;
-
-            if (player != null)
-                viewpoint = player.Viewpoint;
-
-            if (viewpoint == null)
-                viewpoint = this;
-
-            if (!corpseCheck && !viewpoint.Location.IsWithinDist(obj, GetSightRange(obj), false))
-                return false;
-        }
-
-        // GM visibility off or hidden NPC
-        if (obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.GM) == 0)
-        {
-            // Stop checking other things for GMs
-            if (ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.GM) != 0)
-                return true;
-        }
-        else
-        {
-            return ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.GM) >= obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.GM);
-        }
-
-        // Ghost players, Spirit Healers, and some other NPCs
-        if (!corpseVisibility && !Convert.ToBoolean(obj.ServerSideVisibility.GetValue(ServerSideVisibilityType.Ghost) & ServerSideVisibilityDetect.GetValue(ServerSideVisibilityType.Ghost)))
-        {
-            // Alive players can see dead players in some cases, but other objects can't do that
-            var thisPlayer = AsPlayer;
-
-            if (thisPlayer != null)
-            {
-                var objPlayer = obj.AsPlayer;
-
-                if (objPlayer != null)
-                {
-                    if (!thisPlayer.IsGroupVisibleFor(objPlayer))
-                        return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        if (obj.IsInvisibleDueToDespawn(this))
-            return false;
-
-        if (!CanDetect(obj, ignoreStealth, checkAlert))
-            return false;
-
-        return true;
-    }
-
     public virtual bool CanNeverSee(WorldObject obj)
     {
-        return Location.Map != obj.Location.Map || !Location.InSamePhase(obj);
+        return Visibility.CanNeverSee(obj);
     }
 
     public virtual bool CanAlwaysSee(WorldObject obj)
     {
-        return false;
+        return Visibility.CanAlwaysSee(obj);
     }
 
     public virtual void SendMessageToSet(ServerPacket packet, bool self)
     {
         if (Location.IsInWorld)
-            SendMessageToSetInRange(packet, VisibilityRange, self);
+            SendMessageToSetInRange(packet, Visibility.VisibilityRange, self);
     }
 
     public virtual void SendMessageToSetInRange(ServerPacket data, float dist, bool self)
@@ -1487,8 +1131,8 @@ public abstract class WorldObject : IDisposable
     public virtual void SendMessageToSet(ServerPacket data, Player skip)
     {
         PacketSenderRef sender = new(data);
-        var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, VisibilityRange, false, skip);
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, Visibility.VisibilityRange, false, skip);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public void SendCombatLogMessage(CombatLogServerPacket combatLog)
@@ -1500,8 +1144,8 @@ public abstract class WorldObject : IDisposable
         if (self != null)
             combatLogSender.Invoke(self);
 
-        MessageDistDeliverer<CombatLogSender> notifier = new(this, combatLogSender, VisibilityRange);
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        MessageDistDeliverer<CombatLogSender> notifier = new(this, combatLogSender, Visibility.VisibilityRange);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public TempSummon SummonCreature(uint entry, float x, float y, float z, float o = 0, TempSummonType despawnType = TempSummonType.ManualDespawn, TimeSpan despawnTime = default, uint vehId = 0, uint spellId = 0, ObjectGuid privateObjectOwner = default)
@@ -1519,19 +1163,18 @@ public abstract class WorldObject : IDisposable
 
         var map = Location.Map;
 
-        if (map != null)
-        {
-            var summon = map.SummonCreature(entry, pos, null, (uint)despawnTime.TotalMilliseconds, this, spellId, vehId, privateObjectOwner);
+        if (map == null)
+            return null;
 
-            if (summon != null)
-            {
-                summon.SetTempSummonType(despawnType);
+        var summon = map.SummonCreature(entry, pos, null, (uint)despawnTime.TotalMilliseconds, this, spellId, vehId, privateObjectOwner);
 
-                return summon;
-            }
-        }
+        if (summon == null)
+            return null;
 
-        return null;
+        summon.SetTempSummonType(despawnType);
+
+        return summon;
+
     }
 
     public TempSummon SummonPersonalClone(Position pos, TempSummonType despawnType, TimeSpan despawnTime, uint vehId, uint spellId, Player privateObjectOwner)
@@ -1546,7 +1189,6 @@ public abstract class WorldObject : IDisposable
         summon.SetTempSummonType(despawnType);
 
         return summon;
-
     }
 
     public GameObject SummonGameObject(uint entry, float x, float y, float z, float ang, Quaternion rotation, TimeSpan respawnTime, GameObjectSummonType summonType = GameObjectSummonType.TimedOrCorpseDespawn)
@@ -1565,7 +1207,7 @@ public abstract class WorldObject : IDisposable
         if (!Location.IsInWorld)
             return null;
 
-        var goinfo = Global.ObjectMgr.GetGameObjectTemplate(entry);
+        var goinfo = ObjectManager.GetGameObjectTemplate(entry);
 
         if (goinfo == null)
         {
@@ -1621,23 +1263,17 @@ public abstract class WorldObject : IDisposable
 
     public void SummonCreatureGroup(byte group, out List<TempSummon> list)
     {
-        list = new List<TempSummon>();
-        var data = Global.ObjectMgr.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
+        
+        var data = ObjectManager.GetSummonGroup(Entry, IsTypeId(TypeId.GameObject) ? SummonerType.GameObject : SummonerType.Creature, group);
 
         if (data.Empty())
         {
             Log.Logger.Warning("{0} ({1}) tried to summon non-existing summon group {2}.", GetName(), GUID.ToString(), group);
-
+            list = new();
             return;
         }
 
-        foreach (var tempSummonData in data)
-        {
-            var summon = SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time));
-
-            if (summon)
-                list.Add(summon);
-        }
+        list = data.Select(tempSummonData => SummonCreature(tempSummonData.entry, tempSummonData.pos, tempSummonData.type, TimeSpan.FromMilliseconds(tempSummonData.time))).Where(summon => summon).ToList();
     }
 
     public bool TryGetOwner(out Unit owner)
@@ -1654,940 +1290,11 @@ public abstract class WorldObject : IDisposable
         return owner != null;
     }
     
-    public float GetSpellMaxRangeForTarget(Unit target, SpellInfo spellInfo)
-    {
-        if (spellInfo.RangeEntry == null)
-            return 0.0f;
-
-        if (spellInfo.RangeEntry.RangeMax[0] == spellInfo.RangeEntry.RangeMax[1])
-            return spellInfo.GetMaxRange();
-
-        if (!target)
-            return spellInfo.GetMaxRange(true);
-
-        return spellInfo.GetMaxRange(!IsHostileTo(target));
-    }
-
-    public float GetSpellMinRangeForTarget(Unit target, SpellInfo spellInfo)
-    {
-        if (spellInfo.RangeEntry == null)
-            return 0.0f;
-
-        if (spellInfo.RangeEntry.RangeMin[0] == spellInfo.RangeEntry.RangeMin[1])
-            return spellInfo.GetMinRange();
-
-        if (!target)
-            return spellInfo.GetMinRange(true);
-
-        return spellInfo.GetMinRange(!IsHostileTo(target));
-    }
-
-    public double ApplyEffectModifiers(SpellInfo spellInfo, int effIndex, double value)
-    {
-        var modOwner = SpellModOwner;
-
-        if (modOwner != null)
-        {
-            modOwner.ApplySpellMod(spellInfo, SpellModOp.Points, ref value);
-
-            switch (effIndex)
-            {
-                case 0:
-                    modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex0, ref value);
-
-                    break;
-                case 1:
-                    modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex1, ref value);
-
-                    break;
-                case 2:
-                    modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex2, ref value);
-
-                    break;
-                case 3:
-                    modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex3, ref value);
-
-                    break;
-                case 4:
-                    modOwner.ApplySpellMod(spellInfo, SpellModOp.PointsIndex4, ref value);
-
-                    break;
-            }
-        }
-
-        return value;
-    }
-
-    public int CalcSpellDuration(SpellInfo spellInfo)
-    {
-        var comboPoints = 0;
-        var maxComboPoints = 5;
-        var unit = AsUnit;
-
-        if (unit != null)
-        {
-            comboPoints = unit.GetPower(PowerType.ComboPoints);
-            maxComboPoints = unit.GetMaxPower(PowerType.ComboPoints);
-        }
-
-        var minduration = spellInfo.Duration;
-        var maxduration = spellInfo.MaxDuration;
-
-        int duration;
-
-        if (comboPoints != 0 && minduration != -1 && minduration != maxduration)
-            duration = minduration + ((maxduration - minduration) * comboPoints / maxComboPoints);
-        else
-            duration = minduration;
-
-        return duration;
-    }
-
-    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, int effIndex)
-    {
-        return ModSpellDuration(spellInfo,
-                                target,
-                                duration,
-                                positive,
-                                new HashSet<int>()
-                                {
-                                    effIndex
-                                });
-    }
-
-    public int ModSpellDuration(SpellInfo spellInfo, WorldObject target, int duration, bool positive, HashSet<int> effectMask)
-    {
-        // don't mod permanent auras duration
-        if (duration < 0)
-            return duration;
-
-        // some auras are not affected by duration modifiers
-        if (spellInfo.HasAttribute(SpellAttr7.IgnoreDurationMods))
-            return duration;
-
-        // cut duration only of negative effects
-        var unitTarget = target.AsUnit;
-
-        if (!unitTarget)
-            return duration;
-
-        if (!positive)
-        {
-            var mechanicMask = spellInfo.GetSpellMechanicMaskByEffectMask(effectMask);
-
-            bool MechanicCheck(AuraEffect aurEff)
-            {
-                if ((mechanicMask & (1ul << aurEff.MiscValue)) != 0)
-                    return true;
-
-                return false;
-            }
-
-            // Find total mod value (negative bonus)
-            var durationModAlways = unitTarget.GetTotalAuraModifier(AuraType.MechanicDurationMod, MechanicCheck);
-            // Find max mod (negative bonus)
-            var durationModNotStack = unitTarget.GetMaxNegativeAuraModifier(AuraType.MechanicDurationModNotStack, MechanicCheck);
-
-            // Select strongest negative mod
-            var durationMod = Math.Min(durationModAlways, durationModNotStack);
-
-            if (durationMod != 0)
-                MathFunctions.AddPct(ref duration, durationMod);
-
-            // there are only negative mods currently
-            durationModAlways = unitTarget.GetTotalAuraModifierByMiscValue(AuraType.ModAuraDurationByDispel, (int)spellInfo.Dispel);
-            durationModNotStack = unitTarget.GetMaxNegativeAuraModifierByMiscValue(AuraType.ModAuraDurationByDispelNotStack, (int)spellInfo.Dispel);
-
-            durationMod = Math.Min(durationModAlways, durationModNotStack);
-
-            if (durationMod != 0)
-                MathFunctions.AddPct(ref duration, durationMod);
-        }
-        else
-        {
-            // else positive mods here, there are no currently
-            // when there will be, change GetTotalAuraModifierByMiscValue to GetMaxPositiveAuraModifierByMiscValue
-
-            // Mixology - duration boost
-            if (unitTarget.IsPlayer)
-                if (spellInfo.SpellFamilyName == SpellFamilyNames.Potion &&
-                    (
-                        Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirBattle) ||
-                        Global.SpellMgr.IsSpellMemberOfSpellGroup(spellInfo.Id, SpellGroup.ElixirGuardian)))
-                {
-                    var effect = spellInfo.GetEffect(0);
-
-                    if (unitTarget.HasAura(53042) && effect != null && unitTarget.HasSpell(effect.TriggerSpell))
-                        duration *= 2;
-                }
-        }
-
-        return Math.Max(duration, 0);
-    }
-
-    public void ModSpellCastTime(SpellInfo spellInfo, ref int castTime, Spell spell = null)
-    {
-        if (spellInfo == null || castTime < 0)
-            return;
-
-        // called from caster
-        var modOwner = SpellModOwner;
-
-        if (modOwner != null)
-            modOwner.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref castTime, spell);
-
-        var unitCaster = AsUnit;
-
-        if (!unitCaster)
-            return;
-
-        if (unitCaster.IsPlayer && unitCaster.AsPlayer.GetCommandStatus(PlayerCommandStates.Casttime))
-            castTime = 0;
-        else if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) && ((IsPlayer && spellInfo.SpellFamilyName != 0) || IsCreature))
-            castTime = unitCaster.CanInstantCast ? 0 : (int)(castTime * unitCaster.UnitData.ModCastingSpeed);
-        else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
-            castTime = (int)(castTime * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
-        else if (Global.SpellMgr.IsPartOfSkillLine(SkillType.Cooking, spellInfo.Id) && unitCaster.HasAura(67556)) // cooking with Chef Hat.
-            castTime = 500;
-    }
-
-    public void ModSpellDurationTime(SpellInfo spellInfo, ref int duration, Spell spell = null)
-    {
-        if (spellInfo == null || duration < 0)
-            return;
-
-        if (spellInfo.IsChanneled && !spellInfo.HasAttribute(SpellAttr5.SpellHasteAffectsPeriodic))
-            return;
-
-        // called from caster
-        var modOwner = SpellModOwner;
-
-        if (modOwner != null)
-            modOwner.ApplySpellMod(spellInfo, SpellModOp.ChangeCastTime, ref duration, spell);
-
-        var unitCaster = AsUnit;
-
-        if (!unitCaster)
-            return;
-
-        if (!(spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr0.IsTradeskill) || spellInfo.HasAttribute(SpellAttr3.IgnoreCasterModifiers)) &&
-            ((IsPlayer && spellInfo.SpellFamilyName != 0) || IsCreature))
-            duration = (int)(duration * unitCaster.UnitData.ModCastingSpeed);
-        else if (spellInfo.HasAttribute(SpellAttr0.UsesRangedSlot) && !spellInfo.HasAttribute(SpellAttr2.AutoRepeat))
-            duration = (int)(duration * unitCaster.ModAttackSpeedPct[(int)WeaponAttackType.RangedAttack]);
-    }
-
-    public virtual double MeleeSpellMissChance(Unit victim, WeaponAttackType attType, SpellInfo spellInfo)
-    {
-        return 0.0f;
-    }
-
-    public virtual SpellMissInfo MeleeSpellHitResult(Unit victim, SpellInfo spellInfo)
-    {
-        return SpellMissInfo.None;
-    }
-
-    // Calculate spell hit result can be:
-    // Every spell can: Evade/Immune/Reflect/Sucesful hit
-    // For melee based spells:
-    //   Miss
-    //   Dodge
-    //   Parry
-    // For spells
-    //   Resist
-    public SpellMissInfo SpellHitResult(Unit victim, SpellInfo spellInfo, bool canReflect = false)
-    {
-        // Check for immune
-        if (victim.IsImmunedToSpell(spellInfo, this))
-            return SpellMissInfo.Immune;
-
-        // Damage immunity is only checked if the spell has damage effects, this immunity must not prevent aura apply
-        // returns SPELL_MISS_IMMUNE in that case, for other spells, the SMSG_SPELL_GO must show hit
-        if (spellInfo.HasOnlyDamageEffects && victim.IsImmunedToDamage(spellInfo))
-            return SpellMissInfo.Immune;
-
-        // All positive spells can`t miss
-        // @todo client not show miss log for this spells - so need find info for this in dbc and use it!
-        if (spellInfo.IsPositive && !IsHostileTo(victim)) // prevent from affecting enemy by "positive" spell
-            return SpellMissInfo.None;
-
-        if (this == victim)
-            return SpellMissInfo.None;
-
-        // Return evade for units in evade mode
-        if (victim.IsCreature && victim.AsCreature.IsEvadingAttacks)
-            return SpellMissInfo.Evade;
-
-        // Try victim reflect spell
-        if (canReflect)
-        {
-            var reflectchance = victim.GetTotalAuraModifier(AuraType.ReflectSpells);
-            reflectchance += victim.GetTotalAuraModifierByMiscMask(AuraType.ReflectSpellsSchool, (int)spellInfo.GetSchoolMask());
-
-            if (reflectchance > 0 && RandomHelper.randChance(reflectchance))
-                return SpellMissInfo.Reflect;
-        }
-
-        if (spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
-            return SpellMissInfo.None;
-
-        switch (spellInfo.DmgClass)
-        {
-            case SpellDmgClass.Ranged:
-            case SpellDmgClass.Melee:
-                return MeleeSpellHitResult(victim, spellInfo);
-            case SpellDmgClass.None:
-                return SpellMissInfo.None;
-            case SpellDmgClass.Magic:
-                return MagicSpellHitResult(victim, spellInfo);
-        }
-
-        return SpellMissInfo.None;
-    }
-
-    public void SendSpellMiss(Unit target, uint spellID, SpellMissInfo missInfo)
-    {
-        SpellMissLog spellMissLog = new()
-        {
-            SpellID = spellID,
-            Caster = GUID
-        };
-
-        spellMissLog.Entries.Add(new SpellLogMissEntry(target.GUID, (byte)missInfo));
-        SendMessageToSet(spellMissLog, true);
-    }
-
-    public FactionTemplateRecord GetFactionTemplateEntry()
-    {
-        var factionId = Faction;
-        var entry = CliDB.FactionTemplateStorage.LookupByKey(factionId);
-
-        if (entry == null)
-            switch (TypeId)
-            {
-                case TypeId.Player:
-                    Log.Logger.Error($"Player {AsPlayer.GetName()} has invalid faction (faction template id) #{factionId}");
-
-                    break;
-                case TypeId.Unit:
-                    Log.Logger.Error($"Creature (template id: {AsCreature.Template.Entry}) has invalid faction (faction template Id) #{factionId}");
-
-                    break;
-                case TypeId.GameObject:
-                    if (factionId != 0) // Gameobjects may have faction template id = 0
-                        Log.Logger.Error($"GameObject (template id: {AsGameObject.Template.entry}) has invalid faction (faction template Id) #{factionId}");
-
-                    break;
-                default:
-                    Log.Logger.Error($"Object (name={GetName()}, type={TypeId}) has invalid faction (faction template Id) #{factionId}");
-
-                    break;
-            }
-
-        return entry;
-    }
-
-    // function based on function Unit::UnitReaction from 13850 client
-    public ReputationRank GetReactionTo(WorldObject target)
-    {
-        // always friendly to self
-        if (this == target)
-            return ReputationRank.Friendly;
-
-        bool IsAttackableBySummoner(Unit me, ObjectGuid targetGuid)
-        {
-            if (!me)
-                return false;
-
-            var tempSummon = me.ToTempSummon();
-
-            if (tempSummon == null || tempSummon.SummonPropertiesRecord == null)
-                return false;
-
-            if (tempSummon.SummonPropertiesRecord.GetFlags().HasFlag(SummonPropertiesFlags.AttackableBySummoner) && targetGuid == tempSummon.GetSummonerGUID())
-                return true;
-
-            return false;
-        }
-
-        if (IsAttackableBySummoner(AsUnit, target.GUID) || IsAttackableBySummoner(target.AsUnit, GUID))
-            return ReputationRank.Neutral;
-
-        // always friendly to charmer or owner
-        if (CharmerOrOwnerOrSelf == target.CharmerOrOwnerOrSelf)
-            return ReputationRank.Friendly;
-
-        var selfPlayerOwner = AffectingPlayer;
-        var targetPlayerOwner = target.AffectingPlayer;
-
-        // check forced reputation to support SPELL_AURA_FORCE_REACTION
-        if (selfPlayerOwner)
-        {
-            var targetFactionTemplateEntry = target.GetFactionTemplateEntry();
-
-            if (targetFactionTemplateEntry != null)
-            {
-                var repRank = selfPlayerOwner.ReputationMgr.GetForcedRankIfAny(targetFactionTemplateEntry);
-
-                if (repRank != ReputationRank.None)
-                    return repRank;
-            }
-        }
-        else if (targetPlayerOwner)
-        {
-            var selfFactionTemplateEntry = GetFactionTemplateEntry();
-
-            if (selfFactionTemplateEntry != null)
-            {
-                var repRank = targetPlayerOwner.ReputationMgr.GetForcedRankIfAny(selfFactionTemplateEntry);
-
-                if (repRank != ReputationRank.None)
-                    return repRank;
-            }
-        }
-
-        var unit = AsUnit ?? selfPlayerOwner;
-        var targetUnit = target.AsUnit ?? targetPlayerOwner;
-
-        if (unit && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-            if (targetUnit && targetUnit.HasUnitFlag(UnitFlags.PlayerControlled))
-            {
-                if (selfPlayerOwner && targetPlayerOwner)
-                {
-                    // always friendly to other unit controlled by player, or to the player himself
-                    if (selfPlayerOwner == targetPlayerOwner)
-                        return ReputationRank.Friendly;
-
-                    // duel - always hostile to opponent
-                    if (selfPlayerOwner.Duel != null && selfPlayerOwner.Duel.Opponent == targetPlayerOwner && selfPlayerOwner.Duel.State == DuelState.InProgress)
-                        return ReputationRank.Hostile;
-
-                    // same group - checks dependant only on our faction - skip FFA_PVP for example
-                    if (selfPlayerOwner.IsInRaidWith(targetPlayerOwner))
-                        return ReputationRank.Friendly; // return true to allow config option AllowTwoSide.Interaction.Group to work
-                    // however client seems to allow mixed group parties, because in 13850 client it works like:
-                    // return GetFactionReactionTo(GetFactionTemplateEntry(), target);
-                }
-
-                // check FFA_PVP
-                if (unit.IsFFAPvP && targetUnit.IsFFAPvP)
-                    return ReputationRank.Hostile;
-
-                if (selfPlayerOwner)
-                {
-                    var targetFactionTemplateEntry = targetUnit.GetFactionTemplateEntry();
-
-                    if (targetFactionTemplateEntry != null)
-                    {
-                        var repRank = selfPlayerOwner.ReputationMgr.GetForcedRankIfAny(targetFactionTemplateEntry);
-
-                        if (repRank != ReputationRank.None)
-                            return repRank;
-
-                        if (!selfPlayerOwner.HasUnitFlag2(UnitFlags2.IgnoreReputation))
-                        {
-                            var targetFactionEntry = CliDB.FactionStorage.LookupByKey(targetFactionTemplateEntry.Faction);
-
-                            if (targetFactionEntry != null)
-                                if (targetFactionEntry.CanHaveReputation())
-                                {
-                                    // check contested flags
-                                    if ((targetFactionTemplateEntry.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && selfPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
-                                        return ReputationRank.Hostile;
-
-                                    // if faction has reputation, hostile state depends only from AtWar state
-                                    if (selfPlayerOwner.ReputationMgr.IsAtWar(targetFactionEntry))
-                                        return ReputationRank.Hostile;
-
-                                    return ReputationRank.Friendly;
-                                }
-                        }
-                    }
-                }
-            }
-
-        // do checks dependant only on our faction
-        return GetFactionReactionTo(GetFactionTemplateEntry(), target);
-    }
-
-    public static ReputationRank GetFactionReactionTo(FactionTemplateRecord factionTemplateEntry, WorldObject target)
-    {
-        // always neutral when no template entry found
-        if (factionTemplateEntry == null)
-            return ReputationRank.Neutral;
-
-        var targetFactionTemplateEntry = target.GetFactionTemplateEntry();
-
-        if (targetFactionTemplateEntry == null)
-            return ReputationRank.Neutral;
-
-        var targetPlayerOwner = target.AffectingPlayer;
-
-        if (targetPlayerOwner != null)
-        {
-            // check contested flags
-            if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.ContestedGuard) != 0 && targetPlayerOwner.HasPlayerFlag(PlayerFlags.ContestedPVP))
-                return ReputationRank.Hostile;
-
-            var repRank = targetPlayerOwner.ReputationMgr.GetForcedRankIfAny(factionTemplateEntry);
-
-            if (repRank != ReputationRank.None)
-                return repRank;
-
-            if (target.IsUnit && !target.AsUnit.HasUnitFlag2(UnitFlags2.IgnoreReputation))
-            {
-                var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplateEntry.Faction);
-
-                if (factionEntry != null)
-                    if (factionEntry.CanHaveReputation())
-                    {
-                        // CvP case - check reputation, don't allow state higher than neutral when at war
-                        var repRank1 = targetPlayerOwner.ReputationMgr.GetRank(factionEntry);
-
-                        if (targetPlayerOwner.ReputationMgr.IsAtWar(factionEntry))
-                            repRank1 = (ReputationRank)Math.Min((int)ReputationRank.Neutral, (int)repRank1);
-
-                        return repRank1;
-                    }
-            }
-        }
-
-        // common faction based check
-        if (factionTemplateEntry.IsHostileTo(targetFactionTemplateEntry))
-            return ReputationRank.Hostile;
-
-        if (factionTemplateEntry.IsFriendlyTo(targetFactionTemplateEntry))
-            return ReputationRank.Friendly;
-
-        if (targetFactionTemplateEntry.IsFriendlyTo(factionTemplateEntry))
-            return ReputationRank.Friendly;
-
-        if ((factionTemplateEntry.Flags & (ushort)FactionTemplateFlags.HostileByDefault) != 0)
-            return ReputationRank.Hostile;
-
-        // neutral by default
-        return ReputationRank.Neutral;
-    }
-
-    public bool IsHostileTo(WorldObject target)
-    {
-        return GetReactionTo(target) <= ReputationRank.Hostile;
-    }
-
-    public bool IsFriendlyTo(WorldObject target)
-    {
-        return GetReactionTo(target) >= ReputationRank.Friendly;
-    }
-
-    public bool IsHostileToPlayers()
-    {
-        var myFaction = GetFactionTemplateEntry();
-
-        if (myFaction.Faction == 0)
-            return false;
-
-        var rawFaction = CliDB.FactionStorage.LookupByKey(myFaction.Faction);
-
-        if (rawFaction is { ReputationIndex: >= 0 })
-            return false;
-
-        return myFaction.IsHostileToPlayers();
-    }
-
-    public bool IsNeutralToAll()
-    {
-        var myFaction = GetFactionTemplateEntry();
-
-        if (myFaction.Faction == 0)
-            return true;
-
-        var rawFaction = CliDB.FactionStorage.LookupByKey(myFaction.Faction);
-
-        if (rawFaction is { ReputationIndex: >= 0 })
-            return false;
-
-        return myFaction.IsNeutralToAll();
-    }
-
-
-    public void SendPlaySpellVisual(WorldObject target, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false, float launchDelay = 0)
-    {
-        PlaySpellVisual playSpellVisual = new()
-        {
-            Source = GUID,
-            Target = target.GUID,
-            TargetPosition = target.Location,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime,
-            LaunchDelay = launchDelay
-        };
-
-        SendMessageToSet(playSpellVisual, true);
-    }
-
-    public void SendPlaySpellVisual(Position targetPosition, float launchDelay, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
-    {
-        PlaySpellVisual playSpellVisual = new()
-        {
-            Source = GUID,
-            TargetPosition = targetPosition,
-            LaunchDelay = launchDelay,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime
-        };
-
-        SendMessageToSet(playSpellVisual, true);
-    }
-
-    public void SendPlaySpellVisual(Position targetPosition, uint spellVisualId, ushort missReason, ushort reflectStatus, float travelSpeed, bool speedAsTime = false)
-    {
-        PlaySpellVisual playSpellVisual = new()
-        {
-            Source = GUID,
-            TargetPosition = targetPosition,
-            SpellVisualID = spellVisualId,
-            TravelSpeed = travelSpeed,
-            MissReason = missReason,
-            ReflectStatus = reflectStatus,
-            SpeedAsTime = speedAsTime
-        };
-
-        SendMessageToSet(playSpellVisual, true);
-    }
-
-    public void SendPlaySpellVisualKit(uint id, uint type, uint duration)
-    {
-        PlaySpellVisualKit playSpellVisualKit = new()
-        {
-            Unit = GUID,
-            KitRecID = id,
-            KitType = type,
-            Duration = duration
-        };
-
-        SendMessageToSet(playSpellVisualKit, true);
-    }
-
-    // function based on function Unit::CanAttack from 13850 client
-    public bool IsValidAttackTarget(WorldObject target, SpellInfo bySpell = null)
-    {
-        // some positive spells can be casted at hostile target
-        var isPositiveSpell = bySpell is { IsPositive: true };
-
-        // can't attack self (spells can, attribute check)
-        if (bySpell == null && this == target)
-            return false;
-
-        // can't attack unattackable units
-        var unitTarget = target.AsUnit;
-
-        if (unitTarget != null && unitTarget.HasUnitState(UnitState.Unattackable))
-            return false;
-
-        // can't attack GMs
-        if (target.IsPlayer && target.AsPlayer.IsGameMaster)
-            return false;
-
-        var unit = AsUnit;
-
-        // visibility checks (only units)
-        if (unit != null)
-            // can't attack invisible
-            if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift))
-                if (!unit.CanSeeOrDetect(target, bySpell is { IsAffectingArea: true }))
-                    return false;
-
-        // can't attack dead
-        if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget is { IsAlive: false })
-            return false;
-
-        // can't attack untargetable
-        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanTargetUntargetable)) && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable2))
-            return false;
-
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.Uninteractible))
-            return false;
-
-        var playerAttacker = AsPlayer;
-
-        if (playerAttacker != null)
-            if (playerAttacker.HasPlayerFlag(PlayerFlags.Uber))
-                return false;
-
-        // check flags
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.OnTaxi | UnitFlags.NotAttackable1))
-            return false;
-
-        var unitOrOwner = unit;
-        var go = AsGameObject;
-
-        if (go?.GoType == GameObjectTypes.Trap)
-            unitOrOwner = go.OwnerUnit;
-
-        // ignore immunity flags when assisting
-        if (unitOrOwner != null && unitTarget != null && !(isPositiveSpell && bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc)))
-        {
-            if (!unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.IsImmuneToNPC())
-                return false;
-
-            if (!unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.IsImmuneToNPC())
-                return false;
-
-            if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
-            {
-                if (unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget.IsImmuneToPC())
-                    return false;
-
-                if (unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner.IsImmuneToPC())
-                    return false;
-            }
-        }
-
-        // CvC case - can attack each other only when one of them is hostile
-        if (unit != null && !unit.HasUnitFlag(UnitFlags.PlayerControlled) && unitTarget != null && !unitTarget.HasUnitFlag(UnitFlags.PlayerControlled))
-            return IsHostileTo(unitTarget) || unitTarget.IsHostileTo(this);
-
-        // Traps without owner or with NPC owner versus Creature case - can attack to creature only when one of them is hostile
-        if (go?.GoType == GameObjectTypes.Trap)
-        {
-            var goOwner = go.OwnerUnit;
-
-            if (goOwner == null || !goOwner.HasUnitFlag(UnitFlags.PlayerControlled))
-                if (unitTarget != null && !unitTarget.HasUnitFlag(UnitFlags.PlayerControlled))
-                    return IsHostileTo(unitTarget) || unitTarget.IsHostileTo(this);
-        }
-
-        // PvP, PvC, CvP case
-        // can't attack friendly targets
-        if (IsFriendlyTo(target) || target.IsFriendlyTo(this))
-            return false;
-
-        var playerAffectingAttacker = unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled) ? AffectingPlayer : go != null ? AffectingPlayer : null;
-        var playerAffectingTarget = unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) ? unitTarget.AffectingPlayer : null;
-
-        // Not all neutral creatures can be attacked (even some unfriendly faction does not react aggresive to you, like Sporaggar)
-        if ((playerAffectingAttacker && !playerAffectingTarget) || (!playerAffectingAttacker && playerAffectingTarget))
-        {
-            var player = playerAffectingAttacker ? playerAffectingAttacker : playerAffectingTarget;
-            var creature = playerAffectingAttacker ? unitTarget : unit;
-
-            if (creature != null)
-            {
-                if (creature.IsContestedGuard() && player != null && player.HasPlayerFlag(PlayerFlags.ContestedPVP))
-                    return true;
-
-                var factionTemplate = creature.GetFactionTemplateEntry();
-
-                if (factionTemplate != null && player != null && player.ReputationMgr.GetForcedRankIfAny(factionTemplate) == ReputationRank.None)
-                {
-                    var factionEntry = CliDB.FactionStorage.LookupByKey(factionTemplate.Faction);
-
-                    if (factionEntry != null)
-                    {
-                        var repState = player.ReputationMgr.GetState(factionEntry);
-
-                        if (repState != null)
-                            if (!repState.Flags.HasFlag(ReputationFlags.AtWar))
-                                return false;
-                    }
-                }
-            }
-        }
-
-        var creatureAttacker = AsCreature;
-
-        if (creatureAttacker && creatureAttacker.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit))
-            return false;
-
-        if (playerAffectingAttacker && playerAffectingTarget)
-            if (playerAffectingAttacker.Duel != null && playerAffectingAttacker.Duel.Opponent == playerAffectingTarget && playerAffectingAttacker.Duel.State == DuelState.InProgress)
-                return true;
-
-        // PvP case - can't attack when attacker or target are in sanctuary
-        // however, 13850 client doesn't allow to attack when one of the unit's has sanctuary flag and is pvp
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled) && unitOrOwner != null && unitOrOwner.HasUnitFlag(UnitFlags.PlayerControlled) && (unitTarget.IsInSanctuary || unitOrOwner.IsInSanctuary))
-            return false;
-
-        // additional checks - only PvP case
-        if (playerAffectingAttacker && playerAffectingTarget)
-        {
-            if (playerAffectingTarget.IsPvP || (bySpell != null && bySpell.HasAttribute(SpellAttr5.IgnoreAreaEffectPvpCheck)))
-                return true;
-
-            if (playerAffectingAttacker.IsFFAPvP && playerAffectingTarget.IsFFAPvP)
-                return true;
-
-            return playerAffectingAttacker.HasPvpFlag(UnitPVPStateFlags.Unk1) ||
-                   playerAffectingTarget.HasPvpFlag(UnitPVPStateFlags.Unk1);
-        }
-
-        return true;
-    }
-
-    // function based on function Unit::CanAssist from 13850 client
-    public bool IsValidAssistTarget(WorldObject target, SpellInfo bySpell = null, bool spellCheck = true)
-    {
-        // some negative spells can be casted at friendly target
-        var isNegativeSpell = bySpell is { IsPositive: false };
-
-        // can assist to self
-        if (this == target)
-            return true;
-
-        // can't assist unattackable units
-        var unitTarget = target.AsUnit;
-
-        if (unitTarget && unitTarget.HasUnitState(UnitState.Unattackable))
-            return false;
-
-        // can't assist GMs
-        if (target.IsPlayer && target.AsPlayer.IsGameMaster)
-            return false;
-
-        // can't assist own vehicle or passenger
-        var unit = AsUnit;
-
-        if (unit && unitTarget && unit.Vehicle1)
-        {
-            if (unit.IsOnVehicle(unitTarget))
-                return false;
-
-            if (unit.VehicleBase.IsOnVehicle(unitTarget))
-                return false;
-        }
-
-        // can't assist invisible
-        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.IgnorePhaseShift)) && !CanSeeOrDetect(target, bySpell is { IsAffectingArea: true }))
-            return false;
-
-        // can't assist dead
-        if ((bySpell == null || !bySpell.IsAllowingDeadTarget) && unitTarget && !unitTarget.IsAlive)
-            return false;
-
-        // can't assist untargetable
-        if ((bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanTargetUntargetable)) && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable2))
-            return false;
-
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.Uninteractible))
-            return false;
-
-        // check flags for negative spells
-        if (isNegativeSpell && unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.NonAttackable | UnitFlags.OnTaxi | UnitFlags.NotAttackable1))
-            return false;
-
-        if (isNegativeSpell || bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
-        {
-            if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-            {
-                if (bySpell == null || !bySpell.HasAttribute(SpellAttr8.AttackIgnoreImmuneToPCFlag))
-                    if (unitTarget != null && unitTarget.IsImmuneToPC())
-                        return false;
-            }
-            else
-            {
-                if (unitTarget != null && unitTarget.IsImmuneToNPC())
-                    return false;
-            }
-        }
-
-        // can't assist non-friendly targets
-        if (GetReactionTo(target) < ReputationRank.Neutral && target.GetReactionTo(this) < ReputationRank.Neutral && (!AsCreature || !AsCreature.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit)))
-            return false;
-
-        // PvP case
-        if (unitTarget != null && unitTarget.HasUnitFlag(UnitFlags.PlayerControlled))
-        {
-            if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-            {
-                var selfPlayerOwner = AffectingPlayer;
-                var targetPlayerOwner = unitTarget.AffectingPlayer;
-
-                if (selfPlayerOwner != null && targetPlayerOwner != null)
-                    // can't assist player which is dueling someone
-                    if (selfPlayerOwner != targetPlayerOwner && targetPlayerOwner.Duel != null)
-                        return false;
-
-                // can't assist player in ffa_pvp zone from outside
-                if (unitTarget.IsFFAPvP && !unit.IsFFAPvP)
-                    return false;
-
-                // can't assist player out of sanctuary from sanctuary if has pvp enabled
-                if (unitTarget.IsPvP)
-                    if (unit.IsInSanctuary && !unitTarget.IsInSanctuary)
-                        return false;
-            }
-        }
-        // PvC case - player can assist creature only if has specific type flags
-        // !target.HasFlag(UNIT_FIELD_FLAGS, UnitFlags.PvpAttackable) &&
-        else if (unit != null && unit.HasUnitFlag(UnitFlags.PlayerControlled))
-        {
-            if (bySpell == null || !bySpell.HasAttribute(SpellAttr6.CanAssistImmunePc))
-                if (unitTarget is { IsPvP: false })
-                {
-                    var creatureTarget = target.AsCreature;
-
-                    if (creatureTarget != null)
-                        return (creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.TreatAsRaidUnit) || creatureTarget.Template.TypeFlags.HasFlag(CreatureTypeFlags.CanAssist));
-                }
-        }
-
-        return true;
-    }
-
-    public Unit GetMagicHitRedirectTarget(Unit victim, SpellInfo spellInfo)
-    {
-        // Patch 1.2 notes: Spell Reflection no longer reflects abilities
-        if (spellInfo.HasAttribute(SpellAttr0.IsAbility) || spellInfo.HasAttribute(SpellAttr1.NoRedirection) || spellInfo.HasAttribute(SpellAttr0.NoImmunities))
-            return victim;
-
-        var magnetAuras = victim.GetAuraEffectsByType(AuraType.SpellMagnet);
-
-        foreach (var aurEff in magnetAuras)
-        {
-            var magnet = aurEff.Base.Caster;
-
-            if (magnet != null)
-                if (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && IsValidAttackTarget(magnet, spellInfo))
-                {
-                    // @todo handle this charge drop by proc in cast phase on explicit target
-                    if (spellInfo.HasHitDelay)
-                    {
-                        // Set up missile speed based delay
-                        var hitDelay = spellInfo.LaunchDelay;
-
-                        if (spellInfo.HasAttribute(SpellAttr9.SpecialDelayCalculation))
-                            hitDelay += spellInfo.Speed;
-                        else if (spellInfo.Speed > 0.0f)
-                            hitDelay += Math.Max(victim.Location.GetDistance(this), 5.0f) / spellInfo.Speed;
-
-                        var delay = (uint)Math.Floor(hitDelay * 1000.0f);
-                        // Schedule charge drop
-                        aurEff.Base.DropChargeDelayed(delay, AuraRemoveMode.Expire);
-                    }
-                    else
-                    {
-                        aurEff.Base.DropCharge(AuraRemoveMode.Expire);
-                    }
-
-                    return magnet;
-                }
-        }
-
-        return victim;
-    }
-
     public virtual uint GetCastSpellXSpellVisualId(SpellInfo spellInfo)
     {
-        return spellInfo.GetSpellXSpellVisualId(this);
+        return WorldObjectCombat.GetCastSpellXSpellVisualId(spellInfo);
     }
-
-
+    
     public void PlayDistanceSound(uint soundId, Player target = null)
     {
         PlaySpeakerBoxSound playSpeakerBoxSound = new(GUID, soundId);
@@ -2622,10 +1329,10 @@ public abstract class WorldObject : IDisposable
             return;
 
         List<Unit> targets = new();
-        var check = new AnyPlayerInObjectRangeCheck(this, VisibilityRange, false);
+        var check = new AnyPlayerInObjectRangeCheck(this, Visibility.VisibilityRange, false);
         var searcher = new PlayerListSearcher(this, targets, check);
 
-        Cell.VisitGrid(this, searcher, VisibilityRange);
+        Cell.VisitGrid(this, searcher, Visibility.VisibilityRange);
 
         foreach (var unit in targets)
         {
@@ -2658,7 +1365,7 @@ public abstract class WorldObject : IDisposable
                                                   },
                                                   GridType.World);
 
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public virtual void UpdateObjectVisibilityOnCreate()
@@ -2674,7 +1381,7 @@ public abstract class WorldObject : IDisposable
     public virtual void BuildUpdate(Dictionary<Player, UpdateData> data)
     {
         var notifier = new WorldObjectChangeAccumulator(this, data, GridType.World);
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
 
         ClearUpdateMask(false);
     }
@@ -2808,17 +1515,17 @@ public abstract class WorldObject : IDisposable
 
     public void AddToNotify(NotifyFlags f)
     {
-        NotifyFlags |= f;
+        _notifyFlags |= f;
     }
 
     public bool IsNeedNotify(NotifyFlags f)
     {
-        return Convert.ToBoolean(NotifyFlags & f);
+        return Convert.ToBoolean(_notifyFlags & f);
     }
 
     public void ResetAllNotifies()
     {
-        NotifyFlags = 0;
+        _notifyFlags = 0;
     }
 
     public T GetTransport<T>() where T : class, ITransport
@@ -2834,29 +1541,24 @@ public abstract class WorldObject : IDisposable
         return ObjectGuid.Empty;
     }
 
-    public void SetTransport(ITransport t)
-    {
-        Transport = t;
-    }
-
     public virtual bool IsNeverVisibleFor(WorldObject seer)
     {
-        return !Location.IsInWorld || IsDestroyedObject;
+        return Visibility.IsNeverVisibleFor(seer);
     }
 
     public virtual bool IsAlwaysVisibleFor(WorldObject seer)
     {
-        return false;
+        return Visibility.IsAlwaysVisibleFor(seer);
     }
 
     public virtual bool IsInvisibleDueToDespawn(WorldObject seer)
     {
-        return false;
+        return Visibility.IsInvisibleDueToDespawn(seer);
     }
 
     public virtual bool IsAlwaysDetectableFor(WorldObject seer)
     {
-        return false;
+        return Visibility.IsAlwaysDetectableFor(seer);
     }
 
     public virtual bool LoadFromDB(ulong spawnId, Map map, bool addToMap, bool allowDuplicate)
@@ -2952,17 +1654,17 @@ public abstract class WorldObject : IDisposable
         // Unit is flying, check for potential collision via vmaps
         if (path.GetPathType().HasFlag(PathType.NotUsingPath))
         {
-            col = Global.VMapMgr.GetObjectHitPos(PhasingHandler.GetTerrainMapId(Location.PhaseShift, Location.MapId, Location.Map.Terrain, pos.X, pos.Y),
-                                                 pos.X,
-                                                 pos.Y,
-                                                 pos.Z + halfHeight,
-                                                 destx,
-                                                 desty,
-                                                 destz + halfHeight,
-                                                 out destx,
-                                                 out desty,
-                                                 out destz,
-                                                 -0.5f);
+            col = VMapManager.GetObjectHitPos(PhasingHandler.GetTerrainMapId(Location.PhaseShift, Location.MapId, Location.Map.Terrain, pos.X, pos.Y),
+                                              pos.X,
+                                              pos.Y,
+                                              pos.Z + halfHeight,
+                                              destx,
+                                              desty,
+                                              destz + halfHeight,
+                                              out destx,
+                                              out desty,
+                                              out destz,
+                                              -0.5f);
 
             destz -= halfHeight;
 
@@ -2995,23 +1697,22 @@ public abstract class WorldObject : IDisposable
         pos.Relocate(destx, desty, destz);
 
         // position has no ground under it (or is too far away)
-        if (groundZ <= MapConst.InvalidHeight)
-        {
-            var unit = AsUnit;
+        if (!(groundZ <= MapConst.InvalidHeight))
+            return;
 
-            if (unit != null)
-            {
-                // unit can fly, ignore.
-                if (unit.CanFly)
-                    return;
 
-                // fall back to gridHeight if any
-                var gridHeight = Location.Map.GetGridHeight(Location.PhaseShift, pos.X, pos.Y);
+        if (!TryGetAsUnit(out var unit))
+            return;
 
-                if (gridHeight > MapConst.InvalidHeight)
-                    pos.Z = gridHeight + unit.HoverOffset;
-            }
-        }
+        // unit can fly, ignore.
+        if (unit.CanFly)
+            return;
+
+        // fall back to gridHeight if any
+        var gridHeight = Location.Map.GetGridHeight(Location.PhaseShift, pos.X, pos.Y);
+
+        if (gridHeight > MapConst.InvalidHeight)
+            pos.Z = gridHeight + unit.HoverOffset;
     }
 
 
@@ -3019,252 +1720,4 @@ public abstract class WorldObject : IDisposable
     {
         return obj != null;
     }
-
-    private bool CanDetect(WorldObject obj, bool ignoreStealth, bool checkAlert = false)
-    {
-        var seer = this;
-
-        // If a unit is possessing another one, it uses the detection of the latter
-        // Pets don't have detection, they use the detection of their masters
-        var thisUnit = AsUnit;
-
-        if (thisUnit != null)
-        {
-            if (thisUnit.IsPossessing)
-            {
-                var charmed = thisUnit.Charmed;
-
-                if (charmed != null)
-                    seer = charmed;
-            }
-            else
-            {
-                var controller = thisUnit.CharmerOrOwner;
-
-                if (controller != null)
-                    seer = controller;
-            }
-        }
-
-        if (obj.IsAlwaysDetectableFor(seer))
-            return true;
-
-        if (!ignoreStealth && !seer.CanDetectInvisibilityOf(obj))
-            return false;
-
-        if (!ignoreStealth && !seer.CanDetectStealthOf(obj, checkAlert))
-            return false;
-
-        return true;
-    }
-
-    private bool CanDetectInvisibilityOf(WorldObject obj)
-    {
-        var mask = obj.Invisibility.GetFlags() & InvisibilityDetect.GetFlags();
-
-        // Check for not detected types
-        if (mask != obj.Invisibility.GetFlags())
-            return false;
-
-        for (var i = 0; i < (int)InvisibilityType.Max; ++i)
-        {
-            if (!Convert.ToBoolean(mask & (1ul << i)))
-                continue;
-
-            var objInvisibilityValue = obj.Invisibility.GetValue((InvisibilityType)i);
-            var ownInvisibilityDetectValue = InvisibilityDetect.GetValue((InvisibilityType)i);
-
-            // Too low value to detect
-            if (ownInvisibilityDetectValue < objInvisibilityValue)
-                return false;
-        }
-
-        return true;
-    }
-
-    private bool CanDetectStealthOf(WorldObject obj, bool checkAlert = false)
-    {
-        // Combat reach is the minimal distance (both in front and behind),
-        //   and it is also used in the range calculation.
-        // One stealth point increases the visibility range by 0.3 yard.
-
-        if (obj.Stealth.GetFlags() == 0)
-            return true;
-
-        var distance = Location.GetExactDist(obj.Location);
-        var combatReach = 0.0f;
-
-        var unit = AsUnit;
-
-        if (unit != null)
-            combatReach = unit.CombatReach;
-
-        if (distance < combatReach)
-            return true;
-
-        // Only check back for units, it does not make sense for gameobjects
-        if (unit && !Location.HasInArc(MathF.PI, obj.Location))
-            return false;
-
-        // Traps should detect stealth always
-        var go = AsGameObject;
-
-        if (go is { GoType: GameObjectTypes.Trap })
-            return true;
-
-        go = obj.AsGameObject;
-
-        for (var i = 0; i < (int)StealthType.Max; ++i)
-        {
-            if (!Convert.ToBoolean(obj.Stealth.GetFlags() & (1 << i)))
-                continue;
-
-            if (unit != null && unit.HasAuraTypeWithMiscvalue(AuraType.DetectStealth, i))
-                return true;
-
-            // Starting points
-            var detectionValue = 30;
-
-            // Level difference: 5 point / level, starting from level 1.
-            // There may be spells for this and the starting points too, but
-            // not in the DBCs of the client.
-            detectionValue += (int)(GetLevelForTarget(obj) - 1) * 5;
-
-            // Apply modifiers
-            detectionValue += StealthDetect.GetValue((StealthType)i);
-
-            if (go != null)
-            {
-                var owner = go.OwnerUnit;
-
-                if (owner != null)
-                    detectionValue -= (int)(owner.GetLevelForTarget(this) - 1) * 5;
-            }
-
-            detectionValue -= obj.Stealth.GetValue((StealthType)i);
-
-            // Calculate max distance
-            var visibilityRange = detectionValue * 0.3f + combatReach;
-
-            // If this unit is an NPC then player detect range doesn't apply
-            if (unit != null && unit.IsTypeId(TypeId.Player) && visibilityRange > SharedConst.MaxPlayerStealthDetectRange)
-                visibilityRange = SharedConst.MaxPlayerStealthDetectRange;
-
-            // When checking for alert state, look 8% further, and then 1.5 yards more than that.
-            if (checkAlert)
-                visibilityRange += (visibilityRange * 0.08f) + 1.5f;
-
-            // If checking for alert, and creature's visibility range is greater than aggro distance, No alert
-            var tunit = obj.AsUnit;
-
-            if (checkAlert && unit != null && unit.AsCreature && visibilityRange >= unit.AsCreature.GetAttackDistance(tunit) + unit.AsCreature.CombatDistance)
-                return false;
-
-            if (distance > visibilityRange)
-                return false;
-        }
-
-        return true;
-    }
-
-    private SpellMissInfo MagicSpellHitResult(Unit victim, SpellInfo spellInfo)
-    {
-        // Can`t miss on dead target (on skinning for example)
-        if (!victim.IsAlive && !victim.IsPlayer)
-            return SpellMissInfo.None;
-
-        if (spellInfo.HasAttribute(SpellAttr3.NoAvoidance))
-            return SpellMissInfo.None;
-
-        double missChance;
-
-        if (spellInfo.HasAttribute(SpellAttr7.NoAttackMiss))
-        {
-            missChance = 0.0f;
-        }
-        else
-        {
-            var schoolMask = spellInfo.GetSchoolMask();
-            // PvP - PvE spell misschances per leveldif > 2
-            var lchance = victim.IsPlayer ? 7 : 11;
-            var thisLevel = GetLevelForTarget(victim);
-
-            if (IsCreature && AsCreature.IsTrigger)
-                thisLevel = Math.Max(thisLevel, spellInfo.SpellLevel);
-
-            var leveldif = (int)(victim.GetLevelForTarget(this) - thisLevel);
-            var levelBasedHitDiff = leveldif;
-
-            // Base hit chance from attacker and victim levels
-            double modHitChance;
-
-            if (levelBasedHitDiff >= 0)
-            {
-                if (!victim.IsPlayer)
-                {
-                    modHitChance = 94 - 3 * Math.Min(levelBasedHitDiff, 3);
-                    levelBasedHitDiff -= 3;
-                }
-                else
-                {
-                    modHitChance = 96 - Math.Min(levelBasedHitDiff, 2);
-                    levelBasedHitDiff -= 2;
-                }
-
-                if (levelBasedHitDiff > 0)
-                    modHitChance -= lchance * Math.Min(levelBasedHitDiff, 7);
-            }
-            else
-            {
-                modHitChance = 97 - levelBasedHitDiff;
-            }
-
-            // Spellmod from SpellModOp::HitChance
-            var modOwner = SpellModOwner;
-
-            modOwner?.ApplySpellMod(spellInfo, SpellModOp.HitChance, ref modHitChance);
-
-            // Spells with SPELL_ATTR3_IGNORE_HIT_RESULT will ignore target's avoidance effects
-            if (!spellInfo.HasAttribute(SpellAttr3.AlwaysHit))
-                // Chance hit from victim SPELL_AURA_MOD_ATTACKER_SPELL_HIT_CHANCE auras
-                modHitChance += victim.GetTotalAuraModifierByMiscMask(AuraType.ModAttackerSpellHitChance, (int)schoolMask);
-
-            var hitChance = modHitChance;
-            // Increase hit chance from attacker SPELL_AURA_MOD_SPELL_HIT_CHANCE and attacker ratings
-            var unit = AsUnit;
-
-            if (unit != null)
-                hitChance += unit.ModSpellHitChance;
-
-            MathFunctions.RoundToInterval(ref hitChance, 0.0f, 100.0f);
-
-            missChance = 100.0f - hitChance;
-        }
-
-        var tmp = missChance * 100.0f;
-
-        var rand = RandomHelper.IRand(0, 9999);
-
-        if (tmp > 0 && rand < tmp)
-            return SpellMissInfo.Miss;
-
-        // Chance resist mechanic (select max value from every mechanic spell effect)
-        var resistChance = victim.GetMechanicResistChance(spellInfo) * 100;
-
-        // Roll chance
-        if (resistChance > 0 && rand < (tmp += resistChance))
-            return SpellMissInfo.Resist;
-
-        // cast by caster in front of victim
-        if (!victim.HasUnitState(UnitState.Controlled) && (victim.Location.HasInArc(MathF.PI, Location) || victim.HasAuraType(AuraType.IgnoreHitDirection)))
-        {
-            var deflectChance = victim.GetTotalAuraModifier(AuraType.DeflectSpells) * 100;
-
-            if (deflectChance > 0 && rand < tmp + deflectChance)
-                return SpellMissInfo.Deflect;
-        }
-
-        return SpellMissInfo.None;
-    }
-    
 }

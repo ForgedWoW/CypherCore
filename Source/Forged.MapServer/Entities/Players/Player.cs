@@ -972,19 +972,17 @@ public partial class Player : Unit
                     if (atEntry == null || !IsInAreaTriggerRadius(atEntry))
                         _restMgr.RemoveRestFlag(RestFlag.Tavern);
                 }
-
-                GetZoneAndAreaId(out var newzone, out var newarea);
-
-                if (_zoneUpdateId != newzone)
+                
+                if (_zoneUpdateId != Location.Zone)
                 {
-                    UpdateZone(newzone, newarea); // also update area
+                    UpdateZone(Location.Zone, Location.Area); // also update area
                 }
                 else
                 {
                     // use area updates as well
                     // needed for free far all arenas for example
-                    if (_areaUpdateId != newarea)
-                        UpdateArea(newarea);
+                    if (_areaUpdateId != Location.Area)
+                        UpdateArea(Location.Area);
 
                     _zoneUpdateTimer = 1 * Time.InMilliseconds;
                 }
@@ -1099,7 +1097,7 @@ public partial class Player : Unit
                 _hostileReferenceCheckTimer = 15 * Time.InMilliseconds;
 
                 if (!Location.Map.IsDungeon)
-                    GetCombatManager().EndCombatBeyondRange(VisibilityRange, true);
+                    GetCombatManager().EndCombatBeyondRange(Visibility.VisibilityRange, true);
             }
             else
             {
@@ -2742,7 +2740,7 @@ public partial class Player : Unit
             CombatStopWithPets();
 
             PhasingHandler.SetAlwaysVisible(this, true, false);
-            ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.GM, Session.Security);
+            Visibility.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.GM, Session.Security);
         }
         else
         {
@@ -2765,7 +2763,7 @@ public partial class Player : Unit
             // restore FFA PvP area state, remove not allowed for GM mounts
             UpdateArea(_areaUpdateId);
 
-            ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
+            Visibility.ServerSideVisibilityDetect.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
         }
 
         UpdateObjectVisibility();
@@ -2792,7 +2790,7 @@ public partial class Player : Unit
         if (on)
         {
             _extraFlags &= ~PlayerExtraFlags.GMInvisible; //remove flag
-            ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
+            Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, AccountTypes.Player);
         }
         else
         {
@@ -2801,7 +2799,7 @@ public partial class Player : Unit
             SetAcceptWhispers(false);
             SetGameMaster(true);
 
-            ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, Session.Security);
+            Visibility.ServerSideVisibility.SetValue(ServerSideVisibilityType.GM, Session.Security);
         }
 
         foreach (var channel in _channels)
@@ -3898,9 +3896,8 @@ public partial class Player : Unit
         }
 
         // trigger update zone for alive state zone updates
-        GetZoneAndAreaId(out var newzone, out var newarea);
-        UpdateZone(newzone, newarea);
-        Global.OutdoorPvPMgr.HandlePlayerResurrects(this, newzone);
+        UpdateZone(Location.Zone, Location.Area);
+        Global.OutdoorPvPMgr.HandlePlayerResurrects(this, Location.Zone);
 
         if (InBattleground)
         {
@@ -4952,7 +4949,7 @@ public partial class Player : Unit
             return null;
 
         // not unfriendly/hostile
-        if (creature.GetReactionTo(this) <= ReputationRank.Unfriendly)
+        if (creature.WorldObjectCombat.GetReactionTo(this) <= ReputationRank.Unfriendly)
             return null;
 
         // not too far, taken from CGGameUI::SetInteractTarget
@@ -5143,8 +5140,7 @@ public partial class Player : Unit
         UpdateVisibilityForPlayer();
 
         // update zone
-        GetZoneAndAreaId(out var newzone, out var newarea);
-        UpdateZone(newzone, newarea); // also call SendInitWorldStates();
+        UpdateZone(Location.Zone, Location.Area); // also call SendInitWorldStates();
 
         Session.SendLoadCUFProfiles();
 
@@ -5750,12 +5746,12 @@ public partial class Player : Unit
 
         if (drunkPercent != 0)
         {
-            InvisibilityDetect.AddFlag(InvisibilityType.Drunk);
-            InvisibilityDetect.SetValue(InvisibilityType.Drunk, drunkPercent);
+            Visibility.InvisibilityDetect.AddFlag(InvisibilityType.Drunk);
+            Visibility.InvisibilityDetect.SetValue(InvisibilityType.Drunk, drunkPercent);
         }
         else if (!HasAuraType(AuraType.ModFakeInebriate) && newDrunkValue == 0)
         {
-            InvisibilityDetect.DelFlag(InvisibilityType.Drunk);
+            Visibility.InvisibilityDetect.DelFlag(InvisibilityType.Drunk);
         }
 
         var newDrunkenState = GetDrunkenstateByValue(newDrunkValue);
@@ -6184,7 +6180,7 @@ public partial class Player : Unit
 
     public float GetReputationPriceDiscount(Creature creature)
     {
-        return GetReputationPriceDiscount(creature.GetFactionTemplateEntry());
+        return GetReputationPriceDiscount(creature.WorldObjectCombat.GetFactionTemplateEntry());
     }
 
     public float GetReputationPriceDiscount(FactionTemplateRecord factionTemplate)
@@ -7431,13 +7427,13 @@ public partial class Player : Unit
                 // Food emote comes above drinking emote if we have to decide (mage regen food for example)
                 if (auraEffect.Base.HasEffectType(AuraType.ModRegen) && auraEffect.SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing))
                 {
-                    SendPlaySpellVisualKit(SpellConst.VisualKitFood, 0, 0);
+                    WorldObjectCombat.SendPlaySpellVisualKit(SpellConst.VisualKitFood, 0, 0);
 
                     break;
                 }
                 else if (auraEffect.Base.HasEffectType(AuraType.ModPowerRegen) && auraEffect.SpellInfo.HasAuraInterruptFlag(SpellAuraInterruptFlags.Standing))
                 {
-                    SendPlaySpellVisualKit(SpellConst.VisualKitDrink, 0, 0);
+                    WorldObjectCombat.SendPlaySpellVisualKit(SpellConst.VisualKitDrink, 0, 0);
 
                     break;
                 }
@@ -8007,7 +8003,7 @@ public partial class Player : Unit
 
     private bool IsFriendlyArea(AreaTableRecord areaEntry)
     {
-        var factionTemplate = GetFactionTemplateEntry();
+        var factionTemplate = WorldObjectCombat.GetFactionTemplateEntry();
 
         if (factionTemplate == null)
             return false;
@@ -8302,7 +8298,7 @@ public partial class Player : Unit
     {
         if (HaveAtClient(target))
         {
-            if (!CanSeeOrDetect(target, false, true))
+            if (!Visibility.CanSeeOrDetect(target, false, true))
             {
                 if (target.IsTypeId(TypeId.Unit))
                     BeforeVisibilityDestroy(target.AsCreature, this);
@@ -8320,7 +8316,7 @@ public partial class Player : Unit
         }
         else
         {
-            if (CanSeeOrDetect(target, false, true))
+            if (Visibility.CanSeeOrDetect(target, false, true))
             {
                 target.SendUpdateToPlayer(this);
 
@@ -8341,7 +8337,7 @@ public partial class Player : Unit
     {
         if (HaveAtClient(target))
         {
-            if (!CanSeeOrDetect(target, false, true))
+            if (!Visibility.CanSeeOrDetect(target, false, true))
             {
                 BeforeVisibilityDestroy(target, this);
 
@@ -8355,7 +8351,7 @@ public partial class Player : Unit
         }
         else
         {
-            if (CanSeeOrDetect(target, false, true))
+            if (Visibility.CanSeeOrDetect(target, false, true))
             {
                 target.BuildCreateUpdateBlockForPlayer(data, this);
                 UpdateVisibilityOf_helper(ClientGuiDs, target, visibleNow);
@@ -8410,7 +8406,7 @@ public partial class Player : Unit
     {
         // updates visibility of all objects around point of view for current player
         var notifier = new VisibleNotifier(this, GridType.All);
-        Cell.VisitGrid(SeerView, notifier, GetSightRange());
+        Cell.VisitGrid(SeerView, notifier, Visibility.GetSightRange());
         notifier.SendToSelf(); // send gathered data
     }
 
@@ -8447,13 +8443,13 @@ public partial class Player : Unit
         // we use World.GetMaxVisibleDistance() because i cannot see why not use a distance
         // update: replaced by GetMap().GetVisibilityDistance()
         PacketSenderRef sender = new(data);
-        var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, VisibilityRange, false, skipped_rcvr);
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        var notifier = new MessageDistDeliverer<PacketSenderRef>(this, sender, Visibility.VisibilityRange, false, skipped_rcvr);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public override void SendMessageToSet(ServerPacket data, bool self)
     {
-        SendMessageToSetInRange(data, VisibilityRange, self);
+        SendMessageToSetInRange(data, Visibility.VisibilityRange, self);
     }
 
     public override bool UpdatePosition(Position pos, bool teleport = false)

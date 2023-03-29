@@ -947,9 +947,9 @@ public class AreaTrigger : WorldObject
         switch (action.TargetType)
         {
             case AreaTriggerActionUserTypes.Friend:
-                return caster.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID));
+                return caster.WorldObjectCombat.IsValidAssistTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID));
             case AreaTriggerActionUserTypes.Enemy:
-                return caster.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID));
+                return caster.WorldObjectCombat.IsValidAttackTarget(unit, Global.SpellMgr.GetSpellInfo(action.Param, caster.Location.Map.DifficultyID));
             case AreaTriggerActionUserTypes.Raid:
                 return caster.IsInRaidWith(unit);
             case AreaTriggerActionUserTypes.Party:

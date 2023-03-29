@@ -16,13 +16,13 @@ public static class NotifierHelpers
 
         if (!c.HasUnitState(UnitState.Sightless))
         {
-            if (c.IsAIEnabled && c.CanSeeOrDetect(u, false, true))
+            if (c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true))
             {
                 c.AI.MoveInLineOfSight_Safe(u);
             }
             else
             {
-                if (u.IsTypeId(TypeId.Player) && u.HasStealthAura && c.IsAIEnabled && c.CanSeeOrDetect(u, false, true, true))
+                if (u.IsTypeId(TypeId.Player) && u.HasStealthAura && c.IsAIEnabled && c.Visibility.CanSeeOrDetect(u, false, true, true))
                     c.AI.TriggerAlert(u);
             }
         }

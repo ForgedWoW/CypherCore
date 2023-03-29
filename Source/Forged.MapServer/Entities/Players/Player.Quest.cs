@@ -2977,7 +2977,7 @@ public partial class Player
                 // need also pet quests case support
                 var questgiver = ObjectAccessor.GetCreatureOrPetOrVehicle(this, itr);
 
-                if (!questgiver || questgiver.IsHostileTo(this))
+                if (!questgiver || questgiver.WorldObjectCombat.IsHostileTo(this))
                     continue;
 
                 if (!questgiver.HasNpcFlag(NPCFlags.QuestGiver))
@@ -3268,10 +3268,8 @@ public partial class Player
         {
             List<uint> aurasToRemove = new();
             List<uint> aurasToCast = new();
-            GetZoneAndAreaId(out var zone, out var area);
-
             foreach (var spell in saBounds)
-                if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoRemove) && !spell.IsFitToRequirements(this, zone, area))
+                if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoRemove) && !spell.IsFitToRequirements(this, Location.Zone, Location.Area))
                     aurasToRemove.Add(spell.SpellId);
                 else if (spell.Flags.HasAnyFlag(SpellAreaFlag.AutoCast) && !spell.Flags.HasAnyFlag(SpellAreaFlag.IgnoreAutocastOnQuestStatusChange))
                     aurasToCast.Add(spell.SpellId);
@@ -3299,7 +3297,7 @@ public partial class Player
 
             foreach (var spellId in aurasToCast)
                 if (!HasAura(spellId))
-                    CastSpell(this, spellId, true);
+                    SpellFactory.CastSpell(this, spellId, true);
 
             foreach (var spellId in aurasToRemove)
                 RemoveAura(spellId);

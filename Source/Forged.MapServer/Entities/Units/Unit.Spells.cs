@@ -1545,7 +1545,7 @@ public partial class Unit
 
                 // Consider the school immune if any of these conditions are not satisfied.
                 // In case of no immuneSpellInfo, ignore that condition and check only the other conditions
-                if ((immuneSpellInfo != null && !immuneSpellInfo.IsPositive) || !spellInfo.IsPositive || caster == null || !IsFriendlyTo(caster))
+                if ((immuneSpellInfo != null && !immuneSpellInfo.IsPositive) || !spellInfo.IsPositive || caster == null || !WorldObjectCombat.IsFriendlyTo(caster))
                     if (!spellInfo.CanPierceImmuneAura(immuneSpellInfo))
                         schoolImmunityMask |= pair.Key;
             }
@@ -1618,8 +1618,8 @@ public partial class Unit
                 var immuneAuraApply = GetAuraEffectsByType(AuraType.ModImmuneAuraApplySchool);
 
                 foreach (var auraEffect in immuneAuraApply)
-                    if (Convert.ToBoolean(auraEffect.MiscValue & (int)spellInfo.GetSchoolMask()) &&                      // Check school
-                        ((caster && !IsFriendlyTo(caster)) || !spellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
+                    if (Convert.ToBoolean(auraEffect.MiscValue & (int)spellInfo.GetSchoolMask()) &&                        // Check school
+                        ((caster && !WorldObjectCombat.IsFriendlyTo(caster)) || !spellInfo.IsPositiveEffect(spellEffectInfo.EffectIndex))) // Harmful
                         return true;
             }
         }
@@ -2889,11 +2889,11 @@ public partial class Unit
                 // do not remove positive auras if friendly target
                 //               negative auras if non-friendly
                 // unless we're reflecting (dispeller eliminates one of it's benefitial buffs)
-                if (isReflect != (aurApp.IsPositive == IsFriendlyTo(caster)))
+                if (isReflect != (aurApp.IsPositive == WorldObjectCombat.IsFriendlyTo(caster)))
                     continue;
 
                 // 2.4.3 Patch Notes: "Dispel effects will no longer attempt to remove effects that have 100% dispel resistance."
-                var chance = aura.CalcDispelChance(this, !IsFriendlyTo(caster));
+                var chance = aura.CalcDispelChance(this, !WorldObjectCombat.IsFriendlyTo(caster));
 
                 if (chance == 0)
                     continue;

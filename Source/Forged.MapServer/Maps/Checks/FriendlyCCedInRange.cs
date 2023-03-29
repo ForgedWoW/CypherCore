@@ -23,7 +23,7 @@ public class FriendlyCCedInRange : ICheck<Creature>
     {
         if (u.IsAlive &&
             u.IsInCombat &&
-            !_obj.IsHostileTo(u) &&
+            !_obj.WorldObjectCombat.IsHostileTo(u) &&
             _obj.Location.IsWithinDist(u, _range) &&
             (u.IsFeared || u.IsCharmed || u.HasRootAura || u.HasUnitState(UnitState.Stunned) || u.HasUnitState(UnitState.Confused)))
             return true;

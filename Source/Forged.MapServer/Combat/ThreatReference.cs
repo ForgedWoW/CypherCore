@@ -22,7 +22,7 @@ public class ThreatReference : IComparable<ThreatReference>
     {
         get
         {
-            if (!_owner.CanSeeOrDetect(_victim))
+            if (!_owner.Visibility.CanSeeOrDetect(_victim))
                 return true;
 
             if (!_owner._IsTargetAcceptable(_victim) || !_owner.CanCreatureAttack(_victim))

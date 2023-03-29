@@ -25,7 +25,7 @@ internal class AllAttackableUnitsInRange : ICheck<Unit>
         if (!u.IsVisible())
             return false;
 
-        if (!_unit.IsValidAttackTarget(u))
+        if (!_unit.WorldObjectCombat.IsValidAttackTarget(u))
             return false;
 
         if (_range != 0f)

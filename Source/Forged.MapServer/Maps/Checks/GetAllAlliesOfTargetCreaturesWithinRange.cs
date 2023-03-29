@@ -20,7 +20,7 @@ public class GetAllAlliesOfTargetCreaturesWithinRange : ICheck<Creature>
 
     public bool Invoke(Creature creature)
     {
-        if (creature.IsHostileTo(_pObject))
+        if (creature.WorldObjectCombat.IsHostileTo(_pObject))
             return false;
 
         if (_fRange != 0f)

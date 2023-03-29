@@ -231,7 +231,7 @@ public partial class Player
                 }
                 else
                 {
-                    var factionTemplate = GetFactionTemplateEntry();
+                    var factionTemplate = WorldObjectCombat.GetFactionTemplateEntry();
 
                     if (factionTemplate == null || factionTemplate.FriendGroup.HasAnyFlag(area.FactionGroupMask))
                         PvpInfo.IsInHostileArea = false; // friend area are considered hostile if war mode is active

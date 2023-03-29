@@ -1070,8 +1070,8 @@ public class UnitData : BaseUpdateData<Unit>
 
         if (unit.IsControlledByPlayer && receiver != unit && GetDefaultValue("AllowTwoSide.Interaction.Group", false) && unit.IsInRaidWith(receiver))
         {
-            var ft1 = unit.GetFactionTemplateEntry();
-            var ft2 = receiver.GetFactionTemplateEntry();
+            var ft1 = unit.WorldObjectCombat.GetFactionTemplateEntry();
+            var ft2 = receiver.WorldObjectCombat.GetFactionTemplateEntry();
 
             if (ft1 != null && ft2 != null && !ft1.IsFriendlyTo(ft2))
                 // pretend that all other HOSTILE players have own faction, to allow follow, heal, rezz (trade wont work)
@@ -1114,8 +1114,8 @@ public class UnitData : BaseUpdateData<Unit>
 
         if (unit.IsControlledByPlayer && receiver != unit && GetDefaultValue("AllowTwoSide.Interaction.Group", false) && unit.IsInRaidWith(receiver))
         {
-            var ft1 = unit.GetFactionTemplateEntry();
-            var ft2 = receiver.GetFactionTemplateEntry();
+            var ft1 = unit.WorldObjectCombat.GetFactionTemplateEntry();
+            var ft2 = receiver.WorldObjectCombat.GetFactionTemplateEntry();
 
             if (ft1 != null && ft2 != null && !ft1.IsFriendlyTo(ft2))
                 // Allow targeting opposite faction in party when enabled in config

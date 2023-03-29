@@ -1034,7 +1034,7 @@ public class SmartAI : CreatureAI
         if (who.IsCreature && who.AsCreature.IsInEvadeMode)
             return false;
 
-        if (!Me.IsValidAssistTarget(who.Victim))
+        if (!Me.WorldObjectCombat.IsValidAssistTarget(who.Victim))
             return false;
 
         //too far away and no free sight

@@ -57,7 +57,7 @@ public class TargetInfo : TargetInfoBase
         else if (MissCondition == SpellMissInfo.Reflect && ReflectResult == SpellMissInfo.None)
             _spellHitTarget = spell.Caster.AsUnit;
 
-        if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
+        if (spell.OriginalCaster && MissCondition != SpellMissInfo.Evade && !spell.OriginalCaster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.SpellInfo.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)) && (spell.SpellInfo.HasInitialAggro || unit.IsEngaged))
             unit.SetInCombatWith(spell.OriginalCaster);
 
         // if target is flagged for pvp also flag caster if a player
@@ -71,7 +71,7 @@ public class TargetInfo : TargetInfoBase
             if (missInfo != SpellMissInfo.None)
             {
                 if (missInfo != SpellMissInfo.Miss)
-                    spell.Caster.SendSpellMiss(unit, spell.SpellInfo.Id, missInfo);
+                    spell.Caster.WorldObjectCombat.SendSpellMiss(unit, spell.SpellInfo.Id, missInfo);
 
                 spell.DamageInEffects = 0;
                 spell.HealingInEffects = 0;
@@ -344,7 +344,7 @@ public class TargetInfo : TargetInfoBase
                 spell.NeedComboPoints = false;
 
             // _spellHitTarget can be null if spell is missed in DoSpellHitOnUnit
-            if (MissCondition != SpellMissInfo.Evade && _spellHitTarget && !spell.Caster.IsFriendlyTo(unit) && (!spell.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
+            if (MissCondition != SpellMissInfo.Evade && _spellHitTarget && !spell.Caster.WorldObjectCombat.IsFriendlyTo(unit) && (!spell.IsPositive || spell.SpellInfo.HasEffect(SpellEffectName.Dispel)))
             {
                 var unitCaster = spell.Caster.AsUnit;
 

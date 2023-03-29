@@ -62,7 +62,7 @@ public class CombatManager
         if (a.IsCombatDisallowed || b.IsCombatDisallowed)
             return false;
 
-        if (a.IsFriendlyTo(b) || b.IsFriendlyTo(a))
+        if (a.WorldObjectCombat.IsFriendlyTo(b) || b.WorldObjectCombat.IsFriendlyTo(a))
             return false;
 
         var playerA = a.CharmerOrOwnerPlayerOrPlayerItself;

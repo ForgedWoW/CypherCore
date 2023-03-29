@@ -301,7 +301,7 @@ public class TempSummon : Creature
         List<WorldObject> objectsToUpdate = new();
         objectsToUpdate.Add(this);
 
-        var smoothPhasing = GetSmoothPhasing();
+        var smoothPhasing = Visibility.GetSmoothPhasing();
 
         if (smoothPhasing != null)
         {
@@ -317,7 +317,7 @@ public class TempSummon : Creature
         }
 
         VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
     }
 
     public override void UpdateObjectVisibilityOnDestroy()
@@ -326,7 +326,7 @@ public class TempSummon : Creature
         objectsToUpdate.Add(this);
 
         WorldObject original = null;
-        var smoothPhasing = GetSmoothPhasing();
+        var smoothPhasing = Visibility.GetSmoothPhasing();
 
         if (smoothPhasing != null)
         {
@@ -340,7 +340,7 @@ public class TempSummon : Creature
                 objectsToUpdate.Add(original);
 
                 // disable replacement without removing - it is still needed for next step (visibility update)
-                var originalSmoothPhasing = original.GetSmoothPhasing();
+                var originalSmoothPhasing = original.Visibility.GetSmoothPhasing();
 
                 if (originalSmoothPhasing != null)
                     originalSmoothPhasing.DisableReplacementForSeer(DemonCreatorGUID);
@@ -348,11 +348,11 @@ public class TempSummon : Creature
         }
 
         VisibleChangesNotifier notifier = new(objectsToUpdate, GridType.World);
-        Cell.VisitGrid(this, notifier, VisibilityRange);
+        Cell.VisitGrid(this, notifier, Visibility.VisibilityRange);
 
         if (original != null) // original is only != null when it was replaced
         {
-            var originalSmoothPhasing = original.GetSmoothPhasing();
+            var originalSmoothPhasing = original.Visibility.GetSmoothPhasing();
 
             if (originalSmoothPhasing != null)
                 originalSmoothPhasing.ClearViewerDependentInfo(DemonCreatorGUID);

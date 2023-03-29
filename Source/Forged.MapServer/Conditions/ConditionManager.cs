@@ -2953,9 +2953,9 @@ public sealed class ConditionManager
             case UnitConditionVariable.IsTarget:
                 return (otherUnit && otherUnit.Target == unit.GUID) ? 1 : 0;
             case UnitConditionVariable.CanAssist:
-                return (otherUnit && unit.IsValidAssistTarget(otherUnit)) ? 1 : 0;
+                return (otherUnit && unit.WorldObjectCombat.IsValidAssistTarget(otherUnit)) ? 1 : 0;
             case UnitConditionVariable.CanAttack:
-                return (otherUnit && unit.IsValidAttackTarget(otherUnit)) ? 1 : 0;
+                return (otherUnit && unit.WorldObjectCombat.IsValidAttackTarget(otherUnit)) ? 1 : 0;
             case UnitConditionVariable.HasPet:
                 return (!unit.CharmedGUID.IsEmpty || !unit.MinionGUID.IsEmpty) ? 1 : 0;
             case UnitConditionVariable.HasWeapon:
@@ -3190,7 +3190,7 @@ public sealed class ConditionManager
             case UnitConditionVariable.HasAura:
                 return unit.HasAura((uint)value) ? value : 0;
             case UnitConditionVariable.IsEnemy:
-                return (otherUnit && unit.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
+                return (otherUnit && unit.WorldObjectCombat.GetReactionTo(otherUnit) <= ReputationRank.Hostile) ? 1 : 0;
             case UnitConditionVariable.IsSpecMelee:
                 return (unit.IsPlayer && unit.AsPlayer.GetPrimarySpecialization() != 0 && _cliDB.ChrSpecializationStorage.LookupByKey(unit.AsPlayer.GetPrimarySpecialization()).Flags.HasFlag(ChrSpecializationFlag.Melee)) ? 1 : 0;
             case UnitConditionVariable.IsSpecTank:

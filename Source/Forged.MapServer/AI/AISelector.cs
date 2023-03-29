@@ -96,10 +96,10 @@ public class AISelector
             return new CritterAI(creature);
         }
 
-        if (!creature.IsCivilian && !creature.IsNeutralToAll())
+        if (!creature.IsCivilian && !creature.WorldObjectCombat.IsNeutralToAll())
             return new AggressorAI(creature);
 
-        if (creature.IsCivilian || creature.IsNeutralToAll())
+        if (creature.IsCivilian || creature.WorldObjectCombat.IsNeutralToAll())
             return new ReactorAI(creature);
 
         return new NullCreatureAI(creature);

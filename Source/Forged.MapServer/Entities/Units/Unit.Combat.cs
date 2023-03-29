@@ -269,7 +269,7 @@ public partial class Unit
         List<Unit> toRemove = new();
 
         foreach (var attacker in Attackers)
-            if (!attacker.IsValidAttackTarget(this))
+            if (!attacker.WorldObjectCombat.IsValidAttackTarget(this))
                 toRemove.Add(attacker);
 
         foreach (var attacker in toRemove)
@@ -279,7 +279,7 @@ public partial class Unit
         var victim = Victim;
 
         if (victim != null)
-            if (!IsValidAttackTarget(victim))
+            if (!WorldObjectCombat.IsValidAttackTarget(victim))
                 AttackStop();
     }
 
@@ -288,7 +288,7 @@ public partial class Unit
         var victim = Victim;
 
         if (victim != null)
-            if (victim.GetFactionTemplateEntry().Faction == factionId)
+            if (victim.WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
             {
                 AttackStop();
 
@@ -306,7 +306,7 @@ public partial class Unit
         {
             var unit = attackers[i];
 
-            if (unit.GetFactionTemplateEntry().Faction == factionId)
+            if (unit.WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
             {
                 unit.AttackStop();
                 i = 0;
@@ -320,7 +320,7 @@ public partial class Unit
         List<CombatReference> refsToEnd = new();
 
         foreach (var pair in _combatManager.PvECombatRefs)
-            if (pair.Value.GetOther(this).GetFactionTemplateEntry().Faction == factionId)
+            if (pair.Value.GetOther(this).WorldObjectCombat.GetFactionTemplateEntry().Faction == factionId)
                 refsToEnd.Add(pair.Value);
 
         foreach (var refe in refsToEnd)
@@ -726,7 +726,7 @@ public partial class Unit
             var magnet = i.Caster;
 
             if (magnet != null)
-                if (IsValidAttackTarget(magnet, spellInfo) && magnet.Location.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
+                if (WorldObjectCombat.IsValidAttackTarget(magnet, spellInfo) && magnet.Location.IsWithinLOSInMap(this) && (spellInfo == null || (spellInfo.CheckExplicitTarget(this, magnet) == SpellCastResult.SpellCastOk && spellInfo.CheckTarget(this, magnet, false) == SpellCastResult.SpellCastOk)))
                 {
                     i.Base.DropCharge(AuraRemoveMode.Expire);
 

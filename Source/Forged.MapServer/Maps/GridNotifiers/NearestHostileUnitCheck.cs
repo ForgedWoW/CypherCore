@@ -27,7 +27,7 @@ public class NearestHostileUnitCheck : ICheck<Unit>
         if (!_me.Location.IsWithinDist(u, _range))
             return false;
 
-        if (!_me.IsValidAttackTarget(u))
+        if (!_me.WorldObjectCombat.IsValidAttackTarget(u))
             return false;
 
         if (_playerOnly && !u.IsTypeId(TypeId.Player))

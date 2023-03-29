@@ -199,7 +199,7 @@ public class PetHandler : IWorldSessionHandler
                         var owner = pet.OwnerUnit;
 
                         if (owner)
-                            if (!owner.IsValidAttackTarget(TargetUnit))
+                            if (!owner.WorldObjectCombat.IsValidAttackTarget(TargetUnit))
                                 return;
 
                         // This is true if pet has no target or has target but targets differs.
@@ -392,7 +392,7 @@ public class PetHandler : IWorldSessionHandler
                     else
                         pet.SendPetAIReaction(guid1);
 
-                    if (unit_target && !Player.IsFriendlyTo(unit_target) && !pet.IsPossessed && !pet.IsVehicle)
+                    if (unit_target && !Player.WorldObjectCombat.IsFriendlyTo(unit_target) && !pet.IsPossessed && !pet.IsVehicle)
                         // This is true if pet has no target or has target but targets differs.
                         if (pet.Victim != unit_target)
                         {

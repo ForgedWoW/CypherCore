@@ -23,7 +23,7 @@ public class PossessedAI : CreatureAI
     {
         if (Me.Victim != null)
         {
-            if (!Me.IsValidAttackTarget(Me.Victim))
+            if (!Me.WorldObjectCombat.IsValidAttackTarget(Me.Victim))
                 Me.AttackStop();
             else
                 DoMeleeAttackIfReady();

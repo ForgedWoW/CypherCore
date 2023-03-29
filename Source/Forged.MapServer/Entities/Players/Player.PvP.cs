@@ -430,7 +430,7 @@ public partial class Player
         // It is possible to call this method with a null pointer, only skipping faction check.
         if (gameobject)
         {
-            var playerFaction = GetFactionTemplateEntry();
+            var playerFaction = WorldObjectCombat.GetFactionTemplateEntry();
             var faction = CliDB.FactionTemplateStorage.LookupByKey(gameobject.Faction);
 
             if (playerFaction != null && faction != null && !playerFaction.IsFriendlyTo(faction))

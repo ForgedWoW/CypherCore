@@ -24,8 +24,8 @@ public class NearestAttackableUnitInObjectRangeCheck : ICheck<Unit>
     {
         if (u.IsTargetableForAttack() &&
             _obj.Location.IsWithinDist(u, _range) &&
-            (_funit.IsInCombatWith(u) || _funit.IsHostileTo(u)) &&
-            _obj.CanSeeOrDetect(u))
+            (_funit.IsInCombatWith(u) || _funit.WorldObjectCombat.IsHostileTo(u)) &&
+            _obj.Visibility.CanSeeOrDetect(u))
         {
             _range = _obj.Location.GetDistance(u); // use found unit range as new range limit for next check
 

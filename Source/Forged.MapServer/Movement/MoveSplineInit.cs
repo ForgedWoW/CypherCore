@@ -132,7 +132,7 @@ public class MoveSplineInit
         if (transport)
         {
             packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
-            packet.SplineData.Move.VehicleSeat = unit.TransSeat;
+            packet.SplineData.Move.VehicleSeat = unit.MovementInfo.Transport.Seat;
         }
 
         unit.SendMessageToSet(packet, true);
@@ -189,7 +189,7 @@ public class MoveSplineInit
         if (transport)
         {
             packet.SplineData.Move.TransportGUID = unit.GetTransGUID();
-            packet.SplineData.Move.VehicleSeat = unit.TransSeat;
+            packet.SplineData.Move.VehicleSeat = unit.MovementInfo.Transport.Seat;
         }
 
         unit.SendMessageToSet(packet, true);

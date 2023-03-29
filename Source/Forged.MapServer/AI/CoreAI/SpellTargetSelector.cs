@@ -54,8 +54,8 @@ public class SpellTargetSelector : ICheck<Unit>
                     meleeRange = Math.Max(meleeRange, SharedConst.NominalMeleeRange);
                 }
 
-                minRange = _caster.GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
-                maxRange = _caster.GetSpellMaxRangeForTarget(target, _spellInfo);
+                minRange = _caster.WorldObjectCombat.GetSpellMinRangeForTarget(target, _spellInfo) + meleeRange;
+                maxRange = _caster.WorldObjectCombat.GetSpellMaxRangeForTarget(target, _spellInfo);
 
                 rangeMod = _caster.CombatReach;
                 rangeMod += target.CombatReach;

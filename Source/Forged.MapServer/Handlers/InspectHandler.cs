@@ -28,7 +28,7 @@ public class InspectHandler : IWorldSessionHandler
         if (!Player.Location.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
             return;
 
-        if (Player.IsValidAttackTarget(player))
+        if (Player.WorldObjectCombat.IsValidAttackTarget(player))
             return;
 
         InspectResult inspectResult = new();
@@ -101,7 +101,7 @@ public class InspectHandler : IWorldSessionHandler
         if (!Player.Location.IsWithinDistInMap(player, SharedConst.InspectDistance, false))
             return;
 
-        if (Player.IsValidAttackTarget(player))
+        if (Player.WorldObjectCombat.IsValidAttackTarget(player))
             return;
 
         player.SendRespondInspectAchievements(Player);

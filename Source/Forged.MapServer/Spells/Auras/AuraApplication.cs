@@ -272,7 +272,7 @@ public class AuraApplication
 
         // aura is casted by self or an enemy
         // one negative effect and we know aura is negative
-        if (IsSelfcasted || caster == null || !caster.IsFriendlyTo(Target))
+        if (IsSelfcasted || caster == null || !caster.WorldObjectCombat.IsFriendlyTo(Target))
         {
             var negativeFound = false;
 

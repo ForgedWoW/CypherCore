@@ -17,7 +17,7 @@ internal class AllFriendlyUnitsInGrid : ICheck<Unit>
 
     public bool Invoke(Unit u)
     {
-        if (u.IsAlive && u.IsVisible() && u.IsFriendlyTo(_unit))
+        if (u.IsAlive && u.IsVisible() && u.WorldObjectCombat.IsFriendlyTo(_unit))
             return true;
 
         return false;

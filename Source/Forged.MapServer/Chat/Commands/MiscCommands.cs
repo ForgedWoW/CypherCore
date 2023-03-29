@@ -692,22 +692,21 @@ internal class MiscCommands
 
         var cellCoord = GridDefines.ComputeCellCoord(obj.Location.X, obj.Location.Y);
         Cell cell = new(cellCoord);
-
-        obj.GetZoneAndAreaId(out var zoneId, out var areaId);
+        
         var mapId = obj.Location.MapId;
 
         var mapEntry = CliDB.MapStorage.LookupByKey(mapId);
-        var zoneEntry = CliDB.AreaTableStorage.LookupByKey(zoneId);
-        var areaEntry = CliDB.AreaTableStorage.LookupByKey(areaId);
+        var zoneEntry = CliDB.AreaTableStorage.LookupByKey(obj.Location.Zone);
+        var areaEntry = CliDB.AreaTableStorage.LookupByKey(obj.Location.Area);
 
         var zoneX = obj.Location.X;
         var zoneY = obj.Location.Y;
 
-        Global.DB2Mgr.Map2ZoneCoordinates((int)zoneId, ref zoneX, ref zoneY);
+        Global.DB2Mgr.Map2ZoneCoordinates((int)obj.Location.Zone, ref zoneX, ref zoneY);
 
         var map = obj.Location.Map;
-        var groundZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
-        var floorZ = obj.GetMapHeight(obj.Location.X, obj.Location.Y, obj.Location.Z);
+        var groundZ = obj.Location.GetMapHeight(obj.Location.X, obj.Location.Y, MapConst.MaxHeight);
+        var floorZ = obj.Location.GetMapHeight(obj.Location.X, obj.Location.Y, obj.Location.Z);
 
         var gridCoord = GridDefines.ComputeGridCoord(obj.Location.X, obj.Location.Y);
 
@@ -736,9 +735,9 @@ internal class MiscCommands
         handler.SendSysMessage(CypherStrings.MapPosition,
                                mapId,
                                (mapEntry != null ? mapEntry.MapName[handler.SessionDbcLocale] : unknown),
-                               zoneId,
+                               obj.Location.Zone,
                                (zoneEntry != null ? zoneEntry.AreaName[handler.SessionDbcLocale] : unknown),
-                               areaId,
+                               obj.Location.Area,
                                (areaEntry != null ? areaEntry.AreaName[handler.SessionDbcLocale] : unknown),
                                obj.Location.X,
                                obj.Location.Y,
@@ -750,10 +749,10 @@ internal class MiscCommands
         if (transport)
             handler.SendSysMessage(CypherStrings.TransportPosition,
                                    transport.Template.MoTransport.SpawnMap,
-                                   obj.TransOffsetX,
-                                   obj.TransOffsetY,
-                                   obj.TransOffsetZ,
-                                   obj.TransOffsetO,
+                                   obj.MovementInfo.Transport.Pos.X,
+                                   obj.MovementInfo.Transport.Pos.Y,
+                                   obj.MovementInfo.Transport.Pos.Z,
+                                   obj.MovementInfo.Transport.Pos.Orientation,
                                    transport.Entry,
                                    transport.GetName());
 

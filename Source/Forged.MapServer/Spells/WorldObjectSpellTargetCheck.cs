@@ -62,7 +62,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
                         return false;
 
                     // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-                    if (!target.IsCorpse && !Caster.IsValidAttackTarget(unitTarget, SpellInfo))
+                    if (!target.IsCorpse && !Caster.WorldObjectCombat.IsValidAttackTarget(unitTarget, SpellInfo))
                         return false;
 
                     break;
@@ -71,7 +71,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
                         return false;
 
                     // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-                    if (!target.IsCorpse && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
+                    if (!target.IsCorpse && !Caster.WorldObjectCombat.IsValidAssistTarget(unitTarget, SpellInfo))
                         return false;
 
                     break;
@@ -83,7 +83,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
                         return false;
 
                     // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-                    if (!target.IsCorpse && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
+                    if (!target.IsCorpse && !Caster.WorldObjectCombat.IsValidAssistTarget(unitTarget, SpellInfo))
                         return false;
 
                     if (!refUnit.IsInPartyWith(unitTarget))
@@ -106,7 +106,7 @@ public class WorldObjectSpellTargetCheck : ICheck<WorldObject>
                         return false;
 
                     // TODO: restore IsValidAttackTarget for corpses using corpse owner (faction, etc)
-                    if (!target.IsCorpse && !Caster.IsValidAssistTarget(unitTarget, SpellInfo))
+                    if (!target.IsCorpse && !Caster.WorldObjectCombat.IsValidAssistTarget(unitTarget, SpellInfo))
                         return false;
 
                     if (!refUnit.IsInRaidWith(unitTarget))

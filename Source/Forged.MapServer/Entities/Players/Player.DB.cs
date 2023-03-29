@@ -1129,10 +1129,10 @@ public partial class Player
             stmt.AddValue(index++, finiteAlways(Location.Y));
             stmt.AddValue(index++, finiteAlways(Location.Z));
             stmt.AddValue(index++, finiteAlways(Location.Orientation));
-            stmt.AddValue(index++, finiteAlways(TransOffsetX));
-            stmt.AddValue(index++, finiteAlways(TransOffsetY));
-            stmt.AddValue(index++, finiteAlways(TransOffsetZ));
-            stmt.AddValue(index++, finiteAlways(TransOffsetO));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.X));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.Y));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.Z));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.Orientation));
             ulong transLowGUID = 0;
             var transport = GetTransport<Transport>();
 
@@ -1284,10 +1284,10 @@ public partial class Player
                 stmt.AddValue(index++, finiteAlways(TeleportDest.Orientation));
             }
 
-            stmt.AddValue(index++, finiteAlways(TransOffsetX));
-            stmt.AddValue(index++, finiteAlways(TransOffsetY));
-            stmt.AddValue(index++, finiteAlways(TransOffsetZ));
-            stmt.AddValue(index++, finiteAlways(TransOffsetO));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.X));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.Y));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.Z));
+            stmt.AddValue(index++, finiteAlways(MovementInfo.Transport.Pos.Orientation));
             ulong transLowGUID = 0;
             var transport = GetTransport<Transport>();
 

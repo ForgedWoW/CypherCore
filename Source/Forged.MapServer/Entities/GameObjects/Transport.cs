@@ -104,7 +104,7 @@ internal class Transport : GameObjectTypeBase, ITransport
         if (!_passengers.Contains(passenger))
         {
             _passengers.Add(passenger);
-            passenger.SetTransport(this);
+            passenger.Transport = this;
             passenger.MovementInfo.Transport.Guid = GetTransportGUID();
             Log.Logger.Debug($"Object {passenger.GetName()} boarded transport {Owner.GetName()}.");
         }
@@ -114,7 +114,7 @@ internal class Transport : GameObjectTypeBase, ITransport
     {
         if (_passengers.Remove(passenger))
         {
-            passenger.SetTransport(null);
+            passenger.Transport = null;
             passenger.MovementInfo.Transport.Reset();
             Log.Logger.Debug($"Object {passenger.GetName()} removed from transport {Owner.GetName()}.");
 

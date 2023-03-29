@@ -16,7 +16,7 @@ public class SpellFactory
     private readonly SpellManager _spellManager;
     private readonly WorldObject _caster;
 
-    public SpellFactory(ClassFactory classFactory, SpellManager spellManager, WorldObject caster)
+    public SpellFactory(WorldObject caster, ClassFactory classFactory, SpellManager spellManager)
     {
         _classFactory = classFactory;
         _spellManager = spellManager;

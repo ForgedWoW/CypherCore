@@ -32,7 +32,7 @@ public class SpellClickInfo
         switch (UserType)
         {
             case SpellClickUserTypes.Friend:
-                if (!playerClicker.IsFriendlyTo(summoner))
+                if (!playerClicker.WorldObjectCombat.IsFriendlyTo(summoner))
                     return false;
 
                 break;

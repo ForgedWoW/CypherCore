@@ -1448,7 +1448,7 @@ public class CriteriaHandler
 
                 break;
             case ModifierTreeType.TargetIsOppositeFaction: // 7
-                if (refe == null || !referencePlayer.IsHostileTo(refe))
+                if (refe == null || !referencePlayer.WorldObjectCombat.IsHostileTo(refe))
                     return false;
 
                 break;
@@ -1509,9 +1509,7 @@ public class CriteriaHandler
                 break;
             case ModifierTreeType.PlayerIsInArea: // 17
             {
-                referencePlayer.GetZoneAndAreaId(out var zoneId, out var areaId);
-
-                if (zoneId != reqValue && areaId != reqValue)
+                if (referencePlayer.Location.Zone != reqValue && referencePlayer.Location.Area != reqValue)
                     return false;
 
                 break;
@@ -1520,10 +1518,8 @@ public class CriteriaHandler
             {
                 if (refe == null)
                     return false;
-
-                refe.GetZoneAndAreaId(out var zoneId, out var areaId);
-
-                if (zoneId != reqValue && areaId != reqValue)
+                
+                if (refe.Location.Zone != reqValue && refe.Location.Area != reqValue)
                     return false;
 
                 break;

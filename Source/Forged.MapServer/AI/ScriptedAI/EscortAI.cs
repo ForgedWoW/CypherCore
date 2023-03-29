@@ -463,7 +463,7 @@ public class EscortAI : ScriptedAI
             return false;
 
         //never attack friendly
-        if (Me.IsValidAssistTarget(who.Victim))
+        if (Me.WorldObjectCombat.IsValidAssistTarget(who.Victim))
             return false;
 
         //too far away and no free sight?
